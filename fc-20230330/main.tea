@@ -296,6 +296,7 @@ model ElasticConfigStatus {
   scheduledPolicies?: [
     ScheduledPolicy
   ](name='scheduledPolicies'),
+  targetInstances?: long(name='targetInstances'),
 }
 
 model EqualRule {
@@ -420,7 +421,6 @@ model GetResourceTagsOutput {
 }
 
 model GetScalingConfigStatusOutput {
-  scalingConfigStatus?: ScalingConfigStatus(name='scalingConfigStatus'),
 }
 
 model HTTPTrigger {
@@ -588,10 +588,13 @@ model ListResidentResourcePoolsOutput {
 }
 
 model ListScalingConfigStatusOutput {
+}
+
+model ListScalingConfigsOutput {
   nextToken?: string(name='nextToken'),
-  result?: [
+  scalingConfigs?: [
     ScalingConfigStatus
-  ](name='result'),
+  ](name='scalingConfigs'),
 }
 
 model ListTagResourcesOutput {
@@ -760,15 +763,17 @@ model PutProvisionConfigInput {
 }
 
 model PutScalingConfigInput {
-  residentConfig?: ResidentConfig(name='residentConfig'),
-  resourceType?: string(name='resourceType'),
+  horizontalScalingPolicies?: [
+    ScalingPolicy
+  ](name='horizontalScalingPolicies'),
+  minInstances?: long(name='minInstances'),
+  residentPoolId?: string(name='residentPoolId'),
+  scheduledPolicies?: [
+    ScheduledPolicy
+  ](name='scheduledPolicies'),
 }
 
 model PutScalingConfigOutput {
-  functionName?: string(name='functionName'),
-  qualifier?: string(name='qualifier'),
-  residentConfig?: ResidentConfig(name='residentConfig'),
-  resourceType?: string(name='resourceType'),
 }
 
 model RegexRule {
@@ -815,7 +820,9 @@ model ResidentResourceAllocation {
 
 model ResidentResourceAllocationStatus {
   lastAllocatedTime?: string(name='lastAllocatedTime'),
-  lastAllocation?: ResidentResourceAllocation(name='lastAllocation'),
+  lastAllocation?: [
+    ResidentResourceAllocation
+  ](name='lastAllocation'),
 }
 
 model ResidentResourceCapacity {
@@ -890,11 +897,18 @@ model SLSTriggerLogConfig {
 }
 
 model ScalingConfigStatus {
-  functionName?: string(name='functionName'),
-  qualifier?: string(name='qualifier'),
-  residentConfig?: ResidentConfig(name='residentConfig'),
-  resourceType?: string(name='resourceType'),
-  scalingStatus?: ScalingStatus(name='scalingStatus'),
+  currentError?: string(name='currentError'),
+  currentInstances?: long(name='currentInstances'),
+  functionArn?: string(name='functionArn'),
+  horizontalScalingPolicies?: [
+    ScalingPolicy
+  ](name='horizontalScalingPolicies'),
+  minInstances?: long(name='minInstances'),
+  residentPoolId?: string(name='residentPoolId'),
+  scheduledPolicies?: [
+    ScheduledPolicy
+  ](name='scheduledPolicies'),
+  targetInstances?: long(name='targetInstances'),
 }
 
 model ScalingPolicy {
@@ -1115,6 +1129,7 @@ model UpdateFunctionInput {
 
 model UpdateResidentResourcePoolInput {
   name?: string(name='name'),
+  useScaling?: boolean(name='useScaling'),
 }
 
 model UpdateTriggerInput {
@@ -1870,6 +1885,60 @@ async function deleteProvisionConfig(functionName: string, request: DeleteProvis
   return deleteProvisionConfigWithOptions(functionName, request, headers, runtime);
 }
 
+model DeleteScalingConfigRequest {
+  qualifier?: string(name='qualifier', example='LATEST'),
+}
+
+model DeleteScalingConfigResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+}
+
+/**
+ * @summary 删除弹性配置
+ *
+ * @param request DeleteScalingConfigRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return DeleteScalingConfigResponse
+ */
+async function deleteScalingConfigWithOptions(functionName: string, request: DeleteScalingConfigRequest, headers: map[string]string, runtime: Util.RuntimeOptions): DeleteScalingConfigResponse {
+  Util.validateModel(request);
+  var query : map[string]any = {};
+  if (!Util.isUnset(request.qualifier)) {
+    query['qualifier'] = request.qualifier;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'DeleteScalingConfig',
+    version = '2023-03-30',
+    protocol = 'HTTPS',
+    pathname = `/2023-03-30/functions/${OpenApiUtil.getEncodeParam(functionName)}/scaling-config`,
+    method = 'DELETE',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'none',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 删除弹性配置
+ *
+ * @param request DeleteScalingConfigRequest
+ * @return DeleteScalingConfigResponse
+ */
+async function deleteScalingConfig(functionName: string, request: DeleteScalingConfigRequest): DeleteScalingConfigResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return deleteScalingConfigWithOptions(functionName, request, headers, runtime);
+}
+
 model DeleteTriggerResponse = {
   headers?: map[string]string(name='headers'),
   statusCode?: int32(name='statusCode'),
@@ -2603,6 +2672,61 @@ async function getProvisionConfig(functionName: string, request: GetProvisionCon
   var runtime = new Util.RuntimeOptions{};
   var headers : map[string]string = {};
   return getProvisionConfigWithOptions(functionName, request, headers, runtime);
+}
+
+model GetScalingConfigRequest {
+  qualifier?: string(name='qualifier', example='LATEST'),
+}
+
+model GetScalingConfigResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ScalingConfigStatus  
+}
+
+/**
+ * @summary 获取弹性配置
+ *
+ * @param request GetScalingConfigRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return GetScalingConfigResponse
+ */
+async function getScalingConfigWithOptions(functionName: string, request: GetScalingConfigRequest, headers: map[string]string, runtime: Util.RuntimeOptions): GetScalingConfigResponse {
+  Util.validateModel(request);
+  var query : map[string]any = {};
+  if (!Util.isUnset(request.qualifier)) {
+    query['qualifier'] = request.qualifier;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'GetScalingConfig',
+    version = '2023-03-30',
+    protocol = 'HTTPS',
+    pathname = `/2023-03-30/functions/${OpenApiUtil.getEncodeParam(functionName)}/scaling-config`,
+    method = 'GET',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 获取弹性配置
+ *
+ * @param request GetScalingConfigRequest
+ * @return GetScalingConfigResponse
+ */
+async function getScalingConfig(functionName: string, request: GetScalingConfigRequest): GetScalingConfigResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return getScalingConfigWithOptions(functionName, request, headers, runtime);
 }
 
 model GetTriggerResponse = {
@@ -3582,6 +3706,69 @@ async function listProvisionConfigs(request: ListProvisionConfigsRequest): ListP
   return listProvisionConfigsWithOptions(request, headers, runtime);
 }
 
+model ListScalingConfigsRequest {
+  functionName?: string(name='functionName', example='my-func'),
+  limit?: int32(name='limit', example='20'),
+  nextToken?: string(name='nextToken', example='MTIzNCNhYmM='),
+}
+
+model ListScalingConfigsResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ListScalingConfigsOutput  
+}
+
+/**
+ * @summary 获取弹性配置列表
+ *
+ * @param request ListScalingConfigsRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return ListScalingConfigsResponse
+ */
+async function listScalingConfigsWithOptions(request: ListScalingConfigsRequest, headers: map[string]string, runtime: Util.RuntimeOptions): ListScalingConfigsResponse {
+  Util.validateModel(request);
+  var query : map[string]any = {};
+  if (!Util.isUnset(request.functionName)) {
+    query['functionName'] = request.functionName;
+  }
+  if (!Util.isUnset(request.limit)) {
+    query['limit'] = request.limit;
+  }
+  if (!Util.isUnset(request.nextToken)) {
+    query['nextToken'] = request.nextToken;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'ListScalingConfigs',
+    version = '2023-03-30',
+    protocol = 'HTTPS',
+    pathname = `/2023-03-30/scaling-configs`,
+    method = 'GET',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 获取弹性配置列表
+ *
+ * @param request ListScalingConfigsRequest
+ * @return ListScalingConfigsResponse
+ */
+async function listScalingConfigs(request: ListScalingConfigsRequest): ListScalingConfigsResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return listScalingConfigsWithOptions(request, headers, runtime);
+}
+
 model ListTagResourcesRequest {
   limit?: int32(name='Limit', description='The number of resources to return.', example='10'),
   nextToken?: string(name='NextToken', description='The pagination token that is used in the next request to retrieve a new page of results.', example='MTIzNCNhYmM='),
@@ -4069,6 +4256,63 @@ async function putProvisionConfig(functionName: string, request: PutProvisionCon
   var runtime = new Util.RuntimeOptions{};
   var headers : map[string]string = {};
   return putProvisionConfigWithOptions(functionName, request, headers, runtime);
+}
+
+model PutScalingConfigRequest {
+  body?: PutScalingConfigInput(name='body'),
+  qualifier?: string(name='qualifier', example='LATEST'),
+}
+
+model PutScalingConfigResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ScalingConfigStatus  
+}
+
+/**
+ * @summary 设置弹性配置
+ *
+ * @param request PutScalingConfigRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return PutScalingConfigResponse
+ */
+async function putScalingConfigWithOptions(functionName: string, request: PutScalingConfigRequest, headers: map[string]string, runtime: Util.RuntimeOptions): PutScalingConfigResponse {
+  Util.validateModel(request);
+  var query : map[string]any = {};
+  if (!Util.isUnset(request.qualifier)) {
+    query['qualifier'] = request.qualifier;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+    body = OpenApiUtil.parseToMap(request.body),
+  };
+  var params = new OpenApi.Params{
+    action = 'PutScalingConfig',
+    version = '2023-03-30',
+    protocol = 'HTTPS',
+    pathname = `/2023-03-30/functions/${OpenApiUtil.getEncodeParam(functionName)}/scaling-config`,
+    method = 'PUT',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 设置弹性配置
+ *
+ * @param request PutScalingConfigRequest
+ * @return PutScalingConfigResponse
+ */
+async function putScalingConfig(functionName: string, request: PutScalingConfigRequest): PutScalingConfigResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return putScalingConfigWithOptions(functionName, request, headers, runtime);
 }
 
 model StopAsyncTaskRequest {

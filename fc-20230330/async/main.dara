@@ -298,6 +298,7 @@ model ElasticConfigStatus {
   scheduledPolicies?: [
     ScheduledPolicy
   ](name='scheduledPolicies'),
+  targetInstances?: long(name='targetInstances'),
 }
 
 model EqualRule {
@@ -422,7 +423,6 @@ model GetResourceTagsOutput {
 }
 
 model GetScalingConfigStatusOutput {
-  scalingConfigStatus?: ScalingConfigStatus(name='scalingConfigStatus'),
 }
 
 model HTTPTrigger {
@@ -590,10 +590,13 @@ model ListResidentResourcePoolsOutput {
 }
 
 model ListScalingConfigStatusOutput {
+}
+
+model ListScalingConfigsOutput {
   nextToken?: string(name='nextToken'),
-  result?: [
+  scalingConfigs?: [
     ScalingConfigStatus
-  ](name='result'),
+  ](name='scalingConfigs'),
 }
 
 model ListTagResourcesOutput {
@@ -762,15 +765,17 @@ model PutProvisionConfigInput {
 }
 
 model PutScalingConfigInput {
-  residentConfig?: ResidentConfig(name='residentConfig'),
-  resourceType?: string(name='resourceType'),
+  horizontalScalingPolicies?: [
+    ScalingPolicy
+  ](name='horizontalScalingPolicies'),
+  minInstances?: long(name='minInstances'),
+  residentPoolId?: string(name='residentPoolId'),
+  scheduledPolicies?: [
+    ScheduledPolicy
+  ](name='scheduledPolicies'),
 }
 
 model PutScalingConfigOutput {
-  functionName?: string(name='functionName'),
-  qualifier?: string(name='qualifier'),
-  residentConfig?: ResidentConfig(name='residentConfig'),
-  resourceType?: string(name='resourceType'),
 }
 
 model RegexRule {
@@ -817,7 +822,9 @@ model ResidentResourceAllocation {
 
 model ResidentResourceAllocationStatus {
   lastAllocatedTime?: string(name='lastAllocatedTime'),
-  lastAllocation?: ResidentResourceAllocation(name='lastAllocation'),
+  lastAllocation?: [
+    ResidentResourceAllocation
+  ](name='lastAllocation'),
 }
 
 model ResidentResourceCapacity {
@@ -892,11 +899,18 @@ model SLSTriggerLogConfig {
 }
 
 model ScalingConfigStatus {
-  functionName?: string(name='functionName'),
-  qualifier?: string(name='qualifier'),
-  residentConfig?: ResidentConfig(name='residentConfig'),
-  resourceType?: string(name='resourceType'),
-  scalingStatus?: ScalingStatus(name='scalingStatus'),
+  currentError?: string(name='currentError'),
+  currentInstances?: long(name='currentInstances'),
+  functionArn?: string(name='functionArn'),
+  horizontalScalingPolicies?: [
+    ScalingPolicy
+  ](name='horizontalScalingPolicies'),
+  minInstances?: long(name='minInstances'),
+  residentPoolId?: string(name='residentPoolId'),
+  scheduledPolicies?: [
+    ScheduledPolicy
+  ](name='scheduledPolicies'),
+  targetInstances?: long(name='targetInstances'),
 }
 
 model ScalingPolicy {
@@ -1117,6 +1131,7 @@ model UpdateFunctionInput {
 
 model UpdateResidentResourcePoolInput {
   name?: string(name='name'),
+  useScaling?: boolean(name='useScaling'),
 }
 
 model UpdateTriggerInput {
@@ -1476,6 +1491,25 @@ async function deleteProvisionConfig(request: DeleteProvisionConfigRequest): Del
   return @handler.do('RESTFUL', 'DeleteProvisionConfig', 'DELETE', '/2023-03-30/functions/{functionName}/provision-config', 'none', false, 'json', request);
 }
 
+model DeleteScalingConfigRequest {
+  functionName?: string(name='functionName', example='my-func', position='Path'),
+  qualifier?: string(name='qualifier', example='LATEST', position='Query'),
+}
+
+model DeleteScalingConfigResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+}
+
+/**
+  * @param request  the request parameters of DeleteScalingConfig  DeleteScalingConfigRequest
+  * @return DeleteScalingConfigResponse
+ */
+async function deleteScalingConfig(request: DeleteScalingConfigRequest): DeleteScalingConfigResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'DeleteScalingConfig', 'DELETE', '/2023-03-30/functions/{functionName}/scaling-config', 'none', false, 'json', request);
+}
+
 model DeleteTriggerRequest {
   functionName: string(name='functionName', description='The function name.
 
@@ -1812,6 +1846,26 @@ model GetProvisionConfigResponse = {
 async function getProvisionConfig(request: GetProvisionConfigRequest): GetProvisionConfigResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RESTFUL', 'GetProvisionConfig', 'GET', '/2023-03-30/functions/{functionName}/provision-config', 'json', false, 'json', request);
+}
+
+model GetScalingConfigRequest {
+  functionName?: string(name='functionName', example='my-func', position='Path'),
+  qualifier?: string(name='qualifier', example='LATEST', position='Query'),
+}
+
+model GetScalingConfigResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ScalingConfigStatus  
+}
+
+/**
+  * @param request  the request parameters of GetScalingConfig  GetScalingConfigRequest
+  * @return GetScalingConfigResponse
+ */
+async function getScalingConfig(request: GetScalingConfigRequest): GetScalingConfigResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'GetScalingConfig', 'GET', '/2023-03-30/functions/{functionName}/scaling-config', 'json', false, 'json', request);
 }
 
 model GetTriggerRequest {
@@ -2168,6 +2222,27 @@ async function listProvisionConfigs(request: ListProvisionConfigsRequest): ListP
   return @handler.do('RESTFUL', 'ListProvisionConfigs', 'GET', '/2023-03-30/provision-configs', 'json', false, 'json', request);
 }
 
+model ListScalingConfigsRequest {
+  functionName?: string(name='functionName', example='my-func', position='Query'),
+  limit?: int32(name='limit', example='20', position='Query'),
+  nextToken?: string(name='nextToken', example='MTIzNCNhYmM=', position='Query'),
+}
+
+model ListScalingConfigsResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ListScalingConfigsOutput  
+}
+
+/**
+  * @param request  the request parameters of ListScalingConfigs  ListScalingConfigsRequest
+  * @return ListScalingConfigsResponse
+ */
+async function listScalingConfigs(request: ListScalingConfigsRequest): ListScalingConfigsResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'ListScalingConfigs', 'GET', '/2023-03-30/scaling-configs', 'json', false, 'json', request);
+}
+
 model ListTagResourcesRequest {
   limit?: int32(name='Limit', description='The number of resources to return.', example='10', position='Query'),
   nextToken?: string(name='NextToken', description='The pagination token that is used in the next request to retrieve a new page of results.', example='MTIzNCNhYmM=', position='Query'),
@@ -2367,6 +2442,27 @@ model PutProvisionConfigResponse = {
 async function putProvisionConfig(request: PutProvisionConfigRequest): PutProvisionConfigResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RESTFUL', 'PutProvisionConfig', 'PUT', '/2023-03-30/functions/{functionName}/provision-config', 'json', false, 'json', request);
+}
+
+model PutScalingConfigRequest {
+  functionName?: string(name='functionName', example='my-func', position='Path'),
+  body?: PutScalingConfigInput(name='body', position='Body'),
+  qualifier?: string(name='qualifier', example='LATEST', position='Query'),
+}
+
+model PutScalingConfigResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ScalingConfigStatus  
+}
+
+/**
+  * @param request  the request parameters of PutScalingConfig  PutScalingConfigRequest
+  * @return PutScalingConfigResponse
+ */
+async function putScalingConfig(request: PutScalingConfigRequest): PutScalingConfigResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'PutScalingConfig', 'PUT', '/2023-03-30/functions/{functionName}/scaling-config', 'json', false, 'json', request);
 }
 
 model StopAsyncTaskRequest {
