@@ -32,21 +32,45 @@ function close(): void {
 
 model AddressCompareIntlRequest {
   regionId?: string(name='RegionId', position='Host'),
-  defaultCountry: string(name='DefaultCountry', description='This parameter is required.', position='Query'),
+  defaultCountry: string(name='DefaultCountry', description='Country name
+- China
+
+This parameter is required.', example='fixed value：中国', position='Query'),
   productCode: string(name='ProductCode', description='ADD_VERIFY
 
-This parameter is required.', position='Query'),
-  text1: string(name='Text1', description='This parameter is required.', position='Query'),
-  text2: string(name='Text2', description='This parameter is required.', position='Query'),
+This parameter is required.', example='fixed value：ADD_VERIFY', position='Query'),
+  text1: string(name='Text1', description='Address 1
+
+This parameter is required.', example='杭州市阿里巴巴西溪园区', position='Query'),
+  text2: string(name='Text2', description='Address 2
+
+This parameter is required.', example='杭州市文一西路969号1号楼', position='Query'),
 }
 
 model AddressCompareIntlResponseBody = {
-  code?: string(name='Code', example='Success'),
-  message?: string(name='Message', example='success'),
-  requestId?: string(name='RequestId', example='86C40EC3-5940-5F47-995C-BFE90B70E540'),
+  code?: string(name='Code', description='Return code.', example='Success'),
+  message?: string(name='Message', description='Return message.', example='success'),
+  requestId?: string(name='RequestId', description='Request ID.', example='86C40EC3-5940-5F47-995C-BFE90B70E540'),
   result?: {
-    data?: string(name='Data'),
-  }(name='Result'),
+    data?: string(name='Data', description='The values of sameLevel include:
+- all: Exactly the same
+- prov: Provincial level
+- city: City level
+- district: District level
+- town: Town level
+- road: Road level
+- roadno: Road number
+- poi: Point of interest (e.g., residential area)
+- roomno: Room number', example='{
+     sameLevel: "city", 
+     distance:  5997.34m, -- 地址相差距离
+     same_info: {    -- 相同信息
+              prov: "浙江省",
+              city: "杭州市",
+              district: "西湖区"
+      } 
+}'),
+  }(name='Result', description='Return result.'),
 }
 
 model AddressCompareIntlResponse = {
@@ -56,6 +80,7 @@ model AddressCompareIntlResponse = {
 }
 
 /**
+  * @description API for comparing two addresses, standardizing and checking address consistency.
   * @param request  the request parameters of AddressCompareIntl  AddressCompareIntlRequest
   * @return AddressCompareIntlResponse
  */
@@ -129,27 +154,56 @@ async function addressVerifyIntl(request: AddressVerifyIntlRequest): AddressVeri
 
 model AddressVerifyV2IntlRequest {
   regionId?: string(name='RegionId', position='Host'),
-  deviceToken: string(name='DeviceToken', description='This parameter is required.', example='Tk9SSUQuMS*****************ZDNmNWY5NzQxOW1o', position='Query'),
-  mobile?: string(name='Mobile', example='1872334****', position='Query'),
-  productCode: string(name='ProductCode', description='This parameter is required.', example='ADD_VERIFY_PRO', position='Query'),
-  regCountry: string(name='RegCountry', description='This parameter is required.', position='Query'),
-  text?: string(name='Text', position='Query'),
-  verifyType?: string(name='VerifyType', example='HOME', position='Query'),
+  deviceToken: string(name='DeviceToken', description='DeviceToken obtained via the client SDK
+
+This parameter is required.', example='Tk9SSUQuMS*****************ZDNmNWY5NzQxOW1o', position='Query'),
+  mobile?: string(name='Mobile', description='Supported: Chinese mobile phone numbers', example='1872334****', position='Query'),
+  productCode: string(name='ProductCode', description='Fixed value: ADD_VERIFY_PRO
+
+This parameter is required.', example='ADD_VERIFY_PRO', position='Query'),
+  regCountry: string(name='RegCountry', description='List of prohibited countries or regions
+
+This parameter is required.', example='Currently supported: USA', position='Query'),
+  text?: string(name='Text', description='Detailed address text content', example='浙江省杭州市西湖区灯彩街云谷园区', position='Query'),
+  verifyType?: string(name='VerifyType', description='Address verification method:
+
+- **HOME**: Home address verification
+
+- **WORK**: Work address verification', example='HOME', position='Query'),
 }
 
 model AddressVerifyV2IntlResponseBody = {
-  code?: string(name='Code', example='Success'),
-  message?: string(name='Message', example='success'),
+  code?: string(name='Code', description='[Return Code](https://www.alibabacloud.com/help/zh/ekyc/latest/add-verify-pro-api?spm=a2c63.p38356.0.i4#ae60001a3804w)', example='Success'),
+  message?: string(name='Message', description='Detailed description of the return code', example='success'),
   requestId?: string(name='RequestId', description='Id of the request', example='7F971622-38C0-5F56-B2EC-315367979B4F'),
   result?: {
-    bizCode?: string(name='BizCode', example='1'),
-    detail?: string(name='Detail', example='{
+    bizCode?: string(name='BizCode', description='The verification result. Valid values:
+
+- **1**: Passed (billed)
+- **2**: Failed (The device is in a prohibited region) (billed)
+- **3**: Unknown (billed)', example='1'),
+    detail?: string(name='Detail', description='Verification details, including：
+
+- **DistanceRange**：Position rang：[DistanceRange description](https://www.alibabacloud.com/help/zh/ekyc/latest/add-verify-pro-api?spm=a2c63.p38356.0.i27#ee274c08976er)。
+> If the input phone number or address is empty, or if no carrier information is found, this field will not be returned.
+
+- **IspName**: The carrier name:
+   - **CMCC**: China Mobile
+   - **CTCC**: China Telecom
+   - **CUCC**: China Unicom
+> This parameter is not returned if the mobile phone number or address is empty in the request, or if carrier information is not found.
+
+- **PhoneStatus**: The status of the mobile phone:
+  - **0**: Abnormal
+  - **1**: Normal
+
+> This parameter is not returned if the mobile phone number is empty in the request.', example='{
   "distanceRange": "0-3000",
   "ispName": "CTCC",
   "phoneStatus": "1"
 }'),
-    transactionId?: string(name='TransactionId', example='hksb7ba1b28130d24e015d69********'),
-  }(name='Result'),
+    transactionId?: string(name='TransactionId', description='The transaction ID', example='hksb7ba1b28130d24e015d69********'),
+  }(name='Result', description='Result object'),
 }
 
 model AddressVerifyV2IntlResponse = {
@@ -422,9 +476,25 @@ model CheckVerifyLogResponseBody = {
 - Liveness detection fallback page
 - Liveness detection retry
 - Liveness detection loading', example='OCR拍摄证件页面'),
-    interruptPageEn?: string(name='InterruptPageEn'),
+    interruptPageEn?: string(name='InterruptPageEn', description='The page where the authentication process stops. Possible English values:
+
+The following are the values in an unordered list:
+
+- LOADING
+
+- GUIDE
+
+- FACE
+
+- OCR_SCAN
+
+- OCR_RESULT
+
+- NFC_INPUT
+
+- NFC_READ', example='LOADING'),
     logInfo?: [ string ](name='LogInfo', description='SDK operation log details'),
-    logInfoEn?: [ string ](name='LogInfoEn'),
+    logInfoEn?: [ string ](name='LogInfoEn', description='SDK Operation Log Details (English Version)'),
     logStatisticsInfo?: string(name='LogStatisticsInfo', description='SDK operation log statistics details', example='{
           "faceOverTimes": 0,
           "hasFaceOverTimes": false,
@@ -530,23 +600,40 @@ async function credentialRecognitionIntl(request: CredentialRecognitionIntlReque
 
 model DeepfakeDetectIntlRequest {
   regionId?: string(name='RegionId', position='Host'),
-  faceBase64?: string(name='FaceBase64', example='/9j/4AAQSkZJRgABAQAASxxxxxxx', position='Body'),
-  faceInputType?: string(name='FaceInputType', example='IMAGE', position='Query'),
-  faceUrl?: string(name='FaceUrl', example='https://cn-shanghai-aliyun-cloudauth-xxxxxx.oss-cn-shanghai.aliyuncs.com/verify/xxxxx/xxxxx.jpeg', position='Query'),
-  merchantBizId: string(name='MerchantBizId', description='This parameter is required.', example='e0c34a77f5ac40a5aa5e6ed20c******', position='Query'),
-  productCode: string(name='ProductCode', description='This parameter is required.', example='FACE_DEEPFAKE', position='Query'),
-  sceneCode?: string(name='SceneCode', example='1234567890', position='Query'),
+  faceBase64?: string(name='FaceBase64', description='Input the Base64 encoded format of the face image.
+> Choose one of FaceUrl or FaceBase64 to input.', example='/9j/4AAQSkZJRgABAQAASxxxxxxx', position='Body'),
+  faceInputType?: string(name='FaceInputType', description='Input **IMAGE**, indicating a face image.', example='IMAGE', position='Query'),
+  faceUrl?: string(name='FaceUrl', description='Input the URL address of the face image.
+> Choose one of FaceUrl or FaceBase64 to input.', example='https://cn-shanghai-aliyun-cloudauth-xxxxxx.oss-cn-shanghai.aliyuncs.com/verify/xxxxx/xxxxx.jpeg', position='Query'),
+  merchantBizId: string(name='MerchantBizId', description='A unique identifier for the merchant\\"s request, consisting of a 32-character alphanumeric combination. The first few characters are composed of a custom abbreviation defined by the merchant, the middle part can include a period of time, and the latter part can use a random or incremental sequence.
+
+This parameter is required.', example='e0c34a77f5ac40a5aa5e6ed20c******', position='Query'),
+  productCode: string(name='ProductCode', description='The product solution to be integrated. Value: **FACE_DEEPFAKE**.
+
+This parameter is required.', example='FACE_DEEPFAKE', position='Query'),
+  sceneCode?: string(name='SceneCode', description='Your custom authentication scenario ID, used for querying related records by entering this scenario ID in the console later. Supports a combination of 10 characters, including letters, numbers, or underscores.', example='1234567890', position='Query'),
 }
 
 model DeepfakeDetectIntlResponseBody = {
-  code?: string(name='Code', example='200'),
-  message?: string(name='Message', example='success'),
-  requestId?: string(name='RequestId', example='8FC3D6AC-9FED-4311-8DA7-C4BF47D9F260'),
+  code?: string(name='Code', description='Return code: 200 indicates a successful request, any other value indicates failure.', example='200'),
+  message?: string(name='Message', description='Return message.', example='success'),
+  requestId?: string(name='RequestId', description='Request ID.', example='8FC3D6AC-9FED-4311-8DA7-C4BF47D9F260'),
   resultObject?: {
-    result?: string(name='Result', example='1'),
-    riskScore?: map[string]string(name='RiskScore'),
-    riskTag?: string(name='RiskTag', example='SuspectDeepForgery,SuspectWarterMark'),
-  }(name='ResultObject'),
+    result?: string(name='Result', description='Risk result:
+
+- **0**: Low risk
+- **1**: High risk
+- **2**: Suspicious', example='1'),
+    riskScore?: map[string]string(name='RiskScore', description='Risk score map.'),
+    riskTag?: string(name='RiskTag', description='Risk tags. Multiple tags are separated by commas (,). Includes:
+
+- **SuspectDeepForgery** Suspected deep forgery  
+- **SuspectPSFace** Suspected synthetic attack  
+- **SuspectWarterMark** Suspected watermark presence  
+- **SuspectTemple** Suspected template attack  
+- **SuspectAIGCFace**  Suspected generated face  
+- **SuspectRemake**  Suspected rephotographed face', example='SuspectDeepForgery,SuspectWarterMark'),
+  }(name='ResultObject', description='Returned result information.'),
 }
 
 model DeepfakeDetectIntlResponse = {
@@ -556,6 +643,7 @@ model DeepfakeDetectIntlResponse = {
 }
 
 /**
+  * @description Input a face image and use the algorithm to detect if there is a risk of deep forgery. This includes risk scenarios such as AIGC-generated faces, deepfake face swapping, template faces, and rephotographed faces, and outputs risk labels and confidence levels.
   * @param request  the request parameters of DeepfakeDetectIntl  DeepfakeDetectIntlRequest
   * @return DeepfakeDetectIntlResponse
  */
@@ -664,27 +752,49 @@ async function docOcr(request: DocOcrRequest): DocOcrResponse {
 }
 
 model DocOcrMaxRequest {
-  docPage?: string(name='DocPage', position='Body'),
-  docType?: string(name='DocType', example='CNSSC01', position='Body'),
-  idOcrPictureBase64?: string(name='IdOcrPictureBase64', example='base64', position='Body'),
-  idOcrPictureUrl?: string(name='IdOcrPictureUrl', example='https://***********.oss-cn-hangzhou.aliyuncs.com/1669520556530-expo/default/face/20221127114236530_w3kx2e6t.jpg', position='Body'),
-  idSpoof?: string(name='IdSpoof', position='Body'),
-  idThreshold?: string(name='IdThreshold', example='0', position='Body'),
-  merchantBizId?: string(name='MerchantBizId', example='e0c34a77f5ac40a5aa5e6ed20c******', position='Body'),
-  merchantUserId?: string(name='MerchantUserId', example='123456789', position='Body'),
-  ocrModel?: string(name='OcrModel', example='0', position='Body'),
-  productCode?: string(name='ProductCode', example='ID_OCR_MAX', position='Body'),
-  prompt?: string(name='Prompt', position='Body'),
-  sceneCode?: string(name='SceneCode', example='1234567890', position='Body'),
-  spoof?: string(name='Spoof', example='F', position='Body'),
+  docPage?: string(name='DocPage', description='Page expected to be recognized
+
+- 01 (default): ID portrait.
+
+- 02: Back of the certificate', example='01', position='Body'),
+  docType?: string(name='DocType', description='Document type.
+Format: Country (region) code + document type abbreviation + page (optional)
+Note: If provided, it will automatically check if it matches the model recognition result; if empty, the document type will be returned after model recognition.', example='CNSSC01', position='Body'),
+  idOcrPictureBase64?: string(name='IdOcrPictureBase64', description='Document image, base64 encoded binary stream', example='base64', position='Body'),
+  idOcrPictureUrl?: string(name='IdOcrPictureUrl', description='Document image URL', example='https://***********.oss-cn-hangzhou.aliyuncs.com/1669520556530-expo/default/face/20221127114236530_w3kx2e6t.jpg', position='Body'),
+  idSpoof?: string(name='IdSpoof', description='Whether to turn on the certificate anti-counterfeiting function:
+
+- T: open
+
+- F (default): not turned on.', example='F', position='Body'),
+  idThreshold?: string(name='IdThreshold', description='Custom OCR quality detection threshold mode:
+
+- 0: System default
+- 1: Strict mode
+- 2: Lenient mode
+- 3 (default): Disable quality detection', example='0', position='Body'),
+  merchantBizId?: string(name='MerchantBizId', description='A unique business identifier defined by the merchant, used for subsequent problem localization and troubleshooting. It supports a combination of letters and numbers, with a maximum length of 32 characters. Please ensure its uniqueness.', example='e0c34a77f5ac40a5aa5e6ed20c******', position='Body'),
+  merchantUserId?: string(name='MerchantUserId', description='Your custom user ID or other identifiers that can uniquely identify a specific user, such as a phone number or email address. It is strongly recommended to pre-desensitize the value of this field, for example, by hashing it.', example='123456789', position='Body'),
+  ocrModel?: string(name='OcrModel', description='OCR recognition mode.
+0: General document mode.
+1: Custom mode.', example='0', position='Body'),
+  productCode?: string(name='ProductCode', description='The product solution to be integrated.
+
+Value: ID_OCR_MAX', example='ID_OCR_MAX', position='Body'),
+  prompt?: string(name='Prompt', description='Prompt (for custom mode)', example='xxxocr识别', position='Body'),
+  sceneCode?: string(name='SceneCode', description='Custom scene code, used to distinguish business scenarios, a 10-digit number.', example='1234567890', position='Body'),
+  spoof?: string(name='Spoof', description='Whether to enable document anti-counterfeiting function, default is not enabled.
+
+- T: Enable document anti-counterfeiting function.
+- F: Do not enable.', example='F', position='Body'),
 }
 
 model DocOcrMaxResponseBody = {
-  code?: string(name='Code', example='Success'),
-  message?: string(name='Message', example='success'),
-  requestId?: string(name='RequestId', description='Id of the request', example='4EB35****87EBA1'),
+  code?: string(name='Code', description='Return code', example='Success'),
+  message?: string(name='Message', description='Return message', example='success'),
+  requestId?: string(name='RequestId', description='ID of the request', example='4EB35****87EBA1'),
   result?: {
-    extIdInfo?: string(name='ExtIdInfo', example='{
+    extIdInfo?: string(name='ExtIdInfo', description='Card and document recognition result	Only returned when the interface response is successful', example='{
   "docType": "PPTW01",
   "ocrIdInfo": {
     "passportNo": "36*******",
@@ -699,10 +809,13 @@ model DocOcrMaxResponseBody = {
     "birthDate": "1988/10/04"
   }
 }'),
-    passed?: string(name='Passed', example='Y'),
-    subCode?: string(name='SubCode', example='200'),
-    transactionId?: string(name='TransactionId', example='hk573be80f944d95ac812e0*******a8'),
-  }(name='Result'),
+    passed?: string(name='Passed', description='Whether the authentication passed.
+
+- Y: Passed.
+- N: Not passed.', example='Y'),
+    subCode?: string(name='SubCode', description='Sub-result code.', example='200'),
+    transactionId?: string(name='TransactionId', description='Authentication ID', example='hk573be80f944d95ac812e0*******a8'),
+  }(name='Result', description='Return result'),
 }
 
 model DocOcrMaxResponse = {
@@ -721,37 +834,88 @@ async function docOcrMax(request: DocOcrMaxRequest): DocOcrMaxResponse {
 }
 
 model EkycVerifyRequest {
-  authorize?: string(name='Authorize', example='T', position='Query'),
-  crop?: string(name='Crop', example='F', position='Query'),
-  docName?: string(name='DocName', position='Query'),
-  docNo?: string(name='DocNo', example='410***************', position='Query'),
-  docType?: string(name='DocType', example='00000001', position='Query'),
+  authorize?: string(name='Authorize', description='Specifies whether to enable identity verification against the official database:
+
+- **T**: Enable.
+
+- **F**: Disable. (Default)
+
+> This feature is currently available only for second-generation resident ID cards of the Chinese mainland.', example='T', position='Query'),
+  crop?: string(name='Crop', description='Specifies whether to crop the face image:
+
+- **T**: Allows cropping.
+
+- **F**: Disallows cropping. (Default)', example='F', position='Query'),
+  docName?: string(name='DocName', description='The user\\"s real name.
+
+> If Authorize is set to T and the certificate type is Chinese mainland resident ID card, you must enter at least one of the following groups of information:
+> - DocName and DocNo.
+> - IdOcrPictureBase64 or IdOcrPictureUrl.', example='Zhang San', position='Query'),
+  docNo?: string(name='DocNo', description='The user\\"s certificate number.
+
+
+> If Authorize is set to **T** and the certificate type is Chinese mainland resident ID card, you must enter at least one of the following groups of information:
+> - DocName and DocNo.
+> - IdOcrPictureBase64 or IdOcrPictureUrl.', example='410***************', position='Query'),
+  docType?: string(name='DocType', description='The certificate type, which is uniquely identified by an 8-digit number. For more information, see [Certificate types](https://www.alibabacloud.com/help/en/ekyc/latest/im1u641gyesiqmbg?spm=a2c63.p38356.0.i18#Hu5TG).', example='00000001', position='Query'),
   facePictureBase64?: string(name='FacePictureBase64', position='Body'),
-  facePictureUrl?: string(name='FacePictureUrl', example='https://digital-face-prod8.oss-cn-hangzhou.aliyuncs.com/1669520556530-expo/default/face/20221127114236530_w3kx2e6t.jpg', position='Query'),
+  facePictureUrl?: string(name='FacePictureUrl', description='The URL of the portrait image. The URL must be an HTTP or HTTPS link accessible over the Internet.', example='https://digital-face-prod8.oss-cn-hangzhou.aliyuncs.com/1669520556530-expo/default/face/20221127114236530_w3kx2e6t.jpg', position='Query'),
   idOcrPictureBase64?: string(name='IdOcrPictureBase64', position='Body'),
-  idOcrPictureUrl?: string(name='IdOcrPictureUrl', example='https://digital-cardocr-prod8.oss-cn-hangzhou.aliyuncs.com/1669520556530-expo/default/face/20221127114236530_w3kx2e6t.jpg', position='Query'),
-  idThreshold?: string(name='IdThreshold', position='Query'),
-  merchantBizId?: string(name='MerchantBizId', example='e0c34a77f5ac40a5aa5e6ed20c353888', position='Query'),
-  merchantUserId?: string(name='MerchantUserId', example='123456', position='Query'),
-  productCode?: string(name='ProductCode', example='eKYC_MIN', position='Query'),
+  idOcrPictureUrl?: string(name='IdOcrPictureUrl', description='The URL of the certificate image. The URL must be an HTTP or HTTPS link accessible over the Internet.', example='https://digital-cardocr-prod8.oss-cn-hangzhou.aliyuncs.com/1669520556530-expo/default/face/20221127114236530_w3kx2e6t.jpg', position='Query'),
+  idThreshold?: string(name='IdThreshold', description='The custom OCR quality detection threshold mode:
+
+- **0**: Standard mode
+
+- **1**: Strict mode
+
+- **2**: Loose mode
+
+- **3** (default): Disables quality detection', example='0', position='Query'),
+  merchantBizId?: string(name='MerchantBizId', description='A unique business identifier that you customize. It is used to locate and troubleshoot issues. The identifier can be up to 32 characters in length and can contain letters and digits. Make sure that the identifier is unique.', example='e0c34a77f5ac40a5aa5e6ed20c353888', position='Query'),
+  merchantUserId?: string(name='MerchantUserId', description='A custom user ID or another identifier that can identify a specific user, such as a mobile number or an email address. Desensitize the value of this field in advance, for example, by hashing the value.', example='123456', position='Query'),
+  productCode?: string(name='ProductCode', description='The product solution to integrate. Set the value to **eKYC_MIN**.', example='eKYC_MIN', position='Query'),
 }
 
 model EkycVerifyResponseBody = {
-  code?: string(name='Code', example='Success'),
-  message?: string(name='Message', example='success'),
+  code?: string(name='Code', description='The [response code](https://www.alibabacloud.com/help/en/ekyc/latest/im1u641gyesiqmbg?spm=a2c63.p38356.0.i18#GiGmf).', example='Success'),
+  message?: string(name='Message', description='A detailed description of the response code.', example='success'),
   requestId?: string(name='RequestId', description='Id of the request', example='4EB356FE-BB6A-5DCC-B4C5-E8051787EBA1'),
   result?: {
-    extFaceInfo?: string(name='ExtFaceInfo', example='{
+    extFaceInfo?: string(name='ExtFaceInfo', description='Information about the face liveness verification result. For the JSON format, see the example on the right. For more information, see [ExtFaceInfo](https://www.alibabacloud.com/help/en/ekyc/latest/im1u641gyesiqmbg?spm=a2c63.p38356.0.i18#JJ40j).', example='{
 "faceAttack": "N",
 "faceComparisonScore": 52.57,
 "facePassed": "N",
 "authorityComparisonScore": 80.39
 }'),
-    extIdInfo?: string(name='ExtIdInfo'),
-    passed?: string(name='Passed', example='Y'),
-    subCode?: string(name='SubCode', example='205'),
-    transactionId?: string(name='TransactionId', example='4ab0b***cbde97'),
-  }(name='Result'),
+    extIdInfo?: string(name='ExtIdInfo', description='Information about the certificate detection result.
+
+For the JSON format, see the example on the right. For more information, see [ExtIdInfo](https://www.alibabacloud.com/help/en/ekyc/latest/im1u641gyesiqmbg?spm=a2c63.p38356.0.i18#iWOBY).', example='{
+  "ocrIdInfo": {
+    "expiryDate": "",
+    "originOfIssue": "Exit and Entry Administration of the Ministry of Public Security",
+    "englishName": "LI SI",
+    "sex": "Male",
+    "name": "Li Si",
+    "idNumber": "H11111112",
+    "issueDate": "2013-01-02",
+    "birthDate": "1990-02-21"
+  },
+  "ocrIdPassed": "N",
+  "spoofInfo": {
+    "spoofResult": "Y",
+    "spoofType": [
+      "SCREEN_REMARK"
+    ]
+  }
+}'),
+    passed?: string(name='Passed', description='The final authentication result. Valid values:
+
+- **Y**: The authentication is passed.
+
+- **N**: The authentication fails.', example='Y'),
+    subCode?: string(name='SubCode', description='A description of the authentication result. For more information, see [Error codes for ResultObject.SubCode](https://www.alibabacloud.com/help/en/ekyc/latest/im1u641gyesiqmbg?spm=a2c63.p38356.0.i18#HCGLb).', example='205'),
+    transactionId?: string(name='TransactionId', description='The transaction ID.', example='4ab0b***cbde97'),
+  }(name='Result', description='Result object'),
 }
 
 model EkycVerifyResponse = {
@@ -770,23 +934,33 @@ async function ekycVerify(request: EkycVerifyRequest): EkycVerifyResponse {
 }
 
 model FaceCompareRequest {
-  facePictureQualityCheck?: string(name='FacePictureQualityCheck', example='N', position='Query'),
-  merchantBizId?: string(name='MerchantBizId', example='e0c34a77f5ac40a5aa5e6ed20c353888', position='Query'),
+  facePictureQualityCheck?: string(name='FacePictureQualityCheck', description='是否开启传入人脸图片质量检测', example='N', position='Query'),
+  merchantBizId?: string(name='MerchantBizId', description='A custom unique business ID used for troubleshooting. It can be a combination of up to 32 letters and digits. Make sure that the ID is unique.', example='e0c34a77f5ac40a5aa5e6ed20c353888', position='Query'),
   sourceFacePicture?: string(name='SourceFacePicture', position='Body'),
-  sourceFacePictureUrl?: string(name='SourceFacePictureUrl', example='https://***face1.jpeg', position='Query'),
+  sourceFacePictureUrl?: string(name='SourceFacePictureUrl', description='The URL of the portrait photo. The URL must be an HTTP or HTTPS link accessible over the Internet.
+
+> You must specify either SourceFacePicture or SourceFacePictureUrl.', example='https://***face1.jpeg', position='Query'),
   targetFacePicture?: string(name='TargetFacePicture', position='Body'),
-  targetFacePictureUrl?: string(name='TargetFacePictureUrl', example='https://***face2.jpeg', position='Query'),
+  targetFacePictureUrl?: string(name='TargetFacePictureUrl', description='The URL of the base portrait photo. The URL must be an HTTP or HTTPS link accessible over the Internet.
+
+
+
+> You must specify either TargetFacePicture or TargetFacePictureUrl.', example='https://***face2.jpeg', position='Query'),
 }
 
 model FaceCompareResponseBody = {
-  code?: string(name='Code', example='200'),
-  message?: string(name='Message', example='success'),
+  code?: string(name='Code', description='The [response code](https://www.alibabacloud.com/help/en/ekyc/latest/facecompare?spm=a3c0i.23458820.2359477120.28.21167d3fzUmXQC#c43fd16d07mae).', example='200'),
+  message?: string(name='Message', description='The detailed description of the response code.', example='success'),
   requestId?: string(name='RequestId', description='Id of the request', example='4EB356FE-BB6A-5DCC-B4C5-E8051787EBA1'),
   result?: {
-    faceComparisonScore?: double(name='FaceComparisonScore', example='98'),
-    passed?: string(name='Passed', example='Y'),
-    transactionId?: string(name='TransactionId', example='08573be80f944d95ac812e019e3655a8'),
-  }(name='Result'),
+    faceComparisonScore?: double(name='FaceComparisonScore', description='The face comparison score. The value ranges from 0 to 100.', example='98'),
+    passed?: string(name='Passed', description='The final authentication result. Valid values:
+
+- **Y**: The authentication is passed.
+
+- **N**: The authentication failed.', example='Y'),
+    transactionId?: string(name='TransactionId', description='The transaction ID.', example='08573be80f944d95ac812e019e3655a8'),
+  }(name='Result', description='Result object'),
 }
 
 model FaceCompareResponse = {
@@ -805,22 +979,34 @@ async function faceCompare(request: FaceCompareRequest): FaceCompareResponse {
 }
 
 model FaceGuardRiskRequest {
-  bizId?: string(name='BizId', example='LMALL20******001', position='Query'),
-  deviceToken?: string(name='DeviceToken', example='Tk9SSUQuMS*****************ZDNmNWY5NzQxOW1o', position='Query'),
-  merchantBizId?: string(name='MerchantBizId', example='0c83ce0101d34eff886b1f7d1cdef67f', position='Query'),
-  productCode?: string(name='ProductCode', example='FACE_GUARD', position='Query'),
+  bizId?: string(name='BizId', description='The unique ID of the current business authentication. It is used with FACE_GUARD for verification during queries.', example='LMALL20******001', position='Query'),
+  deviceToken?: string(name='DeviceToken', description='The deviceToken obtained from the client SDK.', example='Tk9SSUQuMS*****************ZDNmNWY5NzQxOW1o', position='Query'),
+  merchantBizId?: string(name='MerchantBizId', description='A custom unique business identifier. It is used to locate and troubleshoot issues. The identifier can be a combination of letters and digits up to 32 characters long. Ensure that it is unique.', example='0c83ce0101d34eff886b1f7d1cdef67f', position='Query'),
+  productCode?: string(name='ProductCode', description='The product code. Set this to the static field **FACE_GUARD**.', example='FACE_GUARD', position='Query'),
 }
 
 model FaceGuardRiskResponseBody = {
-  code?: string(name='Code', example='Success'),
-  message?: string(name='Message', example='success'),
+  code?: string(name='Code', description='The return code. A value of Success indicates that the API operation responded successfully. For more information about how to determine the authentication result, expand the **Return codes** section below.', example='Success'),
+  message?: string(name='Message', description='A detailed description of the return code.', example='success'),
   requestId?: string(name='RequestId', description='Id of the request', example='595E387B-3F0E-5C52-BD02-8EFE63D41FD5'),
   result?: {
-    guardRiskScore?: double(name='GuardRiskScore'),
-    riskExtends?: string(name='RiskExtends'),
-    riskTags?: string(name='RiskTags', example='ROOT,VPN,HOOK'),
-    transactionId?: string(name='TransactionId', example='hk573be80f944d95ac812e019e3655a8'),
-  }(name='Result'),
+    guardRiskScore?: double(name='GuardRiskScore', description='The device risk probability predicted by the Device Guard algorithm. A higher score indicates a higher device risk.
+
+Valid values: 0 to 100.', example='0'),
+    riskExtends?: string(name='RiskExtends', description='Extended information. This is empty by default.', example='{
+  "code": 200
+  "message":"success"
+  "umid":"07d3295d3d597b425d102a7f********",
+  "sip":"198.51.100.1",
+  "durationMs" : 4968931
+  "queryCount":1,
+  "querySessionCount":1,
+  "queryUmidCount":1
+  "platform":"Android
+}'),
+    riskTags?: string(name='RiskTags', description='The device risk tags. Multiple risk tags are separated by commas (**,**). For more information about the risk tags and their meanings, expand the **Risk tags (RiskTags)** section below.', example='ROOT,VPN,HOOK'),
+    transactionId?: string(name='TransactionId', description='The transaction ID.', example='hk573be80f944d95ac812e019e3655a8'),
+  }(name='Result', description='Result object'),
 }
 
 model FaceGuardRiskResponse = {
@@ -839,32 +1025,54 @@ async function faceGuardRisk(request: FaceGuardRiskRequest): FaceGuardRiskRespon
 }
 
 model FaceLivenessRequest {
-  crop?: string(name='Crop', example='T', position='Query'),
+  crop?: string(name='Crop', description='Specifies whether to crop the facial image. The default value is F.
+
+- **T**: allows cropping.
+
+- **F**: Forbidden', example='T', position='Query'),
   facePictureBase64?: string(name='FacePictureBase64', position='Body'),
-  facePictureUrl?: string(name='FacePictureUrl', example='https://digital-face-prod8.oss-cn-hangzhou.aliyuncs.com/1669520556530-expo/default/face/20221127114236530_w3kx2e6t.jpg', position='Query'),
-  faceQuality?: string(name='FaceQuality', example='T', position='Query'),
-  merchantBizId?: string(name='MerchantBizId', example='e0c34a77f5ac40a5aa5e6ed20c353888', position='Query'),
-  merchantUserId?: string(name='MerchantUserId', example='123456789', position='Query'),
-  occlusion?: string(name='Occlusion', example='T', position='Query'),
-  productCode?: string(name='ProductCode', example='FACE_LIVENESS_MIN', position='Query'),
+  facePictureUrl?: string(name='FacePictureUrl', description='The URL of the portrait image. The URL must be an HTTP or HTTPS link accessible over the Internet.', example='https://digital-face-prod8.oss-cn-hangzhou.aliyuncs.com/1669520556530-expo/default/face/20221127114236530_w3kx2e6t.jpg', position='Query'),
+  faceQuality?: string(name='FaceQuality', description='Specifies whether to return the facial image quality score. The default value is F.
+
+- **T**: returns the score.
+
+- **F**: does not return the score.', example='T', position='Query'),
+  merchantBizId?: string(name='MerchantBizId', description='A custom unique business identifier. You can use this identifier to track and troubleshoot issues. The identifier can be up to 32 characters in length and can contain letters and digits. Make sure the identifier is unique.
+
+> Alibaba Cloud servers do not check the uniqueness of this value. For better tracking, ensure this value is unique.', example='e0c34a77f5ac40a5aa5e6ed20c353888', position='Query'),
+  merchantUserId?: string(name='MerchantUserId', description='A  custom user ID or another identifier for a specific user, such as a mobile number or email address. For security, desensitize this value in advance, for example, by hashing it.', example='123456789', position='Query'),
+  occlusion?: string(name='Occlusion', description='Specifies whether to enable occlusion detection. The default value is F.
+
+- **T**: enables the feature.
+
+- **F**: disables the feature.', example='T', position='Query'),
+  productCode?: string(name='ProductCode', description='The product solution to use. Set the value to **FACE_LIVENESS_MIN** to use the passive liveness detection API.', example='FACE_LIVENESS_MIN', position='Query'),
 }
 
 model FaceLivenessResponseBody = {
-  code?: string(name='Code', example='Success'),
-  message?: string(name='Message', example='success'),
-  requestId?: string(name='RequestId', example='42EA58CA-5DF4-55D5-82C4-5E7A40DA62BA'),
+  code?: string(name='Code', description='[The response code.](https://www.alibabacloud.com/help/en/ekyc/latest/cadqvlft48igbpdc?spm=a2c63.p38356.0.i54#3d0ed52f967g6)', example='Success'),
+  message?: string(name='Message', description='A detailed description of the response code.', example='success'),
+  requestId?: string(name='RequestId', description='The request ID.', example='42EA58CA-5DF4-55D5-82C4-5E7A40DA62BA'),
   result?: {
     extFaceInfo?: {
-      faceAge?: int32(name='FaceAge'),
-      faceAttack?: string(name='FaceAttack', example='Y'),
-      faceGender?: string(name='FaceGender'),
-      faceQualityScore?: double(name='FaceQualityScore', example='87.19'),
-      occlusionResult?: string(name='OcclusionResult', example='Y'),
-    }(name='ExtFaceInfo'),
-    passed?: string(name='Passed', example='N'),
-    subCode?: string(name='SubCode', example='205'),
-    transactionId?: string(name='TransactionId', example='08573be80f944d95ac812e019e3655a8'),
-  }(name='Result'),
+      faceAge?: int32(name='FaceAge', description='The predicted age of the person in the image. The prediction may fail, resulting in an empty value.', example='18'),
+      faceAttack?: string(name='FaceAttack', description='Indicates whether a presentation attack was detected on the captured face. Y means an attack was detected. N means no attack was detected.', example='Y'),
+      faceGender?: string(name='FaceGender', description='The predicted gender of the person in the image. The prediction may fail, resulting in an empty value.
+
+- **M**: Male
+
+- **F**: Female', example='M'),
+      faceQualityScore?: double(name='FaceQualityScore', description='Optional. The quality score of the live face. The value ranges from 0 to 100.', example='87.19'),
+      occlusionResult?: string(name='OcclusionResult', description='Optional. Indicates whether the face is occluded. Y means the face is occluded. N means the face is not occluded.', example='Y'),
+    }(name='ExtFaceInfo', description='The results of the passive liveness detection. The value is in the JSON format. For more information, see [ExtFaceInfo](https://www.alibabacloud.com/help/en/ekyc/latest/cadqvlft48igbpdc?spm=a2c63.p38356.0.i54#5ff42f7274agz).'),
+    passed?: string(name='Passed', description='The authentication result. Valid values:
+
+- Y: The authentication is passed.
+
+- N: The authentication is not passed.', example='N'),
+    subCode?: string(name='SubCode', description='The code that corresponds to the verification result. For more information, see [ResultObject.SubCode error codes](https://www.alibabacloud.com/help/en/ekyc/latest/cadqvlft48igbpdc?spm=a2c63.p38356.0.i54#5ff3e16174tl2).', example='205'),
+    transactionId?: string(name='TransactionId', description='The transaction ID.', example='08573be80f944d95ac812e019e3655a8'),
+  }(name='Result', description='Result object'),
 }
 
 model FaceLivenessResponse = {
@@ -912,25 +1120,49 @@ async function fraudResultCallBack(request: FraudResultCallBackRequest): FraudRe
 }
 
 model Id2MetaPeriodVerifyIntlRequest {
-  docName: string(name='DocName', description='This parameter is required.', position='Body'),
-  docNo: string(name='DocNo', description='This parameter is required.', example='411xxxxxxxxxxx0001', position='Body'),
-  docType: string(name='DocType', description='This parameter is required.', example='​00000001', position='Body'),
-  merchantBizId: string(name='MerchantBizId', description='This parameter is required.', example='e0c34a77f5ac40a5aa5e6ed20c35****', position='Body'),
-  merchantUserId?: string(name='MerchantUserId', example='1234567890', position='Body'),
-  productCode: string(name='ProductCode', description='This parameter is required.', example='eKYC_Date_MIN', position='Body'),
-  sceneCode?: string(name='SceneCode', example='1234567890', position='Body'),
-  validityEndDate: string(name='ValidityEndDate', description='This parameter is required.', example='20301001', position='Body'),
-  validityStartDate: string(name='ValidityStartDate', description='This parameter is required.', example='20201001', position='Body'),
+  docName: string(name='DocName', description='The user\\"s name.
+
+This parameter is required.', example='Zhang San', position='Body'),
+  docNo: string(name='DocNo', description='The user\\"s certificate number.
+
+This parameter is required.', example='411xxxxxxxxxxx0001', position='Body'),
+  docType: string(name='DocType', description='The certificate type, which is uniquely identified by an 8-digit number.
+
+Currently, only second-generation resident ID cards from the Chinese mainland are supported. Set the value to the static field: **00000001**.
+
+For more information, see [Certificate types](https://www.alibabacloud.com/help/en/ekyc/latest/im1u641gyesiqmbg?spm=a2c63.p38356.0.i13#Hu5TG).
+
+This parameter is required.', example='​00000001', position='Body'),
+  merchantBizId: string(name='MerchantBizId', description='A unique business identifier that you can customize. Use this identifier to locate and troubleshoot issues. The identifier can be up to 32 characters in length and can contain letters and digits. Make sure that the identifier is unique.
+
+This parameter is required.', example='e0c34a77f5ac40a5aa5e6ed20c35****', position='Body'),
+  merchantUserId?: string(name='MerchantUserId', description='A custom user ID or another identifier for a specific user, such as a mobile number or email address. Desensitize the value of this field in advance, for example, by hashing the value.', example='1234567890', position='Body'),
+  productCode: string(name='ProductCode', description='The product solution to integrate. Set the value to **eKYC_Date_MIN**.
+
+This parameter is required.', example='eKYC_Date_MIN', position='Body'),
+  sceneCode?: string(name='SceneCode', description='A custom authentication scenario ID. You can use this ID to query related records in the console. The ID can be up to 10 characters in length and can contain letters, digits, and underscores (_).', example='1234567890', position='Body'),
+  validityEndDate: string(name='ValidityEndDate', description='The expiration date of the ID card\\"s validity period. The format is YYYYMMDD.
+
+> If the ID card is valid for a long term, enter **long-term** for this parameter.
+
+This parameter is required.', example='20301001', position='Body'),
+  validityStartDate: string(name='ValidityStartDate', description='The start date of the validity period. The format is YYYYMMDD.
+
+This parameter is required.', example='20201001', position='Body'),
 }
 
 model Id2MetaPeriodVerifyIntlResponseBody = {
-  code?: string(name='Code', example='success'),
-  message?: string(name='Message', example='success'),
-  requestId?: string(name='RequestId', example='7B97D932-7FF5-517D-BF39-7CA1BEE3CDD9'),
+  code?: string(name='Code', description='[Return to Code](https://www.alibabacloud.com/help/en/ekyc/latest/dateverify?spm=a2c63.p38356.0.i32#22facb6ab6ui1).', example='success'),
+  message?: string(name='Message', description='A detailed description of the response code.', example='success'),
+  requestId?: string(name='RequestId', description='The request ID.', example='7B97D932-7FF5-517D-BF39-7CA1BEE3CDD9'),
   result?: {
-    passed?: string(name='Passed', example='Y'),
-    subCode?: string(name='SubCode', example='200'),
-  }(name='Result'),
+    passed?: string(name='Passed', description='The final authentication result. Valid values:
+
+- **Y**, via
+
+- **N**: The authentication is not passed.', example='Y'),
+    subCode?: string(name='SubCode', description='A description of the authentication result. For more information, see [ResultObject.SubCode error codes](https://www.alibabacloud.com/help/en/ekyc/latest/dateverify?spm=a2c63.p38356.0.i32#d1f36d445az8i).', example='200'),
+  }(name='Result', description='Return result'),
 }
 
 model Id2MetaPeriodVerifyIntlResponse = {
@@ -949,19 +1181,31 @@ async function id2MetaPeriodVerifyIntl(request: Id2MetaPeriodVerifyIntlRequest):
 }
 
 model Id2MetaVerifyIntlRequest {
-  identifyNum?: string(name='IdentifyNum', example='429001********8211', position='Query'),
-  paramType?: string(name='ParamType', example='normal', position='Query'),
-  productCode?: string(name='ProductCode', example='ID_2META', position='Query'),
-  userName?: string(name='UserName', position='Query'),
+  identifyNum?: string(name='IdentifyNum', description='The ID card number.
+
+> Only ID cards of residents in the Chinese mainland are supported.', example='429001********8211', position='Query'),
+  paramType?: string(name='ParamType', description='The parameter type.
+
+**normal**: The original value in plaintext.
+
+> Due to limitations of the authoritative data source, two-factor ID verification does not support MD5 encryption.', example='normal', position='Query'),
+  productCode?: string(name='ProductCode', description='The product plan. This is a static field. Set the value to **ID_2META**.', example='ID_2META', position='Query'),
+  userName?: string(name='UserName', description='The name.', example='Zhang*', position='Query'),
 }
 
 model Id2MetaVerifyIntlResponseBody = {
-  code?: string(name='Code', example='Success'),
-  message?: string(name='Message', example='success'),
-  requestId?: string(name='RequestId', example='EFA11401-C961-5E89-A2D3-BF9883E5CC3D'),
+  code?: string(name='Code', description='[Status codes](https://www.alibabacloud.com/help/en/ekyc/latest/ok4bwxwmu1n94o76?spm=a2c63.p38356.0.i54#942707fca218x).', example='Success'),
+  message?: string(name='Message', description='The detailed description of the response code.', example='success'),
+  requestId?: string(name='RequestId', description='The request ID.', example='EFA11401-C961-5E89-A2D3-BF9883E5CC3D'),
   result?: {
-    bizCode?: string(name='BizCode', example='1'),
-  }(name='Result'),
+    bizCode?: string(name='BizCode', description='The verification result:
+
+- 1: The information is consistent. This result is billable.
+
+- 2: The information is inconsistent. This result is billable.
+
+- 3: No record is found. This result is not billable.', example='1'),
+  }(name='Result', description='Return result'),
 }
 
 model Id2MetaVerifyIntlResponse = {
@@ -982,6 +1226,7 @@ async function id2MetaVerifyIntl(request: Id2MetaVerifyIntlRequest): Id2MetaVeri
 model InitializeRequest {
   appQualityCheck?: string(name='AppQualityCheck', position='Query'),
   authorize?: string(name='Authorize', position='Query'),
+  autoRegistration?: string(name='AutoRegistration', example='0', position='Query'),
   callbackToken?: string(name='CallbackToken', position='Query'),
   callbackUrl?: string(name='CallbackUrl', position='Query'),
   chameleonFrameEnable?: string(name='ChameleonFrameEnable', position='Query'),
@@ -997,8 +1242,11 @@ model InitializeRequest {
   documentNumber?: string(name='DocumentNumber', position='Query'),
   editOcrResult?: string(name='EditOcrResult', position='Query'),
   experienceCode?: string(name='ExperienceCode', position='Query'),
+  faceGroupCodes?: string(name='FaceGroupCodes', example='0e0c34a77f', position='Query'),
   facePictureBase64?: string(name='FacePictureBase64', position='Body'),
   facePictureUrl?: string(name='FacePictureUrl', example='***', position='Query'),
+  faceRegisterGroupCode?: string(name='FaceRegisterGroupCode', example='0e0c34a77f', position='Query'),
+  faceVerifyThreshold?: string(name='FaceVerifyThreshold', example='0.5', position='Query'),
   idFaceQuality?: string(name='IdFaceQuality', example='*', position='Query'),
   idSpoof?: string(name='IdSpoof', example='Y', position='Query'),
   idThreshold?: string(name='IdThreshold', position='Query'),
@@ -1013,14 +1261,19 @@ model InitializeRequest {
   procedurePriority?: string(name='ProcedurePriority', position='Query'),
   productCode?: string(name='ProductCode', example='eKYC', position='Query'),
   productFlow?: string(name='ProductFlow', position='Query'),
+  returnFaces?: string(name='ReturnFaces', example='1', position='Query'),
   returnUrl?: string(name='ReturnUrl', example='http*****', position='Query'),
+  saveFacePicture?: string(name='SaveFacePicture', example='0', position='Query'),
   sceneCode?: string(name='SceneCode', example='PAY**', position='Query'),
   securityLevel?: string(name='SecurityLevel', position='Query'),
   showAlbumIcon?: string(name='ShowAlbumIcon', position='Query'),
   showGuidePage?: string(name='ShowGuidePage', position='Query'),
   showOcrResult?: string(name='ShowOcrResult', position='Query'),
   styleConfig?: string(name='StyleConfig', position='Query'),
+  targetFacePicture?: string(name='TargetFacePicture', example='base64', position='Query'),
+  targetFacePictureUrl?: string(name='TargetFacePictureUrl', example='https://www.xxxxx.com/1.jpg', position='Query'),
   useNFC?: string(name='UseNFC', position='Query'),
+  verifyModel?: string(name='VerifyModel', example='0', position='Query'),
 }
 
 model InitializeResponseBody = {
@@ -1055,12 +1308,12 @@ model KeepaliveIntlRequest {
 }
 
 model KeepaliveIntlResponseBody = {
-  code?: string(name='Code', example='Success'),
-  message?: string(name='Message', example='success'),
-  requestId?: string(name='RequestId', example='4EB35****87EBA1'),
+  code?: string(name='Code', description='The [return code.](https://www.alibabacloud.com/help/en/ekyc/latest/client-connection-hold?spm=a3c0i.23458820.2359477120.1.48207d3ftEYld2#74d291dfaaxci)', example='Success'),
+  message?: string(name='Message', description='A detailed description of the Code.', example='success'),
+  requestId?: string(name='RequestId', description='The request ID.', example='4EB35****87EBA1'),
   result?: {
-    result?: string(name='Result', example='SUCCESS'),
-  }(name='Result'),
+    result?: string(name='Result', description='The result of the call.', example='SUCCESS'),
+  }(name='Result', description='Return result'),
 }
 
 model KeepaliveIntlResponse = {
@@ -1080,20 +1333,52 @@ async function keepaliveIntl(request: KeepaliveIntlRequest): KeepaliveIntlRespon
 
 model Mobile2MetaVerifyIntlRequest {
   regionId?: string(name='RegionId', position='Host'),
-  mobile: string(name='Mobile', description='This parameter is required.', example='186****1234', position='Body'),
-  paramType: string(name='ParamType', description='This parameter is required.', example='normal', position='Body'),
-  productCode: string(name='ProductCode', description='This parameter is required.', example='MOBILE_2META', position='Body'),
-  userName: string(name='UserName', description='This parameter is required.', position='Body'),
+  mobile: string(name='Mobile', description='The mobile number.
+
+>
+> - If **paramType** is set to **normal**, enter the plaintext value.
+> - If **paramType** is set to **md5**, enter the 32-bit lowercase MD5 string.
+
+This parameter is required.', example='186****1234', position='Body'),
+  paramType: string(name='ParamType', description='The parameter type:
+
+- **normal**: plaintext
+
+- **md5**: MD5-encrypted
+
+This parameter is required.', example='normal', position='Body'),
+  productCode: string(name='ProductCode', description='The product to use. Set this parameter to the static value **MOBILE_2META**.
+
+This parameter is required.', example='MOBILE_2META', position='Body'),
+  userName: string(name='UserName', description='The name.
+
+> 
+> - If **paramType** is set to **normal**, enter the plaintext value.
+> - If **paramType** is set to **md5**, enter the 32-bit lowercase MD5 string.
+
+This parameter is required.', example='Zhang*', position='Body'),
 }
 
 model Mobile2MetaVerifyIntlResponseBody = {
-  code?: string(name='Code', example='Success'),
-  message?: string(name='Message', example='success'),
+  code?: string(name='Code', description='[Status codes](https://www.alibabacloud.com/help/en/ekyc/latest/mobile-2meta?spm=a2c63.p38356.0.i13#cbf2539971xzr).', example='Success'),
+  message?: string(name='Message', description='A detailed description of the response code.', example='success'),
   requestId?: string(name='RequestId', description='Id of the request', example='4EB35****87EBA1'),
   result?: {
-    bizCode?: string(name='BizCode', example='1'),
-    ispName?: string(name='IspName', example='CMCC'),
-  }(name='Result'),
+    bizCode?: string(name='BizCode', description='The verification result:
+
+- 1: The information is consistent. (Billed)
+
+- 2: The information is inconsistent. (Billed)
+
+- 3: No record is found. (Not billed)', example='1'),
+    ispName?: string(name='IspName', description='The carrier name:
+
+- CMCC: China Mobile
+
+- CUCC: China Unicom
+
+- CTCC: China Telecom', example='CMCC'),
+  }(name='Result', description='Return result'),
 }
 
 model Mobile2MetaVerifyIntlResponse = {
