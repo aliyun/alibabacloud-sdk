@@ -174,6 +174,27 @@ model EpdInventoryConstituteItem {
   unit?: string(name='unit'),
 }
 
+model FolderItem {
+  currentLevel?: int32(name='currentLevel'),
+  docCount?: int32(name='docCount'),
+  folderDefault?: int32(name='folderDefault'),
+  folderId?: string(name='folderId'),
+  folderName?: string(name='folderName'),
+  folderNum?: int32(name='folderNum'),
+  ossDomain?: string(name='ossDomain'),
+  ossPath?: string(name='ossPath'),
+  ossUpdateBy?: string(name='ossUpdateBy'),
+  parentFolderId?: string(name='parentFolderId'),
+  resourcePath?: string(name='resourcePath'),
+  storageType?: int32(name='storageType'),
+  subFolderList?: [
+    FolderItem
+  ](name='subFolderList'),
+  syncParsingStatus?: int32(name='syncParsingStatus'),
+  syncStatus?: int32(name='syncStatus'),
+  taskId?: long(name='taskId'),
+}
+
 model GwpInventoryConstitute {
   byResourceType?: [
     GwpResourceConstitute
@@ -215,6 +236,72 @@ model OrgEmission {
   weightingCarbonEmissionData?: double(name='weightingCarbonEmissionData'),
   weightingProportion?: double(name='weightingProportion'),
   weightingRatio?: double(name='weightingRatio'),
+}
+
+model AddFolderRequest {
+  folderName?: string(name='folderName', description='This parameter is required.', example='“abc” “1234”'),
+  parentFolderId?: string(name='parentFolderId', description='This parameter is required.', example='"0" ：parent folder is root
+"4b648f6d11344f258df876cbdc24dc1f" ： folderId'),
+}
+
+model AddFolderResponseBody = {
+  data?: FolderItem(name='data'),
+  requestId?: string(name='requestId', example='E38E561C-B996-0E19-8DBC-A218AAE17FBA'),
+}
+
+model AddFolderResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: AddFolderResponseBody(name='body'),
+}
+
+/**
+ * @summary 创建文件夹
+ *
+ * @param request AddFolderRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return AddFolderResponse
+ */
+@context("addFolderWithContext")
+async function addFolderWithOptions(request: AddFolderRequest, headers: map[string]string, runtime: $RuntimeOptions): AddFolderResponse {
+  request.validate();
+  var body : map[string]any = {};
+  if (!$isNull(request.folderName)) {
+    body['folderName'] = request.folderName;
+  }
+  if (!$isNull(request.parentFolderId)) {
+    body['parentFolderId'] = request.parentFolderId;
+  }
+
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    headers = headers,
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'AddFolder',
+    version = '2022-09-23',
+    protocol = 'HTTPS',
+    pathname = `/api/v1/aidoc/folder/add`,
+    method = 'POST',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 创建文件夹
+ *
+ * @param request AddFolderRequest
+ * @return AddFolderResponse
+ */
+async function addFolder(request: AddFolderRequest): AddFolderResponse {
+  var runtime = new $RuntimeOptions{};
+  var headers : map[string]string = {};
+  return addFolderWithOptions(request, headers, runtime);
 }
 
 model AnalyzeVlRealtimeRequest {
@@ -293,6 +380,7 @@ model AnalyzeVlRealtimeResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return AnalyzeVlRealtimeResponse
  */
+@context("analyzeVlRealtimeWithContext")
 async function analyzeVlRealtimeWithOptions(request: AnalyzeVlRealtimeRequest, headers: map[string]string, runtime: $RuntimeOptions): AnalyzeVlRealtimeResponse {
   request.validate();
   var query : map[string]any = {};
@@ -446,6 +534,7 @@ model BatchSaveInstructionStatusResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return BatchSaveInstructionStatusResponse
  */
+@context("batchSaveInstructionStatusWithContext")
 async function batchSaveInstructionStatusWithOptions(request: BatchSaveInstructionStatusRequest, headers: map[string]string, runtime: $RuntimeOptions): BatchSaveInstructionStatusResponse {
   request.validate();
   var body : map[string]any = {};
@@ -525,6 +614,7 @@ model BatchUpdateSystemRunningPlanResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return BatchUpdateSystemRunningPlanResponse
  */
+@context("batchUpdateSystemRunningPlanWithContext")
 async function batchUpdateSystemRunningPlanWithOptions(request: BatchUpdateSystemRunningPlanRequest, headers: map[string]string, runtime: $RuntimeOptions): BatchUpdateSystemRunningPlanResponse {
   request.validate();
   var body : map[string]any = {};
@@ -635,6 +725,7 @@ model ChatResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return ChatResponse
  */
+@context("chatWithContext")
 async function chatWithOptions(request: ChatRequest, headers: map[string]string, runtime: $RuntimeOptions): ChatResponse {
   request.validate();
   var body : map[string]any = {};
@@ -713,6 +804,59 @@ model ChatStreamResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return ChatStreamResponse
  */
+@sse(true)
+async function chatStreamWithSSE(request: ChatStreamRequest, headers: map[string]string, runtime: $RuntimeOptions): asyncIterator[ChatStreamResponse] {
+  request.validate();
+  var body : map[string]any = {};
+  if (!$isNull(request.question)) {
+    body['question'] = request.question;
+  }
+  if (!$isNull(request.sessionId)) {
+    body['sessionId'] = request.sessionId;
+  }
+
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    headers = headers,
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'ChatStream',
+    version = '2022-09-23',
+    protocol = 'HTTPS',
+    pathname = `/api/v2/aidoc/document/chat/stream`,
+    method = 'POST',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  var sseResp = callSSEApi(params, req, runtime);
+  for(var resp : sseResp) {
+    var data = $object($JSON.parseJSON(resp.event.data));
+    yield {
+      statusCode = resp.statusCode,
+      headers = resp.headers,
+      body = {
+        ...data,
+        RequestId = resp.event.id,
+        Message = resp.event.event,
+      },
+    };
+  }
+}
+/**
+ * @summary Knowledge Base Q&A
+ *
+ * @description - The interface provides Q&A services within the scope of the selected directory in the session.
+ * - The sessionId information is obtained through GetChatSessionList.
+ * - You can also create a new session via the CreateChatSession interface.
+ *
+ * @param request ChatStreamRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return ChatStreamResponse
+ */
+@context("chatStreamWithContext")
 async function chatStreamWithOptions(request: ChatStreamRequest, headers: map[string]string, runtime: $RuntimeOptions): ChatStreamResponse {
   request.validate();
   var body : map[string]any = {};
@@ -788,6 +932,7 @@ model CreateChatSessionResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return CreateChatSessionResponse
  */
+@context("createChatSessionWithContext")
 async function createChatSessionWithOptions(request: CreateChatSessionRequest, headers: map[string]string, runtime: $RuntimeOptions): CreateChatSessionResponse {
   request.validate();
   var body : map[string]any = {};
@@ -831,6 +976,128 @@ async function createChatSession(request: CreateChatSessionRequest): CreateChatS
   return createChatSessionWithOptions(request, headers, runtime);
 }
 
+model DeleteDocumentRequest {
+  taskId?: string(name='taskId', example='74ec62f4f4e74e5882d4086a40f2b9c6'),
+}
+
+model DeleteDocumentResponseBody = {
+  data?: boolean(name='data', description='Returns true on success, false otherwise'),
+  requestId?: string(name='requestId', description='Id of the request', example='83A5A7DD-8974-5769-952E-590A97BEA34E'),
+}
+
+model DeleteDocumentResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: DeleteDocumentResponseBody(name='body'),
+}
+
+/**
+ * @summary 删除解析过的文件
+ *
+ * @param request DeleteDocumentRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return DeleteDocumentResponse
+ */
+@context("deleteDocumentWithContext")
+async function deleteDocumentWithOptions(request: DeleteDocumentRequest, headers: map[string]string, runtime: $RuntimeOptions): DeleteDocumentResponse {
+  request.validate();
+  var query : map[string]any = {};
+  if (!$isNull(request.taskId)) {
+    query['taskId'] = request.taskId;
+  }
+
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'DeleteDocument',
+    version = '2022-09-23',
+    protocol = 'HTTPS',
+    pathname = `/api/v1/aidoc/document/delete`,
+    method = 'DELETE',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 删除解析过的文件
+ *
+ * @param request DeleteDocumentRequest
+ * @return DeleteDocumentResponse
+ */
+async function deleteDocument(request: DeleteDocumentRequest): DeleteDocumentResponse {
+  var runtime = new $RuntimeOptions{};
+  var headers : map[string]string = {};
+  return deleteDocumentWithOptions(request, headers, runtime);
+}
+
+model DeleteFolderRequest {
+  folderId?: string(name='folderId', example='53c0412ea5c343dcad324137622210b3'),
+}
+
+model DeleteFolderResponseBody = {
+  data?: boolean(name='data'),
+  requestId?: string(name='requestId', example='83A5A7DD-8974-5769-952E-590A97BEA34E'),
+}
+
+model DeleteFolderResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: DeleteFolderResponseBody(name='body'),
+}
+
+/**
+ * @summary 删除文件夹
+ *
+ * @param request DeleteFolderRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return DeleteFolderResponse
+ */
+@context("deleteFolderWithContext")
+async function deleteFolderWithOptions(request: DeleteFolderRequest, headers: map[string]string, runtime: $RuntimeOptions): DeleteFolderResponse {
+  request.validate();
+  var query : map[string]any = {};
+  if (!$isNull(request.folderId)) {
+    query['folderId'] = request.folderId;
+  }
+
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'DeleteFolder',
+    version = '2022-09-23',
+    protocol = 'HTTPS',
+    pathname = `/api/v1/aidoc/folder/delete`,
+    method = 'DELETE',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 删除文件夹
+ *
+ * @param request DeleteFolderRequest
+ * @return DeleteFolderResponse
+ */
+async function deleteFolder(request: DeleteFolderRequest): DeleteFolderResponse {
+  var runtime = new $RuntimeOptions{};
+  var headers : map[string]string = {};
+  return deleteFolderWithOptions(request, headers, runtime);
+}
+
 model EditProhibitedDevicesRequest {
   factoryId?: string(name='factoryId', description='This parameter is required.', example='***'),
   hvacDeviceConfigVOList?: [ 
@@ -867,6 +1134,7 @@ model EditProhibitedDevicesResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return EditProhibitedDevicesResponse
  */
+@context("editProhibitedDevicesWithContext")
 async function editProhibitedDevicesWithOptions(request: EditProhibitedDevicesRequest, headers: map[string]string, runtime: $RuntimeOptions): EditProhibitedDevicesResponse {
   request.validate();
   var body : map[string]any = {};
@@ -946,6 +1214,7 @@ model EditUnfavorableAreaDevicesResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return EditUnfavorableAreaDevicesResponse
  */
+@context("editUnfavorableAreaDevicesWithContext")
 async function editUnfavorableAreaDevicesWithOptions(request: EditUnfavorableAreaDevicesRequest, headers: map[string]string, runtime: $RuntimeOptions): EditUnfavorableAreaDevicesResponse {
   request.validate();
   var body : map[string]any = {};
@@ -1022,6 +1291,7 @@ model GenerateResultResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return GenerateResultResponse
  */
+@context("generateResultWithContext")
 async function generateResultWithOptions(request: GenerateResultRequest, headers: map[string]string, runtime: $RuntimeOptions): GenerateResultResponse {
   request.validate();
   var body : map[string]any = {};
@@ -1118,6 +1388,7 @@ model GetAreaElecConstituteResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return GetAreaElecConstituteResponse
  */
+@context("getAreaElecConstituteWithContext")
 async function getAreaElecConstituteWithOptions(request: GetAreaElecConstituteRequest, headers: map[string]string, runtime: $RuntimeOptions): GetAreaElecConstituteResponse {
   request.validate();
   var body : map[string]any = {};
@@ -1216,6 +1487,7 @@ model GetCarbonEmissionTrendResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return GetCarbonEmissionTrendResponse
  */
+@context("getCarbonEmissionTrendWithContext")
 async function getCarbonEmissionTrendWithOptions(request: GetCarbonEmissionTrendRequest, headers: map[string]string, runtime: $RuntimeOptions): GetCarbonEmissionTrendResponse {
   request.validate();
   var body : map[string]any = {};
@@ -1285,6 +1557,7 @@ model GetChatFolderListResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return GetChatFolderListResponse
  */
+@context("getChatFolderListWithContext")
 async function getChatFolderListWithOptions(headers: map[string]string, runtime: $RuntimeOptions): GetChatFolderListResponse {
   var req = new OpenApiUtil.OpenApiRequest{ 
     headers = headers,
@@ -1353,6 +1626,7 @@ model GetChatListResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return GetChatListResponse
  */
+@context("getChatListWithContext")
 async function getChatListWithOptions(request: GetChatListRequest, headers: map[string]string, runtime: $RuntimeOptions): GetChatListResponse {
   request.validate();
   var body : map[string]any = {};
@@ -1441,6 +1715,7 @@ model GetChatSessionListResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return GetChatSessionListResponse
  */
+@context("getChatSessionListWithContext")
 async function getChatSessionListWithOptions(request: GetChatSessionListRequest, headers: map[string]string, runtime: $RuntimeOptions): GetChatSessionListResponse {
   request.validate();
   var body : map[string]any = {};
@@ -1521,6 +1796,7 @@ model GetDataItemListResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return GetDataItemListResponse
  */
+@context("getDataItemListWithContext")
 async function getDataItemListWithOptions(request: GetDataItemListRequest, headers: map[string]string, runtime: $RuntimeOptions): GetDataItemListResponse {
   request.validate();
   var body : map[string]any = {};
@@ -1630,6 +1906,7 @@ model GetDataQualityAnalysisResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return GetDataQualityAnalysisResponse
  */
+@context("getDataQualityAnalysisWithContext")
 async function getDataQualityAnalysisWithOptions(request: GetDataQualityAnalysisRequest, headers: map[string]string, runtime: $RuntimeOptions): GetDataQualityAnalysisResponse {
   request.validate();
   var body : map[string]any = {};
@@ -1733,6 +2010,7 @@ model GetDeviceInfoResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return GetDeviceInfoResponse
  */
+@context("getDeviceInfoWithContext")
 async function getDeviceInfoWithOptions(request: GetDeviceInfoRequest, headers: map[string]string, runtime: $RuntimeOptions): GetDeviceInfoResponse {
   request.validate();
   var query : map[string]any = {};
@@ -1838,6 +2116,7 @@ model GetDeviceListResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return GetDeviceListResponse
  */
+@context("getDeviceListWithContext")
 async function getDeviceListWithOptions(request: GetDeviceListRequest, headers: map[string]string, runtime: $RuntimeOptions): GetDeviceListResponse {
   request.validate();
   var query : map[string]any = {};
@@ -1907,7 +2186,7 @@ model GetDocExtractionResultResponseBody = {
         keyName?: string(name='keyName', description='Field key name', example='Tenant'),
         keyValue?: string(name='keyValue', description='Field key value', example='Alibaba Cloud XXX Co., Ltd.'),
       }
-    ](name='kvListInfo', description='Details of document parsing results'),
+    ](name='kvListInfo', description='Details of document extraction results'),
   }(name='data', description='Returned data structure.'),
   requestId?: string(name='requestId', description='ID of the request', example='83A5A7DD-8974-5769-952E-590A97BEA34E'),
 }
@@ -1928,6 +2207,7 @@ model GetDocExtractionResultResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return GetDocExtractionResultResponse
  */
+@context("getDocExtractionResultWithContext")
 async function getDocExtractionResultWithOptions(request: GetDocExtractionResultRequest, headers: map[string]string, runtime: $RuntimeOptions): GetDocExtractionResultResponse {
   request.validate();
   var body : map[string]any = {};
@@ -2000,6 +2280,7 @@ model GetDocParsingResultResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return GetDocParsingResultResponse
  */
+@context("getDocParsingResultWithContext")
 async function getDocParsingResultWithOptions(request: GetDocParsingResultRequest, headers: map[string]string, runtime: $RuntimeOptions): GetDocParsingResultResponse {
   request.validate();
   var body : map[string]any = {};
@@ -2086,6 +2367,7 @@ model GetDocumentAnalyzeResultResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return GetDocumentAnalyzeResultResponse
  */
+@context("getDocumentAnalyzeResultWithContext")
 async function getDocumentAnalyzeResultWithOptions(request: GetDocumentAnalyzeResultRequest, headers: map[string]string, runtime: $RuntimeOptions): GetDocumentAnalyzeResultResponse {
   request.validate();
   var body : map[string]any = {};
@@ -2208,6 +2490,7 @@ model GetElecConstituteResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return GetElecConstituteResponse
  */
+@context("getElecConstituteWithContext")
 async function getElecConstituteWithOptions(request: GetElecConstituteRequest, headers: map[string]string, runtime: $RuntimeOptions): GetElecConstituteResponse {
   request.validate();
   var body : map[string]any = {};
@@ -2362,6 +2645,7 @@ model GetElecTrendResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return GetElecTrendResponse
  */
+@context("getElecTrendWithContext")
 async function getElecTrendWithOptions(request: GetElecTrendRequest, headers: map[string]string, runtime: $RuntimeOptions): GetElecTrendResponse {
   request.validate();
   var body : map[string]any = {};
@@ -2436,6 +2720,7 @@ model GetEmissionSourceConstituteResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return GetEmissionSourceConstituteResponse
  */
+@context("getEmissionSourceConstituteWithContext")
 async function getEmissionSourceConstituteWithOptions(request: GetEmissionSourceConstituteRequest, headers: map[string]string, runtime: $RuntimeOptions): GetEmissionSourceConstituteResponse {
   request.validate();
   var body : map[string]any = {};
@@ -2523,6 +2808,7 @@ model GetEmissionSummaryResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return GetEmissionSummaryResponse
  */
+@context("getEmissionSummaryWithContext")
 async function getEmissionSummaryWithOptions(request: GetEmissionSummaryRequest, headers: map[string]string, runtime: $RuntimeOptions): GetEmissionSummaryResponse {
   request.validate();
   var body : map[string]any = {};
@@ -2604,6 +2890,7 @@ model GetEpdInventoryConstituteResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return GetEpdInventoryConstituteResponse
  */
+@context("getEpdInventoryConstituteWithContext")
 async function getEpdInventoryConstituteWithOptions(request: GetEpdInventoryConstituteRequest, headers: map[string]string, runtime: $RuntimeOptions): GetEpdInventoryConstituteResponse {
   request.validate();
   var body : map[string]any = {};
@@ -2693,6 +2980,7 @@ model GetEpdSummaryResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return GetEpdSummaryResponse
  */
+@context("getEpdSummaryWithContext")
 async function getEpdSummaryWithOptions(request: GetEpdSummaryRequest, headers: map[string]string, runtime: $RuntimeOptions): GetEpdSummaryResponse {
   request.validate();
   var body : map[string]any = {};
@@ -2796,6 +3084,7 @@ model GetFootprintListResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return GetFootprintListResponse
  */
+@context("getFootprintListWithContext")
 async function getFootprintListWithOptions(request: GetFootprintListRequest, headers: map[string]string, runtime: $RuntimeOptions): GetFootprintListResponse {
   request.validate();
   var body : map[string]any = {};
@@ -2884,6 +3173,7 @@ model GetGasConstituteResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return GetGasConstituteResponse
  */
+@context("getGasConstituteWithContext")
 async function getGasConstituteWithOptions(request: GetGasConstituteRequest, headers: map[string]string, runtime: $RuntimeOptions): GetGasConstituteResponse {
   request.validate();
   var body : map[string]any = {};
@@ -2976,6 +3266,7 @@ model GetGwpBenchmarkListResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return GetGwpBenchmarkListResponse
  */
+@context("getGwpBenchmarkListWithContext")
 async function getGwpBenchmarkListWithOptions(request: GetGwpBenchmarkListRequest, headers: map[string]string, runtime: $RuntimeOptions): GetGwpBenchmarkListResponse {
   request.validate();
   var body : map[string]any = {};
@@ -3065,6 +3356,7 @@ model GetGwpBenchmarkSummaryResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return GetGwpBenchmarkSummaryResponse
  */
+@context("getGwpBenchmarkSummaryWithContext")
 async function getGwpBenchmarkSummaryWithOptions(request: GetGwpBenchmarkSummaryRequest, headers: map[string]string, runtime: $RuntimeOptions): GetGwpBenchmarkSummaryResponse {
   request.validate();
   var body : map[string]any = {};
@@ -3153,6 +3445,7 @@ model GetGwpInventoryConstituteResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return GetGwpInventoryConstituteResponse
  */
+@context("getGwpInventoryConstituteWithContext")
 async function getGwpInventoryConstituteWithOptions(request: GetGwpInventoryConstituteRequest, headers: map[string]string, runtime: $RuntimeOptions): GetGwpInventoryConstituteResponse {
   request.validate();
   var body : map[string]any = {};
@@ -3243,6 +3536,7 @@ model GetGwpInventorySummaryResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return GetGwpInventorySummaryResponse
  */
+@context("getGwpInventorySummaryWithContext")
 async function getGwpInventorySummaryWithOptions(request: GetGwpInventorySummaryRequest, headers: map[string]string, runtime: $RuntimeOptions): GetGwpInventorySummaryResponse {
   request.validate();
   var body : map[string]any = {};
@@ -3348,6 +3642,7 @@ model GetInventoryListResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return GetInventoryListResponse
  */
+@context("getInventoryListWithContext")
 async function getInventoryListWithOptions(request: GetInventoryListRequest, headers: map[string]string, runtime: $RuntimeOptions): GetInventoryListResponse {
   request.validate();
   var body : map[string]any = {};
@@ -3440,6 +3735,7 @@ model GetOrgAndFactoryResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return GetOrgAndFactoryResponse
  */
+@context("getOrgAndFactoryWithContext")
 async function getOrgAndFactoryWithOptions(headers: map[string]string, runtime: $RuntimeOptions): GetOrgAndFactoryResponse {
   var req = new OpenApiUtil.OpenApiRequest{ 
     headers = headers,
@@ -3506,6 +3802,7 @@ model GetOrgConstituteResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return GetOrgConstituteResponse
  */
+@context("getOrgConstituteWithContext")
 async function getOrgConstituteWithOptions(request: GetOrgConstituteRequest, headers: map[string]string, runtime: $RuntimeOptions): GetOrgConstituteResponse {
   request.validate();
   var body : map[string]any = {};
@@ -3589,6 +3886,7 @@ model GetPcrInfoResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return GetPcrInfoResponse
  */
+@context("getPcrInfoWithContext")
 async function getPcrInfoWithOptions(request: GetPcrInfoRequest, headers: map[string]string, runtime: $RuntimeOptions): GetPcrInfoResponse {
   request.validate();
   var body : map[string]any = {};
@@ -3673,6 +3971,7 @@ model GetReductionProposalResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return GetReductionProposalResponse
  */
+@context("getReductionProposalWithContext")
 async function getReductionProposalWithOptions(request: GetReductionProposalRequest, headers: map[string]string, runtime: $RuntimeOptions): GetReductionProposalResponse {
   request.validate();
   var body : map[string]any = {};
@@ -3769,6 +4068,7 @@ model GetVLExtractionResultResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return GetVLExtractionResultResponse
  */
+@context("getVLExtractionResultWithContext")
 async function getVLExtractionResultWithOptions(request: GetVLExtractionResultRequest, headers: map[string]string, runtime: $RuntimeOptions): GetVLExtractionResultResponse {
   request.validate();
   var body : map[string]any = {};
@@ -3846,6 +4146,7 @@ model IsCompletedResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return IsCompletedResponse
  */
+@context("isCompletedWithContext")
 async function isCompletedWithOptions(request: IsCompletedRequest, headers: map[string]string, runtime: $RuntimeOptions): IsCompletedResponse {
   request.validate();
   var body : map[string]any = {};
@@ -3955,6 +4256,7 @@ model PushDeviceDataResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return PushDeviceDataResponse
  */
+@context("pushDeviceDataWithContext")
 async function pushDeviceDataWithOptions(request: PushDeviceDataRequest, headers: map[string]string, runtime: $RuntimeOptions): PushDeviceDataResponse {
   request.validate();
   var body : map[string]any = {};
@@ -4040,6 +4342,7 @@ model PushItemDataResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return PushItemDataResponse
  */
+@context("pushItemDataWithContext")
 async function pushItemDataWithOptions(request: PushItemDataRequest, headers: map[string]string, runtime: $RuntimeOptions): PushItemDataResponse {
   request.validate();
   var body : map[string]any = {};
@@ -4117,6 +4420,7 @@ model RecalculateCarbonEmissionResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return RecalculateCarbonEmissionResponse
  */
+@context("recalculateCarbonEmissionWithContext")
 async function recalculateCarbonEmissionWithOptions(request: RecalculateCarbonEmissionRequest, headers: map[string]string, runtime: $RuntimeOptions): RecalculateCarbonEmissionResponse {
   request.validate();
   var body : map[string]any = {};
@@ -4189,6 +4493,7 @@ model SendDocumentAskQuestionResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return SendDocumentAskQuestionResponse
  */
+@context("sendDocumentAskQuestionWithContext")
 async function sendDocumentAskQuestionWithOptions(request: SendDocumentAskQuestionRequest, headers: map[string]string, runtime: $RuntimeOptions): SendDocumentAskQuestionResponse {
   request.validate();
   var body : map[string]any = {};
@@ -4270,6 +4575,7 @@ model SetRunningPlanResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return SetRunningPlanResponse
  */
+@context("setRunningPlanWithContext")
 async function setRunningPlanWithOptions(request: SetRunningPlanRequest, headers: map[string]string, runtime: $RuntimeOptions): SetRunningPlanResponse {
   request.validate();
   var body : map[string]any = {};
@@ -4353,7 +4659,7 @@ async function setRunningPlan(request: SetRunningPlanRequest): SetRunningPlanRes
 }
 
 model SubmitDocExtractionTaskRequest {
-  extractType?: string(name='extractType', description='Document parsing type:
+  extractType?: string(name='extractType', description='Document extraction type:
 Supports rag and long text understanding types, default is rag.', example='rag'),
   fileName?: string(name='fileName', description='The filename must include the file type extension.
 
@@ -4364,20 +4670,20 @@ This parameter is required.', example='example.pdf'),
 
 - fileUrlObject: Use when calling the interface with local file upload, for a single document (supports up to 1000 pages, 100 MB in size)
 
-> The relationship between file parsing methods and supported document types
-> - Long text RAG: Supports pdf, doc/docx, up to 1000 pages
-> - Image processing: Supports pdf, jpg, jpeg, png, bmp
-> - Long text understanding: Supports pdf, doc/docx, xls/xlsx', example='fileUrl：https://example.com/example.pdf
+> The relationship between file extraction methods and supported document types
+> - Long text RAG: Supports pdf, doc/docx, xlsx, csv, txt, up to 1000 pages
+> - Image processing: Supports pdf, jpg, jpeg, png, bmp, jpe, tif, tiff, webp, heic
+> - Long text understanding: Supports doc/docx, xlsx, pdf, csv, txt', example='fileUrl：https://example.com/example.pdf
 fileUrlObject：FileInputStream generated from a local file'),
   folderId?: string(name='folderId', description='- A unique knowledge base folder ID, used when you need to categorize documents and control the scope of documents for online Q&A queries.
 - The folder ID needs to be obtained by logging into the intelligent document console.', example='xxxxx'),
-  templateId?: string(name='templateId', description='A unique parsing template ID used to specify the key-value pairs to be extracted from the document. You need to log in to the template management page to configure the template and obtain the corresponding template ID.
+  templateId?: string(name='templateId', description='A unique extraction template ID used to specify the content to be extracted from the document. You need to log in to the template management page to configure the template and obtain the corresponding template ID.
 
 This parameter is required.', example='572d24k0c95a'),
 }
 
 model SubmitDocExtractionTaskAdvanceRequest {
-  extractType?: string(name='extractType', description='Document parsing type:
+  extractType?: string(name='extractType', description='Document extraction type:
 Supports rag and long text understanding types, default is rag.', example='rag'),
   fileName?: string(name='fileName', description='The filename must include the file type extension.
 
@@ -4388,14 +4694,14 @@ This parameter is required.', example='example.pdf'),
 
 - fileUrlObject: Use when calling the interface with local file upload, for a single document (supports up to 1000 pages, 100 MB in size)
 
-> The relationship between file parsing methods and supported document types
-> - Long text RAG: Supports pdf, doc/docx, up to 1000 pages
-> - Image processing: Supports pdf, jpg, jpeg, png, bmp
-> - Long text understanding: Supports pdf, doc/docx, xls/xlsx', example='fileUrl：https://example.com/example.pdf
+> The relationship between file extraction methods and supported document types
+> - Long text RAG: Supports pdf, doc/docx, xlsx, csv, txt, up to 1000 pages
+> - Image processing: Supports pdf, jpg, jpeg, png, bmp, jpe, tif, tiff, webp, heic
+> - Long text understanding: Supports doc/docx, xlsx, pdf, csv, txt', example='fileUrl：https://example.com/example.pdf
 fileUrlObject：FileInputStream generated from a local file'),
   folderId?: string(name='folderId', description='- A unique knowledge base folder ID, used when you need to categorize documents and control the scope of documents for online Q&A queries.
 - The folder ID needs to be obtained by logging into the intelligent document console.', example='xxxxx'),
-  templateId?: string(name='templateId', description='A unique parsing template ID used to specify the key-value pairs to be extracted from the document. You need to log in to the template management page to configure the template and obtain the corresponding template ID.
+  templateId?: string(name='templateId', description='A unique extraction template ID used to specify the content to be extracted from the document. You need to log in to the template management page to configure the template and obtain the corresponding template ID.
 
 This parameter is required.', example='572d24k0c95a'),
 }
@@ -4424,6 +4730,7 @@ model SubmitDocExtractionTaskResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return SubmitDocExtractionTaskResponse
  */
+@context("submitDocExtractionTaskWithContext")
 async function submitDocExtractionTaskWithOptions(request: SubmitDocExtractionTaskRequest, headers: map[string]string, runtime: $RuntimeOptions): SubmitDocExtractionTaskResponse {
   request.validate();
   var query : map[string]any = {};
@@ -4623,6 +4930,7 @@ model SubmitDocParsingTaskResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return SubmitDocParsingTaskResponse
  */
+@context("submitDocParsingTaskWithContext")
 async function submitDocParsingTaskWithOptions(request: SubmitDocParsingTaskRequest, headers: map[string]string, runtime: $RuntimeOptions): SubmitDocParsingTaskResponse {
   request.validate();
   var query : map[string]any = {};
@@ -4832,6 +5140,7 @@ model SubmitDocumentAnalyzeJobResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return SubmitDocumentAnalyzeJobResponse
  */
+@context("submitDocumentAnalyzeJobWithContext")
 async function submitDocumentAnalyzeJobWithOptions(request: SubmitDocumentAnalyzeJobRequest, headers: map[string]string, runtime: $RuntimeOptions): SubmitDocumentAnalyzeJobResponse {
   request.validate();
   var query : map[string]any = {};
@@ -5030,6 +5339,7 @@ model SubmitVLExtractionTaskResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return SubmitVLExtractionTaskResponse
  */
+@context("submitVLExtractionTaskWithContext")
 async function submitVLExtractionTaskWithOptions(request: SubmitVLExtractionTaskRequest, headers: map[string]string, runtime: $RuntimeOptions): SubmitVLExtractionTaskResponse {
   request.validate();
   var query : map[string]any = {};
