@@ -443,10 +443,13 @@ model OpenStructMvDetailModel {
     }
   ](name='BaseTableInfos'),
   baseTableNames?: [[ string ]  ](name='BaseTableNames'),
+  enableDelayAlert?: int32(name='EnableDelayAlert'),
+  enableFailureAlert?: int32(name='EnableFailureAlert'),
   explicitHit?: long(name='ExplicitHit'),
   firstRefreshTime?: string(name='FirstRefreshTime'),
   implicitHit?: long(name='ImplicitHit'),
   isInactive?: boolean(name='IsInactive'),
+  latencyTolerance?: int32(name='LatencyTolerance'),
   localSize?: long(name='LocalSize'),
   queryRewriteEnabled?: boolean(name='QueryRewriteEnabled'),
   refreshInterval?: string(name='RefreshInterval'),
@@ -459,7 +462,10 @@ model OpenStructMvDetailModel {
 
 model OpenStructMvRecommendSubTaskModel {
   endTime?: string(name='EndTime'),
+  minRewriteQueryCount?: int32(name='MinRewriteQueryCount'),
+  minRewriteQueryPattern?: int32(name='MinRewriteQueryPattern'),
   scanQueriesCount?: long(name='ScanQueriesCount'),
+  slowQueryThreshold?: int32(name='SlowQueryThreshold'),
   startTime?: string(name='StartTime'),
   status?: string(name='Status'),
   subQueriesCount?: long(name='SubQueriesCount'),
@@ -470,8 +476,11 @@ model OpenStructMvRecommendTaskModel {
   createdTime?: string(name='CreatedTime'),
   description?: string(name='Description'),
   lastRunAt?: string(name='LastRunAt'),
+  minRewriteQueryCount?: int32(name='MinRewriteQueryCount'),
+  minRewriteQueryPattern?: int32(name='MinRewriteQueryPattern'),
   scanQueriesRange?: int32(name='ScanQueriesRange'),
   schedulingSettings?: string(name='SchedulingSettings'),
+  slowQueryThreshold?: int32(name='SlowQueryThreshold'),
   taskName?: string(name='TaskName'),
 }
 
@@ -821,6 +830,58 @@ model CheckSampleDataSetResponse = {
 async function checkSampleDataSet(request: CheckSampleDataSetRequest): CheckSampleDataSetResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RPC', 'CheckSampleDataSet', 'POST', '/', 'json', false, 'json', request);
+}
+
+model ConfigureResultExportRequest {
+  DBClusterId: string(name='DBClusterId', description='This parameter is required.', example='amv-wz9509beptiz****', position='Body'),
+  exportType?: string(name='ExportType', example='SLS', position='Body'),
+  ossInfo?: {
+    exportBasePath?: string(name='ExportBasePath', example='oss://testBucketName/data_result'),
+    resourceGroup?: string(name='ResourceGroup', example='aps'),
+    resultFileTtl?: int32(name='ResultFileTtl', example='10'),
+  }(name='OssInfo', shrink='json', position='Body'),
+  regionId: string(name='RegionId', description='This parameter is required.', example='cn-shenzhen', position='Body'),
+  slsInfo?: {
+    logstoreTtl?: int32(name='LogstoreTtl', example='10'),
+    resourceGroup?: string(name='ResourceGroup', example='aps'),
+    slsProject?: string(name='SlsProject', example='test-project'),
+  }(name='SlsInfo', shrink='json', position='Body'),
+}
+
+model ConfigureResultExportResponseBody = {
+  code?: string(name='Code', example='200'),
+  data?: {
+    exportType?: string(name='ExportType', example='SLS'),
+    ossInfo?: {
+      exportBasePath?: string(name='ExportBasePath', example='oss://testBucketName/data_result'),
+      resourceGroup?: string(name='ResourceGroup', example='aps'),
+      resultFileTtl?: int32(name='ResultFileTtl', example='10'),
+    }(name='OssInfo'),
+    slsInfo?: {
+      logstoreTtl?: int32(name='LogstoreTtl', example='10'),
+      resourceGroup?: string(name='ResourceGroup', example='aps'),
+      slsProject?: string(name='SlsProject', example='test-project'),
+    }(name='SlsInfo'),
+  }(name='Data'),
+  httpStatusCode?: int32(name='HttpStatusCode', example='200'),
+  message?: string(name='Message', example='OK'),
+  requestId?: string(name='RequestId', example='1AD222E9-E606-4A42-BF6D-8A4442913CEF'),
+  success?: boolean(name='Success', example='true'),
+}
+
+model ConfigureResultExportResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ConfigureResultExportResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of ConfigureResultExport  ConfigureResultExportRequest
+  * @return ConfigureResultExportResponse
+ */
+async function configureResultExport(request: ConfigureResultExportRequest): ConfigureResultExportResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'ConfigureResultExport', 'POST', '/', 'json', true, 'form', request);
 }
 
 model CreateAPSJobRequest {
@@ -1300,6 +1361,34 @@ async function createApsSlsADBJob(request: CreateApsSlsADBJobRequest): CreateAps
   return @handler.do('RPC', 'CreateApsSlsADBJob', 'POST', '/', 'json', true, 'form', request);
 }
 
+model CreateBackupRequest {
+  DBClusterId: string(name='DBClusterId', description='This parameter is required.', example='amv-wz9or2xawpnc****', position='Query'),
+  ownerAccount?: string(name='OwnerAccount', position='Query'),
+  ownerId?: long(name='OwnerId', position='Query'),
+  regionId?: string(name='RegionId', example='cn-hangzhou', position='Query'),
+  resourceOwnerAccount?: string(name='ResourceOwnerAccount', position='Query'),
+  resourceOwnerId?: long(name='ResourceOwnerId', position='Query'),
+}
+
+model CreateBackupResponseBody = {
+  requestId?: string(name='RequestId', description='Id of the request', example='421794A3-72A5-5D27-9E8B-A75A4C50****'),
+}
+
+model CreateBackupResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: CreateBackupResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of CreateBackup  CreateBackupRequest
+  * @return CreateBackupResponse
+ */
+async function createBackup(request: CreateBackupRequest): CreateBackupResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'CreateBackup', 'POST', '/', 'json', false, 'json', request);
+}
+
 model CreateDBClusterRequest {
   backupSetId?: string(name='BackupSetId', description='The ID of the backup set that you want to use to restore data.
 
@@ -1323,6 +1412,7 @@ This parameter is required.', example='5.0', position='Query'),
 
 *   **true** (default)
 *   **false**', example='true', position='Query'),
+  enableSSL?: boolean(name='EnableSSL', position='Query'),
   kmsId?: string(name='KmsId', description='The ID of the key that is used to encrypt disk data.
 
 >  This parameter must be specified only when disk encryption is enabled.', example='e1935511-cf88-1123-a0f8-1be8d251****', position='Query'),
@@ -7086,6 +7176,48 @@ model DescribeResourceGroupSpecResponse = {
 async function describeResourceGroupSpec(request: DescribeResourceGroupSpecRequest): DescribeResourceGroupSpecResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RPC', 'DescribeResourceGroupSpec', 'POST', '/', 'json', false, 'json', request);
+}
+
+model DescribeResultExportConfigRequest {
+  DBClusterId: string(name='DBClusterId', description='This parameter is required.', example='amv-8vbf80pjcz*****', position='Query'),
+  exportType?: string(name='ExportType', example='SLS', position='Query'),
+  regionId: string(name='RegionId', description='This parameter is required.', example='cn-shenzhen', position='Query'),
+}
+
+model DescribeResultExportConfigResponseBody = {
+  code?: string(name='Code', example='InvalidInput'),
+  data?: {
+    exportType?: string(name='ExportType', example='OSS'),
+    ossInfo?: {
+      exportBasePath?: string(name='ExportBasePath', example='oss://testBucketName/data_result'),
+      resourceGroup?: string(name='ResourceGroup', example='aps'),
+      resultFileTtl?: int32(name='ResultFileTtl', example='10'),
+    }(name='OssInfo'),
+    slsInfo?: {
+      logstoreTtl?: int32(name='LogstoreTtl', example='10'),
+      resourceGroup?: string(name='ResourceGroup', example='aps'),
+      slsProject?: string(name='SlsProject', example='test-project'),
+    }(name='SlsInfo'),
+  }(name='Data'),
+  httpStatusCode?: int32(name='HttpStatusCode', example='200'),
+  message?: string(name='Message', example='OK'),
+  requestId?: string(name='RequestId', example='1AD222E9-E606-4A42-BF6D-8A4442913CEF'),
+  success?: boolean(name='Success', example='true'),
+}
+
+model DescribeResultExportConfigResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: DescribeResultExportConfigResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of DescribeResultExportConfig  DescribeResultExportConfigRequest
+  * @return DescribeResultExportConfigResponse
+ */
+async function describeResultExportConfig(request: DescribeResultExportConfigRequest): DescribeResultExportConfigResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'DescribeResultExportConfig', 'POST', '/', 'json', false, 'json', request);
 }
 
 model DescribeSQLPatternsRequest {

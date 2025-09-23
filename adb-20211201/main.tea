@@ -443,10 +443,13 @@ model OpenStructMvDetailModel {
     }
   ](name='BaseTableInfos'),
   baseTableNames?: [[ string ]  ](name='BaseTableNames'),
+  enableDelayAlert?: int32(name='EnableDelayAlert'),
+  enableFailureAlert?: int32(name='EnableFailureAlert'),
   explicitHit?: long(name='ExplicitHit'),
   firstRefreshTime?: string(name='FirstRefreshTime'),
   implicitHit?: long(name='ImplicitHit'),
   isInactive?: boolean(name='IsInactive'),
+  latencyTolerance?: int32(name='LatencyTolerance'),
   localSize?: long(name='LocalSize'),
   queryRewriteEnabled?: boolean(name='QueryRewriteEnabled'),
   refreshInterval?: string(name='RefreshInterval'),
@@ -459,7 +462,10 @@ model OpenStructMvDetailModel {
 
 model OpenStructMvRecommendSubTaskModel {
   endTime?: string(name='EndTime'),
+  minRewriteQueryCount?: int32(name='MinRewriteQueryCount'),
+  minRewriteQueryPattern?: int32(name='MinRewriteQueryPattern'),
   scanQueriesCount?: long(name='ScanQueriesCount'),
+  slowQueryThreshold?: int32(name='SlowQueryThreshold'),
   startTime?: string(name='StartTime'),
   status?: string(name='Status'),
   subQueriesCount?: long(name='SubQueriesCount'),
@@ -470,8 +476,11 @@ model OpenStructMvRecommendTaskModel {
   createdTime?: string(name='CreatedTime'),
   description?: string(name='Description'),
   lastRunAt?: string(name='LastRunAt'),
+  minRewriteQueryCount?: int32(name='MinRewriteQueryCount'),
+  minRewriteQueryPattern?: int32(name='MinRewriteQueryPattern'),
   scanQueriesRange?: int32(name='ScanQueriesRange'),
   schedulingSettings?: string(name='SchedulingSettings'),
+  slowQueryThreshold?: int32(name='SlowQueryThreshold'),
   taskName?: string(name='TaskName'),
 }
 
@@ -1221,6 +1230,118 @@ async function checkSampleDataSetWithOptions(request: CheckSampleDataSetRequest,
 async function checkSampleDataSet(request: CheckSampleDataSetRequest): CheckSampleDataSetResponse {
   var runtime = new Util.RuntimeOptions{};
   return checkSampleDataSetWithOptions(request, runtime);
+}
+
+model ConfigureResultExportRequest {
+  DBClusterId?: string(name='DBClusterId', description='This parameter is required.', example='amv-wz9509beptiz****'),
+  exportType?: string(name='ExportType', example='SLS'),
+  ossInfo?: {
+    exportBasePath?: string(name='ExportBasePath', example='oss://testBucketName/data_result'),
+    resourceGroup?: string(name='ResourceGroup', example='aps'),
+    resultFileTtl?: int32(name='ResultFileTtl', example='10'),
+  }(name='OssInfo'),
+  regionId?: string(name='RegionId', description='This parameter is required.', example='cn-shenzhen'),
+  slsInfo?: {
+    logstoreTtl?: int32(name='LogstoreTtl', example='10'),
+    resourceGroup?: string(name='ResourceGroup', example='aps'),
+    slsProject?: string(name='SlsProject', example='test-project'),
+  }(name='SlsInfo'),
+}
+
+model ConfigureResultExportShrinkRequest {
+  DBClusterId?: string(name='DBClusterId', description='This parameter is required.', example='amv-wz9509beptiz****'),
+  exportType?: string(name='ExportType', example='SLS'),
+  ossInfoShrink?: string(name='OssInfo'),
+  regionId?: string(name='RegionId', description='This parameter is required.', example='cn-shenzhen'),
+  slsInfoShrink?: string(name='SlsInfo'),
+}
+
+model ConfigureResultExportResponseBody = {
+  code?: string(name='Code', example='200'),
+  data?: {
+    exportType?: string(name='ExportType', example='SLS'),
+    ossInfo?: {
+      exportBasePath?: string(name='ExportBasePath', example='oss://testBucketName/data_result'),
+      resourceGroup?: string(name='ResourceGroup', example='aps'),
+      resultFileTtl?: int32(name='ResultFileTtl', example='10'),
+    }(name='OssInfo'),
+    slsInfo?: {
+      logstoreTtl?: int32(name='LogstoreTtl', example='10'),
+      resourceGroup?: string(name='ResourceGroup', example='aps'),
+      slsProject?: string(name='SlsProject', example='test-project'),
+    }(name='SlsInfo'),
+  }(name='Data'),
+  httpStatusCode?: int32(name='HttpStatusCode', example='200'),
+  message?: string(name='Message', example='OK'),
+  requestId?: string(name='RequestId', example='1AD222E9-E606-4A42-BF6D-8A4442913CEF'),
+  success?: boolean(name='Success', example='true'),
+}
+
+model ConfigureResultExportResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ConfigureResultExportResponseBody(name='body'),
+}
+
+/**
+ * @summary 配置导出的SLS 或者OSS 信息，实例级别唯一，遵循一次配置多次使用的原则
+ *
+ * @param tmpReq ConfigureResultExportRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return ConfigureResultExportResponse
+ */
+async function configureResultExportWithOptions(tmpReq: ConfigureResultExportRequest, runtime: Util.RuntimeOptions): ConfigureResultExportResponse {
+  Util.validateModel(tmpReq);
+  var request = new ConfigureResultExportShrinkRequest{};
+  OpenApiUtil.convert(tmpReq, request);
+  if (!Util.isUnset(tmpReq.ossInfo)) {
+    request.ossInfoShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.ossInfo, 'OssInfo', 'json');
+  }
+  if (!Util.isUnset(tmpReq.slsInfo)) {
+    request.slsInfoShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.slsInfo, 'SlsInfo', 'json');
+  }
+  var body : map[string]any = {};
+  if (!Util.isUnset(request.DBClusterId)) {
+    body['DBClusterId'] = request.DBClusterId;
+  }
+  if (!Util.isUnset(request.exportType)) {
+    body['ExportType'] = request.exportType;
+  }
+  if (!Util.isUnset(request.ossInfoShrink)) {
+    body['OssInfo'] = request.ossInfoShrink;
+  }
+  if (!Util.isUnset(request.regionId)) {
+    body['RegionId'] = request.regionId;
+  }
+  if (!Util.isUnset(request.slsInfoShrink)) {
+    body['SlsInfo'] = request.slsInfoShrink;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApi.Params{
+    action = 'ConfigureResultExport',
+    version = '2021-12-01',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 配置导出的SLS 或者OSS 信息，实例级别唯一，遵循一次配置多次使用的原则
+ *
+ * @param request ConfigureResultExportRequest
+ * @return ConfigureResultExportResponse
+ */
+async function configureResultExport(request: ConfigureResultExportRequest): ConfigureResultExportResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return configureResultExportWithOptions(request, runtime);
 }
 
 model CreateAPSJobRequest {
@@ -2400,6 +2521,81 @@ async function createApsSlsADBJob(request: CreateApsSlsADBJobRequest): CreateAps
   return createApsSlsADBJobWithOptions(request, runtime);
 }
 
+model CreateBackupRequest {
+  DBClusterId?: string(name='DBClusterId', description='This parameter is required.', example='amv-wz9or2xawpnc****'),
+  ownerAccount?: string(name='OwnerAccount'),
+  ownerId?: long(name='OwnerId'),
+  regionId?: string(name='RegionId', example='cn-hangzhou'),
+  resourceOwnerAccount?: string(name='ResourceOwnerAccount'),
+  resourceOwnerId?: long(name='ResourceOwnerId'),
+}
+
+model CreateBackupResponseBody = {
+  requestId?: string(name='RequestId', description='Id of the request', example='421794A3-72A5-5D27-9E8B-A75A4C50****'),
+}
+
+model CreateBackupResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: CreateBackupResponseBody(name='body'),
+}
+
+/**
+ * @summary 手动创建备份集
+ *
+ * @param request CreateBackupRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return CreateBackupResponse
+ */
+async function createBackupWithOptions(request: CreateBackupRequest, runtime: Util.RuntimeOptions): CreateBackupResponse {
+  Util.validateModel(request);
+  var query = {};
+  if (!Util.isUnset(request.DBClusterId)) {
+    query['DBClusterId'] = request.DBClusterId;
+  }
+  if (!Util.isUnset(request.ownerAccount)) {
+    query['OwnerAccount'] = request.ownerAccount;
+  }
+  if (!Util.isUnset(request.ownerId)) {
+    query['OwnerId'] = request.ownerId;
+  }
+  if (!Util.isUnset(request.regionId)) {
+    query['RegionId'] = request.regionId;
+  }
+  if (!Util.isUnset(request.resourceOwnerAccount)) {
+    query['ResourceOwnerAccount'] = request.resourceOwnerAccount;
+  }
+  if (!Util.isUnset(request.resourceOwnerId)) {
+    query['ResourceOwnerId'] = request.resourceOwnerId;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'CreateBackup',
+    version = '2021-12-01',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 手动创建备份集
+ *
+ * @param request CreateBackupRequest
+ * @return CreateBackupResponse
+ */
+async function createBackup(request: CreateBackupRequest): CreateBackupResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return createBackupWithOptions(request, runtime);
+}
+
 model CreateDBClusterRequest {
   backupSetId?: string(name='BackupSetId', description='The ID of the backup set that you want to use to restore data.
 
@@ -2423,6 +2619,7 @@ This parameter is required.', example='5.0'),
 
 *   **true** (default)
 *   **false**', example='true'),
+  enableSSL?: boolean(name='EnableSSL'),
   kmsId?: string(name='KmsId', description='The ID of the key that is used to encrypt disk data.
 
 >  This parameter must be specified only when disk encryption is enabled.', example='e1935511-cf88-1123-a0f8-1be8d251****'),
@@ -2554,6 +2751,9 @@ async function createDBClusterWithOptions(request: CreateDBClusterRequest, runti
   }
   if (!Util.isUnset(request.enableDefaultResourcePool)) {
     query['EnableDefaultResourcePool'] = request.enableDefaultResourcePool;
+  }
+  if (!Util.isUnset(request.enableSSL)) {
+    query['EnableSSL'] = request.enableSSL;
   }
   if (!Util.isUnset(request.kmsId)) {
     query['KmsId'] = request.kmsId;
@@ -12688,6 +12888,86 @@ async function describeResourceGroupSpecWithOptions(request: DescribeResourceGro
 async function describeResourceGroupSpec(request: DescribeResourceGroupSpecRequest): DescribeResourceGroupSpecResponse {
   var runtime = new Util.RuntimeOptions{};
   return describeResourceGroupSpecWithOptions(request, runtime);
+}
+
+model DescribeResultExportConfigRequest {
+  DBClusterId?: string(name='DBClusterId', description='This parameter is required.', example='amv-8vbf80pjcz*****'),
+  exportType?: string(name='ExportType', example='SLS'),
+  regionId?: string(name='RegionId', description='This parameter is required.', example='cn-shenzhen'),
+}
+
+model DescribeResultExportConfigResponseBody = {
+  code?: string(name='Code', example='InvalidInput'),
+  data?: {
+    exportType?: string(name='ExportType', example='OSS'),
+    ossInfo?: {
+      exportBasePath?: string(name='ExportBasePath', example='oss://testBucketName/data_result'),
+      resourceGroup?: string(name='ResourceGroup', example='aps'),
+      resultFileTtl?: int32(name='ResultFileTtl', example='10'),
+    }(name='OssInfo'),
+    slsInfo?: {
+      logstoreTtl?: int32(name='LogstoreTtl', example='10'),
+      resourceGroup?: string(name='ResourceGroup', example='aps'),
+      slsProject?: string(name='SlsProject', example='test-project'),
+    }(name='SlsInfo'),
+  }(name='Data'),
+  httpStatusCode?: int32(name='HttpStatusCode', example='200'),
+  message?: string(name='Message', example='OK'),
+  requestId?: string(name='RequestId', example='1AD222E9-E606-4A42-BF6D-8A4442913CEF'),
+  success?: boolean(name='Success', example='true'),
+}
+
+model DescribeResultExportConfigResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: DescribeResultExportConfigResponseBody(name='body'),
+}
+
+/**
+ * @summary 获取用户配置的导出信息
+ *
+ * @param request DescribeResultExportConfigRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return DescribeResultExportConfigResponse
+ */
+async function describeResultExportConfigWithOptions(request: DescribeResultExportConfigRequest, runtime: Util.RuntimeOptions): DescribeResultExportConfigResponse {
+  Util.validateModel(request);
+  var query = {};
+  if (!Util.isUnset(request.DBClusterId)) {
+    query['DBClusterId'] = request.DBClusterId;
+  }
+  if (!Util.isUnset(request.exportType)) {
+    query['ExportType'] = request.exportType;
+  }
+  if (!Util.isUnset(request.regionId)) {
+    query['RegionId'] = request.regionId;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'DescribeResultExportConfig',
+    version = '2021-12-01',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 获取用户配置的导出信息
+ *
+ * @param request DescribeResultExportConfigRequest
+ * @return DescribeResultExportConfigResponse
+ */
+async function describeResultExportConfig(request: DescribeResultExportConfigRequest): DescribeResultExportConfigResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return describeResultExportConfigWithOptions(request, runtime);
 }
 
 model DescribeSQLPatternsRequest {
