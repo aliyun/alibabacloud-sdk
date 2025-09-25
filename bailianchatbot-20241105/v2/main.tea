@@ -58,6 +58,70 @@ model SseChatResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return SseChatResponse
  */
+@sse(true)
+async function sseChatWithSSE(request: SseChatRequest, runtime: $RuntimeOptions): asyncIterator[SseChatResponse] {
+  request.validate();
+  var query = {};
+  if (!$isNull(request.appId)) {
+    query['AppId'] = request.appId;
+  }
+  if (!$isNull(request.command)) {
+    query['Command'] = request.command;
+  }
+  if (!$isNull(request.senderId)) {
+    query['SenderId'] = request.senderId;
+  }
+  if (!$isNull(request.senderNick)) {
+    query['SenderNick'] = request.senderNick;
+  }
+  if (!$isNull(request.sessionId)) {
+    query['SessionId'] = request.sessionId;
+  }
+  if (!$isNull(request.utterance)) {
+    query['Utterance'] = request.utterance;
+  }
+  if (!$isNull(request.vendorParam)) {
+    query['VendorParam'] = request.vendorParam;
+  }
+  if (!$isNull(request.workspaceId)) {
+    query['WorkspaceId'] = request.workspaceId;
+  }
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'SseChat',
+    version = '2024-11-05',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  var sseResp = callSSEApi(params, req, runtime);
+  for(var resp : sseResp) {
+    var data = $object($JSON.parseJSON(resp.event.data));
+    yield {
+      statusCode = resp.statusCode,
+      headers = resp.headers,
+      body = {
+        ...data,
+        RequestId = resp.event.id,
+        Message = resp.event.event,
+      },
+    };
+  }
+}
+/**
+ * @summary SSE问答接口
+ *
+ * @param request SseChatRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return SseChatResponse
+ */
+@context("sseChatWithContext")
 async function sseChatWithOptions(request: SseChatRequest, runtime: $RuntimeOptions): SseChatResponse {
   request.validate();
   var query = {};
@@ -99,11 +163,7 @@ async function sseChatWithOptions(request: SseChatRequest, runtime: $RuntimeOpti
     reqBodyType = 'formData',
     bodyType = 'json',
   };
-  if ($isNull(@signatureVersion) || @signatureVersion != 'v4') {
-    return callApi(params, req, runtime);
-  } else {
-    return execute(params, req, runtime);
-  }
+  return callApi(params, req, runtime);
 }
 
 /**
