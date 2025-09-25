@@ -2,9 +2,8 @@
  *
  */
 import Util;
-import OSS;
-import OpenPlatform;
-import OSSUtil;
+import XML;
+import Credential;
 import FileForm;
 import OpenApi;
 import OpenApiUtil;
@@ -1498,6 +1497,95 @@ async function getDialogDetail(workspaceId: string, request: GetDialogDetailRequ
   return getDialogDetailWithOptions(workspaceId, request, headers, runtime);
 }
 
+model GetDialogLogRequest {
+  id?: string(name='id', example='175600129454077743fb03ac54955a4be72ec08f9c216'),
+  sessionId?: string(name='sessionId', example='1758010668S001w4paq82azm'),
+}
+
+model GetDialogLogResponseBody = {
+  cost?: long(name='cost', example='null'),
+  data?: {
+    analysisProcess?: string(name='analysisProcess'),
+    conversationList?: string(name='conversationList'),
+    hitIntentionList?: [ 
+      {
+        description?: string(name='description'),
+        intentionName?: string(name='intentionName'),
+        intentionScript?: string(name='intentionScript'),
+      }
+    ](name='hitIntentionList'),
+    intentionList?: [ 
+      {
+        description?: string(name='description'),
+        intentionName?: string(name='intentionName'),
+        intentionScript?: string(name='intentionScript'),
+      }
+    ](name='intentionList'),
+    modelCostTime?: long(name='modelCostTime', example='1382'),
+    recallList?: string(name='recallList'),
+  }(name='data'),
+  dataType?: string(name='dataType', example='null'),
+  errCode?: string(name='errCode', example='0'),
+  message?: string(name='message', example='ok'),
+  requestId?: string(name='requestId', example='051EEB18-049A-17FF-A5E0-14A5B127C798'),
+  success?: boolean(name='success', example='true'),
+  time?: string(name='time', example='2024-01-01 00:00:00'),
+}
+
+model GetDialogLogResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: GetDialogLogResponseBody(name='body'),
+}
+
+/**
+ * @summary 查询会话日志
+ *
+ * @param request GetDialogLogRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return GetDialogLogResponse
+ */
+async function getDialogLogWithOptions(workspaceId: string, request: GetDialogLogRequest, headers: map[string]string, runtime: Util.RuntimeOptions): GetDialogLogResponse {
+  Util.validateModel(request);
+  var body : map[string]any = {};
+  if (!Util.isUnset(request.id)) {
+    body['id'] = request.id;
+  }
+  if (!Util.isUnset(request.sessionId)) {
+    body['sessionId'] = request.sessionId;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApi.Params{
+    action = 'GetDialogLog',
+    version = '2024-06-28',
+    protocol = 'HTTPS',
+    pathname = `/${OpenApiUtil.getEncodeParam(workspaceId)}/api/dialog/log`,
+    method = 'POST',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 查询会话日志
+ *
+ * @param request GetDialogLogRequest
+ * @return GetDialogLogResponse
+ */
+async function getDialogLog(workspaceId: string, request: GetDialogLogRequest): GetDialogLogResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return getDialogLogWithOptions(workspaceId, request, headers, runtime);
+}
+
 model GetDocumentChunkListRequest {
   chunkIdList?: [ string ](name='chunkIdList'),
   docId?: string(name='docId', description='This parameter is required.', example='182364872346'),
@@ -2941,6 +3029,7 @@ model RealTimeDialogResponseBody = {
         recommendScript?: string(name='recommendScript', example='null'),
         selfDirectedScript?: string(name='selfDirectedScript'),
         selfDirectedScriptFullContent?: string(name='selfDirectedScriptFullContent'),
+        skipCurrentRecognize?: boolean(name='skipCurrentRecognize'),
       }(name='delta'),
       finishReason?: string(name='finishReason', example='stop'),
       index?: int32(name='index', example='0'),
@@ -2956,6 +3045,7 @@ model RealTimeDialogResponseBody = {
         recommendScript?: string(name='recommendScript', example='null'),
         selfDirectedScript?: string(name='selfDirectedScript', example='null'),
         selfDirectedScriptFullContent?: string(name='selfDirectedScriptFullContent'),
+        skipCurrentRecognize?: boolean(name='skipCurrentRecognize'),
       }(name='message'),
     }
   ](name='choices'),
@@ -4545,10 +4635,18 @@ async function uploadDocument(workspaceId: string, request: UploadDocumentReques
 
 async function uploadDocumentAdvance(workspaceId: string, request: UploadDocumentAdvanceRequest, headers: map[string]string, runtime: Util.RuntimeOptions): UploadDocumentResponse {
   // Step 0: init client
-  var accessKeyId = @credential.getAccessKeyId();
-  var accessKeySecret = @credential.getAccessKeySecret();
-  var securityToken = @credential.getSecurityToken();
-  var credentialType = @credential.getType();
+  var credentialModel: Credential.CredentialModel = null;
+  if (Util.isUnset(@credential)) {
+    throw {
+      code = 'InvalidCredentials',
+      message = 'Please set up the credentials correctly. If you are setting them through environment variables, please ensure that ALIBABA_CLOUD_ACCESS_KEY_ID and ALIBABA_CLOUD_ACCESS_KEY_SECRET are set correctly. See https://help.aliyun.com/zh/sdk/developer-reference/configure-the-alibaba-cloud-accesskey-environment-variable-on-linux-macos-and-windows-systems for more details.'
+    }
+  }
+  credentialModel = @credential.getCredential();
+  var accessKeyId = credentialModel.accessKeyId;
+  var accessKeySecret = credentialModel.accessKeySecret;
+  var securityToken = credentialModel.securityToken;
+  var credentialType = credentialModel.type;
   var openPlatformEndpoint = @openPlatformEndpoint;
   if(Util.empty(openPlatformEndpoint)) {
     openPlatformEndpoint ='openplatform.aliyuncs.com';
@@ -4565,56 +4663,93 @@ async function uploadDocumentAdvance(workspaceId: string, request: UploadDocumen
     protocol = @protocol,
     regionId = @regionId,
   };
-  var authClient = new OpenPlatform(authConfig);
-  var authRequest = new OpenPlatform.AuthorizeFileUploadRequest{
-    product = 'DianJin',
-    regionId = @regionId,
+  var authClient = new OpenApi(authConfig);
+  var authRequest = {
+    Product = 'DianJin',
+    RegionId = @regionId,
   };
-  var authResponse = new OpenPlatform.AuthorizeFileUploadResponse{};
-  var ossConfig = new OSS.Config{
-    accessKeyId = accessKeyId,
-    accessKeySecret = accessKeySecret,
-    type = 'access_key',
-    protocol = @protocol,
-    regionId = @regionId,
+  var authReq = new OpenApi.OpenApiRequest{
+    query = OpenApiUtil.query(authRequest),
   };
-  var ossClient : OSS = new OSS(ossConfig);
-
+  var authParams = new OpenApi.Params{
+    action = 'AuthorizeFileUpload',
+    version = '2019-12-19',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'GET',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  var authResponse : object = {};
   var fileObj = new FileForm.FileField{};
-  var ossHeader = new OSS.PostObjectRequest.header{};
-  var uploadRequest = new OSS.PostObjectRequest{};
-  var ossRuntime = new OSSUtil.RuntimeOptions{};
-  OpenApiUtil.convert(runtime, ossRuntime);
+  var ossHeader: object = {};
+  var tmpBody: object = {};
+  var useAccelerate: boolean = false;
+  var authResponseBody: map[string]string = {};
   var uploadDocumentReq = new UploadDocumentRequest{};
   OpenApiUtil.convert(request, uploadDocumentReq);
 
   if(!Util.isUnset(request.fileUrlObject)) {
-    authResponse = authClient.authorizeFileUploadWithOptions(authRequest, runtime);
-    ossConfig.accessKeyId = authResponse.body.accessKeyId;
-    ossConfig.endpoint = OpenApiUtil.getEndpoint(authResponse.body.endpoint, authResponse.body.useAccelerate, @endpointType);
-    ossClient = new OSS(ossConfig);
-
+    var tmpResp0: any = authClient.callApi(authParams, authReq, runtime);
+    authResponse = Util.assertAsMap(tmpResp0);
+    tmpBody = Util.assertAsMap(authResponse['body']);
+    useAccelerate = Util.assertAsBoolean(tmpBody['UseAccelerate']);
+    authResponseBody = Util.stringifyMapValue(tmpBody);
     fileObj = new FileForm.FileField{
-      filename = authResponse.body.objectKey,
+      filename = authResponseBody['ObjectKey'],
       content = request.fileUrlObject,
       contentType = '',
     };
-    ossHeader = new OSS.PostObjectRequest.header{
-      accessKeyId = authResponse.body.accessKeyId,
-      policy = authResponse.body.encodedPolicy,
-      signature = authResponse.body.signature,
-      key = authResponse.body.objectKey,
+    ossHeader = {
+      host = `${authResponseBody['Bucket']}.${OpenApiUtil.getEndpoint(authResponseBody['Endpoint'], useAccelerate, @endpointType)}`,
+      OSSAccessKeyId = authResponseBody['AccessKeyId'],
+      policy = authResponseBody['EncodedPolicy'],
+      Signature = authResponseBody['Signature'],
+      key = authResponseBody['ObjectKey'],
       file = fileObj,
-      successActionStatus = '201',
+      success_action_status = '201',
     };
-    uploadRequest = new OSS.PostObjectRequest{
-      bucketName = authResponse.body.bucket,
-      header = ossHeader,
-    };
-    ossClient.postObject(uploadRequest, ossRuntime);
-    uploadDocumentReq.fileUrl = `http://${authResponse.body.bucket}.${authResponse.body.endpoint}/${authResponse.body.objectKey}`;
+    _postOSSObject(authResponseBody['Bucket'], ossHeader);
+    uploadDocumentReq.fileUrl = `http://${authResponseBody['Bucket']}.${authResponseBody['Endpoint']}/${authResponseBody['ObjectKey']}`;
   }
   var uploadDocumentResp = uploadDocumentWithOptions(workspaceId, uploadDocumentReq, headers, runtime);
   return uploadDocumentResp;
 }
 
+api _postOSSObject(bucketName: string, data: object): object {
+  var form = Util.assertAsMap(data);
+  var boundary = FileForm.getBoundary();
+  var host = Util.assertAsString(form.host);
+  __request.protocol = 'HTTPS';
+  __request.method = 'POST';
+  __request.pathname = `/`;
+  __request.headers = {
+    host = host,
+    date = Util.getDateUTCString(),
+    user-agent = Util.getUserAgent(''),
+  };
+  __request.headers.content-type = `multipart/form-data; boundary=${boundary}`;
+  __request.body = FileForm.toFileForm(form, boundary);
+} returns {
+  var respMap : object = null;
+  var bodyStr = Util.readAsString(__response.body);
+  if (Util.is4xx(__response.statusCode) || Util.is5xx(__response.statusCode)) {
+    respMap = XML.parseXml(bodyStr, null);
+    var err = Util.assertAsMap(respMap.Error);
+    throw {
+      code = err.Code,
+      message = err.Message,
+      data = {
+        httpCode = __response.statusCode,
+        requestId = err.RequestId,
+        hostId = err.HostId,
+      }
+    };
+  }
+  respMap = XML.parseXml(bodyStr, null);
+  return {
+    ...respMap,
+  };
+}
