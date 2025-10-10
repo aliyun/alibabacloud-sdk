@@ -60,6 +60,15 @@ function close(): void {
   @handler.close();
 }
 
+model Hugepage {
+  khugepagedAllocSleepMillisecs?: long(name='khugepagedAllocSleepMillisecs'),
+  khugepagedDefrag?: long(name='khugepagedDefrag'),
+  khugepagedPagesToScan?: long(name='khugepagedPagesToScan'),
+  khugepagedScanSleepMillisecs?: long(name='khugepagedScanSleepMillisecs'),
+  transparentDefrag?: string(name='transparentDefrag'),
+  transparentEnabled?: string(name='transparentEnabled'),
+}
+
 model InstanceMetadataOptions {
   httpTokens?: string(name='http_tokens', example='optional'),
 }
@@ -261,6 +270,10 @@ model Nodepool {
     }(name='private_pool_options'),
     ramRoleName?: string(name='ram_role_name', example='example-role'),
     rdsInstances?: [ string ](name='rds_instances'),
+    resourcePoolOptions?: {
+      privatePoolIds?: [ string ](name='private_pool_ids'),
+      strategy?: string(name='strategy', example='PrivatePoolFirst'),
+    }(name='resource_pool_options'),
     scalingPolicy?: string(name='scaling_policy', example='release'),
     securityGroupId?: string(name='security_group_id', example='sg-2zeihch86ooz9io4****'),
     securityGroupIds?: [ string ](name='security_group_ids'),
@@ -1806,6 +1819,10 @@ Default value: `AliyunLinux`.', example='AliyunLinux', deprecated='true'),
 
 >  This parameter is available only for ACK managed clusters that run Kubernetes 1.22 or later.', example='example-role'),
     rdsInstances?: [ string ](name='rds_instances', description='The IDs of ApsaraDB RDS instances.'),
+    resourcePoolOptions?: {
+      privatePoolIds?: [ string ](name='private_pool_ids'),
+      strategy?: string(name='strategy', example='PrivatePoolFirst'),
+    }(name='resource_pool_options'),
     scalingPolicy?: string(name='scaling_policy', description='The scaling mode of the scaling group. Valid values:
 
 *   `release`: the standard mode. ECS instances are created and released based on resource usage.
@@ -1918,40 +1935,6 @@ model CreateClusterNodePoolResponse = {
 async function createClusterNodePool(request: CreateClusterNodePoolRequest): CreateClusterNodePoolResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RESTFUL', 'CreateClusterNodePool', 'POST', '/clusters/{ClusterId}/nodepools', 'json', false, 'json', request);
-}
-
-model CreateEdgeMachineRequest {
-  hostname: string(name='hostname', description='The `hostname` of the cloud-native box.
-
->  After the cloud-native box is activated, the `hostname` is automatically modified. The `hostname` is prefixed with the model and the prefix is followed by a random string.
-
-This parameter is required.', example='ACK-B-B010-****', position='Body'),
-  model: string(name='model', description='The model of the cloud-native box.
-
-This parameter is required.', example='ACK-V-B010', position='Body'),
-  sn: string(name='sn', description='The serial number of the cloud-native box.
-
-This parameter is required.', example='Q2CB5XZAFBFG****', position='Body'),
-}
-
-model CreateEdgeMachineResponseBody = {
-  edgeMachineId?: string(name='edge_machine_id', description='The ID of the cloud-native box.', example='cc0725ddf688744979cd98445f67e****'),
-  requestId?: string(name='request_id', description='The request ID.', example='"request_id": "6e7b377a-c5ed-4388-8026-689e1b34****",'),
-}
-
-model CreateEdgeMachineResponse = {
-  headers?: map[string]string(name='headers'),
-  statusCode?: int32(name='statusCode'),
-  body?: CreateEdgeMachineResponseBody(name='body'),
-}
-
-/**
-  * @param request  the request parameters of CreateEdgeMachine  CreateEdgeMachineRequest
-  * @return CreateEdgeMachineResponse
- */
-async function createEdgeMachine(request: CreateEdgeMachineRequest): CreateEdgeMachineResponse {
-  @handler.validateRequestModel(request);
-  return @handler.do('RESTFUL', 'CreateEdgeMachine', 'POST', '/edge_machines', 'json', false, 'json', request);
 }
 
 model CreateKubernetesTriggerRequest {
@@ -2320,32 +2303,6 @@ model DeleteClusterNodesResponse = {
 async function deleteClusterNodes(request: DeleteClusterNodesRequest): DeleteClusterNodesResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RESTFUL', 'DeleteClusterNodes', 'POST', '/clusters/{ClusterId}/nodes', 'json', false, 'json', request);
-}
-
-model DeleteEdgeMachineRequest {
-  edgeMachineid: string(name='edge_machineid', description='The ID of the cloud-native box.
-
-This parameter is required.', example='cc0725ddf688744979cd98445f67e****', position='Path'),
-  force?: string(name='force', description='Specifies whether to forcefully delete the cloud-native box. Valid values:
-
-*   `true`: forcefully deletes the cloud-native box.
-*   `false`: does not forcefully delete the cloud-native box.
-
-Default value: `false`.', example='true/false', position='Query'),
-}
-
-model DeleteEdgeMachineResponse = {
-  headers?: map[string]string(name='headers'),
-  statusCode?: int32(name='statusCode'),
-}
-
-/**
-  * @param request  the request parameters of DeleteEdgeMachine  DeleteEdgeMachineRequest
-  * @return DeleteEdgeMachineResponse
- */
-async function deleteEdgeMachine(request: DeleteEdgeMachineRequest): DeleteEdgeMachineResponse {
-  @handler.validateRequestModel(request);
-  return @handler.do('RESTFUL', 'DeleteEdgeMachine', 'DELETE', '/edge_machines/[edge_machineid]', 'none', false, 'json', request);
 }
 
 model DeleteKubernetesTriggerRequest {
@@ -3157,6 +3114,9 @@ Default value: 1.', example='1'),
 The maximum number of nodes allowed in an edge node pool.', example='10'),
   nodeConfig?: {
     kubeletConfiguration?: KubeletConfig(name='kubelet_configuration', description='The configurations of the kubelet.'),
+    nodeOsConfig?: {
+      hugepage?: Hugepage(name='hugepage'),
+    }(name='node_os_config'),
   }(name='node_config', description='The node configurations.'),
   nodepoolInfo?: {
     created?: string(name='created', description='The time when the node pool was created.', example='2020-09-27T19:14:09.156823496+08:00'),
@@ -3244,6 +3204,10 @@ Valid value: `Month`.', example='Month'),
     ramPolicy?: string(name='ram_policy', description='The name of the worker Resource Access Management (RAM) role. The RAM role is assigned to the worker nodes of the cluster to allow the worker nodes to manage ECS instances.', example='KubernetesWorkerRole-021dc54f-929b-437a-8ae0-34c24d3e****'),
     ramRoleName?: string(name='ram_role_name', description='Worker RAM role name.', example='KubernetesWorkerRole-4a4fa089-80c1-48a5-b3c6-9349311f****'),
     rdsInstances?: [ string ](name='rds_instances', description='After you specify the list of RDS instances, the ECS instances in the cluster are automatically added to the whitelist of the RDS instances.'),
+    resourcePoolOptions?: {
+      privatePoolIds?: [ string ](name='private_pool_ids'),
+      strategy?: string(name='strategy', example='PrivatePoolFirst'),
+    }(name='resource_pool_options'),
     scalingGroupId?: string(name='scaling_group_id', description='The ID of the scaling group.', example='asg-2zeieod8giqmov7z****'),
     scalingPolicy?: string(name='scaling_policy', description='The scaling mode of the scaling group. Valid values:
 
@@ -3520,6 +3484,9 @@ The number of additional nodes = The percentage of additional nodes × The numbe
       maxNodes?: long(name='max_nodes', description='The maximum number of nodes that can be created in the edge node pool. The value of this parameter must be greater than or equal to 0. A value of 0 indicates that the number of nodes in the node pool is limited only by the quota of nodes in the cluster. In most cases, this parameter is set to a value larger than 0 for edge node pools. This parameter is set to 0 for node pools whose types are ess or default edge node pools.', example='10'),
       nodeConfig?: {
         kubeletConfiguration?: KubeletConfig(name='kubelet_configuration', description='The parameter settings of the kubelet.'),
+        nodeOsConfig?: {
+          hugepage?: Hugepage(name='hugepage'),
+        }(name='node_os_config'),
       }(name='node_config', description='The configurations of nodes.'),
       nodepoolInfo?: {
         created?: string(name='created', description='The time when the node pool was created.', example='2020-09-27T19:14:09.156823496+08:00'),
@@ -3635,6 +3602,10 @@ The OS distribution that is used. Valid values:
         ramPolicy?: string(name='ram_policy', description='This field is deprecated and replaced by the ram_role_name parameter.', example='KubernetesWorkerRole-021dc54f-929b-437a-8ae0-34c24d3e****'),
         ramRoleName?: string(name='ram_role_name', description='Worker RAM role name.', example='KubernetesWorkerRole-4a4fa089-80c1-48a5-b3c6-9349311f****'),
         rdsInstances?: [ string ](name='rds_instances', description='The ApsaraDB RDS instances. If you specify the list of ApsaraDB RDS instances, ECS instances in the cluster are automatically added to the whitelist of the ApsaraDB RDS instances.'),
+        resourcePoolOptions?: {
+          privatePoolIds?: [ string ](name='private_pool_ids'),
+          strategy?: string(name='strategy', example='PrivatePoolFirst'),
+        }(name='resource_pool_options'),
         scalingGroupId?: string(name='scaling_group_id', description='The scaling group ID.', example='asg-2ze8n5qw4atggut8****'),
         scalingPolicy?: string(name='scaling_policy', description='The scaling mode of the scaling group. Valid values:
 
@@ -4118,7 +4089,7 @@ model DescribeClustersResponse = {
 }
 
 /**
-  * @deprecated OpenAPI DescribeClusters is deprecated, please use CS::2015-12-15::DescribeClustersV1 instead.  * @param request  the request parameters of DescribeClusters  DescribeClustersRequest
+  * @deprecated OpenAPI DescribeClusters is deprecated, please use CS::2015-12-15::DescribeClustersForRegion instead.  * @param request  the request parameters of DescribeClusters  DescribeClustersRequest
   * @return DescribeClustersResponse
  */
 // Deprecated
@@ -4373,153 +4344,6 @@ model DescribeClustersV1Response = {
 async function describeClustersV1(request: DescribeClustersV1Request): DescribeClustersV1Response {
   @handler.validateRequestModel(request);
   return @handler.do('RESTFUL', 'DescribeClustersV1', 'GET', '/api/v1/clusters', 'json', false, 'json', request);
-}
-
-model DescribeEdgeMachineActiveProcessRequest {
-  edgeMachineid: string(name='edge_machineid', description='The ID of the cloud-native box.
-
-This parameter is required.', example='cc0725ddf688744979cd98445f67e****', position='Path'),
-}
-
-model DescribeEdgeMachineActiveProcessResponseBody = {
-  logs?: string(name='logs', description='The activation progress list.', example='[{\\"content\\":\\"步骤 \\"颁发激活凭证\\" 执行开始\\",\\"id\\":0,\\"level\\":3,\\"timestamp\\":1625994913000},{\\"content\\":\\"步骤 \\"颁发激活凭证\\" 执行成功\\",\\"id\\":1,\\"level\\":3,\\"timestamp\\":1625994914000},{\\"content\\":\\"步骤 \\"初始化主机配置\\" 执行开始\\",\\"id\\":2,\\"level\\":3,\\"timestamp\\":1625994975000},{\\"content\\":\\"步骤 \\"初始化主机配置\\" 执行成功\\",\\"id\\":3,\\"level\\":3,\\"timestamp\\":1625994975000}]'),
-  progress?: long(name='progress', description='The activation progress.', example='100'),
-  requestId?: string(name='request_id', description='The request ID.', example='b62796a8-c5a6-4d3f-beb2-7650e4309cb1'),
-  state?: string(name='state', description='The activation status.', example='ACTIVATED'),
-  step?: string(name='step', description='The activation step.', example='步骤 \\"初始化主机配置\\" 执行成功'),
-}
-
-model DescribeEdgeMachineActiveProcessResponse = {
-  headers?: map[string]string(name='headers'),
-  statusCode?: int32(name='statusCode'),
-  body?: DescribeEdgeMachineActiveProcessResponseBody(name='body'),
-}
-
-/**
-  * @deprecated OpenAPI DescribeEdgeMachineActiveProcess is deprecated  * @param request  the request parameters of DescribeEdgeMachineActiveProcess  DescribeEdgeMachineActiveProcessRequest
-  * @return DescribeEdgeMachineActiveProcessResponse
- */
-// Deprecated
-async function describeEdgeMachineActiveProcess(request: DescribeEdgeMachineActiveProcessRequest): DescribeEdgeMachineActiveProcessResponse {
-  @handler.validateRequestModel(request);
-  return @handler.do('RESTFUL', 'DescribeEdgeMachineActiveProcess', 'GET', '/edge_machines/[edge_machineid]/activeprocess', 'json', false, 'json', request);
-}
-
-model DescribeEdgeMachineModelsRequest {
-}
-
-model DescribeEdgeMachineModelsResponseBody = {
-  models?: [ 
-    {
-      cpu?: int32(name='cpu', description='The number of vCores.', example='6'),
-      cpuArch?: string(name='cpu_arch', description='The CPU architecture.', example='x86_64/arm64'),
-      created?: string(name='created', description='The time when the cloud-native box was created.', example='2021-07-07T20:44:00+08:00'),
-      description?: string(name='description', description='The description of the cloud-native box.', example='B010'),
-      manageRuntime?: int32(name='manage_runtime', description='Indicates whether the cloud-native box model manages the Docker runtime.', example='0/1'),
-      memory?: int32(name='memory', description='The memory. Unit: GB.', example='8'),
-      model?: string(name='model', description='The model of the cloud-native box.', example='ACK-V-B010'),
-      modelId?: string(name='model_id', description='The ID of the cloud-native box.', example='c34cc753-8908-4739-bd10-ebd922a4****'),
-    }
-  ](name='models', description='The cloud-native box models.'),
-}
-
-model DescribeEdgeMachineModelsResponse = {
-  headers?: map[string]string(name='headers'),
-  statusCode?: int32(name='statusCode'),
-  body?: DescribeEdgeMachineModelsResponseBody(name='body'),
-}
-
-/**
-  * @param request  the request parameters of DescribeEdgeMachineModels  DescribeEdgeMachineModelsRequest
-  * @return DescribeEdgeMachineModelsResponse
- */
-async function describeEdgeMachineModels(request: DescribeEdgeMachineModelsRequest): DescribeEdgeMachineModelsResponse {
-  @handler.validateRequestModel(request);
-  return @handler.do('RESTFUL', 'DescribeEdgeMachineModels', 'GET', '/edge_machines/models', 'json', false, 'json', request);
-}
-
-model DescribeEdgeMachineTunnelConfigDetailRequest {
-  edgeMachineid: string(name='edge_machineid', description='The ID of the cloud-native box.
-
-This parameter is required.', example='cc0725ddf688744979cd98445f67e****', position='Path'),
-}
-
-model DescribeEdgeMachineTunnelConfigDetailResponseBody = {
-  deviceName?: string(name='device_name', description='The device name.', example='TEST0621N0FF****'),
-  model?: string(name='model', description='The model of the cloud-native box.', example='ACK-A-S001'),
-  productKey?: string(name='product_key', description='Product Key', example='a11rXul****'),
-  requestId?: string(name='request_id', description='Request ID', example='bfd12953-31cb-42f1-8a36-7b80ec345094'),
-  sn?: string(name='sn', description='The serial number of the cloud-native box.', example='Q2CB5XZAFBFG****'),
-  token?: string(name='token', description='Token', example='abcd****'),
-  tunnelEndpoint?: string(name='tunnel_endpoint', description='The tunnel endpoint.', example='wss://frontend-iotx-r-debug.aliyun-inc.test'),
-}
-
-model DescribeEdgeMachineTunnelConfigDetailResponse = {
-  headers?: map[string]string(name='headers'),
-  statusCode?: int32(name='statusCode'),
-  body?: DescribeEdgeMachineTunnelConfigDetailResponseBody(name='body'),
-}
-
-/**
-  * @param request  the request parameters of DescribeEdgeMachineTunnelConfigDetail  DescribeEdgeMachineTunnelConfigDetailRequest
-  * @return DescribeEdgeMachineTunnelConfigDetailResponse
- */
-async function describeEdgeMachineTunnelConfigDetail(request: DescribeEdgeMachineTunnelConfigDetailRequest): DescribeEdgeMachineTunnelConfigDetailResponse {
-  @handler.validateRequestModel(request);
-  return @handler.do('RESTFUL', 'DescribeEdgeMachineTunnelConfigDetail', 'POST', '/edge_machines/[edge_machineid]/tunnelconfig', 'json', false, 'json', request);
-}
-
-model DescribeEdgeMachinesRequest {
-  hostname?: string(name='hostname', description='The `hostname` of the cloud-native box.', example='ack-v-b010-ssdfw****', position='Query'),
-  lifeState?: string(name='life_state', description='The lifecycle status.', example='activated/waitOnline/deleting', position='Query'),
-  model?: string(name='model', description='The type of cloud-native box.', example='ACK-V-B010', position='Query'),
-  onlineState?: string(name='online_state', description='The status of the cloud-native box. Valid values:
-
-*   `offline`
-*   `online`', example='offline/online', position='Query'),
-  pageNumber?: long(name='page_number', description='The page number.', example='1', position='Query'),
-  pageSize?: long(name='page_size', description='The number of entries per page.', example='10', position='Query'),
-}
-
-model DescribeEdgeMachinesResponseBody = {
-  edgeMachines?: [ 
-    {
-      activeTime?: string(name='active_time', description='The time when the cloud-native box was activated.', example='2021-07-19T16:07:48+08:00'),
-      created?: string(name='created', description='The time when the cloud-native box was created.', example='2021-07-07T20:44:00+08:00'),
-      edgeMachineId?: string(name='edge_machine_id', description='The device ID.', example='c61083909b13f4a95b8554bda9577****'),
-      hostname?: string(name='hostname', description='The `hostname` of the cloud-native box.', example='ack-v-b010-ssdfw****'),
-      lifeState?: string(name='life_state', description='The lifecycle of the cloud-native box.', example='activated'),
-      model?: string(name='model', description='The model of the cloud-native box.', example='ACK-V-B010'),
-      name?: string(name='name', description='The machine name.', example='ack-v-b010-ssdfw****'),
-      onlineState?: string(name='online_state', description='The status of the cloud-native box.', example='online'),
-      sn?: string(name='sn', description='The serial number.', example='ACK9GBL31SXX****'),
-      updated?: string(name='updated', description='The time when the cloud-native box was last updated.', example='2021-07-07T20:44:00+08:00'),
-    }
-  ](name='edge_machines', description='The list of cloud-native boxes.'),
-  pageInfo?: {
-    pageNumber?: int32(name='page_number', description='The page number.
-
-Default value: 1.', example='1'),
-    pageSize?: int32(name='page_size', description='The number of entries per page.
-
-Default value: 10.', example='10'),
-    totalCount?: int32(name='total_count', description='The total number of pages returned.', example='1'),
-  }(name='page_info', description='The paging information.'),
-}
-
-model DescribeEdgeMachinesResponse = {
-  headers?: map[string]string(name='headers'),
-  statusCode?: int32(name='statusCode'),
-  body?: DescribeEdgeMachinesResponseBody(name='body'),
-}
-
-/**
-  * @param request  the request parameters of DescribeEdgeMachines  DescribeEdgeMachinesRequest
-  * @return DescribeEdgeMachinesResponse
- */
-async function describeEdgeMachines(request: DescribeEdgeMachinesRequest): DescribeEdgeMachinesResponse {
-  @handler.validateRequestModel(request);
-  return @handler.do('RESTFUL', 'DescribeEdgeMachines', 'GET', '/edge_machines', 'json', false, 'json', request);
 }
 
 model DescribeEventsRequest {
@@ -5526,41 +5350,6 @@ model DescribeUserQuotaResponse = {
 async function describeUserQuota(request: DescribeUserQuotaRequest): DescribeUserQuotaResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RESTFUL', 'DescribeUserQuota', 'GET', '/quota', 'json', false, 'json', request);
-}
-
-model EdgeClusterAddEdgeMachineRequest {
-  clusterid: string(name='clusterid', description='The cluster ID.
-
-This parameter is required.', example='c35607f52179f4472a0d9723e7595****', position='Path'),
-  edgeMachineid: string(name='edge_machineid', description='The ID of the cloud-native box.
-
-This parameter is required.', example='edge_machineid', position='Path'),
-  expired?: long(name='expired', description='The timeout period of sessions. Unit: seconds.', example='1024', position='Body'),
-  nodepoolId: string(name='nodepool_id', description='The node pool ID.
-
-This parameter is required.', example='c26607f52179f4472a0d9723e7595****', position='Body'),
-  options?: string(name='options', description='The options that you want to configure.', example='"{\\"enableIptables\\":true,\\"quiet\\":true,\\"manageRuntime\\":true,\\"allowedClusterAddons\\":[\\"kube-proxy\\",\\"flannel\\",\\"coredns\\"]}"', position='Body'),
-}
-
-model EdgeClusterAddEdgeMachineResponseBody = {
-  edgeMachineId?: string(name='edge_machine_id', description='The ID of the cloud-native box.', example='0f4bf70a-caff-4b26-a679-fb0188a1****'),
-  requestId?: string(name='request_id', description='The request ID.', example='0adf3a23-6841-41e8-9f55-7b290216c980'),
-}
-
-model EdgeClusterAddEdgeMachineResponse = {
-  headers?: map[string]string(name='headers'),
-  statusCode?: int32(name='statusCode'),
-  body?: EdgeClusterAddEdgeMachineResponseBody(name='body'),
-}
-
-/**
-  * @deprecated OpenAPI EdgeClusterAddEdgeMachine is deprecated  * @param request  the request parameters of EdgeClusterAddEdgeMachine  EdgeClusterAddEdgeMachineRequest
-  * @return EdgeClusterAddEdgeMachineResponse
- */
-// Deprecated
-async function edgeClusterAddEdgeMachine(request: EdgeClusterAddEdgeMachineRequest): EdgeClusterAddEdgeMachineResponse {
-  @handler.validateRequestModel(request);
-  return @handler.do('RESTFUL', 'EdgeClusterAddEdgeMachine', 'POST', '/clusters/[clusterid]/attachedgemachine/[edge_machineid]', 'json', false, 'json', request);
 }
 
 model FixNodePoolVulsRequest {
@@ -6747,38 +6536,6 @@ async function modifyClusterAddon(request: ModifyClusterAddonRequest): ModifyClu
   return @handler.do('RESTFUL', 'ModifyClusterAddon', 'POST', '/clusters/{cluster_id}/components/{component_id}/config', 'none', false, 'json', request);
 }
 
-model ModifyClusterConfigurationRequest {
-  clusterId: string(name='ClusterId', description='The cluster ID.
-
-This parameter is required.', example='cc0f87de0b8fb403f86e10e204f83****', position='Path'),
-  customizeConfig?: [ 
-    {
-      configs?: [ 
-        {
-          key?: string(name='key', description='The name of the configuration item.', example='MaxRequestsInflight'),
-          value?: string(name='value', description='The value of the configuration item.', example='100'),
-        }
-      ](name='configs', description='The custom configurations.'),
-      name?: string(name='name', description='The name of the component.', example='kube-apiserver'),
-    }
-  ](name='customize_config', description='The custom configurations.', position='Body'),
-}
-
-model ModifyClusterConfigurationResponse = {
-  headers?: map[string]string(name='headers'),
-  statusCode?: int32(name='statusCode'),
-}
-
-/**
-  * @deprecated OpenAPI ModifyClusterConfiguration is deprecated, please use CS::2015-12-15::ModifyClusterAddon instead.  * @param request  the request parameters of ModifyClusterConfiguration  ModifyClusterConfigurationRequest
-  * @return ModifyClusterConfigurationResponse
- */
-// Deprecated
-async function modifyClusterConfiguration(request: ModifyClusterConfigurationRequest): ModifyClusterConfigurationResponse {
-  @handler.validateRequestModel(request);
-  return @handler.do('RESTFUL', 'ModifyClusterConfiguration', 'PUT', '/clusters/{ClusterId}/configuration', 'none', false, 'json', request);
-}
-
 model ModifyClusterNodePoolRequest {
   clusterId: string(name='ClusterId', description='The cluster ID.
 
@@ -7066,6 +6823,10 @@ The OS platform. Valid values:
 *   `None`: no private pool is used. The resources of private pools are not used to launch the instances.', example='Open'),
     }(name='private_pool_options', description='The configurations of the private node pool.'),
     rdsInstances?: [ string ](name='rds_instances', description='The IDs of ApsaraDB RDS instances.'),
+    resourcePoolOptions?: {
+      privatePoolIds?: [ string ](name='private_pool_ids'),
+      strategy?: string(name='strategy', example='PrivatePoolFirst'),
+    }(name='resource_pool_options'),
     scalingPolicy?: string(name='scaling_policy', description='The scaling mode of the scaling group. Valid values:
 
 *   `release`: the standard mode. ECS instances are created and released based on resource usage.
@@ -7205,6 +6966,7 @@ This parameter is required.', example='np8d8c9c2cd0f64e89884f82a5fbcd****', posi
   containerdConfig?: ContainerdConfig(name='containerd_config', description='The containerd runtime configuration.', position='Body'),
   kubeletConfig?: KubeletConfig(name='kubelet_config', description='The kubelet configurations.', position='Body'),
   osConfig?: {
+    hugepage?: Hugepage(name='hugepage'),
     sysctl?: map[string]any(name='sysctl', description='The sysctl configuration.'),
   }(name='os_config', description='The OS configuration.', position='Body'),
   rollingPolicy?: {
@@ -7637,67 +7399,6 @@ model RunClusterInspectResponse = {
 async function runClusterInspect(request: RunClusterInspectRequest): RunClusterInspectResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RESTFUL', 'RunClusterInspect', 'POST', '/clusters/{clusterId}/inspectReports', 'json', false, 'json', request);
-}
-
-model ScaleClusterRequest {
-  clusterId: string(name='ClusterId', description='This parameter is required.', position='Path'),
-  cloudMonitorFlags?: boolean(name='cloud_monitor_flags', position='Body'),
-  count?: long(name='count', position='Body'),
-  cpuPolicy?: string(name='cpu_policy', position='Body'),
-  disableRollback?: boolean(name='disable_rollback', position='Body'),
-  keyPair?: string(name='key_pair', position='Body'),
-  loginPassword?: string(name='login_password', position='Body'),
-  tags?: [ 
-    {
-      key?: string(name='key'),
-    }
-  ](name='tags', position='Body'),
-  taints?: [ 
-    {
-      effect?: string(name='effect'),
-      key?: string(name='key'),
-      value?: string(name='value'),
-    }
-  ](name='taints', position='Body'),
-  vswitchIds?: [ string ](name='vswitch_ids', position='Body'),
-  workerAutoRenew?: boolean(name='worker_auto_renew', position='Body'),
-  workerAutoRenewPeriod?: long(name='worker_auto_renew_period', position='Body'),
-  workerDataDisk?: boolean(name='worker_data_disk', position='Body'),
-  workerDataDisks?: [ 
-    {
-      category?: string(name='category'),
-      encrypted?: string(name='encrypted'),
-      size?: string(name='size'),
-    }
-  ](name='worker_data_disks', position='Body'),
-  workerInstanceChargeType?: string(name='worker_instance_charge_type', position='Body'),
-  workerInstanceTypes?: [ string ](name='worker_instance_types', position='Body'),
-  workerPeriod?: long(name='worker_period', position='Body'),
-  workerPeriodUnit?: string(name='worker_period_unit', position='Body'),
-  workerSystemDiskCategory?: string(name='worker_system_disk_category', position='Body'),
-  workerSystemDiskSize?: long(name='worker_system_disk_size', position='Body'),
-}
-
-model ScaleClusterResponseBody = {
-  clusterId?: string(name='cluster_id'),
-  requestId?: string(name='request_id'),
-  taskId?: string(name='task_id'),
-}
-
-model ScaleClusterResponse = {
-  headers?: map[string]string(name='headers'),
-  statusCode?: int32(name='statusCode'),
-  body?: ScaleClusterResponseBody(name='body'),
-}
-
-/**
-  * @deprecated OpenAPI ScaleCluster is deprecated, please use CS::2015-12-15::ModifyClusterNodePool instead.  * @param request  the request parameters of ScaleCluster  ScaleClusterRequest
-  * @return ScaleClusterResponse
- */
-// Deprecated
-async function scaleCluster(request: ScaleClusterRequest): ScaleClusterResponse {
-  @handler.validateRequestModel(request);
-  return @handler.do('RESTFUL', 'ScaleCluster', 'PUT', '/clusters/{ClusterId}', 'json', false, 'json', request);
 }
 
 model ScaleClusterNodePoolRequest {
