@@ -126,10 +126,35 @@ model QueryContext {
   }(name='rewrite'),
 }
 
+model ReadPageBody {
+  formats?: [ string ](name='formats'),
+  location?: string(name='location'),
+  maxAge?: int32(name='maxAge'),
+  pageTimeout?: int32(name='pageTimeout'),
+  readability?: {
+    excludeAllImages?: boolean(name='excludeAllImages'),
+    excludeAllLinks?: boolean(name='excludeAllLinks'),
+    excludedTags?: [ string ](name='excludedTags'),
+    readabilityMode?: string(name='readabilityMode'),
+  }(name='readability'),
+  timeout?: int32(name='timeout'),
+  url?: string(name='url', description='This parameter is required.'),
+}
+
+model ReadPageItem {
+  errorMessage?: string(name='errorMessage'),
+  html?: string(name='html'),
+  markdown?: string(name='markdown'),
+  rawHtml?: string(name='rawHtml'),
+  statusCode?: int32(name='statusCode'),
+  text?: string(name='text'),
+}
+
 model RequestContents {
   mainText?: boolean(name='mainText'),
   markdownText?: boolean(name='markdownText'),
   rerankScore?: boolean(name='rerankScore'),
+  richMainBody?: boolean(name='richMainBody'),
   summary?: boolean(name='summary'),
 }
 
@@ -485,6 +510,7 @@ model GenericSearchRequest {
   query?: string(name='query', description='This parameter is required.'),
   returnMainText?: boolean(name='returnMainText'),
   returnMarkdownText?: boolean(name='returnMarkdownText'),
+  returnRichMainBody?: boolean(name='returnRichMainBody'),
   returnSummary?: boolean(name='returnSummary'),
   sessionId?: string(name='sessionId'),
   timeRange?: string(name='timeRange', example='OneWeek'),
@@ -525,6 +551,9 @@ async function genericSearchWithOptions(request: GenericSearchRequest, headers: 
   }
   if (!$isNull(request.returnMarkdownText)) {
     query['returnMarkdownText'] = request.returnMarkdownText;
+  }
+  if (!$isNull(request.returnRichMainBody)) {
+    query['returnRichMainBody'] = request.returnRichMainBody;
   }
   if (!$isNull(request.returnSummary)) {
     query['returnSummary'] = request.returnSummary;
@@ -692,6 +721,64 @@ async function globalSearch(request: GlobalSearchRequest): GlobalSearchResponse 
   var runtime = new $RuntimeOptions{};
   var headers : map[string]string = {};
   return globalSearchWithOptions(request, headers, runtime);
+}
+
+model ReadPageBasicRequest {
+  body?: ReadPageBody(name='body', description='post body'),
+}
+
+model ReadPageBasicResponseBody = {
+  data?: ReadPageItem(name='data'),
+  errorCode?: string(name='errorCode'),
+  errorMessage?: string(name='errorMessage'),
+  requestId?: string(name='requestId'),
+}
+
+model ReadPageBasicResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ReadPageBasicResponseBody(name='body'),
+}
+
+/**
+ * @summary 页面读取
+ *
+ * @param request ReadPageBasicRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return ReadPageBasicResponse
+ */
+@context("readPageBasicWithContext")
+async function readPageBasicWithOptions(request: ReadPageBasicRequest, headers: map[string]string, runtime: $RuntimeOptions): ReadPageBasicResponse {
+  request.validate();
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    headers = headers,
+    body = OpenApiUtil.parseToMap(request.body),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'ReadPageBasic',
+    version = '2024-11-11',
+    protocol = 'HTTPS',
+    pathname = `/linked-retrieval/linked-retrieval-entry/v1/iqs/readpage/basic`,
+    method = 'POST',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 页面读取
+ *
+ * @param request ReadPageBasicRequest
+ * @return ReadPageBasicResponse
+ */
+async function readPageBasic(request: ReadPageBasicRequest): ReadPageBasicResponse {
+  var runtime = new $RuntimeOptions{};
+  var headers : map[string]string = {};
+  return readPageBasicWithOptions(request, headers, runtime);
 }
 
 model UnifiedSearchRequest {

@@ -130,10 +130,35 @@ model QueryContext {
   }(name='rewrite'),
 }
 
+model ReadPageBody {
+  formats?: [ string ](name='formats'),
+  location?: string(name='location'),
+  maxAge?: int32(name='maxAge'),
+  pageTimeout?: int32(name='pageTimeout'),
+  readability?: {
+    excludeAllImages?: boolean(name='excludeAllImages'),
+    excludeAllLinks?: boolean(name='excludeAllLinks'),
+    excludedTags?: [ string ](name='excludedTags'),
+    readabilityMode?: string(name='readabilityMode'),
+  }(name='readability'),
+  timeout?: int32(name='timeout'),
+  url: string(name='url', description='This parameter is required.'),
+}
+
+model ReadPageItem {
+  errorMessage?: string(name='errorMessage'),
+  html?: string(name='html'),
+  markdown?: string(name='markdown'),
+  rawHtml?: string(name='rawHtml'),
+  statusCode?: int32(name='statusCode'),
+  text?: string(name='text'),
+}
+
 model RequestContents {
   mainText?: boolean(name='mainText'),
   markdownText?: boolean(name='markdownText'),
   rerankScore?: boolean(name='rerankScore'),
+  richMainBody?: boolean(name='richMainBody'),
   summary?: boolean(name='summary'),
 }
 
@@ -342,6 +367,7 @@ model GenericSearchRequest {
   query: string(name='query', description='This parameter is required.', position='Query'),
   returnMainText?: boolean(name='returnMainText', position='Query'),
   returnMarkdownText?: boolean(name='returnMarkdownText', position='Query'),
+  returnRichMainBody?: boolean(name='returnRichMainBody', position='Query'),
   returnSummary?: boolean(name='returnSummary', position='Query'),
   sessionId?: string(name='sessionId', position='Query'),
   timeRange?: string(name='timeRange', example='OneWeek', position='Query'),
@@ -402,6 +428,32 @@ model GlobalSearchResponse = {
 async function globalSearch(request: GlobalSearchRequest): GlobalSearchResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RESTFUL', 'GlobalSearch', 'GET', '/linked-retrieval/linked-retrieval-entry/v1/iqs/search/global', 'json', false, 'json', request);
+}
+
+model ReadPageBasicRequest {
+  body?: ReadPageBody(name='body', description='post body', position='Body'),
+}
+
+model ReadPageBasicResponseBody = {
+  data?: ReadPageItem(name='data'),
+  errorCode?: string(name='errorCode'),
+  errorMessage?: string(name='errorMessage'),
+  requestId?: string(name='requestId'),
+}
+
+model ReadPageBasicResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ReadPageBasicResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of ReadPageBasic  ReadPageBasicRequest
+  * @return ReadPageBasicResponse
+ */
+async function readPageBasic(request: ReadPageBasicRequest): ReadPageBasicResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'ReadPageBasic', 'POST', '/linked-retrieval/linked-retrieval-entry/v1/iqs/readpage/basic', 'json', false, 'json', request);
 }
 
 model UnifiedSearchRequest {
