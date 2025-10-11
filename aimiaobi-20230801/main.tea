@@ -28,6 +28,65 @@ function getEndpoint(productId: string, regionId: string, endpointRule: string, 
   return EndpointUtil.getEndpointRules(productId, regionId, endpointRule, network, suffix);
 }
 
+model GenerateTraceability {
+  news?: [ 
+    {
+      index?: int32(name='Index'),
+      pubTime?: string(name='PubTime'),
+      searchSource?: string(name='SearchSource'),
+      searchSourceName?: string(name='SearchSourceName'),
+      title?: string(name='Title'),
+      url?: string(name='Url'),
+    }
+  ](name='News'),
+}
+
+model OutlineSearchResult {
+  articles?: [
+    OutlineWritingArticle
+  ](name='Articles'),
+  outline?: string(name='Outline'),
+  outlineId?: string(name='OutlineId'),
+  primaryOutline?: string(name='PrimaryOutline'),
+  query?: string(name='Query'),
+}
+
+model OutlineWritingArticle {
+  content?: string(name='Content'),
+  outline?: string(name='Outline'),
+  primaryOutline?: string(name='PrimaryOutline'),
+  pubTime?: string(name='PubTime'),
+  searchSource?: string(name='SearchSource'),
+  searchSourceName?: string(name='SearchSourceName'),
+  title?: string(name='Title'),
+  url?: string(name='Url'),
+}
+
+model TopicSelection {
+  outlines?: [ 
+    {
+      outline?: string(name='Outline'),
+      summary?: string(name='Summary'),
+    }
+  ](name='Outlines'),
+  point?: string(name='Point'),
+  summary?: string(name='Summary'),
+}
+
+model WritingOutline {
+  articles?: [
+    OutlineWritingArticle
+  ](name='Articles'),
+  children?: [
+    WritingOutline
+  ](name='Children'),
+  outline?: string(name='Outline'),
+  outlineId?: string(name='OutlineId'),
+  searchKeyWordList?: [ string ](name='SearchKeyWordList'),
+  wordCount?: string(name='WordCount'),
+  writingTips?: string(name='WritingTips'),
+}
+
 model WritingStyleTemplateDefine {
   example?: [ 
     {
@@ -15300,6 +15359,9 @@ model RunWritingV2Request {
       star?: boolean(name='Star', example='true'),
     }
   ](name='MiniDocs'),
+  outlineList?: [
+    WritingOutline
+  ](name='OutlineList'),
   outlines?: [ 
     {
       articles?: [ 
@@ -15322,6 +15384,7 @@ model RunWritingV2Request {
     }
   ](name='SearchSources'),
   sessionId?: string(name='SessionId', example='3f7045e099474ba28ceca1b4eb6d6e21'),
+  sourceTraceMethod?: string(name='SourceTraceMethod'),
   step?: string(name='Step', example='Writing'),
   summarization?: [ 
     {
@@ -15345,11 +15408,13 @@ model RunWritingV2ShrinkRequest {
   keywordsShrink?: string(name='Keywords'),
   language?: string(name='Language', example='en'),
   miniDocsShrink?: string(name='MiniDocs'),
+  outlineListShrink?: string(name='OutlineList'),
   outlinesShrink?: string(name='Outlines'),
   prompt?: string(name='Prompt'),
   promptMode?: string(name='PromptMode', example='Template'),
   searchSourcesShrink?: string(name='SearchSources'),
   sessionId?: string(name='SessionId', example='3f7045e099474ba28ceca1b4eb6d6e21'),
+  sourceTraceMethod?: string(name='SourceTraceMethod'),
   step?: string(name='Step', example='Writing'),
   summarizationShrink?: string(name='Summarization'),
   taskId?: string(name='TaskId', example='3f7045e099474ba28ceca1b4eb6d6e21'),
@@ -15388,9 +15453,15 @@ model RunWritingV2ResponseBody = {
           url?: string(name='Url', example='https://www.example.com/aaa.docx'),
         }
       ](name='Articles'),
+      generateTraceability?: GenerateTraceability(name='GenerateTraceability'),
       miniDoc?: [ string ](name='MiniDoc', example='文章精排之后的片段'),
+      outlines?: [
+        WritingOutline
+      ](name='Outlines'),
       searchQuery?: string(name='SearchQuery', example='大模型改变世界'),
+      searchResult?: OutlineSearchResult(name='SearchResult'),
       text?: string(name='Text', example='文本生成结果'),
+      title?: string(name='Title'),
     }(name='Output'),
     usage?: {
       inputTokens?: long(name='InputTokens', example='78'),
@@ -15428,6 +15499,9 @@ async function runWritingV2WithOptions(tmpReq: RunWritingV2Request, runtime: Uti
   if (!Util.isUnset(tmpReq.miniDocs)) {
     request.miniDocsShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.miniDocs, 'MiniDocs', 'json');
   }
+  if (!Util.isUnset(tmpReq.outlineList)) {
+    request.outlineListShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.outlineList, 'OutlineList', 'json');
+  }
   if (!Util.isUnset(tmpReq.outlines)) {
     request.outlinesShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.outlines, 'Outlines', 'json');
   }
@@ -15462,6 +15536,9 @@ async function runWritingV2WithOptions(tmpReq: RunWritingV2Request, runtime: Uti
   if (!Util.isUnset(request.miniDocsShrink)) {
     body['MiniDocs'] = request.miniDocsShrink;
   }
+  if (!Util.isUnset(request.outlineListShrink)) {
+    body['OutlineList'] = request.outlineListShrink;
+  }
   if (!Util.isUnset(request.outlinesShrink)) {
     body['Outlines'] = request.outlinesShrink;
   }
@@ -15476,6 +15553,9 @@ async function runWritingV2WithOptions(tmpReq: RunWritingV2Request, runtime: Uti
   }
   if (!Util.isUnset(request.sessionId)) {
     body['SessionId'] = request.sessionId;
+  }
+  if (!Util.isUnset(request.sourceTraceMethod)) {
+    body['SourceTraceMethod'] = request.sourceTraceMethod;
   }
   if (!Util.isUnset(request.step)) {
     body['Step'] = request.step;
