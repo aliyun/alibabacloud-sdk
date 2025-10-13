@@ -52,7 +52,18 @@ model AgentServiceConfig {
 model AiServiceConfig {
   address?: string(name='address', example='https://dashscope.aliyun.com'),
   apiKeys?: [ string ](name='apiKeys'),
+  bedrockServiceConfig?: {
+    awsAccessKey?: string(name='awsAccessKey'),
+    awsRegion?: string(name='awsRegion'),
+    awsSecretKey?: string(name='awsSecretKey'),
+  }(name='bedrockServiceConfig'),
   enableHealthCheck?: boolean(name='enableHealthCheck'),
+  paiEASServiceConfig?: {
+    endpointType?: string(name='endpointType'),
+    serviceId?: string(name='serviceId'),
+    serviceName?: string(name='serviceName'),
+    workspaceId?: string(name='workspaceId'),
+  }(name='paiEASServiceConfig'),
   protocols?: [ string ](name='protocols'),
   provider?: string(name='provider', example='qwen'),
 }
@@ -154,6 +165,11 @@ model Backend {
 
 model CheckServiceLinkedRoleResult {
   existed?: boolean(name='existed'),
+}
+
+model ConsumerConfig {
+  consumerId?: string(name='consumerId'),
+  name?: string(name='name'),
 }
 
 model ConsumerInfo {
@@ -313,7 +329,12 @@ model HttpApiDeployConfig {
   policyConfigs?: [ 
     {
       aiFallbackConfig?: {
-        serviceIds?: [ string ](name='serviceIds'),
+        serviceConfigs?: [ 
+          {
+            serviceId?: string(name='serviceId'),
+            targetModelName?: string(name='targetModelName'),
+          }
+        ](name='serviceConfigs'),
       }(name='aiFallbackConfig'),
       enable?: boolean(name='enable', example='true'),
       type?: string(name='type', example='AiFallback'),
@@ -639,9 +660,17 @@ model JwtIdentityConfig {
   type?: string(name='type'),
 }
 
+model KMSConfig {
+  kmsInstanceId?: string(name='kmsInstanceId'),
+  kmsKeyId?: string(name='kmsKeyId'),
+}
+
 model LabelDetail {
   key?: string(name='key'),
   values?: [ string ](name='values'),
+}
+
+model McpServerConfig {
 }
 
 model ParentResourceInfo {
@@ -731,9 +760,12 @@ model Service {
   groupName?: string(name='groupName', example='publich'),
   healthCheck?: ServiceHealthCheck(name='healthCheck'),
   healthStatus?: string(name='healthStatus'),
-  labelDetails?: LabelDetail(name='labelDetails'),
+  labelDetails?: [
+    LabelDetail
+  ](name='labelDetails'),
   name?: string(name='name'),
   namespace?: string(name='namespace'),
+  outlierEndpoints?: [ string ](name='outlierEndpoints'),
   ports?: [ 
     {
       name?: string(name='name'),
@@ -1138,6 +1170,7 @@ async function createEnvironment(request: CreateEnvironmentRequest): CreateEnvir
 
 model CreateGatewayRequest {
   chargeType?: string(name='chargeType', example='POSTPAY', position='Body'),
+  gatewayEdition?: string(name='gatewayEdition', example='Professional', position='Body'),
   gatewayType?: string(name='gatewayType', example='API', position='Body'),
   logConfig?: {
     sls?: {
@@ -1206,6 +1239,7 @@ model CreateHttpApiRequest {
   ](name='deployConfigs', description='The API deployment configurations. Currently, only AI APIs support deployment configurations, and only a single deployment configuration can be passed.', position='Body'),
   description?: string(name='description', description='The API description.', example='API for testing', position='Body'),
   enableAuth?: boolean(name='enableAuth', description='Specifies whether to enable authentication.', position='Body'),
+  firstByteTimeout?: int32(name='firstByteTimeout', position='Body'),
   ingressConfig?: {
     clusterId?: string(name='clusterId'),
     environmentId?: string(name='environmentId', description='The environment ID.', example='env-cq146allhtgk***'),
@@ -1351,6 +1385,62 @@ model CreateHttpApiRouteResponse = {
 async function createHttpApiRoute(request: CreateHttpApiRouteRequest): CreateHttpApiRouteResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RESTFUL', 'CreateHttpApiRoute', 'POST', '/v1/http-apis/{httpApiId}/routes', 'json', false, 'json', request);
+}
+
+model CreateMcpServerRequest {
+  assembledSources?: [ 
+    {
+      mcpServerId?: string(name='mcpServerId', description='MCP Server ID', example='mcp-sdfa3qgavz'),
+      mcpServerName?: string(name='mcpServerName', example='test-mcp'),
+      tools?: [ string ](name='tools'),
+    }
+  ](name='assembledSources', position='Body'),
+  backendConfig?: {
+    scene?: string(name='scene', example='SingleService'),
+    services?: [ 
+      {
+        port?: int32(name='port', example='8080'),
+        protocol?: string(name='protocol', example='HTTP'),
+        serviceId?: string(name='serviceId', example='svc-crbgq0dlhtgr***'),
+        version?: string(name='version', example='2.1.6'),
+        weight?: int32(name='weight', example='49'),
+      }
+    ](name='services'),
+  }(name='backendConfig', position='Body'),
+  description?: string(name='description', example='mcp tool fetch time', position='Body'),
+  domainIds?: [ string ](name='domainIds', position='Body'),
+  exposedUriPath?: string(name='exposedUriPath', example='/sse', position='Body'),
+  gatewayId: string(name='gatewayId', description='This parameter is required.', example='gw-cq7l5s5lhtgi6qac0', position='Body'),
+  match?: HttpRouteMatch(name='match', position='Body'),
+  mcpStatisticsEnable?: boolean(name='mcpStatisticsEnable', example='false', position='Body'),
+  name: string(name='name', description='This parameter is required.', example='fetch-time', position='Body'),
+  protocol?: string(name='protocol', example='HTTP', position='Body'),
+  type: string(name='type', description='This parameter is required.', example='RealMCP', position='Body'),
+}
+
+model CreateMcpServerResponseBody = {
+  code?: string(name='code', example='Ok'),
+  data?: {
+    mcpServerId?: string(name='mcpServerId', description='MCP Server ID', example='mcp-afegaijoijaoji24a'),
+    name?: string(name='name', example='test-mcp'),
+  }(name='data'),
+  message?: string(name='message', example='success'),
+  requestId?: string(name='requestId', description='Id of the request', example='464F9EA0-1052-51BD-8187-D292AA2D8D24'),
+}
+
+model CreateMcpServerResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: CreateMcpServerResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of CreateMcpServer  CreateMcpServerRequest
+  * @return CreateMcpServerResponse
+ */
+async function createMcpServer(request: CreateMcpServerRequest): CreateMcpServerResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'CreateMcpServer', 'POST', '/v1/mcp-servers', 'json', false, 'json', request);
 }
 
 model CreatePluginAttachmentRequest {
@@ -1769,6 +1859,31 @@ async function deleteHttpApiRoute(request: DeleteHttpApiRouteRequest): DeleteHtt
   return @handler.do('RESTFUL', 'DeleteHttpApiRoute', 'DELETE', '/v1/http-apis/{httpApiId}/routes/{routeId}', 'json', false, 'json', request);
 }
 
+model DeleteMcpServerRequest {
+  mcpServerId?: string(name='mcpServerId', description='MCP Server ID', example='mcp-adfefz24afg', position='Path'),
+}
+
+model DeleteMcpServerResponseBody = {
+  code?: string(name='code', example='Ok'),
+  message?: string(name='message', example='Success'),
+  requestId?: string(name='requestId', description='Id of the request', example='393E2630-DBE7-5221-AB35-9E740675491A'),
+}
+
+model DeleteMcpServerResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: DeleteMcpServerResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of DeleteMcpServer  DeleteMcpServerRequest
+  * @return DeleteMcpServerResponse
+ */
+async function deleteMcpServer(request: DeleteMcpServerRequest): DeleteMcpServerResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'DeleteMcpServer', 'DELETE', '/v1/mcp-servers/{mcpServerId}', 'json', false, 'json', request);
+}
+
 model DeletePluginAttachmentRequest {
   pluginAttachmentId?: string(name='pluginAttachmentId', example='pa-cvlkefmm1hkkc90m8vq0', position='Path'),
 }
@@ -1924,6 +2039,31 @@ model DeployHttpApiResponse = {
 async function deployHttpApi(request: DeployHttpApiRequest): DeployHttpApiResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RESTFUL', 'DeployHttpApi', 'POST', '/v1/http-apis/{httpApiId}/deploy', 'json', false, 'json', request);
+}
+
+model DeployMcpServerRequest {
+  mcpServerId?: string(name='mcpServerId', description='MCP Server ID', example='mcp-adfefz24afg', position='Path'),
+}
+
+model DeployMcpServerResponseBody = {
+  code?: string(name='code', example='Ok'),
+  message?: string(name='message', example='success'),
+  requestId?: string(name='requestId', description='Id of the request', example='393E2630-DBE7-5221-AB35-9E740675491A'),
+}
+
+model DeployMcpServerResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: DeployMcpServerResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of DeployMcpServer  DeployMcpServerRequest
+  * @return DeployMcpServerResponse
+ */
+async function deployMcpServer(request: DeployMcpServerRequest): DeployMcpServerResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'DeployMcpServer', 'POST', '/v1/mcp-servers/{mcpServerId}/deploy', 'json', false, 'json', request);
 }
 
 model ExportHttpApiRequest {
@@ -2236,6 +2376,7 @@ model GetGatewayResponseBody = {
       }
     ](name='environments', description='The list of environments associated with the instance.'),
     expireTimestamp?: long(name='expireTimestamp', description='The time when the instance expires. This value is a UNIX timestamp. Unit: milliseconds.', example='1719386834548'),
+    gatewayEdition?: string(name='gatewayEdition', example='Serverless'),
     gatewayId?: string(name='gatewayId', description='The instance ID.', example='gw-cq2vundlhtg***'),
     gatewayType?: string(name='gatewayType', description='the gateway type, which is categorized into the following two types:
 - API: indicates an API gateway
@@ -2276,6 +2417,10 @@ model GetGatewayResponseBody = {
 *   CLB: Classic Load Balancer', example='NLB'),
       }
     ](name='loadBalancers', description='The ingress addresses of the instance.'),
+    maintenancePeriod?: {
+      endTime?: string(name='endTime', example='06:00'),
+      startTime?: string(name='startTime', example='02:00'),
+    }(name='maintenancePeriod'),
     name?: string(name='name', description='The instance name.', example='itemcenter-gateway'),
     replicas?: string(name='replicas', description='The node quantity of the instance.', example='2'),
     resourceGroupId?: string(name='resourceGroupId', description='The resource group ID.', example='rg-aek2s3cvc4jzfxi'),
@@ -2428,6 +2573,70 @@ model GetHttpApiRouteResponse = {
 async function getHttpApiRoute(request: GetHttpApiRouteRequest): GetHttpApiRouteResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RESTFUL', 'GetHttpApiRoute', 'GET', '/v1/http-apis/{httpApiId}/routes/{routeId}', 'json', false, 'json', request);
+}
+
+model GetMcpServerRequest {
+  mcpServerId?: string(name='mcpServerId', description='MCP Server ID', example='mcp-adfefz24afg', position='Path'),
+}
+
+model GetMcpServerResponseBody = {
+  code?: string(name='code', example='Ok'),
+  data?: {
+    assembledSources?: [ 
+      {
+        mcpServerId?: string(name='mcpServerId', description='MCP Server ID', example='mcp-xdafeafzz'),
+        mcpServerName?: string(name='mcpServerName', example='test-mcp'),
+        tools?: [ string ](name='tools'),
+      }
+    ](name='assembledSources'),
+    backend?: Backend(name='backend'),
+    createFromType?: string(name='createFromType', example='ApiGatewayHttpToMCP'),
+    deployStatus?: string(name='deployStatus', example='Deployed'),
+    description?: string(name='description'),
+    domainIds?: [ string ](name='domainIds'),
+    domainInfos?: [ 
+      {
+        domainId?: string(name='domainId', example='www.abc.com'),
+        name?: string(name='name', example='verifyicket'),
+        protocol?: string(name='protocol', example='HTTP,HTTPS'),
+      }
+    ](name='domainInfos'),
+    environmentId?: string(name='environmentId', example='env-cq7l5s5lhtgi6qasrdc0'),
+    exposedUriPath?: string(name='exposedUriPath', example='/sse'),
+    gatewayId?: string(name='gatewayId', example='gw-cq2vundlhtg***'),
+    match?: HttpRouteMatch(name='match', example='{\\"product_code\\":\\"apigw\\"}'),
+    mcpServerConfig?: string(name='mcpServerConfig'),
+    mcpServerConfigPluginAttachmentId?: string(name='mcpServerConfigPluginAttachmentId', example='pa-adfaefwaef'),
+    mcpServerId?: string(name='mcpServerId', description='MCP Server ID', example='mcp-adfefz24afg'),
+    mcpServerPath?: string(name='mcpServerPath', example='/mcp-servers/test-mcp'),
+    mcpStatisticsEnable?: boolean(name='mcpStatisticsEnable', example='false'),
+    nacosMcpSyncInfo?: {
+      importInstanceId?: string(name='importInstanceId', example='mse-xxxxx'),
+      importMcpServerId?: string(name='importMcpServerId', example='test-mcp'),
+      importNamespace?: string(name='importNamespace', example='test-ns'),
+    }(name='nacosMcpSyncInfo'),
+    name?: string(name='name', example='test-mcp'),
+    protocol?: string(name='protocol', example='HTTP'),
+    routeId?: string(name='routeId', example='hr-cr82undlhtgrlej***'),
+    type?: string(name='type', example='RealMCP'),
+  }(name='data'),
+  message?: string(name='message', example='Success'),
+  requestId?: string(name='requestId', description='Id of the request', example='2A6E90D5-A711-54F4-A489-E33C2021EDDF'),
+}
+
+model GetMcpServerResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: GetMcpServerResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of GetMcpServer  GetMcpServerRequest
+  * @return GetMcpServerResponse
+ */
+async function getMcpServer(request: GetMcpServerRequest): GetMcpServerResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'GetMcpServer', 'GET', '/v1/mcp-servers/{mcpServerId}', 'json', false, 'json', request);
 }
 
 model GetPluginAttachmentRequest {
@@ -2638,9 +2847,12 @@ async function getTraceConfig(request: GetTraceConfigRequest): GetTraceConfigRes
 }
 
 model ImportHttpApiRequest {
-  deployConfigs?: HttpApiDeployConfig(name='deployConfigs', description='The deployment configuration.', position='Body'),
+  deployConfigs?: [
+    HttpApiDeployConfig
+  ](name='deployConfigs', description='The deployment configuration.', position='Body'),
   description?: string(name='description', description='The API description, which cannot exceed 255 bytes in length. If you do not specify a description, a description is extracted from the definition file.', example='API for testing', position='Body'),
   dryRun?: boolean(name='dryRun', description='Specifies whether to perform a dry run. If this parameter is set to true, a dry run is performed without importing the file.', example='false', position='Body'),
+  gatewayId?: string(name='gatewayId', position='Body'),
   mcpRouteId?: string(name='mcpRouteId', description='The MCP route ID.', position='Body'),
   name?: string(name='name', description='The API name. If you do not specify a name, a name is extracted from the definition file. If a name and a versioning configuration already exist, the existing API definition is updated based on the strategy field.', example='import-test', position='Body'),
   resourceGroupId?: string(name='resourceGroupId', description='[The resource group ID](https://help.aliyun.com/document_detail/151181.html).', example='rg-acfm3q4zjh7fkki', position='Body'),
@@ -2721,6 +2933,40 @@ model ImportHttpApiResponse = {
 async function importHttpApi(request: ImportHttpApiRequest): ImportHttpApiResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RESTFUL', 'ImportHttpApi', 'POST', '/v1/http-apis/import', 'json', false, 'json', request);
+}
+
+model InstallPluginRequest {
+  gatewayIds?: [ string ](name='gatewayIds', position='Body'),
+  pluginClassId?: string(name='pluginClassId', example='pls-csqmjndlhtguk0loef21', position='Body'),
+}
+
+model InstallPluginResponseBody = {
+  code?: string(name='code', example='Ok'),
+  data?: {
+    installPluginResults?: [ 
+      {
+        gatewayId?: string(name='gatewayId', example='gw-d28mjcmm1hkub84mdbi0'),
+        pluginId?: string(name='pluginId', example='pl-cvs7gbum1hkhs6us6vbg'),
+      }
+    ](name='installPluginResults'),
+  }(name='data'),
+  message?: string(name='message', example='Success'),
+  requestId?: string(name='requestId', description='Id of the request', example='201CFCA0-3AF5-52D0-A0F3-FBA697AF55CB'),
+}
+
+model InstallPluginResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: InstallPluginResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of InstallPlugin  InstallPluginRequest
+  * @return InstallPluginResponse
+ */
+async function installPlugin(request: InstallPluginRequest): InstallPluginResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'InstallPlugin', 'POST', '/v1/plugins/', 'json', false, 'json', request);
 }
 
 model ListConsumersRequest {
@@ -2876,6 +3122,7 @@ model ListGatewaysResponseBody = {
 *   Console', example='Console'),
         createTimestamp?: long(name='createTimestamp', description='The time when the instance was created. This value is a UNIX timestamp. Unit: milliseconds.', example='1719386834548'),
         expireTimestamp?: long(name='expireTimestamp', description='The time when the instance expires. This value is a UNIX timestamp. Unit: milliseconds.', example='172086834548'),
+        gatewayEdition?: string(name='gatewayEdition', example='Serverless'),
         gatewayId?: string(name='gatewayId', description='The instance ID.', example='gw-cpv54p5***'),
         gatewayType?: string(name='gatewayType'),
         legacy?: boolean(name='legacy'),
@@ -2990,6 +3237,7 @@ model ListHttpApiOperationsRequest {
 
 This parameter is required.', example='api-xxx', position='Path'),
   consumerAuthorizationRuleId?: string(name='consumerAuthorizationRuleId', description='Filter the operation list based on a specific consumer authorization rule ID, and the interface list in the response only contains authorized operations.', example='cas-xxx', position='Query'),
+  enableAuth?: boolean(name='enableAuth', position='Query'),
   forDeploy?: boolean(name='forDeploy', position='Query'),
   gatewayId?: string(name='gatewayId', position='Query'),
   method?: string(name='method', description='List interfaces by Method.', example='GET', position='Query'),
@@ -3141,6 +3389,78 @@ model ListHttpApisResponse = {
 async function listHttpApis(request: ListHttpApisRequest): ListHttpApisResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RESTFUL', 'ListHttpApis', 'GET', '/v1/http-apis', 'json', false, 'json', request);
+}
+
+model ListMcpServersRequest {
+  createFromTypes?: string(name='createFromTypes', example='ApiGatewayHttpToMCP', position='Query'),
+  deployStatuses?: string(name='deployStatuses', example='Deployed', position='Query'),
+  gatewayId: string(name='gatewayId', description='This parameter is required.', example='gw-co370icmjeu****', position='Query'),
+  nameLike?: string(name='nameLike', example='test', position='Query'),
+  pageNumber: int32(name='pageNumber', description='This parameter is required.', example='1', position='Query'),
+  pageSize: int32(name='pageSize', description='This parameter is required.', example='10', position='Query'),
+  type?: string(name='type', example='RealMCP', position='Query'),
+}
+
+model ListMcpServersResponseBody = {
+  code?: string(name='code', example='Ok'),
+  data?: {
+    items?: [ 
+      {
+        assembledSources?: [ 
+          {
+            mcpServerId?: string(name='mcpServerId', description='MCP Server ID', example='mcp-adfef2334fa'),
+            mcpServerName?: string(name='mcpServerName', example='test-mcp'),
+            tools?: [ string ](name='tools'),
+          }
+        ](name='assembledSources'),
+        backend?: Backend(name='backend'),
+        createFromType?: string(name='createFromType', example='ApiGatewayHttpToMCP'),
+        deployStatus?: string(name='deployStatus', example='Deployed'),
+        description?: string(name='description'),
+        domainIds?: [ string ](name='domainIds'),
+        domainInfos?: [
+          HttpApiDomainInfo
+        ](name='domainInfos'),
+        environmentId?: string(name='environmentId', example='env-cq7l5s5lhtgi6qasrdc0'),
+        exposedUriPath?: string(name='exposedUriPath', example='/sse'),
+        gatewayId?: string(name='gatewayId', example='gw-cpv54p5***'),
+        match?: HttpRouteMatch(name='match'),
+        mcpServerConfig?: string(name='mcpServerConfig'),
+        mcpServerId?: string(name='mcpServerId', description='MCP Server ID', example='mcp-feaff34va'),
+        mcpServerPath?: string(name='mcpServerPath', example='/mcp-servers/test-mcp'),
+        mcpStatisticsEnable?: boolean(name='mcpStatisticsEnable', example='false'),
+        nacosMcpSyncInfo?: {
+          importInstanceId?: string(name='importInstanceId', example='mse-faefrefxz'),
+          importMcpServerId?: string(name='importMcpServerId'),
+          importNamespace?: string(name='importNamespace', example='test-ns'),
+        }(name='nacosMcpSyncInfo'),
+        name?: string(name='name', example='itemcenter-dev-cluster'),
+        protocol?: string(name='protocol', example='HTTP'),
+        routeId?: string(name='routeId', example='hr-d11cj86m1hkvop6mp42g'),
+        type?: string(name='type'),
+      }
+    ](name='items'),
+    pageNumber?: int32(name='pageNumber', example='1'),
+    pageSize?: int32(name='pageSize', example='10'),
+    totalSize?: int32(name='totalSize', example='25'),
+  }(name='data'),
+  message?: string(name='message', example='success'),
+  requestId?: string(name='requestId', description='Id of the request', example='585657D2-1C20-5B8A-AF17-D727C6490BE4'),
+}
+
+model ListMcpServersResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ListMcpServersResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of ListMcpServers  ListMcpServersRequest
+  * @return ListMcpServersResponse
+ */
+async function listMcpServers(request: ListMcpServersRequest): ListMcpServersResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'ListMcpServers', 'GET', '/v1/mcp-servers', 'json', false, 'json', request);
 }
 
 model ListPluginAttachmentsRequest {
@@ -3579,6 +3899,31 @@ async function restartGateway(request: RestartGatewayRequest): RestartGatewayRes
   return @handler.do('RESTFUL', 'RestartGateway', 'POST', '/v1/gateways/{gatewayId}/restart', 'json', false, 'json', request);
 }
 
+model UnDeployMcpServerRequest {
+  mcpServerId?: string(name='mcpServerId', description='MCP Server ID', example='mcp-adfef2334fa', position='Path'),
+}
+
+model UnDeployMcpServerResponseBody = {
+  code?: string(name='code', example='Ok'),
+  message?: string(name='message', example='success'),
+  requestId?: string(name='requestId', description='Id of the request', example='CE857A85-251D-5018-8103-A38957D71E20'),
+}
+
+model UnDeployMcpServerResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: UnDeployMcpServerResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of UnDeployMcpServer  UnDeployMcpServerRequest
+  * @return UnDeployMcpServerResponse
+ */
+async function unDeployMcpServer(request: UnDeployMcpServerRequest): UnDeployMcpServerResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'UnDeployMcpServer', 'POST', '/v1/mcp-servers/{mcpServerId}/undeploy', 'json', false, 'json', request);
+}
+
 model UndeployHttpApiRequest {
   httpApiId?: string(name='httpApiId', description='HTTP API ID。', example='api-cqu95allhtgii6***', position='Path'),
   environmentId?: string(name='environmentId', description='The environment ID.', example='env-cqsmtellhtgvo***', position='Body'),
@@ -3606,6 +3951,31 @@ model UndeployHttpApiResponse = {
 async function undeployHttpApi(request: UndeployHttpApiRequest): UndeployHttpApiResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RESTFUL', 'UndeployHttpApi', 'POST', '/v1/http-apis/{httpApiId}/undeploy', 'json', false, 'json', request);
+}
+
+model UninstallPluginRequest {
+  pluginId?: string(name='pluginId', example='pl-cvd2b36m1hkhdosfhar0', position='Path'),
+}
+
+model UninstallPluginResponseBody = {
+  code?: string(name='code', example='Ok'),
+  message?: string(name='message', example='success'),
+  requestId?: string(name='requestId', description='Id of the request', example='F61D96E8-4E6D-5896-86E7-F1202AC31280'),
+}
+
+model UninstallPluginResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: UninstallPluginResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of UninstallPlugin  UninstallPluginRequest
+  * @return UninstallPluginResponse
+ */
+async function uninstallPlugin(request: UninstallPluginRequest): UninstallPluginResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'UninstallPlugin', 'DELETE', '/v1/plugins/{pluginId}', 'json', false, 'json', request);
 }
 
 model UpdateAndAttachPolicyRequest {
@@ -3858,6 +4228,7 @@ This parameter is required.', example='/v1', position='Body'),
   ](name='deployConfigs', description='The deployment configurations.', position='Body'),
   description?: string(name='description', description='The API description.', example='API for testing', position='Body'),
   enableAuth?: boolean(name='enableAuth', description='Specifies whether to enable authentication.', position='Body'),
+  firstByteTimeout?: int32(name='firstByteTimeout', position='Body'),
   ingressConfig?: {
     environmentId?: string(name='environmentId', description='The environment ID.', example='env-cr6ql0tlhtgmc****'),
     ingressClass?: string(name='ingressClass', description='The Ingress class for listening.', example='mse'),
@@ -3982,6 +4353,57 @@ model UpdateHttpApiRouteResponse = {
 async function updateHttpApiRoute(request: UpdateHttpApiRouteRequest): UpdateHttpApiRouteResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RESTFUL', 'UpdateHttpApiRoute', 'PUT', '/v1/http-apis/{httpApiId}/routes/{routeId}', 'json', false, 'json', request);
+}
+
+model UpdateMcpServerRequest {
+  mcpServerId?: string(name='mcpServerId', description='MCP Server ID', example='mcp-adfefz24afg', position='Path'),
+  assembledSources?: [ 
+    {
+      mcpServerId?: string(name='mcpServerId', description='MCP Server ID', example='mcp-afaefaefaf'),
+      mcpServerName?: string(name='mcpServerName', example='test-mcp'),
+      tools?: [ string ](name='tools'),
+    }
+  ](name='assembledSources', position='Body'),
+  backendConfig?: {
+    scene?: string(name='scene', example='SingleService'),
+    services?: [ 
+      {
+        port?: int32(name='port', example='8080'),
+        protocol?: string(name='protocol', example='HTTP'),
+        serviceId?: string(name='serviceId', example='svc-cr6pk4tlhtgm58e***'),
+        version?: string(name='version', example='v1'),
+        weight?: int32(name='weight', example='49'),
+      }
+    ](name='services'),
+  }(name='backendConfig', position='Body'),
+  description?: string(name='description', position='Body'),
+  domainIds?: [ string ](name='domainIds', position='Body'),
+  exposedUriPath?: string(name='exposedUriPath', example='/sse', position='Body'),
+  match?: HttpRouteMatch(name='match', position='Body'),
+  mcpStatisticsEnable?: boolean(name='mcpStatisticsEnable', example='false', position='Body'),
+  protocol: string(name='protocol', description='This parameter is required.', example='HTTP', position='Body'),
+  type: string(name='type', description='This parameter is required.', example='RealMCP', position='Body'),
+}
+
+model UpdateMcpServerResponseBody = {
+  code?: string(name='code', example='Ok'),
+  message?: string(name='message', example='success'),
+  requestId?: string(name='requestId', description='Id of the request', example='3ACFC7A7-45A9-58CF-B2D5-765B60254695'),
+}
+
+model UpdateMcpServerResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: UpdateMcpServerResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of UpdateMcpServer  UpdateMcpServerRequest
+  * @return UpdateMcpServerResponse
+ */
+async function updateMcpServer(request: UpdateMcpServerRequest): UpdateMcpServerResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'UpdateMcpServer', 'PUT', '/v1/mcp-servers/{mcpServerId}', 'json', false, 'json', request);
 }
 
 model UpdatePluginAttachmentRequest {

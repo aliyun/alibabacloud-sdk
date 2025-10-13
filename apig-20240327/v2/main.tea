@@ -48,7 +48,18 @@ model AgentServiceConfig {
 model AiServiceConfig {
   address?: string(name='address', example='https://dashscope.aliyun.com'),
   apiKeys?: [ string ](name='apiKeys'),
+  bedrockServiceConfig?: {
+    awsAccessKey?: string(name='awsAccessKey'),
+    awsRegion?: string(name='awsRegion'),
+    awsSecretKey?: string(name='awsSecretKey'),
+  }(name='bedrockServiceConfig'),
   enableHealthCheck?: boolean(name='enableHealthCheck'),
+  paiEASServiceConfig?: {
+    endpointType?: string(name='endpointType'),
+    serviceId?: string(name='serviceId'),
+    serviceName?: string(name='serviceName'),
+    workspaceId?: string(name='workspaceId'),
+  }(name='paiEASServiceConfig'),
   protocols?: [ string ](name='protocols'),
   provider?: string(name='provider', example='qwen'),
 }
@@ -150,6 +161,11 @@ model Backend {
 
 model CheckServiceLinkedRoleResult {
   existed?: boolean(name='existed'),
+}
+
+model ConsumerConfig {
+  consumerId?: string(name='consumerId'),
+  name?: string(name='name'),
 }
 
 model ConsumerInfo {
@@ -309,7 +325,12 @@ model HttpApiDeployConfig {
   policyConfigs?: [ 
     {
       aiFallbackConfig?: {
-        serviceIds?: [ string ](name='serviceIds'),
+        serviceConfigs?: [ 
+          {
+            serviceId?: string(name='serviceId'),
+            targetModelName?: string(name='targetModelName'),
+          }
+        ](name='serviceConfigs'),
       }(name='aiFallbackConfig'),
       enable?: boolean(name='enable', example='true'),
       type?: string(name='type', example='AiFallback'),
@@ -635,9 +656,17 @@ model JwtIdentityConfig {
   type?: string(name='type'),
 }
 
+model KMSConfig {
+  kmsInstanceId?: string(name='kmsInstanceId'),
+  kmsKeyId?: string(name='kmsKeyId'),
+}
+
 model LabelDetail {
   key?: string(name='key'),
   values?: [ string ](name='values'),
+}
+
+model McpServerConfig {
 }
 
 model ParentResourceInfo {
@@ -727,9 +756,12 @@ model Service {
   groupName?: string(name='groupName', example='publich'),
   healthCheck?: ServiceHealthCheck(name='healthCheck'),
   healthStatus?: string(name='healthStatus'),
-  labelDetails?: LabelDetail(name='labelDetails'),
+  labelDetails?: [
+    LabelDetail
+  ](name='labelDetails'),
   name?: string(name='name'),
   namespace?: string(name='namespace'),
+  outlierEndpoints?: [ string ](name='outlierEndpoints'),
   ports?: [ 
     {
       name?: string(name='name'),
@@ -1595,6 +1627,7 @@ async function createEnvironment(request: CreateEnvironmentRequest): CreateEnvir
 
 model CreateGatewayRequest {
   chargeType?: string(name='chargeType', example='POSTPAY'),
+  gatewayEdition?: string(name='gatewayEdition', example='Professional'),
   gatewayType?: string(name='gatewayType', example='API'),
   logConfig?: {
     sls?: {
@@ -1655,6 +1688,9 @@ async function createGatewayWithOptions(request: CreateGatewayRequest, headers: 
   var body : map[string]any = {};
   if (!$isNull(request.chargeType)) {
     body['chargeType'] = request.chargeType;
+  }
+  if (!$isNull(request.gatewayEdition)) {
+    body['gatewayEdition'] = request.gatewayEdition;
   }
   if (!$isNull(request.gatewayType)) {
     body['gatewayType'] = request.gatewayType;
@@ -1726,6 +1762,7 @@ model CreateHttpApiRequest {
   ](name='deployConfigs', description='The API deployment configurations. Currently, only AI APIs support deployment configurations, and only a single deployment configuration can be passed.'),
   description?: string(name='description', description='The API description.', example='API for testing'),
   enableAuth?: boolean(name='enableAuth', description='Specifies whether to enable authentication.'),
+  firstByteTimeout?: int32(name='firstByteTimeout'),
   ingressConfig?: {
     clusterId?: string(name='clusterId'),
     environmentId?: string(name='environmentId', description='The environment ID.', example='env-cq146allhtgk***'),
@@ -1798,6 +1835,9 @@ async function createHttpApiWithOptions(request: CreateHttpApiRequest, headers: 
   }
   if (!$isNull(request.enableAuth)) {
     body['enableAuth'] = request.enableAuth;
+  }
+  if (!$isNull(request.firstByteTimeout)) {
+    body['firstByteTimeout'] = request.firstByteTimeout;
   }
   if (!$isNull(request.ingressConfig)) {
     body['ingressConfig'] = request.ingressConfig;
@@ -2041,6 +2081,129 @@ async function createHttpApiRoute(httpApiId: string, request: CreateHttpApiRoute
   var runtime = new $RuntimeOptions{};
   var headers : map[string]string = {};
   return createHttpApiRouteWithOptions(httpApiId, request, headers, runtime);
+}
+
+model CreateMcpServerRequest {
+  assembledSources?: [ 
+    {
+      mcpServerId?: string(name='mcpServerId', description='MCP Server ID', example='mcp-sdfa3qgavz'),
+      mcpServerName?: string(name='mcpServerName', example='test-mcp'),
+      tools?: [ string ](name='tools'),
+    }
+  ](name='assembledSources'),
+  backendConfig?: {
+    scene?: string(name='scene', example='SingleService'),
+    services?: [ 
+      {
+        port?: int32(name='port', example='8080'),
+        protocol?: string(name='protocol', example='HTTP'),
+        serviceId?: string(name='serviceId', example='svc-crbgq0dlhtgr***'),
+        version?: string(name='version', example='2.1.6'),
+        weight?: int32(name='weight', example='49'),
+      }
+    ](name='services'),
+  }(name='backendConfig'),
+  description?: string(name='description', example='mcp tool fetch time'),
+  domainIds?: [ string ](name='domainIds'),
+  exposedUriPath?: string(name='exposedUriPath', example='/sse'),
+  gatewayId?: string(name='gatewayId', description='This parameter is required.', example='gw-cq7l5s5lhtgi6qac0'),
+  match?: HttpRouteMatch(name='match'),
+  mcpStatisticsEnable?: boolean(name='mcpStatisticsEnable', example='false'),
+  name?: string(name='name', description='This parameter is required.', example='fetch-time'),
+  protocol?: string(name='protocol', example='HTTP'),
+  type?: string(name='type', description='This parameter is required.', example='RealMCP'),
+}
+
+model CreateMcpServerResponseBody = {
+  code?: string(name='code', example='Ok'),
+  data?: {
+    mcpServerId?: string(name='mcpServerId', description='MCP Server ID', example='mcp-afegaijoijaoji24a'),
+    name?: string(name='name', example='test-mcp'),
+  }(name='data'),
+  message?: string(name='message', example='success'),
+  requestId?: string(name='requestId', description='Id of the request', example='464F9EA0-1052-51BD-8187-D292AA2D8D24'),
+}
+
+model CreateMcpServerResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: CreateMcpServerResponseBody(name='body'),
+}
+
+/**
+ * @summary 创建MCP server
+ *
+ * @param request CreateMcpServerRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return CreateMcpServerResponse
+ */
+@context("createMcpServerWithContext")
+async function createMcpServerWithOptions(request: CreateMcpServerRequest, headers: map[string]string, runtime: $RuntimeOptions): CreateMcpServerResponse {
+  request.validate();
+  var body : map[string]any = {};
+  if (!$isNull(request.assembledSources)) {
+    body['assembledSources'] = request.assembledSources;
+  }
+  if (!$isNull(request.backendConfig)) {
+    body['backendConfig'] = request.backendConfig;
+  }
+  if (!$isNull(request.description)) {
+    body['description'] = request.description;
+  }
+  if (!$isNull(request.domainIds)) {
+    body['domainIds'] = request.domainIds;
+  }
+  if (!$isNull(request.exposedUriPath)) {
+    body['exposedUriPath'] = request.exposedUriPath;
+  }
+  if (!$isNull(request.gatewayId)) {
+    body['gatewayId'] = request.gatewayId;
+  }
+  if (!$isNull(request.match)) {
+    body['match'] = request.match;
+  }
+  if (!$isNull(request.mcpStatisticsEnable)) {
+    body['mcpStatisticsEnable'] = request.mcpStatisticsEnable;
+  }
+  if (!$isNull(request.name)) {
+    body['name'] = request.name;
+  }
+  if (!$isNull(request.protocol)) {
+    body['protocol'] = request.protocol;
+  }
+  if (!$isNull(request.type)) {
+    body['type'] = request.type;
+  }
+
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    headers = headers,
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'CreateMcpServer',
+    version = '2024-03-27',
+    protocol = 'HTTPS',
+    pathname = `/v1/mcp-servers`,
+    method = 'POST',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 创建MCP server
+ *
+ * @param request CreateMcpServerRequest
+ * @return CreateMcpServerResponse
+ */
+async function createMcpServer(request: CreateMcpServerRequest): CreateMcpServerResponse {
+  var runtime = new $RuntimeOptions{};
+  var headers : map[string]string = {};
+  return createMcpServerWithOptions(request, headers, runtime);
 }
 
 model CreatePluginAttachmentRequest {
@@ -2877,6 +3040,55 @@ async function deleteHttpApiRoute(httpApiId: string, routeId: string): DeleteHtt
   return deleteHttpApiRouteWithOptions(httpApiId, routeId, headers, runtime);
 }
 
+model DeleteMcpServerResponseBody = {
+  code?: string(name='code', example='Ok'),
+  message?: string(name='message', example='Success'),
+  requestId?: string(name='requestId', description='Id of the request', example='393E2630-DBE7-5221-AB35-9E740675491A'),
+}
+
+model DeleteMcpServerResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: DeleteMcpServerResponseBody(name='body'),
+}
+
+/**
+ * @summary 删除MCP server
+ *
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return DeleteMcpServerResponse
+ */
+@context("deleteMcpServerWithContext")
+async function deleteMcpServerWithOptions(mcpServerId: string, headers: map[string]string, runtime: $RuntimeOptions): DeleteMcpServerResponse {
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    headers = headers,
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'DeleteMcpServer',
+    version = '2024-03-27',
+    protocol = 'HTTPS',
+    pathname = `/v1/mcp-servers/${$URL.percentEncode(mcpServerId)}`,
+    method = 'DELETE',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 删除MCP server
+ *
+ * @return DeleteMcpServerResponse
+ */
+async function deleteMcpServer(mcpServerId: string): DeleteMcpServerResponse {
+  var runtime = new $RuntimeOptions{};
+  var headers : map[string]string = {};
+  return deleteMcpServerWithOptions(mcpServerId, headers, runtime);
+}
+
 model DeletePluginAttachmentResponseBody = {
   code?: string(name='code', example='Ok'),
   message?: string(name='message', example='success'),
@@ -3166,6 +3378,55 @@ async function deployHttpApi(httpApiId: string, request: DeployHttpApiRequest): 
   var runtime = new $RuntimeOptions{};
   var headers : map[string]string = {};
   return deployHttpApiWithOptions(httpApiId, request, headers, runtime);
+}
+
+model DeployMcpServerResponseBody = {
+  code?: string(name='code', example='Ok'),
+  message?: string(name='message', example='success'),
+  requestId?: string(name='requestId', description='Id of the request', example='393E2630-DBE7-5221-AB35-9E740675491A'),
+}
+
+model DeployMcpServerResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: DeployMcpServerResponseBody(name='body'),
+}
+
+/**
+ * @summary 发布MCP server
+ *
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return DeployMcpServerResponse
+ */
+@context("deployMcpServerWithContext")
+async function deployMcpServerWithOptions(mcpServerId: string, headers: map[string]string, runtime: $RuntimeOptions): DeployMcpServerResponse {
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    headers = headers,
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'DeployMcpServer',
+    version = '2024-03-27',
+    protocol = 'HTTPS',
+    pathname = `/v1/mcp-servers/${$URL.percentEncode(mcpServerId)}/deploy`,
+    method = 'POST',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 发布MCP server
+ *
+ * @return DeployMcpServerResponse
+ */
+async function deployMcpServer(mcpServerId: string): DeployMcpServerResponse {
+  var runtime = new $RuntimeOptions{};
+  var headers : map[string]string = {};
+  return deployMcpServerWithOptions(mcpServerId, headers, runtime);
 }
 
 model ExportHttpApiResponseBody = {
@@ -3701,6 +3962,7 @@ model GetGatewayResponseBody = {
       }
     ](name='environments', description='The list of environments associated with the instance.'),
     expireTimestamp?: long(name='expireTimestamp', description='The time when the instance expires. This value is a UNIX timestamp. Unit: milliseconds.', example='1719386834548'),
+    gatewayEdition?: string(name='gatewayEdition', example='Serverless'),
     gatewayId?: string(name='gatewayId', description='The instance ID.', example='gw-cq2vundlhtg***'),
     gatewayType?: string(name='gatewayType', description='the gateway type, which is categorized into the following two types:
 - API: indicates an API gateway
@@ -3741,6 +4003,10 @@ model GetGatewayResponseBody = {
 *   CLB: Classic Load Balancer', example='NLB'),
       }
     ](name='loadBalancers', description='The ingress addresses of the instance.'),
+    maintenancePeriod?: {
+      endTime?: string(name='endTime', example='06:00'),
+      startTime?: string(name='startTime', example='02:00'),
+    }(name='maintenancePeriod'),
     name?: string(name='name', description='The instance name.', example='itemcenter-gateway'),
     replicas?: string(name='replicas', description='The node quantity of the instance.', example='2'),
     resourceGroupId?: string(name='resourceGroupId', description='The resource group ID.', example='rg-aek2s3cvc4jzfxi'),
@@ -3985,6 +4251,94 @@ async function getHttpApiRoute(httpApiId: string, routeId: string): GetHttpApiRo
   var runtime = new $RuntimeOptions{};
   var headers : map[string]string = {};
   return getHttpApiRouteWithOptions(httpApiId, routeId, headers, runtime);
+}
+
+model GetMcpServerResponseBody = {
+  code?: string(name='code', example='Ok'),
+  data?: {
+    assembledSources?: [ 
+      {
+        mcpServerId?: string(name='mcpServerId', description='MCP Server ID', example='mcp-xdafeafzz'),
+        mcpServerName?: string(name='mcpServerName', example='test-mcp'),
+        tools?: [ string ](name='tools'),
+      }
+    ](name='assembledSources'),
+    backend?: Backend(name='backend'),
+    createFromType?: string(name='createFromType', example='ApiGatewayHttpToMCP'),
+    deployStatus?: string(name='deployStatus', example='Deployed'),
+    description?: string(name='description'),
+    domainIds?: [ string ](name='domainIds'),
+    domainInfos?: [ 
+      {
+        domainId?: string(name='domainId', example='www.abc.com'),
+        name?: string(name='name', example='verifyicket'),
+        protocol?: string(name='protocol', example='HTTP,HTTPS'),
+      }
+    ](name='domainInfos'),
+    environmentId?: string(name='environmentId', example='env-cq7l5s5lhtgi6qasrdc0'),
+    exposedUriPath?: string(name='exposedUriPath', example='/sse'),
+    gatewayId?: string(name='gatewayId', example='gw-cq2vundlhtg***'),
+    match?: HttpRouteMatch(name='match', example='{\\\\"product_code\\\\":\\\\"apigw\\\\"}'),
+    mcpServerConfig?: string(name='mcpServerConfig'),
+    mcpServerConfigPluginAttachmentId?: string(name='mcpServerConfigPluginAttachmentId', example='pa-adfaefwaef'),
+    mcpServerId?: string(name='mcpServerId', description='MCP Server ID', example='mcp-adfefz24afg'),
+    mcpServerPath?: string(name='mcpServerPath', example='/mcp-servers/test-mcp'),
+    mcpStatisticsEnable?: boolean(name='mcpStatisticsEnable', example='false'),
+    nacosMcpSyncInfo?: {
+      importInstanceId?: string(name='importInstanceId', example='mse-xxxxx'),
+      importMcpServerId?: string(name='importMcpServerId', example='test-mcp'),
+      importNamespace?: string(name='importNamespace', example='test-ns'),
+    }(name='nacosMcpSyncInfo'),
+    name?: string(name='name', example='test-mcp'),
+    protocol?: string(name='protocol', example='HTTP'),
+    routeId?: string(name='routeId', example='hr-cr82undlhtgrlej***'),
+    type?: string(name='type', example='RealMCP'),
+  }(name='data'),
+  message?: string(name='message', example='Success'),
+  requestId?: string(name='requestId', description='Id of the request', example='2A6E90D5-A711-54F4-A489-E33C2021EDDF'),
+}
+
+model GetMcpServerResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: GetMcpServerResponseBody(name='body'),
+}
+
+/**
+ * @summary 获取MCP server
+ *
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return GetMcpServerResponse
+ */
+@context("getMcpServerWithContext")
+async function getMcpServerWithOptions(mcpServerId: string, headers: map[string]string, runtime: $RuntimeOptions): GetMcpServerResponse {
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    headers = headers,
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'GetMcpServer',
+    version = '2024-03-27',
+    protocol = 'HTTPS',
+    pathname = `/v1/mcp-servers/${$URL.percentEncode(mcpServerId)}`,
+    method = 'GET',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 获取MCP server
+ *
+ * @return GetMcpServerResponse
+ */
+async function getMcpServer(mcpServerId: string): GetMcpServerResponse {
+  var runtime = new $RuntimeOptions{};
+  var headers : map[string]string = {};
+  return getMcpServerWithOptions(mcpServerId, headers, runtime);
 }
 
 model GetPluginAttachmentResponseBody = {
@@ -4360,9 +4714,12 @@ async function getTraceConfig(gatewayId: string, request: GetTraceConfigRequest)
 }
 
 model ImportHttpApiRequest {
-  deployConfigs?: HttpApiDeployConfig(name='deployConfigs', description='The deployment configuration.'),
+  deployConfigs?: [
+    HttpApiDeployConfig
+  ](name='deployConfigs', description='The deployment configuration.'),
   description?: string(name='description', description='The API description, which cannot exceed 255 bytes in length. If you do not specify a description, a description is extracted from the definition file.', example='API for testing'),
   dryRun?: boolean(name='dryRun', description='Specifies whether to perform a dry run. If this parameter is set to true, a dry run is performed without importing the file.', example='false'),
+  gatewayId?: string(name='gatewayId'),
   mcpRouteId?: string(name='mcpRouteId', description='The MCP route ID.'),
   name?: string(name='name', description='The API name. If you do not specify a name, a name is extracted from the definition file. If a name and a versioning configuration already exist, the existing API definition is updated based on the strategy field.', example='import-test'),
   resourceGroupId?: string(name='resourceGroupId', description='[The resource group ID](https://help.aliyun.com/document_detail/151181.html).', example='rg-acfm3q4zjh7fkki'),
@@ -4457,6 +4814,9 @@ async function importHttpApiWithOptions(request: ImportHttpApiRequest, headers: 
   if (!$isNull(request.dryRun)) {
     body['dryRun'] = request.dryRun;
   }
+  if (!$isNull(request.gatewayId)) {
+    body['gatewayId'] = request.gatewayId;
+  }
   if (!$isNull(request.mcpRouteId)) {
     body['mcpRouteId'] = request.mcpRouteId;
   }
@@ -4513,6 +4873,80 @@ async function importHttpApi(request: ImportHttpApiRequest): ImportHttpApiRespon
   var runtime = new $RuntimeOptions{};
   var headers : map[string]string = {};
   return importHttpApiWithOptions(request, headers, runtime);
+}
+
+model InstallPluginRequest {
+  gatewayIds?: [ string ](name='gatewayIds'),
+  pluginClassId?: string(name='pluginClassId', example='pls-csqmjndlhtguk0loef21'),
+}
+
+model InstallPluginResponseBody = {
+  code?: string(name='code', example='Ok'),
+  data?: {
+    installPluginResults?: [ 
+      {
+        gatewayId?: string(name='gatewayId', example='gw-d28mjcmm1hkub84mdbi0'),
+        pluginId?: string(name='pluginId', example='pl-cvs7gbum1hkhs6us6vbg'),
+      }
+    ](name='installPluginResults'),
+  }(name='data'),
+  message?: string(name='message', example='Success'),
+  requestId?: string(name='requestId', description='Id of the request', example='201CFCA0-3AF5-52D0-A0F3-FBA697AF55CB'),
+}
+
+model InstallPluginResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: InstallPluginResponseBody(name='body'),
+}
+
+/**
+ * @summary InstallPlugin
+ *
+ * @param request InstallPluginRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return InstallPluginResponse
+ */
+@context("installPluginWithContext")
+async function installPluginWithOptions(request: InstallPluginRequest, headers: map[string]string, runtime: $RuntimeOptions): InstallPluginResponse {
+  request.validate();
+  var body : map[string]any = {};
+  if (!$isNull(request.gatewayIds)) {
+    body['gatewayIds'] = request.gatewayIds;
+  }
+  if (!$isNull(request.pluginClassId)) {
+    body['pluginClassId'] = request.pluginClassId;
+  }
+
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    headers = headers,
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'InstallPlugin',
+    version = '2024-03-27',
+    protocol = 'HTTPS',
+    pathname = `/v1/plugins/`,
+    method = 'POST',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary InstallPlugin
+ *
+ * @param request InstallPluginRequest
+ * @return InstallPluginResponse
+ */
+async function installPlugin(request: InstallPluginRequest): InstallPluginResponse {
+  var runtime = new $RuntimeOptions{};
+  var headers : map[string]string = {};
+  return installPluginWithOptions(request, headers, runtime);
 }
 
 model ListConsumersRequest {
@@ -4840,6 +5274,7 @@ model ListGatewaysResponseBody = {
 *   Console', example='Console'),
         createTimestamp?: long(name='createTimestamp', description='The time when the instance was created. This value is a UNIX timestamp. Unit: milliseconds.', example='1719386834548'),
         expireTimestamp?: long(name='expireTimestamp', description='The time when the instance expires. This value is a UNIX timestamp. Unit: milliseconds.', example='172086834548'),
+        gatewayEdition?: string(name='gatewayEdition', example='Serverless'),
         gatewayId?: string(name='gatewayId', description='The instance ID.', example='gw-cpv54p5***'),
         gatewayType?: string(name='gatewayType'),
         legacy?: boolean(name='legacy'),
@@ -5014,6 +5449,7 @@ async function listGateways(request: ListGatewaysRequest): ListGatewaysResponse 
 
 model ListHttpApiOperationsRequest {
   consumerAuthorizationRuleId?: string(name='consumerAuthorizationRuleId', description='Filter the operation list based on a specific consumer authorization rule ID, and the interface list in the response only contains authorized operations.', example='cas-xxx'),
+  enableAuth?: boolean(name='enableAuth'),
   forDeploy?: boolean(name='forDeploy'),
   gatewayId?: string(name='gatewayId'),
   method?: string(name='method', description='List interfaces by Method.', example='GET'),
@@ -5061,6 +5497,9 @@ async function listHttpApiOperationsWithOptions(httpApiId: string, request: List
   var query : map[string]any = {};
   if (!$isNull(request.consumerAuthorizationRuleId)) {
     query['consumerAuthorizationRuleId'] = request.consumerAuthorizationRuleId;
+  }
+  if (!$isNull(request.enableAuth)) {
+    query['enableAuth'] = request.enableAuth;
   }
   if (!$isNull(request.forDeploy)) {
     query['forDeploy'] = request.forDeploy;
@@ -5395,6 +5834,133 @@ async function listHttpApis(request: ListHttpApisRequest): ListHttpApisResponse 
   var runtime = new $RuntimeOptions{};
   var headers : map[string]string = {};
   return listHttpApisWithOptions(request, headers, runtime);
+}
+
+model ListMcpServersRequest {
+  createFromTypes?: string(name='createFromTypes', example='ApiGatewayHttpToMCP'),
+  deployStatuses?: string(name='deployStatuses', example='Deployed'),
+  gatewayId?: string(name='gatewayId', description='This parameter is required.', example='gw-co370icmjeu****'),
+  nameLike?: string(name='nameLike', example='test'),
+  pageNumber?: int32(name='pageNumber', description='This parameter is required.', example='1'),
+  pageSize?: int32(name='pageSize', description='This parameter is required.', example='10'),
+  type?: string(name='type', example='RealMCP'),
+}
+
+model ListMcpServersResponseBody = {
+  code?: string(name='code', example='Ok'),
+  data?: {
+    items?: [ 
+      {
+        assembledSources?: [ 
+          {
+            mcpServerId?: string(name='mcpServerId', description='MCP Server ID', example='mcp-adfef2334fa'),
+            mcpServerName?: string(name='mcpServerName', example='test-mcp'),
+            tools?: [ string ](name='tools'),
+          }
+        ](name='assembledSources'),
+        backend?: Backend(name='backend'),
+        createFromType?: string(name='createFromType', example='ApiGatewayHttpToMCP'),
+        deployStatus?: string(name='deployStatus', example='Deployed'),
+        description?: string(name='description'),
+        domainIds?: [ string ](name='domainIds'),
+        domainInfos?: [
+          HttpApiDomainInfo
+        ](name='domainInfos'),
+        environmentId?: string(name='environmentId', example='env-cq7l5s5lhtgi6qasrdc0'),
+        exposedUriPath?: string(name='exposedUriPath', example='/sse'),
+        gatewayId?: string(name='gatewayId', example='gw-cpv54p5***'),
+        match?: HttpRouteMatch(name='match'),
+        mcpServerConfig?: string(name='mcpServerConfig'),
+        mcpServerId?: string(name='mcpServerId', description='MCP Server ID', example='mcp-feaff34va'),
+        mcpServerPath?: string(name='mcpServerPath', example='/mcp-servers/test-mcp'),
+        mcpStatisticsEnable?: boolean(name='mcpStatisticsEnable', example='false'),
+        nacosMcpSyncInfo?: {
+          importInstanceId?: string(name='importInstanceId', example='mse-faefrefxz'),
+          importMcpServerId?: string(name='importMcpServerId'),
+          importNamespace?: string(name='importNamespace', example='test-ns'),
+        }(name='nacosMcpSyncInfo'),
+        name?: string(name='name', example='itemcenter-dev-cluster'),
+        protocol?: string(name='protocol', example='HTTP'),
+        routeId?: string(name='routeId', example='hr-d11cj86m1hkvop6mp42g'),
+        type?: string(name='type'),
+      }
+    ](name='items'),
+    pageNumber?: int32(name='pageNumber', example='1'),
+    pageSize?: int32(name='pageSize', example='10'),
+    totalSize?: int32(name='totalSize', example='25'),
+  }(name='data'),
+  message?: string(name='message', example='success'),
+  requestId?: string(name='requestId', description='Id of the request', example='585657D2-1C20-5B8A-AF17-D727C6490BE4'),
+}
+
+model ListMcpServersResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ListMcpServersResponseBody(name='body'),
+}
+
+/**
+ * @summary 获取MCP server列表
+ *
+ * @param request ListMcpServersRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return ListMcpServersResponse
+ */
+@context("listMcpServersWithContext")
+async function listMcpServersWithOptions(request: ListMcpServersRequest, headers: map[string]string, runtime: $RuntimeOptions): ListMcpServersResponse {
+  request.validate();
+  var query : map[string]any = {};
+  if (!$isNull(request.createFromTypes)) {
+    query['createFromTypes'] = request.createFromTypes;
+  }
+  if (!$isNull(request.deployStatuses)) {
+    query['deployStatuses'] = request.deployStatuses;
+  }
+  if (!$isNull(request.gatewayId)) {
+    query['gatewayId'] = request.gatewayId;
+  }
+  if (!$isNull(request.nameLike)) {
+    query['nameLike'] = request.nameLike;
+  }
+  if (!$isNull(request.pageNumber)) {
+    query['pageNumber'] = request.pageNumber;
+  }
+  if (!$isNull(request.pageSize)) {
+    query['pageSize'] = request.pageSize;
+  }
+  if (!$isNull(request.type)) {
+    query['type'] = request.type;
+  }
+
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'ListMcpServers',
+    version = '2024-03-27',
+    protocol = 'HTTPS',
+    pathname = `/v1/mcp-servers`,
+    method = 'GET',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 获取MCP server列表
+ *
+ * @param request ListMcpServersRequest
+ * @return ListMcpServersResponse
+ */
+async function listMcpServers(request: ListMcpServersRequest): ListMcpServersResponse {
+  var runtime = new $RuntimeOptions{};
+  var headers : map[string]string = {};
+  return listMcpServersWithOptions(request, headers, runtime);
 }
 
 model ListPluginAttachmentsRequest {
@@ -6306,6 +6872,55 @@ async function restartGateway(gatewayId: string): RestartGatewayResponse {
   return restartGatewayWithOptions(gatewayId, headers, runtime);
 }
 
+model UnDeployMcpServerResponseBody = {
+  code?: string(name='code', example='Ok'),
+  message?: string(name='message', example='success'),
+  requestId?: string(name='requestId', description='Id of the request', example='CE857A85-251D-5018-8103-A38957D71E20'),
+}
+
+model UnDeployMcpServerResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: UnDeployMcpServerResponseBody(name='body'),
+}
+
+/**
+ * @summary 取消发布MCP server
+ *
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return UnDeployMcpServerResponse
+ */
+@context("unDeployMcpServerWithContext")
+async function unDeployMcpServerWithOptions(mcpServerId: string, headers: map[string]string, runtime: $RuntimeOptions): UnDeployMcpServerResponse {
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    headers = headers,
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'UnDeployMcpServer',
+    version = '2024-03-27',
+    protocol = 'HTTPS',
+    pathname = `/v1/mcp-servers/${$URL.percentEncode(mcpServerId)}/undeploy`,
+    method = 'POST',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 取消发布MCP server
+ *
+ * @return UnDeployMcpServerResponse
+ */
+async function unDeployMcpServer(mcpServerId: string): UnDeployMcpServerResponse {
+  var runtime = new $RuntimeOptions{};
+  var headers : map[string]string = {};
+  return unDeployMcpServerWithOptions(mcpServerId, headers, runtime);
+}
+
 model UndeployHttpApiRequest {
   environmentId?: string(name='environmentId', description='The environment ID.', example='env-cqsmtellhtgvo***'),
   gatewayId?: string(name='gatewayId'),
@@ -6378,6 +6993,55 @@ async function undeployHttpApi(httpApiId: string, request: UndeployHttpApiReques
   var runtime = new $RuntimeOptions{};
   var headers : map[string]string = {};
   return undeployHttpApiWithOptions(httpApiId, request, headers, runtime);
+}
+
+model UninstallPluginResponseBody = {
+  code?: string(name='code', example='Ok'),
+  message?: string(name='message', example='success'),
+  requestId?: string(name='requestId', description='Id of the request', example='F61D96E8-4E6D-5896-86E7-F1202AC31280'),
+}
+
+model UninstallPluginResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: UninstallPluginResponseBody(name='body'),
+}
+
+/**
+ * @summary UninstallPlugin
+ *
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return UninstallPluginResponse
+ */
+@context("uninstallPluginWithContext")
+async function uninstallPluginWithOptions(pluginId: string, headers: map[string]string, runtime: $RuntimeOptions): UninstallPluginResponse {
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    headers = headers,
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'UninstallPlugin',
+    version = '2024-03-27',
+    protocol = 'HTTPS',
+    pathname = `/v1/plugins/${$URL.percentEncode(pluginId)}`,
+    method = 'DELETE',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary UninstallPlugin
+ *
+ * @return UninstallPluginResponse
+ */
+async function uninstallPlugin(pluginId: string): UninstallPluginResponse {
+  var runtime = new $RuntimeOptions{};
+  var headers : map[string]string = {};
+  return uninstallPluginWithOptions(pluginId, headers, runtime);
 }
 
 model UpdateAndAttachPolicyRequest {
@@ -6944,6 +7608,7 @@ This parameter is required.', example='/v1'),
   ](name='deployConfigs', description='The deployment configurations.'),
   description?: string(name='description', description='The API description.', example='API for testing'),
   enableAuth?: boolean(name='enableAuth', description='Specifies whether to enable authentication.'),
+  firstByteTimeout?: int32(name='firstByteTimeout'),
   ingressConfig?: {
     environmentId?: string(name='environmentId', description='The environment ID.', example='env-cr6ql0tlhtgmc****'),
     ingressClass?: string(name='ingressClass', description='The Ingress class for listening.', example='mse'),
@@ -7001,6 +7666,9 @@ async function updateHttpApiWithOptions(httpApiId: string, request: UpdateHttpAp
   }
   if (!$isNull(request.enableAuth)) {
     body['enableAuth'] = request.enableAuth;
+  }
+  if (!$isNull(request.firstByteTimeout)) {
+    body['firstByteTimeout'] = request.firstByteTimeout;
   }
   if (!$isNull(request.ingressConfig)) {
     body['ingressConfig'] = request.ingressConfig;
@@ -7225,6 +7893,117 @@ async function updateHttpApiRoute(httpApiId: string, routeId: string, request: U
   var runtime = new $RuntimeOptions{};
   var headers : map[string]string = {};
   return updateHttpApiRouteWithOptions(httpApiId, routeId, request, headers, runtime);
+}
+
+model UpdateMcpServerRequest {
+  assembledSources?: [ 
+    {
+      mcpServerId?: string(name='mcpServerId', description='MCP Server ID', example='mcp-afaefaefaf'),
+      mcpServerName?: string(name='mcpServerName', example='test-mcp'),
+      tools?: [ string ](name='tools'),
+    }
+  ](name='assembledSources'),
+  backendConfig?: {
+    scene?: string(name='scene', example='SingleService'),
+    services?: [ 
+      {
+        port?: int32(name='port', example='8080'),
+        protocol?: string(name='protocol', example='HTTP'),
+        serviceId?: string(name='serviceId', example='svc-cr6pk4tlhtgm58e***'),
+        version?: string(name='version', example='v1'),
+        weight?: int32(name='weight', example='49'),
+      }
+    ](name='services'),
+  }(name='backendConfig'),
+  description?: string(name='description'),
+  domainIds?: [ string ](name='domainIds'),
+  exposedUriPath?: string(name='exposedUriPath', example='/sse'),
+  match?: HttpRouteMatch(name='match'),
+  mcpStatisticsEnable?: boolean(name='mcpStatisticsEnable', example='false'),
+  protocol?: string(name='protocol', description='This parameter is required.', example='HTTP'),
+  type?: string(name='type', description='This parameter is required.', example='RealMCP'),
+}
+
+model UpdateMcpServerResponseBody = {
+  code?: string(name='code', example='Ok'),
+  message?: string(name='message', example='success'),
+  requestId?: string(name='requestId', description='Id of the request', example='3ACFC7A7-45A9-58CF-B2D5-765B60254695'),
+}
+
+model UpdateMcpServerResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: UpdateMcpServerResponseBody(name='body'),
+}
+
+/**
+ * @summary 更新MCP server
+ *
+ * @param request UpdateMcpServerRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return UpdateMcpServerResponse
+ */
+@context("updateMcpServerWithContext")
+async function updateMcpServerWithOptions(mcpServerId: string, request: UpdateMcpServerRequest, headers: map[string]string, runtime: $RuntimeOptions): UpdateMcpServerResponse {
+  request.validate();
+  var body : map[string]any = {};
+  if (!$isNull(request.assembledSources)) {
+    body['assembledSources'] = request.assembledSources;
+  }
+  if (!$isNull(request.backendConfig)) {
+    body['backendConfig'] = request.backendConfig;
+  }
+  if (!$isNull(request.description)) {
+    body['description'] = request.description;
+  }
+  if (!$isNull(request.domainIds)) {
+    body['domainIds'] = request.domainIds;
+  }
+  if (!$isNull(request.exposedUriPath)) {
+    body['exposedUriPath'] = request.exposedUriPath;
+  }
+  if (!$isNull(request.match)) {
+    body['match'] = request.match;
+  }
+  if (!$isNull(request.mcpStatisticsEnable)) {
+    body['mcpStatisticsEnable'] = request.mcpStatisticsEnable;
+  }
+  if (!$isNull(request.protocol)) {
+    body['protocol'] = request.protocol;
+  }
+  if (!$isNull(request.type)) {
+    body['type'] = request.type;
+  }
+
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    headers = headers,
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'UpdateMcpServer',
+    version = '2024-03-27',
+    protocol = 'HTTPS',
+    pathname = `/v1/mcp-servers/${$URL.percentEncode(mcpServerId)}`,
+    method = 'PUT',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 更新MCP server
+ *
+ * @param request UpdateMcpServerRequest
+ * @return UpdateMcpServerResponse
+ */
+async function updateMcpServer(mcpServerId: string, request: UpdateMcpServerRequest): UpdateMcpServerResponse {
+  var runtime = new $RuntimeOptions{};
+  var headers : map[string]string = {};
+  return updateMcpServerWithOptions(mcpServerId, request, headers, runtime);
 }
 
 model UpdatePluginAttachmentRequest {
