@@ -163,6 +163,51 @@ model FullSchemaChange {
   value?: string(name='value', description='required in SetOption'),
 }
 
+model Function {
+  comment?: string(name='comment'),
+  createdAt?: long(name='createdAt'),
+  createdBy?: string(name='createdBy'),
+  definitions?: map[string]FunctionDefinition(name='definitions'),
+  deterministic?: boolean(name='deterministic'),
+  id?: string(name='id'),
+  inputParams?: [
+    DataField
+  ](name='inputParams'),
+  name?: string(name='name'),
+  options?: map[string]string(name='options'),
+  owner?: string(name='owner'),
+  returnParams?: [
+    DataField
+  ](name='returnParams'),
+  updatedAt?: long(name='updatedAt'),
+  updatedBy?: string(name='updatedBy'),
+}
+
+model FunctionChange {
+  action?: string(name='action'),
+  comment?: string(name='comment', description='required in UpdateFunctionComment'),
+  definition?: FunctionDefinition(name='definition', description='required in AddDefinition/UpdateDefinition'),
+  key?: string(name='key', description='required in SetFunctionOption/RemoveFunctionOption'),
+  name?: string(name='name', description='required in AddDefinition/UpdateDefinition/DropDefinition'),
+  value?: string(name='value', description='required in SetFunctionOption'),
+}
+
+model FunctionDefinition {
+  className?: string(name='className', description='required in FileFunctionDefinition'),
+  definition?: string(name='definition', description='required in SQLFunctionDefinition/LambdaFunctionDefinition'),
+  fileResources?: [
+    FunctionFileResource
+  ](name='fileResources', description='required in FileFunctionDefinition'),
+  functionName?: string(name='functionName', description='required in FileFunctionDefinition'),
+  language?: string(name='language', description='required in LambdaFunctionDefinition/FileFunctionDefinition'),
+  type?: string(name='type'),
+}
+
+model FunctionFileResource {
+  resourceType?: string(name='resourceType'),
+  uri?: string(name='uri'),
+}
+
 model IcebergNestedField {
   doc?: string(name='doc'),
   id?: long(name='id'),
@@ -472,6 +517,45 @@ model User {
   userId?: string(name='userId'),
   userName?: string(name='userName'),
   userPrincipal?: string(name='userPrincipal'),
+}
+
+model View {
+  createdAt?: long(name='createdAt'),
+  createdBy?: string(name='createdBy'),
+  id?: string(name='id'),
+  name?: string(name='name'),
+  owner?: string(name='owner'),
+  schema?: ViewSchema(name='schema'),
+  updatedAt?: long(name='updatedAt'),
+  updatedBy?: string(name='updatedBy'),
+}
+
+model ViewChange {
+  action?: string(name='action'),
+  comment?: string(name='comment', description='required in UpdateComment'),
+  dialect?: string(name='dialect', description='required in AddDialect/UpdateDialect/DropDialect'),
+  key?: string(name='key', description='required in SetOption/RemoveOption'),
+  query?: string(name='query', description='required in AddDialect/UpdateDialect'),
+  value?: string(name='value', description='required in SetOption'),
+}
+
+model ViewSchema {
+  comment?: string(name='comment'),
+  dialects?: map[string]string(name='dialects'),
+  fields?: [
+    DataField
+  ](name='fields'),
+  options?: map[string]string(name='options'),
+  query?: string(name='query'),
+}
+
+model ViewSchemaChange {
+  action?: string(name='action'),
+  comment?: string(name='comment', description='required in UpdateComment'),
+  dialect?: string(name='dialect', description='required in AddDialect/UpdateDialect/DropDialect'),
+  key?: string(name='key', description='required in SetOption/RemoveOption'),
+  query?: string(name='query', description='required in AddDialect/UpdateDialect'),
+  value?: string(name='value', description='required in SetOption'),
 }
 
 model AlterCatalogRequest {
@@ -3159,6 +3243,77 @@ async function listPartitionSummaries(catalogId: string, database: string, table
   var runtime = new $RuntimeOptions{};
   var headers : map[string]string = {};
   return listPartitionSummariesWithOptions(catalogId, database, table, request, headers, runtime);
+}
+
+model ListPartitionsRequest {
+  maxResults?: long(name='maxResults', example='1000'),
+  pageToken?: string(name='pageToken', example='""'),
+  partitionNamePattern?: string(name='partitionNamePattern', example='partition'),
+}
+
+model ListPartitionsResponseBody = {
+  nextPageToken?: string(name='nextPageToken', example='E8ABEB1C3DB893D16576269017992F57'),
+  partitions?: [
+    Partition
+  ](name='partitions'),
+}
+
+model ListPartitionsResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ListPartitionsResponseBody(name='body'),
+}
+
+/**
+ * @summary listPartitions
+ *
+ * @param request ListPartitionsRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return ListPartitionsResponse
+ */
+@context("listPartitionsWithContext")
+async function listPartitionsWithOptions(catalogId: string, database: string, table: string, request: ListPartitionsRequest, headers: map[string]string, runtime: $RuntimeOptions): ListPartitionsResponse {
+  request.validate();
+  var query : map[string]any = {};
+  if (!$isNull(request.maxResults)) {
+    query['maxResults'] = request.maxResults;
+  }
+  if (!$isNull(request.pageToken)) {
+    query['pageToken'] = request.pageToken;
+  }
+  if (!$isNull(request.partitionNamePattern)) {
+    query['partitionNamePattern'] = request.partitionNamePattern;
+  }
+
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'ListPartitions',
+    version = '2025-03-10',
+    protocol = 'HTTPS',
+    pathname = `/dlf/v1/${$URL.percentEncode(catalogId)}/databases/${$URL.percentEncode(database)}/tables/${$URL.percentEncode(table)}/partitions`,
+    method = 'GET',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary listPartitions
+ *
+ * @param request ListPartitionsRequest
+ * @return ListPartitionsResponse
+ */
+async function listPartitions(catalogId: string, database: string, table: string, request: ListPartitionsRequest): ListPartitionsResponse {
+  var runtime = new $RuntimeOptions{};
+  var headers : map[string]string = {};
+  return listPartitionsWithOptions(catalogId, database, table, request, headers, runtime);
 }
 
 model ListPermissionsRequest {
