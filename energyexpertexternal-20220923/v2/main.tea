@@ -150,6 +150,21 @@ model ContentItem {
   type?: string(name='type', example='img'),
 }
 
+model DocumentDetailItem {
+  createTime?: string(name='createTime', description='Use the UTC time format: yyyy-MM-ddTHH:mmZ'),
+  docHash?: string(name='docHash'),
+  docName?: string(name='docName'),
+  docUrl?: string(name='docUrl'),
+  folderId?: string(name='folderId'),
+  folderName?: string(name='folderName'),
+  id?: long(name='id'),
+  jobId?: string(name='jobId'),
+  jobStatus?: string(name='jobStatus'),
+  originDocName?: string(name='originDocName'),
+  originDocUrl?: string(name='originDocUrl'),
+  updateTime?: string(name='updateTime', description='Use the UTC time format: yyyy-MM-ddTHH:mmZ'),
+}
+
 model EpdInventoryConstituteItem {
   carbonEmission?: double(name='carbonEmission'),
   factor?: string(name='factor'),
@@ -805,6 +820,7 @@ model ChatStreamResponse = {
  * @return ChatStreamResponse
  */
 @sse(true)
+@context("chatStreamWithSSECtx")
 async function chatStreamWithSSE(request: ChatStreamRequest, headers: map[string]string, runtime: $RuntimeOptions): asyncIterator[ChatStreamResponse] {
   request.validate();
   var body : map[string]any = {};
@@ -1096,6 +1112,67 @@ async function deleteFolder(request: DeleteFolderRequest): DeleteFolderResponse 
   var runtime = new $RuntimeOptions{};
   var headers : map[string]string = {};
   return deleteFolderWithOptions(request, headers, runtime);
+}
+
+model DetailDocumentRequest {
+  taskId?: string(name='taskId', example='74ec62f4f4e74e5882d4086a40f2b9c6'),
+}
+
+model DetailDocumentResponseBody = {
+  data?: DocumentDetailItem(name='data', example='true'),
+  requestId?: string(name='requestId', description='Id of the request', example='83A5A7DD-8974-5769-952E-590A97BEA34E'),
+}
+
+model DetailDocumentResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: DetailDocumentResponseBody(name='body'),
+}
+
+/**
+ * @summary 获取文档detail
+ *
+ * @param request DetailDocumentRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return DetailDocumentResponse
+ */
+@context("detailDocumentWithContext")
+async function detailDocumentWithOptions(request: DetailDocumentRequest, headers: map[string]string, runtime: $RuntimeOptions): DetailDocumentResponse {
+  request.validate();
+  var query : map[string]any = {};
+  if (!$isNull(request.taskId)) {
+    query['taskId'] = request.taskId;
+  }
+
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'DetailDocument',
+    version = '2022-09-23',
+    protocol = 'HTTPS',
+    pathname = `/api/v1/aidoc/document/detail`,
+    method = 'GET',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 获取文档detail
+ *
+ * @param request DetailDocumentRequest
+ * @return DetailDocumentResponse
+ */
+async function detailDocument(request: DetailDocumentRequest): DetailDocumentResponse {
+  var runtime = new $RuntimeOptions{};
+  var headers : map[string]string = {};
+  return detailDocumentWithOptions(request, headers, runtime);
 }
 
 model EditProhibitedDevicesRequest {
