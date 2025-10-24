@@ -384,6 +384,8 @@ model CreateMmsJobRequest {
   columnMapping?: map[string]string(name='columnMapping'),
   dstDbName?: string(name='dstDbName'),
   dstSchemaName?: string(name='dstSchemaName'),
+  enableDataMigration?: boolean(name='enableDataMigration'),
+  enableSchemaMigration?: boolean(name='enableSchemaMigration'),
   enableVerification?: boolean(name='enableVerification'),
   eta?: string(name='eta'),
   increment?: boolean(name='increment'),
@@ -435,6 +437,12 @@ async function createMmsJobWithOptions(sourceId: string, request: CreateMmsJobRe
   }
   if (!Util.isUnset(request.dstSchemaName)) {
     body['dstSchemaName'] = request.dstSchemaName;
+  }
+  if (!Util.isUnset(request.enableDataMigration)) {
+    body['enableDataMigration'] = request.enableDataMigration;
+  }
+  if (!Util.isUnset(request.enableSchemaMigration)) {
+    body['enableSchemaMigration'] = request.enableSchemaMigration;
   }
   if (!Util.isUnset(request.enableVerification)) {
     body['enableVerification'] = request.enableVerification;
@@ -1593,6 +1601,8 @@ model GetMmsDataSourceResponseBody = {
     ](name='config'),
     createTime?: string(name='createTime', example='2024-12-17 09:29:58'),
     dbNum?: int32(name='dbNum', example='3'),
+    dstProject?: string(name='dstProject', example='mms_test'),
+    dstProjects?: [ string ](name='dstProjects'),
     errMsg?: string(name='errMsg', example='unexpected exception'),
     id?: long(name='id', example='2000015'),
     lastUpdateTime?: string(name='lastUpdateTime', example='2024-12-17 15:44:17'),
@@ -1672,6 +1682,8 @@ async function getMmsDataSource(sourceId: string, request: GetMmsDataSourceReque
 model GetMmsDbResponseBody = {
   data?: {
     description?: string(name='description', example='for mms_test'),
+    dstName?: string(name='dstName', example='default'),
+    dstProjectName?: string(name='dstProjectName', example='mma_test'),
     extra?: string(name='extra', example='{}'),
     id?: long(name='id', example='63'),
     lastDdlTime?: string(name='lastDdlTime', description='last ddl time', example='2024-12-17 15:44:42'),
@@ -1876,8 +1888,12 @@ async function getMmsJob(sourceId: string, jobId: string): GetMmsJobResponse {
 
 model GetMmsPartitionResponseBody = {
   data?: {
-    dbId?: long(name='DbId', example='2'),
+    dbId?: long(name='dbId'),
     dbName?: string(name='dbName', example='d1'),
+    dstProjectName?: string(name='dstProjectName', example='mms_test'),
+    dstSchemaName?: string(name='dstSchemaName', example='default'),
+    dstTableName?: string(name='dstTableName', example='test'),
+    dstValue?: string(name='dstValue', example='p1=1/p2=abc'),
     id?: long(name='id', example='2323'),
     lastDdlTime?: string(name='lastDdlTime', description='lastDdlTime', example='2024-12-17 15:44:42'),
     numRows?: long(name='numRows', example='2323'),
@@ -1939,6 +1955,9 @@ model GetMmsTableResponseBody = {
   data?: {
     dbId?: long(name='dbId', example='3'),
     dbName?: string(name='dbName', example='mms_test'),
+    dstName?: string(name='dstName', example='test'),
+    dstProjectName?: string(name='dstProjectName', example='mms_test'),
+    dstSchemaName?: string(name='dstSchemaName', example='default'),
     extra?: string(name='extra', example='{"mapkey.delim":":","collection.delim":",","serialization.format":"|","field.delim":"|"}'),
     hasPartitions?: boolean(name='hasPartitions', example='true'),
     id?: long(name='id', description='table ID', example='22'),
@@ -4761,6 +4780,8 @@ model ListMmsDataSourcesResponseBody = {
         ](name='config'),
         createTime?: string(name='createTime', example='2024-12-17 09:29:58'),
         dbNum?: int32(name='dbNum', example='3'),
+        dstProject?: string(name='dstProject', example='mms_test'),
+        dstProjects?: [ string ](name='dstProjects'),
         errMsg?: string(name='errMsg', example='unexpected exception'),
         id?: long(name='id', example='2000015'),
         lastUpdateTime?: string(name='lastUpdateTime', example='2024-12-17 15:44:17'),
@@ -4878,6 +4899,8 @@ model ListMmsDbsResponseBody = {
         createTime?: string(name='createTime', example='2024-12-17 15:44:42'),
         deleted?: boolean(name='deleted', example='false'),
         description?: string(name='description', example='for mms test'),
+        dstName?: string(name='dstName', example='default'),
+        dstProjectName?: string(name='dstProjectName', example='mms_test'),
         extra?: string(name='extra', example='{}'),
         id?: long(name='id', example='1530'),
         lastDdlTime?: string(name='lastDdlTime', description='Last DDL Time', example='2024-12-17 15:44:42'),
@@ -5127,6 +5150,7 @@ model ListMmsPartitionsRequest {
   pageNum?: int32(name='pageNum', example='1'),
   pageSize?: int32(name='pageSize', example='100'),
   status?: [ string ](name='status'),
+  tableId?: long(name='tableId', example='20323'),
   tableName?: string(name='tableName', example='t1'),
   updated?: boolean(name='updated', example='false'),
   value?: string(name='value', example='p1=1/p2=abc'),
@@ -5145,6 +5169,7 @@ model ListMmsPartitionsShrinkRequest {
   pageNum?: int32(name='pageNum', example='1'),
   pageSize?: int32(name='pageSize', example='100'),
   statusShrink?: string(name='status'),
+  tableId?: long(name='tableId', example='20323'),
   tableName?: string(name='tableName', example='t1'),
   updated?: boolean(name='updated', example='false'),
   value?: string(name='value', example='p1=1/p2=abc'),
@@ -5154,8 +5179,12 @@ model ListMmsPartitionsResponseBody = {
   data?: {
     objectList?: [ 
       {
-        dbId?: long(name='DbId', example='2'),
+        dbId?: long(name='dbId'),
         dbName?: string(name='dbName', example='d1'),
+        dstProjectName?: string(name='dstProjectName', example='mms_test'),
+        dstSchemaName?: string(name='dstSchemaName', example='default'),
+        dstTableName?: string(name='dstTableName', example='default'),
+        dstValue?: string(name='dstValue', example='p1=1/p2=abc'),
         id?: long(name='id', example='2323'),
         lastDdlTime?: string(name='lastDdlTime', description='lastDdlTime', example='2024-12-17 15:44:42'),
         numRows?: long(name='numRows', example='2323'),
@@ -5219,6 +5248,9 @@ async function listMmsPartitionsWithOptions(sourceId: string, tmpReq: ListMmsPar
   if (!Util.isUnset(request.statusShrink)) {
     query['status'] = request.statusShrink;
   }
+  if (!Util.isUnset(request.tableId)) {
+    query['tableId'] = request.tableId;
+  }
   if (!Util.isUnset(request.tableName)) {
     query['tableName'] = request.tableName;
   }
@@ -5270,6 +5302,9 @@ model ListMmsTablesRequest {
   }(name='sorter'),
   dbId?: long(name='dbId', example='197'),
   dbName?: string(name='dbName', example='mms_test'),
+  dstName?: string(name='dstName', example='test'),
+  dstProjectName?: string(name='dstProjectName', example='mms_test'),
+  dstSchemaName?: string(name='dstSchemaName', example='default'),
   hasPartitions?: boolean(name='hasPartitions', example='true'),
   lastDdlTimeEnd?: string(name='lastDdlTimeEnd', example='2024-12-19 15:44:42'),
   lastDdlTimeStart?: string(name='lastDdlTimeStart', example='2024-12-17 15:44:42'),
@@ -5289,6 +5324,9 @@ model ListMmsTablesShrinkRequest {
   }(name='sorter'),
   dbId?: long(name='dbId', example='197'),
   dbName?: string(name='dbName', example='mms_test'),
+  dstName?: string(name='dstName', example='test'),
+  dstProjectName?: string(name='dstProjectName', example='mms_test'),
+  dstSchemaName?: string(name='dstSchemaName', example='default'),
   hasPartitions?: boolean(name='hasPartitions', example='true'),
   lastDdlTimeEnd?: string(name='lastDdlTimeEnd', example='2024-12-19 15:44:42'),
   lastDdlTimeStart?: string(name='lastDdlTimeStart', example='2024-12-17 15:44:42'),
@@ -5306,6 +5344,9 @@ model ListMmsTablesResponseBody = {
       {
         dbId?: long(name='dbId', example='196'),
         dbName?: string(name='dbName', example='demo'),
+        dstName?: string(name='dstName', example='test'),
+        dstProjectName?: string(name='dstProjectName', example='mms_test'),
+        dstSchemaName?: string(name='dstSchemaName', example='default'),
         extra?: string(name='extra', example='{"mapkey.delim":":","collection.delim":",","serialization.format":"|","field.delim":"|"}'),
         hasPartitions?: boolean(name='hasPartitions', example='true'),
         id?: long(name='id', description='table ID', example='1003476'),
@@ -5385,6 +5426,15 @@ async function listMmsTablesWithOptions(sourceId: string, tmpReq: ListMmsTablesR
   }
   if (!Util.isUnset(request.dbName)) {
     query['dbName'] = request.dbName;
+  }
+  if (!Util.isUnset(request.dstName)) {
+    query['dstName'] = request.dstName;
+  }
+  if (!Util.isUnset(request.dstProjectName)) {
+    query['dstProjectName'] = request.dstProjectName;
+  }
+  if (!Util.isUnset(request.dstSchemaName)) {
+    query['dstSchemaName'] = request.dstSchemaName;
   }
   if (!Util.isUnset(request.hasPartitions)) {
     query['hasPartitions'] = request.hasPartitions;
@@ -6046,6 +6096,7 @@ model ListQuotasResponseBody = {
             name?: string(name='name', description='The name of the level-2 quota.', example='subquotaA'),
             nickName?: string(name='nickName', description='The nickname of the level-2 quota.', example='subquotaA'),
             parameter?: {
+              adhocSlot?: long(name='adhocSlot'),
               elasticReservedCU?: long(name='elasticReservedCU'),
               enablePriority?: boolean(name='enablePriority'),
               forceReservedMin?: boolean(name='forceReservedMin'),
@@ -6053,6 +6104,7 @@ model ListQuotasResponseBody = {
               minCU?: long(name='minCU', description='This parameter is required.'),
               schedulerType?: string(name='schedulerType'),
               singleJobCULimit?: long(name='singleJobCULimit'),
+              slotNum?: long(name='slotNum'),
             }(name='parameter', description='The description of the quota.', example='{"minCU":10,	
 "adhocCU":0,
 "maxCU":10,
@@ -6151,13 +6203,17 @@ model ListQuotasResponseBody = {
           name?: string(name='name', description='The name of the level-2 quota.', example='subquotaA'),
           nickName?: string(name='nickName', description='The alias of the level-2 quota.', example='subquotaA'),
           parameter?: {
+            adhocSlot?: long(name='adhocSlot'),
             elasticReservedCU?: long(name='elasticReservedCU'),
             enablePriority?: boolean(name='enablePriority'),
             forceReservedMin?: boolean(name='forceReservedMin'),
             maxCU?: long(name='maxCU', description='This parameter is required.'),
+            maxGu?: long(name='maxGu'),
             minCU?: long(name='minCU', description='This parameter is required.'),
+            minGu?: long(name='minGu'),
             schedulerType?: string(name='schedulerType'),
             singleJobCULimit?: long(name='singleJobCULimit'),
+            slotNum?: long(name='slotNum'),
           }(name='parameter', description='The description of the quota.', example='{"minCU":10,	
 "adhocCU":0,
 "maxCU":10,
@@ -7550,6 +7606,102 @@ async function queryQuota(nickname: string, request: QueryQuotaRequest): QueryQu
   var runtime = new Util.RuntimeOptions{};
   var headers : map[string]string = {};
   return queryQuotaWithOptions(nickname, request, headers, runtime);
+}
+
+model QueryQuotaMetricRequest {
+  interval?: long(name='interval', example='60'),
+  nickname?: string(name='nickname', example='os_sns_p'),
+  subQuotaNickname?: string(name='subQuotaNickname', example='os_sns'),
+  endTime?: long(name='endTime', description='This parameter is required.', example='1735536322'),
+  startTime?: long(name='startTime', description='This parameter is required.', example='1735534322'),
+  strategy?: string(name='strategy', example='max'),
+}
+
+model QueryQuotaMetricResponseBody = {
+  data?: {
+    category?: string(name='category'),
+    metrics?: [ 
+      {
+        metric?: map[string]string(name='metric'),
+        values?: [[ double ]        ](name='values'),
+      }
+    ](name='metrics'),
+    name?: string(name='name', example='cpu'),
+    period?: long(name='period', example='60'),
+  }(name='data'),
+  errorCode?: string(name='errorCode', example='success'),
+  errorMsg?: string(name='errorMsg', example='plan \\\\"***\\\\" does not exist'),
+  httpCode?: int32(name='httpCode', example='200'),
+  requestId?: string(name='requestId', example='0b87b7b316643495896551555e855b'),
+}
+
+model QueryQuotaMetricResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: QueryQuotaMetricResponseBody(name='body'),
+}
+
+/**
+ * @summary 查询quota的资源使用信息
+ *
+ * @param request QueryQuotaMetricRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return QueryQuotaMetricResponse
+ */
+async function queryQuotaMetricWithOptions(metric: string, request: QueryQuotaMetricRequest, headers: map[string]string, runtime: Util.RuntimeOptions): QueryQuotaMetricResponse {
+  Util.validateModel(request);
+  var query : map[string]any = {};
+  if (!Util.isUnset(request.endTime)) {
+    query['endTime'] = request.endTime;
+  }
+  if (!Util.isUnset(request.startTime)) {
+    query['startTime'] = request.startTime;
+  }
+  if (!Util.isUnset(request.strategy)) {
+    query['strategy'] = request.strategy;
+  }
+
+  var body : map[string]any = {};
+  if (!Util.isUnset(request.interval)) {
+    body['interval'] = request.interval;
+  }
+  if (!Util.isUnset(request.nickname)) {
+    body['nickname'] = request.nickname;
+  }
+  if (!Util.isUnset(request.subQuotaNickname)) {
+    body['subQuotaNickname'] = request.subQuotaNickname;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApi.Params{
+    action = 'QueryQuotaMetric',
+    version = '2022-01-04',
+    protocol = 'HTTPS',
+    pathname = `/api/v1/observations/quota/${OpenApiUtil.getEncodeParam(metric)}`,
+    method = 'POST',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 查询quota的资源使用信息
+ *
+ * @param request QueryQuotaMetricRequest
+ * @return QueryQuotaMetricResponse
+ */
+async function queryQuotaMetric(metric: string, request: QueryQuotaMetricRequest): QueryQuotaMetricResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return queryQuotaMetricWithOptions(metric, request, headers, runtime);
 }
 
 model QueryStorageMetricRequest {
