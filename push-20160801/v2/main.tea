@@ -116,12 +116,19 @@ model PushTask {
         huawei?: {
           category?: string(name='Category'),
           importance?: int32(name='Importance'),
+          liveNotificationPayload?: string(name='LiveNotificationPayload'),
           receiptId?: string(name='ReceiptId'),
           urgency?: string(name='Urgency'),
         }(name='Huawei'),
+        meizu?: {
+          noticeMsgType?: int32(name='NoticeMsgType'),
+        }(name='Meizu'),
         oppo?: {
           category?: string(name='Category'),
           notifyLevel?: long(name='NotifyLevel'),
+          privateContentParameters?: string(name='PrivateContentParameters'),
+          privateMsgTemplateId?: string(name='PrivateMsgTemplateId'),
+          privateTitleParameters?: string(name='PrivateTitleParameters'),
         }(name='Oppo'),
         vivo?: {
           category?: string(name='Category'),
@@ -148,6 +155,7 @@ model PushTask {
       extensionPush?: boolean(name='ExtensionPush'),
       imageUrl?: string(name='ImageUrl'),
       inboxContent?: [ string ](name='InboxContent'),
+      liveViewPayload?: string(name='LiveViewPayload'),
       notifyId?: int32(name='NotifyId'),
       receiptId?: string(name='ReceiptId'),
       renderStyle?: string(name='RenderStyle'),
@@ -1081,6 +1089,84 @@ async function massPushWithOptions(request: MassPushRequest, runtime: $RuntimeOp
 async function massPush(request: MassPushRequest): MassPushResponse {
   var runtime = new $RuntimeOptions{};
   return massPushWithOptions(request, runtime);
+}
+
+model MassPushV2Request {
+  appKey?: long(name='AppKey', description='This parameter is required.'),
+  idempotentToken?: string(name='IdempotentToken'),
+  pushTasks?: [
+    PushTask
+  ](name='PushTasks', description='This parameter is required.'),
+}
+
+model MassPushV2ShrinkRequest {
+  appKey?: long(name='AppKey', description='This parameter is required.'),
+  idempotentToken?: string(name='IdempotentToken'),
+  pushTasksShrink?: string(name='PushTasks', description='This parameter is required.'),
+}
+
+model MassPushV2ResponseBody = {
+  messageIds?: [ string ](name='MessageIds'),
+  requestId?: string(name='RequestId'),
+}
+
+model MassPushV2Response = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: MassPushV2ResponseBody(name='body'),
+}
+
+/**
+ * @summary 新版高级推送接口
+ *
+ * @param tmpReq MassPushV2Request
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return MassPushV2Response
+ */
+@context("massPushV2WithContext")
+async function massPushV2WithOptions(tmpReq: MassPushV2Request, runtime: $RuntimeOptions): MassPushV2Response {
+  tmpReq.validate();
+  var request = new MassPushV2ShrinkRequest{};
+  OpenApiUtil.convert(tmpReq, request);
+  if (!$isNull(tmpReq.pushTasks)) {
+    request.pushTasksShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.pushTasks, 'PushTasks', 'json');
+  }
+  var query = {};
+  if (!$isNull(request.appKey)) {
+    query['AppKey'] = request.appKey;
+  }
+  if (!$isNull(request.idempotentToken)) {
+    query['IdempotentToken'] = request.idempotentToken;
+  }
+  if (!$isNull(request.pushTasksShrink)) {
+    query['PushTasks'] = request.pushTasksShrink;
+  }
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'MassPushV2',
+    version = '2016-08-01',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 新版高级推送接口
+ *
+ * @param request MassPushV2Request
+ * @return MassPushV2Response
+ */
+async function massPushV2(request: MassPushV2Request): MassPushV2Response {
+  var runtime = new $RuntimeOptions{};
+  return massPushV2WithOptions(request, runtime);
 }
 
 model PushRequest {
@@ -2037,6 +2123,82 @@ async function pushNoticeToiOSWithOptions(request: PushNoticeToiOSRequest, runti
 async function pushNoticeToiOS(request: PushNoticeToiOSRequest): PushNoticeToiOSResponse {
   var runtime = new $RuntimeOptions{};
   return pushNoticeToiOSWithOptions(request, runtime);
+}
+
+model PushV2Request {
+  appKey?: long(name='AppKey', description='This parameter is required.', example='****530646'),
+  idempotentToken?: string(name='IdempotentToken', example='c8016d13-6e76-****-9bda-769383d11787'),
+  pushTask?: PushTask(name='PushTask', description='This parameter is required.'),
+}
+
+model PushV2ShrinkRequest {
+  appKey?: long(name='AppKey', description='This parameter is required.', example='****530646'),
+  idempotentToken?: string(name='IdempotentToken', example='c8016d13-6e76-****-9bda-769383d11787'),
+  pushTaskShrink?: string(name='PushTask', description='This parameter is required.'),
+}
+
+model PushV2ResponseBody = {
+  messageId?: string(name='MessageId', example='11747540****88320'),
+  requestId?: string(name='RequestId', example='159E4422-6624-****-8943-DFD98D34858C'),
+}
+
+model PushV2Response = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: PushV2ResponseBody(name='body'),
+}
+
+/**
+ * @summary 新版高级推送接口
+ *
+ * @param tmpReq PushV2Request
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return PushV2Response
+ */
+@context("pushV2WithContext")
+async function pushV2WithOptions(tmpReq: PushV2Request, runtime: $RuntimeOptions): PushV2Response {
+  tmpReq.validate();
+  var request = new PushV2ShrinkRequest{};
+  OpenApiUtil.convert(tmpReq, request);
+  if (!$isNull(tmpReq.pushTask)) {
+    request.pushTaskShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.pushTask, 'PushTask', 'json');
+  }
+  var query = {};
+  if (!$isNull(request.appKey)) {
+    query['AppKey'] = request.appKey;
+  }
+  if (!$isNull(request.idempotentToken)) {
+    query['IdempotentToken'] = request.idempotentToken;
+  }
+  if (!$isNull(request.pushTaskShrink)) {
+    query['PushTask'] = request.pushTaskShrink;
+  }
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'PushV2',
+    version = '2016-08-01',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 新版高级推送接口
+ *
+ * @param request PushV2Request
+ * @return PushV2Response
+ */
+async function pushV2(request: PushV2Request): PushV2Response {
+  var runtime = new $RuntimeOptions{};
+  return pushV2WithOptions(request, runtime);
 }
 
 model QueryAliasesRequest {

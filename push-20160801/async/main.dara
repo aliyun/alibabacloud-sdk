@@ -118,12 +118,19 @@ model PushTask {
         huawei?: {
           category?: string(name='Category'),
           importance?: int32(name='Importance'),
+          liveNotificationPayload?: string(name='LiveNotificationPayload'),
           receiptId?: string(name='ReceiptId'),
           urgency?: string(name='Urgency'),
         }(name='Huawei'),
+        meizu?: {
+          noticeMsgType?: int32(name='NoticeMsgType'),
+        }(name='Meizu'),
         oppo?: {
           category?: string(name='Category'),
           notifyLevel?: long(name='NotifyLevel'),
+          privateContentParameters?: string(name='PrivateContentParameters'),
+          privateMsgTemplateId?: string(name='PrivateMsgTemplateId'),
+          privateTitleParameters?: string(name='PrivateTitleParameters'),
         }(name='Oppo'),
         vivo?: {
           category?: string(name='Category'),
@@ -150,6 +157,7 @@ model PushTask {
       extensionPush?: boolean(name='ExtensionPush'),
       imageUrl?: string(name='ImageUrl'),
       inboxContent?: [ string ](name='InboxContent'),
+      liveViewPayload?: string(name='LiveViewPayload'),
       notifyId?: int32(name='NotifyId'),
       receiptId?: string(name='ReceiptId'),
       renderStyle?: string(name='RenderStyle'),
@@ -645,6 +653,34 @@ async function massPush(request: MassPushRequest): MassPushResponse {
   return @handler.do('RPC', 'MassPush', 'POST', '/', 'json', true, 'form', request);
 }
 
+model MassPushV2Request {
+  appKey: long(name='AppKey', description='This parameter is required.', position='Query'),
+  idempotentToken?: string(name='IdempotentToken', minLength=36, maxLength=36, position='Query'),
+  pushTasks: [
+    PushTask
+  ](name='PushTasks', description='This parameter is required.', shrink='json', position='Query'),
+}
+
+model MassPushV2ResponseBody = {
+  messageIds?: [ string ](name='MessageIds'),
+  requestId?: string(name='RequestId'),
+}
+
+model MassPushV2Response = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: MassPushV2ResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of MassPushV2  MassPushV2Request
+  * @return MassPushV2Response
+ */
+async function massPushV2(request: MassPushV2Request): MassPushV2Response {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'MassPushV2', 'POST', '/', 'json', false, 'json', request);
+}
+
 model PushRequest {
   androidActivity?: string(name='AndroidActivity', example='com.alibaba.cloudpushdemo.bizactivity', position='Query'),
   androidBadgeAddNum?: int32(name='AndroidBadgeAddNum', minimum=1, maximum=99, position='Query'),
@@ -900,6 +936,32 @@ model PushNoticeToiOSResponse = {
 async function pushNoticeToiOS(request: PushNoticeToiOSRequest): PushNoticeToiOSResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RPC', 'PushNoticeToiOS', 'POST', '/', 'json', false, 'json', request);
+}
+
+model PushV2Request {
+  appKey: long(name='AppKey', description='This parameter is required.', example='****530646', position='Query'),
+  idempotentToken?: string(name='IdempotentToken', example='c8016d13-6e76-****-9bda-769383d11787', minLength=36, maxLength=36, position='Query'),
+  pushTask: PushTask(name='PushTask', description='This parameter is required.', shrink='json', position='Query'),
+}
+
+model PushV2ResponseBody = {
+  messageId?: string(name='MessageId', example='11747540****88320'),
+  requestId?: string(name='RequestId', example='159E4422-6624-****-8943-DFD98D34858C'),
+}
+
+model PushV2Response = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: PushV2ResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of PushV2  PushV2Request
+  * @return PushV2Response
+ */
+async function pushV2(request: PushV2Request): PushV2Response {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'PushV2', 'POST', '/', 'json', false, 'json', request);
 }
 
 model QueryAliasesRequest {
