@@ -44,6 +44,41 @@ This parameter is required.', example='version:&nbsp;v1.0<br/>type:&nbsp;flow<br
   description?: string(name='Description', description='The description of the flow.
 
 This parameter is required.', example='test flow'),
+  environment?: {
+    variables?: [ 
+      {
+        description?: string(name='Description', example='description'),
+        name?: string(name='Name', example='key'),
+        value?: string(name='Value', example='value'),
+      }
+    ](name='Variables'),
+  }(name='Environment'),
+  executionMode?: string(name='ExecutionMode', description='The execution mode. Valid values: Express and Standard. Considering compatibility, an empty string is equivalent to the Standard execution mode.', example='Standard'),
+  externalStorageLocation?: string(name='ExternalStorageLocation', description='The path of the external storage.', example='/path'),
+  name?: string(name='Name', description='The name of the flow. The name is unique within the same region and cannot be modified after the flow is created. Set this parameter based on the following rules:
+
+*   The name can contain letters, digits, underscores (_), and hyphens (-).
+*   The name must start with a letter or an underscore (_).
+*   The name is case-sensitive.
+*   The name must be 1 to 128 characters in length.
+
+This parameter is required.', example='flow'),
+  roleArn?: string(name='RoleArn', description='The Alibaba Cloud resource name (ARN) of the authorized role on which the execution of the flow relies. During the execution of the flow, CloudFlow assumes the role to call API operations of relevant services.', example='acs:ram:${region}:${accountID}:${role}'),
+  type?: string(name='Type', description='The type of the flow. Set this parameter to **FDL**.
+
+This parameter is required.', example='FDL'),
+}
+
+model CreateFlowShrinkRequest {
+  definition?: string(name='Definition', description='The definition of the workflow. The definition must comply with the flow definition language (FDL) syntax. Considering compatibility, the system supports two flow definition specifications.
+
+>  In the preceding flow definition example, Name:my_flow_name is the workflow name, which must be consistent with the input parameter Name
+
+This parameter is required.', example='version:&nbsp;v1.0<br/>type:&nbsp;flow<br/>steps:<br/>&nbsp;-&nbsp;type:&nbsp;pass<br/>&nbsp;name:&nbsp;mypass'),
+  description?: string(name='Description', description='The description of the flow.
+
+This parameter is required.', example='test flow'),
+  environmentShrink?: string(name='Environment'),
   executionMode?: string(name='ExecutionMode', description='The execution mode. Valid values: Express and Standard. Considering compatibility, an empty string is equivalent to the Standard execution mode.', example='Standard'),
   externalStorageLocation?: string(name='ExternalStorageLocation', description='The path of the external storage.', example='/path'),
   name?: string(name='Name', description='The name of the flow. The name is unique within the same region and cannot be modified after the flow is created. Set this parameter based on the following rules:
@@ -64,6 +99,15 @@ model CreateFlowResponseBody = {
   createdTime?: string(name='CreatedTime', description='The time when the flow was created.', example='2019-01-01T01:01:01.001Z'),
   definition?: string(name='Definition', description='Considering compatibility, the system supports two flow definition specifications.', example='version: v1.0\\\\ntype: flow\\\\nname: test\\\\nsteps:\\\\n - type: pass\\\\n name: mypass'),
   description?: string(name='Description', description='The description of the flow.', example='test flow'),
+  environment?: {
+    variables?: [ 
+      {
+        description?: string(name='Description', example='description'),
+        name?: string(name='Name', example='key'),
+        value?: string(name='Value', example='value'),
+      }
+    ](name='Variables'),
+  }(name='Environment'),
   executionMode?: string(name='ExecutionMode', description='The execution mode. Valid values: Express and Standard. Considering compatibility, an empty string is equivalent to the Standard execution mode.', example='Standard'),
   id?: string(name='Id', description='The unique ID of the flow.', example='e589e092-e2c0-4dee-b306-3574ddfdddf5****'),
   lastModifiedTime?: string(name='LastModifiedTime', description='The time when the flow was last modified.', example='2019-01-01T01:01:01.001Z'),
@@ -96,18 +140,26 @@ model CreateFlowResponse = {
  * *   The number of flows that each user can create is restricted by resources. For more information, see [Limits](https://help.aliyun.com/document_detail/122093.html). If you want to create more flows, submit a ticket.
  * *   At the user level, flows are distinguished by name. The name of a flow within one account must be unique.
  *
- * @param request CreateFlowRequest
+ * @param tmpReq CreateFlowRequest
  * @param runtime runtime options for this request RuntimeOptions
  * @return CreateFlowResponse
  */
-async function createFlowWithOptions(request: CreateFlowRequest, runtime: Util.RuntimeOptions): CreateFlowResponse {
-  Util.validateModel(request);
+async function createFlowWithOptions(tmpReq: CreateFlowRequest, runtime: Util.RuntimeOptions): CreateFlowResponse {
+  Util.validateModel(tmpReq);
+  var request = new CreateFlowShrinkRequest{};
+  OpenApiUtil.convert(tmpReq, request);
+  if (!Util.isUnset(tmpReq.environment)) {
+    request.environmentShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.environment, 'Environment', 'json');
+  }
   var body : map[string]any = {};
   if (!Util.isUnset(request.definition)) {
     body['Definition'] = request.definition;
   }
   if (!Util.isUnset(request.description)) {
     body['Description'] = request.description;
+  }
+  if (!Util.isUnset(request.environmentShrink)) {
+    body['Environment'] = request.environmentShrink;
   }
   if (!Util.isUnset(request.executionMode)) {
     body['ExecutionMode'] = request.executionMode;
@@ -138,11 +190,7 @@ async function createFlowWithOptions(request: CreateFlowRequest, runtime: Util.R
     reqBodyType = 'formData',
     bodyType = 'json',
   };
-  if (Util.isUnset(@signatureVersion) || !Util.equalString(@signatureVersion, 'v4')) {
-    return callApi(params, req, runtime);
-  } else {
-    return execute(params, req, runtime);
-  }
+  return callApi(params, req, runtime);
 }
 
 /**
@@ -158,6 +206,100 @@ async function createFlowWithOptions(request: CreateFlowRequest, runtime: Util.R
 async function createFlow(request: CreateFlowRequest): CreateFlowResponse {
   var runtime = new Util.RuntimeOptions{};
   return createFlowWithOptions(request, runtime);
+}
+
+model CreateFlowAliasRequest {
+  description?: string(name='Description', example='example description'),
+  flowName?: string(name='FlowName', description='This parameter is required.', example='example-flow-name'),
+  name?: string(name='Name', description='This parameter is required.', example='example-alias-name'),
+  routingConfigurations?: [ 
+    {
+      version?: string(name='Version', description='This parameter is required.', example='1'),
+      weight?: int32(name='Weight', description='This parameter is required.', example='30'),
+    }
+  ](name='RoutingConfigurations', description='This parameter is required.'),
+}
+
+model CreateFlowAliasShrinkRequest {
+  description?: string(name='Description', example='example description'),
+  flowName?: string(name='FlowName', description='This parameter is required.', example='example-flow-name'),
+  name?: string(name='Name', description='This parameter is required.', example='example-alias-name'),
+  routingConfigurationsShrink?: string(name='RoutingConfigurations', description='This parameter is required.'),
+}
+
+model CreateFlowAliasResponseBody = {
+  createdTime?: string(name='CreatedTime', example='2020-01-01T01:01:01.001Z'),
+  description?: string(name='Description', example='example description'),
+  flowName?: string(name='FlowName', example='example-flow-name'),
+  name?: string(name='Name', example='exampe-alias-name'),
+  requestId?: string(name='RequestId', description='Id of the request', example='testRequestID'),
+  routingConfigurations?: [ 
+    {
+      version?: string(name='Version', example='1'),
+      weight?: int32(name='Weight', example='30'),
+    }
+  ](name='RoutingConfigurations'),
+}
+
+model CreateFlowAliasResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: CreateFlowAliasResponseBody(name='body'),
+}
+
+/**
+ * @summary 创建流程版本别名
+ *
+ * @param tmpReq CreateFlowAliasRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return CreateFlowAliasResponse
+ */
+async function createFlowAliasWithOptions(tmpReq: CreateFlowAliasRequest, runtime: Util.RuntimeOptions): CreateFlowAliasResponse {
+  Util.validateModel(tmpReq);
+  var request = new CreateFlowAliasShrinkRequest{};
+  OpenApiUtil.convert(tmpReq, request);
+  if (!Util.isUnset(tmpReq.routingConfigurations)) {
+    request.routingConfigurationsShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.routingConfigurations, 'RoutingConfigurations', 'json');
+  }
+  var body : map[string]any = {};
+  if (!Util.isUnset(request.description)) {
+    body['Description'] = request.description;
+  }
+  if (!Util.isUnset(request.flowName)) {
+    body['FlowName'] = request.flowName;
+  }
+  if (!Util.isUnset(request.name)) {
+    body['Name'] = request.name;
+  }
+  if (!Util.isUnset(request.routingConfigurationsShrink)) {
+    body['RoutingConfigurations'] = request.routingConfigurationsShrink;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApi.Params{
+    action = 'CreateFlowAlias',
+    version = '2019-03-15',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 创建流程版本别名
+ *
+ * @param request CreateFlowAliasRequest
+ * @return CreateFlowAliasResponse
+ */
+async function createFlowAlias(request: CreateFlowAliasRequest): CreateFlowAliasResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return createFlowAliasWithOptions(request, runtime);
 }
 
 model CreateScheduleRequest {
@@ -249,11 +391,7 @@ async function createScheduleWithOptions(request: CreateScheduleRequest, runtime
     reqBodyType = 'formData',
     bodyType = 'json',
   };
-  if (Util.isUnset(@signatureVersion) || !Util.equalString(@signatureVersion, 'v4')) {
-    return callApi(params, req, runtime);
-  } else {
-    return execute(params, req, runtime);
-  }
+  return callApi(params, req, runtime);
 }
 
 /**
@@ -311,11 +449,7 @@ async function deleteFlowWithOptions(request: DeleteFlowRequest, runtime: Util.R
     reqBodyType = 'formData',
     bodyType = 'json',
   };
-  if (Util.isUnset(@signatureVersion) || !Util.equalString(@signatureVersion, 'v4')) {
-    return callApi(params, req, runtime);
-  } else {
-    return execute(params, req, runtime);
-  }
+  return callApi(params, req, runtime);
 }
 
 /**
@@ -330,6 +464,124 @@ async function deleteFlowWithOptions(request: DeleteFlowRequest, runtime: Util.R
 async function deleteFlow(request: DeleteFlowRequest): DeleteFlowResponse {
   var runtime = new Util.RuntimeOptions{};
   return deleteFlowWithOptions(request, runtime);
+}
+
+model DeleteFlowAliasRequest {
+  flowName?: string(name='FlowName', description='This parameter is required.', example='my_flow_name'),
+  name?: string(name='Name', description='This parameter is required.', example='alias_name'),
+}
+
+model DeleteFlowAliasResponseBody = {
+  requestId?: string(name='RequestId', description='Id of the request', example='3A44E113-9962-5B0B-AB92-14060EFE3164'),
+}
+
+model DeleteFlowAliasResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: DeleteFlowAliasResponseBody(name='body'),
+}
+
+/**
+ * @summary 删除流程别名
+ *
+ * @param request DeleteFlowAliasRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return DeleteFlowAliasResponse
+ */
+async function deleteFlowAliasWithOptions(request: DeleteFlowAliasRequest, runtime: Util.RuntimeOptions): DeleteFlowAliasResponse {
+  Util.validateModel(request);
+  var body : map[string]any = {};
+  if (!Util.isUnset(request.flowName)) {
+    body['FlowName'] = request.flowName;
+  }
+  if (!Util.isUnset(request.name)) {
+    body['Name'] = request.name;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApi.Params{
+    action = 'DeleteFlowAlias',
+    version = '2019-03-15',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 删除流程别名
+ *
+ * @param request DeleteFlowAliasRequest
+ * @return DeleteFlowAliasResponse
+ */
+async function deleteFlowAlias(request: DeleteFlowAliasRequest): DeleteFlowAliasResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return deleteFlowAliasWithOptions(request, runtime);
+}
+
+model DeleteFlowVersionRequest {
+  flowName?: string(name='FlowName', description='This parameter is required.', example='example-flow'),
+  flowVersion?: string(name='FlowVersion', description='This parameter is required.', example='1'),
+}
+
+model DeleteFlowVersionResponseBody = {
+  requestId?: string(name='RequestId', description='Id of the request', example='3A44E113-9962-5B0B-AB92-14060EFE3164'),
+}
+
+model DeleteFlowVersionResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: DeleteFlowVersionResponseBody(name='body'),
+}
+
+/**
+ * @summary 删除流程版本
+ *
+ * @param request DeleteFlowVersionRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return DeleteFlowVersionResponse
+ */
+async function deleteFlowVersionWithOptions(request: DeleteFlowVersionRequest, runtime: Util.RuntimeOptions): DeleteFlowVersionResponse {
+  Util.validateModel(request);
+  var body : map[string]any = {};
+  if (!Util.isUnset(request.flowName)) {
+    body['FlowName'] = request.flowName;
+  }
+  if (!Util.isUnset(request.flowVersion)) {
+    body['FlowVersion'] = request.flowVersion;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApi.Params{
+    action = 'DeleteFlowVersion',
+    version = '2019-03-15',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 删除流程版本
+ *
+ * @param request DeleteFlowVersionRequest
+ * @return DeleteFlowVersionResponse
+ */
+async function deleteFlowVersion(request: DeleteFlowVersionRequest): DeleteFlowVersionResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return deleteFlowVersionWithOptions(request, runtime);
 }
 
 model DeleteScheduleRequest {
@@ -377,11 +629,7 @@ async function deleteScheduleWithOptions(request: DeleteScheduleRequest, runtime
     reqBodyType = 'formData',
     bodyType = 'json',
   };
-  if (Util.isUnset(@signatureVersion) || !Util.equalString(@signatureVersion, 'v4')) {
-    return callApi(params, req, runtime);
-  } else {
-    return execute(params, req, runtime);
-  }
+  return callApi(params, req, runtime);
 }
 
 /**
@@ -409,6 +657,14 @@ This parameter is required.', example='flow'),
 }
 
 model DescribeExecutionResponseBody = {
+  environment?: {
+    variables?: [ 
+      {
+        name?: string(name='Name', example='key'),
+        value?: string(name='Value', example='value'),
+      }
+    ](name='Variables'),
+  }(name='Environment'),
   flowDefinition?: string(name='FlowDefinition', description='The definition of the flow.', example='version: v1.0\\\\ntype: flow\\\\nname: test\\\\nsteps:\\\\n - type: pass\\\\n name: mypass'),
   flowName?: string(name='FlowName', description='The name of the flow.', example='flow'),
   input?: string(name='Input', description='The input of the execution, which is in the JSON format.', example='{"key":"value"}'),
@@ -457,11 +713,7 @@ async function describeExecutionWithOptions(request: DescribeExecutionRequest, r
     reqBodyType = 'formData',
     bodyType = 'json',
   };
-  if (Util.isUnset(@signatureVersion) || !Util.equalString(@signatureVersion, 'v4')) {
-    return callApi(params, req, runtime);
-  } else {
-    return execute(params, req, runtime);
-  }
+  return callApi(params, req, runtime);
 }
 
 /**
@@ -476,6 +728,7 @@ async function describeExecution(request: DescribeExecutionRequest): DescribeExe
 }
 
 model DescribeFlowRequest {
+  flowVersion?: string(name='FlowVersion', example='1'),
   name?: string(name='Name', description='The name of the flow.
 
 This parameter is required.', example='flow'),
@@ -483,8 +736,17 @@ This parameter is required.', example='flow'),
 
 model DescribeFlowResponseBody = {
   createdTime?: string(name='CreatedTime', description='The time when the flow was created.', example='2019-01-01T01:01:01.001Z'),
-  definition?: string(name='Definition', description='The flow definition, which follows the flow definition language (FDL) syntax standard. Considering compatibility, the system supports the two flow definition specifications.', example='version: v1.0\\\\ntype: flow\\\\nname: test\\\\nsteps:\\\\n - type: pass\\\\n name: mypass'),
+  definition?: string(name='Definition', description='The definition of the workflow. The definition must comply with the flow definition language (FDL) syntax. Considering compatibility, the system supports the flow definition specifications of the old version and new version.', example='version: v1.0\\\\ntype: flow\\\\nname: test\\\\nsteps:\\\\n - type: pass\\\\n name: mypass'),
   description?: string(name='Description', description='The description of the flow.', example='test flow'),
+  environment?: {
+    variables?: [ 
+      {
+        description?: string(name='Description', example='description'),
+        name?: string(name='Name', example='key'),
+        value?: string(name='Value', example='value'),
+      }
+    ](name='Variables'),
+  }(name='Environment'),
   executionMode?: string(name='ExecutionMode', description='The execution mode or the enumeration type. Valid values: Express and Standard. A value of Standard indicates an empty string.', example='Standard'),
   id?: string(name='Id', description='The unique ID of the flow.', example='e589e092-e2c0-4dee-b306-3574ddfdddf5****'),
   lastModifiedTime?: string(name='LastModifiedTime', description='The time when the flow was last modified.', example='2019-01-01T01:01:01.001Z'),
@@ -524,11 +786,7 @@ async function describeFlowWithOptions(request: DescribeFlowRequest, runtime: Ut
     reqBodyType = 'formData',
     bodyType = 'json',
   };
-  if (Util.isUnset(@signatureVersion) || !Util.equalString(@signatureVersion, 'v4')) {
-    return callApi(params, req, runtime);
-  } else {
-    return execute(params, req, runtime);
-  }
+  return callApi(params, req, runtime);
 }
 
 /**
@@ -540,6 +798,145 @@ async function describeFlowWithOptions(request: DescribeFlowRequest, runtime: Ut
 async function describeFlow(request: DescribeFlowRequest): DescribeFlowResponse {
   var runtime = new Util.RuntimeOptions{};
   return describeFlowWithOptions(request, runtime);
+}
+
+model DescribeFlowAliasRequest {
+  flowName?: string(name='FlowName', description='This parameter is required.', example='example-flow-name'),
+  name?: string(name='Name', description='This parameter is required.', example='example-alias-name'),
+}
+
+model DescribeFlowAliasResponseBody = {
+  alias?: {
+    createdTime?: string(name='CreatedTime', example='2024-04-22T06:09:39.907Z'),
+    description?: string(name='Description', example='alias description'),
+    name?: string(name='Name', example='alias-name'),
+    routingConfigurations?: [ 
+      {
+        version?: string(name='Version', example='1'),
+        weight?: int32(name='Weight', example='10'),
+      }
+    ](name='RoutingConfigurations'),
+  }(name='Alias'),
+  requestId?: string(name='RequestId', description='Id of the request', example='294D68C1-5108-5971-853A-1A9CC87B4816'),
+}
+
+model DescribeFlowAliasResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: DescribeFlowAliasResponseBody(name='body'),
+}
+
+/**
+ * @summary 查询流程版本别名详情
+ *
+ * @param request DescribeFlowAliasRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return DescribeFlowAliasResponse
+ */
+async function describeFlowAliasWithOptions(request: DescribeFlowAliasRequest, runtime: Util.RuntimeOptions): DescribeFlowAliasResponse {
+  Util.validateModel(request);
+  var query = OpenApiUtil.query(Util.toMap(request));
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'DescribeFlowAlias',
+    version = '2019-03-15',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'GET',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 查询流程版本别名详情
+ *
+ * @param request DescribeFlowAliasRequest
+ * @return DescribeFlowAliasResponse
+ */
+async function describeFlowAlias(request: DescribeFlowAliasRequest): DescribeFlowAliasResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return describeFlowAliasWithOptions(request, runtime);
+}
+
+model DescribeMapRunRequest {
+  executionName?: string(name='ExecutionName', description='This parameter is required.', example='my_exec_name'),
+  flowName?: string(name='FlowName', description='This parameter is required.', example='my_flow_name'),
+  mapRunName?: string(name='MapRunName', description='This parameter is required.', example='c39142f1345b196d678333c41f113200'),
+  requestId?: string(name='RequestId', example='3A44E113-9962-5B0B-AB92-14060EFE3164'),
+}
+
+model DescribeMapRunResponseBody = {
+  concurrency?: long(name='Concurrency', example='1'),
+  executionName?: string(name='ExecutionName', example='my_exec_name'),
+  itemCounts?: {
+    aborted?: long(name='Aborted', example='100'),
+    failed?: long(name='Failed', example='100'),
+    pending?: long(name='Pending', example='100'),
+    running?: long(name='Running', example='100'),
+    succeed?: long(name='Succeed', example='100'),
+    total?: long(name='Total', example='500'),
+  }(name='ItemCounts'),
+  mapRunName?: string(name='MapRunName', example='c39142f1345b196d678333c41f113000'),
+  requestId?: string(name='RequestId', example='3A44E113-9962-5B0B-AB92-14060EFE3164'),
+  startedTime?: string(name='StartedTime', example='2025-10-24T14:11:26+08:00'),
+  status?: string(name='Status', example='Succeeded'),
+  stoppedTime?: string(name='StoppedTime', example='2025-10-24T14:11:28+08:00'),
+  toleratedFailedCount?: long(name='ToleratedFailedCount', example='100'),
+  toleratedFailedPercentage?: float(name='ToleratedFailedPercentage', example='20'),
+}
+
+model DescribeMapRunResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: DescribeMapRunResponseBody(name='body'),
+}
+
+/**
+ * @summary 查询 MapRun 详情
+ *
+ * @param request DescribeMapRunRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return DescribeMapRunResponse
+ */
+async function describeMapRunWithOptions(request: DescribeMapRunRequest, runtime: Util.RuntimeOptions): DescribeMapRunResponse {
+  Util.validateModel(request);
+  var query = OpenApiUtil.query(Util.toMap(request));
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'DescribeMapRun',
+    version = '2019-03-15',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'GET',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 查询 MapRun 详情
+ *
+ * @param request DescribeMapRunRequest
+ * @return DescribeMapRunResponse
+ */
+async function describeMapRun(request: DescribeMapRunRequest): DescribeMapRunResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return describeMapRunWithOptions(request, runtime);
+}
+
+model DescribeRegionsRequest {
+  acceptLanguage?: string(name='AcceptLanguage', example='zh-CN'),
 }
 
 model DescribeRegionsResponseBody = {
@@ -568,8 +965,15 @@ model DescribeRegionsResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return DescribeRegionsResponse
  */
-async function describeRegionsWithOptions(runtime: Util.RuntimeOptions): DescribeRegionsResponse {
-  var req = new OpenApi.OpenApiRequest{};
+async function describeRegionsWithOptions(request: DescribeRegionsRequest, runtime: Util.RuntimeOptions): DescribeRegionsResponse {
+  Util.validateModel(request);
+  var body : map[string]any = {};
+  if (!Util.isUnset(request.acceptLanguage)) {
+    body['AcceptLanguage'] = request.acceptLanguage;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    body = OpenApiUtil.parseToMap(body),
+  };
   var params = new OpenApi.Params{
     action = 'DescribeRegions',
     version = '2019-03-15',
@@ -581,21 +985,18 @@ async function describeRegionsWithOptions(runtime: Util.RuntimeOptions): Describ
     reqBodyType = 'formData',
     bodyType = 'json',
   };
-  if (Util.isUnset(@signatureVersion) || !Util.equalString(@signatureVersion, 'v4')) {
-    return callApi(params, req, runtime);
-  } else {
-    return execute(params, req, runtime);
-  }
+  return callApi(params, req, runtime);
 }
 
 /**
  * @summary 查询地域信息列表
  *
+ * @param request DescribeRegionsRequest
  * @return DescribeRegionsResponse
  */
-async function describeRegions(): DescribeRegionsResponse {
+async function describeRegions(request: DescribeRegionsRequest): DescribeRegionsResponse {
   var runtime = new Util.RuntimeOptions{};
-  return describeRegionsWithOptions(runtime);
+  return describeRegionsWithOptions(request, runtime);
 }
 
 model DescribeScheduleRequest {
@@ -662,11 +1063,7 @@ async function describeScheduleWithOptions(request: DescribeScheduleRequest, run
     reqBodyType = 'formData',
     bodyType = 'json',
   };
-  if (Util.isUnset(@signatureVersion) || !Util.equalString(@signatureVersion, 'v4')) {
-    return callApi(params, req, runtime);
-  } else {
-    return execute(params, req, runtime);
-  }
+  return callApi(params, req, runtime);
 }
 
 /**
@@ -758,11 +1155,7 @@ async function getExecutionHistoryWithOptions(request: GetExecutionHistoryReques
     reqBodyType = 'formData',
     bodyType = 'json',
   };
-  if (Util.isUnset(@signatureVersion) || !Util.equalString(@signatureVersion, 'v4')) {
-    return callApi(params, req, runtime);
-  } else {
-    return execute(params, req, runtime);
-  }
+  return callApi(params, req, runtime);
 }
 
 /**
@@ -787,8 +1180,10 @@ model ListExecutionsRequest {
 
 This parameter is required.', example='flow'),
   limit?: int32(name='Limit', description='The number of executions that you want to query. Valid values: 1-99. Default value: 60.', example='1'),
+  mapRunName?: string(name='MapRunName'),
   metadataOnly?: boolean(name='MetadataOnly'),
   nextToken?: string(name='NextToken', description='The name of the execution to start the query. You can obtain the value from the response data. You do not need to specify this parameter for the first request.', example='flow_xxx'),
+  qualifier?: string(name='Qualifier', example='1'),
   startedTimeBegin?: string(name='StartedTimeBegin', description='The beginning of the time range to query executions. Specify the value in the UTC RFC3339 format.', example='2020-12-02T02:39:20.402Z'),
   startedTimeEnd?: string(name='StartedTimeEnd', description='The end of the time range to query executions. Specify the value in the UTC RFC3339 format.', example='2020-12-02T02:23:54.817Z'),
   status?: string(name='Status', description='The status of the execution that you want to filter. Valid values:
@@ -804,6 +1199,14 @@ This parameter is required.', example='flow'),
 model ListExecutionsResponseBody = {
   executions?: [ 
     {
+      environment?: {
+        variables?: [ 
+          {
+            name?: string(name='Name', example='key'),
+            value?: string(name='Value', example='value'),
+          }
+        ](name='Variables'),
+      }(name='Environment'),
       flowDefinition?: string(name='FlowDefinition', description='The definition of the flow.', example='version: v1.0\\\\ntype: flow\\\\nname: test\\\\nsteps:\\\\n  - type: pass\\\\n    name: mypass'),
       flowName?: string(name='FlowName', description='The name of the flow.', example='flow'),
       input?: string(name='Input', description='The input of the execution, which is in the JSON format.', example='{"key":"value"}'),
@@ -853,11 +1256,7 @@ async function listExecutionsWithOptions(request: ListExecutionsRequest, runtime
     reqBodyType = 'formData',
     bodyType = 'json',
   };
-  if (Util.isUnset(@signatureVersion) || !Util.equalString(@signatureVersion, 'v4')) {
-    return callApi(params, req, runtime);
-  } else {
-    return execute(params, req, runtime);
-  }
+  return callApi(params, req, runtime);
 }
 
 /**
@@ -874,6 +1273,136 @@ async function listExecutions(request: ListExecutionsRequest): ListExecutionsRes
   return listExecutionsWithOptions(request, runtime);
 }
 
+model ListFlowAliasesRequest {
+  flowName?: string(name='FlowName', description='This parameter is required.', example='example-flow-name'),
+  limit?: int32(name='Limit', example='10'),
+  nextToken?: string(name='NextToken', description='list token', example='token'),
+}
+
+model ListFlowAliasesResponseBody = {
+  aliases?: [ 
+    {
+      createdTime?: string(name='CreatedTime', example='2025-10-24T14:11:26+08:00'),
+      description?: string(name='Description', example='my alias description'),
+      name?: string(name='Name', example='my-alias-name'),
+      routingConfigurations?: [ 
+        {
+          version?: string(name='Version', example='1'),
+          weight?: string(name='Weight', example='20'),
+        }
+      ](name='RoutingConfigurations'),
+    }
+  ](name='Aliases'),
+  nextToken?: string(name='NextToken', description='list token', example='testNextToken'),
+  requestId?: string(name='RequestId', description='Id of the request', example='3A44E113-9962-5B0B-AB92-14060EFE3164'),
+}
+
+model ListFlowAliasesResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ListFlowAliasesResponseBody(name='body'),
+}
+
+/**
+ * @summary 查询流程版本别名列表
+ *
+ * @param request ListFlowAliasesRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return ListFlowAliasesResponse
+ */
+async function listFlowAliasesWithOptions(request: ListFlowAliasesRequest, runtime: Util.RuntimeOptions): ListFlowAliasesResponse {
+  Util.validateModel(request);
+  var query = OpenApiUtil.query(Util.toMap(request));
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'ListFlowAliases',
+    version = '2019-03-15',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'GET',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 查询流程版本别名列表
+ *
+ * @param request ListFlowAliasesRequest
+ * @return ListFlowAliasesResponse
+ */
+async function listFlowAliases(request: ListFlowAliasesRequest): ListFlowAliasesResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return listFlowAliasesWithOptions(request, runtime);
+}
+
+model ListFlowVersionsRequest {
+  flowName?: string(name='FlowName', description='This parameter is required.', example='example-flow-name'),
+  limit?: string(name='Limit', example='10'),
+  nextToken?: string(name='NextToken', description='list token', example='token'),
+}
+
+model ListFlowVersionsResponseBody = {
+  flowVersions?: [ 
+    {
+      createdTime?: string(name='CreatedTime', example='2025-10-24T14:11:26+08:00'),
+      description?: string(name='Description', example='version description'),
+      version?: string(name='Version', example='1'),
+    }
+  ](name='FlowVersions'),
+  nextToken?: string(name='NextToken', description='list token', example='token'),
+  requestId?: string(name='RequestId', description='Id of the request', example='294D68C1-5108-5971-853A-1A9CC87B4816'),
+}
+
+model ListFlowVersionsResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ListFlowVersionsResponseBody(name='body'),
+}
+
+/**
+ * @summary 查询流程版本列表
+ *
+ * @param request ListFlowVersionsRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return ListFlowVersionsResponse
+ */
+async function listFlowVersionsWithOptions(request: ListFlowVersionsRequest, runtime: Util.RuntimeOptions): ListFlowVersionsResponse {
+  Util.validateModel(request);
+  var query = OpenApiUtil.query(Util.toMap(request));
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'ListFlowVersions',
+    version = '2019-03-15',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'GET',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 查询流程版本列表
+ *
+ * @param request ListFlowVersionsRequest
+ * @return ListFlowVersionsResponse
+ */
+async function listFlowVersions(request: ListFlowVersionsRequest): ListFlowVersionsResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return listFlowVersionsWithOptions(request, runtime);
+}
+
 model ListFlowsRequest {
   limit?: int32(name='Limit', description='The number of workflows that you want to query. Valid values: 1 - 999. Default value: 60.', example='1'),
   nextToken?: string(name='NextToken', description='The token to start the query.', example='flow_nextxxx'),
@@ -885,6 +1414,15 @@ model ListFlowsResponseBody = {
       createdTime?: string(name='CreatedTime', description='The time when the flow was created.', example='2019-01-01T01:01:01.001Z'),
       definition?: string(name='Definition', description='The definition of the flow. The definition must comply with the Flow Definition Language (FDL) syntax.', example='version: v1.0\\\\ntype: flow\\\\nname: test\\\\nsteps:\\\\n - type: pass\\\\n name: mypass'),
       description?: string(name='Description', description='The description of the flow.', example='test flow'),
+      environment?: {
+        variables?: [ 
+          {
+            description?: string(name='Description', example='description'),
+            name?: string(name='Name', example='key'),
+            value?: string(name='Value', example='value'),
+          }
+        ](name='Variables'),
+      }(name='Environment'),
       executionMode?: string(name='ExecutionMode', description='The execution mode or the enumeration type. Valid values: Express and Standard. A value of Standard indicates an empty string.', example='Standard'),
       id?: string(name='Id', description='The unique ID of the flow.', example='e589e092-e2c0-4dee-b306-3574ddf5****'),
       lastModifiedTime?: string(name='LastModifiedTime', description='The time when the flow was last modified.', example='2019-01-01T01:01:01.001Z'),
@@ -927,11 +1465,7 @@ async function listFlowsWithOptions(request: ListFlowsRequest, runtime: Util.Run
     reqBodyType = 'formData',
     bodyType = 'json',
   };
-  if (Util.isUnset(@signatureVersion) || !Util.equalString(@signatureVersion, 'v4')) {
-    return callApi(params, req, runtime);
-  } else {
-    return execute(params, req, runtime);
-  }
+  return callApi(params, req, runtime);
 }
 
 /**
@@ -954,7 +1488,7 @@ model ListSchedulesRequest {
 *   The name must be 1 to 128 characters in length.
 
 This parameter is required.', example='testFlowName'),
-  limit?: int32(name='Limit', description='The number of schedules to be queried. Valid values: 1 to 1000.', example='1'),
+  limit?: int32(name='Limit', description='The number of schedules that you want to query. Valid values: 1 to 1000.', example='1'),
   nextToken?: string(name='NextToken', description='For the first query, you do not need to specify this parameter. The system uses the value of the **FlowName** parameter as the value of the **NextToken** parameter. When the query ends, no value is returned for this parameter.', example='testNextToken'),
 }
 
@@ -1008,11 +1542,7 @@ async function listSchedulesWithOptions(request: ListSchedulesRequest, runtime: 
     reqBodyType = 'formData',
     bodyType = 'json',
   };
-  if (Util.isUnset(@signatureVersion) || !Util.equalString(@signatureVersion, 'v4')) {
-    return callApi(params, req, runtime);
-  } else {
-    return execute(params, req, runtime);
-  }
+  return callApi(params, req, runtime);
 }
 
 /**
@@ -1024,6 +1554,69 @@ async function listSchedulesWithOptions(request: ListSchedulesRequest, runtime: 
 async function listSchedules(request: ListSchedulesRequest): ListSchedulesResponse {
   var runtime = new Util.RuntimeOptions{};
   return listSchedulesWithOptions(request, runtime);
+}
+
+model PublishFlowVersionRequest {
+  description?: string(name='Description', example='example flow description'),
+  flowName?: string(name='FlowName', description='This parameter is required.', example='example-flow-name'),
+}
+
+model PublishFlowVersionResponseBody = {
+  createdTime?: string(name='CreatedTime', example='2025-10-24T14:11:26+08:00'),
+  description?: string(name='Description', example='my flow description'),
+  flowName?: string(name='FlowName', example='my-flow-name'),
+  requestId?: string(name='RequestId', description='Id of the request', example='294D68C1-5108-5971-853A-1A9CC87B4816'),
+  version?: string(name='Version', example='1'),
+}
+
+model PublishFlowVersionResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: PublishFlowVersionResponseBody(name='body'),
+}
+
+/**
+ * @summary 发布流程版本
+ *
+ * @param request PublishFlowVersionRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return PublishFlowVersionResponse
+ */
+async function publishFlowVersionWithOptions(request: PublishFlowVersionRequest, runtime: Util.RuntimeOptions): PublishFlowVersionResponse {
+  Util.validateModel(request);
+  var body : map[string]any = {};
+  if (!Util.isUnset(request.description)) {
+    body['Description'] = request.description;
+  }
+  if (!Util.isUnset(request.flowName)) {
+    body['FlowName'] = request.flowName;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApi.Params{
+    action = 'PublishFlowVersion',
+    version = '2019-03-15',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 发布流程版本
+ *
+ * @param request PublishFlowVersionRequest
+ * @return PublishFlowVersionResponse
+ */
+async function publishFlowVersion(request: PublishFlowVersionRequest): PublishFlowVersionResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return publishFlowVersionWithOptions(request, runtime);
 }
 
 model ReportTaskFailedRequest {
@@ -1086,11 +1679,7 @@ async function reportTaskFailedWithOptions(request: ReportTaskFailedRequest, run
     reqBodyType = 'formData',
     bodyType = 'json',
   };
-  if (Util.isUnset(@signatureVersion) || !Util.equalString(@signatureVersion, 'v4')) {
-    return callApi(params, req, runtime);
-  } else {
-    return execute(params, req, runtime);
-  }
+  return callApi(params, req, runtime);
 }
 
 /**
@@ -1164,11 +1753,7 @@ async function reportTaskSucceededWithOptions(request: ReportTaskSucceededReques
     reqBodyType = 'formData',
     bodyType = 'json',
   };
-  if (Util.isUnset(@signatureVersion) || !Util.equalString(@signatureVersion, 'v4')) {
-    return callApi(params, req, runtime);
-  } else {
-    return execute(params, req, runtime);
-  }
+  return callApi(params, req, runtime);
 }
 
 /**
@@ -1198,6 +1783,7 @@ model StartExecutionRequest {
 
 This parameter is required.', example='flow'),
   input?: string(name='Input', description='The input of the execution, which is in the JSON format.', example='{"key":"value"}'),
+  qualifier?: string(name='Qualifier', example='1'),
 }
 
 model StartExecutionResponseBody = {
@@ -1254,6 +1840,9 @@ async function startExecutionWithOptions(request: StartExecutionRequest, runtime
   if (!Util.isUnset(request.input)) {
     body['Input'] = request.input;
   }
+  if (!Util.isUnset(request.qualifier)) {
+    body['Qualifier'] = request.qualifier;
+  }
   var req = new OpenApi.OpenApiRequest{ 
     body = OpenApiUtil.parseToMap(body),
   };
@@ -1268,11 +1857,7 @@ async function startExecutionWithOptions(request: StartExecutionRequest, runtime
     reqBodyType = 'formData',
     bodyType = 'json',
   };
-  if (Util.isUnset(@signatureVersion) || !Util.equalString(@signatureVersion, 'v4')) {
-    return callApi(params, req, runtime);
-  } else {
-    return execute(params, req, runtime);
-  }
+  return callApi(params, req, runtime);
 }
 
 /**
@@ -1306,9 +1891,18 @@ Different from the StartExecution operation, in the synchronous execution mode, 
 
 This parameter is required.', example='my_flow_name'),
   input?: string(name='Input', description='The input of the execution, which is in the JSON format.', example='{"key":"value"}'),
+  qualifier?: string(name='Qualifier', example='1'),
 }
 
 model StartSyncExecutionResponseBody = {
+  environment?: {
+    variables?: [ 
+      {
+        name?: string(name='Name', example='key'),
+        value?: string(name='Value', example='value'),
+      }
+    ](name='Variables'),
+  }(name='Environment'),
   errorCode?: string(name='ErrorCode', description='The error code that is returned if the execution failed.', example='ActionNotSupported'),
   errorMessage?: string(name='ErrorMessage', description='The error message that indicates the execution timed out.', example='Standard execution is not supported'),
   flowName?: string(name='FlowName', description='The name of the flow.', example='my_flow_name'),
@@ -1354,6 +1948,9 @@ async function startSyncExecutionWithOptions(request: StartSyncExecutionRequest,
   if (!Util.isUnset(request.input)) {
     body['Input'] = request.input;
   }
+  if (!Util.isUnset(request.qualifier)) {
+    body['Qualifier'] = request.qualifier;
+  }
   var req = new OpenApi.OpenApiRequest{ 
     body = OpenApiUtil.parseToMap(body),
   };
@@ -1368,11 +1965,7 @@ async function startSyncExecutionWithOptions(request: StartSyncExecutionRequest,
     reqBodyType = 'formData',
     bodyType = 'json',
   };
-  if (Util.isUnset(@signatureVersion) || !Util.equalString(@signatureVersion, 'v4')) {
-    return callApi(params, req, runtime);
-  } else {
-    return execute(params, req, runtime);
-  }
+  return callApi(params, req, runtime);
 }
 
 /**
@@ -1406,8 +1999,9 @@ model StopExecutionResponseBody = {
   name?: string(name='Name', description='The name of the execution.', example='exec'),
   output?: string(name='Output', description='The execution result, which is in the JSON format.', example='{"key":"value"}'),
   requestId?: string(name='RequestId', description='The request ID.', example='testRequestId'),
-  roleArn?: string(name='RoleArn', description='执行的角色权限配置。若流程定义中的RoleArn在执行期间发生变更，系统将记录并返回执行初始时刻的RoleArn的快照。
-> 如果您的流程在执行时未配置执行角色，则该字段不会出现。', example='acs:ram:${region}:${accountID}:${role}'),
+  roleArn?: string(name='RoleArn', description='The Alibaba Cloud resource name (ARN) of the role that executed the flow. If the RoleArn in the flow definition is changed during the execution of the flow, the system records and returns a snapshot of the original RoleArn.
+
+>  If you do not specify the RoleArn parameter in the request parameters, the response parameters do not contain the RoleArn parameter.', example='acs:ram:${region}:${accountID}:${role}'),
   startedTime?: string(name='StartedTime', description='The time when the execution started.', example='2019-01-01T01:01:01.001Z'),
   status?: string(name='Status', description='The execution status. Valid values:
 
@@ -1465,11 +2059,7 @@ async function stopExecutionWithOptions(request: StopExecutionRequest, runtime: 
     reqBodyType = 'formData',
     bodyType = 'json',
   };
-  if (Util.isUnset(@signatureVersion) || !Util.equalString(@signatureVersion, 'v4')) {
-    return callApi(params, req, runtime);
-  } else {
-    return execute(params, req, runtime);
-  }
+  return callApi(params, req, runtime);
 }
 
 /**
@@ -1491,6 +2081,28 @@ model UpdateFlowRequest {
 
 >  In the preceding workflow definition example, Name:my_flow_name is the workflow name, which must be consistent with the input parameter Name', example='version: v1.0\\\\ntype: flow\\\\nname: test\\\\nsteps:\\\\n  - type: pass\\\\n    name: mypass'),
   description?: string(name='Description', description='The description of the flow.', example='test definition'),
+  environment?: {
+    variables?: [ 
+      {
+        description?: string(name='Description', example='description'),
+        name?: string(name='Name', example='key'),
+        value?: string(name='Value', example='value'),
+      }
+    ](name='Variables'),
+  }(name='Environment'),
+  name?: string(name='Name', description='The name of the workflow.
+
+This parameter is required.', example='flow'),
+  roleArn?: string(name='RoleArn', description='The Alibaba Cloud resource name (ARN) of the authorized role on which the execution of the flow relies. During the execution of the flow, the flow execution engine assumes the role to call API operations of relevant services.', example='acs:ram::${accountID}:${role}'),
+  type?: string(name='Type', description='The type of the flow. Valid value: **FDL**.', example='FDL'),
+}
+
+model UpdateFlowShrinkRequest {
+  definition?: string(name='Definition', description='The definition of the workflow. The definition must comply with the flow definition language (FDL) syntax. Considering compatibility, the system supports the two workflow definition specifications.
+
+>  In the preceding workflow definition example, Name:my_flow_name is the workflow name, which must be consistent with the input parameter Name', example='version: v1.0\\\\ntype: flow\\\\nname: test\\\\nsteps:\\\\n  - type: pass\\\\n    name: mypass'),
+  description?: string(name='Description', description='The description of the flow.', example='test definition'),
+  environmentShrink?: string(name='Environment'),
   name?: string(name='Name', description='The name of the workflow.
 
 This parameter is required.', example='flow'),
@@ -1502,6 +2114,15 @@ model UpdateFlowResponseBody = {
   createdTime?: string(name='CreatedTime', description='The time when the flow was created.', example='2019-01-01T01:01:01.001Z'),
   definition?: string(name='Definition', description='The flow definition, which follows the FDL syntax standard. Considering compatibility, the system supports the two flow definition specifications.', example='version: v1.0\\\\ntype: flow\\\\nname: test\\\\nsteps:\\\\n  - type: pass\\\\n    name: mypass'),
   description?: string(name='Description', description='The description of the flow.', example='test definition'),
+  environment?: {
+    variables?: [ 
+      {
+        description?: string(name='Description', example='description'),
+        name?: string(name='Name', example='key'),
+        value?: string(name='Value', example='value'),
+      }
+    ](name='Variables'),
+  }(name='Environment'),
   externalStorageLocation?: string(name='ExternalStorageLocation', description='The path of the external storage.', example='/path'),
   id?: string(name='Id', description='The unique ID of the flow.', example='e589e092-e2c0-4dee-b306-3574ddfdddf5****'),
   lastModifiedTime?: string(name='LastModifiedTime', description='The time when the flow was last modified.', example='2019-01-01T01:01:01.001Z'),
@@ -1520,18 +2141,26 @@ model UpdateFlowResponse = {
 /**
  * @summary Updates a flow.
  *
- * @param request UpdateFlowRequest
+ * @param tmpReq UpdateFlowRequest
  * @param runtime runtime options for this request RuntimeOptions
  * @return UpdateFlowResponse
  */
-async function updateFlowWithOptions(request: UpdateFlowRequest, runtime: Util.RuntimeOptions): UpdateFlowResponse {
-  Util.validateModel(request);
+async function updateFlowWithOptions(tmpReq: UpdateFlowRequest, runtime: Util.RuntimeOptions): UpdateFlowResponse {
+  Util.validateModel(tmpReq);
+  var request = new UpdateFlowShrinkRequest{};
+  OpenApiUtil.convert(tmpReq, request);
+  if (!Util.isUnset(tmpReq.environment)) {
+    request.environmentShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.environment, 'Environment', 'json');
+  }
   var body : map[string]any = {};
   if (!Util.isUnset(request.definition)) {
     body['Definition'] = request.definition;
   }
   if (!Util.isUnset(request.description)) {
     body['Description'] = request.description;
+  }
+  if (!Util.isUnset(request.environmentShrink)) {
+    body['Environment'] = request.environmentShrink;
   }
   if (!Util.isUnset(request.name)) {
     body['Name'] = request.name;
@@ -1556,11 +2185,7 @@ async function updateFlowWithOptions(request: UpdateFlowRequest, runtime: Util.R
     reqBodyType = 'formData',
     bodyType = 'json',
   };
-  if (Util.isUnset(@signatureVersion) || !Util.equalString(@signatureVersion, 'v4')) {
-    return callApi(params, req, runtime);
-  } else {
-    return execute(params, req, runtime);
-  }
+  return callApi(params, req, runtime);
 }
 
 /**
@@ -1572,6 +2197,165 @@ async function updateFlowWithOptions(request: UpdateFlowRequest, runtime: Util.R
 async function updateFlow(request: UpdateFlowRequest): UpdateFlowResponse {
   var runtime = new Util.RuntimeOptions{};
   return updateFlowWithOptions(request, runtime);
+}
+
+model UpdateFlowAliasRequest {
+  description?: string(name='Description', example='example description'),
+  flowName?: string(name='FlowName', description='This parameter is required.', example='example-flow-name'),
+  name?: string(name='Name', description='This parameter is required.', example='alias name'),
+  routingConfigurations?: [ 
+    {
+      version?: string(name='Version', example='1'),
+      weight?: int32(name='Weight', example='20'),
+    }
+  ](name='RoutingConfigurations'),
+}
+
+model UpdateFlowAliasShrinkRequest {
+  description?: string(name='Description', example='example description'),
+  flowName?: string(name='FlowName', description='This parameter is required.', example='example-flow-name'),
+  name?: string(name='Name', description='This parameter is required.', example='alias name'),
+  routingConfigurationsShrink?: string(name='RoutingConfigurations'),
+}
+
+model UpdateFlowAliasResponseBody = {
+  alias?: {
+    createdTime?: string(name='CreatedTime', example='2025-10-24T14:11:26+08:00'),
+    description?: string(name='Description', example='my alias description'),
+    name?: string(name='Name', example='my-alias-name'),
+    routingConfigurations?: [ 
+      {
+        version?: string(name='Version', example='1'),
+        weight?: int32(name='Weight', example='20'),
+      }
+    ](name='RoutingConfigurations'),
+  }(name='Alias'),
+  requestId?: string(name='RequestId', description='Id of the request', example='294D68C1-5108-5971-853A-1A9CC87B4816'),
+}
+
+model UpdateFlowAliasResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: UpdateFlowAliasResponseBody(name='body'),
+}
+
+/**
+ * @summary 更新流程版本别名配置
+ *
+ * @param tmpReq UpdateFlowAliasRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return UpdateFlowAliasResponse
+ */
+async function updateFlowAliasWithOptions(tmpReq: UpdateFlowAliasRequest, runtime: Util.RuntimeOptions): UpdateFlowAliasResponse {
+  Util.validateModel(tmpReq);
+  var request = new UpdateFlowAliasShrinkRequest{};
+  OpenApiUtil.convert(tmpReq, request);
+  if (!Util.isUnset(tmpReq.routingConfigurations)) {
+    request.routingConfigurationsShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.routingConfigurations, 'RoutingConfigurations', 'json');
+  }
+  var body : map[string]any = {};
+  if (!Util.isUnset(request.description)) {
+    body['Description'] = request.description;
+  }
+  if (!Util.isUnset(request.flowName)) {
+    body['FlowName'] = request.flowName;
+  }
+  if (!Util.isUnset(request.name)) {
+    body['Name'] = request.name;
+  }
+  if (!Util.isUnset(request.routingConfigurationsShrink)) {
+    body['RoutingConfigurations'] = request.routingConfigurationsShrink;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApi.Params{
+    action = 'UpdateFlowAlias',
+    version = '2019-03-15',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 更新流程版本别名配置
+ *
+ * @param request UpdateFlowAliasRequest
+ * @return UpdateFlowAliasResponse
+ */
+async function updateFlowAlias(request: UpdateFlowAliasRequest): UpdateFlowAliasResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return updateFlowAliasWithOptions(request, runtime);
+}
+
+model UpdateMapRunRequest {
+  concurrency?: long(name='Concurrency', example='1'),
+  executionName?: string(name='ExecutionName', description='This parameter is required.', example='my_exec_name'),
+  flowName?: string(name='FlowName', description='This parameter is required.', example='my_flow_name'),
+  mapRunName?: string(name='MapRunName', description='This parameter is required.', example='c39142f1345b196d678333c41f113100'),
+  requestId?: string(name='RequestId', example='3A44E113-9962-5B0B-AB92-14060EFE3164'),
+  toleratedFailedCount?: long(name='ToleratedFailedCount', example='100'),
+  toleratedFailedPercentage?: float(name='ToleratedFailedPercentage', example='20'),
+}
+
+model UpdateMapRunResponseBody = {
+  concurrency?: long(name='Concurrency', example='1'),
+  executionName?: string(name='ExecutionName', example='my_exec_name'),
+  flowName?: string(name='FlowName', example='my_flow_name'),
+  mapRunName?: string(name='MapRunName', example='c39142f1345b196d678333c41f113000'),
+  requestId?: string(name='RequestId', description='Id of the request', example='3A44E113-9962-5B0B-AB92-14060EFE3164'),
+  toleratedFailedCount?: long(name='ToleratedFailedCount', example='100'),
+  toleratedFailedPercentage?: float(name='ToleratedFailedPercentage', example='20'),
+}
+
+model UpdateMapRunResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: UpdateMapRunResponseBody(name='body'),
+}
+
+/**
+ * @summary 更新 MapRun 配置
+ *
+ * @param request UpdateMapRunRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return UpdateMapRunResponse
+ */
+async function updateMapRunWithOptions(request: UpdateMapRunRequest, runtime: Util.RuntimeOptions): UpdateMapRunResponse {
+  Util.validateModel(request);
+  var query = OpenApiUtil.query(Util.toMap(request));
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'UpdateMapRun',
+    version = '2019-03-15',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'GET',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 更新 MapRun 配置
+ *
+ * @param request UpdateMapRunRequest
+ * @return UpdateMapRunResponse
+ */
+async function updateMapRun(request: UpdateMapRunRequest): UpdateMapRunResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return updateMapRunWithOptions(request, runtime);
 }
 
 model UpdateScheduleRequest {
@@ -1663,11 +2447,7 @@ async function updateScheduleWithOptions(request: UpdateScheduleRequest, runtime
     reqBodyType = 'formData',
     bodyType = 'json',
   };
-  if (Util.isUnset(@signatureVersion) || !Util.equalString(@signatureVersion, 'v4')) {
-    return callApi(params, req, runtime);
-  } else {
-    return execute(params, req, runtime);
-  }
+  return callApi(params, req, runtime);
 }
 
 /**
