@@ -736,6 +736,7 @@ This parameter is required.', example='liveApp****', position='Query'),
 *   **UpLimit**: the maximum bitrate limit. Valid values: an integer from 128 to 10000. The value must be greater than the minimum bitrate.
 *   **LowerLimit int** : the minimum bitrate rate. Valid values: an integer from 128 to 10000. The value must be smaller than the maximum bitrate.
 *   **Factor**: The ratio of the output bitrate to the source bitrate. Valid values: 0.1 to 1. The value is accurate to one decimal place. A value of 1 indicates that the output video has the same bitrate as the source video.', example='{"UpLimit":2500,"LowerLimit":800,"Factor":1}', position='Query'),
+  deInterlaced?: boolean(name='DeInterlaced', position='Query'),
   domain: string(name='Domain', description='The main streaming domain.
 
 This parameter is required.', example='example.com', position='Query'),
@@ -12517,6 +12518,7 @@ model DescribeLiveStreamTranscodeInfoResponseBody = {
 >  If the value of AudioProfile is **aac_ld**, the audio sampling rate cannot exceed 44100.', example='44100'),
         bframes?: string(name='Bframes', description='Indicates whether B-frame removal is enabled. Fixed value: **0**.', example='0'),
         bitrateWithSource?: map[string]any(name='BitrateWithSource', description='The source-based bitrate settings.', example='{\\"UpLimit\\":2500,\\"LowerLimit\\":800,\\"Factor\\":1}'),
+        deInterlaced?: boolean(name='DeInterlaced'),
         extWithSource?: map[string]any(name='ExtWithSource', description='Other source-based settings.', example='{\\"KeyFrameOpen\\":\\"yes\\",\\"Copyts\\":\\"yes\\",\\"SeiMode\\":1}'),
         FPS?: int32(name='FPS', description='The frame rate of the output video. Unit: frames per second (FPS).', example='15'),
         fpsWithSource?: map[string]any(name='FpsWithSource', description='The source-based frame rate settings.', example='{\\"UpLimit\\":60,\\"LowerLimit\\":1}'),
@@ -18283,6 +18285,39 @@ async function publishLiveStagingConfigToProduction(request: PublishLiveStagingC
   return @handler.do('RPC', 'PublishLiveStagingConfigToProduction', 'POST', '/', 'json', false, 'json', request);
 }
 
+model PutRecordStorageLifeCycleRequest {
+  streamIds: [ string ](name='StreamIds', description='This parameter is required.', example='stream-xxx', shrink='json', position='Body'),
+  tag: string(name='Tag', description='This parameter is required.', example='1095days', position='Body'),
+  unixTimestamp: long(name='UnixTimestamp', description='This parameter is required.', example='1758621407', position='Body'),
+}
+
+model PutRecordStorageLifeCycleResponseBody = {
+  code?: int32(name='Code', example='0'),
+  msg?: string(name='Msg', example='success'),
+  requestId?: string(name='RequestId', example='16A96B9A-F203-4EC5-8E43-CB92E68F4CD8'),
+}
+
+model PutRecordStorageLifeCycleResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: PutRecordStorageLifeCycleResponseBody(name='body'),
+}
+
+/**
+  * @description ## 请求说明
+  * - 该接口允许用户为一个或多个指定的直播流设置新的录制文件存储期限。
+  * - `Tag` 字段必须符合格式 `[0-9]+days`，表示直播结束后录制内容将被保存的天数。
+  * - 如果对某个流的存储时间修改失败，错误信息会被记录在返回结果中。对于失败的情况，调用方应重试最多3次；如果超过重试次数仍失败，则视为最终失败。
+  * - 为了支持未来可能的需求变化（如更长的存储周期），请确保您的系统能够处理不同的时间段值。
+  * - 成功执行后，供应商会通过异步回调的方式通知调用方所有操作的结果。若回调失败，将按照1小时、2小时、4小时的时间间隔尝试重新发送，直至成功或达到最大重试次数。
+  * @param request  the request parameters of PutRecordStorageLifeCycle  PutRecordStorageLifeCycleRequest
+  * @return PutRecordStorageLifeCycleResponse
+ */
+async function putRecordStorageLifeCycle(request: PutRecordStorageLifeCycleRequest): PutRecordStorageLifeCycleResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'PutRecordStorageLifeCycle', 'POST', '/', 'json', true, 'form', request);
+}
+
 model QueryLiveDomainMultiStreamListRequest {
   domain: string(name='Domain', description='The main streaming domain.
 
@@ -21135,6 +21170,7 @@ This parameter is required.', example='liveApp****', position='Query'),
 *   **UpLimit**: the maximum bitrate. Set this field to an integer from 128 to 10000. The value must be greater than the minimum bitrate.
 *   **LowerLimit**: the minimum bitrate. Set this field to an integer from 128 to 10000. The value must be smaller than the maximum bitrate.
 *   **Factor**: the ratio of the output bitrate to the source bitrate. Valid values: 0.1 to 1. The value is accurate to one decimal place. A value of 1 indicates that the output video has the same bitrate as the source video.', example='{\\"UpLimit\\":2500,\\"LowerLimit\\":800,\\"Factor\\":1}', position='Query'),
+  deInterlaced?: boolean(name='DeInterlaced', position='Query'),
   domain: string(name='Domain', description='Streamer domain name, unmodifiable.
 
 This parameter is required.', example='example.com', position='Query'),
