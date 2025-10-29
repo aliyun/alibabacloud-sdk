@@ -148,8 +148,24 @@ model ReadPageItem {
   html?: string(name='html'),
   markdown?: string(name='markdown'),
   rawHtml?: string(name='rawHtml'),
+  screenshot?: string(name='screenshot'),
   statusCode?: int32(name='statusCode'),
   text?: string(name='text'),
+}
+
+model ReadPageScrapeBody {
+  formats?: [ string ](name='formats'),
+  location?: string(name='location'),
+  maxAge?: int32(name='maxAge'),
+  pageTimeout?: int32(name='pageTimeout'),
+  readability?: {
+    excludeAllImages?: boolean(name='excludeAllImages'),
+    excludeAllLinks?: boolean(name='excludeAllLinks'),
+    excludedTags?: [ string ](name='excludedTags'),
+    readabilityMode?: string(name='readabilityMode'),
+  }(name='readability'),
+  timeout?: int32(name='timeout'),
+  url?: string(name='url', description='This parameter is required.'),
 }
 
 model RequestContents {
@@ -449,6 +465,21 @@ async function genericAdvancedSearch(request: GenericAdvancedSearchRequest): Gen
 }
 
 model GenericSearchRequest {
+  advancedParams?: map[string]any(name='advancedParams'),
+  enableRerank?: boolean(name='enableRerank'),
+  industry?: string(name='industry'),
+  page?: int32(name='page', example='1'),
+  query?: string(name='query', description='This parameter is required.'),
+  returnMainText?: boolean(name='returnMainText'),
+  returnMarkdownText?: boolean(name='returnMarkdownText'),
+  returnRichMainBody?: boolean(name='returnRichMainBody'),
+  returnSummary?: boolean(name='returnSummary'),
+  sessionId?: string(name='sessionId'),
+  timeRange?: string(name='timeRange', example='OneWeek'),
+}
+
+model GenericSearchShrinkRequest {
+  advancedParamsShrink?: string(name='advancedParams'),
   enableRerank?: boolean(name='enableRerank'),
   industry?: string(name='industry'),
   page?: int32(name='page', example='1'),
@@ -470,14 +501,22 @@ model GenericSearchResponse = {
 /**
  * @summary 通用搜索
  *
- * @param request GenericSearchRequest
+ * @param tmpReq GenericSearchRequest
  * @param headers map
  * @param runtime runtime options for this request RuntimeOptions
  * @return GenericSearchResponse
  */
-async function genericSearchWithOptions(request: GenericSearchRequest, headers: map[string]string, runtime: Util.RuntimeOptions): GenericSearchResponse {
-  Util.validateModel(request);
+async function genericSearchWithOptions(tmpReq: GenericSearchRequest, headers: map[string]string, runtime: Util.RuntimeOptions): GenericSearchResponse {
+  Util.validateModel(tmpReq);
+  var request = new GenericSearchShrinkRequest{};
+  OpenApiUtil.convert(tmpReq, request);
+  if (!Util.isUnset(tmpReq.advancedParams)) {
+    request.advancedParamsShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.advancedParams, 'advancedParams', 'json');
+  }
   var query : map[string]any = {};
+  if (!Util.isUnset(request.advancedParamsShrink)) {
+    query['advancedParams'] = request.advancedParamsShrink;
+  }
   if (!Util.isUnset(request.enableRerank)) {
     query['enableRerank'] = request.enableRerank;
   }
@@ -720,6 +759,63 @@ async function readPageBasic(request: ReadPageBasicRequest): ReadPageBasicRespon
   var runtime = new Util.RuntimeOptions{};
   var headers : map[string]string = {};
   return readPageBasicWithOptions(request, headers, runtime);
+}
+
+model ReadPageScrapeRequest {
+  body?: ReadPageScrapeBody(name='body', description='post body'),
+}
+
+model ReadPageScrapeResponseBody = {
+  data?: ReadPageItem(name='data'),
+  errorCode?: string(name='errorCode', example='null'),
+  errorMessage?: string(name='errorMessage', example='null'),
+  requestId?: string(name='requestId', example='7cd43c86-731a-4d4c-8385-d070cfc509a4'),
+}
+
+model ReadPageScrapeResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ReadPageScrapeResponseBody(name='body'),
+}
+
+/**
+ * @summary 动态页面解析
+ *
+ * @param request ReadPageScrapeRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return ReadPageScrapeResponse
+ */
+async function readPageScrapeWithOptions(request: ReadPageScrapeRequest, headers: map[string]string, runtime: Util.RuntimeOptions): ReadPageScrapeResponse {
+  Util.validateModel(request);
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    body = OpenApiUtil.parseToMap(request.body),
+  };
+  var params = new OpenApi.Params{
+    action = 'ReadPageScrape',
+    version = '2024-11-11',
+    protocol = 'HTTPS',
+    pathname = `/linked-retrieval/linked-retrieval-entry/v1/iqs/readpage/scrape`,
+    method = 'POST',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 动态页面解析
+ *
+ * @param request ReadPageScrapeRequest
+ * @return ReadPageScrapeResponse
+ */
+async function readPageScrape(request: ReadPageScrapeRequest): ReadPageScrapeResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return readPageScrapeWithOptions(request, headers, runtime);
 }
 
 model UnifiedSearchRequest {
