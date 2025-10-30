@@ -397,6 +397,7 @@ model ChatWithKnowledgeBaseRequest {
   }(name='ModelParams', description='This parameter is required.', shrink='json', position='Query'),
   ownerId?: long(name='OwnerId', position='Query'),
   promptParams?: string(name='PromptParams', position='Query'),
+  regionId?: string(name='RegionId', example='cn-hangzhou', position='Query'),
 }
 
 model ChatWithKnowledgeBaseResponseBody = {
@@ -407,6 +408,7 @@ model ChatWithKnowledgeBaseResponseBody = {
         index?: long(name='Index', example='0'),
         message?: {
           content?: string(name='Content'),
+          reasoningContent?: string(name='ReasoningContent', example='逻辑推理过程'),
           role?: string(name='Role', example='user'),
           toolCalls?: [ 
             {
@@ -544,6 +546,7 @@ model ChatWithKnowledgeBaseStreamRequest {
   }(name='ModelParams', description='This parameter is required.', shrink='json', position='Query'),
   ownerId?: long(name='OwnerId', position='Query'),
   promptParams?: string(name='PromptParams', position='Query'),
+  regionId?: string(name='RegionId', example='cn-hangzhou', position='Query'),
 }
 
 model ChatWithKnowledgeBaseStreamResponseBody = {
@@ -554,6 +557,7 @@ model ChatWithKnowledgeBaseStreamResponseBody = {
         index?: long(name='Index', example='0'),
         message?: {
           content?: string(name='Content'),
+          reasoningContent?: string(name='ReasoningContent', example='逻辑推导过程'),
           role?: string(name='Role', example='user'),
           toolCalls?: [ 
             {
@@ -10712,6 +10716,110 @@ model QueryCollectionDataResponse = {
 async function queryCollectionData(request: QueryCollectionDataRequest): QueryCollectionDataResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RPC', 'QueryCollectionData', 'POST', '/', 'json', true, 'form', request);
+}
+
+model QueryKnowledgeBasesContentRequest {
+  content: string(name='Content', description='This parameter is required.', position='Query'),
+  DBInstanceId: string(name='DBInstanceId', description='This parameter is required.', example='gp-xxxxxxxxx', position='Query'),
+  mergeMethod?: string(name='MergeMethod', example='RRF', position='Query'),
+  mergeMethodArgs?: {
+    rrf?: {
+      k?: long(name='K', example='60'),
+    }(name='Rrf'),
+    weight?: {
+      weights?: [ double ](name='Weights'),
+    }(name='Weight'),
+  }(name='MergeMethodArgs', shrink='json', position='Query'),
+  ownerId?: long(name='OwnerId', position='Query'),
+  regionId: string(name='RegionId', description='This parameter is required.', example='cn-beijing', position='Query'),
+  rerankFactor?: double(name='RerankFactor', example='2', position='Query'),
+  sourceCollection: [ 
+    {
+      collection: string(name='Collection', description='This parameter is required.', example='knowledge22'),
+      namespace?: string(name='Namespace', example='ns_cloud_index'),
+      namespacePassword: string(name='NamespacePassword', description='This parameter is required.', example='ns_password'),
+      queryParams?: {
+        filter?: string(name='Filter', example='id = \\"llm-52tvykqt6u67iw73_j6ovptwjk7_file_6ce3da1f7e69495d9f491f2180c86973_11967297\\"'),
+        graphEnhance?: boolean(name='GraphEnhance', example='true'),
+        graphSearchArgs?: {
+          graphTopK?: long(name='GraphTopK', example='60'),
+        }(name='GraphSearchArgs'),
+        hybridSearch?: string(name='HybridSearch', example='Cascaded'),
+        hybridSearchArgs?: map[string]any(name='HybridSearchArgs'),
+        metrics?: string(name='Metrics', example='cosine'),
+        offset?: int32(name='Offset', example='20'),
+        orderBy?: string(name='OrderBy', example='file_id,sort_num'),
+        recallWindow?: [ long ](name='RecallWindow'),
+        rerankFactor?: double(name='RerankFactor', example='2.0'),
+        topK?: long(name='TopK', example='776'),
+        useFullTextRetrieval?: boolean(name='UseFullTextRetrieval', example='false'),
+      }(name='QueryParams'),
+    }
+  ](name='SourceCollection', description='This parameter is required.', shrink='json', position='Query'),
+  topK?: long(name='TopK', example='10', position='Query'),
+}
+
+model QueryKnowledgeBasesContentResponseBody = {
+  embeddingTokens?: string(name='EmbeddingTokens', example='100'),
+  entities?: {
+    entities?: [ 
+    {
+      description?: string(name='Description', example='A former advisor at DeepMind.'),
+      entity?: string(name='Entity', example='Dr. Wang'),
+      fileName?: string(name='FileName', example='my_doc.txt'),
+      id?: string(name='Id', example='1'),
+      type?: string(name='Type'),
+    }
+  ](name='entities')
+  }(name='Entities'),
+  matches?: {
+    matchList?: [ 
+    {
+      content?: string(name='Content'),
+      fileName?: string(name='FileName', example='my_doc.txt'),
+      fileURL?: string(name='FileURL', example='https://xxx-cn-beijing.aliyuncs.com/image/test.png'),
+      id?: string(name='Id', example='doca-1234'),
+      loaderMetadata?: string(name='LoaderMetadata', example='{"page_pos": 1}'),
+      metadata?: map[string]string(name='Metadata'),
+      rerankScore?: double(name='RerankScore', example='6.2345'),
+      retrievalSource?: int32(name='RetrievalSource', example='1'),
+      score?: double(name='Score', example='0.12345'),
+    }
+  ](name='MatchList')
+  }(name='Matches'),
+  message?: string(name='Message', example='success'),
+  relations?: {
+    relations?: [ 
+    {
+      description?: string(name='Description', example='Dr. Wang previously served as an advisor at DeepMind.'),
+      fileName?: string(name='FileName', example='my_doc.txt'),
+      id?: string(name='Id', example='1'),
+      sourceEntity?: string(name='SourceEntity'),
+      targetEntity?: string(name='TargetEntity', example='Dr. Wang'),
+    }
+  ](name='relations')
+  }(name='Relations'),
+  requestId?: string(name='RequestId', example='ABB39CC3-4488-4857-905D-2E4A051D0521'),
+  status?: string(name='Status', example='success'),
+  usage?: {
+    embeddingEntries?: string(name='EmbeddingEntries', example='10'),
+    embeddingTokens?: string(name='EmbeddingTokens', example='475'),
+  }(name='Usage'),
+}
+
+model QueryKnowledgeBasesContentResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: QueryKnowledgeBasesContentResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of QueryKnowledgeBasesContent  QueryKnowledgeBasesContentRequest
+  * @return QueryKnowledgeBasesContentResponse
+ */
+async function queryKnowledgeBasesContent(request: QueryKnowledgeBasesContentRequest): QueryKnowledgeBasesContentResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'QueryKnowledgeBasesContent', 'POST', '/', 'json', false, 'json', request);
 }
 
 model RebalanceDBInstanceRequest {
