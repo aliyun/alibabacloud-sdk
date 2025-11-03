@@ -3364,6 +3364,7 @@ Specify Kubernetes Secret environment variables in the following format to refer
 *   runv: sandboxed container runtime
 
 This parameter is applicable only to clusters that use sandboxed containers.', example='runc'),
+  securityContext?: string(name='SecurityContext'),
   sidecars?: string(name='Sidecars', example='[
       {
             "yamlEncoded": "Y29tbWFuZDoKICAtIHRhaWwKICAtICctZicKICAtIC9kZXYvbnVsbAppbWFnZTogJ2J1c3lib3g6bGF0ZXN0JwpuYW1lOiBidXN5Ym94Cg=="
@@ -3630,6 +3631,9 @@ async function deployK8sApplicationWithOptions(request: DeployK8sApplicationRequ
   }
   if (!Util.isUnset(request.runtimeClassName)) {
     query['RuntimeClassName'] = request.runtimeClassName;
+  }
+  if (!Util.isUnset(request.securityContext)) {
+    query['SecurityContext'] = request.securityContext;
   }
   if (!Util.isUnset(request.sidecars)) {
     query['Sidecars'] = request.sidecars;
@@ -3911,6 +3915,77 @@ async function describeApplicationScalingRules(request: DescribeApplicationScali
   var runtime = new Util.RuntimeOptions{};
   var headers : map[string]string = {};
   return describeApplicationScalingRulesWithOptions(request, headers, runtime);
+}
+
+model DescribeLocalitySettingRequest {
+  appId?: string(name='AppId', description='This parameter is required.', example='dc190221-22b5-491c-a548-82f5fa1e3e26'),
+  namespaceId?: string(name='NamespaceId', description='This parameter is required.', example='cn-shanghai:test'),
+  region?: string(name='Region', description='This parameter is required.', example='cn-shanghai'),
+}
+
+model DescribeLocalitySettingResponseBody = {
+  code?: int32(name='Code', example='200'),
+  data?: {
+    enabled?: boolean(name='Enabled', example='true'),
+    threshold?: float(name='Threshold', example='15'),
+  }(name='Data'),
+  httpStatusCode?: int32(name='HttpStatusCode', example='200'),
+  message?: string(name='Message', example='success'),
+  requestId?: string(name='RequestId', example='1053-08e4-47a5-b2ab-5c0323de****'),
+  success?: boolean(name='Success', example='True'),
+}
+
+model DescribeLocalitySettingResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: DescribeLocalitySettingResponseBody(name='body'),
+}
+
+/**
+ * @param request DescribeLocalitySettingRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return DescribeLocalitySettingResponse
+ */
+async function describeLocalitySettingWithOptions(request: DescribeLocalitySettingRequest, headers: map[string]string, runtime: Util.RuntimeOptions): DescribeLocalitySettingResponse {
+  Util.validateModel(request);
+  var query : map[string]any = {};
+  if (!Util.isUnset(request.appId)) {
+    query['AppId'] = request.appId;
+  }
+  if (!Util.isUnset(request.namespaceId)) {
+    query['NamespaceId'] = request.namespaceId;
+  }
+  if (!Util.isUnset(request.region)) {
+    query['Region'] = request.region;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'DescribeLocalitySetting',
+    version = '2017-08-01',
+    protocol = 'HTTPS',
+    pathname = `/pop/sp/applications/locality/setting`,
+    method = 'GET',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @param request DescribeLocalitySettingRequest
+ * @return DescribeLocalitySettingResponse
+ */
+async function describeLocalitySetting(request: DescribeLocalitySettingRequest): DescribeLocalitySettingResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return describeLocalitySettingWithOptions(request, headers, runtime);
 }
 
 model DisableApplicationScalingRuleRequest {
@@ -5043,6 +5118,7 @@ model GetK8sApplicationResponseBody = {
       requestCpuM?: int32(name='RequestCpuM', description='The number of requested CPU cores. Unit: millicores. 1,000 millicores equal one CPU core.', example='1000'),
       requestEphemeralStorage?: string(name='RequestEphemeralStorage', description='The size of space reserved for ephemeral storage resources. Unit: GB. Value 0 indicates that no limit is set on the space size.', example='2'),
       requestMem?: int32(name='RequestMem', description='The size of the reserved memory. Unit: MiB.', example='1024'),
+      securityContext?: string(name='SecurityContext'),
       slbInfo?: string(name='SlbInfo', description='The configuration information about the Server Load Balancer (SLB).', example='[
   {
     "addressType": "intranet",
@@ -7195,6 +7271,7 @@ If you want to cancel this configuration, leave the parameter value empty by ent
   resourceGroupId?: string(name='ResourceGroupId', description='The ID of the resource group.', example='461'),
   runtimeClassName?: string(name='RuntimeClassName', description='The type of the container runtime. This parameter is applicable only to clusters that use sandboxed containers.', example='runc'),
   secretName?: string(name='SecretName', description='The name of the credential that is used to pull the images specified by the user. You must configure the Secret.', example='edas-app-01-image-secret'),
+  securityContext?: string(name='SecurityContext'),
   serviceConfigs?: string(name='ServiceConfigs', description='The configurations of services in a Kubernetes cluster.', example='[{"name": "test-svc-create","serviceType":"ClusterIP","portMappings":[{"servicePort": {"targetPort":8080,"port":80,"protocol":"TCP"}}]}]'),
   sidecars?: string(name='Sidecars', description='Set up a Sidecar container for the application Pod. Support setting the format YAML for container configuration, which is the value of Sidecar container YAML configured with base64 encoding.', example='[{"yamlEncoded":"Y29tbWFuZDoKICAtIHRhaWwKICAtICctZicKICAtIC9kZXYvbnVsbAppbWFnZTogJ2J1c3lib3g6bGF0ZXN0JwpuYW1lOiBidXN5Ym94Cg=="}]'),
   slsConfigs?: string(name='SlsConfigs', description='The Logstore configuration. To delete this configuration, leave the parameter value empty by entering `""` or `"{}"`.
@@ -7518,6 +7595,9 @@ async function insertK8sApplicationWithOptions(request: InsertK8sApplicationRequ
   }
   if (!Util.isUnset(request.secretName)) {
     query['SecretName'] = request.secretName;
+  }
+  if (!Util.isUnset(request.securityContext)) {
+    query['SecurityContext'] = request.securityContext;
   }
   if (!Util.isUnset(request.serviceConfigs)) {
     query['ServiceConfigs'] = request.serviceConfigs;
