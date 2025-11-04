@@ -2367,6 +2367,7 @@ async function confirmPipelineBatch(request: ConfirmPipelineBatchRequest): Confi
 model CreateApplicationRequest {
   acrAssumeRoleArn?: string(name='AcrAssumeRoleArn', description='The Alibaba Cloud Resource Name (ARN) required for a RAM role to obtain images across accounts. For more information, see [Grant permissions across Alibaba Cloud accounts by using a RAM role](https://help.aliyun.com/document_detail/223585.html).', example='acs:ram::123456789012****:role/adminrole'),
   acrInstanceId?: string(name='AcrInstanceId', description='The ID of Container Registry Enterprise Edition instance N. This parameter is required when the **ImageUrl** parameter is set to the URL of an image in an ACR Enterprise Edition instance.', example='cri-xxxxxx'),
+  agentVersion?: string(name='AgentVersion'),
   appDescription?: string(name='AppDescription', description='The description of the template. The description cannot exceed 1,024 characters in length.', example='This is a test description.'),
   appName?: string(name='AppName', description='The name of the application. The name can contain digits, letters, and hyphens (-). The name must start with a letter and cannot end with a hyphen (-). It cannot exceed 36 characters in length.
 
@@ -2445,6 +2446,8 @@ In the preceding example, the CommandArgs parameter is set to `CommandArgs=["abc
 
 - true: Enable.
 - false: Disable (default).', example='false'),
+  enableNamespaceAgentVersion?: boolean(name='EnableNamespaceAgentVersion'),
+  enableNamespaceSlsConfig?: boolean(name='EnableNamespaceSlsConfig'),
   enableNewArms?: boolean(name='EnableNewArms', description='Indicates whether to enable the new ARMS feature:
 
 *   true: enables this parameter.
@@ -2693,6 +2696,7 @@ This parameter is not returned if the **PackageType** parameter is set to **Imag
 model CreateApplicationShrinkRequest {
   acrAssumeRoleArn?: string(name='AcrAssumeRoleArn', description='The Alibaba Cloud Resource Name (ARN) required for a RAM role to obtain images across accounts. For more information, see [Grant permissions across Alibaba Cloud accounts by using a RAM role](https://help.aliyun.com/document_detail/223585.html).', example='acs:ram::123456789012****:role/adminrole'),
   acrInstanceId?: string(name='AcrInstanceId', description='The ID of Container Registry Enterprise Edition instance N. This parameter is required when the **ImageUrl** parameter is set to the URL of an image in an ACR Enterprise Edition instance.', example='cri-xxxxxx'),
+  agentVersion?: string(name='AgentVersion'),
   appDescription?: string(name='AppDescription', description='The description of the template. The description cannot exceed 1,024 characters in length.', example='This is a test description.'),
   appName?: string(name='AppName', description='The name of the application. The name can contain digits, letters, and hyphens (-). The name must start with a letter and cannot end with a hyphen (-). It cannot exceed 36 characters in length.
 
@@ -2771,6 +2775,8 @@ In the preceding example, the CommandArgs parameter is set to `CommandArgs=["abc
 
 - true: Enable.
 - false: Disable (default).', example='false'),
+  enableNamespaceAgentVersion?: boolean(name='EnableNamespaceAgentVersion'),
+  enableNamespaceSlsConfig?: boolean(name='EnableNamespaceSlsConfig'),
   enableNewArms?: boolean(name='EnableNewArms', description='Indicates whether to enable the new ARMS feature:
 
 *   true: enables this parameter.
@@ -3068,6 +3074,9 @@ async function createApplicationWithOptions(tmpReq: CreateApplicationRequest, he
   if (!$isNull(request.acrAssumeRoleArn)) {
     query['AcrAssumeRoleArn'] = request.acrAssumeRoleArn;
   }
+  if (!$isNull(request.agentVersion)) {
+    query['AgentVersion'] = request.agentVersion;
+  }
   if (!$isNull(request.appDescription)) {
     query['AppDescription'] = request.appDescription;
   }
@@ -3112,6 +3121,12 @@ async function createApplicationWithOptions(tmpReq: CreateApplicationRequest, he
   }
   if (!$isNull(request.enableEbpf)) {
     query['EnableEbpf'] = request.enableEbpf;
+  }
+  if (!$isNull(request.enableNamespaceAgentVersion)) {
+    query['EnableNamespaceAgentVersion'] = request.enableNamespaceAgentVersion;
+  }
+  if (!$isNull(request.enableNamespaceSlsConfig)) {
+    query['EnableNamespaceSlsConfig'] = request.enableNamespaceSlsConfig;
   }
   if (!$isNull(request.enableNewArms)) {
     query['EnableNewArms'] = request.enableNewArms;
@@ -3343,61 +3358,241 @@ async function createApplication(request: CreateApplicationRequest): CreateAppli
 }
 
 model CreateApplicationScalingRuleRequest {
-  appId?: string(name='AppId', description='This parameter is required.', example='7171a6ca-d1cd-4928-8642-7d5cfe69****'),
+  appId?: string(name='AppId', description='The application ID.
+
+This parameter is required.', example='7171a6ca-d1cd-4928-8642-7d5cfe69****'),
   enableIdle?: boolean(name='EnableIdle'),
-  minReadyInstanceRatio?: int32(name='MinReadyInstanceRatio', example='-1'),
-  minReadyInstances?: int32(name='MinReadyInstances', example='3'),
-  scalingRuleEnable?: boolean(name='ScalingRuleEnable', example='true'),
-  scalingRuleMetric?: string(name='ScalingRuleMetric', example='{"maxReplicas":3,"minReplicas":1,"metrics":[{"metricType":"CPU","metricTargetAverageUtilization":20},{"metricType":"MEMORY","metricTargetAverageUtilization":30},{"metricType":"tcpActiveConn","metricTargetAverageUtilization":20},{"metricType":"SLB_QPS","MetricTargetAverageUtilization":25,"SlbProject":"aliyun-fc-cn-hangzhou-d95881d9-5d3c-5f26-a6b8-************","SlbLogstore":"function-log","Vport":"80"},{"metricType":"SLB_RT","MetricTargetAverageUtilization":35,"SlbProject":"aliyun-fc-cn-hangzhou-d95881d9-5d3c-5f26-a6b8-************","SlbLogstore":"function-log","Vport":"80"}],"scaleUpRules":{"step":"100","disabled":false,"stabilizationWindowSeconds":0},"scaleDownRules":{"step":"100","disabled":false,"stabilizationWindowSeconds":300}}'),
-  scalingRuleName?: string(name='ScalingRuleName', description='This parameter is required.', example='timer-0800-2100'),
-  scalingRuleTimer?: string(name='ScalingRuleTimer', example='{"beginDate":null,"endDate":null,"period":"* * *","schedules":[{"atTime":"08:00","targetReplicas":10},{"atTime":"20:00","targetReplicas":3}]}'),
-  scalingRuleType?: string(name='ScalingRuleType', description='This parameter is required.', example='timing'),
+  minReadyInstanceRatio?: int32(name='MinReadyInstanceRatio', description='The percentage of the minimum number of available instances. Valid values:
+
+*   **-1** (default value): The minimum number of available instances is not determined based on this parameter.
+*   **0 to 100**: The minimum number of available instances is calculated by using the following formula: Number of existing instances × Value of MinReadyInstanceRatio × 100%. The calculation result is rounded up to the nearest integer. For example, if the number of existing instances is 5 and MinReadyInstanceRatio is set to 50, the minimum number of available instances is 3.
+
+>  When **MinReadyInstance** and **MinReadyInstanceRatio** are passed at the same time and the **MinReadyInstanceRatio** value is not \\\\*\\\\*-1\\\\*\\\\*, the **MinReadyInstanceRatio** parameter takes precedence. **Note**When both **MinReadyInstance** and **MinReadyInstanceRatio** are specified and **MinReadyInstanceRatio** is set to a number from 0 to 100, the value of **MinReadyInstanceRatio** takes precedence.', example='-1'),
+  minReadyInstances?: int32(name='MinReadyInstances', description='The minimum number of available instances. Special values:
+
+*   If you set the value to **0**, business is interrupted when the application is updated.
+*   If you set this property to -1, the system calculates a recommended value as the minimum number of available instances by using the following formula: Recommended value = Number of existing instances × 25%. The calculation result is rounded up to the nearest integer. For example, if the number of existing instances is 5, the recommended value is calculated by using the following formula: 5 × 25% = 1.25. In this case, the minimum number of available instances is 2.
+
+>  To ensure business continuity, make sure that at least one instance is available during application deployment and rollback.', example='3'),
+  scalingRuleEnable?: boolean(name='ScalingRuleEnable', description='Specifies whether to enable the auto scaling policy. Valid values:
+
+*   **true**: The auto scaling policy is enabled.
+*   **false**: The auto scaling policy is disabled.', example='true'),
+  scalingRuleMetric?: string(name='ScalingRuleMetric', description='The configurations of the metric-based auto scaling policy. This parameter is required if you set the ScalingRuleType parameter to metric.
+
+The following list describes the involved parameters:
+
+*   **maxReplicas**: the maximum number of instances in the application.
+
+*   **minReplicas**: the minimum number of instances in the application.
+
+*   **metricType**: the metric that is used to trigger the auto scaling policy.
+
+    *   **CPU**: the CPU utilization.
+    *   **MEMORY**: the memory usage.
+    *   **QPS**: the average QPS within 1 minute per Java application instance.
+    *   **RT**: the average response time of all API operations within 1 minute in the Java application.
+    *   **tcpActiveConn**: the average number of active TCP connections within 30 seconds per instance.
+    *   **SLB_QPS**: the average QPS of the Internet-facing SLB instance within 15 seconds per instance.
+    *   **SLB_RT**: the average response time of the Internet-facing SLB instance within 15 seconds.
+    *   **INTRANET_SLB_QPS**: the average QPS of the internal-facing SLB instance within 15 seconds per instance.
+    *   **INTRANET_SLB_RT**: the average response time of the internal-facing SLB instance within 15 seconds.
+
+*   **metricTargetAverageUtilization**: the limit on the metric that is specified by **metricType**. You can specify following limits:
+
+    *   The limit on the CPU utilization. Unit: percentage.
+    *   The limit on the memory usage. Unit: percentage.
+    *   The limit on the QPS.
+    *   The limit on the response time. Unit: milliseconds.
+    *   The limit on the average number of active TCP connections per second.
+    *   The limit on the QPS of the Internet-facing SLB instance.
+    *   The limit on the response time of the Internet-facing SLB instance. Unit: milliseconds.
+    *   The limit on the QPS of the internal-facing SLB instance.
+    *   The limit on the response time of the internal-facing SLB instance. Unit: milliseconds.
+
+*   **slbId**: the ID of the SLB instance.
+
+*   **slbProject**: the Simple Log Service (SLS) project.
+
+*   **slbLogstore**: the SLS Logstore.
+
+*   **vport**: the listener port of the SLB instance. HTTP and HTTPS are supported.
+
+*   **scaleUpRules**: the scale-out rules.
+
+*   **scaleDownRules**: the scale-in rule.
+
+*   **step**: the scale-out or scale-in step size. This parameter specifies the maximum number of instances that can be added or removed per unit time.
+
+*   **disabled**: specifies whether to disable the application scale-in. If you set this parameter to true, the application instances are never reduced. This prevents business risks during peak hours.
+
+    *   **true**: disables the application scale-in.
+    *   **false**: enables the application scale-in. Default value: false.
+
+*   **stabilizationWindowSeconds**: the cooldown period during which the system is stable and does not perform scale-out or scale-in operations. Valid values: 0 to 3600. Unit: seconds. Default value: 0.
+
+>  NoteYou can specify one or more metrics as the trigger conditions of the auto scaling policy. If one of the values of the specified metrics is greater than or equal to the specified limit, the application is scaled out. The number of instances after the scale-out operation is less than or equal to the value of the specified maximum application instances. If the values of all specified metrics are less than the limits, the application is scaled in. The number of instances after the scale-in operation is greater than or equal to the value of the specified minimum application instances.', example='{"maxReplicas":3,"minReplicas":1,"metrics":[{"metricType":"CPU","metricTargetAverageUtilization":20},{"metricType":"MEMORY","metricTargetAverageUtilization":30},{"metricType":"tcpActiveConn","metricTargetAverageUtilization":20},{"metricType":"SLB_QPS","MetricTargetAverageUtilization":25,"SlbProject":"aliyun-fc-cn-hangzhou-d95881d9-5d3c-5f26-a6b8-************","SlbLogstore":"function-log","Vport":"80"},{"metricType":"SLB_RT","MetricTargetAverageUtilization":35,"SlbProject":"aliyun-fc-cn-hangzhou-d95881d9-5d3c-5f26-a6b8-************","SlbLogstore":"function-log","Vport":"80"}],"scaleUpRules":{"step":"100","disabled":false,"stabilizationWindowSeconds":0},"scaleDownRules":{"step":"100","disabled":false,"stabilizationWindowSeconds":300}}'),
+  scalingRuleName?: string(name='ScalingRuleName', description='The name of the auto scaling policy. The name must be unique in an application, and can be up to 32 characters in length. It must start with a lowercase letter and can contain only lowercase letters, digits, and hyphens (-).
+
+>  You cannot change the names of created auto scaling policies.
+
+This parameter is required.', example='timer-0800-2100'),
+  scalingRuleTimer?: string(name='ScalingRuleTimer', description='The configuration of the scheduled elasticity policy. This parameter is required if you select Scheduled Scaling Policy or Use SDK to Set.
+
+The following table describes the parameters.
+
+*   **beginDate** and **endDate**: **beginDate** is the start date and **endDate** is the end date, which is used to configure the timing Auto Scaling policy. Valid values:
+
+    *   If both values are **null**, long-term execution is performed. This is the default value.
+    *   If the value is a specific date, for example, the **beginDate** is **2021-03-25** and the **endDate** is **2021-04-25**, the validity period is one month.
+
+*   **period**: The period during which the timed Auto Scaling policy is executed. Valid values:
+
+    *   **\\\\* \\\\* \\\\***: The scheduled policy is executed at a specified time every day.
+
+    *   **\\\\* \\\\* Fri,Mon**: The scheduled policy is executed at the specified time on the specified number of days per week. You can select multiple time zones. The time zone is GMT +8. Valid values:
+
+        *   **Sun**: Sunday
+        *   **Mon**: Monday
+        *   **Tue**: Tuesday
+        *   **Wed**: Wednesday
+        *   **Thu**: Thursday
+        *   **Fri**: Friday
+        *   **Sat**: Saturday
+
+    *   **1,2,3,28,31 \\\\* \\\\***: The scheduled auto scaling policy is executed at a specified point in time on one or more dates of each month. Valid values: 1 to 31. If a month does not have the 31st day, the auto scaling policy is executed on the specified days other than the 31st day.
+
+*   **schedules**: the points in time at which the scheduled auto scaling policy is triggered and the number of application instances that are retained during the time periods. You can specify up to 20 points in time. The following list describes the involved parameters:
+
+    *   **atTime**: the point in time at which the policy is triggered. **targetReplicas**: the number of application instances that you want to retain during the corresponding time period or the minimum number of available instances required for each deployment.****
+
+    *   **Valid values: 1 to 50.** Valid values: 1 to 50.
+
+        **
+
+        **Note**Make sure that at least one instance is available during the application deployment and rollback to prevent your business from being interrupted. If you set the value to **0**, business interruptions occur when the application is updated. If you set the value to **0**, business interruptions occur when the application is updated.', example='{"beginDate":null,"endDate":null,"period":"* * *","schedules":[{"atTime":"08:00","targetReplicas":10},{"atTime":"20:00","targetReplicas":3}]}'),
+  scalingRuleType?: string(name='ScalingRuleType', description='The type of the auto scaling policy. Take note of the following rules:
+
+*   **timing**: a scheduled auto scaling policy.
+*   **metric**: a metric-based auto scaling policy.
+*   **mix**: a hybrid auto scaling policy.
+
+> 
+
+*   If you set this parameter to timing, the ScalingRuleTimer parameter must be specified.
+
+*   If you set this parameter to metric, the ScalingRuleMetric parameter must be specified.
+
+*   If you set this parameter to mix, the ScalingRuleMetric parameter must be specified. You can specify the ScalingRuleTimer parameter based on your business requirements.
+
+This parameter is required.', example='timing'),
 }
 
 model CreateApplicationScalingRuleResponseBody = {
-  code?: string(name='Code', example='200'),
+  code?: string(name='Code', description='The HTTP status code or the error code. Valid values:
+
+*   **2xx**: The request was successful.
+*   **3xx**: The request was redirected.
+*   **4xx**: The request failed.
+*   **5xx**: A server error occurred.', example='200'),
   data?: {
-    appId?: string(name='AppId', example='7171a6ca-d1cd-4928-8642-7d5cfe69****'),
-    createTime?: long(name='CreateTime', example='1616642248938'),
+    appId?: string(name='AppId', description='null', example='7171a6ca-d1cd-4928-8642-7d5cfe69****'),
+    createTime?: long(name='CreateTime', description='null null', example='1616642248938'),
     enableIdle?: boolean(name='EnableIdle'),
-    lastDisableTime?: long(name='LastDisableTime', example='1641882854484'),
+    lastDisableTime?: long(name='LastDisableTime', description='null', example='1641882854484'),
     metric?: {
-      maxReplicas?: int32(name='MaxReplicas', example='3'),
+      maxReplicas?: int32(name='MaxReplicas', description='The maximum number of Elastic Compute Service (ECS) instances supported by the node pool.', example='3'),
       metrics?: [ 
         {
-          metricTargetAverageUtilization?: int32(name='MetricTargetAverageUtilization', example='20'),
-          metricType?: string(name='MetricType', example='CPU'),
-          slbId?: string(name='SlbId', example='lb-xxx'),
-          slbLogstore?: string(name='SlbLogstore', example='test'),
-          slbProject?: string(name='SlbProject', example='test'),
-          vport?: string(name='Vport', example='80'),
+          metricTargetAverageUtilization?: int32(name='MetricTargetAverageUtilization', description='The limit on the metric.
+
+*   The limit on the CPU utilization. Unit: percentage.
+*   The limit on the memory usage. Unit: percentage.
+*   The limit on the queries per second (QPS). Unit: seconds.
+*   The limit on the response time. Unit: milliseconds.
+*   The limit on the average number of active TCP connections per second.
+*   The limit on the QPS of the Internet-facing SLB instance.
+*   The limit on the response time of the Internet-facing SLB instance. Unit: milliseconds.
+*   The limit on the QPS of the internal-facing SLB instance.
+*   The limit on the response time of the internal-facing SLB instance. Unit: milliseconds.', example='20'),
+          metricType?: string(name='MetricType', description='The metric that is used to trigger the auto scaling policy. Valid values:
+
+*   **CPU**: the CPU utilization.
+*   **MEMORY**: the memory usage.
+*   **QPS**: the average QPS within 1 minute per Java application instance.
+*   **RT**: the average response time of all API operations within 1 minute in the Java application.
+*   **tcpActiveConn**: the average number of active TCP connections within 30 seconds per instance.
+*   **SLB_QPS**: the average QPS of the Internet-facing SLB instance within 15 seconds per instance.
+*   **SLB_RT**: the average response time of the Internet-facing SLB instance within 15 seconds.
+*   **INTRANET_SLB_QPS**: the average QPS of the internal-facing SLB instance within 15 seconds per instance.
+*   **INTRANET_SLB_RT**: the average response time of the internal-facing SLB instance within 15 seconds.', example='CPU'),
+          slbId?: string(name='SlbId', description='The ID of the SLB instance.', example='lb-xxx'),
+          slbLogstore?: string(name='SlbLogstore', description='The Logstore that stores the SLB access logs.', example='test'),
+          slbProject?: string(name='SlbProject', description='The project that stores the SLB access logs.', example='test'),
+          vport?: string(name='Vport', description='The port number of the SLB instance.', example='80'),
         }
-      ](name='Metrics'),
-      minReplicas?: int32(name='MinReplicas', example='1'),
-    }(name='Metric'),
-    scaleRuleEnabled?: boolean(name='ScaleRuleEnabled', example='true'),
-    scaleRuleName?: string(name='ScaleRuleName', example='test'),
-    scaleRuleType?: string(name='ScaleRuleType', example='timing'),
+      ](name='Metrics', description='The metrics that are used to trigger the auto scaling policy.'),
+      minReplicas?: int32(name='MinReplicas', description='The minimum number of instances.', example='1'),
+    }(name='Metric', description='The details of the metric-based auto scaling policy.'),
+    scaleRuleEnabled?: boolean(name='ScaleRuleEnabled', description='null null
+
+*   **null**
+*   **null**', example='true'),
+    scaleRuleName?: string(name='ScaleRuleName', description='The name of the auto scaling policy.', example='test'),
+    scaleRuleType?: string(name='ScaleRuleType', description='null null
+
+*   **null**
+*   **metric**: a metric-based auto scaling policy.
+*   **mix**: a hybrid auto scaling policy.', example='timing'),
     timer?: {
-      beginDate?: string(name='BeginDate', example='2021-03-25'),
-      endDate?: string(name='EndDate', example='2021-04-25'),
-      period?: string(name='Period', example='* * *'),
+      beginDate?: string(name='BeginDate', description='The start date of the validity period of the scheduled auto scaling policy.
+
+*   **null** (default): If you set **BeginDate** and **EndDate** to null, the scheduled auto scaling policy can always be triggered.
+*   If the two parameters are set to specific dates, the scheduled auto scaling policy can be triggered during the period between the two dates. For example, if **BeginDate** is set to 2021-03-25 and **EndDate** is set to 2021-04-25, the auto scaling policy is valid for one month.', example='2021-03-25'),
+      endDate?: string(name='EndDate', description='The end date of the validity period of the scheduled auto scaling policy.
+
+*   **null** (default): If you set **BeginDate** and **EndDate** to null, the scheduled auto scaling policy can always be triggered.
+*   If the two parameters are set to specific dates, the scheduled auto scaling policy can be triggered during the period between the two dates. For example, if **BeginDate** is set to 2021-03-25 and **EndDate** is set to 2021-04-25, the auto scaling policy is valid for one month.', example='2021-04-25'),
+      period?: string(name='Period', description='The days on which the scheduled auto scaling policy takes effect. Valid values:
+
+*   **\\\\* \\\\* \\\\***: The scheduled auto scaling policy is executed at a specified point in time every day.
+
+*   **\\\\* \\\\* Fri,Mon**: The scheduled auto scaling policy is executed at a specified point in time on one or more days every week. The time must be in GMT+8. Valid values:
+
+    *   **Sun**: Sunday
+    *   **Mon**: Monday
+    *   **Tue**: Tuesday
+    *   **Wed**: Wednesday
+    *   **Thu**: Thursday
+    *   **Fri**: Friday
+    *   **Sat**: Saturday
+
+*   **1,2,3,28,31 \\\\* \\\\***: The scheduled auto scaling policy is executed at a specified point in time on one or more dates of each month. Valid values: 1 to 31. If a month does not have the 31st day, the auto scaling policy is executed on the specified days other than the 31st day.', example='* * *'),
       schedules?: [ 
         {
-          atTime?: string(name='AtTime', example='08:00'),
-          maxReplicas?: int32(name='MaxReplicas', example='10'),
-          minReplicas?: int32(name='MinReplicas', example='5'),
-          targetReplicas?: int32(name='TargetReplicas', example='3'),
+          atTime?: string(name='AtTime', description='The point in time. Format: **Hour:Minute**.', example='08:00'),
+          maxReplicas?: int32(name='MaxReplicas', description='The maximum number of instances.', example='10'),
+          minReplicas?: int32(name='MinReplicas', description='The minimum number of instances.', example='5'),
+          targetReplicas?: int32(name='TargetReplicas', description='The expected number of instances.', example='3'),
         }
-      ](name='Schedules'),
-    }(name='Timer'),
-    updateTime?: long(name='UpdateTime', example='1616642248938'),
-  }(name='Data'),
-  errorCode?: string(name='ErrorCode'),
-  message?: string(name='Message', example='success'),
-  requestId?: string(name='RequestId', example='91F93257-7A4A-4BD3-9A7E-2F6EAE6D****'),
-  success?: boolean(name='Success', example='true'),
-  traceId?: string(name='TraceId', example='0a98a02315955564772843261e****'),
+      ](name='Schedules', description='The points in time at which the auto scaling policy is triggered within one day.'),
+    }(name='Timer', description='The details of the scheduled auto scaling policy.'),
+    updateTime?: long(name='UpdateTime', description='null null', example='1616642248938'),
+  }(name='Data', description='The returned result.'),
+  errorCode?: string(name='ErrorCode', description='The status code. Value values:
+
+*   If the request was successful, **ErrorCode** is not returned.
+*   If the request failed, **ErrorCode** is returned. For more information, see **Error codes** in this topic.'),
+  message?: string(name='Message', description='The message returned. The following limits are imposed on the ID:
+
+*   If the request was successful, **success** is returned.
+*   An error code is returned when a request failed.', example='success'),
+  requestId?: string(name='RequestId', description='Request ID.', example='91F93257-7A4A-4BD3-9A7E-2F6EAE6D****'),
+  success?: boolean(name='Success', description='Indicates whether the application instances were restarted. Valid values:
+
+*   **true**: The application instances were restarted.
+*   **false**: The application instances failed to be restarted.', example='true'),
+  traceId?: string(name='TraceId', description='The ID of the trace. The ID is used to query the details of a request.', example='0a98a02315955564772843261e****'),
 }
 
 model CreateApplicationScalingRuleResponse = {
@@ -3407,13 +3602,14 @@ model CreateApplicationScalingRuleResponse = {
 }
 
 /**
- * @summary Null
+ * @summary Creates an auto scaling policy for an application.
  *
- * @description The HTTP status code. Take note of the following rules:
- * *   **2xx**: The call was successful.
- * *   **3xx**: The call was redirected.
- * *   **4xx**: The call failed.
- * *   **5xx**: A server error occurred.
+ * @description ## [](#)Precautions
+ * *   You can create up to five auto scaling policies for one application.
+ * *   You can create up to 20 trigger points within one day in a scheduled auto scaling policy.
+ * *   If an auto scaling policy is enabled for an application, you cannot manually manage the lifecycle of the application. For example, you cannot scale, deploy (including single-batch release, phased release, and canary release), stop, or restart the application, or change the instance type. If you want to perform the preceding operations on the application, disable the auto scaling policy and then manually perform the operations.
+ * *   If an application is in the process of scale-out, scale-in, deployment (including single-batch release, phased release, and canary release), instance type change, restart, or stop, you cannot add or enable an auto scaling policy for the application.
+ * *   If you want to configure more than 50 instances for an application, you must contact SAE technical support to add your account to the whitelist. For more information, see [Contact us](https://help.aliyun.com/document_detail/146530.html).
  *
  * @param request CreateApplicationScalingRuleRequest
  * @param headers map
@@ -3471,13 +3667,14 @@ async function createApplicationScalingRuleWithOptions(request: CreateApplicatio
 }
 
 /**
- * @summary Null
+ * @summary Creates an auto scaling policy for an application.
  *
- * @description The HTTP status code. Take note of the following rules:
- * *   **2xx**: The call was successful.
- * *   **3xx**: The call was redirected.
- * *   **4xx**: The call failed.
- * *   **5xx**: A server error occurred.
+ * @description ## [](#)Precautions
+ * *   You can create up to five auto scaling policies for one application.
+ * *   You can create up to 20 trigger points within one day in a scheduled auto scaling policy.
+ * *   If an auto scaling policy is enabled for an application, you cannot manually manage the lifecycle of the application. For example, you cannot scale, deploy (including single-batch release, phased release, and canary release), stop, or restart the application, or change the instance type. If you want to perform the preceding operations on the application, disable the auto scaling policy and then manually perform the operations.
+ * *   If an application is in the process of scale-out, scale-in, deployment (including single-batch release, phased release, and canary release), instance type change, restart, or stop, you cannot add or enable an auto scaling policy for the application.
+ * *   If you want to configure more than 50 instances for an application, you must contact SAE technical support to add your account to the whitelist. For more information, see [Contact us](https://help.aliyun.com/document_detail/146530.html).
  *
  * @param request CreateApplicationScalingRuleRequest
  * @return CreateApplicationScalingRuleResponse
@@ -3698,87 +3895,91 @@ async function createGreyTagRoute(request: CreateGreyTagRouteRequest): CreateGre
 
 model CreateIngressRequest {
   addressType?: string(name='AddressType'),
-  certId?: string(name='CertId', description='The ID of the certificate that is associated with the **CLB** instance.
+  certId?: string(name='CertId', description='The ID of the **CLB** certificate. Valid values:
 
 *   If you set **LoadBalanceType** to **clb**, you can use CertId to configure a certificate for the HTTPS listener.
 
-For more information about how to manage the SSL certificate IDs that are used by CLB instances, see [Overview](https://help.aliyun.com/document_detail/90792.html).', example='188077086902****_176993d****_181437****_108724****'),
-  certIds?: string(name='CertIds', description='The IDs of the certificates that are associated with the **ALB** instance.
+For more information about how to use SSL certificate IDs for CLB, see [Manage certificates (CLB)](https://help.aliyun.com/document_detail/90792.html).', example='188077086902****_176993d****_181437****_108724****'),
+  certIds?: string(name='CertIds', description='The ID of the multi-certificate **ALB**. Valid values:
 
-*   If you set **LoadBalanceType** to **alb**, you can use CertIds to configure multiple certificates for the HTTPS listener. Separate multiple certificate IDs with commas (,).
-*   The ID of the SSL certificate that is used by an ALB instance can be obtained from Certificate Management Service. For example, if you specify `756***-cn-hangzhou`, `756***` is the certificate ID that is obtained from the service page, and `-cn-hangzhou` is the fixed suffix. For more information, see [Manage certificates](https://help.aliyun.com/document_detail/209076.html).', example='87***35-cn-hangzhou,812***3-cn-hangzhou'),
+*   If the **LoadBalanceType** is **alb**, use this field to configure multiple certificates for HTTPS listeners. Separate multiple certificate IDs with commas (,).
+*   The ID of the SSL certificate used by ALB must be obtained from the digital certificate product. For example, in the configuration `756***-cn-hangzhou`, the `756***` is the certificate ID obtained from the product page, and the `-cn-hangzhou` is a fixed suffix. For more information, see [Manage certificates](https://help.aliyun.com/document_detail/209076.html).', example='87***35-cn-hangzhou,812***3-cn-hangzhou'),
   corsConfig?: string(name='CorsConfig'),
-  defaultRule?: string(name='DefaultRule', description='Default forwarding rule. Traffic is forwarded to the specified application through a designated port based on the IP address. Parameter descriptions are as follows:
-- **appId**: Application ID. - **containerPort**: Application instance port.
-> All requests that do not match or do not meet the **Rules** for forwarding will be directed to this specified application.
+  defaultRule?: string(name='DefaultRule', description='The default forwarding rule. Forwards traffic to a specified application through a specified port based on the IP address. The following table describes the parameters.
+
+*   **appId**: the ID of the application.
+*   **containerPort**: The port of the application instance.
+
+>  All requests that do not match or satisfy **Rules** forwarding rules are forwarded to the specified application.
 
 This parameter is required.', example='{"appId":"395b60e4-0550-458d-9c54-a265d036****","containerPort":8080}'),
-  description?: string(name='Description', description='Route rule name.', example='ingress-for-sae-test'),
+  description?: string(name='Description', description='The name of the routing rule.', example='ingress-for-sae-test'),
   enableGzip?: boolean(name='EnableGzip'),
   enableXForwardedFor?: boolean(name='EnableXForwardedFor'),
   enableXForwardedForClientSrcPort?: boolean(name='EnableXForwardedForClientSrcPort'),
   enableXForwardedForProto?: boolean(name='EnableXForwardedForProto'),
   enableXForwardedForSlbId?: boolean(name='EnableXForwardedForSlbId'),
   enableXForwardedForSlbPort?: boolean(name='EnableXForwardedForSlbPort'),
-  idleTimeout?: int32(name='IdleTimeout', description='The timeout period of an idle connection. Unit: seconds Valid values: 1 to 60. If no requests are received within the specified timeout period, ALB closes the current connection. When a new request is received, ALB establishes a new connection.', example='15'),
-  listenerPort?: int32(name='ListenerPort', description='SThe frontend port that is used by the ALB instance.
-Valid values: 1 to 65535.
+  idleTimeout?: int32(name='IdleTimeout', description='Specifies the connection idle timeout period. Unit: seconds. Valid values: 1 to 60. If there is no access request within the timeout period, the SLB will temporarily interrupt the current connection until the next request comes to re-establish a new connection.', example='15'),
+  listenerPort?: int32(name='ListenerPort', description='The SLB listening port. This port cannot be occupied.
 
 This parameter is required.', example='80'),
-  listenerProtocol?: string(name='ListenerProtocol', description='Request forwarding protocol. The value description is as follows:
-- **HTTP**: Suitable for applications that need to identify data content. - **HTTPS**: Suitable for applications that require encrypted transmission.', example='HTTP'),
-  loadBalanceType?: string(name='LoadBalanceType', description='The type of the SLB instance. The instance type can be specified only when you create a routing rule. You cannot change the instance type when you update the routing rule. Valid values:
+  listenerProtocol?: string(name='ListenerProtocol', description='The request forwarding protocol. Valid values:
 
-*   **clb**
-*   **alb**', example='clb'),
+*   **HTTP**: suitable for applications that need to identify data content.
+*   **HTTPS**: suitable for applications that require encrypted transmission.', example='HTTP'),
+  loadBalanceType?: string(name='LoadBalanceType', description='SLB the type of the SLB instance. It depends on the type that you entered when you created the routing rule and cannot be changed when you update it. Valid values:
+
+*   **clb**: traditional SLB CLB (formerly SLB).
+*   **alb**: Applied SLB ALB.', example='clb'),
   loadBalancerEdition?: string(name='LoadBalancerEdition'),
-  namespaceId?: string(name='NamespaceId', description='The ID of the namespace where the application is located. Currently, cross-namespace applications are not supported.
+  namespaceId?: string(name='NamespaceId', description='The ID of the namespace where the application resides. Currently, cross-namespace applications are not supported.
 
 This parameter is required.', example='cn-beijing:sae-test'),
-  requestTimeout?: int32(name='RequestTimeout', description='The timeout period of a request. Unit: seconds. Valid values: 1 to 180. If no response is received from the backend server within the specified timeout period, ALB stops waiting for the response and returns an HTTP 504 error code to the client.', example='3'),
-  rules?: string(name='Rules', description='The forwarding rules. You can specify a port and an application in a forwarding rule to forward traffic based on the specified domain name and request path. The following list describes the involved parameters:
+  requestTimeout?: int32(name='RequestTimeout', description='Specifies the request timeout period. Unit: seconds. Valid values: 1 to 180. If the backend server does not respond within the timeout period, the SLB abandons the wait and returns an HTTP 504 error code to the client.', example='3'),
+  rules?: string(name='Rules', description='The forwarding rule. Forwards traffic to a specified application through a specified port based on the domain name and request path. The following table describes the parameters.
 
 *   **appId**: the ID of the application.
-*   **containerPort**: the container port of the application.
+*   **containerPort**: The port of the application instance.
 *   **domain**: the domain name.
 *   **path**: the request path.
-*   **backendProtocol**: the backend service protocol. Valid values: http, https, and grpc. Default value: http.
-*   **rewritePath**: the rewrite path.
+*   **backendProtocol**: The backend service protocol. Valid values: http, https, and grpc. Default value: http.
+*   **rewritePath**: Rewrite the path.
 
->  The path rewrite feature is supported only by ALB instances.
+>  Only ALB allows you to set the RewritePath feature. CLB does not support this feature.
 
 This parameter is required.', example='[{"appId":"395b60e4-0550-458d-9c54-a265d036****","containerPort":8080,"domain":"www.sae.site","path":"/path1"},{"appId":"666403ce-d25b-47cf-87fe-497565d2****","containerPort":8080,"domain":"sae.site","path":"/path2"}]'),
-  securityPolicyId?: string(name='SecurityPolicyId', description='The ID of a security policy.', example='sp-bp1bpn0kn9****'),
+  securityPolicyId?: string(name='SecurityPolicyId', description='The ID of the security policy instance.', example='sp-bp1bpn0kn9****'),
   slbId?: string(name='SlbId', description='The Server Load Balancer (SLB) instance that is used by the routing rule.
 
->  The SLB instance can be a Classic Load Balancer (CLB) instance or an Application Load Balancer (ALB) instance.', example='lb-uf6hucc7inlqrtcq5****'),
+>  SLB SLB instances include CLB instances and ALB instances.', example='lb-uf6hucc7inlqrtcq5****'),
   zoneMappings?: string(name='ZoneMappings'),
 }
 
 model CreateIngressResponseBody = {
-  code?: string(name='Code', description='The HTTP status code. Valid values:
+  code?: string(name='Code', description='The HTTP status code or the error code. Valid values:
 
-*   **2xx**: The call was successful.
-*   **3xx**: The call was redirected.
-*   **4xx**: The call failed.
+*   **2xx**: The request was successful.
+*   **3xx**: The request was redirected.
+*   **4xx**: The request failed.
 *   **5xx**: A server error occurred.', example='200'),
   data?: {
     ingressId?: long(name='IngressId', description='The ID of the routing rule.', example='87'),
-  }(name='Data', description='The response.'),
-  errorCode?: string(name='ErrorCode', description='The error code returned. Take note of the following rules:
+  }(name='Data', description='Responses.'),
+  errorCode?: string(name='ErrorCode', description='Error code. Valid values:
 
-*   The **ErrorCode** parameter is not returned if the request succeeds.
-*   If the call fails, the **ErrorCode** parameter is returned. For more information, see the "**Error codes**" section of this topic.', example='success'),
-  message?: string(name='Message', description='The additional information that is returned. Valid values:
+*   If the request is successful, no **ErrorCode** fields are returned.
+*   Request failed: **ErrorCode** fields are returned. For more information, see **Error codes**.', example='success'),
+  message?: string(name='Message', description='Additional information. Valid values:
 
-*   success: If the call is successful, **success** is returned.
-*   An error code: If the call fails, an error code is returned.', example='success'),
+*   The error message returned because the request is normal and **success** is returned.
+*   If the request is abnormal, the specific exception error code is returned.', example='success'),
   requestId?: string(name='RequestId', description='The ID of the request.', example='91F93257-7A4A-4BD3-9A7E-2F6EAE6D****'),
-  success?: boolean(name='Success', description='Indicates whether the Secret is successfully deleted. Valid values:
+  success?: boolean(name='Success', description='Indicates whether the routing rule was created. Valid values:
 
-*   **true**: The instance was deleted.
-*   **false**: The instance failed to be deleted.', example='true'),
-  traceId?: string(name='TraceId', description='The ID of the trace. It is used to query the details of a request.', example='0a98a02315955564772843261e****'),
+*   **true**: The ConfigMap was created.
+*   **false**: The ConfigMap failed to be created.', example='true'),
+  traceId?: string(name='TraceId', description='The ID of the trace. This parameter is used to query the exact call information.', example='0a98a02315955564772843261e****'),
 }
 
 model CreateIngressResponse = {
@@ -4797,8 +4998,20 @@ This parameter is required.', example='{".dockerconfigjson":"eyJhdXRocyI6eyJyZWd
   }(name='SecretData', description='The Secret data.
 
 This parameter is required.'),
-  secretName?: string(name='SecretName', description='This parameter is required.', example='registry-auth-acree'),
-  secretType?: string(name='SecretType', description='This parameter is required.', example='kubernetes.io/dockerconfigjson'),
+  secretName?: string(name='SecretName', description='The Secret name. The name can contain digits, letters, and underscores (_). The name must start with a letter.
+
+This parameter is required.', example='registry-auth-acree'),
+  secretType?: string(name='SecretType', description='The supported Secret type. Valid values:
+
+*   **kubernetes.io/dockerconfigjson**: the Secret for the username and password of the image repository. The Secret is used for authentication when images are pulled during application deployment.
+
+Valid values:
+
+*   Opaque
+*   kubernetes.io/dockerconfigjson
+*   kubernetes.io/tls
+
+This parameter is required.', example='kubernetes.io/dockerconfigjson'),
 }
 
 model CreateSecretShrinkRequest {
@@ -4808,20 +5021,43 @@ This parameter is required.', example='cn-beijing:test'),
   secretDataShrink?: string(name='SecretData', description='The Secret data.
 
 This parameter is required.'),
-  secretName?: string(name='SecretName', description='This parameter is required.', example='registry-auth-acree'),
-  secretType?: string(name='SecretType', description='This parameter is required.', example='kubernetes.io/dockerconfigjson'),
+  secretName?: string(name='SecretName', description='The Secret name. The name can contain digits, letters, and underscores (_). The name must start with a letter.
+
+This parameter is required.', example='registry-auth-acree'),
+  secretType?: string(name='SecretType', description='The supported Secret type. Valid values:
+
+*   **kubernetes.io/dockerconfigjson**: the Secret for the username and password of the image repository. The Secret is used for authentication when images are pulled during application deployment.
+
+Valid values:
+
+*   Opaque
+*   kubernetes.io/dockerconfigjson
+*   kubernetes.io/tls
+
+This parameter is required.', example='kubernetes.io/dockerconfigjson'),
 }
 
 model CreateSecretResponseBody = {
-  code?: string(name='Code', example='200'),
+  code?: string(name='Code', description='The HTTP status code or the error code. Valid values:
+
+*   **2xx**: The request was successful.
+*   **3xx**: The request was redirected.
+*   **4xx**: The request failed.
+*   **5xx**: A server error occurred.', example='200'),
   data?: {
-    secretId?: long(name='SecretId', example='16'),
-  }(name='Data'),
-  errorCode?: string(name='ErrorCode'),
-  message?: string(name='Message', example='success'),
-  requestId?: string(name='RequestId', example='91F93257-7A4A-4BD3-9A7E-2F6EAE6D****'),
-  success?: boolean(name='Success', example='true'),
-  traceId?: string(name='TraceId', example='0a98a02315955564772843261e****'),
+    secretId?: long(name='SecretId', description='The ID of the created Secret.', example='16'),
+  }(name='Data', description='The returned result.'),
+  errorCode?: string(name='ErrorCode', description='The status code. Value values:
+
+*   If the request was successful, **ErrorCode** is not returned.
+*   If the request failed, **ErrorCode** is returned. For more information, see **Error codes** in this topic.', example='400'),
+  message?: string(name='Message', description='The message returned for the operation.', example='success'),
+  requestId?: string(name='RequestId', description='The request ID.', example='91F93257-7A4A-4BD3-9A7E-2F6EAE6D****'),
+  success?: boolean(name='Success', description='Indicates whether the Secret was created. Valid values:
+
+*   **true**: The ConfigMap was created.
+*   **false**: The ConfigMap failed to be created.', example='true'),
+  traceId?: string(name='TraceId', description='The ID of the trace. The ID is used to query the details of a request.', example='0a98a02315955564772843261e****'),
 }
 
 model CreateSecretResponse = {
@@ -6144,6 +6380,7 @@ async function deleteWebCustomDomain(DomainName: string, request: DeleteWebCusto
 model DeployApplicationRequest {
   acrAssumeRoleArn?: string(name='AcrAssumeRoleArn', description='The Alibaba Cloud Resource Name (ARN) required for a RAM role to obtain images across accounts. For more information, see [Grant permissions across Alibaba Cloud accounts by using a RAM role](https://help.aliyun.com/document_detail/223585.html).', example='acs:ram::123456789012****:role/adminrole'),
   acrInstanceId?: string(name='AcrInstanceId', description='The ID of Container Registry Enterprise Edition instance N. This parameter is required when the **ImageUrl** parameter is set to the URL of an image in an ACR Enterprise Edition instance.', example='cri-xxxxxx'),
+  agentVersion?: string(name='AgentVersion'),
   albIngressReadinessGate?: string(name='AlbIngressReadinessGate'),
   appId?: string(name='AppId', description='The ID of the application.
 
@@ -6225,6 +6462,7 @@ false: disable', example='true'),
 
 *   **true**: The canary release rules are enabled.
 *   **false**: The canary release rules are disabled.', example='false'),
+  enableNamespaceAgentVersion?: boolean(name='EnableNamespaceAgentVersion'),
   enableNewArms?: boolean(name='EnableNewArms', description='Enable new ARMS features.
 
 - true: enable
@@ -6525,6 +6763,7 @@ This parameter is not returned if the **PackageType** parameter is set to **Imag
 model DeployApplicationShrinkRequest {
   acrAssumeRoleArn?: string(name='AcrAssumeRoleArn', description='The Alibaba Cloud Resource Name (ARN) required for a RAM role to obtain images across accounts. For more information, see [Grant permissions across Alibaba Cloud accounts by using a RAM role](https://help.aliyun.com/document_detail/223585.html).', example='acs:ram::123456789012****:role/adminrole'),
   acrInstanceId?: string(name='AcrInstanceId', description='The ID of Container Registry Enterprise Edition instance N. This parameter is required when the **ImageUrl** parameter is set to the URL of an image in an ACR Enterprise Edition instance.', example='cri-xxxxxx'),
+  agentVersion?: string(name='AgentVersion'),
   albIngressReadinessGate?: string(name='AlbIngressReadinessGate'),
   appId?: string(name='AppId', description='The ID of the application.
 
@@ -6606,6 +6845,7 @@ false: disable', example='true'),
 
 *   **true**: The canary release rules are enabled.
 *   **false**: The canary release rules are disabled.', example='false'),
+  enableNamespaceAgentVersion?: boolean(name='EnableNamespaceAgentVersion'),
   enableNewArms?: boolean(name='EnableNewArms', description='Enable new ARMS features.
 
 - true: enable
@@ -6959,6 +7199,9 @@ async function deployApplicationWithOptions(tmpReq: DeployApplicationRequest, he
   if (!$isNull(request.acrAssumeRoleArn)) {
     query['AcrAssumeRoleArn'] = request.acrAssumeRoleArn;
   }
+  if (!$isNull(request.agentVersion)) {
+    query['AgentVersion'] = request.agentVersion;
+  }
   if (!$isNull(request.albIngressReadinessGate)) {
     query['AlbIngressReadinessGate'] = request.albIngressReadinessGate;
   }
@@ -7006,6 +7249,9 @@ async function deployApplicationWithOptions(tmpReq: DeployApplicationRequest, he
   }
   if (!$isNull(request.enableGreyTagRoute)) {
     query['EnableGreyTagRoute'] = request.enableGreyTagRoute;
+  }
+  if (!$isNull(request.enableNamespaceAgentVersion)) {
+    query['EnableNamespaceAgentVersion'] = request.enableNamespaceAgentVersion;
   }
   if (!$isNull(request.enableNewArms)) {
     query['EnableNewArms'] = request.enableNewArms;
@@ -7390,6 +7636,7 @@ model DescribeApplicationConfigResponseBody = {
   data?: {
     acrAssumeRoleArn?: string(name='AcrAssumeRoleArn', description='The Alibaba Cloud Resource Name (ARN) of the RAM role that is used to pull images across accounts. For more information, see [Pull images across Alibaba Cloud accounts](https://help.aliyun.com/document_detail/190675.html) and [Grant permissions across Alibaba Cloud accounts by using a RAM role](https://help.aliyun.com/document_detail/223585.html).', example='acs:ram::123456789012****:role/adminrole'),
     acrInstanceId?: string(name='AcrInstanceId', description='The ID of the Container Registry Enterprise Edition instance.', example='cri-xxxxxx'),
+    agentVersion?: string(name='AgentVersion'),
     albIngressReadinessGate?: string(name='AlbIngressReadinessGate'),
     appDescription?: string(name='AppDescription', description='The description of the application.', example='The application description.'),
     appId?: string(name='AppId', description='The ID of the application.', example='7171a6ca-d1cd-4928-8642-7d5cfe69****'),
@@ -7484,6 +7731,7 @@ In the preceding **Command** example, the CommandArgs parameter is set to `Comma
 - true: enable
 
 - false: disable', example='false'),
+    enableNamespaceAgentVersion?: boolean(name='EnableNamespaceAgentVersion'),
     enableNewArms?: boolean(name='EnableNewArms', description='Enable new ARMS feature.
 
 - true: enable
@@ -10966,6 +11214,7 @@ model DescribeNamespaceResourcesResponseBody = {
 *   **4xx**: indicates that the request failed.
 *   **5xx**: indicates that a server error occurred.', example='200'),
   data?: {
+    apmJavaAgentVersion?: string(name='ApmJavaAgentVersion'),
     appCount?: long(name='AppCount', description='The number of applications.', example='1'),
     belongRegion?: string(name='BelongRegion', description='The region to which the namespace belongs.', example='cn-shanghai'),
     description?: string(name='Description', description='The description of the namespace.', example='decs'),
@@ -12204,19 +12453,32 @@ async function disableApplicationScalingRule(request: DisableApplicationScalingR
 }
 
 model DowngradeApplicationApmServiceRequest {
-  appId?: string(name='AppId', description='This parameter is required.', example='017f39b8-dfa4-4e16-a84b-1dcee4b1****'),
+  appId?: string(name='AppId', description='The ID of the interactive messaging application.
+
+This parameter is required.', example='017f39b8-dfa4-4e16-a84b-1dcee4b1****'),
 }
 
 model DowngradeApplicationApmServiceResponseBody = {
-  code?: string(name='Code', example='200'),
+  code?: string(name='Code', description='The HTTP status code or the error code. Valid values:
+
+*   **2xx**: The request was successful.
+*   **3xx**: The request was redirected.
+*   **4xx**: The request failed.
+*   **5xx**: A server error occurred.', example='200'),
   data?: {
-    status?: boolean(name='Status', example='true'),
-  }(name='Data'),
-  errorCode?: string(name='ErrorCode'),
-  message?: string(name='Message', example='success'),
-  requestId?: string(name='RequestId', example='01CF26C7-00A3-4AA6-BA76-7E95F2A3****'),
-  success?: boolean(name='Success'),
-  traceId?: string(name='TraceId', example='0a98a02315955564772843261e****'),
+    status?: boolean(name='Status', description='Indicates whether ARMS advanced monitoring is disabled. Valid values:
+
+*   **true**
+*   **false**', example='true'),
+  }(name='Data', description='The returned result.'),
+  errorCode?: string(name='ErrorCode', description='The status code.', example='400'),
+  message?: string(name='Message', description='The message that is returned.', example='success'),
+  requestId?: string(name='RequestId', description='Request ID.', example='01CF26C7-00A3-4AA6-BA76-7E95F2A3****'),
+  success?: boolean(name='Success', description='Indicates whether ARMS advanced monitoring is disabled. Valid values:
+
+*   **true**
+*   **false**'),
+  traceId?: string(name='TraceId', description='The ID of the trace. The ID is used to query the details of a request.', example='0a98a02315955564772843261e****'),
 }
 
 model DowngradeApplicationApmServiceResponse = {
@@ -13167,12 +13429,14 @@ async function getWarningEventMetric(request: GetWarningEventMetricRequest): Get
 }
 
 model GetWebshellTokenRequest {
-  appId?: string(name='AppId', description='This parameter is required.', example='017f39b8-dfa4-4e16-a84b-1dcee4b1****'),
-  containerName?: string(name='ContainerName', description='The name of the container.
+  appId?: string(name='AppId', description='The ID of the interactive messaging application.
+
+This parameter is required.', example='017f39b8-dfa4-4e16-a84b-1dcee4b1****'),
+  containerName?: string(name='ContainerName', description='The name of the init container.
 
 Note:
 
-*   If this parameter is specified, Cloud Assistant runs the command in the specified container of the instance.
+*   If you specify this parameter, Cloud Assistant runs the command in the specified container of the instances.
 
 *   If this parameter is specified, the command can run only on Linux instances on which Cloud Assistant Agent 2.2.3.344 or later is installed.
 
@@ -13182,21 +13446,34 @@ Note:
 *   If this parameter is specified, the `Username` parameter that is specified in a request to call this operation and the `WorkingDir` parameter that is specified in a request to call the [CreateCommand](https://help.aliyun.com/document_detail/64844.html) operation do not take effect. You can run the command only in the default working directory of the container by using the default user of the container. For more information, see [Use Cloud Assistant to run commands in containers](https://help.aliyun.com/document_detail/456641.html).
 
 *   If this parameter is specified, only shell scripts can be run in Linux containers. You cannot add a command in the format similar to `#!/usr/bin/python` at the beginning of a script to specify a script interpreter. For more information, see [Use Cloud Assistant to run commands in containers](https://help.aliyun.com/document_detail/456641.html).', example='ad-helper'),
-  podName?: string(name='PodName', description='This parameter is required.', example='hello-podsdfsdfsdfsdf'),
+  podName?: string(name='PodName', description='The name of the pod.
+
+This parameter is required.', example='hello-podsdfsdfsdfsdf'),
 }
 
 model GetWebshellTokenResponseBody = {
-  code?: string(name='Code', example='200'),
+  code?: string(name='Code', description='The HTTP status code. Valid values:
+
+*   **2xx**: The request was successful.
+*   **3xx**: The request was redirected.
+*   **4xx**: The request failed.
+*   **5xx**: A server error occurred.', example='200'),
   data?: {
-    httpUrl?: string(name='HttpUrl', example='HttpUrl :  "https://saenext.console.aliyun.com/cn-shenzhen/app-list/app1/micro-app/shell/pod1?tokenId=xxx'),
-    token?: string(name='Token', example='zWWpvRj_5pzof4hfo7-hGynM8oGMmO_7'),
-    webSocketUrl?: string(name='WebSocketUrl', example='wss://sae-webshell.console.aliyun.com/websocket/eamWebshell?tokenId=xxx&region=cn-shenzhen'),
-  }(name='Data', description='Response'),
-  errorCode?: string(name='ErrorCode'),
-  message?: string(name='Message', example='success'),
-  requestId?: string(name='RequestId', example='91F93257-7A4A-4BD3-9A7E-2F6EAE6D****'),
-  success?: boolean(name='Success', example='true'),
-  traceId?: string(name='TraceId', example='0a98a02315955564772843261e****'),
+    httpUrl?: string(name='HttpUrl', description='Webshell page address', example='HttpUrl :  "https://saenext.console.aliyun.com/cn-shenzhen/app-list/app1/micro-app/shell/pod1?tokenId=xxx'),
+    token?: string(name='Token', description='The information about the token.', example='zWWpvRj_5pzof4hfo7-hGynM8oGMmO_7'),
+    webSocketUrl?: string(name='WebSocketUrl', description='The WebSocket address.', example='wss://sae-webshell.console.aliyun.com/websocket/eamWebshell?tokenId=xxx&region=cn-shenzhen'),
+  }(name='Data', description='The returned result.'),
+  errorCode?: string(name='ErrorCode', description='The error code returned if the call failed. Value values:
+
+*   If the request was successful, **ErrorCode** is not returned.
+*   If the request failed, the **ErrorCode** parameter is returned. For more information, see **Error codes** section in this topic.', example='400'),
+  message?: string(name='Message', description='The returned message. Value description:
+
+*   If the request was successful, a success message is returned.
+*   An error code is returned if the request failed.', example='success'),
+  requestId?: string(name='RequestId', description='Request ID.', example='91F93257-7A4A-4BD3-9A7E-2F6EAE6D****'),
+  success?: boolean(name='Success', description='Indicates whether the request was successful.', example='true'),
+  traceId?: string(name='TraceId', description='The ID of the trace.', example='0a98a02315955564772843261e****'),
 }
 
 model GetWebshellTokenResponse = {
@@ -18254,17 +18531,35 @@ async function updateAppSecurityGroup(request: UpdateAppSecurityGroupRequest): U
 }
 
 model UpdateApplicationDescriptionRequest {
-  appDescription?: string(name='AppDescription', description='This parameter is required.', example='newdesc'),
-  appId?: string(name='AppId', description='This parameter is required.', example='7171a6ca-d1cd-4928-8642-7d5cfe69****'),
+  appDescription?: string(name='AppDescription', description='The new description of the application. The description can be up to 1,024 characters in length.
+
+This parameter is required.', example='newdesc'),
+  appId?: string(name='AppId', description='The ID of the application that you want to update.
+
+This parameter is required.', example='7171a6ca-d1cd-4928-8642-7d5cfe69****'),
 }
 
 model UpdateApplicationDescriptionResponseBody = {
-  code?: string(name='Code', example='200'),
-  errorCode?: string(name='ErrorCode'),
-  message?: string(name='Message', example='success'),
-  requestId?: string(name='RequestId', example='01CF26C7-00A3-4AA6-BA76-7E95F2A3***'),
-  success?: boolean(name='Success', example='true'),
-  traceId?: string(name='TraceId', example='ac1a0b2215622246421415014e****'),
+  code?: string(name='Code', description='The HTTP status code or the error code. Valid values:
+
+*   **2xx**: The request was successful.
+*   **3xx**: The request was redirected.
+*   **4xx**: The request failed.
+*   **5xx**: A server error occurred.', example='200'),
+  errorCode?: string(name='ErrorCode', description='The error code returned if the call failed. Value values:
+
+*   If the request was successful, **ErrorCode** is not returned.
+*   If the request failed, **ErrorCode** is returned. For more information, see **Error codes** in this topic.', example='400'),
+  message?: string(name='Message', description='The message returned. The following limits are imposed on the ID:
+
+*   If the request was successful, **success** is returned.
+*   An error code is returned when a request failed.', example='success'),
+  requestId?: string(name='RequestId', description='Request ID.', example='01CF26C7-00A3-4AA6-BA76-7E95F2A3***'),
+  success?: boolean(name='Success', description='Indicates whether the application was deployed. Valid values:
+
+*   **true**: The application was deployed.
+*   **false**: The application failed to be deployed.', example='true'),
+  traceId?: string(name='TraceId', description='The ID of the trace. The ID is used to query the details of a request.', example='ac1a0b2215622246421415014e****'),
 }
 
 model UpdateApplicationDescriptionResponse = {
@@ -18876,17 +19171,17 @@ async function updateGreyTagRoute(request: UpdateGreyTagRouteRequest): UpdateGre
 }
 
 model UpdateIngressRequest {
-  certId?: string(name='CertId', description='The ID of the certificate that is associated with the Classic Load Balancer (**CLB**) instance.
+  certId?: string(name='CertId', description='The ID of the **CLB** certificate. Valid values:
 
-*   If you set **LoadBalanceType** to **clb**, you can use CertId to configure a certificate for the HTTPS listener.
+*   If the **LoadBalanceType** is **clb**, use this field to configure the HTTPS listener certificate.
 
-For more information about how to manage the SSL certificate IDs that are used by CLB instances, see [Overview](https://help.aliyun.com/document_detail/90792.html).', example='188077086902****_176993d****_181437****_108724****'),
-  certIds?: string(name='CertIds', description='The IDs of the certificates that are associated with the Application Load Balancer (**ALB**) instance.
+For more information about how to use SSL certificate IDs for CLB, see [Manage certificates (CLB)](https://help.aliyun.com/document_detail/90792.html).', example='188077086902****_176993d****_181437****_108724****'),
+  certIds?: string(name='CertIds', description='The ID of the multi-certificate **ALB**. Valid values:
 
-*   If you set **LoadBalanceType** to **alb**, you can use CertIds to configure multiple certificates for the HTTPS listener. Separate multiple certificate IDs with commas (,).
-*   The ID of the SSL certificate that is used by an ALB instance can be obtained from Certificate Management Service. For example, if you specify `756***-cn-hangzhou`, `756***` is the certificate ID that is obtained from the service page, and `-cn-hangzhou` is the fixed suffix. For more information, see [Manage certificates](https://help.aliyun.com/document_detail/209076.html).', example='87***35-cn-hangzhou,812***3-cn-hangzhou'),
+*   If the **LoadBalanceType** is **alb**, use this field to configure multiple certificates for HTTPS listeners. Separate multiple certificate IDs with commas (,).
+*   The ID of the SSL certificate used by ALB must be obtained from the digital certificate product. For example, in the configuration `756***-cn-hangzhou`, the `756***` is the certificate ID obtained from the product page, and the `-cn-hangzhou` is a fixed suffix. For more information, see [Manage certificates](https://help.aliyun.com/document_detail/209076.html).', example='87***35-cn-hangzhou,812***3-cn-hangzhou'),
   corsConfig?: string(name='CorsConfig'),
-  defaultRule?: string(name='DefaultRule', description='The default forwarding rule. You can specify a port and an application in the default forwarding rule to forward traffic based on the IP address. The following list describes the involved parameters:
+  defaultRule?: string(name='DefaultRule', description='The default forwarding rule. Forwards traffic to a specified application through a specified port based on the IP address. The following table describes the parameters.
 
 *   **appId**: the ID of the application.
 *   **containerPort**: the container port of the application.
@@ -18905,24 +19200,24 @@ For more information about how to manage the SSL certificate IDs that are used b
   ingressId?: long(name='IngressId', description='The ID of the routing rule.
 
 This parameter is required.', example='87'),
-  listenerPort?: string(name='ListenerPort', description='The port specified for the Server Load Balancer (SLB) listener. You must specify a vacant port.', example='443'),
+  listenerPort?: string(name='ListenerPort', description='The SLB listening port. This port cannot be occupied.', example='443'),
   listenerProtocol?: string(name='ListenerProtocol', description='The protocol that is used to forward requests. Valid values:
 
-*   **HTTP**: HTTP is suitable for applications that need to identify the transmitted data.
+*   **HTTP**: HTTP is suitable for applications that need to identify transmitted data.
 *   **HTTPS**: HTTPS is suitable for applications that require encrypted data transmission.', example='HTTP'),
-  loadBalanceType?: string(name='LoadBalanceType', description='This parameter is discontinued.', example='clb'),
+  loadBalanceType?: string(name='LoadBalanceType', description='The parameter is deprecated and cannot be updated.', example='clb'),
   requestTimeout?: int32(name='RequestTimeout', description='The request timed out. Unit: seconds.', example='60'),
-  rules?: string(name='Rules', description='The forwarding rules. You can specify a port and an application in a forwarding rule to forward traffic based on the specified domain name and request path. The following list describes the involved parameters:
+  rules?: string(name='Rules', description='The forwarding rule. Forwards traffic to a specified application through a specified port based on the domain name and request path. The following table describes the parameters.
 
 *   **appId**: the ID of the application.
-*   **containerPort**: the container port of the application.
+*   **containerPort**: The port of the application instance.
 *   **domain**: the domain name.
 *   **path**: the request path.', example='[{"appId":"395b60e4-0550-458d-9c54-a265d036****","containerPort":8080,"domain":"www.sae.site","path":"/path1"},{"appId":"666403ce-d25b-47cf-87fe-497565d2****","containerPort":8080,"domain":"sae.site","path":"/path2"}]'),
   securityPolicyId?: string(name='SecurityPolicyId', description='The ID of a security policy.', example='tls_cipher_policy_1_2_strict_with_1_3'),
 }
 
 model UpdateIngressResponseBody = {
-  code?: string(name='Code', description='The HTTP status code. Valid values:
+  code?: string(name='Code', description='The HTTP status code or the error code. Valid values:
 
 *   **2xx**: The request was successful.
 *   **3xx**: The request was redirected.
@@ -18930,21 +19225,21 @@ model UpdateIngressResponseBody = {
 *   **5xx**: A server error occurred.', example='200'),
   data?: {
     ingressId?: long(name='IngressId', description='The ID of the routing rule.', example='87'),
-  }(name='Data', description='The returned result.'),
-  errorCode?: string(name='ErrorCode', description='The error code.
+  }(name='Data', description='Responses.'),
+  errorCode?: string(name='ErrorCode', description='The status code. Value values:
 
 *   If the request was successful, **ErrorCode** is not returned.
 *   If the request failed, **ErrorCode** is returned. For more information, see the **Error codes** section of this topic.'),
-  message?: string(name='Message', description='The returned information.
+  message?: string(name='Message', description='Additional information. Valid values:
 
-*   If the request was successful, **success** is returned.
-*   If the request failed, an error code is returned.', example='success'),
-  requestId?: string(name='RequestId', description='The request ID.', example='91F93257-7A4A-4BD3-9A7E-2F6EAE6D****'),
-  success?: boolean(name='Success', description='Indicates whether the configurations of the routing rule were updated. Valid values:
+*   The error message returned because the request is normal and **success** is returned.
+*   If the request is abnormal, the specific exception error code is returned.', example='success'),
+  requestId?: string(name='RequestId', description='The ID of the request.', example='91F93257-7A4A-4BD3-9A7E-2F6EAE6D****'),
+  success?: boolean(name='Success', description='Whether the configuration of the Ingress instance is updated. Valid values:
 
-*   **true**
-*   **false**', example='true'),
-  traceId?: string(name='TraceId', description='The trace ID.', example='0a98a02315955564772843261e****'),
+*   **true**: The update was successful.
+*   **false**: Update failed.', example='true'),
+  traceId?: string(name='TraceId', description='The ID of the trace.', example='0a98a02315955564772843261e****'),
 }
 
 model UpdateIngressResponse = {
@@ -20154,19 +20449,38 @@ async function updateWebCustomDomain(DomainName: string, request: UpdateWebCusto
 }
 
 model UpgradeApplicationApmServiceRequest {
-  appId?: string(name='AppId', description='This parameter is required.', example='017f39b8-dfa4-4e16-a84b-1dcee4b1****'),
+  appId?: string(name='AppId', description='The application ID.
+
+This parameter is required.', example='017f39b8-dfa4-4e16-a84b-1dcee4b1****'),
 }
 
 model UpgradeApplicationApmServiceResponseBody = {
-  code?: string(name='Code', example='200'),
+  code?: string(name='Code', description='The HTTP status code or the error code. Valid values:
+
+*   **2xx**: The request was successful.
+*   **3xx**: The request was redirected.
+*   **4xx**: The request failed.
+*   **5xx**: A server error occurred.', example='200'),
   data?: {
-    status?: boolean(name='Status', example='true'),
-  }(name='Data'),
-  errorCode?: string(name='ErrorCode', example='success'),
-  message?: string(name='Message', example='success'),
-  requestId?: string(name='RequestId', example='91F93257-7A4A-4BD3-9A7E-2F6EAE6D****'),
-  success?: boolean(name='Success'),
-  traceId?: string(name='TraceId', example='0a98a02315955564772843261e****'),
+    status?: boolean(name='Status', description='Indicates whether ARMS advanced monitoring is enabled. Valid values:
+
+*   **true**
+*   **false**', example='true'),
+  }(name='Data', description='The returned result.'),
+  errorCode?: string(name='ErrorCode', description='The status code. Value values:
+
+*   If the request was successful, **ErrorCode** is not returned.
+*   If the request failed, **ErrorCode** is returned. For more information, see **Error codes** in this topic.', example='success'),
+  message?: string(name='Message', description='The message returned. The following limits are imposed on the ID:
+
+*   If the request was successful, **success** is returned.
+*   An error code is returned when a request failed.', example='success'),
+  requestId?: string(name='RequestId', description='Request ID.', example='91F93257-7A4A-4BD3-9A7E-2F6EAE6D****'),
+  success?: boolean(name='Success', description='Indicates whether the request was successful. Valid values:
+
+*   **true**
+*   **false**'),
+  traceId?: string(name='TraceId', description='The ID of the trace. The ID is used to query the details of a request.', example='0a98a02315955564772843261e****'),
 }
 
 model UpgradeApplicationApmServiceResponse = {
@@ -20178,7 +20492,7 @@ model UpgradeApplicationApmServiceResponse = {
 /**
  * @summary Enables the advanced monitoring feature of Application Real-Time Monitoring Service (ARMS).
  *
- * @description You are charged when you use the ARMS advanced monitoring feature. Enable this feature based on your business requirements. For more information, see [Billing overview](https://icms.alibaba-inc.com/content/arms/arms?l=1\\&m=16992\\&n=3183148).
+ * @description You are charged when you use the ARMS advanced monitoring feature. Enable this feature based on your business requirements. For more information, see [Billing overview](https://www.alibabacloud.com/help/zh/arms/application-monitoring/product-overview/billing-overview-1).
  *
  * @param request UpgradeApplicationApmServiceRequest
  * @param headers map
@@ -20214,7 +20528,7 @@ async function upgradeApplicationApmServiceWithOptions(request: UpgradeApplicati
 /**
  * @summary Enables the advanced monitoring feature of Application Real-Time Monitoring Service (ARMS).
  *
- * @description You are charged when you use the ARMS advanced monitoring feature. Enable this feature based on your business requirements. For more information, see [Billing overview](https://icms.alibaba-inc.com/content/arms/arms?l=1\\&m=16992\\&n=3183148).
+ * @description You are charged when you use the ARMS advanced monitoring feature. Enable this feature based on your business requirements. For more information, see [Billing overview](https://www.alibabacloud.com/help/zh/arms/application-monitoring/product-overview/billing-overview-1).
  *
  * @param request UpgradeApplicationApmServiceRequest
  * @return UpgradeApplicationApmServiceResponse
