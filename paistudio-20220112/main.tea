@@ -169,6 +169,14 @@ model ChannelProperty {
   value?: string(name='Value', description='This parameter is required.', example='Framework'),
 }
 
+model ClusterSpec {
+  clusterType?: string(name='ClusterType'),
+  dataSources?: [
+    DataSource
+  ](name='DataSources'),
+  image?: string(name='Image'),
+}
+
 model ComponentSpec {
   codeDir?: Location(name='CodeDir'),
   command?: string(name='Command', description='This parameter is required.'),
@@ -195,6 +203,12 @@ model ConditionExpression {
   key?: string(name='Key', description='This parameter is required.', example='SupportedMachineTypes'),
   operator?: string(name='Operator', description='This parameter is required.', example='in'),
   values?: [ string ](name='Values', description='This parameter is required.'),
+}
+
+model DataSource {
+  dataSourceId?: string(name='DataSourceId'),
+  mountPath?: string(name='MountPath'),
+  uri?: string(name='Uri'),
 }
 
 model EniCacheConfig {
@@ -352,6 +366,8 @@ model Node {
   CPU?: string(name='CPU'),
   creatorId?: string(name='CreatorId'),
   descendantQuotaWorkloadNum?: long(name='DescendantQuotaWorkloadNum'),
+  diskCapacity?: long(name='DiskCapacity'),
+  diskPL?: string(name='DiskPL'),
   GPU?: string(name='GPU'),
   GPUMemory?: string(name='GPUMemory'),
   GPUType?: string(name='GPUType'),
@@ -445,6 +461,7 @@ model NodeSnapshot {
 model NodeSpec {
   bindingPolicy?: BindingPolicy(name='BindingPolicy'),
   count?: long(name='Count', example='10'),
+  hyperType?: string(name='HyperType'),
   type?: string(name='Type', example='ecs.g6.4xlarge'),
 }
 
@@ -543,6 +560,7 @@ model Quota {
   min?: ResourceSpec(name='Min'),
   parentQuotaId?: string(name='ParentQuotaId'),
   queueStrategy?: string(name='QueueStrategy'),
+  quotaCluster?: QuotaCluster(name='QuotaCluster'),
   quotaConfig?: QuotaConfig(name='QuotaConfig'),
   quotaDetails?: QuotaDetails(name='QuotaDetails'),
   quotaId?: string(name='QuotaId', example='quota12345'),
@@ -559,6 +577,16 @@ model Quota {
   workspaces?: [
     WorkspaceIdName
   ](name='Workspaces'),
+}
+
+model QuotaCluster {
+  clusterType?: string(name='ClusterType'),
+  dataSources?: [
+    DataSource
+  ](name='DataSources'),
+  endpoints?: map[string]string(name='Endpoints'),
+  image?: string(name='Image'),
+  status?: string(name='Status'),
 }
 
 model QuotaConfig {
@@ -1194,6 +1222,7 @@ async function createInstanceWebTerminal(TrainingJobId: string, InstanceId: stri
 
 model CreateQuotaRequest {
   allocateStrategy?: string(name='AllocateStrategy', example='ByNodeSpecs'),
+  clusterSpec?: ClusterSpec(name='ClusterSpec'),
   description?: string(name='Description', example='this is a test quota'),
   labels?: [
     Label
@@ -1231,6 +1260,9 @@ async function createQuotaWithOptions(request: CreateQuotaRequest, headers: map[
   var body : map[string]any = {};
   if (!Util.isUnset(request.allocateStrategy)) {
     body['AllocateStrategy'] = request.allocateStrategy;
+  }
+  if (!Util.isUnset(request.clusterSpec)) {
+    body['ClusterSpec'] = request.clusterSpec;
   }
   if (!Util.isUnset(request.description)) {
     body['Description'] = request.description;
@@ -2251,6 +2283,7 @@ model GetQuotaResponseBody = {
   min?: ResourceSpec(name='Min'),
   parentQuotaId?: string(name='ParentQuotaId', example='quota1ci8g793pgm'),
   queueStrategy?: string(name='QueueStrategy', example='PaiStrategyIntelligent'),
+  quotaCluster?: QuotaCluster(name='QuotaCluster'),
   quotaConfig?: QuotaConfig(name='QuotaConfig'),
   quotaDetails?: QuotaDetails(name='QuotaDetails'),
   quotaId?: string(name='QuotaId', description='Quota Id', example='quotajradxh43rgb'),
@@ -3381,6 +3414,7 @@ model ListNodesRequest {
   resourceGroupIds?: string(name='ResourceGroupIds', example='rg69rj0leslwdnbe'),
   sortBy?: string(name='SortBy', example='GmtCreateTime'),
   verbose?: boolean(name='Verbose', example='false'),
+  workspaceId?: string(name='WorkspaceId'),
 }
 
 model ListNodesResponseBody = {
@@ -3476,6 +3510,9 @@ async function listNodesWithOptions(request: ListNodesRequest, headers: map[stri
   }
   if (!Util.isUnset(request.verbose)) {
     query['Verbose'] = request.verbose;
+  }
+  if (!Util.isUnset(request.workspaceId)) {
+    query['WorkspaceId'] = request.workspaceId;
   }
 
   var req = new OpenApi.OpenApiRequest{ 
@@ -3644,6 +3681,7 @@ async function listQuotaWorkloads(QuotaId: string, request: ListQuotaWorkloadsRe
 }
 
 model ListQuotasRequest {
+  clusterType?: string(name='ClusterType', example='RayCluster'),
   hasResource?: string(name='HasResource'),
   labels?: string(name='Labels', example='official=true,gpu=false'),
   layoutMode?: string(name='LayoutMode'),
@@ -3687,6 +3725,9 @@ model ListQuotasResponse = {
 async function listQuotasWithOptions(request: ListQuotasRequest, headers: map[string]string, runtime: Util.RuntimeOptions): ListQuotasResponse {
   Util.validateModel(request);
   var query : map[string]any = {};
+  if (!Util.isUnset(request.clusterType)) {
+    query['ClusterType'] = request.clusterType;
+  }
   if (!Util.isUnset(request.hasResource)) {
     query['HasResource'] = request.hasResource;
   }
