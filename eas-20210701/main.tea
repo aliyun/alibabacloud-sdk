@@ -73,6 +73,7 @@ model Group {
 
 model Instance {
   currentAmount?: float(name='CurrentAmount', example='0.444'),
+  detached?: boolean(name='Detached'),
   externalIP?: string(name='ExternalIP', example='192.168.1.100'),
   externalInstancePort?: int32(name='ExternalInstancePort', example='8080'),
   hostIP?: string(name='HostIP'),
@@ -82,6 +83,7 @@ model Instance {
   instancePort?: int32(name='InstancePort'),
   instanceType?: string(name='InstanceType', example='ecs.c7.large'),
   isLatest?: boolean(name='IsLatest'),
+  isReplica?: boolean(name='IsReplica'),
   isSpot?: boolean(name='IsSpot', example='false'),
   isolated?: boolean(name='Isolated', example='false'),
   lastState?: [  map[string]any ](name='LastState'),
@@ -89,6 +91,7 @@ model Instance {
   originalAmount?: float(name='OriginalAmount', example='2.2'),
   readyProcesses?: int32(name='ReadyProcesses'),
   reason?: string(name='Reason'),
+  replicaName?: string(name='ReplicaName'),
   resourceType?: string(name='ResourceType', example='PublicResource'),
   restartCount?: int32(name='RestartCount'),
   role?: string(name='Role', example='Standard'),
@@ -729,6 +732,76 @@ async function createBenchmarkTask(request: CreateBenchmarkTaskRequest): CreateB
   var runtime = new Util.RuntimeOptions{};
   var headers : map[string]string = {};
   return createBenchmarkTaskWithOptions(request, headers, runtime);
+}
+
+model CreateFaultInjectionRequest {
+  faultArgs?: any(name='FaultArgs', example='{
+  "FaultType": "DiskFillTask",
+  "FaultArgs": {
+    "FaultAction": "fill",
+    "Percent": 80
+  }
+}'),
+  faultType?: string(name='FaultType', example='CpuFullloadTask'),
+}
+
+model CreateFaultInjectionResponseBody = {
+  message?: string(name='Message', example='Addon prometheus_discovery is successfully reinstalled'),
+  requestId?: string(name='RequestId', description='Id of the request', example='40325405-579C-4D82***'),
+}
+
+model CreateFaultInjectionResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: CreateFaultInjectionResponseBody(name='body'),
+}
+
+/**
+ * @summary 创建故障注入任务
+ *
+ * @param request CreateFaultInjectionRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return CreateFaultInjectionResponse
+ */
+async function createFaultInjectionWithOptions(ClusterId: string, ServiceName: string, InstanceName: string, request: CreateFaultInjectionRequest, headers: map[string]string, runtime: Util.RuntimeOptions): CreateFaultInjectionResponse {
+  Util.validateModel(request);
+  var body : map[string]any = {};
+  if (!Util.isUnset(request.faultArgs)) {
+    body['FaultArgs'] = request.faultArgs;
+  }
+  if (!Util.isUnset(request.faultType)) {
+    body['FaultType'] = request.faultType;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApi.Params{
+    action = 'CreateFaultInjection',
+    version = '2021-07-01',
+    protocol = 'HTTPS',
+    pathname = `/api/v2/services/${OpenApiUtil.getEncodeParam(ClusterId)}/${OpenApiUtil.getEncodeParam(ServiceName)}/instances/${OpenApiUtil.getEncodeParam(InstanceName)}/faults`,
+    method = 'POST',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 创建故障注入任务
+ *
+ * @param request CreateFaultInjectionRequest
+ * @return CreateFaultInjectionResponse
+ */
+async function createFaultInjection(ClusterId: string, ServiceName: string, InstanceName: string, request: CreateFaultInjectionRequest): CreateFaultInjectionResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return createFaultInjectionWithOptions(ClusterId, ServiceName, InstanceName, request, headers, runtime);
 }
 
 model CreateGatewayRequest {
@@ -2043,6 +2116,53 @@ async function deleteBenchmarkTask(ClusterId: string, TaskName: string): DeleteB
   return deleteBenchmarkTaskWithOptions(ClusterId, TaskName, headers, runtime);
 }
 
+model DeleteFaultInjectionResponseBody = {
+  message?: string(name='Message', example='Successfully delete acl policy for gateway'),
+  requestId?: string(name='RequestId', description='Id of the request', example='40325405-579C-4D82****'),
+}
+
+model DeleteFaultInjectionResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: DeleteFaultInjectionResponseBody(name='body'),
+}
+
+/**
+ * @summary 删除故障注入任务
+ *
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return DeleteFaultInjectionResponse
+ */
+async function deleteFaultInjectionWithOptions(ClusterId: string, ServiceName: string, InstanceName: string, FaultType: string, headers: map[string]string, runtime: Util.RuntimeOptions): DeleteFaultInjectionResponse {
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+  };
+  var params = new OpenApi.Params{
+    action = 'DeleteFaultInjection',
+    version = '2021-07-01',
+    protocol = 'HTTPS',
+    pathname = `/api/v2/services/${OpenApiUtil.getEncodeParam(ClusterId)}/${OpenApiUtil.getEncodeParam(ServiceName)}/instances/${OpenApiUtil.getEncodeParam(InstanceName)}/faults/${OpenApiUtil.getEncodeParam(FaultType)}`,
+    method = 'DELETE',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 删除故障注入任务
+ *
+ * @return DeleteFaultInjectionResponse
+ */
+async function deleteFaultInjection(ClusterId: string, ServiceName: string, InstanceName: string, FaultType: string): DeleteFaultInjectionResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return deleteFaultInjectionWithOptions(ClusterId, ServiceName, InstanceName, FaultType, headers, runtime);
+}
+
 model DeleteGatewayResponseBody = {
   gatewayId?: string(name='GatewayId', description='The private gateway ID.', example='gw-1uhcqmsc7x22******'),
   message?: string(name='Message', description='The returned message.', example='Gateway is deleted.'),
@@ -2677,9 +2797,8 @@ async function deleteServiceCronScaler(ClusterId: string, ServiceName: string): 
 
 model DeleteServiceInstancesRequest {
   container?: string(name='Container', description='The name of the container whose process needs to be restarted. This parameter takes effect only if the SoftRestart parameter is set to true.', example='worker0'),
-  instanceList?: string(name='InstanceList', description='The instances that you want to restart. Separate multiple instance names with commas (,). For more information about how to query the instance name, see [ListServiceInstances](https://help.aliyun.com/document_detail/412108.html).
-
-This parameter is required.', example='foo-rdsbxxxx,foo-rdsaxxxx'),
+  instanceList?: string(name='InstanceList', description='The instances that you want to restart. Separate multiple instance names with commas (,). For more information about how to query the instance name, see [ListServiceInstances](https://help.aliyun.com/document_detail/412108.html).', example='foo-rdsbxxxx,foo-rdsaxxxx'),
+  isReplica?: boolean(name='IsReplica'),
   softRestart?: boolean(name='SoftRestart', description='Specifies whether to restart only the container process without recreating the instance. Default value: false. Valid values: true and false.', example='true'),
 }
 
@@ -2710,6 +2829,9 @@ async function deleteServiceInstancesWithOptions(ClusterId: string, ServiceName:
   }
   if (!Util.isUnset(request.instanceList)) {
     query['InstanceList'] = request.instanceList;
+  }
+  if (!Util.isUnset(request.isReplica)) {
+    query['IsReplica'] = request.isReplica;
   }
   if (!Util.isUnset(request.softRestart)) {
     query['SoftRestart'] = request.softRestart;
@@ -6188,6 +6310,70 @@ async function listServiceContainers(ClusterId: string, ServiceName: string, Ins
   return listServiceContainersWithOptions(ClusterId, ServiceName, InstanceName, headers, runtime);
 }
 
+model ListServiceInstanceFaultInjectionInfoResponseBody = {
+  faultInfoList?: [ 
+    {
+      faultArgs?: any(name='FaultArgs', example='{
+  "FaultType": "DiskBurnTask",
+  "FaultArgs": {
+    "FaultAction": "burn",
+    "Read": true,
+    "Write": true,
+    "Size": 100
+  }
+}'),
+      faultStatus?: {
+        faultStatus?: string(name='FaultStatus', example='FaultInjectedSuccess'),
+        faultStatusMessage?: string(name='FaultStatusMessage', example='Network interface not found'),
+      }(name='FaultStatus'),
+      faultType?: string(name='FaultType', example='DiskFillTask'),
+    }
+  ](name='FaultInfoList'),
+  requestId?: string(name='RequestId', description='Id of the request', example='40325405-579C-4D82****'),
+}
+
+model ListServiceInstanceFaultInjectionInfoResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ListServiceInstanceFaultInjectionInfoResponseBody(name='body'),
+}
+
+/**
+ * @summary 获取故障注入信息
+ *
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return ListServiceInstanceFaultInjectionInfoResponse
+ */
+async function listServiceInstanceFaultInjectionInfoWithOptions(ClusterId: string, ServiceName: string, InstanceName: string, headers: map[string]string, runtime: Util.RuntimeOptions): ListServiceInstanceFaultInjectionInfoResponse {
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+  };
+  var params = new OpenApi.Params{
+    action = 'ListServiceInstanceFaultInjectionInfo',
+    version = '2021-07-01',
+    protocol = 'HTTPS',
+    pathname = `/api/v2/services/${OpenApiUtil.getEncodeParam(ClusterId)}/${OpenApiUtil.getEncodeParam(ServiceName)}/instances/${OpenApiUtil.getEncodeParam(InstanceName)}/faults`,
+    method = 'GET',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 获取故障注入信息
+ *
+ * @return ListServiceInstanceFaultInjectionInfoResponse
+ */
+async function listServiceInstanceFaultInjectionInfo(ClusterId: string, ServiceName: string, InstanceName: string): ListServiceInstanceFaultInjectionInfoResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return listServiceInstanceFaultInjectionInfoWithOptions(ClusterId, ServiceName, InstanceName, headers, runtime);
+}
+
 model ListServiceInstancesRequest {
   filter?: string(name='Filter', description='The keyword used to query instances. Instances can be queried based on instance name, instance IP address, IP address of the server where the instance resides, and instance type.', example='10.118.xx.xx'),
   hostIP?: string(name='HostIP', description='The IP address of the server where the instance resides.', example='10.224.xx.xx'),
@@ -6196,6 +6382,7 @@ model ListServiceInstancesRequest {
   instanceStatus?: string(name='InstanceStatus', description='The instance state.', example='Running'),
   instanceType?: string(name='InstanceType', description='The instance type.', example='ecs.c7.large'),
   isSpot?: boolean(name='IsSpot', description='Specifies whether the instance is a preemptible instance.', example='false'),
+  listReplica?: boolean(name='ListReplica'),
   memberType?: string(name='MemberType'),
   order?: string(name='Order', description='The sorting order.
 
@@ -6226,6 +6413,7 @@ Valid values:
     The instances are sorted in descending order.', example='desc'),
   pageNumber?: int32(name='PageNumber', description='The page number. Default value: 1.', example='1'),
   pageSize?: int32(name='PageSize', description='The number of entries per page. Default value: 100.', example='20'),
+  replicaName?: string(name='ReplicaName'),
   resourceType?: string(name='ResourceType', description='The type of the resource group to which the instance belongs.
 
 Valid values:
@@ -6367,6 +6555,9 @@ async function listServiceInstancesWithOptions(ClusterId: string, ServiceName: s
   if (!Util.isUnset(request.isSpot)) {
     query['IsSpot'] = request.isSpot;
   }
+  if (!Util.isUnset(request.listReplica)) {
+    query['ListReplica'] = request.listReplica;
+  }
   if (!Util.isUnset(request.memberType)) {
     query['MemberType'] = request.memberType;
   }
@@ -6378,6 +6569,9 @@ async function listServiceInstancesWithOptions(ClusterId: string, ServiceName: s
   }
   if (!Util.isUnset(request.pageSize)) {
     query['PageSize'] = request.pageSize;
+  }
+  if (!Util.isUnset(request.replicaName)) {
+    query['ReplicaName'] = request.replicaName;
   }
   if (!Util.isUnset(request.resourceType)) {
     query['ResourceType'] = request.resourceType;
@@ -8489,6 +8683,8 @@ async function updateServiceCronScaler(ClusterId: string, ServiceName: string, r
 }
 
 model UpdateServiceInstanceRequest {
+  isReplica?: boolean(name='IsReplica'),
+  detach?: boolean(name='Detach'),
   hibernate?: boolean(name='Hibernate'),
   isolate?: boolean(name='Isolate', description='Specifies whether to isolate the service instance. Valid values:
 
@@ -8517,7 +8713,15 @@ model UpdateServiceInstanceResponse = {
  */
 async function updateServiceInstanceWithOptions(ClusterId: string, ServiceName: string, InstanceName: string, request: UpdateServiceInstanceRequest, headers: map[string]string, runtime: Util.RuntimeOptions): UpdateServiceInstanceResponse {
   Util.validateModel(request);
+  var query : map[string]any = {};
+  if (!Util.isUnset(request.isReplica)) {
+    query['IsReplica'] = request.isReplica;
+  }
+
   var body : map[string]any = {};
+  if (!Util.isUnset(request.detach)) {
+    body['Detach'] = request.detach;
+  }
   if (!Util.isUnset(request.hibernate)) {
     body['Hibernate'] = request.hibernate;
   }
@@ -8527,6 +8731,7 @@ async function updateServiceInstanceWithOptions(ClusterId: string, ServiceName: 
 
   var req = new OpenApi.OpenApiRequest{ 
     headers = headers,
+    query = OpenApiUtil.query(query),
     body = OpenApiUtil.parseToMap(body),
   };
   var params = new OpenApi.Params{
