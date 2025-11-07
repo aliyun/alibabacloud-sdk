@@ -274,3 +274,91 @@ async function getToken(request: GetTokenRequest): GetTokenResponse {
   return getTokenWithOptions(request, headers, runtime);
 }
 
+model ModelTypeDetermineRequest {
+  history?: [ 
+    {
+      content?: string(name='content'),
+      role?: string(name='role'),
+    }
+  ](name='history'),
+  inputText?: string(name='inputText', description='This parameter is required.'),
+}
+
+model ModelTypeDetermineShrinkRequest {
+  historyShrink?: string(name='history'),
+  inputText?: string(name='inputText', description='This parameter is required.'),
+}
+
+model ModelTypeDetermineResponseBody = {
+  code?: string(name='code', example='success'),
+  data?: {
+    followUp?: boolean(name='followUp', example='false'),
+    rewriteText?: string(name='rewriteText'),
+    vl?: boolean(name='vl', example='true'),
+  }(name='data'),
+  httpStatusCode?: int32(name='httpStatusCode', example='200'),
+  message?: string(name='message', example='success'),
+  requestId?: string(name='requestId', description='Id of the request', example='7B0FC4BC-9E4B-5AD7-9D35-6559BDC0788E'),
+  success?: string(name='success', example='True'),
+}
+
+model ModelTypeDetermineResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ModelTypeDetermineResponseBody(name='body'),
+}
+
+/**
+ * @summary 模型类型识别
+ *
+ * @param tmpReq ModelTypeDetermineRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return ModelTypeDetermineResponse
+ */
+@context("modelTypeDetermineWithContext")
+async function modelTypeDetermineWithOptions(tmpReq: ModelTypeDetermineRequest, headers: map[string]string, runtime: $RuntimeOptions): ModelTypeDetermineResponse {
+  tmpReq.validate();
+  var request = new ModelTypeDetermineShrinkRequest{};
+  OpenApiUtil.convert(tmpReq, request);
+  if (!$isNull(tmpReq.history)) {
+    request.historyShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.history, 'history', 'json');
+  }
+  var body : map[string]any = {};
+  if (!$isNull(request.historyShrink)) {
+    body['history'] = request.historyShrink;
+  }
+  if (!$isNull(request.inputText)) {
+    body['inputText'] = request.inputText;
+  }
+
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    headers = headers,
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'ModelTypeDetermine',
+    version = '2024-08-16',
+    protocol = 'HTTPS',
+    pathname = `/open/api/v1/model/type/determine`,
+    method = 'POST',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 模型类型识别
+ *
+ * @param request ModelTypeDetermineRequest
+ * @return ModelTypeDetermineResponse
+ */
+async function modelTypeDetermine(request: ModelTypeDetermineRequest): ModelTypeDetermineResponse {
+  var runtime = new $RuntimeOptions{};
+  var headers : map[string]string = {};
+  return modelTypeDetermineWithOptions(request, headers, runtime);
+}
+
