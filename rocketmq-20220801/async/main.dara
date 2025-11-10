@@ -158,7 +158,9 @@ Valid values:
 
 This parameter is required.', example='Concurrently', position='Body'),
   maxReceiveTps?: long(name='maxReceiveTps', description='The maximum number of messages that can be processed by consumers per second.', example='300', position='Body'),
+  messageModel?: string(name='messageModel', example='CLUSTERING', position='Body'),
   remark?: string(name='remark', description='The description of the consumer group.', example='This is the remark for test.', position='Body'),
+  topicName?: string(name='topicName', example='test1', position='Body'),
 }
 
 model CreateConsumerGroupResponseBody = {
@@ -643,6 +645,7 @@ Value specifications are as follows:
 For reserved character restrictions, please refer to [Parameter Restrictions](https://help.aliyun.com/document_detail/440347.html).
 
 This parameter is required.', example='topic_test', position='Path'),
+  liteTopicExpiration?: long(name='liteTopicExpiration', example='20', position='Body'),
   maxSendTps?: long(name='maxSendTps', description='The maximum TPS for message sending.', example='1500', position='Body'),
   messageType: string(name='messageType', description='The type of messages in the topic that you want to create.
 
@@ -1112,6 +1115,45 @@ async function finishMigrationStage(request: FinishMigrationStageRequest): Finis
   return @handler.do('RESTFUL', 'FinishMigrationStage', 'POST', '/migrations/{migrationId}/stages/{stageType}/finish', 'json', false, 'json', request);
 }
 
+model GetConsumeTimespanRequest {
+  instanceId: string(name='instanceId', description='This parameter is required.', example='rmq-cn-7e22ody****', position='Path'),
+  consumerGroupId: string(name='consumerGroupId', description='This parameter is required.', example='CID-TEST', position='Path'),
+  topicName: string(name='topicName', description='This parameter is required.', example='topicxxx', position='Path'),
+}
+
+model GetConsumeTimespanResponseBody = {
+  code?: string(name='code', example='MissingInstanceId'),
+  data?: {
+    consumeTimestamp?: long(name='consumeTimestamp', example='1570761026400'),
+    consumerGroupId?: string(name='consumerGroupId', example='CID-TEST'),
+    instanceId?: string(name='instanceId', example='rmq-cn-7e22ody****'),
+    maxTimestamp?: long(name='maxTimestamp', example='1570761026833'),
+    minTimestamp?: long(name='minTimestamp', example='1570761026222'),
+    topicName?: string(name='topicName', example='topic_test'),
+  }(name='data'),
+  dynamicCode?: string(name='dynamicCode', example='xxx'),
+  dynamicMessage?: string(name='dynamicMessage', example='xxx'),
+  httpStatusCode?: int32(name='httpStatusCode', example='200'),
+  message?: string(name='message', example='Parameter instanceId is mandatory for this action .'),
+  requestId?: string(name='requestId', example='C115601B-8736-5BBF-AC99-7FEAE1245A80'),
+  success?: boolean(name='success', example='true'),
+}
+
+model GetConsumeTimespanResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: GetConsumeTimespanResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of GetConsumeTimespan  GetConsumeTimespanRequest
+  * @return GetConsumeTimespanResponse
+ */
+async function getConsumeTimespan(request: GetConsumeTimespanRequest): GetConsumeTimespanResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'GetConsumeTimespan', 'GET', '/instances/{instanceId}/consumerGroups/{consumerGroupId}/consumeTimespan/{topicName}', 'json', false, 'json', request);
+}
+
 model GetConsumerGroupRequest {
   instanceId: string(name='instanceId', description='The ID of the instance to which the consumer group belongs.
 
@@ -1149,6 +1191,7 @@ Valid values:
 *   Orderly: ordered delivery', example='Concurrently'),
     instanceId?: string(name='instanceId', description='The ID of the instance.', example='rmq-cn-7e22ody****'),
     maxReceiveTps?: long(name='maxReceiveTps', description='Maximum received message tps', example='1000'),
+    messageModel?: string(name='messageModel', example='LITE_SELECTIVE'),
     regionId?: string(name='regionId', description='The ID of the region in which the instance resides.', example='cn-hangzhou'),
     remark?: string(name='remark', description='The remarks on the consumer group.', example='This is the remark for test.'),
     status?: string(name='status', description='The status of the consumer group.
@@ -1157,6 +1200,7 @@ Valid values:
 
 *   RUNNING
 *   CREATING', example='RUNNING'),
+    topicName?: string(name='topicName', example='test1'),
     updateTime?: string(name='updateTime', description='The time when the consumer group was last updated.', example='2022-08-01 20:05:50'),
   }(name='data', description='The returned data.'),
   dynamicCode?: string(name='dynamicCode', description='The dynamic error code.', example='ConsumerGroupId'),
@@ -1190,6 +1234,7 @@ This parameter is required.', example='rmq-cn-2r42vrvde0j', position='Path'),
   consumerGroupId: string(name='consumerGroupId', description='The consumer Group ID.
 
 This parameter is required.', example='CID-TEST', position='Path'),
+  liteTopicName?: string(name='liteTopicName', example='abc', position='Query'),
   topicName?: string(name='topicName', description='The topic name.', example='normal-topic-1', position='Query'),
 }
 
@@ -1198,8 +1243,10 @@ model GetConsumerGroupLagResponseBody = {
   data?: {
     consumerGroupId?: string(name='consumerGroupId', description='Consumer Group ID', example='CID-TEST'),
     instanceId?: string(name='instanceId', description='Instance ID', example='rmq-cn-7e22ody****'),
+    liteTopicLagMap?: map[string]DataLiteTopicLagMapValue(name='liteTopicLagMap'),
     regionId?: string(name='regionId', description='Region ID', example='cn-hangzhou'),
     topicLagMap?: map[string]DataTopicLagMapValue(name='topicLagMap', description='Backlog for each topic'),
+    topicName?: string(name='topicName', example='test1'),
     totalLag?: {
       deliveryDuration?: long(name='deliveryDuration', description='Delivery delay time, in seconds', example='12'),
       inflightCount?: long(name='inflightCount', description='The number of messages being consumed.', example='1'),
@@ -1925,6 +1972,7 @@ model GetMessageDetailResponseBody = {
     bornHost?: string(name='bornHost', description='The client on which the message was produced.', example='xxx.xx.xxx.xx'),
     bornTime?: string(name='bornTime', description='The time when the message was generated.', example='2023-03-22 12:17:08'),
     instanceId?: string(name='instanceId', description='The instance ID.', example='rmq-cn-7e22ody****'),
+    liteTopicName?: string(name='liteTopicName', example='abc'),
     messageGroup?: string(name='messageGroup', description='The sharding key. This parameter is returned only for ordered messages.', example='xx'),
     messageId?: string(name='messageId', description='The message ID.', example='01BE87E485F0C7808C04543CAF00000001'),
     messageKeys?: [ string ](name='messageKeys', description='The message keys.'),
@@ -1974,6 +2022,7 @@ model GetTopicResponseBody = {
   data?: {
     createTime?: string(name='createTime', description='Creation time of the topic.', example='2022-08-01 20:05:50'),
     instanceId?: string(name='instanceId', description='The ID of the instance to which the topic belongs.', example='rmq-cn-7e22ody****'),
+    liteTopicExpiration?: long(name='liteTopicExpiration', example='20'),
     maxSendTps?: long(name='maxSendTps', description='The maximum TPS for message sending.', example='1000'),
     messageType?: string(name='messageType', description='The type of messages in the topic.
 
@@ -2087,6 +2136,7 @@ model GetTraceResponseBody = {
       bornHost?: string(name='bornHost', description='Message born host.', example='x.x.x.x'),
       bornTime?: string(name='bornTime', description='Message born time.', example='2023-03-22 12:17:08'),
       instanceId?: string(name='instanceId', description='The instance ID.', example='rmq-cn-u0t2ygjq505'),
+      liteTopicName?: string(name='liteTopicName', example='abc'),
       messageGroup?: string(name='messageGroup', description='Message grpup.', example='xx'),
       messageId?: string(name='messageId', description='The message ID.', example='0A79275A00207A4F0F2916C92F9A0B94'),
       messageKeys?: [ string ](name='messageKeys', description='Message keys.'),
@@ -2185,6 +2235,8 @@ This parameter is required.', example='rmq-cn-uax32mf9h1f', position='Path'),
   consumerGroupId: string(name='consumerGroupId', description='The consumer group ID.
 
 This parameter is required.', example='GID_TEST_STOCK_OPEND_GW', position='Path'),
+  liteTopicName?: string(name='liteTopicName', example='abc', position='Query'),
+  topicName?: string(name='topicName', example='test1', position='Query'),
 }
 
 model ListConsumerConnectionsResponseBody = {
@@ -2310,9 +2362,11 @@ model ListConsumerGroupsResponseBody = {
         createTime?: string(name='createTime', description='Creation time of the consumer group.', example='2022-08-01 20:05:50'),
         instanceId?: string(name='instanceId', description='Instance ID.', example='rmq-cn-7e22ody****'),
         maxReceiveTps?: long(name='maxReceiveTps', description='The maximum TPS for message sending.', example='1000'),
+        messageModel?: string(name='messageModel', example='LITE_SELECTIVE'),
         regionId?: string(name='regionId', description='The region ID to which the instance belongs.', example='cn-hangzhou'),
         remark?: string(name='remark', description='Remark information of the consumer group.', example='This is the remark for test.'),
         status?: string(name='status', description='Status of the consumer group.', example='RUNNING'),
+        topicName?: string(name='topicName', example='test1'),
         updateTime?: string(name='updateTime', description='Last update time of the consumer group.', example='2022-08-01 20:05:50'),
       }
     ](name='list', description='The consumer groups.'),
@@ -2873,6 +2927,7 @@ This parameter is required.', example='rmq-cn-zvp2vtypu05', position='Path'),
 
 This parameter is required.', example='test_delay_queue', position='Path'),
   endTime?: string(name='endTime', description='The end of the time range to query.', example='2024-09-09 09:00:00', position='Query'),
+  liteTopicName?: string(name='liteTopicName', example='abc', position='Query'),
   messageId?: string(name='messageId', description='Message Id.', example='7F00000100207A4F0F294A938F7807AE', position='Query'),
   messageKey?: string(name='messageKey', description='Message key.', example='XSCBillResult', position='Query'),
   pageNumber?: int32(name='pageNumber', description='The page number. Pages start from page 1.', example='1', minimum=1, maximum=100000000, position='Query'),
@@ -2893,6 +2948,7 @@ model ListMessagesResponseBody = {
         bornHost?: string(name='bornHost', description='The client on which messages are produced.', example='xx.xx.xx.xx'),
         bornTime?: string(name='bornTime', description='Message born time.', example='2023-03-22 12:17:08'),
         instanceId?: string(name='instanceId', description='The instance ID.', example='rmq-cn-7e22ody****'),
+        liteTopicName?: string(name='liteTopicName', example='abc'),
         messageGroup?: string(name='messageGroup', description='The message group. This parameter is returned only for ordered messages.', example='xx'),
         messageId?: string(name='messageId', description='Message Id.', example='7F000001000114B4340C5ABF94500079'),
         messageKeys?: [ string ](name='messageKeys', description='Message keys.'),
@@ -3039,6 +3095,68 @@ model ListMigrationOperationsResponse = {
 async function listMigrationOperations(request: ListMigrationOperationsRequest): ListMigrationOperationsResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RESTFUL', 'ListMigrationOperations', 'GET', '/migrations/{migrationId}/stages/{stageType}/operations', 'json', false, 'json', request);
+}
+
+model ListMigrationsRequest {
+  filter?: string(name='filter', example='xx', position='Query'),
+  migrationType: string(name='migrationType', description='This parameter is required.', example='RESOURCE_IMPORT', position='Query'),
+  pageNumber: int32(name='pageNumber', description='This parameter is required.', example='1', minimum=1, maximum=100000000, position='Query'),
+  pageSize: int32(name='pageSize', description='This parameter is required.', example='10', minimum=10, maximum=10000, position='Query'),
+  resourceGroupId?: string(name='resourceGroupId', position='Query'),
+}
+
+model ListMigrationsResponseBody = {
+  code?: string(name='code', example='MissingInstanceId'),
+  data?: {
+    list?: [ 
+      {
+        createTime?: string(name='createTime', example='2022-08-01 00:00:00'),
+        currentStage?: {
+          stageData?: any(name='stageData', example='[]'),
+          stageStatus?: string(name='stageStatus', example='DOING'),
+          stageType?: string(name='stageType', example='MIGRATE_METADATA'),
+        }(name='currentStage'),
+        migrationId?: long(name='migrationId', example='21'),
+        migrationName?: string(name='migrationName', example='xxx'),
+        migrationSource?: {
+          sourceData?: any(name='sourceData', example='[]'),
+          sourceType?: string(name='sourceType', example='EXTERNAL_INSTANCE'),
+        }(name='migrationSource'),
+        migrationStatus?: string(name='migrationStatus', example='MIGRATING'),
+        migrationTarget?: {
+          targetData?: any(name='targetData', example='[]'),
+          targetType?: string(name='targetType', example='INTERNAL_INSTANCE'),
+        }(name='migrationTarget'),
+        migrationType?: string(name='migrationType', example='INSTANCE_MIGRATION'),
+        updateTime?: string(name='updateTime', example='2022-08-01 20:05:50'),
+        userId?: string(name='userId', example='111'),
+      }
+    ](name='list'),
+    pageNumber?: long(name='pageNumber', example='1'),
+    pageSize?: long(name='pageSize', example='3'),
+    totalCount?: long(name='totalCount', example='1'),
+  }(name='data'),
+  dynamicCode?: string(name='dynamicCode', example='InstanceId'),
+  dynamicMessage?: string(name='dynamicMessage', example='instanceId'),
+  httpStatusCode?: int32(name='httpStatusCode', example='200'),
+  message?: string(name='message', example='The instance cannot be found.'),
+  requestId?: string(name='requestId', example='E5897B2E-C3AC-56DC-A482-F0E9E53F48D5'),
+  success?: boolean(name='success', example='true'),
+}
+
+model ListMigrationsResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ListMigrationsResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of ListMigrations  ListMigrationsRequest
+  * @return ListMigrationsResponse
+ */
+async function listMigrations(request: ListMigrationsRequest): ListMigrationsResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'ListMigrations', 'GET', '/migrations', 'json', false, 'json', request);
 }
 
 model ListRegionsRequest {
@@ -3204,6 +3322,7 @@ model ListTopicsResponseBody = {
       {
         createTime?: string(name='createTime', description='Creation time.', example='2022-08-01 20:05:50'),
         instanceId?: string(name='instanceId', description='Instance ID.', example='rmq-cn-7e22ody****'),
+        liteTopicExpiration?: long(name='liteTopicExpiration', example='20'),
         maxSendTps?: long(name='maxSendTps', description='The maximum TPS for message sending.', example='1000'),
         messageType?: string(name='messageType', description='The type of messages in the topic.
 
@@ -3262,6 +3381,7 @@ This parameter is required.', example='topic_hpms_product_price_change', positio
   endTime: string(name='endTime', description='The end of the time range to query.
 
 This parameter is required.', example='2023-05-19 10:10:09', position='Query'),
+  liteTopicName?: string(name='liteTopicName', example='abc', position='Query'),
   messageId?: string(name='messageId', description='The message ID.
 
 This parameter is required if you set queryType to MESSAGE_ID.', example='0100163E0EC1F1965C04C7906700000000', position='Query'),
@@ -3957,6 +4077,7 @@ This parameter is required.', example='rmq-cn-7e22ody****', position='Path'),
   topicName: string(name='topicName', description='The name of the topic to be updated.
 
 This parameter is required.', example='topic_test', position='Path'),
+  liteTopicExpiration?: long(name='liteTopicExpiration', example='20', position='Body'),
   maxSendTps?: long(name='maxSendTps', description='Maximum send message tps', example='500', position='Body'),
   remark?: string(name='remark', description='Updated remarks for the topic.', example='This is the remark for test.', position='Body'),
 }
@@ -4038,6 +4159,7 @@ This parameter is required.', example='rmq-cn-wwo32kqfm10', position='Path'),
   topicName: string(name='topicName', description='The topic name.
 
 This parameter is required.', example='card_status_topic', position='Path'),
+  liteTopicName?: string(name='liteTopicName', example='abc', position='Body'),
   message?: string(name='message', description='The message body.', example='successful', position='Body'),
   messageKey?: string(name='messageKey', description='The message key.', example='xx', position='Body'),
   messageTag?: string(name='messageTag', description='The message tag.', example='xx', position='Body'),
@@ -4067,6 +4189,11 @@ model VerifySendMessageResponse = {
 async function verifySendMessage(request: VerifySendMessageRequest): VerifySendMessageResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RESTFUL', 'VerifySendMessage', 'POST', '/instances/{instanceId}/topics/{topicName}/messages', 'json', false, 'json', request);
+}
+
+model DataLiteTopicLagMapValue = {
+  readyCount?: long(name='readyCount', example='300'),
+  deliveryDuration?: long(name='deliveryDuration', example='30'),
 }
 
 model DataTopicLagMapValue = {
