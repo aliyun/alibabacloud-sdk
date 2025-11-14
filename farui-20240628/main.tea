@@ -33,6 +33,7 @@ function getEndpoint(productId: string, regionId: string, endpointRule: string, 
 
 model CreateTextFileRequest {
   clientToken?: string(name='ClientToken', example='e9a93201-7e96-4dc1-9678-2832fc132d08'),
+  contractId?: string(name='ContractId'),
   createTime?: string(name='CreateTime', example='1714476549'),
   textFileName?: string(name='TextFileName'),
   textFileUrl?: string(name='TextFileUrl'),
@@ -40,6 +41,7 @@ model CreateTextFileRequest {
 
 model CreateTextFileAdvanceRequest {
   clientToken?: string(name='ClientToken', example='e9a93201-7e96-4dc1-9678-2832fc132d08'),
+  contractId?: string(name='ContractId'),
   createTime?: string(name='CreateTime', example='1714476549'),
   textFileName?: string(name='TextFileName'),
   textFileUrlObject?: readable(name='TextFileUrl'),
@@ -48,6 +50,7 @@ model CreateTextFileAdvanceRequest {
 model CreateTextFileResponseBody = {
   code?: string(name='Code', example='Request.Signature.Error'),
   data?: {
+    contractId?: string(name='ContractId'),
     textFileId?: string(name='TextFileId', example='36d6447d277c4a1c9fd0def1d16341f1'),
     textFileName?: string(name='TextFileName'),
     textFileUrl?: string(name='TextFileUrl'),
@@ -77,6 +80,9 @@ async function createTextFileWithOptions(WorkspaceId: string, request: CreateTex
   var body : map[string]any = {};
   if (!Util.isUnset(request.clientToken)) {
     body['ClientToken'] = request.clientToken;
+  }
+  if (!Util.isUnset(request.contractId)) {
+    body['ContractId'] = request.contractId;
   }
   if (!Util.isUnset(request.createTime)) {
     body['CreateTime'] = request.createTime;
@@ -196,7 +202,7 @@ async function createTextFileAdvance(WorkspaceId: string, request: CreateTextFil
       file = fileObj,
       success_action_status = '201',
     };
-    _postOSSObject(authResponseBody['Bucket'], ossHeader);
+    _postOSSObject(authResponseBody['Bucket'], ossHeader, runtime);
     createTextFileReq.textFileUrl = `http://${authResponseBody['Bucket']}.${authResponseBody['Endpoint']}/${authResponseBody['ObjectKey']}`;
   }
   var createTextFileResp = createTextFileWithOptions(WorkspaceId, createTextFileReq, headers, runtime);
@@ -259,6 +265,7 @@ model RunContractResultGenerationResponseBody = {
           riskBrief?: string(name='riskBrief'),
           riskClause?: string(name='riskClause'),
           riskExplain?: string(name='riskExplain'),
+          standardOriginalContent?: string(name='standardOriginalContent'),
         }
       ](name='subRisks'),
     }(name='result'),
@@ -906,7 +913,7 @@ async function runSearchLawQuery(workspaceId: string, request: RunSearchLawQuery
   return runSearchLawQueryWithOptions(workspaceId, request, headers, runtime);
 }
 
-api _postOSSObject(bucketName: string, data: object): object {
+api _postOSSObject(bucketName: string, data: object, runtime: Util.RuntimeOptions): object {
   var form = Util.assertAsMap(data);
   var boundary = FileForm.getBoundary();
   var host = Util.assertAsString(form.host);
@@ -940,4 +947,27 @@ api _postOSSObject(bucketName: string, data: object): object {
   return {
     ...respMap,
   };
+} runtime {
+  timeouted = 'retry',
+  key = Util.defaultString(runtime.key, @key),
+  cert = Util.defaultString(runtime.cert, @cert),
+  ca = Util.defaultString(runtime.ca, @ca),
+  readTimeout = Util.defaultNumber(runtime.readTimeout, @readTimeout),
+  connectTimeout = Util.defaultNumber(runtime.connectTimeout, @connectTimeout),
+  httpProxy = Util.defaultString(runtime.httpProxy, @httpProxy),
+  httpsProxy = Util.defaultString(runtime.httpsProxy, @httpsProxy),
+  noProxy = Util.defaultString(runtime.noProxy, @noProxy),
+  socks5Proxy = Util.defaultString(runtime.socks5Proxy, @socks5Proxy),
+  socks5NetWork = Util.defaultString(runtime.socks5NetWork, @socks5NetWork),
+  maxIdleConns = Util.defaultNumber(runtime.maxIdleConns, @maxIdleConns),
+  retry = {
+    retryable = runtime.autoretry,
+    maxAttempts = Util.defaultNumber(runtime.maxAttempts, 3)
+  },
+  backoff = {
+    policy = Util.defaultString(runtime.backoffPolicy, 'no'),
+    period = Util.defaultNumber(runtime.backoffPeriod, 1)
+  },
+  ignoreSSL = OpenApi.defaultAny(runtime.ignoreSSL, false),
+  tlsMinVersion = @tlsMinVersion
 }

@@ -29,6 +29,7 @@ function getEndpoint(productId: string, regionId: string, endpointRule: string, 
 
 model CreateTextFileRequest {
   clientToken?: string(name='ClientToken', example='e9a93201-7e96-4dc1-9678-2832fc132d08'),
+  contractId?: string(name='ContractId'),
   createTime?: string(name='CreateTime', example='1714476549'),
   textFileName?: string(name='TextFileName'),
   textFileUrl?: string(name='TextFileUrl'),
@@ -36,6 +37,7 @@ model CreateTextFileRequest {
 
 model CreateTextFileAdvanceRequest {
   clientToken?: string(name='ClientToken', example='e9a93201-7e96-4dc1-9678-2832fc132d08'),
+  contractId?: string(name='ContractId'),
   createTime?: string(name='CreateTime', example='1714476549'),
   textFileName?: string(name='TextFileName'),
   textFileUrlObject?: readable(name='TextFileUrl'),
@@ -44,6 +46,7 @@ model CreateTextFileAdvanceRequest {
 model CreateTextFileResponseBody = {
   code?: string(name='Code', example='Request.Signature.Error'),
   data?: {
+    contractId?: string(name='ContractId'),
     textFileId?: string(name='TextFileId', example='36d6447d277c4a1c9fd0def1d16341f1'),
     textFileName?: string(name='TextFileName'),
     textFileUrl?: string(name='TextFileUrl'),
@@ -68,11 +71,15 @@ model CreateTextFileResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return CreateTextFileResponse
  */
+@context("createTextFileWithContext")
 async function createTextFileWithOptions(WorkspaceId: string, request: CreateTextFileRequest, headers: map[string]string, runtime: $RuntimeOptions): CreateTextFileResponse {
   request.validate();
   var body : map[string]any = {};
   if (!$isNull(request.clientToken)) {
     body['ClientToken'] = request.clientToken;
+  }
+  if (!$isNull(request.contractId)) {
+    body['ContractId'] = request.contractId;
   }
   if (!$isNull(request.createTime)) {
     body['CreateTime'] = request.createTime;
@@ -190,7 +197,7 @@ async function createTextFileAdvance(WorkspaceId: string, request: CreateTextFil
       file = fileObj,
       success_action_status = '201',
     };
-    _postOSSObject(authResponseBody['Bucket'], ossHeader);
+    _postOSSObject(authResponseBody['Bucket'], ossHeader, runtime);
     createTextFileReq.textFileUrl = `http://${authResponseBody['Bucket']}.${authResponseBody['Endpoint']}/${authResponseBody['ObjectKey']}`;
   }
   var createTextFileResp = createTextFileWithOptions(WorkspaceId, createTextFileReq, headers, runtime);
@@ -253,6 +260,7 @@ model RunContractResultGenerationResponseBody = {
           riskBrief?: string(name='riskBrief'),
           riskClause?: string(name='riskClause'),
           riskExplain?: string(name='riskExplain'),
+          standardOriginalContent?: string(name='standardOriginalContent'),
         }
       ](name='subRisks'),
     }(name='result'),
@@ -281,6 +289,64 @@ model RunContractResultGenerationResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return RunContractResultGenerationResponse
  */
+@sse(true)
+@context("runContractResultGenerationWithSSECtx")
+async function runContractResultGenerationWithSSE(workspaceId: string, tmpReq: RunContractResultGenerationRequest, headers: map[string]string, runtime: $RuntimeOptions): asyncIterator[RunContractResultGenerationResponse] {
+  tmpReq.validate();
+  var request = new RunContractResultGenerationShrinkRequest{};
+  OpenApiUtil.convert(tmpReq, request);
+  if (!$isNull(tmpReq.assistant)) {
+    request.assistantShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.assistant, 'assistant', 'json');
+  }
+  var body : map[string]any = {};
+  if (!$isNull(request.appId)) {
+    body['appId'] = request.appId;
+  }
+  if (!$isNull(request.assistantShrink)) {
+    body['assistant'] = request.assistantShrink;
+  }
+  if (!$isNull(request.stream)) {
+    body['stream'] = request.stream;
+  }
+
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    headers = headers,
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'RunContractResultGeneration',
+    version = '2024-06-28',
+    protocol = 'HTTPS',
+    pathname = `/${$URL.percentEncode(workspaceId)}/farui/contract/result/genarate`,
+    method = 'POST',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  var sseResp = callSSEApi(params, req, runtime);
+  for(var resp : sseResp) {
+    var data = $object($JSON.parseJSON(resp.event.data));
+    yield {
+      statusCode = resp.statusCode,
+      headers = resp.headers,
+      body = {
+        ...data,
+        RequestId = resp.event.id,
+        Message = resp.event.event,
+      },
+    };
+  }
+}
+/**
+ * @summary 生成合同审查结果
+ *
+ * @param tmpReq RunContractResultGenerationRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return RunContractResultGenerationResponse
+ */
+@context("runContractResultGenerationWithContext")
 async function runContractResultGenerationWithOptions(workspaceId: string, tmpReq: RunContractResultGenerationRequest, headers: map[string]string, runtime: $RuntimeOptions): RunContractResultGenerationResponse {
   tmpReq.validate();
   var request = new RunContractResultGenerationShrinkRequest{};
@@ -385,6 +451,64 @@ model RunContractRuleGenerationResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return RunContractRuleGenerationResponse
  */
+@sse(true)
+@context("runContractRuleGenerationWithSSECtx")
+async function runContractRuleGenerationWithSSE(workspaceId: string, tmpReq: RunContractRuleGenerationRequest, headers: map[string]string, runtime: $RuntimeOptions): asyncIterator[RunContractRuleGenerationResponse] {
+  tmpReq.validate();
+  var request = new RunContractRuleGenerationShrinkRequest{};
+  OpenApiUtil.convert(tmpReq, request);
+  if (!$isNull(tmpReq.assistant)) {
+    request.assistantShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.assistant, 'assistant', 'json');
+  }
+  var body : map[string]any = {};
+  if (!$isNull(request.appId)) {
+    body['appId'] = request.appId;
+  }
+  if (!$isNull(request.assistantShrink)) {
+    body['assistant'] = request.assistantShrink;
+  }
+  if (!$isNull(request.stream)) {
+    body['stream'] = request.stream;
+  }
+
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    headers = headers,
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'RunContractRuleGeneration',
+    version = '2024-06-28',
+    protocol = 'HTTPS',
+    pathname = `/${$URL.percentEncode(workspaceId)}/farui/contract/rule/genarate`,
+    method = 'POST',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  var sseResp = callSSEApi(params, req, runtime);
+  for(var resp : sseResp) {
+    var data = $object($JSON.parseJSON(resp.event.data));
+    yield {
+      statusCode = resp.statusCode,
+      headers = resp.headers,
+      body = {
+        ...data,
+        RequestId = resp.event.id,
+        Message = resp.event.event,
+      },
+    };
+  }
+}
+/**
+ * @summary 生成合同审查规则
+ *
+ * @param tmpReq RunContractRuleGenerationRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return RunContractRuleGenerationResponse
+ */
+@context("runContractRuleGenerationWithContext")
 async function runContractRuleGenerationWithOptions(workspaceId: string, tmpReq: RunContractRuleGenerationRequest, headers: map[string]string, runtime: $RuntimeOptions): RunContractRuleGenerationResponse {
   tmpReq.validate();
   var request = new RunContractRuleGenerationShrinkRequest{};
@@ -496,6 +620,76 @@ model RunLegalAdviceConsultationResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return RunLegalAdviceConsultationResponse
  */
+@sse(true)
+@context("runLegalAdviceConsultationWithSSECtx")
+async function runLegalAdviceConsultationWithSSE(workspaceId: string, tmpReq: RunLegalAdviceConsultationRequest, headers: map[string]string, runtime: $RuntimeOptions): asyncIterator[RunLegalAdviceConsultationResponse] {
+  tmpReq.validate();
+  var request = new RunLegalAdviceConsultationShrinkRequest{};
+  OpenApiUtil.convert(tmpReq, request);
+  if (!$isNull(tmpReq.assistant)) {
+    request.assistantShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.assistant, 'assistant', 'json');
+  }
+  if (!$isNull(tmpReq.extra)) {
+    request.extraShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.extra, 'extra', 'json');
+  }
+  if (!$isNull(tmpReq.thread)) {
+    request.threadShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.thread, 'thread', 'json');
+  }
+  var body : map[string]any = {};
+  if (!$isNull(request.appId)) {
+    body['appId'] = request.appId;
+  }
+  if (!$isNull(request.assistantShrink)) {
+    body['assistant'] = request.assistantShrink;
+  }
+  if (!$isNull(request.extraShrink)) {
+    body['extra'] = request.extraShrink;
+  }
+  if (!$isNull(request.stream)) {
+    body['stream'] = request.stream;
+  }
+  if (!$isNull(request.threadShrink)) {
+    body['thread'] = request.threadShrink;
+  }
+
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    headers = headers,
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'RunLegalAdviceConsultation',
+    version = '2024-06-28',
+    protocol = 'HTTPS',
+    pathname = `/${$URL.percentEncode(workspaceId)}/farui/legalAdvice/consult`,
+    method = 'POST',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  var sseResp = callSSEApi(params, req, runtime);
+  for(var resp : sseResp) {
+    var data = $object($JSON.parseJSON(resp.event.data));
+    yield {
+      statusCode = resp.statusCode,
+      headers = resp.headers,
+      body = {
+        ...data,
+        RequestId = resp.event.id,
+        Message = resp.event.event,
+      },
+    };
+  }
+}
+/**
+ * @summary 法律咨询
+ *
+ * @param tmpReq RunLegalAdviceConsultationRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return RunLegalAdviceConsultationResponse
+ */
+@context("runLegalAdviceConsultationWithContext")
 async function runLegalAdviceConsultationWithOptions(workspaceId: string, tmpReq: RunLegalAdviceConsultationRequest, headers: map[string]string, runtime: $RuntimeOptions): RunLegalAdviceConsultationResponse {
   tmpReq.validate();
   var request = new RunLegalAdviceConsultationShrinkRequest{};
@@ -673,6 +867,7 @@ model RunSearchCaseFullTextResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return RunSearchCaseFullTextResponse
  */
+@context("runSearchCaseFullTextWithContext")
 async function runSearchCaseFullTextWithOptions(workspaceId: string, tmpReq: RunSearchCaseFullTextRequest, headers: map[string]string, runtime: $RuntimeOptions): RunSearchCaseFullTextResponse {
   tmpReq.validate();
   var request = new RunSearchCaseFullTextShrinkRequest{};
@@ -834,6 +1029,7 @@ model RunSearchLawQueryResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return RunSearchLawQueryResponse
  */
+@context("runSearchLawQueryWithContext")
 async function runSearchLawQueryWithOptions(workspaceId: string, tmpReq: RunSearchLawQueryRequest, headers: map[string]string, runtime: $RuntimeOptions): RunSearchLawQueryResponse {
   tmpReq.validate();
   var request = new RunSearchLawQueryShrinkRequest{};
@@ -900,7 +1096,7 @@ async function runSearchLawQuery(workspaceId: string, request: RunSearchLawQuery
   return runSearchLawQueryWithOptions(workspaceId, request, headers, runtime);
 }
 
-api _postOSSObject(bucketName: string, form: object): object {
+api _postOSSObject(bucketName: string, form: object, runtime: $RuntimeOptions): object {
   var boundary = $Form.getBoundary();
   __request.protocol = 'HTTPS';
   __request.method = 'POST';
@@ -932,4 +1128,19 @@ api _postOSSObject(bucketName: string, form: object): object {
   return {
     ...respMap,
   };
+} runtime {
+  key = $string($default(runtime.key, @key)),
+  cert = $string($default(runtime.cert, @cert)),
+  ca = $string($default(runtime.ca, @ca)),
+  readTimeout = $number($default(runtime.readTimeout, @readTimeout)),
+  connectTimeout = $number($default(runtime.connectTimeout, @connectTimeout)),
+  httpProxy = $string($default(runtime.httpProxy, @httpProxy)),
+  httpsProxy = $string($default(runtime.httpsProxy, @httpsProxy)),
+  noProxy = $string($default(runtime.noProxy, @noProxy)),
+  socks5Proxy = $string($default(runtime.socks5Proxy, @socks5Proxy)),
+  socks5NetWork = $string($default(runtime.socks5NetWork, @socks5NetWork)),
+  maxIdleConns = $number($default(runtime.maxIdleConns, @maxIdleConns)),
+  retryOptions = @retryOptions,
+  ignoreSSL = $boolean($default(runtime.ignoreSSL, false)),
+  tlsMinVersion = @tlsMinVersion
 }
