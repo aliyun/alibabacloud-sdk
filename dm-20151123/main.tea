@@ -2452,11 +2452,11 @@ async function deleteTag(request: DeleteTagRequest): DeleteTagResponse {
 }
 
 model DeleteValidateFileRequest {
-  fileId?: string(name='FileId'),
+  fileId?: string(name='FileId', example='xxxx-xxxx-xxxx-xxxx'),
 }
 
 model DeleteValidateFileResponseBody = {
-  requestId?: string(name='RequestId'),
+  requestId?: string(name='RequestId', example='yyyy-yyyy-yyyy-yyyy'),
 }
 
 model DeleteValidateFileResponse = {
@@ -5290,7 +5290,7 @@ async function sendValidateFileAdvance(request: SendValidateFileAdvanceRequest, 
       file = fileObj,
       success_action_status = '201',
     };
-    _postOSSObject(authResponseBody['Bucket'], ossHeader);
+    _postOSSObject(authResponseBody['Bucket'], ossHeader, runtime);
     sendValidateFileReq.fileUrl = `http://${authResponseBody['Bucket']}.${authResponseBody['Endpoint']}/${authResponseBody['ObjectKey']}`;
   }
   var sendValidateFileResp = sendValidateFileWithOptions(sendValidateFileReq, runtime);
@@ -5897,7 +5897,7 @@ async function singleSendMailAdvance(request: SingleSendMailAdvanceRequest, runt
           file = fileObj,
           success_action_status = '201',
         };
-        _postOSSObject(authResponseBody['Bucket'], ossHeader);
+        _postOSSObject(authResponseBody['Bucket'], ossHeader, runtime);
         var tmp : SingleSendMailRequest.attachments = singleSendMailReq.attachments[i0];
         tmp.attachmentUrl = `http://${authResponseBody['Bucket']}.${authResponseBody['Endpoint']}/${authResponseBody['ObjectKey']}`;
         i0 = Number.ltoi(Number.add(Number.itol(i0), Number.itol(1)));
@@ -6113,6 +6113,7 @@ async function updateUser(request: UpdateUserRequest): UpdateUserResponse {
 }
 
 model ValidateEmailRequest {
+  checkGraylist?: boolean(name='CheckGraylist'),
   email?: string(name='Email', description='This parameter is required.', example='xxx@yyy.com'),
   timeout?: long(name='Timeout', example='20'),
 }
@@ -6143,6 +6144,9 @@ model ValidateEmailResponse = {
 async function validateEmailWithOptions(request: ValidateEmailRequest, runtime: Util.RuntimeOptions): ValidateEmailResponse {
   Util.validateModel(request);
   var query = {};
+  if (!Util.isUnset(request.checkGraylist)) {
+    query['CheckGraylist'] = request.checkGraylist;
+  }
   if (!Util.isUnset(request.email)) {
     query['Email'] = request.email;
   }
@@ -6177,7 +6181,7 @@ async function validateEmail(request: ValidateEmailRequest): ValidateEmailRespon
   return validateEmailWithOptions(request, runtime);
 }
 
-api _postOSSObject(bucketName: string, data: object): object {
+api _postOSSObject(bucketName: string, data: object, runtime: Util.RuntimeOptions): object {
   var form = Util.assertAsMap(data);
   var boundary = FileForm.getBoundary();
   var host = Util.assertAsString(form.host);
@@ -6211,4 +6215,27 @@ api _postOSSObject(bucketName: string, data: object): object {
   return {
     ...respMap,
   };
+} runtime {
+  timeouted = 'retry',
+  key = Util.defaultString(runtime.key, @key),
+  cert = Util.defaultString(runtime.cert, @cert),
+  ca = Util.defaultString(runtime.ca, @ca),
+  readTimeout = Util.defaultNumber(runtime.readTimeout, @readTimeout),
+  connectTimeout = Util.defaultNumber(runtime.connectTimeout, @connectTimeout),
+  httpProxy = Util.defaultString(runtime.httpProxy, @httpProxy),
+  httpsProxy = Util.defaultString(runtime.httpsProxy, @httpsProxy),
+  noProxy = Util.defaultString(runtime.noProxy, @noProxy),
+  socks5Proxy = Util.defaultString(runtime.socks5Proxy, @socks5Proxy),
+  socks5NetWork = Util.defaultString(runtime.socks5NetWork, @socks5NetWork),
+  maxIdleConns = Util.defaultNumber(runtime.maxIdleConns, @maxIdleConns),
+  retry = {
+    retryable = runtime.autoretry,
+    maxAttempts = Util.defaultNumber(runtime.maxAttempts, 3)
+  },
+  backoff = {
+    policy = Util.defaultString(runtime.backoffPolicy, 'no'),
+    period = Util.defaultNumber(runtime.backoffPeriod, 1)
+  },
+  ignoreSSL = OpenApi.defaultAny(runtime.ignoreSSL, false),
+  tlsMinVersion = @tlsMinVersion
 }
