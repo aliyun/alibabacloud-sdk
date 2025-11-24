@@ -475,6 +475,7 @@ model CreateModelServiceInput {
 }
 
 model CreateSandboxInput {
+  sandboxId?: string(name='sandboxId'),
   sandboxIdleTimeoutSeconds?: int32(name='sandboxIdleTimeoutSeconds', description='沙箱空闲超时时间（秒）'),
   templateName?: string(name='templateName', description='模板名称（系统内部通过 templateName 查询 template_id）
 
@@ -1240,7 +1241,6 @@ model RoutingConfiguration {
 }
 
 model Sandbox {
-  sandboxIdleTTLInSeconds?: int32(name='SandboxIdleTTLInSeconds'),
   createdAt?: string(name='createdAt', description='沙箱创建时间
 
 This parameter is required.'),
@@ -1249,6 +1249,7 @@ This parameter is required.'),
   metadata?: map[string]any(name='metadata'),
   sandboxArn?: string(name='sandboxArn'),
   sandboxId?: string(name='sandboxId', description='This parameter is required.'),
+  sandboxIdleTTLInSeconds?: int32(name='sandboxIdleTTLInSeconds'),
   sandboxIdleTimeoutSeconds?: int32(name='sandboxIdleTimeoutSeconds', description='沙箱空闲超时时间（秒）'),
   status?: string(name='status', description='This parameter is required.'),
   templateId?: string(name='templateId', description='This parameter is required.'),
@@ -1308,6 +1309,12 @@ model StartCodeInterpreterSessionResult {
 
 model StopCodeInterpreterSessionResult {
   code?: string(name='code', description='SUCCESS 为成功，失败情况返回对应错误类型，比如 ERR_BAD_REQUEST ERR_VALIDATION_FAILED ERR_INTERNAL_SERVER_ERROR'),
+  requestId?: string(name='requestId'),
+}
+
+model StopSandboxResult {
+  code?: string(name='code'),
+  data?: Sandbox(name='data'),
   requestId?: string(name='requestId'),
 }
 
@@ -2613,6 +2620,49 @@ async function deleteModelService(modelServiceName: string): DeleteModelServiceR
   var runtime = new $RuntimeOptions{};
   var headers : map[string]string = {};
   return deleteModelServiceWithOptions(modelServiceName, headers, runtime);
+}
+
+model DeleteSandboxResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: DeleteSandboxResult  
+}
+
+/**
+ * @summary 删除Sandbox
+ *
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return DeleteSandboxResponse
+ */
+@context("deleteSandboxWithContext")
+async function deleteSandboxWithOptions(sandboxId: string, headers: map[string]string, runtime: $RuntimeOptions): DeleteSandboxResponse {
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    headers = headers,
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'DeleteSandbox',
+    version = '2025-09-10',
+    protocol = 'HTTPS',
+    pathname = `/2025-09-10/sandboxes/${$URL.percentEncode(sandboxId)}`,
+    method = 'DELETE',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 删除Sandbox
+ *
+ * @return DeleteSandboxResponse
+ */
+async function deleteSandbox(sandboxId: string): DeleteSandboxResponse {
+  var runtime = new $RuntimeOptions{};
+  var headers : map[string]string = {};
+  return deleteSandboxWithOptions(sandboxId, headers, runtime);
 }
 
 model DeleteTemplateResponse = {
@@ -4325,6 +4375,8 @@ async function listSandboxes(request: ListSandboxesRequest): ListSandboxesRespon
 model ListTemplatesRequest {
   pageNumber?: int32(name='pageNumber', description='当前页码，从1开始计数', example='1'),
   pageSize?: int32(name='pageSize', description='每页返回的记录数量', example='20'),
+  status?: string(name='status', example='READY'),
+  templateName?: string(name='templateName', example='temp-abc'),
   templateType?: string(name='templateType', description='按模板类型过滤', example='Browser'),
 }
 
@@ -4353,6 +4405,12 @@ async function listTemplatesWithOptions(request: ListTemplatesRequest, headers: 
   }
   if (!$isNull(request.pageSize)) {
     query['pageSize'] = request.pageSize;
+  }
+  if (!$isNull(request.status)) {
+    query['status'] = request.status;
+  }
+  if (!$isNull(request.templateName)) {
+    query['templateName'] = request.templateName;
   }
   if (!$isNull(request.templateType)) {
     query['templateType'] = request.templateType;
@@ -4534,11 +4592,11 @@ async function retrieveMemory(memoryName: string, request: RetrieveMemoryRequest
 model StopSandboxResponse = {
   headers?: map[string]string(name='headers'),
   statusCode?: int32(name='statusCode'),
-  body?: DeleteSandboxResult  
+  body?: StopSandboxResult  
 }
 
 /**
- * @summary 停止沙箱
+ * @summary 删除沙箱
  *
  * @description 停止指定的沙箱实例。停止后，沙箱将进入TERMINATED状态。
  *
@@ -4555,8 +4613,8 @@ async function stopSandboxWithOptions(sandboxId: string, headers: map[string]str
     action = 'StopSandbox',
     version = '2025-09-10',
     protocol = 'HTTPS',
-    pathname = `/2025-09-10/sandboxes/${$URL.percentEncode(sandboxId)}`,
-    method = 'DELETE',
+    pathname = `/2025-09-10/sandboxes/${$URL.percentEncode(sandboxId)}/stop`,
+    method = 'POST',
     authType = 'AK',
     style = 'ROA',
     reqBodyType = 'json',
@@ -4566,7 +4624,7 @@ async function stopSandboxWithOptions(sandboxId: string, headers: map[string]str
 }
 
 /**
- * @summary 停止沙箱
+ * @summary 删除沙箱
  *
  * @description 停止指定的沙箱实例。停止后，沙箱将进入TERMINATED状态。
  *

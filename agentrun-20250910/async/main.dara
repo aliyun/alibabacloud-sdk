@@ -479,6 +479,7 @@ model CreateModelServiceInput {
 }
 
 model CreateSandboxInput {
+  sandboxId?: string(name='sandboxId'),
   sandboxIdleTimeoutSeconds?: int32(name='sandboxIdleTimeoutSeconds', description='沙箱空闲超时时间（秒）', minimum=1, maximum=21600),
   templateName: string(name='templateName', description='模板名称（系统内部通过 templateName 查询 template_id）
 
@@ -1244,7 +1245,6 @@ model RoutingConfiguration {
 }
 
 model Sandbox {
-  sandboxIdleTTLInSeconds?: int32(name='SandboxIdleTTLInSeconds'),
   createdAt: string(name='createdAt', description='沙箱创建时间
 
 This parameter is required.'),
@@ -1253,6 +1253,7 @@ This parameter is required.'),
   metadata?: map[string]any(name='metadata'),
   sandboxArn?: string(name='sandboxArn'),
   sandboxId: string(name='sandboxId', description='This parameter is required.'),
+  sandboxIdleTTLInSeconds?: int32(name='sandboxIdleTTLInSeconds'),
   sandboxIdleTimeoutSeconds?: int32(name='sandboxIdleTimeoutSeconds', description='沙箱空闲超时时间（秒）', minimum=1, maximum=21600),
   status: string(name='status', description='This parameter is required.'),
   templateId: string(name='templateId', description='This parameter is required.'),
@@ -1312,6 +1313,12 @@ model StartCodeInterpreterSessionResult {
 
 model StopCodeInterpreterSessionResult {
   code?: string(name='code', description='SUCCESS 为成功，失败情况返回对应错误类型，比如 ERR_BAD_REQUEST ERR_VALIDATION_FAILED ERR_INTERNAL_SERVER_ERROR'),
+  requestId?: string(name='requestId'),
+}
+
+model StopSandboxResult {
+  code?: string(name='code'),
+  data?: Sandbox(name='data'),
   requestId?: string(name='requestId'),
 }
 
@@ -2007,6 +2014,25 @@ model DeleteModelServiceResponse = {
 async function deleteModelService(request: DeleteModelServiceRequest): DeleteModelServiceResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RESTFUL', 'DeleteModelService', 'DELETE', '/2025-09-10/agents/model-services/{modelServiceName}', 'json', false, 'json', request);
+}
+
+model DeleteSandboxRequest {
+  sandboxId: string(name='sandboxId', description='This parameter is required.', example='sb-1234567', position='Path'),
+}
+
+model DeleteSandboxResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: DeleteSandboxResult  
+}
+
+/**
+  * @param request  the request parameters of DeleteSandbox  DeleteSandboxRequest
+  * @return DeleteSandboxResponse
+ */
+async function deleteSandbox(request: DeleteSandboxRequest): DeleteSandboxResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'DeleteSandbox', 'DELETE', '/2025-09-10/sandboxes/{sandboxId}', 'json', false, 'json', request);
 }
 
 model DeleteTemplateRequest {
@@ -2709,6 +2735,8 @@ async function listSandboxes(request: ListSandboxesRequest): ListSandboxesRespon
 model ListTemplatesRequest {
   pageNumber?: int32(name='pageNumber', description='当前页码，从1开始计数', example='1', position='Query'),
   pageSize?: int32(name='pageSize', description='每页返回的记录数量', example='20', position='Query'),
+  status?: string(name='status', example='READY', position='Query'),
+  templateName?: string(name='templateName', example='temp-abc', position='Query'),
   templateType?: string(name='templateType', description='按模板类型过滤', example='Browser', position='Query'),
 }
 
@@ -2798,7 +2826,7 @@ This parameter is required.', example='sb-1234567890abcdef', position='Path'),
 model StopSandboxResponse = {
   headers?: map[string]string(name='headers'),
   statusCode?: int32(name='statusCode'),
-  body?: DeleteSandboxResult  
+  body?: StopSandboxResult  
 }
 
 /**
@@ -2808,7 +2836,7 @@ model StopSandboxResponse = {
  */
 async function stopSandbox(request: StopSandboxRequest): StopSandboxResponse {
   @handler.validateRequestModel(request);
-  return @handler.do('RESTFUL', 'StopSandbox', 'DELETE', '/2025-09-10/sandboxes/{sandboxId}', 'json', false, 'json', request);
+  return @handler.do('RESTFUL', 'StopSandbox', 'POST', '/2025-09-10/sandboxes/{sandboxId}/stop', 'json', false, 'json', request);
 }
 
 model StopTemplateMCPRequest {
