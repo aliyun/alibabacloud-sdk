@@ -29,28 +29,60 @@ function getEndpoint(productId: string, regionId: string, endpointRule: string, 
 }
 
 model EntElementVerifyRequest {
-  entName?: string(name='EntName'),
-  infoVerifyType?: string(name='InfoVerifyType', example='ENT_2META'),
-  legalPersonCertNo?: string(name='LegalPersonCertNo', example='370105*****3892'),
-  legalPersonName?: string(name='LegalPersonName'),
-  licenseNo?: string(name='LicenseNo', example='32132***328932'),
-  merchantBizId?: string(name='MerchantBizId', example='32198****193000'),
-  merchantUserId?: string(name='MerchantUserId', example='432***421'),
-  sceneCode?: string(name='SceneCode', example='withdraw'),
-  userAuthorization?: string(name='UserAuthorization', example='1'),
+  entName?: string(name='EntName', description='Enterprise name.', example='***有限公司'),
+  infoVerifyType?: string(name='InfoVerifyType', description='Type of enterprise element verification.
+- ENT_2META: Two elements
+- ENT_3META: Three elements
+- ENT_4META: Four elements', example='ENT_2META'),
+  legalPersonCertNo?: string(name='LegalPersonCertNo', description='Legal representative\\\\"s ID number. Required for the four-element scenario.', example='370105*****3892'),
+  legalPersonName?: string(name='LegalPersonName', description='Legal representative\\\\"s name. Required for three-element and four-element scenarios.', example='张**'),
+  licenseNo?: string(name='LicenseNo', description='Business license number.', example='32132***328932'),
+  merchantBizId?: string(name='MerchantBizId', description='A unique business identifier defined by the merchant for subsequent troubleshooting. It supports a combination of letters and numbers, with a maximum length of 32 characters. Please ensure uniqueness.', example='32198****193000'),
+  merchantUserId?: string(name='MerchantUserId', description='Merchant-side user ID. Supports a combination of letters and numbers, with a maximum length of 32 characters.', example='432***421'),
+  sceneCode?: string(name='SceneCode', description='Scene code. Supports a combination of letters, numbers, and underscores, with a maximum length of 32 characters.', example='withdraw'),
+  userAuthorization?: string(name='UserAuthorization', description='Whether user authorization is obtained.
+- 1: Authorized
+- 0: Not authorized', example='1'),
 }
 
 model EntElementVerifyResponseBody = {
-  code?: string(name='Code', example='Success'),
-  message?: string(name='Message', example='success'),
-  requestId?: string(name='RequestId', description='Id of the request', example='473469C7***B-A3DC0DE3C83E'),
+  code?: string(name='Code', description='Return code', example='Success'),
+  message?: string(name='Message', description='Error message', example='success'),
+  requestId?: string(name='RequestId', description='ID of the request', example='473469C7***B-A3DC0DE3C83E'),
   result?: {
-    bizCode?: string(name='BizCode', example='1'),
-    openTime?: string(name='OpenTime'),
-    reasonCode?: string(name='ReasonCode'),
-    reasonDetail?: string(name='ReasonDetail'),
-    status?: string(name='Status', example='1'),
-  }(name='Result'),
+    bizCode?: string(name='BizCode', description='Verification result code.
+- 1: Verification consistent
+- 2: Verification inconsistent
+- 3: Not found', example='1'),
+    openTime?: string(name='OpenTime', description='Operating period: start and end time of operations.
+- Format: yyyy-MM-dd/yyyy-MM-dd.
+- Example: 2018-09-25/9999-09-09.', example='2018-09-25/9999-09-09'),
+    reasonCode?: string(name='ReasonCode', description='ReasonCode explanation:
+
+- 100: Verification consistent
+
+- 201: Inconsistent between person and enterprise
+
+- 202: Inconsistent in two elements of the enterprise
+
+- 301: No enterprise found, unable to verify
+
+- 302: Legal representative does not exist in the database
+>Warning: This field will be discontinued on June 15, 2023. Existing customers are not affected.', example='100'),
+    reasonDetail?: string(name='ReasonDetail', description='Details of inconsistencies, multiple inconsistencies will be separated by commas.
+- LegalPersonNameFlag: Inconsistent legal representative name
+- LegalPersonCertNoFlag: Inconsistent legal representative ID number
+- EntNameFlag: Inconsistent enterprise name
+- LicenseNoFlag: Inconsistent business license number', example='LegalPersonNameFlag,LegalPersonCertNoFlag'),
+    status?: string(name='Status', description='Enterprise operating status.
+- 1: In operation (open)
+- 2: Relocated
+- 3: Deregistered
+- 4: Revoked
+- 5: Canceled
+- 6: Suspended
+- 0: Other', example='1'),
+  }(name='Result', description='Result'),
 }
 
 model EntElementVerifyResponse = {
@@ -60,7 +92,9 @@ model EntElementVerifyResponse = {
 }
 
 /**
- * @summary 企业要素核验
+ * @summary Enterprise Element Verification
+ *
+ * @description Supports only enterprises and individual businesses.
  *
  * @param request EntElementVerifyRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -110,15 +144,13 @@ async function entElementVerifyWithOptions(request: EntElementVerifyRequest, run
     reqBodyType = 'formData',
     bodyType = 'json',
   };
-  if (Util.isUnset(@signatureVersion) || !Util.equalString(@signatureVersion, 'v4')) {
-    return callApi(params, req, runtime);
-  } else {
-    return execute(params, req, runtime);
-  }
+  return callApi(params, req, runtime);
 }
 
 /**
- * @summary 企业要素核验
+ * @summary Enterprise Element Verification
+ *
+ * @description Supports only enterprises and individual businesses.
  *
  * @param request EntElementVerifyRequest
  * @return EntElementVerifyResponse
@@ -129,27 +161,62 @@ async function entElementVerify(request: EntElementVerifyRequest): EntElementVer
 }
 
 model EntElementVerifyV2Request {
-  entName?: string(name='EntName', description='This parameter is required.'),
-  infoVerifyType?: string(name='InfoVerifyType', description='This parameter is required.', example='ENT_2META'),
-  legalPersonCertNo?: string(name='LegalPersonCertNo', example='1******************9'),
-  legalPersonName?: string(name='LegalPersonName'),
-  licenseNo?: string(name='LicenseNo', description='This parameter is required.', example='91330106673959****'),
-  merchantBizId?: string(name='MerchantBizId', description='This parameter is required.', example='e0c34a77f5ac40a5aa5e6ed20c35****'),
-  merchantUserId?: string(name='MerchantUserId', description='This parameter is required.', example='mch7x9a2b4c8d3e5f6g1h2i3j4k5****'),
-  sceneCode?: string(name='SceneCode', description='This parameter is required.', example='1000000006'),
-  userAuthorization?: string(name='UserAuthorization', description='This parameter is required.', example='1'),
+  entName?: string(name='EntName', description='Enterprise Name.
+
+This parameter is required.', example='****有限公司'),
+  infoVerifyType?: string(name='InfoVerifyType', description='Type of enterprise element verification.
+- ENT_2META: Two-element verification (enterprise name + unified social credit code)
+- ENT_3META: Three-element verification (enterprise name + unified social credit code + legal person\\\\"s name or organization head)
+- ENT_4META: Four-element verification (enterprise name + unified social credit code + legal person\\\\"s name or organization head + legal person\\\\"s ID number)
+
+This parameter is required.', example='ENT_2META'),
+  legalPersonCertNo?: string(name='LegalPersonCertNo', description='Legal Person\\\\"s ID Number. Required for four-element scenarios.', example='1******************9'),
+  legalPersonName?: string(name='LegalPersonName', description='Legal Person\\\\"s Name. Required for three-element and four-element scenarios.', example='张**'),
+  licenseNo?: string(name='LicenseNo', description='Unified Social Credit Code.
+
+This parameter is required.', example='91330106673959****'),
+  merchantBizId?: string(name='MerchantBizId', description='A unique business identifier defined by the merchant side, used for subsequent problem localization and troubleshooting. Supports a combination of letters and numbers, with a maximum length of 32 characters. Please ensure uniqueness.
+
+This parameter is required.', example='e0c34a77f5ac40a5aa5e6ed20c35****'),
+  merchantUserId?: string(name='MerchantUserId', description='Merchant-side user ID. Supports a combination of letters and numbers, with a maximum length of 32 characters.
+
+This parameter is required.', example='mch7x9a2b4c8d3e5f6g1h2i3j4k5****'),
+  sceneCode?: string(name='SceneCode', description='Custom scene code, defined by the user to distinguish between different business scenarios. Supports a combination of letters, numbers, and underscores, with a maximum length of 32 characters.
+
+This parameter is required.', example='1000000006'),
+  userAuthorization?: string(name='UserAuthorization', description='Whether user authorization has been obtained.
+- 1: Authorization obtained
+- 0: No authorization obtained
+
+This parameter is required.', example='1'),
 }
 
 model EntElementVerifyV2ResponseBody = {
-  code?: string(name='Code', example='Success'),
-  message?: string(name='Message', example='success'),
+  code?: string(name='Code', description='Return code', example='Success'),
+  message?: string(name='Message', description='Error message', example='success'),
   requestId?: string(name='RequestId', description='Id of the request', example='473469C7***B-A3DC0DE3C83E'),
   result?: {
-    bizCode?: string(name='BizCode', example='1'),
-    openTime?: string(name='OpenTime', example='2018-09-25/9999-09-09'),
-    reasonDetail?: string(name='ReasonDetail', example='LegalPersonNameFlag,LegalPersonCertNoFlag'),
-    status?: string(name='Status', example='1'),
-  }(name='Result'),
+    bizCode?: string(name='BizCode', description='Verification result code.
+- 1: Verification consistent
+- 2: Verification inconsistent
+- 3: Not found', example='1'),
+    openTime?: string(name='OpenTime', description='Business term: start and end time of operations.
+- Format: yyyy-MM-dd/yyyy-MM-dd.
+- Example: 2018-09-25/9999-09-09.', example='2018-09-25/9999-09-09'),
+    reasonDetail?: string(name='ReasonDetail', description='Details of inconsistencies, multiple inconsistencies will be separated by commas.
+- LegalPersonNameFlag: Legal person\\\\"s name does not match
+- LegalPersonCertNoFlag: Legal person\\\\"s ID number does not match
+- EntNameFlag: Enterprise name does not match
+- LicenseNoFlag: Business license number does not match', example='LegalPersonNameFlag,LegalPersonCertNoFlag'),
+    status?: string(name='Status', description='Business operation status.
+- 1: In operation (open)
+- 2: Relocated
+- 3: Deregistered
+- 4: Revoked
+- 5: Canceled
+- 6: Suspended
+- 0: Other', example='1'),
+  }(name='Result', description='Result'),
 }
 
 model EntElementVerifyV2Response = {
@@ -159,7 +226,11 @@ model EntElementVerifyV2Response = {
 }
 
 /**
- * @summary 企业要素验证V2
+ * @summary Enterprise Element Verification V2
+ *
+ * @description The Enterprise Element Verification API provides a service for verifying the consistency of enterprise element information, used to identify the authenticity of enterprise information.
+ * It supports various institutions including enterprises, individual businesses, farmers\\" professional cooperatives, government agencies, public institutions, social organizations, legal profession institutions, and owners\\" meetings for 2-3 elements;
+ * For 4 elements, it supports enterprises, individual businesses, farmers\\" professional cooperatives, and legal professions.
  *
  * @param request EntElementVerifyV2Request
  * @param runtime runtime options for this request RuntimeOptions
@@ -209,15 +280,15 @@ async function entElementVerifyV2WithOptions(request: EntElementVerifyV2Request,
     reqBodyType = 'formData',
     bodyType = 'json',
   };
-  if (Util.isUnset(@signatureVersion) || !Util.equalString(@signatureVersion, 'v4')) {
-    return callApi(params, req, runtime);
-  } else {
-    return execute(params, req, runtime);
-  }
+  return callApi(params, req, runtime);
 }
 
 /**
- * @summary 企业要素验证V2
+ * @summary Enterprise Element Verification V2
+ *
+ * @description The Enterprise Element Verification API provides a service for verifying the consistency of enterprise element information, used to identify the authenticity of enterprise information.
+ * It supports various institutions including enterprises, individual businesses, farmers\\" professional cooperatives, government agencies, public institutions, social organizations, legal profession institutions, and owners\\" meetings for 2-3 elements;
+ * For 4 elements, it supports enterprises, individual businesses, farmers\\" professional cooperatives, and legal professions.
  *
  * @param request EntElementVerifyV2Request
  * @return EntElementVerifyV2Response
@@ -228,35 +299,53 @@ async function entElementVerifyV2(request: EntElementVerifyV2Request): EntElemen
 }
 
 model EntRiskQueryRequest {
-  merchantBizId?: string(name='MerchantBizId', example='32198****193000'),
-  merchantUserId?: string(name='MerchantUserId'),
-  paramType?: string(name='ParamType', example='00'),
-  paramValue?: string(name='ParamValue', example='91330106673959****'),
-  sceneCode?: string(name='SceneCode', example='1000000086'),
-  userAuthorization?: string(name='UserAuthorization', example='1'),
+  merchantBizId?: string(name='MerchantBizId', description='A unique business identifier defined by the merchant side, used for subsequent problem localization and troubleshooting. Supports a combination of 32 alphanumeric characters, please ensure uniqueness.', example='32198****193000'),
+  merchantUserId?: string(name='MerchantUserId', description='A custom user ID in your business, used for subsequent problem localization and troubleshooting.', example='无'),
+  paramType?: string(name='ParamType', description='Parameter type.
+00: Company name;
+01: Business registration number;
+02: Unified Social Credit Code;
+03: Organization code;', example='00'),
+  paramValue?: string(name='ParamValue', description='Enter one of the following based on the ParamType: company name, business registration number, unified social credit code, or organization code.', example='91330106673959****'),
+  sceneCode?: string(name='SceneCode', description='Custom scene code, used to distinguish business scenarios, a 10-digit number.', example='1000000086'),
+  userAuthorization?: string(name='UserAuthorization', description='Whether user authorization is obtained.
+1: Authorized
+0: Not authorized', example='1'),
 }
 
 model EntRiskQueryResponseBody = {
-  code?: string(name='Code', example='200'),
-  message?: string(name='Message', example='success'),
-  requestId?: string(name='RequestId', example='8FC3D6AC-9FED-4311-8DA7-C4BF47D9F260'),
+  code?: string(name='Code', description='Error code. For details about error codes, see **[Error Codes](https://help.aliyun.com/document_detail/215420.html)**.', example='200'),
+  message?: string(name='Message', description='Response message for the request information.', example='success'),
+  requestId?: string(name='RequestId', description='Request ID', example='8FC3D6AC-9FED-4311-8DA7-C4BF47D9F260'),
   result?: {
-    bizCode?: string(name='BizCode', example='1'),
+    bizCode?: string(name='BizCode', description='Query result
+0: Normal business operation
+1: Abnormal business operation
+2: Not found', example='1'),
     riskList?: [ 
       {
-        creditCode?: string(name='CreditCode', example='92500112MA5UHU****'),
-        entName?: string(name='EntName'),
-        listedDate?: string(name='ListedDate', example='2023-02-03'),
-        listedReason?: string(name='ListedReason'),
-        operationOrg?: string(name='OperationOrg'),
-        regNo?: string(name='RegNo', example='50011260996****'),
-        removedDate?: string(name='RemovedDate', example='2023-02-06'),
-        removedOrg?: string(name='RemovedOrg'),
-        removedReason?: string(name='RemovedReason'),
+        creditCode?: string(name='CreditCode', description='Unified Social Credit Code', example='92500112MA5UHU****'),
+        entName?: string(name='EntName', description='Company name.', example='杭州****'),
+        listedDate?: string(name='ListedDate', description='Date listed as abnormal
+Example: 2023-02-03', example='2023-02-03'),
+        listedReason?: string(name='ListedReason', description='Reason for being listed as abnormal', example='未按照《个体工商户年度报告暂行办法》***'),
+        operationOrg?: string(name='OperationOrg', description='Authority that handled the inclusion', example='***市场监督***'),
+        regNo?: string(name='RegNo', description='Business registration number', example='50011260996****'),
+        removedDate?: string(name='RemovedDate', description='Date removed from the abnormal list
+Example: 2023-02-03', example='2023-02-06'),
+        removedOrg?: string(name='RemovedOrg', description='Authority that handled the removal', example='***市场监督***'),
+        removedReason?: string(name='RemovedReason', description='Reason for being removed from the abnormal list', example='根据《个体工商户年度报告暂行办法》第十三条的规定******'),
       }
-    ](name='RiskList'),
-    status?: string(name='Status', example='1'),
-  }(name='Result'),
+    ](name='RiskList', description='List of abnormal information'),
+    status?: string(name='Status', description='Business operation status.
+- 1: In operation (open)
+- 2: Relocated
+- 3: Deregistered
+- 4: Revoked
+- 5: Canceled
+- 6: Suspended
+- 0: Other', example='1'),
+  }(name='Result', description='Result'),
 }
 
 model EntRiskQueryResponse = {
@@ -266,7 +355,7 @@ model EntRiskQueryResponse = {
 }
 
 /**
- * @summary 企业经营异常查询
+ * @summary Abnormal Business Operation Query
  *
  * @param request EntRiskQueryRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -307,15 +396,11 @@ async function entRiskQueryWithOptions(request: EntRiskQueryRequest, runtime: Ut
     reqBodyType = 'formData',
     bodyType = 'json',
   };
-  if (Util.isUnset(@signatureVersion) || !Util.equalString(@signatureVersion, 'v4')) {
-    return callApi(params, req, runtime);
-  } else {
-    return execute(params, req, runtime);
-  }
+  return callApi(params, req, runtime);
 }
 
 /**
- * @summary 企业经营异常查询
+ * @summary Abnormal Business Operation Query
  *
  * @param request EntRiskQueryRequest
  * @return EntRiskQueryResponse
@@ -326,36 +411,44 @@ async function entRiskQuery(request: EntRiskQueryRequest): EntRiskQueryResponse 
 }
 
 model EntVerifyRequest {
-  accountNo?: string(name='AccountNo', example='321324***38293'),
-  entName?: string(name='EntName'),
-  infoVerifyType?: string(name='InfoVerifyType'),
-  legalPersonCertNo?: string(name='LegalPersonCertNo', example='370105*****3892'),
-  legalPersonMobile?: string(name='LegalPersonMobile', example='1300***53'),
-  legalPersonName?: string(name='LegalPersonName'),
-  licenseNo?: string(name='LicenseNo', example='32132***328932'),
-  merchantBizId?: string(name='MerchantBizId'),
-  merchantUserId?: string(name='MerchantUserId'),
-  riskModelVersion?: string(name='RiskModelVersion', example='BASIC'),
-  riskVerifyType?: string(name='RiskVerifyType'),
-  sceneCode?: string(name='SceneCode', example='withdraw'),
-  userAuthorization?: string(name='UserAuthorization', example='1'),
+  accountNo?: string(name='AccountNo', description='Receiving account, to assist in improving the risk assessment effect.', example='321324***38293'),
+  entName?: string(name='EntName', description='Enterprise name.', example='***有限公司'),
+  infoVerifyType?: string(name='InfoVerifyType', description='Enterprise element verification type, currently not supported.', example='无'),
+  legalPersonCertNo?: string(name='LegalPersonCertNo', description='Legal person\\\\"s ID number.', example='370105*****3892'),
+  legalPersonMobile?: string(name='LegalPersonMobile', description='Legal person\\\\"s mobile phone number.', example='1300***53'),
+  legalPersonName?: string(name='LegalPersonName', description='Legal person\\\\"s name.', example='张**'),
+  licenseNo?: string(name='LicenseNo', description='Business license number.', example='32132***328932'),
+  merchantBizId?: string(name='MerchantBizId', description='A unique business identifier defined by the merchant, used for subsequent problem localization and troubleshooting. It supports a combination of letters and numbers, with a maximum length of 32 characters. Please ensure its uniqueness.', example='32198****193000'),
+  merchantUserId?: string(name='MerchantUserId', description='Merchant-side user ID. It supports a combination of letters and numbers, with a maximum length of 32 characters.', example='432***421'),
+  riskModelVersion?: string(name='RiskModelVersion', description='Enterprise risk verification model version, required when RiskVerifyType is not empty. Currently supported:
+
+- BASIC: Basic version', example='BASIC'),
+  riskVerifyType?: string(name='RiskVerifyType', description='Enterprise risk verification type, at least one of InfoVerifyType or this must be selected. Currently supported:
+
+- BUSINESS_ANTIFRAUD', example='BUSINESS_ANTIFRAUD'),
+  sceneCode?: string(name='SceneCode', description='Scene code.', example='withdraw'),
+  userAuthorization?: string(name='UserAuthorization', description='Whether the user authorization is obtained.
+
+- 1: Authorized
+
+- 0: Not authorized', example='1'),
 }
 
 model EntVerifyResponseBody = {
-  code?: string(name='Code', example='Success'),
-  message?: string(name='Message'),
-  requestId?: string(name='RequestId', description='Id of the request', example='473469C7-A***B-A3DC0DE3C83E'),
+  code?: string(name='Code', description='Return code', example='Success'),
+  message?: string(name='Message', description='Error message', example='成功'),
+  requestId?: string(name='RequestId', description='ID of the request', example='473469C7-A***B-A3DC0DE3C83E'),
   result?: {
     riskVerifyResult?: {
-      found?: boolean(name='Found', example='true'),
+      found?: boolean(name='Found', description='Whether found', example='true'),
       modelResults?: [ 
         {
-          modelName?: string(name='ModelName', example='model_1'),
-          result?: string(name='Result'),
+          modelName?: string(name='ModelName', description='Model name', example='model_1'),
+          result?: string(name='Result', description='Model result', example='5'),
         }
-      ](name='ModelResults'),
-    }(name='RiskVerifyResult'),
-  }(name='Result'),
+      ](name='ModelResults', description='List of enterprise risk verification model results'),
+    }(name='RiskVerifyResult', description='Enterprise risk verification result'),
+  }(name='Result', description='Result'),
 }
 
 model EntVerifyResponse = {
@@ -365,7 +458,7 @@ model EntVerifyResponse = {
 }
 
 /**
- * @summary 企业认证
+ * @summary Enterprise Authentication
  *
  * @param request EntVerifyRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -427,15 +520,11 @@ async function entVerifyWithOptions(request: EntVerifyRequest, runtime: Util.Run
     reqBodyType = 'formData',
     bodyType = 'json',
   };
-  if (Util.isUnset(@signatureVersion) || !Util.equalString(@signatureVersion, 'v4')) {
-    return callApi(params, req, runtime);
-  } else {
-    return execute(params, req, runtime);
-  }
+  return callApi(params, req, runtime);
 }
 
 /**
- * @summary 企业认证
+ * @summary Enterprise Authentication
  *
  * @param request EntVerifyRequest
  * @return EntVerifyResponse
