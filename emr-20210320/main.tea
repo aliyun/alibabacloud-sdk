@@ -439,6 +439,11 @@ model ClusterSummary {
   ](name='Tags', description='标签列表。'),
 }
 
+model CollationTimeZone {
+  currentTimeOffset?: string(name='CurrentTimeOffset', example='UTC+08:00'),
+  timeZone?: string(name='TimeZone', example='Asia/Shanghai'),
+}
+
 model ComponentInstanceSelector {
   actionScope?: string(name='ActionScope', deprecated=true),
   applicationName?: string(name='ApplicationName', description='应用名称。', example='HDFS'),
@@ -699,6 +704,7 @@ model DRPlanConfigurationDetail {
   scalingPolicies?: [
     ScalingPolicy
   ](name='ScalingPolicies'),
+  scalingTimeZone?: string(name='ScalingTimeZone'),
   securityMode?: string(name='SecurityMode', description='This parameter is required.'),
   subscriptionConfig?: SubscriptionConfig(name='SubscriptionConfig'),
   tags?: [
@@ -2554,8 +2560,11 @@ model ExportApplicationConfigsRequest {
   clusterId?: string(name='ClusterId', description='集群ID。
 
 This parameter is required.', example='c-b933c5aac8fe****'),
+  configScope?: string(name='ConfigScope'),
   exportMode?: string(name='ExportMode', example='MODIFICATION'),
   fileFormat?: string(name='FileFormat', description='导出应用配置的文件格式。', example='XML'),
+  nodeGroupIds?: [ string ](name='NodeGroupIds'),
+  nodeIds?: [ string ](name='NodeIds'),
   regionId?: string(name='RegionId', description='区域ID。
 
 This parameter is required.', example='cn-hangzhou'),
@@ -2579,6 +2588,8 @@ model ExportApplicationConfigsResponse = {
 }
 
 /**
+ * @summary 导出应用服务配置
+ *
  * @param request ExportApplicationConfigsRequest
  * @param runtime runtime options for this request RuntimeOptions
  * @return ExportApplicationConfigsResponse
@@ -2592,11 +2603,20 @@ async function exportApplicationConfigsWithOptions(request: ExportApplicationCon
   if (!Util.isUnset(request.clusterId)) {
     query['ClusterId'] = request.clusterId;
   }
+  if (!Util.isUnset(request.configScope)) {
+    query['ConfigScope'] = request.configScope;
+  }
   if (!Util.isUnset(request.exportMode)) {
     query['ExportMode'] = request.exportMode;
   }
   if (!Util.isUnset(request.fileFormat)) {
     query['FileFormat'] = request.fileFormat;
+  }
+  if (!Util.isUnset(request.nodeGroupIds)) {
+    query['NodeGroupIds'] = request.nodeGroupIds;
+  }
+  if (!Util.isUnset(request.nodeIds)) {
+    query['NodeIds'] = request.nodeIds;
   }
   if (!Util.isUnset(request.regionId)) {
     query['RegionId'] = request.regionId;
@@ -2619,6 +2639,8 @@ async function exportApplicationConfigsWithOptions(request: ExportApplicationCon
 }
 
 /**
+ * @summary 导出应用服务配置
+ *
  * @param request ExportApplicationConfigsRequest
  * @return ExportApplicationConfigsResponse
  */
@@ -2923,6 +2945,7 @@ model GetAutoScalingPolicyResponseBody = {
 *   SCALE_IN', example='SCALE_OUT'),
         adjustmentType?: string(name='AdjustmentType', description='The adjustment type.', example='CHANGE_IN_CAPACITY'),
         adjustmentValue?: int32(name='AdjustmentValue', description='The adjustment value. The parameter value must be a positive integer, which indicates the number of instances that you want to add or remove.', example='100'),
+        collationTimeZone?: CollationTimeZone(name='CollationTimeZone'),
         metricsTrigger?: MetricsTrigger(name='MetricsTrigger', description='The description of load-based scaling.'),
         ruleName?: string(name='RuleName', description='The name of the auto scaling rule.', example='scaling-out-memory'),
         timeTrigger?: TimeTrigger(name='TimeTrigger', description='The description of time-based scaling.'),
@@ -3092,6 +3115,7 @@ model GetClusterCloneMetaResponseBody = {
 *   DATASERVING
 *   CUSTOM
 *   HADOOP', example='DATALAKE'),
+    collationTimeZone?: CollationTimeZone(name='CollationTimeZone'),
     deletionProtection?: boolean(name='DeletionProtection', description='Indicates whether release protection is enabled for the cluster. Valid values:
 
 *   true: Release protection is enabled for the cluster.
@@ -10219,9 +10243,7 @@ model ListTagResourcesRequest {
   regionId?: string(name='RegionId', description='The ID of the region in which you want to create the instance.
 
 This parameter is required.', example='cn-hangzhou'),
-  resourceIds?: [ string ](name='ResourceIds', description='The list of resource IDs. Number of array elements N Valid values: 1 to 1
-
-This parameter is required.', example='DD6B1B2A-5837-5237-ABE4-FF0C89568980'),
+  resourceIds?: [ string ](name='ResourceIds', description='The list of resource IDs. Number of array elements N Valid values: 1 to 1', example='DD6B1B2A-5837-5237-ABE4-FF0C89568980'),
   resourceType?: string(name='ResourceType', description='The type of the resource. Set the value to cluster.
 
 This parameter is required.', example='cluster'),
@@ -11514,6 +11536,88 @@ async function updateClusterAttributeWithOptions(request: UpdateClusterAttribute
 async function updateClusterAttribute(request: UpdateClusterAttributeRequest): UpdateClusterAttributeResponse {
   var runtime = new Util.RuntimeOptions{};
   return updateClusterAttributeWithOptions(request, runtime);
+}
+
+model UpdateClusterAutoRenewRequest {
+  autoRenewInstances?: [
+    AutoRenewInstance
+  ](name='AutoRenewInstances', description='自动续费ECS实例列表。'),
+  clusterAutoRenew?: boolean(name='ClusterAutoRenew', description='集群是否自动续费。', example='true'),
+  clusterAutoRenewDuration?: int32(name='ClusterAutoRenewDuration', description='集群自动续费时长。', example='1'),
+  clusterAutoRenewDurationUnit?: string(name='ClusterAutoRenewDurationUnit', description='集群续费时长单位。', example='Monthly'),
+  clusterId?: string(name='ClusterId', description='集群ID。
+
+This parameter is required.', example='c-d6661c71139a****'),
+  regionId?: string(name='RegionId', description='区域ID。
+
+This parameter is required.', example='cn-hangzhou'),
+  renewAllInstances?: boolean(name='RenewAllInstances', description='续费所有ECS实例。'),
+}
+
+model UpdateClusterAutoRenewResponseBody = {
+  requestId?: string(name='RequestId', description='请求ID。', example='9E3A7161-EB7B-172B-8D18-FFB06BA3896A'),
+  success?: boolean(name='Success', example='true', deprecated=true),
+}
+
+model UpdateClusterAutoRenewResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: UpdateClusterAutoRenewResponseBody(name='body'),
+}
+
+/**
+ * @param request UpdateClusterAutoRenewRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return UpdateClusterAutoRenewResponse
+ */
+async function updateClusterAutoRenewWithOptions(request: UpdateClusterAutoRenewRequest, runtime: Util.RuntimeOptions): UpdateClusterAutoRenewResponse {
+  Util.validateModel(request);
+  var query = {};
+  if (!Util.isUnset(request.autoRenewInstances)) {
+    query['AutoRenewInstances'] = request.autoRenewInstances;
+  }
+  if (!Util.isUnset(request.clusterAutoRenew)) {
+    query['ClusterAutoRenew'] = request.clusterAutoRenew;
+  }
+  if (!Util.isUnset(request.clusterAutoRenewDuration)) {
+    query['ClusterAutoRenewDuration'] = request.clusterAutoRenewDuration;
+  }
+  if (!Util.isUnset(request.clusterAutoRenewDurationUnit)) {
+    query['ClusterAutoRenewDurationUnit'] = request.clusterAutoRenewDurationUnit;
+  }
+  if (!Util.isUnset(request.clusterId)) {
+    query['ClusterId'] = request.clusterId;
+  }
+  if (!Util.isUnset(request.regionId)) {
+    query['RegionId'] = request.regionId;
+  }
+  if (!Util.isUnset(request.renewAllInstances)) {
+    query['RenewAllInstances'] = request.renewAllInstances;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'UpdateClusterAutoRenew',
+    version = '2021-03-20',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @param request UpdateClusterAutoRenewRequest
+ * @return UpdateClusterAutoRenewResponse
+ */
+async function updateClusterAutoRenew(request: UpdateClusterAutoRenewRequest): UpdateClusterAutoRenewResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return updateClusterAutoRenewWithOptions(request, runtime);
 }
 
 model UpdateScriptRequest {

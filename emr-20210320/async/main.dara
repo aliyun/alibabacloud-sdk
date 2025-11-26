@@ -439,6 +439,11 @@ model ClusterSummary {
   ](name='Tags', description='标签列表。'),
 }
 
+model CollationTimeZone {
+  currentTimeOffset?: string(name='CurrentTimeOffset', example='UTC+08:00'),
+  timeZone?: string(name='TimeZone', example='Asia/Shanghai'),
+}
+
 model ComponentInstanceSelector {
   actionScope?: string(name='ActionScope', deprecated='true'),
   applicationName?: string(name='ApplicationName', description='应用名称。', example='HDFS'),
@@ -699,6 +704,7 @@ model DRPlanConfigurationDetail {
   scalingPolicies?: [
     ScalingPolicy
   ](name='ScalingPolicies'),
+  scalingTimeZone?: string(name='ScalingTimeZone'),
   securityMode: string(name='SecurityMode', description='This parameter is required.'),
   subscriptionConfig?: SubscriptionConfig(name='SubscriptionConfig'),
   tags?: [
@@ -2080,8 +2086,11 @@ model ExportApplicationConfigsRequest {
   clusterId: string(name='ClusterId', description='集群ID。
 
 This parameter is required.', example='c-b933c5aac8fe****', position='Query'),
+  configScope?: string(name='ConfigScope', position='Query'),
   exportMode?: string(name='ExportMode', example='MODIFICATION', position='Query'),
   fileFormat?: string(name='FileFormat', description='导出应用配置的文件格式。', example='XML', position='Query'),
+  nodeGroupIds?: [ string ](name='NodeGroupIds', position='Query'),
+  nodeIds?: [ string ](name='NodeIds', position='Query'),
   regionId: string(name='RegionId', description='区域ID。
 
 This parameter is required.', example='cn-hangzhou', position='Query'),
@@ -2295,6 +2304,7 @@ model GetAutoScalingPolicyResponseBody = {
 *   SCALE_IN', example='SCALE_OUT'),
         adjustmentType?: string(name='AdjustmentType', description='The adjustment type.', example='CHANGE_IN_CAPACITY'),
         adjustmentValue?: int32(name='AdjustmentValue', description='The adjustment value. The parameter value must be a positive integer, which indicates the number of instances that you want to add or remove.', example='100'),
+        collationTimeZone?: CollationTimeZone(name='CollationTimeZone'),
         metricsTrigger?: MetricsTrigger(name='MetricsTrigger', description='The description of load-based scaling.'),
         ruleName?: string(name='RuleName', description='The name of the auto scaling rule.', example='scaling-out-memory'),
         timeTrigger?: TimeTrigger(name='TimeTrigger', description='The description of time-based scaling.'),
@@ -2391,6 +2401,7 @@ model GetClusterCloneMetaResponseBody = {
 *   DATASERVING
 *   CUSTOM
 *   HADOOP', example='DATALAKE'),
+    collationTimeZone?: CollationTimeZone(name='CollationTimeZone'),
     deletionProtection?: boolean(name='DeletionProtection', description='Indicates whether release protection is enabled for the cluster. Valid values:
 
 *   true: Release protection is enabled for the cluster.
@@ -7420,9 +7431,7 @@ model ListTagResourcesRequest {
   regionId: string(name='RegionId', description='The ID of the region in which you want to create the instance.
 
 This parameter is required.', example='cn-hangzhou', position='Query'),
-  resourceIds: [ string ](name='ResourceIds', description='The list of resource IDs. Number of array elements N Valid values: 1 to 1
-
-This parameter is required.', example='DD6B1B2A-5837-5237-ABE4-FF0C89568980', position='Query'),
+  resourceIds?: [ string ](name='ResourceIds', description='The list of resource IDs. Number of array elements N Valid values: 1 to 1', example='DD6B1B2A-5837-5237-ABE4-FF0C89568980', position='Query'),
   resourceType: string(name='ResourceType', description='The type of the resource. Set the value to cluster.
 
 This parameter is required.', example='cluster', position='Query'),
@@ -7984,6 +7993,42 @@ model UpdateClusterAttributeResponse = {
 async function updateClusterAttribute(request: UpdateClusterAttributeRequest): UpdateClusterAttributeResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RPC', 'UpdateClusterAttribute', 'POST', '/', 'json', false, 'json', request);
+}
+
+model UpdateClusterAutoRenewRequest {
+  autoRenewInstances?: [
+    AutoRenewInstance
+  ](name='AutoRenewInstances', description='自动续费ECS实例列表。', position='Query'),
+  clusterAutoRenew?: boolean(name='ClusterAutoRenew', description='集群是否自动续费。', example='true', position='Query'),
+  clusterAutoRenewDuration?: int32(name='ClusterAutoRenewDuration', description='集群自动续费时长。', example='1', position='Query'),
+  clusterAutoRenewDurationUnit?: string(name='ClusterAutoRenewDurationUnit', description='集群续费时长单位。', example='Monthly', position='Query'),
+  clusterId: string(name='ClusterId', description='集群ID。
+
+This parameter is required.', example='c-d6661c71139a****', position='Query'),
+  regionId: string(name='RegionId', description='区域ID。
+
+This parameter is required.', example='cn-hangzhou', position='Query'),
+  renewAllInstances?: boolean(name='RenewAllInstances', description='续费所有ECS实例。', position='Query'),
+}
+
+model UpdateClusterAutoRenewResponseBody = {
+  requestId?: string(name='RequestId', description='请求ID。', example='9E3A7161-EB7B-172B-8D18-FFB06BA3896A'),
+  success?: boolean(name='Success', example='true', deprecated='true'),
+}
+
+model UpdateClusterAutoRenewResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: UpdateClusterAutoRenewResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of UpdateClusterAutoRenew  UpdateClusterAutoRenewRequest
+  * @return UpdateClusterAutoRenewResponse
+ */
+async function updateClusterAutoRenew(request: UpdateClusterAutoRenewRequest): UpdateClusterAutoRenewResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'UpdateClusterAutoRenew', 'POST', '/', 'json', false, 'json', request);
 }
 
 model UpdateScriptRequest {
