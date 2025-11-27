@@ -305,6 +305,12 @@ model AlertRuleQuery {
   dimensions?: [ map[string]string ](name='dimensions'),
   domain?: string(name='domain'),
   duration?: long(name='duration'),
+  entityFields?: [ 
+    {
+      field?: string(name='field'),
+      value?: string(name='value'),
+    }
+  ](name='entityFields'),
   entityFilter?: {
     domain?: string(name='domain'),
     filters?: [ 
@@ -321,6 +327,13 @@ model AlertRuleQuery {
   groupFieldList?: [ string ](name='groupFieldList'),
   groupId?: string(name='groupId'),
   groupType?: string(name='groupType'),
+  labelFilters?: [ 
+    {
+      name?: string(name='name'),
+      operator?: string(name='operator'),
+      value?: string(name='value'),
+    }
+  ](name='labelFilters'),
   metric?: string(name='metric'),
   metricSet?: string(name='metricSet'),
   namespace?: string(name='namespace'),
@@ -389,14 +402,14 @@ model AlertRuleTimeSpan {
 }
 
 model BizTraceConfig {
-  advancedConfig?: string(name='advancedConfig'),
-  bizTraceCode?: string(name='bizTraceCode'),
-  bizTraceId?: string(name='bizTraceId'),
-  bizTraceName?: string(name='bizTraceName'),
-  createTime?: string(name='createTime'),
-  regionId?: string(name='regionId'),
-  ruleConfig?: string(name='ruleConfig'),
-  workspace?: string(name='workspace'),
+  advancedConfig?: string(name='advancedConfig', example='{"sample":{"strategy":"BY_APP"}}'),
+  bizTraceCode?: string(name='bizTraceCode', example='label_env'),
+  bizTraceId?: string(name='bizTraceId', example='e339260ed64c95d'),
+  bizTraceName?: string(name='bizTraceName', example='just test'),
+  createTime?: string(name='createTime', example='2025-12-12 00:00:00'),
+  regionId?: string(name='regionId', example='cn-beijing'),
+  ruleConfig?: string(name='ruleConfig', example='[{"entrancePid":"xxxxx@b57c44xx6e86","rpcMatcher":{"matchType":"EQUALS","pattern":"/createApp"},"characteristics":{"operation":"AND","rules":[{"target":"CUSTOM_EXTRACT","matcher":{"matchType":"CONTAINS","pattern":[]}}]}}]'),
+  workspace?: string(name='workspace', example='default-cms-xxxxxxx-cn-hangzhou'),
 }
 
 model CmsEventForView {
@@ -1434,6 +1447,82 @@ async function createAggTaskGroup(instanceId: string, request: CreateAggTaskGrou
   return createAggTaskGroupWithOptions(instanceId, request, headers, runtime);
 }
 
+model CreateBizTraceRequest {
+  advancedConfig?: string(name='advancedConfig', example='{"sample":{"strategy":"BY_APP"}}'),
+  bizTraceCode?: string(name='bizTraceCode', example='label_env'),
+  bizTraceName?: string(name='bizTraceName', example='just test'),
+  ruleConfig?: string(name='ruleConfig', example='[{"entrancePid":"xxx@d9w3jd9j3","rpcMatcher":{"matchType":"EQUALS","pattern":"/"},"characteristics":{"operation":"OR","rules":[{"target":"CUSTOM_EXTRACT","id":"oi0b3bb7","key":"biz.test","matcher":{"matchType":"CONTAINS","pattern":["1"]}}]}}]'),
+  workspace?: string(name='workspace', example='default-cms-xxxxxxx-cn-hangzhou'),
+}
+
+model CreateBizTraceResponseBody = {
+  bizTraceId?: string(name='bizTraceId', example='e339260ed64c95d'),
+  requestId?: string(name='requestId', example='264C3E89-XXXX-XXXX-XXXX-CE9C2196C7DC'),
+}
+
+model CreateBizTraceResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: CreateBizTraceResponseBody(name='body'),
+}
+
+/**
+ * @summary 创建业务链路
+ *
+ * @param request CreateBizTraceRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return CreateBizTraceResponse
+ */
+async function createBizTraceWithOptions(request: CreateBizTraceRequest, headers: map[string]string, runtime: Util.RuntimeOptions): CreateBizTraceResponse {
+  Util.validateModel(request);
+  var body : map[string]any = {};
+  if (!Util.isUnset(request.advancedConfig)) {
+    body['advancedConfig'] = request.advancedConfig;
+  }
+  if (!Util.isUnset(request.bizTraceCode)) {
+    body['bizTraceCode'] = request.bizTraceCode;
+  }
+  if (!Util.isUnset(request.bizTraceName)) {
+    body['bizTraceName'] = request.bizTraceName;
+  }
+  if (!Util.isUnset(request.ruleConfig)) {
+    body['ruleConfig'] = request.ruleConfig;
+  }
+  if (!Util.isUnset(request.workspace)) {
+    body['workspace'] = request.workspace;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApi.Params{
+    action = 'CreateBizTrace',
+    version = '2024-03-30',
+    protocol = 'HTTPS',
+    pathname = `/bizTrace`,
+    method = 'POST',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 创建业务链路
+ *
+ * @param request CreateBizTraceRequest
+ * @return CreateBizTraceResponse
+ */
+async function createBizTrace(request: CreateBizTraceRequest): CreateBizTraceResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return createBizTraceWithOptions(request, headers, runtime);
+}
+
 model CreateCloudResourceResponseBody = {
   requestId?: string(name='requestId', example='264C3E89-XXXX-XXXX-XXXX-CE9C2196C7DC'),
 }
@@ -2301,6 +2390,52 @@ async function deleteAggTaskGroup(instanceId: string, groupId: string): DeleteAg
   return deleteAggTaskGroupWithOptions(instanceId, groupId, headers, runtime);
 }
 
+model DeleteBizTraceResponseBody = {
+  requestId?: string(name='requestId', example='8FDE2569-626B-5176-9844-28877A*****'),
+}
+
+model DeleteBizTraceResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: DeleteBizTraceResponseBody(name='body'),
+}
+
+/**
+ * @summary 删除业务链路
+ *
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return DeleteBizTraceResponse
+ */
+async function deleteBizTraceWithOptions(bizTraceId: string, headers: map[string]string, runtime: Util.RuntimeOptions): DeleteBizTraceResponse {
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+  };
+  var params = new OpenApi.Params{
+    action = 'DeleteBizTrace',
+    version = '2024-03-30',
+    protocol = 'HTTPS',
+    pathname = `/bizTrace/${OpenApiUtil.getEncodeParam(bizTraceId)}`,
+    method = 'DELETE',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 删除业务链路
+ *
+ * @return DeleteBizTraceResponse
+ */
+async function deleteBizTrace(bizTraceId: string): DeleteBizTraceResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return deleteBizTraceWithOptions(bizTraceId, headers, runtime);
+}
+
 model DeleteCloudResourceResponseBody = {
   requestId?: string(name='requestId', example='264C3E89-XXXX-XXXX-XXXX-CE9C2196C7DC'),
 }
@@ -2890,6 +3025,201 @@ async function describeRegions(request: DescribeRegionsRequest): DescribeRegions
   return describeRegionsWithOptions(request, headers, runtime);
 }
 
+model GetAddonRequest {
+  aliyunLang?: string(name='aliyunLang', example='zh'),
+  version?: string(name='version', example='*'),
+}
+
+model GetAddonResponseBody = {
+  data?: {
+    alias?: string(name='alias', example='resume_vector_alias'),
+    categories?: [ string ](name='categories'),
+    dashboards?: [ 
+      {
+        description?: string(name='description', example='test'),
+        name?: string(name='name', example='rum_api_dot_metric_set'),
+        url?: string(name='url', example='http://iac-service-transfer.oss-cn-hangzhou.aliyuncs.com/78c5_288850010070719968_bdcf7cca781844c8ac4add133791713f'),
+      }
+    ](name='dashboards'),
+    description?: string(name='description', example='o11y-demo-cn-heyuan'),
+    environments?: [ 
+      {
+        commonSchemaRefs?: [ 
+          {
+            group?: string(name='group'),
+            version?: string(name='version'),
+          }
+        ](name='commonSchemaRefs'),
+        dependencies?: {
+          clusterTypes?: [ string ](name='clusterTypes'),
+          features?: map[string]boolean(name='features'),
+          services?: [ string ](name='services'),
+        }(name='dependencies'),
+        description?: string(name='description', example='Observability integration.'),
+        enable?: boolean(name='enable', example='false'),
+        label?: string(name='label'),
+        name?: string(name='name', example='cs-default-umodel-1752755202744_k8s.metric.high_level_metric_deployment_cn-hangzhou/c0a686118449c4390b9cc0a07ea3e0e85'),
+        policies?: {
+          alertDefaultStatus?: string(name='alertDefaultStatus', example='true'),
+          defaultInstall?: boolean(name='defaultInstall', example='true'),
+          enableServiceAccount?: boolean(name='enableServiceAccount', example='true'),
+          metricCheckRule?: {
+            promQL?: [ string ](name='promQL'),
+          }(name='metricCheckRule'),
+          needRestartAfterIntegration?: boolean(name='needRestartAfterIntegration', example='true'),
+          protocols?: [ 
+            {
+              description?: string(name='description', example='Prometheus Metrics'),
+              icon?: string(name='icon', example='icon URL'),
+              label?: string(name='label'),
+              name?: string(name='name', example='rum_api_dot_metric_set'),
+            }
+          ](name='protocols'),
+          targetAddonName?: string(name='targetAddonName', example='cs-default'),
+        }(name='policies'),
+        policyType?: string(name='policyType', example='CS'),
+      }
+    ](name='environments'),
+    icon?: string(name='icon', example='icon URL'),
+    keywords?: [ string ](name='keywords'),
+    language?: string(name='language', example='zh'),
+    latestReleaseCreateTime?: string(name='latestReleaseCreateTime', example='2023-09-12 12:30:30'),
+    name?: string(name='name', example='rum_api_dashboard_explorer_link_metric_set'),
+    once?: boolean(name='once', example='true'),
+    scene?: string(name='scene', example='middleware'),
+    version?: string(name='version', example='*'),
+    weight?: string(name='weight', example='10'),
+  }(name='data'),
+  requestId?: string(name='requestId', description='Id of the request', example='0B9377D9-C56B-5C2E-A8A4-A01D6CC3F4B8'),
+}
+
+model GetAddonResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: GetAddonResponseBody(name='body'),
+}
+
+/**
+ * @summary 插件详情(Addon)
+ *
+ * @param request GetAddonRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return GetAddonResponse
+ */
+async function getAddonWithOptions(addonName: string, request: GetAddonRequest, headers: map[string]string, runtime: Util.RuntimeOptions): GetAddonResponse {
+  Util.validateModel(request);
+  var query : map[string]any = {};
+  if (!Util.isUnset(request.aliyunLang)) {
+    query['aliyunLang'] = request.aliyunLang;
+  }
+  if (!Util.isUnset(request.version)) {
+    query['version'] = request.version;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'GetAddon',
+    version = '2024-03-30',
+    protocol = 'HTTPS',
+    pathname = `/addons/${OpenApiUtil.getEncodeParam(addonName)}`,
+    method = 'GET',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 插件详情(Addon)
+ *
+ * @param request GetAddonRequest
+ * @return GetAddonResponse
+ */
+async function getAddon(addonName: string, request: GetAddonRequest): GetAddonResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return getAddonWithOptions(addonName, request, headers, runtime);
+}
+
+model GetAddonCodeTemplateRequest {
+  aliyunLang?: string(name='aliyunLang', example='zh'),
+  environmentType?: string(name='environmentType', example='Client'),
+  version?: string(name='version', example='0.1.0'),
+}
+
+model GetAddonCodeTemplateResponseBody = {
+  codes?: [ 
+    {
+      codeTemplate?: string(name='codeTemplate', example='javascript\\\\nnpm install @arms/rum-miniapp --save'),
+      name?: string(name='name', example='cs-default-CS-cs-default-1753236205394-cs-default-CS-kubeApiserver'),
+    }
+  ](name='codes'),
+  requestId?: string(name='requestId', description='Id of the request', example='0CEC5375-C554-562B-A65F-***'),
+}
+
+model GetAddonCodeTemplateResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: GetAddonCodeTemplateResponseBody(name='body'),
+}
+
+/**
+ * @summary 插件schema详情(Addon)
+ *
+ * @param request GetAddonCodeTemplateRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return GetAddonCodeTemplateResponse
+ */
+async function getAddonCodeTemplateWithOptions(addonName: string, request: GetAddonCodeTemplateRequest, headers: map[string]string, runtime: Util.RuntimeOptions): GetAddonCodeTemplateResponse {
+  Util.validateModel(request);
+  var query : map[string]any = {};
+  if (!Util.isUnset(request.aliyunLang)) {
+    query['aliyunLang'] = request.aliyunLang;
+  }
+  if (!Util.isUnset(request.environmentType)) {
+    query['environmentType'] = request.environmentType;
+  }
+  if (!Util.isUnset(request.version)) {
+    query['version'] = request.version;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'GetAddonCodeTemplate',
+    version = '2024-03-30',
+    protocol = 'HTTPS',
+    pathname = `/addons/${OpenApiUtil.getEncodeParam(addonName)}/alert-code-template`,
+    method = 'GET',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 插件schema详情(Addon)
+ *
+ * @param request GetAddonCodeTemplateRequest
+ * @return GetAddonCodeTemplateResponse
+ */
+async function getAddonCodeTemplate(addonName: string, request: GetAddonCodeTemplateRequest): GetAddonCodeTemplateResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return getAddonCodeTemplateWithOptions(addonName, request, headers, runtime);
+}
+
 model GetAddonReleaseResponseBody = {
   config?: string(name='config', description='Component configuration.', example='{"install":{"mode":"auto-install","listenPort":"9400"},"discoverMode":"instances","discover":{"instances":"worker-k8s-for-cs-c126d87c76218487e83ab322017f11b44"},"scrapeInterval":"15","enableSecuritecs-nodeyGroupInjection":"true","metricTags":""}'),
   release?: {
@@ -2972,6 +3302,114 @@ async function getAddonRelease(releaseName: string, policyId: string): GetAddonR
   return getAddonReleaseWithOptions(releaseName, policyId, headers, runtime);
 }
 
+model GetAddonSchemaRequest {
+  aliyunLang?: string(name='aliyunLang', example='zh'),
+  environmentType?: string(name='environmentType'),
+  version?: string(name='version', example='0.1.1'),
+}
+
+model GetAddonSchemaResponseBody = {
+  fields?: [ 
+    {
+      conditions?: [ 
+        {
+          action?: string(name='action', example='redeploy'),
+          field?: string(name='field'),
+          op?: string(name='op'),
+          value?: any(name='value', example='[{\\\\"count\\\\": \\\\"1\\\\", \\\\"max\\\\": \\\\"358.106\\\\", \\\\"sum\\\\": \\\\"358.106\\\\", \\\\"ts\\\\": \\\\"1755049815000000\\\\", \\\\"min\\\\": \\\\"358.106\\\\"}, {\\\\"count\\\\": \\\\"1\\\\", \\\\"max\\\\": \\\\"326.311\\\\", \\\\"sum\\\\": \\\\"326.311\\\\", \\\\"ts\\\\": \\\\"1755049830000000\\\\", \\\\"min\\\\": \\\\"326.311\\\\"}]'),
+        }
+      ](name='conditions'),
+      defaultValue?: any(name='defaultValue'),
+      description?: string(name='description', example='o11y-demo-cn-heyuan'),
+      disabled?: boolean(name='disabled'),
+      element?: string(name='element'),
+      fieldPath?: string(name='fieldPath'),
+      label?: string(name='label'),
+      name?: string(name='name', example='rum_api_dashboard_explorer_link_metric_set'),
+      placeholder?: string(name='placeholder'),
+      props?: {
+        dataSource?: [ 
+          {
+            label?: string(name='label'),
+            value?: string(name='value', example='[]'),
+          }
+        ](name='dataSource', description='AK'),
+        related?: [ string ](name='related'),
+        selectMode?: string(name='selectMode'),
+      }(name='props'),
+      type?: string(name='type', example='xtrace'),
+      validation?: {
+        max?: int32(name='max'),
+        maxLength?: int32(name='maxLength'),
+        message?: string(name='message', example='ok'),
+        min?: int32(name='min'),
+        minLength?: int32(name='minLength'),
+        regular?: string(name='regular'),
+        required?: boolean(name='required'),
+      }(name='validation'),
+    }
+  ](name='fields'),
+  requestId?: string(name='requestId', example='E5B1D3D4-BB28-5996-8AD2-***********'),
+  type?: string(name='type', example='response_time'),
+}
+
+model GetAddonSchemaResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: GetAddonSchemaResponseBody(name='body'),
+}
+
+/**
+ * @summary 插件schema详情(Addon)
+ *
+ * @param request GetAddonSchemaRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return GetAddonSchemaResponse
+ */
+async function getAddonSchemaWithOptions(addonName: string, request: GetAddonSchemaRequest, headers: map[string]string, runtime: Util.RuntimeOptions): GetAddonSchemaResponse {
+  Util.validateModel(request);
+  var query : map[string]any = {};
+  if (!Util.isUnset(request.aliyunLang)) {
+    query['aliyunLang'] = request.aliyunLang;
+  }
+  if (!Util.isUnset(request.environmentType)) {
+    query['environmentType'] = request.environmentType;
+  }
+  if (!Util.isUnset(request.version)) {
+    query['version'] = request.version;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'GetAddonSchema',
+    version = '2024-03-30',
+    protocol = 'HTTPS',
+    pathname = `/addons/${OpenApiUtil.getEncodeParam(addonName)}/schema`,
+    method = 'GET',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 插件schema详情(Addon)
+ *
+ * @param request GetAddonSchemaRequest
+ * @return GetAddonSchemaResponse
+ */
+async function getAddonSchema(addonName: string, request: GetAddonSchemaRequest): GetAddonSchemaResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return getAddonSchemaWithOptions(addonName, request, headers, runtime);
+}
+
 model GetAggTaskGroupResponseBody = {
   aggTaskGroup?: {
     aggTaskGroupConfig?: string(name='aggTaskGroupConfig', description='Aggregation task group configuration.', example='groups:
@@ -3051,6 +3489,53 @@ async function getAggTaskGroup(instanceId: string, groupId: string): GetAggTaskG
   var runtime = new Util.RuntimeOptions{};
   var headers : map[string]string = {};
   return getAggTaskGroupWithOptions(instanceId, groupId, headers, runtime);
+}
+
+model GetBizTraceResponseBody = {
+  item?: BizTraceConfig(name='item'),
+  requestId?: string(name='requestId', example='8FDE2569-626B-5176-9844-28877A*****'),
+}
+
+model GetBizTraceResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: GetBizTraceResponseBody(name='body'),
+}
+
+/**
+ * @summary 查询业务链路
+ *
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return GetBizTraceResponse
+ */
+async function getBizTraceWithOptions(bizTraceId: string, headers: map[string]string, runtime: Util.RuntimeOptions): GetBizTraceResponse {
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+  };
+  var params = new OpenApi.Params{
+    action = 'GetBizTrace',
+    version = '2024-03-30',
+    protocol = 'HTTPS',
+    pathname = `/bizTrace/${OpenApiUtil.getEncodeParam(bizTraceId)}`,
+    method = 'GET',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 查询业务链路
+ *
+ * @return GetBizTraceResponse
+ */
+async function getBizTrace(bizTraceId: string): GetBizTraceResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return getBizTraceWithOptions(bizTraceId, headers, runtime);
 }
 
 model GetCloudResourceResponseBody = {
@@ -3504,6 +3989,70 @@ async function getIntegrationPolicy(policyId: string): GetIntegrationPolicyRespo
   var runtime = new Util.RuntimeOptions{};
   var headers : map[string]string = {};
   return getIntegrationPolicyWithOptions(policyId, headers, runtime);
+}
+
+model GetIntegrationVersionForCSRequest {
+  clusterId?: string(name='clusterId', description='This parameter is required.', example='c502646fd0d1249baaf792b3a1b589e1b'),
+  clusterType?: string(name='clusterType', description='This parameter is required.', example='acs.ack.cluster'),
+}
+
+model GetIntegrationVersionForCSResponseBody = {
+  integrationVersion?: string(name='integrationVersion', example='V1'),
+  requestId?: string(name='requestId', description='Id of the request', example='CD9BCF34-EA09-5643-BC11-AF41C8DFAE5A'),
+}
+
+model GetIntegrationVersionForCSResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: GetIntegrationVersionForCSResponseBody(name='body'),
+}
+
+/**
+ * @summary 查询接入中心在CS的版本
+ *
+ * @param request GetIntegrationVersionForCSRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return GetIntegrationVersionForCSResponse
+ */
+async function getIntegrationVersionForCSWithOptions(request: GetIntegrationVersionForCSRequest, headers: map[string]string, runtime: Util.RuntimeOptions): GetIntegrationVersionForCSResponse {
+  Util.validateModel(request);
+  var query : map[string]any = {};
+  if (!Util.isUnset(request.clusterId)) {
+    query['clusterId'] = request.clusterId;
+  }
+  if (!Util.isUnset(request.clusterType)) {
+    query['clusterType'] = request.clusterType;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'GetIntegrationVersionForCS',
+    version = '2024-03-30',
+    protocol = 'HTTPS',
+    pathname = `/integration-version/cs`,
+    method = 'GET',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 查询接入中心在CS的版本
+ *
+ * @param request GetIntegrationVersionForCSRequest
+ * @return GetIntegrationVersionForCSResponse
+ */
+async function getIntegrationVersionForCS(request: GetIntegrationVersionForCSRequest): GetIntegrationVersionForCSResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return getIntegrationVersionForCSWithOptions(request, headers, runtime);
 }
 
 model GetPrometheusInstanceRequest {
@@ -4300,6 +4849,138 @@ async function listAddonReleases(policyId: string, request: ListAddonReleasesReq
   return listAddonReleasesWithOptions(policyId, request, headers, runtime);
 }
 
+model ListAddonsRequest {
+  aliyunLang?: string(name='aliyunLang', example='zh'),
+  category?: string(name='category', example='database'),
+  regexp?: boolean(name='regexp'),
+  search?: string(name='search', example='105095'),
+}
+
+model ListAddonsResponseBody = {
+  addons?: [ 
+    {
+      alias?: string(name='alias', example='resume_vector_alias'),
+      categories?: [ string ](name='categories'),
+      dashboards?: [ 
+        {
+          description?: string(name='description', example='test'),
+          name?: string(name='name', example='rum_view_link_rum_api'),
+          url?: string(name='url', example='http://xxxxxxx'),
+        }
+      ](name='dashboards'),
+      description?: string(name='description', example='workspace api monitor test'),
+      environments?: [ 
+        {
+          commonSchemaRefs?: [ 
+            {
+              group?: string(name='group', example='acs-ecs'),
+              version?: string(name='version', example='0.1.4'),
+            }
+          ](name='commonSchemaRefs'),
+          dependencies?: {
+            clusterTypes?: [ string ](name='clusterTypes'),
+            features?: map[string]boolean(name='features'),
+            services?: [ string ](name='services'),
+          }(name='dependencies'),
+          description?: string(name='description', example='o11y-demo-cn-heyuan'),
+          enable?: boolean(name='enable', example='false'),
+          label?: string(name='label'),
+          name?: string(name='name', example='CS'),
+          policies?: {
+            alertDefaultStatus?: string(name='alertDefaultStatus', example='RUNNING'),
+            defaultInstall?: boolean(name='defaultInstall', example='true'),
+            enableServiceAccount?: boolean(name='enableServiceAccount', example='true'),
+            metricCheckRule?: {
+              promQL?: [ string ](name='promQL'),
+            }(name='metricCheckRule'),
+            needRestartAfterIntegration?: boolean(name='needRestartAfterIntegration', example='true'),
+            protocols?: [ 
+              {
+                description?: string(name='description', example='Support OpenTelemetry Protocal'),
+                icon?: string(name='icon', example='http://xxxxxxx'),
+                label?: string(name='label', example='OpenTelemetry'),
+                name?: string(name='name', example='openTelemetry'),
+              }
+            ](name='protocols'),
+            targetAddonName?: string(name='targetAddonName', example='cloud-acs-ecs'),
+          }(name='policies'),
+          policyType?: string(name='policyType', example='CS'),
+        }
+      ](name='environments'),
+      icon?: string(name='icon', example='http://xxxxxxx'),
+      keywords?: [ string ](name='keywords'),
+      language?: string(name='language', example='zh'),
+      latestReleaseCreateTime?: string(name='latestReleaseCreateTime', example='2025-09-03T03:15:56Z'),
+      name?: string(name='name', example='rum_api_dashboard_explorer_link_metric_set'),
+      once?: boolean(name='once', example='true'),
+      scene?: string(name='scene', example='middleware'),
+      version?: string(name='version', example='*'),
+      weight?: string(name='weight', example='99'),
+    }
+  ](name='addons'),
+  requestId?: string(name='requestId', description='Id of the request', example='8FDE2569-626B-5176-9844-28877A*****'),
+}
+
+model ListAddonsResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ListAddonsResponseBody(name='body'),
+}
+
+/**
+ * @summary 新版接入中心产品列表(分组)
+ *
+ * @param request ListAddonsRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return ListAddonsResponse
+ */
+async function listAddonsWithOptions(request: ListAddonsRequest, headers: map[string]string, runtime: Util.RuntimeOptions): ListAddonsResponse {
+  Util.validateModel(request);
+  var query : map[string]any = {};
+  if (!Util.isUnset(request.aliyunLang)) {
+    query['aliyunLang'] = request.aliyunLang;
+  }
+  if (!Util.isUnset(request.category)) {
+    query['category'] = request.category;
+  }
+  if (!Util.isUnset(request.regexp)) {
+    query['regexp'] = request.regexp;
+  }
+  if (!Util.isUnset(request.search)) {
+    query['search'] = request.search;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'ListAddons',
+    version = '2024-03-30',
+    protocol = 'HTTPS',
+    pathname = `/addons`,
+    method = 'GET',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 新版接入中心产品列表(分组)
+ *
+ * @param request ListAddonsRequest
+ * @return ListAddonsResponse
+ */
+async function listAddons(request: ListAddonsRequest): ListAddonsResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return listAddonsWithOptions(request, headers, runtime);
+}
+
 model ListAggTaskGroupsRequest {
   filterAggTaskGroupIds?: string(name='filterAggTaskGroupIds', description='List of IDs for the aggregation task groups, which must be JSON parseable.', example='["aggTaskGroup-xxx"]'),
   filterAggTaskGroupNames?: string(name='filterAggTaskGroupNames', description='List of names for the aggregation task groups, which must be JSON parseable.', example='["apiserver_request_total"]'),
@@ -4581,6 +5262,79 @@ async function listAlertActions(request: ListAlertActionsRequest): ListAlertActi
   return listAlertActionsWithOptions(request, headers, runtime);
 }
 
+model ListBizTracesRequest {
+  maxResults?: int32(name='maxResults', example='20'),
+  nextToken?: string(name='nextToken', example='aa9d0e569b88098a0e3155c29b473201a'),
+  workspace?: string(name='workspace', example='default-cms-xxxxxx-cn-beijing'),
+}
+
+model ListBizTracesResponseBody = {
+  items?: [
+    BizTraceConfig
+  ](name='items'),
+  maxResults?: int32(name='maxResults', example='20'),
+  nextToken?: string(name='nextToken', example='aa9d0e569b88098a0e3155c29b473201a'),
+  requestId?: string(name='requestId', example='0CEC5375-C554-562B-A65F-*****'),
+  totalCount?: int32(name='totalCount', example='66'),
+}
+
+model ListBizTracesResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ListBizTracesResponseBody(name='body'),
+}
+
+/**
+ * @summary 业务链路列表
+ *
+ * @param request ListBizTracesRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return ListBizTracesResponse
+ */
+async function listBizTracesWithOptions(request: ListBizTracesRequest, headers: map[string]string, runtime: Util.RuntimeOptions): ListBizTracesResponse {
+  Util.validateModel(request);
+  var query : map[string]any = {};
+  if (!Util.isUnset(request.maxResults)) {
+    query['maxResults'] = request.maxResults;
+  }
+  if (!Util.isUnset(request.nextToken)) {
+    query['nextToken'] = request.nextToken;
+  }
+  if (!Util.isUnset(request.workspace)) {
+    query['workspace'] = request.workspace;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'ListBizTraces',
+    version = '2024-03-30',
+    protocol = 'HTTPS',
+    pathname = `/bizTraces`,
+    method = 'GET',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 业务链路列表
+ *
+ * @param request ListBizTracesRequest
+ * @return ListBizTracesResponse
+ */
+async function listBizTraces(request: ListBizTracesRequest): ListBizTracesResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return listBizTracesWithOptions(request, headers, runtime);
+}
+
 model ListIntegrationPoliciesRequest {
   addonName?: string(name='addonName', description='Addon name.', example='cs-default'),
   bindResourceId?: string(name='bindResourceId', description='Bound resource ID', example='622d27c2e87d49debceeebc7c642610e'),
@@ -4809,6 +5563,214 @@ async function listIntegrationPolicies(request: ListIntegrationPoliciesRequest):
   var runtime = new Util.RuntimeOptions{};
   var headers : map[string]string = {};
   return listIntegrationPoliciesWithOptions(request, headers, runtime);
+}
+
+model ListIntegrationPolicyAddonsResponseBody = {
+  addons?: [ 
+    {
+      alias?: string(name='alias', example='MySQL'),
+      categories?: [ string ](name='categories'),
+      dashboards?: [ 
+        {
+          description?: string(name='description'),
+          name?: string(name='name', example='MySQL Overview'),
+          url?: string(name='url', example='http://xxxxxxx'),
+        }
+      ](name='dashboards'),
+      description?: string(name='description', example='Observability integration.'),
+      environments?: [ 
+        {
+          dependencies?: {
+            clusterTypes?: [ string ](name='clusterTypes'),
+            features?: map[string]boolean(name='features'),
+            services?: [ string ](name='services'),
+          }(name='dependencies'),
+          description?: string(name='description', example='o11y-demo-cn-heyuan'),
+          enable?: boolean(name='enable', example='true'),
+          label?: string(name='label', example='Cloud'),
+          name?: string(name='name', example='Cloud'),
+          policies?: {
+            alertDefaultStatus?: string(name='alertDefaultStatus', example='RUNNING'),
+            defaultInstall?: boolean(name='defaultInstall', example='true'),
+            enableServiceAccount?: boolean(name='enableServiceAccount', example='true'),
+            metricCheckRule?: {
+              promQl?: [ string ](name='promQl'),
+            }(name='metricCheckRule'),
+            needRestartAfterIntegration?: boolean(name='needRestartAfterIntegration', example='true'),
+            protocols?: [ 
+              {
+                description?: string(name='description', example='test'),
+                icon?: string(name='icon', example='https://img.alixxxx'),
+                label?: string(name='label', example='Golang'),
+                name?: string(name='name', example='golang'),
+              }
+            ](name='protocols'),
+            targetAddonName?: string(name='targetAddonName', example='mysql'),
+          }(name='policies'),
+        }
+      ](name='environments'),
+      icon?: string(name='icon', example='asert/mysql.svg'),
+      keywords?: [ string ](name='keywords'),
+      language?: string(name='language', example='zh'),
+      latestReleaseCreateTime?: string(name='latestReleaseCreateTime', example='2025-09-03T03:15:56Z'),
+      name?: string(name='name', example='mysql'),
+      once?: boolean(name='once', example='true'),
+      scene?: string(name='scene', example='container'),
+      version?: string(name='version', example='0.1.1'),
+      weight?: int32(name='weight', example='99'),
+    }
+  ](name='addons'),
+  requestId?: string(name='requestId', description='Id of the request', example='7E00EF90-CEF9-57C9-9AE9-5AA937D37C03'),
+  total?: long(name='total', example='5'),
+}
+
+model ListIntegrationPolicyAddonsResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ListIntegrationPolicyAddonsResponseBody(name='body'),
+}
+
+/**
+ * @summary 策略addon列表
+ *
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return ListIntegrationPolicyAddonsResponse
+ */
+async function listIntegrationPolicyAddonsWithOptions(policyId: string, headers: map[string]string, runtime: Util.RuntimeOptions): ListIntegrationPolicyAddonsResponse {
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+  };
+  var params = new OpenApi.Params{
+    action = 'ListIntegrationPolicyAddons',
+    version = '2024-03-30',
+    protocol = 'HTTPS',
+    pathname = `/integration-policies/${OpenApiUtil.getEncodeParam(policyId)}/addons`,
+    method = 'GET',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 策略addon列表
+ *
+ * @return ListIntegrationPolicyAddonsResponse
+ */
+async function listIntegrationPolicyAddons(policyId: string): ListIntegrationPolicyAddonsResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return listIntegrationPolicyAddonsWithOptions(policyId, headers, runtime);
+}
+
+model ListIntegrationPolicyCollectorsRequest {
+  addonReleaseName?: string(name='addonReleaseName', example='release-1234567'),
+  collectorType?: string(name='collectorType', description='This parameter is required.', example='Exporter'),
+  language?: string(name='language', example='zh'),
+}
+
+model ListIntegrationPolicyCollectorsResponseBody = {
+  collectors?: [ 
+    {
+      addonMeta?: AddonMeta(name='addonMeta'),
+      collectorName?: string(name='collectorName', example='collector-kkxx'),
+      collectorType?: string(name='collectorType', example='Exporter'),
+      conditions?: [ 
+        {
+          firstTransitionTime?: string(name='firstTransitionTime', example='2024-08-27T13:59:23+08:00'),
+          lastTransitionTime?: string(name='lastTransitionTime', example='2024-08-27T13:59:23+08:00'),
+          message?: string(name='message', example='success'),
+          reason?: string(name='reason', example='Probe'),
+          status?: string(name='status', example='True'),
+          type?: string(name='type', example='Ready'),
+        }
+      ](name='conditions'),
+      managed?: boolean(name='managed', example='false'),
+      releaseName?: string(name='releaseName'),
+      state?: string(name='state', example='xx'),
+      version?: string(name='version', example='2.6.2'),
+      workloads?: [ 
+        {
+          hostIp?: string(name='hostIp', example='10.10.10.10'),
+          ip?: string(name='ip', example='11.193.82.198'),
+          managed?: boolean(name='managed', example='false'),
+          managedInfo?: {
+            securityGroupId?: string(name='securityGroupId', example='sg-xxxxx'),
+            vswitchId?: string(name='vswitchId', example='vsw-xxxxxx'),
+          }(name='managedInfo'),
+          message?: string(name='message', example='ok'),
+          name?: string(name='name', example='exporter-xxx'),
+          namespace?: string(name='namespace', example='prod-db'),
+          ownerReferenceKind?: string(name='ownerReferenceKind', example='Deployment'),
+          ownerReferenceName?: string(name='ownerReferenceName', example='exporter'),
+          startTime?: string(name='startTime', example='2024-08-27T13:59:23+08:00'),
+          status?: string(name='status', example='{}'),
+          version?: string(name='version', example='v2.4.4'),
+        }
+      ](name='workloads'),
+    }
+  ](name='collectors'),
+  requestId?: string(name='requestId', example='0B9377D9-C56B-5C2E-A8A4-A01D6CC3F4B8'),
+}
+
+model ListIntegrationPolicyCollectorsResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ListIntegrationPolicyCollectorsResponseBody(name='body'),
+}
+
+/**
+ * @summary 获取接入中心策略的存储要求信息
+ *
+ * @param request ListIntegrationPolicyCollectorsRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return ListIntegrationPolicyCollectorsResponse
+ */
+async function listIntegrationPolicyCollectorsWithOptions(policyId: string, request: ListIntegrationPolicyCollectorsRequest, headers: map[string]string, runtime: Util.RuntimeOptions): ListIntegrationPolicyCollectorsResponse {
+  Util.validateModel(request);
+  var query : map[string]any = {};
+  if (!Util.isUnset(request.addonReleaseName)) {
+    query['addonReleaseName'] = request.addonReleaseName;
+  }
+  if (!Util.isUnset(request.collectorType)) {
+    query['collectorType'] = request.collectorType;
+  }
+  if (!Util.isUnset(request.language)) {
+    query['language'] = request.language;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'ListIntegrationPolicyCollectors',
+    version = '2024-03-30',
+    protocol = 'HTTPS',
+    pathname = `/integration-policies/${OpenApiUtil.getEncodeParam(policyId)}/collectors`,
+    method = 'GET',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 获取接入中心策略的存储要求信息
+ *
+ * @param request ListIntegrationPolicyCollectorsRequest
+ * @return ListIntegrationPolicyCollectorsResponse
+ */
+async function listIntegrationPolicyCollectors(policyId: string, request: ListIntegrationPolicyCollectorsRequest): ListIntegrationPolicyCollectorsResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return listIntegrationPolicyCollectorsWithOptions(policyId, request, headers, runtime);
 }
 
 model ListIntegrationPolicyCustomScrapeJobRulesRequest {
@@ -6293,6 +7255,78 @@ async function updateAggTaskGroupStatus(instanceId: string, groupId: string, req
   var runtime = new Util.RuntimeOptions{};
   var headers : map[string]string = {};
   return updateAggTaskGroupStatusWithOptions(instanceId, groupId, request, headers, runtime);
+}
+
+model UpdateBizTraceRequest {
+  advancedConfig?: string(name='advancedConfig', example='{"sample":{"strategy":"BY_APP"}}'),
+  bizTraceName?: string(name='bizTraceName', example='just test'),
+  ruleConfig?: string(name='ruleConfig', example='[{"entrancePid":"xxx@d9w3jd9j3","rpcMatcher":{"matchType":"EQUALS","pattern":"/"},"characteristics":{"operation":"OR","rules":[{"target":"CUSTOM_EXTRACT","id":"oi0b3bb7","key":"biz.test","matcher":{"matchType":"CONTAINS","pattern":["1"]}}]}}]'),
+  workspace?: string(name='workspace', example='default-cms-xxxxxxx-cn-hangzhou'),
+}
+
+model UpdateBizTraceResponseBody = {
+  bizTraceId?: string(name='bizTraceId', example='e339260ed64c95d'),
+  requestId?: string(name='requestId', example='264C3E89-XXXX-XXXX-XXXX-CE9C2196C7DC'),
+}
+
+model UpdateBizTraceResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: UpdateBizTraceResponseBody(name='body'),
+}
+
+/**
+ * @summary 修改业务链路
+ *
+ * @param request UpdateBizTraceRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return UpdateBizTraceResponse
+ */
+async function updateBizTraceWithOptions(bizTraceId: string, request: UpdateBizTraceRequest, headers: map[string]string, runtime: Util.RuntimeOptions): UpdateBizTraceResponse {
+  Util.validateModel(request);
+  var body : map[string]any = {};
+  if (!Util.isUnset(request.advancedConfig)) {
+    body['advancedConfig'] = request.advancedConfig;
+  }
+  if (!Util.isUnset(request.bizTraceName)) {
+    body['bizTraceName'] = request.bizTraceName;
+  }
+  if (!Util.isUnset(request.ruleConfig)) {
+    body['ruleConfig'] = request.ruleConfig;
+  }
+  if (!Util.isUnset(request.workspace)) {
+    body['workspace'] = request.workspace;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApi.Params{
+    action = 'UpdateBizTrace',
+    version = '2024-03-30',
+    protocol = 'HTTPS',
+    pathname = `/bizTrace/${OpenApiUtil.getEncodeParam(bizTraceId)}`,
+    method = 'PUT',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 修改业务链路
+ *
+ * @param request UpdateBizTraceRequest
+ * @return UpdateBizTraceResponse
+ */
+async function updateBizTrace(bizTraceId: string, request: UpdateBizTraceRequest): UpdateBizTraceResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return updateBizTraceWithOptions(bizTraceId, request, headers, runtime);
 }
 
 model UpdateIntegrationPolicyRequest {
