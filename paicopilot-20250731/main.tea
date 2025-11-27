@@ -1,0 +1,172 @@
+/**
+ *
+ */
+import Util;
+import OpenApi;
+import OpenApiUtil;
+import EndpointUtil;
+
+extends OpenApi;
+
+
+init(config: OpenApi.Config){
+  super(config);
+  @endpointRule = '';
+  
+  checkConfig(config);
+  @endpoint = getEndpoint('paicopilot', @regionId, @endpointRule, @network, @suffix, @endpointMap, @endpoint);
+}
+
+function getEndpoint(productId: string, regionId: string, endpointRule: string, network: string, suffix: string, endpointMap: map[string]string, endpoint: string) throws: string{
+  if (!Util.empty(endpoint)) {
+    return endpoint;
+  }
+  
+  if (!Util.isUnset(endpointMap) && !Util.empty(endpointMap[regionId])) {
+    return endpointMap[regionId];
+  }
+  return EndpointUtil.getEndpointRules(productId, regionId, endpointRule, network, suffix);
+}
+
+model Chat {
+  answer?: ChatDetail(name='Answer'),
+  chatId?: string(name='ChatId'),
+  extraData?: string(name='ExtraData'),
+  gmtCreateTime?: string(name='GmtCreateTime', description='Use the UTC time format: yyyy-MM-ddTHH:mm:ss.SSSZ'),
+  gmtModified?: string(name='GmtModified', description='Use the UTC time format: yyyy-MM-ddTHH:mm:ss.SSSZ'),
+  message?: string(name='Message'),
+  ownerId?: string(name='OwnerId'),
+  question?: ChatDetail(name='Question'),
+  sessionId?: string(name='SessionId'),
+  status?: string(name='Status'),
+  title?: string(name='Title'),
+  userId?: string(name='UserId'),
+}
+
+model ChatDetail {
+  content?: string(name='Content'),
+  gmtCreateTime?: string(name='GmtCreateTime', description='Use the UTC time format: yyyy-MM-ddTHH:mm:ss.SSSZ'),
+  userInfo?: {
+    name?: string(name='Name'),
+    role?: string(name='Role'),
+  }(name='UserInfo'),
+}
+
+model Feedback {
+  chatId?: string(name='ChatId'),
+  feedbackAction?: string(name='FeedbackAction'),
+  feedbackId?: string(name='FeedbackId'),
+  feedbackMessage?: string(name='FeedbackMessage'),
+  gmtCreateTime?: string(name='GmtCreateTime', description='Use the UTC time format: yyyy-MM-ddTHH:mm:ssZ'),
+  gmtModified?: string(name='GmtModified', description='Use the UTC time format: yyyy-MM-ddTHH:mm:ssZ'),
+  ownerId?: string(name='OwnerId'),
+  sessionId?: string(name='SessionId'),
+  userId?: string(name='UserId'),
+}
+
+model Label {
+  key?: string(name='Key'),
+  value?: string(name='Value'),
+}
+
+model Session {
+  gmtCreateTime?: string(name='GmtCreateTime', description='Use the UTC time format: yyyy-MM-ddTHH:mm:ss.SSSZ'),
+  gmtModified?: string(name='GmtModified', description='Use the UTC time format: yyyy-MM-ddTHH:mm:ss.SSSZ'),
+  ownerId?: string(name='OwnerId'),
+  sessionId?: string(name='SessionId'),
+  sessionTitle?: string(name='SessionTitle'),
+  userId?: string(name='UserId'),
+}
+
+model SearchInfoRequest {
+  knowledgeBaseFilters?: [ 
+    {
+      collectionName?: string(name='CollectionName', description='This parameter is required.', example='pai_qa'),
+      query?: string(name='Query', description='This parameter is required.', example='what is pai'),
+      resultLimit?: int32(name='ResultLimit', example='5'),
+      scoreThreshold?: double(name='ScoreThreshold', example='0.7827883223'),
+    }
+  ](name='KnowledgeBaseFilters'),
+  webFilters?: [ 
+    {
+      includeSites?: [ string ](name='IncludeSites'),
+      query?: string(name='Query', description='This parameter is required.', example='what is dsw'),
+      resultLimit?: int32(name='ResultLimit', example='5'),
+      scoreThreshold?: double(name='ScoreThreshold', example='0.832883223'),
+    }
+  ](name='WebFilters'),
+}
+
+model SearchInfoResponseBody = {
+  knowledgeBaseSearchResults?: [ 
+    {
+      index?: string(name='Index', example='0'),
+      resultContent?: string(name='ResultContent', example='DSW is ****** in pai.'),
+      score?: double(name='Score', example='0.6215165367'),
+    }
+  ](name='KnowledgeBaseSearchResults'),
+  requestId?: string(name='RequestId', example='44553E9A-******-37ADC33FE2'),
+  webSearchResults?: [ 
+    {
+      index?: string(name='Index', example='2'),
+      resultContent?: string(name='ResultContent', example='Qwen3-Coder*****is good'),
+      score?: double(name='Score', example='0.5215170567'),
+      sourceLink?: string(name='SourceLink', example='https://help.aliyun.com/zh/pai/use-cases/dsw-use-qwen3-coder-to-assist-in-code-development'),
+    }
+  ](name='WebSearchResults'),
+}
+
+model SearchInfoResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: SearchInfoResponseBody(name='body'),
+}
+
+/**
+ * @summary /api/v1/sessions
+ *
+ * @param request SearchInfoRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return SearchInfoResponse
+ */
+async function searchInfoWithOptions(request: SearchInfoRequest, headers: map[string]string, runtime: Util.RuntimeOptions): SearchInfoResponse {
+  Util.validateModel(request);
+  var body : map[string]any = {};
+  if (!Util.isUnset(request.knowledgeBaseFilters)) {
+    body['KnowledgeBaseFilters'] = request.knowledgeBaseFilters;
+  }
+  if (!Util.isUnset(request.webFilters)) {
+    body['WebFilters'] = request.webFilters;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApi.Params{
+    action = 'SearchInfo',
+    version = '2025-07-31',
+    protocol = 'HTTPS',
+    pathname = `/api/v1/searches`,
+    method = 'POST',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary /api/v1/sessions
+ *
+ * @param request SearchInfoRequest
+ * @return SearchInfoResponse
+ */
+async function searchInfo(request: SearchInfoRequest): SearchInfoResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return searchInfoWithOptions(request, headers, runtime);
+}
+
