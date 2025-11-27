@@ -1492,27 +1492,35 @@ async function changeLhDagOwner(request: ChangeLhDagOwnerRequest): ChangeLhDagOw
 
 model ChatWithDesensitizeRequest {
   regionId?: string(name='RegionId', example='cn-hangzhou', position='Host'),
+  audioJson?: string(name='AudioJson', example='{}', position='Query'),
   desensitizationRule?: string(name='DesensitizationRule', example='UserInfo', position='Query'),
+  enableCodeInterpreter?: boolean(name='EnableCodeInterpreter', example='false', position='Query'),
+  enableSearch?: boolean(name='EnableSearch', example='false', position='Query'),
   enableThinking?: boolean(name='EnableThinking', example='true', position='Query'),
   instanceId: long(name='InstanceId', description='This parameter is required.', example='123***', position='Query'),
+  logprobs?: boolean(name='Logprobs', example='false', position='Query'),
   maxTokens?: int32(name='MaxTokens', example='256', position='Query'),
-  messages: [  map[string]any ](name='Messages', description='This parameter is required.', example='[
+  messages?: [ any ](name='Messages', example='[
     {
         "content": "你好",
         "role": "user"
     }
 ]', shrink='json', position='Body'),
+  modalitiesList?: [ string ](name='ModalitiesList', example='["text","audio"]', shrink='json', position='Query'),
   model?: string(name='Model', example='qwen-plus', position='Query'),
   needDesensitization?: boolean(name='NeedDesensitization', example='false', position='Query'),
-  presencePenalty?: float(name='PresencePenalty', example='0.0', position='Query'),
+  presencePenalty?: string(name='PresencePenalty', example='0.0', position='Query'),
   responseFormat?: string(name='ResponseFormat', example='text', position='Query'),
+  searchOptions?: map[string]string(name='SearchOptions', example='{}', shrink='json', position='Query'),
   seed?: int32(name='Seed', example='1', position='Query'),
   stop?: [ string ](name='Stop', shrink='json', position='Query'),
-  temperature?: float(name='Temperature', example='1', position='Query'),
+  temperature?: string(name='Temperature', example='1', position='Query'),
   thinkingBudget?: int32(name='ThinkingBudget', example='256', position='Query'),
   topK?: int32(name='TopK', example='10', position='Query'),
   topLogprobs?: int32(name='TopLogprobs', example='1', position='Query'),
-  topP?: float(name='TopP', example='0.5', position='Query'),
+  topP?: string(name='TopP', example='0.5', position='Query'),
+  vlHighResolutionImages?: boolean(name='VlHighResolutionImages', example='false', position='Query'),
+  xDashScopeDataInspection?: string(name='XDashScopeDataInspection', example='{}', position='Query'),
 }
 
 model ChatWithDesensitizeResponseBody = {
@@ -1520,6 +1528,7 @@ model ChatWithDesensitizeResponseBody = {
     choices?: [ 
       {
         finishReason?: string(name='FinishReason', example='stop'),
+        logprobs?: map[string]any(name='Logprobs', example='{}'),
         message?: {
           content?: string(name='Content', example='你好呀！'),
           reasoningContent?: string(name='ReasoningContent', example='嗯，用户发了个“你好”，看起来是想打招呼...'),
@@ -1528,16 +1537,21 @@ model ChatWithDesensitizeResponseBody = {
       }
     ](name='Choices'),
     created?: string(name='Created', example='1763710100'),
+    message?: string(name='Message'),
     model?: string(name='Model', example='qwen-plus'),
+    statusCode?: string(name='StatusCode', example='200'),
+    type?: string(name='Type'),
     usage?: {
       completionTokens?: string(name='CompletionTokens', example='10'),
+      completionTokensDetails?: map[string]string(name='CompletionTokensDetails', example='{}'),
       promptTokens?: string(name='PromptTokens', example='9'),
+      promptTokensDetails?: map[string]string(name='PromptTokensDetails', example='{}'),
       totalTokens?: string(name='TotalTokens', example='19'),
     }(name='Usage'),
   }(name='Data'),
   errorCode?: string(name='ErrorCode', example='UnknownError'),
   errorMessage?: string(name='ErrorMessage', example='UnknownError'),
-  requestId?: string(name='RequestId', example='0C1CB646-1DE4-4AD0-B4A4-7D47DD52E931'),
+  requestId?: string(name='RequestId', description='Id of the request', example='0C1CB646-1DE4-4AD0-B4A4-7D47DD52E931'),
   success?: boolean(name='Success', example='true'),
 }
 
@@ -1555,6 +1569,43 @@ model ChatWithDesensitizeResponse = {
 async function chatWithDesensitize(request: ChatWithDesensitizeRequest): ChatWithDesensitizeResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RPC', 'ChatWithDesensitize', 'POST', '/', 'json', true, 'form', request);
+}
+
+model CheckBatchTableAccessPermissionRequest {
+  regionId?: string(name='RegionId', position='Host'),
+  dbId: long(name='DbId', description='This parameter is required.', example='43153', position='Query'),
+  logic?: boolean(name='Logic', example='false', position='Query'),
+  permissionType: string(name='PermissionType', description='This parameter is required.', example='QUERY', position='Query'),
+  tableNameList: [ string ](name='TableNameList', description='This parameter is required.', shrink='json', position='Query'),
+  tid?: long(name='Tid', example='3***', position='Query'),
+}
+
+model CheckBatchTableAccessPermissionResponseBody = {
+  data?: [ 
+    {
+      errorMessage?: string(name='ErrorMessage', example='The productKey is empty.'),
+      success?: string(name='Success', example='True'),
+      tableName?: string(name='TableName', example='tab_add_teacher_record'),
+    }
+  ](name='Data'),
+  errorCode?: string(name='ErrorCode', example='UnknownError'),
+  requestId?: string(name='RequestId', description='Id of the request', example='B43AD641-49C2-5299-9E06-1B37EC1B****'),
+  success?: boolean(name='Success', example='true'),
+}
+
+model CheckBatchTableAccessPermissionResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: CheckBatchTableAccessPermissionResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of CheckBatchTableAccessPermission  CheckBatchTableAccessPermissionRequest
+  * @return CheckBatchTableAccessPermissionResponse
+ */
+async function checkBatchTableAccessPermission(request: CheckBatchTableAccessPermissionRequest): CheckBatchTableAccessPermissionResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'CheckBatchTableAccessPermission', 'POST', '/', 'json', false, 'json', request);
 }
 
 model CloseOrderRequest {
