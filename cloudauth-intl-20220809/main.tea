@@ -1432,7 +1432,7 @@ async function credentialVerifyIntlAdvance(request: CredentialVerifyIntlAdvanceR
       file = fileObj,
       success_action_status = '201',
     };
-    _postOSSObject(authResponseBody['Bucket'], ossHeader);
+    _postOSSObject(authResponseBody['Bucket'], ossHeader, runtime);
     credentialVerifyIntlReq.imageFile = `http://${authResponseBody['Bucket']}.${authResponseBody['Endpoint']}/${authResponseBody['ObjectKey']}`;
   }
   var credentialVerifyIntlResp = credentialVerifyIntlWithOptions(credentialVerifyIntlReq, runtime);
@@ -1751,7 +1751,7 @@ async function deepfakeDetectIntlStreamAdvance(request: DeepfakeDetectIntlStream
       file = fileObj,
       success_action_status = '201',
     };
-    _postOSSObject(authResponseBody['Bucket'], ossHeader);
+    _postOSSObject(authResponseBody['Bucket'], ossHeader, runtime);
     deepfakeDetectIntlStreamReq.faceFile = `http://${authResponseBody['Bucket']}.${authResponseBody['Endpoint']}/${authResponseBody['ObjectKey']}`;
   }
   var deepfakeDetectIntlStreamResp = deepfakeDetectIntlStreamWithOptions(deepfakeDetectIntlStreamReq, runtime);
@@ -2078,6 +2078,7 @@ async function docOcr(request: DocOcrRequest): DocOcrResponse {
 }
 
 model DocOcrMaxRequest {
+  authorize?: string(name='Authorize'),
   docPage?: string(name='DocPage', description='Page expected to be recognized
 
 - 01 (default): ID portrait.
@@ -2165,6 +2166,9 @@ async function docOcrMaxWithOptions(request: DocOcrMaxRequest, runtime: Util.Run
     query['OcrValueStandard'] = request.ocrValueStandard;
   }
   var body : map[string]any = {};
+  if (!Util.isUnset(request.authorize)) {
+    body['Authorize'] = request.authorize;
+  }
   if (!Util.isUnset(request.docPage)) {
     body['DocPage'] = request.docPage;
   }
@@ -4480,7 +4484,7 @@ async function tempOssUrlIntl(request: TempOssUrlIntlRequest): TempOssUrlIntlRes
   return tempOssUrlIntlWithOptions(request, runtime);
 }
 
-api _postOSSObject(bucketName: string, data: object): object {
+api _postOSSObject(bucketName: string, data: object, runtime: Util.RuntimeOptions): object {
   var form = Util.assertAsMap(data);
   var boundary = FileForm.getBoundary();
   var host = Util.assertAsString(form.host);
@@ -4514,4 +4518,27 @@ api _postOSSObject(bucketName: string, data: object): object {
   return {
     ...respMap,
   };
+} runtime {
+  timeouted = 'retry',
+  key = Util.defaultString(runtime.key, @key),
+  cert = Util.defaultString(runtime.cert, @cert),
+  ca = Util.defaultString(runtime.ca, @ca),
+  readTimeout = Util.defaultNumber(runtime.readTimeout, @readTimeout),
+  connectTimeout = Util.defaultNumber(runtime.connectTimeout, @connectTimeout),
+  httpProxy = Util.defaultString(runtime.httpProxy, @httpProxy),
+  httpsProxy = Util.defaultString(runtime.httpsProxy, @httpsProxy),
+  noProxy = Util.defaultString(runtime.noProxy, @noProxy),
+  socks5Proxy = Util.defaultString(runtime.socks5Proxy, @socks5Proxy),
+  socks5NetWork = Util.defaultString(runtime.socks5NetWork, @socks5NetWork),
+  maxIdleConns = Util.defaultNumber(runtime.maxIdleConns, @maxIdleConns),
+  retry = {
+    retryable = runtime.autoretry,
+    maxAttempts = Util.defaultNumber(runtime.maxAttempts, 3)
+  },
+  backoff = {
+    policy = Util.defaultString(runtime.backoffPolicy, 'no'),
+    period = Util.defaultNumber(runtime.backoffPeriod, 1)
+  },
+  ignoreSSL = OpenApi.defaultAny(runtime.ignoreSSL, false),
+  tlsMinVersion = @tlsMinVersion
 }
