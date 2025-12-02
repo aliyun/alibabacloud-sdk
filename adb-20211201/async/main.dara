@@ -111,7 +111,11 @@ model CstoreIndexModel {
 
 model DatabaseSummaryModel {
   createTime?: string(name='CreateTime'),
+  createdBySource?: string(name='CreatedBySource'),
+  createdByUser?: string(name='CreatedByUser'),
+  dbType?: string(name='DbType'),
   description?: string(name='Description'),
+  location?: string(name='Location'),
   owner?: string(name='Owner'),
   schemaName?: string(name='SchemaName'),
   updateTime?: string(name='UpdateTime'),
@@ -333,8 +337,12 @@ model TableDetailModel {
     ColDetailModel
   ](name='Columns'),
   createTime?: string(name='CreateTime'),
+  createdBySource?: string(name='CreatedBySource'),
+  createdByUser?: string(name='CreatedByUser'),
   description?: string(name='Description'),
+  location?: string(name='Location'),
   owner?: string(name='Owner'),
+  parameters?: map[string]string(name='Parameters'),
   schemaName?: string(name='SchemaName'),
   tableName?: string(name='TableName'),
   tableType?: string(name='TableType'),
@@ -352,6 +360,8 @@ model TableModel {
   comment?: string(name='Comment'),
   compression?: string(name='Compression'),
   createTime?: string(name='CreateTime'),
+  createdBySource?: string(name='CreatedBySource'),
+  createdByUser?: string(name='CreatedByUser'),
   currentVersion?: long(name='CurrentVersion'),
   dbName?: string(name='DbName'),
   dictEncode?: boolean(name='DictEncode'),
@@ -404,6 +414,8 @@ model TableModel {
 
 model TableSummaryModel {
   createTime?: string(name='CreateTime'),
+  createdBySource?: string(name='CreatedBySource'),
+  createdByUser?: string(name='CreatedByUser'),
   description?: string(name='Description'),
   mvDetailModel?: OpenStructMvDetailModel(name='MvDetailModel'),
   owner?: string(name='Owner'),
@@ -833,40 +845,58 @@ async function checkSampleDataSet(request: CheckSampleDataSetRequest): CheckSamp
 }
 
 model ConfigureResultExportRequest {
-  DBClusterId: string(name='DBClusterId', description='This parameter is required.', example='amv-wz9509beptiz****', position='Body'),
-  exportType?: string(name='ExportType', example='SLS', position='Body'),
+  DBClusterId: string(name='DBClusterId', description='The cluster ID.
+
+>  You can call the [DescribeDBClusters](https://help.aliyun.com/document_detail/129857.html) operation to query the information about all AnalyticDB for MySQL clusters within a region, including cluster IDs.
+
+This parameter is required.', example='amv-wz9509beptiz****', position='Body'),
+  exportType?: string(name='ExportType', description='The export type. Valid values:
+
+*   SLS: Specifies that the export destination is SLS.
+*   OSS: Specifies that the export destination is OSS.', example='SLS', position='Body'),
   ossInfo?: {
-    exportBasePath?: string(name='ExportBasePath', example='oss://testBucketName/data_result'),
-    resourceGroup?: string(name='ResourceGroup', example='aps'),
-    resultFileTtl?: int32(name='ResultFileTtl', example='10'),
-  }(name='OssInfo', shrink='json', position='Body'),
-  regionId: string(name='RegionId', description='This parameter is required.', example='cn-shenzhen', position='Body'),
+    exportBasePath?: string(name='ExportBasePath', description='The OSS path where the result sets are stored.', example='oss://testBucketName/data_result'),
+    resourceGroup?: string(name='ResourceGroup', description='The name of the resource group that runs the job.', example='aps'),
+    resultFileTtl?: int32(name='ResultFileTtl', description='The expiration time of the OSS file. Unit: days. Minimum: 1 day, maximum: 30 days. Values outside this range will result in an error.', example='10'),
+  }(name='OssInfo', description='The OSS configuration details if the destination is of the OSS type.', shrink='json', position='Body'),
+  regionId: string(name='RegionId', description='The ID of the region where the instance resides.
+
+This parameter is required.', example='cn-shenzhen', position='Body'),
   slsInfo?: {
-    logstoreTtl?: int32(name='LogstoreTtl', example='10'),
-    resourceGroup?: string(name='ResourceGroup', example='aps'),
-    slsProject?: string(name='SlsProject', example='test-project'),
-  }(name='SlsInfo', shrink='json', position='Body'),
+    logstoreTtl?: int32(name='LogstoreTtl', description='The expiration time of the Logstore temporarily generated during the result set export. Unit: days. The Logstore is automatically deleted after it expires. Minimum value: 1 day, maximum: 30 days. Values outside this range will result in an error.', example='10'),
+    resourceGroup?: string(name='ResourceGroup', description='The name of the resource group that runs the job.', example='aps'),
+    slsProject?: string(name='SlsProject', description='The name of the SLS project.', example='test-project'),
+  }(name='SlsInfo', description='The SLS configuration details if the destination is of the SLS type.', shrink='json', position='Body'),
 }
 
 model ConfigureResultExportResponseBody = {
-  code?: string(name='Code', example='200'),
+  code?: string(name='Code', description='The backend error code.', example='200'),
   data?: {
-    exportType?: string(name='ExportType', example='SLS'),
+    exportType?: string(name='ExportType', description='The export type. Valid values:
+
+*   SLS: Indicates that the export destination is SLS.
+*   OSS: Indicates that the export destination is OSS.', example='SLS'),
     ossInfo?: {
-      exportBasePath?: string(name='ExportBasePath', example='oss://testBucketName/data_result'),
-      resourceGroup?: string(name='ResourceGroup', example='aps'),
-      resultFileTtl?: int32(name='ResultFileTtl', example='10'),
-    }(name='OssInfo'),
+      exportBasePath?: string(name='ExportBasePath', description='The OSS path where the result sets are stored.', example='oss://testBucketName/data_result'),
+      resourceGroup?: string(name='ResourceGroup', description='The name of the resource group that runs the job.', example='aps'),
+      resultFileTtl?: int32(name='ResultFileTtl', description='The expiration time of the OSS file. Unit: days. Minimum: 1 day, maximum: 30 days.', example='10'),
+    }(name='OssInfo', description='The OSS configuration if the destination is of the OSS type.'),
     slsInfo?: {
-      logstoreTtl?: int32(name='LogstoreTtl', example='10'),
-      resourceGroup?: string(name='ResourceGroup', example='aps'),
-      slsProject?: string(name='SlsProject', example='test-project'),
-    }(name='SlsInfo'),
-  }(name='Data'),
-  httpStatusCode?: int32(name='HttpStatusCode', example='200'),
-  message?: string(name='Message', example='OK'),
-  requestId?: string(name='RequestId', example='1AD222E9-E606-4A42-BF6D-8A4442913CEF'),
-  success?: boolean(name='Success', example='true'),
+      logstoreTtl?: int32(name='LogstoreTtl', description='The expiration time of the Logstore temporarily generated during the result set export. Unit: days. The Logstore is automatically deleted after it expires. Minimum value: 1 day. Maximum value: 30 days.', example='10'),
+      resourceGroup?: string(name='ResourceGroup', description='The name of the resource group that runs the job.', example='aps'),
+      slsProject?: string(name='SlsProject', description='The name of the SLS project.', example='test-project'),
+    }(name='SlsInfo', description='The SLS configuration if the destination is of the SLS type.'),
+  }(name='Data', description='The path where the result sets are stored.'),
+  httpStatusCode?: int32(name='HttpStatusCode', description='The HTTP status code. A value of 200 indicates that the request is successful.', example='200'),
+  message?: string(name='Message', description='The returned message. Valid values:
+
+*   OK is returned if the request is normal.
+*   The specific error code is returned if the request is abnormal,', example='OK'),
+  requestId?: string(name='RequestId', description='The ID of the request.', example='1AD222E9-E606-4A42-BF6D-8A4442913CEF'),
+  success?: boolean(name='Success', description='Indicates whether the request is successful. Valid values:
+
+*   **true**: Succeeded.
+*   **false**: Failed.', example='true'),
 }
 
 model ConfigureResultExportResponse = {
@@ -1204,50 +1234,70 @@ async function createApsHiveJob(request: CreateApsHiveJobRequest): CreateApsHive
 }
 
 model CreateApsKafkaHudiJobRequest {
-  acrossRole?: string(name='AcrossRole', example='aps', position='Body'),
-  acrossUid?: string(name='AcrossUid', example='123************', position='Body'),
-  advancedConfig?: string(name='AdvancedConfig', example='-', position='Body'),
+  acrossRole?: string(name='AcrossRole', description='The Resource Access Management (RAM) role that is created for the trusted Alibaba Cloud account. For more information, see Create a RAM role for a trusted Alibaba Cloud account. The ARN of the RAM role that grants AnalyticDB for MySQL permission to access resources in the source account. Required for cross-account data ingestion.', example='aps', position='Body'),
+  acrossUid?: string(name='AcrossUid', description='The ID of the Alibaba Cloud account to which the source Kafka belongs.', example='123************', position='Body'),
+  advancedConfig?: string(name='AdvancedConfig', description='The advanced configurations.', example='-', position='Body'),
   columns: [ 
     {
-      mapName?: string(name='MapName', example='b'),
-      mapType?: string(name='MapType', example='string'),
-      name?: string(name='Name', example='a'),
-      type?: string(name='Type', example='string'),
+      mapName?: string(name='MapName', description='The name of the partition column in the destination table.', example='b'),
+      mapType?: string(name='MapType', description='The desired format for the destination partition column.', example='string'),
+      name?: string(name='Name', description='The name of the source column to use for partitioning.', example='a'),
+      type?: string(name='Type', description='The format of the source field. See the table below for valid values.', example='string'),
     }
-  ](name='Columns', description='This parameter is required.', shrink='json', position='Body'),
-  DBClusterId: string(name='DBClusterId', description='This parameter is required.', example='amv-bp11q28kvl688****', position='Body'),
-  dataOutputFormat?: string(name='DataOutputFormat', example='Single', position='Body'),
-  datasourceId?: long(name='DatasourceId', example='1', position='Body'),
-  dbName: string(name='DbName', description='This parameter is required.', example='testDB', position='Body'),
-  fullComputeUnit?: string(name='FullComputeUnit', example='2ACU', position='Body'),
-  hudiAdvancedConfig?: string(name='HudiAdvancedConfig', example='hoodie.keep.min.commits=20', position='Body'),
-  incrementalComputeUnit: string(name='IncrementalComputeUnit', description='This parameter is required.', example='2ACU', position='Body'),
-  jsonParseLevel?: int32(name='JsonParseLevel', example='0', position='Body'),
-  kafkaClusterId?: string(name='KafkaClusterId', example='xxx', position='Body'),
-  kafkaTopic?: string(name='KafkaTopic', example='test', position='Body'),
-  lakehouseId?: long(name='LakehouseId', example='123', position='Body'),
-  maxOffsetsPerTrigger?: long(name='MaxOffsetsPerTrigger', example='50000', position='Body'),
-  ossLocation?: string(name='OssLocation', example='oss://test-xx-zzz/yyy/', position='Body'),
-  outputFormat?: string(name='OutputFormat', example='HUDI', position='Body'),
-  partitionSpecs?: [  map[string]any ](name='PartitionSpecs', shrink='json', position='Body'),
-  primaryKeyDefinition?: string(name='PrimaryKeyDefinition', example='"Strategy": "mapping"', position='Body'),
-  regionId: string(name='RegionId', description='This parameter is required.', example='cn-hangzhou', position='Body'),
-  resourceGroup: string(name='ResourceGroup', description='This parameter is required.', example='aps', position='Body'),
-  sourceRegionId?: string(name='SourceRegionId', example='cn-hangzhou', position='Body'),
-  startingOffsets: string(name='StartingOffsets', description='This parameter is required.', example='begincursor', position='Body'),
-  tableName: string(name='TableName', description='This parameter is required.', example='testTB', position='Body'),
-  targetGenerateRule?: string(name='TargetGenerateRule', example='xxx', position='Body'),
-  targetType?: string(name='TargetType', example='OSS', position='Body'),
-  workloadName: string(name='WorkloadName', description='This parameter is required.', example='test', position='Body'),
+  ](name='Columns', description='The column information.
+
+This parameter is required.', shrink='json', position='Body'),
+  DBClusterId: string(name='DBClusterId', description='The cluster ID.
+
+>  You can call the [DescribeDBClusters](https://help.aliyun.com/document_detail/129857.html) operation to query the IDs of all clusters in a region.
+
+This parameter is required.', example='amv-bp11q28kvl688****', position='Body'),
+  dataOutputFormat?: string(name='DataOutputFormat', description='Enumeration value and description. Single: The source is a single-row JSON record. Multi: source is a JSON array. Output a single JSON record.', example='Single', position='Body'),
+  datasourceId?: long(name='DatasourceId', description='The data source ID.', example='1', position='Body'),
+  dbName: string(name='DbName', description='The name of the user-defined database.
+
+This parameter is required.', example='testDB', position='Body'),
+  fullComputeUnit?: string(name='FullComputeUnit', description='The full synchronization configuration.', example='2ACU', position='Body'),
+  hudiAdvancedConfig?: string(name='HudiAdvancedConfig', description='The HUDI configuration of the destination.', example='hoodie.keep.min.commits=20', position='Body'),
+  incrementalComputeUnit: string(name='IncrementalComputeUnit', description='The incremental synchronization configuration.
+
+This parameter is required.', example='2ACU', position='Body'),
+  jsonParseLevel?: int32(name='JsonParseLevel', description='The number of layers that are parsed for nested JSON fields. Valid values: 0: Nested JSON fields are not parsed. 1: parses one layer. 2: Two layers are parsed. 3: Three layers are parsed. 4: Four layers are parsed. By default, one layer is parsed. For more information about how nested JSON fields are parsed, see the Examples of schema fields parsed with different numbers of layers section of this topic.', example='0', position='Body'),
+  kafkaClusterId?: string(name='KafkaClusterId', description='The ID of the Apache Kafka instance. You can get it in the Kafka console.', example='xxx', position='Body'),
+  kafkaTopic?: string(name='KafkaTopic', description='Kafka Topic ID. You can get it in the Kafka console.', example='test', position='Body'),
+  lakehouseId?: long(name='LakehouseId', description='The ID of the lakehouse.', example='123', position='Body'),
+  maxOffsetsPerTrigger?: long(name='MaxOffsetsPerTrigger', description='The maximum number of records to fetch in a single batch.', example='50000', position='Body'),
+  ossLocation?: string(name='OssLocation', description='The path of the destination data lakehouse in an Object Storage Service (OSS) bucket.', example='oss://test-xx-zzz/yyy/', position='Body'),
+  outputFormat?: string(name='OutputFormat', description='The format of the output data.', example='HUDI', position='Body'),
+  partitionSpecs?: [  map[string]any ](name='PartitionSpecs', description='The partition information.', shrink='json', position='Body'),
+  primaryKeyDefinition?: string(name='PrimaryKeyDefinition', description='The primary key settings. Contains the uuid policy and mapping policy. The explanation is as follows. Uuid policy: "Strategy": "uuid". Mapping policy: "Strategy": "mapping", "Values":[ "f1", "f2" ], "RecordVersionField","xxx" The meaning of the RecordVersionField is the HUDI record version.', example='"Strategy": "mapping"', position='Body'),
+  regionId: string(name='RegionId', description='The region ID of the cluster.
+
+This parameter is required.', example='cn-hangzhou', position='Body'),
+  resourceGroup: string(name='ResourceGroup', description='The resource group name.
+
+This parameter is required.', example='aps', position='Body'),
+  sourceRegionId?: string(name='SourceRegionId', description='地域ID。', example='cn-hangzhou', position='Body'),
+  startingOffsets: string(name='StartingOffsets', description='Specifies the position from which to start consuming messages. Valid values: begin_cursor/end_cursor/timestamp Each corresponds to the earliest /latest /specified time respectively.
+
+This parameter is required.', example='begincursor', position='Body'),
+  tableName: string(name='TableName', description='The name of the user-defined table.
+
+This parameter is required.', example='testTB', position='Body'),
+  targetGenerateRule?: string(name='TargetGenerateRule', description='The rules for generating the destination database.', example='xxx', position='Body'),
+  targetType?: string(name='TargetType', description='The destination type.', example='OSS', position='Body'),
+  workloadName: string(name='WorkloadName', description='The name of the workload.
+
+This parameter is required.', example='test', position='Body'),
 }
 
 model CreateApsKafkaHudiJobResponseBody = {
-  code?: string(name='Code', example='200'),
-  data?: string(name='Data', example='xxx'),
-  httpStatusCode?: int32(name='HttpStatusCode', example='200'),
-  message?: string(name='Message', example='ok'),
-  requestId?: string(name='RequestId', example='1A943417-5B0E-1DB9-A8**-A566****C3'),
-  success?: boolean(name='Success', example='true'),
+  code?: string(name='Code', description='Same as HTTP status code.', example='200'),
+  data?: string(name='Data', description='Returns the ID of the created task.', example='xxx'),
+  httpStatusCode?: int32(name='HttpStatusCode', description='The HTTP status code returned.', example='200'),
+  message?: string(name='Message', description='The returned message.', example='ok'),
+  requestId?: string(name='RequestId', description='The ID of the request.', example='1A943417-5B0E-1DB9-A8**-A566****C3'),
+  success?: boolean(name='Success', description='Indicates whether the request was successful. true: The request is successful. false: The message group failed to be unmuted.', example='true'),
 }
 
 model CreateApsKafkaHudiJobResponse = {
@@ -1362,26 +1412,36 @@ async function createApsSlsADBJob(request: CreateApsSlsADBJobRequest): CreateAps
 }
 
 model CreateApsWebhookRequest {
-  DBClusterId: string(name='DBClusterId', description='This parameter is required.', example='amv-bp11q28kvl688****', position='Body'),
-  jobType: string(name='JobType', description='This parameter is required.', example='ResultExport', position='Body'),
-  regionId: string(name='RegionId', description='This parameter is required.', example='cn-hangzhou', position='Body'),
+  DBClusterId: string(name='DBClusterId', description='The cluster ID.
+
+This parameter is required.', example='amv-bp11q28kvl688****', position='Body'),
+  jobType: string(name='JobType', description='The type of the task. Valid value: Task type. SLS or OSS Export Task: ResultExport.
+
+This parameter is required.', example='ResultExport', position='Body'),
+  regionId: string(name='RegionId', description='The ID of the region in which to create the dedicated block storage cluster.
+
+This parameter is required.', example='cn-hangzhou', position='Body'),
   webhook?: [ 
     {
-      key?: string(name='Key', example='***'),
-      name?: string(name='Name', example='MyWebhookName'),
-      url: string(name='Url', description='This parameter is required.', example='https://example.com/webhook'),
-      webhookType: string(name='WebhookType', description='This parameter is required.', example='dingtalk'),
+      key?: string(name='Key', description='Signed key.', example='***'),
+      name?: string(name='Name', description='The name of the webhook.', example='MyWebhookName'),
+      url: string(name='Url', description='The request path.
+
+This parameter is required.', example='https://example.com/webhook'),
+      webhookType: string(name='WebhookType', description='The notification method. Valid values: dingtalk. lark.
+
+This parameter is required.', example='dingtalk'),
     }
-  ](name='Webhook', shrink='json', position='Body'),
+  ](name='Webhook', description='The array of webhooks.', shrink='json', position='Body'),
 }
 
 model CreateApsWebhookResponseBody = {
-  code?: string(name='Code', example='200'),
-  data?: string(name='Data', example='[]'),
-  httpStatusCode?: int32(name='HttpStatusCode', example='200'),
-  message?: string(name='Message', example='OK'),
-  requestId?: string(name='RequestId', example='1234567890abcdef'),
-  success?: boolean(name='Success', example='true'),
+  code?: string(name='Code', description='The code returned for the request.', example='200'),
+  data?: string(name='Data', description='The returned result.', example='[]'),
+  httpStatusCode?: int32(name='HttpStatusCode', description='The HTTP status code.', example='200'),
+  message?: string(name='Message', description='The returned message.', example='OK'),
+  requestId?: string(name='RequestId', description='The unique ID of the request.', example='1234567890abcdef'),
+  success?: boolean(name='Success', description='Indicates whether the request was successful.', example='true'),
 }
 
 model CreateApsWebhookResponse = {
@@ -1400,10 +1460,12 @@ async function createApsWebhook(request: CreateApsWebhookRequest): CreateApsWebh
 }
 
 model CreateBackupRequest {
-  DBClusterId: string(name='DBClusterId', description='This parameter is required.', example='amv-wz9or2xawpnc****', position='Query'),
+  DBClusterId: string(name='DBClusterId', description='The cluster ID.
+
+This parameter is required.', example='amv-wz9or2xawpnc****', position='Query'),
   ownerAccount?: string(name='OwnerAccount', position='Query'),
   ownerId?: long(name='OwnerId', position='Query'),
-  regionId?: string(name='RegionId', example='cn-hangzhou', position='Query'),
+  regionId?: string(name='RegionId', description='The region ID of the instance.', example='cn-hangzhou', position='Query'),
   resourceOwnerAccount?: string(name='ResourceOwnerAccount', position='Query'),
   resourceOwnerId?: long(name='ResourceOwnerId', position='Query'),
 }
@@ -1419,6 +1481,7 @@ model CreateBackupResponse = {
 }
 
 /**
+  * @description **Before you call this operation, make sure that you fully understand the billing method and [pricing](https://www.aliyun.com/price/product#/ads/detail/ads_pre) of AnalyticDB for MySQL.** Temporary backups are the same as regular backups in terms of price and retention period of backup sets.
   * @param request  the request parameters of CreateBackup  CreateBackupRequest
   * @return CreateBackupResponse
  */
@@ -1570,6 +1633,15 @@ This parameter is required.', example='amv-bp11q28kvl688****', position='Query')
 *   **False**', example='True', position='Query'),
   engine?: string(name='Engine', example='SparkWarehouse', position='Query'),
   engineParams?: map[string]any(name='EngineParams', example='{\\"spark.adb.version\\":\\"3.5\\"}', shrink='json', position='Query'),
+  gpuElasticPlan?: {
+    enabled?: boolean(name='Enabled'),
+    rules?: [ 
+      {
+        endCronExpression?: string(name='EndCronExpression'),
+        startCronExpression?: string(name='StartCronExpression'),
+      }
+    ](name='Rules'),
+  }(name='GpuElasticPlan', shrink='json', position='Query'),
   groupName: string(name='GroupName', description='The name of the resource group.
 
 *   The name can be up to 255 characters in length.
@@ -1774,21 +1846,43 @@ async function createLakeStorage(request: CreateLakeStorageRequest): CreateLakeS
 }
 
 model CreateMaterializedViewRecommendRequest {
-  DBClusterId: string(name='DBClusterId', description='This parameter is required.', example='amv-8vbwm***', position='Query'),
-  description?: string(name='Description', example='task desc', position='Query'),
-  minRewriteQueryCount?: int32(name='MinRewriteQueryCount', minimum=1, position='Query'),
-  minRewriteQueryPattern?: int32(name='MinRewriteQueryPattern', minimum=1, position='Query'),
+  DBClusterId: string(name='DBClusterId', description='The cluster ID.
+
+This parameter is required.', example='amv-8vbwm***', position='Query'),
+  description?: string(name='Description', description='The description of the recommendation task.', example='task desc', position='Query'),
+  minRewriteQueryCount?: int32(name='MinRewriteQueryCount', description='Pattern匹配的最少慢查询个数', example='3', minimum=1, position='Query'),
+  minRewriteQueryPattern?: int32(name='MinRewriteQueryPattern', description='最小可加速的Pattern数量', example='5', minimum=1, position='Query'),
   ownerAccount?: string(name='OwnerAccount', position='Query'),
   ownerId?: long(name='OwnerId', position='Query'),
-  regionId?: string(name='RegionId', example='cn-hangzhou', position='Query'),
+  regionId?: string(name='RegionId', description='The region ID.', example='cn-hangzhou', position='Query'),
   resourceOwnerAccount?: string(name='ResourceOwnerAccount', position='Query'),
   resourceOwnerId?: long(name='ResourceOwnerId', position='Query'),
-  scanQueriesRange?: int32(name='ScanQueriesRange', example='3', position='Query'),
-  schedulingDay?: string(name='SchedulingDay', example='Monday;Wednesday', position='Query'),
-  schedulingPolicy: string(name='SchedulingPolicy', description='This parameter is required.', example='weekly', position='Query'),
-  slowQueryThreshold?: int32(name='SlowQueryThreshold', minimum=1, position='Query'),
-  specifiedTime: string(name='SpecifiedTime', description='This parameter is required.', example='10:00:00', position='Query'),
-  taskName: string(name='TaskName', description='This parameter is required.', example='task_n1', position='Query'),
+  scanQueriesRange?: int32(name='ScanQueriesRange', description='The time range for scanning data. Unit: days. Default value: 3.', example='3', position='Query'),
+  schedulingDay?: string(name='SchedulingDay', description='This parameter is valid only when SchedulingPolicy is set to weekly. Valid values:
+
+*   Monday
+*   Tuesday
+*   Wednesday
+*   Thursday
+*   Friday
+*   Saturday
+*   Sunday
+
+Separate multiple days with commas (,).', example='Monday;Wednesday', position='Query'),
+  schedulingPolicy: string(name='SchedulingPolicy', description='The scheduling policy of the recommendation task. Valid values:
+
+daily
+
+weekly
+
+This parameter is required.', example='weekly', position='Query'),
+  slowQueryThreshold?: int32(name='SlowQueryThreshold', description='慢查询阈值', example='2', minimum=1, position='Query'),
+  specifiedTime: string(name='SpecifiedTime', description='The execution time of the recommendation task. Specify the time in the HH:MM:SS format.
+
+This parameter is required.', example='10:00:00', position='Query'),
+  taskName: string(name='TaskName', description='The name of the recommendation task.
+
+This parameter is required.', example='task_n1', position='Query'),
 }
 
 model CreateMaterializedViewRecommendResponseBody = {
@@ -2122,19 +2216,25 @@ async function deleteApsJob(request: DeleteApsJobRequest): DeleteApsJobResponse 
 }
 
 model DeleteApsWebhookRequest {
-  DBClusterId: string(name='DBClusterId', description='This parameter is required.', example='amv-uf63i4ij56b***', position='Body'),
-  regionId: string(name='RegionId', description='This parameter is required.', example='cn-hangzhou', position='Body'),
-  webhookId: string(name='WebhookId', description='This parameter is required.', example='***1*595*', position='Body'),
+  DBClusterId: string(name='DBClusterId', description='The cluster ID.
+
+This parameter is required.', example='amv-uf63i4ij56b***', position='Body'),
+  regionId: string(name='RegionId', description='The region ID.
+
+This parameter is required.', example='cn-hangzhou', position='Body'),
+  webhookId: string(name='WebhookId', description='The ID of the webhook to be deleted.
+
+This parameter is required.', example='***1*595*', position='Body'),
 }
 
 model DeleteApsWebhookResponseBody = {
-  code?: string(name='Code', example='200'),
-  DBClusterId?: string(name='DBClusterId', example='amv-uf63i4ij56b***'),
-  data?: string(name='Data', example='[]'),
-  httpStatusCode?: int32(name='HttpStatusCode', example='200'),
-  message?: string(name='Message'),
-  requestId?: string(name='RequestId', example='exampleRequestId'),
-  success?: boolean(name='Success', example='true'),
+  code?: string(name='Code', description='API status or POP error code.', example='200'),
+  DBClusterId?: string(name='DBClusterId', description='The cluster ID.', example='amv-uf63i4ij56b***'),
+  data?: string(name='Data', description='The returned data.', example='[]'),
+  httpStatusCode?: int32(name='HttpStatusCode', description='The HTTP status code.', example='200'),
+  message?: string(name='Message', description='The returned message.'),
+  requestId?: string(name='RequestId', description='The unique ID of the request.', example='exampleRequestId'),
+  success?: boolean(name='Success', description='Indicates whether the request was successful.', example='true'),
 }
 
 model DeleteApsWebhookResponse = {
@@ -2144,6 +2244,7 @@ model DeleteApsWebhookResponse = {
 }
 
 /**
+  * @description This API allows users to delete an existing webhook configuration by providing `RegionId`, `DBClusterId`, and `WebhookId`. Make sure that the provided parameter values are accurate to avoid deleting important settings by mistake.
   * @param request  the request parameters of DeleteApsWebhook  DeleteApsWebhookRequest
   * @return DeleteApsWebhookResponse
  */
@@ -2317,6 +2418,39 @@ model DeleteLakeStorageResponse = {
 async function deleteLakeStorage(request: DeleteLakeStorageRequest): DeleteLakeStorageResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RPC', 'DeleteLakeStorage', 'POST', '/', 'json', true, 'form', request);
+}
+
+model DeleteMaterializedViewRecommendRequest {
+  DBClusterId: string(name='DBClusterId', description='The cluster ID.
+
+This parameter is required.', example='amv-uf66*****', position='Query'),
+  ownerAccount?: string(name='OwnerAccount', position='Query'),
+  ownerId?: long(name='OwnerId', position='Query'),
+  regionId?: string(name='RegionId', description='The region ID.', example='cn-beijing', position='Query'),
+  resourceOwnerAccount?: string(name='ResourceOwnerAccount', position='Query'),
+  resourceOwnerId?: long(name='ResourceOwnerId', position='Query'),
+  taskName: string(name='TaskName', description='The name of the recommendation task.
+
+This parameter is required.', example='my_task_1', position='Query'),
+}
+
+model DeleteMaterializedViewRecommendResponseBody = {
+  requestId?: string(name='RequestId', description='Id of the request', example='7B081A85-0568-5E54-82EF-6958C4A3D4B4'),
+}
+
+model DeleteMaterializedViewRecommendResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: DeleteMaterializedViewRecommendResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of DeleteMaterializedViewRecommend  DeleteMaterializedViewRecommendRequest
+  * @return DeleteMaterializedViewRecommendResponse
+ */
+async function deleteMaterializedViewRecommend(request: DeleteMaterializedViewRecommendRequest): DeleteMaterializedViewRecommendResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'DeleteMaterializedViewRecommend', 'POST', '/', 'json', false, 'json', request);
 }
 
 model DeletePerformanceViewRequest {
@@ -4936,15 +5070,24 @@ async function describeDBClusterPerformance(request: DescribeDBClusterPerformanc
 }
 
 model DescribeDBClusterSSLRequest {
-  DBClusterId: string(name='DBClusterId', description='This parameter is required.', example='amv-************', position='Query'),
-  regionId?: string(name='RegionId', example='cn-hangzhou', position='Query'),
+  DBClusterId: string(name='DBClusterId', description='The cluster ID.
+
+>  You can call the [DescribeDBClusters](https://help.aliyun.com/document_detail/454250.html) operation to query the information about all AnalyticDB for MySQL clusters within a region, including cluster IDs.
+
+This parameter is required.', example='amv-************', position='Query'),
+  regionId?: string(name='RegionId', description='The region ID.
+
+>  You can call the [DescribeRegions](https://help.aliyun.com/document_detail/612393.html) operation to query the most recent region list.', example='cn-hangzhou', position='Query'),
 }
 
 model DescribeDBClusterSSLResponseBody = {
-  connectionString?: string(name='ConnectionString', example='amv-*********.ads.aliyuncs.com'),
-  expireTime?: string(name='ExpireTime', example='2022-10-11T08:16:43Z'),
-  requestId?: string(name='RequestId', example='348303D8-6F42-5141-9B00-A6EECA1E37B6'),
-  SSLEnabled?: boolean(name='SSLEnabled', example='true'),
+  connectionString?: string(name='ConnectionString', description='The endpoint that is protected by SSL encryption.', example='amv-*********.ads.aliyuncs.com'),
+  expireTime?: string(name='ExpireTime', description='The validity period of the SSL certificate. Format: yyyy-MM-ddTHH:mm:ssZ(UTC time).', example='2022-10-11T08:16:43Z'),
+  requestId?: string(name='RequestId', description='The unique ID of the request.', example='348303D8-6F42-5141-9B00-A6EECA1E37B6'),
+  SSLEnabled?: boolean(name='SSLEnabled', description='Indicates whether SSL encryption is enabled. Default value: true. Valid values:
+
+*   true: enabled
+*   false: disabled', example='true'),
 }
 
 model DescribeDBClusterSSLResponse = {
@@ -5310,6 +5453,15 @@ model DescribeDBResourceGroupResponseBody = {
 The True value is returned only for job resource groups.', example='True'),
       engine?: string(name='Engine'),
       engineParams?: map[string]any(name='EngineParams'),
+      gpuElasticPlan?: {
+        enabled?: boolean(name='Enabled'),
+        rules?: [ 
+          {
+            endCronExpression?: string(name='EndCronExpression'),
+            startCronExpression?: string(name='StartCronExpression'),
+          }
+        ](name='Rules'),
+      }(name='GpuElasticPlan'),
       groupName?: string(name='GroupName', description='The name of the resource group.', example='test1'),
       groupType?: string(name='GroupType', description='The type of the resource group. Valid values:
 
@@ -6300,65 +6452,105 @@ async function describeExecutorDetection(request: DescribeExecutorDetectionReque
 }
 
 model DescribeHistoryTasksRequest {
-  fromExecTime?: int32(name='FromExecTime', example='0', position='Query'),
-  fromStartTime: string(name='FromStartTime', description='This parameter is required.', example='2022-01-02T11:31:03Z', position='Query'),
-  instanceId?: string(name='InstanceId', example='amv-********', position='Query'),
-  instanceType?: string(name='InstanceType', example='Instance', position='Query'),
+  fromExecTime?: int32(name='FromExecTime', description='Minimum task execution time. Used to filter tasks with execution time greater than this value, in seconds. Default 0, meaning no limit.', example='0', position='Query'),
+  fromStartTime: string(name='FromStartTime', description='Start time of task start time, indicating querying tasks whose start time is after this time. Expressed according to ISO8601 standard, and must use UTC +0 time, format: yyyy-MM-ddTHH:mm:ssZ. Earliest supports 30 days ago, automatically converts to 30 days ago if more than 30 days from current time.
+
+This parameter is required.', example='2022-01-02T11:31:03Z', position='Query'),
+  instanceId?: string(name='InstanceId', description='The cluster ID. Separate multiple cluster IDs with commas (,). Maximum 30 cluster IDs. If not filled, defaults to querying historical tasks of all clusters in that region.', example='amv-********', position='Query'),
+  instanceType?: string(name='InstanceType', description='The instance type. The value is fixed to Instance.', example='Instance', position='Query'),
   ownerId?: long(name='OwnerId', position='Query'),
-  pageNumber?: int32(name='PageNumber', example='1', minimum=1, maximum=2147483647, position='Query'),
-  pageSize?: int32(name='PageSize', example='10', minimum=10, maximum=100, position='Query'),
-  regionId?: string(name='RegionId', example='cn-beijing', position='Query'),
-  resourceGroupId?: string(name='ResourceGroupId', example='rg-ae****', position='Query'),
+  pageNumber?: int32(name='PageNumber', description='The number of the page to return. Valid range: positive integers. Default value: 1', example='1', minimum=1, maximum=2147483647, position='Query'),
+  pageSize?: int32(name='PageSize', description='The number of entries per page. Valid values: 10 to 100. Default value: 10.', example='10', minimum=10, maximum=100, position='Query'),
+  regionId?: string(name='RegionId', description='The region ID', example='cn-beijing', position='Query'),
+  resourceGroupId?: string(name='ResourceGroupId', description='Resource group ID.', example='rg-ae****', position='Query'),
   resourceOwnerId?: long(name='ResourceOwnerId', position='Query'),
-  status?: string(name='Status', example='Scheduled', position='Query'),
-  taskId?: string(name='TaskId', example='t-83br18hloy3faf****', position='Query'),
-  taskType?: string(name='TaskType', example='autotest_dispatch_cases', position='Query'),
-  toExecTime?: int32(name='ToExecTime', example='0', position='Query'),
-  toStartTime: string(name='ToStartTime', description='This parameter is required.', example='2022-03-02T11:31:03Z', position='Query'),
+  status?: string(name='Status', description='The state of the task. Valid values:
+
+*   **Scheduled**
+*   **Running**
+*   **Succeed**
+*   **Failed**: The task failed.
+*   **Cancelling**
+*   **Canceled**
+*   **Waiting**
+
+If querying multiple statuses, separate them with English commas. Default is empty, meaning select all.', example='Scheduled', position='Query'),
+  taskId?: string(name='TaskId', description='The job IDs. Separate multiple task IDs with commas (,). Maximum 30 task IDs. If not filled, defaults to querying historical tasks of all clusters.', example='t-83br18hloy3faf****', position='Query'),
+  taskType?: string(name='TaskType', description='Task type, used to query specific type task situations. If multiple, separate with English commas (,), maximum 30 supported. Default is empty, meaning no restriction.', example='autotest_dispatch_cases', position='Query'),
+  toExecTime?: int32(name='ToExecTime', description='Maximum task execution time. Used to filter tasks with execution time not less than this value, in seconds. Default 0, meaning no limit.', example='0', position='Query'),
+  toStartTime: string(name='ToStartTime', description='End time of task start time, indicating querying tasks whose start time is before this time. Expressed according to ISO8601 standard, and must use UTC +0 time, format: yyyy-MM-ddTHH:mm:ssZ.
+
+This parameter is required.', example='2022-03-02T11:31:03Z', position='Query'),
 }
 
 model DescribeHistoryTasksResponseBody = {
   accessDeniedDetail?: {
-    authAction?: string(name='AuthAction', example='test'),
-    authPrincipalDisplayName?: string(name='AuthPrincipalDisplayName', example='test'),
-    authPrincipalOwnerId?: string(name='AuthPrincipalOwnerId', example='141345906006****'),
-    authPrincipalType?: string(name='AuthPrincipalType', example='test'),
-    encodedDiagnosticMessage?: string(name='EncodedDiagnosticMessage', example='AQFmy+hZZsvoWTQ2NTJFQUFBLUIyNjktMzk5NS05MEZCLUMxMzgwNDUwMDA2Ng=='),
-    noPermissionType?: string(name='NoPermissionType', example='ImplicitDeny'),
-    policyType?: string(name='PolicyType', example='ControlPolicy'),
-  }(name='AccessDeniedDetail'),
-  code?: string(name='Code', example='200'),
-  httpStatusCode?: int32(name='HttpStatusCode', example='200'),
+    authAction?: string(name='AuthAction', description='null', example='test'),
+    authPrincipalDisplayName?: string(name='AuthPrincipalDisplayName', description='null', example='test'),
+    authPrincipalOwnerId?: string(name='AuthPrincipalOwnerId', description='null', example='141345906006****'),
+    authPrincipalType?: string(name='AuthPrincipalType', description='null', example='test'),
+    encodedDiagnosticMessage?: string(name='EncodedDiagnosticMessage', description='null', example='AQFmy+hZZsvoWTQ2NTJFQUFBLUIyNjktMzk5NS05MEZCLUMxMzgwNDUwMDA2Ng=='),
+    noPermissionType?: string(name='NoPermissionType', description='null
+
+*   **null**
+*   **null**', example='ImplicitDeny'),
+    policyType?: string(name='PolicyType', description='null
+
+*   **null**
+*   **null**
+*   **null**
+*   **null**
+*   **null**', example='ControlPolicy'),
+  }(name='AccessDeniedDetail', description='null'),
+  code?: string(name='Code', description='The HTTP status code that is returned.', example='200'),
+  httpStatusCode?: int32(name='HttpStatusCode', description='The HTTP status code returned.', example='200'),
   items?: [ 
     {
-      actionInfo?: string(name='ActionInfo', example='{\\"steps\\":[{\\"action_info\\":{\\"Waiting\\":[\\"modifySwitchTime\\"]},\\"step_name\\":\\"exec_task\\"}]}'),
-      callerSource?: string(name='CallerSource', example='141345906006****'),
-      callerUid?: string(name='CallerUid', example='User'),
-      currentStepName?: string(name='CurrentStepName', example='exec_task'),
-      dbType?: string(name='DbType', example='analyticdb'),
-      endTime?: string(name='EndTime', example='2022-02-03T12:06:17Z'),
-      instanceId?: string(name='InstanceId', example='amv-********'),
-      instanceName?: string(name='InstanceName', example='test'),
-      instanceType?: string(name='InstanceType', example='Instance'),
-      product?: string(name='Product', example='ads'),
-      progress?: float(name='Progress', example='79.0'),
-      reasonCode?: string(name='ReasonCode', example='test'),
-      regionId?: string(name='RegionId', example='cn-hangzhou'),
-      remainTime?: int32(name='RemainTime', example='1000'),
-      startTime?: string(name='StartTime', example='2022-02-03T11:31:03Z'),
-      status?: string(name='Status', example='Running'),
-      taskDetail?: string(name='TaskDetail', example='{\\"callerUid\\":\\"test\\"}'),
-      taskId?: string(name='TaskId', example='t-83br18hloy3faf****'),
-      taskType?: string(name='TaskType', example='autotest_dispatch_cases'),
-      uid?: string(name='Uid', example='141345906006****'),
+      actionInfo?: string(name='ActionInfo', description='Allowed operation information. When used specifically, matches operation Action based on currentStepName+status in this information. If no Action is matched, represents task current status does not support operations.', example='{\\"steps\\":[{\\"action_info\\":{\\"Waiting\\":[\\"modifySwitchTime\\"]},\\"step_name\\":\\"exec_task\\"}]}'),
+      callerSource?: string(name='CallerSource', description='null', example='141345906006****'),
+      callerUid?: string(name='CallerUid', description='null
+
+*   **null**
+*   **null**', example='User'),
+      currentStepName?: string(name='CurrentStepName', description='Current executing step name. If empty, represents task has not started.', example='exec_task'),
+      dbType?: string(name='DbType', description='The database engine type.', example='analyticdb'),
+      endTime?: string(name='EndTime', description='Task end time.', example='2022-02-03T12:06:17Z'),
+      instanceId?: string(name='InstanceId', description='Cluster ID.', example='amv-********'),
+      instanceName?: string(name='InstanceName', description='The instance ID.', example='test'),
+      instanceType?: string(name='InstanceType', description='Instance type.', example='Instance'),
+      product?: string(name='Product', description='The service name.', example='ads'),
+      progress?: float(name='Progress', description='Indicates the task progress.', example='79.0'),
+      reasonCode?: string(name='ReasonCode', description='The reason why the current task was initiated.', example='test'),
+      regionId?: string(name='RegionId', description='The region ID.', example='cn-hangzhou'),
+      remainTime?: int32(name='RemainTime', description='Estimated remaining execution time, in seconds.', example='1000'),
+      startTime?: string(name='StartTime', description='Task start time.', example='2022-02-03T11:31:03Z'),
+      status?: string(name='Status', description='Task status. Valid values:
+
+*   **Scheduled**
+*   **Running**
+*   **Succeed**
+*   **Failed**: The task failed.
+*   **Cancelling**
+*   **Canceled**
+*   **Waiting**', example='Running'),
+      taskDetail?: string(name='TaskDetail', description='The task details.', example='{\\"callerUid\\":\\"test\\"}'),
+      taskId?: string(name='TaskId', description='Task ID.', example='t-83br18hloy3faf****'),
+      taskType?: string(name='TaskType', description='Task type.', example='autotest_dispatch_cases'),
+      uid?: string(name='Uid', description='null', example='141345906006****'),
     }
-  ](name='Items'),
-  message?: string(name='Message', example='Success'),
-  pageNumber?: int32(name='PageNumber', example='1'),
-  pageSize?: int32(name='PageSize', example='10'),
-  requestId?: string(name='RequestId', example='E51713A3-BB45-5616-AB15-170B704F8F01'),
-  success?: boolean(name='Success', example='true'),
-  totalCount?: int32(name='TotalCount', example='100'),
+  ](name='Items', description='The task list.'),
+  message?: string(name='Message', description='The returned message. null
+
+*   null****
+*   null', example='Success'),
+  pageNumber?: int32(name='PageNumber', description='The page number of the returned page.', example='1'),
+  pageSize?: int32(name='PageSize', description='The number of entries returned per page.', example='10'),
+  requestId?: string(name='RequestId', description='Request ID.', example='E51713A3-BB45-5616-AB15-170B704F8F01'),
+  success?: boolean(name='Success', description='Indicates whether the request was successful. Valid values:
+
+*   **true**
+*   **false**', example='true'),
+  totalCount?: int32(name='TotalCount', description='Total record count.', example='100'),
 }
 
 model DescribeHistoryTasksResponse = {
@@ -6368,6 +6560,7 @@ model DescribeHistoryTasksResponse = {
 }
 
 /**
+  * @description Only supports viewing tasks within the last 30 days.
   * @param request  the request parameters of DescribeHistoryTasks  DescribeHistoryTasksRequest
   * @return DescribeHistoryTasksResponse
  */
@@ -6377,43 +6570,82 @@ async function describeHistoryTasks(request: DescribeHistoryTasksRequest): Descr
 }
 
 model DescribeHistoryTasksStatRequest {
-  fromExecTime?: int32(name='FromExecTime', example='1', position='Query'),
-  fromStartTime: string(name='FromStartTime', description='This parameter is required.', example='2023-05-08T07:04:17Z', position='Query'),
-  instanceId?: string(name='InstanceId', example='amv-********', position='Query'),
+  fromExecTime?: int32(name='FromExecTime', description='Minimum task execution time, used to filter tasks with execution time greater than this value, in seconds. Default 0, meaning no limit', example='1', position='Query'),
+  fromStartTime: string(name='FromStartTime', description='Query start time.
+
+This parameter is required.', example='2023-05-08T07:04:17Z', position='Query'),
+  instanceId?: string(name='InstanceId', description='Cluster ID.', example='amv-********', position='Query'),
   ownerId?: long(name='OwnerId', position='Query'),
-  regionId: string(name='RegionId', description='This parameter is required.', example='cn-beijing', position='Query'),
-  resourceGroupId?: string(name='ResourceGroupId', example='rg-acfmy*****', position='Query'),
+  regionId: string(name='RegionId', description='The ID of the region where the instance resides.
+
+This parameter is required.', example='cn-beijing', position='Query'),
+  resourceGroupId?: string(name='ResourceGroupId', description='Resource group ID.', example='rg-acfmy*****', position='Query'),
   resourceOwnerAccount?: long(name='ResourceOwnerAccount', position='Query'),
   resourceOwnerId?: long(name='ResourceOwnerId', position='Query'),
   securityToken?: string(name='SecurityToken', position='Query'),
-  status?: string(name='Status', example='Scheduled', position='Query'),
-  taskId?: string(name='TaskId', example='1564657730', position='Query'),
-  taskType?: string(name='TaskType', example='all', position='Query'),
-  toExecTime?: int32(name='ToExecTime', example='10', position='Query'),
-  toStartTime: string(name='ToStartTime', description='This parameter is required.', example='2023-02-24T10:01:37Z', position='Query'),
+  status?: string(name='Status', description='The state of the task. Valid values:
+
+*   **Scheduled**
+*   **Running**
+*   **Succeed**
+*   **Failed**: The task failed.
+*   **Cancelling**
+*   **Canceled**
+*   **Waiting**
+
+Separate multiple states with commas (,). This parameter is empty by default, which indicates that tasks in all states are queried.', example='Scheduled', position='Query'),
+  taskId?: string(name='TaskId', description='Task ID.', example='1564657730', position='Query'),
+  taskType?: string(name='TaskType', description='Task type.', example='all', position='Query'),
+  toExecTime?: int32(name='ToExecTime', description='Maximum task execution time, used to filter tasks with execution time not less than this value, in seconds. Default 0, meaning no limit', example='10', position='Query'),
+  toStartTime: string(name='ToStartTime', description='Represents tasks whose start time is before this time.
+
+This parameter is required.', example='2023-02-24T10:01:37Z', position='Query'),
 }
 
 model DescribeHistoryTasksStatResponseBody = {
   accessDeniedDetail?: {
-    authAction?: string(name='AuthAction', example='test'),
-    authPrincipalDisplayName?: string(name='AuthPrincipalDisplayName', example='test'),
-    authPrincipalOwnerId?: string(name='AuthPrincipalOwnerId', example='141345906006****'),
-    authPrincipalType?: string(name='AuthPrincipalType', example='test'),
-    encodedDiagnosticMessage?: string(name='EncodedDiagnosticMessage', example='test'),
-    noPermissionType?: string(name='NoPermissionType', example='ImplicitDeny'),
-    policyType?: string(name='PolicyType', example='ControlPolicy'),
-  }(name='AccessDeniedDetail'),
-  code?: string(name='Code', example='200'),
-  httpStatusCode?: int32(name='HttpStatusCode', example='200'),
+    authAction?: string(name='AuthAction', description='Authorized action', example='test'),
+    authPrincipalDisplayName?: string(name='AuthPrincipalDisplayName', description='The display name of the requester.', example='test'),
+    authPrincipalOwnerId?: string(name='AuthPrincipalOwnerId', description='The ID of the Alibaba Cloud account to which the authentication principal belongs.', example='141345906006****'),
+    authPrincipalType?: string(name='AuthPrincipalType', description='The requester type.', example='test'),
+    encodedDiagnosticMessage?: string(name='EncodedDiagnosticMessage', description='The encoded diagnostic message.', example='test'),
+    noPermissionType?: string(name='NoPermissionType', description='The type of the policy denial. Valid values:
+
+*   **ImplicitDeny**: The resource holder has not configured a policy for the current user. By default, unauthorized operations are denied.
+*   **ExplicitDeny**: The RAM policy configured by the resource holder explicitly denies the current user access to the corresponding resources.', example='ImplicitDeny'),
+    policyType?: string(name='PolicyType', description='The type of the policy that causes the access denied error.
+
+*   **ControlPolicy**: control policy
+*   **SessionPolicy**: an additional policy that is added to the temporary token.
+*   **AssumeRolePolicy**: the authorization policy of the RAM role.
+*   **AccountLevelIdentityBasedPolicy**: the principal policies of the account authorization scope, including custom policies and system policies.
+*   **ResourceGroupLevelIdentityBasedPolicy**: the principal policy of the resource group authorization scope, including custom policies and system policies.', example='ControlPolicy'),
+  }(name='AccessDeniedDetail', description='The queried information about the request denial.'),
+  code?: string(name='Code', description='API status or POP error code.', example='200'),
+  httpStatusCode?: int32(name='HttpStatusCode', description='The HTTP status code returned.', example='200'),
   items?: [ 
     {
-      status?: string(name='Status', example='Scheduled'),
-      totalCount?: int32(name='TotalCount', example='20'),
+      status?: string(name='Status', description='The status of the APS job.
+
+*   **Scheduled**
+*   **Running**
+*   **Succeed**
+*   **Failed**: The task failed.
+*   **Cancelling**
+*   **Canceled**
+*   **Waiting**', example='Scheduled'),
+      totalCount?: int32(name='TotalCount', description='The total number of tasks.', example='20'),
     }
-  ](name='Items'),
-  message?: string(name='Message', example='SUCCESS'),
-  requestId?: string(name='RequestId', example='1AD222E9-E606-4A42-BF6D-8A4442913CEF'),
-  success?: boolean(name='Success', example='true'),
+  ](name='Items', description='The tasks.'),
+  message?: string(name='Message', description='The returned message. Valid values:
+
+*   If the request was successful, an success message is returned.
+*   If the request failed, an error message is returned.', example='SUCCESS'),
+  requestId?: string(name='RequestId', description='The request ID.', example='1AD222E9-E606-4A42-BF6D-8A4442913CEF'),
+  success?: boolean(name='Success', description='Indicates whether the request was successful. Valid values:
+
+*   **true**
+*   **false**', example='true'),
 }
 
 model DescribeHistoryTasksStatResponse = {
@@ -6812,6 +7044,144 @@ model DescribeLakeCacheSizeResponse = {
 async function describeLakeCacheSize(request: DescribeLakeCacheSizeRequest): DescribeLakeCacheSizeResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RPC', 'DescribeLakeCacheSize', 'POST', '/', 'json', false, 'json', request);
+}
+
+model DescribeMVRecommendResultsRequest {
+  actionInner?: string(name='ActionInner', description='Fixed system value (non-modifiable).', position='Query'),
+  DBClusterId?: string(name='DBClusterId', description='The cluster ID.', example='am-bp1ub9grke1****', position='Query'),
+  from?: string(name='From', description='Fixed system value (non-modifiable).', position='Query'),
+  orderBy?: string(name='OrderBy', description='The sorting field.', example='{"Type": "Desc","Field": "AcceleratedQueriesCount"}', position='Query'),
+  pageNumber?: int32(name='PageNumber', description='The page number.', example='1', position='Query'),
+  pageSize?: int32(name='PageSize', description='The number of entries to return per page.', example='30', position='Query'),
+  regionId?: string(name='RegionId', description='The region ID.', example='cn-hangzhou', position='Query'),
+  subQueryId?: long(name='SubQueryId', example='123', position='Query'),
+  subtaskId?: long(name='SubtaskId', description='The subtask ID.', example='123', position='Query'),
+  taskName?: string(name='TaskName', description='The name of the recommendation task.', example='task_n1', position='Query'),
+}
+
+model DescribeMVRecommendResultsResponseBody = {
+  data?: {
+    mvRecommendResultModels?: [
+      OpenStructMVRecommendResultModel
+    ](name='MvRecommendResultModels'),
+    pageNumber?: long(name='PageNumber', description='The page number. Default value: **1**.', example='1'),
+    pageSize?: long(name='PageSize', description='The number of entries returned per page. Valid values:
+
+*   **30** (default).
+*   **50**.
+*   **100**.', example='20'),
+    totalCount?: long(name='TotalCount', description='The total number of entries.', example='1'),
+  }(name='Data', description='The returned data.'),
+  pageNumber?: long(name='PageNumber', description='The page number.', example='1'),
+  pageSize?: long(name='PageSize', description='The number of entries returned per page.', example='30'),
+  requestId?: string(name='RequestId', description='Id of the request', example='1AD222E9-E606-4A42-BF6D-8A4442913CEF'),
+  totalCount?: long(name='TotalCount', description='The total number of entries returned.', example='20'),
+}
+
+model DescribeMVRecommendResultsResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: DescribeMVRecommendResultsResponseBody(name='body'),
+}
+
+/**
+  * @description For information about the endpoints of AnalyticDB for MySQL, see [Endpoints](https://help.aliyun.com/document_detail/612373.html).
+  * @param request  the request parameters of DescribeMVRecommendResults  DescribeMVRecommendResultsRequest
+  * @return DescribeMVRecommendResultsResponse
+ */
+async function describeMVRecommendResults(request: DescribeMVRecommendResultsRequest): DescribeMVRecommendResultsResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'DescribeMVRecommendResults', 'POST', '/', 'json', false, 'json', request);
+}
+
+model DescribeMvRecommendSubTasksRequest {
+  actionInner?: string(name='ActionInner', description='Fixed system value (non-modifiable).', position='Query'),
+  DBClusterId?: string(name='DBClusterId', description='The cluster ID.', example='am-bp1ub9grke1****', position='Query'),
+  from?: string(name='From', description='Fixed system value (non-modifiable).', position='Query'),
+  orderBy?: string(name='OrderBy', description='The sorting field. Valid values for Type:
+
+*   Asc.
+*   Desc.
+
+Valid values for Field:
+
+*   StartTime;
+*   EndTime;', example='{\\"Type\\": \\"ASC\\", \\"Field\\": \\"StartTime\\"}', position='Query'),
+  pageNumber?: int32(name='PageNumber', description='The page number.', example='1', position='Query'),
+  pageSize?: int32(name='PageSize', description='The number of entries to return per page.', example='30', position='Query'),
+  regionId?: string(name='RegionId', description='The region ID.', example='cn-hangzhou', position='Query'),
+  subtaskId?: long(name='SubtaskId', description='The subtask ID.', example='123', position='Query'),
+  taskName?: string(name='TaskName', description='The name of the recommendation task.', example='my_task_1', position='Query'),
+}
+
+model DescribeMvRecommendSubTasksResponseBody = {
+  data?: {
+    mvRecommendSubTaskModels?: [
+      OpenStructMvRecommendSubTaskModel
+    ](name='MvRecommendSubTaskModels', description='The list of recommended tasks to be executed.'),
+    pageNumber?: long(name='PageNumber', description='The page number.', example='1'),
+    pageSize?: long(name='PageSize', description='The number of entries returned per page.', example='30'),
+    totalCount?: long(name='TotalCount', description='The total number of entries returned.', example='4'),
+  }(name='Data', description='The returned data.'),
+  pageNumber?: long(name='PageNumber', description='The page number.', example='1'),
+  pageSize?: long(name='PageSize', description='The number of entries returned per page.', example='30'),
+  requestId?: string(name='RequestId', description='Id of the request', example='1AD222E9-E606-4A42-BF6D-8A4442913CEF'),
+  totalCount?: long(name='TotalCount', description='The total number of entries returned.', example='4'),
+}
+
+model DescribeMvRecommendSubTasksResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: DescribeMvRecommendSubTasksResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of DescribeMvRecommendSubTasks  DescribeMvRecommendSubTasksRequest
+  * @return DescribeMvRecommendSubTasksResponse
+ */
+async function describeMvRecommendSubTasks(request: DescribeMvRecommendSubTasksRequest): DescribeMvRecommendSubTasksResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'DescribeMvRecommendSubTasks', 'POST', '/', 'json', false, 'json', request);
+}
+
+model DescribeMvRecommendTasksRequest {
+  actionInner?: string(name='ActionInner', description='Fixed system value (non-modifiable).', position='Query'),
+  DBClusterId?: string(name='DBClusterId', description='The cluster ID.', example='amv-bp11q28kvl688****', position='Query'),
+  from?: string(name='From', description='Fixed system value (non-modifiable).', position='Query'),
+  pageNumber?: int32(name='PageNumber', description='The page number.', example='1', position='Query'),
+  pageSize?: int32(name='PageSize', description='The number of entries to return on each page.', example='30', position='Query'),
+  regionId?: string(name='RegionId', description='The region ID.', example='cn-hangzhou', position='Query'),
+  taskName?: string(name='TaskName', description='The name of the recommendation task.', example='my_task_1', position='Query'),
+}
+
+model DescribeMvRecommendTasksResponseBody = {
+  data?: {
+    mvRecommendTaskModels?: [
+      OpenStructMvRecommendTaskModel
+    ](name='MvRecommendTaskModels', description='The list of recommended tasks for materialized views.'),
+    pageNumber?: long(name='PageNumber', description='The page number.', example='1'),
+    pageSize?: long(name='PageSize', description='The number of entries returned per page.', example='30'),
+    totalCount?: long(name='TotalCount', description='The total number of entries that are returned.', example='4'),
+  }(name='Data', description='The data returned.'),
+  pageNumber?: long(name='PageNumber', description='The page number.', example='1'),
+  pageSize?: long(name='PageSize', description='The number of entries returned per page.', example='30'),
+  requestId?: string(name='RequestId', description='Id of the request', example='1AD222E9-E606-4A42-BF6D-8A4442913CEF'),
+  totalCount?: long(name='TotalCount', description='The total number of entries that are returned.', example='4'),
+}
+
+model DescribeMvRecommendTasksResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: DescribeMvRecommendTasksResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of DescribeMvRecommendTasks  DescribeMvRecommendTasksRequest
+  * @return DescribeMvRecommendTasksResponse
+ */
+async function describeMvRecommendTasks(request: DescribeMvRecommendTasksRequest): DescribeMvRecommendTasksResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'DescribeMvRecommendTasks', 'POST', '/', 'json', false, 'json', request);
 }
 
 model DescribeOperatorPermissionRequest {
@@ -7302,30 +7672,48 @@ async function describeResourceGroupSpec(request: DescribeResourceGroupSpecReque
 }
 
 model DescribeResultExportConfigRequest {
-  DBClusterId: string(name='DBClusterId', description='This parameter is required.', example='amv-8vbf80pjcz*****', position='Query'),
-  exportType?: string(name='ExportType', example='SLS', position='Query'),
-  regionId: string(name='RegionId', description='This parameter is required.', example='cn-shenzhen', position='Query'),
+  DBClusterId: string(name='DBClusterId', description='The cluster ID.
+
+>  You can call the [DescribeDBClusters](https://help.aliyun.com/document_detail/129857.html) operation to query the information about all AnalyticDB for MySQL clusters within a region, including cluster IDs.
+
+This parameter is required.', example='amv-8vbf80pjcz*****', position='Query'),
+  exportType?: string(name='ExportType', description='The export type. Valid values:
+
+*   SLS: Indicates that the export destination is SLS.
+*   OSS: Indicates that the export destination is OSS.', example='SLS', position='Query'),
+  regionId: string(name='RegionId', description='The region ID.
+
+This parameter is required.', example='cn-shenzhen', position='Query'),
 }
 
 model DescribeResultExportConfigResponseBody = {
-  code?: string(name='Code', example='InvalidInput'),
+  code?: string(name='Code', description='API status or POP error code.', example='InvalidInput'),
   data?: {
-    exportType?: string(name='ExportType', example='OSS'),
+    exportType?: string(name='ExportType', description='The export type. Valid values:
+
+*   SLS: Indicates that the export destination is SLS.
+*   OSS: Indicates that the export destination is OSS.', example='OSS'),
     ossInfo?: {
-      exportBasePath?: string(name='ExportBasePath', example='oss://testBucketName/data_result'),
-      resourceGroup?: string(name='ResourceGroup', example='aps'),
-      resultFileTtl?: int32(name='ResultFileTtl', example='10'),
-    }(name='OssInfo'),
+      exportBasePath?: string(name='ExportBasePath', description='The path of the OSS bucket to which the result sets are exported.', example='oss://testBucketName/data_result'),
+      resourceGroup?: string(name='ResourceGroup', description='The name of the resource group that runs the export SQL.', example='aps'),
+      resultFileTtl?: int32(name='ResultFileTtl', description='The expiration period (in days) for the OSS file. The returned value is between 1 and 30 days (inclusive).', example='10'),
+    }(name='OssInfo', description='The configured OSS export settings, returned when the export destination is OSS.'),
     slsInfo?: {
-      logstoreTtl?: int32(name='LogstoreTtl', example='10'),
-      resourceGroup?: string(name='ResourceGroup', example='aps'),
-      slsProject?: string(name='SlsProject', example='test-project'),
-    }(name='SlsInfo'),
-  }(name='Data'),
-  httpStatusCode?: int32(name='HttpStatusCode', example='200'),
-  message?: string(name='Message', example='OK'),
-  requestId?: string(name='RequestId', example='1AD222E9-E606-4A42-BF6D-8A4442913CEF'),
-  success?: boolean(name='Success', example='true'),
+      logstoreTtl?: int32(name='LogstoreTtl', description='The expiration period (in days) for the temporary Logstore automatically created during result set export. The Logstore is automatically deleted after expiration. The returned value is between 1 and 30 days (inclusive).', example='10'),
+      resourceGroup?: string(name='ResourceGroup', description='The name of the resource group that runs the export SQL.', example='aps'),
+      slsProject?: string(name='SlsProject', description='The name of the SLS project.', example='test-project'),
+    }(name='SlsInfo', description='The configured SLS export settings, returned when the export destination is SLS.'),
+  }(name='Data', description='The data returned.'),
+  httpStatusCode?: int32(name='HttpStatusCode', description='The HTTP response status code. A value of 200 indicates that the request was successful.', example='200'),
+  message?: string(name='Message', description='The returned message. Valid values:
+
+*   The request succeeded, and the server returns **OK**.
+*   The request failed, and the server returns an error message.', example='OK'),
+  requestId?: string(name='RequestId', description='Request ID.', example='1AD222E9-E606-4A42-BF6D-8A4442913CEF'),
+  success?: boolean(name='Success', description='Indicates whether the call was successful. Valid values: Valid values:
+
+*   **True: Succeeded.**
+*   **False: Failed.', example='true'),
 }
 
 model DescribeResultExportConfigResponse = {
@@ -7671,31 +8059,73 @@ async function describeSparkAppType(request: DescribeSparkAppTypeRequest): Descr
 }
 
 model DescribeSparkAuditLogRecordsRequest {
-  clientIp?: string(name='ClientIp', example='192.168.XX.XX', position='Query'),
-  DBClusterId: string(name='DBClusterId', description='This parameter is required.', example='amv-bp1j7******78j8i', position='Query'),
-  endTime?: string(name='EndTime', example='2025-09-25T01:00Z', position='Query'),
-  order?: string(name='Order', example='[{\\"Field\\":\\"ExecuteTime\\",\\"Type\\":\\"Desc\\"}]', position='Query'),
+  clientIp?: string(name='ClientIp', description='The source IP address.', example='192.168.XX.XX', position='Query'),
+  DBClusterId: string(name='DBClusterId', description='The cluster ID.
+
+> 
+
+*   You can call the [DescribeDBClusters](https://help.aliyun.com/document_detail/454250.html) operation to query cluster IDs.
+
+This parameter is required.', example='amv-bp1j7******78j8i', position='Query'),
+  endTime?: string(name='EndTime', description='Query end time. The end time must be later than the start time, and the interval between them must be less than 1 day. Format: yyyy-MM-ddTHH:mmZ (UTC time).', example='2025-09-25T01:00Z', position='Query'),
+  order?: string(name='Order', description='Sort the SQL statements based on specified fields. The format is a JSON array that preserves order, and composite sorting is performed according to the sequence of objects in the array. Each object contains two fields: `Field` and `Type`. For example:`[{"Field":"CreateTime", "Type": "desc" }]`. Where:
+
+*   `Field` specifies the field that is used to sort the SQL statements. Valid values:
+
+    *   `ResourceGroupName`: The name of the resource group.
+    *   `Status` :SQL execution status.
+    *   `User`: The username that is used to execute the SQL statement.
+    *   `ExecuteTime`: The start time of SQL execution.
+    *   `TotalTime`: The amount of time consumed to execute the SQL statement.
+    *   `ProcessId`: Query ID.
+    *   `ClientIp`: The source IP address.
+    *   `StatementSource`: The source from which the query was initiated.
+
+*   `Type` specifies the sorting order. Valid values (case-insensitive):
+
+    *   `Desc`: Descending order.
+    *   `Asc`: Ascending order.', example='[{\\"Field\\":\\"ExecuteTime\\",\\"Type\\":\\"Desc\\"}]', position='Query'),
   ownerAccount?: string(name='OwnerAccount', position='Query'),
   ownerId?: long(name='OwnerId', position='Query'),
-  pageNumber?: int32(name='PageNumber', example='1', minimum=1, maximum=2147483647, position='Query'),
-  pageSize?: int32(name='PageSize', example='30', minimum=10, maximum=100, position='Query'),
-  processId?: string(name='ProcessId', example='999f2439-6b10-xxxx-a5d3-daf3b35c****', position='Query'),
-  proxyUser?: string(name='ProxyUser', example='user', position='Query'),
-  regionId: string(name='RegionId', description='This parameter is required.', example='cn-shanghai', position='Query'),
-  resourceGroupName?: string(name='ResourceGroupName', example='test_job', position='Query'),
+  pageNumber?: int32(name='PageNumber', description='The page number.', example='1', minimum=1, maximum=2147483647, position='Query'),
+  pageSize?: int32(name='PageSize', description='The number of entries to return on each page.', example='30', minimum=10, maximum=100, position='Query'),
+  processId?: string(name='ProcessId', description='The query ID.', example='999f2439-6b10-xxxx-a5d3-daf3b35c****', position='Query'),
+  proxyUser?: string(name='ProxyUser', description='This parameter is deprecated.', example='user', position='Query'),
+  regionId: string(name='RegionId', description='The region ID.
+
+>  You can call the [DescribeRegions](https://help.aliyun.com/document_detail/612293.html) operation to query the available regions and zones, including region ID.
+
+This parameter is required.', example='cn-shanghai', position='Query'),
+  resourceGroupName?: string(name='ResourceGroupName', description='The resource group name.
+
+>  You can call the [DescribeDBResourceGroup](https://help.aliyun.com/document_detail/612410.html) operation to query the resource group ID within a cluster.', example='test_job', position='Query'),
   resourceOwnerAccount?: string(name='ResourceOwnerAccount', position='Query'),
   resourceOwnerId?: long(name='ResourceOwnerId', position='Query'),
-  SQLText?: string(name='SQLText', example='test_table_name', position='Query'),
-  startTime?: string(name='StartTime', example='2025-09-25T00:00Z', position='Query'),
-  statementId?: string(name='StatementId', description='Statement ID。', example='fbd22066-1c03-xxxx-aa16-6ae28288****', position='Query'),
-  statementSource?: string(name='StatementSource', example='SQL_EDITOR', position='Query'),
-  status?: string(name='Status', example='finish', position='Query'),
-  totalTime?: string(name='TotalTime', example='3000', position='Query'),
-  user?: string(name='User', example='test_user', position='Query'),
+  SQLText?: string(name='SQLText', description='The keyword in the SQL statement.', example='test_table_name', position='Query'),
+  startTime?: string(name='StartTime', description='Query start time. Format: *yyyy-MM-ddTHH:mmZ* (UTC time).
+
+>  We recommend that you set the query start time to any point in time within 30 days.', example='2025-09-25T00:00Z', position='Query'),
+  statementId?: string(name='StatementId', description='The ID of the statement.', example='fbd22066-1c03-xxxx-aa16-6ae28288****', position='Query'),
+  statementSource?: string(name='StatementSource', description='The source from which the query was initiated.
+
+Valid values:
+
+*   SQL_EDITOR: SQL_EDITOR.
+*   JDBC: JDBC.', example='SQL_EDITOR', position='Query'),
+  status?: string(name='Status', description='The execution status of the SQL statement.
+
+Valid values:
+
+*   cancel: The task is canceled .
+*   finished: The execution succeeds .
+*   error:The execution fails .
+*   timeout: The execution timed out .', example='finish', position='Query'),
+  totalTime?: string(name='TotalTime', description='The duration of the SQL statement. Unit: milliseconds.', example='3000', position='Query'),
+  user?: string(name='User', description='The username that is used to execute SQL statements.', example='test_user', position='Query'),
 }
 
 model DescribeSparkAuditLogRecordsResponseBody = {
-  accessDeniedDetail?: string(name='AccessDeniedDetail', example='{
+  accessDeniedDetail?: string(name='AccessDeniedDetail', description='The details about the access denial. This parameter is returned only if Resource Access Management (RAM) permission verification failed.', example='{
     "PolicyType": "AccountLevelIdentityBasedPolicy",
     "AuthPrincipalOwnerId": "1*****************7",
     "EncodedDiagnosticMessage": "AQIBIAAAAOPdwKY2QLOvgMEc7SkkoJfj1kvZwsaRqNYMh10Tv0wTe0fCzaCdrvgazfNb0EnJKETgXyhR+3BIQjx9WAqZryejBsp1Bl4qI5En/D9dEhcXAtKCxCmE2kZCiEzpy8BoEUt+bs0DmlaGWO5xkEpttypLIB4rUhDvZd+zwPg4EXk4KSSWSWsurxtqDkKEMshKlQFBTKvJcKwyhk62IeYly4hQ+5IpXjkh1GQXuDRCQ==",
@@ -7704,30 +8134,42 @@ model DescribeSparkAuditLogRecordsResponseBody = {
     "NoPermissionType": "ImplicitDeny",
     "AuthAction": "adb:DescribeExcessivePrimaryKeys"
 }'),
-  DBClusterId?: string(name='DBClusterId', example='amv-bp1j7******78j8i'),
+  DBClusterId?: string(name='DBClusterId', description='The cluster ID.', example='amv-bp1j7******78j8i'),
   items?: [ 
     {
-      appId?: string(name='AppId', example='s202411061011hzc5d6476000****'),
-      clientIp?: string(name='ClientIp', example='192.168.XX.XX'),
-      errorMsg?: string(name='ErrorMsg', example='notFoundIp'),
-      errorTrace?: string(name='ErrorTrace', example='notFoundIpException'),
-      executeTime?: string(name='ExecuteTime', example='2022-01-23T16:05:08Z'),
-      innerQueryId?: string(name='InnerQueryId', example='1'),
-      isDiagnosable?: boolean(name='IsDiagnosable', example='true'),
-      processId?: string(name='ProcessId', example='999f2439-6b10-xxxx-a5d3-daf3b35c****'),
-      resourceGroupName?: string(name='ResourceGroupName', example='test_job'),
-      SQLText?: string(name='SQLText', example='SELECT * FROM adb_hdfs_import_source'),
-      statementId?: string(name='StatementId', description='Statement ID。', example='fbd22066-1c03-xxxx-aa16-6ae28288****'),
-      statementSource?: string(name='StatementSource', example='SQL_EDITOR'),
-      status?: string(name='Status', example='finish'),
-      totalTime?: long(name='TotalTime', example='40000'),
-      user?: string(name='User', example='test_user'),
+      appId?: string(name='AppId', description='The Spark application ID.', example='s202411061011hzc5d6476000****'),
+      clientIp?: string(name='ClientIp', description='The source IP address.', example='192.168.XX.XX'),
+      errorMsg?: string(name='ErrorMsg', description='The SQL execution error message.', example='notFoundIp'),
+      errorTrace?: string(name='ErrorTrace', description='The SQL execution error stack trace.', example='notFoundIpException'),
+      executeTime?: string(name='ExecuteTime', description='The start time of the SQL statement. The time is in the yyyy-MM-ddTHH:mm:ssZ format. The time is in UTC.', example='2022-01-23T16:05:08Z'),
+      innerQueryId?: string(name='InnerQueryId', description='The ID of the query executed within the Spark application.', example='1'),
+      isDiagnosable?: boolean(name='IsDiagnosable', description='Whether it can be diagnosed.', example='true'),
+      processId?: string(name='ProcessId', description='The query ID.', example='999f2439-6b10-xxxx-a5d3-daf3b35c****'),
+      resourceGroupName?: string(name='ResourceGroupName', description='The resource group name.', example='test_job'),
+      SQLText?: string(name='SQLText', description='The SQL statement.', example='SELECT * FROM adb_hdfs_import_source'),
+      statementId?: string(name='StatementId', description='The ID of the statement.', example='fbd22066-1c03-xxxx-aa16-6ae28288****'),
+      statementSource?: string(name='StatementSource', description='The source from which the query was initiated.
+
+Valid values:
+
+*   SQL_EDITOR: SQL_EDITOR.
+*   JDBC: JDBC.', example='SQL_EDITOR'),
+      status?: string(name='Status', description='The execution status of the SQL statement.
+
+Valid values:
+
+*   cancel: The task is canceled .
+*   finished: The execution succeeds .
+*   error: The execution fails .
+*   timeout: The execution of the command timed out.', example='finish'),
+      totalTime?: long(name='TotalTime', description='The duration of the SQL statement. Unit: milliseconds.', example='40000'),
+      user?: string(name='User', description='The username that is used to execute SQL statements.', example='test_user'),
     }
-  ](name='Items'),
-  pageNumber?: string(name='PageNumber', example='1'),
-  pageSize?: string(name='PageSize', example='30'),
-  requestId?: string(name='RequestId', example='2D5867CF-423F-559F-BBB1-199A289E****'),
-  totalCount?: string(name='TotalCount', example='100'),
+  ](name='Items', description='The list of SQL audit logs.'),
+  pageNumber?: string(name='PageNumber', description='The page number.', example='1'),
+  pageSize?: string(name='PageSize', description='The number of entries to return per page.', example='30'),
+  requestId?: string(name='RequestId', description='The request ID.', example='2D5867CF-423F-559F-BBB1-199A289E****'),
+  totalCount?: string(name='TotalCount', description='The total number of entries.', example='100'),
 }
 
 model DescribeSparkAuditLogRecordsResponse = {
@@ -7737,6 +8179,8 @@ model DescribeSparkAuditLogRecordsResponse = {
 }
 
 /**
+  * @description SQL audit logs can be queried only when SQL audit is enabled. Only SQL audit logs within the last 30 days can be queried. If SQL auditing is turned off midway, when it is re-enabled, you can only query the SQL audit logs generated after it was turned back on.
+  * >  You can query only SQL audit logs that are executed by using Spark Interactive Resource Group.
   * @param request  the request parameters of DescribeSparkAuditLogRecords  DescribeSparkAuditLogRecordsRequest
   * @return DescribeSparkAuditLogRecordsResponse
  */
@@ -8539,6 +8983,65 @@ async function describeUserQuota(request: DescribeUserQuotaRequest): DescribeUse
   return @handler.do('RPC', 'DescribeUserQuota', 'GET', '/', 'json', false, 'json', request);
 }
 
+model DescribeViewJobsRequest {
+  DBClusterId?: string(name='DBClusterId', description='The cluster ID.', example='am-bp1ub9grke1****', position='Query'),
+  filterOwner?: string(name='FilterOwner', description='The owner of the view.', example='admin', position='Query'),
+  filterViewName?: string(name='FilterViewName', description='The name of the view.', example='test_mv', position='Query'),
+  filterViewType?: string(name='FilterViewType', description='The type of the view.
+
+Valid values:
+
+\\-VIRTUAL_VIEW
+
+\\-MATERIALIZED_VIEW
+
+This parameter is empty by default.', example='MATERIALIZED_VIEW', position='Query'),
+  orderBy?: string(name='OrderBy', description='The field used for sorting. Valid values for Type:
+
+*   Asc.
+*   Desc.
+
+Valid values for Field:
+
+*   StartTime.
+*   EndTime;
+*   ScheduledStartTime;', example='{\\"Field\\":\\"StartTime\\",\\"Type\\":\\"Desc\\"}', position='Query'),
+  pageNumber?: int32(name='PageNumber', description='The page number.', example='1', position='Query'),
+  pageSize?: int32(name='PageSize', description='The number of entries to return on each page.', example='30', position='Query'),
+  regionId?: string(name='RegionId', description='The region ID.', example='cn-hangzhou', position='Query'),
+  schemaName?: string(name='SchemaName', description='The database name.', example='demo_db', position='Query'),
+}
+
+model DescribeViewJobsResponseBody = {
+  data?: {
+    mvRefreshJobModels?: [
+      OpenStructRefreshJobModel
+    ](name='MvRefreshJobModels', description='The refresh tasks.'),
+    pageNumber?: long(name='PageNumber', description='The page number.', example='1'),
+    pageSize?: long(name='PageSize', description='The number of entries returned on each page.', example='30'),
+    totalCount?: long(name='TotalCount', description='The total number of entries that are returned.', example='44'),
+  }(name='Data', description='The returned data.'),
+  pageNumber?: long(name='PageNumber', description='The page number.', example='1'),
+  pageSize?: long(name='PageSize', description='The number of entries returned per page.', example='30'),
+  requestId?: string(name='RequestId', description='Id of the request', example='2A318054-6815-528A-AA94-8AC921******'),
+  totalCount?: long(name='TotalCount', description='The total number of entries that are returned.', example='44'),
+}
+
+model DescribeViewJobsResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: DescribeViewJobsResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of DescribeViewJobs  DescribeViewJobsRequest
+  * @return DescribeViewJobsResponse
+ */
+async function describeViewJobs(request: DescribeViewJobsRequest): DescribeViewJobsResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'DescribeViewJobs', 'POST', '/', 'json', false, 'json', request);
+}
+
 model DescribeWorkerDetectionRequest {
   DBClusterId: string(name='DBClusterId', description='The cluster ID.
 
@@ -9065,23 +9568,42 @@ async function existRunningSQLEngine(request: ExistRunningSQLEngineRequest): Exi
 }
 
 model GetADBSparkNecessaryRAMPermissionsRequest {
-  DBClusterId: string(name='DBClusterId', description='This parameter is required.', example='amv-bp1r053byu48p****', position='Body'),
+  DBClusterId: string(name='DBClusterId', description='The cluster ID.
+
+>  You can call the [DescribeDBClusters](https://help.aliyun.com/document_detail/129857.html) operation to query the IDs of all AnalyticDB for MySQL clusters within a region.
+
+This parameter is required.', example='amv-bp1r053byu48p****', position='Body'),
 }
 
 model GetADBSparkNecessaryRAMPermissionsResponseBody = {
   data?: {
     deniedDetail?: {
-      action?: string(name='Action', example='ListSparkApps'),
-      noPermissionType?: string(name='NoPermissionType', example='ImplicitDeny'),
-      policyType?: string(name='PolicyType', example='ControlPolicy'),
-      principalType?: string(name='PrincipalType', example='SubUser'),
-      resourceAuthTargetInfo?: string(name='ResourceAuthTargetInfo', example='223345695632****'),
-      resourceOwnerId?: string(name='ResourceOwnerId', example='11685695632****'),
-    }(name='DeniedDetail'),
-    passed?: boolean(name='Passed', example='true'),
-    suggestion?: string(name='Suggestion', example='Grant the system RAM policy \\"AliyunADBDeveloperAccess\\" to current RAM user can quickly solve this issue.'),
-  }(name='Data'),
-  requestId?: string(name='RequestId', example='642F3512-C628-5D0C-8815-F6670C****'),
+      action?: string(name='Action', description='The name of the RAM action that failed the authentication.', example='ListSparkApps'),
+      noPermissionType?: string(name='NoPermissionType', description='The type of the policy denial. Valid values:
+
+*   ImplicitDeny: Resource owner has not configured relevant permission policies for the current user, default denial of unauthorized operations.
+*   ExplicitDeny: RAM policies configured by the resource owner explicitly deny the current user access to corresponding resources', example='ImplicitDeny'),
+      policyType?: string(name='PolicyType', description='The type of the policy that causes the access denied error.
+
+*   ControlPolicy: control policy
+*   SessionPolicy: Temporary Token additional permission policy
+*   AssumeRolePolicy: RAM role trust policy
+*   AccountLevelIdentityBasedPolicy: Principal policy within account authorization scope, including custom policies and system policies
+*   ResourceGroupLevelIdentityBasedPolicy: Principal policy within resource group authorization scope, including custom policies and system policies.', example='ControlPolicy'),
+      principalType?: string(name='PrincipalType', description='The identity type of the current user. Valid values:
+
+*   SubUser: a RAM user
+*   AssumedRoleUser: a RAM role', example='SubUser'),
+      resourceAuthTargetInfo?: string(name='ResourceAuthTargetInfo', description='Authentication object information, can be the current user\\"s RAM account ID, or the role information corresponding to the current visitor.', example='223345695632****'),
+      resourceOwnerId?: string(name='ResourceOwnerId', description='The ID of the resource owner.', example='11685695632****'),
+    }(name='DeniedDetail', description='When permission check fails, returns diagnostic information related to permission check failure.'),
+    passed?: boolean(name='Passed', description='Check whether the use has the basic permissions to use Analytic DB for Spark.
+
+*   true: The check is passed and the basic permissions are granted.
+*   false: The check fails and some permissions are missing.', example='true'),
+    suggestion?: string(name='Suggestion', description='Based on diagnostic information, recommends configurations for customers to perform in the RAM system.', example='Grant the system RAM policy \\"AliyunADBDeveloperAccess\\" to current RAM user can quickly solve this issue.'),
+  }(name='Data', description='The returned result.'),
+  requestId?: string(name='RequestId', description='The ID of the request.', example='642F3512-C628-5D0C-8815-F6670C****'),
 }
 
 model GetADBSparkNecessaryRAMPermissionsResponse = {
@@ -9091,6 +9613,7 @@ model GetADBSparkNecessaryRAMPermissionsResponse = {
 }
 
 /**
+  * @description The API diagnosis report contains whether the current user has all permissions required by the AnalyticDB for Spark related features. The scope of the permissions may exceed the minimum requirements of the business. The diagnostic report of the current API is used to quickly initialize the environment of AnalyticDB for Spark. If fine-grained permission configuration is needed, see [Configure fine-grained permissions in AnalyDB for Spark.](https://www.alibabacloud.com/help/zh/analyticdb/analyticdb-for-mysql/user-guide/create-the-aliyunadbsparkprocessingdatarole-role-for-a-ram-user-and-grant-permissions-to-the-role?spm=a2c63.p38356.help-menu-92664.d_2_5_0.48362a487dMzm9#section-y2z-ucd-1ko)
   * @param request  the request parameters of GetADBSparkNecessaryRAMPermissions  GetADBSparkNecessaryRAMPermissionsRequest
   * @return GetADBSparkNecessaryRAMPermissionsResponse
  */
@@ -10681,26 +11204,31 @@ async function listApsOptimizationTasks(request: ListApsOptimizationTasksRequest
 }
 
 model ListApsWebhookRequest {
-  DBClusterId: string(name='DBClusterId', description='This parameter is required.', example='amv-8vbuyjhrih**', position='Body'),
-  jobType?: string(name='JobType', example='ResultExport', position='Body'),
-  regionId: string(name='RegionId', description='This parameter is required.', example='cn-hangzhou', position='Body'),
+  DBClusterId: string(name='DBClusterId', description='The cluster ID.
+
+This parameter is required.', example='amv-8vbuyjhrih**', position='Body'),
+  jobType?: string(name='JobType', description='**JobType**\\
+Job type. SLS or OSS Export Task: ResultExport.', example='ResultExport', position='Body'),
+  regionId: string(name='RegionId', description='The region ID.
+
+This parameter is required.', example='cn-hangzhou', position='Body'),
 }
 
 model ListApsWebhookResponseBody = {
-  code?: string(name='Code', example='200'),
-  httpStatusCode?: int32(name='HttpStatusCode', example='200'),
-  message?: string(name='Message', example='OK'),
-  requestId?: string(name='RequestId', example='exampleRequestId'),
-  success?: boolean(name='Success', example='True'),
+  code?: string(name='Code', description='API status or POP error code.', example='200'),
+  httpStatusCode?: int32(name='HttpStatusCode', description='The HTTP status code.', example='200'),
+  message?: string(name='Message', description='The returned message.', example='OK'),
+  requestId?: string(name='RequestId', description='The unique ID of the request.', example='exampleRequestId'),
+  success?: boolean(name='Success', description='Indicates whether the request was successful.', example='True'),
   webhook?: [ 
     {
-      key?: string(name='Key', example='your_secret_key'),
-      name?: string(name='Name', example='webhook_name'),
-      url?: string(name='Url', example='https://example.com/webhook'),
-      webhookId?: string(name='WebhookId', example='**35***'),
-      webhookType?: string(name='WebhookType', example='dingtalk'),
+      key?: string(name='Key', description='Signing key', example='your_secret_key'),
+      name?: string(name='Name', description='The name of the webhook.', example='webhook_name'),
+      url?: string(name='Url', description='The request URL.', example='https://example.com/webhook'),
+      webhookId?: string(name='WebhookId', description='The ID of the webhook that you want to delete.', example='**35***'),
+      webhookType?: string(name='WebhookType', description='Webhook type.', example='dingtalk'),
     }
-  ](name='Webhook'),
+  ](name='Webhook', description='The array of webhooks.'),
 }
 
 model ListApsWebhookResponse = {
@@ -10710,6 +11238,8 @@ model ListApsWebhookResponse = {
 }
 
 /**
+  * @description This API allows you to obtain a list of configured webhooks based on `RegionId`, `DBClusterId`, and optional `JobType`. The `JobType` parameter specifies the task type, such as SLS/OSS export task. If the parameter is provided, webhooks related to the task type are returned. If the parameter is not provided, all types of webhooks are returned.
+  * Note: Make sure that the `RegionId` and `DBClusterId` you provided are correct. Otherwise, the webhook information may not be obtained correctly.
   * @param request  the request parameters of ListApsWebhook  ListApsWebhookRequest
   * @return ListApsWebhookResponse
  */
@@ -11974,14 +12504,21 @@ async function modifyDBClusterResourceGroup(request: ModifyDBClusterResourceGrou
 }
 
 model ModifyDBClusterSSLRequest {
-  connectionString?: string(name='ConnectionString', example='amv-***********.ads.aliyuncs.com', position='Query'),
-  DBClusterId: string(name='DBClusterId', description='This parameter is required.', example='amv-************', position='Query'),
-  enableSSL: boolean(name='EnableSSL', description='This parameter is required.', example='true', position='Query'),
-  regionId?: string(name='RegionId', example='cn-hangzhou', position='Query'),
+  connectionString?: string(name='ConnectionString', description='The private or public endpoint for which the server certificate needs to be created or updated.', example='amv-***********.ads.aliyuncs.com', position='Query'),
+  DBClusterId: string(name='DBClusterId', description='The cluster ID.
+
+This parameter is required.', example='amv-************', position='Query'),
+  enableSSL: boolean(name='EnableSSL', description='Specifies whether to enable SSL encryption. Valid values:
+
+*   **true**: enabled
+*   **false**: disabled
+
+This parameter is required.', example='true', position='Query'),
+  regionId?: string(name='RegionId', description='The region ID.', example='cn-hangzhou', position='Query'),
 }
 
 model ModifyDBClusterSSLResponseBody = {
-  requestId?: string(name='RequestId', example='1AD222E9-E606-4A42-BF6D-8A4442913CEF'),
+  requestId?: string(name='RequestId', description='The unique ID of the request.', example='1AD222E9-E606-4A42-BF6D-8A4442913CEF'),
 }
 
 model ModifyDBClusterSSLResponse = {
@@ -12053,6 +12590,15 @@ This parameter is required.', example='amv-bp1r053byu48p****', position='Query')
 *   **True**
 *   **False**', example='true', position='Query'),
   engineParams?: map[string]any(name='EngineParams', example='{\\"spark.adb.version\\":\\"3.5\\"}', shrink='json', position='Query'),
+  gpuElasticPlan?: {
+    enabled?: boolean(name='Enabled'),
+    rules?: [ 
+      {
+        endCronExpression?: string(name='EndCronExpression'),
+        startCronExpression?: string(name='StartCronExpression'),
+      }
+    ](name='Rules'),
+  }(name='GpuElasticPlan', shrink='json', position='Query'),
   groupName: string(name='GroupName', description='The name of the resource group.
 
 > You can call the [DescribeDBResourceGroup](https://help.aliyun.com/document_detail/459446.html) operation to query the name of a resource group in a cluster.
@@ -12273,19 +12819,34 @@ async function modifyLakeCacheSize(request: ModifyLakeCacheSizeRequest): ModifyL
 }
 
 model ModifyMaterializedViewRequest {
-  DBClusterId: string(name='DBClusterId', description='This parameter is required.', example='amv-******', position='Query'),
-  dbName: string(name='DbName', description='This parameter is required.', example='myDB', position='Query'),
-  enableDelayAlert?: boolean(name='EnableDelayAlert', example='false', position='Query'),
-  enableFailureAlert?: boolean(name='EnableFailureAlert', example='false', position='Query'),
-  groupName?: string(name='GroupName', example='res_1', position='Query'),
-  latencyTolerance?: int32(name='LatencyTolerance', example='2', position='Query'),
+  DBClusterId: string(name='DBClusterId', description='The cluster ID.
+
+This parameter is required.', example='amv-******', position='Query'),
+  dbName: string(name='DbName', description='The name of the database where the materialized view resides.
+
+This parameter is required.', example='myDB', position='Query'),
+  enableDelayAlert?: boolean(name='EnableDelayAlert', description='Enable the refresh delay alert. Valid values:
+
+*   true: Enables alert.
+*   false: Disables alert.', example='false', position='Query'),
+  enableFailureAlert?: boolean(name='EnableFailureAlert', description='Specifies whether to send alerts when the refresh task fails. Valid values:
+
+*   true: Send alerts.
+*   false: Alerts disabled.', example='false', position='Query'),
+  groupName?: string(name='GroupName', description='The name of the resource group to which the materialized view is bound.', example='res_1', position='Query'),
+  latencyTolerance?: int32(name='LatencyTolerance', description='Refresh delay tolerance (in minutes).', example='2', position='Query'),
   ownerAccount?: string(name='OwnerAccount', position='Query'),
   ownerId?: long(name='OwnerId', position='Query'),
-  queryWrite?: boolean(name='QueryWrite', example='true', position='Query'),
-  regionId?: string(name='RegionId', example='cn-beijing', position='Query'),
+  queryWrite?: boolean(name='QueryWrite', description='Specifies whether to enable query rewrite. Valid values:
+
+*   true: Enables query rewrite.
+*   false: Disables query rewrite.', example='true', position='Query'),
+  regionId?: string(name='RegionId', description='The region ID.', example='cn-beijing', position='Query'),
   resourceOwnerAccount?: string(name='ResourceOwnerAccount', position='Query'),
   resourceOwnerId?: long(name='ResourceOwnerId', position='Query'),
-  viewName: string(name='ViewName', description='This parameter is required.', example='mv_1', position='Query'),
+  viewName: string(name='ViewName', description='The name of the materialized view.
+
+This parameter is required.', example='mv_1', position='Query'),
 }
 
 model ModifyMaterializedViewResponseBody = {
@@ -12308,25 +12869,47 @@ async function modifyMaterializedView(request: ModifyMaterializedViewRequest): M
 }
 
 model ModifyMaterializedViewRecommendRequest {
-  DBClusterId: string(name='DBClusterId', description='This parameter is required.', example='amv-uf6o*****', position='Query'),
-  description?: string(name='Description', example='task desc', position='Query'),
-  minRewriteQueryCount?: int32(name='MinRewriteQueryCount', minimum=1, position='Query'),
-  minRewriteQueryPattern?: int32(name='MinRewriteQueryPattern', minimum=1, position='Query'),
+  DBClusterId: string(name='DBClusterId', description='The cluster ID.
+
+This parameter is required.', example='amv-uf6o*****', position='Query'),
+  description?: string(name='Description', description='The description of the recommendation task.', example='task desc', position='Query'),
+  minRewriteQueryCount?: int32(name='MinRewriteQueryCount', description='Pattern匹配的最少慢查询个数', example='3', minimum=1, position='Query'),
+  minRewriteQueryPattern?: int32(name='MinRewriteQueryPattern', description='最小可加速的Pattern数量', example='5', minimum=1, position='Query'),
   ownerAccount?: string(name='OwnerAccount', position='Query'),
   ownerId?: long(name='OwnerId', position='Query'),
-  regionId?: string(name='RegionId', example='cn-hangzhou', position='Query'),
+  regionId?: string(name='RegionId', description='The region ID.', example='cn-hangzhou', position='Query'),
   resourceOwnerAccount?: string(name='ResourceOwnerAccount', position='Query'),
   resourceOwnerId?: long(name='ResourceOwnerId', position='Query'),
-  scanQueriesRange?: int32(name='ScanQueriesRange', example='3', position='Query'),
-  schedulingDay?: string(name='SchedulingDay', example='Monday;Wednesday', position='Query'),
-  schedulingPolicy?: string(name='SchedulingPolicy', example='weekly', position='Query'),
-  slowQueryThreshold?: int32(name='SlowQueryThreshold', minimum=1, position='Query'),
-  specifiedTime?: string(name='SpecifiedTime', example='10:00:00', position='Query'),
-  taskName: string(name='TaskName', description='This parameter is required.', example='task_n1', position='Query'),
+  scanQueriesRange?: int32(name='ScanQueriesRange', description='The time range for scanning data. Unit: days. Default value: 3.', example='3', position='Query'),
+  schedulingDay?: string(name='SchedulingDay', description='This parameter is valid only when SchedulingPolicy is set to weekly. Valid values:
+
+*   Monday
+*   Tuesday
+*   Wednesday
+*   Thursday
+*   Friday
+*   Saturday
+*   Sunday
+
+Separate multiple days with commas (,).', example='Monday;Wednesday', position='Query'),
+  schedulingPolicy?: string(name='SchedulingPolicy', description='The scheduling policy of the recommendation task. Valid values:
+
+*   daily
+*   weekly
+
+<!---->
+
+*
+*', example='weekly', position='Query'),
+  slowQueryThreshold?: int32(name='SlowQueryThreshold', description='慢查询阈值', example='2', minimum=1, position='Query'),
+  specifiedTime?: string(name='SpecifiedTime', description='The execution time of the recommendation task. Specify the time in the HH:MM:SS format.', example='10:00:00', position='Query'),
+  taskName: string(name='TaskName', description='The name of the recommendation task.
+
+This parameter is required.', example='task_n1', position='Query'),
 }
 
 model ModifyMaterializedViewRecommendResponseBody = {
-  requestId?: string(name='RequestId', description='Id of the request', example='F0983B43-B2EC-536A-8791-142B5CF1E9B6'),
+  requestId?: string(name='RequestId', description='The request ID.', example='F0983B43-B2EC-536A-8791-142B5CF1E9B6'),
 }
 
 model ModifyMaterializedViewRecommendResponse = {
@@ -12425,16 +13008,30 @@ async function modifyPerformanceView(request: ModifyPerformanceViewRequest): Mod
 }
 
 model ModifySqlTemplatePositionRequest {
-  DBClusterId: string(name='DBClusterId', description='This parameter is required.', example='amv-uf6wjk5xxxxxxxxxx', position='Query'),
-  regionId: string(name='RegionId', description='This parameter is required.', example='cn-hangzhou', position='Query'),
-  targetTemplateGroupId: long(name='TargetTemplateGroupId', description='This parameter is required.', example='1', position='Query'),
-  templateId: long(name='TemplateId', description='This parameter is required.', example='210208', position='Query'),
+  DBClusterId: string(name='DBClusterId', description='The cluster ID.
+
+This parameter is required.', example='amv-uf6wjk5xxxxxxxxxx', position='Query'),
+  regionId: string(name='RegionId', description='The region ID.
+
+This parameter is required.', example='cn-hangzhou', position='Query'),
+  targetTemplateGroupId: long(name='TargetTemplateGroupId', description='The ID of the template group.
+
+This parameter is required.', example='1', position='Query'),
+  templateId: long(name='TemplateId', description='The template ID.
+
+This parameter is required.', example='210208', position='Query'),
 }
 
 model ModifySqlTemplatePositionResponseBody = {
-  message?: string(name='Message', example='success'),
-  requestId?: string(name='RequestId', example='5DC10091-348D-12B1-906D-AB49D658012E'),
-  success?: boolean(name='Success', example='true'),
+  message?: string(name='Message', description='The returned message. Valid values:
+
+*   If the request is successful, a **SUCCESS** message is returned.
+*   If the request is abnormal, the detailed error message is returned.', example='success'),
+  requestId?: string(name='RequestId', description='The request ID.', example='5DC10091-348D-12B1-906D-AB49D658012E'),
+  success?: boolean(name='Success', description='Indicates whether the request was successful. Valid values:
+
+*   **true**: Succeeded.
+*   **false**: Failed.', example='true'),
 }
 
 model ModifySqlTemplatePositionResponse = {
@@ -12444,6 +13041,7 @@ model ModifySqlTemplatePositionResponse = {
 }
 
 /**
+  * @description For information about the endpoints of AnalyticDB for MySQL, see [Endpoints](https://help.aliyun.com/document_detail/612373.html).
   * @param request  the request parameters of ModifySqlTemplatePosition  ModifySqlTemplatePositionRequest
   * @return ModifySqlTemplatePositionResponse
  */
@@ -13064,29 +13662,33 @@ async function unbindDBResourceGroupWithUser(request: UnbindDBResourceGroupWithU
 }
 
 model UpdateApsWebhookRequest {
-  DBClusterId: string(name='DBClusterId', description='This parameter is required.', example='exampleDBClusterId', position='Body'),
-  regionId: string(name='RegionId', description='This parameter is required.', example='exampleRegionId', position='Body'),
+  DBClusterId: string(name='DBClusterId', description='The cluster ID.
+
+This parameter is required.', example='exampleDBClusterId', position='Body'),
+  regionId: string(name='RegionId', description='The region ID.
+
+This parameter is required.', example='exampleRegionId', position='Body'),
   webhook?: [ 
     {
-      key?: string(name='Key', example='ABC**'),
-      name?: string(name='Name', example='exampleWebhookName'),
-      url?: string(name='Url', example='https://example.com/webhook'),
-      webhookId: long(name='WebhookId', description='Webhook ID。
+      key?: string(name='Key', description='Signed key.', example='ABC**'),
+      name?: string(name='Name', description='The name of the webhook.', example='exampleWebhookName'),
+      url?: string(name='Url', description='The URL of the request.', example='https://example.com/webhook'),
+      webhookId: long(name='WebhookId', description='The ID of the webhook.
 
 This parameter is required.', example='**355****'),
-      webhookType?: string(name='WebhookType', example='dingtalk'),
+      webhookType?: string(name='WebhookType', description='The notification method. Valid values: dingtalk. lark.', example='dingtalk'),
     }
-  ](name='Webhook', shrink='json', position='Body'),
+  ](name='Webhook', description='The array of webhooks.', shrink='json', position='Body'),
 }
 
 model UpdateApsWebhookResponseBody = {
-  code?: string(name='Code', example='200'),
-  DBClusterId?: string(name='DBClusterId', example='amv-bp11q28kvl688****'),
-  data?: string(name='Data', example='-'),
-  httpStatusCode?: int32(name='HttpStatusCode', example='200'),
-  message?: string(name='Message'),
-  requestId?: string(name='RequestId', example='exampleRequestId'),
-  success?: boolean(name='Success', example='true'),
+  code?: string(name='Code', description='The code of the returned result.', example='200'),
+  DBClusterId?: string(name='DBClusterId', description='The cluster ID.', example='amv-bp11q28kvl688****'),
+  data?: string(name='Data', description='The returned data.', example='-'),
+  httpStatusCode?: int32(name='HttpStatusCode', description='The HTTP status code.', example='200'),
+  message?: string(name='Message', description='The returned message.'),
+  requestId?: string(name='RequestId', description='The unique ID of the request.', example='exampleRequestId'),
+  success?: boolean(name='Success', description='Indicates whether the request was successful.', example='true'),
 }
 
 model UpdateApsWebhookResponse = {
