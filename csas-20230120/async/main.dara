@@ -61,6 +61,12 @@ model CommonConfig {
   }(name='Idp'),
 }
 
+model DeviceGroupDynamicRule {
+  args?: any(name='Args'),
+  key?: string(name='Key'),
+  operator?: string(name='Operator'),
+}
+
 model DisposalContent {
   alertContent?: string(name='AlertContent'),
   alertContentEn?: string(name='AlertContentEn'),
@@ -99,6 +105,7 @@ model IdpConfig {
   lastSyncTimeUnix?: long(name='LastSyncTimeUnix'),
   ldapConfig?: IdpLdapSubConfig(name='LdapConfig'),
   loginConfig?: IdpLoginConfig(name='LoginConfig'),
+  logoDirectory?: string(name='LogoDirectory'),
   name?: string(name='Name'),
   syncConfig?: IdpSyncConfig(name='SyncConfig'),
   syncStatus?: string(name='SyncStatus'),
@@ -269,6 +276,15 @@ model OpenStructSaseUser {
   telephone?: string(name='Telephone'),
   title?: string(name='Title'),
   updateTimeUnix?: long(name='UpdateTimeUnix'),
+  userTags?: [ 
+    {
+      aliuid?: string(name='Aliuid'),
+      description?: string(name='Description'),
+      name?: string(name='Name'),
+      saseUserId?: string(name='SaseUserId'),
+      tagId?: string(name='TagId'),
+    }
+  ](name='UserTags'),
   username?: string(name='Username'),
   workStatus?: string(name='WorkStatus'),
 }
@@ -804,6 +820,9 @@ This parameter is required.', example='Enabled', position='Body'),
 - **Custom**: Custom user group.
 
 This parameter is required.', example='Normal', position='Body'),
+  validFrom?: long(name='ValidFrom', description='The start time when the zero trust policy takes effect, represented as a timestamp in seconds.', example='0', position='Body'),
+  validTimeStatus?: string(name='ValidTimeStatus', description='Switch status for effective time. Values: - **Enabled**: On. - **Disabled**: Off.', example='Disabled', position='Body'),
+  validUntil?: long(name='ValidUntil', description='The expiration time of the zero trust policy, in seconds timestamp.', example='1764727544', position='Body'),
 }
 
 model CreatePrivateAccessPolicyResponseBody = {
@@ -2253,6 +2272,9 @@ model GetPrivateAccessPolicyResponseBody = {
     userGroupMode?: string(name='UserGroupMode', description='User group type for the intranet access policy. Values:
 - **Normal**: Normal user group.
 - **Custom**: Custom user group.', example='Normal'),
+    validFrom?: long(name='ValidFrom', description='The start time when the zero trust policy takes effect, represented as a timestamp in seconds.', example='0'),
+    validTimeStatus?: string(name='ValidTimeStatus', description='Switch status for effective time. Values: - **Enabled**: On. - **Disabled**: Off.', example='Enabled'),
+    validUntil?: long(name='ValidUntil', description='The expiration time of the zero trust policy, in seconds timestamp.', example='1764727544'),
   }(name='Policy', description='Intranet access policy.'),
   requestId?: string(name='RequestId', description='The ID of the current request.', example='7E9D7ACD-53D5-56EF-A913-79D148D06299'),
 }
@@ -2928,12 +2950,12 @@ async function listClientUsers(request: ListClientUsersRequest): ListClientUsers
 }
 
 model ListConnectorsRequest {
-  connectorIds?: [ string ](name='ConnectorIds', description='Collection of Connector IDs. Up to 100 Connector IDs can be entered.', position='Query'),
-  currentPage: int32(name='CurrentPage', description='The page number of the current page in a paginated query. Range: 1~10000.
+  connectorIds?: [ string ](name='ConnectorIds', description='Collection of ConnectorIDs. Up to 100 ConnectorIDs can be entered.', position='Query'),
+  currentPage: int32(name='CurrentPage', description='The page number of the current page in a paginated query. Value: 1~10000.
 
 This parameter is required.', example='1', position='Query'),
-  name?: string(name='Name', description='Connector name. Length: 1~128 characters, supporting Chinese and both uppercase and lowercase English letters, and can include numbers, periods (.), underscores (_), and hyphens (-).', example='connector_name', position='Query'),
-  pageSize: int32(name='PageSize', description='The number of items per page in a paginated query. Range: 1~1000.
+  name?: string(name='Name', description='Connector name. Length: 1~128 characters, supporting Chinese and uppercase/lowercase English letters, and can include numbers, periods (.), underscores (_), and hyphens (-).', example='connector_name', position='Query'),
+  pageSize: int32(name='PageSize', description='The number of items per page in a paginated query. Value: 1~1000.
 
 This parameter is required.', example='10', position='Query'),
   status?: string(name='Status', description='Connector connection status. Values:
@@ -2947,7 +2969,9 @@ This parameter is required.', example='10', position='Query'),
 model ListConnectorsResponseBody = {
   connectors?: [ 
     {
-      accelerateStatus?: string(name='AccelerateStatus'),
+      accelerateStatus?: string(name='AccelerateStatus', description='Whether to enable global acceleration. Values: 
+- **Enabled**: Turn on. 
+- **Disabled**: Turn off.', example='Enabled'),
       applications?: [ 
         {
           applicationId?: string(name='ApplicationId', description='Internal network access application ID.', example='pa-application-e12860ef6c48****'),
@@ -2958,14 +2982,14 @@ model ListConnectorsResponseBody = {
       clusterPort?: string(name='ClusterPort', description='Cluster port.', example='8000'),
       connectorClients?: [ 
         {
-          connectionStatus?: string(name='ConnectionStatus', description='Connection status between ConnectorClient and ConnectorServer.', example='Disconnected'),
+          connectionStatus?: string(name='ConnectionStatus', description='Connection status between the ConnectorClient and ConnectorServer.', example='Disconnected'),
           devTag?: string(name='DevTag', description='Unique device identifier for the ConnectorClient.', example='C50A2386-F851-4F11-920B-DF7148DA0C22'),
           hostname?: string(name='Hostname', description='Hostname of the ConnectorClient.', example='connector_client'),
           publicIp?: string(name='PublicIp', description='Public IP of the ConnectorClient.', example='192.0.2.1'),
         }
       ](name='ConnectorClients', description='Collection of deployed ConnectorClients.'),
-      connectorId?: string(name='ConnectorId', description='Connector ID.', example='connector-94db94e06b98****'),
-      createTime?: string(name='CreateTime', description='Creation time of the Connector.', example='2022-09-27 18:10:25'),
+      connectorId?: string(name='ConnectorId', description='ConnectorID.', example='connector-94db94e06b98****'),
+      createTime?: string(name='CreateTime', description='Connector creation time.', example='2022-09-27 18:10:25'),
       name?: string(name='Name', description='Connector name.', example='connector_name'),
       regionId?: string(name='RegionId', description='Region ID.', example='cn-hangzhou'),
       status?: string(name='Status', description='Connector connection status. Values:
@@ -2977,10 +3001,10 @@ model ListConnectorsResponseBody = {
       upgradeTime?: {
         end?: string(name='End', description='End time.', example='23:00'),
         start?: string(name='Start', description='Start time.', example='20:00'),
-      }(name='UpgradeTime', description='Connector upgrade time.'),
+      }(name='UpgradeTime', description='Connector升级时间。'),
     }
   ](name='Connectors', description='List of Connectors.'),
-  requestId?: string(name='RequestId', description='ID of the current request.', example='58D6B23E-E5DA-5418-8F61-51A3B5A30049'),
+  requestId?: string(name='RequestId', description='The ID of the current request.', example='58D6B23E-E5DA-5418-8F61-51A3B5A30049'),
   totalNum?: int32(name='TotalNum', description='Total number of Connectors.', example='1'),
 }
 
@@ -3853,6 +3877,9 @@ model ListPrivateAccessPolicesResponseBody = {
 
 *   **Normal**: regular user group.
 *   **Custom**: custom user group.', example='Normal'),
+      validFrom?: long(name='ValidFrom', description='The start time when the zero trust policy takes effect, represented as a timestamp in seconds.', example='0'),
+      validTimeStatus?: string(name='ValidTimeStatus', description='Switch status for effective time. Values: - **Enabled**: On. - **Disabled**: Off.', example='Enabled'),
+      validUntil?: long(name='ValidUntil', description='The expiration time of the zero trust policy, in seconds timestamp.', example='1764727544'),
     }
   ](name='Polices', description='The private access policies.'),
   requestId?: string(name='RequestId', description='The request ID.', example='748CFDC7-1EB6-5B8B-9405-DA76ED5BB60D'),
@@ -5395,6 +5422,9 @@ This parameter is required.', example='pa-policy-63b2f1844b86****', position='Bo
   userGroupMode?: string(name='UserGroupMode', description='User group type of the private access policy. Values:
 - **Normal**: Normal user group.
 - **Custom**: Custom user group.', example='Normal', position='Body'),
+  validFrom?: long(name='ValidFrom', description='The start time when the zero trust policy takes effect, represented as a timestamp in seconds.', example='0', position='Body'),
+  validTimeStatus?: string(name='ValidTimeStatus', description='Switch status for effective time. Values: - **Enabled**: On. - **Disabled**: Off.', example='Enabled', position='Body'),
+  validUntil?: long(name='ValidUntil', description='The expiration time of the zero trust policy, in seconds timestamp.', example='1764727544', position='Body'),
 }
 
 model UpdatePrivateAccessPolicyResponseBody = {
