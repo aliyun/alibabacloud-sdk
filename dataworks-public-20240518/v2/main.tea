@@ -328,6 +328,46 @@ model Database {
   parentMetaEntityId?: string(name='ParentMetaEntityId', example='holo:h-xxxx'),
 }
 
+model Dataset {
+  comment?: string(name='Comment'),
+  createTime?: long(name='CreateTime'),
+  creatorId?: string(name='CreatorId'),
+  dataType?: string(name='DataType'),
+  id?: string(name='Id'),
+  labels?: [
+    DatasetLabel
+  ](name='Labels'),
+  latestVersion?: DatasetVersion(name='LatestVersion'),
+  modifyTime?: long(name='ModifyTime'),
+  name?: string(name='Name'),
+  origin?: string(name='Origin'),
+  projectId?: long(name='ProjectId'),
+  readme?: string(name='Readme'),
+  storageType?: string(name='StorageType'),
+}
+
+model DatasetLabel {
+  key?: string(name='Key'),
+  value?: string(name='Value'),
+}
+
+model DatasetVersion {
+  comment?: string(name='Comment'),
+  createTime?: long(name='CreateTime'),
+  creatorId?: string(name='CreatorId'),
+  datasetId?: string(name='DatasetId'),
+  id?: string(name='Id'),
+  importInfo?: map[string]string(name='ImportInfo'),
+  labels?: [
+    DatasetLabel
+  ](name='Labels'),
+  modifyTime?: long(name='ModifyTime'),
+  mountPath?: string(name='MountPath'),
+  storageType?: string(name='StorageType'),
+  url?: string(name='Url'),
+  versionNumber?: int32(name='VersionNumber'),
+}
+
 model IdentifyCredential {
   dataSource?: {
     instanceId?: string(name='InstanceId'),
@@ -3489,6 +3529,196 @@ async function createDataSourceSharedRuleWithOptions(request: CreateDataSourceSh
 async function createDataSourceSharedRule(request: CreateDataSourceSharedRuleRequest): CreateDataSourceSharedRuleResponse {
   var runtime = new $RuntimeOptions{};
   return createDataSourceSharedRuleWithOptions(request, runtime);
+}
+
+model CreateDatasetRequest {
+  comment?: string(name='Comment', example='this is a comment'),
+  dataType?: string(name='DataType', example='COMMON'),
+  initVersion?: {
+    comment?: string(name='Comment', example='Initial Version'),
+    importInfo?: map[string]string(name='ImportInfo'),
+    mountPath?: string(name='MountPath', example='/mnt/data'),
+    url?: string(name='Url', description='This parameter is required.', example='oss://test-oss-bucket/test_dir/'),
+  }(name='InitVersion', description='This parameter is required.'),
+  name?: string(name='Name', description='This parameter is required.', example='test_oss_dataset'),
+  origin?: string(name='Origin', example='DataWorks'),
+  projectId?: long(name='ProjectId', description='This parameter is required.', example='12345'),
+  storageType?: string(name='StorageType', description='This parameter is required.', example='OSS'),
+}
+
+model CreateDatasetShrinkRequest {
+  comment?: string(name='Comment', example='this is a comment'),
+  dataType?: string(name='DataType', example='COMMON'),
+  initVersionShrink?: string(name='InitVersion', description='This parameter is required.'),
+  name?: string(name='Name', description='This parameter is required.', example='test_oss_dataset'),
+  origin?: string(name='Origin', example='DataWorks'),
+  projectId?: long(name='ProjectId', description='This parameter is required.', example='12345'),
+  storageType?: string(name='StorageType', description='This parameter is required.', example='OSS'),
+}
+
+model CreateDatasetResponseBody = {
+  id?: string(name='Id', description='ID', example='dataworks-dataset:3pXXXb8o0ngr07njhps1'),
+  requestId?: string(name='RequestId', description='Id of the request', example='99EBE7CF-69C0-5089-BE3E-79563C31XXXX'),
+  success?: boolean(name='Success', example='true'),
+}
+
+model CreateDatasetResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: CreateDatasetResponseBody(name='body'),
+}
+
+/**
+ * @summary 创建数据集
+ *
+ * @param tmpReq CreateDatasetRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return CreateDatasetResponse
+ */
+@context("createDatasetWithContext")
+async function createDatasetWithOptions(tmpReq: CreateDatasetRequest, runtime: $RuntimeOptions): CreateDatasetResponse {
+  tmpReq.validate();
+  var request = new CreateDatasetShrinkRequest{};
+  OpenApiUtil.convert(tmpReq, request);
+  if (!$isNull(tmpReq.initVersion)) {
+    request.initVersionShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.initVersion, 'InitVersion', 'json');
+  }
+  var body : map[string]any = {};
+  if (!$isNull(request.comment)) {
+    body['Comment'] = request.comment;
+  }
+  if (!$isNull(request.dataType)) {
+    body['DataType'] = request.dataType;
+  }
+  if (!$isNull(request.initVersionShrink)) {
+    body['InitVersion'] = request.initVersionShrink;
+  }
+  if (!$isNull(request.name)) {
+    body['Name'] = request.name;
+  }
+  if (!$isNull(request.origin)) {
+    body['Origin'] = request.origin;
+  }
+  if (!$isNull(request.projectId)) {
+    body['ProjectId'] = request.projectId;
+  }
+  if (!$isNull(request.storageType)) {
+    body['StorageType'] = request.storageType;
+  }
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'CreateDataset',
+    version = '2024-05-18',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 创建数据集
+ *
+ * @param request CreateDatasetRequest
+ * @return CreateDatasetResponse
+ */
+async function createDataset(request: CreateDatasetRequest): CreateDatasetResponse {
+  var runtime = new $RuntimeOptions{};
+  return createDatasetWithOptions(request, runtime);
+}
+
+model CreateDatasetVersionRequest {
+  comment?: string(name='Comment', example='this is a comment'),
+  datasetId?: string(name='DatasetId', description='This parameter is required.', example='dataworks-dataset:3pXXXb8o0ngr07njhps1'),
+  importInfo?: map[string]string(name='ImportInfo'),
+  mountPath?: string(name='MountPath', example='/mnt/data'),
+  url?: string(name='Url', description='This parameter is required.', example='oss://test-oss-bucket/test_dir/'),
+}
+
+model CreateDatasetVersionShrinkRequest {
+  comment?: string(name='Comment', example='this is a comment'),
+  datasetId?: string(name='DatasetId', description='This parameter is required.', example='dataworks-dataset:3pXXXb8o0ngr07njhps1'),
+  importInfoShrink?: string(name='ImportInfo'),
+  mountPath?: string(name='MountPath', example='/mnt/data'),
+  url?: string(name='Url', description='This parameter is required.', example='oss://test-oss-bucket/test_dir/'),
+}
+
+model CreateDatasetVersionResponseBody = {
+  id?: string(name='Id', description='ID', example='dataworks-datasetVersion:3pXXXb8o0ngr07njhps1
+:2'),
+  requestId?: string(name='RequestId', description='Id of the request', example='22C97E95-F023-56B5-8852-B1A77A17XXXX'),
+  success?: boolean(name='Success', example='true'),
+}
+
+model CreateDatasetVersionResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: CreateDatasetVersionResponseBody(name='body'),
+}
+
+/**
+ * @summary 创建数据集版本
+ *
+ * @param tmpReq CreateDatasetVersionRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return CreateDatasetVersionResponse
+ */
+@context("createDatasetVersionWithContext")
+async function createDatasetVersionWithOptions(tmpReq: CreateDatasetVersionRequest, runtime: $RuntimeOptions): CreateDatasetVersionResponse {
+  tmpReq.validate();
+  var request = new CreateDatasetVersionShrinkRequest{};
+  OpenApiUtil.convert(tmpReq, request);
+  if (!$isNull(tmpReq.importInfo)) {
+    request.importInfoShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.importInfo, 'ImportInfo', 'json');
+  }
+  var body : map[string]any = {};
+  if (!$isNull(request.comment)) {
+    body['Comment'] = request.comment;
+  }
+  if (!$isNull(request.datasetId)) {
+    body['DatasetId'] = request.datasetId;
+  }
+  if (!$isNull(request.importInfoShrink)) {
+    body['ImportInfo'] = request.importInfoShrink;
+  }
+  if (!$isNull(request.mountPath)) {
+    body['MountPath'] = request.mountPath;
+  }
+  if (!$isNull(request.url)) {
+    body['Url'] = request.url;
+  }
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'CreateDatasetVersion',
+    version = '2024-05-18',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 创建数据集版本
+ *
+ * @param request CreateDatasetVersionRequest
+ * @return CreateDatasetVersionResponse
+ */
+async function createDatasetVersion(request: CreateDatasetVersionRequest): CreateDatasetVersionResponse {
+  var runtime = new $RuntimeOptions{};
+  return createDatasetVersionWithOptions(request, runtime);
 }
 
 model CreateFileRequest {
@@ -6966,6 +7196,121 @@ async function deleteDataSourceSharedRuleWithOptions(request: DeleteDataSourceSh
 async function deleteDataSourceSharedRule(request: DeleteDataSourceSharedRuleRequest): DeleteDataSourceSharedRuleResponse {
   var runtime = new $RuntimeOptions{};
   return deleteDataSourceSharedRuleWithOptions(request, runtime);
+}
+
+model DeleteDatasetRequest {
+  id?: string(name='Id', description='This parameter is required.', example='dataworks-dataset:3pXXXb8o0ngr07njhps1'),
+}
+
+model DeleteDatasetResponseBody = {
+  requestId?: string(name='RequestId', description='Id of the request', example='AAC30B35-820D-5F3E-A42C-E96BB****'),
+  success?: boolean(name='Success', example='true'),
+}
+
+model DeleteDatasetResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: DeleteDatasetResponseBody(name='body'),
+}
+
+/**
+ * @summary 删除数据集
+ *
+ * @param request DeleteDatasetRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return DeleteDatasetResponse
+ */
+@context("deleteDatasetWithContext")
+async function deleteDatasetWithOptions(request: DeleteDatasetRequest, runtime: $RuntimeOptions): DeleteDatasetResponse {
+  request.validate();
+  var query = {};
+  if (!$isNull(request.id)) {
+    query['Id'] = request.id;
+  }
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'DeleteDataset',
+    version = '2024-05-18',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 删除数据集
+ *
+ * @param request DeleteDatasetRequest
+ * @return DeleteDatasetResponse
+ */
+async function deleteDataset(request: DeleteDatasetRequest): DeleteDatasetResponse {
+  var runtime = new $RuntimeOptions{};
+  return deleteDatasetWithOptions(request, runtime);
+}
+
+model DeleteDatasetVersionRequest {
+  id?: string(name='Id', description='This parameter is required.', example='dataworks-datasetVersion:3pXXXb8o0ngr07njhps1
+:2'),
+}
+
+model DeleteDatasetVersionResponseBody = {
+  requestId?: string(name='RequestId', description='Id of the request', example='6AABBBD3-F2E4-5860-8CF7-2E9CEE3BDXXX'),
+  success?: boolean(name='Success', example='true'),
+}
+
+model DeleteDatasetVersionResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: DeleteDatasetVersionResponseBody(name='body'),
+}
+
+/**
+ * @summary 删除数据集版本
+ *
+ * @param request DeleteDatasetVersionRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return DeleteDatasetVersionResponse
+ */
+@context("deleteDatasetVersionWithContext")
+async function deleteDatasetVersionWithOptions(request: DeleteDatasetVersionRequest, runtime: $RuntimeOptions): DeleteDatasetVersionResponse {
+  request.validate();
+  var query = {};
+  if (!$isNull(request.id)) {
+    query['Id'] = request.id;
+  }
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'DeleteDatasetVersion',
+    version = '2024-05-18',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 删除数据集版本
+ *
+ * @param request DeleteDatasetVersionRequest
+ * @return DeleteDatasetVersionResponse
+ */
+async function deleteDatasetVersion(request: DeleteDatasetVersionRequest): DeleteDatasetVersionResponse {
+  var runtime = new $RuntimeOptions{};
+  return deleteDatasetVersionWithOptions(request, runtime);
 }
 
 model DeleteFileRequest {
@@ -10986,6 +11331,123 @@ async function getDatabaseWithOptions(request: GetDatabaseRequest, runtime: $Run
 async function getDatabase(request: GetDatabaseRequest): GetDatabaseResponse {
   var runtime = new $RuntimeOptions{};
   return getDatabaseWithOptions(request, runtime);
+}
+
+model GetDatasetRequest {
+  id?: string(name='Id', description='This parameter is required.', example='dataworks-dataset:3pXXXb8o0ngr07njhps1'),
+}
+
+model GetDatasetResponseBody = {
+  dataset?: Dataset(name='Dataset'),
+  requestId?: string(name='RequestId', description='Id of the request', example='204EAF68-CCE3-5112-8DA0-E7A60F02XXXX'),
+  success?: boolean(name='Success', example='true'),
+}
+
+model GetDatasetResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: GetDatasetResponseBody(name='body'),
+}
+
+/**
+ * @summary 获取数据集详情
+ *
+ * @param request GetDatasetRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return GetDatasetResponse
+ */
+@context("getDatasetWithContext")
+async function getDatasetWithOptions(request: GetDatasetRequest, runtime: $RuntimeOptions): GetDatasetResponse {
+  request.validate();
+  var query = {};
+  if (!$isNull(request.id)) {
+    query['Id'] = request.id;
+  }
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'GetDataset',
+    version = '2024-05-18',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 获取数据集详情
+ *
+ * @param request GetDatasetRequest
+ * @return GetDatasetResponse
+ */
+async function getDataset(request: GetDatasetRequest): GetDatasetResponse {
+  var runtime = new $RuntimeOptions{};
+  return getDatasetWithOptions(request, runtime);
+}
+
+model GetDatasetVersionRequest {
+  id?: string(name='Id', description='This parameter is required.', example='dataworks-datasetVersion:3pXXXb8o0ngr07njhps1
+:2'),
+}
+
+model GetDatasetVersionResponseBody = {
+  datasetVersion?: DatasetVersion(name='DatasetVersion'),
+  requestId?: string(name='RequestId', description='Id of the request', example='4CDF7B72-020B-542A-8465-21CFFA8XXXXX'),
+  success?: boolean(name='Success', example='true'),
+}
+
+model GetDatasetVersionResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: GetDatasetVersionResponseBody(name='body'),
+}
+
+/**
+ * @summary 获取数据集版本
+ *
+ * @param request GetDatasetVersionRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return GetDatasetVersionResponse
+ */
+@context("getDatasetVersionWithContext")
+async function getDatasetVersionWithOptions(request: GetDatasetVersionRequest, runtime: $RuntimeOptions): GetDatasetVersionResponse {
+  request.validate();
+  var query = {};
+  if (!$isNull(request.id)) {
+    query['Id'] = request.id;
+  }
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'GetDatasetVersion',
+    version = '2024-05-18',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 获取数据集版本
+ *
+ * @param request GetDatasetVersionRequest
+ * @return GetDatasetVersionResponse
+ */
+async function getDatasetVersion(request: GetDatasetVersionRequest): GetDatasetVersionResponse {
+  var runtime = new $RuntimeOptions{};
+  return getDatasetVersionWithOptions(request, runtime);
 }
 
 model GetDeploymentPackageRequest {
@@ -17848,6 +18310,213 @@ async function listDatabases(request: ListDatabasesRequest): ListDatabasesRespon
   return listDatabasesWithOptions(request, runtime);
 }
 
+model ListDatasetVersionsRequest {
+  creatorId?: string(name='CreatorId', example='12103XXX46492139'),
+  datasetId?: string(name='DatasetId', description='This parameter is required.', example='dataworks-dataset:3pXXXb8o0ngr07njhps1'),
+  order?: string(name='Order', example='Desc'),
+  pageNumber?: int32(name='PageNumber', example='1'),
+  pageSize?: int32(name='PageSize', example='10'),
+  sortBy?: string(name='SortBy', example='CreateTime'),
+}
+
+model ListDatasetVersionsResponseBody = {
+  pagingInfo?: {
+    datasetVersions?: [
+      DatasetVersion
+    ](name='DatasetVersions'),
+    pageNumber?: int32(name='PageNumber', example='1'),
+    pageSize?: int32(name='PageSize', example='10'),
+    totalCount?: long(name='TotalCount', example='100'),
+  }(name='PagingInfo'),
+  requestId?: string(name='RequestId', description='RequestId', example='E25887B7-579C-54A5-9C4F-83A0DE367XXX'),
+  success?: boolean(name='Success', example='true'),
+}
+
+model ListDatasetVersionsResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ListDatasetVersionsResponseBody(name='body'),
+}
+
+/**
+ * @summary 获取数据集版本列表
+ *
+ * @param request ListDatasetVersionsRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return ListDatasetVersionsResponse
+ */
+@context("listDatasetVersionsWithContext")
+async function listDatasetVersionsWithOptions(request: ListDatasetVersionsRequest, runtime: $RuntimeOptions): ListDatasetVersionsResponse {
+  request.validate();
+  var body : map[string]any = {};
+  if (!$isNull(request.creatorId)) {
+    body['CreatorId'] = request.creatorId;
+  }
+  if (!$isNull(request.datasetId)) {
+    body['DatasetId'] = request.datasetId;
+  }
+  if (!$isNull(request.order)) {
+    body['Order'] = request.order;
+  }
+  if (!$isNull(request.pageNumber)) {
+    body['PageNumber'] = request.pageNumber;
+  }
+  if (!$isNull(request.pageSize)) {
+    body['PageSize'] = request.pageSize;
+  }
+  if (!$isNull(request.sortBy)) {
+    body['SortBy'] = request.sortBy;
+  }
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'ListDatasetVersions',
+    version = '2024-05-18',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 获取数据集版本列表
+ *
+ * @param request ListDatasetVersionsRequest
+ * @return ListDatasetVersionsResponse
+ */
+async function listDatasetVersions(request: ListDatasetVersionsRequest): ListDatasetVersionsResponse {
+  var runtime = new $RuntimeOptions{};
+  return listDatasetVersionsWithOptions(request, runtime);
+}
+
+model ListDatasetsRequest {
+  creatorId?: string(name='CreatorId', example='12103XXX46492139'),
+  dataTypeList?: [ string ](name='DataTypeList'),
+  name?: string(name='Name', example='test_dataset'),
+  order?: string(name='Order', example='Asc'),
+  origin?: string(name='Origin', example='DataWorks'),
+  pageNumber?: int32(name='PageNumber', example='1'),
+  pageSize?: int32(name='PageSize', example='10'),
+  projectId?: long(name='ProjectId', example='251363'),
+  sortBy?: string(name='SortBy', example='CreateTime'),
+  storageTypeList?: [ string ](name='StorageTypeList'),
+}
+
+model ListDatasetsShrinkRequest {
+  creatorId?: string(name='CreatorId', example='12103XXX46492139'),
+  dataTypeListShrink?: string(name='DataTypeList'),
+  name?: string(name='Name', example='test_dataset'),
+  order?: string(name='Order', example='Asc'),
+  origin?: string(name='Origin', example='DataWorks'),
+  pageNumber?: int32(name='PageNumber', example='1'),
+  pageSize?: int32(name='PageSize', example='10'),
+  projectId?: long(name='ProjectId', example='251363'),
+  sortBy?: string(name='SortBy', example='CreateTime'),
+  storageTypeListShrink?: string(name='StorageTypeList'),
+}
+
+model ListDatasetsResponseBody = {
+  pagingInfo?: {
+    datasets?: [
+      Dataset
+    ](name='Datasets'),
+    pageNumber?: int32(name='PageNumber', example='1'),
+    pageSize?: int32(name='PageSize', example='10'),
+    totalCount?: long(name='TotalCount', example='100'),
+  }(name='PagingInfo'),
+  requestId?: string(name='RequestId', description='RequestId', example='6A6CBE87-9F91-1323-B680-E7A7065XXXXX'),
+  success?: boolean(name='Success', example='true'),
+}
+
+model ListDatasetsResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ListDatasetsResponseBody(name='body'),
+}
+
+/**
+ * @summary 获取数据集列表
+ *
+ * @param tmpReq ListDatasetsRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return ListDatasetsResponse
+ */
+@context("listDatasetsWithContext")
+async function listDatasetsWithOptions(tmpReq: ListDatasetsRequest, runtime: $RuntimeOptions): ListDatasetsResponse {
+  tmpReq.validate();
+  var request = new ListDatasetsShrinkRequest{};
+  OpenApiUtil.convert(tmpReq, request);
+  if (!$isNull(tmpReq.dataTypeList)) {
+    request.dataTypeListShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.dataTypeList, 'DataTypeList', 'simple');
+  }
+  if (!$isNull(tmpReq.storageTypeList)) {
+    request.storageTypeListShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.storageTypeList, 'StorageTypeList', 'simple');
+  }
+  var body : map[string]any = {};
+  if (!$isNull(request.creatorId)) {
+    body['CreatorId'] = request.creatorId;
+  }
+  if (!$isNull(request.dataTypeListShrink)) {
+    body['DataTypeList'] = request.dataTypeListShrink;
+  }
+  if (!$isNull(request.name)) {
+    body['Name'] = request.name;
+  }
+  if (!$isNull(request.order)) {
+    body['Order'] = request.order;
+  }
+  if (!$isNull(request.origin)) {
+    body['Origin'] = request.origin;
+  }
+  if (!$isNull(request.pageNumber)) {
+    body['PageNumber'] = request.pageNumber;
+  }
+  if (!$isNull(request.pageSize)) {
+    body['PageSize'] = request.pageSize;
+  }
+  if (!$isNull(request.projectId)) {
+    body['ProjectId'] = request.projectId;
+  }
+  if (!$isNull(request.sortBy)) {
+    body['SortBy'] = request.sortBy;
+  }
+  if (!$isNull(request.storageTypeListShrink)) {
+    body['StorageTypeList'] = request.storageTypeListShrink;
+  }
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'ListDatasets',
+    version = '2024-05-18',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 获取数据集列表
+ *
+ * @param request ListDatasetsRequest
+ * @return ListDatasetsResponse
+ */
+async function listDatasets(request: ListDatasetsRequest): ListDatasetsResponse {
+  var runtime = new $RuntimeOptions{};
+  return listDatasetsWithOptions(request, runtime);
+}
+
 model ListDeploymentPackageFilesRequest {
   businessId?: long(name='BusinessId', description='The workflow ID. You can call the [ListBusiness](https://help.aliyun.com/document_detail/173945.html) operation to query the workflow ID by name.', example='100001'),
   changeType?: int32(name='ChangeType', description='The change type. Valid values:
@@ -23704,6 +24373,70 @@ async function moveWorkflowDefinition(request: MoveWorkflowDefinitionRequest): M
   return moveWorkflowDefinitionWithOptions(request, runtime);
 }
 
+model PreviewDatasetVersionRequest {
+  id?: string(name='Id', description='This parameter is required.', example='dataworks-datasetVersion:3pXXXb8o0ngr07njhps1
+:2'),
+}
+
+model PreviewDatasetVersionResponseBody = {
+  previewResult?: {
+    content?: string(name='Content', example='this is content'),
+    fileName?: string(name='FileName', example='parth/data.csv'),
+    mimeType?: string(name='MimeType', example='text/plain'),
+    supportPreview?: boolean(name='SupportPreview', example='true'),
+  }(name='PreviewResult'),
+  requestId?: string(name='RequestId', description='Id of the request', example='A6C6B486-E3A2-5D52-9E76-D9380485DXXX'),
+  success?: boolean(name='Success', example='true'),
+}
+
+model PreviewDatasetVersionResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: PreviewDatasetVersionResponseBody(name='body'),
+}
+
+/**
+ * @summary 预览数据集版本内容
+ *
+ * @param request PreviewDatasetVersionRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return PreviewDatasetVersionResponse
+ */
+@context("previewDatasetVersionWithContext")
+async function previewDatasetVersionWithOptions(request: PreviewDatasetVersionRequest, runtime: $RuntimeOptions): PreviewDatasetVersionResponse {
+  request.validate();
+  var query = {};
+  if (!$isNull(request.id)) {
+    query['Id'] = request.id;
+  }
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'PreviewDatasetVersion',
+    version = '2024-05-18',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 预览数据集版本内容
+ *
+ * @param request PreviewDatasetVersionRequest
+ * @return PreviewDatasetVersionResponse
+ */
+async function previewDatasetVersion(request: PreviewDatasetVersionRequest): PreviewDatasetVersionResponse {
+  var runtime = new $RuntimeOptions{};
+  return previewDatasetVersionWithOptions(request, runtime);
+}
+
 model RemoveEntityFromMetaCollectionRequest {
   id?: string(name='Id', description='The entity ID. Currently, entities can only be tables. You can call the ListTables operation to query the ID.', example='dlf-table:123456789:test_catalog:test_database::test_table'),
   metaCollectionId?: string(name='MetaCollectionId', description='The collection ID. You can call the ListMetaCollections operation to query the ID.', example='category.123'),
@@ -27706,6 +28439,137 @@ async function updateDataSourceWithOptions(request: UpdateDataSourceRequest, run
 async function updateDataSource(request: UpdateDataSourceRequest): UpdateDataSourceResponse {
   var runtime = new $RuntimeOptions{};
   return updateDataSourceWithOptions(request, runtime);
+}
+
+model UpdateDatasetRequest {
+  comment?: string(name='Comment', example='new comment'),
+  id?: string(name='Id', description='This parameter is required.', example='dataworks-dataset:3pXXXb8o0ngr07njhps1'),
+  name?: string(name='Name', example='test_oss_dataset_new'),
+  readme?: string(name='Readme', example='## introduction'),
+}
+
+model UpdateDatasetResponseBody = {
+  requestId?: string(name='RequestId', description='Id of the request', example='22C97E95-F023-56B5-8852-B1A77A17XXXX'),
+  success?: boolean(name='Success', example='true'),
+}
+
+model UpdateDatasetResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: UpdateDatasetResponseBody(name='body'),
+}
+
+/**
+ * @summary 更新数据集
+ *
+ * @param request UpdateDatasetRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return UpdateDatasetResponse
+ */
+@context("updateDatasetWithContext")
+async function updateDatasetWithOptions(request: UpdateDatasetRequest, runtime: $RuntimeOptions): UpdateDatasetResponse {
+  request.validate();
+  var body : map[string]any = {};
+  if (!$isNull(request.comment)) {
+    body['Comment'] = request.comment;
+  }
+  if (!$isNull(request.id)) {
+    body['Id'] = request.id;
+  }
+  if (!$isNull(request.name)) {
+    body['Name'] = request.name;
+  }
+  if (!$isNull(request.readme)) {
+    body['Readme'] = request.readme;
+  }
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'UpdateDataset',
+    version = '2024-05-18',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 更新数据集
+ *
+ * @param request UpdateDatasetRequest
+ * @return UpdateDatasetResponse
+ */
+async function updateDataset(request: UpdateDatasetRequest): UpdateDatasetResponse {
+  var runtime = new $RuntimeOptions{};
+  return updateDatasetWithOptions(request, runtime);
+}
+
+model UpdateDatasetVersionRequest {
+  comment?: string(name='Comment', example='this is a comment'),
+  id?: string(name='Id', description='This parameter is required.', example='dataworks-datasetVersion:3pXXXb8o0ngr07njhps1
+:2'),
+}
+
+model UpdateDatasetVersionResponseBody = {
+  requestId?: string(name='RequestId', description='Id of the request', example='A090666C-74FB-5629-ABFC-2FE99DD55XXX'),
+  success?: boolean(name='Success', example='true'),
+}
+
+model UpdateDatasetVersionResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: UpdateDatasetVersionResponseBody(name='body'),
+}
+
+/**
+ * @summary 更新数据集版本信息
+ *
+ * @param request UpdateDatasetVersionRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return UpdateDatasetVersionResponse
+ */
+@context("updateDatasetVersionWithContext")
+async function updateDatasetVersionWithOptions(request: UpdateDatasetVersionRequest, runtime: $RuntimeOptions): UpdateDatasetVersionResponse {
+  request.validate();
+  var body : map[string]any = {};
+  if (!$isNull(request.comment)) {
+    body['Comment'] = request.comment;
+  }
+  if (!$isNull(request.id)) {
+    body['Id'] = request.id;
+  }
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'UpdateDatasetVersion',
+    version = '2024-05-18',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 更新数据集版本信息
+ *
+ * @param request UpdateDatasetVersionRequest
+ * @return UpdateDatasetVersionResponse
+ */
+async function updateDatasetVersion(request: UpdateDatasetVersionRequest): UpdateDatasetVersionResponse {
+  var runtime = new $RuntimeOptions{};
+  return updateDatasetVersionWithOptions(request, runtime);
 }
 
 model UpdateFileRequest {
