@@ -117,6 +117,7 @@ model ConcurrencyConfig {
 }
 
 model CookieSessionAffinityConfig {
+  disableSessionIdReuse?: boolean(name='disableSessionIdReuse'),
   sessionConcurrencyPerInstance?: long(name='sessionConcurrencyPerInstance'),
   sessionIdleTimeoutInSeconds?: long(name='sessionIdleTimeoutInSeconds'),
   sessionTTLInSeconds?: long(name='sessionTTLInSeconds'),
@@ -186,7 +187,9 @@ model CreateLayerVersionInput {
 }
 
 model CreateSessionInput {
+  disableSessionIdReuse?: boolean(name='disableSessionIdReuse'),
   nasConfig?: NASConfig(name='nasConfig'),
+  sessionId?: string(name='sessionId', example='custom-test-session-id'),
   sessionIdleTimeoutInSeconds?: long(name='sessionIdleTimeoutInSeconds', example='1800'),
   sessionTTLInSeconds?: long(name='sessionTTLInSeconds', example='21600'),
 }
@@ -447,6 +450,7 @@ model HTTPTriggerConfig {
 
 model HeaderFieldSessionAffinityConfig {
   affinityHeaderFieldName?: string(name='affinityHeaderFieldName'),
+  disableSessionIdReuse?: boolean(name='disableSessionIdReuse'),
   sessionConcurrencyPerInstance?: long(name='sessionConcurrencyPerInstance'),
   sessionIdleTimeoutInSeconds?: long(name='sessionIdleTimeoutInSeconds'),
   sessionTTLInSeconds?: long(name='sessionTTLInSeconds'),
@@ -794,6 +798,7 @@ model PutProvisionConfigInput {
 }
 
 model PutScalingConfigInput {
+  enableOnDemandScaling?: boolean(name='enableOnDemandScaling'),
   horizontalScalingPolicies?: [
     ScalingPolicy
   ](name='horizontalScalingPolicies'),
@@ -842,6 +847,7 @@ model ResidentConfig {
 model ResidentResourceAllocation {
   functionName?: string(name='functionName', description='使用该资源池的函数名'),
   instanceCount?: int32(name='instanceCount', description='实例数'),
+  instanceType?: string(name='instanceType'),
   qualifier?: string(name='qualifier', description='函数的别名'),
   totalCpuCores?: double(name='totalCpuCores', description='CPU 占用总核数'),
   totalDiskSize?: double(name='totalDiskSize', description='占用磁盘大小，单位 GB'),
@@ -930,6 +936,7 @@ model SLSTriggerLogConfig {
 model ScalingConfigStatus {
   currentError?: string(name='currentError'),
   currentInstances?: long(name='currentInstances'),
+  enableOnDemandScaling?: boolean(name='enableOnDemandScaling'),
   functionArn?: string(name='functionArn'),
   horizontalScalingPolicies?: [
     ScalingPolicy
@@ -979,6 +986,7 @@ model ScheduledPolicy {
 model Session {
   containerId?: string(name='containerId', example='c-68999e02-16a1955c-d2a03d1ccs'),
   createdTime?: string(name='createdTime', example='2025-04-01T08:15:27Z'),
+  disableSessionIdReuse?: boolean(name='disableSessionIdReuse'),
   functionName?: string(name='functionName', example='functionName1'),
   lastModifiedTime?: string(name='lastModifiedTime', example='2025-04-01T18:15:27Z'),
   nasConfig?: NASConfig(name='nasConfig'),
@@ -1181,6 +1189,7 @@ model UpdateResidentResourcePoolInput {
 }
 
 model UpdateSessionInput {
+  disableSessionIdReuse?: boolean(name='disableSessionIdReuse'),
   sessionIdleTimeoutInSeconds?: long(name='sessionIdleTimeoutInSeconds', example='1800'),
   sessionTTLInSeconds?: long(name='sessionTTLInSeconds', example='21600'),
 }
@@ -1216,7 +1225,7 @@ model WildcardRule {
 }
 
 model ChangeResourceGroupRequest {
-  body?: ChangeResourceGroupInput(name='body'),
+  body?: ChangeResourceGroupInput(name='body', description='The request details for updating the resource group.'),
 }
 
 model ChangeResourceGroupResponse = {
@@ -1226,7 +1235,9 @@ model ChangeResourceGroupResponse = {
 }
 
 /**
- * @summary 修改实例所在资源组
+ * @summary Updates the resource group of a Function Compute resource.
+ *
+ * @description To update the resource group of a Function Compute resource, you must grant the user the ChangeResourceGroup permission on both the current resource group and the target resource group.
  *
  * @param request ChangeResourceGroupRequest
  * @param headers map
@@ -1255,7 +1266,9 @@ async function changeResourceGroupWithOptions(request: ChangeResourceGroupReques
 }
 
 /**
- * @summary 修改实例所在资源组
+ * @summary Updates the resource group of a Function Compute resource.
+ *
+ * @description To update the resource group of a Function Compute resource, you must grant the user the ChangeResourceGroup permission on both the current resource group and the target resource group.
  *
  * @param request ChangeResourceGroupRequest
  * @return ChangeResourceGroupResponse
@@ -1487,8 +1500,8 @@ async function createLayerVersion(layerName: string, request: CreateLayerVersion
 }
 
 model CreateSessionRequest {
-  body?: CreateSessionInput(name='body'),
-  qualifier?: string(name='qualifier', example='aliasName1'),
+  body?: CreateSessionInput(name='body', description='Creates session configurations.'),
+  qualifier?: string(name='qualifier', description='Specifies the version or alias to which the sesion belongs.', example='aliasName1'),
 }
 
 model CreateSessionResponse = {
@@ -1498,7 +1511,7 @@ model CreateSessionResponse = {
 }
 
 /**
- * @summary 创建会话资源
+ * @summary The CreateSession operation creates an explicit session resource. The system automatically generates a unique session ID, pre-allocates a function instance, and associates it with the session. You can specify values for TTL and idle timeout. This method applies to the HEADER_FIELD and GENERATED_COOKIE affinity types. It handles session preload and configuration initialization. After you call the InvokeFunction API, the session information can be included in the InvokeFunction request to enable request routing.
  *
  * @param request CreateSessionRequest
  * @param headers map
@@ -1533,7 +1546,7 @@ async function createSessionWithOptions(functionName: string, request: CreateSes
 }
 
 /**
- * @summary 创建会话资源
+ * @summary The CreateSession operation creates an explicit session resource. The system automatically generates a unique session ID, pre-allocates a function instance, and associates it with the session. You can specify values for TTL and idle timeout. This method applies to the HEADER_FIELD and GENERATED_COOKIE affinity types. It handles session preload and configuration initialization. After you call the InvokeFunction API, the session information can be included in the InvokeFunction request to enable request routing.
  *
  * @param request CreateSessionRequest
  * @return CreateSessionResponse
@@ -2012,7 +2025,7 @@ async function deleteProvisionConfig(functionName: string, request: DeleteProvis
 }
 
 model DeleteScalingConfigRequest {
-  qualifier?: string(name='qualifier', example='LATEST'),
+  qualifier?: string(name='qualifier', description='The function alias.', example='LATEST'),
 }
 
 model DeleteScalingConfigResponse = {
@@ -2021,7 +2034,7 @@ model DeleteScalingConfigResponse = {
 }
 
 /**
- * @summary 删除弹性配置
+ * @summary Deletes the scaling settings of a function.
  *
  * @param request DeleteScalingConfigRequest
  * @param headers map
@@ -2055,7 +2068,7 @@ async function deleteScalingConfigWithOptions(functionName: string, request: Del
 }
 
 /**
- * @summary 删除弹性配置
+ * @summary Deletes the scaling settings of a function.
  *
  * @param request DeleteScalingConfigRequest
  * @return DeleteScalingConfigResponse
@@ -2067,7 +2080,7 @@ async function deleteScalingConfig(functionName: string, request: DeleteScalingC
 }
 
 model DeleteSessionRequest {
-  qualifier?: string(name='qualifier', example='aliasName1'),
+  qualifier?: string(name='qualifier', description='The function alias or version associated with the session to be deleted.', example='aliasName1'),
 }
 
 model DeleteSessionResponse = {
@@ -2076,7 +2089,7 @@ model DeleteSessionResponse = {
 }
 
 /**
- * @summary 删除会话资源
+ * @summary Deletes the specified session and prohibits new requests from being routed to it. Clears the session metadata from the database, so subsequent requests with the same session ID are treated as new sessions. Releases resources and performs session cleanup. In session isolation scenarios, terminates running requests and releases the instance bound to the session. In non-session isolation scenarios, allows running requests to continue and gracefully terminates them.
  *
  * @param request DeleteSessionRequest
  * @param headers map
@@ -2110,7 +2123,7 @@ async function deleteSessionWithOptions(functionName: string, sessionId: string,
 }
 
 /**
- * @summary 删除会话资源
+ * @summary Deletes the specified session and prohibits new requests from being routed to it. Clears the session metadata from the database, so subsequent requests with the same session ID are treated as new sessions. Releases resources and performs session cleanup. In session isolation scenarios, terminates running requests and releases the instance bound to the session. In non-session isolation scenarios, allows running requests to continue and gracefully terminates them.
  *
  * @param request DeleteSessionRequest
  * @return DeleteSessionResponse
@@ -2206,7 +2219,13 @@ async function deleteVpcBinding(functionName: string, vpcId: string): DeleteVpcB
 }
 
 model DescribeRegionsRequest {
-  acceptLanguage?: string(name='AcceptLanguage', example='zh-CN'),
+  acceptLanguage?: string(name='AcceptLanguage', description='The language in which the list of regions is returned. For more information, see RFC 7231. Valid values:
+
+*   zh-CN: Simplified Chinese.
+*   en-US: English.
+*   ja: Japanese
+
+Default value: en-US', example='zh-CN'),
 }
 
 model DescribeRegionsResponse = {
@@ -2216,7 +2235,7 @@ model DescribeRegionsResponse = {
 }
 
 /**
- * @summary 查询产品的地域信息列表
+ * @summary Queries the regions where Function Compute 3.0 is available.
  *
  * @param request DescribeRegionsRequest
  * @param headers map
@@ -2250,7 +2269,7 @@ async function describeRegionsWithOptions(request: DescribeRegionsRequest, heade
 }
 
 /**
- * @summary 查询产品的地域信息列表
+ * @summary Queries the regions where Function Compute 3.0 is available.
  *
  * @param request DescribeRegionsRequest
  * @return DescribeRegionsResponse
@@ -2330,7 +2349,7 @@ async function disableFunctionInvocation(functionName: string, request: DisableF
 }
 
 model EnableFunctionInvocationResponseBody = {
-  success?: boolean(name='success', example='true'),
+  success?: boolean(name='success', description='Indicates whether the request was successful.', example='true'),
 }
 
 model EnableFunctionInvocationResponse = {
@@ -2340,7 +2359,7 @@ model EnableFunctionInvocationResponse = {
 }
 
 /**
- * @summary 允许函数调用
+ * @summary The EnableFunctionInvocation operation allows a function to be invoked and resumes the creation of provisioned instances. This operation is currently in private preview.
  *
  * @param headers map
  * @param runtime runtime options for this request RuntimeOptions
@@ -2366,7 +2385,7 @@ async function enableFunctionInvocationWithOptions(functionName: string, headers
 }
 
 /**
- * @summary 允许函数调用
+ * @summary The EnableFunctionInvocation operation allows a function to be invoked and resumes the creation of provisioned instances. This operation is currently in private preview.
  *
  * @return EnableFunctionInvocationResponse
  */
@@ -2872,7 +2891,7 @@ async function getProvisionConfig(functionName: string, request: GetProvisionCon
 }
 
 model GetScalingConfigRequest {
-  qualifier?: string(name='qualifier', example='LATEST'),
+  qualifier?: string(name='qualifier', description='The alias of the function.', example='LATEST'),
 }
 
 model GetScalingConfigResponse = {
@@ -2882,7 +2901,7 @@ model GetScalingConfigResponse = {
 }
 
 /**
- * @summary 获取弹性配置
+ * @summary Gets the scaling settings of a function.
  *
  * @param request GetScalingConfigRequest
  * @param headers map
@@ -2916,7 +2935,7 @@ async function getScalingConfigWithOptions(functionName: string, request: GetSca
 }
 
 /**
- * @summary 获取弹性配置
+ * @summary Gets the scaling settings of a function.
  *
  * @param request GetScalingConfigRequest
  * @return GetScalingConfigResponse
@@ -2928,7 +2947,7 @@ async function getScalingConfig(functionName: string, request: GetScalingConfigR
 }
 
 model GetSessionRequest {
-  qualifier?: string(name='qualifier', example='aliasName1'),
+  qualifier?: string(name='qualifier', description='The function alias or version associated with the queried session ID.', example='aliasName1'),
 }
 
 model GetSessionResponse = {
@@ -2938,7 +2957,7 @@ model GetSessionResponse = {
 }
 
 /**
- * @summary 获取函数会话信息。
+ * @summary You can use this operation to retrieve detailed information about a specific session, including its session ID, associated function, affinity type, lifecycle configuration, status, and instance details. This operation retrieves the current metadata for a session. You can identify the metadata precisely using either the function name or qualifier. This capability enables you to monitor and debug external systems with ease. Only sessions that are in the Active state can be queried.
  *
  * @param request GetSessionRequest
  * @param headers map
@@ -2972,7 +2991,7 @@ async function getSessionWithOptions(functionName: string, sessionId: string, re
 }
 
 /**
- * @summary 获取函数会话信息。
+ * @summary You can use this operation to retrieve detailed information about a specific session, including its session ID, associated function, affinity type, lifecycle configuration, status, and instance details. This operation retrieves the current metadata for a session. You can identify the metadata precisely using either the function name or qualifier. This capability enables you to monitor and debug external systems with ease. Only sessions that are in the Active state can be queried.
  *
  * @param request GetSessionRequest
  * @return GetSessionResponse
@@ -3974,9 +3993,9 @@ async function listProvisionConfigs(request: ListProvisionConfigsRequest): ListP
 }
 
 model ListScalingConfigsRequest {
-  functionName?: string(name='functionName', example='my-func'),
-  limit?: int32(name='limit', example='20'),
-  nextToken?: string(name='nextToken', example='MTIzNCNhYmM='),
+  functionName?: string(name='functionName', description='The name of the function.', example='my-func'),
+  limit?: int32(name='limit', description='The number of scaling settings to return.', example='20'),
+  nextToken?: string(name='nextToken', description='The token for the next page.', example='MTIzNCNhYmM='),
 }
 
 model ListScalingConfigsResponse = {
@@ -3986,7 +4005,7 @@ model ListScalingConfigsResponse = {
 }
 
 /**
- * @summary 获取弹性配置列表
+ * @summary Lists the scaling settings of a function.
  *
  * @param request ListScalingConfigsRequest
  * @param headers map
@@ -4026,7 +4045,7 @@ async function listScalingConfigsWithOptions(request: ListScalingConfigsRequest,
 }
 
 /**
- * @summary 获取弹性配置列表
+ * @summary Lists the scaling settings of a function.
  *
  * @param request ListScalingConfigsRequest
  * @return ListScalingConfigsResponse
@@ -4038,11 +4057,11 @@ async function listScalingConfigs(request: ListScalingConfigsRequest): ListScali
 }
 
 model ListSessionsRequest {
-  limit?: int32(name='limit', example='10'),
-  nextToken?: string(name='nextToken', example='MTIzNCNhYmM='),
-  qualifier?: string(name='qualifier', example='aliasName1'),
-  sessionId?: string(name='sessionId', example='test-session-id-1'),
-  sessionStatus?: string(name='sessionStatus', example='Active'),
+  limit?: int32(name='limit', description='The number of sessions to be returned. If this parameter is not specified, 20 sessions are returned by default.', example='10'),
+  nextToken?: string(name='nextToken', description='The token for the next page.', example='MTIzNCNhYmM='),
+  qualifier?: string(name='qualifier', description='The function alias or version.', example='aliasName1'),
+  sessionId?: string(name='sessionId', description='The SessionId value to filter. If specified, all session information associated with this session ID in Active or Expired states is returned.', example='test-session-id-1'),
+  sessionStatus?: string(name='sessionStatus', description='The session status to filter. By default, information for all sessions in the Active and Expired states is returned. You can specify Active to retrieve only active sessions, or Expired to retrieve only expired sessions.', example='Active'),
 }
 
 model ListSessionsResponse = {
@@ -4052,7 +4071,7 @@ model ListSessionsResponse = {
 }
 
 /**
- * @summary 列出函数会话信息
+ * @summary Lists sessions in the Active and/or Expired state(s) under the specified function. Supports filtering by qualifier, status, and session ID, as well as paginated queries. Returns basic session attributes for batch viewing of session distribution and status, helping with operations monitoring and integration with external systems, and enhancing session visibility and management.
  *
  * @param request ListSessionsRequest
  * @param headers map
@@ -4098,7 +4117,7 @@ async function listSessionsWithOptions(functionName: string, request: ListSessio
 }
 
 /**
- * @summary 列出函数会话信息
+ * @summary Lists sessions in the Active and/or Expired state(s) under the specified function. Supports filtering by qualifier, status, and session ID, as well as paginated queries. Returns basic session attributes for batch viewing of session distribution and status, helping with operations monitoring and integration with external systems, and enhancing session visibility and management.
  *
  * @param request ListSessionsRequest
  * @return ListSessionsResponse
@@ -4607,8 +4626,8 @@ async function putProvisionConfig(functionName: string, request: PutProvisionCon
 }
 
 model PutScalingConfigRequest {
-  body?: PutScalingConfigInput(name='body'),
-  qualifier?: string(name='qualifier', example='LATEST'),
+  body?: PutScalingConfigInput(name='body', description='The function scalability configuration.'),
+  qualifier?: string(name='qualifier', description='The function alias.', example='LATEST'),
 }
 
 model PutScalingConfigResponse = {
@@ -4618,7 +4637,7 @@ model PutScalingConfigResponse = {
 }
 
 /**
- * @summary 设置弹性配置
+ * @summary Scaling settings
  *
  * @param request PutScalingConfigRequest
  * @param headers map
@@ -4653,7 +4672,7 @@ async function putScalingConfigWithOptions(functionName: string, request: PutSca
 }
 
 /**
- * @summary 设置弹性配置
+ * @summary Scaling settings
  *
  * @param request PutScalingConfigRequest
  * @return PutScalingConfigResponse
@@ -5025,8 +5044,8 @@ async function updateFunction(functionName: string, request: UpdateFunctionReque
 }
 
 model UpdateSessionRequest {
-  body?: UpdateSessionInput(name='body'),
-  qualifier?: string(name='qualifier', example='aliasName1'),
+  body?: UpdateSessionInput(name='body', description='The session update configuration.'),
+  qualifier?: string(name='qualifier', description='The function alias or version associated with the session to be updated.', example='aliasName1'),
 }
 
 model UpdateSessionResponse = {
@@ -5036,7 +5055,7 @@ model UpdateSessionResponse = {
 }
 
 /**
- * @summary 更新会话配置
+ * @summary Updates session configurations while the session is in the Active state, such as lifecycle parameters (e.g., SessionTTLInSeconds and SessionIdleTimeoutInSeconds). After the update takes effect, LastModifiedTime is automatically refreshed. These updates can be used to extend or shorten the validity period of a session and enable dynamic management without changing the execution environment bound to the session.
  *
  * @param request UpdateSessionRequest
  * @param headers map
@@ -5071,7 +5090,7 @@ async function updateSessionWithOptions(functionName: string, sessionId: string,
 }
 
 /**
- * @summary 更新会话配置
+ * @summary Updates session configurations while the session is in the Active state, such as lifecycle parameters (e.g., SessionTTLInSeconds and SessionIdleTimeoutInSeconds). After the update takes effect, LastModifiedTime is automatically refreshed. These updates can be used to extend or shorten the validity period of a session and enable dynamic management without changing the execution environment bound to the session.
  *
  * @param request UpdateSessionRequest
  * @return UpdateSessionResponse

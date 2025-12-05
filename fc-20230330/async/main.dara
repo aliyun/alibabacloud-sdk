@@ -121,6 +121,7 @@ model ConcurrencyConfig {
 }
 
 model CookieSessionAffinityConfig {
+  disableSessionIdReuse?: boolean(name='disableSessionIdReuse'),
   sessionConcurrencyPerInstance?: long(name='sessionConcurrencyPerInstance'),
   sessionIdleTimeoutInSeconds?: long(name='sessionIdleTimeoutInSeconds'),
   sessionTTLInSeconds?: long(name='sessionTTLInSeconds'),
@@ -190,7 +191,9 @@ model CreateLayerVersionInput {
 }
 
 model CreateSessionInput {
+  disableSessionIdReuse?: boolean(name='disableSessionIdReuse'),
   nasConfig?: NASConfig(name='nasConfig'),
+  sessionId?: string(name='sessionId', example='custom-test-session-id', maxLength=64),
   sessionIdleTimeoutInSeconds?: long(name='sessionIdleTimeoutInSeconds', example='1800'),
   sessionTTLInSeconds?: long(name='sessionTTLInSeconds', example='21600'),
 }
@@ -451,6 +454,7 @@ model HTTPTriggerConfig {
 
 model HeaderFieldSessionAffinityConfig {
   affinityHeaderFieldName?: string(name='affinityHeaderFieldName'),
+  disableSessionIdReuse?: boolean(name='disableSessionIdReuse'),
   sessionConcurrencyPerInstance?: long(name='sessionConcurrencyPerInstance'),
   sessionIdleTimeoutInSeconds?: long(name='sessionIdleTimeoutInSeconds'),
   sessionTTLInSeconds?: long(name='sessionTTLInSeconds'),
@@ -798,6 +802,7 @@ model PutProvisionConfigInput {
 }
 
 model PutScalingConfigInput {
+  enableOnDemandScaling?: boolean(name='enableOnDemandScaling'),
   horizontalScalingPolicies?: [
     ScalingPolicy
   ](name='horizontalScalingPolicies'),
@@ -846,6 +851,7 @@ model ResidentConfig {
 model ResidentResourceAllocation {
   functionName?: string(name='functionName', description='使用该资源池的函数名'),
   instanceCount?: int32(name='instanceCount', description='实例数'),
+  instanceType?: string(name='instanceType'),
   qualifier?: string(name='qualifier', description='函数的别名'),
   totalCpuCores?: double(name='totalCpuCores', description='CPU 占用总核数'),
   totalDiskSize?: double(name='totalDiskSize', description='占用磁盘大小，单位 GB'),
@@ -934,6 +940,7 @@ model SLSTriggerLogConfig {
 model ScalingConfigStatus {
   currentError?: string(name='currentError'),
   currentInstances?: long(name='currentInstances'),
+  enableOnDemandScaling?: boolean(name='enableOnDemandScaling'),
   functionArn?: string(name='functionArn'),
   horizontalScalingPolicies?: [
     ScalingPolicy
@@ -983,6 +990,7 @@ model ScheduledPolicy {
 model Session {
   containerId?: string(name='containerId', example='c-68999e02-16a1955c-d2a03d1ccs'),
   createdTime?: string(name='createdTime', example='2025-04-01T08:15:27Z'),
+  disableSessionIdReuse?: boolean(name='disableSessionIdReuse'),
   functionName?: string(name='functionName', example='functionName1'),
   lastModifiedTime?: string(name='lastModifiedTime', example='2025-04-01T18:15:27Z'),
   nasConfig?: NASConfig(name='nasConfig'),
@@ -1185,6 +1193,7 @@ model UpdateResidentResourcePoolInput {
 }
 
 model UpdateSessionInput {
+  disableSessionIdReuse?: boolean(name='disableSessionIdReuse'),
   sessionIdleTimeoutInSeconds?: long(name='sessionIdleTimeoutInSeconds', example='1800'),
   sessionTTLInSeconds?: long(name='sessionTTLInSeconds', example='21600'),
 }
@@ -1220,7 +1229,7 @@ model WildcardRule {
 }
 
 model ChangeResourceGroupRequest {
-  body?: ChangeResourceGroupInput(name='body', position='Body'),
+  body?: ChangeResourceGroupInput(name='body', description='The request details for updating the resource group.', position='Body'),
 }
 
 model ChangeResourceGroupResponse = {
@@ -1230,6 +1239,7 @@ model ChangeResourceGroupResponse = {
 }
 
 /**
+  * @description To update the resource group of a Function Compute resource, you must grant the user the ChangeResourceGroup permission on both the current resource group and the target resource group.
   * @param request  the request parameters of ChangeResourceGroup  ChangeResourceGroupRequest
   * @return ChangeResourceGroupResponse
  */
@@ -1331,9 +1341,9 @@ async function createLayerVersion(request: CreateLayerVersionRequest): CreateLay
 }
 
 model CreateSessionRequest {
-  functionName?: string(name='functionName', example='my-func', position='Path'),
-  body?: CreateSessionInput(name='body', position='Body'),
-  qualifier?: string(name='qualifier', example='aliasName1', position='Query'),
+  functionName?: string(name='functionName', description='The name of the function.', example='my-func', position='Path'),
+  body?: CreateSessionInput(name='body', description='Creates session configurations.', position='Body'),
+  qualifier?: string(name='qualifier', description='Specifies the version or alias to which the sesion belongs.', example='aliasName1', position='Query'),
 }
 
 model CreateSessionResponse = {
@@ -1568,8 +1578,8 @@ async function deleteProvisionConfig(request: DeleteProvisionConfigRequest): Del
 }
 
 model DeleteScalingConfigRequest {
-  functionName?: string(name='functionName', example='my-func', position='Path'),
-  qualifier?: string(name='qualifier', example='LATEST', position='Query'),
+  functionName?: string(name='functionName', description='The function name.', example='my-func', position='Path'),
+  qualifier?: string(name='qualifier', description='The function alias.', example='LATEST', position='Query'),
 }
 
 model DeleteScalingConfigResponse = {
@@ -1587,9 +1597,9 @@ async function deleteScalingConfig(request: DeleteScalingConfigRequest): DeleteS
 }
 
 model DeleteSessionRequest {
-  functionName?: string(name='functionName', example='my-func', position='Path'),
-  sessionId?: string(name='sessionId', example='test-session-id-1', position='Path'),
-  qualifier?: string(name='qualifier', example='aliasName1', position='Query'),
+  functionName?: string(name='functionName', description='The function name.', example='my-func', position='Path'),
+  sessionId?: string(name='sessionId', description='The ID of the session to be deleted.', example='test-session-id-1', position='Path'),
+  qualifier?: string(name='qualifier', description='The function alias or version associated with the session to be deleted.', example='aliasName1', position='Query'),
 }
 
 model DeleteSessionResponse = {
@@ -1653,7 +1663,13 @@ async function deleteVpcBinding(request: DeleteVpcBindingRequest): DeleteVpcBind
 }
 
 model DescribeRegionsRequest {
-  acceptLanguage?: string(name='AcceptLanguage', example='zh-CN', position='Query'),
+  acceptLanguage?: string(name='AcceptLanguage', description='The language in which the list of regions is returned. For more information, see RFC 7231. Valid values:
+
+*   zh-CN: Simplified Chinese.
+*   en-US: English.
+*   ja: Japanese
+
+Default value: en-US', example='zh-CN', position='Query'),
 }
 
 model DescribeRegionsResponse = {
@@ -1698,11 +1714,11 @@ async function disableFunctionInvocation(request: DisableFunctionInvocationReque
 }
 
 model EnableFunctionInvocationRequest {
-  functionName?: string(name='functionName', position='Path'),
+  functionName?: string(name='functionName', description='The name of the function that you want to allow for invocation.', example='helloworld', position='Path'),
 }
 
 model EnableFunctionInvocationResponseBody = {
-  success?: boolean(name='success', example='true'),
+  success?: boolean(name='success', description='Indicates whether the request was successful.', example='true'),
 }
 
 model EnableFunctionInvocationResponse = {
@@ -1945,8 +1961,8 @@ async function getProvisionConfig(request: GetProvisionConfigRequest): GetProvis
 }
 
 model GetScalingConfigRequest {
-  functionName?: string(name='functionName', example='my-func', position='Path'),
-  qualifier?: string(name='qualifier', example='LATEST', position='Query'),
+  functionName?: string(name='functionName', description='The name of the function.', example='my-func', position='Path'),
+  qualifier?: string(name='qualifier', description='The alias of the function.', example='LATEST', position='Query'),
 }
 
 model GetScalingConfigResponse = {
@@ -1965,9 +1981,9 @@ async function getScalingConfig(request: GetScalingConfigRequest): GetScalingCon
 }
 
 model GetSessionRequest {
-  functionName?: string(name='functionName', example='myFunction', position='Path'),
-  sessionId?: string(name='sessionId', example='test-sessionid-index1', position='Path'),
-  qualifier?: string(name='qualifier', example='aliasName1', position='Query'),
+  functionName?: string(name='functionName', description='The name of the function to which the session belongs.', example='myFunction', position='Path'),
+  sessionId?: string(name='sessionId', description='The session ID.', example='test-sessionid-index1', position='Path'),
+  qualifier?: string(name='qualifier', description='The function alias or version associated with the queried session ID.', example='aliasName1', position='Query'),
 }
 
 model GetSessionResponse = {
@@ -2340,9 +2356,9 @@ async function listProvisionConfigs(request: ListProvisionConfigsRequest): ListP
 }
 
 model ListScalingConfigsRequest {
-  functionName?: string(name='functionName', example='my-func', position='Query'),
-  limit?: int32(name='limit', example='20', position='Query'),
-  nextToken?: string(name='nextToken', example='MTIzNCNhYmM=', position='Query'),
+  functionName?: string(name='functionName', description='The name of the function.', example='my-func', position='Query'),
+  limit?: int32(name='limit', description='The number of scaling settings to return.', example='20', position='Query'),
+  nextToken?: string(name='nextToken', description='The token for the next page.', example='MTIzNCNhYmM=', position='Query'),
 }
 
 model ListScalingConfigsResponse = {
@@ -2361,12 +2377,12 @@ async function listScalingConfigs(request: ListScalingConfigsRequest): ListScali
 }
 
 model ListSessionsRequest {
-  functionName?: string(name='functionName', example='my-func', position='Path'),
-  limit?: int32(name='limit', example='10', minimum=1, maximum=100, position='Query'),
-  nextToken?: string(name='nextToken', example='MTIzNCNhYmM=', position='Query'),
-  qualifier?: string(name='qualifier', example='aliasName1', position='Query'),
-  sessionId?: string(name='sessionId', example='test-session-id-1', position='Query'),
-  sessionStatus?: string(name='sessionStatus', example='Active', position='Query'),
+  functionName?: string(name='functionName', description='The function name.', example='my-func', position='Path'),
+  limit?: int32(name='limit', description='The number of sessions to be returned. If this parameter is not specified, 20 sessions are returned by default.', example='10', minimum=1, maximum=100, position='Query'),
+  nextToken?: string(name='nextToken', description='The token for the next page.', example='MTIzNCNhYmM=', position='Query'),
+  qualifier?: string(name='qualifier', description='The function alias or version.', example='aliasName1', position='Query'),
+  sessionId?: string(name='sessionId', description='The SessionId value to filter. If specified, all session information associated with this session ID in Active or Expired states is returned.', example='test-session-id-1', position='Query'),
+  sessionStatus?: string(name='sessionStatus', description='The session status to filter. By default, information for all sessions in the Active and Expired states is returned. You can specify Active to retrieve only active sessions, or Expired to retrieve only expired sessions.', example='Active', position='Query'),
 }
 
 model ListSessionsResponse = {
@@ -2586,9 +2602,9 @@ async function putProvisionConfig(request: PutProvisionConfigRequest): PutProvis
 }
 
 model PutScalingConfigRequest {
-  functionName?: string(name='functionName', example='my-func', position='Path'),
-  body?: PutScalingConfigInput(name='body', position='Body'),
-  qualifier?: string(name='qualifier', example='LATEST', position='Query'),
+  functionName?: string(name='functionName', description='The function name.', example='my-func', position='Path'),
+  body?: PutScalingConfigInput(name='body', description='The function scalability configuration.', position='Body'),
+  qualifier?: string(name='qualifier', description='The function alias.', example='LATEST', position='Query'),
 }
 
 model PutScalingConfigResponse = {
@@ -2752,10 +2768,10 @@ async function updateFunction(request: UpdateFunctionRequest): UpdateFunctionRes
 }
 
 model UpdateSessionRequest {
-  functionName?: string(name='functionName', example='my-func', position='Path'),
-  sessionId?: string(name='sessionId', example='test-sessionid-1', position='Path'),
-  body?: UpdateSessionInput(name='body', position='Body'),
-  qualifier?: string(name='qualifier', example='aliasName1', position='Query'),
+  functionName?: string(name='functionName', description='The name of the function to which the session belongs.', example='my-func', position='Path'),
+  sessionId?: string(name='sessionId', description='The ID of the session to be updated.', example='test-sessionid-1', position='Path'),
+  body?: UpdateSessionInput(name='body', description='The session update configuration.', position='Body'),
+  qualifier?: string(name='qualifier', description='The function alias or version associated with the session to be updated.', example='aliasName1', position='Query'),
 }
 
 model UpdateSessionResponse = {
