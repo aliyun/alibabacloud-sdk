@@ -9,8 +9,12 @@ extends OpenApi;
 
 init(config: OpenApiUtil.Config){
   super(config);
-  @endpointRule = '';
-  
+  @endpointRule = 'central';
+  @endpointMap = {
+    'ap-southeast-1' = 'openapi-mcp.ap-southeast-1.aliyuncs.com',
+    'cn-hangzhou' = 'openapi-mcp.cn-hangzhou.aliyuncs.com',
+  };
+
   checkConfig(config);
   @endpoint = getEndpoint('openapiexplorer', @regionId, @endpointRule, @network, @suffix, @endpointMap, @endpoint);
 }
@@ -148,6 +152,7 @@ model CreateApiMcpServerRequest {
   clientToken?: string(name='clientToken', example='123e4567-e89b-12d3-a456-426655440000'),
   description?: string(name='description'),
   enableAssumeRole?: boolean(name='enableAssumeRole', example='true'),
+  enableCustomVpcWhitelist?: boolean(name='enableCustomVpcWhitelist'),
   instructions?: string(name='instructions', example='test'),
   language?: string(name='language', example='ZH_CN'),
   name?: string(name='name', description='This parameter is required.', example='mcp-demo'),
@@ -166,6 +171,7 @@ model CreateApiMcpServerRequest {
       name?: string(name='name', example='test'),
     }
   ](name='prompts'),
+  publicAccess?: string(name='publicAccess'),
   systemTools?: [ string ](name='systemTools'),
   terraformTools?: [ 
     {
@@ -190,6 +196,7 @@ resource "alicloud_vpc" "default" {
       name?: string(name='name', example='test'),
     }
   ](name='terraformTools'),
+  vpcWhitelists?: [ string ](name='vpcWhitelists'),
 }
 
 model CreateApiMcpServerResponseBody = {
@@ -198,6 +205,8 @@ model CreateApiMcpServerResponseBody = {
   urls?: {
     mcp?: string(name='mcp', example='https://mcpserverinner-pre.cn-zhangjiakou.aliyuncs.com/accounts/xxxx/custom/xxx/id/xxxx/mcp'),
     sse?: string(name='sse', example='https://mcpserverinner-pre.cn-zhangjiakou.aliyuncs.com/accounts/xxxx/custom/xxx/id/xxxx/sse'),
+    vpcMcp?: string(name='vpcMcp'),
+    vpcSse?: string(name='vpcSse'),
   }(name='urls'),
 }
 
@@ -240,6 +249,9 @@ async function createApiMcpServerWithOptions(request: CreateApiMcpServerRequest,
   if (!$isNull(request.enableAssumeRole)) {
     body['enableAssumeRole'] = request.enableAssumeRole;
   }
+  if (!$isNull(request.enableCustomVpcWhitelist)) {
+    body['enableCustomVpcWhitelist'] = request.enableCustomVpcWhitelist;
+  }
   if (!$isNull(request.instructions)) {
     body['instructions'] = request.instructions;
   }
@@ -255,11 +267,17 @@ async function createApiMcpServerWithOptions(request: CreateApiMcpServerRequest,
   if (!$isNull(request.prompts)) {
     body['prompts'] = request.prompts;
   }
+  if (!$isNull(request.publicAccess)) {
+    body['publicAccess'] = request.publicAccess;
+  }
   if (!$isNull(request.systemTools)) {
     body['systemTools'] = request.systemTools;
   }
   if (!$isNull(request.terraformTools)) {
     body['terraformTools'] = request.terraformTools;
+  }
+  if (!$isNull(request.vpcWhitelists)) {
+    body['vpcWhitelists'] = request.vpcWhitelists;
   }
 
   var req = new OpenApiUtil.OpenApiRequest{ 
@@ -358,16 +376,18 @@ async function deleteApiMcpServer(request: DeleteApiMcpServerRequest): DeleteApi
 
 model GenerateCLICommandRequest {
   api?: string(name='api', description='This parameter is required.'),
-  apiParams?: map[string]any(name='apiParams'),
+  apiParams?: map[string]any(name='apiParams', deprecated=true),
   apiVersion?: string(name='apiVersion', description='This parameter is required.'),
+  jsonApiParams?: string(name='jsonApiParams'),
   product?: string(name='product', description='This parameter is required.'),
   regionId?: string(name='regionId'),
 }
 
 model GenerateCLICommandShrinkRequest {
   api?: string(name='api', description='This parameter is required.'),
-  apiParamsShrink?: string(name='apiParams'),
+  apiParamsShrink?: string(name='apiParams', deprecated=true),
   apiVersion?: string(name='apiVersion', description='This parameter is required.'),
+  jsonApiParams?: string(name='jsonApiParams'),
   product?: string(name='product', description='This parameter is required.'),
   regionId?: string(name='regionId'),
 }
@@ -407,6 +427,9 @@ async function generateCLICommandWithOptions(tmpReq: GenerateCLICommandRequest, 
   }
   if (!$isNull(request.apiVersion)) {
     body['apiVersion'] = request.apiVersion;
+  }
+  if (!$isNull(request.jsonApiParams)) {
+    body['jsonApiParams'] = request.jsonApiParams;
   }
   if (!$isNull(request.product)) {
     body['product'] = request.product;
@@ -562,6 +585,7 @@ model GetApiMcpServerResponseBody = {
   createTime?: string(name='createTime', example='2025-02-07T02:17:46Z'),
   description?: string(name='description'),
   enableAssumeRole?: boolean(name='enableAssumeRole', example='true'),
+  enableCustomVpcWhitelist?: boolean(name='enableCustomVpcWhitelist'),
   id?: string(name='id', example='v6ZZ7ftCzEILW***'),
   instructions?: string(name='instructions', example='test'),
   language?: string(name='language', example='ZH_CN'),
@@ -581,6 +605,7 @@ model GetApiMcpServerResponseBody = {
       name?: string(name='name', example='test'),
     }
   ](name='prompts'),
+  publicAccess?: string(name='publicAccess'),
   requestId?: string(name='requestId', example='9BFC4AC1-6BE4-5405-BDEC-CA288D404812'),
   requiredRAMPolicy?: string(name='requiredRAMPolicy', example='{
   "Version": "1",
@@ -629,7 +654,10 @@ resource "alicloud_vpc" "default" {
   urls?: {
     mcp?: string(name='mcp', example='https://mcpserverinner-pre.cn-zhangjiakou.aliyuncs.com/accounts/xxxx/custom/xxx/id/xxxx/mcp'),
     sse?: string(name='sse', example='https://mcpserverinner-pre.cn-zhangjiakou.aliyuncs.com/accounts/xxxx/custom/xxx/id/xxxx/sse'),
+    vpcMcp?: string(name='vpcMcp'),
+    vpcSse?: string(name='vpcSse'),
   }(name='urls'),
+  vpcWhitelists?: [ string ](name='vpcWhitelists'),
 }
 
 model GetApiMcpServerResponse = {
@@ -682,6 +710,58 @@ async function getApiMcpServer(request: GetApiMcpServerRequest): GetApiMcpServer
   var runtime = new $RuntimeOptions{};
   var headers : map[string]string = {};
   return getApiMcpServerWithOptions(request, headers, runtime);
+}
+
+model GetApiMcpServerUserConfigResponseBody = {
+  accountId?: string(name='accountId', example='162302724684579*'),
+  enablePublicAccess?: boolean(name='enablePublicAccess', example='true'),
+  gmtCreate?: string(name='gmtCreate', example='2025-11-10T06:58:39Z'),
+  gmtModified?: string(name='gmtModified', example='2025-11-10T06:58:39Z'),
+  requestId?: string(name='requestId', example='A707AFA8-1A4C-5B2A-A165-8436C1EA38DB'),
+  vpcWhitelists?: [ string ](name='vpcWhitelists'),
+}
+
+model GetApiMcpServerUserConfigResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: GetApiMcpServerUserConfigResponseBody(name='body'),
+}
+
+/**
+ * @summary 查询用户全局API MCP Server配置
+ *
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return GetApiMcpServerUserConfigResponse
+ */
+@context("getApiMcpServerUserConfigWithContext")
+async function getApiMcpServerUserConfigWithOptions(headers: map[string]string, runtime: $RuntimeOptions): GetApiMcpServerUserConfigResponse {
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    headers = headers,
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'GetApiMcpServerUserConfig',
+    version = '2024-11-30',
+    protocol = 'HTTPS',
+    pathname = `/userconfig/get`,
+    method = 'GET',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 查询用户全局API MCP Server配置
+ *
+ * @return GetApiMcpServerUserConfigResponse
+ */
+async function getApiMcpServerUserConfig(): GetApiMcpServerUserConfigResponse {
+  var runtime = new $RuntimeOptions{};
+  var headers : map[string]string = {};
+  return getApiMcpServerUserConfigWithOptions(headers, runtime);
 }
 
 model GetErrorCodeSolutionsRequest {
@@ -1305,6 +1385,7 @@ model ListApiMcpServersResponseBody = {
       createTime?: string(name='createTime', example='2024-12-10T03:20:21Z'),
       description?: string(name='description'),
       enableAssumeRole?: boolean(name='enableAssumeRole', example='true'),
+      enableCustomVpcWhitelist?: boolean(name='enableCustomVpcWhitelist'),
       id?: string(name='id', example='v6ZZ7ftCzEILW***'),
       instructions?: string(name='instructions', example='test'),
       language?: string(name='language', example='ZH_CN'),
@@ -1324,6 +1405,7 @@ model ListApiMcpServersResponseBody = {
           name?: string(name='name', example='test'),
         }
       ](name='prompts'),
+      publicAccess?: string(name='publicAccess'),
       sourceType?: string(name='sourceType', example='system'),
       systemMcpServerInfo?: {
         name?: string(name='name', example='mcp-system'),
@@ -1357,7 +1439,10 @@ resource "alicloud_vpc" "default" {
       urls?: {
         mcp?: string(name='mcp', example='https://mcpserverinner-pre.cn-zhangjiakou.aliyuncs.com/accounts/xxxx/custom/xxx/id/xxxx/mcp'),
         sse?: string(name='sse', example='https://mcpserverinner-pre.cn-zhangjiakou.aliyuncs.com/accounts/xxxx/custom/xxx/id/xxxx/sse'),
+        vpcMcp?: string(name='vpcMcp'),
+        vpcSse?: string(name='vpcSse'),
       }(name='urls'),
+      vpcWhitelists?: [ string ](name='vpcWhitelists'),
     }
   ](name='apiMcpServers'),
   maxResults?: int32(name='maxResults', example='30'),
@@ -1486,6 +1571,7 @@ model UpdateApiMcpServerRequest {
   assumeRoleName?: string(name='assumeRoleName', example='test'),
   description?: string(name='description'),
   enableAssumeRole?: boolean(name='enableAssumeRole', example='true'),
+  enableCustomVpcWhitelist?: boolean(name='enableCustomVpcWhitelist'),
   instructions?: string(name='instructions', example='test'),
   language?: string(name='language', example='ZH_CN'),
   oauthClientId?: string(name='oauthClientId', example='403*************370'),
@@ -1503,6 +1589,7 @@ model UpdateApiMcpServerRequest {
       name?: string(name='name', example='test'),
     }
   ](name='prompts'),
+  publicAccess?: string(name='publicAccess'),
   systemTools?: [ string ](name='systemTools'),
   terraformTools?: [ 
     {
@@ -1527,6 +1614,7 @@ resource "alicloud_vpc" "default" {
       name?: string(name='name', example='test'),
     }
   ](name='terraformTools'),
+  vpcWhitelists?: [ string ](name='vpcWhitelists'),
   clientToken?: string(name='clientToken', example='123e4567-e89b-12d3-a456-426655440000'),
   id?: string(name='id', description='This parameter is required.', example='v6ZZ7ftCzEILW***'),
 }
@@ -1579,6 +1667,9 @@ async function updateApiMcpServerWithOptions(request: UpdateApiMcpServerRequest,
   if (!$isNull(request.enableAssumeRole)) {
     body['enableAssumeRole'] = request.enableAssumeRole;
   }
+  if (!$isNull(request.enableCustomVpcWhitelist)) {
+    body['enableCustomVpcWhitelist'] = request.enableCustomVpcWhitelist;
+  }
   if (!$isNull(request.instructions)) {
     body['instructions'] = request.instructions;
   }
@@ -1591,11 +1682,17 @@ async function updateApiMcpServerWithOptions(request: UpdateApiMcpServerRequest,
   if (!$isNull(request.prompts)) {
     body['prompts'] = request.prompts;
   }
+  if (!$isNull(request.publicAccess)) {
+    body['publicAccess'] = request.publicAccess;
+  }
   if (!$isNull(request.systemTools)) {
     body['systemTools'] = request.systemTools;
   }
   if (!$isNull(request.terraformTools)) {
     body['terraformTools'] = request.terraformTools;
+  }
+  if (!$isNull(request.vpcWhitelists)) {
+    body['vpcWhitelists'] = request.vpcWhitelists;
   }
 
   var req = new OpenApiUtil.OpenApiRequest{ 
@@ -1627,5 +1724,69 @@ async function updateApiMcpServer(request: UpdateApiMcpServerRequest): UpdateApi
   var runtime = new $RuntimeOptions{};
   var headers : map[string]string = {};
   return updateApiMcpServerWithOptions(request, headers, runtime);
+}
+
+model UpdateApiMcpServerUserConfigRequest {
+  enablePublicAccess?: boolean(name='enablePublicAccess', example='true'),
+  vpcWhitelists?: [ string ](name='vpcWhitelists'),
+}
+
+model UpdateApiMcpServerUserConfigResponseBody = {
+  requestId?: string(name='requestId', example='9BFC4AC1-6BE4-5405-BDEC-CA288D404812'),
+}
+
+model UpdateApiMcpServerUserConfigResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: UpdateApiMcpServerUserConfigResponseBody(name='body'),
+}
+
+/**
+ * @summary 修改用户全局API MCP Server配置
+ *
+ * @param request UpdateApiMcpServerUserConfigRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return UpdateApiMcpServerUserConfigResponse
+ */
+@context("updateApiMcpServerUserConfigWithContext")
+async function updateApiMcpServerUserConfigWithOptions(request: UpdateApiMcpServerUserConfigRequest, headers: map[string]string, runtime: $RuntimeOptions): UpdateApiMcpServerUserConfigResponse {
+  request.validate();
+  var body : map[string]any = {};
+  if (!$isNull(request.enablePublicAccess)) {
+    body['enablePublicAccess'] = request.enablePublicAccess;
+  }
+  if (!$isNull(request.vpcWhitelists)) {
+    body['vpcWhitelists'] = request.vpcWhitelists;
+  }
+
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    headers = headers,
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'UpdateApiMcpServerUserConfig',
+    version = '2024-11-30',
+    protocol = 'HTTPS',
+    pathname = `/userconfig/update`,
+    method = 'PATCH',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 修改用户全局API MCP Server配置
+ *
+ * @param request UpdateApiMcpServerUserConfigRequest
+ * @return UpdateApiMcpServerUserConfigResponse
+ */
+async function updateApiMcpServerUserConfig(request: UpdateApiMcpServerUserConfigRequest): UpdateApiMcpServerUserConfigResponse {
+  var runtime = new $RuntimeOptions{};
+  var headers : map[string]string = {};
+  return updateApiMcpServerUserConfigWithOptions(request, headers, runtime);
 }
 
