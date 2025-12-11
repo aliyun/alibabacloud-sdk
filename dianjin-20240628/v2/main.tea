@@ -804,6 +804,7 @@ model CreateQualityCheckTaskRequest {
   metaData?: map[string]string(name='metaData'),
   qualityGroup?: [ string ](name='qualityGroup'),
   requestId?: string(name='requestId', description='This parameter is required.', example='0FC6636E-380A-5369-AE01-D1C15BB9B254'),
+  sceneCode?: string(name='sceneCode'),
   type?: string(name='type', description='This parameter is required.', example='0'),
 }
 
@@ -852,6 +853,9 @@ async function createQualityCheckTaskWithOptions(workspaceId: string, request: C
   }
   if (!$isNull(request.requestId)) {
     body['requestId'] = request.requestId;
+  }
+  if (!$isNull(request.sceneCode)) {
+    body['sceneCode'] = request.sceneCode;
   }
   if (!$isNull(request.type)) {
     body['type'] = request.type;
@@ -1019,6 +1023,98 @@ async function deleteLibrary(workspaceId: string, request: DeleteLibraryRequest)
   var runtime = new $RuntimeOptions{};
   var headers : map[string]string = {};
   return deleteLibraryWithOptions(workspaceId, request, headers, runtime);
+}
+
+model EndToEndRealTimeDialogRequest {
+  asrModelId?: string(name='asrModelId', example='nls-base'),
+  inputFormat?: string(name='inputFormat', example='pcm'),
+  outputFormat?: string(name='outputFormat', example='wav'),
+  pitchRate?: int32(name='pitchRate', example='0'),
+  sampleRate?: string(name='sampleRate', example='SAMPLE_RATE_16K'),
+  speechRate?: int32(name='speechRate', example='0'),
+  ttsModelId?: string(name='ttsModelId', example='nls-base'),
+  voiceCode?: string(name='voiceCode', example='longxiaochun_v2'),
+  volume?: int32(name='volume', example='50'),
+}
+
+model EndToEndRealTimeDialogResponseBody = {
+  requestId?: string(name='requestId', example='1C98B466-D6E0-5252-A60B-F345CBB33DDB'),
+}
+
+model EndToEndRealTimeDialogResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: EndToEndRealTimeDialogResponseBody(name='body'),
+}
+
+/**
+ * @summary 端到端实时对话
+ *
+ * @param request EndToEndRealTimeDialogRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return EndToEndRealTimeDialogResponse
+ */
+@context("endToEndRealTimeDialogWithContext")
+async function endToEndRealTimeDialogWithOptions(workspaceId: string, request: EndToEndRealTimeDialogRequest, headers: map[string]string, runtime: $RuntimeOptions): EndToEndRealTimeDialogResponse {
+  request.validate();
+  var query : map[string]any = {};
+  if (!$isNull(request.asrModelId)) {
+    query['asrModelId'] = request.asrModelId;
+  }
+  if (!$isNull(request.inputFormat)) {
+    query['inputFormat'] = request.inputFormat;
+  }
+  if (!$isNull(request.outputFormat)) {
+    query['outputFormat'] = request.outputFormat;
+  }
+  if (!$isNull(request.pitchRate)) {
+    query['pitchRate'] = request.pitchRate;
+  }
+  if (!$isNull(request.sampleRate)) {
+    query['sampleRate'] = request.sampleRate;
+  }
+  if (!$isNull(request.speechRate)) {
+    query['speechRate'] = request.speechRate;
+  }
+  if (!$isNull(request.ttsModelId)) {
+    query['ttsModelId'] = request.ttsModelId;
+  }
+  if (!$isNull(request.voiceCode)) {
+    query['voiceCode'] = request.voiceCode;
+  }
+  if (!$isNull(request.volume)) {
+    query['volume'] = request.volume;
+  }
+
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'EndToEndRealTimeDialog',
+    version = '2024-06-28',
+    protocol = 'HTTPS',
+    pathname = `/${$URL.percentEncode(workspaceId)}/ws/realtime/dialog`,
+    method = 'GET',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 端到端实时对话
+ *
+ * @param request EndToEndRealTimeDialogRequest
+ * @return EndToEndRealTimeDialogResponse
+ */
+async function endToEndRealTimeDialog(workspaceId: string, request: EndToEndRealTimeDialogRequest): EndToEndRealTimeDialogResponse {
+  var runtime = new $RuntimeOptions{};
+  var headers : map[string]string = {};
+  return endToEndRealTimeDialogWithOptions(workspaceId, request, headers, runtime);
 }
 
 model EvictTaskRequest {
@@ -5188,14 +5284,14 @@ async function uploadDocumentAdvance(workspaceId: string, request: UploadDocumen
       file = fileObj,
       success_action_status = '201',
     };
-    _postOSSObject(authResponseBody['Bucket'], ossHeader);
+    _postOSSObject(authResponseBody['Bucket'], ossHeader, runtime);
     uploadDocumentReq.fileUrl = `http://${authResponseBody['Bucket']}.${authResponseBody['Endpoint']}/${authResponseBody['ObjectKey']}`;
   }
   var uploadDocumentResp = uploadDocumentWithOptions(workspaceId, uploadDocumentReq, headers, runtime);
   return uploadDocumentResp;
 }
 
-api _postOSSObject(bucketName: string, form: object): object {
+api _postOSSObject(bucketName: string, form: object, runtime: $RuntimeOptions): object {
   var boundary = $Form.getBoundary();
   __request.protocol = 'HTTPS';
   __request.method = 'POST';
@@ -5227,4 +5323,19 @@ api _postOSSObject(bucketName: string, form: object): object {
   return {
     ...respMap,
   };
+} runtime {
+  key = $string($default(runtime.key, @key)),
+  cert = $string($default(runtime.cert, @cert)),
+  ca = $string($default(runtime.ca, @ca)),
+  readTimeout = $number($default(runtime.readTimeout, @readTimeout)),
+  connectTimeout = $number($default(runtime.connectTimeout, @connectTimeout)),
+  httpProxy = $string($default(runtime.httpProxy, @httpProxy)),
+  httpsProxy = $string($default(runtime.httpsProxy, @httpsProxy)),
+  noProxy = $string($default(runtime.noProxy, @noProxy)),
+  socks5Proxy = $string($default(runtime.socks5Proxy, @socks5Proxy)),
+  socks5NetWork = $string($default(runtime.socks5NetWork, @socks5NetWork)),
+  maxIdleConns = $number($default(runtime.maxIdleConns, @maxIdleConns)),
+  retryOptions = @retryOptions,
+  ignoreSSL = $boolean($default(runtime.ignoreSSL, false)),
+  tlsMinVersion = @tlsMinVersion
 }

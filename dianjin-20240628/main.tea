@@ -800,6 +800,7 @@ model CreateQualityCheckTaskRequest {
   metaData?: map[string]string(name='metaData'),
   qualityGroup?: [ string ](name='qualityGroup'),
   requestId?: string(name='requestId', description='This parameter is required.', example='0FC6636E-380A-5369-AE01-D1C15BB9B254'),
+  sceneCode?: string(name='sceneCode'),
   type?: string(name='type', description='This parameter is required.', example='0'),
 }
 
@@ -847,6 +848,9 @@ async function createQualityCheckTaskWithOptions(workspaceId: string, request: C
   }
   if (!Util.isUnset(request.requestId)) {
     body['requestId'] = request.requestId;
+  }
+  if (!Util.isUnset(request.sceneCode)) {
+    body['sceneCode'] = request.sceneCode;
   }
   if (!Util.isUnset(request.type)) {
     body['type'] = request.type;
@@ -1012,6 +1016,97 @@ async function deleteLibrary(workspaceId: string, request: DeleteLibraryRequest)
   var runtime = new Util.RuntimeOptions{};
   var headers : map[string]string = {};
   return deleteLibraryWithOptions(workspaceId, request, headers, runtime);
+}
+
+model EndToEndRealTimeDialogRequest {
+  asrModelId?: string(name='asrModelId', example='nls-base'),
+  inputFormat?: string(name='inputFormat', example='pcm'),
+  outputFormat?: string(name='outputFormat', example='wav'),
+  pitchRate?: int32(name='pitchRate', example='0'),
+  sampleRate?: string(name='sampleRate', example='SAMPLE_RATE_16K'),
+  speechRate?: int32(name='speechRate', example='0'),
+  ttsModelId?: string(name='ttsModelId', example='nls-base'),
+  voiceCode?: string(name='voiceCode', example='longxiaochun_v2'),
+  volume?: int32(name='volume', example='50'),
+}
+
+model EndToEndRealTimeDialogResponseBody = {
+  requestId?: string(name='requestId', example='1C98B466-D6E0-5252-A60B-F345CBB33DDB'),
+}
+
+model EndToEndRealTimeDialogResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: EndToEndRealTimeDialogResponseBody(name='body'),
+}
+
+/**
+ * @summary 端到端实时对话
+ *
+ * @param request EndToEndRealTimeDialogRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return EndToEndRealTimeDialogResponse
+ */
+async function endToEndRealTimeDialogWithOptions(workspaceId: string, request: EndToEndRealTimeDialogRequest, headers: map[string]string, runtime: Util.RuntimeOptions): EndToEndRealTimeDialogResponse {
+  Util.validateModel(request);
+  var query : map[string]any = {};
+  if (!Util.isUnset(request.asrModelId)) {
+    query['asrModelId'] = request.asrModelId;
+  }
+  if (!Util.isUnset(request.inputFormat)) {
+    query['inputFormat'] = request.inputFormat;
+  }
+  if (!Util.isUnset(request.outputFormat)) {
+    query['outputFormat'] = request.outputFormat;
+  }
+  if (!Util.isUnset(request.pitchRate)) {
+    query['pitchRate'] = request.pitchRate;
+  }
+  if (!Util.isUnset(request.sampleRate)) {
+    query['sampleRate'] = request.sampleRate;
+  }
+  if (!Util.isUnset(request.speechRate)) {
+    query['speechRate'] = request.speechRate;
+  }
+  if (!Util.isUnset(request.ttsModelId)) {
+    query['ttsModelId'] = request.ttsModelId;
+  }
+  if (!Util.isUnset(request.voiceCode)) {
+    query['voiceCode'] = request.voiceCode;
+  }
+  if (!Util.isUnset(request.volume)) {
+    query['volume'] = request.volume;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'EndToEndRealTimeDialog',
+    version = '2024-06-28',
+    protocol = 'HTTPS',
+    pathname = `/${OpenApiUtil.getEncodeParam(workspaceId)}/ws/realtime/dialog`,
+    method = 'GET',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 端到端实时对话
+ *
+ * @param request EndToEndRealTimeDialogRequest
+ * @return EndToEndRealTimeDialogResponse
+ */
+async function endToEndRealTimeDialog(workspaceId: string, request: EndToEndRealTimeDialogRequest): EndToEndRealTimeDialogResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return endToEndRealTimeDialogWithOptions(workspaceId, request, headers, runtime);
 }
 
 model EvictTaskRequest {
@@ -4799,14 +4894,14 @@ async function uploadDocumentAdvance(workspaceId: string, request: UploadDocumen
       file = fileObj,
       success_action_status = '201',
     };
-    _postOSSObject(authResponseBody['Bucket'], ossHeader);
+    _postOSSObject(authResponseBody['Bucket'], ossHeader, runtime);
     uploadDocumentReq.fileUrl = `http://${authResponseBody['Bucket']}.${authResponseBody['Endpoint']}/${authResponseBody['ObjectKey']}`;
   }
   var uploadDocumentResp = uploadDocumentWithOptions(workspaceId, uploadDocumentReq, headers, runtime);
   return uploadDocumentResp;
 }
 
-api _postOSSObject(bucketName: string, data: object): object {
+api _postOSSObject(bucketName: string, data: object, runtime: Util.RuntimeOptions): object {
   var form = Util.assertAsMap(data);
   var boundary = FileForm.getBoundary();
   var host = Util.assertAsString(form.host);
@@ -4840,4 +4935,27 @@ api _postOSSObject(bucketName: string, data: object): object {
   return {
     ...respMap,
   };
+} runtime {
+  timeouted = 'retry',
+  key = Util.defaultString(runtime.key, @key),
+  cert = Util.defaultString(runtime.cert, @cert),
+  ca = Util.defaultString(runtime.ca, @ca),
+  readTimeout = Util.defaultNumber(runtime.readTimeout, @readTimeout),
+  connectTimeout = Util.defaultNumber(runtime.connectTimeout, @connectTimeout),
+  httpProxy = Util.defaultString(runtime.httpProxy, @httpProxy),
+  httpsProxy = Util.defaultString(runtime.httpsProxy, @httpsProxy),
+  noProxy = Util.defaultString(runtime.noProxy, @noProxy),
+  socks5Proxy = Util.defaultString(runtime.socks5Proxy, @socks5Proxy),
+  socks5NetWork = Util.defaultString(runtime.socks5NetWork, @socks5NetWork),
+  maxIdleConns = Util.defaultNumber(runtime.maxIdleConns, @maxIdleConns),
+  retry = {
+    retryable = runtime.autoretry,
+    maxAttempts = Util.defaultNumber(runtime.maxAttempts, 3)
+  },
+  backoff = {
+    policy = Util.defaultString(runtime.backoffPolicy, 'no'),
+    period = Util.defaultNumber(runtime.backoffPeriod, 1)
+  },
+  ignoreSSL = OpenApi.defaultAny(runtime.ignoreSSL, false),
+  tlsMinVersion = @tlsMinVersion
 }
