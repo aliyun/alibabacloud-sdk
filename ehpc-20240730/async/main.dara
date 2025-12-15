@@ -122,17 +122,17 @@ model SharedStorageTemplate {
 }
 
 model AttachNodesRequest {
-  clusterId: string(name='ClusterId', description='The cluster ID.
+  clusterId: string(name='ClusterId', description='The ID of the cluster.
 
 This parameter is required.', example='ehpc-hz-xxxxxxx', position='Query'),
   computeNode: {
     imageId: string(name='ImageId', description='The image ID. This image will be used to replace the original system disk image.
 
 This parameter is required.', example='m-bp1h765oyqyxxxxxxxxx'),
-    instanceIds: [ string ](name='InstanceIds', description='The instance IDs.
+    instanceIds: [ string ](name='InstanceIds', description='The IDs of ECS instances.
 
 This parameter is required.'),
-  }(name='ComputeNode', description='The compute node information.
+  }(name='ComputeNode', description='The list of compute nodes.
 
 This parameter is required.', shrink='json', position='Query'),
   queueName?: string(name='QueueName', description='The name of the queue to which the instance is to be added.', example='comp', position='Query'),
@@ -140,7 +140,7 @@ This parameter is required.', shrink='json', position='Query'),
 
 model AttachNodesResponseBody = {
   requestId?: string(name='RequestId', description='The request ID.', example='2263XXXX-XXXX-XXXX-XXXX-XXXX2448XXXX'),
-  success?: boolean(name='Success', description='Indicates whether the request is successful.
+  success?: boolean(name='Success', description='Indicates whether the request was successful.
 
 Valid values:
 
@@ -313,7 +313,7 @@ For more information, see [Basic security groups and advanced security groups](h
     DNS?: {
       type?: string(name='Type', description='The domain name resolution type.
 
-Valid value:
+Valid values:
 
 *   NIS', example='NIS'),
       version?: string(name='Version', description='The version of the domain name resolution service.', example='2.31'),
@@ -321,7 +321,7 @@ Valid value:
     directoryService?: {
       type?: string(name='Type', description='The type of the domain account.
 
-Valid value:
+Valid values:
 
 *   NIS', example='NIS'),
       version?: string(name='Version', description='The version of the domain account service.', example='2.31'),
@@ -1039,13 +1039,27 @@ model GetClusterResponseBody = {
       version?: string(name='Version', description='The version of the domain account service.', example='2.31'),
     }(name='DirectoryService', description='The information about the domain account service.'),
     managerNode?: {
+      autoRenew?: boolean(name='AutoRenew'),
+      autoRenewPeriod?: long(name='AutoRenewPeriod', example='Month'),
+      duration?: long(name='Duration', example='1'),
+      enableHt?: boolean(name='EnableHt'),
       expiredTime?: string(name='ExpiredTime', description='The expiration time of the management node.', example='2099-12-31T15:59Z'),
+      imageId?: string(name='ImageId', example='aliyun_2_1903_x64_20G_alibase_20200324.vhd'),
       instanceChargeType?: string(name='InstanceChargeType', description='The instance billing method of the management node. Valid values:
 
 *   PostPaid: pay-as-you-go
 *   PrePaid: subscription', example='PostPaid'),
       instanceId?: string(name='InstanceId', description='The instance ID of the management node.', example='i-bp1a170jgea1vl******'),
       instanceType?: string(name='InstanceType', description='The instance type of the management node.', example='ecs.g6.4xlarge'),
+      period?: long(name='Period', example='1'),
+      periodUnit?: string(name='PeriodUnit', example='Month'),
+      spotPriceLimit?: float(name='SpotPriceLimit', example='1'),
+      spotStrategy?: string(name='SpotStrategy', example='NoSpot'),
+      systemDisk?: {
+        category?: string(name='Category', example='cloud_ssd'),
+        level?: string(name='Level', example='PL0'),
+        size?: long(name='Size', example='40'),
+      }(name='SystemDisk'),
     }(name='ManagerNode', description='The configurations of the management node.'),
     scheduler?: {
       status?: string(name='Status', description='The scheduler state. Valid values:
@@ -1892,7 +1906,7 @@ async function listCommonLogs(request: ListCommonLogsRequest): ListCommonLogsRes
 
 model ListInstalledSoftwaresRequest {
   clusterId?: string(name='ClusterId', description='The cluster ID.', example='ehpc-hz-FYUr32****', position='Query'),
-  pageNumber?: string(name='PageNumber', description='The page number of the page to return.', example='1', position='Query'),
+  pageNumber?: string(name='PageNumber', description='The page number.', example='1', position='Query'),
   pageSize?: string(name='PageSize', description='The number of entries per page.', example='10', position='Query'),
 }
 
@@ -2209,6 +2223,41 @@ async function listQueues(request: ListQueuesRequest): ListQueuesResponse {
   return @handler.do('RPC', 'ListQueues', 'POST', '/', 'json', false, 'json', request);
 }
 
+model ListRegionsRequest {
+  acceptLanguage?: string(name='AcceptLanguage', example='zh-CN', position='Query'),
+  maxResults?: int32(name='MaxResults', example='20', position='Query'),
+  nextToken?: string(name='NextToken', example='caeba0bbb2be03f84eb48b699f0axxxx', position='Query'),
+  specCode?: string(name='SpecCode', example='Next', position='Query'),
+}
+
+model ListRegionsResponseBody = {
+  maxResults?: int32(name='MaxResults', example='20'),
+  nextToken?: string(name='NextToken', example='caeba0bbb2be03f84eb48b699f0axxxx'),
+  regions?: [ 
+    {
+      localName?: string(name='LocalName'),
+      regionId?: string(name='RegionId', example='cn-hangzhou'),
+    }
+  ](name='Regions'),
+  requestId?: string(name='RequestId', example='04F0F334-1335-436C-A1D7-6C044FE73368'),
+  totalCount?: int32(name='TotalCount', example='16'),
+}
+
+model ListRegionsResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ListRegionsResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of ListRegions  ListRegionsRequest
+  * @return ListRegionsResponse
+ */
+async function listRegions(request: ListRegionsRequest): ListRegionsResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'ListRegions', 'POST', '/', 'json', false, 'json', request);
+}
+
 model ListSharedStoragesRequest {
   clusterId: string(name='ClusterId', description='The cluster ID.
 
@@ -2288,7 +2337,7 @@ model ListSoftwaresRequest {
       osTag?: string(name='OsTag', description='The image tag.', example='CentOS_7.9_64'),
     }
   ](name='OsInfos', description='The operating system (OS) information.', position='Query'),
-  pageNumber?: string(name='PageNumber', description='The page number of the page to return.', example='1', position='Query'),
+  pageNumber?: string(name='PageNumber', description='The page number.', example='1', position='Query'),
   pageSize?: string(name='PageSize', description='The number of entries per page.', example='10', position='Query'),
 }
 
@@ -2347,7 +2396,7 @@ model ListUsersRequest {
   clusterId: string(name='ClusterId', description='The cluster ID.
 
 This parameter is required.', example='ehpc-hz-FYUr32****', position='Query'),
-  pageNumber?: int32(name='PageNumber', description='The page number of the page to return.
+  pageNumber?: int32(name='PageNumber', description='The page number.
 
 Pages start from page 1.
 
@@ -2615,13 +2664,13 @@ You can call the [ListClusters](https://help.aliyun.com/document_detail/87116.ht
 *   false', example='true'),
     enableScaleOut?: boolean(name='EnableScaleOut', description='Specifies whether to enable auto scale-out for the queue. Valid values:
 
-*   true: deletion protection is enabled.
-*   false: disables ASM.', example='true'),
+*   true
+*   false', example='true'),
     hostnamePrefix?: string(name='HostnamePrefix', description='The hostname prefix of the added compute nodes.', example='compute'),
     hostnameSuffix?: string(name='HostnameSuffix', description='The hostname suffix of the compute nodes in the queue.', example='hpc'),
     initialCount?: int32(name='InitialCount', description='The initial number of compute nodes in the queue.', example='0'),
     interConnect?: string(name='InterConnect', description='The type of the network for interconnecting compute nodes in the queue.', example='erdma'),
-    keepAliveNodes?: [ string ](name='KeepAliveNodes', description='The nodes for which deletion protection is enabled in the queue.'),
+    keepAliveNodes?: [ string ](name='KeepAliveNodes', description='List of excluded compute nodes in the queue.'),
     maxCount?: int32(name='MaxCount', description='The maximum number of compute nodes that the queue can contain.', example='1000'),
     maxCountPerCycle?: long(name='MaxCountPerCycle', description='The minimum number of compute nodes that are added to the queue during an automatic scale-out.', example='99'),
     minCount?: int32(name='MinCount', description='The minimum number of compute nodes that the queue must contain.', example='0'),
