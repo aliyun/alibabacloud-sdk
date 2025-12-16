@@ -8879,10 +8879,13 @@ model ListCloudAppsRequest {
   appName?: string(name='AppName', example='com.aaa.bbb'),
   appVersion?: string(name='AppVersion', example='1.0'),
   endTime?: string(name='EndTime'),
+  latestVersionOnly?: boolean(name='LatestVersionOnly'),
   pageNumber?: long(name='PageNumber', example='1'),
   pageSize?: long(name='PageSize', example='10'),
+  pkgLabel?: string(name='PkgLabel'),
   pkgType?: string(name='PkgType'),
   startTime?: string(name='StartTime'),
+  status?: string(name='Status'),
 }
 
 model ListCloudAppsResponseBody = {
@@ -13107,10 +13110,14 @@ model UpdateCloudAppInfoRequest {
   appId?: string(name='AppId', description='This parameter is required.', example='cap-b06b26edfhytbn b94a75ae1a79efc90eb'),
   description?: string(name='Description'),
   patch?: {
+    asStablePatch?: boolean(name='AsStablePatch'),
     downloadURL?: string(name='DownloadURL', example='https://test_host/app/test-tar-pkg.tar'),
     md5?: string(name='Md5', example='346f6404395adfg5bae1e45g4e943bf7'),
     patchName?: string(name='PatchName', example='p1'),
+    pkgFormat?: string(name='PkgFormat', example='tar'),
+    renderingInstanceId?: string(name='RenderingInstanceId'),
   }(name='Patch'),
+  pkgLabels?: [ string ](name='PkgLabels'),
   stablePatchId?: string(name='StablePatchId', example='patch-03fa76e8e13a49b6a966b063d9d309b4'),
 }
 
@@ -13118,6 +13125,7 @@ model UpdateCloudAppInfoShrinkRequest {
   appId?: string(name='AppId', description='This parameter is required.', example='cap-b06b26edfhytbn b94a75ae1a79efc90eb'),
   description?: string(name='Description'),
   patchShrink?: string(name='Patch'),
+  pkgLabelsShrink?: string(name='PkgLabels'),
   stablePatchId?: string(name='StablePatchId', example='patch-03fa76e8e13a49b6a966b063d9d309b4'),
 }
 
@@ -13146,6 +13154,9 @@ async function updateCloudAppInfoWithOptions(tmpReq: UpdateCloudAppInfoRequest, 
   if (!Util.isUnset(tmpReq.patch)) {
     request.patchShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.patch, 'Patch', 'json');
   }
+  if (!Util.isUnset(tmpReq.pkgLabels)) {
+    request.pkgLabelsShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.pkgLabels, 'PkgLabels', 'json');
+  }
   var query = {};
   if (!Util.isUnset(request.appId)) {
     query['AppId'] = request.appId;
@@ -13153,14 +13164,19 @@ async function updateCloudAppInfoWithOptions(tmpReq: UpdateCloudAppInfoRequest, 
   if (!Util.isUnset(request.description)) {
     query['Description'] = request.description;
   }
-  if (!Util.isUnset(request.patchShrink)) {
-    query['Patch'] = request.patchShrink;
+  if (!Util.isUnset(request.pkgLabelsShrink)) {
+    query['PkgLabels'] = request.pkgLabelsShrink;
   }
   if (!Util.isUnset(request.stablePatchId)) {
     query['StablePatchId'] = request.stablePatchId;
   }
+  var body : map[string]any = {};
+  if (!Util.isUnset(request.patchShrink)) {
+    body['Patch'] = request.patchShrink;
+  }
   var req = new OpenApi.OpenApiRequest{ 
     query = OpenApiUtil.query(query),
+    body = OpenApiUtil.parseToMap(body),
   };
   var params = new OpenApi.Params{
     action = 'UpdateCloudAppInfo',
@@ -13568,6 +13584,18 @@ model UploadCloudAppRequest {
   downloadUrl?: string(name='DownloadUrl', description='This parameter is required.', example='https://xxx.xxx.xxx.apk'),
   md5?: string(name='Md5', description='This parameter is required.', example='0CFBB7BD10CDD7279642ADAB8FEF3DEE'),
   pkgFormat?: string(name='PkgFormat'),
+  pkgLabels?: [ string ](name='PkgLabels'),
+  pkgType?: string(name='PkgType'),
+}
+
+model UploadCloudAppShrinkRequest {
+  appName?: string(name='AppName', description='This parameter is required.', example='com.aaa.bbb'),
+  appVersion?: string(name='AppVersion', description='This parameter is required.', example='1.1.1'),
+  description?: string(name='Description'),
+  downloadUrl?: string(name='DownloadUrl', description='This parameter is required.', example='https://xxx.xxx.xxx.apk'),
+  md5?: string(name='Md5', description='This parameter is required.', example='0CFBB7BD10CDD7279642ADAB8FEF3DEE'),
+  pkgFormat?: string(name='PkgFormat'),
+  pkgLabelsShrink?: string(name='PkgLabels'),
   pkgType?: string(name='PkgType'),
 }
 
@@ -13585,12 +13613,17 @@ model UploadCloudAppResponse = {
 /**
  * @summary 应用上架
  *
- * @param request UploadCloudAppRequest
+ * @param tmpReq UploadCloudAppRequest
  * @param runtime runtime options for this request RuntimeOptions
  * @return UploadCloudAppResponse
  */
-async function uploadCloudAppWithOptions(request: UploadCloudAppRequest, runtime: Util.RuntimeOptions): UploadCloudAppResponse {
-  Util.validateModel(request);
+async function uploadCloudAppWithOptions(tmpReq: UploadCloudAppRequest, runtime: Util.RuntimeOptions): UploadCloudAppResponse {
+  Util.validateModel(tmpReq);
+  var request = new UploadCloudAppShrinkRequest{};
+  OpenApiUtil.convert(tmpReq, request);
+  if (!Util.isUnset(tmpReq.pkgLabels)) {
+    request.pkgLabelsShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.pkgLabels, 'PkgLabels', 'json');
+  }
   var query = {};
   if (!Util.isUnset(request.appName)) {
     query['AppName'] = request.appName;
@@ -13609,6 +13642,9 @@ async function uploadCloudAppWithOptions(request: UploadCloudAppRequest, runtime
   }
   if (!Util.isUnset(request.pkgFormat)) {
     query['PkgFormat'] = request.pkgFormat;
+  }
+  if (!Util.isUnset(request.pkgLabelsShrink)) {
+    query['PkgLabels'] = request.pkgLabelsShrink;
   }
   if (!Util.isUnset(request.pkgType)) {
     query['PkgType'] = request.pkgType;
