@@ -1167,6 +1167,7 @@ model CreateVaultRequest {
 *   **HBR_PRIVATE**: The source data is encrypted by using the built-in encryption method of Hybrid Backup Recovery (HBR).
 *   **KMS**: The source data is encrypted by using Key Management Service (KMS).', example='KMS', position='Query'),
   kmsKeyId?: string(name='KmsKeyId', description='The customer master key (CMK) created in KMS or the alias of the key. This parameter is required only if you set the EncryptType parameter to KMS.', example='alias/yzs-hhht', position='Query'),
+  replication?: boolean(name='Replication', position='Query'),
   vaultName: string(name='VaultName', description='The name of the backup vault. The name must be 1 to 64 characters in length.
 
 This parameter is required.', example='backupvaultname', position='Query'),
@@ -1215,6 +1216,35 @@ model CreateVaultResponse = {
 async function createVault(request: CreateVaultRequest): CreateVaultResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RPC', 'CreateVault', 'POST', '/', 'json', false, 'json', request);
+}
+
+model CreateVaultReplicationRequest {
+  replicationSourceRegionId?: string(name='ReplicationSourceRegionId', example='cn-hangzhou', position='Query'),
+  replicationSourceVaultId: string(name='ReplicationSourceVaultId', description='This parameter is required.', example='v-*********************', position='Query'),
+  replicationTargetVaultId: string(name='ReplicationTargetVaultId', description='This parameter is required.', example='r-*********************', position='Query'),
+}
+
+model CreateVaultReplicationResponseBody = {
+  code?: string(name='Code', example='200'),
+  message?: string(name='Message', example='successful'),
+  requestId?: string(name='RequestId', example='280DD872-EE25-52E8-9CB4-491067173DD0'),
+  success?: boolean(name='Success', example='true'),
+  taskId?: string(name='TaskId', example='t-*********************'),
+}
+
+model CreateVaultReplicationResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: CreateVaultReplicationResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of CreateVaultReplication  CreateVaultReplicationRequest
+  * @return CreateVaultReplicationResponse
+ */
+async function createVaultReplication(request: CreateVaultReplicationRequest): CreateVaultReplicationResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'CreateVaultReplication', 'POST', '/', 'json', false, 'json', request);
 }
 
 model DeleteAirEcsInstanceRequest {
@@ -1664,6 +1694,34 @@ model DeleteVaultResponse = {
 async function deleteVault(request: DeleteVaultRequest): DeleteVaultResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RPC', 'DeleteVault', 'POST', '/', 'json', false, 'json', request);
+}
+
+model DeleteVaultReplicationRequest {
+  replicationSourceRegionId?: string(name='ReplicationSourceRegionId', example='cn-hangzhou', position='Query'),
+  replicationSourceVaultId: string(name='ReplicationSourceVaultId', description='This parameter is required.', example='v-*********************', position='Query'),
+  replicationTargetVaultId: string(name='ReplicationTargetVaultId', description='This parameter is required.', example='r-*********************', position='Query'),
+}
+
+model DeleteVaultReplicationResponseBody = {
+  code?: string(name='Code', example='200'),
+  message?: string(name='Message', example='successful'),
+  requestId?: string(name='RequestId', example='C438054F-9088-5D1B-AED0-0EA86D9C65F4'),
+  success?: boolean(name='Success', example='true'),
+}
+
+model DeleteVaultReplicationResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: DeleteVaultReplicationResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of DeleteVaultReplication  DeleteVaultReplicationRequest
+  * @return DeleteVaultReplicationResponse
+ */
+async function deleteVaultReplication(request: DeleteVaultReplicationRequest): DeleteVaultReplicationResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'DeleteVaultReplication', 'POST', '/', 'json', false, 'json', request);
 }
 
 model DescribeBackupClientsRequest {
@@ -3637,6 +3695,7 @@ async function describeVaultReplicationRegions(request: DescribeVaultReplication
 model DescribeVaultsRequest {
   pageNumber?: int32(name='PageNumber', description='The page number. Pages start from page 1. Default value: 1.', example='1', minimum=1, position='Query'),
   pageSize?: int32(name='PageSize', description='The number of entries per page. Valid values: 1 to 99. Default value: 10.', example='10', minimum=1, maximum=100, position='Query'),
+  replication?: boolean(name='Replication', position='Query'),
   resourceGroupId?: string(name='ResourceGroupId', description='Resource group ID.', example='rg-*********************', position='Query'),
   status?: string(name='Status', description='The status of the backup vault. Valid values:
 
@@ -3652,6 +3711,7 @@ model DescribeVaultsRequest {
   ](name='Tag', description='Tag information. Supports up to 20 tags.', example='6a745bceffb042959b3b5206d6f12ad1', position='Body'),
   vaultId?: string(name='VaultId', description='Backup vault ID.', example='v-*********************', position='Query'),
   vaultName?: string(name='VaultName', description='The name of the backup vault. The name must be 1 to 64 characters in length.', example='vaultname', position='Query'),
+  vaultOwnerId?: long(name='VaultOwnerId', position='Query'),
   vaultRegionId?: string(name='VaultRegionId', description='The region ID to which the backup vault belongs.', example='cn-shanghai', position='Query'),
   vaultType?: string(name='VaultType', description='Backup repository type. The values are as follows: 
 - **STANDARD**: Represents a standard repository, which can be used for ECS file backups, OSS backups, NAS backups, etc. 
@@ -3727,15 +3787,22 @@ model DescribeVaultsResponseBody = {
         historicalReplicationProgress?: int32(name='HistoricalReplicationProgress', description='The progress of historical data synchronization from the backup vault to the mirror vault. Valid values: 0 to 100.', example='100'),
         newReplicationProgress?: long(name='NewReplicationProgress', description='The latest synchronization time of incremental data in the mirror vault.', example='1579413159'),
       }(name='ReplicationProgress', description='The progress of data synchronization from the backup vault to the mirror vault.'),
+      replicationSourceOwnerId?: long(name='ReplicationSourceOwnerId'),
       replicationSourceRegionId?: string(name='ReplicationSourceRegionId', description='The ID of the region in which the source vault resides. This parameter is valid only for remote backup vaults.', example='v-*********************'),
       replicationSourceVault?: boolean(name='ReplicationSourceVault', description='Indicate whether the backup vault is the source vault that corresponds to the remote backup vault. Valid values:
 
 *   true
 *   false', example='false'),
       replicationSourceVaultId?: string(name='ReplicationSourceVaultId', description='The ID of the source vault that corresponds to the remote backup vault.', example='v-*********************'),
+      replicationStatus?: string(name='ReplicationStatus'),
+      replicationTargetOwnerId?: long(name='ReplicationTargetOwnerId'),
       replicationTargetRegionId?: string(name='ReplicationTargetRegionId', description='Target region for remote backup repository.', example='cn-shanghai'),
+      replicationTargetVaultId?: string(name='ReplicationTargetVaultId'),
       resourceGroupId?: string(name='ResourceGroupId', description='The ID of the resource group.', example='rg-*********************'),
       retention?: long(name='Retention', description='The retention period of the backup vault. Unit: days.', example='2'),
+      rsTargetAccountIds?: {
+        rsTargetAccountId?: [ long ](name='RsTargetAccountId')
+      }(name='RsTargetAccountIds'),
       searchEnabled?: boolean(name='SearchEnabled', description='Indicates whether the backup search feature is enabled.', example='true'),
       snapshotCount?: long(name='SnapshotCount', description='The number of snapshots in the backup vault.', example='0'),
       sourceTypes?: {
@@ -3773,6 +3840,7 @@ model DescribeVaultsResponseBody = {
       updatedTime?: long(name='UpdatedTime', description='The time when the backup vault was updated. The value is a UNIX timestamp. Unit: seconds.', example='1554347313'),
       vaultId?: string(name='VaultId', description='The ID of the backup vault.', example='v-*********************'),
       vaultName?: string(name='VaultName', description='The name of the backup vault.', example='vaultname'),
+      vaultOwnerId?: long(name='VaultOwnerId'),
       vaultRegionId?: string(name='VaultRegionId', description='The ID of the region in which the backup vault resides.', example='cn-shanghai'),
       vaultStatusMessage?: string(name='VaultStatusMessage', description='The status message that is returned when the backup vault is in the ERROR state. This parameter is valid only for remote backup vaults. Valid values:
 
