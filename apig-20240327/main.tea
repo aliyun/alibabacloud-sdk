@@ -752,6 +752,36 @@ model ResourceStatistic {
   resourceType?: string(name='resourceType'),
 }
 
+model RiskCheckResults {
+  checkTime?: long(name='checkTime'),
+  gatewayId?: string(name='gatewayId', description='网关实例的唯一标识符', example='gw-0364f863b1a04474911b48cd6d51d03d'),
+  metadata?: {
+    clusterType?: string(name='clusterType', example='Ingress'),
+    replica?: int32(name='replica', example='3'),
+    spec?: string(name='spec', example='apigw.small.x1'),
+    version?: string(name='version', example='2.0.14'),
+  }(name='metadata', description='实例的基本信息'),
+  riskDetails?: [ 
+    {
+      checkModule?: string(name='checkModule', description='执行检测的模块名称', example='BaseInfo'),
+      data?: map[string]string(name='data', description='风险相关的详细数据，不同风险类型数据结构不同'),
+      description?: string(name='description', description='风险的详细描述，JSON字符串格式', example='{"desc":"单节点实例存在架构风险，单点故障会导致服务不可用。建议扩容到2节点及以上。"}'),
+      isNoticeMute?: boolean(name='isNoticeMute', description='该风险项的告警通知是否已被屏蔽', example='false'),
+      riskCode?: string(name='riskCode', description='风险项的唯一标识码', example='30010010001'),
+      riskLevel?: string(name='riskLevel', description='该风险项的等级，可选值：LOW、MEDIUM、HIGH、CRITICAL', example='HIGH'),
+      riskName?: string(name='riskName', description='风险项的名称', example='单节点架构风险'),
+      riskType?: string(name='riskType', description='风险分类，可选值：SYSTEM（系统风险）、VERSION（版本风险）、SAFE（安全风险）、CAPACITY（容量风险）', example='SYSTEM'),
+      situation?: string(name='situation', description='当前实例的风险现状，JSON字符串格式', example='{"desc":"集群节点数为1，不具备高可用能力"}'),
+      suggestion?: string(name='suggestion', description='针对该风险的优化建议，JSON字符串格式，包含描述和操作链接', example='{"desc":"扩容到2节点及以上","links":[{"descEn":"click to upgrade specification","type":"upgrade","desc":"点击扩容"}]}'),
+    }
+  ](name='riskDetails', description='详细的风险项信息列表'),
+  riskLevel?: string(name='riskLevel', description='整体风险等级，可选值：LOW（低风险）、MEDIUM（中风险）、HIGH（高风险）、CRITICAL（严重风险）', example='MEDIUM'),
+  score?: int32(name='score', description='风险综合评分，取值范围0-100分，分数越高表示风险越低', example='85'),
+  snapshotTime?: long(name='snapshotTime'),
+  status?: string(name='status', description='风险检测状态，可选值：SUCCESS（成功）、FAIL（失败）、RUNNING（运行中）', example='SUCCESS'),
+  totalRisk?: int32(name='totalRisk', description='检测到的风险项总数量', example='1'),
+}
+
 model Service {
   addresses?: [ string ](name='addresses'),
   agentServiceConfig?: AgentServiceConfig(name='agentServiceConfig'),
@@ -4857,7 +4887,7 @@ async function getPolicyAttachment(policyAttachmentId: string): GetPolicyAttachm
 }
 
 model GetResourceOverviewRequest {
-  gatewayType?: string(name='gatewayType'),
+  gatewayType?: string(name='gatewayType', example='AI'),
 }
 
 model GetResourceOverviewResponseBody = {
@@ -4871,6 +4901,21 @@ model GetResourceOverviewResponseBody = {
       runningCount?: long(name='runningCount', description='Number of running gateways.', example='1'),
       totalCount?: long(name='totalCount', description='Number of gateway instances.', example='1'),
     }(name='gateway', description='Gateway information.'),
+    riskOverview?: [ 
+      {
+        count?: string(name='count', example='1'),
+        riskDetails?: [ 
+          {
+            gatewayId?: string(name='gatewayId', example='gw-xxxxxx'),
+            gatewayName?: string(name='gatewayName', example='test-gateway'),
+            riskLevel?: string(name='riskLevel', example='LOW'),
+            riskNames?: [ string ](name='riskNames'),
+            score?: string(name='score', example='100'),
+          }
+        ](name='riskDetails'),
+        riskLevel?: string(name='riskLevel', example='LOW'),
+      }
+    ](name='riskOverview'),
   }(name='data', description='Resource information.'),
   message?: string(name='message', description='Response message.', example='success'),
   requestId?: string(name='requestId', description='Request ID.', example='DD19A442-93C5-5C97-AFA0-B9C57EBD781B'),
