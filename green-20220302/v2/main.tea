@@ -56,6 +56,7 @@ model DescribeFileModerationResultRequest {
 model DescribeFileModerationResultResponseBody = {
   code?: int32(name='Code', description='The returned HTTP status code. The status code 200 indicates that the request was successful.', example='200'),
   data?: {
+    accountId?: string(name='AccountId'),
     dataId?: string(name='DataId', description='The ID of the moderated object.', example='26769ada6e264e7ba9aa048241e12be9'),
     docType?: string(name='DocType', description='Optional. The document type.', example='doc'),
     pageResult?: [ 
@@ -186,6 +187,7 @@ model DescribeImageModerationResultRequest {
 model DescribeImageModerationResultResponseBody = {
   code?: int32(name='Code', description='The returned HTTP status code.', example='200'),
   data?: {
+    accountId?: string(name='AccountId'),
     dataId?: string(name='DataId', description='The value of dataId that is specified in the API request. If this parameter is not specified in the API request, this field is not available in the response.', example='2a5389eb-4ff8-4584-ac99-644e2a539aa1'),
     frame?: string(name='Frame', description='The information about the captured frames.', example='[{"result":[{"confidence":81.22,"label":"violent_explosion"}]}]'),
     frameNum?: int32(name='FrameNum', description='The number of frames.', example='1'),
@@ -889,6 +891,7 @@ Valid values:
 model ImageModerationResponseBody = {
   code?: int32(name='Code', description='The returned HTTP status code. The status code 200 indicates that the request was successful.', example='200'),
   data?: {
+    accountId?: string(name='AccountId'),
     dataId?: string(name='DataId', description='The ID of the moderated object.
 
 >  If you specify the dataId parameter in the request, the value of the dataId parameter is returned in the response.', example='fb5ffab1-993b-449f-b8d6-b97d5e3331f2'),
@@ -1513,6 +1516,94 @@ async function multiModalGuard(request: MultiModalGuardRequest): MultiModalGuard
   return multiModalGuardWithOptions(request, runtime);
 }
 
+model MultiModalGuardForBase64Request {
+  imageBase64Str?: string(name='ImageBase64Str', example='{base64}'),
+  service?: string(name='Service', description='Service', example='query_security_check'),
+  serviceParameters?: string(name='ServiceParameters', example='{"content":"test"}'),
+}
+
+model MultiModalGuardForBase64ResponseBody = {
+  code?: int32(name='Code', example='200'),
+  data?: {
+    dataId?: string(name='DataId', example='xxx'),
+    detail?: [ 
+      {
+        level?: string(name='Level', example='low'),
+        result?: [ 
+          {
+            confidence?: float(name='Confidence', example='100'),
+            description?: string(name='Description', example='未检测出风险'),
+            ext?: any(name='Ext', example='json格式数据'),
+            label?: string(name='Label', example='nonLable'),
+            level?: string(name='Level', example='low'),
+          }
+        ](name='Result'),
+        suggestion?: string(name='Suggestion', example='pass'),
+        type?: string(name='Type', example='contentModeration'),
+      }
+    ](name='Detail'),
+    suggestion?: string(name='Suggestion', example='pass'),
+  }(name='Data'),
+  message?: string(name='Message', example='OK'),
+  requestId?: string(name='RequestId', example='XXXX'),
+}
+
+model MultiModalGuardForBase64Response = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: MultiModalGuardForBase64ResponseBody(name='body'),
+}
+
+/**
+ * @summary 多模态同步检测接口，支持图片base64字符串
+ *
+ * @param request MultiModalGuardForBase64Request
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return MultiModalGuardForBase64Response
+ */
+@context("multiModalGuardForBase64WithContext")
+async function multiModalGuardForBase64WithOptions(request: MultiModalGuardForBase64Request, runtime: $RuntimeOptions): MultiModalGuardForBase64Response {
+  request.validate();
+  var query = {};
+  if (!$isNull(request.service)) {
+    query['Service'] = request.service;
+  }
+  var body : map[string]any = {};
+  if (!$isNull(request.imageBase64Str)) {
+    body['ImageBase64Str'] = request.imageBase64Str;
+  }
+  if (!$isNull(request.serviceParameters)) {
+    body['ServiceParameters'] = request.serviceParameters;
+  }
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'MultiModalGuardForBase64',
+    version = '2022-03-02',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 多模态同步检测接口，支持图片base64字符串
+ *
+ * @param request MultiModalGuardForBase64Request
+ * @return MultiModalGuardForBase64Response
+ */
+async function multiModalGuardForBase64(request: MultiModalGuardForBase64Request): MultiModalGuardForBase64Response {
+  var runtime = new $RuntimeOptions{};
+  return multiModalGuardForBase64WithOptions(request, runtime);
+}
+
 model MultimodalAsyncModerationRequest {
   service?: string(name='Service'),
   serviceParameters?: string(name='ServiceParameters'),
@@ -1680,6 +1771,7 @@ Valid values:
 model TextModerationPlusResponseBody = {
   code?: int32(name='Code', description='The returned HTTP status code. The status code 200 indicates that the request was successful.', example='200'),
   data?: {
+    accountId?: string(name='AccountId'),
     advice?: [ 
       {
         answer?: string(name='Answer', description='The answer.', example='XXX'),
