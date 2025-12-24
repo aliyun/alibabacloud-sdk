@@ -120,13 +120,57 @@ async function createCluster(request: CreateClusterRequest): CreateClusterRespon
   return @handler.do('RPC', 'CreateCluster', 'POST', '/', 'json', true, 'form', request);
 }
 
+model CreateExecutorsRequest {
+  appName: string(name='AppName', description='This parameter is required.', example='test-app', position='Body'),
+  clusterId: string(name='ClusterId', description='This parameter is required.', example='xxljob-b6ec1xxxx', position='Body'),
+  workerType: string(name='WorkerType', description='This parameter is required.', example='k8s_service', position='Body'),
+  workers: string(name='Workers', description='This parameter is required.', example='[{"cluster":"xxxxx","namespace":"xxxxx","service":"xxxxx"}]', position='Body'),
+}
+
+model CreateExecutorsResponseBody = {
+  code?: int32(name='Code', example='200'),
+  data?: {
+    appGroupId?: long(name='AppGroupId', example='test-app'),
+    appType?: int32(name='AppType', example='1'),
+    failedService?: string(name='FailedService', example='[{"cluster":"xxxxx","namespace":"xxxxx","service":"xxxxx"}]'),
+    workerId?: long(name='WorkerId', example='ins-95mfvqrtg6fkijt1uko000'),
+    workerType?: string(name='WorkerType', example='k8s_service'),
+    workers?: string(name='Workers', example='[{"cluster":"xxxxx","namespace":"xxxxx","service":"xxxxx"}]'),
+  }(name='Data'),
+  message?: string(name='Message', example='Parameter error: content is null.'),
+  requestId?: string(name='RequestId', description='Id of the request', example='F131C3E0-3FAA-5FA4-A6F3-E974D69EF3C5'),
+  success?: boolean(name='Success', example='true'),
+}
+
+model CreateExecutorsResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: CreateExecutorsResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of CreateExecutors  CreateExecutorsRequest
+  * @return CreateExecutorsResponse
+ */
+async function createExecutors(request: CreateExecutorsRequest): CreateExecutorsResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'CreateExecutors', 'POST', '/', 'json', true, 'form', request);
+}
+
 model CreateJobRequest {
-  regionId?: string(name='RegionId', position='Host'),
+  regionId?: string(name='RegionId', example='cn-hangzhou', position='Host'),
   appName: string(name='AppName', description='This parameter is required.', example='test-app', position='Body'),
   attemptInterval?: int32(name='AttemptInterval', example='3', position='Body'),
   calendar?: string(name='Calendar', example='workday', position='Body'),
-  childJobId?: string(name='ChildJobId', position='Body'),
+  childJobId?: string(name='ChildJobId', example='1,2', position='Body'),
   clusterId: string(name='ClusterId', description='This parameter is required.', example='xxljob-b6ec1xxxx', position='Body'),
+  coordinate?: {
+    height?: float(name='Height', example='50.0'),
+    width?: float(name='Width', example='100.0'),
+    x?: float(name='X', example='100.0'),
+    y?: float(name='Y', example='100.0'),
+  }(name='Coordinate', shrink='json', position='Body'),
+  dependentStrategy?: int32(name='DependentStrategy', example='1', position='Body'),
   description?: string(name='Description', example='test', maxLength=300, position='Body'),
   executorBlockStrategy?: int32(name='ExecutorBlockStrategy', example='1', position='Body'),
   jobHandler?: string(name='JobHandler', example='testJobVoidHandler', position='Body'),
@@ -135,6 +179,8 @@ model CreateJobRequest {
   maxConcurrency?: int32(name='MaxConcurrency', example='1', minimum=1, maximum=200, position='Body'),
   name: string(name='Name', description='This parameter is required.', example='test-job', minLength=1, maxLength=200, position='Body'),
   noticeConfig?: {
+    endEarly?: int32(name='EndEarly', example='30'),
+    endEarlyEnable?: boolean(name='EndEarlyEnable'),
     failEnable?: boolean(name='FailEnable', example='true'),
     failLimitTimes?: int32(name='FailLimitTimes', example='1'),
     missWorkerEnable?: boolean(name='MissWorkerEnable', example='true'),
@@ -153,8 +199,9 @@ model CreateJobRequest {
   parameters?: string(name='Parameters', example='test', position='Body'),
   priority?: int32(name='Priority', example='5', minimum=1, position='Body'),
   routeStrategy?: int32(name='RouteStrategy', example='1', minimum=1, maximum=9, position='Body'),
-  script?: string(name='Script', position='Body'),
+  script?: string(name='Script', example='echo "hello world"', position='Body'),
   startTime?: long(name='StartTime', example='1701310327000', position='Body'),
+  startTimeType?: int32(name='StartTimeType', example='1', position='Body'),
   status?: int32(name='Status', example='1', position='Body'),
   timeExpression?: string(name='TimeExpression', example='0 0 4 ? * Mon/1', position='Body'),
   timeType: int32(name='TimeType', description='This parameter is required.', example='-1', position='Body'),
@@ -382,6 +429,7 @@ model GetClusterResponseBody = {
   "appClusterId": "xxx"
 }'),
     maxJobNum?: int32(name='MaxJobNum', example='1000'),
+    maxWorkflowNum?: int32(name='MaxWorkflowNum', example='100'),
     productType?: int32(name='ProductType', example='2'),
     spm?: int32(name='Spm', example='10'),
     status?: int32(name='Status', example='2'),
@@ -395,6 +443,7 @@ model GetClusterResponseBody = {
     versionLifecycle?: string(name='VersionLifecycle'),
     vpcId?: string(name='VpcId', description='VPC ID', example='vpc-bp1fiz967u39lt8yuxcs0'),
     workerNum?: int32(name='WorkerNum', example='10'),
+    workflowNum?: int32(name='WorkflowNum', example='20'),
     zones?: [ string ](name='Zones'),
   }(name='Data', description='-'),
   message?: string(name='Message', example='Parameter error: content is null.'),
@@ -448,6 +497,38 @@ model GetDesigateInfoResponse = {
 async function getDesigateInfo(request: GetDesigateInfoRequest): GetDesigateInfoResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RPC', 'GetDesigateInfo', 'GET', '/', 'json', false, 'json', request);
+}
+
+model GetExecutorConfigRequest {
+  regionId?: string(name='RegionId', position='Host'),
+  appName: string(name='AppName', description='This parameter is required.', example='test-app', position='Query'),
+  clusterId: string(name='ClusterId', description='This parameter is required.', example='xxljob-a1804a3226d', position='Query'),
+}
+
+model GetExecutorConfigResponseBody = {
+  code?: int32(name='Code', example='200'),
+  data?: {
+    config?: string(name='Config', example='[{"cluster":"c2c619b5129e0400fa3df263b249622aa","namespace":"default","service":"xxljob-http-demo1-svc"}]'),
+    executorType?: string(name='ExecutorType', example='k8s_service'),
+  }(name='Data'),
+  message?: string(name='Message', example='not support query script history, please upgrade engine version to 2.2.2+'),
+  requestId?: string(name='RequestId', description='Id of the request', example='39938688-0BAB-5AD8-BF02-F4910FAC7589'),
+  success?: boolean(name='Success', example='true'),
+}
+
+model GetExecutorConfigResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: GetExecutorConfigResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of GetExecutorConfig  GetExecutorConfigRequest
+  * @return GetExecutorConfigResponse
+ */
+async function getExecutorConfig(request: GetExecutorConfigRequest): GetExecutorConfigResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'GetExecutorConfig', 'POST', '/', 'json', false, 'json', request);
 }
 
 model GetJobExecutionRequest {
@@ -659,6 +740,7 @@ model GetLogEventRequest {
   clusterId: string(name='ClusterId', description='This parameter is required.', example='xxljob-684d02ee5a6', position='Query'),
   endTime?: long(name='EndTime', example='1721636220', position='Query'),
   event?: string(name='Event', example='INFO', position='Query'),
+  eventType?: string(name='EventType', example='JOB', position='Query'),
   jobExecutionId?: long(name='JobExecutionId', example='101', position='Query'),
   jobName?: string(name='JobName', example='test', position='Query'),
   keyword?: string(name='Keyword', example='test_partition_tbl', position='Query'),
@@ -666,6 +748,8 @@ model GetLogEventRequest {
   pageSize?: int32(name='PageSize', example='10', position='Query'),
   reverse?: boolean(name='Reverse', example='false', position='Query'),
   startTime?: long(name='StartTime', example='1721268302000', position='Query'),
+  workflowExecutionId?: long(name='WorkflowExecutionId', example='1450568762586578000', position='Query'),
+  workflowName?: string(name='WorkflowName', example='流程001', position='Query'),
 }
 
 model GetLogEventResponseBody = {
@@ -678,10 +762,13 @@ model GetLogEventResponseBody = {
         appName?: string(name='AppName', example='portal-dev'),
         content?: string(name='Content', example='hello word'),
         event?: string(name='Event', example='info'),
+        eventType?: string(name='EventType', example='JOB'),
         jobExecutionId?: string(name='JobExecutionId', example='101'),
         jobName?: string(name='JobName', example='test'),
         time?: string(name='Time', example='2024-10-31 16:43:51'),
         workerAddr?: string(name='WorkerAddr', example='030225016025_9357_60125@127.0.0.1:51363'),
+        workflowExecutionId?: string(name='WorkflowExecutionId', example='1450568762586578000'),
+        workflowName?: string(name='WorkflowName', example='工作流0001'),
       }
     ](name='Records', description='-'),
     total?: long(name='Total', example='33'),
@@ -1106,7 +1193,7 @@ async function listExecutors(request: ListExecutorsRequest): ListExecutorsRespon
 }
 
 model ListJobExecutionsRequest {
-  regionId?: string(name='RegionId', position='Host'),
+  regionId?: string(name='RegionId', example='cn-hangzhou', position='Host'),
   appName?: string(name='AppName', example='test-app', position='Query'),
   clusterId: string(name='ClusterId', description='This parameter is required.', example='xxljob-b6ec1xxxx', position='Query'),
   endTime?: string(name='EndTime', example='2024-11-12 20:50:56', position='Query'),
@@ -1117,6 +1204,7 @@ model ListJobExecutionsRequest {
   pageSize?: int32(name='PageSize', example='10', position='Query'),
   startTime?: string(name='StartTime', example='2024-11-12 20:50:55', position='Query'),
   status?: int32(name='Status', example='4', position='Query'),
+  workflowExecutionId?: long(name='WorkflowExecutionId', example='100', position='Query'),
 }
 
 model ListJobExecutionsResponseBody = {
@@ -1143,9 +1231,12 @@ model ListJobExecutionsResponseBody = {
         serverIp?: string(name='ServerIp', example='28.0.168.46'),
         status?: int32(name='Status', example='4'),
         timeType?: int32(name='TimeType', example='1'),
-        totalTokens?: int32(name='TotalTokens'),
+        totalTokens?: int32(name='TotalTokens', example='1000'),
         triggerType?: int32(name='TriggerType', example='1'),
         workAddr?: string(name='WorkAddr', example='http://192.168.1.9:9999/'),
+        workflowExecutionId?: string(name='WorkflowExecutionId', example='100'),
+        workflowId?: long(name='WorkflowId', example='10'),
+        workflowName?: string(name='WorkflowName', example='myWorkflow'),
       }
     ](name='Records', description='-'),
     total?: int32(name='Total', example='20'),
@@ -1167,7 +1258,7 @@ model ListJobExecutionsResponse = {
  */
 async function listJobExecutions(request: ListJobExecutionsRequest): ListJobExecutionsResponse {
   @handler.validateRequestModel(request);
-  return @handler.do('RPC', 'ListJobExecutions', 'GET', '/', 'json', false, 'json', request);
+  return @handler.do('RPC', 'ListJobExecutions', 'POST', '/', 'json', false, 'json', request);
 }
 
 model ListJobScriptHistoryRequest {
@@ -1214,7 +1305,7 @@ async function listJobScriptHistory(request: ListJobScriptHistoryRequest): ListJ
 }
 
 model ListJobsRequest {
-  regionId?: string(name='RegionId', position='Host'),
+  regionId?: string(name='RegionId', example='cn-hangzhou', position='Host'),
   appName?: string(name='AppName', example='test-app', position='Query'),
   clusterId: string(name='ClusterId', description='This parameter is required.', example='xxljob-b6ec1xxxx', position='Query'),
   description?: string(name='Description', position='Query'),
@@ -1224,6 +1315,7 @@ model ListJobsRequest {
   pageNum?: int32(name='PageNum', example='1', position='Query'),
   pageSize?: int32(name='PageSize', example='20', position='Query'),
   status?: string(name='Status', example='0', position='Query'),
+  workflowId?: long(name='WorkflowId', example='1', position='Query'),
 }
 
 model ListJobsResponseBody = {
@@ -1241,6 +1333,7 @@ model ListJobsResponseBody = {
         creator?: string(name='Creator', example='1963096506470832'),
         currentExecuteStatus?: int32(name='CurrentExecuteStatus', example='3'),
         dataOffset?: int32(name='DataOffset', example='3'),
+        dependentStrategy?: int32(name='DependentStrategy', example='1'),
         description?: string(name='Description'),
         executorBlockStrategy?: string(name='ExecutorBlockStrategy'),
         jobHandler?: string(name='JobHandler', example='jobDemoHandler'),
@@ -1251,12 +1344,14 @@ model ListJobsResponseBody = {
         maxAttempt?: int32(name='MaxAttempt', example='5'),
         maxConcurrency?: int32(name='MaxConcurrency', example='100'),
         name?: string(name='Name', example='job01'),
+        nodeType?: int32(name='NodeType', example='1'),
         noticeConfig?: string(name='NoticeConfig', example='{"failLimitTimes":1,"failEnable":true,"timeoutKillEnable":false,"missWorkerEnable":true,"timeoutEnable":true,"sendChannel":"","timeout":300,"successNotice":false}'),
         noticeContacts?: string(name='NoticeContacts'),
         parameters?: string(name='Parameters', example='name=10'),
         priority?: int32(name='Priority', example='1'),
         routeStrategy?: int32(name='RouteStrategy', example='1'),
         script?: string(name='Script'),
+        startTimeType?: int32(name='StartTimeType', example='1'),
         status?: int32(name='Status', example='1'),
         timeExpression?: string(name='TimeExpression', example='0 0 12 * * ?'),
         timeType?: int32(name='TimeType', example='1'),
@@ -1264,6 +1359,7 @@ model ListJobsResponseBody = {
         timezone?: string(name='Timezone', example='HangKong'),
         updater?: string(name='Updater', example='1963096506470832'),
         weight?: int32(name='Weight', example='1'),
+        workflowId?: long(name='WorkflowId', example='10'),
         xattrs?: string(name='Xattrs'),
       }
     ](name='Records', description='-'),
@@ -1286,7 +1382,44 @@ model ListJobsResponse = {
  */
 async function listJobs(request: ListJobsRequest): ListJobsResponse {
   @handler.validateRequestModel(request);
-  return @handler.do('RPC', 'ListJobs', 'GET', '/', 'json', false, 'json', request);
+  return @handler.do('RPC', 'ListJobs', 'POST', '/', 'json', false, 'json', request);
+}
+
+model ListK8sResourceRequest {
+  regionId?: string(name='RegionId', position='Host'),
+  clusterId: string(name='ClusterId', description='This parameter is required.', example='xxljob-b6ec1xxxx', position='Query'),
+  k8sClusterId?: string(name='K8sClusterId', example='cadb451ed7af04b0297f4be396a2196fc', position='Query'),
+  k8sNamespace?: string(name='K8sNamespace', example='default', position='Query'),
+  resourceType: string(name='ResourceType', description='This parameter is required.', example='cluster', position='Query'),
+  vpcId?: string(name='VpcId', example='vpc-aa1a18236n90rqhuhhnhh', position='Query'),
+}
+
+model ListK8sResourceResponseBody = {
+  code?: int32(name='Code', example='200'),
+  data?: [ 
+    {
+      resourceId?: string(name='ResourceId', example='xxljob-01632622cda2f'),
+      resourceName?: string(name='ResourceName', example='q_ecs_enterprise_spot_c'),
+    }
+  ](name='Data', description='-'),
+  message?: string(name='Message', example='Parameter error: content is null.'),
+  requestId?: string(name='RequestId', description='Id of the request', example='2ECA6FC9-7557-5576-AF5F-FC3E7BCC9C21'),
+  success?: boolean(name='Success', example='true'),
+}
+
+model ListK8sResourceResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ListK8sResourceResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of ListK8sResource  ListK8sResourceRequest
+  * @return ListK8sResourceResponse
+ */
+async function listK8sResource(request: ListK8sResourceRequest): ListK8sResourceResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'ListK8sResource', 'POST', '/', 'json', false, 'json', request);
 }
 
 model ListLablesRequest {
@@ -1397,7 +1530,7 @@ model ListScheduleEventRequest {
   clusterId: string(name='ClusterId', description='This parameter is required.', example='xxljob-b6ec1xxxx', position='Query'),
   endTime?: long(name='EndTime', example='1728872796295', position='Query'),
   event?: string(name='Event', example='INFO', position='Query'),
-  eventType?: string(name='EventType', position='Query'),
+  eventType?: string(name='EventType', example='JOB | WORKFLOW', position='Query'),
   jobExecutionId?: string(name='JobExecutionId', example='1310630367761285120', position='Query'),
   jobName?: string(name='JobName', example='test-job', position='Query'),
   keyword?: string(name='Keyword', example='hello word', position='Query'),
@@ -1405,6 +1538,8 @@ model ListScheduleEventRequest {
   pageSize?: int32(name='PageSize', example='10', position='Query'),
   reverse?: boolean(name='Reverse', example='true', position='Query'),
   startTime?: long(name='StartTime', example='1581317873000', position='Query'),
+  workflowExecutionId?: long(name='WorkflowExecutionId', example='1450568762586578000', position='Query'),
+  workflowName?: string(name='WorkflowName', example='流程001', position='Query'),
 }
 
 model ListScheduleEventResponseBody = {
@@ -1417,10 +1552,13 @@ model ListScheduleEventResponseBody = {
         appName?: string(name='AppName', example='test-app'),
         content?: string(name='Content', example='hello word'),
         event?: string(name='Event', example='INFO'),
+        eventType?: string(name='EventType', example='JOB'),
         jobExecutionId?: string(name='JobExecutionId', description='130', example='1310630367761285120'),
         jobName?: string(name='JobName', example='test-job'),
         time?: string(name='Time', example='2024-10-31 16:43:51'),
         workerAddr?: string(name='WorkerAddr', example='http://192.168.1.5:9999/'),
+        workflowExecutionId?: string(name='WorkflowExecutionId', example='1450568762586578000'),
+        workflowName?: string(name='WorkflowName', example='工作流0001'),
       }
     ](name='Records'),
     total?: long(name='Total', example='100'),
@@ -1636,11 +1774,12 @@ async function operateRerunJob(request: OperateRerunJobRequest): OperateRerunJob
 }
 
 model OperateRetryJobExecutionRequest {
-  regionId?: string(name='RegionId', position='Host'),
+  regionId?: string(name='RegionId', example='cn-hangzhou', position='Host'),
   appName: string(name='AppName', description='This parameter is required.', example='test-app', position='Query'),
   clusterId: string(name='ClusterId', description='This parameter is required.', example='xxljob-b6ec1xxxx', position='Query'),
   jobExecutionId: string(name='JobExecutionId', description='This parameter is required.', example='1310630367761285120', position='Query'),
   taskList?: [ string ](name='TaskList', shrink='json', position='Query'),
+  triggerChild?: boolean(name='TriggerChild', position='Query'),
 }
 
 model OperateRetryJobExecutionResponseBody = {
@@ -1666,7 +1805,7 @@ async function operateRetryJobExecution(request: OperateRetryJobExecutionRequest
 }
 
 model OperateStopJobExecutionRequest {
-  regionId?: string(name='RegionId', position='Host'),
+  regionId?: string(name='RegionId', example='cn-hangzhou', position='Host'),
   appName: string(name='AppName', description='This parameter is required.', example='test-app', position='Query'),
   clusterId: string(name='ClusterId', description='This parameter is required.', example='xxljob-b6ec1xxxx', position='Query'),
   jobExecutionId: string(name='JobExecutionId', description='This parameter is required.', example='1310630367761285120', position='Query'),
@@ -1693,6 +1832,37 @@ model OperateStopJobExecutionResponse = {
 async function operateStopJobExecution(request: OperateStopJobExecutionRequest): OperateStopJobExecutionResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RPC', 'OperateStopJobExecution', 'POST', '/', 'json', false, 'json', request);
+}
+
+model SyncJobsRequest {
+  regionId?: string(name='RegionId', position='Host'),
+  jobIds: [ long ](name='JobIds', description='This parameter is required.', shrink='json', position='Body'),
+  originalAppName: string(name='OriginalAppName', description='This parameter is required.', example='test-source', position='Body'),
+  originalClusterId: string(name='OriginalClusterId', description='This parameter is required.', example='xxljob-00ed7f0d742b1', position='Body'),
+  targetAppName: string(name='TargetAppName', description='This parameter is required.', example='test-target', position='Body'),
+  targetClusterId: string(name='TargetClusterId', description='This parameter is required.', example='xxljob-008bfb1541111', position='Body'),
+}
+
+model SyncJobsResponseBody = {
+  code?: int32(name='Code', example='200'),
+  message?: string(name='Message', example='Not found: appName not found.'),
+  requestId?: string(name='RequestId', example='6BCE89B3-E882-511D-9A75-D452A56EC4B1'),
+  success?: boolean(name='Success', example='true'),
+}
+
+model SyncJobsResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: SyncJobsResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of SyncJobs  SyncJobsRequest
+  * @return SyncJobsResponse
+ */
+async function syncJobs(request: SyncJobsRequest): SyncJobsResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'SyncJobs', 'POST', '/', 'json', true, 'form', request);
 }
 
 model UpdateAppRequest {
@@ -1756,13 +1926,51 @@ async function updateCluster(request: UpdateClusterRequest): UpdateClusterRespon
   return @handler.do('RPC', 'UpdateCluster', 'POST', '/', 'json', false, 'json', request);
 }
 
+model UpdateExecutorsRequest {
+  appName: string(name='AppName', description='This parameter is required.', example='test-app', position='Body'),
+  clusterId: string(name='ClusterId', description='This parameter is required.', example='xxljob-a1804a3226d', position='Body'),
+  workerType?: string(name='WorkerType', example='k8s_service', position='Body'),
+  workers?: string(name='Workers', example='[{"cluster":"xxxxx","namespace":"xxxxx","service":"xxxxx"}]', position='Body'),
+}
+
+model UpdateExecutorsResponseBody = {
+  code?: int32(name='Code', example='200'),
+  data?: {
+    appGroupId?: long(name='AppGroupId', example='1'),
+    appType?: int32(name='AppType', example='1'),
+    failedService?: string(name='FailedService', example='[{"cluster":"xxxxx","namespace":"xxxxx","service":"xxxxx"}]'),
+    workId?: int32(name='WorkId', example='1'),
+    workerType?: string(name='WorkerType', example='k8s_service'),
+    workers?: string(name='Workers', example='[{"cluster":"xxxxx","namespace":"xxxxx","service":"xxxxx"}]'),
+  }(name='Data', description='-'),
+  message?: string(name='Message', example='Parameter error: content is null.'),
+  requestId?: string(name='RequestId', description='Id of the request', example='3835AA29-2298-5434-BC53-9CC377CDFD2C'),
+  success?: boolean(name='Success', example='true'),
+}
+
+model UpdateExecutorsResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: UpdateExecutorsResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of UpdateExecutors  UpdateExecutorsRequest
+  * @return UpdateExecutorsResponse
+ */
+async function updateExecutors(request: UpdateExecutorsRequest): UpdateExecutorsResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'UpdateExecutors', 'POST', '/', 'json', true, 'form', request);
+}
+
 model UpdateJobRequest {
-  regionId?: string(name='RegionId', position='Host'),
+  regionId?: string(name='RegionId', example='cn-hangzhou', position='Host'),
   appName: string(name='AppName', description='This parameter is required.', example='test-app', position='Body'),
   attemptInterval?: int32(name='AttemptInterval', example='3', position='Body'),
   calendar?: string(name='Calendar', example='workday', position='Body'),
-  childJobId?: string(name='ChildJobId', position='Body'),
+  childJobId?: string(name='ChildJobId', example='1,2', position='Body'),
   clusterId: string(name='ClusterId', description='This parameter is required.', example='xxljob-b6ec1xxxx', position='Body'),
+  dependentStrategy?: int32(name='DependentStrategy', example='1', position='Body'),
   description?: string(name='Description', example='test', maxLength=300, position='Body'),
   executorBlockStrategy?: int32(name='ExecutorBlockStrategy', example='1', position='Body'),
   jobHandler?: string(name='JobHandler', example='testJobVoidHandler', maxLength=200, position='Body'),
@@ -1771,6 +1979,8 @@ model UpdateJobRequest {
   maxConcurrency?: int32(name='MaxConcurrency', example='1', minimum=1, maximum=200, position='Body'),
   name?: string(name='Name', example='test-job', maxLength=200, position='Body'),
   noticeConfig?: {
+    endEarly?: int32(name='EndEarly', example='30'),
+    endEarlyEnable?: boolean(name='EndEarlyEnable'),
     failEnable?: boolean(name='FailEnable', example='true'),
     failLimitTimes?: int32(name='FailLimitTimes', example='true'),
     missWorkerEnable?: boolean(name='MissWorkerEnable', example='true'),
@@ -1789,8 +1999,9 @@ model UpdateJobRequest {
   parameters?: string(name='Parameters', example='test', maxLength=2000, position='Body'),
   priority?: int32(name='Priority', example='10', minimum=1, position='Body'),
   routeStrategy?: int32(name='RouteStrategy', example='1', minimum=1, maximum=9, position='Body'),
-  script?: string(name='Script', position='Body'),
+  script?: string(name='Script', example='echo "hello world"', position='Body'),
   startTime?: long(name='StartTime', example='1716902187', position='Body'),
+  startTimeType?: string(name='StartTimeType', example='1', position='Body'),
   timeExpression?: string(name='TimeExpression', example='0 0 4 ? * Mon/1', position='Body'),
   timeType?: int32(name='TimeType', example='1', position='Body'),
   timezone?: string(name='Timezone', example='Asia/Beijing', position='Body'),

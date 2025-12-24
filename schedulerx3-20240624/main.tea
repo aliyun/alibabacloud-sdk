@@ -251,12 +251,97 @@ async function createCluster(request: CreateClusterRequest): CreateClusterRespon
   return createClusterWithOptions(request, runtime);
 }
 
+model CreateExecutorsRequest {
+  appName?: string(name='AppName', description='This parameter is required.', example='test-app'),
+  clusterId?: string(name='ClusterId', description='This parameter is required.', example='xxljob-b6ec1xxxx'),
+  workerType?: string(name='WorkerType', description='This parameter is required.', example='k8s_service'),
+  workers?: string(name='Workers', description='This parameter is required.', example='[{"cluster":"xxxxx","namespace":"xxxxx","service":"xxxxx"}]'),
+}
+
+model CreateExecutorsResponseBody = {
+  code?: int32(name='Code', example='200'),
+  data?: {
+    appGroupId?: long(name='AppGroupId', example='test-app'),
+    appType?: int32(name='AppType', example='1'),
+    failedService?: string(name='FailedService', example='[{"cluster":"xxxxx","namespace":"xxxxx","service":"xxxxx"}]'),
+    workerId?: long(name='WorkerId', example='ins-95mfvqrtg6fkijt1uko000'),
+    workerType?: string(name='WorkerType', example='k8s_service'),
+    workers?: string(name='Workers', example='[{"cluster":"xxxxx","namespace":"xxxxx","service":"xxxxx"}]'),
+  }(name='Data'),
+  message?: string(name='Message', example='Parameter error: content is null.'),
+  requestId?: string(name='RequestId', description='Id of the request', example='F131C3E0-3FAA-5FA4-A6F3-E974D69EF3C5'),
+  success?: boolean(name='Success', example='true'),
+}
+
+model CreateExecutorsResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: CreateExecutorsResponseBody(name='body'),
+}
+
+/**
+ * @summary 添加执行器
+ *
+ * @param request CreateExecutorsRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return CreateExecutorsResponse
+ */
+async function createExecutorsWithOptions(request: CreateExecutorsRequest, runtime: Util.RuntimeOptions): CreateExecutorsResponse {
+  Util.validateModel(request);
+  var body : map[string]any = {};
+  if (!Util.isUnset(request.appName)) {
+    body['AppName'] = request.appName;
+  }
+  if (!Util.isUnset(request.clusterId)) {
+    body['ClusterId'] = request.clusterId;
+  }
+  if (!Util.isUnset(request.workerType)) {
+    body['WorkerType'] = request.workerType;
+  }
+  if (!Util.isUnset(request.workers)) {
+    body['Workers'] = request.workers;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApi.Params{
+    action = 'CreateExecutors',
+    version = '2024-06-24',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 添加执行器
+ *
+ * @param request CreateExecutorsRequest
+ * @return CreateExecutorsResponse
+ */
+async function createExecutors(request: CreateExecutorsRequest): CreateExecutorsResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return createExecutorsWithOptions(request, runtime);
+}
+
 model CreateJobRequest {
   appName?: string(name='AppName', description='This parameter is required.', example='test-app'),
   attemptInterval?: int32(name='AttemptInterval', example='3'),
   calendar?: string(name='Calendar', example='workday'),
-  childJobId?: string(name='ChildJobId'),
+  childJobId?: string(name='ChildJobId', example='1,2'),
   clusterId?: string(name='ClusterId', description='This parameter is required.', example='xxljob-b6ec1xxxx'),
+  coordinate?: {
+    height?: float(name='Height', example='50.0'),
+    width?: float(name='Width', example='100.0'),
+    x?: float(name='X', example='100.0'),
+    y?: float(name='Y', example='100.0'),
+  }(name='Coordinate'),
+  dependentStrategy?: int32(name='DependentStrategy', example='1'),
   description?: string(name='Description', example='test'),
   executorBlockStrategy?: int32(name='ExecutorBlockStrategy', example='1'),
   jobHandler?: string(name='JobHandler', example='testJobVoidHandler'),
@@ -265,6 +350,8 @@ model CreateJobRequest {
   maxConcurrency?: int32(name='MaxConcurrency', example='1'),
   name?: string(name='Name', description='This parameter is required.', example='test-job'),
   noticeConfig?: {
+    endEarly?: int32(name='EndEarly', example='30'),
+    endEarlyEnable?: boolean(name='EndEarlyEnable'),
     failEnable?: boolean(name='FailEnable', example='true'),
     failLimitTimes?: int32(name='FailLimitTimes', example='1'),
     missWorkerEnable?: boolean(name='MissWorkerEnable', example='true'),
@@ -283,8 +370,9 @@ model CreateJobRequest {
   parameters?: string(name='Parameters', example='test'),
   priority?: int32(name='Priority', example='5'),
   routeStrategy?: int32(name='RouteStrategy', example='1'),
-  script?: string(name='Script'),
+  script?: string(name='Script', example='echo "hello world"'),
   startTime?: long(name='StartTime', example='1701310327000'),
+  startTimeType?: int32(name='StartTimeType', example='1'),
   status?: int32(name='Status', example='1'),
   timeExpression?: string(name='TimeExpression', example='0 0 4 ? * Mon/1'),
   timeType?: int32(name='TimeType', description='This parameter is required.', example='-1'),
@@ -296,8 +384,10 @@ model CreateJobShrinkRequest {
   appName?: string(name='AppName', description='This parameter is required.', example='test-app'),
   attemptInterval?: int32(name='AttemptInterval', example='3'),
   calendar?: string(name='Calendar', example='workday'),
-  childJobId?: string(name='ChildJobId'),
+  childJobId?: string(name='ChildJobId', example='1,2'),
   clusterId?: string(name='ClusterId', description='This parameter is required.', example='xxljob-b6ec1xxxx'),
+  coordinateShrink?: string(name='Coordinate'),
+  dependentStrategy?: int32(name='DependentStrategy', example='1'),
   description?: string(name='Description', example='test'),
   executorBlockStrategy?: int32(name='ExecutorBlockStrategy', example='1'),
   jobHandler?: string(name='JobHandler', example='testJobVoidHandler'),
@@ -310,8 +400,9 @@ model CreateJobShrinkRequest {
   parameters?: string(name='Parameters', example='test'),
   priority?: int32(name='Priority', example='5'),
   routeStrategy?: int32(name='RouteStrategy', example='1'),
-  script?: string(name='Script'),
+  script?: string(name='Script', example='echo "hello world"'),
   startTime?: long(name='StartTime', example='1701310327000'),
+  startTimeType?: int32(name='StartTimeType', example='1'),
   status?: int32(name='Status', example='1'),
   timeExpression?: string(name='TimeExpression', example='0 0 4 ? * Mon/1'),
   timeType?: int32(name='TimeType', description='This parameter is required.', example='-1'),
@@ -346,6 +437,9 @@ async function createJobWithOptions(tmpReq: CreateJobRequest, runtime: Util.Runt
   Util.validateModel(tmpReq);
   var request = new CreateJobShrinkRequest{};
   OpenApiUtil.convert(tmpReq, request);
+  if (!Util.isUnset(tmpReq.coordinate)) {
+    request.coordinateShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.coordinate, 'Coordinate', 'json');
+  }
   if (!Util.isUnset(tmpReq.noticeConfig)) {
     request.noticeConfigShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.noticeConfig, 'NoticeConfig', 'json');
   }
@@ -367,6 +461,12 @@ async function createJobWithOptions(tmpReq: CreateJobRequest, runtime: Util.Runt
   }
   if (!Util.isUnset(request.clusterId)) {
     body['ClusterId'] = request.clusterId;
+  }
+  if (!Util.isUnset(request.coordinateShrink)) {
+    body['Coordinate'] = request.coordinateShrink;
+  }
+  if (!Util.isUnset(request.dependentStrategy)) {
+    body['DependentStrategy'] = request.dependentStrategy;
   }
   if (!Util.isUnset(request.description)) {
     body['Description'] = request.description;
@@ -409,6 +509,9 @@ async function createJobWithOptions(tmpReq: CreateJobRequest, runtime: Util.Runt
   }
   if (!Util.isUnset(request.startTime)) {
     body['StartTime'] = request.startTime;
+  }
+  if (!Util.isUnset(request.startTimeType)) {
+    body['StartTimeType'] = request.startTimeType;
   }
   if (!Util.isUnset(request.status)) {
     body['Status'] = request.status;
@@ -846,6 +949,7 @@ model GetClusterResponseBody = {
   "appClusterId": "xxx"
 }'),
     maxJobNum?: int32(name='MaxJobNum', example='1000'),
+    maxWorkflowNum?: int32(name='MaxWorkflowNum', example='100'),
     productType?: int32(name='ProductType', example='2'),
     spm?: int32(name='Spm', example='10'),
     status?: int32(name='Status', example='2'),
@@ -859,6 +963,7 @@ model GetClusterResponseBody = {
     versionLifecycle?: string(name='VersionLifecycle'),
     vpcId?: string(name='VpcId', description='VPC ID', example='vpc-bp1fiz967u39lt8yuxcs0'),
     workerNum?: int32(name='WorkerNum', example='10'),
+    workflowNum?: int32(name='WorkflowNum', example='20'),
     zones?: [ string ](name='Zones'),
   }(name='Data', description='-'),
   message?: string(name='Message', example='Parameter error: content is null.'),
@@ -969,6 +1074,72 @@ async function getDesigateInfoWithOptions(request: GetDesigateInfoRequest, runti
 async function getDesigateInfo(request: GetDesigateInfoRequest): GetDesigateInfoResponse {
   var runtime = new Util.RuntimeOptions{};
   return getDesigateInfoWithOptions(request, runtime);
+}
+
+model GetExecutorConfigRequest {
+  appName?: string(name='AppName', description='This parameter is required.', example='test-app'),
+  clusterId?: string(name='ClusterId', description='This parameter is required.', example='xxljob-a1804a3226d'),
+}
+
+model GetExecutorConfigResponseBody = {
+  code?: int32(name='Code', example='200'),
+  data?: {
+    config?: string(name='Config', example='[{"cluster":"c2c619b5129e0400fa3df263b249622aa","namespace":"default","service":"xxljob-http-demo1-svc"}]'),
+    executorType?: string(name='ExecutorType', example='k8s_service'),
+  }(name='Data'),
+  message?: string(name='Message', example='not support query script history, please upgrade engine version to 2.2.2+'),
+  requestId?: string(name='RequestId', description='Id of the request', example='39938688-0BAB-5AD8-BF02-F4910FAC7589'),
+  success?: boolean(name='Success', example='true'),
+}
+
+model GetExecutorConfigResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: GetExecutorConfigResponseBody(name='body'),
+}
+
+/**
+ * @summary 查询执行器配置信息
+ *
+ * @param request GetExecutorConfigRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return GetExecutorConfigResponse
+ */
+async function getExecutorConfigWithOptions(request: GetExecutorConfigRequest, runtime: Util.RuntimeOptions): GetExecutorConfigResponse {
+  Util.validateModel(request);
+  var query = {};
+  if (!Util.isUnset(request.appName)) {
+    query['AppName'] = request.appName;
+  }
+  if (!Util.isUnset(request.clusterId)) {
+    query['ClusterId'] = request.clusterId;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'GetExecutorConfig',
+    version = '2024-06-24',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 查询执行器配置信息
+ *
+ * @param request GetExecutorConfigRequest
+ * @return GetExecutorConfigResponse
+ */
+async function getExecutorConfig(request: GetExecutorConfigRequest): GetExecutorConfigResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return getExecutorConfigWithOptions(request, runtime);
 }
 
 model GetJobExecutionRequest {
@@ -1303,6 +1474,7 @@ model GetLogEventRequest {
   clusterId?: string(name='ClusterId', description='This parameter is required.', example='xxljob-684d02ee5a6'),
   endTime?: long(name='EndTime', example='1721636220'),
   event?: string(name='Event', example='INFO'),
+  eventType?: string(name='EventType', example='JOB'),
   jobExecutionId?: long(name='JobExecutionId', example='101'),
   jobName?: string(name='JobName', example='test'),
   keyword?: string(name='Keyword', example='test_partition_tbl'),
@@ -1310,6 +1482,8 @@ model GetLogEventRequest {
   pageSize?: int32(name='PageSize', example='10'),
   reverse?: boolean(name='Reverse', example='false'),
   startTime?: long(name='StartTime', example='1721268302000'),
+  workflowExecutionId?: long(name='WorkflowExecutionId', example='1450568762586578000'),
+  workflowName?: string(name='WorkflowName', example='流程001'),
 }
 
 model GetLogEventResponseBody = {
@@ -1322,10 +1496,13 @@ model GetLogEventResponseBody = {
         appName?: string(name='AppName', example='portal-dev'),
         content?: string(name='Content', example='hello word'),
         event?: string(name='Event', example='info'),
+        eventType?: string(name='EventType', example='JOB'),
         jobExecutionId?: string(name='JobExecutionId', example='101'),
         jobName?: string(name='JobName', example='test'),
         time?: string(name='Time', example='2024-10-31 16:43:51'),
         workerAddr?: string(name='WorkerAddr', example='030225016025_9357_60125@127.0.0.1:51363'),
+        workflowExecutionId?: string(name='WorkflowExecutionId', example='1450568762586578000'),
+        workflowName?: string(name='WorkflowName', example='工作流0001'),
       }
     ](name='Records', description='-'),
     total?: long(name='Total', example='33'),
@@ -2037,6 +2214,7 @@ model ListJobExecutionsRequest {
   pageSize?: int32(name='PageSize', example='10'),
   startTime?: string(name='StartTime', example='2024-11-12 20:50:55'),
   status?: int32(name='Status', example='4'),
+  workflowExecutionId?: long(name='WorkflowExecutionId', example='100'),
 }
 
 model ListJobExecutionsResponseBody = {
@@ -2063,9 +2241,12 @@ model ListJobExecutionsResponseBody = {
         serverIp?: string(name='ServerIp', example='28.0.168.46'),
         status?: int32(name='Status', example='4'),
         timeType?: int32(name='TimeType', example='1'),
-        totalTokens?: int32(name='TotalTokens'),
+        totalTokens?: int32(name='TotalTokens', example='1000'),
         triggerType?: int32(name='TriggerType', example='1'),
         workAddr?: string(name='WorkAddr', example='http://192.168.1.9:9999/'),
+        workflowExecutionId?: string(name='WorkflowExecutionId', example='100'),
+        workflowId?: long(name='WorkflowId', example='10'),
+        workflowName?: string(name='WorkflowName', example='myWorkflow'),
       }
     ](name='Records', description='-'),
     total?: int32(name='Total', example='20'),
@@ -2090,7 +2271,40 @@ model ListJobExecutionsResponse = {
  */
 async function listJobExecutionsWithOptions(request: ListJobExecutionsRequest, runtime: Util.RuntimeOptions): ListJobExecutionsResponse {
   Util.validateModel(request);
-  var query = OpenApiUtil.query(Util.toMap(request));
+  var query = {};
+  if (!Util.isUnset(request.appName)) {
+    query['AppName'] = request.appName;
+  }
+  if (!Util.isUnset(request.clusterId)) {
+    query['ClusterId'] = request.clusterId;
+  }
+  if (!Util.isUnset(request.endTime)) {
+    query['EndTime'] = request.endTime;
+  }
+  if (!Util.isUnset(request.jobExecutionId)) {
+    query['JobExecutionId'] = request.jobExecutionId;
+  }
+  if (!Util.isUnset(request.jobId)) {
+    query['JobId'] = request.jobId;
+  }
+  if (!Util.isUnset(request.jobName)) {
+    query['JobName'] = request.jobName;
+  }
+  if (!Util.isUnset(request.pageNum)) {
+    query['PageNum'] = request.pageNum;
+  }
+  if (!Util.isUnset(request.pageSize)) {
+    query['PageSize'] = request.pageSize;
+  }
+  if (!Util.isUnset(request.startTime)) {
+    query['StartTime'] = request.startTime;
+  }
+  if (!Util.isUnset(request.status)) {
+    query['Status'] = request.status;
+  }
+  if (!Util.isUnset(request.workflowExecutionId)) {
+    query['WorkflowExecutionId'] = request.workflowExecutionId;
+  }
   var req = new OpenApi.OpenApiRequest{ 
     query = OpenApiUtil.query(query),
   };
@@ -2099,7 +2313,7 @@ async function listJobExecutionsWithOptions(request: ListJobExecutionsRequest, r
     version = '2024-06-24',
     protocol = 'HTTPS',
     pathname = '/',
-    method = 'GET',
+    method = 'POST',
     authType = 'AK',
     style = 'RPC',
     reqBodyType = 'formData',
@@ -2216,6 +2430,7 @@ model ListJobsRequest {
   pageNum?: int32(name='PageNum', example='1'),
   pageSize?: int32(name='PageSize', example='20'),
   status?: string(name='Status', example='0'),
+  workflowId?: long(name='WorkflowId', example='1'),
 }
 
 model ListJobsResponseBody = {
@@ -2233,6 +2448,7 @@ model ListJobsResponseBody = {
         creator?: string(name='Creator', example='1963096506470832'),
         currentExecuteStatus?: int32(name='CurrentExecuteStatus', example='3'),
         dataOffset?: int32(name='DataOffset', example='3'),
+        dependentStrategy?: int32(name='DependentStrategy', example='1'),
         description?: string(name='Description'),
         executorBlockStrategy?: string(name='ExecutorBlockStrategy'),
         jobHandler?: string(name='JobHandler', example='jobDemoHandler'),
@@ -2243,12 +2459,14 @@ model ListJobsResponseBody = {
         maxAttempt?: int32(name='MaxAttempt', example='5'),
         maxConcurrency?: int32(name='MaxConcurrency', example='100'),
         name?: string(name='Name', example='job01'),
+        nodeType?: int32(name='NodeType', example='1'),
         noticeConfig?: string(name='NoticeConfig', example='{"failLimitTimes":1,"failEnable":true,"timeoutKillEnable":false,"missWorkerEnable":true,"timeoutEnable":true,"sendChannel":"","timeout":300,"successNotice":false}'),
         noticeContacts?: string(name='NoticeContacts'),
         parameters?: string(name='Parameters', example='name=10'),
         priority?: int32(name='Priority', example='1'),
         routeStrategy?: int32(name='RouteStrategy', example='1'),
         script?: string(name='Script'),
+        startTimeType?: int32(name='StartTimeType', example='1'),
         status?: int32(name='Status', example='1'),
         timeExpression?: string(name='TimeExpression', example='0 0 12 * * ?'),
         timeType?: int32(name='TimeType', example='1'),
@@ -2256,6 +2474,7 @@ model ListJobsResponseBody = {
         timezone?: string(name='Timezone', example='HangKong'),
         updater?: string(name='Updater', example='1963096506470832'),
         weight?: int32(name='Weight', example='1'),
+        workflowId?: long(name='WorkflowId', example='10'),
         xattrs?: string(name='Xattrs'),
       }
     ](name='Records', description='-'),
@@ -2281,7 +2500,37 @@ model ListJobsResponse = {
  */
 async function listJobsWithOptions(request: ListJobsRequest, runtime: Util.RuntimeOptions): ListJobsResponse {
   Util.validateModel(request);
-  var query = OpenApiUtil.query(Util.toMap(request));
+  var query = {};
+  if (!Util.isUnset(request.appName)) {
+    query['AppName'] = request.appName;
+  }
+  if (!Util.isUnset(request.clusterId)) {
+    query['ClusterId'] = request.clusterId;
+  }
+  if (!Util.isUnset(request.description)) {
+    query['Description'] = request.description;
+  }
+  if (!Util.isUnset(request.jobHandler)) {
+    query['JobHandler'] = request.jobHandler;
+  }
+  if (!Util.isUnset(request.jobId)) {
+    query['JobId'] = request.jobId;
+  }
+  if (!Util.isUnset(request.jobName)) {
+    query['JobName'] = request.jobName;
+  }
+  if (!Util.isUnset(request.pageNum)) {
+    query['PageNum'] = request.pageNum;
+  }
+  if (!Util.isUnset(request.pageSize)) {
+    query['PageSize'] = request.pageSize;
+  }
+  if (!Util.isUnset(request.status)) {
+    query['Status'] = request.status;
+  }
+  if (!Util.isUnset(request.workflowId)) {
+    query['WorkflowId'] = request.workflowId;
+  }
   var req = new OpenApi.OpenApiRequest{ 
     query = OpenApiUtil.query(query),
   };
@@ -2290,7 +2539,7 @@ async function listJobsWithOptions(request: ListJobsRequest, runtime: Util.Runti
     version = '2024-06-24',
     protocol = 'HTTPS',
     pathname = '/',
-    method = 'GET',
+    method = 'POST',
     authType = 'AK',
     style = 'RPC',
     reqBodyType = 'formData',
@@ -2308,6 +2557,86 @@ async function listJobsWithOptions(request: ListJobsRequest, runtime: Util.Runti
 async function listJobs(request: ListJobsRequest): ListJobsResponse {
   var runtime = new Util.RuntimeOptions{};
   return listJobsWithOptions(request, runtime);
+}
+
+model ListK8sResourceRequest {
+  clusterId?: string(name='ClusterId', description='This parameter is required.', example='xxljob-b6ec1xxxx'),
+  k8sClusterId?: string(name='K8sClusterId', example='cadb451ed7af04b0297f4be396a2196fc'),
+  k8sNamespace?: string(name='K8sNamespace', example='default'),
+  resourceType?: string(name='ResourceType', description='This parameter is required.', example='cluster'),
+  vpcId?: string(name='VpcId', example='vpc-aa1a18236n90rqhuhhnhh'),
+}
+
+model ListK8sResourceResponseBody = {
+  code?: int32(name='Code', example='200'),
+  data?: [ 
+    {
+      resourceId?: string(name='ResourceId', example='xxljob-01632622cda2f'),
+      resourceName?: string(name='ResourceName', example='q_ecs_enterprise_spot_c'),
+    }
+  ](name='Data', description='-'),
+  message?: string(name='Message', example='Parameter error: content is null.'),
+  requestId?: string(name='RequestId', description='Id of the request', example='2ECA6FC9-7557-5576-AF5F-FC3E7BCC9C21'),
+  success?: boolean(name='Success', example='true'),
+}
+
+model ListK8sResourceResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ListK8sResourceResponseBody(name='body'),
+}
+
+/**
+ * @summary 获取k8s资源列表
+ *
+ * @param request ListK8sResourceRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return ListK8sResourceResponse
+ */
+async function listK8sResourceWithOptions(request: ListK8sResourceRequest, runtime: Util.RuntimeOptions): ListK8sResourceResponse {
+  Util.validateModel(request);
+  var query = {};
+  if (!Util.isUnset(request.clusterId)) {
+    query['ClusterId'] = request.clusterId;
+  }
+  if (!Util.isUnset(request.k8sClusterId)) {
+    query['K8sClusterId'] = request.k8sClusterId;
+  }
+  if (!Util.isUnset(request.k8sNamespace)) {
+    query['K8sNamespace'] = request.k8sNamespace;
+  }
+  if (!Util.isUnset(request.resourceType)) {
+    query['ResourceType'] = request.resourceType;
+  }
+  if (!Util.isUnset(request.vpcId)) {
+    query['VpcId'] = request.vpcId;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'ListK8sResource',
+    version = '2024-06-24',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 获取k8s资源列表
+ *
+ * @param request ListK8sResourceRequest
+ * @return ListK8sResourceResponse
+ */
+async function listK8sResource(request: ListK8sResourceRequest): ListK8sResourceResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return listK8sResourceWithOptions(request, runtime);
 }
 
 model ListLablesRequest {
@@ -2486,7 +2815,7 @@ model ListScheduleEventRequest {
   clusterId?: string(name='ClusterId', description='This parameter is required.', example='xxljob-b6ec1xxxx'),
   endTime?: long(name='EndTime', example='1728872796295'),
   event?: string(name='Event', example='INFO'),
-  eventType?: string(name='EventType'),
+  eventType?: string(name='EventType', example='JOB | WORKFLOW'),
   jobExecutionId?: string(name='JobExecutionId', example='1310630367761285120'),
   jobName?: string(name='JobName', example='test-job'),
   keyword?: string(name='Keyword', example='hello word'),
@@ -2494,6 +2823,8 @@ model ListScheduleEventRequest {
   pageSize?: int32(name='PageSize', example='10'),
   reverse?: boolean(name='Reverse', example='true'),
   startTime?: long(name='StartTime', example='1581317873000'),
+  workflowExecutionId?: long(name='WorkflowExecutionId', example='1450568762586578000'),
+  workflowName?: string(name='WorkflowName', example='流程001'),
 }
 
 model ListScheduleEventResponseBody = {
@@ -2506,10 +2837,13 @@ model ListScheduleEventResponseBody = {
         appName?: string(name='AppName', example='test-app'),
         content?: string(name='Content', example='hello word'),
         event?: string(name='Event', example='INFO'),
+        eventType?: string(name='EventType', example='JOB'),
         jobExecutionId?: string(name='JobExecutionId', description='130', example='1310630367761285120'),
         jobName?: string(name='JobName', example='test-job'),
         time?: string(name='Time', example='2024-10-31 16:43:51'),
         workerAddr?: string(name='WorkerAddr', example='http://192.168.1.5:9999/'),
+        workflowExecutionId?: string(name='WorkflowExecutionId', example='1450568762586578000'),
+        workflowName?: string(name='WorkflowName', example='工作流0001'),
       }
     ](name='Records'),
     total?: long(name='Total', example='100'),
@@ -3034,6 +3368,7 @@ model OperateRetryJobExecutionRequest {
   clusterId?: string(name='ClusterId', description='This parameter is required.', example='xxljob-b6ec1xxxx'),
   jobExecutionId?: string(name='JobExecutionId', description='This parameter is required.', example='1310630367761285120'),
   taskList?: [ string ](name='TaskList'),
+  triggerChild?: boolean(name='TriggerChild'),
 }
 
 model OperateRetryJobExecutionShrinkRequest {
@@ -3041,6 +3376,7 @@ model OperateRetryJobExecutionShrinkRequest {
   clusterId?: string(name='ClusterId', description='This parameter is required.', example='xxljob-b6ec1xxxx'),
   jobExecutionId?: string(name='JobExecutionId', description='This parameter is required.', example='1310630367761285120'),
   taskListShrink?: string(name='TaskList'),
+  triggerChild?: boolean(name='TriggerChild'),
 }
 
 model OperateRetryJobExecutionResponseBody = {
@@ -3082,6 +3418,9 @@ async function operateRetryJobExecutionWithOptions(tmpReq: OperateRetryJobExecut
   }
   if (!Util.isUnset(request.taskListShrink)) {
     query['TaskList'] = request.taskListShrink;
+  }
+  if (!Util.isUnset(request.triggerChild)) {
+    query['TriggerChild'] = request.triggerChild;
   }
   var req = new OpenApi.OpenApiRequest{ 
     query = OpenApiUtil.query(query),
@@ -3139,7 +3478,7 @@ model OperateStopJobExecutionResponse = {
 }
 
 /**
- * @summary 停止正在运行的任务实例
+ * @summary 停止运行中的任务实例
  *
  * @param tmpReq OperateStopJobExecutionRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -3183,7 +3522,7 @@ async function operateStopJobExecutionWithOptions(tmpReq: OperateStopJobExecutio
 }
 
 /**
- * @summary 停止正在运行的任务实例
+ * @summary 停止运行中的任务实例
  *
  * @param request OperateStopJobExecutionRequest
  * @return OperateStopJobExecutionResponse
@@ -3191,6 +3530,93 @@ async function operateStopJobExecutionWithOptions(tmpReq: OperateStopJobExecutio
 async function operateStopJobExecution(request: OperateStopJobExecutionRequest): OperateStopJobExecutionResponse {
   var runtime = new Util.RuntimeOptions{};
   return operateStopJobExecutionWithOptions(request, runtime);
+}
+
+model SyncJobsRequest {
+  jobIds?: [ long ](name='JobIds', description='This parameter is required.'),
+  originalAppName?: string(name='OriginalAppName', description='This parameter is required.', example='test-source'),
+  originalClusterId?: string(name='OriginalClusterId', description='This parameter is required.', example='xxljob-00ed7f0d742b1'),
+  targetAppName?: string(name='TargetAppName', description='This parameter is required.', example='test-target'),
+  targetClusterId?: string(name='TargetClusterId', description='This parameter is required.', example='xxljob-008bfb1541111'),
+}
+
+model SyncJobsShrinkRequest {
+  jobIdsShrink?: string(name='JobIds', description='This parameter is required.'),
+  originalAppName?: string(name='OriginalAppName', description='This parameter is required.', example='test-source'),
+  originalClusterId?: string(name='OriginalClusterId', description='This parameter is required.', example='xxljob-00ed7f0d742b1'),
+  targetAppName?: string(name='TargetAppName', description='This parameter is required.', example='test-target'),
+  targetClusterId?: string(name='TargetClusterId', description='This parameter is required.', example='xxljob-008bfb1541111'),
+}
+
+model SyncJobsResponseBody = {
+  code?: int32(name='Code', example='200'),
+  message?: string(name='Message', example='Not found: appName not found.'),
+  requestId?: string(name='RequestId', example='6BCE89B3-E882-511D-9A75-D452A56EC4B1'),
+  success?: boolean(name='Success', example='true'),
+}
+
+model SyncJobsResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: SyncJobsResponseBody(name='body'),
+}
+
+/**
+ * @summary 同步任务
+ *
+ * @param tmpReq SyncJobsRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return SyncJobsResponse
+ */
+async function syncJobsWithOptions(tmpReq: SyncJobsRequest, runtime: Util.RuntimeOptions): SyncJobsResponse {
+  Util.validateModel(tmpReq);
+  var request = new SyncJobsShrinkRequest{};
+  OpenApiUtil.convert(tmpReq, request);
+  if (!Util.isUnset(tmpReq.jobIds)) {
+    request.jobIdsShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.jobIds, 'JobIds', 'json');
+  }
+  var body : map[string]any = {};
+  if (!Util.isUnset(request.jobIdsShrink)) {
+    body['JobIds'] = request.jobIdsShrink;
+  }
+  if (!Util.isUnset(request.originalAppName)) {
+    body['OriginalAppName'] = request.originalAppName;
+  }
+  if (!Util.isUnset(request.originalClusterId)) {
+    body['OriginalClusterId'] = request.originalClusterId;
+  }
+  if (!Util.isUnset(request.targetAppName)) {
+    body['TargetAppName'] = request.targetAppName;
+  }
+  if (!Util.isUnset(request.targetClusterId)) {
+    body['TargetClusterId'] = request.targetClusterId;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApi.Params{
+    action = 'SyncJobs',
+    version = '2024-06-24',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 同步任务
+ *
+ * @param request SyncJobsRequest
+ * @return SyncJobsResponse
+ */
+async function syncJobs(request: SyncJobsRequest): SyncJobsResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return syncJobsWithOptions(request, runtime);
 }
 
 model UpdateAppRequest {
@@ -3337,12 +3763,91 @@ async function updateCluster(request: UpdateClusterRequest): UpdateClusterRespon
   return updateClusterWithOptions(request, runtime);
 }
 
+model UpdateExecutorsRequest {
+  appName?: string(name='AppName', description='This parameter is required.', example='test-app'),
+  clusterId?: string(name='ClusterId', description='This parameter is required.', example='xxljob-a1804a3226d'),
+  workerType?: string(name='WorkerType', example='k8s_service'),
+  workers?: string(name='Workers', example='[{"cluster":"xxxxx","namespace":"xxxxx","service":"xxxxx"}]'),
+}
+
+model UpdateExecutorsResponseBody = {
+  code?: int32(name='Code', example='200'),
+  data?: {
+    appGroupId?: long(name='AppGroupId', example='1'),
+    appType?: int32(name='AppType', example='1'),
+    failedService?: string(name='FailedService', example='[{"cluster":"xxxxx","namespace":"xxxxx","service":"xxxxx"}]'),
+    workId?: int32(name='WorkId', example='1'),
+    workerType?: string(name='WorkerType', example='k8s_service'),
+    workers?: string(name='Workers', example='[{"cluster":"xxxxx","namespace":"xxxxx","service":"xxxxx"}]'),
+  }(name='Data', description='-'),
+  message?: string(name='Message', example='Parameter error: content is null.'),
+  requestId?: string(name='RequestId', description='Id of the request', example='3835AA29-2298-5434-BC53-9CC377CDFD2C'),
+  success?: boolean(name='Success', example='true'),
+}
+
+model UpdateExecutorsResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: UpdateExecutorsResponseBody(name='body'),
+}
+
+/**
+ * @summary 更新执行器
+ *
+ * @param request UpdateExecutorsRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return UpdateExecutorsResponse
+ */
+async function updateExecutorsWithOptions(request: UpdateExecutorsRequest, runtime: Util.RuntimeOptions): UpdateExecutorsResponse {
+  Util.validateModel(request);
+  var body : map[string]any = {};
+  if (!Util.isUnset(request.appName)) {
+    body['AppName'] = request.appName;
+  }
+  if (!Util.isUnset(request.clusterId)) {
+    body['ClusterId'] = request.clusterId;
+  }
+  if (!Util.isUnset(request.workerType)) {
+    body['WorkerType'] = request.workerType;
+  }
+  if (!Util.isUnset(request.workers)) {
+    body['Workers'] = request.workers;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApi.Params{
+    action = 'UpdateExecutors',
+    version = '2024-06-24',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 更新执行器
+ *
+ * @param request UpdateExecutorsRequest
+ * @return UpdateExecutorsResponse
+ */
+async function updateExecutors(request: UpdateExecutorsRequest): UpdateExecutorsResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return updateExecutorsWithOptions(request, runtime);
+}
+
 model UpdateJobRequest {
   appName?: string(name='AppName', description='This parameter is required.', example='test-app'),
   attemptInterval?: int32(name='AttemptInterval', example='3'),
   calendar?: string(name='Calendar', example='workday'),
-  childJobId?: string(name='ChildJobId'),
+  childJobId?: string(name='ChildJobId', example='1,2'),
   clusterId?: string(name='ClusterId', description='This parameter is required.', example='xxljob-b6ec1xxxx'),
+  dependentStrategy?: int32(name='DependentStrategy', example='1'),
   description?: string(name='Description', example='test'),
   executorBlockStrategy?: int32(name='ExecutorBlockStrategy', example='1'),
   jobHandler?: string(name='JobHandler', example='testJobVoidHandler'),
@@ -3351,6 +3856,8 @@ model UpdateJobRequest {
   maxConcurrency?: int32(name='MaxConcurrency', example='1'),
   name?: string(name='Name', example='test-job'),
   noticeConfig?: {
+    endEarly?: int32(name='EndEarly', example='30'),
+    endEarlyEnable?: boolean(name='EndEarlyEnable'),
     failEnable?: boolean(name='FailEnable', example='true'),
     failLimitTimes?: int32(name='FailLimitTimes', example='true'),
     missWorkerEnable?: boolean(name='MissWorkerEnable', example='true'),
@@ -3369,8 +3876,9 @@ model UpdateJobRequest {
   parameters?: string(name='Parameters', example='test'),
   priority?: int32(name='Priority', example='10'),
   routeStrategy?: int32(name='RouteStrategy', example='1'),
-  script?: string(name='Script'),
+  script?: string(name='Script', example='echo "hello world"'),
   startTime?: long(name='StartTime', example='1716902187'),
+  startTimeType?: string(name='StartTimeType', example='1'),
   timeExpression?: string(name='TimeExpression', example='0 0 4 ? * Mon/1'),
   timeType?: int32(name='TimeType', example='1'),
   timezone?: string(name='Timezone', example='Asia/Beijing'),
@@ -3381,8 +3889,9 @@ model UpdateJobShrinkRequest {
   appName?: string(name='AppName', description='This parameter is required.', example='test-app'),
   attemptInterval?: int32(name='AttemptInterval', example='3'),
   calendar?: string(name='Calendar', example='workday'),
-  childJobId?: string(name='ChildJobId'),
+  childJobId?: string(name='ChildJobId', example='1,2'),
   clusterId?: string(name='ClusterId', description='This parameter is required.', example='xxljob-b6ec1xxxx'),
+  dependentStrategy?: int32(name='DependentStrategy', example='1'),
   description?: string(name='Description', example='test'),
   executorBlockStrategy?: int32(name='ExecutorBlockStrategy', example='1'),
   jobHandler?: string(name='JobHandler', example='testJobVoidHandler'),
@@ -3395,8 +3904,9 @@ model UpdateJobShrinkRequest {
   parameters?: string(name='Parameters', example='test'),
   priority?: int32(name='Priority', example='10'),
   routeStrategy?: int32(name='RouteStrategy', example='1'),
-  script?: string(name='Script'),
+  script?: string(name='Script', example='echo "hello world"'),
   startTime?: long(name='StartTime', example='1716902187'),
+  startTimeType?: string(name='StartTimeType', example='1'),
   timeExpression?: string(name='TimeExpression', example='0 0 4 ? * Mon/1'),
   timeType?: int32(name='TimeType', example='1'),
   timezone?: string(name='Timezone', example='Asia/Beijing'),
@@ -3449,6 +3959,9 @@ async function updateJobWithOptions(tmpReq: UpdateJobRequest, runtime: Util.Runt
   if (!Util.isUnset(request.clusterId)) {
     body['ClusterId'] = request.clusterId;
   }
+  if (!Util.isUnset(request.dependentStrategy)) {
+    body['DependentStrategy'] = request.dependentStrategy;
+  }
   if (!Util.isUnset(request.description)) {
     body['Description'] = request.description;
   }
@@ -3490,6 +4003,9 @@ async function updateJobWithOptions(tmpReq: UpdateJobRequest, runtime: Util.Runt
   }
   if (!Util.isUnset(request.startTime)) {
     body['StartTime'] = request.startTime;
+  }
+  if (!Util.isUnset(request.startTimeType)) {
+    body['StartTimeType'] = request.startTimeType;
   }
   if (!Util.isUnset(request.timeExpression)) {
     body['TimeExpression'] = request.timeExpression;
