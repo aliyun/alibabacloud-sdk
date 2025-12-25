@@ -28,6 +28,29 @@ function getEndpoint(productId: string, regionId: string, endpointRule: string, 
   return EndpointUtil.getEndpointRules(productId, regionId, endpointRule, network, suffix);
 }
 
+model DBVersionDetail {
+  specs?: [ 
+    {
+      componentSpecs?: [ 
+        {
+          defaultReplicas?: int32(name='defaultReplicas'),
+          maxReplicas?: int32(name='maxReplicas'),
+          minReplicas?: int32(name='minReplicas'),
+          name?: string(name='name'),
+          specs?: [ string ](name='specs'),
+          step?: int32(name='step'),
+          type?: string(name='type'),
+        }
+      ](name='componentSpecs'),
+      isHA?: boolean(name='isHA'),
+      isStandalone?: boolean(name='isStandalone'),
+      zoneMode?: string(name='zoneMode'),
+    }
+  ](name='specs'),
+  status?: string(name='status'),
+  version?: string(name='version'),
+}
+
 model InstanceDetail {
   autoBackup?: boolean(name='autoBackup'),
   components?: [ 
@@ -70,6 +93,54 @@ model InstanceDetail {
   ](name='vSwitchIds'),
   vpcId?: string(name='vpcId'),
   zoneId?: string(name='zoneId'),
+}
+
+model MigrationSource {
+  authInfo?: {
+    authType?: string(name='authType'),
+    password?: string(name='password'),
+    token?: string(name='token'),
+    username?: string(name='username'),
+  }(name='authInfo'),
+  database?: string(name='database'),
+  endpoint?: {
+    endpoint?: string(name='endpoint'),
+    port?: string(name='port'),
+  }(name='endpoint'),
+}
+
+model PriceInfo {
+  currency?: string(name='currency'),
+  discountAmount?: string(name='discountAmount'),
+  optionalPromotions?: [
+    PromotionInfo
+  ](name='optionalPromotions'),
+  originalAmount?: string(name='originalAmount'),
+  priceModules?: [ 
+    {
+      originalAmount?: string(name='originalAmount'),
+      type?: string(name='type'),
+    }
+  ](name='priceModules'),
+  rules?: [ 
+    {
+      amount?: string(name='amount'),
+      name?: string(name='name'),
+      ruleId?: string(name='ruleId'),
+    }
+  ](name='rules'),
+  taxAmount?: string(name='taxAmount'),
+  tradeAmount?: string(name='tradeAmount'),
+}
+
+model PromotionInfo {
+  canPromFee?: string(name='canPromFee'),
+  isSelected?: boolean(name='isSelected'),
+  promotionDesc?: string(name='promotionDesc'),
+  promotionName?: string(name='promotionName'),
+  promotionOptionCode?: string(name='promotionOptionCode'),
+  promotionOptionNo?: string(name='promotionOptionNo'),
+  selected?: boolean(name='selected'),
 }
 
 model ChangeResourceGroupRequest {
@@ -208,6 +279,7 @@ async function createDefaultRole(): CreateDefaultRoleResponse {
 model CreateInstanceRequest {
   regionId?: string(name='RegionId', example='cn-beijing'),
   autoBackup?: boolean(name='autoBackup'),
+  autoRenew?: boolean(name='autoRenew'),
   components?: [ 
     {
       cuNum?: int32(name='cuNum', description='This parameter is required.', example='8'),
@@ -223,11 +295,14 @@ model CreateInstanceRequest {
   encrypted?: boolean(name='encrypted'),
   ha?: boolean(name='ha', example='true'),
   instanceName?: string(name='instanceName', example='milvus-test'),
+  isMultiAzStorage?: boolean(name='isMultiAzStorage'),
   kmsKeyId?: string(name='kmsKeyId'),
+  loadReplicas?: int32(name='loadReplicas'),
   multiZoneMode?: string(name='multiZoneMode'),
   paymentDuration?: int32(name='paymentDuration', example='1'),
   paymentDurationUnit?: string(name='paymentDurationUnit', example='month'),
   paymentType?: string(name='paymentType', description='This parameter is required.', example='PayAsYouGo'),
+  promotionNo?: string(name='promotionNo'),
   resourceGroupId?: string(name='resourceGroupId', example='rg-xxx'),
   tags?: [ 
     {
@@ -283,6 +358,9 @@ async function createInstanceWithOptions(request: CreateInstanceRequest, headers
   if (!Util.isUnset(request.autoBackup)) {
     body['autoBackup'] = request.autoBackup;
   }
+  if (!Util.isUnset(request.autoRenew)) {
+    body['autoRenew'] = request.autoRenew;
+  }
   if (!Util.isUnset(request.components)) {
     body['components'] = request.components;
   }
@@ -304,8 +382,14 @@ async function createInstanceWithOptions(request: CreateInstanceRequest, headers
   if (!Util.isUnset(request.instanceName)) {
     body['instanceName'] = request.instanceName;
   }
+  if (!Util.isUnset(request.isMultiAzStorage)) {
+    body['isMultiAzStorage'] = request.isMultiAzStorage;
+  }
   if (!Util.isUnset(request.kmsKeyId)) {
     body['kmsKeyId'] = request.kmsKeyId;
+  }
+  if (!Util.isUnset(request.loadReplicas)) {
+    body['loadReplicas'] = request.loadReplicas;
   }
   if (!Util.isUnset(request.multiZoneMode)) {
     body['multiZoneMode'] = request.multiZoneMode;
@@ -318,6 +402,9 @@ async function createInstanceWithOptions(request: CreateInstanceRequest, headers
   }
   if (!Util.isUnset(request.paymentType)) {
     body['paymentType'] = request.paymentType;
+  }
+  if (!Util.isUnset(request.promotionNo)) {
+    body['promotionNo'] = request.promotionNo;
   }
   if (!Util.isUnset(request.resourceGroupId)) {
     body['resourceGroupId'] = request.resourceGroupId;
@@ -662,6 +749,7 @@ model GetInstanceDetailResponseBody = {
           diskSize?: int32(name='DiskSize', description='The disk size.', example='100'),
           diskType?: string(name='DiskType', description='The disk type.', example='essd'),
           replica?: int32(name='Replica', description='The number of replicas.', example='2'),
+          zoneId?: string(name='ZoneId'),
         }
       ](name='MilvusResourceInfoList', description='The resource details.'),
       ossStorageSize?: string(name='OssStorageSize', description='The size of the data stored in OSS.', example='125.15 GB'),
@@ -674,6 +762,12 @@ model GetInstanceDetailResponseBody = {
     enableHa?: boolean(name='EnableHa', example='true'),
     encrypted?: string(name='Encrypted'),
     expireTime?: long(name='ExpireTime', description='The expiration time.', example='1721664000000'),
+    highAvailability?: {
+      currentActiveAZ?: string(name='CurrentActiveAZ'),
+      mode?: string(name='Mode'),
+      primaryZoneId?: string(name='PrimaryZoneId'),
+      secondaryZoneId?: string(name='SecondaryZoneId'),
+    }(name='HighAvailability'),
     instanceId?: string(name='InstanceId', description='The ID of the instance.', example='c-123xxx'),
     instanceStatus?: string(name='InstanceStatus', description='The instance status. Valid values:
 
@@ -876,6 +970,7 @@ model ListInstancesResponseBody = {
           value?: string(name='Value', example='value1'),
         }
       ](name='Tags'),
+      version?: string(name='Version'),
       vpcId?: string(name='VpcId', description='The virtual private cloud (VPC) ID.', example='vpc-123xxx'),
       vswId?: string(name='VswId', description='The ID of the vSwitch.', example='vsw-123xxx'),
       zoneId?: string(name='ZoneId', description='The zone.', example='cn-beijing-g'),
