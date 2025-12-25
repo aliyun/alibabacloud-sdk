@@ -283,6 +283,7 @@ model AlertRuleLabelFilter {
 model AlertRuleNotification {
   contacts?: [ string ](name='contacts'),
   customWebhooks?: [ string ](name='customWebhooks'),
+  dingCoolAppWebhooks?: [ string ](name='dingCoolAppWebhooks'),
   dingWebhooks?: [ string ](name='dingWebhooks'),
   fsWebhooks?: [ string ](name='fsWebhooks'),
   groups?: [ string ](name='groups'),
@@ -1331,6 +1332,76 @@ async function createBizTrace(request: CreateBizTraceRequest): CreateBizTraceRes
   return @handler.do('RESTFUL', 'CreateBizTrace', 'POST', '/bizTrace', 'json', false, 'json', request);
 }
 
+model CreateChatRequest {
+  regionId?: string(name='RegionId', position='Host'),
+  action?: string(name='action', example='create', position='Body'),
+  digitalEmployeeName?: string(name='digitalEmployeeName', example='test', position='Body'),
+  messages?: [ 
+    {
+      contents?: [ 
+        {
+          type?: string(name='type', example='text'),
+          value?: string(name='value', example='test'),
+        }
+      ](name='contents'),
+      messageId?: string(name='messageId', example='message_id02'),
+      role?: string(name='role', example='system'),
+      tools?: [  map[string]any ](name='tools'),
+    }
+  ](name='messages', position='Body'),
+  threadId?: string(name='threadId', example='thread_id01', position='Body'),
+  variables?: map[string]any(name='variables', position='Body'),
+}
+
+model CreateChatResponseBody = {
+  messages?: [ 
+    {
+      agents?: [  map[string]any ](name='agents'),
+      callId?: string(name='callId', example='call_search_001'),
+      contents?: [  map[string]any ](name='contents'),
+      detail?: string(name='detail', example='test'),
+      parentCallId?: string(name='parentCallId', example='sess_abc123'),
+      role?: string(name='role', example='tool'),
+      seq?: int32(name='seq', example='1'),
+      timestamp?: long(name='timestamp', example='1765000005'),
+      tools?: [  map[string]any ](name='tools'),
+      type?: string(name='type', example='done'),
+    }
+  ](name='messages'),
+  requestId?: string(name='requestId', example='0CEC5375-XXXX-XXXX-XXXX-9A629907C1F0'),
+  traceId?: string(name='traceId', example='21504600000008405622576e3b48'),
+}
+
+model CreateChatResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: CreateChatResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of CreateChat  CreateChatRequest
+  * @return CreateChatResponse
+ */
+async function createChat(request: CreateChatRequest): CreateChatResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'CreateChat', 'POST', '/chat', 'json', false, 'json', request);
+}
+
+async function createChatWithRequestBody(request: CreateChatRequest, requestBody: RequestBody): CreateChatResponse {
+  @handler.validateRequestModel(request);
+  return @handler.doRequestBody('RESTFUL', 'CreateChat', 'POST', '/chat', 'json', false, 'json', request, requestBody);
+}
+
+async function createChatWithAsyncResponseHandler(request: CreateChatRequest, responseHandler: AsyncResponseHandler): CreateChatResponse {
+  @handler.validateRequestModel(request);
+  return @handler.doResponseHandler('RESTFUL', 'CreateChat', 'POST', '/chat', 'json', false, 'json', request, responseHandler);
+}
+
+function createChatWithResponseIterable(request: CreateChatRequest): iterator[CreateChatResponseBody] {
+  @handler.validateRequestModel(request);
+  yield @handler.doSSERequest('SSE', 'CreateChat', 'POST', '/chat', 'json', false, 'json', request);
+}
+
 model CreateCloudResourceRequest {
 }
 
@@ -1351,6 +1422,45 @@ model CreateCloudResourceResponse = {
 async function createCloudResource(request: CreateCloudResourceRequest): CreateCloudResourceResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RESTFUL', 'CreateCloudResource', 'POST', '/cloudresource', 'json', false, 'json', request);
+}
+
+model CreateDigitalEmployeeRequest {
+  regionId?: string(name='RegionId', position='Host'),
+  defaultRule?: string(name='defaultRule', example='test', position='Body'),
+  description?: string(name='description', example='aaa', position='Body'),
+  displayName?: string(name='displayName', example='digial-employee-test', maxLength=128, position='Body'),
+  knowledges?: {
+    bailian?: [ 
+      {
+        attributes?: string(name='attributes', example='test'),
+        indexId?: string(name='indexId', example='index-xxxx'),
+        region?: string(name='region', example='cn-beijing'),
+        workspaceId?: string(name='workspaceId', example='llm-xxxxx'),
+      }
+    ](name='bailian'),
+  }(name='knowledges', position='Body'),
+  name: string(name='name', description='This parameter is required.', example='test', position='Body'),
+  roleArn: string(name='roleArn', description='This parameter is required.', example='acs:ram::12345678912:role/testrole', position='Body'),
+}
+
+model CreateDigitalEmployeeResponseBody = {
+  name?: string(name='name', example='test'),
+  requestId?: string(name='requestId', example='3B311FD9-A60B-55E0-A896-A0C73*********'),
+}
+
+model CreateDigitalEmployeeResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: CreateDigitalEmployeeResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of CreateDigitalEmployee  CreateDigitalEmployeeRequest
+  * @return CreateDigitalEmployeeResponse
+ */
+async function createDigitalEmployee(request: CreateDigitalEmployeeRequest): CreateDigitalEmployeeResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'CreateDigitalEmployee', 'POST', '/digital-employee', 'json', false, 'json', request);
 }
 
 model CreateEntityStoreRequest {
@@ -1634,6 +1744,35 @@ async function createService(request: CreateServiceRequest): CreateServiceRespon
   return @handler.do('RESTFUL', 'CreateService', 'POST', '/workspace/{workspace}/service', 'json', false, 'json', request);
 }
 
+model CreateThreadRequest {
+  name: string(name='name', description='This parameter is required.', example='test', position='Path'),
+  title?: string(name='title', example='test', position='Body'),
+  variables?: {
+    project?: string(name='project', example='az_alipay'),
+    workspace?: string(name='workspace', example='rum-monitor-test-aysls-pub-cn-heyuan-monitor'),
+  }(name='variables', position='Body'),
+}
+
+model CreateThreadResponseBody = {
+  requestId?: string(name='requestId', description='Id of the request', example='8FDE2569-626B-5176-9844-28877A*****'),
+  threadId?: string(name='threadId', example='thread_id01'),
+}
+
+model CreateThreadResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: CreateThreadResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of CreateThread  CreateThreadRequest
+  * @return CreateThreadResponse
+ */
+async function createThread(request: CreateThreadRequest): CreateThreadResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'CreateThread', 'POST', '/digitalEmployee/{name}/thread', 'json', false, 'json', request);
+}
+
 model CreateTicketRequest {
   accessTokenExpirationTime?: long(name='accessTokenExpirationTime', description='- Access token expiration time (in seconds), which is the expiration time for the user to access the page interface. The default value is 86400 seconds (one day), and the range of values is from 0 to 86400 seconds (one day).
 - The access token expiration time is the minimum value between `accessTokenExpirationTime` and `expirationTime`.
@@ -1790,6 +1929,30 @@ async function deleteCloudResource(request: DeleteCloudResourceRequest): DeleteC
   return @handler.do('RESTFUL', 'DeleteCloudResource', 'DELETE', '/cloudresource', 'json', false, 'json', request);
 }
 
+model DeleteDigitalEmployeeRequest {
+  name: string(name='name', description='This parameter is required.', example='test', position='Path'),
+  regionId?: string(name='RegionId', position='Host'),
+}
+
+model DeleteDigitalEmployeeResponseBody = {
+  requestId?: string(name='requestId', example='8FDE2569-626B-5176-9844-28877A*****'),
+}
+
+model DeleteDigitalEmployeeResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: DeleteDigitalEmployeeResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of DeleteDigitalEmployee  DeleteDigitalEmployeeRequest
+  * @return DeleteDigitalEmployeeResponse
+ */
+async function deleteDigitalEmployee(request: DeleteDigitalEmployeeRequest): DeleteDigitalEmployeeResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'DeleteDigitalEmployee', 'DELETE', '/digital-employee/{name}', 'json', false, 'json', request);
+}
+
 model DeleteEntityStoreRequest {
   workspaceName: string(name='workspaceName', description='workspace name
 
@@ -1921,6 +2084,31 @@ model DeleteServiceResponse = {
 async function deleteService(request: DeleteServiceRequest): DeleteServiceResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RESTFUL', 'DeleteService', 'DELETE', '/workspace/{workspace}/service/{serviceId}', 'json', false, 'json', request);
+}
+
+model DeleteThreadRequest {
+  name: string(name='name', description='This parameter is required.', example='test', position='Path'),
+  threadId: string(name='threadId', description='This parameter is required.', example='thread_id01', position='Path'),
+}
+
+model DeleteThreadResponseBody = {
+  deleted?: boolean(name='deleted'),
+  requestId?: string(name='requestId', description='Id of the request', example='123-0F43-23423-AC43-34234'),
+}
+
+model DeleteThreadResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: DeleteThreadResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of DeleteThread  DeleteThreadRequest
+  * @return DeleteThreadResponse
+ */
+async function deleteThread(request: DeleteThreadRequest): DeleteThreadResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'DeleteThread', 'DELETE', '/digitalEmployee/{name}/thread/{threadId}', 'json', false, 'json', request);
 }
 
 model DeleteUmodelRequest {
@@ -2473,6 +2661,48 @@ async function getCmsService(request: GetCmsServiceRequest): GetCmsServiceRespon
   return @handler.do('RESTFUL', 'GetCmsService', 'GET', '/cmsservice', 'json', false, 'json', request);
 }
 
+model GetDigitalEmployeeRequest {
+  name: string(name='name', description='This parameter is required.', example='test', position='Path'),
+  regionId?: string(name='RegionId', position='Host'),
+}
+
+model GetDigitalEmployeeResponseBody = {
+  createTime?: string(name='createTime', description='Use the UTC time format: yyyy-MM-ddTHH:mm:ssZ', example='2025-03-11T08:21:58Z'),
+  defaultRule?: string(name='defaultRule', example='test'),
+  description?: string(name='description', example='test'),
+  displayName?: string(name='displayName', example='test', maxLength=128),
+  knowledges?: {
+    bailian?: [ 
+      {
+        attributes?: string(name='attributes', example='test'),
+        indexId?: string(name='indexId', example='index-xxxx'),
+        region?: string(name='region', example='cn-beijing'),
+        workspaceId?: string(name='workspaceId', example='llm-xxxxx'),
+      }
+    ](name='bailian'),
+  }(name='knowledges'),
+  name?: string(name='name', example='test'),
+  regionId?: string(name='regionId', example='cn-beijing'),
+  requestId?: string(name='requestId', example='0B9377D9-C56B-5C2E-A8A4-************'),
+  roleArn?: string(name='roleArn', example='acs:ram::12345678912:role/testrole'),
+  updateTime?: string(name='updateTime', description='Use the UTC time format: yyyy-MM-ddTHH:mm:ssZ', example='2025-02-18T02:25:06Z'),
+}
+
+model GetDigitalEmployeeResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: GetDigitalEmployeeResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of GetDigitalEmployee  GetDigitalEmployeeRequest
+  * @return GetDigitalEmployeeResponse
+ */
+async function getDigitalEmployee(request: GetDigitalEmployeeRequest): GetDigitalEmployeeResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'GetDigitalEmployee', 'GET', '/digital-employee/{name}', 'json', false, 'json', request);
+}
+
 model GetEntityStoreRequest {
   workspaceName: string(name='workspaceName', description='Workspace name
 
@@ -2955,6 +3185,88 @@ model GetServiceObservabilityResponse = {
 async function getServiceObservability(request: GetServiceObservabilityRequest): GetServiceObservabilityResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RESTFUL', 'GetServiceObservability', 'GET', '/workspace/{workspace}/service-observability/{type}', 'json', false, 'json', request);
+}
+
+model GetThreadRequest {
+  name: string(name='name', description='This parameter is required.', example='test', position='Path'),
+  threadId: string(name='threadId', description='This parameter is required.', example='thread_id01', position='Path'),
+}
+
+model GetThreadResponseBody = {
+  createTime?: string(name='createTime', example='2025-12-19T15:19:55.040403272+08:00'),
+  digitalEmployeeName?: string(name='digitalEmployeeName', example='test'),
+  requestId?: string(name='requestId', description='Id of the request', example='8FDE2569-626B-5176-9844-28877A*****'),
+  status?: string(name='status', example='active'),
+  threadId?: string(name='threadId', example='thread-t71rrw-1s7r7z9gu0v2s'),
+  title?: string(name='title', example='testLive'),
+  updateTime?: string(name='updateTime', example='2025-12-19T15:19:55.040403272+08:00'),
+  variables?: {
+    project?: string(name='project', example='kubenest'),
+    workspace?: string(name='workspace', example='hd1'),
+  }(name='variables'),
+  version?: long(name='version', example='1231'),
+}
+
+model GetThreadResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: GetThreadResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of GetThread  GetThreadRequest
+  * @return GetThreadResponse
+ */
+async function getThread(request: GetThreadRequest): GetThreadResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'GetThread', 'GET', '/digitalEmployee/{name}/thread/{threadId}', 'json', false, 'json', request);
+}
+
+model GetThreadDataRequest {
+  name: string(name='name', description='This parameter is required.', example='test', position='Path'),
+  threadId: string(name='threadId', description='This parameter is required.', example='thread_id01', position='Path'),
+  maxResults?: long(name='maxResults', example='10', position='Query'),
+  nextToken?: string(name='nextToken', example='xxxxxxxxxx', position='Query'),
+}
+
+model GetThreadDataResponseBody = {
+  digitalEmployeeName?: string(name='digitalEmployeeName', example='test'),
+  maxResults?: long(name='maxResults', example='2'),
+  messages?: [ 
+    {
+      callerUid?: string(name='callerUid', example='205190712643664705'),
+      digitalEmployeeName?: string(name='digitalEmployeeName', example='test'),
+      items?: [  map[string]any ](name='items'),
+      messageId?: string(name='messageId', example='7F0000012B1B668BC3D59A7EF8A00063'),
+      ownerUid?: string(name='ownerUid', example='1560138499250147'),
+      parentMessageId?: string(name='parentMessageId', example='xxxx'),
+      region?: string(name='region', example='cn-qingdao'),
+      role?: string(name='role', example='user'),
+      runId?: string(name='runId', example='jr-c2b000da0e41b543'),
+      threadId?: string(name='threadId', example='98958d65-6cdb-4f40-8f46-f5e49f13c860'),
+      timestamp?: string(name='timestamp', example='1765359068'),
+      traceId?: string(name='traceId', example='3b5287ba17572104610774286d0096'),
+      variables?: map[string]string(name='variables'),
+    }
+  ](name='messages'),
+  nextToken?: string(name='nextToken', example='xxxxxxxxx'),
+  requestId?: string(name='requestId', description='Id of the request', example='8FDE2569-626B-5176-9844-28877A*****'),
+  threadId?: string(name='threadId', example='aliding_thread_448d05c048a3481f8c19bc1a6038f8f6'),
+}
+
+model GetThreadDataResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: GetThreadDataResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of GetThreadData  GetThreadDataRequest
+  * @return GetThreadDataResponse
+ */
+async function getThreadData(request: GetThreadDataRequest): GetThreadDataResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'GetThreadData', 'GET', '/digitalEmployee/{name}/thread/{threadId}/data', 'json', false, 'json', request);
 }
 
 model GetUmodelRequest {
@@ -3446,6 +3758,56 @@ model ListBizTracesResponse = {
 async function listBizTraces(request: ListBizTracesRequest): ListBizTracesResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RESTFUL', 'ListBizTraces', 'GET', '/bizTraces', 'json', false, 'json', request);
+}
+
+model ListDigitalEmployeesRequest {
+  regionId?: string(name='RegionId', position='Host'),
+  maxResults?: int32(name='maxResults', example='10', minimum=0, maximum=100, position='Query'),
+  name?: string(name='name', example='test', position='Query'),
+  nextToken?: string(name='nextToken', example='xxxxxx', position='Query'),
+}
+
+model ListDigitalEmployeesResponseBody = {
+  digitalEmployees?: [ 
+    {
+      createTime?: string(name='createTime', description='Use the UTC time format: yyyy-MM-ddTHH:mm:ssZ', example='2025-11-04T08:08:57Z'),
+      defaultRule?: string(name='defaultRule', example='test'),
+      description?: string(name='description', example='test'),
+      displayName?: string(name='displayName', example='test', maxLength=128),
+      knowledges?: {
+        bailian?: [ 
+          {
+            attributes?: string(name='attributes', example='test'),
+            indexId?: string(name='indexId', example='index-xxxx'),
+            region?: string(name='region', example='cn-beijing'),
+            workspaceId?: string(name='workspaceId', example='llm-xxxx'),
+          }
+        ](name='bailian'),
+      }(name='knowledges'),
+      name?: string(name='name', example='test'),
+      roleArn?: string(name='roleArn', example='acs:ram::12345678912:role/testrole'),
+      updateTime?: string(name='updateTime', description='Use the UTC time format: yyyy-MM-ddTHH:mm:ssZ', example='2025-05-07T02:26:01Z'),
+    }
+  ](name='digitalEmployees'),
+  maxResults?: int32(name='maxResults', example='10'),
+  nextToken?: string(name='nextToken', example='xxxxx'),
+  requestId?: string(name='requestId', example='8FDE2569-626B-5176-9844-28877A*****'),
+  total?: int32(name='total', example='56'),
+}
+
+model ListDigitalEmployeesResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ListDigitalEmployeesResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of ListDigitalEmployees  ListDigitalEmployeesRequest
+  * @return ListDigitalEmployeesResponse
+ */
+async function listDigitalEmployees(request: ListDigitalEmployeesRequest): ListDigitalEmployeesResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'ListDigitalEmployees', 'GET', '/digital-employee', 'json', false, 'json', request);
 }
 
 model ListIntegrationPoliciesRequest {
@@ -4252,6 +4614,58 @@ async function listServices(request: ListServicesRequest): ListServicesResponse 
   return @handler.do('RESTFUL', 'ListServices', 'GET', '/workspace/{workspace}/services', 'json', false, 'json', request);
 }
 
+model ListThreadsRequest {
+  name: string(name='name', description='This parameter is required.', example='test', position='Path'),
+  filter?: [ 
+    {
+      key: string(name='key', description='This parameter is required.', example='dukang-oxs-pre-obeqi'),
+      value: string(name='value', description='This parameter is required.', example='[{\\"Type\\": \\"primaryDoc\\", \\"Id\\": \\"01ZM8y7\\", \\"Name\\": \\"key\\"}, {\\"Type\\": \\"text\\", \\"Id\\": \\"mHe1U1b\\", \\"Name\\": \\"value\\"}, {\\"Type\\": \\"text\\", \\"Id\\": \\"rRIhpBs\\", \\"Name\\": u\\"\\u4f5c\\u7528\\"}]'),
+    }
+  ](name='filter', shrink='json', position='Query'),
+  maxResults?: long(name='maxResults', example='20', position='Query'),
+  nextToken?: string(name='nextToken', example='xxxxxx', position='Query'),
+  status?: string(name='status', example='Running', position='Query'),
+  threadId?: string(name='threadId', example='thread_id01', position='Query'),
+}
+
+model ListThreadsResponseBody = {
+  maxResults?: long(name='maxResults', example='20'),
+  nextToken?: string(name='nextToken', example='xxxxxxxxxx'),
+  requestId?: string(name='requestId', description='Id of the request', example='CD8BA7D6-995D-578D-9941-78B0FECD14B5'),
+  threadId?: string(name='threadId', example='thread_id01'),
+  threads?: [ 
+    {
+      createTime?: string(name='createTime', example='2025-04-22T12:46:34Z'),
+      digitalEmployeeName?: string(name='digitalEmployeeName', example='test'),
+      status?: string(name='status', example='active'),
+      threadId?: string(name='threadId', example='thread-t71rrw-1s7r7z9gu0v2s'),
+      title?: string(name='title', example='test'),
+      updateTime?: string(name='updateTime', example='2025-06-24 10:05:21'),
+      variables?: {
+        project?: string(name='project', description='SLS project。', example='ciec_rl_ads'),
+        workspace?: string(name='workspace', example='hd1-np'),
+      }(name='variables'),
+      version?: long(name='version', example='*'),
+    }
+  ](name='threads'),
+  total?: long(name='total', example='1'),
+}
+
+model ListThreadsResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ListThreadsResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of ListThreads  ListThreadsRequest
+  * @return ListThreadsResponse
+ */
+async function listThreads(request: ListThreadsRequest): ListThreadsResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'ListThreads', 'GET', '/digitalEmployee/{name}/threads', 'json', false, 'json', request);
+}
+
 model ListWorkspacesRequest {
   maxResults?: int32(name='maxResults', description='Page size
 Default value:
@@ -4497,6 +4911,44 @@ model UpdateBizTraceResponse = {
 async function updateBizTrace(request: UpdateBizTraceRequest): UpdateBizTraceResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RESTFUL', 'UpdateBizTrace', 'PUT', '/bizTrace/{bizTraceId}', 'json', false, 'json', request);
+}
+
+model UpdateDigitalEmployeeRequest {
+  name: string(name='name', description='This parameter is required.', example='test', position='Path'),
+  regionId?: string(name='RegionId', position='Host'),
+  defaultRule?: string(name='defaultRule', example='test', position='Body'),
+  description?: string(name='description', example='test', position='Body'),
+  displayName?: string(name='displayName', example='test', maxLength=128, position='Body'),
+  knowledges?: {
+    bailian?: [ 
+      {
+        attributes?: string(name='attributes', example='test'),
+        indexId?: string(name='indexId', example='index-xxxx'),
+        region?: string(name='region', example='cn-beijing'),
+        workspaceId?: string(name='workspaceId', example='llm-xxxx'),
+      }
+    ](name='bailian'),
+  }(name='knowledges', position='Body'),
+  roleArn?: string(name='roleArn', example='acs:ram::12345678912:role/testrole', position='Body'),
+}
+
+model UpdateDigitalEmployeeResponseBody = {
+  requestId?: string(name='requestId', example='0CEC5375-C554-562B-A65F-***'),
+}
+
+model UpdateDigitalEmployeeResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: UpdateDigitalEmployeeResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of UpdateDigitalEmployee  UpdateDigitalEmployeeRequest
+  * @return UpdateDigitalEmployeeResponse
+ */
+async function updateDigitalEmployee(request: UpdateDigitalEmployeeRequest): UpdateDigitalEmployeeResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'UpdateDigitalEmployee', 'PATCH', '/digital-employee/{name}', 'json', false, 'json', request);
 }
 
 model UpdateIntegrationPolicyRequest {
@@ -4754,6 +5206,34 @@ model UpdateSubscriptionResponse = {
 async function updateSubscription(request: UpdateSubscriptionRequest): UpdateSubscriptionResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RESTFUL', 'UpdateSubscription', 'PUT', '/subscriptions/{subscriptionId}', 'json', false, 'json', request);
+}
+
+model UpdateThreadRequest {
+  name: string(name='name', description='This parameter is required.', example='test', position='Path'),
+  threadId: string(name='threadId', description='This parameter is required.', example='thread-t71rrw-1s7r7z9gu0v2s', position='Path'),
+  status?: string(name='status', example='active', position='Body'),
+  title?: string(name='title', example='MY ANTOM Tech Team Annual Dinner Performance Lucky Draw', position='Body'),
+}
+
+model UpdateThreadResponseBody = {
+  requestId?: string(name='requestId', description='Id of the request', example='264C3E89-XXXX-XXXX-XXXX-CE9C2196C7DC'),
+  threadId?: string(name='threadId', example='thread_id01'),
+  version?: long(name='version', example='0.1.0'),
+}
+
+model UpdateThreadResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: UpdateThreadResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of UpdateThread  UpdateThreadRequest
+  * @return UpdateThreadResponse
+ */
+async function updateThread(request: UpdateThreadRequest): UpdateThreadResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'UpdateThread', 'PUT', '/digitalEmployee/{name}/thread/{threadId}', 'json', false, 'json', request);
 }
 
 model UpdateUmodelRequest {
