@@ -1,0 +1,1282 @@
+/**
+  *
+  */
+import BaseClientBuilder;
+import TeaAsyncHandler;
+import TeaRequest;
+import AsyncRequestBody;
+import RequestBody;
+import AsyncResponseHandler;
+import ClientConfiguration;
+import ClientExecutionParams;
+extends BaseClientBuilder;
+type @product = string
+type @version = string
+type @endpointRule = string
+type @endpointMap = map[string]string
+type @REQUEST = TeaRequest
+type @handler = TeaAsyncHandler
+
+init(configuration: ClientConfiguration){
+  @handler = new TeaAsyncHandler(configuration);
+  @product = 'PAILangStudio';
+  @version = '2024-07-10';
+  @endpointRule = '';
+  @endpointMap = {
+  };
+}
+
+function close(): void {
+  @handler.close();
+}
+
+model AutoUpdateConfig {
+  ecsSpecs?: [ 
+    {
+      CPU?: int32(name='CPU', description='CPU核数'),
+      driver?: string(name='Driver', description='驱动版本'),
+      GPU?: int32(name='GPU', description='GPU卡数'),
+      GPUType?: string(name='GPUType', description='GPU类型'),
+      instanceType?: string(name='InstanceType', description='机型名称'),
+      memory?: int32(name='Memory', description='内存大小'),
+      podCount?: int32(name='PodCount', description='副本数量'),
+      sharedMemory?: int32(name='SharedMemory', description='共享内存容量'),
+      type?: string(name='Type', description='节点类型'),
+    }
+  ](name='EcsSpecs', description='运行资源配置'),
+  embeddingConfig?: {
+    batchSize?: int32(name='BatchSize', description='Embedding分批大小'),
+    concurrency?: int32(name='Concurrency', description='Embedding并发数', minimum=1, maximum=200),
+  }(name='EmbeddingConfig', description='Embedding配置'),
+  maxRunningTimeInSeconds?: int32(name='MaxRunningTimeInSeconds', description='任务最大运行时间'),
+  resourceId?: string(name='ResourceId', description='资源组ID'),
+  status?: string(name='Status', description='知识库自动更新状态'),
+  userVpc?: UserVpc(name='UserVpc', description='用户VPC配置'),
+}
+
+model Connection {
+  accessibility?: string(name='Accessibility'),
+  configs?: map[string]string(name='Configs'),
+  connectionId?: string(name='ConnectionId'),
+  connectionName?: string(name='ConnectionName'),
+  connectionType?: string(name='ConnectionType'),
+  creator?: string(name='Creator'),
+  customType?: string(name='CustomType'),
+  description?: string(name='Description'),
+  gmtCreateTime?: string(name='GmtCreateTime'),
+  gmtModifiedTime?: string(name='GmtModifiedTime'),
+  models?: [ 
+    {
+      displayName?: string(name='DisplayName', description='模型展示名称'),
+      maxModelLength?: int32(name='MaxModelLength', description='最大上下文长度'),
+      model?: string(name='Model', description='模型名'),
+      modelType?: string(name='ModelType', description='模型类型'),
+      supportReasoning?: boolean(name='SupportReasoning', description='是否支持Reasoning'),
+      supportResponseSchema?: boolean(name='SupportResponseSchema', description='是否支持输出Schema'),
+      supportVision?: boolean(name='SupportVision', description='是否支持Vision'),
+      toolCall?: boolean(name='ToolCall', description='是否支持ToolCall'),
+    }
+  ](name='Models'),
+  resourceMeta?: {
+    instanceId?: string(name='InstanceId', description='资源实例ID'),
+    instanceName?: string(name='InstanceName', description='资源实例名称'),
+  }(name='ResourceMeta'),
+  secrets?: map[string]string(name='Secrets'),
+  workspaceId?: string(name='WorkspaceId'),
+}
+
+model Deployment {
+  accessibility?: string(name='Accessibility'),
+  chatHistoryConfig?: {
+    connectionName?: string(name='ConnectionName', description='连接名称'),
+    storageType?: string(name='StorageType', description='存储类型'),
+  }(name='ChatHistoryConfig'),
+  contentModerationConfig?: {
+    enableInputModeration?: boolean(name='EnableInputModeration', description='启用输入内容审查'),
+    enableOutputModeration?: boolean(name='EnableOutputModeration', description='启用输出内容审查'),
+    streamingModerationThreshold?: int32(name='StreamingModerationThreshold', description='流式输出内容送审缓存大小'),
+  }(name='ContentModerationConfig'),
+  creator?: string(name='Creator'),
+  credentialConfig?: {
+    aliyunEnvRoleKey?: string(name='AliyunEnvRoleKey', description='AliyunEnvRoleKey'),
+    credentialConfigItems?: [ 
+      {
+        key?: string(name='Key', description='Key'),
+        roles?: [ 
+          {
+            assumeRoleFor?: string(name='AssumeRoleFor', description='AssumeRoleFor'),
+            roleArn?: string(name='RoleArn', description='角色名称'),
+            roleType?: string(name='RoleType', description='角色类型'),
+          }
+        ](name='Roles', description='角色列表'),
+        type?: string(name='Type', description='Type'),
+      }
+    ](name='CredentialConfigItems', description='Credential配置项列表'),
+    enableCredentialInject?: boolean(name='EnableCredentialInject', description='是否启用Credential注入'),
+  }(name='CredentialConfig'),
+  dataSources?: [ 
+    {
+      datasetId?: string(name='DatasetId', description='数据集ID'),
+      mountPath?: string(name='MountPath', description='挂载路径'),
+      uri?: string(name='Uri', description='统一资源识别码'),
+    }
+  ](name='DataSources'),
+  deploymentConfig?: string(name='DeploymentConfig'),
+  deploymentId?: string(name='DeploymentId'),
+  deploymentStages?: string(name='DeploymentStages'),
+  deploymentStatus?: string(name='DeploymentStatus'),
+  description?: string(name='Description'),
+  ecsSpec?: {
+    CPU?: int32(name='CPU', description='CPU信息'),
+    computingInstanceConfig?: {
+      computingInstances?: [ 
+        {
+          spotPriceLimit?: float(name='SpotPriceLimit', description='竞价出价'),
+          type?: string(name='Type', description='机型'),
+        }
+      ](name='ComputingInstances', description='机器资源配置'),
+      disableSpotProtectionPeriod?: boolean(name='DisableSpotProtectionPeriod', description='是否启用竞价保留时长'),
+    }(name='ComputingInstanceConfig', description='竞价资源配置'),
+    extraEphemeralStorage?: int32(name='ExtraEphemeralStorage', description='额外系统盘'),
+    GPU?: int32(name='GPU', description='GPU信息'),
+    GPUCorePercentage?: int32(name='GPUCorePercentage', description='GPU算力占比'),
+    GPUMemory?: int32(name='GPUMemory', description='GPU显存'),
+    GPUType?: string(name='GPUType', description='GPU类型'),
+    instanceType?: string(name='InstanceType', description='实例类型'),
+    memory?: int32(name='Memory', description='内存信息'),
+    podCount?: int32(name='PodCount', description='Pod数量'),
+    quotaId?: string(name='QuotaId', description='资源配额ID'),
+    quotaType?: string(name='QuotaType', description='资源配额类型'),
+    resourceBurstable?: boolean(name='ResourceBurstable', description='是否启用弹性资源池'),
+    resourceId?: string(name='ResourceId', description='资源组ID'),
+    sharedMemory?: int32(name='SharedMemory', description='共享内存'),
+  }(name='EcsSpec'),
+  enableTrace?: boolean(name='EnableTrace'),
+  envs?: [ 
+    {
+      key?: string(name='Key', description='环境键'),
+      value?: string(name='Value', description='环境值'),
+    }
+  ](name='Envs'),
+  errorMessage?: string(name='ErrorMessage'),
+  gmtCreateTime?: string(name='GmtCreateTime'),
+  gmtModifiedTime?: string(name='GmtModifiedTime'),
+  labels?: [ 
+    {
+      key?: string(name='Key', description='标签键'),
+      value?: string(name='Value', description='标签值'),
+    }
+  ](name='Labels'),
+  operationType?: string(name='OperationType'),
+  resourceId?: string(name='ResourceId'),
+  resourceSnapshotId?: string(name='ResourceSnapshotId'),
+  resourceType?: string(name='ResourceType'),
+  serviceGroup?: string(name='ServiceGroup'),
+  serviceName?: string(name='ServiceName'),
+  userVpc?: {
+    securityGroupId?: string(name='SecurityGroupId', description='安全组ID'),
+    vSwitchId?: string(name='VSwitchId', description='交换机ID'),
+    vpcId?: string(name='VpcId', description='VPC ID'),
+  }(name='UserVpc'),
+  workDir?: string(name='WorkDir'),
+  workspaceId?: string(name='WorkspaceId'),
+}
+
+model EcsSpec {
+  CPU?: int32(name='CPU', description='CPU核数'),
+  driver?: string(name='Driver', description='驱动版本'),
+  GPU?: int32(name='GPU', description='GPU卡数'),
+  GPUType?: string(name='GPUType', description='GPU类型'),
+  instanceType?: string(name='InstanceType', description='机型名称'),
+  memory?: int32(name='Memory', description='内存大小'),
+  podCount?: int32(name='PodCount', description='副本数量'),
+  sharedMemory?: int32(name='SharedMemory', description='共享内存容量'),
+  type?: string(name='Type', description='节点类型'),
+}
+
+model Flow {
+  accessibility?: string(name='Accessibility'),
+  codeModeRunInfo?: string(name='CodeModeRunInfo'),
+  createFrom?: string(name='CreateFrom'),
+  creator?: string(name='Creator'),
+  description?: string(name='Description'),
+  flowId?: string(name='FlowId'),
+  flowName?: string(name='FlowName'),
+  flowStoragePath?: string(name='FlowStoragePath'),
+  flowTemplateId?: string(name='FlowTemplateId'),
+  flowType?: string(name='FlowType'),
+  gmtCreateTime?: string(name='GmtCreateTime'),
+  gmtModifiedTime?: string(name='GmtModifiedTime'),
+  runtime?: {
+    runtimeId?: string(name='RuntimeId', description='运行时ID'),
+    runtimeName?: string(name='RuntimeName', description='运行时名称'),
+    runtimeStatus?: string(name='RuntimeStatus', description='运行时状态'),
+    runtimeType?: string(name='RuntimeType', description='运行时类型'),
+    supportSSEStream?: boolean(name='SupportSSEStream', description='是否支持SSE'),
+  }(name='Runtime'),
+  runtimeId?: string(name='RuntimeId'),
+  sourceUri?: string(name='SourceUri'),
+  version?: string(name='Version'),
+  workDir?: string(name='WorkDir'),
+  workspaceId?: string(name='WorkspaceId'),
+}
+
+model FlowRun {
+  accessibility?: string(name='Accessibility'),
+  childRuns?: [ 
+    {
+      duration?: int32(name='Duration', description='运行时长'),
+      flowRunId?: string(name='FlowRunId', description='应用流运行ID'),
+      flowSource?: {
+        id?: string(name='Id', description='ID'),
+        name?: string(name='Name', description='名称'),
+        type?: string(name='Type', description='类型'),
+      }(name='FlowSource', description='应用流来源'),
+      gmtCreateTime?: string(name='GmtCreateTime', description='创建时间'),
+      gmtFinishTime?: string(name='GmtFinishTime', description='结束时间'),
+      gmtModifiedTime?: string(name='GmtModifiedTime', description='修改时间'),
+      gmtStartTime?: string(name='GmtStartTime', description='开始时间'),
+      jobInfo?: {
+        jobId?: string(name='JobId', description='任务ID'),
+      }(name='JobInfo', description='任务信息'),
+      runMode?: string(name='RunMode', description='运行模式'),
+      runName?: string(name='RunName', description='运行名称'),
+      runResult?: string(name='RunResult', description='运行结果'),
+      runStatus?: string(name='RunStatus', description='运行状态'),
+    }
+  ](name='ChildRuns'),
+  creator?: string(name='Creator'),
+  credentialConfig?: {
+    aliyunEnvRoleKey?: string(name='AliyunEnvRoleKey', description='AliyunEnvRoleKey'),
+    credentialConfigItems?: [ 
+      {
+        key?: string(name='Key', description='Key'),
+        roles?: [ 
+          {
+            assumeRoleFor?: string(name='AssumeRoleFor', description='AssumeRoleFor'),
+            roleArn?: string(name='RoleArn', description='角色名称'),
+            roleType?: string(name='RoleType', description='角色类型'),
+          }
+        ](name='Roles', description='角色列表'),
+        type?: string(name='Type', description='Type'),
+      }
+    ](name='CredentialConfigItems', description='Credential配置项列表'),
+    enableCredentialInject?: boolean(name='EnableCredentialInject', description='是否启用Credential注入'),
+  }(name='CredentialConfig'),
+  dataColumnMapping?: map[string]string(name='DataColumnMapping'),
+  dataSources?: [ 
+    {
+      datasetId?: string(name='DatasetId', description='数据集ID'),
+      mountPath?: string(name='MountPath', description='挂载路径'),
+      uri?: string(name='Uri', description='统一资源识别码'),
+    }
+  ](name='DataSources'),
+  duration?: int32(name='Duration'),
+  ecsSpec?: {
+    CPU?: int32(name='CPU', description='CPU信息'),
+    extraEphemeralStorage?: int32(name='ExtraEphemeralStorage', description='额外系统盘'),
+    GPU?: int32(name='GPU', description='GPU信息'),
+    GPUCorePercentage?: int32(name='GPUCorePercentage', description='GPU算力占比'),
+    GPUMemory?: int32(name='GPUMemory', description='GPU显存'),
+    GPUType?: string(name='GPUType', description='GPU类型'),
+    instanceType?: string(name='InstanceType', description='实例类型'),
+    memory?: int32(name='Memory', description='内存信息'),
+    podCount?: int32(name='PodCount', description='Pod数量'),
+    quotaId?: string(name='QuotaId', description='资源配额ID'),
+    quotaType?: string(name='QuotaType', description='资源配额类型'),
+    sharedMemory?: int32(name='SharedMemory', description='共享内存'),
+  }(name='EcsSpec'),
+  envs?: [ 
+    {
+      key?: string(name='Key', description='环境键'),
+      value?: string(name='Value', description='环境值'),
+    }
+  ](name='Envs'),
+  evaluationConfigs?: [ 
+    {
+      dataColumnMapping?: map[string]string(name='DataColumnMapping', description='映射配置'),
+      flowSource?: {
+        id?: string(name='Id', description='ID'),
+        name?: string(name='Name', description='名称'),
+        type?: string(name='Type', description='类型'),
+      }(name='FlowSource', description='应用流来源'),
+      inputsOverrideConfig?: string(name='InputsOverrideConfig', description='输入配置'),
+    }
+  ](name='EvaluationConfigs'),
+  evaluationWorkerCount?: int32(name='EvaluationWorkerCount'),
+  exception?: string(name='Exception'),
+  flowId?: string(name='FlowId'),
+  flowName?: string(name='FlowName'),
+  flowRunId?: string(name='FlowRunId'),
+  gmtCreateTime?: string(name='GmtCreateTime'),
+  gmtFinishTime?: string(name='GmtFinishTime'),
+  gmtModifiedTime?: string(name='GmtModifiedTime'),
+  gmtStartTime?: string(name='GmtStartTime'),
+  labels?: [ 
+    {
+      key?: string(name='Key', description='标签键'),
+      value?: string(name='Value', description='标签值'),
+    }
+  ](name='Labels'),
+  nodeName?: string(name='NodeName'),
+  nodeRunInfos?: [ 
+    {
+      duration?: string(name='Duration', description='耗时'),
+      errorMessage?: string(name='ErrorMessage', description='错误信息'),
+      inputs?: string(name='Inputs', description='输入'),
+      nodeName?: string(name='NodeName', description='节点名称'),
+      output?: string(name='Output', description='输出'),
+      status?: string(name='Status', description='节点状态'),
+      stdout?: string(name='Stdout', description='日志信息'),
+    }
+  ](name='NodeRunInfos'),
+  resourceId?: string(name='ResourceId'),
+  runMode?: string(name='RunMode'),
+  runName?: string(name='RunName'),
+  runResult?: string(name='RunResult'),
+  runStatus?: string(name='RunStatus'),
+  runTimeout?: int32(name='RunTimeout'),
+  userVpc?: {
+    securityGroupId?: string(name='SecurityGroupId', description='安全组ID'),
+    vSwitchId?: string(name='VSwitchId', description='交换机ID'),
+    vpcId?: string(name='VpcId', description='VPC ID'),
+  }(name='UserVpc'),
+  variant?: string(name='Variant'),
+  workspaceId?: string(name='WorkspaceId'),
+}
+
+model FlowTemplate {
+  accessibility?: string(name='Accessibility'),
+  aliyunDocumentId?: string(name='AliyunDocumentId'),
+  description?: string(name='Description'),
+  descriptionI18N?: map[string]string(name='DescriptionI18N'),
+  displayName?: string(name='DisplayName'),
+  displayNameI18N?: map[string]string(name='DisplayNameI18N'),
+  flowFiles?: string(name='FlowFiles'),
+  flowStoragePath?: string(name='FlowStoragePath'),
+  flowTemplateId?: string(name='FlowTemplateId'),
+  flowType?: string(name='FlowType'),
+  locale?: string(name='Locale'),
+  referenceCount?: int32(name='ReferenceCount'),
+  templateGroup?: string(name='TemplateGroup'),
+  templateName?: string(name='TemplateName'),
+  url?: string(name='Url'),
+  version?: string(name='Version'),
+  workspaceId?: string(name='WorkspaceId'),
+}
+
+model KnowledgeBase {
+  accessibility?: string(name='Accessibility'),
+  autoUpdateConfig?: {
+    ecsSpecs?: [ 
+      {
+        CPU?: int32(name='CPU', description='CPU核数'),
+        driver?: string(name='Driver', description='驱动版本'),
+        GPU?: int32(name='GPU', description='GPU卡数'),
+        GPUType?: string(name='GPUType', description='GPU类型'),
+        instanceType?: string(name='InstanceType', description='机型名称'),
+        memory?: int32(name='Memory', description='内存大小'),
+        podCount?: int32(name='PodCount', description='副本数量'),
+        sharedMemory?: int32(name='SharedMemory', description='共享内存容量'),
+        type?: string(name='Type', description='节点类型'),
+      }
+    ](name='EcsSpecs', description='运行资源配置'),
+    embeddingConfig?: {
+      batchSize?: int32(name='BatchSize', description='Embedding分批大小'),
+      concurrency?: int32(name='Concurrency', description='Embedding并发数', minimum=1, maximum=200),
+    }(name='EmbeddingConfig', description='Embedding配置'),
+    maxRunningTimeInSeconds?: int32(name='MaxRunningTimeInSeconds', description='任务最大运行时间'),
+    resourceId?: string(name='ResourceId', description='资源组ID'),
+    status?: string(name='Status', description='知识库自动更新状态'),
+    userVpc?: UserVpc(name='UserVpc', description='用户VPC配置'),
+  }(name='AutoUpdateConfig'),
+  chunkConfig?: {
+    chunkDuration?: int32(name='ChunkDuration', description='分块时长'),
+    chunkOverlap?: int32(name='ChunkOverlap', description='分块重叠大小'),
+    chunkSize?: int32(name='ChunkSize', description='分块大小'),
+    chunkStrategy?: string(name='ChunkStrategy', description='分块策略'),
+  }(name='ChunkConfig'),
+  creator?: string(name='Creator'),
+  dataSources?: [ 
+    {
+      uri?: string(name='Uri', description='统一资源识别码'),
+    }
+  ](name='DataSources'),
+  datasetId?: string(name='DatasetId'),
+  description?: string(name='Description'),
+  embeddingConfig?: {
+    connectionId?: string(name='ConnectionId', description='Embedding连接ID'),
+    connectionName?: string(name='ConnectionName', description='Embedding连接名称'),
+    model?: string(name='Model', description='模型'),
+  }(name='EmbeddingConfig'),
+  gmtCreateTime?: string(name='GmtCreateTime'),
+  gmtModifiedTime?: string(name='GmtModifiedTime'),
+  indexColumnConfig?: {
+    columnDefinitions?: [ 
+      {
+        key?: string(name='Key', description='列Key'),
+      }
+    ](name='ColumnDefinitions', description='所有列名'),
+    contentColumns?: [ 
+      {
+        key?: string(name='Key', description='列Key'),
+      }
+    ](name='ContentColumns', description='内容检索列'),
+    embeddingColumns?: [ 
+      {
+        key?: string(name='Key', description='列Key'),
+      }
+    ](name='EmbeddingColumns', description='Embedding列'),
+  }(name='IndexColumnConfig'),
+  knowledgeBaseId?: string(name='KnowledgeBaseId'),
+  knowledgeBaseType?: string(name='KnowledgeBaseType'),
+  metaDataConfig?: {
+    customMetaData?: [ 
+      {
+        key?: string(name='Key', description='元数据Key'),
+        referenceCount?: int32(name='ReferenceCount', description='引用次数'),
+        valueCount?: int32(name='ValueCount', description='值的个数'),
+        valueType?: string(name='ValueType', description='元数据Value类型'),
+      }
+    ](name='CustomMetaData', description='自定义元数据'),
+  }(name='MetaDataConfig'),
+  name?: string(name='Name'),
+  outputDir?: string(name='OutputDir'),
+  runtimeId?: string(name='RuntimeId'),
+  vectorDBConfig?: {
+    collectionName?: string(name='CollectionName', description='Collectioin名称'),
+    connectionId?: string(name='ConnectionId', description='Embedding连接ID'),
+    connectionName?: string(name='ConnectionName', description='VectorDB连接名称'),
+    vectorDBType?: string(name='VectorDBType', description='VectorDB类型'),
+  }(name='VectorDBConfig'),
+  versionName?: string(name='VersionName'),
+  workspaceId?: string(name='WorkspaceId'),
+}
+
+model KnowledgeBaseFileChunk {
+  chunkAttachment?: [ 
+    {
+      downloadUrl?: string(name='DownloadUrl'),
+      placeholderId?: string(name='PlaceholderId'),
+      type?: string(name='Type'),
+      uri?: string(name='Uri'),
+    }
+  ](name='ChunkAttachment'),
+  chunkContent?: string(name='ChunkContent'),
+  chunkEnd?: int32(name='ChunkEnd'),
+  chunkId?: string(name='ChunkId'),
+  chunkSequence?: int32(name='ChunkSequence'),
+  chunkSize?: int32(name='ChunkSize'),
+  chunkStart?: int32(name='ChunkStart'),
+  chunkStatus?: string(name='ChunkStatus'),
+  downloadUrl?: string(name='DownloadUrl'),
+  metaData?: {
+    fileMetaId?: string(name='FileMetaId'),
+    fileName?: string(name='FileName'),
+    fileUri?: string(name='FileUri'),
+  }(name='MetaData'),
+  score?: float(name='Score'),
+  thumbnailUrl?: string(name='ThumbnailUrl'),
+}
+
+model KnowledgeBaseJob {
+  accessibility?: string(name='Accessibility'),
+  creator?: string(name='Creator'),
+  description?: string(name='Description'),
+  ecsSpecs?: [ 
+    {
+      CPU?: int32(name='CPU', description='CPU核数'),
+      driver?: string(name='Driver', description='驱动版本'),
+      GPU?: int32(name='GPU', description='GPU卡数'),
+      GPUType?: string(name='GPUType', description='GPU类型'),
+      instanceType?: string(name='InstanceType', description='机型名称'),
+      memory?: int32(name='Memory', description='内存大小'),
+      podCount?: int32(name='PodCount', description='副本数量'),
+      sharedMemory?: int32(name='SharedMemory', description='共享内存容量'),
+      type?: string(name='Type', description='节点类型'),
+    }
+  ](name='EcsSpecs'),
+  embeddingConfig?: {
+    batchSize?: int32(name='BatchSize', description='Embedding分批大小'),
+    concurrency?: int32(name='Concurrency', description='Embedding并发数', minimum=1, maximum=200),
+  }(name='EmbeddingConfig'),
+  errorMessage?: string(name='ErrorMessage'),
+  gmtCreateTime?: string(name='GmtCreateTime'),
+  gmtFinishTime?: string(name='GmtFinishTime'),
+  gmtModifiedTime?: string(name='GmtModifiedTime'),
+  jobAction?: string(name='JobAction'),
+  knowledgeBaseId?: string(name='KnowledgeBaseId'),
+  knowledgeBaseJobId?: string(name='KnowledgeBaseJobId'),
+  knowledgeBaseJobResult?: {
+    addChunkCount?: int32(name='AddChunkCount', description='增加Chunk数量'),
+    deleteChunkCount?: int32(name='DeleteChunkCount', description='删除Chunk数量'),
+    totalFileCount?: int32(name='TotalFileCount', description='总处理文件数'),
+  }(name='KnowledgeBaseJobResult'),
+  maxRunningTimeInSeconds?: int32(name='MaxRunningTimeInSeconds'),
+  pipelineRunInfo?: {
+    pipelineRunId?: string(name='PipelineRunId', description='PaiFlow工作流运行ID'),
+  }(name='PipelineRunInfo'),
+  resourceId?: string(name='ResourceId'),
+  status?: string(name='Status'),
+  userVpc?: {
+    securityGroupId?: string(name='SecurityGroupId', description='安全组ID'),
+    vSwitchId?: string(name='VSwitchId', description='交换机ID'),
+    vpcId?: string(name='VpcId', description='VPC ID'),
+  }(name='UserVpc'),
+  workspaceId?: string(name='WorkspaceId'),
+}
+
+model KnowledgeBaseMeta {
+  chunkAttachment?: [ 
+    {
+      downloadUrl?: string(name='DownloadUrl'),
+      placeholderId?: string(name='PlaceholderId'),
+      type?: string(name='Type'),
+      uri?: string(name='Uri'),
+    }
+  ](name='ChunkAttachment'),
+  chunkContent?: string(name='ChunkContent'),
+  chunkEnd?: int32(name='ChunkEnd'),
+  chunkId?: string(name='ChunkId'),
+  chunkSequence?: int32(name='ChunkSequence'),
+  chunkSize?: int32(name='ChunkSize'),
+  chunkStart?: int32(name='ChunkStart'),
+  chunkStatus?: string(name='ChunkStatus'),
+  downloadUrl?: string(name='DownloadUrl'),
+  fileContentType?: string(name='FileContentType'),
+  fileCreateTime?: string(name='FileCreateTime'),
+  fileMetaData?: string(name='FileMetaData'),
+  fileMetaId?: string(name='FileMetaId'),
+  fileName?: string(name='FileName'),
+  fileSize?: int32(name='FileSize'),
+  fileStatus?: string(name='FileStatus'),
+  fileType?: string(name='FileType'),
+  fileUpdateTime?: string(name='FileUpdateTime'),
+  fileUri?: string(name='FileUri'),
+  metaData?: {
+    fileMetaId?: string(name='FileMetaId'),
+    fileName?: string(name='FileName'),
+    fileUri?: string(name='FileUri'),
+  }(name='MetaData'),
+  thumbnailUrl?: string(name='ThumbnailUrl'),
+}
+
+model Runtime {
+  accessibility?: string(name='Accessibility'),
+  creator?: string(name='Creator'),
+  credentialConfig?: {
+    aliyunEnvRoleKey?: string(name='AliyunEnvRoleKey', description='AliyunEnvRoleKey'),
+    credentialConfigItems?: [ 
+      {
+        key?: string(name='Key', description='Key'),
+        roles?: [ 
+          {
+            assumeRoleFor?: string(name='AssumeRoleFor', description='AssumeRoleFor'),
+            roleArn?: string(name='RoleArn', description='角色名称'),
+            roleType?: string(name='RoleType', description='角色类型'),
+          }
+        ](name='Roles', description='角色列表'),
+        type?: string(name='Type', description='Type'),
+      }
+    ](name='CredentialConfigItems', description='Credential配置项列表'),
+    enableCredentialInject?: boolean(name='EnableCredentialInject', description='是否启用Credential注入'),
+  }(name='CredentialConfig'),
+  dataSources?: [ 
+    {
+      datasetId?: string(name='DatasetId', description='数据集ID'),
+      mountPath?: string(name='MountPath', description='挂载路径'),
+      uri?: string(name='Uri', description='统一资源识别码'),
+    }
+  ](name='DataSources'),
+  ecsSpec?: {
+    CPU?: int32(name='CPU', description='CPU信息'),
+    extraEphemeralStorage?: int32(name='ExtraEphemeralStorage', description='额外系统盘'),
+    GPU?: int32(name='GPU', description='GPU信息'),
+    GPUCorePercentage?: int32(name='GPUCorePercentage', description='GPU算力占比'),
+    GPUMemory?: int32(name='GPUMemory', description='GPU显存'),
+    GPUType?: string(name='GPUType', description='GPU类型'),
+    instanceType?: string(name='InstanceType', description='实例类型'),
+    memory?: int32(name='Memory', description='内存信息'),
+    podCount?: int32(name='PodCount', description='Pod数量'),
+    quotaId?: string(name='QuotaId', description='资源配额ID'),
+    quotaType?: string(name='QuotaType', description='资源配额类型'),
+    sharedMemory?: int32(name='SharedMemory', description='共享内存'),
+  }(name='EcsSpec'),
+  envs?: [ 
+    {
+      key?: string(name='Key', description='环境键'),
+      value?: string(name='Value', description='环境值'),
+    }
+  ](name='Envs'),
+  flowId?: string(name='FlowId'),
+  flows?: [ 
+    {
+      flowId?: string(name='FlowId', description='应用流ID'),
+      flowName?: string(name='FlowName', description='应用流名称'),
+    }
+  ](name='Flows'),
+  gmtCreateTime?: string(name='GmtCreateTime'),
+  gmtModifiedTime?: string(name='GmtModifiedTime'),
+  idleTimeout?: int32(name='IdleTimeout'),
+  labels?: [ 
+    {
+      key?: string(name='Key', description='标签键'),
+      value?: string(name='Value', description='标签值'),
+    }
+  ](name='Labels'),
+  latestVersion?: string(name='LatestVersion'),
+  MCPConfig?: string(name='MCPConfig'),
+  resourceId?: string(name='ResourceId'),
+  runTimeout?: int32(name='RunTimeout'),
+  runtimeId?: string(name='RuntimeId'),
+  runtimeLog?: string(name='RuntimeLog'),
+  runtimeName?: string(name='RuntimeName'),
+  runtimeStatus?: string(name='RuntimeStatus'),
+  runtimeType?: string(name='RuntimeType'),
+  supportSSEStream?: boolean(name='SupportSSEStream'),
+  userVpc?: {
+    defaultRoute?: string(name='DefaultRoute', description='默认路由'),
+    extendedCIDRs?: [ string ](name='ExtendedCIDRs', description='扩展网段'),
+    securityGroupId?: string(name='SecurityGroupId', description='安全组ID'),
+    vSwitchId?: string(name='VSwitchId', description='交换机ID'),
+    vpcId?: string(name='VpcId', description='VPC ID'),
+  }(name='UserVpc'),
+  version?: string(name='Version'),
+  workDir?: string(name='WorkDir'),
+  workspaceId?: string(name='WorkspaceId'),
+}
+
+model Snapshot {
+  accessibility?: string(name='Accessibility'),
+  creationType?: string(name='CreationType'),
+  creator?: string(name='Creator'),
+  description?: string(name='Description'),
+  gmtCreateTime?: string(name='GmtCreateTime'),
+  gmtModifiedTime?: string(name='GmtModifiedTime'),
+  snapshotId?: string(name='SnapshotId'),
+  snapshotName?: string(name='SnapshotName'),
+  snapshotResourceId?: string(name='SnapshotResourceId'),
+  snapshotResourceType?: string(name='SnapshotResourceType'),
+  snapshotStoragePath?: string(name='SnapshotStoragePath'),
+  snapshotUrl?: string(name='SnapshotUrl'),
+  workDir?: string(name='WorkDir'),
+  workspaceId?: string(name='WorkspaceId'),
+}
+
+model Toolset {
+  accessibility?: string(name='Accessibility'),
+  creator?: string(name='Creator'),
+  description?: string(name='Description'),
+  gmtCreateTime?: string(name='GmtCreateTime'),
+  gmtModifiedTime?: string(name='GmtModifiedTime'),
+  tools?: string(name='Tools'),
+  toolsetConfig?: string(name='ToolsetConfig'),
+  toolsetId?: string(name='ToolsetId'),
+  toolsetName?: string(name='ToolsetName'),
+  toolsetType?: string(name='ToolsetType'),
+  workspaceId?: string(name='WorkspaceId'),
+}
+
+model UserVpc {
+  securityGroupId?: string(name='SecurityGroupId', description='用户安全组的ID'),
+  vSwitchId?: string(name='VSwitchId', description='用户交换机的ID'),
+  vpcId?: string(name='VpcId', description='用户VPC的ID'),
+}
+
+model CreateKnowledgeBaseRequest {
+  accessibility?: string(name='Accessibility', example='PUBLIC', position='Body'),
+  chunkConfig: {
+    chunkDuration?: int32(name='ChunkDuration', description='分块时长', example='30'),
+    chunkOverlap?: int32(name='ChunkOverlap', description='分块重叠大小', example='200'),
+    chunkSize?: int32(name='ChunkSize', description='分块大小', example='1024'),
+    chunkStrategy?: string(name='ChunkStrategy', description='分块策略', example='Default'),
+  }(name='ChunkConfig', description='This parameter is required.', position='Body'),
+  dataSources: [ 
+    {
+      uri?: string(name='Uri', description='统一资源识别码', example='oss://test-bucket.oss-cn-hangzhou-internal.aliyuncs.com/langstudio/source/'),
+    }
+  ](name='DataSources', description='This parameter is required.', position='Body'),
+  description?: string(name='Description', example='This is a description of the knowledge base.', position='Body'),
+  embeddingConfig: {
+    connectionId: string(name='ConnectionId', description='Embedding连接ID
+
+This parameter is required.', example='conn-r3o7******38bh'),
+    model: string(name='Model', description='模型
+
+This parameter is required.', example='text-embedding-v4'),
+  }(name='EmbeddingConfig', description='This parameter is required.', position='Body'),
+  indexColumnConfig?: {
+    columnDefinitions?: [ 
+      {
+        key?: string(name='Key', description='列Key', example='column1'),
+      }
+    ](name='ColumnDefinitions', description='所有列名'),
+    contentColumns?: [ 
+      {
+        key?: string(name='Key', description='列Key', example='column1'),
+      }
+    ](name='ContentColumns', description='内容检索列'),
+    embeddingColumns?: [ 
+      {
+        key?: string(name='Key', description='列Key', example='column1'),
+      }
+    ](name='EmbeddingColumns', description='Embedding列'),
+  }(name='IndexColumnConfig', position='Body'),
+  knowledgeBaseType: string(name='KnowledgeBaseType', description='This parameter is required.', example='TEXT', position='Body'),
+  metaDataConfig?: {
+    customMetaData?: [ 
+      {
+        key?: string(name='Key', description='元数据Key', example='author'),
+        valueType?: string(name='ValueType', description='元数据Value类型', example='String'),
+      }
+    ](name='CustomMetaData', description='自定义元数据'),
+  }(name='MetaDataConfig', position='Body'),
+  name: string(name='Name', description='This parameter is required.', example='myName', position='Body'),
+  outputDir: string(name='OutputDir', description='This parameter is required.', example='oss://test-bucket.oss-cn-hangzhou-internal.aliyuncs.com/langstudio/output/', position='Body'),
+  runtimeId?: string(name='RuntimeId', example='rtime-apje******beaz', position='Body'),
+  vectorDBConfig: {
+    collectionName?: string(name='CollectionName', description='Collectioin名称', example='my_collection'),
+    connectionId?: string(name='ConnectionId', description='Embedding连接ID', example='conn-7y5y******jja7'),
+    vectorDBType: string(name='VectorDBType', description='VectorDB类型
+
+This parameter is required.', example='Milvus'),
+  }(name='VectorDBConfig', description='This parameter is required.', position='Body'),
+  workspaceId: string(name='WorkspaceId', description='This parameter is required.', example='478**', position='Body'),
+}
+
+model CreateKnowledgeBaseResponseBody = {
+  knowledgeBaseId?: string(name='KnowledgeBaseId', example='d-ksicx823d'),
+  requestId?: string(name='RequestId', example='48E6392E-C3C9-5212-9FAD-13256ABD9AF6'),
+  workspaceId?: string(name='WorkspaceId', example='478**'),
+}
+
+model CreateKnowledgeBaseResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: CreateKnowledgeBaseResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of CreateKnowledgeBase  CreateKnowledgeBaseRequest
+  * @return CreateKnowledgeBaseResponse
+ */
+async function createKnowledgeBase(request: CreateKnowledgeBaseRequest): CreateKnowledgeBaseResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'CreateKnowledgeBase', 'POST', '/api/v1/langstudio/knowledgebases', 'json', false, 'json', request);
+}
+
+model CreateKnowledgeBaseJobRequest {
+  knowledgeBaseId?: string(name='KnowledgeBaseId', example='d-ksicx823d', position='Path'),
+  accessibility?: string(name='Accessibility', example='PUBLIC', position='Body'),
+  description?: string(name='Description', example='This is a description of the knowledge base job.', position='Body'),
+  ecsSpecs?: [ 
+    {
+      CPU?: int32(name='CPU', description='CPU核数', example='2'),
+      driver?: string(name='Driver', description='驱动版本', example='535.161.08'),
+      GPU?: int32(name='GPU', description='GPU卡数', example='1'),
+      GPUType?: string(name='GPUType', description='GPU类型'),
+      instanceType?: string(name='InstanceType', description='机型名称', example='ecs.c6.large'),
+      memory?: int32(name='Memory', description='内存大小', example='8'),
+      podCount?: int32(name='PodCount', description='副本数量', example='1'),
+      sharedMemory?: int32(name='SharedMemory', description='共享内存容量'),
+      type?: string(name='Type', description='节点类型', example='Worker'),
+    }
+  ](name='EcsSpecs', position='Body'),
+  embeddingConfig?: {
+    batchSize?: int32(name='BatchSize', description='Embedding分批大小', example='8'),
+    concurrency?: int32(name='Concurrency', description='Embedding并发数', example='1', minimum=1, maximum=200),
+  }(name='EmbeddingConfig', position='Body'),
+  jobAction?: string(name='JobAction', position='Body'),
+  maxRunningTimeInSeconds?: int32(name='MaxRunningTimeInSeconds', example='86400', position='Body'),
+  resourceId?: string(name='ResourceId', example='public-cluster', position='Body'),
+  userVpc?: {
+    securityGroupId?: string(name='SecurityGroupId', description='安全组ID'),
+    vSwitchId?: string(name='VSwitchId', description='交换机ID'),
+    vpcId?: string(name='VpcId', description='VPC ID。'),
+  }(name='UserVpc', position='Body'),
+  workspaceId: string(name='WorkspaceId', description='This parameter is required.', example='478**', position='Body'),
+}
+
+model CreateKnowledgeBaseJobResponseBody = {
+  knowledgeBaseJobId?: string(name='KnowledgeBaseJobId', example='kbjob-9mn******1z54'),
+  requestId?: string(name='RequestId', example='963BD7F9-0C02-5594-9550-BCC6DD43E3C0'),
+}
+
+model CreateKnowledgeBaseJobResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: CreateKnowledgeBaseJobResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of CreateKnowledgeBaseJob  CreateKnowledgeBaseJobRequest
+  * @return CreateKnowledgeBaseJobResponse
+ */
+async function createKnowledgeBaseJob(request: CreateKnowledgeBaseJobRequest): CreateKnowledgeBaseJobResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'CreateKnowledgeBaseJob', 'POST', '/api/v1/langstudio/knowledgebases/{KnowledgeBaseId}/knowledgebasejobs', 'json', false, 'json', request);
+}
+
+model DeleteKnowledgeBaseRequest {
+  knowledgeBaseId: string(name='KnowledgeBaseId', description='This parameter is required.', example='d-nacr******sxd2', position='Path'),
+  workspaceId: string(name='WorkspaceId', description='This parameter is required.', example='478***', position='Query'),
+}
+
+model DeleteKnowledgeBaseResponseBody = {
+  requestId?: string(name='RequestId', example='C25324E3-18E6-50D8-9026-16D74AAEEB26'),
+}
+
+model DeleteKnowledgeBaseResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: DeleteKnowledgeBaseResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of DeleteKnowledgeBase  DeleteKnowledgeBaseRequest
+  * @return DeleteKnowledgeBaseResponse
+ */
+async function deleteKnowledgeBase(request: DeleteKnowledgeBaseRequest): DeleteKnowledgeBaseResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'DeleteKnowledgeBase', 'DELETE', '/api/v1/langstudio/knowledgebases/{KnowledgeBaseId}', 'json', false, 'json', request);
+}
+
+model DeleteKnowledgeBaseJobRequest {
+  knowledgeBaseId: string(name='KnowledgeBaseId', description='This parameter is required.', example='d-nacr******sxd2', position='Path'),
+  knowledgeBaseJobId: string(name='KnowledgeBaseJobId', description='This parameter is required.', example='kbjob-9m******54', position='Path'),
+  workspaceId: string(name='WorkspaceId', description='This parameter is required.', example='478***', position='Query'),
+}
+
+model DeleteKnowledgeBaseJobResponseBody = {
+  requestId?: string(name='RequestId', example='48E6392E-C3C9-5212-9FAD-13256ABD9AF6'),
+}
+
+model DeleteKnowledgeBaseJobResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: DeleteKnowledgeBaseJobResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of DeleteKnowledgeBaseJob  DeleteKnowledgeBaseJobRequest
+  * @return DeleteKnowledgeBaseJobResponse
+ */
+async function deleteKnowledgeBaseJob(request: DeleteKnowledgeBaseJobRequest): DeleteKnowledgeBaseJobResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'DeleteKnowledgeBaseJob', 'DELETE', '/api/v1/langstudio/knowledgebases/{KnowledgeBaseId}/knowledgebasejobs/{KnowledgeBaseJobId}', 'json', false, 'json', request);
+}
+
+model GetKnowledgeBaseRequest {
+  knowledgeBaseId: string(name='KnowledgeBaseId', description='This parameter is required.', example='d-ksicx823d', position='Path'),
+  versionName?: string(name='VersionName', example='v1', position='Query'),
+  workspaceId: string(name='WorkspaceId', description='This parameter is required.', example='478**', position='Query'),
+}
+
+model GetKnowledgeBaseResponseBody = {
+  accessibility?: string(name='Accessibility', example='PRIVATE'),
+  autoUpdateConfig?: {
+    ecsSpecs?: [ 
+      {
+        CPU?: int32(name='CPU', description='CPU核数'),
+        driver?: string(name='Driver', description='驱动版本'),
+        GPU?: int32(name='GPU', description='GPU卡数'),
+        GPUType?: string(name='GPUType', description='GPU类型'),
+        instanceType?: string(name='InstanceType', description='机型名称', example='ecs.c6.large'),
+        memory?: int32(name='Memory', description='内存大小'),
+        podCount?: int32(name='PodCount', description='副本数量'),
+        sharedMemory?: int32(name='SharedMemory', description='共享内存容量'),
+        type?: string(name='Type', description='节点类型', example='Worker'),
+      }
+    ](name='EcsSpecs', description='运行资源配置'),
+    embeddingConfig?: {
+      batchSize?: int32(name='BatchSize', description='Embedding分批大小', example='8'),
+      concurrency?: int32(name='Concurrency', description='Embedding并发数', example='1', minimum=1, maximum=200),
+    }(name='EmbeddingConfig', description='Embedding配置'),
+    maxRunningTimeInSeconds?: int32(name='MaxRunningTimeInSeconds', description='任务最大运行时间', example='86400'),
+    resourceId?: string(name='ResourceId', description='资源组ID', example='public-cluster'),
+    status?: string(name='Status', description='知识库自动更新状态', example='Enable'),
+    userVpc?: UserVpc(name='UserVpc', description='用户VPC配置'),
+  }(name='AutoUpdateConfig'),
+  chunkConfig?: {
+    chunkDuration?: int32(name='ChunkDuration', description='分块时长', example='30'),
+    chunkOverlap?: int32(name='ChunkOverlap', description='分块重叠大小', example='200'),
+    chunkSize?: int32(name='ChunkSize', description='分块大小', example='1024'),
+    chunkStrategy?: string(name='ChunkStrategy', description='分块策略', example='Default'),
+  }(name='ChunkConfig'),
+  creator?: string(name='Creator', example='2485765****023475'),
+  dataSources?: [ 
+    {
+      uri?: string(name='Uri', description='统一资源识别码', example='oss://test-bucket.oss-cn-hangzhou-internal.aliyuncs.com/langstudio/source/'),
+    }
+  ](name='DataSources'),
+  datasetId?: string(name='DatasetId', example='d-cupbwkk5us9xpjz870'),
+  description?: string(name='Description', example='This is a description of the knowledge base.'),
+  embeddingConfig?: {
+    connectionId?: string(name='ConnectionId', description='Embedding连接ID', example='conn-r3o7******38bh'),
+    connectionName?: string(name='ConnectionName', description='Embedding连接名称', example='myEmbeddingConn'),
+    model?: string(name='Model', description='模型', example='text-embedding-v4'),
+  }(name='EmbeddingConfig'),
+  gmtCreateTime?: string(name='GmtCreateTime', example='2024-12-15T14:46:23Z'),
+  gmtModifiedTime?: string(name='GmtModifiedTime', example='2025-12-18T19:32:58Z'),
+  indexColumnConfig?: {
+    columnDefinitions?: [ 
+      {
+        key?: string(name='Key', description='列Key'),
+      }
+    ](name='ColumnDefinitions', description='所有列名'),
+    contentColumns?: [ 
+      {
+        key?: string(name='Key', description='列Key'),
+      }
+    ](name='ContentColumns', description='内容检索列'),
+    embeddingColumns?: [ 
+      {
+        key?: string(name='Key', description='列Key'),
+      }
+    ](name='EmbeddingColumns', description='Embedding列'),
+  }(name='IndexColumnConfig'),
+  knowledgeBaseId?: string(name='KnowledgeBaseId', example='d-ksicx823d'),
+  knowledgeBaseType?: string(name='KnowledgeBaseType', example='TEXT'),
+  metaDataConfig?: {
+    customMetaData?: [ 
+      {
+        key?: string(name='Key', description='元数据Key'),
+        referenceCount?: int32(name='ReferenceCount', description='引用次数'),
+        valueCount?: int32(name='ValueCount', description='值的个数'),
+        valueType?: string(name='ValueType', description='元数据Value类型'),
+      }
+    ](name='CustomMetaData', description='自定义元数据'),
+  }(name='MetaDataConfig'),
+  name?: string(name='Name', example='myName'),
+  outputDir?: string(name='OutputDir', example='oss://test-bucket.oss-cn-hangzhou-internal.aliyuncs.com/langstudio/output/'),
+  requestId?: string(name='RequestId', example='963BD7F9-0C02-5594-9550-BCC6DD43E3C0'),
+  runtimeId?: string(name='RuntimeId', example='rtime-apje******beaz'),
+  vectorDBConfig?: {
+    collectionName?: string(name='CollectionName', description='Collectioin名称', example='my_collection'),
+    connectionId?: string(name='ConnectionId', description='Embedding连接ID', example='conn-7y5y******jja7'),
+    connectionName?: string(name='ConnectionName', description='VectorDB连接名称', example='myVectorConn'),
+    vectorDBType?: string(name='VectorDBType', description='VectorDB类型', example='Milvus'),
+  }(name='VectorDBConfig'),
+  versionName?: string(name='VersionName'),
+  workspaceId?: string(name='WorkspaceId', example='478**'),
+}
+
+model GetKnowledgeBaseResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: GetKnowledgeBaseResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of GetKnowledgeBase  GetKnowledgeBaseRequest
+  * @return GetKnowledgeBaseResponse
+ */
+async function getKnowledgeBase(request: GetKnowledgeBaseRequest): GetKnowledgeBaseResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'GetKnowledgeBase', 'GET', '/api/v1/langstudio/knowledgebases/{KnowledgeBaseId}', 'json', false, 'json', request);
+}
+
+model GetKnowledgeBaseJobRequest {
+  knowledgeBaseId: string(name='KnowledgeBaseId', description='This parameter is required.', example='d-nacr******sxd2', position='Path'),
+  knowledgeBaseJobId: string(name='KnowledgeBaseJobId', description='This parameter is required.', example='kbjob-9m******54', position='Path'),
+  workspaceId: string(name='WorkspaceId', description='This parameter is required.', example='478***', position='Query'),
+}
+
+model GetKnowledgeBaseJobResponseBody = {
+  accessibility?: string(name='Accessibility', example='PUBLIC'),
+  creator?: string(name='Creator'),
+  description?: string(name='Description', example='project name pass the check'),
+  ecsSpecs?: [ 
+    {
+      CPU?: int32(name='CPU', description='CPU核数'),
+      driver?: string(name='Driver', description='驱动版本', example='535.161.08'),
+      GPU?: int32(name='GPU', description='GPU卡数'),
+      GPUType?: string(name='GPUType', description='GPU类型'),
+      instanceType?: string(name='InstanceType', description='机型名称', example='ecs.c6.large'),
+      memory?: int32(name='Memory', description='内存大小'),
+      podCount?: int32(name='PodCount', description='副本数量', example='1'),
+      sharedMemory?: int32(name='SharedMemory', description='共享内存容量'),
+      type?: string(name='Type', description='节点类型', example='Worker'),
+    }
+  ](name='EcsSpecs'),
+  embeddingConfig?: {
+    batchSize?: int32(name='BatchSize', description='Embedding分批大小', example='10'),
+    concurrency?: int32(name='Concurrency', description='Embedding并发数', example='2', minimum=1, maximum=200),
+  }(name='EmbeddingConfig'),
+  errorMessage?: string(name='ErrorMessage'),
+  gmtCreateTime?: string(name='GmtCreateTime', example='2025-09-24T07:33:53Z'),
+  gmtFinishTime?: string(name='GmtFinishTime', example='2025-02-08T15:45:12Z'),
+  gmtModifiedTime?: string(name='GmtModifiedTime', example='2025-06-11T08:58:35.438Z'),
+  jobAction?: string(name='JobAction', example='UpdateScheduleConfig'),
+  knowledgeBaseId?: string(name='KnowledgeBaseId', example='d-nacr******sxd2'),
+  knowledgeBaseJobId?: string(name='KnowledgeBaseJobId', example='kbjob-9m******54'),
+  knowledgeBaseJobResult?: {
+    addChunkCount?: int32(name='AddChunkCount', description='增加Chunk数量'),
+    deleteChunkCount?: int32(name='DeleteChunkCount', description='删除Chunk数量'),
+    totalFileCount?: int32(name='TotalFileCount', description='总处理文件数'),
+  }(name='KnowledgeBaseJobResult'),
+  maxRunningTimeInSeconds?: int32(name='MaxRunningTimeInSeconds', example='86400'),
+  pipelineRunInfo?: {
+    pipelineRunId?: string(name='PipelineRunId', description='PaiFlow工作流运行ID', example='flow-fi8z******g4gy'),
+  }(name='PipelineRunInfo'),
+  requestId?: string(name='RequestId', example='C25324E3-18E6-50D8-9026-16D74AAEEB26'),
+  resourceId?: string(name='ResourceId'),
+  status?: string(name='Status', example='discovering'),
+  userVpc?: {
+    securityGroupId?: string(name='SecurityGroupId', description='安全组ID'),
+    vSwitchId?: string(name='VSwitchId', description='交换机ID'),
+    vpcId?: string(name='VpcId', description='VPC ID。'),
+  }(name='UserVpc'),
+  workspaceId?: string(name='WorkspaceId', example='478***'),
+}
+
+model GetKnowledgeBaseJobResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: GetKnowledgeBaseJobResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of GetKnowledgeBaseJob  GetKnowledgeBaseJobRequest
+  * @return GetKnowledgeBaseJobResponse
+ */
+async function getKnowledgeBaseJob(request: GetKnowledgeBaseJobRequest): GetKnowledgeBaseJobResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'GetKnowledgeBaseJob', 'GET', '/api/v1/langstudio/knowledgebases/{KnowledgeBaseId}/knowledgebasejobs/{KnowledgeBaseJobId}', 'json', false, 'json', request);
+}
+
+model ListKnowledgeBaseJobsRequest {
+  knowledgeBaseId?: string(name='KnowledgeBaseId', example='d-ksicx823d', position='Path'),
+  jobAction?: string(name='JobAction', example='SyncIndex', position='Query'),
+  knowledgeBaseJobId?: string(name='KnowledgeBaseJobId', example='kbjob-9m******54', position='Query'),
+  maxResults?: int32(name='MaxResults', example='10', position='Query'),
+  nextToken?: string(name='NextToken', position='Query'),
+  order?: string(name='Order', example='DESC', position='Query'),
+  pageNumber?: int32(name='PageNumber', example='1', position='Query'),
+  pageSize?: int32(name='PageSize', example='10', position='Query'),
+  sortBy?: string(name='SortBy', example='GmtCreateTime', position='Query'),
+  status?: string(name='Status', position='Query'),
+  workspaceId?: string(name='WorkspaceId', example='478**', position='Query'),
+}
+
+model ListKnowledgeBaseJobsResponseBody = {
+  knowledgeBaseJobs?: [
+    KnowledgeBaseJob
+  ](name='KnowledgeBaseJobs'),
+  maxResults?: int32(name='MaxResults'),
+  nextToken?: string(name='NextToken'),
+  requestId?: string(name='RequestId', example='963BD7F9-0C02-5594-9550-BCC6DD43E3C0'),
+  totalCount?: int32(name='TotalCount'),
+}
+
+model ListKnowledgeBaseJobsResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ListKnowledgeBaseJobsResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of ListKnowledgeBaseJobs  ListKnowledgeBaseJobsRequest
+  * @return ListKnowledgeBaseJobsResponse
+ */
+async function listKnowledgeBaseJobs(request: ListKnowledgeBaseJobsRequest): ListKnowledgeBaseJobsResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'ListKnowledgeBaseJobs', 'GET', '/api/v1/langstudio/knowledgebases/{KnowledgeBaseId}/knowledgebasejobs', 'json', false, 'json', request);
+}
+
+model ListKnowledgeBasesRequest {
+  creator?: string(name='Creator', position='Query'),
+  knowledgeBaseId?: string(name='KnowledgeBaseId', position='Query'),
+  knowledgeBaseType?: string(name='KnowledgeBaseType', position='Query'),
+  maxResults?: int32(name='MaxResults', position='Query'),
+  name?: string(name='Name', position='Query'),
+  nextToken?: string(name='NextToken', position='Query'),
+  order?: string(name='Order', example='DESC', position='Query'),
+  pageNumber?: int32(name='PageNumber', position='Query'),
+  pageSize?: int32(name='PageSize', position='Query'),
+  sortBy?: string(name='SortBy', example='GmtCreateTime', position='Query'),
+  workspaceId?: string(name='WorkspaceId', position='Query'),
+}
+
+model ListKnowledgeBasesResponseBody = {
+  knowledgeBases?: [
+    KnowledgeBase
+  ](name='KnowledgeBases'),
+  maxResults?: int32(name='MaxResults'),
+  nextToken?: string(name='NextToken'),
+  requestId?: string(name='RequestId', example='35686626-8D83-5ADE-B400-08A6613A6057'),
+  totalCount?: int32(name='TotalCount'),
+}
+
+model ListKnowledgeBasesResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ListKnowledgeBasesResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of ListKnowledgeBases  ListKnowledgeBasesRequest
+  * @return ListKnowledgeBasesResponse
+ */
+async function listKnowledgeBases(request: ListKnowledgeBasesRequest): ListKnowledgeBasesResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'ListKnowledgeBases', 'GET', '/api/v1/langstudio/knowledgebases', 'json', false, 'json', request);
+}
+
+model RetrieveKnowledgeBaseRequest {
+  knowledgeBaseId?: string(name='KnowledgeBaseId', example='d-ksicx823d', position='Path'),
+  hybridStrategyConfig?: string(name='HybridStrategyConfig', example='{
+  "Strategy": "rrf",
+  "RRFK":60,
+  "Weight": 0.5
+}', position='Body'),
+  metaDataFilterConditions?: string(name='MetaDataFilterConditions', example='{
+    "FilterCondition": "and", 
+    "MetaDataFilters": [
+        {
+            "Key": "key1", 
+            "Value": "value1", 
+            "Operator": "=="
+        },
+        {
+            "Key": "key2", 
+            "Value": "value2", 
+            "Operator": "!="
+        },
+        {
+            "Key": "file_name", 
+            "Value": "prefix", 
+            "Operator": "contains"
+        }
+    ]
+}', position='Body'),
+  query: string(name='Query', description='This parameter is required.', position='Body'),
+  queryMode?: string(name='QueryMode', example='dense', position='Body'),
+  rerankConfig?: string(name='RerankConfig', example='{
+   "ConnectionId":"conn-xxx",
+    "Model": "qwen-max",
+    "TopK": 5
+}', position='Body'),
+  rewriteConfig?: string(name='RewriteConfig', example='{
+    "ConnectionId":"conn-xxx",
+    "Model": "qwen-max",
+    "Temperature": 0.7,
+    "TopP": 0.9,
+    "PresencePenalty": 0.5,
+    "FrequencyPenalty": 0.5,
+    "Seed": 0,
+    "MaxTokens": 1024,
+    "Stop": [],
+    "EnableThinking": true
+}', position='Body'),
+  scoreThreshold?: float(name='ScoreThreshold', position='Body'),
+  topK?: int32(name='TopK', example='5', position='Body'),
+  versionName?: string(name='VersionName', example='v1', position='Body'),
+  workspaceId: string(name='WorkspaceId', description='This parameter is required.', example='174***', position='Body'),
+}
+
+model RetrieveKnowledgeBaseResponseBody = {
+  knowledgeBaseFileChunks?: [
+    KnowledgeBaseFileChunk
+  ](name='KnowledgeBaseFileChunks'),
+}
+
+model RetrieveKnowledgeBaseResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: RetrieveKnowledgeBaseResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of RetrieveKnowledgeBase  RetrieveKnowledgeBaseRequest
+  * @return RetrieveKnowledgeBaseResponse
+ */
+async function retrieveKnowledgeBase(request: RetrieveKnowledgeBaseRequest): RetrieveKnowledgeBaseResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'RetrieveKnowledgeBase', 'POST', '/api/v1/langstudio/knowledgebases/{KnowledgeBaseId}/action/retrieve', 'json', false, 'json', request);
+}
+
+model UpdateKnowledgeBaseRequest {
+  knowledgeBaseId: string(name='KnowledgeBaseId', description='This parameter is required.', position='Path'),
+  autoUpdateConfig?: {
+    ecsSpecs?: [ 
+      {
+        CPU?: int32(name='CPU', description='CPU核数'),
+        driver?: string(name='Driver', description='驱动版本'),
+        GPU?: int32(name='GPU', description='GPU卡数'),
+        GPUType?: string(name='GPUType', description='GPU类型'),
+        instanceType?: string(name='InstanceType', description='机型名称'),
+        memory?: int32(name='Memory', description='内存大小'),
+        podCount?: int32(name='PodCount', description='副本数量'),
+        sharedMemory?: int32(name='SharedMemory', description='共享内存容量'),
+        type?: string(name='Type', description='节点类型'),
+      }
+    ](name='EcsSpecs', description='运行资源配置'),
+    embeddingConfig?: {
+      batchSize?: int32(name='BatchSize', description='Embedding分批大小'),
+      concurrency?: int32(name='Concurrency', description='Embedding并发数', minimum=1, maximum=200),
+    }(name='EmbeddingConfig', description='Embedding配置'),
+    maxRunningTimeInSeconds?: int32(name='MaxRunningTimeInSeconds', description='任务最大运行时间', example='86400'),
+    resourceId?: string(name='ResourceId', description='资源组ID'),
+    status?: string(name='Status', description='知识库自动更新状态'),
+    userVpc?: UserVpc(name='UserVpc', description='用户VPC配置'),
+  }(name='AutoUpdateConfig', position='Body'),
+  bindRuntime?: boolean(name='BindRuntime', position='Body'),
+  description?: string(name='Description', position='Body'),
+  metaDataConfig?: {
+    customMetaData?: [ 
+      {
+        key?: string(name='Key', description='元数据Key'),
+        valueType?: string(name='ValueType', description='元数据Value类型', example='String'),
+      }
+    ](name='CustomMetaData', description='自定义元数据'),
+  }(name='MetaDataConfig', position='Body'),
+  runtimeId?: string(name='RuntimeId', position='Body'),
+  workspaceId: string(name='WorkspaceId', description='This parameter is required.', position='Body'),
+}
+
+model UpdateKnowledgeBaseResponseBody = {
+  requestId?: string(name='RequestId'),
+}
+
+model UpdateKnowledgeBaseResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: UpdateKnowledgeBaseResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of UpdateKnowledgeBase  UpdateKnowledgeBaseRequest
+  * @return UpdateKnowledgeBaseResponse
+ */
+async function updateKnowledgeBase(request: UpdateKnowledgeBaseRequest): UpdateKnowledgeBaseResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'UpdateKnowledgeBase', 'PUT', '/api/v1/langstudio/knowledgebases/{KnowledgeBaseId}', 'json', false, 'json', request);
+}
+
+model UpdateKnowledgeBaseJobRequest {
+  knowledgeBaseId: string(name='KnowledgeBaseId', description='This parameter is required.', example='d-nacr******sxd2', position='Path'),
+  knowledgeBaseJobId: string(name='KnowledgeBaseJobId', description='This parameter is required.', example='kbjob-9m******54', position='Path'),
+  description?: string(name='Description', example='This is a description of the knowledge base job.', position='Body'),
+  workspaceId: string(name='WorkspaceId', description='This parameter is required.', example='285***', position='Body'),
+}
+
+model UpdateKnowledgeBaseJobResponseBody = {
+  requestId?: string(name='RequestId', example='35686626-8D83-5ADE-B400-08A6613A6057'),
+}
+
+model UpdateKnowledgeBaseJobResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: UpdateKnowledgeBaseJobResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of UpdateKnowledgeBaseJob  UpdateKnowledgeBaseJobRequest
+  * @return UpdateKnowledgeBaseJobResponse
+ */
+async function updateKnowledgeBaseJob(request: UpdateKnowledgeBaseJobRequest): UpdateKnowledgeBaseJobResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'UpdateKnowledgeBaseJob', 'PUT', '/api/v1/langstudio/knowledgebases/{KnowledgeBaseId}/knowledgebasejobs/{KnowledgeBaseJobId}', 'json', false, 'json', request);
+}
+
