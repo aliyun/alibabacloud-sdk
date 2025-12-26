@@ -2323,6 +2323,7 @@ model CreateServiceRequest {
   description?: string(name='description', description='Service description, only valid when `serviceType=RUM`.', example='mag测试应用'),
   displayName?: string(name='displayName', description='Display name, only valid when `serviceType=RUM`.', example='mag测试应用'),
   pid?: string(name='pid', description='Application ID, generally not required to be specified.', example='bx3udsi5ie@ed2ba6beebdb6de'),
+  resourceGroupId?: string(name='resourceGroupId', example='rg-xxekxxzuad5zzzz'),
   serviceName?: string(name='serviceName', description='Service name
 
 This parameter is required.', example='mag_test'),
@@ -2330,6 +2331,12 @@ This parameter is required.', example='mag_test'),
   serviceType?: string(name='serviceType', description='Service type
 
 This parameter is required.', example='TRACE'),
+  tags?: [ 
+    {
+      key?: string(name='key', example='env'),
+      value?: string(name='value', example='prod'),
+    }
+  ](name='tags'),
 }
 
 model CreateServiceResponseBody = {
@@ -2368,6 +2375,9 @@ async function createServiceWithOptions(workspace: string, request: CreateServic
   if (!$isNull(request.pid)) {
     body['pid'] = request.pid;
   }
+  if (!$isNull(request.resourceGroupId)) {
+    body['resourceGroupId'] = request.resourceGroupId;
+  }
   if (!$isNull(request.serviceName)) {
     body['serviceName'] = request.serviceName;
   }
@@ -2376,6 +2386,9 @@ async function createServiceWithOptions(workspace: string, request: CreateServic
   }
   if (!$isNull(request.serviceType)) {
     body['serviceType'] = request.serviceType;
+  }
+  if (!$isNull(request.tags)) {
+    body['tags'] = request.tags;
   }
 
   var req = new OpenApiUtil.OpenApiRequest{ 
@@ -4892,10 +4905,17 @@ model GetServiceResponseBody = {
     displayName?: string(name='displayName', description='Display name, only valid when serviceType=RUM.', example='demo应用'),
     pid?: string(name='pid', description='Legacy ARMS application ID', example='by6rjzro2j@0fe8dfa799e5906'),
     regionId?: string(name='regionId', description='Region ID', example='cn-heyuan'),
+    resourceGroupId?: string(name='resourceGroupId', example='rg-aekxxzuad5zzzz'),
     serviceId?: string(name='serviceId', description='Service ID.', example='cwzxvuc6uo@4bc6b15ad81f166174ffb'),
     serviceName?: string(name='serviceName', description='Service name', example='demo-app'),
     serviceStatus?: string(name='serviceStatus', description='Service status, only valid when serviceType=RUM.', example='Running'),
     serviceType?: string(name='serviceType', description='Service type.', example='TRACE'),
+    tags?: [ 
+      {
+        key?: string(name='key', example='env'),
+        value?: string(name='value', example='prod'),
+      }
+    ](name='tags'),
     workspace?: string(name='workspace', description='Workspace name', example='default-cms-1106439496876715-cn-hangzhou'),
   }(name='service', description='Service object.'),
 }
@@ -7488,7 +7508,24 @@ async function listPrometheusVirtualInstances(request: ListPrometheusVirtualInst
 model ListServicesRequest {
   maxResults?: int32(name='maxResults', description='The maximum number of records to return in this request.', example='10'),
   nextToken?: string(name='nextToken', description='Token for the next query, an empty value indicates the last page.', example='7-b81a-4bc9-bbfa-a50cc6988667'),
+  resourceGroupId?: string(name='resourceGroupId', example='rg-aekxxzuad5zzzz'),
+  serviceName?: string(name='serviceName', example='app-demo'),
   serviceType?: string(name='serviceType', description='Service type', example='apm'),
+  tags?: [ 
+    {
+      key?: string(name='key', example='evn'),
+      value?: string(name='value', example='prod'),
+    }
+  ](name='tags', nullable=true),
+}
+
+model ListServicesShrinkRequest {
+  maxResults?: int32(name='maxResults', description='The maximum number of records to return in this request.', example='10'),
+  nextToken?: string(name='nextToken', description='Token for the next query, an empty value indicates the last page.', example='7-b81a-4bc9-bbfa-a50cc6988667'),
+  resourceGroupId?: string(name='resourceGroupId', example='rg-aekxxzuad5zzzz'),
+  serviceName?: string(name='serviceName', example='app-demo'),
+  serviceType?: string(name='serviceType', description='Service type', example='apm'),
+  tagsShrink?: string(name='tags', nullable=true),
 }
 
 model ListServicesResponseBody = {
@@ -7502,6 +7539,7 @@ model ListServicesResponseBody = {
       description?: string(name='description', description='Service description, valid only when serviceType=RUM.', example='workspace api monitor test'),
       displayName?: string(name='displayName', description='Display name, valid only when serviceType=RUM.', example='test'),
       pid?: string(name='pid', description='Historical compatible ARMS application ID', example='kgcsf@192197e828d51aa'),
+      resourceGroupId?: string(name='resourceGroupId', example='rg-aekxxzuad5zzzz'),
       serviceId?: string(name='serviceId', description='Service ID', example='jm2pl0yoqf@d4905cb11a4f218dfb0a8'),
       serviceName?: string(name='serviceName', description='Service name', example='demo-app'),
       serviceStatus?: string(name='serviceStatus', description='Service status, valid only when serviceType=RUM.', example='Running'),
@@ -7521,14 +7559,19 @@ model ListServicesResponse = {
 /**
  * @summary List Resource Services
  *
- * @param request ListServicesRequest
+ * @param tmpReq ListServicesRequest
  * @param headers map
  * @param runtime runtime options for this request RuntimeOptions
  * @return ListServicesResponse
  */
 @context("listServicesWithContext")
-async function listServicesWithOptions(workspace: string, request: ListServicesRequest, headers: map[string]string, runtime: $RuntimeOptions): ListServicesResponse {
-  request.validate();
+async function listServicesWithOptions(workspace: string, tmpReq: ListServicesRequest, headers: map[string]string, runtime: $RuntimeOptions): ListServicesResponse {
+  tmpReq.validate();
+  var request = new ListServicesShrinkRequest{};
+  OpenApiUtil.convert(tmpReq, request);
+  if (!$isNull(tmpReq.tags)) {
+    request.tagsShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.tags, 'tags', 'json');
+  }
   var query : map[string]any = {};
   if (!$isNull(request.maxResults)) {
     query['maxResults'] = request.maxResults;
@@ -7536,8 +7579,17 @@ async function listServicesWithOptions(workspace: string, request: ListServicesR
   if (!$isNull(request.nextToken)) {
     query['nextToken'] = request.nextToken;
   }
+  if (!$isNull(request.resourceGroupId)) {
+    query['resourceGroupId'] = request.resourceGroupId;
+  }
+  if (!$isNull(request.serviceName)) {
+    query['serviceName'] = request.serviceName;
+  }
   if (!$isNull(request.serviceType)) {
     query['serviceType'] = request.serviceType;
+  }
+  if (!$isNull(request.tagsShrink)) {
+    query['tags'] = request.tagsShrink;
   }
 
   var req = new OpenApiUtil.OpenApiRequest{ 
