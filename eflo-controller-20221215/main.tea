@@ -3754,12 +3754,34 @@ async function listFreeNodes(request: ListFreeNodesRequest): ListFreeNodesRespon
 
 model ListHyperNodesRequest {
   clusterName?: string(name='ClusterName', example='Standard_Cluster'),
+  commodityCode?: string(name='CommodityCode'),
   hpnZone?: string(name='HpnZone', example='A1'),
   hyperNodeId?: string(name='HyperNodeId', example='e01-cn-zvp2tgykr08'),
   machineType?: string(name='MachineType', example='efg1.nvga1'),
   maxResults?: int32(name='MaxResults', example='100'),
   nextToken?: string(name='NextToken', example='3a6b93229825ac667104463b56790c91'),
   nodeGroupName?: string(name='NodeGroupName', example='emr-default'),
+  operatingStates?: [ string ](name='OperatingStates'),
+  resourceGroupId?: string(name='ResourceGroupId', example='rg-acfmwfm33rlt6zi'),
+  tags?: [ 
+    {
+      key?: string(name='Key', example='alarm_xdc'),
+      value?: string(name='Value', example='129'),
+    }
+  ](name='Tags'),
+  zoneId?: string(name='ZoneId', example='cn-hangzhou-i'),
+}
+
+model ListHyperNodesShrinkRequest {
+  clusterName?: string(name='ClusterName', example='Standard_Cluster'),
+  commodityCode?: string(name='CommodityCode'),
+  hpnZone?: string(name='HpnZone', example='A1'),
+  hyperNodeId?: string(name='HyperNodeId', example='e01-cn-zvp2tgykr08'),
+  machineType?: string(name='MachineType', example='efg1.nvga1'),
+  maxResults?: int32(name='MaxResults', example='100'),
+  nextToken?: string(name='NextToken', example='3a6b93229825ac667104463b56790c91'),
+  nodeGroupName?: string(name='NodeGroupName', example='emr-default'),
+  operatingStatesShrink?: string(name='OperatingStates'),
   resourceGroupId?: string(name='ResourceGroupId', example='rg-acfmwfm33rlt6zi'),
   tags?: [ 
     {
@@ -3811,12 +3833,24 @@ model ListHyperNodesResponse = {
 /**
  * @summary 机器列表
  *
- * @param request ListHyperNodesRequest
+ * @param tmpReq ListHyperNodesRequest
  * @param runtime runtime options for this request RuntimeOptions
  * @return ListHyperNodesResponse
  */
-async function listHyperNodesWithOptions(request: ListHyperNodesRequest, runtime: Util.RuntimeOptions): ListHyperNodesResponse {
-  Util.validateModel(request);
+async function listHyperNodesWithOptions(tmpReq: ListHyperNodesRequest, runtime: Util.RuntimeOptions): ListHyperNodesResponse {
+  Util.validateModel(tmpReq);
+  var request = new ListHyperNodesShrinkRequest{};
+  OpenApiUtil.convert(tmpReq, request);
+  if (!Util.isUnset(tmpReq.operatingStates)) {
+    request.operatingStatesShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.operatingStates, 'OperatingStates', 'json');
+  }
+  var query = {};
+  if (!Util.isUnset(request.commodityCode)) {
+    query['CommodityCode'] = request.commodityCode;
+  }
+  if (!Util.isUnset(request.operatingStatesShrink)) {
+    query['OperatingStates'] = request.operatingStatesShrink;
+  }
   var body : map[string]any = {};
   if (!Util.isUnset(request.clusterName)) {
     body['ClusterName'] = request.clusterName;
@@ -3849,6 +3883,7 @@ async function listHyperNodesWithOptions(request: ListHyperNodesRequest, runtime
     body['ZoneId'] = request.zoneId;
   }
   var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
     body = OpenApiUtil.parseToMap(body),
   };
   var params = new OpenApi.Params{
