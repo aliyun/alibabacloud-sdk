@@ -1686,12 +1686,12 @@ async function createLDAPConfig(request: CreateLDAPConfigRequest): CreateLDAPCon
 }
 
 model CreateLifecyclePolicyRequest {
+  description?: string(name='Description', example='描述', position='Query'),
   fileSystemId: string(name='FileSystemId', description='The ID of the file system.
 
 This parameter is required.', example='31a8e4****', position='Query'),
-  lifecyclePolicyName: string(name='LifecyclePolicyName', description='The name of the lifecycle policy. The name must be 3 to 64 characters in length and can contain letters, digits, underscores (_), and hyphens (-). The name must start with a letter.
-
-This parameter is required.', example='lifecyclepolicy_01', position='Query'),
+  lifecyclePolicyName?: string(name='LifecyclePolicyName', description='The name of the lifecycle policy. The name must be 3 to 64 characters in length and can contain letters, digits, underscores (_), and hyphens (-). The name must start with a letter.', example='lifecyclepolicy_01', position='Query'),
+  lifecyclePolicyType?: string(name='LifecyclePolicyType', example='Auto', position='Query'),
   lifecycleRuleName?: string(name='LifecycleRuleName', description='The management rule that is associated with the lifecycle policy.
 
 Valid values:
@@ -1708,14 +1708,27 @@ If you specify this parameter, you can associate the lifecycle policy with only 
   paths?: [ string ](name='Paths', description='The absolute paths of the directories that are associated with the lifecycle policy.
 
 If you specify this parameter, you can associate the lifecycle policy with multiple directories. Each path must start with a forward slash (/) and must be a path that exists in the mount target. Valid values of N: 1 to 10.', example='"/path1", "/path2"', position='Query'),
+  retrieveRules?: [ 
+    {
+      attribute?: string(name='Attribute', example='RetrieveType'),
+      threshold?: string(name='Threshold', example='All'),
+    }
+  ](name='RetrieveRules', position='Query'),
   storageType: string(name='StorageType', description='The storage type of the data that is dumped to the IA storage medium.
 
 Default value: InfrequentAccess (IA).
 
 This parameter is required.', example='InfrequentAccess', position='Query'),
+  transitRules?: [ 
+    {
+      attribute?: string(name='Attribute', example='Atime'),
+      threshold?: string(name='Threshold', example='3'),
+    }
+  ](name='TransitRules', position='Query'),
 }
 
 model CreateLifecyclePolicyResponseBody = {
+  lifecyclePolicyId?: string(name='LifecyclePolicyId', example='lc-xxx'),
   requestId?: string(name='RequestId', description='The request ID.', example='BC7C825C-5F65-4B56-BEF6-98C56C7C****'),
   success?: boolean(name='Success', description='Indicates whether the request was successful.
 
@@ -2457,9 +2470,8 @@ model DeleteLifecyclePolicyRequest {
   fileSystemId: string(name='FileSystemId', description='The ID of the file system.
 
 This parameter is required.', example='31a8e4****', position='Query'),
-  lifecyclePolicyName: string(name='LifecyclePolicyName', description='The name of the lifecycle policy.
-
-This parameter is required.', example='lifecyclepolicy1', position='Query'),
+  lifecyclePolicyId?: string(name='LifecyclePolicyId', example='lc-xxx', position='Query'),
+  lifecyclePolicyName?: string(name='LifecyclePolicyName', description='The name of the lifecycle policy.', example='lifecyclepolicy1', position='Query'),
 }
 
 model DeleteLifecyclePolicyResponseBody = {
@@ -4248,10 +4260,13 @@ async function describeFilesystemsVscAttachInfo(request: DescribeFilesystemsVscA
 }
 
 model DescribeLifecyclePoliciesRequest {
+  description?: string(name='Description', example='描述', position='Query'),
   fileSystemId?: string(name='FileSystemId', description='The ID of the file system.', example='31a8e4****', position='Query'),
+  lifecyclePolicyId?: string(name='LifecyclePolicyId', example='lc-xxx', position='Query'),
   lifecyclePolicyName?: string(name='LifecyclePolicyName', description='The name of the lifecycle policy. The name must meet the following conventions:
 
 The name must be 3 to 64 characters in length and must start with a letter. It can contain letters, digits, underscores (_), and hyphens (-).', example='lifecyclepolicy_01', position='Query'),
+  lifecyclePolicyType?: string(name='LifecyclePolicyType', example='Auto', position='Query'),
   pageNumber?: int32(name='PageNumber', description='The page number.
 
 Pages start from page 1. Default value: 1.', example='1', minimum=1, position='Query'),
@@ -4260,6 +4275,7 @@ Pages start from page 1. Default value: 1.', example='1', minimum=1, position='Q
 Valid values: 1 to 100.
 
 Default value: 10.', example='10', minimum=1, maximum=100, position='Query'),
+  path?: string(name='Path', example='/abc/', position='Query'),
   storageType?: string(name='StorageType', description='The storage class.
 
 *   InfrequentAccess: the Infrequent Access (IA) storage class.
@@ -4274,8 +4290,11 @@ model DescribeLifecyclePoliciesResponseBody = {
       createTime?: string(name='CreateTime', description='The time when the lifecycle policy was created.
 
 The time follows the ISO 8601 standard in the `yyyy-MM-ddTHH:mm:ssZ` format.', example='2019-10-30T10:08:08Z'),
+      description?: string(name='Description', example='描述'),
       fileSystemId?: string(name='FileSystemId', description='The ID of the file system.', example='31a8e4****'),
+      lifecyclePolicyId?: string(name='LifecyclePolicyId', example='lc-xxx'),
       lifecyclePolicyName?: string(name='LifecyclePolicyName', description='The name of the lifecycle policy.', example='lifecyclepolicy_01'),
+      lifecyclePolicyType?: string(name='LifecyclePolicyType', example='Auto'),
       lifecycleRuleName?: string(name='LifecycleRuleName', description='The management rule that is associated with the lifecycle policy.
 
 Valid values:
@@ -4286,9 +4305,21 @@ Valid values:
 *   DEFAULT_ATIME_90: Files that are not accessed in the last 90 days are dumped to the IA storage medium.', example='DEFAULT_ATIME_14'),
       path?: string(name='Path', description='The absolute path of a directory with which the lifecycle policy is associated.', example='/pathway/to/folder'),
       paths?: [ string ](name='Paths', description='The absolute paths to multiple directories associated with the lifecycle policy.'),
+      retrieveRules?: [ 
+        {
+          attribute?: string(name='Attribute', example='RetrieveType'),
+          threshold?: string(name='Threshold', example='All'),
+        }
+      ](name='RetrieveRules'),
       storageType?: string(name='StorageType', description='The storage type of the data that is dumped to the IA storage medium.
 
 Default value: InfrequentAccess (IA).', example='InfrequentAccess'),
+      transitRules?: [ 
+        {
+          attribute?: string(name='Attribute', example='Atime'),
+          threshold?: string(name='Threshold', example='3'),
+        }
+      ](name='TransitRules'),
     }
   ](name='LifecyclePolicies', description='The queried lifecycle policies.'),
   pageNumber?: int32(name='PageNumber', description='The page number.', example='1'),
@@ -6371,11 +6402,10 @@ model ModifyLifecyclePolicyRequest {
   fileSystemId: string(name='FileSystemId', description='The ID of the file system.
 
 This parameter is required.', example='31a8e4****', position='Query'),
-  lifecyclePolicyName: string(name='LifecyclePolicyName', description='The name of the lifecycle policy.
+  lifecyclePolicyId?: string(name='LifecyclePolicyId', example='lc-xxx', position='Query'),
+  lifecyclePolicyName?: string(name='LifecyclePolicyName', description='The name of the lifecycle policy.
 
-The name must be 3 to 64 characters in length and can contain letters, digits, underscores (_), and hyphens (-). The name must start with a letter.
-
-This parameter is required.', example='lifecyclepolicy_01', position='Query'),
+The name must be 3 to 64 characters in length and can contain letters, digits, underscores (_), and hyphens (-). The name must start with a letter.', example='lifecyclepolicy_01', position='Query'),
   lifecycleRuleName?: string(name='LifecycleRuleName', description='The management rule that is associated with the lifecycle policy.
 
 Valid values:

@@ -3071,12 +3071,12 @@ async function createLDAPConfig(request: CreateLDAPConfigRequest): CreateLDAPCon
 }
 
 model CreateLifecyclePolicyRequest {
+  description?: string(name='Description', example='描述'),
   fileSystemId?: string(name='FileSystemId', description='The ID of the file system.
 
 This parameter is required.', example='31a8e4****'),
-  lifecyclePolicyName?: string(name='LifecyclePolicyName', description='The name of the lifecycle policy. The name must be 3 to 64 characters in length and can contain letters, digits, underscores (_), and hyphens (-). The name must start with a letter.
-
-This parameter is required.', example='lifecyclepolicy_01'),
+  lifecyclePolicyName?: string(name='LifecyclePolicyName', description='The name of the lifecycle policy. The name must be 3 to 64 characters in length and can contain letters, digits, underscores (_), and hyphens (-). The name must start with a letter.', example='lifecyclepolicy_01'),
+  lifecyclePolicyType?: string(name='LifecyclePolicyType', example='Auto'),
   lifecycleRuleName?: string(name='LifecycleRuleName', description='The management rule that is associated with the lifecycle policy.
 
 Valid values:
@@ -3093,14 +3093,27 @@ If you specify this parameter, you can associate the lifecycle policy with only 
   paths?: [ string ](name='Paths', description='The absolute paths of the directories that are associated with the lifecycle policy.
 
 If you specify this parameter, you can associate the lifecycle policy with multiple directories. Each path must start with a forward slash (/) and must be a path that exists in the mount target. Valid values of N: 1 to 10.', example='"/path1", "/path2"'),
+  retrieveRules?: [ 
+    {
+      attribute?: string(name='Attribute', example='RetrieveType'),
+      threshold?: string(name='Threshold', example='All'),
+    }
+  ](name='RetrieveRules'),
   storageType?: string(name='StorageType', description='The storage type of the data that is dumped to the IA storage medium.
 
 Default value: InfrequentAccess (IA).
 
 This parameter is required.', example='InfrequentAccess'),
+  transitRules?: [ 
+    {
+      attribute?: string(name='Attribute', example='Atime'),
+      threshold?: string(name='Threshold', example='3'),
+    }
+  ](name='TransitRules'),
 }
 
 model CreateLifecyclePolicyResponseBody = {
+  lifecyclePolicyId?: string(name='LifecyclePolicyId', example='lc-xxx'),
   requestId?: string(name='RequestId', description='The request ID.', example='BC7C825C-5F65-4B56-BEF6-98C56C7C****'),
   success?: boolean(name='Success', description='Indicates whether the request was successful.
 
@@ -3129,11 +3142,17 @@ model CreateLifecyclePolicyResponse = {
 async function createLifecyclePolicyWithOptions(request: CreateLifecyclePolicyRequest, runtime: Util.RuntimeOptions): CreateLifecyclePolicyResponse {
   Util.validateModel(request);
   var query = {};
+  if (!Util.isUnset(request.description)) {
+    query['Description'] = request.description;
+  }
   if (!Util.isUnset(request.fileSystemId)) {
     query['FileSystemId'] = request.fileSystemId;
   }
   if (!Util.isUnset(request.lifecyclePolicyName)) {
     query['LifecyclePolicyName'] = request.lifecyclePolicyName;
+  }
+  if (!Util.isUnset(request.lifecyclePolicyType)) {
+    query['LifecyclePolicyType'] = request.lifecyclePolicyType;
   }
   if (!Util.isUnset(request.lifecycleRuleName)) {
     query['LifecycleRuleName'] = request.lifecycleRuleName;
@@ -3144,8 +3163,14 @@ async function createLifecyclePolicyWithOptions(request: CreateLifecyclePolicyRe
   if (!Util.isUnset(request.paths)) {
     query['Paths'] = request.paths;
   }
+  if (!Util.isUnset(request.retrieveRules)) {
+    query['RetrieveRules'] = request.retrieveRules;
+  }
   if (!Util.isUnset(request.storageType)) {
     query['StorageType'] = request.storageType;
+  }
+  if (!Util.isUnset(request.transitRules)) {
+    query['TransitRules'] = request.transitRules;
   }
   var req = new OpenApi.OpenApiRequest{ 
     query = OpenApiUtil.query(query),
@@ -4612,9 +4637,8 @@ model DeleteLifecyclePolicyRequest {
   fileSystemId?: string(name='FileSystemId', description='The ID of the file system.
 
 This parameter is required.', example='31a8e4****'),
-  lifecyclePolicyName?: string(name='LifecyclePolicyName', description='The name of the lifecycle policy.
-
-This parameter is required.', example='lifecyclepolicy1'),
+  lifecyclePolicyId?: string(name='LifecyclePolicyId', example='lc-xxx'),
+  lifecyclePolicyName?: string(name='LifecyclePolicyName', description='The name of the lifecycle policy.', example='lifecyclepolicy1'),
 }
 
 model DeleteLifecyclePolicyResponseBody = {
@@ -4647,6 +4671,9 @@ async function deleteLifecyclePolicyWithOptions(request: DeleteLifecyclePolicyRe
   var query = {};
   if (!Util.isUnset(request.fileSystemId)) {
     query['FileSystemId'] = request.fileSystemId;
+  }
+  if (!Util.isUnset(request.lifecyclePolicyId)) {
+    query['LifecyclePolicyId'] = request.lifecyclePolicyId;
   }
   if (!Util.isUnset(request.lifecyclePolicyName)) {
     query['LifecyclePolicyName'] = request.lifecyclePolicyName;
@@ -7319,10 +7346,13 @@ async function describeFilesystemsVscAttachInfo(request: DescribeFilesystemsVscA
 }
 
 model DescribeLifecyclePoliciesRequest {
+  description?: string(name='Description', example='描述'),
   fileSystemId?: string(name='FileSystemId', description='The ID of the file system.', example='31a8e4****'),
+  lifecyclePolicyId?: string(name='LifecyclePolicyId', example='lc-xxx'),
   lifecyclePolicyName?: string(name='LifecyclePolicyName', description='The name of the lifecycle policy. The name must meet the following conventions:
 
 The name must be 3 to 64 characters in length and must start with a letter. It can contain letters, digits, underscores (_), and hyphens (-).', example='lifecyclepolicy_01'),
+  lifecyclePolicyType?: string(name='LifecyclePolicyType', example='Auto'),
   pageNumber?: int32(name='PageNumber', description='The page number.
 
 Pages start from page 1. Default value: 1.', example='1'),
@@ -7331,6 +7361,7 @@ Pages start from page 1. Default value: 1.', example='1'),
 Valid values: 1 to 100.
 
 Default value: 10.', example='10'),
+  path?: string(name='Path', example='/abc/'),
   storageType?: string(name='StorageType', description='The storage class.
 
 *   InfrequentAccess: the Infrequent Access (IA) storage class.
@@ -7345,8 +7376,11 @@ model DescribeLifecyclePoliciesResponseBody = {
       createTime?: string(name='CreateTime', description='The time when the lifecycle policy was created.
 
 The time follows the ISO 8601 standard in the `yyyy-MM-ddTHH:mm:ssZ` format.', example='2019-10-30T10:08:08Z'),
+      description?: string(name='Description', example='描述'),
       fileSystemId?: string(name='FileSystemId', description='The ID of the file system.', example='31a8e4****'),
+      lifecyclePolicyId?: string(name='LifecyclePolicyId', example='lc-xxx'),
       lifecyclePolicyName?: string(name='LifecyclePolicyName', description='The name of the lifecycle policy.', example='lifecyclepolicy_01'),
+      lifecyclePolicyType?: string(name='LifecyclePolicyType', example='Auto'),
       lifecycleRuleName?: string(name='LifecycleRuleName', description='The management rule that is associated with the lifecycle policy.
 
 Valid values:
@@ -7357,9 +7391,21 @@ Valid values:
 *   DEFAULT_ATIME_90: Files that are not accessed in the last 90 days are dumped to the IA storage medium.', example='DEFAULT_ATIME_14'),
       path?: string(name='Path', description='The absolute path of a directory with which the lifecycle policy is associated.', example='/pathway/to/folder'),
       paths?: [ string ](name='Paths', description='The absolute paths to multiple directories associated with the lifecycle policy.'),
+      retrieveRules?: [ 
+        {
+          attribute?: string(name='Attribute', example='RetrieveType'),
+          threshold?: string(name='Threshold', example='All'),
+        }
+      ](name='RetrieveRules'),
       storageType?: string(name='StorageType', description='The storage type of the data that is dumped to the IA storage medium.
 
 Default value: InfrequentAccess (IA).', example='InfrequentAccess'),
+      transitRules?: [ 
+        {
+          attribute?: string(name='Attribute', example='Atime'),
+          threshold?: string(name='Threshold', example='3'),
+        }
+      ](name='TransitRules'),
     }
   ](name='LifecyclePolicies', description='The queried lifecycle policies.'),
   pageNumber?: int32(name='PageNumber', description='The page number.', example='1'),
@@ -11042,11 +11088,10 @@ model ModifyLifecyclePolicyRequest {
   fileSystemId?: string(name='FileSystemId', description='The ID of the file system.
 
 This parameter is required.', example='31a8e4****'),
+  lifecyclePolicyId?: string(name='LifecyclePolicyId', example='lc-xxx'),
   lifecyclePolicyName?: string(name='LifecyclePolicyName', description='The name of the lifecycle policy.
 
-The name must be 3 to 64 characters in length and can contain letters, digits, underscores (_), and hyphens (-). The name must start with a letter.
-
-This parameter is required.', example='lifecyclepolicy_01'),
+The name must be 3 to 64 characters in length and can contain letters, digits, underscores (_), and hyphens (-). The name must start with a letter.', example='lifecyclepolicy_01'),
   lifecycleRuleName?: string(name='LifecycleRuleName', description='The management rule that is associated with the lifecycle policy.
 
 Valid values:
@@ -11093,6 +11138,9 @@ async function modifyLifecyclePolicyWithOptions(request: ModifyLifecyclePolicyRe
   var query = {};
   if (!Util.isUnset(request.fileSystemId)) {
     query['FileSystemId'] = request.fileSystemId;
+  }
+  if (!Util.isUnset(request.lifecyclePolicyId)) {
+    query['LifecyclePolicyId'] = request.lifecyclePolicyId;
   }
   if (!Util.isUnset(request.lifecyclePolicyName)) {
     query['LifecyclePolicyName'] = request.lifecyclePolicyName;
