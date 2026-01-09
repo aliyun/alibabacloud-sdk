@@ -89,6 +89,23 @@ model AlertTag {
   value?: string(name='value', example='example value'),
 }
 
+model AsyncSqlResponseData {
+  asyncSqlMetaPB?: {
+    cpuCores?: int32(name='cpu_cores', example='10'),
+    cpuSec?: double(name='cpu_sec', example='0.2'),
+    elapsedMilli?: long(name='elapsed_milli', example='30000'),
+    keys?: [ string ](name='keys'),
+    processedRows?: long(name='processed_rows', example='10000000'),
+    progress?: string(name='progress', example='Complete'),
+    resultRows?: int32(name='result_rows', example='12000'),
+  }(name='AsyncSqlMetaPB'),
+  errorCode?: string(name='error_code', example='InvalidQuery'),
+  errorMessage?: string(name='error_message', example='line 37:14: Column \\"xyz\\" cannot be resolved'),
+  id?: string(name='id', description='This parameter is required.', example='690C4F2A16FBD65C40000484_14'),
+  rows?: [[ string ]  ](name='rows'),
+  state?: string(name='state', description='This parameter is required.', example='FINISHED'),
+}
+
 model AzureBlobIngestion {
   configuration?: AzureBlobIngestionConfiguration(name='configuration', description='This parameter is required.'),
   createTime?: long(name='createTime', example='1714360481'),
@@ -696,8 +713,10 @@ model ScheduledSQLConfiguration {
   destLogstore?: string(name='destLogstore', description='This parameter is required.', example='dest-logstore-demo'),
   destProject?: string(name='destProject', description='This parameter is required.', example='project-demo'),
   destRoleArn?: string(name='destRoleArn', description='This parameter is required.', example='acs:ram::123456789:role/aliyunlogetlrole'),
+  forceComplete?: boolean(name='forceComplete', example='true'),
   fromTime?: long(name='fromTime', description='This parameter is required.', example='1712592000'),
   fromTimeExpr?: string(name='fromTimeExpr', description='This parameter is required.', example='@m-1m'),
+  maxConcurrency?: long(name='maxConcurrency', example='1'),
   maxRetries?: long(name='maxRetries', description='This parameter is required.', example='20'),
   maxRunTimeInSeconds?: long(name='maxRunTimeInSeconds', description='This parameter is required.', example='600'),
   parameters?: map[string]any(name='parameters', description='This parameter is required.'),
@@ -747,6 +766,17 @@ model StoreViewStore {
   project?: string(name='project', description='This parameter is required.'),
   query?: string(name='query'),
   storeName?: string(name='storeName', description='This parameter is required.'),
+}
+
+model SubmitAsyncSqlParams {
+  extensions?: {
+    maxRunTime?: long(name='maxRunTime', example='30000'),
+    powerSql?: boolean(name='powerSql', example='true'),
+  }(name='extensions'),
+  from?: int32(name='from', description='This parameter is required.', example='1627268100'),
+  logstore?: string(name='logstore', description='This parameter is required.', example='test-logstore'),
+  query?: string(name='query', description='This parameter is required.', example='job: IT | select name, age, gender from log'),
+  to?: int32(name='to', description='This parameter is required.', example='1627268200'),
 }
 
 model TemplateConfiguration {
@@ -2674,6 +2704,83 @@ async function createMachineGroup(project: string, request: CreateMachineGroupRe
   var runtime = new Util.RuntimeOptions{};
   var headers : map[string]string = {};
   return createMachineGroupWithOptions(project, request, headers, runtime);
+}
+
+model CreateMaterializedViewRequest {
+  aggIntervalMins?: int32(name='aggIntervalMins'),
+  logstore?: string(name='logstore'),
+  name?: string(name='name'),
+  originalSql?: string(name='originalSql'),
+  startTime?: int32(name='startTime'),
+  ttl?: int32(name='ttl'),
+}
+
+model CreateMaterializedViewResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+}
+
+/**
+ * @summary 创建物化视图
+ *
+ * @param request CreateMaterializedViewRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return CreateMaterializedViewResponse
+ */
+async function createMaterializedViewWithOptions(project: string, request: CreateMaterializedViewRequest, headers: map[string]string, runtime: Util.RuntimeOptions): CreateMaterializedViewResponse {
+  Util.validateModel(request);
+  var hostMap : map[string]string = {};
+  hostMap['project'] = project;
+  var body : map[string]any = {};
+  if (!Util.isUnset(request.aggIntervalMins)) {
+    body['aggIntervalMins'] = request.aggIntervalMins;
+  }
+  if (!Util.isUnset(request.logstore)) {
+    body['logstore'] = request.logstore;
+  }
+  if (!Util.isUnset(request.name)) {
+    body['name'] = request.name;
+  }
+  if (!Util.isUnset(request.originalSql)) {
+    body['originalSql'] = request.originalSql;
+  }
+  if (!Util.isUnset(request.startTime)) {
+    body['startTime'] = request.startTime;
+  }
+  if (!Util.isUnset(request.ttl)) {
+    body['ttl'] = request.ttl;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    hostMap = hostMap,
+    headers = headers,
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApi.Params{
+    action = 'CreateMaterializedView',
+    version = '2020-12-30',
+    protocol = 'HTTPS',
+    pathname = `/materializedviews`,
+    method = 'POST',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'none',
+  };
+  return execute(params, req, runtime);
+}
+
+/**
+ * @summary 创建物化视图
+ *
+ * @param request CreateMaterializedViewRequest
+ * @return CreateMaterializedViewResponse
+ */
+async function createMaterializedView(project: string, request: CreateMaterializedViewRequest): CreateMaterializedViewResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return createMaterializedViewWithOptions(project, request, headers, runtime);
 }
 
 model CreateMaxComputeExportRequest {
@@ -4699,6 +4806,50 @@ async function deleteMachineGroup(project: string, machineGroup: string): Delete
   return deleteMachineGroupWithOptions(project, machineGroup, headers, runtime);
 }
 
+model DeleteMaterializedViewResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+}
+
+/**
+ * @summary 删除物化视图
+ *
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return DeleteMaterializedViewResponse
+ */
+async function deleteMaterializedViewWithOptions(project: string, name: string, headers: map[string]string, runtime: Util.RuntimeOptions): DeleteMaterializedViewResponse {
+  var hostMap : map[string]string = {};
+  hostMap['project'] = project;
+  var req = new OpenApi.OpenApiRequest{ 
+    hostMap = hostMap,
+    headers = headers,
+  };
+  var params = new OpenApi.Params{
+    action = 'DeleteMaterializedView',
+    version = '2020-12-30',
+    protocol = 'HTTPS',
+    pathname = `/materializedviews/${name}`,
+    method = 'DELETE',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'none',
+  };
+  return execute(params, req, runtime);
+}
+
+/**
+ * @summary 删除物化视图
+ *
+ * @return DeleteMaterializedViewResponse
+ */
+async function deleteMaterializedView(project: string, name: string): DeleteMaterializedViewResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return deleteMaterializedViewWithOptions(project, name, headers, runtime);
+}
+
 model DeleteMaxComputeExportResponse = {
   headers?: map[string]string(name='headers'),
   statusCode?: int32(name='statusCode'),
@@ -5884,6 +6035,68 @@ async function getAppliedMachineGroups(project: string, configName: string): Get
   var runtime = new Util.RuntimeOptions{};
   var headers : map[string]string = {};
   return getAppliedMachineGroupsWithOptions(project, configName, headers, runtime);
+}
+
+model GetAsyncSqlRequest {
+  line?: int32(name='line', example='100'),
+  offset?: int32(name='offset', example='0'),
+}
+
+model GetAsyncSqlResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: AsyncSqlResponseData  
+}
+
+/**
+ * @summary 获取异步SQL的状态以及结果
+ *
+ * @param request GetAsyncSqlRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return GetAsyncSqlResponse
+ */
+async function getAsyncSqlWithOptions(project: string, queryId: string, request: GetAsyncSqlRequest, headers: map[string]string, runtime: Util.RuntimeOptions): GetAsyncSqlResponse {
+  Util.validateModel(request);
+  var hostMap : map[string]string = {};
+  hostMap['project'] = project;
+  var query : map[string]any = {};
+  if (!Util.isUnset(request.line)) {
+    query['line'] = request.line;
+  }
+  if (!Util.isUnset(request.offset)) {
+    query['offset'] = request.offset;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    hostMap = hostMap,
+    headers = headers,
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'GetAsyncSql',
+    version = '2020-12-30',
+    protocol = 'HTTPS',
+    pathname = `/asyncsql/${queryId}`,
+    method = 'GET',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'none',
+    bodyType = 'json',
+  };
+  return execute(params, req, runtime);
+}
+
+/**
+ * @summary 获取异步SQL的状态以及结果
+ *
+ * @param request GetAsyncSqlRequest
+ * @return GetAsyncSqlResponse
+ */
+async function getAsyncSql(project: string, queryId: string, request: GetAsyncSqlRequest): GetAsyncSqlResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return getAsyncSqlWithOptions(project, queryId, request, headers, runtime);
 }
 
 model GetAzureBlobIngestionResponse = {
@@ -7614,6 +7827,73 @@ async function getMachineGroup(project: string, machineGroup: string): GetMachin
   var runtime = new Util.RuntimeOptions{};
   var headers : map[string]string = {};
   return getMachineGroupWithOptions(project, machineGroup, headers, runtime);
+}
+
+model GetMaterializedViewHeaders {
+  commonHeaders?: map[string]string,
+  contentType?: string(name='Content-Type'),
+}
+
+model GetMaterializedViewResponseBody = {
+  aggIntervalMins?: int32(name='aggIntervalMins'),
+  enabled?: boolean(name='enabled'),
+  logstore?: string(name='logstore'),
+  name?: string(name='name'),
+  originalSql?: string(name='originalSql'),
+  startTime?: int32(name='startTime'),
+  ttl?: int32(name='ttl'),
+}
+
+model GetMaterializedViewResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: GetMaterializedViewResponseBody(name='body'),
+}
+
+/**
+ * @summary 获取物化视图
+ *
+ * @param headers GetMaterializedViewHeaders
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return GetMaterializedViewResponse
+ */
+async function getMaterializedViewWithOptions(project: string, name: string, headers: GetMaterializedViewHeaders, runtime: Util.RuntimeOptions): GetMaterializedViewResponse {
+  var hostMap : map[string]string = {};
+  hostMap['project'] = project;
+  var realHeaders : map[string]string = {};
+  if (!Util.isUnset(headers.commonHeaders)) {
+    realHeaders = headers.commonHeaders;
+  }
+  if (!Util.isUnset(headers.contentType)) {
+    realHeaders['Content-Type'] = Util.toJSONString(headers.contentType);
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    hostMap = hostMap,
+    headers = realHeaders,
+  };
+  var params = new OpenApi.Params{
+    action = 'GetMaterializedView',
+    version = '2020-12-30',
+    protocol = 'HTTPS',
+    pathname = `/materializedviews/${name}`,
+    method = 'GET',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return execute(params, req, runtime);
+}
+
+/**
+ * @summary 获取物化视图
+ *
+ * @return GetMaterializedViewResponse
+ */
+async function getMaterializedView(project: string, name: string): GetMaterializedViewResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers = new GetMaterializedViewHeaders{};
+  return getMaterializedViewWithOptions(project, name, headers, runtime);
 }
 
 model GetMaxComputeExportResponse = {
@@ -10237,6 +10517,150 @@ async function listMachines(project: string, machineGroup: string, request: List
   return listMachinesWithOptions(project, machineGroup, request, headers, runtime);
 }
 
+model ListMaterializedViewRequest {
+  name?: string(name='name'),
+  offset?: int32(name='offset'),
+  size?: int32(name='size'),
+}
+
+model ListMaterializedViewResponseBody = {
+  count?: int32(name='count'),
+  materializedViews?: [ string ](name='materializedViews'),
+  total?: int32(name='total'),
+}
+
+model ListMaterializedViewResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ListMaterializedViewResponseBody(name='body'),
+}
+
+/**
+ * @summary 列举物化视图
+ *
+ * @param request ListMaterializedViewRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return ListMaterializedViewResponse
+ */
+async function listMaterializedViewWithOptions(project: string, request: ListMaterializedViewRequest, headers: map[string]string, runtime: Util.RuntimeOptions): ListMaterializedViewResponse {
+  Util.validateModel(request);
+  var hostMap : map[string]string = {};
+  hostMap['project'] = project;
+  var query : map[string]any = {};
+  if (!Util.isUnset(request.name)) {
+    query['name'] = request.name;
+  }
+  if (!Util.isUnset(request.offset)) {
+    query['offset'] = request.offset;
+  }
+  if (!Util.isUnset(request.size)) {
+    query['size'] = request.size;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    hostMap = hostMap,
+    headers = headers,
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'ListMaterializedView',
+    version = '2020-12-30',
+    protocol = 'HTTPS',
+    pathname = `/materializedviews`,
+    method = 'GET',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return execute(params, req, runtime);
+}
+
+/**
+ * @summary 列举物化视图
+ *
+ * @param request ListMaterializedViewRequest
+ * @return ListMaterializedViewResponse
+ */
+async function listMaterializedView(project: string, request: ListMaterializedViewRequest): ListMaterializedViewResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return listMaterializedViewWithOptions(project, request, headers, runtime);
+}
+
+model ListMaterializedViewsRequest {
+  name?: string(name='name'),
+  offset?: int32(name='offset'),
+  size?: int32(name='size'),
+}
+
+model ListMaterializedViewsResponseBody = {
+  count?: int32(name='count'),
+  materializedViews?: [ string ](name='materializedViews'),
+  total?: int32(name='total'),
+}
+
+model ListMaterializedViewsResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ListMaterializedViewsResponseBody(name='body'),
+}
+
+/**
+ * @summary 列举物化视图
+ *
+ * @param request ListMaterializedViewsRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return ListMaterializedViewsResponse
+ */
+async function listMaterializedViewsWithOptions(project: string, request: ListMaterializedViewsRequest, headers: map[string]string, runtime: Util.RuntimeOptions): ListMaterializedViewsResponse {
+  Util.validateModel(request);
+  var hostMap : map[string]string = {};
+  hostMap['project'] = project;
+  var query : map[string]any = {};
+  if (!Util.isUnset(request.name)) {
+    query['name'] = request.name;
+  }
+  if (!Util.isUnset(request.offset)) {
+    query['offset'] = request.offset;
+  }
+  if (!Util.isUnset(request.size)) {
+    query['size'] = request.size;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    hostMap = hostMap,
+    headers = headers,
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'ListMaterializedViews',
+    version = '2020-12-30',
+    protocol = 'HTTPS',
+    pathname = `/materializedviews`,
+    method = 'GET',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return execute(params, req, runtime);
+}
+
+/**
+ * @summary 列举物化视图
+ *
+ * @param request ListMaterializedViewsRequest
+ * @return ListMaterializedViewsResponse
+ */
+async function listMaterializedViews(project: string, request: ListMaterializedViewsRequest): ListMaterializedViewsResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return listMaterializedViewsWithOptions(project, request, headers, runtime);
+}
+
 model ListMaxComputeExportsRequest {
   logstore?: string(name='logstore', example='my-logstore'),
   offset?: int32(name='offset', example='0'),
@@ -12733,6 +13157,75 @@ async function stopOSSIngestion(project: string, ossIngestionName: string): Stop
   return stopOSSIngestionWithOptions(project, ossIngestionName, headers, runtime);
 }
 
+model SubmitAsyncSqlHeaders {
+  commonHeaders?: map[string]string,
+  accept?: string(name='Accept', example='application/x-protobuf'),
+  acceptEncoding?: string(name='Accept-Encoding', example='lz4'),
+}
+
+model SubmitAsyncSqlRequest {
+  body?: SubmitAsyncSqlParams(name='body'),
+}
+
+model SubmitAsyncSqlResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: AsyncSqlResponseData  
+}
+
+/**
+ * @summary 提交异步SQL请求
+ *
+ * @param request SubmitAsyncSqlRequest
+ * @param headers SubmitAsyncSqlHeaders
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return SubmitAsyncSqlResponse
+ */
+async function submitAsyncSqlWithOptions(project: string, request: SubmitAsyncSqlRequest, headers: SubmitAsyncSqlHeaders, runtime: Util.RuntimeOptions): SubmitAsyncSqlResponse {
+  Util.validateModel(request);
+  var hostMap : map[string]string = {};
+  hostMap['project'] = project;
+  var realHeaders : map[string]string = {};
+  if (!Util.isUnset(headers.commonHeaders)) {
+    realHeaders = headers.commonHeaders;
+  }
+  if (!Util.isUnset(headers.accept)) {
+    realHeaders['Accept'] = Util.toJSONString(headers.accept);
+  }
+  if (!Util.isUnset(headers.acceptEncoding)) {
+    realHeaders['Accept-Encoding'] = Util.toJSONString(headers.acceptEncoding);
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    hostMap = hostMap,
+    headers = realHeaders,
+    body = OpenApiUtil.parseToMap(request.body),
+  };
+  var params = new OpenApi.Params{
+    action = 'SubmitAsyncSql',
+    version = '2020-12-30',
+    protocol = 'HTTPS',
+    pathname = `/asyncsql`,
+    method = 'POST',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'none',
+    bodyType = 'json',
+  };
+  return execute(params, req, runtime);
+}
+
+/**
+ * @summary 提交异步SQL请求
+ *
+ * @param request SubmitAsyncSqlRequest
+ * @return SubmitAsyncSqlResponse
+ */
+async function submitAsyncSql(project: string, request: SubmitAsyncSqlRequest): SubmitAsyncSqlResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers = new SubmitAsyncSqlHeaders{};
+  return submitAsyncSqlWithOptions(project, request, headers, runtime);
+}
+
 model TagResourcesRequest {
   resourceId?: [ string ](name='resourceId', description='The resource IDs. You can specify only one resource and add tags to the resource.
 
@@ -14408,6 +14901,75 @@ async function updateMachineGroupMachine(project: string, machineGroup: string, 
   var runtime = new Util.RuntimeOptions{};
   var headers : map[string]string = {};
   return updateMachineGroupMachineWithOptions(project, machineGroup, request, headers, runtime);
+}
+
+model UpdateMaterializedViewRequest {
+  aggIntervalMins?: int32(name='aggIntervalMins'),
+  enable?: boolean(name='enable'),
+  originalSql?: string(name='originalSql'),
+  ttl?: int32(name='ttl'),
+}
+
+model UpdateMaterializedViewResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+}
+
+/**
+ * @summary 更新物化视图
+ *
+ * @param request UpdateMaterializedViewRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return UpdateMaterializedViewResponse
+ */
+async function updateMaterializedViewWithOptions(project: string, name: string, request: UpdateMaterializedViewRequest, headers: map[string]string, runtime: Util.RuntimeOptions): UpdateMaterializedViewResponse {
+  Util.validateModel(request);
+  var hostMap : map[string]string = {};
+  hostMap['project'] = project;
+  var body : map[string]any = {};
+  if (!Util.isUnset(request.aggIntervalMins)) {
+    body['aggIntervalMins'] = request.aggIntervalMins;
+  }
+  if (!Util.isUnset(request.enable)) {
+    body['enable'] = request.enable;
+  }
+  if (!Util.isUnset(request.originalSql)) {
+    body['originalSql'] = request.originalSql;
+  }
+  if (!Util.isUnset(request.ttl)) {
+    body['ttl'] = request.ttl;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    hostMap = hostMap,
+    headers = headers,
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApi.Params{
+    action = 'UpdateMaterializedView',
+    version = '2020-12-30',
+    protocol = 'HTTPS',
+    pathname = `/materializedviews/${name}`,
+    method = 'PUT',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'none',
+  };
+  return execute(params, req, runtime);
+}
+
+/**
+ * @summary 更新物化视图
+ *
+ * @param request UpdateMaterializedViewRequest
+ * @return UpdateMaterializedViewResponse
+ */
+async function updateMaterializedView(project: string, name: string, request: UpdateMaterializedViewRequest): UpdateMaterializedViewResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return updateMaterializedViewWithOptions(project, name, request, headers, runtime);
 }
 
 model UpdateMaxComputeExportRequest {
