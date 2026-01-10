@@ -226,6 +226,12 @@ model CAPConfig {
   templateId?: int32(name='templateId'),
 }
 
+model CertConfig {
+  certName?: string(name='certName', description='证书的名称。支持字母、数字、下划线（_）和短划线（-），不能以数字和短划线（-）开头。长度范围为 1~128 个字符。', example='my-cert'),
+  certificate?: string(name='certificate', description='证书，如果是证书链，则需要依次填写多个证书。', example='-----BEGIN CERTIFICATE-----\\nxxxxx\\n-----END CERTIFICATE-----'),
+  privateKey?: string(name='privateKey', description='私钥。', example='-----BEGIN RSA PRIVATE KEY-----\\nxxxxx\\n-----END RSA PRIVATE KEY-----'),
+}
+
 model CodeConfiguration {
   checksum?: string(name='checksum', description='代码包的CRC-64校验值。如果提供了checksum，则函数计算会校验代码包的checksum是否和提供的一致', example='1234567890123456789'),
   command?: [ string ](name='command', description='在运行时中运行的命令（例如：[\\"python\\"]）', example='python,main.py'),
@@ -419,6 +425,19 @@ model CreateCredentialOutput {
   updatedAt?: string(name='updatedAt'),
 }
 
+model CreateCustomDomainInput {
+  certConfig?: CertConfig(name='certConfig', description='HTTPS 证书的信息。', example='{}'),
+  description?: string(name='description', description='描述'),
+  domainName?: string(name='domainName', description='域名。填写已在阿里云备案或接入备案的自定义域名名称。
+
+This parameter is required.', example='example.com'),
+  protocol?: string(name='protocol', description='域名支持的协议类型：● HTTP：仅支持 HTTP 协议。● HTTPS：仅支持 HTTPS 协议。● HTTP,HTTPS：支持 HTTP 及 HTTPS 协议。
+
+This parameter is required.', example='HTTP'),
+  routeConfig?: RouteConfig(name='routeConfig', description='路由表：自定义域名访问时的 PATH 到 资源 的映射。', example='{}'),
+  tlsConfig?: TLSConfig(name='tlsConfig', description='TLS 配置信息。', example='{}'),
+}
+
 model CreateDomainInput {
   certIdentifier?: string(name='certIdentifier'),
   name?: string(name='name'),
@@ -479,6 +498,8 @@ model CreateModelServiceInput {
 }
 
 model CreateSandboxInput {
+  nasConfig?: NASConfig(name='nasConfig'),
+  ossMountConfig?: OSSMountConfig(name='ossMountConfig'),
   sandboxId?: string(name='sandboxId'),
   sandboxIdleTimeoutSeconds?: int32(name='sandboxIdleTimeoutSeconds', description='沙箱空闲超时时间（秒）'),
   templateName?: string(name='templateName', description='模板名称（系统内部通过 templateName 查询 template_id）
@@ -487,6 +508,7 @@ This parameter is required.'),
 }
 
 model CreateTemplateInput {
+  allowAnonymousManage?: boolean(name='allowAnonymousManage', nullable=true),
   armsConfiguration?: ArmsConfiguration(name='armsConfiguration'),
   containerConfiguration?: ContainerConfiguration(name='containerConfiguration', description='容器配置，只允许基于 Browser/Code Interpreter 基础镜像的 image'),
   cpu?: float(name='cpu', description='CPU资源配置（单位：核心）
@@ -590,6 +612,23 @@ model CredentialResult {
   code?: string(name='code'),
   data?: Credential(name='data'),
   requestId?: string(name='requestId'),
+}
+
+model CustomDomain {
+  certConfig?: CertConfig(name='certConfig', description='HTTPS 证书的信息。', example='{}'),
+  createdAt?: string(name='createdAt', description='创建时间', example='2025-01-10T10:30:00Z'),
+  description?: string(name='description', description='描述'),
+  domainName?: string(name='domainName', description='域名。填写已在阿里云备案或接入备案的自定义域名名称。', example='example.com'),
+  protocol?: string(name='protocol', description='域名支持的协议类型：● HTTP：仅支持 HTTP 协议。● HTTPS：仅支持 HTTPS 协议。● HTTP,HTTPS：支持 HTTP 及 HTTPS 协议。', example='HTTP'),
+  routeConfig?: RouteConfig(name='routeConfig', description='路由表：自定义域名访问时的 PATH 到 资源 的映射。', example='{}'),
+  tlsConfig?: TLSConfig(name='tlsConfig', description='TLS 配置信息。', example='{}'),
+  updatedAt?: string(name='updatedAt', description='更新时间', example='2025-01-10T11:45:00Z'),
+}
+
+model CustomDomainResult {
+  code?: string(name='code', description='SUCCESS 为成功，失败情况返回对应错误类型，比如 ERR_BAD_REQUEST ERR_VALIDATION_FAILED ERR_INTERNAL_SERVER_ERROR', example='SUCCESS'),
+  data?: CustomDomain(name='data', description='自定义域名的详细信息', example='{}'),
+  requestId?: string(name='requestId', description='唯一的请求标识符，用于问题追踪', example='F8A0F5F3-0C3E-4C82-9D4F-5E4B6A7C8D9E'),
 }
 
 model CustomRuntimeConfig {
@@ -902,6 +941,21 @@ model ListCredentialsResult {
   requestId?: string(name='requestId'),
 }
 
+model ListCustomDomainsOutput {
+  items?: [
+    CustomDomain
+  ](name='items'),
+  pageNumber?: int32(name='pageNumber'),
+  pageSize?: int32(name='pageSize'),
+  total?: int32(name='total'),
+}
+
+model ListCustomDomainsResult {
+  code?: string(name='code'),
+  data?: ListCustomDomainsOutput(name='data'),
+  requestId?: string(name='requestId'),
+}
+
 model ListDomainsOutput {
   items?: [
     DomainInfo
@@ -1135,11 +1189,39 @@ model ModelServiceResult {
   requestId?: string(name='requestId'),
 }
 
+model NASConfig {
+  groupId?: int32(name='groupId', example='100'),
+  mountPoints?: [
+    NASMountConfig
+  ](name='mountPoints'),
+  userId?: int32(name='userId', example='100'),
+}
+
+model NASMountConfig {
+  enableTLS?: boolean(name='enableTLS'),
+  mountDir?: string(name='mountDir', example='/home/test'),
+  serverAddr?: string(name='serverAddr', example='***-uni85.cn-hangzhou.nas.com:/'),
+}
+
 model NetworkConfiguration {
   networkMode?: string(name='networkMode', example='PRIVATE'),
   securityGroupId?: string(name='securityGroupId', example='sg-1234567890abcdef0'),
   vpcId?: string(name='vpcId', example='vpc-1234567890abcdef0'),
   vswitchIds?: [ string ](name='vswitchIds', example='vsw-1234567890abcdef0,vsw-abcdef1234567890'),
+}
+
+model OSSMountConfig {
+  mountPoints?: [
+    OSSMountPoint
+  ](name='mountPoints'),
+}
+
+model OSSMountPoint {
+  bucketName?: string(name='bucketName', example='my-bucket'),
+  bucketPath?: string(name='bucketPath', example='/my-dir'),
+  endpoint?: string(name='endpoint', example='http://oss-cn-shanghai.aliyuncs.com'),
+  mountDir?: string(name='mountDir', example='/mnt/dir'),
+  readOnly?: boolean(name='readOnly', example='true'),
 }
 
 model OssConfiguration {
@@ -1155,6 +1237,28 @@ model PaginationInfo {
   page?: int32(name='page'),
   total?: int32(name='total'),
   totalPages?: int32(name='totalPages'),
+}
+
+model PathConfig {
+  agentRuntimeEndpointName?: string(name='agentRuntimeEndpointName', description='agent runtime 版本（仅当 resourceType 为 runtime 时有效）'),
+  methods?: [ string ](name='methods', description='支持的方法有：HEAD, GET, POST, PUT, DELETE, PATCH, OPTIONS', example='[\\"GET\\"]'),
+  path?: string(name='path', description='此条路由规则对应的请求路径。', example='/login'),
+  resourceName?: string(name='resourceName', description='资源名称'),
+  resourceType?: string(name='resourceType', description='资源类型（和凭证关联资源类型一致）', example='runtime'),
+}
+
+model PolarFsConfig {
+  groupId?: int32(name='groupId'),
+  mountPoints?: [
+    PolarFsMountConfig
+  ](name='mountPoints'),
+  userId?: int32(name='userId'),
+}
+
+model PolarFsMountConfig {
+  instanceId?: string(name='instanceId'),
+  mountDir?: string(name='mountDir'),
+  remoteDir?: string(name='remoteDir'),
 }
 
 model PolicyConfig {
@@ -1257,6 +1361,12 @@ model RelatedWorkload {
   resourceType?: string(name='resourceType'),
 }
 
+model RouteConfig {
+  routes?: [
+    PathConfig
+  ](name='routes', description='路由表：自定义域名访问时的 PATH 到 Function 的映射列表。', example='[]'),
+}
+
 model RoutingConfiguration {
   versionWeights?: [
     VersionWeight
@@ -1341,6 +1451,12 @@ model StopSandboxResult {
   requestId?: string(name='requestId'),
 }
 
+model TLSConfig {
+  cipherSuites?: [ string ](name='cipherSuites', description='TLS 加密套件列表。', example='[\\"TLS_RSA_WITH_RC4_128_SHA\\"]'),
+  maxVersion?: string(name='maxVersion', description='TLS 最大版本号。', example='TLSv1.3'),
+  minVersion?: string(name='minVersion', description='TLS 最小版本号。', example='TLSv1.2'),
+}
+
 model Target {
   llmConfig?: LLMAPIConfiguration(name='llmConfig'),
   mcpAPI?: MCPAPI(name='mcpAPI'),
@@ -1361,6 +1477,7 @@ model TargetServiceConfig {
 }
 
 model Template {
+  allowAnonymousManage?: boolean(name='allowAnonymousManage'),
   containerConfiguration?: ContainerConfiguration(name='containerConfiguration'),
   cpu?: float(name='cpu', description='This parameter is required.'),
   createdAt?: string(name='createdAt'),
@@ -1495,6 +1612,14 @@ model UpdateCredentialOutput {
   updatedAt?: string(name='updatedAt'),
 }
 
+model UpdateCustomDomainInput {
+  certConfig?: CertConfig(name='certConfig', description='HTTPS 证书的信息。', example='{}'),
+  description?: string(name='description', description='描述'),
+  protocol?: string(name='protocol', description='域名支持的协议类型：● HTTP：仅支持 HTTP 协议。● HTTPS：仅支持 HTTPS 协议。● HTTP,HTTPS：支持 HTTP 及 HTTPS 协议。', example='HTTP'),
+  routeConfig?: RouteConfig(name='routeConfig', description='路由表：自定义域名访问时的 PATH 到 资源 的映射。', example='{}'),
+  tlsConfig?: TLSConfig(name='tlsConfig', description='TLS 配置信息。', example='{}'),
+}
+
 model UpdateDomainInput {
   certIdentifier?: string(name='certIdentifier'),
   protocol?: string(name='protocol'),
@@ -1538,6 +1663,7 @@ model UpdateTargetConfigurationInput {
 }
 
 model UpdateTemplateInput {
+  allowAnonymousManage?: boolean(name='allowAnonymousManage', nullable=true),
   armsConfiguration?: ArmsConfiguration(name='armsConfiguration'),
   containerConfiguration?: ContainerConfiguration(name='containerConfiguration', description='容器配置（内置的不可改）'),
   cpu?: float(name='cpu', description='CPU资源配置（单位：核心）'),
@@ -1923,151 +2049,6 @@ async function createCredential(request: CreateCredentialRequest): CreateCredent
   var runtime = new $RuntimeOptions{};
   var headers : map[string]string = {};
   return createCredentialWithOptions(request, headers, runtime);
-}
-
-model CreateMemoryRequest {
-  longTtl?: int32(name='longTtl', description='This parameter is required.', example='365'),
-  name?: string(name='name', description='This parameter is required.', example='test-memory'),
-  shortTtl?: int32(name='shortTtl', description='This parameter is required.', example='30'),
-  strategy?: [ string ](name='strategy', example='[\\"Preference\\", \\"Facts\\"]'),
-}
-
-model CreateMemoryResponseBody = {
-  code?: string(name='code', example='SUCCESS'),
-  data?: {
-    cmsWorkspaceName?: string(name='cmsWorkspaceName', example='default_workspace'),
-  }(name='data'),
-  requestId?: string(name='requestId', description='Id of the request', example='0FB1162C-D50B-5DA7-AD04-3417ABBF133A'),
-}
-
-model CreateMemoryResponse = {
-  headers?: map[string]string(name='headers'),
-  statusCode?: int32(name='statusCode'),
-  body?: CreateMemoryResponseBody(name='body'),
-}
-
-/**
- * @summary create memory store
- *
- * @param request CreateMemoryRequest
- * @param headers map
- * @param runtime runtime options for this request RuntimeOptions
- * @return CreateMemoryResponse
- */
-@context("createMemoryWithContext")
-async function createMemoryWithOptions(request: CreateMemoryRequest, headers: map[string]string, runtime: $RuntimeOptions): CreateMemoryResponse {
-  request.validate();
-  var body : map[string]any = {};
-  if (!$isNull(request.longTtl)) {
-    body['longTtl'] = request.longTtl;
-  }
-  if (!$isNull(request.name)) {
-    body['name'] = request.name;
-  }
-  if (!$isNull(request.shortTtl)) {
-    body['shortTtl'] = request.shortTtl;
-  }
-  if (!$isNull(request.strategy)) {
-    body['strategy'] = request.strategy;
-  }
-
-  var req = new OpenApiUtil.OpenApiRequest{ 
-    headers = headers,
-    body = OpenApiUtil.parseToMap(body),
-  };
-  var params = new OpenApiUtil.Params{
-    action = 'CreateMemory',
-    version = '2025-09-10',
-    protocol = 'HTTPS',
-    pathname = `/2025-09-10/agents/memories`,
-    method = 'POST',
-    authType = 'AK',
-    style = 'ROA',
-    reqBodyType = 'json',
-    bodyType = 'json',
-  };
-  return callApi(params, req, runtime);
-}
-
-/**
- * @summary create memory store
- *
- * @param request CreateMemoryRequest
- * @return CreateMemoryResponse
- */
-async function createMemory(request: CreateMemoryRequest): CreateMemoryResponse {
-  var runtime = new $RuntimeOptions{};
-  var headers : map[string]string = {};
-  return createMemoryWithOptions(request, headers, runtime);
-}
-
-model CreateMemoryEventRequest {
-  events?: [ 
-    {
-      eventId?: string(name='eventId', description='This parameter is required.', example='33.63.112.139_29914368_MTEE3_1754878127662_117007'),
-      message?: [ map[string]string ](name='message'),
-      metadata?: map[string]any(name='metadata'),
-      sessionId?: string(name='sessionId', description='This parameter is required.', example='fd0bbf26-3c0c-4d91-a392-42d59501e12b'),
-      userId?: string(name='userId', description='This parameter is required.', example='uid1'),
-    }
-  ](name='events', description='This parameter is required.'),
-}
-
-model CreateMemoryEventResponseBody = {
-  code?: string(name='code', example='SUCCESS'),
-  requestId?: string(name='requestId', description='Id of the request', example='A8B33FA2-43F2-5E56-9032-51283F08018E'),
-}
-
-model CreateMemoryEventResponse = {
-  headers?: map[string]string(name='headers'),
-  statusCode?: int32(name='statusCode'),
-  body?: CreateMemoryEventResponseBody(name='body'),
-}
-
-/**
- * @summary create event
- *
- * @param request CreateMemoryEventRequest
- * @param headers map
- * @param runtime runtime options for this request RuntimeOptions
- * @return CreateMemoryEventResponse
- */
-@context("createMemoryEventWithContext")
-async function createMemoryEventWithOptions(memoryName: string, request: CreateMemoryEventRequest, headers: map[string]string, runtime: $RuntimeOptions): CreateMemoryEventResponse {
-  request.validate();
-  var body : map[string]any = {};
-  if (!$isNull(request.events)) {
-    body['events'] = request.events;
-  }
-
-  var req = new OpenApiUtil.OpenApiRequest{ 
-    headers = headers,
-    body = OpenApiUtil.parseToMap(body),
-  };
-  var params = new OpenApiUtil.Params{
-    action = 'CreateMemoryEvent',
-    version = '2025-09-10',
-    protocol = 'HTTPS',
-    pathname = `/2025-09-10/agents/memories/${$URL.percentEncode(memoryName)}/events`,
-    method = 'POST',
-    authType = 'AK',
-    style = 'ROA',
-    reqBodyType = 'json',
-    bodyType = 'json',
-  };
-  return callApi(params, req, runtime);
-}
-
-/**
- * @summary create event
- *
- * @param request CreateMemoryEventRequest
- * @return CreateMemoryEventResponse
- */
-async function createMemoryEvent(memoryName: string, request: CreateMemoryEventRequest): CreateMemoryEventResponse {
-  var runtime = new $RuntimeOptions{};
-  var headers : map[string]string = {};
-  return createMemoryEventWithOptions(memoryName, request, headers, runtime);
 }
 
 model CreateModelProxyRequest {
@@ -2511,54 +2492,6 @@ async function deleteCredential(credentialName: string): DeleteCredentialRespons
   var runtime = new $RuntimeOptions{};
   var headers : map[string]string = {};
   return deleteCredentialWithOptions(credentialName, headers, runtime);
-}
-
-model DeleteMemoryResponseBody = {
-  code?: string(name='code', example='SUCCESS'),
-  requestId?: string(name='requestId', description='Id of the request', example='970F08C9-EB28-5A3D-A228-D541AEC4C807'),
-}
-
-model DeleteMemoryResponse = {
-  headers?: map[string]string(name='headers'),
-  statusCode?: int32(name='statusCode'),
-  body?: DeleteMemoryResponseBody(name='body'),
-}
-
-/**
- * @summary delete memory store
- *
- * @param headers map
- * @param runtime runtime options for this request RuntimeOptions
- * @return DeleteMemoryResponse
- */
-@context("deleteMemoryWithContext")
-async function deleteMemoryWithOptions(memoryName: string, headers: map[string]string, runtime: $RuntimeOptions): DeleteMemoryResponse {
-  var req = new OpenApiUtil.OpenApiRequest{ 
-    headers = headers,
-  };
-  var params = new OpenApiUtil.Params{
-    action = 'DeleteMemory',
-    version = '2025-09-10',
-    protocol = 'HTTPS',
-    pathname = `/2025-09-10/agents/memories/${$URL.percentEncode(memoryName)}`,
-    method = 'DELETE',
-    authType = 'AK',
-    style = 'ROA',
-    reqBodyType = 'json',
-    bodyType = 'json',
-  };
-  return callApi(params, req, runtime);
-}
-
-/**
- * @summary delete memory store
- *
- * @return DeleteMemoryResponse
- */
-async function deleteMemory(memoryName: string): DeleteMemoryResponse {
-  var runtime = new $RuntimeOptions{};
-  var headers : map[string]string = {};
-  return deleteMemoryWithOptions(memoryName, headers, runtime);
 }
 
 model DeleteModelProxyResponse = {
@@ -3047,206 +2980,6 @@ async function getCredential(credentialName: string): GetCredentialResponse {
   var runtime = new $RuntimeOptions{};
   var headers : map[string]string = {};
   return getCredentialWithOptions(credentialName, headers, runtime);
-}
-
-model GetMemoryResponseBody = {
-  code?: string(name='code', example='SUCCESS'),
-  data?: {
-    cmsWorkspaceName?: string(name='cmsWorkspaceName', example='my-cms-workspace'),
-    createTime?: int32(name='createTime', example='1735870116'),
-    longTtl?: int32(name='longTtl', example='365'),
-    name?: string(name='name', example='test-memory'),
-    shortTtl?: int32(name='shortTtl', example='30'),
-    strategy?: [ string ](name='strategy'),
-  }(name='data'),
-  requestId?: string(name='requestId', description='Id of the request', example='5A362ADD-51FC-5F4A-B858-D77F6EFAE2E6'),
-}
-
-model GetMemoryResponse = {
-  headers?: map[string]string(name='headers'),
-  statusCode?: int32(name='statusCode'),
-  body?: GetMemoryResponseBody(name='body'),
-}
-
-/**
- * @summary GetMemory
- *
- * @param headers map
- * @param runtime runtime options for this request RuntimeOptions
- * @return GetMemoryResponse
- */
-@context("getMemoryWithContext")
-async function getMemoryWithOptions(memoryName: string, headers: map[string]string, runtime: $RuntimeOptions): GetMemoryResponse {
-  var req = new OpenApiUtil.OpenApiRequest{ 
-    headers = headers,
-  };
-  var params = new OpenApiUtil.Params{
-    action = 'GetMemory',
-    version = '2025-09-10',
-    protocol = 'HTTPS',
-    pathname = `/2025-09-10/agents/memories/${$URL.percentEncode(memoryName)}`,
-    method = 'GET',
-    authType = 'AK',
-    style = 'ROA',
-    reqBodyType = 'json',
-    bodyType = 'json',
-  };
-  return callApi(params, req, runtime);
-}
-
-/**
- * @summary GetMemory
- *
- * @return GetMemoryResponse
- */
-async function getMemory(memoryName: string): GetMemoryResponse {
-  var runtime = new $RuntimeOptions{};
-  var headers : map[string]string = {};
-  return getMemoryWithOptions(memoryName, headers, runtime);
-}
-
-model GetMemoryEventRequest {
-  from?: long(name='from', example='1758273080'),
-  to?: long(name='to', example='1758273680'),
-}
-
-model GetMemoryEventResponseBody = {
-  code?: string(name='code', example='SUCCESS'),
-  data?: {
-    event?: map[string]any(name='event'),
-  }(name='data'),
-  requestId?: string(name='requestId', description='Id of the request', example='BF2A63E4-FCE9-5A65-A60E-4086C8EDBC06'),
-}
-
-model GetMemoryEventResponse = {
-  headers?: map[string]string(name='headers'),
-  statusCode?: int32(name='statusCode'),
-  body?: GetMemoryEventResponseBody(name='body'),
-}
-
-/**
- * @summary get event
- *
- * @param request GetMemoryEventRequest
- * @param headers map
- * @param runtime runtime options for this request RuntimeOptions
- * @return GetMemoryEventResponse
- */
-@context("getMemoryEventWithContext")
-async function getMemoryEventWithOptions(memoryName: string, sessionId: string, eventId: string, request: GetMemoryEventRequest, headers: map[string]string, runtime: $RuntimeOptions): GetMemoryEventResponse {
-  request.validate();
-  var query : map[string]any = {};
-  if (!$isNull(request.from)) {
-    query['from'] = request.from;
-  }
-  if (!$isNull(request.to)) {
-    query['to'] = request.to;
-  }
-
-  var req = new OpenApiUtil.OpenApiRequest{ 
-    headers = headers,
-    query = OpenApiUtil.query(query),
-  };
-  var params = new OpenApiUtil.Params{
-    action = 'GetMemoryEvent',
-    version = '2025-09-10',
-    protocol = 'HTTPS',
-    pathname = `/2025-09-10/agents/memories/${$URL.percentEncode(memoryName)}/sessions/${$URL.percentEncode(sessionId)}/events/${$URL.percentEncode(eventId)}`,
-    method = 'GET',
-    authType = 'AK',
-    style = 'ROA',
-    reqBodyType = 'json',
-    bodyType = 'json',
-  };
-  return callApi(params, req, runtime);
-}
-
-/**
- * @summary get event
- *
- * @param request GetMemoryEventRequest
- * @return GetMemoryEventResponse
- */
-async function getMemoryEvent(memoryName: string, sessionId: string, eventId: string, request: GetMemoryEventRequest): GetMemoryEventResponse {
-  var runtime = new $RuntimeOptions{};
-  var headers : map[string]string = {};
-  return getMemoryEventWithOptions(memoryName, sessionId, eventId, request, headers, runtime);
-}
-
-model GetMemorySessionRequest {
-  from?: long(name='from', example='1736558346'),
-  size?: int32(name='size', example='20'),
-  to?: long(name='to', example='1736561898'),
-}
-
-model GetMemorySessionResponseBody = {
-  code?: string(name='code', example='SUCCESS'),
-  data?: {
-    events?: [ map[string]any ](name='events'),
-  }(name='data'),
-  requestId?: string(name='requestId', description='Id of the request', example='55D4BE40-2811-5CFB-8482-E0E98D575B1E'),
-}
-
-model GetMemorySessionResponse = {
-  headers?: map[string]string(name='headers'),
-  statusCode?: int32(name='statusCode'),
-  body?: GetMemorySessionResponseBody(name='body'),
-}
-
-/**
- * @summary 获取内存会话详情
- *
- * @description 根据会话ID获取指定内存会话的详细信息，包括会话中的事件记录、时间戳等。用于查看和管理对话历史。
- *
- * @param request GetMemorySessionRequest
- * @param headers map
- * @param runtime runtime options for this request RuntimeOptions
- * @return GetMemorySessionResponse
- */
-@context("getMemorySessionWithContext")
-async function getMemorySessionWithOptions(memoryName: string, sessionId: string, request: GetMemorySessionRequest, headers: map[string]string, runtime: $RuntimeOptions): GetMemorySessionResponse {
-  request.validate();
-  var query : map[string]any = {};
-  if (!$isNull(request.from)) {
-    query['from'] = request.from;
-  }
-  if (!$isNull(request.size)) {
-    query['size'] = request.size;
-  }
-  if (!$isNull(request.to)) {
-    query['to'] = request.to;
-  }
-
-  var req = new OpenApiUtil.OpenApiRequest{ 
-    headers = headers,
-    query = OpenApiUtil.query(query),
-  };
-  var params = new OpenApiUtil.Params{
-    action = 'GetMemorySession',
-    version = '2025-09-10',
-    protocol = 'HTTPS',
-    pathname = `/2025-09-10/agents/memories/${$URL.percentEncode(memoryName)}/sessions/${$URL.percentEncode(sessionId)}`,
-    method = 'GET',
-    authType = 'AK',
-    style = 'ROA',
-    reqBodyType = 'json',
-    bodyType = 'json',
-  };
-  return callApi(params, req, runtime);
-}
-
-/**
- * @summary 获取内存会话详情
- *
- * @description 根据会话ID获取指定内存会话的详细信息，包括会话中的事件记录、时间戳等。用于查看和管理对话历史。
- *
- * @param request GetMemorySessionRequest
- * @return GetMemorySessionResponse
- */
-async function getMemorySession(memoryName: string, sessionId: string, request: GetMemorySessionRequest): GetMemorySessionResponse {
-  var runtime = new $RuntimeOptions{};
-  var headers : map[string]string = {};
-  return getMemorySessionWithOptions(memoryName, sessionId, request, headers, runtime);
 }
 
 model GetModelProxyResponse = {
@@ -3857,243 +3590,6 @@ async function listCredentials(request: ListCredentialsRequest): ListCredentials
   return listCredentialsWithOptions(request, headers, runtime);
 }
 
-model ListMemoryRequest {
-  pageNumber?: int32(name='pageNumber', description='This parameter is required.', example='1'),
-  pageSize?: int32(name='pageSize', description='This parameter is required.', example='0'),
-  pattern?: string(name='pattern', example='test'),
-}
-
-model ListMemoryResponseBody = {
-  code?: string(name='code', example='SUCCESS'),
-  data?: {
-    items?: [ string ](name='items'),
-    pageNumber?: int32(name='pageNumber', example='1'),
-    pageSize?: int32(name='pageSize', example='10'),
-    total?: long(name='total', example='284'),
-  }(name='data'),
-  requestId?: string(name='requestId', description='Id of the request', example='55D4BE40-2811-5CFB-8482-E0E98D575B1E'),
-}
-
-model ListMemoryResponse = {
-  headers?: map[string]string(name='headers'),
-  statusCode?: int32(name='statusCode'),
-  body?: ListMemoryResponseBody(name='body'),
-}
-
-/**
- * @summary ListMemory
- *
- * @param request ListMemoryRequest
- * @param headers map
- * @param runtime runtime options for this request RuntimeOptions
- * @return ListMemoryResponse
- */
-@context("listMemoryWithContext")
-async function listMemoryWithOptions(request: ListMemoryRequest, headers: map[string]string, runtime: $RuntimeOptions): ListMemoryResponse {
-  request.validate();
-  var query : map[string]any = {};
-  if (!$isNull(request.pageNumber)) {
-    query['pageNumber'] = request.pageNumber;
-  }
-  if (!$isNull(request.pageSize)) {
-    query['pageSize'] = request.pageSize;
-  }
-  if (!$isNull(request.pattern)) {
-    query['pattern'] = request.pattern;
-  }
-
-  var req = new OpenApiUtil.OpenApiRequest{ 
-    headers = headers,
-    query = OpenApiUtil.query(query),
-  };
-  var params = new OpenApiUtil.Params{
-    action = 'ListMemory',
-    version = '2025-09-10',
-    protocol = 'HTTPS',
-    pathname = `/2025-09-10/agents/memories`,
-    method = 'GET',
-    authType = 'AK',
-    style = 'ROA',
-    reqBodyType = 'json',
-    bodyType = 'json',
-  };
-  return callApi(params, req, runtime);
-}
-
-/**
- * @summary ListMemory
- *
- * @param request ListMemoryRequest
- * @return ListMemoryResponse
- */
-async function listMemory(request: ListMemoryRequest): ListMemoryResponse {
-  var runtime = new $RuntimeOptions{};
-  var headers : map[string]string = {};
-  return listMemoryWithOptions(request, headers, runtime);
-}
-
-model ListMemoryEventRequest {
-  from?: long(name='from', example='1742347023'),
-  pageNumber?: int32(name='pageNumber', example='1'),
-  pageSize?: int32(name='pageSize', example='10'),
-  to?: long(name='to', example='1736561650'),
-}
-
-model ListMemoryEventResponseBody = {
-  code?: string(name='code', example='SUCCESS'),
-  data?: {
-    items?: [ string ](name='items'),
-    pageNumber?: int32(name='pageNumber', example='1'),
-    pageSize?: int32(name='pageSize', example='20'),
-    total?: long(name='total', example='2'),
-  }(name='data'),
-  requestId?: string(name='requestId', description='Id of the request', example='0FB1162C-D50B-5DA7-AD04-3417ABBF133A'),
-}
-
-model ListMemoryEventResponse = {
-  headers?: map[string]string(name='headers'),
-  statusCode?: int32(name='statusCode'),
-  body?: ListMemoryEventResponseBody(name='body'),
-}
-
-/**
- * @summary list events
- *
- * @param request ListMemoryEventRequest
- * @param headers map
- * @param runtime runtime options for this request RuntimeOptions
- * @return ListMemoryEventResponse
- */
-@context("listMemoryEventWithContext")
-async function listMemoryEventWithOptions(memoryName: string, sessionId: string, request: ListMemoryEventRequest, headers: map[string]string, runtime: $RuntimeOptions): ListMemoryEventResponse {
-  request.validate();
-  var query : map[string]any = {};
-  if (!$isNull(request.from)) {
-    query['from'] = request.from;
-  }
-  if (!$isNull(request.pageNumber)) {
-    query['pageNumber'] = request.pageNumber;
-  }
-  if (!$isNull(request.pageSize)) {
-    query['pageSize'] = request.pageSize;
-  }
-  if (!$isNull(request.to)) {
-    query['to'] = request.to;
-  }
-
-  var req = new OpenApiUtil.OpenApiRequest{ 
-    headers = headers,
-    query = OpenApiUtil.query(query),
-  };
-  var params = new OpenApiUtil.Params{
-    action = 'ListMemoryEvent',
-    version = '2025-09-10',
-    protocol = 'HTTPS',
-    pathname = `/2025-09-10/agents/memories/${$URL.percentEncode(memoryName)}/sessions/${$URL.percentEncode(sessionId)}/events`,
-    method = 'GET',
-    authType = 'AK',
-    style = 'ROA',
-    reqBodyType = 'json',
-    bodyType = 'json',
-  };
-  return callApi(params, req, runtime);
-}
-
-/**
- * @summary list events
- *
- * @param request ListMemoryEventRequest
- * @return ListMemoryEventResponse
- */
-async function listMemoryEvent(memoryName: string, sessionId: string, request: ListMemoryEventRequest): ListMemoryEventResponse {
-  var runtime = new $RuntimeOptions{};
-  var headers : map[string]string = {};
-  return listMemoryEventWithOptions(memoryName, sessionId, request, headers, runtime);
-}
-
-model ListMemorySessionsRequest {
-  from?: long(name='from', example='1740622996'),
-  pageNumber?: int32(name='pageNumber', example='1'),
-  pageSize?: int32(name='pageSize', example='20'),
-  to?: long(name='to', example='1747275768'),
-}
-
-model ListMemorySessionsResponseBody = {
-  code?: string(name='code', example='SUCCESS'),
-  data?: {
-    items?: [ string ](name='items'),
-    pageNumber?: int32(name='pageNumber', example='1'),
-    pageSize?: int32(name='pageSize', example='10'),
-    total?: long(name='total', example='211'),
-  }(name='data'),
-  requestId?: string(name='requestId', description='Id of the request', example='E2C43519-6095-5487-9526-051AB8F50B4A'),
-}
-
-model ListMemorySessionsResponse = {
-  headers?: map[string]string(name='headers'),
-  statusCode?: int32(name='statusCode'),
-  body?: ListMemorySessionsResponseBody(name='body'),
-}
-
-/**
- * @summary 列出内存会话
- *
- * @description 获取指定内存实例的所有会话列表，支持按时间范围过滤和分页查询。会话是AgentRun中用于存储对话历史和管理上下文的重要组件。
- *
- * @param request ListMemorySessionsRequest
- * @param headers map
- * @param runtime runtime options for this request RuntimeOptions
- * @return ListMemorySessionsResponse
- */
-@context("listMemorySessionsWithContext")
-async function listMemorySessionsWithOptions(memoryName: string, request: ListMemorySessionsRequest, headers: map[string]string, runtime: $RuntimeOptions): ListMemorySessionsResponse {
-  request.validate();
-  var query : map[string]any = {};
-  if (!$isNull(request.from)) {
-    query['from'] = request.from;
-  }
-  if (!$isNull(request.pageNumber)) {
-    query['pageNumber'] = request.pageNumber;
-  }
-  if (!$isNull(request.pageSize)) {
-    query['pageSize'] = request.pageSize;
-  }
-  if (!$isNull(request.to)) {
-    query['to'] = request.to;
-  }
-
-  var req = new OpenApiUtil.OpenApiRequest{ 
-    headers = headers,
-    query = OpenApiUtil.query(query),
-  };
-  var params = new OpenApiUtil.Params{
-    action = 'ListMemorySessions',
-    version = '2025-09-10',
-    protocol = 'HTTPS',
-    pathname = `/2025-09-10/agents/memories/${$URL.percentEncode(memoryName)}/sessions`,
-    method = 'GET',
-    authType = 'AK',
-    style = 'ROA',
-    reqBodyType = 'json',
-    bodyType = 'json',
-  };
-  return callApi(params, req, runtime);
-}
-
-/**
- * @summary 列出内存会话
- *
- * @description 获取指定内存实例的所有会话列表，支持按时间范围过滤和分页查询。会话是AgentRun中用于存储对话历史和管理上下文的重要组件。
- *
- * @param request ListMemorySessionsRequest
- * @return ListMemorySessionsResponse
- */
-async function listMemorySessions(memoryName: string, request: ListMemorySessionsRequest): ListMemorySessionsResponse {
-  var runtime = new $RuntimeOptions{};
-  var headers : map[string]string = {};
-  return listMemorySessionsWithOptions(memoryName, request, headers, runtime);
-}
-
 model ListModelProvidersRequest {
   modelName?: string(name='modelName', example='aa'),
   modelType?: string(name='modelType', example='pop'),
@@ -4532,92 +4028,6 @@ async function publishRuntimeVersion(agentRuntimeId: string, request: PublishRun
   return publishRuntimeVersionWithOptions(agentRuntimeId, request, headers, runtime);
 }
 
-model RetrieveMemoryRequest {
-  from?: int32(name='from', example='1756431013'),
-  query?: {
-    memory?: string(name='memory', example='10'),
-    metadata?: map[string]string(name='metadata'),
-    namespace?: string(name='namespace', example='preference'),
-    userId?: string(name='userId', description='This parameter is required.', example='uid1'),
-  }(name='query', description='This parameter is required.'),
-  store?: string(name='store', example='memory'),
-  to?: int32(name='to', example='1737856802'),
-  topk?: int32(name='topk', example='10'),
-}
-
-model RetrieveMemoryResponseBody = {
-  code?: string(name='code', example='SUCCESS'),
-  data?: {
-    events?: [ map[string]string ](name='events'),
-    memories?: [ map[string]string ](name='memories'),
-  }(name='data'),
-  requestId?: string(name='requestId', description='Id of the request', example='BC65E49E-1F6A-55E0-8A0E-7255DBFAA8F9'),
-}
-
-model RetrieveMemoryResponse = {
-  headers?: map[string]string(name='headers'),
-  statusCode?: int32(name='statusCode'),
-  body?: RetrieveMemoryResponseBody(name='body'),
-}
-
-/**
- * @summary RetrieveMemory
- *
- * @param request RetrieveMemoryRequest
- * @param headers map
- * @param runtime runtime options for this request RuntimeOptions
- * @return RetrieveMemoryResponse
- */
-@context("retrieveMemoryWithContext")
-async function retrieveMemoryWithOptions(memoryName: string, request: RetrieveMemoryRequest, headers: map[string]string, runtime: $RuntimeOptions): RetrieveMemoryResponse {
-  request.validate();
-  var body : map[string]any = {};
-  if (!$isNull(request.from)) {
-    body['from'] = request.from;
-  }
-  if (!$isNull(request.query)) {
-    body['query'] = request.query;
-  }
-  if (!$isNull(request.store)) {
-    body['store'] = request.store;
-  }
-  if (!$isNull(request.to)) {
-    body['to'] = request.to;
-  }
-  if (!$isNull(request.topk)) {
-    body['topk'] = request.topk;
-  }
-
-  var req = new OpenApiUtil.OpenApiRequest{ 
-    headers = headers,
-    body = OpenApiUtil.parseToMap(body),
-  };
-  var params = new OpenApiUtil.Params{
-    action = 'RetrieveMemory',
-    version = '2025-09-10',
-    protocol = 'HTTPS',
-    pathname = `/2025-09-10/agents/memories/${$URL.percentEncode(memoryName)}/records`,
-    method = 'POST',
-    authType = 'AK',
-    style = 'ROA',
-    reqBodyType = 'json',
-    bodyType = 'json',
-  };
-  return callApi(params, req, runtime);
-}
-
-/**
- * @summary RetrieveMemory
- *
- * @param request RetrieveMemoryRequest
- * @return RetrieveMemoryResponse
- */
-async function retrieveMemory(memoryName: string, request: RetrieveMemoryRequest): RetrieveMemoryResponse {
-  var runtime = new $RuntimeOptions{};
-  var headers : map[string]string = {};
-  return retrieveMemoryWithOptions(memoryName, request, headers, runtime);
-}
-
 model StopSandboxResponse = {
   headers?: map[string]string(name='headers'),
   statusCode?: int32(name='statusCode'),
@@ -4867,78 +4277,6 @@ async function updateCredential(credentialName: string, request: UpdateCredentia
   var runtime = new $RuntimeOptions{};
   var headers : map[string]string = {};
   return updateCredentialWithOptions(credentialName, request, headers, runtime);
-}
-
-model UpdateMemoryRequest {
-  longTtl?: int32(name='longTtl', example='365'),
-  shortTtl?: int32(name='shortTtl', example='30'),
-  strategy?: [ string ](name='strategy'),
-}
-
-model UpdateMemoryResponseBody = {
-  code?: string(name='code', example='SUCCESS'),
-  data?: {
-    cmsWorkspaceName?: string(name='cmsWorkspaceName', example='default_workspace'),
-  }(name='data'),
-  requestId?: string(name='requestId', description='Id of the request', example='C0595DB0-D1EE-55C3-8DDD-790872C7EC2F'),
-}
-
-model UpdateMemoryResponse = {
-  headers?: map[string]string(name='headers'),
-  statusCode?: int32(name='statusCode'),
-  body?: UpdateMemoryResponseBody(name='body'),
-}
-
-/**
- * @summary Update Memory
- *
- * @param request UpdateMemoryRequest
- * @param headers map
- * @param runtime runtime options for this request RuntimeOptions
- * @return UpdateMemoryResponse
- */
-@context("updateMemoryWithContext")
-async function updateMemoryWithOptions(memoryName: string, request: UpdateMemoryRequest, headers: map[string]string, runtime: $RuntimeOptions): UpdateMemoryResponse {
-  request.validate();
-  var body : map[string]any = {};
-  if (!$isNull(request.longTtl)) {
-    body['longTtl'] = request.longTtl;
-  }
-  if (!$isNull(request.shortTtl)) {
-    body['shortTtl'] = request.shortTtl;
-  }
-  if (!$isNull(request.strategy)) {
-    body['strategy'] = request.strategy;
-  }
-
-  var req = new OpenApiUtil.OpenApiRequest{ 
-    headers = headers,
-    body = OpenApiUtil.parseToMap(body),
-  };
-  var params = new OpenApiUtil.Params{
-    action = 'UpdateMemory',
-    version = '2025-09-10',
-    protocol = 'HTTPS',
-    pathname = `/2025-09-10/agents/memories/${$URL.percentEncode(memoryName)}`,
-    method = 'PUT',
-    authType = 'AK',
-    style = 'ROA',
-    reqBodyType = 'json',
-    bodyType = 'json',
-  };
-  return callApi(params, req, runtime);
-}
-
-/**
- * @summary Update Memory
- *
- * @param request UpdateMemoryRequest
- * @return UpdateMemoryResponse
- */
-async function updateMemory(memoryName: string, request: UpdateMemoryRequest): UpdateMemoryResponse {
-  var runtime = new $RuntimeOptions{};
-  var headers : map[string]string = {};
-  return updateMemoryWithOptions(memoryName, request, headers, runtime);
 }
 
 model UpdateModelProxyRequest {

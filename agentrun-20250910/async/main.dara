@@ -230,6 +230,12 @@ model CAPConfig {
   templateId?: int32(name='templateId'),
 }
 
+model CertConfig {
+  certName?: string(name='certName', description='证书的名称。支持字母、数字、下划线（_）和短划线（-），不能以数字和短划线（-）开头。长度范围为 1~128 个字符。', example='my-cert', minimum=1, maximum=128),
+  certificate?: string(name='certificate', description='证书，如果是证书链，则需要依次填写多个证书。', example='-----BEGIN CERTIFICATE-----\\nxxxxx\\n-----END CERTIFICATE-----'),
+  privateKey?: string(name='privateKey', description='私钥。', example='-----BEGIN RSA PRIVATE KEY-----\\nxxxxx\\n-----END RSA PRIVATE KEY-----'),
+}
+
 model CodeConfiguration {
   checksum?: string(name='checksum', description='代码包的CRC-64校验值。如果提供了checksum，则函数计算会校验代码包的checksum是否和提供的一致', example='1234567890123456789'),
   command?: [ string ](name='command', description='在运行时中运行的命令（例如：[\\"python\\"]）', example='python,main.py'),
@@ -423,6 +429,19 @@ model CreateCredentialOutput {
   updatedAt?: string(name='updatedAt'),
 }
 
+model CreateCustomDomainInput {
+  certConfig?: CertConfig(name='certConfig', description='HTTPS 证书的信息。', example='{}'),
+  description?: string(name='description', description='描述'),
+  domainName: string(name='domainName', description='域名。填写已在阿里云备案或接入备案的自定义域名名称。
+
+This parameter is required.', example='example.com'),
+  protocol: string(name='protocol', description='域名支持的协议类型：● HTTP：仅支持 HTTP 协议。● HTTPS：仅支持 HTTPS 协议。● HTTP,HTTPS：支持 HTTP 及 HTTPS 协议。
+
+This parameter is required.', example='HTTP'),
+  routeConfig?: RouteConfig(name='routeConfig', description='路由表：自定义域名访问时的 PATH 到 资源 的映射。', example='{}'),
+  tlsConfig?: TLSConfig(name='tlsConfig', description='TLS 配置信息。', example='{}'),
+}
+
 model CreateDomainInput {
   certIdentifier?: string(name='certIdentifier'),
   name?: string(name='name'),
@@ -483,6 +502,8 @@ model CreateModelServiceInput {
 }
 
 model CreateSandboxInput {
+  nasConfig?: NASConfig(name='nasConfig'),
+  ossMountConfig?: OSSMountConfig(name='ossMountConfig'),
   sandboxId?: string(name='sandboxId'),
   sandboxIdleTimeoutSeconds?: int32(name='sandboxIdleTimeoutSeconds', description='沙箱空闲超时时间（秒）', minimum=1, maximum=21600),
   templateName: string(name='templateName', description='模板名称（系统内部通过 templateName 查询 template_id）
@@ -491,6 +512,7 @@ This parameter is required.'),
 }
 
 model CreateTemplateInput {
+  allowAnonymousManage?: boolean(name='allowAnonymousManage'),
   armsConfiguration?: ArmsConfiguration(name='armsConfiguration'),
   containerConfiguration?: ContainerConfiguration(name='containerConfiguration', description='容器配置，只允许基于 Browser/Code Interpreter 基础镜像的 image'),
   cpu: float(name='cpu', description='CPU资源配置（单位：核心）
@@ -594,6 +616,23 @@ model CredentialResult {
   code?: string(name='code'),
   data?: Credential(name='data'),
   requestId?: string(name='requestId'),
+}
+
+model CustomDomain {
+  certConfig?: CertConfig(name='certConfig', description='HTTPS 证书的信息。', example='{}'),
+  createdAt?: string(name='createdAt', description='创建时间', example='2025-01-10T10:30:00Z'),
+  description?: string(name='description', description='描述'),
+  domainName?: string(name='domainName', description='域名。填写已在阿里云备案或接入备案的自定义域名名称。', example='example.com'),
+  protocol?: string(name='protocol', description='域名支持的协议类型：● HTTP：仅支持 HTTP 协议。● HTTPS：仅支持 HTTPS 协议。● HTTP,HTTPS：支持 HTTP 及 HTTPS 协议。', example='HTTP'),
+  routeConfig?: RouteConfig(name='routeConfig', description='路由表：自定义域名访问时的 PATH 到 资源 的映射。', example='{}'),
+  tlsConfig?: TLSConfig(name='tlsConfig', description='TLS 配置信息。', example='{}'),
+  updatedAt?: string(name='updatedAt', description='更新时间', example='2025-01-10T11:45:00Z'),
+}
+
+model CustomDomainResult {
+  code?: string(name='code', description='SUCCESS 为成功，失败情况返回对应错误类型，比如 ERR_BAD_REQUEST ERR_VALIDATION_FAILED ERR_INTERNAL_SERVER_ERROR', example='SUCCESS'),
+  data?: CustomDomain(name='data', description='自定义域名的详细信息', example='{}'),
+  requestId?: string(name='requestId', description='唯一的请求标识符，用于问题追踪', example='F8A0F5F3-0C3E-4C82-9D4F-5E4B6A7C8D9E'),
 }
 
 model CustomRuntimeConfig {
@@ -906,6 +945,21 @@ model ListCredentialsResult {
   requestId?: string(name='requestId'),
 }
 
+model ListCustomDomainsOutput {
+  items?: [
+    CustomDomain
+  ](name='items'),
+  pageNumber?: int32(name='pageNumber'),
+  pageSize?: int32(name='pageSize'),
+  total?: int32(name='total'),
+}
+
+model ListCustomDomainsResult {
+  code?: string(name='code'),
+  data?: ListCustomDomainsOutput(name='data'),
+  requestId?: string(name='requestId'),
+}
+
 model ListDomainsOutput {
   items?: [
     DomainInfo
@@ -1139,11 +1193,39 @@ model ModelServiceResult {
   requestId?: string(name='requestId'),
 }
 
+model NASConfig {
+  groupId?: int32(name='groupId', example='100'),
+  mountPoints?: [
+    NASMountConfig
+  ](name='mountPoints'),
+  userId?: int32(name='userId', example='100'),
+}
+
+model NASMountConfig {
+  enableTLS?: boolean(name='enableTLS'),
+  mountDir?: string(name='mountDir', example='/home/test', maxLength=64),
+  serverAddr?: string(name='serverAddr', example='***-uni85.cn-hangzhou.nas.com:/', maxLength=128),
+}
+
 model NetworkConfiguration {
   networkMode?: string(name='networkMode', example='PRIVATE'),
   securityGroupId?: string(name='securityGroupId', example='sg-1234567890abcdef0'),
   vpcId?: string(name='vpcId', example='vpc-1234567890abcdef0'),
   vswitchIds?: [ string ](name='vswitchIds', example='vsw-1234567890abcdef0,vsw-abcdef1234567890'),
+}
+
+model OSSMountConfig {
+  mountPoints?: [
+    OSSMountPoint
+  ](name='mountPoints'),
+}
+
+model OSSMountPoint {
+  bucketName?: string(name='bucketName', example='my-bucket', minLength=3, maxLength=64),
+  bucketPath?: string(name='bucketPath', example='/my-dir', maxLength=128),
+  endpoint?: string(name='endpoint', example='http://oss-cn-shanghai.aliyuncs.com', maxLength=128),
+  mountDir?: string(name='mountDir', example='/mnt/dir', minLength=2, maxLength=64),
+  readOnly?: boolean(name='readOnly', example='true'),
 }
 
 model OssConfiguration {
@@ -1159,6 +1241,28 @@ model PaginationInfo {
   page?: int32(name='page'),
   total?: int32(name='total'),
   totalPages?: int32(name='totalPages'),
+}
+
+model PathConfig {
+  agentRuntimeEndpointName?: string(name='agentRuntimeEndpointName', description='agent runtime 版本（仅当 resourceType 为 runtime 时有效）'),
+  methods?: [ string ](name='methods', description='支持的方法有：HEAD, GET, POST, PUT, DELETE, PATCH, OPTIONS', example='[\\"GET\\"]'),
+  path?: string(name='path', description='此条路由规则对应的请求路径。', example='/login'),
+  resourceName?: string(name='resourceName', description='资源名称'),
+  resourceType?: string(name='resourceType', description='资源类型（和凭证关联资源类型一致）', example='runtime'),
+}
+
+model PolarFsConfig {
+  groupId?: int32(name='groupId'),
+  mountPoints?: [
+    PolarFsMountConfig
+  ](name='mountPoints'),
+  userId?: int32(name='userId'),
+}
+
+model PolarFsMountConfig {
+  instanceId?: string(name='instanceId'),
+  mountDir?: string(name='mountDir'),
+  remoteDir?: string(name='remoteDir'),
 }
 
 model PolicyConfig {
@@ -1261,6 +1365,12 @@ model RelatedWorkload {
   resourceType?: string(name='resourceType'),
 }
 
+model RouteConfig {
+  routes?: [
+    PathConfig
+  ](name='routes', description='路由表：自定义域名访问时的 PATH 到 Function 的映射列表。', example='[]'),
+}
+
 model RoutingConfiguration {
   versionWeights?: [
     VersionWeight
@@ -1345,6 +1455,12 @@ model StopSandboxResult {
   requestId?: string(name='requestId'),
 }
 
+model TLSConfig {
+  cipherSuites?: [ string ](name='cipherSuites', description='TLS 加密套件列表。', example='[\\"TLS_RSA_WITH_RC4_128_SHA\\"]'),
+  maxVersion?: string(name='maxVersion', description='TLS 最大版本号。', example='TLSv1.3'),
+  minVersion?: string(name='minVersion', description='TLS 最小版本号。', example='TLSv1.2'),
+}
+
 model Target {
   llmConfig?: LLMAPIConfiguration(name='llmConfig'),
   mcpAPI?: MCPAPI(name='mcpAPI'),
@@ -1365,6 +1481,7 @@ model TargetServiceConfig {
 }
 
 model Template {
+  allowAnonymousManage?: boolean(name='allowAnonymousManage'),
   containerConfiguration?: ContainerConfiguration(name='containerConfiguration'),
   cpu: float(name='cpu', description='This parameter is required.'),
   createdAt?: string(name='createdAt'),
@@ -1499,6 +1616,14 @@ model UpdateCredentialOutput {
   updatedAt?: string(name='updatedAt'),
 }
 
+model UpdateCustomDomainInput {
+  certConfig?: CertConfig(name='certConfig', description='HTTPS 证书的信息。', example='{}'),
+  description?: string(name='description', description='描述'),
+  protocol?: string(name='protocol', description='域名支持的协议类型：● HTTP：仅支持 HTTP 协议。● HTTPS：仅支持 HTTPS 协议。● HTTP,HTTPS：支持 HTTP 及 HTTPS 协议。', example='HTTP'),
+  routeConfig?: RouteConfig(name='routeConfig', description='路由表：自定义域名访问时的 PATH 到 资源 的映射。', example='{}'),
+  tlsConfig?: TLSConfig(name='tlsConfig', description='TLS 配置信息。', example='{}'),
+}
+
 model UpdateDomainInput {
   certIdentifier?: string(name='certIdentifier'),
   protocol?: string(name='protocol'),
@@ -1542,6 +1667,7 @@ model UpdateTargetConfigurationInput {
 }
 
 model UpdateTemplateInput {
+  allowAnonymousManage?: boolean(name='allowAnonymousManage'),
   armsConfiguration?: ArmsConfiguration(name='armsConfiguration'),
   containerConfiguration?: ContainerConfiguration(name='containerConfiguration', description='容器配置（内置的不可改）'),
   cpu?: float(name='cpu', description='CPU资源配置（单位：核心）'),
@@ -1719,69 +1845,6 @@ model CreateCredentialResponse = {
 async function createCredential(request: CreateCredentialRequest): CreateCredentialResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RESTFUL', 'CreateCredential', 'POST', '/2025-09-10/agents/credentials', 'json', false, 'json', request);
-}
-
-model CreateMemoryRequest {
-  longTtl: int32(name='longTtl', description='This parameter is required.', example='365', position='Body'),
-  name: string(name='name', description='This parameter is required.', example='test-memory', position='Body'),
-  shortTtl: int32(name='shortTtl', description='This parameter is required.', example='30', position='Body'),
-  strategy?: [ string ](name='strategy', example='[\\"Preference\\", \\"Facts\\"]', position='Body'),
-}
-
-model CreateMemoryResponseBody = {
-  code?: string(name='code', example='SUCCESS'),
-  data?: {
-    cmsWorkspaceName?: string(name='cmsWorkspaceName', example='default_workspace'),
-  }(name='data'),
-  requestId?: string(name='requestId', description='Id of the request', example='0FB1162C-D50B-5DA7-AD04-3417ABBF133A'),
-}
-
-model CreateMemoryResponse = {
-  headers?: map[string]string(name='headers'),
-  statusCode?: int32(name='statusCode'),
-  body?: CreateMemoryResponseBody(name='body'),
-}
-
-/**
-  * @param request  the request parameters of CreateMemory  CreateMemoryRequest
-  * @return CreateMemoryResponse
- */
-async function createMemory(request: CreateMemoryRequest): CreateMemoryResponse {
-  @handler.validateRequestModel(request);
-  return @handler.do('RESTFUL', 'CreateMemory', 'POST', '/2025-09-10/agents/memories', 'json', false, 'json', request);
-}
-
-model CreateMemoryEventRequest {
-  memoryName: string(name='memoryName', description='This parameter is required.', example='test-memory', position='Path'),
-  events: [ 
-    {
-      eventId: string(name='eventId', description='This parameter is required.', example='33.63.112.139_29914368_MTEE3_1754878127662_117007'),
-      message?: [ map[string]string ](name='message'),
-      metadata?: map[string]any(name='metadata'),
-      sessionId: string(name='sessionId', description='This parameter is required.', example='fd0bbf26-3c0c-4d91-a392-42d59501e12b'),
-      userId: string(name='userId', description='This parameter is required.', example='uid1'),
-    }
-  ](name='events', description='This parameter is required.', position='Body'),
-}
-
-model CreateMemoryEventResponseBody = {
-  code?: string(name='code', example='SUCCESS'),
-  requestId?: string(name='requestId', description='Id of the request', example='A8B33FA2-43F2-5E56-9032-51283F08018E'),
-}
-
-model CreateMemoryEventResponse = {
-  headers?: map[string]string(name='headers'),
-  statusCode?: int32(name='statusCode'),
-  body?: CreateMemoryEventResponseBody(name='body'),
-}
-
-/**
-  * @param request  the request parameters of CreateMemoryEvent  CreateMemoryEventRequest
-  * @return CreateMemoryEventResponse
- */
-async function createMemoryEvent(request: CreateMemoryEventRequest): CreateMemoryEventResponse {
-  @handler.validateRequestModel(request);
-  return @handler.do('RESTFUL', 'CreateMemoryEvent', 'POST', '/2025-09-10/agents/memories/{memoryName}/events', 'json', false, 'json', request);
 }
 
 model CreateModelProxyRequest {
@@ -1973,30 +2036,6 @@ model DeleteCredentialResponse = {
 async function deleteCredential(request: DeleteCredentialRequest): DeleteCredentialResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RESTFUL', 'DeleteCredential', 'DELETE', '/2025-09-10/agents/credentials/{credentialName}', 'json', false, 'json', request);
-}
-
-model DeleteMemoryRequest {
-  memoryName: string(name='memoryName', description='This parameter is required.', example='test-memory', position='Path'),
-}
-
-model DeleteMemoryResponseBody = {
-  code?: string(name='code', example='SUCCESS'),
-  requestId?: string(name='requestId', description='Id of the request', example='970F08C9-EB28-5A3D-A228-D541AEC4C807'),
-}
-
-model DeleteMemoryResponse = {
-  headers?: map[string]string(name='headers'),
-  statusCode?: int32(name='statusCode'),
-  body?: DeleteMemoryResponseBody(name='body'),
-}
-
-/**
-  * @param request  the request parameters of DeleteMemory  DeleteMemoryRequest
-  * @return DeleteMemoryResponse
- */
-async function deleteMemory(request: DeleteMemoryRequest): DeleteMemoryResponse {
-  @handler.validateRequestModel(request);
-  return @handler.do('RESTFUL', 'DeleteMemory', 'DELETE', '/2025-09-10/agents/memories/{memoryName}', 'json', false, 'json', request);
 }
 
 model DeleteModelProxyRequest {
@@ -2219,101 +2258,6 @@ model GetCredentialResponse = {
 async function getCredential(request: GetCredentialRequest): GetCredentialResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RESTFUL', 'GetCredential', 'GET', '/2025-09-10/agents/credentials/{credentialName}', 'json', false, 'json', request);
-}
-
-model GetMemoryRequest {
-  memoryName: string(name='memoryName', description='This parameter is required.', example='test-memory', position='Path'),
-}
-
-model GetMemoryResponseBody = {
-  code?: string(name='code', example='SUCCESS'),
-  data?: {
-    cmsWorkspaceName?: string(name='cmsWorkspaceName', example='my-cms-workspace'),
-    createTime?: int32(name='createTime', example='1735870116'),
-    longTtl?: int32(name='longTtl', example='365'),
-    name?: string(name='name', example='test-memory'),
-    shortTtl?: int32(name='shortTtl', example='30'),
-    strategy?: [ string ](name='strategy'),
-  }(name='data'),
-  requestId?: string(name='requestId', description='Id of the request', example='5A362ADD-51FC-5F4A-B858-D77F6EFAE2E6'),
-}
-
-model GetMemoryResponse = {
-  headers?: map[string]string(name='headers'),
-  statusCode?: int32(name='statusCode'),
-  body?: GetMemoryResponseBody(name='body'),
-}
-
-/**
-  * @param request  the request parameters of GetMemory  GetMemoryRequest
-  * @return GetMemoryResponse
- */
-async function getMemory(request: GetMemoryRequest): GetMemoryResponse {
-  @handler.validateRequestModel(request);
-  return @handler.do('RESTFUL', 'GetMemory', 'GET', '/2025-09-10/agents/memories/{memoryName}', 'json', false, 'json', request);
-}
-
-model GetMemoryEventRequest {
-  memoryName: string(name='memoryName', description='This parameter is required.', example='test-memory', position='Path'),
-  sessionId: string(name='sessionId', description='This parameter is required.', example='0e070a4f-a912-4368-9c37-232bf4940894', position='Path'),
-  eventId: string(name='eventId', description='This parameter is required.', example='33.7.34.254_195956675_MTEE3_1757556035917_4082', position='Path'),
-  from?: long(name='from', example='1758273080', position='Query'),
-  to?: long(name='to', example='1758273680', position='Query'),
-}
-
-model GetMemoryEventResponseBody = {
-  code?: string(name='code', example='SUCCESS'),
-  data?: {
-    event?: map[string]any(name='event'),
-  }(name='data'),
-  requestId?: string(name='requestId', description='Id of the request', example='BF2A63E4-FCE9-5A65-A60E-4086C8EDBC06'),
-}
-
-model GetMemoryEventResponse = {
-  headers?: map[string]string(name='headers'),
-  statusCode?: int32(name='statusCode'),
-  body?: GetMemoryEventResponseBody(name='body'),
-}
-
-/**
-  * @param request  the request parameters of GetMemoryEvent  GetMemoryEventRequest
-  * @return GetMemoryEventResponse
- */
-async function getMemoryEvent(request: GetMemoryEventRequest): GetMemoryEventResponse {
-  @handler.validateRequestModel(request);
-  return @handler.do('RESTFUL', 'GetMemoryEvent', 'GET', '/2025-09-10/agents/memories/{memoryName}/sessions/{sessionId}/events/{eventId}', 'json', false, 'json', request);
-}
-
-model GetMemorySessionRequest {
-  memoryName: string(name='memoryName', description='This parameter is required.', example='test-memory', position='Path'),
-  sessionId: string(name='sessionId', description='This parameter is required.', example='9fdb0de3-a0f0-4ff1-8d46-18ec5db78c5d', position='Path'),
-  from?: long(name='from', example='1736558346', position='Query'),
-  size?: int32(name='size', example='20', position='Query'),
-  to?: long(name='to', example='1736561898', position='Query'),
-}
-
-model GetMemorySessionResponseBody = {
-  code?: string(name='code', example='SUCCESS'),
-  data?: {
-    events?: [ map[string]any ](name='events'),
-  }(name='data'),
-  requestId?: string(name='requestId', description='Id of the request', example='55D4BE40-2811-5CFB-8482-E0E98D575B1E'),
-}
-
-model GetMemorySessionResponse = {
-  headers?: map[string]string(name='headers'),
-  statusCode?: int32(name='statusCode'),
-  body?: GetMemorySessionResponseBody(name='body'),
-}
-
-/**
-  * @description 根据会话ID获取指定内存会话的详细信息，包括会话中的事件记录、时间戳等。用于查看和管理对话历史。
-  * @param request  the request parameters of GetMemorySession  GetMemorySessionRequest
-  * @return GetMemorySessionResponse
- */
-async function getMemorySession(request: GetMemorySessionRequest): GetMemorySessionResponse {
-  @handler.validateRequestModel(request);
-  return @handler.do('RESTFUL', 'GetMemorySession', 'GET', '/2025-09-10/agents/memories/{memoryName}/sessions/{sessionId}', 'json', false, 'json', request);
 }
 
 model GetModelProxyRequest {
@@ -2545,108 +2489,6 @@ async function listCredentials(request: ListCredentialsRequest): ListCredentials
   return @handler.do('RESTFUL', 'ListCredentials', 'GET', '/2025-09-10/agents/credentials', 'json', false, 'json', request);
 }
 
-model ListMemoryRequest {
-  pageNumber: int32(name='pageNumber', description='This parameter is required.', example='1', position='Query'),
-  pageSize: int32(name='pageSize', description='This parameter is required.', example='0', position='Query'),
-  pattern?: string(name='pattern', example='test', position='Query'),
-}
-
-model ListMemoryResponseBody = {
-  code?: string(name='code', example='SUCCESS'),
-  data?: {
-    items?: [ string ](name='items'),
-    pageNumber?: int32(name='pageNumber', example='1'),
-    pageSize?: int32(name='pageSize', example='10'),
-    total?: long(name='total', example='284'),
-  }(name='data'),
-  requestId?: string(name='requestId', description='Id of the request', example='55D4BE40-2811-5CFB-8482-E0E98D575B1E'),
-}
-
-model ListMemoryResponse = {
-  headers?: map[string]string(name='headers'),
-  statusCode?: int32(name='statusCode'),
-  body?: ListMemoryResponseBody(name='body'),
-}
-
-/**
-  * @param request  the request parameters of ListMemory  ListMemoryRequest
-  * @return ListMemoryResponse
- */
-async function listMemory(request: ListMemoryRequest): ListMemoryResponse {
-  @handler.validateRequestModel(request);
-  return @handler.do('RESTFUL', 'ListMemory', 'GET', '/2025-09-10/agents/memories', 'json', false, 'json', request);
-}
-
-model ListMemoryEventRequest {
-  memoryName: string(name='memoryName', description='This parameter is required.', example='test-memory', position='Path'),
-  sessionId: string(name='sessionId', description='This parameter is required.', example='hh309d0li5c4ctpsxlcbismaipcwx4i0s0qxj6wfns6u583zehb7jyxiqt879sf40ucl0r1jytle3tn53lwdmdcxcwpmhnk51a2w8zipv51vu8pcj6t8g84smv5o6d2i080b62bkftam9xtjtdajokhacy6mbggxzu002i4a3jy67ijq7fhqgmyejexikfp80si', position='Path'),
-  from?: long(name='from', example='1742347023', position='Query'),
-  pageNumber?: int32(name='pageNumber', example='1', position='Query'),
-  pageSize?: int32(name='pageSize', example='10', position='Query'),
-  to?: long(name='to', example='1736561650', position='Query'),
-}
-
-model ListMemoryEventResponseBody = {
-  code?: string(name='code', example='SUCCESS'),
-  data?: {
-    items?: [ string ](name='items'),
-    pageNumber?: int32(name='pageNumber', example='1'),
-    pageSize?: int32(name='pageSize', example='20'),
-    total?: long(name='total', example='2'),
-  }(name='data'),
-  requestId?: string(name='requestId', description='Id of the request', example='0FB1162C-D50B-5DA7-AD04-3417ABBF133A'),
-}
-
-model ListMemoryEventResponse = {
-  headers?: map[string]string(name='headers'),
-  statusCode?: int32(name='statusCode'),
-  body?: ListMemoryEventResponseBody(name='body'),
-}
-
-/**
-  * @param request  the request parameters of ListMemoryEvent  ListMemoryEventRequest
-  * @return ListMemoryEventResponse
- */
-async function listMemoryEvent(request: ListMemoryEventRequest): ListMemoryEventResponse {
-  @handler.validateRequestModel(request);
-  return @handler.do('RESTFUL', 'ListMemoryEvent', 'GET', '/2025-09-10/agents/memories/{memoryName}/sessions/{sessionId}/events', 'json', false, 'json', request);
-}
-
-model ListMemorySessionsRequest {
-  memoryName: string(name='memoryName', description='This parameter is required.', example='test-memory', position='Path'),
-  from?: long(name='from', example='1740622996', position='Query'),
-  pageNumber?: int32(name='pageNumber', example='1', position='Query'),
-  pageSize?: int32(name='pageSize', example='20', position='Query'),
-  to?: long(name='to', example='1747275768', position='Query'),
-}
-
-model ListMemorySessionsResponseBody = {
-  code?: string(name='code', example='SUCCESS'),
-  data?: {
-    items?: [ string ](name='items'),
-    pageNumber?: int32(name='pageNumber', example='1'),
-    pageSize?: int32(name='pageSize', example='10'),
-    total?: long(name='total', example='211'),
-  }(name='data'),
-  requestId?: string(name='requestId', description='Id of the request', example='E2C43519-6095-5487-9526-051AB8F50B4A'),
-}
-
-model ListMemorySessionsResponse = {
-  headers?: map[string]string(name='headers'),
-  statusCode?: int32(name='statusCode'),
-  body?: ListMemorySessionsResponseBody(name='body'),
-}
-
-/**
-  * @description 获取指定内存实例的所有会话列表，支持按时间范围过滤和分页查询。会话是AgentRun中用于存储对话历史和管理上下文的重要组件。
-  * @param request  the request parameters of ListMemorySessions  ListMemorySessionsRequest
-  * @return ListMemorySessionsResponse
- */
-async function listMemorySessions(request: ListMemorySessionsRequest): ListMemorySessionsResponse {
-  @handler.validateRequestModel(request);
-  return @handler.do('RESTFUL', 'ListMemorySessions', 'GET', '/2025-09-10/agents/memories/{memoryName}/sessions', 'json', false, 'json', request);
-}
-
 model ListModelProvidersRequest {
   modelName?: string(name='modelName', example='aa', position='Query'),
   modelType?: string(name='modelType', example='pop', position='Query'),
@@ -2805,44 +2647,6 @@ async function publishRuntimeVersion(request: PublishRuntimeVersionRequest): Pub
   return @handler.do('RESTFUL', 'PublishRuntimeVersion', 'POST', '/2025-09-10/agents/runtimes/{agentRuntimeId}/versions', 'json', false, 'json', request);
 }
 
-model RetrieveMemoryRequest {
-  memoryName: string(name='memoryName', description='This parameter is required.', example='test-memory', position='Path'),
-  from?: int32(name='from', example='1756431013', position='Body'),
-  query: {
-    memory?: string(name='memory', example='10'),
-    metadata?: map[string]string(name='metadata'),
-    namespace?: string(name='namespace', example='preference'),
-    userId: string(name='userId', description='This parameter is required.', example='uid1'),
-  }(name='query', description='This parameter is required.', position='Body'),
-  store?: string(name='store', example='memory', position='Body'),
-  to?: int32(name='to', example='1737856802', position='Body'),
-  topk?: int32(name='topk', example='10', position='Body'),
-}
-
-model RetrieveMemoryResponseBody = {
-  code?: string(name='code', example='SUCCESS'),
-  data?: {
-    events?: [ map[string]string ](name='events'),
-    memories?: [ map[string]string ](name='memories'),
-  }(name='data'),
-  requestId?: string(name='requestId', description='Id of the request', example='BC65E49E-1F6A-55E0-8A0E-7255DBFAA8F9'),
-}
-
-model RetrieveMemoryResponse = {
-  headers?: map[string]string(name='headers'),
-  statusCode?: int32(name='statusCode'),
-  body?: RetrieveMemoryResponseBody(name='body'),
-}
-
-/**
-  * @param request  the request parameters of RetrieveMemory  RetrieveMemoryRequest
-  * @return RetrieveMemoryResponse
- */
-async function retrieveMemory(request: RetrieveMemoryRequest): RetrieveMemoryResponse {
-  @handler.validateRequestModel(request);
-  return @handler.do('RESTFUL', 'RetrieveMemory', 'POST', '/2025-09-10/agents/memories/{memoryName}/records', 'json', false, 'json', request);
-}
-
 model StopSandboxRequest {
   sandboxId: string(name='sandboxId', description='要停止的沙箱ID
 
@@ -2954,36 +2758,6 @@ model UpdateCredentialResponse = {
 async function updateCredential(request: UpdateCredentialRequest): UpdateCredentialResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RESTFUL', 'UpdateCredential', 'PUT', '/2025-09-10/agents/credentials/{credentialName}', 'json', false, 'json', request);
-}
-
-model UpdateMemoryRequest {
-  memoryName: string(name='memoryName', description='This parameter is required.', example='test-memory', position='Path'),
-  longTtl?: int32(name='longTtl', example='365', position='Body'),
-  shortTtl?: int32(name='shortTtl', example='30', position='Body'),
-  strategy?: [ string ](name='strategy', position='Body'),
-}
-
-model UpdateMemoryResponseBody = {
-  code?: string(name='code', example='SUCCESS'),
-  data?: {
-    cmsWorkspaceName?: string(name='cmsWorkspaceName', example='default_workspace'),
-  }(name='data'),
-  requestId?: string(name='requestId', description='Id of the request', example='C0595DB0-D1EE-55C3-8DDD-790872C7EC2F'),
-}
-
-model UpdateMemoryResponse = {
-  headers?: map[string]string(name='headers'),
-  statusCode?: int32(name='statusCode'),
-  body?: UpdateMemoryResponseBody(name='body'),
-}
-
-/**
-  * @param request  the request parameters of UpdateMemory  UpdateMemoryRequest
-  * @return UpdateMemoryResponse
- */
-async function updateMemory(request: UpdateMemoryRequest): UpdateMemoryResponse {
-  @handler.validateRequestModel(request);
-  return @handler.do('RESTFUL', 'UpdateMemory', 'PUT', '/2025-09-10/agents/memories/{memoryName}', 'json', false, 'json', request);
 }
 
 model UpdateModelProxyRequest {
