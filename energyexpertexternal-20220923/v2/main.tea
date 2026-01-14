@@ -103,6 +103,18 @@ model ChatRefDocPostion {
   y?: int32(name='y'),
 }
 
+model ChunkItem {
+  chunkContent?: string(name='chunkContent'),
+  chunkId?: string(name='chunkId'),
+  docElsIds?: [ string ](name='docElsIds'),
+  docId?: string(name='docId'),
+  docName?: string(name='docName'),
+  docUrl?: string(name='docUrl'),
+  rerankScore?: float(name='rerankScore'),
+  score?: float(name='score'),
+  weightedScore?: float(name='weightedScore'),
+}
+
 model ConstituteItem {
   carbonEmissionData?: double(name='carbonEmissionData'),
   dataUnit?: string(name='dataUnit'),
@@ -517,7 +529,7 @@ async function analyzeVlRealtimeAdvance(request: AnalyzeVlRealtimeAdvanceRequest
       file = fileObj,
       success_action_status = '201',
     };
-    _postOSSObject(authResponseBody['Bucket'], ossHeader);
+    _postOSSObject(authResponseBody['Bucket'], ossHeader, runtime);
     analyzeVlRealtimeReq.fileUrl = `http://${authResponseBody['Bucket']}.${authResponseBody['Endpoint']}/${authResponseBody['ObjectKey']}`;
   }
   var analyzeVlRealtimeResp = analyzeVlRealtimeWithOptions(analyzeVlRealtimeReq, headers, runtime);
@@ -707,6 +719,7 @@ async function batchUpdateSystemRunningPlan(request: BatchUpdateSystemRunningPla
 }
 
 model ChatRequest {
+  documentIds?: [ long ](name='documentIds'),
   question?: string(name='question', description='Q&A content.
 
 This parameter is required.', example='How to access knowledge base Q&A documents.'),
@@ -744,6 +757,9 @@ model ChatResponse = {
 async function chatWithOptions(request: ChatRequest, headers: map[string]string, runtime: $RuntimeOptions): ChatResponse {
   request.validate();
   var body : map[string]any = {};
+  if (!$isNull(request.documentIds)) {
+    body['documentIds'] = request.documentIds;
+  }
   if (!$isNull(request.question)) {
     body['question'] = request.question;
   }
@@ -786,6 +802,7 @@ async function chat(request: ChatRequest): ChatResponse {
 }
 
 model ChatStreamRequest {
+  documentIds?: [ long ](name='documentIds'),
   question?: string(name='question', description='Q&A content.
 
 This parameter is required.', example='How to access knowledge base Q&A documents.'),
@@ -824,6 +841,9 @@ model ChatStreamResponse = {
 async function chatStreamWithSSE(request: ChatStreamRequest, headers: map[string]string, runtime: $RuntimeOptions): asyncIterator[ChatStreamResponse] {
   request.validate();
   var body : map[string]any = {};
+  if (!$isNull(request.documentIds)) {
+    body['documentIds'] = request.documentIds;
+  }
   if (!$isNull(request.question)) {
     body['question'] = request.question;
   }
@@ -876,6 +896,9 @@ async function chatStreamWithSSE(request: ChatStreamRequest, headers: map[string
 async function chatStreamWithOptions(request: ChatStreamRequest, headers: map[string]string, runtime: $RuntimeOptions): ChatStreamResponse {
   request.validate();
   var body : map[string]any = {};
+  if (!$isNull(request.documentIds)) {
+    body['documentIds'] = request.documentIds;
+  }
   if (!$isNull(request.question)) {
     body['question'] = request.question;
   }
@@ -4540,6 +4563,96 @@ async function recalculateCarbonEmission(request: RecalculateCarbonEmissionReque
   return recalculateCarbonEmissionWithOptions(request, headers, runtime);
 }
 
+model RetrieveRequest {
+  documentIds?: [ long ](name='documentIds'),
+  folderIds?: [ string ](name='folderIds'),
+  preRetrieveTopK?: int32(name='preRetrieveTopK', example='0'),
+  query?: string(name='query', description='This parameter is required.', example='"What\\\\"s the meaning of the file?"'),
+  rerankerThreshold?: float(name='rerankerThreshold', example='0.0'),
+  topK?: int32(name='topK', example='10'),
+  useReranker?: boolean(name='useReranker'),
+}
+
+model RetrieveResponseBody = {
+  data?: {
+    jobId?: string(name='jobId', example='76cd1691-daf6-4113-8444-4998a25a5323'),
+    results?: [
+      ChunkItem
+    ](name='results'),
+  }(name='data'),
+  requestId?: string(name='requestId', description='Id of the request', example='83A5A7DD-8974-5769-952E-590A97BEA34E'),
+}
+
+model RetrieveResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: RetrieveResponseBody(name='body'),
+}
+
+/**
+ * @summary 支持多文件夹ID或文件ID检索的RAG结果获取接口，供客户端自行加工结果并嵌入业务逻辑。
+ *
+ * @param request RetrieveRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return RetrieveResponse
+ */
+@context("retrieveWithContext")
+async function retrieveWithOptions(request: RetrieveRequest, headers: map[string]string, runtime: $RuntimeOptions): RetrieveResponse {
+  request.validate();
+  var body : map[string]any = {};
+  if (!$isNull(request.documentIds)) {
+    body['documentIds'] = request.documentIds;
+  }
+  if (!$isNull(request.folderIds)) {
+    body['folderIds'] = request.folderIds;
+  }
+  if (!$isNull(request.preRetrieveTopK)) {
+    body['preRetrieveTopK'] = request.preRetrieveTopK;
+  }
+  if (!$isNull(request.query)) {
+    body['query'] = request.query;
+  }
+  if (!$isNull(request.rerankerThreshold)) {
+    body['rerankerThreshold'] = request.rerankerThreshold;
+  }
+  if (!$isNull(request.topK)) {
+    body['topK'] = request.topK;
+  }
+  if (!$isNull(request.useReranker)) {
+    body['useReranker'] = request.useReranker;
+  }
+
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    headers = headers,
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'Retrieve',
+    version = '2022-09-23',
+    protocol = 'HTTPS',
+    pathname = `/api/v2/aidoc/knowledgebase/retrieve`,
+    method = 'POST',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 支持多文件夹ID或文件ID检索的RAG结果获取接口，供客户端自行加工结果并嵌入业务逻辑。
+ *
+ * @param request RetrieveRequest
+ * @return RetrieveResponse
+ */
+async function retrieve(request: RetrieveRequest): RetrieveResponse {
+  var runtime = new $RuntimeOptions{};
+  var headers : map[string]string = {};
+  return retrieveWithOptions(request, headers, runtime);
+}
+
 model SendDocumentAskQuestionRequest {
   folderId?: string(name='folderId', description='Folder ID, used to specify the range of documents for the query. If it is empty, it indicates that all documents under the default folder will be queried.', example='1a851c4a-1d65-11ef-99a7-ssfsfdd'),
   prompt?: string(name='prompt', description='The question queried by the user
@@ -4936,7 +5049,7 @@ async function submitDocExtractionTaskAdvance(request: SubmitDocExtractionTaskAd
       file = fileObj,
       success_action_status = '201',
     };
-    _postOSSObject(authResponseBody['Bucket'], ossHeader);
+    _postOSSObject(authResponseBody['Bucket'], ossHeader, runtime);
     submitDocExtractionTaskReq.fileUrl = `http://${authResponseBody['Bucket']}.${authResponseBody['Endpoint']}/${authResponseBody['ObjectKey']}`;
   }
   var submitDocExtractionTaskResp = submitDocExtractionTaskWithOptions(submitDocExtractionTaskReq, headers, runtime);
@@ -5133,7 +5246,7 @@ async function submitDocParsingTaskAdvance(request: SubmitDocParsingTaskAdvanceR
       file = fileObj,
       success_action_status = '201',
     };
-    _postOSSObject(authResponseBody['Bucket'], ossHeader);
+    _postOSSObject(authResponseBody['Bucket'], ossHeader, runtime);
     submitDocParsingTaskReq.fileUrl = `http://${authResponseBody['Bucket']}.${authResponseBody['Endpoint']}/${authResponseBody['ObjectKey']}`;
   }
   var submitDocParsingTaskResp = submitDocParsingTaskWithOptions(submitDocParsingTaskReq, headers, runtime);
@@ -5345,7 +5458,7 @@ async function submitDocumentAnalyzeJobAdvance(request: SubmitDocumentAnalyzeJob
       file = fileObj,
       success_action_status = '201',
     };
-    _postOSSObject(authResponseBody['Bucket'], ossHeader);
+    _postOSSObject(authResponseBody['Bucket'], ossHeader, runtime);
     submitDocumentAnalyzeJobReq.fileUrl = `http://${authResponseBody['Bucket']}.${authResponseBody['Endpoint']}/${authResponseBody['ObjectKey']}`;
   }
   var submitDocumentAnalyzeJobResp = submitDocumentAnalyzeJobWithOptions(submitDocumentAnalyzeJobReq, headers, runtime);
@@ -5542,14 +5655,14 @@ async function submitVLExtractionTaskAdvance(request: SubmitVLExtractionTaskAdva
       file = fileObj,
       success_action_status = '201',
     };
-    _postOSSObject(authResponseBody['Bucket'], ossHeader);
+    _postOSSObject(authResponseBody['Bucket'], ossHeader, runtime);
     submitVLExtractionTaskReq.fileUrl = `http://${authResponseBody['Bucket']}.${authResponseBody['Endpoint']}/${authResponseBody['ObjectKey']}`;
   }
   var submitVLExtractionTaskResp = submitVLExtractionTaskWithOptions(submitVLExtractionTaskReq, headers, runtime);
   return submitVLExtractionTaskResp;
 }
 
-api _postOSSObject(bucketName: string, form: object): object {
+api _postOSSObject(bucketName: string, form: object, runtime: $RuntimeOptions): object {
   var boundary = $Form.getBoundary();
   __request.protocol = 'HTTPS';
   __request.method = 'POST';
@@ -5581,4 +5694,19 @@ api _postOSSObject(bucketName: string, form: object): object {
   return {
     ...respMap,
   };
+} runtime {
+  key = $string($default(runtime.key, @key)),
+  cert = $string($default(runtime.cert, @cert)),
+  ca = $string($default(runtime.ca, @ca)),
+  readTimeout = $number($default(runtime.readTimeout, @readTimeout)),
+  connectTimeout = $number($default(runtime.connectTimeout, @connectTimeout)),
+  httpProxy = $string($default(runtime.httpProxy, @httpProxy)),
+  httpsProxy = $string($default(runtime.httpsProxy, @httpsProxy)),
+  noProxy = $string($default(runtime.noProxy, @noProxy)),
+  socks5Proxy = $string($default(runtime.socks5Proxy, @socks5Proxy)),
+  socks5NetWork = $string($default(runtime.socks5NetWork, @socks5NetWork)),
+  maxIdleConns = $number($default(runtime.maxIdleConns, @maxIdleConns)),
+  retryOptions = @retryOptions,
+  ignoreSSL = $boolean($default(runtime.ignoreSSL, false)),
+  tlsMinVersion = @tlsMinVersion
 }
