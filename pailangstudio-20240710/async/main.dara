@@ -87,6 +87,7 @@ model Connection {
 
 model Deployment {
   accessibility?: string(name='Accessibility'),
+  autoApproval?: boolean(name='AutoApproval'),
   chatHistoryConfig?: {
     connectionName?: string(name='ConnectionName', description='连接名称'),
     storageType?: string(name='StorageType', description='存储类型'),
@@ -123,7 +124,18 @@ model Deployment {
   ](name='DataSources'),
   deploymentConfig?: string(name='DeploymentConfig'),
   deploymentId?: string(name='DeploymentId'),
-  deploymentStages?: string(name='DeploymentStages'),
+  deploymentStages?: [ 
+    {
+      description?: string(name='Description', description='描述'),
+      errorMessage?: string(name='ErrorMessage', description='错误信息'),
+      gmtEndTime?: string(name='GmtEndTime', description='结束时间'),
+      gmtStartTime?: string(name='GmtStartTime', description='开始时间'),
+      stage?: int32(name='Stage', description='阶段'),
+      stageInfo?: string(name='StageInfo', description='阶段信息'),
+      stageName?: string(name='StageName', description='阶段名称'),
+      stageStatus?: string(name='StageStatus', description='阶段状态'),
+    }
+  ](name='DeploymentStages'),
   deploymentStatus?: string(name='DeploymentStatus'),
   description?: string(name='Description'),
   ecsSpec?: {
@@ -1045,6 +1057,67 @@ async function getKnowledgeBaseJob(request: GetKnowledgeBaseJobRequest): GetKnow
   return @handler.do('RESTFUL', 'GetKnowledgeBaseJob', 'GET', '/api/v1/langstudio/knowledgebases/{KnowledgeBaseId}/knowledgebasejobs/{KnowledgeBaseJobId}', 'json', false, 'json', request);
 }
 
+model ListKnowledgeBaseChunksRequest {
+  knowledgeBaseId: string(name='KnowledgeBaseId', description='This parameter is required.', example='d-ab****89', position='Path'),
+  chunkStatus?: string(name='ChunkStatus', example='Enable', position='Query'),
+  metaData?: {
+    fileMetaId?: string(name='FileMetaId', description='文件元数据ID', example='xd8e****79du'),
+    fileUri?: string(name='FileUri', description='文件地址', example='oss://mybucketpath/file1.txt'),
+  }(name='MetaData', example='1', position='Query'),
+  pageNumber?: int32(name='PageNumber', example='1', position='Query'),
+  pageSize?: int32(name='PageSize', example='20', position='Query'),
+  versionName?: string(name='VersionName', example='v1', position='Query'),
+}
+
+model ListKnowledgeBaseChunksResponseBody = {
+  knowledgeBaseChunks?: [ 
+    {
+      chunkAttachment?: [ 
+        {
+          downloadUrl?: string(name='DownloadUrl', description='下载地址', example='https://mybucket.oss-cn-shanghai.aliyuncs.com/...'),
+          placeholderId?: string(name='PlaceholderId', description='占位符ID', example='IMAGE_PLACEHOLDER_0'),
+          type?: string(name='Type', description='类型', example='image'),
+          uri?: string(name='Uri', description='路径', example='oss://mybucket/path/file.txt'),
+        }
+      ](name='ChunkAttachment', description='切片附属信息'),
+      chunkContent?: string(name='ChunkContent', description='切片内容', example='content'),
+      chunkEnd?: int32(name='ChunkEnd', description='切片结束位置', example='30000'),
+      chunkSequence?: int32(name='ChunkSequence', description='切片顺序', example='1'),
+      chunkSize?: int32(name='ChunkSize', description='切片大小', example='1873'),
+      chunkStart?: int32(name='ChunkStart', description='切片起始位置', example='0'),
+      chunkStatus?: string(name='ChunkStatus', description='切片状态', example='Enable'),
+      downloadUrl?: string(name='DownloadUrl', description='切片下载地址', example='https://mybucket.oss-cn-shanghai.aliyuncs.com/...'),
+      knowledgeBaseChunkId?: string(name='KnowledgeBaseChunkId', description='切片ID', example='123e4567-e89b-12d3-a456-426655440000'),
+      knowledgeBaseId?: string(name='KnowledgeBaseId', description='知识库ID', example='d-ix****o9'),
+      metaData?: {
+        fileMetaId?: string(name='FileMetaId', description='文件元数据ID', example='xd8e****79du'),
+        fileName?: string(name='FileName', description='文件名', example='file1.txt'),
+        fileUri?: string(name='FileUri', description='文件地址', example='oss://mybucketpath/file1.txt'),
+      }(name='MetaData', description='原始文件信息'),
+      thumbnailUrl?: string(name='ThumbnailUrl', description='切片缩略图', example='https://mybucket.oss-cn-shanghai.aliyuncs.com/...'),
+      versionName?: string(name='VersionName', description='知识库版本', example='v1'),
+    }
+  ](name='KnowledgeBaseChunks', description='切片列表'),
+  maxResults?: int32(name='MaxResults', example='10'),
+  requestId?: string(name='RequestId', example='963BD7F9-0C02-5594-9550-BCC6DD43E3C0'),
+  totalCount?: int32(name='TotalCount', example='25'),
+}
+
+model ListKnowledgeBaseChunksResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ListKnowledgeBaseChunksResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of ListKnowledgeBaseChunks  ListKnowledgeBaseChunksRequest
+  * @return ListKnowledgeBaseChunksResponse
+ */
+async function listKnowledgeBaseChunks(request: ListKnowledgeBaseChunksRequest): ListKnowledgeBaseChunksResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'ListKnowledgeBaseChunks', 'GET', '/api/v1/langstudio/knowledgebases/{KnowledgeBaseId}/knowledgebasechunks', 'json', false, 'json', request);
+}
+
 model ListKnowledgeBaseJobsRequest {
   knowledgeBaseId?: string(name='KnowledgeBaseId', example='d-ksicx823d', position='Path'),
   jobAction?: string(name='JobAction', example='SyncIndex', position='Query'),
@@ -1063,10 +1136,10 @@ model ListKnowledgeBaseJobsResponseBody = {
   knowledgeBaseJobs?: [
     KnowledgeBaseJob
   ](name='KnowledgeBaseJobs'),
-  maxResults?: int32(name='MaxResults'),
-  nextToken?: string(name='NextToken'),
+  maxResults?: int32(name='MaxResults', example='10'),
+  nextToken?: string(name='NextToken', example='11'),
   requestId?: string(name='RequestId', example='963BD7F9-0C02-5594-9550-BCC6DD43E3C0'),
-  totalCount?: int32(name='TotalCount'),
+  totalCount?: int32(name='TotalCount', example='25'),
 }
 
 model ListKnowledgeBaseJobsResponse = {
@@ -1102,10 +1175,10 @@ model ListKnowledgeBasesResponseBody = {
   knowledgeBases?: [
     KnowledgeBase
   ](name='KnowledgeBases'),
-  maxResults?: int32(name='MaxResults'),
-  nextToken?: string(name='NextToken'),
+  maxResults?: int32(name='MaxResults', example='10'),
+  nextToken?: string(name='NextToken', example='11'),
   requestId?: string(name='RequestId', example='35686626-8D83-5ADE-B400-08A6613A6057'),
-  totalCount?: int32(name='TotalCount'),
+  totalCount?: int32(name='TotalCount', example='25'),
 }
 
 model ListKnowledgeBasesResponse = {
@@ -1236,7 +1309,7 @@ model UpdateKnowledgeBaseRequest {
 }
 
 model UpdateKnowledgeBaseResponseBody = {
-  requestId?: string(name='RequestId'),
+  requestId?: string(name='RequestId', example='963BD7F9-0C02-5594-9550-BCC6DD43E3C0'),
 }
 
 model UpdateKnowledgeBaseResponse = {
@@ -1252,6 +1325,32 @@ model UpdateKnowledgeBaseResponse = {
 async function updateKnowledgeBase(request: UpdateKnowledgeBaseRequest): UpdateKnowledgeBaseResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RESTFUL', 'UpdateKnowledgeBase', 'PUT', '/api/v1/langstudio/knowledgebases/{KnowledgeBaseId}', 'json', false, 'json', request);
+}
+
+model UpdateKnowledgeBaseChunkRequest {
+  knowledgeBaseId: string(name='KnowledgeBaseId', description='This parameter is required.', example='d-ab****89', position='Path'),
+  knowledgeBaseChunkId: string(name='KnowledgeBaseChunkId', description='This parameter is required.', example='123e4567-e89b-12d3-a456-426655440000', position='Path'),
+  chunkContent?: string(name='ChunkContent', example='content', position='Body'),
+  chunkStatus?: string(name='ChunkStatus', example='Enable', position='Body'),
+}
+
+model UpdateKnowledgeBaseChunkResponseBody = {
+  requestId?: string(name='RequestId', example='963BD7F9-0C02-5594-9550-BCC6DD43E3C0'),
+}
+
+model UpdateKnowledgeBaseChunkResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: UpdateKnowledgeBaseChunkResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of UpdateKnowledgeBaseChunk  UpdateKnowledgeBaseChunkRequest
+  * @return UpdateKnowledgeBaseChunkResponse
+ */
+async function updateKnowledgeBaseChunk(request: UpdateKnowledgeBaseChunkRequest): UpdateKnowledgeBaseChunkResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'UpdateKnowledgeBaseChunk', 'PUT', '/api/v1/langstudio/knowledgebases/{KnowledgeBaseId}/knowledgebasechunks/{KnowledgeBaseChunkId}', 'json', false, 'json', request);
 }
 
 model UpdateKnowledgeBaseJobRequest {

@@ -85,6 +85,7 @@ model Connection {
 
 model Deployment {
   accessibility?: string(name='Accessibility'),
+  autoApproval?: boolean(name='AutoApproval'),
   chatHistoryConfig?: {
     connectionName?: string(name='ConnectionName', description='连接名称'),
     storageType?: string(name='StorageType', description='存储类型'),
@@ -121,7 +122,18 @@ model Deployment {
   ](name='DataSources'),
   deploymentConfig?: string(name='DeploymentConfig'),
   deploymentId?: string(name='DeploymentId'),
-  deploymentStages?: string(name='DeploymentStages'),
+  deploymentStages?: [ 
+    {
+      description?: string(name='Description', description='描述'),
+      errorMessage?: string(name='ErrorMessage', description='错误信息'),
+      gmtEndTime?: string(name='GmtEndTime', description='结束时间'),
+      gmtStartTime?: string(name='GmtStartTime', description='开始时间'),
+      stage?: int32(name='Stage', description='阶段'),
+      stageInfo?: string(name='StageInfo', description='阶段信息'),
+      stageName?: string(name='StageName', description='阶段名称'),
+      stageStatus?: string(name='StageStatus', description='阶段状态'),
+    }
+  ](name='DeploymentStages'),
   deploymentStatus?: string(name='DeploymentStatus'),
   description?: string(name='Description'),
   ecsSpec?: {
@@ -1315,6 +1327,114 @@ async function getKnowledgeBaseJob(KnowledgeBaseId: string, KnowledgeBaseJobId: 
   return getKnowledgeBaseJobWithOptions(KnowledgeBaseId, KnowledgeBaseJobId, request, headers, runtime);
 }
 
+model ListKnowledgeBaseChunksRequest {
+  chunkStatus?: string(name='ChunkStatus', example='Enable'),
+  metaData?: {
+    fileMetaId?: string(name='FileMetaId', description='文件元数据ID', example='xd8e****79du'),
+    fileUri?: string(name='FileUri', description='文件地址', example='oss://mybucketpath/file1.txt'),
+  }(name='MetaData', example='1'),
+  pageNumber?: int32(name='PageNumber', example='1'),
+  pageSize?: int32(name='PageSize', example='20'),
+  versionName?: string(name='VersionName', example='v1'),
+}
+
+model ListKnowledgeBaseChunksResponseBody = {
+  knowledgeBaseChunks?: [ 
+    {
+      chunkAttachment?: [ 
+        {
+          downloadUrl?: string(name='DownloadUrl', description='下载地址', example='https://mybucket.oss-cn-shanghai.aliyuncs.com/...'),
+          placeholderId?: string(name='PlaceholderId', description='占位符ID', example='IMAGE_PLACEHOLDER_0'),
+          type?: string(name='Type', description='类型', example='image'),
+          uri?: string(name='Uri', description='路径', example='oss://mybucket/path/file.txt'),
+        }
+      ](name='ChunkAttachment', description='切片附属信息'),
+      chunkContent?: string(name='ChunkContent', description='切片内容', example='content'),
+      chunkEnd?: int32(name='ChunkEnd', description='切片结束位置', example='30000'),
+      chunkSequence?: int32(name='ChunkSequence', description='切片顺序', example='1'),
+      chunkSize?: int32(name='ChunkSize', description='切片大小', example='1873'),
+      chunkStart?: int32(name='ChunkStart', description='切片起始位置', example='0'),
+      chunkStatus?: string(name='ChunkStatus', description='切片状态', example='Enable'),
+      downloadUrl?: string(name='DownloadUrl', description='切片下载地址', example='https://mybucket.oss-cn-shanghai.aliyuncs.com/...'),
+      knowledgeBaseChunkId?: string(name='KnowledgeBaseChunkId', description='切片ID', example='123e4567-e89b-12d3-a456-426655440000'),
+      knowledgeBaseId?: string(name='KnowledgeBaseId', description='知识库ID', example='d-ix****o9'),
+      metaData?: {
+        fileMetaId?: string(name='FileMetaId', description='文件元数据ID', example='xd8e****79du'),
+        fileName?: string(name='FileName', description='文件名', example='file1.txt'),
+        fileUri?: string(name='FileUri', description='文件地址', example='oss://mybucketpath/file1.txt'),
+      }(name='MetaData', description='原始文件信息'),
+      thumbnailUrl?: string(name='ThumbnailUrl', description='切片缩略图', example='https://mybucket.oss-cn-shanghai.aliyuncs.com/...'),
+      versionName?: string(name='VersionName', description='知识库版本', example='v1'),
+    }
+  ](name='KnowledgeBaseChunks', description='切片列表'),
+  maxResults?: int32(name='MaxResults', example='10'),
+  requestId?: string(name='RequestId', example='963BD7F9-0C02-5594-9550-BCC6DD43E3C0'),
+  totalCount?: int32(name='TotalCount', example='25'),
+}
+
+model ListKnowledgeBaseChunksResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ListKnowledgeBaseChunksResponseBody(name='body'),
+}
+
+/**
+ * @summary 获取知识库切片列表
+ *
+ * @param request ListKnowledgeBaseChunksRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return ListKnowledgeBaseChunksResponse
+ */
+async function listKnowledgeBaseChunksWithOptions(KnowledgeBaseId: string, request: ListKnowledgeBaseChunksRequest, headers: map[string]string, runtime: Util.RuntimeOptions): ListKnowledgeBaseChunksResponse {
+  Util.validateModel(request);
+  var query : map[string]any = {};
+  if (!Util.isUnset(request.chunkStatus)) {
+    query['ChunkStatus'] = request.chunkStatus;
+  }
+  if (!Util.isUnset(request.metaData)) {
+    query['MetaData'] = request.metaData;
+  }
+  if (!Util.isUnset(request.pageNumber)) {
+    query['PageNumber'] = request.pageNumber;
+  }
+  if (!Util.isUnset(request.pageSize)) {
+    query['PageSize'] = request.pageSize;
+  }
+  if (!Util.isUnset(request.versionName)) {
+    query['VersionName'] = request.versionName;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'ListKnowledgeBaseChunks',
+    version = '2024-07-10',
+    protocol = 'HTTPS',
+    pathname = `/api/v1/langstudio/knowledgebases/${OpenApiUtil.getEncodeParam(KnowledgeBaseId)}/knowledgebasechunks`,
+    method = 'GET',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 获取知识库切片列表
+ *
+ * @param request ListKnowledgeBaseChunksRequest
+ * @return ListKnowledgeBaseChunksResponse
+ */
+async function listKnowledgeBaseChunks(KnowledgeBaseId: string, request: ListKnowledgeBaseChunksRequest): ListKnowledgeBaseChunksResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return listKnowledgeBaseChunksWithOptions(KnowledgeBaseId, request, headers, runtime);
+}
+
 model ListKnowledgeBaseJobsRequest {
   jobAction?: string(name='JobAction', example='SyncIndex'),
   knowledgeBaseJobId?: string(name='KnowledgeBaseJobId', example='kbjob-9m******54'),
@@ -1332,10 +1452,10 @@ model ListKnowledgeBaseJobsResponseBody = {
   knowledgeBaseJobs?: [
     KnowledgeBaseJob
   ](name='KnowledgeBaseJobs'),
-  maxResults?: int32(name='MaxResults'),
-  nextToken?: string(name='NextToken'),
+  maxResults?: int32(name='MaxResults', example='10'),
+  nextToken?: string(name='NextToken', example='11'),
   requestId?: string(name='RequestId', example='963BD7F9-0C02-5594-9550-BCC6DD43E3C0'),
-  totalCount?: int32(name='TotalCount'),
+  totalCount?: int32(name='TotalCount', example='25'),
 }
 
 model ListKnowledgeBaseJobsResponse = {
@@ -1434,10 +1554,10 @@ model ListKnowledgeBasesResponseBody = {
   knowledgeBases?: [
     KnowledgeBase
   ](name='KnowledgeBases'),
-  maxResults?: int32(name='MaxResults'),
-  nextToken?: string(name='NextToken'),
+  maxResults?: int32(name='MaxResults', example='10'),
+  nextToken?: string(name='NextToken', example='11'),
   requestId?: string(name='RequestId', example='35686626-8D83-5ADE-B400-08A6613A6057'),
-  totalCount?: int32(name='TotalCount'),
+  totalCount?: int32(name='TotalCount', example='25'),
 }
 
 model ListKnowledgeBasesResponse = {
@@ -1695,7 +1815,7 @@ model UpdateKnowledgeBaseRequest {
 }
 
 model UpdateKnowledgeBaseResponseBody = {
-  requestId?: string(name='RequestId'),
+  requestId?: string(name='RequestId', example='963BD7F9-0C02-5594-9550-BCC6DD43E3C0'),
 }
 
 model UpdateKnowledgeBaseResponse = {
@@ -1762,6 +1882,69 @@ async function updateKnowledgeBase(KnowledgeBaseId: string, request: UpdateKnowl
   var runtime = new Util.RuntimeOptions{};
   var headers : map[string]string = {};
   return updateKnowledgeBaseWithOptions(KnowledgeBaseId, request, headers, runtime);
+}
+
+model UpdateKnowledgeBaseChunkRequest {
+  chunkContent?: string(name='ChunkContent', example='content'),
+  chunkStatus?: string(name='ChunkStatus', example='Enable'),
+}
+
+model UpdateKnowledgeBaseChunkResponseBody = {
+  requestId?: string(name='RequestId', example='963BD7F9-0C02-5594-9550-BCC6DD43E3C0'),
+}
+
+model UpdateKnowledgeBaseChunkResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: UpdateKnowledgeBaseChunkResponseBody(name='body'),
+}
+
+/**
+ * @summary 更新知识库切片
+ *
+ * @param request UpdateKnowledgeBaseChunkRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return UpdateKnowledgeBaseChunkResponse
+ */
+async function updateKnowledgeBaseChunkWithOptions(KnowledgeBaseId: string, KnowledgeBaseChunkId: string, request: UpdateKnowledgeBaseChunkRequest, headers: map[string]string, runtime: Util.RuntimeOptions): UpdateKnowledgeBaseChunkResponse {
+  Util.validateModel(request);
+  var body : map[string]any = {};
+  if (!Util.isUnset(request.chunkContent)) {
+    body['ChunkContent'] = request.chunkContent;
+  }
+  if (!Util.isUnset(request.chunkStatus)) {
+    body['ChunkStatus'] = request.chunkStatus;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApi.Params{
+    action = 'UpdateKnowledgeBaseChunk',
+    version = '2024-07-10',
+    protocol = 'HTTPS',
+    pathname = `/api/v1/langstudio/knowledgebases/${OpenApiUtil.getEncodeParam(KnowledgeBaseId)}/knowledgebasechunks/${OpenApiUtil.getEncodeParam(KnowledgeBaseChunkId)}`,
+    method = 'PUT',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 更新知识库切片
+ *
+ * @param request UpdateKnowledgeBaseChunkRequest
+ * @return UpdateKnowledgeBaseChunkResponse
+ */
+async function updateKnowledgeBaseChunk(KnowledgeBaseId: string, KnowledgeBaseChunkId: string, request: UpdateKnowledgeBaseChunkRequest): UpdateKnowledgeBaseChunkResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return updateKnowledgeBaseChunkWithOptions(KnowledgeBaseId, KnowledgeBaseChunkId, request, headers, runtime);
 }
 
 model UpdateKnowledgeBaseJobRequest {
