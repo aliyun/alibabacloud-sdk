@@ -415,6 +415,7 @@ model HttpApiDeployConfig {
   serviceConfigs?: [ 
     {
       intentCode?: string(name='intentCode'),
+      match?: HttpApiBackendMatchConditions(name='match'),
       modelName?: string(name='modelName', example='qwen-max'),
       modelNamePattern?: string(name='modelNamePattern', example='qwen-*'),
       serviceId?: string(name='serviceId', example='svc-xxx'),
@@ -5232,6 +5233,66 @@ async function getResourceOverview(request: GetResourceOverviewRequest): GetReso
   var runtime = new $RuntimeOptions{};
   var headers : map[string]string = {};
   return getResourceOverviewWithOptions(request, headers, runtime);
+}
+
+model GetSecretResponseBody = {
+  code?: string(name='code'),
+  data?: {
+    createTimestamp?: long(name='createTimestamp'),
+    gatewayType?: string(name='gatewayType'),
+    kmsConfig?: KMSConfig(name='kmsConfig'),
+    name?: string(name='name'),
+    referenceCount?: int32(name='referenceCount'),
+    secretId?: string(name='secretId'),
+    secretSource?: string(name='secretSource'),
+    status?: string(name='status'),
+    updateTimestamp?: long(name='updateTimestamp'),
+  }(name='data'),
+  message?: string(name='message'),
+  requestId?: string(name='requestId', description='Id of the request'),
+}
+
+model GetSecretResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: GetSecretResponseBody(name='body'),
+}
+
+/**
+ * @summary 查询密钥
+ *
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return GetSecretResponse
+ */
+@context("getSecretWithContext")
+async function getSecretWithOptions(secretId: string, headers: map[string]string, runtime: $RuntimeOptions): GetSecretResponse {
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    headers = headers,
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'GetSecret',
+    version = '2024-03-27',
+    protocol = 'HTTPS',
+    pathname = `/v1/secrets/${$URL.percentEncode(secretId)}`,
+    method = 'GET',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 查询密钥
+ *
+ * @return GetSecretResponse
+ */
+async function getSecret(secretId: string): GetSecretResponse {
+  var runtime = new $RuntimeOptions{};
+  var headers : map[string]string = {};
+  return getSecretWithOptions(secretId, headers, runtime);
 }
 
 model GetSecretValueResponseBody = {
