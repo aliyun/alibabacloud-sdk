@@ -88,6 +88,34 @@ function close(): void {
   @handler.close();
 }
 
+model DimItem {
+  code?: string(name='Code'),
+  name?: string(name='Name'),
+  pageInfo?: {
+    currentPage?: int32(name='CurrentPage'),
+    pageSize?: int32(name='PageSize'),
+    total?: int32(name='Total'),
+  }(name='PageInfo'),
+  values?: [
+    ItemValues
+  ](name='Values'),
+}
+
+model EcIdAccountId {
+  accountIds?: [ long ](name='AccountIds'),
+  ecId?: string(name='EcId'),
+}
+
+model FieldOption {
+  functionCode?: string(name='FunctionCode'),
+  isDefault?: boolean(name='IsDefault'),
+  name?: string(name='Name'),
+  value?: string(name='Value'),
+}
+
+model ItemValues {
+}
+
 model AddCouponDeductTagRequest {
   couponId?: string(name='CouponId', position='Query'),
   ecIdAccountIds?: [ 
@@ -198,6 +226,43 @@ model CancelFundAccountLowAvailableAmountAlarmResponse = {
 async function cancelFundAccountLowAvailableAmountAlarm(request: CancelFundAccountLowAvailableAmountAlarmRequest): CancelFundAccountLowAvailableAmountAlarmResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RPC', 'CancelFundAccountLowAvailableAmountAlarm', 'POST', '/', 'json', true, 'form', request);
+}
+
+model CheckAccountExistRequest {
+  ecIdAccountIds?: [ 
+    {
+      accountIds?: [ long ](name='AccountIds'),
+      ecId: string(name='EcId', description='This parameter is required.', example='1004064243473974'),
+    }
+  ](name='EcIdAccountIds', position='Query'),
+  nbid?: string(name='Nbid', example='2684201000001', position='Query'),
+  toUserType?: int32(name='ToUserType', example='0', position='Body'),
+  transferAccount?: string(name='TransferAccount', example='12323', position='Body'),
+}
+
+model CheckAccountExistResponseBody = {
+  data?: {
+    accountId?: string(name='AccountId', example='1990699401005016'),
+    nickName?: string(name='NickName', example='01'),
+    pk?: string(name='Pk', example='1904635303738977'),
+    result?: boolean(name='Result', example='True'),
+  }(name='Data'),
+  requestId?: string(name='RequestId', example='UUID'),
+}
+
+model CheckAccountExistResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: CheckAccountExistResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of CheckAccountExist  CheckAccountExistRequest
+  * @return CheckAccountExistResponse
+ */
+async function checkAccountExist(request: CheckAccountExistRequest): CheckAccountExistResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'CheckAccountExist', 'POST', '/', 'json', true, 'form', request);
 }
 
 model CreateCostCenterRequest {
@@ -1704,6 +1769,44 @@ async function modifyCostCenterRule(request: ModifyCostCenterRuleRequest): Modif
   return @handler.do('RPC', 'ModifyCostCenterRule', 'POST', '/', 'json', true, 'form', request);
 }
 
+model PayOrderRequest {
+  buyerId: long(name='BuyerId', description='This parameter is required.', example='1178418164369806', position='Query'),
+  ecIdAccountIds?: [ 
+    {
+      accountIds?: [ long ](name='AccountIds'),
+      ecId?: string(name='EcId', example='123'),
+    }
+  ](name='EcIdAccountIds', position='Query'),
+  nbid?: string(name='Nbid', example='26888345', position='Query'),
+  orderId: long(name='OrderId', description='This parameter is required.', example='260591304500425', position='Query'),
+  paySubmitUid: long(name='PaySubmitUid', description='This parameter is required.', example='201437655683478597', position='Query'),
+  payerId: long(name='PayerId', description='This parameter is required.', example='201437655683478597', position='Query'),
+  token: string(name='Token', description='This parameter is required.', example='eyJwYWdlTnVtIjoyLCJwYWdlU2l6ZSI6MTB9', position='Query'),
+}
+
+model PayOrderResponseBody = {
+  metadata?: any(name='Metadata', example='{}'),
+  orderId?: long(name='OrderId', example='260591304500425'),
+  payStatus?: long(name='PayStatus', example='1'),
+  payerId?: long(name='PayerId', example='201437655683478597'),
+  requestId?: string(name='RequestId', example='D6E068C3-25BC-455A-85FE-45F0B22ECB1F'),
+}
+
+model PayOrderResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: PayOrderResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of PayOrder  PayOrderRequest
+  * @return PayOrderResponse
+ */
+async function payOrder(request: PayOrderRequest): PayOrderResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'PayOrder', 'POST', '/', 'json', false, 'json', request);
+}
+
 model QueryCostCenterRequest {
   currentPage: int32(name='CurrentPage', description='This parameter is required.', example='1', position='Query'),
   ecIdAccountIds?: [ 
@@ -1769,6 +1872,9 @@ model QueryCostCenterResourceRequest {
 model QueryCostCenterResourceResponseBody = {
   costCenterResourceDtoList?: [ 
     {
+      addStrategy?: string(name='AddStrategy', example='AUTO_ALLOCATE'),
+      addStrategyName?: string(name='AddStrategyName', example='自动分配'),
+      applicablePeriodNum?: long(name='ApplicablePeriodNum', example='3'),
       apportionItemCode?: string(name='ApportionItemCode', example='test'),
       apportionItemName?: string(name='ApportionItemName', example='test'),
       commodityCode?: string(name='CommodityCode', example='otsbag'),
@@ -1778,12 +1884,18 @@ model QueryCostCenterResourceResponseBody = {
       costCenterId?: long(name='CostCenterId', example='123456'),
       costCenterName?: string(name='CostCenterName', example='test'),
       costCenterUpdateTime?: string(name='CostCenterUpdateTime', example='2025-05-18 16:12:25'),
+      financeUnitRuleVersion?: long(name='FinanceUnitRuleVersion', example='3'),
       instanceId?: string(name='InstanceId'),
+      masterCommodityCode?: string(name='MasterCommodityCode', example='ecs'),
+      masterInstanceId?: string(name='MasterInstanceId', example='i-xxxxx'),
       ownerAccountId?: long(name='OwnerAccountId', example='1234567812345678'),
-      ownerAccountName?: string(name='OwnerAccountName'),
+      ownerAccountName?: string(name='OwnerAccountName', example='XXX公司'),
       parentCostCenterId?: long(name='ParentCostCenterId', example='123456'),
       pipCode?: string(name='PipCode', example='rds'),
       pipName?: string(name='PipName'),
+      recentBillingMonth?: long(name='RecentBillingMonth', example='202509'),
+      regionName?: string(name='RegionName', example='上海'),
+      regionNo?: string(name='RegionNo', example='cn-shanghai'),
       resourceGroup?: string(name='ResourceGroup'),
       resourceId?: string(name='ResourceId', example='OSSBAG-cn-v0h1s4hma018'),
       resourceNick?: string(name='ResourceNick', example='testResource'),
@@ -1794,6 +1906,7 @@ model QueryCostCenterResourceResponseBody = {
       resourceUserId?: long(name='ResourceUserId', example='1234567812345678'),
       resourceUserName?: string(name='ResourceUserName', example='test@test.aliyun.com'),
       rootCostCenterId?: long(name='RootCostCenterId', example='-1'),
+      startBillingMonth?: long(name='StartBillingMonth', example='202509'),
     }
   ](name='CostCenterResourceDtoList'),
   maxResults?: int32(name='MaxResults', example='200'),
@@ -1898,6 +2011,7 @@ model QueryCostCenterShareRuleResponseBody = {
           rootCostCenterId?: long(name='RootCostCenterId', example='583050'),
         }
       ](name='FromCostCenterShareRuleDetails'),
+      gmtModified?: string(name='GmtModified', example='2026-01-01 00:00:00'),
       ownerAccountId?: long(name='OwnerAccountId', example='1529600453335198'),
       shareRuleId?: long(name='ShareRuleId', example='1826'),
       shareRuleName?: string(name='ShareRuleName', example='test'),
