@@ -28,6 +28,16 @@ function getEndpoint(productId: string, regionId: string, endpointRule: string, 
   return EndpointUtil.getEndpointRules(productId, regionId, endpointRule, network, suffix);
 }
 
+model AddressGroup {
+  addresses?: [ string ](name='Addresses'),
+  ports?: [ 
+    {
+      begin?: int32(name='Begin'),
+      end?: int32(name='End'),
+    }
+  ](name='Ports'),
+}
+
 model AuthReportInterval {
   timeUnit?: string(name='TimeUnit'),
   value?: long(name='Value'),
@@ -77,6 +87,27 @@ model DisposalContent {
   notifyActions?: [ string ](name='NotifyActions', description='This parameter is required.', nullable=true),
   prohibitActions?: [ string ](name='ProhibitActions'),
   prohibitSoftwareIds?: [ string ](name='ProhibitSoftwareIds'),
+}
+
+model ExecutePeriod {
+  effectDay?: {
+    friday?: boolean(name='Friday'),
+    monday?: boolean(name='Monday'),
+    saturday?: boolean(name='Saturday'),
+    sunday?: boolean(name='Sunday'),
+    thursday?: boolean(name='Thursday'),
+    tuesday?: boolean(name='Tuesday'),
+    wednesday?: boolean(name='Wednesday'),
+  }(name='EffectDay'),
+  effectTime?: {
+    end?: string(name='End'),
+    start?: string(name='Start'),
+  }(name='EffectTime'),
+  scheduleEffect?: {
+    frequency?: string(name='Frequency'),
+    interval?: long(name='Interval'),
+  }(name='ScheduleEffect'),
+  validType?: string(name='ValidType'),
 }
 
 model IdpAttrMapConfig {
@@ -1086,13 +1117,15 @@ async function createIdpDepartment(request: CreateIdpDepartmentRequest): CreateI
 }
 
 model CreatePrivateAccessApplicationRequest {
-  addresses?: [ string ](name='Addresses', description='The addresses of the office applications. You can enter up to 1,000 addresses of office applications.
-
-This parameter is required.'),
+  addressGroups?: [
+    AddressGroup
+  ](name='AddressGroups'),
+  addresses?: [ string ](name='Addresses', description='The addresses of the office applications. You can enter up to 1,000 addresses of office applications.'),
   browserAccessStatus?: string(name='BrowserAccessStatus', description='Specifies whether to allow access from a browser. Default value: **Disabled**. Valid values:
 
 *   **Enabled**
 *   **Disabled**', example='Disabled'),
+  configMode?: string(name='ConfigMode'),
   description?: string(name='Description', description='The description of the office application. The value must be 1 to 128 characters in length and can contain letters, digits, periods (.), underscores (_), hyphens (-), and spaces.'),
   l7Config?: PAL7Config(name='L7Config', description='The browser access mode parameter. The parameter specifies the configurations of Layer 7 applications.'),
   l7ProxyDomainAutomaticPrefix?: string(name='L7ProxyDomainAutomaticPrefix', description='The browser access mode parameter. The parameter specifies the prefix of the domain name that the proxy gateway uses. The prefix must be 3 to 20 characters in length, and can contain lowercase letters, digits, and hyphens (-).', example='app-sample'),
@@ -1109,9 +1142,7 @@ This parameter is required.', example='80'),
 
 This parameter is required.', example='81'),
     }
-  ](name='PortRanges', description='The port ranges of the office applications. You can enter up to 65,535 port ranges. Multiple port ranges cannot be duplicated or overlapped.
-
-This parameter is required.'),
+  ](name='PortRanges', description='The port ranges of the office applications. You can enter up to 65,535 port ranges. Multiple port ranges cannot be duplicated or overlapped.'),
   protocol?: string(name='Protocol', description='The protocol that is used by the office application. Valid values:
 
 *   **All**
@@ -1129,13 +1160,15 @@ This parameter is required.', example='Enabled'),
 }
 
 model CreatePrivateAccessApplicationShrinkRequest {
-  addresses?: [ string ](name='Addresses', description='The addresses of the office applications. You can enter up to 1,000 addresses of office applications.
-
-This parameter is required.'),
+  addressGroups?: [
+    AddressGroup
+  ](name='AddressGroups'),
+  addresses?: [ string ](name='Addresses', description='The addresses of the office applications. You can enter up to 1,000 addresses of office applications.'),
   browserAccessStatus?: string(name='BrowserAccessStatus', description='Specifies whether to allow access from a browser. Default value: **Disabled**. Valid values:
 
 *   **Enabled**
 *   **Disabled**', example='Disabled'),
+  configMode?: string(name='ConfigMode'),
   description?: string(name='Description', description='The description of the office application. The value must be 1 to 128 characters in length and can contain letters, digits, periods (.), underscores (_), hyphens (-), and spaces.'),
   l7ConfigShrink?: string(name='L7Config', description='The browser access mode parameter. The parameter specifies the configurations of Layer 7 applications.'),
   l7ProxyDomainAutomaticPrefix?: string(name='L7ProxyDomainAutomaticPrefix', description='The browser access mode parameter. The parameter specifies the prefix of the domain name that the proxy gateway uses. The prefix must be 3 to 20 characters in length, and can contain lowercase letters, digits, and hyphens (-).', example='app-sample'),
@@ -1152,9 +1185,7 @@ This parameter is required.', example='80'),
 
 This parameter is required.', example='81'),
     }
-  ](name='PortRanges', description='The port ranges of the office applications. You can enter up to 65,535 port ranges. Multiple port ranges cannot be duplicated or overlapped.
-
-This parameter is required.'),
+  ](name='PortRanges', description='The port ranges of the office applications. You can enter up to 65,535 port ranges. Multiple port ranges cannot be duplicated or overlapped.'),
   protocol?: string(name='Protocol', description='The protocol that is used by the office application. Valid values:
 
 *   **All**
@@ -1200,11 +1231,17 @@ async function createPrivateAccessApplicationWithOptions(tmpReq: CreatePrivateAc
   }
   var body : map[string]any = {};
   var bodyFlat : map[string]any = {};
+  if (!Util.isUnset(request.addressGroups)) {
+    bodyFlat['AddressGroups'] = request.addressGroups;
+  }
   if (!Util.isUnset(request.addresses)) {
     bodyFlat['Addresses'] = request.addresses;
   }
   if (!Util.isUnset(request.browserAccessStatus)) {
     body['BrowserAccessStatus'] = request.browserAccessStatus;
+  }
+  if (!Util.isUnset(request.configMode)) {
+    body['ConfigMode'] = request.configMode;
   }
   if (!Util.isUnset(request.description)) {
     body['Description'] = request.description;
@@ -4175,6 +4212,9 @@ This parameter is required.', example='pa-application-e12860ef6c48****'),
 
 model GetPrivateAccessApplicationResponseBody = {
   application?: {
+    addressGroups?: [
+      AddressGroup
+    ](name='AddressGroups'),
     addresses?: [ string ](name='Addresses', description='The addresses of the office applications.'),
     applicationId?: string(name='ApplicationId', description='The ID of the office application.', example='pa-application-e12860ef6c48****'),
     autoGenerated?: int32(name='AutoGenerated'),
@@ -4182,6 +4222,7 @@ model GetPrivateAccessApplicationResponseBody = {
 
 *   **Enabled**
 *   **Disabled**', example='Enabled'),
+    configMode?: string(name='ConfigMode'),
     connectorIds?: [ string ](name='ConnectorIds', description='The IDs of connectors.'),
     createTime?: string(name='CreateTime', description='The creation time of the office application.', example='2022-08-30 16:50:32'),
     description?: string(name='Description', description='The description of the office application.'),
@@ -6630,10 +6671,14 @@ model ListPrivateAccessApplicationsRequest {
 model ListPrivateAccessApplicationsResponseBody = {
   applications?: [ 
     {
+      addressGroups?: [
+        AddressGroup
+      ](name='AddressGroups'),
       addresses?: [ string ](name='Addresses'),
       applicationId?: string(name='ApplicationId', example='pa-application-e12860ef6c48****'),
       autoGenerated?: int32(name='AutoGenerated'),
       browserAccessStatus?: string(name='BrowserAccessStatus'),
+      configMode?: string(name='ConfigMode'),
       connectorIds?: [ string ](name='ConnectorIds'),
       createTime?: string(name='CreateTime', example='2022-12-16 15:03:42'),
       description?: string(name='Description'),
@@ -7546,8 +7591,12 @@ model ListUserApplicationsResponseBody = {
   applications?: [ 
     {
       action?: string(name='Action', example='Block'),
+      addressGroups?: [
+        AddressGroup
+      ](name='AddressGroups'),
       addresses?: [ string ](name='Addresses'),
       applicationId?: string(name='ApplicationId', example='pa-application-b927baf3e592****'),
+      configMode?: string(name='ConfigMode'),
       name?: string(name='Name', example='private_access_application_name'),
       portRanges?: [ 
         {
@@ -9418,6 +9467,9 @@ async function updateNacUserCertStatus(request: UpdateNacUserCertStatusRequest):
 }
 
 model UpdatePrivateAccessApplicationRequest {
+  addressGroups?: [
+    AddressGroup
+  ](name='AddressGroups'),
   addresses?: [ string ](name='Addresses', description='The addresses of the office applications. You can enter up to 1,000 addresses of office applications.'),
   applicationId?: string(name='ApplicationId', description='The ID of the office application. You can obtain the value by calling the following operations:
 
@@ -9425,6 +9477,7 @@ model UpdatePrivateAccessApplicationRequest {
 *   [CreatePrivateAccessApplication](~~CreatePrivateAccessApplication~~): creates an office application.
 
 This parameter is required.', example='pa-application-e12860ef6c48****'),
+  configMode?: string(name='ConfigMode'),
   description?: string(name='Description', description='The description of the office application. The value must be 1 to 128 characters in length and can contain letters, digits, periods (.), underscores (_), hyphens (-), and spaces.', nullable=true),
   l7Config?: PAL7Config(name='L7Config', description='The browser access mode parameter. The parameter specifies the configurations of Layer 7 applications.'),
   l7ProxyDomainAutomaticPrefix?: string(name='L7ProxyDomainAutomaticPrefix', description='The browser access mode parameter. The parameter specifies the prefix of the domain name that the proxy gateway uses. The prefix must be 3 to 20 characters in length, and can contain lowercase letters, digits, and hyphens (-).', example='app1-xxx'),
@@ -9434,6 +9487,7 @@ This parameter is required.', example='pa-application-e12860ef6c48****'),
 
 *   **Cover**: uses the values of the **Addresses**, **PortRanges**, and **TagIds** parameters to overwrite the original addresses, port ranges, and tag IDs. This is the default value.
 *   **Append**: adds the values of the **Addresses**, **PortRanges**, and **TagIds** parameters respectively to the original addresses, port ranges, and tag IDs.', example='Cover'),
+  name?: string(name='Name'),
   portRanges?: [ 
     {
       begin?: int32(name='Begin', description='The start port. The start port must be less than or equal to the end port.', example='80'),
@@ -9453,6 +9507,9 @@ This parameter is required.', example='pa-application-e12860ef6c48****'),
 }
 
 model UpdatePrivateAccessApplicationShrinkRequest {
+  addressGroups?: [
+    AddressGroup
+  ](name='AddressGroups'),
   addresses?: [ string ](name='Addresses', description='The addresses of the office applications. You can enter up to 1,000 addresses of office applications.'),
   applicationId?: string(name='ApplicationId', description='The ID of the office application. You can obtain the value by calling the following operations:
 
@@ -9460,6 +9517,7 @@ model UpdatePrivateAccessApplicationShrinkRequest {
 *   [CreatePrivateAccessApplication](~~CreatePrivateAccessApplication~~): creates an office application.
 
 This parameter is required.', example='pa-application-e12860ef6c48****'),
+  configMode?: string(name='ConfigMode'),
   description?: string(name='Description', description='The description of the office application. The value must be 1 to 128 characters in length and can contain letters, digits, periods (.), underscores (_), hyphens (-), and spaces.', nullable=true),
   l7ConfigShrink?: string(name='L7Config', description='The browser access mode parameter. The parameter specifies the configurations of Layer 7 applications.'),
   l7ProxyDomainAutomaticPrefix?: string(name='L7ProxyDomainAutomaticPrefix', description='The browser access mode parameter. The parameter specifies the prefix of the domain name that the proxy gateway uses. The prefix must be 3 to 20 characters in length, and can contain lowercase letters, digits, and hyphens (-).', example='app1-xxx'),
@@ -9469,6 +9527,7 @@ This parameter is required.', example='pa-application-e12860ef6c48****'),
 
 *   **Cover**: uses the values of the **Addresses**, **PortRanges**, and **TagIds** parameters to overwrite the original addresses, port ranges, and tag IDs. This is the default value.
 *   **Append**: adds the values of the **Addresses**, **PortRanges**, and **TagIds** parameters respectively to the original addresses, port ranges, and tag IDs.', example='Cover'),
+  name?: string(name='Name'),
   portRanges?: [ 
     {
       begin?: int32(name='Begin', description='The start port. The start port must be less than or equal to the end port.', example='80'),
@@ -9513,11 +9572,17 @@ async function updatePrivateAccessApplicationWithOptions(tmpReq: UpdatePrivateAc
   }
   var body : map[string]any = {};
   var bodyFlat : map[string]any = {};
+  if (!Util.isUnset(request.addressGroups)) {
+    bodyFlat['AddressGroups'] = request.addressGroups;
+  }
   if (!Util.isUnset(request.addresses)) {
     bodyFlat['Addresses'] = request.addresses;
   }
   if (!Util.isUnset(request.applicationId)) {
     body['ApplicationId'] = request.applicationId;
+  }
+  if (!Util.isUnset(request.configMode)) {
+    body['ConfigMode'] = request.configMode;
   }
   if (!Util.isUnset(request.description)) {
     body['Description'] = request.description;
@@ -9536,6 +9601,9 @@ async function updatePrivateAccessApplicationWithOptions(tmpReq: UpdatePrivateAc
   }
   if (!Util.isUnset(request.modifyType)) {
     body['ModifyType'] = request.modifyType;
+  }
+  if (!Util.isUnset(request.name)) {
+    body['Name'] = request.name;
   }
   if (!Util.isUnset(request.portRanges)) {
     bodyFlat['PortRanges'] = request.portRanges;
@@ -9616,6 +9684,7 @@ This parameter is required.', example='OU=部门1,OU=SASE钉钉'),
   modifyType?: string(name='ModifyType', description='The modification type of the private access policy. Values:
 - **Cover** (default): Use the values of **ApplicationIds**, **UserGroupIds**, and **CustomUserAttributes** to overwrite the original application ID set, user group ID set, and custom user attribute set, respectively.
 - **Append**: Add the values provided in **ApplicationIds**, **UserGroupIds**, and **CustomUserAttributes** to the original application ID set, user group ID set, and custom user attribute set, respectively.', example='Cover'),
+  name?: string(name='Name'),
   policyAction?: string(name='PolicyAction', description='Action of the private access policy. Values:
 - **Block**: Block.
 - **Allow**: Allow.', example='Allow'),
@@ -9687,6 +9756,9 @@ async function updatePrivateAccessPolicyWithOptions(request: UpdatePrivateAccess
   }
   if (!Util.isUnset(request.modifyType)) {
     body['ModifyType'] = request.modifyType;
+  }
+  if (!Util.isUnset(request.name)) {
+    body['Name'] = request.name;
   }
   if (!Util.isUnset(request.policyAction)) {
     body['PolicyAction'] = request.policyAction;
