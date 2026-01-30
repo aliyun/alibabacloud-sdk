@@ -875,7 +875,7 @@ model AttachServerGroupsRequest {
   clientToken?: string(name='ClientToken', description='The client token that is used to ensure the idempotence of the request.
 
 You can use the client to generate the token, but you must make sure that the token is unique among different requests. The token can contain only ASCII characters and cannot exceed 64 characters in length. For more information, see [Ensure idempotence](https://help.aliyun.com/document_detail/25965.html).', example='123e4567-e89b-12d3-a456-42665544****'),
-  forceAttach?: boolean(name='ForceAttach', description='Specifies whether to add the existing Elastic Compute Service (ECS) instances or elastic container instances in the scaling group to the server group. Valid values:
+  forceAttach?: boolean(name='ForceAttach', description='Specifies whether to add the existing Elastic Compute Service (ECS) instances or elastic container instances (ECI) in the scaling group to the server group. Valid values:
 
 *   true
 *   false
@@ -891,21 +891,26 @@ This parameter is required.', example='cn-hangzhou'),
 This parameter is required.', example='asg-bp1fo0dbtsbmqa9h****'),
   serverGroups?: [ 
     {
-      port?: int32(name='Port', description='The port used by ECS instances or elastic container instances after being added as backend servers to the server group.
+      port?: int32(name='Port', description='The port used by ECS or ECI instances after being added as backend servers to the server group.
 
-Valid values: 1 to 65535.', example='22'),
+Valid values: 1 to 65535.
+
+> For ALB and NLB types, this parameter is required. GWLB type cannot set this parameter and the default value is 6081.', example='22'),
       serverGroupId?: string(name='ServerGroupId', description='The ID of the server group.
 
 This parameter is required.', example='sgp-5yc3bd9lfyh*****'),
-      type?: string(name='Type', description='The type of the server group. Valid values:
+      type?: string(name='Type', description='The type of the server group. Valid Values:
 
 *   ALB
 *   NLB
+*   GWLB
 
 This parameter is required.', example='ALB'),
-      weight?: int32(name='Weight', description='The weight of an ECS instance or elastic container instance as a backend server of the server group. Valid values: 0 to 100.
+      weight?: int32(name='Weight', description='The weight of an ECS or ECI instance as a backend server of the server group. Valid values: 0 to 100
 
-If you assign a higher weight to an instance, the instance is allocated a larger proportion of access requests. If you assign zero weight to an instance, the instance is allocated no access requests.', example='100'),
+If you assign a higher weight to an instance, the instance is allocated a larger proportion of access requests. If the weight is 0, the ECS or ECI instance does not receive access requests.
+
+> For ALB and NLB types, this parameter is required. GWLB type cannot be set.', example='100'),
     }
   ](name='ServerGroups', description='The information about the server groups.
 
@@ -926,7 +931,7 @@ model AttachServerGroupsResponse = {
 }
 
 /**
- * @summary Attaches server groups to a scaling group. To seamlessly adjust the number of instances in response to changes in your business workload or to maintain the uninterrupted accessibility of your application, you can call the AttachServerGroups operation. By attaching Application Load Balancer (ALB) or Network Load Balancer (NLB) server groups to your scaling group, this operation enables Auto Scaling to automatically tailor your computing capacity to your business needs. Furthermore, it optimizes traffic routing by dynamically allocating incoming requests based on current workload patterns, which significantly improves the stability and performance of your application.
+ * @summary Attaches server groups to a scaling group. To seamlessly adjust the number of instances in response to changes in your business workload or to maintain the uninterrupted accessibility of your application, you can call the AttachServerGroups operation. By attaching Application Load Balancer (ALB), Network Load Balancer (NLB), or Gateway Load Balancer (GWLB) server groups to your scaling group, this operation enables Auto Scaling to automatically tailor your computing capacity to your business needs. Furthermore, it optimizes traffic routing by dynamically allocating incoming requests based on current workload patterns, which significantly improves the stability and performance of your application.
  *
  * @param request AttachServerGroupsRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -975,7 +980,7 @@ async function attachServerGroupsWithOptions(request: AttachServerGroupsRequest,
 }
 
 /**
- * @summary Attaches server groups to a scaling group. To seamlessly adjust the number of instances in response to changes in your business workload or to maintain the uninterrupted accessibility of your application, you can call the AttachServerGroups operation. By attaching Application Load Balancer (ALB) or Network Load Balancer (NLB) server groups to your scaling group, this operation enables Auto Scaling to automatically tailor your computing capacity to your business needs. Furthermore, it optimizes traffic routing by dynamically allocating incoming requests based on current workload patterns, which significantly improves the stability and performance of your application.
+ * @summary Attaches server groups to a scaling group. To seamlessly adjust the number of instances in response to changes in your business workload or to maintain the uninterrupted accessibility of your application, you can call the AttachServerGroups operation. By attaching Application Load Balancer (ALB), Network Load Balancer (NLB), or Gateway Load Balancer (GWLB) server groups to your scaling group, this operation enables Auto Scaling to automatically tailor your computing capacity to your business needs. Furthermore, it optimizes traffic routing by dynamically allocating incoming requests based on current workload patterns, which significantly improves the stability and performance of your application.
  *
  * @param request AttachServerGroupsRequest
  * @return AttachServerGroupsResponse
@@ -2921,32 +2926,32 @@ Take note of the following items:
   instanceType?: string(name='InstanceType', description='The instance type of the ECS instance. For more information, see the [Instance families](https://help.aliyun.com/document_detail/25378.html) topic.', example='ecs.g6.large'),
   instanceTypeOverrides?: [ 
     {
-      instanceType?: string(name='InstanceType', description='Instance type N that you want to use to override the instance type that is specified in the launch template.
+      instanceType?: string(name='InstanceType', description='If you want to scale instances in the scaling group based on the weight of an instance type, you must specify this property and WeightedCapacity.
 
-If you want to trigger scale-outs based on the weighted capacities of instances, specify InstanceType and WeightedCapacity at the same time. You can specify N instance types by using the Extended Configurations feature. Valid values of N: 1 to 10.
+The instance type specified by using this parameter overwrites the instance type of the launch template. You can specify N instance types by using the Extend Launch Template feature. You can specify 1 to 10 memory sizes, indicated by N.
 
-> This parameter takes effect only if you specify LaunchTemplateId.
+>  This parameter takes effect only if you specify LaunchTemplateId.
 
-You can specify an instance type that is available for purchase as the value of InstanceType.', example='ecs.c5.xlarge'),
-      weightedCapacity?: int32(name='WeightedCapacity', description='The weight of instance type N. If you want to trigger scale-outs based on the weighted capacities of instances, you must specify WeightedCapacity after you specify InstanceType.
+You can use this parameter to specify any instance types that are available for purchase.', example='ecs.c5.xlarge'),
+      weightedCapacity?: int32(name='WeightedCapacity', description='If you need to specify the capacity of the instance type in the scaling configuration, you must specify this parameter after you specify InstanceTypeOverrides.InstanceType.
 
-The weight of an instance type specifies the capacity of an instance of the instance type in the scaling group. A higher weight specifies that a smaller number of instances of the specified instance type is required to meet the expected capacity requirement.
+The weight specifies the capacity of an instance of the specified instance type in the scaling group. A higher weight specifies that a smaller number of instances of the specified instance type are required to meet the expected capacity requirement.
 
-Performance metrics, such as the number of vCPUs and the memory size of each instance type, may vary. You can specify different weights for different instance types based on your business requirements.
+Performance metrics such as the number of vCPUs and memory size vary with each instance type. You can specify different weights for different instance types based on your business requirements.
 
-Example:
+For example:
 
-*   Current capacity: 0
+*   Current capacity: 0.
 *   Expected capacity: 6
-*   Capacity of ecs.c5.xlarge: 4
+*   Capacity of ecs.c5.xlarge: 4.
 
-To meet the expected capacity requirement, Auto Scaling must create and add two ecs.c5.xlarge instances.
+To reach the expected capacity, Auto Scaling must scale out two instances of ecs.c5.xlarge.
 
-> The capacity of the scaling group cannot exceed the sum of the maximum number of instances that is specified by MaxSize and the maximum weight of the instance types.
+>  The total capacity of the scaling group is constrained and cannot surpass the combined total of the maximum group size defined by MaxSize and the highest weight assigned to any instance type.
 
 Valid values of WeightedCapacity: 1 to 500.', example='4'),
     }
-  ](name='InstanceTypeOverrides', description='The instance types.'),
+  ](name='InstanceTypeOverrides', description='The information about instance types.'),
   instanceTypes?: [ string ](name='InstanceTypes', description='The instance types. If you specify InstanceTypes, InstanceType is ignored.
 
 Auto Scaling creates instances based on a priority list of instance types. If it fails to create instances using the highest-priority type, it automatically moves to the next type in the priority order.'),
@@ -2986,6 +2991,7 @@ You can specify the number of vCPUs and the memory size to determine the range o
       instanceType?: string(name='InstanceType', example='Primary'),
       ipv6AddressCount?: int32(name='Ipv6AddressCount', example='1'),
       networkInterfaceTrafficMode?: string(name='NetworkInterfaceTrafficMode', example='HighPerformance'),
+      secondaryPrivateIpAddressCount?: int32(name='SecondaryPrivateIpAddressCount'),
       securityGroupIds?: [ string ](name='SecurityGroupIds'),
     }
   ](name='NetworkInterfaces'),
@@ -3048,10 +3054,10 @@ Default value: 1', example='1'),
   spotInterruptionBehavior?: string(name='SpotInterruptionBehavior', description='The interruption mode of the preemptible instance. Set the value to Terminate. The value specifies that the preemptible instance is to be released.', example='Terminate'),
   spotPriceLimits?: [ 
     {
-      instanceType?: string(name='InstanceType', description='The instance type of the preemptible instance. This parameter takes effect only if you set SpotStrategy to SpotWithPriceLimit.', example='ecs.g6.large'),
-      priceLimit?: float(name='PriceLimit', description='The price limit of the preemptible instance. This parameter takes effect only if you set SpotStrategy to SpotWithPriceLimit.', example='0.5'),
+      instanceType?: string(name='InstanceType', description='The instance type of the spot instances. This parameter takes effect only if you set SpotStrategy to SpotWithPriceLimit.', example='ecs.g6.large'),
+      priceLimit?: float(name='PriceLimit', description='The price limit of the spot instances. This parameter takes effect only if you set SpotStrategy to SpotWithPriceLimit.', example='0.5'),
     }
-  ](name='SpotPriceLimits', description='The billing information of the preemptible instances.'),
+  ](name='SpotPriceLimits', description='The billing information of the spot instances.'),
   spotStrategy?: string(name='SpotStrategy', description='The preemption policy that you want to apply to pay-as-you-go and preemptible instances. Valid values:
 
 *   NoSpot: The instance is created as a pay-as-you-go instance.
@@ -3391,32 +3397,32 @@ Take note of the following items:
   instanceType?: string(name='InstanceType', description='The instance type of the ECS instance. For more information, see the [Instance families](https://help.aliyun.com/document_detail/25378.html) topic.', example='ecs.g6.large'),
   instanceTypeOverrides?: [ 
     {
-      instanceType?: string(name='InstanceType', description='Instance type N that you want to use to override the instance type that is specified in the launch template.
+      instanceType?: string(name='InstanceType', description='If you want to scale instances in the scaling group based on the weight of an instance type, you must specify this property and WeightedCapacity.
 
-If you want to trigger scale-outs based on the weighted capacities of instances, specify InstanceType and WeightedCapacity at the same time. You can specify N instance types by using the Extended Configurations feature. Valid values of N: 1 to 10.
+The instance type specified by using this parameter overwrites the instance type of the launch template. You can specify N instance types by using the Extend Launch Template feature. You can specify 1 to 10 memory sizes, indicated by N.
 
-> This parameter takes effect only if you specify LaunchTemplateId.
+>  This parameter takes effect only if you specify LaunchTemplateId.
 
-You can specify an instance type that is available for purchase as the value of InstanceType.', example='ecs.c5.xlarge'),
-      weightedCapacity?: int32(name='WeightedCapacity', description='The weight of instance type N. If you want to trigger scale-outs based on the weighted capacities of instances, you must specify WeightedCapacity after you specify InstanceType.
+You can use this parameter to specify any instance types that are available for purchase.', example='ecs.c5.xlarge'),
+      weightedCapacity?: int32(name='WeightedCapacity', description='If you need to specify the capacity of the instance type in the scaling configuration, you must specify this parameter after you specify InstanceTypeOverrides.InstanceType.
 
-The weight of an instance type specifies the capacity of an instance of the instance type in the scaling group. A higher weight specifies that a smaller number of instances of the specified instance type is required to meet the expected capacity requirement.
+The weight specifies the capacity of an instance of the specified instance type in the scaling group. A higher weight specifies that a smaller number of instances of the specified instance type are required to meet the expected capacity requirement.
 
-Performance metrics, such as the number of vCPUs and the memory size of each instance type, may vary. You can specify different weights for different instance types based on your business requirements.
+Performance metrics such as the number of vCPUs and memory size vary with each instance type. You can specify different weights for different instance types based on your business requirements.
 
-Example:
+For example:
 
-*   Current capacity: 0
+*   Current capacity: 0.
 *   Expected capacity: 6
-*   Capacity of ecs.c5.xlarge: 4
+*   Capacity of ecs.c5.xlarge: 4.
 
-To meet the expected capacity requirement, Auto Scaling must create and add two ecs.c5.xlarge instances.
+To reach the expected capacity, Auto Scaling must scale out two instances of ecs.c5.xlarge.
 
-> The capacity of the scaling group cannot exceed the sum of the maximum number of instances that is specified by MaxSize and the maximum weight of the instance types.
+>  The total capacity of the scaling group is constrained and cannot surpass the combined total of the maximum group size defined by MaxSize and the highest weight assigned to any instance type.
 
 Valid values of WeightedCapacity: 1 to 500.', example='4'),
     }
-  ](name='InstanceTypeOverrides', description='The instance types.'),
+  ](name='InstanceTypeOverrides', description='The information about instance types.'),
   instanceTypes?: [ string ](name='InstanceTypes', description='The instance types. If you specify InstanceTypes, InstanceType is ignored.
 
 Auto Scaling creates instances based on a priority list of instance types. If it fails to create instances using the highest-priority type, it automatically moves to the next type in the priority order.'),
@@ -3456,6 +3462,7 @@ You can specify the number of vCPUs and the memory size to determine the range o
       instanceType?: string(name='InstanceType', example='Primary'),
       ipv6AddressCount?: int32(name='Ipv6AddressCount', example='1'),
       networkInterfaceTrafficMode?: string(name='NetworkInterfaceTrafficMode', example='HighPerformance'),
+      secondaryPrivateIpAddressCount?: int32(name='SecondaryPrivateIpAddressCount'),
       securityGroupIds?: [ string ](name='SecurityGroupIds'),
     }
   ](name='NetworkInterfaces'),
@@ -3518,10 +3525,10 @@ Default value: 1', example='1'),
   spotInterruptionBehavior?: string(name='SpotInterruptionBehavior', description='The interruption mode of the preemptible instance. Set the value to Terminate. The value specifies that the preemptible instance is to be released.', example='Terminate'),
   spotPriceLimits?: [ 
     {
-      instanceType?: string(name='InstanceType', description='The instance type of the preemptible instance. This parameter takes effect only if you set SpotStrategy to SpotWithPriceLimit.', example='ecs.g6.large'),
-      priceLimit?: float(name='PriceLimit', description='The price limit of the preemptible instance. This parameter takes effect only if you set SpotStrategy to SpotWithPriceLimit.', example='0.5'),
+      instanceType?: string(name='InstanceType', description='The instance type of the spot instances. This parameter takes effect only if you set SpotStrategy to SpotWithPriceLimit.', example='ecs.g6.large'),
+      priceLimit?: float(name='PriceLimit', description='The price limit of the spot instances. This parameter takes effect only if you set SpotStrategy to SpotWithPriceLimit.', example='0.5'),
     }
-  ](name='SpotPriceLimits', description='The billing information of the preemptible instances.'),
+  ](name='SpotPriceLimits', description='The billing information of the spot instances.'),
   spotStrategy?: string(name='SpotStrategy', description='The preemption policy that you want to apply to pay-as-you-go and preemptible instances. Valid values:
 
 *   NoSpot: The instance is created as a pay-as-you-go instance.
@@ -4098,17 +4105,20 @@ ScalingPolicy specifies the reclaim mode of the scaling group. RemovePolicy of t
     {
       port?: int32(name='Port', description='The port number used by each ECS instance as backend server in the vServer group. Valid values: 1 to 65535.', example='22'),
       serverGroupId?: string(name='ServerGroupId', description='The ID of the server group.', example='sgp-5yc3bd9lfyh*****'),
-      type?: string(name='Type', description='The type of the server group. Valid values:
+      type?: string(name='Type', description='The type of server group N. Valid Values:
 
 *   ALB
-*   NLB', example='ALB'),
+*   NLB
+*   GWLB', example='ALB'),
       weight?: int32(name='Weight', description='The weight of each ECS instance as a backend server in the server group. Valid values: 0 to 100.
 
-If you increase the weight for an ECS instance, the number of requests that are forwarded to the ECS instance also increases. If you set the weight for an ECS instance to 0, no requests are forwarded to the ECS instance.', example='100'),
-    }
-  ](name='ServerGroups', description='The server groups.
+The higher the weight, the more access requests the instance will be assigned. If the weight is 0, the instance will not receive any access requests.
 
->  You cannot use AlbServerGroups and ServerGroups to specify the same server group.'),
+> For ALB and NLB types, this parameter is required. GWLB type cannot be set.', example='100'),
+    }
+  ](name='ServerGroups', description='The information about the server groups.
+
+> You cannot use AlbServerGroups and ServerGroups to specify the same server group.'),
   spotAllocationStrategy?: string(name='SpotAllocationStrategy', description='The allocation policy of preemptible instances. You can use this parameter to individually specify the allocation policy of preemptible instances. This parameter takes effect only if you set the `MultiAZPolicy` parameter to `COMPOSABLE`. Valid values:
 
 *   priority: Auto Scaling selects instance types based on the specified order of the instance types to create the required number of preemptible instances.
@@ -4138,7 +4148,7 @@ Default value: priority.', example='lowestPrice'),
 Default value: false.', example='false'),
       value?: string(name='Value', description='The tag value of the scaling group.', example='Finance'),
     }
-  ](name='Tags', description='The information about the tags of the scaling group.'),
+  ](name='Tags', description='The collection of tag information for the scaling group.'),
   VServerGroups?: [ 
     {
       loadBalancerId?: string(name='LoadBalancerId', description='The ID of the CLB instance to which the backend vServer group belongs.', example='lb-bp1u7etiogg38yvwz****'),
@@ -4183,26 +4193,26 @@ model CreateScalingGroupResponse = {
  *
  * @description A scaling group is a group of Elastic Compute Service (ECS) instances that can be used for similar purposes.
  * You can create only a limited number of scaling groups in a region. To check the quota of the scaling groups, go to Quota Center.
- * A scaling group does not immediately take effect after you create the scaling group. You can call the [EnableScalingGroup](https://help.aliyun.com/document_detail/25939.html) operation to enable a scaling group. You can trigger scaling events and execute scaling rules only in scaling groups that are in the Enabled state.
+ * A scaling group does not immediately take effect after you create it. You can call the [EnableScalingGroup](https://help.aliyun.com/document_detail/25939.html) operation to enable a scaling group. You can trigger scaling events and execute scaling rules only in scaling groups that are in the Enabled state.
  * If you want to attach a Classic Load Balancer (CLB, formerly known as SLB) instance and an ApsaraDB RDS instance to the scaling group that you want to create, the scaling group, the CLB instance, and the ApsaraDB RDS instance must reside in the same region. For more information, see [Regions and zones](https://help.aliyun.com/document_detail/40654.html).
  * If you attach a CLB instance to the scaling group that you want to create, Auto Scaling automatically adds the ECS instances in the scaling group to the backend server groups of the CLB instance. You can specify the following types of server groups to add ECS instances:
  * *   Default server group: ECS instances in this group process frontend requests. If no listeners are configured for vServer groups or primary/secondary server groups, the frontend requests are forwarded to the ECS instances in the default server group.
  * *   vServer group: If you want to forward different requests to different backend servers, or you want to forward requests based on domain names or URLs, you can specify vServer groups.
- * >  If you specify both the default server group and multiple server groups simultaneously, Auto Scaling adds the ECS instances in your scaling group to these server groups concurrently.
- * The default weight of each ECS instance as a backend server is 50. If you want to attach a CLB instance to the scaling group that you want to create, make sure that the CLB instance meets the following requirements:
+ * >  If you specify both the default server group and multiple VServer groups, the ECS instances are added to these server groups.
+ * The default weight of each ECS instance as a backend server is 50. The CLB instance must meet the following requirements:
  * *   The CLB instance is in the Active state. You can call the [DescribeLoadBalancers](https://help.aliyun.com/document_detail/2401696.html) operation to query the status of CLB instances.
- * *   Health check must be enabled on all listener ports configured for the CLB instance. Otherwise, the scaling group will fail to be created.
- * If you attach Application Load Balancer (ALB) or Network Load Balancer (NLB) server groups to the scaling group that you want to create, Auto Scaling adds the ECS instances in your scaling group to the ALB or NLB server groups to process the access requests forwarded by the corresponding ALB or NLB instances. You can attach multiple ALB or NLB server groups to a scaling group. Make sure that the ALB or NLB server groups belong to the same virtual private cloud (VPC). For more information, see [AttachAlbServerGroups](https://help.aliyun.com/document_detail/266800.html) or [AttachServerGroups](https://help.aliyun.com/document_detail/600535.html).
- * If you attach an ApsaraDB RDS instance to the scaling group that you want to create, Auto Scaling automatically adds the private IP addresses of the ECS instances in your scaling group to the IP address whitelist of the ApsaraDB RDS instance. Before you attach an ApsaraDB RDS instance to your scaling group, make sure that the ApsaraDB RDS instance meets the following requirements:
- * *   The ApsaraDB RDS instance is in the Running state. You can call the [DescribeDBInstances](https://help.aliyun.com/document_detail/610396.html) state to query the status of ApsaraDB RDS instances.
- * *   The number of IP addresses in the IP address whitelist of the ApsaraDB RDS instance does not reach its upper limit. For more information, see [Configure a whitelist](https://help.aliyun.com/document_detail/43185.html).
- * If you set MultiAZPolicy for the scaling group that you want to create to COST_OPTIMIZED, the following rules apply:
- * *   If you use OnDemandBaseCapacity, OnDemandPercentageAboveBaseCapacity, and SpotInstancePools to specify the instance allocation mode under the cost optimization policy, Auto Scaling prioritizes the implementation of the specified instance allocation mode during scale-out events.
+ * *   All listening ports configured for the CLB instance must be health check. Otherwise, the scaling group fails to be created.
+ * If you attach Application Load Balancer (ALB), Network Load Balancer (NLB), or Gateway Load Balancer (GWLB) server groups to the scaling group that you want to create, Auto Scaling adds the ECS instances in your scaling group to the ALB or NLB server groups to process the access requests forwarded by the corresponding ALB or NLB instances. You can specify multiple ALB, NLB, or GWLB server groups, but the server groups must belong to the same VPC as the scaling group. For more information, see [AttachAlbServerGroups](https://help.aliyun.com/document_detail/266800.html) or [AttachServerGroups](https://help.aliyun.com/document_detail/600535.html).
+ * If you associate an RDS instance with the scaling group, the scaling group will automatically add the internal IP addresses of ECS instances that join the scaling group to the access whitelist of the RDS instance. The RDS instance must meet the following requirements:
+ * *   The RDS instance must be in the Running state. You can call the [DescribeDBInstances](https://help.aliyun.com/document_detail/610396.html) operation to view the status of the specified RDS instance.
+ * *   The number of IPs in the RDS instance\\"s access whitelist cannot exceed the upper limit. For more information, see [Configure a whitelist](https://help.aliyun.com/document_detail/43185.html).
+ * If the MultiAZPolicy for the scaling group is set to COST_OPTIMIZED, the following rules apply:
+ * *   When you specify OnDemandBaseCapacity, OnDemandPercentageAboveBaseCapacity, and SpotInstancePools parameters (i.e., defining the instance allocation method under the cost optimization policy), Auto Scaling will prioritize this allocation method during scaling operations.
  * *   If you do not specify OnDemandBaseCapacity, OnDemandPercentageAboveBaseCapacity, or SpotInstancePools, Auto Scaling preferentially creates instances of the lowest-priced instance type based on the cost optimization policy.
  * If you set `Tags.Propagate` to true, the following rules will apply:
- * *   Tags that you add to the scaling group cannot be propagated to existing instances in the scaling group. Tags that you add to the scaling group are propagated to only new instances.
- * *   If you specify instance tags in the scaling configuration that is used to create instances and propagate the tags that you add to the scaling group to the instances, all tags exist at the same time.
- * *   If the tag key that you specify in a scaling configuration and the tag key that you add to the scaling group of the scaling configuration are the same, the tag value that you specify in the scaling configuration is preferentially used.
+ * *   Tags added to the scaling group will only propagate to newly created instances and will not affect instances already running within the scaling group.
+ * *   If instance tags are specified in the scaling configuration and the scaling group’s tags are propagated to the instance, all tags will coexist.
+ * *   If the tag key specified in the scaling configuration matches a tag key in the scaling group, the tag value from the scaling configuration will take precedence.
  *
  * @param request CreateScalingGroupRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -4381,26 +4391,26 @@ async function createScalingGroupWithOptions(request: CreateScalingGroupRequest,
  *
  * @description A scaling group is a group of Elastic Compute Service (ECS) instances that can be used for similar purposes.
  * You can create only a limited number of scaling groups in a region. To check the quota of the scaling groups, go to Quota Center.
- * A scaling group does not immediately take effect after you create the scaling group. You can call the [EnableScalingGroup](https://help.aliyun.com/document_detail/25939.html) operation to enable a scaling group. You can trigger scaling events and execute scaling rules only in scaling groups that are in the Enabled state.
+ * A scaling group does not immediately take effect after you create it. You can call the [EnableScalingGroup](https://help.aliyun.com/document_detail/25939.html) operation to enable a scaling group. You can trigger scaling events and execute scaling rules only in scaling groups that are in the Enabled state.
  * If you want to attach a Classic Load Balancer (CLB, formerly known as SLB) instance and an ApsaraDB RDS instance to the scaling group that you want to create, the scaling group, the CLB instance, and the ApsaraDB RDS instance must reside in the same region. For more information, see [Regions and zones](https://help.aliyun.com/document_detail/40654.html).
  * If you attach a CLB instance to the scaling group that you want to create, Auto Scaling automatically adds the ECS instances in the scaling group to the backend server groups of the CLB instance. You can specify the following types of server groups to add ECS instances:
  * *   Default server group: ECS instances in this group process frontend requests. If no listeners are configured for vServer groups or primary/secondary server groups, the frontend requests are forwarded to the ECS instances in the default server group.
  * *   vServer group: If you want to forward different requests to different backend servers, or you want to forward requests based on domain names or URLs, you can specify vServer groups.
- * >  If you specify both the default server group and multiple server groups simultaneously, Auto Scaling adds the ECS instances in your scaling group to these server groups concurrently.
- * The default weight of each ECS instance as a backend server is 50. If you want to attach a CLB instance to the scaling group that you want to create, make sure that the CLB instance meets the following requirements:
+ * >  If you specify both the default server group and multiple VServer groups, the ECS instances are added to these server groups.
+ * The default weight of each ECS instance as a backend server is 50. The CLB instance must meet the following requirements:
  * *   The CLB instance is in the Active state. You can call the [DescribeLoadBalancers](https://help.aliyun.com/document_detail/2401696.html) operation to query the status of CLB instances.
- * *   Health check must be enabled on all listener ports configured for the CLB instance. Otherwise, the scaling group will fail to be created.
- * If you attach Application Load Balancer (ALB) or Network Load Balancer (NLB) server groups to the scaling group that you want to create, Auto Scaling adds the ECS instances in your scaling group to the ALB or NLB server groups to process the access requests forwarded by the corresponding ALB or NLB instances. You can attach multiple ALB or NLB server groups to a scaling group. Make sure that the ALB or NLB server groups belong to the same virtual private cloud (VPC). For more information, see [AttachAlbServerGroups](https://help.aliyun.com/document_detail/266800.html) or [AttachServerGroups](https://help.aliyun.com/document_detail/600535.html).
- * If you attach an ApsaraDB RDS instance to the scaling group that you want to create, Auto Scaling automatically adds the private IP addresses of the ECS instances in your scaling group to the IP address whitelist of the ApsaraDB RDS instance. Before you attach an ApsaraDB RDS instance to your scaling group, make sure that the ApsaraDB RDS instance meets the following requirements:
- * *   The ApsaraDB RDS instance is in the Running state. You can call the [DescribeDBInstances](https://help.aliyun.com/document_detail/610396.html) state to query the status of ApsaraDB RDS instances.
- * *   The number of IP addresses in the IP address whitelist of the ApsaraDB RDS instance does not reach its upper limit. For more information, see [Configure a whitelist](https://help.aliyun.com/document_detail/43185.html).
- * If you set MultiAZPolicy for the scaling group that you want to create to COST_OPTIMIZED, the following rules apply:
- * *   If you use OnDemandBaseCapacity, OnDemandPercentageAboveBaseCapacity, and SpotInstancePools to specify the instance allocation mode under the cost optimization policy, Auto Scaling prioritizes the implementation of the specified instance allocation mode during scale-out events.
+ * *   All listening ports configured for the CLB instance must be health check. Otherwise, the scaling group fails to be created.
+ * If you attach Application Load Balancer (ALB), Network Load Balancer (NLB), or Gateway Load Balancer (GWLB) server groups to the scaling group that you want to create, Auto Scaling adds the ECS instances in your scaling group to the ALB or NLB server groups to process the access requests forwarded by the corresponding ALB or NLB instances. You can specify multiple ALB, NLB, or GWLB server groups, but the server groups must belong to the same VPC as the scaling group. For more information, see [AttachAlbServerGroups](https://help.aliyun.com/document_detail/266800.html) or [AttachServerGroups](https://help.aliyun.com/document_detail/600535.html).
+ * If you associate an RDS instance with the scaling group, the scaling group will automatically add the internal IP addresses of ECS instances that join the scaling group to the access whitelist of the RDS instance. The RDS instance must meet the following requirements:
+ * *   The RDS instance must be in the Running state. You can call the [DescribeDBInstances](https://help.aliyun.com/document_detail/610396.html) operation to view the status of the specified RDS instance.
+ * *   The number of IPs in the RDS instance\\"s access whitelist cannot exceed the upper limit. For more information, see [Configure a whitelist](https://help.aliyun.com/document_detail/43185.html).
+ * If the MultiAZPolicy for the scaling group is set to COST_OPTIMIZED, the following rules apply:
+ * *   When you specify OnDemandBaseCapacity, OnDemandPercentageAboveBaseCapacity, and SpotInstancePools parameters (i.e., defining the instance allocation method under the cost optimization policy), Auto Scaling will prioritize this allocation method during scaling operations.
  * *   If you do not specify OnDemandBaseCapacity, OnDemandPercentageAboveBaseCapacity, or SpotInstancePools, Auto Scaling preferentially creates instances of the lowest-priced instance type based on the cost optimization policy.
  * If you set `Tags.Propagate` to true, the following rules will apply:
- * *   Tags that you add to the scaling group cannot be propagated to existing instances in the scaling group. Tags that you add to the scaling group are propagated to only new instances.
- * *   If you specify instance tags in the scaling configuration that is used to create instances and propagate the tags that you add to the scaling group to the instances, all tags exist at the same time.
- * *   If the tag key that you specify in a scaling configuration and the tag key that you add to the scaling group of the scaling configuration are the same, the tag value that you specify in the scaling configuration is preferentially used.
+ * *   Tags added to the scaling group will only propagate to newly created instances and will not affect instances already running within the scaling group.
+ * *   If instance tags are specified in the scaling configuration and the scaling group’s tags are propagated to the instance, all tags will coexist.
+ * *   If the tag key specified in the scaling configuration matches a tag key in the scaling group, the tag value from the scaling configuration will take precedence.
  *
  * @param request CreateScalingGroupRequest
  * @return CreateScalingGroupResponse
@@ -5036,12 +5046,16 @@ async function deleteAlarm(request: DeleteAlarmRequest): DeleteAlarmResponse {
 }
 
 model DeleteDiagnoseReportRequest {
-  regionId?: string(name='RegionId', description='This parameter is required.', example='cn-hangzhou'),
-  reportId?: string(name='ReportId', description='This parameter is required.', example='dr-j6c7wvdzk5103xxxxx'),
+  regionId?: string(name='RegionId', description='The region ID
+
+This parameter is required.', example='cn-hangzhou'),
+  reportId?: string(name='ReportId', description='The ID of the diagnostic report.
+
+This parameter is required.', example='dr-j6c7wvdzk5103xxxxx'),
 }
 
 model DeleteDiagnoseReportResponseBody = {
-  requestId?: string(name='RequestId', example='473469C7-AA6F-4DC5-B3DB-A3DC0DE3****'),
+  requestId?: string(name='RequestId', description='The request ID.', example='473469C7-AA6F-4DC5-B3DB-A3DC0DE3****'),
 }
 
 model DeleteDiagnoseReportResponse = {
@@ -5051,7 +5065,7 @@ model DeleteDiagnoseReportResponse = {
 }
 
 /**
- * @summary DeleteDiagnoseReport
+ * @summary Deletes a health diagnosis report for a scaling group.
  *
  * @param request DeleteDiagnoseReportRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -5079,7 +5093,7 @@ async function deleteDiagnoseReportWithOptions(request: DeleteDiagnoseReportRequ
 }
 
 /**
- * @summary DeleteDiagnoseReport
+ * @summary Deletes a health diagnosis report for a scaling group.
  *
  * @param request DeleteDiagnoseReportRequest
  * @return DeleteDiagnoseReportResponse
@@ -7215,28 +7229,34 @@ async function describeElasticStrength(request: DescribeElasticStrengthRequest):
 }
 
 model DescribeInstanceCreateAndDeleteStatisticsRequest {
-  endTime?: string(name='EndTime', description='This parameter is required.', example='2025-12-18T08:00Z'),
+  endTime?: string(name='EndTime', description='The end time of the statistical interval. The time follows the ISO 8601 standard and uses UTC time.
+
+This parameter is required.', example='2025-12-18T08:00Z'),
   ownerId?: long(name='OwnerId'),
-  regionId?: string(name='RegionId', description='This parameter is required.', example='cn-hangzhou'),
+  regionId?: string(name='RegionId', description='The region ID
+
+This parameter is required.', example='cn-hangzhou'),
   resourceOwnerAccount?: string(name='ResourceOwnerAccount'),
   resourceOwnerId?: long(name='ResourceOwnerId'),
-  scalingGroupId?: string(name='ScalingGroupId', example='asg-2ze4057nqfbxxxxxxxx'),
-  startTime?: string(name='StartTime', description='This parameter is required.', example='2025-12-15T08:00Z'),
+  scalingGroupId?: string(name='ScalingGroupId', description='The ID of the scaling group.', example='asg-2ze4057nqfbxxxxxxxx'),
+  startTime?: string(name='StartTime', description='The start time of the statistical interval. The time follows the ISO 8601 standard and uses UTC time.
+
+This parameter is required.', example='2025-12-15T08:00Z'),
 }
 
 model DescribeInstanceCreateAndDeleteStatisticsResponseBody = {
   instanceCreateAndDeleteStatistics?: {
     statistic?: [ 
     {
-      createdVmCount?: int32(name='CreatedVmCount', example='12'),
-      destroyedVmCount?: int32(name='DestroyedVmCount', example='34'),
-      startedVmCount?: int32(name='StartedVmCount', example='5'),
-      stoppedVmCount?: int32(name='StoppedVmCount', example='10'),
-      time?: string(name='Time', example='2025121623'),
+      createdVmCount?: int32(name='CreatedVmCount', description='The number of new instances.', example='12'),
+      destroyedVmCount?: int32(name='DestroyedVmCount', description='The number of released instances.', example='34'),
+      startedVmCount?: int32(name='StartedVmCount', description='The number of instances that are started from economical mode.', example='5'),
+      stoppedVmCount?: int32(name='StoppedVmCount', description='The number of instances that are stopped in economical mode.', example='10'),
+      time?: string(name='Time', description='The time when the statistics are generated. The time is in UTC. Format: yyyyMMddHH.', example='2025121623'),
     }
   ](name='Statistic')
-  }(name='InstanceCreateAndDeleteStatistics'),
-  requestId?: string(name='RequestId', example='086EFCD4-C76F-4DC6-9EE9-0D9B711E****'),
+  }(name='InstanceCreateAndDeleteStatistics', description='Metrics for instance creation and deletion.'),
+  requestId?: string(name='RequestId', description='The request ID.', example='086EFCD4-C76F-4DC6-9EE9-0D9B711E****'),
 }
 
 model DescribeInstanceCreateAndDeleteStatisticsResponse = {
@@ -7246,6 +7266,8 @@ model DescribeInstanceCreateAndDeleteStatisticsResponse = {
 }
 
 /**
+ * @summary Instance creation and deletion statistics.
+ *
  * @param request DescribeInstanceCreateAndDeleteStatisticsRequest
  * @param runtime runtime options for this request RuntimeOptions
  * @return DescribeInstanceCreateAndDeleteStatisticsResponse
@@ -7293,6 +7315,8 @@ async function describeInstanceCreateAndDeleteStatisticsWithOptions(request: Des
 }
 
 /**
+ * @summary Instance creation and deletion statistics.
+ *
  * @param request DescribeInstanceCreateAndDeleteStatisticsRequest
  * @return DescribeInstanceCreateAndDeleteStatisticsResponse
  */
@@ -8456,37 +8480,48 @@ async function describeScalingActivityDetail(request: DescribeScalingActivityDet
 }
 
 model DescribeScalingActivityStatisticsRequest {
-  endTime?: string(name='EndTime', description='This parameter is required.', example='2025-12-18T08:00Z'),
-  metricType?: string(name='MetricType', example='ScalingActivityStatus'),
+  endTime?: string(name='EndTime', description='The end time of the statistical interval. The time follows the ISO 8601 standard and uses UTC time.
+
+This parameter is required.', example='2025-12-18T08:00Z'),
+  metricType?: string(name='MetricType', description='The name of the metric on which the scaling activity is counted. Valid values:
+
+*   ScalingActivityStatus: collects statistics on the distribution of scaling activities in different states within a time range.
+*   ScalingActivityErrorCodes: the distribution of error codes in failed scaling activities within a time range.
+
+Default value: ScalingActivityStatus.', example='ScalingActivityStatus'),
   ownerId?: long(name='OwnerId'),
-  regionId?: string(name='RegionId', description='This parameter is required.', example='cn-hangzhou'),
+  regionId?: string(name='RegionId', description='The region ID.
+
+This parameter is required.', example='cn-hangzhou'),
   resourceOwnerAccount?: string(name='ResourceOwnerAccount'),
   resourceOwnerId?: long(name='ResourceOwnerId'),
-  scalingGroupId?: string(name='ScalingGroupId', example='asg-8vbje5pofxxxxxxxx'),
-  startTime?: string(name='StartTime', description='This parameter is required.', example='2025-12-15T08:00Z'),
+  scalingGroupId?: string(name='ScalingGroupId', description='The ID of the scaling group.', example='asg-8vbje5pofxxxxxxxx'),
+  startTime?: string(name='StartTime', description='The start time of the statistical interval. The time follows the ISO 8601 standard and uses UTC time.
+
+This parameter is required.', example='2025-12-15T08:00Z'),
 }
 
 model DescribeScalingActivityStatisticsResponseBody = {
-  requestId?: string(name='RequestId', example='A8F44B4D-BAB4-5176-8705-5984xxxxx'),
+  requestId?: string(name='RequestId', description='Request ID.', example='A8F44B4D-BAB4-5176-8705-5984xxxxx'),
   scalingActivityErrorCodeStatistics?: {
     errorStatistic?: [ 
     {
-      count?: int32(name='Count', example='4'),
-      errorCode?: string(name='ErrorCode', example='QuotaExceeded.PrivateIpAddress'),
-      time?: string(name='Time', example='2025121623'),
+      count?: int32(name='Count', description='The number of failed scaling activities.', example='4'),
+      errorCode?: string(name='ErrorCode', description='Scaling Activity Error Codes', example='QuotaExceeded.PrivateIpAddress'),
+      time?: string(name='Time', description='The time when the statistics are generated. The time is in UTC. Format: yyyyMMddHH.', example='2025121623'),
     }
   ](name='ErrorStatistic')
-  }(name='ScalingActivityErrorCodeStatistics'),
+  }(name='ScalingActivityErrorCodeStatistics', description='The error message statistics of the scaling activity.'),
   scalingActivityStatusStatistics?: {
     statistic?: [ 
     {
-      failedActivityCount?: int32(name='FailedActivityCount', example='1'),
-      successActivityCount?: int32(name='SuccessActivityCount', example='10'),
-      time?: string(name='Time', example='2025121623'),
-      warningActivityCount?: int32(name='WarningActivityCount', example='2'),
+      failedActivityCount?: int32(name='FailedActivityCount', description='The number of failed scaling activities.', example='1'),
+      successActivityCount?: int32(name='SuccessActivityCount', description='The number of successful scaling activities.', example='10'),
+      time?: string(name='Time', description='The time when the statistics are generated. The time is in UTC. Format: yyyyMMddHH.', example='2025121623'),
+      warningActivityCount?: int32(name='WarningActivityCount', description='The number of partially executed scaling activities.', example='2'),
     }
   ](name='Statistic')
-  }(name='ScalingActivityStatusStatistics'),
+  }(name='ScalingActivityStatusStatistics', description='The statistical metrics of the scaling activity status.'),
 }
 
 model DescribeScalingActivityStatisticsResponse = {
@@ -8496,6 +8531,8 @@ model DescribeScalingActivityStatisticsResponse = {
 }
 
 /**
+ * @summary The distribution of scaling activities in different states over a period of time.
+ *
  * @param request DescribeScalingActivityStatisticsRequest
  * @param runtime runtime options for this request RuntimeOptions
  * @return DescribeScalingActivityStatisticsResponse
@@ -8546,6 +8583,8 @@ async function describeScalingActivityStatisticsWithOptions(request: DescribeSca
 }
 
 /**
+ * @summary The distribution of scaling activities in different states over a period of time.
+ *
  * @param request DescribeScalingActivityStatisticsRequest
  * @return DescribeScalingActivityStatisticsResponse
  */
@@ -8802,6 +8841,7 @@ You can specify CPU and Memory to define the range of instance types. For exampl
 
 *   Standard: The TCP communication mode is used.
 *   HighPerformance: The Elastic RDMA Interface (ERI) is enabled and the remote direct memory access (RDMA) communication mode is used.', example='HighPerformance'),
+          secondaryPrivateIpAddressCount?: int32(name='SecondaryPrivateIpAddressCount'),
           securityGroupIds?: [ string ](name='SecurityGroupIds', description='The IDs of the security groups to which the ENIs belong.'),
         }
       ](name='NetworkInterfaces', description='The ENIs.'),
@@ -9152,12 +9192,13 @@ For more information, see [RemoveInstances](https://help.aliyun.com/document_det
         type?: string(name='Type', description='The type of the server group. Valid values:
 
 *   ALB
-*   NLB', example='ALB'),
+*   NLB
+*   GWLB', example='ALB'),
         weight?: int32(name='Weight', description='The weight of an ECS instance as a backend server in the server group.', example='100'),
       }
     ](name='ServerGroups', description='The information about the server groups.
 
->  You can use this parameter to obtain information about ALB server groups and Network Load Balancer (NLB) server groups attached to your scaling group.'),
+>  You can use this parameter to obtain the information about the ALB, NLB, and GWLB server groups associated with a scaling group.'),
     spotAllocationStrategy?: string(name='SpotAllocationStrategy', description='The allocation policy of preemptible instances. Auto Scaling selects instance types based on the allocation policy to create the required number of preemptible instances. You can apply the policy to pay-as-you-go instances and preemptible instances. This parameter takes effect only if you set `MultiAZPolicy` to `COMPOSABLE`. Valid values:
 
 *   priority: Auto Scaling selects instance types based on the specified order to create the required number of preemptible instances.
@@ -9556,17 +9597,18 @@ Default value: null.
 For more information, see [RemoveInstances](https://help.aliyun.com/document_detail/25955.html).', example='recycle'),
       serverGroups?: [ 
         {
-          port?: int32(name='Port', description='The port number used by an ECS instance as a backend server in the server group.', example='80'),
+          port?: int32(name='Port', description='The port number used by each ECS instance in the server group.', example='80'),
           serverGroupId?: string(name='ServerGroupId', description='The ID of the server group.', example='sgp-i9ouakeaerr*****'),
           type?: string(name='Type', description='The type of the server group. Valid values:
 
 *   ALB
-*   NLB', example='ALB'),
+*   NLB
+*   GWLB', example='ALB'),
           weight?: int32(name='Weight', description='The weight of an ECS instance as a backend server in the server group.', example='100'),
         }
-      ](name='ServerGroups', description='The server groups.
+      ](name='ServerGroups', description='The information about the server groups.
 
->  You can use this parameter to obtain information about ALB server groups and Network Load Balancer (NLB) server groups attached to the scaling group.'),
+>  You can use this parameter to obtain the information about the ALB, NLB, and GWLB server groups associated with a scaling group.'),
       spotAllocationStrategy?: string(name='SpotAllocationStrategy', description='The allocation policy of preemptible instances. This parameter indicates the manner in which Auto Scaling selects instance types to create the required number of preemptible instances. This parameter takes effect only if you set `MultiAZPolicy` to `COMPOSABLE`. Valid values:
 
 *   priority: Auto Scaling adopts the predefined instance type sequence to create the required number of preemptible instances.
@@ -10789,7 +10831,9 @@ This parameter is required.', example='cn-hangzhou'),
 This parameter is required.', example='asg-bp18p2yfxow2dloq****'),
   serverGroups?: [ 
     {
-      port?: int32(name='Port', description='The port used by ECS instances or elastic container instances as backend servers of the server group.', example='22'),
+      port?: int32(name='Port', description='The port used by ECS instances or elastic container instances as backend servers of the server group.
+
+>  For ALB and NLB types, this parameter is required. GWLB type cannot set this parameter and the default value is 6081.', example='22'),
       serverGroupId?: string(name='ServerGroupId', description='The ID of the server group.
 
 This parameter is required.', example='sgp-1gv2uidn2msy****'),
@@ -10797,6 +10841,7 @@ This parameter is required.', example='sgp-1gv2uidn2msy****'),
 
 *   ALB
 *   NLB
+*   GWLB
 
 This parameter is required.', example='ALB'),
     }
@@ -10819,7 +10864,7 @@ model DetachServerGroupsResponse = {
 }
 
 /**
- * @summary Detach server groups from a scaling group. To seamlessly adjust the number of instances in response to changes in your business workload or to maintain the uninterrupted accessibility of your application, you can call the DetachServerGroups operation. By detaching Application Load Balancer (ALB) or Network Load Balancer (NLB) server groups from your scaling group, this operation enables Auto Scaling to automatically tailor your computing capacity to your business needs. Furthermore, it optimizes traffic routing by dynamically allocating incoming requests based on current workload patterns, which significantly improves the stability and performance of your application.
+ * @summary Remove one or more SLB server groups from a scaling group. Supported server group types include Application Load Balancer (ALB), Network Load Balancer (NLB), and Gateway Load Balancer (GWLB), which can dynamically adjust SLB policies and help improve high availability of the system.
  *
  * @param request DetachServerGroupsRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -10868,7 +10913,7 @@ async function detachServerGroupsWithOptions(request: DetachServerGroupsRequest,
 }
 
 /**
- * @summary Detach server groups from a scaling group. To seamlessly adjust the number of instances in response to changes in your business workload or to maintain the uninterrupted accessibility of your application, you can call the DetachServerGroups operation. By detaching Application Load Balancer (ALB) or Network Load Balancer (NLB) server groups from your scaling group, this operation enables Auto Scaling to automatically tailor your computing capacity to your business needs. Furthermore, it optimizes traffic routing by dynamically allocating incoming requests based on current workload patterns, which significantly improves the stability and performance of your application.
+ * @summary Remove one or more SLB server groups from a scaling group. Supported server group types include Application Load Balancer (ALB), Network Load Balancer (NLB), and Gateway Load Balancer (GWLB), which can dynamically adjust SLB policies and help improve high availability of the system.
  *
  * @param request DetachServerGroupsRequest
  * @return DetachServerGroupsResponse
@@ -12004,37 +12049,38 @@ This parameter is required.', example='asg-bp1hvbnmkl10vll5****_f95ce797-dc2e-4b
   description?: string(name='Description', description='The description of the event-triggered task.', example='Test alarm task.'),
   dimensions?: [ 
     {
-      dimensionKey?: string(name='DimensionKey', description='The key of the dimension. The valid values vary based on the metric type.
+      dimensionKey?: string(name='DimensionKey', description='The key of dimension N that you want to associate with the metric. The valid values of Dimension.N.DimensionKey vary based on the value of MetricType.
 
-*   If you set the MetricType parameter to custom, you can specify this parameter based on your business requirements.
+*   If you set MetricType to custom, you can specify this parameter based on your business requirements.
 
-*   If you set the MetricType parameter to system, this parameter has the following valid values:
+*   If you set MetricType to system, this parameter has the following valid values:
 
-    *   user_id: the ID of your Alibaba Cloud account
-    *   scaling_group: the scaling group that you want to monitor
-    *   device: the type of the NIC
-    *   state: the status of the TCP connection', example='device'),
-      dimensionValue?: string(name='DimensionValue', description='The value of the dimension. The valid values vary based on the value of the DimensionKey parameter.
+    *   user_id: the ID of your Alibaba Cloud account.
+    *   scaling_group: the scaling group that is monitored by the event-triggered task.
+    *   device: the NIC type.
+    *   state: the status of the TCP connection.
+    *   rulePool: the specified server group for the ALB qps metric.', example='device'),
+      dimensionValue?: string(name='DimensionValue', description='The dimension value of the metric. The valid values of this parameter vary based on the value of Dimensions.DimensionKey.
 
-*   If you set the MetricType parameter to custom, you can specify this parameter based on your business requirements.
+*   If you set MetricType to custom, you can specify this parameter based on your business requirements.
 
-*   If you set the MetricType parameter to system, this parameter has the following valid values:
+*   If you set MetricType to system, Dimension.N.DimensionValue has the following valid values:
 
-    *   If you set the DimensionKey parameter to user_id, the system specifies the value
+    *   user_id: The system specifies the value.
 
-    *   scaling_group: The system specifies the value of the DimensionValue parameter.
+    *   scaling_group: The system specifies the value.
 
-    *   If you set the DimensionKey parameter to device, you can set the DimensionValue parameter to eth0 or eth1.
+    *   device:
 
-        *   For instances that reside in the classic network type, eth0 specifies the internal NIC. Only one eth0 NIC exists on each instance that resides in a VPC.
-        *   For instances that reside in the classic network, eth1 specifies the public NIC.
+        *   eth0: For classic network instances, eth0 indicates the internal network network interface controller. Only one eth0 NIC exists on each instance that resides in VPCs.
+        *   eth1: For classic network instances, eth1 represents the Internet network interface controller.
 
-    *   If you set the DimensionKey parameter to state, you can set the DimensionValue parameter to TCP_TOTAL or ESTABLISHED.
+    *   state:
 
         *   TCP_TOTAL specifies the total number of TCP connections.
-        *   ESTABLISHED specifies the number of established TCP connections.', example='eth0'),
+        *   ESTABLISHED specifies the number of TCP connections that are established.', example='eth0'),
     }
-  ](name='Dimensions', description='Details of the dimensions.'),
+  ](name='Dimensions', description='The metric dimensions.'),
   effective?: string(name='Effective', description='The effective period of the event-triggered task.
 
 This parameter follows the cron expression format. The default format is `X X X X X ?`, in which:
@@ -12143,9 +12189,9 @@ Default value: `&&`.', example='&&'),
     *   EciPodMemoryUtilization: the memory usage of an elastic container instance. Unit: %.
 
 For more information, see [Event-triggered task for system monitoring](https://help.aliyun.com/document_detail/74854.html).', example='MemoryUtilization'),
-  metricType?: string(name='MetricType', description='The metric type. Valid values:
+  metricType?: string(name='MetricType', description='The metric type. Valid Values:
 
-*   system: a system metric of CloudMonitor
+*   system: a system metric of CloudMonitor.
 *   custom: a custom metric that is reported to CloudMonitor.', example='system'),
   name?: string(name='Name', description='The name of the event-triggered task.', example='alarmtask****'),
   ownerId?: long(name='OwnerId'),
@@ -13584,32 +13630,32 @@ Before you specify this parameter, take note of the following items:
   ](name='InstancePatternInfos', description='The intelligent configuration settings, which determine the available instance types.'),
   instanceTypeOverrides?: [ 
     {
-      instanceType?: string(name='InstanceType', description='The instance type. If you want to specify the capacity of instance types in the scaling configuration, specify InstanceType and WeightedCapacity at the same time.
+      instanceType?: string(name='InstanceType', description='The instance type. If you want to specify the weight of the instance type in the scaling configuration, you must specify InstanceTypeOverride.WeightedCapacity after you specify this parameter.
 
-You can use InstanceType to specify multiple instance types and WeightedCapacity to specify the weights of the instance types.
+This parameter specifies instance types. You can use this parameter to specify multiple instance types and use InstanceTypeOverride.WeightedCapacity to specify weights for the instance types.
 
-> If you specify InstanceType, you cannot specify InstanceTypes.
+>  If you specify this parameter, you cannot specify instanceTypes.
 
-You can use InstanceType to specify only instance types that are available for purchase.', example='ecs.c5.xlarge'),
-      weightedCapacity?: int32(name='WeightedCapacity', description='The weight of the instance type. The weight specifies the capacity of an instance of the specified instance type in the scaling group. If you want Auto Scaling to scale instances in the scaling group based on the weighted capacity of the instances, specify WeightedCapacity after you specify InstanceType.
+You can use this parameter to specify any instance types that are available for purchase.', example='ecs.c5.xlarge'),
+      weightedCapacity?: int32(name='WeightedCapacity', description='The weight of the instance type. If you want to trigger scale-outs based on instance capacities, you can specify this parameter after you specify LaunchTemplateOverride.InstanceType.
 
-A higher weight specifies that a smaller number of instances of the specified instance type are required to meet the expected capacity requirement.
+The weight specifies the capacity of an instance of the specified instance type in the scaling group. A higher weight specifies that a smaller number of instances of the specified instance type are required to meet the expected capacity requirement.
 
-Performance metrics, such as the number of vCPUs and the memory size of each instance type, may vary. You can specify different weights for different instance types based on your business requirements.
+Performance metrics such as the number of vCPUs and the memory size of each instance type may vary. You can specify different weights for different instance types based on your business requirements.
 
-Example:
+Sample capacity configurations:
 
-*   Current capacity: 0
-*   Expected capacity: 6
-*   Capacity of ecs.c5.xlarge: 4
+*   Current capacity: 0.
+*   Expected capacity: 6.
+*   Capacity of ecs.c5.xlarge: 4.
 
-To meet the expected capacity requirement, Auto Scaling must create and add two ecs.c5.xlarge instances.
+To reach the expected capacity, Auto Scaling must scale out two instances of ecs.c5.xlarge.
 
-> The capacity of the scaling group cannot exceed the sum of the maximum number of instances that is specified by MaxSize and the maximum weight of the instance types.
+>  The total capacity of the scaling group is constrained and cannot surpass the combined total of the maximum group size defined by MaxSize and the highest weight assigned to any instance type.
 
 Valid values of WeightedCapacity: 1 to 500.', example='4'),
     }
-  ](name='InstanceTypeOverrides', description='The instance types.'),
+  ](name='InstanceTypeOverrides', description='Details of the instance types.'),
   instanceTypes?: [ string ](name='InstanceTypes', description='The instance types. If you specify InstanceTypes, InstanceType is ignored.
 
 Auto Scaling creates instances based on a priority list of instance types. If it fails to create instances using the highest-priority type, it automatically moves to the next type in the priority order.'),
@@ -13660,6 +13706,7 @@ After you specify this parameter, you can no longer specify Ipv6AddressCount.', 
 Default value: Standard.
 
 >  The number of ERIs on an instance cannot exceed the maximum number of ERIs supported by the instance type. For more information, see [Overview of instance families](https://help.aliyun.com/document_detail/25378.html).', example='HighPerformance'),
+      secondaryPrivateIpAddressCount?: int32(name='SecondaryPrivateIpAddressCount'),
       securityGroupIds?: [ string ](name='SecurityGroupIds', description='The IDs of the security groups to which you want to assign the ENI.'),
     }
   ](name='NetworkInterfaces', description='The ENIs.'),
@@ -13719,10 +13766,10 @@ Default value: 1.', example='1'),
   spotInterruptionBehavior?: string(name='SpotInterruptionBehavior', description='The interruption mode of the preemptible instance. Default value: Terminate. Set the value to Terminate. This value specifies that the preemptible instance is to be released.', example='Terminate'),
   spotPriceLimits?: [ 
     {
-      instanceType?: string(name='InstanceType', description='The instance type of the preemptible instance. This parameter takes effect only if you set SpotStrategy to SpotWithPriceLimit.', example='ecs.g6.large'),
-      priceLimit?: float(name='PriceLimit', description='The price limit of the preemptible instance. This parameter takes effect only if you set SpotStrategy to SpotWithPriceLimit.', example='0.125'),
+      instanceType?: string(name='InstanceType', description='The instance type of the spot instances. This parameter takes effect only if you set SpotStrategy to SpotWithPriceLimit.', example='ecs.g6.large'),
+      priceLimit?: float(name='PriceLimit', description='The price limit of the spot instances. This parameter takes effect only if you set SpotStrategy to SpotWithPriceLimit.', example='0.125'),
     }
-  ](name='SpotPriceLimits', description='The preemptible instance types.'),
+  ](name='SpotPriceLimits', description='The information about spot instance types.'),
   spotStrategy?: string(name='SpotStrategy', description='The preemption policy of pay-as-you-go instances. Valid values:
 
 *   NoSpot: The instances are created as regular pay-as-you-go instances.
@@ -14048,32 +14095,32 @@ Before you specify this parameter, take note of the following items:
   ](name='InstancePatternInfos', description='The intelligent configuration settings, which determine the available instance types.'),
   instanceTypeOverrides?: [ 
     {
-      instanceType?: string(name='InstanceType', description='The instance type. If you want to specify the capacity of instance types in the scaling configuration, specify InstanceType and WeightedCapacity at the same time.
+      instanceType?: string(name='InstanceType', description='The instance type. If you want to specify the weight of the instance type in the scaling configuration, you must specify InstanceTypeOverride.WeightedCapacity after you specify this parameter.
 
-You can use InstanceType to specify multiple instance types and WeightedCapacity to specify the weights of the instance types.
+This parameter specifies instance types. You can use this parameter to specify multiple instance types and use InstanceTypeOverride.WeightedCapacity to specify weights for the instance types.
 
-> If you specify InstanceType, you cannot specify InstanceTypes.
+>  If you specify this parameter, you cannot specify instanceTypes.
 
-You can use InstanceType to specify only instance types that are available for purchase.', example='ecs.c5.xlarge'),
-      weightedCapacity?: int32(name='WeightedCapacity', description='The weight of the instance type. The weight specifies the capacity of an instance of the specified instance type in the scaling group. If you want Auto Scaling to scale instances in the scaling group based on the weighted capacity of the instances, specify WeightedCapacity after you specify InstanceType.
+You can use this parameter to specify any instance types that are available for purchase.', example='ecs.c5.xlarge'),
+      weightedCapacity?: int32(name='WeightedCapacity', description='The weight of the instance type. If you want to trigger scale-outs based on instance capacities, you can specify this parameter after you specify LaunchTemplateOverride.InstanceType.
 
-A higher weight specifies that a smaller number of instances of the specified instance type are required to meet the expected capacity requirement.
+The weight specifies the capacity of an instance of the specified instance type in the scaling group. A higher weight specifies that a smaller number of instances of the specified instance type are required to meet the expected capacity requirement.
 
-Performance metrics, such as the number of vCPUs and the memory size of each instance type, may vary. You can specify different weights for different instance types based on your business requirements.
+Performance metrics such as the number of vCPUs and the memory size of each instance type may vary. You can specify different weights for different instance types based on your business requirements.
 
-Example:
+Sample capacity configurations:
 
-*   Current capacity: 0
-*   Expected capacity: 6
-*   Capacity of ecs.c5.xlarge: 4
+*   Current capacity: 0.
+*   Expected capacity: 6.
+*   Capacity of ecs.c5.xlarge: 4.
 
-To meet the expected capacity requirement, Auto Scaling must create and add two ecs.c5.xlarge instances.
+To reach the expected capacity, Auto Scaling must scale out two instances of ecs.c5.xlarge.
 
-> The capacity of the scaling group cannot exceed the sum of the maximum number of instances that is specified by MaxSize and the maximum weight of the instance types.
+>  The total capacity of the scaling group is constrained and cannot surpass the combined total of the maximum group size defined by MaxSize and the highest weight assigned to any instance type.
 
 Valid values of WeightedCapacity: 1 to 500.', example='4'),
     }
-  ](name='InstanceTypeOverrides', description='The instance types.'),
+  ](name='InstanceTypeOverrides', description='Details of the instance types.'),
   instanceTypes?: [ string ](name='InstanceTypes', description='The instance types. If you specify InstanceTypes, InstanceType is ignored.
 
 Auto Scaling creates instances based on a priority list of instance types. If it fails to create instances using the highest-priority type, it automatically moves to the next type in the priority order.'),
@@ -14124,6 +14171,7 @@ After you specify this parameter, you can no longer specify Ipv6AddressCount.', 
 Default value: Standard.
 
 >  The number of ERIs on an instance cannot exceed the maximum number of ERIs supported by the instance type. For more information, see [Overview of instance families](https://help.aliyun.com/document_detail/25378.html).', example='HighPerformance'),
+      secondaryPrivateIpAddressCount?: int32(name='SecondaryPrivateIpAddressCount'),
       securityGroupIds?: [ string ](name='SecurityGroupIds', description='The IDs of the security groups to which you want to assign the ENI.'),
     }
   ](name='NetworkInterfaces', description='The ENIs.'),
@@ -14183,10 +14231,10 @@ Default value: 1.', example='1'),
   spotInterruptionBehavior?: string(name='SpotInterruptionBehavior', description='The interruption mode of the preemptible instance. Default value: Terminate. Set the value to Terminate. This value specifies that the preemptible instance is to be released.', example='Terminate'),
   spotPriceLimits?: [ 
     {
-      instanceType?: string(name='InstanceType', description='The instance type of the preemptible instance. This parameter takes effect only if you set SpotStrategy to SpotWithPriceLimit.', example='ecs.g6.large'),
-      priceLimit?: float(name='PriceLimit', description='The price limit of the preemptible instance. This parameter takes effect only if you set SpotStrategy to SpotWithPriceLimit.', example='0.125'),
+      instanceType?: string(name='InstanceType', description='The instance type of the spot instances. This parameter takes effect only if you set SpotStrategy to SpotWithPriceLimit.', example='ecs.g6.large'),
+      priceLimit?: float(name='PriceLimit', description='The price limit of the spot instances. This parameter takes effect only if you set SpotStrategy to SpotWithPriceLimit.', example='0.125'),
     }
-  ](name='SpotPriceLimits', description='The preemptible instance types.'),
+  ](name='SpotPriceLimits', description='The information about spot instance types.'),
   spotStrategy?: string(name='SpotStrategy', description='The preemption policy of pay-as-you-go instances. Valid values:
 
 *   NoSpot: The instances are created as regular pay-as-you-go instances.
@@ -14537,33 +14585,37 @@ During the cooldown period, Auto Scaling does not execute scaling activities tha
   launchTemplateId?: string(name='LaunchTemplateId', description='The ID of the launch template that is used by Auto Scaling to create instances.', example='lt-m5e3ofjr1zn1aw7****'),
   launchTemplateOverrides?: [ 
     {
-      instanceType?: string(name='InstanceType', description='The instance type. The instance type that you specify by using the InstanceType parameter overwrites the instance type that is specified in the launch template.
+      instanceType?: string(name='InstanceType', description='The instance type that you want to use to override the instance type that is specified in the launch template.
 
-If you want Auto Scaling to scale instances in the scaling group based on the instance type weight, you must specify both the InstanceType and WeightedCapacity parameters.
+The instance type specified by using this parameter overwrites the instance type of the launch template.
 
-> This parameter takes effect only after you specify the LaunchTemplateId parameter.
+>  This parameter takes effect only if you specify LaunchTemplateId.
 
-You can use the InstanceType parameter to specify only instance types that are available for purchase.', example='ecs.c5.xlarge'),
-      spotPriceLimit?: float(name='SpotPriceLimit', example='0.025'),
-      weightedCapacity?: int32(name='WeightedCapacity', description='The weight of the instance type. The weight specifies the capacity of a single instance of the specified instance type in the scaling group. If you want Auto Scaling to scale instances in the scaling group based on the weighted capacity of instances, you must specify the WeightedCapacity parameter after you specify the InstanceType parameter.
+You can use this parameter to specify any instance types that are available for purchase.', example='ecs.c5.xlarge'),
+      spotPriceLimit?: float(name='SpotPriceLimit', description='The maximum bid price of instance type N that is specified by `LaunchTemplateOverride.N.InstanceType`. You can specify N instance types by using the Extend Launch Template feature. You can specify 1 to 10 memory sizes, indicated by N.
 
-A higher weight specifies that a smaller number of instances of the specified instance type are required to meet the expected capacity.
+>  This parameter takes effect only if you use `LaunchTemplateId` to specify a launch template.', example='0.025'),
+      weightedCapacity?: int32(name='WeightedCapacity', description='If you want to scale the scaling group based on the instance types, you must specify LaunchTemplateOverrides.InstanceType before you specify this parameter. The two parameters have a one-to-one correspondence.
 
-Performance metrics, such as the number of vCPUs and the memory size of each instance type, may vary. You can specify different weights for different instance types based on your business requirements.
+The weight specifies the capacity of an instance of the specified instance type in the scaling group.
 
-Example:
+A higher weight specifies that a smaller number of instances of the specified instance type are required to meet the expected capacity requirement.
 
-*   Current capacity: 0
+Performance metrics such as the number of vCPUs and the memory size of each instance type may vary. You can specify different weights for different instance types based on your business requirements.
+
+Sample capacity configurations:
+
+*   Current capacity: 0.
 *   Expected capacity: 6
 *   Capacity of ecs.c5.xlarge: 4
 
-To meet the expected capacity requirement, Auto Scaling must create and add two ecs.c5.xlarge instances.
+To reach the expected capacity, Auto Scaling must scale out two instances of ecs.c5.xlarge.
 
-> The capacity of the scaling group cannot exceed the sum of the maximum number of instances that is specified by the MaxSize parameter and the maximum weight of the instance type.
+>  The total capacity of the scaling group is constrained and cannot surpass the combined total of the maximum group size defined by MaxSize and the highest weight assigned to any instance type.
 
-Valid values of the WeightedCapacity parameter: 1 to 500.', example='4'),
+Valid values of WeightedCapacity: 1 to 500.', example='4'),
     }
-  ](name='LaunchTemplateOverrides', description='Details of the instance types that are specified in the extended configurations of the launch template.'),
+  ](name='LaunchTemplateOverrides', description='The information about the instance types that are extended in the launch template.'),
   launchTemplateVersion?: string(name='LaunchTemplateVersion', description='The version number of the launch template. Valid values:
 
 *   A fixed template version number.
@@ -15263,26 +15315,44 @@ async function modifyScheduledTask(request: ModifyScheduledTaskRequest): ModifyS
 }
 
 model QueryHistoricalMetricRequest {
-  endTime?: string(name='EndTime', description='This parameter is required.', example='2025-12-18T08:00Z'),
-  metricName?: string(name='MetricName', description='This parameter is required.', example='CpuUtilization'),
+  endTime?: string(name='EndTime', description='The end time of the historical monitoring data. The time follows the ISO8601 standard and uses UTC time.
+
+Format: yyyy-MM-ddTHH:mmZ.
+
+This parameter is required.', example='2025-12-18T08:00Z'),
+  metricName?: string(name='MetricName', description='The name of the monitoring metric of the prediction rule. Valid values:
+
+*   CpuUtilization: the average CPU utilization.
+*   IntranetRx: the inbound traffic over an internal network.
+*   IntranetTx: the outbound traffic over an internal network.
+
+This parameter is required.', example='CpuUtilization'),
   ownerId?: long(name='OwnerId'),
-  regionId?: string(name='RegionId', description='This parameter is required.', example='cn-hangzhou'),
+  regionId?: string(name='RegionId', description='The region ID
+
+This parameter is required.', example='cn-hangzhou'),
   resourceOwnerAccount?: string(name='ResourceOwnerAccount'),
   resourceOwnerId?: long(name='ResourceOwnerId'),
-  scalingGroupId?: string(name='ScalingGroupId', description='This parameter is required.', example='asg-bp15oubotmrq11xe****'),
-  startTime?: string(name='StartTime', description='This parameter is required.', example='2025-12-17T08:00Z'),
+  scalingGroupId?: string(name='ScalingGroupId', description='The ID of the scaling group.
+
+This parameter is required.', example='asg-bp15oubotmrq11xe****'),
+  startTime?: string(name='StartTime', description='The start time of historical monitoring data. The time follows the ISO8601 standard and uses UTC time.
+
+Format: yyyy-MM-ddTHH:mmZ.
+
+This parameter is required.', example='2025-12-17T08:00Z'),
 }
 
 model QueryHistoricalMetricResponseBody = {
   historicalMetrics?: {
     historicalMetric?: [ 
     {
-      metricValue?: string(name='MetricValue', example='10.0'),
-      time?: string(name='Time', example='2025-12-17T16:00Z'),
+      metricValue?: string(name='MetricValue', description='The value of the metric.', example='10.0'),
+      time?: string(name='Time', description='The point in time of the monitoring metric. The value must be in the ISO 8601 standard in the yyyy-MM-ddTHH:mmZ format.', example='2025-12-17T16:00Z'),
     }
   ](name='HistoricalMetric')
-  }(name='HistoricalMetrics'),
-  requestId?: string(name='RequestId', example='473469C7-AA6F-4DC5-B3DB-A3DC0DE3****'),
+  }(name='HistoricalMetrics', description='The monitoring metrics of the prediction rule.'),
+  requestId?: string(name='RequestId', description='The request ID.', example='473469C7-AA6F-4DC5-B3DB-A3DC0DE3****'),
 }
 
 model QueryHistoricalMetricResponse = {
@@ -15292,6 +15362,8 @@ model QueryHistoricalMetricResponse = {
 }
 
 /**
+ * @summary Queries the historical monitoring data of a scaling group that uses predictive scaling rules.
+ *
  * @param request QueryHistoricalMetricRequest
  * @param runtime runtime options for this request RuntimeOptions
  * @return QueryHistoricalMetricResponse
@@ -15342,6 +15414,8 @@ async function queryHistoricalMetricWithOptions(request: QueryHistoricalMetricRe
 }
 
 /**
+ * @summary Queries the historical monitoring data of a scaling group that uses predictive scaling rules.
+ *
  * @param request QueryHistoricalMetricRequest
  * @return QueryHistoricalMetricResponse
  */
@@ -15351,26 +15425,44 @@ async function queryHistoricalMetric(request: QueryHistoricalMetricRequest): Que
 }
 
 model QueryPredictiveMetricRequest {
-  endTime?: string(name='EndTime', description='This parameter is required.', example='2025-12-18T08:00Z'),
-  metricName?: string(name='MetricName', description='This parameter is required.', example='CpuUtilization'),
+  endTime?: string(name='EndTime', description='The end time of the predicted monitoring data. The time follows the ISO8601 standard and uses UTC time.
+
+Format: yyyy-MM-ddTHH:mmZ.
+
+This parameter is required.', example='2025-12-18T08:00Z'),
+  metricName?: string(name='MetricName', description='The name of the monitoring metric of the prediction rule. Valid values:
+
+*   CpuUtilization: the average CPU utilization.
+*   IntranetRx: the inbound traffic over an internal network.
+*   IntranetTx: the outbound traffic over an internal network.
+
+This parameter is required.', example='CpuUtilization'),
   ownerId?: long(name='OwnerId'),
-  regionId?: string(name='RegionId', description='This parameter is required.', example='cn-hangzhou'),
+  regionId?: string(name='RegionId', description='The region ID.
+
+This parameter is required.', example='cn-hangzhou'),
   resourceOwnerAccount?: string(name='ResourceOwnerAccount'),
   resourceOwnerId?: long(name='ResourceOwnerId'),
-  scalingGroupId?: string(name='ScalingGroupId', description='This parameter is required.', example='asg-bp1igpak5ft1flyp****'),
-  startTime?: string(name='StartTime', description='This parameter is required.', example='2025-12-17T08:00Z'),
+  scalingGroupId?: string(name='ScalingGroupId', description='The ID of the scaling group.
+
+This parameter is required.', example='asg-bp1igpak5ft1flyp****'),
+  startTime?: string(name='StartTime', description='The start time of the predicted monitoring data. The time follows the ISO8601 standard and uses UTC time.
+
+Format: yyyy-MM-ddTHH:mmZ.
+
+This parameter is required.', example='2025-12-17T08:00Z'),
 }
 
 model QueryPredictiveMetricResponseBody = {
   predictiveMetrics?: {
     predictiveMetric?: [ 
     {
-      metricValue?: string(name='MetricValue', example='10.0'),
-      time?: string(name='Time', example='2025-12-17T16:00Z'),
+      metricValue?: string(name='MetricValue', description='Predicted monitoring value.', example='10.0'),
+      time?: string(name='Time', description='The time follows the ISO 8601 standard in the yyyy-MM-ddThh:mmZ format. The time must be in UTC.', example='2025-12-17T16:00Z'),
     }
   ](name='PredictiveMetric')
-  }(name='PredictiveMetrics'),
-  requestId?: string(name='RequestId', example='CC107349-57B7-4405-B1BF-9BF5AF7F****'),
+  }(name='PredictiveMetrics', description='Predicted monitoring metrics.'),
+  requestId?: string(name='RequestId', description='The request ID.', example='CC107349-57B7-4405-B1BF-9BF5AF7F****'),
 }
 
 model QueryPredictiveMetricResponse = {
@@ -15380,6 +15472,8 @@ model QueryPredictiveMetricResponse = {
 }
 
 /**
+ * @summary Queries predicted monitoring data.
+ *
  * @param request QueryPredictiveMetricRequest
  * @param runtime runtime options for this request RuntimeOptions
  * @return QueryPredictiveMetricResponse
@@ -15430,6 +15524,8 @@ async function queryPredictiveMetricWithOptions(request: QueryPredictiveMetricRe
 }
 
 /**
+ * @summary Queries predicted monitoring data.
+ *
  * @param request QueryPredictiveMetricRequest
  * @return QueryPredictiveMetricResponse
  */
@@ -15439,26 +15535,38 @@ async function queryPredictiveMetric(request: QueryPredictiveMetricRequest): Que
 }
 
 model QueryPredictiveTaskInfoRequest {
-  endTime?: string(name='EndTime', description='This parameter is required.', example='2025-12-18T08:00Z'),
+  endTime?: string(name='EndTime', description='The end time of the prediction task. The time follows the ISO8601 standard and uses UTC time.
+
+Format: yyyy-MM-ddTHH:mmZ.
+
+This parameter is required.', example='2025-12-18T08:00Z'),
   ownerId?: long(name='OwnerId'),
-  regionId?: string(name='RegionId', description='This parameter is required.', example='cn-hangzhou'),
+  regionId?: string(name='RegionId', description='The region ID
+
+This parameter is required.', example='cn-hangzhou'),
   resourceOwnerAccount?: string(name='ResourceOwnerAccount'),
   resourceOwnerId?: long(name='ResourceOwnerId'),
-  scalingRuleId?: string(name='ScalingRuleId', description='This parameter is required.', example='asr-bp1dp8yd9f8xxxxx'),
-  startTime?: string(name='StartTime', description='This parameter is required.', example='2025-12-17T08:00Z'),
+  scalingRuleId?: string(name='ScalingRuleId', description='The ID of the prediction scaling rule.
+
+This parameter is required.', example='asr-bp1dp8yd9f8xxxxx'),
+  startTime?: string(name='StartTime', description='The start time of the prediction task. The time follows the ISO8601 standard and uses UTC time.
+
+Format: yyyy-MM-ddTHH:mmZ.
+
+This parameter is required.', example='2025-12-17T08:00Z'),
 }
 
 model QueryPredictiveTaskInfoResponseBody = {
-  requestId?: string(name='RequestId', example='473469C7-AA6F-4DC5-B3DB-A3DC0DE3****'),
+  requestId?: string(name='RequestId', description='Request ID.', example='473469C7-AA6F-4DC5-B3DB-A3DC0DE3****'),
   taskInfos?: {
     taskInfo?: [ 
     {
-      maxValue?: int32(name='MaxValue', example='10'),
-      minValue?: int32(name='MinValue', example='2'),
-      time?: string(name='Time', example='2025-12-17T10:00Z'),
+      maxValue?: int32(name='MaxValue', description='The maximum size of the scaling group that you want to create.', example='10'),
+      minValue?: int32(name='MinValue', description='The minimum size of the scaling group that you want to create.', example='2'),
+      time?: string(name='Time', description='The point in time at which the scheduled task is triggered. The value follows the ISO 8601 standard in the yyyy-MM-ddTHH:mmZ format.', example='2025-12-17T10:00Z'),
     }
   ](name='TaskInfo')
-  }(name='TaskInfos'),
+  }(name='TaskInfos', description='The scheduled task generated by the prediction rule.'),
 }
 
 model QueryPredictiveTaskInfoResponse = {
@@ -15468,6 +15576,8 @@ model QueryPredictiveTaskInfoResponse = {
 }
 
 /**
+ * @summary Queries the information about a prediction task.
+ *
  * @param request QueryPredictiveTaskInfoRequest
  * @param runtime runtime options for this request RuntimeOptions
  * @return QueryPredictiveTaskInfoResponse
@@ -15515,6 +15625,8 @@ async function queryPredictiveTaskInfoWithOptions(request: QueryPredictiveTaskIn
 }
 
 /**
+ * @summary Queries the information about a prediction task.
+ *
  * @param request QueryPredictiveTaskInfoRequest
  * @return QueryPredictiveTaskInfoResponse
  */
@@ -15524,27 +15636,47 @@ async function queryPredictiveTaskInfo(request: QueryPredictiveTaskInfoRequest):
 }
 
 model QueryPredictiveValueRequest {
-  endTime?: string(name='EndTime', description='This parameter is required.', example='2025-12-18T08:00Z'),
-  metricName?: string(name='MetricName', description='This parameter is required.', example='CpuUtilization'),
+  endTime?: string(name='EndTime', description='The end time of the predicted number of instances in the scaling group. The time follows the ISO8601 standard and uses UTC time.
+
+Format: yyyy-MM-ddTHH:mmZ.
+
+This parameter is required.', example='2025-12-18T08:00Z'),
+  metricName?: string(name='MetricName', description='The name of the monitoring metric of the prediction rule. Valid values:
+
+*   CpuUtilization: the average CPU utilization.
+*   IntranetRx: the inbound traffic over an internal network.
+*   IntranetTx: the outbound traffic over an internal network.
+
+This parameter is required.', example='CpuUtilization'),
   ownerId?: long(name='OwnerId'),
-  regionId?: string(name='RegionId', description='This parameter is required.', example='cn-hangzhou'),
+  regionId?: string(name='RegionId', description='The region ID
+
+This parameter is required.', example='cn-hangzhou'),
   resourceOwnerAccount?: string(name='ResourceOwnerAccount'),
   resourceOwnerId?: long(name='ResourceOwnerId'),
-  scalingGroupId?: string(name='ScalingGroupId', description='This parameter is required.', example='asg-2zee0wsy0zkdxxxxx'),
-  startTime?: string(name='StartTime', description='This parameter is required.', example='2025-12-17T08:00Z'),
-  targetValue?: float(name='TargetValue', description='This parameter is required.', example='60'),
+  scalingGroupId?: string(name='ScalingGroupId', description='The ID of the scaling group.
+
+This parameter is required.', example='asg-2zee0wsy0zkdxxxxx'),
+  startTime?: string(name='StartTime', description='The start time of the predicted number of instances in the scaling group. The time follows the ISO8601 standard and uses UTC time.
+
+Format: yyyy-MM-ddTHH:mmZ.
+
+This parameter is required.', example='2025-12-17T08:00Z'),
+  targetValue?: float(name='TargetValue', description='The current value of the monitoring metric of the prediction rule.
+
+This parameter is required.', example='60'),
 }
 
 model QueryPredictiveValueResponseBody = {
   predictiveValues?: {
     predictiveValue?: [ 
     {
-      time?: string(name='Time', example='2025-12-17T10:00Z'),
-      value?: int32(name='Value', example='3'),
+      time?: string(name='Time', description='The point in time, in the ISO 8601 standard, in the yyyy-MM-ddTHH:mmZ format.', example='2025-12-17T10:00Z'),
+      value?: int32(name='Value', description='The number of instances.', example='3'),
     }
   ](name='PredictiveValue')
-  }(name='PredictiveValues'),
-  requestId?: string(name='RequestId', example='FA5F448E-DC84-5EBC-B6D5-F659ADxxxx'),
+  }(name='PredictiveValues', description='The number of predicted instances in the scaling group.'),
+  requestId?: string(name='RequestId', description='The request ID.', example='FA5F448E-DC84-5EBC-B6D5-F659ADxxxx'),
 }
 
 model QueryPredictiveValueResponse = {
@@ -15554,6 +15686,8 @@ model QueryPredictiveValueResponse = {
 }
 
 /**
+ * @summary Queries the predicted number of instances in a scaling group.
+ *
  * @param request QueryPredictiveValueRequest
  * @param runtime runtime options for this request RuntimeOptions
  * @return QueryPredictiveValueResponse
@@ -15607,6 +15741,8 @@ async function queryPredictiveValueWithOptions(request: QueryPredictiveValueRequ
 }
 
 /**
+ * @summary Queries the predicted number of instances in a scaling group.
+ *
  * @param request QueryPredictiveValueRequest
  * @return QueryPredictiveValueResponse
  */
