@@ -990,12 +990,14 @@ model NotifyStrategyForModify {
           receivers?: [ string ](name='receivers', description='This parameter is required.'),
         }
       ](name='channels'),
+      digitalEmployeeName?: string(name='digitalEmployeeName'),
       effectTimeRange?: {
         dayInWeek?: [ int32 ](name='dayInWeek'),
         endTimeInMinute?: int32(name='endTimeInMinute'),
         startTimeInMinute?: int32(name='startTimeInMinute'),
         timeZone?: string(name='timeZone'),
       }(name='effectTimeRange'),
+      enableRca?: boolean(name='enableRca'),
       filterSetting?: FilterSetting(name='filterSetting'),
       severities?: [ string ](name='severities'),
     }
@@ -1044,12 +1046,14 @@ model NotifyStrategyForView {
           receivers?: [ string ](name='receivers', description='This parameter is required.'),
         }
       ](name='channels'),
+      digitalEmployeeName?: string(name='digitalEmployeeName'),
       effectTimeRange?: {
         dayInWeek?: [ int32 ](name='dayInWeek'),
         endTimeInMinute?: int32(name='endTimeInMinute'),
         startTimeInMinute?: int32(name='startTimeInMinute'),
         timeZone?: string(name='timeZone'),
       }(name='effectTimeRange'),
+      enableRca?: boolean(name='enableRca'),
       filterSetting?: FilterSetting(name='filterSetting'),
       severities?: [ string ](name='severities'),
     }
@@ -1099,6 +1103,7 @@ model SubscriptionForModify {
     templateUuid?: string(name='templateUuid'),
   }(name='pushingSetting'),
   subscriptionName?: string(name='subscriptionName', description='This parameter is required.'),
+  workspaceFilterSetting?: WorkspaceFilterSetting(name='workspaceFilterSetting'),
 }
 
 model SubscriptionForView {
@@ -1119,11 +1124,12 @@ model SubscriptionForView {
   updateTime?: string(name='updateTime'),
   userId?: string(name='userId'),
   workspace?: string(name='workspace'),
+  workspaceFilterSetting?: WorkspaceFilterSetting(name='workspaceFilterSetting'),
 }
 
 model Tag {
-  key?: string(name='key'),
-  value?: string(name='value'),
+  key?: string(name='key', example='test-key'),
+  value?: string(name='value', example='test-value'),
 }
 
 model TransformAction {
@@ -1852,7 +1858,11 @@ model CreateDigitalEmployeeRequest {
     sop?: [  map[string]any ](name='sop'),
   }(name='knowledges'),
   name?: string(name='name', description='This parameter is required.', example='test'),
+  resourceGroupId?: string(name='resourceGroupId', example='rg-ae******ey'),
   roleArn?: string(name='roleArn', description='This parameter is required.', example='acs:ram::12345678912:role/testrole'),
+  tags?: [
+    Tag
+  ](name='tags'),
 }
 
 model CreateDigitalEmployeeResponseBody = {
@@ -1892,8 +1902,14 @@ async function createDigitalEmployeeWithOptions(request: CreateDigitalEmployeeRe
   if (!Util.isUnset(request.name)) {
     body['name'] = request.name;
   }
+  if (!Util.isUnset(request.resourceGroupId)) {
+    body['resourceGroupId'] = request.resourceGroupId;
+  }
   if (!Util.isUnset(request.roleArn)) {
     body['roleArn'] = request.roleArn;
+  }
+  if (!Util.isUnset(request.tags)) {
+    body['tags'] = request.tags;
   }
 
   var req = new OpenApi.OpenApiRequest{ 
@@ -4383,7 +4399,11 @@ model GetDigitalEmployeeResponseBody = {
   name?: string(name='name', example='test'),
   regionId?: string(name='regionId', example='cn-beijing'),
   requestId?: string(name='requestId', example='0B9377D9-C56B-5C2E-A8A4-************'),
+  resourceGroupId?: string(name='resourceGroupId', example='rg-ae******ey'),
   roleArn?: string(name='roleArn', example='acs:ram::12345678912:role/testrole'),
+  tags?: [
+    Tag
+  ](name='tags'),
   updateTime?: string(name='updateTime', description='Use the UTC time format: yyyy-MM-ddTHH:mm:ssZ', example='2025-02-18T02:25:06Z'),
 }
 
@@ -6296,6 +6316,20 @@ model ListDigitalEmployeesRequest {
   maxResults?: int32(name='maxResults', example='10'),
   name?: string(name='name', example='test'),
   nextToken?: string(name='nextToken', example='xxxxxx'),
+  resourceGroupId?: string(name='resourceGroupId', example='rg-ae******ey'),
+  tags?: [
+    Tag
+  ](name='tags'),
+}
+
+model ListDigitalEmployeesShrinkRequest {
+  displayName?: string(name='displayName'),
+  employeeType?: string(name='employeeType'),
+  maxResults?: int32(name='maxResults', example='10'),
+  name?: string(name='name', example='test'),
+  nextToken?: string(name='nextToken', example='xxxxxx'),
+  resourceGroupId?: string(name='resourceGroupId', example='rg-ae******ey'),
+  tagsShrink?: string(name='tags'),
 }
 
 model ListDigitalEmployeesResponseBody = {
@@ -6318,7 +6352,11 @@ model ListDigitalEmployeesResponseBody = {
         sop?: [  map[string]any ](name='sop'),
       }(name='knowledges'),
       name?: string(name='name', example='test'),
+      resourceGroupId?: string(name='resourceGroupId', example='rg-ae******ey'),
       roleArn?: string(name='roleArn', example='acs:ram::12345678912:role/testrole'),
+      tags?: [
+        Tag
+      ](name='tags'),
       updateTime?: string(name='updateTime', description='Use the UTC time format: yyyy-MM-ddTHH:mm:ssZ', example='2025-05-07T02:26:01Z'),
     }
   ](name='digitalEmployees'),
@@ -6337,13 +6375,18 @@ model ListDigitalEmployeesResponse = {
 /**
  * @summary 列出资源DigitalEmployee
  *
- * @param request ListDigitalEmployeesRequest
+ * @param tmpReq ListDigitalEmployeesRequest
  * @param headers map
  * @param runtime runtime options for this request RuntimeOptions
  * @return ListDigitalEmployeesResponse
  */
-async function listDigitalEmployeesWithOptions(request: ListDigitalEmployeesRequest, headers: map[string]string, runtime: Util.RuntimeOptions): ListDigitalEmployeesResponse {
-  Util.validateModel(request);
+async function listDigitalEmployeesWithOptions(tmpReq: ListDigitalEmployeesRequest, headers: map[string]string, runtime: Util.RuntimeOptions): ListDigitalEmployeesResponse {
+  Util.validateModel(tmpReq);
+  var request = new ListDigitalEmployeesShrinkRequest{};
+  OpenApiUtil.convert(tmpReq, request);
+  if (!Util.isUnset(tmpReq.tags)) {
+    request.tagsShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.tags, 'tags', 'json');
+  }
   var query : map[string]any = {};
   if (!Util.isUnset(request.displayName)) {
     query['displayName'] = request.displayName;
@@ -6359,6 +6402,12 @@ async function listDigitalEmployeesWithOptions(request: ListDigitalEmployeesRequ
   }
   if (!Util.isUnset(request.nextToken)) {
     query['nextToken'] = request.nextToken;
+  }
+  if (!Util.isUnset(request.resourceGroupId)) {
+    query['resourceGroupId'] = request.resourceGroupId;
+  }
+  if (!Util.isUnset(request.tagsShrink)) {
+    query['tags'] = request.tagsShrink;
   }
 
   var req = new OpenApi.OpenApiRequest{ 
