@@ -499,11 +499,22 @@ model HttpApiDeployConfig {
   routeBackend?: Backend(name='routeBackend', description='routeBackend'),
   serviceConfigs?: [ 
     {
+      gatewayServiceId?: string(name='gatewayServiceId', description='Legacy gateway service ID for backward compatibility', example='gw-svc-abc123'),
       intentCode?: string(name='intentCode', description='Intent classification code', example='INQUIRY'),
       match?: HttpApiBackendMatchConditions(name='match', description='Match conditions'),
       modelName?: string(name='modelName', description='The model name.', example='qwen-max'),
       modelNamePattern?: string(name='modelNamePattern', description='The model name matching rule.', example='qwen-*'),
+      multiServiceRouteStrategy?: string(name='multiServiceRouteStrategy', description='Multi-service routing strategy type', example='ByWeight'),
+      name?: string(name='name', description='Service display name', example='Qwen-Max-Service'),
+      observabilityRouteConfig?: {
+        mode?: string(name='mode', description='Routing mode', example='LeastBusy'),
+        queueSize?: int32(name='queueSize', description='Queue size', example='100'),
+        rateLimit?: float(name='rateLimit', description='Max traffic ratio per single service', example='0.8'),
+      }(name='observabilityRouteConfig', description='Observability metrics-based routing config'),
+      port?: int32(name='port', description='Service port number', example='80'),
+      protocol?: string(name='protocol', description='Service protocol', example='HTTP'),
       serviceId?: string(name='serviceId', description='The service ID.', example='svc-xxx'),
+      version?: string(name='version', description='Service version tag for tag-based routing scenarios', example='v2'),
       weight?: long(name='weight', description='The service weight.', example='100'),
     }
   ](name='serviceConfigs', description='The service configurations.'),
@@ -2386,10 +2397,12 @@ model CreateHttpApiRequest {
   aiProtocols?: [ string ](name='aiProtocols', description='$.parameters[0].schema.properties.authConfig.enumValueTitles'),
   authConfig?: AuthConfig(name='authConfig', description='The request parameters for API creation.'),
   basePath?: string(name='basePath', description='$.parameters[0].schema.properties.deployConfigs.items.example', example='/v1'),
+  belongGatewayId?: string(name='belongGatewayId'),
   deployConfigs?: [
     HttpApiDeployConfig
   ](name='deployConfigs', description='$.parameters[0].schema.example'),
   description?: string(name='description', description='$.parameters[0].schema.properties.aiProtocols.items.description', example='$.parameters[0].schema.properties.aiProtocols.items.example'),
+  dryRun?: boolean(name='dryRun'),
   enableAuth?: boolean(name='enableAuth', description='Create an API of HTTP type', example='true'),
   firstByteTimeout?: int32(name='firstByteTimeout', description='First byte timeout', example='30'),
   ingressConfig?: {
@@ -2407,6 +2420,7 @@ This parameter is required.', example='test-api'),
   protocols?: [ string ](name='protocols', description='$.parameters[0].schema.properties.aiProtocols.description'),
   removeBasePathOnForward?: boolean(name='removeBasePathOnForward', description='Whether to remove base path when forwarding', example='true'),
   resourceGroupId?: string(name='resourceGroupId', description='$.parameters[0].schema.properties.authConfig.example', example='rg-xxx'),
+  strategy?: string(name='strategy'),
   type?: string(name='type', description='$.parameters[0].schema.properties.deployConfigs.description', example='Http'),
   versionConfig?: HttpApiVersionConfig(name='versionConfig', description='$.parameters[0].schema.properties.deployConfigs.items.enumValueTitles'),
 }
@@ -2451,11 +2465,17 @@ async function createHttpApiWithOptions(request: CreateHttpApiRequest, headers: 
   if (!$isNull(request.basePath)) {
     body['basePath'] = request.basePath;
   }
+  if (!$isNull(request.belongGatewayId)) {
+    body['belongGatewayId'] = request.belongGatewayId;
+  }
   if (!$isNull(request.deployConfigs)) {
     body['deployConfigs'] = request.deployConfigs;
   }
   if (!$isNull(request.description)) {
     body['description'] = request.description;
+  }
+  if (!$isNull(request.dryRun)) {
+    body['dryRun'] = request.dryRun;
   }
   if (!$isNull(request.enableAuth)) {
     body['enableAuth'] = request.enableAuth;
@@ -2480,6 +2500,9 @@ async function createHttpApiWithOptions(request: CreateHttpApiRequest, headers: 
   }
   if (!$isNull(request.resourceGroupId)) {
     body['resourceGroupId'] = request.resourceGroupId;
+  }
+  if (!$isNull(request.strategy)) {
+    body['strategy'] = request.strategy;
   }
   if (!$isNull(request.type)) {
     body['type'] = request.type;
@@ -4406,10 +4429,10 @@ Valid values:
     gatewayId?: string(name='gatewayId', description='The gateway ID.', example='gw-cvn2u46m1hkun04oll8g'),
     operationDeployments?: [ 
       {
-        action?: string(name='action', example='Publish'),
-        operationId?: string(name='operationId', example='op-d5s57hmm1hks653u9dkg'),
+        action?: string(name='action', description='Operation type', example='Publish'),
+        operationId?: string(name='operationId', description='Unique identifier of the operation', example='op-xxx'),
       }
-    ](name='operationDeployments'),
+    ](name='operationDeployments', description='Operation-level deployment control list'),
     operationIds?: [ string ](name='operationIds', description='operationIds', deprecated=true),
     revisionId?: string(name='revisionId', description='The historical version of the API. If you specify this parameter, the corresponding version of the API is published.', example='apr-xxx'),
   }(name='restApiConfig', description='The REST API deployment configuration. This parameter is required when you publish a REST API.'),
