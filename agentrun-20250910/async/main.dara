@@ -30,6 +30,12 @@ function close(): void {
   @handler.close();
 }
 
+model AgentEndpointConfig {
+  agentName?: string(name='agentName'),
+  customDomainUrl?: string(name='customDomainUrl'),
+  endpointUrl?: string(name='endpointUrl'),
+}
+
 model AgentRuntime {
   agentRuntimeArn?: string(name='agentRuntimeArn', description='智能体运行时的全局唯一资源名称', example='acs:agentrun:cn-hangzhou:1760720386195983:runtimes/7a1b6d39-9f8f-4ce2-b9c9-6db1b0b9e169'),
   agentRuntimeId?: string(name='agentRuntimeId', description='智能体运行时的唯一标识符', example='ar-1234567890abcdef'),
@@ -54,11 +60,12 @@ model AgentRuntime {
   ossMountConfig?: OSSMountConfig(name='ossMountConfig', description='对象存储OSS的挂载配置信息，用于挂载OSS存储桶到智能体运行时', example='{}'),
   port?: integer(name='port', description='智能体运行时监听的端口号', example='8080'),
   protocolConfiguration?: ProtocolConfiguration(name='protocolConfiguration', description='智能体运行时的通信协议配置', example='{}'),
-  resourceGroupId?: string(name='resourceGroupId'),
+  resourceGroupId?: string(name='resourceGroupId', deprecated='true'),
   sessionConcurrencyLimitPerInstance?: integer(name='sessionConcurrencyLimitPerInstance', description='每个运行时实例允许的最大并发会话数', example='100', minimum=1, maximum=200),
   sessionIdleTimeoutSeconds?: int32(name='sessionIdleTimeoutSeconds', description='会话的空闲超时时间，单位为秒。实例没有会话请求后处于空闲状态，空闲态为闲置计费模式，超过此超时时间后会话自动过期，不可继续使用', example='3600'),
   status?: string(name='status', description='智能体运行时的当前状态，如READY（就绪）、CREATING（创建中）、FAILED（失败）等', example='READY'),
   statusReason?: string(name='statusReason', description='当前状态的原因说明（如适用）', example='Runtime is ready for use'),
+  workspaceId?: string(name='workspaceId', description='智能体运行时所属的工作空间标识符，用于资源隔离和权限管理', example='ws-1234567890abcdef'),
 }
 
 model AgentRuntimeEndpoint {
@@ -371,9 +378,10 @@ This parameter is required.', example='{}'),
 
 This parameter is required.', example='8080'),
   protocolConfiguration?: ProtocolConfiguration(name='protocolConfiguration', description='智能体运行时的通信协议配置，定义运行时如何与外部系统交互', example='{}'),
-  resourceGroupId?: string(name='resourceGroupId'),
+  resourceGroupId?: string(name='resourceGroupId', deprecated='true'),
   sessionConcurrencyLimitPerInstance?: int32(name='sessionConcurrencyLimitPerInstance', description='每个运行时实例允许的最大并发会话数', example='100', minimum=1, maximum=200),
   sessionIdleTimeoutSeconds?: int32(name='sessionIdleTimeoutSeconds', description='会话的空闲超时时间，单位为秒。实例没有会话请求后处于空闲状态，空闲态为闲置计费模式，超过此超时时间后会话自动过期，不可继续使用', example='3600'),
+  workspaceId?: string(name='workspaceId', description='智能体运行时所属的工作空间标识符，用于资源隔离和权限管理', example='ws-1234567890abcdef'),
 }
 
 model CreateAgentRuntimeVersionInput {
@@ -608,6 +616,12 @@ model CreateToolOutput {
   success?: boolean(name='success'),
 }
 
+model CreateWorkspaceInput {
+  description?: string(name='description'),
+  name?: string(name='name'),
+  resourceGroupId?: string(name='resourceGroupId'),
+}
+
 model Credential {
   createdAt?: string(name='createdAt'),
   credentialAuthType?: string(name='credentialAuthType'),
@@ -747,6 +761,13 @@ model DeregisterServiceInput {
 This parameter is required.', example='12345678-1234-1234-1234-123456789abc'),
 }
 
+model DiscoveryEndpoint {
+  agentEndpointConfigs?: [
+    AgentEndpointConfig
+  ](name='agentEndpointConfigs'),
+  name?: string(name='name'),
+}
+
 model DomainInfo {
   certIdentifier?: string(name='certIdentifier'),
   domainId?: string(name='domainId'),
@@ -814,6 +835,18 @@ model GetCredentialOutput {
     RelatedResource
   ](name='relatedResources'),
   updatedAt?: string(name='updatedAt'),
+}
+
+model GetDiscoveryEndpointsOutput {
+  discoveryEndpoints?: [
+    DiscoveryEndpoint
+  ](name='discoveryEndpoints'),
+}
+
+model GetDiscoveryEndpointsResult {
+  code?: string(name='code'),
+  data?: GetDiscoveryEndpointsOutput(name='data'),
+  requestId?: string(name='requestId'),
 }
 
 model GetToolOutput {
@@ -1157,6 +1190,21 @@ model ListToolsOutput {
   total?: int32(name='total'),
 }
 
+model ListWorkspacesOutput {
+  pageNumber?: int32(name='pageNumber'),
+  pageSize?: int32(name='pageSize'),
+  total?: long(name='total'),
+  workspaces?: [
+    Workspace
+  ](name='workspaces'),
+}
+
+model ListWorkspacesResult {
+  code?: string(name='code'),
+  data?: ListWorkspacesOutput(name='data'),
+  requestId?: string(name='requestId'),
+}
+
 model LogConfiguration {
   logstore?: string(name='logstore', description='SLS日志库名称', example='agent-runtime-logs'),
   project?: string(name='project', description='SLS项目名称', example='agent-runtime-logs'),
@@ -1412,7 +1460,9 @@ model ProtocolConfiguration {
 }
 
 model ProtocolSettings {
-  a2AAgentCard?: string(name='A2AAgentCard', description='A2A Agent Card'),
+  a2AAgentCard?: string(name='A2AAgentCard', description='A2A Agent Card', deprecated='true'),
+  a2aAgentCard?: string(name='a2aAgentCard'),
+  a2aAgentCardUrl?: string(name='a2aAgentCardUrl'),
   headers?: string(name='headers', description='请求头'),
   inputBodyJsonSchema?: string(name='inputBodyJsonSchema', description='请求体JSON模式'),
   method?: string(name='method', description='HTTP方法'),
@@ -1735,6 +1785,7 @@ model UpdateAgentRuntimeInput {
   protocolConfiguration?: ProtocolConfiguration(name='protocolConfiguration', description='智能体运行时的通信协议配置，定义运行时如何与外部系统交互', example='{}'),
   sessionConcurrencyLimitPerInstance?: int32(name='sessionConcurrencyLimitPerInstance', description='每个运行时实例允许的最大并发会话数', example='100', minimum=1, maximum=200),
   sessionIdleTimeoutSeconds?: int32(name='sessionIdleTimeoutSeconds', description='会话的空闲超时时间，单位为秒。实例没有会话请求后处于空闲状态，空闲态为闲置计费模式，超过此超时时间后会话自动过期，不可继续使用', example='3600'),
+  workspaceId?: string(name='workspaceId'),
 }
 
 model UpdateApigLLMModelInput {
@@ -1776,6 +1827,12 @@ model UpdateCustomDomainInput {
   protocol?: string(name='protocol', description='域名支持的协议类型：● HTTP：仅支持 HTTP 协议。● HTTPS：仅支持 HTTPS 协议。● HTTP,HTTPS：支持 HTTP 及 HTTPS 协议。', example='HTTP'),
   routeConfig?: RouteConfig(name='routeConfig', description='路由表：自定义域名访问时的 PATH 到 资源 的映射。', example='{}'),
   tlsConfig?: TLSConfig(name='tlsConfig', description='TLS 配置信息。', example='{}'),
+}
+
+model UpdateDiscoveryEndpointsInput {
+  discoveryEndpoints?: [
+    DiscoveryEndpoint
+  ](name='discoveryEndpoints'),
 }
 
 model UpdateDomainInput {
@@ -1878,6 +1935,10 @@ model UpdateToolOutput {
   success?: boolean(name='success'),
 }
 
+model UpdateWorkspaceInput {
+  description?: string(name='description'),
+}
+
 model VectorStoreConfig {
   config?: {
     collectionName?: string(name='collectionName'),
@@ -1909,6 +1970,23 @@ This parameter is required.'),
   width: float(name='width', description='视口宽度（像素）
 
 This parameter is required.'),
+}
+
+model Workspace {
+  createdAt?: string(name='createdAt'),
+  description?: string(name='description'),
+  isDefault?: boolean(name='isDefault'),
+  name?: string(name='name'),
+  resourceGroupId?: string(name='resourceGroupId'),
+  updatedAt?: string(name='updatedAt'),
+  workspaceArn?: string(name='workspaceArn'),
+  workspaceId?: string(name='workspaceId'),
+}
+
+model WorkspaceResult {
+  code?: string(name='code'),
+  data?: Workspace(name='data'),
+  requestId?: string(name='requestId'),
 }
 
 model ActivateTemplateMCPRequest {
@@ -2759,12 +2837,13 @@ async function listAgentRuntimeVersions(request: ListAgentRuntimeVersionsRequest
 
 model ListAgentRuntimesRequest {
   agentRuntimeName?: string(name='agentRuntimeName', description='根据智能体运行时名称进行模糊匹配过滤', example='my-runtime', position='Query'),
-  discoveryResourceGroupId?: string(name='discoveryResourceGroupId', description='用于服务发现的资源组标识符', example='rg-123456', position='Query'),
+  discoveryResourceGroupId?: string(name='discoveryResourceGroupId', description='用于服务发现的资源组标识符', example='rg-123456', deprecated='true', position='Query'),
   pageNumber?: int32(name='pageNumber', description='当前页码，从1开始计数', example='1', position='Query'),
   pageSize?: int32(name='pageSize', description='每页返回的记录数量', example='10', position='Query'),
-  resourceGroupId?: string(name='resourceGroupId', position='Query'),
+  resourceGroupId?: string(name='resourceGroupId', deprecated='true', position='Query'),
   searchMode?: string(name='searchMode', description='查询模式，支持精确查询和模糊查询', example='fuzzy', position='Query'),
   status?: string(name='status', description='根据状态进行过滤，多个状态用逗号分隔，支持精确匹配', example='READY,CREATING', position='Query'),
+  workspaceId?: string(name='workspaceId', description='根据工作空间ID进行过滤，用于资源隔离和权限管理', example='ws-1234567890abcdef', position='Query'),
 }
 
 model ListAgentRuntimesResponse = {
