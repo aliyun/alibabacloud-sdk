@@ -460,6 +460,8 @@ model JobItem {
   ](name='StatusHistory', description='The status history of the job.'),
   subStatus?: string(name='SubStatus', description='The sub-status of the job, such as the preemption and retry status.', example='Restarting'),
   systemEnvs?: map[string]string(name='SystemEnvs', description='The system environment variables configured.'),
+  templateId?: string(name='TemplateId'),
+  templateName?: string(name='TemplateName'),
   tenantId?: string(name='TenantId', description='The tenant ID.', example='****93955616****'),
   thirdpartyLibDir?: string(name='ThirdpartyLibDir', description='The name of the folder in which the requirements.txt file resides.', example='/root/code/'),
   thirdpartyLibs?: [ string ](name='ThirdpartyLibs', description='The third-party Python libraries required for the job.'),
@@ -570,6 +572,16 @@ model JobSpec {
 
 The Master node in jobs of the PyTorchJob, XGBoostJob, OneFlowJob, or ElasticBatch type is optional. If you do not specify the Master node, the system automatically uses the first Worker node as the Master node.', example='Worker'),
   useSpotInstance?: boolean(name='UseSpotInstance', description='Whether to use preemptible instances.', example='false', deprecated=true),
+}
+
+model JobTemplateVersionDetail {
+  constraints?: map[string]string(name='Constraints'),
+  content?: string(name='Content', description='任务模板的配置内容，支持 CreateJob 接口的所有参数字段，以 JSON 对象存储'),
+  createdBy?: string(name='CreatedBy', description='创建该版本的用户ID'),
+  gmtCreated?: string(name='GmtCreated', description='该版本的创建时间
+
+Use the UTC time format: yyyy-MM-ddTHH:mm:ss.SSSZ'),
+  version?: int32(name='Version', description='模板版本号'),
 }
 
 model Lifecycle {
@@ -971,6 +983,8 @@ This parameter is required.', example='TFJob'),
 
 *   ChiefWorker: If you use this policy, the job is considered successful when the pod on the chief node completes operations.
 *   AllWorkers (default): If you use this policy, the job is considered successful when all worker nodes complete operations.', example='AllWorkers'),
+  templateId?: string(name='TemplateId', description='任务模板的 ID。指定后将基于模板创建作业，作业参数需符合模板约束规则。', example='tplxxxxxxxxxxxxxxxx'),
+  templateVersion?: int32(name='TemplateVersion', description='指定使用的模板版本号，不传则使用模板默认版本。', example='1'),
   thirdpartyLibDir?: string(name='ThirdpartyLibDir', description='The folder in which the third-party Python library file requirements.txt is stored. Before the startup command specified by the UserCommand parameter is run on each node, DLC fetches the requirements.txt file from the folder and runs `pip install -r` to install the required package and library.', example='/root/code/'),
   thirdpartyLibs?: [ string ](name='ThirdpartyLibs', description='The third-party Python libraries to be installed.'),
   userCommand?: string(name='UserCommand', description='The startup command for all nodes of the job.
@@ -1007,7 +1021,7 @@ model CreateJobResponse = {
 }
 
 /**
- * @summary Creates a job that runs in a cluster. You can configure the data source, code source, startup command, and compute resources of each node on which a job runs.
+ * @summary Creates a job that runs in a cluster. You can configure the data source, code source, startup command, and computing resources of each node on which a job runs.
  *
  * @description Before you call this operation, make sure that you understand the billing methods and [pricing](https://help.aliyun.com/document_detail/171758.html) of Deep Learning Containers (DLC) of Platform for AI (PAI).
  *
@@ -1070,6 +1084,12 @@ async function createJobWithOptions(request: CreateJobRequest, headers: map[stri
   if (!Util.isUnset(request.successPolicy)) {
     body['SuccessPolicy'] = request.successPolicy;
   }
+  if (!Util.isUnset(request.templateId)) {
+    body['TemplateId'] = request.templateId;
+  }
+  if (!Util.isUnset(request.templateVersion)) {
+    body['TemplateVersion'] = request.templateVersion;
+  }
   if (!Util.isUnset(request.thirdpartyLibDir)) {
     body['ThirdpartyLibDir'] = request.thirdpartyLibDir;
   }
@@ -1105,7 +1125,7 @@ async function createJobWithOptions(request: CreateJobRequest, headers: map[stri
 }
 
 /**
- * @summary Creates a job that runs in a cluster. You can configure the data source, code source, startup command, and compute resources of each node on which a job runs.
+ * @summary Creates a job that runs in a cluster. You can configure the data source, code source, startup command, and computing resources of each node on which a job runs.
  *
  * @description Before you call this operation, make sure that you understand the billing methods and [pricing](https://help.aliyun.com/document_detail/171758.html) of Deep Learning Containers (DLC) of Platform for AI (PAI).
  *
@@ -2683,6 +2703,7 @@ model ListJobsRequest {
 *   Failed
 *   Stopped', example='Running'),
   tags?: map[string]string(name='Tags', description='The tags.'),
+  templateId?: string(name='TemplateId'),
   timeRangeField?: string(name='TimeRangeField'),
   userCommandSearch?: string(name='UserCommandSearch'),
   userIdForFilter?: string(name='UserIdForFilter', description='The user ID used to filter jobs.', example='20**************'),
@@ -2761,6 +2782,7 @@ model ListJobsShrinkRequest {
 *   Failed
 *   Stopped', example='Running'),
   tagsShrink?: string(name='Tags', description='The tags.'),
+  templateId?: string(name='TemplateId'),
   timeRangeField?: string(name='TimeRangeField'),
   userCommandSearch?: string(name='UserCommandSearch'),
   userIdForFilter?: string(name='UserIdForFilter', description='The user ID used to filter jobs.', example='20**************'),
@@ -2884,6 +2906,9 @@ async function listJobsWithOptions(tmpReq: ListJobsRequest, headers: map[string]
   }
   if (!Util.isUnset(request.tagsShrink)) {
     query['Tags'] = request.tagsShrink;
+  }
+  if (!Util.isUnset(request.templateId)) {
+    query['TemplateId'] = request.templateId;
   }
   if (!Util.isUnset(request.timeRangeField)) {
     query['TimeRangeField'] = request.timeRangeField;
