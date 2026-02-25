@@ -36,13 +36,94 @@ model InstanceConfigDto {
 }
 
 model ResourceSpec {
-  cu?: int32(name='cu'),
-  diskNumber?: int32(name='diskNumber'),
-  localStorageInstanceType?: string(name='localStorageInstanceType'),
-  nodeNumber?: int32(name='nodeNumber'),
-  specType?: string(name='specType'),
-  storagePerformanceLevel?: string(name='storagePerformanceLevel'),
-  storageSize?: int32(name='storageSize'),
+  cu?: int32(name='cu', description='The number of CUs. A compute unit (CU) is the basic metering unit of a service. 1 CU = 1 CPU core + 4 GiB of memory.', example='3'),
+  diskNumber?: int32(name='diskNumber', description='The number of disk blocks.', example='1'),
+  localStorageInstanceType?: string(name='localStorageInstanceType', description='Local SSD Instance Specification for the node group. This parameter is applicable only when the node group is based on ECS instances and the SpecType is set to \\\\"Local SSD / Large-capacity Storage\\\\"', example='local_ssd_4_4xlarge'),
+  nodeNumber?: int32(name='nodeNumber', description='The number of nodes.', example='3'),
+  specType?: string(name='specType', description='The type of the node group. The following types are included:
+
+*   standard, Standard Edition, ECS + cloud disk.
+*   localSSD , local SSD.
+*   bigData, which stores large specifications.', example='standard'),
+  storagePerformanceLevel?: string(name='storagePerformanceLevel', description='The performance level of the disks. Valid values:
+
+*   PL0: A single disk can achieve up to 10,000 random read/write IOPS.
+*   PL1: A single disk can achieve up to 50,000 random read/write IOPS.
+*   PL2: A single disk can achieve up to 100,000 random read/write IOPS.
+*   PL3: A single disk can achieve up to 1 million random read/write IOPS.', example='pl1'),
+  storageSize?: int32(name='storageSize', description='The storage size.', example='100'),
+}
+
+model AddGatewayRequest {
+  feNodeNumber?: int32(name='FeNodeNumber', example='3'),
+  gatewayName?: string(name='GatewayName', example='eas_automation_test'),
+  instanceId?: string(name='InstanceId', example='c-b25e21e24388****'),
+}
+
+model AddGatewayResponseBody = {
+  data?: boolean(name='Data', example='true'),
+  errCode?: string(name='ErrCode', example='InvalidParams'),
+  errMessage?: string(name='ErrMessage', example='Invalid params: [instance not exists].'),
+  httpStatusCode?: int32(name='HttpStatusCode', example='200'),
+  requestId?: string(name='RequestId', example='32A44F0D-BFF6-5664-999A-218BBDE7****'),
+  success?: boolean(name='Success', example='false'),
+}
+
+model AddGatewayResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: AddGatewayResponseBody(name='body'),
+}
+
+/**
+ * @summary 新建网关
+ *
+ * @param request AddGatewayRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return AddGatewayResponse
+ */
+async function addGatewayWithOptions(request: AddGatewayRequest, headers: map[string]string, runtime: Util.RuntimeOptions): AddGatewayResponse {
+  Util.validateModel(request);
+  var query : map[string]any = {};
+  if (!Util.isUnset(request.feNodeNumber)) {
+    query['FeNodeNumber'] = request.feNodeNumber;
+  }
+  if (!Util.isUnset(request.gatewayName)) {
+    query['GatewayName'] = request.gatewayName;
+  }
+  if (!Util.isUnset(request.instanceId)) {
+    query['InstanceId'] = request.instanceId;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'AddGateway',
+    version = '2022-10-19',
+    protocol = 'HTTPS',
+    pathname = `/webapi/gateway/add`,
+    method = 'POST',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 新建网关
+ *
+ * @param request AddGatewayRequest
+ * @return AddGatewayResponse
+ */
+async function addGateway(request: AddGatewayRequest): AddGatewayResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return addGatewayWithOptions(request, headers, runtime);
 }
 
 model ChangeResourceGroupRequest {
@@ -69,7 +150,7 @@ model ChangeResourceGroupResponse = {
 }
 
 /**
- * @summary 资源转组
+ * @summary This interface is used to modify the resource group of a Serverless StarRocks instance.
  *
  * @param request ChangeResourceGroupRequest
  * @param headers map
@@ -111,7 +192,7 @@ async function changeResourceGroupWithOptions(request: ChangeResourceGroupReques
 }
 
 /**
- * @summary 资源转组
+ * @summary This interface is used to modify the resource group of a Serverless StarRocks instance.
  *
  * @param request ChangeResourceGroupRequest
  * @return ChangeResourceGroupResponse
@@ -375,7 +456,7 @@ model CreateServiceLinkedRoleResponse = {
 }
 
 /**
- * @summary 为用户创建AliyunServiceRoleForEMRStarRocks
+ * @summary This interface is used to create the AliyunServiceRoleForEMRStarRocks role for users.
  *
  * @param headers map
  * @param runtime runtime options for this request RuntimeOptions
@@ -400,7 +481,7 @@ async function createServiceLinkedRoleWithOptions(headers: map[string]string, ru
 }
 
 /**
- * @summary 为用户创建AliyunServiceRoleForEMRStarRocks
+ * @summary This interface is used to create the AliyunServiceRoleForEMRStarRocks role for users.
  *
  * @return CreateServiceLinkedRoleResponse
  */
@@ -408,6 +489,74 @@ async function createServiceLinkedRole(): CreateServiceLinkedRoleResponse {
   var runtime = new Util.RuntimeOptions{};
   var headers : map[string]string = {};
   return createServiceLinkedRoleWithOptions(headers, runtime);
+}
+
+model DeleteGatewayRequest {
+  gatewayId?: string(name='GatewayId', example='dg-2r69r8kpmn56k5s3'),
+  instanceId?: string(name='InstanceId', example='c-b25e21e24388****'),
+}
+
+model DeleteGatewayResponseBody = {
+  data?: boolean(name='Data', example='24151320976****'),
+  errCode?: string(name='ErrCode', example='InvalidParams'),
+  errMessage?: string(name='ErrMessage', example='Invalid params: [instance not exists].'),
+  httpStatusCode?: int32(name='HttpStatusCode', example='200'),
+  requestId?: string(name='RequestId', example='32A44F0D-BFF6-5664-999A-218BBDE74XXX'),
+  success?: boolean(name='Success', example='True'),
+}
+
+model DeleteGatewayResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: DeleteGatewayResponseBody(name='body'),
+}
+
+/**
+ * @summary 删除网关
+ *
+ * @param request DeleteGatewayRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return DeleteGatewayResponse
+ */
+async function deleteGatewayWithOptions(request: DeleteGatewayRequest, headers: map[string]string, runtime: Util.RuntimeOptions): DeleteGatewayResponse {
+  Util.validateModel(request);
+  var query : map[string]any = {};
+  if (!Util.isUnset(request.gatewayId)) {
+    query['GatewayId'] = request.gatewayId;
+  }
+  if (!Util.isUnset(request.instanceId)) {
+    query['InstanceId'] = request.instanceId;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'DeleteGateway',
+    version = '2022-10-19',
+    protocol = 'HTTPS',
+    pathname = `/webapi/gateway/delete`,
+    method = 'POST',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 删除网关
+ *
+ * @param request DeleteGatewayRequest
+ * @return DeleteGatewayResponse
+ */
+async function deleteGateway(request: DeleteGatewayRequest): DeleteGatewayResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return deleteGatewayWithOptions(request, headers, runtime);
 }
 
 model DescribeInstancesRequest {
@@ -497,7 +646,7 @@ model DescribeInstancesResponse = {
 }
 
 /**
- * @summary 根据集群ID或者名称等信息过滤集群
+ * @summary This operation is used to query Serverless StarRocks instances, supporting filtering based on instance name or tags and other information.
  *
  * @param tmpReq DescribeInstancesRequest
  * @param headers map
@@ -556,7 +705,7 @@ async function describeInstancesWithOptions(tmpReq: DescribeInstancesRequest, he
 }
 
 /**
- * @summary 根据集群ID或者名称等信息过滤集群
+ * @summary This operation is used to query Serverless StarRocks instances, supporting filtering based on instance name or tags and other information.
  *
  * @param request DescribeInstancesRequest
  * @return DescribeInstancesResponse
@@ -707,6 +856,471 @@ async function describeNodeGroups(request: DescribeNodeGroupsRequest): DescribeN
   var runtime = new Util.RuntimeOptions{};
   var headers : map[string]string = {};
   return describeNodeGroupsWithOptions(request, headers, runtime);
+}
+
+model DisableSSLConnectionRequest {
+  instanceId?: string(name='InstanceId', example='c-b25e21e24388****'),
+}
+
+model DisableSSLConnectionResponseBody = {
+  data?: boolean(name='Data', example='true'),
+  errCode?: string(name='ErrCode', example='InvalidParams'),
+  errMessage?: string(name='ErrMessage', example='Invalid params: [instance not exists].'),
+  httpStatusCode?: int32(name='HttpStatusCode', example='200'),
+  requestId?: string(name='RequestId', example='32A44F0D-BFF6-5664-999A-218BBDE7****'),
+  success?: boolean(name='Success', example='false'),
+}
+
+model DisableSSLConnectionResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: DisableSSLConnectionResponseBody(name='body'),
+}
+
+/**
+ * @summary StarRocks关闭SSL
+ *
+ * @param request DisableSSLConnectionRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return DisableSSLConnectionResponse
+ */
+async function disableSSLConnectionWithOptions(request: DisableSSLConnectionRequest, headers: map[string]string, runtime: Util.RuntimeOptions): DisableSSLConnectionResponse {
+  Util.validateModel(request);
+  var query : map[string]any = {};
+  if (!Util.isUnset(request.instanceId)) {
+    query['InstanceId'] = request.instanceId;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'DisableSSLConnection',
+    version = '2022-10-19',
+    protocol = 'HTTPS',
+    pathname = `/webapi/starrocks/disableSSLConnection`,
+    method = 'POST',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary StarRocks关闭SSL
+ *
+ * @param request DisableSSLConnectionRequest
+ * @return DisableSSLConnectionResponse
+ */
+async function disableSSLConnection(request: DisableSSLConnectionRequest): DisableSSLConnectionResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return disableSSLConnectionWithOptions(request, headers, runtime);
+}
+
+model EnableSSLConnectionRequest {
+  customSSLCertificate?: string(name='CustomSSLCertificate', example='MIIP0wIBAzCCD4wGCSqGSIb3DQEHAaCCD30Egg95MIIPdTCCBbwGCSqGSIb3DQEHAaCCBa0EggWpMIIFpTCCBaEGCyqGSIb3DQEMCgECoIIFQDCCBTwwZgYJKoZIhvcNAQUNMFkwOAYJKoZIhvcNAQUMMCsEFHkQJTDaeFabOsRTB4Q7hgW6if7hAgInEAIBIDAMBggqhkiG9w0CCQU'),
+  enableCustom?: boolean(name='EnableCustom', example='true'),
+  instanceId?: string(name='InstanceId', example='c-0104730e9de40215'),
+  renewal?: boolean(name='Renewal', example='true'),
+  sslKeyPassword?: string(name='SslKeyPassword', example='KoZ13vcNAQ'),
+  sslKeystorePassword?: string(name='SslKeystorePassword', example='21esSd9Ao'),
+}
+
+model EnableSSLConnectionResponseBody = {
+  data?: boolean(name='Data', example='24151320976****'),
+  errCode?: string(name='ErrCode', example='InvalidParams'),
+  errMessage?: string(name='ErrMessage', example='Invalid params: [instance not exists].'),
+  httpStatusCode?: int32(name='HttpStatusCode', example='200'),
+  requestId?: string(name='RequestId', example='32A44F0D-BFF6-5664-999A-218BBDE74XXX'),
+  success?: boolean(name='Success', example='True'),
+}
+
+model EnableSSLConnectionResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: EnableSSLConnectionResponseBody(name='body'),
+}
+
+/**
+ * @summary StarRocks开启SSL
+ *
+ * @param request EnableSSLConnectionRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return EnableSSLConnectionResponse
+ */
+async function enableSSLConnectionWithOptions(request: EnableSSLConnectionRequest, headers: map[string]string, runtime: Util.RuntimeOptions): EnableSSLConnectionResponse {
+  Util.validateModel(request);
+  var body : map[string]any = {};
+  if (!Util.isUnset(request.customSSLCertificate)) {
+    body['CustomSSLCertificate'] = request.customSSLCertificate;
+  }
+  if (!Util.isUnset(request.enableCustom)) {
+    body['EnableCustom'] = request.enableCustom;
+  }
+  if (!Util.isUnset(request.instanceId)) {
+    body['InstanceId'] = request.instanceId;
+  }
+  if (!Util.isUnset(request.renewal)) {
+    body['Renewal'] = request.renewal;
+  }
+  if (!Util.isUnset(request.sslKeyPassword)) {
+    body['SslKeyPassword'] = request.sslKeyPassword;
+  }
+  if (!Util.isUnset(request.sslKeystorePassword)) {
+    body['SslKeystorePassword'] = request.sslKeystorePassword;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApi.Params{
+    action = 'EnableSSLConnection',
+    version = '2022-10-19',
+    protocol = 'HTTPS',
+    pathname = `/webapi/starrocks/enableSSLConnection`,
+    method = 'POST',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary StarRocks开启SSL
+ *
+ * @param request EnableSSLConnectionRequest
+ * @return EnableSSLConnectionResponse
+ */
+async function enableSSLConnection(request: EnableSSLConnectionRequest): EnableSSLConnectionResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return enableSSLConnectionWithOptions(request, headers, runtime);
+}
+
+model GetInstanceFeatureGateRequest {
+  instanceId?: string(name='InstanceId', description='This parameter is required.', example='c-b25e21e24388****'),
+}
+
+model GetInstanceFeatureGateResponseBody = {
+  accessDeniedDetail?: string(name='AccessDeniedDetail', description='AccessDeniedDetail', example='{     "PolicyType": "AccountLevelIdentityBasedPolicy",     "AuthPrincipalOwnerId": "xxx",     "EncodedDiagnosticMessage": "xxx",     "AuthPrincipalType": "xxx",     "AuthPrincipalDisplayName": "xxx",     "NoPermissionType": "ImplicitDeny",     "AuthAction": "sr:xxx"   }'),
+  data?: {
+    consoleControlRestart?: boolean(name='ConsoleControlRestart', example='true'),
+    enableManageMv?: boolean(name='EnableManageMv', example='true'),
+    fullManagedSecurityGroup?: boolean(name='FullManagedSecurityGroup', example='true'),
+    mountDlfMetaToken?: boolean(name='MountDlfMetaToken', example='true'),
+    supportAddConfigTypes?: [ string ](name='SupportAddConfigTypes'),
+    supportBackup?: boolean(name='SupportBackup', example='true'),
+    supportCreateAgent?: boolean(name='SupportCreateAgent', example='true'),
+    supportCreateNonStandardNodeGroup?: boolean(name='SupportCreateNonStandardNodeGroup', example='true'),
+    supportEed?: boolean(name='SupportEed', example='true'),
+    supportEnableAi?: boolean(name='SupportEnableAi', example='true'),
+    supportEnableSSL?: boolean(name='SupportEnableSSL', example='true'),
+    supportFastModeModifyConfig?: boolean(name='SupportFastModeModifyConfig', example='true'),
+    supportFastModeModifyResource?: boolean(name='SupportFastModeModifyResource', example='true'),
+    supportFastRestart?: boolean(name='SupportFastRestart', example='true'),
+    supportFeGateway?: boolean(name='SupportFeGateway', example='true'),
+    supportHostAlias?: boolean(name='SupportHostAlias', example='true'),
+    supportModifyTimezone?: boolean(name='SupportModifyTimezone', example='true'),
+    supportMultiAZ?: boolean(name='SupportMultiAZ', example='true'),
+    useComputeNode?: boolean(name='UseComputeNode', example='true'),
+  }(name='Data'),
+  errCode?: string(name='ErrCode', example='InvalidParams'),
+  errMessage?: string(name='ErrMessage', example='Invalid params: [instance not exists].'),
+  httpStatusCode?: int32(name='HttpStatusCode', example='200'),
+  requestId?: string(name='RequestId', example='B67D142D-D54E-184F-A306-22BDC01B2XXX'),
+  success?: boolean(name='Success', example='false'),
+  total?: int32(name='Total', example='100'),
+}
+
+model GetInstanceFeatureGateResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: GetInstanceFeatureGateResponseBody(name='body'),
+}
+
+/**
+ * @summary 获取StarRocks集群实例的特性开关
+ *
+ * @param request GetInstanceFeatureGateRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return GetInstanceFeatureGateResponse
+ */
+async function getInstanceFeatureGateWithOptions(request: GetInstanceFeatureGateRequest, headers: map[string]string, runtime: Util.RuntimeOptions): GetInstanceFeatureGateResponse {
+  Util.validateModel(request);
+  var query : map[string]any = {};
+  if (!Util.isUnset(request.instanceId)) {
+    query['InstanceId'] = request.instanceId;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'GetInstanceFeatureGate',
+    version = '2022-10-19',
+    protocol = 'HTTPS',
+    pathname = `/webapi/features/featureGate`,
+    method = 'POST',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 获取StarRocks集群实例的特性开关
+ *
+ * @param request GetInstanceFeatureGateRequest
+ * @return GetInstanceFeatureGateResponse
+ */
+async function getInstanceFeatureGate(request: GetInstanceFeatureGateRequest): GetInstanceFeatureGateResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return getInstanceFeatureGateWithOptions(request, headers, runtime);
+}
+
+model IsolateLeaderRequest {
+  instanceId?: string(name='InstanceId', example='c-b25e21e24388****'),
+  isolateLeader?: boolean(name='IsolateLeader', example='true'),
+}
+
+model IsolateLeaderResponseBody = {
+  data?: boolean(name='Data', example='24151320976****'),
+  errCode?: string(name='ErrCode', example='Success'),
+  errMessage?: string(name='ErrMessage', example='Invalid params: [instance not exists].'),
+  httpStatusCode?: int32(name='HttpStatusCode', example='200'),
+  requestId?: string(name='RequestId', example='32A44F0D-BFF6-5664-999A-218BBDE7****'),
+  success?: boolean(name='Success', example='false'),
+}
+
+model IsolateLeaderResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: IsolateLeaderResponseBody(name='body'),
+}
+
+/**
+ * @summary 默认网关开启内网SLB
+ *
+ * @param request IsolateLeaderRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return IsolateLeaderResponse
+ */
+async function isolateLeaderWithOptions(request: IsolateLeaderRequest, headers: map[string]string, runtime: Util.RuntimeOptions): IsolateLeaderResponse {
+  Util.validateModel(request);
+  var query : map[string]any = {};
+  if (!Util.isUnset(request.instanceId)) {
+    query['InstanceId'] = request.instanceId;
+  }
+  if (!Util.isUnset(request.isolateLeader)) {
+    query['IsolateLeader'] = request.isolateLeader;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'IsolateLeader',
+    version = '2022-10-19',
+    protocol = 'HTTPS',
+    pathname = `/webapi/gateway/isolateLeader`,
+    method = 'POST',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 默认网关开启内网SLB
+ *
+ * @param request IsolateLeaderRequest
+ * @return IsolateLeaderResponse
+ */
+async function isolateLeader(request: IsolateLeaderRequest): IsolateLeaderResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return isolateLeaderWithOptions(request, headers, runtime);
+}
+
+model ListGatewayRequest {
+  instanceId?: string(name='InstanceId', example='c-b25e21e24388****'),
+}
+
+model ListGatewayResponseBody = {
+  data?: [ 
+    {
+      enablePublicNet?: boolean(name='EnablePublicNet', example='true'),
+      feNodeNumber?: int32(name='FeNodeNumber', example='2'),
+      gatewayId?: string(name='GatewayId', example='13822'),
+      gatewayName?: string(name='GatewayName'),
+      gatewayType?: string(name='GatewayType', example='slb'),
+      internalDomain?: string(name='InternalDomain', example='fe-c-b25e21e24388****-ab8sjd-internal.starrocks.aliyuncs.com'),
+      internalSlbId?: string(name='InternalSlbId', example='lb-123abc'),
+      privatezoneId?: string(name='PrivatezoneId', description='PrivatezoneId', example='a62des2123243881b9s2sa220k2l38m9'),
+      publicDomain?: string(name='PublicDomain', example='fe-c-b25e21e24388****-8s272d.starrocks.aliyuncs.com'),
+      publicSlbAclId?: string(name='PublicSlbAclId', example='acl-hsb123ksi2'),
+      publicSlbId?: string(name='PublicSlbId', example='lb-abc123'),
+    }
+  ](name='Data'),
+  errCode?: string(name='ErrCode', example='InvalidParams'),
+  errMessage?: string(name='ErrMessage', example='Invalid params: [instance not exists].'),
+  httpStatusCode?: int32(name='HttpStatusCode', example='200'),
+  requestId?: string(name='RequestId', example='32A44F0D-BFF6-5664-999A-218BBDE7****'),
+  success?: boolean(name='Success', example='false'),
+}
+
+model ListGatewayResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ListGatewayResponseBody(name='body'),
+}
+
+/**
+ * @summary 获取网关列表
+ *
+ * @param request ListGatewayRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return ListGatewayResponse
+ */
+async function listGatewayWithOptions(request: ListGatewayRequest, headers: map[string]string, runtime: Util.RuntimeOptions): ListGatewayResponse {
+  Util.validateModel(request);
+  var query : map[string]any = {};
+  if (!Util.isUnset(request.instanceId)) {
+    query['InstanceId'] = request.instanceId;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'ListGateway',
+    version = '2022-10-19',
+    protocol = 'HTTPS',
+    pathname = `/webapi/gateway/list`,
+    method = 'POST',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 获取网关列表
+ *
+ * @param request ListGatewayRequest
+ * @return ListGatewayResponse
+ */
+async function listGateway(request: ListGatewayRequest): ListGatewayResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return listGatewayWithOptions(request, headers, runtime);
+}
+
+model ModifyChargeTypeRequest {
+  autoRenew?: boolean(name='AutoRenew', example='True'),
+  billingInstanceIds?: string(name='BillingInstanceIds', example='c-3d6dc31ba67b1839'),
+  duration?: string(name='Duration', example='2'),
+  instanceId?: string(name='InstanceId', example='c-b25e21e24388****'),
+  pricingCycle?: string(name='PricingCycle', example='Month'),
+  promotionOptionNo?: string(name='PromotionOptionNo', example='2345'),
+}
+
+model ModifyChargeTypeResponseBody = {
+  accessDeniedDetail?: string(name='AccessDeniedDetail', description='AccessDeniedDetail', example='{     "PolicyType": "AccountLevelIdentityBasedPolicy",     "AuthPrincipalOwnerId": "xxx",     "EncodedDiagnosticMessage": "xxx",     "AuthPrincipalType": "xxx",     "AuthPrincipalDisplayName": "xxx",     "NoPermissionType": "ImplicitDeny",     "AuthAction": "sr:xxx"   }'),
+  data?: long(name='Data', example='24151320976****'),
+  errCode?: string(name='ErrCode', example='InvalidParams'),
+  errMessage?: string(name='ErrMessage', example='Invalid params: [instance not exists].'),
+  httpStatusCode?: int32(name='HttpStatusCode', example='200'),
+  requestId?: string(name='RequestId', example='32A44F0D-BFF6-5664-999A-218BBDE7****'),
+  success?: boolean(name='Success', example='true'),
+}
+
+model ModifyChargeTypeResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ModifyChargeTypeResponseBody(name='body'),
+}
+
+/**
+ * @summary 修改实例的付费类型
+ *
+ * @param request ModifyChargeTypeRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return ModifyChargeTypeResponse
+ */
+async function modifyChargeTypeWithOptions(request: ModifyChargeTypeRequest, headers: map[string]string, runtime: Util.RuntimeOptions): ModifyChargeTypeResponse {
+  Util.validateModel(request);
+  var query : map[string]any = {};
+  if (!Util.isUnset(request.autoRenew)) {
+    query['AutoRenew'] = request.autoRenew;
+  }
+  if (!Util.isUnset(request.billingInstanceIds)) {
+    query['BillingInstanceIds'] = request.billingInstanceIds;
+  }
+  if (!Util.isUnset(request.duration)) {
+    query['Duration'] = request.duration;
+  }
+  if (!Util.isUnset(request.instanceId)) {
+    query['InstanceId'] = request.instanceId;
+  }
+  if (!Util.isUnset(request.pricingCycle)) {
+    query['PricingCycle'] = request.pricingCycle;
+  }
+  if (!Util.isUnset(request.promotionOptionNo)) {
+    query['PromotionOptionNo'] = request.promotionOptionNo;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'ModifyChargeType',
+    version = '2022-10-19',
+    protocol = 'HTTPS',
+    pathname = `/webapi/cluster/modifyChargeType`,
+    method = 'POST',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 修改实例的付费类型
+ *
+ * @param request ModifyChargeTypeRequest
+ * @return ModifyChargeTypeResponse
+ */
+async function modifyChargeType(request: ModifyChargeTypeRequest): ModifyChargeTypeResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return modifyChargeTypeWithOptions(request, headers, runtime);
 }
 
 model ModifyCuRequest {
@@ -1237,6 +1851,87 @@ async function modifyDiskSize(request: ModifyDiskSizeRequest): ModifyDiskSizeRes
   return modifyDiskSizeWithOptions(request, headers, runtime);
 }
 
+model ModifyDiskTypeRequest {
+  instanceId?: string(name='InstanceId', description='This parameter is required.', example='c-b25e21e24388****'),
+  nodeGroupId?: string(name='NodeGroupId', description='This parameter is required.', example='ng-3d5ce6454354****'),
+  promotionOptionNo?: string(name='PromotionOptionNo', example='youhuiquan_promotion_option_id_for_blank'),
+  targetDiskType?: string(name='TargetDiskType', description='This parameter is required.', example='essd'),
+  targetPerformanceLevel?: string(name='TargetPerformanceLevel', description='This parameter is required.', example='pl2'),
+}
+
+model ModifyDiskTypeResponseBody = {
+  accessDeniedDetail?: string(name='AccessDeniedDetail', description='AccessDeniedDetail', example='{     "PolicyType": "AccountLevelIdentityBasedPolicy",     "AuthPrincipalOwnerId": "xxx",     "EncodedDiagnosticMessage": "xxx",     "AuthPrincipalType": "xxx",     "AuthPrincipalDisplayName": "xxx",     "NoPermissionType": "ImplicitDeny",     "AuthAction": "sr:xxx"   }'),
+  data?: long(name='Data', example='true'),
+  errCode?: string(name='ErrCode', example='InvalidParams'),
+  errMessage?: string(name='ErrMessage', example='Invalid params: [instance not exists].'),
+  httpStatusCode?: int32(name='HttpStatusCode', example='200'),
+  requestId?: string(name='RequestId', example='32A44F0D-BFF6-5664-999A-218BBDE74XXX'),
+  success?: boolean(name='Success', example='True'),
+}
+
+model ModifyDiskTypeResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ModifyDiskTypeResponseBody(name='body'),
+}
+
+/**
+ * @summary 修改计算组的节点磁盘类型
+ *
+ * @param request ModifyDiskTypeRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return ModifyDiskTypeResponse
+ */
+async function modifyDiskTypeWithOptions(request: ModifyDiskTypeRequest, headers: map[string]string, runtime: Util.RuntimeOptions): ModifyDiskTypeResponse {
+  Util.validateModel(request);
+  var query : map[string]any = {};
+  if (!Util.isUnset(request.instanceId)) {
+    query['InstanceId'] = request.instanceId;
+  }
+  if (!Util.isUnset(request.nodeGroupId)) {
+    query['NodeGroupId'] = request.nodeGroupId;
+  }
+  if (!Util.isUnset(request.promotionOptionNo)) {
+    query['PromotionOptionNo'] = request.promotionOptionNo;
+  }
+  if (!Util.isUnset(request.targetDiskType)) {
+    query['TargetDiskType'] = request.targetDiskType;
+  }
+  if (!Util.isUnset(request.targetPerformanceLevel)) {
+    query['TargetPerformanceLevel'] = request.targetPerformanceLevel;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'ModifyDiskType',
+    version = '2022-10-19',
+    protocol = 'HTTPS',
+    pathname = `/webapi/resourceChange/modifyDiskType`,
+    method = 'POST',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 修改计算组的节点磁盘类型
+ *
+ * @param request ModifyDiskTypeRequest
+ * @return ModifyDiskTypeResponse
+ */
+async function modifyDiskType(request: ModifyDiskTypeRequest): ModifyDiskTypeResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return modifyDiskTypeWithOptions(request, headers, runtime);
+}
+
 model ModifyNodeNumberRequest {
   instanceId?: string(name='InstanceId', description='The instance ID.
 
@@ -1651,6 +2346,344 @@ async function restartInstance(request: RestartInstanceRequest): RestartInstance
   return restartInstanceWithOptions(request, headers, runtime);
 }
 
+model RestartNodeGroupRequest {
+  fastMode?: boolean(name='FastMode', example='true'),
+  instanceId?: string(name='InstanceId', example='c-b25e21e24388****'),
+  nodeGroupId?: string(name='NodeGroupId', example='ng-3d5ce6454354****'),
+}
+
+model RestartNodeGroupResponseBody = {
+  accessDeniedDetail?: string(name='AccessDeniedDetail', description='AccessDeniedDetail', example='{     "PolicyType": "AccountLevelIdentityBasedPolicy",     "AuthPrincipalOwnerId": "xxx",     "EncodedDiagnosticMessage": "xxx",     "AuthPrincipalType": "xxx",     "AuthPrincipalDisplayName": "xxx",     "NoPermissionType": "ImplicitDeny",     "AuthAction": "sr:xxx"   }'),
+  data?: boolean(name='Data', example='24151320976****'),
+  errCode?: string(name='ErrCode', example='InvalidParams'),
+  errMessage?: string(name='ErrMessage', example='Invalid params: [instance not exists].'),
+  httpStatusCode?: int32(name='HttpStatusCode', example='200'),
+  requestId?: string(name='RequestId', example='32A44F0D-BFF6-5664-999A-218BBDE7****'),
+  success?: boolean(name='Success', example='false'),
+}
+
+model RestartNodeGroupResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: RestartNodeGroupResponseBody(name='body'),
+}
+
+/**
+ * @summary 重启指定的node group
+ *
+ * @param request RestartNodeGroupRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return RestartNodeGroupResponse
+ */
+async function restartNodeGroupWithOptions(request: RestartNodeGroupRequest, headers: map[string]string, runtime: Util.RuntimeOptions): RestartNodeGroupResponse {
+  Util.validateModel(request);
+  var query : map[string]any = {};
+  if (!Util.isUnset(request.fastMode)) {
+    query['FastMode'] = request.fastMode;
+  }
+  if (!Util.isUnset(request.instanceId)) {
+    query['InstanceId'] = request.instanceId;
+  }
+  if (!Util.isUnset(request.nodeGroupId)) {
+    query['NodeGroupId'] = request.nodeGroupId;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'RestartNodeGroup',
+    version = '2022-10-19',
+    protocol = 'HTTPS',
+    pathname = `/webapi/nodegroup/restart`,
+    method = 'POST',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 重启指定的node group
+ *
+ * @param request RestartNodeGroupRequest
+ * @return RestartNodeGroupResponse
+ */
+async function restartNodeGroup(request: RestartNodeGroupRequest): RestartNodeGroupResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return restartNodeGroupWithOptions(request, headers, runtime);
+}
+
+model RestartNodesRequest {
+  instanceId?: string(name='InstanceId', example='c-b25e21e24388****'),
+  restartNodeGroups?: [ 
+    {
+      fastMode?: boolean(name='FastMode', example='false'),
+      nodeGroupId?: string(name='NodeGroupId', example='ng-dcc7450e06a271b9'),
+      nodeIds?: [ string ](name='NodeIds'),
+    }
+  ](name='RestartNodeGroups'),
+}
+
+model RestartNodesResponseBody = {
+  accessDeniedDetail?: string(name='AccessDeniedDetail', description='AccessDeniedDetail', example='{     "PolicyType": "AccountLevelIdentityBasedPolicy",     "AuthPrincipalOwnerId": "xxx",     "EncodedDiagnosticMessage": "xxx",     "AuthPrincipalType": "xxx",     "AuthPrincipalDisplayName": "xxx",     "NoPermissionType": "ImplicitDeny",     "AuthAction": "sr:xxx"   }'),
+  data?: boolean(name='Data', example='24151320976****'),
+  errCode?: string(name='ErrCode', example='Success'),
+  errMessage?: string(name='ErrMessage', example='Invalid params: [instance not exists].'),
+  httpStatusCode?: int32(name='HttpStatusCode', example='200'),
+  requestId?: string(name='RequestId', example='32A44F0D-BFF6-5664-999A-218BBDE74XXX'),
+  success?: boolean(name='Success', example='false'),
+}
+
+model RestartNodesResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: RestartNodesResponseBody(name='body'),
+}
+
+/**
+ * @summary 重启集群中的节点
+ *
+ * @param request RestartNodesRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return RestartNodesResponse
+ */
+async function restartNodesWithOptions(request: RestartNodesRequest, headers: map[string]string, runtime: Util.RuntimeOptions): RestartNodesResponse {
+  Util.validateModel(request);
+  var query : map[string]any = {};
+  if (!Util.isUnset(request.instanceId)) {
+    query['InstanceId'] = request.instanceId;
+  }
+
+  var body : map[string]any = {};
+  if (!Util.isUnset(request.restartNodeGroups)) {
+    body['RestartNodeGroups'] = request.restartNodeGroups;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApi.Params{
+    action = 'RestartNodes',
+    version = '2022-10-19',
+    protocol = 'HTTPS',
+    pathname = `/webapi/restart/restart`,
+    method = 'POST',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 重启集群中的节点
+ *
+ * @param request RestartNodesRequest
+ * @return RestartNodesResponse
+ */
+async function restartNodes(request: RestartNodesRequest): RestartNodesResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return restartNodesWithOptions(request, headers, runtime);
+}
+
+model RestoreInstanceRequest {
+  adminPassword?: string(name='AdminPassword', example='password_example'),
+  autoRenew?: boolean(name='AutoRenew', example='true'),
+  backupTaskId?: string(name='BackupTaskId', example='bk-adskj23hd9s'),
+  duration?: int32(name='Duration', example='1'),
+  instanceName?: string(name='InstanceName', example='c1'),
+  payType?: string(name='PayType', example='prePaid'),
+  pricingCycle?: string(name='PricingCycle', example='Month'),
+  regionId?: string(name='RegionId', example='cn-hangzhou'),
+  resourceGroupId?: string(name='ResourceGroupId', example='rg-aekzllkih7jqxxx'),
+  tags?: [ 
+    {
+      key?: string(name='key', example='dukang-chengdu-sgueg'),
+      value?: string(name='value', example='{\\\\"reasons\\\\": [], \\\\"patterns\\\\": [], \\\\"aggregates\\\\": [], \\\\"event_statistic\\\\": {\\\\"statistic\\\\": {}}}'),
+    }
+  ](name='Tags'),
+  vSwitches?: [ 
+    {
+      vswId?: string(name='VswId', example='vsw-bp19mlh98tm9teyyd****'),
+      zoneId?: string(name='ZoneId', example='cn-hangzhou-i'),
+    }
+  ](name='VSwitches'),
+  vpcId?: string(name='VpcId', description='vpc ID', example='vpc-bp1fll2mci6d7pw8m****'),
+}
+
+model RestoreInstanceResponseBody = {
+  accessDeniedDetail?: string(name='AccessDeniedDetail', description='AccessDeniedDetail', example='{     "PolicyType": "AccountLevelIdentityBasedPolicy",     "AuthPrincipalOwnerId": "xxx",     "EncodedDiagnosticMessage": "xxx",     "AuthPrincipalType": "xxx",     "AuthPrincipalDisplayName": "xxx",     "NoPermissionType": "ImplicitDeny",     "AuthAction": "sr:xxx"   }'),
+  data?: {
+    instanceId?: string(name='InstanceId', example='c-b25e21e243889XXX'),
+    orderId?: long(name='OrderId', example='241526000650XXX'),
+  }(name='Data'),
+  errCode?: string(name='ErrCode', example='InvalidParams'),
+  errMessage?: string(name='ErrMessage', example='null'),
+  httpStatusCode?: int32(name='HttpStatusCode', example='200'),
+  requestId?: string(name='RequestId', example='32A44F0D-BFF6-5664-999A-218BBDE74XXX'),
+  success?: boolean(name='Success', example='true'),
+}
+
+model RestoreInstanceResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: RestoreInstanceResponseBody(name='body'),
+}
+
+/**
+ * @summary 从备份中恢复实例
+ *
+ * @param request RestoreInstanceRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return RestoreInstanceResponse
+ */
+async function restoreInstanceWithOptions(request: RestoreInstanceRequest, headers: map[string]string, runtime: Util.RuntimeOptions): RestoreInstanceResponse {
+  Util.validateModel(request);
+  var body : map[string]any = {};
+  if (!Util.isUnset(request.adminPassword)) {
+    body['AdminPassword'] = request.adminPassword;
+  }
+  if (!Util.isUnset(request.autoRenew)) {
+    body['AutoRenew'] = request.autoRenew;
+  }
+  if (!Util.isUnset(request.backupTaskId)) {
+    body['BackupTaskId'] = request.backupTaskId;
+  }
+  if (!Util.isUnset(request.duration)) {
+    body['Duration'] = request.duration;
+  }
+  if (!Util.isUnset(request.instanceName)) {
+    body['InstanceName'] = request.instanceName;
+  }
+  if (!Util.isUnset(request.payType)) {
+    body['PayType'] = request.payType;
+  }
+  if (!Util.isUnset(request.pricingCycle)) {
+    body['PricingCycle'] = request.pricingCycle;
+  }
+  if (!Util.isUnset(request.regionId)) {
+    body['RegionId'] = request.regionId;
+  }
+  if (!Util.isUnset(request.resourceGroupId)) {
+    body['ResourceGroupId'] = request.resourceGroupId;
+  }
+  if (!Util.isUnset(request.tags)) {
+    body['Tags'] = request.tags;
+  }
+  if (!Util.isUnset(request.vSwitches)) {
+    body['VSwitches'] = request.vSwitches;
+  }
+  if (!Util.isUnset(request.vpcId)) {
+    body['VpcId'] = request.vpcId;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApi.Params{
+    action = 'RestoreInstance',
+    version = '2022-10-19',
+    protocol = 'HTTPS',
+    pathname = `/webapi/restore/restoreInstance`,
+    method = 'POST',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 从备份中恢复实例
+ *
+ * @param request RestoreInstanceRequest
+ * @return RestoreInstanceResponse
+ */
+async function restoreInstance(request: RestoreInstanceRequest): RestoreInstanceResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return restoreInstanceWithOptions(request, headers, runtime);
+}
+
+model ResumeInstanceRequest {
+  instanceId?: string(name='InstanceId', description='This parameter is required.', example='c-b25e21e24388****'),
+}
+
+model ResumeInstanceResponseBody = {
+  accessDeniedDetail?: string(name='AccessDeniedDetail', description='AccessDeniedDetail', example='{     "PolicyType": "AccountLevelIdentityBasedPolicy",     "AuthPrincipalOwnerId": "xxx",     "EncodedDiagnosticMessage": "xxx",     "AuthPrincipalType": "xxx",     "AuthPrincipalDisplayName": "xxx",     "NoPermissionType": "ImplicitDeny",     "AuthAction": "sr:xxx"   }'),
+  data?: boolean(name='Data', example='24151320976****'),
+  errCode?: string(name='ErrCode', example='InvalidParams'),
+  errMessage?: string(name='ErrMessage', example='Invalid params: [instance not exists].'),
+  httpStatusCode?: int32(name='HttpStatusCode', example='200'),
+  requestId?: string(name='RequestId', example='32A44F0D-BFF6-5664-999A-218BBDE7****'),
+  success?: boolean(name='Success', example='True'),
+}
+
+model ResumeInstanceResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ResumeInstanceResponseBody(name='body'),
+}
+
+/**
+ * @summary 该接口用于恢复来自openlake自动停机的实例。
+ *
+ * @param request ResumeInstanceRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return ResumeInstanceResponse
+ */
+async function resumeInstanceWithOptions(request: ResumeInstanceRequest, headers: map[string]string, runtime: Util.RuntimeOptions): ResumeInstanceResponse {
+  Util.validateModel(request);
+  var query : map[string]any = {};
+  if (!Util.isUnset(request.instanceId)) {
+    query['InstanceId'] = request.instanceId;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'ResumeInstance',
+    version = '2022-10-19',
+    protocol = 'HTTPS',
+    pathname = `/webapi/lifecycle/resumeInstance`,
+    method = 'POST',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 该接口用于恢复来自openlake自动停机的实例。
+ *
+ * @param request ResumeInstanceRequest
+ * @return ResumeInstanceResponse
+ */
+async function resumeInstance(request: ResumeInstanceRequest): ResumeInstanceResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return resumeInstanceWithOptions(request, headers, runtime);
+}
+
 model TagResourcesRequest {
   regionId?: string(name='RegionId', description='This parameter is required.', example='cn-hangzhou'),
   resourceId?: [ string ](name='ResourceId', description='This parameter is required.'),
@@ -1674,7 +2707,7 @@ model TagResourcesResponse = {
 }
 
 /**
- * @summary 打标
+ * @summary Adds a tag to a resource.
  *
  * @param request TagResourcesRequest
  * @param headers map
@@ -1716,7 +2749,7 @@ async function tagResourcesWithOptions(request: TagResourcesRequest, headers: ma
 }
 
 /**
- * @summary 打标
+ * @summary Adds a tag to a resource.
  *
  * @param request TagResourcesRequest
  * @return TagResourcesResponse
@@ -1725,6 +2758,78 @@ async function tagResources(request: TagResourcesRequest): TagResourcesResponse 
   var runtime = new Util.RuntimeOptions{};
   var headers : map[string]string = {};
   return tagResourcesWithOptions(request, headers, runtime);
+}
+
+model TogglePublicSlbRequest {
+  enablePublicSlb?: boolean(name='EnablePublicSlb', example='true'),
+  gatewayId?: string(name='GatewayId', example='gw-0002xci9buu68ongixvk'),
+  instanceId?: string(name='InstanceId', example='c-b25e21e24388****'),
+}
+
+model TogglePublicSlbResponseBody = {
+  data?: boolean(name='Data', example='24151320976****'),
+  errCode?: string(name='ErrCode', example='InvalidParams'),
+  errMessage?: string(name='ErrMessage', example='Invalid params: [instance not exists].'),
+  httpStatusCode?: int32(name='HttpStatusCode', example='200'),
+  requestId?: string(name='RequestId', example='32A44F0D-BFF6-5664-999A-218BBDE7****'),
+  success?: boolean(name='Success', example='false'),
+}
+
+model TogglePublicSlbResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: TogglePublicSlbResponseBody(name='body'),
+}
+
+/**
+ * @summary 公网SLB开关
+ *
+ * @param request TogglePublicSlbRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return TogglePublicSlbResponse
+ */
+async function togglePublicSlbWithOptions(request: TogglePublicSlbRequest, headers: map[string]string, runtime: Util.RuntimeOptions): TogglePublicSlbResponse {
+  Util.validateModel(request);
+  var query : map[string]any = {};
+  if (!Util.isUnset(request.enablePublicSlb)) {
+    query['EnablePublicSlb'] = request.enablePublicSlb;
+  }
+  if (!Util.isUnset(request.gatewayId)) {
+    query['GatewayId'] = request.gatewayId;
+  }
+  if (!Util.isUnset(request.instanceId)) {
+    query['InstanceId'] = request.instanceId;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'TogglePublicSlb',
+    version = '2022-10-19',
+    protocol = 'HTTPS',
+    pathname = `/webapi/gateway/togglePublicSlb`,
+    method = 'POST',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 公网SLB开关
+ *
+ * @param request TogglePublicSlbRequest
+ * @return TogglePublicSlbResponse
+ */
+async function togglePublicSlb(request: TogglePublicSlbRequest): TogglePublicSlbResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return togglePublicSlbWithOptions(request, headers, runtime);
 }
 
 model UnTagResourcesRequest {
@@ -1754,7 +2859,7 @@ model UnTagResourcesResponse = {
 }
 
 /**
- * @summary 删除标签
+ * @summary Removes tags from specified resources.
  *
  * @param tmpReq UnTagResourcesRequest
  * @param headers map
@@ -1807,7 +2912,7 @@ async function unTagResourcesWithOptions(tmpReq: UnTagResourcesRequest, headers:
 }
 
 /**
- * @summary 删除标签
+ * @summary Removes tags from specified resources.
  *
  * @param request UnTagResourcesRequest
  * @return UnTagResourcesResponse
@@ -1816,6 +2921,82 @@ async function unTagResources(request: UnTagResourcesRequest): UnTagResourcesRes
   var runtime = new Util.RuntimeOptions{};
   var headers : map[string]string = {};
   return unTagResourcesWithOptions(request, headers, runtime);
+}
+
+model UpdateGatewayRequest {
+  feNodeNumber?: int32(name='FeNodeNumber', example='3'),
+  gatewayId?: string(name='GatewayId', example='dg-65u7d65p5960fjq7'),
+  gatewayName?: string(name='GatewayName', example='polar-byd-glm-47'),
+  instanceId?: string(name='InstanceId', example='c-b25e21e24388****'),
+}
+
+model UpdateGatewayResponseBody = {
+  data?: boolean(name='Data', example='24151320976****'),
+  errCode?: string(name='ErrCode', example='InvalidParams'),
+  errMessage?: string(name='ErrMessage', example='null'),
+  httpStatusCode?: int32(name='HttpStatusCode', example='200'),
+  requestId?: string(name='RequestId', example='32A44F0D-BFF6-5664-999A-218BBDE7****'),
+  success?: boolean(name='Success', example='True'),
+}
+
+model UpdateGatewayResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: UpdateGatewayResponseBody(name='body'),
+}
+
+/**
+ * @summary 更新网关
+ *
+ * @param request UpdateGatewayRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return UpdateGatewayResponse
+ */
+async function updateGatewayWithOptions(request: UpdateGatewayRequest, headers: map[string]string, runtime: Util.RuntimeOptions): UpdateGatewayResponse {
+  Util.validateModel(request);
+  var query : map[string]any = {};
+  if (!Util.isUnset(request.feNodeNumber)) {
+    query['FeNodeNumber'] = request.feNodeNumber;
+  }
+  if (!Util.isUnset(request.gatewayId)) {
+    query['GatewayId'] = request.gatewayId;
+  }
+  if (!Util.isUnset(request.gatewayName)) {
+    query['GatewayName'] = request.gatewayName;
+  }
+  if (!Util.isUnset(request.instanceId)) {
+    query['InstanceId'] = request.instanceId;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'UpdateGateway',
+    version = '2022-10-19',
+    protocol = 'HTTPS',
+    pathname = `/webapi/gateway/update`,
+    method = 'POST',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 更新网关
+ *
+ * @param request UpdateGatewayRequest
+ * @return UpdateGatewayResponse
+ */
+async function updateGateway(request: UpdateGatewayRequest): UpdateGatewayResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return updateGatewayWithOptions(request, headers, runtime);
 }
 
 model UpdateInstanceNameRequest {
