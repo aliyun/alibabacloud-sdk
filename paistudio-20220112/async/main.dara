@@ -131,8 +131,10 @@ model CacheService {
   cacheServiceId?: string(name='CacheServiceId'),
   createdBy?: string(name='CreatedBy'),
   gmtCreated?: string(name='GmtCreated'),
+  networkType?: string(name='NetworkType'),
   quotaId?: string(name='QuotaId'),
   status?: string(name='Status'),
+  supportRDMA?: string(name='SupportRDMA'),
   supportedClientQuotaIds?: [ string ](name='SupportedClientQuotaIds'),
   tenantId?: string(name='TenantId'),
   userId?: string(name='UserId'),
@@ -509,6 +511,25 @@ model NodeSpec {
   count?: long(name='Count', example='10'),
   hyperType?: string(name='HyperType'),
   type?: string(name='Type', example='ecs.g6.4xlarge'),
+}
+
+model NodeStatistics {
+  actualMinResources?: StatisticsResources(name='ActualMinResources'),
+  GPUDetails?: [ 
+    {
+      count?: long(name='Count'),
+      idleNum?: long(name='IdleNum'),
+    }
+  ](name='GPUDetails'),
+  hyperNodeDetails?: [ 
+    {
+      count?: long(name='Count'),
+      idleNum?: long(name='IdleNum'),
+    }
+  ](name='HyperNodeDetails'),
+  idleResources?: StatisticsResources(name='IdleResources'),
+  schedulableResources?: StatisticsResources(name='SchedulableResources'),
+  systemReservedResources?: StatisticsResources(name='SystemReservedResources'),
 }
 
 model NodeType {
@@ -894,9 +915,24 @@ model SpotPriceItem {
 }
 
 model SpotStockPreview {
+  availableQuantity?: int32(name='AvailableQuantity'),
+  clusterId?: string(name='ClusterId'),
   instanceType?: string(name='InstanceType', example='ml.gu8xf.8xlarge-gu108'),
   spotDiscount?: float(name='SpotDiscount', example='0.1'),
   stockStatus?: string(name='StockStatus', example='WithStock'),
+}
+
+model StatisticsDetails {
+  count?: long(name='Count'),
+  idleNum?: long(name='IdleNum'),
+}
+
+model StatisticsResources {
+  CPU?: string(name='CPU'),
+  GPU?: string(name='GPU'),
+  hyperNodeNum?: long(name='HyperNodeNum'),
+  memory?: string(name='Memory'),
+  nodeNum?: long(name='NodeNum'),
 }
 
 model SubQuotaPreemptionConfig {
@@ -2291,6 +2327,41 @@ async function listNodes(request: ListNodesRequest): ListNodesResponse {
   return @handler.do('RESTFUL', 'ListNodes', 'GET', '/api/v1/nodes', 'json', false, 'json', request);
 }
 
+model ListQuotaActiveUserUsagesRequest {
+  quotaId: string(name='QuotaId', description='This parameter is required.', example='quotamtl37ge7gkvdz', position='Path'),
+  order?: string(name='Order', example='desc', position='Query'),
+  pageNumber?: int32(name='PageNumber', example='999', position='Query'),
+  pageSize?: int32(name='PageSize', example='10', position='Query'),
+  selfOnly?: boolean(name='SelfOnly', example='false', position='Query'),
+  sortBy?: string(name='SortBy', example='GmtCreateTime', position='Query'),
+  userId?: string(name='UserId', example='200xxxxxx', position='Query'),
+  username?: string(name='Username', example='test', position='Query'),
+  workspaceId?: string(name='WorkspaceId', example='12345', position='Query'),
+}
+
+model ListQuotaActiveUserUsagesResponseBody = {
+  quotaUserUsage?: [
+    QuotaUser
+  ](name='QuotaUserUsage'),
+  requestId?: string(name='RequestId', description='Id of the request', example='E7C42CC7-2E85-508A-84F4-923B605FD10F'),
+  totalCount?: int32(name='TotalCount', example='1'),
+}
+
+model ListQuotaActiveUserUsagesResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ListQuotaActiveUserUsagesResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of ListQuotaActiveUserUsages  ListQuotaActiveUserUsagesRequest
+  * @return ListQuotaActiveUserUsagesResponse
+ */
+async function listQuotaActiveUserUsages(request: ListQuotaActiveUserUsagesRequest): ListQuotaActiveUserUsagesResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'ListQuotaActiveUserUsages', 'GET', '/api/v1/quotas/{QuotaId}/activeuserusages', 'json', false, 'json', request);
+}
+
 model ListQuotaWorkloadsRequest {
   quotaId: string(name='QuotaId', description='Quota ID
 
@@ -2835,6 +2906,33 @@ model ListTrainingJobsResponse = {
 async function listTrainingJobs(request: ListTrainingJobsRequest): ListTrainingJobsResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RESTFUL', 'ListTrainingJobs', 'GET', '/api/v1/trainingjobs', 'json', false, 'json', request);
+}
+
+model OperateNodeRequest {
+  nodeId: string(name='NodeId', description='This parameter is required.', example='lingjunxxxx-mgxxx-xxxx', position='Path'),
+  operation: string(name='Operation', description='This parameter is required.', example='Cordon', position='Body'),
+  operationParameters?: NodeOperationParameters(name='OperationParameters', position='Body'),
+  resourceGroupId?: string(name='ResourceGroupId', example='rgaekzbrflewn6jjq', position='Body'),
+}
+
+model OperateNodeResponseBody = {
+  nodeId?: string(name='NodeId', example='lingjunxxxx-mgxxx-xxxx'),
+  requestId?: string(name='RequestId', description='Id of the request', example='96496E6E-00B4-5F55-80F6-1844FA9E92DC'),
+}
+
+model OperateNodeResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: OperateNodeResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of OperateNode  OperateNodeRequest
+  * @return OperateNodeResponse
+ */
+async function operateNode(request: OperateNodeRequest): OperateNodeResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'OperateNode', 'POST', '/api/v1/nodes/{NodeId}', 'json', false, 'json', request);
 }
 
 model ScaleQuotaRequest {
