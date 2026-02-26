@@ -2133,7 +2133,7 @@ model BatchUpdateFormDataByInstanceIdRequest {
   ignoreEmpty?: boolean(name='IgnoreEmpty', example='true'),
   noExecuteExpression?: boolean(name='NoExecuteExpression', example='false'),
   systemToken?: string(name='SystemToken', description='This parameter is required.', example='09866181UTZVVD4R3DC955FNKIM52HVPU5WWK7'),
-  updateFormDataJson?: string(name='UpdateFormDataJson', description='This parameter is required.', example='{\\"countrySelectField_l0c1cwiu\\":[{\\"value\\":\\"US\\"}],\\"addressField_l0c1cwiy\\":{\\"address\\":\\"111\\",\\"regionIds\\":[460000,469027,469023401],\\"regionText\\":[{\\"en_US\\":\\"hai+nan+sheng\\",\\"zh_CN\\":\\"海南省\\"},{\\"en_US\\":\\"cheng+mai+xian\\",\\"zh_CN\\":\\"澄迈县\\"},{\\"en_US\\":\\"guo+ying+hong+gang+nong+chang\\",\\"zh_CN\\":\\"国营红岗农场\\"}]}}'),
+  updateFormDataJson?: string(name='UpdateFormDataJson', description='This parameter is required.', example='{\\\\"countrySelectField_l0c1cwiu\\\\":[{\\\\"value\\\\":\\\\"US\\\\"}],\\\\"addressField_l0c1cwiy\\\\":{\\\\"address\\\\":\\\\"111\\\\",\\\\"regionIds\\\\":[460000,469027,469023401],\\\\"regionText\\\\":[{\\\\"en_US\\\\":\\\\"hai+nan+sheng\\\\",\\\\"zh_CN\\\\":\\\\"海南省\\\\"},{\\\\"en_US\\\\":\\\\"cheng+mai+xian\\\\",\\\\"zh_CN\\\\":\\\\"澄迈县\\\\"},{\\\\"en_US\\\\":\\\\"guo+ying+hong+gang+nong+chang\\\\",\\\\"zh_CN\\\\":\\\\"国营红岗农场\\\\"}]}}'),
   useLatestFormSchemaVersion?: boolean(name='UseLatestFormSchemaVersion', example='false'),
 }
 
@@ -2145,7 +2145,7 @@ model BatchUpdateFormDataByInstanceIdShrinkRequest {
   ignoreEmpty?: boolean(name='IgnoreEmpty', example='true'),
   noExecuteExpression?: boolean(name='NoExecuteExpression', example='false'),
   systemToken?: string(name='SystemToken', description='This parameter is required.', example='09866181UTZVVD4R3DC955FNKIM52HVPU5WWK7'),
-  updateFormDataJson?: string(name='UpdateFormDataJson', description='This parameter is required.', example='{\\"countrySelectField_l0c1cwiu\\":[{\\"value\\":\\"US\\"}],\\"addressField_l0c1cwiy\\":{\\"address\\":\\"111\\",\\"regionIds\\":[460000,469027,469023401],\\"regionText\\":[{\\"en_US\\":\\"hai+nan+sheng\\",\\"zh_CN\\":\\"海南省\\"},{\\"en_US\\":\\"cheng+mai+xian\\",\\"zh_CN\\":\\"澄迈县\\"},{\\"en_US\\":\\"guo+ying+hong+gang+nong+chang\\",\\"zh_CN\\":\\"国营红岗农场\\"}]}}'),
+  updateFormDataJson?: string(name='UpdateFormDataJson', description='This parameter is required.', example='{\\\\"countrySelectField_l0c1cwiu\\\\":[{\\\\"value\\\\":\\\\"US\\\\"}],\\\\"addressField_l0c1cwiy\\\\":{\\\\"address\\\\":\\\\"111\\\\",\\\\"regionIds\\\\":[460000,469027,469023401],\\\\"regionText\\\\":[{\\\\"en_US\\\\":\\\\"hai+nan+sheng\\\\",\\\\"zh_CN\\\\":\\\\"海南省\\\\"},{\\\\"en_US\\\\":\\\\"cheng+mai+xian\\\\",\\\\"zh_CN\\\\":\\\\"澄迈县\\\\"},{\\\\"en_US\\\\":\\\\"guo+ying+hong+gang+nong+chang\\\\",\\\\"zh_CN\\\\":\\\\"国营红岗农场\\\\"}]}}'),
   useLatestFormSchemaVersion?: boolean(name='UseLatestFormSchemaVersion', example='false'),
 }
 
@@ -5989,6 +5989,8 @@ model CreateRunResponseBody = {
 model CreateRunResponse = {
   headers?: map[string]string(name='headers'),
   statusCode?: int32(name='statusCode'),
+  id?: string(name='id'),
+  event?: string(name='event'),
   body?: CreateRunResponseBody(name='body'),
 }
 
@@ -6053,17 +6055,17 @@ async function createRunWithSSE(request: CreateRunRequest, headers: CreateRunHea
     bodyType = 'json',
   };
   var sseResp = callSSEApi(params, req, runtime);
-  for(var resp : sseResp) {
-    var data = $object($JSON.parseJSON(resp.event.data));
-    yield {
-      statusCode = resp.statusCode,
-      headers = resp.headers,
-      body = {
-        ...data,
-        RequestId = resp.event.id,
-        Message = resp.event.event,
-      },
-    };
+  for (var resp : sseResp) {
+    if (!$isNull(resp.event) && !$isNull(resp.event.data)) {
+      var data = $object($JSON.parseJSON(resp.event.data));
+      yield {
+        statusCode = resp.statusCode,
+        headers = resp.headers,
+        id = resp.event.id,
+        event = resp.event.event,
+        body = data
+      };
+    }
   }
 }
 /**
@@ -21133,6 +21135,7 @@ async function inviteUsers(request: InviteUsersRequest): InviteUsersResponse {
 model InvokeAssistantHeaders {
   commonHeaders?: map[string]string,
   accountId?: string(name='accountId', example='123456'),
+  alidingSsoTicket?: string(name='alidingSsoTicket'),
 }
 
 model InvokeAssistantRequest {
@@ -21341,6 +21344,8 @@ model InvokeAssistantResponseBody = {
 model InvokeAssistantResponse = {
   headers?: map[string]string(name='headers'),
   statusCode?: int32(name='statusCode'),
+  id?: string(name='id'),
+  event?: string(name='event'),
   body?: InvokeAssistantResponseBody(name='body'),
 }
 
@@ -21392,6 +21397,9 @@ async function invokeAssistantWithSSE(request: InvokeAssistantRequest, headers: 
   if (!$isNull(headers.accountId)) {
     realHeaders['accountId'] = $string(headers.accountId);
   }
+  if (!$isNull(headers.alidingSsoTicket)) {
+    realHeaders['alidingSsoTicket'] = $string(headers.alidingSsoTicket);
+  }
   var req = new OpenApiUtil.OpenApiRequest{ 
     headers = realHeaders,
     body = OpenApiUtil.parseToMap(body),
@@ -21408,17 +21416,17 @@ async function invokeAssistantWithSSE(request: InvokeAssistantRequest, headers: 
     bodyType = 'json',
   };
   var sseResp = callSSEApi(params, req, runtime);
-  for(var resp : sseResp) {
-    var data = $object($JSON.parseJSON(resp.event.data));
-    yield {
-      statusCode = resp.statusCode,
-      headers = resp.headers,
-      body = {
-        ...data,
-        RequestId = resp.event.id,
-        Message = resp.event.event,
-      },
-    };
+  for (var resp : sseResp) {
+    if (!$isNull(resp.event) && !$isNull(resp.event.data)) {
+      var data = $object($JSON.parseJSON(resp.event.data));
+      yield {
+        statusCode = resp.statusCode,
+        headers = resp.headers,
+        id = resp.event.id,
+        event = resp.event.event,
+        body = data
+      };
+    }
   }
 }
 /**
@@ -21468,6 +21476,9 @@ async function invokeAssistantWithOptions(request: InvokeAssistantRequest, heade
   if (!$isNull(headers.accountId)) {
     realHeaders['accountId'] = $string(headers.accountId);
   }
+  if (!$isNull(headers.alidingSsoTicket)) {
+    realHeaders['alidingSsoTicket'] = $string(headers.alidingSsoTicket);
+  }
   var req = new OpenApiUtil.OpenApiRequest{ 
     headers = realHeaders,
     body = OpenApiUtil.parseToMap(body),
@@ -21502,6 +21513,7 @@ model InvokeSkillHeaders {
   commonHeaders?: map[string]string,
   accountContext?: {
     accountId?: string(name='accountId', description='This parameter is required.', example='012345'),
+    alidingSsoTicket?: string(name='alidingSsoTicket'),
     ssoTicket?: string(name='ssoTicket'),
   }(name='AccountContext'),
 }
@@ -21538,6 +21550,8 @@ model InvokeSkillResponseBody = {
 model InvokeSkillResponse = {
   headers?: map[string]string(name='headers'),
   statusCode?: int32(name='statusCode'),
+  id?: string(name='id'),
+  event?: string(name='event'),
   body?: InvokeSkillResponseBody(name='body'),
 }
 
@@ -21600,17 +21614,17 @@ async function invokeSkillWithSSE(tmpReq: InvokeSkillRequest, tmpHeader: InvokeS
     bodyType = 'json',
   };
   var sseResp = callSSEApi(params, req, runtime);
-  for(var resp : sseResp) {
-    var data = $object($JSON.parseJSON(resp.event.data));
-    yield {
-      statusCode = resp.statusCode,
-      headers = resp.headers,
-      body = {
-        ...data,
-        RequestId = resp.event.id,
-        Message = resp.event.event,
-      },
-    };
+  for (var resp : sseResp) {
+    if (!$isNull(resp.event) && !$isNull(resp.event.data)) {
+      var data = $object($JSON.parseJSON(resp.event.data));
+      yield {
+        statusCode = resp.statusCode,
+        headers = resp.headers,
+        id = resp.event.id,
+        event = resp.event.event,
+        body = data
+      };
+    }
   }
 }
 /**
@@ -25780,16 +25794,16 @@ model QueryGroupLiveInfoShrinkHeaders {
 }
 
 model QueryGroupLiveInfoRequest {
-  anchorUnionId?: string(name='AnchorUnionId', description='This parameter is required.', example='333d'),
-  liveUuid?: string(name='LiveUuid', description='This parameter is required.', example='4d38xxxxx'),
+  anchorUnionId?: string(name='AnchorUnionId', description='This parameter is required.', example='Eijxxx'),
+  liveUuid?: string(name='LiveUuid', description='This parameter is required.', example='123456'),
   tenantContext?: {
     tenantId?: string(name='tenantId', example='1'),
   }(name='TenantContext'),
 }
 
 model QueryGroupLiveInfoShrinkRequest {
-  anchorUnionId?: string(name='AnchorUnionId', description='This parameter is required.', example='333d'),
-  liveUuid?: string(name='LiveUuid', description='This parameter is required.', example='4d38xxxxx'),
+  anchorUnionId?: string(name='AnchorUnionId', description='This parameter is required.', example='Eijxxx'),
+  liveUuid?: string(name='LiveUuid', description='This parameter is required.', example='123456'),
   tenantContextShrink?: string(name='TenantContext'),
 }
 
@@ -28966,7 +28980,7 @@ model SaveFormDataShrinkHeaders {
 
 model SaveFormDataRequest {
   appType?: string(name='AppType', description='This parameter is required.', example='APP_PBKxxx'),
-  formDataJson?: string(name='FormDataJson', description='This parameter is required.', example='{\\"textField_jcpm6agt\\": \\"单行\\",\\"employeeField_jcos0sar\\": [\\"workno\\"]}'),
+  formDataJson?: string(name='FormDataJson', description='This parameter is required.', example='{\\\\"textField_jcpm6agt\\\\": \\\\"单行\\\\",\\\\"employeeField_jcos0sar\\\\": [\\\\"workno\\\\"]}'),
   formUuid?: string(name='FormUuid', description='This parameter is required.', example='FORM-EF6Y4G8WO2FN0SUB43TDQ3CGC3FMFQ1G9400RCJ3'),
   language?: string(name='Language', example='zh_CN'),
   systemToken?: string(name='SystemToken', description='This parameter is required.', example='hexxxx'),
