@@ -29,7 +29,7 @@ function getEndpoint(productId: string, regionId: string, endpointRule: string, 
 model AssociateDefaultFilterRequest {
   filterName?: string(name='FilterName', description='The name of the filter.
 
-This parameter is required.', example='My Filters'),
+This parameter is required.', example='所有ECS实例资源'),
 }
 
 model AssociateDefaultFilterResponseBody = {
@@ -84,13 +84,108 @@ async function associateDefaultFilter(request: AssociateDefaultFilterRequest): A
   return associateDefaultFilterWithOptions(request, runtime);
 }
 
-model CreateDeliveryChannelRequest {
-  deliveryChannelDescription?: string(name='DeliveryChannelDescription', description='The description of the delivery channel.'),
-  deliveryChannelFilter?: {
-    resourceTypes?: [ string ](name='ResourceTypes', description='An array of effective resource types for the delivery channel.
+model BatchGetResourceConfigurationsRequest {
+  resources?: [ 
+    {
+      regionId?: string(name='RegionId', description='The region ID of the resource.', example='cn-shanghai'),
+      resourceId?: string(name='ResourceId', description='The resource ID.', example='eip-bp1kyg72m****'),
+      resourceType?: string(name='ResourceType', description='The resource type.
 
-*   Example: ["ACS::VPC::VPC", "ACS::ECS::Instance"].
-*   If you want to deliver items of all resource types supported by Resource Center, set this parameter to ["ALL"].'),
+For a list of resource types supported by Resource Center, see [Alibaba Cloud services and resource types that are supported by Resource Center](https://help.aliyun.com/document_detail/477798.html).', example='ACS::VPC::RouteTable'),
+    }
+  ](name='Resources', description='The list of resources.'),
+}
+
+model BatchGetResourceConfigurationsResponseBody = {
+  requestId?: string(name='RequestId', description='The request ID.', example='F1CE0D52-32DA-531A-87A4-B9A5B68*****'),
+  resources?: [ 
+    {
+      accountId?: string(name='AccountId', description='The ID of the Alibaba Cloud account.', example='151266687691****'),
+      configuration?: map[string]any(name='Configuration', description='The details of the resource configuration.'),
+      createTime?: string(name='CreateTime', description='The time when the resource was created.', example='2021-06-30T09:20:08Z'),
+      expireTime?: string(name='ExpireTime', description='The expiration time of the resource.', example='2021-07-30T09:20:08Z'),
+      ipAddressAttributes?: [ 
+        {
+          ipAddress?: string(name='IpAddress', description='The IP address.', example='192.168.1.2'),
+          networkType?: string(name='NetworkType', description='The network type. Valid values:
+
+- **Public**: Internet.
+
+- **Private**: Private network.', example='Public'),
+          version?: string(name='Version', description='The version of the IP address.', example='Ipv4'),
+        }
+      ](name='IpAddressAttributes', description='The properties of the IP addresses.'),
+      ipAddresses?: [ string ](name='IpAddresses', description='The IP addresses.
+
+> Whether this parameter is returned depends on the Alibaba Cloud service to which the resource belongs.'),
+      regionId?: string(name='RegionId', description='The region ID of the resource.', example='cn-hangzhou'),
+      resourceGroupId?: string(name='ResourceGroupId', description='The resource group ID.', example='rg-acfmzawhxxc****'),
+      resourceId?: string(name='ResourceId', description='The resource ID.', example='eip-wz9gdtce0q6h48h*****'),
+      resourceName?: string(name='ResourceName', description='The resource name.', example='group1'),
+      resourceType?: string(name='ResourceType', description='The resource type.', example='ACS::ECS::Instance'),
+      tags?: [ 
+        {
+          key?: string(name='Key', description='The tag key.', example='test_key'),
+          value?: string(name='Value', description='The tag value.', example='test_value'),
+        }
+      ](name='Tags', description='The tags.'),
+      zoneId?: string(name='ZoneId', description='The zone ID.', example='cn-hangzhou-k'),
+    }
+  ](name='Resources', description='The list of resources.'),
+}
+
+model BatchGetResourceConfigurationsResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: BatchGetResourceConfigurationsResponseBody(name='body'),
+}
+
+/**
+ * @summary Queries the configurations of multiple resources in your account.
+ *
+ * @param request BatchGetResourceConfigurationsRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return BatchGetResourceConfigurationsResponse
+ */
+@context("batchGetResourceConfigurationsWithContext")
+async function batchGetResourceConfigurationsWithOptions(request: BatchGetResourceConfigurationsRequest, runtime: $RuntimeOptions): BatchGetResourceConfigurationsResponse {
+  request.validate();
+  var query = {};
+  if (!$isNull(request.resources)) {
+    query['Resources'] = request.resources;
+  }
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'BatchGetResourceConfigurations',
+    version = '2022-12-01',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Queries the configurations of multiple resources in your account.
+ *
+ * @param request BatchGetResourceConfigurationsRequest
+ * @return BatchGetResourceConfigurationsResponse
+ */
+async function batchGetResourceConfigurations(request: BatchGetResourceConfigurationsRequest): BatchGetResourceConfigurationsResponse {
+  var runtime = new $RuntimeOptions{};
+  return batchGetResourceConfigurationsWithOptions(request, runtime);
+}
+
+model CreateDeliveryChannelRequest {
+  deliveryChannelDescription?: string(name='DeliveryChannelDescription', description='The description of the delivery channel.', example='测试投递'),
+  deliveryChannelFilter?: {
+    resourceTypes?: [ string ](name='ResourceTypes', description='The list of resource types to be delivered.'),
   }(name='DeliveryChannelFilter', description='The effective scope of the delivery channel.
 
 This parameter is required.'),
@@ -99,47 +194,45 @@ This parameter is required.'),
 This parameter is required.', example='test-delivery'),
   resourceChangeDelivery?: {
     slsProperties?: {
-      oversizedDataOssTargetArn?: string(name='OversizedDataOssTargetArn', description='The ARN of the destination to which large files are delivered.
+      oversizedDataOssTargetArn?: string(name='OversizedDataOssTargetArn', description='The ARN of the destination OSS bucket for oversized files.
 
-*   If the size of a resource configuration change event exceeds 1 MB, the event is delivered as an OSS object.
-*   You need to set this parameter to the ARN of a bucket whose name is prefixed with resourcecenter-.', example='acs:oss:cn-hangzhou:191142248777****:resourcecenter-oss'),
-    }(name='SlsProperties', description='The Simple Log Service configurations.'),
-    targetArn?: string(name='TargetArn', description='The ARN of the delivery destination.
+If the size of a resource configuration change event exceeds 1 MB, the event is delivered as an OSS object. Set this parameter to the ARN of an OSS bucket that has the `resourcecenter-` prefix.', example='acs:oss:cn-hangzhou:191142248777****:resourcecenter-oss'),
+    }(name='SlsProperties', description='The SLS configurations.'),
+    targetArn?: string(name='TargetArn', description='The ARN of the destination. Valid values:
 
-*   If you set `TargetType` to `OSS`, you must set `TargetArn` to the ARN of a bucket whose name is prefixed with resourcecenter-.
-*   If you set `TargetType` to `SLS`, you must set `TargetArn` to the ARN of a Logstore whose name is prefixed with resourcecenter-.', example='acs:log:cn-hangzhou: 191142248777****:project/delivery/logstore/resourcecenter-sls'),
-    targetType?: string(name='TargetType', description='The type of the delivery destination.
+- If you set `TargetType` to `OSS`, set `TargetArn` to the ARN of an OSS bucket that has the `resourcecenter-` prefix.
 
-Valid values:
+- If you set `TargetType` to `SLS`, set `TargetArn` to the ARN of an SLS Logstore that has the `resourcecenter-` prefix.', example='acs:log:cn-hangzhou: 191142248777****:project/delivery/logstore/resourcecenter-sls'),
+    targetType?: string(name='TargetType', description='The type of the destination.
 
-*   `SLS`', example='SLS'),
-  }(name='ResourceChangeDelivery', description='The configurations for delivery of resource configuration change events.'),
+Valid value: `SLS`.', example='SLS'),
+  }(name='ResourceChangeDelivery', description='The delivery of resource configuration changes.'),
   resourceSnapshotDelivery?: {
     customExpression?: string(name='CustomExpression', description='The custom expression.', example='select * from resources limit 100;'),
     deliveryTime?: string(name='DeliveryTime', description='The delivery time.', example='09:00Z'),
     slsProperties?: {
-      oversizedDataOssTargetArn?: string(name='OversizedDataOssTargetArn', description='The ARN of the destination to which large files are delivered.
+      oversizedDataOssTargetArn?: string(name='OversizedDataOssTargetArn', description='The ARN of the destination OSS bucket for oversized files.
 
-*   If the size of a resource configuration change event exceeds 1 MB, the event is delivered as an OSS object.
-*   You need to set this parameter to the ARN of a bucket whose name is prefixed with resourcecenter-.
-*   This parameter takes effect only if you use custom delivery for scheduled resource snapshots. You do not need to configure this parameter if you use standard delivery for scheduled resource snapshots.', example='acs:oss:cn-hangzhou:191142248777****:resourcecenter-oss'),
-    }(name='SlsProperties', description='The Simple Log Service configurations.'),
-    targetArn?: string(name='TargetArn', description='The Alibaba Cloud Resource Name (ARN) of the delivery destination.
+If the size of a resource configuration change event exceeds 1 MB, the event is delivered as an OSS object. Set this parameter to the ARN of an OSS bucket that has the `resourcecenter-` prefix.
 
-*   If you set `TargetType` to `OSS`, you must set `TargetArn` to the ARN of a bucket whose name is prefixed with resourcecenter-.
-*   If you set `TargetType` to `SLS`, you must set `TargetArn` to the ARN of a Logstore whose name is prefixed with resourcecenter-.', example='acs:log:cn-hangzhou: 191142248777****:project/delivery/logstore/resourcecenter-sls'),
-    targetType?: string(name='TargetType', description='The type of the delivery destination.
+> This parameter is valid only for custom scheduled delivery. You do not need to specify this parameter for standard scheduled delivery.', example='acs:oss:cn-hangzhou:191142248777****:resourcecenter-oss'),
+    }(name='SlsProperties', description='The SLS configurations.'),
+    targetArn?: string(name='TargetArn', description='The Alibaba Cloud Resource Name (ARN) of the destination. Valid values:
 
-Valid values:
+- If you set `TargetType` to `OSS`, set `TargetArn` to the ARN of an Object Storage Service (OSS) bucket that has the `resourcecenter-` prefix. Example: `acs:oss:cn-hangzhou:191142248777****:resourcecenter-oss`.
 
-*   `OSS` for standard delivery
-*   `OSS` or `SLS` for custom delivery', example='OSS'),
-  }(name='ResourceSnapshotDelivery', description='The configurations for delivery of scheduled resource snapshots.'),
+- If you set `TargetType` to `SLS`, set `TargetArn` to the ARN of a Simple Log Service (SLS) Logstore that has the `resourcecenter-` prefix. Example: `acs:log:cn-hangzhou: 191142248777****:project/delivery/logstore/resourcecenter-sls`.', example='acs:log:cn-hangzhou: 191142248777****:project/delivery/logstore/resourcecenter-sls'),
+    targetType?: string(name='TargetType', description='The type of the destination. Valid values:
+
+- For standard scheduled delivery, set this parameter to `OSS`.
+
+- For custom scheduled delivery, set this parameter to `OSS` or `SLS`.', example='OSS'),
+  }(name='ResourceSnapshotDelivery', description='The scheduled delivery of resource snapshots.'),
 }
 
 model CreateDeliveryChannelResponseBody = {
-  deliveryChannelId?: string(name='DeliveryChannelId', description='The ID of the delivery channel.', example='dc-0bzhsqpnk***'),
-  requestId?: string(name='RequestId', description='The request ID.', example='42A89312-0616-591E-B614-07BC87D3D***'),
+  deliveryChannelId?: string(name='DeliveryChannelId', description='The ID of the delivery channel.', example='dc-0bzhsqpn****'),
+  requestId?: string(name='RequestId', description='The request ID.', example='42A89312-0616-591E-B614-07BC87D3D'),
 }
 
 model CreateDeliveryChannelResponse = {
@@ -149,12 +242,12 @@ model CreateDeliveryChannelResponse = {
 }
 
 /**
- * @summary Creates a single-account delivery channel.
+ * @summary Creates a resource delivery channel for the current account.
  *
- * @description Resource delivery supports the delivery of resource configuration change events and scheduled resource snapshots.
- * Scheduled resource snapshots support the following delivery scenarios:
- * *   Standard delivery: Leave the ResourceSnapshotDelivery.CustomExpression parameter empty.
- * *   Custom delivery: Set the ResourceSnapshotDelivery.CustomExpression parameter to an appropriate value.
+ * @description Resource delivery supports the scheduled delivery of resource snapshots and the delivery of resource configuration changes.
+ * Scheduled delivery of resource snapshots supports two scenarios:
+ * - Standard delivery: Leave the `ResourceSnapshotDelivery.CustomExpression` parameter empty.
+ * - Custom delivery: Set the `ResourceSnapshotDelivery.CustomExpression` parameter to an appropriate value.
  *
  * @param request CreateDeliveryChannelRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -197,12 +290,12 @@ async function createDeliveryChannelWithOptions(request: CreateDeliveryChannelRe
 }
 
 /**
- * @summary Creates a single-account delivery channel.
+ * @summary Creates a resource delivery channel for the current account.
  *
- * @description Resource delivery supports the delivery of resource configuration change events and scheduled resource snapshots.
- * Scheduled resource snapshots support the following delivery scenarios:
- * *   Standard delivery: Leave the ResourceSnapshotDelivery.CustomExpression parameter empty.
- * *   Custom delivery: Set the ResourceSnapshotDelivery.CustomExpression parameter to an appropriate value.
+ * @description Resource delivery supports the scheduled delivery of resource snapshots and the delivery of resource configuration changes.
+ * Scheduled delivery of resource snapshots supports two scenarios:
+ * - Standard delivery: Leave the `ResourceSnapshotDelivery.CustomExpression` parameter empty.
+ * - Custom delivery: Set the `ResourceSnapshotDelivery.CustomExpression` parameter to an appropriate value.
  *
  * @param request CreateDeliveryChannelRequest
  * @return CreateDeliveryChannelResponse
@@ -227,7 +320,7 @@ This parameter is required.', example='{
 }'),
   filterName?: string(name='FilterName', description='The name of the filter.
 
-This parameter is required.', example='ECS'),
+This parameter is required.', example='我的筛选条件。'),
 }
 
 model CreateFilterResponseBody = {
@@ -286,12 +379,12 @@ async function createFilter(request: CreateFilterRequest): CreateFilterResponse 
 }
 
 model CreateMultiAccountDeliveryChannelRequest {
-  deliveryChannelDescription?: string(name='DeliveryChannelDescription', description='The description of the delivery channel.'),
+  deliveryChannelDescription?: string(name='DeliveryChannelDescription', description='The description of the delivery channel.', example='This is a description.'),
   deliveryChannelFilter?: {
-    accountScopes?: [ string ](name='AccountScopes', description='An array of effective account scopes for the delivery channel.
+    accountScopes?: [ string ](name='AccountScopes', description='The account scopes of the delivery channel.
 
 This parameter is required.'),
-    resourceTypes?: [ string ](name='ResourceTypes', description='The effective resource types of the delivery channel.'),
+    resourceTypes?: [ string ](name='ResourceTypes', description='The effective resource type of the delivery channel.'),
   }(name='DeliveryChannelFilter', description='The effective scope of the delivery channel.
 
 This parameter is required.'),
@@ -300,41 +393,41 @@ This parameter is required.'),
 This parameter is required.', example='test-multi-account-delivery'),
   resourceChangeDelivery?: {
     slsProperties?: {
-      oversizedDataOssTargetArn?: string(name='OversizedDataOssTargetArn', description='The ARN of the destination to which large files are delivered.
+      oversizedDataOssTargetArn?: string(name='OversizedDataOssTargetArn', description='The ARN of the delivery destination for oversized data.
 
-If the size of a resource configuration change event exceeds 1 MB, the event is delivered as an OSS object. You need to set this parameter to the ARN of a bucket whose name is prefixed with `resourcecenter-`.', example='acs:oss:cn-hangzhou:1911422487776***:resourcecenter-oss'),
-    }(name='SlsProperties', description='The Simple Log Service configurations.'),
+If the size of a resource configuration change event exceeds 1 MB, the event is delivered as an OSS object. You must enter the ARN of an OSS bucket that has a prefix of `resourcecenter-`.', example='acs:oss:cn-hangzhou:1911422487776***:resourcecenter-oss'),
+    }(name='SlsProperties', description='The SLS configurations.'),
     targetArn?: string(name='TargetArn', description='The ARN of the delivery destination. Valid values:
 
-*   If you set `TargetType` to `OSS`, you must set `TargetArn` to the ARN of a bucket whose name is prefixed with `resourcecenter-`.
-*   If you set `TargetType` to `SLS`, you must set `TargetArn` to the ARN of a Logstore whose name is prefixed with `resourcecenter-`.', example='acs:log:cn-hangzhou: 1911422487776***:project/delivery/logstore/resourcecenter-sls'),
+- If you set `TargetType` to `OSS`, you must set `TargetArn` to the ARN of a OSS bucket that has a prefix of `resourcecenter-`.
+- If you set `TargetType` to `SLS`, you must set `TargetArn` to the ARN of a SLS Logstore that has a prefix of `resourcecenter-`.', example='acs:log:cn-hangzhou: 1911422487776***:project/delivery/logstore/resourcecenter-sls'),
     targetType?: string(name='TargetType', description='The type of the delivery destination.
 
-Set the value to `SLS`.', example='SLS'),
+Valid value: `SLS`.', example='SLS'),
   }(name='ResourceChangeDelivery', description='The configurations for delivery of resource configuration change events.'),
   resourceSnapshotDelivery?: {
     customExpression?: string(name='CustomExpression', description='The custom expression.', example='select * from resources limit 100;'),
     deliveryTime?: string(name='DeliveryTime', description='The delivery time.', example='09:00Z'),
     slsProperties?: {
-      oversizedDataOssTargetArn?: string(name='OversizedDataOssTargetArn', description='The ARN of the destination to which large files are delivered.
+      oversizedDataOssTargetArn?: string(name='OversizedDataOssTargetArn', description='The ARN of the delivery destination for oversized data.
 
-If the size of a resource configuration change event exceeds 1 MB, the event is delivered as an OSS object. You need to set this parameter to the ARN of a bucket whose name is prefixed with `resourcecenter-`.
+If the size of a resource configuration change event exceeds 1 MB, the event is delivered as an OSS object. You must enter the ARN of an OSS bucket that has a prefix of `resourcecenter-`.
 
->  This parameter takes effect only if you use custom delivery for scheduled resource snapshots. You do not need to configure this parameter if you use standard delivery for scheduled resource snapshots.', example='acs:oss:cn-hangzhou:1911422487776***:resourcecenter-oss'),
-    }(name='SlsProperties', description='The Simple Log Service configurations.'),
+> This parameter takes effect only when you create a custom scheduled delivery task for resource snapshots. You do not need to specify this parameter when you create a standard scheduled delivery task for resource snapshots.', example='acs:oss:cn-hangzhou:1911422487776***:resourcecenter-oss'),
+    }(name='SlsProperties', description='The SLS configurations.'),
     targetArn?: string(name='TargetArn', description='The Alibaba Cloud Resource Name (ARN) of the delivery destination. Valid values:
 
-*   If you set `TargetType` to `OSS`, you must set `TargetArn` to the ARN of a bucket whose name is prefixed with `resourcecenter-`. Example: `acs:oss:cn-hangzhou:191142248777****:resourcecenter-oss`.
-*   If you set `TargetType` to `SLS`, you must set `TargetArn` to the ARN of a Logstore whose name is prefixed with `resourcecenter-`. Example: `acs:log:cn-hangzhou: 191142248777****:project/delivery/logstore/resourcecenter-sls`.', example='acs:oss:cn-hangzhou:1911422487776***:resourcecenter-oss'),
+- If you set `TargetType` to `OSS`, you must set `TargetArn` to the ARN of a OSS bucket that has a prefix of `resourcecenter-`. Example: `acs:oss:cn-hangzhou:191142248777****:resourcecenter-oss`.
+- If you set `TargetType` to `SLS`, you must set `TargetArn` to the ARN of a SLS Logstore that has a prefix of `resourcecenter-`. Example: `acs:log:cn-hangzhou: 191142248777****:project/delivery/logstore/resourcecenter-sls`.', example='acs:oss:cn-hangzhou:1911422487776***:resourcecenter-oss'),
     targetType?: string(name='TargetType', description='The type of the delivery destination. Valid values:
 
-*   `OSS` for standard delivery
-*   `OSS` or `SLS` for custom delivery', example='OSS'),
-  }(name='ResourceSnapshotDelivery', description='The configurations for delivery of scheduled resource snapshots.'),
+- `OSS` for standard delivery
+- `OSS` or `SLS` for custom delivery', example='OSS'),
+  }(name='ResourceSnapshotDelivery', description='The configurations for scheduled delivery of resource snapshots.'),
 }
 
 model CreateMultiAccountDeliveryChannelResponseBody = {
-  deliveryChannelId?: string(name='DeliveryChannelId', description='The ID of the delivery channel.', example='dc-6q79dm4o9***'),
+  deliveryChannelId?: string(name='DeliveryChannelId', description='The delivery channel ID.', example='dc-6q79dm4o9***'),
   requestId?: string(name='RequestId', description='The request ID.', example='994BFEFE-4BB5-5A27-8917-4583DEEF2***'),
 }
 
@@ -347,10 +440,10 @@ model CreateMultiAccountDeliveryChannelResponse = {
 /**
  * @summary Creates a multi-account delivery channel.
  *
- * @description In Resource Center, you can create multi-account delivery channels by using the management account of your resource directory or the delegated administrator account of Resource Center to deliver resource configuration change events and scheduled resource snapshots within the members in your resource directory to Object Storage Service (OSS) or Simple Log Service. Then, other Alibaba Cloud services consume standardized resource information from OSS or Simple Log Service.
+ * @description In Resource Center, you can create multi-account delivery channels by using the management account of your resource directory or the delegated administrator account of Resource Center to deliver resource configuration change events and scheduled resource snapshots within the members in your resource directory to Object Storage Service (OSS) or Simple Log Service (SLS). Then, other Alibaba Cloud services consume standardized resource information from OSS or Simple Log Service.
  * Scheduled resource snapshots support the following delivery scenarios:
- * *   Standard delivery: Leave the `ResourceSnapshotDelivery.CustomExpression` parameter empty.
- * *   Custom delivery: Set the `ResourceSnapshotDelivery.CustomExpression` parameter to an appropriate value.
+ * - Standard delivery: Leave the `ResourceSnapshotDelivery.CustomExpression` parameter empty.
+ * - Custom delivery: Set the `ResourceSnapshotDelivery.CustomExpression` parameter to an appropriate value.
  *
  * @param request CreateMultiAccountDeliveryChannelRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -395,10 +488,10 @@ async function createMultiAccountDeliveryChannelWithOptions(request: CreateMulti
 /**
  * @summary Creates a multi-account delivery channel.
  *
- * @description In Resource Center, you can create multi-account delivery channels by using the management account of your resource directory or the delegated administrator account of Resource Center to deliver resource configuration change events and scheduled resource snapshots within the members in your resource directory to Object Storage Service (OSS) or Simple Log Service. Then, other Alibaba Cloud services consume standardized resource information from OSS or Simple Log Service.
+ * @description In Resource Center, you can create multi-account delivery channels by using the management account of your resource directory or the delegated administrator account of Resource Center to deliver resource configuration change events and scheduled resource snapshots within the members in your resource directory to Object Storage Service (OSS) or Simple Log Service (SLS). Then, other Alibaba Cloud services consume standardized resource information from OSS or Simple Log Service.
  * Scheduled resource snapshots support the following delivery scenarios:
- * *   Standard delivery: Leave the `ResourceSnapshotDelivery.CustomExpression` parameter empty.
- * *   Custom delivery: Set the `ResourceSnapshotDelivery.CustomExpression` parameter to an appropriate value.
+ * - Standard delivery: Leave the `ResourceSnapshotDelivery.CustomExpression` parameter empty.
+ * - Custom delivery: Set the `ResourceSnapshotDelivery.CustomExpression` parameter to an appropriate value.
  *
  * @param request CreateMultiAccountDeliveryChannelRequest
  * @return CreateMultiAccountDeliveryChannelResponse
@@ -411,21 +504,23 @@ async function createMultiAccountDeliveryChannel(request: CreateMultiAccountDeli
 model CreateSavedQueryRequest {
   description?: string(name='Description', description='The description of the template.
 
-The description must be 1 to 256 characters in length.', example='Queries all resources on which you have permissions and sorts the resources by resource type and resource ID.'),
-  expression?: string(name='Expression', description='The query statement in the template.
+The description must be 1 to 256 characters in length.', example='查询所有资源。'),
+  expression?: string(name='Expression', description='The expression of the template.
 
 This parameter is required.', example='SELECT * FROM resources;'),
   name?: string(name='Name', description='The name of the template.
 
-*   The name must be 1 to 64 characters in length.
-*   The name can contain letters, digits, underscores (_), and hyphens (-).
-*   The name must be unique.
+- The name must be 1 to 64 characters in length.
 
-This parameter is required.', example='Query of All Alibaba Cloud Resources'),
+- The name can contain letters, digits, underscores (_), and hyphens (-).
+
+- The template name must be unique.
+
+This parameter is required.', example='查询我的所有资源。'),
 }
 
 model CreateSavedQueryResponseBody = {
-  queryId?: string(name='QueryId', description='The template ID.', example='sq-GeAck****'),
+  queryId?: string(name='QueryId', description='The template ID.', example='cq-GeAck****'),
   requestId?: string(name='RequestId', description='The request ID.', example='EFA806B9-7F36-55AB-8B7A-D680C2C5EE57'),
 }
 
@@ -544,7 +639,7 @@ async function deleteDeliveryChannel(request: DeleteDeliveryChannelRequest): Del
 model DeleteFilterRequest {
   filterName?: string(name='FilterName', description='The name of the filter.
 
-This parameter is required.', example='ECS'),
+This parameter is required.', example='我的筛选条件'),
 }
 
 model DeleteFilterResponseBody = {
@@ -718,7 +813,7 @@ async function deleteSavedQuery(request: DeleteSavedQueryRequest): DeleteSavedQu
 }
 
 model DisableMultiAccountResourceCenterResponseBody = {
-  requestId?: string(name='RequestId', description='The ID of the request.', example='4951F920-48DB-5731-96AA-3A7C8AE617D9'),
+  requestId?: string(name='RequestId'),
 }
 
 model DisableMultiAccountResourceCenterResponse = {
@@ -728,7 +823,7 @@ model DisableMultiAccountResourceCenterResponse = {
 }
 
 /**
- * @summary Disables the cross-account resource search feature by using the management account of a resource directory or a delegated administrator account of Resource Center.
+ * @summary 关闭跨账号搜索功能
  *
  * @param request DisableMultiAccountResourceCenterRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -751,7 +846,7 @@ async function disableMultiAccountResourceCenterWithOptions(runtime: $RuntimeOpt
 }
 
 /**
- * @summary Disables the cross-account resource search feature by using the management account of a resource directory or a delegated administrator account of Resource Center.
+ * @summary 关闭跨账号搜索功能
  *
  * @return DisableMultiAccountResourceCenterResponse
  */
@@ -761,7 +856,7 @@ async function disableMultiAccountResourceCenter(): DisableMultiAccountResourceC
 }
 
 model DisableResourceCenterResponseBody = {
-  requestId?: string(name='RequestId', description='The ID of the request.', example='D170D58E-6256-5344-8F5E-922EC9ECB7EA'),
+  requestId?: string(name='RequestId'),
 }
 
 model DisableResourceCenterResponse = {
@@ -771,7 +866,7 @@ model DisableResourceCenterResponse = {
 }
 
 /**
- * @summary Deactivates the Resource Center service.
+ * @summary 禁用资源中心
  *
  * @param request DisableResourceCenterRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -794,7 +889,7 @@ async function disableResourceCenterWithOptions(runtime: $RuntimeOptions): Disab
 }
 
 /**
- * @summary Deactivates the Resource Center service.
+ * @summary 禁用资源中心
  *
  * @return DisableResourceCenterResponse
  */
@@ -847,11 +942,8 @@ async function disassociateDefaultFilter(): DisassociateDefaultFilterResponse {
 }
 
 model EnableMultiAccountResourceCenterResponseBody = {
-  requestId?: string(name='RequestId', description='The ID of the request.', example='767038B7-2027-5508-858B-E213232D57D5'),
-  status?: string(name='Status', description='The status of the feature. Valid values:
-
-*   Pending: The feature is being enabled.
-*   Enabled: The feature is enabled.', example='Pending'),
+  requestId?: string(name='RequestId'),
+  status?: string(name='Status'),
 }
 
 model EnableMultiAccountResourceCenterResponse = {
@@ -861,9 +953,7 @@ model EnableMultiAccountResourceCenterResponse = {
 }
 
 /**
- * @summary Enables the cross-account resource search feature by using the management account of a resource directory or a delegated administrator account of Resource Center.
- *
- * @description If you have created a resource directory for your enterprise, you can enable the cross-account resource search feature by using the management account of the resource directory or a delegated administrator account of Resource Center to view the resources of members in the resource directory. For more information about a resource directory, see [Resource Directory overview](https://help.aliyun.com/document_detail/200506.html).
+ * @summary 开通跨账号搜索功能
  *
  * @param request EnableMultiAccountResourceCenterRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -886,9 +976,7 @@ async function enableMultiAccountResourceCenterWithOptions(runtime: $RuntimeOpti
 }
 
 /**
- * @summary Enables the cross-account resource search feature by using the management account of a resource directory or a delegated administrator account of Resource Center.
- *
- * @description If you have created a resource directory for your enterprise, you can enable the cross-account resource search feature by using the management account of the resource directory or a delegated administrator account of Resource Center to view the resources of members in the resource directory. For more information about a resource directory, see [Resource Directory overview](https://help.aliyun.com/document_detail/200506.html).
+ * @summary 开通跨账号搜索功能
  *
  * @return EnableMultiAccountResourceCenterResponse
  */
@@ -898,11 +986,12 @@ async function enableMultiAccountResourceCenter(): EnableMultiAccountResourceCen
 }
 
 model EnableResourceCenterResponseBody = {
-  requestId?: string(name='RequestId', description='The ID of the request.', example='45357BEF-AB50-5E4D-B05D-5A882A4BE924'),
+  requestId?: string(name='RequestId', description='The request ID.', example='45357BEF-AB50-5E4D-B05D-5A882A4BE924'),
   status?: string(name='Status', description='The activation status of the service. Valid values:
 
-*   Pending: The service is being activated.
-*   Enabled: The service is activated.', example='Pending'),
+- Pending: The service is being activated.
+
+- Enabled: The service is activated.', example='Pending'),
 }
 
 model EnableResourceCenterResponse = {
@@ -991,7 +1080,7 @@ model ExecuteMultiAccountSQLQueryResponse = {
 }
 
 /**
- * @summary Executes an SQL statement to query resources across accounts.
+ * @summary 执行多账号查询
  *
  * @param request ExecuteMultiAccountSQLQueryRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -1031,7 +1120,7 @@ async function executeMultiAccountSQLQueryWithOptions(request: ExecuteMultiAccou
 }
 
 /**
- * @summary Executes an SQL statement to query resources across accounts.
+ * @summary 执行多账号查询
  *
  * @param request ExecuteMultiAccountSQLQueryRequest
  * @return ExecuteMultiAccountSQLQueryResponse
@@ -1051,8 +1140,9 @@ For more information about the SQL syntax, see [Basic SQL syntax](https://help.a
 This parameter is required.', example='SELECT * FROM resources LIMIT 100;'),
   maxResults?: int32(name='MaxResults', description='The number of entries per page.
 
-*   Valid values: 1 to 1000.
-*   Default value: 1000.', example='1000'),
+- Valid values: 1 to 1000.
+
+- Default value: 1000.', example='1000'),
   nextToken?: string(name='NextToken', description='The pagination token that is used in the next request to retrieve a new page of results. You do not need to specify this parameter for the first request. You must specify the token that is obtained from the previous query as the value of NextToken.', example='eyJzZWFyY2hBZnRlcnMiOlsiMTAwMTU2Nzk4MTU1OSJd****'),
   scope?: string(name='Scope', description='The search scope.
 
@@ -1136,31 +1226,43 @@ model GetDeliveryChannelRequest {
 }
 
 model GetDeliveryChannelResponseBody = {
-  deliveryChannelDescription?: string(name='DeliveryChannelDescription', description='The description of the delivery channel.'),
+  deliveryChannelDescription?: string(name='DeliveryChannelDescription', description='The description of the delivery channel.', example='This is a description.'),
   deliveryChannelFilter?: {
-    resourceTypes?: [ string ](name='ResourceTypes', description='The effective resource types of the delivery channel.'),
+    resourceTypes?: [ string ](name='ResourceTypes', description='The resource types that are delivered.'),
   }(name='DeliveryChannelFilter', description='The effective scope of the delivery channel.'),
   deliveryChannelId?: string(name='DeliveryChannelId', description='The ID of the delivery channel.', example='dc-6q79dm4o9***'),
   deliveryChannelName?: string(name='DeliveryChannelName', description='The name of the delivery channel.', example='test-delivery-channel'),
   requestId?: string(name='RequestId', description='The request ID.', example='17502A1B-7026-5551-8E1C-CCABD0CBC***'),
   resourceChangeDelivery?: {
-    enabled?: string(name='Enabled'),
+    enabled?: string(name='Enabled', description='Indicates whether to deliver resource configuration changes.
+
+Valid values:
+
+- true
+
+- false', example='true'),
     slsProperties?: {
-      oversizedDataOssTargetArn?: string(name='OversizedDataOssTargetArn', description='The Alibaba Cloud Resource Name (ARN) of the destination to which large files are delivered.', example='acs:oss:cn-hangzhou:1911422487776***:resourcecenter-oss'),
-    }(name='SlsProperties', description='The Simple Log Service configurations.'),
+      oversizedDataOssTargetArn?: string(name='OversizedDataOssTargetArn', description='The Alibaba Cloud Resource Name (ARN) of the Object Storage Service (OSS) bucket to which oversized data is delivered.', example='acs:oss:cn-hangzhou:1911422487776***:resourcecenter-oss'),
+    }(name='SlsProperties', description='The Simple Log Service (SLS) configurations.'),
     targetArn?: string(name='TargetArn', description='The ARN of the delivery destination.', example='acs:log:cn-hangzhou: 1911422487776***:project/delivery/logstore/resourcecenter-sls'),
-    targetType?: string(name='TargetType', description='The type of the destination.', example='SLS'),
-  }(name='ResourceChangeDelivery', description='The configurations for delivery of resource configuration change events.'),
+    targetType?: string(name='TargetType', description='The type of the delivery destination.', example='SLS'),
+  }(name='ResourceChangeDelivery', description='The settings for delivering resource configuration changes.'),
   resourceSnapshotDelivery?: {
     customExpression?: string(name='CustomExpression', description='The custom expression.', example='select * from resources limit 100;'),
-    deliveryTime?: string(name='DeliveryTime', description='The delivery time.', example='09:00Z'),
-    enabled?: string(name='Enabled'),
+    deliveryTime?: string(name='DeliveryTime', description='The time when resource snapshots are delivered.', example='09:00Z'),
+    enabled?: string(name='Enabled', description='Indicates whether to enable the scheduled delivery of resource snapshots.
+
+Valid values:
+
+- true
+
+- false', example='true'),
     slsProperties?: {
-      oversizedDataOssTargetArn?: string(name='OversizedDataOssTargetArn', description='The ARN of the destination to which large files are delivered.', example='acs:oss:cn-hangzhou:1911422487776***:resourcecenter-oss'),
-    }(name='SlsProperties', description='The Simple Log Service configurations.'),
+      oversizedDataOssTargetArn?: string(name='OversizedDataOssTargetArn', description='The ARN of the OSS bucket to which oversized data is delivered.', example='acs:oss:cn-hangzhou:1911422487776***:resourcecenter-oss'),
+    }(name='SlsProperties', description='The SLS configurations.'),
     targetArn?: string(name='TargetArn', description='The ARN of the delivery destination.', example='acs:oss:cn-hangzhou:1911422487776***:resourcecenter-oss'),
-    targetType?: string(name='TargetType', description='The type of the destination.', example='OSS'),
-  }(name='ResourceSnapshotDelivery', description='The configurations for delivery of scheduled resource snapshots.'),
+    targetType?: string(name='TargetType', description='The type of the delivery destination.', example='OSS'),
+  }(name='ResourceSnapshotDelivery', description='The settings for the scheduled delivery of resource snapshots.'),
 }
 
 model GetDeliveryChannelResponse = {
@@ -1170,7 +1272,7 @@ model GetDeliveryChannelResponse = {
 }
 
 /**
- * @summary Queries the information about a single-account delivery channel.
+ * @summary Queries the information about a delivery channel within the current account.
  *
  * @param request GetDeliveryChannelRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -1201,7 +1303,7 @@ async function getDeliveryChannelWithOptions(request: GetDeliveryChannelRequest,
 }
 
 /**
- * @summary Queries the information about a single-account delivery channel.
+ * @summary Queries the information about a delivery channel within the current account.
  *
  * @param request GetDeliveryChannelRequest
  * @return GetDeliveryChannelResponse
@@ -1221,9 +1323,9 @@ model GetDeliveryChannelStatisticsResponseBody = {
   deliveryChannelStatistics?: {
     deliveryChannelId?: string(name='DeliveryChannelId', description='The ID of the delivery channel.', example='dc-6q79dm4o9***'),
     deliveryChannelName?: string(name='DeliveryChannelName', description='The name of the delivery channel.', example='test-delivery-channel'),
-    latestChangeDeliveryTime?: string(name='LatestChangeDeliveryTime', description='The last delivery time of resource configuration change events.', example='2025-06-03T16:05:15Z'),
-    latestSnapshotDeliveryTime?: string(name='LatestSnapshotDeliveryTime', description='The last delivery time of scheduled resource snapshots.', example='2025-06-03T16:00:00Z'),
-  }(name='DeliveryChannelStatistics', description='The statistics on the delivery channel.'),
+    latestChangeDeliveryTime?: string(name='LatestChangeDeliveryTime', description='The last time a resource configuration change was delivered.', example='2025-06-03T16:05:15Z'),
+    latestSnapshotDeliveryTime?: string(name='LatestSnapshotDeliveryTime', description='The last time a scheduled resource snapshot was delivered.', example='2025-06-03T16:00:00Z'),
+  }(name='DeliveryChannelStatistics', description='The statistics of the delivery channel.'),
   requestId?: string(name='RequestId', description='The request ID.', example='80DF0610-504C-56D7-BDCF-7C92FD687***'),
 }
 
@@ -1234,7 +1336,7 @@ model GetDeliveryChannelStatisticsResponse = {
 }
 
 /**
- * @summary Queries the statistics on a single-account delivery channel.
+ * @summary Queries the statistics of a resource delivery channel in the current account.
  *
  * @param request GetDeliveryChannelStatisticsRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -1265,7 +1367,7 @@ async function getDeliveryChannelStatisticsWithOptions(request: GetDeliveryChann
 }
 
 /**
- * @summary Queries the statistics on a single-account delivery channel.
+ * @summary Queries the statistics of a resource delivery channel in the current account.
  *
  * @param request GetDeliveryChannelStatisticsRequest
  * @return GetDeliveryChannelStatisticsResponse
@@ -1278,14 +1380,14 @@ async function getDeliveryChannelStatistics(request: GetDeliveryChannelStatistic
 model GetExampleQueryRequest {
   queryId?: string(name='QueryId', description='The ID of the template.
 
->  You can call the [ListExampleQueries](~~ListExampleQueries~~) operation to obtain the template ID.
+> You can call the [ListExampleQueries](~~ListExampleQueries~~) operation to obtain the template ID.
 
 This parameter is required.', example='sq-0PfKy****'),
 }
 
 model GetExampleQueryResponseBody = {
   exampleQuery?: {
-    description?: string(name='Description', description='The description of the template.', example='Queries all resources on which you have permissions and sorts the resources by resource type and resource ID.'),
+    description?: string(name='Description', description='The description of the template.', example='返回所有有权限的资源，并按照资源类型和资源ID排列。'),
     expression?: string(name='Expression', description='The query statement in the template.', example='SELECT
   resource_id,
   resource_name,
@@ -1306,7 +1408,7 @@ ORDER BY
   resource_id
 LIMIT
   1000 OFFSET 0;'),
-    name?: string(name='Name', description='The name of the template.', example='Query of All Alibaba Cloud Resources'),
+    name?: string(name='Name', description='The name of the template.', example='列出所有阿里云资源'),
     queryId?: string(name='QueryId', description='The ID of the template.', example='sq-0PfKy****'),
   }(name='ExampleQuery', description='The information about the sample query template.'),
   requestId?: string(name='RequestId', description='The request ID.', example='36A3D9BE-B607-5993-B546-7E19EF65DC00'),
@@ -1365,32 +1467,40 @@ model GetMultiAccountDeliveryChannelRequest {
 }
 
 model GetMultiAccountDeliveryChannelResponseBody = {
-  deliveryChannelDescription?: string(name='DeliveryChannelDescription', description='The description of the delivery channel.'),
+  deliveryChannelDescription?: string(name='DeliveryChannelDescription', description='The description of the delivery channel.', example='投递描述'),
   deliveryChannelFilter?: {
-    accountScopes?: [ string ](name='AccountScopes', description='The effective account scopes of the delivery channel.'),
-    resourceTypes?: [ string ](name='ResourceTypes', description='The effective resource types of the delivery channel.'),
+    accountScopes?: [ string ](name='AccountScopes', description='The accounts within the delivery scope.'),
+    resourceTypes?: [ string ](name='ResourceTypes', description='The types of delivered resources.'),
   }(name='DeliveryChannelFilter', description='The effective scope of the delivery channel.'),
   deliveryChannelId?: string(name='DeliveryChannelId', description='The ID of the delivery channel.', example='dc-6q79dm4o9***'),
   deliveryChannelName?: string(name='DeliveryChannelName', description='The name of the delivery channel.', example='test-delivery-channel'),
   requestId?: string(name='RequestId', description='The request ID.', example='FE3EAB47-D3A6-5FEA-8353-31C8C0D36***'),
   resourceChangeDelivery?: {
-    enabled?: string(name='Enabled'),
+    enabled?: string(name='Enabled', description='Indicates whether to deliver resource configuration changes. Valid values:
+
+- true
+
+- false', example='true'),
     slsProperties?: {
-      oversizedDataOssTargetArn?: string(name='OversizedDataOssTargetArn', description='The Alibaba Cloud Resource Name (ARN) of the destination to which large files are delivered.', example='acs:oss:cn-hangzhou:1911422487776***:resourcecenter-oss'),
-    }(name='SlsProperties', description='The Simple Log Service configurations.'),
+      oversizedDataOssTargetArn?: string(name='OversizedDataOssTargetArn', description='The ARN of the Object Storage Service (OSS) bucket to which oversized data is delivered.', example='acs:oss:cn-hangzhou:1911422487776***:resourcecenter-oss'),
+    }(name='SlsProperties', description='The Simple Log Service (SLS) configuration.'),
     targetArn?: string(name='TargetArn', description='The ARN of the delivery destination.', example='acs:log:cn-hangzhou: 1911422487776***:project/delivery/logstore/resourcecenter-sls'),
-    targetType?: string(name='TargetType', description='The type of the destination.', example='SLS'),
-  }(name='ResourceChangeDelivery', description='The configurations for delivery of resource configuration change events.'),
+    targetType?: string(name='TargetType', description='The type of the delivery destination.', example='SLS'),
+  }(name='ResourceChangeDelivery', description='The delivery of resource configuration changes.'),
   resourceSnapshotDelivery?: {
     customExpression?: string(name='CustomExpression', description='The custom expression.', example='select * from resources limit 100;'),
     deliveryTime?: string(name='DeliveryTime', description='The delivery time.', example='09:00Z'),
-    enabled?: string(name='Enabled'),
+    enabled?: string(name='Enabled', description='Indicates whether to enable the scheduled delivery of resource snapshots. Valid values:
+
+- true
+
+- false', example='true'),
     slsProperties?: {
-      oversizedDataOssTargetArn?: string(name='OversizedDataOssTargetArn', description='The ARN of the destination to which large files are delivered.', example='acs:oss:cn-hangzhou:1911422487776***:resourcecenter-oss'),
-    }(name='SlsProperties', description='The Simple Log Service configurations.'),
+      oversizedDataOssTargetArn?: string(name='OversizedDataOssTargetArn', description='The ARN of the OSS bucket to which oversized data is delivered.', example='acs:oss:cn-hangzhou:1911422487776***:resourcecenter-oss'),
+    }(name='SlsProperties', description='The SLS configuration.'),
     targetArn?: string(name='TargetArn', description='The ARN of the delivery destination.', example='acs:oss:cn-hangzhou:1911422487776***:resourcecenter-oss'),
-    targetType?: string(name='TargetType', description='The type of the destination.', example='OSS'),
-  }(name='ResourceSnapshotDelivery', description='The configurations for delivery of scheduled resource snapshots.'),
+    targetType?: string(name='TargetType', description='The type of the delivery destination.', example='OSS'),
+  }(name='ResourceSnapshotDelivery', description='The configurations of scheduled delivery of resource snapshots.'),
 }
 
 model GetMultiAccountDeliveryChannelResponse = {
@@ -1400,7 +1510,7 @@ model GetMultiAccountDeliveryChannelResponse = {
 }
 
 /**
- * @summary Queries the information about a multi-account delivery channel.
+ * @summary Queries the information about a cross-account resource delivery channel.
  *
  * @param request GetMultiAccountDeliveryChannelRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -1431,7 +1541,7 @@ async function getMultiAccountDeliveryChannelWithOptions(request: GetMultiAccoun
 }
 
 /**
- * @summary Queries the information about a multi-account delivery channel.
+ * @summary Queries the information about a cross-account resource delivery channel.
  *
  * @param request GetMultiAccountDeliveryChannelRequest
  * @return GetMultiAccountDeliveryChannelResponse
@@ -1506,15 +1616,9 @@ async function getMultiAccountDeliveryChannelStatistics(request: GetMultiAccount
 }
 
 model GetMultiAccountResourceCenterServiceStatusResponseBody = {
-  initialStatus?: string(name='InitialStatus', description='The initialization status of the feature. Valid values:
-
-*   Pending: The feature is being initialized.
-*   Finished: The feature is initialized.', example='Pending'),
-  requestId?: string(name='RequestId', description='The ID of the request.', example='81671397-1425-51F1-A144-4799E01BEBFF'),
-  serviceStatus?: string(name='ServiceStatus', description='The status of the feature. Valid values:
-
-*   Enabled: The feature is enabled.
-*   Disabled: The feature is disabled.', example='Enabled'),
+  initialStatus?: string(name='InitialStatus'),
+  requestId?: string(name='RequestId'),
+  serviceStatus?: string(name='ServiceStatus'),
 }
 
 model GetMultiAccountResourceCenterServiceStatusResponse = {
@@ -1524,7 +1628,7 @@ model GetMultiAccountResourceCenterServiceStatusResponse = {
 }
 
 /**
- * @summary Queries the status of the cross-account resource search feature by using the management account of a resource directory or a delegated administrator account of Resource Center.
+ * @summary 获取跨账号资源中心服务状态
  *
  * @param request GetMultiAccountResourceCenterServiceStatusRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -1547,7 +1651,7 @@ async function getMultiAccountResourceCenterServiceStatusWithOptions(runtime: $R
 }
 
 /**
- * @summary Queries the status of the cross-account resource search feature by using the management account of a resource directory or a delegated administrator account of Resource Center.
+ * @summary 获取跨账号资源中心服务状态
  *
  * @return GetMultiAccountResourceCenterServiceStatusResponse
  */
@@ -1557,22 +1661,22 @@ async function getMultiAccountResourceCenterServiceStatus(): GetMultiAccountReso
 }
 
 model GetMultiAccountResourceConfigurationRequest {
-  accountId?: string(name='AccountId', description='The ID of the management account or member of the resource directory.
+  accountId?: string(name='AccountId', description='The ID of the management account or member.
 
 This parameter is required.', example='1619302****'),
-  resourceId?: string(name='ResourceId', description='The ID of the resource.
+  resourceId?: string(name='ResourceId', description='The resource ID.
 
 This parameter is required.', example='m-eb3hji****'),
-  resourceRegionId?: string(name='ResourceRegionId', description='The region ID of the resource.
+  resourceRegionId?: string(name='ResourceRegionId', description='The ID of the region where the resource resides.
 
 This parameter is required.', example='cn-shanghai'),
-  resourceType?: string(name='ResourceType', description='The type of the resource.
+  resourceType?: string(name='ResourceType', description='The resource type.
 
 This parameter is required.', example='ACS::VPC::RouteTable'),
 }
 
 model GetMultiAccountResourceConfigurationResponseBody = {
-  accountId?: string(name='AccountId', description='The ID of the management account or member of the resource directory.', example='1619302****'),
+  accountId?: string(name='AccountId', description='The ID of the management account or member.', example='1619302****'),
   configuration?: map[string]any(name='Configuration', description='The configurations of the resource.'),
   createTime?: string(name='CreateTime', description='The time when the resource was created.', example='2023-02-14T03:12:11Z'),
   expireTime?: string(name='ExpireTime', description='The time when the resource expires.', example='2023-09-18T07:04:21Z'),
@@ -1581,27 +1685,28 @@ model GetMultiAccountResourceConfigurationResponseBody = {
       ipAddress?: string(name='IpAddress', description='The IP address.', example='172.27.199.42'),
       networkType?: string(name='NetworkType', description='The network type. Valid values:
 
-*   **Public**: the Internet
-*   **Private**: internal network', example='Public'),
-      version?: string(name='Version', description='The version.', example='Ipv4'),
+- **Public**: Internet
+
+- **Private**: internal network', example='Public'),
+      version?: string(name='Version', description='The version of the IP address.', example='Ipv4'),
     }
-  ](name='IpAddressAttributes', description='The attributes of the IP address.'),
+  ](name='IpAddressAttributes', description='The properties of the IP addresses.'),
   ipAddresses?: [ string ](name='IpAddresses', description='The IP addresses.
 
 > Whether this parameter is returned is determined by the Alibaba Cloud service to which the resource belongs.'),
-  regionId?: string(name='RegionId', description='The region ID of the resource.', example='cn-shanghai'),
-  requestId?: string(name='RequestId', description='The ID of the request.', example='B2DCC08B-C12A-5705-879C-5A1450016156'),
-  resourceGroupId?: string(name='ResourceGroupId', description='The ID of the resource group to which the resource belongs.', example='rg-acfmzy6d****'),
-  resourceId?: string(name='ResourceId', description='The ID of the resource.', example='m-eb3hji****'),
-  resourceName?: string(name='ResourceName', description='The name of the resource.', example='test_resource'),
-  resourceType?: string(name='ResourceType', description='The type of the resource.', example='ACS::VPC::RouteTable'),
+  regionId?: string(name='RegionId', description='The ID of the region where the resource resides.', example='cn-shanghai'),
+  requestId?: string(name='RequestId', description='The request ID.', example='B2DCC08B-C12A-5705-879C-5A1450016156'),
+  resourceGroupId?: string(name='ResourceGroupId', description='The ID of your Alibaba Cloud resource group.', example='rg-acfmzy6d****'),
+  resourceId?: string(name='ResourceId', description='The resource ID.', example='m-eb3hji****'),
+  resourceName?: string(name='ResourceName', description='The resource name.', example='test_resource'),
+  resourceType?: string(name='ResourceType', description='The resource type.', example='ACS::VPC::RouteTable'),
   tags?: [ 
     {
-      key?: string(name='Key', description='The key of tag N.', example='tag-key'),
-      value?: string(name='Value', description='The value of tag N.', example='tag-value'),
+      key?: string(name='Key', description='The tag key.', example='tag-key'),
+      value?: string(name='Value', description='The tag value.', example='tag-value'),
     }
-  ](name='Tags', description='The tags of the resource.'),
-  zoneId?: string(name='ZoneId', description='The zone ID of the resource.', example='cn-shanghai-a'),
+  ](name='Tags', description='The tags.'),
+  zoneId?: string(name='ZoneId', description='The zone ID.', example='cn-shanghai-a'),
 }
 
 model GetMultiAccountResourceConfigurationResponse = {
@@ -1664,31 +1769,61 @@ async function getMultiAccountResourceConfiguration(request: GetMultiAccountReso
 model GetMultiAccountResourceCountsRequest {
   filter?: [ 
     {
-      key?: string(name='Key', example='RegionId'),
-      matchType?: string(name='MatchType', example='Equals'),
-      value?: [ string ](name='Value'),
+      key?: string(name='Key', description='The key of the filter condition. For more information, see `Supported filter parameters`.', example='RegionId'),
+      matchType?: string(name='MatchType', description='The matching method.
+
+Set the value to Equals, which indicates an exact match.', example='Equals'),
+      value?: [ string ](name='Value', description='The values of the filter condition.'),
     }
-  ](name='Filter'),
-  groupByKey?: string(name='GroupByKey', example='ResourceType'),
-  scope?: string(name='Scope', example='rd-r4****'),
+  ](name='Filter', description='The filter condition.'),
+  groupByKey?: string(name='GroupByKey', description='The dimension by which resources are queried. Valid values:
+
+- ResourceType: resource type
+
+- RegionId: region
+
+- ResourceGroupId: resource group
+
+> If this parameter is not configured, the total number of resources that meet the conditions is returned.', example='ResourceType'),
+  scope?: string(name='Scope', description='The search scope. Valid values:
+
+- ID of a resource directory: Resources within the management account and all members of the resource directory are searched.
+
+- ID of the Root folder: Resources within all members in the Root folder and the subfolders of the Root folder are searched.
+
+- ID of a folder: Resources within all members in the folder are searched.
+
+- ID of a member: Resources within the member are searched.
+
+For information about how to obtain the ID of a resource directory, the Root folder, a folder, or a member, see [GetResourceDirectory](https://help.aliyun.com/document_detail/159995.html), [ListFoldersForParent](https://help.aliyun.com/document_detail/159997.html), or [ListAccounts](https://help.aliyun.com/document_detail/160016.html).', example='rd-r4****'),
 }
 
 model GetMultiAccountResourceCountsResponseBody = {
   filters?: [ 
     {
-      key?: string(name='Key', example='RegionId'),
-      values?: [ string ](name='Values'),
+      key?: string(name='Key', description='The key of the filter condition.', example='RegionId'),
+      values?: [ string ](name='Values', description='The values of the filter condition.'),
     }
-  ](name='Filters'),
-  groupByKey?: string(name='GroupByKey', example='ResourceType'),
-  requestId?: string(name='RequestId', example='EFA806B9-7F36-55AB-8B7A-D680C2C5EE57'),
+  ](name='Filters', description='The filter condition.'),
+  groupByKey?: string(name='GroupByKey', description='The dimension by which resources are queried.', example='ResourceType'),
+  requestId?: string(name='RequestId', description='The request ID.', example='EFA806B9-7F36-55AB-8B7A-D680C2C5EE57'),
   resourceCounts?: [ 
     {
-      count?: long(name='Count', example='2'),
-      groupName?: string(name='GroupName', example='ACS::ECS::NetworkInterface'),
+      count?: long(name='Count', description='The number of resources.', example='2'),
+      groupName?: string(name='GroupName', description='The group name.', example='ACS::ECS::NetworkInterface'),
     }
-  ](name='ResourceCounts'),
-  scope?: string(name='Scope', example='rd-r4****'),
+  ](name='ResourceCounts', description='The numbers of resources.'),
+  scope?: string(name='Scope', description='The search scope. Valid values:
+
+- ID of a resource directory: Resources within the management account and all members of the resource directory are searched.
+
+- ID of the Root folder: Resources within all members in the Root folder and the subfolders of the Root folder are searched.
+
+- ID of a folder: Resources within all members in the folder are searched.
+
+- ID of a member: Resources within the member are searched.
+
+For information about how to obtain the ID of a resource directory, the Root folder, a folder, or a member, see [GetResourceDirectory](https://help.aliyun.com/document_detail/159995.html), [ListFoldersForParent](https://help.aliyun.com/document_detail/159997.html), or [ListAccounts](https://help.aliyun.com/document_detail/160016.html).', example='rd-r4****'),
 }
 
 model GetMultiAccountResourceCountsResponse = {
@@ -1698,7 +1833,9 @@ model GetMultiAccountResourceCountsResponse = {
 }
 
 /**
- * @summary 获取多账号资源数量
+ * @summary Queries the number of resources within the management account and multiple members of a resource directory.
+ *
+ * @description You can query only resources supported by Resource Center. For more information, see [Services that work with Resource Center](https://help.aliyun.com/document_detail/477798.html).
  *
  * @param request GetMultiAccountResourceCountsRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -1735,7 +1872,9 @@ async function getMultiAccountResourceCountsWithOptions(request: GetMultiAccount
 }
 
 /**
- * @summary 获取多账号资源数量
+ * @summary Queries the number of resources within the management account and multiple members of a resource directory.
+ *
+ * @description You can query only resources supported by Resource Center. For more information, see [Services that work with Resource Center](https://help.aliyun.com/document_detail/477798.html).
  *
  * @param request GetMultiAccountResourceCountsRequest
  * @return GetMultiAccountResourceCountsResponse
@@ -1746,15 +1885,17 @@ async function getMultiAccountResourceCounts(request: GetMultiAccountResourceCou
 }
 
 model GetResourceCenterServiceStatusResponseBody = {
-  initialStatus?: string(name='InitialStatus', description='The initialization status of the service. Valid values:
+  initialStatus?: string(name='InitialStatus', description='The initialization status. Valid values:
 
-*   Pending: The service is being initialized.
-*   Finished: The service is initialized.', example='Pending'),
-  requestId?: string(name='RequestId', description='The ID of the request.', example='AD5F848D-CCDC-5464-93E1-4BA50A4826DD'),
-  serviceStatus?: string(name='ServiceStatus', description='The status of the service. Valid values:
+- Pending
 
-*   Enabled: The service is activated.
-*   Disabled: The service is deactivated.', example='Enabled'),
+- Finished', example='Pending'),
+  requestId?: string(name='RequestId', description='The request ID.', example='AD5F848D-CCDC-5464-93E1-4BA50A4826DD'),
+  serviceStatus?: string(name='ServiceStatus', description='The service status. Valid values:
+
+- Enabled
+
+- Disabled', example='Enabled'),
 }
 
 model GetResourceCenterServiceStatusResponse = {
@@ -1797,50 +1938,37 @@ async function getResourceCenterServiceStatus(): GetResourceCenterServiceStatusR
 }
 
 model GetResourceConfigurationRequest {
-  resourceId?: string(name='ResourceId', description='The ID of the resource.
-
-This parameter is required.', example='eip-bp1kyg72m****'),
-  resourceRegionId?: string(name='ResourceRegionId', description='The region ID of the resource.
-
-This parameter is required.', example='cn-shanghai'),
-  resourceType?: string(name='ResourceType', description='The type of the resource.
-
-For more information about the resource types supported by Resource Center, see [Services that work with Resource Center](https://help.aliyun.com/document_detail/477798.html).
-
-This parameter is required.', example='ACS::VPC::RouteTable'),
+  resourceId?: string(name='ResourceId', description='This parameter is required.'),
+  resourceRegionId?: string(name='ResourceRegionId', description='This parameter is required.'),
+  resourceType?: string(name='ResourceType', description='This parameter is required.'),
 }
 
 model GetResourceConfigurationResponseBody = {
-  accountId?: string(name='AccountId', description='The ID of the Alibaba Cloud account to which the resource belongs.', example='151266687691****'),
-  configuration?: map[string]any(name='Configuration', description='The configurations of the resource.'),
-  createTime?: string(name='CreateTime', description='The time when the resource was created.', example='2021-06-30T09:20:08Z'),
-  expireTime?: string(name='ExpireTime', description='The time when the resource expires.', example='2021-07-30T09:20:08Z'),
+  accountId?: string(name='AccountId'),
+  configuration?: map[string]any(name='Configuration'),
+  createTime?: string(name='CreateTime'),
+  expireTime?: string(name='ExpireTime'),
   ipAddressAttributes?: [ 
     {
-      ipAddress?: string(name='IpAddress', description='The IP address.', example='192.168.1.2'),
-      networkType?: string(name='NetworkType', description='The network type. Valid values:
-
-*   **Public**: the Internet
-*   **Private**: internal network', example='Public'),
-      version?: string(name='Version', description='The version.', example='Ipv4'),
+      ipAddress?: string(name='IpAddress'),
+      networkType?: string(name='NetworkType'),
+      version?: string(name='Version'),
     }
-  ](name='IpAddressAttributes', description='The attributes of the IP address.'),
-  ipAddresses?: [ string ](name='IpAddresses', description='The IP addresses.
-
-> Whether this parameter is returned is determined by the Alibaba Cloud service to which the resource belongs.'),
-  regionId?: string(name='RegionId', description='The region ID of the resource.', example='cn-hangzhou'),
-  requestId?: string(name='RequestId', description='The ID of the request.', example='F1CE0D52-32DA-531A-87A4-B9A5B68D5D8E'),
-  resourceGroupId?: string(name='ResourceGroupId', description='The ID of the resource group to which the resource belongs.', example='rg-acfmv4k****'),
-  resourceId?: string(name='ResourceId', description='The ID of the resource.', example='vtb-uf6978gdqbi****'),
-  resourceName?: string(name='ResourceName', description='The name of the resource.', example='group1'),
-  resourceType?: string(name='ResourceType', description='The type of the resource.', example='ACS::VPC::VSwitch'),
+  ](name='IpAddressAttributes'),
+  ipAddresses?: [ string ](name='IpAddresses'),
+  regionId?: string(name='RegionId'),
+  requestId?: string(name='RequestId'),
+  resourceGroupId?: string(name='ResourceGroupId'),
+  resourceId?: string(name='ResourceId'),
+  resourceName?: string(name='ResourceName'),
+  resourceType?: string(name='ResourceType'),
   tags?: [ 
     {
-      key?: string(name='Key', description='The tag key.', example='test-key'),
-      value?: string(name='Value', description='The tag value.', example='test-value'),
+      key?: string(name='Key'),
+      value?: string(name='Value'),
     }
-  ](name='Tags', description='The tags of the resource.'),
-  zoneId?: string(name='ZoneId', description='The zone ID of the resource.', example='cn-hangzhou-k'),
+  ](name='Tags'),
+  zoneId?: string(name='ZoneId'),
 }
 
 model GetResourceConfigurationResponse = {
@@ -1850,7 +1978,7 @@ model GetResourceConfigurationResponse = {
 }
 
 /**
- * @summary Queries the configurations of a resource within the current account.
+ * @summary 获取资源配置
  *
  * @param request GetResourceConfigurationRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -1887,7 +2015,7 @@ async function getResourceConfigurationWithOptions(request: GetResourceConfigura
 }
 
 /**
- * @summary Queries the configurations of a resource within the current account.
+ * @summary 获取资源配置
  *
  * @param request GetResourceConfigurationRequest
  * @return GetResourceConfigurationResponse
@@ -1900,22 +2028,26 @@ async function getResourceConfiguration(request: GetResourceConfigurationRequest
 model GetResourceCountsRequest {
   filter?: [ 
     {
-      key?: string(name='Key', description='The key of the filter condition. For more information, see `Supported filter parameters`.', example='RegionId'),
-      matchType?: string(name='MatchType', description='The matching mode.
+      key?: string(name='Key', description='The key of the filter condition. For information about valid values, see the "`Supported filter parameters`" section below.', example='RegionId'),
+      matchType?: string(name='MatchType', description='The matching method.
 
-The value Equals indicates an equal match.', example='Equals'),
+Set this parameter to `Equals`, which means an equal match.', example='Equals'),
       value?: [ string ](name='Value', description='The values of the filter condition.'),
     }
   ](name='Filter', description='The filter conditions.'),
-  groupByKey?: string(name='GroupByKey', description='The dimension by which resources are queried. Valid values:
+  groupByKey?: string(name='GroupByKey', description='The dimension by which the queried resources are grouped. Valid values:
 
-*   ResourceType
-*   Region
-*   ResourceGroupId
-*   TagKey
-*   TagValue', example='ResourceType'),
-  includeDeletedResources?: boolean(name='IncludeDeletedResources'),
-  searchExpression?: string(name='SearchExpression'),
+- ResourceType: The resource type.
+
+- RegionId: The region.
+
+- ResourceGroupId: The resource group ID.', example='ResourceType'),
+  includeDeletedResources?: boolean(name='IncludeDeletedResources', description='Specifies whether to include deleted resources. Valid values:
+
+- true
+
+- false', example='true'),
+  searchExpression?: string(name='SearchExpression', description='The search keyword. Resource Center filters the search results based on relevance.', example='keywords'),
 }
 
 model GetResourceCountsResponseBody = {
@@ -1925,14 +2057,14 @@ model GetResourceCountsResponseBody = {
       values?: [ string ](name='Values', description='The values of the filter condition.'),
     }
   ](name='Filters', description='The filter conditions.'),
-  groupByKey?: string(name='GroupByKey', description='The dimension by which resources are queried.', example='ResourceType'),
+  groupByKey?: string(name='GroupByKey', description='The dimension by which the queried resources are grouped.', example='ResourceType'),
   requestId?: string(name='RequestId', description='The request ID.', example='6D98D9B0-318D-56A4-910C-93B5F945AF2B'),
   resourceCounts?: [ 
     {
       count?: long(name='Count', description='The number of resources.', example='2'),
       groupName?: string(name='GroupName', description='The group name.', example='ACS::ECS::NetworkInterface'),
     }
-  ](name='ResourceCounts', description='The numbers of resources.'),
+  ](name='ResourceCounts', description='The list of resource counts.'),
 }
 
 model GetResourceCountsResponse = {
@@ -1942,7 +2074,10 @@ model GetResourceCountsResponse = {
 }
 
 /**
- * @summary Queries the numbers of resources on which the current account has access permissions.
+ * @summary Queries the number of resources in your account that you have permission to access.
+ *
+ * @description - You can query the number of resources in your account that you have permission to access.
+ * - You can query only the [Alibaba Cloud services and resource types that are supported by Resource Center](https://help.aliyun.com/document_detail/477798.html).
  *
  * @param request GetResourceCountsRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -1982,7 +2117,10 @@ async function getResourceCountsWithOptions(request: GetResourceCountsRequest, r
 }
 
 /**
- * @summary Queries the numbers of resources on which the current account has access permissions.
+ * @summary Queries the number of resources in your account that you have permission to access.
+ *
+ * @description - You can query the number of resources in your account that you have permission to access.
+ * - You can query only the [Alibaba Cloud services and resource types that are supported by Resource Center](https://help.aliyun.com/document_detail/477798.html).
  *
  * @param request GetResourceCountsRequest
  * @return GetResourceCountsResponse
@@ -1993,22 +2131,22 @@ async function getResourceCounts(request: GetResourceCountsRequest): GetResource
 }
 
 model GetSavedQueryRequest {
-  queryId?: string(name='QueryId', description='The template ID.
+  queryId?: string(name='QueryId', description='The ID of the template.
 
->  You can call the [ListSavedQueries](~~ListSavedQueries~~) operation to query the ID.
+> You can call the [ListSavedQueries](~~ListSavedQueries~~) operation to obtain the ID of the template.
 
-This parameter is required.', example='sq-GeAck****'),
+This parameter is required.', example='cq-GeAck****'),
 }
 
 model GetSavedQueryResponseBody = {
   requestId?: string(name='RequestId', description='The request ID.', example='6D98D9B0-318D-56A4-910C-93B5F945AF2B'),
   savedQuery?: {
     createTime?: string(name='CreateTime', description='The time when the template was created. The time is displayed in UTC.', example='2023-10-30T01:43:16Z'),
-    description?: string(name='Description', description='The description of the template.', example='Queries all resources on which you have permissions and sorts the resources by resource type and resource ID.'),
-    expression?: string(name='Expression', description='The query statement in the template.', example='SELECT * FROM resources;'),
-    name?: string(name='Name', description='The name of the template.', example='Query of All Alibaba Cloud Resources'),
-    queryId?: string(name='QueryId', description='The template ID.', example='sq-GeAck****'),
-    updateTime?: string(name='UpdateTime', description='The time when the template was updated. The time is displayed in UTC.', example='2023-10-30T01:43:16Z'),
+    description?: string(name='Description', description='The description of the template.', example='查询我的所有资源，返回所有的列。'),
+    expression?: string(name='Expression', description='The expression of the template.', example='SELECT * FROM resources;'),
+    name?: string(name='Name', description='The name of the template.', example='查询我的所有资源。'),
+    queryId?: string(name='QueryId', description='The ID of the template.', example='cq-GeAck****'),
+    updateTime?: string(name='UpdateTime', description='The time when the template was last updated. The time is displayed in UTC.', example='2023-10-30T01:43:16Z'),
   }(name='SavedQuery', description='The information about the template.'),
 }
 
@@ -2061,27 +2199,27 @@ async function getSavedQuery(request: GetSavedQueryRequest): GetSavedQueryRespon
 }
 
 model ListDeliveryChannelsRequest {
-  maxResults?: int32(name='MaxResults', description='The maximum number of entries per page.
+  maxResults?: int32(name='MaxResults', description='The number of entries per page.
 
 Valid values: 1 to 100.
 
 Default value: 20.', example='20'),
   nextToken?: string(name='NextToken', description='The pagination token that is used in the next request to retrieve a new page of results.
 
-If the total number of entries returned for the current request exceeds the value of the MaxResults parameter, the entries are truncated. In this case, you can use the token to initiate another request and obtain the remaining entries.', example='eyJzZWFyY2hBZnRlcnMiOlsiMTAwMTU2Nzk4MTU1OSJd****'),
+If the number of returned entries exceeds the `MaxResults` value, the entries are truncated and this token is returned. To fetch the remaining entries, pass this token in the subsequent request.', example='eyJzZWFyY2hBZnRlcnMiOlsiMTAwMTU2Nzk4MTU1OSJd****'),
 }
 
 model ListDeliveryChannelsResponseBody = {
   deliveryChannels?: [ 
     {
       createTime?: string(name='CreateTime', description='The time when the delivery channel was created.', example='2024-06-20T08:46:29Z'),
-      deliveryChannelDescription?: string(name='DeliveryChannelDescription', description='The description of the delivery channel.'),
+      deliveryChannelDescription?: string(name='DeliveryChannelDescription', description='The description of the delivery channel.', example='This is a description.'),
       deliveryChannelId?: string(name='DeliveryChannelId', description='The ID of the delivery channel.', example='dc-4m6ffpkgu***'),
       deliveryChannelName?: string(name='DeliveryChannelName', description='The name of the delivery channel.', example='test-delivery-channel'),
     }
   ](name='DeliveryChannels', description='The delivery channels.'),
   maxResults?: int32(name='MaxResults', description='The maximum number of entries per page.', example='20'),
-  nextToken?: string(name='NextToken', description='The pagination token that is used in the next request to retrieve a new page of results.
+  nextToken?: string(name='NextToken', description='A pagination token.
 
 This parameter is required.', example='eyJzZWFyY2hBZnRlcnMiOlsiMTAwMTU2Nzk4MTU1OSJd****'),
   requestId?: string(name='RequestId', description='The request ID.', example='17502A1B-7026-5551-8E1C-CCABD0CBC***'),
@@ -2094,7 +2232,7 @@ model ListDeliveryChannelsResponse = {
 }
 
 /**
- * @summary Queries a list of single-account delivery channels.
+ * @summary Queries a list of delivery channels within the current account.
  *
  * @param request ListDeliveryChannelsRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -2128,7 +2266,7 @@ async function listDeliveryChannelsWithOptions(request: ListDeliveryChannelsRequ
 }
 
 /**
- * @summary Queries a list of single-account delivery channels.
+ * @summary Queries a list of delivery channels within the current account.
  *
  * @param request ListDeliveryChannelsRequest
  * @return ListDeliveryChannelsResponse
@@ -2150,8 +2288,8 @@ Default value: 50.', example='10'),
 model ListExampleQueriesResponseBody = {
   exampleQueries?: [ 
     {
-      description?: string(name='Description', description='The description of the template.', example='Queries all resources on which you have permissions and sorts the resources by resource type and resource ID.'),
-      name?: string(name='Name', description='The name of the template.', example='Query of All Alibaba Cloud Resources'),
+      description?: string(name='Description', description='The description of the template.', example='返回所有有权限的资源，并按照资源类型和资源ID排列。'),
+      name?: string(name='Name', description='The name of the template.', example='列出所有阿里云资源'),
       queryId?: string(name='QueryId', description='The ID of the template.', example='sq-0PfKy****'),
     }
   ](name='ExampleQueries', description='The information about the sample query templates.'),
@@ -2212,25 +2350,14 @@ async function listExampleQueries(request: ListExampleQueriesRequest): ListExamp
 }
 
 model ListFiltersResponseBody = {
-  defaultFilterName?: string(name='DefaultFilterName', description='The name of the default filter.', example='My Filters'),
+  defaultFilterName?: string(name='DefaultFilterName'),
   filters?: [ 
     {
-      filterConfiguration?: string(name='FilterConfiguration', description='The configurations of the filter.
-
-This parameter is required.', example='{
-  "regions": [],
-  "tagFilters": [
-    [{ "type": "notContainTagKey", "tagKey": "xxx", "tagValue": "" }],
-    [{ "tagKey": "xxx", "tagValue": "xxx" }]
-  ],
-  "resourceTypes": [
-    "ACS::ECS::AutoSnapshotPolicy"
-  ]
-}'),
-      filterName?: string(name='FilterName', description='The name of the filter.', example='My devices'),
+      filterConfiguration?: string(name='FilterConfiguration', description='This parameter is required.'),
+      filterName?: string(name='FilterName'),
     }
-  ](name='Filters', description='The configurations of the filter.'),
-  requestId?: string(name='RequestId', description='The request ID.', example='AA39FB9C-CB74-5E73-8DFE-3A2B096F0759'),
+  ](name='Filters'),
+  requestId?: string(name='RequestId'),
 }
 
 model ListFiltersResponse = {
@@ -2240,7 +2367,7 @@ model ListFiltersResponse = {
 }
 
 /**
- * @summary Queries a list of filters.
+ * @summary 获取过滤器列表
  *
  * @param request ListFiltersRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -2263,7 +2390,7 @@ async function listFiltersWithOptions(runtime: $RuntimeOptions): ListFiltersResp
 }
 
 /**
- * @summary Queries a list of filters.
+ * @summary 获取过滤器列表
  *
  * @return ListFiltersResponse
  */
@@ -2273,27 +2400,27 @@ async function listFilters(): ListFiltersResponse {
 }
 
 model ListMultiAccountDeliveryChannelsRequest {
-  maxResults?: int32(name='MaxResults', description='The maximum number of entries per page.
+  maxResults?: int32(name='MaxResults', description='The number of entries per page.
 
 Valid values: 1 to 100.
 
 Default value: 20.', example='20'),
   nextToken?: string(name='NextToken', description='The pagination token that is used in the next request to retrieve a new page of results.
 
-If the total number of entries returned for the current request exceeds the value of the MaxResults parameter, the entries are truncated. In this case, you can use the token to initiate another request and obtain the remaining entries.', example='AAAAARfZmVDe9NvRXloR5+8CK9nNJufMdRA7W1miLC1P****'),
+If the number of returned entries exceeds the `MaxResults` value, the entries are truncated and this token is returned. To fetch the remaining entries, pass this token in the subsequent request.', example='AAAAARfZmVDe9NvRXloR5+8CK9nNJufMdRA7W1miLC1P****'),
 }
 
 model ListMultiAccountDeliveryChannelsResponseBody = {
   deliveryChannels?: [ 
     {
       createTime?: string(name='CreateTime', description='The time when the delivery channel was created.', example='2023-08-17T00:23:55Z'),
-      deliveryChannelDescription?: string(name='DeliveryChannelDescription', description='The description of the delivery channel.'),
+      deliveryChannelDescription?: string(name='DeliveryChannelDescription', description='The description of the delivery channel.', example='This is a description.'),
       deliveryChannelId?: string(name='DeliveryChannelId', description='The ID of the delivery channel.', example='dc-0bzhsqpnk***'),
       deliveryChannelName?: string(name='DeliveryChannelName', description='The name of the delivery channel.', example='test-multi-account-delivery-channel'),
     }
   ](name='DeliveryChannels', description='The delivery channels.'),
   maxResults?: int32(name='MaxResults', description='The maximum number of entries per page.', example='20'),
-  nextToken?: string(name='NextToken', description='The pagination token that is used in the next request to retrieve a new page of results.
+  nextToken?: string(name='NextToken', description='A pagination token.
 
 This parameter is required.', example='eyJzZWFyY2hBZnRlcnMiOlsiMTAwMTU2Nzk4MTU1OSJd****'),
   requestId?: string(name='RequestId', description='The request ID.', example='17502A1B-7026-5551-8E1C-CCABD0CBC***'),
@@ -2306,7 +2433,7 @@ model ListMultiAccountDeliveryChannelsResponse = {
 }
 
 /**
- * @summary Queries a list of multi-account delivery channels.
+ * @summary Queries a list of delivery channels in resource directory mode.
  *
  * @param request ListMultiAccountDeliveryChannelsRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -2340,7 +2467,7 @@ async function listMultiAccountDeliveryChannelsWithOptions(request: ListMultiAcc
 }
 
 /**
- * @summary Queries a list of multi-account delivery channels.
+ * @summary Queries a list of delivery channels in resource directory mode.
  *
  * @param request ListMultiAccountDeliveryChannelsRequest
  * @return ListMultiAccountDeliveryChannelsResponse
@@ -2351,33 +2478,35 @@ async function listMultiAccountDeliveryChannels(request: ListMultiAccountDeliver
 }
 
 model ListMultiAccountResourceGroupsRequest {
-  accountId?: string(name='AccountId', description='The ID of the management account or member of the resource directory.
+  accountId?: string(name='AccountId', description='The ID of the management account or a member in the resource directory.
 
 This parameter is required.', example='1394339739****'),
-  maxResults?: int32(name='MaxResults', description='The maximum number of entries to return on each page.
+  maxResults?: int32(name='MaxResults', description='The number of entries to return on each page.
 
 Maximum value: 100. Default value: 10.', example='20'),
   nextToken?: string(name='NextToken', description='The pagination token that is used in the next request to retrieve a new page of results.', example='AAAAAS2Nboi3t4xGrdlG5/Ks/Q1xPG9jzviYEuZydevXIkgF'),
-  resourceGroupIds?: [ string ](name='ResourceGroupIds', description='The IDs of resource groups.'),
+  resourceGroupIds?: [ string ](name='ResourceGroupIds', description='The resource group IDs.'),
 }
 
 model ListMultiAccountResourceGroupsResponseBody = {
   nextToken?: string(name='NextToken', description='The pagination token that is used in the next request to retrieve a new page of results.', example='AAAAAU5VsT9R1adMTuz9GzginZ3Y+7Y/5JATS+6q5GK9kT75'),
-  requestId?: string(name='RequestId', description='The ID of the request.', example='0FF0A66E-781F-51EE-9531-928F197558F2'),
+  requestId?: string(name='RequestId', description='The request ID.', example='0FF0A66E-781F-51EE-9531-928F197558F2'),
   resourceGroups?: [ 
     {
-      accountId?: string(name='AccountId', description='The ID of the management account or member of the resource directory.', example='1394339739****'),
+      accountId?: string(name='AccountId', description='The ID of the management account or a member in the resource directory.', example='1394339739****'),
       createDate?: string(name='CreateDate', description='The time when the resource group was created.', example='2021-06-30T09:20:08Z'),
       displayName?: string(name='DisplayName', description='The display name of the resource group.', example='group1'),
-      id?: string(name='Id', description='The ID of the resource group.', example='rg-acfmzawhxxc****'),
+      id?: string(name='Id', description='The resource group ID.', example='rg-acfmzawhxxc****'),
       name?: string(name='Name', description='The unique identifier of the resource group.', example='my-project'),
-      status?: string(name='Status', description='The status of the resource group. Valid values:
+      status?: string(name='Status', description='The status of the resource group.
 
-*   Creating: The resource group is being created.
-*   OK: The resource group is created.
-*   PendingDelete: The resource group is waiting to be deleted.', example='OK'),
+- Creating: The resource group is being created.
+
+- OK: The resource group is created.
+
+- PendingDelete: The resource group is pending deletion.', example='OK'),
     }
-  ](name='ResourceGroups', description='The information about the resource groups.'),
+  ](name='ResourceGroups', description='The resource groups.'),
 }
 
 model ListMultiAccountResourceGroupsResponse = {
@@ -2387,7 +2516,7 @@ model ListMultiAccountResourceGroupsResponse = {
 }
 
 /**
- * @summary Queries the resource groups within the management account or a member of a resource directory by using the management account of the resource directory or a delegated administrator account of Resource Center.
+ * @summary Queries the resource groups within the management account or a member in a resource directory.
  *
  * @param request ListMultiAccountResourceGroupsRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -2427,7 +2556,7 @@ async function listMultiAccountResourceGroupsWithOptions(request: ListMultiAccou
 }
 
 /**
- * @summary Queries the resource groups within the management account or a member of a resource directory by using the management account of the resource directory or a delegated administrator account of Resource Center.
+ * @summary Queries the resource groups within the management account or a member in a resource directory.
  *
  * @param request ListMultiAccountResourceGroupsRequest
  * @return ListMultiAccountResourceGroupsResponse
@@ -2438,59 +2567,37 @@ async function listMultiAccountResourceGroups(request: ListMultiAccountResourceG
 }
 
 model ListMultiAccountResourceRelationshipsRequest {
-  maxResults?: int32(name='MaxResults', description='The maximum number of entries per page.
-
-Valid values: 1 to 500.
-
-Default value: 20.', example='10'),
-  nextToken?: string(name='NextToken', description='The pagination token that is used in the next request to retrieve a new page of results.', example='eyJzZWFyY2hBZnRlcnMiOlsiMTAwMTU2Nzk4MTU1OSJd****'),
-  regionId?: string(name='RegionId', description='The region ID of the resource.
-
-This parameter is required.', example='cn-hangzhou'),
+  maxResults?: int32(name='MaxResults'),
+  nextToken?: string(name='NextToken'),
+  regionId?: string(name='RegionId', description='This parameter is required.'),
   relatedResourceFilter?: [ 
     {
-      key?: string(name='Key', description='The key of the filter condition. For more information, see `Supported filter parameters`.', example='RelatedResourceRegionId'),
-      matchType?: string(name='MatchType', description='The matching method.', example='Equals'),
-      value?: [ string ](name='Value', description='The values of the filter condition.'),
+      key?: string(name='Key'),
+      matchType?: string(name='MatchType'),
+      value?: [ string ](name='Value'),
     }
-  ](name='RelatedResourceFilter', description='The filter conditions for resources associated with the resource.'),
-  resourceId?: string(name='ResourceId', description='The ID of the resource.
-
-This parameter is required.', example='m-eb3hji****'),
-  resourceType?: string(name='ResourceType', description='The type of the resource.
-
-This parameter is required.', example='ACS::ACK::Cluster'),
-  scope?: string(name='Scope', description='The search scope. Valid values:
-
-*   ID of a resource directory: Resources within the management account and all members of the resource directory are searched. You can call the [GetResourceDirectory](https://help.aliyun.com/document_detail/159995.html) operation to query the ID.
-*   ID of the Root folder: Resources within all members in the Root folder and the subfolders of the Root folder are searched. You can call the [ListFoldersForParent](https://help.aliyun.com/document_detail/159997.html) operation to query the ID.
-*   ID of a folder: Resources within all members in the folder are searched. You can call the [ListFoldersForParent](https://help.aliyun.com/document_detail/159997.html) operation to query the ID.
-*   ID of a member: Resources within the member are searched. You can call the [ListAccounts](https://help.aliyun.com/document_detail/160016.html) operation to query the ID.
-
-This parameter is required.', example='rd-r4****'),
+  ](name='RelatedResourceFilter'),
+  resourceId?: string(name='ResourceId', description='This parameter is required.'),
+  resourceType?: string(name='ResourceType', description='This parameter is required.'),
+  scope?: string(name='Scope', description='This parameter is required.'),
 }
 
 model ListMultiAccountResourceRelationshipsResponseBody = {
-  maxResults?: int32(name='MaxResults', description='The maximum number of entries per page.', example='10'),
-  nextToken?: string(name='NextToken', description='A pagination token. It can be used in the next request to retrieve a new page of results.', example='eyJzZWFyY2hBZnRlcnMiOlsiMTAwMTU2Nzk4MTU1OSJd****'),
-  requestId?: string(name='RequestId', description='The request ID.', example='BCAB07BA-82FA-5DC0-9322-FB7ED726481D'),
+  maxResults?: int32(name='MaxResults'),
+  nextToken?: string(name='NextToken'),
+  requestId?: string(name='RequestId'),
   resourceRelationships?: [ 
     {
-      accountId?: string(name='AccountId', description='The ID of the management account or member.', example='193396142051****'),
-      regionId?: string(name='RegionId', description='The region ID of the resource.', example='cn-hangzhou'),
-      relatedResourceId?: string(name='RelatedResourceId', description='The ID of the associated resource.', example='vpc-uf6m5okksddm6c9lh7***'),
-      relatedResourceRegionId?: string(name='RelatedResourceRegionId', description='The region ID of the associated resource.', example='cn-shanghai'),
-      relatedResourceType?: string(name='RelatedResourceType', description='The type of the associated resource.', example='ACS::VPC::VPC'),
-      resourceId?: string(name='ResourceId', description='The ID of the resource.', example='m-eb3hji****'),
-      resourceType?: string(name='ResourceType', description='The type of the resource.', example='ACS::ACK::Cluster'),
+      accountId?: string(name='AccountId'),
+      regionId?: string(name='RegionId'),
+      relatedResourceId?: string(name='RelatedResourceId'),
+      relatedResourceRegionId?: string(name='RelatedResourceRegionId'),
+      relatedResourceType?: string(name='RelatedResourceType'),
+      resourceId?: string(name='ResourceId'),
+      resourceType?: string(name='ResourceType'),
     }
-  ](name='ResourceRelationships', description='The resource relationships.'),
-  scope?: string(name='Scope', description='The search scope. Valid values:
-
-*   ID of a resource directory: Resources within the management account and all members of the resource directory are searched.
-*   ID of the Root folder: Resources within all members in the Root folder and the subfolders of the Root folder are searched.
-*   ID of a folder: Resources within all members in the folder are searched.
-*   ID of a member: Resources within the member are searched.', example='rd-r4****'),
+  ](name='ResourceRelationships'),
+  scope?: string(name='Scope'),
 }
 
 model ListMultiAccountResourceRelationshipsResponse = {
@@ -2500,12 +2607,7 @@ model ListMultiAccountResourceRelationshipsResponse = {
 }
 
 /**
- * @summary Queries the relationships between resources within the management account or members of your resource directory.
- *
- * @description *   Before you use a RAM user or a RAM role to call the operation, you must make sure that the RAM user or RAM role is granted the required permissions. For more information, see [Grant a RAM user the permissions to use Resource Center](https://help.aliyun.com/document_detail/600556.html).
- * *   By default, the operation returns up to 20 entries. You can configure the `MaxResults` parameter to specify the maximum number of entries to return.
- * *   If the response does not contain the `NextToken` parameter, all entries are returned. Otherwise, more entries exist. If you want to obtain the entries, you can call the operation again to initiate another query request. In the request, set the `NextToken` parameter to the value of `NextToken` in the last response of the operation. If you do not configure the `NextToken` parameter, entries on the first page are returned by default.
- * *   You can specify one or more filter conditions to narrow the search. For more information about supported filter parameters and matching methods, see the Supported filter parameters section. Multiple filter conditions have logical `AND` relations. Only resources that meet all filter conditions are returned. The values of a filter condition have logical `OR` relations. Resources that meet any value of the filter condition are returned.
+ * @summary 跨账号列出资源关系
  *
  * @param request ListMultiAccountResourceRelationshipsRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -2554,12 +2656,7 @@ async function listMultiAccountResourceRelationshipsWithOptions(request: ListMul
 }
 
 /**
- * @summary Queries the relationships between resources within the management account or members of your resource directory.
- *
- * @description *   Before you use a RAM user or a RAM role to call the operation, you must make sure that the RAM user or RAM role is granted the required permissions. For more information, see [Grant a RAM user the permissions to use Resource Center](https://help.aliyun.com/document_detail/600556.html).
- * *   By default, the operation returns up to 20 entries. You can configure the `MaxResults` parameter to specify the maximum number of entries to return.
- * *   If the response does not contain the `NextToken` parameter, all entries are returned. Otherwise, more entries exist. If you want to obtain the entries, you can call the operation again to initiate another query request. In the request, set the `NextToken` parameter to the value of `NextToken` in the last response of the operation. If you do not configure the `NextToken` parameter, entries on the first page are returned by default.
- * *   You can specify one or more filter conditions to narrow the search. For more information about supported filter parameters and matching methods, see the Supported filter parameters section. Multiple filter conditions have logical `AND` relations. Only resources that meet all filter conditions are returned. The values of a filter condition have logical `OR` relations. Resources that meet any value of the filter condition are returned.
+ * @summary 跨账号列出资源关系
  *
  * @param request ListMultiAccountResourceRelationshipsRequest
  * @return ListMultiAccountResourceRelationshipsResponse
@@ -2606,7 +2703,7 @@ model ListMultiAccountTagKeysResponse = {
 }
 
 /**
- * @summary Queries the tag keys of resources within the management account or a member of your resource directory.
+ * @summary 查询多账号标签键
  *
  * @param request ListMultiAccountTagKeysRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -2649,7 +2746,7 @@ async function listMultiAccountTagKeysWithOptions(request: ListMultiAccountTagKe
 }
 
 /**
- * @summary Queries the tag keys of resources within the management account or a member of your resource directory.
+ * @summary 查询多账号标签键
  *
  * @param request ListMultiAccountTagKeysRequest
  * @return ListMultiAccountTagKeysResponse
@@ -2660,34 +2757,18 @@ async function listMultiAccountTagKeys(request: ListMultiAccountTagKeysRequest):
 }
 
 model ListMultiAccountTagValuesRequest {
-  matchType?: string(name='MatchType', description='The matching mode. Valid values:
-
-*   Equals: equal match
-*   Prefix: match by prefix', example='Equals'),
-  maxResults?: int32(name='MaxResults', description='The maximum number of entries to return on each page.
-
-Valid values: 1 to 100.
-
-Default value: 20.', example='10'),
-  nextToken?: string(name='NextToken', description='The pagination token that is used in the next request to retrieve a new page of results.
-
-If the total number of entries returned for the current request exceeds the value of the `MaxResults` parameter, the entries are truncated. In this case, you can use the `token` to initiate another request and obtain the remaining entries.', example='eyJzZWFyY2hBZnRlcnMiOlsiMTAwMTU2Nzk4MTU1OSJd****'),
-  scope?: string(name='Scope', description='The search scope. You can set the value to one of the following items:
-
-*   ID of a resource directory: Resources within the management account and all members of the resource directory are searched. You can call the [GetResourceDirectory](https://help.aliyun.com/document_detail/159995.html) operation to obtain the ID.
-*   ID of the Root folder: Resources within all members in the Root folder and the subfolders of the Root folder are searched. You can call the [ListFoldersForParent](https://help.aliyun.com/document_detail/159997.html) operation to obtain the ID.
-*   ID of a folder: Resources within all members in the folder are searched. You can call the [ListFoldersForParent](https://help.aliyun.com/document_detail/159997.html) operation to obtain the ID.
-*   ID of a member: Resources within the member are searched. You can call the [ListAccounts](https://help.aliyun.com/document_detail/160016.html) operation to obtain the ID.', example='rd-r4****'),
-  tagKey?: string(name='TagKey', description='The tag key.
-
-This parameter is required.', example='test_key'),
-  tagValue?: string(name='TagValue', description='The tag value.', example='test_value'),
+  matchType?: string(name='MatchType'),
+  maxResults?: int32(name='MaxResults'),
+  nextToken?: string(name='NextToken'),
+  scope?: string(name='Scope'),
+  tagKey?: string(name='TagKey', description='This parameter is required.'),
+  tagValue?: string(name='TagValue'),
 }
 
 model ListMultiAccountTagValuesResponseBody = {
-  nextToken?: string(name='NextToken', description='The pagination token that is used in the next request to retrieve a new page of results.', example='eyJzZWFyY2hBZnRlcnMiOlsiMTAwMTU2Nzk4MTU1OSJd****'),
-  requestId?: string(name='RequestId', description='The ID of the request.', example='36A3D9BE-B607-5993-B546-7E19EF65DC00'),
-  tagValues?: [ string ](name='TagValues', description='The tag values.'),
+  nextToken?: string(name='NextToken'),
+  requestId?: string(name='RequestId'),
+  tagValues?: [ string ](name='TagValues'),
 }
 
 model ListMultiAccountTagValuesResponse = {
@@ -2697,7 +2778,7 @@ model ListMultiAccountTagValuesResponse = {
 }
 
 /**
- * @summary Queries the tag values of resources within the management account or a member of a resource directory by using the management account of the resource directory or a delegated administrator account of Resource Center.
+ * @summary 查询多账号标签值
  *
  * @param request ListMultiAccountTagValuesRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -2743,7 +2824,7 @@ async function listMultiAccountTagValuesWithOptions(request: ListMultiAccountTag
 }
 
 /**
- * @summary Queries the tag values of resources within the management account or a member of a resource directory by using the management account of the resource directory or a delegated administrator account of Resource Center.
+ * @summary 查询多账号标签值
  *
  * @param request ListMultiAccountTagValuesRequest
  * @return ListMultiAccountTagValuesResponse
@@ -2754,44 +2835,34 @@ async function listMultiAccountTagValues(request: ListMultiAccountTagValuesReque
 }
 
 model ListResourceRelationshipsRequest {
-  maxResults?: int32(name='MaxResults', description='The maximum number of entries per page.
-
-Valid values: 1 to 500.
-
-Default value: 20.', example='10'),
-  nextToken?: string(name='NextToken', description='The pagination token that is used in the next request to retrieve a new page of results.', example='eyJzZWFyY2hBZnRlcnMiOlsiMTAwMTU2Nzk4MTU1OSJd****'),
-  regionId?: string(name='RegionId', description='The region ID of the resource.
-
-This parameter is required.', example='cn-hangzhou'),
+  maxResults?: int32(name='MaxResults'),
+  nextToken?: string(name='NextToken'),
+  regionId?: string(name='RegionId', description='This parameter is required.'),
   relatedResourceFilter?: [ 
     {
-      key?: string(name='Key', description='The key of the filter condition. For more information, see `Supported filter parameters`.', example='RelatedResourceRegionId'),
-      matchType?: string(name='MatchType', description='The matching method.', example='Equals'),
-      value?: [ string ](name='Value', description='The values of the filter condition.'),
+      key?: string(name='Key'),
+      matchType?: string(name='MatchType'),
+      value?: [ string ](name='Value'),
     }
-  ](name='RelatedResourceFilter', description='The filter conditions for resources associated with the resource.'),
-  resourceId?: string(name='ResourceId', description='The ID of the resource.
-
-This parameter is required.', example='m-eb3hji****'),
-  resourceType?: string(name='ResourceType', description='The type of the resource.
-
-This parameter is required.', example='ACS::ACK::Cluster'),
+  ](name='RelatedResourceFilter'),
+  resourceId?: string(name='ResourceId', description='This parameter is required.'),
+  resourceType?: string(name='ResourceType', description='This parameter is required.'),
 }
 
 model ListResourceRelationshipsResponseBody = {
-  maxResults?: int32(name='MaxResults', description='The maximum number of entries per page.', example='10'),
-  nextToken?: string(name='NextToken', description='A pagination token. It can be used in the next request to retrieve a new page of results.', example='eyJzZWFyY2hBZnRlcnMiOlsiMTAwMTU2Nzk4MTU1OSJd****'),
-  requestId?: string(name='RequestId', description='The request ID.', example='682A3004-38E3-5122-9A11-CCDFAB9C3C4F'),
+  maxResults?: int32(name='MaxResults'),
+  nextToken?: string(name='NextToken'),
+  requestId?: string(name='RequestId'),
   resourceRelationships?: [ 
     {
-      regionId?: string(name='RegionId', description='The region ID of the resource.', example='cn-hangzhou'),
-      relatedResourceId?: string(name='RelatedResourceId', description='The ID of the associated resource.', example='vpc-uf6m5okksddm6c9lh7***'),
-      relatedResourceRegionId?: string(name='RelatedResourceRegionId', description='The region ID of the associated resource.', example='cn-shanghai'),
-      relatedResourceType?: string(name='RelatedResourceType', description='The type of the associated resource.', example='ACS::VPC::VPC'),
-      resourceId?: string(name='ResourceId', description='The ID of the resource.', example='m-eb3hji****'),
-      resourceType?: string(name='ResourceType', description='The type of the resource.', example='ACS::ACK::Cluster'),
+      regionId?: string(name='RegionId'),
+      relatedResourceId?: string(name='RelatedResourceId'),
+      relatedResourceRegionId?: string(name='RelatedResourceRegionId'),
+      relatedResourceType?: string(name='RelatedResourceType'),
+      resourceId?: string(name='ResourceId'),
+      resourceType?: string(name='ResourceType'),
     }
-  ](name='ResourceRelationships', description='The resource relationships.'),
+  ](name='ResourceRelationships'),
 }
 
 model ListResourceRelationshipsResponse = {
@@ -2801,12 +2872,7 @@ model ListResourceRelationshipsResponse = {
 }
 
 /**
- * @summary Queries a list of resource relationships on which the current account has access permissions.
- *
- * @description *   You can call this operation to query only the resource relationships on which the current account has access permissions.
- * *   By default, this operation returns up to 20 entries. You can configure the `MaxResults` parameter to specify the maximum number of entries to return.
- * *   If the response does not contain the `NextToken` parameter, all entries are returned. Otherwise, more entries exist. If you want to obtain the entries, you can call the operation again to initiate another query request. In the request, set the `NextToken` parameter to the value of `NextToken` in the last response of the operation. If you do not configure the `NextToken` parameter, entries on the first page are returned by default.
- * *   You can specify one or more filter conditions to narrow the query scope. For information about supported filter parameters and matching methods, see the Supported filter parameters section. Multiple filter conditions have logical `AND` relations. Only entries that meet all filter conditions are returned. The values of a filter condition have logical `OR` relations. Entries that meet any value of the filter condition are returned.
+ * @summary 列出资源关系
  *
  * @param request ListResourceRelationshipsRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -2852,12 +2918,7 @@ async function listResourceRelationshipsWithOptions(request: ListResourceRelatio
 }
 
 /**
- * @summary Queries a list of resource relationships on which the current account has access permissions.
- *
- * @description *   You can call this operation to query only the resource relationships on which the current account has access permissions.
- * *   By default, this operation returns up to 20 entries. You can configure the `MaxResults` parameter to specify the maximum number of entries to return.
- * *   If the response does not contain the `NextToken` parameter, all entries are returned. Otherwise, more entries exist. If you want to obtain the entries, you can call the operation again to initiate another query request. In the request, set the `NextToken` parameter to the value of `NextToken` in the last response of the operation. If you do not configure the `NextToken` parameter, entries on the first page are returned by default.
- * *   You can specify one or more filter conditions to narrow the query scope. For information about supported filter parameters and matching methods, see the Supported filter parameters section. Multiple filter conditions have logical `AND` relations. Only entries that meet all filter conditions are returned. The values of a filter condition have logical `OR` relations. Entries that meet any value of the filter condition are returned.
+ * @summary 列出资源关系
  *
  * @param request ListResourceRelationshipsRequest
  * @return ListResourceRelationshipsResponse
@@ -2870,8 +2931,9 @@ async function listResourceRelationships(request: ListResourceRelationshipsReque
 model ListResourceTypesRequest {
   acceptLanguage?: string(name='AcceptLanguage', description='The language of the response. Valid values:
 
-*   zh-CN: Chinese
-*   en-US: English', example='zh-CN'),
+- zh-CN: Chinese
+
+- en-US: English', example='zh-CN'),
   query?: [ string ](name='Query', description='The query conditions.'),
   resourceType?: string(name='ResourceType', description='The resource type.
 
@@ -2887,10 +2949,10 @@ model ListResourceTypesResponseBody = {
         tag?: string(name='Tag', description='The tag.', example='cs.cluster'),
       }(name='CodeMapping', description='The code mapping of the resource type.'),
       filterKeys?: [ string ](name='FilterKeys', description='The supported filter conditions.'),
-      productName?: string(name='ProductName', description='The name of the Alibaba Cloud service.', example='Container Service for Kubernetes'),
+      productName?: string(name='ProductName', description='The name of the Alibaba Cloud service.', example='容器服务Kubernetes版'),
       relatedResourceTypes?: [ string ](name='RelatedResourceTypes', description='The name of supported related resource types.'),
       resourceType?: string(name='ResourceType', description='The resource type.', example='ACS::ACK::Cluster'),
-      resourceTypeName?: string(name='ResourceTypeName', description='The name of the resource type.', example='Cluster'),
+      resourceTypeName?: string(name='ResourceTypeName', description='The name of the resource type.', example='集群'),
     }
   ](name='ResourceTypes', description='The resource types.'),
 }
@@ -2950,25 +3012,25 @@ async function listResourceTypes(request: ListResourceTypesRequest): ListResourc
 }
 
 model ListSavedQueriesRequest {
-  maxResults?: string(name='MaxResults', description='The maximum number of entries per page.
+  maxResults?: string(name='MaxResults', description='The maximum number of entries to return on each page.
 
 Valid values: 1 to 50.
 
 Default value: 50.', example='10'),
-  nextToken?: string(name='NextToken', description='The pagination token that is used in the next request to retrieve a new page of results.', example='eyJzZWFyY2hBZnRlcnMiOlsiMTAwMTU2Nzk4MTU1OSJd****'),
+  nextToken?: string(name='NextToken', description='The pagination token that is used in the next request to retrieve a new page of results. You do not need to specify this parameter for the first request. You must specify the token that is obtained from the previous query as the value of `NextToken`.', example='eyJzZWFyY2hBZnRlcnMiOlsiMTAwMTU2Nzk4MTU1OSJd****'),
 }
 
 model ListSavedQueriesResponseBody = {
-  maxResults?: string(name='MaxResults', description='The maximum number of entries per page.', example='10'),
-  nextToken?: string(name='NextToken', description='The pagination token that is used in the next request to retrieve a new page of results.', example='AAAAARfZmVDe9NvRXloR5+8CK9nNJufMdRA7W1miLC1P****'),
+  maxResults?: string(name='MaxResults', description='The maximum number of entries returned on each page.', example='10'),
+  nextToken?: string(name='NextToken', description='A pagination token. It can be used in the next request to retrieve a new page of results.', example='AAAAARfZmVDe9NvRXloR5+8CK9nNJufMdRA7W1miLC1P****'),
   requestId?: string(name='RequestId', description='The request ID.', example='D696E6EF-3A6D-5770-801E-4982081FE4D0'),
   savedQueries?: [ 
     {
       createTime?: string(name='CreateTime', description='The time when the template was created. The time is displayed in UTC.', example='2022-01-13T05:50:35Z'),
-      description?: string(name='Description', description='The description of the template.', example='Queries all resources on which you have permissions and sorts the resources by resource type and resource ID.'),
-      name?: string(name='Name', description='The template name.', example='Query of All Alibaba Cloud Resources'),
-      queryId?: string(name='QueryId', description='The template ID.', example='sq-GeAck****'),
-      updateTime?: string(name='UpdateTime', description='The time when the template was updated. The time is displayed in UTC.', example='2023-03-14 10:27:07'),
+      description?: string(name='Description', description='The description of the template.', example='查询我的所有资源，返回所有的列。'),
+      name?: string(name='Name', description='The name of the template.', example='查询我的所有资源。'),
+      queryId?: string(name='QueryId', description='The ID of the template.', example='cq-GeAck****'),
+      updateTime?: string(name='UpdateTime', description='The time when the template was last updated. The time is displayed in UTC.', example='2023-03-14 10:27:07'),
     }
   ](name='SavedQueries', description='The information about the custom query templates.'),
 }
@@ -3027,8 +3089,9 @@ async function listSavedQueries(request: ListSavedQueriesRequest): ListSavedQuer
 model ListTagKeysRequest {
   matchType?: string(name='MatchType', description='The matching mode. Valid values:
 
-*   Equals: equal match
-*   Prefix: match by prefix', example='Equals'),
+- Equals: equal match
+
+- Prefix: match by prefix', example='Equals'),
   maxResults?: int32(name='MaxResults', description='The maximum number of entries to return on each page.
 
 Valid values: 1 to 100.
@@ -3104,28 +3167,17 @@ async function listTagKeys(request: ListTagKeysRequest): ListTagKeysResponse {
 }
 
 model ListTagValuesRequest {
-  matchType?: string(name='MatchType', description='The matching mode. Valid values:
-
-*   Equals: equal match
-*   Prefix: match by prefix', example='Equals'),
-  maxResults?: int32(name='MaxResults', description='The maximum number of entries to return on each page.
-
-Valid values: 1 to 100.
-
-Default value: 20.', example='10'),
-  nextToken?: string(name='NextToken', description='The pagination token that is used in the next request to retrieve a new page of results.
-
-If the total number of entries returned for the current request exceeds the value of the `MaxResults` parameter, the entries are truncated. In this case, you can use the `token` to initiate another request and obtain the remaining entries.', example='eyJzZWFyY2hBZnRlcnMiOlsiMTAwMTU2Nzk4MTU1OSJd****'),
-  tagKey?: string(name='TagKey', description='The tag key.
-
-This parameter is required.', example='test_key'),
-  tagValue?: string(name='TagValue', description='The tag value.', example='test_value'),
+  matchType?: string(name='MatchType'),
+  maxResults?: int32(name='MaxResults'),
+  nextToken?: string(name='NextToken'),
+  tagKey?: string(name='TagKey', description='This parameter is required.'),
+  tagValue?: string(name='TagValue'),
 }
 
 model ListTagValuesResponseBody = {
-  nextToken?: string(name='NextToken', description='The pagination token that is used in the next request to retrieve a new page of results.', example='eyJzZWFyY2hBZnRlcnMiOlsiMTAwMTU2Nzk4MTU1OSJd****'),
-  requestId?: string(name='RequestId', description='The ID of the request.', example='C1840B83-1193-5E83-AFA6-4B8D303E29F5'),
-  tagValues?: [ string ](name='TagValues', description='The tag values.'),
+  nextToken?: string(name='NextToken'),
+  requestId?: string(name='RequestId'),
+  tagValues?: [ string ](name='TagValues'),
 }
 
 model ListTagValuesResponse = {
@@ -3135,7 +3187,7 @@ model ListTagValuesResponse = {
 }
 
 /**
- * @summary Queries the tag values of resources within the current account.
+ * @summary 查询标签值
  *
  * @param request ListTagValuesRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -3178,7 +3230,7 @@ async function listTagValuesWithOptions(request: ListTagValuesRequest, runtime: 
 }
 
 /**
- * @summary Queries the tag values of resources within the current account.
+ * @summary 查询标签值
  *
  * @param request ListTagValuesRequest
  * @return ListTagValuesResponse
@@ -3191,10 +3243,10 @@ async function listTagValues(request: ListTagValuesRequest): ListTagValuesRespon
 model SearchMultiAccountResourcesRequest {
   filter?: [ 
     {
-      key?: string(name='Key', description='The key of the filter condition. For more information, see `Supported filter parameters`.', example='ResourceGroupId'),
-      matchType?: string(name='MatchType', description='The matching mode.
+      key?: string(name='Key', description='The key of the filter condition. For more information, see the "`Supported filter parameters`" section below.', example='ResourceGroupId'),
+      matchType?: string(name='MatchType', description='The matching method.
 
-The value Equals indicates an equal match.', example='Equals'),
+Set this parameter to `Equals`, which means an exact match.', example='Equals'),
       value?: [ string ](name='Value', description='The values of the filter condition.'),
     }
   ](name='Filter', description='The filter conditions.'),
@@ -3203,59 +3255,64 @@ The value Equals indicates an equal match.', example='Equals'),
 Valid values: 1 to 100.
 
 Default value: 20.', example='10'),
-  nextToken?: string(name='NextToken', description='The pagination token that is used in the next request to retrieve a new page of results.
+  nextToken?: string(name='NextToken', description='The pagination token that is used in the next request to retrieve a new page of results. You do not need to specify this parameter for the first request. You must specify the token that is obtained from the previous query as the value of `NextToken`.', example='eyJzZWFyY2hBZnRlcnMiOlsiMTAwMTU2Nzk4MTU1OSJd****'),
+  scope?: string(name='Scope', description='The scope of the accounts in which you want to search for resources. Valid values:
 
-If the total number of entries returned for the current request exceeds the value of the `MaxResults` parameter, the entries are truncated. In this case, you can use the token to initiate another request and obtain the remaining entries.``', example='eyJzZWFyY2hBZnRlcnMiOlsiMTAwMTU2Nzk4MTU1OSJd****'),
-  scope?: string(name='Scope', description='The search scope. You can set the value to one of the following items:
+- The ID of a resource directory: Searches for resources in the management account and all its member accounts. For more information, see [GetResourceDirectory](https://help.aliyun.com/document_detail/159995.html).
 
-*   ID of a resource directory: Resources within the management account and all members of the resource directory are searched. You can call the [GetResourceDirectory](https://help.aliyun.com/document_detail/159995.html) operation to obtain the ID.
-*   ID of the Root folder: Resources within all members in the Root folder and the subfolders of the Root folder are searched. You can call the [ListFoldersForParent](https://help.aliyun.com/document_detail/159997.html) operation to obtain the ID.
-*   ID of a folder: Resources within all members in the folder are searched. You can call the [ListFoldersForParent](https://help.aliyun.com/document_detail/159997.html) operation to obtain the ID.
-*   ID of a member: Resources within the member are searched. You can call the [ListAccounts](https://help.aliyun.com/document_detail/160016.html) operation to obtain the ID.
+- The ID of the Root folder: Searches for resources in all member accounts under the Root folder and its subfolders. For more information, see [ListFoldersForParent](https://help.aliyun.com/document_detail/159997.html).
+
+- The ID of a folder: Searches for resources in all member accounts under the folder. For more information, see [ListFoldersForParent](https://help.aliyun.com/document_detail/159997.html).
+
+- The ID of a member account: Searches for resources in the member account. For more information, see [ListAccounts](https://help.aliyun.com/document_detail/160016.html).
 
 This parameter is required.', example='rd-r4****'),
   sortCriterion?: {
-    key?: string(name='Key', description='The attribute based on which the entries are sorted.
+    key?: string(name='Key', description='The sort key.
 
-The value CreateTime indicates the creation time of resources.', example='CreateTime'),
-    order?: string(name='Order', description='The order in which the entries are sorted. Valid values:
+Set this parameter to `CreateTime`, which means the results are sorted by resource creation time.', example='CreateTime'),
+    order?: string(name='Order', description='The sort order. Valid values:
 
-*   ASC: The entries are sorted in ascending order. This value is the default value.
-*   DESC: The entries are sorted in descending order.', example='ASC'),
-  }(name='SortCriterion', description='The method that is used to sort the entries returned.'),
+- ASC: Ascending order.
+
+- DESC: Descending order.
+
+Default value: ASC.', example='ASC'),
+  }(name='SortCriterion', description='The sorting parameters.'),
 }
 
 model SearchMultiAccountResourcesResponseBody = {
   filters?: [ 
     {
       key?: string(name='Key', description='The key of the filter condition.', example='RegionId'),
-      matchType?: string(name='MatchType', description='The matching mode.', example='Equals'),
+      matchType?: string(name='MatchType', description='The matching method.', example='Equals'),
       values?: [ string ](name='Values', description='The values of the filter condition.'),
     }
   ](name='Filters', description='The filter conditions.'),
   maxResults?: int32(name='MaxResults', description='The maximum number of entries returned per page.', example='10'),
-  nextToken?: string(name='NextToken', description='The pagination token that is used in the next request to retrieve a new page of results.', example='The pagination token that is used in the next request to retrieve a new page of results.'),
-  requestId?: string(name='RequestId', description='The ID of the request.', example='EFA806B9-7F36-55AB-8B7A-D680C2C5EE57'),
+  nextToken?: string(name='NextToken', description='The token to retrieve the next page of results.', example='查询返回结果下一页的令牌。'),
+  requestId?: string(name='RequestId', description='The request ID.', example='EFA806B9-7F36-55AB-8B7A-D680C2C5EE57'),
   resources?: [ 
     {
-      accountId?: string(name='AccountId', description='The ID of the management account or member of the resource directory.', example='151266687691****'),
+      accountId?: string(name='AccountId', description='The ID of the management account or a member account of the resource directory.', example='151266687691****'),
       createTime?: string(name='CreateTime', description='The time when the resource was created.
 
->  Whether this parameter is returned is determined by the Alibaba Cloud service to which the resource belongs.', example='2021-06-30T09:20:08Z'),
+> Whether this parameter is returned depends on the Alibaba Cloud service that manages the resource.', example='2021-06-30T09:20:08Z'),
       expireTime?: string(name='ExpireTime', description='The time when the resource expires.', example='2023-06-14T14:35:45Z'),
       ipAddressAttributes?: [ 
         {
           ipAddress?: string(name='IpAddress', description='The IP address.', example='192.168.1.2'),
           networkType?: string(name='NetworkType', description='The network type. Valid values:
 
-*   **Public**: the Internet
-*   **Private**: internal network', example='Public'),
-          version?: string(name='Version', description='The version.', example='Ipv4'),
+- **Public**: Internet.
+
+- **Private**: Private network.', example='Public'),
+          version?: string(name='Version', description='The IP address version.', example='Ipv4'),
         }
-      ](name='IpAddressAttributes', description='The attributes of the IP address.'),
+      ](name='IpAddressAttributes', description='The attributes of the IP addresses.'),
       ipAddresses?: [ string ](name='IpAddresses', description='The IP addresses.
 
->  Whether this parameter is returned is determined by the Alibaba Cloud service to which the resource belongs.'),
+> Whether this parameter is returned depends on the Alibaba Cloud service that manages the resource.'),
       regionId?: string(name='RegionId', description='The region ID.', example='cn-hangzhou'),
       resourceGroupId?: string(name='ResourceGroupId', description='The resource group ID.', example='rg-acfmzawhxxc****'),
       resourceId?: string(name='ResourceId', description='The resource ID.', example='vtb-bp11lbh452fr8940s****'),
@@ -3263,21 +3320,24 @@ model SearchMultiAccountResourcesResponseBody = {
       resourceType?: string(name='ResourceType', description='The resource type.', example='ACS::VPC::RouteTable'),
       tags?: [ 
         {
-          key?: string(name='Key', description='The key of tag N.', example='test_key'),
-          value?: string(name='Value', description='The value of tag N.', example='test_value'),
+          key?: string(name='Key', description='The tag key.', example='test_key'),
+          value?: string(name='Value', description='The tag value.', example='test_value'),
         }
       ](name='Tags', description='The tags.'),
       zoneId?: string(name='ZoneId', description='The zone ID.
 
->  Whether this parameter is returned is determined by the Alibaba Cloud service to which the resource belongs.', example='cn-hangzhou-k'),
+> Whether this parameter is returned depends on the Alibaba Cloud service that manages the resource.', example='cn-hangzhou-k'),
     }
   ](name='Resources', description='The information about the resources.'),
-  scope?: string(name='Scope', description='The search scope.
+  scope?: string(name='Scope', description='The scope of accounts in which the resources were searched. Valid values:
 
-*   ID of a resource directory: Resources within the management account and all members of the resource directory are searched.
-*   ID of the Root folder: Resources within all members in the Root folder and the subfolders of the Root folder are searched.
-*   ID of a folder: Resources within all members in the folder are searched.
-*   ID of a member: Resources within the member are searched.', example='rd-r4****'),
+- The ID of the resource directory. This indicates that resources were searched in the management account and all member accounts of the resource directory.
+
+- The ID of the Root folder. This indicates that resources were searched in all member accounts under the Root folder and its subfolders.
+
+- The ID of a folder. This indicates that resources were searched in all member accounts under the folder.
+
+- The ID of a member account. This indicates that resources were searched in the member account.', example='rd-r4****'),
 }
 
 model SearchMultiAccountResourcesResponse = {
@@ -3287,14 +3347,14 @@ model SearchMultiAccountResourcesResponse = {
 }
 
 /**
- * @summary Searches for resources within the management account or members of a resource directory.
+ * @summary Searches for resources in the management account and multiple member accounts of a resource directory.
  *
- * @description *   You can use this operation to search for only resources whose types are supported by Resource Center in services that work with Resource Center. For more information about the services and the resource types that are supported by Resource Center, see [Services that work with Resource Center](https://help.aliyun.com/document_detail/477798.html).
- * *   Before you use a RAM user or a RAM role to call the operation, you must make sure that the RAM user or RAM role is granted the required permissions. For more information, see [Grant a RAM user the permissions to use Resource Center](https://help.aliyun.com/document_detail/600556.html).
- * *   By default, the operation returns a maximum of 20 entries. You can configure the `MaxResults` parameter to specify the maximum number of entries to return.
- * *   If the response does not contain the `NextToken` parameter, all entries are returned. Otherwise, more entries exist. If you want to obtain the entries, you can call the operation again to initiate another query request. In the request, set the `NextToken` parameter to the value of `NextToken` in the last response of the operation. If you do not configure the `NextToken` parameter, entries on the first page are returned by default.
- * *   You can specify one or more filter conditions to narrow the search scope. For more information about supported filter parameters and matching methods, see the Supported filter parameters section. Multiple filter conditions have logical `AND` relations. Only resources that meet all filter conditions are returned. The values of a filter condition have logical `OR` relations. Resources that meet any value of the filter condition are returned.
- * *   You can visit [Sample Code Center](https://api.alibabacloud.com/api-tools/demo/ResourceCenter) to view more sample queries.
+ * @description - You can search only for [Services that work with Resource Center](https://help.aliyun.com/document_detail/477798.html).
+ * - To search for resources across accounts as a RAM user or RAM role, you must have been attached the `resourcecenter:SearchMultiAccountResources` policy. For more information, see [Grant a RAM user the permissions to use Resource Center](https://help.aliyun.com/document_detail/600556.html).
+ * - By default, this operation returns a maximum of 20 entries. To change the maximum number of entries that can be returned, specify the `MaxResults` parameter.
+ * - If the response does not include `NextToken`, no more data is available. To query the next page of results, set the `NextToken` parameter to the value that was returned from the previous call. If you do not specify the `NextToken` parameter, the first page of data is returned by default.
+ * - You can set one or more filter conditions to narrow the search scope. For information about supported filter parameters and matching methods, see the information below. Multiple filter conditions are joined by a logical `AND`. Only resources that meet all filter conditions are returned. The values within a single filter condition are joined by a logical `OR`. Resources that meet any value for a filter condition are returned.
+ * - For more query examples, visit <props="china">[示例中心](https://api.aliyun.com/api-tools/demo/ResourceCenter) <props="intl">[OpenAPI Portal](https://api.alibabacloud.com/api-tools/demo/ResourceCenter).
  *
  * @param request SearchMultiAccountResourcesRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -3337,14 +3397,14 @@ async function searchMultiAccountResourcesWithOptions(request: SearchMultiAccoun
 }
 
 /**
- * @summary Searches for resources within the management account or members of a resource directory.
+ * @summary Searches for resources in the management account and multiple member accounts of a resource directory.
  *
- * @description *   You can use this operation to search for only resources whose types are supported by Resource Center in services that work with Resource Center. For more information about the services and the resource types that are supported by Resource Center, see [Services that work with Resource Center](https://help.aliyun.com/document_detail/477798.html).
- * *   Before you use a RAM user or a RAM role to call the operation, you must make sure that the RAM user or RAM role is granted the required permissions. For more information, see [Grant a RAM user the permissions to use Resource Center](https://help.aliyun.com/document_detail/600556.html).
- * *   By default, the operation returns a maximum of 20 entries. You can configure the `MaxResults` parameter to specify the maximum number of entries to return.
- * *   If the response does not contain the `NextToken` parameter, all entries are returned. Otherwise, more entries exist. If you want to obtain the entries, you can call the operation again to initiate another query request. In the request, set the `NextToken` parameter to the value of `NextToken` in the last response of the operation. If you do not configure the `NextToken` parameter, entries on the first page are returned by default.
- * *   You can specify one or more filter conditions to narrow the search scope. For more information about supported filter parameters and matching methods, see the Supported filter parameters section. Multiple filter conditions have logical `AND` relations. Only resources that meet all filter conditions are returned. The values of a filter condition have logical `OR` relations. Resources that meet any value of the filter condition are returned.
- * *   You can visit [Sample Code Center](https://api.alibabacloud.com/api-tools/demo/ResourceCenter) to view more sample queries.
+ * @description - You can search only for [Services that work with Resource Center](https://help.aliyun.com/document_detail/477798.html).
+ * - To search for resources across accounts as a RAM user or RAM role, you must have been attached the `resourcecenter:SearchMultiAccountResources` policy. For more information, see [Grant a RAM user the permissions to use Resource Center](https://help.aliyun.com/document_detail/600556.html).
+ * - By default, this operation returns a maximum of 20 entries. To change the maximum number of entries that can be returned, specify the `MaxResults` parameter.
+ * - If the response does not include `NextToken`, no more data is available. To query the next page of results, set the `NextToken` parameter to the value that was returned from the previous call. If you do not specify the `NextToken` parameter, the first page of data is returned by default.
+ * - You can set one or more filter conditions to narrow the search scope. For information about supported filter parameters and matching methods, see the information below. Multiple filter conditions are joined by a logical `AND`. Only resources that meet all filter conditions are returned. The values within a single filter condition are joined by a logical `OR`. Resources that meet any value for a filter condition are returned.
+ * - For more query examples, visit <props="china">[示例中心](https://api.aliyun.com/api-tools/demo/ResourceCenter) <props="intl">[OpenAPI Portal](https://api.alibabacloud.com/api-tools/demo/ResourceCenter).
  *
  * @param request SearchMultiAccountResourcesRequest
  * @return SearchMultiAccountResourcesResponse
@@ -3357,67 +3417,88 @@ async function searchMultiAccountResources(request: SearchMultiAccountResourcesR
 model SearchResourcesRequest {
   filter?: [ 
     {
-      key?: string(name='Key', description='The key of the filter condition. For more information, see `Supported filter parameters`.', example='RegionId'),
-      matchType?: string(name='MatchType', description='The matching mode.
+      key?: string(name='Key', description='The key of the filter condition. For more information about the valid values, see the "`Supported filter parameters`" section below.', example='RegionId'),
+      matchType?: string(name='MatchType', description='The matching method. Valid values:
 
-The value Equals indicates an equal match.', example='Equals'),
-      value?: [ string ](name='Value', description='The values of the filter condition.'),
+- Equals: Exact match.
+
+- Prefix: Prefix match.
+
+- Contains: Contains a value.
+
+- NotContains: Does not contain a value.
+
+- Exists: The key exists.
+
+- NotExists: The key does not exist.', example='Equals'),
+      value?: [ string ](name='Value', description='The value of the filter condition.'),
     }
   ](name='Filter', description='The filter conditions.'),
-  includeDeletedResources?: boolean(name='IncludeDeletedResources'),
+  includeDeletedResources?: boolean(name='IncludeDeletedResources', description='Specifies whether to include deleted resources. Valid values:
+
+- true
+
+- false', example='true'),
   maxResults?: int32(name='MaxResults', description='The maximum number of entries per page.
 
-Valid values: 1 to 100.
+Valid values: 1 to 500.
 
 Default value: 20.', example='10'),
-  nextToken?: string(name='NextToken', description='The pagination token that is used in the next request to retrieve a new page of results.
-
-If the total number of entries returned for the current request exceeds the value of the `MaxResults` parameter, the entries are truncated. In this case, you can use the `token` to initiate another request and obtain the remaining entries.', example='eyJzZWFyY2hBZnRlcnMiOlsiMTAwMTU2Nzk4MTU1OSJd****'),
+  nextToken?: string(name='NextToken', description='The pagination token that is used in the next request to retrieve a new page of results. You do not need to specify this parameter for the first request. You must specify the token that is obtained from the previous query as the value of `NextToken`.', example='eyJzZWFyY2hBZnRlcnMiOlsiMTAwMTU2Nzk4MTU1OSJd****'),
   resourceGroupId?: string(name='ResourceGroupId', description='The ID of the resource group.', example='rg-acfmzawhxxc****'),
-  searchExpression?: string(name='SearchExpression'),
+  searchExpression?: string(name='SearchExpression', description='The search keyword. Resource Center filters and sorts the search results based on relevance.
+If you do not specify a sorting parameter, resources that better match the keyword are displayed with higher priority.', example='keywords'),
   sortCriterion?: {
-    key?: string(name='Key', description='The attribute based on which the entries are sorted.
+    key?: string(name='Key', description='The sort key.
 
-The value CreateTime indicates the creation time of resources.', example='CreateTime'),
-    order?: string(name='Order', description='The order in which the entries are sorted. Valid values:
+Set this parameter to `CreateTime`, which means the results are sorted by resource creation time.', example='CreateTime'),
+    order?: string(name='Order', description='The sort order. Valid values:
 
-*   ASC: The entries are sorted in ascending order. This value is the default value.
-*   DESC: The entries are sorted in descending order.', example='ASC'),
-  }(name='SortCriterion', description='The method that is used to sort the entries returned.'),
+- ASC: Ascending order.
+
+- DESC: Descending order.
+
+Default value: ASC.', example='ASC'),
+  }(name='SortCriterion', description='The sorting parameters.'),
 }
 
 model SearchResourcesResponseBody = {
   filters?: [ 
     {
       key?: string(name='Key', description='The key of the filter condition.', example='RegionId'),
-      matchType?: string(name='MatchType', description='The matching mode.', example='Equals'),
+      matchType?: string(name='MatchType', description='The matching method.', example='Equals'),
       values?: [ string ](name='Values', description='The values of the filter condition.'),
     }
   ](name='Filters', description='The filter conditions.'),
   maxResults?: int32(name='MaxResults', description='The maximum number of entries returned per page.', example='10'),
   nextToken?: string(name='NextToken', description='The pagination token that is used in the next request to retrieve a new page of results.', example='eyJzZWFyY2hBZnRlcnMiOlsiMTAwMTU2Nzk4MTU1OSJd****'),
-  requestId?: string(name='RequestId', description='The ID of the request.', example='D696E6EF-3A6D-5770-801E-4982081FE4D0'),
+  requestId?: string(name='RequestId', description='The request ID.', example='D696E6EF-3A6D-5770-801E-4982081FE4D0'),
   resources?: [ 
     {
       accountId?: string(name='AccountId', description='The ID of the Alibaba Cloud account.', example='151266687691****'),
       createTime?: string(name='CreateTime', description='The time when the resource was created.
 
->  Whether this parameter is returned is determined by the Alibaba Cloud service to which the resource belongs.', example='2021-06-30T09:20:08Z'),
-      deleted?: boolean(name='Deleted'),
+> Whether this parameter is returned depends on the Alibaba Cloud service to which the resource belongs.', example='2021-06-30T09:20:08Z'),
+      deleted?: boolean(name='Deleted', description='Indicates whether the resource is deleted. Valid values:
+
+- true
+
+- false', example='true'),
       expireTime?: string(name='ExpireTime', description='The time when the resource expires.', example='2021-07-30T09:20:08Z'),
       ipAddressAttributes?: [ 
         {
           ipAddress?: string(name='IpAddress', description='The IP address.', example='192.168.1.2'),
           networkType?: string(name='NetworkType', description='The network type. Valid values:
 
-*   **Public**: the Internet
-*   **Private**: internal network', example='Public'),
-          version?: string(name='Version', description='The version.', example='Ipv4'),
+- **Public**: Internet
+
+- **Private**: Private network', example='Public'),
+          version?: string(name='Version', description='The IP address version.', example='Ipv4'),
         }
-      ](name='IpAddressAttributes', description='The attributes of the IP address.'),
+      ](name='IpAddressAttributes', description='The attributes of the IP addresses.'),
       ipAddresses?: [ string ](name='IpAddresses', description='The IP addresses.
 
->  Whether this parameter is returned is determined by the Alibaba Cloud service to which the resource belongs.'),
+> Whether this parameter is returned depends on the Alibaba Cloud service to which the resource belongs.'),
       regionId?: string(name='RegionId', description='The region ID.', example='cn-hangzhou'),
       resourceGroupId?: string(name='ResourceGroupId', description='The resource group ID.', example='rg-acfmzawhxxc****'),
       resourceId?: string(name='ResourceId', description='The resource ID.', example='vtb-bp11lbh452fr8940s****'),
@@ -3425,13 +3506,13 @@ model SearchResourcesResponseBody = {
       resourceType?: string(name='ResourceType', description='The resource type.', example='ACS::VPC::RouteTable'),
       tags?: [ 
         {
-          key?: string(name='Key', description='The key of tag N.', example='test_key'),
-          value?: string(name='Value', description='The value of tag N.', example='test_value'),
+          key?: string(name='Key', description='The tag key.', example='test_key'),
+          value?: string(name='Value', description='The tag value.', example='test_value'),
         }
       ](name='Tags', description='The tags.'),
       zoneId?: string(name='ZoneId', description='The zone ID.
 
->  Whether this parameter is returned is determined by the Alibaba Cloud service to which the resource belongs.', example='cn-hangzhou-k'),
+> Whether this parameter is returned depends on the Alibaba Cloud service to which the resource belongs.', example='cn-hangzhou-k'),
     }
   ](name='Resources', description='The information about the resources.'),
 }
@@ -3443,13 +3524,14 @@ model SearchResourcesResponse = {
 }
 
 /**
- * @summary Search for resources that you can access within the current account.
+ * @summary Searches for resources in your current account that you are permitted to access.
  *
- * @description *   You can use this operation to search for only resources whose types are supported by Resource Center in services that work with Resource Center. For more information about the services and the resource types that are supported by Resource Center, see [Services that work with Resource Center](https://help.aliyun.com/document_detail/477798.html).
- * *   By default, the operation returns a maximum of 20 entries. You can configure the `MaxResults` parameter to specify the maximum number of entries to return.
- * *   If the response does not contain the `NextToken` parameter, all entries are returned. Otherwise, more entries exist. If you want to obtain the entries, you can call the operation again to initiate another query request. In the request, set the `NextToken` parameter to the value of `NextToken` in the last response of the operation. If you do not configure the `NextToken` parameter, entries on the first page are returned by default.
- * *   You can specify one or more filter conditions to narrow the search scope. For more information about supported filter parameters and matching methods, see the Supported filter parameters section. Multiple filter conditions have logical `AND` relations. Only resources that meet all filter conditions are returned. The values of a filter condition have logical `OR` relations. Resources that meet any value of the filter condition are returned.
- * *   You can visit [Sample Code Center](https://api.aliyun.com/api-tools/demo/ResourceCenter) to view more sample queries.
+ * @description - You can search only for resources in your current account that you are permitted to access.
+ * - You can search only for the [Alibaba Cloud services and resource types that are supported by Resource Center](https://help.aliyun.com/document_detail/477798.html).
+ * - By default, the SearchResources operation returns a maximum of 20 entries. You can specify the `MaxResults` parameter to change the maximum number of entries that are returned.
+ * - If the response does not include a `NextToken` value, no more results are available. To retrieve the next page of results, include the `NextToken` value from the previous response in your next request. If you do not specify the `NextToken` parameter, the first page of results is returned.
+ * - You can set one or more filter conditions to narrow the search scope. For information about the supported filter parameters and matching methods, see the following sections. Multiple filter conditions are combined by a logical `AND`. Only resources that meet all filter conditions are returned. The values within a filter condition are combined by a logical `OR`. Resources that meet any value of the filter condition are returned.
+ * - For more query examples, see [API Explorer](https://api.aliyun.com/api-tools/demo/ResourceCenter).
  *
  * @param request SearchResourcesRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -3498,13 +3580,14 @@ async function searchResourcesWithOptions(request: SearchResourcesRequest, runti
 }
 
 /**
- * @summary Search for resources that you can access within the current account.
+ * @summary Searches for resources in your current account that you are permitted to access.
  *
- * @description *   You can use this operation to search for only resources whose types are supported by Resource Center in services that work with Resource Center. For more information about the services and the resource types that are supported by Resource Center, see [Services that work with Resource Center](https://help.aliyun.com/document_detail/477798.html).
- * *   By default, the operation returns a maximum of 20 entries. You can configure the `MaxResults` parameter to specify the maximum number of entries to return.
- * *   If the response does not contain the `NextToken` parameter, all entries are returned. Otherwise, more entries exist. If you want to obtain the entries, you can call the operation again to initiate another query request. In the request, set the `NextToken` parameter to the value of `NextToken` in the last response of the operation. If you do not configure the `NextToken` parameter, entries on the first page are returned by default.
- * *   You can specify one or more filter conditions to narrow the search scope. For more information about supported filter parameters and matching methods, see the Supported filter parameters section. Multiple filter conditions have logical `AND` relations. Only resources that meet all filter conditions are returned. The values of a filter condition have logical `OR` relations. Resources that meet any value of the filter condition are returned.
- * *   You can visit [Sample Code Center](https://api.aliyun.com/api-tools/demo/ResourceCenter) to view more sample queries.
+ * @description - You can search only for resources in your current account that you are permitted to access.
+ * - You can search only for the [Alibaba Cloud services and resource types that are supported by Resource Center](https://help.aliyun.com/document_detail/477798.html).
+ * - By default, the SearchResources operation returns a maximum of 20 entries. You can specify the `MaxResults` parameter to change the maximum number of entries that are returned.
+ * - If the response does not include a `NextToken` value, no more results are available. To retrieve the next page of results, include the `NextToken` value from the previous response in your next request. If you do not specify the `NextToken` parameter, the first page of results is returned.
+ * - You can set one or more filter conditions to narrow the search scope. For information about the supported filter parameters and matching methods, see the following sections. Multiple filter conditions are combined by a logical `AND`. Only resources that meet all filter conditions are returned. The values within a filter condition are combined by a logical `OR`. Resources that meet any value of the filter condition are returned.
+ * - For more query examples, see [API Explorer](https://api.aliyun.com/api-tools/demo/ResourceCenter).
  *
  * @param request SearchResourcesRequest
  * @return SearchResourcesResponse
@@ -3515,7 +3598,7 @@ async function searchResources(request: SearchResourcesRequest): SearchResources
 }
 
 model UpdateDeliveryChannelRequest {
-  deliveryChannelDescription?: string(name='DeliveryChannelDescription', description='The description of the delivery channel.'),
+  deliveryChannelDescription?: string(name='DeliveryChannelDescription', description='The description of the delivery channel.', example='投递描述'),
   deliveryChannelFilter?: {
     resourceTypes?: [ string ](name='ResourceTypes', description='The effective resource types of the delivery channel.'),
   }(name='DeliveryChannelFilter', description='The effective scope of the delivery channel.'),
@@ -3577,12 +3660,7 @@ model UpdateDeliveryChannelResponse = {
 }
 
 /**
- * @summary Updates a single-account delivery channel.
- *
- * @description Resource delivery supports the delivery of resource configuration change events and scheduled resource snapshots.
- * Scheduled resource snapshots support the following delivery scenarios:
- * *   Standard delivery: Leave the `ResourceSnapshotDelivery.CustomExpression` parameter empty.
- * *   Custom delivery: Set the `ResourceSnapshotDelivery.CustomExpression` parameter to an appropriate value.
+ * @summary 更新投递渠道
  *
  * @param request UpdateDeliveryChannelRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -3628,12 +3706,7 @@ async function updateDeliveryChannelWithOptions(request: UpdateDeliveryChannelRe
 }
 
 /**
- * @summary Updates a single-account delivery channel.
- *
- * @description Resource delivery supports the delivery of resource configuration change events and scheduled resource snapshots.
- * Scheduled resource snapshots support the following delivery scenarios:
- * *   Standard delivery: Leave the `ResourceSnapshotDelivery.CustomExpression` parameter empty.
- * *   Custom delivery: Set the `ResourceSnapshotDelivery.CustomExpression` parameter to an appropriate value.
+ * @summary 更新投递渠道
  *
  * @param request UpdateDeliveryChannelRequest
  * @return UpdateDeliveryChannelResponse
@@ -3658,7 +3731,7 @@ This parameter is required.', example='{
 }'),
   filterName?: string(name='FilterName', description='The name of the filter.
 
-This parameter is required.', example='ECS'),
+This parameter is required.', example='我的筛选条件。'),
 }
 
 model UpdateFilterResponseBody = {
@@ -3717,10 +3790,10 @@ async function updateFilter(request: UpdateFilterRequest): UpdateFilterResponse 
 }
 
 model UpdateMultiAccountDeliveryChannelRequest {
-  deliveryChannelDescription?: string(name='DeliveryChannelDescription', description='The description of the delivery channel.'),
+  deliveryChannelDescription?: string(name='DeliveryChannelDescription', description='The description of the delivery channel.', example='This is a description.'),
   deliveryChannelFilter?: {
-    accountScopes?: [ string ](name='AccountScopes', description='An array of effective account scopes for the delivery channel.'),
-    resourceTypes?: [ string ](name='ResourceTypes', description='The effective resource types of the delivery channel.'),
+    accountScopes?: [ string ](name='AccountScopes', description='The account scopes of the delivery channel.'),
+    resourceTypes?: [ string ](name='ResourceTypes', description='The effective resource type of the delivery channel.'),
   }(name='DeliveryChannelFilter', description='The effective scope of the delivery channel.'),
   deliveryChannelId?: string(name='DeliveryChannelId', description='The ID of the delivery channel.
 
@@ -3729,44 +3802,49 @@ This parameter is required.', example='dc-4m6ffpkgu***'),
   resourceChangeDelivery?: {
     enabled?: string(name='Enabled', description='Specifies whether to enable delivery of resource configuration change events. Valid values:
 
-*   true
-*   false', example='true'),
-    slsProperties?: {
-      oversizedDataOssTargetArn?: string(name='OversizedDataOssTargetArn', description='The ARN of the destination to which large files are delivered.
+- true
 
-If the size of a resource configuration change event exceeds 1 MB, the event is delivered as an OSS object. You need to set this parameter to the ARN of a bucket whose name is prefixed with `resourcecenter-`.', example='acs:oss:cn-hangzhou:1911422487776***:resourcecenter-oss'),
-    }(name='SlsProperties', description='The Simple Log Service configurations.'),
+- false', example='true'),
+    slsProperties?: {
+      oversizedDataOssTargetArn?: string(name='OversizedDataOssTargetArn', description='The ARN of the delivery destination for oversized data.
+
+If the size of a resource configuration change event exceeds 1 MB, the event is delivered as an OSS object. You must enter the ARN of an OSS bucket that has a prefix of `resourcecenter-`.', example='acs:oss:cn-hangzhou:1911422487776***:resourcecenter-oss'),
+    }(name='SlsProperties', description='The SLS configurations.'),
     targetArn?: string(name='TargetArn', description='The ARN of the delivery destination. Valid values:
 
-*   If you set `TargetType` to `OSS`, you must set `TargetArn` to the ARN of a bucket whose name is prefixed with `resourcecenter-`.
-*   If you set `TargetType` to `SLS`, you must set `TargetArn` to the ARN of a Logstore whose name is prefixed with `resourcecenter-`.', example='acs:log:cn-hangzhou: 1911422487776***:project/delivery/logstore/resourcecenter-sls'),
+- If you set `TargetType` to `OSS`, you must set `TargetArn` to the ARN of a OSS bucket that has a prefix of `resourcecenter-`.
+
+- If you set `TargetType` to `SLS`, you must set `TargetArn` to the ARN of a SLS Logstore that has a prefix of `resourcecenter-`.', example='acs:log:cn-hangzhou: 1911422487776***:project/delivery/logstore/resourcecenter-sls'),
     targetType?: string(name='TargetType', description='The type of the delivery destination.
 
-Set the value to `SLS`.', example='SLS'),
+Valid value: `SLS`.', example='SLS'),
   }(name='ResourceChangeDelivery', description='The configurations for delivery of resource configuration change events.'),
   resourceSnapshotDelivery?: {
     customExpression?: string(name='CustomExpression', description='The custom expression.', example='select * from resources limit 100;'),
     deliveryTime?: string(name='DeliveryTime', description='The delivery time.', example='09:00Z'),
-    enabled?: string(name='Enabled', description='Specifies whether to enable delivery of scheduled resource snapshots. Valid values:
+    enabled?: string(name='Enabled', description='Specifies whether to enable scheduled delivery of resource snapshots. Valid values:
 
-*   true
-*   false', example='true'),
+- true
+
+- false', example='true'),
     slsProperties?: {
-      oversizedDataOssTargetArn?: string(name='OversizedDataOssTargetArn', description='The ARN of the destination to which large files are delivered.
+      oversizedDataOssTargetArn?: string(name='OversizedDataOssTargetArn', description='The ARN of the delivery destination for oversized data.
 
-If the size of a resource configuration change event exceeds 1 MB, the event is delivered as an OSS object. You need to set this parameter to the ARN of a bucket whose name is prefixed with `resourcecenter-`.
+If the size of a resource configuration change event exceeds 1 MB, the event is delivered as an OSS object. You must enter the ARN of an OSS bucket that has a prefix of `resourcecenter-`.
 
->  This parameter takes effect only if you use custom delivery for scheduled resource snapshots. You do not need to configure this parameter if you use standard delivery for scheduled resource snapshots.', example='acs:oss:cn-hangzhou:1911422487776***:resourcecenter-oss'),
-    }(name='SlsProperties', description='The Simple Log Service configurations.'),
+> This parameter takes effect only when you create a custom scheduled delivery task for resource snapshots. You do not need to specify this parameter when you create a standard scheduled delivery task for resource snapshots.', example='acs:oss:cn-hangzhou:1911422487776***:resourcecenter-oss'),
+    }(name='SlsProperties', description='The Simple Log Service (SLS) configurations.'),
     targetArn?: string(name='TargetArn', description='The Alibaba Cloud Resource Name (ARN) of the delivery destination. Valid values:
 
-*   If you set `TargetType` to `OSS`, you must set `TargetArn` to the ARN of a bucket whose name is prefixed with `resourcecenter-`. Example: `acs:oss:cn-hangzhou:191142248777****:resourcecenter-oss`.
-*   If you set `TargetType` to `SLS`, you must set `TargetArn` to the ARN of a Logstore whose name is prefixed with `resourcecenter-`. Example: `acs:log:cn-hangzhou: 191142248777****:project/delivery/logstore/resourcecenter-sls`.', example='acs:oss:cn-hangzhou:1911422487776***:resourcecenter-oss'),
+- If you set `TargetType` to `OSS`, you must set `TargetArn` to the ARN of a OSS bucket that has a prefix of `resourcecenter-`. Example: `acs:oss:cn-hangzhou:191142248777****:resourcecenter-oss`.
+
+- If you set `TargetType` to `SLS`, you must set `TargetArn` to the ARN of a SLS Logstore that has a prefix of `resourcecenter-`. Example: `acs:log:cn-hangzhou: 191142248777****:project/delivery/logstore/resourcecenter-sls`.', example='acs:oss:cn-hangzhou:1911422487776***:resourcecenter-oss'),
     targetType?: string(name='TargetType', description='The type of the delivery destination. Valid values:
 
-*   `OSS` for standard delivery
-*   `OSS` or `SLS` for custom delivery', example='OSS'),
-  }(name='ResourceSnapshotDelivery', description='The configurations for delivery of scheduled resource snapshots.'),
+- `OSS` for standard delivery
+
+- `OSS` or `SLS` for custom delivery', example='OSS'),
+  }(name='ResourceSnapshotDelivery', description='The configurations for scheduled delivery of resource snapshots.'),
 }
 
 model UpdateMultiAccountDeliveryChannelResponseBody = {
@@ -3784,8 +3862,8 @@ model UpdateMultiAccountDeliveryChannelResponse = {
  *
  * @description Resource delivery supports the delivery of resource configuration change events and scheduled resource snapshots.
  * Scheduled resource snapshots support the following delivery scenarios:
- * *   Standard delivery: Leave the `ResourceSnapshotDelivery.CustomExpression` parameter empty.
- * *   Custom delivery: Set the `ResourceSnapshotDelivery.CustomExpression` parameter to an appropriate value.
+ * - Standard delivery: Leave the `ResourceSnapshotDelivery.CustomExpression` parameter empty.
+ * - Custom delivery: Set the `ResourceSnapshotDelivery.CustomExpression` parameter to an appropriate value.
  *
  * @param request UpdateMultiAccountDeliveryChannelRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -3835,8 +3913,8 @@ async function updateMultiAccountDeliveryChannelWithOptions(request: UpdateMulti
  *
  * @description Resource delivery supports the delivery of resource configuration change events and scheduled resource snapshots.
  * Scheduled resource snapshots support the following delivery scenarios:
- * *   Standard delivery: Leave the `ResourceSnapshotDelivery.CustomExpression` parameter empty.
- * *   Custom delivery: Set the `ResourceSnapshotDelivery.CustomExpression` parameter to an appropriate value.
+ * - Standard delivery: Leave the `ResourceSnapshotDelivery.CustomExpression` parameter empty.
+ * - Custom delivery: Set the `ResourceSnapshotDelivery.CustomExpression` parameter to an appropriate value.
  *
  * @param request UpdateMultiAccountDeliveryChannelRequest
  * @return UpdateMultiAccountDeliveryChannelResponse
@@ -3849,16 +3927,18 @@ async function updateMultiAccountDeliveryChannel(request: UpdateMultiAccountDeli
 model UpdateSavedQueryRequest {
   description?: string(name='Description', description='The description of the template.
 
-The description must be 1 to 256 characters in length.', example='Queries all resources on which you have permissions and sorts the resources by resource type and resource ID.'),
-  expression?: string(name='Expression', description='The query statement in the template.', example='SELECT * FROM resources;'),
+The description must be 1 to 256 characters in length.', example='查询我的所有资源，返回所有的列。'),
+  expression?: string(name='Expression', description='The expression of the template.', example='SELECT * FROM resources;'),
   name?: string(name='Name', description='The name of the template.
 
-*   The name must be 1 to 64 characters in length.
-*   The name can contain letters, digits, underscores (_), and hyphens (-).
-*   The name must be unique.', example='Query of All Alibaba Cloud Resources'),
-  queryId?: string(name='QueryId', description='The template ID.
+- The name must be 1 to 64 characters in length.
 
-This parameter is required.', example='sq-GeAck****'),
+- It can contain letters, digits, underscores (_), and hyphens (-).
+
+- It must be globally unique.', example='查询我的所有资源。'),
+  queryId?: string(name='QueryId', description='The ID of the template.
+
+This parameter is required.', example='cq-GeAck****'),
 }
 
 model UpdateSavedQueryResponseBody = {
