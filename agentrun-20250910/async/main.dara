@@ -513,6 +513,7 @@ model CreateMemoryCollectionInput {
   networkConfiguration?: NetworkConfiguration(name='networkConfiguration'),
   type?: string(name='type'),
   vectorStoreConfig?: VectorStoreConfig(name='vectorStoreConfig'),
+  workspaceId?: string(name='workspaceId'),
 }
 
 model CreateModelInput {
@@ -1274,6 +1275,7 @@ model MemoryCollection {
   memoryCollectionName?: string(name='memoryCollectionName'),
   networkConfiguration?: NetworkConfiguration(name='networkConfiguration'),
   vectorStoreConfig?: VectorStoreConfig(name='vectorStoreConfig'),
+  workspaceId?: string(name='workspaceId'),
 }
 
 model MemoryCollectionResult {
@@ -1436,6 +1438,7 @@ model PathConfig {
   agentRuntimeEndpointName?: string(name='agentRuntimeEndpointName', description='agent runtime 版本（仅当 resourceType 为 runtime 时有效）'),
   methods?: [ string ](name='methods', description='支持的方法有：HEAD, GET, POST, PUT, DELETE, PATCH, OPTIONS', example='[\\"GET\\"]'),
   path?: string(name='path', description='此条路由规则对应的请求路径。', example='/login'),
+  removeBasePathOnForward?: boolean(name='removeBasePathOnForward'),
   resourceName?: string(name='resourceName', description='资源名称'),
   resourceType?: string(name='resourceType', description='资源类型（和凭证关联资源类型一致）', example='runtime'),
 }
@@ -1867,6 +1870,7 @@ model UpdateMemoryCollectionInput {
   llmConfig?: LLMConfig(name='llmConfig'),
   networkConfiguration?: NetworkConfiguration(name='networkConfiguration'),
   vectorStoreConfig?: VectorStoreConfig(name='vectorStoreConfig'),
+  workspaceId?: string(name='workspaceId'),
 }
 
 model UpdateModelInput {
@@ -2269,6 +2273,26 @@ async function createTemplate(request: CreateTemplateRequest): CreateTemplateRes
   return @handler.do('RESTFUL', 'CreateTemplate', 'POST', '/2025-09-10/templates', 'json', false, 'json', request);
 }
 
+model CreateWorkspaceRequest {
+  body?: CreateWorkspaceInput(name='body', position='Body'),
+}
+
+model CreateWorkspaceResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: WorkspaceResult  
+}
+
+/**
+  * @description 创建工作空间
+  * @param request  the request parameters of CreateWorkspace  CreateWorkspaceRequest
+  * @return CreateWorkspaceResponse
+ */
+async function createWorkspace(request: CreateWorkspaceRequest): CreateWorkspaceResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'CreateWorkspace', 'POST', '/2025-09-10/workspaces', 'json', false, 'json', request);
+}
+
 model DeleteAgentRuntimeRequest {
   agentRuntimeId: string(name='agentRuntimeId', description='要删除的智能体运行时实例的唯一标识符
 
@@ -2516,6 +2540,26 @@ model DeleteTemplateResponse = {
 async function deleteTemplate(request: DeleteTemplateRequest): DeleteTemplateResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RESTFUL', 'DeleteTemplate', 'DELETE', '/2025-09-10/templates/{templateName}', 'json', false, 'json', request);
+}
+
+model DeleteWorkspaceRequest {
+  workspaceId?: string(name='workspaceId', example='ws-1234567890abcdef', position='Path'),
+}
+
+model DeleteWorkspaceResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: WorkspaceResult  
+}
+
+/**
+  * @description 删除工作空间
+  * @param request  the request parameters of DeleteWorkspace  DeleteWorkspaceRequest
+  * @return DeleteWorkspaceResponse
+ */
+async function deleteWorkspace(request: DeleteWorkspaceRequest): DeleteWorkspaceResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'DeleteWorkspace', 'DELETE', '/2025-09-10/workspaces/{workspaceId}', 'json', false, 'json', request);
 }
 
 model GetAccessTokenRequest {
@@ -2800,6 +2844,45 @@ async function getTemplate(request: GetTemplateRequest): GetTemplateResponse {
   return @handler.do('RESTFUL', 'GetTemplate', 'GET', '/2025-09-10/templates/{templateName}', 'json', false, 'json', request);
 }
 
+model GetWorkspaceRequest {
+  workspaceId?: string(name='workspaceId', example='ws-1234567890abcdef', position='Path'),
+}
+
+model GetWorkspaceResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: WorkspaceResult  
+}
+
+/**
+  * @description 查看工作空间
+  * @param request  the request parameters of GetWorkspace  GetWorkspaceRequest
+  * @return GetWorkspaceResponse
+ */
+async function getWorkspace(request: GetWorkspaceRequest): GetWorkspaceResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'GetWorkspace', 'GET', '/2025-09-10/workspaces/{workspaceId}', 'json', false, 'json', request);
+}
+
+model GetWorkspaceDiscoveryEndpointsRequest {
+  workspaceId?: string(name='workspaceId', example='ws-1234567890abcdef', position='Path'),
+}
+
+model GetWorkspaceDiscoveryEndpointsResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: GetDiscoveryEndpointsResult  
+}
+
+/**
+  * @param request  the request parameters of GetWorkspaceDiscoveryEndpoints  GetWorkspaceDiscoveryEndpointsRequest
+  * @return GetWorkspaceDiscoveryEndpointsResponse
+ */
+async function getWorkspaceDiscoveryEndpoints(request: GetWorkspaceDiscoveryEndpointsRequest): GetWorkspaceDiscoveryEndpointsResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'GetWorkspaceDiscoveryEndpoints', 'GET', '/2025-09-10/workspaces/{workspaceId}/discovery/endpoints', 'json', false, 'json', request);
+}
+
 model ListAgentRuntimeEndpointsRequest {
   agentRuntimeId: string(name='agentRuntimeId', description='智能体运行时实例的唯一标识符
 
@@ -2858,6 +2941,7 @@ model ListAgentRuntimesRequest {
   searchMode?: string(name='searchMode', description='查询模式，支持精确查询和模糊查询', example='fuzzy', position='Query'),
   status?: string(name='status', description='根据状态进行过滤，多个状态用逗号分隔，支持精确匹配', example='READY,CREATING', position='Query'),
   workspaceId?: string(name='workspaceId', description='根据工作空间ID进行过滤，用于资源隔离和权限管理', example='ws-1234567890abcdef', position='Query'),
+  workspaceIds?: string(name='workspaceIds', position='Query'),
 }
 
 model ListAgentRuntimesResponse = {
@@ -2948,6 +3032,7 @@ async function listCredentials(request: ListCredentialsRequest): ListCredentials
 
 model ListCustomDomainsRequest {
   domainName?: string(name='domainName', example='mydomain.com', position='Query'),
+  domainType?: string(name='domainType', position='Query'),
   pageNumber?: int32(name='pageNumber', example='1', position='Query'),
   pageSize?: int32(name='pageSize', example='20', position='Query'),
   resourceName?: string(name='resourceName', example='agent-1', position='Query'),
@@ -2996,6 +3081,7 @@ model ListMemoryCollectionsRequest {
   pageSize?: int32(name='pageSize', example='20', position='Query'),
   status?: string(name='status', example='READY', position='Query'),
   type?: string(name='type', example='mem0', position='Query'),
+  workspaceId?: string(name='workspaceId', position='Query'),
 }
 
 model ListMemoryCollectionsResponse = {
@@ -3413,5 +3499,46 @@ model UpdateTemplateResponse = {
 async function updateTemplate(request: UpdateTemplateRequest): UpdateTemplateResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RESTFUL', 'UpdateTemplate', 'PUT', '/2025-09-10/templates/{templateName}', 'json', false, 'json', request);
+}
+
+model UpdateWorkspaceRequest {
+  workspaceId?: string(name='workspaceId', example='ws-1234567890abcdef', position='Path'),
+  body?: UpdateWorkspaceInput(name='body', position='Body'),
+}
+
+model UpdateWorkspaceResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: WorkspaceResult  
+}
+
+/**
+  * @description 更新工作空间
+  * @param request  the request parameters of UpdateWorkspace  UpdateWorkspaceRequest
+  * @return UpdateWorkspaceResponse
+ */
+async function updateWorkspace(request: UpdateWorkspaceRequest): UpdateWorkspaceResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'UpdateWorkspace', 'PUT', '/2025-09-10/workspaces/{workspaceId}', 'json', false, 'json', request);
+}
+
+model UpdateWorkspaceDiscoveryEndpointsRequest {
+  workspaceId?: string(name='workspaceId', example='ws-1234567890abcdef', position='Path'),
+  body?: UpdateDiscoveryEndpointsInput(name='body', position='Body'),
+}
+
+model UpdateWorkspaceDiscoveryEndpointsResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: GetDiscoveryEndpointsResult  
+}
+
+/**
+  * @param request  the request parameters of UpdateWorkspaceDiscoveryEndpoints  UpdateWorkspaceDiscoveryEndpointsRequest
+  * @return UpdateWorkspaceDiscoveryEndpointsResponse
+ */
+async function updateWorkspaceDiscoveryEndpoints(request: UpdateWorkspaceDiscoveryEndpointsRequest): UpdateWorkspaceDiscoveryEndpointsResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'UpdateWorkspaceDiscoveryEndpoints', 'PUT', '/2025-09-10/workspaces/{workspaceId}/discovery/endpoints', 'json', false, 'json', request);
 }
 
