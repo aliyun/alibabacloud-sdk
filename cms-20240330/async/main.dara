@@ -451,6 +451,14 @@ model ContactForIncidentView {
   name?: string(name='name'),
 }
 
+model CustomExtractionStrategy {
+  description?: string(name='description'),
+  extractionPrompt?: string(name='extractionPrompt'),
+  strategyName?: string(name='strategyName'),
+  strategyType?: string(name='strategyType'),
+  updatePrompt?: string(name='updatePrompt'),
+}
+
 model DataStorageItem {
   dataType?: string(name='dataType'),
   project?: string(name='project'),
@@ -549,6 +557,53 @@ model EventResourceForIncidentView {
   entityType?: string(name='entityType'),
   probs?: string(name='probs'),
   tags?: string(name='tags'),
+}
+
+model ExperimentConfig {
+  label?: string(name='label'),
+  modelName?: string(name='modelName'),
+  modelParameters?: ModelParameters(name='modelParameters'),
+  modelProvider?: string(name='modelProvider'),
+  name?: string(name='name'),
+  promptTemplate?: [
+    PromptTemplateItem
+  ](name='promptTemplate'),
+}
+
+model ExperimentPlanData {
+  createdAt?: long(name='createdAt'),
+  datasetId?: string(name='datasetId'),
+  description?: string(name='description'),
+  experimentCount?: int32(name='experimentCount'),
+  planId?: string(name='planId'),
+  planName?: string(name='planName'),
+  status?: string(name='status'),
+  updatedAt?: long(name='updatedAt'),
+}
+
+model ExperimentRecord {
+  completedAt?: long(name='completedAt'),
+  completedTasks?: int32(name='completedTasks'),
+  dataSourceType?: string(name='dataSourceType'),
+  datasetId?: string(name='datasetId'),
+  datasetProject?: string(name='datasetProject'),
+  errorMessage?: string(name='errorMessage'),
+  evaluators?: [
+    Evaluator
+  ](name='evaluators'),
+  executedAt?: long(name='executedAt'),
+  experimentConfig?: ExperimentConfig(name='experimentConfig'),
+  experimentName?: string(name='experimentName'),
+  failedTasks?: int32(name='failedTasks'),
+  input?: map[string]any(name='input'),
+  modelName?: string(name='modelName'),
+  planId?: string(name='planId'),
+  planName?: string(name='planName'),
+  progress?: float(name='progress'),
+  recordId?: string(name='recordId'),
+  selectedItemIds?: [ string ](name='selectedItemIds'),
+  status?: string(name='status'),
+  totalTasks?: int32(name='totalTasks'),
 }
 
 model FilterSetting {
@@ -860,7 +915,7 @@ model IncidentTimelineForView {
 }
 
 model IndexJsonKey {
-  chn?: string(name='chn'),
+  chn?: boolean(name='chn'),
   type?: string(name='type'),
 }
 
@@ -964,6 +1019,16 @@ model MergeWebhook {
   source?: string(name='source'),
   type?: string(name='type'),
   webhook?: string(name='webhook'),
+}
+
+model ModelParameters {
+  frequencyPenalty?: float(name='frequencyPenalty'),
+  maxTokens?: long(name='maxTokens'),
+  presencePenalty?: float(name='presencePenalty'),
+  stopSequences?: [ string ](name='stopSequences'),
+  temperature?: float(name='temperature'),
+  topK?: int32(name='topK'),
+  topP?: float(name='topP'),
 }
 
 model NotifyChannel {
@@ -1095,6 +1160,11 @@ model PrometheusManagedInstance {
   workspace?: string(name='workspace'),
 }
 
+model PromptTemplateItem {
+  content?: string(name='content'),
+  role?: string(name='role'),
+}
+
 model PushingSetting {
   alertActionIds?: [ string ](name='alertActionIds'),
   restoreActionIds?: [ string ](name='restoreActionIds'),
@@ -1195,6 +1265,51 @@ model TransformerForView {
 model WorkspaceFilterSetting {
   tagSelector?: FilterSetting(name='tagSelector'),
   workspaceUuids?: [ string ](name='workspaceUuids'),
+}
+
+model AddMemoriesRequest {
+  workspace: string(name='workspace', description='This parameter is required.', example='workspace-test', minLength=2, maxLength=64, position='Path'),
+  memoryStoreName: string(name='memoryStoreName', description='This parameter is required.', example='test-memory-store', minLength=2, maxLength=64, position='Path'),
+  agentId?: string(name='agentId', example='952730733889060865', position='Body'),
+  appId?: string(name='appId', example='mm_480d961a1b5e4efe84603f4cbc0f', position='Body'),
+  asyncMode?: boolean(name='asyncMode', example='true', position='Body'),
+  customInstructions?: string(name='customInstructions', example='Your custom instructions here', position='Body'),
+  infer?: boolean(name='infer', example='true', position='Body'),
+  messages?: [ 
+    {
+      content?: string(name='content', example='My name is Zhang San and I live in Hangzhou.'),
+      role?: string(name='role', example='user'),
+    }
+  ](name='messages', position='Body'),
+  metadata?: map[string]any(name='metadata', example='{"sessionId":"test_session_001"}', position='Body'),
+  runId?: string(name='runId', example='jr-80ded1d6953c64ea', position='Body'),
+  userId?: string(name='userId', example='test_user_001', position='Body'),
+}
+
+model AddMemoriesResponseBody = {
+  requestId?: string(name='requestId', example='8FDE2569-626B-5176-9844-28877A*****'),
+  results?: [ 
+    {
+      eventId?: string(name='eventId', example='897294a7-67a4-4f60-976c-e136edc5f97e'),
+      message?: string(name='message', example='Memory processing has been queued for background execution'),
+      status?: string(name='status', example='Pending'),
+    }
+  ](name='results'),
+}
+
+model AddMemoriesResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: AddMemoriesResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of AddMemories  AddMemoriesRequest
+  * @return AddMemoriesResponse
+ */
+async function addMemories(request: AddMemoriesRequest): AddMemoriesResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'AddMemories', 'POST', '/workspace/{workspace}/memorystore/{memoryStoreName}/memory', 'json', false, 'json', request);
 }
 
 model ChangeResourceGroupRequest {
@@ -1565,8 +1680,8 @@ async function createDigitalEmployee(request: CreateDigitalEmployeeRequest): Cre
 model CreateDigitalEmployeeSkillRequest {
   name: string(name='name', description='This parameter is required.', example='test', minLength=1, position='Path'),
   regionId?: string(name='RegionId', position='Host'),
-  description?: string(name='description', example='test', maxLength=512, position='Body'),
-  displayName?: string(name='displayName', example='test', maxLength=128, position='Body'),
+  description?: string(name='description', example='test', position='Body'),
+  displayName?: string(name='displayName', example='test', position='Body'),
   enable?: boolean(name='enable', example='true', position='Body'),
   files: [ 
     {
@@ -1683,6 +1798,36 @@ model CreateIntegrationPolicyResponse = {
 async function createIntegrationPolicy(request: CreateIntegrationPolicyRequest): CreateIntegrationPolicyResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RESTFUL', 'CreateIntegrationPolicy', 'POST', '/integration-policies', 'json', false, 'json', request);
+}
+
+model CreateMemoryStoreRequest {
+  workspace: string(name='workspace', description='This parameter is required.', example='workspace-test', minLength=2, maxLength=64, position='Path'),
+  customExtractionStrategies?: [
+    CustomExtractionStrategy
+  ](name='customExtractionStrategies', position='Body'),
+  description?: string(name='description', example='Test memory store for demonstration.', position='Body'),
+  extractionStrategies?: [ string ](name='extractionStrategies', position='Body'),
+  memoryStoreName: string(name='memoryStoreName', description='This parameter is required.', example='test-memory-store', position='Body'),
+  shortTermTtl: int32(name='shortTermTtl', description='This parameter is required.', example='10', position='Body'),
+}
+
+model CreateMemoryStoreResponseBody = {
+  requestId?: string(name='requestId', example='8FDE2569-626B-5176-9844-28877A*****'),
+}
+
+model CreateMemoryStoreResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: CreateMemoryStoreResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of CreateMemoryStore  CreateMemoryStoreRequest
+  * @return CreateMemoryStoreResponse
+ */
+async function createMemoryStore(request: CreateMemoryStoreRequest): CreateMemoryStoreResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'CreateMemoryStore', 'POST', '/workspace/{workspace}/memorystore', 'json', false, 'json', request);
 }
 
 model CreatePrometheusInstanceRequest {
@@ -2227,6 +2372,83 @@ model DeleteIntegrationPolicyResponse = {
 async function deleteIntegrationPolicy(request: DeleteIntegrationPolicyRequest): DeleteIntegrationPolicyResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RESTFUL', 'DeleteIntegrationPolicy', 'DELETE', '/integration-policies/{policyId}', 'json', false, 'json', request);
+}
+
+model DeleteMemoriesRequest {
+  workspace: string(name='workspace', description='This parameter is required.', example='default-cms-1793369865235921-cn-shenzhen', minLength=2, maxLength=64, position='Path'),
+  memoryStoreName: string(name='memoryStoreName', description='This parameter is required.', example='test-memory-store', minLength=2, maxLength=64, position='Path'),
+  agentId?: string(name='agentId', example='952730733889060865', position='Query'),
+  appId?: string(name='appId', example='98ea19fe-128b-4841-b318-0359bec3c65d', position='Query'),
+  runId?: string(name='runId', example='jr-dd7c645fd6fe50d4', position='Query'),
+  userId?: string(name='userId', example='test_user_001', position='Query'),
+}
+
+model DeleteMemoriesResponseBody = {
+  requestId?: string(name='requestId', example='8FDE2569-626B-5176-9844-28877A*****'),
+}
+
+model DeleteMemoriesResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: DeleteMemoriesResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of DeleteMemories  DeleteMemoriesRequest
+  * @return DeleteMemoriesResponse
+ */
+async function deleteMemories(request: DeleteMemoriesRequest): DeleteMemoriesResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'DeleteMemories', 'DELETE', '/workspace/{workspace}/memorystore/{memoryStoreName}/memory', 'json', false, 'json', request);
+}
+
+model DeleteMemoryRequest {
+  workspace: string(name='workspace', description='This parameter is required.', example='default-cms-xxxxxx-cn-beijing', minLength=2, maxLength=64, position='Path'),
+  memoryStoreName: string(name='memoryStoreName', description='This parameter is required.', example='test-memory-store', minLength=2, maxLength=64, position='Path'),
+  memoryId: string(name='memoryId', description='This parameter is required.', example='019ca1e5-7307-7d50-b943-5e628326a8ed', minLength=1, position='Path'),
+}
+
+model DeleteMemoryResponseBody = {
+  requestId?: string(name='requestId', example='0B9377D9-C56B-5C2E-A8A4-************'),
+}
+
+model DeleteMemoryResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: DeleteMemoryResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of DeleteMemory  DeleteMemoryRequest
+  * @return DeleteMemoryResponse
+ */
+async function deleteMemory(request: DeleteMemoryRequest): DeleteMemoryResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'DeleteMemory', 'DELETE', '/workspace/{workspace}/memorystore/{memoryStoreName}/memory/{memoryId}', 'json', false, 'json', request);
+}
+
+model DeleteMemoryStoreRequest {
+  workspace: string(name='workspace', description='This parameter is required.', example='workspace-test', minLength=2, maxLength=64, position='Path'),
+  memoryStoreName: string(name='memoryStoreName', description='This parameter is required.', example='test-memory-store', minLength=2, maxLength=64, position='Path'),
+}
+
+model DeleteMemoryStoreResponseBody = {
+  requestId?: string(name='requestId', example='8FDE2569-626B-5176-9844-28877A*****'),
+}
+
+model DeleteMemoryStoreResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: DeleteMemoryStoreResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of DeleteMemoryStore  DeleteMemoryStoreRequest
+  * @return DeleteMemoryStoreResponse
+ */
+async function deleteMemoryStore(request: DeleteMemoryStoreRequest): DeleteMemoryStoreResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'DeleteMemoryStore', 'DELETE', '/workspace/{workspace}/memorystore/{memoryStoreName}', 'json', false, 'json', request);
 }
 
 model DeletePrometheusInstanceRequest {
@@ -3184,6 +3406,172 @@ model GetIntegrationVersionForCSResponse = {
 async function getIntegrationVersionForCS(request: GetIntegrationVersionForCSRequest): GetIntegrationVersionForCSResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RESTFUL', 'GetIntegrationVersionForCS', 'GET', '/integration-version/cs', 'json', false, 'json', request);
+}
+
+model GetMemoriesRequest {
+  workspace: string(name='workspace', description='This parameter is required.', example='workspace-test', minLength=2, maxLength=64, position='Path'),
+  memoryStoreName: string(name='memoryStoreName', description='This parameter is required.', example='test-memory-store', minLength=2, maxLength=64, position='Path'),
+  agentId?: string(name='agentId', example='952730652285943809', position='Body'),
+  appId?: string(name='appId', example='150130323', position='Body'),
+  page?: int32(name='page', example='1', position='Body'),
+  pageSize?: int32(name='pageSize', example='1000', position='Body'),
+  runId?: string(name='runId', example='jr-80ded1d6953c64ea', position='Body'),
+  userId?: string(name='userId', example='test_user_001', position='Body'),
+}
+
+model GetMemoriesResponseBody = {
+  relations?: [ 
+    {
+      destination?: string(name='destination', example='test'),
+      relationship?: string(name='relationship', example='test'),
+      source?: string(name='source', example='test_namespace/RegistryModule-test2153b9f3-0be6-455e-9efd-05fd31f62885/alicloud'),
+    }
+  ](name='relations'),
+  requestId?: string(name='requestId', example='8FDE2569-626B-5176-9844-28877A*****'),
+  results?: [ 
+    {
+      actorId?: string(name='actorId', example='test_session_001'),
+      agentId?: string(name='agentId', example='980565235819266048'),
+      createdAt?: string(name='createdAt', example='1747623093939'),
+      hash?: string(name='hash', example='73ad89f2d56c2f8615e5dd0cef7b4c41c074277c91fa0e31fc5b41802c0481f2'),
+      id?: string(name='id', example='019ca1e5-7307-7d50-b943-5e628326a8ed'),
+      memory?: string(name='memory', example='My name is Zhang San and I live in Hangzhou.'),
+      metadata?: map[string]any(name='metadata', example='{"sessionId":"test_session_001"}'),
+      role?: string(name='role', example='user'),
+      runId?: string(name='runId', example='jr-965a0b00cb42a43b'),
+      score?: double(name='score', example='30.12'),
+      updatedAt?: string(name='updatedAt', example='1752825865045'),
+      userId?: string(name='userId', example='test_session_001'),
+    }
+  ](name='results'),
+}
+
+model GetMemoriesResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: GetMemoriesResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of GetMemories  GetMemoriesRequest
+  * @return GetMemoriesResponse
+ */
+async function getMemories(request: GetMemoriesRequest): GetMemoriesResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'GetMemories', 'POST', '/workspace/{workspace}/memorystore/{memoryStoreName}/memory/query', 'json', false, 'json', request);
+}
+
+model GetMemoryRequest {
+  workspace: string(name='workspace', description='This parameter is required.', example='default-cms-1793369865235921-cn-shenzhen', minLength=2, maxLength=64, position='Path'),
+  memoryStoreName: string(name='memoryStoreName', description='This parameter is required.', example='test-memory-store', minLength=2, maxLength=64, position='Path'),
+  memoryId: string(name='memoryId', description='This parameter is required.', example='019ca1e5-7307-7d50-b943-5e628326a8ed', minLength=1, position='Path'),
+}
+
+model GetMemoryResponseBody = {
+  createdAt?: string(name='createdAt', example='1751595283143'),
+  expirationDate?: string(name='expirationDate', example='1751595283143'),
+  id?: string(name='id', example='019ca1e5-7307-7d50-b943-5e628326a8ed'),
+  immutable?: string(name='immutable', example='test'),
+  memory?: string(name='memory', example='My name is Zhang San and I live in Hangzhou.'),
+  metadata?: string(name='metadata', example='{"sessionId":"test_session_001"}'),
+  organization?: string(name='organization', example='test'),
+  owner?: string(name='owner', example='test'),
+  requestId?: string(name='requestId', example='8FDE2569-626B-5176-9844-28877A*****'),
+  updatedAt?: string(name='updatedAt', example='1744428159434'),
+}
+
+model GetMemoryResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: GetMemoryResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of GetMemory  GetMemoryRequest
+  * @return GetMemoryResponse
+ */
+async function getMemory(request: GetMemoryRequest): GetMemoryResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'GetMemory', 'GET', '/workspace/{workspace}/memorystore/{memoryStoreName}/memory/{memoryId}', 'json', false, 'json', request);
+}
+
+model GetMemoryHistoryRequest {
+  workspace: string(name='workspace', description='This parameter is required.', example='workspace-test', minLength=2, maxLength=64, position='Path'),
+  memoryStoreName: string(name='memoryStoreName', description='This parameter is required.', example='test-memory-store', minLength=2, maxLength=64, position='Path'),
+  memoryId: string(name='memoryId', description='This parameter is required.', example='019ca1e5-7307-7d50-b943-5e628326a8ed', minLength=1, position='Path'),
+}
+
+model GetMemoryHistoryResponseBody = {
+  requestId?: string(name='requestId', example='3B311FD9-A60B-55E0-A896-A0C73*********'),
+  results?: [ 
+    {
+      createdAt?: string(name='createdAt', example='1764556182850'),
+      event?: string(name='event', example='ADD'),
+      id?: string(name='id', example='b25d6ad7-306f-4040-9890-4dddd2505a2e'),
+      input?: [ 
+        {
+          content?: string(name='content', example='My name is Zhang San and I live in Hangzhou.'),
+          role?: string(name='role', example='user'),
+        }
+      ](name='input'),
+      memoryId?: string(name='memoryId', example='019cacf6-7b39-7f61-8314-548f07ca449a'),
+      metadata?: map[string]any(name='metadata', example='{"sessionId":"test_session_001"}'),
+      newMemory?: string(name='newMemory', example='I really like Python.'),
+      oldMemory?: string(name='oldMemory', example='I really don\\"t like Python at all.'),
+      updatedAt?: string(name='updatedAt', example='1771036123785'),
+      userId?: string(name='userId', example='test_session_001'),
+    }
+  ](name='results'),
+}
+
+model GetMemoryHistoryResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: GetMemoryHistoryResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of GetMemoryHistory  GetMemoryHistoryRequest
+  * @return GetMemoryHistoryResponse
+ */
+async function getMemoryHistory(request: GetMemoryHistoryRequest): GetMemoryHistoryResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'GetMemoryHistory', 'GET', '/workspace/{workspace}/memorystore/{memoryStoreName}/memory/{memoryId}/history', 'json', false, 'json', request);
+}
+
+model GetMemoryStoreRequest {
+  workspace: string(name='workspace', description='This parameter is required.', example='default-cms-1654218965343050-cn-hangzhou', minLength=2, maxLength=64, position='Path'),
+  memoryStoreName: string(name='memoryStoreName', description='This parameter is required.', example='test-memory-store', minLength=2, maxLength=64, position='Path'),
+}
+
+model GetMemoryStoreResponseBody = {
+  createTime?: string(name='createTime', description='Use the UTC time format: yyyy-MM-ddTHH:mm:ssZ', example='1764556182850'),
+  customExtractionStrategies?: [
+    CustomExtractionStrategy
+  ](name='customExtractionStrategies'),
+  description?: string(name='description', example='test'),
+  extractionStrategies?: [ string ](name='extractionStrategies'),
+  memoryStoreName?: string(name='memoryStoreName', example='test-memory-store'),
+  regionId?: string(name='regionId', example='cn-beijing'),
+  requestId?: string(name='requestId', example='0B9377D9-C56B-5C2E-A8A4-A01D6CC3F4B8'),
+  shortTermTtl?: int32(name='shortTermTtl', example='10'),
+  updateTime?: string(name='updateTime', description='Use the UTC time format: yyyy-MM-ddTHH:mm:ssZ', example='1764556182850'),
+  workspace?: string(name='workspace', example='default-cms-xxxxxx-cn-beijing'),
+}
+
+model GetMemoryStoreResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: GetMemoryStoreResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of GetMemoryStore  GetMemoryStoreRequest
+  * @return GetMemoryStoreResponse
+ */
+async function getMemoryStore(request: GetMemoryStoreRequest): GetMemoryStoreResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'GetMemoryStore', 'GET', '/workspace/{workspace}/memorystore/{memoryStoreName}', 'json', false, 'json', request);
 }
 
 model GetPrometheusInstanceRequest {
@@ -4762,6 +5150,44 @@ async function listIntegrationPolicyStorageRequirements(request: ListIntegration
   return @handler.do('RESTFUL', 'ListIntegrationPolicyStorageRequirements', 'GET', '/integration-policies/{policyId}/storage-requirements', 'json', false, 'json', request);
 }
 
+model ListMemoryStoresRequest {
+  workspace: string(name='workspace', description='This parameter is required.', example='workspace-test', minLength=2, maxLength=64, position='Path'),
+  maxResults?: int32(name='maxResults', example='20', position='Query'),
+  memoryStoreName?: string(name='memoryStoreName', example='qianyi_test_1', position='Query'),
+  nextToken?: string(name='nextToken', example='xxxxxxxxx', position='Query'),
+}
+
+model ListMemoryStoresResponseBody = {
+  maxResults?: int32(name='maxResults', example='1'),
+  memoryStores?: [ 
+    {
+      createTime?: string(name='createTime', description='Use the UTC time format: yyyy-MM-ddTHH:mm:ssZ', example='1764556182850'),
+      description?: string(name='description', example='Created by taishan-module-recovery'),
+      memoryStoreName?: string(name='memoryStoreName', example='qianyi_test_1'),
+      regionId?: string(name='regionId', example='cn-hangzhou'),
+      updateTime?: string(name='updateTime', description='Use the UTC time format: yyyy-MM-ddTHH:mm:ssZ', example='1764556182850'),
+      workspace?: string(name='workspace', example='default-cms-1646467597142798-cn-shenzhen'),
+    }
+  ](name='memoryStores'),
+  nextToken?: string(name='nextToken', example='xxxxxxxxxx'),
+  requestId?: string(name='requestId', example='16C0A6D6-C3E7-511D-A60B-A87FD85F5BA7'),
+}
+
+model ListMemoryStoresResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ListMemoryStoresResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of ListMemoryStores  ListMemoryStoresRequest
+  * @return ListMemoryStoresResponse
+ */
+async function listMemoryStores(request: ListMemoryStoresRequest): ListMemoryStoresResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'ListMemoryStores', 'GET', '/workspace/{workspace}/memorystore', 'json', false, 'json', request);
+}
+
 model ListPrometheusDashboardsRequest {
   prometheusInstanceId: string(name='prometheusInstanceId', description='Instance ID
 
@@ -5195,6 +5621,61 @@ async function putWorkspace(request: PutWorkspaceRequest): PutWorkspaceResponse 
   return @handler.do('RESTFUL', 'PutWorkspace', 'POST', '/workspace/{workspaceName}', 'json', false, 'json', request);
 }
 
+model SearchMemoriesRequest {
+  workspace: string(name='workspace', description='This parameter is required.', example='workspace-test', minLength=2, maxLength=64, position='Path'),
+  memoryStoreName: string(name='memoryStoreName', description='This parameter is required.', example='qianyi_test_1', minLength=2, maxLength=64, position='Path'),
+  agentId?: string(name='agentId', example='972772996913709056', position='Body'),
+  appId?: string(name='appId', example='mm_480d961a1b5e4efe84603f4cbc0f', position='Body'),
+  metadata?: map[string]any(name='metadata', example='{"sessionId":"test_session_001"}', position='Body'),
+  query?: string(name='query', example='What I like', position='Body'),
+  rerank?: boolean(name='rerank', example='true', position='Body'),
+  runId?: string(name='runId', example='test_session_001', position='Body'),
+  topK?: int32(name='topK', example='1', position='Body'),
+  userId?: string(name='userId', example='test_session_001', position='Body'),
+}
+
+model SearchMemoriesResponseBody = {
+  relations?: [ 
+    {
+      destination?: string(name='destination', example='test'),
+      relationship?: string(name='relationship', example='test'),
+      source?: string(name='source', example='todo_open_dingoj06pvqfeayy3lkr'),
+    }
+  ](name='relations'),
+  requestId?: string(name='requestId', example='0CEC5375-C554-562B-A65F-9A629907C1F0'),
+  results?: [ 
+    {
+      actorId?: string(name='actorId', example='test_session_001'),
+      agentId?: string(name='agentId', example='972772996913709056'),
+      createdAt?: string(name='createdAt', example='1762773128968'),
+      hash?: string(name='hash', example='d791bf27236c5532056a13279baad3517042bb8d5b1bdb02e7871fa632debffe'),
+      id?: string(name='id', example='019ca1e5-7307-7d50-b943-5e628326a8ed'),
+      memory?: string(name='memory', example='My name is Zhang San and I live in Hangzhou.'),
+      metadata?: string(name='metadata', example='{"sessionId":"test_session_001"}'),
+      role?: string(name='role', example='user'),
+      runId?: string(name='runId', example='test_session_001'),
+      score?: double(name='score', example='13.21'),
+      updatedAt?: string(name='updatedAt', example='1764902557784'),
+      userId?: string(name='userId', example='test_session_001'),
+    }
+  ](name='results'),
+}
+
+model SearchMemoriesResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: SearchMemoriesResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of SearchMemories  SearchMemoriesRequest
+  * @return SearchMemoriesResponse
+ */
+async function searchMemories(request: SearchMemoriesRequest): SearchMemoriesResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'SearchMemories', 'POST', '/workspace/{workspace}/memorystore/{memoryStoreName}/memory/search', 'json', false, 'json', request);
+}
+
 model TagResourcesRequest {
   regionId?: string(name='RegionId', position='Host'),
   resourceId: [ string ](name='resourceId', description='This parameter is required.', position='Body'),
@@ -5484,8 +5965,8 @@ model UpdateDigitalEmployeeSkillRequest {
   name: string(name='name', description='This parameter is required.', example='test', minLength=1, position='Path'),
   skillName: string(name='skillName', description='This parameter is required.', example='test', minLength=1, position='Path'),
   regionId?: string(name='RegionId', position='Host'),
-  description?: string(name='description', example='test', maxLength=512, position='Body'),
-  displayName?: string(name='displayName', example='test', maxLength=128, position='Body'),
+  description?: string(name='description', example='test', position='Body'),
+  displayName?: string(name='displayName', example='test', position='Body'),
   enable: boolean(name='enable', description='This parameter is required.', example='true', position='Body'),
   files: [ 
     {
@@ -5554,6 +6035,63 @@ model UpdateIntegrationPolicyResponse = {
 async function updateIntegrationPolicy(request: UpdateIntegrationPolicyRequest): UpdateIntegrationPolicyResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RESTFUL', 'UpdateIntegrationPolicy', 'PUT', '/integration-policies/{integrationPolicyId}', 'json', false, 'json', request);
+}
+
+model UpdateMemoryRequest {
+  workspace: string(name='workspace', description='This parameter is required.', example='workspace-test', minLength=2, maxLength=64, position='Path'),
+  memoryStoreName: string(name='memoryStoreName', description='This parameter is required.', example='test-memory-store', minLength=2, maxLength=64, position='Path'),
+  memoryId: string(name='memoryId', description='This parameter is required.', example='019ca1e5-7307-7d50-b943-5e628326a8ed', minLength=1, position='Path'),
+  metadata?: map[string]any(name='metadata', example='{"sessionId":"test_session_001"}', position='Body'),
+  text?: string(name='text', example='Likes to play tennis on weekends', position='Body'),
+}
+
+model UpdateMemoryResponseBody = {
+  requestId?: string(name='requestId', example='3B311FD9-A60B-55E0-A896-A0C73*********'),
+}
+
+model UpdateMemoryResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: UpdateMemoryResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of UpdateMemory  UpdateMemoryRequest
+  * @return UpdateMemoryResponse
+ */
+async function updateMemory(request: UpdateMemoryRequest): UpdateMemoryResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'UpdateMemory', 'PUT', '/workspace/{workspace}/memorystore/{memoryStoreName}/memory/{memoryId}', 'json', false, 'json', request);
+}
+
+model UpdateMemoryStoreRequest {
+  workspace: string(name='workspace', description='This parameter is required.', example='workspace-test', minLength=2, maxLength=64, position='Path'),
+  memoryStoreName: string(name='memoryStoreName', description='This parameter is required.', example='qianyi_test_3', minLength=2, maxLength=64, position='Path'),
+  customExtractionStrategies?: [
+    CustomExtractionStrategy
+  ](name='customExtractionStrategies', position='Body'),
+  description?: string(name='description', example='memoryStore test', position='Body'),
+  extractionStrategies?: [ string ](name='extractionStrategies', position='Body'),
+  shortTermTtl?: int32(name='shortTermTtl', example='7', position='Body'),
+}
+
+model UpdateMemoryStoreResponseBody = {
+  requestId?: string(name='requestId', example='0CEC5375-C554-562B-A65F-9A629907C1F0'),
+}
+
+model UpdateMemoryStoreResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: UpdateMemoryStoreResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of UpdateMemoryStore  UpdateMemoryStoreRequest
+  * @return UpdateMemoryStoreResponse
+ */
+async function updateMemoryStore(request: UpdateMemoryStoreRequest): UpdateMemoryStoreResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'UpdateMemoryStore', 'PUT', '/workspace/{workspace}/memorystore/{memoryStoreName}', 'json', false, 'json', request);
 }
 
 model UpdateNotifyStrategyRequest {
