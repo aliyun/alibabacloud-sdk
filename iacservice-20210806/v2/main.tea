@@ -1,6 +1,7 @@
 /**
  *
  */
+import Credential;
 import OpenApi;
 import OpenApi.OpenApiUtil;
 
@@ -6337,6 +6338,176 @@ async function updateTaskAttribute(taskId: string, request: UpdateTaskAttributeR
   return updateTaskAttributeWithOptions(taskId, request, headers, runtime);
 }
 
+model UploadModuleRequest {
+  code?: map[string]string(name='code'),
+  moduleId?: string(name='moduleId', example='mod-kw1018ogp2m3qp22b3k31d'),
+  moduleName?: string(name='moduleName', example='RegistryModule-test0ef88'),
+  namespaceName?: string(name='namespaceName', example='test_namespace'),
+  url?: string(name='url', example='url'),
+}
+
+model UploadModuleAdvanceRequest {
+  code?: map[string]string(name='code'),
+  moduleId?: string(name='moduleId', example='mod-kw1018ogp2m3qp22b3k31d'),
+  moduleName?: string(name='moduleName', example='RegistryModule-test0ef88'),
+  namespaceName?: string(name='namespaceName', example='test_namespace'),
+  urlObject?: readable(name='url', example='url'),
+}
+
+model UploadModuleResponseBody = {
+  requestId?: string(name='requestId', example='0DDD8773-5756-5508-BE36-D03DE43E2450'),
+}
+
+model UploadModuleResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: UploadModuleResponseBody(name='body'),
+}
+
+/**
+ * @summary 模版上传
+ *
+ * @param request UploadModuleRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return UploadModuleResponse
+ */
+@context("uploadModuleWithContext")
+async function uploadModuleWithOptions(resourceType: string, request: UploadModuleRequest, headers: map[string]string, runtime: $RuntimeOptions): UploadModuleResponse {
+  request.validate();
+  var query : map[string]any = {};
+  if (!$isNull(request.moduleId)) {
+    query['moduleId'] = request.moduleId;
+  }
+  if (!$isNull(request.moduleName)) {
+    query['moduleName'] = request.moduleName;
+  }
+  if (!$isNull(request.namespaceName)) {
+    query['namespaceName'] = request.namespaceName;
+  }
+  if (!$isNull(request.url)) {
+    query['url'] = request.url;
+  }
+
+  var body : map[string]any = {};
+  if (!$isNull(request.code)) {
+    body['code'] = request.code;
+  }
+
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'UploadModule',
+    version = '2021-08-06',
+    protocol = 'HTTPS',
+    pathname = `/modules/upload/${$URL.percentEncode(resourceType)}`,
+    method = 'POST',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 模版上传
+ *
+ * @param request UploadModuleRequest
+ * @return UploadModuleResponse
+ */
+async function uploadModule(resourceType: string, request: UploadModuleRequest): UploadModuleResponse {
+  var runtime = new $RuntimeOptions{};
+  var headers : map[string]string = {};
+  return uploadModuleWithOptions(resourceType, request, headers, runtime);
+}
+
+async function uploadModuleAdvance(resourceType: string, request: UploadModuleAdvanceRequest, headers: map[string]string, runtime: $RuntimeOptions): UploadModuleResponse {
+  // Step 0: init client
+  if ($isNull(@credential)) {
+    throw new OpenApi.Client{
+      code = 'InvalidCredentials',
+      message = 'Please set up the credentials correctly. If you are setting them through environment variables, please ensure that ALIBABA_CLOUD_ACCESS_KEY_ID and ALIBABA_CLOUD_ACCESS_KEY_SECRET are set correctly. See https://help.aliyun.com/zh/sdk/developer-reference/configure-the-alibaba-cloud-accesskey-environment-variable-on-linux-macos-and-windows-systems for more details.'
+    }
+  }
+  var credentialModel = @credential.getCredential();
+  var accessKeyId = credentialModel.accessKeyId;
+  var accessKeySecret = credentialModel.accessKeySecret;
+  var securityToken = credentialModel.securityToken;
+  var credentialType = credentialModel.type;
+  var openPlatformEndpoint = @openPlatformEndpoint;
+  if($isNull(openPlatformEndpoint) || openPlatformEndpoint == "") {
+    openPlatformEndpoint ='openplatform.aliyuncs.com';
+  }
+  if($isNull(credentialType)) {
+    credentialType ='access_key';
+  }
+  var authConfig = new OpenApiUtil.Config{
+    accessKeyId = accessKeyId,
+    accessKeySecret = accessKeySecret,
+    securityToken = securityToken,
+    type = credentialType,
+    endpoint = openPlatformEndpoint,
+    protocol = @protocol,
+    regionId = @regionId,
+  };
+  var authClient = new OpenApi(authConfig);
+  var authRequest = {
+    Product = 'IaCService',
+    RegionId = @regionId,
+  };
+  var authReq = new OpenApiUtil.OpenApiRequest{
+    query = OpenApiUtil.query(authRequest),
+  };
+  var authParams = new OpenApiUtil.Params{
+    action = 'AuthorizeFileUpload',
+    version = '2019-12-19',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'GET',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  var authResponse : object = {};
+  var fileObj = new $FileField{};
+  var ossHeader: object = {};
+  var tmpBody: object = {};
+  var useAccelerate: boolean = false;
+  var authResponseBody: map[string]string = {};
+  var uploadModuleReq = new UploadModuleRequest{};
+  OpenApiUtil.convert(request, uploadModuleReq);
+
+  if(!$isNull(request.urlObject)) {
+    authResponse = authClient.callApi(authParams, authReq, runtime);
+    tmpBody = $object(authResponse['body']);
+    useAccelerate = $boolean(tmpBody['UseAccelerate']);
+    authResponseBody = OpenApiUtil.stringifyMapValue(tmpBody);
+    fileObj = new $FileField{
+      filename = authResponseBody['ObjectKey'],
+      content = request.urlObject,
+      contentType = '',
+    };
+    ossHeader = {
+      host = `${authResponseBody['Bucket']}.${OpenApiUtil.getEndpoint(authResponseBody['Endpoint'], useAccelerate, @endpointType)}`,
+      OSSAccessKeyId = authResponseBody['AccessKeyId'],
+      policy = authResponseBody['EncodedPolicy'],
+      Signature = authResponseBody['Signature'],
+      key = authResponseBody['ObjectKey'],
+      file = fileObj,
+      success_action_status = '201',
+    };
+    _postOSSObject(authResponseBody['Bucket'], ossHeader, runtime);
+    uploadModuleReq.url = `http://${authResponseBody['Bucket']}.${authResponseBody['Endpoint']}/${authResponseBody['ObjectKey']}`;
+  }
+  var uploadModuleResp = uploadModuleWithOptions(resourceType, uploadModuleReq, headers, runtime);
+  return uploadModuleResp;
+}
+
 model ValidateModuleRequest {
   clientToken?: string(name='clientToken', example='2daf4227f747cbf11a5501f18cc5e004'),
   code?: string(name='code', example='code'),
@@ -6476,3 +6647,51 @@ async function validateModule(request: ValidateModuleRequest): ValidateModuleRes
   return validateModuleWithOptions(request, headers, runtime);
 }
 
+api _postOSSObject(bucketName: string, form: object, runtime: $RuntimeOptions): object {
+  var boundary = $Form.getBoundary();
+  __request.protocol = 'HTTPS';
+  __request.method = 'POST';
+  __request.pathname = `/`;
+  __request.headers = {
+    host = $string(form.host),
+    date = OpenApiUtil.getDateUTCString(),
+    user-agent = OpenApiUtil.getUserAgent(''),
+  };
+  __request.headers.content-type = `multipart/form-data; boundary=${boundary}`;
+  __request.body = $Form.toFileForm(form, boundary);
+} returns {
+  var respMap : object = null;
+  var bodyStr = $Stream.readAsString(__response.body);
+  if ((__response.statusCode >= 400) && (__response.statusCode < 600)) {
+    respMap = $XML.parseXml(bodyStr, null);
+    var err = $object(respMap.Error);
+    throw new OpenApi.Client{
+      code = $string(err.Code),
+      message = $string(err.Message),
+      data = {
+        httpCode = __response.statusCode,
+        requestId = $string(err.RequestId),
+        hostId = $string(err.HostId),
+      }
+    };
+  }
+  respMap = $XML.parseXml(bodyStr, null);
+  return {
+    ...respMap,
+  };
+} runtime {
+  key = $string($default(runtime.key, @key)),
+  cert = $string($default(runtime.cert, @cert)),
+  ca = $string($default(runtime.ca, @ca)),
+  readTimeout = $number($default(runtime.readTimeout, @readTimeout)),
+  connectTimeout = $number($default(runtime.connectTimeout, @connectTimeout)),
+  httpProxy = $string($default(runtime.httpProxy, @httpProxy)),
+  httpsProxy = $string($default(runtime.httpsProxy, @httpsProxy)),
+  noProxy = $string($default(runtime.noProxy, @noProxy)),
+  socks5Proxy = $string($default(runtime.socks5Proxy, @socks5Proxy)),
+  socks5NetWork = $string($default(runtime.socks5NetWork, @socks5NetWork)),
+  maxIdleConns = $number($default(runtime.maxIdleConns, @maxIdleConns)),
+  retryOptions = @retryOptions,
+  ignoreSSL = $boolean($default(runtime.ignoreSSL, false)),
+  tlsMinVersion = @tlsMinVersion
+}
