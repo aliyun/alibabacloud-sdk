@@ -593,11 +593,46 @@ async function asyncCreateClipsTask(request: AsyncCreateClipsTaskRequest): Async
 }
 
 model AsyncCreateClipsTimeLineRequest {
-  additionalContent?: string(name='AdditionalContent'),
-  customContent?: string(name='CustomContent'),
-  noRefVideo?: boolean(name='NoRefVideo'),
-  processPrompt?: string(name='ProcessPrompt'),
+  additionalContent?: string(name='AdditionalContent', example='素材附加信息'),
+  customContent?: string(name='CustomContent', example='自定义口播内容'),
+  highLightConfig?: {
+    htAnalyzeRhythm?: boolean(name='HtAnalyzeRhythm', example='false'),
+    htHighQualityLabel?: [ string ](name='HtHighQualityLabel', example='[
+        "高清演员近景特写镜头【高优】",
+        "演出高潮-沉浸表演【高优】",
+        "演出高潮-近景表情【高优】"
+]'),
+    htLowQualityLabel?: [ string ](name='HtLowQualityLabel', example='[
+        "画面昏暗",
+        "采访画面",
+        "字幕画面"
+]'),
+    htMaxTimeLength?: int32(name='HtMaxTimeLength', example='20'),
+    htMinTimeLength?: int32(name='HtMinTimeLength', example='10'),
+    htPrompt?: string(name='HtPrompt', example='请从输入的音乐演出视频中，自动识别并提取出「最具视觉冲击力、情感爆发力或独特吸引力」...'),
+    htSingleShotLen?: int32(name='HtSingleShotLen', example='1.5'),
+  }(name='HighLightConfig'),
+  noRefVideo?: boolean(name='NoRefVideo', example='默认开启'),
+  processPrompt?: string(name='ProcessPrompt', example='口播内容是乌镇旅游宣传广告，口播内容时长约为1分钟，开头要描述乌镇是千年文化传承的江南水乡，之后要体现乌镇的传统手工艺、美食和美景，最后要号召大家来乌镇旅游'),
+  recommendAudio?: boolean(name='RecommendAudio', example='false'),
   taskId?: string(name='TaskId', description='This parameter is required.', example='7AA2AE16-D873-5C5F-9708-15396C382EB1'),
+  timelineScene?: int32(name='TimelineScene', example='null - 通用口播
+ 0-通用口播
+ 1- 高光'),
+  workspaceId?: string(name='WorkspaceId', description='This parameter is required.', example='llm-2setzb9x4ewsd'),
+}
+
+model AsyncCreateClipsTimeLineShrinkRequest {
+  additionalContent?: string(name='AdditionalContent', example='素材附加信息'),
+  customContent?: string(name='CustomContent', example='自定义口播内容'),
+  highLightConfigShrink?: string(name='HighLightConfig'),
+  noRefVideo?: boolean(name='NoRefVideo', example='默认开启'),
+  processPrompt?: string(name='ProcessPrompt', example='口播内容是乌镇旅游宣传广告，口播内容时长约为1分钟，开头要描述乌镇是千年文化传承的江南水乡，之后要体现乌镇的传统手工艺、美食和美景，最后要号召大家来乌镇旅游'),
+  recommendAudio?: boolean(name='RecommendAudio', example='false'),
+  taskId?: string(name='TaskId', description='This parameter is required.', example='7AA2AE16-D873-5C5F-9708-15396C382EB1'),
+  timelineScene?: int32(name='TimelineScene', example='null - 通用口播
+ 0-通用口播
+ 1- 高光'),
   workspaceId?: string(name='WorkspaceId', description='This parameter is required.', example='llm-2setzb9x4ewsd'),
 }
 
@@ -621,13 +656,18 @@ model AsyncCreateClipsTimeLineResponse = {
 /**
  * @summary 智能剪辑timeline
  *
- * @param request AsyncCreateClipsTimeLineRequest
+ * @param tmpReq AsyncCreateClipsTimeLineRequest
  * @param runtime runtime options for this request RuntimeOptions
  * @return AsyncCreateClipsTimeLineResponse
  */
 @context("asyncCreateClipsTimeLineWithContext")
-async function asyncCreateClipsTimeLineWithOptions(request: AsyncCreateClipsTimeLineRequest, runtime: $RuntimeOptions): AsyncCreateClipsTimeLineResponse {
-  request.validate();
+async function asyncCreateClipsTimeLineWithOptions(tmpReq: AsyncCreateClipsTimeLineRequest, runtime: $RuntimeOptions): AsyncCreateClipsTimeLineResponse {
+  tmpReq.validate();
+  var request = new AsyncCreateClipsTimeLineShrinkRequest{};
+  OpenApiUtil.convert(tmpReq, request);
+  if (!$isNull(tmpReq.highLightConfig)) {
+    request.highLightConfigShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.highLightConfig, 'HighLightConfig', 'json');
+  }
   var body : map[string]any = {};
   if (!$isNull(request.additionalContent)) {
     body['AdditionalContent'] = request.additionalContent;
@@ -635,14 +675,23 @@ async function asyncCreateClipsTimeLineWithOptions(request: AsyncCreateClipsTime
   if (!$isNull(request.customContent)) {
     body['CustomContent'] = request.customContent;
   }
+  if (!$isNull(request.highLightConfigShrink)) {
+    body['HighLightConfig'] = request.highLightConfigShrink;
+  }
   if (!$isNull(request.noRefVideo)) {
     body['NoRefVideo'] = request.noRefVideo;
   }
   if (!$isNull(request.processPrompt)) {
     body['ProcessPrompt'] = request.processPrompt;
   }
+  if (!$isNull(request.recommendAudio)) {
+    body['RecommendAudio'] = request.recommendAudio;
+  }
   if (!$isNull(request.taskId)) {
     body['TaskId'] = request.taskId;
+  }
+  if (!$isNull(request.timelineScene)) {
+    body['TimelineScene'] = request.timelineScene;
   }
   if (!$isNull(request.workspaceId)) {
     body['WorkspaceId'] = request.workspaceId;
@@ -13467,15 +13516,21 @@ model RunBookIntroductionResponseBody = {
     errorCode?: string(name='ErrorCode', example='success'),
     errorMessage?: string(name='ErrorMessage', example='success'),
     event?: string(name='Event', example='finished'),
-    eventInfo?: string(name='EventInfo'),
+    eventInfo?: string(name='EventInfo', example='模型生成事件'),
     sessionId?: string(name='SessionId', example='411c4dfa-2168-4379-a902-675d67f453f8'),
     taskId?: string(name='TaskId', example='d3be9981-ca2d-4e17-bf31-1c0a628e9f99'),
     traceId?: string(name='TraceId', example='46e5c2b5-0877-4f09-bd91-ab0cf314e48b'),
   }(name='Header'),
   payload?: {
     output?: {
-      keyPoint?: string(name='KeyPoint'),
-      summary?: string(name='Summary'),
+      introductions?: [ 
+        {
+          summary?: string(name='Summary', example='本段摘要内容'),
+          title?: string(name='Title', example='本段标题内容'),
+        }
+      ](name='Introductions'),
+      keyPoint?: string(name='KeyPoint', example='卖点内容'),
+      summary?: string(name='Summary', example='简介内容'),
     }(name='Output'),
     usage?: {
       inputTokens?: long(name='InputTokens', example='100'),
