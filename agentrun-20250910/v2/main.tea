@@ -29,6 +29,7 @@ function getEndpoint(productId: string, regionId: string, endpointRule: string, 
 model AgentEndpointConfig {
   agentName?: string(name='agentName'),
   customDomainUrl?: string(name='customDomainUrl'),
+  endpointName?: string(name='endpointName', description='端点名称'),
   endpointUrl?: string(name='endpointUrl'),
 }
 
@@ -71,6 +72,7 @@ model AgentRuntimeEndpoint {
   agentRuntimeEndpointName?: string(name='agentRuntimeEndpointName', example='production-endpoint'),
   agentRuntimeId?: string(name='agentRuntimeId', example='ar-1234567890abcdef'),
   description?: string(name='description', example='Production endpoint for customer service agent'),
+  disablePublicNetworkAccess?: boolean(name='disablePublicNetworkAccess', description='是否禁用该端点的公网访问'),
   endpointPublicUrl?: string(name='endpointPublicUrl', description='智能体运行时端点的公网访问地址', example='https://ar-1234567890abcdef.cn-hangzhou.agentrun.aliyuncs.com'),
   routingConfiguration?: RoutingConfiguration(name='routingConfiguration', description='智能体运行时端点的路由配置，支持多版本权重分配'),
   status?: string(name='status', example='ACTIVE'),
@@ -144,6 +146,7 @@ model ApigLLMModel {
 
 model ArmsConfiguration {
   armsLicenseKey?: string(name='armsLicenseKey', description='应用实时监控服务（ARMS）的许可证密钥', example='arms-license-key-123456'),
+  cmsWorkspace?: string(name='cmsWorkspace'),
   enableArms?: boolean(name='enableArms', description='是否启用应用实时监控服务（ARMS）', example='true'),
 }
 
@@ -339,6 +342,7 @@ model ContainerConfiguration {
 model CreateAgentRuntimeEndpointInput {
   agentRuntimeEndpointName?: string(name='agentRuntimeEndpointName', example='production-endpoint'),
   description?: string(name='description', example='Production endpoint for customer service agent'),
+  disablePublicNetworkAccess?: boolean(name='disablePublicNetworkAccess', description='是否禁用该端点的公网访问'),
   routingConfiguration?: RoutingConfiguration(name='routingConfiguration', description='智能体运行时端点的路由配置，支持多版本权重分配', example='{}'),
   targetVersion?: string(name='targetVersion', description='智能体运行时的目标版本', example='LATEST'),
 }
@@ -600,6 +604,7 @@ This parameter is required.', example='2048'),
   ](name='ossConfiguration'),
   sandboxIdleTimeoutInSeconds?: int32(name='sandboxIdleTimeoutInSeconds', description='沙箱空闲超时时间（秒）', example='1800'),
   sandboxTTLInSeconds?: int32(name='sandboxTTLInSeconds', description='沙箱存活时间（秒）', example='26000', deprecated=true),
+  scalingConfig?: ScalingConfig(name='scalingConfig'),
   templateConfiguration?: map[string]any(name='templateConfiguration', description='模板配置（灵活的对象结构，根据 templateType 不同而不同）'),
   templateName?: string(name='templateName', description='模板名称（要求账号唯一的）
 
@@ -783,7 +788,9 @@ model DiscoveryEndpoint {
   agentEndpointConfigs?: [
     AgentEndpointConfig
   ](name='agentEndpointConfigs'),
+  credentialName?: string(name='credentialName', description='该发现端点使用的凭证名称'),
   name?: string(name='name'),
+  returnAgentCredentialContent?: boolean(name='returnAgentCredentialContent', description='是否在发现结果中返回 agent 的凭证内容'),
 }
 
 model DomainInfo {
@@ -856,7 +863,7 @@ model GetCredentialOutput {
 }
 
 model GetDiscoveryEndpointsOutput {
-  credentialName?: string(name='credentialName'),
+  credentialName?: string(name='credentialName', deprecated=true),
   discoveryEndpoints?: [
     DiscoveryEndpoint
   ](name='discoveryEndpoints'),
@@ -1485,18 +1492,20 @@ model ProtocolConfiguration {
 }
 
 model ProtocolSettings {
-  a2AAgentCard?: string(name='A2AAgentCard', description='A2A Agent Card', deprecated=true),
-  a2aAgentCard?: string(name='a2aAgentCard'),
-  a2aAgentCardUrl?: string(name='a2aAgentCardUrl'),
-  headers?: string(name='headers', description='请求头'),
-  inputBodyJsonSchema?: string(name='inputBodyJsonSchema', description='请求体JSON模式'),
-  method?: string(name='method', description='HTTP方法'),
-  name?: string(name='name', description='协议名称'),
-  outputBodyJsonSchema?: string(name='outputBodyJsonSchema', description='响应体JSON模式'),
-  path?: string(name='path', description='协议路径'),
-  pathPrefix?: string(name='pathPrefix', description='协议路径前缀'),
-  requestContentType?: string(name='requestContentType', description='请求内容类型'),
-  responseContentType?: string(name='responseContentType', description='响应内容类型'),
+  a2AAgentCard?: string(name='A2AAgentCard', deprecated=true),
+  a2aAgentCard?: string(name='a2aAgentCard', deprecated=true),
+  a2aAgentCardUrl?: string(name='a2aAgentCardUrl', deprecated=true),
+  config?: string(name='config', description='协议配置的 JSON 字符串'),
+  headers?: string(name='headers', description='请求头', deprecated=true),
+  inputBodyJsonSchema?: string(name='inputBodyJsonSchema', description='请求体JSON模式', deprecated=true),
+  method?: string(name='method', description='HTTP方法', deprecated=true),
+  name?: string(name='name', description='可选展示名/别名，不再作为协议类型标识'),
+  outputBodyJsonSchema?: string(name='outputBodyJsonSchema', description='响应体JSON模式', deprecated=true),
+  path?: string(name='path', description='协议路径', deprecated=true),
+  pathPrefix?: string(name='pathPrefix', description='协议路径前缀，建议使用 config', deprecated=true),
+  requestContentType?: string(name='requestContentType', description='请求内容类型', deprecated=true),
+  responseContentType?: string(name='responseContentType', description='响应内容类型', deprecated=true),
+  type?: string(name='type', description='协议类型标识，用于校验与去重；合法取值由后端校验'),
 }
 
 model ProviderSettings {
@@ -1637,6 +1646,32 @@ This parameter is required.'),
   requestId?: string(name='requestId', description='唯一的请求标识符，用于问题追踪', example='F8A0F5F3-0C3E-4C82-9D4F-5E4B6A7C8D9E'),
 }
 
+model ScalingConfig {
+  minInstances?: long(name='minInstances', example='2'),
+  scheduledPolicies?: [
+    ScheduledPolicy
+  ](name='scheduledPolicies'),
+}
+
+model ScalingStatus {
+  currentError?: string(name='currentError', example='error'),
+  currentInstances?: long(name='currentInstances', example='2'),
+  minInstances?: long(name='minInstances', example='1'),
+  scheduledPolicies?: [
+    ScheduledPolicy
+  ](name='scheduledPolicies'),
+  targetInstances?: long(name='targetInstances', example='2'),
+}
+
+model ScheduledPolicy {
+  endTime?: string(name='endTime', example='2024-01-01T08:00:00'),
+  name?: string(name='name', example='scale-up-morning'),
+  scheduleExpression?: string(name='scheduleExpression', example='cron(0 8 * * ? *)'),
+  startTime?: string(name='startTime', example='2024-01-01T08:00:00'),
+  target?: long(name='target', example='20'),
+  timeZone?: string(name='timeZone', example='Asia/Shanghai'),
+}
+
 model ServiceConfig {
   aiServiceConfig?: AiServiceConfig(name='aiServiceConfig'),
   name?: string(name='name'),
@@ -1735,6 +1770,7 @@ model Template {
   resourceName?: string(name='resourceName'),
   sandboxIdleTimeoutInSeconds?: string(name='sandboxIdleTimeoutInSeconds'),
   sandboxTTLInSeconds?: string(name='sandboxTTLInSeconds', deprecated=true),
+  scalingStatus?: ScalingStatus(name='scalingStatus'),
   status?: string(name='status'),
   statusReason?: string(name='statusReason'),
   templateArn?: string(name='templateArn'),
@@ -1786,6 +1822,7 @@ model TriggerConfig {
 model UpdateAgentRuntimeEndpointInput {
   agentRuntimeEndpointName?: string(name='agentRuntimeEndpointName', example='production-endpoint'),
   description?: string(name='description', example='Updated endpoint configuration'),
+  disablePublicNetworkAccess?: boolean(name='disablePublicNetworkAccess', description='是否禁用该端点的公网访问'),
   routingConfiguration?: RoutingConfiguration(name='routingConfiguration', description='智能体运行时端点的路由配置，支持多版本权重分配', example='{}'),
   targetVersion?: string(name='targetVersion', description='智能体运行时的目标版本', example='LATEST'),
 }
@@ -1857,7 +1894,7 @@ model UpdateCustomDomainInput {
 }
 
 model UpdateDiscoveryEndpointsInput {
-  credentialName?: string(name='credentialName'),
+  credentialName?: string(name='credentialName', deprecated=true),
   discoveryEndpoints?: [
     DiscoveryEndpoint
   ](name='discoveryEndpoints'),
@@ -1945,6 +1982,7 @@ model UpdateTemplateInput {
   ](name='ossConfiguration'),
   sandboxIdleTimeoutInSeconds?: int32(name='sandboxIdleTimeoutInSeconds', description='沙箱空闲超时时间（秒）'),
   sandboxTTLInSeconds?: int32(name='sandboxTTLInSeconds', description='沙箱存活时间（秒）', deprecated=true),
+  scalingConfig?: ScalingConfig(name='scalingConfig'),
   templateConfiguration?: map[string]any(name='templateConfiguration', description='模板配置（灵活的对象结构，根据 templateType 不同而不同）'),
   workspaceId?: string(name='workspaceId'),
 }
