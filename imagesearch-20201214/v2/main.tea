@@ -152,7 +152,18 @@ model AddImageResponseBody = {
 
 > No value is returned if the request was successful, and an error message is returned if the request failed.', example='success'),
   picInfo?: {
+    allCategories?: [ 
+      {
+        id?: int32(name='Id'),
+        name?: string(name='Name'),
+      }
+    ](name='AllCategories'),
     categoryId?: int32(name='CategoryId', description='The result of category prediction. If a category is specified in the request, the specified category prevails.', example='88888888'),
+    multiRegion?: [ 
+      {
+        region?: string(name='Region'),
+      }
+    ](name='MultiRegion'),
     region?: string(name='Region', description='The result of subject identification. The subject area of the image is in the format of `x1,x2,y1,y2`. `x1 and y1` represent the position in the upper-left corner, in pixels. `x2 and y2` represent the position in the lower-right corner, in pixels. If a subject area is specified in the request, the specified subject area prevails.', example='94,691,206,650'),
   }(name='PicInfo', description='The results of category prediction and subject identification.'),
   requestId?: string(name='RequestId', description='The request ID.', example='E0845DE6-52AF-4B50-9F15-51ED4044E6AB'),
@@ -343,6 +354,88 @@ async function addImageAdvance(request: AddImageAdvanceRequest, runtime: $Runtim
   }
   var addImageResp = addImageWithOptions(addImageReq, runtime);
   return addImageResp;
+}
+
+model CheckImageExistsRequest {
+  instanceName?: string(name='InstanceName', description='This parameter is required.', example='demoinstance1'),
+  picName?: string(name='PicName', description='This parameter is required.', example='2092061_1'),
+  productId?: string(name='ProductId', description='This parameter is required.', example='2092061_1'),
+}
+
+model CheckImageExistsResponseBody = {
+  auctions?: {
+    categoryId?: int32(name='CategoryId', example='88888888'),
+    customContent?: string(name='CustomContent', example='zidingyi'),
+    intAttr?: int32(name='IntAttr', example='2'),
+    intAttr2?: int32(name='IntAttr2', example='2'),
+    intAttr3?: int32(name='IntAttr3', example='2'),
+    intAttr4?: int32(name='IntAttr4', example='2'),
+    picName?: string(name='PicName', example='2092061_1.jpg'),
+    productId?: string(name='ProductId', example='2092061_1'),
+    strAttr?: string(name='StrAttr', example='test'),
+    strAttr2?: string(name='StrAttr2', example='test'),
+    strAttr3?: string(name='StrAttr3', example='test'),
+    strAttr4?: string(name='StrAttr4', example='test'),
+  }(name='Auctions'),
+  code?: int32(name='Code', example='0'),
+  exists?: boolean(name='Exists', example='true'),
+  msg?: string(name='Msg', example='success'),
+  requestId?: string(name='RequestId', example='B3137727-7D6E-488C-BA21-0E034C38A879'),
+  success?: boolean(name='Success', example='true'),
+}
+
+model CheckImageExistsResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: CheckImageExistsResponseBody(name='body'),
+}
+
+/**
+ * @summary CheckImageExists
+ *
+ * @param request CheckImageExistsRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return CheckImageExistsResponse
+ */
+@context("checkImageExistsWithContext")
+async function checkImageExistsWithOptions(request: CheckImageExistsRequest, runtime: $RuntimeOptions): CheckImageExistsResponse {
+  request.validate();
+  var body : map[string]any = {};
+  if (!$isNull(request.instanceName)) {
+    body['InstanceName'] = request.instanceName;
+  }
+  if (!$isNull(request.picName)) {
+    body['PicName'] = request.picName;
+  }
+  if (!$isNull(request.productId)) {
+    body['ProductId'] = request.productId;
+  }
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'CheckImageExists',
+    version = '2020-12-14',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary CheckImageExists
+ *
+ * @param request CheckImageExistsRequest
+ * @return CheckImageExistsResponse
+ */
+async function checkImageExists(request: CheckImageExistsRequest): CheckImageExistsResponse {
+  var runtime = new $RuntimeOptions{};
+  return checkImageExistsWithOptions(request, runtime);
 }
 
 model CompareSimilarByImageRequest {
@@ -995,26 +1088,19 @@ model IncreaseListResponseBody = {
     increments?: {
       instance?: [ 
       {
-        bucketName?: string(name='BucketName', description='The name of the Object Storage Service (OSS) bucket.', example='bucketName'),
-        callbackAddress?: string(name='CallbackAddress', description='The callback address.', example='http://xxxxx'),
-        code?: string(name='Code', description='The error code returned.
-
-*   A value of 0 indicates that the operation is successful.
-*   Values other than 0 indicate errors.', example='0'),
-        errorUrl?: string(name='ErrorUrl', description='The address where you can download the result. The address is valid for 2 hours.', example='https://imagesearchname.oss-cn-shanghai.aliyuncs.com/xxx'),
-        id?: long(name='Id', description='The ID of the task.', example='500'),
-        msg?: string(name='Msg', description='The error message returned.', example='sucess'),
-        path?: string(name='Path', description='The absolute path to the increment.meta file in the bucket. The path must start with a forward slash (/) and cannot end with a forward slash (/).', example='/xx/xx'),
-        status?: string(name='Status', description='The status of the batch task.
-
-*   PROCESSING: in progress
-*   FAIL: failed
-*   SUCCESS: successful', example='SUCCESS'),
-        utcCreate?: string(name='UtcCreate', description='The time when the task was created. Unit: milliseconds.', example='1629095713000'),
-        utcModified?: long(name='UtcModified', description='The time when the task was updated. Unit: milliseconds.', example='1629095760000'),
+        bucketName?: string(name='BucketName'),
+        callbackAddress?: string(name='CallbackAddress'),
+        code?: string(name='Code'),
+        errorUrl?: string(name='ErrorUrl'),
+        id?: long(name='Id'),
+        msg?: string(name='Msg'),
+        path?: string(name='Path'),
+        status?: string(name='Status'),
+        utcCreate?: string(name='UtcCreate'),
+        utcModified?: long(name='UtcModified'),
       }
     ](name='Instance')
-    }(name='Increments', description='A list of batch tasks.'),
+    }(name='Increments'),
     pageNumber?: int32(name='PageNumber', description='The number of the page to return.', example='1'),
     pageSize?: int32(name='PageSize', description='The number of entries to return on each page.', example='10'),
     totalCount?: long(name='TotalCount', description='The total number of tasks.', example='15'),
