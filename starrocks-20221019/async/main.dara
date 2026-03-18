@@ -47,6 +47,42 @@ model ResourceSpec {
   storageSize?: int32(name='storageSize'),
 }
 
+model AddBackupPolicyRequest {
+  regionId?: string(name='RegionId', position='Host'),
+  expireDays?: int32(name='ExpireDays', example='7', position='Body'),
+  hour?: int32(name='Hour', example='2', minimum=0, maximum=23, position='Body'),
+  instanceId?: string(name='InstanceId', example='c-0104730e9de40215', position='Body'),
+  minute?: int32(name='Minute', example='30', minimum=0, maximum=59, position='Body'),
+  recurrenceType?: string(name='RecurrenceType', example='MONTHLY', position='Body'),
+  recurrenceValues?: [ int32 ](name='RecurrenceValues', position='Body'),
+  timeoutSeconds?: int32(name='TimeoutSeconds', example='3600', position='Body'),
+}
+
+model AddBackupPolicyResponseBody = {
+  accessDeniedDetail?: string(name='AccessDeniedDetail', description='AccessDeniedDetail', example='{     "PolicyType": "AccountLevelIdentityBasedPolicy",     "AuthPrincipalOwnerId": "xxx",     "EncodedDiagnosticMessage": "xxx",     "AuthPrincipalType": "xxx",     "AuthPrincipalDisplayName": "xxx",     "NoPermissionType": "ImplicitDeny",     "AuthAction": "sr:xxx"   }'),
+  data?: boolean(name='Data', example='true'),
+  errCode?: string(name='ErrCode', example='InvalidParams'),
+  errMessage?: string(name='ErrMessage', example='Invalid params: [Region id should be select from set [cn-beijing, cn-hangzhou]]'),
+  httpStatusCode?: int32(name='HttpStatusCode', example='200'),
+  requestId?: string(name='RequestId', example='32A44F0D-BFF6-5664-999A-218BBDE7****'),
+  success?: boolean(name='Success', example='false'),
+}
+
+model AddBackupPolicyResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: AddBackupPolicyResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of AddBackupPolicy  AddBackupPolicyRequest
+  * @return AddBackupPolicyResponse
+ */
+async function addBackupPolicy(request: AddBackupPolicyRequest): AddBackupPolicyResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'AddBackupPolicy', 'POST', '/webapi/backupRestore/policy/add', 'json', false, 'json', request);
+}
+
 model AddGatewayRequest {
   regionId?: string(name='RegionId', position='Host'),
   feNodeNumber?: int32(name='FeNodeNumber', example='3', position='Query'),
@@ -108,6 +144,96 @@ model ChangeResourceGroupResponse = {
 async function changeResourceGroup(request: ChangeResourceGroupRequest): ChangeResourceGroupResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RESTFUL', 'ChangeResourceGroup', 'POST', '/webapi/resourceGroup/change', 'json', false, 'json', request);
+}
+
+model CheckInventoryRequest {
+  regionId?: string(name='RegionId', position='Host'),
+  clusterInfo?: string(name='ClusterInfo', example='{
+  "clusterType": "sr",
+  "regionId": "cn-hangzhou",
+  "packageType": "official",
+  "runMode": "shared_data",
+  "beResourceSpec": {
+    "cu": 8,
+    "storageSize": 200,
+    "nodeNumber": 3,
+    "diskNumber": 1,
+    "storagePerformanceLevel": "pl1",
+    "diskType": "essd",
+    "specType": "standard"
+  },
+  "feResourceSpec": {
+    "cu": 8,
+    "storageSize": 100,
+    "nodeNumber": 3,
+    "specType": "standard"
+  }
+}', position='Query'),
+  zoneId?: string(name='ZoneId', example='cn-hangzhou-h', position='Query'),
+}
+
+model CheckInventoryResponseBody = {
+  accessDeniedDetail?: string(name='AccessDeniedDetail', description='AccessDeniedDetail', example='{     "PolicyType": "AccountLevelIdentityBasedPolicy",     "AuthPrincipalOwnerId": "xxx",     "EncodedDiagnosticMessage": "xxx",     "AuthPrincipalType": "xxx",     "AuthPrincipalDisplayName": "xxx",     "NoPermissionType": "ImplicitDeny",     "AuthAction": "sr:xxx"   }'),
+  data?: boolean(name='Data', example='true'),
+  errCode?: string(name='ErrCode', example='InvalidParams'),
+  errMessage?: string(name='ErrMessage', example='Invalid params: [instance not exists].'),
+  httpStatusCode?: int32(name='HttpStatusCode', example='200'),
+  requestId?: string(name='RequestId', example='32A44F0D-BFF6-5664-999A-218BBDE7****'),
+  success?: boolean(name='Success', example='false'),
+}
+
+model CheckInventoryResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: CheckInventoryResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of CheckInventory  CheckInventoryRequest
+  * @return CheckInventoryResponse
+ */
+async function checkInventory(request: CheckInventoryRequest): CheckInventoryResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'CheckInventory', 'POST', '/webapi/check/inventory', 'json', false, 'json', request);
+}
+
+model CreateAgentResourceRequest {
+  regionId?: string(name='RegionId', position='Host'),
+  autoRenew?: boolean(name='AutoRenew', example='True', position='Query'),
+  cu: int32(name='Cu', description='This parameter is required.', example='2', minimum=2, maximum=16, position='Query'),
+  duration?: int32(name='Duration', example='2', minimum=1, maximum=12, position='Query'),
+  instanceId: string(name='InstanceId', description='This parameter is required.', example='c-b25e21e24388****', position='Query'),
+  payType: string(name='PayType', description='This parameter is required.', example='prePay', position='Query'),
+  pricingCycle?: string(name='PricingCycle', example='Month', position='Query'),
+  promotionOptionNo?: string(name='PromotionOptionNo', example='2345', position='Query'),
+  specType?: string(name='SpecType', example='standard', position='Query'),
+}
+
+model CreateAgentResourceResponseBody = {
+  data?: {
+    nodeGroupId?: string(name='NodeGroupId', example='ng-5e2ba600fee3****'),
+    orderId?: long(name='OrderId', example='241526000650XXX'),
+  }(name='Data'),
+  errCode?: string(name='ErrCode', example='InvalidParams'),
+  errMessage?: string(name='ErrMessage', example='Invalid params: [instance not exists].'),
+  httpStatusCode?: int32(name='HttpStatusCode', example='200'),
+  requestId?: string(name='RequestId', example='B67D142D-D54E-184F-A306-22BDC01B2XXX'),
+  success?: boolean(name='Success', example='True'),
+}
+
+model CreateAgentResourceResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: CreateAgentResourceResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of CreateAgentResource  CreateAgentResourceRequest
+  * @return CreateAgentResourceResponse
+ */
+async function createAgentResource(request: CreateAgentResourceRequest): CreateAgentResourceResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'CreateAgentResource', 'POST', '/webapi/lifecycle/createAgentNodeGroup', 'json', false, 'json', request);
 }
 
 model CreateInstanceV1Request {
@@ -219,6 +345,62 @@ async function createInstanceV1(request: CreateInstanceV1Request): CreateInstanc
   return @handler.do('RESTFUL', 'CreateInstanceV1', 'POST', '/webapi/cluster/createV1', 'json', false, 'json', request);
 }
 
+model CreateScalingRuleRequest {
+  nodeGroupId: string(name='NodeGroupId', description='This parameter is required.', example='ng-3d5ce6454354****', position='Query'),
+  rule: string(name='Rule', description='This parameter is required.', example='{
+  "nodeNumber": 1,
+  "scalingRuleName": "test1",
+  "scalingOutRule": {
+    "year": 2026,
+    "month": 3,
+    "day": 2,
+    "hour": 5,
+    "minute": 50,
+    "second": 0,
+    "recurrenceInterval": 1,
+    "recurrenceType": "DAILY",
+    "recurrenceValues": null
+  },
+  "scalingInRule": {
+    "year": 2026,
+    "month": 3,
+    "day": 2,
+    "hour": 6,
+    "minute": 50,
+    "second": 0,
+    "recurrenceInterval": 1,
+    "recurrenceType": "DAILY",
+    "recurrenceValues": null
+  }
+}', position='Query'),
+  triggerType: string(name='TriggerType', description='This parameter is required.', example='TIME_TRIGGER', position='Query'),
+}
+
+model CreateScalingRuleResponseBody = {
+  accessDeniedDetail?: string(name='AccessDeniedDetail', description='AccessDeniedDetail', example='{     "PolicyType": "AccountLevelIdentityBasedPolicy",     "AuthPrincipalOwnerId": "xxx",     "EncodedDiagnosticMessage": "xxx",     "AuthPrincipalType": "xxx",     "AuthPrincipalDisplayName": "xxx",     "NoPermissionType": "ImplicitDeny",     "AuthAction": "sr:xxx"   }'),
+  data?: boolean(name='Data', example='true'),
+  errCode?: string(name='ErrCode', example='InvalidParams'),
+  errMessage?: string(name='ErrMessage', example='Invalid params: [instance not exists].'),
+  httpStatusCode?: int32(name='HttpStatusCode', example='200'),
+  requestId?: string(name='RequestId', example='32A44F0D-BFF6-5664-999A-218BBDE7****'),
+  success?: boolean(name='Success', example='false'),
+}
+
+model CreateScalingRuleResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: CreateScalingRuleResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of CreateScalingRule  CreateScalingRuleRequest
+  * @return CreateScalingRuleResponse
+ */
+async function createScalingRule(request: CreateScalingRuleRequest): CreateScalingRuleResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'CreateScalingRule', 'POST', '/webapi/scalingRule/createScalingRule', 'json', false, 'json', request);
+}
+
 model CreateServiceLinkedRoleRequest {
   regionId?: string(name='RegionId', position='Host'),
 }
@@ -249,6 +431,67 @@ async function createServiceLinkedRole(request: CreateServiceLinkedRoleRequest):
   return @handler.do('RESTFUL', 'CreateServiceLinkedRole', 'POST', '/webapi/user/create_default_role', 'json', false, 'json', request);
 }
 
+model DeleteBackupRequest {
+  backupTaskId: string(name='BackupTaskId', description='This parameter is required.', example='bk-yi2378sdhf2', position='Query'),
+  instanceId: string(name='InstanceId', description='This parameter is required.', example='c-b25e21e24388****', position='Query'),
+  regionId: string(name='RegionId', description='This parameter is required.', example='cn-hangzhou', position='Query'),
+}
+
+model DeleteBackupResponseBody = {
+  data?: boolean(name='Data', example='true'),
+  errCode?: string(name='ErrCode', example='InvalidParams'),
+  errMessage?: string(name='ErrMessage', example='null'),
+  httpStatusCode?: int32(name='HttpStatusCode', example='200'),
+  requestId?: string(name='RequestId', example='32A44F0D-BFF6-5664-999A-218BBDE74XXX'),
+  success?: boolean(name='Success', example='True'),
+}
+
+model DeleteBackupResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: DeleteBackupResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of DeleteBackup  DeleteBackupRequest
+  * @return DeleteBackupResponse
+ */
+async function deleteBackup(request: DeleteBackupRequest): DeleteBackupResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'DeleteBackup', 'POST', '/webapi/backup/manage/delete', 'json', false, 'json', request);
+}
+
+model DeleteBackupPolicyRequest {
+  regionId?: string(name='RegionId', position='Host'),
+  instanceId?: string(name='InstanceId', example='c-0104730e9d*****', position='Body'),
+  policyId?: string(name='PolicyId', example='bp-298ahiu289', position='Body'),
+}
+
+model DeleteBackupPolicyResponseBody = {
+  accessDeniedDetail?: string(name='AccessDeniedDetail', description='AccessDeniedDetail', example='{     "PolicyType": "AccountLevelIdentityBasedPolicy",     "AuthPrincipalOwnerId": "xxx",     "EncodedDiagnosticMessage": "xxx",     "AuthPrincipalType": "xxx",     "AuthPrincipalDisplayName": "xxx",     "NoPermissionType": "ImplicitDeny",     "AuthAction": "sr:xxx"   }'),
+  data?: boolean(name='Data', example='true'),
+  errCode?: string(name='ErrCode', example='InvalidParams'),
+  errMessage?: string(name='ErrMessage', example='null'),
+  httpStatusCode?: int32(name='HttpStatusCode', example='200'),
+  requestId?: string(name='RequestId', example='32A44F0D-BFF6-5664-999A-218BBDE74XXX'),
+  success?: boolean(name='Success', example='false'),
+}
+
+model DeleteBackupPolicyResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: DeleteBackupPolicyResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of DeleteBackupPolicy  DeleteBackupPolicyRequest
+  * @return DeleteBackupPolicyResponse
+ */
+async function deleteBackupPolicy(request: DeleteBackupPolicyRequest): DeleteBackupPolicyResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'DeleteBackupPolicy', 'POST', '/webapi/backupRestore/policy/delete', 'json', false, 'json', request);
+}
+
 model DeleteGatewayRequest {
   regionId?: string(name='RegionId', position='Host'),
   gatewayId?: string(name='GatewayId', example='dg-2r69r8kpmn56k5s3', position='Query'),
@@ -277,6 +520,228 @@ model DeleteGatewayResponse = {
 async function deleteGateway(request: DeleteGatewayRequest): DeleteGatewayResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RESTFUL', 'DeleteGateway', 'POST', '/webapi/gateway/delete', 'json', false, 'json', request);
+}
+
+model DeleteInnerIpWhitelistGroupRequest {
+  innerIpWhitelistGroupId: string(name='InnerIpWhitelistGroupId', description='This parameter is required.', example='test-g1', minLength=2, maxLength=120, position='Body'),
+  instanceId: string(name='InstanceId', description='This parameter is required.', example='c-0104730e9de40215', position='Body'),
+}
+
+model DeleteInnerIpWhitelistGroupResponseBody = {
+  errCode?: string(name='ErrCode', example='InvalidParams'),
+  errMessage?: string(name='ErrMessage', example='Invalid params: [Region id should be select from set [cn-beijing, cn-hangzhou]]'),
+  httpStatusCode?: int32(name='HttpStatusCode', example='200'),
+  requestId?: string(name='RequestId', example='32A44F0D-BFF6-5664-999A-218BBDE7****'),
+  success?: boolean(name='Success', example='false'),
+}
+
+model DeleteInnerIpWhitelistGroupResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: DeleteInnerIpWhitelistGroupResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of DeleteInnerIpWhitelistGroup  DeleteInnerIpWhitelistGroupRequest
+  * @return DeleteInnerIpWhitelistGroupResponse
+ */
+async function deleteInnerIpWhitelistGroup(request: DeleteInnerIpWhitelistGroupRequest): DeleteInnerIpWhitelistGroupResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'DeleteInnerIpWhitelistGroup', 'POST', '/webapi/securityGroup/delete', 'json', false, 'json', request);
+}
+
+model DeleteScalingRuleRequest {
+  nodeGroupId: string(name='NodeGroupId', description='This parameter is required.', example='ng-3d5ce6454354****', position='Query'),
+  scalingRuleId: string(name='ScalingRuleId', description='This parameter is required.', example='r-d01a1cac4081s****', position='Query'),
+  triggerType: string(name='TriggerType', description='This parameter is required.', example='TIME_TRIGGER', position='Query'),
+}
+
+model DeleteScalingRuleResponseBody = {
+  accessDeniedDetail?: string(name='AccessDeniedDetail', description='AccessDeniedDetail', example='{     "PolicyType": "AccountLevelIdentityBasedPolicy",     "AuthPrincipalOwnerId": "xxx",     "EncodedDiagnosticMessage": "xxx",     "AuthPrincipalType": "xxx",     "AuthPrincipalDisplayName": "xxx",     "NoPermissionType": "ImplicitDeny",     "AuthAction": "sr:xxx"   }'),
+  data?: boolean(name='Data', example='24151320976****'),
+  errCode?: string(name='ErrCode', example='InvalidParams'),
+  errMessage?: string(name='ErrMessage', example='null'),
+  httpStatusCode?: int32(name='HttpStatusCode', example='200'),
+  requestId?: string(name='RequestId', example='32A44F0D-BFF6-5664-999A-218BBDE74XXX'),
+  success?: boolean(name='Success', example='true'),
+}
+
+model DeleteScalingRuleResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: DeleteScalingRuleResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of DeleteScalingRule  DeleteScalingRuleRequest
+  * @return DeleteScalingRuleResponse
+ */
+async function deleteScalingRule(request: DeleteScalingRuleRequest): DeleteScalingRuleResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'DeleteScalingRule', 'POST', '/webapi/scalingRule/deleteScalingRule', 'json', false, 'json', request);
+}
+
+model DescribeAvailableZonesRequest {
+  regionId: string(name='RegionId', description='This parameter is required.', example='cn-hangzhou', position='Query'),
+}
+
+model DescribeAvailableZonesResponseBody = {
+  accessDeniedDetail?: string(name='AccessDeniedDetail', description='AccessDeniedDetail', example='{     "PolicyType": "AccountLevelIdentityBasedPolicy",     "AuthPrincipalOwnerId": "xxx",     "EncodedDiagnosticMessage": "xxx",     "AuthPrincipalType": "xxx",     "AuthPrincipalDisplayName": "xxx",     "NoPermissionType": "ImplicitDeny",     "AuthAction": "sr:xxx"   }'),
+  data?: {
+    officialAvailableZones?: [ string ](name='OfficialAvailableZones'),
+    trialAvailableZones?: [ string ](name='TrialAvailableZones'),
+  }(name='Data'),
+  errCode?: string(name='ErrCode', example='Success'),
+  errMessage?: string(name='ErrMessage', example='Invalid params: [Region id should be select from set [cn-beijing, cn-hangzhou]]'),
+  httpStatusCode?: int32(name='HttpStatusCode', example='200'),
+  requestId?: string(name='RequestId', example='32A44F0D-BFF6-5664-999A-218BBDE7****'),
+  success?: boolean(name='Success', example='false'),
+}
+
+model DescribeAvailableZonesResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: DescribeAvailableZonesResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of DescribeAvailableZones  DescribeAvailableZonesRequest
+  * @return DescribeAvailableZonesResponse
+ */
+async function describeAvailableZones(request: DescribeAvailableZonesRequest): DescribeAvailableZonesResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'DescribeAvailableZones', 'POST', '/webapi/zone/describeZones', 'json', false, 'json', request);
+}
+
+model DescribeBackupPoliciesRequest {
+  instanceId?: string(name='InstanceId', example='c-b25e21e24388****', position='Query'),
+  policyId?: string(name='PolicyId', example='bk-policy-26ec5bc0ea67b5ef', position='Query'),
+  regionId?: string(name='RegionId', example='cn-hangzhou', position='Query'),
+}
+
+model DescribeBackupPoliciesResponseBody = {
+  accessDeniedDetail?: string(name='AccessDeniedDetail', description='AccessDeniedDetail', example='{     "PolicyType": "AccountLevelIdentityBasedPolicy",     "AuthPrincipalOwnerId": "xxx",     "EncodedDiagnosticMessage": "xxx",     "AuthPrincipalType": "xxx",     "AuthPrincipalDisplayName": "xxx",     "NoPermissionType": "ImplicitDeny",     "AuthAction": "sr:xxx"   }'),
+  data?: [ 
+    {
+      expireDays?: int32(name='ExpireDays', example='7'),
+      hour?: string(name='Hour', example='2'),
+      instanceId?: string(name='InstanceId', example='c-96f3bc7f04b2****'),
+      minute?: string(name='Minute', example='30'),
+      policyId?: string(name='PolicyId', example='1'),
+      recurrenceValues?: [ int32 ](name='RecurrenceValues'),
+      timeoutSeconds?: int32(name='TimeoutSeconds', example='3600'),
+    }
+  ](name='Data'),
+  errCode?: string(name='ErrCode', example='InvalidParams'),
+  errMessage?: string(name='ErrMessage', example='Invalid params: [Region id should be select from set [cn-beijing, cn-hangzhou]]'),
+  httpStatusCode?: int32(name='HttpStatusCode', example='200'),
+  requestId?: string(name='RequestId', example='32A44F0D-BFF6-5664-999A-218BBDE7****'),
+  success?: boolean(name='Success', example='false'),
+  total?: int32(name='Total', example='100'),
+}
+
+model DescribeBackupPoliciesResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: DescribeBackupPoliciesResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of DescribeBackupPolicies  DescribeBackupPoliciesRequest
+  * @return DescribeBackupPoliciesResponse
+ */
+async function describeBackupPolicies(request: DescribeBackupPoliciesRequest): DescribeBackupPoliciesResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'DescribeBackupPolicies', 'POST', '/webapi/backupRestore/policy/describe', 'json', false, 'json', request);
+}
+
+model DescribeBackupsRequest {
+  backupTaskId?: string(name='BackupTaskId', example='bt-2389hsdui12m', position='Query'),
+  instanceId?: string(name='InstanceId', example='c-b25e21e24388****', position='Query'),
+  pageNumber?: int32(name='PageNumber', example='1', position='Query'),
+  pageSize?: int32(name='PageSize', example='10', position='Query'),
+  regionId?: string(name='RegionId', example='cn-hangzhou', position='Query'),
+  statuses?: string(name='Statuses', example='COMPLETED', position='Query'),
+  timePeriodEndTime?: long(name='TimePeriodEndTime', example='1747728000', position='Query'),
+  timePeriodStartTime?: long(name='TimePeriodStartTime', example='1747708000', position='Query'),
+}
+
+model DescribeBackupsResponseBody = {
+  data?: [ 
+    {
+      backupFinishedTime?: long(name='BackupFinishedTime', example='1742179028000'),
+      backupStartTime?: long(name='BackupStartTime', example='1742179018000'),
+      backupTaskId?: string(name='BackupTaskId', example='bt-12sui21312dd'),
+      backupType?: string(name='BackupType', example='FullBackup'),
+      description?: string(name='Description'),
+      expireTime?: long(name='ExpireTime', example='1742189008000'),
+      instanceId?: string(name='InstanceId', example='c-d4be777ff5e8cXXX'),
+      instanceSnapshot?: {
+        instanceName?: string(name='InstanceName', example='c-37708ec80b5****'),
+        minorVersion?: string(name='MinorVersion', example='3.3.13-1.0-1.7.2'),
+        nodeGroups?: [ 
+          {
+            componentType?: string(name='ComponentType', example='FE'),
+            cu?: int32(name='Cu', example='4'),
+            diskNumber?: string(name='DiskNumber', example='2'),
+            localStorageInstanceType?: string(name='LocalStorageInstanceType', example='null'),
+            residentNodeNumber?: string(name='ResidentNodeNumber', example='3'),
+            specType?: string(name='SpecType', example='standard'),
+            storagePerformanceLevel?: string(name='StoragePerformanceLevel', example='pl1'),
+            storageSize?: int32(name='StorageSize', example='200'),
+          }
+        ](name='NodeGroups'),
+        regionId?: string(name='RegionId', example='cn-beijing'),
+        resourceGroupId?: string(name='ResourceGroupId', example='rg-aekzd7frphchx3a'),
+        runMode?: string(name='RunMode', example='shared_data'),
+        specType?: string(name='SpecType', example='standard'),
+        tags?: [ 
+          {
+            key?: string(name='Key', example='bk-time'),
+            value?: string(name='Value', example='1747708000'),
+          }
+        ](name='Tags'),
+        version?: string(name='Version', example='3.3'),
+        vpcId?: string(name='VpcId', description='VPC ID。', example='vpc-2ze0cez8106f2n85c2d7i'),
+      }(name='InstanceSnapshot'),
+      regionId?: string(name='RegionId', example='cn-hangzhou'),
+      size?: long(name='Size', example='100'),
+      status?: string(name='Status', example='RUNNING'),
+      subTasks?: [ 
+        {
+          dataBase?: string(name='DataBase', example='test1'),
+          detail?: string(name='Detail', example='[]'),
+          finishedTime?: long(name='FinishedTime', example='1747718190'),
+          size?: long(name='Size', example='1'),
+          snapshotName?: string(name='SnapshotName', example='2025-02-10_backup'),
+          startTime?: long(name='StartTime', example='1747708190'),
+          status?: string(name='Status', example='success'),
+          table?: string(name='Table', example='cdc_ods_t2030_lcpf_api_topic_msg'),
+        }
+      ](name='SubTasks'),
+    }
+  ](name='Data'),
+  errCode?: string(name='ErrCode', example='Success'),
+  errMessage?: string(name='ErrMessage', example='Invalid params: [instance not exists].'),
+  httpStatusCode?: int32(name='HttpStatusCode', example='200'),
+  requestId?: string(name='RequestId', example='32A44F0D-BFF6-5664-999A-218BBDE7****'),
+  success?: boolean(name='Success', example='false'),
+  total?: int32(name='Total', example='1'),
+}
+
+model DescribeBackupsResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: DescribeBackupsResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of DescribeBackups  DescribeBackupsRequest
+  * @return DescribeBackupsResponse
+ */
+async function describeBackups(request: DescribeBackupsRequest): DescribeBackupsResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'DescribeBackups', 'POST', '/webapi/backup/manage/describe', 'json', false, 'json', request);
 }
 
 model DescribeConfigHistoryRequest {
@@ -342,6 +807,68 @@ async function describeConfigHistory(request: DescribeConfigHistoryRequest): Des
   return @handler.do('RESTFUL', 'DescribeConfigHistory', 'POST', '/webapi/config/describeConfigHistory', 'json', false, 'json', request);
 }
 
+model DescribeEventNamesRequest {
+  instanceId?: string(name='InstanceId', example='c-b25e21e24388****', position='Query'),
+}
+
+model DescribeEventNamesResponseBody = {
+  data?: [ string ](name='Data'),
+  errCode?: string(name='ErrCode', example='InvalidParams'),
+  errMessage?: string(name='ErrMessage', example='Invalid params: [instance not exists].'),
+  httpStatusCode?: int32(name='HttpStatusCode', example='200'),
+  requestId?: string(name='RequestId', example='32A44F0D-BFF6-5664-999A-218BBDE74XXX'),
+  success?: boolean(name='Success', example='false'),
+  total?: int32(name='Total', example='3'),
+}
+
+model DescribeEventNamesResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: DescribeEventNamesResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of DescribeEventNames  DescribeEventNamesRequest
+  * @return DescribeEventNamesResponse
+ */
+async function describeEventNames(request: DescribeEventNamesRequest): DescribeEventNamesResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'DescribeEventNames', 'POST', '/webapi/event/describeEventNames', 'json', false, 'json', request);
+}
+
+model DescribeInnerIpWhitelistGroupsRequest {
+  instanceId: string(name='InstanceId', description='This parameter is required.', example='c-b25e21e24388****', position='Query'),
+}
+
+model DescribeInnerIpWhitelistGroupsResponseBody = {
+  errCode?: string(name='ErrCode', example='InvalidParams'),
+  errMessage?: string(name='ErrMessage', example='Invalid params: [instance not exists].'),
+  httpStatusCode?: int32(name='HttpStatusCode', example='200'),
+  requestId?: string(name='RequestId', example='32A44F0D-BFF6-5664-999A-218BBDE74XXX'),
+  success?: boolean(name='Success', example='false'),
+  data?: [ 
+    {
+      cidrIpList?: [ string ](name='CidrIpList'),
+      innerIpWhitelistGroupId?: string(name='InnerIpWhitelistGroupId', example='test1'),
+    }
+  ](name='data'),
+}
+
+model DescribeInnerIpWhitelistGroupsResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: DescribeInnerIpWhitelistGroupsResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of DescribeInnerIpWhitelistGroups  DescribeInnerIpWhitelistGroupsRequest
+  * @return DescribeInnerIpWhitelistGroupsResponse
+ */
+async function describeInnerIpWhitelistGroups(request: DescribeInnerIpWhitelistGroupsRequest): DescribeInnerIpWhitelistGroupsResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'DescribeInnerIpWhitelistGroups', 'POST', '/webapi/securityGroup/list', 'json', false, 'json', request);
+}
+
 model DescribeInstanceConfigsRequest {
   regionId?: string(name='RegionId', position='Host'),
   allowModify?: boolean(name='AllowModify', example='true', position='Query'),
@@ -397,6 +924,88 @@ model DescribeInstanceConfigsResponse = {
 async function describeInstanceConfigs(request: DescribeInstanceConfigsRequest): DescribeInstanceConfigsResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RESTFUL', 'DescribeInstanceConfigs', 'POST', '/webapi/config/describeInstanceConfigs', 'json', false, 'json', request);
+}
+
+model DescribeInstanceDiagnosisResultRequest {
+  regionId?: string(name='RegionId', position='Host'),
+  dimension?: string(name='Dimension', example='table_analysis', position='Query'),
+  instanceId?: string(name='InstanceId', example='c-b25e21e24388****', position='Query'),
+  pageNumber?: int32(name='PageNumber', example='3', minimum=1, maximum=10000, position='Query'),
+  pageSize?: int32(name='PageSize', example='10', minimum=1, maximum=100000, position='Query'),
+  reportDate?: string(name='ReportDate', example='2026-03-08', position='Query'),
+  statuses?: string(name='Statuses', example='healthy', position='Query'),
+}
+
+model DescribeInstanceDiagnosisResultResponseBody = {
+  accessDeniedDetail?: string(name='AccessDeniedDetail', description='AccessDeniedDetail', example='{     "PolicyType": "AccountLevelIdentityBasedPolicy",     "AuthPrincipalOwnerId": "xxx",     "EncodedDiagnosticMessage": "xxx",     "AuthPrincipalType": "xxx",     "AuthPrincipalDisplayName": "xxx",     "NoPermissionType": "ImplicitDeny",     "AuthAction": "sr:xxx"   }'),
+  data?: [ 
+    {
+      bestPractice?: string(name='BestPractice'),
+      description?: string(name='Description'),
+      dimension?: string(name='Dimension', example='table_analysis'),
+      evaluationTime?: long(name='EvaluationTime', example='2026-03-08T02:12:32Z'),
+      fullScore?: double(name='FullScore', example='10.0'),
+      instanceId?: string(name='InstanceId', example='c-b25e21e243889XXX'),
+      introduction?: string(name='Introduction', example='for autotest'),
+      itemId?: string(name='ItemId', example='02cf887a'),
+      itemName?: string(name='ItemName'),
+      reportDate?: string(name='ReportDate', example='2026-03-08'),
+      score?: double(name='Score', example='10.0'),
+      status?: string(name='Status', example='healthy'),
+      suggestion?: string(name='Suggestion'),
+    }
+  ](name='Data'),
+  errCode?: string(name='ErrCode', example='InvalidParams'),
+  errMessage?: string(name='ErrMessage', example='Invalid params: [instance not exists].'),
+  httpStatusCode?: int32(name='HttpStatusCode', example='200'),
+  requestId?: string(name='RequestId', example='32A44F0D-BFF6-5664-999A-218BBDE74XXX'),
+  success?: boolean(name='Success', example='false'),
+  total?: int32(name='Total', example='3'),
+}
+
+model DescribeInstanceDiagnosisResultResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: DescribeInstanceDiagnosisResultResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of DescribeInstanceDiagnosisResult  DescribeInstanceDiagnosisResultRequest
+  * @return DescribeInstanceDiagnosisResultResponse
+ */
+async function describeInstanceDiagnosisResult(request: DescribeInstanceDiagnosisResultRequest): DescribeInstanceDiagnosisResultResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'DescribeInstanceDiagnosisResult', 'POST', '/webapi/diagnosis/describe', 'json', false, 'json', request);
+}
+
+model DescribeInstanceMetaTokenRequest {
+  instanceId: string(name='InstanceId', description='This parameter is required.', example='c-b25e21e24388****', position='Query'),
+}
+
+model DescribeInstanceMetaTokenResponseBody = {
+  accessDeniedDetail?: string(name='AccessDeniedDetail', description='AccessDeniedDetail', example='{     "PolicyType": "AccountLevelIdentityBasedPolicy",     "AuthPrincipalOwnerId": "xxx",     "EncodedDiagnosticMessage": "xxx",     "AuthPrincipalType": "xxx",     "AuthPrincipalDisplayName": "xxx",     "NoPermissionType": "ImplicitDeny",     "AuthAction": "sr:xxx"   }'),
+  data?: string(name='Data', example='4ac66c5b-f3ef-4fce-8b52-d7f5f9*******'),
+  errCode?: string(name='ErrCode', example='Success'),
+  errMessage?: string(name='ErrMessage', example='Invalid params: [instance not exists].'),
+  httpStatusCode?: int32(name='HttpStatusCode', example='200'),
+  requestId?: string(name='RequestId', example='32A44F0D-BFF6-5664-999A-218BBDE74XXX'),
+  success?: boolean(name='Success', example='True'),
+  total?: int32(name='Total', example='3'),
+}
+
+model DescribeInstanceMetaTokenResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: DescribeInstanceMetaTokenResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of DescribeInstanceMetaToken  DescribeInstanceMetaTokenRequest
+  * @return DescribeInstanceMetaTokenResponse
+ */
+async function describeInstanceMetaToken(request: DescribeInstanceMetaTokenRequest): DescribeInstanceMetaTokenResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'DescribeInstanceMetaToken', 'POST', '/webapi/migration/getMetaToken', 'json', false, 'json', request);
 }
 
 model DescribeInstancesRequest {
@@ -572,6 +1181,267 @@ async function describeNodeGroups(request: DescribeNodeGroupsRequest): DescribeN
   return @handler.do('RESTFUL', 'DescribeNodeGroups', 'POST', '/webapi/nodegroup/describeNodeGroups', 'json', false, 'json', request);
 }
 
+model DescribeRegionsRequest {
+  regionId?: string(name='RegionId', position='Host'),
+}
+
+model DescribeRegionsResponseBody = {
+  accessDeniedDetail?: string(name='AccessDeniedDetail', description='AccessDeniedDetail', example='{     "PolicyType": "AccountLevelIdentityBasedPolicy",     "AuthPrincipalOwnerId": "xxx",     "EncodedDiagnosticMessage": "xxx",     "AuthPrincipalType": "xxx",     "AuthPrincipalDisplayName": "xxx",     "NoPermissionType": "ImplicitDeny",     "AuthAction": "sr:xxx"   }'),
+  data?: [ 
+    {
+      description?: string(name='Description'),
+      descriptionEn?: string(name='DescriptionEn', example='cn-hangzhou'),
+      regionId?: string(name='RegionId', example='cn-hangzhou'),
+      regionName?: string(name='RegionName'),
+    }
+  ](name='Data'),
+  errCode?: string(name='ErrCode', example='InvalidParams'),
+  errMessage?: string(name='ErrMessage', example='Invalid params: [instance not exists].'),
+  httpStatusCode?: int32(name='HttpStatusCode', example='200'),
+  requestId?: string(name='RequestId', example='32A44F0D-BFF6-5664-999A-218BBDE7****'),
+  success?: boolean(name='Success', example='false'),
+}
+
+model DescribeRegionsResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: DescribeRegionsResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of DescribeRegions  DescribeRegionsRequest
+  * @return DescribeRegionsResponse
+ */
+async function describeRegions(request: DescribeRegionsRequest): DescribeRegionsResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'DescribeRegions', 'POST', '/webapi/region/list', 'json', false, 'json', request);
+}
+
+model DescribeResourceConstraintsRequest {
+  regionId?: string(name='RegionId', position='Host'),
+  architecture?: string(name='Architecture', example='onEcs', position='Query'),
+  packageType?: string(name='PackageType', example='trial', position='Query'),
+  runMode?: string(name='RunMode', example='shared_data', position='Query'),
+}
+
+model DescribeResourceConstraintsResponseBody = {
+  accessDeniedDetail?: string(name='AccessDeniedDetail', description='AccessDeniedDetail', example='{     "PolicyType": "AccountLevelIdentityBasedPolicy",     "AuthPrincipalOwnerId": "xxx",     "EncodedDiagnosticMessage": "xxx",     "AuthPrincipalType": "xxx",     "AuthPrincipalDisplayName": "xxx",     "NoPermissionType": "ImplicitDeny",     "AuthAction": "sr:xxx"   }'),
+  data?: {
+    agentCu?: [ int32 ](name='AgentCu'),
+    beCu?: [ int32 ](name='BeCu'),
+    beCuOnEcs?: [ int32 ](name='BeCuOnEcs'),
+    beNumber?: {
+      default?: int32(name='Default', example='1'),
+      max?: int32(name='Max', example='10'),
+      min?: int32(name='Min', example='1'),
+      step?: int32(name='Step', example='1'),
+    }(name='BeNumber'),
+    beStorageConstraints?: [ 
+      {
+        desc?: string(name='Desc'),
+        diskNumberConstraint?: {
+          default?: int32(name='Default', example='1'),
+          max?: int32(name='Max', example='10'),
+          min?: int32(name='Min', example='1'),
+          step?: int32(name='Step', example='1'),
+        }(name='DiskNumberConstraint'),
+        isDefault?: boolean(name='IsDefault', example='true'),
+        level?: string(name='Level', example='PL1'),
+        valueConstraint?: {
+          default?: int32(name='Default', example='1'),
+          max?: int32(name='Max', example='5'),
+          min?: int32(name='Min', example='1'),
+          step?: int32(name='Step', example='1'),
+        }(name='ValueConstraint'),
+      }
+    ](name='BeStorageConstraints'),
+    bigDataInstanceTypeConstraints?: [ 
+      {
+        cpu?: int32(name='Cpu', example='20'),
+        diskNumber?: string(name='DiskNumber', example='8'),
+        display?: string(name='Display'),
+        ecsInstanceType?: string(name='EcsInstanceType', example='ecs.d2s.5xlarge'),
+        instanceType?: string(name='InstanceType', example='local_hdd_2s_5xlarge'),
+        isDefault?: string(name='IsDefault', example='false'),
+        memory?: int32(name='Memory', example='88'),
+        storageSize?: string(name='StorageSize', example='7300'),
+      }
+    ](name='BigDataInstanceTypeConstraints'),
+    feCu?: [ int32 ](name='FeCu'),
+    feCuOnEcs?: [ int32 ](name='FeCuOnEcs'),
+    feNumber?: {
+      default?: int32(name='Default', example='3'),
+      max?: int32(name='Max', example='11'),
+      min?: int32(name='Min', example='1'),
+      step?: int32(name='Step', example='2'),
+    }(name='FeNumber'),
+    feSpecType?: [ 
+      {
+        display?: string(name='Display'),
+        name?: string(name='Name', example='standard'),
+      }
+    ](name='FeSpecType'),
+    feStorage?: {
+      default?: int32(name='Default', example='500'),
+      max?: int32(name='Max', example='5000'),
+      min?: int32(name='Min', example='200'),
+      step?: int32(name='Step', example='100'),
+    }(name='FeStorage'),
+    haFeResourceSpec?: {
+      cu?: int32(name='Cu', example='16'),
+      nodeNumber?: int32(name='NodeNumber', example='5'),
+      storageSize?: int32(name='StorageSize', example='100'),
+    }(name='HaFeResourceSpec'),
+    localSSDInstanceTypeConstraints?: [ 
+      {
+        cpu?: int32(name='Cpu', example='16'),
+        diskNumber?: string(name='DiskNumber', example='1'),
+        display?: string(name='Display'),
+        ecsInstanceType?: string(name='EcsInstanceType', example='ecs.i2g.4xlarge'),
+        instanceType?: string(name='InstanceType', example='local_ssd_2g_4xlarge'),
+        isDefault?: string(name='IsDefault', example='true'),
+        memory?: int32(name='Memory', example='64'),
+        storageSize?: string(name='StorageSize', example='1788'),
+      }
+    ](name='LocalSSDInstanceTypeConstraints'),
+    normalFeResourceSpec?: {
+      cu?: int32(name='Cu', example='64'),
+      nodeNumber?: int32(name='NodeNumber', example='5'),
+      storageSize?: int32(name='StorageSize', example='500'),
+    }(name='NormalFeResourceSpec'),
+    specType?: [ 
+      {
+        display?: string(name='Display'),
+        name?: string(name='Name', example='standard'),
+      }
+    ](name='SpecType', example='standard'),
+    splitDiskThresholdMap?: map[string]map[string]any(name='SplitDiskThresholdMap'),
+    versionConstraint?: {
+      betaVersions?: [ string ](name='BetaVersions'),
+      defaultVersion?: string(name='DefaultVersion', example='3.3'),
+      versions?: [ string ](name='Versions'),
+    }(name='VersionConstraint'),
+    zoneSupportedEedTypes?: map[string][ string ](name='ZoneSupportedEedTypes'),
+    zoneSupportedSpecTypes?: map[string][ string ](name='ZoneSupportedSpecTypes'),
+    compactionServiceCuConstraint?: {
+      def?: int32(name='def', example='16'),
+      max?: int32(name='max', example='256'),
+      min?: int32(name='min', example='8'),
+      step?: int32(name='step', example='8'),
+    }(name='compactionServiceCuConstraint'),
+  }(name='Data'),
+  errMessage?: string(name='ErrMessage', example='Invalid params: [instance not exists].'),
+  errorCode?: string(name='ErrorCode', example='Success'),
+  httpStatusCode?: int32(name='HttpStatusCode', example='200'),
+  requestId?: string(name='RequestId', example='B67D142D-D54E-184F-A306-22BDC01B2XXX'),
+  success?: boolean(name='Success', example='true'),
+}
+
+model DescribeResourceConstraintsResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: DescribeResourceConstraintsResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of DescribeResourceConstraints  DescribeResourceConstraintsRequest
+  * @return DescribeResourceConstraintsResponse
+ */
+async function describeResourceConstraints(request: DescribeResourceConstraintsRequest): DescribeResourceConstraintsResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'DescribeResourceConstraints', 'GET', '/webapi/starrocks/describeResourceConstraints', 'json', false, 'json', request);
+}
+
+model DescribeSystemTimezoneRequest {
+  instanceId: string(name='InstanceId', description='This parameter is required.', example='c-b25e21e24388****', position='Query'),
+}
+
+model DescribeSystemTimezoneResponseBody = {
+  accessDeniedDetail?: string(name='AccessDeniedDetail', description='AccessDeniedDetail', example='{     "PolicyType": "AccountLevelIdentityBasedPolicy",     "AuthPrincipalOwnerId": "xxx",     "EncodedDiagnosticMessage": "xxx",     "AuthPrincipalType": "xxx",     "AuthPrincipalDisplayName": "xxx",     "NoPermissionType": "ImplicitDeny",     "AuthAction": "sr:xxx"   }'),
+  data?: string(name='Data', example='Asia/Shanghai'),
+  errCode?: string(name='ErrCode', example='InvalidParams'),
+  errMessage?: string(name='ErrMessage', example='Invalid params: [instance not exists].'),
+  httpStatusCode?: int32(name='HttpStatusCode', example='200'),
+  requestId?: string(name='RequestId', example='32A44F0D-BFF6-5664-999A-218BBDE74XXX'),
+  success?: boolean(name='Success', example='false'),
+  total?: int32(name='Total', example='100'),
+}
+
+model DescribeSystemTimezoneResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: DescribeSystemTimezoneResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of DescribeSystemTimezone  DescribeSystemTimezoneRequest
+  * @return DescribeSystemTimezoneResponse
+ */
+async function describeSystemTimezone(request: DescribeSystemTimezoneRequest): DescribeSystemTimezoneResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'DescribeSystemTimezone', 'POST', '/webapi/timezone/query', 'json', false, 'json', request);
+}
+
+model DescribeTimeTriggerScalingRulesRequest {
+  requestId?: string(name='RequestId', position='Host'),
+  regionId?: string(name='RegionId', position='Host'),
+  nodeGroupId?: string(name='NodeGroupId', example='ng-d332aa8bca48****', position='Query'),
+}
+
+model DescribeTimeTriggerScalingRulesResponseBody = {
+  accessDeniedDetail?: string(name='AccessDeniedDetail', example='{     "PolicyType": "AccountLevelIdentityBasedPolicy",     "AuthPrincipalOwnerId": "xxx",     "EncodedDiagnosticMessage": "xxx",     "AuthPrincipalType": "xxx",     "AuthPrincipalDisplayName": "xxx",     "NoPermissionType": "ImplicitDeny",     "AuthAction": "sr:xxx"   }'),
+  data?: [ 
+    {
+      nodeNumber?: string(name='NodeNumber', example='3'),
+      scalingInRule?: {
+        day?: int32(name='Day', example='1'),
+        hour?: int32(name='Hour', example='12'),
+        minute?: int32(name='Minute', example='24'),
+        month?: int32(name='Month', example='3'),
+        recurrenceInterval?: int32(name='RecurrenceInterval', example='WEEKLY'),
+        recurrenceType?: string(name='RecurrenceType', example='ONCE'),
+        recurrenceValues?: [ string ](name='RecurrenceValues'),
+        second?: int32(name='Second', example='30'),
+        year?: int32(name='Year', example='2025'),
+      }(name='ScalingInRule'),
+      scalingOutRule?: {
+        day?: int32(name='Day', example='10'),
+        hour?: int32(name='Hour', example='3'),
+        minute?: int32(name='Minute', example='30'),
+        month?: int32(name='Month', example='12'),
+        recurrenceInterval?: int32(name='RecurrenceInterval', example='1'),
+        recurrenceType?: string(name='RecurrenceType', example='ONCE'),
+        recurrenceValues?: [ string ](name='RecurrenceValues'),
+        second?: int32(name='Second', example='20'),
+        year?: int32(name='Year', example='2024'),
+      }(name='ScalingOutRule'),
+      scalingRuleId?: string(name='ScalingRuleId', example='r-d1775b776110****'),
+      scalingRuleName?: string(name='ScalingRuleName', example='scale-test1'),
+      status?: string(name='Status', example='INACTIVE'),
+    }
+  ](name='Data'),
+  errCode?: string(name='ErrCode', example='InvalidParams'),
+  errMessage?: string(name='ErrMessage', example='Invalid params: [instance not exists].'),
+  httpStatusCode?: int32(name='HttpStatusCode', example='200'),
+  requestId?: string(name='RequestId', example='32A44F0D-BFF6-5664-999A-218BBDE7****'),
+  success?: boolean(name='Success', example='false'),
+}
+
+model DescribeTimeTriggerScalingRulesResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: DescribeTimeTriggerScalingRulesResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of DescribeTimeTriggerScalingRules  DescribeTimeTriggerScalingRulesRequest
+  * @return DescribeTimeTriggerScalingRulesResponse
+ */
+async function describeTimeTriggerScalingRules(request: DescribeTimeTriggerScalingRulesRequest): DescribeTimeTriggerScalingRulesResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'DescribeTimeTriggerScalingRules', 'POST', '/webapi/scalingRule/describeTimeTriggerScalingRules', 'json', false, 'json', request);
+}
+
 model DisableSSLConnectionRequest {
   regionId?: string(name='RegionId', position='Host'),
   instanceId?: string(name='InstanceId', example='c-b25e21e24388****', position='Query'),
@@ -599,6 +1469,75 @@ model DisableSSLConnectionResponse = {
 async function disableSSLConnection(request: DisableSSLConnectionRequest): DisableSSLConnectionResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RESTFUL', 'DisableSSLConnection', 'POST', '/webapi/starrocks/disableSSLConnection', 'json', false, 'json', request);
+}
+
+model EnableInternalSlbRequest {
+  regionId?: string(name='RegionId', position='Host'),
+  instanceId?: string(name='InstanceId', example='c-b25e21e24388****', position='Query'),
+}
+
+model EnableInternalSlbResponseBody = {
+  data?: boolean(name='Data', example='true'),
+  errCode?: string(name='ErrCode', example='InvalidParams'),
+  errMessage?: string(name='ErrMessage', example='Invalid params: [instance not exists].'),
+  httpStatusCode?: int32(name='HttpStatusCode', example='200'),
+  requestId?: string(name='RequestId', example='32A44F0D-BFF6-5664-999A-218BBDE74XXX'),
+  success?: boolean(name='Success', example='false'),
+}
+
+model EnableInternalSlbResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: EnableInternalSlbResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of EnableInternalSlb  EnableInternalSlbRequest
+  * @return EnableInternalSlbResponse
+ */
+async function enableInternalSlb(request: EnableInternalSlbRequest): EnableInternalSlbResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'EnableInternalSlb', 'POST', '/webapi/gateway/enableInternalSlb', 'json', false, 'json', request);
+}
+
+model EnableMultiAzRequest {
+  regionId?: string(name='RegionId', position='Host'),
+  instanceId?: string(name='instanceId', example='c-238sjh237s12***', position='Body'),
+  observers?: [ 
+    {
+      vswId?: string(name='vswId', example='vsw-x1232js012'),
+      zoneId?: string(name='zoneId', example='cn-hangzhou-h'),
+    }
+  ](name='observers', position='Body'),
+  promotionOptionNo?: string(name='promotionOptionNo', example='youhuiquan_12378dfj6', position='Body'),
+}
+
+model EnableMultiAzResponseBody = {
+  accessDeniedDetail?: string(name='AccessDeniedDetail', description='AccessDeniedDetail', example='{     "PolicyType": "AccountLevelIdentityBasedPolicy",     "AuthPrincipalOwnerId": "xxx",     "EncodedDiagnosticMessage": "xxx",     "AuthPrincipalType": "xxx",     "AuthPrincipalDisplayName": "xxx",     "NoPermissionType": "ImplicitDeny",     "AuthAction": "sr:xxx"   }'),
+  data?: {
+    nodeGroupId?: string(name='NodeGroupId', example='ng-a9b2e9148196****'),
+    orderId?: long(name='OrderId', example='24782976697****'),
+  }(name='Data'),
+  errCode?: string(name='ErrCode', example='InvalidParams'),
+  errMessage?: string(name='ErrMessage', example='Invalid params: [instance not exists].'),
+  httpStatusCode?: int32(name='HttpStatusCode', example='200'),
+  requestId?: string(name='RequestId', example='32A44F0D-BFF6-5664-999A-218BBDE74XXX'),
+  success?: boolean(name='Success', example='True'),
+}
+
+model EnableMultiAzResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: EnableMultiAzResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of EnableMultiAz  EnableMultiAzRequest
+  * @return EnableMultiAzResponse
+ */
+async function enableMultiAz(request: EnableMultiAzRequest): EnableMultiAzResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'EnableMultiAz', 'POST', '/webapi/lifecycle/enableMultiAz', 'json', false, 'json', request);
 }
 
 model EnableSSLConnectionRequest {
@@ -686,6 +1625,42 @@ async function getInstanceFeatureGate(request: GetInstanceFeatureGateRequest): G
   return @handler.do('RESTFUL', 'GetInstanceFeatureGate', 'POST', '/webapi/features/featureGate', 'json', false, 'json', request);
 }
 
+model GetNodeGroupFeatureGateRequest {
+  instanceId: string(name='InstanceId', description='This parameter is required.', example='c-b25e21e24388****', position='Query'),
+  nodeGroupId: string(name='NodeGroupId', description='This parameter is required.', example='ng-d332aa8bca48****', position='Query'),
+}
+
+model GetNodeGroupFeatureGateResponseBody = {
+  accessDeniedDetail?: string(name='AccessDeniedDetail', description='AccessDeniedDetail', example='{     "PolicyType": "AccountLevelIdentityBasedPolicy",     "AuthPrincipalOwnerId": "xxx",     "EncodedDiagnosticMessage": "xxx",     "AuthPrincipalType": "xxx",     "AuthPrincipalDisplayName": "xxx",     "NoPermissionType": "ImplicitDeny",     "AuthAction": "sr:xxx"   }'),
+  data?: {
+    needRestartAfterModifyDiskSize?: boolean(name='NeedRestartAfterModifyDiskSize', example='true'),
+    supportFastModeModifyResource?: boolean(name='SupportFastModeModifyResource', example='true'),
+    supportFastRestart?: boolean(name='SupportFastRestart', example='true'),
+    supportModifySpecType?: boolean(name='SupportModifySpecType', example='true'),
+  }(name='Data'),
+  errCode?: string(name='ErrCode', example='InvalidParams'),
+  errMessage?: string(name='ErrMessage', example='Invalid params: [instance not exists].'),
+  httpStatusCode?: int32(name='HttpStatusCode', example='200'),
+  requestId?: string(name='RequestId', example='32A44F0D-BFF6-5664-999A-218BBDE7****'),
+  success?: boolean(name='Success', example='false'),
+  total?: int32(name='Total', example='3'),
+}
+
+model GetNodeGroupFeatureGateResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: GetNodeGroupFeatureGateResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of GetNodeGroupFeatureGate  GetNodeGroupFeatureGateRequest
+  * @return GetNodeGroupFeatureGateResponse
+ */
+async function getNodeGroupFeatureGate(request: GetNodeGroupFeatureGateRequest): GetNodeGroupFeatureGateResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'GetNodeGroupFeatureGate', 'POST', '/webapi/features/nodeGroupFeatureGate', 'json', false, 'json', request);
+}
+
 model IsolateLeaderRequest {
   regionId?: string(name='RegionId', position='Host'),
   instanceId?: string(name='InstanceId', example='c-b25e21e24388****', position='Query'),
@@ -757,6 +1732,95 @@ model ListGatewayResponse = {
 async function listGateway(request: ListGatewayRequest): ListGatewayResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RESTFUL', 'ListGateway', 'POST', '/webapi/gateway/list', 'json', false, 'json', request);
+}
+
+model ListOperationActivityRequest {
+  instanceId: string(name='InstanceId', description='This parameter is required.', example='c-b25e21e24388****', position='Query'),
+  operationId?: string(name='OperationId', example='op-f49743caa809****', position='Query'),
+}
+
+model ListOperationActivityResponseBody = {
+  accessDeniedDetail?: string(name='AccessDeniedDetail', example='{     "PolicyType": "AccountLevelIdentityBasedPolicy",     "AuthPrincipalOwnerId": "xxx",     "EncodedDiagnosticMessage": "xxx",     "AuthPrincipalType": "xxx",     "AuthPrincipalDisplayName": "xxx",     "NoPermissionType": "ImplicitDeny",     "AuthAction": "sr:xxx"   }'),
+  data?: [ 
+    {
+      activityId?: string(name='ActivityId', example='ac-8f3f7c4026e3****'),
+      activityStatus?: string(name='ActivityStatus', example='COMPLETED'),
+      endTime?: long(name='EndTime', example='1742178604000'),
+      name?: string(name='Name', example='UpdateClusterStatusToModifyingConfigStatus'),
+      startTime?: long(name='StartTime', example='1742178604000'),
+    }
+  ](name='Data'),
+  errCode?: string(name='ErrCode', example='InvalidParams'),
+  errMessage?: string(name='ErrMessage', example='Invalid params: [instance not exists].'),
+  httpStatusCode?: int32(name='HttpStatusCode', example='200'),
+  requestId?: string(name='RequestId', example='32A44F0D-BFF6-5664-999A-218BBDE7****'),
+  success?: boolean(name='Success', example='false'),
+  total?: int32(name='Total', example='440'),
+}
+
+model ListOperationActivityResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ListOperationActivityResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of ListOperationActivity  ListOperationActivityRequest
+  * @return ListOperationActivityResponse
+ */
+async function listOperationActivity(request: ListOperationActivityRequest): ListOperationActivityResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'ListOperationActivity', 'POST', '/webapi/operation/listOperationActivity', 'json', false, 'json', request);
+}
+
+model ListOperationHistoryRequest {
+  endTime?: long(name='EndTime', example='1742179008000', position='Query'),
+  instanceId: string(name='InstanceId', description='This parameter is required.', example='c-b25e21e24388****', position='Query'),
+  operationId?: string(name='OperationId', example='op-f49743caa809****', position='Query'),
+  operationStatus?: string(name='OperationStatus', example='COMPLETED', position='Query'),
+  operationType?: string(name='OperationType', example='update_configuration', position='Query'),
+  pageNumber?: int32(name='PageNumber', example='1', minimum=1, maximum=10000, position='Query'),
+  pageSize?: int32(name='PageSize', example='10', minimum=1, maximum=100000, position='Query'),
+  startTime?: long(name='StartTime', example='1742179008000', position='Query'),
+}
+
+model ListOperationHistoryResponseBody = {
+  accessDeniedDetail?: string(name='AccessDeniedDetail', example='{     "PolicyType": "AccountLevelIdentityBasedPolicy",     "AuthPrincipalOwnerId": "xxx",     "EncodedDiagnosticMessage": "xxx",     "AuthPrincipalType": "xxx",     "AuthPrincipalDisplayName": "xxx",     "NoPermissionType": "ImplicitDeny",     "AuthAction": "sr:xxx"   }'),
+  data?: [ 
+    {
+      afterValue?: string(name='AfterValue', example='FE enable = true'),
+      beforeValue?: string(name='BeforeValue', example='FE enable = false'),
+      gmtCreate?: long(name='GmtCreate', example='1742179008000'),
+      gmtEnd?: long(name='GmtEnd', example='1742179008000'),
+      instanceId?: string(name='InstanceId', example='c-cd7a3a6f2186d5c9'),
+      operationDetail?: string(name='OperationDetail'),
+      operationId?: string(name='OperationId', example='op-f49743caa809****'),
+      operationStatus?: string(name='OperationStatus', example='COMPLETED'),
+      operationType?: string(name='OperationType', example='upgrade_version'),
+      progress?: int32(name='Progress', example='100'),
+    }
+  ](name='Data'),
+  errCode?: string(name='ErrCode', example='InvalidParams'),
+  errMessage?: string(name='ErrMessage', example='Invalid params: [instance not exists].'),
+  httpStatusCode?: int32(name='HttpStatusCode', example='200'),
+  requestId?: string(name='RequestId', example='32A44F0D-BFF6-5664-999A-218BBDE7****'),
+  success?: boolean(name='Success', example='false'),
+  total?: int32(name='Total', example='832'),
+}
+
+model ListOperationHistoryResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ListOperationHistoryResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of ListOperationHistory  ListOperationHistoryRequest
+  * @return ListOperationHistoryResponse
+ */
+async function listOperationHistory(request: ListOperationHistoryRequest): ListOperationHistoryResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'ListOperationHistory', 'POST', '/webapi/operation/listOperationHistory', 'json', false, 'json', request);
 }
 
 model ModifyChargeTypeRequest {
@@ -1090,6 +2154,40 @@ async function modifyDiskType(request: ModifyDiskTypeRequest): ModifyDiskTypeRes
   return @handler.do('RESTFUL', 'ModifyDiskType', 'POST', '/webapi/resourceChange/modifyDiskType', 'json', false, 'json', request);
 }
 
+model ModifyHostAliasRequest {
+  instanceId?: string(name='InstanceId', example='c-b25e21e24388****', position='Query'),
+  hostAliases?: [ 
+    {
+      hostnames?: [ string ](name='hostnames'),
+      ip?: string(name='ip', example='26.15.54.221'),
+    }
+  ](name='hostAliases', position='Body'),
+}
+
+model ModifyHostAliasResponseBody = {
+  data?: boolean(name='Data', example='24151320976****'),
+  errCode?: string(name='ErrCode', example='InvalidParams'),
+  errMessage?: string(name='ErrMessage', example='Invalid params: [instance not exists].'),
+  httpStatusCode?: int32(name='HttpStatusCode', example='200'),
+  requestId?: string(name='RequestId', example='32A44F0D-BFF6-5664-999A-218BBDE7****'),
+  success?: boolean(name='Success', example='false'),
+}
+
+model ModifyHostAliasResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ModifyHostAliasResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of ModifyHostAlias  ModifyHostAliasRequest
+  * @return ModifyHostAliasResponse
+ */
+async function modifyHostAlias(request: ModifyHostAliasRequest): ModifyHostAliasResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'ModifyHostAlias', 'POST', '/webapi/network/modifyHostAlias', 'json', false, 'json', request);
+}
+
 model ModifyInstanceConfigRequest {
   regionId?: string(name='RegionId', position='Host'),
   addConfigList?: string(name='AddConfigList', example='[]', position='Query'),
@@ -1172,6 +2270,37 @@ model ModifyInstanceConfigPreCheckResponse = {
 async function modifyInstanceConfigPreCheck(request: ModifyInstanceConfigPreCheckRequest): ModifyInstanceConfigPreCheckResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RESTFUL', 'ModifyInstanceConfigPreCheck', 'POST', '/webapi/config/modifyInstanceConfigPreCheck', 'json', false, 'json', request);
+}
+
+model ModifyMaintainableTimeRequest {
+  regionId?: string(name='RegionId', position='Host'),
+  instanceId: string(name='InstanceId', description='This parameter is required.', example='c-b25e21e24388****', position='Query'),
+  maintainableTimePeriod: string(name='MaintainableTimePeriod', description='This parameter is required.', example='08:00-09:00', position='Query'),
+}
+
+model ModifyMaintainableTimeResponseBody = {
+  accessDeniedDetail?: string(name='AccessDeniedDetail', example='{     "PolicyType": "AccountLevelIdentityBasedPolicy",     "AuthPrincipalOwnerId": "xxx",     "EncodedDiagnosticMessage": "xxx",     "AuthPrincipalType": "xxx",     "AuthPrincipalDisplayName": "xxx",     "NoPermissionType": "ImplicitDeny",     "AuthAction": "sr:xxx"   }'),
+  data?: boolean(name='Data', example='true'),
+  errCode?: string(name='ErrCode', example='InvalidParams'),
+  errMessage?: string(name='ErrMessage', example='Invalid params: [instance not exists].'),
+  httpStatusCode?: int32(name='HttpStatusCode', example='200'),
+  requestId?: string(name='RequestId', example='32A44F0D-BFF6-5664-999A-218BBDE7****'),
+  success?: boolean(name='Success', example='false'),
+}
+
+model ModifyMaintainableTimeResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ModifyMaintainableTimeResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of ModifyMaintainableTime  ModifyMaintainableTimeRequest
+  * @return ModifyMaintainableTimeResponse
+ */
+async function modifyMaintainableTime(request: ModifyMaintainableTimeRequest): ModifyMaintainableTimeResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'ModifyMaintainableTime', 'POST', '/webapi/starrocks/modifyMaintainableTime', 'json', false, 'json', request);
 }
 
 model ModifyNodeNumberRequest {
@@ -1263,6 +2392,1069 @@ async function modifyNodeNumberPreCheck(request: ModifyNodeNumberPreCheckRequest
   return @handler.do('RESTFUL', 'ModifyNodeNumberPreCheck', 'POST', '/webapi/resourceChange/modifyNodeNumberPreCheck', 'json', false, 'json', request);
 }
 
+model ModifyScalingRuleRequest {
+  regionId?: string(name='RegionId', description='This parameter is required.', position='Host'),
+  newTriggerType: string(name='NewTriggerType', description='This parameter is required.', example='TIME_TRIGGER', position='Query'),
+  nodeGroupId: string(name='NodeGroupId', description='This parameter is required.', example='ng-3d5ce6454354****', position='Query'),
+  oldTriggerType: string(name='OldTriggerType', description='This parameter is required.', example='TIME_TRIGGER', position='Query'),
+  rule: string(name='Rule', description='This parameter is required.', example='{
+  "nodeNumber": 1,
+  "scalingRuleName": "test1",
+  "scalingOutRule": {
+    "year": 2026,
+    "month": 3,
+    "day": 2,
+    "hour": 5,
+    "minute": 50,
+    "second": 0,
+    "recurrenceInterval": 1,
+    "recurrenceType": "DAILY",
+    "recurrenceValues": null
+  },
+  "scalingInRule": {
+    "year": 2026,
+    "month": 3,
+    "day": 2,
+    "hour": 6,
+    "minute": 50,
+    "second": 0,
+    "recurrenceInterval": 1,
+    "recurrenceType": "DAILY",
+    "recurrenceValues": null
+  }
+}', position='Query'),
+  scalingRuleId: string(name='ScalingRuleId', description='This parameter is required.', example='asr-bp10s4t9l21u9qtyrtco', position='Query'),
+}
+
+model ModifyScalingRuleResponseBody = {
+  accessDeniedDetail?: string(name='AccessDeniedDetail', description='AccessDeniedDetail', example='{     "PolicyType": "AccountLevelIdentityBasedPolicy",     "AuthPrincipalOwnerId": "xxx",     "EncodedDiagnosticMessage": "xxx",     "AuthPrincipalType": "xxx",     "AuthPrincipalDisplayName": "xxx",     "NoPermissionType": "ImplicitDeny",     "AuthAction": "sr:xxx"   }'),
+  data?: boolean(name='Data', example='24151320976****'),
+  errCode?: string(name='ErrCode', example='InvalidParams'),
+  errMessage?: string(name='ErrMessage', example='Invalid params: [Region id should be select from set [cn-beijing, cn-hangzhou]]'),
+  httpStatusCode?: int32(name='HttpStatusCode', example='200'),
+  requestId?: string(name='RequestId', example='32A44F0D-BFF6-5664-999A-218BBDE7****'),
+  success?: boolean(name='Success', example='True'),
+}
+
+model ModifyScalingRuleResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ModifyScalingRuleResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of ModifyScalingRule  ModifyScalingRuleRequest
+  * @return ModifyScalingRuleResponse
+ */
+async function modifyScalingRule(request: ModifyScalingRuleRequest): ModifyScalingRuleResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'ModifyScalingRule', 'POST', '/webapi/scalingRule/modifyScalingRule', 'json', false, 'json', request);
+}
+
+model ModifySpecTypeRequest {
+  regionId?: string(name='RegionId', description='This parameter is required.', position='Host'),
+  fastMode?: boolean(name='FastMode', example='true', position='Query'),
+  instanceId: string(name='InstanceId', description='This parameter is required.', example='c-b25e21e24388****', position='Query'),
+  nodeGroupId: string(name='NodeGroupId', description='This parameter is required.', example='ng-3d5ce6454354****', position='Query'),
+  promotionOptionNo?: string(name='PromotionOptionNo', example='youhuiquan_promotion_option_id_for_blank', position='Query'),
+  targetSpecType: string(name='TargetSpecType', description='This parameter is required.', example='standard', position='Query'),
+}
+
+model ModifySpecTypeResponseBody = {
+  accessDeniedDetail?: string(name='AccessDeniedDetail', description='AccessDeniedDetail', example='{     "PolicyType": "AccountLevelIdentityBasedPolicy",     "AuthPrincipalOwnerId": "xxx",     "EncodedDiagnosticMessage": "xxx",     "AuthPrincipalType": "xxx",     "AuthPrincipalDisplayName": "xxx",     "NoPermissionType": "ImplicitDeny",     "AuthAction": "sr:xxx"   }'),
+  data?: long(name='Data', example='24151320976****'),
+  errCode?: string(name='ErrCode', example='InvalidParams'),
+  errMessage?: string(name='ErrMessage', example='Invalid params: [instance not exists].'),
+  httpStatusCode?: int32(name='HttpStatusCode', example='200'),
+  requestId?: string(name='RequestId', example='32A44F0D-BFF6-5664-999A-218BBDE7****'),
+  success?: boolean(name='Success', example='false'),
+}
+
+model ModifySpecTypeResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ModifySpecTypeResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of ModifySpecType  ModifySpecTypeRequest
+  * @return ModifySpecTypeResponse
+ */
+async function modifySpecType(request: ModifySpecTypeRequest): ModifySpecTypeResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'ModifySpecType', 'POST', '/webapi/resourceChange/modifySpecType', 'json', false, 'json', request);
+}
+
+model ModifySpecTypePreCheckRequest {
+  regionId?: string(name='RegionId', description='This parameter is required.', position='Host'),
+  instanceId: string(name='InstanceId', description='This parameter is required.', example='c-b25e21e24388****', position='Query'),
+  nodeGroupId: string(name='NodeGroupId', description='This parameter is required.', example='ng-3d5ce6454354****', position='Query'),
+  targetSpecType?: string(name='TargetSpecType', example='standard', position='Query'),
+}
+
+model ModifySpecTypePreCheckResponseBody = {
+  accessDeniedDetail?: string(name='AccessDeniedDetail', description='AccessDeniedDetail', example='{     "PolicyType": "AccountLevelIdentityBasedPolicy",     "AuthPrincipalOwnerId": "xxx",     "EncodedDiagnosticMessage": "xxx",     "AuthPrincipalType": "xxx",     "AuthPrincipalDisplayName": "xxx",     "NoPermissionType": "ImplicitDeny",     "AuthAction": "sr:xxx"   }'),
+  data?: {
+    allow?: boolean(name='Allow', example='false'),
+    reason?: string(name='Reason', example='Failed to find node group[ng-3d5ce6454354****].'),
+  }(name='Data'),
+  errCode?: string(name='ErrCode', example='Success'),
+  errMessage?: string(name='ErrMessage', example='Invalid params: [Region id should be select from set [cn-beijing, cn-hangzhou]]'),
+  httpStatusCode?: int32(name='HttpStatusCode', example='200'),
+  requestId?: string(name='RequestId', example='32A44F0D-BFF6-5664-999A-218BBDE7****'),
+  success?: boolean(name='Success', example='false'),
+}
+
+model ModifySpecTypePreCheckResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ModifySpecTypePreCheckResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of ModifySpecTypePreCheck  ModifySpecTypePreCheckRequest
+  * @return ModifySpecTypePreCheckResponse
+ */
+async function modifySpecTypePreCheck(request: ModifySpecTypePreCheckRequest): ModifySpecTypePreCheckResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'ModifySpecTypePreCheck', 'POST', '/webapi/resourceChange/modifySpecTypePreCheck', 'json', false, 'json', request);
+}
+
+model ModifyUserPasswordRequest {
+  regionId?: string(name='RegionId', position='Host'),
+  instanceId?: string(name='InstanceId', example='c-b25e21e24388****', position='Query'),
+  password?: string(name='Password', example='***', position='Query'),
+}
+
+model ModifyUserPasswordResponseBody = {
+  accessDeniedDetail?: string(name='AccessDeniedDetail', description='AccessDeniedDetail', example='{     "PolicyType": "AccountLevelIdentityBasedPolicy",     "AuthPrincipalOwnerId": "xxx",     "EncodedDiagnosticMessage": "xxx",     "AuthPrincipalType": "xxx",     "AuthPrincipalDisplayName": "xxx",     "NoPermissionType": "ImplicitDeny",     "AuthAction": "sr:xxx"   }'),
+  data?: boolean(name='Data', example='true'),
+  errCode?: string(name='ErrCode', example='Success'),
+  errMessage?: string(name='ErrMessage', example='Invalid params: [instance not exists].'),
+  httpStatusCode?: int32(name='HttpStatusCode', example='200'),
+  requestId?: string(name='RequestId', example='32A44F0D-BFF6-5664-999A-218BBDE7****'),
+  success?: boolean(name='Success', example='false'),
+}
+
+model ModifyUserPasswordResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ModifyUserPasswordResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of ModifyUserPassword  ModifyUserPasswordRequest
+  * @return ModifyUserPasswordResponse
+ */
+async function modifyUserPassword(request: ModifyUserPasswordRequest): ModifyUserPasswordResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'ModifyUserPassword', 'POST', '/webapi/password/modify', 'json', false, 'json', request);
+}
+
+model QueryEnableMultiAzPriceRequest {
+  regionId?: string(name='RegionId', position='Host'),
+  instanceId?: string(name='instanceId', example='c-8dsy12g*****', position='Body'),
+  observers?: [ 
+    {
+      vswId?: string(name='vswId', example='vsw-9sdur12t27s'),
+      zoneId?: string(name='zoneId', example='cn-shanghai-h'),
+    }
+  ](name='observers', position='Body'),
+  promotionOptionNo?: string(name='promotionOptionNo', example='youhuiquan_12378dfj6', position='Body'),
+}
+
+model QueryEnableMultiAzPriceResponseBody = {
+  accessDeniedDetail?: string(name='AccessDeniedDetail', description='AccessDeniedDetail', example='{     "PolicyType": "AccountLevelIdentityBasedPolicy",     "AuthPrincipalOwnerId": "xxx",     "EncodedDiagnosticMessage": "xxx",     "AuthPrincipalType": "xxx",     "AuthPrincipalDisplayName": "xxx",     "NoPermissionType": "ImplicitDeny",     "AuthAction": "sr:xxx"   }'),
+  data?: {
+    componentPrices?: [ 
+      {
+        componentName?: string(name='ComponentName', example='multi-zone'),
+        discountAmount?: float(name='DiscountAmount', example='0'),
+        originalAmount?: float(name='OriginalAmount', example='7641'),
+        tradeAmount?: float(name='TradeAmount', example='7641'),
+      }
+    ](name='ComponentPrices'),
+    currency?: string(name='Currency', example='CNY'),
+    depreciateInfo?: {
+      cheapRate?: float(name='CheapRate', example='0'),
+      cheapStandAmount?: float(name='CheapStandAmount', example='7641'),
+      isShow?: boolean(name='IsShow', example='true'),
+      originalStandAmount?: float(name='OriginalStandAmount', example='7641'),
+    }(name='DepreciateInfo', example='7641'),
+    discountAmount?: float(name='DiscountAmount', example='0'),
+    moduleInstance?: [ 
+      {
+        moduleCode?: string(name='ModuleCode', example='multi-zone'),
+        moduleName?: string(name='ModuleName', example='zone'),
+        standPrice?: string(name='StandPrice', example='7641'),
+        totalProductFee?: string(name='TotalProductFee', example='7641'),
+      }
+    ](name='ModuleInstance'),
+    optionalPromotions?: [ 
+      {
+        promotionDesc?: string(name='PromotionDesc', example='youhuiquan_desc'),
+        promotionName?: string(name='PromotionName', example='youhuiquan_promotion_option_id_for_blank'),
+        promotionOptionNo?: string(name='PromotionOptionNo', example='youhuiquan_12378dfj6'),
+      }
+    ](name='OptionalPromotions'),
+    originalAmount?: float(name='OriginalAmount', example='7641'),
+    rules?: [ 
+      {
+        amount?: float(name='Amount', example='2'),
+        name?: string(name='Name', example='rule_28sdhsu2320t'),
+        ruleDescId?: string(name='RuleDescId', example='2ju2sd9dss'),
+      }
+    ](name='Rules'),
+    standDiscountPrice?: float(name='StandDiscountPrice', example='7641'),
+    standPrice?: float(name='StandPrice', example='7641'),
+    tradeAmount?: float(name='TradeAmount', example='7641'),
+  }(name='Data'),
+  errCode?: string(name='ErrCode', example='InvalidParams'),
+  errMessage?: string(name='ErrMessage', example='Invalid params: [instance not exists].'),
+  httpStatusCode?: int32(name='HttpStatusCode', example='200'),
+  requestId?: string(name='RequestId', example='32A44F0D-BFF6-5664-999A-218BBDE7****'),
+  success?: boolean(name='Success', example='True'),
+}
+
+model QueryEnableMultiAzPriceResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: QueryEnableMultiAzPriceResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of QueryEnableMultiAzPrice  QueryEnableMultiAzPriceRequest
+  * @return QueryEnableMultiAzPriceResponse
+ */
+async function queryEnableMultiAzPrice(request: QueryEnableMultiAzPriceRequest): QueryEnableMultiAzPriceResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'QueryEnableMultiAzPrice', 'POST', '/webapi/priceInquiry/enableMultiAz', 'json', false, 'json', request);
+}
+
+model QueryMinorVersionRequest {
+  regionId?: string(name='RegionId', example='cn-hangzhou', position='Query'),
+  version?: string(name='Version', example='3.3', position='Query'),
+}
+
+model QueryMinorVersionResponseBody = {
+  accessDeniedDetail?: string(name='AccessDeniedDetail', description='AccessDeniedDetail', example='{     "PolicyType": "AccountLevelIdentityBasedPolicy",     "AuthPrincipalOwnerId": "xxx",     "EncodedDiagnosticMessage": "xxx",     "AuthPrincipalType": "xxx",     "AuthPrincipalDisplayName": "xxx",     "NoPermissionType": "ImplicitDeny",     "AuthAction": "sr:xxx"   }'),
+  data?: string(name='Data', example='3.3.13-1.0-1.7.12'),
+  errCode?: string(name='ErrCode', example='InvalidParams'),
+  errMessage?: string(name='ErrMessage', example='Invalid params: [instance not exists].'),
+  httpStatusCode?: int32(name='HttpStatusCode', example='200'),
+  requestId?: string(name='RequestId', example='32A44F0D-BFF6-5664-999A-218BBDE74XXX'),
+  success?: boolean(name='Success', example='false'),
+}
+
+model QueryMinorVersionResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: QueryMinorVersionResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of QueryMinorVersion  QueryMinorVersionRequest
+  * @return QueryMinorVersionResponse
+ */
+async function queryMinorVersion(request: QueryMinorVersionRequest): QueryMinorVersionResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'QueryMinorVersion', 'POST', '/webapi/starrocks/queryAppDefineVersion', 'json', false, 'json', request);
+}
+
+model QueryModifyChargeTypePriceRequest {
+  regionId?: string(name='RegionId', position='Host'),
+  autoRenew?: boolean(name='AutoRenew', example='True', position='Query'),
+  billingInstanceIds?: string(name='BillingInstanceIds', example='c-3d6dc31ba67b1839', position='Query'),
+  duration?: string(name='Duration', example='2', position='Query'),
+  instanceId?: string(name='InstanceId', example='c-b25e21e24388****', position='Query'),
+  pricingCycle?: string(name='PricingCycle', example='Month', position='Query'),
+  promotionOptionNo?: string(name='PromotionOptionNo', example='youhuiquan_promotion_option_id_for_blank', position='Query'),
+}
+
+model QueryModifyChargeTypePriceResponseBody = {
+  accessDeniedDetail?: string(name='AccessDeniedDetail', description='AccessDeniedDetail', example='{     "PolicyType": "AccountLevelIdentityBasedPolicy",     "AuthPrincipalOwnerId": "xxx",     "EncodedDiagnosticMessage": "xxx",     "AuthPrincipalType": "xxx",     "AuthPrincipalDisplayName": "xxx",     "NoPermissionType": "ImplicitDeny",     "AuthAction": "sr:xxx"   }'),
+  data?: {
+    componentPrices?: [ 
+      {
+        componentName?: string(name='ComponentName', example='cu_num'),
+        discountAmount?: float(name='DiscountAmount', example='0'),
+        originalAmount?: float(name='OriginalAmount', example='7986'),
+        tradeAmount?: float(name='TradeAmount', example='7986'),
+      }
+    ](name='ComponentPrices'),
+    currency?: string(name='Currency', example='CNY'),
+    depreciateInfo?: {
+      cheapRate?: float(name='CheapRate', example='0'),
+      cheapStandAmount?: float(name='CheapStandAmount', example='7986'),
+      isShow?: boolean(name='IsShow', example='true'),
+      originalStandAmount?: float(name='OriginalStandAmount', example='7986'),
+    }(name='DepreciateInfo'),
+    discountAmount?: float(name='DiscountAmount', example='0'),
+    moduleInstance?: [ 
+      {
+        moduleCode?: string(name='ModuleCode', example='instance_type'),
+        moduleName?: string(name='ModuleName', example='cu_num'),
+        standPrice?: string(name='StandPrice', example='7986'),
+        totalProductFee?: string(name='TotalProductFee', example='7986'),
+      }
+    ](name='ModuleInstance'),
+    optionalPromotions?: [ 
+      {
+        promotionDesc?: string(name='PromotionDesc', example='youhuiquan_desc'),
+        promotionName?: string(name='PromotionName', example='youhuiquan_promotion_option_id_for_blank'),
+        promotionOptionNo?: string(name='PromotionOptionNo', example='youhuiquan_1238293'),
+      }
+    ](name='OptionalPromotions'),
+    originalAmount?: float(name='OriginalAmount', example='7986'),
+    rules?: [ 
+      {
+        amount?: float(name='Amount', example='0'),
+        name?: string(name='Name', example='rule1'),
+        ruleDescId?: string(name='RuleDescId', example='rule-12iudfj'),
+      }
+    ](name='Rules'),
+    standDiscountPrice?: float(name='StandDiscountPrice', example='7986'),
+    standPrice?: float(name='StandPrice', example='7986'),
+    tradeAmount?: float(name='TradeAmount', example='7986'),
+  }(name='Data'),
+  errCode?: string(name='ErrCode', example='InvalidParams'),
+  errMessage?: string(name='ErrMessage', example='Invalid params: [instance not exists].'),
+  httpStatusCode?: int32(name='HttpStatusCode', example='200'),
+  requestId?: string(name='RequestId', example='32A44F0D-BFF6-5664-999A-218BBDE74XXX'),
+  success?: boolean(name='Success', example='false'),
+}
+
+model QueryModifyChargeTypePriceResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: QueryModifyChargeTypePriceResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of QueryModifyChargeTypePrice  QueryModifyChargeTypePriceRequest
+  * @return QueryModifyChargeTypePriceResponse
+ */
+async function queryModifyChargeTypePrice(request: QueryModifyChargeTypePriceRequest): QueryModifyChargeTypePriceResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'QueryModifyChargeTypePrice', 'POST', '/webapi/buy/query_modify_charge_type_price', 'json', false, 'json', request);
+}
+
+model QueryModifyCuPriceRequest {
+  regionId?: string(name='RegionId', description='This parameter is required.', position='Host'),
+  instanceId: string(name='InstanceId', description='This parameter is required.', example='c-b25e21e24388****', position='Query'),
+  nodeGroupId: string(name='NodeGroupId', description='This parameter is required.', example='ng-3d5ce6454354****', position='Query'),
+  promotionOptionNo?: string(name='PromotionOptionNo', example='youhuiquan_12378dfj6', position='Query'),
+  target: int32(name='Target', description='This parameter is required.', example='2', position='Query'),
+}
+
+model QueryModifyCuPriceResponseBody = {
+  accessDeniedDetail?: string(name='AccessDeniedDetail', description='AccessDeniedDetail', example='{     "PolicyType": "AccountLevelIdentityBasedPolicy",     "AuthPrincipalOwnerId": "xxx",     "EncodedDiagnosticMessage": "xxx",     "AuthPrincipalType": "xxx",     "AuthPrincipalDisplayName": "xxx",     "NoPermissionType": "ImplicitDeny",     "AuthAction": "sr:xxx"   }'),
+  data?: {
+    componentPrices?: [ 
+      {
+        componentName?: string(name='ComponentName', example='cu_num'),
+        discountAmount?: float(name='DiscountAmount', example='0'),
+        originalAmount?: float(name='OriginalAmount', example='7986'),
+        tradeAmount?: float(name='TradeAmount', example='7986'),
+      }
+    ](name='ComponentPrices'),
+    currency?: string(name='Currency', example='CNY'),
+    depreciateInfo?: {
+      cheapRate?: float(name='CheapRate', example='0'),
+      cheapStandAmount?: float(name='CheapStandAmount', example='7986'),
+      isShow?: boolean(name='IsShow', example='true'),
+      originalStandAmount?: float(name='OriginalStandAmount', example='7986'),
+    }(name='DepreciateInfo', example='0'),
+    discountAmount?: float(name='DiscountAmount', example='0'),
+    optionalPromotions?: [ 
+      {
+        promotionDesc?: string(name='PromotionDesc', example='youhuiquan_desc'),
+        promotionName?: string(name='PromotionName', example='youhuiquan_promotion_option_id_for_blank'),
+        promotionOptionNo?: string(name='PromotionOptionNo', example='youhuiquan_12378dfj6'),
+      }
+    ](name='OptionalPromotions'),
+    originalAmount?: float(name='OriginalAmount', example='7986'),
+    rules?: [ 
+      {
+        amount?: float(name='Amount', example='1'),
+        name?: string(name='Name', example='rule_123123'),
+        ruleDescId?: string(name='RuleDescId', example='ak72hajsd'),
+      }
+    ](name='Rules'),
+    standDiscountPrice?: float(name='StandDiscountPrice', example='7986'),
+    standPrice?: float(name='StandPrice', example='7986'),
+    tradeAmount?: float(name='TradeAmount', example='7986'),
+  }(name='Data'),
+  errCode?: string(name='ErrCode', example='InvalidParams'),
+  errMessage?: string(name='ErrMessage', example='null'),
+  httpStatusCode?: int32(name='HttpStatusCode', example='200'),
+  requestId?: string(name='RequestId', example='B67D142D-D54E-184F-A306-22BDC01B2XXX'),
+  success?: boolean(name='Success', example='True'),
+}
+
+model QueryModifyCuPriceResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: QueryModifyCuPriceResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of QueryModifyCuPrice  QueryModifyCuPriceRequest
+  * @return QueryModifyCuPriceResponse
+ */
+async function queryModifyCuPrice(request: QueryModifyCuPriceRequest): QueryModifyCuPriceResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'QueryModifyCuPrice', 'POST', '/webapi/priceInquiry/modifyCu', 'json', false, 'json', request);
+}
+
+model QueryModifyDiskNumberPriceRequest {
+  regionId?: string(name='RegionId', description='This parameter is required.', position='Host'),
+  instanceId: string(name='InstanceId', description='This parameter is required.', example='c-b25e21e24388****', position='Query'),
+  nodeGroupId: string(name='NodeGroupId', description='This parameter is required.', example='ng-3d5ce6454354****', position='Query'),
+  promotionOptionNo?: string(name='PromotionOptionNo', example='youhuiquan_12378dfj6', position='Query'),
+  target: int32(name='Target', description='This parameter is required.', example='500', minimum=1, maximum=16, position='Query'),
+}
+
+model QueryModifyDiskNumberPriceResponseBody = {
+  accessDeniedDetail?: string(name='AccessDeniedDetail', description='AccessDeniedDetail', example='{     "PolicyType": "AccountLevelIdentityBasedPolicy",     "AuthPrincipalOwnerId": "xxx",     "EncodedDiagnosticMessage": "xxx",     "AuthPrincipalType": "xxx",     "AuthPrincipalDisplayName": "xxx",     "NoPermissionType": "ImplicitDeny",     "AuthAction": "sr:xxx"   }'),
+  data?: {
+    componentPrices?: [ 
+      {
+        componentName?: string(name='ComponentName', example='disk'),
+        discountAmount?: float(name='DiscountAmount', example='0'),
+        originalAmount?: float(name='OriginalAmount', example='17629'),
+        tradeAmount?: float(name='TradeAmount', example='17629'),
+      }
+    ](name='ComponentPrices'),
+    currency?: string(name='Currency', example='CNY'),
+    depreciateInfo?: {
+      cheapRate?: float(name='CheapRate', example='0'),
+      cheapStandAmount?: float(name='CheapStandAmount', example='17629'),
+      isShow?: boolean(name='IsShow', example='true'),
+      originalStandAmount?: float(name='OriginalStandAmount', example='17629'),
+    }(name='DepreciateInfo', example='17629'),
+    discountAmount?: float(name='DiscountAmount', example='0'),
+    optionalPromotions?: [ 
+      {
+        promotionDesc?: string(name='PromotionDesc', example='youhuiquan_desc'),
+        promotionName?: string(name='PromotionName', example='youhuiquan_promotion_option_id_for_blank'),
+        promotionOptionNo?: string(name='PromotionOptionNo', example='youhuiquan_12378dfj6'),
+      }
+    ](name='OptionalPromotions'),
+    originalAmount?: float(name='OriginalAmount', example='17629'),
+    rules?: [ 
+      {
+        amount?: float(name='Amount', example='3'),
+        name?: string(name='Name', example='rule_12hus92'),
+        ruleDescId?: string(name='RuleDescId', example='6yhsi10223'),
+      }
+    ](name='Rules'),
+    standDiscountPrice?: float(name='StandDiscountPrice', example='17629'),
+    standPrice?: float(name='StandPrice', example='17629'),
+    tradeAmount?: float(name='TradeAmount', example='17629'),
+  }(name='Data'),
+  errCode?: string(name='ErrCode', example='InvalidParams'),
+  errMessage?: string(name='ErrMessage', example='null'),
+  httpStatusCode?: int32(name='HttpStatusCode', example='200'),
+  requestId?: string(name='RequestId', example='32A44F0D-BFF6-5664-999A-218BBDE74XXX'),
+  success?: boolean(name='Success', example='false'),
+}
+
+model QueryModifyDiskNumberPriceResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: QueryModifyDiskNumberPriceResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of QueryModifyDiskNumberPrice  QueryModifyDiskNumberPriceRequest
+  * @return QueryModifyDiskNumberPriceResponse
+ */
+async function queryModifyDiskNumberPrice(request: QueryModifyDiskNumberPriceRequest): QueryModifyDiskNumberPriceResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'QueryModifyDiskNumberPrice', 'POST', '/webapi/priceInquiry/modifyDiskNumber', 'json', false, 'json', request);
+}
+
+model QueryModifyDiskPerformanceLevelPriceRequest {
+  regionId?: string(name='RegionId', description='This parameter is required.', position='Host'),
+  instanceId: string(name='InstanceId', description='This parameter is required.', example='c-a7fa8b85ff6bced6', position='Query'),
+  nodeGroupId: string(name='NodeGroupId', description='This parameter is required.', example='ng-204ea5d711860b4d', position='Query'),
+  promotionOptionNo?: string(name='PromotionOptionNo', example='youhuiquan_12378dfj6', position='Query'),
+  target: string(name='Target', description='This parameter is required.', example='pl2', position='Query'),
+}
+
+model QueryModifyDiskPerformanceLevelPriceResponseBody = {
+  accessDeniedDetail?: string(name='AccessDeniedDetail', description='AccessDeniedDetail', example='{     "PolicyType": "AccountLevelIdentityBasedPolicy",     "AuthPrincipalOwnerId": "xxx",     "EncodedDiagnosticMessage": "xxx",     "AuthPrincipalType": "xxx",     "AuthPrincipalDisplayName": "xxx",     "NoPermissionType": "ImplicitDeny",     "AuthAction": "sr:xxx"   }'),
+  data?: {
+    componentPrices?: [ 
+      {
+        componentName?: string(name='ComponentName', example='disk_type'),
+        discountAmount?: float(name='DiscountAmount', example='0'),
+        originalAmount?: float(name='OriginalAmount', example='17629'),
+        tradeAmount?: float(name='TradeAmount', example='17629'),
+      }
+    ](name='ComponentPrices'),
+    currency?: string(name='Currency', example='CNY'),
+    depreciateInfo?: {
+      cheapRate?: float(name='CheapRate', example='0'),
+      cheapStandAmount?: float(name='CheapStandAmount', example='17629'),
+      isShow?: boolean(name='IsShow', example='true'),
+      originalStandAmount?: float(name='OriginalStandAmount', example='17629'),
+    }(name='DepreciateInfo', example='17629'),
+    discountAmount?: float(name='DiscountAmount', example='0'),
+    optionalPromotions?: [ 
+      {
+        promotionDesc?: string(name='PromotionDesc', example='youhuiquan_desc'),
+        promotionName?: string(name='PromotionName', example='youhuiquan_promotion_option_id_for_blank'),
+        promotionOptionNo?: string(name='PromotionOptionNo', example='youhuiquan_12378dfj6'),
+      }
+    ](name='OptionalPromotions'),
+    originalAmount?: float(name='OriginalAmount', example='17629'),
+    rules?: [ 
+      {
+        amount?: float(name='Amount', example='1'),
+        name?: string(name='Name', example='rule_128nsg182'),
+        ruleDescId?: string(name='RuleDescId', example='78hujis12jd'),
+      }
+    ](name='Rules'),
+    standDiscountPrice?: float(name='StandDiscountPrice', example='17629'),
+    standPrice?: float(name='StandPrice', example='17629'),
+    tradeAmount?: float(name='TradeAmount', example='17629'),
+  }(name='Data'),
+  errCode?: string(name='ErrCode', example='InvalidParams'),
+  errMessage?: string(name='ErrMessage', example='Invalid params: [instance not exists].'),
+  httpStatusCode?: int32(name='HttpStatusCode', example='200'),
+  requestId?: string(name='RequestId', example='86865DD4-7733-5446-B52B-C9DA71961B76'),
+  success?: boolean(name='Success', example='True'),
+}
+
+model QueryModifyDiskPerformanceLevelPriceResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: QueryModifyDiskPerformanceLevelPriceResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of QueryModifyDiskPerformanceLevelPrice  QueryModifyDiskPerformanceLevelPriceRequest
+  * @return QueryModifyDiskPerformanceLevelPriceResponse
+ */
+async function queryModifyDiskPerformanceLevelPrice(request: QueryModifyDiskPerformanceLevelPriceRequest): QueryModifyDiskPerformanceLevelPriceResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'QueryModifyDiskPerformanceLevelPrice', 'POST', '/webapi/priceInquiry/modifyDiskPerformanceLevel', 'json', false, 'json', request);
+}
+
+model QueryModifyDiskSizePriceRequest {
+  regionId?: string(name='RegionId', description='This parameter is required.', position='Host'),
+  instanceId: string(name='InstanceId', description='This parameter is required.', example='c-b25e21e24388****', position='Query'),
+  nodeGroupId: string(name='NodeGroupId', description='This parameter is required.', example='ng-3d5ce6454354****', position='Query'),
+  promotionOptionNo?: string(name='PromotionOptionNo', example='youhuiquan_12378dfj6', position='Query'),
+  target: int32(name='Target', description='This parameter is required.', example='1000', minimum=50, maximum=65000, position='Query'),
+}
+
+model QueryModifyDiskSizePriceResponseBody = {
+  accessDeniedDetail?: string(name='AccessDeniedDetail', description='AccessDeniedDetail', example='{     "PolicyType": "AccountLevelIdentityBasedPolicy",     "AuthPrincipalOwnerId": "xxx",     "EncodedDiagnosticMessage": "xxx",     "AuthPrincipalType": "xxx",     "AuthPrincipalDisplayName": "xxx",     "NoPermissionType": "ImplicitDeny",     "AuthAction": "sr:xxx"   }'),
+  data?: {
+    componentPrices?: [ 
+      {
+        componentName?: string(name='ComponentName', example='disk_size'),
+        discountAmount?: float(name='DiscountAmount', example='0'),
+        originalAmount?: float(name='OriginalAmount', example='9872'),
+        tradeAmount?: float(name='TradeAmount', example='9872'),
+      }
+    ](name='ComponentPrices'),
+    currency?: string(name='Currency', example='CNY'),
+    depreciateInfo?: {
+      cheapRate?: float(name='CheapRate', example='0'),
+      cheapStandAmount?: float(name='CheapStandAmount', example='9872'),
+      isShow?: boolean(name='IsShow', example='0'),
+      originalStandAmount?: float(name='OriginalStandAmount', example='9872'),
+    }(name='DepreciateInfo', example='true'),
+    discountAmount?: float(name='DiscountAmount', example='0'),
+    optionalPromotions?: [ 
+      {
+        promotionDesc?: string(name='PromotionDesc', example='youhuiquan_desc'),
+        promotionName?: string(name='PromotionName', example='youhuiquan_promotion_option_id_for_blank'),
+        promotionOptionNo?: string(name='PromotionOptionNo', example='youhuiquan_12378dfj6'),
+      }
+    ](name='OptionalPromotions'),
+    originalAmount?: float(name='OriginalAmount', example='9872'),
+    rules?: [ 
+      {
+        amount?: float(name='Amount', example='10'),
+        name?: string(name='Name', example='rule-083ja12'),
+        ruleDescId?: string(name='RuleDescId', example='7ysj12ksaa'),
+      }
+    ](name='Rules'),
+    standDiscountPrice?: float(name='StandDiscountPrice', example='9872'),
+    standPrice?: float(name='StandPrice', example='9872'),
+    tradeAmount?: float(name='TradeAmount', example='9872'),
+  }(name='Data'),
+  errCode?: string(name='ErrCode', example='InvalidParams'),
+  errMessage?: string(name='ErrMessage', example='null'),
+  httpStatusCode?: int32(name='HttpStatusCode', example='200'),
+  requestId?: string(name='RequestId', example='32A44F0D-BFF6-5664-999A-218BBDE7****'),
+  success?: boolean(name='Success', example='false'),
+}
+
+model QueryModifyDiskSizePriceResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: QueryModifyDiskSizePriceResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of QueryModifyDiskSizePrice  QueryModifyDiskSizePriceRequest
+  * @return QueryModifyDiskSizePriceResponse
+ */
+async function queryModifyDiskSizePrice(request: QueryModifyDiskSizePriceRequest): QueryModifyDiskSizePriceResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'QueryModifyDiskSizePrice', 'POST', '/webapi/priceInquiry/modifyDiskSize', 'json', false, 'json', request);
+}
+
+model QueryModifyDiskTypePriceRequest {
+  regionId?: string(name='RegionId', description='This parameter is required.', position='Host'),
+  instanceId: string(name='InstanceId', description='This parameter is required.', example='c-b25e21e24388****', position='Query'),
+  nodeGroupId: string(name='NodeGroupId', description='This parameter is required.', example='ng-d332aa8bca48****', position='Query'),
+  promotionOptionNo?: string(name='PromotionOptionNo', example='youhuiquan_12378dfj6', position='Query'),
+  targetDiskType: string(name='TargetDiskType', description='This parameter is required.', example='essd', position='Query'),
+  targetPerformanceLevel: string(name='TargetPerformanceLevel', description='This parameter is required.', example='pl2', position='Query'),
+}
+
+model QueryModifyDiskTypePriceResponseBody = {
+  accessDeniedDetail?: string(name='AccessDeniedDetail', description='AccessDeniedDetail', example='{     "PolicyType": "AccountLevelIdentityBasedPolicy",     "AuthPrincipalOwnerId": "xxx",     "EncodedDiagnosticMessage": "xxx",     "AuthPrincipalType": "xxx",     "AuthPrincipalDisplayName": "xxx",     "NoPermissionType": "ImplicitDeny",     "AuthAction": "sr:xxx"   }'),
+  data?: {
+    componentPrices?: [ 
+      {
+        componentName?: string(name='ComponentName', example='disk_type'),
+        discountAmount?: float(name='DiscountAmount', example='0'),
+        originalAmount?: float(name='OriginalAmount', example='10923'),
+        tradeAmount?: float(name='TradeAmount', example='10923'),
+      }
+    ](name='ComponentPrices'),
+    currency?: string(name='Currency', example='CNY'),
+    depreciateInfo?: {
+      cheapRate?: float(name='CheapRate', example='0'),
+      cheapStandAmount?: float(name='CheapStandAmount', example='10923'),
+      isShow?: boolean(name='IsShow', example='true'),
+      originalStandAmount?: float(name='OriginalStandAmount', example='10923'),
+    }(name='DepreciateInfo'),
+    discountAmount?: float(name='DiscountAmount', example='0'),
+    optionalPromotions?: [ 
+      {
+        promotionDesc?: string(name='PromotionDesc', example='youhuiquan_desc'),
+        promotionName?: string(name='PromotionName', example='youhuiquan_promotion_option_id_for_blank'),
+        promotionOptionNo?: string(name='PromotionOptionNo', example='youhuiquan_12378dfj6'),
+      }
+    ](name='OptionalPromotions'),
+    originalAmount?: float(name='OriginalAmount', example='10923'),
+    rules?: [ 
+      {
+        amount?: float(name='Amount', example='10'),
+        name?: string(name='Name', example='rule-928shy23sa'),
+        ruleDescId?: string(name='RuleDescId', example='7dsu230ks23'),
+      }
+    ](name='Rules'),
+    standDiscountPrice?: float(name='StandDiscountPrice', example='10923'),
+    standPrice?: float(name='StandPrice', example='10923'),
+    tradeAmount?: float(name='TradeAmount', example='10923'),
+  }(name='Data'),
+  errCode?: string(name='ErrCode', example='InvalidParams'),
+  errMessage?: string(name='ErrMessage', example='Invalid params: [Region id should be select from set [cn-beijing, cn-hangzhou]]'),
+  httpStatusCode?: int32(name='HttpStatusCode', example='200'),
+  requestId?: string(name='RequestId', example='32A44F0D-BFF6-5664-999A-218BBDE74XXX'),
+  success?: boolean(name='Success', example='True'),
+}
+
+model QueryModifyDiskTypePriceResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: QueryModifyDiskTypePriceResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of QueryModifyDiskTypePrice  QueryModifyDiskTypePriceRequest
+  * @return QueryModifyDiskTypePriceResponse
+ */
+async function queryModifyDiskTypePrice(request: QueryModifyDiskTypePriceRequest): QueryModifyDiskTypePriceResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'QueryModifyDiskTypePrice', 'POST', '/webapi/priceInquiry/modifyDiskType', 'json', false, 'json', request);
+}
+
+model QueryModifyNodeNumberPriceRequest {
+  regionId?: string(name='RegionId', description='This parameter is required.', position='Host'),
+  instanceId: string(name='InstanceId', description='This parameter is required.', example='c-b25e21e24388****', position='Query'),
+  nodeGroupId: string(name='NodeGroupId', description='This parameter is required.', example='ng-3d5ce6454354****', position='Query'),
+  promotionOptionNo?: string(name='PromotionOptionNo', example='youhuiquan_12378dfj6', position='Query'),
+  target: int32(name='Target', description='This parameter is required.', example='4', minimum=0, maximum=100, position='Query'),
+}
+
+model QueryModifyNodeNumberPriceResponseBody = {
+  accessDeniedDetail?: string(name='AccessDeniedDetail', description='AccessDeniedDetail', example='{     "PolicyType": "AccountLevelIdentityBasedPolicy",     "AuthPrincipalOwnerId": "xxx",     "EncodedDiagnosticMessage": "xxx",     "AuthPrincipalType": "xxx",     "AuthPrincipalDisplayName": "xxx",     "NoPermissionType": "ImplicitDeny",     "AuthAction": "sr:xxx"   }'),
+  data?: {
+    componentPrices?: [ 
+      {
+        componentName?: string(name='ComponentName', example='RangerUserSync'),
+        discountAmount?: float(name='DiscountAmount', example='0'),
+        originalAmount?: float(name='OriginalAmount', example='26710'),
+        tradeAmount?: float(name='TradeAmount', example='26710'),
+      }
+    ](name='ComponentPrices'),
+    currency?: string(name='Currency', example='CNY'),
+    depreciateInfo?: {
+      cheapRate?: float(name='CheapRate', example='0'),
+      cheapStandAmount?: float(name='CheapStandAmount', example='26710'),
+      isShow?: boolean(name='IsShow', example='true'),
+      originalStandAmount?: float(name='OriginalStandAmount', example='26710'),
+    }(name='DepreciateInfo', example='0'),
+    discountAmount?: float(name='DiscountAmount', example='0'),
+    optionalPromotions?: [ 
+      {
+        promotionDesc?: string(name='PromotionDesc', example='youhuiquan_desc'),
+        promotionName?: string(name='PromotionName', example='youhuiquan_promotion_option_id_for_blank'),
+        promotionOptionNo?: string(name='PromotionOptionNo', example='youhuiquan_12378dfj6'),
+      }
+    ](name='OptionalPromotions'),
+    originalAmount?: float(name='OriginalAmount', example='26710'),
+    rules?: [ 
+      {
+        amount?: float(name='Amount', example='10'),
+        name?: string(name='Name', example='rule_923su2sf'),
+        ruleDescId?: string(name='RuleDescId', example='8uy3sh12sa'),
+      }
+    ](name='Rules'),
+    standDiscountPrice?: float(name='StandDiscountPrice', example='26710'),
+    standPrice?: float(name='StandPrice', example='26710'),
+    tradeAmount?: float(name='TradeAmount', example='26710'),
+  }(name='Data'),
+  errCode?: string(name='ErrCode', example='InvalidParams'),
+  errMessage?: string(name='ErrMessage', example='Invalid params: [instance not exists].'),
+  httpStatusCode?: int32(name='HttpStatusCode', example='200'),
+  requestId?: string(name='RequestId', example='32A44F0D-BFF6-5664-999A-218BBDE74XXX'),
+  success?: boolean(name='Success', example='false'),
+}
+
+model QueryModifyNodeNumberPriceResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: QueryModifyNodeNumberPriceResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of QueryModifyNodeNumberPrice  QueryModifyNodeNumberPriceRequest
+  * @return QueryModifyNodeNumberPriceResponse
+ */
+async function queryModifyNodeNumberPrice(request: QueryModifyNodeNumberPriceRequest): QueryModifyNodeNumberPriceResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'QueryModifyNodeNumberPrice', 'POST', '/webapi/priceInquiry/modifyNodeNumber', 'json', false, 'json', request);
+}
+
+model QueryModifySpecTypePriceRequest {
+  regionId?: string(name='RegionId', description='This parameter is required.', position='Host'),
+  instanceId: string(name='InstanceId', description='This parameter is required.', example='c-b25e21e24388****', position='Query'),
+  nodeGroupId: string(name='NodeGroupId', description='This parameter is required.', example='ng-3d5ce6454354****', position='Query'),
+  promotionOptionNo?: string(name='PromotionOptionNo', example='youhuiquan_12378dfj6', position='Query'),
+  targetSpecType: string(name='TargetSpecType', description='This parameter is required.', example='standard', position='Query'),
+}
+
+model QueryModifySpecTypePriceResponseBody = {
+  accessDeniedDetail?: string(name='AccessDeniedDetail', description='AccessDeniedDetail', example='{     "PolicyType": "AccountLevelIdentityBasedPolicy",     "AuthPrincipalOwnerId": "xxx",     "EncodedDiagnosticMessage": "xxx",     "AuthPrincipalType": "xxx",     "AuthPrincipalDisplayName": "xxx",     "NoPermissionType": "ImplicitDeny",     "AuthAction": "sr:xxx"   }'),
+  data?: {
+    componentPrices?: [ 
+      {
+        componentName?: string(name='ComponentName', example='node_type'),
+        discountAmount?: float(name='DiscountAmount', example='0'),
+        originalAmount?: float(name='OriginalAmount', example='5612'),
+        tradeAmount?: float(name='TradeAmount', example='5612'),
+      }
+    ](name='ComponentPrices'),
+    currency?: string(name='Currency', example='CNY'),
+    depreciateInfo?: {
+      cheapRate?: float(name='CheapRate', example='0'),
+      cheapStandAmount?: float(name='CheapStandAmount', example='5612'),
+      isShow?: boolean(name='IsShow', example='true'),
+      originalStandAmount?: float(name='OriginalStandAmount', example='5612'),
+    }(name='DepreciateInfo'),
+    discountAmount?: float(name='DiscountAmount', example='0'),
+    optionalPromotions?: [ 
+      {
+        promotionDesc?: string(name='PromotionDesc', example='youhuiquan_desc'),
+        promotionName?: string(name='PromotionName', example='youhuiquan_promotion_option_id_for_blank'),
+        promotionOptionNo?: string(name='PromotionOptionNo', example='youhuiquan_12378dfj6'),
+      }
+    ](name='OptionalPromotions'),
+    originalAmount?: float(name='OriginalAmount', example='5612'),
+    rules?: [ 
+      {
+        amount?: float(name='Amount', example='10'),
+        name?: string(name='Name', example='rule_827231sg1'),
+        ruleDescId?: string(name='RuleDescId', example='7usy32gs01'),
+      }
+    ](name='Rules'),
+    standDiscountPrice?: float(name='StandDiscountPrice', example='5612'),
+    standPrice?: float(name='StandPrice', example='5612'),
+    tradeAmount?: float(name='TradeAmount', example='5612'),
+  }(name='Data'),
+  errCode?: string(name='ErrCode', example='InvalidParams'),
+  errMessage?: string(name='ErrMessage', example='Invalid params: [instance not exists].'),
+  httpStatusCode?: int32(name='HttpStatusCode', example='200'),
+  requestId?: string(name='RequestId', example='32A44F0D-BFF6-5664-999A-218BBDE7****'),
+  success?: boolean(name='Success', example='true'),
+}
+
+model QueryModifySpecTypePriceResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: QueryModifySpecTypePriceResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of QueryModifySpecTypePrice  QueryModifySpecTypePriceRequest
+  * @return QueryModifySpecTypePriceResponse
+ */
+async function queryModifySpecTypePrice(request: QueryModifySpecTypePriceRequest): QueryModifySpecTypePriceResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'QueryModifySpecTypePrice', 'POST', '/webapi/priceInquiry/modifySpecType', 'json', false, 'json', request);
+}
+
+model QueryPriceV1Request {
+  regionId?: string(name='RegionId', position='Host,Body'),
+  agentNodeGroup?: {
+    cu?: int32(name='cu', example='2'),
+  }(name='AgentNodeGroup', position='Body'),
+  backendNodeGroups?: [ 
+    {
+      cu?: string(name='cu', example='8'),
+      diskNumber?: int32(name='diskNumber', example='1'),
+      localStorageInstanceType?: string(name='localStorageInstanceType', example='local_ssd_4_4xlarge'),
+      residentNodeNumber?: int32(name='residentNodeNumber', example='3'),
+      specType?: string(name='specType', example='standard'),
+      storagePerformanceLevel?: string(name='storagePerformanceLevel', example='pl1'),
+      storageSize?: int32(name='storageSize', example='100'),
+    }
+  ](name='BackendNodeGroups', position='Body'),
+  duration?: int32(name='Duration', example='1', position='Body'),
+  frontendNodeGroups?: [ 
+    {
+      cu?: string(name='cu', example='8'),
+      diskNumber?: int32(name='diskNumber', example='1'),
+      localStorageInstanceType?: string(name='localStorageInstanceType', example='null'),
+      residentNodeNumber?: int32(name='residentNodeNumber', example='3'),
+      specType?: string(name='specType', example='standard'),
+      storagePerformanceLevel?: string(name='storagePerformanceLevel', example='pl1'),
+      storageSize?: int32(name='storageSize', example='100'),
+    }
+  ](name='FrontendNodeGroups', position='Body'),
+  observerNodeGroups?: [ 
+    {
+      cu?: string(name='cu', example='8'),
+      diskNumber?: int32(name='diskNumber', example='1'),
+      localStorageInstanceType?: string(name='localStorageInstanceType', example='null'),
+      residentNodeNumber?: int32(name='residentNodeNumber', example='3'),
+      specType?: string(name='specType', example='standard'),
+      storagePerformanceLevel?: string(name='storagePerformanceLevel', example='pl1'),
+      storageSize?: int32(name='storageSize', example='100'),
+    }
+  ](name='ObserverNodeGroups', position='Body'),
+  packageType?: string(name='PackageType', example='official', position='Body'),
+  payType?: string(name='PayType', example='prePaid', position='Body'),
+  pricingCycle?: string(name='PricingCycle', example='Month', position='Body'),
+  promotionOptionNo?: string(name='PromotionOptionNo', example='youhuiquan_12378dfj6', position='Body'),
+  runMode?: string(name='RunMode', example='shared_data', position='Body'),
+}
+
+model QueryPriceV1ResponseBody = {
+  accessDeniedDetail?: string(name='AccessDeniedDetail', description='AccessDeniedDetail', example='{     "PolicyType": "AccountLevelIdentityBasedPolicy",     "AuthPrincipalOwnerId": "xxx",     "EncodedDiagnosticMessage": "xxx",     "AuthPrincipalType": "xxx",     "AuthPrincipalDisplayName": "xxx",     "NoPermissionType": "ImplicitDeny",     "AuthAction": "sr:xxx"   }'),
+  data?: {
+    componentPrices?: [ 
+      {
+        componentName?: string(name='ComponentName', example='FE'),
+        discountAmount?: float(name='DiscountAmount', example='0'),
+        originalAmount?: float(name='OriginalAmount', example='3192'),
+        tradeAmount?: float(name='TradeAmount', example='3192'),
+      }
+    ](name='ComponentPrices'),
+    currency?: string(name='Currency', example='CNY'),
+    depreciateInfo?: {
+      cheapRate?: float(name='CheapRate', example='0'),
+      cheapStandAmount?: float(name='CheapStandAmount', example='8094'),
+      isShow?: boolean(name='IsShow', example='true'),
+      originalStandAmount?: float(name='OriginalStandAmount', example='8094'),
+    }(name='DepreciateInfo'),
+    discountAmount?: float(name='DiscountAmount', example='0'),
+    moduleInstance?: [ 
+      {
+        moduleCode?: string(name='ModuleCode', example='cu_num'),
+        moduleName?: string(name='ModuleName', example='CU'),
+        standPrice?: string(name='StandPrice', example='1622'),
+        totalProductFee?: string(name='TotalProductFee', example='1622'),
+      }
+    ](name='ModuleInstance'),
+    optionalPromotions?: [ 
+      {
+        promotionDesc?: string(name='PromotionDesc', example='youhuiquan_desc'),
+        promotionName?: string(name='PromotionName', example='youhuiquan_promotion_option_id_for_blank'),
+        promotionOptionNo?: string(name='PromotionOptionNo', example='youhuiquan_12378dfj6'),
+      }
+    ](name='OptionalPromotions'),
+    originalAmount?: float(name='OriginalAmount', example='8094'),
+    rules?: [ 
+      {
+        amount?: float(name='Amount', example='1'),
+        name?: string(name='Name', example='rule_8usi12321sa'),
+        ruleDescId?: string(name='RuleDescId', example='7u22yshaasds'),
+      }
+    ](name='Rules'),
+    standDiscountPrice?: float(name='StandDiscountPrice', example='8094'),
+    standPrice?: float(name='StandPrice', example='8094'),
+    tradeAmount?: float(name='TradeAmount', example='8094'),
+  }(name='Data'),
+  errCode?: string(name='ErrCode', example='InvalidParams'),
+  errMessage?: string(name='ErrMessage', example='Invalid params: [instance not exists].'),
+  httpStatusCode?: int32(name='HttpStatusCode', example='200'),
+  requestId?: string(name='RequestId', example='32A44F0D-BFF6-5664-999A-218BBDE7****'),
+  success?: boolean(name='Success', example='true'),
+}
+
+model QueryPriceV1Response = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: QueryPriceV1ResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of QueryPriceV1  QueryPriceV1Request
+  * @return QueryPriceV1Response
+ */
+async function queryPriceV1(request: QueryPriceV1Request): QueryPriceV1Response {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'QueryPriceV1', 'POST', '/webapi/price/create', 'json', false, 'json', request);
+}
+
+model QueryRefundPriceRequest {
+  regionId?: string(name='regionId', position='Host'),
+  billingInstanceIds?: string(name='billingInstanceIds', example='ng-1syeu23,ng-81293sa', position='Query'),
+  instanceId?: string(name='instanceId', example='c-82su12s0kl12', position='Query'),
+}
+
+model QueryRefundPriceResponseBody = {
+  accessDeniedDetail?: string(name='accessDeniedDetail', description='AccessDeniedDetail', example='None'),
+  data?: double(name='data', example='18837'),
+  errCode?: string(name='errCode', example='0'),
+  errMessage?: string(name='errMessage', example='None'),
+  httpStatusCode?: int32(name='httpStatusCode', example='200'),
+  requestId?: string(name='requestId', example='8C69A6D0-49B7-54B9-BF21-9AF52172A5F7'),
+  success?: boolean(name='success', example='True'),
+}
+
+model QueryRefundPriceResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: QueryRefundPriceResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of QueryRefundPrice  QueryRefundPriceRequest
+  * @return QueryRefundPriceResponse
+ */
+async function queryRefundPrice(request: QueryRefundPriceRequest): QueryRefundPriceResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'QueryRefundPrice', 'POST', '/webapi/buy/queryRefundPrice', 'json', false, 'json', request);
+}
+
+model QueryRenewPriceRequest {
+  regionId?: string(name='RegionId', position='Host'),
+  billingInstanceIds: string(name='BillingInstanceIds', description='This parameter is required.', example='c-3d6dc31ba67b1839', maxLength=200, position='Query'),
+  duration: int32(name='Duration', description='This parameter is required.', example='2', minimum=1, maximum=12, position='Query'),
+  instanceId: string(name='InstanceId', description='This parameter is required.', example='c-b25e21e24388****', position='Query'),
+  pricingCycle: string(name='PricingCycle', description='This parameter is required.', example='Month', position='Query'),
+  promotionOptionNo?: string(name='PromotionOptionNo', example='youhuiquan_12378dfj6', position='Query'),
+}
+
+model QueryRenewPriceResponseBody = {
+  data?: [ 
+    {
+      billingInstanceId?: string(name='BillingInstanceId', example='c-96f3bc7f04b2****'),
+      currency?: string(name='Currency', example='CNY'),
+      depreciateInfo?: {
+        cheapRate?: float(name='CheapRate', example='0'),
+        cheapStandAmount?: float(name='CheapStandAmount', example='9812'),
+        isShow?: boolean(name='IsShow', example='true'),
+        originalStandAmount?: float(name='OriginalStandAmount', example='9812'),
+      }(name='DepreciateInfo', example='9812'),
+      discountAmount?: float(name='DiscountAmount', example='0'),
+      optionalPromotions?: [ 
+        {
+          promotionDesc?: string(name='PromotionDesc', example='youhuiquan_desc'),
+          promotionName?: string(name='PromotionName', example='youhuiquan_promotion_option_id_for_blank'),
+          promotionOptionNo?: string(name='PromotionOptionNo', example='youhuiquan_12378dfj6'),
+        }
+      ](name='OptionalPromotions'),
+      originalAmount?: float(name='OriginalAmount', example='9812'),
+      rules?: [ 
+        {
+          amount?: float(name='Amount', example='1'),
+          name?: string(name='Name', example='rule_8syh2j121ns'),
+          ruleDescId?: string(name='RuleDescId', example='8su2i3hsdf128'),
+        }
+      ](name='Rules'),
+      standDiscountPrice?: float(name='StandDiscountPrice', example='9812'),
+      standPrice?: float(name='StandPrice', example='9812'),
+      tradeAmount?: float(name='TradeAmount', example='9812'),
+    }
+  ](name='Data'),
+  errCode?: string(name='ErrCode', example='InvalidParams'),
+  errMessage?: string(name='ErrMessage', example='null'),
+  httpStatusCode?: int32(name='HttpStatusCode', example='200'),
+  requestId?: string(name='RequestId', example='32A44F0D-BFF6-5664-999A-218BBDE74XXX'),
+  success?: boolean(name='Success', example='false'),
+}
+
+model QueryRenewPriceResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: QueryRenewPriceResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of QueryRenewPrice  QueryRenewPriceRequest
+  * @return QueryRenewPriceResponse
+ */
+async function queryRenewPrice(request: QueryRenewPriceRequest): QueryRenewPriceResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'QueryRenewPrice', 'POST', '/webapi/price/renew', 'json', false, 'json', request);
+}
+
+model QueryUnpaidOrderRequest {
+  regionId?: string(name='RegionId', position='Host'),
+  billingInstanceId: string(name='BillingInstanceId', description='This parameter is required.', example='ng-12zxs328sha2', maxLength=30, position='Query'),
+  instanceId: string(name='InstanceId', description='This parameter is required.', example='c-b25e21e24388****', maxLength=30, position='Query'),
+  orderType?: string(name='OrderType', example='BUY', position='Query'),
+}
+
+model QueryUnpaidOrderResponseBody = {
+  data?: long(name='Data', example='true'),
+  errCode?: string(name='ErrCode', example='InvalidParams'),
+  errMessage?: string(name='ErrMessage', example='Invalid params: [instance not exists].'),
+  httpStatusCode?: int32(name='HttpStatusCode', example='200'),
+  requestId?: string(name='RequestId', example='32A44F0D-BFF6-5664-999A-218BBDE74XXX'),
+  success?: boolean(name='Success', example='false'),
+}
+
+model QueryUnpaidOrderResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: QueryUnpaidOrderResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of QueryUnpaidOrder  QueryUnpaidOrderRequest
+  * @return QueryUnpaidOrderResponse
+ */
+async function queryUnpaidOrder(request: QueryUnpaidOrderRequest): QueryUnpaidOrderResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'QueryUnpaidOrder', 'POST', '/webapi/order/queryUnpaidOrder', 'json', false, 'json', request);
+}
+
 model QueryUpgradableVersionsRequest {
   regionId?: string(name='RegionId', position='Host'),
   instanceId: string(name='InstanceId', description='The instance ID.
@@ -1299,6 +3491,38 @@ async function queryUpgradableVersions(request: QueryUpgradableVersionsRequest):
   return @handler.do('RESTFUL', 'QueryUpgradableVersions', 'POST', '/webapi/starrocks/queryUpgradableVersions', 'json', false, 'json', request);
 }
 
+model RebootECSRequest {
+  regionId?: string(name='RegionId', position='Host'),
+  eventId?: string(name='EventId', example='8c96a3fc8a0d4a48b5db5fdb9742fbbc', position='Query'),
+  instanceId?: string(name='InstanceId', example='c-b25e21e24388****', position='Query'),
+  rebootTime?: long(name='RebootTime', example='1772076782', position='Query'),
+}
+
+model RebootECSResponseBody = {
+  data?: boolean(name='Data', example='true'),
+  errCode?: string(name='ErrCode', example='InvalidParams'),
+  errMessage?: string(name='ErrMessage', example='Invalid params: [instance not exists].'),
+  httpStatusCode?: int32(name='HttpStatusCode', example='200'),
+  requestId?: string(name='RequestId', example='32A44F0D-BFF6-5664-999A-218BBDE7****'),
+  success?: boolean(name='Success', example='True'),
+  total?: int32(name='Total', example='100'),
+}
+
+model RebootECSResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: RebootECSResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of RebootECS  RebootECSRequest
+  * @return RebootECSResponse
+ */
+async function rebootECS(request: RebootECSRequest): RebootECSResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'RebootECS', 'POST', '/webapi/event/rebootEcs', 'json', false, 'json', request);
+}
+
 model ReleaseInstanceRequest {
   regionId?: string(name='RegionId', position='Host'),
   instanceId: string(name='InstanceId', description='The instance ID.
@@ -1331,6 +3555,41 @@ model ReleaseInstanceResponse = {
 async function releaseInstance(request: ReleaseInstanceRequest): ReleaseInstanceResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RESTFUL', 'ReleaseInstance', 'POST', '/webapi/cluster/release', 'json', false, 'json', request);
+}
+
+model RenewInstanceRequest {
+  regionId?: string(name='RegionId', position='Host'),
+  billingInstanceIds: string(name='BillingInstanceIds', description='This parameter is required.', example='ng-dd8933281e46****', maxLength=200, position='Query'),
+  duration: int32(name='Duration', description='This parameter is required.', example='1', minimum=1, maximum=12, position='Query'),
+  instanceId: string(name='InstanceId', description='This parameter is required.', example='c-b25e21e24388****', position='Query'),
+  pricingCycle: string(name='PricingCycle', description='This parameter is required.', example='Year', position='Query'),
+  promotionOptionNo?: string(name='PromotionOptionNo', example='youhuiquan_12378dfj6', position='Query'),
+}
+
+model RenewInstanceResponseBody = {
+  data?: {
+    orderIds?: [ string ](name='OrderIds'),
+  }(name='Data'),
+  errMessage?: string(name='ErrMessage', example='Invalid params: [instance not exists].'),
+  errorCode?: string(name='ErrorCode', example='Success'),
+  httpStatusCode?: int32(name='HttpStatusCode', example='200'),
+  requestId?: string(name='RequestId', example='32A44F0D-BFF6-5664-999A-218BBDE74XXX'),
+  success?: boolean(name='Success', example='True'),
+}
+
+model RenewInstanceResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: RenewInstanceResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of RenewInstance  RenewInstanceRequest
+  * @return RenewInstanceResponse
+ */
+async function renewInstance(request: RenewInstanceRequest): RenewInstanceResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'RenewInstance', 'POST', '/webapi/order/renew_instance', 'json', false, 'json', request);
 }
 
 model RestartInstanceRequest {
@@ -1554,6 +3813,37 @@ async function rollbackConfigModification(request: RollbackConfigModificationReq
   return @handler.do('RESTFUL', 'RollbackConfigModification', 'POST', '/webapi/config/rollbackConfigModification', 'json', false, 'json', request);
 }
 
+model SwitchActiveStandbyZonesRequest {
+  regionId?: string(name='RegionId', position='Host'),
+  instanceId?: string(name='InstanceId', example='c-b25e21e24388****', position='Query'),
+  targetZoneId?: string(name='TargetZoneId', example='cn-hangzhou-k', position='Query'),
+}
+
+model SwitchActiveStandbyZonesResponseBody = {
+  accessDeniedDetail?: string(name='AccessDeniedDetail', description='AccessDeniedDetail', example='{     "PolicyType": "AccountLevelIdentityBasedPolicy",     "AuthPrincipalOwnerId": "xxx",     "EncodedDiagnosticMessage": "xxx",     "AuthPrincipalType": "xxx",     "AuthPrincipalDisplayName": "xxx",     "NoPermissionType": "ImplicitDeny",     "AuthAction": "sr:xxx"   }'),
+  data?: boolean(name='Data', example='24151320976****'),
+  errCode?: string(name='ErrCode', example='InvalidParams'),
+  errMessage?: string(name='ErrMessage', example='null'),
+  httpStatusCode?: int32(name='HttpStatusCode', example='200'),
+  requestId?: string(name='RequestId', example='32A44F0D-BFF6-5664-999A-218BBDE7****'),
+  success?: boolean(name='Success', example='false'),
+}
+
+model SwitchActiveStandbyZonesResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: SwitchActiveStandbyZonesResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of SwitchActiveStandbyZones  SwitchActiveStandbyZonesRequest
+  * @return SwitchActiveStandbyZonesResponse
+ */
+async function switchActiveStandbyZones(request: SwitchActiveStandbyZonesRequest): SwitchActiveStandbyZonesResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'SwitchActiveStandbyZones', 'POST', '/webapi/recovery/switchZones', 'json', false, 'json', request);
+}
+
 model TagResourcesRequest {
   regionId: string(name='RegionId', description='This parameter is required.', example='cn-hangzhou', position='Body'),
   resourceId: [ string ](name='ResourceId', description='This parameter is required.', position='Body'),
@@ -1583,6 +3873,37 @@ model TagResourcesResponse = {
 async function tagResources(request: TagResourcesRequest): TagResourcesResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RESTFUL', 'TagResources', 'POST', '/webapi/tags', 'json', false, 'json', request);
+}
+
+model ToggleAutoMinorVersionUpgradeRequest {
+  regionId?: string(name='RegionId', position='Host'),
+  autoUpgrade: boolean(name='AutoUpgrade', description='This parameter is required.', example='true', position='Query'),
+  instanceId: string(name='InstanceId', description='This parameter is required.', example='c-b25e21e24388****', position='Query'),
+}
+
+model ToggleAutoMinorVersionUpgradeResponseBody = {
+  accessDeniedDetail?: string(name='AccessDeniedDetail', example='{     "PolicyType": "AccountLevelIdentityBasedPolicy",     "AuthPrincipalOwnerId": "xxx",     "EncodedDiagnosticMessage": "xxx",     "AuthPrincipalType": "xxx",     "AuthPrincipalDisplayName": "xxx",     "NoPermissionType": "ImplicitDeny",     "AuthAction": "sr:xxx"   }'),
+  data?: boolean(name='Data', example='24151320976****'),
+  errCode?: string(name='ErrCode', example='InvalidParams'),
+  errMessage?: string(name='ErrMessage', example='Invalid params: [instance not exists].'),
+  httpStatusCode?: int32(name='HttpStatusCode', example='200'),
+  requestId?: string(name='RequestId', example='32A44F0D-BFF6-5664-999A-218BBDE7****'),
+  success?: boolean(name='Success', example='false'),
+}
+
+model ToggleAutoMinorVersionUpgradeResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ToggleAutoMinorVersionUpgradeResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of ToggleAutoMinorVersionUpgrade  ToggleAutoMinorVersionUpgradeRequest
+  * @return ToggleAutoMinorVersionUpgradeResponse
+ */
+async function toggleAutoMinorVersionUpgrade(request: ToggleAutoMinorVersionUpgradeRequest): ToggleAutoMinorVersionUpgradeResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'ToggleAutoMinorVersionUpgrade', 'POST', '/webapi/starrocks/toggleAutoMinorVersionUpgrade', 'json', false, 'json', request);
 }
 
 model TogglePublicSlbRequest {
@@ -1643,6 +3964,72 @@ async function unTagResources(request: UnTagResourcesRequest): UnTagResourcesRes
   return @handler.do('RESTFUL', 'UnTagResources', 'DELETE', '/webapi/tags', 'json', false, 'json', request);
 }
 
+model UpdateBackupRequest {
+  regionId?: string(name='RegionId', example='cn-hangzhou', position='Query'),
+  backupTaskId?: string(name='backupTaskId', example='bk-t1232839', position='Body'),
+  description?: string(name='description', example='backupTask-desc1', position='Body'),
+}
+
+model UpdateBackupResponseBody = {
+  data?: boolean(name='Data', example='24151320976****'),
+  errCode?: string(name='ErrCode', example='InvalidParams'),
+  errMessage?: string(name='ErrMessage', example='Invalid params: [Region id should be select from set [cn-beijing, cn-hangzhou]]'),
+  httpStatusCode?: int32(name='HttpStatusCode', example='200'),
+  requestId?: string(name='RequestId', example='32A44F0D-BFF6-5664-999A-218BBDE7****'),
+  success?: boolean(name='Success', example='false'),
+}
+
+model UpdateBackupResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: UpdateBackupResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of UpdateBackup  UpdateBackupRequest
+  * @return UpdateBackupResponse
+ */
+async function updateBackup(request: UpdateBackupRequest): UpdateBackupResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'UpdateBackup', 'POST', '/webapi/backup/manage/update', 'json', false, 'json', request);
+}
+
+model UpdateBackupPolicyRequest {
+  regionId?: string(name='RegionId', position='Host'),
+  expireDays?: int32(name='ExpireDays', example='7', position='Body'),
+  hour?: int32(name='Hour', example='10', minimum=0, maximum=23, position='Body'),
+  instanceId?: string(name='InstanceId', example='c-0104730e9de40215', position='Body'),
+  minute?: int32(name='Minute', example='15', minimum=0, maximum=59, position='Body'),
+  policyId?: string(name='PolicyId', example='bk-9812023', position='Body'),
+  recurrenceValues?: [ int32 ](name='RecurrenceValues', position='Body'),
+  timeoutSeconds?: int32(name='TimeoutSeconds', example='3600', position='Body'),
+}
+
+model UpdateBackupPolicyResponseBody = {
+  accessDeniedDetail?: string(name='AccessDeniedDetail', description='AccessDeniedDetail', example='{     "PolicyType": "AccountLevelIdentityBasedPolicy",     "AuthPrincipalOwnerId": "xxx",     "EncodedDiagnosticMessage": "xxx",     "AuthPrincipalType": "xxx",     "AuthPrincipalDisplayName": "xxx",     "NoPermissionType": "ImplicitDeny",     "AuthAction": "sr:xxx"   }'),
+  data?: boolean(name='Data', example='24151320976****'),
+  errCode?: string(name='ErrCode', example='InvalidParams'),
+  errMessage?: string(name='ErrMessage', example='null'),
+  httpStatusCode?: int32(name='HttpStatusCode', example='200'),
+  requestId?: string(name='RequestId', example='32A44F0D-BFF6-5664-999A-218BBDE7****'),
+  success?: boolean(name='Success', example='false'),
+}
+
+model UpdateBackupPolicyResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: UpdateBackupPolicyResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of UpdateBackupPolicy  UpdateBackupPolicyRequest
+  * @return UpdateBackupPolicyResponse
+ */
+async function updateBackupPolicy(request: UpdateBackupPolicyRequest): UpdateBackupPolicyResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'UpdateBackupPolicy', 'POST', '/webapi/backupRestore/policy/update', 'json', false, 'json', request);
+}
+
 model UpdateGatewayRequest {
   regionId?: string(name='RegionId', position='Host'),
   feNodeNumber?: int32(name='FeNodeNumber', example='3', position='Query'),
@@ -1673,6 +4060,35 @@ model UpdateGatewayResponse = {
 async function updateGateway(request: UpdateGatewayRequest): UpdateGatewayResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RESTFUL', 'UpdateGateway', 'POST', '/webapi/gateway/update', 'json', false, 'json', request);
+}
+
+model UpdateInnerIpWhitelistGroupRequest {
+  cidrIpList: [ string ](name='CidrIpList', description='This parameter is required.', position='Body'),
+  innerIpWhitelistGroupId: string(name='InnerIpWhitelistGroupId', description='This parameter is required.', example='sg-28sjsi12bs1', minLength=2, maxLength=120, position='Body'),
+  instanceId: string(name='InstanceId', description='This parameter is required.', example='c-0104730e9de40215', position='Body'),
+}
+
+model UpdateInnerIpWhitelistGroupResponseBody = {
+  errCode?: string(name='ErrCode', example='InvalidParams'),
+  errMessage?: string(name='ErrMessage', example='Invalid params: [instance not exists].'),
+  httpStatusCode?: int32(name='HttpStatusCode', example='200'),
+  requestId?: string(name='RequestId', example='32A44F0D-BFF6-5664-999A-218BBDE74XXX'),
+  success?: boolean(name='Success', example='true'),
+}
+
+model UpdateInnerIpWhitelistGroupResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: UpdateInnerIpWhitelistGroupResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of UpdateInnerIpWhitelistGroup  UpdateInnerIpWhitelistGroupRequest
+  * @return UpdateInnerIpWhitelistGroupResponse
+ */
+async function updateInnerIpWhitelistGroup(request: UpdateInnerIpWhitelistGroupRequest): UpdateInnerIpWhitelistGroupResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'UpdateInnerIpWhitelistGroup', 'POST', '/webapi/securityGroup/update', 'json', false, 'json', request);
 }
 
 model UpdateInstanceNameRequest {
@@ -1708,6 +4124,69 @@ model UpdateInstanceNameResponse = {
 async function updateInstanceName(request: UpdateInstanceNameRequest): UpdateInstanceNameResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RESTFUL', 'UpdateInstanceName', 'POST', '/webapi/cluster/update_name', 'json', false, 'json', request);
+}
+
+model UpdateNodeGroupDescriptionRequest {
+  description?: string(name='Description', example='okcc', position='Query'),
+  nodeGroupId?: string(name='NodeGroupId', example='ng-3d5ce6454354****', position='Query'),
+  xAcsRamAuthContext?: string(name='X-Acs-Ram-Auth-Context', position='Query'),
+}
+
+model UpdateNodeGroupDescriptionResponseBody = {
+  errCode?: string(name='ErrCode', example='Success'),
+  errMessage?: string(name='ErrMessage', example='null'),
+  httpStatusCode?: int32(name='HttpStatusCode', example='200'),
+  requestId?: string(name='RequestId', example='32A44F0D-BFF6-5664-999A-218BBDE7****'),
+  success?: boolean(name='Success', example='false'),
+}
+
+model UpdateNodeGroupDescriptionResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: UpdateNodeGroupDescriptionResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of UpdateNodeGroupDescription  UpdateNodeGroupDescriptionRequest
+  * @return UpdateNodeGroupDescriptionResponse
+ */
+async function updateNodeGroupDescription(request: UpdateNodeGroupDescriptionRequest): UpdateNodeGroupDescriptionResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'UpdateNodeGroupDescription', 'POST', '/webapi/nodegroup/updateDescription', 'json', false, 'json', request);
+}
+
+model UpdatePublicNetworkStatusRequest {
+  regionId?: string(name='RegionId', position='Host'),
+  componentType?: string(name='ComponentType', example='BE', position='Query'),
+  instanceId: string(name='InstanceId', description='This parameter is required.', example='c-b25e21e24388****', position='Query'),
+  nodeGroupId?: string(name='NodeGroupId', example='ng-3d5ce6454354****', position='Query'),
+  publicNetworkEnabled?: boolean(name='PublicNetworkEnabled', example='true', position='Query'),
+}
+
+model UpdatePublicNetworkStatusResponseBody = {
+  accessDeniedDetail?: string(name='AccessDeniedDetail', description='AccessDeniedDetail', example='{     "PolicyType": "AccountLevelIdentityBasedPolicy",     "AuthPrincipalOwnerId": "xxx",     "EncodedDiagnosticMessage": "xxx",     "AuthPrincipalType": "xxx",     "AuthPrincipalDisplayName": "xxx",     "NoPermissionType": "ImplicitDeny",     "AuthAction": "sr:xxx"   }'),
+  data?: boolean(name='Data', example='true'),
+  errCode?: string(name='ErrCode', example='InvalidParams'),
+  errMessage?: string(name='ErrMessage', example='Invalid params: [instance not exists].'),
+  httpStatusCode?: int32(name='HttpStatusCode', example='200'),
+  requestId?: string(name='RequestId', example='32A44F0D-BFF6-5664-999A-218BBDE7****'),
+  success?: boolean(name='Success', example='true'),
+  total?: int32(name='Total', example='100'),
+}
+
+model UpdatePublicNetworkStatusResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: UpdatePublicNetworkStatusResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of UpdatePublicNetworkStatus  UpdatePublicNetworkStatusRequest
+  * @return UpdatePublicNetworkStatusResponse
+ */
+async function updatePublicNetworkStatus(request: UpdatePublicNetworkStatusRequest): UpdatePublicNetworkStatusResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'UpdatePublicNetworkStatus', 'POST', '/webapi/network/updatePublicNetworkStatus', 'json', false, 'json', request);
 }
 
 model UpgradeVersionRequest {
