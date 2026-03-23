@@ -33,19 +33,15 @@ function getEndpoint(productId: string, regionId: string, endpointRule: string, 
 }
 
 model AddIpfilterRequest {
-  ipAddress?: string(name='IpAddress', description='IP Address/IP Range/IP Segment
-
-This parameter is required.', example='xxx.xxx.xxx.xxx
-xxx.xxx.xxx.xxx-xxx.xxx.xxx.xxx
-xxx.xxx.xxx.xxx/xxx'),
+  ipAddress?: string(name='IpAddress', description='This parameter is required.'),
   ownerId?: long(name='OwnerId'),
   resourceOwnerAccount?: string(name='ResourceOwnerAccount'),
   resourceOwnerId?: long(name='ResourceOwnerId'),
 }
 
 model AddIpfilterResponseBody = {
-  ipFilterId?: string(name='IpFilterId', description='ID corresponding to the IP', example='10795'),
-  requestId?: string(name='RequestId', description='Request ID', example='0E9282E8-DC08-5445-8FB0-B9F0CA28B249'),
+  ipFilterId?: string(name='IpFilterId'),
+  requestId?: string(name='RequestId'),
 }
 
 model AddIpfilterResponse = {
@@ -55,7 +51,7 @@ model AddIpfilterResponse = {
 }
 
 /**
- * @summary Add IP Protection Information
+ * @summary 添加IP防护信息
  *
  * @param request AddIpfilterRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -94,7 +90,7 @@ async function addIpfilterWithOptions(request: AddIpfilterRequest, runtime: Util
 }
 
 /**
- * @summary Add IP Protection Information
+ * @summary 添加IP防护信息
  *
  * @param request AddIpfilterRequest
  * @return AddIpfilterResponse
@@ -174,52 +170,106 @@ async function approveReplyMailAddress(request: ApproveReplyMailAddressRequest):
 }
 
 model BatchSendMailRequest {
-  accountName?: string(name='AccountName', description='The sending address configured in the management console.
+  accountName?: string(name='AccountName', description='The sender address configured in the console.
 
 This parameter is required.', example='test@example.com'),
   addressType?: int32(name='AddressType', description='- 0: Random account
-- 1: Sending address
+
+- 1: Sender address
 
 This parameter is required.', example='1'),
-  clickTrace?: string(name='ClickTrace', description='- 1: Enable data tracking function
-- 0 (default): Disable data tracking function', example='0'),
-  domainAuth?: boolean(name='DomainAuth'),
-  headers?: string(name='Headers', description='Currently, the standard fields that can be added to the email header are Message-ID, List-Unsubscribe, and List-Unsubscribe-Post. Standard fields will overwrite the existing values in the email header, while non-standard fields must start with X-User- and will be appended to the email header. Currently, up to 10 headers can be passed in JSON format, and both standard and non-standard fields must comply with the syntax requirements for headers.', example='{
-  "Message-ID": "<msg0001@example.com>",
-  "X-User-UID1": "UID-1-000001",
-  "X-User-UID2": "UID-2-000001"
+  clickTrace?: string(name='ClickTrace', description='- 1: Enables the data tracking feature.
+
+- 0 (default): Disables the data tracking feature.', example='0'),
+  domainAuth?: boolean(name='DomainAuth', description='Enables domain-level authentication.
+
+- true
+
+- false
+
+Use this parameter only for domain-level authentication. Ignore it for sender address-level authentication.
+
+1\\\\. The console creates the address \\\\`domain-auth-created-by-system\\\\@example.com\\\\`. Do not change the prefix before the at sign (@). Replace the domain suffix with your own domain.
+
+2\\\\.
+
+**API scenario**
+
+Set \\\\`AccountName\\\\` to your domain. Recipients see \\\\`domain-auth-created-by-system\\\\@example.com\\\\` as the sender.
+
+**SMTP scenario**
+
+a. Use the \\\\`ModifyPWByDomain\\\\` API to set a password for your domain.
+
+b. Authenticate using your domain and the password. Set the actual sender address (\\\\`mailfrom\\\\`) to a custom address, such as \\\\`user\\\\@example.com\\\\`. Recipients see \\\\`user\\\\@example.com\\\\` as the sender.', example='true'),
+  headers?: string(name='Headers', description='Message header settings.
+
+All fields, standard or non-standard, must follow standard header syntax. For API calls, the \\\\`headers\\\\` field supports up to 10 headers. Any headers beyond this limit are ignored. SMTP does not have a header limit.
+
+1\\\\. Standard fields
+
+\\\\`Message-ID\\\\`, \\\\`List-Unsubscribe\\\\`, \\\\`List-Unsubscribe-Post\\\\`
+
+Standard fields overwrite existing values in the message header.
+
+2\\\\. Non-standard fields
+
+Case-insensitive
+
+a. Start with \\\\`X-User-\\\\`. These fields are not pushed to EventBridge or Message Service. They are required only for API calls. SMTP supports any custom header.
+
+b. Start with \\\\`X-User-Notify-\\\\`. These fields are pushed to EventBridge and Message Service. They are supported by both API and SMTP.
+
+When pushed to EventBridge or Message Service, these fields appear under the \\\\`headers\\\\` object.', example='{
+      "Message-ID": "<d52ce63e-a0d5-4f95-b6a9-e1256a44f5fb@example.net>",
+      "X-User-UID1": "UID-1-000001",
+      "X-User-UID2": "UID-2-000001",
+      "X-User-Notify-UID1": "UID-3-000001",
+      "X-User-Notify-UID2": "UID-4-000001"
+	  
 }'),
-  ipPoolId?: string(name='IpPoolId', description='dedicated IP pool ID. Users who have purchased an dedicated IP can use this parameter to specify the outgoing IP for this send operation.', example='xxx'),
+  ipPoolId?: string(name='IpPoolId', description='The ID of the dedicated IP address pool. If you purchased dedicated IP addresses, use this parameter to specify the egress IP address for sending the email.', example='e4xxxxxe-4xx0-4xx3-8xxa-74cxxxxx1cef'),
   ownerId?: long(name='OwnerId'),
-  receiversName?: string(name='ReceiversName', description='The name of the recipient list that has been created and uploaded with recipients. Note: The recipient list should not be deleted until at least 10 minutes after the task is triggered, otherwise it may cause sending failure.
+  receiversName?: string(name='ReceiversName', description='The name of a pre-created recipient list to which recipients have been uploaded.
+
+Note:
+
+The number of recipients in the list must not exceed your remaining daily quota. Otherwise, email sending fails.
+
+Do not delete the recipient list for at least 10 minutes after triggering the task. Otherwise, email sending may fail.
 
 This parameter is required.', example='test2'),
-  replyAddress?: string(name='ReplyAddress', description='Reply address', example='test2***@example.net'),
-  replyAddressAlias?: string(name='ReplyAddressAlias', description='Alias for the reply address', example='Lucy'),
+  replyAddress?: string(name='ReplyAddress', description='The reply-to address.', example='test2***@example.net'),
+  replyAddressAlias?: string(name='ReplyAddressAlias', description='The alias for the reply-to address.', example='小红'),
   resourceOwnerAccount?: string(name='ResourceOwnerAccount'),
   resourceOwnerId?: long(name='ResourceOwnerId'),
-  tagName?: string(name='TagName', description='Email tag name.', example='test3'),
-  templateName?: string(name='TemplateName', description='The name of the template that has been created and approved in advance.
+  tagName?: string(name='TagName', description='The name of the email tag.', example='test3'),
+  templateName?: string(name='TemplateName', description='The name of a pre-created and approved template.
 
 This parameter is required.', example='test1'),
-  unSubscribeFilterLevel?: string(name='UnSubscribeFilterLevel', description='Filtering level. Refer to the [Unsubscribe Function Link Generation and Filtering Mechanism](https://help.aliyun.com/document_detail/2689048.html) document.
-- disabled: No filtering
-- default: Use the default strategy, bulk addresses use sender address-level filtering
-- mailfrom: Sender address-level filtering
-- mailfrom_domain: Sender domain-level filtering
-- edm_id: Account-level filtering', example='mailfrom_domain'),
-  unSubscribeLinkType?: string(name='UnSubscribeLinkType', description='The type of generated unsubscribe link. Refer to the [Unsubscribe Function Link Generation and Filtering Mechanism](https://help.aliyun.com/document_detail/2689048.html) document.
-- disabled: Do not generate
-- default: Use the default strategy: Generate an unsubscribe link when a bulk-type sending address sends to specific domains, such as those containing keywords like "gmail", "yahoo",
-"google", "aol.com", "hotmail",
-"outlook", "ymail.com", etc.
-- zh-cn: Generate, for future content preparation
-- en-us: Generate, for future content preparation', example='default'),
+  unSubscribeFilterLevel?: string(name='UnSubscribeFilterLevel', description='The filtering level. For more information, see [Unsubscribe link generation and filtering mechanism](https://help.aliyun.com/document_detail/2689048.html).
+
+- disabled: No filtering.
+
+- default: Uses the default policy. Batch emails are filtered at the sender address level.
+
+- mailfrom: Filters at the sender address level.
+
+- mailfrom_domain: Filters at the email domain level.
+
+- edm_id: Filters at the account level.', example='mailfrom_domain'),
+  unSubscribeLinkType?: string(name='UnSubscribeLinkType', description='The type of unsubscribe link to generate. For more information, see [Unsubscribe link generation and filtering mechanism](https://help.aliyun.com/document_detail/2689048.html).
+
+- disabled: Does not generate a link.
+
+- default: Uses the default policy. An unsubscribe link is generated when batch emails are sent from a sender address to specific domains, such as those containing the keywords "gmail", "yahoo", "google", "aol.com", "hotmail", "outlook", or "ymail.com".
+
+The language of the unsubscribe link matches the recipient\\\\"s browser language setting.', example='default'),
 }
 
 model BatchSendMailResponseBody = {
-  envId?: string(name='EnvId', description='Event ID', example='xxx'),
-  requestId?: string(name='RequestId', description='Request ID', example='12D086F6-8F31-4658-84C1-006DED011A85'),
+  envId?: string(name='EnvId', description='The event ID.', example='xxx'),
+  requestId?: string(name='RequestId', description='The request ID.', example='12D086F6-8F31-4658-84C1-006DED011A85'),
 }
 
 model BatchSendMailResponse = {
@@ -229,7 +279,7 @@ model BatchSendMailResponse = {
 }
 
 /**
- * @summary Batch Send Emails
+ * @summary Sends a batch of emails.
  *
  * @param request BatchSendMailRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -304,7 +354,7 @@ async function batchSendMailWithOptions(request: BatchSendMailRequest, runtime: 
 }
 
 /**
- * @summary Batch Send Emails
+ * @summary Sends a batch of emails.
  *
  * @param request BatchSendMailRequest
  * @return BatchSendMailResponse
@@ -461,6 +511,7 @@ model CheckDomainResponseBody = {
   domainStatus?: int32(name='DomainStatus', description='Domain status. Indicates whether the verification was successful, with values as follows:
 
 - **0**: Available, verified successfully
+
 - **1**: Unavailable, verification failed', example='1'),
   requestId?: string(name='RequestId', description='Request ID', example='F0B82E83-A1D9-4FE6-97D2-F4B231F80B02'),
 }
@@ -524,7 +575,7 @@ async function checkDomain(request: CheckDomainRequest): CheckDomainResponse {
 model CheckReplyToMailAddressRequest {
   lang?: string(name='Lang', description='Language.
 
-en is English, and any other value or an empty value defaults to Chinese.', example='en'),
+en is English, and any other value or an empty value defaults to Chinese.', example='无'),
   mailAddressId?: int32(name='MailAddressId', description='Sender Address ID
 
 This parameter is required.', example='126545'),
@@ -601,13 +652,13 @@ async function checkReplyToMailAddress(request: CheckReplyToMailAddressRequest):
 }
 
 model ConfigSetCancelRelationFromAddressRequest {
-  fromAddress?: string(name='FromAddress', example='xxx@xxx.com'),
-  id?: string(name='Id', example='xxx'),
+  fromAddress?: string(name='FromAddress', description='The sender address. This parameter is required.', example='xxx@xxx.com'),
+  id?: string(name='Id', description='The ID of the configuration set. This parameter is required.', example='xxx'),
 }
 
 model ConfigSetCancelRelationFromAddressResponseBody = {
-  requestId?: string(name='RequestId', example='xxx'),
-  result?: boolean(name='Result', example='true'),
+  requestId?: string(name='RequestId', description='The ID of the request.', example='xxx'),
+  result?: boolean(name='Result', description='The result of the request.', example='true'),
 }
 
 model ConfigSetCancelRelationFromAddressResponse = {
@@ -617,7 +668,7 @@ model ConfigSetCancelRelationFromAddressResponse = {
 }
 
 /**
- * @summary 配置集取消关联发信地址
+ * @summary Disassociates a sender address from a configuration set.
  *
  * @param request ConfigSetCancelRelationFromAddressRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -650,7 +701,7 @@ async function configSetCancelRelationFromAddressWithOptions(request: ConfigSetC
 }
 
 /**
- * @summary 配置集取消关联发信地址
+ * @summary Disassociates a sender address from a configuration set.
  *
  * @param request ConfigSetCancelRelationFromAddressRequest
  * @return ConfigSetCancelRelationFromAddressResponse
@@ -661,14 +712,14 @@ async function configSetCancelRelationFromAddress(request: ConfigSetCancelRelati
 }
 
 model ConfigSetCreateRequest {
-  description?: string(name='Description', example='XXX'),
-  ipPoolId?: string(name='IpPoolId', example='XXX'),
-  name?: string(name='Name', example='XXX'),
+  description?: string(name='Description', description='The description of the configuration set. The description can be up to 50 characters long.', example='XXX'),
+  ipPoolId?: string(name='IpPoolId', description='The ID of the associated IP pool. This parameter is optional.', example='XXX'),
+  name?: string(name='Name', description='The name of the configuration set. This parameter is required. The name must be unique and can be up to 50 characters long.', example='XXX'),
 }
 
 model ConfigSetCreateResponseBody = {
-  id?: string(name='Id', example='XXX'),
-  requestId?: string(name='RequestId', example='XXX'),
+  id?: string(name='Id', description='The configuration set ID.', example='XXX'),
+  requestId?: string(name='RequestId', description='The request ID.', example='XXX'),
 }
 
 model ConfigSetCreateResponse = {
@@ -678,7 +729,7 @@ model ConfigSetCreateResponse = {
 }
 
 /**
- * @summary 配置集创建
+ * @summary Creates a configuration set. You can create up to 100 configuration sets.
  *
  * @param request ConfigSetCreateRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -714,7 +765,7 @@ async function configSetCreateWithOptions(request: ConfigSetCreateRequest, runti
 }
 
 /**
- * @summary 配置集创建
+ * @summary Creates a configuration set. You can create up to 100 configuration sets.
  *
  * @param request ConfigSetCreateRequest
  * @return ConfigSetCreateResponse
@@ -725,12 +776,12 @@ async function configSetCreate(request: ConfigSetCreateRequest): ConfigSetCreate
 }
 
 model ConfigSetDeleteRequest {
-  ids?: string(name='Ids', example='xxx'),
-  isForce?: boolean(name='IsForce', example='true'),
+  ids?: string(name='Ids', description='The IDs of the configuration sets. Separate multiple IDs with commas. This parameter is required.', example='xxx'),
+  isForce?: boolean(name='IsForce', description='Specifies whether to force delete the associations with sender addresses.', example='true'),
 }
 
 model ConfigSetDeleteResponseBody = {
-  requestId?: string(name='RequestId', example='xxx'),
+  requestId?: string(name='RequestId', description='The request ID.', example='xxx'),
 }
 
 model ConfigSetDeleteResponse = {
@@ -740,7 +791,7 @@ model ConfigSetDeleteResponse = {
 }
 
 /**
- * @summary 删除配置集
+ * @summary Deletes configuration sets.
  *
  * @param request ConfigSetDeleteRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -773,7 +824,7 @@ async function configSetDeleteWithOptions(request: ConfigSetDeleteRequest, runti
 }
 
 /**
- * @summary 删除配置集
+ * @summary Deletes configuration sets.
  *
  * @param request ConfigSetDeleteRequest
  * @return ConfigSetDeleteResponse
@@ -784,20 +835,20 @@ async function configSetDelete(request: ConfigSetDeleteRequest): ConfigSetDelete
 }
 
 model ConfigSetDetailRequest {
-  id?: string(name='Id', example='xxx'),
+  id?: string(name='Id', description='The ID of the configuration set. This parameter is required.', example='xxx'),
 }
 
 model ConfigSetDetailResponseBody = {
   detail?: {
-    description?: string(name='Description', example='xxx'),
-    id?: string(name='Id', example='xxx'),
+    description?: string(name='Description', description='The description.', example='xxx'),
+    id?: string(name='Id', description='The ID of the configuration set.', example='xxx'),
     ipPool?: {
-      ipPoolId?: string(name='IpPoolId', example='xxx'),
-      ipPoolName?: string(name='IpPoolName', example='xxx'),
-    }(name='IpPool'),
-    name?: string(name='Name', example='xxx'),
-  }(name='Detail'),
-  requestId?: string(name='RequestId', example='xxx'),
+      ipPoolId?: string(name='IpPoolId', description='The ID of the associated IP pool.', example='xxx'),
+      ipPoolName?: string(name='IpPoolName', description='The name of the associated IP pool.', example='xxx'),
+    }(name='IpPool', description='The associated IP pool.'),
+    name?: string(name='Name', description='The name of the configuration set.', example='xxx'),
+  }(name='Detail', description='The details of the configuration set.'),
+  requestId?: string(name='RequestId', description='The request ID.', example='xxx'),
 }
 
 model ConfigSetDetailResponse = {
@@ -807,7 +858,7 @@ model ConfigSetDetailResponse = {
 }
 
 /**
- * @summary 配置集详情
+ * @summary Retrieves the details of a configuration set.
  *
  * @param request ConfigSetDetailRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -837,7 +888,7 @@ async function configSetDetailWithOptions(request: ConfigSetDetailRequest, runti
 }
 
 /**
- * @summary 配置集详情
+ * @summary Retrieves the details of a configuration set.
  *
  * @param request ConfigSetDetailRequest
  * @return ConfigSetDetailResponse
@@ -848,30 +899,30 @@ async function configSetDetail(request: ConfigSetDetailRequest): ConfigSetDetail
 }
 
 model ConfigSetListRequest {
-  all?: boolean(name='All', example='false'),
-  keyword?: string(name='Keyword', example='xxx'),
-  pageIndex?: string(name='PageIndex', example='1'),
-  pageSize?: string(name='PageSize', example='10'),
+  all?: boolean(name='All', description='Specifies whether to query all configuration sets. This parameter is optional.', example='false'),
+  keyword?: string(name='Keyword', description='The keyword to search by name.', example='xxx'),
+  pageIndex?: string(name='PageIndex', description='The page index. The value starts from 1. This parameter is required.', example='1'),
+  pageSize?: string(name='PageSize', description='The number of entries per page. This parameter is required.', example='10'),
 }
 
 model ConfigSetListResponseBody = {
   configSets?: [ 
     {
-      description?: string(name='Description', example='xxx'),
-      fromAddresses?: [ string ](name='FromAddresses'),
-      id?: string(name='Id', example='xxx'),
+      description?: string(name='Description', description='The description.', example='xxx'),
+      fromAddresses?: [ string ](name='FromAddresses', description='The list of associated sender addresses.'),
+      id?: string(name='Id', description='The ID of the configuration set.', example='xxx'),
       ipPool?: {
-        ipPoolId?: string(name='IpPoolId', example='xxx'),
-        ipPoolName?: string(name='IpPoolName', example='xxx'),
-      }(name='IpPool'),
-      name?: string(name='Name', example='xxx'),
+        ipPoolId?: string(name='IpPoolId', description='The ID of the associated IP pool.', example='xxx'),
+        ipPoolName?: string(name='IpPoolName', description='The name of the associated IP pool.', example='xxx'),
+      }(name='IpPool', description='The IP pool information.'),
+      name?: string(name='Name', description='The name of the configuration set.', example='xxx'),
     }
-  ](name='ConfigSets'),
-  currentPage?: int32(name='CurrentPage', example='1'),
-  hasMore?: boolean(name='HasMore', example='false'),
-  pageSize?: int32(name='PageSize', example='10'),
-  requestId?: string(name='RequestId', example='xxx'),
-  totalCounts?: int32(name='TotalCounts', example='5'),
+  ](name='ConfigSets', description='The list of configuration sets.'),
+  currentPage?: int32(name='CurrentPage', description='The current page number.', example='1'),
+  hasMore?: boolean(name='HasMore', description='Indicates whether a next page of results exists.', example='false'),
+  pageSize?: int32(name='PageSize', description='The number of entries per page.', example='10'),
+  requestId?: string(name='RequestId', description='The request ID.', example='xxx'),
+  totalCounts?: int32(name='TotalCounts', description='The total number of entries that match the request.', example='5'),
 }
 
 model ConfigSetListResponse = {
@@ -881,7 +932,7 @@ model ConfigSetListResponse = {
 }
 
 /**
- * @summary 配置集列表
+ * @summary Lists configuration sets.
  *
  * @param request ConfigSetListRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -920,7 +971,7 @@ async function configSetListWithOptions(request: ConfigSetListRequest, runtime: 
 }
 
 /**
- * @summary 配置集列表
+ * @summary Lists configuration sets.
  *
  * @param request ConfigSetListRequest
  * @return ConfigSetListResponse
@@ -931,13 +982,13 @@ async function configSetList(request: ConfigSetListRequest): ConfigSetListRespon
 }
 
 model ConfigSetRelationFromAddressRequest {
-  fromAddress?: string(name='FromAddress', example='xxx@xxx.com'),
-  id?: string(name='Id', example='xxx'),
+  fromAddress?: string(name='FromAddress', description='The sender address. This parameter is required.', example='xxx@xxx.com'),
+  id?: string(name='Id', description='The ID of the configuration set. This parameter is required.', example='xxx'),
 }
 
 model ConfigSetRelationFromAddressResponseBody = {
-  requestId?: string(name='RequestId', example='xxx'),
-  result?: boolean(name='Result', example='true'),
+  requestId?: string(name='RequestId', description='The request ID.', example='xxx'),
+  result?: boolean(name='Result', description='The result of the operation.', example='true'),
 }
 
 model ConfigSetRelationFromAddressResponse = {
@@ -947,7 +998,7 @@ model ConfigSetRelationFromAddressResponse = {
 }
 
 /**
- * @summary 配置集关联发信地址
+ * @summary Associates a configuration set with a sender address.
  *
  * @param request ConfigSetRelationFromAddressRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -980,7 +1031,7 @@ async function configSetRelationFromAddressWithOptions(request: ConfigSetRelatio
 }
 
 /**
- * @summary 配置集关联发信地址
+ * @summary Associates a configuration set with a sender address.
  *
  * @param request ConfigSetRelationFromAddressRequest
  * @return ConfigSetRelationFromAddressResponse
@@ -991,15 +1042,15 @@ async function configSetRelationFromAddress(request: ConfigSetRelationFromAddres
 }
 
 model ConfigSetUpdateRequest {
-  description?: string(name='Description', example='XXX'),
-  id?: string(name='Id', example='XXX'),
-  ipPoolId?: string(name='IpPoolId', example='XXX'),
-  name?: string(name='Name', example='XXX'),
+  description?: string(name='Description', description='The description. The description can be up to 50 characters long.', example='XXX'),
+  id?: string(name='Id', description='The ID of the configuration set. This parameter is required.', example='XXX'),
+  ipPoolId?: string(name='IpPoolId', description='The ID of the associated IP pool. This parameter is optional.', example='XXX'),
+  name?: string(name='Name', description='The name of the configuration. This parameter is required. The name must be unique and can be up to 50 characters long.', example='XXX'),
 }
 
 model ConfigSetUpdateResponseBody = {
-  id?: string(name='Id', example='xxx'),
-  requestId?: string(name='RequestId', example='xxx'),
+  id?: string(name='Id', description='The ID of the configuration set.', example='xxx'),
+  requestId?: string(name='RequestId', description='The request ID.', example='xxx'),
 }
 
 model ConfigSetUpdateResponse = {
@@ -1009,7 +1060,7 @@ model ConfigSetUpdateResponse = {
 }
 
 /**
- * @summary 配置集更新
+ * @summary Updates a configuration set.
  *
  * @param request ConfigSetUpdateRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -1048,7 +1099,7 @@ async function configSetUpdateWithOptions(request: ConfigSetUpdateRequest, runti
 }
 
 /**
- * @summary 配置集更新
+ * @summary Updates a configuration set.
  *
  * @param request ConfigSetUpdateRequest
  * @return ConfigSetUpdateResponse
@@ -1066,12 +1117,17 @@ This parameter is required.', example='sub.example.com'),
   resourceOwnerAccount?: string(name='ResourceOwnerAccount'),
   resourceOwnerId?: long(name='ResourceOwnerId'),
   dkimSelector?: string(name='dkimSelector', description='The selector field in the DKIM protocol, used to identify a specific public key. It is recommended to leave it blank, as the system will automatically generate it based on cluster information. If the user specifies it manually, for example, if the sending domain is "sub.example.com" and dkimSelector is set to "default", then the host record will be "default._domainkey.sub"
-Constraints: 
-1. The length must not exceed 60 characters. 
-2. It must consist of visible characters only. 
-3. It cannot start with a hyphen (-). 
-4. It cannot end with a hyphen (-). 
-5. It cannot contain any of the following characters: _ :;/!*~.@#$%^&()+=[{]}|?<>,\\\\""', example='default'),
+Constraints:
+
+1. The length must not exceed 60 characters.
+
+2. It must consist of visible characters only.
+
+3. It cannot start with a hyphen (-).
+
+4. It cannot end with a hyphen (-).
+
+5. It cannot contain any of the following characters: _ :;/!\\\\*\\\\~.@#$%^&()+=[{]}|?<>,\\\\""', example='default'),
 }
 
 model CreateDomainResponseBody = {
@@ -1141,9 +1197,9 @@ async function createDomain(request: CreateDomainRequest): CreateDomainResponse 
 model CreateMailAddressRequest {
   accountName?: string(name='AccountName', description='Sender\\\\"s email address
 
-This parameter is required.', example='test1@example.com'),
+This parameter is required.', example='账号+@+域名'),
   ownerId?: long(name='OwnerId'),
-  replyAddress?: string(name='ReplyAddress', description='Reply-to address', example='test2@example.com'),
+  replyAddress?: string(name='ReplyAddress', description='Reply-to address', example='test1***@example.net'),
   resourceOwnerAccount?: string(name='ResourceOwnerAccount'),
   resourceOwnerId?: long(name='ResourceOwnerId'),
   sendtype?: string(name='Sendtype', description='Type of sending. Values:
@@ -1223,7 +1279,7 @@ async function createMailAddress(request: CreateMailAddressRequest): CreateMailA
 }
 
 model CreateReceiverRequest {
-  desc?: string(name='Desc', description='List description.', example='the description'),
+  desc?: string(name='Desc', description='List description.', example='描述'),
   ownerId?: long(name='OwnerId'),
   receiversAlias?: string(name='ReceiversAlias', description='List alias, an email address less than 30 characters long.
 
@@ -1306,15 +1362,15 @@ model CreateTagRequest {
   ownerId?: long(name='OwnerId'),
   resourceOwnerAccount?: string(name='ResourceOwnerAccount'),
   resourceOwnerId?: long(name='ResourceOwnerId'),
-  tagDescription?: string(name='TagDescription', description='Tag description', example='test description'),
-  tagName?: string(name='TagName', description='Tag name. Limitations: 1-50 characters, allowing English letters, numbers, and underscores.
+  tagDescription?: string(name='TagDescription', description='The description of the tag.', example='test description'),
+  tagName?: string(name='TagName', description='The tag name. The name must be 1 to 128 characters long and can contain letters, digits, and underscores (_).
 
 This parameter is required.', example='test'),
 }
 
 model CreateTagResponseBody = {
-  requestId?: string(name='RequestId', description='Request ID', example='10A1AD70-E48E-476D-98D9-39BD92193837'),
-  tagId?: string(name='TagId', description='Tag ID', example='91141'),
+  requestId?: string(name='RequestId', description='The request ID.', example='10A1AD70-E48E-476D-98D9-39BD92193837'),
+  tagId?: string(name='TagId', description='The tag ID.', example='91141'),
 }
 
 model CreateTagResponse = {
@@ -1324,7 +1380,7 @@ model CreateTagResponse = {
 }
 
 /**
- * @summary Create Tag
+ * @summary Creates a tag.
  *
  * @param request CreateTagRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -1366,7 +1422,7 @@ async function createTagWithOptions(request: CreateTagRequest, runtime: Util.Run
 }
 
 /**
- * @summary Create Tag
+ * @summary Creates a tag.
  *
  * @param request CreateTagRequest
  * @return CreateTagResponse
@@ -1377,7 +1433,7 @@ async function createTag(request: CreateTagRequest): CreateTagResponse {
 }
 
 model CreateUserSuppressionRequest {
-  address?: string(name='Address', description='Email address or domain name', example='test@example.net'),
+  address?: string(name='Address', description='Email address or domain name', example='test@example.net或example.net'),
   ownerId?: long(name='OwnerId'),
   resourceOwnerAccount?: string(name='ResourceOwnerAccount'),
   resourceOwnerId?: long(name='ResourceOwnerId'),
@@ -1445,16 +1501,16 @@ async function createUserSuppression(request: CreateUserSuppressionRequest): Cre
 }
 
 model DedicatedIpAutoRenewalRequest {
-  autoRenewal?: string(name='AutoRenewal', description='Whether to enable auto-renewal
+  autoRenewal?: string(name='AutoRenewal', description='Specifies whether to enable auto-renewal.
 
 This parameter is required.', example='false'),
-  buyResourceIds?: string(name='BuyResourceIds', description='Purchase instance ID, separated by English commas if multiple.
+  buyResourceIds?: string(name='BuyResourceIds', description='The IDs of the purchased instances. Separate multiple IDs with commas.
 
 This parameter is required.', example='xxx,xxx'),
 }
 
 model DedicatedIpAutoRenewalResponseBody = {
-  requestId?: string(name='RequestId', description='Request ID', example='xxx'),
+  requestId?: string(name='RequestId', description='The request ID.', example='xxx'),
 }
 
 model DedicatedIpAutoRenewalResponse = {
@@ -1464,7 +1520,7 @@ model DedicatedIpAutoRenewalResponse = {
 }
 
 /**
- * @summary Set Dedicated IP Auto Renewal
+ * @summary Sets auto-renewal for a dedicated IP address.
  *
  * @param request DedicatedIpAutoRenewalRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -1497,7 +1553,7 @@ async function dedicatedIpAutoRenewalWithOptions(request: DedicatedIpAutoRenewal
 }
 
 /**
- * @summary Set Dedicated IP Auto Renewal
+ * @summary Sets auto-renewal for a dedicated IP address.
  *
  * @param request DedicatedIpAutoRenewalRequest
  * @return DedicatedIpAutoRenewalResponse
@@ -1508,12 +1564,12 @@ async function dedicatedIpAutoRenewal(request: DedicatedIpAutoRenewalRequest): D
 }
 
 model DedicatedIpChangeWarmupTypeRequest {
-  id?: string(name='Id', description='Dedicated IP ID', example='xxx'),
-  warmupType?: string(name='WarmupType', description='Warmup method', example='sysCusStream'),
+  id?: string(name='Id', description='The ID of the dedicated IP address.', example='xxx'),
+  warmupType?: string(name='WarmupType', description='The prefetch method.', example='sysCusStream'),
 }
 
 model DedicatedIpChangeWarmupTypeResponseBody = {
-  requestId?: string(name='RequestId', description='Request ID', example='xxx'),
+  requestId?: string(name='RequestId', description='The request ID.', example='xxx'),
 }
 
 model DedicatedIpChangeWarmupTypeResponse = {
@@ -1523,7 +1579,7 @@ model DedicatedIpChangeWarmupTypeResponse = {
 }
 
 /**
- * @summary Change the warmup method for a dedicated IP
+ * @summary Updates the prefetch method for a dedicated IP address.
  *
  * @param request DedicatedIpChangeWarmupTypeRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -1556,7 +1612,7 @@ async function dedicatedIpChangeWarmupTypeWithOptions(request: DedicatedIpChange
 }
 
 /**
- * @summary Change the warmup method for a dedicated IP
+ * @summary Updates the prefetch method for a dedicated IP address.
  *
  * @param request DedicatedIpChangeWarmupTypeRequest
  * @return DedicatedIpChangeWarmupTypeResponse
@@ -1567,36 +1623,36 @@ async function dedicatedIpChangeWarmupType(request: DedicatedIpChangeWarmupTypeR
 }
 
 model DedicatedIpListRequest {
-  keyword?: string(name='Keyword', description='IP search keyword', example='xxx'),
-  pageIndex?: int32(name='PageIndex', description='Pagination index, starting from 1', example='1'),
-  pageSize?: int32(name='PageSize', description='Page size', example='10'),
+  keyword?: string(name='Keyword', description='The keyword for searching IP addresses.', example='xxx'),
+  pageIndex?: int32(name='PageIndex', description='The page number. The value starts from 1.', example='1'),
+  pageSize?: int32(name='PageSize', description='The number of entries per page.', example='10'),
 }
 
 model DedicatedIpListResponseBody = {
-  currentPage?: int32(name='CurrentPage', description='Current page', example='1'),
-  hasMore?: boolean(name='HasMore', description='Whether there is a next page', example='false'),
+  currentPage?: int32(name='CurrentPage', description='The current page number.', example='1'),
+  hasMore?: boolean(name='HasMore', description='Indicates whether the next page exists.', example='false'),
   ips?: [ 
     {
-      expiredTime?: string(name='ExpiredTime', description='Expiration time', example='2025-06-12T09:19:20Z'),
-      id?: string(name='Id', description='IP ID, consistent with the purchased instance ID', example='xxx'),
-      instanceId?: string(name='InstanceId', description='Purchased instance ID', example='xxx'),
-      ip?: string(name='Ip', description='IP address', example='xxx'),
+      expiredTime?: string(name='ExpiredTime', description='The expiration time.', example='2025-06-12T09:19:20Z'),
+      id?: string(name='Id', description='The IP address ID. This is the same as the purchased instance ID.', example='xxx'),
+      instanceId?: string(name='InstanceId', description='The ID of the purchased instance.', example='xxx'),
+      ip?: string(name='Ip', description='The IP address.', example='xxx'),
       ipExt?: {
-        autoRenewal?: boolean(name='AutoRenewal', description='Whether auto-renewal is enabled', example='false'),
-        hasSendMail?: boolean(name='HasSendMail', description='Whether an email has been sent', example='true'),
+        autoRenewal?: boolean(name='AutoRenewal', description='Indicates whether auto-renewal is enabled.', example='false'),
+        hasSendMail?: boolean(name='HasSendMail', description='Indicates whether emails have been sent.', example='true'),
         lastWarmUpTypeChangedTime?: string(name='LastWarmUpTypeChangedTime'),
-      }(name='IpExt', description='Extended information'),
-      ipPoolName?: string(name='IpPoolName', description='Name of the IP pool', example='xxx'),
-      startTime?: string(name='StartTime', description='Purchase time', example='2025-05-12T09:19:20Z'),
-      status?: string(name='Status', description='IP status', example='sold'),
-      warmupStatus?: string(name='WarmupStatus', description='Warm-up status', example='finish'),
-      warmupType?: string(name='WarmupType', description='Warm-up method', example='cusSelfManager'),
+      }(name='IpExt', description='The extended information.'),
+      ipPoolName?: string(name='IpPoolName', description='The name of the IP pool to which the IP address belongs.', example='xxx'),
+      startTime?: string(name='StartTime', description='The purchase time.', example='2025-05-12T09:19:20Z'),
+      status?: string(name='Status', description='The status of the IP address.', example='sold'),
+      warmupStatus?: string(name='WarmupStatus', description='The prefetch status.', example='finish'),
+      warmupType?: string(name='WarmupType', description='The prefetch method.', example='cusSelfManager'),
       zoneId?: string(name='ZoneId'),
     }
-  ](name='Ips', description='IP list'),
-  pageSize?: int32(name='PageSize', description='Page size', example='10'),
-  requestId?: string(name='RequestId', description='Request ID', example='xxx'),
-  totalCounts?: int32(name='TotalCounts', description='Total amount of purchased IP data', example='5'),
+  ](name='Ips', description='The list of IP addresses.'),
+  pageSize?: int32(name='PageSize', description='The number of entries per page.', example='10'),
+  requestId?: string(name='RequestId', description='The request ID.', example='xxx'),
+  totalCounts?: int32(name='TotalCounts', description='The total number of purchased IP addresses.', example='5'),
 }
 
 model DedicatedIpListResponse = {
@@ -1606,7 +1662,7 @@ model DedicatedIpListResponse = {
 }
 
 /**
- * @summary Dedicated IP User IP List
+ * @summary Queries the IP addresses that you have purchased.
  *
  * @param request DedicatedIpListRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -1642,7 +1698,7 @@ async function dedicatedIpListWithOptions(request: DedicatedIpListRequest, runti
 }
 
 /**
- * @summary Dedicated IP User IP List
+ * @summary Queries the IP addresses that you have purchased.
  *
  * @param request DedicatedIpListRequest
  * @return DedicatedIpListResponse
@@ -1655,12 +1711,12 @@ async function dedicatedIpList(request: DedicatedIpListRequest): DedicatedIpList
 model DedicatedIpNonePoolListResponseBody = {
   ips?: [ 
     {
-      id?: string(name='Id', description='Purchased instance ID', example='xxx'),
-      ip?: string(name='Ip', description='IP address', example='xxx'),
-      zoneId?: string(name='ZoneId'),
+      id?: string(name='Id', description='The ID of the purchased instance.', example='xxx'),
+      ip?: string(name='Ip', description='The IP address.', example='xxx'),
+      zoneId?: string(name='ZoneId', description='The zone ID.', example='xxx'),
     }
-  ](name='Ips', description='Information on IPs not added to the IP pool'),
-  requestId?: string(name='RequestId', description='Request ID', example='xxx'),
+  ](name='Ips', description='The IP addresses that are not added to an IP pool.'),
+  requestId?: string(name='RequestId', description='The request ID.', example='xxx'),
 }
 
 model DedicatedIpNonePoolListResponse = {
@@ -1670,7 +1726,7 @@ model DedicatedIpNonePoolListResponse = {
 }
 
 /**
- * @summary Purchased Independent IPs Not Added to Pool
+ * @summary Lists the IP addresses that are not assigned to any IP pool. This operation is used for IP pool configuration.
  *
  * @param request DedicatedIpNonePoolListRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -1693,7 +1749,7 @@ async function dedicatedIpNonePoolListWithOptions(runtime: Util.RuntimeOptions):
 }
 
 /**
- * @summary Purchased Independent IPs Not Added to Pool
+ * @summary Lists the IP addresses that are not assigned to any IP pool. This operation is used for IP pool configuration.
  *
  * @return DedicatedIpNonePoolListResponse
  */
@@ -1703,14 +1759,13 @@ async function dedicatedIpNonePoolList(): DedicatedIpNonePoolListResponse {
 }
 
 model DedicatedIpPoolCreateRequest {
-  buyResourceIds?: string(name='BuyResourceIds', description='Purchased IP instance IDs, separated by commas; derived from the IP purchase instance IDs returned by the DedicatedIpNonePoolList interface.', example='xxx,xxx'),
-  name?: string(name='Name', description='IP pool name;
-Length should be 1-50 characters, allowing English letters, numbers, _, and -. The name cannot be modified after the IP pool is created.', example='xxx'),
+  buyResourceIds?: string(name='BuyResourceIds', description='The IDs of the purchased IP instances. Separate multiple IDs with commas (,). You can obtain the instance IDs from the response of the DedicatedIpNonePoolList operation.', example='xxx,xxx'),
+  name?: string(name='Name', description='The name of the IP pool. The name must be 1 to 50 characters in length. It can contain letters, digits, underscores (_), and hyphens (-). The name cannot be changed after the IP pool is created.', example='xxx'),
 }
 
 model DedicatedIpPoolCreateResponseBody = {
-  id?: string(name='Id', description='IP pool ID', example='xxx'),
-  requestId?: string(name='RequestId', description='Request ID', example='xxx'),
+  id?: string(name='Id', description='The ID of the IP pool.', example='xxx'),
+  requestId?: string(name='RequestId', description='The request ID.', example='xxx'),
 }
 
 model DedicatedIpPoolCreateResponse = {
@@ -1720,7 +1775,7 @@ model DedicatedIpPoolCreateResponse = {
 }
 
 /**
- * @summary Creation of Independent IP Pool
+ * @summary Creates a dedicated IP pool.
  *
  * @param request DedicatedIpPoolCreateRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -1753,7 +1808,7 @@ async function dedicatedIpPoolCreateWithOptions(request: DedicatedIpPoolCreateRe
 }
 
 /**
- * @summary Creation of Independent IP Pool
+ * @summary Creates a dedicated IP pool.
  *
  * @param request DedicatedIpPoolCreateRequest
  * @return DedicatedIpPoolCreateResponse
@@ -1764,11 +1819,11 @@ async function dedicatedIpPoolCreate(request: DedicatedIpPoolCreateRequest): Ded
 }
 
 model DedicatedIpPoolDeleteRequest {
-  id?: string(name='Id', example='xxx'),
+  id?: string(name='Id', description='The IP pool ID.', example='xxx'),
 }
 
 model DedicatedIpPoolDeleteResponseBody = {
-  requestId?: string(name='RequestId', example='xxx'),
+  requestId?: string(name='RequestId', description='The request ID.', example='xxx'),
 }
 
 model DedicatedIpPoolDeleteResponse = {
@@ -1778,7 +1833,7 @@ model DedicatedIpPoolDeleteResponse = {
 }
 
 /**
- * @summary 独立IP池删除
+ * @summary Deletes a dedicated IP pool.
  *
  * @param request DedicatedIpPoolDeleteRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -1808,7 +1863,7 @@ async function dedicatedIpPoolDeleteWithOptions(request: DedicatedIpPoolDeleteRe
 }
 
 /**
- * @summary 独立IP池删除
+ * @summary Deletes a dedicated IP pool.
  *
  * @param request DedicatedIpPoolDeleteRequest
  * @return DedicatedIpPoolDeleteResponse
@@ -1819,33 +1874,34 @@ async function dedicatedIpPoolDelete(request: DedicatedIpPoolDeleteRequest): Ded
 }
 
 model DedicatedIpPoolListRequest {
-  all?: boolean(name='All'),
-  keyword?: string(name='Keyword', description='Search keyword for the name', example='xxx'),
-  pageIndex?: int32(name='PageIndex', description='Page index, starting from 1', example='1'),
-  pageSize?: int32(name='PageSize', description='Number of items per page', example='10'),
+  all?: boolean(name='All', description='Specifies whether to return all entries.', example='false'),
+  keyword?: string(name='Keyword', description='The keyword to search for IP pools by name.', example='xxx'),
+  pageIndex?: int32(name='PageIndex', description='The page number to return, starting from 1.', example='1'),
+  pageSize?: int32(name='PageSize', description='The number of entries per page.', example='10'),
+  poolId?: string(name='PoolId', example='44fb3ec8-1f87-42e4-866d-e23dad9e7c9a'),
 }
 
 model DedicatedIpPoolListResponseBody = {
-  currentPage?: string(name='CurrentPage', description='Current page', example='1'),
-  hasMore?: boolean(name='HasMore', description='Whether there is a next page', example='false'),
+  currentPage?: string(name='CurrentPage', description='The current page number.', example='1'),
+  hasMore?: boolean(name='HasMore', description='Indicates whether more results are available.', example='false'),
   ipPools?: [ 
     {
-      createTime?: string(name='CreateTime', description='Creation time', example='2025-05-23T07:41:43Z'),
-      id?: string(name='Id', description='IP pool ID', example='xxx'),
-      ipCount?: int32(name='IpCount', description='Number of source IP addresses', example='1'),
+      createTime?: string(name='CreateTime', description='The time when the IP pool was created.', example='2025-05-23T07:41:43Z'),
+      id?: string(name='Id', description='The ID of the IP pool.', example='xxx'),
+      ipCount?: int32(name='IpCount', description='The number of source IP addresses in the IP pool.', example='1'),
       ips?: [ 
         {
-          id?: string(name='Id', description='Instance purchase ID', example='xxx'),
-          ip?: string(name='Ip', description='IP address', example='xxx'),
-          zoneId?: string(name='ZoneId'),
+          id?: string(name='Id', description='The ID of the IP address instance.', example='xxx'),
+          ip?: string(name='Ip', description='The IP address.', example='xxx'),
+          zoneId?: string(name='ZoneId', description='The ID of the Availability Zone.', example='xxx'),
         }
-      ](name='Ips', description='List of IPs'),
-      name?: string(name='Name', description='IP pool name', example='xxx'),
+      ](name='Ips', description='A list of IP addresses.'),
+      name?: string(name='Name', description='The name of the IP pool.', example='xxx'),
     }
-  ](name='IpPools', description='List of IP pools'),
-  pageSize?: string(name='PageSize', description='Page size', example='10'),
-  requestId?: string(name='RequestId', description='Request ID', example='xxx'),
-  totalCounts?: int32(name='TotalCounts', description='Total number of data under the current request conditions', example='5'),
+  ](name='IpPools', description='A list of IP pools.'),
+  pageSize?: string(name='PageSize', description='The number of entries on the current page.', example='10'),
+  requestId?: string(name='RequestId', description='The ID of the request.', example='xxx'),
+  totalCounts?: int32(name='TotalCounts', description='The total number of entries that match the query.', example='5'),
 }
 
 model DedicatedIpPoolListResponse = {
@@ -1855,7 +1911,7 @@ model DedicatedIpPoolListResponse = {
 }
 
 /**
- * @summary Dedicated IP Pool List
+ * @summary Lists IP pools.
  *
  * @param request DedicatedIpPoolListRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -1876,6 +1932,9 @@ async function dedicatedIpPoolListWithOptions(request: DedicatedIpPoolListReques
   if (!Util.isUnset(request.pageSize)) {
     query['PageSize'] = request.pageSize;
   }
+  if (!Util.isUnset(request.poolId)) {
+    query['PoolId'] = request.poolId;
+  }
   var req = new OpenApi.OpenApiRequest{ 
     query = OpenApiUtil.query(query),
   };
@@ -1894,7 +1953,7 @@ async function dedicatedIpPoolListWithOptions(request: DedicatedIpPoolListReques
 }
 
 /**
- * @summary Dedicated IP Pool List
+ * @summary Lists IP pools.
  *
  * @param request DedicatedIpPoolListRequest
  * @return DedicatedIpPoolListResponse
@@ -1905,14 +1964,14 @@ async function dedicatedIpPoolList(request: DedicatedIpPoolListRequest): Dedicat
 }
 
 model DedicatedIpPoolUpdateRequest {
-  buyResourceIds?: string(name='BuyResourceIds', description='Purchased IP instance IDs, separated by commas; sourced from the DedicatedIpNonePoolList API\\\\"s returned IP purchase instance IDs', example='xxx,xxx'),
-  id?: string(name='Id', description='IP pool ID', example='xxx'),
-  updateResource?: boolean(name='UpdateResource', description='Whether to change the associated IP, enter true', example='true'),
+  buyResourceIds?: string(name='BuyResourceIds', description='The IDs of the purchased IP instances. Separate multiple IDs with commas. Obtain these IDs from the response of the DedicatedIpNonePoolList operation.', example='xxx,xxx'),
+  id?: string(name='Id', description='The ID of the IP pool.', example='xxx'),
+  updateResource?: boolean(name='UpdateResource', description='Specifies whether to change the associated IP addresses. Set this parameter to true.', example='true'),
 }
 
 model DedicatedIpPoolUpdateResponseBody = {
-  id?: string(name='Id', description='IP pool ID', example='xxx'),
-  requestId?: string(name='RequestId', description='Request ID', example='xxx'),
+  id?: string(name='Id', description='The ID of the IP pool.', example='xxx'),
+  requestId?: string(name='RequestId', description='The request ID.', example='xxx'),
 }
 
 model DedicatedIpPoolUpdateResponse = {
@@ -1922,7 +1981,7 @@ model DedicatedIpPoolUpdateResponse = {
 }
 
 /**
- * @summary Update of dedicated IP Pool
+ * @summary Updates an IP pool.
  *
  * @param request DedicatedIpPoolUpdateRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -1958,7 +2017,7 @@ async function dedicatedIpPoolUpdateWithOptions(request: DedicatedIpPoolUpdateRe
 }
 
 /**
- * @summary Update of dedicated IP Pool
+ * @summary Updates an IP pool.
  *
  * @param request DedicatedIpPoolUpdateRequest
  * @return DedicatedIpPoolUpdateResponse
@@ -2105,7 +2164,7 @@ async function deleteInvalidAddress(request: DeleteInvalidAddressRequest): Delet
 }
 
 model DeleteIpfilterByEdmIdRequest {
-  fromType?: int32(name='FromType', description='Deprecated, kept for historical compatibility.', example='1'),
+  fromType?: int32(name='FromType', description='Deprecated, kept for historical compatibility.', example='废弃，历史原因兼容'),
   id?: string(name='Id', description='Record ID', example='10120'),
   ownerId?: long(name='OwnerId'),
   resourceOwnerAccount?: string(name='ResourceOwnerAccount'),
@@ -2314,7 +2373,7 @@ async function deleteReceiver(request: DeleteReceiverRequest): DeleteReceiverRes
 }
 
 model DeleteReceiverDetailRequest {
-  email?: string(name='Email', description='The single recipient to be deleted from the recipient list', example='test@example.com'),
+  email?: string(name='Email', description='The single recipient to be deleted from the recipient list', example='账号+@+域名'),
   ownerId?: long(name='OwnerId'),
   receiverId?: string(name='ReceiverId', description='Recipient list ID
 
@@ -2456,11 +2515,11 @@ async function deleteTag(request: DeleteTagRequest): DeleteTagResponse {
 }
 
 model DeleteValidateFileRequest {
-  fileId?: string(name='FileId', example='xxxx-xxxx-xxxx-xxxx'),
+  fileId?: string(name='FileId', description='The ID of the file that is returned after the task is submitted.', example='xxxx-xxxx-xxxx-xxxx'),
 }
 
 model DeleteValidateFileResponseBody = {
-  requestId?: string(name='RequestId', example='yyyy-yyyy-yyyy-yyyy'),
+  requestId?: string(name='RequestId', description='The request ID.', example='yyyy-yyyy-yyyy-yyyy'),
 }
 
 model DeleteValidateFileResponse = {
@@ -2470,7 +2529,7 @@ model DeleteValidateFileResponse = {
 }
 
 /**
- * @summary 删除批量校验任务的结果文件
+ * @summary Deletes the verification file after the verification process is complete.
  *
  * @param request DeleteValidateFileRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -2500,7 +2559,7 @@ async function deleteValidateFileWithOptions(request: DeleteValidateFileRequest,
 }
 
 /**
- * @summary 删除批量校验任务的结果文件
+ * @summary Deletes the verification file after the verification process is complete.
  *
  * @param request DeleteValidateFileRequest
  * @return DeleteValidateFileResponse
@@ -2517,29 +2576,29 @@ model DescAccountSummaryRequest {
 }
 
 model DescAccountSummaryResponseBody = {
-  dailyQuota?: int32(name='DailyQuota', description='Daily quota', example='2000'),
-  dailyRemainFreeQuota?: int32(name='DailyRemainFreeQuota', description='remaining amount of daily free quota', example='100'),
-  dayuStatus?: int32(name='DayuStatus', description='Dayu status (deprecated, retained for compatibility reasons.)', example='0'),
-  domains?: int32(name='Domains', description='Number of domains', example='1'),
-  enableTimes?: int32(name='EnableTimes', description='Effective time', example='0'),
-  ipChannelType?: string(name='IpChannelType', nullable=true),
-  mailAddresses?: int32(name='MailAddresses', description='Number of sending addresses', example='0'),
-  maxQuotaLevel?: int32(name='MaxQuotaLevel', description='Maximum level', example='10'),
-  monthQuota?: int32(name='MonthQuota', description='Monthly quota', example='60000'),
-  quotaLevel?: int32(name='QuotaLevel', description='Credit level', example='2'),
-  receivers?: int32(name='Receivers', description='Number of recipients', example='0'),
-  remainFreeQuota?: int32(name='RemainFreeQuota', description='Remaining amount of total free quota', example='1910'),
-  requestId?: string(name='RequestId', description='Request ID', example='82B295BB-7E69-491F-9896-ECEAFF09E1A4'),
-  smsRecord?: int32(name='SmsRecord', description='Deprecated, retained for compatibility reasons.', example='0'),
-  smsSign?: int32(name='SmsSign', description='Deprecated, retained for compatibility reasons.', example='0'),
-  smsTemplates?: int32(name='SmsTemplates', description='Deprecated, retained for compatibility reasons.', example='0'),
-  tags?: int32(name='Tags', description='Number of tags', example='0'),
-  templates?: int32(name='Templates', description='Number of templates', example='1'),
-  userStatus?: int32(name='UserStatus', description='User status:
-1 Frozen
-2 In arrears
-4 Restricted from sending
-8 Logically deleted', example='0'),
+  dailyQuota?: int32(name='DailyQuota', description='The daily quota.', example='2000'),
+  dailyRemainFreeQuota?: int32(name='DailyRemainFreeQuota', description='The remaining daily free quota.', example='100'),
+  dayuStatus?: int32(name='DayuStatus', description='The status of Dayu. This parameter is deprecated and retained for compatibility.', example='0'),
+  domains?: int32(name='Domains', description='The number of domain names.', example='1'),
+  enableTimes?: int32(name='EnableTimes', description='The effective period.', example='0'),
+  ipChannelType?: string(name='IpChannelType', description='The type of the outbound IP channel.
+
+1. backup: A backup IP channel that is not actively maintained. Customers using this channel are advised to purchase a dedicated IP for better stability.
+
+2. normal: A normal IP channel that is continuously maintained by the email delivery team to ensure stable and reliable service.', example='normal', nullable=true),
+  mailAddresses?: int32(name='MailAddresses', description='The number of sender addresses.', example='0'),
+  maxQuotaLevel?: int32(name='MaxQuotaLevel', description='The maximum reputation level.', example='10'),
+  monthQuota?: int32(name='MonthQuota', description='The monthly quota.', example='60000'),
+  quotaLevel?: int32(name='QuotaLevel', description='The reputation level.', example='2'),
+  receivers?: int32(name='Receivers', description='The number of recipients.', example='0'),
+  remainFreeQuota?: int32(name='RemainFreeQuota', description='The remaining free quota.', example='1910'),
+  requestId?: string(name='RequestId', description='The request ID.', example='82B295BB-7E69-491F-9896-ECEAFF09E1A4'),
+  smsRecord?: int32(name='SmsRecord', description='This parameter is deprecated. It is retained for compatibility.', example='0'),
+  smsSign?: int32(name='SmsSign', description='This parameter is deprecated. It is retained for compatibility.', example='0'),
+  smsTemplates?: int32(name='SmsTemplates', description='This parameter is deprecated. It is retained for compatibility.', example='0'),
+  tags?: int32(name='Tags', description='The number of tags.', example='0'),
+  templates?: int32(name='Templates', description='The number of templates.', example='1'),
+  userStatus?: int32(name='UserStatus', description='The status of the user. Valid values: 0: Normal. 1: Freeze. 2: Overdue payment. 4: Outbound messages are restricted. 8: The user is logically deleted.', example='0'),
 }
 
 model DescAccountSummaryResponse = {
@@ -2549,7 +2608,7 @@ model DescAccountSummaryResponse = {
 }
 
 /**
- * @summary Retrieve account information.
+ * @summary Retrieves account information.
  *
  * @param request DescAccountSummaryRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -2585,7 +2644,7 @@ async function descAccountSummaryWithOptions(request: DescAccountSummaryRequest,
 }
 
 /**
- * @summary Retrieve account information.
+ * @summary Retrieves account information.
  *
  * @param request DescAccountSummaryRequest
  * @return DescAccountSummaryResponse
@@ -2596,51 +2655,52 @@ async function descAccountSummary(request: DescAccountSummaryRequest): DescAccou
 }
 
 model DescDomainRequest {
-  domainId?: int32(name='DomainId', description='Domain ID. Can be obtained through QueryDomainByParam.
+  domainId?: int32(name='DomainId', description='The domain name ID. Obtain this ID by calling the QueryDomainByParam operation.
 
 This parameter is required.', example='13464'),
   ownerId?: long(name='OwnerId'),
-  requireRealTimeDnsRecords?: boolean(name='RequireRealTimeDnsRecords', description='Determines whether to perform real-time DNS resolution', example='true'),
+  requireRealTimeDnsRecords?: boolean(name='RequireRealTimeDnsRecords', description='Specifies whether to perform real-time DNS parsing.', example='true'),
   resourceOwnerAccount?: string(name='ResourceOwnerAccount'),
   resourceOwnerId?: long(name='ResourceOwnerId'),
 }
 
 model DescDomainResponseBody = {
-  cnameAuthStatus?: string(name='CnameAuthStatus', description='CNAME verification flag, 0 for success, 1 for failure.', example='1'),
-  cnameConfirmStatus?: string(name='CnameConfirmStatus', description='Indicates whether the CNAME host record has been modified, 1 for modified (reverting to the original value also counts as modification), 0 for not modified.', example='0'),
-  cnameRecord?: string(name='CnameRecord', description='Custom part of the CNAME host record', example='dmtrace'),
-  createTime?: string(name='CreateTime', description='Creation time', example='2025-03-19T12:49Z'),
-  defaultDomain?: string(name='DefaultDomain', description='Whether it is the default domain,
+  cnameAuthStatus?: string(name='CnameAuthStatus', description='The CNAME authentication flag. 0: Succeeded. 1: Failed.', example='1'),
+  cnameConfirmStatus?: string(name='CnameConfirmStatus', description='Indicates whether the CNAME host record was modified. A value of 1 means the record was modified. Reverting to the original value is also considered a modification. A value of 0 means the record was not modified.', example='0'),
+  cnameRecord?: string(name='CnameRecord', description='The custom part of the CNAME host record.', example='dmtrace'),
+  createTime?: string(name='CreateTime', description='The time when the domain name was created.', example='2025-03-19T12:49Z'),
+  defaultDomain?: string(name='DefaultDomain', description='Indicates whether the domain name is the default domain name.
 
-Value: 0 No (this field is deprecated)', example='0'),
-  dkimAuthStatus?: string(name='DkimAuthStatus', description='DKIM verification flag, indicating whether the DKIM record set by the user in DNS has passed validation, 0: Passed, 1: Not passed', example='0'),
-  dkimPublicKey?: string(name='DkimPublicKey', description='DKIM public key value, the value that users need to set for the DKIM record in DNS', example='v=DKIM1; k=rsa; p=MIGfMA0GCSqGSI...'),
-  dkimRR?: string(name='DkimRR', description='DKIM host record, the key that the user needs to set in the DNS for the DKIM record', example='aliyun-cn-hangzhou._domainkey.hangzhou26'),
+Value: 0 (No). This field is deprecated.', example='0'),
+  dkimAuthStatus?: string(name='DkimAuthStatus', description='The DKIM authentication flag. Indicates if the DKIM record in your DNS settings passed verification. 0: Passed. 1: Not passed.', example='0'),
+  dkimPublicKey?: string(name='DkimPublicKey', description='The DKIM public key. This is the value of the DKIM record to configure in your DNS settings.', example='v=DKIM1; k=rsa; p=MIGfMA0GCSqGSI...'),
+  dkimRR?: string(name='DkimRR', description='The DKIM host record. This is the key of the DKIM record to configure in your DNS settings.', example='aliyun-cn-hangzhou._domainkey.hangzhou26'),
   dkimRsaLength?: int32(name='DkimRsaLength'),
-  dmarcAuthStatus?: int32(name='DmarcAuthStatus', description='DMARC verification flag, indicating whether the DMARC record set by the user in DNS has passed validation, 0: Passed, 1: Not passed', example='1'),
-  dmarcHostRecord?: string(name='DmarcHostRecord', description='DMARC host record value', example='_dmarc.xxx'),
-  dmarcRecord?: string(name='DmarcRecord', description='DMARC record value', example='v=DMARC1;p=none;rua=mailto:dmarc_report@service.aliyun.com'),
-  dnsDmarc?: string(name='DnsDmarc', description='DMARC record value resolved through the public domain name', example='v=DMARC1;p=none;rua=mailto:dmarc_report@service.aliyun.com'),
-  dnsMx?: string(name='DnsMx', description='MX record value resolved from the public network domain', example='mx01.dm.aliyun.com'),
-  dnsSpf?: string(name='DnsSpf', description='SPF record value resolved from the public network domain', example='v=xxxx'),
-  dnsTxt?: string(name='DnsTxt', description='Ownership record value resolved from the public network domain', example='0c40d5f125af4e42892a'),
-  domainId?: string(name='DomainId', description='Domain ID', example='158910'),
-  domainName?: string(name='DomainName', description='Domain name', example='test.example.net'),
-  domainStatus?: string(name='DomainStatus', description='Domain status. Indicates whether the verification was successful, with values:
+  dmarcAuthStatus?: int32(name='DmarcAuthStatus', description='The DMARC authentication flag. Indicates if the DMARC record in your DNS settings passed verification. 0: Passed. 1: Not passed.', example='1'),
+  dmarcHostRecord?: string(name='DmarcHostRecord', description='The DMARC host record value.', example='_dmarc.xxx'),
+  dmarcRecord?: string(name='DmarcRecord', description='The DMARC record value.', example='v=DMARC1;p=none;rua=mailto:dmarc_report@service.aliyun.com'),
+  dnsDmarc?: string(name='DnsDmarc', description='The DMARC record value parsed from the public domain name.', example='v=DMARC1;p=none;rua=mailto:dmarc_report@service.aliyun.com'),
+  dnsMx?: string(name='DnsMx', description='The MX record value parsed from the public domain name.', example='mx01.dm.aliyun.com'),
+  dnsSpf?: string(name='DnsSpf', description='The SPF record value parsed from the public domain name.', example='v=xxxx'),
+  dnsTxt?: string(name='DnsTxt', description='The ownership record value parsed from the public domain name.', example='0c40d5f125af4e42892a'),
+  domainId?: string(name='DomainId', description='The domain name ID.', example='158910'),
+  domainName?: string(name='DomainName', description='The domain name.', example='test.example.net'),
+  domainStatus?: string(name='DomainStatus', description='The domain status. This indicates whether the domain name passed authentication. Valid values:
 
-- **0**: Available, verified successfully
-- **1**: Unavailable, verification failed', example='1'),
-  domainType?: string(name='DomainType', description='Ownership record provided by the email push console', example='0c40d5f125af4e42892a'),
-  hostRecord?: string(name='HostRecord', description='Host record', example='xxx'),
-  icpStatus?: string(name='IcpStatus', description='Filing status. **1** indicates filed, **0** indicates not filed.', example='1'),
-  mxAuthStatus?: string(name='MxAuthStatus', description='MX verification flag, 0 for success, 1 for failure.', example='1'),
-  mxRecord?: string(name='MxRecord', description='MX record value provided by the email push console', example='mx01.dm.aliyun.com'),
-  requestId?: string(name='RequestId', description='Request ID', example='51B74264-46B4-43C8-A9A0-6B8E8BC04F34'),
-  spfAuthStatus?: string(name='SpfAuthStatus', description='SPF verification flag, 0 for success, 1 for failure.', example='1'),
-  spfRecord?: string(name='SpfRecord', description='SPF record value provided by the email push console', example='include:spf1.dm.aliyun.com'),
-  spfRecordV2?: string(name='SpfRecordV2', description='SPF record. Previously, the SPF display content needed to be calculated by the calling end based on the spfRecord in the response. The new field spfRecordV2 replaces spfRecord, and the calling end can directly display this field after obtaining it;', example='v=spf1 include:spf1.dm.aliyun.com -all'),
-  tlDomainName?: string(name='TlDomainName', description='Primary domain', example='example.com'),
-  tracefRecord?: string(name='TracefRecord', description='CNAME record value provided by the email push console', example='tracedm.aliyuncs.com'),
+- **0**: Active. The domain name passed authentication.
+
+- **1**: Inactive. The domain name failed authentication.', example='1'),
+  domainType?: string(name='DomainType', description='The ownership record provided by the Direct Mail console.', example='0c40d5f125af4e42892a'),
+  hostRecord?: string(name='HostRecord', description='The host record.', example='xxx'),
+  icpStatus?: string(name='IcpStatus', description='The ICP filing status. **1** indicates that the domain name has an ICP filing. **0** indicates that the domain name does not have an ICP filing.', example='1'),
+  mxAuthStatus?: string(name='MxAuthStatus', description='The MX authentication flag. 0: Succeeded. 1: Failed.', example='1'),
+  mxRecord?: string(name='MxRecord', description='The MX record value provided by the Direct Mail console.', example='mx01.dm.aliyun.com'),
+  requestId?: string(name='RequestId', description='The request ID.', example='51B74264-46B4-43C8-A9A0-6B8E8BC04F34'),
+  spfAuthStatus?: string(name='SpfAuthStatus', description='The SPF authentication flag. 0: Succeeded. 1: Failed.', example='1'),
+  spfRecord?: string(name='SpfRecord', description='The SPF record value provided by the Direct Mail console.', example='include:spf1.dm.aliyun.com'),
+  spfRecordV2?: string(name='SpfRecordV2', description='The SPF record. This field replaces the \\\\`spfRecord\\\\` field. You can directly display the value of this field without needing to calculate it from the response.', example='v=spf1 include:spf1.dm.aliyun.com -all'),
+  tlDomainName?: string(name='TlDomainName', description='The primary domain name.', example='example.com'),
+  tracefRecord?: string(name='TracefRecord', description='The CNAME record value provided by the Direct Mail console.', example='tracedm.aliyuncs.com'),
 }
 
 model DescDomainResponse = {
@@ -2650,7 +2710,7 @@ model DescDomainResponse = {
 }
 
 /**
- * @summary Get Domain Details
+ * @summary You can configure domain names.
  *
  * @param request DescDomainRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -2692,7 +2752,7 @@ async function descDomainWithOptions(request: DescDomainRequest, runtime: Util.R
 }
 
 /**
- * @summary Get Domain Details
+ * @summary You can configure domain names.
  *
  * @param request DescDomainRequest
  * @return DescDomainResponse
@@ -2703,25 +2763,35 @@ async function descDomain(request: DescDomainRequest): DescDomainResponse {
 }
 
 model DescTemplateRequest {
-  fromType?: int32(name='FromType'),
+  fromType?: int32(name='FromType', description='This parameter is deprecated. It is retained for historical compatibility.', example='Abandoned, historical reasons for compatibility'),
   ownerId?: long(name='OwnerId'),
   resourceOwnerAccount?: string(name='ResourceOwnerAccount'),
   resourceOwnerId?: long(name='ResourceOwnerId'),
-  templateId?: int32(name='TemplateId', description='This parameter is required.', example='3xxxx2'),
+  templateId?: int32(name='TemplateId', description='The template ID.
+
+This parameter is required.', example='3xxxx2'),
 }
 
 model DescTemplateResponseBody = {
-  createTime?: string(name='CreateTime', example='2019-09-29T13:28Z'),
-  remark?: string(name='Remark'),
-  requestId?: string(name='RequestId', example='95xxx5F'),
-  smsContent?: string(name='SmsContent'),
-  smsType?: string(name='SmsType'),
-  templateName?: string(name='TemplateName', example='test1'),
-  templateNickName?: string(name='TemplateNickName'),
-  templateStatus?: string(name='TemplateStatus', example='2'),
-  templateSubject?: string(name='TemplateSubject', example='test'),
-  templateText?: string(name='TemplateText', example='<p>1</p>'),
-  templateType?: string(name='TemplateType'),
+  createTime?: string(name='CreateTime', description='The time when the template was created.', example='2025-11-14T13:28Z'),
+  remark?: string(name='Remark', description='This parameter is deprecated. It is retained for historical compatibility.', example='Abandoned, historical reasons for compatibility'),
+  requestId?: string(name='RequestId', description='The request ID.', example='95xxx5F'),
+  smsContent?: string(name='SmsContent', description='This parameter is deprecated. It is retained for historical compatibility.', example='Abandoned, historical reasons for compatibility'),
+  smsType?: string(name='SmsType', description='This parameter is deprecated. It is retained for historical compatibility.', example='Abandoned, historical reasons for compatibility'),
+  templateName?: string(name='TemplateName', description='The template name.', example='test1'),
+  templateNickName?: string(name='TemplateNickName', description='This parameter is deprecated. It is retained for historical compatibility.', example='Abandoned, historical reasons for compatibility'),
+  templateStatus?: string(name='TemplateStatus', description='The status of the template. Valid values:
+
+- 0: The template is a draft.
+
+- 1: The template is pending approval.
+
+- 2: The template is approved.
+
+- 3: The template is rejected.', example='2'),
+  templateSubject?: string(name='TemplateSubject', description='The template subject, which is used to create the email subject.', example='test'),
+  templateText?: string(name='TemplateText', description='The template content.', example='<p>1</p>'),
+  templateType?: string(name='TemplateType', description='This parameter is deprecated. It is retained for historical compatibility.', example='Abandoned, historical reasons for compatibility'),
 }
 
 model DescTemplateResponse = {
@@ -2731,7 +2801,9 @@ model DescTemplateResponse = {
 }
 
 /**
- * @summary 查看模板信息
+ * @summary Views the information about a template.
+ *
+ * @description You can call this operation to view the information about a template.
  *
  * @param request DescTemplateRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -2773,7 +2845,9 @@ async function descTemplateWithOptions(request: DescTemplateRequest, runtime: Ut
 }
 
 /**
- * @summary 查看模板信息
+ * @summary Views the information about a template.
+ *
+ * @description You can call this operation to view the information about a template.
  *
  * @param request DescTemplateRequest
  * @return DescTemplateResponse
@@ -2926,8 +3000,8 @@ model GetIpProtectionRequest {
 }
 
 model GetIpProtectionResponseBody = {
-  ipProtection?: string(name='IpProtection', description='IP protection switch, On: 1 Off: 0', example='0'),
-  requestId?: string(name='RequestId', description='Request ID', example='B30E5A62-2E64-577D-A70E-8C6781D6C975'),
+  ipProtection?: string(name='IpProtection'),
+  requestId?: string(name='RequestId'),
 }
 
 model GetIpProtectionResponse = {
@@ -2937,7 +3011,7 @@ model GetIpProtectionResponse = {
 }
 
 /**
- * @summary Get IP Protection Information
+ * @summary 获取IP保护信息
  *
  * @param request GetIpProtectionRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -2973,7 +3047,7 @@ async function getIpProtectionWithOptions(request: GetIpProtectionRequest, runti
 }
 
 /**
- * @summary Get IP Protection Information
+ * @summary 获取IP保护信息
  *
  * @param request GetIpProtectionRequest
  * @return GetIpProtectionResponse
@@ -2997,14 +3071,12 @@ model GetIpfilterListResponseBody = {
   data?: {
     ipfilters?: [ 
     {
-      createTime?: string(name='CreateTime', description='timestamp', example='1653547140'),
-      id?: string(name='Id', description='Record ID', example='10083'),
-      ipAddress?: string(name='IpAddress', description='IP address/IP range/IP segment', example='xxx.xxx.xxx.xxx
-xxx.xxx.xxx.xxx-xxx.xxx.xxx.xxx
-xxx.xxx.xxx.xxx/xxx'),
+      createTime?: string(name='CreateTime'),
+      id?: string(name='Id'),
+      ipAddress?: string(name='IpAddress'),
     }
   ](name='ipfilters')
-  }(name='data', description='Data records'),
+  }(name='data'),
 }
 
 model GetIpfilterListResponse = {
@@ -3058,6 +3130,106 @@ async function getIpfilterListWithOptions(request: GetIpfilterListRequest, runti
 async function getIpfilterList(request: GetIpfilterListRequest): GetIpfilterListResponse {
   var runtime = new Util.RuntimeOptions{};
   return getIpfilterListWithOptions(request, runtime);
+}
+
+model GetSendifyAutoLoginURLResponseBody = {
+  autoLoginURL?: string(name='AutoLoginURL', example='https://dingstore.cn'),
+  requestId?: string(name='RequestId', example='123423'),
+}
+
+model GetSendifyAutoLoginURLResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: GetSendifyAutoLoginURLResponseBody(name='body'),
+}
+
+/**
+ * @summary 获取sendify免登链接
+ *
+ * @param request GetSendifyAutoLoginURLRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return GetSendifyAutoLoginURLResponse
+ */
+async function getSendifyAutoLoginURLWithOptions(runtime: Util.RuntimeOptions): GetSendifyAutoLoginURLResponse {
+  var req = new OpenApi.OpenApiRequest{};
+  var params = new OpenApi.Params{
+    action = 'GetSendifyAutoLoginURL',
+    version = '2015-11-23',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 获取sendify免登链接
+ *
+ * @return GetSendifyAutoLoginURLResponse
+ */
+async function getSendifyAutoLoginURL(): GetSendifyAutoLoginURLResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return getSendifyAutoLoginURLWithOptions(runtime);
+}
+
+model GetSendifyInfoResponseBody = {
+  buyResourcePackageUrl?: string(name='BuyResourcePackageUrl', example='http'),
+  buyUrl?: string(name='BuyUrl', example='http'),
+  discount?: string(name='Discount', example='0.3'),
+  downgradeUrl?: string(name='DowngradeUrl', example='http'),
+  expireTime?: string(name='ExpireTime', example='到期'),
+  learnMoreUrl?: string(name='LearnMoreUrl', example='了解更多'),
+  opened?: boolean(name='Opened'),
+  productCode?: string(name='ProductCode', example='TRIAL'),
+  renewUrl?: string(name='RenewUrl', example='https'),
+  requestId?: string(name='RequestId', example='1234'),
+  specUpgradeUrl?: string(name='SpecUpgradeUrl', example='http'),
+  status?: string(name='Status', example='VALID'),
+  supportTrial?: boolean(name='SupportTrial'),
+  upgradeUrl?: string(name='UpgradeUrl', example='升配链接'),
+}
+
+model GetSendifyInfoResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: GetSendifyInfoResponseBody(name='body'),
+}
+
+/**
+ * @summary 免费试用Sendify
+ *
+ * @param request GetSendifyInfoRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return GetSendifyInfoResponse
+ */
+async function getSendifyInfoWithOptions(runtime: Util.RuntimeOptions): GetSendifyInfoResponse {
+  var req = new OpenApi.OpenApiRequest{};
+  var params = new OpenApi.Params{
+    action = 'GetSendifyInfo',
+    version = '2015-11-23',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 免费试用Sendify
+ *
+ * @return GetSendifyInfoResponse
+ */
+async function getSendifyInfo(): GetSendifyInfoResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return getSendifyInfoWithOptions(runtime);
 }
 
 model GetSuppressionListLevelRequest {
@@ -3125,55 +3297,72 @@ async function getSuppressionListLevel(request: GetSuppressionListLevelRequest):
 }
 
 model GetTrackListRequest {
-  accountName?: string(name='AccountName', description='Sender address.
+  accountName?: string(name='AccountName', description='The sender address.
 
-> If not filled, it represents all addresses; if TagName is provided, this parameter must not be empty.', example='test@example.com'),
-  configSetId?: string(name='ConfigSetId'),
-  dedicatedIp?: string(name='DedicatedIp'),
-  dedicatedIpPoolId?: string(name='DedicatedIpPoolId'),
-  endTime?: string(name='EndTime', description='End time, the span between start and end time cannot exceed 7 days. Format: yyyy-MM-dd.
+> If you omit this parameter, the query returns data for all sender addresses. This parameter is required if you specify the `TagName` parameter.', example='test@example.com'),
+  configSetId?: string(name='ConfigSetId', description='The ID of the configuration set.', example='xxx'),
+  dedicatedIp?: string(name='DedicatedIp', description='The dedicated IP address to query.
+
+If this parameter is omitted, data for all dedicated IPs is returned.', example='xxx.xxx.xxx.xxx'),
+  dedicatedIpPoolId?: string(name='DedicatedIpPoolId', description='The ID of the dedicated IP pool to query.
+
+If this parameter is omitted, data for all IP pools is returned.', example='xxx'),
+  domain?: string(name='Domain', example='dmdomain.com'),
+  endTime?: string(name='EndTime', description='The end date of the query. The duration between the StartTime and EndTime cannot exceed 7 days. The format is `yyyy-MM-dd`.
 
 This parameter is required.', example='2019-09-29'),
-  esp?: string(name='Esp'),
-  offset?: string(name='Offset', description='For the first query, set to 0; for subsequent queries, fixed at 1. 1 indicates pagination in ascending order by time. (This field is deprecated)', example='(This field is deprecated)'),
-  offsetCreateTime?: string(name='OffsetCreateTime', description='Used for pagination. Not set for the first query, but for subsequent queries, it should be set to the value of OffsetCreateTime from the previous response. (This field is deprecated)', example='(This field is deprecated)'),
-  offsetCreateTimeDesc?: string(name='OffsetCreateTimeDesc', description='(This field is deprecated)', example='(This field is deprecated)'),
+  esp?: string(name='Esp', description='The Email Service Provider (ESP) to query. Valid values are:
+
+- gmail.com
+
+- yahoo.com
+
+- outlook.com
+
+- icloud.com
+
+- Others: Any ESP not listed above.
+
+If you omit this parameter, the query returns data for all ESPs.', example='gmail.com'),
+  offset?: string(name='Offset', description='Set this to 0 for the first query. For subsequent queries, set it to 1 to perform a paged query in chronological order. (This field is deprecated)', example='（本字段已废弃）'),
+  offsetCreateTime?: string(name='OffsetCreateTime', description='Used for pagination. Do not set this parameter for the first query. For subsequent queries, set this parameter to the `OffsetCreateTime` value returned in the previous response. (This field is deprecated)', example='（本字段已废弃）'),
+  offsetCreateTimeDesc?: string(name='OffsetCreateTimeDesc', description='(This field is deprecated)', example='（本字段已废弃）'),
   ownerId?: long(name='OwnerId'),
-  pageNumber?: string(name='PageNumber', description='Page number', example='1'),
-  pageSize?: string(name='PageSize', description='Page size', example='10'),
+  pageNumber?: string(name='PageNumber', description='The page number to return.', example='1'),
+  pageSize?: string(name='PageSize', description='The number of entries to return on each page.', example='10'),
   resourceOwnerAccount?: string(name='ResourceOwnerAccount'),
   resourceOwnerId?: long(name='ResourceOwnerId'),
-  startTime?: string(name='StartTime', description='Start time, which cannot be earlier than 30 days. Format: yyyy-MM-dd.
+  startTime?: string(name='StartTime', description='The start date of the query. The date must be within the last 30 days. The format is `yyyy-MM-dd`.
 
 This parameter is required.', example='2019-09-29'),
-  tagName?: string(name='TagName', description='Tag name', example='tagname'),
-  total?: string(name='Total', description='(This field is deprecated)', example='(This field is deprecated)'),
+  tagName?: string(name='TagName', description='The tag name.', example='tagname'),
+  total?: string(name='Total', description='(This field is deprecated)', example='（本字段已废弃）'),
 }
 
 model GetTrackListResponseBody = {
-  offsetCreateTime?: string(name='OffsetCreateTime', description='Used for pagination. Not set for the first query, but for subsequent queries, it should be set to the value of OffsetCreateTime from the previous response. (This field is deprecated)', example='(This field is deprecated)'),
-  offsetCreateTimeDesc?: string(name='OffsetCreateTimeDesc', description='(This field is deprecated)', example='(This field is deprecated)'),
-  pageNo?: int32(name='PageNo', description='Current page number', example='1'),
-  pageSize?: int32(name='PageSize', description='Number of items per page', example='10'),
-  requestId?: string(name='RequestId', description='Request ID', example='10A1AD70-E48E-476D-98D9-39BD92193837'),
-  total?: int32(name='Total', description='Total number of items', example='100'),
-  totalPages?: int32(name='TotalPages'),
+  offsetCreateTime?: string(name='OffsetCreateTime', description='Used for pagination. Do not set this parameter for the first request. For subsequent requests, set this parameter to the OffsetCreateTime value from the previous response. (This field is deprecated.)', example='（本字段已废弃）'),
+  offsetCreateTimeDesc?: string(name='OffsetCreateTimeDesc', description='(This field is deprecated.)', example='（本字段已废弃）'),
+  pageNo?: int32(name='PageNo', description='The current page number.', example='1'),
+  pageSize?: int32(name='PageSize', description='The number of entries returned per page.', example='10'),
+  requestId?: string(name='RequestId', description='The unique identifier for the request.', example='10A1AD70-E48E-476D-98D9-39BD92193837'),
+  total?: int32(name='Total', description='The total number of matching records.', example='100'),
+  totalPages?: int32(name='TotalPages', description='The total number of pages.', example='2'),
   data?: {
     stat?: [ 
     {
-      createTime?: string(name='CreateTime', description='Creation time', example='2019-09-29T13:28Z'),
-      rcptClickCount?: string(name='RcptClickCount', description='Click count', example='0'),
-      rcptClickRate?: string(name='RcptClickRate', description='Click rate', example='0'),
-      rcptOpenCount?: string(name='RcptOpenCount', description='Number of Opens', example='0'),
-      rcptOpenRate?: string(name='RcptOpenRate', description='Open rate', example='0'),
-      rcptUniqueClickCount?: string(name='RcptUniqueClickCount', description='Unique click count', example='0'),
-      rcptUniqueClickRate?: string(name='RcptUniqueClickRate', description='Unique click rate', example='0'),
-      rcptUniqueOpenCount?: string(name='RcptUniqueOpenCount', description='Unique open count', example='0'),
-      rcptUniqueOpenRate?: string(name='RcptUniqueOpenRate', description='Unique open rate', example='0'),
-      totalNumber?: string(name='TotalNumber', description='Total number', example='0'),
+      createTime?: string(name='CreateTime'),
+      rcptClickCount?: string(name='RcptClickCount'),
+      rcptClickRate?: string(name='RcptClickRate'),
+      rcptOpenCount?: string(name='RcptOpenCount'),
+      rcptOpenRate?: string(name='RcptOpenRate'),
+      rcptUniqueClickCount?: string(name='RcptUniqueClickCount'),
+      rcptUniqueClickRate?: string(name='RcptUniqueClickRate'),
+      rcptUniqueOpenCount?: string(name='RcptUniqueOpenCount'),
+      rcptUniqueOpenRate?: string(name='RcptUniqueOpenRate'),
+      totalNumber?: string(name='TotalNumber'),
     }
   ](name='stat')
-  }(name='data', description='Tracking data records'),
+  }(name='data'),
 }
 
 model GetTrackListResponse = {
@@ -3183,7 +3372,7 @@ model GetTrackListResponse = {
 }
 
 /**
- * @summary Get tracking information
+ * @summary Email Tracking retrieves data on sent emails.
  *
  * @param request GetTrackListRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -3203,6 +3392,9 @@ async function getTrackListWithOptions(request: GetTrackListRequest, runtime: Ut
   }
   if (!Util.isUnset(request.dedicatedIpPoolId)) {
     query['DedicatedIpPoolId'] = request.dedicatedIpPoolId;
+  }
+  if (!Util.isUnset(request.domain)) {
+    query['Domain'] = request.domain;
   }
   if (!Util.isUnset(request.endTime)) {
     query['EndTime'] = request.endTime;
@@ -3261,7 +3453,7 @@ async function getTrackListWithOptions(request: GetTrackListRequest, runtime: Ut
 }
 
 /**
- * @summary Get tracking information
+ * @summary Email Tracking retrieves data on sent emails.
  *
  * @param request GetTrackListRequest
  * @return GetTrackListResponse
@@ -3272,55 +3464,71 @@ async function getTrackList(request: GetTrackListRequest): GetTrackListResponse 
 }
 
 model GetTrackListByMailFromAndTagNameRequest {
-  accountName?: string(name='AccountName', description='Sender address.
+  accountName?: string(name='AccountName', description='The sender address.
 
-> If not filled, it represents all addresses; if there is a TagName, this parameter must not be empty.', example='e-service@amegroups.cn'),
-  configSetId?: string(name='ConfigSetId'),
-  dedicatedIp?: string(name='DedicatedIp'),
-  dedicatedIpPoolId?: string(name='DedicatedIpPoolId'),
-  endTime?: string(name='EndTime', description='End time, with a span from the start time that cannot exceed 15 days. Format: yyyy-MM-dd.
+> If you leave this parameter empty, data for all addresses is returned. This parameter is required if you specify TagName.', example='e-service@amegroups.cn'),
+  configSetId?: string(name='ConfigSetId', description='The configuration set ID.', example='xxx'),
+  dedicatedIp?: string(name='DedicatedIp', description='The dedicated IP address. This parameter is available only for users of dedicated IPs.
+
+If you do not specify this parameter, data for all IPs is returned.', example='xxx.xxx.xxx.xxx'),
+  dedicatedIpPoolId?: string(name='DedicatedIpPoolId', description='The ID of the dedicated IP pool. This parameter is available only for users of dedicated IPs.
+
+If you do not specify this parameter, data for all IP pools is returned.', example='xxx'),
+  endTime?: string(name='EndTime', description='The end time. The time span between the start time and end time cannot exceed 15 days. The format is yyyy-MM-dd.
 
 This parameter is required.', example='2019-09-29'),
-  esp?: string(name='Esp'),
-  offset?: string(name='Offset', description='For the first query, set to 0; for subsequent queries, fixed at 1. 1 indicates pagination in ascending order by time. (This field is deprecated)', example='（本字段已废弃）'),
-  offsetCreateTime?: string(name='OffsetCreateTime', description='Used for pagination. Not set for the first query; for subsequent queries, set to the value of OffsetCreateTime from the previous response. (This field is deprecated)', example='（本字段已废弃）'),
+  esp?: string(name='Esp', description='The Email Service Provider (ESP). This parameter is available only for users of dedicated IPs. Valid values:
+
+- gmail.com
+
+- yahoo.com
+
+- outlook.com
+
+- icloud.com
+
+- others (data for ESPs other than the ones listed above)
+
+If you do not specify this parameter, data for all ESPs is returned.', example='gmail.com'),
+  offset?: string(name='Offset', description='The value is 0 for the first query and 1 for subsequent queries. A value of 1 indicates a paged query in chronological order. (This field is deprecated)', example='（本字段已废弃）'),
+  offsetCreateTime?: string(name='OffsetCreateTime', description='Used for paging. Do not set this parameter for the first query. For subsequent queries, set this parameter to the OffsetCreateTime value from the previous response. (This field is deprecated)', example='（本字段已废弃）'),
   offsetCreateTimeDesc?: string(name='OffsetCreateTimeDesc', description='(This field is deprecated)', example='（本字段已废弃）'),
   ownerId?: long(name='OwnerId'),
-  pageNumber?: string(name='PageNumber', description='Current page number', example='1'),
-  pageSize?: string(name='PageSize', description='Page size', example='10'),
+  pageNumber?: string(name='PageNumber', description='The current page number.', example='1'),
+  pageSize?: string(name='PageSize', description='The number of entries per page.', example='10'),
   resourceOwnerAccount?: string(name='ResourceOwnerAccount'),
   resourceOwnerId?: long(name='ResourceOwnerId'),
-  startTime?: string(name='StartTime', description='Start time, which cannot be earlier than 30 days. Format: yyyy-MM-dd.
+  startTime?: string(name='StartTime', description='The start time. The time cannot be earlier than 30 days ago. The format is yyyy-MM-dd.
 
 This parameter is required.', example='2019-09-29'),
-  tagName?: string(name='TagName', description='Email tag. If not filled, it represents all tags.', example='Subscription'),
+  tagName?: string(name='TagName', description='The email tag. If you leave this parameter empty, data for all tags is returned.', example='Subscription'),
   total?: string(name='Total', description='(This field is deprecated)', example='（本字段已废弃）'),
 }
 
 model GetTrackListByMailFromAndTagNameResponseBody = {
-  offsetCreateTime?: string(name='OffsetCreateTime', description='Used for pagination. Not set for the first query; for subsequent queries, set to the value of OffsetCreateTime from the previous response. (This field is deprecated)', example='（本字段已废弃）'),
+  offsetCreateTime?: string(name='OffsetCreateTime', description='Used for paging. Do not set this parameter for the first query. For subsequent queries, set this parameter to the OffsetCreateTime value from the previous response. (This field is deprecated)', example='（本字段已废弃）'),
   offsetCreateTimeDesc?: string(name='OffsetCreateTimeDesc', description='(This field is deprecated)', example='（本字段已废弃）'),
-  pageNo?: int32(name='PageNo', description='Current page number', example='1'),
-  pageSize?: int32(name='PageSize', description='Page size', example='20'),
-  requestId?: string(name='RequestId', description='Request ID', example='10A1AD70-E48E-476D-98D9-39BD92193837'),
+  pageNo?: int32(name='PageNo', description='The current page number.', example='1'),
+  pageSize?: int32(name='PageSize', description='The number of entries per page.', example='20'),
+  requestId?: string(name='RequestId', description='The request ID.', example='10A1AD70-E48E-476D-98D9-39BD92193837'),
   total?: int32(name='Total', description='(This field is deprecated)', example='4'),
-  totalPages?: string(name='TotalPages'),
+  totalPages?: string(name='TotalPages', description='The total number of pages.', example='2'),
   trackList?: {
     stat?: [ 
     {
-      createTime?: string(name='CreateTime', description='Creation time', example='2025-01-11T10:11Z'),
-      rcptClickCount?: string(name='RcptClickCount', description='Click count', example='0'),
-      rcptClickRate?: string(name='RcptClickRate', description='Click rate', example='0'),
-      rcptOpenCount?: string(name='RcptOpenCount', description='Number of opens', example='0'),
-      rcptOpenRate?: string(name='RcptOpenRate', description='Open rate', example='0'),
-      rcptUniqueClickCount?: string(name='RcptUniqueClickCount', description='Unique click count', example='0'),
-      rcptUniqueClickRate?: string(name='RcptUniqueClickRate', description='Unique click rate', example='0'),
-      rcptUniqueOpenCount?: string(name='RcptUniqueOpenCount', description='Unique open count', example='0'),
-      rcptUniqueOpenRate?: string(name='RcptUniqueOpenRate', description='Unique open rate', example='0'),
-      totalNumber?: string(name='TotalNumber', description='Total number', example='0'),
+      createTime?: string(name='CreateTime'),
+      rcptClickCount?: string(name='RcptClickCount'),
+      rcptClickRate?: string(name='RcptClickRate'),
+      rcptOpenCount?: string(name='RcptOpenCount'),
+      rcptOpenRate?: string(name='RcptOpenRate'),
+      rcptUniqueClickCount?: string(name='RcptUniqueClickCount'),
+      rcptUniqueClickRate?: string(name='RcptUniqueClickRate'),
+      rcptUniqueOpenCount?: string(name='RcptUniqueOpenCount'),
+      rcptUniqueOpenRate?: string(name='RcptUniqueOpenRate'),
+      totalNumber?: string(name='TotalNumber'),
     }
   ](name='Stat')
-  }(name='TrackList', description='Tracking data records'),
+  }(name='TrackList'),
 }
 
 model GetTrackListByMailFromAndTagNameResponse = {
@@ -3330,7 +3538,7 @@ model GetTrackListByMailFromAndTagNameResponse = {
 }
 
 /**
- * @summary Get tracking information based on the sender address and tag name
+ * @summary Retrieves email tracking data that meets specified conditions.
  *
  * @param request GetTrackListByMailFromAndTagNameRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -3408,7 +3616,7 @@ async function getTrackListByMailFromAndTagNameWithOptions(request: GetTrackList
 }
 
 /**
- * @summary Get tracking information based on the sender address and tag name
+ * @summary Retrieves email tracking data that meets specified conditions.
  *
  * @param request GetTrackListByMailFromAndTagNameRequest
  * @return GetTrackListByMailFromAndTagNameResponse
@@ -3420,9 +3628,9 @@ async function getTrackListByMailFromAndTagName(request: GetTrackListByMailFromA
 
 model GetUserResponseBody = {
   data?: {
-    enableEventbridge?: boolean(name='EnableEventbridge', description='Whether EventBridge is enabled', example='true'),
-  }(name='Data', description='Returned Content'),
-  requestId?: string(name='RequestId', description='Request ID', example='10A1AD70-E48E-476D-98D9-39BD92193837'),
+    enableEventbridge?: boolean(name='EnableEventbridge'),
+  }(name='Data'),
+  requestId?: string(name='RequestId'),
 }
 
 model GetUserResponse = {
@@ -3432,7 +3640,7 @@ model GetUserResponse = {
 }
 
 /**
- * @summary Get Account Details
+ * @summary 获取账号详情
  *
  * @param request GetUserRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -3455,7 +3663,7 @@ async function getUserWithOptions(runtime: Util.RuntimeOptions): GetUserResponse
 }
 
 /**
- * @summary Get Account Details
+ * @summary 获取账号详情
  *
  * @return GetUserResponse
  */
@@ -3465,12 +3673,12 @@ async function getUser(): GetUserResponse {
 }
 
 model GetValidateFileRequest {
-  fileId?: string(name='FileId', example='xxxx-xxxx-xxxx-xxxx'),
+  fileId?: string(name='FileId', description='The file ID returned after the task is submitted.', example='xxxx-xxxx-xxxx-xxxx'),
 }
 
 model GetValidateFileResponseBody = {
-  fileUrl?: string(name='FileUrl', example='https://xxxxxx/yyy'),
-  requestId?: string(name='RequestId', example='yyyy-yyyy-yyyy-yyyy'),
+  fileUrl?: string(name='FileUrl', description='The download URL of the result file.', example='https://xxxxxx/yyy'),
+  requestId?: string(name='RequestId', description='The ID of the request.', example='yyyy-yyyy-yyyy-yyyy'),
 }
 
 model GetValidateFileResponse = {
@@ -3480,7 +3688,7 @@ model GetValidateFileResponse = {
 }
 
 /**
- * @summary 获取批量校验任务的结果文件
+ * @summary Retrieves the results file of a batch validation task.
  *
  * @param request GetValidateFileRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -3510,7 +3718,7 @@ async function getValidateFileWithOptions(request: GetValidateFileRequest, runti
 }
 
 /**
- * @summary 获取批量校验任务的结果文件
+ * @summary Retrieves the results file of a batch validation task.
  *
  * @param request GetValidateFileRequest
  * @return GetValidateFileResponse
@@ -3521,24 +3729,26 @@ async function getValidateFile(request: GetValidateFileRequest): GetValidateFile
 }
 
 model GetValidateFileStatusRequest {
-  fileId?: string(name='FileId', description='This parameter is required.', example='xxxx-xxxx-xxxx-xxxx'),
+  fileId?: string(name='FileId', description='The file ID returned after the task is submitted.
+
+This parameter is required.', example='xxxx-xxxx-xxxx-xxxx'),
 }
 
 model GetValidateFileStatusResponseBody = {
-  catchAllNum?: string(name='CatchAllNum', example='2'),
-  completeTime?: string(name='CompleteTime', example='2000-01-01T00:00:00Z'),
-  doNotMailNum?: string(name='DoNotMailNum', example='1'),
+  catchAllNum?: string(name='CatchAllNum', description='The number of email addresses with the validation result \\\\`CatchAll\\\\`.', example='2'),
+  completeTime?: string(name='CompleteTime', description='The time when the task was completed.', example='2000-01-01T00:00:00Z'),
+  doNotMailNum?: string(name='DoNotMailNum', description='The number of email addresses with the validation result \\\\`DoNotMail\\\\`.', example='1'),
   fileId?: string(name='FileId'),
-  fileName?: string(name='FileName', example='file.txt'),
-  invalidNum?: string(name='InvalidNum', example='2'),
-  percentage?: string(name='Percentage', example='100%'),
-  processedNum?: string(name='ProcessedNum', example='10'),
-  requestId?: string(name='RequestId', example='yyyy-yyyy-yyyy-yyyy'),
-  status?: string(name='Status', example='completed'),
-  totalNum?: string(name='TotalNum', example='10'),
-  unknownNum?: string(name='UnknownNum', example='1'),
-  uploadTime?: string(name='UploadTime', example='2000-01-01T00:00:00Z'),
-  validNum?: string(name='ValidNum', example='4'),
+  fileName?: string(name='FileName', description='The name of the file that was uploaded when the task was submitted.', example='file.txt'),
+  invalidNum?: string(name='InvalidNum', description='The number of email addresses with the validation result \\\\`Invalid\\\\`.', example='2'),
+  percentage?: string(name='Percentage', description='The progress of the task execution.', example='100%'),
+  processedNum?: string(name='ProcessedNum', description='The number of email addresses that have been validated.', example='10'),
+  requestId?: string(name='RequestId', description='The request ID.', example='yyyy-yyyy-yyyy-yyyy'),
+  status?: string(name='Status', description='The task status.', example='completed'),
+  totalNum?: string(name='TotalNum', description='The total number of email addresses to validate.', example='10'),
+  unknownNum?: string(name='UnknownNum', description='The number of email addresses with the validation result \\\\`Unknown\\\\`.', example='1'),
+  uploadTime?: string(name='UploadTime', description='The time when the file was submitted.', example='2000-01-01T00:00:00Z'),
+  validNum?: string(name='ValidNum', description='The number of email addresses with the validation result \\\\`Valid\\\\`.', example='4'),
 }
 
 model GetValidateFileStatusResponse = {
@@ -3548,7 +3758,7 @@ model GetValidateFileStatusResponse = {
 }
 
 /**
- * @summary 获取批量校验任务的状态
+ * @summary Retrieves the status of a validation file.
  *
  * @param request GetValidateFileStatusRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -3578,7 +3788,7 @@ async function getValidateFileStatusWithOptions(request: GetValidateFileStatusRe
 }
 
 /**
- * @summary 获取批量校验任务的状态
+ * @summary Retrieves the status of a validation file.
  *
  * @param request GetValidateFileStatusRequest
  * @return GetValidateFileStatusResponse
@@ -3589,9 +3799,9 @@ async function getValidateFileStatus(request: GetValidateFileStatusRequest): Get
 }
 
 model GetValidationQuotaResponseBody = {
-  requestId?: string(name='RequestId', example='xxxx-xxxx-xxxx-xxxx'),
-  totalQuota?: int32(name='TotalQuota', example='10'),
-  usedQuota?: int32(name='UsedQuota', example='1'),
+  requestId?: string(name='RequestId', description='The request ID.', example='xxxx-xxxx-xxxx-xxxx'),
+  totalQuota?: int32(name='TotalQuota', description='The total available quota.', example='10'),
+  usedQuota?: int32(name='UsedQuota', description='The used quota.', example='1'),
 }
 
 model GetValidationQuotaResponse = {
@@ -3601,7 +3811,7 @@ model GetValidationQuotaResponse = {
 }
 
 /**
- * @summary 获取电子邮件校验额度
+ * @summary Retrieves the email validation quota.
  *
  * @param request GetValidationQuotaRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -3624,7 +3834,7 @@ async function getValidationQuotaWithOptions(runtime: Util.RuntimeOptions): GetV
 }
 
 /**
- * @summary 获取电子邮件校验额度
+ * @summary Retrieves the email validation quota.
  *
  * @return GetValidationQuotaResponse
  */
@@ -3634,28 +3844,43 @@ async function getValidationQuota(): GetValidationQuotaResponse {
 }
 
 model ListBlockSendingRequest {
-  beginTime?: int32(name='BeginTime', example='1731463398242'),
-  blockEmail?: string(name='BlockEmail', example='xxxx@rcpt.com'),
-  blockType?: string(name='BlockType', description='This parameter is required.', example='UNSUB'),
-  endTime?: int32(name='EndTime', example='1732463398242'),
-  maxResults?: int32(name='MaxResults', example='50'),
-  nextToken?: string(name='NextToken', example='xxxxxyyyyyy'),
-  senderEmail?: string(name='SenderEmail', example='xxxx@sender.com'),
+  beginTime?: int32(name='BeginTime', description='The start of the time range to query blocked emails.', example='1763973206'),
+  blockEmail?: string(name='BlockEmail', description='The recipient email address.', example='xxxx@rcpt.com'),
+  blockType?: string(name='BlockType', description='The type of block.
+
+- UNSUB: Unsubscribe
+
+- REPORT: Spam report
+
+This parameter is required.', example='UNSUB'),
+  endTime?: int32(name='EndTime', description='The end of the time range to query blocked emails.', example='1764146006'),
+  maxResults?: int32(name='MaxResults', description='The maximum number of entries to return.<br>
+Valid values: 1 to 500.<br>', example='50'),
+  nextToken?: string(name='NextToken', description='The token used to start the query. If you do not specify this parameter, the query starts from the beginning of the results.', example='xxxxxyyyyyy'),
+  senderEmail?: string(name='SenderEmail', description='The sender email address.', example='xxxx@sender.com'),
 }
 
 model ListBlockSendingResponseBody = {
   data?: [ 
     {
-      blockEmail?: string(name='BlockEmail', example='xxxx@rcpt.com'),
-      blockTime?: int32(name='BlockTime', example='1723259364'),
-      reason?: int32(name='Reason', example='1'),
-      sendTime?: int32(name='SendTime', example='1723249364'),
-      senderEmail?: string(name='SenderEmail', example='xxxx@sender.com'),
+      blockEmail?: string(name='BlockEmail', description='The recipient email address.', example='xxxx@rcpt.com'),
+      blockTime?: int32(name='BlockTime', description='The time the block was initiated.', example='1723259364'),
+      reason?: int32(name='Reason', description='The reason for the block. The value is a bitset. The meaning of each bit is as follows:
+
+- 0: The reason is not specified.
+
+- 1: The recipient is not interested in the content.
+
+- 2: The content is repetitive.
+
+- 3: The content is sent too frequently.', example='1'),
+      sendTime?: int32(name='SendTime', description='The time the email was sent.', example='1723249364'),
+      senderEmail?: string(name='SenderEmail', description='The sender email address.', example='xxxx@sender.com'),
     }
-  ](name='Data'),
-  maxResults?: int32(name='MaxResults', example='50'),
-  nextToken?: string(name='NextToken', example='xxxxyyyy'),
-  requestId?: string(name='RequestId', example='XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX'),
+  ](name='Data', description='A list of data about unsubscribes or spam reports.'),
+  maxResults?: int32(name='MaxResults', description='The maximum number of entries returned.', example='50'),
+  nextToken?: string(name='NextToken', description='The token to retrieve the next page of results. An empty string indicates that no more data is available.', example='xxxxyyyy'),
+  requestId?: string(name='RequestId', description='The request ID.', example='XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX'),
 }
 
 model ListBlockSendingResponse = {
@@ -3665,7 +3890,9 @@ model ListBlockSendingResponse = {
 }
 
 /**
- * @summary 获取发信的黑名单列表
+ * @summary Queries the email sending blacklist.
+ *
+ * @description Queries data about unsubscribes or spam reports.
  *
  * @param request ListBlockSendingRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -3713,7 +3940,9 @@ async function listBlockSendingWithOptions(request: ListBlockSendingRequest, run
 }
 
 /**
- * @summary 获取发信的黑名单列表
+ * @summary Queries the email sending blacklist.
+ *
+ * @description Queries data about unsubscribes or spam reports.
  *
  * @param request ListBlockSendingRequest
  * @return ListBlockSendingResponse
@@ -3740,16 +3969,14 @@ model ListUserSuppressionResponseBody = {
   data?: {
     userSuppressions?: [ 
     {
-      address?: string(name='Address', description='Email address or domain name', example='test@example.net'),
-      createTime?: int32(name='CreateTime', description='Creation time, timestamp, accurate to the second.', example='1715667435'),
-      lastBounceTime?: int32(name='LastBounceTime', description='Last bounce hit time, timestamp, accurate to the second.', example='1715667451'),
-      suppressionId?: int32(name='SuppressionId', description='Invalid address ID', example='59511'),
-      type?: string(name='Type', description='Source of entry, invalid address type
-- system
-- user', example='user'),
+      address?: string(name='Address'),
+      createTime?: int32(name='CreateTime'),
+      lastBounceTime?: int32(name='LastBounceTime'),
+      suppressionId?: int32(name='SuppressionId'),
+      type?: string(name='Type'),
     }
   ](name='UserSuppressions')
-  }(name='Data', description='Returned results.'),
+  }(name='Data'),
   pageNumber?: int32(name='PageNumber', description='Page number', example='1'),
   pageSize?: int32(name='PageSize', description='Page size', example='10'),
   requestId?: string(name='RequestId', description='Request ID', example='1A846D66-5EC7-551B-9687-5BF1963DCFC1'),
@@ -3831,38 +4058,42 @@ async function listUserSuppression(request: ListUserSuppressionRequest): ListUse
 }
 
 model ListValidateFileRequest {
-  endTime?: string(name='EndTime', description='This parameter is required.', example='2025-12-19T20:30:00Z'),
-  fileKeyword?: string(name='FileKeyword', example='keyword'),
-  page?: int32(name='Page', example='1'),
-  pageSize?: int32(name='PageSize', example='10'),
-  startTime?: string(name='StartTime', description='This parameter is required.', example='2025-12-19T08:30:00Z'),
+  endTime?: string(name='EndTime', description='The end time. The time is in UTC and follows the RFC 3339 format.
+
+This parameter is required.', example='2025-12-19T20:30:00Z'),
+  fileKeyword?: string(name='FileKeyword', description='A keyword in the file name.', example='keyword'),
+  page?: int32(name='Page', description='The page number.', example='1'),
+  pageSize?: int32(name='PageSize', description='The number of entries per page.', example='10'),
+  startTime?: string(name='StartTime', description='The start time. The time is in UTC and follows the RFC 3339 format.
+
+This parameter is required.', example='2025-12-19T08:30:00Z'),
 }
 
 model ListValidateFileResponseBody = {
   files?: [ 
     {
-      catchAllNum?: string(name='CatchAllNum', example='1'),
-      completeTime?: string(name='CompleteTime', example='2000-01-01T00:00:00Z'),
-      doNotMailNum?: string(name='DoNotMailNum', example='0'),
-      fileId?: string(name='FileId', example='xxx'),
-      fileName?: string(name='FileName', example='test.csv'),
-      invalidNum?: string(name='InvalidNum', example='4'),
-      isDownloadable?: boolean(name='IsDownloadable', example='true'),
-      percentage?: string(name='Percentage', example='100%'),
-      processedNum?: string(name='ProcessedNum', example='10'),
-      status?: string(name='Status', example='completed'),
-      totalNum?: string(name='TotalNum', example='10'),
-      unknownNum?: string(name='UnknownNum', example='0'),
-      uploadTime?: string(name='UploadTime', example='2000-01-01T00:00:00Z'),
-      validNum?: string(name='ValidNum', example='5'),
+      catchAllNum?: string(name='CatchAllNum', description='The number of addresses with the validation result \\\\"CatchAll\\\\".', example='1'),
+      completeTime?: string(name='CompleteTime', description='The time when the task was completed.', example='2000-01-01T00:00:00Z'),
+      doNotMailNum?: string(name='DoNotMailNum', description='The number of addresses with the validation result \\\\"DoNotMail\\\\".', example='0'),
+      fileId?: string(name='FileId', description='The file ID.', example='xxx'),
+      fileName?: string(name='FileName', description='The file name.', example='test.csv'),
+      invalidNum?: string(name='InvalidNum', description='The number of addresses with the validation result \\\\"Invalid\\\\".', example='4'),
+      isDownloadable?: boolean(name='IsDownloadable', description='Indicates whether the result can be downloaded.', example='true'),
+      percentage?: string(name='Percentage', description='The task execution progress.', example='100%'),
+      processedNum?: string(name='ProcessedNum', description='The number of addresses that have been validated.', example='10'),
+      status?: string(name='Status', description='The status of the task.', example='completed'),
+      totalNum?: string(name='TotalNum', description='The number of addresses to validate in the task.', example='10'),
+      unknownNum?: string(name='UnknownNum', description='The number of addresses with the validation result \\\\"Unknown\\\\".', example='0'),
+      uploadTime?: string(name='UploadTime', description='The time when the file was submitted.', example='2000-01-01T00:00:00Z'),
+      validNum?: string(name='ValidNum', description='The number of addresses with the validation result \\\\"Valid\\\\".', example='5'),
     }
-  ](name='Files'),
-  hasNext?: boolean(name='HasNext', example='true'),
-  page?: int32(name='Page', example='1'),
-  pageSize?: int32(name='PageSize', example='10'),
-  requestId?: string(name='RequestId', example='xxx'),
-  totalPages?: int32(name='TotalPages', example='10'),
-  totalSize?: int32(name='TotalSize', example='100'),
+  ](name='Files', description='The list of files.'),
+  hasNext?: boolean(name='HasNext', description='Indicates whether a next page of data exists.', example='true'),
+  page?: int32(name='Page', description='The page number.', example='1'),
+  pageSize?: int32(name='PageSize', description='The number of entries per page.', example='10'),
+  requestId?: string(name='RequestId', description='The request ID.', example='xxx'),
+  totalPages?: int32(name='TotalPages', description='The total number of pages.', example='10'),
+  totalSize?: int32(name='TotalSize', description='The total number of entries.', example='100'),
 }
 
 model ListValidateFileResponse = {
@@ -3872,7 +4103,7 @@ model ListValidateFileResponse = {
 }
 
 /**
- * @summary 获取上传的校验文件的列表
+ * @summary Retrieves a list of uploaded validation files.
  *
  * @param request ListValidateFileRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -3914,7 +4145,7 @@ async function listValidateFileWithOptions(request: ListValidateFileRequest, run
 }
 
 /**
- * @summary 获取上传的校验文件的列表
+ * @summary Retrieves a list of uploaded validation files.
  *
  * @param request ListValidateFileRequest
  * @return ListValidateFileResponse
@@ -4023,7 +4254,7 @@ This parameter is required.', example='DM1mail1234'),
 
 model ModifyPWByDomainResponseBody = {
   code?: string(name='Code', description='Status code', example='OK'),
-  message?: string(name='Message', description='Description of the status code', example='test'),
+  message?: string(name='Message', description='Description of the status code', example='请求成功'),
   requestId?: string(name='RequestId', description='Request ID', example='02B2A890-CBD8-4806-9BCA-C93190CE7EF6'),
   success?: boolean(name='Success', description='Whether it was successful', example='true'),
 }
@@ -4166,6 +4397,50 @@ async function modifyTag(request: ModifyTagRequest): ModifyTagResponse {
   return modifyTagWithOptions(request, runtime);
 }
 
+model OpenSendifyTrialServiceResponseBody = {
+  autoLoginURL?: string(name='AutoLoginURL', example='http'),
+  requestId?: string(name='RequestId', example='1234'),
+}
+
+model OpenSendifyTrialServiceResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: OpenSendifyTrialServiceResponseBody(name='body'),
+}
+
+/**
+ * @summary 免费试用Sendify
+ *
+ * @param request OpenSendifyTrialServiceRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return OpenSendifyTrialServiceResponse
+ */
+async function openSendifyTrialServiceWithOptions(runtime: Util.RuntimeOptions): OpenSendifyTrialServiceResponse {
+  var req = new OpenApi.OpenApiRequest{};
+  var params = new OpenApi.Params{
+    action = 'OpenSendifyTrialService',
+    version = '2015-11-23',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 免费试用Sendify
+ *
+ * @return OpenSendifyTrialServiceResponse
+ */
+async function openSendifyTrialService(): OpenSendifyTrialServiceResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return openSendifyTrialServiceWithOptions(runtime);
+}
+
 model QueryDomainByParamRequest {
   keyWord?: string(name='KeyWord', description='Domain name, length 1-50, can include numbers, uppercase and lowercase letters, ., -.', example='example.com'),
   ownerId?: long(name='OwnerId'),
@@ -4174,6 +4449,7 @@ model QueryDomainByParamRequest {
   resourceOwnerAccount?: string(name='ResourceOwnerAccount'),
   resourceOwnerId?: long(name='ResourceOwnerId'),
   status?: int32(name='Status', description='- 0 indicates normal
+
 - 1 indicates abnormal', example='0'),
 }
 
@@ -4185,26 +4461,20 @@ model QueryDomainByParamResponseBody = {
   data?: {
     domain?: [ 
     {
-      cnameAuthStatus?: string(name='CnameAuthStatus', description='Track verification', example='0'),
-      confirmStatus?: string(name='ConfirmStatus', description='CName verification status, success: 0; failure: 1', example='0'),
-      createTime?: string(name='CreateTime', description='Creation time', example='2019-09-29T13:28Z'),
-      domainId?: string(name='DomainId', description='Domain ID', example='158923'),
-      domainName?: string(name='DomainName', description='Domain name', example='example.com'),
-      domainRecord?: string(name='DomainRecord', description='Domain record', example='6bd86901b9fe4618a046'),
-      domainStatus?: string(name='DomainStatus', description='Domain status.
-
-- 0: Available, verified
-- 1: Unavailable, verification failed', example='0'),
-      icpStatus?: string(name='IcpStatus', description='ICP filing status.
-
-- 1 indicates filed
-- 0 indicates not filed', example='1'),
-      mxAuthStatus?: string(name='MxAuthStatus', description='MX authentication status, success: 0, failure: 1.', example='0'),
-      spfAuthStatus?: string(name='SpfAuthStatus', description='SPF authentication status, success: 0, failure: 1.', example='0'),
-      utcCreateTime?: long(name='UtcCreateTime', description='Creation time in UTC format.', example='1569734892'),
+      cnameAuthStatus?: string(name='CnameAuthStatus'),
+      confirmStatus?: string(name='ConfirmStatus'),
+      createTime?: string(name='CreateTime'),
+      domainId?: string(name='DomainId'),
+      domainName?: string(name='DomainName'),
+      domainRecord?: string(name='DomainRecord'),
+      domainStatus?: string(name='DomainStatus'),
+      icpStatus?: string(name='IcpStatus'),
+      mxAuthStatus?: string(name='MxAuthStatus'),
+      spfAuthStatus?: string(name='SpfAuthStatus'),
+      utcCreateTime?: long(name='UtcCreateTime'),
     }
   ](name='domain')
-  }(name='data', description='List of domains'),
+  }(name='data'),
 }
 
 model QueryDomainByParamResponse = {
@@ -4290,12 +4560,12 @@ model QueryInvalidAddressResponseBody = {
   data?: {
     mailDetail?: [ 
     {
-      lastUpdateTime?: string(name='LastUpdateTime', description='Update time.', example='2021-04-28T17:11Z'),
-      toAddress?: string(name='ToAddress', description='Recipient address.', example='toaddress@example.com'),
-      utcLastUpdateTime?: long(name='UtcLastUpdateTime', description='Update time (in timestamp format).', example='1619601108'),
+      lastUpdateTime?: string(name='LastUpdateTime'),
+      toAddress?: string(name='ToAddress'),
+      utcLastUpdateTime?: long(name='UtcLastUpdateTime'),
     }
   ](name='mailDetail')
-  }(name='data', description='Records.'),
+  }(name='data'),
 }
 
 model QueryInvalidAddressResponse = {
@@ -4371,46 +4641,44 @@ async function queryInvalidAddress(request: QueryInvalidAddressRequest): QueryIn
 }
 
 model QueryMailAddressByParamRequest {
-  keyWord?: string(name='KeyWord', description='Email address, length 1-60, supports numbers, letters, ., -, @.', example='sender@example.com'),
+  keyWord?: string(name='KeyWord', description='The email address. The length is 1 to 60 characters. It supports digits, letters, periods (.), hyphens (-), and at signs (@).', example='账号+@+域名'),
   ownerId?: long(name='OwnerId'),
-  pageNo?: int32(name='PageNo', description='Current page number, default: 1', example='1'),
-  pageSize?: int32(name='PageSize', description='Page size, default: 10', example='10'),
+  pageNo?: int32(name='PageNo', description='The current page number. The default value is 1.', example='1'),
+  pageSize?: int32(name='PageSize', description='The number of entries per page. The default value is 10.', example='10'),
   resourceOwnerAccount?: string(name='ResourceOwnerAccount'),
   resourceOwnerId?: long(name='ResourceOwnerId'),
-  sendtype?: string(name='Sendtype', description='Sending address type. Values:
+  sendtype?: string(name='Sendtype', description='The type of the sender address. Valid values:
 
-- batch: bulk email
-- trigger: triggered email', example='batch'),
+- batch: batch emails
+
+- trigger: triggered emails', example='batch'),
 }
 
 model QueryMailAddressByParamResponseBody = {
-  pageNumber?: int32(name='PageNumber', description='Current page number', example='1'),
-  pageSize?: int32(name='PageSize', description='Page size', example='10'),
-  requestId?: string(name='RequestId', description='Request ID', example='95A7D497-F8DD-4834-B81E-C1783236E55F'),
-  totalCount?: int32(name='TotalCount', description='Total count', example='2'),
+  pageNumber?: int32(name='PageNumber', description='The current page number.', example='1'),
+  pageSize?: int32(name='PageSize', description='The number of entries per page.', example='10'),
+  requestId?: string(name='RequestId', description='The request ID.', example='95A7D497-F8DD-4834-B81E-C1783236E55F'),
+  totalCount?: int32(name='TotalCount', description='The total number of entries.', example='2'),
   data?: {
     mailAddress?: [ 
     {
-      accountName?: string(name='AccountName', description='Sending address', example='sender@example.com'),
-      accountStatus?: string(name='AccountStatus', description='Account status, frozen: 1, normal: 0.', example='0'),
+      accountName?: string(name='AccountName'),
+      accountStatus?: string(name='AccountStatus'),
       configSetId?: string(name='ConfigSetId'),
       configSetName?: string(name='ConfigSetName'),
-      createTime?: string(name='CreateTime', description='Creation time', example='2019-09-29T13:28Z'),
-      dailyCount?: string(name='DailyCount', description='Daily quota limit', example='10000'),
-      dailyReqCount?: string(name='DailyReqCount', description='Daily quota', example='100'),
-      domainStatus?: string(name='DomainStatus', description='Domain status, 0 indicates normal, 1 indicates abnormal.', example='0'),
-      mailAddressId?: string(name='MailAddressId', description='Sending address ID', example='12122'),
-      monthCount?: string(name='MonthCount', description='Monthly quota limit', example='300000'),
-      monthReqCount?: string(name='MonthReqCount', description='Monthly quota', example='20000'),
-      replyAddress?: string(name='ReplyAddress', description='Reply address', example='test@example.com'),
-      replyStatus?: string(name='ReplyStatus', description='Reply address status', example='0'),
-      sendtype?: string(name='Sendtype', description='Sending address type. Values:
-
-- batch: bulk email
-- trigger: triggered email', example='batch'),
+      createTime?: string(name='CreateTime'),
+      dailyCount?: string(name='DailyCount'),
+      dailyReqCount?: string(name='DailyReqCount'),
+      domainStatus?: string(name='DomainStatus'),
+      mailAddressId?: string(name='MailAddressId'),
+      monthCount?: string(name='MonthCount'),
+      monthReqCount?: string(name='MonthReqCount'),
+      replyAddress?: string(name='ReplyAddress'),
+      replyStatus?: string(name='ReplyStatus'),
+      sendtype?: string(name='Sendtype'),
     }
   ](name='mailAddress')
-  }(name='data', description='List of sending addresses'),
+  }(name='data'),
 }
 
 model QueryMailAddressByParamResponse = {
@@ -4420,7 +4688,7 @@ model QueryMailAddressByParamResponse = {
 }
 
 /**
- * @summary Query the list of sending addresses.
+ * @summary Queries a list of sender addresses.
  *
  * @param request QueryMailAddressByParamRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -4468,7 +4736,7 @@ async function queryMailAddressByParamWithOptions(request: QueryMailAddressByPar
 }
 
 /**
- * @summary Query the list of sending addresses.
+ * @summary Queries a list of sender addresses.
  *
  * @param request QueryMailAddressByParamRequest
  * @return QueryMailAddressByParamResponse
@@ -4479,42 +4747,38 @@ async function queryMailAddressByParam(request: QueryMailAddressByParamRequest):
 }
 
 model QueryReceiverByParamRequest {
-  keyWord?: string(name='KeyWord', description='Keyword, defaults to all information if not specified', example='mesh-notification'),
+  keyWord?: string(name='KeyWord', description='Search keyword. Default value: all information.', example='mesh-notification'),
   ownerId?: long(name='OwnerId'),
-  pageNo?: int32(name='PageNo', description='Current page number', example='1'),
-  pageSize?: int32(name='PageSize', description='Number of items per page, default: 10', example='10'),
+  pageNo?: int32(name='PageNo', description='Page number.', example='1'),
+  pageSize?: int32(name='PageSize', description='Number of entries per page. Default value: 10.', example='10'),
   resourceOwnerAccount?: string(name='ResourceOwnerAccount'),
   resourceOwnerId?: long(name='ResourceOwnerId'),
-  status?: int32(name='Status', description='Delivery result. If not filled, it represents all statuses. Values:
+  status?: int32(name='Status', description='List status. Valid values:
 
-- 0: Success
-- 2: Invalid address
-- 3: Spam
-- 4: Failure', example='1'),
+- 0: uploading
+
+- 1: upload complete', example='1'),
 }
 
 model QueryReceiverByParamResponseBody = {
-  nextStart?: string(name='NextStart', description='Used for pagination. If there are more results, set this returned value to the NextStart in the next request.', example='6aec200853#102#1638894326#test@example.com'),
-  pageSize?: int32(name='PageSize', description='Number of items displayed per page.', example='10'),
-  requestId?: string(name='RequestId', description='Request ID', example='10A1AD70-E48E-476D-98D9-39BD92193837'),
-  totalCount?: int32(name='TotalCount', description='Total count', example='15'),
+  nextStart?: string(name='NextStart', description='Used for paging. If more results are available, set this value as the NextStart parameter in your next request.', example='6aec200853#102#1638894326#test@example.com'),
+  pageSize?: int32(name='PageSize', description='Number of entries per page.', example='10'),
+  requestId?: string(name='RequestId', description='Request ID.', example='10A1AD70-E48E-476D-98D9-39BD92193837'),
+  totalCount?: int32(name='TotalCount', description='Total number of entries.', example='15'),
   data?: {
     receiver?: [ 
     {
-      count?: string(name='Count', description='Total number of recipient addresses', example='3'),
-      createTime?: string(name='CreateTime', description='Creation time', example='2019-09-29T13:28Z'),
-      desc?: string(name='Desc', description='Description', example='Description'),
-      receiverId?: string(name='ReceiverId', description='Recipient list ID', example='0c910a7143044b1e116719eb678907b3'),
-      receiversAlias?: string(name='ReceiversAlias', description='Recipient list alias', example='10***@example.com'),
-      receiversName?: string(name='ReceiversName', description='Recipient list name', example='TKP000442-333'),
-      receiversStatus?: string(name='ReceiversStatus', description='List status. Values:
-
-- 0: Uploading
-- 1: Upload completed', example='0'),
-      utcCreateTime?: long(name='UtcCreateTime', description='UTC formatted creation time', example='1569734892'),
+      count?: string(name='Count'),
+      createTime?: string(name='CreateTime'),
+      desc?: string(name='Desc'),
+      receiverId?: string(name='ReceiverId'),
+      receiversAlias?: string(name='ReceiversAlias'),
+      receiversName?: string(name='ReceiversName'),
+      receiversStatus?: string(name='ReceiversStatus'),
+      utcCreateTime?: long(name='UtcCreateTime'),
     }
   ](name='receiver')
-  }(name='data', description='Detailed information of the recipient list'),
+  }(name='data'),
 }
 
 model QueryReceiverByParamResponse = {
@@ -4524,7 +4788,7 @@ model QueryReceiverByParamResponse = {
 }
 
 /**
- * @summary Query the details of the recipient list
+ * @summary Query the recipient list.
  *
  * @param request QueryReceiverByParamRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -4572,7 +4836,7 @@ async function queryReceiverByParamWithOptions(request: QueryReceiverByParamRequ
 }
 
 /**
- * @summary Query the details of the recipient list
+ * @summary Query the recipient list.
  *
  * @param request QueryReceiverByParamRequest
  * @return QueryReceiverByParamResponse
@@ -4602,13 +4866,13 @@ model QueryReceiverDetailResponseBody = {
   data?: {
     detail?: [ 
     {
-      createTime?: string(name='CreateTime', description='Creation Time', example='2019-09-29T13:28Z'),
-      data?: string(name='Data', description='Content', example='{\\\\"Domains\\\\": [\\\\"a.example.net\\\\", \\\\"b.example.net\\\\", \\\\"c.example.net\\\\", \\\\"d.example.net\\\\"]}'),
-      email?: string(name='Email', description='Recipient address', example='a***@example.net'),
-      utcCreateTime?: long(name='UtcCreateTime', description='Creation time in UTC format', example='1569734892'),
+      createTime?: string(name='CreateTime'),
+      data?: string(name='Data'),
+      email?: string(name='Email'),
+      utcCreateTime?: long(name='UtcCreateTime'),
     }
   ](name='detail')
-  }(name='data', description='Detailed information'),
+  }(name='data'),
 }
 
 model QueryReceiverDetailResponse = {
@@ -4693,12 +4957,12 @@ model QueryTagByParamResponseBody = {
   data?: {
     tag?: [ 
     {
-      tagDescription?: string(name='TagDescription', description='Tag description', example='test description'),
-      tagId?: string(name='TagId', description='Tag ID', example='52366'),
-      tagName?: string(name='TagName', description='Tag name', example='hellopal'),
+      tagDescription?: string(name='TagDescription'),
+      tagId?: string(name='TagId'),
+      tagName?: string(name='TagName'),
     }
   ](name='tag')
-  }(name='data', description='Data records'),
+  }(name='data'),
 }
 
 model QueryTagByParamResponse = {
@@ -4764,39 +5028,39 @@ async function queryTagByParam(request: QueryTagByParamRequest): QueryTagByParam
 }
 
 model QueryTaskByParamRequest {
-  keyWord?: string(name='KeyWord', description='Keyword, defaults to all information', example='mesh-notification-788717'),
+  keyWord?: string(name='KeyWord', description='The keyword for the query. If you leave this blank, all tasks are returned.', example='mesh-notification-788717'),
   ownerId?: long(name='OwnerId'),
-  pageNo?: int32(name='PageNo', description='Current page number, default is 1', example='1'),
-  pageSize?: int32(name='PageSize', description='Page size, default is 10', example='10'),
+  pageNo?: int32(name='PageNo', description='The page number. Default value: 1.', example='1'),
+  pageSize?: int32(name='PageSize', description='The number of entries per page. Default value: 10.', example='10'),
   resourceOwnerAccount?: string(name='ResourceOwnerAccount'),
   resourceOwnerId?: long(name='ResourceOwnerId'),
-  status?: int32(name='Status', description='Status, defaults to all statuses', example='0'),
+  status?: int32(name='Status', description='The task status. If you leave this blank, tasks in all states are returned.', example='0'),
 }
 
 model QueryTaskByParamResponseBody = {
-  pageNumber?: int32(name='PageNumber', description='Current page number', example='3'),
-  pageSize?: int32(name='PageSize', description='Page size', example='10'),
-  requestId?: string(name='RequestId', description='Request ID', example='10A1AD70-E48E-476D-98D9-39BD92193837'),
-  totalCount?: int32(name='TotalCount', description='Total count', example='15'),
+  pageNumber?: int32(name='PageNumber', description='The page number.', example='3'),
+  pageSize?: int32(name='PageSize', description='The number of entries per page.', example='10'),
+  requestId?: string(name='RequestId', description='The request ID.', example='10A1AD70-E48E-476D-98D9-39BD92193837'),
+  totalCount?: int32(name='TotalCount', description='The total number of entries.', example='15'),
   data?: {
     task?: [ 
     {
-      addressType?: string(name='AddressType', description='Address type, sending address: 1; random address: 0;', example='0'),
+      addressType?: string(name='AddressType'),
       configSetId?: string(name='ConfigSetId'),
       configSetName?: string(name='ConfigSetName'),
-      createTime?: string(name='CreateTime', description='Creation time', example='2022-04-18T10:36Z'),
-      ipPoolId?: string(name='IpPoolId', description='dedicated IP pool ID.', example='xxx'),
-      ipPoolName?: string(name='IpPoolName', description='dedicated IP pool name.', example='test'),
-      receiversName?: string(name='ReceiversName', description='Receiver\\\\"s name', example='TKP000442-333'),
-      requestCount?: string(name='RequestCount', description='Request count', example='1'),
-      tagName?: string(name='TagName', description='Tag', example='202201'),
-      taskId?: string(name='TaskId', description='Task ID', example='1054296'),
-      taskStatus?: string(name='TaskStatus', description='Task status, sent successfully: 1', example='1'),
-      templateName?: string(name='TemplateName', description='Template name', example='Short Simple'),
-      utcCreateTime?: long(name='UtcCreateTime', description='Creation time in UTC format', example='1569734892'),
+      createTime?: string(name='CreateTime'),
+      ipPoolId?: string(name='IpPoolId'),
+      ipPoolName?: string(name='IpPoolName'),
+      receiversName?: string(name='ReceiversName'),
+      requestCount?: string(name='RequestCount'),
+      tagName?: string(name='TagName'),
+      taskId?: string(name='TaskId'),
+      taskStatus?: string(name='TaskStatus'),
+      templateName?: string(name='TemplateName'),
+      utcCreateTime?: long(name='UtcCreateTime'),
     }
   ](name='task')
-  }(name='data', description='Returned results'),
+  }(name='data'),
 }
 
 model QueryTaskByParamResponse = {
@@ -4806,7 +5070,7 @@ model QueryTaskByParamResponse = {
 }
 
 /**
- * @summary Query task list
+ * @summary Queries tasks based on specified parameters.
  *
  * @param request QueryTaskByParamRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -4854,7 +5118,7 @@ async function queryTaskByParamWithOptions(request: QueryTaskByParamRequest, run
 }
 
 /**
- * @summary Query task list
+ * @summary Queries tasks based on specified parameters.
  *
  * @param request QueryTaskByParamRequest
  * @return QueryTaskByParamResponse
@@ -4865,34 +5129,34 @@ async function queryTaskByParam(request: QueryTaskByParamRequest): QueryTaskByPa
 }
 
 model QueryTemplateByParamRequest {
-  fromType?: int32(name='FromType'),
-  keyWord?: string(name='KeyWord', example='test'),
+  fromType?: int32(name='FromType', description='This parameter is deprecated. It is retained for historical compatibility.', example='Abandoned, historical reasons for compatibility'),
+  keyWord?: string(name='KeyWord', description='The keyword of the template name. By default, a paged query is performed for all templates.', example='test'),
   ownerId?: long(name='OwnerId'),
-  pageNo?: int32(name='PageNo', example='1'),
-  pageSize?: int32(name='PageSize', example='20'),
+  pageNo?: int32(name='PageNo', description='The page number. The default value is 1.', example='1'),
+  pageSize?: int32(name='PageSize', description='The number of entries per page. The default value is 20.', example='20'),
   resourceOwnerAccount?: string(name='ResourceOwnerAccount'),
   resourceOwnerId?: long(name='ResourceOwnerId'),
-  status?: int32(name='Status'),
+  status?: int32(name='Status', description='This parameter is deprecated. It is retained for historical compatibility.', example='Abandoned, historical reasons for compatibility'),
 }
 
 model QueryTemplateByParamResponseBody = {
-  pageNumber?: int32(name='PageNumber', example='1'),
-  pageSize?: int32(name='PageSize', example='20'),
-  requestId?: string(name='RequestId', example='10Axxxxxxxxxxxx37'),
-  totalCount?: int32(name='TotalCount', example='21'),
+  pageNumber?: int32(name='PageNumber', description='The page number.', example='1'),
+  pageSize?: int32(name='PageSize', description='The number of entries per page.', example='20'),
+  requestId?: string(name='RequestId', description='The request ID.', example='10Axxxxxxxxxxxx37'),
+  totalCount?: int32(name='TotalCount', description='The total number of entries.', example='21'),
   data?: {
     template?: [ 
     {
-      createTime?: string(name='CreateTime', example='2019-09-29T13:28Z'),
+      createTime?: string(name='CreateTime'),
       smsStatus?: int32(name='SmsStatus'),
       smsTemplateCode?: int32(name='SmsTemplateCode'),
       smsrejectinfo?: int32(name='Smsrejectinfo'),
       templateComment?: string(name='TemplateComment'),
-      templateId?: string(name='TemplateId', example='3xxxx8'),
-      templateName?: string(name='TemplateName', example='test'),
-      templateStatus?: string(name='TemplateStatus', example='2'),
+      templateId?: string(name='TemplateId'),
+      templateName?: string(name='TemplateName'),
+      templateStatus?: string(name='TemplateStatus'),
       templateType?: int32(name='TemplateType'),
-      utcCreatetime?: long(name='UtcCreatetime', example='1661830382'),
+      utcCreatetime?: long(name='UtcCreatetime'),
     }
   ](name='template')
   }(name='data'),
@@ -4905,7 +5169,9 @@ model QueryTemplateByParamResponse = {
 }
 
 /**
- * @summary 查询模板信息
+ * @summary Performs a paged query to retrieve a list of templates.
+ *
+ * @description Performs a paged query to retrieve a list of templates.
  *
  * @param request QueryTemplateByParamRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -4956,7 +5222,9 @@ async function queryTemplateByParamWithOptions(request: QueryTemplateByParamRequ
 }
 
 /**
- * @summary 查询模板信息
+ * @summary Performs a paged query to retrieve a list of templates.
+ *
+ * @description Performs a paged query to retrieve a list of templates.
  *
  * @param request QueryTemplateByParamRequest
  * @return QueryTemplateByParamResponse
@@ -4970,11 +5238,15 @@ model RemoveUserSuppressionRequest {
   ownerId?: long(name='OwnerId'),
   resourceOwnerAccount?: string(name='ResourceOwnerAccount'),
   resourceOwnerId?: long(name='ResourceOwnerId'),
-  suppressionIds?: string(name='SuppressionIds', example='59511'),
+  suppressionIds?: string(name='SuppressionIds', description='The ID of the suppressed address. To specify multiple IDs, separate them with commas (,). Call the ListUserSuppression operation to obtain the suppression ID.
+
+You can enter multiple values, separated by a comma ",".
+
+You can call ListUserSuppression to obtain the SuppressionId.', example='59511'),
 }
 
 model RemoveUserSuppressionResponseBody = {
-  requestId?: string(name='RequestId', example='1A846D66-5EC7-551B-9687-5BF1963DCFC1'),
+  requestId?: string(name='RequestId', description='The request ID.', example='1A846D66-5EC7-551B-9687-5BF1963DCFC1'),
 }
 
 model RemoveUserSuppressionResponse = {
@@ -4984,7 +5256,7 @@ model RemoveUserSuppressionResponse = {
 }
 
 /**
- * @summary 删除用户无效地址
+ * @summary Deletes system-identified and manually added addresses from the user-level suppression list.
  *
  * @param request RemoveUserSuppressionRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -5023,7 +5295,7 @@ async function removeUserSuppressionWithOptions(request: RemoveUserSuppressionRe
 }
 
 /**
- * @summary 删除用户无效地址
+ * @summary Deletes system-identified and manually added addresses from the user-level suppression list.
  *
  * @param request RemoveUserSuppressionRequest
  * @return RemoveUserSuppressionResponse
@@ -5034,16 +5306,16 @@ async function removeUserSuppression(request: RemoveUserSuppressionRequest): Rem
 }
 
 model SaveReceiverDetailRequest {
-  customDetail?: string(name='CustomDetail', example='[     {         "Email": "example@alimail.com",         "CustomData": {"name":"Tom","age":"30"}"     } ]'),
-  detail?: string(name='Detail', description='Content, supports uploading multiple recipients at once, with a limit of 500 records per upload. Each record is separated by {} and commas, example:
+  customDetail?: string(name='CustomDetail', description='The recipient\\\\"s email address and template parameters, in an array format.', example='[{ "Email": "example@alimail.com","CustomData": {"name":"Tom","age":"30"}}]'),
+  detail?: string(name='Detail', description='The recipient details. You can upload up to 500 recipients in a single request. The value is a string in a JSON array format. Each object in the array represents a recipient. For example: \\\\`[{ },{ },{ }...]\\\\`. The format for each recipient object is \\\\`[{"b":"birthday","e":"xxx\\\\@example.net","g":"gender","m":"mobile","n":"nickname","u":"name"}]\\\\`. If you add a duplicate recipient address, the system returns \\\\`"ErrorCount": 1\\\\`.
 
-[{ },{ },{ }...], the format within {} is as follows:
+The format is \\\\`[{ },{ },{ }...]\\\\`. The format of the content within each \\\\`{}\\\\` is as follows:
 
-[{"b":"birthday","e":"xxx@example.net","g":"gender","m":"mobile","n":"nickname","u":"name"}], when passing values, pass it as a string, not a list.
+[{"b":"birthday","e":"xxx\\\\@example.net","g":"gender","m":"mobile","n":"nickname","u":"name"}]. Pass the value as a string, not a list.
 
-If a duplicate recipient address is inserted, it will return "ErrorCount": 1', example='[{"b":"birthday","e":"xxx@alibaba-inc.com","g":"gender","m":"mobile","n":"nickname","u":"name"}]'),
+Inserting a duplicate recipient address returns "ErrorCount": 1.', example='[{"b":"birthday","e":"xxx@alibaba-inc.com","g":"gender","m":"mobile","n":"nickname","u":"name"}]'),
   ownerId?: long(name='OwnerId'),
-  receiverId?: string(name='ReceiverId', description='Recipient list ID
+  receiverId?: string(name='ReceiverId', description='The ID of the recipient list.
 
 This parameter is required.', example='34642'),
   resourceOwnerAccount?: string(name='ResourceOwnerAccount'),
@@ -5054,14 +5326,14 @@ model SaveReceiverDetailResponseBody = {
   data?: {
     detail?: [ 
     {
-      email?: string(name='Email', description='Recipient address.', example='test@example.com'),
+      email?: string(name='Email'),
       errMessage?: string(name='ErrMessage', example='XXX'),
     }
   ](name='Detail')
-  }(name='Data', description='List of recipient addresses that failed to upload.'),
-  errorCount?: int32(name='ErrorCount', description='Number of errors.', example='638'),
-  requestId?: string(name='RequestId', description='Request ID', example='10A1AD70-E48E-476D-98D9-39BD92193837'),
-  successCount?: int32(name='SuccessCount', description='Number of successes.', example='274'),
+  }(name='Data'),
+  errorCount?: int32(name='ErrorCount', description='The number of errors.', example='638'),
+  requestId?: string(name='RequestId', description='The request ID.', example='10A1AD70-E48E-476D-98D9-39BD92193837'),
+  successCount?: int32(name='SuccessCount', description='The number of successful records.', example='274'),
 }
 
 model SaveReceiverDetailResponse = {
@@ -5071,7 +5343,7 @@ model SaveReceiverDetailResponse = {
 }
 
 /**
- * @summary Create a Single Recipient
+ * @summary Create a single recipient.
  *
  * @param request SaveReceiverDetailRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -5116,7 +5388,7 @@ async function saveReceiverDetailWithOptions(request: SaveReceiverDetailRequest,
 }
 
 /**
- * @summary Create a Single Recipient
+ * @summary Create a single recipient.
  *
  * @param request SaveReceiverDetailRequest
  * @return SaveReceiverDetailResponse
@@ -5127,28 +5399,28 @@ async function saveReceiverDetail(request: SaveReceiverDetailRequest): SaveRecei
 }
 
 model SendTestByTemplateRequest {
-  accountName?: string(name='AccountName', description='Sender address, with a maximum length of 60 characters
+  accountName?: string(name='AccountName', description='The sender address. The length cannot exceed 60 characters.
 
-This parameter is required.', example='test@example.com'),
-  birthday?: string(name='Birthday', description='Birthday, with a maximum length of 30 characters', example='2000/01/01'),
-  email?: string(name='Email', description='Recipient address, with a maximum length of 60 characters
+This parameter is required.', example='账号+@+域名'),
+  birthday?: string(name='Birthday', description='The birthday. The length cannot exceed 30 characters.', example='2000/01/01'),
+  email?: string(name='Email', description='The recipient email address. The length cannot exceed 60 characters.
 
-This parameter is required.', example='test1@example.com'),
-  gender?: string(name='Gender', description='Gender, with a maximum length of 30 characters', example='doctor'),
-  mobile?: string(name='Mobile', description='Mobile, with a maximum length of 30 characters', example='1380000****'),
-  nickName?: string(name='NickName', description='NickName, with a maximum length of 30 characters', example='LC'),
+This parameter is required.', example='账号+@+域名'),
+  gender?: string(name='Gender', description='The gender. The length cannot exceed 30 characters.', example='先生'),
+  mobile?: string(name='Mobile', description='The mobile number. The length cannot exceed 30 characters.', example='1380000****'),
+  nickName?: string(name='NickName', description='The nickname. The length cannot exceed 30 characters.', example='昵称'),
   ownerId?: long(name='OwnerId'),
   resourceOwnerAccount?: string(name='ResourceOwnerAccount'),
   resourceOwnerId?: long(name='ResourceOwnerId'),
-  templateId?: int32(name='TemplateId', description='Template ID
+  templateId?: int32(name='TemplateId', description='The template ID.
 
 This parameter is required.', example='123'),
   templateParams?: string(name='TemplateParams', example='{"age":"20","nickName":"tom"}'),
-  userName?: string(name='UserName', description='UserName, with a maximum length of 30 characters', example='Lucy'),
+  userName?: string(name='UserName', description='The user name. The length cannot exceed 30 characters.', example='姓名'),
 }
 
 model SendTestByTemplateResponseBody = {
-  requestId?: string(name='RequestId', description='Request ID', example='10A1AD70-E48E-476D-98D9-39BD92193837'),
+  requestId?: string(name='RequestId', description='The request ID.', example='10A1AD70-E48E-476D-98D9-39BD92193837'),
 }
 
 model SendTestByTemplateResponse = {
@@ -5158,7 +5430,7 @@ model SendTestByTemplateResponse = {
 }
 
 /**
- * @summary Send Template Test Email
+ * @summary You can send a test email.
  *
  * @param request SendTestByTemplateRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -5221,7 +5493,7 @@ async function sendTestByTemplateWithOptions(request: SendTestByTemplateRequest,
 }
 
 /**
- * @summary Send Template Test Email
+ * @summary You can send a test email.
  *
  * @param request SendTestByTemplateRequest
  * @return SendTestByTemplateResponse
@@ -5232,24 +5504,44 @@ async function sendTestByTemplate(request: SendTestByTemplateRequest): SendTestB
 }
 
 model SendValidateFileRequest {
-  addressColumn?: int32(name='AddressColumn', description='This parameter is required.', example='1'),
-  fileName?: string(name='FileName', description='This parameter is required.', example='file.txt'),
-  fileUrl?: string(name='FileUrl', description='This parameter is required.', example='http://xxxx.oss-xxx.com/file.txt'),
-  hasHeaderRow?: boolean(name='HasHeaderRow', description='This parameter is required.', example='false'),
-  removeDuplicate?: boolean(name='RemoveDuplicate', description='This parameter is required.', example='true'),
+  addressColumn?: int32(name='AddressColumn', description='The column that contains the email addresses in the file. The index starts from 1.
+
+This parameter is required.', example='1'),
+  fileName?: string(name='FileName', description='The name of the file that contains the list of email addresses.
+
+This parameter is required.', example='file.txt'),
+  fileUrl?: string(name='FileUrl', description='The URL of the file that contains the list of email addresses.
+
+This parameter is required.', example='http://xxxx.oss-xxx.com/file.txt'),
+  hasHeaderRow?: boolean(name='HasHeaderRow', description='Specifies whether the first row is a table header.
+
+This parameter is required.', example='false'),
+  removeDuplicate?: boolean(name='RemoveDuplicate', description='Specifies whether to remove duplicate email addresses in the output file.
+
+This parameter is required.', example='true'),
 }
 
 model SendValidateFileAdvanceRequest {
-  addressColumn?: int32(name='AddressColumn', description='This parameter is required.', example='1'),
-  fileName?: string(name='FileName', description='This parameter is required.', example='file.txt'),
-  fileUrlObject?: readable(name='FileUrl', description='This parameter is required.', example='http://xxxx.oss-xxx.com/file.txt'),
-  hasHeaderRow?: boolean(name='HasHeaderRow', description='This parameter is required.', example='false'),
-  removeDuplicate?: boolean(name='RemoveDuplicate', description='This parameter is required.', example='true'),
+  addressColumn?: int32(name='AddressColumn', description='The column that contains the email addresses in the file. The index starts from 1.
+
+This parameter is required.', example='1'),
+  fileName?: string(name='FileName', description='The name of the file that contains the list of email addresses.
+
+This parameter is required.', example='file.txt'),
+  fileUrlObject?: readable(name='FileUrl', description='The URL of the file that contains the list of email addresses.
+
+This parameter is required.', example='http://xxxx.oss-xxx.com/file.txt'),
+  hasHeaderRow?: boolean(name='HasHeaderRow', description='Specifies whether the first row is a table header.
+
+This parameter is required.', example='false'),
+  removeDuplicate?: boolean(name='RemoveDuplicate', description='Specifies whether to remove duplicate email addresses in the output file.
+
+This parameter is required.', example='true'),
 }
 
 model SendValidateFileResponseBody = {
-  fileId?: string(name='FileId', example='yyyy-yyyy-yyyy-yyyy'),
-  requestId?: string(name='RequestId', example='xxxx-xxxx-xxxx-xxxx'),
+  fileId?: string(name='FileId', description='The ID of the file. Use this ID to query the results.', example='yyyy-yyyy-yyyy-yyyy'),
+  requestId?: string(name='RequestId', description='The ID of the request.', example='xxxx-xxxx-xxxx-xxxx'),
 }
 
 model SendValidateFileResponse = {
@@ -5259,7 +5551,7 @@ model SendValidateFileResponse = {
 }
 
 /**
- * @summary 提交批量校验任务
+ * @summary You can upload the list of addresses to be verified.
  *
  * @param request SendValidateFileRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -5301,7 +5593,7 @@ async function sendValidateFileWithOptions(request: SendValidateFileRequest, run
 }
 
 /**
- * @summary 提交批量校验任务
+ * @summary You can upload the list of addresses to be verified.
  *
  * @param request SendValidateFileRequest
  * @return SendValidateFileResponse
@@ -5397,38 +5689,55 @@ async function sendValidateFileAdvance(request: SendValidateFileAdvanceRequest, 
 }
 
 model SenderStatisticsByTagNameAndBatchIDRequest {
-  accountName?: string(name='AccountName', description='Sending address. If not filled, it represents all addresses.', example='xxx'),
-  dedicatedIp?: string(name='DedicatedIp'),
-  dedicatedIpPoolId?: string(name='DedicatedIpPoolId'),
-  endTime?: string(name='EndTime', description='End time, which cannot exceed 7 days from the start time, in the format yyyy-MM-dd.
+  accountName?: string(name='AccountName', description='The sender address. If you do not specify this parameter, statistics for all sender addresses are returned.', example='xxx'),
+  dedicatedIp?: string(name='DedicatedIp', description='If you use Dedicated IPs, use this parameter to filter statistics by a specific Dedicated IP.
+
+If you do not specify this parameter, statistics for all dedicated IPs that match the other criteria are returned.', example='xxx.xxx.xxx.xxx'),
+  dedicatedIpPoolId?: string(name='DedicatedIpPoolId', description='If you use Dedicated IPs, specify the ID of the dedicated IP pool to query.
+
+If you do not specify this parameter, statistics for all resources are returned.', example='xxx'),
+  domain?: string(name='Domain', example='dmdomain.com'),
+  endTime?: string(name='EndTime', description='The end time for the query. The time range between `StartTime` and `EndTime` cannot exceed 7 days. The format must be `YYYY-MM-DD`.
 
 This parameter is required.', example='2019-09-29'),
-  esp?: string(name='Esp'),
+  esp?: string(name='Esp', description='If you use Dedicated IPs, use this parameter to filter statistics by a specific Email Service Provider (ESP). Valid values are:
+
+- `gmail.com`
+
+- `yahoo.com`
+
+- `outlook.com`
+
+- `icloud.com`
+
+- `others` (matches data for all other ESPs)
+
+If you do not specify this parameter, statistics for all ESPs are returned.', example='gmail.com'),
   ownerId?: long(name='OwnerId'),
   resourceOwnerAccount?: string(name='ResourceOwnerAccount'),
   resourceOwnerId?: long(name='ResourceOwnerId'),
-  startTime?: string(name='StartTime', description='Start time, in the format yyyy-MM-dd.
+  startTime?: string(name='StartTime', description='The start time for the query. The date cannot be more than 30 days in the past. The format must be `YYYY-MM-DD`.
 
 This parameter is required.', example='2019-09-29'),
-  tagName?: string(name='TagName', description='Email tag. If not filled, it represents all tags.', example='xxx'),
+  tagName?: string(name='TagName', description='The email tag. If you do not specify this parameter, statistics for all tags are returned.', example='xxx'),
 }
 
 model SenderStatisticsByTagNameAndBatchIDResponseBody = {
-  requestId?: string(name='RequestId', description='Request ID', example='10A1AD70-E48E-476D-98D9-39BD92193837'),
-  totalCount?: int32(name='TotalCount', description='Total count', example='1'),
+  requestId?: string(name='RequestId', description='The ID of the request.', example='10A1AD70-E48E-476D-98D9-39BD92193837'),
+  totalCount?: int32(name='TotalCount', description='The total count of data records.', example='1'),
   data?: {
     stat?: [ 
     {
-      createTime?: string(name='CreateTime', description='Creation time', example='2021-07-02'),
-      faildCount?: string(name='faildCount', description='Failure count', example='0'),
-      requestCount?: string(name='requestCount', description='Request count', example='4'),
-      succeededPercent?: string(name='succeededPercent', description='Success rate', example='100.00%'),
-      successCount?: string(name='successCount', description='Success count', example='4'),
-      unavailableCount?: string(name='unavailableCount', description='Invalid count', example='0'),
-      unavailablePercent?: string(name='unavailablePercent', description='Unavailability rate', example='0%'),
+      createTime?: string(name='CreateTime'),
+      faildCount?: string(name='faildCount'),
+      requestCount?: string(name='requestCount'),
+      succeededPercent?: string(name='succeededPercent'),
+      successCount?: string(name='successCount'),
+      unavailableCount?: string(name='unavailableCount'),
+      unavailablePercent?: string(name='unavailablePercent'),
     }
   ](name='stat')
-  }(name='data', description='Data records'),
+  }(name='data', description='Contains the statistical data.'),
 }
 
 model SenderStatisticsByTagNameAndBatchIDResponse = {
@@ -5438,7 +5747,7 @@ model SenderStatisticsByTagNameAndBatchIDResponse = {
 }
 
 /**
- * @summary Retrieve Sending Data under Specified Conditions
+ * @summary Retrieves sending statistics that match specified criteria.
  *
  * @param request SenderStatisticsByTagNameAndBatchIDRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -5455,6 +5764,9 @@ async function senderStatisticsByTagNameAndBatchIDWithOptions(request: SenderSta
   }
   if (!Util.isUnset(request.dedicatedIpPoolId)) {
     query['DedicatedIpPoolId'] = request.dedicatedIpPoolId;
+  }
+  if (!Util.isUnset(request.domain)) {
+    query['Domain'] = request.domain;
   }
   if (!Util.isUnset(request.endTime)) {
     query['EndTime'] = request.endTime;
@@ -5495,7 +5807,7 @@ async function senderStatisticsByTagNameAndBatchIDWithOptions(request: SenderSta
 }
 
 /**
- * @summary Retrieve Sending Data under Specified Conditions
+ * @summary Retrieves sending statistics that match specified criteria.
  *
  * @param request SenderStatisticsByTagNameAndBatchIDRequest
  * @return SenderStatisticsByTagNameAndBatchIDResponse
@@ -5506,50 +5818,53 @@ async function senderStatisticsByTagNameAndBatchID(request: SenderStatisticsByTa
 }
 
 model SenderStatisticsDetailByParamRequest {
-  accountName?: string(name='AccountName', description='Sending address. If not filled, it represents all addresses.
+  accountName?: string(name='AccountName', description='The sender address. If you leave this parameter empty, emails from all sender addresses are queried.
 
-> **AccountName**, **TagName**, and **ToAddress** can all be left unfilled. If any are filled, only one of these parameters can be passed; you cannot pass a combination of two or more.', example='s***@example.net'),
-  configSetId?: string(name='ConfigSetId', nullable=true),
-  endTime?: string(name='EndTime', description='End time. The span between start and end times cannot exceed 30 days, format: yyyy-MM-dd HH:mm.', example='2021-04-29 00:00'),
-  ipPoolId?: string(name='IpPoolId', nullable=true),
-  length?: int32(name='Length', description='Specifies the number of results to return in this request. Range is 1~100.', example='5'),
-  nextStart?: string(name='NextStart', description='Used for pagination. Specifies the offset for this request. If there are more results, set this returned value to the NextStart in the next request.', example='90f0243616#203#a***@example.net-1658817837#a***@example.net.247475288187'),
+> You can leave **AccountName**, **TagName**, and **ToAddress** empty. You can specify a value for only one of these parameters at a time.', example='s***@example.net'),
+  configSetId?: string(name='ConfigSetId', description='The ID of the configuration set.', example='95437e39-5433-4c6c-8b66-0c4eac2f4d97', nullable=true),
+  endTime?: string(name='EndTime', description='The end time. The time range between the start time and the end time cannot exceed 30 days. The format is yyyy-MM-dd HH:mm.', example='2021-04-29 00:00'),
+  ipPoolId?: string(name='IpPoolId', description='The ID of the independent IP address pool.', example='e42a4d8e-66e0-4ea3-88aa-74c66c661cef', nullable=true),
+  length?: int32(name='Length', description='The number of results to return. The value can range from 1 to 100.', example='5'),
+  nextStart?: string(name='NextStart', description='The offset for this request, used for paging. If more results are available, set the \\\\`NextStart\\\\` parameter in your next request to this return value.', example='90f0243616#203#a***@example.net-1658817837#a***@example.net.247475288187'),
   ownerId?: long(name='OwnerId'),
   resourceOwnerAccount?: string(name='ResourceOwnerAccount'),
   resourceOwnerId?: long(name='ResourceOwnerId'),
-  startTime?: string(name='StartTime', description='Start time. The span between start and end times cannot exceed 30 days, format: yyyy-MM-dd HH:mm', example='2021-04-28 00:00'),
-  status?: int32(name='Status', description='Delivery result. If not filled, it represents all statuses. Values:
+  startTime?: string(name='StartTime', description='The start time. The time range between the start time and the end time cannot exceed 30 days. The format is yyyy-MM-dd HH:mm.', example='2021-04-28 00:00'),
+  status?: int32(name='Status', description='The delivery status. If you leave this parameter empty, emails in all delivery statuses are queried. Valid values:
 
-- 0: Success
-- 2: Invalid Address
-- 3: Spam
-- 4: Failure', example='0'),
-  tagName?: string(name='TagName', description='Email tag. If not filled, it represents all tags.', example='EmailQuestionnaireHelioscam'),
-  toAddress?: string(name='ToAddress', description='Recipient address. If not filled, it represents all recipient addresses.', example='b***@example.net'),
+- 0: delivered successfully
+
+- 2: invalid address
+
+- 3: spam
+
+- 4: failed', example='0'),
+  tagName?: string(name='TagName', description='The email tag. If you leave this parameter empty, emails with all tags are queried.
+When you send an email using SMTP, specify the \\\\`TagName\\\\` and its value for the \\\\`X-AliDM-Trace\\\\` field. For more information, see the examples for email tracking.', example='EmailQuestionnaireHelioscam'),
+  toAddress?: string(name='ToAddress', description='The recipient address. If you leave this parameter empty, emails sent to all recipient addresses are queried.', example='b***@example.net'),
 }
 
 model SenderStatisticsDetailByParamResponseBody = {
-  nextStart?: string(name='NextStart', description='Used for pagination. If there are more results, set this returned value to the NextStart in the next request.', example='90f0243616#203#a***@example.net-1658817689#a***@example.net.247141122178'),
-  requestId?: string(name='RequestId', description='Request ID', example='B5AB8EBB-EE64-4BB2-B085-B92CC5DEDC41'),
+  nextStart?: string(name='NextStart', description='Used for paging. If more results are available, set the \\\\`NextStart\\\\` parameter in your next request to this return value.', example='90f0243616#203#a***@example.net-1658817689#a***@example.net.247141122178'),
+  requestId?: string(name='RequestId', description='The request ID.', example='B5AB8EBB-EE64-4BB2-B085-B92CC5DEDC41'),
   data?: {
     mailDetail?: [ 
     {
-      accountName?: string(name='AccountName', description='Sending address', example='s***@example.net'),
+      accountName?: string(name='AccountName'),
       configSetId?: string(name='ConfigSetId', nullable=true),
       configSetName?: string(name='ConfigSetName', nullable=true),
-      errorClassification?: string(name='ErrorClassification', description='Detailed classification of error reasons: - SendOk - SmtpNxBox
-etc.', example='SendOk'),
+      errorClassification?: string(name='ErrorClassification'),
       ipPoolId?: string(name='IpPoolId', nullable=true),
       ipPoolName?: string(name='IpPoolName', nullable=true),
-      lastUpdateTime?: string(name='LastUpdateTime', description='Update time', example='2021-04-28T17:11Z'),
-      message?: string(name='Message', description='Delivery detail information', example='250 Send Mail OK'),
-      status?: int32(name='Status', description='Delivery status: 0 Success, 2 Invalid Address, 3 Spam, 4 Other Failures', example='0'),
-      subject?: string(name='Subject', description='Email subject', example='test subject'),
-      toAddress?: string(name='ToAddress', description='Recipient address', example='b***@example.net'),
-      utcLastUpdateTime?: string(name='UtcLastUpdateTime', description='UTC formatted update time', example='1619601108'),
+      lastUpdateTime?: string(name='LastUpdateTime'),
+      message?: string(name='Message'),
+      status?: int32(name='Status'),
+      subject?: string(name='Subject'),
+      toAddress?: string(name='ToAddress'),
+      utcLastUpdateTime?: string(name='UtcLastUpdateTime'),
     }
   ](name='mailDetail')
-  }(name='data', description='Detailed records'),
+  }(name='data'),
 }
 
 model SenderStatisticsDetailByParamResponse = {
@@ -5559,7 +5874,7 @@ model SenderStatisticsDetailByParamResponse = {
 }
 
 /**
- * @summary Query Delivery Result Details
+ * @summary Queries sending details.
  *
  * @param request SenderStatisticsDetailByParamRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -5625,7 +5940,7 @@ async function senderStatisticsDetailByParamWithOptions(request: SenderStatistic
 }
 
 /**
- * @summary Query Delivery Result Details
+ * @summary Queries sending details.
  *
  * @param request SenderStatisticsDetailByParamRequest
  * @return SenderStatisticsDetailByParamResponse
@@ -5704,107 +6019,413 @@ async function setSuppressionListLevel(request: SetSuppressionListLevelRequest):
 }
 
 model SingleSendMailRequest {
-  accountName?: string(name='AccountName', description='This parameter is required.'),
-  addressType?: int32(name='AddressType', description='This parameter is required.'),
+  accountName?: string(name='AccountName', description='The sender address configured in the Direct Mail console.
+
+This parameter is required.', example='test***@example.net'),
+  addressType?: int32(name='AddressType', description='The address type. Valid values:
+
+0: Random account
+
+1: Sender address
+
+This parameter is required.', example='1'),
   attachments?: [ 
     {
-      attachmentName?: string(name='AttachmentName'),
-      attachmentUrl?: string(name='AttachmentUrl'),
+      attachmentName?: string(name='AttachmentName', description='This feature is available only in the latest SDK. It is not supported by OpenAPI or signature mechanisms.', example='test.txt'),
+      attachmentUrl?: string(name='AttachmentUrl', description='This feature is available only in the latest SDK. It is not supported by OpenAPI or signature mechanisms.', example='C:\\\\Users\\\\Downloads\\\\test.txt'),
     }
-  ](name='Attachments'),
-  bccAddress?: string(name='BccAddress', example='1@example.com,2@example.com', nullable=true),
-  clickTrace?: string(name='ClickTrace'),
-  domainAuth?: boolean(name='DomainAuth'),
-  fromAlias?: string(name='FromAlias'),
-  headers?: string(name='Headers'),
-  htmlBody?: string(name='HtmlBody'),
-  ipPoolId?: string(name='IpPoolId'),
+  ](name='Attachments', description='This feature is available only in the latest software development kit (SDK). It is not supported by OpenAPI or signature mechanisms. For more information, see [How do I send an email with attachments using an SDK?]().'),
+  bccAddress?: string(name='BccAddress', description='- The list of blind carbon copy (BCC) recipients.
+
+- A copy of the email is sent to each BCC address. The BCC information is not visible to any recipient, including those in the ToAddress and BccAddress fields.
+
+- To protect the privacy of BCC recipients, email tracking is disabled by default for emails sent to BCC addresses. This means that behavioral data, such as open rates and click-through rates, is not recorded for BCC emails. However, billing, sending details, and sending status statistics are the same as for regular emails.
+
+- You can specify up to two BCC recipients for each email.', example='1@example.com,2@example.com', nullable=true),
+  clickTrace?: string(name='ClickTrace', description='1: Enables data tracking.
+
+0 (default): Disables data tracking.', example='0'),
+  domainAuth?: boolean(name='DomainAuth', description='Enable domain-level authentication.
+
+- true
+
+- false
+
+Use this only for domain-level authentication. Ignore it for sender address-level authentication.
+
+1\\\\. Create the \\\\`domain-auth-created-by-system\\\\@example.com\\\\` address in the console. Keep the prefix before the at sign (@) fixed and use your own domain as the suffix.
+
+2\\\\.
+
+**API scenario**
+
+Set \\\\`AccountName\\\\` to your domain. The recipient sees the sender as \\\\`domain-auth-created-by-system\\\\@example.com\\\\`.
+
+**SMTP scenario**
+
+a. Set the domain password using the \\\\`ModifyPWByDomain\\\\` API.
+
+b. Authenticate using the domain and the set password. For the actual sender, pass a custom address, such as \\\\`user\\\\@example.com\\\\`, in the \\\\`mailfrom\\\\` field. The recipient sees the sender as \\\\`user\\\\@example.com\\\\`.', example='true'),
+  fromAlias?: string(name='FromAlias', description='The nickname of the sender. The nickname must be fewer than 15 characters.
+
+For example, if you set the nickname to "Xiao Hong" and the sender address is test\\\\*\\\\*\\\\*@example.net, the recipient sees the sender as "Xiao Hong" \\\\<test\\\\*\\\\*\\\\*@example.net>.', example='小红'),
+  headers?: string(name='Headers', description='Message header settings
+
+Both standard and non-standard fields must follow the syntax rules for message headers. The API supports a maximum of 10 headers in the headers field. Any headers exceeding this limit are ignored. SMTP, however, does not have this limit.
+
+1\\\\. Standard fields
+
+Message-ID, List-Unsubscribe, List-Unsubscribe-Post
+
+Standard fields overwrite existing values in the message header.
+
+2\\\\. Non-standard fields
+
+Case-insensitive
+
+a. Fields that start with X-User- (These are not pushed to the EventBridge event bus or Message Service MNS. They are required only for the API, whereas SMTP supports any custom header.)
+
+b. Fields that start with X-User-Notify- (These are pushed to the EventBridge event bus and Message Service MNS, and are supported by both the API and SMTP.)
+
+When pushed to EventBridge or MNS, these fields appear in the header field.', example='{
+      "Message-ID": "<d52ce63e-a0d5-4f95-b6a9-e1256a44f5fb@example.net>",
+      "X-User-UID1": "UID-1-000001",
+      "X-User-UID2": "UID-2-000001",
+      "X-User-Notify-UID1": "UID-3-000001",
+      "X-User-Notify-UID2": "UID-4-000001"
+	  
+}'),
+  htmlBody?: string(name='HtmlBody', description='The HTML body of the email.
+
+Note: Specify HtmlBody or TextBody.
+
+- The size of the parameter passed in a URL is limited to approximately 80 KB.
+
+- The new SDK limits the body parameter to approximately 8 MB (Java 1.4.0 and later, Python 3 1.4.0 and later, PHP 1.4.0 and later).', example='body'),
+  ipPoolId?: string(name='IpPoolId', description='The ID of the dedicated IP address pool. If you purchased dedicated IP addresses, use this parameter to specify the outbound IP address for the current email. For more information, see [Dedicated IPs]().', example='e4xxxxxe-4xx0-4xx3-8xxa-74cxxxxx1cef'),
   ownerId?: long(name='OwnerId'),
-  replyAddress?: string(name='ReplyAddress'),
-  replyAddressAlias?: string(name='ReplyAddressAlias'),
-  replyToAddress?: boolean(name='ReplyToAddress', description='This parameter is required.'),
+  replyAddress?: string(name='ReplyAddress', description='The reply-to address.', example='test2***@example.net'),
+  replyAddressAlias?: string(name='ReplyAddressAlias', description='The nickname of the reply-to address.', example='小红'),
+  replyToAddress?: boolean(name='ReplyToAddress', description='Specifies whether to use the reply-to address configured in the console. The reply-to address must be verified. Valid values: true and false.
+
+This parameter is required.', example='true'),
   resourceOwnerAccount?: string(name='ResourceOwnerAccount'),
   resourceOwnerId?: long(name='ResourceOwnerId'),
-  subject?: string(name='Subject', description='This parameter is required.'),
-  tagName?: string(name='TagName'),
+  subject?: string(name='Subject', description='The subject of the email. The subject cannot exceed 256 characters in length.
+
+This parameter is required.', example='Subject'),
+  tagName?: string(name='TagName', description='The email tag that you create in the Direct Mail console. Use tags to classify email batches and query the sending status of each batch. If email tracking is enabled, you must specify an email tag.
+The tag can be 1 to 128 characters in length and can contain letters, digits, underscores (_), and hyphens (-).', example='test'),
   template?: {
-    templateData?: map[string]string(name='TemplateData'),
-    templateId?: string(name='TemplateId', example='xxx'),
-  }(name='Template'),
-  textBody?: string(name='TextBody'),
-  toAddress?: string(name='ToAddress', description='This parameter is required.'),
-  unSubscribeFilterLevel?: string(name='UnSubscribeFilterLevel'),
-  unSubscribeLinkType?: string(name='UnSubscribeLinkType'),
+    templateData?: map[string]string(name='TemplateData', description='The variables and their values in the template.'),
+    templateId?: string(name='TemplateId', description='The template ID.', example='xxx'),
+  }(name='Template', description='The template information for sending template-based emails.'),
+  textBody?: string(name='TextBody', description='The text body of the email.
+
+Note: Specify HtmlBody or TextBody.
+
+- The size of the parameter passed in a URL is limited to approximately 80 KB.
+
+- The new SDK limits the body parameter to approximately 8 MB (Java 1.4.0 and later, Python 3 1.4.0 and later, PHP 1.4.0 and later).', example='body'),
+  toAddress?: string(name='ToAddress', description='The destination address. To specify multiple addresses, separate them with commas (,). You can specify a maximum of 100 addresses. Recipient groups are supported.
+
+This parameter is required.', example='test1***@example.net'),
+  unSubscribeFilterLevel?: string(name='UnSubscribeFilterLevel', description='The filtering level. For more information, see [Unsubscribe link generation and filtering mechanism]().
+
+disabled: No filtering.
+
+default: The default policy is used. Batch addresses are filtered at the sender address level.
+
+mailfrom: Filters at the sender address level.
+
+mailfrom_domain: Filters at the email domain level.
+
+edm_id: Filters at the account level.', example='mailfrom_domain'),
+  unSubscribeLinkType?: string(name='UnSubscribeLinkType', description='disabled: No link is generated.
+
+default: The default policy is used. An unsubscribe link is generated for batch emails sent to specific domains, such as domains that contain keywords like "gmail", "yahoo",
+"google", "aol.com", "hotmail",
+"outlook", or "ymail.com". For more information, see [Unsubscribe link generation and filtering mechanism]().
+
+The display language is automatically detected based on the recipient\\\\"s browser settings.
+
+"outlook", or "ymail.com". For more information, see [Unsubscribe link generation and filtering mechanism]().
+
+The display language is automatically detected based on the recipient\\\\"s browser settings.', example='default'),
 }
 
 model SingleSendMailAdvanceRequest {
-  accountName?: string(name='AccountName', description='This parameter is required.'),
-  addressType?: int32(name='AddressType', description='This parameter is required.'),
+  accountName?: string(name='AccountName', description='The sender address configured in the Direct Mail console.
+
+This parameter is required.', example='test***@example.net'),
+  addressType?: int32(name='AddressType', description='The address type. Valid values:
+
+0: Random account
+
+1: Sender address
+
+This parameter is required.', example='1'),
   attachments?: [ 
     {
-      attachmentName?: string(name='AttachmentName'),
-      attachmentUrlObject?: readable(name='AttachmentUrl'),
+      attachmentName?: string(name='AttachmentName', description='This feature is available only in the latest SDK. It is not supported by OpenAPI or signature mechanisms.', example='test.txt'),
+      attachmentUrlObject?: readable(name='AttachmentUrl', description='This feature is available only in the latest SDK. It is not supported by OpenAPI or signature mechanisms.', example='C:\\\\Users\\\\Downloads\\\\test.txt'),
     }
-  ](name='Attachments'),
-  bccAddress?: string(name='BccAddress', example='1@example.com,2@example.com', nullable=true),
-  clickTrace?: string(name='ClickTrace'),
-  domainAuth?: boolean(name='DomainAuth'),
-  fromAlias?: string(name='FromAlias'),
-  headers?: string(name='Headers'),
-  htmlBody?: string(name='HtmlBody'),
-  ipPoolId?: string(name='IpPoolId'),
+  ](name='Attachments', description='This feature is available only in the latest software development kit (SDK). It is not supported by OpenAPI or signature mechanisms. For more information, see [How do I send an email with attachments using an SDK?]().'),
+  bccAddress?: string(name='BccAddress', description='- The list of blind carbon copy (BCC) recipients.
+
+- A copy of the email is sent to each BCC address. The BCC information is not visible to any recipient, including those in the ToAddress and BccAddress fields.
+
+- To protect the privacy of BCC recipients, email tracking is disabled by default for emails sent to BCC addresses. This means that behavioral data, such as open rates and click-through rates, is not recorded for BCC emails. However, billing, sending details, and sending status statistics are the same as for regular emails.
+
+- You can specify up to two BCC recipients for each email.', example='1@example.com,2@example.com', nullable=true),
+  clickTrace?: string(name='ClickTrace', description='1: Enables data tracking.
+
+0 (default): Disables data tracking.', example='0'),
+  domainAuth?: boolean(name='DomainAuth', description='Enable domain-level authentication.
+
+- true
+
+- false
+
+Use this only for domain-level authentication. Ignore it for sender address-level authentication.
+
+1\\\\. Create the \\\\`domain-auth-created-by-system\\\\@example.com\\\\` address in the console. Keep the prefix before the at sign (@) fixed and use your own domain as the suffix.
+
+2\\\\.
+
+**API scenario**
+
+Set \\\\`AccountName\\\\` to your domain. The recipient sees the sender as \\\\`domain-auth-created-by-system\\\\@example.com\\\\`.
+
+**SMTP scenario**
+
+a. Set the domain password using the \\\\`ModifyPWByDomain\\\\` API.
+
+b. Authenticate using the domain and the set password. For the actual sender, pass a custom address, such as \\\\`user\\\\@example.com\\\\`, in the \\\\`mailfrom\\\\` field. The recipient sees the sender as \\\\`user\\\\@example.com\\\\`.', example='true'),
+  fromAlias?: string(name='FromAlias', description='The nickname of the sender. The nickname must be fewer than 15 characters.
+
+For example, if you set the nickname to "Xiao Hong" and the sender address is test\\\\*\\\\*\\\\*@example.net, the recipient sees the sender as "Xiao Hong" \\\\<test\\\\*\\\\*\\\\*@example.net>.', example='小红'),
+  headers?: string(name='Headers', description='Message header settings
+
+Both standard and non-standard fields must follow the syntax rules for message headers. The API supports a maximum of 10 headers in the headers field. Any headers exceeding this limit are ignored. SMTP, however, does not have this limit.
+
+1\\\\. Standard fields
+
+Message-ID, List-Unsubscribe, List-Unsubscribe-Post
+
+Standard fields overwrite existing values in the message header.
+
+2\\\\. Non-standard fields
+
+Case-insensitive
+
+a. Fields that start with X-User- (These are not pushed to the EventBridge event bus or Message Service MNS. They are required only for the API, whereas SMTP supports any custom header.)
+
+b. Fields that start with X-User-Notify- (These are pushed to the EventBridge event bus and Message Service MNS, and are supported by both the API and SMTP.)
+
+When pushed to EventBridge or MNS, these fields appear in the header field.', example='{
+      "Message-ID": "<d52ce63e-a0d5-4f95-b6a9-e1256a44f5fb@example.net>",
+      "X-User-UID1": "UID-1-000001",
+      "X-User-UID2": "UID-2-000001",
+      "X-User-Notify-UID1": "UID-3-000001",
+      "X-User-Notify-UID2": "UID-4-000001"
+	  
+}'),
+  htmlBody?: string(name='HtmlBody', description='The HTML body of the email.
+
+Note: Specify HtmlBody or TextBody.
+
+- The size of the parameter passed in a URL is limited to approximately 80 KB.
+
+- The new SDK limits the body parameter to approximately 8 MB (Java 1.4.0 and later, Python 3 1.4.0 and later, PHP 1.4.0 and later).', example='body'),
+  ipPoolId?: string(name='IpPoolId', description='The ID of the dedicated IP address pool. If you purchased dedicated IP addresses, use this parameter to specify the outbound IP address for the current email. For more information, see [Dedicated IPs]().', example='e4xxxxxe-4xx0-4xx3-8xxa-74cxxxxx1cef'),
   ownerId?: long(name='OwnerId'),
-  replyAddress?: string(name='ReplyAddress'),
-  replyAddressAlias?: string(name='ReplyAddressAlias'),
-  replyToAddress?: boolean(name='ReplyToAddress', description='This parameter is required.'),
+  replyAddress?: string(name='ReplyAddress', description='The reply-to address.', example='test2***@example.net'),
+  replyAddressAlias?: string(name='ReplyAddressAlias', description='The nickname of the reply-to address.', example='小红'),
+  replyToAddress?: boolean(name='ReplyToAddress', description='Specifies whether to use the reply-to address configured in the console. The reply-to address must be verified. Valid values: true and false.
+
+This parameter is required.', example='true'),
   resourceOwnerAccount?: string(name='ResourceOwnerAccount'),
   resourceOwnerId?: long(name='ResourceOwnerId'),
-  subject?: string(name='Subject', description='This parameter is required.'),
-  tagName?: string(name='TagName'),
+  subject?: string(name='Subject', description='The subject of the email. The subject cannot exceed 256 characters in length.
+
+This parameter is required.', example='Subject'),
+  tagName?: string(name='TagName', description='The email tag that you create in the Direct Mail console. Use tags to classify email batches and query the sending status of each batch. If email tracking is enabled, you must specify an email tag.
+The tag can be 1 to 128 characters in length and can contain letters, digits, underscores (_), and hyphens (-).', example='test'),
   template?: {
-    templateData?: map[string]string(name='TemplateData'),
-    templateId?: string(name='TemplateId', example='xxx'),
-  }(name='Template'),
-  textBody?: string(name='TextBody'),
-  toAddress?: string(name='ToAddress', description='This parameter is required.'),
-  unSubscribeFilterLevel?: string(name='UnSubscribeFilterLevel'),
-  unSubscribeLinkType?: string(name='UnSubscribeLinkType'),
+    templateData?: map[string]string(name='TemplateData', description='The variables and their values in the template.'),
+    templateId?: string(name='TemplateId', description='The template ID.', example='xxx'),
+  }(name='Template', description='The template information for sending template-based emails.'),
+  textBody?: string(name='TextBody', description='The text body of the email.
+
+Note: Specify HtmlBody or TextBody.
+
+- The size of the parameter passed in a URL is limited to approximately 80 KB.
+
+- The new SDK limits the body parameter to approximately 8 MB (Java 1.4.0 and later, Python 3 1.4.0 and later, PHP 1.4.0 and later).', example='body'),
+  toAddress?: string(name='ToAddress', description='The destination address. To specify multiple addresses, separate them with commas (,). You can specify a maximum of 100 addresses. Recipient groups are supported.
+
+This parameter is required.', example='test1***@example.net'),
+  unSubscribeFilterLevel?: string(name='UnSubscribeFilterLevel', description='The filtering level. For more information, see [Unsubscribe link generation and filtering mechanism]().
+
+disabled: No filtering.
+
+default: The default policy is used. Batch addresses are filtered at the sender address level.
+
+mailfrom: Filters at the sender address level.
+
+mailfrom_domain: Filters at the email domain level.
+
+edm_id: Filters at the account level.', example='mailfrom_domain'),
+  unSubscribeLinkType?: string(name='UnSubscribeLinkType', description='disabled: No link is generated.
+
+default: The default policy is used. An unsubscribe link is generated for batch emails sent to specific domains, such as domains that contain keywords like "gmail", "yahoo",
+"google", "aol.com", "hotmail",
+"outlook", or "ymail.com". For more information, see [Unsubscribe link generation and filtering mechanism]().
+
+The display language is automatically detected based on the recipient\\\\"s browser settings.
+
+"outlook", or "ymail.com". For more information, see [Unsubscribe link generation and filtering mechanism]().
+
+The display language is automatically detected based on the recipient\\\\"s browser settings.', example='default'),
 }
 
 model SingleSendMailShrinkRequest {
-  accountName?: string(name='AccountName', description='This parameter is required.'),
-  addressType?: int32(name='AddressType', description='This parameter is required.'),
+  accountName?: string(name='AccountName', description='The sender address configured in the Direct Mail console.
+
+This parameter is required.', example='test***@example.net'),
+  addressType?: int32(name='AddressType', description='The address type. Valid values:
+
+0: Random account
+
+1: Sender address
+
+This parameter is required.', example='1'),
   attachments?: [ 
     {
-      attachmentName?: string(name='AttachmentName'),
-      attachmentUrl?: string(name='AttachmentUrl'),
+      attachmentName?: string(name='AttachmentName', description='This feature is available only in the latest SDK. It is not supported by OpenAPI or signature mechanisms.', example='test.txt'),
+      attachmentUrl?: string(name='AttachmentUrl', description='This feature is available only in the latest SDK. It is not supported by OpenAPI or signature mechanisms.', example='C:\\\\Users\\\\Downloads\\\\test.txt'),
     }
-  ](name='Attachments'),
-  bccAddress?: string(name='BccAddress', example='1@example.com,2@example.com', nullable=true),
-  clickTrace?: string(name='ClickTrace'),
-  domainAuth?: boolean(name='DomainAuth'),
-  fromAlias?: string(name='FromAlias'),
-  headers?: string(name='Headers'),
-  htmlBody?: string(name='HtmlBody'),
-  ipPoolId?: string(name='IpPoolId'),
+  ](name='Attachments', description='This feature is available only in the latest software development kit (SDK). It is not supported by OpenAPI or signature mechanisms. For more information, see [How do I send an email with attachments using an SDK?]().'),
+  bccAddress?: string(name='BccAddress', description='- The list of blind carbon copy (BCC) recipients.
+
+- A copy of the email is sent to each BCC address. The BCC information is not visible to any recipient, including those in the ToAddress and BccAddress fields.
+
+- To protect the privacy of BCC recipients, email tracking is disabled by default for emails sent to BCC addresses. This means that behavioral data, such as open rates and click-through rates, is not recorded for BCC emails. However, billing, sending details, and sending status statistics are the same as for regular emails.
+
+- You can specify up to two BCC recipients for each email.', example='1@example.com,2@example.com', nullable=true),
+  clickTrace?: string(name='ClickTrace', description='1: Enables data tracking.
+
+0 (default): Disables data tracking.', example='0'),
+  domainAuth?: boolean(name='DomainAuth', description='Enable domain-level authentication.
+
+- true
+
+- false
+
+Use this only for domain-level authentication. Ignore it for sender address-level authentication.
+
+1\\\\. Create the \\\\`domain-auth-created-by-system\\\\@example.com\\\\` address in the console. Keep the prefix before the at sign (@) fixed and use your own domain as the suffix.
+
+2\\\\.
+
+**API scenario**
+
+Set \\\\`AccountName\\\\` to your domain. The recipient sees the sender as \\\\`domain-auth-created-by-system\\\\@example.com\\\\`.
+
+**SMTP scenario**
+
+a. Set the domain password using the \\\\`ModifyPWByDomain\\\\` API.
+
+b. Authenticate using the domain and the set password. For the actual sender, pass a custom address, such as \\\\`user\\\\@example.com\\\\`, in the \\\\`mailfrom\\\\` field. The recipient sees the sender as \\\\`user\\\\@example.com\\\\`.', example='true'),
+  fromAlias?: string(name='FromAlias', description='The nickname of the sender. The nickname must be fewer than 15 characters.
+
+For example, if you set the nickname to "Xiao Hong" and the sender address is test\\\\*\\\\*\\\\*@example.net, the recipient sees the sender as "Xiao Hong" \\\\<test\\\\*\\\\*\\\\*@example.net>.', example='小红'),
+  headers?: string(name='Headers', description='Message header settings
+
+Both standard and non-standard fields must follow the syntax rules for message headers. The API supports a maximum of 10 headers in the headers field. Any headers exceeding this limit are ignored. SMTP, however, does not have this limit.
+
+1\\\\. Standard fields
+
+Message-ID, List-Unsubscribe, List-Unsubscribe-Post
+
+Standard fields overwrite existing values in the message header.
+
+2\\\\. Non-standard fields
+
+Case-insensitive
+
+a. Fields that start with X-User- (These are not pushed to the EventBridge event bus or Message Service MNS. They are required only for the API, whereas SMTP supports any custom header.)
+
+b. Fields that start with X-User-Notify- (These are pushed to the EventBridge event bus and Message Service MNS, and are supported by both the API and SMTP.)
+
+When pushed to EventBridge or MNS, these fields appear in the header field.', example='{
+      "Message-ID": "<d52ce63e-a0d5-4f95-b6a9-e1256a44f5fb@example.net>",
+      "X-User-UID1": "UID-1-000001",
+      "X-User-UID2": "UID-2-000001",
+      "X-User-Notify-UID1": "UID-3-000001",
+      "X-User-Notify-UID2": "UID-4-000001"
+	  
+}'),
+  htmlBody?: string(name='HtmlBody', description='The HTML body of the email.
+
+Note: Specify HtmlBody or TextBody.
+
+- The size of the parameter passed in a URL is limited to approximately 80 KB.
+
+- The new SDK limits the body parameter to approximately 8 MB (Java 1.4.0 and later, Python 3 1.4.0 and later, PHP 1.4.0 and later).', example='body'),
+  ipPoolId?: string(name='IpPoolId', description='The ID of the dedicated IP address pool. If you purchased dedicated IP addresses, use this parameter to specify the outbound IP address for the current email. For more information, see [Dedicated IPs]().', example='e4xxxxxe-4xx0-4xx3-8xxa-74cxxxxx1cef'),
   ownerId?: long(name='OwnerId'),
-  replyAddress?: string(name='ReplyAddress'),
-  replyAddressAlias?: string(name='ReplyAddressAlias'),
-  replyToAddress?: boolean(name='ReplyToAddress', description='This parameter is required.'),
+  replyAddress?: string(name='ReplyAddress', description='The reply-to address.', example='test2***@example.net'),
+  replyAddressAlias?: string(name='ReplyAddressAlias', description='The nickname of the reply-to address.', example='小红'),
+  replyToAddress?: boolean(name='ReplyToAddress', description='Specifies whether to use the reply-to address configured in the console. The reply-to address must be verified. Valid values: true and false.
+
+This parameter is required.', example='true'),
   resourceOwnerAccount?: string(name='ResourceOwnerAccount'),
   resourceOwnerId?: long(name='ResourceOwnerId'),
-  subject?: string(name='Subject', description='This parameter is required.'),
-  tagName?: string(name='TagName'),
-  templateShrink?: string(name='Template'),
-  textBody?: string(name='TextBody'),
-  toAddress?: string(name='ToAddress', description='This parameter is required.'),
-  unSubscribeFilterLevel?: string(name='UnSubscribeFilterLevel'),
-  unSubscribeLinkType?: string(name='UnSubscribeLinkType'),
+  subject?: string(name='Subject', description='The subject of the email. The subject cannot exceed 256 characters in length.
+
+This parameter is required.', example='Subject'),
+  tagName?: string(name='TagName', description='The email tag that you create in the Direct Mail console. Use tags to classify email batches and query the sending status of each batch. If email tracking is enabled, you must specify an email tag.
+The tag can be 1 to 128 characters in length and can contain letters, digits, underscores (_), and hyphens (-).', example='test'),
+  templateShrink?: string(name='Template', description='The template information for sending template-based emails.'),
+  textBody?: string(name='TextBody', description='The text body of the email.
+
+Note: Specify HtmlBody or TextBody.
+
+- The size of the parameter passed in a URL is limited to approximately 80 KB.
+
+- The new SDK limits the body parameter to approximately 8 MB (Java 1.4.0 and later, Python 3 1.4.0 and later, PHP 1.4.0 and later).', example='body'),
+  toAddress?: string(name='ToAddress', description='The destination address. To specify multiple addresses, separate them with commas (,). You can specify a maximum of 100 addresses. Recipient groups are supported.
+
+This parameter is required.', example='test1***@example.net'),
+  unSubscribeFilterLevel?: string(name='UnSubscribeFilterLevel', description='The filtering level. For more information, see [Unsubscribe link generation and filtering mechanism]().
+
+disabled: No filtering.
+
+default: The default policy is used. Batch addresses are filtered at the sender address level.
+
+mailfrom: Filters at the sender address level.
+
+mailfrom_domain: Filters at the email domain level.
+
+edm_id: Filters at the account level.', example='mailfrom_domain'),
+  unSubscribeLinkType?: string(name='UnSubscribeLinkType', description='disabled: No link is generated.
+
+default: The default policy is used. An unsubscribe link is generated for batch emails sent to specific domains, such as domains that contain keywords like "gmail", "yahoo",
+"google", "aol.com", "hotmail",
+"outlook", or "ymail.com". For more information, see [Unsubscribe link generation and filtering mechanism]().
+
+The display language is automatically detected based on the recipient\\\\"s browser settings.
+
+"outlook", or "ymail.com". For more information, see [Unsubscribe link generation and filtering mechanism]().
+
+The display language is automatically detected based on the recipient\\\\"s browser settings.', example='default'),
 }
 
 model SingleSendMailResponseBody = {
-  envId?: string(name='EnvId', description='Event ID', example='600000xxxxxxxxxx642'),
-  requestId?: string(name='RequestId', description='Request ID', example='2D086F6-xxxx-xxxx-xxxx-006DED011A85'),
+  envId?: string(name='EnvId', description='The event ID.', example='600000xxxxxxxxxx642'),
+  requestId?: string(name='RequestId', description='The request ID.', example='2D086F6-xxxx-xxxx-xxxx-006DED011A85'),
 }
 
 model SingleSendMailResponse = {
@@ -5814,7 +6435,7 @@ model SingleSendMailResponse = {
 }
 
 /**
- * @summary API for Sending Emails
+ * @summary Sends a single email.
  *
  * @param tmpReq SingleSendMailRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -5917,7 +6538,7 @@ async function singleSendMailWithOptions(tmpReq: SingleSendMailRequest, runtime:
 }
 
 /**
- * @summary API for Sending Emails
+ * @summary Sends a single email.
  *
  * @param request SingleSendMailRequest
  * @return SingleSendMailResponse
@@ -6020,21 +6641,23 @@ async function singleSendMailAdvance(request: SingleSendMailAdvanceRequest, runt
 }
 
 model UnblockSendingRequest {
-  blockEmail?: string(name='BlockEmail', description='Blacklisted recipient\\\\"s email address
+  blockEmail?: string(name='BlockEmail', description='The blacklisted recipient address.
 
-This parameter is required.', example='recipient@example.com'),
-  blockType?: string(name='BlockType', description='Blacklist type
+This parameter is required.', example='recipient@yyy.com'),
+  blockType?: string(name='BlockType', description='The blacklist type.
+
 - UNSUB: Unsubscribe
-- REPORT: Report
+
+- REPORT: Complaint
 
 This parameter is required.', example='UNSUB'),
-  senderEmail?: string(name='SenderEmail', description='Sender\\\\"s email address
+  senderEmail?: string(name='SenderEmail', description='The sender address.
 
-This parameter is required.', example='sender@example.com'),
+This parameter is required.', example='sender@xxx.com'),
 }
 
 model UnblockSendingResponseBody = {
-  requestId?: string(name='RequestId', description='Request ID', example='10A1AD70-E48E-476D-98D9-39BD92193837'),
+  requestId?: string(name='RequestId', description='The request ID.', example='10A1AD70-E48E-476D-98D9-39BD92193837'),
 }
 
 model UnblockSendingResponse = {
@@ -6044,7 +6667,7 @@ model UnblockSendingResponse = {
 }
 
 /**
- * @summary Lift sending restrictions due to unsubscription, reporting, etc.
+ * @summary Removes sending restrictions caused by unsubscribes or complaints.
  *
  * @param request UnblockSendingRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -6080,7 +6703,7 @@ async function unblockSendingWithOptions(request: UnblockSendingRequest, runtime
 }
 
 /**
- * @summary Lift sending restrictions due to unsubscription, reporting, etc.
+ * @summary Removes sending restrictions caused by unsubscribes or complaints.
  *
  * @param request UnblockSendingRequest
  * @return UnblockSendingResponse
@@ -6159,16 +6782,16 @@ async function updateIpProtection(request: UpdateIpProtectionRequest): UpdateIpP
 
 model UpdateUserRequest {
   user?: {
-    enableEventbridge?: boolean(name='EnableEventbridge', description='Whether EventBridge is enabled', example='true'),
-  }(name='User', description='User Information'),
+    enableEventbridge?: boolean(name='EnableEventbridge'),
+  }(name='User'),
 }
 
 model UpdateUserShrinkRequest {
-  userShrink?: string(name='User', description='User Information'),
+  userShrink?: string(name='User'),
 }
 
 model UpdateUserResponseBody = {
-  requestId?: string(name='RequestId', description='Id of the request', example='7BC346F6-1092-5852-B6E2-CCE2E5AAE51F'),
+  requestId?: string(name='RequestId'),
 }
 
 model UpdateUserResponse = {
@@ -6178,7 +6801,7 @@ model UpdateUserResponse = {
 }
 
 /**
- * @summary Update account information
+ * @summary 更新帐号信息
  *
  * @param tmpReq UpdateUserRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -6213,7 +6836,7 @@ async function updateUserWithOptions(tmpReq: UpdateUserRequest, runtime: Util.Ru
 }
 
 /**
- * @summary Update account information
+ * @summary 更新帐号信息
  *
  * @param request UpdateUserRequest
  * @return UpdateUserResponse
@@ -6224,19 +6847,25 @@ async function updateUser(request: UpdateUserRequest): UpdateUserResponse {
 }
 
 model ValidateEmailRequest {
-  checkGraylist?: boolean(name='CheckGraylist'),
-  email?: string(name='Email', description='This parameter is required.', example='xxx@yyy.com'),
-  timeout?: long(name='Timeout', example='20'),
+  checkGraylist?: boolean(name='CheckGraylist', description='Specifies whether to check the graylist. The default value is false. The result is sent through an asynchronous notification message from EventBridge.', example='true'),
+  email?: string(name='Email', description='The email address to validate.
+
+This parameter is required.', example='xxx@yyy.com'),
+  timeout?: long(name='Timeout', description='The timeout period. The default value is 60 seconds.', example='20'),
 }
 
 model ValidateEmailResponseBody = {
-  domainPart?: string(name='DomainPart', example='yyy.com'),
-  isFreeMail?: boolean(name='IsFreeMail', example='true'),
-  localPart?: string(name='LocalPart', example='xxx'),
-  provider?: string(name='Provider', example='Gmail'),
-  requestId?: string(name='RequestId', example='xxxx-xxxx-xxxx-xxxx'),
-  status?: string(name='Status', description='This parameter is required.', example='VALID'),
-  subStatus?: string(name='SubStatus', description='This parameter is required.', example='UNSPECIFIED'),
+  domainPart?: string(name='DomainPart', description='The domain part of the email address parsed from the syntax check. The domain part is converted to lowercase.', example='yyy.com'),
+  isFreeMail?: boolean(name='IsFreeMail', description='Indicates whether the address is from a free email service.', example='true'),
+  localPart?: string(name='LocalPart', description='The local part of the email address parsed from the syntax check. The local part is converted to lowercase and the content after the plus sign (+) is removed.', example='xxx'),
+  provider?: string(name='Provider', description='The email service provider of the address.', example='Gmail'),
+  requestId?: string(name='RequestId', description='The request ID.', example='xxxx-xxxx-xxxx-xxxx'),
+  status?: string(name='Status', description='The validation status of the email address.
+
+This parameter is required.', example='VALID'),
+  subStatus?: string(name='SubStatus', description='The detailed validation status of the email address. This provides more information about the Status.
+
+This parameter is required.', example='UNSPECIFIED'),
 }
 
 model ValidateEmailResponse = {
@@ -6246,7 +6875,7 @@ model ValidateEmailResponse = {
 }
 
 /**
- * @summary 校验电子邮件地址
+ * @summary Validates an email address.
  *
  * @param request ValidateEmailRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -6282,7 +6911,7 @@ async function validateEmailWithOptions(request: ValidateEmailRequest, runtime: 
 }
 
 /**
- * @summary 校验电子邮件地址
+ * @summary Validates an email address.
  *
  * @param request ValidateEmailRequest
  * @return ValidateEmailResponse
