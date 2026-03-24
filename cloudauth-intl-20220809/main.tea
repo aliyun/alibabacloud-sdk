@@ -888,9 +888,20 @@ model CheckResultResponseBody = {
     extBasicInfo?: string(name='ExtBasicInfo', description='Extended basic information.', example='**'),
     extFaceInfo?: string(name='ExtFaceInfo', description='Face information.', example='**'),
     extIdInfo?: string(name='ExtIdInfo', description='ID information.', example='**'),
-    extInfo?: string(name='ExtInfo', description='Extended information', example='{}'),
+    extInfo?: string(name='ExtInfo', description='Extended information, in JSON string format.', example='{}'),
     extRiskInfo?: string(name='ExtRiskInfo', description='Risk information.', example='**'),
-    extSourceInfo?: string(name='ExtSourceInfo'),
+    extSourceInfo?: string(name='ExtSourceInfo', description='Detailed verification results from the data source (example using Indonesian data sources):
+- **govId, fullName, dob**: A comparison score of 1.0 indicates complete consistency with the official data source; less than 1.0 indicates inconsistency. 
+- **selfiePhoto**: A comparison score greater than 0.8 indicates consistency with the official data source; less than or equal to 0.8 indicates inconsistency. 
+- **liveness**: A score higher than 0.95 indicates a risk of liveness detection. 
+- **imgManipulationScore**: A score higher than 0.95 indicates a risk of image manipulation.', example='{
+  "govId": 1.0,
+  "fullName": 1.0,
+  "dob": 0.9,
+  "selfiePhoto": 0.8777,
+  "liveness": 0.1152,
+  "imgManipulationScore": 0.2253
+}'),
     passed?: string(name='Passed', description='Whether the authentication is passed.
 
 - Y: Passed
@@ -1662,6 +1673,7 @@ model DeepfakeDetectIntlResponseBody = {
 - **SuspectTemple** Suspected template attack  
 - **SuspectAIGCFace**  Suspected generated face  
 - **SuspectRemake**  Suspected rephotographed face', example='SuspectDeepForgery,SuspectWarterMark'),
+    transactionId?: string(name='TransactionId'),
   }(name='ResultObject', description='Returned result information.'),
 }
 
@@ -1790,6 +1802,7 @@ model DeepfakeDetectIntlStreamResponseBody = {
 - SuspectPSFace: Suspected synthetic attack
 - SuspectTemple: Suspected template attack
 - SuspectRemake: Suspected presentation attack', example='SuspectDeepForgery'),
+    transactionId?: string(name='TransactionId'),
   }(name='ResultObject', description='Returned result information.'),
 }
 
@@ -2546,9 +2559,13 @@ model EkycVerifyRequest {
 > - DocName and DocNo.
 > - IdOcrPictureBase64 or IdOcrPictureUrl.', example='410***************'),
   docType?: string(name='DocType', description='The certificate type, which is uniquely identified by an 8-digit number. For more information, see [Certificate types](https://www.alibabacloud.com/help/en/ekyc/latest/im1u641gyesiqmbg?spm=a2c63.p38356.0.i18#Hu5TG).', example='00000001'),
-  facePictureBase64?: string(name='FacePictureBase64'),
+  facePictureBase64?: string(name='FacePictureBase64', description='The Base64 encoding of the portrait image.
+
+> If you use this method to pass the certificate image, check the image size. Do not pass an oversized image.', example='dsjisaj***oekwodsm'),
   facePictureUrl?: string(name='FacePictureUrl', description='The URL of the portrait image. The URL must be an HTTP or HTTPS link accessible over the Internet.', example='https://digital-face-prod8.oss-cn-hangzhou.aliyuncs.com/1669520556530-expo/default/face/20221127114236530_w3kx2e6t.jpg'),
-  idOcrPictureBase64?: string(name='IdOcrPictureBase64'),
+  idOcrPictureBase64?: string(name='IdOcrPictureBase64', description='The Base64 encoding of the certificate image.
+
+> If you use this method to pass the certificate image, check the image size. Do not pass an oversized image.', example='dsjisaj***oekwodsm'),
   idOcrPictureUrl?: string(name='IdOcrPictureUrl', description='The URL of the certificate image. The URL must be an HTTP or HTTPS link accessible over the Internet.', example='https://digital-cardocr-prod8.oss-cn-hangzhou.aliyuncs.com/1669520556530-expo/default/face/20221127114236530_w3kx2e6t.jpg'),
   idThreshold?: string(name='IdThreshold', description='The custom OCR quality detection threshold mode:
 
@@ -2694,11 +2711,15 @@ async function ekycVerify(request: EkycVerifyRequest): EkycVerifyResponse {
 model FaceCompareRequest {
   facePictureQualityCheck?: string(name='FacePictureQualityCheck', description='是否开启传入人脸图片质量检测', example='N'),
   merchantBizId?: string(name='MerchantBizId', description='A custom unique business ID used for troubleshooting. It can be a combination of up to 32 letters and digits. Make sure that the ID is unique.', example='e0c34a77f5ac40a5aa5e6ed20c353888'),
-  sourceFacePicture?: string(name='SourceFacePicture'),
+  sourceFacePicture?: string(name='SourceFacePicture', description='The Base64 encoding of the portrait photo.
+
+> If you use this method to pass the image, check the image size. Do not pass an oversized image.', example='/9j/4AAQSkZJRgABAQAASxxxxxxx'),
   sourceFacePictureUrl?: string(name='SourceFacePictureUrl', description='The URL of the portrait photo. The URL must be an HTTP or HTTPS link accessible over the Internet.
 
 > You must specify either SourceFacePicture or SourceFacePictureUrl.', example='https://***face1.jpeg'),
-  targetFacePicture?: string(name='TargetFacePicture'),
+  targetFacePicture?: string(name='TargetFacePicture', description='The Base64 encoding of the base photo.
+
+> If you use this method to pass the image, check the image size. Do not pass an oversized image.', example='/9j/4AAQSkZJRgABAQAASxxxxxxx'),
   targetFacePictureUrl?: string(name='TargetFacePictureUrl', description='The URL of the base portrait photo. The URL must be an HTTP or HTTPS link accessible over the Internet.
 
 
@@ -2798,11 +2819,11 @@ FACE_CROSS_COMPARE
 
 This parameter is required.', example='FACE_CROSS_COMPARE'),
   sceneCode?: string(name='SceneCode', description='Custom business scenario ID', example='1234567890'),
-  sourceAFacePicture?: string(name='SourceAFacePicture'),
+  sourceAFacePicture?: string(name='SourceAFacePicture', description='Base64 encoded portrait photo.', example='base64'),
   sourceAFacePictureUrl?: string(name='SourceAFacePictureUrl', description='Portrait image URL, accessible via HTTP or HTTPS on the public network.', example='https://www.xxx.com/1.jpg'),
-  sourceBFacePicture?: string(name='SourceBFacePicture'),
+  sourceBFacePicture?: string(name='SourceBFacePicture', description='Base64 encoded portrait photo.', example='base64'),
   sourceBFacePictureUrl?: string(name='SourceBFacePictureUrl', description='Portrait image URL, accessible via HTTP or HTTPS on the public network.', example='https://www.xxx.com/1.jpg'),
-  sourceCFacePicture?: string(name='SourceCFacePicture'),
+  sourceCFacePicture?: string(name='SourceCFacePicture', description='Base64 encoded portrait photo.', example='base64'),
   sourceCFacePictureUrl?: string(name='SourceCFacePictureUrl', description='Portrait image URL, accessible via HTTP or HTTPS on the public network.', example='https://www.xxx.com/1.jpg'),
 }
 
@@ -3155,7 +3176,7 @@ model FaceLivenessRequest {
 - **T**: allows cropping.
 
 - **F**: Forbidden', example='T'),
-  facePictureBase64?: string(name='FacePictureBase64'),
+  facePictureBase64?: string(name='FacePictureBase64', description='The Base64-encoded image. If you use this parameter to pass the facial image, check the image size. Do not pass an oversized image.', example='dsjisaj***oekwodsm'),
   facePictureUrl?: string(name='FacePictureUrl', description='The URL of the portrait image. The URL must be an HTTP or HTTPS link accessible over the Internet.', example='https://digital-face-prod8.oss-cn-hangzhou.aliyuncs.com/1669520556530-expo/default/face/20221127114236530_w3kx2e6t.jpg'),
   faceQuality?: string(name='FaceQuality', description='Specifies whether to return the facial image quality score. The default value is F.
 
@@ -4345,7 +4366,7 @@ model ModifyFaceGroupResponse = {
 }
 
 /**
- * @summary 修改人脸库
+ * @summary Modify Face Group
  *
  * @param request ModifyFaceGroupRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -4381,7 +4402,7 @@ async function modifyFaceGroupWithOptions(request: ModifyFaceGroupRequest, runti
 }
 
 /**
- * @summary 修改人脸库
+ * @summary Modify Face Group
  *
  * @param request ModifyFaceGroupRequest
  * @return ModifyFaceGroupResponse
@@ -4410,7 +4431,7 @@ model ModifyFaceRecordResponse = {
 }
 
 /**
- * @summary 新增人脸
+ * @summary Add New Face
  *
  * @param request ModifyFaceRecordRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -4443,7 +4464,7 @@ async function modifyFaceRecordWithOptions(request: ModifyFaceRecordRequest, run
 }
 
 /**
- * @summary 新增人脸
+ * @summary Add New Face
  *
  * @param request ModifyFaceRecordRequest
  * @return ModifyFaceRecordResponse
@@ -4489,7 +4510,7 @@ model QueryFaceGroupResponse = {
 }
 
 /**
- * @summary 查询人脸库
+ * @summary Query Face Group
  *
  * @param request QueryFaceGroupRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -4534,7 +4555,7 @@ async function queryFaceGroupWithOptions(request: QueryFaceGroupRequest, runtime
 }
 
 /**
- * @summary 查询人脸库
+ * @summary Query Face Group
  *
  * @param request QueryFaceGroupRequest
  * @return QueryFaceGroupResponse
