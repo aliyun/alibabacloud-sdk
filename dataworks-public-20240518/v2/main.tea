@@ -87,250 +87,454 @@ function getEndpoint(productId: string, regionId: string, endpointRule: string, 
 }
 
 model Catalog {
-  comment?: string(name='Comment'),
-  createTime?: long(name='CreateTime'),
-  id?: string(name='Id'),
-  modifyTime?: long(name='ModifyTime'),
-  name?: string(name='Name'),
-  parentMetaEntityId?: string(name='ParentMetaEntityId'),
-  type?: string(name='Type'),
+  comment?: string(name='Comment', description='The comment.', example='this is a comment'),
+  createTime?: long(name='CreateTime', description='The creation time. The value is a UNIX timestamp. Unit: milliseconds.', example='1722073854000'),
+  id?: string(name='Id', description='The catalog ID. Currently, only the DLF and StarRocks types are supported. For details, see [description of concepts related to metadata entities.](https://help.aliyun.com/document_detail/2880092.html)
+
+*   For the DLF type, the format is `dlf-catalog::catalog_id`.
+*   For the starrocks type, the format is `starrocks-catalog:(instance_id|encoded_jdbc_url):catalog_name`.
+
+> \\\\
+`catalog_id`: The the DLF catalog ID.\\\\
+`instance_id`: The instance ID, required if the data source is registered in instance mode.\\\\
+`encoded_jdbc_url`: The URL-encoded JDBC connection string, required if the data source is registered using a connection string.\\\\
+`catalog_name`: The StarRocks catalog name.', example='dlf-catalog:123456XXX:test_catalog
+starrocks-catalog:c-abc123xxx:default_catalog'),
+  modifyTime?: long(name='ModifyTime', description='The modification time. The value is a UNIX timestamp. Unit: milliseconds.', example='1722073854000'),
+  name?: string(name='Name', description='The catalog name.', example='default_catalog'),
+  parentMetaEntityId?: string(name='ParentMetaEntityId', description='The parent entity ID.
+
+*   For the DLF type, the format of `ParentMetaEntityId` is `dlf`.
+*   For the StarRocks type, the format of `ParentMetaEntityId` is `starrocks:(instance_id|encoded_jdbc_url)`.
+
+> \\\\
+`instance_id`: The instance ID, required when the data source is registered in instance mode.\\\\
+`encoded_jdbc_url`: The URL-encoded JDBC connection string, required if the data source is registered via a connection string.', example='dlf
+starrocks:c-abc123xxx'),
+  type?: string(name='Type', description='The catalog type. The value of this parameter varies based on the type of the metadata crawler.', example='Internal'),
 }
 
 model Column {
   businessMetadata?: {
-    description?: string(name='Description', example='字段1的业务描述'),
-  }(name='BusinessMetadata'),
-  comment?: string(name='Comment', example='字段1'),
-  foreignKey?: boolean(name='ForeignKey', example='false'),
-  id?: string(name='Id', example='maxcompute-column:123456::test_project:default:test_tbl:col1'),
-  name?: string(name='Name', example='col1'),
-  partitionKey?: boolean(name='PartitionKey', example='false'),
-  position?: int32(name='Position', example='1'),
-  primaryKey?: boolean(name='PrimaryKey', example='false'),
-  tableId?: string(name='TableId', example='maxcompute-table:123456::test_project:default:test_tbl'),
-  type?: string(name='Type', example='bigint'),
+    description?: string(name='Description', description='A business-level description of the field (supported only by MaxCompute, HMS (EMR clusters) and DLF.'),
+  }(name='BusinessMetadata', description='Business metadata.'),
+  comment?: string(name='Comment', description='The comment.'),
+  foreignKey?: boolean(name='ForeignKey', description='Specifies whether the column is a foreign key (only supported by MaxCompute).', example='false'),
+  id?: string(name='Id', description='The ID. For more information, see [Description of concepts related to metadata entities](https://help.aliyun.com/document_detail/2880092.html).
+
+The format is: `${EntityType}:${Instance ID or encoded URL}:${Catalog Identifier}:${Database name}:${Schema name}:${Table Name}:${Column name}`. Use empty strings as placeholders for non-existent hierarchy levels.
+
+>  For the MaxCompute and DLF types, use an empty string as the placeholder for the instance ID. For MaxCompute, the database name refers to the MaxCompute project name. If the project has schema enabled, you must specify the schema name. Otherwise, use an empty string as the placeholder for the schema name.
+
+>  For StarRocks, the catalog identifier is the catalog name. For DLF, it is the catalog ID. Other types do not support the catalog level and you can use an empty string as a placeholder.
+
+Examples of ID formats for common types are as follows:
+
+`maxcompute-column:::project_name:[schema_name]:table_name:column_name`
+
+`dlf-column::catalog_id:database_name::table_name:column_name`
+
+`hms-column:instance_id::database_name::table_name:column_name`
+
+`holo-column:instance_id::database_name:schema_name:table_name:column_name`
+
+`mysql-column:(instance_id|encoded_jdbc_url)::database_name::table_name:column_name`
+
+> \\\\
+`instance_id`: The instance ID, required when the data source is registered in instance mode.\\\\
+`encoded_jdbc_url`: The URL-encoded JDBC connection string, which is required when the data source is registered via a connection string.\\\\
+`catalog_id`: The DLF catalog ID.\\\\
+`project_name`: The MaxCompute project name.\\\\
+`database_name`: The database name.\\\\
+`schema_name`: The schema name. For the MaxCompute type, this is required only if the project has enabled schema; otherwise, use an empty string as a placeholder.\\\\
+`table_name`: The table name.\\\\
+`column_name`: The field name.', example='maxcompute-column:123456::test_project:default:test_tbl:col1'),
+  name?: string(name='Name', description='The name.', example='col1'),
+  partitionKey?: boolean(name='PartitionKey', description='Specifies whether the column is a partition key.', example='false'),
+  position?: int32(name='Position', description='The position of the field.', example='1'),
+  primaryKey?: boolean(name='PrimaryKey', description='Specifies whether the column is a primary key (only supported by MaxCompute).', example='false'),
+  tableId?: string(name='TableId', description='The table ID. You can refer to the `Table` object.', example='maxcompute-table:123456::test_project:default:test_tbl'),
+  type?: string(name='Type', description='The type.', example='bigint'),
 }
 
 model CrawlerType {
-  displayName?: string(name='DisplayName', example='Data Lake Formation'),
+  displayName?: string(name='DisplayName', description='The display name of the metadata crawler.', example='Data Lake Formation'),
   supportedEntityTypes?: [ 
     {
-      optional?: boolean(name='Optional', example='如对于maxcompute-schema类型，schema层级是否存在可选（是否开启三层模型）'),
-      parentSubType?: string(name='ParentSubType', example='database'),
-      subType?: string(name='SubType', example='table'),
-      type?: string(name='Type', example='dlf-table'),
+      optional?: boolean(name='Optional', description='Specifies whether the entity type is optional.
+
+For example, whether the schema level of the MaxCompute crawler type is optional depends on whether the three-layer model is enabled for a MaxCompute project.', example='true'),
+      parentSubType?: string(name='ParentSubType', description='The subtype of the parent entity. If the subtype does not exist, null is returned.', example='database'),
+      subType?: string(name='SubType', description='The identifier of the entity subtype. Valid values: `catalog, database, schema, table, and column`.', example='table'),
+      type?: string(name='Type', description='The identifier of the entity type. The value of this parameter varies based on the type of the metadata crawler. Configure this parameter in the `${Crawler type}-${Subtype}` format.', example='dlf-table'),
     }
-  ](name='SupportedEntityTypes'),
-  type?: string(name='Type', example='dlf'),
+  ](name='SupportedEntityTypes', description='The supported entity types. The entity types are sorted based on the declaration order.'),
+  type?: string(name='Type', description='The identifier of the metadata crawler type. Valid values:
+
+*   `maxcompute`
+*   `dlf`
+*   `hms`: This type of crawler can be used to collect metadata from E-MapReduce (EMR) and CDH Hive clusters.
+*   `holo`
+*   `mysql`
+*   `oracle`
+*   `postgresql`
+*   `sqlserver`
+*   `analyticdb_for_mysql`
+*   `ads`
+*   `hybriddb_for_postgresql`
+*   `ots`
+*   `clickhouse`
+*   `starrocks`: This type of crawler can be used to query metadata entities only in internal catalogs.', example='dlf'),
 }
 
 model DataQualityEvaluationTask {
-  dataSourceId?: long(name='DataSourceId', example='201'),
-  description?: string(name='Description', example='This is a daily run data quality evaluation plan.'),
+  dataSourceId?: long(name='DataSourceId', description='The ID of the data source that is used for task running.', example='201'),
+  description?: string(name='Description', description='The description of the task. The description can be up to 65,535 characters in length.', example='This is a daily run data quality evaluation plan.'),
   hooks?: [ 
     {
-      condition?: string(name='Condition', example='${severity} == "High" AND ${status} == "Critical"'),
-      type?: string(name='Type', example='BlockTaskInstance'),
+      condition?: string(name='Condition', description='The trigger configuration of the callback event.', example='${severity} == "High" AND ${status} == "Critical"'),
+      type?: string(name='Type', description='The type of the callback event. Valid values:
+
+*   BlockTaskInstance. The value indicates that an auto triggered node is blocked.', example='BlockTaskInstance'),
     }
-  ](name='Hooks'),
-  id?: long(name='Id', example='10001'),
-  name?: string(name='Name', example='质量校验任务'),
+  ](name='Hooks', description='The callback configurations of the task during the instance lifecycle. Blocking an auto triggered node is a type of callback event. Only this type is supported.'),
+  id?: long(name='Id', description='The ID of the data quality monitoring task.', example='10001'),
+  name?: string(name='Name', description='The name of the data quality monitoring task. The name can be up to 255 characters in length and can contain digits, letters, and punctuation marks.'),
   notifications?: [ 
     {
-      condition?: string(name='Condition', example='${blockType} == "Strong"'),
+      condition?: string(name='Condition', description='The trigger condition of the alert notification.', example='${blockType} == "Strong"'),
       notifications?: [ 
         {
           notificationChannels?: [ 
             {
-              channels?: [ string ](name='Channels'),
+              channels?: [ string ](name='Channels', description='The alert notification method.', example='Mail'),
             }
-          ](name='NotificationChannels'),
+          ](name='NotificationChannels', description='The alert notification methods.'),
           notificationReceivers?: [ 
             {
-              extension?: string(name='Extension', example='{"atAll":"true"}'),
-              receiverType?: string(name='ReceiverType', example='AliUid'),
-              receiverValues?: [ string ](name='ReceiverValues'),
+              extension?: string(name='Extension', description='The extended information in the JSON format. For example, the DingTalk chatbot can remind all members in a DingTalk group by using the at sign (@).', example='{"atAll":"true"}'),
+              receiverType?: string(name='ReceiverType', description='The type of the alert recipient.', example='AliUid'),
+              receiverValues?: [ string ](name='ReceiverValues', description='The alert recipients.'),
             }
-          ](name='NotificationReceivers'),
+          ](name='NotificationReceivers', description='The alert recipients.'),
         }
-      ](name='Notifications'),
+      ](name='Notifications', description='The configurations for alert notifications.'),
     }
-  ](name='Notifications'),
-  projectId?: long(name='ProjectId', example='100'),
-  runtimeConf?: string(name='RuntimeConf', example='{ "queue": "default", "sqlEngine": "SPARK_SQL" }'),
+  ](name='Notifications', description='The configurations for alert notifications.'),
+  projectId?: long(name='ProjectId', description='The DataWorks workspace ID.', example='100'),
+  runtimeConf?: string(name='RuntimeConf', description='The configuration of the data source. The value of the queue field is default, and that of the sqlEngine field can be set to SPARK_SQL, KYUUBI, PRESTO_SQL, or HIVE_SQL. The value default indicates the YARN queue for E-MapReduce (EMR) tasks.', example='{ "queue": "default", "sqlEngine": "SPARK_SQL" }'),
   target?: {
-    databaseType?: string(name='DatabaseType', example='maxcompute'),
-    partitionSpec?: string(name='PartitionSpec', example='ds=$[yyyymmdd-1]'),
-    tableGuid?: string(name='TableGuid', example='odps.unit_test.tb_unit_test'),
-    type?: string(name='Type', example='Table'),
-  }(name='Target'),
-  tenantId?: long(name='TenantId', example='10'),
+    databaseType?: string(name='DatabaseType', description='The type of the database to which the table belongs. Valid values:
+
+*   maxcompute
+*   emr
+*   cdh
+*   hologres
+*   analyticdb_for_postgresql
+*   analyticdb_for_mysql
+*   starrocks', example='maxcompute'),
+    partitionSpec?: string(name='PartitionSpec', description='The configuration of the partitioned table.', example='ds=$[yyyymmdd-1]'),
+    tableGuid?: string(name='TableGuid', description='The ID of the table in Data Map.', example='odps.unit_test.tb_unit_test'),
+    type?: string(name='Type', description='The type of the monitored object. Valid values:
+
+*   Table', example='Table'),
+  }(name='Target', description='The monitored object of the task.'),
+  tenantId?: long(name='TenantId', description='The DataWorks tenant ID.', example='10'),
   trigger?: {
-    taskIds?: [ long ](name='TaskIds'),
-    type?: string(name='Type', example='ByScheduledTaskInstance'),
-  }(name='Trigger'),
+    taskIds?: [ long ](name='TaskIds', description='The IDs of the auto triggered nodes of which the instances are successfully run. This parameter takes effect only if the Type parameter is set to ByScheduledTaskInstance.'),
+    type?: string(name='Type', description='The trigger condition of the task. Valid values:
+
+*   ByScheduledTaskInstance. The value indicates that the task is triggered when the instance of an auto triggered node is successfully run.', example='ByScheduledTaskInstance'),
+  }(name='Trigger', description='The trigger configuration of the task.'),
 }
 
 model DataQualityEvaluationTaskInstance {
-  createTime?: long(name='CreateTime', example='1710239005403'),
-  finishTime?: long(name='FinishTime', example='1710239005403'),
-  id?: long(name='Id', example='10001'),
-  status?: string(name='Status', example='Passed'),
+  createTime?: long(name='CreateTime', description='The time at which the instance was generated.', example='1710239005403'),
+  finishTime?: long(name='FinishTime', description='The time at which the instance finished running.', example='1710239005403'),
+  id?: long(name='Id', description='The instance ID.', example='10001'),
+  status?: string(name='Status', description='The status of the instance.', example='Passed'),
   task?: {
-    dataSourceId?: long(name='DataSourceId', example='201'),
+    dataSourceId?: long(name='DataSourceId', description='The ID of the data source that is used for task running.', example='201'),
     hooks?: [ 
       {
-        condition?: string(name='Condition', example='${severity} == "High" AND ${status} == "Critical"'),
-        type?: string(name='Type', example='BlockTaskInstance'),
+        condition?: string(name='Condition', description='The trigger configuration of the callback event.', example='${severity} == "High" AND ${status} == "Critical"'),
+        type?: string(name='Type', description='The type of the callback event. Valid values:
+
+*   BlockTaskInstance: An auto triggered node is blocked.', example='BlockTaskInstance'),
       }
-    ](name='Hooks'),
-    id?: long(name='Id', example='10001'),
-    name?: string(name='Name', example='质量校验任务'),
+    ](name='Hooks', description='The callback configurations of the task during the instance lifecycle. Blocking an auto triggered node is a type of callback event. Only this type is supported.'),
+    id?: long(name='Id', description='The ID of the data quality monitoring task.', example='10001'),
+    name?: string(name='Name', description='The name of the data quality monitoring task. The name can be up to 255 characters in length and can contain digits, letters, and punctuation marks.'),
     notifications?: [ 
       {
-        condition?: string(name='Condition', example='${blockType} == "Strong"'),
+        condition?: string(name='Condition', description='The trigger condition of the alert notification.', example='${blockType} == "Strong"'),
         notifications?: [ 
           {
             notificationChannels?: [ 
               {
-                channels?: [ string ](name='Channels'),
+                channels?: [ string ](name='Channels', description='The alert notification methods.', example='Mail'),
               }
-            ](name='NotificationChannels'),
+            ](name='NotificationChannels', description='The alert notification methods.'),
             notificationReceivers?: [ 
               {
-                extension?: string(name='Extension', example='{"atAll":"true"}'),
-                receiverType?: string(name='ReceiverType', example='AliUid'),
-                receiverValues?: [ string ](name='ReceiverValues'),
+                extension?: string(name='Extension', description='The extended information in the JSON format. For example, the DingTalk chatbot can remind all members in a DingTalk group by using the at sign (@).', example='{"atAll":"true"}'),
+                receiverType?: string(name='ReceiverType', description='The alert recipient configuration.', example='AliUid'),
+                receiverValues?: [ string ](name='ReceiverValues', description='The alert recipients.'),
               }
-            ](name='NotificationReceivers'),
+            ](name='NotificationReceivers', description='The alert recipient configurations.'),
           }
-        ](name='Notifications'),
+        ](name='Notifications', description='The configurations for the alert notification.'),
       }
-    ](name='Notifications'),
-    projectId?: long(name='ProjectId'),
-    runtimeConf?: string(name='RuntimeConf', example='{ "queue": "default", "sqlEngine": "SPARK_SQL" }'),
+    ](name='Notifications', description='The subscription configurations for alert notifications.'),
+    projectId?: long(name='ProjectId', description='The DataWorks workspace ID.', example='2626'),
+    runtimeConf?: string(name='RuntimeConf', description='The configuration of the data source. The value of the queue field is default, and that of the sqlEngine field can be SPARK_SQL, KYUUBI, PRESTO_SQL, or HIVE_SQL to collect EMR data. The value default indicates the YARN queue for E-MapReduce (EMR) tasks.', example='{ "queue": "default", "sqlEngine": "SPARK_SQL" }'),
     target?: {
-      databaseType?: string(name='DatabaseType', example='maxcompute'),
-      partitionSpec?: string(name='PartitionSpec', example='ds=$[yyyymmdd-1]'),
-      tableGuid?: string(name='TableGuid', example='odps.unit_test.tb_unit_test'),
-      type?: string(name='Type', example='Table'),
-    }(name='Target'),
-    tenantId?: long(name='TenantId'),
+      databaseType?: string(name='DatabaseType', description='The type of the database to which the table belongs. Valid values:
+
+*   maxcompute
+*   emr
+*   cdh
+*   hologres
+*   analyticdb_for_postgresql
+*   analyticdb_for_mysql
+*   starrocks', example='maxcompute'),
+      partitionSpec?: string(name='PartitionSpec', description='The configuration of the partitioned table.', example='ds=$[yyyymmdd-1]'),
+      tableGuid?: string(name='TableGuid', description='The ID of the table in Data Map.', example='odps.unit_test.tb_unit_test'),
+      type?: string(name='Type', description='The type of the monitored object. Valid values:
+
+*   Table', example='Table'),
+    }(name='Target', description='The monitored object of the data quality monitoring task.'),
+    tenantId?: long(name='TenantId', description='The DataWorks tenant ID.', example='195820716552192'),
     trigger?: {
-      taskIds?: [ long ](name='TaskIds'),
-      type?: string(name='Type', example='ByScheduledTaskInstance'),
-    }(name='Trigger'),
-  }(name='Task'),
+      taskIds?: [ long ](name='TaskIds', description='The IDs of the auto triggered nodes of which the instances are successfully run. This parameter takes effect only if the Type parameter is set to ByScheduledTaskInstance.'),
+      type?: string(name='Type', description='The trigger condition of the task. Valid values:
+
+*   ByScheduledTaskInstance: The task is triggered when the instance of an auto triggered node is successfully run.', example='ByScheduledTaskInstance'),
+    }(name='Trigger', description='The trigger configuration of the data quality monitoring task.'),
+  }(name='Task', description='The snapshot of the configurations for the data quality monitoring task when the task starts.'),
 }
 
 model DataQualityResult {
   details?: [ 
     {
-      checkedValue?: string(name='CheckedValue', example='100.0'),
-      referencedValue?: string(name='ReferencedValue', example='0.0'),
-      status?: string(name='Status', example='Passed'),
+      checkedValue?: string(name='CheckedValue', description='The value that is used for comparison with the threshold.', example='100.0'),
+      referencedValue?: string(name='ReferencedValue', description='The value that is calculated based on sample data. The value serves as a baseline value during the calculation of the value of the CheckedValue parameter.', example='0.0'),
+      status?: string(name='Status', description='The comparison result between the value specified by the CheckedValue parameter and the threshold.', example='Passed'),
     }
-  ](name='Details'),
-  id?: long(name='Id', example='10001'),
+  ](name='Details', description='The information about the data quality check.'),
+  id?: long(name='Id', description='The ID of the check result.', example='10001'),
   rule?: {
     checkingConfig?: {
-      referencedSamplesFilter?: string(name='ReferencedSamplesFilter', example='{ "bizdate": [ "-1", "-7", "-1m" ] }'),
+      referencedSamplesFilter?: string(name='ReferencedSamplesFilter', description='The method that is used to query the referenced samples. To obtain some types of thresholds, you need to query reference values. In this example, an expression is used to indicate the query method of referenced samples.', example='{ "bizdate": [ "-1", "-7", "-1m" ] }'),
       thresholds?: {
         critical?: {
-          operator?: string(name='Operator', example='>'),
-          value?: string(name='Value', example='100.0'),
-        }(name='Critical'),
+          operator?: string(name='Operator', description='The comparison operator. Valid values:
+
+*   \\\\>
+*   \\\\>=
+*   <
+*   <=
+*   !=
+*   \\\\=', example='>'),
+          value?: string(name='Value', description='The threshold value.', example='100.0'),
+        }(name='Critical', description='The threshold settings for critical alerts.'),
         expected?: {
-          operator?: string(name='Operator', example='>'),
-          value?: string(name='Value', example='100.0'),
-        }(name='Expected'),
+          operator?: string(name='Operator', description='The comparison operator. Valid values:
+
+*   \\\\>
+*   \\\\>=
+*   <
+*   <=
+*   !=
+*   \\\\=', example='>'),
+          value?: string(name='Value', description='The threshold value.', example='100.0'),
+        }(name='Expected', description='The expected threshold setting.'),
         warned?: {
-          operator?: string(name='Operator', example='>'),
-          value?: string(name='Value', example='100.0'),
-        }(name='Warned'),
-      }(name='Thresholds'),
-      type?: string(name='Type', example='Fixed'),
-    }(name='CheckingConfig'),
-    description?: string(name='Description', example='this is a odps _sql task'),
-    enabled?: boolean(name='Enabled', example='true'),
+          operator?: string(name='Operator', description='The comparison operator. Valid values:
+
+*   \\\\>
+*   \\\\>=
+*   <
+*   <=
+*   !=
+*   \\\\=', example='>'),
+          value?: string(name='Value', description='The threshold value.', example='100.0'),
+        }(name='Warned', description='The threshold settings for normal alerts.'),
+      }(name='Thresholds', description='The threshold settings.'),
+      type?: string(name='Type', description='The threshold calculation method. Valid values:
+
+*   Fixed
+*   Fluctation
+*   FluctationDiscreate
+*   Auto
+*   Average
+*   Variance', example='Fixed'),
+    }(name='CheckingConfig', description='The check settings for sample data.'),
+    description?: string(name='Description', description='The description of the rule. The description can be up to 500 characters in length.', example='this is a odps _sql task'),
+    enabled?: boolean(name='Enabled', description='Indicates whether the rule is enabled.', example='true'),
     errorHandlers?: [ 
       {
-        errorDataFilter?: string(name='ErrorDataFilter', example='SELECT * FROM tb_api_log WHERE id IS NULL'),
-        type?: string(name='Type', example='SaveErrorData'),
+        errorDataFilter?: string(name='ErrorDataFilter', description='The SQL statement that is used to filter failed tasks. If the rule is defined by custom SQL statements, you must specify an SQL statement to filter failed tasks.', example='SELECT * FROM tb_api_log WHERE id IS NULL'),
+        type?: string(name='Type', description='The type of the operation.', example='SaveErrorData'),
       }
-    ](name='ErrorHandlers'),
-    id?: long(name='Id', example='100001'),
-    name?: string(name='Name', example='表不能为空'),
-    projectId?: long(name='ProjectId', example='100'),
+    ](name='ErrorHandlers', description='The operations that you can perform after the rule-based check fails.'),
+    id?: long(name='Id', description='The rule ID.', example='100001'),
+    name?: string(name='Name', description='The name of the rule. The name can be up to 255 characters in length and can contain digits, letters, and punctuation marks.'),
+    projectId?: long(name='ProjectId', description='The DataWorks workspace ID.', example='100'),
     samplingConfig?: {
-      metric?: string(name='Metric', example='Min'),
-      metricParameters?: string(name='MetricParameters', example='{ "Columns": [ "id", "name" ] }'),
-      samplingFilter?: string(name='SamplingFilter', example='id IS NULL'),
-      settingConfig?: string(name='SettingConfig', example='SET odps.sql.udf.timeout=600s;'),
-    }(name='SamplingConfig'),
-    severity?: string(name='Severity', example='High'),
+      metric?: string(name='Metric', description='The metrics used for sampling. Valid values:
+
+*   Count: the number of rows in the table.
+*   Min: the minimum value of the field.
+*   Max: the maximum value of the field.
+*   Avg: the average value of the field.
+*   DistinctCount: the number of unique values of the field after deduplication.
+*   DistinctPercent: the proportion of the number of unique values of the field after deduplication to the number of rows in the table.
+*   DuplicatedCount: the number of duplicated values of the field.
+*   DuplicatedPercent: the proportion of the number of duplicated values of the field to the number of rows in the table.
+*   TableSize: the table size.
+*   NullValueCount: the number of rows in which the field value is null.
+*   NullValuePercent: the proportion of the number of rows in which the field value is null to the number of rows in the table.
+*   GroupCount: the field value and the number of rows for each field value.
+*   CountNotIn: the number of rows in which the field values are different from the referenced values that you specified in the rule.
+*   CountDistinctNotIn: the number of unique values that are different from the referenced values that you specified in the rule after deduplication.
+*   UserDefinedSql: indicates that data is sampled by executing custom SQL statements.', example='Min'),
+      metricParameters?: string(name='MetricParameters', description='The parameters required for sampling.', example='{ "Columns": [ "id", "name" ] }'),
+      samplingFilter?: string(name='SamplingFilter', description='The statements that are used to filter unnecessary data during sampling. The statements can be up to 16,777,215 characters in length.', example='id IS NULL'),
+      settingConfig?: string(name='SettingConfig', description='The statements that are used to configure the parameters required for sampling before you execute the sampling statements. The statements can be up to 1,000 characters in length. Only the MaxCompute database is supported.', example='SET odps.sql.udf.timeout=600s;'),
+    }(name='SamplingConfig', description='The sampling settings.'),
+    severity?: string(name='Severity', description='The strength of the rule.', example='High'),
     target?: {
-      databaseType?: string(name='DatabaseType', example='maxcompute'),
-      partitionSpec?: string(name='PartitionSpec', example='ds=$[yyyymmdd-1]'),
-      tableGuid?: string(name='TableGuid', example='odps.unit_test.tb_unit_test'),
-      type?: string(name='Type', example='Table'),
-    }(name='Target'),
-    templateCode?: string(name='TemplateCode', example='SYSTEM:user_defined_sql'),
-    tenantId?: long(name='TenantId', example='1'),
-  }(name='Rule'),
-  sample?: string(name='Sample', example='[   {     "gender": "male",     "_count": 100   }, {     "gender": "female",     "_count": 100   } ]'),
-  status?: string(name='Status', example='Passed'),
-  taskInstanceId?: long(name='TaskInstanceId', example='20001'),
+      databaseType?: string(name='DatabaseType', description='The type of the database to which the table belongs. Valid values:
+
+*   maxcompute
+*   emr
+*   cdh
+*   hologres
+*   analyticdb_for_postgresql
+*   analyticdb_for_mysql
+*   starrocks', example='maxcompute'),
+      partitionSpec?: string(name='PartitionSpec', description='The configuration of the partitioned table.', example='ds=$[yyyymmdd-1]'),
+      tableGuid?: string(name='TableGuid', description='The ID of the table in Data Map.', example='odps.unit_test.tb_unit_test'),
+      type?: string(name='Type', description='The type of the monitored object. Valid values:
+
+*   Table', example='Table'),
+    }(name='Target', description='The monitored object of the rule.'),
+    templateCode?: string(name='TemplateCode', description='The template used by the rule.', example='system::user_defined'),
+    tenantId?: long(name='TenantId', description='The DataWorks tenant ID.', example='1'),
+  }(name='Rule', description='The snapshot of the rule configuration when the check starts.'),
+  sample?: string(name='Sample', description='The sample values used for the check.', example='[   {     "gender": "male",     "_count": 100   }, {     "gender": "female",     "_count": 100   } ]'),
+  status?: string(name='Status', description='The status of the check result.', example='Passed'),
+  taskInstanceId?: long(name='TaskInstanceId', description='The ID of the instance generated by the check.', example='20001'),
 }
 
 model DataQualityRule {
   checkingConfig?: {
-    referencedSamplesFilter?: string(name='ReferencedSamplesFilter', example='{ "bizdate": [ "-1", "-7", "-1m" ] }'),
+    referencedSamplesFilter?: string(name='ReferencedSamplesFilter', description='The method that is used to query the referenced samples. To obtain some types of thresholds, you need to query reference values. In this example, an expression is used to indicate the query method of referenced samples.', example='{ "bizdate": [ "-1", "-7", "-1m" ] }'),
     thresholds?: {
       critical?: {
         expression?: string(name='Expression', example='波动率类型规则使用，通过表达式来表示波动阈值。如：波动上升大于0.01： $checkValue > 0.01  波动下降大于0.01：$checkValue < -0.01   波动率绝对值：abs($checkValue) > 0.01'),
-        operator?: string(name='Operator', example='>'),
-        value?: string(name='Value', example='100.0'),
-      }(name='Critical'),
+        operator?: string(name='Operator', description='The comparison operator. Valid values:
+
+*   />
+*   />=
+*   <
+*   <=
+*   !=
+*   \\\\=', example='>'),
+        value?: string(name='Value', description='The threshold value.', example='100.0'),
+      }(name='Critical', description='The threshold settings for critical alerts.'),
       expected?: {
         expression?: string(name='Expression', example='波动率类型规则使用，通过表达式来表示波动阈值。如：波动上升大于0.01： $checkValue > 0.01  波动下降大于0.01：$checkValue < -0.01   波动率绝对值：abs($checkValue) > 0.01'),
-        operator?: string(name='Operator', example='>'),
-        value?: string(name='Value', example='100.0'),
-      }(name='Expected'),
+        operator?: string(name='Operator', description='The comparison operator. Valid values:
+
+*   />
+*   />=
+*   <
+*   <=
+*   !=
+*   \\\\=', example='>'),
+        value?: string(name='Value', description='The threshold value.', example='100.0'),
+      }(name='Expected', description='The expected threshold setting.'),
       warned?: {
         expression?: string(name='Expression', example='波动率类型规则使用，通过表达式来表示波动阈值。如：波动上升大于0.01： $checkValue > 0.01  波动下降大于0.01：$checkValue < -0.01   波动率绝对值：abs($checkValue) > 0.01'),
-        operator?: string(name='Operator', example='>'),
-        value?: string(name='Value', example='100.0'),
-      }(name='Warned'),
-    }(name='Thresholds'),
-    type?: string(name='Type', example='Fixed'),
-  }(name='CheckingConfig'),
-  description?: string(name='Description', example='this is a odps _sql task'),
-  enabled?: boolean(name='Enabled', example='true'),
+        operator?: string(name='Operator', description='The comparison operator. Valid values:
+
+*   />
+*   />=
+*   <
+*   <=
+*   !=
+*   \\\\=', example='>'),
+        value?: string(name='Value', description='The threshold value.', example='100.0'),
+      }(name='Warned', description='The threshold settings for normal alerts.'),
+    }(name='Thresholds', description='The threshold settings.'),
+    type?: string(name='Type', description='The threshold calculation method. Valid values:
+
+*   Fixed
+*   Fluctation
+*   FluctationDiscreate
+*   Auto
+*   Average
+*   Variance', example='Fixed'),
+  }(name='CheckingConfig', description='The check settings for sample data.'),
+  description?: string(name='Description', description='The description of the rule. The description can be up to 500 characters in length.', example='this is a odps _sql task'),
+  enabled?: boolean(name='Enabled', description='Indicates whether the rule is enabled.', example='true'),
   errorHandlers?: [ 
     {
-      errorDataFilter?: string(name='ErrorDataFilter', example='SELECT * FROM tb_api_log WHERE id IS NULL'),
-      type?: string(name='Type', example='SaveErrorData'),
+      errorDataFilter?: string(name='ErrorDataFilter', description='The SQL statement that is used to filter failed tasks. If the rule is defined by custom SQL statements, you must specify an SQL statement to filter failed tasks.', example='SELECT * FROM tb_api_log WHERE id IS NULL'),
+      type?: string(name='Type', description='The type of the operation. Valid values:
+
+*   SaveErrorData', example='SaveErrorData'),
     }
-  ](name='ErrorHandlers'),
-  id?: long(name='Id', example='1'),
-  name?: string(name='Name', example='表不能为空'),
-  projectId?: long(name='ProjectId', example='100'),
+  ](name='ErrorHandlers', description='The operations that you can perform after the rule-based check fails.'),
+  id?: long(name='Id', description='The rule ID.', example='1'),
+  name?: string(name='Name', description='The rule name. The name can be up to 255 characters in length and can contain digits, letters, and punctuation marks.'),
+  projectId?: long(name='ProjectId', description='The DataWorks workspace ID.', example='100'),
   samplingConfig?: {
-    metric?: string(name='Metric', example='Min'),
-    metricParameters?: string(name='MetricParameters', example='{ "Columns": [ "id", "name" ] }'),
-    samplingFilter?: string(name='SamplingFilter', example='id IS NULL'),
-    settingConfig?: string(name='SettingConfig', example='SET odps.sql.udf.timeout=600s;'),
-  }(name='SamplingConfig'),
-  severity?: string(name='Severity', example='High'),
+    metric?: string(name='Metric', description='The metrics used for sampling. Valid values:
+
+*   Count: the number of rows in the table.
+*   Min: the minimum value of the field.
+*   Max: the maximum value of the field.
+*   Avg: the average value of the field.
+*   DistinctCount: the number of unique values of the field after deduplication.
+*   DistinctPercent: the percentage of the number of unique values of the field after deduplication to the number of rows in the table.
+*   DuplicatedCount: the number of duplicated values in the field.
+*   DuplicatedPercent: the percentage of the number of duplicated values of the field to the number of rows in the table.
+*   TableSize: the table size.
+*   NullValueCount: the number of rows in which the field is set to null.
+*   NullValuePercent: the percentage of the number of rows in which the field is set to null to the number of rows in the table.
+*   GroupCount: the field value and the number of rows for each field value.
+*   CountNotIn: the number of rows in which the field values are different from the referenced values that you specified in the rule.
+*   CountDistinctNotIn: the number of unique values that are different from the referenced values that you specified in the rule after deduplication.
+*   UserDefinedSql: indicates that the data is sampled by executing custom SQL statements.', example='Min'),
+    metricParameters?: string(name='MetricParameters', description='The parameters required for sampling.', example='{ "Columns": [ "id", "name" ] }'),
+    samplingFilter?: string(name='SamplingFilter', description='The statements that are used to filter unnecessary data during sampling. The statements can be up to 16,777,215 characters in length.', example='id IS NULL'),
+    settingConfig?: string(name='SettingConfig', description='The statements that are used to configure the parameters required for sampling before you execute the sampling statements. The statements can be up to 1,000 characters in length. Only the MaxCompute database is supported.', example='SET odps.sql.udf.timeout=600s;'),
+  }(name='SamplingConfig', description='The settings for sampling.'),
+  severity?: string(name='Severity', description='The strength of the rule. Valid values:
+
+*   Normal
+*   High', example='High'),
   target?: {
-    databaseType?: string(name='DatabaseType', example='maxcompute'),
-    partitionSpec?: string(name='PartitionSpec', example='ds=$[yyyymmdd-1]'),
-    tableGuid?: string(name='TableGuid', example='odps.unit_test.tb_unit_test'),
-    type?: string(name='Type', example='Table'),
-  }(name='Target'),
-  templateCode?: string(name='TemplateCode', example='SYSTEM:user_defined_sql'),
-  tenantId?: long(name='TenantId', example='1'),
+    databaseType?: string(name='DatabaseType', description='The type of the database to which the table belongs. Valid values:
+
+*   maxcompute
+*   emr
+*   cdh
+*   hologres
+*   analyticdb_for_postgresql
+*   analyticdb_for_mysql
+*   starrocks', example='maxcompute'),
+    partitionSpec?: string(name='PartitionSpec', description='The configuration of the partitioned table.', example='ds=$[yyyymmdd-1]'),
+    tableGuid?: string(name='TableGuid', description='The ID of the table in Data Map.', example='odps.unit_test.tb_unit_test'),
+    type?: string(name='Type', description='The type of the monitored object. Valid values:
+
+*   Table', example='Table'),
+  }(name='Target', description='The monitored object of the rule.'),
+  templateCode?: string(name='TemplateCode', description='The template used by the rule.', example='system::user_defined'),
+  tenantId?: long(name='TenantId', description='The DataWorks tenant ID.', example='1'),
 }
 
 model DataQualityRuleTemplate {
@@ -352,155 +556,340 @@ model DataQualityRuleTemplate {
 }
 
 model Database {
-  comment?: string(name='Comment', example='test comment'),
-  createTime?: long(name='CreateTime', example='1736852168000'),
-  id?: string(name='Id', example='holo-database:h-xxxx::test_db'),
-  locationUri?: string(name='LocationUri', example='oss://test-bucket/test_db'),
-  modifyTime?: long(name='ModifyTime', example='1736852168000'),
-  name?: string(name='Name', example='test_db'),
-  parentMetaEntityId?: string(name='ParentMetaEntityId', example='holo:h-xxxx'),
+  comment?: string(name='Comment', description='The comments.', example='test comment'),
+  createTime?: long(name='CreateTime', description='The creation time. This value is a UNIX timestamp. Unit: milliseconds.', example='1736852168000'),
+  id?: string(name='Id', description='The database ID. For more information, see [Concepts related to metadata entities](https://help.aliyun.com/document_detail/2880092.html).
+
+The common format of this parameter is `${Entity type}:${Instance ID or escaped URL}:${Catalog identifier}:${Database name}`. If a level does not exist, specify an empty string as a placeholder.
+
+>  For StarRocks data sources, specify a catalog name at the Catalog identifier level. For DLF data sources, specify a catalog ID at the Catalog identifier level. Other types of data sources do not support the Catalog identifier level. You can specify an empty string as a placeholder.
+
+You can configure this parameter in one of the following formats based on your data source type:
+
+`dlf-database::catalog_id:database_name`
+
+`holo-database:instance_id::database_name`
+
+`mysql-database:(instance_id|encoded_jdbc_url)::database_name`
+
+> \\\\
+`catalog_id`: the ID of a DLF catalog.\\\\
+`instance_id`: the ID of an instance. If the related data source is added to DataWorks in Alibaba Cloud instance mode, you must configure this parameter.\\\\
+`encoded_jdbc_url`: the JDBC connection string that is URL-encoded. If the related data source is added to DataWorks in connection string mode, you must configure this parameter.\\\\
+`database_name`: the name of a database.', example='holo-database:h-xxxx::test_db'),
+  locationUri?: string(name='LocationUri', description='The uniform resource identifier (URI) of the storage location.', example='oss://test-bucket/test_db'),
+  modifyTime?: long(name='ModifyTime', description='The update time. This value is a UNIX timestamp. Unit: milliseconds.', example='1736852168000'),
+  name?: string(name='Name', description='The database name.', example='test_db'),
+  parentMetaEntityId?: string(name='ParentMetaEntityId', description='The parent entity ID. For more information, see [Concepts related to metadata entities](https://help.aliyun.com/document_detail/2880092.html).
+
+You can call the ListCrawlerTypes operation to query the parent entity types.
+
+*   If the parent entity is a catalog, you can configure the `ParentMetaEntityId` parameter by referring to the `Catalog` topic.
+*   If the parent entity is a metadata crawler, you can configure the `ParentMetaEntityId` parameter in the `${Crawler type}:${Instance ID or escaped URL}` format.
+
+You can configure the ParentMetaEntityId parameter in one of the following formats based on your data source type:
+
+`dlf-catalog::catalog_id`
+
+`holo:instance_id`
+
+`mysql:(instance_id|encoded_jdbc_url)`
+
+> \\\\
+`catalog_id`: the ID of a DLF catalog.\\\\
+`instance_id`: the ID of an instance. If the related data source is added to DataWorks in Alibaba Cloud instance mode, you must configure this parameter.\\\\
+`encoded_jdbc_url`: the JDBC connection string that is URL-encoded. If the related data source is added to DataWorks in connection string mode, you must configure this parameter.', example='holo:h-xxxx'),
 }
 
 model Dataset {
-  comment?: string(name='Comment'),
-  createTime?: long(name='CreateTime'),
-  creatorId?: string(name='CreatorId'),
-  dataType?: string(name='DataType'),
-  id?: string(name='Id'),
+  comment?: string(name='Comment', description='The description of the dataset. The length cannot exceed 1024 characters.'),
+  createTime?: long(name='CreateTime', description='The creation time. This value is a UNIX timestamp in milliseconds.', example='1736756055000'),
+  creatorId?: string(name='CreatorId', description='The ID of the creator.', example='210484359'),
+  dataType?: string(name='DataType', description='The data type. Valid values:
+
+*   COMMON
+*   PIC
+*   TEXT
+*   TABLE
+*   VIDEO
+*   AUDIO
+*   INDEX', example='COMMON'),
+  id?: string(name='Id', description='The dataset ID.', example='dataworks-dataset:1gxxxqjx155usz3hrv'),
   labels?: [
     DatasetLabel
-  ](name='Labels'),
-  latestVersion?: DatasetVersion(name='LatestVersion'),
-  modifyTime?: long(name='ModifyTime'),
-  name?: string(name='Name'),
-  origin?: string(name='Origin'),
-  projectId?: long(name='ProjectId'),
-  readme?: string(name='Readme'),
-  storageType?: string(name='StorageType'),
+  ](name='Labels', description='Dataset tags. Supported only for PAI datasets.'),
+  latestVersion?: DatasetVersion(name='LatestVersion', description='The latest dataset version object.'),
+  modifyTime?: long(name='ModifyTime', description='The modification time. This value is a UNIX timestamp in milliseconds.', example='1736756055000'),
+  name?: string(name='Name', description='The dataset name. It must be a non-empty string and cannot exceed 128 characters.', example='test_dataset'),
+  origin?: string(name='Origin', description='The source of the dataset. Currently supported sources:
+
+*   DataWorks
+*   PAI', example='DataWorks'),
+  projectId?: long(name='ProjectId', description='The DataWorks workspace ID.', example='123456'),
+  readme?: string(name='Readme', description='Instructions for using the dataset. Markdown rich text is supported.', example='## introduction'),
+  storageType?: string(name='StorageType', description='The storage type. Valid values:
+
+*   OSS: Object Storage Service
+*   NAS: General-purpose NAS file systems
+*   EXTREM_NAS: Extreme NAS file systems
+*   DLF_LANCE: Data Lake Formation
+*   CPFS: Cloud Paralleled File System
+*   BMCPFS: CPFS for Lingjun
+*   MAXCOMPUTE: MaxCompute table', example='OSS'),
 }
 
 model DatasetLabel {
-  key?: string(name='Key'),
-  value?: string(name='Value'),
+  key?: string(name='Key', description='Dataset label keys', example='key1'),
+  value?: string(name='Value', description='Dataset label values', example='value1'),
 }
 
 model DatasetVersion {
-  comment?: string(name='Comment'),
-  createTime?: long(name='CreateTime'),
-  creatorId?: string(name='CreatorId'),
-  datasetId?: string(name='DatasetId'),
-  id?: string(name='Id'),
-  importInfo?: map[string]string(name='ImportInfo'),
+  comment?: string(name='Comment', description='The dataset version description.'),
+  createTime?: long(name='CreateTime', description='Creation time (milliseconds)', example='1736756055000'),
+  creatorId?: string(name='CreatorId', description='The creator ID.', example='17815XXX61016173'),
+  datasetId?: string(name='DatasetId', description='The corresponding dataset ID.', example='dataworks-datasetVersion:0gfxxxjx155usz3hrv'),
+  id?: string(name='Id', description='The dataset version ID.', example='dataworks-datasetVersion:0gfxxxjx155usz3hrv:1'),
+  importInfo?: map[string]string(name='ImportInfo', description='The storage import configuration for the dataset; required configuration varies by storage type.
+
+**NAS**
+
+Refer to the return values from the file storage API DescribeFileSystems.
+
+```JSON
+{
+"fileSystemId": "3b6XXX89c9", // The file system ID.
+"fileSystemStorageType":  "Performance" // The file system storage type.
+"vpcId": "vpc-uf66oxxxrqge1t2gson7s" // The VPC ID of the mount point.
+}
+```'),
   labels?: [
     DatasetLabel
-  ](name='Labels'),
-  modifyTime?: long(name='ModifyTime'),
-  mountPath?: string(name='MountPath'),
-  storageType?: string(name='StorageType'),
-  url?: string(name='Url'),
-  versionNumber?: int32(name='VersionNumber'),
+  ](name='Labels', description='The PAI dataset label.'),
+  modifyTime?: long(name='ModifyTime', description='Modification time (milliseconds)', example='1736756055000'),
+  mountPath?: string(name='MountPath', description='The mount path. Defaults to /mnt/data.', example='/mnt/data'),
+  storageType?: string(name='StorageType', description='Storage type (read-only); consistent with the corresponding property of the parent dataset.', example='OSS'),
+  url?: string(name='Url', description='URL', example='oss://test-oss-bucket/test_dir/'),
+  versionNumber?: int32(name='VersionNumber', description='The dataset version number.', example='1'),
 }
 
 model IdentifyCredential {
   dataSource?: {
-    instanceId?: string(name='InstanceId'),
-    instanceName?: string(name='InstanceName'),
-    password?: string(name='Password'),
-    role?: string(name='Role'),
-    type?: string(name='Type'),
-    userName?: string(name='UserName'),
-  }(name='DataSource'),
-  projectId?: string(name='ProjectId'),
-  userId?: string(name='UserId'),
-  userType?: string(name='UserType'),
+    instanceId?: string(name='InstanceId', description='The instance ID of the data source.', example='710007423244'),
+    instanceName?: string(name='InstanceName', description='The instance name of the data source.', example='rm-2zez82ho69yex7s7g'),
+    password?: string(name='Password', description='The password for the data source.', example='***'),
+    role?: string(name='Role', description='The user type of the data source.
+
+*   Admin
+*   RegularUser
+
+Valid values:
+
+*   RegularUser: Normal user.
+*   Admin: Administrator.', example='admin'),
+    type?: string(name='Type', description='The type of the data source. Supported types:
+
+*   hive
+*   lindorm_for_engine
+*   starrocks', example='hologres'),
+    userName?: string(name='UserName', description='The username for the data source.', example='tom'),
+  }(name='DataSource', description='The data source.'),
+  projectId?: string(name='ProjectId', description='The workspace ID (optional).', example='10000'),
+  userId?: string(name='UserId', description='The user ID. If it is a role, the ROLE_ prefix must be added.', example='ROLE_300888674340307309'),
+  userType?: string(name='UserType', description='*   Alibaba Cloud account
+*   RAM user
+*   Role', example='primaryAccount'),
 }
 
 model LineageEntity {
-  attributes?: map[string]string(name='Attributes', example='{"key1":"value1"}'),
-  id?: string(name='Id', example='maxcompute-table:123456::test_project::test_tbl'),
-  name?: string(name='Name', example='test_tbl'),
+  attributes?: map[string]string(name='Attributes', description='The additional properties.', example='{"key1":"value1"}'),
+  id?: string(name='Id', description='The entity ID.', example='maxcompute-table:123456XXX::test_project::test_tbl
+dlf-table:123456XXX:test_catalog:test_db::test_tbl
+hms-table:c-abc123xxx::test_db::test_tbl
+holo-table:h-abc123xxx::test_db:test_schema:test_tbl
+custom-api:api123
+custom-table:table456'),
+  name?: string(name='Name', description='The name.', example='test_tbl'),
 }
 
 model LineageRelationship {
-  createTime?: long(name='CreateTime', example='1743040581000'),
-  dstEntity?: LineageEntity(name='DstEntity'),
-  id?: string(name='Id', example='maxcompute-table.p.table:custom-table.xxx:custom-sql.123'),
-  srcEntity?: LineageEntity(name='SrcEntity'),
-  task?: LineageTask(name='Task'),
+  createTime?: long(name='CreateTime', description='The creation time.', example='1743040581000'),
+  dstEntity?: LineageEntity(name='DstEntity', description='The destination entity.'),
+  id?: string(name='Id', description='The ID.', example='maxcompute-table.p.table:custom-table.xxx:custom-sql.123'),
+  srcEntity?: LineageEntity(name='SrcEntity', description='The source entity.'),
+  task?: LineageTask(name='Task', description='The task.'),
 }
 
 model LineageTask {
-  attributes?: map[string]string(name='Attributes'),
-  id?: string(name='Id', example='12345'),
-  type?: string(name='Type', example='custom-sql'),
+  attributes?: map[string]string(name='Attributes', description='The properties of the task.'),
+  id?: string(name='Id', description='The task ID.', example='12345'),
+  type?: string(name='Type', description='The type of the task.', example='custom-sql'),
 }
 
 model Partition {
-  createTime?: long(name='CreateTime', example='1700192563000'),
-  dataSize?: long(name='DataSize', example='4096'),
-  modifyTime?: long(name='ModifyTime', example='1700192563000'),
-  name?: string(name='Name', example='ds=20250101'),
-  recordCount?: long(name='RecordCount', example='1000000'),
-  tableId?: string(name='TableId', example='maxcompute-table:accountId::project::table'),
+  createTime?: long(name='CreateTime', description='The creation time. This value is a UNIX timestamp. Unit: milliseconds.', example='1700192563000'),
+  dataSize?: long(name='DataSize', description='The storage size of the partition. Unit: bytes.', example='4096'),
+  modifyTime?: long(name='ModifyTime', description='The modification time. This value is a UNIX timestamp. Unit: milliseconds.', example='1700192563000'),
+  name?: string(name='Name', description='The partition name.', example='ds=20250101'),
+  recordCount?: long(name='RecordCount', description='The number of records in the partition.', example='1000000'),
+  tableId?: string(name='TableId', description='The ID of the table to which the partition belongs. You can configure this parameter by referring to the `Table` topic.', example='maxcompute-table:accountId::project::table'),
 }
 
 model Schema {
-  comment?: string(name='Comment', example='test comment'),
-  createTime?: long(name='CreateTime', example='1736852168000'),
-  id?: string(name='Id', example='maxcompute-schema:123456::test_project:default'),
-  modifyTime?: long(name='ModifyTime', example='1736852168000'),
-  name?: string(name='Name', example='test_db'),
-  parentMetaEntityId?: string(name='ParentMetaEntityId', example='maxcompute-project:123456::test_project'),
-  type?: string(name='Type', example='MANAGED'),
+  comment?: string(name='Comment', description='The comment.', example='test comment'),
+  createTime?: long(name='CreateTime', description='The creation time. The value is a UNIX timestamp. Unit: milliseconds.', example='1736852168000'),
+  id?: string(name='Id', description='The schema ID. For more information, see [Concepts related to metadata entities.](https://help.aliyun.com/document_detail/2880092.html).
+
+The format is `${EntityType}:${Instance ID or escaped URL}:${Catalog name}:${Database name}`. Use empty strings as placeholders for levels that do not exist.
+
+>  For the MaxCompute type, the instance ID level is represented by an empty string. The database name is the name of the MaxCompute project, which has enabled the schema feature.
+
+Examples of common ID formats
+
+`maxcompute-project:::project_name` (For MaxCompute projects schema enabled)
+
+`holo-schema:instance_id::database_name:schema_name`
+
+> \\\\
+`instance_id`: The Hologres instance ID\\\\
+. `database_name`: The database name\\\\
+. `project_name`: The MaxCompute project name\\\\
+. `schema_name`: The schema name.', example='maxcompute-schema:123456XXX::test_project:default
+holo-schema:h-abc123xxx::test_db:test_schema'),
+  modifyTime?: long(name='ModifyTime', description='The modification time. The value is a UNIX timestamp. Unit: milliseconds.', example='1736852168000'),
+  name?: string(name='Name', description='The name.', example='test_db'),
+  parentMetaEntityId?: string(name='ParentMetaEntityId', description='The parent entity ID. For more information, see [Concepts related to metadata entities](https://help.aliyun.com/document_detail/2880092.html).
+
+The format: `${EntityType}:${Instance ID or escaped URL}:${Catalog name}:${Database name}`. Use empty strings as placeholders for levels that do not exist.
+
+>  For the MaxCompute type, the instance ID level is represented by an empty string. The database name is the name of the MaxCompute project with schema enabled.
+
+Examples of common ParentMetaEntityId formats
+
+`maxcompute-project:::project_name` (For MaxCompute projects with schema enabled)
+
+`holo-database:instance_id::database_name`
+
+> \\\\
+`instance_id`: The Hologres instance ID\\\\
+. `database_name`: The database name\\\\
+. `project_name`: The MaxCompute project name.', example='maxcompute-project:123456XXX::test_project
+holo-database:h-abc123xxx::test_db'),
+  type?: string(name='Type', description='The type.', example='MANAGED'),
 }
 
 model Table {
   businessMetadata?: {
     categories?: [[ 
       {
-        id?: string(name='Id', example='CATEGORY.456'),
-        name?: string(name='Name', example='测试类目'),
-        parentId?: string(name='ParentId', example='CATEGORY.123'),
+        id?: string(name='Id', description='The category ID.', example='CATEGORY.456'),
+        name?: string(name='Name', description='The category name.'),
+        parentId?: string(name='ParentId', description='The parent category ID. You can leave this parameter empty.', example='CATEGORY.123'),
       }
-    ]    ](name='Categories'),
+    ]    ](name='Categories', description='The categories.'),
     extension?: {
-      envType?: string(name='EnvType', example='Dev'),
-      favorCount?: long(name='FavorCount', example='0'),
-      projectId?: long(name='ProjectId', example='234'),
-      readCount?: long(name='ReadCount', example='0'),
-      viewCount?: long(name='ViewCount', example='0'),
-    }(name='Extension'),
-    readme?: string(name='Readme', example='## 使用说明'),
+      envType?: string(name='EnvType', description='The type of the environment. Valid values:
+
+*   Prod
+*   Dev', example='Dev'),
+      favorCount?: long(name='FavorCount', description='The number of times the table is added to favorites.', example='0'),
+      projectId?: long(name='ProjectId', description='The DataWorks workspace ID.', example='234'),
+      readCount?: long(name='ReadCount', description='The number of times the table is read.', example='0'),
+      viewCount?: long(name='ViewCount', description='The number of times the table is viewed.', example='0'),
+    }(name='Extension', description='The extended information. Only MaxCompute tables supports this parameter.'),
+    readme?: string(name='Readme', description='The usage notes.'),
     tags?: [ 
       {
-        key?: string(name='Key', example='tag_key'),
-        value?: string(name='Value', example='tag_value', nullable=true),
+        key?: string(name='Key', description='The tag key. You cannot leave this parameter empty.', example='tag_key'),
+        value?: string(name='Value', description='The tag value. You can leave this parameter empty.', example='tag_value', nullable=true),
       }
-    ](name='Tags'),
+    ](name='Tags', description='The tags.'),
     upstreamTasks?: [ 
       {
-        id?: long(name='Id', example='123456'),
-        name?: string(name='Name', example='test_task'),
+        id?: long(name='Id', description='The ancestor task ID.', example='123456'),
+        name?: string(name='Name', description='The ancestor task name.', example='test_task'),
       }
-    ](name='UpstreamTasks'),
-  }(name='BusinessMetadata'),
-  comment?: string(name='Comment', example='测试表'),
-  createTime?: long(name='CreateTime', example='1736852168000'),
-  id?: string(name='Id', example='maxcompute-table:123456::test_project::test_tbl'),
-  modifyTime?: long(name='ModifyTime', example='1736852168000'),
-  name?: string(name='Name', example='test_tbl'),
-  parentMetaEntityId?: string(name='ParentMetaEntityId', example='maxcompute-project:123456::test_project'),
-  partitionKeys?: [ string ](name='PartitionKeys'),
-  tableType?: string(name='TableType', example='TABLE'),
+    ](name='UpstreamTasks', description='The ancestor tasks.'),
+  }(name='BusinessMetadata', description='The information about the business metadata that is related to DataWorks, including the usage notes, tags, categories, ancestor tasks, and extended information.'),
+  comment?: string(name='Comment', description='The comments.'),
+  createTime?: long(name='CreateTime', description='The creation time. This value is a UNIX timestamp. Unit: milliseconds.', example='1736852168000'),
+  id?: string(name='Id', description='The table ID. For more information, see [Concepts related to metadata entities](https://help.aliyun.com/document_detail/2880092.html).
+
+The common format of this parameter is `${Entity type}:${Instance ID or escaped URL}:${Catalog identifier}:${Database name}:${Schema name}:${Table name}`. If a level does not exist, specify an empty string as a placeholder.
+
+>  For MaxCompute and DLF tables, specify an empty string at the Instance ID level as a placeholder. For MaxCompute tables, specify a MaxCompute project name at the Database name level. If the three-layer model is enabled for your MaxCompute project, you must specify a schema name at the Schema name level. Otherwise, you can specify an empty string at the Schema name level as a placeholder.
+
+>  For StarRocks tables, specify a catalog name at the Catalog identifier level. For DLF tables, specify a catalog ID at the Catalog identifier level. Other types of tables do not support the Catalog identifier level, and you can specify an empty string as a placeholder.
+
+You can configure this parameter in one of the following formats based on your table type:
+
+`maxcompute-table:::project_name:[schema_name]:table_name`
+
+`dlf-table::catalog_id:database_name::table_name`
+
+`hms-table:instance_id::database_name::table_name`
+
+`holo-table:instance_id::database_name:schema_name:table_name`
+
+`mysql-table:(instance_id|encoded_jdbc_url)::database_name::table_name`
+
+> \\\\
+`instance_id`: the ID of an instance. If the related data source is added to DataWorks in Alibaba Cloud instance mode, you must configure this parameter.\\\\
+`encoded_jdbc_url`: the JDBC connection string that is URL-encoded. If the related data source is added to DataWorks in connection string mode, you must configure this parameter.\\\\
+`catalog_id`: the ID of a DLF catalog.\\\\
+`project_name`: the name of a MaxCompute project.\\\\
+`database_name`: the name of a database.\\\\
+`schema_name`: the name of a schema. For a MaxCompute table, this parameter is required only if the three-layer model is enabled for the MaxCompute project to which the table belongs. If the schema feature is not enabled for the MaxCompute project, specify an empty string for this parameter as a placeholder.\\\\
+`table_name`: the name of a table.', example='maxcompute-table:123456XXX::test_project::test_tbl
+dlf-table:123456XXX:test_catalog:test_db::test_tbl
+hms-table:c-abc123xxx::test_db::test_tbl
+holo-table:h-abc123xxx::test_db:test_schema:test_tbl'),
+  modifyTime?: long(name='ModifyTime', description='The modification time. This value is a UNIX timestamp. Unit: milliseconds.', example='1736852168000'),
+  name?: string(name='Name', description='The table name.', example='test_tbl'),
+  parentMetaEntityId?: string(name='ParentMetaEntityId', description='The ID of a parent metadata entity. For more information, see [Concepts related to metadata entities](https://help.aliyun.com/document_detail/2880092.html).
+
+*   For data source types that support schemas, such as `MaxCompute, Hologres, PostgreSQL, SQL Server, HybridDB for PostgreSQL, and Oracle`, the `ParentMetaEntityId` parameter specifies the schema of the database to which the table belongs. In this case, the common format of this parameter is `${Entity type}:${Instance ID or escaped URL}:${Catalog identifier}:${Database name}:${Schema name}`. If a level does not exist, leave the level empty. For a MaxCompute data table, you must make sure that the three-layer model is enabled for the MaxCompute project to which the table belongs.
+*   For other data source types that do not support schemas, the `ParentMetaEntityId` parameter specifies the database to which the table belongs. In this case, the common format of this parameter is `${Entity type}:${Instance ID or escaped URL}:${Catalog identifier}:${Database name}`. If a level does not exist, leave the level empty.
+
+>  For MaxCompute and DLF tables, specify an empty string at the Instance ID level as a placeholder. For MaxCompute tables, specify a MaxCompute project name at the Database name level.
+
+>  For StarRocks tables, specify a catalog name at the Catalog identifier level. For DLF tables, specify a catalog ID at the Catalog identifier level. Other types of tables do not support the Catalog identifier level, and you can specify an empty string as a placeholder.
+
+You can configure this parameter in one of the following formats based on your table type:
+
+`maxcompute-project:::project_name`
+
+`maxcompute-schema:::project_name:schema_name` (Three-layer model enabled for the MaxCompute project)
+
+`dlf-database::catalog_id:database_name`
+
+`hms-database:instance_id::database_name`
+
+`holo-schema:instance_id::database_name:schema_name`
+
+`mysql-database:(instance_id|encoded_jdbc_url)::database_name`
+
+> \\\\
+`instance_id`: the ID of an instance. If the related data source is added to DataWorks in Alibaba Cloud instance mode, you must configure this parameter.\\\\
+`encoded_jdbc_url`: the JDBC connection string that is URL-encoded. If the related data source is added to DataWorks in connection string mode, you must configure this parameter.\\\\
+`catalog_id`: the ID of a DLF catalog.\\\\
+`project_name`: the name of a MaxCompute project.\\\\
+`database_name`: the name of a database.\\\\
+`schema_name`: the name of a schema.', example='maxcompute-schema:123456XXX::test_project_with_schema:default
+maxcompute-project:123456XXX::test_project_without_schema
+dlf-database:123456XXX:test_catalog:test_db
+hms-database:c-abc123xxx::test_db
+holo-schema:h-abc123xxx::test_db:test_schema'),
+  partitionKeys?: [ string ](name='PartitionKeys', description='The partition keys. If the table is a non-partitioned table, leave this parameter empty.'),
+  tableType?: string(name='TableType', description='The table type. The value of this parameter is related to the type of metadata crawler.', example='TABLE'),
   technicalMetadata?: {
-    compressed?: boolean(name='Compressed', example='false'),
-    inputFormat?: string(name='InputFormat', example='org.apache.hadoop.hive.ql.io.parquet.MapredParquetInputFormat'),
-    location?: string(name='Location', example='oss://test-bucket/test_tbl'),
-    outputFormat?: string(name='OutputFormat', example='org.apache.hadoop.hive.ql.io.parquet.MapredParquetOutputFormat'),
-    owner?: string(name='Owner', example='123456789'),
-    parameters?: map[string]string(name='Parameters'),
-    serializationLibrary?: string(name='SerializationLibrary', example='org.apache.hadoop.hive.ql.io.parquet.serde.ParquetHiveSerDe'),
-  }(name='TechnicalMetadata'),
+    compressed?: boolean(name='Compressed', description='Specifies whether the table is a compressed table. Valid values: true and false.', example='false'),
+    inputFormat?: string(name='InputFormat', description='The input format.', example='org.apache.hadoop.hive.ql.io.parquet.MapredParquetInputFormat'),
+    location?: string(name='Location', description='The storage location of the table.', example='oss://test-bucket/test_tbl'),
+    outputFormat?: string(name='OutputFormat', description='The output format.', example='org.apache.hadoop.hive.ql.io.parquet.MapredParquetOutputFormat'),
+    owner?: string(name='Owner', description='The table owner.', example='test_user'),
+    parameters?: map[string]string(name='Parameters', description='The information about parameters.'),
+    serializationLibrary?: string(name='SerializationLibrary', description='The implementation class of SerDe.', example='org.apache.hadoop.hive.ql.io.parquet.serde.ParquetHiveSerDe'),
+  }(name='TechnicalMetadata', description='The technical metadata.'),
 }
 
 model SuccessInfoValue = {
@@ -603,7 +992,7 @@ model AddEntityIntoMetaCollectionResponse = {
 }
 
 /**
- * @summary 从集合中移除实体对象
+ * @summary Adds an entity to a collection in Data Map. Collections include categories and data albums. Entities can be only tables. If you want to add an entity to a data album, the account that you use must be attached the AliyunDataWorksFullAccess policy, or you are the data album creator or administrator.
  *
  * @param request AddEntityIntoMetaCollectionRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -640,7 +1029,7 @@ async function addEntityIntoMetaCollectionWithOptions(request: AddEntityIntoMeta
 }
 
 /**
- * @summary 从集合中移除实体对象
+ * @summary Adds an entity to a collection in Data Map. Collections include categories and data albums. Entities can be only tables. If you want to add an entity to a data album, the account that you use must be attached the AliyunDataWorksFullAccess policy, or you are the data album creator or administrator.
  *
  * @param request AddEntityIntoMetaCollectionRequest
  * @return AddEntityIntoMetaCollectionResponse
@@ -761,12 +1150,15 @@ model AttachDataQualityRulesToEvaluationTaskResponse = {
 }
 
 /**
+ * @deprecated OpenAPI AttachDataQualityRulesToEvaluationTask is deprecated, please use dataworks-public::2024-05-18::UpdateDataQualityScan instead.
+ *
  * @summary Associates monitoring rules with a data quality monitoring task.
  *
  * @param tmpReq AttachDataQualityRulesToEvaluationTaskRequest
  * @param runtime runtime options for this request RuntimeOptions
  * @return AttachDataQualityRulesToEvaluationTaskResponse
  */
+// Deprecated
 @context("attachDataQualityRulesToEvaluationTaskWithContext")
 async function attachDataQualityRulesToEvaluationTaskWithOptions(tmpReq: AttachDataQualityRulesToEvaluationTaskRequest, runtime: $RuntimeOptions): AttachDataQualityRulesToEvaluationTaskResponse {
   tmpReq.validate();
@@ -803,11 +1195,14 @@ async function attachDataQualityRulesToEvaluationTaskWithOptions(tmpReq: AttachD
 }
 
 /**
+ * @deprecated OpenAPI AttachDataQualityRulesToEvaluationTask is deprecated, please use dataworks-public::2024-05-18::UpdateDataQualityScan instead.
+ *
  * @summary Associates monitoring rules with a data quality monitoring task.
  *
  * @param request AttachDataQualityRulesToEvaluationTaskRequest
  * @return AttachDataQualityRulesToEvaluationTaskResponse
  */
+// Deprecated
 async function attachDataQualityRulesToEvaluationTask(request: AttachDataQualityRulesToEvaluationTaskRequest): AttachDataQualityRulesToEvaluationTaskResponse {
   var runtime = new $RuntimeOptions{};
   return attachDataQualityRulesToEvaluationTaskWithOptions(request, runtime);
@@ -1228,6 +1623,8 @@ model CreateBusinessResponse = {
 }
 
 /**
+ * @summary Creates a workflow in DataStudio.
+ *
  * @param request CreateBusinessRequest
  * @param runtime runtime options for this request RuntimeOptions
  * @return CreateBusinessResponse
@@ -1272,6 +1669,8 @@ async function createBusinessWithOptions(request: CreateBusinessRequest, runtime
 }
 
 /**
+ * @summary Creates a workflow in DataStudio.
+ *
  * @param request CreateBusinessRequest
  * @return CreateBusinessResponse
  */
@@ -1417,7 +1816,7 @@ model CreateComputeResourceResponse = {
 }
 
 /**
- * @summary 验证用
+ * @summary Creates a computing resource in the specified workspace. The resource can be for a development environment or a production environment.
  *
  * @param request CreateComputeResourceRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -1463,7 +1862,7 @@ async function createComputeResourceWithOptions(request: CreateComputeResourceRe
 }
 
 /**
- * @summary 验证用
+ * @summary Creates a computing resource in the specified workspace. The resource can be for a development environment or a production environment.
  *
  * @param request CreateComputeResourceRequest
  * @return CreateComputeResourceResponse
@@ -1628,41 +2027,81 @@ async function createDIAlarmRule(request: CreateDIAlarmRuleRequest): CreateDIAla
 }
 
 model CreateDIJobRequest {
-  description?: string(name='Description'),
+  description?: string(name='Description', description='The task description.', example='The description of the synchronization task.'),
   destinationDataSourceSettings?: [ 
     {
-      dataSourceName?: string(name='DataSourceName'),
+      dataSourceName?: string(name='DataSourceName', description='The data source name.', example='holo_datasource_1'),
     }
-  ](name='DestinationDataSourceSettings', description='This parameter is required.'),
-  destinationDataSourceType?: string(name='DestinationDataSourceType', description='The destination type. Valid values: Hologres, OSS-HDFS, OSS, MaxCompute, LogHub, StarRocks, DataHub, AnalyticDB for MySQL, Kafka, and Hive.
-
-This parameter is required.', example='Hologres'),
+  ](name='DestinationDataSourceSettings', description='The list of destination data source settings.'),
+  destinationDataSourceType?: string(name='DestinationDataSourceType', description='The destination type. Valid values: Hologres, OSS-HDFS, OSS, MaxCompute, LogHub, StarRocks, DataHub, AnalyticDB for MySQL, Kafka, and Hive.', example='Hologres'),
+  fileSpec?: string(name='FileSpec'),
   jobName?: string(name='JobName', description='This parameter is deprecated and is replaced by the Name parameter.', example='mysql_to_holo_sync_8772', deprecated=true),
   jobSettings?: {
-    channelSettings?: string(name='ChannelSettings'),
+    channelSettings?: string(name='ChannelSettings', description='The channel-specific settings. You can configure special settings for specific channels. Currently supported: Holo2Holo (Hologres to Hologres) and Holo2Kafka (Hologres to Kafka).
+
+1.  Holo2Kafka
+
+*   Example: {"destinationChannelSettings":{"kafkaClientProperties":[{"key":"linger.ms","value":"100"}],"keyColumns":["col3"],"writeMode":"canal"}} kafkaClientProperties: Kafka producer parameters used when writing to Kafka.
+*   keyColumns: The columns to write to Kafka.
+*   writeMode: The Kafka write format. Valid values: json and canal.
+
+2.  Holo2Holo
+
+*   Example: {"destinationChannelSettings":{"conflictMode":"replace","dynamicColumnAction":"replay","writeMode":"replay"}}
+*   conflictMode: The conflict handling policy when writing to Hologres. Valid values: replace (overwrite) and ignore.
+*   writeMode: The write mode for Hologres. Valid values: replay and insert.
+*   dynamicColumnAction: The dynamic column handling mode when writing to Hologres. Valid values: replay, insert, and ignore.', example='{"structInfo":"MANAGED","storageType":"TEXTFILE","writeMode":"APPEND","partitionColumns":[{"columnName":"pt","columnType":"STRING","comment":""}],"fieldDelimiter":""}'),
     columnDataTypeSettings?: [ 
       {
-        destinationDataType?: string(name='DestinationDataType'),
-        sourceDataType?: string(name='SourceDataType'),
+        destinationDataType?: string(name='DestinationDataType', description='The destination type, such as bigint, boolean, string, text, datetime, timestamp, decimal, or binary. Different data sources may have different types.', example='text'),
+        sourceDataType?: string(name='SourceDataType', description='The source type, such as bigint, boolean, string, text, datetime, timestamp, decimal, or binary. Different data sources may have different types.', example='bigint'),
       }
-    ](name='ColumnDataTypeSettings'),
+    ](name='ColumnDataTypeSettings', description='The array of column type mappings.
+
+>  ["ColumnDataTypeSettings":[ { "SourceDataType":"Bigint", "DestinationDataType":"Text" } ]'),
     cycleScheduleSettings?: {
-      cycleMigrationType?: string(name='CycleMigrationType'),
-      scheduleParameters?: string(name='ScheduleParameters'),
-    }(name='CycleScheduleSettings'),
+      cycleMigrationType?: string(name='CycleMigrationType', description='The synchronization type that requires scheduling. Valid values:
+
+*   Full: Full synchronization
+*   OfflineIncremental: Batch incremental synchronization', example='Full'),
+      scheduleParameters?: string(name='ScheduleParameters', description='The scheduling parameters.', example='bizdate=$bizdate'),
+    }(name='CycleScheduleSettings', description='The scheduled task settings.'),
     ddlHandlingSettings?: [ 
       {
-        action?: string(name='Action'),
-        type?: string(name='Type'),
+        action?: string(name='Action', description='Valid values:
+
+*   Ignore
+*   Critical: Fail the task
+*   Normal', example='Critical'),
+        type?: string(name='Type', description='The DDL type. Valid values:
+
+*   RenameColumn
+*   ModifyColumn
+*   CreateTable
+*   TruncateTable
+*   DropTable
+*   DropColumn
+*   AddColumn', example='AddColumn'),
       }
-    ](name='DdlHandlingSettings'),
+    ](name='DdlHandlingSettings', description='The array of DDL handling settings.
+
+>  ["DDLHandlingSettings":[ { "Type":"Insert", "Action":"Normal" } ]'),
     runtimeSettings?: [ 
       {
-        name?: string(name='Name'),
-        value?: string(name='Value'),
+        name?: string(name='Name', description='The setting name. Valid values:
+
+*   src.offline.datasource.max.connection: Specifies the maximum number of connections that are allowed for reading data from the source of a batch synchronization task.
+*   dst.offline.truncate: Specifies whether to clear the destination table before data writing.
+*   runtime.offline.speed.limit.enable: Specifies whether throttling is enabled for a batch synchronization task.
+*   runtime.offline.concurrent: Specifies the maximum number of parallel threads that are allowed for a batch synchronization task.
+*   runtime.enable.auto.create.schema: Specifies whether schemas are automatically created in the destination of a synchronization task.
+*   runtime.realtime.concurrent: Specifies the maximum number of parallel threads that are allowed for a real-time synchronization task.
+*   runtime.realtime.failover.minute.dataxcdc: Specifies the maximum waiting duration before a synchronization task retries the next restart if the previous restart fails after failover occurs. Unit: minutes.
+*   runtime.realtime.failover.times.dataxcdc: Specifies the maximum number of failures that are allowed for restarting a synchronization task after failovers occur.', example='runtime.offline.concurrent'),
+        value?: string(name='Value', description='The setting value.', example='1'),
       }
-    ](name='RuntimeSettings'),
-  }(name='JobSettings'),
+    ](name='RuntimeSettings', description='The runtime settings.'),
+  }(name='JobSettings', description='The task-level settings, including DDL handling policies, column data type mapping between source and destination, and runtime parameters.'),
   jobType?: string(name='JobType', description='The type of the synchronization task. Valid values:
 
 *   DatabaseRealtimeMigration: A real-time synchronization task used to synchronize only full data, only incremental data, or full and incremental data in multiple tables of multiple databases in the source.
@@ -1674,76 +2113,147 @@ This parameter is required.', example='Hologres'),
 *   RealtimeIncremental
 *   Full
 *   OfflineIncremental
-*   FullAndOfflineIncremental
-
-This parameter is required.', example='FullAndRealtimeIncremental'),
+*   FullAndOfflineIncremental', example='FullAndRealtimeIncremental'),
   name?: string(name='Name', description='The name of the synchronization task.', example='mysql_to_holo_sync_8772'),
+  owner?: string(name='Owner', description='The task owner.', example='3726346'),
   projectId?: long(name='ProjectId', description='The DataWorks workspace ID. You can log on to the [DataWorks console](https://workbench.data.aliyun.com/console) and go to the Workspace page to obtain the ID.
 
 You must configure this parameter to specify the DataWorks workspace to which the API operation is applied.', example='10000'),
   resourceSettings?: {
     offlineResourceSettings?: {
-      requestedCu?: double(name='RequestedCu'),
-      resourceGroupIdentifier?: string(name='ResourceGroupIdentifier'),
-    }(name='OfflineResourceSettings'),
+      requestedCu?: double(name='RequestedCu', description='The CU of the Data Integration resource group used for batch synchronization.', example='2.0'),
+      resourceGroupIdentifier?: string(name='ResourceGroupIdentifier', description='The name of the Data Integration resource group used for batch synchronization.', example='S_res_group_111_222'),
+    }(name='OfflineResourceSettings', description='The batch synchronization resources.'),
     realtimeResourceSettings?: {
-      requestedCu?: double(name='RequestedCu'),
-      resourceGroupIdentifier?: string(name='ResourceGroupIdentifier'),
-    }(name='RealtimeResourceSettings'),
+      requestedCu?: double(name='RequestedCu', description='The CU of the Data Integration resource group used for real-time synchronization.', example='2.0'),
+      resourceGroupIdentifier?: string(name='ResourceGroupIdentifier', description='The name of the Data Integration resource group used for real-time synchronization.', example='S_res_group_111_222'),
+    }(name='RealtimeResourceSettings', description='The real-time synchronization resources.'),
     scheduleResourceSettings?: {
-      requestedCu?: double(name='RequestedCu'),
-      resourceGroupIdentifier?: string(name='ResourceGroupIdentifier'),
-    }(name='ScheduleResourceSettings'),
-  }(name='ResourceSettings', description='This parameter is required.'),
+      requestedCu?: double(name='RequestedCu', description='The CU of the scheduling resource group for batch synchronization tasks.', example='2.0'),
+      resourceGroupIdentifier?: string(name='ResourceGroupIdentifier', description='The name of the scheduling resource group for batch synchronization tasks.', example='S_res_group_235454102432001_1579085295030'),
+    }(name='ScheduleResourceSettings', description='The scheduling resources.'),
+  }(name='ResourceSettings', description='The resource settings.'),
   sourceDataSourceSettings?: [ 
     {
-      dataSourceName?: string(name='DataSourceName'),
+      dataSourceName?: string(name='DataSourceName', description='The data source name.', example='mysql_datasource_1'),
       dataSourceProperties?: {
-        encoding?: string(name='Encoding'),
-        timezone?: string(name='Timezone'),
-      }(name='DataSourceProperties'),
+        encoding?: string(name='Encoding', description='The database encoding.', example='UTF-8'),
+        timezone?: string(name='Timezone', description='The time zone.', example='GMT+8'),
+      }(name='DataSourceProperties', description='The data source properties.'),
     }
-  ](name='SourceDataSourceSettings', description='This parameter is required.'),
-  sourceDataSourceType?: string(name='SourceDataSourceType', description='The source type. Valid values: PolarDB, MySQL, Kafka, LogHub, Hologres, Oracle, OceanBase, MongoDB, Redshift, Hive, SQL Server, Doris, and ClickHouse.
-
-This parameter is required.', example='MySQL'),
+  ](name='SourceDataSourceSettings', description='The list of source data source settings.'),
+  sourceDataSourceType?: string(name='SourceDataSourceType', description='The source type. Valid values: PolarDB, MySQL, Kafka, LogHub, Hologres, Oracle, OceanBase, MongoDB, Redshift, Hive, SQL Server, Doris, and ClickHouse.', example='MySQL'),
   tableMappings?: [ 
     {
       sourceObjectSelectionRules?: [ 
         {
-          action?: string(name='Action'),
-          expression?: string(name='Expression'),
-          expressionType?: string(name='ExpressionType'),
-          objectType?: string(name='ObjectType'),
+          action?: string(name='Action', description='The selection action. Valid values: Include and Exclude.', example='Include'),
+          expression?: string(name='Expression', description='The expression.', example='mysql_table_1'),
+          expressionType?: string(name='ExpressionType', description='The expression type. Valid values: Exact and Regex.', example='Exact'),
+          objectType?: string(name='ObjectType', description='The object type. Valid values:
+
+*   Table
+*   Schema
+*   Database', example='Table'),
         }
-      ](name='SourceObjectSelectionRules'),
+      ](name='SourceObjectSelectionRules', description='Each rule can select a set of source objects to synchronize. Multiple rules together select a table.'),
       transformationRules?: [ 
         {
-          ruleActionType?: string(name='RuleActionType'),
-          ruleName?: string(name='RuleName'),
-          ruleTargetType?: string(name='RuleTargetType'),
+          ruleActionType?: string(name='RuleActionType', description='The action type. Valid values:
+
+*   DefinePrimaryKey
+*   Rename
+*   AddColumn
+*   HandleDml
+*   DefineIncrementalCondition
+*   DefineCycleScheduleSettings
+*   DefinePartitionKey', example='Rename'),
+          ruleName?: string(name='RuleName', description='The rule name. The rule name must be unique for a given combination of action type and target type. The name cannot exceed 50 characters.', example='rename_rule_1'),
+          ruleTargetType?: string(name='RuleTargetType', description='The target type for the action. Valid values:
+
+*   Table
+*   Schema
+*   Database', example='Table'),
         }
-      ](name='TransformationRules'),
+      ](name='TransformationRules', description='The list of synchronization object transformation rule definitions. Each element represents a single transformation rule definition.'),
     }
-  ](name='TableMappings', description='This parameter is required.'),
+  ](name='TableMappings', description='The list of synchronization object transformation mappings. Each element describes a set of source object selection rules and the transformation rules applied to those objects.
+
+>  [ { "SourceObjectSelectionRules":[ { "ObjectType":"Database", "Action":"Include", "ExpressionType":"Exact", "Expression":"biz_db" }, { "ObjectType":"Schema", "Action":"Include", "ExpressionType":"Exact", "Expression":"s1" }, { "ObjectType":"Table", "Action":"Include", "ExpressionType":"Exact", "Expression":"table1" } ], "TransformationRuleNames":[ { "RuleName":"my_database_rename_rule", "RuleActionType":"Rename", "RuleTargetType":"Schema" } ] } ]'),
   transformationRules?: [ 
     {
-      ruleActionType?: string(name='RuleActionType'),
-      ruleExpression?: string(name='RuleExpression'),
-      ruleName?: string(name='RuleName'),
-      ruleTargetType?: string(name='RuleTargetType'),
+      ruleActionType?: string(name='RuleActionType', description='The action type. Valid values:
+
+*   DefinePrimaryKey
+*   Rename
+*   AddColumn
+*   HandleDml
+*   DefineIncrementalCondition
+*   DefineCycleScheduleSettings
+*   DefinePartitionKey', example='Rename'),
+      ruleExpression?: string(name='RuleExpression', description='The rule expression in JSON string format.
+
+1.  Rename rule
+
+*   Example: {"expression":"${srcDatasourceName}_${srcDatabaseName}_0922" }
+*   expression: The rename transformation expression. Supported variables include: ${srcDatasourceName} (source data source name), ${srcDatabaseName} (source database name), and ${srcTableName} (source table name).
+
+2.  AddColumn rule
+
+*   Example: {"columns":[{"columnName":"my_add_column","columnValueType":"Constant","columnValue":"123"}]}
+*   If not specified, the default behavior is to not add columns.
+*   columnName: The name of the column to add.
+*   columnValueType: The value type of the column to add. Valid values: Constant and Variable.
+*   columnValue: The value of the column to add. When columnValueType is set to Constant, the value is a custom constant of the string type. When columnValueType is set to Variable, the value is a built-in variable. Built-in variables include: EXECUTE_TIME (execution time, long type), DB_NAME_SRC (source database name, string type), DATASOURCE_NAME_SRC (source data source name, string type), TABLE_NAME_SRC (source table name, string type), DB_NAME_DEST (destination database name, string type), DATASOURCE_NAME_DEST (destination data source name, string type), TABLE_NAME_DEST (destination table name, string type), and DB_NAME_SRC_TRANSED (transformed source database name, string type).
+
+3.  DefinePrimaryKey
+
+*   Example: {"columns":["ukcolumn1","ukcolumn2"]}
+*   If not specified, the source primary key columns are used by default.
+*   When the destination table already exists: Data Integration does not modify the destination table structure. If the specified primary key columns are not in the destination table, the task fails to start.
+*   When the destination table is auto-created: Data Integration automatically creates the destination table structure with the defined primary key columns. If the specified primary key columns are not in the destination table, the task fails to start.
+
+4.  HandleDml rule
+
+*   Example of a rule used to process DML messages: {"dmlPolicies":[{"dmlType":"Delete","dmlAction":"Filter","filterCondition":"id > 1"}]}.
+*   If not specified, the default rule is Normal for Insert, Update, and Delete.
+*   dmlType: The DML operation type. Valid values: Insert, Update, and Delete.
+*   dmlAction: The DML handling policy. Valid values: Normal, Ignore, Filter (conditional processing, used when dmlType is Update or Delete), and LogicalDelete.
+*   filterCondition: The DML filter condition. This parameter is used when dmlAction is set to Filter.
+
+5.  DefineIncrementalCondition
+
+*   Example: {"where":"id > 0"}
+*   Specifies the incremental filter condition.
+
+6.  DefineCycleScheduleSettings
+
+*   Example: {"cronExpress":" \\\\* \\\\* \\\\* \\\\* \\\\* \\\\*", "cycleType":"1"}
+*   Specifies the scheduled task parameters.
+
+7.  DefinePartitionKey
+
+*   Example: {"columns":["id"]}
+*   Specifies the partition key.', example='{"expression":"${srcDatasoureName}_${srcDatabaseName}"}'),
+      ruleName?: string(name='RuleName', description='The rule name. When the action type and target type are the same, the rule name must be unique. The name cannot exceed 50 characters.', example='rename_rule_1'),
+      ruleTargetType?: string(name='RuleTargetType', description='The target type for the action. Valid values:
+
+*   Table
+*   Schema
+*   Database', example='Table'),
     }
-  ](name='TransformationRules'),
+  ](name='TransformationRules', description='The list of synchronization object transformation rule definitions.
+
+>  [ { "RuleName":"my_database_rename_rule", "RuleActionType":"Rename", "RuleTargetType":"Schema", "RuleExpression":"{"expression":"${srcDatasoureName}_${srcDatabaseName}"}" } ]'),
 }
 
 model CreateDIJobShrinkRequest {
-  description?: string(name='Description'),
-  destinationDataSourceSettingsShrink?: string(name='DestinationDataSourceSettings', description='This parameter is required.'),
-  destinationDataSourceType?: string(name='DestinationDataSourceType', description='The destination type. Valid values: Hologres, OSS-HDFS, OSS, MaxCompute, LogHub, StarRocks, DataHub, AnalyticDB for MySQL, Kafka, and Hive.
-
-This parameter is required.', example='Hologres'),
+  description?: string(name='Description', description='The task description.', example='The description of the synchronization task.'),
+  destinationDataSourceSettingsShrink?: string(name='DestinationDataSourceSettings', description='The list of destination data source settings.'),
+  destinationDataSourceType?: string(name='DestinationDataSourceType', description='The destination type. Valid values: Hologres, OSS-HDFS, OSS, MaxCompute, LogHub, StarRocks, DataHub, AnalyticDB for MySQL, Kafka, and Hive.', example='Hologres'),
+  fileSpec?: string(name='FileSpec'),
   jobName?: string(name='JobName', description='This parameter is deprecated and is replaced by the Name parameter.', example='mysql_to_holo_sync_8772', deprecated=true),
-  jobSettingsShrink?: string(name='JobSettings'),
+  jobSettingsShrink?: string(name='JobSettings', description='The task-level settings, including DDL handling policies, column data type mapping between source and destination, and runtime parameters.'),
   jobType?: string(name='JobType', description='The type of the synchronization task. Valid values:
 
 *   DatabaseRealtimeMigration: A real-time synchronization task used to synchronize only full data, only incremental data, or full and incremental data in multiple tables of multiple databases in the source.
@@ -1755,20 +2265,21 @@ This parameter is required.', example='Hologres'),
 *   RealtimeIncremental
 *   Full
 *   OfflineIncremental
-*   FullAndOfflineIncremental
-
-This parameter is required.', example='FullAndRealtimeIncremental'),
+*   FullAndOfflineIncremental', example='FullAndRealtimeIncremental'),
   name?: string(name='Name', description='The name of the synchronization task.', example='mysql_to_holo_sync_8772'),
+  owner?: string(name='Owner', description='The task owner.', example='3726346'),
   projectId?: long(name='ProjectId', description='The DataWorks workspace ID. You can log on to the [DataWorks console](https://workbench.data.aliyun.com/console) and go to the Workspace page to obtain the ID.
 
 You must configure this parameter to specify the DataWorks workspace to which the API operation is applied.', example='10000'),
-  resourceSettingsShrink?: string(name='ResourceSettings', description='This parameter is required.'),
-  sourceDataSourceSettingsShrink?: string(name='SourceDataSourceSettings', description='This parameter is required.'),
-  sourceDataSourceType?: string(name='SourceDataSourceType', description='The source type. Valid values: PolarDB, MySQL, Kafka, LogHub, Hologres, Oracle, OceanBase, MongoDB, Redshift, Hive, SQL Server, Doris, and ClickHouse.
+  resourceSettingsShrink?: string(name='ResourceSettings', description='The resource settings.'),
+  sourceDataSourceSettingsShrink?: string(name='SourceDataSourceSettings', description='The list of source data source settings.'),
+  sourceDataSourceType?: string(name='SourceDataSourceType', description='The source type. Valid values: PolarDB, MySQL, Kafka, LogHub, Hologres, Oracle, OceanBase, MongoDB, Redshift, Hive, SQL Server, Doris, and ClickHouse.', example='MySQL'),
+  tableMappingsShrink?: string(name='TableMappings', description='The list of synchronization object transformation mappings. Each element describes a set of source object selection rules and the transformation rules applied to those objects.
 
-This parameter is required.', example='MySQL'),
-  tableMappingsShrink?: string(name='TableMappings', description='This parameter is required.'),
-  transformationRulesShrink?: string(name='TransformationRules'),
+>  [ { "SourceObjectSelectionRules":[ { "ObjectType":"Database", "Action":"Include", "ExpressionType":"Exact", "Expression":"biz_db" }, { "ObjectType":"Schema", "Action":"Include", "ExpressionType":"Exact", "Expression":"s1" }, { "ObjectType":"Table", "Action":"Include", "ExpressionType":"Exact", "Expression":"table1" } ], "TransformationRuleNames":[ { "RuleName":"my_database_rename_rule", "RuleActionType":"Rename", "RuleTargetType":"Schema" } ] } ]'),
+  transformationRulesShrink?: string(name='TransformationRules', description='The list of synchronization object transformation rule definitions.
+
+>  [ { "RuleName":"my_database_rename_rule", "RuleActionType":"Rename", "RuleTargetType":"Schema", "RuleExpression":"{"expression":"${srcDatasoureName}_${srcDatabaseName}"}" } ]'),
 }
 
 model CreateDIJobResponseBody = {
@@ -1832,6 +2343,9 @@ async function createDIJobWithOptions(tmpReq: CreateDIJobRequest, runtime: $Runt
   if (!$isNull(request.name)) {
     query['Name'] = request.name;
   }
+  if (!$isNull(request.owner)) {
+    query['Owner'] = request.owner;
+  }
   if (!$isNull(request.projectId)) {
     query['ProjectId'] = request.projectId;
   }
@@ -1844,6 +2358,9 @@ async function createDIJobWithOptions(tmpReq: CreateDIJobRequest, runtime: $Runt
   }
   if (!$isNull(request.destinationDataSourceSettingsShrink)) {
     body['DestinationDataSourceSettings'] = request.destinationDataSourceSettingsShrink;
+  }
+  if (!$isNull(request.fileSpec)) {
+    body['FileSpec'] = request.fileSpec;
   }
   if (!$isNull(request.jobSettingsShrink)) {
     body['JobSettings'] = request.jobSettingsShrink;
@@ -2380,6 +2897,8 @@ model CreateDataQualityEvaluationTaskResponse = {
 }
 
 /**
+ * @deprecated OpenAPI CreateDataQualityEvaluationTask is deprecated, please use dataworks-public::2024-05-18::CreateDataQualityScan instead.
+ *
  * @summary Creates a monitor in DataWorks Data Quality.
  *
  * @description This API operation is supported in all DataWorks editions.
@@ -2388,6 +2907,7 @@ model CreateDataQualityEvaluationTaskResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return CreateDataQualityEvaluationTaskResponse
  */
+// Deprecated
 @context("createDataQualityEvaluationTaskWithContext")
 async function createDataQualityEvaluationTaskWithOptions(tmpReq: CreateDataQualityEvaluationTaskRequest, runtime: $RuntimeOptions): CreateDataQualityEvaluationTaskResponse {
   tmpReq.validate();
@@ -2457,6 +2977,8 @@ async function createDataQualityEvaluationTaskWithOptions(tmpReq: CreateDataQual
 }
 
 /**
+ * @deprecated OpenAPI CreateDataQualityEvaluationTask is deprecated, please use dataworks-public::2024-05-18::CreateDataQualityScan instead.
+ *
  * @summary Creates a monitor in DataWorks Data Quality.
  *
  * @description This API operation is supported in all DataWorks editions.
@@ -2464,6 +2986,7 @@ async function createDataQualityEvaluationTaskWithOptions(tmpReq: CreateDataQual
  * @param request CreateDataQualityEvaluationTaskRequest
  * @return CreateDataQualityEvaluationTaskResponse
  */
+// Deprecated
 async function createDataQualityEvaluationTask(request: CreateDataQualityEvaluationTaskRequest): CreateDataQualityEvaluationTaskResponse {
   var runtime = new $RuntimeOptions{};
   return createDataQualityEvaluationTaskWithOptions(request, runtime);
@@ -2516,12 +3039,15 @@ model CreateDataQualityEvaluationTaskInstanceResponse = {
 }
 
 /**
+ * @deprecated OpenAPI CreateDataQualityEvaluationTaskInstance is deprecated, please use dataworks-public::2024-05-18::CreateDataQualityScanRun instead.
+ *
  * @summary Creates a monitor instance.
  *
  * @param tmpReq CreateDataQualityEvaluationTaskInstanceRequest
  * @param runtime runtime options for this request RuntimeOptions
  * @return CreateDataQualityEvaluationTaskInstanceResponse
  */
+// Deprecated
 @context("createDataQualityEvaluationTaskInstanceWithContext")
 async function createDataQualityEvaluationTaskInstanceWithOptions(tmpReq: CreateDataQualityEvaluationTaskInstanceRequest, runtime: $RuntimeOptions): CreateDataQualityEvaluationTaskInstanceResponse {
   tmpReq.validate();
@@ -2561,11 +3087,14 @@ async function createDataQualityEvaluationTaskInstanceWithOptions(tmpReq: Create
 }
 
 /**
+ * @deprecated OpenAPI CreateDataQualityEvaluationTaskInstance is deprecated, please use dataworks-public::2024-05-18::CreateDataQualityScanRun instead.
+ *
  * @summary Creates a monitor instance.
  *
  * @param request CreateDataQualityEvaluationTaskInstanceRequest
  * @return CreateDataQualityEvaluationTaskInstanceResponse
  */
+// Deprecated
 async function createDataQualityEvaluationTaskInstance(request: CreateDataQualityEvaluationTaskInstanceRequest): CreateDataQualityEvaluationTaskInstanceResponse {
   var runtime = new $RuntimeOptions{};
   return createDataQualityEvaluationTaskInstanceWithOptions(request, runtime);
@@ -2741,12 +3270,15 @@ model CreateDataQualityRuleResponse = {
 }
 
 /**
+ * @deprecated OpenAPI CreateDataQualityRule is deprecated, please use dataworks-public::2024-05-18::CreateDataQualityScan instead.
+ *
  * @summary Creates a data quality monitoring rule.
  *
  * @param tmpReq CreateDataQualityRuleRequest
  * @param runtime runtime options for this request RuntimeOptions
  * @return CreateDataQualityRuleResponse
  */
+// Deprecated
 @context("createDataQualityRuleWithContext")
 async function createDataQualityRuleWithOptions(tmpReq: CreateDataQualityRuleRequest, runtime: $RuntimeOptions): CreateDataQualityRuleResponse {
   tmpReq.validate();
@@ -2813,11 +3345,14 @@ async function createDataQualityRuleWithOptions(tmpReq: CreateDataQualityRuleReq
 }
 
 /**
+ * @deprecated OpenAPI CreateDataQualityRule is deprecated, please use dataworks-public::2024-05-18::CreateDataQualityScan instead.
+ *
  * @summary Creates a data quality monitoring rule.
  *
  * @param request CreateDataQualityRuleRequest
  * @return CreateDataQualityRuleResponse
  */
+// Deprecated
 async function createDataQualityRule(request: CreateDataQualityRuleRequest): CreateDataQualityRuleResponse {
   var runtime = new $RuntimeOptions{};
   return createDataQualityRuleWithOptions(request, runtime);
@@ -2898,12 +3433,15 @@ model CreateDataQualityRuleTemplateResponse = {
 }
 
 /**
+ * @deprecated OpenAPI CreateDataQualityRuleTemplate is deprecated, please use dataworks-public::2024-05-18::CreateDataQualityTemplate instead.
+ *
  * @summary Creates a data quality monitoring rule template.
  *
  * @param tmpReq CreateDataQualityRuleTemplateRequest
  * @param runtime runtime options for this request RuntimeOptions
  * @return CreateDataQualityRuleTemplateResponse
  */
+// Deprecated
 @context("createDataQualityRuleTemplateWithContext")
 async function createDataQualityRuleTemplateWithOptions(tmpReq: CreateDataQualityRuleTemplateRequest, runtime: $RuntimeOptions): CreateDataQualityRuleTemplateResponse {
   tmpReq.validate();
@@ -2952,11 +3490,14 @@ async function createDataQualityRuleTemplateWithOptions(tmpReq: CreateDataQualit
 }
 
 /**
+ * @deprecated OpenAPI CreateDataQualityRuleTemplate is deprecated, please use dataworks-public::2024-05-18::CreateDataQualityTemplate instead.
+ *
  * @summary Creates a data quality monitoring rule template.
  *
  * @param request CreateDataQualityRuleTemplateRequest
  * @return CreateDataQualityRuleTemplateResponse
  */
+// Deprecated
 async function createDataQualityRuleTemplate(request: CreateDataQualityRuleTemplateRequest): CreateDataQualityRuleTemplateResponse {
   var runtime = new $RuntimeOptions{};
   return createDataQualityRuleTemplateWithOptions(request, runtime);
@@ -4000,6 +4541,8 @@ model CreateFileResponse = {
 }
 
 /**
+ * @summary Creates a file in DataStudio. You cannot call this operation to create Data Integration nodes.
+ *
  * @param request CreateFileRequest
  * @param runtime runtime options for this request RuntimeOptions
  * @return CreateFileResponse
@@ -4128,6 +4671,8 @@ async function createFileWithOptions(request: CreateFileRequest, runtime: $Runti
 }
 
 /**
+ * @summary Creates a file in DataStudio. You cannot call this operation to create Data Integration nodes.
+ *
  * @param request CreateFileRequest
  * @return CreateFileResponse
  */
@@ -4164,6 +4709,8 @@ model CreateFolderResponse = {
 }
 
 /**
+ * @summary Creates a folder.
+ *
  * @param request CreateFolderRequest
  * @param runtime runtime options for this request RuntimeOptions
  * @return CreateFolderResponse
@@ -4199,6 +4746,8 @@ async function createFolderWithOptions(request: CreateFolderRequest, runtime: $R
 }
 
 /**
+ * @summary Creates a folder.
+ *
  * @param request CreateFolderRequest
  * @return CreateFolderResponse
  */
@@ -4397,7 +4946,7 @@ model CreateLineageRelationshipResponse = {
 }
 
 /**
- * @summary Creates a lineage between a source entity and a destination entity. Either the source or destination entity must be a custom entity.
+ * @summary Registers lineage relationships in Data Map. At least one end of the relationship must be a custom object. This interface allows you to connect custom objects (such as external reports or third-party system tables) with metadata entities managed by DataWorks.
  *
  * @param tmpReq CreateLineageRelationshipRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -4445,7 +4994,7 @@ async function createLineageRelationshipWithOptions(tmpReq: CreateLineageRelatio
 }
 
 /**
- * @summary Creates a lineage between a source entity and a destination entity. Either the source or destination entity must be a custom entity.
+ * @summary Registers lineage relationships in Data Map. At least one end of the relationship must be a custom object. This interface allows you to connect custom objects (such as external reports or third-party system tables) with metadata entities managed by DataWorks.
  *
  * @param request CreateLineageRelationshipRequest
  * @return CreateLineageRelationshipResponse
@@ -5229,7 +5778,7 @@ model CreateResourceResponse = {
 }
 
 /**
- * @summary >  You cannot use this API operation to create multiple file resources at a time. If you specify multiple file resources by using FlowSpec, the system creates only the first specified resource.
+ * @summary \\>  You cannot use this API operation to create multiple file resources at a time. If you specify multiple file resources by using FlowSpec, the system creates only the first specified resource.
  *
  * @description Private
  *
@@ -5268,7 +5817,7 @@ async function createResourceWithOptions(request: CreateResourceRequest, runtime
 }
 
 /**
- * @summary >  You cannot use this API operation to create multiple file resources at a time. If you specify multiple file resources by using FlowSpec, the system creates only the first specified resource.
+ * @summary \\>  You cannot use this API operation to create multiple file resources at a time. If you specify multiple file resources by using FlowSpec, the system creates only the first specified resource.
  *
  * @description Private
  *
@@ -5875,6 +6424,8 @@ model CreateUdfFileResponse = {
 }
 
 /**
+ * @summary Creates a file for a function in DataStudio.
+ *
  * @param request CreateUdfFileRequest
  * @param runtime runtime options for this request RuntimeOptions
  * @return CreateUdfFileResponse
@@ -5940,6 +6491,8 @@ async function createUdfFileWithOptions(request: CreateUdfFileRequest, runtime: 
 }
 
 /**
+ * @summary Creates a file for a function in DataStudio.
+ *
  * @param request CreateUdfFileRequest
  * @return CreateUdfFileResponse
  */
@@ -6409,6 +6962,8 @@ model DeleteBusinessResponse = {
 }
 
 /**
+ * @summary Deletes a workflow.
+ *
  * @param request DeleteBusinessRequest
  * @param runtime runtime options for this request RuntimeOptions
  * @return DeleteBusinessResponse
@@ -6444,6 +6999,8 @@ async function deleteBusinessWithOptions(request: DeleteBusinessRequest, runtime
 }
 
 /**
+ * @summary Deletes a workflow.
+ *
  * @param request DeleteBusinessRequest
  * @return DeleteBusinessResponse
  */
@@ -6618,7 +7175,7 @@ model DeleteComputeResourceResponse = {
 }
 
 /**
- * @summary 验证用
+ * @summary Deletes the specified computing resource based on the computing resource ID.
  *
  * @description 1.  This API operation is available for all DataWorks editions.
  * 2.  You can call this operation only if you are assigned one of the following roles in DataWorks:
@@ -6656,7 +7213,7 @@ async function deleteComputeResourceWithOptions(request: DeleteComputeResourceRe
 }
 
 /**
- * @summary 验证用
+ * @summary Deletes the specified computing resource based on the computing resource ID.
  *
  * @description 1.  This API operation is available for all DataWorks editions.
  * 2.  You can call this operation only if you are assigned one of the following roles in DataWorks:
@@ -6950,12 +7507,15 @@ model DeleteDataQualityEvaluationTaskResponse = {
 }
 
 /**
+ * @deprecated OpenAPI DeleteDataQualityEvaluationTask is deprecated, please use dataworks-public::2024-05-18::DeleteDataQualityScan instead.
+ *
  * @summary Deletes a data quality monitoring task.
  *
  * @param request DeleteDataQualityEvaluationTaskRequest
  * @param runtime runtime options for this request RuntimeOptions
  * @return DeleteDataQualityEvaluationTaskResponse
  */
+// Deprecated
 @context("deleteDataQualityEvaluationTaskWithContext")
 async function deleteDataQualityEvaluationTaskWithOptions(request: DeleteDataQualityEvaluationTaskRequest, runtime: $RuntimeOptions): DeleteDataQualityEvaluationTaskResponse {
   request.validate();
@@ -6984,11 +7544,14 @@ async function deleteDataQualityEvaluationTaskWithOptions(request: DeleteDataQua
 }
 
 /**
+ * @deprecated OpenAPI DeleteDataQualityEvaluationTask is deprecated, please use dataworks-public::2024-05-18::DeleteDataQualityScan instead.
+ *
  * @summary Deletes a data quality monitoring task.
  *
  * @param request DeleteDataQualityEvaluationTaskRequest
  * @return DeleteDataQualityEvaluationTaskResponse
  */
+// Deprecated
 async function deleteDataQualityEvaluationTask(request: DeleteDataQualityEvaluationTaskRequest): DeleteDataQualityEvaluationTaskResponse {
   var runtime = new $RuntimeOptions{};
   return deleteDataQualityEvaluationTaskWithOptions(request, runtime);
@@ -7076,12 +7639,15 @@ model DeleteDataQualityRuleTemplateResponse = {
 }
 
 /**
+ * @deprecated OpenAPI DeleteDataQualityRuleTemplate is deprecated, please use dataworks-public::2024-05-18::DeleteDataQualityTemplate instead.
+ *
  * @summary Deletes a data quality monitoring rule template.
  *
  * @param request DeleteDataQualityRuleTemplateRequest
  * @param runtime runtime options for this request RuntimeOptions
  * @return DeleteDataQualityRuleTemplateResponse
  */
+// Deprecated
 @context("deleteDataQualityRuleTemplateWithContext")
 async function deleteDataQualityRuleTemplateWithOptions(request: DeleteDataQualityRuleTemplateRequest, runtime: $RuntimeOptions): DeleteDataQualityRuleTemplateResponse {
   request.validate();
@@ -7110,11 +7676,14 @@ async function deleteDataQualityRuleTemplateWithOptions(request: DeleteDataQuali
 }
 
 /**
+ * @deprecated OpenAPI DeleteDataQualityRuleTemplate is deprecated, please use dataworks-public::2024-05-18::DeleteDataQualityTemplate instead.
+ *
  * @summary Deletes a data quality monitoring rule template.
  *
  * @param request DeleteDataQualityRuleTemplateRequest
  * @return DeleteDataQualityRuleTemplateResponse
  */
+// Deprecated
 async function deleteDataQualityRuleTemplate(request: DeleteDataQualityRuleTemplateRequest): DeleteDataQualityRuleTemplateResponse {
   var runtime = new $RuntimeOptions{};
   return deleteDataQualityRuleTemplateWithOptions(request, runtime);
@@ -7539,6 +8108,8 @@ model DeleteFileResponse = {
 }
 
 /**
+ * @summary Deletes a file from DataStudio. If the file has been committed, an asynchronous process is triggered to delete the file in the scheduling system. The value of the DeploymentId parameter returned is used to call the GetDeployment operation to poll the status of the asynchronous process.
+ *
  * @param request DeleteFileRequest
  * @param runtime runtime options for this request RuntimeOptions
  * @return DeleteFileResponse
@@ -7574,6 +8145,8 @@ async function deleteFileWithOptions(request: DeleteFileRequest, runtime: $Runti
 }
 
 /**
+ * @summary Deletes a file from DataStudio. If the file has been committed, an asynchronous process is triggered to delete the file in the scheduling system. The value of the DeploymentId parameter returned is used to call the GetDeployment operation to poll the status of the asynchronous process.
+ *
  * @param request DeleteFileRequest
  * @return DeleteFileResponse
  */
@@ -7746,7 +8319,7 @@ model DeleteLineageRelationshipResponse = {
 }
 
 /**
- * @summary 删除血缘关系
+ * @summary Deletes a lineage in Data Map.
  *
  * @param request DeleteLineageRelationshipRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -7777,7 +8350,7 @@ async function deleteLineageRelationshipWithOptions(request: DeleteLineageRelati
 }
 
 /**
- * @summary 删除血缘关系
+ * @summary Deletes a lineage in Data Map.
  *
  * @param request DeleteLineageRelationshipRequest
  * @return DeleteLineageRelationshipResponse
@@ -7804,7 +8377,7 @@ model DeleteMetaCollectionResponse = {
 }
 
 /**
- * @summary 删除集合
+ * @summary Deletes a collection in Data Map. Collections include categories and data albums. If you want to delete a data album, the account that you use must be attached the AliyunDataWorksFullAccess policy, or you are the data album creator or administrator.
  *
  * @param request DeleteMetaCollectionRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -7835,7 +8408,7 @@ async function deleteMetaCollectionWithOptions(request: DeleteMetaCollectionRequ
 }
 
 /**
- * @summary 删除集合
+ * @summary Deletes a collection in Data Map. Collections include categories and data albums. If you want to delete a data album, the account that you use must be attached the AliyunDataWorksFullAccess policy, or you are the data album creator or administrator.
  *
  * @param request DeleteMetaCollectionRequest
  * @return DeleteMetaCollectionResponse
@@ -8654,12 +9227,15 @@ model DetachDataQualityRulesFromEvaluationTaskResponse = {
 }
 
 /**
+ * @deprecated OpenAPI DetachDataQualityRulesFromEvaluationTask is deprecated, please use dataworks-public::2024-05-18::UpdateDataQualityScan instead.
+ *
  * @summary Disassociates monitoring rules from a data quality monitoring task.
  *
  * @param tmpReq DetachDataQualityRulesFromEvaluationTaskRequest
  * @param runtime runtime options for this request RuntimeOptions
  * @return DetachDataQualityRulesFromEvaluationTaskResponse
  */
+// Deprecated
 @context("detachDataQualityRulesFromEvaluationTaskWithContext")
 async function detachDataQualityRulesFromEvaluationTaskWithOptions(tmpReq: DetachDataQualityRulesFromEvaluationTaskRequest, runtime: $RuntimeOptions): DetachDataQualityRulesFromEvaluationTaskResponse {
   tmpReq.validate();
@@ -8696,11 +9272,14 @@ async function detachDataQualityRulesFromEvaluationTaskWithOptions(tmpReq: Detac
 }
 
 /**
+ * @deprecated OpenAPI DetachDataQualityRulesFromEvaluationTask is deprecated, please use dataworks-public::2024-05-18::UpdateDataQualityScan instead.
+ *
  * @summary Disassociates monitoring rules from a data quality monitoring task.
  *
  * @param request DetachDataQualityRulesFromEvaluationTaskRequest
  * @return DetachDataQualityRulesFromEvaluationTaskResponse
  */
+// Deprecated
 async function detachDataQualityRulesFromEvaluationTask(request: DetachDataQualityRulesFromEvaluationTaskRequest): DetachDataQualityRulesFromEvaluationTaskResponse {
   var runtime = new $RuntimeOptions{};
   return detachDataQualityRulesFromEvaluationTaskWithOptions(request, runtime);
@@ -8811,6 +9390,8 @@ model EstablishRelationTableToBusinessResponse = {
 }
 
 /**
+ * @summary Imports a table to a workflow. The call to this API operation is equivalent to performing the following operations: Go to the DataStudio page, find the desired workflow, and then click the workflow name. Right-click Table under the desired folder and select Import Table.
+ *
  * @param request EstablishRelationTableToBusinessRequest
  * @param runtime runtime options for this request RuntimeOptions
  * @return EstablishRelationTableToBusinessResponse
@@ -8852,6 +9433,8 @@ async function establishRelationTableToBusinessWithOptions(request: EstablishRel
 }
 
 /**
+ * @summary Imports a table to a workflow. The call to this API operation is equivalent to performing the following operations: Go to the DataStudio page, find the desired workflow, and then click the workflow name. Right-click Table under the desired folder and select Import Table.
+ *
  * @param request EstablishRelationTableToBusinessRequest
  * @return EstablishRelationTableToBusinessResponse
  */
@@ -9305,6 +9888,8 @@ model GetBusinessResponse = {
 }
 
 /**
+ * @summary Queries the information about a workflow.
+ *
  * @param request GetBusinessRequest
  * @param runtime runtime options for this request RuntimeOptions
  * @return GetBusinessResponse
@@ -9340,6 +9925,8 @@ async function getBusinessWithOptions(request: GetBusinessRequest, runtime: $Run
 }
 
 /**
+ * @summary Queries the information about a workflow.
+ *
  * @param request GetBusinessRequest
  * @return GetBusinessResponse
  */
@@ -9377,7 +9964,7 @@ model GetCatalogResponse = {
 }
 
 /**
- * @summary 获取数据目录详情
+ * @summary Queries the information about a catalog in Data Map. Only catalogs of the Data Lake Formation (DLF) and StarRocks metadata crawlers are supported.
  *
  * @param request GetCatalogRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -9405,7 +9992,7 @@ async function getCatalogWithOptions(request: GetCatalogRequest, runtime: $Runti
 }
 
 /**
- * @summary 获取数据目录详情
+ * @summary Queries the information about a catalog in Data Map. Only catalogs of the Data Lake Formation (DLF) and StarRocks metadata crawlers are supported.
  *
  * @param request GetCatalogRequest
  * @return GetCatalogResponse
@@ -9444,7 +10031,7 @@ model GetCertificateResponse = {
 }
 
 /**
- * @summary Queries a certificate file.
+ * @summary View certificate details.
  *
  * @description 1.  This API operation is available for all DataWorks editions.
  * 2.  You can call this operation only if you are assigned one of the following roles in DataWorks: Tenant Owner, Workspace Administrator, Deploy, Develop, Workspace Owner, and O\\&M.
@@ -9475,7 +10062,7 @@ async function getCertificateWithOptions(request: GetCertificateRequest, runtime
 }
 
 /**
- * @summary Queries a certificate file.
+ * @summary View certificate details.
  *
  * @description 1.  This API operation is available for all DataWorks editions.
  * 2.  You can call this operation only if you are assigned one of the following roles in DataWorks: Tenant Owner, Workspace Administrator, Deploy, Develop, Workspace Owner, and O\\&M.
@@ -9535,7 +10122,7 @@ model GetColumnResponse = {
 }
 
 /**
- * @summary 获取字段详情
+ * @summary Queries the information about a specific field of a table in Data Map.
  *
  * @param request GetColumnRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -9563,7 +10150,7 @@ async function getColumnWithOptions(request: GetColumnRequest, runtime: $Runtime
 }
 
 /**
- * @summary 获取字段详情
+ * @summary Queries the information about a specific field of a table in Data Map.
  *
  * @param request GetColumnRequest
  * @return GetColumnResponse
@@ -9741,7 +10328,7 @@ model GetComputeResourceResponse = {
 }
 
 /**
- * @summary 验证用
+ * @summary Queries the specified computing resource based on the computing resource ID.
  *
  * @param request GetComputeResourceRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -9775,7 +10362,7 @@ async function getComputeResourceWithOptions(request: GetComputeResourceRequest,
 }
 
 /**
- * @summary 验证用
+ * @summary Queries the specified computing resource based on the computing resource ID.
  *
  * @param request GetComputeResourceRequest
  * @return GetComputeResourceResponse
@@ -9960,6 +10547,7 @@ model GetDIJobResponseBody = {
 *   Full: full batch synchronization of data in an entire database
 *   OfflineIncremental: batch incremental synchronization of data in an entire database
 *   FullAndOfflineIncremental: full synchronization and batch incremental synchronization of data in an entire database', example='FullAndRealtimeIncremental'),
+    owner?: string(name='Owner'),
     projectId?: long(name='ProjectId', description='The DataWorks workspace ID. You can log on to the [DataWorks console](https://workbench.data.aliyun.com/console) and go to the Workspace page to query the ID.
 
 This parameter indicates the DataWorks workspace to which the API operation is applied.', example='98330'),
@@ -10390,12 +10978,15 @@ model GetDataQualityEvaluationTaskResponse = {
 }
 
 /**
+ * @deprecated OpenAPI GetDataQualityEvaluationTask is deprecated, please use dataworks-public::2024-05-18::CreateDataQualityScan instead.
+ *
  * @summary Queries the details of a monitor.
  *
  * @param request GetDataQualityEvaluationTaskRequest
  * @param runtime runtime options for this request RuntimeOptions
  * @return GetDataQualityEvaluationTaskResponse
  */
+// Deprecated
 @context("getDataQualityEvaluationTaskWithContext")
 async function getDataQualityEvaluationTaskWithOptions(request: GetDataQualityEvaluationTaskRequest, runtime: $RuntimeOptions): GetDataQualityEvaluationTaskResponse {
   request.validate();
@@ -10418,11 +11009,14 @@ async function getDataQualityEvaluationTaskWithOptions(request: GetDataQualityEv
 }
 
 /**
+ * @deprecated OpenAPI GetDataQualityEvaluationTask is deprecated, please use dataworks-public::2024-05-18::CreateDataQualityScan instead.
+ *
  * @summary Queries the details of a monitor.
  *
  * @param request GetDataQualityEvaluationTaskRequest
  * @return GetDataQualityEvaluationTaskResponse
  */
+// Deprecated
 async function getDataQualityEvaluationTask(request: GetDataQualityEvaluationTaskRequest): GetDataQualityEvaluationTaskResponse {
   var runtime = new $RuntimeOptions{};
   return getDataQualityEvaluationTaskWithOptions(request, runtime);
@@ -10586,12 +11180,15 @@ model GetDataQualityEvaluationTaskInstanceResponse = {
 }
 
 /**
+ * @deprecated OpenAPI GetDataQualityEvaluationTaskInstance is deprecated, please use dataworks-public::2024-05-18::GetDataQualityScanRun instead.
+ *
  * @summary Queries the details of a monitor instance.
  *
  * @param request GetDataQualityEvaluationTaskInstanceRequest
  * @param runtime runtime options for this request RuntimeOptions
  * @return GetDataQualityEvaluationTaskInstanceResponse
  */
+// Deprecated
 @context("getDataQualityEvaluationTaskInstanceWithContext")
 async function getDataQualityEvaluationTaskInstanceWithOptions(request: GetDataQualityEvaluationTaskInstanceRequest, runtime: $RuntimeOptions): GetDataQualityEvaluationTaskInstanceResponse {
   request.validate();
@@ -10614,11 +11211,14 @@ async function getDataQualityEvaluationTaskInstanceWithOptions(request: GetDataQ
 }
 
 /**
+ * @deprecated OpenAPI GetDataQualityEvaluationTaskInstance is deprecated, please use dataworks-public::2024-05-18::GetDataQualityScanRun instead.
+ *
  * @summary Queries the details of a monitor instance.
  *
  * @param request GetDataQualityEvaluationTaskInstanceRequest
  * @return GetDataQualityEvaluationTaskInstanceResponse
  */
+// Deprecated
 async function getDataQualityEvaluationTaskInstance(request: GetDataQualityEvaluationTaskInstanceRequest): GetDataQualityEvaluationTaskInstanceResponse {
   var runtime = new $RuntimeOptions{};
   return getDataQualityEvaluationTaskInstanceWithOptions(request, runtime);
@@ -10746,6 +11346,8 @@ model GetDataQualityRuleResponse = {
 }
 
 /**
+ * @deprecated OpenAPI GetDataQualityRule is deprecated, please use dataworks-public::2024-05-18::GetDataQualityScan instead.
+ *
  * @summary Queries the information about a data quality monitoring rule.
  *
  * @description This API operation is available for all DataWorks editions.
@@ -10754,6 +11356,7 @@ model GetDataQualityRuleResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return GetDataQualityRuleResponse
  */
+// Deprecated
 @context("getDataQualityRuleWithContext")
 async function getDataQualityRuleWithOptions(request: GetDataQualityRuleRequest, runtime: $RuntimeOptions): GetDataQualityRuleResponse {
   request.validate();
@@ -10776,6 +11379,8 @@ async function getDataQualityRuleWithOptions(request: GetDataQualityRuleRequest,
 }
 
 /**
+ * @deprecated OpenAPI GetDataQualityRule is deprecated, please use dataworks-public::2024-05-18::GetDataQualityScan instead.
+ *
  * @summary Queries the information about a data quality monitoring rule.
  *
  * @description This API operation is available for all DataWorks editions.
@@ -10783,6 +11388,7 @@ async function getDataQualityRuleWithOptions(request: GetDataQualityRuleRequest,
  * @param request GetDataQualityRuleRequest
  * @return GetDataQualityRuleResponse
  */
+// Deprecated
 async function getDataQualityRule(request: GetDataQualityRuleRequest): GetDataQualityRuleResponse {
   var runtime = new $RuntimeOptions{};
   return getDataQualityRuleWithOptions(request, runtime);
@@ -10847,6 +11453,8 @@ model GetDataQualityRuleTemplateResponse = {
 }
 
 /**
+ * @deprecated OpenAPI GetDataQualityRuleTemplate is deprecated, please use dataworks-public::2024-05-18::GetDataQualityTemplate instead.
+ *
  * @summary Queries the information about a data quality monitoring rule template.
  *
  * @description This API operation is available for all DataWorks editions.
@@ -10855,6 +11463,7 @@ model GetDataQualityRuleTemplateResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return GetDataQualityRuleTemplateResponse
  */
+// Deprecated
 @context("getDataQualityRuleTemplateWithContext")
 async function getDataQualityRuleTemplateWithOptions(request: GetDataQualityRuleTemplateRequest, runtime: $RuntimeOptions): GetDataQualityRuleTemplateResponse {
   request.validate();
@@ -10877,6 +11486,8 @@ async function getDataQualityRuleTemplateWithOptions(request: GetDataQualityRule
 }
 
 /**
+ * @deprecated OpenAPI GetDataQualityRuleTemplate is deprecated, please use dataworks-public::2024-05-18::GetDataQualityTemplate instead.
+ *
  * @summary Queries the information about a data quality monitoring rule template.
  *
  * @description This API operation is available for all DataWorks editions.
@@ -10884,6 +11495,7 @@ async function getDataQualityRuleTemplateWithOptions(request: GetDataQualityRule
  * @param request GetDataQualityRuleTemplateRequest
  * @return GetDataQualityRuleTemplateResponse
  */
+// Deprecated
 async function getDataQualityRuleTemplate(request: GetDataQualityRuleTemplateRequest): GetDataQualityRuleTemplateResponse {
   var runtime = new $RuntimeOptions{};
   return getDataQualityRuleTemplateWithOptions(request, runtime);
@@ -11509,7 +12121,7 @@ model GetDatabaseResponse = {
 }
 
 /**
- * @summary 获取数据库详情
+ * @summary Queries the information about a specific database in Data Map.
  *
  * @param request GetDatabaseRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -11537,7 +12149,7 @@ async function getDatabaseWithOptions(request: GetDatabaseRequest, runtime: $Run
 }
 
 /**
- * @summary 获取数据库详情
+ * @summary Queries the information about a specific database in Data Map.
  *
  * @param request GetDatabaseRequest
  * @return GetDatabaseResponse
@@ -11566,7 +12178,7 @@ model GetDatasetResponse = {
 }
 
 /**
- * @summary 获取数据集详情
+ * @summary Gets the details of a dataset.
  *
  * @param request GetDatasetRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -11597,7 +12209,7 @@ async function getDatasetWithOptions(request: GetDatasetRequest, runtime: $Runti
 }
 
 /**
- * @summary 获取数据集详情
+ * @summary Gets the details of a dataset.
  *
  * @param request GetDatasetRequest
  * @return GetDatasetResponse
@@ -11726,6 +12338,8 @@ model GetDeploymentPackageResponse = {
 }
 
 /**
+ * @summary Queries the information about a deployment package.
+ *
  * @param request GetDeploymentPackageRequest
  * @param runtime runtime options for this request RuntimeOptions
  * @return GetDeploymentPackageResponse
@@ -11761,6 +12375,8 @@ async function getDeploymentPackageWithOptions(request: GetDeploymentPackageRequ
 }
 
 /**
+ * @summary Queries the information about a deployment package.
+ *
  * @param request GetDeploymentPackageRequest
  * @return GetDeploymentPackageResponse
  */
@@ -12146,6 +12762,8 @@ model GetFolderResponse = {
 }
 
 /**
+ * @summary Queries the information about a folder.
+ *
  * @param request GetFolderRequest
  * @param runtime runtime options for this request RuntimeOptions
  * @return GetFolderResponse
@@ -12184,6 +12802,8 @@ async function getFolderWithOptions(request: GetFolderRequest, runtime: $Runtime
 }
 
 /**
+ * @summary Queries the information about a folder.
+ *
  * @param request GetFolderRequest
  * @return GetFolderResponse
  */
@@ -12583,7 +13203,7 @@ model GetLineageRelationshipResponse = {
 }
 
 /**
- * @summary 获取血缘关系详情
+ * @summary Queries the information about a lineage in Data Map.
  *
  * @param request GetLineageRelationshipRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -12611,7 +13231,7 @@ async function getLineageRelationshipWithOptions(request: GetLineageRelationship
 }
 
 /**
- * @summary 获取血缘关系详情
+ * @summary Queries the information about a lineage in Data Map.
  *
  * @param request GetLineageRelationshipRequest
  * @return GetLineageRelationshipResponse
@@ -13846,7 +14466,7 @@ model GetTableResponse = {
 }
 
 /**
- * @summary 获取表详情
+ * @summary Queries the information about a specific table in Data Map.
  *
  * @param request GetTableRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -13874,7 +14494,7 @@ async function getTableWithOptions(request: GetTableRequest, runtime: $RuntimeOp
 }
 
 /**
- * @summary 获取表详情
+ * @summary Queries the information about a specific table in Data Map.
  *
  * @param request GetTableRequest
  * @return GetTableResponse
@@ -15488,6 +16108,8 @@ model ListBusinessResponse = {
 }
 
 /**
+ * @summary Queries a list of workflows.
+ *
  * @param request ListBusinessRequest
  * @param runtime runtime options for this request RuntimeOptions
  * @return ListBusinessResponse
@@ -15529,6 +16151,8 @@ async function listBusinessWithOptions(request: ListBusinessRequest, runtime: $R
 }
 
 /**
+ * @summary Queries a list of workflows.
+ *
  * @param request ListBusinessRequest
  * @return ListBusinessResponse
  */
@@ -15619,7 +16243,7 @@ model ListCatalogsResponse = {
 }
 
 /**
- * @summary 查询数据目录列表
+ * @summary Queries a list of catalogs in Data Map. Only catalogs of the Data Lake Formation (DLF) and StarRocks metadata crawler types are supported. For the DLF metadata crawler type, all supported data catalogs are returned. For the StarRocks metadata crawler type, data catalogs in a specific instance are returned.
  *
  * @param tmpReq ListCatalogsRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -15652,7 +16276,7 @@ async function listCatalogsWithOptions(tmpReq: ListCatalogsRequest, runtime: $Ru
 }
 
 /**
- * @summary 查询数据目录列表
+ * @summary Queries a list of catalogs in Data Map. Only catalogs of the Data Lake Formation (DLF) and StarRocks metadata crawler types are supported. For the DLF metadata crawler type, all supported data catalogs are returned. For the StarRocks metadata crawler type, data catalogs in a specific instance are returned.
  *
  * @param request ListCatalogsRequest
  * @return ListCatalogsResponse
@@ -15784,7 +16408,7 @@ model ListColumnsResponse = {
 }
 
 /**
- * @summary 查询字段列表
+ * @summary Queries a list of fields in a data table in Data Map.
  *
  * @param request ListColumnsRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -15812,7 +16436,7 @@ async function listColumnsWithOptions(request: ListColumnsRequest, runtime: $Run
 }
 
 /**
- * @summary 查询字段列表
+ * @summary Queries a list of fields in a data table in Data Map.
  *
  * @param request ListColumnsRequest
  * @return ListColumnsResponse
@@ -16031,7 +16655,7 @@ model ListComputeResourcesResponse = {
 }
 
 /**
- * @summary 验证用
+ * @summary Queries the list of computing resources that meet the specified business information.
  *
  * @param tmpReq ListComputeResourcesRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -16088,7 +16712,7 @@ async function listComputeResourcesWithOptions(tmpReq: ListComputeResourcesReque
 }
 
 /**
- * @summary 验证用
+ * @summary Queries the list of computing resources that meet the specified business information.
  *
  * @param request ListComputeResourcesRequest
  * @return ListComputeResourcesResponse
@@ -16113,7 +16737,7 @@ model ListCrawlerTypesResponse = {
 }
 
 /**
- * @summary 查询元数据采集器类型列表
+ * @summary Queries a list of metadata crawler types supported in Data Map. The subtypes of the types and the hierarchical relationship between the subtypes are also returned.
  *
  * @param request ListCrawlerTypesRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -16136,7 +16760,7 @@ async function listCrawlerTypesWithOptions(runtime: $RuntimeOptions): ListCrawle
 }
 
 /**
- * @summary 查询元数据采集器类型列表
+ * @summary Queries a list of metadata crawler types supported in Data Map. The subtypes of the types and the hierarchical relationship between the subtypes are also returned.
  *
  * @return ListCrawlerTypesResponse
  */
@@ -16592,6 +17216,7 @@ model ListDIJobsResponseBody = {
 *   Full: full synchronization
 *   OfflineIncremental: batch incremental synchronization
 *   FullAndOfflineIncremental: one-time full synchronization and batch incremental synchronization', example='FullAndRealtimeIncremental'),
+        owner?: string(name='Owner'),
         projectId?: long(name='ProjectId', description='The ID of the DataWorks workspace to which the synchronization task belongs.', example='26442'),
         sourceDataSourceType?: string(name='SourceDataSourceType', description='The source type. Valid values: PolarDB, MySQL, Kafka, Loghub, Hologres, Oracle, OceanBase, MongoDB, RedShift, Hive, SqlServer, Doris, and ClickHouse. If you do not configure this parameter, the API operation returns synchronization tasks that use all types of sources.', example='Mysql'),
       }
@@ -17121,6 +17746,8 @@ model ListDataQualityEvaluationTaskInstancesResponse = {
 }
 
 /**
+ * @deprecated OpenAPI ListDataQualityEvaluationTaskInstances is deprecated, please use dataworks-public::2024-05-18::ListDataQualityScanRuns instead.
+ *
  * @summary Queries a list of instances generated by a data quality monitoring task by page.
  *
  * @description This API operation is available for all DataWorks editions.
@@ -17129,6 +17756,7 @@ model ListDataQualityEvaluationTaskInstancesResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return ListDataQualityEvaluationTaskInstancesResponse
  */
+// Deprecated
 @context("listDataQualityEvaluationTaskInstancesWithContext")
 async function listDataQualityEvaluationTaskInstancesWithOptions(request: ListDataQualityEvaluationTaskInstancesRequest, runtime: $RuntimeOptions): ListDataQualityEvaluationTaskInstancesResponse {
   request.validate();
@@ -17151,6 +17779,8 @@ async function listDataQualityEvaluationTaskInstancesWithOptions(request: ListDa
 }
 
 /**
+ * @deprecated OpenAPI ListDataQualityEvaluationTaskInstances is deprecated, please use dataworks-public::2024-05-18::ListDataQualityScanRuns instead.
+ *
  * @summary Queries a list of instances generated by a data quality monitoring task by page.
  *
  * @description This API operation is available for all DataWorks editions.
@@ -17158,6 +17788,7 @@ async function listDataQualityEvaluationTaskInstancesWithOptions(request: ListDa
  * @param request ListDataQualityEvaluationTaskInstancesRequest
  * @return ListDataQualityEvaluationTaskInstancesResponse
  */
+// Deprecated
 async function listDataQualityEvaluationTaskInstances(request: ListDataQualityEvaluationTaskInstancesRequest): ListDataQualityEvaluationTaskInstancesResponse {
   var runtime = new $RuntimeOptions{};
   return listDataQualityEvaluationTaskInstancesWithOptions(request, runtime);
@@ -17252,6 +17883,8 @@ model ListDataQualityEvaluationTasksResponse = {
 }
 
 /**
+ * @deprecated OpenAPI ListDataQualityEvaluationTasks is deprecated, please use dataworks-public::2024-05-18::ListDataQualityScans instead.
+ *
  * @summary Queries a list of data quality monitoring tasks by page.
  *
  * @description This API operation is available for all DataWorks editions.
@@ -17260,6 +17893,7 @@ model ListDataQualityEvaluationTasksResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return ListDataQualityEvaluationTasksResponse
  */
+// Deprecated
 @context("listDataQualityEvaluationTasksWithContext")
 async function listDataQualityEvaluationTasksWithOptions(request: ListDataQualityEvaluationTasksRequest, runtime: $RuntimeOptions): ListDataQualityEvaluationTasksResponse {
   request.validate();
@@ -17282,6 +17916,8 @@ async function listDataQualityEvaluationTasksWithOptions(request: ListDataQualit
 }
 
 /**
+ * @deprecated OpenAPI ListDataQualityEvaluationTasks is deprecated, please use dataworks-public::2024-05-18::ListDataQualityScans instead.
+ *
  * @summary Queries a list of data quality monitoring tasks by page.
  *
  * @description This API operation is available for all DataWorks editions.
@@ -17289,6 +17925,7 @@ async function listDataQualityEvaluationTasksWithOptions(request: ListDataQualit
  * @param request ListDataQualityEvaluationTasksRequest
  * @return ListDataQualityEvaluationTasksResponse
  */
+// Deprecated
 async function listDataQualityEvaluationTasks(request: ListDataQualityEvaluationTasksRequest): ListDataQualityEvaluationTasksResponse {
   var runtime = new $RuntimeOptions{};
   return listDataQualityEvaluationTasksWithOptions(request, runtime);
@@ -17488,12 +18125,17 @@ model ListDataQualityResultsResponse = {
 }
 
 /**
+ * @deprecated OpenAPI ListDataQualityResults is deprecated, please use dataworks-public::2024-05-18::ListDataQualityScanRuns instead.
+ *
+ * @summary 查询数据质量规则校验结果列表
+ *
  * @description This API operation is available for all DataWorks editions.
  *
  * @param request ListDataQualityResultsRequest
  * @param runtime runtime options for this request RuntimeOptions
  * @return ListDataQualityResultsResponse
  */
+// Deprecated
 @context("listDataQualityResultsWithContext")
 async function listDataQualityResultsWithOptions(request: ListDataQualityResultsRequest, runtime: $RuntimeOptions): ListDataQualityResultsResponse {
   request.validate();
@@ -17516,11 +18158,16 @@ async function listDataQualityResultsWithOptions(request: ListDataQualityResults
 }
 
 /**
+ * @deprecated OpenAPI ListDataQualityResults is deprecated, please use dataworks-public::2024-05-18::ListDataQualityScanRuns instead.
+ *
+ * @summary 查询数据质量规则校验结果列表
+ *
  * @description This API operation is available for all DataWorks editions.
  *
  * @param request ListDataQualityResultsRequest
  * @return ListDataQualityResultsResponse
  */
+// Deprecated
 async function listDataQualityResults(request: ListDataQualityResultsRequest): ListDataQualityResultsResponse {
   var runtime = new $RuntimeOptions{};
   return listDataQualityResultsWithOptions(request, runtime);
@@ -17598,12 +18245,15 @@ model ListDataQualityRuleTemplatesResponse = {
 }
 
 /**
+ * @deprecated OpenAPI ListDataQualityRuleTemplates is deprecated, please use dataworks-public::2024-05-18::ListDataQualityTemplates instead.
+ *
  * @summary Queries a list of data quality monitoring rule templates.
  *
  * @param request ListDataQualityRuleTemplatesRequest
  * @param runtime runtime options for this request RuntimeOptions
  * @return ListDataQualityRuleTemplatesResponse
  */
+// Deprecated
 @context("listDataQualityRuleTemplatesWithContext")
 async function listDataQualityRuleTemplatesWithOptions(request: ListDataQualityRuleTemplatesRequest, runtime: $RuntimeOptions): ListDataQualityRuleTemplatesResponse {
   request.validate();
@@ -17626,11 +18276,14 @@ async function listDataQualityRuleTemplatesWithOptions(request: ListDataQualityR
 }
 
 /**
+ * @deprecated OpenAPI ListDataQualityRuleTemplates is deprecated, please use dataworks-public::2024-05-18::ListDataQualityTemplates instead.
+ *
  * @summary Queries a list of data quality monitoring rule templates.
  *
  * @param request ListDataQualityRuleTemplatesRequest
  * @return ListDataQualityRuleTemplatesResponse
  */
+// Deprecated
 async function listDataQualityRuleTemplates(request: ListDataQualityRuleTemplatesRequest): ListDataQualityRuleTemplatesResponse {
   var runtime = new $RuntimeOptions{};
   return listDataQualityRuleTemplatesWithOptions(request, runtime);
@@ -17794,6 +18447,8 @@ model ListDataQualityRulesResponse = {
 }
 
 /**
+ * @deprecated OpenAPI ListDataQualityRules is deprecated, please use dataworks-public::2024-05-18::ListDataQualityScans instead.
+ *
  * @summary Queries a list of data quality monitoring rules by page.
  *
  * @description This API operation is available for all DataWorks editions.
@@ -17802,6 +18457,7 @@ model ListDataQualityRulesResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return ListDataQualityRulesResponse
  */
+// Deprecated
 @context("listDataQualityRulesWithContext")
 async function listDataQualityRulesWithOptions(request: ListDataQualityRulesRequest, runtime: $RuntimeOptions): ListDataQualityRulesResponse {
   request.validate();
@@ -17824,6 +18480,8 @@ async function listDataQualityRulesWithOptions(request: ListDataQualityRulesRequ
 }
 
 /**
+ * @deprecated OpenAPI ListDataQualityRules is deprecated, please use dataworks-public::2024-05-18::ListDataQualityScans instead.
+ *
  * @summary Queries a list of data quality monitoring rules by page.
  *
  * @description This API operation is available for all DataWorks editions.
@@ -17831,6 +18489,7 @@ async function listDataQualityRulesWithOptions(request: ListDataQualityRulesRequ
  * @param request ListDataQualityRulesRequest
  * @return ListDataQualityRulesResponse
  */
+// Deprecated
 async function listDataQualityRules(request: ListDataQualityRulesRequest): ListDataQualityRulesResponse {
   var runtime = new $RuntimeOptions{};
   return listDataQualityRulesWithOptions(request, runtime);
@@ -18555,7 +19214,7 @@ model ListDatabasesResponse = {
 }
 
 /**
- * @summary 查询数据库列表
+ * @summary Queries a list of databases in an instance, cluster, or data catalog in Data Map. For DLF or StarRocks data sources, you can call this API operation to query databases in a data catalog. For StarRocks data sources, you can call this API operation to query databases in internal catalogs. For other types of data sources, you can call this API operation to query databases in an instance or cluster.
  *
  * @param request ListDatabasesRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -18583,7 +19242,7 @@ async function listDatabasesWithOptions(request: ListDatabasesRequest, runtime: 
 }
 
 /**
- * @summary 查询数据库列表
+ * @summary Queries a list of databases in an instance, cluster, or data catalog in Data Map. For DLF or StarRocks data sources, you can call this API operation to query databases in a data catalog. For StarRocks data sources, you can call this API operation to query databases in internal catalogs. For other types of data sources, you can call this API operation to query databases in an instance or cluster.
  *
  * @param request ListDatabasesRequest
  * @return ListDatabasesResponse
@@ -19804,6 +20463,8 @@ model ListFileVersionsResponse = {
 }
 
 /**
+ * @summary Queries a list of file versions.
+ *
  * @param request ListFileVersionsRequest
  * @param runtime runtime options for this request RuntimeOptions
  * @return ListFileVersionsResponse
@@ -19845,6 +20506,8 @@ async function listFileVersionsWithOptions(request: ListFileVersionsRequest, run
 }
 
 /**
+ * @summary Queries a list of file versions.
+ *
  * @param request ListFileVersionsRequest
  * @return ListFileVersionsResponse
  */
@@ -19948,6 +20611,8 @@ model ListFilesResponse = {
 }
 
 /**
+ * @summary Queries a list of files.
+ *
  * @param request ListFilesRequest
  * @param runtime runtime options for this request RuntimeOptions
  * @return ListFilesResponse
@@ -20022,6 +20687,8 @@ async function listFilesWithOptions(request: ListFilesRequest, runtime: $Runtime
 }
 
 /**
+ * @summary Queries a list of files.
+ *
  * @param request ListFilesRequest
  * @return ListFilesResponse
  */
@@ -20073,6 +20740,8 @@ model ListFoldersResponse = {
 }
 
 /**
+ * @summary Queries a list of folders.
+ *
  * @param request ListFoldersRequest
  * @param runtime runtime options for this request RuntimeOptions
  * @return ListFoldersResponse
@@ -20114,6 +20783,8 @@ async function listFoldersWithOptions(request: ListFoldersRequest, runtime: $Run
 }
 
 /**
+ * @summary Queries a list of folders.
+ *
  * @param request ListFoldersRequest
  * @return ListFoldersResponse
  */
@@ -20311,7 +20982,7 @@ model ListLineageRelationshipsResponse = {
 }
 
 /**
- * @summary 查询血缘关系
+ * @summary Queries the lineage between two entities, such as tables, fields, and Object Storage Service (OSS) files, in Data Map.
  *
  * @param request ListLineageRelationshipsRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -20339,7 +21010,7 @@ async function listLineageRelationshipsWithOptions(request: ListLineageRelations
 }
 
 /**
- * @summary 查询血缘关系
+ * @summary Queries the lineage between two entities, such as tables, fields, and Object Storage Service (OSS) files, in Data Map.
  *
  * @param request ListLineageRelationshipsRequest
  * @return ListLineageRelationshipsResponse
@@ -20387,7 +21058,7 @@ model ListLineagesResponse = {
 }
 
 /**
- * @summary 查询实体血缘
+ * @summary Queries a list of ancestor and descendant entities of an entity in Data Map. You can specify whether to return the lineage between the entities.
  *
  * @param request ListLineagesRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -20415,7 +21086,7 @@ async function listLineagesWithOptions(request: ListLineagesRequest, runtime: $R
 }
 
 /**
- * @summary 查询实体血缘
+ * @summary Queries a list of ancestor and descendant entities of an entity in Data Map. You can specify whether to return the lineage between the entities.
  *
  * @param request ListLineagesRequest
  * @return ListLineagesResponse
@@ -21100,7 +21771,7 @@ model ListPartitionsResponse = {
 }
 
 /**
- * @summary 查询数据表的分区列表
+ * @summary Queries a list of partitions in a table in Data Map. Only tables of the MaxCompute and E-MapReduce (EMR)-type Hive Metastore Service (HMS) metadata crawlers are supported.
  *
  * @param request ListPartitionsRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -21128,7 +21799,7 @@ async function listPartitionsWithOptions(request: ListPartitionsRequest, runtime
 }
 
 /**
- * @summary 查询数据表的分区列表
+ * @summary Queries a list of partitions in a table in Data Map. Only tables of the MaxCompute and E-MapReduce (EMR)-type Hive Metastore Service (HMS) metadata crawlers are supported.
  *
  * @param request ListPartitionsRequest
  * @return ListPartitionsResponse
@@ -21831,7 +22502,7 @@ model ListResourceGroupAssociateProjectsResponse = {
 }
 
 /**
- * @summary Query the list of workspaces with which a resource group is associated
+ * @summary Gets the list of workspaces bound to a resource group.
  *
  * @description 1.  This API operation is available for all DataWorks editions.
  * 2.  **Make sure that the AliyunServiceRoleForDataWorks service-linked role is created before you call this operation.
@@ -21865,7 +22536,7 @@ async function listResourceGroupAssociateProjectsWithOptions(request: ListResour
 }
 
 /**
- * @summary Query the list of workspaces with which a resource group is associated
+ * @summary Gets the list of workspaces bound to a resource group.
  *
  * @description 1.  This API operation is available for all DataWorks editions.
  * 2.  **Make sure that the AliyunServiceRoleForDataWorks service-linked role is created before you call this operation.
@@ -21973,7 +22644,7 @@ model ListResourceGroupMetricDataResponse = {
 }
 
 /**
- * @summary 获取指定资源组的监控指标数据
+ * @summary Queries the metric data of a resource group.
  *
  * @param request ListResourceGroupMetricDataRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -22022,7 +22693,7 @@ async function listResourceGroupMetricDataWithOptions(request: ListResourceGroup
 }
 
 /**
- * @summary 获取指定资源组的监控指标数据
+ * @summary Queries the metric data of a resource group.
  *
  * @param request ListResourceGroupMetricDataRequest
  * @return ListResourceGroupMetricDataResponse
@@ -24875,7 +25546,7 @@ model RemoveEntityFromMetaCollectionResponse = {
 }
 
 /**
- * @summary 从集合中移除实体对象
+ * @summary Removes an entity from a collection in Data Map. Collections include categories and data albums. Entities can be only tables. If you want to remove an entity from a data album, the account that you use must be attached the AliyunDataWorksFullAccess policy, or you are the data album creator or administrator.
  *
  * @param request RemoveEntityFromMetaCollectionRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -24909,7 +25580,7 @@ async function removeEntityFromMetaCollectionWithOptions(request: RemoveEntityFr
 }
 
 /**
- * @summary 从集合中移除实体对象
+ * @summary Removes an entity from a collection in Data Map. Collections include categories and data albums. Entities can be only tables. If you want to remove an entity from a data album, the account that you use must be attached the AliyunDataWorksFullAccess policy, or you are the data album creator or administrator.
  *
  * @param request RemoveEntityFromMetaCollectionRequest
  * @return RemoveEntityFromMetaCollectionResponse
@@ -26218,6 +26889,8 @@ model SubmitFileResponse = {
 }
 
 /**
+ * @summary Commits a file to the development environment of the scheduling system to generate a task.
+ *
  * @param request SubmitFileRequest
  * @param runtime runtime options for this request RuntimeOptions
  * @return SubmitFileResponse
@@ -26259,6 +26932,8 @@ async function submitFileWithOptions(request: SubmitFileRequest, runtime: $Runti
 }
 
 /**
+ * @summary Commits a file to the development environment of the scheduling system to generate a task.
+ *
  * @param request SubmitFileRequest
  * @return SubmitFileResponse
  */
@@ -27053,7 +27728,7 @@ model UpdateColumnBusinessMetadataResponse = {
 }
 
 /**
- * @summary 更新字段业务元数据
+ * @summary Updates the business metadata of a column in a table in Data Map. Only the business description of a column can be updated.
  *
  * @param request UpdateColumnBusinessMetadataRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -27087,7 +27762,7 @@ async function updateColumnBusinessMetadataWithOptions(request: UpdateColumnBusi
 }
 
 /**
- * @summary 更新字段业务元数据
+ * @summary Updates the business metadata of a column in a table in Data Map. Only the business description of a column can be updated.
  *
  * @param request UpdateColumnBusinessMetadataRequest
  * @return UpdateColumnBusinessMetadataResponse
@@ -27221,7 +27896,7 @@ model UpdateComputeResourceResponse = {
 }
 
 /**
- * @summary 验证用
+ * @summary Modifies the specified computing resource based on the computing resource ID.
  *
  * @param request UpdateComputeResourceRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -27264,7 +27939,7 @@ async function updateComputeResourceWithOptions(request: UpdateComputeResourceRe
 }
 
 /**
- * @summary 验证用
+ * @summary Modifies the specified computing resource based on the computing resource ID.
  *
  * @param request UpdateComputeResourceRequest
  * @return UpdateComputeResourceResponse
@@ -27414,85 +28089,203 @@ async function updateDIAlarmRule(request: UpdateDIAlarmRuleRequest): UpdateDIAla
 
 model UpdateDIJobRequest {
   DIJobId?: long(name='DIJobId', description='This parameter is deprecated. Use the Id parameter instead.', example='11588', deprecated=true),
-  description?: string(name='Description'),
+  description?: string(name='Description', description='The task description.', example='The description of the synchronization task.'),
+  fileSpec?: string(name='FileSpec'),
   id?: long(name='Id', description='The ID of the synchronization task.', example='11588'),
   jobSettings?: {
-    channelSettings?: string(name='ChannelSettings'),
+    channelSettings?: string(name='ChannelSettings', description='The channel-specific settings. You can configure special settings for specific channels. Currently supported: Holo2Holo (Hologres to Hologres) and Holo2Kafka (Hologres to Kafka).
+
+1.  Holo2Kafka
+
+*   Example: {"destinationChannelSettings":{"kafkaClientProperties":[{"key":"linger.ms","value":"100"}],"keyColumns":["col3"],"writeMode":"canal"}} kafkaClientProperties: Kafka producer parameters used when writing to Kafka.
+*   keyColumns: The columns to write to Kafka.
+*   writeMode: The Kafka write format. Valid values: json and canal.
+
+2.  Holo2Holo
+
+*   Example: {"destinationChannelSettings":{"conflictMode":"replace","dynamicColumnAction":"replay","writeMode":"replay"}}
+*   conflictMode: The conflict handling policy when writing to Hologres. Valid values: replace (overwrite) and ignore.
+*   writeMode: The write mode for Hologres. Valid values: replay and insert.
+*   dynamicColumnAction: The dynamic column handling mode when writing to Hologres. Valid values: replay, insert, and ignore.', example='{"structInfo":"MANAGED","storageType":"TEXTFILE","writeMode":"APPEND","partitionColumns":[{"columnName":"pt","columnType":"STRING","comment":""}],"fieldDelimiter":""}'),
     columnDataTypeSettings?: [ 
       {
-        destinationDataType?: string(name='DestinationDataType'),
-        sourceDataType?: string(name='SourceDataType'),
+        destinationDataType?: string(name='DestinationDataType', description='The destination type, such as bigint, boolean, string, text, datetime, timestamp, decimal, or binary. Different data sources may have different types.', example='text'),
+        sourceDataType?: string(name='SourceDataType', description='The source type, such as bigint, boolean, string, text, datetime, timestamp, decimal, or binary. Different data sources may have different types.', example='bigint'),
       }
-    ](name='ColumnDataTypeSettings'),
+    ](name='ColumnDataTypeSettings', description='The array of column type mappings.
+
+>  ["ColumnDataTypeSettings":[ { "SourceDataType":"Bigint", "DestinationDataType":"Text" } ]'),
     cycleScheduleSettings?: {
-      scheduleParameters?: string(name='ScheduleParameters'),
-    }(name='CycleScheduleSettings'),
+      scheduleParameters?: string(name='ScheduleParameters', description='The scheduling parameters.', example='bizdate=$bizdate'),
+    }(name='CycleScheduleSettings', description='The scheduled task settings.'),
     ddlHandlingSettings?: [ 
       {
-        action?: string(name='Action'),
-        type?: string(name='Type'),
+        action?: string(name='Action', description='Valid values:
+
+*   Ignore
+*   Critical: Fail the task
+*   Normal', example='Critical'),
+        type?: string(name='Type', description='The DDL type. Valid values:
+
+*   RenameColumn
+*   ModifyColumn
+*   CreateTable
+*   TruncateTable
+*   DropTable
+*   DropColumn
+*   AddColumn', example='AddColumn'),
       }
-    ](name='DdlHandlingSettings'),
+    ](name='DdlHandlingSettings', description='The array of DDL handling settings.
+
+>  ["DDLHandlingSettings":[ { "Type":"Insert", "Action":"Normal" } ]'),
     runtimeSettings?: [ 
       {
-        name?: string(name='Name'),
-        value?: string(name='Value'),
+        name?: string(name='Name', description='The setting name. Valid values:
+
+*   src.offline.datasource.max.connection: Specifies the maximum number of connections that are allowed for reading data from the source of a batch synchronization task.
+*   dst.offline.truncate: Specifies whether to clear the destination table before data writing.
+*   runtime.offline.speed.limit.enable: Specifies whether throttling is enabled for a batch synchronization task.
+*   runtime.offline.concurrent: Specifies the maximum number of parallel threads that are allowed for a batch synchronization task.
+*   runtime.enable.auto.create.schema: Specifies whether schemas are automatically created in the destination of a synchronization task.
+*   runtime.realtime.concurrent: Specifies the maximum number of parallel threads that are allowed for a real-time synchronization task.
+*   runtime.realtime.failover.minute.dataxcdc: Specifies the maximum waiting duration before a synchronization task retries the next restart if the previous restart fails after failover occurs. Unit: minutes.
+*   runtime.realtime.failover.times.dataxcdc: Specifies the maximum number of failures that are allowed for restarting a synchronization task after failovers occur.', example='runtime.offline.concurrent'),
+        value?: string(name='Value', description='The setting value.', example='1'),
       }
-    ](name='RuntimeSettings'),
-  }(name='JobSettings'),
+    ](name='RuntimeSettings', description='The runtime settings.'),
+  }(name='JobSettings', description='The task-level settings, including DDL handling policies, column data type mapping between source and destination, and runtime parameters.'),
+  owner?: string(name='Owner', description='The task owner.', example='95279527'),
   projectId?: long(name='ProjectId', description='The DataWorks workspace ID. You can call the [ListProjects](https://help.aliyun.com/document_detail/178393.html) operation to obtain the ID.', example='10000'),
   resourceSettings?: {
     offlineResourceSettings?: {
-      requestedCu?: double(name='RequestedCu'),
-      resourceGroupIdentifier?: string(name='ResourceGroupIdentifier'),
-    }(name='OfflineResourceSettings'),
+      requestedCu?: double(name='RequestedCu', description='The CUs of the resource group for Data Integration used for batch synchronization.', example='2.0'),
+      resourceGroupIdentifier?: string(name='ResourceGroupIdentifier', description='The name of the resource group for Data Integration that are used for batch synchronization.', example='S_res_group_111_222'),
+    }(name='OfflineResourceSettings', description='The batch synchronization resources.'),
     realtimeResourceSettings?: {
-      requestedCu?: double(name='RequestedCu'),
-      resourceGroupIdentifier?: string(name='ResourceGroupIdentifier'),
-    }(name='RealtimeResourceSettings'),
+      requestedCu?: double(name='RequestedCu', description='The CUs of the resource group for Data Integration that are used for real-time synchronization.', example='2.0'),
+      resourceGroupIdentifier?: string(name='ResourceGroupIdentifier', description='The name of the resource group for Data Integration that are used for real-time synchronization.', example='S_res_group_111_222'),
+    }(name='RealtimeResourceSettings', description='The real-time synchronization resources.'),
     scheduleResourceSettings?: {
-      requestedCu?: double(name='RequestedCu'),
-      resourceGroupIdentifier?: string(name='ResourceGroupIdentifier'),
-    }(name='ScheduleResourceSettings'),
-  }(name='ResourceSettings'),
+      requestedCu?: double(name='RequestedCu', description='The CUs of the scheduling resource group for batch synchronization tasks.', example='2.0'),
+      resourceGroupIdentifier?: string(name='ResourceGroupIdentifier', description='The name of the scheduling resource group used for batch synchronization tasks.', example='S_res_group_235454102432001_1721021993437'),
+    }(name='ScheduleResourceSettings', description='The resource used for scheduling.'),
+  }(name='ResourceSettings', description='The resource settings.'),
   tableMappings?: [ 
     {
       sourceObjectSelectionRules?: [ 
         {
-          action?: string(name='Action'),
-          expression?: string(name='Expression'),
-          expressionType?: string(name='ExpressionType'),
-          objectType?: string(name='ObjectType'),
+          action?: string(name='Action', description='Valid values: Include and Exclude.', example='Include'),
+          expression?: string(name='Expression', description='The expression.', example='mysql_table_1'),
+          expressionType?: string(name='ExpressionType', description='The expression type. Valid values: Exact and Regex.', example='Exact'),
+          objectType?: string(name='ObjectType', description='The object type. Valid values:
+
+*   Table
+*   Schema
+*   Database', example='Table'),
         }
-      ](name='SourceObjectSelectionRules'),
+      ](name='SourceObjectSelectionRules', description='Each rule can select different object types from the source, such as source databases and source tables.'),
       transformationRules?: [ 
         {
-          ruleActionType?: string(name='RuleActionType'),
-          ruleName?: string(name='RuleName'),
-          ruleTargetType?: string(name='RuleTargetType'),
+          ruleActionType?: string(name='RuleActionType', description='Valid values:
+
+*   DefinePrimaryKey
+*   Rename
+*   AddColumn
+*   HandleDml', example='Rename'),
+          ruleName?: string(name='RuleName', description='The rule name. The rule name must be unique for a given combination of action type and target type. The name cannot exceed 50 characters.', example='rename_rule_1'),
+          ruleTargetType?: string(name='RuleTargetType', description='Valid values:
+
+*   Table
+*   Schema
+*   Database', example='Table'),
         }
-      ](name='TransformationRules'),
+      ](name='TransformationRules', description='The transformation rules applied to source objects.'),
     }
-  ](name='TableMappings'),
+  ](name='TableMappings', description='The list of synchronization object transformation mappings. Each element describes a set of source object selection rules and the transformation rules applied to those objects.
+
+>  [ { "SourceObjectSelectionRules":[ { "ObjectType":"Database", "Action":"Include", "ExpressionType":"Exact", "Expression":"biz_db" }, { "ObjectType":"Schema", "Action":"Include", "ExpressionType":"Exact", "Expression":"s1" }, { "ObjectType":"Table", "Action":"Include", "ExpressionType":"Exact", "Expression":"table1" } ], "TransformationRuleNames":[ { "RuleName":"my_database_rename_rule", "RuleActionType":"Rename", "RuleTargetType":"Schema" } ] } ]'),
   transformationRules?: [ 
     {
-      ruleActionType?: string(name='RuleActionType'),
-      ruleExpression?: string(name='RuleExpression'),
-      ruleName?: string(name='RuleName'),
-      ruleTargetType?: string(name='RuleTargetType'),
+      ruleActionType?: string(name='RuleActionType', description='Valid values:
+
+*   DefinePrimaryKey
+*   Rename
+*   AddColumn
+*   HandleDml
+*   DefineIncrementalCondition
+*   DefineCycleScheduleSettings
+*   DefinePartitionKey', example='Rename'),
+      ruleExpression?: string(name='RuleExpression', description='The rule expression in JSON string format.
+
+1.  Rename rule
+
+*   Example: {"expression":"${srcDatasourceName}_${srcDatabaseName}_0922" }
+*   expression: The rename transformation expression. Supported variables include: ${srcDatasourceName} (source data source name), ${srcDatabaseName} (source database name), and ${srcTableName} (source table name).
+
+2.  AddColumn rule
+
+*   Example: {"columns":[{"columnName":"my_add_column","columnValueType":"Constant","columnValue":"123"}]}
+*   If not specified, the default behavior is to not add columns.
+*   columnName: The name of the column to add.
+*   columnValueType: The value type of the column to add. Valid values: Constant and Variable.
+*   columnValue: The value of the column to add. When columnValueType is set to Constant, the value is a custom constant of the string type. When columnValueType is set to Variable, the value is a built-in variable. Built-in variables include: EXECUTE_TIME (execution time, long type), DB_NAME_SRC (source database name, string type), DATASOURCE_NAME_SRC (source data source name, string type), TABLE_NAME_SRC (source table name, string type), DB_NAME_DEST (destination database name, string type), DATASOURCE_NAME_DEST (destination data source name, string type), TABLE_NAME_DEST (destination table name, string type), and DB_NAME_SRC_TRANSED (transformed source database name, string type).
+
+3.  DefinePrimaryKey
+
+*   Example: {"columns":["ukcolumn1","ukcolumn2"]}
+*   If not specified, the source primary key columns are used by default.
+*   When the destination table already exists: Data Integration does not modify the destination table structure. If the specified primary key columns are not in the destination table, the task fails to start.
+*   When the destination table is auto-created: Data Integration automatically creates the destination table structure with the defined primary key columns. If the specified primary key columns are not in the destination table, the task fails to start.
+
+4.  HandleDml rule
+
+*   Example of a rule used to process DML messages: {"dmlPolicies":[{"dmlType":"Delete","dmlAction":"Filter","filterCondition":"id > 1"}]}.
+*   If not specified, the default rule is Normal for Insert, Update, and Delete.
+*   dmlType: The DML operation type. Valid values: Insert, Update, Delete.
+*   dmlAction: The DML handling policy. Valid values: Normal, Ignore, Filter (conditional processing, used when dmlType is Update or Delete), and LogicalDelete.
+*   filterCondition: The DML filter condition. This parameter is used when dmlAction is set to Filter.
+
+5.  DefineIncrementalCondition
+
+*   Example: {"where":"id > 0"}
+*   Specifies the incremental filter condition.
+
+6.  DefineCycleScheduleSettings
+
+*   Example: {"cronExpress":" \\\\* \\\\* \\\\* \\\\* \\\\* \\\\*", "cycleType":"1"}
+*   Specifies the scheduled task parameters.
+
+7.  DefinePartitionKey
+
+*   Example: {"columns":["id"]}
+*   Specifies the partition key.', example='{"expression":"${srcDatasoureName}_${srcDatabaseName}"}'),
+      ruleName?: string(name='RuleName', description='The rule name. When the action type and target type are the same, the rule name must be unique. The name cannot exceed 50 characters.', example='rename_rule_1'),
+      ruleTargetType?: string(name='RuleTargetType', description='The target type for the action. Valid values:
+
+*   Table
+*   Schema
+*   Database', example='Table'),
     }
-  ](name='TransformationRules'),
+  ](name='TransformationRules', description='The list of synchronization object transformation rule definitions.
+
+>  [ { "RuleName":"my_database_rename_rule", "RuleActionType":"Rename", "RuleTargetType":"Schema", "RuleExpression":"{"expression":"${srcDatasoureName}_${srcDatabaseName}"}" } ]'),
 }
 
 model UpdateDIJobShrinkRequest {
   DIJobId?: long(name='DIJobId', description='This parameter is deprecated. Use the Id parameter instead.', example='11588', deprecated=true),
-  description?: string(name='Description'),
+  description?: string(name='Description', description='The task description.', example='The description of the synchronization task.'),
+  fileSpec?: string(name='FileSpec'),
   id?: long(name='Id', description='The ID of the synchronization task.', example='11588'),
-  jobSettingsShrink?: string(name='JobSettings'),
+  jobSettingsShrink?: string(name='JobSettings', description='The task-level settings, including DDL handling policies, column data type mapping between source and destination, and runtime parameters.'),
+  owner?: string(name='Owner', description='The task owner.', example='95279527'),
   projectId?: long(name='ProjectId', description='The DataWorks workspace ID. You can call the [ListProjects](https://help.aliyun.com/document_detail/178393.html) operation to obtain the ID.', example='10000'),
-  resourceSettingsShrink?: string(name='ResourceSettings'),
-  tableMappingsShrink?: string(name='TableMappings'),
-  transformationRulesShrink?: string(name='TransformationRules'),
+  resourceSettingsShrink?: string(name='ResourceSettings', description='The resource settings.'),
+  tableMappingsShrink?: string(name='TableMappings', description='The list of synchronization object transformation mappings. Each element describes a set of source object selection rules and the transformation rules applied to those objects.
+
+>  [ { "SourceObjectSelectionRules":[ { "ObjectType":"Database", "Action":"Include", "ExpressionType":"Exact", "Expression":"biz_db" }, { "ObjectType":"Schema", "Action":"Include", "ExpressionType":"Exact", "Expression":"s1" }, { "ObjectType":"Table", "Action":"Include", "ExpressionType":"Exact", "Expression":"table1" } ], "TransformationRuleNames":[ { "RuleName":"my_database_rename_rule", "RuleActionType":"Rename", "RuleTargetType":"Schema" } ] } ]'),
+  transformationRulesShrink?: string(name='TransformationRules', description='The list of synchronization object transformation rule definitions.
+
+>  [ { "RuleName":"my_database_rename_rule", "RuleActionType":"Rename", "RuleTargetType":"Schema", "RuleExpression":"{"expression":"${srcDatasoureName}_${srcDatabaseName}"}" } ]'),
 }
 
 model UpdateDIJobResponseBody = {
@@ -27542,12 +28335,18 @@ async function updateDIJobWithOptions(tmpReq: UpdateDIJobRequest, runtime: $Runt
   if (!$isNull(request.id)) {
     query['Id'] = request.id;
   }
+  if (!$isNull(request.owner)) {
+    query['Owner'] = request.owner;
+  }
   if (!$isNull(request.projectId)) {
     query['ProjectId'] = request.projectId;
   }
   var body : map[string]any = {};
   if (!$isNull(request.description)) {
     body['Description'] = request.description;
+  }
+  if (!$isNull(request.fileSpec)) {
+    body['FileSpec'] = request.fileSpec;
   }
   if (!$isNull(request.jobSettingsShrink)) {
     body['JobSettings'] = request.jobSettingsShrink;
@@ -28037,6 +28836,8 @@ model UpdateDataQualityEvaluationTaskResponse = {
 }
 
 /**
+ * @deprecated OpenAPI UpdateDataQualityEvaluationTask is deprecated, please use dataworks-public::2024-05-18::UpdateDataQualityScan instead.
+ *
  * @summary Updates a monitor.
  *
  * @description This API operation is supported in all DataWorks editions.
@@ -28045,6 +28846,7 @@ model UpdateDataQualityEvaluationTaskResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return UpdateDataQualityEvaluationTaskResponse
  */
+// Deprecated
 @context("updateDataQualityEvaluationTaskWithContext")
 async function updateDataQualityEvaluationTaskWithOptions(tmpReq: UpdateDataQualityEvaluationTaskRequest, runtime: $RuntimeOptions): UpdateDataQualityEvaluationTaskResponse {
   tmpReq.validate();
@@ -28117,6 +28919,8 @@ async function updateDataQualityEvaluationTaskWithOptions(tmpReq: UpdateDataQual
 }
 
 /**
+ * @deprecated OpenAPI UpdateDataQualityEvaluationTask is deprecated, please use dataworks-public::2024-05-18::UpdateDataQualityScan instead.
+ *
  * @summary Updates a monitor.
  *
  * @description This API operation is supported in all DataWorks editions.
@@ -28124,6 +28928,7 @@ async function updateDataQualityEvaluationTaskWithOptions(tmpReq: UpdateDataQual
  * @param request UpdateDataQualityEvaluationTaskRequest
  * @return UpdateDataQualityEvaluationTaskResponse
  */
+// Deprecated
 async function updateDataQualityEvaluationTask(request: UpdateDataQualityEvaluationTaskRequest): UpdateDataQualityEvaluationTaskResponse {
   var runtime = new $RuntimeOptions{};
   return updateDataQualityEvaluationTaskWithOptions(request, runtime);
@@ -28217,7 +29022,9 @@ You can also use expressions to configure thresholds for fixed-Value rules. If y
 
 This parameter is required.', example='100001'),
   name?: string(name='Name', description='The name of the rule. The name can be up to 255 characters in length and can contain digits, letters, and punctuation marks.', example='The table cannot be empty.'),
-  projectId?: long(name='ProjectId', description='This parameter is required.'),
+  projectId?: long(name='ProjectId', description='The DataWorks workspace ID.
+
+This parameter is required.', example='10000'),
   samplingConfig?: {
     metric?: string(name='Metric', description='The metrics used for sampling. You can leave this parameter empty if you use a rule template. Valid values:
 
@@ -28257,7 +29064,9 @@ model UpdateDataQualityRuleShrinkRequest {
 
 This parameter is required.', example='100001'),
   name?: string(name='Name', description='The name of the rule. The name can be up to 255 characters in length and can contain digits, letters, and punctuation marks.', example='The table cannot be empty.'),
-  projectId?: long(name='ProjectId', description='This parameter is required.'),
+  projectId?: long(name='ProjectId', description='The DataWorks workspace ID.
+
+This parameter is required.', example='10000'),
   samplingConfigShrink?: string(name='SamplingConfig', description='The sampling settings.'),
   severity?: string(name='Severity', description='The strength of the rule. Valid values:
 
@@ -28278,12 +29087,15 @@ model UpdateDataQualityRuleResponse = {
 }
 
 /**
+ * @deprecated OpenAPI UpdateDataQualityRule is deprecated, please use dataworks-public::2024-05-18::UpdateDataQualityScan instead.
+ *
  * @summary Updates a data quality monitoring rule.
  *
  * @param tmpReq UpdateDataQualityRuleRequest
  * @param runtime runtime options for this request RuntimeOptions
  * @return UpdateDataQualityRuleResponse
  */
+// Deprecated
 @context("updateDataQualityRuleWithContext")
 async function updateDataQualityRuleWithOptions(tmpReq: UpdateDataQualityRuleRequest, runtime: $RuntimeOptions): UpdateDataQualityRuleResponse {
   tmpReq.validate();
@@ -28349,11 +29161,14 @@ async function updateDataQualityRuleWithOptions(tmpReq: UpdateDataQualityRuleReq
 }
 
 /**
+ * @deprecated OpenAPI UpdateDataQualityRule is deprecated, please use dataworks-public::2024-05-18::UpdateDataQualityScan instead.
+ *
  * @summary Updates a data quality monitoring rule.
  *
  * @param request UpdateDataQualityRuleRequest
  * @return UpdateDataQualityRuleResponse
  */
+// Deprecated
 async function updateDataQualityRule(request: UpdateDataQualityRuleRequest): UpdateDataQualityRuleResponse {
   var runtime = new $RuntimeOptions{};
   return updateDataQualityRuleWithOptions(request, runtime);
@@ -28371,7 +29186,11 @@ model UpdateDataQualityRuleTemplateRequest {
 This parameter is required.', example='USER_DEFINED:123'),
   directoryPath?: string(name='DirectoryPath', description='The directory in which the template is stored. Slashes (/) are used to separate directory levels. The name of each directory level can be up to 1,024 characters in length. It cannot contain whitespace characters or slashes (/).', example='/ods/order_data'),
   name?: string(name='Name', description='The name of the template. The name can be up to 512 characters in length and can contain digits, letters, and punctuation marks.', example='Table row Count Verification'),
-  projectId?: long(name='ProjectId', description='This parameter is required.'),
+  projectId?: long(name='ProjectId', description='The DataWorks workspace ID. You can log on to the [DataWorks console](https://workbench.data.aliyun.com/console) and go to the Workspace page to query the ID.
+
+You must configure this parameter to specify the DataWorks workspace to which the API operation is applied.
+
+This parameter is required.', example='10000'),
   samplingConfig?: {
     metric?: string(name='Metric', description='The metrics used for sampling. Valid values:
 
@@ -28403,7 +29222,11 @@ model UpdateDataQualityRuleTemplateShrinkRequest {
 This parameter is required.', example='USER_DEFINED:123'),
   directoryPath?: string(name='DirectoryPath', description='The directory in which the template is stored. Slashes (/) are used to separate directory levels. The name of each directory level can be up to 1,024 characters in length. It cannot contain whitespace characters or slashes (/).', example='/ods/order_data'),
   name?: string(name='Name', description='The name of the template. The name can be up to 512 characters in length and can contain digits, letters, and punctuation marks.', example='Table row Count Verification'),
-  projectId?: long(name='ProjectId', description='This parameter is required.'),
+  projectId?: long(name='ProjectId', description='The DataWorks workspace ID. You can log on to the [DataWorks console](https://workbench.data.aliyun.com/console) and go to the Workspace page to query the ID.
+
+You must configure this parameter to specify the DataWorks workspace to which the API operation is applied.
+
+This parameter is required.', example='10000'),
   samplingConfigShrink?: string(name='SamplingConfig', description='The sampling settings.'),
 }
 
@@ -28419,12 +29242,15 @@ model UpdateDataQualityRuleTemplateResponse = {
 }
 
 /**
+ * @deprecated OpenAPI UpdateDataQualityRuleTemplate is deprecated, please use dataworks-public::2024-05-18::UpdateDataQualityTemplate instead.
+ *
  * @summary Updates a data quality monitoring rule template.
  *
  * @param tmpReq UpdateDataQualityRuleTemplateRequest
  * @param runtime runtime options for this request RuntimeOptions
  * @return UpdateDataQualityRuleTemplateResponse
  */
+// Deprecated
 @context("updateDataQualityRuleTemplateWithContext")
 async function updateDataQualityRuleTemplateWithOptions(tmpReq: UpdateDataQualityRuleTemplateRequest, runtime: $RuntimeOptions): UpdateDataQualityRuleTemplateResponse {
   tmpReq.validate();
@@ -28475,11 +29301,14 @@ async function updateDataQualityRuleTemplateWithOptions(tmpReq: UpdateDataQualit
 }
 
 /**
+ * @deprecated OpenAPI UpdateDataQualityRuleTemplate is deprecated, please use dataworks-public::2024-05-18::UpdateDataQualityTemplate instead.
+ *
  * @summary Updates a data quality monitoring rule template.
  *
  * @param request UpdateDataQualityRuleTemplateRequest
  * @return UpdateDataQualityRuleTemplateResponse
  */
+// Deprecated
 async function updateDataQualityRuleTemplate(request: UpdateDataQualityRuleTemplateRequest): UpdateDataQualityRuleTemplateResponse {
   var runtime = new $RuntimeOptions{};
   return updateDataQualityRuleTemplateWithOptions(request, runtime);
@@ -29165,6 +29994,8 @@ model UpdateFileResponse = {
 }
 
 /**
+ * @summary Updates a file.
+ *
  * @param request UpdateFileRequest
  * @param runtime runtime options for this request RuntimeOptions
  * @return UpdateFileResponse
@@ -29290,6 +30121,8 @@ async function updateFileWithOptions(request: UpdateFileRequest, runtime: $Runti
 }
 
 /**
+ * @summary Updates a file.
+ *
  * @param request UpdateFileRequest
  * @return UpdateFileResponse
  */
@@ -29495,7 +30328,7 @@ model UpdateIDEEventResultResponse = {
 }
 
 /**
- * @summary 回调扩展点消息的检查结果
+ * @summary Recalls the check result of the message of an extension point event.
  *
  * @param request UpdateIDEEventResultRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -29535,7 +30368,7 @@ async function updateIDEEventResultWithOptions(request: UpdateIDEEventResultRequ
 }
 
 /**
- * @summary 回调扩展点消息的检查结果
+ * @summary Recalls the check result of the message of an extension point event.
  *
  * @param request UpdateIDEEventResultRequest
  * @return UpdateIDEEventResultResponse
@@ -30737,6 +31570,8 @@ model UpdateUdfFileResponse = {
 }
 
 /**
+ * @summary Updates the file information about a function.
+ *
  * @param request UpdateUdfFileRequest
  * @param runtime runtime options for this request RuntimeOptions
  * @return UpdateUdfFileResponse
@@ -30799,6 +31634,8 @@ async function updateUdfFileWithOptions(request: UpdateUdfFileRequest, runtime: 
 }
 
 /**
+ * @summary Updates the file information about a function.
+ *
  * @param request UpdateUdfFileRequest
  * @return UpdateUdfFileResponse
  */
