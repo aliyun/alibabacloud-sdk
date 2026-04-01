@@ -29,27 +29,128 @@ function getEndpoint(productId: string, regionId: string, endpointRule: string, 
 }
 
 model FieldInputConfig {
-  arrayed?: boolean(name='Arrayed'),
-  defaultValue?: string(name='DefaultValue'),
-  fieldCheckRegex?: string(name='FieldCheckRegex'),
-  fieldClass?: string(name='FieldClass'),
+  arrayed?: boolean(name='Arrayed', description='Is the field arrayed? Possible values are:
+
+- true: Arrayed.
+- false: Not Arrayed.', example='false'),
+  defaultValue?: string(name='DefaultValue', description='Field default value.', example='test'),
+  fieldCheckRegex?: string(name='FieldCheckRegex', description='Field check regex.', example='[a-zA-Z0-9\\\\u4e00-\\\\u9fa5_-]{2,128}'),
+  fieldClass?: string(name='FieldClass', description='Field types, with the following values:
+
+- **normal**: Normal type.
+- **custom**: Complex type; in this mode, FieldConfigs can be configured.', example='normal'),
   fieldConfigs?: [
     FieldInputConfig
-  ](name='FieldConfigs'),
-  fieldDescription?: string(name='FieldDescription'),
-  fieldExample?: string(name='FieldExample'),
-  fieldName?: string(name='FieldName'),
-  fieldPath?: string(name='FieldPath'),
-  fieldType?: string(name='FieldType'),
-  required?: boolean(name='Required'),
+  ](name='FieldConfigs', description='Supports configuring nested input parameters in complex-type scenarios.'),
+  fieldDescription?: string(name='FieldDescription', description='Field description.', example='app name'),
+  fieldExample?: string(name='FieldExample', description='Field example.', example='test'),
+  fieldName?: string(name='FieldName', description='Field name.', example='appName'),
+  fieldPath?: string(name='FieldPath', description='Field path.', example='xx.appName'),
+  fieldType?: string(name='FieldType', description='The field type. The value is as follows:
+
+- **String**: String.
+- **Long**: Long integer.
+- **Integer**: Integer.
+- **Double**: Floating-point type.
+- **Boolean**: Boolean.
+- **ip**: The IP entity.
+- **file**: file entity.
+- **process**: process entity.
+- **incident**: event entity.
+- **alert**: alert entity.
+- **host**: host entity.
+- **domain**: The domain name entity.
+- **container**: container entity.', example='String'),
+  required?: boolean(name='Required', description='Is the field mandatory? Possible values are:
+
+- **true**: Required.
+- **false**: Optional.', example='false'),
 }
 
 model FieldOutputConfig {
-  defaultValue?: string(name='DefaultValue'),
-  fieldDescription?: string(name='FieldDescription'),
-  fieldExample?: string(name='FieldExample'),
-  fieldName?: string(name='FieldName'),
-  fieldType?: string(name='FieldType'),
+  defaultValue?: string(name='DefaultValue', description='Field default value.', example='11.**.*.11'),
+  fieldDescription?: string(name='FieldDescription', description='Field description information.', example='Single IP to be blocked'),
+  fieldExample?: string(name='FieldExample', description='Field example.', example='2.*.*.2'),
+  fieldName?: string(name='FieldName', description='Field name.', example='ip'),
+  fieldType?: string(name='FieldType', description='Field type, with the following values:
+
+- **String**: String.
+- **Long**: Long integer.
+- **Integer**: Integer.
+- **Double**: Double.
+- **Boolean**: Boolean.', example='String'),
+}
+
+model AbortPlaybookExecutionRequest {
+  lang?: string(name='Lang', example='zh'),
+  playbookExecutionUuid?: string(name='PlaybookExecutionUuid', description='This parameter is required.', example='e776dab31-499b-4307-9248-xxxxxx'),
+  playbookUuid?: string(name='PlaybookUuid', description='This parameter is required.', example='e99dab31-499b-4307-9248-xxxxxx'),
+  roleFor?: long(name='RoleFor', example='13760*****718726'),
+  roleType?: string(name='RoleType', example='0'),
+}
+
+model AbortPlaybookExecutionResponseBody = {
+  requestId?: string(name='RequestId', example='0727DAC8-****-51EC-****-14999C62B502'),
+  success?: string(name='Success', example='true'),
+}
+
+model AbortPlaybookExecutionResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: AbortPlaybookExecutionResponseBody(name='body'),
+}
+
+/**
+ * @summary 停止剧本
+ *
+ * @param request AbortPlaybookExecutionRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return AbortPlaybookExecutionResponse
+ */
+async function abortPlaybookExecutionWithOptions(request: AbortPlaybookExecutionRequest, runtime: Util.RuntimeOptions): AbortPlaybookExecutionResponse {
+  Util.validateModel(request);
+  var body : map[string]any = {};
+  if (!Util.isUnset(request.lang)) {
+    body['Lang'] = request.lang;
+  }
+  if (!Util.isUnset(request.playbookExecutionUuid)) {
+    body['PlaybookExecutionUuid'] = request.playbookExecutionUuid;
+  }
+  if (!Util.isUnset(request.playbookUuid)) {
+    body['PlaybookUuid'] = request.playbookUuid;
+  }
+  if (!Util.isUnset(request.roleFor)) {
+    body['RoleFor'] = request.roleFor;
+  }
+  if (!Util.isUnset(request.roleType)) {
+    body['RoleType'] = request.roleType;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApi.Params{
+    action = 'AbortPlaybookExecution',
+    version = '2025-09-03',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 停止剧本
+ *
+ * @param request AbortPlaybookExecutionRequest
+ * @return AbortPlaybookExecutionResponse
+ */
+async function abortPlaybookExecution(request: AbortPlaybookExecutionRequest): AbortPlaybookExecutionResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return abortPlaybookExecutionWithOptions(request, runtime);
 }
 
 model CreateComponentAssetRequest {
@@ -407,18 +508,23 @@ async function deletePlaybook(request: DeletePlaybookRequest): DeletePlaybookRes
 }
 
 model ExecuteComponentRequest {
-  componentActionName?: string(name='ComponentActionName', example='doRequest'),
-  componentAssetUuid?: string(name='ComponentAssetUuid', example='1C5F11E9-****-51F0-****-43BB312A0557'),
-  componentInput?: string(name='ComponentInput', example='{}'),
-  componentName?: string(name='ComponentName', example='SLS'),
-  lang?: string(name='Lang', example='zh'),
-  playBookNodeName?: string(name='PlayBookNodeName', example='node1'),
-  playbookUuid?: string(name='PlaybookUuid', example='ac343acc-1a61-4084-9a1cxxxxx'),
+  componentActionName?: string(name='ComponentActionName', description='The name of the component action.', example='doRequest'),
+  componentAssetUuid?: string(name='ComponentAssetUuid', description='Asset UUID.', example='1C5F11E9-****-51F0-****-43BB312A0557'),
+  componentInput?: string(name='ComponentInput', description='Component input parameters.', example='{}'),
+  componentName?: string(name='ComponentName', description='The name of the component.', example='SLS'),
+  lang?: string(name='Lang', description='The language type for requests and responses. Values:
+
+- **zh** (default): Chinese.
+
+- **en**: English.', example='zh'),
+  playBookNodeName?: string(name='PlayBookNodeName', description='The name of the node corresponding to the current component in the playbook.', example='node1'),
+  playbookUuid?: string(name='PlaybookUuid', description='The UUID of the playbook.
+> You can obtain this parameter by calling the [DescribePlaybooks](~~DescribePlaybooks~~) interface.', example='ac343acc-1a61-4084-9a1cxxxxx'),
 }
 
 model ExecuteComponentResponseBody = {
-  requestId?: string(name='RequestId', example='10B92EE1-4597-593B-A131-7A17D25EF5C9'),
-  runResult?: string(name='RunResult', example='{
+  requestId?: string(name='RequestId', description='The ID of this call request, which is a unique identifier generated by Alibaba Cloud for this request and can be used for troubleshooting and problem localization.', example='10B92EE1-4597-593B-A131-7A17D25EF5C9'),
+  runResult?: string(name='RunResult', description='Component run result.', example='{
     "requestUuid": "fe240b98-27b1-4a36-aec1-550b894318d9",
     "content": {
         "resultData": [],
@@ -434,7 +540,9 @@ model ExecuteComponentResponse = {
 }
 
 /**
- * @summary 执行组件动作
+ * @summary Execute component action.
+ *
+ * @description Before using this interface, please make sure you fully understand the billing method and [pricing](https://www.aliyun.com/price/product#/sas/detail/sas) of the Response Orchestration product (i.e., Threat Analysis and Response Log Ingress Traffic).
  *
  * @param request ExecuteComponentRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -482,7 +590,9 @@ async function executeComponentWithOptions(request: ExecuteComponentRequest, run
 }
 
 /**
- * @summary 执行组件动作
+ * @summary Execute component action.
+ *
+ * @description Before using this interface, please make sure you fully understand the billing method and [pricing](https://www.aliyun.com/price/product#/sas/detail/sas) of the Response Orchestration product (i.e., Threat Analysis and Response Log Ingress Traffic).
  *
  * @param request ExecuteComponentRequest
  * @return ExecuteComponentResponse
