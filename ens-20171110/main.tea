@@ -243,21 +243,14 @@ model AddBackendServersResponseBody = {
   backendServers?: {
     backendServer?: [ 
     {
-      ip?: string(name='Ip', description='The IP address of the backend server.', example='192.168.0.1'),
-      port?: int32(name='Port', description='The backend port that is used by the ELB instance.', example='0'),
-      serverId?: string(name='ServerId', description='The ID of the instance that is used as the backend server.', example='i-5uf6hj58zvml4ali8****'),
-      type?: string(name='Type', description='The type of the backend server. Valid values:
-
-*   **ens**: ENS instance.
-*   **eni**: ENI.', example='ens'),
-      weight?: int32(name='Weight', description='The weight of the backend server. Default value: 100. Valid values: **0** to **100**.
-
->  The value 0 indicates that requests are not forwarded to the backend server.', example='100'),
+      ip?: string(name='Ip'),
+      port?: int32(name='Port'),
+      serverId?: string(name='ServerId'),
+      type?: string(name='Type'),
+      weight?: int32(name='Weight'),
     }
   ](name='BackendServer')
-  }(name='BackendServers', description='The list of backend servers that you want to add. You can add at most 20 backend servers.
-
->  Only ENS instances that are in the running state can be attached to the ELB instance as backend servers.'),
+  }(name='BackendServers'),
   requestId?: string(name='RequestId', description='The request ID.', example='473469C7-AA6F-4DC5-B3DB-A3DC0DE3C83E'),
 }
 
@@ -959,6 +952,182 @@ async function attachInstanceSDG(request: AttachInstanceSDGRequest): AttachInsta
   return attachInstanceSDGWithOptions(request, runtime);
 }
 
+model AttachInstancesToNodePoolRequest {
+  clusterId?: string(name='ClusterId', description='This parameter is required.', example='eck-xxxxxxxx'),
+  instances?: [ string ](name='Instances', description='This parameter is required.'),
+  nodepoolId?: string(name='NodepoolId', description='This parameter is required.', example='np68mi5y1dd748ky37ojo2kqdrz'),
+}
+
+model AttachInstancesToNodePoolShrinkRequest {
+  clusterId?: string(name='ClusterId', description='This parameter is required.', example='eck-xxxxxxxx'),
+  instancesShrink?: string(name='Instances', description='This parameter is required.'),
+  nodepoolId?: string(name='NodepoolId', description='This parameter is required.', example='np68mi5y1dd748ky37ojo2kqdrz'),
+}
+
+model AttachInstancesToNodePoolResponseBody = {
+  requestId?: string(name='RequestId', description='Id of the request', example='C0003E8B-B930-4F59-ADC0-0E209A9012A8'),
+}
+
+model AttachInstancesToNodePoolResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: AttachInstancesToNodePoolResponseBody(name='body'),
+}
+
+/**
+ * @summary 添加已有节点到集群节点池
+ *
+ * @param tmpReq AttachInstancesToNodePoolRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return AttachInstancesToNodePoolResponse
+ */
+async function attachInstancesToNodePoolWithOptions(tmpReq: AttachInstancesToNodePoolRequest, runtime: Util.RuntimeOptions): AttachInstancesToNodePoolResponse {
+  Util.validateModel(tmpReq);
+  var request = new AttachInstancesToNodePoolShrinkRequest{};
+  OpenApiUtil.convert(tmpReq, request);
+  if (!Util.isUnset(tmpReq.instances)) {
+    request.instancesShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.instances, 'Instances', 'json');
+  }
+  var query = {};
+  if (!Util.isUnset(request.clusterId)) {
+    query['ClusterId'] = request.clusterId;
+  }
+  if (!Util.isUnset(request.instancesShrink)) {
+    query['Instances'] = request.instancesShrink;
+  }
+  if (!Util.isUnset(request.nodepoolId)) {
+    query['NodepoolId'] = request.nodepoolId;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'AttachInstancesToNodePool',
+    version = '2017-11-10',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 添加已有节点到集群节点池
+ *
+ * @param request AttachInstancesToNodePoolRequest
+ * @return AttachInstancesToNodePoolResponse
+ */
+async function attachInstancesToNodePool(request: AttachInstancesToNodePoolRequest): AttachInstancesToNodePoolResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return attachInstancesToNodePoolWithOptions(request, runtime);
+}
+
+model AttachKeyPairRequest {
+  instanceIds?: [ string ](name='InstanceIds', description='The instance IDs.
+
+This parameter is required.', example='["i-50f8q9mbfjzlkuk9znjglnne3"]', nullable=false),
+  keyPairId?: string(name='KeyPairId', description='The key pair ID.', example='ssh-xxx', nullable=true),
+  keyPairName?: string(name='KeyPairName', description='The name of the SSH key pair.', example='test-kp', nullable=true),
+}
+
+model AttachKeyPairShrinkRequest {
+  instanceIdsShrink?: string(name='InstanceIds', description='The instance IDs.
+
+This parameter is required.', example='["i-50f8q9mbfjzlkuk9znjglnne3"]', nullable=false),
+  keyPairId?: string(name='KeyPairId', description='The key pair ID.', example='ssh-xxx', nullable=true),
+  keyPairName?: string(name='KeyPairName', description='The name of the SSH key pair.', example='test-kp', nullable=true),
+}
+
+model AttachKeyPairResponseBody = {
+  failCount?: int32(name='FailCount', description='The number of instances from which the SSH key pair failed to be unbound.', example='1'),
+  keyPairId?: string(name='KeyPairId', description='The ID of the SSH key pair.', example='ssh-xxx'),
+  keyPairName?: string(name='KeyPairName', description='The name of the SSH key pair.', example='ssh-xxx'),
+  requestId?: string(name='RequestId', description='The request ID.', example='xx-xx-xx-xx'),
+  results?: [ 
+    {
+      code?: int32(name='Code', description='The status code of the operation. 200 indicates that the operation succeeded.', example='200'),
+      instanceId?: string(name='InstanceId', description='The instance ID.', example='i-xxx'),
+      message?: string(name='Message', description='The message of the operation. If the value of the Code parameter is 200, the value of this parameter is successful.', example='successful'),
+      success?: boolean(name='Success', description='Indicates whether the operation is successful.', example='true'),
+    }
+  ](name='Results', description='The result set of the unbind operation.'),
+  totalCount?: int32(name='TotalCount', description='The total number of instances from which the SSH key pair is unbound.', example='3'),
+}
+
+model AttachKeyPairResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: AttachKeyPairResponseBody(name='body'),
+}
+
+/**
+ * @summary Binds a Secure Shell (SSH) key pair to specific instances. You can bind a maximum of 30 instances at a time.
+ *
+ * @description ## [](#)
+ * This operation is used to bind a key pair to instances. Only disabled instances are supported.
+ * *   You can bind a maximum of 30 instances at a time.
+ * *   At least one of the key_pair_name and key_pair_id parameters is not empty.
+ * *   Specify the key_pair_id parameter when you call this parameter. The key_pair_name parameter will be discarded.
+ *
+ * @param tmpReq AttachKeyPairRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return AttachKeyPairResponse
+ */
+async function attachKeyPairWithOptions(tmpReq: AttachKeyPairRequest, runtime: Util.RuntimeOptions): AttachKeyPairResponse {
+  Util.validateModel(tmpReq);
+  var request = new AttachKeyPairShrinkRequest{};
+  OpenApiUtil.convert(tmpReq, request);
+  if (!Util.isUnset(tmpReq.instanceIds)) {
+    request.instanceIdsShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.instanceIds, 'InstanceIds', 'json');
+  }
+  var query = {};
+  if (!Util.isUnset(request.instanceIdsShrink)) {
+    query['InstanceIds'] = request.instanceIdsShrink;
+  }
+  if (!Util.isUnset(request.keyPairId)) {
+    query['KeyPairId'] = request.keyPairId;
+  }
+  if (!Util.isUnset(request.keyPairName)) {
+    query['KeyPairName'] = request.keyPairName;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'AttachKeyPair',
+    version = '2017-11-10',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Binds a Secure Shell (SSH) key pair to specific instances. You can bind a maximum of 30 instances at a time.
+ *
+ * @description ## [](#)
+ * This operation is used to bind a key pair to instances. Only disabled instances are supported.
+ * *   You can bind a maximum of 30 instances at a time.
+ * *   At least one of the key_pair_name and key_pair_id parameters is not empty.
+ * *   Specify the key_pair_id parameter when you call this parameter. The key_pair_name parameter will be discarded.
+ *
+ * @param request AttachKeyPairRequest
+ * @return AttachKeyPairResponse
+ */
+async function attachKeyPair(request: AttachKeyPairRequest): AttachKeyPairResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return attachKeyPairWithOptions(request, runtime);
+}
+
 model AttachNetworkInterfaceRequest {
   instanceId?: string(name='InstanceId', description='The ID of the instance
 
@@ -1283,6 +1452,7 @@ The password must be 8 to 30 characters in length. The password must contain upp
 
 Note that you cannot enter a password for scheduled execution.', example='AAaa1234'),
       planTime?: long(name='PlanTime', description='The execution time of the reservation. The timestamp is measured in milliseconds. If the OpsType parameter is set to scheduled, this parameter is required.', example='1742452232000'),
+      planUtcTime?: string(name='PlanUtcTime'),
       resourceId?: string(name='ResourceId', description='Resource ID i-\\\\*.
 
 This parameter is required.', example='i-55qi8m11rr53c4i964md8a00l'),
@@ -1373,6 +1543,7 @@ model BatchEventRebootInstanceRequest {
 *   immediate
 *   scheduled', example='immediate'),
       planTime?: long(name='PlanTime', description='The execution time of the reservation. The timestamp is measured in milliseconds. If the OpsType parameter is set to scheduled, this parameter is required.', example='1742452232000'),
+      planUtcTime?: string(name='PlanUtcTime'),
       resourceId?: string(name='ResourceId', description='A client ID.', example='n-54hi3ffi63zrjt4wzx9mepeyh'),
     }
   ](name='EventInfos', description='The details of events.'),
@@ -1459,6 +1630,7 @@ model BatchEventRedeployInstanceRequest {
 - immediate: Execute immediately.
 - scheduled: Scheduled execution.', example='1742452232000'),
       planTime?: long(name='PlanTime', description='Scheduled execution time, in timestamp, unit is milliseconds. This field is required when OpsType=scheduled.', example='immediate'),
+      planUtcTime?: string(name='PlanUtcTime'),
       resourceId?: string(name='ResourceId', description='Resource ID.', example='i-55qi8m11rr53c4i964md8a00l'),
     }
   ](name='EventInfos', description='List of events.'),
@@ -2357,6 +2529,7 @@ model CreateClusterNodePoolResponseBody = {
     }(name='ScalingGroup'),
     status?: {
       desiredNodes?: int32(name='DesiredNodes', example='10'),
+      failedNodes?: int32(name='FailedNodes', example='0'),
       initialNodes?: int32(name='InitialNodes', example='0'),
       removingNodes?: int32(name='RemovingNodes', example='0'),
       servingNodes?: int32(name='ServingNodes', example='10'),
@@ -3495,7 +3668,7 @@ model CreateInstanceResponseBody = {
 >  If you call this operation by using SDKs, the return value is of the integer type. If you call this operation by using common methods or HTTP requests, the return value is of the string type.', example='0'),
   instanceIds?: {
     instanceId?: [ string ](name='InstanceId')
-  }(name='InstanceIds', description='The IDs of instances.'),
+  }(name='InstanceIds'),
   requestId?: string(name='RequestId', description='The request ID.', example='4A431388-2D4B-46F4-A96B-D4E6BD0688C1'),
 }
 
@@ -6215,6 +6388,7 @@ async function deleteBucketLifecycle(request: DeleteBucketLifecycleRequest): Del
 
 model DeleteClusterRequest {
   clusterId?: string(name='ClusterId', description='This parameter is required.', example='eck-xxxxxxxx'),
+  retainResources?: boolean(name='RetainResources'),
 }
 
 model DeleteClusterResponseBody = {
@@ -6240,6 +6414,9 @@ async function deleteClusterWithOptions(request: DeleteClusterRequest, runtime: 
   var query = {};
   if (!Util.isUnset(request.clusterId)) {
     query['ClusterId'] = request.clusterId;
+  }
+  if (!Util.isUnset(request.retainResources)) {
+    query['RetainResources'] = request.retainResources;
   }
   var req = new OpenApi.OpenApiRequest{ 
     query = OpenApiUtil.query(query),
@@ -6333,11 +6510,13 @@ model DeleteClusterNodesRequest {
     nodes?: [ string ](name='Nodes', description='This parameter is required.'),
   }(name='Body', description='This parameter is required.'),
   clusterId?: string(name='ClusterId', description='This parameter is required.', example='eck-xxxxxxxx'),
+  releaseNode?: boolean(name='ReleaseNode'),
 }
 
 model DeleteClusterNodesShrinkRequest {
   bodyShrink?: string(name='Body', description='This parameter is required.'),
   clusterId?: string(name='ClusterId', description='This parameter is required.', example='eck-xxxxxxxx'),
+  releaseNode?: boolean(name='ReleaseNode'),
 }
 
 model DeleteClusterNodesResponseBody = {
@@ -6370,6 +6549,9 @@ async function deleteClusterNodesWithOptions(tmpReq: DeleteClusterNodesRequest, 
   }
   if (!Util.isUnset(request.clusterId)) {
     query['ClusterId'] = request.clusterId;
+  }
+  if (!Util.isUnset(request.releaseNode)) {
+    query['ReleaseNode'] = request.releaseNode;
   }
   var req = new OpenApi.OpenApiRequest{ 
     query = OpenApiUtil.query(query),
@@ -9138,23 +9320,23 @@ model DescribeAvailableResourceResponseBody = {
   images?: {
     image?: [ 
     {
-      imageId?: string(name='ImageId', description='The ID of the image.', example='centos_6_08_64_20G_alibase_20171208'),
-      imageName?: string(name='ImageName', description='The name of the image.', example='centos_6_08_64_20G_alibase_****'),
+      imageId?: string(name='ImageId'),
+      imageName?: string(name='ImageName'),
     }
   ](name='Image')
-  }(name='Images', description='The details of the images.'),
+  }(name='Images'),
   requestId?: string(name='RequestId', description='The ID of the request. This is a common parameter. Each request has a unique ID. You can use this ID to troubleshoot issues.', example='473469C7-AA6F-4DC5-B3DB-A3DC0DE3C83E'),
   supportResources?: {
     supportResource?: [ 
     {
-      dataDiskSize?: string(name='DataDiskSize', description='The size of the data disk. Unit: GB.', example='500'),
-      ensRegionId?: string(name='EnsRegionId', description='The ID of the edge node.', example='cn-beijing-cmcc'),
-      instanceSpec?: string(name='InstanceSpec', description='The specifications of the resource plan.', example='ens.sn1.stiny'),
-      supportResourcesCount?: string(name='SupportResourcesCount', description='The number of resources that you can purchase.', example='9'),
-      systemDiskSize?: string(name='SystemDiskSize', description='The size of the system disk. Unit: GiB.', example='20'),
+      dataDiskSize?: string(name='DataDiskSize'),
+      ensRegionId?: string(name='EnsRegionId'),
+      instanceSpec?: string(name='InstanceSpec'),
+      supportResourcesCount?: string(name='SupportResourcesCount'),
+      systemDiskSize?: string(name='SystemDiskSize'),
     }
   ](name='SupportResource')
-  }(name='SupportResources', description='The specifications of resources that you can purchase.'),
+  }(name='SupportResources'),
 }
 
 model DescribeAvailableResourceResponse = {
@@ -9200,47 +9382,47 @@ model DescribeAvailableResourceInfoResponseBody = {
   images?: {
     image?: [ 
     {
-      imageId?: string(name='ImageId', description='The ID of the image.', example='centos_6_08_64_20G_a****'),
-      imageName?: string(name='ImageName', description='The name of the image.', example='centos_6_08_64_20G_a****'),
-      imageSize?: int32(name='ImageSize', description='The size of the image. Unit: GB.', example='20'),
+      imageId?: string(name='ImageId'),
+      imageName?: string(name='ImageName'),
+      imageSize?: int32(name='ImageSize'),
     }
   ](name='Image')
-  }(name='Images', description='The information about the image.'),
+  }(name='Images'),
   requestId?: string(name='RequestId', description='The request ID.', example='8629F679-B51D-4194-A1CC-5D8F504C362B'),
   supportResources?: {
     supportResource?: [ 
     {
       bandwidthTypes?: {
         bandwidthType?: [ string ](name='BandwidthType')
-      }(name='BandwidthTypes', description='Bandwidth billing method.'),
-      dataDiskMaxSize?: int32(name='DataDiskMaxSize', description='The maximum capacity of a data disk. Unit: GB.', example='200'),
-      dataDiskMinSize?: int32(name='DataDiskMinSize', description='The minimum data disk size. Unit: GiB.', example='100'),
+      }(name='BandwidthTypes'),
+      dataDiskMaxSize?: int32(name='DataDiskMaxSize'),
+      dataDiskMinSize?: int32(name='DataDiskMinSize'),
       ensRegionIds?: {
         ensRegionId?: [ string ](name='EnsRegionId')
-      }(name='EnsRegionIds', description='node ID'),
+      }(name='EnsRegionIds'),
       ensRegionIdsExtends?: {
         ensRegionId?: [ 
         {
-          area?: string(name='Area', description='The region.', example='EastChina'),
-          enName?: string(name='EnName', description='The name. This parameter is empty by default.', example='EnName'),
-          ensRegionId?: string(name='EnsRegionId', description='The ID of the edge node.', example='cn-chengdu-telecom-4'),
-          isp?: string(name='Isp', description='The information about the Internet service provider (ISP).', example='unicom'),
-          name?: string(name='Name', description='The name of the edge node.', example='Taizhou Telecom, China Unicom, and China Mobile'),
-          province?: string(name='Province', description='The province.', example='Zhejiang Province'),
+          area?: string(name='Area'),
+          enName?: string(name='EnName'),
+          ensRegionId?: string(name='EnsRegionId'),
+          isp?: string(name='Isp'),
+          name?: string(name='Name'),
+          province?: string(name='Province'),
         }
       ](name='EnsRegionId')
-      }(name='EnsRegionIdsExtends', description='The supplementary information about the edge nodes.'),
+      }(name='EnsRegionIdsExtends'),
       instanceSpeces?: {
         instanceSpec?: [ string ](name='InstanceSpec')
       }(name='InstanceSpeces'),
       isp?: {
         isp?: [ string ](name='Isp')
-      }(name='Isp', description='Operator'),
-      systemDiskMaxSize?: int32(name='SystemDiskMaxSize', description='The maximum size of the system disk. Unit: GiB.', example='100'),
-      systemDiskMinSize?: int32(name='SystemDiskMinSize', description='The minimum capacity of a system disk. Unit: GB.', example='20'),
+      }(name='Isp'),
+      systemDiskMaxSize?: int32(name='SystemDiskMaxSize'),
+      systemDiskMinSize?: int32(name='SystemDiskMinSize'),
     }
   ](name='SupportResource')
-  }(name='SupportResources', description='The specifications of resources that you can purchase.'),
+  }(name='SupportResources'),
 }
 
 model DescribeAvailableResourceInfoResponse = {
@@ -9431,22 +9613,17 @@ model DescribeCloudDiskAvailableResourceInfoResponseBody = {
     {
       ability?: {
         ability?: [ string ](name='Ability')
-      }(name='Ability', description='Node product capability.'),
-      canBuyCount?: long(name='CanBuyCount', description='The number of disks that you can purchase.', example='2'),
-      category?: string(name='Category', description='The type of the disk.
-
-*   cloud_efficiency:ultra disk.
-*   cloud_ssd:all-flash disk.
-*   local_hdd:local HDD.
-*   local_ssd:local SSD.', example='cloud_ssd'),
-      defaultDiskSize?: long(name='DefaultDiskSize', description='The default size of the disk. Unit: GiB.', example='20'),
-      diskMaxSize?: long(name='DiskMaxSize', description='The maximum size of the disk. Unit: GiB.', example='80'),
-      diskMinSize?: long(name='DiskMinSize', description='The minimum size of the disk size. Unit: GiB.', example='20'),
-      ensRegionId?: string(name='EnsRegionId', description='The ID of the edge node.', example='cn-beijing-cmcc'),
-      ensRegionName?: string(name='EnsRegionName', description='The name of the task node.', example='Beijing Mobile'),
+      }(name='Ability'),
+      canBuyCount?: long(name='CanBuyCount'),
+      category?: string(name='Category'),
+      defaultDiskSize?: long(name='DefaultDiskSize'),
+      diskMaxSize?: long(name='DiskMaxSize'),
+      diskMinSize?: long(name='DiskMinSize'),
+      ensRegionId?: string(name='EnsRegionId'),
+      ensRegionName?: string(name='EnsRegionName'),
     }
   ](name='SupportResource')
-  }(name='SupportResources', description='The specifications of resources that you can purchase.'),
+  }(name='SupportResources'),
 }
 
 model DescribeCloudDiskAvailableResourceInfoResponse = {
@@ -9503,16 +9680,11 @@ model DescribeCloudDiskTypesResponseBody = {
   supportResources?: {
     supportResource?: [ 
     {
-      category?: string(name='Category', description='The category of the disk.
-
-*   cloud_efficiency: ultra disk.
-*   cloud_ssd: all-flash disk.
-*   local_hdd: local HDD.
-*   local_ssd: local SSD.', example='cloud_efficiency'),
-      ensRegionId?: string(name='EnsRegionId', description='The ID of the edge node.', example='cn-guangzhou-10'),
+      category?: string(name='Category'),
+      ensRegionId?: string(name='EnsRegionId'),
     }
   ](name='SupportResource')
-  }(name='SupportResources', description='The specifications of resources that you can purchase.'),
+  }(name='SupportResources'),
 }
 
 model DescribeCloudDiskTypesResponse = {
@@ -9635,6 +9807,70 @@ async function describeClusterWithOptions(request: DescribeClusterRequest, runti
 async function describeCluster(request: DescribeClusterRequest): DescribeClusterResponse {
   var runtime = new Util.RuntimeOptions{};
   return describeClusterWithOptions(request, runtime);
+}
+
+model DescribeClusterAttachScriptsRequest {
+  clusterId?: string(name='ClusterId', description='This parameter is required.', example='eck-11111111'),
+  nodepoolId?: string(name='NodepoolId', description='This parameter is required.', example='np68mi5y1dd748ky37ojo2kqdrz'),
+  options?: string(name='Options', example='{\\\\"key1\\\\":\\\\"val1\\\\"}'),
+}
+
+model DescribeClusterAttachScriptsResponseBody = {
+  requestId?: string(name='RequestId', example='CEF72CEB-54B6-4AE8-B225-F876FF7BA984'),
+  script?: string(name='Script', example='Y2QgWnhiU0o='),
+}
+
+model DescribeClusterAttachScriptsResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: DescribeClusterAttachScriptsResponseBody(name='body'),
+}
+
+/**
+ * @summary 查询添加已有节点到集群节点池的脚本
+ *
+ * @param request DescribeClusterAttachScriptsRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return DescribeClusterAttachScriptsResponse
+ */
+async function describeClusterAttachScriptsWithOptions(request: DescribeClusterAttachScriptsRequest, runtime: Util.RuntimeOptions): DescribeClusterAttachScriptsResponse {
+  Util.validateModel(request);
+  var query = {};
+  if (!Util.isUnset(request.clusterId)) {
+    query['ClusterId'] = request.clusterId;
+  }
+  if (!Util.isUnset(request.nodepoolId)) {
+    query['NodepoolId'] = request.nodepoolId;
+  }
+  if (!Util.isUnset(request.options)) {
+    query['Options'] = request.options;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'DescribeClusterAttachScripts',
+    version = '2017-11-10',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 查询添加已有节点到集群节点池的脚本
+ *
+ * @param request DescribeClusterAttachScriptsRequest
+ * @return DescribeClusterAttachScriptsResponse
+ */
+async function describeClusterAttachScripts(request: DescribeClusterAttachScriptsRequest): DescribeClusterAttachScriptsResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return describeClusterAttachScriptsWithOptions(request, runtime);
 }
 
 model DescribeClusterDetailRequest {
@@ -9850,6 +10086,7 @@ model DescribeClusterNodePoolsResponseBody = {
       }(name='ScalingGroup'),
       status?: {
         desiredNodes?: int32(name='DesiredNodes', example='10'),
+        failedNodes?: int32(name='FailedNodes', example='0'),
         initialNodes?: int32(name='InitialNodes', example='0'),
         removingNodes?: int32(name='RemovingNodes', example='0'),
         servingNodes?: int32(name='ServingNodes', example='10'),
@@ -10302,35 +10539,29 @@ model DescribeDataDistResultResponseBody = {
   distResults?: {
     distResult?: [ 
     {
-      name?: string(name='Name', description='The name of the data file.', example='gcs-prod-websocket-eip-unicom'),
+      name?: string(name='Name'),
       statusStats?: {
         statusStat?: [ 
         {
-          instanceCount?: string(name='InstanceCount', description='The number of associated edge instances.', example='10'),
+          instanceCount?: string(name='InstanceCount'),
           instances?: {
             instance?: [ 
             {
-              instanceId?: string(name='InstanceId', description='The ID of the instance', example='i-5qzje8f5un1wmi341m2yetaxv'),
-              startTime?: string(name='StartTime', description='The start time of the distribution. The time is displayed in UTC.', example='2021-11-19T07:24:52Z'),
-              statusDescrip?: string(name='StatusDescrip', description='The description of the distribution status.', example='SUCCESS'),
-              updateTime?: string(name='UpdateTime', description='The time when the distribution status was last updated. The time is displayed in UTC.', example='2021-10-11T02:38:19Z'),
+              instanceId?: string(name='InstanceId'),
+              startTime?: string(name='StartTime'),
+              statusDescrip?: string(name='StatusDescrip'),
+              updateTime?: string(name='UpdateTime'),
             }
           ](name='Instance')
-          }(name='Instances', description='The distribution status of the edge instance.'),
-          status?: string(name='Status', description='The distribution status. The value is of the enumeration type. Valid values:
-
-*   SUCCESS: The distribution is successful.
-*   FAILED: The distribution failed.
-*   DISTING: The data is being distributed.
-*   POD_RESTARTING: The idle pod is being restarted.
-*   DELETED: The data is cleared or removed.', example='SUCCESS'),
+          }(name='Instances'),
+          status?: string(name='Status'),
         }
       ](name='StatusStat')
-      }(name='StatusStats', description='The distribution status statistics.'),
-      version?: string(name='Version', description='The version number of the data file.', example='standard'),
+      }(name='StatusStats'),
+      version?: string(name='Version'),
     }
   ](name='DistResult')
-  }(name='DistResults', description='The distribution status of data files on edge instances.'),
+  }(name='DistResults'),
   pageNumber?: int32(name='PageNumber', description='The page number.', example='1'),
   pageSize?: int32(name='PageSize', description='The number of entries per page.', example='10'),
   requestId?: string(name='RequestId', description='The ID of the request.', example='50373E71-7710-4620-8AAB-133CCE49451C'),
@@ -10506,29 +10737,29 @@ model DescribeDataPushResultResponseBody = {
   pushResults?: {
     pushResult?: [ 
     {
-      name?: string(name='Name', description='The name of the data file.', example='gcs-pre-websocket-eip-telecom'),
+      name?: string(name='Name'),
       statusStatS?: {
         statusStat?: [ 
         {
-          regionIdCount?: int32(name='RegionIdCount', description='The total number of ENS nodes.', example='2'),
+          regionIdCount?: int32(name='RegionIdCount'),
           regionIds?: {
             regionId?: [ 
             {
-              regionId?: string(name='RegionId', description='The ID of the ENS node.', example='cn-wuxi-5'),
-              startTime?: string(name='StartTime', description='The start time of the push operation. The time is displayed in UTC.', example='2021-12-28T16:00:00Z'),
-              statusDescrip?: string(name='StatusDescrip', description='The description of the status.', example='Success'),
-              updateTime?: string(name='UpdateTime', description='The time when the status was last updated. The time is displayed in UTC.', example='2021-12-07T02:37:10Z'),
+              regionId?: string(name='RegionId'),
+              startTime?: string(name='StartTime'),
+              statusDescrip?: string(name='StatusDescrip'),
+              updateTime?: string(name='UpdateTime'),
             }
           ](name='RegionId')
-          }(name='RegionIds', description='The push status of data files on the ENS node.'),
-          status?: string(name='Status', description='The push status. The value is of the enumeration type. Valid values: SUCCESS FAILED PUSHING', example='FAILED'),
+          }(name='RegionIds'),
+          status?: string(name='Status'),
         }
       ](name='StatusStat')
-      }(name='StatusStatS', description='The push status of data files.'),
-      version?: string(name='Version', description='The version number of the data file.', example='standard'),
+      }(name='StatusStatS'),
+      version?: string(name='Version'),
     }
   ](name='PushResult')
-  }(name='PushResults', description='The push results of data files.'),
+  }(name='PushResults'),
   requestId?: string(name='RequestId', description='The ID of the request.', example='CEF72CEB-54B6-4AE8-B225-F876FF7BA984'),
   totalCount?: int32(name='TotalCount', description='The total number of entries returned.', example='6'),
 }
@@ -10867,53 +11098,23 @@ model DescribeDisksResponseBody = {
   disks?: {
     disks?: [ 
     {
-      category?: string(name='Category', description='The category of the disk.
-
-*   cloud_efficiency: ultra disk.
-*   cloud_ssd: all-flash disk.
-*   local_hdd: local HDD.
-*   local_ssd: local SSD.', example='local_ssd'),
-      creationTime?: string(name='CreationTime', description='The time when the disk was created. The time follows the ISO 8601 standard in the yyyy-MM-ddTHH:mm:ssZ format. The time is displayed in UTC.', example='2021-11-11T14:34:55+08:00'),
-      deleteWithInstance?: boolean(name='DeleteWithInstance', description='Indicates whether the disk is released when the instance to which the disk is attached is released. Valid values:
-
-*   true: The disk is released when the associated instance is released.
-*   false: The disk is retained when the associated instance is released.', example='false'),
-      description?: string(name='Description', description='The namespace description.', example='disk-description'),
-      diskChargeType?: string(name='DiskChargeType', description='The billing method of the cloud disk or local disk. Valid values:
-
-*   **prepaid**: subscription.
-*   **postpaid**: pay-as-you-go.', example='prepaid'),
-      diskId?: string(name='DiskId', description='The ID of the disk.', example='d-5svum1dx1w4a4spr54lgr****'),
-      diskName?: string(name='DiskName', description='The name of the disk.', example='fvt-ecs-5cf0****'),
-      encrypted?: boolean(name='Encrypted', description='Indicates whether the cloud disk is encrypted. Valid values:
-
-*   **true**
-*   **false**', example='False'),
-      encryptedKeyId?: string(name='EncryptedKeyId', description='The ID of the Key Management Service (KMS) key that is used for the cloud disk.', example='05467897a-4262-4802-b8cb-00d3fb40****'),
-      ensRegionId?: string(name='EnsRegionId', description='The ID of the edge node.', example='cn-guangzhou-10'),
-      instanceId?: string(name='InstanceId', description='The ID of the instance.', example='i-5t77rb0yoz79m28ku60sx****'),
-      instanceName?: string(name='InstanceName', description='The name of the instance.', example='Edge Prod Environment Streaming Machine -1063'),
-      portable?: boolean(name='Portable', description='Indicates whether the cloud disk or local disk is removable. Valid values:
-
-*   true: The disk is removable. A removable disk can independently exist and can be attached to or detached from an instance within the same zone.
-*   false: The disk is not removable. A disk that is not removable cannot independently exist or be attached to or detached from an instance within the same zone.
-
-If disks are of the following categories or types, the **Portable** value is **false** and the disks have the same lifecycle as their attached instances:
-
-*   Local HDDs
-*   Local SSDs
-*   Data disks that use the subscription billing method', example='true'),
-      serialId?: string(name='SerialId', description='The serial number.', example='123'),
-      size?: int32(name='Size', description='The size of the disk. Unit: MiB.', example='20'),
-      snapshotId?: string(name='SnapshotId', description='The ID of the snapshot.', example='s-bp67acfmxazb4p****'),
-      status?: string(name='Status', description='The status of the disk. Valid values:
-
-*   In-use: The disk is in use.
-*   Available: The disk can be attached.
-*   Attaching: The disk is being attached.
-*   Detaching: The disk is being detached.
-*   Creating: The disk is being created.
-*   ReIniting: The disk is being reset.', example='Available'),
+      category?: string(name='Category'),
+      creationTime?: string(name='CreationTime'),
+      deleteWithInstance?: boolean(name='DeleteWithInstance'),
+      description?: string(name='Description'),
+      diskChargeType?: string(name='DiskChargeType'),
+      diskId?: string(name='DiskId'),
+      diskName?: string(name='DiskName'),
+      encrypted?: boolean(name='Encrypted'),
+      encryptedKeyId?: string(name='EncryptedKeyId'),
+      ensRegionId?: string(name='EnsRegionId'),
+      instanceId?: string(name='InstanceId'),
+      instanceName?: string(name='InstanceName'),
+      portable?: boolean(name='Portable'),
+      serialId?: string(name='SerialId'),
+      size?: int32(name='Size'),
+      snapshotId?: string(name='SnapshotId'),
+      status?: string(name='Status'),
       tags?: {
         tags?: [ 
         {
@@ -10922,13 +11123,10 @@ If disks are of the following categories or types, the **Portable** value is **f
         }
       ](name='Tags')
       }(name='Tags'),
-      type?: string(name='Type', description='The type of the cloud disk or local disk. Valid values:
-
-*   1: system disk.
-*   2: data disk.', example='1'),
+      type?: string(name='Type'),
     }
   ](name='Disks')
-  }(name='Disks', description='The information about the disks.'),
+  }(name='Disks'),
   pageNumber?: int32(name='PageNumber', description='The page number of the returned page.', example='1'),
   pageSize?: int32(name='PageSize', description='The number of entries returned per page. Maximum value: **50**. Default value: **10**.', example='50'),
   requestId?: string(name='RequestId', description='The request ID.', example='CEF72CEB-54B6-4AE8-B225-F876FF7BA984'),
@@ -11234,32 +11432,60 @@ model DescribeEnsEipAddressesResponseBody = {
   eipAddresses?: {
     eipAddress?: [ 
     {
-      allocationId?: string(name='AllocationId'),
-      allocationTime?: string(name='AllocationTime'),
-      bandwidth?: int32(name='Bandwidth'),
-      chargeType?: string(name='ChargeType'),
-      description?: string(name='Description'),
-      ensRegionId?: string(name='EnsRegionId'),
+      allocationId?: string(name='AllocationId', description='EIP的实例ID。', example='eip-5sainglpw7qfem3icir4s****'),
+      allocationTime?: string(name='AllocationTime', description='EIP的创建时间', example='1624885274000'),
+      bandwidth?: int32(name='Bandwidth', description='EIP的带宽峰值，默认值为5。取值范围：**5**~**10000**，单位：Mbps。', example='50'),
+      chargeType?: string(name='ChargeType', description='EIP的计费模式。
+
+- **PrePaid**：包年包月。
+
+- **PostPaid**：按量计费。', example='PostPaid'),
+      description?: string(name='Description', description='EIP的描述信息。', example='example'),
+      ensRegionId?: string(name='EnsRegionId', description='ENS节点ID。', example='cn-xian-telecom'),
       icmpReplyEnabled?: boolean(name='IcmpReplyEnabled'),
-      instanceId?: string(name='InstanceId'),
-      instanceType?: string(name='InstanceType'),
-      internetChargeType?: string(name='InternetChargeType'),
-      ipAddress?: string(name='IpAddress'),
-      ipStatus?: string(name='IpStatus'),
-      isp?: string(name='Isp'),
-      name?: string(name='Name'),
-      standby?: boolean(name='Standby'),
-      status?: string(name='Status'),
+      instanceId?: string(name='InstanceId', description='当前绑定的实例的ID。', example='lb-5sc3kum2e0sz34wbqrws9****'),
+      instanceType?: string(name='InstanceType', description='要绑定的云产品实例的类型，取值： 
+
+- **EnsInstance**：VPC类型的ENS实例。
+
+- **SlbInstance**：负载均衡实例。', example='SlbInstance'),
+      internetChargeType?: string(name='InternetChargeType', description='EIP的计费方式。
+
+- **95BandwidthByMonth**：月95峰值带宽。
+
+- **PayByBandwidth**：固定带宽计费。', example='95BandwidthByMonth'),
+      ipAddress?: string(name='IpAddress', description='EIP的IP地址。', example='120.XXX.XXX.4'),
+      ipStatus?: string(name='IpStatus', description='如果该弹性IP是备用EIP时，表示当前EIP的运行状态。
+- **Stopped**：已停止。
+- **Running**：运行中。
+- **Starting**：启动中。
+- **Stopping**：停止中。', example='Stopped'),
+      isp?: string(name='Isp', description='运营商，取值：
+
+- **cmcc**：中国移动。
+- **unicom**：中国联通。
+- **telecom**：中国电信。', example='cmcc'),
+      name?: string(name='Name', description='EIP实例名称。', example='test'),
+      standby?: boolean(name='Standby', description='该EIP是否是备用。', example='true'),
+      status?: string(name='Status', description='EIP的状态。
+
+- **Associating**：绑定中。
+
+- **Unassociating**：解绑中。   
+
+- **InUse**：已分配。   
+
+- **Available**：可用。', example='Available'),
       tags?: {
         tag?: [ 
         {
-          key?: string(name='Key'),
-          tagKey?: string(name='TagKey', deprecated=true),
-          tagValue?: string(name='TagValue', deprecated=true),
-          value?: string(name='Value'),
+          key?: string(name='Key', description='标签键', example='TestKey'),
+          tagKey?: string(name='TagKey', description='标签键。', example='TestKey', deprecated=true),
+          tagValue?: string(name='TagValue', description='标签值。', example='TestValue', deprecated=true),
+          value?: string(name='Value', description='标签值。', example='TestValue'),
         }
       ](name='Tag')
-      }(name='Tags'),
+      }(name='Tags', description='标签集合。'),
     }
   ](name='EipAddress')
   }(name='EipAddresses', description='Details of the EIPs.', example='[\\\\"106.14.194.193\\\\"]'),
@@ -11367,19 +11593,15 @@ model DescribeEnsNetDistrictResponseBody = {
   ensNetDistricts?: {
     ensNetDistrict?: [ 
     {
-      ensRegionIdCount?: string(name='EnsRegionIdCount', description='The number of nodes in the region.', example='2'),
-      netDistrictCode?: string(name='NetDistrictCode', description='The code of the region.', example='100106'),
-      netDistrictEnName?: string(name='NetDistrictEnName', description='The name of the region.', example='southWest'),
-      netDistrictFatherCode?: string(name='NetDistrictFatherCode', description='The parent code of the region.', example='100000'),
-      netDistrictLevel?: string(name='NetDistrictLevel', description='The level of the region.
-
-*   **Big**: area
-*   **Middle**: province
-*   **Small**: city', example='Big'),
-      netDistrictName?: string(name='NetDistrictName', description='The name of the region.', example='southwest China'),
+      ensRegionIdCount?: string(name='EnsRegionIdCount'),
+      netDistrictCode?: string(name='NetDistrictCode'),
+      netDistrictEnName?: string(name='NetDistrictEnName'),
+      netDistrictFatherCode?: string(name='NetDistrictFatherCode'),
+      netDistrictLevel?: string(name='NetDistrictLevel'),
+      netDistrictName?: string(name='NetDistrictName'),
     }
   ](name='EnsNetDistrict')
-  }(name='EnsNetDistricts', description='The information about the regions.'),
+  }(name='EnsNetDistricts'),
   requestId?: string(name='RequestId', description='The request ID.', example='F3B261DD-3858-4D3C-877D-303ADF374600'),
 }
 
@@ -11441,14 +11663,10 @@ model DescribeEnsNetLevelResponseBody = {
   ensNetLevels?: {
     ensNetLevel?: [ 
     {
-      ensNetLevelCode?: string(name='EnsNetLevelCode', description='The network level. Valid values:
-
-*   Big: greater area.
-*   Middle: province.
-*   Small: city.', example='Big'),
+      ensNetLevelCode?: string(name='EnsNetLevelCode'),
     }
   ](name='EnsNetLevel')
-  }(name='EnsNetLevels', description='The network levels.'),
+  }(name='EnsNetLevels'),
   requestId?: string(name='RequestId', description='The request ID.', example='86A6D421-A0C7-4C01-8648-47377CA6A2CE'),
 }
 
@@ -11510,20 +11728,16 @@ model DescribeEnsNetSaleDistrictResponseBody = {
   ensNetDistricts?: {
     ensNetDistrict?: [ 
     {
-      ensRegionIdCount?: string(name='EnsRegionIdCount', description='The information about the ISP.', example='{                         "count":2,                         "name":"telecommunication",                         "code":"telecom",                         "country":"cn"                     }'),
-      instanceCount?: string(name='InstanceCount', description='The information about the instance.', example='{                         "count":2,                         "code":"multiCarrier"                     }'),
-      netDistrictCode?: string(name='NetDistrictCode', description='The region code.', example='100101'),
-      netDistrictEnName?: string(name='NetDistrictEnName', description='The name of the region.', example='northEast'),
-      netDistrictFatherCode?: string(name='NetDistrictFatherCode', description='The parent code of the region.', example='100000'),
-      netDistrictLevel?: string(name='NetDistrictLevel', description='The region level. Valid values:
-
-*   **Big**: area
-*   **Middle**: province
-*   **Small**: city', example='Big'),
-      netDistrictName?: string(name='NetDistrictName', description='The Chinese name of the region.', example='Northeast China'),
+      ensRegionIdCount?: string(name='EnsRegionIdCount'),
+      instanceCount?: string(name='InstanceCount'),
+      netDistrictCode?: string(name='NetDistrictCode'),
+      netDistrictEnName?: string(name='NetDistrictEnName'),
+      netDistrictFatherCode?: string(name='NetDistrictFatherCode'),
+      netDistrictLevel?: string(name='NetDistrictLevel'),
+      netDistrictName?: string(name='NetDistrictName'),
     }
   ](name='EnsNetDistrict')
-  }(name='EnsNetDistricts', description='The information about the ISPs in the area.'),
+  }(name='EnsNetDistricts'),
   requestId?: string(name='RequestId', description='The request ID.', example='1707B55C-A12F-43EF-BC66-14FFDB9253C3'),
 }
 
@@ -11667,23 +11881,18 @@ model DescribeEnsRegionIdResourceResponseBody = {
   ensRegionIdResources?: {
     ensRegionIdResource?: [ 
     {
-      area?: string(name='Area', description='The region. Set the value to West.', example='West'),
-      areaCode?: string(name='AreaCode', description='The code of the region.', example='300100'),
-      bizDate?: string(name='BizDate', description='The date when the transaction was processed.', example='2019-10-30'),
-      ensRegionId?: string(name='EnsRegionId', description='The ID of the node.', example='cn-hangzhou-telecom'),
-      ensRegionIdName?: string(name='EnsRegionIdName', description='The name of the node.', example='Nanjing Mobile'),
-      instanceCount?: int32(name='InstanceCount', description='The number of instances.', example='10'),
-      internetBandwidth?: long(name='InternetBandwidth', description='The public bandwidth of the instance. Unit: Bits/s.', example='100'),
-      isp?: string(name='Isp', description='The ISP. Valid values:
-
-*   cmcc: China Mobile
-*   unicom: China Unicom
-*   telecom: China Telecom
-*   multiCarrier: multi-line ISP', example='cmcc'),
-      VCpu?: int32(name='VCpu', description='The number of vCPUs.', example='10'),
+      area?: string(name='Area'),
+      areaCode?: string(name='AreaCode'),
+      bizDate?: string(name='BizDate'),
+      ensRegionId?: string(name='EnsRegionId'),
+      ensRegionIdName?: string(name='EnsRegionIdName'),
+      instanceCount?: int32(name='InstanceCount'),
+      internetBandwidth?: long(name='InternetBandwidth'),
+      isp?: string(name='Isp'),
+      VCpu?: int32(name='VCpu'),
     }
   ](name='EnsRegionIdResource')
-  }(name='EnsRegionIdResources', description='The returned data. For more information, see EnsRegionIdResources in sample JSON responses.'),
+  }(name='EnsRegionIdResources'),
   pageNumber?: int32(name='PageNumber', description='The page number.', example='1'),
   pageSize?: int32(name='PageSize', description='The number of entries per page.', example='10'),
   requestId?: string(name='RequestId', description='The request ID.', example='476600B1-C9E2-4245-A26F-DC7EA8071425'),
@@ -11767,14 +11976,14 @@ model DescribeEnsRegionsResponseBody = {
   ensRegions?: {
     ensRegions?: [ 
     {
-      area?: string(name='Area', description='The code of the region.', example='NorthEastChina'),
-      enName?: string(name='EnName', description='The name of the node.', example='NorthChina'),
-      ensRegionId?: string(name='EnsRegionId', description='The ID of the node.', example='cn-dalian-unicom'),
-      name?: string(name='Name', description='The name of the node.', example='Dalian Unicom'),
-      province?: string(name='Province', description='The province where the node is deployed.', example='Liaoning Province'),
+      area?: string(name='Area'),
+      enName?: string(name='EnName'),
+      ensRegionId?: string(name='EnsRegionId'),
+      name?: string(name='Name'),
+      province?: string(name='Province'),
     }
   ](name='EnsRegions')
-  }(name='EnsRegions', description='The information about the regions.'),
+  }(name='EnsRegions'),
   requestId?: string(name='RequestId', description='The request ID.', example='473469C7-AA6F-4DC5-B3DB-A3DC0DE3C83E'),
 }
 
@@ -12784,27 +12993,19 @@ model DescribeEpnInstancesResponseBody = {
   EPNInstances?: {
     EPNInstance?: [ 
     {
-      creationTime?: string(name='CreationTime', description='The time when the instance was created. The time is displayed in UTC.', example='2019-11-01T06:08:46Z'),
-      EPNInstanceId?: string(name='EPNInstanceId', description='The ID of the EPN instance.', example='epn****'),
-      EPNInstanceName?: string(name='EPNInstanceName', description='The name of the EPN instance.', example='ens_test_epn'),
-      EPNInstanceType?: string(name='EPNInstanceType', description='Set the value to EdgeToEdge.', example='EdgeToEdge'),
-      endTime?: string(name='EndTime', description='The end of the time range during which the data was queried. The time is displayed in UTC.', example='2019-11-01T06:08:46Z'),
-      internetMaxBandwidthOut?: int32(name='InternetMaxBandwidthOut', description='The inbound bandwidth. Unit: Mbit/s.', example='40'),
-      modifyTime?: string(name='ModifyTime', description='The time when the instance was last modified. The time is displayed in UTC.', example='2019-11-01T06:08:46Z'),
-      networkingModel?: string(name='NetworkingModel', description='The networking mode. Valid values:
-
-*   SpeedUp: intelligent acceleration network (Internet)
-*   Connection: internal network
-*   SpeedUpAndConnection: intelligent acceleration network and internal network', example='SpeedUp'),
-      startTime?: string(name='StartTime', description='The beginning of the time range during which the data was queried. The time is displayed in UTC.', example='2019-11-01T06:08:46Z'),
-      status?: string(name='Status', description='The status of the instance. Valid values:
-
-*   Running
-*   Excuting
-*   Stopped', example='Running'),
+      creationTime?: string(name='CreationTime'),
+      EPNInstanceId?: string(name='EPNInstanceId'),
+      EPNInstanceName?: string(name='EPNInstanceName'),
+      EPNInstanceType?: string(name='EPNInstanceType'),
+      endTime?: string(name='EndTime'),
+      internetMaxBandwidthOut?: int32(name='InternetMaxBandwidthOut'),
+      modifyTime?: string(name='ModifyTime'),
+      networkingModel?: string(name='NetworkingModel'),
+      startTime?: string(name='StartTime'),
+      status?: string(name='Status'),
     }
   ](name='EPNInstance')
-  }(name='EPNInstances', description='Details of EPN instances.'),
+  }(name='EPNInstances'),
   pageNumber?: int32(name='PageNumber', description='The page number.', example='1'),
   pageSize?: int32(name='PageSize', description='The number of entries per page.', example='40'),
   requestId?: string(name='RequestId', description='The request ID.', example='A1707FC0-430C-423A-B624-284046B20399'),
@@ -12883,27 +13084,21 @@ model DescribeEpnMeasurementDataResponseBody = {
       bandWidthFeeDatas?: {
         bandWidthFeeData?: [ 
         {
-          costCode?: string(name='CostCode', description='The code of the billable item.', example='cn-cmcc-1'),
-          costName?: string(name='CostName', description='The name of the billable item.', example='Beijing, Shanghai, and Guangzhou Mobile'),
-          costType?: string(name='CostType', description='Metering method
-
-*   SpeedUp: bandwidth of intelligent acceleration
-*   IntranetConnection: internal bandwidth', example='SpeedUp'),
-          costVal?: int32(name='CostVal', description='The value of the billable item.', example='16486'),
-          ispLine?: string(name='IspLine', description='This parameter is unavailable.', example='This parameter is not currently in use.'),
+          costCode?: string(name='CostCode'),
+          costName?: string(name='CostName'),
+          costType?: string(name='CostType'),
+          costVal?: int32(name='CostVal'),
+          ispLine?: string(name='IspLine'),
         }
       ](name='BandWidthFeeData')
-      }(name='BandWidthFeeDatas', description='The bandwidth data returned.'),
-      chargeModel?: string(name='ChargeModel', description='The metering method. Valid values:
-
-*   ChargeByUnified: unified metering.
-*   ChargeByGrade: differential metering.', example='ChargeByGrade'),
-      costCycle?: string(name='CostCycle', description='The metering cycle.', example='2019-07-30'),
-      costEndTime?: string(name='CostEndTime', description='The end time of the metering cycle.', example='2019-07-30T16:00:00Z'),
-      costStartTime?: string(name='CostStartTime', description='The start time of the metering cycle.', example='2019-07-29T16:00:00Z'),
+      }(name='BandWidthFeeDatas'),
+      chargeModel?: string(name='ChargeModel'),
+      costCycle?: string(name='CostCycle'),
+      costEndTime?: string(name='CostEndTime'),
+      costStartTime?: string(name='CostStartTime'),
     }
   ](name='MeasurementData')
-  }(name='MeasurementDatas', description='The metering data returned.'),
+  }(name='MeasurementDatas'),
   requestId?: string(name='RequestId', description='The request ID.', example='A6328C33-6304-5291-8641-0A00A99D0DD0'),
 }
 
@@ -12968,25 +13163,17 @@ model DescribeExportImageInfoResponseBody = {
   images?: {
     image?: [ 
     {
-      architecture?: string(name='Architecture', description='The architecture of the image. Example: **x86_64**.', example='x86_64'),
-      creationTime?: string(name='CreationTime', description='The time when the image was created.', example='2017-12-08T12:10:03Z'),
-      exportedImageURL?: string(name='ExportedImageURL', description='The URL of the exported image.', example='https://user_defined_bucket.oss-cn-beijing.aliyuncs.com/m-xxxxxxxxx1.qcow2'),
-      imageExportStatus?: string(name='ImageExportStatus', description='The export status of the image. Valid values:
-
-*   Exporting
-*   Exported
-*   ExportError
-*   Unexported', example='Exported'),
-      imageId?: string(name='ImageId', description='The ID of the image.', example='m-xxxxxxxxx1'),
-      imageName?: string(name='ImageName', description='The name of the image.', example='m-xxxxxxxxx1'),
-      imageOwnerAlias?: string(name='ImageOwnerAlias', description='The source of the image. Valid values:
-
-*   system: public image
-*   self: custom image', example='system'),
-      platform?: string(name='Platform', description='The OS.', example='centos'),
+      architecture?: string(name='Architecture'),
+      creationTime?: string(name='CreationTime'),
+      exportedImageURL?: string(name='ExportedImageURL'),
+      imageExportStatus?: string(name='ImageExportStatus'),
+      imageId?: string(name='ImageId'),
+      imageName?: string(name='ImageName'),
+      imageOwnerAlias?: string(name='ImageOwnerAlias'),
+      platform?: string(name='Platform'),
     }
   ](name='Image')
-  }(name='Images', description='The returned result. For more information, see the Images parameter described in the JSON-formatted sample success response.'),
+  }(name='Images'),
   pageNumber?: int32(name='PageNumber', description='The page number.', example='1'),
   pageSize?: int32(name='PageSize', description='The number of entries per page.', example='10'),
   requestId?: string(name='RequestId', description='The ID of the request.', example='473469C7-AA6F-4DC5-B3DB-A3DC0DE3C83E'),
@@ -13183,7 +13370,7 @@ model DescribeFileSystemsResponse = {
 }
 
 /**
- * @summary Queries the information about file systems.
+ * @summary Queries the information about Apsara File Storage NAS (NAS) file systems.
  *
  * @param request DescribeFileSystemsRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -13210,7 +13397,7 @@ async function describeFileSystemsWithOptions(request: DescribeFileSystemsReques
 }
 
 /**
- * @summary Queries the information about file systems.
+ * @summary Queries the information about Apsara File Storage NAS (NAS) file systems.
  *
  * @param request DescribeFileSystemsRequest
  * @return DescribeFileSystemsResponse
@@ -13596,7 +13783,9 @@ model DescribeHistoryEventsResponseBody = {
 *   Instance:SystemMaintenance.Redeploy: The instance is redeployed due to system maintenance.', example='Instance:SystemFailure.Reboot'),
       extendedAttribute?: string(name='ExtendedAttribute', description='The extended attributes.', example='{}'),
       notBefore?: long(name='NotBefore', description='The scheduled execution time of the event in milliseconds.', example='1715578245000'),
+      notBeforeUtcTime?: string(name='NotBeforeUtcTime'),
       publishTime?: long(name='PublishTime', description='The release time in milliseconds.', example='1715578245000'),
+      publishUtcTime?: string(name='PublishUtcTime'),
       reason?: string(name='Reason', description='The event cause.'),
       resourceId?: string(name='ResourceId', description='The ID of the associated resources.', example='i-55qi8m11rr53c4i964md8a00l'),
     }
@@ -13699,34 +13888,27 @@ model DescribeImageInfosResponseBody = {
   images?: {
     image?: [ 
     {
-      computeType?: string(name='ComputeType', description='The computing type of the image. Valid values:
-
-*   ens_vm: x86 computing.
-*   arm_vm: ARM computing.
-*   bare_metal: x86 bare machine.
-*   pcfarm: heterogeneous computing.', example='ens_vm'),
-      description?: string(name='Description', description='The description of the image.', example='centos_6_08_64_20G_alibase_2017****'),
+      computeType?: string(name='ComputeType'),
+      description?: string(name='Description'),
       diskDeviceMappings?: {
         diskDeviceMapping?: [ 
         {
-          format?: string(name='Format', description='The format of the image.', example='The format of the image.
-raw
-qcow2'),
-          size?: string(name='Size', description='The size of the image. Unit: GB.', example='100'),
-          type?: string(name='Type', description='The type of the disk. Valid values: System and Data.', example='Data'),
-          imageId?: string(name='imageId', description='The ID of the image.', example='i-test'),
+          format?: string(name='Format'),
+          size?: string(name='Size'),
+          type?: string(name='Type'),
+          imageId?: string(name='imageId'),
         }
       ](name='DiskDeviceMapping')
-      }(name='DiskDeviceMappings', description='The mappings between disks and snapshots in the image.'),
-      imageId?: string(name='ImageId', description='The ID of the image.', example='centos_6_08_64_20G_alibase_2017****'),
-      imageSize?: string(name='ImageSize', description='The size of the image. Unit: GiB.', example='20'),
-      imageVersion?: string(name='ImageVersion', description='The version of the image.', example='6.8'),
-      OSName?: string(name='OSName', description='The type of the image. Valid values: **centos**, **debian**, **ubuntu**, and **windows**.', example='centos'),
-      OSType?: string(name='OSType', description='The type of the operating system.', example='linux'),
-      regionId?: string(name='RegionId', description='The ID of the region.', example='cn-shenzhen'),
+      }(name='DiskDeviceMappings'),
+      imageId?: string(name='ImageId'),
+      imageSize?: string(name='ImageSize'),
+      imageVersion?: string(name='ImageVersion'),
+      OSName?: string(name='OSName'),
+      OSType?: string(name='OSType'),
+      regionId?: string(name='RegionId'),
     }
   ](name='Image')
-  }(name='Images', description='The information about images.'),
+  }(name='Images'),
   requestId?: string(name='RequestId', description='The request ID.', example='5568A08C-10A9-47F3-902F-647298B463FB'),
 }
 
@@ -13794,10 +13976,10 @@ model DescribeImageSharePermissionResponseBody = {
   accounts?: {
     account?: [ 
     {
-      aliyunUid?: string(name='AliyunUid', description='The Alibaba Cloud account with which you share the image.', example='1515285523xxxx'),
+      aliyunUid?: string(name='AliyunUid'),
     }
   ](name='Account')
-  }(name='Accounts', description='The account information.'),
+  }(name='Accounts'),
   imageId?: string(name='ImageId', description='The ID of the image.', example='m-5qkf6jv9a0tzd5ipwx5fi****'),
   pageNumber?: int32(name='PageNumber', description='The page number of the returned page.', example='1'),
   pageSize?: int32(name='PageSize', description='The number of entries per page.', example='100'),
@@ -13884,40 +14066,28 @@ model DescribeImagesResponseBody = {
   images?: {
     image?: [ 
     {
-      architecture?: string(name='Architecture', description='The architecture of the image. Example: **x86_64**.', example='x86_64'),
-      creationTime?: string(name='CreationTime', description='The time when the image was created. The time follows the ISO 8601 standard.', example='2017-12-08T12:10:03Z'),
+      architecture?: string(name='Architecture'),
+      creationTime?: string(name='CreationTime'),
       diskDeviceMappings?: {
         diskDeviceMapping?: [ 
         {
-          format?: string(name='Format', description='The format of the image.', example='The format of the image.
-raw
-qcow2'),
-          size?: string(name='Size', description='The size of the disk. Unit: GiB.', example='100'),
-          type?: string(name='Type', description='The type of the disk. Valid values:
-
-*   system: system disk.
-*   data: data disk.', example='Data'),
-          imageId?: string(name='imageId', description='The ID of image.', example='i-test'),
+          format?: string(name='Format'),
+          size?: string(name='Size'),
+          type?: string(name='Type'),
+          imageId?: string(name='imageId'),
         }
       ](name='DiskDeviceMapping')
-      }(name='DiskDeviceMappings', description='The mappings between the disk and the snapshot in the image.'),
-      imageId?: string(name='ImageId', description='The ID of the image.', example='centos_6_08_64_20G_alibase_2017****'),
-      imageName?: string(name='ImageName', description='The name of the image.', example='Ubuntu_16.04'),
-      imageOwnerAlias?: string(name='ImageOwnerAlias', description='The source of the image. Valid values:
-
-*   system: Alibaba Cloud public images
-*   self: your custom images
-*   others: shared images from other Alibaba Cloud accounts, or community images published by other Alibaba Cloud accounts', example='system'),
-      imageSize?: string(name='ImageSize', description='The size of the image. Unit: GiB.', example='40'),
-      platform?: string(name='Platform', description='The operating system type of the image. Valid values:
-
-*   Linux
-*   Windows', example='centos'),
-      regionId?: string(name='RegionId', description='The region ID.', example='cn-qingdao'),
-      snapshotId?: string(name='SnapshotId', description='The ID of the snapshot.', example='mock-clone_snapshot_id'),
+      }(name='DiskDeviceMappings'),
+      imageId?: string(name='ImageId'),
+      imageName?: string(name='ImageName'),
+      imageOwnerAlias?: string(name='ImageOwnerAlias'),
+      imageSize?: string(name='ImageSize'),
+      platform?: string(name='Platform'),
+      regionId?: string(name='RegionId'),
+      snapshotId?: string(name='SnapshotId'),
     }
   ](name='Image')
-  }(name='Images', description='The information about the images.'),
+  }(name='Images'),
   pageNumber?: int32(name='PageNumber', description='The page number.', example='1'),
   pageSize?: int32(name='PageSize', description='The number of entries per page.', example='10'),
   requestId?: string(name='RequestId', description='The ID of the request.', example='8331AA01-C16D-5481-BB47-D19CEBAA811E'),
@@ -14001,15 +14171,12 @@ model DescribeInstanceAutoRenewAttributeResponseBody = {
   instanceRenewAttributes?: {
     instanceRenewAttribute?: [ 
     {
-      autoRenewal?: boolean(name='AutoRenewal', description='The renewal type of the instance.
-
-*   **true**: enables auto-renewal.
-*   **false**: disables auto-renewal.', example='false'),
-      duration?: string(name='Duration', description='The unit of the auto-renewal period.', example='0'),
-      instanceId?: string(name='InstanceId', description='The ID of the instance.', example='i-5ci7l7k1m9m2zmhp4iw3o****'),
+      autoRenewal?: boolean(name='AutoRenewal'),
+      duration?: string(name='Duration'),
+      instanceId?: string(name='InstanceId'),
     }
   ](name='InstanceRenewAttribute')
-  }(name='InstanceRenewAttributes', description='The renewal status of the instance.'),
+  }(name='InstanceRenewAttributes'),
   requestId?: string(name='RequestId', description='The request ID.', example='4DD66F05-3116-4BAA-B588-52EB2E7F431D'),
 }
 
@@ -14247,12 +14414,12 @@ model DescribeInstanceMonitorDataResponseBody = {
   monitorData?: {
     instanceMonitorData?: [ 
     {
-      CPU?: string(name='CPU', description='The vCPU usage of the instance, which is raw data. For example, a value of 0.02 indicates that the usage is 2%.', example='0.02'),
-      instanceId?: string(name='InstanceId', description='The ID of the instance.', example='yourInstance ID'),
-      memory?: string(name='Memory', description='This parameter is not yet supported.', example='Not currently supported'),
+      CPU?: string(name='CPU'),
+      instanceId?: string(name='InstanceId'),
+      memory?: string(name='Memory'),
     }
   ](name='InstanceMonitorData')
-  }(name='MonitorData', description='The set of InstanceMonitorDataType data.'),
+  }(name='MonitorData'),
   requestId?: string(name='RequestId', description='The request ID.', example='C8B26B44-0189-443E-9816-D951F59623A9'),
 }
 
@@ -14411,13 +14578,13 @@ model DescribeInstanceSpecResponseBody = {
   instanceSpecs?: {
     instanceSpec?: [ 
     {
-      core?: string(name='Core', description='The number of CPU cores.', example='1'),
-      displayName?: string(name='DisplayName', description='The display name of the instance type.', example='Computational 1C2G'),
-      instanceType?: string(name='InstanceType', description='The type of the instance.', example='ens.sn1.stiny'),
-      memory?: string(name='Memory', description='The memory size. Unit: MB.', example='2048'),
+      core?: string(name='Core'),
+      displayName?: string(name='DisplayName'),
+      instanceType?: string(name='InstanceType'),
+      memory?: string(name='Memory'),
     }
   ](name='InstanceSpec')
-  }(name='InstanceSpecs', description='The information about instance specifications.'),
+  }(name='InstanceSpecs'),
   requestId?: string(name='RequestId', description='The request ID.', example='1ECC937A-AE0E-4626-BE51-DED1D6D1C888'),
   systemDiskMaxSize?: int32(name='SystemDiskMaxSize', description='The maximum capacity of the system disk. Unit: GiB.', example='80'),
 }
@@ -14466,13 +14633,13 @@ model DescribeInstanceTypesResponseBody = {
   instanceTypes?: {
     instanceType?: [ 
     {
-      cpuCoreCount?: int32(name='CpuCoreCount', description='The number of vCPUs.', example='2'),
-      instanceTypeId?: string(name='InstanceTypeId', description='This parameter is unavailable.', example='This parameter is not needed temporarily.'),
-      instanceTypeName?: string(name='InstanceTypeName', description='The name of the instance type.', example='ens.xxx.small'),
-      memorySize?: int32(name='MemorySize', description='The memory size. Unit: MB.', example='8192'),
+      cpuCoreCount?: int32(name='CpuCoreCount'),
+      instanceTypeId?: string(name='InstanceTypeId'),
+      instanceTypeName?: string(name='InstanceTypeName'),
+      memorySize?: int32(name='MemorySize'),
     }
   ](name='InstanceType')
-  }(name='InstanceTypes', description='Details about the instance types.'),
+  }(name='InstanceTypes'),
   requestId?: string(name='RequestId', description='The request ID.', example='D452D190-BADF-5D09-910D-599B96D42AAA'),
 }
 
@@ -14661,179 +14828,127 @@ model DescribeInstancesResponseBody = {
   instances?: {
     instance?: [ 
     {
-      autoReleaseTime?: string(name='AutoReleaseTime', description='The automatic release time of the instance.', example='2023-06-28T14:38:52Z'),
-      cpu?: string(name='Cpu', description='The number of vCPUs.', example='2'),
-      creationTime?: string(name='CreationTime', description='The time when the instance was created. The time follows the ISO 8601 standard in the yyyy-MM-ddTHH:mm:ssZ format. The time is displayed in UTC.', example='2019-07-26T06:40:43Z'),
+      autoReleaseTime?: string(name='AutoReleaseTime'),
+      cpu?: string(name='Cpu'),
+      creationTime?: string(name='CreationTime'),
       dataDisk?: {
         dataDisk?: [ 
         {
-          category?: string(name='Category', description='The category of the cloud disk or local disk. Valid values:
-
-*   **file**: local disk.
-*   **pangu**: ultra disk.
-*   **local_hdd**: local HDD.', example='file'),
-          diskId?: string(name='DiskId', description='The ID of the disk.', example='d-5ip4c2dhmas0vjd5u1r****'),
-          diskName?: string(name='DiskName', description='The name of the disk.', example='DiskName'),
-          diskSize?: int32(name='DiskSize', description='The size of the disk. Unit: GiB.', example='100'),
-          encryptKeyId?: string(name='EncryptKeyId', description='The KMS key ID used by the cloud drive.', example='0e478b7a-4262-4802-b8cb-00d3fxxxxx'),
-          encrypted?: boolean(name='Encrypted', description='Specifies whether to encrypt the disk.', example='true'),
-          size?: int32(name='Size', description='The size of the disk. Unit: MiB.', example='51200'),
-          deviceType?: string(name='device_type', description='The extended field of the disk category. Valid values:
-
-*   **file**: local disk.
-*   **pangu**: ultra disk.
-*   **local_hdd**: local HDD.', example='pangu'),
-          diskType?: string(name='disk_type', description='The type of the cloud disk or local disk. Valid values:
-
-**system**: system disk. **data**: data disk.', example='system'),
-          name?: string(name='name', description='The name of the disk.', example='name'),
-          storage?: int32(name='storage', description='The size of the disk. Unit: MiB.', example='20480'),
-          uuid?: string(name='uuid', description='The UUID of the disk.', example='d-5itef1wtxj961mbff8xe9****'),
+          category?: string(name='Category'),
+          diskId?: string(name='DiskId'),
+          diskName?: string(name='DiskName'),
+          diskSize?: int32(name='DiskSize'),
+          encryptKeyId?: string(name='EncryptKeyId'),
+          encrypted?: boolean(name='Encrypted'),
+          size?: int32(name='Size'),
+          deviceType?: string(name='device_type'),
+          diskType?: string(name='disk_type'),
+          name?: string(name='name'),
+          storage?: int32(name='storage'),
+          uuid?: string(name='uuid'),
         }
       ](name='DataDisk')
-      }(name='DataDisk', description='Details of the data disk.'),
+      }(name='DataDisk'),
       deletionProtection?: boolean(name='DeletionProtection'),
-      disk?: int32(name='Disk', description='The total size of the disk. Unit: MiB.', example='71680'),
-      ensRegionId?: string(name='EnsRegionId', description='The region ID of the instance.', example='cn-hangzhou-telecom'),
-      expiredTime?: string(name='ExpiredTime', description='The expiration time. The time follows the ISO 8601 standard in the yyyy-MM-ddTHH:mm:ssZ format. The time is displayed in UTC.', example='2119-07-13T02:38:57Z'),
-      hostName?: string(name='HostName', description='The hostname of the instance.
-
-*   The hostname cannot start or end with a period (.) or hyphen (-). It cannot contain consecutive periods (.) or hyphens (-).
-*   For a Windows instance, the hostname must be 2 to 15 characters in length and can contain letters, digits, and hyphens (-). The hostname cannot contain periods (.) or contain only digits.
-*   For an instance that runs another operating system such as Linux, the hostname must be 2 to 64 characters in length. You can use periods (.) to separate the hostname into multiple segments. Each segment can contain letters, digits, and hyphens (-).', example='testHostName'),
-      imageId?: string(name='ImageId', description='The ID of the image.', example='m-****'),
+      disk?: int32(name='Disk'),
+      ensRegionId?: string(name='EnsRegionId'),
+      expiredTime?: string(name='ExpiredTime'),
+      hostName?: string(name='HostName'),
+      imageId?: string(name='ImageId'),
       innerIpAddress?: {
         ipAddress?: [ string ](name='IpAddress')
-      }(name='InnerIpAddress', description='The private IP addresses of the instances.'),
-      instanceId?: string(name='InstanceId', description='The ID of the instance.', example='i-instanc****'),
-      instanceName?: string(name='InstanceName', description='The name of the instance.', example='i-5itef0f28t17bcdw9deu6meub'),
-      instanceResourceType?: string(name='InstanceResourceType', description='The category of the instance. Valid values:
-
-*   EnsInstance: ENS instances that you purchase.
-*   EnsService: ENS instances that belong to edge services.
-*   BuildMachine: ENS instances that are configured with image builders.
-*   EnsPostPaidInstance: pay-as-you-go ENS instances that you purchase.', example='EnsService'),
-      instanceTypeFamily?: string(name='InstanceTypeFamily', description='The instance family. Valid values:
-
-*   x86_vm: x86-based computing instance.
-*   x86_pm: x86-based physical machine.
-*   x86_bmi: x86-based bare metal instance.
-*   x86_bm: bare metal instance with the SmartNIC.
-*   pc_bmi: heterogeneous bare metal instance.
-*   pc_vm: heterogeneous virtual machine.
-*   arm_bmi: Arm-based computing instance.', example='x86_vm'),
-      internetMaxBandwidthIn?: int32(name='InternetMaxBandwidthIn', description='The maximum outbound bandwidth. Unit: Mbit/s.', example='40'),
-      internetMaxBandwidthOut?: int32(name='InternetMaxBandwidthOut', description='The minimum inbound bandwidth. Unit: Mbit/s.', example='100'),
-      keyPairName?: string(name='KeyPairName', description='The name of the SSH key pair.', example='terraform-example'),
-      memory?: int32(name='Memory', description='The memory size. Unit: MB.', example='2048'),
+      }(name='InnerIpAddress'),
+      instanceId?: string(name='InstanceId'),
+      instanceName?: string(name='InstanceName'),
+      instanceResourceType?: string(name='InstanceResourceType'),
+      instanceTypeFamily?: string(name='InstanceTypeFamily'),
+      internetMaxBandwidthIn?: int32(name='InternetMaxBandwidthIn'),
+      internetMaxBandwidthOut?: int32(name='InternetMaxBandwidthOut'),
+      keyPairName?: string(name='KeyPairName'),
+      memory?: int32(name='Memory'),
       networkAttributes?: {
-        networkId?: string(name='NetworkId', description='The ID of the network.', example='n-2zeuphj08tt7q3brd****'),
+        networkId?: string(name='NetworkId'),
         privateIpAddress?: {
           ipAddress?: [ string ](name='IpAddress')
-        }(name='PrivateIpAddress', description='Details of the private IP addresses.'),
-        vSwitchId?: string(name='VSwitchId', description='The vSwitch ID.', example='vsw-2zeh0r1pabwtg6wcs****'),
-      }(name='NetworkAttributes', description='Details of the network.'),
+        }(name='PrivateIpAddress'),
+        vSwitchId?: string(name='VSwitchId'),
+      }(name='NetworkAttributes'),
       networkInterfaces?: {
         networkInterfaces?: [ 
         {
           ipv6Sets?: {
             ipv6Set?: [ 
             {
-              ipv6Address?: string(name='Ipv6Address', description='IPv6 addresses N of the ENI. You can specify multiple IPv6 addresses. Valid values of N: 1 to 100.', example='2408:4005:396:3200:****:6609:821e:df7a'),
+              ipv6Address?: string(name='Ipv6Address'),
             }
           ](name='Ipv6Set')
-          }(name='Ipv6Sets', description='The IPv6 addresses of the ENI. This parameter has a value only when `AdditionalAttributes.N` is set to `NETWORK_PRIMARY_ENI_IP`.'),
-          macAddress?: string(name='MacAddress', description='The MAC address of the ENI.', example='00:16:3e:4f:5f:ca'),
-          networkInterfaceId?: string(name='NetworkInterfaceId', description='The ID of the ENI.', example='eni-0wlonoy6jo8532gfzuama****'),
-          primaryIpAddress?: string(name='PrimaryIpAddress', description='The primary IP address of the ENI.', example='***************'),
+          }(name='Ipv6Sets'),
+          macAddress?: string(name='MacAddress'),
+          networkInterfaceId?: string(name='NetworkInterfaceId'),
+          primaryIpAddress?: string(name='PrimaryIpAddress'),
           privateIpSets?: {
             privateIpSet?: [ 
             {
-              primary?: boolean(name='Primary', description='Indicates whether the IP address is the primary private IP address. Valid values:
-
-*   true
-*   false', example='true'),
-              privateIpAddress?: string(name='PrivateIpAddress', description='The private IP address.
-
->  This parameter is available only if ScheduleAreaLevel is set to Region and cannot be configured if ScheduleAreaLevel is set to other values. Otherwise, an error occurs. If you specify a private IP address, the number of instances must be 1. The private IP address takes effect only when the private IP address and the vSwitch ID are not empty.', example='10.75.66.***'),
+              primary?: boolean(name='Primary'),
+              privateIpAddress?: string(name='PrivateIpAddress'),
             }
           ](name='PrivateIpSet')
-          }(name='PrivateIpSets', description='The private IP addresses of the ENI.'),
-          type?: string(name='Type', description='The type of the disk. Valid values:
-
-*   system: system disk.
-*   data: data disk.', example='Secondary'),
+          }(name='PrivateIpSets'),
+          type?: string(name='Type'),
         }
       ](name='NetworkInterfaces')
-      }(name='NetworkInterfaces', description='The ENI attached to the instance.'),
-      OSName?: string(name='OSName', description='The name of the image.', example='centos 6.8 x86_64'),
+      }(name='NetworkInterfaces'),
+      OSName?: string(name='OSName'),
       privateIpAddresses?: {
         privateIpAddress?: [ 
         {
-          gateWay?: string(name='GateWay', description='The gateway.', example='119.147.xx.xx'),
-          ip?: string(name='Ip', description='The IP address.', example='119.147.xx.xx'),
-          isp?: string(name='Isp', description='The ISP.', example='cmcc'),
+          gateWay?: string(name='GateWay'),
+          ip?: string(name='Ip'),
+          isp?: string(name='Isp'),
         }
       ](name='PrivateIpAddress')
-      }(name='PrivateIpAddresses', description='Details of the private IP addresses.'),
+      }(name='PrivateIpAddresses'),
       publicIpAddress?: {
         ipAddress?: [ string ](name='IpAddress')
-      }(name='PublicIpAddress', description='The public IP addresses of the instances.'),
+      }(name='PublicIpAddress'),
       publicIpAddresses?: {
         publicIpAddress?: [ 
         {
-          gateWay?: string(name='GateWay', description='The gateway.', example='119.147.xx.xx'),
-          ip?: string(name='Ip', description='The IP address.', example='119.147.xx.xx'),
-          isp?: string(name='Isp', description='The Internet service provider (ISP).', example='unicom'),
+          gateWay?: string(name='GateWay'),
+          ip?: string(name='Ip'),
+          isp?: string(name='Isp'),
         }
       ](name='PublicIpAddress')
-      }(name='PublicIpAddresses', description='Details of the public IP addresses.'),
+      }(name='PublicIpAddresses'),
       securityGroupIds?: {
         securityGroupId?: [ string ](name='SecurityGroupId')
-      }(name='SecurityGroupIds', description='The IDs of the security groups.'),
-      serviceStatus?: string(name='ServiceStatus', description='The ID of your Alibaba Cloud account.', example='Deleting'),
-      specName?: string(name='SpecName', description='The instance type.', example='ens.sn1.stiny'),
-      spotStrategy?: string(name='SpotStrategy', description='The bidding policy of the preemptible instance.', example='NoSpot'),
-      status?: string(name='Status', description='The status of the instance. Valid values:
-
-*   Running
-*   Expired
-*   Stopped', example='Running'),
+      }(name='SecurityGroupIds'),
+      serviceStatus?: string(name='ServiceStatus'),
+      specName?: string(name='SpecName'),
+      spotStrategy?: string(name='SpotStrategy'),
+      status?: string(name='Status'),
       systemDisk?: {
-        category?: string(name='Category', description='The category of the cloud disk or local disk. Valid values:
-
-*   **file**: local disk.
-*   **pangu**: ultra disk.
-*   **local_hdd**: local HDD.', example='file'),
-        diskId?: string(name='DiskId', description='The ID of the disk.', example='d-5ip4c2dhmas0rn7rt0p9****'),
-        diskName?: string(name='DiskName', description='The name of the disk.', example='DiskName'),
-        size?: int32(name='Size', description='The size of the disk. Unit: MiB.', example='51200'),
-        deviceType?: string(name='device_type', description='The extended field of the disk category. Valid values:
-
-*   **file**: local disk.
-*   **pangu**: ultra disk.
-*   **local_hdd**: local HDD.', example='pangu'),
-        diskType?: string(name='disk_type', description='The type of the cloud disk or local disk. Valid values:
-
-*   **system**: system disk.
-*   **data**: data disk.', example='system'),
-        name?: string(name='name', description='The name of the disk.', example='DiskName'),
-        storage?: int32(name='storage', description='The size of the disk. Unit: MiB.', example='20480'),
-        uuid?: string(name='uuid', description='The UUID of the disk.', example='d-5ip4c2dhmas0rn7rt0p96****'),
-      }(name='SystemDisk', description='Details of the system disk.'),
+        category?: string(name='Category'),
+        diskId?: string(name='DiskId'),
+        diskName?: string(name='DiskName'),
+        size?: int32(name='Size'),
+        deviceType?: string(name='device_type'),
+        diskType?: string(name='disk_type'),
+        name?: string(name='name'),
+        storage?: int32(name='storage'),
+        uuid?: string(name='uuid'),
+      }(name='SystemDisk'),
       tags?: {
         tags?: [ 
         {
-          tagKey?: string(name='TagKey', description='The tag key.', example='key1'),
-          tagValue?: string(name='TagValue', description='The tag value.', example='value1'),
+          tagKey?: string(name='TagKey'),
+          tagValue?: string(name='TagValue'),
         }
       ](name='Tags')
-      }(name='Tags', description='The tags of the instance.
-
->  This operation does not return tag information. You can call this operation in combination with the tag-related operations.'),
+      }(name='Tags'),
     }
   ](name='Instance')
-  }(name='Instances', description='The information about the instance is returned in an array of InstanceAttributesType.'),
+  }(name='Instances'),
   pageNumber?: int32(name='PageNumber', description='The page number.', example='1'),
   pageSize?: int32(name='PageSize', description='The number of entries per page.', example='60'),
   requestId?: string(name='RequestId', description='The request ID.', example='473469C7-AA6F-4DC5-B3DB-A3DC0DE3C83E'),
@@ -14984,13 +15099,13 @@ model DescribeKeyPairsResponseBody = {
   keyPairs?: {
     keyPair?: [ 
     {
-      creationTime?: string(name='CreationTime', description='The time when the key pair was created. The time follows the ISO 8601 standard in the yyyy-MM-ddThh:mm:ssZ format. The time is displayed in UTC.', example='2020-04-26T15:38:27Z'),
-      keyPairFingerPrint?: string(name='KeyPairFingerPrint', description='The fingerprint of the key pair.', example='fdaf8ff7a756ef843814fc****'),
-      keyPairId?: string(name='KeyPairId', description='The ID of the key pair.', example='ssh-50cynkq42sgj4ej1tn78t4***'),
-      keyPairName?: string(name='KeyPairName', description='The name of the SSH key pair.', example='TestKeyPairName'),
+      creationTime?: string(name='CreationTime'),
+      keyPairFingerPrint?: string(name='KeyPairFingerPrint'),
+      keyPairId?: string(name='KeyPairId'),
+      keyPairName?: string(name='KeyPairName'),
     }
   ](name='KeyPair')
-  }(name='KeyPairs', description='Details about the key pairs.'),
+  }(name='KeyPairs'),
   pageNumber?: int32(name='PageNumber', description='The page number.', example='1'),
   pageSize?: int32(name='PageSize', description='The number of entries returned per page.', example='10'),
   requestId?: string(name='RequestId', description='The request ID.', example='37B52F33-6879-49D0-A39B-22966B01449E'),
@@ -15571,29 +15686,18 @@ model DescribeLoadBalancerListenersResponseBody = {
   listeners?: {
     listener?: [ 
     {
-      backendServerPort?: int32(name='BackendServerPort', description='The backend port that is used by the ELB instance. Valid values: **1** to **65535**.', example='3306'),
-      createTime?: string(name='CreateTime', description='The timestamp when the listener was created.', example='2022-08-15T08:42:57Z'),
-      description?: string(name='Description', description='The description of the listener.', example='test'),
-      forwardPort?: string(name='ForwardPort', description='The listener port that is used for HTTP-to-HTTPS redirection.', example='443'),
-      listenerForward?: string(name='ListenerForward', description='Indicates whether HTTP-to-HTTPS redirection is enabled for the listener. Valid values:
-
-*   **on**
-*   **off**', example='off'),
-      listenerPort?: string(name='ListenerPort', description='The listening port.', example='8080'),
-      loadBalancerId?: string(name='LoadBalancerId', description='The ID of the ELB instance.', example='lb-51a5fhou****'),
-      protocol?: string(name='Protocol', description='The network transmission protocol that is used by the listener.
-
-*   **tcp**
-*   **udp**
-*   **http**
-*   **https**', example='tcp'),
-      status?: string(name='Status', description='The status of the listener. Valid values:
-
-*   **running**
-*   **stopped**', example='running'),
+      backendServerPort?: int32(name='BackendServerPort'),
+      createTime?: string(name='CreateTime'),
+      description?: string(name='Description'),
+      forwardPort?: string(name='ForwardPort'),
+      listenerForward?: string(name='ListenerForward'),
+      listenerPort?: string(name='ListenerPort'),
+      loadBalancerId?: string(name='LoadBalancerId'),
+      protocol?: string(name='Protocol'),
+      status?: string(name='Status'),
     }
   ](name='Listener')
-  }(name='Listeners', description='The listeners of the ELB instance.'),
+  }(name='Listeners'),
   pageNumber?: int32(name='PageNumber', description='The page number.', example='1'),
   pageSize?: int32(name='PageSize', description='The number of entries per page.', example='10'),
   requestId?: string(name='RequestId', description='The ID of the request.', example='F3B261DD-3858-4D3C-877D-303ADF374600'),
@@ -16007,27 +16111,21 @@ model DescribeLoadBalancersResponseBody = {
   loadBalancers?: {
     loadBalancer?: [ 
     {
-      address?: string(name='Address', description='The IP address that the ELB instance uses to provide services.', example='10.10.XX.XX'),
-      addressIPVersion?: string(name='AddressIPVersion', description='The IP version. Valid values: ipv4 and ipv6.', example='ipv4'),
+      address?: string(name='Address'),
+      addressIPVersion?: string(name='AddressIPVersion'),
       addressType?: string(name='AddressType'),
-      createTime?: string(name='CreateTime', description='The time when the ELB instance was created. The time is displayed in UTC.', example='2021-05-06T11:13:41Z'),
-      ensRegionId?: string(name='EnsRegionId', description='The ID of the ENS node.', example='cn-wuhan-telecom'),
-      loadBalancerId?: string(name='LoadBalancerId', description='The ID of the ELB instance.', example='lb-5snthcyu1x10g7tywj7iu****'),
-      loadBalancerName?: string(name='LoadBalancerName', description='The name of the ELB instance.', example='example'),
-      loadBalancerStatus?: string(name='LoadBalancerStatus', description='The status of the listener for the ELB instance. Valid values:
-
-*   **Active**: The listener for the instance can forward the received traffic based on forwarding rules.
-*   **InActive**: The listener for the instance does not forward the received traffic.', example='InActive'),
+      createTime?: string(name='CreateTime'),
+      ensRegionId?: string(name='EnsRegionId'),
+      loadBalancerId?: string(name='LoadBalancerId'),
+      loadBalancerName?: string(name='LoadBalancerName'),
+      loadBalancerStatus?: string(name='LoadBalancerStatus'),
       loadBalancerType?: string(name='LoadBalancerType'),
-      networkId?: string(name='NetworkId', description='The ID of the network.', example='n-5rz0rj1caexauilpsjx0w****'),
-      payType?: string(name='PayType', description='The billing method. Valid values:
-
-*   **PrePaid**: subscription.
-*   **PostPaid**: pay-as-you-go. Only this billing method is supported.', example='PostPaid'),
-      vSwitchId?: string(name='VSwitchId', description='The ID of the vSwitch.', example='vsw-5rllcjb3ol6duzjdnbm1om****'),
+      networkId?: string(name='NetworkId'),
+      payType?: string(name='PayType'),
+      vSwitchId?: string(name='VSwitchId'),
     }
   ](name='LoadBalancer')
-  }(name='LoadBalancers', description='An array of ELB instances.'),
+  }(name='LoadBalancers'),
   pageNumber?: int32(name='PageNumber', description='The page number.', example='1'),
   pageSize?: int32(name='PageSize', description='The number of entries per page. Default value: 10. Valid values: **10** to **100**.', example='100'),
   requestId?: string(name='RequestId', description='The ID of the request.', example='473469C7-AA6F-4DC5-B3DB-A3DC0DE3C83E'),
@@ -16100,41 +16198,34 @@ model DescribeMeasurementDataResponseBody = {
       bandWidthFeeDatas?: {
         bandWidthFeeData?: [ 
         {
-          costCode?: string(name='CostCode', description='The code of the bandwidth plan.', example='cn-cmcc-1'),
-          costName?: string(name='CostName', description='The name of the bandwidth plan.', example='Beijing, Shanghai, and Guangzhou Mobile'),
-          costVal?: int32(name='CostVal', description='The bandwidth consumption. Unit: bit/second.', example='16486'),
+          costCode?: string(name='CostCode'),
+          costName?: string(name='CostName'),
+          costVal?: int32(name='CostVal'),
         }
       ](name='BandWidthFeeData')
-      }(name='BandWidthFeeDatas', description='The bandwidth data returned.'),
-      chargeModel?: string(name='ChargeModel', description='The metering method. Valid values:
-
-*   ChargeByUnified: unified metering.
-*   ChargeByGrade: differential metering.', example='ChargeByGrade'),
-      costCycle?: string(name='CostCycle', description='The metering cycle.', example='2019-07-30'),
-      costEndTime?: string(name='CostEndTime', description='The end time of the metering cycle.', example='2019-07-30T16:00:00Z'),
-      costStartTime?: string(name='CostStartTime', description='The start time of the metering cycle.', example='2019-07-29T16:00:00Z'),
+      }(name='BandWidthFeeDatas'),
+      chargeModel?: string(name='ChargeModel'),
+      costCycle?: string(name='CostCycle'),
+      costEndTime?: string(name='CostEndTime'),
+      costStartTime?: string(name='CostStartTime'),
       resourceFeeData?: {
-        memory?: int32(name='Memory', description='The memory size. Unit: GB.', example='24'),
-        storage?: int32(name='Storage', description='The storage capacity. Unit: GB.', example='60'),
-        vcpu?: int32(name='Vcpu', description='The number of vCPUs.', example='12'),
-      }(name='ResourceFeeData', description='The information about computing resources.'),
+        memory?: int32(name='Memory'),
+        storage?: int32(name='Storage'),
+        vcpu?: int32(name='Vcpu'),
+      }(name='ResourceFeeData'),
       resourceFeeDataDetails?: {
         resourceFeeDataDetail?: [ 
         {
-          costCode?: string(name='CostCode', description='The code of the resource.', example='vCPU'),
-          costName?: string(name='CostName', description='The name of the resource.', example='vCPU'),
-          costVal?: int32(name='CostVal', description='The consumption of the resource.
-
-*   Memory unit: GB.
-*   CPU unit: vCPU.
-*   Storage unit: GB.', example='55'),
-          resourceType?: string(name='ResourceType', description='The type of the resource.', example='vCPU'),
+          costCode?: string(name='CostCode'),
+          costName?: string(name='CostName'),
+          costVal?: int32(name='CostVal'),
+          resourceType?: string(name='ResourceType'),
         }
       ](name='ResourceFeeDataDetail')
-      }(name='ResourceFeeDataDetails', description='Details of the computing resources.'),
+      }(name='ResourceFeeDataDetails'),
     }
   ](name='MeasurementData')
-  }(name='MeasurementDatas', description='The metering data returned.'),
+  }(name='MeasurementDatas'),
   requestId?: string(name='RequestId', description='The ID of the request.', example='125B04C7-3D0D-4245-AF96-14E3758E3F06'),
 }
 
@@ -16763,38 +16854,38 @@ model DescribeNetworkAttributeResponseBody = {
   cloudResources?: {
     cloudResourceSetType?: [ 
     {
-      resourceCount?: int32(name='ResourceCount', description='The number of resources in the network.', example='3'),
-      resourceType?: string(name='ResourceType', description='The resource type. VSwitch.', example='VSwitch'),
+      resourceCount?: int32(name='ResourceCount'),
+      resourceType?: string(name='ResourceType'),
     }
   ](name='CloudResourceSetType')
-  }(name='CloudResources', description='The list of resources in the network.'),
+  }(name='CloudResources'),
   createdTime?: string(name='CreatedTime', description='The time when the network was created. The time follows the ISO 8601 standard in the YYYY-MM-DDThh:mm:ssZ format. The time is displayed in UTC.', example='2019-06-01T00:00:00Z'),
   description?: string(name='Description', description='The description of the network.', example='abc'),
   ensRegionId?: string(name='EnsRegionId', description='The ID of the edge node.', example='cn-beijing'),
   gatewayRouteTableId?: string(name='GatewayRouteTableId', description='The ID of the gateway route table.', example='rt-539***tbs'),
   haVipIds?: {
     haVipId?: [ string ](name='HaVipId')
-  }(name='HaVipIds', description='List of HaVipIds.'),
+  }(name='HaVipIds'),
   instanceIds?: {
     instanceId?: [ string ](name='InstanceId')
-  }(name='InstanceIds', description='The instance IDs.'),
+  }(name='InstanceIds'),
   loadBalancerIds?: {
     loadBalancerId?: [ string ](name='LoadBalancerId')
-  }(name='LoadBalancerIds', description='List of ELB instances.'),
+  }(name='LoadBalancerIds'),
   natGatewayIds?: {
     natGatewayId?: [ string ](name='NatGatewayId')
-  }(name='NatGatewayIds', description='List of NAT Gateways.'),
+  }(name='NatGatewayIds'),
   networkAclId?: string(name='NetworkAclId', description='The ID of the network access control list (ACL).', example='nacl-a2do9e413e0sp****'),
   networkId?: string(name='NetworkId', description='The ID of the network.', example='n-5***'),
   networkInterfaceIds?: {
     networkInterfaceId?: [ string ](name='NetworkInterfaceId')
-  }(name='NetworkInterfaceIds', description='A list of multicast source IDs.'),
+  }(name='NetworkInterfaceIds'),
   networkName?: string(name='NetworkName', description='The name of the network.', example='abc'),
   requestId?: string(name='RequestId', description='The request ID.', example='473469C7-AA6F-4DC5-B3DB-A3DC0DE3C83E'),
   routeTableId?: string(name='RouteTableId', description='The ID of the route table.', example='rt-539***fpu'),
   routeTableIds?: {
     routeTableId?: [ string ](name='RouteTableId')
-  }(name='RouteTableIds', description='List of routing table IDs.'),
+  }(name='RouteTableIds'),
   routerTableId?: string(name='RouterTableId', description='The ID of the route table.', example='rtb-5***'),
   secondaryCidrBlocks?: {
     secondaryCidrBlock?: [ string ](name='SecondaryCidrBlock')
@@ -16805,7 +16896,7 @@ model DescribeNetworkAttributeResponseBody = {
 *   Available', example='Available'),
   vSwitchIds?: {
     vSwitchId?: [ string ](name='VSwitchId')
-  }(name='VSwitchIds', description='The list of vSwitches in the network.'),
+  }(name='VSwitchIds'),
 }
 
 model DescribeNetworkAttributeResponse = {
@@ -16896,57 +16987,42 @@ model DescribeNetworkInterfacesResponseBody = {
   networkInterfaceSets?: {
     networkInterfaceSet?: [ 
     {
-      creationTime?: string(name='CreationTime', description='The time when the ENI was created. Specify the time in the ISO 8601 standard in the yyyy-MM-ddThh:mmZ format. The time is displayed in UTC.', example='2022-02-22T03:53:25Z'),
-      description?: string(name='Description', description='The description of ENI.', example='test-description'),
-      ensRegionId?: string(name='EnsRegionId', description='The ID of the edge node.', example='id-jakarta-1'),
-      instanceId?: string(name='InstanceId', description='The ID of the instance to which the ENI is bound.', example='i-5siavnr3'),
+      creationTime?: string(name='CreationTime'),
+      description?: string(name='Description'),
+      ensRegionId?: string(name='EnsRegionId'),
+      instanceId?: string(name='InstanceId'),
       ipv6Sets?: {
         ipv6Set?: [ 
         {
-          ipv6Address?: string(name='Ipv6Address', description='The IPv6 address of the ENI.', example='2605:340:cdb1:XXXX:XXXX:XXXX:XXXX:e2d6'),
+          ipv6Address?: string(name='Ipv6Address'),
         }
       ](name='Ipv6Set')
-      }(name='Ipv6Sets', description='The IPv6 addresses of the ENIs.'),
-      macAddress?: string(name='MacAddress', description='The MAC address of the ENI.', example='00:16:3e:08:60:0a'),
-      networkId?: string(name='NetworkId', description='The ID of the network.', example='n-5w0qd03adw****'),
-      networkInterfaceId?: string(name='NetworkInterfaceId', description='The ID of the ENI.', example='eni-uf686a5'),
-      networkInterfaceName?: string(name='NetworkInterfaceName', description='The ENI name.', example='primaryTest'),
-      primaryIp?: string(name='PrimaryIp', description='The private IP address of the server.', example='12.23.3.4'),
-      primaryIpType?: string(name='PrimaryIpType', description='The primary private IP address. Valid values:
-
-*   **Public**: public IP address.
-*   **Private**: internal IP address.', example='private'),
+      }(name='Ipv6Sets'),
+      macAddress?: string(name='MacAddress'),
+      networkId?: string(name='NetworkId'),
+      networkInterfaceId?: string(name='NetworkInterfaceId'),
+      networkInterfaceName?: string(name='NetworkInterfaceName'),
+      primaryIp?: string(name='PrimaryIp'),
+      primaryIpType?: string(name='PrimaryIpType'),
       privateIpSets?: {
         privateIpSet?: [ 
         {
-          primary?: boolean(name='Primary', description='Specifies whether the private IP address is the primary private IP address. Valid values:
-
-*   true
-*   false', example='true'),
-          privateIpAddress?: string(name='PrivateIpAddress', description='The private IP address.', example='192.168.0.130'),
+          primary?: boolean(name='Primary'),
+          privateIpAddress?: string(name='PrivateIpAddress'),
           privateIpStatus?: string(name='PrivateIpStatus'),
         }
       ](name='PrivateIpSet')
-      }(name='PrivateIpSets', description='Details about the private IP address.'),
+      }(name='PrivateIpSets'),
       securityGroupIds?: {
         securityGroup?: [ string ](name='SecurityGroup')
-      }(name='SecurityGroupIds', description='The ID of the security group.'),
-      status?: string(name='Status', description='The status of the ENI. Valid values:
-
-*   Available: The ENI is available.
-*   Attaching: The ENI is being attached to an instance.
-*   InUse: The ENI is attached to an instance.
-*   Detaching: The ENI is being detached from an instance.
-*   Deleting: The ENI is being deleted.', example='In_use'),
-      type?: string(name='Type', description='The type of the ENI. Valid values:
-
-*   Primary
-*   Secondary', example='Primary'),
-      vSwitchId?: string(name='VSwitchId', description='The ID of the vSwitch.', example='vsw-5rqswx1trlsj9'),
+      }(name='SecurityGroupIds'),
+      status?: string(name='Status'),
+      type?: string(name='Type'),
+      vSwitchId?: string(name='VSwitchId'),
       vmncLearn?: boolean(name='VmncLearn'),
     }
   ](name='NetworkInterfaceSet')
-  }(name='NetworkInterfaceSets', description='Details about the ENIs.'),
+  }(name='NetworkInterfaceSets'),
   pageNumber?: int32(name='PageNumber', description='The number of the page to return. Pages start from page **1**. Default value: **1**.', example='1'),
   pageSize?: int32(name='PageSize', description='The number of entries returned per page. Maximum value: **50**. Default value: **10**.', example='50'),
   requestId?: string(name='RequestId', description='The request ID.', example='708AF9CE-FF92-5DF9-93F8-B7754AB1061A'),
@@ -17056,42 +17132,39 @@ model DescribeNetworksResponseBody = {
   networks?: {
     network?: [ 
     {
-      cidrBlock?: string(name='CidrBlock', description='The IPv4 CIDR block of the network.', example='10.0.xx.xx/24'),
-      createdTime?: string(name='CreatedTime', description='The timestamp when the instance was created. Unit: milliseconds.', example='2020-06-16T06:33:15Z'),
-      description?: string(name='Description', description='The description of the network.', example='exampleDescription'),
-      ensRegionId?: string(name='EnsRegionId', description='The ID of the edge node.', example='cn-beijing'),
-      gatewayRouteTableId?: string(name='GatewayRouteTableId', description='The ID of the gateway route table.', example='rt-5*****tbs'),
-      networkAclId?: string(name='NetworkAclId', description='The ID of the network access control list (ACL).', example='nacl-a2do9e413e0spxscd****'),
-      networkId?: string(name='NetworkId', description='The ID of the network.', example='n-5***'),
-      networkName?: string(name='NetworkName', description='The name of the network.', example='example'),
-      routeTableId?: string(name='RouteTableId', description='The ID of the route table.', example='rt-5*****pks'),
+      cidrBlock?: string(name='CidrBlock'),
+      createdTime?: string(name='CreatedTime'),
+      description?: string(name='Description'),
+      ensRegionId?: string(name='EnsRegionId'),
+      gatewayRouteTableId?: string(name='GatewayRouteTableId'),
+      networkAclId?: string(name='NetworkAclId'),
+      networkId?: string(name='NetworkId'),
+      networkName?: string(name='NetworkName'),
+      routeTableId?: string(name='RouteTableId'),
       routeTableIds?: {
         routeTableId?: [ string ](name='RouteTableId')
-      }(name='RouteTableIds', description='The IDs of the route tables.'),
-      routerTableId?: string(name='RouterTableId', description='The route table ID.', example='rtb-5**'),
+      }(name='RouteTableIds'),
+      routerTableId?: string(name='RouterTableId'),
       secondaryCidrBlocks?: {
         secondaryCidrBlock?: [ string ](name='SecondaryCidrBlock')
       }(name='SecondaryCidrBlocks'),
-      status?: string(name='Status', description='The status of the network. Valid values:
-
-*   Pending
-*   Available', example='Available'),
+      status?: string(name='Status'),
       tags?: {
         tag?: [ 
         {
-          key?: string(name='Key', description='The key of the tag.', example='TestKey'),
-          tagKey?: string(name='TagKey', example='TestKey', deprecated=true),
-          tagValue?: string(name='TagValue', example='TestValue', deprecated=true),
-          value?: string(name='Value', description='The bandwidth.', example='TestValue'),
+          key?: string(name='Key'),
+          tagKey?: string(name='TagKey', deprecated=true),
+          tagValue?: string(name='TagValue', deprecated=true),
+          value?: string(name='Value'),
         }
       ](name='Tag')
       }(name='Tags'),
       vSwitchIds?: {
         vSwitchId?: [ string ](name='VSwitchId')
-      }(name='VSwitchIds', description='The list of vSwitches in the network.'),
+      }(name='VSwitchIds'),
     }
   ](name='Network')
-  }(name='Networks', description='The VPCs.'),
+  }(name='Networks'),
   pageNumber?: int32(name='PageNumber', description='The page number of the returned page.', example='1'),
   pageSize?: int32(name='PageSize', description='The number of entries returned on each page.', example='2'),
   requestId?: string(name='RequestId', description='The request ID.', example='473469C7-AA6F-4DC5-B3DB-A3DC0DE3C83E'),
@@ -17779,27 +17852,27 @@ model DescribeReservedResourceResponseBody = {
   images?: {
     image?: [ 
     {
-      imageId?: string(name='ImageId', description='The ID of the image.', example='centos_6_08_64_20G_alibase_****'),
-      imageName?: string(name='ImageName', description='The name of the image.', example='centos_6_08_64_20G_alibase_****'),
+      imageId?: string(name='ImageId'),
+      imageName?: string(name='ImageName'),
     }
   ](name='Image')
-  }(name='Images', description='The information about the image.'),
+  }(name='Images'),
   requestId?: string(name='RequestId', description='The request ID.', example='6666C5A5-75ED-422E-A022-7121FA18C968'),
   supportResources?: {
     supportResource?: [ 
     {
       dataDiskSizes?: {
         dataDiskSize?: [ string ](name='DataDiskSize')
-      }(name='DataDiskSizes', description='The sizes of data disks.'),
-      ensRegionId?: string(name='EnsRegionId', description='The ID of the node.', example='cn-beijing-cmcc'),
-      instanceSpec?: string(name='InstanceSpec', description='The specifications of instances.', example='ens.sn1.stiny'),
-      supportResourcesCount?: string(name='SupportResourcesCount', description='The number of resources that you can purchase.', example='9'),
+      }(name='DataDiskSizes'),
+      ensRegionId?: string(name='EnsRegionId'),
+      instanceSpec?: string(name='InstanceSpec'),
+      supportResourcesCount?: string(name='SupportResourcesCount'),
       systemDiskSizes?: {
         systemDiskSize?: [ string ](name='SystemDiskSize')
-      }(name='SystemDiskSizes', description='The sizes of system disks.'),
+      }(name='SystemDiskSizes'),
     }
   ](name='SupportResource')
-  }(name='SupportResources', description='The resources.'),
+  }(name='SupportResources'),
 }
 
 model DescribeReservedResourceResponse = {
@@ -18520,21 +18593,21 @@ model DescribeSecurityGroupAttributeResponseBody = {
   permissions?: {
     permission?: [ 
     {
-      creationTime?: string(name='CreationTime', description='The time at which the security group rule was created. The time is displayed in UTC.', example='2018-12-12T07:28:38Z'),
-      description?: string(name='Description', description='The description.', example='testDescription1'),
-      destCidrIp?: string(name='DestCidrIp', description='The range of destination IP addresses for outbound access control.', example='0.0.0.0/0'),
-      direction?: string(name='Direction', description='The direction in which the security group rule is applied.', example='ingress'),
-      ipProtocol?: string(name='IpProtocol', description='The transport layer protocol.', example='TCP'),
+      creationTime?: string(name='CreationTime'),
+      description?: string(name='Description'),
+      destCidrIp?: string(name='DestCidrIp'),
+      direction?: string(name='Direction'),
+      ipProtocol?: string(name='IpProtocol'),
       ipv6DestCidrIp?: string(name='Ipv6DestCidrIp'),
       ipv6SourceCidrIp?: string(name='Ipv6SourceCidrIp'),
-      policy?: string(name='Policy', description='The policy.', example='Accept'),
-      portRange?: string(name='PortRange', description='The source port range.', example='80/80'),
-      priority?: int32(name='Priority', description='The priority of the rule.', example='1'),
-      sourceCidrIp?: string(name='SourceCidrIp', description='The range of source IP addresses for inbound access control.', example='0.0.0.0/0'),
-      sourcePortRange?: string(name='SourcePortRange', description='The source port number range for the security group.', example='22/22'),
+      policy?: string(name='Policy'),
+      portRange?: string(name='PortRange'),
+      priority?: int32(name='Priority'),
+      sourceCidrIp?: string(name='SourceCidrIp'),
+      sourcePortRange?: string(name='SourcePortRange'),
     }
   ](name='Permission')
-  }(name='Permissions', description='Details about the rules.'),
+  }(name='Permissions'),
   requestId?: string(name='RequestId', description='The request ID.', example='473469C7-AA6F-4DC5-B3DB-A3DC0DE3C83E'),
   securityGroupId?: string(name='SecurityGroupId', description='The ID of the destination security group.', example='sg-bp1gxw6bznjjvhu3****'),
   securityGroupName?: string(name='SecurityGroupName', description='The name of the destination security group.', example='testSecurityGroupName2'),
@@ -18607,20 +18680,20 @@ model DescribeSecurityGroupsResponseBody = {
   securityGroups?: {
     securityGroup?: [ 
     {
-      creationTime?: string(name='CreationTime', description='The creation time. The time follows the ISO 8601 standard in the YYYY-MM-DDThh:mm:ssZ format. The time is displayed in UTC.', example='2019-11-01T06:08:46Z'),
-      description?: string(name='Description', description='The description of the security group.', example='TestDescription'),
-      instanceCount?: int32(name='InstanceCount', description='The number of associated instances.', example='5'),
+      creationTime?: string(name='CreationTime'),
+      description?: string(name='Description'),
+      instanceCount?: int32(name='InstanceCount'),
       instanceIds?: {
         instanceId?: [ string ](name='InstanceId')
-      }(name='InstanceIds', description='The IDs of the instances that are associated with the security group.'),
+      }(name='InstanceIds'),
       networkInterfaceIds?: {
         networkInterfaceId?: [ string ](name='NetworkInterfaceId')
-      }(name='NetworkInterfaceIds', description='The IDs of the ENIs that are associated with the security group.'),
-      securityGroupId?: string(name='SecurityGroupId', description='The ID of the security group.', example='sg-bp67acfmxazb4ph***'),
-      securityGroupName?: string(name='SecurityGroupName', description='The name of the security group.', example='DocTest'),
+      }(name='NetworkInterfaceIds'),
+      securityGroupId?: string(name='SecurityGroupId'),
+      securityGroupName?: string(name='SecurityGroupName'),
     }
   ](name='SecurityGroup')
-  }(name='SecurityGroups', description='Details about security groups.'),
+  }(name='SecurityGroups'),
   totalCount?: int32(name='TotalCount', description='The total number of returned pages.', example='49'),
 }
 
@@ -18695,60 +18768,33 @@ model DescribeSelfImagesResponseBody = {
   images?: {
     image?: [ 
     {
-      architecture?: string(name='Architecture', description='The image architecture. Valid values:
-
-*   i386
-*   x86_64', example='x86_64'),
-      computeType?: string(name='ComputeType', description='Computing type. ens_vm/ens: x86 computing. bare_metal: x86 bare machine or x86 bare metal. arm_vm: ARM computing. arm_bare_metal: ARM bare machine or ARM bare metal. pcfarm: heterogeneous computing.', example='ens_vm'),
-      creationTime?: string(name='CreationTime', description='The image creation time. The time follows the ISO 8601 standard in the yyyy-MM-ddTHH:mm:ssZ format. The time is displayed in UTC.', example='2017-12-08T12:10:03Z'),
+      architecture?: string(name='Architecture'),
+      computeType?: string(name='ComputeType'),
+      creationTime?: string(name='CreationTime'),
       diskDeviceMappings?: {
         diskDeviceMapping?: [ 
         {
-          format?: string(name='Format', description='The format of the image.', example='The format of the image.
-raw
-qcow2'),
-          size?: string(name='Size', description='The size of the disk. Unit: GiB.', example='100'),
-          type?: string(name='Type', description='The type of the disk. Valid values:
-
-*   system: system disk.
-*   data: data disk.', example='Data'),
-          imageId?: string(name='imageId', description='The ID of image.', example='i-test'),
+          format?: string(name='Format'),
+          size?: string(name='Size'),
+          type?: string(name='Type'),
+          imageId?: string(name='imageId'),
         }
       ](name='DiskDeviceMapping')
-      }(name='DiskDeviceMappings', description='The mappings between the disk and the snapshot in the image.'),
-      imageId?: string(name='ImageId', description='The ID of the image.', example='centos_6_08_64_20G_a****'),
-      imageName?: string(name='ImageName', description='The name of the image.', example='centos_6_08_64_20G_a****'),
-      imageOwnerAlias?: string(name='ImageOwnerAlias', description='The source of the image. Valid values:
-
-*   **others**: a custom image that is shared by other Alibaba Cloud accounts.
-*   **self**: your own custom image.', example='system'),
-      imageSize?: string(name='ImageSize', description='The size of the image. Unit: GiB.', example='20'),
-      imageStorageSize?: string(name='ImageStorageSize', description='The size of the image storage.', example='400'),
-      instanceId?: string(name='InstanceId', description='The ID of the instance.', example='i-5iqczfxps7csjrxeca****'),
-      osVersion?: string(name='OsVersion', description='The operating system version.', example='7.2'),
-      platform?: string(name='Platform', description='The platform.
-
-*   centos
-*   ubuntu
-*   alios
-*   debian
-*   rhel
-*   windows', example='centos'),
-      regionId?: string(name='RegionId', description='The ID of the region.', example='cn-shenzhen'),
-      snapshotId?: string(name='SnapshotId', description='The snapshot ID.', example='sp-5yt3bdedxzdz6t6uuw****'),
-      status?: string(name='Status', description='The state of the image.
-
-*   Creating.
-*   Packing.
-*   Uploading.
-*   Pack_failed.
-*   Upload_failed.
-*   Available: Only images in the Available state can be used and operated.
-*   Unavailable.
-*   Copying.', example='Creating'),
+      }(name='DiskDeviceMappings'),
+      imageId?: string(name='ImageId'),
+      imageName?: string(name='ImageName'),
+      imageOwnerAlias?: string(name='ImageOwnerAlias'),
+      imageSize?: string(name='ImageSize'),
+      imageStorageSize?: string(name='ImageStorageSize'),
+      instanceId?: string(name='InstanceId'),
+      osVersion?: string(name='OsVersion'),
+      platform?: string(name='Platform'),
+      regionId?: string(name='RegionId'),
+      snapshotId?: string(name='SnapshotId'),
+      status?: string(name='Status'),
     }
   ](name='Image')
-  }(name='Images', description='The image information.'),
+  }(name='Images'),
   pageNumber?: string(name='PageNumber', description='The page number.', example='1'),
   pageSize?: string(name='PageSize', description='The number of entries per page. Maximum value: 50. Default value: 10.', example='10'),
   requestId?: string(name='RequestId', description='The request ID.', example='A8B8EB73-B4FD-4262-8EF6-680DF39C9BA0'),
@@ -18834,11 +18880,11 @@ model DescribeServcieScheduleResponseBody = {
     containerStatuses?: {
       containerStatus?: [ 
       {
-        containerId?: string(name='ContainerId', description='The ID of the container.', example='container_e79_1638372147094_158091_02_000001'),
-        name?: string(name='Name', description='The name of the container.', example='nginx'),
+        containerId?: string(name='ContainerId'),
+        name?: string(name='Name'),
       }
     ](name='ContainerStatus')
-    }(name='ContainerStatuses', description='The information about the container.'),
+    }(name='ContainerStatuses'),
     name?: boolean(name='Name', description='The name of the pod.', example='gcs-prod-websocket-eip-telecom'),
     namespace?: boolean(name='Namespace', description='The name of the namespace.', example='default-aliyun'),
     resourceScope?: boolean(name='ResourceScope', description='The pod scope.', example='FDN'),
@@ -19724,20 +19770,20 @@ model DescribeVSwitchAttributesResponseBody = {
   ensRegionId?: string(name='EnsRegionId', description='The ENS node ID.', example='cn-xian-unicom'),
   haVipIds?: {
     haVipId?: [ string ](name='HaVipId')
-  }(name='HaVipIds', description='A list of high-availability VIP instance IDs.'),
+  }(name='HaVipIds'),
   instanceIds?: {
     instanceId?: [ string ](name='InstanceId')
-  }(name='InstanceIds', description='A list of instance IDs.'),
+  }(name='InstanceIds'),
   loadBalancerIds?: {
     loadBalancerId?: [ string ](name='LoadBalancerId')
-  }(name='LoadBalancerIds', description='A list of load balancer instance IDs.'),
+  }(name='LoadBalancerIds'),
   natGatewayIds?: {
     natGatewayId?: [ string ](name='NatGatewayId')
-  }(name='NatGatewayIds', description='A list of NAT gateway IDs.'),
+  }(name='NatGatewayIds'),
   networkId?: string(name='NetworkId', description='The network ID.', example='n-257gqcdfvx6n****'),
   networkInterfaceIds?: {
     networkInterfaceId?: [ string ](name='NetworkInterfaceId')
-  }(name='NetworkInterfaceIds', description='A list of elastic network interface IDs.'),
+  }(name='NetworkInterfaceIds'),
   requestId?: string(name='RequestId', description='The request ID.', example='C0003****2A8'),
   status?: string(name='Status', description='The status of the VSwitch, as follows:
 
@@ -19814,31 +19860,28 @@ model DescribeVSwitchesResponseBody = {
   vSwitches?: {
     vSwitch?: [ 
     {
-      cidrBlock?: string(name='CidrBlock', description='The IPv4 CIDR block of the vSwitch.', example='10.21.224.0/22'),
-      createdTime?: string(name='CreatedTime', description='The time when the VPC was created. The time follows the ISO 8601 standard in the YYYY-MM-DDThh:mm:ssZ format. The time is displayed in UTC.', example='2020-06-16T06:33:15Z'),
-      description?: string(name='Description', description='The description of the vSwitch.', example='VSwitchDescription'),
-      ensRegionId?: string(name='EnsRegionId', description='The ID of the ENS node.', example='cn-xian-unicom'),
-      freeIpCount?: long(name='FreeIpCount', description='The number of available IP addresses.', example='1024'),
-      networkId?: string(name='NetworkId', description='The ID of the virtual private cloud (VPC).', example='vpc-25cdvfeq58pl****'),
-      status?: string(name='Status', description='The status of the vSwitch. Valid values:
-
-*   Pending
-*   Available', example='Pending'),
+      cidrBlock?: string(name='CidrBlock'),
+      createdTime?: string(name='CreatedTime'),
+      description?: string(name='Description'),
+      ensRegionId?: string(name='EnsRegionId'),
+      freeIpCount?: long(name='FreeIpCount'),
+      networkId?: string(name='NetworkId'),
+      status?: string(name='Status'),
       tags?: {
         tag?: [ 
         {
-          key?: string(name='Key', description='The tag key.', example='TestKey'),
-          tagKey?: string(name='TagKey', example='TestKey', deprecated=true),
-          tagValue?: string(name='TagValue', example='TestValue', deprecated=true),
-          value?: string(name='Value', description='The request error rate.', example='TestValue'),
+          key?: string(name='Key'),
+          tagKey?: string(name='TagKey', deprecated=true),
+          tagValue?: string(name='TagValue', deprecated=true),
+          value?: string(name='Value'),
         }
       ](name='Tag')
       }(name='Tags'),
-      vSwitchId?: string(name='VSwitchId', description='The ID of the vSwitch.', example='vsw-5m9xhlq8oh***'),
-      vSwitchName?: string(name='VSwitchName', description='The name of the vSwitch.', example='testVSwitchName'),
+      vSwitchId?: string(name='VSwitchId'),
+      vSwitchName?: string(name='VSwitchName'),
     }
   ](name='VSwitch')
-  }(name='VSwitches', description='The information about the vSwitches. For more information, see the array of vSwitches in the response examples in the JSON format.'),
+  }(name='VSwitches'),
 }
 
 model DescribeVSwitchesResponse = {
@@ -20067,6 +20110,110 @@ async function detachInstanceSDG(request: DetachInstanceSDGRequest): DetachInsta
   return detachInstanceSDGWithOptions(request, runtime);
 }
 
+model DetachKeyPairRequest {
+  instanceIds?: [ string ](name='InstanceIds', description='The instance IDs.
+
+This parameter is required.', example='["i-50f8q9mbfjzlkuk9znjglnne3"]'),
+  keyPairId?: string(name='KeyPairId', description='The key pair ID.', example='ssh-xxx', nullable=true),
+  keyPairName?: string(name='KeyPairName', description='The name of the SSH key pair.', example='test-kp', nullable=true),
+}
+
+model DetachKeyPairShrinkRequest {
+  instanceIdsShrink?: string(name='InstanceIds', description='The instance IDs.
+
+This parameter is required.', example='["i-50f8q9mbfjzlkuk9znjglnne3"]'),
+  keyPairId?: string(name='KeyPairId', description='The key pair ID.', example='ssh-xxx', nullable=true),
+  keyPairName?: string(name='KeyPairName', description='The name of the SSH key pair.', example='test-kp', nullable=true),
+}
+
+model DetachKeyPairResponseBody = {
+  failCount?: int32(name='FailCount', description='The number of instances to which the SSH key pair failed to be bound.', example='1'),
+  keyPairId?: string(name='KeyPairId', description='The ID of the SSH key pair.', example='ssh-xxx'),
+  keyPairName?: string(name='KeyPairName', description='The name of the SSH key pair.', example='test-kp'),
+  requestId?: string(name='RequestId', description='The request ID.', example='xx-xx-xx-xx'),
+  results?: [ 
+    {
+      code?: int32(name='Code', description='The status code of the operation. 200 indicates that the operation succeeded.', example='200'),
+      instanceId?: string(name='InstanceId', description='The instance ID.', example='i-xxx'),
+      message?: string(name='Message', description='The message of the operation. If the value of the Code parameter is 200, the value of this parameter is successful.', example='successful'),
+      success?: boolean(name='Success', description='Indicates whether the operation is successful.', example='true'),
+    }
+  ](name='Results', description='The operation results.'),
+  totalCount?: int32(name='TotalCount', description='The total number of instances to which the SSH key pair is bound.', example='3'),
+}
+
+model DetachKeyPairResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: DetachKeyPairResponseBody(name='body'),
+}
+
+/**
+ * @summary Unbinds a Secure Shell (SSH) key pair from specific instances by specifying the name or ID of the SSH key pair.
+ *
+ * @description ## [](#)
+ * This operation is used to unbind a key pair from instances. Only disabled instances are supported.
+ * *   You can unbind a maximum of 30 instances at a time.
+ * *   If the name of the SSH key pair that is bound to an instance is not same as the value of the keyPairName parameter, an exception is thrown.
+ * *   At least one of key_pair_name and key_pair_id is not empty.
+ * *   Specify the key_pair_id parameter when you call this parameter. The key_pair_name parameter will be discarded.
+ *
+ * @param tmpReq DetachKeyPairRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return DetachKeyPairResponse
+ */
+async function detachKeyPairWithOptions(tmpReq: DetachKeyPairRequest, runtime: Util.RuntimeOptions): DetachKeyPairResponse {
+  Util.validateModel(tmpReq);
+  var request = new DetachKeyPairShrinkRequest{};
+  OpenApiUtil.convert(tmpReq, request);
+  if (!Util.isUnset(tmpReq.instanceIds)) {
+    request.instanceIdsShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.instanceIds, 'InstanceIds', 'json');
+  }
+  var query = {};
+  if (!Util.isUnset(request.instanceIdsShrink)) {
+    query['InstanceIds'] = request.instanceIdsShrink;
+  }
+  if (!Util.isUnset(request.keyPairId)) {
+    query['KeyPairId'] = request.keyPairId;
+  }
+  if (!Util.isUnset(request.keyPairName)) {
+    query['KeyPairName'] = request.keyPairName;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'DetachKeyPair',
+    version = '2017-11-10',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Unbinds a Secure Shell (SSH) key pair from specific instances by specifying the name or ID of the SSH key pair.
+ *
+ * @description ## [](#)
+ * This operation is used to unbind a key pair from instances. Only disabled instances are supported.
+ * *   You can unbind a maximum of 30 instances at a time.
+ * *   If the name of the SSH key pair that is bound to an instance is not same as the value of the keyPairName parameter, an exception is thrown.
+ * *   At least one of key_pair_name and key_pair_id is not empty.
+ * *   Specify the key_pair_id parameter when you call this parameter. The key_pair_name parameter will be discarded.
+ *
+ * @param request DetachKeyPairRequest
+ * @return DetachKeyPairResponse
+ */
+async function detachKeyPair(request: DetachKeyPairRequest): DetachKeyPairResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return detachKeyPairWithOptions(request, runtime);
+}
+
 model DetachNetworkInterfaceRequest {
   networkInterfaceId?: string(name='NetworkInterfaceId', description='The ID of the ENI.
 
@@ -20149,18 +20296,18 @@ This parameter is required.', example='[{\\\\"name\\\\":\\\\"app01\\\\",        
 model DistApplicationDataResponseBody = {
   distInstanceIds?: {
     distInstanceId?: [ string ](name='DistInstanceId')
-  }(name='DistInstanceIds', description='The list of ENS instance IDs.'),
+  }(name='DistInstanceIds'),
   distInstanceTotalCount?: int32(name='DistInstanceTotalCount', description='The total number of ENS instance IDs.', example='2'),
   distResults?: {
     distResult?: [ 
     {
-      name?: string(name='Name', description='The name of the data file.', example='gcs-prod-websocket-eip-unicom'),
-      resultCode?: int32(name='ResultCode', description='The error code. The value is of the enumerated data type.', example='400'),
-      resultDescrip?: string(name='ResultDescrip', description='The description of the distribution result.', example='Success'),
-      version?: string(name='Version', description='The version number of the data file.', example='standard'),
+      name?: string(name='Name'),
+      resultCode?: int32(name='ResultCode'),
+      resultDescrip?: string(name='ResultDescrip'),
+      version?: string(name='Version'),
     }
   ](name='DistResult')
-  }(name='DistResults', description='The distribution result of the data file.'),
+  }(name='DistResults'),
   requestId?: string(name='RequestId', description='The ID of the request.', example='473469C7-AA6F-4DC5-B3DB-A3DC0DE3C83E'),
 }
 
@@ -20238,6 +20385,7 @@ The password must be 8 to 30 characters in length. The password must contain upp
 
 Note that you cannot enter a password for scheduled execution.', example='AAaa1234'),
   planTime?: long(name='PlanTime', description='The execution time of the reservation. The timestamp is measured in milliseconds. If the OpsType parameter is set to scheduled, this parameter is required.', example='1742452232000'),
+  planUtcTime?: string(name='PlanUtcTime'),
   resourceId?: string(name='ResourceId', description='The ID of the resource.
 
 This parameter is required.', example='i-55qi8m11rr53c4i964md8a00l'),
@@ -20279,6 +20427,9 @@ async function eventMigrateInstanceWithOptions(request: EventMigrateInstanceRequ
   }
   if (!Util.isUnset(request.planTime)) {
     query['PlanTime'] = request.planTime;
+  }
+  if (!Util.isUnset(request.planUtcTime)) {
+    query['PlanUtcTime'] = request.planUtcTime;
   }
   if (!Util.isUnset(request.resourceId)) {
     query['ResourceId'] = request.resourceId;
@@ -20324,6 +20475,7 @@ This parameter is required.', example='e-9d992570200d86b9126d78aa8c37b54b'),
 
 This parameter is required.', example='immediate'),
   planTime?: long(name='PlanTime', description='The execution time of the reservation. The timestamp is measured in milliseconds. If the OpsType parameter is set to scheduled, this parameter is required.', example='1742452232000'),
+  planUtcTime?: string(name='PlanUtcTime'),
   resourceId?: string(name='ResourceId', description='The ID of the resource.
 
 This parameter is required.', example='i-5****'),
@@ -20359,6 +20511,9 @@ async function eventRebootInstanceWithOptions(request: EventRebootInstanceReques
   }
   if (!Util.isUnset(request.planTime)) {
     query['PlanTime'] = request.planTime;
+  }
+  if (!Util.isUnset(request.planUtcTime)) {
+    query['PlanUtcTime'] = request.planUtcTime;
   }
   if (!Util.isUnset(request.resourceId)) {
     query['ResourceId'] = request.resourceId;
@@ -20404,6 +20559,7 @@ This parameter is required.', example='e-d71ff150945b9c02eb6ebc0016328468'),
 
 This parameter is required.', example='immediate'),
   planTime?: long(name='PlanTime', description='The execution time of the reservation. The timestamp is measured in milliseconds. If the OpsType parameter is set to scheduled, this parameter is required.', example='1742452232000'),
+  planUtcTime?: string(name='PlanUtcTime'),
   resourceId?: string(name='ResourceId', description='The ID of the resource.
 
 This parameter is required.', example='i-55qi8m11rr53c4i964md8a00l'),
@@ -20439,6 +20595,9 @@ async function eventRedeployInstanceWithOptions(request: EventRedeployInstanceRe
   }
   if (!Util.isUnset(request.planTime)) {
     query['PlanTime'] = request.planTime;
+  }
+  if (!Util.isUnset(request.planUtcTime)) {
+    query['PlanUtcTime'] = request.planUtcTime;
   }
   if (!Util.isUnset(request.resourceId)) {
     query['ResourceId'] = request.resourceId;
@@ -21358,7 +21517,7 @@ model InitializeENSECKServiceRoleResponse = {
 }
 
 /**
- * @summary 为当前用户创建ENS的服务关联角色（SLR），管控资源。
+ * @summary Create a service-linked role (SLR) for ENS for the current user to manage resources.
  *
  * @param request InitializeENSECKServiceRoleRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -21381,7 +21540,7 @@ async function initializeENSECKServiceRoleWithOptions(runtime: Util.RuntimeOptio
 }
 
 /**
- * @summary 为当前用户创建ENS的服务关联角色（SLR），管控资源。
+ * @summary Create a service-linked role (SLR) for ENS for the current user to manage resources.
  *
  * @return InitializeENSECKServiceRoleResponse
  */
@@ -21996,97 +22155,15 @@ model ListApplicationsResponseBody = {
       appList?: {
         app?: [ 
         {
-          appId?: string(name='AppId', description='The ID of the application.', example='e76f8985-7965-41fc-925b-9648bb6bf650'),
-          appInfo?: string(name='AppInfo', description='The information about the application, such as the resource specification, parameter configuration, and resources.', example='{
-    "AppStatus":{
-        "Phase":"RUNNING",
-        "StatusDescrip":"{\\\\"status\\\\":\\\\"UPDATE_SUCCESS\\\\",\\\\"step\\\\":\\\\"DONE\\\\",\\\\"descrip\\\\":\\\\"update to version:1022 success\\\\",\\\\"start_time\\\\":\\\\"2022-03-01 16:18:22\\\\"}",
-        "UpdateTime":"2022-03-01 16:18:22",
-        "OrderStatus":null
-    },
-    "ResourceAttribute":{
-        "NetSecurityInfo":null,
-        "InitConfig":null,
-        "InventoryType":"Ens",
-        "InstanceSpec":"ens.gi6s-c12g1.large",
-        "SystemDiskSize":100,
-        "DataDiskSize":0,
-        "BandwithOut":5000,
-        "SchedulingStrategy":"Disperse",
-        "ImageId":"m-5or73kzkuxytv7hh6wxr6yc5q",
-        "ResourceType":"Linux",
-        "AreaLevel":"National",
-        "IpType":"PublicIP"
-    },
-    "WorkloadAttribute":[
-        {
-            "Name":"andorid",
-            "Count":15,
-            "ServiceConfig":{
-                "PortsBindConfig":{
-                    "NetServiceContainer":"uravi-service",
-                    "Ports":[
-                        {
-                            "Protocol":"TCP",
-                            "BindType":"Mapping",
-                            "StartNodePorts":"31000-31009",
-                            "ContainerPorts":"4440-4449"
-                        },
-                        {
-                            "Protocol":"TCP",
-                            "BindType":"PassThrough",
-                            "StartNodePorts":"59000-59000",
-                            "ContainerPorts":"59000-59000"
-                        },
-                        {
-                            "Protocol":"UDP",
-                            "BindType":"PassThrough",
-                            "StartNodePorts":"40001-40010",
-                            "ContainerPorts":"40001-40010"
-                        }
-                    ]
-                },
-                "ServiceContainerName":"android"
-            }
-        },
-        {
-            "Name":"coturn",
-            "Count":1,
-            "ServiceConfig":{
-                "PortsBindConfig":{
-                    "NetServiceContainer":"coturn",
-                    "Ports":[
-                        {
-                            "Protocol":"TCP",
-                            "BindType":"PassThrough",
-                            "StartNodePorts":"3478-3478",
-                            "ContainerPorts":"3478-3478"
-                        },
-                        {
-                            "Protocol":"UDP",
-                            "BindType":"PassThrough",
-                            "StartNodePorts":"3478-3478",
-                            "ContainerPorts":"3478-3478"
-                        }
-                    ]
-                },
-                "ServiceContainerName":"coturn"
-            }
-        },
-        {
-            "Name":"aic-manager",
-            "Count":1,
-            "ServiceConfig":null
-        }
-    ]
-}'),
+          appId?: string(name='AppId'),
+          appInfo?: string(name='AppInfo'),
         }
       ](name='App')
-      }(name='AppList', description='Details about the application.'),
-      clusterName?: string(name='ClusterName', description='The name of the cluster.', example='ay-ads-hz-h'),
+      }(name='AppList'),
+      clusterName?: string(name='ClusterName'),
     }
   ](name='Application')
-  }(name='Applications', description='Details about applications.'),
+  }(name='Applications'),
   pageNumber?: int32(name='PageNumber', description='The page number.', example='1'),
   pageSize?: int32(name='PageSize', description='The number of entries per page.', example='10'),
   requestId?: string(name='RequestId', description='The ID of the request.', example='50373E71-7710-4620-8AAB-133CCE49451C'),
@@ -22443,7 +22520,7 @@ model ListProductAbilitiesResponse = {
 }
 
 /**
- * @summary 获取所有产品能力
+ * @summary Lists all service capabilities.
  *
  * @param request ListProductAbilitiesRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -22466,7 +22543,7 @@ async function listProductAbilitiesWithOptions(runtime: Util.RuntimeOptions): Li
 }
 
 /**
- * @summary 获取所有产品能力
+ * @summary Lists all service capabilities.
  *
  * @return ListProductAbilitiesResponse
  */
@@ -24405,7 +24482,7 @@ model ModifySnatEntryResponse = {
 }
 
 /**
- * @summary 修改snat规则
+ * @summary Modifies a specified SNAT entry.
  *
  * @param request ModifySnatEntryRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -24447,7 +24524,7 @@ async function modifySnatEntryWithOptions(request: ModifySnatEntryRequest, runti
 }
 
 /**
- * @summary 修改snat规则
+ * @summary Modifies a specified SNAT entry.
  *
  * @param request ModifySnatEntryRequest
  * @return ModifySnatEntryResponse
@@ -24822,18 +24899,13 @@ model PushApplicationDataResponseBody = {
   pushResults?: {
     pushResult?: [ 
     {
-      name?: string(name='Name', description='The name of the data file.', example='gcs-pre-websocket-eip-telecom'),
-      resultCode?: int32(name='ResultCode', description='The push result. The value is of the enumeration type. Valid values:
-
-*   0: The push operation is successful.
-*   100: The push operation has been performed and the file is pushed.
-*   200: The push operation has been performed and the file is being pushed to specific file servers.
-*   300: The push operation failed. You must trigger the push operation again. The ResultDescrip parameter indicates the error description.', example='100'),
-      resultDescrip?: string(name='ResultDescrip', description='The description of the push status.', example='success'),
-      version?: string(name='Version', description='The version number of the data file.', example='standard'),
+      name?: string(name='Name'),
+      resultCode?: int32(name='ResultCode'),
+      resultDescrip?: string(name='ResultDescrip'),
+      version?: string(name='Version'),
     }
   ](name='PushResult')
-  }(name='PushResults', description='The push results of data files.'),
+  }(name='PushResults'),
   requestId?: string(name='RequestId', description='The ID of the request.', example='473469C7-AA6F-4DC5-B3DB-A3DC0DE3C83E'),
 }
 
@@ -24894,12 +24966,17 @@ async function pushApplicationData(request: PushApplicationDataRequest): PushApp
 }
 
 model PutBucketRequest {
-  bucketAcl?: string(name='BucketAcl'),
-  bucketName?: string(name='BucketName', description='This parameter is required.'),
-  comment?: string(name='Comment'),
-  dispatchScope?: string(name='DispatchScope'),
-  ensRegionId?: string(name='EnsRegionId'),
-  logicalBucketType?: string(name='LogicalBucketType'),
+  bucketAcl?: string(name='BucketAcl', description='The access control list (ACL) of the bucket. private public-read-write public-read', example='private'),
+  bucketName?: string(name='BucketName', description='The name of the bucket. This parameter can contain 3 to 50 characters in length and can contain only lowercase letters, digits, and hyphens (-). The name cannot start or end with a hyphen (-).
+
+This parameter is required.', example='test'),
+  comment?: string(name='Comment', description='The description. The description can be 0 to 128 characters in length, and can contain Chinese characters and emoticons.', example='numb'),
+  dispatchScope?: string(name='DispatchScope', description='The scheduling scope. This parameter takes effect only when the value of the LogicalBucketType parameter is standard. Valid values:
+
+*   **domestic**: Chinese mainland.
+*   **oversea**: outside the Chinese mainland.', example='domestic'),
+  ensRegionId?: string(name='EnsRegionId', description='The ID of the region where the node is located. If this parameter is not specified, the node is the global default node.', example='cn-beijing-15'),
+  logicalBucketType?: string(name='LogicalBucketType', description='The type of the logical bucket. Valid values: sink standard (default)', example='sink'),
 }
 
 model PutBucketResponseBody = {
@@ -25036,7 +25113,7 @@ async function putBucketAcl(request: PutBucketAclRequest): PutBucketAclResponse 
 }
 
 model PutBucketLifecycleRequest {
-  allowSameActionOverlap?: string(name='AllowSameActionOverlap', description='Specifies whether to allow overlapped prefixes. Valid values:
+  allowSameActionOverlap?: boolean(name='AllowSameActionOverlap', description='Specifies whether to allow overlapped prefixes. Valid values:
 
 *   **true**
 *   **false** (default)', example='false'),
@@ -25998,19 +26075,14 @@ model RemoveBackendServersResponseBody = {
   backendServers?: {
     backendServer?: [ 
     {
-      ip?: string(name='Ip', description='The IP address of the backend server.', example='192.1XX.X.X'),
-      port?: int32(name='Port', description='The backend port that is used by the ELB instance.', example='0'),
-      serverId?: string(name='ServerId', description='The instance ID of the backend server.', example='i-5vb5h5njxiuhn48a****'),
-      type?: string(name='Type', description='The type of the backend server. Valid values:
-
-*   **ens**: an ENS instance.
-*   **eni**: an ENI.', example='ens'),
-      weight?: int32(name='Weight', description='The weight of the backend server.
-
->  The value 0 indicates that requests are not forwarded to the backend server.', example='50'),
+      ip?: string(name='Ip'),
+      port?: int32(name='Port'),
+      serverId?: string(name='ServerId'),
+      type?: string(name='Type'),
+      weight?: int32(name='Weight'),
     }
   ](name='BackendServer')
-  }(name='BackendServers', description='The list of backend servers that you want to add to the SLB instance.'),
+  }(name='BackendServers'),
   requestId?: string(name='RequestId', description='The request ID.', example='473469C7-AA6F-4DC5-B3DB-A3DC0DE3C83E'),
 }
 
@@ -27790,12 +27862,12 @@ model RunServiceScheduleResponseBody = {
   commandResults?: {
     commandResult?: [ 
     {
-      command?: string(name='Command', description='The command.', example='ls -l /data'),
-      containerName?: string(name='ContainerName', description='The name of the container.', example='android'),
-      resultMsg?: string(name='ResultMsg', description='The execution result of the command.', example='success'),
+      command?: string(name='Command'),
+      containerName?: string(name='ContainerName'),
+      resultMsg?: string(name='ResultMsg'),
     }
   ](name='CommandResult')
-  }(name='CommandResults', description='The execution results of the commands.'),
+  }(name='CommandResults'),
   index?: int32(name='Index', description='The index number of the scheduled virtual device (pod).', example='1'),
   instanceId?: string(name='InstanceId', description='The ID of the scheduled instance.', example='i-5qvji3mom4ec013dyygmtxlkj'),
   instanceIp?: string(name='InstanceIp', description='The IP address of the scheduled instance.', example='172.16.246.11'),
@@ -28041,19 +28113,14 @@ model SetBackendServersResponseBody = {
   backendServers?: {
     backendServer?: [ 
     {
-      ip?: string(name='Ip', description='The IP address of the backend server.', example='192.168.0.1'),
-      port?: int32(name='Port', description='The backend port that is used by the ELB instance.', example='0'),
-      serverId?: string(name='ServerId', description='The ID of the instance that you want to use as the backend server.', example='i-5uf6hj58zvml4ali8****'),
-      type?: string(name='Type', description='The type of the backend server. Valid values:
-
-*   **ens**: ENS instance.
-*   **eni**: ENI instance.', example='ens'),
-      weight?: int32(name='Weight', description='The weight of the backend server. Default value: 100. Valid values: **0** to **100**.
-
->  The value 0 indicates that requests are not forwarded to the backend server.', example='100'),
+      ip?: string(name='Ip'),
+      port?: int32(name='Port'),
+      serverId?: string(name='ServerId'),
+      type?: string(name='Type'),
+      weight?: int32(name='Weight'),
     }
   ](name='BackendServer')
-  }(name='BackendServers', description='The backend servers.'),
+  }(name='BackendServers'),
   requestId?: string(name='RequestId', description='The request ID.', example='473469C7-AA6F-4DC5-B3DB-A3DC0DE3C83E'),
 }
 
