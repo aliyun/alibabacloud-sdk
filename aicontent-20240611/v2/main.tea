@@ -105,6 +105,25 @@ model ClientListQry {
   status?: int32(name='status', example='1'),
 }
 
+model ClientTreeDTO {
+  address?: string(name='address', example='杭州市'),
+  allowedModels?: string(name='allowedModels', example='1,2,3'),
+  children?: [
+    ClientTreeDTO
+  ](name='children', example='[]'),
+  clientUuid?: string(name='clientUuid', example='st-xxxx'),
+  contact?: string(name='contact', example='13800138000'),
+  deleteTag?: int32(name='deleteTag', example='0'),
+  gmtCreate?: string(name='gmtCreate', example='2024-01-01T00:00:00Z'),
+  gmtModified?: string(name='gmtModified', example='2024-01-01T00:00:00Z'),
+  id?: long(name='id', example='1'),
+  level?: int32(name='level', example='1'),
+  main?: int32(name='main', example='0'),
+  name?: string(name='name', example='我的客户'),
+  parentId?: long(name='parentId', example='null'),
+  remark?: string(name='remark', example='备注'),
+}
+
 model ClientUpdateCmd {
   address?: string(name='address', example='杭州市'),
   allowedModels?: string(name='allowedModels', example='1,2,3'),
@@ -163,9 +182,11 @@ model ModelDTO {
   baseUrl?: string(name='baseUrl', description='Base URL', example='https://dashscope.aliyuncs.com'),
   deleteTag?: int32(name='deleteTag', example='0'),
   description?: string(name='description'),
+  extensions?: string(name='extensions'),
   gmtCreate?: string(name='gmtCreate', example='2024-01-01T00:00:00Z'),
   gmtModified?: string(name='gmtModified', example='2024-01-01T00:00:00Z'),
   id?: long(name='id', description='ID', example='1'),
+  inOut?: string(name='inOut'),
   isCustom?: boolean(name='isCustom', example='false'),
   maxInputLength?: string(name='maxInputLength', example='8192'),
   maxOutputLength?: string(name='maxOutputLength', example='2048'),
@@ -460,6 +481,7 @@ model RequestLogDTO {
   modelCode?: string(name='modelCode', example='qwen3-max'),
   modelId?: long(name='modelId', example='1'),
   modelName?: string(name='modelName', example='通义千问'),
+  modelType?: string(name='modelType', example='Chat'),
   promptTokens?: int32(name='promptTokens', example='100'),
   requestBody?: string(name='requestBody', example='{}'),
   requestId?: string(name='requestId', example='req-xxxx'),
@@ -470,6 +492,7 @@ model RequestLogDTO {
   statusCode?: int32(name='statusCode', example='200'),
   symbol?: string(name='symbol', example='qwen'),
   totalTokens?: int32(name='totalTokens', example='150'),
+  usage?: UsageInfoDTO(name='usage', example='{"prompt_tokens":100,"completion_tokens":50,"total_tokens":150}'),
 }
 
 model RequestLogListQry {
@@ -483,6 +506,15 @@ model TimeSeriesPointDTO {
   label?: string(name='label', example='series1'),
   timestamp?: string(name='timestamp', example='2024-01-01T00:00:00Z'),
   value?: any(name='value'),
+}
+
+model UsageInfoDTO {
+  completionTokens?: int32(name='completionTokens', example='50'),
+  imageCount?: int32(name='imageCount', example='0'),
+  promptTokens?: int32(name='promptTokens', example='100'),
+  totalTokens?: int32(name='totalTokens', example='150'),
+  videoCount?: int32(name='videoCount', example='0'),
+  videoDuration?: int32(name='videoDuration', example='0'),
 }
 
 model AITeacherExpansionPracticeTaskGenerateRequest {
@@ -4306,6 +4338,7 @@ model ModelRouterCreateClientRequest {
   allowedModels?: string(name='allowedModels', example='1,2,3'),
   contact?: string(name='contact', example='13800138000'),
   name?: string(name='name', example='我的客户'),
+  parentId?: long(name='parentId', example='1'),
   remark?: string(name='remark', example='备注'),
 }
 
@@ -4347,6 +4380,9 @@ async function modelRouterCreateClientWithOptions(request: ModelRouterCreateClie
   }
   if (!$isNull(request.name)) {
     body['name'] = request.name;
+  }
+  if (!$isNull(request.parentId)) {
+    body['parentId'] = request.parentId;
   }
   if (!$isNull(request.remark)) {
     body['remark'] = request.remark;
@@ -4459,6 +4495,8 @@ model ModelRouterCreateModelRequest {
   apiKey?: string(name='apiKey', description='API Key', example='sk-xxxx'),
   baseUrl?: string(name='baseUrl', description='Base URL', example='https://dashscope.aliyuncs.com'),
   description?: string(name='description', example='通义千问大模型'),
+  extensions?: string(name='extensions', example='{}'),
+  inOut?: string(name='inOut', example='text'),
   maxInputLength?: string(name='maxInputLength', example='32K'),
   maxOutputLength?: string(name='maxOutputLength', example='8K'),
   modelId?: string(name='modelId', example='qwen-turbo'),
@@ -4503,6 +4541,12 @@ async function modelRouterCreateModelWithOptions(request: ModelRouterCreateModel
   }
   if (!$isNull(request.description)) {
     body['description'] = request.description;
+  }
+  if (!$isNull(request.extensions)) {
+    body['extensions'] = request.extensions;
+  }
+  if (!$isNull(request.inOut)) {
+    body['inOut'] = request.inOut;
   }
   if (!$isNull(request.maxInputLength)) {
     body['maxInputLength'] = request.maxInputLength;
@@ -5259,6 +5303,7 @@ model ModelRouterQueryModelListRequest {
   groupBy?: string(name='groupBy', example='resourceId'),
   keyword?: string(name='keyword', example='test'),
   maxResults?: int32(name='maxResults', example='10'),
+  modelType?: string(name='modelType', example='Chat'),
   needTotalCount?: boolean(name='needTotalCount', example='true'),
   nextToken?: string(name='nextToken', example='1'),
   orderBy?: string(name='orderBy', example='resourceId'),
@@ -5312,6 +5357,9 @@ async function modelRouterQueryModelListWithOptions(request: ModelRouterQueryMod
   }
   if (!$isNull(request.maxResults)) {
     query['maxResults'] = request.maxResults;
+  }
+  if (!$isNull(request.modelType)) {
+    query['modelType'] = request.modelType;
   }
   if (!$isNull(request.needTotalCount)) {
     query['needTotalCount'] = request.needTotalCount;
@@ -5382,9 +5430,14 @@ model ModelRouterQueryNacosProvidersResponseBody = {
       baseUrl?: string(name='baseUrl'),
       models?: [ 
         {
+          extensions?: {
+            async?: boolean(name='async'),
+          }(name='extensions'),
           identifier?: string(name='identifier'),
+          inOut?: string(name='inOut', example='text'),
           inputToken?: string(name='inputToken'),
           outputToken?: string(name='outputToken'),
+          type?: string(name='type', example='Chat'),
         }
       ](name='models'),
       name?: string(name='name'),
@@ -5472,6 +5525,7 @@ async function modelRouterQueryNacosProviders(request: ModelRouterQueryNacosProv
 }
 
 model ModelRouterQueryNacosTagsRequest {
+  configType?: string(name='configType', example='providers'),
   groupBy?: string(name='groupBy', example='resourceId'),
   maxResults?: int32(name='maxResults', example='10'),
   needTotalCount?: boolean(name='needTotalCount', example='true'),
@@ -5485,8 +5539,10 @@ model ModelRouterQueryNacosTagsRequest {
 model ModelRouterQueryNacosTagsResponseBody = {
   data?: [ 
     {
+      label?: string(name='label', example='文本生成'),
       tag?: string(name='tag'),
       tagName?: string(name='tagName'),
+      value?: string(name='value', example='NLP'),
     }
   ](name='data', example='[]'),
   errCode?: string(name='errCode', example='UNKNOWN_ERROR'),
@@ -5514,6 +5570,9 @@ model ModelRouterQueryNacosTagsResponse = {
 async function modelRouterQueryNacosTagsWithOptions(request: ModelRouterQueryNacosTagsRequest, headers: map[string]string, runtime: $RuntimeOptions): ModelRouterQueryNacosTagsResponse {
   request.validate();
   var query : map[string]any = {};
+  if (!$isNull(request.configType)) {
+    query['configType'] = request.configType;
+  }
   if (!$isNull(request.groupBy)) {
     query['groupBy'] = request.groupBy;
   }
