@@ -28,6 +28,16 @@ function getEndpoint(productId: string, regionId: string, endpointRule: string, 
   return EndpointUtil.getEndpointRules(productId, regionId, endpointRule, network, suffix);
 }
 
+model AccessDeniedDetail {
+  authAction?: string(name='authAction', description='被拒绝的 RAM action，如 agentrun:ListTemplates', nullable=true),
+  authPrincipalDisplayName?: string(name='authPrincipalDisplayName', description='鉴权主体展示名', nullable=true),
+  authPrincipalOwnerId?: string(name='authPrincipalOwnerId', description='鉴权主体所属账号 ID', nullable=true),
+  authPrincipalType?: string(name='authPrincipalType', description='鉴权主体类型，如 SubUser、AssumedRoleUser', nullable=true),
+  encodedDiagnosticInfo?: string(name='encodedDiagnosticInfo', description='Base64 编码的诊断信息，可用于 RAM 控制台自诊断', nullable=true),
+  noPermissionType?: string(name='noPermissionType', description='无权限类型：ImplicitDeny 或 ExplicitDeny', nullable=true),
+  policyType?: string(name='policyType', description='策略类型，如 ResourceBasedPolicy、IdentityBasedPolicy', nullable=true),
+}
+
 model AgentEndpointConfig {
   agentName?: string(name='agentName'),
   customDomainUrl?: string(name='customDomainUrl'),
@@ -77,6 +87,7 @@ model AgentRuntimeEndpoint {
   disablePublicNetworkAccess?: boolean(name='disablePublicNetworkAccess', description='是否禁用该端点的公网访问'),
   endpointPublicUrl?: string(name='endpointPublicUrl', description='智能体运行时端点的公网访问地址', example='https://ar-1234567890abcdef.cn-hangzhou.agentrun.aliyuncs.com'),
   routingConfiguration?: RoutingConfiguration(name='routingConfiguration', description='智能体运行时端点的路由配置，支持多版本权重分配'),
+  scalingStatus?: ScalingStatus(name='scalingStatus', description='端点的弹性伸缩状态，包括最小/目标/当前实例数及定时策略（复用 ScalingStatus）'),
   status?: string(name='status', example='ACTIVE'),
   statusReason?: string(name='statusReason', example='Endpoint is active and ready'),
   targetVersion?: string(name='targetVersion', example='LATEST'),
@@ -156,6 +167,27 @@ model AttachPolicyConfig {
   className?: string(name='className'),
   config?: string(name='config'),
   name?: string(name='name'),
+}
+
+model BatchEvaluateWorkspacePermissionsInput {
+  actions?: [ string ](name='actions', description='RAM List 类 action 列表；支持带 agentrun: 前缀或不带（服务端归一化）；顺序与每条 permissions 一致；上限 20 条
+
+This parameter is required.'),
+  workspaceIds?: [ string ](name='workspaceIds', description='Workspace 资源 ID 列表（UUID 字符串）；顺序与响应 results 一致；上限 50 条
+
+This parameter is required.'),
+}
+
+model BatchEvaluateWorkspacePermissionsOutput {
+  results?: [
+    WorkspacePermissionEvaluateResult
+  ](name='results', description='各 workspace 的权限校验结果列表；顺序与请求 workspaceIds 一致'),
+}
+
+model BatchEvaluateWorkspacePermissionsResult {
+  code?: string(name='code', description='OK 表示成功'),
+  data?: BatchEvaluateWorkspacePermissionsOutput(name='data'),
+  requestId?: string(name='requestId', description='与响应头 x-funagent-request-id 对应'),
 }
 
 model BoundConfiguration {
@@ -358,6 +390,7 @@ model CreateAgentRuntimeEndpointInput {
   description?: string(name='description', example='Production endpoint for customer service agent'),
   disablePublicNetworkAccess?: boolean(name='disablePublicNetworkAccess', description='是否禁用该端点的公网访问'),
   routingConfiguration?: RoutingConfiguration(name='routingConfiguration', description='智能体运行时端点的路由配置，支持多版本权重分配', example='{}'),
+  scalingConfig?: ScalingConfig(name='scalingConfig', description='端点的弹性伸缩配置，包括最小实例数和定时扩容策略（复用 ScalingConfig）'),
   targetVersion?: string(name='targetVersion', description='智能体运行时的目标版本', example='LATEST'),
 }
 
@@ -511,6 +544,7 @@ This parameter is required.'),
   dbHost?: string(name='dbHost', description='`string`，必填
 
 This parameter is required.'),
+  dbInstanceId?: string(name='dbInstanceId', description='`string`，必填'),
   dbName?: string(name='dbName', description='`string`，必填
 
 This parameter is required.'),
@@ -561,6 +595,17 @@ model CreateGatewayTargetInput {
   domainId?: string(name='domainId'),
   name?: string(name='name'),
   targetConfiguration?: TargetConfiguration(name='targetConfiguration'),
+}
+
+model CreateIMBotInput {
+  botBizId?: string(name='botBizId', description='This parameter is required.'),
+  botBizSecret?: string(name='botBizSecret', description='This parameter is required.'),
+  botBizType?: string(name='botBizType', description='This parameter is required.'),
+  botMode?: string(name='botMode', description='standard、custom；不传时可能继承租户已有部署模式', nullable=true),
+  botName?: string(name='botName', description='This parameter is required.'),
+  description?: string(name='description', description='Bot 描述信息', nullable=true),
+  metadata?: IMBotMetadata(name='metadata', description='botMode 为 standard 时条件必填；custom 模式不进行标准运行时绑定校验', nullable=true),
+  minInstances?: int32(name='minInstances', description='FC 最小实例数，≥ 1；与租户账号级配置相关', nullable=true),
 }
 
 model CreateKnowledgeBaseInput {
@@ -851,6 +896,9 @@ model DeleteCodeInterpreterResult {
   requestId?: string(name='requestId', description='唯一的请求标识符，用于问题追踪', example='F8A0F5F3-0C3E-4C82-9D4F-5E4B6A7C8D9E'),
 }
 
+model DeleteIMBotNoContent {
+}
+
 model DeleteKnowledgeBaseResult {
   code?: string(name='code'),
   data?: KnowledgeBase(name='data'),
@@ -928,6 +976,7 @@ model Funagent {
   createdAt?: string(name='createdAt', description='ISO 8601'),
   dbConnections?: int32(name='dbConnections'),
   dbHost?: string(name='dbHost'),
+  dbInstanceId?: string(name='dbInstanceId'),
   dbName?: string(name='dbName'),
   dbPassword?: string(name='dbPassword', description='敏感；响应中应脱敏'),
   dbPort?: int32(name='dbPort'),
@@ -954,6 +1003,13 @@ model FunagentResult {
   code?: string(name='code', description='SUCCESS 为成功，失败情况返回对应错误类型，比如 ERR_BAD_REQUEST ERR_VALIDATION_FAILED ERR_INTERNAL_SERVER_ERROR', example='SUCCESS'),
   data?: Funagent(name='data'),
   requestId?: string(name='requestId', description='唯一的请求标识符，用于问题追踪', example='F8A0F5F3-0C3E-4C82-9D4F-5E4B6A7C8D9E'),
+}
+
+model FunagentVersionItem {
+  description?: string(name='description'),
+  publishContent?: [ string ](name='publishContent', description='多条更新说明'),
+  publishTime?: string(name='publishTime', description='日期或 ISO 8601 字符串'),
+  version?: string(name='version'),
 }
 
 model Gateway {
@@ -1013,6 +1069,18 @@ model GetDiscoveryEndpointsResult {
   requestId?: string(name='requestId'),
 }
 
+model GetFunagentVersionsOutput {
+  items?: [
+    FunagentVersionItem
+  ](name='items'),
+}
+
+model GetFunagentVersionsResult {
+  code?: string(name='code', description='SUCCESS 为成功，失败情况返回对应错误类型，比如 ERR_BAD_REQUEST ERR_VALIDATION_FAILED ERR_INTERNAL_SERVER_ERROR', example='SUCCESS'),
+  data?: GetFunagentVersionsOutput(name='data'),
+  requestId?: string(name='requestId', description='唯一的请求标识符，用于问题追踪', example='F8A0F5F3-0C3E-4C82-9D4F-5E4B6A7C8D9E'),
+}
+
 model GetToolOutput {
   data?: ToolInfo(name='data'),
   success?: boolean(name='success'),
@@ -1049,6 +1117,39 @@ model Hook {
   headers?: map[string]string(name='headers'),
   timeout?: int32(name='timeout'),
   url?: string(name='url', description='This parameter is required.'),
+}
+
+model IMBotInfo {
+  agentRuntimeId?: string(name='agentRuntimeId', nullable=true),
+  botBizId?: string(name='botBizId'),
+  botBizType?: string(name='botBizType', description='dingtalk、wecom、feishu、custom'),
+  botMode?: string(name='botMode', description='standard、custom'),
+  botName?: string(name='botName'),
+  createdAt?: string(name='createdAt'),
+  currentInstances?: long(name='currentInstances', description='可选；来自账号元数据 scaling.currentInstances，同一租户下各 Bot 响应中值相同', nullable=true),
+  description?: string(name='description', description='Bot 描述信息', nullable=true),
+  id?: string(name='id'),
+  imChannelServerResourceName?: string(name='imChannelServerResourceName'),
+  lastMessageTime?: string(name='lastMessageTime', description='可选', nullable=true),
+  metadata?: IMBotMetadata(name='metadata', nullable=true),
+  status?: string(name='status'),
+  tenantId?: string(name='tenantId'),
+  updatedAt?: string(name='updatedAt'),
+}
+
+model IMBotMetadata {
+  agentRuntimeEndpointId?: string(name='agentRuntimeEndpointId', description='可选', nullable=true),
+  agentRuntimeEndpointUrl?: string(name='agentRuntimeEndpointUrl', description='标准模式下必填：下游 Agent 可调用的 URL；custom 模式可省略', nullable=true),
+  agentRuntimeId?: string(name='agentRuntimeId', description='绑定的 Agent Runtime UUID', nullable=true),
+  customFunctionMeta?: string(name='customFunctionMeta', description='自定义函数元信息；可选；与后端 IMBotMetadata 持久化字段一致', nullable=true),
+  protocolType?: string(name='protocolType', description='标准模式下必填，与 ValidateAgentRuntimeProtocolTypeValue 一致（大小写敏感）；custom 模式可省略', nullable=true),
+  role?: string(name='role', description='不写入单 Bot 持久化 JSON；用于首次/更新时设置租户级 FC RAM 执行角色 ARN（acs:ram::...）；FC 启用且非 custom 时按服务逻辑校验', nullable=true),
+}
+
+model IMBotResult {
+  code?: string(name='code', description='OK 表示成功'),
+  data?: IMBotInfo(name='data'),
+  requestId?: string(name='requestId', description='与响应头 x-funagent-request-id 对应'),
 }
 
 model KnowledgeBase {
@@ -1288,6 +1389,21 @@ model ListGatewaysOutput {
   pageNumber?: int32(name='pageNumber'),
   pageSize?: int32(name='pageSize'),
   total?: int32(name='total'),
+}
+
+model ListIMBotsOutput {
+  items?: [
+    IMBotInfo
+  ](name='items'),
+  pageNumber?: int32(name='pageNumber'),
+  pageSize?: int32(name='pageSize'),
+  total?: int32(name='total'),
+}
+
+model ListIMBotsResult {
+  code?: string(name='code'),
+  data?: ListIMBotsOutput(name='data'),
+  requestId?: string(name='requestId'),
 }
 
 model ListKnowledgeBasesOutput {
@@ -2056,9 +2172,11 @@ model TriggerConfig {
 
 model UpdateAgentRuntimeEndpointInput {
   agentRuntimeEndpointName?: string(name='agentRuntimeEndpointName', example='production-endpoint'),
+  deleteScalingConfig?: boolean(name='deleteScalingConfig', description='为 true 时删除该端点的弹性配置'),
   description?: string(name='description', example='Updated endpoint configuration'),
   disablePublicNetworkAccess?: boolean(name='disablePublicNetworkAccess', description='是否禁用该端点的公网访问'),
   routingConfiguration?: RoutingConfiguration(name='routingConfiguration', description='智能体运行时端点的路由配置，支持多版本权重分配', example='{}'),
+  scalingConfig?: ScalingConfig(name='scalingConfig', description='端点的弹性伸缩配置，包括最小实例数和定时扩容策略（复用 ScalingConfig）'),
   targetVersion?: string(name='targetVersion', description='智能体运行时的目标版本', example='LATEST'),
 }
 
@@ -2139,6 +2257,36 @@ model UpdateDiscoveryEndpointsInput {
 model UpdateDomainInput {
   certIdentifier?: string(name='certIdentifier'),
   protocol?: string(name='protocol'),
+}
+
+model UpdateFunagentInput {
+  adminName?: string(name='adminName'),
+  adminSecret?: string(name='adminSecret', description='敏感字段'),
+  cpu?: float(name='cpu'),
+  dbConnections?: int32(name='dbConnections'),
+  dbHost?: string(name='dbHost'),
+  dbInstanceId?: string(name='dbInstanceId'),
+  dbName?: string(name='dbName'),
+  dbPassword?: string(name='dbPassword', description='敏感字段'),
+  dbPort?: int32(name='dbPort'),
+  dbType?: string(name='dbType'),
+  dbUsername?: string(name='dbUsername'),
+  description?: string(name='description'),
+  memory?: int32(name='memory'),
+  replicas?: int32(name='replicas'),
+  version?: string(name='version'),
+}
+
+model UpdateIMBotInput {
+  botBizId?: string(name='botBizId'),
+  botBizSecret?: string(name='botBizSecret', description='若提供则不可为空字符串'),
+  botBizType?: string(name='botBizType'),
+  botMode?: string(name='botMode', description='不可与租户已固定的 deployment 模式冲突'),
+  botName?: string(name='botName'),
+  description?: string(name='description', description='Bot 描述信息', nullable=true),
+  metadata?: IMBotMetadata(name='metadata', nullable=true),
+  minInstances?: int32(name='minInstances', description='≥ 1，更新账号级 FC 最小实例', nullable=true),
+  status?: string(name='status'),
 }
 
 model UpdateKnowledgeBaseInput {
@@ -2312,6 +2460,21 @@ model Workspace {
   updatedAt?: string(name='updatedAt'),
   workspaceArn?: string(name='workspaceArn'),
   workspaceId?: string(name='workspaceId'),
+}
+
+model WorkspacePermissionEvaluateResult {
+  permissions?: [
+    WorkspacePermissionItem
+  ](name='permissions', description='各 action 的校验结果；顺序与请求 actions 一致'),
+  workspaceFound?: boolean(name='workspaceFound', description='当前租户下是否解析到该 workspace；为 false 时各 permissions 一般为 allowed: false，不会调用 RAM'),
+  workspaceId?: string(name='workspaceId', description='回显请求中的 workspace ID（trim 后）'),
+}
+
+model WorkspacePermissionItem {
+  accessDeniedDetail?: AccessDeniedDetail(name='accessDeniedDetail', description='RAM 明确拒绝且可构造 detail 时返回；通过或非 RAM 拒绝场景省略', nullable=true),
+  action?: string(name='action', description='归一化后的 RAM action，始终含 agentrun: 前缀，如 agentrun:ListTemplates'),
+  allowed?: boolean(name='allowed', description='RAM 判定通过为 true；workspace 不存在、非法/不支持 action、RAM SDK 报错等均为 false'),
+  message?: string(name='message', description='人类可读原因；通过时通常为空字符串'),
 }
 
 model WorkspaceResult {
