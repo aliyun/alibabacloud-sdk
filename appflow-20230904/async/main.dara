@@ -62,3 +62,59 @@ async function generateUserSessionToken(request: GenerateUserSessionTokenRequest
   return @handler.do('RPC', 'GenerateUserSessionToken', 'POST', '/', 'json', false, 'json', request);
 }
 
+model InvokeActionRequest {
+  actionId: string(name='ActionId', description='This parameter is required.', example='action-xxx', position='Query'),
+  actionVersion?: string(name='ActionVersion', example='1', position='Query'),
+  authConfig?: {
+    type?: string(name='Type', example='raw'),
+    value?: any(name='Value', example='{"AppId":"xxxx","AppSecret":"sk-xxx"}'),
+  }(name='AuthConfig', shrink='json', position='Query'),
+  body?: map[string]any(name='Body', shrink='json', position='Query'),
+  connectorId: string(name='ConnectorId', description='This parameter is required.', example='connector-xxx', position='Query'),
+  connectorVersion?: string(name='ConnectorVersion', example='1', position='Query'),
+  headers?: map[string]string(name='Headers', shrink='json', position='Query'),
+  path?: map[string]string(name='Path', shrink='json', position='Query'),
+  query?: map[string]string(name='Query', shrink='json', position='Query'),
+  stream?: boolean(name='Stream', example='false', position='Query'),
+}
+
+model InvokeActionResponseBody = {
+  requestId?: string(name='RequestId', description='Id of the request', example='346E5EE9-D5FE-56A0-B3E2-A43E0F67302A'),
+  result?: {
+    errorMessage?: string(name='ErrorMessage', example='The provided parameter xxx is invalid.'),
+    output?: any(name='Output', example='{
+  "output": {
+    "finishReason": "stop",
+    "text": "hello"
+  },
+  "requestId": "433944e3-2163-9c7a-9664-2a27c0dda0ec",
+  "usage": {
+    "inputTokens": 13,
+    "outputTokens": 16,
+    "totalTokens": 29
+  }
+}'),
+    status?: string(name='Status', example='RUNNING、COMPLETED'),
+  }(name='Result'),
+}
+
+model InvokeActionResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: InvokeActionResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of InvokeAction  InvokeActionRequest
+  * @return InvokeActionResponse
+ */
+async function invokeAction(request: InvokeActionRequest): InvokeActionResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'InvokeAction', 'POST', '/', 'json', false, 'json', request);
+}
+
+function invokeActionWithResponseIterable(request: InvokeActionRequest): iterator[InvokeActionResponseBody] {
+  @handler.validateRequestModel(request);
+  yield @handler.doSSERequest('SSE', 'InvokeAction', 'POST', '/', 'json', false, 'json', request);
+}
+
