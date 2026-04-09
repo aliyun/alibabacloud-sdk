@@ -1537,6 +1537,9 @@ async function genDocQaResult(workspaceId: string, request: GenDocQaResultReques
   return genDocQaResultWithOptions(workspaceId, request, headers, runtime);
 }
 
+model GetAppConfigRequest {
+}
+
 model GetAppConfigResponseBody = {
   cost?: long(name='cost', example='null'),
   data?: {
@@ -1564,11 +1567,13 @@ model GetAppConfigResponse = {
 /**
  * @summary 获取app配置
  *
+ * @param request GetAppConfigRequest
  * @param headers map
  * @param runtime runtime options for this request RuntimeOptions
  * @return GetAppConfigResponse
  */
-async function getAppConfigWithOptions(workspaceId: string, headers: map[string]string, runtime: Util.RuntimeOptions): GetAppConfigResponse {
+async function getAppConfigWithOptions(workspaceId: string, request: GetAppConfigRequest, headers: map[string]string, runtime: Util.RuntimeOptions): GetAppConfigResponse {
+  Util.validateModel(request);
   var req = new OpenApi.OpenApiRequest{ 
     headers = headers,
   };
@@ -1589,12 +1594,13 @@ async function getAppConfigWithOptions(workspaceId: string, headers: map[string]
 /**
  * @summary 获取app配置
  *
+ * @param request GetAppConfigRequest
  * @return GetAppConfigResponse
  */
-async function getAppConfig(workspaceId: string): GetAppConfigResponse {
+async function getAppConfig(workspaceId: string, request: GetAppConfigRequest): GetAppConfigResponse {
   var runtime = new Util.RuntimeOptions{};
   var headers : map[string]string = {};
-  return getAppConfigWithOptions(workspaceId, headers, runtime);
+  return getAppConfigWithOptions(workspaceId, request, headers, runtime);
 }
 
 model GetChatQuestionRespRequest {
@@ -5395,7 +5401,7 @@ async function uploadDocumentAdvance(workspaceId: string, request: UploadDocumen
       contentType = '',
     };
     ossHeader = {
-      host = `${authResponseBody['Bucket']}.${OpenApiUtil.getEndpoint(authResponseBody['Endpoint'], useAccelerate, @endpointType)}`,
+      host = OpenApiUtil.getEndpoint(authResponseBody['Endpoint'], useAccelerate, @endpointType),
       OSSAccessKeyId = authResponseBody['AccessKeyId'],
       policy = authResponseBody['EncodedPolicy'],
       Signature = authResponseBody['Signature'],
@@ -5413,7 +5419,8 @@ async function uploadDocumentAdvance(workspaceId: string, request: UploadDocumen
 api _postOSSObject(bucketName: string, data: object, runtime: Util.RuntimeOptions): object {
   var form = Util.assertAsMap(data);
   var boundary = FileForm.getBoundary();
-  var host = Util.assertAsString(form.host);
+  var tmp = Util.assertAsString(form.host);
+  var host = `${bucketName}.${tmp}`;
   __request.protocol = 'HTTPS';
   __request.method = 'POST';
   __request.pathname = `/`;
