@@ -694,6 +694,55 @@ async function evictTask(request: EvictTaskRequest): EvictTaskResponse {
   return @handler.do('RESTFUL', 'EvictTask', 'POST', '/{workspaceId}/api/task/evict', 'json', false, 'json', request);
 }
 
+model ExchangeEntitlementRequest {
+  workspaceId: string(name='workspaceId', description='This parameter is required.', example='llm-xxx', position='Path'),
+  tenantId: long(name='tenantId', description='This parameter is required.', example='174274395739042', position='Path'),
+  xLoadTest?: boolean(name='X-Load-Test', example='false', position='Header'),
+  externalUserId: string(name='externalUserId', description='This parameter is required.', example='your_user_id_001', position='Body'),
+  keyHash?: string(name='keyHash', example='a1b2c3d4e5f6...', position='Body'),
+  requestId: string(name='requestId', description='This parameter is required.', example='req_20240101_001', position='Body'),
+  templateId: long(name='templateId', description='This parameter is required.', example='10001', position='Body'),
+  userName?: string(name='userName', example='zhangsan', position='Body'),
+}
+
+model ExchangeEntitlementResponseBody = {
+  code?: string(name='code', example='0'),
+  data?: {
+    apiKey?: string(name='apiKey', example='sk_live_abc123xyz789'),
+    effectiveAt?: string(name='effectiveAt', example='2024-01-01T00:00:00Z'),
+    endpoint?: string(name='endpoint', example='https://llm-gateway.example.com/acme'),
+    expireAt?: string(name='expireAt', example='2024-01-31T23:59:59Z'),
+    keyHash?: string(name='keyHash', example='a1b2c3d4e5f6...'),
+    redemptionOrderNo?: string(name='redemptionOrderNo', example='ORD20240101000001'),
+    reused?: boolean(name='reused', example='false'),
+    template?: {
+      allowedModels?: [ string ](name='allowedModels'),
+      quotaLimit?: long(name='quotaLimit', example='1000'),
+      templateId?: long(name='templateId', example='10001'),
+      templateName?: string(name='templateName', example='基础版 Token 包'),
+      type?: string(name='type', example='TOKEN_PACK'),
+    }(name='template'),
+  }(name='data'),
+  message?: string(name='message', example='success'),
+  retryAble?: boolean(name='retryAble', example='false'),
+  success?: boolean(name='success', example='true'),
+}
+
+model ExchangeEntitlementResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ExchangeEntitlementResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of ExchangeEntitlement  ExchangeEntitlementRequest
+  * @return ExchangeEntitlementResponse
+ */
+async function exchangeEntitlement(request: ExchangeEntitlementRequest): ExchangeEntitlementResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'ExchangeEntitlement', 'POST', '/{workspaceId}/api/v1/tenants/{tenantId}/redeem', 'json', false, 'json', request);
+}
+
 model GenDocQaResultRequest {
   workspaceId: string(name='workspaceId', description='This parameter is required.', example='llm-xxxxx', position='Path'),
   docId: string(name='docId', description='This parameter is required.', example='182364872346', position='Body'),
@@ -1738,6 +1787,67 @@ async function getTaskStatus(request: GetTaskStatusRequest): GetTaskStatusRespon
   return @handler.do('RESTFUL', 'GetTaskStatus', 'GET', '/{workspaceId}/api/task/status', 'json', false, 'json', request);
 }
 
+model GetUsageRequest {
+  workspaceId: string(name='workspaceId', description='This parameter is required.', example='llm-xxx', position='Path'),
+  tenantId: long(name='tenantId', description='This parameter is required.', example='33412', position='Path'),
+  xLoadTest?: boolean(name='X-Load-Test', example='false', position='Header'),
+  externalUserId?: string(name='externalUserId', example='1001', position='Query'),
+  redemptionOrderNo?: string(name='redemptionOrderNo', example='R123456789', position='Query'),
+}
+
+model GetUsageResponseBody = {
+  code?: string(name='code', example='0'),
+  data?: {
+    entitlements?: [ 
+      {
+        allowedModels?: [ string ](name='allowedModels'),
+        bindingId?: long(name='bindingId', example='238746'),
+        effectiveAt?: string(name='effectiveAt', example='2024-01-01T00:00:00Z'),
+        expireAt?: string(name='expireAt', example='2024-01-31T00:00:00Z'),
+        quotaInitial?: long(name='quotaInitial', example='1000'),
+        quotaRemaining?: long(name='quotaRemaining', example='500'),
+        quotaUsed?: long(name='quotaUsed', example='500'),
+        status?: string(name='status', example='ACTIVE'),
+        templateId?: long(name='templateId', example='893724'),
+        templateName?: string(name='templateName', example='1'),
+      }
+    ](name='entitlements'),
+    modelStats?: [ 
+      {
+        inputUsage?: long(name='inputUsage', example='1000'),
+        model?: string(name='model', example='qwen-turbo'),
+        outputUsage?: long(name='outputUsage', example='500'),
+        requests?: long(name='requests', example='1'),
+        totalUsage?: long(name='totalUsage', example='1500'),
+      }
+    ](name='modelStats'),
+    summary?: {
+      totalInputUsage?: long(name='totalInputUsage', example='500'),
+      totalOutputUsage?: long(name='totalOutputUsage', example='500'),
+      totalRequests?: long(name='totalRequests', example='1'),
+      totalUsage?: long(name='totalUsage', example='1000'),
+    }(name='summary'),
+  }(name='data'),
+  message?: string(name='message', example='success'),
+  retryAble?: boolean(name='retryAble', example='false'),
+  success?: boolean(name='success', example='true'),
+}
+
+model GetUsageResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: GetUsageResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of GetUsage  GetUsageRequest
+  * @return GetUsageResponse
+ */
+async function getUsage(request: GetUsageRequest): GetUsageResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'GetUsage', 'GET', '/{workspaceId}/api/v1/tenants/{tenantId}/usage', 'json', false, 'json', request);
+}
+
 model GetVideoCreationTaskResultRequest {
   workspaceId: string(name='workspaceId', description='This parameter is required.', example='llm-xxx', position='Path'),
   xLoadTest?: boolean(name='X-Load-Test', position='Header'),
@@ -1870,6 +1980,101 @@ model PreviewDocumentResponse = {
 async function previewDocument(request: PreviewDocumentRequest): PreviewDocumentResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RESTFUL', 'PreviewDocument', 'GET', '/{workspaceId}/api/library/document/preview', 'json', false, 'json', request);
+}
+
+model QueryApiKeysRequest {
+  workspaceId: string(name='workspaceId', description='This parameter is required.', example='llm-xxx', position='Path'),
+  tenantId: long(name='tenantId', description='This parameter is required.', example='100', position='Path'),
+  xLoadTest?: boolean(name='X-Load-Test', example='true', position='Header'),
+  externalUserId: string(name='externalUserId', description='This parameter is required.', example='1001', position='Query'),
+}
+
+model QueryApiKeysResponseBody = {
+  code?: string(name='code', example='0'),
+  data?: [ 
+    {
+      expiresAt?: string(name='expiresAt', example='2024-12-31T23:59:59Z'),
+      gmtCreate?: string(name='gmtCreate', example='2024-01-01T00:00:00Z'),
+      gmtModified?: string(name='gmtModified', example='2024-01-01T00:00:00Z'),
+      keyHash?: string(name='keyHash', example='a1b2c3d4e5f6...'),
+      keyId?: string(name='keyId', description='**API Key ID**', example='key_001'),
+      status?: string(name='status', example='ACTIVE'),
+      tenantId?: string(name='tenantId', example='100'),
+    }
+  ](name='data'),
+  message?: string(name='message', example='ok'),
+  retryAble?: boolean(name='retryAble', example='false'),
+  success?: boolean(name='success', example='true'),
+}
+
+model QueryApiKeysResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: QueryApiKeysResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of QueryApiKeys  QueryApiKeysRequest
+  * @return QueryApiKeysResponse
+ */
+async function queryApiKeys(request: QueryApiKeysRequest): QueryApiKeysResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'QueryApiKeys', 'GET', '/{workspaceId}/api/v1/tenants/{tenantId}/apikeys', 'json', false, 'json', request);
+}
+
+model QueryRedemptionRecordsRequest {
+  workspaceId: string(name='workspaceId', description='This parameter is required.', example='llm-xxx', position='Path'),
+  tenantId: long(name='tenantId', description='This parameter is required.', example='21577', position='Path'),
+  xLoadTest?: boolean(name='X-Load-Test', example='false', position='Header'),
+  externalUserId?: string(name='externalUserId', example='1001', position='Query'),
+  page?: int32(name='page', example='1', position='Query'),
+  pageSize?: int32(name='pageSize', example='20', position='Query'),
+  redemptionOrderNo?: string(name='redemptionOrderNo', example='ORD20240101000001', position='Query'),
+}
+
+model QueryRedemptionRecordsResponseBody = {
+  code?: string(name='code', example='0'),
+  data?: {
+    items?: [ 
+      {
+        allowedModels?: [ string ](name='allowedModels'),
+        effectiveAt?: string(name='effectiveAt', example='2024-01-01T00:00:00Z'),
+        expireAt?: string(name='expireAt', example='2024-01-31T23:59:59Z'),
+        gmtCreate?: string(name='gmtCreate', example='2024-01-01T00:00:00Z'),
+        id?: long(name='id', example='1'),
+        keyHash?: string(name='keyHash', example='a1b2c3d4e5f6...'),
+        outBizNo?: string(name='outBizNo', example='AR123233333'),
+        quotaBalance?: long(name='quotaBalance', example='500'),
+        quotaStatus?: string(name='quotaStatus', example='AVAILABLE'),
+        redemptionOrderNo?: string(name='redemptionOrderNo', example='ORD20240101000001'),
+        status?: string(name='status', example='ACTIVE'),
+        templateId?: long(name='templateId', example='37624'),
+        tenantId?: long(name='tenantId', example='10001'),
+      }
+    ](name='items'),
+    page?: int32(name='page', example='1'),
+    pageSize?: int32(name='pageSize', example='20'),
+    total?: long(name='total', example='0'),
+    totalPages?: int32(name='totalPages', example='1'),
+  }(name='data'),
+  message?: string(name='message', example='success'),
+  retryAble?: boolean(name='retryAble', example='false'),
+  success?: boolean(name='success', example='true'),
+}
+
+model QueryRedemptionRecordsResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: QueryRedemptionRecordsResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of QueryRedemptionRecords  QueryRedemptionRecordsRequest
+  * @return QueryRedemptionRecordsResponse
+ */
+async function queryRedemptionRecords(request: QueryRedemptionRecordsRequest): QueryRedemptionRecordsResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'QueryRedemptionRecords', 'GET', '/{workspaceId}/api/v1/tenants/{tenantId}/redemption-records', 'json', false, 'json', request);
 }
 
 model ReIndexRequest {

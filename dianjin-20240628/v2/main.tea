@@ -1465,6 +1465,113 @@ async function evictTask(workspaceId: string, request: EvictTaskRequest): EvictT
   return evictTaskWithOptions(workspaceId, request, headers, runtime);
 }
 
+model ExchangeEntitlementHeaders {
+  commonHeaders?: map[string]string,
+  xLoadTest?: boolean(name='X-Load-Test', example='false'),
+}
+
+model ExchangeEntitlementRequest {
+  externalUserId?: string(name='externalUserId', description='This parameter is required.', example='your_user_id_001'),
+  keyHash?: string(name='keyHash', example='a1b2c3d4e5f6...'),
+  requestId?: string(name='requestId', description='This parameter is required.', example='req_20240101_001'),
+  templateId?: long(name='templateId', description='This parameter is required.', example='10001'),
+  userName?: string(name='userName', example='zhangsan'),
+}
+
+model ExchangeEntitlementResponseBody = {
+  code?: string(name='code', example='0'),
+  data?: {
+    apiKey?: string(name='apiKey', example='sk_live_abc123xyz789'),
+    effectiveAt?: string(name='effectiveAt', example='2024-01-01T00:00:00Z'),
+    endpoint?: string(name='endpoint', example='https://llm-gateway.example.com/acme'),
+    expireAt?: string(name='expireAt', example='2024-01-31T23:59:59Z'),
+    keyHash?: string(name='keyHash', example='a1b2c3d4e5f6...'),
+    redemptionOrderNo?: string(name='redemptionOrderNo', example='ORD20240101000001'),
+    reused?: boolean(name='reused', example='false'),
+    template?: {
+      allowedModels?: [ string ](name='allowedModels'),
+      quotaLimit?: long(name='quotaLimit', example='1000'),
+      templateId?: long(name='templateId', example='10001'),
+      templateName?: string(name='templateName', example='基础版 Token 包'),
+      type?: string(name='type', example='TOKEN_PACK'),
+    }(name='template'),
+  }(name='data'),
+  message?: string(name='message', example='success'),
+  retryAble?: boolean(name='retryAble', example='false'),
+  success?: boolean(name='success', example='true'),
+}
+
+model ExchangeEntitlementResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ExchangeEntitlementResponseBody(name='body'),
+}
+
+/**
+ * @summary 兑换权益
+ *
+ * @param request ExchangeEntitlementRequest
+ * @param headers ExchangeEntitlementHeaders
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return ExchangeEntitlementResponse
+ */
+@context("exchangeEntitlementWithContext")
+async function exchangeEntitlementWithOptions(workspaceId: string, tenantId: string, request: ExchangeEntitlementRequest, headers: ExchangeEntitlementHeaders, runtime: $RuntimeOptions): ExchangeEntitlementResponse {
+  request.validate();
+  var body : map[string]any = {};
+  if (!$isNull(request.externalUserId)) {
+    body['externalUserId'] = request.externalUserId;
+  }
+  if (!$isNull(request.keyHash)) {
+    body['keyHash'] = request.keyHash;
+  }
+  if (!$isNull(request.requestId)) {
+    body['requestId'] = request.requestId;
+  }
+  if (!$isNull(request.templateId)) {
+    body['templateId'] = request.templateId;
+  }
+  if (!$isNull(request.userName)) {
+    body['userName'] = request.userName;
+  }
+
+  var realHeaders : map[string]string = {};
+  if (!$isNull(headers.commonHeaders)) {
+    realHeaders = headers.commonHeaders;
+  }
+  if (!$isNull(headers.xLoadTest)) {
+    realHeaders['X-Load-Test'] = $JSON.stringify(headers.xLoadTest);
+  }
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    headers = realHeaders,
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'ExchangeEntitlement',
+    version = '2024-06-28',
+    protocol = 'HTTPS',
+    pathname = `/${$URL.percentEncode(workspaceId)}/api/v1/tenants/${$URL.percentEncode(tenantId)}/redeem`,
+    method = 'POST',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 兑换权益
+ *
+ * @param request ExchangeEntitlementRequest
+ * @return ExchangeEntitlementResponse
+ */
+async function exchangeEntitlement(workspaceId: string, tenantId: string, request: ExchangeEntitlementRequest): ExchangeEntitlementResponse {
+  var runtime = new $RuntimeOptions{};
+  var headers = new ExchangeEntitlementHeaders{};
+  return exchangeEntitlementWithOptions(workspaceId, tenantId, request, headers, runtime);
+}
+
 model GenDocQaResultRequest {
   docId?: string(name='docId', description='This parameter is required.', example='182364872346'),
   libraryId?: string(name='libraryId', description='This parameter is required.', example='sjdgdsfg'),
@@ -3294,6 +3401,116 @@ async function getTaskStatus(workspaceId: string, request: GetTaskStatusRequest)
   return getTaskStatusWithOptions(workspaceId, request, headers, runtime);
 }
 
+model GetUsageHeaders {
+  commonHeaders?: map[string]string,
+  xLoadTest?: boolean(name='X-Load-Test', example='false'),
+}
+
+model GetUsageRequest {
+  externalUserId?: string(name='externalUserId', example='1001'),
+  redemptionOrderNo?: string(name='redemptionOrderNo', example='R123456789'),
+}
+
+model GetUsageResponseBody = {
+  code?: string(name='code', example='0'),
+  data?: {
+    entitlements?: [ 
+      {
+        allowedModels?: [ string ](name='allowedModels'),
+        bindingId?: long(name='bindingId', example='238746'),
+        effectiveAt?: string(name='effectiveAt', example='2024-01-01T00:00:00Z'),
+        expireAt?: string(name='expireAt', example='2024-01-31T00:00:00Z'),
+        quotaInitial?: long(name='quotaInitial', example='1000'),
+        quotaRemaining?: long(name='quotaRemaining', example='500'),
+        quotaUsed?: long(name='quotaUsed', example='500'),
+        status?: string(name='status', example='ACTIVE'),
+        templateId?: long(name='templateId', example='893724'),
+        templateName?: string(name='templateName', example='1'),
+      }
+    ](name='entitlements'),
+    modelStats?: [ 
+      {
+        inputUsage?: long(name='inputUsage', example='1000'),
+        model?: string(name='model', example='qwen-turbo'),
+        outputUsage?: long(name='outputUsage', example='500'),
+        requests?: long(name='requests', example='1'),
+        totalUsage?: long(name='totalUsage', example='1500'),
+      }
+    ](name='modelStats'),
+    summary?: {
+      totalInputUsage?: long(name='totalInputUsage', example='500'),
+      totalOutputUsage?: long(name='totalOutputUsage', example='500'),
+      totalRequests?: long(name='totalRequests', example='1'),
+      totalUsage?: long(name='totalUsage', example='1000'),
+    }(name='summary'),
+  }(name='data'),
+  message?: string(name='message', example='success'),
+  retryAble?: boolean(name='retryAble', example='false'),
+  success?: boolean(name='success', example='true'),
+}
+
+model GetUsageResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: GetUsageResponseBody(name='body'),
+}
+
+/**
+ * @summary 查询用量明细
+ *
+ * @param request GetUsageRequest
+ * @param headers GetUsageHeaders
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return GetUsageResponse
+ */
+@context("getUsageWithContext")
+async function getUsageWithOptions(workspaceId: string, tenantId: string, request: GetUsageRequest, headers: GetUsageHeaders, runtime: $RuntimeOptions): GetUsageResponse {
+  request.validate();
+  var query : map[string]any = {};
+  if (!$isNull(request.externalUserId)) {
+    query['externalUserId'] = request.externalUserId;
+  }
+  if (!$isNull(request.redemptionOrderNo)) {
+    query['redemptionOrderNo'] = request.redemptionOrderNo;
+  }
+
+  var realHeaders : map[string]string = {};
+  if (!$isNull(headers.commonHeaders)) {
+    realHeaders = headers.commonHeaders;
+  }
+  if (!$isNull(headers.xLoadTest)) {
+    realHeaders['X-Load-Test'] = $JSON.stringify(headers.xLoadTest);
+  }
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    headers = realHeaders,
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'GetUsage',
+    version = '2024-06-28',
+    protocol = 'HTTPS',
+    pathname = `/${$URL.percentEncode(workspaceId)}/api/v1/tenants/${$URL.percentEncode(tenantId)}/usage`,
+    method = 'GET',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 查询用量明细
+ *
+ * @param request GetUsageRequest
+ * @return GetUsageResponse
+ */
+async function getUsage(workspaceId: string, tenantId: string, request: GetUsageRequest): GetUsageResponse {
+  var runtime = new $RuntimeOptions{};
+  var headers = new GetUsageHeaders{};
+  return getUsageWithOptions(workspaceId, tenantId, request, headers, runtime);
+}
+
 model GetVideoCreationTaskResultHeaders {
   commonHeaders?: map[string]string,
   xLoadTest?: boolean(name='X-Load-Test'),
@@ -3551,6 +3768,202 @@ async function previewDocument(workspaceId: string, request: PreviewDocumentRequ
   var runtime = new $RuntimeOptions{};
   var headers : map[string]string = {};
   return previewDocumentWithOptions(workspaceId, request, headers, runtime);
+}
+
+model QueryApiKeysHeaders {
+  commonHeaders?: map[string]string,
+  xLoadTest?: boolean(name='X-Load-Test', example='true'),
+}
+
+model QueryApiKeysRequest {
+  externalUserId?: string(name='externalUserId', description='This parameter is required.', example='1001'),
+}
+
+model QueryApiKeysResponseBody = {
+  code?: string(name='code', example='0'),
+  data?: [ 
+    {
+      expiresAt?: string(name='expiresAt', example='2024-12-31T23:59:59Z'),
+      gmtCreate?: string(name='gmtCreate', example='2024-01-01T00:00:00Z'),
+      gmtModified?: string(name='gmtModified', example='2024-01-01T00:00:00Z'),
+      keyHash?: string(name='keyHash', example='a1b2c3d4e5f6...'),
+      keyId?: string(name='keyId', description='**API Key ID**', example='key_001'),
+      status?: string(name='status', example='ACTIVE'),
+      tenantId?: string(name='tenantId', example='100'),
+    }
+  ](name='data'),
+  message?: string(name='message', example='ok'),
+  retryAble?: boolean(name='retryAble', example='false'),
+  success?: boolean(name='success', example='true'),
+}
+
+model QueryApiKeysResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: QueryApiKeysResponseBody(name='body'),
+}
+
+/**
+ * @summary 查询兑换记录
+ *
+ * @param request QueryApiKeysRequest
+ * @param headers QueryApiKeysHeaders
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return QueryApiKeysResponse
+ */
+@context("queryApiKeysWithContext")
+async function queryApiKeysWithOptions(workspaceId: string, tenantId: string, request: QueryApiKeysRequest, headers: QueryApiKeysHeaders, runtime: $RuntimeOptions): QueryApiKeysResponse {
+  request.validate();
+  var query : map[string]any = {};
+  if (!$isNull(request.externalUserId)) {
+    query['externalUserId'] = request.externalUserId;
+  }
+
+  var realHeaders : map[string]string = {};
+  if (!$isNull(headers.commonHeaders)) {
+    realHeaders = headers.commonHeaders;
+  }
+  if (!$isNull(headers.xLoadTest)) {
+    realHeaders['X-Load-Test'] = $JSON.stringify(headers.xLoadTest);
+  }
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    headers = realHeaders,
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'QueryApiKeys',
+    version = '2024-06-28',
+    protocol = 'HTTPS',
+    pathname = `/${$URL.percentEncode(workspaceId)}/api/v1/tenants/${$URL.percentEncode(tenantId)}/apikeys`,
+    method = 'GET',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 查询兑换记录
+ *
+ * @param request QueryApiKeysRequest
+ * @return QueryApiKeysResponse
+ */
+async function queryApiKeys(workspaceId: string, tenantId: string, request: QueryApiKeysRequest): QueryApiKeysResponse {
+  var runtime = new $RuntimeOptions{};
+  var headers = new QueryApiKeysHeaders{};
+  return queryApiKeysWithOptions(workspaceId, tenantId, request, headers, runtime);
+}
+
+model QueryRedemptionRecordsHeaders {
+  commonHeaders?: map[string]string,
+  xLoadTest?: boolean(name='X-Load-Test', example='false'),
+}
+
+model QueryRedemptionRecordsRequest {
+  externalUserId?: string(name='externalUserId', example='1001'),
+  page?: int32(name='page', example='1'),
+  pageSize?: int32(name='pageSize', example='20'),
+  redemptionOrderNo?: string(name='redemptionOrderNo', example='ORD20240101000001'),
+}
+
+model QueryRedemptionRecordsResponseBody = {
+  code?: string(name='code', example='0'),
+  data?: {
+    items?: [ 
+      {
+        allowedModels?: [ string ](name='allowedModels'),
+        effectiveAt?: string(name='effectiveAt', example='2024-01-01T00:00:00Z'),
+        expireAt?: string(name='expireAt', example='2024-01-31T23:59:59Z'),
+        gmtCreate?: string(name='gmtCreate', example='2024-01-01T00:00:00Z'),
+        id?: long(name='id', example='1'),
+        keyHash?: string(name='keyHash', example='a1b2c3d4e5f6...'),
+        outBizNo?: string(name='outBizNo', example='AR123233333'),
+        quotaBalance?: long(name='quotaBalance', example='500'),
+        quotaStatus?: string(name='quotaStatus', example='AVAILABLE'),
+        redemptionOrderNo?: string(name='redemptionOrderNo', example='ORD20240101000001'),
+        status?: string(name='status', example='ACTIVE'),
+        templateId?: long(name='templateId', example='37624'),
+        tenantId?: long(name='tenantId', example='10001'),
+      }
+    ](name='items'),
+    page?: int32(name='page', example='1'),
+    pageSize?: int32(name='pageSize', example='20'),
+    total?: long(name='total', example='0'),
+    totalPages?: int32(name='totalPages', example='1'),
+  }(name='data'),
+  message?: string(name='message', example='success'),
+  retryAble?: boolean(name='retryAble', example='false'),
+  success?: boolean(name='success', example='true'),
+}
+
+model QueryRedemptionRecordsResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: QueryRedemptionRecordsResponseBody(name='body'),
+}
+
+/**
+ * @summary 查询兑换记录
+ *
+ * @param request QueryRedemptionRecordsRequest
+ * @param headers QueryRedemptionRecordsHeaders
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return QueryRedemptionRecordsResponse
+ */
+@context("queryRedemptionRecordsWithContext")
+async function queryRedemptionRecordsWithOptions(workspaceId: string, tenantId: string, request: QueryRedemptionRecordsRequest, headers: QueryRedemptionRecordsHeaders, runtime: $RuntimeOptions): QueryRedemptionRecordsResponse {
+  request.validate();
+  var query : map[string]any = {};
+  if (!$isNull(request.externalUserId)) {
+    query['externalUserId'] = request.externalUserId;
+  }
+  if (!$isNull(request.page)) {
+    query['page'] = request.page;
+  }
+  if (!$isNull(request.pageSize)) {
+    query['pageSize'] = request.pageSize;
+  }
+  if (!$isNull(request.redemptionOrderNo)) {
+    query['redemptionOrderNo'] = request.redemptionOrderNo;
+  }
+
+  var realHeaders : map[string]string = {};
+  if (!$isNull(headers.commonHeaders)) {
+    realHeaders = headers.commonHeaders;
+  }
+  if (!$isNull(headers.xLoadTest)) {
+    realHeaders['X-Load-Test'] = $JSON.stringify(headers.xLoadTest);
+  }
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    headers = realHeaders,
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'QueryRedemptionRecords',
+    version = '2024-06-28',
+    protocol = 'HTTPS',
+    pathname = `/${$URL.percentEncode(workspaceId)}/api/v1/tenants/${$URL.percentEncode(tenantId)}/redemption-records`,
+    method = 'GET',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 查询兑换记录
+ *
+ * @param request QueryRedemptionRecordsRequest
+ * @return QueryRedemptionRecordsResponse
+ */
+async function queryRedemptionRecords(workspaceId: string, tenantId: string, request: QueryRedemptionRecordsRequest): QueryRedemptionRecordsResponse {
+  var runtime = new $RuntimeOptions{};
+  var headers = new QueryRedemptionRecordsHeaders{};
+  return queryRedemptionRecordsWithOptions(workspaceId, tenantId, request, headers, runtime);
 }
 
 model ReIndexRequest {
