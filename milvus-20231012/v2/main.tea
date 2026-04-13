@@ -42,6 +42,7 @@ model DBVersionDetail {
       ](name='componentSpecs'),
       isHA?: boolean(name='isHA'),
       isStandalone?: boolean(name='isStandalone'),
+      isStandalonePro?: boolean(name='isStandalonePro'),
       zoneMode?: string(name='zoneMode'),
     }
   ](name='specs'),
@@ -50,47 +51,50 @@ model DBVersionDetail {
 }
 
 model InstanceDetail {
-  autoBackup?: boolean(name='autoBackup'),
+  autoBackup?: boolean(name='autoBackup', example='true'),
   components?: [ 
     {
-      cuNum?: int32(name='cuNum'),
-      cuType?: string(name='cuType'),
-      diskSizeType?: string(name='diskSizeType'),
-      replica?: int32(name='replica'),
-      type?: string(name='type'),
+      cuNum?: int32(name='cuNum', example='4'),
+      cuType?: string(name='cuType', example='general'),
+      diskSizeType?: string(name='diskSizeType', example='Normal'),
+      payType?: string(name='payType'),
+      replica?: int32(name='replica', example='1'),
+      type?: string(name='type', example='data'),
     }
   ](name='components'),
-  configuration?: string(name='configuration'),
-  createTime?: string(name='createTime', description='Use the UTC time format: yyyy-MM-ddTHH:mmZ'),
-  dbVersion?: string(name='dbVersion'),
-  encrypted?: boolean(name='encrypted'),
-  expireTime?: string(name='expireTime', description='Use the UTC time format: yyyy-MM-ddTHH:mmZ'),
-  ha?: boolean(name='ha'),
-  instanceId?: string(name='instanceId'),
+  configuration?: string(name='configuration', example='rootCoord:
+    maxDatabaseNum: 64 # Maximum number of database
+    maxPartitionNum: 4096'),
+  createTime?: string(name='createTime', description='Use the UTC time format: yyyy-MM-ddTHH:mmZ', example='2025-04-27T02:04:25Z'),
+  dbVersion?: string(name='dbVersion', example='2.5'),
+  encrypted?: boolean(name='encrypted', example='false'),
+  expireTime?: string(name='expireTime', description='Use the UTC time format: yyyy-MM-ddTHH:mmZ', example='2025-04-27T02:04:25Z'),
+  ha?: boolean(name='ha', example='true'),
+  instanceId?: string(name='instanceId', example='c-xxx'),
   instanceName?: string(name='instanceName', example='milvus-test'),
-  kmsKeyId?: string(name='kmsKeyId'),
-  multiZoneMode?: string(name='multiZoneMode'),
-  orderId?: string(name='orderId'),
-  paymentType?: string(name='paymentType'),
-  regionId?: string(name='regionId'),
-  resourceGroupId?: string(name='resourceGroupId'),
-  runningTime?: long(name='runningTime'),
+  kmsKeyId?: string(name='kmsKeyId', description='kms key Id。', example='key-xxx'),
+  multiZoneMode?: string(name='multiZoneMode', example='Single'),
+  orderId?: string(name='orderId', example='4751'),
+  paymentType?: string(name='paymentType', example='PayAsYouGo'),
+  regionId?: string(name='regionId', example='cn-beijing'),
+  resourceGroupId?: string(name='resourceGroupId', example='rg-aek3dcgyq7pnqwa'),
+  runningTime?: long(name='runningTime', example='1'),
   securityGroupIds?: [ string ](name='securityGroupIds'),
-  status?: string(name='status'),
+  status?: string(name='status', example='running'),
   tags?: [ 
     {
-      key?: string(name='key'),
-      value?: string(name='value'),
+      key?: string(name='key', example='k1'),
+      value?: string(name='value', example='v1'),
     }
   ](name='tags'),
   vSwitchIds?: [ 
     {
-      vswId?: string(name='vswId'),
-      zoneId?: string(name='zoneId'),
+      vswId?: string(name='vswId', example='vsw-xxx'),
+      zoneId?: string(name='zoneId', example='cn-hangzhou-i'),
     }
   ](name='vSwitchIds'),
-  vpcId?: string(name='vpcId'),
-  zoneId?: string(name='zoneId'),
+  vpcId?: string(name='vpcId', example='vpc-xxx'),
+  zoneId?: string(name='zoneId', example='cn-hangzhou-i'),
 }
 
 model MigrationSource {
@@ -139,6 +143,38 @@ model PromotionInfo {
   promotionOptionCode?: string(name='promotionOptionCode'),
   promotionOptionNo?: string(name='promotionOptionNo'),
   selected?: boolean(name='selected'),
+}
+
+model ScalingActivity {
+  componentTypes?: string(name='componentTypes'),
+  description?: string(name='description'),
+  endTime?: string(name='endTime'),
+  instanceId?: string(name='instanceId'),
+  policyType?: string(name='policyType'),
+  scalingActivityId?: string(name='scalingActivityId'),
+  scalingActivityState?: string(name='scalingActivityState'),
+  scalingPolicyId?: string(name='scalingPolicyId'),
+  scalingRuleDetail?: string(name='scalingRuleDetail'),
+  scalingRuleId?: string(name='scalingRuleId'),
+  scalingRuleName?: string(name='scalingRuleName'),
+  startTime?: string(name='startTime'),
+  timeZone?: string(name='timeZone'),
+}
+
+model ScalingRule {
+  adjustInfos?: [ 
+    {
+      componentType?: string(name='componentType'),
+      targetValue?: string(name='targetValue'),
+    }
+  ](name='adjustInfos'),
+  cronStr?: string(name='cronStr'),
+  disabled?: boolean(name='disabled'),
+  endTime?: long(name='endTime'),
+  ruleId?: string(name='ruleId'),
+  scalingRuleName?: string(name='scalingRuleName'),
+  startTime?: long(name='startTime'),
+  timeZone?: string(name='timeZone'),
 }
 
 model ChangeResourceGroupRequest {
@@ -278,8 +314,15 @@ async function createDefaultRole(): CreateDefaultRoleResponse {
 
 model CreateInstanceRequest {
   regionId?: string(name='RegionId', example='cn-beijing'),
+  aiFunction?: boolean(name='aiFunction'),
   autoBackup?: boolean(name='autoBackup'),
+  autoPay?: boolean(name='autoPay'),
   autoRenew?: boolean(name='autoRenew'),
+  backupRestoreInfo?: {
+    backupId?: string(name='backupId'),
+    backupName?: string(name='backupName'),
+    sourceClusterId?: string(name='sourceClusterId'),
+  }(name='backupRestoreInfo'),
   components?: [ 
     {
       cuNum?: int32(name='cuNum', description='This parameter is required.', example='8'),
@@ -356,11 +399,20 @@ async function createInstanceWithOptions(request: CreateInstanceRequest, headers
   }
 
   var body : map[string]any = {};
+  if (!$isNull(request.aiFunction)) {
+    body['aiFunction'] = request.aiFunction;
+  }
   if (!$isNull(request.autoBackup)) {
     body['autoBackup'] = request.autoBackup;
   }
+  if (!$isNull(request.autoPay)) {
+    body['autoPay'] = request.autoPay;
+  }
   if (!$isNull(request.autoRenew)) {
     body['autoRenew'] = request.autoRenew;
+  }
+  if (!$isNull(request.backupRestoreInfo)) {
+    body['backupRestoreInfo'] = request.backupRestoreInfo;
   }
   if (!$isNull(request.components)) {
     body['components'] = request.components;
@@ -753,6 +805,7 @@ model GetInstanceDetailResponseBody = {
           cuRatio?: int32(name='CuRatio', example='4'),
           diskSize?: int32(name='DiskSize', description='The disk size.', example='100'),
           diskType?: string(name='DiskType', description='The disk type.', example='essd'),
+          payType?: string(name='PayType'),
           replica?: int32(name='Replica', description='The number of replicas.', example='2'),
           zoneId?: string(name='ZoneId'),
         }
@@ -783,6 +836,7 @@ model GetInstanceDetailResponseBody = {
 *   deleting.
 *   deleted.', example='running'),
     kmsKeyId?: string(name='KmsKeyId'),
+    maintainablePeriod?: string(name='MaintainablePeriod'),
     measureConfig?: {
       dataNodeCuNum?: int32(name='DataNodeCuNum', example='4'),
       dataNodeReplica?: int32(name='DataNodeReplica', example='2'),
@@ -976,6 +1030,7 @@ model ListInstancesResponseBody = {
           value?: string(name='Value', example='value1'),
         }
       ](name='Tags'),
+      templateVersion?: string(name='TemplateVersion'),
       version?: string(name='Version'),
       vpcId?: string(name='VpcId', description='The virtual private cloud (VPC) ID.', example='vpc-123xxx'),
       vswId?: string(name='VswId', description='The ID of the vSwitch.', example='vsw-123xxx'),
@@ -1510,9 +1565,11 @@ async function updateAccessControlList(request: UpdateAccessControlListRequest):
 model UpdateInstanceRequest {
   regionId?: string(name='RegionId', example='cn-beijing'),
   autoBackup?: boolean(name='autoBackup', example='true'),
+  autoPay?: boolean(name='autoPay'),
   components?: [ 
     {
       cuNum?: int32(name='cuNum', description='This parameter is required.', example='8'),
+      payType?: string(name='payType'),
       replica?: int32(name='replica', description='This parameter is required.', example='1'),
       type?: string(name='type', description='This parameter is required.', example='standalone'),
     }
@@ -1527,6 +1584,7 @@ model UpdateInstanceRequest {
 model UpdateInstanceResponseBody = {
   requestId?: string(name='RequestId', example='ABCD-1234-5678-EFGH'),
   data?: boolean(name='data', example='true'),
+  orderId?: string(name='orderId'),
   success?: boolean(name='success', example='true'),
 }
 
@@ -1558,6 +1616,9 @@ async function updateInstanceWithOptions(request: UpdateInstanceRequest, headers
   var body : map[string]any = {};
   if (!$isNull(request.autoBackup)) {
     body['autoBackup'] = request.autoBackup;
+  }
+  if (!$isNull(request.autoPay)) {
+    body['autoPay'] = request.autoPay;
   }
   if (!$isNull(request.components)) {
     body['components'] = request.components;
