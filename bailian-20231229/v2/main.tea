@@ -374,6 +374,98 @@ async function addFilesFromAuthorizedOss(WorkspaceId: string, request: AddFilesF
   return addFilesFromAuthorizedOssWithOptions(WorkspaceId, request, headers, runtime);
 }
 
+model AddTableRequest {
+  connectorId?: string(name='ConnectorId', description='This parameter is required.', example='connector-d51861492df64257'),
+  tableColumns?: [ 
+    {
+      columnDesc?: string(name='ColumnDesc', example='desc'),
+      columnName?: string(name='ColumnName', description='This parameter is required.', example='column1'),
+      dataType?: string(name='DataType', description='This parameter is required.', example='string'),
+    }
+  ](name='TableColumns', description='This parameter is required.'),
+  tableName?: string(name='TableName', description='This parameter is required.', example='ads_wjjr_basc_enterprise_di'),
+}
+
+model AddTableShrinkRequest {
+  connectorId?: string(name='ConnectorId', description='This parameter is required.', example='connector-d51861492df64257'),
+  tableColumnsShrink?: string(name='TableColumns', description='This parameter is required.'),
+  tableName?: string(name='TableName', description='This parameter is required.', example='ads_wjjr_basc_enterprise_di'),
+}
+
+model AddTableResponseBody = {
+  code?: string(name='Code', example='Index.Forbidden'),
+  data?: {
+    tableId?: string(name='TableId', example='table_b6ddc67e7df14db38b74ef5e2e0fe24e_12792097'),
+  }(name='Data'),
+  message?: string(name='Message', example='Required parameter(%s) missing or invalid, please check the request parameters.'),
+  requestId?: string(name='RequestId', description='Id of the request', example='778C0B3B-03C1-5FC1-A947-36EDD13606AB'),
+  status?: string(name='Status', example='200'),
+  success?: boolean(name='Success', example='True'),
+}
+
+model AddTableResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: AddTableResponseBody(name='body'),
+}
+
+/**
+ * @summary 添加表格
+ *
+ * @param tmpReq AddTableRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return AddTableResponse
+ */
+@context("addTableWithContext")
+async function addTableWithOptions(WorkspaceId: string, tmpReq: AddTableRequest, headers: map[string]string, runtime: $RuntimeOptions): AddTableResponse {
+  tmpReq.validate();
+  var request = new AddTableShrinkRequest{};
+  OpenApiUtil.convert(tmpReq, request);
+  if (!$isNull(tmpReq.tableColumns)) {
+    request.tableColumnsShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.tableColumns, 'TableColumns', 'json');
+  }
+  var body : map[string]any = {};
+  if (!$isNull(request.connectorId)) {
+    body['ConnectorId'] = request.connectorId;
+  }
+  if (!$isNull(request.tableColumnsShrink)) {
+    body['TableColumns'] = request.tableColumnsShrink;
+  }
+  if (!$isNull(request.tableName)) {
+    body['TableName'] = request.tableName;
+  }
+
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    headers = headers,
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'AddTable',
+    version = '2023-12-29',
+    protocol = 'HTTPS',
+    pathname = `/${$URL.percentEncode(WorkspaceId)}/datacenter/table`,
+    method = 'POST',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 添加表格
+ *
+ * @param request AddTableRequest
+ * @return AddTableResponse
+ */
+async function addTable(WorkspaceId: string, request: AddTableRequest): AddTableResponse {
+  var runtime = new $RuntimeOptions{};
+  var headers : map[string]string = {};
+  return addTableWithOptions(WorkspaceId, request, headers, runtime);
+}
+
 model ApplyFileUploadLeaseRequest {
   categoryType?: string(name='CategoryType'),
   fileName?: string(name='FileName', description='The name of the uploaded document, including the extension. Supported formats: pdf, doc, docx, md, txt, ppt, and pptx. The document name must be 4 to 128 characters in length.
@@ -1464,6 +1556,9 @@ async function createPromptTemplate(workspaceId: string, request: CreatePromptTe
   return createPromptTemplateWithOptions(workspaceId, request, headers, runtime);
 }
 
+model DeleteAgentRequest {
+}
+
 model DeleteAgentResponseBody = {
   code?: string(name='code'),
   data?: string(name='data'),
@@ -1482,12 +1577,14 @@ model DeleteAgentResponse = {
 /**
  * @summary 删除智能体
  *
+ * @param request DeleteAgentRequest
  * @param headers map
  * @param runtime runtime options for this request RuntimeOptions
  * @return DeleteAgentResponse
  */
 @context("deleteAgentWithContext")
-async function deleteAgentWithOptions(workspaceId: string, appCode: string, headers: map[string]string, runtime: $RuntimeOptions): DeleteAgentResponse {
+async function deleteAgentWithOptions(workspaceId: string, appCode: string, request: DeleteAgentRequest, headers: map[string]string, runtime: $RuntimeOptions): DeleteAgentResponse {
+  request.validate();
   var req = new OpenApiUtil.OpenApiRequest{ 
     headers = headers,
   };
@@ -1508,12 +1605,16 @@ async function deleteAgentWithOptions(workspaceId: string, appCode: string, head
 /**
  * @summary 删除智能体
  *
+ * @param request DeleteAgentRequest
  * @return DeleteAgentResponse
  */
-async function deleteAgent(workspaceId: string, appCode: string): DeleteAgentResponse {
+async function deleteAgent(workspaceId: string, appCode: string, request: DeleteAgentRequest): DeleteAgentResponse {
   var runtime = new $RuntimeOptions{};
   var headers : map[string]string = {};
-  return deleteAgentWithOptions(workspaceId, appCode, headers, runtime);
+  return deleteAgentWithOptions(workspaceId, appCode, request, headers, runtime);
+}
+
+model DeleteCategoryRequest {
 }
 
 model DeleteCategoryResponseBody = {
@@ -1536,12 +1637,14 @@ model DeleteCategoryResponse = {
 /**
  * @summary Deletes a specified category permanently.
  *
+ * @param request DeleteCategoryRequest
  * @param headers map
  * @param runtime runtime options for this request RuntimeOptions
  * @return DeleteCategoryResponse
  */
 @context("deleteCategoryWithContext")
-async function deleteCategoryWithOptions(CategoryId: string, WorkspaceId: string, headers: map[string]string, runtime: $RuntimeOptions): DeleteCategoryResponse {
+async function deleteCategoryWithOptions(CategoryId: string, WorkspaceId: string, request: DeleteCategoryRequest, headers: map[string]string, runtime: $RuntimeOptions): DeleteCategoryResponse {
+  request.validate();
   var req = new OpenApiUtil.OpenApiRequest{ 
     headers = headers,
   };
@@ -1562,12 +1665,13 @@ async function deleteCategoryWithOptions(CategoryId: string, WorkspaceId: string
 /**
  * @summary Deletes a specified category permanently.
  *
+ * @param request DeleteCategoryRequest
  * @return DeleteCategoryResponse
  */
-async function deleteCategory(CategoryId: string, WorkspaceId: string): DeleteCategoryResponse {
+async function deleteCategory(CategoryId: string, WorkspaceId: string, request: DeleteCategoryRequest): DeleteCategoryResponse {
   var runtime = new $RuntimeOptions{};
   var headers : map[string]string = {};
-  return deleteCategoryWithOptions(CategoryId, WorkspaceId, headers, runtime);
+  return deleteCategoryWithOptions(CategoryId, WorkspaceId, request, headers, runtime);
 }
 
 model DeleteChunkRequest {
@@ -1680,6 +1784,9 @@ async function deleteChunk(WorkspaceId: string, request: DeleteChunkRequest): De
   return deleteChunkWithOptions(WorkspaceId, request, headers, runtime);
 }
 
+model DeleteFileRequest {
+}
+
 model DeleteFileResponseBody = {
   code?: string(name='Code', example='InvalidParameter'),
   data?: {
@@ -1700,12 +1807,14 @@ model DeleteFileResponse = {
 /**
  * @summary Deletes a specified unstructured document permanently. You cannot use the API to delete structured documents, see the Usage notes section of this topic.
  *
+ * @param request DeleteFileRequest
  * @param headers map
  * @param runtime runtime options for this request RuntimeOptions
  * @return DeleteFileResponse
  */
 @context("deleteFileWithContext")
-async function deleteFileWithOptions(FileId: string, WorkspaceId: string, headers: map[string]string, runtime: $RuntimeOptions): DeleteFileResponse {
+async function deleteFileWithOptions(FileId: string, WorkspaceId: string, request: DeleteFileRequest, headers: map[string]string, runtime: $RuntimeOptions): DeleteFileResponse {
+  request.validate();
   var req = new OpenApiUtil.OpenApiRequest{ 
     headers = headers,
   };
@@ -1726,12 +1835,13 @@ async function deleteFileWithOptions(FileId: string, WorkspaceId: string, header
 /**
  * @summary Deletes a specified unstructured document permanently. You cannot use the API to delete structured documents, see the Usage notes section of this topic.
  *
+ * @param request DeleteFileRequest
  * @return DeleteFileResponse
  */
-async function deleteFile(FileId: string, WorkspaceId: string): DeleteFileResponse {
+async function deleteFile(FileId: string, WorkspaceId: string, request: DeleteFileRequest): DeleteFileResponse {
   var runtime = new $RuntimeOptions{};
   var headers : map[string]string = {};
-  return deleteFileWithOptions(FileId, WorkspaceId, headers, runtime);
+  return deleteFileWithOptions(FileId, WorkspaceId, request, headers, runtime);
 }
 
 model DeleteIndexRequest {
@@ -1919,6 +2029,9 @@ async function deleteIndexDocument(WorkspaceId: string, request: DeleteIndexDocu
   return deleteIndexDocumentWithOptions(WorkspaceId, request, headers, runtime);
 }
 
+model DeleteMemoryRequest {
+}
+
 model DeleteMemoryResponseBody = {
   requestId?: string(name='requestId', example='6a71f2d9-f1c9-913b-818b-114029103cad'),
 }
@@ -1932,12 +2045,14 @@ model DeleteMemoryResponse = {
 /**
  * @summary 删除memory
  *
+ * @param request DeleteMemoryRequest
  * @param headers map
  * @param runtime runtime options for this request RuntimeOptions
  * @return DeleteMemoryResponse
  */
 @context("deleteMemoryWithContext")
-async function deleteMemoryWithOptions(workspaceId: string, memoryId: string, headers: map[string]string, runtime: $RuntimeOptions): DeleteMemoryResponse {
+async function deleteMemoryWithOptions(workspaceId: string, memoryId: string, request: DeleteMemoryRequest, headers: map[string]string, runtime: $RuntimeOptions): DeleteMemoryResponse {
+  request.validate();
   var req = new OpenApiUtil.OpenApiRequest{ 
     headers = headers,
   };
@@ -1958,12 +2073,16 @@ async function deleteMemoryWithOptions(workspaceId: string, memoryId: string, he
 /**
  * @summary 删除memory
  *
+ * @param request DeleteMemoryRequest
  * @return DeleteMemoryResponse
  */
-async function deleteMemory(workspaceId: string, memoryId: string): DeleteMemoryResponse {
+async function deleteMemory(workspaceId: string, memoryId: string, request: DeleteMemoryRequest): DeleteMemoryResponse {
   var runtime = new $RuntimeOptions{};
   var headers : map[string]string = {};
-  return deleteMemoryWithOptions(workspaceId, memoryId, headers, runtime);
+  return deleteMemoryWithOptions(workspaceId, memoryId, request, headers, runtime);
+}
+
+model DeleteMemoryNodeRequest {
 }
 
 model DeleteMemoryNodeResponseBody = {
@@ -1979,12 +2098,14 @@ model DeleteMemoryNodeResponse = {
 /**
  * @summary 删除记忆Node
  *
+ * @param request DeleteMemoryNodeRequest
  * @param headers map
  * @param runtime runtime options for this request RuntimeOptions
  * @return DeleteMemoryNodeResponse
  */
 @context("deleteMemoryNodeWithContext")
-async function deleteMemoryNodeWithOptions(workspaceId: string, memoryId: string, memoryNodeId: string, headers: map[string]string, runtime: $RuntimeOptions): DeleteMemoryNodeResponse {
+async function deleteMemoryNodeWithOptions(workspaceId: string, memoryId: string, memoryNodeId: string, request: DeleteMemoryNodeRequest, headers: map[string]string, runtime: $RuntimeOptions): DeleteMemoryNodeResponse {
+  request.validate();
   var req = new OpenApiUtil.OpenApiRequest{ 
     headers = headers,
   };
@@ -2005,12 +2126,16 @@ async function deleteMemoryNodeWithOptions(workspaceId: string, memoryId: string
 /**
  * @summary 删除记忆Node
  *
+ * @param request DeleteMemoryNodeRequest
  * @return DeleteMemoryNodeResponse
  */
-async function deleteMemoryNode(workspaceId: string, memoryId: string, memoryNodeId: string): DeleteMemoryNodeResponse {
+async function deleteMemoryNode(workspaceId: string, memoryId: string, memoryNodeId: string, request: DeleteMemoryNodeRequest): DeleteMemoryNodeResponse {
   var runtime = new $RuntimeOptions{};
   var headers : map[string]string = {};
-  return deleteMemoryNodeWithOptions(workspaceId, memoryId, memoryNodeId, headers, runtime);
+  return deleteMemoryNodeWithOptions(workspaceId, memoryId, memoryNodeId, request, headers, runtime);
+}
+
+model DeletePromptTemplateRequest {
 }
 
 model DeletePromptTemplateResponseBody = {
@@ -2026,12 +2151,14 @@ model DeletePromptTemplateResponse = {
 /**
  * @summary Deletes a prompt template based on the template ID.
  *
+ * @param request DeletePromptTemplateRequest
  * @param headers map
  * @param runtime runtime options for this request RuntimeOptions
  * @return DeletePromptTemplateResponse
  */
 @context("deletePromptTemplateWithContext")
-async function deletePromptTemplateWithOptions(workspaceId: string, promptTemplateId: string, headers: map[string]string, runtime: $RuntimeOptions): DeletePromptTemplateResponse {
+async function deletePromptTemplateWithOptions(workspaceId: string, promptTemplateId: string, request: DeletePromptTemplateRequest, headers: map[string]string, runtime: $RuntimeOptions): DeletePromptTemplateResponse {
+  request.validate();
   var req = new OpenApiUtil.OpenApiRequest{ 
     headers = headers,
   };
@@ -2052,12 +2179,16 @@ async function deletePromptTemplateWithOptions(workspaceId: string, promptTempla
 /**
  * @summary Deletes a prompt template based on the template ID.
  *
+ * @param request DeletePromptTemplateRequest
  * @return DeletePromptTemplateResponse
  */
-async function deletePromptTemplate(workspaceId: string, promptTemplateId: string): DeletePromptTemplateResponse {
+async function deletePromptTemplate(workspaceId: string, promptTemplateId: string, request: DeletePromptTemplateRequest): DeletePromptTemplateResponse {
   var runtime = new $RuntimeOptions{};
   var headers : map[string]string = {};
-  return deletePromptTemplateWithOptions(workspaceId, promptTemplateId, headers, runtime);
+  return deletePromptTemplateWithOptions(workspaceId, promptTemplateId, request, headers, runtime);
+}
+
+model DescribeFileRequest {
 }
 
 model DescribeFileResponseBody = {
@@ -2104,12 +2235,14 @@ model DescribeFileResponse = {
  * *   This operation is idempotent.
  * **Throttling:** Make sure that the interval between the two queries is at least 15 seconds. Otherwise, you may trigger system throttling. If throttling is triggered, try again later.
  *
+ * @param request DescribeFileRequest
  * @param headers map
  * @param runtime runtime options for this request RuntimeOptions
  * @return DescribeFileResponse
  */
 @context("describeFileWithContext")
-async function describeFileWithOptions(WorkspaceId: string, FileId: string, headers: map[string]string, runtime: $RuntimeOptions): DescribeFileResponse {
+async function describeFileWithOptions(WorkspaceId: string, FileId: string, request: DescribeFileRequest, headers: map[string]string, runtime: $RuntimeOptions): DescribeFileResponse {
+  request.validate();
   var req = new OpenApiUtil.OpenApiRequest{ 
     headers = headers,
   };
@@ -2135,12 +2268,13 @@ async function describeFileWithOptions(WorkspaceId: string, FileId: string, head
  * *   This operation is idempotent.
  * **Throttling:** Make sure that the interval between the two queries is at least 15 seconds. Otherwise, you may trigger system throttling. If throttling is triggered, try again later.
  *
+ * @param request DescribeFileRequest
  * @return DescribeFileResponse
  */
-async function describeFile(WorkspaceId: string, FileId: string): DescribeFileResponse {
+async function describeFile(WorkspaceId: string, FileId: string, request: DescribeFileRequest): DescribeFileResponse {
   var runtime = new $RuntimeOptions{};
   var headers : map[string]string = {};
-  return describeFileWithOptions(WorkspaceId, FileId, headers, runtime);
+  return describeFileWithOptions(WorkspaceId, FileId, request, headers, runtime);
 }
 
 model GetAlipayTransferStatusRequest {
@@ -2572,6 +2706,9 @@ async function getIndexMonitor(WorkspaceId: string, request: GetIndexMonitorRequ
   return getIndexMonitorWithOptions(WorkspaceId, request, headers, runtime);
 }
 
+model GetMemoryRequest {
+}
+
 model GetMemoryResponseBody = {
   description?: string(name='description'),
   memoryId?: string(name='memoryId', example='6bff4f317a14442fbc9f73d29dbd5fc3'),
@@ -2588,12 +2725,14 @@ model GetMemoryResponse = {
 /**
  * @summary 获取memory
  *
+ * @param request GetMemoryRequest
  * @param headers map
  * @param runtime runtime options for this request RuntimeOptions
  * @return GetMemoryResponse
  */
 @context("getMemoryWithContext")
-async function getMemoryWithOptions(workspaceId: string, memoryId: string, headers: map[string]string, runtime: $RuntimeOptions): GetMemoryResponse {
+async function getMemoryWithOptions(workspaceId: string, memoryId: string, request: GetMemoryRequest, headers: map[string]string, runtime: $RuntimeOptions): GetMemoryResponse {
+  request.validate();
   var req = new OpenApiUtil.OpenApiRequest{ 
     headers = headers,
   };
@@ -2614,12 +2753,16 @@ async function getMemoryWithOptions(workspaceId: string, memoryId: string, heade
 /**
  * @summary 获取memory
  *
+ * @param request GetMemoryRequest
  * @return GetMemoryResponse
  */
-async function getMemory(workspaceId: string, memoryId: string): GetMemoryResponse {
+async function getMemory(workspaceId: string, memoryId: string, request: GetMemoryRequest): GetMemoryResponse {
   var runtime = new $RuntimeOptions{};
   var headers : map[string]string = {};
-  return getMemoryWithOptions(workspaceId, memoryId, headers, runtime);
+  return getMemoryWithOptions(workspaceId, memoryId, request, headers, runtime);
+}
+
+model GetMemoryNodeRequest {
 }
 
 model GetMemoryNodeResponseBody = {
@@ -2639,12 +2782,14 @@ model GetMemoryNodeResponse = {
 /**
  * @summary 获取记忆Node
  *
+ * @param request GetMemoryNodeRequest
  * @param headers map
  * @param runtime runtime options for this request RuntimeOptions
  * @return GetMemoryNodeResponse
  */
 @context("getMemoryNodeWithContext")
-async function getMemoryNodeWithOptions(workspaceId: string, memoryId: string, memoryNodeId: string, headers: map[string]string, runtime: $RuntimeOptions): GetMemoryNodeResponse {
+async function getMemoryNodeWithOptions(workspaceId: string, memoryId: string, memoryNodeId: string, request: GetMemoryNodeRequest, headers: map[string]string, runtime: $RuntimeOptions): GetMemoryNodeResponse {
+  request.validate();
   var req = new OpenApiUtil.OpenApiRequest{ 
     headers = headers,
   };
@@ -2665,12 +2810,13 @@ async function getMemoryNodeWithOptions(workspaceId: string, memoryId: string, m
 /**
  * @summary 获取记忆Node
  *
+ * @param request GetMemoryNodeRequest
  * @return GetMemoryNodeResponse
  */
-async function getMemoryNode(workspaceId: string, memoryId: string, memoryNodeId: string): GetMemoryNodeResponse {
+async function getMemoryNode(workspaceId: string, memoryId: string, memoryNodeId: string, request: GetMemoryNodeRequest): GetMemoryNodeResponse {
   var runtime = new $RuntimeOptions{};
   var headers : map[string]string = {};
-  return getMemoryNodeWithOptions(workspaceId, memoryId, memoryNodeId, headers, runtime);
+  return getMemoryNodeWithOptions(workspaceId, memoryId, memoryNodeId, request, headers, runtime);
 }
 
 model GetParseSettingsRequest {
@@ -2761,6 +2907,9 @@ async function getParseSettings(WorkspaceId: string, request: GetParseSettingsRe
   return getParseSettingsWithOptions(WorkspaceId, request, headers, runtime);
 }
 
+model GetPromptTemplateRequest {
+}
+
 model GetPromptTemplateResponseBody = {
   content?: string(name='content', description='The template content.'),
   name?: string(name='name', description='The template name.'),
@@ -2779,12 +2928,14 @@ model GetPromptTemplateResponse = {
 /**
  * @summary Obtains a prompt template based on the template ID.
  *
+ * @param request GetPromptTemplateRequest
  * @param headers map
  * @param runtime runtime options for this request RuntimeOptions
  * @return GetPromptTemplateResponse
  */
 @context("getPromptTemplateWithContext")
-async function getPromptTemplateWithOptions(workspaceId: string, promptTemplateId: string, headers: map[string]string, runtime: $RuntimeOptions): GetPromptTemplateResponse {
+async function getPromptTemplateWithOptions(workspaceId: string, promptTemplateId: string, request: GetPromptTemplateRequest, headers: map[string]string, runtime: $RuntimeOptions): GetPromptTemplateResponse {
+  request.validate();
   var req = new OpenApiUtil.OpenApiRequest{ 
     headers = headers,
   };
@@ -2805,12 +2956,16 @@ async function getPromptTemplateWithOptions(workspaceId: string, promptTemplateI
 /**
  * @summary Obtains a prompt template based on the template ID.
  *
+ * @param request GetPromptTemplateRequest
  * @return GetPromptTemplateResponse
  */
-async function getPromptTemplate(workspaceId: string, promptTemplateId: string): GetPromptTemplateResponse {
+async function getPromptTemplate(workspaceId: string, promptTemplateId: string, request: GetPromptTemplateRequest): GetPromptTemplateResponse {
   var runtime = new $RuntimeOptions{};
   var headers : map[string]string = {};
-  return getPromptTemplateWithOptions(workspaceId, promptTemplateId, headers, runtime);
+  return getPromptTemplateWithOptions(workspaceId, promptTemplateId, request, headers, runtime);
+}
+
+model GetPublishedAgentRequest {
 }
 
 model GetPublishedAgentResponseBody = {
@@ -2872,12 +3027,14 @@ model GetPublishedAgentResponse = {
 /**
  * @summary 获取发布态智能体应用
  *
+ * @param request GetPublishedAgentRequest
  * @param headers map
  * @param runtime runtime options for this request RuntimeOptions
  * @return GetPublishedAgentResponse
  */
 @context("getPublishedAgentWithContext")
-async function getPublishedAgentWithOptions(workspaceId: string, appCode: string, headers: map[string]string, runtime: $RuntimeOptions): GetPublishedAgentResponse {
+async function getPublishedAgentWithOptions(workspaceId: string, appCode: string, request: GetPublishedAgentRequest, headers: map[string]string, runtime: $RuntimeOptions): GetPublishedAgentResponse {
+  request.validate();
   var req = new OpenApiUtil.OpenApiRequest{ 
     headers = headers,
   };
@@ -2898,12 +3055,13 @@ async function getPublishedAgentWithOptions(workspaceId: string, appCode: string
 /**
  * @summary 获取发布态智能体应用
  *
+ * @param request GetPublishedAgentRequest
  * @return GetPublishedAgentResponse
  */
-async function getPublishedAgent(workspaceId: string, appCode: string): GetPublishedAgentResponse {
+async function getPublishedAgent(workspaceId: string, appCode: string, request: GetPublishedAgentRequest): GetPublishedAgentResponse {
   var runtime = new $RuntimeOptions{};
   var headers : map[string]string = {};
-  return getPublishedAgentWithOptions(workspaceId, appCode, headers, runtime);
+  return getPublishedAgentWithOptions(workspaceId, appCode, request, headers, runtime);
 }
 
 model HighCodeDeployRequest {
@@ -5253,5 +5411,85 @@ async function updatePromptTemplate(workspaceId: string, promptTemplateId: strin
   var runtime = new $RuntimeOptions{};
   var headers : map[string]string = {};
   return updatePromptTemplateWithOptions(workspaceId, promptTemplateId, request, headers, runtime);
+}
+
+model UpdateTableFromAuthorizedOssRequest {
+  ossBucket?: string(name='OssBucket', description='This parameter is required.', example='yinghuo-ai'),
+  ossKey?: string(name='OssKey', description='This parameter is required.', example='a0deedbce4a8162b8d66c63ace28330c'),
+  ossRegionId?: string(name='OssRegionId', description='This parameter is required.', example='cn-beijing'),
+  updateMode?: string(name='UpdateMode', description='This parameter is required.', example='OVERWRITE'),
+}
+
+model UpdateTableFromAuthorizedOssResponseBody = {
+  code?: string(name='Code', example='DataCenter.FileTooLarge'),
+  data?: {
+    status?: string(name='Status', example='TO_IMPORT'),
+    tableId?: string(name='TableId', example='table_df96ebd5da8640e5a0991b3d15f39d4d_12792097'),
+  }(name='Data'),
+  message?: string(name='Message', example='Required parameter(%s) missing or invalid, please check the request parameters.'),
+  requestId?: string(name='RequestId', description='Id of the request', example='7BA8ADD9-53D6-53F0-918F-A1E776AD230E'),
+  status?: string(name='Status', example='200'),
+  success?: boolean(name='Success', example='true'),
+}
+
+model UpdateTableFromAuthorizedOssResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: UpdateTableFromAuthorizedOssResponseBody(name='body'),
+}
+
+/**
+ * @summary 从oss上传table
+ *
+ * @param request UpdateTableFromAuthorizedOssRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return UpdateTableFromAuthorizedOssResponse
+ */
+@context("updateTableFromAuthorizedOssWithContext")
+async function updateTableFromAuthorizedOssWithOptions(WorkspaceId: string, TableId: string, request: UpdateTableFromAuthorizedOssRequest, headers: map[string]string, runtime: $RuntimeOptions): UpdateTableFromAuthorizedOssResponse {
+  request.validate();
+  var body : map[string]any = {};
+  if (!$isNull(request.ossBucket)) {
+    body['OssBucket'] = request.ossBucket;
+  }
+  if (!$isNull(request.ossKey)) {
+    body['OssKey'] = request.ossKey;
+  }
+  if (!$isNull(request.ossRegionId)) {
+    body['OssRegionId'] = request.ossRegionId;
+  }
+  if (!$isNull(request.updateMode)) {
+    body['UpdateMode'] = request.updateMode;
+  }
+
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    headers = headers,
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'UpdateTableFromAuthorizedOss',
+    version = '2023-12-29',
+    protocol = 'HTTPS',
+    pathname = `/${$URL.percentEncode(WorkspaceId)}/datacenter/table/fromoss/${$URL.percentEncode(TableId)}`,
+    method = 'PUT',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 从oss上传table
+ *
+ * @param request UpdateTableFromAuthorizedOssRequest
+ * @return UpdateTableFromAuthorizedOssResponse
+ */
+async function updateTableFromAuthorizedOss(WorkspaceId: string, TableId: string, request: UpdateTableFromAuthorizedOssRequest): UpdateTableFromAuthorizedOssResponse {
+  var runtime = new $RuntimeOptions{};
+  var headers : map[string]string = {};
+  return updateTableFromAuthorizedOssWithOptions(WorkspaceId, TableId, request, headers, runtime);
 }
 
