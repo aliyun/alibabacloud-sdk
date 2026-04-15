@@ -5430,6 +5430,7 @@ model CreateSupabaseProjectRequest {
 *   The password must be 8 to 32 characters in length.
 
 This parameter is required.', example='Pw123456'),
+  autoScale?: boolean(name='AutoScale'),
   clientToken?: string(name='ClientToken', description='The client token that is used to ensure the idempotence of the request. For more information, see [How to ensure idempotence](https://help.aliyun.com/document_detail/327176.html).', example='0c593ea1-3bea-11e9-b96b-88888888****'),
   diskPerformanceLevel?: string(name='DiskPerformanceLevel', description='The performance level of Enterprise SSDs (ESSDs). Default value: PL0. Valid values:
 
@@ -5507,6 +5508,9 @@ async function createSupabaseProjectWithOptions(request: CreateSupabaseProjectRe
   var query = {};
   if (!$isNull(request.accountPassword)) {
     query['AccountPassword'] = request.accountPassword;
+  }
+  if (!$isNull(request.autoScale)) {
+    query['AutoScale'] = request.autoScale;
   }
   if (!$isNull(request.clientToken)) {
     query['ClientToken'] = request.clientToken;
@@ -17063,6 +17067,7 @@ This parameter is required.', example='sbp-263****'),
 }
 
 model GetSupabaseProjectResponseBody = {
+  autoScale?: string(name='AutoScale'),
   createTime?: string(name='CreateTime', description='The creation time.', example='2019-09-08T16:00:00Z'),
   DBSecurityIpList?: string(name='DBSecurityIpList'),
   dashboardPassword?: string(name='DashboardPassword', description='The Supabase Dashboard password (Not Used)', example='xxpassword'),
@@ -20234,11 +20239,16 @@ model ListSupabaseProjectsRequest {
   regionId?: string(name='RegionId', description='The region ID of the cluster.
 
 > You can call the [DescribeRegions](https://help.aliyun.com/document_detail/86912.html) operation get a list of available region IDs.', example='cn-hangzhou'),
+  searchField?: string(name='SearchField'),
+  searchValue?: string(name='SearchValue'),
+  sortField?: string(name='SortField'),
+  sortOrder?: string(name='SortOrder'),
 }
 
 model ListSupabaseProjectsResponseBody = {
   items?: [ 
     {
+      autoScale?: string(name='AutoScale'),
       createTime?: string(name='CreateTime', description='The creation time.', example='2021-10-09T04:54:08Z'),
       dashboardPassword?: string(name='DashboardPassword', description='Supabase Dashboard password (not used).', example='xxpassword'),
       dashboardUserName?: string(name='DashboardUserName', description='Supabase Dashboard user name (not used).', example='null'),
@@ -20310,6 +20320,18 @@ async function listSupabaseProjectsWithOptions(request: ListSupabaseProjectsRequ
   }
   if (!$isNull(request.regionId)) {
     query['RegionId'] = request.regionId;
+  }
+  if (!$isNull(request.searchField)) {
+    query['SearchField'] = request.searchField;
+  }
+  if (!$isNull(request.searchValue)) {
+    query['SearchValue'] = request.searchValue;
+  }
+  if (!$isNull(request.sortField)) {
+    query['SortField'] = request.sortField;
+  }
+  if (!$isNull(request.sortOrder)) {
+    query['SortOrder'] = request.sortOrder;
   }
   var req = new OpenApiUtil.OpenApiRequest{ 
     query = OpenApiUtil.query(query),
@@ -24563,7 +24585,7 @@ async function queryContentAdvance(request: QueryContentAdvanceRequest, runtime:
       contentType = '',
     };
     ossHeader = {
-      host = `${authResponseBody['Bucket']}.${OpenApiUtil.getEndpoint(authResponseBody['Endpoint'], useAccelerate, @endpointType)}`,
+      host = OpenApiUtil.getEndpoint(authResponseBody['Endpoint'], useAccelerate, @endpointType),
       OSSAccessKeyId = authResponseBody['AccessKeyId'],
       policy = authResponseBody['EncodedPolicy'],
       Signature = authResponseBody['Signature'],
@@ -27524,7 +27546,7 @@ async function uploadDocumentAsyncAdvance(request: UploadDocumentAsyncAdvanceReq
       contentType = '',
     };
     ossHeader = {
-      host = `${authResponseBody['Bucket']}.${OpenApiUtil.getEndpoint(authResponseBody['Endpoint'], useAccelerate, @endpointType)}`,
+      host = OpenApiUtil.getEndpoint(authResponseBody['Endpoint'], useAccelerate, @endpointType),
       OSSAccessKeyId = authResponseBody['AccessKeyId'],
       policy = authResponseBody['EncodedPolicy'],
       Signature = authResponseBody['Signature'],
@@ -28113,7 +28135,7 @@ async function upsertCollectionDataAsyncAdvance(request: UpsertCollectionDataAsy
       contentType = '',
     };
     ossHeader = {
-      host = `${authResponseBody['Bucket']}.${OpenApiUtil.getEndpoint(authResponseBody['Endpoint'], useAccelerate, @endpointType)}`,
+      host = OpenApiUtil.getEndpoint(authResponseBody['Endpoint'], useAccelerate, @endpointType),
       OSSAccessKeyId = authResponseBody['AccessKeyId'],
       policy = authResponseBody['EncodedPolicy'],
       Signature = authResponseBody['Signature'],
@@ -28130,11 +28152,13 @@ async function upsertCollectionDataAsyncAdvance(request: UpsertCollectionDataAsy
 
 api _postOSSObject(bucketName: string, form: object, runtime: $RuntimeOptions): object {
   var boundary = $Form.getBoundary();
+  var tmp = $string(form.host);
+  var host = `${bucketName}.${tmp}`;
   __request.protocol = 'HTTPS';
   __request.method = 'POST';
   __request.pathname = `/`;
   __request.headers = {
-    host = $string(form.host),
+    host = host,
     date = OpenApiUtil.getDateUTCString(),
     user-agent = OpenApiUtil.getUserAgent(''),
   };
