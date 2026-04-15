@@ -60,6 +60,7 @@ model AgentRuntime {
   credentialName?: string(name='credentialName', description='用于访问智能体的凭证名称，访问智能体运行时将使用此凭证进行身份验证', example='my-credential'),
   description?: string(name='description', description='智能体运行时的描述信息，说明该运行时的用途和功能', example='AI agent runtime for customer service automation'),
   diskSize?: integer(name='diskSize'),
+  enableSessionIsolation?: boolean(name='enableSessionIsolation', description='是否启用会话隔离，启用后每个会话将在独立的环境中运行', example='false'),
   environmentVariables?: map[string]string(name='environmentVariables', description='智能体运行时的环境变量配置', example='ENV_VAR1=value1,ENV_VAR2=value2'),
   executionRoleArn?: string(name='executionRoleArn', description='为智能体运行时提供访问云服务权限的执行角色ARN', example='acs:ram::1760720386195983:role/AgentRunExecutionRole'),
   externalAgentEndpointUrl?: string(name='externalAgentEndpointUrl', description='外部注册类型的智能体访问端点地址，用于连接已部署在外部的智能体服务', example='https://external-agent.example.com/api'),
@@ -393,6 +394,111 @@ model ContainerConfiguration {
   image?: string(name='image', example='registry.cn-hangzhou.aliyuncs.com/my-namespace/agent-runtime:latest'),
   imageRegistryType?: string(name='imageRegistryType', description='容器镜像的来源类型，支持ACR（阿里云容器镜像服务）、ACREE（阿里云容器镜像服务企业版）、CUSTOM（自定义镜像仓库）', example='ACR'),
   port?: int32(name='port'),
+  registryConfig?: RegistryConfig(name='registryConfig', description='自定义镜像仓库的配置信息，当imageRegistryType为CUSTOM时使用', example='{}'),
+}
+
+model ConvertFlowDSLData {
+  conversionPlan?: {
+    issues?: [ 
+      {
+        description: string(name='description', description='问题描述
+
+This parameter is required.', example='Tool node requires Toolset installation'),
+        details?: map[string]string(name='details', description='问题的详细信息（JSON对象）'),
+        issueType: string(name='issueType', description='问题类型：needs_config, needs_conversion, unsupported
+
+This parameter is required.', example='needs_config'),
+        level: string(name='level', description='问题严重程度：info, warning, error
+
+This parameter is required.', example='warning'),
+        nodeId: string(name='nodeId', description='Dify DSL中的节点标识符
+
+This parameter is required.', example='1760514991682'),
+        nodeTitle?: string(name='nodeTitle', description='节点显示名称', example='Google Search'),
+        nodeType: string(name='nodeType', description='节点类型
+
+This parameter is required.', example='tool'),
+        suggestion?: string(name='suggestion', description='解决建议', example='Install Toolset \\"google\\" before using this flow'),
+      }
+    ](name='issues', description='节点兼容性问题详情'),
+    summary: {
+      compatibleNodes: int32(name='compatibleNodes', description='完全兼容的节点数
+
+This parameter is required.', example='7'),
+      nodesNeedConfig: int32(name='nodesNeedConfig', description='需要手动配置的节点数
+
+This parameter is required.', example='2'),
+      nodesNeedConversion: int32(name='nodesNeedConversion', description='需要特殊转换处理的节点数
+
+This parameter is required.', example='0'),
+      totalNodes: int32(name='totalNodes', description='Dify DSL中的总节点数
+
+This parameter is required.', example='10'),
+      unsupportedNodes: int32(name='unsupportedNodes', description='不支持的节点数
+
+This parameter is required.', example='1'),
+    }(name='summary', description='节点兼容性统计摘要
+
+This parameter is required.'),
+  }(name='conversionPlan', description='DSL兼容性分析和转换计划'),
+  flow: {
+    definition: string(name='definition', description='工作流的FnF State Machine定义（YAML格式）
+
+This parameter is required.'),
+    description?: string(name='description', description='工作流的描述信息', example='Converted from external workflow'),
+    environmentConfiguration?: EnvironmentConfiguration(name='environmentConfiguration', description='工作流的环境变量配置'),
+    flowName: string(name='flowName', description='转换后的工作流名称
+
+This parameter is required.', example='dify-flow'),
+  }(name='flow', description='转换后的AgentRun Flow配置信息
+
+This parameter is required.'),
+  pluginErrors?: [ 
+    {
+      nodeId?: string(name='nodeId', description='相关节点的标识符', example='1760514996015'),
+      providerName: string(name='providerName', description='插件提供商名称
+
+This parameter is required.', example='langgenius'),
+      reason: string(name='reason', description='错误原因描述
+
+This parameter is required.', example='Plugin not found in marketplace'),
+      toolName?: string(name='toolName', description='工具名称', example='google_search'),
+    }
+  ](name='pluginErrors', description='插件识别或转换过程中的错误信息'),
+  toolsetInstallations?: [ 
+    {
+      description?: string(name='description', description='Toolset描述', example='Google Search Plugin'),
+      name: string(name='name', description='Toolset名称
+
+This parameter is required.', example='google'),
+      spec: map[string]any(name='spec', description='Toolset规格配置（JSON对象）
+
+This parameter is required.'),
+    }
+  ](name='toolsetInstallations', description='需要安装的Toolset配置列表'),
+}
+
+model ConvertFlowDSLInput {
+  dslSource: {
+    content: string(name='content', description='DSL内容，可以是原始JSON字符串，或根据encoding字段指定的编码格式
+
+This parameter is required.', example='{"app":{"name":"My Flow"}}'),
+    encoding?: string(name='encoding', description='DSL内容的编码方式。不填表示内容为原始字符串；base64表示内容经过Base64编码；base64+gzip表示内容经过gzip压缩后再Base64编码', example='base64'),
+    provider: string(name='provider', description='源DSL的提供商类型，如：dify、n8n、zapier等
+
+This parameter is required.', example='dify'),
+  }(name='dslSource', description='工作流DSL的来源配置，支持inline和base64两种格式
+
+This parameter is required.'),
+  options?: {
+    compatibilityCheck?: boolean(name='compatibilityCheck', description='是否执行兼容性检查，默认为true', example='true'),
+  }(name='options', description='DSL转换的可选配置参数'),
+}
+
+model ConvertFlowDSLResult {
+  code?: string(name='code', description='SUCCESS 为成功，失败情况返回对应错误类型，比如 ERR_BAD_REQUEST ERR_VALIDATION_FAILED ERR_INTERNAL_SERVER_ERROR', example='SUCCESS'),
+  data?: ConvertFlowDSLData(name='data', description='工作流DSL转换的详细结果数据'),
+  requestId?: string(name='requestId', description='唯一的请求标识符，用于问题追踪', example='F8A0F5F3-0C3E-4C82-9D4F-5E4B6A7C8D9E'),
 }
 
 model CreateAgentRuntimeEndpointInput {
@@ -421,6 +527,7 @@ This parameter is required.', example='2.0'),
   credentialName?: string(name='credentialName', description='用于访问智能体的凭证名称，访问智能体运行时将使用此凭证进行身份验证', example='my-credential'),
   description?: string(name='description', description='智能体运行时的描述信息，用于说明该运行时的用途和功能', example='AI agent runtime for customer service automation'),
   diskSize?: int32(name='diskSize'),
+  enableSessionIsolation?: boolean(name='enableSessionIsolation', description='是否启用会话隔离，启用后每个会话将在独立的环境中运行', example='false'),
   environmentVariables?: map[string]string(name='environmentVariables', description='智能体运行时的环境变量配置，用于在运行时传递配置参数', example='ENV_VAR1=value1,ENV_VAR2=value2'),
   executionRoleArn?: string(name='executionRoleArn', description='为智能体运行时提供访问云服务权限的执行角色ARN', example='acs:ram::1760720386195983:role/AgentRunExecutionRole'),
   externalAgentEndpointUrl?: string(name='externalAgentEndpointUrl', description='外部注册类型的智能体访问端点地址，用于连接已部署在外部的智能体服务', example='https://external-agent.example.com/api'),
@@ -547,7 +654,6 @@ This parameter is required.', example='my-flow-endpoint'),
   routingConfiguration?: [
     FlowEndpointRoutingConfig
   ](name='routingConfiguration', description='工作流端点的版本路由配置，用于流量分配', example='[]'),
-  tags?: [ string ](name='tags', description='工作流端点的标签信息', example='production'),
   targetVersion?: string(name='targetVersion', description='工作流端点指向的目标版本号', example='1'),
 }
 
@@ -562,7 +668,6 @@ model CreateFlowInput {
 This parameter is required.', example='my-flow'),
   loggingConfiguration?: LoggingConfiguration(name='loggingConfiguration', description='工作流的日志配置'),
   resourceGroupId?: string(name='resourceGroupId', description='工作流所属的资源组标识符', example='rg-acfmxsn4m4a4b4a'),
-  tags?: [ string ](name='tags', description='工作流的标签信息，用于资源分类和管理', example='production,automation'),
   tracingConfiguration?: TracingConfiguration(name='tracingConfiguration', description='工作流的链路追踪配置'),
   workspaceId?: string(name='workspaceId', description='工作流所属的工作空间标识符，用于资源隔离和权限管理', example='ws-1234567890abcdef'),
 }
@@ -1029,7 +1134,6 @@ model Flow {
   lastUpdatedAt?: string(name='lastUpdatedAt', description='工作流最后一次更新的时间，采用ISO 8601格式', example='2025-01-10T11:45:00Z'),
   loggingConfiguration?: LoggingConfiguration(name='loggingConfiguration', description='工作流的日志配置'),
   resourceGroupId?: string(name='resourceGroupId', description='工作流所属的资源组标识符', example='rg-acfmxsn4m4a4b4a'),
-  tags?: [ string ](name='tags', description='工作流的标签信息，用于资源分类和管理', example='production,automation'),
   tracingConfiguration?: TracingConfiguration(name='tracingConfiguration', description='工作流的链路追踪配置'),
   workspaceId?: string(name='workspaceId', description='工作流所属的工作空间标识符', example='ws-1234567890abcdef'),
 }
@@ -1045,7 +1149,6 @@ model FlowEndpoint {
   routingConfiguration?: [
     FlowEndpointRoutingConfig
   ](name='routingConfiguration', description='工作流端点的版本路由配置', example='[]'),
-  tags?: [ string ](name='tags', description='工作流端点的标签信息', example='production'),
   targetVersion?: string(name='targetVersion', description='工作流端点指向的目标版本号', example='1'),
 }
 
@@ -1368,6 +1471,7 @@ model ListAgentRuntimesInput {
   pageNumber?: integer(name='pageNumber', description='页码', example='1'),
   pageSize?: integer(name='pageSize', description='每页记录数', example='20'),
   statuses?: [ string ](name='statuses', description='按状态过滤', example='READY,CREATING'),
+  systemTags?: [ string ](name='systemTags', description='按系统标签过滤', example='acs:ecs:tag1,acs:ecs:tag2'),
 }
 
 model ListAgentRuntimesOutput {
@@ -2077,6 +2181,28 @@ This parameter is required.', example='FC'),
 This parameter is required.', example='1234567890123456'),
 }
 
+model RegistryAuthConfig {
+  password?: string(name='password', description='镜像仓库的登录密码', example='abc***'),
+  userName?: string(name='userName', description='镜像仓库的登录用户名', example='admin'),
+}
+
+model RegistryCertConfig {
+  insecure?: boolean(name='insecure', description='是否跳过TLS证书验证，设置为true时将不验证镜像仓库的证书', example='false'),
+  rootCaCertBase64?: string(name='rootCaCertBase64', description='镜像仓库的根CA证书Base64编码，用于自签名证书的验证', example='cm9vdF9jYV9jZXJ0X2Jhc2U2NA=='),
+}
+
+model RegistryConfig {
+  authConfig?: RegistryAuthConfig(name='authConfig', description='镜像仓库的认证配置信息', example='{}'),
+  certConfig?: RegistryCertConfig(name='certConfig', description='镜像仓库的证书配置信息', example='{}'),
+  networkConfig?: RegistryNetworkConfig(name='networkConfig', description='镜像仓库的网络配置信息', example='{}'),
+}
+
+model RegistryNetworkConfig {
+  securityGroupId?: string(name='securityGroupId', description='镜像仓库的安全组ID', example='sg-xxxxxxxxxxxxx'),
+  vSwitchId?: string(name='vSwitchId', description='镜像仓库所在的交换机ID', example='vsw-xxxxxxxxxxxxx'),
+  vpcId?: string(name='vpcId', description='镜像仓库所在的VPC ID', example='vpc-xxxxxxxxxxxxx'),
+}
+
 model RelatedResource {
   resourceId?: string(name='resourceId'),
   resourceName?: string(name='resourceName'),
@@ -2374,6 +2500,7 @@ model UpdateAgentRuntimeInput {
   credentialName?: string(name='credentialName', description='用于访问智能体的凭证名称，访问智能体运行时将使用此凭证进行身份验证', example='my-credential'),
   description?: string(name='description', example='更新后的智能体运行时描述'),
   diskSize?: int32(name='diskSize'),
+  enableSessionIsolation?: boolean(name='enableSessionIsolation', description='是否启用会话隔离，启用后每个会话将在独立的环境中运行', example='false'),
   environmentVariables?: map[string]string(name='environmentVariables', description='智能体运行时的环境变量配置，用于在运行时传递配置参数', example='ENV_VAR1=value1,ENV_VAR2=value2'),
   executionRoleArn?: string(name='executionRoleArn', description='为智能体运行时提供访问云服务权限的执行角色ARN', example='acs:ram::1760720386195983:role/AgentRunExecutionRole'),
   externalAgentEndpointUrl?: string(name='externalAgentEndpointUrl', description='外部注册类型的智能体访问端点地址，用于连接已部署在外部的智能体服务', example='https://external-agent.example.com/api'),
@@ -2458,7 +2585,6 @@ model UpdateFlowEndpointInput {
   routingConfiguration?: [
     FlowEndpointRoutingConfig
   ](name='routingConfiguration', description='工作流端点的版本路由配置，用于流量分配', example='[]'),
-  tags?: [ string ](name='tags', description='工作流端点的标签信息', example='production'),
   targetVersion?: string(name='targetVersion', description='工作流端点指向的目标版本号', example='1'),
 }
 
@@ -2471,7 +2597,6 @@ model UpdateFlowInput {
   flowName?: string(name='flowName', description='工作流的唯一标识名称，用于区分不同的工作流实例', example='my-flow'),
   loggingConfiguration?: LoggingConfiguration(name='loggingConfiguration', description='工作流的日志配置'),
   resourceGroupId?: string(name='resourceGroupId', description='工作流所属的资源组标识符', example='rg-acfmxsn4m4a4b4a'),
-  tags?: [ string ](name='tags', description='工作流的标签信息，用于资源分类和管理', example='production,automation'),
   tracingConfiguration?: TracingConfiguration(name='tracingConfiguration', description='工作流的链路追踪配置'),
   workspaceId?: string(name='workspaceId', description='工作流所属的工作空间标识符，用于资源隔离和权限管理', example='ws-1234567890abcdef'),
 }
@@ -2721,6 +2846,28 @@ async function activateTemplateMCP(request: ActivateTemplateMCPRequest): Activat
   return @handler.do('RESTFUL', 'ActivateTemplateMCP', 'PATCH', '/2025-09-10/templates/{templateName}/mcp/activate', 'json', false, 'json', request);
 }
 
+model ConvertFlowDSLRequest {
+  body: ConvertFlowDSLInput(name='body', description='包含待转换的工作流DSL内容和转换选项，支持多种DSL格式（如Dify、n8n等）以及inline和base64两种输入方式
+
+This parameter is required.', position='Body'),
+}
+
+model ConvertFlowDSLResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ConvertFlowDSLResult  
+}
+
+/**
+  * @description 将第三方工作流DSL（如Dify、n8n等）转换为AgentRun Flow定义。支持兼容性检查、插件识别和元数据提取，返回转换后的Flow配置、兼容性分析报告和所需的Toolset安装配置。此操作为dry-run模式，不会创建实际的Flow资源。
+  * @param request  the request parameters of ConvertFlowDSL  ConvertFlowDSLRequest
+  * @return ConvertFlowDSLResponse
+ */
+async function convertFlowDSL(request: ConvertFlowDSLRequest): ConvertFlowDSLResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'ConvertFlowDSL', 'POST', '/2025-09-10/flows/action/convertDsl', 'json', false, 'json', request);
+}
+
 model CreateAgentRuntimeRequest {
   body: CreateAgentRuntimeInput(name='body', description='创建智能体运行时所需的完整配置信息，包括运行时名称、资源规格、网络配置、协议配置等
 
@@ -2844,6 +2991,53 @@ model CreateCustomDomainResponse = {
 async function createCustomDomain(request: CreateCustomDomainRequest): CreateCustomDomainResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RESTFUL', 'CreateCustomDomain', 'POST', '/2025-09-10/agents/custom-domains', 'json', false, 'json', request);
+}
+
+model CreateFlowRequest {
+  body: CreateFlowInput(name='body', description='创建工作流所需的完整配置信息，包括工作流名称、定义、执行模式等
+
+This parameter is required.', position='Body'),
+}
+
+model CreateFlowResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: FlowResult  
+}
+
+/**
+  * @description 创建一个新的工作流实例，用于定义和执行自动化流程。工作流是AgentRun服务的核心组件，支持可视化编排和版本管理。
+  * @param request  the request parameters of CreateFlow  CreateFlowRequest
+  * @return CreateFlowResponse
+ */
+async function createFlow(request: CreateFlowRequest): CreateFlowResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'CreateFlow', 'POST', '/2025-09-10/flows', 'json', false, 'json', request);
+}
+
+model CreateFlowEndpointRequest {
+  flowName: string(name='flowName', description='要创建端点的工作流实例的唯一标识符
+
+This parameter is required.', example='flow-1234567890abcdef', position='Path'),
+  body: CreateFlowEndpointInput(name='body', description='创建工作流端点所需的完整配置信息
+
+This parameter is required.', position='Body'),
+}
+
+model CreateFlowEndpointResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: FlowEndpointResult  
+}
+
+/**
+  * @description 为指定工作流创建一个新的端点，用于对外提供服务访问。
+  * @param request  the request parameters of CreateFlowEndpoint  CreateFlowEndpointRequest
+  * @return CreateFlowEndpointResponse
+ */
+async function createFlowEndpoint(request: CreateFlowEndpointRequest): CreateFlowEndpointResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'CreateFlowEndpoint', 'POST', '/2025-09-10/flows/{flowName}/endpoints', 'json', false, 'json', request);
 }
 
 model CreateKnowledgeBaseRequest {
@@ -3132,6 +3326,78 @@ model DeleteCustomDomainResponse = {
 async function deleteCustomDomain(request: DeleteCustomDomainRequest): DeleteCustomDomainResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RESTFUL', 'DeleteCustomDomain', 'DELETE', '/2025-09-10/agents/custom-domains/{domainName}', 'json', false, 'json', request);
+}
+
+model DeleteFlowRequest {
+  flowName: string(name='flowName', description='要删除的工作流实例的唯一标识符
+
+This parameter is required.', example='demo-flow', position='Path'),
+}
+
+model DeleteFlowResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: CommonResult  
+}
+
+/**
+  * @description 删除指定的工作流实例，包括其所有相关资源和数据。删除操作不可逆，请谨慎操作。
+  * @param request  the request parameters of DeleteFlow  DeleteFlowRequest
+  * @return DeleteFlowResponse
+ */
+async function deleteFlow(request: DeleteFlowRequest): DeleteFlowResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'DeleteFlow', 'DELETE', '/2025-09-10/flows/{flowName}', 'json', false, 'json', request);
+}
+
+model DeleteFlowEndpointRequest {
+  flowName: string(name='flowName', description='工作流实例的唯一标识符
+
+This parameter is required.', example='demo-flow', position='Path'),
+  flowEndpointName: string(name='flowEndpointName', description='要删除的工作流端点的唯一标识符
+
+This parameter is required.', example='prod', position='Path'),
+}
+
+model DeleteFlowEndpointResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: CommonResult  
+}
+
+/**
+  * @description 删除指定的工作流端点。删除操作不可逆，请谨慎操作。
+  * @param request  the request parameters of DeleteFlowEndpoint  DeleteFlowEndpointRequest
+  * @return DeleteFlowEndpointResponse
+ */
+async function deleteFlowEndpoint(request: DeleteFlowEndpointRequest): DeleteFlowEndpointResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'DeleteFlowEndpoint', 'DELETE', '/2025-09-10/flows/{flowName}/endpoints/{flowEndpointName}', 'json', false, 'json', request);
+}
+
+model DeleteFlowVersionRequest {
+  flowName: string(name='flowName', description='工作流实例的唯一标识符
+
+This parameter is required.', example='my-flow', position='Path'),
+  flowVersion: string(name='flowVersion', description='要删除的工作流版本号
+
+This parameter is required.', example='1', position='Path'),
+}
+
+model DeleteFlowVersionResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: CommonResult  
+}
+
+/**
+  * @description 删除指定工作流的指定版本。删除操作不可逆，请谨慎操作。
+  * @param request  the request parameters of DeleteFlowVersion  DeleteFlowVersionRequest
+  * @return DeleteFlowVersionResponse
+ */
+async function deleteFlowVersion(request: DeleteFlowVersionRequest): DeleteFlowVersionResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'DeleteFlowVersion', 'DELETE', '/2025-09-10/flows/{flowName}/versions/{flowVersion}', 'json', false, 'json', request);
 }
 
 model DeleteKnowledgeBaseRequest {
@@ -3453,6 +3719,100 @@ async function getCustomDomain(request: GetCustomDomainRequest): GetCustomDomain
   return @handler.do('RESTFUL', 'GetCustomDomain', 'GET', '/2025-09-10/agents/custom-domains/{domainName}', 'json', false, 'json', request);
 }
 
+model GetFlowRequest {
+  flowName: string(name='flowName', description='要获取详情的工作流实例的唯一标识符
+
+This parameter is required.', example='flow-1234567890abcdef', position='Path'),
+}
+
+model GetFlowResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: FlowResult  
+}
+
+/**
+  * @description 根据工作流ID获取指定工作流的详细信息，包括配置、定义、版本信息等。
+  * @param request  the request parameters of GetFlow  GetFlowRequest
+  * @return GetFlowResponse
+ */
+async function getFlow(request: GetFlowRequest): GetFlowResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'GetFlow', 'GET', '/2025-09-10/flows/{flowName}', 'json', false, 'json', request);
+}
+
+model GetFlowDraftRequest {
+  flowName: string(name='flowName', description='要获取草稿的工作流实例的唯一标识符
+
+This parameter is required.', example='flow-1234567890abcdef', position='Path'),
+}
+
+model GetFlowDraftResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: FlowResult  
+}
+
+/**
+  * @description 获取指定工作流的草稿版本，返回草稿中的配置信息。
+  * @param request  the request parameters of GetFlowDraft  GetFlowDraftRequest
+  * @return GetFlowDraftResponse
+ */
+async function getFlowDraft(request: GetFlowDraftRequest): GetFlowDraftResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'GetFlowDraft', 'GET', '/2025-09-10/flows/{flowName}/draft', 'json', false, 'json', request);
+}
+
+model GetFlowEndpointRequest {
+  flowName: string(name='flowName', description='工作流实例的唯一标识符
+
+This parameter is required.', example='flow-1234567890abcdef', position='Path'),
+  flowEndpointName: string(name='flowEndpointName', description='要获取详情的工作流端点的唯一标识符
+
+This parameter is required.', example='fe-1234567890abcdef', position='Path'),
+}
+
+model GetFlowEndpointResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: FlowEndpointResult  
+}
+
+/**
+  * @description 根据工作流ID和端点ID获取指定工作流端点的详细信息。
+  * @param request  the request parameters of GetFlowEndpoint  GetFlowEndpointRequest
+  * @return GetFlowEndpointResponse
+ */
+async function getFlowEndpoint(request: GetFlowEndpointRequest): GetFlowEndpointResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'GetFlowEndpoint', 'GET', '/2025-09-10/flows/{flowName}/endpoints/{flowEndpointName}', 'json', false, 'json', request);
+}
+
+model GetFlowVersionRequest {
+  flowName: string(name='flowName', description='工作流实例的唯一标识符
+
+This parameter is required.', example='my-flow', position='Path'),
+  flowVersion: string(name='flowVersion', description='要获取详情的工作流版本号
+
+This parameter is required.', example='1', position='Path'),
+}
+
+model GetFlowVersionResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: FlowVersionResult  
+}
+
+/**
+  * @description 根据工作流名称和版本号获取指定版本的详细信息，包括该版本的完整配置快照（定义、环境变量、追踪配置、日志配置等）。
+  * @param request  the request parameters of GetFlowVersion  GetFlowVersionRequest
+  * @return GetFlowVersionResponse
+ */
+async function getFlowVersion(request: GetFlowVersionRequest): GetFlowVersionResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'GetFlowVersion', 'GET', '/2025-09-10/flows/{flowName}/versions/{flowVersion}', 'json', false, 'json', request);
+}
+
 model GetKnowledgeBaseRequest {
   knowledgeBaseName: string(name='knowledgeBaseName', description='This parameter is required.', example='my-knowledgebase-name', position='Path'),
 }
@@ -3693,6 +4053,7 @@ model ListAgentRuntimesRequest {
   resourceGroupId?: string(name='resourceGroupId', deprecated='true', position='Query'),
   searchMode?: string(name='searchMode', description='查询模式，支持精确查询和模糊查询', example='fuzzy', position='Query'),
   status?: string(name='status', description='根据状态进行过滤，多个状态用逗号分隔，支持精确匹配', example='READY,CREATING', position='Query'),
+  systemTags?: string(name='systemTags', description='根据系统标签进行过滤，多个标签用逗号分隔，支持精确匹配', example='acs:ecs:tag1,acs:ecs:tag2', position='Query'),
   workspaceId?: string(name='workspaceId', description='根据工作空间ID进行过滤，用于资源隔离和权限管理', example='ws-1234567890abcdef', position='Query'),
   workspaceIds?: string(name='workspaceIds', position='Query'),
 }
@@ -3807,6 +4168,78 @@ model ListCustomDomainsResponse = {
 async function listCustomDomains(request: ListCustomDomainsRequest): ListCustomDomainsResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RESTFUL', 'ListCustomDomains', 'GET', '/2025-09-10/agents/custom-domains', 'json', false, 'json', request);
+}
+
+model ListFlowEndpointsRequest {
+  flowId: string(name='flowId', description='要查询端点的工作流实例的唯一标识符
+
+This parameter is required.', example='flow-1234567890abcdef', position='Path'),
+  pageNumber?: int32(name='pageNumber', description='当前页码，从1开始计数', example='1', position='Query'),
+  pageSize?: int32(name='pageSize', description='每页返回的记录数量', example='10', position='Query'),
+}
+
+model ListFlowEndpointsResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ListFlowEndpointsResult  
+}
+
+/**
+  * @description 获取指定工作流的所有端点列表，支持分页查询。
+  * @param request  the request parameters of ListFlowEndpoints  ListFlowEndpointsRequest
+  * @return ListFlowEndpointsResponse
+ */
+async function listFlowEndpoints(request: ListFlowEndpointsRequest): ListFlowEndpointsResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'ListFlowEndpoints', 'GET', '/2025-09-10/flows/{flowId}/endpoints', 'json', false, 'json', request);
+}
+
+model ListFlowVersionsRequest {
+  flowName: string(name='flowName', description='要查询版本的工作流实例的唯一标识符
+
+This parameter is required.', example='flow-1234567890abcdef', position='Path'),
+  pageNumber?: int32(name='pageNumber', description='当前页码，从1开始计数', example='1', position='Query'),
+  pageSize?: int32(name='pageSize', description='每页返回的记录数量', example='10', position='Query'),
+}
+
+model ListFlowVersionsResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ListFlowVersionsResult  
+}
+
+/**
+  * @description 获取指定工作流的所有版本列表，支持分页查询。
+  * @param request  the request parameters of ListFlowVersions  ListFlowVersionsRequest
+  * @return ListFlowVersionsResponse
+ */
+async function listFlowVersions(request: ListFlowVersionsRequest): ListFlowVersionsResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'ListFlowVersions', 'GET', '/2025-09-10/flows/{flowName}/versions', 'json', false, 'json', request);
+}
+
+model ListFlowsRequest {
+  flowName?: string(name='flowName', description='根据工作流名称进行模糊匹配过滤', example='my-flow', position='Query'),
+  pageNumber?: int32(name='pageNumber', description='当前页码，从1开始计数', example='1', position='Query'),
+  pageSize?: int32(name='pageSize', description='每页返回的记录数量', example='10', position='Query'),
+  workspaceId?: string(name='workspaceId', description='根据工作空间ID进行过滤，用于资源隔离和权限管理', example='ws-1234567890abcdef', position='Query'),
+  workspaceIds?: string(name='workspaceIds', example='ws-1234567890abcdef,ws-1234567890bcdefg', position='Query'),
+}
+
+model ListFlowsResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ListFlowsResult  
+}
+
+/**
+  * @description 获取当前用户的工作流列表，支持按名称、工作空间等条件过滤，支持分页查询。
+  * @param request  the request parameters of ListFlows  ListFlowsRequest
+  * @return ListFlowsResponse
+ */
+async function listFlows(request: ListFlowsRequest): ListFlowsResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'ListFlows', 'GET', '/2025-09-10/flows', 'json', false, 'json', request);
 }
 
 model ListKnowledgeBasesRequest {
@@ -4069,6 +4502,29 @@ async function pauseSandbox(request: PauseSandboxRequest): PauseSandboxResponse 
   return @handler.do('RESTFUL', 'PauseSandbox', 'PUT', '/2025-09-10/sandboxes/{sandboxId}/pause', 'json', false, 'json', request);
 }
 
+model PublishFlowVersionRequest {
+  flowName: string(name='flowName', description='要发布版本的工作流实例的唯一标识符
+
+This parameter is required.', example='flow-1234567890abcdef', position='Path'),
+  body?: PublishFlowVersionInput(name='body', description='包含版本描述等信息的请求体', position='Body'),
+}
+
+model PublishFlowVersionResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: FlowVersionResult  
+}
+
+/**
+  * @description 为指定工作流发布新版本，用于版本管理和回滚。
+  * @param request  the request parameters of PublishFlowVersion  PublishFlowVersionRequest
+  * @return PublishFlowVersionResponse
+ */
+async function publishFlowVersion(request: PublishFlowVersionRequest): PublishFlowVersionResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'PublishFlowVersion', 'POST', '/2025-09-10/flows/{flowName}/versions', 'json', false, 'json', request);
+}
+
 model PublishRuntimeVersionRequest {
   agentRuntimeId: string(name='agentRuntimeId', description='要发布版本的智能体运行时实例的唯一标识符
 
@@ -4242,6 +4698,84 @@ model UpdateCustomDomainResponse = {
 async function updateCustomDomain(request: UpdateCustomDomainRequest): UpdateCustomDomainResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RESTFUL', 'UpdateCustomDomain', 'PUT', '/2025-09-10/agents/custom-domains/{domainName}', 'json', false, 'json', request);
+}
+
+model UpdateFlowRequest {
+  flowName: string(name='flowName', description='要更新的工作流实例的唯一标识符
+
+This parameter is required.', example='flow-1234567890abcdef', position='Path'),
+  body: UpdateFlowInput(name='body', description='包含要更新的工作流配置信息的请求体
+
+This parameter is required.', position='Body'),
+}
+
+model UpdateFlowResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: FlowResult  
+}
+
+/**
+  * @description 更新指定工作流的配置信息，包括定义、执行模式、环境变量等。
+  * @param request  the request parameters of UpdateFlow  UpdateFlowRequest
+  * @return UpdateFlowResponse
+ */
+async function updateFlow(request: UpdateFlowRequest): UpdateFlowResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'UpdateFlow', 'PUT', '/2025-09-10/flows/{flowName}', 'json', false, 'json', request);
+}
+
+model UpdateFlowDraftRequest {
+  flowName: string(name='flowName', description='要更新草稿的工作流实例的唯一标识符
+
+This parameter is required.', example='flow-1234567890abcdef', position='Path'),
+  body: UpdateFlowDraftInput(name='body', description='包含要更新的工作流草稿配置信息的请求体
+
+This parameter is required.', position='Body'),
+}
+
+model UpdateFlowDraftResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: FlowResult  
+}
+
+/**
+  * @description 更新指定工作流的草稿版本，草稿更新不影响已发布的工作流版本。
+  * @param request  the request parameters of UpdateFlowDraft  UpdateFlowDraftRequest
+  * @return UpdateFlowDraftResponse
+ */
+async function updateFlowDraft(request: UpdateFlowDraftRequest): UpdateFlowDraftResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'UpdateFlowDraft', 'PUT', '/2025-09-10/flows/{flowName}/draft', 'json', false, 'json', request);
+}
+
+model UpdateFlowEndpointRequest {
+  flowName: string(name='flowName', description='工作流实例的唯一标识符
+
+This parameter is required.', example='flow-1234567890abcdef', position='Path'),
+  flowEndpointName: string(name='flowEndpointName', description='要更新的工作流端点的唯一标识符
+
+This parameter is required.', example='fe-1234567890abcdef', position='Path'),
+  body: UpdateFlowEndpointInput(name='body', description='包含要更新的工作流端点配置信息的请求体
+
+This parameter is required.', position='Body'),
+}
+
+model UpdateFlowEndpointResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: FlowEndpointResult  
+}
+
+/**
+  * @description 更新指定工作流端点的配置信息，包括目标版本、路由配置等。
+  * @param request  the request parameters of UpdateFlowEndpoint  UpdateFlowEndpointRequest
+  * @return UpdateFlowEndpointResponse
+ */
+async function updateFlowEndpoint(request: UpdateFlowEndpointRequest): UpdateFlowEndpointResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'UpdateFlowEndpoint', 'PUT', '/2025-09-10/flows/{flowName}/endpoints/{flowEndpointName}', 'json', false, 'json', request);
 }
 
 model UpdateKnowledgeBaseRequest {

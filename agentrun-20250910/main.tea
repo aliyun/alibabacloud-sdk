@@ -58,6 +58,7 @@ model AgentRuntime {
   credentialName?: string(name='credentialName', description='用于访问智能体的凭证名称，访问智能体运行时将使用此凭证进行身份验证', example='my-credential'),
   description?: string(name='description', description='智能体运行时的描述信息，说明该运行时的用途和功能', example='AI agent runtime for customer service automation'),
   diskSize?: integer(name='diskSize'),
+  enableSessionIsolation?: boolean(name='enableSessionIsolation', description='是否启用会话隔离，启用后每个会话将在独立的环境中运行', example='false'),
   environmentVariables?: map[string]string(name='environmentVariables', description='智能体运行时的环境变量配置', example='ENV_VAR1=value1,ENV_VAR2=value2'),
   executionRoleArn?: string(name='executionRoleArn', description='为智能体运行时提供访问云服务权限的执行角色ARN', example='acs:ram::1760720386195983:role/AgentRunExecutionRole'),
   externalAgentEndpointUrl?: string(name='externalAgentEndpointUrl', description='外部注册类型的智能体访问端点地址，用于连接已部署在外部的智能体服务', example='https://external-agent.example.com/api'),
@@ -391,6 +392,111 @@ model ContainerConfiguration {
   image?: string(name='image', example='registry.cn-hangzhou.aliyuncs.com/my-namespace/agent-runtime:latest'),
   imageRegistryType?: string(name='imageRegistryType', description='容器镜像的来源类型，支持ACR（阿里云容器镜像服务）、ACREE（阿里云容器镜像服务企业版）、CUSTOM（自定义镜像仓库）', example='ACR'),
   port?: int32(name='port'),
+  registryConfig?: RegistryConfig(name='registryConfig', description='自定义镜像仓库的配置信息，当imageRegistryType为CUSTOM时使用', example='{}'),
+}
+
+model ConvertFlowDSLData {
+  conversionPlan?: {
+    issues?: [ 
+      {
+        description?: string(name='description', description='问题描述
+
+This parameter is required.', example='Tool node requires Toolset installation'),
+        details?: map[string]string(name='details', description='问题的详细信息（JSON对象）'),
+        issueType?: string(name='issueType', description='问题类型：needs_config, needs_conversion, unsupported
+
+This parameter is required.', example='needs_config'),
+        level?: string(name='level', description='问题严重程度：info, warning, error
+
+This parameter is required.', example='warning'),
+        nodeId?: string(name='nodeId', description='Dify DSL中的节点标识符
+
+This parameter is required.', example='1760514991682'),
+        nodeTitle?: string(name='nodeTitle', description='节点显示名称', example='Google Search'),
+        nodeType?: string(name='nodeType', description='节点类型
+
+This parameter is required.', example='tool'),
+        suggestion?: string(name='suggestion', description='解决建议', example='Install Toolset \\"google\\" before using this flow'),
+      }
+    ](name='issues', description='节点兼容性问题详情'),
+    summary?: {
+      compatibleNodes?: int32(name='compatibleNodes', description='完全兼容的节点数
+
+This parameter is required.', example='7'),
+      nodesNeedConfig?: int32(name='nodesNeedConfig', description='需要手动配置的节点数
+
+This parameter is required.', example='2'),
+      nodesNeedConversion?: int32(name='nodesNeedConversion', description='需要特殊转换处理的节点数
+
+This parameter is required.', example='0'),
+      totalNodes?: int32(name='totalNodes', description='Dify DSL中的总节点数
+
+This parameter is required.', example='10'),
+      unsupportedNodes?: int32(name='unsupportedNodes', description='不支持的节点数
+
+This parameter is required.', example='1'),
+    }(name='summary', description='节点兼容性统计摘要
+
+This parameter is required.'),
+  }(name='conversionPlan', description='DSL兼容性分析和转换计划'),
+  flow?: {
+    definition?: string(name='definition', description='工作流的FnF State Machine定义（YAML格式）
+
+This parameter is required.'),
+    description?: string(name='description', description='工作流的描述信息', example='Converted from external workflow'),
+    environmentConfiguration?: EnvironmentConfiguration(name='environmentConfiguration', description='工作流的环境变量配置'),
+    flowName?: string(name='flowName', description='转换后的工作流名称
+
+This parameter is required.', example='dify-flow'),
+  }(name='flow', description='转换后的AgentRun Flow配置信息
+
+This parameter is required.'),
+  pluginErrors?: [ 
+    {
+      nodeId?: string(name='nodeId', description='相关节点的标识符', example='1760514996015'),
+      providerName?: string(name='providerName', description='插件提供商名称
+
+This parameter is required.', example='langgenius'),
+      reason?: string(name='reason', description='错误原因描述
+
+This parameter is required.', example='Plugin not found in marketplace'),
+      toolName?: string(name='toolName', description='工具名称', example='google_search'),
+    }
+  ](name='pluginErrors', description='插件识别或转换过程中的错误信息'),
+  toolsetInstallations?: [ 
+    {
+      description?: string(name='description', description='Toolset描述', example='Google Search Plugin'),
+      name?: string(name='name', description='Toolset名称
+
+This parameter is required.', example='google'),
+      spec?: map[string]any(name='spec', description='Toolset规格配置（JSON对象）
+
+This parameter is required.'),
+    }
+  ](name='toolsetInstallations', description='需要安装的Toolset配置列表'),
+}
+
+model ConvertFlowDSLInput {
+  dslSource?: {
+    content?: string(name='content', description='DSL内容，可以是原始JSON字符串，或根据encoding字段指定的编码格式
+
+This parameter is required.', example='{"app":{"name":"My Flow"}}'),
+    encoding?: string(name='encoding', description='DSL内容的编码方式。不填表示内容为原始字符串；base64表示内容经过Base64编码；base64+gzip表示内容经过gzip压缩后再Base64编码', example='base64'),
+    provider?: string(name='provider', description='源DSL的提供商类型，如：dify、n8n、zapier等
+
+This parameter is required.', example='dify'),
+  }(name='dslSource', description='工作流DSL的来源配置，支持inline和base64两种格式
+
+This parameter is required.'),
+  options?: {
+    compatibilityCheck?: boolean(name='compatibilityCheck', description='是否执行兼容性检查，默认为true', example='true'),
+  }(name='options', description='DSL转换的可选配置参数'),
+}
+
+model ConvertFlowDSLResult {
+  code?: string(name='code', description='SUCCESS 为成功，失败情况返回对应错误类型，比如 ERR_BAD_REQUEST ERR_VALIDATION_FAILED ERR_INTERNAL_SERVER_ERROR', example='SUCCESS'),
+  data?: ConvertFlowDSLData(name='data', description='工作流DSL转换的详细结果数据'),
+  requestId?: string(name='requestId', description='唯一的请求标识符，用于问题追踪', example='F8A0F5F3-0C3E-4C82-9D4F-5E4B6A7C8D9E'),
 }
 
 model CreateAgentRuntimeEndpointInput {
@@ -419,6 +525,7 @@ This parameter is required.', example='2.0'),
   credentialName?: string(name='credentialName', description='用于访问智能体的凭证名称，访问智能体运行时将使用此凭证进行身份验证', example='my-credential'),
   description?: string(name='description', description='智能体运行时的描述信息，用于说明该运行时的用途和功能', example='AI agent runtime for customer service automation'),
   diskSize?: int32(name='diskSize'),
+  enableSessionIsolation?: boolean(name='enableSessionIsolation', description='是否启用会话隔离，启用后每个会话将在独立的环境中运行', example='false'),
   environmentVariables?: map[string]string(name='environmentVariables', description='智能体运行时的环境变量配置，用于在运行时传递配置参数', example='ENV_VAR1=value1,ENV_VAR2=value2'),
   executionRoleArn?: string(name='executionRoleArn', description='为智能体运行时提供访问云服务权限的执行角色ARN', example='acs:ram::1760720386195983:role/AgentRunExecutionRole'),
   externalAgentEndpointUrl?: string(name='externalAgentEndpointUrl', description='外部注册类型的智能体访问端点地址，用于连接已部署在外部的智能体服务', example='https://external-agent.example.com/api'),
@@ -545,7 +652,6 @@ This parameter is required.', example='my-flow-endpoint'),
   routingConfiguration?: [
     FlowEndpointRoutingConfig
   ](name='routingConfiguration', description='工作流端点的版本路由配置，用于流量分配', example='[]'),
-  tags?: [ string ](name='tags', description='工作流端点的标签信息', example='production'),
   targetVersion?: string(name='targetVersion', description='工作流端点指向的目标版本号', example='1'),
 }
 
@@ -560,7 +666,6 @@ model CreateFlowInput {
 This parameter is required.', example='my-flow'),
   loggingConfiguration?: LoggingConfiguration(name='loggingConfiguration', description='工作流的日志配置'),
   resourceGroupId?: string(name='resourceGroupId', description='工作流所属的资源组标识符', example='rg-acfmxsn4m4a4b4a'),
-  tags?: [ string ](name='tags', description='工作流的标签信息，用于资源分类和管理', example='production,automation'),
   tracingConfiguration?: TracingConfiguration(name='tracingConfiguration', description='工作流的链路追踪配置'),
   workspaceId?: string(name='workspaceId', description='工作流所属的工作空间标识符，用于资源隔离和权限管理', example='ws-1234567890abcdef'),
 }
@@ -1037,7 +1142,6 @@ model Flow {
   lastUpdatedAt?: string(name='lastUpdatedAt', description='工作流最后一次更新的时间，采用ISO 8601格式', example='2025-01-10T11:45:00Z'),
   loggingConfiguration?: LoggingConfiguration(name='loggingConfiguration', description='工作流的日志配置'),
   resourceGroupId?: string(name='resourceGroupId', description='工作流所属的资源组标识符', example='rg-acfmxsn4m4a4b4a'),
-  tags?: [ string ](name='tags', description='工作流的标签信息，用于资源分类和管理', example='production,automation'),
   tracingConfiguration?: TracingConfiguration(name='tracingConfiguration', description='工作流的链路追踪配置'),
   workspaceId?: string(name='workspaceId', description='工作流所属的工作空间标识符', example='ws-1234567890abcdef'),
 }
@@ -1053,7 +1157,6 @@ model FlowEndpoint {
   routingConfiguration?: [
     FlowEndpointRoutingConfig
   ](name='routingConfiguration', description='工作流端点的版本路由配置', example='[]'),
-  tags?: [ string ](name='tags', description='工作流端点的标签信息', example='production'),
   targetVersion?: string(name='targetVersion', description='工作流端点指向的目标版本号', example='1'),
 }
 
@@ -1376,6 +1479,7 @@ model ListAgentRuntimesInput {
   pageNumber?: integer(name='pageNumber', description='页码', example='1'),
   pageSize?: integer(name='pageSize', description='每页记录数', example='20'),
   statuses?: [ string ](name='statuses', description='按状态过滤', example='READY,CREATING'),
+  systemTags?: [ string ](name='systemTags', description='按系统标签过滤', example='acs:ecs:tag1,acs:ecs:tag2'),
 }
 
 model ListAgentRuntimesOutput {
@@ -2085,6 +2189,28 @@ This parameter is required.', example='FC'),
 This parameter is required.', example='1234567890123456'),
 }
 
+model RegistryAuthConfig {
+  password?: string(name='password', description='镜像仓库的登录密码', example='abc***'),
+  userName?: string(name='userName', description='镜像仓库的登录用户名', example='admin'),
+}
+
+model RegistryCertConfig {
+  insecure?: boolean(name='insecure', description='是否跳过TLS证书验证，设置为true时将不验证镜像仓库的证书', example='false'),
+  rootCaCertBase64?: string(name='rootCaCertBase64', description='镜像仓库的根CA证书Base64编码，用于自签名证书的验证', example='cm9vdF9jYV9jZXJ0X2Jhc2U2NA=='),
+}
+
+model RegistryConfig {
+  authConfig?: RegistryAuthConfig(name='authConfig', description='镜像仓库的认证配置信息', example='{}'),
+  certConfig?: RegistryCertConfig(name='certConfig', description='镜像仓库的证书配置信息', example='{}'),
+  networkConfig?: RegistryNetworkConfig(name='networkConfig', description='镜像仓库的网络配置信息', example='{}'),
+}
+
+model RegistryNetworkConfig {
+  securityGroupId?: string(name='securityGroupId', description='镜像仓库的安全组ID', example='sg-xxxxxxxxxxxxx'),
+  vSwitchId?: string(name='vSwitchId', description='镜像仓库所在的交换机ID', example='vsw-xxxxxxxxxxxxx'),
+  vpcId?: string(name='vpcId', description='镜像仓库所在的VPC ID', example='vpc-xxxxxxxxxxxxx'),
+}
+
 model RelatedResource {
   resourceId?: string(name='resourceId'),
   resourceName?: string(name='resourceName'),
@@ -2382,6 +2508,7 @@ model UpdateAgentRuntimeInput {
   credentialName?: string(name='credentialName', description='用于访问智能体的凭证名称，访问智能体运行时将使用此凭证进行身份验证', example='my-credential'),
   description?: string(name='description', example='更新后的智能体运行时描述'),
   diskSize?: int32(name='diskSize'),
+  enableSessionIsolation?: boolean(name='enableSessionIsolation', description='是否启用会话隔离，启用后每个会话将在独立的环境中运行', example='false'),
   environmentVariables?: map[string]string(name='environmentVariables', description='智能体运行时的环境变量配置，用于在运行时传递配置参数', example='ENV_VAR1=value1,ENV_VAR2=value2'),
   executionRoleArn?: string(name='executionRoleArn', description='为智能体运行时提供访问云服务权限的执行角色ARN', example='acs:ram::1760720386195983:role/AgentRunExecutionRole'),
   externalAgentEndpointUrl?: string(name='externalAgentEndpointUrl', description='外部注册类型的智能体访问端点地址，用于连接已部署在外部的智能体服务', example='https://external-agent.example.com/api'),
@@ -2466,7 +2593,6 @@ model UpdateFlowEndpointInput {
   routingConfiguration?: [
     FlowEndpointRoutingConfig
   ](name='routingConfiguration', description='工作流端点的版本路由配置，用于流量分配', example='[]'),
-  tags?: [ string ](name='tags', description='工作流端点的标签信息', example='production'),
   targetVersion?: string(name='targetVersion', description='工作流端点指向的目标版本号', example='1'),
 }
 
@@ -2479,7 +2605,6 @@ model UpdateFlowInput {
   flowName?: string(name='flowName', description='工作流的唯一标识名称，用于区分不同的工作流实例', example='my-flow'),
   loggingConfiguration?: LoggingConfiguration(name='loggingConfiguration', description='工作流的日志配置'),
   resourceGroupId?: string(name='resourceGroupId', description='工作流所属的资源组标识符', example='rg-acfmxsn4m4a4b4a'),
-  tags?: [ string ](name='tags', description='工作流的标签信息，用于资源分类和管理', example='production,automation'),
   tracingConfiguration?: TracingConfiguration(name='tracingConfiguration', description='工作流的链路追踪配置'),
   workspaceId?: string(name='workspaceId', description='工作流所属的工作空间标识符，用于资源隔离和权限管理', example='ws-1234567890abcdef'),
 }
@@ -2765,6 +2890,62 @@ async function activateTemplateMCP(templateName: string, request: ActivateTempla
   var runtime = new Util.RuntimeOptions{};
   var headers : map[string]string = {};
   return activateTemplateMCPWithOptions(templateName, request, headers, runtime);
+}
+
+model ConvertFlowDSLRequest {
+  body?: ConvertFlowDSLInput(name='body', description='包含待转换的工作流DSL内容和转换选项，支持多种DSL格式（如Dify、n8n等）以及inline和base64两种输入方式
+
+This parameter is required.'),
+}
+
+model ConvertFlowDSLResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ConvertFlowDSLResult  
+}
+
+/**
+ * @summary 转换Flow DSL
+ *
+ * @description 将第三方工作流DSL（如Dify、n8n等）转换为AgentRun Flow定义。支持兼容性检查、插件识别和元数据提取，返回转换后的Flow配置、兼容性分析报告和所需的Toolset安装配置。此操作为dry-run模式，不会创建实际的Flow资源。
+ *
+ * @param request ConvertFlowDSLRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return ConvertFlowDSLResponse
+ */
+async function convertFlowDSLWithOptions(request: ConvertFlowDSLRequest, headers: map[string]string, runtime: Util.RuntimeOptions): ConvertFlowDSLResponse {
+  Util.validateModel(request);
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    body = OpenApiUtil.parseToMap(request.body),
+  };
+  var params = new OpenApi.Params{
+    action = 'ConvertFlowDSL',
+    version = '2025-09-10',
+    protocol = 'HTTPS',
+    pathname = `/2025-09-10/flows/action/convertDsl`,
+    method = 'POST',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 转换Flow DSL
+ *
+ * @description 将第三方工作流DSL（如Dify、n8n等）转换为AgentRun Flow定义。支持兼容性检查、插件识别和元数据提取，返回转换后的Flow配置、兼容性分析报告和所需的Toolset安装配置。此操作为dry-run模式，不会创建实际的Flow资源。
+ *
+ * @param request ConvertFlowDSLRequest
+ * @return ConvertFlowDSLResponse
+ */
+async function convertFlowDSL(request: ConvertFlowDSLRequest): ConvertFlowDSLResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return convertFlowDSLWithOptions(request, headers, runtime);
 }
 
 model CreateAgentRuntimeRequest {
@@ -3085,6 +3266,118 @@ async function createCustomDomain(request: CreateCustomDomainRequest): CreateCus
   var runtime = new Util.RuntimeOptions{};
   var headers : map[string]string = {};
   return createCustomDomainWithOptions(request, headers, runtime);
+}
+
+model CreateFlowRequest {
+  body?: CreateFlowInput(name='body', description='创建工作流所需的完整配置信息，包括工作流名称、定义、执行模式等
+
+This parameter is required.'),
+}
+
+model CreateFlowResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: FlowResult  
+}
+
+/**
+ * @summary 创建工作流
+ *
+ * @description 创建一个新的工作流实例，用于定义和执行自动化流程。工作流是AgentRun服务的核心组件，支持可视化编排和版本管理。
+ *
+ * @param request CreateFlowRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return CreateFlowResponse
+ */
+async function createFlowWithOptions(request: CreateFlowRequest, headers: map[string]string, runtime: Util.RuntimeOptions): CreateFlowResponse {
+  Util.validateModel(request);
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    body = OpenApiUtil.parseToMap(request.body),
+  };
+  var params = new OpenApi.Params{
+    action = 'CreateFlow',
+    version = '2025-09-10',
+    protocol = 'HTTPS',
+    pathname = `/2025-09-10/flows`,
+    method = 'POST',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 创建工作流
+ *
+ * @description 创建一个新的工作流实例，用于定义和执行自动化流程。工作流是AgentRun服务的核心组件，支持可视化编排和版本管理。
+ *
+ * @param request CreateFlowRequest
+ * @return CreateFlowResponse
+ */
+async function createFlow(request: CreateFlowRequest): CreateFlowResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return createFlowWithOptions(request, headers, runtime);
+}
+
+model CreateFlowEndpointRequest {
+  body?: CreateFlowEndpointInput(name='body', description='创建工作流端点所需的完整配置信息
+
+This parameter is required.'),
+}
+
+model CreateFlowEndpointResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: FlowEndpointResult  
+}
+
+/**
+ * @summary 创建工作流端点
+ *
+ * @description 为指定工作流创建一个新的端点，用于对外提供服务访问。
+ *
+ * @param request CreateFlowEndpointRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return CreateFlowEndpointResponse
+ */
+async function createFlowEndpointWithOptions(flowName: string, request: CreateFlowEndpointRequest, headers: map[string]string, runtime: Util.RuntimeOptions): CreateFlowEndpointResponse {
+  Util.validateModel(request);
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    body = OpenApiUtil.parseToMap(request.body),
+  };
+  var params = new OpenApi.Params{
+    action = 'CreateFlowEndpoint',
+    version = '2025-09-10',
+    protocol = 'HTTPS',
+    pathname = `/2025-09-10/flows/${OpenApiUtil.getEncodeParam(flowName)}/endpoints`,
+    method = 'POST',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 创建工作流端点
+ *
+ * @description 为指定工作流创建一个新的端点，用于对外提供服务访问。
+ *
+ * @param request CreateFlowEndpointRequest
+ * @return CreateFlowEndpointResponse
+ */
+async function createFlowEndpoint(flowName: string, request: CreateFlowEndpointRequest): CreateFlowEndpointResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return createFlowEndpointWithOptions(flowName, request, headers, runtime);
 }
 
 model CreateKnowledgeBaseRequest {
@@ -3805,6 +4098,162 @@ async function deleteCustomDomain(domainName: string, request: DeleteCustomDomai
   var runtime = new Util.RuntimeOptions{};
   var headers : map[string]string = {};
   return deleteCustomDomainWithOptions(domainName, request, headers, runtime);
+}
+
+model DeleteFlowRequest {
+}
+
+model DeleteFlowResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: CommonResult  
+}
+
+/**
+ * @summary 删除工作流
+ *
+ * @description 删除指定的工作流实例，包括其所有相关资源和数据。删除操作不可逆，请谨慎操作。
+ *
+ * @param request DeleteFlowRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return DeleteFlowResponse
+ */
+async function deleteFlowWithOptions(flowName: string, request: DeleteFlowRequest, headers: map[string]string, runtime: Util.RuntimeOptions): DeleteFlowResponse {
+  Util.validateModel(request);
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+  };
+  var params = new OpenApi.Params{
+    action = 'DeleteFlow',
+    version = '2025-09-10',
+    protocol = 'HTTPS',
+    pathname = `/2025-09-10/flows/${OpenApiUtil.getEncodeParam(flowName)}`,
+    method = 'DELETE',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 删除工作流
+ *
+ * @description 删除指定的工作流实例，包括其所有相关资源和数据。删除操作不可逆，请谨慎操作。
+ *
+ * @param request DeleteFlowRequest
+ * @return DeleteFlowResponse
+ */
+async function deleteFlow(flowName: string, request: DeleteFlowRequest): DeleteFlowResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return deleteFlowWithOptions(flowName, request, headers, runtime);
+}
+
+model DeleteFlowEndpointRequest {
+}
+
+model DeleteFlowEndpointResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: CommonResult  
+}
+
+/**
+ * @summary 删除工作流端点
+ *
+ * @description 删除指定的工作流端点。删除操作不可逆，请谨慎操作。
+ *
+ * @param request DeleteFlowEndpointRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return DeleteFlowEndpointResponse
+ */
+async function deleteFlowEndpointWithOptions(flowName: string, flowEndpointName: string, request: DeleteFlowEndpointRequest, headers: map[string]string, runtime: Util.RuntimeOptions): DeleteFlowEndpointResponse {
+  Util.validateModel(request);
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+  };
+  var params = new OpenApi.Params{
+    action = 'DeleteFlowEndpoint',
+    version = '2025-09-10',
+    protocol = 'HTTPS',
+    pathname = `/2025-09-10/flows/${OpenApiUtil.getEncodeParam(flowName)}/endpoints/${OpenApiUtil.getEncodeParam(flowEndpointName)}`,
+    method = 'DELETE',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 删除工作流端点
+ *
+ * @description 删除指定的工作流端点。删除操作不可逆，请谨慎操作。
+ *
+ * @param request DeleteFlowEndpointRequest
+ * @return DeleteFlowEndpointResponse
+ */
+async function deleteFlowEndpoint(flowName: string, flowEndpointName: string, request: DeleteFlowEndpointRequest): DeleteFlowEndpointResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return deleteFlowEndpointWithOptions(flowName, flowEndpointName, request, headers, runtime);
+}
+
+model DeleteFlowVersionRequest {
+}
+
+model DeleteFlowVersionResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: CommonResult  
+}
+
+/**
+ * @summary 删除工作流版本
+ *
+ * @description 删除指定工作流的指定版本。删除操作不可逆，请谨慎操作。
+ *
+ * @param request DeleteFlowVersionRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return DeleteFlowVersionResponse
+ */
+async function deleteFlowVersionWithOptions(flowName: string, flowVersion: string, request: DeleteFlowVersionRequest, headers: map[string]string, runtime: Util.RuntimeOptions): DeleteFlowVersionResponse {
+  Util.validateModel(request);
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+  };
+  var params = new OpenApi.Params{
+    action = 'DeleteFlowVersion',
+    version = '2025-09-10',
+    protocol = 'HTTPS',
+    pathname = `/2025-09-10/flows/${OpenApiUtil.getEncodeParam(flowName)}/versions/${OpenApiUtil.getEncodeParam(flowVersion)}`,
+    method = 'DELETE',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 删除工作流版本
+ *
+ * @description 删除指定工作流的指定版本。删除操作不可逆，请谨慎操作。
+ *
+ * @param request DeleteFlowVersionRequest
+ * @return DeleteFlowVersionResponse
+ */
+async function deleteFlowVersion(flowName: string, flowVersion: string, request: DeleteFlowVersionRequest): DeleteFlowVersionResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return deleteFlowVersionWithOptions(flowName, flowVersion, request, headers, runtime);
 }
 
 model DeleteKnowledgeBaseRequest {
@@ -4581,6 +5030,214 @@ async function getCustomDomain(domainName: string, request: GetCustomDomainReque
   return getCustomDomainWithOptions(domainName, request, headers, runtime);
 }
 
+model GetFlowRequest {
+}
+
+model GetFlowResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: FlowResult  
+}
+
+/**
+ * @summary 获取工作流详情
+ *
+ * @description 根据工作流ID获取指定工作流的详细信息，包括配置、定义、版本信息等。
+ *
+ * @param request GetFlowRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return GetFlowResponse
+ */
+async function getFlowWithOptions(flowName: string, request: GetFlowRequest, headers: map[string]string, runtime: Util.RuntimeOptions): GetFlowResponse {
+  Util.validateModel(request);
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+  };
+  var params = new OpenApi.Params{
+    action = 'GetFlow',
+    version = '2025-09-10',
+    protocol = 'HTTPS',
+    pathname = `/2025-09-10/flows/${OpenApiUtil.getEncodeParam(flowName)}`,
+    method = 'GET',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 获取工作流详情
+ *
+ * @description 根据工作流ID获取指定工作流的详细信息，包括配置、定义、版本信息等。
+ *
+ * @param request GetFlowRequest
+ * @return GetFlowResponse
+ */
+async function getFlow(flowName: string, request: GetFlowRequest): GetFlowResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return getFlowWithOptions(flowName, request, headers, runtime);
+}
+
+model GetFlowDraftRequest {
+}
+
+model GetFlowDraftResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: FlowResult  
+}
+
+/**
+ * @summary 获取工作流草稿
+ *
+ * @description 获取指定工作流的草稿版本，返回草稿中的配置信息。
+ *
+ * @param request GetFlowDraftRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return GetFlowDraftResponse
+ */
+async function getFlowDraftWithOptions(flowName: string, request: GetFlowDraftRequest, headers: map[string]string, runtime: Util.RuntimeOptions): GetFlowDraftResponse {
+  Util.validateModel(request);
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+  };
+  var params = new OpenApi.Params{
+    action = 'GetFlowDraft',
+    version = '2025-09-10',
+    protocol = 'HTTPS',
+    pathname = `/2025-09-10/flows/${OpenApiUtil.getEncodeParam(flowName)}/draft`,
+    method = 'GET',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 获取工作流草稿
+ *
+ * @description 获取指定工作流的草稿版本，返回草稿中的配置信息。
+ *
+ * @param request GetFlowDraftRequest
+ * @return GetFlowDraftResponse
+ */
+async function getFlowDraft(flowName: string, request: GetFlowDraftRequest): GetFlowDraftResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return getFlowDraftWithOptions(flowName, request, headers, runtime);
+}
+
+model GetFlowEndpointRequest {
+}
+
+model GetFlowEndpointResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: FlowEndpointResult  
+}
+
+/**
+ * @summary 获取工作流端点详情
+ *
+ * @description 根据工作流ID和端点ID获取指定工作流端点的详细信息。
+ *
+ * @param request GetFlowEndpointRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return GetFlowEndpointResponse
+ */
+async function getFlowEndpointWithOptions(flowName: string, flowEndpointName: string, request: GetFlowEndpointRequest, headers: map[string]string, runtime: Util.RuntimeOptions): GetFlowEndpointResponse {
+  Util.validateModel(request);
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+  };
+  var params = new OpenApi.Params{
+    action = 'GetFlowEndpoint',
+    version = '2025-09-10',
+    protocol = 'HTTPS',
+    pathname = `/2025-09-10/flows/${OpenApiUtil.getEncodeParam(flowName)}/endpoints/${OpenApiUtil.getEncodeParam(flowEndpointName)}`,
+    method = 'GET',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 获取工作流端点详情
+ *
+ * @description 根据工作流ID和端点ID获取指定工作流端点的详细信息。
+ *
+ * @param request GetFlowEndpointRequest
+ * @return GetFlowEndpointResponse
+ */
+async function getFlowEndpoint(flowName: string, flowEndpointName: string, request: GetFlowEndpointRequest): GetFlowEndpointResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return getFlowEndpointWithOptions(flowName, flowEndpointName, request, headers, runtime);
+}
+
+model GetFlowVersionRequest {
+}
+
+model GetFlowVersionResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: FlowVersionResult  
+}
+
+/**
+ * @summary 获取工作流版本详情
+ *
+ * @description 根据工作流名称和版本号获取指定版本的详细信息，包括该版本的完整配置快照（定义、环境变量、追踪配置、日志配置等）。
+ *
+ * @param request GetFlowVersionRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return GetFlowVersionResponse
+ */
+async function getFlowVersionWithOptions(flowName: string, flowVersion: string, request: GetFlowVersionRequest, headers: map[string]string, runtime: Util.RuntimeOptions): GetFlowVersionResponse {
+  Util.validateModel(request);
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+  };
+  var params = new OpenApi.Params{
+    action = 'GetFlowVersion',
+    version = '2025-09-10',
+    protocol = 'HTTPS',
+    pathname = `/2025-09-10/flows/${OpenApiUtil.getEncodeParam(flowName)}/versions/${OpenApiUtil.getEncodeParam(flowVersion)}`,
+    method = 'GET',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 获取工作流版本详情
+ *
+ * @description 根据工作流名称和版本号获取指定版本的详细信息，包括该版本的完整配置快照（定义、环境变量、追踪配置、日志配置等）。
+ *
+ * @param request GetFlowVersionRequest
+ * @return GetFlowVersionResponse
+ */
+async function getFlowVersion(flowName: string, flowVersion: string, request: GetFlowVersionRequest): GetFlowVersionResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return getFlowVersionWithOptions(flowName, flowVersion, request, headers, runtime);
+}
+
 model GetKnowledgeBaseRequest {
 }
 
@@ -5167,6 +5824,7 @@ model ListAgentRuntimesRequest {
   resourceGroupId?: string(name='resourceGroupId', deprecated=true),
   searchMode?: string(name='searchMode', description='查询模式，支持精确查询和模糊查询', example='fuzzy'),
   status?: string(name='status', description='根据状态进行过滤，多个状态用逗号分隔，支持精确匹配', example='READY,CREATING'),
+  systemTags?: string(name='systemTags', description='根据系统标签进行过滤，多个标签用逗号分隔，支持精确匹配', example='acs:ecs:tag1,acs:ecs:tag2'),
   workspaceId?: string(name='workspaceId', description='根据工作空间ID进行过滤，用于资源隔离和权限管理', example='ws-1234567890abcdef'),
   workspaceIds?: string(name='workspaceIds'),
 }
@@ -5210,6 +5868,9 @@ async function listAgentRuntimesWithOptions(request: ListAgentRuntimesRequest, h
   }
   if (!Util.isUnset(request.status)) {
     query['status'] = request.status;
+  }
+  if (!Util.isUnset(request.systemTags)) {
+    query['systemTags'] = request.systemTags;
   }
   if (!Util.isUnset(request.workspaceId)) {
     query['workspaceId'] = request.workspaceId;
@@ -5548,6 +6209,207 @@ async function listCustomDomains(request: ListCustomDomainsRequest): ListCustomD
   var runtime = new Util.RuntimeOptions{};
   var headers : map[string]string = {};
   return listCustomDomainsWithOptions(request, headers, runtime);
+}
+
+model ListFlowEndpointsRequest {
+  pageNumber?: int32(name='pageNumber', description='当前页码，从1开始计数', example='1'),
+  pageSize?: int32(name='pageSize', description='每页返回的记录数量', example='10'),
+}
+
+model ListFlowEndpointsResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ListFlowEndpointsResult  
+}
+
+/**
+ * @summary 列出工作流端点
+ *
+ * @description 获取指定工作流的所有端点列表，支持分页查询。
+ *
+ * @param request ListFlowEndpointsRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return ListFlowEndpointsResponse
+ */
+async function listFlowEndpointsWithOptions(flowId: string, request: ListFlowEndpointsRequest, headers: map[string]string, runtime: Util.RuntimeOptions): ListFlowEndpointsResponse {
+  Util.validateModel(request);
+  var query : map[string]any = {};
+  if (!Util.isUnset(request.pageNumber)) {
+    query['pageNumber'] = request.pageNumber;
+  }
+  if (!Util.isUnset(request.pageSize)) {
+    query['pageSize'] = request.pageSize;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'ListFlowEndpoints',
+    version = '2025-09-10',
+    protocol = 'HTTPS',
+    pathname = `/2025-09-10/flows/${OpenApiUtil.getEncodeParam(flowId)}/endpoints`,
+    method = 'GET',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 列出工作流端点
+ *
+ * @description 获取指定工作流的所有端点列表，支持分页查询。
+ *
+ * @param request ListFlowEndpointsRequest
+ * @return ListFlowEndpointsResponse
+ */
+async function listFlowEndpoints(flowId: string, request: ListFlowEndpointsRequest): ListFlowEndpointsResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return listFlowEndpointsWithOptions(flowId, request, headers, runtime);
+}
+
+model ListFlowVersionsRequest {
+  pageNumber?: int32(name='pageNumber', description='当前页码，从1开始计数', example='1'),
+  pageSize?: int32(name='pageSize', description='每页返回的记录数量', example='10'),
+}
+
+model ListFlowVersionsResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ListFlowVersionsResult  
+}
+
+/**
+ * @summary 列出工作流版本
+ *
+ * @description 获取指定工作流的所有版本列表，支持分页查询。
+ *
+ * @param request ListFlowVersionsRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return ListFlowVersionsResponse
+ */
+async function listFlowVersionsWithOptions(flowName: string, request: ListFlowVersionsRequest, headers: map[string]string, runtime: Util.RuntimeOptions): ListFlowVersionsResponse {
+  Util.validateModel(request);
+  var query : map[string]any = {};
+  if (!Util.isUnset(request.pageNumber)) {
+    query['pageNumber'] = request.pageNumber;
+  }
+  if (!Util.isUnset(request.pageSize)) {
+    query['pageSize'] = request.pageSize;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'ListFlowVersions',
+    version = '2025-09-10',
+    protocol = 'HTTPS',
+    pathname = `/2025-09-10/flows/${OpenApiUtil.getEncodeParam(flowName)}/versions`,
+    method = 'GET',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 列出工作流版本
+ *
+ * @description 获取指定工作流的所有版本列表，支持分页查询。
+ *
+ * @param request ListFlowVersionsRequest
+ * @return ListFlowVersionsResponse
+ */
+async function listFlowVersions(flowName: string, request: ListFlowVersionsRequest): ListFlowVersionsResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return listFlowVersionsWithOptions(flowName, request, headers, runtime);
+}
+
+model ListFlowsRequest {
+  flowName?: string(name='flowName', description='根据工作流名称进行模糊匹配过滤', example='my-flow'),
+  pageNumber?: int32(name='pageNumber', description='当前页码，从1开始计数', example='1'),
+  pageSize?: int32(name='pageSize', description='每页返回的记录数量', example='10'),
+  workspaceId?: string(name='workspaceId', description='根据工作空间ID进行过滤，用于资源隔离和权限管理', example='ws-1234567890abcdef'),
+  workspaceIds?: string(name='workspaceIds', example='ws-1234567890abcdef,ws-1234567890bcdefg'),
+}
+
+model ListFlowsResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ListFlowsResult  
+}
+
+/**
+ * @summary 列出工作流
+ *
+ * @description 获取当前用户的工作流列表，支持按名称、工作空间等条件过滤，支持分页查询。
+ *
+ * @param request ListFlowsRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return ListFlowsResponse
+ */
+async function listFlowsWithOptions(request: ListFlowsRequest, headers: map[string]string, runtime: Util.RuntimeOptions): ListFlowsResponse {
+  Util.validateModel(request);
+  var query : map[string]any = {};
+  if (!Util.isUnset(request.flowName)) {
+    query['flowName'] = request.flowName;
+  }
+  if (!Util.isUnset(request.pageNumber)) {
+    query['pageNumber'] = request.pageNumber;
+  }
+  if (!Util.isUnset(request.pageSize)) {
+    query['pageSize'] = request.pageSize;
+  }
+  if (!Util.isUnset(request.workspaceId)) {
+    query['workspaceId'] = request.workspaceId;
+  }
+  if (!Util.isUnset(request.workspaceIds)) {
+    query['workspaceIds'] = request.workspaceIds;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'ListFlows',
+    version = '2025-09-10',
+    protocol = 'HTTPS',
+    pathname = `/2025-09-10/flows`,
+    method = 'GET',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 列出工作流
+ *
+ * @description 获取当前用户的工作流列表，支持按名称、工作空间等条件过滤，支持分页查询。
+ *
+ * @param request ListFlowsRequest
+ * @return ListFlowsResponse
+ */
+async function listFlows(request: ListFlowsRequest): ListFlowsResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return listFlowsWithOptions(request, headers, runtime);
 }
 
 model ListKnowledgeBasesRequest {
@@ -6308,6 +7170,60 @@ async function pauseSandbox(sandboxId: string, request: PauseSandboxRequest): Pa
   return pauseSandboxWithOptions(sandboxId, request, headers, runtime);
 }
 
+model PublishFlowVersionRequest {
+  body?: PublishFlowVersionInput(name='body', description='包含版本描述等信息的请求体'),
+}
+
+model PublishFlowVersionResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: FlowVersionResult  
+}
+
+/**
+ * @summary 发布工作流版本
+ *
+ * @description 为指定工作流发布新版本，用于版本管理和回滚。
+ *
+ * @param request PublishFlowVersionRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return PublishFlowVersionResponse
+ */
+async function publishFlowVersionWithOptions(flowName: string, request: PublishFlowVersionRequest, headers: map[string]string, runtime: Util.RuntimeOptions): PublishFlowVersionResponse {
+  Util.validateModel(request);
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    body = OpenApiUtil.parseToMap(request.body),
+  };
+  var params = new OpenApi.Params{
+    action = 'PublishFlowVersion',
+    version = '2025-09-10',
+    protocol = 'HTTPS',
+    pathname = `/2025-09-10/flows/${OpenApiUtil.getEncodeParam(flowName)}/versions`,
+    method = 'POST',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 发布工作流版本
+ *
+ * @description 为指定工作流发布新版本，用于版本管理和回滚。
+ *
+ * @param request PublishFlowVersionRequest
+ * @return PublishFlowVersionResponse
+ */
+async function publishFlowVersion(flowName: string, request: PublishFlowVersionRequest): PublishFlowVersionResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return publishFlowVersionWithOptions(flowName, request, headers, runtime);
+}
+
 model PublishRuntimeVersionRequest {
   body?: PublishRuntimeVersionInput(name='body'),
 }
@@ -6716,6 +7632,174 @@ async function updateCustomDomain(domainName: string, request: UpdateCustomDomai
   var runtime = new Util.RuntimeOptions{};
   var headers : map[string]string = {};
   return updateCustomDomainWithOptions(domainName, request, headers, runtime);
+}
+
+model UpdateFlowRequest {
+  body?: UpdateFlowInput(name='body', description='包含要更新的工作流配置信息的请求体
+
+This parameter is required.'),
+}
+
+model UpdateFlowResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: FlowResult  
+}
+
+/**
+ * @summary 更新工作流
+ *
+ * @description 更新指定工作流的配置信息，包括定义、执行模式、环境变量等。
+ *
+ * @param request UpdateFlowRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return UpdateFlowResponse
+ */
+async function updateFlowWithOptions(flowName: string, request: UpdateFlowRequest, headers: map[string]string, runtime: Util.RuntimeOptions): UpdateFlowResponse {
+  Util.validateModel(request);
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    body = OpenApiUtil.parseToMap(request.body),
+  };
+  var params = new OpenApi.Params{
+    action = 'UpdateFlow',
+    version = '2025-09-10',
+    protocol = 'HTTPS',
+    pathname = `/2025-09-10/flows/${OpenApiUtil.getEncodeParam(flowName)}`,
+    method = 'PUT',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 更新工作流
+ *
+ * @description 更新指定工作流的配置信息，包括定义、执行模式、环境变量等。
+ *
+ * @param request UpdateFlowRequest
+ * @return UpdateFlowResponse
+ */
+async function updateFlow(flowName: string, request: UpdateFlowRequest): UpdateFlowResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return updateFlowWithOptions(flowName, request, headers, runtime);
+}
+
+model UpdateFlowDraftRequest {
+  body?: UpdateFlowDraftInput(name='body', description='包含要更新的工作流草稿配置信息的请求体
+
+This parameter is required.'),
+}
+
+model UpdateFlowDraftResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: FlowResult  
+}
+
+/**
+ * @summary 更新工作流草稿
+ *
+ * @description 更新指定工作流的草稿版本，草稿更新不影响已发布的工作流版本。
+ *
+ * @param request UpdateFlowDraftRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return UpdateFlowDraftResponse
+ */
+async function updateFlowDraftWithOptions(flowName: string, request: UpdateFlowDraftRequest, headers: map[string]string, runtime: Util.RuntimeOptions): UpdateFlowDraftResponse {
+  Util.validateModel(request);
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    body = OpenApiUtil.parseToMap(request.body),
+  };
+  var params = new OpenApi.Params{
+    action = 'UpdateFlowDraft',
+    version = '2025-09-10',
+    protocol = 'HTTPS',
+    pathname = `/2025-09-10/flows/${OpenApiUtil.getEncodeParam(flowName)}/draft`,
+    method = 'PUT',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 更新工作流草稿
+ *
+ * @description 更新指定工作流的草稿版本，草稿更新不影响已发布的工作流版本。
+ *
+ * @param request UpdateFlowDraftRequest
+ * @return UpdateFlowDraftResponse
+ */
+async function updateFlowDraft(flowName: string, request: UpdateFlowDraftRequest): UpdateFlowDraftResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return updateFlowDraftWithOptions(flowName, request, headers, runtime);
+}
+
+model UpdateFlowEndpointRequest {
+  body?: UpdateFlowEndpointInput(name='body', description='包含要更新的工作流端点配置信息的请求体
+
+This parameter is required.'),
+}
+
+model UpdateFlowEndpointResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: FlowEndpointResult  
+}
+
+/**
+ * @summary 更新工作流端点
+ *
+ * @description 更新指定工作流端点的配置信息，包括目标版本、路由配置等。
+ *
+ * @param request UpdateFlowEndpointRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return UpdateFlowEndpointResponse
+ */
+async function updateFlowEndpointWithOptions(flowName: string, flowEndpointName: string, request: UpdateFlowEndpointRequest, headers: map[string]string, runtime: Util.RuntimeOptions): UpdateFlowEndpointResponse {
+  Util.validateModel(request);
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    body = OpenApiUtil.parseToMap(request.body),
+  };
+  var params = new OpenApi.Params{
+    action = 'UpdateFlowEndpoint',
+    version = '2025-09-10',
+    protocol = 'HTTPS',
+    pathname = `/2025-09-10/flows/${OpenApiUtil.getEncodeParam(flowName)}/endpoints/${OpenApiUtil.getEncodeParam(flowEndpointName)}`,
+    method = 'PUT',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 更新工作流端点
+ *
+ * @description 更新指定工作流端点的配置信息，包括目标版本、路由配置等。
+ *
+ * @param request UpdateFlowEndpointRequest
+ * @return UpdateFlowEndpointResponse
+ */
+async function updateFlowEndpoint(flowName: string, flowEndpointName: string, request: UpdateFlowEndpointRequest): UpdateFlowEndpointResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return updateFlowEndpointWithOptions(flowName, flowEndpointName, request, headers, runtime);
 }
 
 model UpdateKnowledgeBaseRequest {
