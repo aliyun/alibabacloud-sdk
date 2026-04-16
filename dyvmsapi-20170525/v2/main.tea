@@ -65,7 +65,7 @@ model AddVirtualNumberRelationResponse = {
 }
 
 /**
- * @summary Adds the association relationship between a virtual number and real numbers in batches.
+ * @summary Binds multiple real numbers to a service instance at a time.
  *
  * @description ### QPS limits
  * You can call this operation up to 200 times per second per account.
@@ -120,7 +120,7 @@ async function addVirtualNumberRelationWithOptions(request: AddVirtualNumberRela
 }
 
 /**
- * @summary Adds the association relationship between a virtual number and real numbers in batches.
+ * @summary Binds multiple real numbers to a service instance at a time.
  *
  * @description ### QPS limits
  * You can call this operation up to 200 times per second per account.
@@ -191,7 +191,7 @@ model BatchRobotSmartCallResponse = {
 }
 
 /**
- * @summary Initiates an outbound robocall task.
+ * @summary Initiates outbound robocall tasks in a batch. You can set up to 100 numbers in a task.
  *
  * @description *   In an intelligent speech interaction task, you can use the robot communication scripts preset in the Voice Messaging Service console, or invoke the callback function to return the response mode configured by the business party in each call.
  * *   The BatchRobotSmartCall operation is used to initiate an outbound robocall task by using the robot communication scripts preset in the Voice Messaging Service console.
@@ -269,7 +269,7 @@ async function batchRobotSmartCallWithOptions(request: BatchRobotSmartCallReques
 }
 
 /**
- * @summary Initiates an outbound robocall task.
+ * @summary Initiates outbound robocall tasks in a batch. You can set up to 100 numbers in a task.
  *
  * @description *   In an intelligent speech interaction task, you can use the robot communication scripts preset in the Voice Messaging Service console, or invoke the callback function to return the response mode configured by the business party in each call.
  * *   The BatchRobotSmartCall operation is used to initiate an outbound robocall task by using the robot communication scripts preset in the Voice Messaging Service console.
@@ -308,6 +308,8 @@ model CancelCallResponse = {
 }
 
 /**
+ * @summary Cancels the two-way call that is initiated by calling the ClickToDial operation.
+ *
  * @param request CancelCallRequest
  * @param runtime runtime options for this request RuntimeOptions
  * @return CancelCallResponse
@@ -346,6 +348,8 @@ async function cancelCallWithOptions(request: CancelCallRequest, runtime: $Runti
 }
 
 /**
+ * @summary Cancels the two-way call that is initiated by calling the ClickToDial operation.
+ *
  * @param request CancelCallRequest
  * @return CancelCallResponse
  */
@@ -608,6 +612,852 @@ async function changeMediaType(request: ChangeMediaTypeRequest): ChangeMediaType
   return changeMediaTypeWithOptions(request, runtime);
 }
 
+model CloudCreateTaskRequest {
+  agentGroup?: string(name='AgentGroup', description='外呼组号；callGroupType=2时必填。注：一个外呼组可以绑定到多个任务，但只能同时运行一个任务中', example='33'),
+  agentTimeout?: long(name='AgentTimeout', description='座席超时时间；单位秒数，默认10秒，取值范围5 ~ 60', example='52'),
+  answerRate?: long(name='AnswerRate', description='初始化预计客户接通率；默认50，取值范围1～100，预热阶段的呼叫，按照此接通率计算呼叫频率', example='59'),
+  autoComplete?: long(name='AutoComplete', description='0.关闭 1.开启，默认开启。开启：任务中的号码呼叫完后，任务自动完成，状态设置为结束，关闭：任务中的号码呼叫完后，任务自动暂停，状态设置为暂停注：任务在结束状态时无法再次启动。', example='0'),
+  autoDelete?: long(name='AutoDelete', description='0.关闭 1.自动删除。任务数超出最大任务数限制时，是否自动删除已完成的最早创建的任务，值为1代表自动删除。注：autoDelete不是任务属性，只在接口调用时生效', example='0'),
+  autoStart?: long(name='AutoStart', description='定时开始；0.关闭 1.开启，默认关闭。值为1时autoStartDay和autoStartTime参数才生效，并且至少设置其中的一个', example='0'),
+  autoStartDay?: string(name='AutoStartDay', description='定时开始日期；autoStart=1时生效。参数不传入时默认在当天的autoStartTime定时启动。格式：yyyy-MM-dd，如：2017-01-01', example='2026-01-01'),
+  autoStartTime?: string(name='AutoStartTime', description='定时开始时间；autoStart=1时生效。参数不传入时默认在autoStartDay的00:00:00定时启动。格式：HH:mm:ss，如：08:00:00', example='08:00:00'),
+  autoStop?: long(name='AutoStop', description='定时完成；0.关闭 1.开启，默认关闭。值为1时autoStopDay和autoStopTime参数才生效，并且至少设置其中的一个', example='0'),
+  autoStopDay?: string(name='AutoStopDay', description='定时完成日期；autoStop=1时生效。参数不传入时默认在当天的autoStopTime定时完成。格式：yyyy-MM-dd，如：2017-01-01', example='2026-01-01'),
+  autoStopTime?: string(name='AutoStopTime', description='定时完成时间；autoStop=1时生效。参数不传入时默认在autoStopDay的23:59:59定时完成。格式：HH:mm:ss，如：17:00:00', example='17:00:00'),
+  autoTaskType?: long(name='AutoTaskType', description='0.连续呼叫 1.间隔呼叫，默认连续呼叫。配合定时开始（autoStart）和定时结束（autoStop）参数使用，如任务需要在每天的特定时间段内呼叫则开启间隔呼叫方式', example='0'),
+  autoTriggerTimeStrategy?: string(name='AutoTriggerTimeStrategy', description='间隔呼叫时间段；autoTaskType=1时必填。呼叫的时间段配置。参数格式：时间条件编号。支持多个，多个使用英文","逗号隔开，如：9,22。注：时间条件列表可通过查询时间条件设置列表接口获取', example='9,22'),
+  callGroupType?: long(name='CallGroupType', description='指定座席方式；1.座席工号列表 2.外呼组，默认座席工号列表注：任务创建后不支持修改', example='1'),
+  callLimitStrategy?: string(name='CallLimitStrategy', description='座席当日接听的通话个数上限，使用方式详见下方说明；JsonArray格式 [{"cnos":["2000","2001"],"limit":"5"}注：使用座席当日接听数限制功能需开启企业配置，功能开启并且配置上限后系统才开始统计当日接听数', example='[{"cnos":["2000","2001"],"limit":"5"}]'),
+  callPriorityStrategy?: string(name='CallPriorityStrategy', description='数据结构为Json格式```{"strategy":[{"sort":1,"type":"retryCall", "desc":0},{"sort":2,"type":"firstCall","orderType":0}]}```格式说明：sort是重试号码和未呼叫号码的呼叫顺序 type：retryCall重试号码、firstCall未呼叫号码当type=retryCall，desc：0.优先呼叫待重呼轮次数值较小的号码，即轮次靠前（如第1轮、第2轮）的号码先被呼叫 1.优先呼叫待重呼轮次数值较大的号码，即轮次靠后（如第5轮、第4轮）的号码先被呼叫当type=firstCall时，orderType：随机呼叫，0顺序(优先级) 1随机 2顺序(导入时间)', example='0'),
+  callRouteStrategy?: long(name='CallRouteStrategy', description='1.直连座席 2.AI转人工 直连座席模式：客户接听后直接分配座席，无空闲座席可溢出语音导航（需配置语音导航），保障高优先级客户直连体验 AI转人工：客户接入后，优先进入语音导航中配置的智能体机器人，按交互结果决定是否转接座席，提升自动化覆盖率，降低人工成本', example='1'),
+  callStrategy?: string(name='CallStrategy', description='座席分配规则；1.随机 2.顺序 3.座席未进线最大时（从上一次呼叫结束到当前的总时长） 4.座席状态[空闲]最长时长（座席最近一次切换为空闲状态的持续时长），默认随机', example='1'),
+  callVariables?: string(name='CallVariables', description='座席通道变量。JsonArray格式；最大支持5个变量。默认空值， 示例：[{"name":"abcdefg","value":"${cdr_enterprise_id}"}] 注：单个字段值的长度不能超过1000个字符。变量会以SIP_HEADER的形式设置到座席侧通道', example='[{"name":"abcdefg","value":"${cdr_enterprise_id}"}]'),
+  clidProperty?: string(name='ClidProperty', description='外显规则；customerClidType=2时生效。Json格式，外显号码选择规则：默认区号，是否匹配省会等；如：{"defaultAreaCode":"010", "isMatchCapital":"1"}。不建议使用', example='{"defaultAreaCode":"010", "isMatchCapital":"1"}'),
+  cnos?: string(name='Cnos', description='座席工号列表；callGroupType=1时必填。支持多个座席工号，多个之间使用英文逗号\\\\",\\\\"分隔注：一个座席只能在一个运行中的任务中', example='1111,2222'),
+  concurrency?: long(name='Concurrency', description='任务维度限制最大并发数，实际并发不会超过最大并发限制。type=1时，配置成0表示不限制，座席数量少于10时建议配置该参数', example='0'),
+  customerClidType?: long(name='CustomerClidType', description='客户侧外显规则；customerClidsCategory=1或2时生效。1.随机 2.按区号，默认随机。不建议使用', example='1'),
+  customerClidWeight?: string(name='CustomerClidWeight', description='外显号码比例配置内容；customerClidsCategory=1且customerClidWeightFlag=1时生效。JsonArray格式 [{"number":"123,345","weight":"5"}, {"number":"567,789","weight":"5"}]，不建议使用', example='[{"number":"123,345","weight":"5"}, {"number":"567,789","weight":"5"}]'),
+  customerClidWeightFlag?: long(name='CustomerClidWeightFlag', description='外显号码比例配置开关；customerClidsCategory=1时生效。0.关闭 1.开启，默认关闭。不建议使用', example='0'),
+  customerClids?: string(name='CustomerClids', description='客户侧外显号码列表；customerClidsCategory=1或2时必填。支持多个，多个直接使用英文逗号\\\\",\\\\"分隔。不建议使用', example='7744331,7744332'),
+  customerClidsCategory?: long(name='CustomerClidsCategory', description='客户侧外显号码类型；1.外显固话 2.外显手机号 4.外显号码池 5.外显导航注：推荐使用外显导航，可以灵活调整和控制外显策略。其他类型将逐步下线', example='1'),
+  customerClidsGroup?: string(name='CustomerClidsGroup', description='客户侧外显号码池名称或外显导航标识；customerClidsCategory=4或5时必填。customerClidsCategory=4时customerClidsGroup传号码池名称。customerClidsCategory=5时customerClidsGroup传外显导航标识', example='示例值示例值'),
+  customerMoh?: string(name='CustomerMoh', description='客户侧等待音；客户接听后呼叫座席，等待座席接听时播放的语音，默认为空白音。支持公共语音和企业语音，值为语音文件的path，如:60000011533526918819', example='60000011533526918819'),
+  customerTimeout?: long(name='CustomerTimeout', description='客户超时时间；单位秒数，默认30秒，取值范围5 ~ 60', example='30'),
+  customerVoice?: string(name='CustomerVoice', description='客户侧提示音；客户接听后呼转座席前播放的语音，提示音播放完成后再找座席，默认无提示音。支持公共语音和企业语音，值为语音文件的path，如:60000011533526918819', example='60000011533526918819'),
+  description?: string(name='Description', description='任务描述；需进行UTF-8格式的URLEncode编码，长度小于200字', example='Task Description'),
+  enterpriseId?: long(name='EnterpriseId', description='呼叫中心 id
+
+This parameter is required.', example='36'),
+  forceEndFlag?: long(name='ForceEndFlag', description='定时完成时强制结束任务；autoStop=1时生效。0.关闭 1.开启，默认关闭。开启配置后，当任务到定时完成时间时无论任务中的号码是否已经呼完，均将任务状态设置为结束。适用于对数据有呼叫时间限制的场景。注：任务在结束状态时无法再次启动。', example='0'),
+  isRewarm?: long(name='IsRewarm', description='暂停后重新预热；0.关闭，1开启，默认开启，任务暂停后是否需要重新预热', example='0'),
+  ivrId?: long(name='IvrId', description='语音导航Id；参数ivrId和ivrName二选一，同时传入时ivrId生效，在创建自动外呼任务时ivrId或ivrName必选其一。预测外呼使用场景：如果客户接听后未在特定时间内（默认2秒）找到可用座席，通话将溢出到语音导航继续排队找座席。同时支持在呼转座席，座席未接听时也溢出到语音导航，需要开启企业配置生效自动外呼使用场景：客户接听后，转到的语音导航', example='42'),
+  ivrName?: string(name='IvrName', description='语音导航名称；参数ivrId和ivrName二选一，同时传入时ivrId生效，在创建自动外呼任务时ivrId或ivrName必选其一。', example='IvrName1'),
+  maxWaitTime?: long(name='MaxWaitTime', description='座席最长等待时间；默认40秒，最小10，最大600，允许座席空闲的最大时间。任务执行过程中，如果座席平均空闲时间大于maxWaitTime，每次呼叫个数会增加', example='40'),
+  minAvailableAgentCount?: long(name='MinAvailableAgentCount', description='最小可用座席数；默认为10，取值范围1 ~ 10。任务内可用座席数小于当前值时，任务自动暂停，避免骚扰', example='10'),
+  name?: string(name='Name', description='任务名称；需进行UTF-8格式的URLEncode编码，长度小于50字
+
+This parameter is required.', example='taskName'),
+  ownerId?: long(name='OwnerId'),
+  predictAdjust?: long(name='PredictAdjust', description='超呼率；默认值为100，取值范围50～400', example='55'),
+  quotiety?: double(name='Quotiety', description='骚扰率；默认值为1，取值范围为大于0，小于等于20，支持小数，精确到小数点两位。值越小呼叫的号码越少，值越大呼叫的号码越多，座席利用率越高', example='17.62'),
+  resourceOwnerAccount?: string(name='ResourceOwnerAccount'),
+  resourceOwnerId?: long(name='ResourceOwnerId'),
+  retryStrategy?: string(name='RetryStrategy', description='重试策略；「基础模式」数据结构为Json格式```{"retry":2,"strategy":[{"round":1,"time":"1-1-1"},{"round":2,"time":"2-2-2"}]}```格式说明：retry是重试次数，round是第几次重试，time是第几次重试间隔的时间：1-1-1，第一个1是天，第二个1是小时，第三个1是分钟「高级模式」高级模式需要开启「号码状态识别」服务数据结构为JsonArray格式 ```[{"condition":{"sipCause":[710,719]},"retry":1,"sort":1,"strategy":[{"round":1,"time":"0-0-10"}]},{"condition":{"sipCause":[800]},"retry":1,"sort":2,"strategy":[{"round":2,"time":"0-0-10"}]}]```格式说明：condition是重试条件，sort是重试条件的顺序，其余字段与基础模式一致 注：基础模式和高级模式的区分根据传入的参数格式自动识别。基于首次呼叫时间重试时，每轮的重试时间必须大于上一轮的时间', example='{"retry":2,"strategy":[{"round":1,"time":"1-1-1"},{"round":2,"time":"2-2-2"}]}'),
+  retryStrategyOnlyToday?: long(name='RetryStrategyOnlyToday', description='任务仅当天生效；0.关闭 1.开启，删除待重试的数据和待呼叫的数据 2.开启，删除待重试的数据 3.开启，删除待呼叫的数据，默认关闭', example='0'),
+  retryStrategyTimeType?: long(name='RetryStrategyTimeType', description='重试策略时间类型；配置重试策略时生效。 1.基于首次呼叫时间 2.基于上次呼叫时间，默认基于首次呼叫时间', example='1'),
+  templateName?: string(name='TemplateName', description='任务模板名称；通过任务模板可以实现对任务参数的统一管理以及简化接口传参，多个任务可以使用同一个模板管理参数，接口只需要传入任务间有差异的参数。参数生效规则：接口传入的参数优先。示例说明：如果接口传了参数autoStart=1和参数templateName=testTemplate，接口传入的参数autoStart生效。如果接口未传入autoStart参数或者传入的autoStart参数是空值，那么模版中的参数生效。注：任务模板可通过任务模板接口进行管理', example='TemplateName'),
+  timeStrategy?: string(name='TimeStrategy', description='禁呼时间；在特定的时间段内禁止呼叫。参数格式：时间条件编号。支持多个，多个使用英文","逗号隔开，如：9,22。注：时间条件列表可通过查询时间条件设置列表接口获取', example='9,22'),
+  type?: long(name='Type', description='1.预测外呼任务 2.自动外呼任务。外呼任务创建后任务类型不支持修改
+
+This parameter is required.', example='1'),
+  userFields?: string(name='UserFields', description='任务自定义字段。JsonArray格式；数组的每个元素只支持传递一组键值对，传递多组只取第一组，如 {"key", "value"}。 默认空值，示例：[{"name":"1234"},{"name1":"12345"}] 注：单个字段值的长度不能超过1000个字符', example='[{"name":"1234"},{"name1":"12345"}]'),
+  warmUpDuration?: long(name='WarmUpDuration', description='任务预热时间；默认300秒, 取值范围60 ～ 600', example='93'),
+  wrapup?: long(name='Wrapup', description='座席整理时间；默认30秒，取值范围1～10800，整理时间会影响每次呼叫的个数，值越大，呼叫号码个数会减小', example='30'),
+}
+
+model CloudCreateTaskResponseBody = {
+  accessDeniedDetail?: string(name='AccessDeniedDetail'),
+  code?: string(name='Code', example='OK'),
+  data?: {
+    agentTimeout?: string(name='AgentTimeout', example='示例值示例值示例值'),
+    answerRate?: string(name='AnswerRate', example='示例值示例值示例值'),
+    autoComplete?: long(name='AutoComplete', example='1'),
+    autoStart?: string(name='AutoStart', example='1'),
+    autoStartDay?: string(name='AutoStartDay', example='2016-04-11'),
+    autoStartTime?: string(name='AutoStartTime', example='08:00:00'),
+    autoStop?: string(name='AutoStop', example='1'),
+    autoStopDay?: string(name='AutoStopDay', example='示例值示例值'),
+    autoStopTime?: string(name='AutoStopTime', example='17:00:00'),
+    cnos?: string(name='Cnos', example='示例值示例值'),
+    concurrency?: string(name='Concurrency', example='示例值示例值'),
+    createTime?: string(name='CreateTime', example='示例值示例值示例值'),
+    customerClids?: string(name='CustomerClids', example='示例值示例值示例值'),
+    customerMoh?: string(name='CustomerMoh', example='示例值示例值'),
+    customerTimeout?: string(name='CustomerTimeout', example='示例值示例值'),
+    description?: string(name='Description', example='示例值示例值'),
+    enterpriseId?: string(name='EnterpriseId', example='示例值示例值'),
+    id?: string(name='Id', example='11'),
+    isRandom?: string(name='IsRandom', example='0'),
+    ivrId?: string(name='IvrId', example='330'),
+    maxWaitTime?: string(name='MaxWaitTime', example='10'),
+    name?: string(name='Name', example='示例值示例值'),
+    overTime?: string(name='OverTime', example='示例值示例值'),
+    predictAdjust?: string(name='PredictAdjust', example='示例值示例值'),
+    quotiety?: string(name='Quotiety', example='0.33'),
+    startTime?: string(name='StartTime', example='示例值'),
+    status?: string(name='Status', example='3'),
+    type?: string(name='Type', example='1'),
+    userFields?: string(name='UserFields', example='[{"key1":"value1"},{"key2":"value2"}]'),
+    wrapup?: string(name='Wrapup', example='10'),
+  }(name='Data'),
+  message?: string(name='Message', example='OK'),
+  requestId?: string(name='RequestId', example='90E63D28-E31D-1EB2-8939-A9486641****'),
+}
+
+model CloudCreateTaskResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: CloudCreateTaskResponseBody(name='body'),
+}
+
+/**
+ * @summary 新增任务
+ *
+ * @param request CloudCreateTaskRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return CloudCreateTaskResponse
+ */
+@context("cloudCreateTaskWithContext")
+async function cloudCreateTaskWithOptions(request: CloudCreateTaskRequest, runtime: $RuntimeOptions): CloudCreateTaskResponse {
+  request.validate();
+  var query = {};
+  if (!$isNull(request.agentGroup)) {
+    query['AgentGroup'] = request.agentGroup;
+  }
+  if (!$isNull(request.agentTimeout)) {
+    query['AgentTimeout'] = request.agentTimeout;
+  }
+  if (!$isNull(request.answerRate)) {
+    query['AnswerRate'] = request.answerRate;
+  }
+  if (!$isNull(request.autoComplete)) {
+    query['AutoComplete'] = request.autoComplete;
+  }
+  if (!$isNull(request.autoDelete)) {
+    query['AutoDelete'] = request.autoDelete;
+  }
+  if (!$isNull(request.autoStart)) {
+    query['AutoStart'] = request.autoStart;
+  }
+  if (!$isNull(request.autoStartDay)) {
+    query['AutoStartDay'] = request.autoStartDay;
+  }
+  if (!$isNull(request.autoStartTime)) {
+    query['AutoStartTime'] = request.autoStartTime;
+  }
+  if (!$isNull(request.autoStop)) {
+    query['AutoStop'] = request.autoStop;
+  }
+  if (!$isNull(request.autoStopDay)) {
+    query['AutoStopDay'] = request.autoStopDay;
+  }
+  if (!$isNull(request.autoStopTime)) {
+    query['AutoStopTime'] = request.autoStopTime;
+  }
+  if (!$isNull(request.autoTaskType)) {
+    query['AutoTaskType'] = request.autoTaskType;
+  }
+  if (!$isNull(request.autoTriggerTimeStrategy)) {
+    query['AutoTriggerTimeStrategy'] = request.autoTriggerTimeStrategy;
+  }
+  if (!$isNull(request.callGroupType)) {
+    query['CallGroupType'] = request.callGroupType;
+  }
+  if (!$isNull(request.callLimitStrategy)) {
+    query['CallLimitStrategy'] = request.callLimitStrategy;
+  }
+  if (!$isNull(request.callPriorityStrategy)) {
+    query['CallPriorityStrategy'] = request.callPriorityStrategy;
+  }
+  if (!$isNull(request.callRouteStrategy)) {
+    query['CallRouteStrategy'] = request.callRouteStrategy;
+  }
+  if (!$isNull(request.callStrategy)) {
+    query['CallStrategy'] = request.callStrategy;
+  }
+  if (!$isNull(request.callVariables)) {
+    query['CallVariables'] = request.callVariables;
+  }
+  if (!$isNull(request.clidProperty)) {
+    query['ClidProperty'] = request.clidProperty;
+  }
+  if (!$isNull(request.cnos)) {
+    query['Cnos'] = request.cnos;
+  }
+  if (!$isNull(request.concurrency)) {
+    query['Concurrency'] = request.concurrency;
+  }
+  if (!$isNull(request.customerClidType)) {
+    query['CustomerClidType'] = request.customerClidType;
+  }
+  if (!$isNull(request.customerClidWeight)) {
+    query['CustomerClidWeight'] = request.customerClidWeight;
+  }
+  if (!$isNull(request.customerClidWeightFlag)) {
+    query['CustomerClidWeightFlag'] = request.customerClidWeightFlag;
+  }
+  if (!$isNull(request.customerClids)) {
+    query['CustomerClids'] = request.customerClids;
+  }
+  if (!$isNull(request.customerClidsCategory)) {
+    query['CustomerClidsCategory'] = request.customerClidsCategory;
+  }
+  if (!$isNull(request.customerClidsGroup)) {
+    query['CustomerClidsGroup'] = request.customerClidsGroup;
+  }
+  if (!$isNull(request.customerMoh)) {
+    query['CustomerMoh'] = request.customerMoh;
+  }
+  if (!$isNull(request.customerTimeout)) {
+    query['CustomerTimeout'] = request.customerTimeout;
+  }
+  if (!$isNull(request.customerVoice)) {
+    query['CustomerVoice'] = request.customerVoice;
+  }
+  if (!$isNull(request.description)) {
+    query['Description'] = request.description;
+  }
+  if (!$isNull(request.enterpriseId)) {
+    query['EnterpriseId'] = request.enterpriseId;
+  }
+  if (!$isNull(request.forceEndFlag)) {
+    query['ForceEndFlag'] = request.forceEndFlag;
+  }
+  if (!$isNull(request.isRewarm)) {
+    query['IsRewarm'] = request.isRewarm;
+  }
+  if (!$isNull(request.ivrId)) {
+    query['IvrId'] = request.ivrId;
+  }
+  if (!$isNull(request.ivrName)) {
+    query['IvrName'] = request.ivrName;
+  }
+  if (!$isNull(request.maxWaitTime)) {
+    query['MaxWaitTime'] = request.maxWaitTime;
+  }
+  if (!$isNull(request.minAvailableAgentCount)) {
+    query['MinAvailableAgentCount'] = request.minAvailableAgentCount;
+  }
+  if (!$isNull(request.name)) {
+    query['Name'] = request.name;
+  }
+  if (!$isNull(request.ownerId)) {
+    query['OwnerId'] = request.ownerId;
+  }
+  if (!$isNull(request.predictAdjust)) {
+    query['PredictAdjust'] = request.predictAdjust;
+  }
+  if (!$isNull(request.quotiety)) {
+    query['Quotiety'] = request.quotiety;
+  }
+  if (!$isNull(request.resourceOwnerAccount)) {
+    query['ResourceOwnerAccount'] = request.resourceOwnerAccount;
+  }
+  if (!$isNull(request.resourceOwnerId)) {
+    query['ResourceOwnerId'] = request.resourceOwnerId;
+  }
+  if (!$isNull(request.retryStrategy)) {
+    query['RetryStrategy'] = request.retryStrategy;
+  }
+  if (!$isNull(request.retryStrategyOnlyToday)) {
+    query['RetryStrategyOnlyToday'] = request.retryStrategyOnlyToday;
+  }
+  if (!$isNull(request.retryStrategyTimeType)) {
+    query['RetryStrategyTimeType'] = request.retryStrategyTimeType;
+  }
+  if (!$isNull(request.templateName)) {
+    query['TemplateName'] = request.templateName;
+  }
+  if (!$isNull(request.timeStrategy)) {
+    query['TimeStrategy'] = request.timeStrategy;
+  }
+  if (!$isNull(request.type)) {
+    query['Type'] = request.type;
+  }
+  if (!$isNull(request.userFields)) {
+    query['UserFields'] = request.userFields;
+  }
+  if (!$isNull(request.warmUpDuration)) {
+    query['WarmUpDuration'] = request.warmUpDuration;
+  }
+  if (!$isNull(request.wrapup)) {
+    query['Wrapup'] = request.wrapup;
+  }
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'CloudCreateTask',
+    version = '2017-05-25',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 新增任务
+ *
+ * @param request CloudCreateTaskRequest
+ * @return CloudCreateTaskResponse
+ */
+async function cloudCreateTask(request: CloudCreateTaskRequest): CloudCreateTaskResponse {
+  var runtime = new $RuntimeOptions{};
+  return cloudCreateTaskWithOptions(request, runtime);
+}
+
+model CloudImportTaskTelRequest {
+  bridgeVoicePath?: string(name='BridgeVoicePath', description='座席接听时自动在双侧播放开场白语音，指定语音变量值；企业语音库里的语音变量值', example='示例值示例值'),
+  bridgeVoiceType?: long(name='BridgeVoiceType', description='座席接听时自动在双侧播放开场白语音类型；1. 公共语音库；2. 企业语音库，静态话术； 3. 企业语音库，动态话术（座席号），传bridgeVoicePath后生效，默认为3', example='3'),
+  enterpriseId?: long(name='EnterpriseId', description='呼叫中心 id
+
+This parameter is required.', example='17'),
+  fileId?: long(name='FileId', description='批次Id；传此值表示在批次中增加号码', example='666'),
+  importTelAutoStart?: long(name='ImportTelAutoStart', description='是否自动启动任务；0:不自动启动 1:自动启动，默认为0', example='0'),
+  isRepeat?: long(name='IsRepeat', description='是否排重；0.不排重 1.任务内排重 2.导入号码排重 3.批次内排重，默认为1。注：任务内排重与批次内排重不能同时支持，如果中途切换，则从本次切换开始进行排重。', example='1'),
+  name?: string(name='Name', description='批次名称
+
+This parameter is required.', example='示例值示例值'),
+  ownerId?: long(name='OwnerId'),
+  priority?: long(name='Priority', description='优先级；默认0，值越大越优先，最大999999', example='5'),
+  resourceOwnerAccount?: string(name='ResourceOwnerAccount'),
+  resourceOwnerId?: long(name='ResourceOwnerId'),
+  taskId?: long(name='TaskId', description='任务Id
+
+This parameter is required.', example='25'),
+  taskTelList?: [ 
+    {
+      backupTels?: string(name='BackupTels', description='备选号码，tel呼叫不通时，呼叫备选号码最多支持8个，号码之间用英文逗号","分隔', example='7455332'),
+      clid?: string(name='Clid', description='电话号对应的外显号码', example='7766551'),
+      clidGroup?: string(name='ClidGroup', description='使用clidGroup需要账号支持按标识路由，使用此参数是clid参数无效', example='示例值'),
+      priority?: long(name='Priority', description='优先级，默认为0，值越大优先级越高，最大999999', example='38'),
+      property?: string(name='Property', description='属性，json格式', example='{}'),
+      tel?: string(name='Tel', description='电话号', example='7455441'),
+    }
+  ](name='TaskTelList', description='任务号码列表；CtiLinkTaskTel中只有Tel是必选字段，长度大小不超过8MB 注：获取导入失败明细，需配置[事件推送](../字段定义/推送变量和值/预测外呼导入号码失败推送变量.md)
+
+This parameter is required.'),
+}
+
+model CloudImportTaskTelShrinkRequest {
+  bridgeVoicePath?: string(name='BridgeVoicePath', description='座席接听时自动在双侧播放开场白语音，指定语音变量值；企业语音库里的语音变量值', example='示例值示例值'),
+  bridgeVoiceType?: long(name='BridgeVoiceType', description='座席接听时自动在双侧播放开场白语音类型；1. 公共语音库；2. 企业语音库，静态话术； 3. 企业语音库，动态话术（座席号），传bridgeVoicePath后生效，默认为3', example='3'),
+  enterpriseId?: long(name='EnterpriseId', description='呼叫中心 id
+
+This parameter is required.', example='17'),
+  fileId?: long(name='FileId', description='批次Id；传此值表示在批次中增加号码', example='666'),
+  importTelAutoStart?: long(name='ImportTelAutoStart', description='是否自动启动任务；0:不自动启动 1:自动启动，默认为0', example='0'),
+  isRepeat?: long(name='IsRepeat', description='是否排重；0.不排重 1.任务内排重 2.导入号码排重 3.批次内排重，默认为1。注：任务内排重与批次内排重不能同时支持，如果中途切换，则从本次切换开始进行排重。', example='1'),
+  name?: string(name='Name', description='批次名称
+
+This parameter is required.', example='示例值示例值'),
+  ownerId?: long(name='OwnerId'),
+  priority?: long(name='Priority', description='优先级；默认0，值越大越优先，最大999999', example='5'),
+  resourceOwnerAccount?: string(name='ResourceOwnerAccount'),
+  resourceOwnerId?: long(name='ResourceOwnerId'),
+  taskId?: long(name='TaskId', description='任务Id
+
+This parameter is required.', example='25'),
+  taskTelListShrink?: string(name='TaskTelList', description='任务号码列表；CtiLinkTaskTel中只有Tel是必选字段，长度大小不超过8MB 注：获取导入失败明细，需配置[事件推送](../字段定义/推送变量和值/预测外呼导入号码失败推送变量.md)
+
+This parameter is required.'),
+}
+
+model CloudImportTaskTelResponseBody = {
+  accessDeniedDetail?: string(name='AccessDeniedDetail'),
+  code?: string(name='Code', example='OK'),
+  data?: {
+    fileId?: string(name='FileId', description='批次Id', example='0'),
+    importTotal?: string(name='ImportTotal', description='请求号码总数', example='30'),
+    invalidTotal?: string(name='InvalidTotal', description='非法号码数', example='0'),
+    successTotal?: string(name='SuccessTotal', description='成功导入号码数', example='30'),
+    taskId?: string(name='TaskId', description='任务Id', example='13322333'),
+  }(name='Data'),
+  message?: string(name='Message', example='OK'),
+  requestId?: string(name='RequestId', example='D9CB3933-9FE3-4870-BA8E-2BEE91B69D23'),
+}
+
+model CloudImportTaskTelResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: CloudImportTaskTelResponseBody(name='body'),
+}
+
+/**
+ * @summary 任务号码导入
+ *
+ * @param tmpReq CloudImportTaskTelRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return CloudImportTaskTelResponse
+ */
+@context("cloudImportTaskTelWithContext")
+async function cloudImportTaskTelWithOptions(tmpReq: CloudImportTaskTelRequest, runtime: $RuntimeOptions): CloudImportTaskTelResponse {
+  tmpReq.validate();
+  var request = new CloudImportTaskTelShrinkRequest{};
+  OpenApiUtil.convert(tmpReq, request);
+  if (!$isNull(tmpReq.taskTelList)) {
+    request.taskTelListShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.taskTelList, 'TaskTelList', 'json');
+  }
+  var query = {};
+  if (!$isNull(request.bridgeVoicePath)) {
+    query['BridgeVoicePath'] = request.bridgeVoicePath;
+  }
+  if (!$isNull(request.bridgeVoiceType)) {
+    query['BridgeVoiceType'] = request.bridgeVoiceType;
+  }
+  if (!$isNull(request.enterpriseId)) {
+    query['EnterpriseId'] = request.enterpriseId;
+  }
+  if (!$isNull(request.fileId)) {
+    query['FileId'] = request.fileId;
+  }
+  if (!$isNull(request.importTelAutoStart)) {
+    query['ImportTelAutoStart'] = request.importTelAutoStart;
+  }
+  if (!$isNull(request.isRepeat)) {
+    query['IsRepeat'] = request.isRepeat;
+  }
+  if (!$isNull(request.name)) {
+    query['Name'] = request.name;
+  }
+  if (!$isNull(request.ownerId)) {
+    query['OwnerId'] = request.ownerId;
+  }
+  if (!$isNull(request.priority)) {
+    query['Priority'] = request.priority;
+  }
+  if (!$isNull(request.resourceOwnerAccount)) {
+    query['ResourceOwnerAccount'] = request.resourceOwnerAccount;
+  }
+  if (!$isNull(request.resourceOwnerId)) {
+    query['ResourceOwnerId'] = request.resourceOwnerId;
+  }
+  if (!$isNull(request.taskId)) {
+    query['TaskId'] = request.taskId;
+  }
+  if (!$isNull(request.taskTelListShrink)) {
+    query['TaskTelList'] = request.taskTelListShrink;
+  }
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'CloudImportTaskTel',
+    version = '2017-05-25',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 任务号码导入
+ *
+ * @param request CloudImportTaskTelRequest
+ * @return CloudImportTaskTelResponse
+ */
+async function cloudImportTaskTel(request: CloudImportTaskTelRequest): CloudImportTaskTelResponse {
+  var runtime = new $RuntimeOptions{};
+  return cloudImportTaskTelWithOptions(request, runtime);
+}
+
+model CloudStartTaskRequest {
+  enterpriseId?: long(name='EnterpriseId', description='呼叫中心 id
+
+This parameter is required.', example='8001654'),
+  ownerId?: long(name='OwnerId'),
+  resourceOwnerAccount?: string(name='ResourceOwnerAccount'),
+  resourceOwnerId?: long(name='ResourceOwnerId'),
+  taskId?: long(name='TaskId', description='外呼任务id
+
+This parameter is required.', example='32'),
+}
+
+model CloudStartTaskResponseBody = {
+  accessDeniedDetail?: string(name='AccessDeniedDetail'),
+  code?: string(name='Code', example='OK'),
+  data?: {
+    result?: long(name='Result', description='结果', example='0'),
+  }(name='Data'),
+  message?: string(name='Message', example='OK'),
+  requestId?: string(name='RequestId', example='7BF47617-7851-48F7-A3A1-2021342A78E2'),
+}
+
+model CloudStartTaskResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: CloudStartTaskResponseBody(name='body'),
+}
+
+/**
+ * @summary 任务启动
+ *
+ * @param request CloudStartTaskRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return CloudStartTaskResponse
+ */
+@context("cloudStartTaskWithContext")
+async function cloudStartTaskWithOptions(request: CloudStartTaskRequest, runtime: $RuntimeOptions): CloudStartTaskResponse {
+  request.validate();
+  var query = {};
+  if (!$isNull(request.enterpriseId)) {
+    query['EnterpriseId'] = request.enterpriseId;
+  }
+  if (!$isNull(request.ownerId)) {
+    query['OwnerId'] = request.ownerId;
+  }
+  if (!$isNull(request.resourceOwnerAccount)) {
+    query['ResourceOwnerAccount'] = request.resourceOwnerAccount;
+  }
+  if (!$isNull(request.resourceOwnerId)) {
+    query['ResourceOwnerId'] = request.resourceOwnerId;
+  }
+  if (!$isNull(request.taskId)) {
+    query['TaskId'] = request.taskId;
+  }
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'CloudStartTask',
+    version = '2017-05-25',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 任务启动
+ *
+ * @param request CloudStartTaskRequest
+ * @return CloudStartTaskResponse
+ */
+async function cloudStartTask(request: CloudStartTaskRequest): CloudStartTaskResponse {
+  var runtime = new $RuntimeOptions{};
+  return cloudStartTaskWithOptions(request, runtime);
+}
+
+model CloudUpdateTaskRequest {
+  agentGroup?: string(name='AgentGroup', description='外呼组号；callGroupType=2时必填。注：一个外呼组可以绑定到多个任务，但只能同时运行一个任务中', example='6,7'),
+  agentTimeout?: long(name='AgentTimeout', description='座席超时时间；单位秒数，默认10秒，取值范围5 ~ 60', example='50'),
+  answerRate?: long(name='AnswerRate', description='初始化预计客户接通率；默认50，取值范围1～100，预热阶段的呼叫，按照此接通率计算呼叫频率', example='50'),
+  autoComplete?: long(name='AutoComplete', description='0.关闭 1.开启，默认开启。开启：任务中的号码呼叫完后，任务自动完成，状态设置为结束，关闭：任务中的号码呼叫完后，任务自动暂停，状态设置为暂停注：任务在结束状态时无法再次启动。', example='1'),
+  autoStart?: long(name='AutoStart', description='定时开始；0.关闭 1.开启，默认关闭。值为1时autoStartDay和autoStartTime参数才生效，并且至少设置其中的一个', example='0'),
+  autoStartDay?: string(name='AutoStartDay', description='定时开始日期；autoStart=1时生效。参数不传入时默认在当天的autoStartTime定时启动。格式：yyyy-MM-dd，如：2017-01-01', example='2026-01-01'),
+  autoStartTime?: string(name='AutoStartTime', description='定时开始时间；autoStart=1时生效。参数不传入时默认在autoStartDay的00:00:00定时启动。格式：HH:mm:ss，如：08:00:00', example='08:00:00'),
+  autoStop?: long(name='AutoStop', description='定时完成；0.关闭 1.开启，默认关闭。值为1时autoStopDay和autoStopTime参数才生效，并且至少设置其中的一个', example='0'),
+  autoStopDay?: string(name='AutoStopDay', description='定时完成日期；autoStop=1时生效。参数不传入时默认在当天的autoStopTime定时完成。格式：yyyy-MM-dd，如：2017-01-01', example='示例值'),
+  autoStopTime?: string(name='AutoStopTime', description='定时完成时间；autoStop=1时生效。参数不传入时默认在autoStopDay的23:59:59定时完成。格式：HH:mm:ss，如：17:00:00', example='17:00:00'),
+  autoTaskType?: long(name='AutoTaskType', description='0.连续呼叫 1.间隔呼叫，默认连续呼叫。配合定时开始（autoStart）和定时结束（autoStop）参数使用，如任务需要在每天的特定时间段内呼叫则开启间隔呼叫方式', example='0'),
+  autoTriggerTimeStrategy?: string(name='AutoTriggerTimeStrategy', description='间隔呼叫时间段；autoTaskType=1时必填。呼叫的时间段配置。参数格式：时间条件编号。支持多个，多个使用英文","逗号隔开，如：9,22。注：时间条件列表可通过查询时间条件设置列表接口获取', example='9,22'),
+  callLimitStrategy?: string(name='CallLimitStrategy', description='座席当日接听的通话个数上限，使用方式详见下方说明；JsonArray格式 [{"cnos":["2000","2001"],"limit":"5"}] 注：使用座席当日接听数限制功能需开启企业配置，功能开启并且配置上限后系统才开始统计当日接听数', example='[{"cnos":["2000","2001"],"limit":"5"}]'),
+  callPriorityStrategy?: string(name='CallPriorityStrategy', description='数据结构为Json格式```{"strategy":[{"sort":1,"type":"retryCall", "desc":0},{"sort":2,"type":"firstCall","orderType":0}]}```格式说明：sort是重试号码和未呼叫号码的呼叫顺序 type：retryCall重试号码、firstCall未呼叫号码当type=retryCall，desc：0.优先呼叫待重呼轮次数值较小的号码，即轮次靠前（如第1轮、第2轮）的号码先被呼叫 1.优先呼叫待重呼轮次数值较大的号码，即轮次靠后（如第5轮、第4轮）的号码先被呼叫当type=firstCall时，orderType：随机呼叫，0顺序(优先级) 1随机 2顺序(导入时间)', example='{"strategy":[{"sort":1,"type":"retryCall", "desc":0},{"sort":2,"type":"firstCall","orderType":0}]}'),
+  callRouteStrategy?: long(name='CallRouteStrategy', description='1.直连座席 2.AI转人工 直连座席模式：客户接听后直接分配座席，无空闲座席可溢出语音导航（需配置语音导航），保障高优先级客户直连体验 AI转人工：客户接入后，优先进入语音导航中配置的智能体机器人，按交互结果决定是否转接座席，提升自动化覆盖率，降低人工成本', example='1'),
+  callStrategy?: string(name='CallStrategy', description='座席分配规则；1.随机 2.顺序 3.座席未进线最大时（从上一次呼叫结束到当前的总时长） 4.座席状态[空闲]最长时长（座席最近一次切换为空闲状态的持续时长），默认随机', example='1'),
+  callVariables?: string(name='CallVariables', description='座席通道变量。JsonArray格式；最大支持5个变量。默认空值， 示例：[{"name":"abcdefg","value":"${cdr_enterprise_id}"}] 注：单个字段值的长度不能超过1000个字符。变量会以SIP_HEADER的形式设置到座席侧通道', example='[{"name":"abcdefg","value":"${cdr_enterprise_id}"}]'),
+  clidProperty?: string(name='ClidProperty', description='外显规则；customerClidType=2时生效。Json格式，外显号码选择规则：默认区号，是否匹配省会等；如：{"defaultAreaCode":"010", "isMatchCapital":"1"}。不建议使用', example='{"defaultAreaCode":"010", "isMatchCapital":"1"}'),
+  cnos?: string(name='Cnos', description='座席工号列表；callGroupType=1时必填。支持多个座席工号，多个之间使用英文逗号\\\\",\\\\"分隔注：一个座席只能在一个运行中的任务中', example='1111,2222'),
+  concurrency?: long(name='Concurrency', description='任务维度限制最大并发数，实际并发不会超过最大并发限制。type=1时，配置成0表示不限制，座席数量少于10时建议配置该参数', example='0'),
+  customerClidType?: long(name='CustomerClidType', description='客户侧外显规则；customerClidsCategory=1或2时生效。1.随机 2.按区号，默认随机。不建议使用', example='1'),
+  customerClidWeight?: string(name='CustomerClidWeight', description='外显号码比例配置内容；customerClidsCategory=1且customerClidWeightFlag=1时生效。JsonArray格式 [{"number":"123,345","weight":"5"}, {"number":"567,789","weight":"5"}]，不建议使用', example='[{"number":"123,345","weight":"5"}, {"number":"567,789","weight":"5"}]'),
+  customerClidWeightFlag?: long(name='CustomerClidWeightFlag', description='外显号码比例配置开关；customerClidsCategory=1时生效。0.关闭 1.开启，默认关闭。不建议使用', example='0'),
+  customerClids?: string(name='CustomerClids', description='客户侧外显号码列表；customerClidsCategory=1或2时必填。支持多个，多个直接使用英文逗号\\\\",\\\\"分隔。不建议使用', example='64203667,23434294'),
+  customerClidsCategory?: long(name='CustomerClidsCategory', description='客户侧外显号码类型；1.外显固话 2.外显手机号 4.外显号码池 5.外显导航注：推荐使用外显导航，可以灵活调整和控制外显策略。其他类型将逐步下线', example='1'),
+  customerClidsGroup?: string(name='CustomerClidsGroup', description='客户侧外显号码池名称或外显导航标识；customerClidsCategory=4或5时必填。customerClidsCategory=4时customerClidsGroup传号码池名称。customerClidsCategory=5时customerClidsGroup传外显导航标识', example='示例值'),
+  customerMoh?: string(name='CustomerMoh', description='客户侧等待音；客户接听后呼叫座席，等待座席接听时播放的语音，默认为空白音。支持公共语音和企业语音，值为语音文件的path，如:60000011533526918819', example='60000011533526918819'),
+  customerTimeout?: long(name='CustomerTimeout', description='客户超时时间；单位秒数，默认30秒，取值范围5 ~ 60', example='55'),
+  customerVoice?: string(name='CustomerVoice', description='客户侧提示音；客户接听后呼转座席前播放的语音，提示音播放完成后再找座席，默认无提示音。支持公共语音和企业语音，值为语音文件的path，如:60000011533526918819', example='60000011533526918819'),
+  description?: string(name='Description', description='任务描述；需进行UTF-8格式的URLEncode编码，长度小于200字', example='示例值示例值示例值'),
+  enterpriseId?: long(name='EnterpriseId', description='呼叫中心 id
+
+This parameter is required.', example='7000002'),
+  forceEndFlag?: long(name='ForceEndFlag', description='定时完成时强制结束任务；autoStop=1时生效。0.关闭 1.开启，默认关闭。开启配置后，当任务到定时完成时间时无论任务中的号码是否已经呼完，均将任务状态设置为结束。适用于对数据有呼叫时间限制的场景。注：任务在结束状态时无法再次启动。', example='0'),
+  isRewarm?: long(name='IsRewarm', description='暂停后重新预热；0.关闭，1开启，默认开启，任务暂停后是否需要重新预热', example='1'),
+  ivrId?: long(name='IvrId', description='语音导航Id；参数ivrId和ivrName二选一，同时传入时ivrId生效，在创建自动外呼任务时ivrId或ivrName必选其一。预测外呼使用场景：如果客户接听后未在特定时间内（默认2秒）找到可用座席，通话将溢出到语音导航继续排队找座席。同时支持在呼转座席，座席未接听时也溢出到语音导航，需要开启企业配置生效自动外呼使用场景：客户接听后，转到的语音导航', example='13'),
+  ivrName?: string(name='IvrName', description='语音导航名称；参数ivrId和ivrName二选一，同时传入时ivrId生效，在创建自动外呼任务时ivrId或ivrName必选其一。', example='IvrName1'),
+  maxWaitTime?: long(name='MaxWaitTime', description='座席最长等待时间；默认40秒，最小10，最大600，允许座席空闲的最大时间。任务执行过程中，如果座席平均空闲时间大于maxWaitTime，每次呼叫个数会增加', example='40'),
+  minAvailableAgentCount?: long(name='MinAvailableAgentCount', description='最小可用座席数；默认为10，取值范围1 ~ 10。任务内可用座席数小于当前值时，任务自动暂停，避免骚扰', example='10'),
+  name?: string(name='Name', description='任务名称；需进行UTF-8格式的URLEncode编码，长度小于50字', example='示例值示例值'),
+  ownerId?: long(name='OwnerId'),
+  predictAdjust?: long(name='PredictAdjust', description='超呼率；默认值为100，取值范围50～400', example='100'),
+  quotiety?: double(name='Quotiety', description='骚扰率；默认值为1，取值范围为大于0，小于等于20，支持小数，精确到小数点两位。值越小呼叫的号码越少，值越大呼叫的号码越多，座席利用率越高', example='19.00'),
+  resourceOwnerAccount?: string(name='ResourceOwnerAccount'),
+  resourceOwnerId?: long(name='ResourceOwnerId'),
+  retryStrategy?: string(name='RetryStrategy', description='重试策略；「基础模式」数据结构为Json格式```{"retry":2,"strategy":[{"round":1,"time":"1-1-1"},{"round":2,"time":"2-2-2"}]}```格式说明：retry是重试次数，round是第几次重试，time是第几次重试间隔的时间：1-1-1，第一个1是天，第二个1是小时，第三个1是分钟「高级模式」高级模式需要开启「号码状态识别」服务数据结构为JsonArray格式 ```[{"condition":{"sipCause":[710,719]},"retry":1,"sort":1,"strategy":[{"round":1,"time":"0-0-10"}]},{"condition":{"sipCause":[800]},"retry":1,"sort":2,"strategy":[{"round":2,"time":"0-0-10"}]}]```格式说明：condition是重试条件，sort是重试条件的顺序，其余字段与基础模式一致 注：基础模式和高级模式的区分根据传入的参数格式自动识别。基于首次呼叫时间重试时，每轮的重试时间必须大于上一轮的时间', example='{"retry":2,"strategy":[{"round":1,"time":"1-1-1"},{"round":2,"time":"2-2-2"}]}'),
+  retryStrategyOnlyToday?: long(name='RetryStrategyOnlyToday', description='任务仅当天生效；0.关闭 1.开启，删除待重试的数据和待呼叫的数据 2.开启，删除待重试的数据 3.开启，删除待呼叫的数据，默认关闭', example='0'),
+  retryStrategyTimeType?: long(name='RetryStrategyTimeType', description='重试策略时间类型；配置重试策略时生效。 1.基于首次呼叫时间 2.基于上次呼叫时间，默认基于首次呼叫时间', example='1'),
+  taskId?: string(name='TaskId', description='外呼任务Id
+
+This parameter is required.', example='133224'),
+  timeStrategy?: string(name='TimeStrategy', description='禁呼时间；在特定的时间段内禁止呼叫。参数格式：时间条件编号。支持多个，多个使用英文","逗号隔开，如：9,22。注：时间条件列表可通过查询时间条件设置列表接口获取', example='9,22'),
+  userFields?: string(name='UserFields', description='任务自定义字段。JsonArray格式；数组的每个元素只支持传递一组键值对，传递多组只取第一组，如 {"key", "value"}。 默认空值，示例：[{"name":"1234"},{"name1":"12345"}] 注：单个字段值的长度不能超过1000个字符', example='[{"name":"1234"},{"name1":"12345"}]'),
+  warmUpDuration?: long(name='WarmUpDuration', description='任务预热时间；默认300秒, 取值范围60 ～ 600', example='370'),
+  wrapup?: long(name='Wrapup', description='座席整理时间；默认30秒，取值范围1～10800，整理时间会影响每次呼叫的个数，值越大，呼叫号码个数会减小', example='30'),
+}
+
+model CloudUpdateTaskResponseBody = {
+  accessDeniedDetail?: string(name='AccessDeniedDetail'),
+  code?: string(name='Code', example='OK'),
+  data?: {
+    agentTimeout?: string(name='AgentTimeout', example='30'),
+    answerRate?: string(name='AnswerRate', example='55'),
+    autoComplete?: long(name='AutoComplete', example='0'),
+    autoStart?: string(name='AutoStart', example='0'),
+    autoStartDay?: string(name='AutoStartDay', example='2026-02-11'),
+    autoStartTime?: string(name='AutoStartTime', example='08:00:00'),
+    autoStop?: string(name='AutoStop', example='0'),
+    autoStopDay?: string(name='AutoStopDay', example='2026-02-11'),
+    autoStopTime?: string(name='AutoStopTime', example='17:00:00'),
+    cnos?: string(name='Cnos', example='1111'),
+    concurrency?: string(name='Concurrency', example='10'),
+    createTime?: string(name='CreateTime', example='2026-02-10 14:00:00'),
+    customerClids?: string(name='CustomerClids', example='42366453,74565327'),
+    customerMoh?: string(name='CustomerMoh', example='示例值示例值'),
+    customerTimeout?: string(name='CustomerTimeout', example='5'),
+    description?: string(name='Description', example='示例值示例值'),
+    enterpriseId?: string(name='EnterpriseId', example='8001654'),
+    id?: string(name='Id', example='123'),
+    isRandom?: string(name='IsRandom', example='0'),
+    ivrId?: string(name='IvrId', example='133'),
+    maxWaitTime?: string(name='MaxWaitTime', example='10'),
+    name?: string(name='Name', example='示例值示例值示例值'),
+    overTime?: string(name='OverTime', example='2026-01-0114:00:00'),
+    predictAdjust?: string(name='PredictAdjust', example='示例值示例值示例值'),
+    quotiety?: string(name='Quotiety', example='0.33'),
+    startTime?: string(name='StartTime', example='2026-02-10 15:00:00'),
+    status?: string(name='Status', example='3'),
+    type?: string(name='Type', example='2'),
+    userFields?: string(name='UserFields', example='[{"key1":"value1"},{"key2":"value2"}]'),
+    wrapup?: string(name='Wrapup', example='5'),
+  }(name='Data'),
+  message?: string(name='Message', example='OK'),
+  requestId?: string(name='RequestId', example='6086693B-2250-17CE-A41F-06259AB6DB1B'),
+}
+
+model CloudUpdateTaskResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: CloudUpdateTaskResponseBody(name='body'),
+}
+
+/**
+ * @summary 更新任务
+ *
+ * @param request CloudUpdateTaskRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return CloudUpdateTaskResponse
+ */
+@context("cloudUpdateTaskWithContext")
+async function cloudUpdateTaskWithOptions(request: CloudUpdateTaskRequest, runtime: $RuntimeOptions): CloudUpdateTaskResponse {
+  request.validate();
+  var query = {};
+  if (!$isNull(request.agentGroup)) {
+    query['AgentGroup'] = request.agentGroup;
+  }
+  if (!$isNull(request.agentTimeout)) {
+    query['AgentTimeout'] = request.agentTimeout;
+  }
+  if (!$isNull(request.answerRate)) {
+    query['AnswerRate'] = request.answerRate;
+  }
+  if (!$isNull(request.autoComplete)) {
+    query['AutoComplete'] = request.autoComplete;
+  }
+  if (!$isNull(request.autoStart)) {
+    query['AutoStart'] = request.autoStart;
+  }
+  if (!$isNull(request.autoStartDay)) {
+    query['AutoStartDay'] = request.autoStartDay;
+  }
+  if (!$isNull(request.autoStartTime)) {
+    query['AutoStartTime'] = request.autoStartTime;
+  }
+  if (!$isNull(request.autoStop)) {
+    query['AutoStop'] = request.autoStop;
+  }
+  if (!$isNull(request.autoStopDay)) {
+    query['AutoStopDay'] = request.autoStopDay;
+  }
+  if (!$isNull(request.autoStopTime)) {
+    query['AutoStopTime'] = request.autoStopTime;
+  }
+  if (!$isNull(request.autoTaskType)) {
+    query['AutoTaskType'] = request.autoTaskType;
+  }
+  if (!$isNull(request.autoTriggerTimeStrategy)) {
+    query['AutoTriggerTimeStrategy'] = request.autoTriggerTimeStrategy;
+  }
+  if (!$isNull(request.callLimitStrategy)) {
+    query['CallLimitStrategy'] = request.callLimitStrategy;
+  }
+  if (!$isNull(request.callPriorityStrategy)) {
+    query['CallPriorityStrategy'] = request.callPriorityStrategy;
+  }
+  if (!$isNull(request.callRouteStrategy)) {
+    query['CallRouteStrategy'] = request.callRouteStrategy;
+  }
+  if (!$isNull(request.callStrategy)) {
+    query['CallStrategy'] = request.callStrategy;
+  }
+  if (!$isNull(request.callVariables)) {
+    query['CallVariables'] = request.callVariables;
+  }
+  if (!$isNull(request.clidProperty)) {
+    query['ClidProperty'] = request.clidProperty;
+  }
+  if (!$isNull(request.cnos)) {
+    query['Cnos'] = request.cnos;
+  }
+  if (!$isNull(request.concurrency)) {
+    query['Concurrency'] = request.concurrency;
+  }
+  if (!$isNull(request.customerClidType)) {
+    query['CustomerClidType'] = request.customerClidType;
+  }
+  if (!$isNull(request.customerClidWeight)) {
+    query['CustomerClidWeight'] = request.customerClidWeight;
+  }
+  if (!$isNull(request.customerClidWeightFlag)) {
+    query['CustomerClidWeightFlag'] = request.customerClidWeightFlag;
+  }
+  if (!$isNull(request.customerClids)) {
+    query['CustomerClids'] = request.customerClids;
+  }
+  if (!$isNull(request.customerClidsCategory)) {
+    query['CustomerClidsCategory'] = request.customerClidsCategory;
+  }
+  if (!$isNull(request.customerClidsGroup)) {
+    query['CustomerClidsGroup'] = request.customerClidsGroup;
+  }
+  if (!$isNull(request.customerMoh)) {
+    query['CustomerMoh'] = request.customerMoh;
+  }
+  if (!$isNull(request.customerTimeout)) {
+    query['CustomerTimeout'] = request.customerTimeout;
+  }
+  if (!$isNull(request.customerVoice)) {
+    query['CustomerVoice'] = request.customerVoice;
+  }
+  if (!$isNull(request.description)) {
+    query['Description'] = request.description;
+  }
+  if (!$isNull(request.enterpriseId)) {
+    query['EnterpriseId'] = request.enterpriseId;
+  }
+  if (!$isNull(request.forceEndFlag)) {
+    query['ForceEndFlag'] = request.forceEndFlag;
+  }
+  if (!$isNull(request.isRewarm)) {
+    query['IsRewarm'] = request.isRewarm;
+  }
+  if (!$isNull(request.ivrId)) {
+    query['IvrId'] = request.ivrId;
+  }
+  if (!$isNull(request.ivrName)) {
+    query['IvrName'] = request.ivrName;
+  }
+  if (!$isNull(request.maxWaitTime)) {
+    query['MaxWaitTime'] = request.maxWaitTime;
+  }
+  if (!$isNull(request.minAvailableAgentCount)) {
+    query['MinAvailableAgentCount'] = request.minAvailableAgentCount;
+  }
+  if (!$isNull(request.name)) {
+    query['Name'] = request.name;
+  }
+  if (!$isNull(request.ownerId)) {
+    query['OwnerId'] = request.ownerId;
+  }
+  if (!$isNull(request.predictAdjust)) {
+    query['PredictAdjust'] = request.predictAdjust;
+  }
+  if (!$isNull(request.quotiety)) {
+    query['Quotiety'] = request.quotiety;
+  }
+  if (!$isNull(request.resourceOwnerAccount)) {
+    query['ResourceOwnerAccount'] = request.resourceOwnerAccount;
+  }
+  if (!$isNull(request.resourceOwnerId)) {
+    query['ResourceOwnerId'] = request.resourceOwnerId;
+  }
+  if (!$isNull(request.retryStrategy)) {
+    query['RetryStrategy'] = request.retryStrategy;
+  }
+  if (!$isNull(request.retryStrategyOnlyToday)) {
+    query['RetryStrategyOnlyToday'] = request.retryStrategyOnlyToday;
+  }
+  if (!$isNull(request.retryStrategyTimeType)) {
+    query['RetryStrategyTimeType'] = request.retryStrategyTimeType;
+  }
+  if (!$isNull(request.taskId)) {
+    query['TaskId'] = request.taskId;
+  }
+  if (!$isNull(request.timeStrategy)) {
+    query['TimeStrategy'] = request.timeStrategy;
+  }
+  if (!$isNull(request.userFields)) {
+    query['UserFields'] = request.userFields;
+  }
+  if (!$isNull(request.warmUpDuration)) {
+    query['WarmUpDuration'] = request.warmUpDuration;
+  }
+  if (!$isNull(request.wrapup)) {
+    query['Wrapup'] = request.wrapup;
+  }
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'CloudUpdateTask',
+    version = '2017-05-25',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 更新任务
+ *
+ * @param request CloudUpdateTaskRequest
+ * @return CloudUpdateTaskResponse
+ */
+async function cloudUpdateTask(request: CloudUpdateTaskRequest): CloudUpdateTaskResponse {
+  var runtime = new $RuntimeOptions{};
+  return cloudUpdateTaskWithOptions(request, runtime);
+}
+
 model CreateCallTaskRequest {
   bizType?: string(name='BizType', description='The type of the task template. Valid values:
 
@@ -648,7 +1498,7 @@ model CreateCallTaskResponse = {
 }
 
 /**
- * @summary Creates a task for sending voice notifications or voice verification codes.
+ * @summary Uses a service instance to create a text-to-speech (TTS) task, a voice notification task, or a voice verification code task for multiple called numbers.
  *
  * @description You can create up to 1,000 voice notifications for each task.
  * ### QPS limits
@@ -722,7 +1572,7 @@ async function createCallTaskWithOptions(request: CreateCallTaskRequest, runtime
 }
 
 /**
- * @summary Creates a task for sending voice notifications or voice verification codes.
+ * @summary Uses a service instance to create a text-to-speech (TTS) task, a voice notification task, or a voice verification code task for multiple called numbers.
  *
  * @description You can create up to 1,000 voice notifications for each task.
  * ### QPS limits
@@ -917,7 +1767,7 @@ model DegradeVideoFileResponse = {
 }
 
 /**
- * @summary DegradeVideoFile
+ * @summary Downgrades from a video call to a voice call.
  *
  * @param request DegradeVideoFileRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -966,7 +1816,7 @@ async function degradeVideoFileWithOptions(request: DegradeVideoFileRequest, run
 }
 
 /**
- * @summary DegradeVideoFile
+ * @summary Downgrades from a video call to a voice call.
  *
  * @param request DegradeVideoFileRequest
  * @return DegradeVideoFileResponse
@@ -1183,7 +2033,7 @@ model GetCallMediaTypeResponse = {
 }
 
 /**
- * @summary GetCallMediaType
+ * @summary Obtains the call type during a call.
  *
  * @param request GetCallMediaTypeRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -1226,7 +2076,7 @@ async function getCallMediaTypeWithOptions(request: GetCallMediaTypeRequest, run
 }
 
 /**
- * @summary GetCallMediaType
+ * @summary Obtains the call type during a call.
  *
  * @param request GetCallMediaTypeRequest
  * @return GetCallMediaTypeResponse
@@ -1426,7 +2276,7 @@ model GetTemporaryFileUrlResponse = {
 }
 
 /**
- * @summary GetTemporaryFileUrl
+ * @summary Obtains a temporary URL of a video or audio file. You can view the video or audio file immediately by using this temporary URL.
  *
  * @param request GetTemporaryFileUrlRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -1466,7 +2316,7 @@ async function getTemporaryFileUrlWithOptions(request: GetTemporaryFileUrlReques
 }
 
 /**
- * @summary GetTemporaryFileUrl
+ * @summary Obtains a temporary URL of a video or audio file. You can view the video or audio file immediately by using this temporary URL.
  *
  * @param request GetTemporaryFileUrlRequest
  * @return GetTemporaryFileUrlResponse
@@ -1865,7 +2715,7 @@ model ListCallTaskResponse = {
 }
 
 /**
- * @summary Queries task information.
+ * @summary Queries the information about a voice call task after the task is created, including the task ID, task status, and templates used by the task.
  *
  * @description ### QPS limits
  * You can call this operation up to 100 times per second per account.
@@ -1926,7 +2776,7 @@ async function listCallTaskWithOptions(request: ListCallTaskRequest, runtime: $R
 }
 
 /**
- * @summary Queries task information.
+ * @summary Queries the information about a voice call task after the task is created, including the task ID, task status, and templates used by the task.
  *
  * @description ### QPS limits
  * You can call this operation up to 100 times per second per account.
@@ -1988,7 +2838,7 @@ model ListCallTaskDetailResponse = {
 }
 
 /**
- * @summary Queries the information about a task based on the task ID.
+ * @summary Queries the details of call tasks based on task IDs after call tasks are complete.
  *
  * @description ### QPS limits
  * You can call this operation up to 100 times per second per account.
@@ -2043,7 +2893,7 @@ async function listCallTaskDetailWithOptions(request: ListCallTaskDetailRequest,
 }
 
 /**
- * @summary Queries the information about a task based on the task ID.
+ * @summary Queries the details of call tasks based on task IDs after call tasks are complete.
  *
  * @description ### QPS limits
  * You can call this operation up to 100 times per second per account.
@@ -2321,7 +3171,7 @@ model PauseVideoFileResponse = {
 }
 
 /**
- * @summary PauseVideoFile
+ * @summary Pauses video playback when a video file is played back during a voice call.
  *
  * @param request PauseVideoFileRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -2364,7 +3214,7 @@ async function pauseVideoFileWithOptions(request: PauseVideoFileRequest, runtime
 }
 
 /**
- * @summary PauseVideoFile
+ * @summary Pauses video playback when a video file is played back during a voice call.
  *
  * @param request PauseVideoFileRequest
  * @return PauseVideoFileResponse
@@ -2400,7 +3250,7 @@ model PlayVideoFileResponse = {
 }
 
 /**
- * @summary PlayVideoFile
+ * @summary Plays back a video file during a voice call.
  *
  * @param request PlayVideoFileRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -2452,7 +3302,7 @@ async function playVideoFileWithOptions(request: PlayVideoFileRequest, runtime: 
 }
 
 /**
- * @summary PlayVideoFile
+ * @summary Plays back a video file during a voice call.
  *
  * @param request PlayVideoFileRequest
  * @return PlayVideoFileResponse
@@ -2986,7 +3836,7 @@ model QueryRobotInfoListResponse = {
 }
 
 /**
- * @summary Queries a list of robots.
+ * @summary Queries a list of robots to obtain their details.
  *
  * @param request QueryRobotInfoListRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -3026,7 +3876,7 @@ async function queryRobotInfoListWithOptions(request: QueryRobotInfoListRequest,
 }
 
 /**
- * @summary Queries a list of robots.
+ * @summary Queries a list of robots to obtain their details.
  *
  * @param request QueryRobotInfoListRequest
  * @return QueryRobotInfoListResponse
@@ -3095,7 +3945,7 @@ model QueryRobotTaskCallDetailResponse = {
 }
 
 /**
- * @summary Queries the call details of a called number in a robocall task.
+ * @summary Queries the call details of a called number.
  *
  * @description ### QPS limits
  * You can call this operation up to 100 times per second per account.
@@ -3144,7 +3994,7 @@ async function queryRobotTaskCallDetailWithOptions(request: QueryRobotTaskCallDe
 }
 
 /**
- * @summary Queries the call details of a called number in a robocall task.
+ * @summary Queries the call details of a called number.
  *
  * @description ### QPS limits
  * You can call this operation up to 100 times per second per account.
@@ -3632,7 +4482,7 @@ model QueryVideoPlayProgressResponse = {
 }
 
 /**
- * @summary QueryVideoPlayProgress
+ * @summary Queries the video playback progress after you play a video file during a voice call.
  *
  * @param request QueryVideoPlayProgressRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -3675,7 +4525,7 @@ async function queryVideoPlayProgressWithOptions(request: QueryVideoPlayProgress
 }
 
 /**
- * @summary QueryVideoPlayProgress
+ * @summary Queries the video playback progress after you play a video file during a voice call.
  *
  * @param request QueryVideoPlayProgressRequest
  * @return QueryVideoPlayProgressResponse
@@ -3683,111 +4533,6 @@ async function queryVideoPlayProgressWithOptions(request: QueryVideoPlayProgress
 async function queryVideoPlayProgress(request: QueryVideoPlayProgressRequest): QueryVideoPlayProgressResponse {
   var runtime = new $RuntimeOptions{};
   return queryVideoPlayProgressWithOptions(request, runtime);
-}
-
-model QueryVirtualNumberRequest {
-  ownerId?: long(name='OwnerId'),
-  pageNo?: int32(name='PageNo', description='The page number.', example='1'),
-  pageSize?: int32(name='PageSize', description='The number of entries per page.', example='10'),
-  prodCode?: string(name='ProdCode', description='The service name. Default value: **dyvms**.', example='dyvms'),
-  resourceOwnerAccount?: string(name='ResourceOwnerAccount'),
-  resourceOwnerId?: long(name='ResourceOwnerId'),
-  routeType?: int32(name='RouteType', description='The route type. Valid values:
-
-*   **0**: number location first.
-*   **1**: random.', example='0'),
-}
-
-model QueryVirtualNumberResponseBody = {
-  code?: string(name='Code', description='The response code. The value 200 indicates that the request was successful.', example='200'),
-  data?: string(name='Data', description='The details of the numbers associated with the virtual numbers. The following fields are returned:
-
-*   createTime: the time when the number was activated.
-*   qualificationCount: the number of qualifications.
-*   cityCount: the number of cities.
-*   phoneNumCount: the number of virtual numbers.
-*   remark: the additional information.
-*   phoneNum: the virtual number.
-*   routeType: the route type.
-*   canCancel: indicates whether the number can be deactivated.
-*   specCount: the number of Internet service providers (ISPs).
-*   status: the number state. Valid values: **1**, **0**, and **-1**. The value 1 indicates that the number is valid. The value 0 indicates that the number is invalid. The value -1 indicates that the number was deactivated.
-*   pageNo: the page number.
-*   pageSize: the number of entries per page.
-*   total: the total number of virtual numbers.', example='{"data":[{"createTime":"2020-07-15 04:00:00","qualificationCount":0,"cityCount":0,"phoneNumCount":1,"remark":"20200715Unicom CTD shut down","phoneNum":"05516214****","routeType":1,"canCancel":true,"specCount":0,"status":"1"}],"pageSize":1,"total":17,"pageNo":1}'),
-  requestId?: string(name='RequestId', description='The request ID.', example='9FF70B74-1B3C-44C1-ACDF-8DF962988F0E'),
-}
-
-model QueryVirtualNumberResponse = {
-  headers?: map[string]string(name='headers'),
-  statusCode?: int32(name='statusCode'),
-  body?: QueryVirtualNumberResponseBody(name='body'),
-}
-
-/**
- * @summary Queries a list of virtual numbers.
- *
- * @description ### QPS limits
- * You can call this operation up to 100 times per second per account.
- *
- * @param request QueryVirtualNumberRequest
- * @param runtime runtime options for this request RuntimeOptions
- * @return QueryVirtualNumberResponse
- */
-@context("queryVirtualNumberWithContext")
-async function queryVirtualNumberWithOptions(request: QueryVirtualNumberRequest, runtime: $RuntimeOptions): QueryVirtualNumberResponse {
-  request.validate();
-  var query = {};
-  if (!$isNull(request.ownerId)) {
-    query['OwnerId'] = request.ownerId;
-  }
-  if (!$isNull(request.pageNo)) {
-    query['PageNo'] = request.pageNo;
-  }
-  if (!$isNull(request.pageSize)) {
-    query['PageSize'] = request.pageSize;
-  }
-  if (!$isNull(request.prodCode)) {
-    query['ProdCode'] = request.prodCode;
-  }
-  if (!$isNull(request.resourceOwnerAccount)) {
-    query['ResourceOwnerAccount'] = request.resourceOwnerAccount;
-  }
-  if (!$isNull(request.resourceOwnerId)) {
-    query['ResourceOwnerId'] = request.resourceOwnerId;
-  }
-  if (!$isNull(request.routeType)) {
-    query['RouteType'] = request.routeType;
-  }
-  var req = new OpenApiUtil.OpenApiRequest{ 
-    query = OpenApiUtil.query(query),
-  };
-  var params = new OpenApiUtil.Params{
-    action = 'QueryVirtualNumber',
-    version = '2017-05-25',
-    protocol = 'HTTPS',
-    pathname = '/',
-    method = 'POST',
-    authType = 'AK',
-    style = 'RPC',
-    reqBodyType = 'formData',
-    bodyType = 'json',
-  };
-  return callApi(params, req, runtime);
-}
-
-/**
- * @summary Queries a list of virtual numbers.
- *
- * @description ### QPS limits
- * You can call this operation up to 100 times per second per account.
- *
- * @param request QueryVirtualNumberRequest
- * @return QueryVirtualNumberResponse
- */
-async function queryVirtualNumber(request: QueryVirtualNumberRequest): QueryVirtualNumberResponse {
-  var runtime = new $RuntimeOptions{};
-  return queryVirtualNumberWithOptions(request, runtime);
 }
 
 model QueryVirtualNumberRelationRequest {
@@ -3835,7 +4580,7 @@ model QueryVirtualNumberRelationResponse = {
 }
 
 /**
- * @summary Queries a list of associations between virtual numbers and real numbers.
+ * @summary Lists real numbers bound to service instances. The returned data includes the binding time, the number activation time, and the number of real numbers bound to a service instance.
  *
  * @description ### QPS limits
  * You can call this operation up to 200 times per second per account.
@@ -3902,7 +4647,7 @@ async function queryVirtualNumberRelationWithOptions(request: QueryVirtualNumber
 }
 
 /**
- * @summary Queries a list of associations between virtual numbers and real numbers.
+ * @summary Lists real numbers bound to service instances. The returned data includes the binding time, the number activation time, and the number of real numbers bound to a service instance.
  *
  * @description ### QPS limits
  * You can call this operation up to 200 times per second per account.
@@ -4313,7 +5058,7 @@ model ResumeVideoFileResponse = {
 }
 
 /**
- * @summary ResumeVideoFile
+ * @summary Resumes video playback after you pause video playback during a voice call.
  *
  * @param request ResumeVideoFileRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -4356,7 +5101,7 @@ async function resumeVideoFileWithOptions(request: ResumeVideoFileRequest, runti
 }
 
 /**
- * @summary ResumeVideoFile
+ * @summary Resumes video playback after you pause video playback during a voice call.
  *
  * @param request ResumeVideoFileRequest
  * @return ResumeVideoFileResponse
@@ -4820,7 +5565,7 @@ model SingleCallByVideoResponse = {
 }
 
 /**
- * @summary 语音视频单呼接口
+ * @summary Sends voice file notifications or video file notifications to a single called number.
  *
  * @param request SingleCallByVideoRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -4881,7 +5626,7 @@ async function singleCallByVideoWithOptions(request: SingleCallByVideoRequest, r
 }
 
 /**
- * @summary 语音视频单呼接口
+ * @summary Sends voice file notifications or video file notifications to a single called number.
  *
  * @param request SingleCallByVideoRequest
  * @return SingleCallByVideoResponse
@@ -5052,7 +5797,7 @@ model SkipVideoFileResponse = {
 }
 
 /**
- * @summary SkipVideoFile
+ * @summary Fast forwards or rewinds a video when you play the video.
  *
  * @param request SkipVideoFileRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -5101,7 +5846,7 @@ async function skipVideoFileWithOptions(request: SkipVideoFileRequest, runtime: 
 }
 
 /**
- * @summary SkipVideoFile
+ * @summary Fast forwards or rewinds a video when you play the video.
  *
  * @param request SkipVideoFileRequest
  * @return SkipVideoFileResponse
@@ -5799,7 +6544,7 @@ model SubmitHotlineTransferRegisterResponse = {
 }
 
 /**
- * @summary Submits a China 400 number for registration.
+ * @summary Submits a 400 number for registration.
  *
  * @description ### QPS limits
  * You can call this operation up to 100 times per second per account.
@@ -5869,7 +6614,7 @@ async function submitHotlineTransferRegisterWithOptions(request: SubmitHotlineTr
 }
 
 /**
- * @summary Submits a China 400 number for registration.
+ * @summary Submits a 400 number for registration.
  *
  * @description ### QPS limits
  * You can call this operation up to 100 times per second per account.
@@ -5907,7 +6652,7 @@ model UpgradeVideoFileResponse = {
 }
 
 /**
- * @summary UpgradeVideoFile
+ * @summary Upgrades from a voice call to a video call.
  *
  * @param request UpgradeVideoFileRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -5956,7 +6701,7 @@ async function upgradeVideoFileWithOptions(request: UpgradeVideoFileRequest, run
 }
 
 /**
- * @summary UpgradeVideoFile
+ * @summary Upgrades from a voice call to a video call.
  *
  * @param request UpgradeVideoFileRequest
  * @return UpgradeVideoFileResponse
