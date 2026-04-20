@@ -859,8 +859,34 @@ model DescribeMmAppRequest {
 }
 
 model DescribeMmAppResponseBody = {
+  appConfig?: {
+    enableTransition?: boolean(name='EnableTransition', example='true'),
+  }(name='AppConfig'),
   appId?: string(name='AppId', example='mm_xxxx'),
   appName?: string(name='AppName', example='多模态应用xxxx'),
+  bindingConfig?: {
+    commands?: [ 
+      {
+        domainCode?: string(name='DomainCode', example='xxx'),
+        tools?: [ string ](name='Tools'),
+        type?: string(name='Type', example='BAILIAN'),
+      }
+    ](name='Commands'),
+    mcps?: [ 
+      {
+        code?: string(name='Code', example='mcp-xxxx'),
+        toolList?: [ string ](name='ToolList'),
+      }
+    ](name='Mcps'),
+    ragConfig?: {
+      enableSearch?: string(name='EnableSearch', example='true'),
+      knowledgeBaseCodeList?: [ string ](name='KnowledgeBaseCodeList'),
+      promptStrategy?: string(name='PromptStrategy', example='top_k'),
+      rankWeights?: map[string]double(name='RankWeights'),
+      retrieveMaxLength?: int32(name='RetrieveMaxLength', example='1000'),
+      topK?: int32(name='TopK', example='5'),
+    }(name='RagConfig'),
+  }(name='BindingConfig'),
   conversationConfig?: {
     asrModel?: string(name='AsrModel', example='xxxx'),
     openAsr?: boolean(name='OpenAsr'),
@@ -874,6 +900,7 @@ model DescribeMmAppResponseBody = {
   modelConfig?: {
     historyLimit?: int32(name='HistoryLimit', example='5'),
     modelType?: string(name='ModelType', example='MMH'),
+    openMemory?: boolean(name='OpenMemory'),
     openWebSearch?: boolean(name='OpenWebSearch'),
     textModal?: string(name='TextModal', example='xxxx'),
   }(name='ModelConfig'),
@@ -881,7 +908,7 @@ model DescribeMmAppResponseBody = {
   modifyUserName?: string(name='ModifyUserName', example='xxxx'),
   prompt?: string(name='Prompt', example='提示词xxxx'),
   publishVersion?: long(name='PublishVersion', example='1'),
-  requestId?: string(name='RequestId', example='xxxx'),
+  requestId?: string(name='RequestId', description='Id of the request', example='xxxx'),
   status?: string(name='Status', example='1'),
 }
 
@@ -1222,6 +1249,174 @@ async function listPublishedMmAppWithOptions(request: ListPublishedMmAppRequest,
 async function listPublishedMmApp(request: ListPublishedMmAppRequest): ListPublishedMmAppResponse {
   var runtime = new Util.RuntimeOptions{};
   return listPublishedMmAppWithOptions(request, runtime);
+}
+
+model MmAppBindingMcpRequest {
+  appId?: string(name='AppId', description='This parameter is required.', example='mm_a2eb4e04b48041108edb1f6de815'),
+  mcps?: [ 
+    {
+      code?: string(name='Code', example='mcp-ZDI1MDU2ZTExZGZh'),
+      toolList?: [ string ](name='ToolList'),
+      type?: string(name='Type', example='CUSTOM'),
+    }
+  ](name='Mcps'),
+  workspaceId?: string(name='WorkspaceId', description='This parameter is required.', example='llm-o8ixktz41iyd2b6p'),
+}
+
+model MmAppBindingMcpShrinkRequest {
+  appId?: string(name='AppId', description='This parameter is required.', example='mm_a2eb4e04b48041108edb1f6de815'),
+  mcpsShrink?: string(name='Mcps'),
+  workspaceId?: string(name='WorkspaceId', description='This parameter is required.', example='llm-o8ixktz41iyd2b6p'),
+}
+
+model MmAppBindingMcpResponseBody = {
+  code?: string(name='Code', example='200'),
+  data?: {
+    success?: boolean(name='Success', example='true'),
+  }(name='Data'),
+  httpStatusCode?: int32(name='HttpStatusCode', example='200'),
+  message?: string(name='Message', example='success'),
+  requestId?: string(name='RequestId', description='Id of the request', example='539759F7-A281-577D-9962-6E69AEBD3AB9'),
+  success?: boolean(name='Success', example='true'),
+}
+
+model MmAppBindingMcpResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: MmAppBindingMcpResponseBody(name='body'),
+}
+
+/**
+ * @summary 多模态应用绑定MCP
+ *
+ * @param tmpReq MmAppBindingMcpRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return MmAppBindingMcpResponse
+ */
+async function mmAppBindingMcpWithOptions(tmpReq: MmAppBindingMcpRequest, runtime: Util.RuntimeOptions): MmAppBindingMcpResponse {
+  Util.validateModel(tmpReq);
+  var request = new MmAppBindingMcpShrinkRequest{};
+  OpenApiUtil.convert(tmpReq, request);
+  if (!Util.isUnset(tmpReq.mcps)) {
+    request.mcpsShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.mcps, 'Mcps', 'json');
+  }
+  var query = {};
+  if (!Util.isUnset(request.appId)) {
+    query['AppId'] = request.appId;
+  }
+  if (!Util.isUnset(request.mcpsShrink)) {
+    query['Mcps'] = request.mcpsShrink;
+  }
+  if (!Util.isUnset(request.workspaceId)) {
+    query['WorkspaceId'] = request.workspaceId;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'MmAppBindingMcp',
+    version = '2025-09-09',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 多模态应用绑定MCP
+ *
+ * @param request MmAppBindingMcpRequest
+ * @return MmAppBindingMcpResponse
+ */
+async function mmAppBindingMcp(request: MmAppBindingMcpRequest): MmAppBindingMcpResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return mmAppBindingMcpWithOptions(request, runtime);
+}
+
+model MmAppBindingRagRequest {
+  appId?: string(name='AppId', description='This parameter is required.', example='mm_a2eb4e04b48041108edb1f6de815'),
+  knowledgeBaseCodeList?: [ string ](name='KnowledgeBaseCodeList'),
+  workspaceId?: string(name='WorkspaceId', description='This parameter is required.', example='llm-6uhm7nfev4k8pwcz'),
+}
+
+model MmAppBindingRagShrinkRequest {
+  appId?: string(name='AppId', description='This parameter is required.', example='mm_a2eb4e04b48041108edb1f6de815'),
+  knowledgeBaseCodeListShrink?: string(name='KnowledgeBaseCodeList'),
+  workspaceId?: string(name='WorkspaceId', description='This parameter is required.', example='llm-6uhm7nfev4k8pwcz'),
+}
+
+model MmAppBindingRagResponseBody = {
+  code?: string(name='Code', example='200'),
+  data?: {
+    success?: boolean(name='Success', example='true'),
+  }(name='Data'),
+  httpStatusCode?: int32(name='HttpStatusCode', example='200'),
+  message?: string(name='Message', example='success'),
+  requestId?: string(name='RequestId', description='Id of the request', example='539759F7-A281-577D-9962-6E69AEBD3AB9'),
+  success?: boolean(name='Success', example='true'),
+}
+
+model MmAppBindingRagResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: MmAppBindingRagResponseBody(name='body'),
+}
+
+/**
+ * @summary 多模态应用绑定知识库
+ *
+ * @param tmpReq MmAppBindingRagRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return MmAppBindingRagResponse
+ */
+async function mmAppBindingRagWithOptions(tmpReq: MmAppBindingRagRequest, runtime: Util.RuntimeOptions): MmAppBindingRagResponse {
+  Util.validateModel(tmpReq);
+  var request = new MmAppBindingRagShrinkRequest{};
+  OpenApiUtil.convert(tmpReq, request);
+  if (!Util.isUnset(tmpReq.knowledgeBaseCodeList)) {
+    request.knowledgeBaseCodeListShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.knowledgeBaseCodeList, 'KnowledgeBaseCodeList', 'json');
+  }
+  var query = {};
+  if (!Util.isUnset(request.appId)) {
+    query['AppId'] = request.appId;
+  }
+  if (!Util.isUnset(request.knowledgeBaseCodeListShrink)) {
+    query['KnowledgeBaseCodeList'] = request.knowledgeBaseCodeListShrink;
+  }
+  if (!Util.isUnset(request.workspaceId)) {
+    query['WorkspaceId'] = request.workspaceId;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'MmAppBindingRag',
+    version = '2025-09-09',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 多模态应用绑定知识库
+ *
+ * @param request MmAppBindingRagRequest
+ * @return MmAppBindingRagResponse
+ */
+async function mmAppBindingRag(request: MmAppBindingRagRequest): MmAppBindingRagResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return mmAppBindingRagWithOptions(request, runtime);
 }
 
 model PatchMemoryConfigRequest {
@@ -2059,6 +2254,375 @@ async function updateMmAppWithOptions(tmpReq: UpdateMmAppRequest, runtime: Util.
 async function updateMmApp(request: UpdateMmAppRequest): UpdateMmAppResponse {
   var runtime = new Util.RuntimeOptions{};
   return updateMmAppWithOptions(request, runtime);
+}
+
+model UpdateMmAppMemoryRequest {
+  appId?: string(name='AppId', description='This parameter is required.', example='mm_c617650fbd9e49e8916189e23c62'),
+  status?: boolean(name='Status', description='This parameter is required.', example='true'),
+  workspaceId?: string(name='WorkspaceId', description='This parameter is required.', example='llm-6uhm7nfev4k8pwcz'),
+}
+
+model UpdateMmAppMemoryResponseBody = {
+  code?: string(name='Code', example='200'),
+  data?: {
+    success?: boolean(name='Success', example='true'),
+  }(name='Data'),
+  httpStatusCode?: int32(name='HttpStatusCode', example='200'),
+  message?: string(name='Message', example='success'),
+  requestId?: string(name='RequestId', description='Id of the request', example='82296D89-6895-574B-8AA1-64959957CB41'),
+  success?: boolean(name='Success', example='true'),
+}
+
+model UpdateMmAppMemoryResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: UpdateMmAppMemoryResponseBody(name='body'),
+}
+
+/**
+ * @summary 修改多模态应用长期记忆开关
+ *
+ * @param request UpdateMmAppMemoryRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return UpdateMmAppMemoryResponse
+ */
+async function updateMmAppMemoryWithOptions(request: UpdateMmAppMemoryRequest, runtime: Util.RuntimeOptions): UpdateMmAppMemoryResponse {
+  Util.validateModel(request);
+  var query = {};
+  if (!Util.isUnset(request.appId)) {
+    query['AppId'] = request.appId;
+  }
+  if (!Util.isUnset(request.status)) {
+    query['Status'] = request.status;
+  }
+  if (!Util.isUnset(request.workspaceId)) {
+    query['WorkspaceId'] = request.workspaceId;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'UpdateMmAppMemory',
+    version = '2025-09-09',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 修改多模态应用长期记忆开关
+ *
+ * @param request UpdateMmAppMemoryRequest
+ * @return UpdateMmAppMemoryResponse
+ */
+async function updateMmAppMemory(request: UpdateMmAppMemoryRequest): UpdateMmAppMemoryResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return updateMmAppMemoryWithOptions(request, runtime);
+}
+
+model UpdateMmAppRagRequest {
+  appId?: string(name='AppId', description='This parameter is required.', example='mm_c617650fbd9e49e8916189e23c62'),
+  status?: boolean(name='Status', description='This parameter is required.', example='true'),
+  workspaceId?: string(name='WorkspaceId', description='This parameter is required.', example='llm-6uhm7nfev4k8pwcz'),
+}
+
+model UpdateMmAppRagResponseBody = {
+  code?: string(name='Code', example='200'),
+  data?: {
+    success?: boolean(name='Success', example='true'),
+  }(name='Data'),
+  httpStatusCode?: int32(name='HttpStatusCode', example='200'),
+  message?: string(name='Message', example='success'),
+  requestId?: string(name='RequestId', description='Id of the request', example='31033EC0-6968-5610-8328-708B59508E5A'),
+  success?: boolean(name='Success', example='true'),
+}
+
+model UpdateMmAppRagResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: UpdateMmAppRagResponseBody(name='body'),
+}
+
+/**
+ * @summary 修改知识库开关
+ *
+ * @param request UpdateMmAppRagRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return UpdateMmAppRagResponse
+ */
+async function updateMmAppRagWithOptions(request: UpdateMmAppRagRequest, runtime: Util.RuntimeOptions): UpdateMmAppRagResponse {
+  Util.validateModel(request);
+  var query = {};
+  if (!Util.isUnset(request.appId)) {
+    query['AppId'] = request.appId;
+  }
+  if (!Util.isUnset(request.status)) {
+    query['Status'] = request.status;
+  }
+  if (!Util.isUnset(request.workspaceId)) {
+    query['WorkspaceId'] = request.workspaceId;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'UpdateMmAppRag',
+    version = '2025-09-09',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 修改知识库开关
+ *
+ * @param request UpdateMmAppRagRequest
+ * @return UpdateMmAppRagResponse
+ */
+async function updateMmAppRag(request: UpdateMmAppRagRequest): UpdateMmAppRagResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return updateMmAppRagWithOptions(request, runtime);
+}
+
+model UpdateMmAppRagConfigRequest {
+  appId?: string(name='AppId', description='This parameter is required.', example='mm_a2eb4e04b48041108edb1f6de815'),
+  promptStrategy?: string(name='PromptStrategy', description='This parameter is required.', example='top_k'),
+  retrieveMaxLength?: int32(name='RetrieveMaxLength', description='This parameter is required.', example='1000'),
+  topK?: int32(name='TopK', example='5'),
+  workspaceId?: string(name='WorkspaceId', description='This parameter is required.', example='llm-6uhm7nfev4k8pwcz'),
+}
+
+model UpdateMmAppRagConfigResponseBody = {
+  code?: string(name='Code', example='200'),
+  data?: {
+    success?: boolean(name='Success', example='true'),
+  }(name='Data'),
+  httpStatusCode?: int32(name='HttpStatusCode', example='200'),
+  message?: string(name='Message', example='success'),
+  requestId?: string(name='RequestId', description='Id of the request', example='E0C89417-089D-5C58-881E-40F88171EC51'),
+  success?: boolean(name='Success', example='true'),
+}
+
+model UpdateMmAppRagConfigResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: UpdateMmAppRagConfigResponseBody(name='body'),
+}
+
+/**
+ * @summary 修改知识库配置
+ *
+ * @param request UpdateMmAppRagConfigRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return UpdateMmAppRagConfigResponse
+ */
+async function updateMmAppRagConfigWithOptions(request: UpdateMmAppRagConfigRequest, runtime: Util.RuntimeOptions): UpdateMmAppRagConfigResponse {
+  Util.validateModel(request);
+  var query = {};
+  if (!Util.isUnset(request.appId)) {
+    query['AppId'] = request.appId;
+  }
+  if (!Util.isUnset(request.promptStrategy)) {
+    query['PromptStrategy'] = request.promptStrategy;
+  }
+  if (!Util.isUnset(request.retrieveMaxLength)) {
+    query['RetrieveMaxLength'] = request.retrieveMaxLength;
+  }
+  if (!Util.isUnset(request.topK)) {
+    query['TopK'] = request.topK;
+  }
+  if (!Util.isUnset(request.workspaceId)) {
+    query['WorkspaceId'] = request.workspaceId;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'UpdateMmAppRagConfig',
+    version = '2025-09-09',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 修改知识库配置
+ *
+ * @param request UpdateMmAppRagConfigRequest
+ * @return UpdateMmAppRagConfigResponse
+ */
+async function updateMmAppRagConfig(request: UpdateMmAppRagConfigRequest): UpdateMmAppRagConfigResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return updateMmAppRagConfigWithOptions(request, runtime);
+}
+
+model UpdateMmAppRagWeightRequest {
+  appId?: string(name='AppId', description='This parameter is required.', example='mm_a2eb4e04b48041108edb1f6de815'),
+  rankWeights?: map[string]double(name='RankWeights'),
+  workspaceId?: string(name='WorkspaceId', description='This parameter is required.', example='llm-6uhm7nfev4k8pwcz'),
+}
+
+model UpdateMmAppRagWeightShrinkRequest {
+  appId?: string(name='AppId', description='This parameter is required.', example='mm_a2eb4e04b48041108edb1f6de815'),
+  rankWeightsShrink?: string(name='RankWeights'),
+  workspaceId?: string(name='WorkspaceId', description='This parameter is required.', example='llm-6uhm7nfev4k8pwcz'),
+}
+
+model UpdateMmAppRagWeightResponseBody = {
+  code?: string(name='Code', example='200'),
+  data?: {
+    success?: boolean(name='Success', example='true'),
+  }(name='Data'),
+  httpStatusCode?: int32(name='HttpStatusCode', example='200'),
+  message?: string(name='Message', example='success'),
+  requestId?: string(name='RequestId', description='Id of the request', example='5979B783-0AF5-547E-A549-8659F8A2A12A'),
+  success?: boolean(name='Success', example='true'),
+}
+
+model UpdateMmAppRagWeightResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: UpdateMmAppRagWeightResponseBody(name='body'),
+}
+
+/**
+ * @summary 修改知识库权重
+ *
+ * @param tmpReq UpdateMmAppRagWeightRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return UpdateMmAppRagWeightResponse
+ */
+async function updateMmAppRagWeightWithOptions(tmpReq: UpdateMmAppRagWeightRequest, runtime: Util.RuntimeOptions): UpdateMmAppRagWeightResponse {
+  Util.validateModel(tmpReq);
+  var request = new UpdateMmAppRagWeightShrinkRequest{};
+  OpenApiUtil.convert(tmpReq, request);
+  if (!Util.isUnset(tmpReq.rankWeights)) {
+    request.rankWeightsShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.rankWeights, 'RankWeights', 'json');
+  }
+  var query = {};
+  if (!Util.isUnset(request.appId)) {
+    query['AppId'] = request.appId;
+  }
+  if (!Util.isUnset(request.rankWeightsShrink)) {
+    query['RankWeights'] = request.rankWeightsShrink;
+  }
+  if (!Util.isUnset(request.workspaceId)) {
+    query['WorkspaceId'] = request.workspaceId;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'UpdateMmAppRagWeight',
+    version = '2025-09-09',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 修改知识库权重
+ *
+ * @param request UpdateMmAppRagWeightRequest
+ * @return UpdateMmAppRagWeightResponse
+ */
+async function updateMmAppRagWeight(request: UpdateMmAppRagWeightRequest): UpdateMmAppRagWeightResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return updateMmAppRagWeightWithOptions(request, runtime);
+}
+
+model UpdateMmAppTransitionRequest {
+  appId?: string(name='AppId', description='This parameter is required.', example='mm_a2eb4e04b48041108edb1f6de815'),
+  status?: boolean(name='Status', description='This parameter is required.', example='true'),
+  workspaceId?: string(name='WorkspaceId', description='This parameter is required.', example='llm-6uhm7nfev4k8pwcz'),
+}
+
+model UpdateMmAppTransitionResponseBody = {
+  code?: string(name='Code', example='200'),
+  data?: {
+    success?: boolean(name='Success', example='true'),
+  }(name='Data'),
+  httpStatusCode?: int32(name='HttpStatusCode', example='200'),
+  message?: string(name='Message', example='success'),
+  requestId?: string(name='RequestId', description='Id of the request', example='EDD6123F-0122-5FBF-9A7E-097F319CF478'),
+  success?: boolean(name='Success', example='true'),
+}
+
+model UpdateMmAppTransitionResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: UpdateMmAppTransitionResponseBody(name='body'),
+}
+
+/**
+ * @summary 修改应用承接语开关
+ *
+ * @param request UpdateMmAppTransitionRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return UpdateMmAppTransitionResponse
+ */
+async function updateMmAppTransitionWithOptions(request: UpdateMmAppTransitionRequest, runtime: Util.RuntimeOptions): UpdateMmAppTransitionResponse {
+  Util.validateModel(request);
+  var query = {};
+  if (!Util.isUnset(request.appId)) {
+    query['AppId'] = request.appId;
+  }
+  if (!Util.isUnset(request.status)) {
+    query['Status'] = request.status;
+  }
+  if (!Util.isUnset(request.workspaceId)) {
+    query['WorkspaceId'] = request.workspaceId;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'UpdateMmAppTransition',
+    version = '2025-09-09',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 修改应用承接语开关
+ *
+ * @param request UpdateMmAppTransitionRequest
+ * @return UpdateMmAppTransitionResponse
+ */
+async function updateMmAppTransition(request: UpdateMmAppTransitionRequest): UpdateMmAppTransitionResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return updateMmAppTransitionWithOptions(request, runtime);
 }
 
 model UpdateProfileRequest {

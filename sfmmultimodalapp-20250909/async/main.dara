@@ -388,8 +388,34 @@ model DescribeMmAppRequest {
 }
 
 model DescribeMmAppResponseBody = {
+  appConfig?: {
+    enableTransition?: boolean(name='EnableTransition', example='true'),
+  }(name='AppConfig'),
   appId?: string(name='AppId', example='mm_xxxx'),
   appName?: string(name='AppName', example='多模态应用xxxx'),
+  bindingConfig?: {
+    commands?: [ 
+      {
+        domainCode?: string(name='DomainCode', example='xxx'),
+        tools?: [ string ](name='Tools'),
+        type?: string(name='Type', example='BAILIAN'),
+      }
+    ](name='Commands'),
+    mcps?: [ 
+      {
+        code?: string(name='Code', example='mcp-xxxx'),
+        toolList?: [ string ](name='ToolList'),
+      }
+    ](name='Mcps'),
+    ragConfig?: {
+      enableSearch?: string(name='EnableSearch', example='true'),
+      knowledgeBaseCodeList?: [ string ](name='KnowledgeBaseCodeList'),
+      promptStrategy?: string(name='PromptStrategy', example='top_k'),
+      rankWeights?: map[string]double(name='RankWeights'),
+      retrieveMaxLength?: int32(name='RetrieveMaxLength', example='1000'),
+      topK?: int32(name='TopK', example='5'),
+    }(name='RagConfig'),
+  }(name='BindingConfig'),
   conversationConfig?: {
     asrModel?: string(name='AsrModel', example='xxxx'),
     openAsr?: boolean(name='OpenAsr'),
@@ -403,6 +429,7 @@ model DescribeMmAppResponseBody = {
   modelConfig?: {
     historyLimit?: int32(name='HistoryLimit', example='5'),
     modelType?: string(name='ModelType', example='MMH'),
+    openMemory?: boolean(name='OpenMemory'),
     openWebSearch?: boolean(name='OpenWebSearch'),
     textModal?: string(name='TextModal', example='xxxx'),
   }(name='ModelConfig'),
@@ -410,7 +437,7 @@ model DescribeMmAppResponseBody = {
   modifyUserName?: string(name='ModifyUserName', example='xxxx'),
   prompt?: string(name='Prompt', example='提示词xxxx'),
   publishVersion?: long(name='PublishVersion', example='1'),
-  requestId?: string(name='RequestId', example='xxxx'),
+  requestId?: string(name='RequestId', description='Id of the request', example='xxxx'),
   status?: string(name='Status', example='1'),
 }
 
@@ -584,6 +611,76 @@ model ListPublishedMmAppResponse = {
 async function listPublishedMmApp(request: ListPublishedMmAppRequest): ListPublishedMmAppResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RPC', 'ListPublishedMmApp', 'POST', '/', 'json', false, 'json', request);
+}
+
+model MmAppBindingMcpRequest {
+  appId: string(name='AppId', description='This parameter is required.', example='mm_a2eb4e04b48041108edb1f6de815', position='Query'),
+  mcps?: [ 
+    {
+      code?: string(name='Code', example='mcp-ZDI1MDU2ZTExZGZh'),
+      toolList?: [ string ](name='ToolList'),
+      type?: string(name='Type', example='CUSTOM'),
+    }
+  ](name='Mcps', shrink='json', position='Query'),
+  workspaceId: string(name='WorkspaceId', description='This parameter is required.', example='llm-o8ixktz41iyd2b6p', position='Query'),
+}
+
+model MmAppBindingMcpResponseBody = {
+  code?: string(name='Code', example='200'),
+  data?: {
+    success?: boolean(name='Success', example='true'),
+  }(name='Data'),
+  httpStatusCode?: int32(name='HttpStatusCode', example='200'),
+  message?: string(name='Message', example='success'),
+  requestId?: string(name='RequestId', description='Id of the request', example='539759F7-A281-577D-9962-6E69AEBD3AB9'),
+  success?: boolean(name='Success', example='true'),
+}
+
+model MmAppBindingMcpResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: MmAppBindingMcpResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of MmAppBindingMcp  MmAppBindingMcpRequest
+  * @return MmAppBindingMcpResponse
+ */
+async function mmAppBindingMcp(request: MmAppBindingMcpRequest): MmAppBindingMcpResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'MmAppBindingMcp', 'POST', '/', 'json', false, 'json', request);
+}
+
+model MmAppBindingRagRequest {
+  appId: string(name='AppId', description='This parameter is required.', example='mm_a2eb4e04b48041108edb1f6de815', position='Query'),
+  knowledgeBaseCodeList?: [ string ](name='KnowledgeBaseCodeList', shrink='json', position='Query'),
+  workspaceId: string(name='WorkspaceId', description='This parameter is required.', example='llm-6uhm7nfev4k8pwcz', position='Query'),
+}
+
+model MmAppBindingRagResponseBody = {
+  code?: string(name='Code', example='200'),
+  data?: {
+    success?: boolean(name='Success', example='true'),
+  }(name='Data'),
+  httpStatusCode?: int32(name='HttpStatusCode', example='200'),
+  message?: string(name='Message', example='success'),
+  requestId?: string(name='RequestId', description='Id of the request', example='539759F7-A281-577D-9962-6E69AEBD3AB9'),
+  success?: boolean(name='Success', example='true'),
+}
+
+model MmAppBindingRagResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: MmAppBindingRagResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of MmAppBindingRag  MmAppBindingRagRequest
+  * @return MmAppBindingRagResponse
+ */
+async function mmAppBindingRag(request: MmAppBindingRagRequest): MmAppBindingRagResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'MmAppBindingRag', 'POST', '/', 'json', false, 'json', request);
 }
 
 model PatchMemoryConfigRequest {
@@ -957,6 +1054,168 @@ model UpdateMmAppResponse = {
 async function updateMmApp(request: UpdateMmAppRequest): UpdateMmAppResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RPC', 'UpdateMmApp', 'POST', '/', 'json', false, 'json', request);
+}
+
+model UpdateMmAppMemoryRequest {
+  appId: string(name='AppId', description='This parameter is required.', example='mm_c617650fbd9e49e8916189e23c62', position='Query'),
+  status: boolean(name='Status', description='This parameter is required.', example='true', position='Query'),
+  workspaceId: string(name='WorkspaceId', description='This parameter is required.', example='llm-6uhm7nfev4k8pwcz', position='Query'),
+}
+
+model UpdateMmAppMemoryResponseBody = {
+  code?: string(name='Code', example='200'),
+  data?: {
+    success?: boolean(name='Success', example='true'),
+  }(name='Data'),
+  httpStatusCode?: int32(name='HttpStatusCode', example='200'),
+  message?: string(name='Message', example='success'),
+  requestId?: string(name='RequestId', description='Id of the request', example='82296D89-6895-574B-8AA1-64959957CB41'),
+  success?: boolean(name='Success', example='true'),
+}
+
+model UpdateMmAppMemoryResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: UpdateMmAppMemoryResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of UpdateMmAppMemory  UpdateMmAppMemoryRequest
+  * @return UpdateMmAppMemoryResponse
+ */
+async function updateMmAppMemory(request: UpdateMmAppMemoryRequest): UpdateMmAppMemoryResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'UpdateMmAppMemory', 'POST', '/', 'json', false, 'json', request);
+}
+
+model UpdateMmAppRagRequest {
+  appId: string(name='AppId', description='This parameter is required.', example='mm_c617650fbd9e49e8916189e23c62', position='Query'),
+  status: boolean(name='Status', description='This parameter is required.', example='true', position='Query'),
+  workspaceId: string(name='WorkspaceId', description='This parameter is required.', example='llm-6uhm7nfev4k8pwcz', position='Query'),
+}
+
+model UpdateMmAppRagResponseBody = {
+  code?: string(name='Code', example='200'),
+  data?: {
+    success?: boolean(name='Success', example='true'),
+  }(name='Data'),
+  httpStatusCode?: int32(name='HttpStatusCode', example='200'),
+  message?: string(name='Message', example='success'),
+  requestId?: string(name='RequestId', description='Id of the request', example='31033EC0-6968-5610-8328-708B59508E5A'),
+  success?: boolean(name='Success', example='true'),
+}
+
+model UpdateMmAppRagResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: UpdateMmAppRagResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of UpdateMmAppRag  UpdateMmAppRagRequest
+  * @return UpdateMmAppRagResponse
+ */
+async function updateMmAppRag(request: UpdateMmAppRagRequest): UpdateMmAppRagResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'UpdateMmAppRag', 'POST', '/', 'json', false, 'json', request);
+}
+
+model UpdateMmAppRagConfigRequest {
+  appId: string(name='AppId', description='This parameter is required.', example='mm_a2eb4e04b48041108edb1f6de815', position='Query'),
+  promptStrategy: string(name='PromptStrategy', description='This parameter is required.', example='top_k', position='Query'),
+  retrieveMaxLength: int32(name='RetrieveMaxLength', description='This parameter is required.', example='1000', position='Query'),
+  topK?: int32(name='TopK', example='5', position='Query'),
+  workspaceId: string(name='WorkspaceId', description='This parameter is required.', example='llm-6uhm7nfev4k8pwcz', position='Query'),
+}
+
+model UpdateMmAppRagConfigResponseBody = {
+  code?: string(name='Code', example='200'),
+  data?: {
+    success?: boolean(name='Success', example='true'),
+  }(name='Data'),
+  httpStatusCode?: int32(name='HttpStatusCode', example='200'),
+  message?: string(name='Message', example='success'),
+  requestId?: string(name='RequestId', description='Id of the request', example='E0C89417-089D-5C58-881E-40F88171EC51'),
+  success?: boolean(name='Success', example='true'),
+}
+
+model UpdateMmAppRagConfigResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: UpdateMmAppRagConfigResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of UpdateMmAppRagConfig  UpdateMmAppRagConfigRequest
+  * @return UpdateMmAppRagConfigResponse
+ */
+async function updateMmAppRagConfig(request: UpdateMmAppRagConfigRequest): UpdateMmAppRagConfigResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'UpdateMmAppRagConfig', 'POST', '/', 'json', false, 'json', request);
+}
+
+model UpdateMmAppRagWeightRequest {
+  appId: string(name='AppId', description='This parameter is required.', example='mm_a2eb4e04b48041108edb1f6de815', position='Query'),
+  rankWeights?: map[string]double(name='RankWeights', shrink='json', position='Query'),
+  workspaceId: string(name='WorkspaceId', description='This parameter is required.', example='llm-6uhm7nfev4k8pwcz', position='Query'),
+}
+
+model UpdateMmAppRagWeightResponseBody = {
+  code?: string(name='Code', example='200'),
+  data?: {
+    success?: boolean(name='Success', example='true'),
+  }(name='Data'),
+  httpStatusCode?: int32(name='HttpStatusCode', example='200'),
+  message?: string(name='Message', example='success'),
+  requestId?: string(name='RequestId', description='Id of the request', example='5979B783-0AF5-547E-A549-8659F8A2A12A'),
+  success?: boolean(name='Success', example='true'),
+}
+
+model UpdateMmAppRagWeightResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: UpdateMmAppRagWeightResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of UpdateMmAppRagWeight  UpdateMmAppRagWeightRequest
+  * @return UpdateMmAppRagWeightResponse
+ */
+async function updateMmAppRagWeight(request: UpdateMmAppRagWeightRequest): UpdateMmAppRagWeightResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'UpdateMmAppRagWeight', 'POST', '/', 'json', false, 'json', request);
+}
+
+model UpdateMmAppTransitionRequest {
+  appId: string(name='AppId', description='This parameter is required.', example='mm_a2eb4e04b48041108edb1f6de815', position='Query'),
+  status: boolean(name='Status', description='This parameter is required.', example='true', position='Query'),
+  workspaceId: string(name='WorkspaceId', description='This parameter is required.', example='llm-6uhm7nfev4k8pwcz', position='Query'),
+}
+
+model UpdateMmAppTransitionResponseBody = {
+  code?: string(name='Code', example='200'),
+  data?: {
+    success?: boolean(name='Success', example='true'),
+  }(name='Data'),
+  httpStatusCode?: int32(name='HttpStatusCode', example='200'),
+  message?: string(name='Message', example='success'),
+  requestId?: string(name='RequestId', description='Id of the request', example='EDD6123F-0122-5FBF-9A7E-097F319CF478'),
+  success?: boolean(name='Success', example='true'),
+}
+
+model UpdateMmAppTransitionResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: UpdateMmAppTransitionResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of UpdateMmAppTransition  UpdateMmAppTransitionRequest
+  * @return UpdateMmAppTransitionResponse
+ */
+async function updateMmAppTransition(request: UpdateMmAppTransitionRequest): UpdateMmAppTransitionResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'UpdateMmAppTransition', 'POST', '/', 'json', false, 'json', request);
 }
 
 model UpdateProfileRequest {
