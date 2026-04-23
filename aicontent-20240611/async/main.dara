@@ -118,6 +118,7 @@ model ClientTreeDTO {
   clientUuid?: string(name='clientUuid', example='st-xxxx'),
   contact?: string(name='contact', example='13800138000'),
   deleteTag?: int32(name='deleteTag', example='0'),
+  discount?: double(name='discount', example='1.0'),
   gmtCreate?: string(name='gmtCreate', example='2024-01-01T00:00:00Z'),
   gmtModified?: string(name='gmtModified', example='2024-01-01T00:00:00Z'),
   id?: long(name='id', example='1'),
@@ -168,6 +169,68 @@ model ConversationUpdateCmd {
   title?: string(name='title', example='我的对话'),
 }
 
+model CostModelDetailRespDTO {
+  columns?: [
+    MetricDefRespDTO
+  ](name='columns'),
+  granularity?: string(name='granularity', example='hourly'),
+  modelId?: long(name='modelId', example='1'),
+  modelName?: string(name='modelName', example='通义千问-Plus'),
+  page?: int32(name='page', example='1'),
+  pageSize?: int32(name='pageSize', example='20'),
+  rows?: [
+    CostModelDetailRowDTO
+  ](name='rows'),
+  total?: int32(name='total', example='100'),
+}
+
+model CostModelDetailRowDTO {
+  timestamp?: long(name='timestamp', example='1700000000'),
+  values?: string(name='values'),
+}
+
+model CostQueryModelsDTO {
+  columns?: [
+    MetricDefRespDTO
+  ](name='columns'),
+  idField?: string(name='idField', example='model_id'),
+  nameField?: string(name='nameField', example='model_name'),
+  rows?: [
+    ModelRowDTO
+  ](name='rows'),
+}
+
+model CostQueryTrendDTO {
+  defaultMetric?: string(name='defaultMetric', example='total_amount'),
+  granularity?: string(name='granularity', example='hourly'),
+  metrics?: [
+    MetricDefRespDTO
+  ](name='metrics'),
+  points?: [
+    TrendPointDTO
+  ](name='points'),
+}
+
+model CostTabDTO {
+  key?: string(name='key', example='all'),
+  label?: string(name='label', example='全部'),
+  modelTypes?: [ string ](name='modelTypes'),
+}
+
+model MetricDefRespDTO {
+  key?: string(name='key', example='total_calls'),
+  label?: string(name='label', example='调用次数'),
+  sortable?: boolean(name='sortable', example='true'),
+  unit?: string(name='unit', example='次'),
+}
+
+model MetricValueDTO {
+  key?: string(name='key', example='total_calls'),
+  label?: string(name='label', example='调用次数'),
+  unit?: string(name='unit', example='次'),
+  value?: float(name='value', example='100'),
+}
+
 model ModelCreateCmd {
   apiKey?: string(name='apiKey', example='sk-xxxx'),
   baseUrl?: string(name='baseUrl', example='https://dashscope.aliyuncs.com'),
@@ -189,6 +252,7 @@ model ModelDTO {
   extensions?: string(name='extensions'),
   gmtCreate?: string(name='gmtCreate', example='2024-01-01T00:00:00Z'),
   gmtModified?: string(name='gmtModified', example='2024-01-01T00:00:00Z'),
+  hasBillingRule?: boolean(name='hasBillingRule', example='false'),
   id?: long(name='id', example='1'),
   inOut?: string(name='inOut'),
   isCustom?: boolean(name='isCustom', example='false'),
@@ -216,6 +280,13 @@ model ModelMetricsDTO {
   outputTokens?: long(name='outputTokens', example='300000'),
   successRate?: double(name='successRate', example='99.5'),
   totalCalls?: long(name='totalCalls', example='1000'),
+}
+
+model ModelRowDTO {
+  modelCode?: string(name='modelCode', example='qwen-plus'),
+  modelId?: long(name='modelId', example='1'),
+  modelName?: string(name='modelName', example='通义千问-Plus'),
+  values?: string(name='values'),
 }
 
 model ModelUpdateCmd {
@@ -504,6 +575,11 @@ model TimeSeriesPointDTO {
   label?: string(name='label', example='series1'),
   timestamp?: string(name='timestamp', example='2024-01-01T00:00:00Z'),
   value?: any(name='value'),
+}
+
+model TrendPointDTO {
+  timestamp?: long(name='timestamp', example='1700000000'),
+  values?: string(name='values'),
 }
 
 model UsageInfoDTO {
@@ -2150,6 +2226,39 @@ async function listTextbookAssistantSceneDetails(request: ListTextbookAssistantS
   return @handler.do('RESTFUL', 'ListTextbookAssistantSceneDetails', 'POST', '/api/v1/textbookAssistant/teachingResource/ListSceneDetails', 'json', false, 'json', request);
 }
 
+model ModelRouterBillingCostTabsRequest {
+  maxResults?: int32(name='maxResults', example='10', position='Query'),
+  nextToken?: string(name='nextToken', description='nextToken', example='xxxx-xxx-xxxxx', position='Query'),
+}
+
+model ModelRouterBillingCostTabsResponseBody = {
+  data?: [
+    CostTabDTO
+  ](name='data', example='[]'),
+  errCode?: string(name='errCode', example='UNKNOWN_ERROR'),
+  errMessage?: string(name='errMessage', example='未知错误'),
+  httpStatusCode?: int32(name='httpStatusCode', example='200'),
+  maxResults?: int32(name='maxResults', example='10'),
+  nextToken?: string(name='nextToken', description='nextToken', example='xxxx-xxx-xxxxx'),
+  requestId?: string(name='requestId', example='xxxx-xxxx-xxxx-xxxxxxxx'),
+  success?: boolean(name='success', example='true'),
+}
+
+model ModelRouterBillingCostTabsResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ModelRouterBillingCostTabsResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of ModelRouterBillingCostTabs  ModelRouterBillingCostTabsRequest
+  * @return ModelRouterBillingCostTabsResponse
+ */
+async function modelRouterBillingCostTabs(request: ModelRouterBillingCostTabsRequest): ModelRouterBillingCostTabsResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'ModelRouterBillingCostTabs', 'GET', '/api/v1/modelRouter/open/billing/cost/tabs', 'json', false, 'json', request);
+}
+
 model ModelRouterChatCompletionsRequest {
   body?: any(name='body', example='{
     "stream": true,
@@ -2256,10 +2365,59 @@ async function modelRouterCreateApiKey(request: ModelRouterCreateApiKeyRequest):
   return @handler.do('RESTFUL', 'ModelRouterCreateApiKey', 'POST', '/api/v1/modelRouter/open/apikeys', 'json', false, 'json', request);
 }
 
+model ModelRouterCreateBillingRuleRequest {
+  billingType?: string(name='billingType', example='token_tiered', position='Body'),
+  effectiveTime?: string(name='effectiveTime', example='2024-01-01T00:00:00Z', position='Body'),
+  expireTime?: string(name='expireTime', example='2025-01-01T00:00:00Z', position='Body'),
+  modelId: long(name='modelId', description='This parameter is required.', example='1', position='Body'),
+  pricingConfig?: any(name='pricingConfig', example='{}', position='Body'),
+  version?: int32(name='version', example='1', position='Body'),
+}
+
+model ModelRouterCreateBillingRuleResponseBody = {
+  data?: {
+    billingType?: string(name='billingType', example='token_tiered'),
+    deleteTag?: int32(name='deleteTag', example='0'),
+    effectiveTime?: string(name='effectiveTime', example='2024-01-01T00:00:00Z'),
+    expireTime?: string(name='expireTime', example='2025-01-01T00:00:00Z'),
+    gmtCreate?: string(name='gmtCreate', example='2024-01-01T00:00:00Z'),
+    gmtModified?: string(name='gmtModified', example='2024-01-01T00:00:00Z'),
+    id?: long(name='id', example='1'),
+    modelCode?: string(name='modelCode', example='qwen-plus'),
+    modelId?: long(name='modelId', example='1'),
+    modelName?: string(name='modelName', example='通义千问Plus'),
+    modelType?: string(name='modelType', example='chat'),
+    pricingConfig?: any(name='pricingConfig', example='{}'),
+    symbol?: string(name='symbol', example='alibaba'),
+    version?: int32(name='version', example='1'),
+  }(name='data'),
+  errCode?: string(name='errCode', example='UNKNOWN_ERROR'),
+  errMessage?: string(name='errMessage', example='未知错误'),
+  httpStatusCode?: int32(name='httpStatusCode', example='200'),
+  requestId?: string(name='requestId', example='xxxx-xxxx-xxxx-xxxxxxxx'),
+  success?: boolean(name='success', example='true'),
+}
+
+model ModelRouterCreateBillingRuleResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ModelRouterCreateBillingRuleResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of ModelRouterCreateBillingRule  ModelRouterCreateBillingRuleRequest
+  * @return ModelRouterCreateBillingRuleResponse
+ */
+async function modelRouterCreateBillingRule(request: ModelRouterCreateBillingRuleRequest): ModelRouterCreateBillingRuleResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'ModelRouterCreateBillingRule', 'POST', '/api/v1/modelRouter/open/billing/rules', 'json', false, 'json', request);
+}
+
 model ModelRouterCreateClientRequest {
   address?: string(name='address', example='杭州市', position='Body'),
   allowedModels?: string(name='allowedModels', example='1,2,3', position='Body'),
   contact?: string(name='contact', example='13800138000', position='Body'),
+  discount?: double(name='discount', example='1.0', position='Body'),
   name?: string(name='name', example='我的客户', position='Body'),
   parentId?: long(name='parentId', example='1', position='Body'),
   remark?: string(name='remark', example='备注', position='Body'),
@@ -2546,6 +2704,110 @@ async function modelRouterQueryApiKeyList(request: ModelRouterQueryApiKeyListReq
   return @handler.do('RESTFUL', 'ModelRouterQueryApiKeyList', 'GET', '/api/v1/modelRouter/open/apikeys', 'json', false, 'json', request);
 }
 
+model ModelRouterQueryBillingRuleListRequest {
+  activeOnly?: boolean(name='activeOnly', example='true', position='Query'),
+  maxResults?: int32(name='maxResults', description='maxResults', example='10', position='Query'),
+  modelCode?: string(name='modelCode', example='qwen-plus', position='Query'),
+  modelId?: int32(name='modelId', example='1', position='Query'),
+  modelType?: string(name='modelType', example='chat', position='Query'),
+  nextToken?: string(name='nextToken', description='nextToken', example='xxxx-xxx-xxxxx', position='Query'),
+  page?: int32(name='page', example='1', position='Query'),
+  pageIndex?: int32(name='pageIndex', example='1', position='Query'),
+  pageSize?: int32(name='pageSize', example='20', position='Query'),
+}
+
+model ModelRouterQueryBillingRuleListResponseBody = {
+  data?: {
+    list?: [ 
+      {
+        billingType?: string(name='billingType', example='token_tiered'),
+        deleteTag?: int32(name='deleteTag', example='0'),
+        effectiveTime?: string(name='effectiveTime', example='2024-01-01T00:00:00Z'),
+        expireTime?: string(name='expireTime', example='2025-01-01T00:00:00Z'),
+        gmtCreate?: string(name='gmtCreate', example='2024-01-01T00:00:00Z'),
+        gmtModified?: string(name='gmtModified', example='2024-01-01T00:00:00Z'),
+        id?: long(name='id', example='1'),
+        modelCode?: string(name='modelCode', example='qwen-plus'),
+        modelId?: long(name='modelId', example='1'),
+        modelName?: string(name='modelName', example='通义千问Plus'),
+        modelType?: string(name='modelType', example='chat'),
+        pricingConfig?: any(name='pricingConfig', example='{}'),
+        symbol?: string(name='symbol', example='alibaba'),
+        version?: int32(name='version', example='1'),
+      }
+    ](name='list'),
+    page?: int32(name='page', example='1'),
+    pageSize?: int32(name='pageSize', example='20'),
+    total?: int32(name='total', example='5'),
+  }(name='data'),
+  errCode?: string(name='errCode', example='UNKNOWN_ERROR'),
+  errMessage?: string(name='errMessage', example='未知错误'),
+  httpStatusCode?: int32(name='httpStatusCode', example='200'),
+  maxResults?: int32(name='maxResults', description='maxResults', example='10'),
+  nextToken?: string(name='nextToken', description='nextToken', example='xxxx-xxx-xxxxx'),
+  requestId?: string(name='requestId', example='xxxx-xxxx-xxxx-xxxxxxxx'),
+  success?: boolean(name='success', example='true'),
+}
+
+model ModelRouterQueryBillingRuleListResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ModelRouterQueryBillingRuleListResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of ModelRouterQueryBillingRuleList  ModelRouterQueryBillingRuleListRequest
+  * @return ModelRouterQueryBillingRuleListResponse
+ */
+async function modelRouterQueryBillingRuleList(request: ModelRouterQueryBillingRuleListRequest): ModelRouterQueryBillingRuleListResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'ModelRouterQueryBillingRuleList', 'GET', '/api/v1/modelRouter/open/billing/rules', 'json', false, 'json', request);
+}
+
+model ModelRouterQueryClientDiscountLogsRequest {
+  id?: long(name='id', example='1', position='Path'),
+  maxResults?: int32(name='maxResults', example='10', position='Query'),
+  nextToken?: string(name='nextToken', description='nextToken', example='xxxx-xxx-xxxxx', position='Query'),
+}
+
+model ModelRouterQueryClientDiscountLogsResponseBody = {
+  data?: [ 
+    {
+      clientId?: long(name='clientId', example='1'),
+      deleteTag?: long(name='deleteTag', example='0'),
+      discount?: float(name='discount', example='0.5'),
+      effectiveTime?: string(name='effectiveTime', example='2025-09-01 00:00:00'),
+      expireTime?: string(name='expireTime', example='2025-09-10 00:00:00'),
+      gmtCreate?: string(name='gmtCreate', example='2024-01-01T00:00:00Z'),
+      gmtModified?: string(name='gmtModified', example='2024-01-01T00:00:00Z'),
+      id?: long(name='id', example='1'),
+      remark?: string(name='remark'),
+    }
+  ](name='data'),
+  errCode?: string(name='errCode', example='UNKNOWN_ERROR'),
+  errMessage?: string(name='errMessage', example='未知错误'),
+  httpStatusCode?: int32(name='httpStatusCode', example='200'),
+  maxResults?: int32(name='maxResults', description='maxResults', example='10'),
+  nextToken?: string(name='nextToken', description='nextToken', example='xxxx-xxx-xxxxx'),
+  requestId?: string(name='requestId', example='xxxx-xxxx-xxxx-xxxxxxxx'),
+  success?: boolean(name='success', example='true'),
+}
+
+model ModelRouterQueryClientDiscountLogsResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ModelRouterQueryClientDiscountLogsResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of ModelRouterQueryClientDiscountLogs  ModelRouterQueryClientDiscountLogsRequest
+  * @return ModelRouterQueryClientDiscountLogsResponse
+ */
+async function modelRouterQueryClientDiscountLogs(request: ModelRouterQueryClientDiscountLogsRequest): ModelRouterQueryClientDiscountLogsResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'ModelRouterQueryClientDiscountLogs', 'GET', '/api/v1/modelRouter/open/clients/{id}/discount-logs', 'json', false, 'json', request);
+}
+
 model ModelRouterQueryClientListRequest {
   groupBy?: string(name='groupBy', example='resourceId', position='Query'),
   keyword?: string(name='keyword', example='test', position='Query'),
@@ -2590,6 +2852,39 @@ model ModelRouterQueryClientListResponse = {
 async function modelRouterQueryClientList(request: ModelRouterQueryClientListRequest): ModelRouterQueryClientListResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RESTFUL', 'ModelRouterQueryClientList', 'GET', '/api/v1/modelRouter/open/clients', 'json', false, 'json', request);
+}
+
+model ModelRouterQueryClientTreeRequest {
+  maxResults?: int32(name='maxResults', description='maxResults', example='10', position='Query'),
+  nextToken?: string(name='nextToken', description='nextToken', example='xxxx-xxx-xxxxx', position='Query'),
+}
+
+model ModelRouterQueryClientTreeResponseBody = {
+  data?: [
+    ClientTreeDTO
+  ](name='data'),
+  errCode?: string(name='errCode', example='UNKNOWN_ERROR'),
+  errMessage?: string(name='errMessage', example='未知错误'),
+  httpStatusCode?: int32(name='httpStatusCode', example='200'),
+  maxResults?: int32(name='maxResults', description='maxResults', example='10'),
+  nextToken?: string(name='nextToken', description='nextToken', example='xxxx-xxx-xxxxx'),
+  requestId?: string(name='requestId', example='xxxx-xxxx-xxxx-xxxxxxxx'),
+  success?: boolean(name='success', example='true'),
+}
+
+model ModelRouterQueryClientTreeResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ModelRouterQueryClientTreeResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of ModelRouterQueryClientTree  ModelRouterQueryClientTreeRequest
+  * @return ModelRouterQueryClientTreeResponse
+ */
+async function modelRouterQueryClientTree(request: ModelRouterQueryClientTreeRequest): ModelRouterQueryClientTreeResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'ModelRouterQueryClientTree', 'GET', '/api/v1/modelRouter/open/clients/tree', 'json', false, 'json', request);
 }
 
 model ModelRouterQueryConversationRequest {
@@ -2666,6 +2961,155 @@ async function modelRouterQueryConversationList(request: ModelRouterQueryConvers
   return @handler.do('RESTFUL', 'ModelRouterQueryConversationList', 'GET', '/api/v1/modelRouter/open/conversations', 'json', false, 'json', request);
 }
 
+model ModelRouterQueryCostModelDetailRequest {
+  clientId?: long(name='clientId', example='1', position='Query'),
+  endTime: long(name='endTime', description='This parameter is required.', example='1700086400', position='Query'),
+  maxResults?: int32(name='maxResults', description='maxResults', example='10', position='Query'),
+  modelId: long(name='modelId', description='This parameter is required.', example='1', position='Query'),
+  nextToken?: string(name='nextToken', description='nextToken', example='xxxx-xxx-xxxxx', position='Query'),
+  page?: int32(name='page', example='1', position='Query'),
+  pageIndex?: int32(name='pageIndex', example='1', position='Query'),
+  pageSize?: int32(name='pageSize', example='20', position='Query'),
+  startTime: long(name='startTime', description='This parameter is required.', example='1700000000', position='Query'),
+}
+
+model ModelRouterQueryCostModelDetailResponseBody = {
+  data?: CostModelDetailRespDTO(name='data', example='[]'),
+  errCode?: string(name='errCode', example='UNKNOWN_ERROR'),
+  errMessage?: string(name='errMessage', example='未知错误'),
+  httpStatusCode?: int32(name='httpStatusCode', example='200'),
+  maxResults?: int32(name='maxResults', example='10'),
+  nextToken?: string(name='nextToken', description='nextToken', example='xxxx-xxx-xxxxx'),
+  requestId?: string(name='requestId', example='xxxx-xxxx-xxxx-xxxxxxxx'),
+  success?: boolean(name='success', example='true'),
+}
+
+model ModelRouterQueryCostModelDetailResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ModelRouterQueryCostModelDetailResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of ModelRouterQueryCostModelDetail  ModelRouterQueryCostModelDetailRequest
+  * @return ModelRouterQueryCostModelDetailResponse
+ */
+async function modelRouterQueryCostModelDetail(request: ModelRouterQueryCostModelDetailRequest): ModelRouterQueryCostModelDetailResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'ModelRouterQueryCostModelDetail', 'GET', '/api/v1/modelRouter/open/billing/cost/model-detail', 'json', false, 'json', request);
+}
+
+model ModelRouterQueryCostModelListRequest {
+  clientId?: long(name='clientId', example='1', position='Query'),
+  endTime: long(name='endTime', description='This parameter is required.', example='1700086400', position='Query'),
+  granularity?: string(name='granularity', example='hourly', position='Query'),
+  maxResults?: int32(name='maxResults', example='10', position='Query'),
+  modelTypes?: string(name='modelTypes', example='LLM,VL', position='Query'),
+  nextToken?: string(name='nextToken', description='nextToken', example='xxxx-xxx-xxxxx', position='Query'),
+  search?: string(name='search', example='qwen', position='Query'),
+  startTime: long(name='startTime', description='This parameter is required.', example='1700000000', position='Query'),
+}
+
+model ModelRouterQueryCostModelListResponseBody = {
+  data?: CostQueryModelsDTO(name='data', example='[]'),
+  errCode?: string(name='errCode', example='UNKNOWN_ERROR'),
+  errMessage?: string(name='errMessage', example='未知错误'),
+  httpStatusCode?: int32(name='httpStatusCode', example='200'),
+  maxResults?: int32(name='maxResults', example='10'),
+  nextToken?: string(name='nextToken', description='nextToken', example='xxxx-xxx-xxxxx'),
+  requestId?: string(name='requestId', example='xxxx-xxxx-xxxx-xxxxxxxx'),
+  success?: boolean(name='success', example='true'),
+}
+
+model ModelRouterQueryCostModelListResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ModelRouterQueryCostModelListResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of ModelRouterQueryCostModelList  ModelRouterQueryCostModelListRequest
+  * @return ModelRouterQueryCostModelListResponse
+ */
+async function modelRouterQueryCostModelList(request: ModelRouterQueryCostModelListRequest): ModelRouterQueryCostModelListResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'ModelRouterQueryCostModelList', 'GET', '/api/v1/modelRouter/open/billing/cost/models', 'json', false, 'json', request);
+}
+
+model ModelRouterQueryCostOverviewMetricsRequest {
+  clientId?: long(name='clientId', example='1', position='Query'),
+  endTime: long(name='endTime', description='This parameter is required.', example='1700086400', position='Query'),
+  granularity?: string(name='granularity', example='hourly', position='Query'),
+  maxResults?: int32(name='maxResults', example='10', position='Query'),
+  modelTypes?: string(name='modelTypes', example='LLM,VL', position='Query'),
+  nextToken?: string(name='nextToken', description='nextToken', example='xxxx-xxx-xxxxx', position='Query'),
+  startTime: long(name='startTime', description='This parameter is required.', example='1700000000', position='Query'),
+}
+
+model ModelRouterQueryCostOverviewMetricsResponseBody = {
+  data?: [
+    MetricValueDTO
+  ](name='data', example='[]'),
+  errCode?: string(name='errCode', example='UNKNOWN_ERROR'),
+  errMessage?: string(name='errMessage', example='未知错误'),
+  httpStatusCode?: int32(name='httpStatusCode', example='200'),
+  maxResults?: int32(name='maxResults', example='10'),
+  nextToken?: string(name='nextToken', description='nextToken', example='xxxx-xxx-xxxxx'),
+  requestId?: string(name='requestId', example='xxxx-xxxx-xxxx-xxxxxxxx'),
+  success?: boolean(name='success', example='true'),
+}
+
+model ModelRouterQueryCostOverviewMetricsResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ModelRouterQueryCostOverviewMetricsResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of ModelRouterQueryCostOverviewMetrics  ModelRouterQueryCostOverviewMetricsRequest
+  * @return ModelRouterQueryCostOverviewMetricsResponse
+ */
+async function modelRouterQueryCostOverviewMetrics(request: ModelRouterQueryCostOverviewMetricsRequest): ModelRouterQueryCostOverviewMetricsResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'ModelRouterQueryCostOverviewMetrics', 'GET', '/api/v1/modelRouter/open/billing/cost/overview', 'json', false, 'json', request);
+}
+
+model ModelRouterQueryCostTrendMetricsRequest {
+  clientId?: long(name='clientId', example='1', position='Query'),
+  endTime: long(name='endTime', description='This parameter is required.', example='1700086400', position='Query'),
+  granularity?: string(name='granularity', example='hourly', position='Query'),
+  maxResults?: int32(name='maxResults', example='10', position='Query'),
+  modelTypes?: string(name='modelTypes', example='LLM,VL', position='Query'),
+  nextToken?: string(name='nextToken', description='nextToken', example='xxxx-xxx-xxxxx', position='Query'),
+  startTime: long(name='startTime', description='This parameter is required.', example='1700000000', position='Query'),
+}
+
+model ModelRouterQueryCostTrendMetricsResponseBody = {
+  data?: CostQueryTrendDTO(name='data', example='[]'),
+  errCode?: string(name='errCode', example='UNKNOWN_ERROR'),
+  errMessage?: string(name='errMessage', example='未知错误'),
+  httpStatusCode?: int32(name='httpStatusCode', example='200'),
+  maxResults?: int32(name='maxResults', example='10'),
+  nextToken?: string(name='nextToken', description='nextToken', example='xxxx-xxx-xxxxx'),
+  requestId?: string(name='requestId', example='xxxx-xxxx-xxxx-xxxxxxxx'),
+  success?: boolean(name='success', example='true'),
+}
+
+model ModelRouterQueryCostTrendMetricsResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ModelRouterQueryCostTrendMetricsResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of ModelRouterQueryCostTrendMetrics  ModelRouterQueryCostTrendMetricsRequest
+  * @return ModelRouterQueryCostTrendMetricsResponse
+ */
+async function modelRouterQueryCostTrendMetrics(request: ModelRouterQueryCostTrendMetricsRequest): ModelRouterQueryCostTrendMetricsResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'ModelRouterQueryCostTrendMetrics', 'GET', '/api/v1/modelRouter/open/billing/cost/trend', 'json', false, 'json', request);
+}
+
 model ModelRouterQueryModelRequest {
   id?: long(name='id', example='1', position='Path'),
 }
@@ -2722,6 +3166,7 @@ model ModelRouterQueryModelListResponseBody = {
   errCode?: string(name='errCode', example='UNKNOWN_ERROR'),
   errMessage?: string(name='errMessage', example='未知错误'),
   httpStatusCode?: int32(name='httpStatusCode', example='200'),
+  maxResults?: int32(name='maxResults', description='maxResults', example='10'),
   requestId?: string(name='requestId', example='xxxx-xxxx-xxxx-xxxxxxxx'),
   success?: boolean(name='success', example='true'),
 }
@@ -2963,11 +3408,61 @@ async function modelRouterQueryObservationMetrics(request: ModelRouterQueryObser
   return @handler.do('RESTFUL', 'ModelRouterQueryObservationMetrics', 'GET', '/api/v1/modelRouter/open/observation/metrics', 'json', false, 'json', request);
 }
 
+model ModelRouterUpdateBillingRuleRequest {
+  id?: long(name='id', example='1', position='Path'),
+  billingType?: string(name='billingType', example='token_tiered', position='Body'),
+  effectiveTime?: string(name='effectiveTime', example='2024-01-01T00:00:00Z', position='Body'),
+  expireTime?: string(name='expireTime', example='2025-01-01T00:00:00Z', position='Body'),
+  pricingConfig?: any(name='pricingConfig', example='{}', position='Body'),
+  status?: int32(name='status', example='1', position='Body'),
+  version?: int32(name='version', example='1', position='Body'),
+}
+
+model ModelRouterUpdateBillingRuleResponseBody = {
+  data?: {
+    billingType?: string(name='billingType', example='token_tiered'),
+    deleteTag?: int32(name='deleteTag', example='0'),
+    effectiveTime?: string(name='effectiveTime', example='2024-01-01T00:00:00Z'),
+    expireTime?: string(name='expireTime', example='2025-01-01T00:00:00Z'),
+    gmtCreate?: string(name='gmtCreate', example='2024-01-01T00:00:00Z'),
+    gmtModified?: string(name='gmtModified', example='2024-01-01T00:00:00Z'),
+    id?: long(name='id', example='1'),
+    modelCode?: string(name='modelCode', example='qwen-plus'),
+    modelId?: long(name='modelId', example='1'),
+    modelName?: string(name='modelName', example='通义千问Plus'),
+    modelType?: string(name='modelType', example='chat'),
+    pricingConfig?: any(name='pricingConfig', example='{}'),
+    symbol?: string(name='symbol', example='alibaba'),
+    version?: int32(name='version', example='1'),
+  }(name='data'),
+  errCode?: string(name='errCode', example='UNKNOWN_ERROR'),
+  errMessage?: string(name='errMessage', example='未知错误'),
+  httpStatusCode?: int32(name='httpStatusCode', example='200'),
+  requestId?: string(name='requestId', example='xxxx-xxxx-xxxx-xxxxxxxx'),
+  success?: boolean(name='success', example='true'),
+}
+
+model ModelRouterUpdateBillingRuleResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ModelRouterUpdateBillingRuleResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of ModelRouterUpdateBillingRule  ModelRouterUpdateBillingRuleRequest
+  * @return ModelRouterUpdateBillingRuleResponse
+ */
+async function modelRouterUpdateBillingRule(request: ModelRouterUpdateBillingRuleRequest): ModelRouterUpdateBillingRuleResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'ModelRouterUpdateBillingRule', 'PUT', '/api/v1/modelRouter/open/billing/rules/{id}', 'json', false, 'json', request);
+}
+
 model ModelRouterUpdateClientRequest {
   id?: long(name='id', example='1', position='Path'),
   address?: string(name='address', example='杭州市', position='Body'),
   allowedModels?: string(name='allowedModels', example='1,2,3', position='Body'),
   contact?: string(name='contact', example='13800138000', position='Body'),
+  discount?: double(name='discount', example='1.0', position='Body'),
   name?: string(name='name', example='我的客户', position='Body'),
   remark?: string(name='remark', example='备注', position='Body'),
   status?: int32(name='status', example='1', position='Body'),

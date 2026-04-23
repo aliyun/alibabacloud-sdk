@@ -114,6 +114,7 @@ model ClientTreeDTO {
   clientUuid?: string(name='clientUuid', example='st-xxxx'),
   contact?: string(name='contact', example='13800138000'),
   deleteTag?: int32(name='deleteTag', example='0'),
+  discount?: double(name='discount', example='1.0'),
   gmtCreate?: string(name='gmtCreate', example='2024-01-01T00:00:00Z'),
   gmtModified?: string(name='gmtModified', example='2024-01-01T00:00:00Z'),
   id?: long(name='id', example='1'),
@@ -164,6 +165,68 @@ model ConversationUpdateCmd {
   title?: string(name='title', example='我的对话'),
 }
 
+model CostModelDetailRespDTO {
+  columns?: [
+    MetricDefRespDTO
+  ](name='columns'),
+  granularity?: string(name='granularity', example='hourly'),
+  modelId?: long(name='modelId', example='1'),
+  modelName?: string(name='modelName'),
+  page?: int32(name='page', example='1'),
+  pageSize?: int32(name='pageSize', example='20'),
+  rows?: [
+    CostModelDetailRowDTO
+  ](name='rows'),
+  total?: int32(name='total', example='100'),
+}
+
+model CostModelDetailRowDTO {
+  timestamp?: long(name='timestamp', example='1700000000'),
+  values?: string(name='values', example='"{\\\\"total_calls\\\\":3,\\\\"video_duration\\\\":0,\\\\"total_amount\\\\":0.6,\\\\"image_count\\\\":3,\\\\"timestamp\\\\":1776787200}"'),
+}
+
+model CostQueryModelsDTO {
+  columns?: [
+    MetricDefRespDTO
+  ](name='columns'),
+  idField?: string(name='idField', example='model_id'),
+  nameField?: string(name='nameField', example='model_name'),
+  rows?: [
+    ModelRowDTO
+  ](name='rows'),
+}
+
+model CostQueryTrendDTO {
+  defaultMetric?: string(name='defaultMetric', example='total_amount'),
+  granularity?: string(name='granularity', example='hourly'),
+  metrics?: [
+    MetricDefRespDTO
+  ](name='metrics'),
+  points?: [
+    TrendPointDTO
+  ](name='points'),
+}
+
+model CostTabDTO {
+  key?: string(name='key', example='all'),
+  label?: string(name='label'),
+  modelTypes?: [ string ](name='modelTypes'),
+}
+
+model MetricDefRespDTO {
+  key?: string(name='key', example='total_calls'),
+  label?: string(name='label'),
+  sortable?: boolean(name='sortable', example='true'),
+  unit?: string(name='unit'),
+}
+
+model MetricValueDTO {
+  key?: string(name='key', example='total_calls'),
+  label?: string(name='label'),
+  unit?: string(name='unit'),
+  value?: float(name='value', example='100'),
+}
+
 model ModelCreateCmd {
   apiKey?: string(name='apiKey', example='sk-xxxx'),
   baseUrl?: string(name='baseUrl', example='https://dashscope.aliyuncs.com'),
@@ -185,6 +248,7 @@ model ModelDTO {
   extensions?: string(name='extensions'),
   gmtCreate?: string(name='gmtCreate', example='2024-01-01T00:00:00Z'),
   gmtModified?: string(name='gmtModified', example='2024-01-01T00:00:00Z'),
+  hasBillingRule?: boolean(name='hasBillingRule', example='false'),
   id?: long(name='id', description='ID', example='1'),
   inOut?: string(name='inOut'),
   isCustom?: boolean(name='isCustom', example='false'),
@@ -212,6 +276,13 @@ model ModelMetricsDTO {
   outputTokens?: long(name='outputTokens', example='300000'),
   successRate?: double(name='successRate', example='99.5'),
   totalCalls?: long(name='totalCalls', example='1000'),
+}
+
+model ModelRowDTO {
+  modelCode?: string(name='modelCode', example='qwen-plus'),
+  modelId?: long(name='modelId', example='1'),
+  modelName?: string(name='modelName'),
+  values?: string(name='values', example='"{\\\\"total_calls\\\\":21,\\\\"video_duration\\\\":210,\\\\"total_amount\\\\":126,\\\\"image_count\\\\":0}"'),
 }
 
 model ModelUpdateCmd {
@@ -506,6 +577,11 @@ model TimeSeriesPointDTO {
   label?: string(name='label', example='series1'),
   timestamp?: string(name='timestamp', example='2024-01-01T00:00:00Z'),
   value?: any(name='value'),
+}
+
+model TrendPointDTO {
+  timestamp?: long(name='timestamp', example='1700000000'),
+  values?: string(name='values', example='"{\\\\"total_calls\\\\":0,\\\\"video_duration\\\\":0,\\\\"total_amount\\\\":0,\\\\"model_count\\\\":0,\\\\"image_count\\\\":0}"'),
 }
 
 model UsageInfoDTO {
@@ -4101,6 +4177,79 @@ async function listTextbookAssistantSceneDetails(request: ListTextbookAssistantS
   return listTextbookAssistantSceneDetailsWithOptions(request, headers, runtime);
 }
 
+model ModelRouterBillingCostTabsRequest {
+  maxResults?: int32(name='maxResults', example='10'),
+  nextToken?: string(name='nextToken', description='nextToken', example='xxxx-xxx-xxxxx'),
+}
+
+model ModelRouterBillingCostTabsResponseBody = {
+  data?: [
+    CostTabDTO
+  ](name='data', example='[]'),
+  errCode?: string(name='errCode', example='UNKNOWN_ERROR'),
+  errMessage?: string(name='errMessage', example='未知错误'),
+  httpStatusCode?: int32(name='httpStatusCode', example='200'),
+  maxResults?: int32(name='maxResults', example='10'),
+  nextToken?: string(name='nextToken', description='nextToken', example='xxxx-xxx-xxxxx'),
+  requestId?: string(name='requestId', example='xxxx-xxxx-xxxx-xxxxxxxx'),
+  success?: boolean(name='success', example='true'),
+}
+
+model ModelRouterBillingCostTabsResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ModelRouterBillingCostTabsResponseBody(name='body'),
+}
+
+/**
+ * @summary 计费管理/获取成本监控Tab配置
+ *
+ * @param request ModelRouterBillingCostTabsRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return ModelRouterBillingCostTabsResponse
+ */
+@context("modelRouterBillingCostTabsWithContext")
+async function modelRouterBillingCostTabsWithOptions(request: ModelRouterBillingCostTabsRequest, headers: map[string]string, runtime: $RuntimeOptions): ModelRouterBillingCostTabsResponse {
+  request.validate();
+  var query : map[string]any = {};
+  if (!$isNull(request.maxResults)) {
+    query['maxResults'] = request.maxResults;
+  }
+  if (!$isNull(request.nextToken)) {
+    query['nextToken'] = request.nextToken;
+  }
+
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'ModelRouterBillingCostTabs',
+    version = '20240611',
+    protocol = 'HTTPS',
+    pathname = `/api/v1/modelRouter/open/billing/cost/tabs`,
+    method = 'GET',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 计费管理/获取成本监控Tab配置
+ *
+ * @param request ModelRouterBillingCostTabsRequest
+ * @return ModelRouterBillingCostTabsResponse
+ */
+async function modelRouterBillingCostTabs(request: ModelRouterBillingCostTabsRequest): ModelRouterBillingCostTabsResponse {
+  var runtime = new $RuntimeOptions{};
+  var headers : map[string]string = {};
+  return modelRouterBillingCostTabsWithOptions(request, headers, runtime);
+}
+
 model ModelRouterChatCompletionsRequest {
   body?: any(name='body', example='{
     "stream": true,
@@ -4333,10 +4482,111 @@ async function modelRouterCreateApiKey(request: ModelRouterCreateApiKeyRequest):
   return modelRouterCreateApiKeyWithOptions(request, headers, runtime);
 }
 
+model ModelRouterCreateBillingRuleRequest {
+  billingType?: string(name='billingType', example='token_tiered'),
+  effectiveTime?: string(name='effectiveTime', example='2024-01-01T00:00:00Z'),
+  expireTime?: string(name='expireTime', example='2025-01-01T00:00:00Z'),
+  modelId?: long(name='modelId', description='This parameter is required.', example='1'),
+  pricingConfig?: any(name='pricingConfig', example='{}'),
+  version?: int32(name='version', example='1'),
+}
+
+model ModelRouterCreateBillingRuleResponseBody = {
+  data?: {
+    billingType?: string(name='billingType', example='token_tiered'),
+    deleteTag?: int32(name='deleteTag', example='0'),
+    effectiveTime?: string(name='effectiveTime', example='2024-01-01T00:00:00Z'),
+    expireTime?: string(name='expireTime', example='2025-01-01T00:00:00Z'),
+    gmtCreate?: string(name='gmtCreate', example='2024-01-01T00:00:00Z'),
+    gmtModified?: string(name='gmtModified', example='2024-01-01T00:00:00Z'),
+    id?: long(name='id', example='1'),
+    modelCode?: string(name='modelCode', example='qwen-plus'),
+    modelId?: long(name='modelId', example='1'),
+    modelName?: string(name='modelName', example='通义千问Plus'),
+    modelType?: string(name='modelType', example='chat'),
+    pricingConfig?: any(name='pricingConfig', example='{}'),
+    symbol?: string(name='symbol', example='alibaba'),
+    version?: int32(name='version', example='1'),
+  }(name='data'),
+  errCode?: string(name='errCode', example='UNKNOWN_ERROR'),
+  errMessage?: string(name='errMessage', example='未知错误'),
+  httpStatusCode?: int32(name='httpStatusCode', example='200'),
+  requestId?: string(name='requestId', example='xxxx-xxxx-xxxx-xxxxxxxx'),
+  success?: boolean(name='success', example='true'),
+}
+
+model ModelRouterCreateBillingRuleResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ModelRouterCreateBillingRuleResponseBody(name='body'),
+}
+
+/**
+ * @summary 计费管理/创建计费规则
+ *
+ * @param request ModelRouterCreateBillingRuleRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return ModelRouterCreateBillingRuleResponse
+ */
+@context("modelRouterCreateBillingRuleWithContext")
+async function modelRouterCreateBillingRuleWithOptions(request: ModelRouterCreateBillingRuleRequest, headers: map[string]string, runtime: $RuntimeOptions): ModelRouterCreateBillingRuleResponse {
+  request.validate();
+  var body : map[string]any = {};
+  if (!$isNull(request.billingType)) {
+    body['billingType'] = request.billingType;
+  }
+  if (!$isNull(request.effectiveTime)) {
+    body['effectiveTime'] = request.effectiveTime;
+  }
+  if (!$isNull(request.expireTime)) {
+    body['expireTime'] = request.expireTime;
+  }
+  if (!$isNull(request.modelId)) {
+    body['modelId'] = request.modelId;
+  }
+  if (!$isNull(request.pricingConfig)) {
+    body['pricingConfig'] = request.pricingConfig;
+  }
+  if (!$isNull(request.version)) {
+    body['version'] = request.version;
+  }
+
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    headers = headers,
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'ModelRouterCreateBillingRule',
+    version = '20240611',
+    protocol = 'HTTPS',
+    pathname = `/api/v1/modelRouter/open/billing/rules`,
+    method = 'POST',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 计费管理/创建计费规则
+ *
+ * @param request ModelRouterCreateBillingRuleRequest
+ * @return ModelRouterCreateBillingRuleResponse
+ */
+async function modelRouterCreateBillingRule(request: ModelRouterCreateBillingRuleRequest): ModelRouterCreateBillingRuleResponse {
+  var runtime = new $RuntimeOptions{};
+  var headers : map[string]string = {};
+  return modelRouterCreateBillingRuleWithOptions(request, headers, runtime);
+}
+
 model ModelRouterCreateClientRequest {
   address?: string(name='address', example='杭州市'),
   allowedModels?: string(name='allowedModels', example='1,2,3'),
   contact?: string(name='contact', example='13800138000'),
+  discount?: double(name='discount', example='1.0'),
   name?: string(name='name', example='我的客户'),
   parentId?: long(name='parentId', example='1'),
   remark?: string(name='remark', example='备注'),
@@ -4377,6 +4627,9 @@ async function modelRouterCreateClientWithOptions(request: ModelRouterCreateClie
   }
   if (!$isNull(request.contact)) {
     body['contact'] = request.contact;
+  }
+  if (!$isNull(request.discount)) {
+    body['discount'] = request.discount;
   }
   if (!$isNull(request.name)) {
     body['name'] = request.name;
@@ -4975,6 +5228,210 @@ async function modelRouterQueryApiKeyList(request: ModelRouterQueryApiKeyListReq
   return modelRouterQueryApiKeyListWithOptions(request, headers, runtime);
 }
 
+model ModelRouterQueryBillingRuleListRequest {
+  activeOnly?: boolean(name='activeOnly', example='true'),
+  maxResults?: int32(name='maxResults', description='maxResults', example='10'),
+  modelCode?: string(name='modelCode', example='qwen-plus'),
+  modelId?: int32(name='modelId', example='1'),
+  modelType?: string(name='modelType', example='chat'),
+  nextToken?: string(name='nextToken', description='nextToken', example='xxxx-xxx-xxxxx'),
+  page?: int32(name='page', example='1'),
+  pageIndex?: int32(name='pageIndex', example='1'),
+  pageSize?: int32(name='pageSize', example='20'),
+}
+
+model ModelRouterQueryBillingRuleListResponseBody = {
+  data?: {
+    list?: [ 
+      {
+        billingType?: string(name='billingType', example='token_tiered'),
+        deleteTag?: int32(name='deleteTag', example='0'),
+        effectiveTime?: string(name='effectiveTime', example='2024-01-01T00:00:00Z'),
+        expireTime?: string(name='expireTime', example='2025-01-01T00:00:00Z'),
+        gmtCreate?: string(name='gmtCreate', example='2024-01-01T00:00:00Z'),
+        gmtModified?: string(name='gmtModified', example='2024-01-01T00:00:00Z'),
+        id?: long(name='id', example='1'),
+        modelCode?: string(name='modelCode', example='qwen-plus'),
+        modelId?: long(name='modelId', example='1'),
+        modelName?: string(name='modelName', example='通义千问Plus'),
+        modelType?: string(name='modelType', example='chat'),
+        pricingConfig?: any(name='pricingConfig', example='{}'),
+        symbol?: string(name='symbol', example='alibaba'),
+        version?: int32(name='version', example='1'),
+      }
+    ](name='list'),
+    page?: int32(name='page', example='1'),
+    pageSize?: int32(name='pageSize', example='20'),
+    total?: int32(name='total', example='5'),
+  }(name='data'),
+  errCode?: string(name='errCode', example='UNKNOWN_ERROR'),
+  errMessage?: string(name='errMessage', example='未知错误'),
+  httpStatusCode?: int32(name='httpStatusCode', example='200'),
+  maxResults?: int32(name='maxResults', description='maxResults', example='10'),
+  nextToken?: string(name='nextToken', description='nextToken', example='xxxx-xxx-xxxxx'),
+  requestId?: string(name='requestId', example='xxxx-xxxx-xxxx-xxxxxxxx'),
+  success?: boolean(name='success', example='true'),
+}
+
+model ModelRouterQueryBillingRuleListResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ModelRouterQueryBillingRuleListResponseBody(name='body'),
+}
+
+/**
+ * @summary 计费管理/查询计费规则列表
+ *
+ * @param request ModelRouterQueryBillingRuleListRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return ModelRouterQueryBillingRuleListResponse
+ */
+@context("modelRouterQueryBillingRuleListWithContext")
+async function modelRouterQueryBillingRuleListWithOptions(request: ModelRouterQueryBillingRuleListRequest, headers: map[string]string, runtime: $RuntimeOptions): ModelRouterQueryBillingRuleListResponse {
+  request.validate();
+  var query : map[string]any = {};
+  if (!$isNull(request.activeOnly)) {
+    query['activeOnly'] = request.activeOnly;
+  }
+  if (!$isNull(request.maxResults)) {
+    query['maxResults'] = request.maxResults;
+  }
+  if (!$isNull(request.modelCode)) {
+    query['modelCode'] = request.modelCode;
+  }
+  if (!$isNull(request.modelId)) {
+    query['modelId'] = request.modelId;
+  }
+  if (!$isNull(request.modelType)) {
+    query['modelType'] = request.modelType;
+  }
+  if (!$isNull(request.nextToken)) {
+    query['nextToken'] = request.nextToken;
+  }
+  if (!$isNull(request.page)) {
+    query['page'] = request.page;
+  }
+  if (!$isNull(request.pageIndex)) {
+    query['pageIndex'] = request.pageIndex;
+  }
+  if (!$isNull(request.pageSize)) {
+    query['pageSize'] = request.pageSize;
+  }
+
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'ModelRouterQueryBillingRuleList',
+    version = '20240611',
+    protocol = 'HTTPS',
+    pathname = `/api/v1/modelRouter/open/billing/rules`,
+    method = 'GET',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 计费管理/查询计费规则列表
+ *
+ * @param request ModelRouterQueryBillingRuleListRequest
+ * @return ModelRouterQueryBillingRuleListResponse
+ */
+async function modelRouterQueryBillingRuleList(request: ModelRouterQueryBillingRuleListRequest): ModelRouterQueryBillingRuleListResponse {
+  var runtime = new $RuntimeOptions{};
+  var headers : map[string]string = {};
+  return modelRouterQueryBillingRuleListWithOptions(request, headers, runtime);
+}
+
+model ModelRouterQueryClientDiscountLogsRequest {
+  maxResults?: int32(name='maxResults', example='10'),
+  nextToken?: string(name='nextToken', description='nextToken', example='xxxx-xxx-xxxxx'),
+}
+
+model ModelRouterQueryClientDiscountLogsResponseBody = {
+  data?: [ 
+    {
+      clientId?: long(name='clientId', example='1'),
+      deleteTag?: long(name='deleteTag', example='0'),
+      discount?: float(name='discount', example='0.5'),
+      effectiveTime?: string(name='effectiveTime', example='2025-09-01 00:00:00'),
+      expireTime?: string(name='expireTime', example='2025-09-10 00:00:00'),
+      gmtCreate?: string(name='gmtCreate', example='2024-01-01T00:00:00Z'),
+      gmtModified?: string(name='gmtModified', example='2024-01-01T00:00:00Z'),
+      id?: long(name='id', example='1'),
+      remark?: string(name='remark'),
+    }
+  ](name='data'),
+  errCode?: string(name='errCode', example='UNKNOWN_ERROR'),
+  errMessage?: string(name='errMessage', example='未知错误'),
+  httpStatusCode?: int32(name='httpStatusCode', example='200'),
+  maxResults?: int32(name='maxResults', description='maxResults', example='10'),
+  nextToken?: string(name='nextToken', description='nextToken', example='xxxx-xxx-xxxxx'),
+  requestId?: string(name='requestId', example='xxxx-xxxx-xxxx-xxxxxxxx'),
+  success?: boolean(name='success', example='true'),
+}
+
+model ModelRouterQueryClientDiscountLogsResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ModelRouterQueryClientDiscountLogsResponseBody(name='body'),
+}
+
+/**
+ * @summary 客户管理/获取部门折扣修改历史
+ *
+ * @param request ModelRouterQueryClientDiscountLogsRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return ModelRouterQueryClientDiscountLogsResponse
+ */
+@context("modelRouterQueryClientDiscountLogsWithContext")
+async function modelRouterQueryClientDiscountLogsWithOptions(id: string, request: ModelRouterQueryClientDiscountLogsRequest, headers: map[string]string, runtime: $RuntimeOptions): ModelRouterQueryClientDiscountLogsResponse {
+  request.validate();
+  var query : map[string]any = {};
+  if (!$isNull(request.maxResults)) {
+    query['maxResults'] = request.maxResults;
+  }
+  if (!$isNull(request.nextToken)) {
+    query['nextToken'] = request.nextToken;
+  }
+
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'ModelRouterQueryClientDiscountLogs',
+    version = '20240611',
+    protocol = 'HTTPS',
+    pathname = `/api/v1/modelRouter/open/clients/${$URL.percentEncode(id)}/discount-logs`,
+    method = 'GET',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 客户管理/获取部门折扣修改历史
+ *
+ * @param request ModelRouterQueryClientDiscountLogsRequest
+ * @return ModelRouterQueryClientDiscountLogsResponse
+ */
+async function modelRouterQueryClientDiscountLogs(id: string, request: ModelRouterQueryClientDiscountLogsRequest): ModelRouterQueryClientDiscountLogsResponse {
+  var runtime = new $RuntimeOptions{};
+  var headers : map[string]string = {};
+  return modelRouterQueryClientDiscountLogsWithOptions(id, request, headers, runtime);
+}
+
 model ModelRouterQueryClientListRequest {
   groupBy?: string(name='groupBy', example='resourceId'),
   keyword?: string(name='keyword', example='test'),
@@ -5083,6 +5540,79 @@ async function modelRouterQueryClientList(request: ModelRouterQueryClientListReq
   var runtime = new $RuntimeOptions{};
   var headers : map[string]string = {};
   return modelRouterQueryClientListWithOptions(request, headers, runtime);
+}
+
+model ModelRouterQueryClientTreeRequest {
+  maxResults?: int32(name='maxResults', description='maxResults', example='10'),
+  nextToken?: string(name='nextToken', description='nextToken', example='xxxx-xxx-xxxxx'),
+}
+
+model ModelRouterQueryClientTreeResponseBody = {
+  data?: [
+    ClientTreeDTO
+  ](name='data'),
+  errCode?: string(name='errCode', example='UNKNOWN_ERROR'),
+  errMessage?: string(name='errMessage', example='未知错误'),
+  httpStatusCode?: int32(name='httpStatusCode', example='200'),
+  maxResults?: int32(name='maxResults', description='maxResults', example='10'),
+  nextToken?: string(name='nextToken', description='nextToken', example='xxxx-xxx-xxxxx'),
+  requestId?: string(name='requestId', example='xxxx-xxxx-xxxx-xxxxxxxx'),
+  success?: boolean(name='success', example='true'),
+}
+
+model ModelRouterQueryClientTreeResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ModelRouterQueryClientTreeResponseBody(name='body'),
+}
+
+/**
+ * @summary 客户管理/获取客户树
+ *
+ * @param request ModelRouterQueryClientTreeRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return ModelRouterQueryClientTreeResponse
+ */
+@context("modelRouterQueryClientTreeWithContext")
+async function modelRouterQueryClientTreeWithOptions(request: ModelRouterQueryClientTreeRequest, headers: map[string]string, runtime: $RuntimeOptions): ModelRouterQueryClientTreeResponse {
+  request.validate();
+  var query : map[string]any = {};
+  if (!$isNull(request.maxResults)) {
+    query['maxResults'] = request.maxResults;
+  }
+  if (!$isNull(request.nextToken)) {
+    query['nextToken'] = request.nextToken;
+  }
+
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'ModelRouterQueryClientTree',
+    version = '20240611',
+    protocol = 'HTTPS',
+    pathname = `/api/v1/modelRouter/open/clients/tree`,
+    method = 'GET',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 客户管理/获取客户树
+ *
+ * @param request ModelRouterQueryClientTreeRequest
+ * @return ModelRouterQueryClientTreeResponse
+ */
+async function modelRouterQueryClientTree(request: ModelRouterQueryClientTreeRequest): ModelRouterQueryClientTreeResponse {
+  var runtime = new $RuntimeOptions{};
+  var headers : map[string]string = {};
+  return modelRouterQueryClientTreeWithOptions(request, headers, runtime);
 }
 
 model ModelRouterQueryConversationResponseBody = {
@@ -5247,6 +5777,384 @@ async function modelRouterQueryConversationList(request: ModelRouterQueryConvers
   return modelRouterQueryConversationListWithOptions(request, headers, runtime);
 }
 
+model ModelRouterQueryCostModelDetailRequest {
+  clientId?: long(name='clientId', example='1'),
+  endTime?: long(name='endTime', description='This parameter is required.', example='1700086400'),
+  maxResults?: int32(name='maxResults', description='maxResults', example='10'),
+  modelId?: long(name='modelId', description='This parameter is required.', example='1'),
+  nextToken?: string(name='nextToken', description='nextToken', example='xxxx-xxx-xxxxx'),
+  page?: int32(name='page', example='1'),
+  pageIndex?: int32(name='pageIndex', example='1'),
+  pageSize?: int32(name='pageSize', example='20'),
+  startTime?: long(name='startTime', description='This parameter is required.', example='1700000000'),
+}
+
+model ModelRouterQueryCostModelDetailResponseBody = {
+  data?: CostModelDetailRespDTO(name='data', example='[]'),
+  errCode?: string(name='errCode', example='UNKNOWN_ERROR'),
+  errMessage?: string(name='errMessage', example='未知错误'),
+  httpStatusCode?: int32(name='httpStatusCode', example='200'),
+  maxResults?: int32(name='maxResults', example='10'),
+  nextToken?: string(name='nextToken', description='nextToken', example='xxxx-xxx-xxxxx'),
+  requestId?: string(name='requestId', example='xxxx-xxxx-xxxx-xxxxxxxx'),
+  success?: boolean(name='success', example='true'),
+}
+
+model ModelRouterQueryCostModelDetailResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ModelRouterQueryCostModelDetailResponseBody(name='body'),
+}
+
+/**
+ * @summary 计费管理/获取模型明细
+ *
+ * @param request ModelRouterQueryCostModelDetailRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return ModelRouterQueryCostModelDetailResponse
+ */
+@context("modelRouterQueryCostModelDetailWithContext")
+async function modelRouterQueryCostModelDetailWithOptions(request: ModelRouterQueryCostModelDetailRequest, headers: map[string]string, runtime: $RuntimeOptions): ModelRouterQueryCostModelDetailResponse {
+  request.validate();
+  var query : map[string]any = {};
+  if (!$isNull(request.clientId)) {
+    query['clientId'] = request.clientId;
+  }
+  if (!$isNull(request.endTime)) {
+    query['endTime'] = request.endTime;
+  }
+  if (!$isNull(request.maxResults)) {
+    query['maxResults'] = request.maxResults;
+  }
+  if (!$isNull(request.modelId)) {
+    query['modelId'] = request.modelId;
+  }
+  if (!$isNull(request.nextToken)) {
+    query['nextToken'] = request.nextToken;
+  }
+  if (!$isNull(request.page)) {
+    query['page'] = request.page;
+  }
+  if (!$isNull(request.pageIndex)) {
+    query['pageIndex'] = request.pageIndex;
+  }
+  if (!$isNull(request.pageSize)) {
+    query['pageSize'] = request.pageSize;
+  }
+  if (!$isNull(request.startTime)) {
+    query['startTime'] = request.startTime;
+  }
+
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'ModelRouterQueryCostModelDetail',
+    version = '20240611',
+    protocol = 'HTTPS',
+    pathname = `/api/v1/modelRouter/open/billing/cost/model-detail`,
+    method = 'GET',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 计费管理/获取模型明细
+ *
+ * @param request ModelRouterQueryCostModelDetailRequest
+ * @return ModelRouterQueryCostModelDetailResponse
+ */
+async function modelRouterQueryCostModelDetail(request: ModelRouterQueryCostModelDetailRequest): ModelRouterQueryCostModelDetailResponse {
+  var runtime = new $RuntimeOptions{};
+  var headers : map[string]string = {};
+  return modelRouterQueryCostModelDetailWithOptions(request, headers, runtime);
+}
+
+model ModelRouterQueryCostModelListRequest {
+  clientId?: long(name='clientId', example='1'),
+  endTime?: long(name='endTime', description='This parameter is required.', example='1700086400'),
+  granularity?: string(name='granularity', example='hourly'),
+  maxResults?: int32(name='maxResults', example='10'),
+  modelTypes?: string(name='modelTypes', example='LLM,VL'),
+  nextToken?: string(name='nextToken', description='nextToken', example='xxxx-xxx-xxxxx'),
+  search?: string(name='search', example='qwen'),
+  startTime?: long(name='startTime', description='This parameter is required.', example='1700000000'),
+}
+
+model ModelRouterQueryCostModelListResponseBody = {
+  data?: CostQueryModelsDTO(name='data', example='[]'),
+  errCode?: string(name='errCode', example='UNKNOWN_ERROR'),
+  errMessage?: string(name='errMessage', example='未知错误'),
+  httpStatusCode?: int32(name='httpStatusCode', example='200'),
+  maxResults?: int32(name='maxResults', example='10'),
+  nextToken?: string(name='nextToken', description='nextToken', example='xxxx-xxx-xxxxx'),
+  requestId?: string(name='requestId', example='xxxx-xxxx-xxxx-xxxxxxxx'),
+  success?: boolean(name='success', example='true'),
+}
+
+model ModelRouterQueryCostModelListResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ModelRouterQueryCostModelListResponseBody(name='body'),
+}
+
+/**
+ * @summary 计费管理/获取调用模型列表
+ *
+ * @param request ModelRouterQueryCostModelListRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return ModelRouterQueryCostModelListResponse
+ */
+@context("modelRouterQueryCostModelListWithContext")
+async function modelRouterQueryCostModelListWithOptions(request: ModelRouterQueryCostModelListRequest, headers: map[string]string, runtime: $RuntimeOptions): ModelRouterQueryCostModelListResponse {
+  request.validate();
+  var query : map[string]any = {};
+  if (!$isNull(request.clientId)) {
+    query['clientId'] = request.clientId;
+  }
+  if (!$isNull(request.endTime)) {
+    query['endTime'] = request.endTime;
+  }
+  if (!$isNull(request.granularity)) {
+    query['granularity'] = request.granularity;
+  }
+  if (!$isNull(request.maxResults)) {
+    query['maxResults'] = request.maxResults;
+  }
+  if (!$isNull(request.modelTypes)) {
+    query['modelTypes'] = request.modelTypes;
+  }
+  if (!$isNull(request.nextToken)) {
+    query['nextToken'] = request.nextToken;
+  }
+  if (!$isNull(request.search)) {
+    query['search'] = request.search;
+  }
+  if (!$isNull(request.startTime)) {
+    query['startTime'] = request.startTime;
+  }
+
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'ModelRouterQueryCostModelList',
+    version = '20240611',
+    protocol = 'HTTPS',
+    pathname = `/api/v1/modelRouter/open/billing/cost/models`,
+    method = 'GET',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 计费管理/获取调用模型列表
+ *
+ * @param request ModelRouterQueryCostModelListRequest
+ * @return ModelRouterQueryCostModelListResponse
+ */
+async function modelRouterQueryCostModelList(request: ModelRouterQueryCostModelListRequest): ModelRouterQueryCostModelListResponse {
+  var runtime = new $RuntimeOptions{};
+  var headers : map[string]string = {};
+  return modelRouterQueryCostModelListWithOptions(request, headers, runtime);
+}
+
+model ModelRouterQueryCostOverviewMetricsRequest {
+  clientId?: long(name='clientId', example='1'),
+  endTime?: long(name='endTime', description='This parameter is required.', example='1700086400'),
+  granularity?: string(name='granularity', example='hourly'),
+  maxResults?: int32(name='maxResults', example='10'),
+  modelTypes?: string(name='modelTypes', example='LLM,VL'),
+  nextToken?: string(name='nextToken', description='nextToken', example='xxxx-xxx-xxxxx'),
+  startTime?: long(name='startTime', description='This parameter is required.', example='1700000000'),
+}
+
+model ModelRouterQueryCostOverviewMetricsResponseBody = {
+  data?: [
+    MetricValueDTO
+  ](name='data', example='[]'),
+  errCode?: string(name='errCode', example='UNKNOWN_ERROR'),
+  errMessage?: string(name='errMessage', example='未知错误'),
+  httpStatusCode?: int32(name='httpStatusCode', example='200'),
+  maxResults?: int32(name='maxResults', example='10'),
+  nextToken?: string(name='nextToken', description='nextToken', example='xxxx-xxx-xxxxx'),
+  requestId?: string(name='requestId', example='xxxx-xxxx-xxxx-xxxxxxxx'),
+  success?: boolean(name='success', example='true'),
+}
+
+model ModelRouterQueryCostOverviewMetricsResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ModelRouterQueryCostOverviewMetricsResponseBody(name='body'),
+}
+
+/**
+ * @summary 计费管理/获取成本概览指标
+ *
+ * @param request ModelRouterQueryCostOverviewMetricsRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return ModelRouterQueryCostOverviewMetricsResponse
+ */
+@context("modelRouterQueryCostOverviewMetricsWithContext")
+async function modelRouterQueryCostOverviewMetricsWithOptions(request: ModelRouterQueryCostOverviewMetricsRequest, headers: map[string]string, runtime: $RuntimeOptions): ModelRouterQueryCostOverviewMetricsResponse {
+  request.validate();
+  var query : map[string]any = {};
+  if (!$isNull(request.clientId)) {
+    query['clientId'] = request.clientId;
+  }
+  if (!$isNull(request.endTime)) {
+    query['endTime'] = request.endTime;
+  }
+  if (!$isNull(request.granularity)) {
+    query['granularity'] = request.granularity;
+  }
+  if (!$isNull(request.maxResults)) {
+    query['maxResults'] = request.maxResults;
+  }
+  if (!$isNull(request.modelTypes)) {
+    query['modelTypes'] = request.modelTypes;
+  }
+  if (!$isNull(request.nextToken)) {
+    query['nextToken'] = request.nextToken;
+  }
+  if (!$isNull(request.startTime)) {
+    query['startTime'] = request.startTime;
+  }
+
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'ModelRouterQueryCostOverviewMetrics',
+    version = '20240611',
+    protocol = 'HTTPS',
+    pathname = `/api/v1/modelRouter/open/billing/cost/overview`,
+    method = 'GET',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 计费管理/获取成本概览指标
+ *
+ * @param request ModelRouterQueryCostOverviewMetricsRequest
+ * @return ModelRouterQueryCostOverviewMetricsResponse
+ */
+async function modelRouterQueryCostOverviewMetrics(request: ModelRouterQueryCostOverviewMetricsRequest): ModelRouterQueryCostOverviewMetricsResponse {
+  var runtime = new $RuntimeOptions{};
+  var headers : map[string]string = {};
+  return modelRouterQueryCostOverviewMetricsWithOptions(request, headers, runtime);
+}
+
+model ModelRouterQueryCostTrendMetricsRequest {
+  clientId?: long(name='clientId', example='1'),
+  endTime?: long(name='endTime', description='This parameter is required.', example='1700086400'),
+  granularity?: string(name='granularity', example='hourly'),
+  maxResults?: int32(name='maxResults', example='10'),
+  modelTypes?: string(name='modelTypes', example='LLM,VL'),
+  nextToken?: string(name='nextToken', description='nextToken', example='xxxx-xxx-xxxxx'),
+  startTime?: long(name='startTime', description='This parameter is required.', example='1700000000'),
+}
+
+model ModelRouterQueryCostTrendMetricsResponseBody = {
+  data?: CostQueryTrendDTO(name='data', example='[]'),
+  errCode?: string(name='errCode', example='UNKNOWN_ERROR'),
+  errMessage?: string(name='errMessage', example='未知错误'),
+  httpStatusCode?: int32(name='httpStatusCode', example='200'),
+  maxResults?: int32(name='maxResults', example='10'),
+  nextToken?: string(name='nextToken', description='nextToken', example='xxxx-xxx-xxxxx'),
+  requestId?: string(name='requestId', example='xxxx-xxxx-xxxx-xxxxxxxx'),
+  success?: boolean(name='success', example='true'),
+}
+
+model ModelRouterQueryCostTrendMetricsResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ModelRouterQueryCostTrendMetricsResponseBody(name='body'),
+}
+
+/**
+ * @summary 计费管理/获取费用趋势
+ *
+ * @param request ModelRouterQueryCostTrendMetricsRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return ModelRouterQueryCostTrendMetricsResponse
+ */
+@context("modelRouterQueryCostTrendMetricsWithContext")
+async function modelRouterQueryCostTrendMetricsWithOptions(request: ModelRouterQueryCostTrendMetricsRequest, headers: map[string]string, runtime: $RuntimeOptions): ModelRouterQueryCostTrendMetricsResponse {
+  request.validate();
+  var query : map[string]any = {};
+  if (!$isNull(request.clientId)) {
+    query['clientId'] = request.clientId;
+  }
+  if (!$isNull(request.endTime)) {
+    query['endTime'] = request.endTime;
+  }
+  if (!$isNull(request.granularity)) {
+    query['granularity'] = request.granularity;
+  }
+  if (!$isNull(request.maxResults)) {
+    query['maxResults'] = request.maxResults;
+  }
+  if (!$isNull(request.modelTypes)) {
+    query['modelTypes'] = request.modelTypes;
+  }
+  if (!$isNull(request.nextToken)) {
+    query['nextToken'] = request.nextToken;
+  }
+  if (!$isNull(request.startTime)) {
+    query['startTime'] = request.startTime;
+  }
+
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'ModelRouterQueryCostTrendMetrics',
+    version = '20240611',
+    protocol = 'HTTPS',
+    pathname = `/api/v1/modelRouter/open/billing/cost/trend`,
+    method = 'GET',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 计费管理/获取费用趋势
+ *
+ * @param request ModelRouterQueryCostTrendMetricsRequest
+ * @return ModelRouterQueryCostTrendMetricsResponse
+ */
+async function modelRouterQueryCostTrendMetrics(request: ModelRouterQueryCostTrendMetricsRequest): ModelRouterQueryCostTrendMetricsResponse {
+  var runtime = new $RuntimeOptions{};
+  var headers : map[string]string = {};
+  return modelRouterQueryCostTrendMetricsWithOptions(request, headers, runtime);
+}
+
 model ModelRouterQueryModelResponseBody = {
   data?: ModelDTO(name='data', example='[]'),
   errCode?: string(name='errCode', example='UNKNOWN_ERROR'),
@@ -5327,6 +6235,7 @@ model ModelRouterQueryModelListResponseBody = {
   errCode?: string(name='errCode', example='UNKNOWN_ERROR'),
   errMessage?: string(name='errMessage', example='未知错误'),
   httpStatusCode?: int32(name='httpStatusCode', example='200'),
+  maxResults?: int32(name='maxResults', description='maxResults', example='10'),
   requestId?: string(name='requestId', example='xxxx-xxxx-xxxx-xxxxxxxx'),
   success?: boolean(name='success', example='true'),
 }
@@ -5958,10 +6867,111 @@ async function modelRouterQueryObservationMetrics(request: ModelRouterQueryObser
   return modelRouterQueryObservationMetricsWithOptions(request, headers, runtime);
 }
 
+model ModelRouterUpdateBillingRuleRequest {
+  billingType?: string(name='billingType', example='token_tiered'),
+  effectiveTime?: string(name='effectiveTime', example='2024-01-01T00:00:00Z'),
+  expireTime?: string(name='expireTime', example='2025-01-01T00:00:00Z'),
+  pricingConfig?: any(name='pricingConfig', example='{}'),
+  status?: int32(name='status', example='1'),
+  version?: int32(name='version', example='1'),
+}
+
+model ModelRouterUpdateBillingRuleResponseBody = {
+  data?: {
+    billingType?: string(name='billingType', example='token_tiered'),
+    deleteTag?: int32(name='deleteTag', example='0'),
+    effectiveTime?: string(name='effectiveTime', example='2024-01-01T00:00:00Z'),
+    expireTime?: string(name='expireTime', example='2025-01-01T00:00:00Z'),
+    gmtCreate?: string(name='gmtCreate', example='2024-01-01T00:00:00Z'),
+    gmtModified?: string(name='gmtModified', example='2024-01-01T00:00:00Z'),
+    id?: long(name='id', example='1'),
+    modelCode?: string(name='modelCode', example='qwen-plus'),
+    modelId?: long(name='modelId', example='1'),
+    modelName?: string(name='modelName', example='通义千问Plus'),
+    modelType?: string(name='modelType', example='chat'),
+    pricingConfig?: any(name='pricingConfig', example='{}'),
+    symbol?: string(name='symbol', example='alibaba'),
+    version?: int32(name='version', example='1'),
+  }(name='data'),
+  errCode?: string(name='errCode', example='UNKNOWN_ERROR'),
+  errMessage?: string(name='errMessage', example='未知错误'),
+  httpStatusCode?: int32(name='httpStatusCode', example='200'),
+  requestId?: string(name='requestId', example='xxxx-xxxx-xxxx-xxxxxxxx'),
+  success?: boolean(name='success', example='true'),
+}
+
+model ModelRouterUpdateBillingRuleResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ModelRouterUpdateBillingRuleResponseBody(name='body'),
+}
+
+/**
+ * @summary 计费管理/更新计费规则
+ *
+ * @param request ModelRouterUpdateBillingRuleRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return ModelRouterUpdateBillingRuleResponse
+ */
+@context("modelRouterUpdateBillingRuleWithContext")
+async function modelRouterUpdateBillingRuleWithOptions(id: string, request: ModelRouterUpdateBillingRuleRequest, headers: map[string]string, runtime: $RuntimeOptions): ModelRouterUpdateBillingRuleResponse {
+  request.validate();
+  var body : map[string]any = {};
+  if (!$isNull(request.billingType)) {
+    body['billingType'] = request.billingType;
+  }
+  if (!$isNull(request.effectiveTime)) {
+    body['effectiveTime'] = request.effectiveTime;
+  }
+  if (!$isNull(request.expireTime)) {
+    body['expireTime'] = request.expireTime;
+  }
+  if (!$isNull(request.pricingConfig)) {
+    body['pricingConfig'] = request.pricingConfig;
+  }
+  if (!$isNull(request.status)) {
+    body['status'] = request.status;
+  }
+  if (!$isNull(request.version)) {
+    body['version'] = request.version;
+  }
+
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    headers = headers,
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'ModelRouterUpdateBillingRule',
+    version = '20240611',
+    protocol = 'HTTPS',
+    pathname = `/api/v1/modelRouter/open/billing/rules/${$URL.percentEncode(id)}`,
+    method = 'PUT',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 计费管理/更新计费规则
+ *
+ * @param request ModelRouterUpdateBillingRuleRequest
+ * @return ModelRouterUpdateBillingRuleResponse
+ */
+async function modelRouterUpdateBillingRule(id: string, request: ModelRouterUpdateBillingRuleRequest): ModelRouterUpdateBillingRuleResponse {
+  var runtime = new $RuntimeOptions{};
+  var headers : map[string]string = {};
+  return modelRouterUpdateBillingRuleWithOptions(id, request, headers, runtime);
+}
+
 model ModelRouterUpdateClientRequest {
   address?: string(name='address', example='杭州市'),
   allowedModels?: string(name='allowedModels', example='1,2,3'),
   contact?: string(name='contact', example='13800138000'),
+  discount?: double(name='discount', example='1.0'),
   name?: string(name='name', example='我的客户'),
   remark?: string(name='remark', example='备注'),
   status?: int32(name='status', example='1'),
@@ -6002,6 +7012,9 @@ async function modelRouterUpdateClientWithOptions(id: string, request: ModelRout
   }
   if (!$isNull(request.contact)) {
     body['contact'] = request.contact;
+  }
+  if (!$isNull(request.discount)) {
+    body['discount'] = request.discount;
   }
   if (!$isNull(request.name)) {
     body['name'] = request.name;
