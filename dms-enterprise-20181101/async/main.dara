@@ -250,6 +250,63 @@ model ImportMasterKeyVO {
   projectId?: [ long ](name='ProjectId'),
 }
 
+model KnowledgeBaseVO {
+  category?: string(name='Category'),
+  confidence?: double(name='Confidence'),
+  dbId?: int32(name='DbId'),
+  dbName?: string(name='DbName'),
+  description?: string(name='Description'),
+  entityId?: long(name='EntityId'),
+  env?: string(name='Env'),
+  expr?: string(name='Expr'),
+  gmtCreate?: string(name='GmtCreate'),
+  instanceName?: string(name='InstanceName'),
+  isDelete?: boolean(name='IsDelete'),
+  knowledgeId?: string(name='KnowledgeId'),
+  knowledgeType?: string(name='KnowledgeType'),
+  levelType?: string(name='LevelType'),
+  name?: string(name='Name'),
+  oldDescription?: string(name='OldDescription'),
+  oldSummary?: string(name='OldSummary'),
+  parseDesc?: string(name='ParseDesc'),
+  reasoningLogic?: string(name='ReasoningLogic'),
+  relationType?: string(name='RelationType'),
+  showType?: string(name='ShowType'),
+  summary?: string(name='Summary'),
+  tableName?: string(name='TableName'),
+}
+
+model KnowledgeJobInfoVO {
+  createTime?: string(name='CreateTime'),
+  creator?: string(name='Creator'),
+  description?: string(name='Description'),
+  endTime?: string(name='EndTime'),
+  jobId?: int32(name='JobId'),
+  knowledgeCnt?: int32(name='KnowledgeCnt'),
+  progress?: int32(name='Progress'),
+  showJobId?: string(name='ShowJobId'),
+  status?: string(name='Status'),
+  supplement?: string(name='Supplement'),
+  tableCnt?: int32(name='TableCnt'),
+}
+
+model KnowledgeSubJobInfoVO {
+  errMessage?: string(name='ErrMessage'),
+  jobType?: string(name='JobType'),
+  name?: string(name='Name'),
+  progress?: int32(name='Progress'),
+  status?: string(name='Status'),
+  subJobId?: int32(name='SubJobId'),
+}
+
+model MetaAgentPreCheckParam {
+  dbIds?: string(name='DbIds'),
+  description?: string(name='Description'),
+  instanceIds?: string(name='InstanceIds'),
+  supplement?: string(name='Supplement'),
+  tableNames?: string(name='TableNames'),
+}
+
 model MetaCategory {
   categoryId?: long(name='CategoryId'),
   createTime?: string(name='CreateTime'),
@@ -1760,6 +1817,35 @@ async function checkBatchTableAccessPermission(request: CheckBatchTableAccessPer
   return @handler.do('RPC', 'CheckBatchTableAccessPermission', 'POST', '/', 'json', false, 'json', request);
 }
 
+model CheckInventoryJobRequest {
+  regionId?: string(name='RegionId', example='cn-hangzhou', position='Host'),
+  jobId: long(name='JobId', description='This parameter is required.', example='1001', position='Query'),
+}
+
+model CheckInventoryJobResponseBody = {
+  data: KnowledgeJobInfoVO(name='Data', description='This parameter is required.', example='true'),
+  errorCode?: string(name='ErrorCode', example='UnknownError'),
+  errorMessage?: string(name='ErrorMessage', example='UnknownError'),
+  requestId?: string(name='RequestId', description='Id of the request', example='0C1CB646-1DE4-4AD0-B4A4-7D47DD52E931'),
+  success?: boolean(name='Success', example='true'),
+}
+
+model CheckInventoryJobResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: CheckInventoryJobResponseBody(name='body'),
+}
+
+/**
+  * @description 查询资产盘点任务的执行状态与进度信息，包含子任务列表、进度百分比、知识统计等
+  * @param request  the request parameters of CheckInventoryJob  CheckInventoryJobRequest
+  * @return CheckInventoryJobResponse
+ */
+async function checkInventoryJob(request: CheckInventoryJobRequest): CheckInventoryJobResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'CheckInventoryJob', 'POST', '/', 'json', false, 'json', request);
+}
+
 model CloseOrderRequest {
   regionId?: string(name='RegionId', position='Host'),
   closeReason: string(name='CloseReason', description='The reason why the ticket is closed.
@@ -1793,6 +1879,37 @@ model CloseOrderResponse = {
 async function closeOrder(request: CloseOrderRequest): CloseOrderResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RPC', 'CloseOrder', 'POST', '/', 'json', false, 'json', request);
+}
+
+model ConfirmInventoryKnowledgeRequest {
+  regionId?: string(name='RegionId', example='cn-hangzhou', position='Host'),
+  entityId: long(name='EntityId', description='This parameter is required.', example='2001', position='Query'),
+  jobId: long(name='JobId', description='This parameter is required.', example='1001', position='Query'),
+  knowledgeType: string(name='KnowledgeType', description='This parameter is required.', example='TABLE', position='Query'),
+}
+
+model ConfirmInventoryKnowledgeResponseBody = {
+  data?: boolean(name='Data', example='true'),
+  errorCode?: string(name='ErrorCode', example='UnknownError'),
+  errorMessage?: string(name='ErrorMessage', example='UnknownError'),
+  requestId?: string(name='RequestId', description='Id of the request', example='0C1CB646-1DE4-4AD0-B4A4-7D47DD52E931'),
+  success?: boolean(name='Success', example='true'),
+}
+
+model ConfirmInventoryKnowledgeResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ConfirmInventoryKnowledgeResponseBody(name='body'),
+}
+
+/**
+  * @description 确认盘点任务中的单条知识，将其标记为已认证状态（解锁级别）
+  * @param request  the request parameters of ConfirmInventoryKnowledge  ConfirmInventoryKnowledgeRequest
+  * @return ConfirmInventoryKnowledgeResponse
+ */
+async function confirmInventoryKnowledge(request: ConfirmInventoryKnowledgeRequest): ConfirmInventoryKnowledgeResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'ConfirmInventoryKnowledge', 'POST', '/', 'json', false, 'json', request);
 }
 
 model CreateAbacAuthorizationRequest {
@@ -2967,6 +3084,35 @@ model CreateFreeLockCorrectOrderResponse = {
 async function createFreeLockCorrectOrder(request: CreateFreeLockCorrectOrderRequest): CreateFreeLockCorrectOrderResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RPC', 'CreateFreeLockCorrectOrder', 'POST', '/', 'json', false, 'json', request);
+}
+
+model CreateInventoryJobRequest {
+  regionId?: string(name='RegionId', example='cn-hangzhou', position='Host'),
+  param?: string(name='Param', position='Query'),
+}
+
+model CreateInventoryJobResponseBody = {
+  data?: long(name='Data', example='1001'),
+  errorCode?: string(name='ErrorCode', example='UnknownError'),
+  errorMessage?: string(name='ErrorMessage', example='UnknownError'),
+  requestId?: string(name='RequestId', description='Id of the request', example='0C1CB646-1DE4-4AD0-B4A4-7D47DD52E931'),
+  success?: boolean(name='Success', example='true'),
+}
+
+model CreateInventoryJobResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: CreateInventoryJobResponseBody(name='body'),
+}
+
+/**
+  * @description 创建资产盘点任务，支持选择实例、数据库、表维度进行知识盘点，返回任务ID
+  * @param request  the request parameters of CreateInventoryJob  CreateInventoryJobRequest
+  * @return CreateInventoryJobResponse
+ */
+async function createInventoryJob(request: CreateInventoryJobRequest): CreateInventoryJobResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'CreateInventoryJob', 'POST', '/', 'json', false, 'json', request);
 }
 
 model CreateLakeHouseSpaceRequest {
@@ -16030,6 +16176,46 @@ model SearchDatabaseResponse = {
 async function searchDatabase(request: SearchDatabaseRequest): SearchDatabaseResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RPC', 'SearchDatabase', 'POST', '/', 'json', false, 'json', request);
+}
+
+model SearchInventoryKnowledgeRequest {
+  regionId?: string(name='RegionId', example='cn-hangzhou', position='Host'),
+  jobId: long(name='JobId', description='This parameter is required.', example='1001', position='Query'),
+  offset?: int32(name='Offset', example='0', position='Query'),
+  query?: string(name='Query', example='订单', position='Query'),
+  showType?: string(name='ShowType', example='TABLE', position='Query'),
+  size?: int32(name='Size', example='20', position='Query'),
+  sortBy?: string(name='SortBy', example='confidence', position='Query'),
+  sortOrder?: string(name='SortOrder', example='desc', position='Query'),
+}
+
+model SearchInventoryKnowledgeResponseBody = {
+  data?: {
+    items?: [
+      KnowledgeBaseVO
+    ](name='Items'),
+    totalCount?: int32(name='TotalCount', example='100'),
+  }(name='Data'),
+  errorCode?: string(name='ErrorCode', example='UnknownError'),
+  errorMessage?: string(name='ErrorMessage', example='UnknownError'),
+  requestId?: string(name='RequestId', description='Id of the request', example='0C1CB646-1DE4-4AD0-B4A4-7D47DD52E931'),
+  success?: boolean(name='Success', example='true'),
+}
+
+model SearchInventoryKnowledgeResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: SearchInventoryKnowledgeResponseBody(name='body'),
+}
+
+/**
+  * @description 分页查询盘点任务产出的知识列表，支持按关键词、知识类型、排序方式等条件筛选
+  * @param request  the request parameters of SearchInventoryKnowledge  SearchInventoryKnowledgeRequest
+  * @return SearchInventoryKnowledgeResponse
+ */
+async function searchInventoryKnowledge(request: SearchInventoryKnowledgeRequest): SearchInventoryKnowledgeResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'SearchInventoryKnowledge', 'POST', '/', 'json', false, 'json', request);
 }
 
 model SearchTableRequest {

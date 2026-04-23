@@ -267,6 +267,63 @@ model ImportMasterKeyVO {
   projectId?: [ long ](name='ProjectId'),
 }
 
+model KnowledgeBaseVO {
+  category?: string(name='Category'),
+  confidence?: double(name='Confidence'),
+  dbId?: int32(name='DbId'),
+  dbName?: string(name='DbName'),
+  description?: string(name='Description'),
+  entityId?: long(name='EntityId'),
+  env?: string(name='Env'),
+  expr?: string(name='Expr'),
+  gmtCreate?: string(name='GmtCreate'),
+  instanceName?: string(name='InstanceName'),
+  isDelete?: boolean(name='IsDelete'),
+  knowledgeId?: string(name='KnowledgeId'),
+  knowledgeType?: string(name='KnowledgeType'),
+  levelType?: string(name='LevelType'),
+  name?: string(name='Name'),
+  oldDescription?: string(name='OldDescription'),
+  oldSummary?: string(name='OldSummary'),
+  parseDesc?: string(name='ParseDesc'),
+  reasoningLogic?: string(name='ReasoningLogic'),
+  relationType?: string(name='RelationType'),
+  showType?: string(name='ShowType'),
+  summary?: string(name='Summary'),
+  tableName?: string(name='TableName'),
+}
+
+model KnowledgeJobInfoVO {
+  createTime?: string(name='CreateTime'),
+  creator?: string(name='Creator'),
+  description?: string(name='Description'),
+  endTime?: string(name='EndTime'),
+  jobId?: int32(name='JobId'),
+  knowledgeCnt?: int32(name='KnowledgeCnt'),
+  progress?: int32(name='Progress'),
+  showJobId?: string(name='ShowJobId'),
+  status?: string(name='Status'),
+  supplement?: string(name='Supplement'),
+  tableCnt?: int32(name='TableCnt'),
+}
+
+model KnowledgeSubJobInfoVO {
+  errMessage?: string(name='ErrMessage'),
+  jobType?: string(name='JobType'),
+  name?: string(name='Name'),
+  progress?: int32(name='Progress'),
+  status?: string(name='Status'),
+  subJobId?: int32(name='SubJobId'),
+}
+
+model MetaAgentPreCheckParam {
+  dbIds?: string(name='DbIds'),
+  description?: string(name='Description'),
+  instanceIds?: string(name='InstanceIds'),
+  supplement?: string(name='Supplement'),
+  tableNames?: string(name='TableNames'),
+}
+
 model MetaCategory {
   categoryId?: long(name='CategoryId', description='The category ID.', example='30000181325'),
   createTime?: string(name='CreateTime', description='The creation time.', example='2024-08-13 10:02:02'),
@@ -3314,6 +3371,69 @@ async function checkBatchTableAccessPermission(request: CheckBatchTableAccessPer
   return checkBatchTableAccessPermissionWithOptions(request, runtime);
 }
 
+model CheckInventoryJobRequest {
+  jobId?: long(name='JobId', description='This parameter is required.', example='1001'),
+}
+
+model CheckInventoryJobResponseBody = {
+  data?: KnowledgeJobInfoVO(name='Data', description='This parameter is required.', example='true'),
+  errorCode?: string(name='ErrorCode', example='UnknownError'),
+  errorMessage?: string(name='ErrorMessage', example='UnknownError'),
+  requestId?: string(name='RequestId', description='Id of the request', example='0C1CB646-1DE4-4AD0-B4A4-7D47DD52E931'),
+  success?: boolean(name='Success', example='true'),
+}
+
+model CheckInventoryJobResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: CheckInventoryJobResponseBody(name='body'),
+}
+
+/**
+ * @summary 查询资产盘点任务的执行状态与进度信息
+ *
+ * @description 查询资产盘点任务的执行状态与进度信息，包含子任务列表、进度百分比、知识统计等
+ *
+ * @param request CheckInventoryJobRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return CheckInventoryJobResponse
+ */
+async function checkInventoryJobWithOptions(request: CheckInventoryJobRequest, runtime: Util.RuntimeOptions): CheckInventoryJobResponse {
+  Util.validateModel(request);
+  var query = {};
+  if (!Util.isUnset(request.jobId)) {
+    query['JobId'] = request.jobId;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'CheckInventoryJob',
+    version = '2018-11-01',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 查询资产盘点任务的执行状态与进度信息
+ *
+ * @description 查询资产盘点任务的执行状态与进度信息，包含子任务列表、进度百分比、知识统计等
+ *
+ * @param request CheckInventoryJobRequest
+ * @return CheckInventoryJobResponse
+ */
+async function checkInventoryJob(request: CheckInventoryJobRequest): CheckInventoryJobResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return checkInventoryJobWithOptions(request, runtime);
+}
+
 model CloseOrderRequest {
   closeReason?: string(name='CloseReason', description='The reason why the ticket is closed.
 
@@ -3384,6 +3504,77 @@ async function closeOrderWithOptions(request: CloseOrderRequest, runtime: Util.R
 async function closeOrder(request: CloseOrderRequest): CloseOrderResponse {
   var runtime = new Util.RuntimeOptions{};
   return closeOrderWithOptions(request, runtime);
+}
+
+model ConfirmInventoryKnowledgeRequest {
+  entityId?: long(name='EntityId', description='This parameter is required.', example='2001'),
+  jobId?: long(name='JobId', description='This parameter is required.', example='1001'),
+  knowledgeType?: string(name='KnowledgeType', description='This parameter is required.', example='TABLE'),
+}
+
+model ConfirmInventoryKnowledgeResponseBody = {
+  data?: boolean(name='Data', example='true'),
+  errorCode?: string(name='ErrorCode', example='UnknownError'),
+  errorMessage?: string(name='ErrorMessage', example='UnknownError'),
+  requestId?: string(name='RequestId', description='Id of the request', example='0C1CB646-1DE4-4AD0-B4A4-7D47DD52E931'),
+  success?: boolean(name='Success', example='true'),
+}
+
+model ConfirmInventoryKnowledgeResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ConfirmInventoryKnowledgeResponseBody(name='body'),
+}
+
+/**
+ * @summary 确认盘点任务中的单条知识，将其标记为已认证
+ *
+ * @description 确认盘点任务中的单条知识，将其标记为已认证状态（解锁级别）
+ *
+ * @param request ConfirmInventoryKnowledgeRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return ConfirmInventoryKnowledgeResponse
+ */
+async function confirmInventoryKnowledgeWithOptions(request: ConfirmInventoryKnowledgeRequest, runtime: Util.RuntimeOptions): ConfirmInventoryKnowledgeResponse {
+  Util.validateModel(request);
+  var query = {};
+  if (!Util.isUnset(request.entityId)) {
+    query['EntityId'] = request.entityId;
+  }
+  if (!Util.isUnset(request.jobId)) {
+    query['JobId'] = request.jobId;
+  }
+  if (!Util.isUnset(request.knowledgeType)) {
+    query['KnowledgeType'] = request.knowledgeType;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'ConfirmInventoryKnowledge',
+    version = '2018-11-01',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 确认盘点任务中的单条知识，将其标记为已认证
+ *
+ * @description 确认盘点任务中的单条知识，将其标记为已认证状态（解锁级别）
+ *
+ * @param request ConfirmInventoryKnowledgeRequest
+ * @return ConfirmInventoryKnowledgeResponse
+ */
+async function confirmInventoryKnowledge(request: ConfirmInventoryKnowledgeRequest): ConfirmInventoryKnowledgeResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return confirmInventoryKnowledgeWithOptions(request, runtime);
 }
 
 model CreateAbacAuthorizationRequest {
@@ -5784,6 +5975,69 @@ async function createFreeLockCorrectOrderWithOptions(tmpReq: CreateFreeLockCorre
 async function createFreeLockCorrectOrder(request: CreateFreeLockCorrectOrderRequest): CreateFreeLockCorrectOrderResponse {
   var runtime = new Util.RuntimeOptions{};
   return createFreeLockCorrectOrderWithOptions(request, runtime);
+}
+
+model CreateInventoryJobRequest {
+  param?: string(name='Param'),
+}
+
+model CreateInventoryJobResponseBody = {
+  data?: long(name='Data', example='1001'),
+  errorCode?: string(name='ErrorCode', example='UnknownError'),
+  errorMessage?: string(name='ErrorMessage', example='UnknownError'),
+  requestId?: string(name='RequestId', description='Id of the request', example='0C1CB646-1DE4-4AD0-B4A4-7D47DD52E931'),
+  success?: boolean(name='Success', example='true'),
+}
+
+model CreateInventoryJobResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: CreateInventoryJobResponseBody(name='body'),
+}
+
+/**
+ * @summary 创建资产盘点任务，对指定实例/数据库/表进行知识盘点
+ *
+ * @description 创建资产盘点任务，支持选择实例、数据库、表维度进行知识盘点，返回任务ID
+ *
+ * @param request CreateInventoryJobRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return CreateInventoryJobResponse
+ */
+async function createInventoryJobWithOptions(request: CreateInventoryJobRequest, runtime: Util.RuntimeOptions): CreateInventoryJobResponse {
+  Util.validateModel(request);
+  var query = {};
+  if (!Util.isUnset(request.param)) {
+    query['Param'] = request.param;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'CreateInventoryJob',
+    version = '2018-11-01',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 创建资产盘点任务，对指定实例/数据库/表进行知识盘点
+ *
+ * @description 创建资产盘点任务，支持选择实例、数据库、表维度进行知识盘点，返回任务ID
+ *
+ * @param request CreateInventoryJobRequest
+ * @return CreateInventoryJobResponse
+ */
+async function createInventoryJob(request: CreateInventoryJobRequest): CreateInventoryJobResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return createInventoryJobWithOptions(request, runtime);
 }
 
 model CreateLakeHouseSpaceRequest {
@@ -28583,6 +28837,98 @@ async function searchDatabaseWithOptions(request: SearchDatabaseRequest, runtime
 async function searchDatabase(request: SearchDatabaseRequest): SearchDatabaseResponse {
   var runtime = new Util.RuntimeOptions{};
   return searchDatabaseWithOptions(request, runtime);
+}
+
+model SearchInventoryKnowledgeRequest {
+  jobId?: long(name='JobId', description='This parameter is required.', example='1001'),
+  offset?: int32(name='Offset', example='0'),
+  query?: string(name='Query', example='订单'),
+  showType?: string(name='ShowType', example='TABLE'),
+  size?: int32(name='Size', example='20'),
+  sortBy?: string(name='SortBy', example='confidence'),
+  sortOrder?: string(name='SortOrder', example='desc'),
+}
+
+model SearchInventoryKnowledgeResponseBody = {
+  data?: {
+    items?: [
+      KnowledgeBaseVO
+    ](name='Items'),
+    totalCount?: int32(name='TotalCount', example='100'),
+  }(name='Data'),
+  errorCode?: string(name='ErrorCode', example='UnknownError'),
+  errorMessage?: string(name='ErrorMessage', example='UnknownError'),
+  requestId?: string(name='RequestId', description='Id of the request', example='0C1CB646-1DE4-4AD0-B4A4-7D47DD52E931'),
+  success?: boolean(name='Success', example='true'),
+}
+
+model SearchInventoryKnowledgeResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: SearchInventoryKnowledgeResponseBody(name='body'),
+}
+
+/**
+ * @summary 分页查询盘点任务产出的知识列表，支持按关键词、知识类型等条件筛选
+ *
+ * @description 分页查询盘点任务产出的知识列表，支持按关键词、知识类型、排序方式等条件筛选
+ *
+ * @param request SearchInventoryKnowledgeRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return SearchInventoryKnowledgeResponse
+ */
+async function searchInventoryKnowledgeWithOptions(request: SearchInventoryKnowledgeRequest, runtime: Util.RuntimeOptions): SearchInventoryKnowledgeResponse {
+  Util.validateModel(request);
+  var query = {};
+  if (!Util.isUnset(request.jobId)) {
+    query['JobId'] = request.jobId;
+  }
+  if (!Util.isUnset(request.offset)) {
+    query['Offset'] = request.offset;
+  }
+  if (!Util.isUnset(request.query)) {
+    query['Query'] = request.query;
+  }
+  if (!Util.isUnset(request.showType)) {
+    query['ShowType'] = request.showType;
+  }
+  if (!Util.isUnset(request.size)) {
+    query['Size'] = request.size;
+  }
+  if (!Util.isUnset(request.sortBy)) {
+    query['SortBy'] = request.sortBy;
+  }
+  if (!Util.isUnset(request.sortOrder)) {
+    query['SortOrder'] = request.sortOrder;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'SearchInventoryKnowledge',
+    version = '2018-11-01',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 分页查询盘点任务产出的知识列表，支持按关键词、知识类型等条件筛选
+ *
+ * @description 分页查询盘点任务产出的知识列表，支持按关键词、知识类型、排序方式等条件筛选
+ *
+ * @param request SearchInventoryKnowledgeRequest
+ * @return SearchInventoryKnowledgeResponse
+ */
+async function searchInventoryKnowledge(request: SearchInventoryKnowledgeRequest): SearchInventoryKnowledgeResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return searchInventoryKnowledgeWithOptions(request, runtime);
 }
 
 model SearchTableRequest {
