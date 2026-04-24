@@ -278,6 +278,7 @@ Note: "$" is a unified prefix symbol for monitoring metrics.', example='$Maximum
     times?: int32(name='times', description='Number of times the condition must be met to trigger an alert.', example='3'),
   }(name='compositeEscalation', description='Applicable condition type: CMS_BASIC_CONDITION.
 Valid only when escalationType=composite; composite metric alert condition.'),
+  enableSeveritySuppression?: boolean(name='enableSeveritySuppression'),
   escalationType?: string(name='escalationType', description='Applicable condition type: CMS_BASIC_CONDITION.
 Valid values:
 - simple: Simple metric condition,
@@ -346,6 +347,24 @@ Metric associated with the alert condition.', example='cpu_total'),
     period?: long(name='period', description='Metric time window, in seconds.', example='60'),
   }(name='simpleEscalation', description='Applicable condition type: CMS_BASIC_CONDITION.
 Only valid when escalationType=simple; specifies the alert condition for a single metric.'),
+  triggers?: [ 
+    {
+      durationSecs?: int32(name='durationSecs'),
+      expression?: {
+        conditions?: [ 
+          {
+            expressionType?: string(name='expressionType'),
+            operator?: string(name='operator'),
+            queryName?: string(name='queryName'),
+            threshold?: double(name='threshold'),
+          }
+        ](name='conditions'),
+        expressionType?: string(name='expressionType'),
+        logicOperator?: string(name='logicOperator'),
+      }(name='expression'),
+      severity?: string(name='severity'),
+    }
+  ](name='triggers'),
   type?: string(name='type', description='Rule condition type, valid values:
 
 SLS_CONDITION (SLS alert condition),
@@ -379,6 +398,7 @@ Prometheus instance ID.', example='rw-bbe8961b4a59be0'),
 Name of the enterprise cloud monitoring metric repository.', example='aliyun-default'),
   regionId?: string(name='regionId', description='Applicable data source types: APM_DS, PROMETHEUS_DS.
 The regionId to which the data source belongs.', example='cn-hangzhou'),
+  tenantId?: string(name='tenantId'),
   type?: string(name='type', description='Data source type.
 Valid values:
 - PROMETHEUS_DS: Prometheus data source.
@@ -403,6 +423,7 @@ model AlertRuleNotification {
   fsWebhooks?: [ string ](name='fsWebhooks', description='List of Feishu webhook notification object IDs.'),
   groups?: [ string ](name='groups', description='List of contact group IDs.'),
   notifyTime?: AlertRuleTimeSpan(name='notifyTime', description='Notification time window; notifications are sent only during this period.'),
+  qwencloudContacts?: map[string]object(name='qwencloudContacts'),
   silenceTime?: long(name='silenceTime', description='Notification silence duration, in seconds.', example='86400'),
   slackWebhooks?: [ string ](name='slackWebhooks', description='List of Slack webhook notification object IDs.'),
   wxWebhooks?: [ string ](name='wxWebhooks', description='List of WeChat webhook notification object IDs.'),
@@ -503,6 +524,8 @@ Query expression.
 
 - For APM_MULTI_QUERY, this field is optional and contains the PromQL generated for predefined metrics (used for data preview).
 - For SLS_MULTI_QUERY, this field contains the SQL query statement.', example='sum by (rpc,acs_arms_service_id,pid,rpcType) (sum_over_time_lorc(arms_app_requests_count_ign_destid_endpoint_parent_ppid_prpc{callKind=~\\\\"http|rpc|custom_entry|server|consumer\\\\",pid=\\\\"gaddp9ap8q@cb005ffdf44b8ac\\\\",source=\\\\"apm\\\\"}[1m]))'),
+      name?: string(name='name'),
+      promQl?: string(name='promQl'),
       start?: long(name='start', description='Applicable query type: SLS_MULTI_QUERY.
 SLS query time offset start time (relative).
 If start and end are specified, do not specify window. For example: start=15, timeUnit=minute, which means 15 minutes ago.', example='15'),
@@ -6303,6 +6326,7 @@ readWrite, readOnly, httpReadOnly', example='readOnly'),
     grafanaInstanceId?: string(name='grafanaInstanceId', description='ID of the managed Grafana instance that is bound.', example='SHARED'),
     grafanaInstanceName?: string(name='grafanaInstanceName', description='Name of the managed Grafana instance that is bound.', example='共享版'),
     httpApiInterUrl?: string(name='httpApiInterUrl', description='HTTP public network address.', example='http://workspace-default-cms-xxxxxxx'),
+    httpApiInternalUrl?: string(name='httpApiInternalUrl'),
     httpApiIntraUrl?: string(name='httpApiIntraUrl', description='HTTP intranet address.', example='http://workspace-default-cms-xxxxxxx'),
     instanceType?: string(name='instanceType', description='Prometheus instance type.', example='remote-write'),
     paymentType?: string(name='paymentType', description='Billing method:
@@ -6313,11 +6337,14 @@ POSTPAY_GB: Pay-as-you-go based on metric write volume.', example='POSTPAY'),
     prometheusInstanceId?: string(name='prometheusInstanceId', description='Instance ID.', example='rw-524ada714221af267c73122af2e1'),
     prometheusInstanceName?: string(name='prometheusInstanceName', description='Instance name.', example='test-prom-name'),
     pushGatewayInterUrl?: string(name='pushGatewayInterUrl', description='Public network address of PushGateway.', example='http://workspace-default-cms-xxxxxxx'),
+    pushGatewayInternalUrl?: string(name='pushGatewayInternalUrl'),
     pushGatewayIntraUrl?: string(name='pushGatewayIntraUrl', description='Intranet address of PushGateway.', example='http://workspace-default-cms-xxxxxxx'),
     regionId?: string(name='regionId', description='Region ID.', example='cn-heyuan'),
     remoteReadInterUrl?: string(name='remoteReadInterUrl', description='Public network read address.', example='http://workspace-default-cms-xxxxxxx'),
+    remoteReadInternalUrl?: string(name='remoteReadInternalUrl'),
     remoteReadIntraUrl?: string(name='remoteReadIntraUrl', description='Intranet read address.', example='https://workspace-default-cms-1xxxxxxxxxx'),
     remoteWriteInterUrl?: string(name='remoteWriteInterUrl', description='Public network write address.', example='https://workspace-default-cms-xxxxxxxxxx'),
+    remoteWriteInternalUrl?: string(name='remoteWriteInternalUrl'),
     remoteWriteIntraUrl?: string(name='remoteWriteIntraUrl', description='Intranet write address.', example='https://workspace-default-cms-xxxxxxxxxx'),
     resourceGroupId?: string(name='resourceGroupId', description='Resource group ID.', example='rg-acfm3gn5i6bigbi'),
     resourceType?: string(name='resourceType', description='Fixed value: PrometheusInstance.', example='Prometheus'),
@@ -6480,6 +6507,7 @@ model GetPrometheusViewResponseBody = {
     grafanaInstanceId?: string(name='grafanaInstanceId', description='Bound managed Grafana instance ID.', example='g-xxx'),
     grafanaInstanceName?: string(name='grafanaInstanceName', description='Bound managed Grafana instance name.', example='gxxx'),
     httpApiInterUrl?: string(name='httpApiInterUrl', description='Public HTTP address.', example='http://xxxxxxxx'),
+    httpApiInternalUrl?: string(name='httpApiInternalUrl'),
     httpApiIntraUrl?: string(name='httpApiIntraUrl', description='Private HTTP address.', example='http://xxxxxxxx'),
     instanceType?: string(name='instanceType', description='Instance type, fixed value prom-view.', example='prom-view'),
     paymentType?: string(name='paymentType', description='Payment type. Currently, the fixed value is FREE (free).', example='FREE'),
@@ -6495,6 +6523,7 @@ model GetPrometheusViewResponseBody = {
     prometheusViewName?: string(name='prometheusViewName', description='Prometheus view name.', example='view1'),
     regionId?: string(name='regionId', description='Region ID', example='cn-shanghai'),
     remoteReadInterUrl?: string(name='remoteReadInterUrl', description='Remote read public URL.', example='http://workspace-default-cms-xxx-cn-hangzhou.cn-hangzhou.log.aliyuncs.com/prometheus/workspace-default-cms-xxx-cn-hangzhou/xxx/api/v1/read'),
+    remoteReadInternalUrl?: string(name='remoteReadInternalUrl'),
     remoteReadIntraUrl?: string(name='remoteReadIntraUrl', description='Remote read intranet URL.', example='http://workspace-default-cms-xxx-cn-hangzhou.cn-hangzhou-intranet.log.aliyuncs.com/prometheus/workspace-default-cms-xxx-cn-hangzhou/xxx/api/v1/read'),
     resourceGroupId?: string(name='resourceGroupId', description='Resource group ID.', example='rg-acfm3gn5i6bigbi'),
     resourceType?: string(name='resourceType', description='Fixed value: PrometheusView', example='RegistryModule'),
@@ -9585,7 +9614,9 @@ async function listPrometheusViews(request: ListPrometheusViewsRequest): ListPro
 }
 
 model ListPrometheusVirtualInstancesRequest {
+  maxResults?: int32(name='maxResults'),
   namespace?: string(name='namespace', description='Optional cloud product', example='ack-csi-fuse'),
+  nextToken?: string(name='nextToken'),
   tenantId?: string(name='tenantId'),
 }
 
@@ -9604,7 +9635,10 @@ Namespace of the metric', example='arms-prom'),
       userId?: string(name='userId', description='User ID.', example='17073812345'),
     }
   ](name='instances', description='Instance information.'),
+  maxResults?: string(name='maxResults'),
+  nextToken?: string(name='nextToken'),
   requestId?: string(name='requestId', description='ID of the request', example='264C3E89-XXXX-XXXX-XXXX-CE9C2196C7DC'),
+  totalCount?: string(name='totalCount'),
 }
 
 model ListPrometheusVirtualInstancesResponse = {
@@ -9626,8 +9660,14 @@ model ListPrometheusVirtualInstancesResponse = {
 async function listPrometheusVirtualInstancesWithOptions(request: ListPrometheusVirtualInstancesRequest, headers: map[string]string, runtime: Util.RuntimeOptions): ListPrometheusVirtualInstancesResponse {
   Util.validateModel(request);
   var query : map[string]any = {};
+  if (!Util.isUnset(request.maxResults)) {
+    query['maxResults'] = request.maxResults;
+  }
   if (!Util.isUnset(request.namespace)) {
     query['namespace'] = request.namespace;
+  }
+  if (!Util.isUnset(request.nextToken)) {
+    query['nextToken'] = request.nextToken;
   }
   if (!Util.isUnset(request.tenantId)) {
     query['tenantId'] = request.tenantId;

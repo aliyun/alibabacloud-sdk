@@ -232,6 +232,7 @@ model AlertRuleCondition {
     relation?: string(name='relation'),
     times?: int32(name='times'),
   }(name='compositeEscalation'),
+  enableSeveritySuppression?: boolean(name='enableSeveritySuppression'),
   escalationType?: string(name='escalationType'),
   expressEscalation?: {
     level?: string(name='level'),
@@ -256,6 +257,24 @@ model AlertRuleCondition {
     metricName?: string(name='metricName'),
     period?: long(name='period'),
   }(name='simpleEscalation'),
+  triggers?: [ 
+    {
+      durationSecs?: int32(name='durationSecs'),
+      expression?: {
+        conditions?: [ 
+          {
+            expressionType?: string(name='expressionType'),
+            operator?: string(name='operator'),
+            queryName?: string(name='queryName'),
+            threshold?: double(name='threshold'),
+          }
+        ](name='conditions'),
+        expressionType?: string(name='expressionType'),
+        logicOperator?: string(name='logicOperator'),
+      }(name='expression'),
+      severity?: string(name='severity'),
+    }
+  ](name='triggers'),
   type: string(name='type', description='规则条件类型，可选值：SLS_CONDITION
 
 This parameter is required.'),
@@ -275,6 +294,7 @@ model AlertRuleDataSource {
   instanceId?: string(name='instanceId', description='实例id，当type=PROMETHEUS_DS/ENTERPRISE_DS时必填，为prometheus实例的clusterId或指标仓库名称'),
   namespace?: string(name='namespace'),
   regionId?: string(name='regionId'),
+  tenantId?: string(name='tenantId'),
   type: string(name='type', description='数据源类型
 
 This parameter is required.'),
@@ -293,6 +313,7 @@ model AlertRuleNotification {
   fsWebhooks?: [ string ](name='fsWebhooks'),
   groups?: [ string ](name='groups'),
   notifyTime?: AlertRuleTimeSpan(name='notifyTime'),
+  qwencloudContacts?: map[string]map[string]any(name='qwencloudContacts'),
   silenceTime?: long(name='silenceTime'),
   slackWebhooks?: [ string ](name='slackWebhooks'),
   wxWebhooks?: [ string ](name='wxWebhooks'),
@@ -365,6 +386,8 @@ model AlertRuleQuery {
       duration?: long(name='duration'),
       end?: long(name='end', description='时间偏移结束时间(相对)，如果指定了start、end，则不指定window。'),
       expr?: string(name='expr', description='查询表达式'),
+      name?: string(name='name'),
+      promQl?: string(name='promQl'),
       start?: long(name='start', description='sls查询的时间偏移开始时间(相对)，如果指定了start、end，则不指定window。  例如：start=15， timeUnit=minute，表示15分钟前'),
       timeUnit?: string(name='timeUnit', description='start和end、window的时间单位： day/hour/minute/second'),
       window?: long(name='window', description='整点时间查询区间。  如果指定了window则不指定start、end'),
@@ -3834,6 +3857,7 @@ readWrite, readOnly, httpReadOnly', example='readOnly'),
     grafanaInstanceId?: string(name='grafanaInstanceId', description='ID of the managed Grafana instance that is bound.', example='SHARED'),
     grafanaInstanceName?: string(name='grafanaInstanceName', description='Name of the managed Grafana instance that is bound.', example='共享版'),
     httpApiInterUrl?: string(name='httpApiInterUrl', description='HTTP public network address.', example='http://workspace-default-cms-xxxxxxx'),
+    httpApiInternalUrl?: string(name='httpApiInternalUrl'),
     httpApiIntraUrl?: string(name='httpApiIntraUrl', description='HTTP intranet address.', example='http://workspace-default-cms-xxxxxxx'),
     instanceType?: string(name='instanceType', description='Prometheus instance type.', example='remote-write'),
     paymentType?: string(name='paymentType', description='Billing method:
@@ -3844,11 +3868,14 @@ POSTPAY_GB: Pay-as-you-go based on metric write volume.', example='POSTPAY'),
     prometheusInstanceId?: string(name='prometheusInstanceId', description='Instance ID.', example='rw-524ada714221af267c73122af2e1'),
     prometheusInstanceName?: string(name='prometheusInstanceName', description='Instance name.', example='test-prom-name'),
     pushGatewayInterUrl?: string(name='pushGatewayInterUrl', description='Public network address of PushGateway.', example='http://workspace-default-cms-xxxxxxx'),
+    pushGatewayInternalUrl?: string(name='pushGatewayInternalUrl'),
     pushGatewayIntraUrl?: string(name='pushGatewayIntraUrl', description='Intranet address of PushGateway.', example='http://workspace-default-cms-xxxxxxx'),
     regionId?: string(name='regionId', description='Region ID.', example='cn-heyuan'),
     remoteReadInterUrl?: string(name='remoteReadInterUrl', description='Public network read address.', example='http://workspace-default-cms-xxxxxxx'),
+    remoteReadInternalUrl?: string(name='remoteReadInternalUrl'),
     remoteReadIntraUrl?: string(name='remoteReadIntraUrl', description='Intranet read address.', example='https://workspace-default-cms-1xxxxxxxxxx'),
     remoteWriteInterUrl?: string(name='remoteWriteInterUrl', description='Public network write address.', example='https://workspace-default-cms-xxxxxxxxxx'),
+    remoteWriteInternalUrl?: string(name='remoteWriteInternalUrl'),
     remoteWriteIntraUrl?: string(name='remoteWriteIntraUrl', description='Intranet write address.', example='https://workspace-default-cms-xxxxxxxxxx'),
     resourceGroupId?: string(name='resourceGroupId', description='Resource group ID.', example='rg-acfm3gn5i6bigbi'),
     resourceType?: string(name='resourceType', description='Fixed value: PrometheusInstance.', example='Prometheus'),
@@ -3936,6 +3963,7 @@ model GetPrometheusViewResponseBody = {
     grafanaInstanceId?: string(name='grafanaInstanceId', description='Bound managed Grafana instance ID.', example='g-xxx'),
     grafanaInstanceName?: string(name='grafanaInstanceName', description='Bound managed Grafana instance name.', example='gxxx'),
     httpApiInterUrl?: string(name='httpApiInterUrl', description='Public HTTP address.', example='http://xxxxxxxx'),
+    httpApiInternalUrl?: string(name='httpApiInternalUrl'),
     httpApiIntraUrl?: string(name='httpApiIntraUrl', description='Private HTTP address.', example='http://xxxxxxxx'),
     instanceType?: string(name='instanceType', description='Instance type, fixed value prom-view.', example='prom-view'),
     paymentType?: string(name='paymentType', description='Payment type. Currently, the fixed value is FREE (free).', example='FREE'),
@@ -3951,6 +3979,7 @@ model GetPrometheusViewResponseBody = {
     prometheusViewName?: string(name='prometheusViewName', description='Prometheus view name.', example='view1'),
     regionId?: string(name='regionId', description='Region ID', example='cn-shanghai'),
     remoteReadInterUrl?: string(name='remoteReadInterUrl', description='Remote read public URL.', example='http://workspace-default-cms-xxx-cn-hangzhou.cn-hangzhou.log.aliyuncs.com/prometheus/workspace-default-cms-xxx-cn-hangzhou/xxx/api/v1/read'),
+    remoteReadInternalUrl?: string(name='remoteReadInternalUrl'),
     remoteReadIntraUrl?: string(name='remoteReadIntraUrl', description='Remote read intranet URL.', example='http://workspace-default-cms-xxx-cn-hangzhou.cn-hangzhou-intranet.log.aliyuncs.com/prometheus/workspace-default-cms-xxx-cn-hangzhou/xxx/api/v1/read'),
     resourceGroupId?: string(name='resourceGroupId', description='Resource group ID.', example='rg-acfm3gn5i6bigbi'),
     resourceType?: string(name='resourceType', description='Fixed value: PrometheusView', example='RegistryModule'),
@@ -5581,7 +5610,9 @@ async function listPrometheusViews(request: ListPrometheusViewsRequest): ListPro
 
 model ListPrometheusVirtualInstancesRequest {
   regionId?: string(name='regionId', position='Host'),
+  maxResults?: int32(name='maxResults', position='Query'),
   namespace?: string(name='namespace', description='Optional cloud product', example='ack-csi-fuse', position='Query'),
+  nextToken?: string(name='nextToken', position='Query'),
   tenantId?: string(name='tenantId', position='Query'),
 }
 
@@ -5600,7 +5631,10 @@ Namespace of the metric', example='arms-prom'),
       userId?: string(name='userId', description='User ID.', example='17073812345'),
     }
   ](name='instances', description='Instance information.'),
+  maxResults?: string(name='maxResults'),
+  nextToken?: string(name='nextToken'),
   requestId?: string(name='requestId', description='ID of the request', example='264C3E89-XXXX-XXXX-XXXX-CE9C2196C7DC'),
+  totalCount?: string(name='totalCount'),
 }
 
 model ListPrometheusVirtualInstancesResponse = {
