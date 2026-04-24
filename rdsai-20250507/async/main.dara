@@ -103,6 +103,49 @@ async function chatMessagesTaskStop(request: ChatMessagesTaskStopRequest): ChatM
   return @handler.do('RPC', 'ChatMessagesTaskStop', 'POST', '/', 'json', false, 'json', request);
 }
 
+model CreateApiKeyRequest {
+  instanceId?: string(name='InstanceId', example='rds_copilot***_public_cn-*********6', position='Query'),
+  keyName?: string(name='KeyName', example='api-*****', position='Query'),
+  limitRate?: double(name='LimitRate', minimum=0, maximum=1, position='Query'),
+  limitType?: string(name='LimitType', position='Query'),
+  quantity?: int32(name='Quantity', example='1', position='Query'),
+  tokenQuota?: long(name='TokenQuota', position='Query'),
+}
+
+model CreateApiKeyResponseBody = {
+  data?: {
+    baseUrl?: string(name='BaseUrl', example='http://xxx.yy/v1'),
+    customKeyList?: [ 
+      {
+        apiKey?: string(name='ApiKey', description='Api Key', example='sk-rds-*****'),
+        keyName?: string(name='KeyName', example='api-*****'),
+        limitRate?: float(name='LimitRate', example='0.2'),
+        limitType?: string(name='LimitType', example='fixed'),
+        tokenQuota?: long(name='TokenQuota', example='100000'),
+      }
+    ](name='CustomKeyList'),
+    systemApiKey?: string(name='SystemApiKey', example='sk-rds-xxx'),
+  }(name='Data'),
+  message?: string(name='Message', example='success'),
+  requestId?: string(name='RequestId', description='Id of the request', example='FE9C65D7-930F-57A5-A207-8C396329****'),
+  success?: boolean(name='Success', example='true'),
+}
+
+model CreateApiKeyResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: CreateApiKeyResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of CreateApiKey  CreateApiKeyRequest
+  * @return CreateApiKeyResponse
+ */
+async function createApiKey(request: CreateApiKeyRequest): CreateApiKeyResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'CreateApiKey', 'POST', '/', 'json', false, 'json', request);
+}
+
 model CreateAppInstanceRequest {
   appName?: string(name='AppName', description='The ID of the RDS for PostgreSQL instance with which the RDS Supabase instances are associated.
 
@@ -212,45 +255,6 @@ async function createCustomAgent(request: CreateCustomAgentRequest): CreateCusto
   return @handler.do('RPC', 'CreateCustomAgent', 'POST', '/', 'json', false, 'json', request);
 }
 
-model CreateEdgeFunctionRequest {
-  clientToken?: string(name='ClientToken', description='The client token that is used to ensure the idempotence of the request.', example='ETnLKlblzczshOTUbOCz****', position='Query'),
-  code?: {
-    downloadUrl?: string(name='DownloadUrl'),
-    ossBucketName?: string(name='OssBucketName', description='The name of the OSS bucket.', example='code'),
-    ossObjectName?: string(name='OssObjectName', description='The OSS path of a code file.', example='example.zip'),
-    ossType?: string(name='OssType', description='The storage class of the OSS bucket.', example='supabase'),
-  }(name='Code', description='The code parameters.', shrink='json', position='Query'),
-  customConfig?: map[string]int32(name='CustomConfig', description='The configuration parameters of the edge function.', shrink='json', position='Query'),
-  edgeFunctionName?: string(name='EdgeFunctionName', description='The name of the function.', example='ef-*****', position='Query'),
-  envs?: map[string]string(name='Envs', description='The environment variables.', shrink='json', position='Query'),
-  instanceName: string(name='InstanceName', description='The ID of the RDS Supabase instance.
-
-This parameter is required.', example='ra-supabase-8moov5lxba****', position='Query'),
-  regionId?: string(name='RegionId', description='The region ID.', example='cn-beijing', position='Query'),
-}
-
-model CreateEdgeFunctionResponseBody = {
-  edgeFunctionName?: string(name='EdgeFunctionName', description='The name of the edge function.', example='ef-****'),
-  instanceName?: string(name='InstanceName', description='The ID of the RDS Supabase instance.', example='ra-supabase-8moov5lxba****'),
-  requestId?: string(name='RequestId', description='Id of the request', example='FE9C65D7-930F-57A5-A207-8C396329****'),
-}
-
-model CreateEdgeFunctionResponse = {
-  headers?: map[string]string(name='headers'),
-  statusCode?: int32(name='statusCode'),
-  body?: CreateEdgeFunctionResponseBody(name='body'),
-}
-
-/**
-  * @description Creates an edge function, compresses the code into a zip file, and uploads it to Supabase Storage.
-  * @param request  the request parameters of CreateEdgeFunction  CreateEdgeFunctionRequest
-  * @return CreateEdgeFunctionResponse
- */
-async function createEdgeFunction(request: CreateEdgeFunctionRequest): CreateEdgeFunctionResponse {
-  @handler.validateRequestModel(request);
-  return @handler.do('RPC', 'CreateEdgeFunction', 'POST', '/', 'json', false, 'json', request);
-}
-
 model CreateInspectionTaskRequest {
   endTime?: string(name='EndTime', description='The end time of the inspection task. The time follows the ISO 8601 standard in the YYYY-MM-DDTHH:mm:ssZ format. By default, the time range of the task is the latest 24 hours.', example='2026-01-30T02:10:48Z', position='Query'),
   inspectionItems?: string(name='InspectionItems', description='The inspection items. Separates multiple items with commas (,). If this parameter is empty or not specified, all inspection items are executed.
@@ -314,6 +318,7 @@ model CreateScheduledTaskRequest {
 *   Saturday \\*Sunday
 
 ### [](#daily--dailymonday--daily-)Note: DAILY takes precedence over other values. For example, if you enter DAILY,Monday, the backend uses DAILY as the inspection frequency.', example='Monday', position='Query'),
+  inspectionItems?: string(name='InspectionItems', position='Query'),
   instanceIds?: string(name='InstanceIds', description='The IDs of the related instances. Separate multiple IDs with commas (,).', example='rm-2ze6mk259v322****,rm-2zef3b65430j0****', position='Query'),
   name: string(name='Name', description='The name of the scheduled inspection task. The name cannot exceed 64 characters in length.
 
@@ -387,6 +392,34 @@ async function createSkill(request: CreateSkillRequest): CreateSkillResponse {
   return @handler.do('RPC', 'CreateSkill', 'POST', '/', 'json', false, 'json', request);
 }
 
+model DeleteApiKeyRequest {
+  apiKey: string(name='ApiKey', description='Api Key
+
+This parameter is required.', example='sk-rds-*****', position='Query'),
+  instanceId?: string(name='InstanceId', example='rds_copilot***_public_cn-*********6', position='Query'),
+}
+
+model DeleteApiKeyResponseBody = {
+  message?: string(name='Message', example='success'),
+  requestId?: string(name='RequestId', description='Id of the request', example='FE9C65D7-930F-57A5-A207-8C396329****'),
+  success?: boolean(name='Success', example='true'),
+}
+
+model DeleteApiKeyResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: DeleteApiKeyResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of DeleteApiKey  DeleteApiKeyRequest
+  * @return DeleteApiKeyResponse
+ */
+async function deleteApiKey(request: DeleteApiKeyRequest): DeleteApiKeyResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'DeleteApiKey', 'POST', '/', 'json', false, 'json', request);
+}
+
 model DeleteAppInstanceRequest {
   clientToken?: string(name='ClientToken', description='The ID of the RDS Supabase instance.', example='ETnLKlblzczshOTUbOCz****', position='Query'),
   instanceName?: string(name='InstanceName', description='The region ID.', example='ra-supabase-8moov5lxba****', position='Query'),
@@ -441,37 +474,6 @@ model DeleteCustomAgentResponse = {
 async function deleteCustomAgent(request: DeleteCustomAgentRequest): DeleteCustomAgentResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RPC', 'DeleteCustomAgent', 'POST', '/', 'json', false, 'json', request);
-}
-
-model DeleteEdgeFunctionRequest {
-  clientToken?: string(name='ClientToken', description='The client token that is used to ensure the idempotence of the request.', example='ETnLKlblzczshOTUbOCz****', position='Query'),
-  edgeFunctionName?: string(name='EdgeFunctionName', description='The name of the edge function.', example='ef-****', position='Query'),
-  instanceName: string(name='InstanceName', description='The ID of the RDS Supabase instance.
-
-This parameter is required.', example='ra-supabase-8moov5lxba****', position='Query'),
-  regionId?: string(name='RegionId', description='The region ID.', example='cn-beijing', position='Query'),
-}
-
-model DeleteEdgeFunctionResponseBody = {
-  edgeFunctionName?: string(name='EdgeFunctionName', description='fc-xxxx', example='ef-****'),
-  instanceName?: string(name='InstanceName', description='The ID of the RDS Supabase instance.', example='ra-supabase-8moov5lxba***'),
-  requestId?: string(name='RequestId', description='Id of the request', example='FE9C65D7-930F-57A5-A207-8C396329241C'),
-}
-
-model DeleteEdgeFunctionResponse = {
-  headers?: map[string]string(name='headers'),
-  statusCode?: int32(name='statusCode'),
-  body?: DeleteEdgeFunctionResponseBody(name='body'),
-}
-
-/**
-  * @description Deletes an edge function.
-  * @param request  the request parameters of DeleteEdgeFunction  DeleteEdgeFunctionRequest
-  * @return DeleteEdgeFunctionResponse
- */
-async function deleteEdgeFunction(request: DeleteEdgeFunctionRequest): DeleteEdgeFunctionResponse {
-  @handler.validateRequestModel(request);
-  return @handler.do('RPC', 'DeleteEdgeFunction', 'POST', '/', 'json', false, 'json', request);
 }
 
 model DeleteScheduledTaskRequest {
@@ -632,50 +634,6 @@ model DescribeAppInstancesResponse = {
 async function describeAppInstances(request: DescribeAppInstancesRequest): DescribeAppInstancesResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RPC', 'DescribeAppInstances', 'POST', '/', 'json', false, 'json', request);
-}
-
-model DescribeEdgeFunctionsRequest {
-  clientToken?: string(name='ClientToken', description='The client token that is used to ensure the idempotence of the request.', example='ETnLKlblzczshOTUbOCz****', position='Query'),
-  edgeFunctionName?: string(name='EdgeFunctionName', description='fc-xxxx', example='ef-****', position='Query'),
-  instanceName: string(name='InstanceName', description='The ID of the RDS Supabase instance.
-
-This parameter is required.', example='ra-supabase-8moov5lxba****', position='Query'),
-  regionId?: string(name='RegionId', description='The region ID.', example='cn-beijing', position='Query'),
-}
-
-model DescribeEdgeFunctionsResponseBody = {
-  edgeFunctions?: [ 
-    {
-      cpu?: string(name='Cpu', description='The number of vCPUs used by the cluster.', example='1'),
-      createdTime?: string(name='CreatedTime', description='The time when the function was created.', example='2021-11-12T21:35:03'),
-      edgeFunctionName?: string(name='EdgeFunctionName', description='The edge function name.', example='ef-****'),
-      functionUrl?: string(name='FunctionUrl', description='The URL for accessing the function.', example='https://fcnext.console.aliyun.com/cn-beijing/functions/fc****'),
-      memorySize?: string(name='MemorySize', description='The memory size. Unit: MiB.', example='512'),
-      modifiedTime?: string(name='ModifiedTime', description='The time when the function was last created. The time is displayed in UTC.', example='2025-05-25 10:22:54 +0800'),
-      runtime?: string(name='Runtime', description='The runtime environment for the function, which includes the Linux environment and the Deno version.', example='custom.debian12-deno-2.5.6'),
-      status?: string(name='Status', description='The instance status. For more information, see [Instance state table](https://help.aliyun.com/document_detail/2623972.html).', example='Running'),
-      urlInternet?: string(name='UrlInternet', description='The public URL for accessing the application.', example='https://fc-bfvmoi****.cn-beijing.fcapp.run'),
-      urlIntranet?: string(name='UrlIntranet', description='The internal URL for accessing the application.', example='https://fc-bfvmoi****.cn-beijing-vpc.fcapp.run'),
-    }
-  ](name='EdgeFunctions', description='The list of edge functions.'),
-  instanceName?: string(name='InstanceName', description='The ID of the RDS Supabase instance.', example='ra-supabase-8moov5lxba****'),
-  requestId?: string(name='RequestId', description='Id of the request', example='FE9C65D7-930F-57A5-A207-8C396329****'),
-}
-
-model DescribeEdgeFunctionsResponse = {
-  headers?: map[string]string(name='headers'),
-  statusCode?: int32(name='statusCode'),
-  body?: DescribeEdgeFunctionsResponseBody(name='body'),
-}
-
-/**
-  * @description Query the list of edge functions or a specified edge function.
-  * @param request  the request parameters of DescribeEdgeFunctions  DescribeEdgeFunctionsRequest
-  * @return DescribeEdgeFunctionsResponse
- */
-async function describeEdgeFunctions(request: DescribeEdgeFunctionsRequest): DescribeEdgeFunctionsResponse {
-  @handler.validateRequestModel(request);
-  return @handler.do('RPC', 'DescribeEdgeFunctions', 'POST', '/', 'json', false, 'json', request);
 }
 
 model DescribeEventsListRequest {
@@ -984,6 +942,150 @@ async function describeInstanceStorageConfig(request: DescribeInstanceStorageCon
   return @handler.do('RPC', 'DescribeInstanceStorageConfig', 'POST', '/', 'json', false, 'json', request);
 }
 
+model DescribeMOTokenUsageDetailRequest {
+  consumerName?: string(name='ConsumerName', example='16******4_rds_copilot****_public_cn-4****02', position='Query'),
+  endTime?: string(name='EndTime', example='2025-12-13T16:00:00Z', position='Query'),
+  instanceId: string(name='InstanceId', description='This parameter is required.', example='rds_copilot***_public_cn-*********6', position='Query'),
+  model?: string(name='Model', example='qwen-flash', position='Query'),
+  page?: int32(name='Page', example='2', minimum=1, position='Query'),
+  pageSize?: int32(name='PageSize', example='10', maximum=100, position='Query'),
+  region?: string(name='Region', example='cn-beijing', position='Query'),
+  startTime?: string(name='StartTime', example='2026-01-04T16:00:00Z', position='Query'),
+}
+
+model DescribeMOTokenUsageDetailResponseBody = {
+  page?: int32(name='Page', example='1'),
+  pageSize?: int32(name='PageSize', example='10'),
+  records?: [ 
+    {
+      consumerName?: string(name='ConsumerName', example='16******4_rds_copilot****_public_cn-4****02'),
+      instanceId?: string(name='InstanceId', example='rds_copilot***_public_cn-*********6'),
+      model?: string(name='Model', example='qwen-flash'),
+      region?: string(name='Region', example='cn-beijing'),
+      requestTime?: string(name='RequestTime', example='2026-04-01T01:00:00Z'),
+      totalTokens?: double(name='TotalTokens', example='100000'),
+    }
+  ](name='Records'),
+  requestId?: string(name='RequestId', description='Id of the request', example='FE9C65D7-930F-57A5-A207-8C396329241C'),
+  totalCount?: int32(name='TotalCount', example='20'),
+}
+
+model DescribeMOTokenUsageDetailResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: DescribeMOTokenUsageDetailResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of DescribeMOTokenUsageDetail  DescribeMOTokenUsageDetailRequest
+  * @return DescribeMOTokenUsageDetailResponse
+ */
+async function describeMOTokenUsageDetail(request: DescribeMOTokenUsageDetailRequest): DescribeMOTokenUsageDetailResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'DescribeMOTokenUsageDetail', 'POST', '/', 'json', false, 'json', request);
+}
+
+model DescribeModelOperatorRequest {
+  instanceId?: string(name='InstanceId', example='rds_copilot***_public_cn-*********6', position='Query'),
+}
+
+model DescribeModelOperatorResponseBody = {
+  data?: {
+    apiKey?: string(name='ApiKey', example='sk-rds-xxx'),
+    autoRenew?: boolean(name='AutoRenew', example='False'),
+    baseUrl?: string(name='BaseUrl', example='http://xxx.yy/v1'),
+    chargeType?: string(name='ChargeType', example='PREPAY / POSTPAY'),
+    dailyUsage?: [ 
+      {
+        date?: string(name='Date', example='2026-03-31'),
+        usage?: long(name='Usage', example='100000'),
+      }
+    ](name='DailyUsage'),
+    endTime?: long(name='EndTime', example='1775145600000'),
+    instanceClass?: string(name='InstanceClass', example='xlarge'),
+    instanceId?: string(name='InstanceId', example='rds_copilot***_public_cn-*********6'),
+    keyUsageList?: [ 
+      {
+        apiKey?: string(name='ApiKey', description='API Key', example='sk-rds-*****'),
+        dailyUsage?: [ 
+          {
+            date?: string(name='Date', example='2026-03-31'),
+            usage?: string(name='Usage', example='2000'),
+          }
+        ](name='DailyUsage'),
+        deleted?: boolean(name='Deleted', example='fase'),
+        keyName?: string(name='KeyName', example='api-*****'),
+        keyType?: string(name='KeyType', example='fixed'),
+        keyUsed?: string(name='KeyUsed', example='100000'),
+        usedQuota?: string(name='UsedQuota', example='2000000'),
+      }
+    ](name='KeyUsageList'),
+    startTime?: long(name='StartTime', example='1772439028000'),
+    status?: string(name='Status', example='active/creating'),
+    totalQuota?: long(name='TotalQuota', example='200000000'),
+    usedQuota?: long(name='UsedQuota', example='1000000'),
+  }(name='Data'),
+  message?: string(name='Message', example='success'),
+  requestId?: string(name='RequestId', description='Id of the request', example='FE9C65D7-930F-57A5-A207-8C396329241C'),
+  success?: boolean(name='Success', example='true'),
+}
+
+model DescribeModelOperatorResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: DescribeModelOperatorResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of DescribeModelOperator  DescribeModelOperatorRequest
+  * @return DescribeModelOperatorResponse
+ */
+async function describeModelOperator(request: DescribeModelOperatorRequest): DescribeModelOperatorResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'DescribeModelOperator', 'POST', '/', 'json', false, 'json', request);
+}
+
+model DescribeMonitorDataRequest {
+  apiKeyName?: [ string ](name='ApiKeyName', shrink='json', position='Query'),
+  endTime: long(name='EndTime', description='This parameter is required.', example='1627269085', position='Query'),
+  instanceId?: string(name='InstanceId', example='rds_copilot***_public_cn-*********6', position='Query'),
+  interval?: int32(name='Interval', example='15', position='Query'),
+  metric: string(name='Metric', description='This parameter is required.', example='● pv', position='Query'),
+  startTime: long(name='StartTime', description='This parameter is required.', example='1627268185', position='Query'),
+}
+
+model DescribeMonitorDataResponseBody = {
+  data?: [ 
+    {
+      name?: string(name='Name', example='qps'),
+      value?: [ 
+        {
+          time?: string(name='Time', example='1774972800'),
+          value?: double(name='Value', example='60'),
+        }
+      ](name='Value'),
+    }
+  ](name='Data'),
+  message?: string(name='Message', example='success'),
+  requestId?: string(name='RequestId', description='Id of the request', example='FE9C65D7-930F-57A5-A207-8C396329241C'),
+  success?: boolean(name='Success', example='true'),
+}
+
+model DescribeMonitorDataResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: DescribeMonitorDataResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of DescribeMonitorData  DescribeMonitorDataRequest
+  * @return DescribeMonitorDataResponse
+ */
+async function describeMonitorData(request: DescribeMonitorDataRequest): DescribeMonitorDataResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'DescribeMonitorData', 'POST', '/', 'json', false, 'json', request);
+}
+
 model DescribeSandboxTemplatesRequest {
   instanceName: string(name='InstanceName', description='This parameter is required.', position='Query'),
   maxResults?: int32(name='MaxResults', example='None', position='Query'),
@@ -1026,6 +1128,63 @@ model DescribeSandboxTemplatesResponse = {
 async function describeSandboxTemplates(request: DescribeSandboxTemplatesRequest): DescribeSandboxTemplatesResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RPC', 'DescribeSandboxTemplates', 'POST', '/', 'json', false, 'json', request);
+}
+
+model DescribeWhitelistIpsRequest {
+  instanceId?: string(name='InstanceId', example='rds_copilot****_public_cn-4****02', position='Query'),
+}
+
+model DescribeWhitelistIpsResponseBody = {
+  data?: {
+    domain?: string(name='Domain', example='www.test123.com'),
+    ipWhitelist?: string(name='IpWhitelist', example='127.0.0.1,192.168.1.0/24'),
+  }(name='Data'),
+  message?: string(name='Message', example='success'),
+  requestId?: string(name='RequestId', description='Id of the request', example='FE9C65D7-930F-57A5-A207-8C396329****'),
+  success?: boolean(name='Success', example='true'),
+}
+
+model DescribeWhitelistIpsResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: DescribeWhitelistIpsResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of DescribeWhitelistIps  DescribeWhitelistIpsRequest
+  * @return DescribeWhitelistIpsResponse
+ */
+async function describeWhitelistIps(request: DescribeWhitelistIpsRequest): DescribeWhitelistIpsResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'DescribeWhitelistIps', 'POST', '/', 'json', false, 'json', request);
+}
+
+model EnableAgentRuntimeRequest {
+  clientToken?: string(name='ClientToken', example='0c593ea1-3bea-11e9-b96b-88e9fe637760', position='Query'),
+  instanceName: string(name='InstanceName', description='This parameter is required.', example='ra-supabase-8moov5lxba****', position='Query'),
+  regionId?: string(name='RegionId', example='cn-beijing', position='Query'),
+  securityGroupId?: string(name='SecurityGroupId', example='sg-bp179qkbvlj8ym*****', position='Query'),
+  vSwitchId?: string(name='VSwitchId', example='vsw-9dp2hkpm22gxscfgy****', position='Query'),
+}
+
+model EnableAgentRuntimeResponseBody = {
+  instanceName?: string(name='InstanceName', example='ra-supabase-8moov5lxba****'),
+  requestId?: string(name='RequestId', description='Id of the request', example='FE9C65D7-930F-57A5-A207-8C396329****'),
+}
+
+model EnableAgentRuntimeResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: EnableAgentRuntimeResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of EnableAgentRuntime  EnableAgentRuntimeRequest
+  * @return EnableAgentRuntimeResponse
+ */
+async function enableAgentRuntime(request: EnableAgentRuntimeRequest): EnableAgentRuntimeResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'EnableAgentRuntime', 'POST', '/', 'json', false, 'json', request);
 }
 
 model GetConversationsRequest {
@@ -1214,6 +1373,42 @@ async function getMessages(request: GetMessagesRequest): GetMessagesResponse {
   return @handler.do('RPC', 'GetMessages', 'POST', '/', 'json', false, 'json', request);
 }
 
+model GetModelOperatorOrderRequest {
+}
+
+model GetModelOperatorOrderResponseBody = {
+  data?: {
+    hasValidOrder?: boolean(name='HasValidOrder', example='true'),
+    instanceList?: [ 
+      {
+        endTime?: long(name='EndTime', example='1775145600000'),
+        instanceClass?: string(name='InstanceClass', example='xlarge'),
+        instanceId?: string(name='InstanceId', example='rds_copilot***_public_cn-*********6'),
+        startTime?: long(name='StartTime', example='1772439028000'),
+        status?: string(name='Status', example='active/creating'),
+      }
+    ](name='InstanceList'),
+  }(name='Data'),
+  message?: string(name='Message', example='success'),
+  requestId?: string(name='RequestId', description='Id of the request', example='FE9C65D7-930F-57A5-A207-8C396329241C'),
+  success?: boolean(name='Success', example='true'),
+}
+
+model GetModelOperatorOrderResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: GetModelOperatorOrderResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of GetModelOperatorOrder  GetModelOperatorOrderRequest
+  * @return GetModelOperatorOrderResponse
+ */
+async function getModelOperatorOrder(request: GetModelOperatorOrderRequest): GetModelOperatorOrderResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'GetModelOperatorOrder', 'POST', '/', 'json', false, 'json', request);
+}
+
 model GetScheduledInstancesRequest {
   pageNumber?: long(name='PageNumber', description='The page number. Pages start from 1. Default value: 1.', example='1', position='Query'),
   pageSize?: long(name='PageSize', description='The number of records on each page. Default value: 20. Maximum value: 100.', example='20', position='Query'),
@@ -1273,6 +1468,7 @@ model GetScheduledReportsResponseBody = {
     {
       createdTime?: string(name='CreatedTime', description='The creation time of the task.', example='2025-01-01T22:59:59Z'),
       endTime?: string(name='EndTime', description='The end time of the inspection task. The time follows the ISO 8601 standard in the YYYY-MM-DDTHH:mm:ssZ format.', example='2025-01-01T23:59:59Z'),
+      inspectionItems?: string(name='InspectionItems'),
       regionId?: string(name='RegionId'),
       reportLanguage?: string(name='ReportLanguage'),
       reportType?: string(name='ReportType'),
@@ -1356,6 +1552,7 @@ model GetStandAloneReportsResponseBody = {
     {
       createdTime?: string(name='CreatedTime', description='The creation time of the inspection task.', example='2026-01-22T08:20:31Z'),
       endTime?: string(name='EndTime', description='The end time of the inspection. The time is in the YYYY-MM-DDTHH:mm:ssZ format.', example='2026-01-23T08:20:31Z'),
+      inspectionItems?: string(name='InspectionItems'),
       regionId?: string(name='RegionId'),
       reportLanguage?: string(name='ReportLanguage'),
       reportType?: string(name='ReportType'),
@@ -1382,6 +1579,51 @@ model GetStandAloneReportsResponse = {
 async function getStandAloneReports(request: GetStandAloneReportsRequest): GetStandAloneReportsResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RPC', 'GetStandAloneReports', 'POST', '/', 'json', false, 'json', request);
+}
+
+model ListApiKeysRequest {
+  instanceId?: string(name='InstanceId', example='rds_copilot***_public_cn-*********6', position='Query'),
+  page?: int32(name='Page', example='1', position='Query'),
+  pageSize?: int32(name='PageSize', example='10', position='Query'),
+}
+
+model ListApiKeysResponseBody = {
+  data?: {
+    baseUrl?: string(name='BaseUrl', example='http://xxx.yy/v1'),
+    customKeyList?: [ 
+      {
+        apiKey?: string(name='ApiKey', description='API Key', example='sk-rds-*****'),
+        isRateLimited?: boolean(name='IsRateLimited'),
+        keyName?: string(name='KeyName', example='api-*****'),
+        limitRate?: float(name='LimitRate', example='0.2'),
+        limitType?: string(name='LimitType', example='fixed'),
+        tokenQuota?: long(name='TokenQuota', example='10000'),
+      }
+    ](name='CustomKeyList'),
+    isRateLimited?: boolean(name='IsRateLimited'),
+    page?: int32(name='Page', example='1'),
+    pageSize?: int32(name='PageSize', example='10'),
+    systemApiKey?: string(name='SystemApiKey', example='sk-rds-xxx'),
+    total?: int32(name='Total', example='138'),
+  }(name='Data'),
+  message?: string(name='Message', example='success'),
+  requestId?: string(name='RequestId', description='Id of the request', example='FE9C65D7-930F-57A5-A207-8C396329****'),
+  success?: boolean(name='Success', example='true'),
+}
+
+model ListApiKeysResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ListApiKeysResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of ListApiKeys  ListApiKeysRequest
+  * @return ListApiKeysResponse
+ */
+async function listApiKeys(request: ListApiKeysRequest): ListApiKeysResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'ListApiKeys', 'POST', '/', 'json', false, 'json', request);
 }
 
 model ListCustomAgentRequest {
@@ -1489,6 +1731,7 @@ model ListScheduledTasksResponseBody = {
 *   Sunday
 
 ### [](#daily--dailymonday--daily-)Note: DAILY takes precedence over other values. For example, if you set this parameter to DAILY,Monday, the backend will use DAILY as the inspection frequency.', example='Monday'),
+      inspectionItems?: string(name='InspectionItems'),
       instanceCount?: long(name='InstanceCount', description='The number of instances covered by the task.', example='1'),
       name?: string(name='Name', description='The name of the task.'),
       regionId?: string(name='RegionId'),
@@ -1892,6 +2135,7 @@ model ModifyScheduledTaskRequest {
 *   Sunday
 
 ### [](#daily--dailymonday--daily-)Note: DAILY takes precedence over other values. For example, if you enter DAILY,Monday, the backend will use DAILY as the inspection frequency.', example='Monday', position='Query'),
+  inspectionItems?: string(name='InspectionItems', position='Query'),
   instanceIds?: string(name='InstanceIds', description='The new list of related instances. Separate multiple instances with commas (,).', example='rm-2ze6mk259v322****,rm-2zef3b65430j0****', position='Query'),
   name?: string(name='Name', description='The name of the new inspection configuration.', position='Query'),
   reportLanguage?: string(name='ReportLanguage', position='Query'),
@@ -1921,6 +2165,97 @@ model ModifyScheduledTaskResponse = {
 async function modifyScheduledTask(request: ModifyScheduledTaskRequest): ModifyScheduledTaskResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RPC', 'ModifyScheduledTask', 'POST', '/', 'json', false, 'json', request);
+}
+
+model ModifyWhitelistIpsRequest {
+  instanceId?: string(name='InstanceId', example='rds_copilot***_public_cn-*********6', position='Query'),
+  ipWhitelist?: string(name='IpWhitelist', example='127.0.0.1,192.168.1.0/24', position='Query'),
+}
+
+model ModifyWhitelistIpsResponseBody = {
+  message?: string(name='Message', example='success'),
+  requestId?: string(name='RequestId', description='Id of the request', example='FE9C65D7-930F-57A5-A207-8C396329241C'),
+  success?: boolean(name='Success', example='true'),
+}
+
+model ModifyWhitelistIpsResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ModifyWhitelistIpsResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of ModifyWhitelistIps  ModifyWhitelistIpsRequest
+  * @return ModifyWhitelistIpsResponse
+ */
+async function modifyWhitelistIps(request: ModifyWhitelistIpsRequest): ModifyWhitelistIpsResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'ModifyWhitelistIps', 'POST', '/', 'json', false, 'json', request);
+}
+
+model RenameApiKeyRequest {
+  apiKey: string(name='ApiKey', description='API KEY
+
+This parameter is required.', example='sk-rds-*****', position='Query'),
+  instanceId?: string(name='InstanceId', example='rds_copilot***_public_cn-*********6', position='Query'),
+  keyName: string(name='KeyName', description='This parameter is required.', example='api-*****', position='Query'),
+}
+
+model RenameApiKeyResponseBody = {
+  message?: string(name='Message', example='success'),
+  requestId?: string(name='RequestId', description='Id of the request', example='FE9C65D7-930F-57A5-A207-8C396329241C'),
+  success?: boolean(name='Success', example='true'),
+}
+
+model RenameApiKeyResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: RenameApiKeyResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of RenameApiKey  RenameApiKeyRequest
+  * @return RenameApiKeyResponse
+ */
+async function renameApiKey(request: RenameApiKeyRequest): RenameApiKeyResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'RenameApiKey', 'POST', '/', 'json', false, 'json', request);
+}
+
+model ResetApiKeyRequest {
+  apiKey?: string(name='ApiKey', description='Api Key', example='sk-rds-*****', position='Query'),
+  instanceId: string(name='InstanceId', description='This parameter is required.', example='rds_copilot***_public_cn-*********6', position='Query'),
+}
+
+model ResetApiKeyResponseBody = {
+  data?: {
+    apiKey?: string(name='ApiKey', example='sk-rds-*****'),
+    baseUrl?: string(name='BaseUrl', example='http://xxx.yy/v1'),
+    customKeyList?: [ 
+      {
+        apiKey?: string(name='ApiKey', example='sk-rds-*****'),
+        keyName?: string(name='KeyName', example='api-*****'),
+      }
+    ](name='CustomKeyList'),
+  }(name='Data'),
+  message?: string(name='Message', example='success'),
+  requestId?: string(name='RequestId', description='Id of the request', example='FE9C65D7-930F-57A5-A207-8C396329241C'),
+  success?: boolean(name='Success', example='true'),
+}
+
+model ResetApiKeyResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ResetApiKeyResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of ResetApiKey  ResetApiKeyRequest
+  * @return ResetApiKeyResponse
+ */
+async function resetApiKey(request: ResetApiKeyRequest): ResetApiKeyResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'ResetApiKey', 'POST', '/', 'json', false, 'json', request);
 }
 
 model ResetInstancePasswordRequest {
@@ -2050,6 +2385,49 @@ async function stopInstance(request: StopInstanceRequest): StopInstanceResponse 
   return @handler.do('RPC', 'StopInstance', 'POST', '/', 'json', false, 'json', request);
 }
 
+model UpdateApiKeyQuotaRequest {
+  instanceId?: string(name='InstanceId', example='rds_copilot***_public_cn-*********6', position='Query'),
+  keys?: [ 
+    {
+      apiKey?: string(name='ApiKey', description='API KEY', example='sk-rds-xxx'),
+      limitRate?: double(name='LimitRate', example='0.2', minimum=0, maximum=1),
+      limitType?: string(name='LimitType', example='fixed'),
+      tokenQuota?: long(name='TokenQuota', example='100000'),
+    }
+  ](name='Keys', shrink='json', position='Query'),
+}
+
+model UpdateApiKeyQuotaResponseBody = {
+  data?: {
+    customKeyList?: [ 
+      {
+        apiKey?: string(name='ApiKey', description='Api Key', example='sk-rds-xxx'),
+        limitRate?: float(name='LimitRate', example='0.2'),
+        limitType?: string(name='LimitType', example='fixed'),
+        tokenQuota?: long(name='TokenQuota', example='10000'),
+      }
+    ](name='CustomKeyList'),
+  }(name='Data'),
+  message?: string(name='Message', example='success'),
+  requestId?: string(name='RequestId', description='Id of the request', example='FE9C65D7-930F-57A5-A207-8C396329****'),
+  success?: boolean(name='Success', example='true'),
+}
+
+model UpdateApiKeyQuotaResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: UpdateApiKeyQuotaResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of UpdateApiKeyQuota  UpdateApiKeyQuotaRequest
+  * @return UpdateApiKeyQuotaResponse
+ */
+async function updateApiKeyQuota(request: UpdateApiKeyQuotaRequest): UpdateApiKeyQuotaResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'UpdateApiKeyQuota', 'POST', '/', 'json', false, 'json', request);
+}
+
 model UpdateCustomAgentRequest {
   customAgentId: string(name='CustomAgentId', description='The operation that you want to perform. Set the value to **UpdateCustomAgent**.
 
@@ -2091,45 +2469,6 @@ model UpdateCustomAgentResponse = {
 async function updateCustomAgent(request: UpdateCustomAgentRequest): UpdateCustomAgentResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RPC', 'UpdateCustomAgent', 'POST', '/', 'json', false, 'json', request);
-}
-
-model UpdateEdgeFunctionRequest {
-  clientToken?: string(name='ClientToken', description='The client token that is used to ensure the idempotence of the request.', example='ETnLKlblzczshOTUbOCz****', position='Query'),
-  code?: {
-    downloadUrl?: string(name='DownloadUrl'),
-    ossBucketName?: string(name='OssBucketName', description='The name of the OSS bucket.', example='code'),
-    ossObjectName?: string(name='OssObjectName', description='The path of the code file.', example='example2.zip'),
-    ossType?: string(name='OssType', description='The storage class of the OSS bucket.', example='supabase'),
-  }(name='Code', description='The error code that is returned if the request failed. For more information, see the "Error codes" section of the topic.', shrink='json', position='Query'),
-  customConfig?: map[string]string(name='CustomConfig', description='The configuration parameters of the edge function.', example='{}', shrink='json', position='Query'),
-  edgeFunctionName?: string(name='EdgeFunctionName', description='fc-xxxx', example='ef-****', position='Query'),
-  envs?: map[string]string(name='Envs', description='The environment variables of the edge function.', shrink='json', position='Query'),
-  instanceName: string(name='InstanceName', description='The ID of the RDS Supabase instance.
-
-This parameter is required.', example='ra-supabase-8moov5lxba****', position='Query'),
-  regionId?: string(name='RegionId', description='The region ID.', example='cn-beijing', position='Query'),
-}
-
-model UpdateEdgeFunctionResponseBody = {
-  edgeFunctionName?: string(name='EdgeFunctionName', description='fc-xxxx', example='ef-****'),
-  instanceName?: string(name='InstanceName', description='The ID of the RDS Supabase instance.', example='ra-supabase-8moov5lxba****'),
-  requestId?: string(name='RequestId', description='The request ID.', example='FE9C65D7-930F-57A5-A207-8C396329241C'),
-}
-
-model UpdateEdgeFunctionResponse = {
-  headers?: map[string]string(name='headers'),
-  statusCode?: int32(name='statusCode'),
-  body?: UpdateEdgeFunctionResponseBody(name='body'),
-}
-
-/**
-  * @description Updates an edge function, including updating code versions, adding environment variables, and modifying configurations.
-  * @param request  the request parameters of UpdateEdgeFunction  UpdateEdgeFunctionRequest
-  * @return UpdateEdgeFunctionResponse
- */
-async function updateEdgeFunction(request: UpdateEdgeFunctionRequest): UpdateEdgeFunctionResponse {
-  @handler.validateRequestModel(request);
-  return @handler.do('RPC', 'UpdateEdgeFunction', 'POST', '/', 'json', false, 'json', request);
 }
 
 model UpdateSkillRequest {
