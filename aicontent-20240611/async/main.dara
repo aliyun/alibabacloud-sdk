@@ -80,6 +80,28 @@ model ApiKeyUpdateCmd {
   status?: int32(name='status', example='1'),
 }
 
+model BillingCostBreakdownRespDTO {
+  granularity?: string(name='granularity', example='hourly'),
+  page?: int32(name='page', example='1'),
+  pageSize?: int32(name='pageSize', example='20'),
+  rows?: [
+    BillingCostBreakdownRowDTO
+  ](name='rows', example='[]'),
+  total?: long(name='total', example='100'),
+}
+
+model BillingCostBreakdownRowDTO {
+  billingType?: string(name='billingType', example='total_amount'),
+  clientId?: long(name='clientId', example='0'),
+  clientName?: string(name='clientName', example='研发部'),
+  modelCode?: string(name='modelCode', example='qwen-plus'),
+  modelId?: long(name='modelId', example='1'),
+  modelName?: string(name='modelName', example='通义千问-Plus'),
+  modelType?: string(name='modelType', example='llm'),
+  payableAmount?: float(name='payableAmount', example='0.00012800'),
+  summaryTime?: long(name='summaryTime', example='1700000000'),
+}
+
 model ClientCreateCmd {
   address?: string(name='address', example='杭州市'),
   allowedModels?: string(name='allowedModels', example='1,2,3'),
@@ -222,6 +244,11 @@ model MetricDefRespDTO {
   label?: string(name='label', example='调用次数'),
   sortable?: boolean(name='sortable', example='true'),
   unit?: string(name='unit', example='次'),
+}
+
+model MetricKVPairDTO {
+  key?: string(name='key', example='total_calls'),
+  value?: float(name='value', example='100'),
 }
 
 model MetricValueDTO {
@@ -580,6 +607,29 @@ model TimeSeriesPointDTO {
 model TrendPointDTO {
   timestamp?: long(name='timestamp', example='1700000000'),
   values?: string(name='values'),
+}
+
+model UsageBreakdownRespDTO {
+  granularity?: string(name='granularity', example='hourly'),
+  page?: int32(name='page', example='1'),
+  pageSize?: int32(name='pageSize', example='20'),
+  rows?: [
+    UsageBreakdownRowDTO
+  ](name='rows', example='[]'),
+  total?: long(name='total', example='100'),
+}
+
+model UsageBreakdownRowDTO {
+  clientId?: long(name='clientId', example='0'),
+  clientName?: string(name='clientName', example='研发部'),
+  metrics?: [
+    MetricKVPairDTO
+  ](name='metrics', example='[{"key": "total_calls", "value": 100}]'),
+  modelCode?: string(name='modelCode', example='qwen-plus'),
+  modelId?: long(name='modelId', example='1'),
+  modelName?: string(name='modelName', example='通义千问-Plus'),
+  modelType?: string(name='modelType', example='llm'),
+  summaryTime?: long(name='summaryTime', example='1700000000'),
 }
 
 model UsageInfoDTO {
@@ -2704,6 +2754,42 @@ async function modelRouterQueryApiKeyList(request: ModelRouterQueryApiKeyListReq
   return @handler.do('RESTFUL', 'ModelRouterQueryApiKeyList', 'GET', '/api/v1/modelRouter/open/apikeys', 'json', false, 'json', request);
 }
 
+model ModelRouterQueryBillingCostBreakdownRequest {
+  endTime: long(name='endTime', description='This parameter is required.', example='1700086400', position='Query'),
+  granularity: string(name='granularity', description='This parameter is required.', example='hourly', position='Query'),
+  maxResults?: int32(name='maxResults', example='20', position='Query'),
+  nextToken?: string(name='nextToken', example='xxxx-xxx-xxxxx', position='Query'),
+  page?: int32(name='page', example='1', position='Query'),
+  pageSize?: int32(name='pageSize', example='20', position='Query'),
+  startTime: long(name='startTime', description='This parameter is required.', example='1700000000', position='Query'),
+}
+
+model ModelRouterQueryBillingCostBreakdownResponseBody = {
+  data?: BillingCostBreakdownRespDTO(name='data', example='{}'),
+  errCode?: string(name='errCode', example='UNKNOWN_ERROR'),
+  errMessage?: string(name='errMessage', example='未知错误'),
+  httpStatusCode?: int32(name='httpStatusCode', example='200'),
+  maxResults?: int32(name='maxResults', example='20'),
+  nextToken?: string(name='nextToken', example='xxxx-xxx-xxxxx'),
+  requestId?: string(name='requestId', example='xxxx-xxxx-xxxx-xxxxxxxx'),
+  success?: boolean(name='success', example='true'),
+}
+
+model ModelRouterQueryBillingCostBreakdownResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ModelRouterQueryBillingCostBreakdownResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of ModelRouterQueryBillingCostBreakdown  ModelRouterQueryBillingCostBreakdownRequest
+  * @return ModelRouterQueryBillingCostBreakdownResponse
+ */
+async function modelRouterQueryBillingCostBreakdown(request: ModelRouterQueryBillingCostBreakdownRequest): ModelRouterQueryBillingCostBreakdownResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'ModelRouterQueryBillingCostBreakdown', 'GET', '/api/v1/modelRouter/open/billing/cost/breakdown', 'json', false, 'json', request);
+}
+
 model ModelRouterQueryBillingRuleListRequest {
   activeOnly?: boolean(name='activeOnly', example='true', position='Query'),
   maxResults?: int32(name='maxResults', description='maxResults', example='10', position='Query'),
@@ -3406,6 +3492,42 @@ model ModelRouterQueryObservationMetricsResponse = {
 async function modelRouterQueryObservationMetrics(request: ModelRouterQueryObservationMetricsRequest): ModelRouterQueryObservationMetricsResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RESTFUL', 'ModelRouterQueryObservationMetrics', 'GET', '/api/v1/modelRouter/open/observation/metrics', 'json', false, 'json', request);
+}
+
+model ModelRouterQueryUsageBreakdownRequest {
+  endTime: long(name='endTime', description='This parameter is required.', example='1700086400', position='Query'),
+  granularity: string(name='granularity', description='This parameter is required.', example='hourly', position='Query'),
+  maxResults?: int32(name='maxResults', example='20', position='Query'),
+  nextToken?: string(name='nextToken', example='xxxx-xxx-xxxxx', position='Query'),
+  page?: int32(name='page', example='1', position='Query'),
+  pageSize?: int32(name='pageSize', example='20', position='Query'),
+  startTime: long(name='startTime', description='This parameter is required.', example='1700000000', position='Query'),
+}
+
+model ModelRouterQueryUsageBreakdownResponseBody = {
+  data?: UsageBreakdownRespDTO(name='data', example='{}'),
+  errCode?: string(name='errCode', example='UNKNOWN_ERROR'),
+  errMessage?: string(name='errMessage', example='未知错误'),
+  httpStatusCode?: int32(name='httpStatusCode', example='200'),
+  maxResults?: int32(name='maxResults', example='20'),
+  nextToken?: string(name='nextToken', example='xxxx-xxx-xxxxx'),
+  requestId?: string(name='requestId', example='xxxx-xxxx-xxxx-xxxxxxxx'),
+  success?: boolean(name='success', example='true'),
+}
+
+model ModelRouterQueryUsageBreakdownResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ModelRouterQueryUsageBreakdownResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of ModelRouterQueryUsageBreakdown  ModelRouterQueryUsageBreakdownRequest
+  * @return ModelRouterQueryUsageBreakdownResponse
+ */
+async function modelRouterQueryUsageBreakdown(request: ModelRouterQueryUsageBreakdownRequest): ModelRouterQueryUsageBreakdownResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'ModelRouterQueryUsageBreakdown', 'GET', '/api/v1/modelRouter/open/usage/breakdown', 'json', false, 'json', request);
 }
 
 model ModelRouterUpdateBillingRuleRequest {

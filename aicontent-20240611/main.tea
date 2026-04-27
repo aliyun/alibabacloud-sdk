@@ -78,6 +78,28 @@ model ApiKeyUpdateCmd {
   status?: int32(name='status', example='1'),
 }
 
+model BillingCostBreakdownRespDTO {
+  granularity?: string(name='granularity', example='hourly'),
+  page?: int32(name='page', example='1'),
+  pageSize?: int32(name='pageSize', example='20'),
+  rows?: [
+    BillingCostBreakdownRowDTO
+  ](name='rows', example='[]'),
+  total?: long(name='total', example='100'),
+}
+
+model BillingCostBreakdownRowDTO {
+  billingType?: string(name='billingType', example='total_amount'),
+  clientId?: long(name='clientId', example='0'),
+  clientName?: string(name='clientName'),
+  modelCode?: string(name='modelCode', example='qwen-plus'),
+  modelId?: long(name='modelId', example='1'),
+  modelName?: string(name='modelName'),
+  modelType?: string(name='modelType', example='llm'),
+  payableAmount?: float(name='payableAmount', example='0.00012800'),
+  summaryTime?: long(name='summaryTime', example='1700000000'),
+}
+
 model ClientCreateCmd {
   address?: string(name='address', example='杭州市'),
   allowedModels?: string(name='allowedModels', example='1,2,3'),
@@ -220,6 +242,11 @@ model MetricDefRespDTO {
   label?: string(name='label'),
   sortable?: boolean(name='sortable', example='true'),
   unit?: string(name='unit'),
+}
+
+model MetricKVPairDTO {
+  key?: string(name='key', example='total_calls'),
+  value?: float(name='value', example='100'),
 }
 
 model MetricValueDTO {
@@ -584,6 +611,29 @@ model TimeSeriesPointDTO {
 model TrendPointDTO {
   timestamp?: long(name='timestamp', example='1700000000'),
   values?: string(name='values', example='"{\\\\"total_calls\\\\":0,\\\\"video_duration\\\\":0,\\\\"total_amount\\\\":0,\\\\"model_count\\\\":0,\\\\"image_count\\\\":0}"'),
+}
+
+model UsageBreakdownRespDTO {
+  granularity?: string(name='granularity', example='hourly'),
+  page?: int32(name='page', example='1'),
+  pageSize?: int32(name='pageSize', example='20'),
+  rows?: [
+    UsageBreakdownRowDTO
+  ](name='rows', example='[]'),
+  total?: long(name='total', example='100'),
+}
+
+model UsageBreakdownRowDTO {
+  clientId?: long(name='clientId', example='0'),
+  clientName?: string(name='clientName'),
+  metrics?: [
+    MetricKVPairDTO
+  ](name='metrics', example='[{"key": "total_calls", "value": 100}]'),
+  modelCode?: string(name='modelCode', example='qwen-plus'),
+  modelId?: long(name='modelId', example='1'),
+  modelName?: string(name='modelName'),
+  modelType?: string(name='modelType', example='llm'),
+  summaryTime?: long(name='summaryTime', example='1700000000'),
 }
 
 model UsageInfoDTO {
@@ -4872,6 +4922,96 @@ async function modelRouterQueryApiKeyList(request: ModelRouterQueryApiKeyListReq
   return modelRouterQueryApiKeyListWithOptions(request, headers, runtime);
 }
 
+model ModelRouterQueryBillingCostBreakdownRequest {
+  endTime?: long(name='endTime', description='This parameter is required.', example='1700086400'),
+  granularity?: string(name='granularity', description='This parameter is required.', example='hourly'),
+  maxResults?: int32(name='maxResults', example='20'),
+  nextToken?: string(name='nextToken', example='xxxx-xxx-xxxxx'),
+  page?: int32(name='page', example='1'),
+  pageSize?: int32(name='pageSize', example='20'),
+  startTime?: long(name='startTime', description='This parameter is required.', example='1700000000'),
+}
+
+model ModelRouterQueryBillingCostBreakdownResponseBody = {
+  data?: BillingCostBreakdownRespDTO(name='data', example='{}'),
+  errCode?: string(name='errCode', example='UNKNOWN_ERROR'),
+  errMessage?: string(name='errMessage', example='未知错误'),
+  httpStatusCode?: int32(name='httpStatusCode', example='200'),
+  maxResults?: int32(name='maxResults', example='20'),
+  nextToken?: string(name='nextToken', example='xxxx-xxx-xxxxx'),
+  requestId?: string(name='requestId', example='xxxx-xxxx-xxxx-xxxxxxxx'),
+  success?: boolean(name='success', example='true'),
+}
+
+model ModelRouterQueryBillingCostBreakdownResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ModelRouterQueryBillingCostBreakdownResponseBody(name='body'),
+}
+
+/**
+ * @summary 计费管理/批量查询计费明细
+ *
+ * @param request ModelRouterQueryBillingCostBreakdownRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return ModelRouterQueryBillingCostBreakdownResponse
+ */
+async function modelRouterQueryBillingCostBreakdownWithOptions(request: ModelRouterQueryBillingCostBreakdownRequest, headers: map[string]string, runtime: Util.RuntimeOptions): ModelRouterQueryBillingCostBreakdownResponse {
+  Util.validateModel(request);
+  var query : map[string]any = {};
+  if (!Util.isUnset(request.endTime)) {
+    query['endTime'] = request.endTime;
+  }
+  if (!Util.isUnset(request.granularity)) {
+    query['granularity'] = request.granularity;
+  }
+  if (!Util.isUnset(request.maxResults)) {
+    query['maxResults'] = request.maxResults;
+  }
+  if (!Util.isUnset(request.nextToken)) {
+    query['nextToken'] = request.nextToken;
+  }
+  if (!Util.isUnset(request.page)) {
+    query['page'] = request.page;
+  }
+  if (!Util.isUnset(request.pageSize)) {
+    query['pageSize'] = request.pageSize;
+  }
+  if (!Util.isUnset(request.startTime)) {
+    query['startTime'] = request.startTime;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'ModelRouterQueryBillingCostBreakdown',
+    version = '20240611',
+    protocol = 'HTTPS',
+    pathname = `/api/v1/modelRouter/open/billing/cost/breakdown`,
+    method = 'GET',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 计费管理/批量查询计费明细
+ *
+ * @param request ModelRouterQueryBillingCostBreakdownRequest
+ * @return ModelRouterQueryBillingCostBreakdownResponse
+ */
+async function modelRouterQueryBillingCostBreakdown(request: ModelRouterQueryBillingCostBreakdownRequest): ModelRouterQueryBillingCostBreakdownResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return modelRouterQueryBillingCostBreakdownWithOptions(request, headers, runtime);
+}
+
 model ModelRouterQueryBillingRuleListRequest {
   activeOnly?: boolean(name='activeOnly', example='true'),
   maxResults?: int32(name='maxResults', description='maxResults', example='10'),
@@ -6492,6 +6632,96 @@ async function modelRouterQueryObservationMetrics(request: ModelRouterQueryObser
   var runtime = new Util.RuntimeOptions{};
   var headers : map[string]string = {};
   return modelRouterQueryObservationMetricsWithOptions(request, headers, runtime);
+}
+
+model ModelRouterQueryUsageBreakdownRequest {
+  endTime?: long(name='endTime', description='This parameter is required.', example='1700086400'),
+  granularity?: string(name='granularity', description='This parameter is required.', example='hourly'),
+  maxResults?: int32(name='maxResults', example='20'),
+  nextToken?: string(name='nextToken', example='xxxx-xxx-xxxxx'),
+  page?: int32(name='page', example='1'),
+  pageSize?: int32(name='pageSize', example='20'),
+  startTime?: long(name='startTime', description='This parameter is required.', example='1700000000'),
+}
+
+model ModelRouterQueryUsageBreakdownResponseBody = {
+  data?: UsageBreakdownRespDTO(name='data', example='{}'),
+  errCode?: string(name='errCode', example='UNKNOWN_ERROR'),
+  errMessage?: string(name='errMessage', example='未知错误'),
+  httpStatusCode?: int32(name='httpStatusCode', example='200'),
+  maxResults?: int32(name='maxResults', example='20'),
+  nextToken?: string(name='nextToken', example='xxxx-xxx-xxxxx'),
+  requestId?: string(name='requestId', example='xxxx-xxxx-xxxx-xxxxxxxx'),
+  success?: boolean(name='success', example='true'),
+}
+
+model ModelRouterQueryUsageBreakdownResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ModelRouterQueryUsageBreakdownResponseBody(name='body'),
+}
+
+/**
+ * @summary 用量管理/批量查询用量明细
+ *
+ * @param request ModelRouterQueryUsageBreakdownRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return ModelRouterQueryUsageBreakdownResponse
+ */
+async function modelRouterQueryUsageBreakdownWithOptions(request: ModelRouterQueryUsageBreakdownRequest, headers: map[string]string, runtime: Util.RuntimeOptions): ModelRouterQueryUsageBreakdownResponse {
+  Util.validateModel(request);
+  var query : map[string]any = {};
+  if (!Util.isUnset(request.endTime)) {
+    query['endTime'] = request.endTime;
+  }
+  if (!Util.isUnset(request.granularity)) {
+    query['granularity'] = request.granularity;
+  }
+  if (!Util.isUnset(request.maxResults)) {
+    query['maxResults'] = request.maxResults;
+  }
+  if (!Util.isUnset(request.nextToken)) {
+    query['nextToken'] = request.nextToken;
+  }
+  if (!Util.isUnset(request.page)) {
+    query['page'] = request.page;
+  }
+  if (!Util.isUnset(request.pageSize)) {
+    query['pageSize'] = request.pageSize;
+  }
+  if (!Util.isUnset(request.startTime)) {
+    query['startTime'] = request.startTime;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'ModelRouterQueryUsageBreakdown',
+    version = '20240611',
+    protocol = 'HTTPS',
+    pathname = `/api/v1/modelRouter/open/usage/breakdown`,
+    method = 'GET',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 用量管理/批量查询用量明细
+ *
+ * @param request ModelRouterQueryUsageBreakdownRequest
+ * @return ModelRouterQueryUsageBreakdownResponse
+ */
+async function modelRouterQueryUsageBreakdown(request: ModelRouterQueryUsageBreakdownRequest): ModelRouterQueryUsageBreakdownResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return modelRouterQueryUsageBreakdownWithOptions(request, headers, runtime);
 }
 
 model ModelRouterUpdateBillingRuleRequest {
