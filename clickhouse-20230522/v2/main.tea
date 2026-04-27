@@ -3543,6 +3543,32 @@ async function modifyDBInstanceAttribute(request: ModifyDBInstanceAttributeReque
 }
 
 model ModifyDBInstanceClassRequest {
+  autoScaleConfig?: {
+    burstNum?: int32(name='BurstNum', example='2'),
+    status?: string(name='Status', example='enable'),
+    vSwitchInfos?: [ 
+      {
+        vSwitchIds?: [ string ](name='VSwitchIds'),
+        zoneId?: string(name='ZoneId', example='cn-beijing-XXX'),
+      }
+    ](name='VSwitchInfos'),
+  }(name='AutoScaleConfig', nullable=true),
+  computingGroupId?: string(name='ComputingGroupId'),
+  DBInstanceId?: string(name='DBInstanceId', description='The cluster ID.
+
+This parameter is required.', example='cc-xxxxxxx'),
+  nodeCount?: int32(name='NodeCount', example='2'),
+  nodeScaleMax?: int32(name='NodeScaleMax', example='4'),
+  nodeScaleMin?: int32(name='NodeScaleMin', example='32'),
+  regionId?: string(name='RegionId', description='The region ID.', example='cn-hangzhou'),
+  scaleMax?: long(name='ScaleMax', description='The maximum capacity for elastic scaling.', example='32'),
+  scaleMin?: long(name='ScaleMin', description='The minimum capacity for elastic scaling.', example='2'),
+  storageQuota?: long(name='StorageQuota', example='100'),
+  storageType?: string(name='StorageType', example='OSS'),
+}
+
+model ModifyDBInstanceClassShrinkRequest {
+  autoScaleConfigShrink?: string(name='AutoScaleConfig', nullable=true),
   computingGroupId?: string(name='ComputingGroupId'),
   DBInstanceId?: string(name='DBInstanceId', description='The cluster ID.
 
@@ -3578,14 +3604,22 @@ model ModifyDBInstanceClassResponse = {
 /**
  * @summary Modifies the elastic scaling settings of an ApsaraDB for ClickHouse cluster.
  *
- * @param request ModifyDBInstanceClassRequest
+ * @param tmpReq ModifyDBInstanceClassRequest
  * @param runtime runtime options for this request RuntimeOptions
  * @return ModifyDBInstanceClassResponse
  */
 @context("modifyDBInstanceClassWithContext")
-async function modifyDBInstanceClassWithOptions(request: ModifyDBInstanceClassRequest, runtime: $RuntimeOptions): ModifyDBInstanceClassResponse {
-  request.validate();
+async function modifyDBInstanceClassWithOptions(tmpReq: ModifyDBInstanceClassRequest, runtime: $RuntimeOptions): ModifyDBInstanceClassResponse {
+  tmpReq.validate();
+  var request = new ModifyDBInstanceClassShrinkRequest{};
+  OpenApiUtil.convert(tmpReq, request);
+  if (!$isNull(tmpReq.autoScaleConfig)) {
+    request.autoScaleConfigShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.autoScaleConfig, 'AutoScaleConfig', 'json');
+  }
   var query = {};
+  if (!$isNull(request.autoScaleConfigShrink)) {
+    query['AutoScaleConfig'] = request.autoScaleConfigShrink;
+  }
   if (!$isNull(request.computingGroupId)) {
     query['ComputingGroupId'] = request.computingGroupId;
   }
