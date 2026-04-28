@@ -400,6 +400,11 @@ model CommonFileItem {
   revisionId?: string(name='revision_id'),
 }
 
+model CopyUserTagsDirective {
+  directive?: string(name='directive', example='all, include, none, exclude'),
+  keys?: [ string ](name='keys'),
+}
+
 model CssCreateOrderParam {
   agentId?: string(name='agentId'),
   autoPay?: boolean(name='autoPay'),
@@ -699,6 +704,12 @@ model FileDownloadCallbackInfo {
   userId: string(name='user_id', description='This parameter is required.'),
 }
 
+model FileIDInfo {
+  driveId?: string(name='drive_id'),
+  fileId?: string(name='file_id'),
+  type?: string(name='type'),
+}
+
 model FileLogDetail {
   decompressFileList?: [ string ](name='decompress_file_list'),
   newName?: string(name='new_name'),
@@ -723,11 +734,20 @@ model FileStreamInfo {
   contentHash?: string(name='content_hash'),
   contentHashName?: string(name='content_hash_name'),
   contentMd5?: string(name='content_md5'),
-  partInfoList?: UploadPartInfo(name='part_info_list'),
+  partInfoList?: [
+    UploadPartInfo
+  ](name='part_info_list'),
   preHash?: string(name='pre_hash'),
   proofCode?: string(name='proof_code'),
   proofVersion?: string(name='proof_version'),
   size?: long(name='size'),
+}
+
+model FileTaskResultResponse {
+  errCode?: string(name='err_code'),
+  message?: string(name='message'),
+  rstFile?: FileIDInfo(name='rst_file'),
+  srcFile?: FileIDInfo(name='src_file'),
 }
 
 model GetOfficeEditUrlOption {
@@ -1014,6 +1034,12 @@ model Permission {
 }
 
 model PermissionCondition {
+  boolEquals?: {
+    isShareLink?: boolean(name='is_share_link'),
+  }(name='bool_equals'),
+  boolNotEquals?: {
+    isShareLink?: boolean(name='is_share_link'),
+  }(name='bool_not_equals'),
   ipEquals?: {
     clientIp?: [ string ](name='client_ip'),
   }(name='ip_equals'),
@@ -1231,7 +1257,6 @@ model Token {
   avatar?: string(name='avatar'),
   defaultDriveId?: string(name='default_drive_id'),
   defaultSboxDriveId?: string(name='default_sbox_drive_id'),
-  deviceId?: string(name='device_id'),
   deviceName?: string(name='device_name'),
   domainId?: string(name='domain_id'),
   existLink?: [
@@ -2003,15 +2028,19 @@ async function createCustomizedStory(request: CreateCustomizedStoryRequest): Cre
 }
 
 model CreateDomainRequest {
-  description?: string(name='description', description='domain 描述', example='你好企业网盘开发环境', position='Body'),
-  domainName: string(name='domain_name', description='If you want to perform secondary operations based on Drive and Photo Service and perform fine-grained control on your tenants, you can use the parent-child domain feature of Drive and Photo Service. For more information, join the DingTalk group whose ID is 23146118.
+  description?: string(name='description', description='The description of the domain.', example='cloud drive dev', position='Body'),
+  domainName: string(name='domain_name', description='The name of the domain.
 
-This parameter is required.', example='你好企业网盘', position='Body'),
-  initDriveEnable?: boolean(name='init_drive_enable', description='https', example='true', position='Body'),
-  initDriveSize?: long(name='init_drive_size', description='http', example='1073741824', position='Body'),
-  parentDomainId?: string(name='parent_domain_id', description='Create domain.', example='bj1', position='Body'),
-  sizeQuota?: long(name='size_quota', description='The ID of the parent domain. If you want to create a child domain, specify parent_domain_id. In most cases, you do not need to create a child domain. If you want to perform secondary operations based on Drive and Photo Service, contact the customer service.', example='1099511627776', position='Body'),
-  userCountQuota?: long(name='user_count_quota', description='The information about the domain.', example='50', position='Body'),
+This parameter is required.', example='cloud drive', position='Body'),
+  initDriveEnable?: boolean(name='init_drive_enable', description='Specifies whether to enable the default drive feature. A value of true specifies that all users are assigned a drive by default on the first logon. Default value: false.', example='true', position='Body'),
+  initDriveSize?: long(name='init_drive_size', description='This parameter is required when the init_drive_enable is set to true. The size of the default drive. Unit: bytes. The default is 0, meaning the created drive size is 0, and files cannot be uploaded. If you need to initialize the drive, set this value. A value of -1 indicates that the size is unlimited.', example='1073741824', position='Body'),
+  parentDomainId?: string(name='parent_domain_id', description='The ID of the parent domain. If you want to create a child domain, specify parent_domain_id. In most cases, you do not need to create a child domain. If you want to perform secondary operations based on Drive and Photo Service, contact the customer service.', example='bj1', position='Body'),
+  sizeQuota?: long(name='size_quota', description='The total storage quota for all drives in the domain. A value of 0 indicates that the quota is unlimited.', example='1099511627776', position='Body'),
+  storeRedundancyType?: string(name='store_redundancy_type', description='Specifies the storage redundancy type. Valid values:
+
+*   LRS: locally redundant storage
+*   ZRS: zone-redundant storage', example='LRS', position='Body'),
+  userCountQuota?: long(name='user_count_quota', description='The largest number of users that can be created in the domain. A value of 0 specifies that the number is unlimited.', example='50', position='Body'),
 }
 
 model CreateDomainResponse = {
@@ -2103,7 +2132,6 @@ Default value: ignore.', example='ignore', position='Body'),
   driveId?: string(name='drive_id', description='The drive ID. This parameter is required if the file is not uploaded by using the share URL of the file.', example='1', position='Body'),
   fileId?: string(name='file_id', description='The file ID. This parameter is required if check_name_mode is set to ignore.', example='9520943DC264', position='Body'),
   hidden?: boolean(name='hidden', description='Specifies whether to hide the file or folder. By default, the file or folder is not hidden.', example='false', position='Body'),
-  imageMediaMetadata?: ImageMediaMetadata(name='image_media_metadata', description='The information about the image specified by the client.', position='Body'),
   localCreatedAt?: string(name='local_created_at', description='The time when the local file was created. By default, this parameter is left empty. Specify the time in the yyyy-MM-ddTHH:mm:ssZ format based on the UTC+0 time zone.', example='2019-08-20T06:51:27.292Z', position='Body'),
   localModifiedAt?: string(name='local_modified_at', description='The time when the local file was modified. By default, this parameter is left empty. Specify the time in the yyyy-MM-ddTHH:mm:ssZ format based on the UTC+0 time zone.', example='2019-08-20T06:51:27.292Z', position='Body'),
   name: string(name='name', description='The name of the file. The name can be up to 1,024 bytes in length based on the UTF-8 encoding rule and cannot contain forward slash (/).
@@ -2116,6 +2144,7 @@ This parameter is required.', example='fileid1', position='Body'),
   partInfoList?: [ 
     {
       contentMd5?: string(name='content_md5', description='The MD5 hash value of the file part. This parameter is required when the MD5 hash value of the file part needs to be verified during part upload.', example='ASKJDJSKDJJSJDJS'),
+      contentType?: string(name='content_type', example='application/json'),
       parallelSha1Ctx?: {
         h?: [ long ](name='h', description='The first to fifth 32-bit variables of the SHA-1 hash value of the file content before the file part. This parameter takes effect only if the parallel upload feature is enabled.'),
         partOffset?: long(name='part_offset', description='The size of the file content before the file part. Unit: bytes. The value must be a multiple of 64. This parameter takes effect only if the parallel upload feature is enabled.', example='10240'),
@@ -2134,7 +2163,6 @@ This parameter is required.', example='file', position='Body'),
   userTags?: [
     UserTag
   ](name='user_tags', description='The custom tags. You can specify up to 1,000 tags.', position='Body'),
-  videoMediaMetadata?: VideoMediaMetadata(name='video_media_metadata', description='The information about the video specified by the client.', position='Body'),
 }
 
 model CreateFileResponseBody = {
@@ -2963,6 +2991,7 @@ The state of the task. Valid values:
 *   Running
 *   PartialSucceed
 *   Succeed', example='Succeed'),
+  taskType?: string(name='task_type'),
   totalProcess?: long(name='total_process', description='The total amount of work to be done in the asynchronous task, such as the number of files to be packaged for package download on the server.', example='1000'),
   uncompressFileList?: [
     UncompressedFileInfo
@@ -3120,14 +3149,14 @@ model GetFileRequest {
 
 1.  If this parameter is set to \\*, all fields of the file except the fields that must be specified are returned.
 2.  If only specific fields are required, you can specify the following fields: url, thumbnail, exif, cropping_suggestion, characteristic_hash, video_metadata, and video_preview_metadata. If multiple fields are required, separate them with commas (,). Example: url,thumbnail.
-3.  The investigation_info field is returned only if you specify this field.
+3.  The investigation_info field is returned only if it is specified.
 
 By default, all fields except the fields that must be specified are returned.', example='*', position='Body'),
   fileId: string(name='file_id', description='The file ID.
 
 This parameter is required.', example='9520943DC264', position='Body'),
-  shareId?: string(name='share_id', description='The share ID. If you want to manage a file by using a share link, carry the `x-share-token` header for authentication in the request and specify share_id. In this case, `drive_id` is invalid. Otherwise, use an `AccessKey pair` or `access token` for authentication and specify `drive_id`. You must specify one of `share_id` and `drive_id`.', example='7JQX1FswpQ8', position='Body'),
-  thumbnailProcesses?: map[string]ImageProcess(name='thumbnail_processes', description='缩略图配置，可一次性返回最多5个缩略图，map的key可以自定义，返回时按key返回对应的缩略图链接', position='Body'),
+  shareId?: string(name='share_id', description='The share ID. If you want to share a file, carry the `x-share-token` header for authentication in the request and specify share_id. In this case, `drive_id` is invalid. Otherwise, use an `AccessKey pair` or `access token` for authentication and specify `drive_id`. You must specify one of `share_id` and `drive_id`.', example='7JQX1FswpQ8', position='Body'),
+  thumbnailProcesses?: map[string]ImageProcess(name='thumbnail_processes', description='The thumbnail configurations. Up to five thumbnails can be returned at a time. The value contains key-value pairs. You can customize the keys. The URL of a thumbnail is returned based on the key.', position='Body'),
   urlExpireSec?: int32(name='url_expire_sec', description='The time when the file expires. Unit: seconds. Valid values: 10 to 14400.', example='100', minimum=10, maximum=14400, position='Body'),
 }
 
@@ -4570,6 +4599,9 @@ If a non-empty string is returned, an asynchronous task is required. You can cal
   driveId?: string(name='drive_id', description='The drive ID.', example='1'),
   exist?: boolean(name='exist', description='Indicates whether the file already exists in the destination directory.', example='false'),
   fileId?: string(name='file_id', description='The file ID.', example='fileid1'),
+  fileName?: string(name='file_name'),
+  revisionId?: string(name='revision_id'),
+  updatedAt?: string(name='updated_at'),
 }
 
 model MoveFileResponse = {
@@ -4585,6 +4617,28 @@ model MoveFileResponse = {
 async function moveFile(request: MoveFileRequest): MoveFileResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RESTFUL', 'MoveFile', 'POST', '/v2/file/move', 'json', false, 'json', request);
+}
+
+model PunishFileRequest {
+  domainId?: string(name='domain_id', example='bj2', position='Host'),
+  actionCode: string(name='action_code', description='This parameter is required.', example='pds_file_meta_frozen', position='Body'),
+  driveId: string(name='drive_id', description='This parameter is required.', example='1', position='Body'),
+  fileId: string(name='file_id', description='This parameter is required.', example='2498DZ2', position='Body'),
+  punishReason?: string(name='punish_reason', example='illegal', position='Body'),
+}
+
+model PunishFileResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+}
+
+/**
+  * @param request  the request parameters of PunishFile  PunishFileRequest
+  * @return PunishFileResponse
+ */
+async function punishFile(request: PunishFileRequest): PunishFileResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'PunishFile', 'POST', '/v2/csi/business/punish_file', 'none', false, 'json', request);
 }
 
 model QueryOrderPriceRequest {
