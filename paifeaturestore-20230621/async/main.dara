@@ -162,6 +162,7 @@ model CreateFeatureViewRequest {
         {
           input?: [ 
             {
+              modality?: string(name='Modality'),
               name?: string(name='Name', example='f1'),
               type?: string(name='Type', example='STRING'),
             }
@@ -238,8 +239,10 @@ model CreateLLMConfigRequest {
   baseUrl?: string(name='BaseUrl', example='https://dashscope.aliyuncs.com/compatible-mode/v1', position='Body'),
   batchSize?: int32(name='BatchSize', example='8', position='Body'),
   embeddingDimension?: int32(name='EmbeddingDimension', example='1024', position='Body'),
+  enableFusion?: boolean(name='EnableFusion', position='Body'),
   maxTokens?: int32(name='MaxTokens', example='8192', position='Body'),
   model: string(name='Model', description='This parameter is required.', example='text-embedding-v1', position='Body'),
+  modelType?: string(name='ModelType', position='Body'),
   name: string(name='Name', description='This parameter is required.', example='llm_config1', position='Body'),
   rps?: int32(name='Rps', example='30', position='Body'),
   workspaceId: string(name='WorkspaceId', description='This parameter is required.', example='234', position='Body'),
@@ -725,6 +728,7 @@ model GetFeatureViewResponseBody = {
         {
           input?: [ 
             {
+              modality?: string(name='Modality'),
               name?: string(name='Name', example='f1'),
               type?: string(name='Type', example='STRING'),
             }
@@ -832,11 +836,13 @@ model GetLLMConfigResponseBody = {
   baseUrl?: string(name='BaseUrl', example='https://dashscope.aliyuncs.com/compatible-mode/v1'),
   batchSize?: int32(name='BatchSize', example='8'),
   embeddingDimension?: int32(name='EmbeddingDimension', example='1024'),
+  enableFusion?: boolean(name='EnableFusion'),
   gmtCreateTime?: string(name='GmtCreateTime', example='2023-07-04T11:26:09.036+08:00'),
   gmtModifiedTime?: string(name='GmtModifiedTime', example='2023-07-04T11:26:09.036+08:00'),
   LLMConfigId?: string(name='LLMConfigId', example='llm_config1'),
   maxTokens?: int32(name='MaxTokens', example='2048'),
   model?: string(name='Model', example='text-embedding-v1'),
+  modelType?: string(name='ModelType'),
   name?: string(name='Name', example='llm_config_name1'),
   requestId?: string(name='RequestId', description='Id of the request', example='C03B2680-AC9C-59CD-93C5-8142B92537FA'),
   rps?: int32(name='Rps', example='30'),
@@ -1614,11 +1620,13 @@ model ListLLMConfigsResponseBody = {
       baseUrl?: string(name='BaseUrl', example='https://dashscope.aliyuncs.com/compatible-mode/v1'),
       batchSize?: int32(name='BatchSize', example='8'),
       embeddingDimension?: int32(name='EmbeddingDimension', example='1024'),
+      enableFusion?: boolean(name='EnableFusion'),
       gmtCreateTime?: string(name='GmtCreateTime', example='2023-07-04T11:26:09.036+08:00'),
       gmtModifiedTime?: string(name='GmtModifiedTime', example='2023-07-04T11:26:09.036+08:00'),
       LLMConfigId?: string(name='LLMConfigId', example='llm_config1'),
       maxTokens?: int32(name='MaxTokens', example='2048'),
       model?: string(name='Model', example='text-embedding-v1'),
+      modelType?: string(name='ModelType'),
       name?: string(name='Name', example='llm_config_name1'),
       resourceGroupId?: string(name='ResourceGroupId', example='rg-aek2vtzqjaohzqi'),
       rps?: int32(name='Rps', example='30'),
@@ -2072,6 +2080,51 @@ async function updateDatasource(request: UpdateDatasourceRequest): UpdateDatasou
   return @handler.do('RESTFUL', 'UpdateDatasource', 'PUT', '/api/v1/instances/{InstanceId}/datasources/{DatasourceId}', 'json', false, 'json', request);
 }
 
+model UpdateFeatureViewRequest {
+  regionId?: string(name='RegionId', position='Host'),
+  instanceId: string(name='InstanceId', description='This parameter is required.', example='fs-cn-********', position='Path'),
+  featureViewId: string(name='FeatureViewId', description='This parameter is required.', example='3', position='Path'),
+  fields: [ 
+    {
+      attributes: [ string ](name='Attributes', description='This parameter is required.'),
+      name: string(name='Name', description='This parameter is required.', example='user_id'),
+      transform?: [ 
+        {
+          input: [ 
+            {
+              modality?: string(name='Modality', example='NONE'),
+              name: string(name='Name', description='This parameter is required.', example='f1'),
+              type: string(name='Type', description='This parameter is required.', example='STRING'),
+            }
+          ](name='Input', description='This parameter is required.'),
+          LLMConfigId: int32(name='LLMConfigId', description='This parameter is required.', example='1'),
+          type: string(name='Type', description='This parameter is required.', example='LLMEmbedding'),
+        }
+      ](name='Transform'),
+      type: string(name='Type', description='This parameter is required.', example='INT32'),
+    }
+  ](name='Fields', description='This parameter is required.', position='Body'),
+}
+
+model UpdateFeatureViewResponseBody = {
+  requestId?: string(name='requestId', example='7D497816-607C-5B67-97B1-61354B6ACB2B'),
+}
+
+model UpdateFeatureViewResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: UpdateFeatureViewResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of UpdateFeatureView  UpdateFeatureViewRequest
+  * @return UpdateFeatureViewResponse
+ */
+async function updateFeatureView(request: UpdateFeatureViewRequest): UpdateFeatureViewResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'UpdateFeatureView', 'PUT', '/api/v1/instances/{InstanceId}/featureviews/{FeatureViewId}', 'json', false, 'json', request);
+}
+
 model UpdateLLMConfigRequest {
   instanceId: string(name='InstanceId', description='This parameter is required.', example='fs-cn-***', position='Path'),
   regionId?: string(name='RegionId', example='cn-beijing', position='Host'),
@@ -2080,8 +2133,10 @@ model UpdateLLMConfigRequest {
   baseUrl: string(name='BaseUrl', description='This parameter is required.', example='https://dashscope.aliyuncs.com/compatible-mode/v1', position='Body'),
   batchSize?: int32(name='BatchSize', example='8', position='Body'),
   embeddingDimension?: int32(name='EmbeddingDimension', example='1024', position='Body'),
+  enableFusion?: boolean(name='EnableFusion', position='Body'),
   maxTokens: int32(name='MaxTokens', description='This parameter is required.', example='2048', position='Body'),
   model: string(name='Model', description='This parameter is required.', example='text-embedding-v1', position='Body'),
+  modelType?: string(name='ModelType', position='Body'),
   name: string(name='Name', description='This parameter is required.', example='llm-config1', position='Body'),
   rps: int32(name='Rps', description='This parameter is required.', example='30', position='Body'),
 }
