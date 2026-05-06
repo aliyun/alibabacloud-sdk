@@ -471,7 +471,18 @@ model GetEssayCorrectionTaskResponseBody = {
     results?: [ 
       {
         customId?: string(name='customId', description='xxx', example='1'),
-        result?: string(name='result'),
+        dimensionResults?: [ 
+          {
+            analysis?: string(name='analysis', example='文章内容较为完整，涵盖了题目的核心要求，但部分论述略显简略。'),
+            maxScore?: double(name='maxScore', example='30'),
+            name?: string(name='name', example='内容完整度'),
+            score?: double(name='score', example='25.5'),
+          }
+        ](name='dimensionResults'),
+        errorCode?: string(name='errorCode', example='RateLimit'),
+        errorMessage?: string(name='errorMessage', example='触发模型限流'),
+        overallComment?: string(name='overallComment', example='整体表现良好，建议在论述深度上进一步加强。'),
+        result?: string(name='result', example='本文整体结构清晰，语言流畅...'),
         score?: int32(name='score', example='58'),
         usage?: ModelUsage(name='usage'),
       }
@@ -1569,11 +1580,29 @@ async function runEnterpriseVocAnalysis(workspaceId: string, request: RunEnterpr
 
 model RunEssayCorrectionRequest {
   answer?: string(name='answer', example='xxx'),
-  grade?: string(name='grade'),
-  modelId?: string(name='modelId'),
+  dimensions?: [ 
+    {
+      maxScore?: int32(name='maxScore', example='30'),
+      name?: string(name='name', example='内容完整度'),
+      rubric?: string(name='rubric', example='文章内容是否完整，是否涵盖了题目的核心要求'),
+    }
+  ](name='dimensions', example='[{"name": "内容完整度", "rubric": "文章内容是否完整，是否涵盖了题目的核心要求", "maxScore": 30}]'),
+  grade?: string(name='grade', example='高一'),
+  modelId?: string(name='modelId', example='qwen-custom-correction-v1'),
   otherReviewPoints?: string(name='otherReviewPoints', example='xxx'),
   question?: string(name='question', example='xx'),
-  subject?: string(name='subject'),
+  subject?: string(name='subject', example='语文'),
+  totalScore?: int32(name='totalScore', example='60'),
+}
+
+model RunEssayCorrectionShrinkRequest {
+  answer?: string(name='answer', example='xxx'),
+  dimensionsShrink?: string(name='dimensions', example='[{"name": "内容完整度", "rubric": "文章内容是否完整，是否涵盖了题目的核心要求", "maxScore": 30}]'),
+  grade?: string(name='grade', example='高一'),
+  modelId?: string(name='modelId', example='qwen-custom-correction-v1'),
+  otherReviewPoints?: string(name='otherReviewPoints', example='xxx'),
+  question?: string(name='question', example='xx'),
+  subject?: string(name='subject', example='语文'),
   totalScore?: int32(name='totalScore', example='60'),
 }
 
@@ -1588,8 +1617,18 @@ model RunEssayCorrectionResponseBody = {
   }(name='header'),
   payload?: {
     output?: {
+      dimensionResults?: [ 
+        {
+          analysis?: string(name='analysis', example='文章内容较为完整，涵盖了题目的核心要求，但部分论述略显简略。'),
+          maxScore?: double(name='maxScore', example='30'),
+          name?: string(name='name', example='内容完整度'),
+          score?: double(name='score', example='25.5'),
+        }
+      ](name='dimensionResults'),
+      overallComment?: string(name='overallComment', example='整体表现良好，建议在论述深度上进一步加强。'),
+      reasoningContent?: string(name='reasoningContent', example='首先分析文章结构，发现开头、正文、结尾完整...'),
       score?: int32(name='score', example='50'),
-      text?: string(name='text'),
+      text?: string(name='text', example='本文整体结构清晰，语言流畅...'),
     }(name='output'),
     usage?: {
       inputTokens?: long(name='inputTokens', example='100'),
@@ -1609,16 +1648,24 @@ model RunEssayCorrectionResponse = {
 /**
  * @summary 作业批改
  *
- * @param request RunEssayCorrectionRequest
+ * @param tmpReq RunEssayCorrectionRequest
  * @param headers map
  * @param runtime runtime options for this request RuntimeOptions
  * @return RunEssayCorrectionResponse
  */
-async function runEssayCorrectionWithOptions(workspaceId: string, request: RunEssayCorrectionRequest, headers: map[string]string, runtime: Util.RuntimeOptions): RunEssayCorrectionResponse {
-  Util.validateModel(request);
+async function runEssayCorrectionWithOptions(workspaceId: string, tmpReq: RunEssayCorrectionRequest, headers: map[string]string, runtime: Util.RuntimeOptions): RunEssayCorrectionResponse {
+  Util.validateModel(tmpReq);
+  var request = new RunEssayCorrectionShrinkRequest{};
+  OpenApiUtil.convert(tmpReq, request);
+  if (!Util.isUnset(tmpReq.dimensions)) {
+    request.dimensionsShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.dimensions, 'dimensions', 'json');
+  }
   var body : map[string]any = {};
   if (!Util.isUnset(request.answer)) {
     body['answer'] = request.answer;
+  }
+  if (!Util.isUnset(request.dimensionsShrink)) {
+    body['dimensions'] = request.dimensionsShrink;
   }
   if (!Util.isUnset(request.grade)) {
     body['grade'] = request.grade;
@@ -3824,6 +3871,13 @@ async function submitEnterpriseVocAnalysisTask(workspaceId: string, request: Sub
 }
 
 model SubmitEssayCorrectionTaskRequest {
+  dimensions?: [ 
+    {
+      maxScore?: int32(name='maxScore', example='30'),
+      name?: string(name='name', example='内容完整度'),
+      rubric?: string(name='rubric', example='文章内容是否完整，是否涵盖了题目的核心要求'),
+    }
+  ](name='dimensions', example='[{"name": "内容完整度", "rubric": "文章内容是否完整，是否涵盖了题目的核心要求", "maxScore": 30}]'),
   grade?: string(name='grade', example='高中二年级'),
   modelId?: string(name='modelId', example='xxx'),
   otherReviewPoints?: string(name='otherReviewPoints', example='xxx'),
@@ -3832,24 +3886,25 @@ model SubmitEssayCorrectionTaskRequest {
   tasks?: [ 
     {
       answer?: string(name='answer', example='xxx'),
-      customId?: string(name='customId'),
+      customId?: string(name='customId', example='task-001'),
       grade?: string(name='grade', example='高中二年级'),
       otherReviewPoints?: string(name='otherReviewPoints', example='xxx'),
       question?: string(name='question', example='xxx'),
       subject?: string(name='subject', example='语文'),
       totalScore?: int32(name='totalScore', example='60'),
     }
-  ](name='tasks'),
+  ](name='tasks', example='[{"grade": "高中二年级", "subject": "语文", "totalScore": 60, "question": "请以我的梦想为主题写一篇作文", "answer": "我的梦想是成为一名科学家...", "customId": "task-001"}]'),
   totalScore?: int32(name='totalScore', example='60'),
 }
 
 model SubmitEssayCorrectionTaskShrinkRequest {
+  dimensionsShrink?: string(name='dimensions', example='[{"name": "内容完整度", "rubric": "文章内容是否完整，是否涵盖了题目的核心要求", "maxScore": 30}]'),
   grade?: string(name='grade', example='高中二年级'),
   modelId?: string(name='modelId', example='xxx'),
   otherReviewPoints?: string(name='otherReviewPoints', example='xxx'),
   question?: string(name='question', example='xxx'),
   subject?: string(name='subject', example='语文'),
-  tasksShrink?: string(name='tasks'),
+  tasksShrink?: string(name='tasks', example='[{"grade": "高中二年级", "subject": "语文", "totalScore": 60, "question": "请以我的梦想为主题写一篇作文", "answer": "我的梦想是成为一名科学家...", "customId": "task-001"}]'),
   totalScore?: int32(name='totalScore', example='60'),
 }
 
@@ -3882,10 +3937,16 @@ async function submitEssayCorrectionTaskWithOptions(workspaceId: string, tmpReq:
   Util.validateModel(tmpReq);
   var request = new SubmitEssayCorrectionTaskShrinkRequest{};
   OpenApiUtil.convert(tmpReq, request);
+  if (!Util.isUnset(tmpReq.dimensions)) {
+    request.dimensionsShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.dimensions, 'dimensions', 'json');
+  }
   if (!Util.isUnset(tmpReq.tasks)) {
     request.tasksShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.tasks, 'tasks', 'json');
   }
   var body : map[string]any = {};
+  if (!Util.isUnset(request.dimensionsShrink)) {
+    body['dimensions'] = request.dimensionsShrink;
+  }
   if (!Util.isUnset(request.grade)) {
     body['grade'] = request.grade;
   }

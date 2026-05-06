@@ -263,7 +263,18 @@ model GetEssayCorrectionTaskResponseBody = {
     results?: [ 
       {
         customId?: string(name='customId', description='xxx', example='1'),
-        result?: string(name='result'),
+        dimensionResults?: [ 
+          {
+            analysis?: string(name='analysis', example='文章内容较为完整，涵盖了题目的核心要求，但部分论述略显简略。'),
+            maxScore?: double(name='maxScore', example='30'),
+            name?: string(name='name', example='内容完整度'),
+            score?: double(name='score', example='25.5'),
+          }
+        ](name='dimensionResults'),
+        errorCode?: string(name='errorCode', example='RateLimit'),
+        errorMessage?: string(name='errorMessage', example='触发模型限流'),
+        overallComment?: string(name='overallComment', example='整体表现良好，建议在论述深度上进一步加强。'),
+        result?: string(name='result', example='本文整体结构清晰，语言流畅...'),
         score?: int32(name='score', example='58'),
         usage?: ModelUsage(name='usage'),
       }
@@ -944,11 +955,18 @@ model RunEssayCorrectionRequest {
   regionId?: string(name='regionId', position='Host'),
   workspaceId: string(name='workspaceId', description='This parameter is required.', example='llm-xxxxxxxx', position='Path'),
   answer?: string(name='answer', example='xxx', position='Body'),
-  grade?: string(name='grade', position='Body'),
-  modelId?: string(name='modelId', position='Body'),
+  dimensions?: [ 
+    {
+      maxScore?: int32(name='maxScore', example='30'),
+      name?: string(name='name', example='内容完整度'),
+      rubric?: string(name='rubric', example='文章内容是否完整，是否涵盖了题目的核心要求'),
+    }
+  ](name='dimensions', example='[{"name": "内容完整度", "rubric": "文章内容是否完整，是否涵盖了题目的核心要求", "maxScore": 30}]', shrink='json', position='Body'),
+  grade?: string(name='grade', example='高一', position='Body'),
+  modelId?: string(name='modelId', example='qwen-custom-correction-v1', position='Body'),
   otherReviewPoints?: string(name='otherReviewPoints', example='xxx', position='Body'),
   question?: string(name='question', example='xx', position='Body'),
-  subject?: string(name='subject', position='Body'),
+  subject?: string(name='subject', example='语文', position='Body'),
   totalScore?: int32(name='totalScore', example='60', position='Body'),
 }
 
@@ -963,8 +981,18 @@ model RunEssayCorrectionResponseBody = {
   }(name='header'),
   payload?: {
     output?: {
+      dimensionResults?: [ 
+        {
+          analysis?: string(name='analysis', example='文章内容较为完整，涵盖了题目的核心要求，但部分论述略显简略。'),
+          maxScore?: double(name='maxScore', example='30'),
+          name?: string(name='name', example='内容完整度'),
+          score?: double(name='score', example='25.5'),
+        }
+      ](name='dimensionResults'),
+      overallComment?: string(name='overallComment', example='整体表现良好，建议在论述深度上进一步加强。'),
+      reasoningContent?: string(name='reasoningContent', example='首先分析文章结构，发现开头、正文、结尾完整...'),
       score?: int32(name='score', example='50'),
-      text?: string(name='text'),
+      text?: string(name='text', example='本文整体结构清晰，语言流畅...'),
     }(name='output'),
     usage?: {
       inputTokens?: long(name='inputTokens', example='100'),
@@ -2224,6 +2252,13 @@ async function submitEnterpriseVocAnalysisTask(request: SubmitEnterpriseVocAnaly
 model SubmitEssayCorrectionTaskRequest {
   regionId?: string(name='RegionId', position='Host'),
   workspaceId: string(name='workspaceId', description='This parameter is required.', example='xxxx', position='Path'),
+  dimensions?: [ 
+    {
+      maxScore?: int32(name='maxScore', example='30'),
+      name?: string(name='name', example='内容完整度'),
+      rubric?: string(name='rubric', example='文章内容是否完整，是否涵盖了题目的核心要求'),
+    }
+  ](name='dimensions', example='[{"name": "内容完整度", "rubric": "文章内容是否完整，是否涵盖了题目的核心要求", "maxScore": 30}]', shrink='json', position='Body'),
   grade?: string(name='grade', example='高中二年级', position='Body'),
   modelId?: string(name='modelId', example='xxx', position='Body'),
   otherReviewPoints?: string(name='otherReviewPoints', example='xxx', position='Body'),
@@ -2232,14 +2267,14 @@ model SubmitEssayCorrectionTaskRequest {
   tasks?: [ 
     {
       answer?: string(name='answer', example='xxx'),
-      customId?: string(name='customId'),
+      customId?: string(name='customId', example='task-001'),
       grade?: string(name='grade', example='高中二年级'),
       otherReviewPoints?: string(name='otherReviewPoints', example='xxx'),
       question?: string(name='question', example='xxx'),
       subject?: string(name='subject', example='语文'),
       totalScore?: int32(name='totalScore', example='60'),
     }
-  ](name='tasks', shrink='json', position='Body'),
+  ](name='tasks', example='[{"grade": "高中二年级", "subject": "语文", "totalScore": 60, "question": "请以我的梦想为主题写一篇作文", "answer": "我的梦想是成为一名科学家...", "customId": "task-001"}]', shrink='json', position='Body'),
   totalScore?: int32(name='totalScore', example='60', position='Body'),
 }
 
