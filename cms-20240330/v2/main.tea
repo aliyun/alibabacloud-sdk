@@ -1790,6 +1790,103 @@ model WorkspaceFilterSetting {
   workspaceUuids?: [ string ](name='workspaceUuids'),
 }
 
+model AddContextsRequest {
+  contextType?: string(name='contextType', description='This parameter is required.', example='memory'),
+  items?: [ 
+    {
+      agentId?: string(name='agentId', example='952730733889060865'),
+      appId?: string(name='appId', example='mm_480d961a1b5e4efe84603f4cbc0f'),
+      categories?: [ string ](name='categories'),
+      content?: string(name='content', example='You are a conversation assistant.'),
+      customInstructions?: string(name='customInstructions', example='Your custom instructions here'),
+      experience?: map[string]any(name='experience', example='{
+	"taskType": "troubleshooting",
+	"complexity": "medium",
+	"confidence": 0.95
+}'),
+      expirationDate?: string(name='expirationDate', example='1731231212334396'),
+      immutable?: boolean(name='immutable', example='true'),
+      infer?: boolean(name='infer', example='true'),
+      labels?: map[string]string(name='labels'),
+      messages?: [ map[string]any ](name='messages'),
+      metadata?: map[string]any(name='metadata', example='{"sessionId":"test_session_001"}'),
+      runId?: string(name='runId', example='jr-80ded1d6953c64ea'),
+      timestamp?: long(name='timestamp', example='1774578167'),
+      triggerCondition?: string(name='triggerCondition'),
+      userId?: string(name='userId', example='test_user_001'),
+    }
+  ](name='items', description='This parameter is required.'),
+  memoryType?: string(name='memoryType', example='short'),
+}
+
+model AddContextsResponseBody = {
+  requestId?: string(name='requestId', example='0B9377D9-C56B-5C2E-A8A4-A01D6CC3F4B8'),
+  results?: [ 
+    {
+      contextId?: string(name='contextId', example='897294a7-67a4-4f60-976c-e136edc5f97e'),
+      status?: string(name='status', example='accepted'),
+    }
+  ](name='results'),
+}
+
+model AddContextsResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: AddContextsResponseBody(name='body'),
+}
+
+/**
+ * @summary 写入上下文
+ *
+ * @param request AddContextsRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return AddContextsResponse
+ */
+@context("addContextsWithContext")
+async function addContextsWithOptions(workspace: string, contextStoreName: string, request: AddContextsRequest, headers: map[string]string, runtime: $RuntimeOptions): AddContextsResponse {
+  request.validate();
+  var body : map[string]any = {};
+  if (!$isNull(request.contextType)) {
+    body['contextType'] = request.contextType;
+  }
+  if (!$isNull(request.items)) {
+    body['items'] = request.items;
+  }
+  if (!$isNull(request.memoryType)) {
+    body['memoryType'] = request.memoryType;
+  }
+
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    headers = headers,
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'AddContexts',
+    version = '2024-03-30',
+    protocol = 'HTTPS',
+    pathname = `/workspace/${$URL.percentEncode(workspace)}/contextstore/${$URL.percentEncode(contextStoreName)}/context`,
+    method = 'POST',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 写入上下文
+ *
+ * @param request AddContextsRequest
+ * @return AddContextsResponse
+ */
+async function addContexts(workspace: string, contextStoreName: string, request: AddContextsRequest): AddContextsResponse {
+  var runtime = new $RuntimeOptions{};
+  var headers : map[string]string = {};
+  return addContextsWithOptions(workspace, contextStoreName, request, headers, runtime);
+}
+
 model AddMemoriesRequest {
   agentId?: string(name='agentId', example='952730733889060865'),
   appId?: string(name='appId', example='mm_480d961a1b5e4efe84603f4cbc0f'),
@@ -2466,6 +2563,153 @@ async function createCloudResource(): CreateCloudResourceResponse {
   var runtime = new $RuntimeOptions{};
   var headers : map[string]string = {};
   return createCloudResourceWithOptions(headers, runtime);
+}
+
+model CreateContextStoreRequest {
+  config?: {
+    metadataField?: map[string]string(name='metadataField'),
+    source?: {
+      logstore?: string(name='logstore', example='sls-test-logstore'),
+      project?: string(name='project', example='sls-test-project'),
+      startTime?: string(name='startTime', description='Use the UTC time format: yyyy-MM-ddTHH:mm:ssZ', example='1751508233000'),
+    }(name='source'),
+  }(name='config'),
+  contextStoreName?: string(name='contextStoreName', description='This parameter is required.', example='test-context-store'),
+  contextType?: string(name='contextType', description='This parameter is required.', example='memory'),
+  dataset?: {
+    name?: string(name='name', example='test_dataset'),
+  }(name='dataset'),
+  description?: string(name='description', example='desc'),
+}
+
+model CreateContextStoreResponseBody = {
+  requestId?: string(name='requestId', example='E5B1D3D4-BB28-5996-8AD2-***********'),
+}
+
+model CreateContextStoreResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: CreateContextStoreResponseBody(name='body'),
+}
+
+/**
+ * @summary 创建上下文库
+ *
+ * @param request CreateContextStoreRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return CreateContextStoreResponse
+ */
+@context("createContextStoreWithContext")
+async function createContextStoreWithOptions(workspace: string, request: CreateContextStoreRequest, headers: map[string]string, runtime: $RuntimeOptions): CreateContextStoreResponse {
+  request.validate();
+  var body : map[string]any = {};
+  if (!$isNull(request.config)) {
+    body['config'] = request.config;
+  }
+  if (!$isNull(request.contextStoreName)) {
+    body['contextStoreName'] = request.contextStoreName;
+  }
+  if (!$isNull(request.contextType)) {
+    body['contextType'] = request.contextType;
+  }
+  if (!$isNull(request.dataset)) {
+    body['dataset'] = request.dataset;
+  }
+  if (!$isNull(request.description)) {
+    body['description'] = request.description;
+  }
+
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    headers = headers,
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'CreateContextStore',
+    version = '2024-03-30',
+    protocol = 'HTTPS',
+    pathname = `/workspace/${$URL.percentEncode(workspace)}/contextstore`,
+    method = 'POST',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 创建上下文库
+ *
+ * @param request CreateContextStoreRequest
+ * @return CreateContextStoreResponse
+ */
+async function createContextStore(workspace: string, request: CreateContextStoreRequest): CreateContextStoreResponse {
+  var runtime = new $RuntimeOptions{};
+  var headers : map[string]string = {};
+  return createContextStoreWithOptions(workspace, request, headers, runtime);
+}
+
+model CreateContextStoreAPIKeyRequest {
+  name?: string(name='name', description='This parameter is required.', example='Production Service Key'),
+}
+
+model CreateContextStoreAPIKeyResponseBody = {
+  apiKey?: string(name='apiKey', example='sk-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx'),
+  name?: string(name='name', example='Production Service Key'),
+  requestId?: string(name='requestId', example='3B311FD9-A60B-55E0-A896-A0C73*********'),
+}
+
+model CreateContextStoreAPIKeyResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: CreateContextStoreAPIKeyResponseBody(name='body'),
+}
+
+/**
+ * @summary 创建 API Key
+ *
+ * @param request CreateContextStoreAPIKeyRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return CreateContextStoreAPIKeyResponse
+ */
+@context("createContextStoreAPIKeyWithContext")
+async function createContextStoreAPIKeyWithOptions(workspace: string, contextStoreName: string, request: CreateContextStoreAPIKeyRequest, headers: map[string]string, runtime: $RuntimeOptions): CreateContextStoreAPIKeyResponse {
+  request.validate();
+  var body : map[string]any = {};
+  if (!$isNull(request.name)) {
+    body['name'] = request.name;
+  }
+
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    headers = headers,
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'CreateContextStoreAPIKey',
+    version = '2024-03-30',
+    protocol = 'HTTPS',
+    pathname = `/workspace/${$URL.percentEncode(workspace)}/contextstore/${$URL.percentEncode(contextStoreName)}/apikey`,
+    method = 'POST',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 创建 API Key
+ *
+ * @param request CreateContextStoreAPIKeyRequest
+ * @return CreateContextStoreAPIKeyResponse
+ */
+async function createContextStoreAPIKey(workspace: string, contextStoreName: string, request: CreateContextStoreAPIKeyRequest): CreateContextStoreAPIKeyResponse {
+  var runtime = new $RuntimeOptions{};
+  var headers : map[string]string = {};
+  return createContextStoreAPIKeyWithOptions(workspace, contextStoreName, request, headers, runtime);
 }
 
 model CreateDatasetRequest {
@@ -3921,6 +4165,232 @@ async function deleteCloudResource(): DeleteCloudResourceResponse {
   var runtime = new $RuntimeOptions{};
   var headers : map[string]string = {};
   return deleteCloudResourceWithOptions(headers, runtime);
+}
+
+model DeleteContextRequest {
+}
+
+model DeleteContextResponseBody = {
+  contextId?: string(name='contextId', example='897294a7-67a4-4f60-976c-e136edc5f97e'),
+  requestId?: string(name='requestId', example='E5B1D3D4-BB28-5996-8AD2-***********'),
+  status?: string(name='status', example='deleted'),
+}
+
+model DeleteContextResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: DeleteContextResponseBody(name='body'),
+}
+
+/**
+ * @summary 删除上下文
+ *
+ * @param request DeleteContextRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return DeleteContextResponse
+ */
+@context("deleteContextWithContext")
+async function deleteContextWithOptions(workspace: string, contextStoreName: string, contextId: string, request: DeleteContextRequest, headers: map[string]string, runtime: $RuntimeOptions): DeleteContextResponse {
+  request.validate();
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    headers = headers,
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'DeleteContext',
+    version = '2024-03-30',
+    protocol = 'HTTPS',
+    pathname = `/workspace/${$URL.percentEncode(workspace)}/contextstore/${$URL.percentEncode(contextStoreName)}/context/${$URL.percentEncode(contextId)}`,
+    method = 'DELETE',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 删除上下文
+ *
+ * @param request DeleteContextRequest
+ * @return DeleteContextResponse
+ */
+async function deleteContext(workspace: string, contextStoreName: string, contextId: string, request: DeleteContextRequest): DeleteContextResponse {
+  var runtime = new $RuntimeOptions{};
+  var headers : map[string]string = {};
+  return deleteContextWithOptions(workspace, contextStoreName, contextId, request, headers, runtime);
+}
+
+model DeleteContextStoreRequest {
+}
+
+model DeleteContextStoreResponseBody = {
+  requestId?: string(name='requestId'),
+}
+
+model DeleteContextStoreResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: DeleteContextStoreResponseBody(name='body'),
+}
+
+/**
+ * @summary 删除上下文库
+ *
+ * @param request DeleteContextStoreRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return DeleteContextStoreResponse
+ */
+@context("deleteContextStoreWithContext")
+async function deleteContextStoreWithOptions(workspace: string, contextStoreName: string, request: DeleteContextStoreRequest, headers: map[string]string, runtime: $RuntimeOptions): DeleteContextStoreResponse {
+  request.validate();
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    headers = headers,
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'DeleteContextStore',
+    version = '2024-03-30',
+    protocol = 'HTTPS',
+    pathname = `/workspace/${$URL.percentEncode(workspace)}/contextstore/${$URL.percentEncode(contextStoreName)}`,
+    method = 'DELETE',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 删除上下文库
+ *
+ * @param request DeleteContextStoreRequest
+ * @return DeleteContextStoreResponse
+ */
+async function deleteContextStore(workspace: string, contextStoreName: string, request: DeleteContextStoreRequest): DeleteContextStoreResponse {
+  var runtime = new $RuntimeOptions{};
+  var headers : map[string]string = {};
+  return deleteContextStoreWithOptions(workspace, contextStoreName, request, headers, runtime);
+}
+
+model DeleteContextStoreAPIKeyRequest {
+}
+
+model DeleteContextStoreAPIKeyResponseBody = {
+  requestId?: string(name='requestId', example='264C3E89-XXXX-XXXX-XXXX-CE9C2196C7DC'),
+}
+
+model DeleteContextStoreAPIKeyResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: DeleteContextStoreAPIKeyResponseBody(name='body'),
+}
+
+/**
+ * @summary 删除 API Key
+ *
+ * @param request DeleteContextStoreAPIKeyRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return DeleteContextStoreAPIKeyResponse
+ */
+@context("deleteContextStoreAPIKeyWithContext")
+async function deleteContextStoreAPIKeyWithOptions(workspace: string, contextStoreName: string, name: string, request: DeleteContextStoreAPIKeyRequest, headers: map[string]string, runtime: $RuntimeOptions): DeleteContextStoreAPIKeyResponse {
+  request.validate();
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    headers = headers,
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'DeleteContextStoreAPIKey',
+    version = '2024-03-30',
+    protocol = 'HTTPS',
+    pathname = `/workspace/${$URL.percentEncode(workspace)}/contextstore/${$URL.percentEncode(contextStoreName)}/apikey/${$URL.percentEncode(name)}`,
+    method = 'DELETE',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 删除 API Key
+ *
+ * @param request DeleteContextStoreAPIKeyRequest
+ * @return DeleteContextStoreAPIKeyResponse
+ */
+async function deleteContextStoreAPIKey(workspace: string, contextStoreName: string, name: string, request: DeleteContextStoreAPIKeyRequest): DeleteContextStoreAPIKeyResponse {
+  var runtime = new $RuntimeOptions{};
+  var headers : map[string]string = {};
+  return deleteContextStoreAPIKeyWithOptions(workspace, contextStoreName, name, request, headers, runtime);
+}
+
+model DeleteContextsRequest {
+  contextIds?: string(name='contextIds', example='mem_long_01,mem_long_02'),
+  filter?: string(name='filter', example='{"userId":"u-10001"}'),
+}
+
+model DeleteContextsResponseBody = {
+  deletedCount?: int32(name='deletedCount', example='55'),
+  requestId?: string(name='requestId', example='8FDE2569-626B-5176-9844-28877A*****'),
+}
+
+model DeleteContextsResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: DeleteContextsResponseBody(name='body'),
+}
+
+/**
+ * @summary 批量删除上下文
+ *
+ * @param request DeleteContextsRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return DeleteContextsResponse
+ */
+@context("deleteContextsWithContext")
+async function deleteContextsWithOptions(workspace: string, contextStoreName: string, request: DeleteContextsRequest, headers: map[string]string, runtime: $RuntimeOptions): DeleteContextsResponse {
+  request.validate();
+  var query : map[string]any = {};
+  if (!$isNull(request.contextIds)) {
+    query['contextIds'] = request.contextIds;
+  }
+  if (!$isNull(request.filter)) {
+    query['filter'] = request.filter;
+  }
+
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'DeleteContexts',
+    version = '2024-03-30',
+    protocol = 'HTTPS',
+    pathname = `/workspace/${$URL.percentEncode(workspace)}/contextstore/${$URL.percentEncode(contextStoreName)}/context`,
+    method = 'DELETE',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 批量删除上下文
+ *
+ * @param request DeleteContextsRequest
+ * @return DeleteContextsResponse
+ */
+async function deleteContexts(workspace: string, contextStoreName: string, request: DeleteContextsRequest): DeleteContextsResponse {
+  var runtime = new $RuntimeOptions{};
+  var headers : map[string]string = {};
+  return deleteContextsWithOptions(workspace, contextStoreName, request, headers, runtime);
 }
 
 model DeleteDatasetRequest {
@@ -5812,6 +6282,138 @@ async function getCmsService(request: GetCmsServiceRequest): GetCmsServiceRespon
   var runtime = new $RuntimeOptions{};
   var headers : map[string]string = {};
   return getCmsServiceWithOptions(request, headers, runtime);
+}
+
+model GetContextRequest {
+  formatted?: boolean(name='formatted', example='true'),
+}
+
+model GetContextResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: object(name='body'),
+}
+
+/**
+ * @summary 查询单条上下文
+ *
+ * @param request GetContextRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return GetContextResponse
+ */
+@context("getContextWithContext")
+async function getContextWithOptions(workspace: string, contextStoreName: string, contextId: string, request: GetContextRequest, headers: map[string]string, runtime: $RuntimeOptions): GetContextResponse {
+  request.validate();
+  var query : map[string]any = {};
+  if (!$isNull(request.formatted)) {
+    query['formatted'] = request.formatted;
+  }
+
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'GetContext',
+    version = '2024-03-30',
+    protocol = 'HTTPS',
+    pathname = `/workspace/${$URL.percentEncode(workspace)}/contextstore/${$URL.percentEncode(contextStoreName)}/context/${$URL.percentEncode(contextId)}`,
+    method = 'GET',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 查询单条上下文
+ *
+ * @param request GetContextRequest
+ * @return GetContextResponse
+ */
+async function getContext(workspace: string, contextStoreName: string, contextId: string, request: GetContextRequest): GetContextResponse {
+  var runtime = new $RuntimeOptions{};
+  var headers : map[string]string = {};
+  return getContextWithOptions(workspace, contextStoreName, contextId, request, headers, runtime);
+}
+
+model GetContextStoreRequest {
+}
+
+model GetContextStoreResponseBody = {
+  config?: {
+    innerSource?: {
+      logstore?: string(name='logstore', example='sls-test-logstore'),
+      project?: string(name='project', example='sls-test-project'),
+    }(name='innerSource'),
+    metadataField?: map[string]string(name='metadataField'),
+    source?: {
+      logstore?: string(name='logstore', example='sls-test-logstore'),
+      project?: string(name='project', example='sls-test-project'),
+      startTime?: string(name='startTime', description='Use the UTC time format: yyyy-MM-ddTHH:mm:ssZ', example='1754962200000'),
+    }(name='source'),
+  }(name='config'),
+  contextStoreName?: string(name='contextStoreName', example='test-context-store'),
+  contextType?: string(name='contextType', example='memory'),
+  createTime?: string(name='createTime', description='Use the UTC time format: yyyy-MM-ddTHH:mm:ssZ', example='1695090077'),
+  dataset?: {
+    name?: string(name='name', example='test_dataset'),
+  }(name='dataset'),
+  description?: string(name='description', example='test'),
+  regionId?: string(name='regionId', example='cn-beijing'),
+  requestId?: string(name='requestId', example='8FDE2569-626B-5176-9844-28877A*****'),
+  status?: string(name='status', example='active'),
+  updateTime?: string(name='updateTime', description='Use the UTC time format: yyyy-MM-ddTHH:mm:ssZ', example='1695090077'),
+  workspace?: string(name='workspace', example='workspace-test'),
+}
+
+model GetContextStoreResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: GetContextStoreResponseBody(name='body'),
+}
+
+/**
+ * @summary 查询上下文库
+ *
+ * @param request GetContextStoreRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return GetContextStoreResponse
+ */
+@context("getContextStoreWithContext")
+async function getContextStoreWithOptions(workspace: string, contextStoreName: string, request: GetContextStoreRequest, headers: map[string]string, runtime: $RuntimeOptions): GetContextStoreResponse {
+  request.validate();
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    headers = headers,
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'GetContextStore',
+    version = '2024-03-30',
+    protocol = 'HTTPS',
+    pathname = `/workspace/${$URL.percentEncode(workspace)}/contextstore/${$URL.percentEncode(contextStoreName)}`,
+    method = 'GET',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 查询上下文库
+ *
+ * @param request GetContextStoreRequest
+ * @return GetContextStoreResponse
+ */
+async function getContextStore(workspace: string, contextStoreName: string, request: GetContextStoreRequest): GetContextStoreResponse {
+  var runtime = new $RuntimeOptions{};
+  var headers : map[string]string = {};
+  return getContextStoreWithOptions(workspace, contextStoreName, request, headers, runtime);
 }
 
 model GetDatasetRequest {
@@ -8493,6 +9095,169 @@ async function listContacts(request: ListContactsRequest): ListContactsResponse 
   return listContactsWithOptions(request, headers, runtime);
 }
 
+model ListContextStoreAPIKeysRequest {
+  maxResults?: int32(name='maxResults', example='100'),
+  nextToken?: string(name='nextToken', example='615dfe7fd00f699ea94d5e63ba564aaf22450858c58f1387cc78f883b2254ab47232ce40fa95d9cb'),
+}
+
+model ListContextStoreAPIKeysResponseBody = {
+  maxResults?: int32(name='maxResults', example='100'),
+  nextToken?: string(name='nextToken', example='xCs4wJD41qEejNkappMSJ1OL2Ky2GeKLqmBLJrC61WrgUOj9F-31jHbo5Kgqzifv'),
+  requestId?: string(name='requestId', example='8FDE2569-626B-5176-9844-28877A*****'),
+  results?: [ 
+    {
+      apiKey?: string(name='apiKey', example='sk-3ac8d45d741e4f31b81aa6ee984ce9fd'),
+      contextStoreName?: string(name='contextStoreName', example='test-context-Store'),
+      createTime?: string(name='createTime', description='Use the UTC time format: yyyy-MM-ddTHH:mm:ssZ', example='1778205145'),
+      name?: string(name='name', example='Production Service Key'),
+      workspace?: string(name='workspace', example='test-workspace'),
+    }
+  ](name='results'),
+  total?: int32(name='total', example='454'),
+}
+
+model ListContextStoreAPIKeysResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ListContextStoreAPIKeysResponseBody(name='body'),
+}
+
+/**
+ * @summary 获取 API Key 列表
+ *
+ * @param request ListContextStoreAPIKeysRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return ListContextStoreAPIKeysResponse
+ */
+@context("listContextStoreAPIKeysWithContext")
+async function listContextStoreAPIKeysWithOptions(workspace: string, contextStoreName: string, request: ListContextStoreAPIKeysRequest, headers: map[string]string, runtime: $RuntimeOptions): ListContextStoreAPIKeysResponse {
+  request.validate();
+  var query : map[string]any = {};
+  if (!$isNull(request.maxResults)) {
+    query['maxResults'] = request.maxResults;
+  }
+  if (!$isNull(request.nextToken)) {
+    query['nextToken'] = request.nextToken;
+  }
+
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'ListContextStoreAPIKeys',
+    version = '2024-03-30',
+    protocol = 'HTTPS',
+    pathname = `/workspace/${$URL.percentEncode(workspace)}/contextstore/${$URL.percentEncode(contextStoreName)}/apikey`,
+    method = 'GET',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 获取 API Key 列表
+ *
+ * @param request ListContextStoreAPIKeysRequest
+ * @return ListContextStoreAPIKeysResponse
+ */
+async function listContextStoreAPIKeys(workspace: string, contextStoreName: string, request: ListContextStoreAPIKeysRequest): ListContextStoreAPIKeysResponse {
+  var runtime = new $RuntimeOptions{};
+  var headers : map[string]string = {};
+  return listContextStoreAPIKeysWithOptions(workspace, contextStoreName, request, headers, runtime);
+}
+
+model ListContextStoresRequest {
+  contextStoreName?: string(name='contextStoreName', example='test-context-store'),
+  contextType?: string(name='contextType', example='memory'),
+  maxResults?: int32(name='maxResults', example='100'),
+  nextToken?: string(name='nextToken', example='OCAQV0pBqldexv7EidbIZw=='),
+}
+
+model ListContextStoresResponseBody = {
+  maxResults?: int32(name='maxResults', example='100'),
+  nextToken?: string(name='nextToken', example='2-ba4d-4b9f-aa24-dcb067a30f1c'),
+  requestId?: string(name='requestId', example='8FDE2569-626B-5176-9844-28877A*****'),
+  results?: [ 
+    {
+      contextStoreName?: string(name='contextStoreName', example='test-context-store'),
+      contextType?: string(name='contextType', example='memory'),
+      createTime?: string(name='createTime', description='Use the UTC time format: yyyy-MM-ddTHH:mm:ssZ', example='173847364841938'),
+      description?: string(name='description', example='test'),
+      regionId?: string(name='regionId', example='cn-heyuan'),
+      status?: string(name='status', example='active'),
+      updateTime?: string(name='updateTime', description='Use the UTC time format: yyyy-MM-ddTHH:mm:ssZ', example='173847364841938'),
+      workspace?: string(name='workspace', example='workspace-test'),
+    }
+  ](name='results'),
+  total?: int32(name='total', example='56'),
+}
+
+model ListContextStoresResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ListContextStoresResponseBody(name='body'),
+}
+
+/**
+ * @summary 查询上下文库列表
+ *
+ * @param request ListContextStoresRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return ListContextStoresResponse
+ */
+@context("listContextStoresWithContext")
+async function listContextStoresWithOptions(workspace: string, request: ListContextStoresRequest, headers: map[string]string, runtime: $RuntimeOptions): ListContextStoresResponse {
+  request.validate();
+  var query : map[string]any = {};
+  if (!$isNull(request.contextStoreName)) {
+    query['contextStoreName'] = request.contextStoreName;
+  }
+  if (!$isNull(request.contextType)) {
+    query['contextType'] = request.contextType;
+  }
+  if (!$isNull(request.maxResults)) {
+    query['maxResults'] = request.maxResults;
+  }
+  if (!$isNull(request.nextToken)) {
+    query['nextToken'] = request.nextToken;
+  }
+
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'ListContextStores',
+    version = '2024-03-30',
+    protocol = 'HTTPS',
+    pathname = `/workspace/${$URL.percentEncode(workspace)}/contextstore`,
+    method = 'GET',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 查询上下文库列表
+ *
+ * @param request ListContextStoresRequest
+ * @return ListContextStoresResponse
+ */
+async function listContextStores(workspace: string, request: ListContextStoresRequest): ListContextStoresResponse {
+  var runtime = new $RuntimeOptions{};
+  var headers : map[string]string = {};
+  return listContextStoresWithOptions(workspace, request, headers, runtime);
+}
+
 model ListDatasetsRequest {
   datasetName?: string(name='datasetName', example='test_dataset'),
   maxResults?: int32(name='maxResults', example='100'),
@@ -10813,6 +11578,87 @@ async function queryAlertRules(request: QueryAlertRulesRequest): QueryAlertRules
   return queryAlertRulesWithOptions(request, headers, runtime);
 }
 
+model SearchContextRequest {
+  filter?: map[string]any(name='filter'),
+  formatted?: boolean(name='formatted', example='true'),
+  limit?: int32(name='limit', example='100'),
+  query?: string(name='query', description='This parameter is required.', example='How is the cost for consuming SLS logs in Flink calculated?'),
+  retrievalOption?: string(name='retrievalOption', example='reranker,llm_rank'),
+  threshold?: double(name='threshold', example='0.3'),
+}
+
+model SearchContextResponseBody = {
+  requestId?: string(name='requestId', example='123-0F43-23423-AC43-34234'),
+  results?: [ map[string]any ](name='results'),
+}
+
+model SearchContextResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: SearchContextResponseBody(name='body'),
+}
+
+/**
+ * @summary 搜索上下文
+ *
+ * @param request SearchContextRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return SearchContextResponse
+ */
+@context("searchContextWithContext")
+async function searchContextWithOptions(workspace: string, contextStoreName: string, request: SearchContextRequest, headers: map[string]string, runtime: $RuntimeOptions): SearchContextResponse {
+  request.validate();
+  var body : map[string]any = {};
+  if (!$isNull(request.filter)) {
+    body['filter'] = request.filter;
+  }
+  if (!$isNull(request.formatted)) {
+    body['formatted'] = request.formatted;
+  }
+  if (!$isNull(request.limit)) {
+    body['limit'] = request.limit;
+  }
+  if (!$isNull(request.query)) {
+    body['query'] = request.query;
+  }
+  if (!$isNull(request.retrievalOption)) {
+    body['retrievalOption'] = request.retrievalOption;
+  }
+  if (!$isNull(request.threshold)) {
+    body['threshold'] = request.threshold;
+  }
+
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    headers = headers,
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'SearchContext',
+    version = '2024-03-30',
+    protocol = 'HTTPS',
+    pathname = `/workspace/${$URL.percentEncode(workspace)}/contextstore/${$URL.percentEncode(contextStoreName)}/context/search`,
+    method = 'POST',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 搜索上下文
+ *
+ * @param request SearchContextRequest
+ * @return SearchContextResponse
+ */
+async function searchContext(workspace: string, contextStoreName: string, request: SearchContextRequest): SearchContextResponse {
+  var runtime = new $RuntimeOptions{};
+  var headers : map[string]string = {};
+  return searchContextWithOptions(workspace, contextStoreName, request, headers, runtime);
+}
+
 model SearchMemoriesRequest {
   agentId?: string(name='agentId', example='972772996913709056'),
   appId?: string(name='appId', example='mm_480d961a1b5e4efe84603f4cbc0f'),
@@ -11523,6 +12369,175 @@ async function updateBizTrace(bizTraceId: string, request: UpdateBizTraceRequest
   var runtime = new $RuntimeOptions{};
   var headers : map[string]string = {};
   return updateBizTraceWithOptions(bizTraceId, request, headers, runtime);
+}
+
+model UpdateContextRequest {
+  content?: string(name='content', example='Users prefer to first view the SLS error logs, index configuration, and the most recent Agent execution trace.'),
+  experience?: map[string]any(name='experience', example='{
+	"taskType": "troubleshooting",
+	"complexity": "medium",
+	"confidence": 0.95
+}'),
+  metadata?: map[string]any(name='metadata', example='{"sessionId":"test_session_001"}'),
+  payload?: map[string]any(name='payload', example='{
+    "userId": "u-10001",
+    "agentId": "sls-agent",
+    "appId": "console",
+    "categories": [
+      "preference"
+    ],
+    "source": "user_confirmed",
+    "topic": "debugging_preference",
+    "immutable": false,
+    "createdAt": 1776319200,
+    "updatedAt": 1776319200
+  }'),
+  triggerCondition?: string(name='triggerCondition', example='Identify and troubleshoot SLs issues'),
+}
+
+model UpdateContextResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: object(name='body'),
+}
+
+/**
+ * @summary 修改上下文
+ *
+ * @param request UpdateContextRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return UpdateContextResponse
+ */
+@context("updateContextWithContext")
+async function updateContextWithOptions(workspace: string, contextStoreName: string, contextId: string, request: UpdateContextRequest, headers: map[string]string, runtime: $RuntimeOptions): UpdateContextResponse {
+  request.validate();
+  var body : map[string]any = {};
+  if (!$isNull(request.content)) {
+    body['content'] = request.content;
+  }
+  if (!$isNull(request.experience)) {
+    body['experience'] = request.experience;
+  }
+  if (!$isNull(request.metadata)) {
+    body['metadata'] = request.metadata;
+  }
+  if (!$isNull(request.payload)) {
+    body['payload'] = request.payload;
+  }
+  if (!$isNull(request.triggerCondition)) {
+    body['triggerCondition'] = request.triggerCondition;
+  }
+
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    headers = headers,
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'UpdateContext',
+    version = '2024-03-30',
+    protocol = 'HTTPS',
+    pathname = `/workspace/${$URL.percentEncode(workspace)}/contextstore/${$URL.percentEncode(contextStoreName)}/context/${$URL.percentEncode(contextId)}`,
+    method = 'PUT',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 修改上下文
+ *
+ * @param request UpdateContextRequest
+ * @return UpdateContextResponse
+ */
+async function updateContext(workspace: string, contextStoreName: string, contextId: string, request: UpdateContextRequest): UpdateContextResponse {
+  var runtime = new $RuntimeOptions{};
+  var headers : map[string]string = {};
+  return updateContextWithOptions(workspace, contextStoreName, contextId, request, headers, runtime);
+}
+
+model UpdateContextStoreRequest {
+  config?: {
+    metadataField?: map[string]string(name='metadataField'),
+    source?: {
+      logstore?: string(name='logstore', example='sls-test-logstore'),
+      project?: string(name='project', example='sls-test-project'),
+      startTime?: string(name='startTime', example='1776824891000'),
+    }(name='source'),
+  }(name='config'),
+  contextType?: string(name='contextType', example='memory'),
+  dataset?: {
+    name?: string(name='name', example='test_dataset'),
+  }(name='dataset'),
+  description?: string(name='description', example='test'),
+}
+
+model UpdateContextStoreResponseBody = {
+  requestId?: string(name='requestId', example='8FDE2569-626B-5176-9844-28877A*****'),
+}
+
+model UpdateContextStoreResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: UpdateContextStoreResponseBody(name='body'),
+}
+
+/**
+ * @summary 修改上下文库配置
+ *
+ * @param request UpdateContextStoreRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return UpdateContextStoreResponse
+ */
+@context("updateContextStoreWithContext")
+async function updateContextStoreWithOptions(workspace: string, contextStoreName: string, request: UpdateContextStoreRequest, headers: map[string]string, runtime: $RuntimeOptions): UpdateContextStoreResponse {
+  request.validate();
+  var body : map[string]any = {};
+  if (!$isNull(request.config)) {
+    body['config'] = request.config;
+  }
+  if (!$isNull(request.contextType)) {
+    body['contextType'] = request.contextType;
+  }
+  if (!$isNull(request.dataset)) {
+    body['dataset'] = request.dataset;
+  }
+  if (!$isNull(request.description)) {
+    body['description'] = request.description;
+  }
+
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    headers = headers,
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'UpdateContextStore',
+    version = '2024-03-30',
+    protocol = 'HTTPS',
+    pathname = `/workspace/${$URL.percentEncode(workspace)}/contextstore/${$URL.percentEncode(contextStoreName)}`,
+    method = 'PUT',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 修改上下文库配置
+ *
+ * @param request UpdateContextStoreRequest
+ * @return UpdateContextStoreResponse
+ */
+async function updateContextStore(workspace: string, contextStoreName: string, request: UpdateContextStoreRequest): UpdateContextStoreResponse {
+  var runtime = new $RuntimeOptions{};
+  var headers : map[string]string = {};
+  return updateContextStoreWithOptions(workspace, contextStoreName, request, headers, runtime);
 }
 
 model UpdateDatasetRequest {
