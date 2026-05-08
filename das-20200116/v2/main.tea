@@ -203,6 +203,142 @@ async function addHDMInstance(request: AddHDMInstanceRequest): AddHDMInstanceRes
   return addHDMInstanceWithOptions(request, runtime);
 }
 
+model ChatRequest {
+  agentId?: string(name='AgentId', example='ag-472T0DxtmjIxxxxx'),
+  message?: string(name='Message', description='This parameter is required.', example='{"id":"68fe0321-37fe-4c75-a118-b61b33156f6a","role":"user","content":[{"type":"text","text":"hello"}]}'),
+  sessionId?: string(name='SessionId', example='123e4567-e89b-12d3-a456-xxxxxxxxxxxx'),
+  summary?: string(name='Summary', example='false'),
+}
+
+model ChatResponseBody = {
+  activityType?: string(name='ActivityType', example='waiting_for_agent_thinking'),
+  content?: string(name='Content', example='I see you have several PolarDB instances, and I will query them for you shortly'),
+  delta?: string(name='Delta', example='hello'),
+  messageId?: string(name='MessageId', example='61820b594664275c4429****'),
+  name?: string(name='Name', example='summary'),
+  parentMessageId?: string(name='ParentMessageId', example='76bee207-31ee-4707-8851-6b9d4da033aa'),
+  role?: string(name='Role', example='assistant'),
+  runId?: string(name='RunId', example='ed7cb7b1-ddc8-45d7-9ff3-b315726cb5f7'),
+  stepName?: string(name='StepName', example='sub_agent_performance_diagnose_mysql'),
+  taskTrackerId?: string(name='TaskTrackerId', example='das_api'),
+  threadId?: string(name='ThreadId', example='8e481be1-21d5-4a92-a2fb-fb54be0ab4f6'),
+  toolCallId?: string(name='ToolCallId', example='call_edf9cdb69e0e4c9796a6a5a6'),
+  toolCallName?: string(name='ToolCallName', example='das_api'),
+  type?: string(name='Type', example='TEXT_MESSAGE_CONTENT'),
+  value?: any(name='Value', example='{"CharCount":393,"End":1777428785996,"RequestId":"BE59AED5-D831-5811-BBAD-590B917B2089","SessionId":"123e4567-e89b-12d3-a456-xxxxxxxxxxxx","Start":1777428707927}'),
+}
+
+model ChatResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  id?: string(name='id'),
+  event?: string(name='event'),
+  body?: ChatResponseBody(name='body'),
+}
+
+/**
+ * @summary DAS大模型能力异步逻辑接口
+ *
+ * @param request ChatRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return ChatResponse
+ */
+@sse(true)
+@context("chatWithSSECtx")
+async function chatWithSSE(request: ChatRequest, runtime: $RuntimeOptions): asyncIterator[ChatResponse] {
+  request.validate();
+  var query = {};
+  if (!$isNull(request.agentId)) {
+    query['AgentId'] = request.agentId;
+  }
+  if (!$isNull(request.message)) {
+    query['Message'] = request.message;
+  }
+  if (!$isNull(request.sessionId)) {
+    query['SessionId'] = request.sessionId;
+  }
+  if (!$isNull(request.summary)) {
+    query['Summary'] = request.summary;
+  }
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'Chat',
+    version = '2020-01-16',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  var sseResp = callSSEApi(params, req, runtime);
+  for (var resp : sseResp) {
+    if (!$isNull(resp.event) && !$isNull(resp.event.data)) {
+      var data = $object($JSON.parseJSON(resp.event.data));
+      yield {
+        statusCode = resp.statusCode,
+        headers = resp.headers,
+        id = resp.event.id,
+        event = resp.event.event,
+        body = data
+      };
+    }
+  }
+}
+/**
+ * @summary DAS大模型能力异步逻辑接口
+ *
+ * @param request ChatRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return ChatResponse
+ */
+@context("chatWithContext")
+async function chatWithOptions(request: ChatRequest, runtime: $RuntimeOptions): ChatResponse {
+  request.validate();
+  var query = {};
+  if (!$isNull(request.agentId)) {
+    query['AgentId'] = request.agentId;
+  }
+  if (!$isNull(request.message)) {
+    query['Message'] = request.message;
+  }
+  if (!$isNull(request.sessionId)) {
+    query['SessionId'] = request.sessionId;
+  }
+  if (!$isNull(request.summary)) {
+    query['Summary'] = request.summary;
+  }
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'Chat',
+    version = '2020-01-16',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary DAS大模型能力异步逻辑接口
+ *
+ * @param request ChatRequest
+ * @return ChatResponse
+ */
+async function chat(request: ChatRequest): ChatResponse {
+  var runtime = new $RuntimeOptions{};
+  return chatWithOptions(request, runtime);
+}
+
 model CreateCacheAnalysisJobRequest {
   backupSetId?: string(name='BackupSetId', description='The ID of the backup file. You can call the [DescribeBackups](https://help.aliyun.com/document_detail/473823.html) operation to query the ID.
 
@@ -8031,99 +8167,6 @@ async function getDeadlockHistogram(request: GetDeadlockHistogramRequest): GetDe
   return getDeadlockHistogramWithOptions(request, runtime);
 }
 
-model GetEndpointSwitchTaskRequest {
-  taskId?: string(name='TaskId'),
-  uid?: string(name='Uid'),
-  userId?: string(name='UserId'),
-  context?: string(name='__context'),
-  accessKey?: string(name='accessKey'),
-  signature?: string(name='signature'),
-  skipAuth?: string(name='skipAuth'),
-  timestamp?: string(name='timestamp'),
-}
-
-model GetEndpointSwitchTaskResponseBody = {
-  code?: string(name='Code'),
-  data?: {
-    accountId?: string(name='AccountId'),
-    dbLinkId?: long(name='DbLinkId'),
-    errMsg?: string(name='ErrMsg'),
-    oriUuid?: string(name='OriUuid'),
-    status?: string(name='Status'),
-    taskId?: string(name='TaskId'),
-    uuid?: string(name='Uuid'),
-  }(name='Data'),
-  message?: string(name='Message'),
-  requestId?: string(name='RequestId'),
-  success?: string(name='Success'),
-  synchro?: string(name='Synchro'),
-}
-
-model GetEndpointSwitchTaskResponse = {
-  headers?: map[string]string(name='headers'),
-  statusCode?: int32(name='statusCode'),
-  body?: GetEndpointSwitchTaskResponseBody(name='body'),
-}
-
-/**
- * @param request GetEndpointSwitchTaskRequest
- * @param runtime runtime options for this request RuntimeOptions
- * @return GetEndpointSwitchTaskResponse
- */
-@context("getEndpointSwitchTaskWithContext")
-async function getEndpointSwitchTaskWithOptions(request: GetEndpointSwitchTaskRequest, runtime: $RuntimeOptions): GetEndpointSwitchTaskResponse {
-  request.validate();
-  var query = {};
-  if (!$isNull(request.taskId)) {
-    query['TaskId'] = request.taskId;
-  }
-  if (!$isNull(request.uid)) {
-    query['Uid'] = request.uid;
-  }
-  if (!$isNull(request.userId)) {
-    query['UserId'] = request.userId;
-  }
-  if (!$isNull(request.context)) {
-    query['__context'] = request.context;
-  }
-  if (!$isNull(request.accessKey)) {
-    query['accessKey'] = request.accessKey;
-  }
-  if (!$isNull(request.signature)) {
-    query['signature'] = request.signature;
-  }
-  if (!$isNull(request.skipAuth)) {
-    query['skipAuth'] = request.skipAuth;
-  }
-  if (!$isNull(request.timestamp)) {
-    query['timestamp'] = request.timestamp;
-  }
-  var req = new OpenApiUtil.OpenApiRequest{ 
-    query = OpenApiUtil.query(query),
-  };
-  var params = new OpenApiUtil.Params{
-    action = 'GetEndpointSwitchTask',
-    version = '2020-01-16',
-    protocol = 'HTTPS',
-    pathname = '/',
-    method = 'POST',
-    authType = 'AK',
-    style = 'RPC',
-    reqBodyType = 'formData',
-    bodyType = 'json',
-  };
-  return callApi(params, req, runtime);
-}
-
-/**
- * @param request GetEndpointSwitchTaskRequest
- * @return GetEndpointSwitchTaskResponse
- */
-async function getEndpointSwitchTask(request: GetEndpointSwitchTaskRequest): GetEndpointSwitchTaskResponse {
-  var runtime = new $RuntimeOptions{};
-  return getEndpointSwitchTaskWithOptions(request, runtime);
-}
-
 model GetErrorRequestSampleRequest {
   dbName?: string(name='DbName', description='The name of the database.', example='testdb01'),
   end?: long(name='End', description='The end of the time range to query. Set this parameter to a UNIX timestamp representing the number of milliseconds that have elapsed since January 1, 1970, 00:00:00 UTC.
@@ -8913,200 +8956,6 @@ async function getFullRequestStatResultByInstanceIdWithOptions(request: GetFullR
 async function getFullRequestStatResultByInstanceId(request: GetFullRequestStatResultByInstanceIdRequest): GetFullRequestStatResultByInstanceIdResponse {
   var runtime = new $RuntimeOptions{};
   return getFullRequestStatResultByInstanceIdWithOptions(request, runtime);
-}
-
-model GetHDMAliyunResourceSyncResultRequest {
-  taskId?: string(name='TaskId'),
-  uid?: string(name='Uid'),
-  userId?: string(name='UserId'),
-  context?: string(name='__context'),
-  accessKey?: string(name='accessKey'),
-  signature?: string(name='signature'),
-  skipAuth?: string(name='skipAuth'),
-  timestamp?: string(name='timestamp'),
-}
-
-model GetHDMAliyunResourceSyncResultResponseBody = {
-  code?: string(name='Code'),
-  data?: {
-    errorMsg?: string(name='ErrorMsg'),
-    results?: string(name='Results'),
-    subResults?: {
-      resourceSyncSubResult?: [ 
-      {
-        errMsg?: string(name='ErrMsg'),
-        resourceType?: string(name='ResourceType'),
-        success?: boolean(name='Success'),
-        syncCount?: int32(name='SyncCount'),
-      }
-    ](name='ResourceSyncSubResult')
-    }(name='SubResults'),
-    syncStatus?: string(name='SyncStatus'),
-  }(name='Data'),
-  message?: string(name='Message'),
-  requestId?: string(name='RequestId'),
-  success?: string(name='Success'),
-  synchro?: string(name='Synchro'),
-}
-
-model GetHDMAliyunResourceSyncResultResponse = {
-  headers?: map[string]string(name='headers'),
-  statusCode?: int32(name='statusCode'),
-  body?: GetHDMAliyunResourceSyncResultResponseBody(name='body'),
-}
-
-/**
- * @param request GetHDMAliyunResourceSyncResultRequest
- * @param runtime runtime options for this request RuntimeOptions
- * @return GetHDMAliyunResourceSyncResultResponse
- */
-@context("getHDMAliyunResourceSyncResultWithContext")
-async function getHDMAliyunResourceSyncResultWithOptions(request: GetHDMAliyunResourceSyncResultRequest, runtime: $RuntimeOptions): GetHDMAliyunResourceSyncResultResponse {
-  request.validate();
-  var query = {};
-  if (!$isNull(request.taskId)) {
-    query['TaskId'] = request.taskId;
-  }
-  if (!$isNull(request.uid)) {
-    query['Uid'] = request.uid;
-  }
-  if (!$isNull(request.userId)) {
-    query['UserId'] = request.userId;
-  }
-  if (!$isNull(request.context)) {
-    query['__context'] = request.context;
-  }
-  if (!$isNull(request.accessKey)) {
-    query['accessKey'] = request.accessKey;
-  }
-  if (!$isNull(request.signature)) {
-    query['signature'] = request.signature;
-  }
-  if (!$isNull(request.skipAuth)) {
-    query['skipAuth'] = request.skipAuth;
-  }
-  if (!$isNull(request.timestamp)) {
-    query['timestamp'] = request.timestamp;
-  }
-  var req = new OpenApiUtil.OpenApiRequest{ 
-    query = OpenApiUtil.query(query),
-  };
-  var params = new OpenApiUtil.Params{
-    action = 'GetHDMAliyunResourceSyncResult',
-    version = '2020-01-16',
-    protocol = 'HTTPS',
-    pathname = '/',
-    method = 'POST',
-    authType = 'AK',
-    style = 'RPC',
-    reqBodyType = 'formData',
-    bodyType = 'json',
-  };
-  return callApi(params, req, runtime);
-}
-
-/**
- * @param request GetHDMAliyunResourceSyncResultRequest
- * @return GetHDMAliyunResourceSyncResultResponse
- */
-async function getHDMAliyunResourceSyncResult(request: GetHDMAliyunResourceSyncResultRequest): GetHDMAliyunResourceSyncResultResponse {
-  var runtime = new $RuntimeOptions{};
-  return getHDMAliyunResourceSyncResultWithOptions(request, runtime);
-}
-
-model GetHDMLastAliyunResourceSyncResultRequest {
-  uid?: string(name='Uid'),
-  userId?: string(name='UserId'),
-  context?: string(name='__context'),
-  accessKey?: string(name='accessKey'),
-  signature?: string(name='signature'),
-  skipAuth?: string(name='skipAuth'),
-  timestamp?: string(name='timestamp'),
-}
-
-model GetHDMLastAliyunResourceSyncResultResponseBody = {
-  code?: string(name='Code'),
-  data?: {
-    errorMsg?: string(name='ErrorMsg'),
-    results?: string(name='Results'),
-    subResults?: {
-      resourceSyncSubResult?: [ 
-      {
-        errMsg?: string(name='ErrMsg'),
-        resourceType?: string(name='ResourceType'),
-        success?: boolean(name='Success'),
-        syncCount?: int32(name='SyncCount'),
-      }
-    ](name='ResourceSyncSubResult')
-    }(name='SubResults'),
-    syncStatus?: string(name='SyncStatus'),
-  }(name='Data'),
-  message?: string(name='Message'),
-  requestId?: string(name='RequestId'),
-  success?: string(name='Success'),
-  synchro?: string(name='Synchro'),
-}
-
-model GetHDMLastAliyunResourceSyncResultResponse = {
-  headers?: map[string]string(name='headers'),
-  statusCode?: int32(name='statusCode'),
-  body?: GetHDMLastAliyunResourceSyncResultResponseBody(name='body'),
-}
-
-/**
- * @param request GetHDMLastAliyunResourceSyncResultRequest
- * @param runtime runtime options for this request RuntimeOptions
- * @return GetHDMLastAliyunResourceSyncResultResponse
- */
-@context("getHDMLastAliyunResourceSyncResultWithContext")
-async function getHDMLastAliyunResourceSyncResultWithOptions(request: GetHDMLastAliyunResourceSyncResultRequest, runtime: $RuntimeOptions): GetHDMLastAliyunResourceSyncResultResponse {
-  request.validate();
-  var query = {};
-  if (!$isNull(request.uid)) {
-    query['Uid'] = request.uid;
-  }
-  if (!$isNull(request.userId)) {
-    query['UserId'] = request.userId;
-  }
-  if (!$isNull(request.context)) {
-    query['__context'] = request.context;
-  }
-  if (!$isNull(request.accessKey)) {
-    query['accessKey'] = request.accessKey;
-  }
-  if (!$isNull(request.signature)) {
-    query['signature'] = request.signature;
-  }
-  if (!$isNull(request.skipAuth)) {
-    query['skipAuth'] = request.skipAuth;
-  }
-  if (!$isNull(request.timestamp)) {
-    query['timestamp'] = request.timestamp;
-  }
-  var req = new OpenApiUtil.OpenApiRequest{ 
-    query = OpenApiUtil.query(query),
-  };
-  var params = new OpenApiUtil.Params{
-    action = 'GetHDMLastAliyunResourceSyncResult',
-    version = '2020-01-16',
-    protocol = 'HTTPS',
-    pathname = '/',
-    method = 'POST',
-    authType = 'AK',
-    style = 'RPC',
-    reqBodyType = 'formData',
-    bodyType = 'json',
-  };
-  return callApi(params, req, runtime);
-}
-
-/**
- * @param request GetHDMLastAliyunResourceSyncResultRequest
- * @return GetHDMLastAliyunResourceSyncResultResponse
- */
-async function getHDMLastAliyunResourceSyncResult(request: GetHDMLastAliyunResourceSyncResultRequest): GetHDMLastAliyunResourceSyncResultResponse {
-  var runtime = new $RuntimeOptions{};
-  return getHDMLastAliyunResourceSyncResultWithOptions(request, runtime);
 }
 
 model GetInstanceGroupInspectReportDetailRequest {
