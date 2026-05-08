@@ -1,0 +1,94 @@
+/**
+ *
+ */
+import OpenApi;
+import OpenApi.OpenApiUtil;
+
+extends OpenApi;
+
+
+init(config: OpenApiUtil.Config){
+  super(config);
+  @endpointRule = '';
+  
+  checkConfig(config);
+  @endpoint = getEndpoint('wuyingai', @regionId, @endpointRule, @network, @suffix, @endpointMap, @endpoint);
+}
+
+function getEndpoint(productId: string, regionId: string, endpointRule: string, network: string, suffix: string, endpointMap: map[string]string, endpoint: string) throws: string{
+  if (!$isNull(endpoint)) {
+    return endpoint;
+  }
+  
+  if (!$isNull(endpointMap) && !$isNull(endpointMap[regionId])) {
+    return endpointMap[regionId];
+  }
+  return OpenApiUtil.getEndpointRules(productId, regionId, endpointRule, network, suffix);
+}
+
+model GetAccessTokenRequest {
+  externalUserId?: string(name='ExternalUserId', example='"user-38764"'),
+  templateId?: string(name='TemplateId', example='1600112233445566'),
+}
+
+model GetAccessTokenResponseBody = {
+  accessDeniedDetail?: string(name='AccessDeniedDetail', example='null'),
+  accessToken?: string(name='AccessToken', example='"eyJhbGc****.eyJ********.****TCk"'),
+  code?: string(name='Code', example='"200"'),
+  httpStatusCode?: int32(name='HttpStatusCode', example='200'),
+  message?: string(name='Message', example='null'),
+  requestId?: string(name='RequestId', example='"EA12****-****-****-****-****E5C"'),
+  success?: boolean(name='Success', example='true'),
+}
+
+model GetAccessTokenResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: GetAccessTokenResponseBody(name='body'),
+}
+
+/**
+ * @summary 获取用户进行对话所需的访问令牌（AccessToken），用于后续调用 Chat 接口进行身份验证。
+ *
+ * @param request GetAccessTokenRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return GetAccessTokenResponse
+ */
+@context("getAccessTokenWithContext")
+async function getAccessTokenWithOptions(request: GetAccessTokenRequest, runtime: $RuntimeOptions): GetAccessTokenResponse {
+  request.validate();
+  var query = {};
+  if (!$isNull(request.externalUserId)) {
+    query['ExternalUserId'] = request.externalUserId;
+  }
+  if (!$isNull(request.templateId)) {
+    query['TemplateId'] = request.templateId;
+  }
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'GetAccessToken',
+    version = '2026-03-11',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 获取用户进行对话所需的访问令牌（AccessToken），用于后续调用 Chat 接口进行身份验证。
+ *
+ * @param request GetAccessTokenRequest
+ * @return GetAccessTokenResponse
+ */
+async function getAccessToken(request: GetAccessTokenRequest): GetAccessTokenResponse {
+  var runtime = new $RuntimeOptions{};
+  return getAccessTokenWithOptions(request, runtime);
+}
+
