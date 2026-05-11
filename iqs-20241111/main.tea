@@ -39,6 +39,17 @@ model AISearchQuery {
   timeRange?: string(name='timeRange'),
 }
 
+model AgentBaseQuery {
+  query?: string(name='query'),
+}
+
+model CommonAgentQuery {
+  limit?: int32(name='limit'),
+  query?: string(name='query'),
+  querySceneEnumCode?: string(name='querySceneEnumCode'),
+  searchModel?: string(name='searchModel'),
+}
+
 model GenericSearchResult {
   pageItems?: [
     ScorePageItem
@@ -66,6 +77,7 @@ model GetIqsUsageResult {
       mainAccountId?: string(name='mainAccountId'),
       subAccountId?: string(name='subAccountId'),
       successCalls?: int32(name='successCalls'),
+      totalBillStatCalls?: int32(name='totalBillStatCalls'),
       totalCalls?: int32(name='totalCalls'),
       valueAddedAdvanced?: int32(name='valueAddedAdvanced'),
       valueAddedSummary?: int32(name='valueAddedSummary'),
@@ -120,6 +132,53 @@ model LocationInfo {
   ip?: string(name='ip'),
 }
 
+model MedicalAnswerInput {
+  query?: string(name='query'),
+}
+
+model MedicalAnswerMessage {
+  content?: string(name='content'),
+  metaData?: MedicalAnswerMetaData(name='metaData'),
+}
+
+model MedicalAnswerMetaData {
+}
+
+model MedicalAnswerRaDoc {
+  content?: string(name='content'),
+  rawUrl?: string(name='rawUrl'),
+  title?: string(name='title'),
+  type?: string(name='type'),
+}
+
+model MedicalAnswerResult {
+  messages?: [
+    MedicalAnswerMessage
+  ](name='messages'),
+  queryContext?: MultimodalQueryContext(name='queryContext'),
+  requestId?: string(name='requestId'),
+  searchInformation?: UnifiedSearchInformation(name='searchInformation'),
+}
+
+model MedicalKnowInput {
+  query?: string(name='query'),
+  type?: string(name='type'),
+}
+
+model MedicalKnowResult {
+  messages?: [
+    MedicalKnowledgeInfo
+  ](name='messages'),
+  queryContext?: MultimodalQueryContext(name='queryContext'),
+  requestId?: string(name='requestId'),
+  searchInformation?: UnifiedSearchInformation(name='searchInformation'),
+}
+
+model MedicalKnowledgeInfo {
+  content?: string(name='content'),
+  url?: string(name='url'),
+}
+
 model MultimodalOriginalQuery {
   query?: string(name='query'),
 }
@@ -144,6 +203,18 @@ model MultimodalSearchOutput {
   searchInformation?: SearchInformation(name='searchInformation'),
 }
 
+model OmniSearchQuery {
+  query?: string(name='query', description='This parameter is required.', example='今天杭州天气'),
+  sessionId?: string(name='sessionId'),
+  useCot?: boolean(name='useCot'),
+  useModel?: string(name='useModel'),
+}
+
+model OmniSearchResult {
+  requestId?: string(name='requestId', example='35E5608A-A737-2038-AFB6-D9D34C6BFD9E'),
+  success?: string(name='success', example='true'),
+}
+
 model QueryContext {
   originalQuery?: {
     industry?: string(name='industry'),
@@ -155,6 +226,43 @@ model QueryContext {
     enabled?: boolean(name='enabled'),
     timeRange?: string(name='timeRange'),
   }(name='rewrite'),
+}
+
+model QueryResult {
+  data?: [ 
+    {
+      address?: string(name='address'),
+      cityCode?: string(name='cityCode'),
+      cityName?: string(name='cityName'),
+      distanceMeter?: string(name='distanceMeter'),
+      districtCode?: string(name='districtCode'),
+      districtName?: string(name='districtName'),
+      id?: string(name='id'),
+      images?: [ 
+        {
+          title?: string(name='title'),
+          url?: string(name='url'),
+        }
+      ](name='images'),
+      latitude?: string(name='latitude'),
+      longitude?: string(name='longitude'),
+      metadata?: {
+        averageSpend?: string(name='averageSpend'),
+        businessArea?: string(name='businessArea'),
+        dailyOpeningHours?: string(name='dailyOpeningHours'),
+        mainTag?: string(name='mainTag'),
+        phone?: string(name='phone'),
+        score?: string(name='score'),
+        weeklyOpeningDays?: string(name='weeklyOpeningDays'),
+      }(name='metadata'),
+      name?: string(name='name'),
+      provinceCode?: string(name='provinceCode'),
+      provinceName?: string(name='provinceName'),
+      typeCode?: string(name='typeCode'),
+      types?: string(name='types'),
+    }
+  ](name='data'),
+  requestId?: string(name='requestId'),
 }
 
 model ReadPageBody {
@@ -439,6 +547,56 @@ async function aiSearch(request: AiSearchRequest): AiSearchResponse {
   var runtime = new Util.RuntimeOptions{};
   var headers : map[string]string = {};
   return aiSearchWithOptions(request, headers, runtime);
+}
+
+model CommonQueryBySceneRequest {
+  body?: CommonAgentQuery(name='body'),
+}
+
+model CommonQueryBySceneResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: QueryResult  
+}
+
+/**
+ * @summary 自然语言通用查询
+ *
+ * @param request CommonQueryBySceneRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return CommonQueryBySceneResponse
+ */
+async function commonQueryBySceneWithOptions(request: CommonQueryBySceneRequest, headers: map[string]string, runtime: Util.RuntimeOptions): CommonQueryBySceneResponse {
+  Util.validateModel(request);
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    body = OpenApiUtil.parseToMap(request.body),
+  };
+  var params = new OpenApi.Params{
+    action = 'CommonQueryByScene',
+    version = '2024-11-11',
+    protocol = 'HTTPS',
+    pathname = `/amap-function-call-agent/iqs-agent-service/v2/nl/common`,
+    method = 'POST',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 自然语言通用查询
+ *
+ * @param request CommonQueryBySceneRequest
+ * @return CommonQueryBySceneResponse
+ */
+async function commonQueryByScene(request: CommonQueryBySceneRequest): CommonQueryBySceneResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return commonQueryBySceneWithOptions(request, headers, runtime);
 }
 
 model GenericAdvancedSearchRequest {
@@ -752,6 +910,106 @@ async function globalSearch(request: GlobalSearchRequest): GlobalSearchResponse 
   return globalSearchWithOptions(request, headers, runtime);
 }
 
+model MedicalAnswerRequest {
+  body?: MedicalAnswerInput(name='body'),
+}
+
+model MedicalAnswerResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: MedicalAnswerResult  
+}
+
+/**
+ * @summary 医疗问答
+ *
+ * @param request MedicalAnswerRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return MedicalAnswerResponse
+ */
+async function medicalAnswerWithOptions(request: MedicalAnswerRequest, headers: map[string]string, runtime: Util.RuntimeOptions): MedicalAnswerResponse {
+  Util.validateModel(request);
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    body = OpenApiUtil.parseToMap(request.body),
+  };
+  var params = new OpenApi.Params{
+    action = 'MedicalAnswer',
+    version = '2024-11-11',
+    protocol = 'HTTPS',
+    pathname = `/linked-retrieval/linked-retrieval-entry/v1/iqs/domain/medical/answer`,
+    method = 'POST',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 医疗问答
+ *
+ * @param request MedicalAnswerRequest
+ * @return MedicalAnswerResponse
+ */
+async function medicalAnswer(request: MedicalAnswerRequest): MedicalAnswerResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return medicalAnswerWithOptions(request, headers, runtime);
+}
+
+model MedicalKnowledgeRequest {
+  body?: MedicalKnowInput(name='body'),
+}
+
+model MedicalKnowledgeResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: MedicalKnowResult  
+}
+
+/**
+ * @summary 医疗图谱
+ *
+ * @param request MedicalKnowledgeRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return MedicalKnowledgeResponse
+ */
+async function medicalKnowledgeWithOptions(request: MedicalKnowledgeRequest, headers: map[string]string, runtime: Util.RuntimeOptions): MedicalKnowledgeResponse {
+  Util.validateModel(request);
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    body = OpenApiUtil.parseToMap(request.body),
+  };
+  var params = new OpenApi.Params{
+    action = 'MedicalKnowledge',
+    version = '2024-11-11',
+    protocol = 'HTTPS',
+    pathname = `/linked-retrieval/linked-retrieval-entry/v1/iqs/domain/medical/know`,
+    method = 'POST',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 医疗图谱
+ *
+ * @param request MedicalKnowledgeRequest
+ * @return MedicalKnowledgeResponse
+ */
+async function medicalKnowledge(request: MedicalKnowledgeRequest): MedicalKnowledgeResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return medicalKnowledgeWithOptions(request, headers, runtime);
+}
+
 model MultimodalSearchRequest {
   body?: MultimodalSearchBody(name='body'),
 }
@@ -800,6 +1058,56 @@ async function multimodalSearch(request: MultimodalSearchRequest): MultimodalSea
   var runtime = new Util.RuntimeOptions{};
   var headers : map[string]string = {};
   return multimodalSearchWithOptions(request, headers, runtime);
+}
+
+model OmniAnswerRequest {
+  body?: OmniSearchQuery(name='body'),
+}
+
+model OmniAnswerResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: string(name='body'),
+}
+
+/**
+ * @summary 通用问答
+ *
+ * @param request OmniAnswerRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return OmniAnswerResponse
+ */
+async function omniAnswerWithOptions(request: OmniAnswerRequest, headers: map[string]string, runtime: Util.RuntimeOptions): OmniAnswerResponse {
+  Util.validateModel(request);
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    body = OpenApiUtil.parseToMap(request.body),
+  };
+  var params = new OpenApi.Params{
+    action = 'OmniAnswer',
+    version = '2024-11-11',
+    protocol = 'HTTPS',
+    pathname = `/linked-retrieval/linked-retrieval-entry/v1/iqs/answer/omni/search`,
+    method = 'POST',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'string',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 通用问答
+ *
+ * @param request OmniAnswerRequest
+ * @return OmniAnswerResponse
+ */
+async function omniAnswer(request: OmniAnswerRequest): OmniAnswerResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return omniAnswerWithOptions(request, headers, runtime);
 }
 
 model ReadPageBasicRequest {

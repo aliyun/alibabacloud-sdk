@@ -41,6 +41,17 @@ model AISearchQuery {
   timeRange?: string(name='timeRange'),
 }
 
+model AgentBaseQuery {
+  query?: string(name='query'),
+}
+
+model CommonAgentQuery {
+  limit?: int32(name='limit'),
+  query?: string(name='query'),
+  querySceneEnumCode?: string(name='querySceneEnumCode'),
+  searchModel?: string(name='searchModel'),
+}
+
 model GenericSearchResult {
   pageItems?: [
     ScorePageItem
@@ -68,6 +79,7 @@ model GetIqsUsageResult {
       mainAccountId?: string(name='mainAccountId'),
       subAccountId?: string(name='subAccountId'),
       successCalls?: int32(name='successCalls'),
+      totalBillStatCalls?: int32(name='totalBillStatCalls'),
       totalCalls?: int32(name='totalCalls'),
       valueAddedAdvanced?: int32(name='valueAddedAdvanced'),
       valueAddedSummary?: int32(name='valueAddedSummary'),
@@ -122,6 +134,53 @@ model LocationInfo {
   ip?: string(name='ip'),
 }
 
+model MedicalAnswerInput {
+  query?: string(name='query'),
+}
+
+model MedicalAnswerMessage {
+  content?: string(name='content'),
+  metaData?: MedicalAnswerMetaData(name='metaData'),
+}
+
+model MedicalAnswerMetaData {
+}
+
+model MedicalAnswerRaDoc {
+  content?: string(name='content'),
+  rawUrl?: string(name='rawUrl'),
+  title?: string(name='title'),
+  type?: string(name='type'),
+}
+
+model MedicalAnswerResult {
+  messages?: [
+    MedicalAnswerMessage
+  ](name='messages'),
+  queryContext?: MultimodalQueryContext(name='queryContext'),
+  requestId?: string(name='requestId'),
+  searchInformation?: UnifiedSearchInformation(name='searchInformation'),
+}
+
+model MedicalKnowInput {
+  query?: string(name='query'),
+  type?: string(name='type'),
+}
+
+model MedicalKnowResult {
+  messages?: [
+    MedicalKnowledgeInfo
+  ](name='messages'),
+  queryContext?: MultimodalQueryContext(name='queryContext'),
+  requestId?: string(name='requestId'),
+  searchInformation?: UnifiedSearchInformation(name='searchInformation'),
+}
+
+model MedicalKnowledgeInfo {
+  content?: string(name='content'),
+  url?: string(name='url'),
+}
+
 model MultimodalOriginalQuery {
   query?: string(name='query'),
 }
@@ -144,6 +203,18 @@ model MultimodalSearchOutput {
   searchInformation?: SearchInformation(name='searchInformation'),
 }
 
+model OmniSearchQuery {
+  query: string(name='query', description='This parameter is required.', example='今天杭州天气', minLength=1, maxLength=200),
+  sessionId?: string(name='sessionId'),
+  useCot?: boolean(name='useCot'),
+  useModel?: string(name='useModel'),
+}
+
+model OmniSearchResult {
+  requestId?: string(name='requestId', example='35E5608A-A737-2038-AFB6-D9D34C6BFD9E'),
+  success?: string(name='success', example='true'),
+}
+
 model QueryContext {
   originalQuery?: {
     industry?: string(name='industry'),
@@ -155,6 +226,43 @@ model QueryContext {
     enabled?: boolean(name='enabled'),
     timeRange?: string(name='timeRange'),
   }(name='rewrite'),
+}
+
+model QueryResult {
+  data?: [ 
+    {
+      address?: string(name='address'),
+      cityCode?: string(name='cityCode'),
+      cityName?: string(name='cityName'),
+      distanceMeter?: string(name='distanceMeter'),
+      districtCode?: string(name='districtCode'),
+      districtName?: string(name='districtName'),
+      id?: string(name='id'),
+      images?: [ 
+        {
+          title?: string(name='title'),
+          url?: string(name='url'),
+        }
+      ](name='images'),
+      latitude?: string(name='latitude'),
+      longitude?: string(name='longitude'),
+      metadata?: {
+        averageSpend?: string(name='averageSpend'),
+        businessArea?: string(name='businessArea'),
+        dailyOpeningHours?: string(name='dailyOpeningHours'),
+        mainTag?: string(name='mainTag'),
+        phone?: string(name='phone'),
+        score?: string(name='score'),
+        weeklyOpeningDays?: string(name='weeklyOpeningDays'),
+      }(name='metadata'),
+      name?: string(name='name'),
+      provinceCode?: string(name='provinceCode'),
+      provinceName?: string(name='provinceName'),
+      typeCode?: string(name='typeCode'),
+      types?: string(name='types'),
+    }
+  ](name='data'),
+  requestId?: string(name='requestId'),
 }
 
 model ReadPageBody {
@@ -398,6 +506,25 @@ function aiSearchWithResponseIterable(request: AiSearchRequest): iterator[AiSear
   yield @handler.doSSERequest('SSE', 'AiSearch', 'GET', '/linked-retrieval/linked-retrieval-entry/v3/linkedRetrieval/commands/aiSearch', 'json', false, 'json', request);
 }
 
+model CommonQueryBySceneRequest {
+  body?: CommonAgentQuery(name='body', position='Body'),
+}
+
+model CommonQueryBySceneResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: QueryResult  
+}
+
+/**
+  * @param request  the request parameters of CommonQueryByScene  CommonQueryBySceneRequest
+  * @return CommonQueryBySceneResponse
+ */
+async function commonQueryByScene(request: CommonQueryBySceneRequest): CommonQueryBySceneResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'CommonQueryByScene', 'POST', '/amap-function-call-agent/iqs-agent-service/v2/nl/common', 'json', false, 'json', request);
+}
+
 model GenericAdvancedSearchRequest {
   industry?: string(name='industry', position='Query'),
   query: string(name='query', description='This parameter is required.', position='Query'),
@@ -492,6 +619,44 @@ async function globalSearch(request: GlobalSearchRequest): GlobalSearchResponse 
   return @handler.do('RESTFUL', 'GlobalSearch', 'GET', '/linked-retrieval/linked-retrieval-entry/v1/iqs/search/global', 'json', false, 'json', request);
 }
 
+model MedicalAnswerRequest {
+  body?: MedicalAnswerInput(name='body', position='Body'),
+}
+
+model MedicalAnswerResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: MedicalAnswerResult  
+}
+
+/**
+  * @param request  the request parameters of MedicalAnswer  MedicalAnswerRequest
+  * @return MedicalAnswerResponse
+ */
+async function medicalAnswer(request: MedicalAnswerRequest): MedicalAnswerResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'MedicalAnswer', 'POST', '/linked-retrieval/linked-retrieval-entry/v1/iqs/domain/medical/answer', 'json', false, 'json', request);
+}
+
+model MedicalKnowledgeRequest {
+  body?: MedicalKnowInput(name='body', position='Body'),
+}
+
+model MedicalKnowledgeResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: MedicalKnowResult  
+}
+
+/**
+  * @param request  the request parameters of MedicalKnowledge  MedicalKnowledgeRequest
+  * @return MedicalKnowledgeResponse
+ */
+async function medicalKnowledge(request: MedicalKnowledgeRequest): MedicalKnowledgeResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'MedicalKnowledge', 'POST', '/linked-retrieval/linked-retrieval-entry/v1/iqs/domain/medical/know', 'json', false, 'json', request);
+}
+
 model MultimodalSearchRequest {
   body?: MultimodalSearchBody(name='body', position='Body'),
 }
@@ -509,6 +674,35 @@ model MultimodalSearchResponse = {
 async function multimodalSearch(request: MultimodalSearchRequest): MultimodalSearchResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RESTFUL', 'MultimodalSearch', 'POST', '/linked-retrieval/linked-retrieval-entry/v1/iqs/multimodal/unified', 'json', false, 'json', request);
+}
+
+model OmniAnswerRequest {
+  body?: OmniSearchQuery(name='body', position='Body'),
+}
+
+model OmniAnswerResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: string(name='body'),
+}
+
+/**
+  * @param request  the request parameters of OmniAnswer  OmniAnswerRequest
+  * @return OmniAnswerResponse
+ */
+async function omniAnswer(request: OmniAnswerRequest): OmniAnswerResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'OmniAnswer', 'POST', '/linked-retrieval/linked-retrieval-entry/v1/iqs/answer/omni/search', 'string', false, 'json', request);
+}
+
+async function omniAnswerWithAsyncResponseHandler(request: OmniAnswerRequest, responseHandler: AsyncResponseHandler): OmniAnswerResponse {
+  @handler.validateRequestModel(request);
+  return @handler.doResponseHandler('RESTFUL', 'OmniAnswer', 'POST', '/linked-retrieval/linked-retrieval-entry/v1/iqs/answer/omni/search', 'string', false, 'json', request, responseHandler);
+}
+
+function omniAnswerWithResponseIterable(request: OmniAnswerRequest): iterator[any] {
+  @handler.validateRequestModel(request);
+  yield @handler.doSSERequest('SSE', 'OmniAnswer', 'POST', '/linked-retrieval/linked-retrieval-entry/v1/iqs/answer/omni/search', 'string', false, 'json', request);
 }
 
 model ReadPageBasicRequest {
