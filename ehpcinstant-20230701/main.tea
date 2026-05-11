@@ -627,8 +627,9 @@ This parameter is required.', example='PoolTest'),
 *   You can set a priority in the range of 1 to 99. The default value is 1, which is the lowest priority.
 *   Jobs submitted to a resource pool with a higher priority level value will be scheduled before pending jobs in a resource pool with a lower priority level value, and the priority level of the resource pool takes precedence over the priority of the job.', example='1'),
   resourceLimits?: {
-    maxExectorNum?: int32(name='MaxExectorNum', description='The maximum number of concurrent execution nodes in a resource pool.', example='2000'),
+    maxExecutorNum?: int32(name='MaxExecutorNum'),
   }(name='ResourceLimits', description='The quota of resources that users are allowed to concurrently use in a resource pool.'),
+  schedulingPolicyId?: string(name='SchedulingPolicyId', example='policy-xxx'),
 }
 
 model CreatePoolShrinkRequest {
@@ -643,6 +644,7 @@ This parameter is required.', example='PoolTest'),
 *   You can set a priority in the range of 1 to 99. The default value is 1, which is the lowest priority.
 *   Jobs submitted to a resource pool with a higher priority level value will be scheduled before pending jobs in a resource pool with a lower priority level value, and the priority level of the resource pool takes precedence over the priority of the job.', example='1'),
   resourceLimitsShrink?: string(name='ResourceLimits', description='The quota of resources that users are allowed to concurrently use in a resource pool.'),
+  schedulingPolicyId?: string(name='SchedulingPolicyId', example='policy-xxx'),
 }
 
 model CreatePoolResponseBody = {
@@ -678,6 +680,9 @@ async function createPoolWithOptions(tmpReq: CreatePoolRequest, runtime: Util.Ru
   }
   if (!Util.isUnset(request.resourceLimitsShrink)) {
     query['ResourceLimits'] = request.resourceLimitsShrink;
+  }
+  if (!Util.isUnset(request.schedulingPolicyId)) {
+    query['SchedulingPolicyId'] = request.schedulingPolicyId;
   }
   var req = new OpenApi.OpenApiRequest{ 
     query = OpenApiUtil.query(query),
@@ -1601,6 +1606,7 @@ Valid values:
 *   true: true.', example='false'),
         vswitch?: [ string ](name='Vswitch', description='The VSwitch array.'),
       }(name='Network', description='The network configuration information.'),
+      pool?: string(name='Pool', example='testpool'),
       tags?: [ 
         {
           tagKey?: string(name='TagKey', description='The key of the job tag.', example='TestKey'),
@@ -1752,6 +1758,55 @@ async function getJob(request: GetJobRequest): GetJobResponse {
   return getJobWithOptions(request, runtime);
 }
 
+model GetJobRecordDurationRequest {
+}
+
+model GetJobRecordDurationResponseBody = {
+  jobRecordDuration?: long(name='JobRecordDuration', example='30'),
+  requestId?: string(name='RequestId', description='Id of the request', example='896D338C-E4F4-41EC-A154-D605E5DE****'),
+}
+
+model GetJobRecordDurationResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: GetJobRecordDurationResponseBody(name='body'),
+}
+
+/**
+ * @summary 查询作业保留时长
+ *
+ * @param request GetJobRecordDurationRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return GetJobRecordDurationResponse
+ */
+async function getJobRecordDurationWithOptions(request: GetJobRecordDurationRequest, runtime: Util.RuntimeOptions): GetJobRecordDurationResponse {
+  Util.validateModel(request);
+  var req = new OpenApi.OpenApiRequest{};
+  var params = new OpenApi.Params{
+    action = 'GetJobRecordDuration',
+    version = '2023-07-01',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 查询作业保留时长
+ *
+ * @param request GetJobRecordDurationRequest
+ * @return GetJobRecordDurationResponse
+ */
+async function getJobRecordDuration(request: GetJobRecordDurationRequest): GetJobRecordDurationResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return getJobRecordDurationWithOptions(request, runtime);
+}
+
 model GetPoolRequest {
   poolName?: string(name='PoolName', description='The name of the resource pool.
 
@@ -1764,12 +1819,12 @@ This parameter is required.', example='PoolTest'),
 model GetPoolResponseBody = {
   poolInfo?: {
     createTime?: string(name='CreateTime', description='The time when the resource pool is created.', example='2024-12-01 20:00:00'),
-    exectorUsage?: int32(name='ExectorUsage', description='The usage of execution nodes that are running in a resource pool.', example='1'),
+    executorUsage?: int32(name='ExecutorUsage'),
     isDefault?: boolean(name='IsDefault', description='Indices whether the resource pool is the default resource pool. Valid values:
 
 *   **true**
 *   **false**', example='true'),
-    maxExectorNum?: int32(name='MaxExectorNum', description='The maximum number of execution nodes that can run concurrently in a resource pool.', example='2000'),
+    maxExecutorNum?: int32(name='MaxExecutorNum'),
     poolName?: string(name='PoolName', description='The name of the resource group.
 
 *   The value can be up to 15 characters in length.
@@ -1779,6 +1834,7 @@ model GetPoolResponseBody = {
 *   You can set a priority in the range of 1 to 99. The default value is 1, which is the lowest priority.
 *   Jobs submitted to a resource pool with a higher priority level value will be scheduled before pending jobs in a resource pool with a lower priority level value, and the priority level of the resource pool takes precedence over the priority of the job.', example='1'),
     reason?: string(name='Reason', description='The cause of the error.', example='Fails to *** pool: ***.'),
+    schedulingPolicyId?: string(name='SchedulingPolicyId', example='policy-xxx'),
     status?: string(name='Status', description='The status of the resource pool. Valid values:
 
 *   Creating: The resource pool is being created.
@@ -2740,11 +2796,12 @@ model ListPoolsResponseBody = {
   pageSize?: int32(name='PageSize', description='The number of entries on each page. Maximum value: 50. Default value: 10.', example='10'),
   poolList?: [ 
     {
+      createTime?: string(name='CreateTime', example='2026-04-20 11:09:59'),
       isDefault?: boolean(name='IsDefault', description='Indices whether the resource pool is the default resource pool. Valid values:
 
 *   **true**
 *   **false**', example='true'),
-      maxExectorNum?: int32(name='MaxExectorNum', description='The maximum number of execution nodes that can run concurrently in a resource pool.', example='2000'),
+      maxExecutorNum?: int32(name='MaxExecutorNum'),
       poolName?: string(name='PoolName', description='The name of the resource pool.
 
 *   The value can be up to 15 characters in length.
@@ -2753,6 +2810,7 @@ model ListPoolsResponseBody = {
 
 *   You can set a priority in the range of 1 to 99. The default value is 1, which is the lowest priority.
 *   Jobs submitted to a resource pool with a higher priority level value will be scheduled before pending jobs in a resource pool with a lower priority level value, and the priority level of the resource pool takes precedence over the priority of the job.', example='1'),
+      schedulingPolicyId?: string(name='SchedulingPolicyId', example='policy-xxx'),
       status?: string(name='Status', description='The status of the resource pool. Valid values:
 
 *   Creating: The resource pool is being created.
@@ -2760,6 +2818,7 @@ model ListPoolsResponseBody = {
 *   Deleting: The resource pool is being deleted.
 *   Working: The resource pool is working.
 *   Deleted: The resource pool is deleted.', example='Working'),
+      updateTime?: string(name='UpdateTime', example='2026-04-20 11:09:59'),
     }
   ](name='PoolList', description='Queries the resource pool list.'),
   requestId?: string(name='RequestId', description='Id of the request', example='896D338C-E4F4-41EC-A154-D605E5DE****'),
@@ -3285,6 +3344,61 @@ async function updateActionPlan(request: UpdateActionPlanRequest): UpdateActionP
   return updateActionPlanWithOptions(request, runtime);
 }
 
+model UpdateJobRecordDurationRequest {
+  jobRecordDuration?: long(name='JobRecordDuration', description='This parameter is required.', example='30'),
+}
+
+model UpdateJobRecordDurationResponseBody = {
+  requestId?: string(name='RequestId', description='Id of the request', example='896D338C-E4F4-41EC-A154-D605E5DE****'),
+}
+
+model UpdateJobRecordDurationResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: UpdateJobRecordDurationResponseBody(name='body'),
+}
+
+/**
+ * @summary 更新作业保留时长
+ *
+ * @param request UpdateJobRecordDurationRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return UpdateJobRecordDurationResponse
+ */
+async function updateJobRecordDurationWithOptions(request: UpdateJobRecordDurationRequest, runtime: Util.RuntimeOptions): UpdateJobRecordDurationResponse {
+  Util.validateModel(request);
+  var query = {};
+  if (!Util.isUnset(request.jobRecordDuration)) {
+    query['JobRecordDuration'] = request.jobRecordDuration;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'UpdateJobRecordDuration',
+    version = '2023-07-01',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 更新作业保留时长
+ *
+ * @param request UpdateJobRecordDurationRequest
+ * @return UpdateJobRecordDurationResponse
+ */
+async function updateJobRecordDuration(request: UpdateJobRecordDurationRequest): UpdateJobRecordDurationResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return updateJobRecordDurationWithOptions(request, runtime);
+}
+
 model UpdatePoolRequest {
   poolName?: string(name='PoolName', description='The name of the resource pool.
 
@@ -3297,8 +3411,9 @@ This parameter is required.', example='PoolTest'),
 *   You can set a priority in the range of 1 to 99. The default value is 1, which is the lowest priority.
 *   Jobs submitted to a resource pool with a higher priority level value will be scheduled before pending jobs in a resource pool with a lower priority level value, and the priority level of the resource pool takes precedence over the priority of the job.', example='1'),
   resourceLimits?: {
-    maxExectorNum?: int32(name='MaxExectorNum', description='The maximum number of concurrent execution nodes in a resource pool.', example='2000'),
+    maxExecutorNum?: int32(name='MaxExecutorNum'),
   }(name='ResourceLimits', description='The quota of resources that users are allowed to concurrently use in a resource pool.'),
+  schedulingPolicyId?: string(name='SchedulingPolicyId', example='policy-xxxx'),
 }
 
 model UpdatePoolShrinkRequest {
@@ -3313,6 +3428,7 @@ This parameter is required.', example='PoolTest'),
 *   You can set a priority in the range of 1 to 99. The default value is 1, which is the lowest priority.
 *   Jobs submitted to a resource pool with a higher priority level value will be scheduled before pending jobs in a resource pool with a lower priority level value, and the priority level of the resource pool takes precedence over the priority of the job.', example='1'),
   resourceLimitsShrink?: string(name='ResourceLimits', description='The quota of resources that users are allowed to concurrently use in a resource pool.'),
+  schedulingPolicyId?: string(name='SchedulingPolicyId', example='policy-xxxx'),
 }
 
 model UpdatePoolResponseBody = {
@@ -3348,6 +3464,9 @@ async function updatePoolWithOptions(tmpReq: UpdatePoolRequest, runtime: Util.Ru
   }
   if (!Util.isUnset(request.resourceLimitsShrink)) {
     query['ResourceLimits'] = request.resourceLimitsShrink;
+  }
+  if (!Util.isUnset(request.schedulingPolicyId)) {
+    query['SchedulingPolicyId'] = request.schedulingPolicyId;
   }
   var req = new OpenApi.OpenApiRequest{ 
     query = OpenApiUtil.query(query),
