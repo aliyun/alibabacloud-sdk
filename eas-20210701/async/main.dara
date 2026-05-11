@@ -244,6 +244,7 @@ model Service {
   trafficState?: string(name='TrafficState'),
   updateTime?: string(name='UpdateTime'),
   weight?: int32(name='Weight'),
+  workloadType?: string(name='WorkloadType'),
   workspaceId?: string(name='WorkspaceId'),
 }
 
@@ -1115,6 +1116,46 @@ async function createServiceMirror(request: CreateServiceMirrorRequest): CreateS
   return @handler.do('RESTFUL', 'CreateServiceMirror', 'POST', '/api/v2/services/{ClusterId}/{ServiceName}/mirror', 'json', false, 'json', request);
 }
 
+model CreateServiceRolloutRequest {
+  clusterId: string(name='ClusterId', description='This parameter is required.', example='cn-shanghai', position='Path'),
+  serviceName: string(name='ServiceName', description='This parameter is required.', example='my-service', position='Path'),
+  batch?: {
+    batchSize?: string(name='BatchSize', example='1'),
+    interval?: string(name='Interval', example='5m'),
+  }(name='Batch', position='Body'),
+  partition?: {
+    partition?: string(name='Partition', example='1'),
+  }(name='Partition', position='Body'),
+  paused?: boolean(name='Paused', example='False', position='Body'),
+}
+
+model CreateServiceRolloutResponseBody = {
+  message?: string(name='Message', example='Rollout created successfully'),
+  requestId?: string(name='RequestId', example='40325405-579C-4D82****'),
+}
+
+model CreateServiceRolloutResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: CreateServiceRolloutResponseBody(name='body'),
+}
+
+/**
+  * @description ## 请求说明
+  * - **策略互斥**：`Partition`（分区发布）和`Batch`（批量发布）两种策略只能选择其中一种，不能同时使用。
+  * - **请求速率限制**：每秒最多100次请求。
+  * - **授权信息**：需要具备`eas:CreateServiceRollout`权限才能调用此接口。
+  * - **资源ARN**：`acs:eas:{#regionId}:{#accountId}:service/{#ServiceName}`。
+  * - **暂停发布**：通过设置`Paused`参数为`true`可以暂停发布流程，之后可通过`UpdateServiceRollout`接口恢复或取消发布。
+  * - **监控与回滚**：在发布过程中建议持续监控服务指标，以便及时发现并处理问题；如需回滚，可以通过调整`Partition`值或删除发布策略来实现。
+  * @param request  the request parameters of CreateServiceRollout  CreateServiceRolloutRequest
+  * @return CreateServiceRolloutResponse
+ */
+async function createServiceRollout(request: CreateServiceRolloutRequest): CreateServiceRolloutResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'CreateServiceRollout', 'POST', '/api/v2/services/{ClusterId}/{ServiceName}/rollout', 'json', false, 'json', request);
+}
+
 model CreateVirtualResourceRequest {
   disableSpotProtectionPeriod?: boolean(name='DisableSpotProtectionPeriod', description='Specifies whether to disable the retention period of preemptible instances.', example='true', position='Body'),
   resources?: [ 
@@ -1705,6 +1746,39 @@ model DeleteServiceMirrorResponse = {
 async function deleteServiceMirror(request: DeleteServiceMirrorRequest): DeleteServiceMirrorResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RESTFUL', 'DeleteServiceMirror', 'DELETE', '/api/v2/services/{ClusterId}/{ServiceName}/mirror', 'json', false, 'json', request);
+}
+
+model DeleteServiceRolloutRequest {
+  clusterId: string(name='ClusterId', description='This parameter is required.', example='cn-shanghai', position='Path'),
+  serviceName: string(name='ServiceName', description='This parameter is required.', example='my-service', position='Path'),
+}
+
+model DeleteServiceRolloutResponseBody = {
+  message?: string(name='Message', example='Rollout deleted successfully'),
+  requestId?: string(name='RequestId', example='40325405-579C-4D82****'),
+}
+
+model DeleteServiceRolloutResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: DeleteServiceRolloutResponseBody(name='body'),
+}
+
+/**
+  * @description ## 请求说明
+  * - **不可恢复**：删除操作不可撤销，请谨慎操作。
+  * - **不自动回退**：删除策略不会回退已更新的副本。
+  * - **停止发布**：正在进行的发布会立即停止。
+  * - **状态保留**：已更新的副本保持新版本，未更新的保持旧版本。
+  * - 删除后，后续服务更新将采用默认的滚动更新方式。
+  * - 在删除前，请确认要删除的服务名称和地域，并了解当前发布状态（可以通过调用`DescribeServiceRollout`接口获取）。
+  * - 如果需要回退版本，请在删除策略后通过重新创建策略或直接更新服务镜像来实现。
+  * @param request  the request parameters of DeleteServiceRollout  DeleteServiceRolloutRequest
+  * @return DeleteServiceRolloutResponse
+ */
+async function deleteServiceRollout(request: DeleteServiceRolloutRequest): DeleteServiceRolloutResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'DeleteServiceRollout', 'DELETE', '/api/v2/services/{ClusterId}/{ServiceName}/rollout', 'json', false, 'json', request);
 }
 
 model DeleteVirtualResourceRequest {
@@ -2645,6 +2719,56 @@ model DescribeServiceMirrorResponse = {
 async function describeServiceMirror(request: DescribeServiceMirrorRequest): DescribeServiceMirrorResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RESTFUL', 'DescribeServiceMirror', 'GET', '/api/v2/services/{ClusterId}/{ServiceName}/mirror', 'json', false, 'json', request);
+}
+
+model DescribeServiceRolloutRequest {
+  clusterId?: string(name='ClusterId', example='cn-shanghai', position='Path'),
+  serviceName?: string(name='ServiceName', example='foo', position='Path'),
+}
+
+model DescribeServiceRolloutResponseBody = {
+  requestId?: string(name='RequestId', example='40325405-579C-4D82****'),
+  rollout?: {
+    status?: {
+      currentRevision?: string(name='CurrentRevision', example='service-abc123-v1'),
+      nextBatchStartTime?: string(name='NextBatchStartTime', example='2026/05/08 16:10:56'),
+      phase?: string(name='Phase', example='Running'),
+      totalReplicas?: int32(name='TotalReplicas', example='10'),
+      updateRevision?: string(name='UpdateRevision', example='service-abc123-v2'),
+      updatedReplicas?: int32(name='UpdatedReplicas', example='5'),
+    }(name='Status'),
+    strategy?: {
+      batch?: {
+        batchSize?: string(name='BatchSize', example='1'),
+        interval?: string(name='Interval', example='5m'),
+      }(name='Batch'),
+      partition?: {
+        partition?: string(name='Partition', example='50%'),
+      }(name='Partition'),
+    }(name='Strategy'),
+  }(name='Rollout'),
+}
+
+model DescribeServiceRolloutResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: DescribeServiceRolloutResponseBody(name='body'),
+}
+
+/**
+  * @description ## 请求说明
+  * - 该接口用于查询特定服务的发布策略（Rollout）配置和当前执行状态。
+  * - 返回的信息包括但不限于发布策略的具体参数、当前发布进度等。
+  * - 请求时需提供`ClusterId`和服务名称`ServiceName`作为路径参数。
+  * - 注意，请求速率限制为每秒最多100次。
+  * - 如果服务不存在或未创建发布策略，调用此接口将返回错误。
+  * - 返回的状态是实时查询的结果，可能会随时间而变化，请根据实际需要调整轮询间隔。
+  * @param request  the request parameters of DescribeServiceRollout  DescribeServiceRolloutRequest
+  * @return DescribeServiceRolloutResponse
+ */
+async function describeServiceRollout(request: DescribeServiceRolloutRequest): DescribeServiceRolloutResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'DescribeServiceRollout', 'GET', '/api/v2/services/{ClusterId}/{ServiceName}/rollout', 'json', false, 'json', request);
 }
 
 model DescribeServiceSignedUrlRequest {
@@ -5156,6 +5280,45 @@ model UpdateServiceMirrorResponse = {
 async function updateServiceMirror(request: UpdateServiceMirrorRequest): UpdateServiceMirrorResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RESTFUL', 'UpdateServiceMirror', 'PUT', '/api/v2/services/{ClusterId}/{ServiceName}/mirror', 'json', false, 'json', request);
+}
+
+model UpdateServiceRolloutRequest {
+  clusterId: string(name='ClusterId', description='This parameter is required.', example='cn-shanghai', position='Path'),
+  serviceName: string(name='ServiceName', description='This parameter is required.', example='my-service', position='Path'),
+  batch?: {
+    batchSize?: string(name='BatchSize', example='25%'),
+    interval?: string(name='Interval', example='60s'),
+  }(name='Batch', position='Body'),
+  partition?: {
+    partition?: string(name='Partition', example='30%'),
+  }(name='Partition', position='Body'),
+  paused?: boolean(name='Paused', example='true', position='Body'),
+}
+
+model UpdateServiceRolloutResponseBody = {
+  message?: string(name='Message', example='Rollout updated successfully'),
+  requestId?: string(name='RequestId', example='40325405-579C-4D82****'),
+}
+
+model UpdateServiceRolloutResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: UpdateServiceRolloutResponseBody(name='body'),
+}
+
+/**
+  * @description ## 请求说明
+  * - **至少提供一个参数**：必须在请求中指定`Partition`、`Batch`或`Paused`中的至少一个参数。
+  * - **互斥策略**：不能同时提供`Partition`和`Batch`配置。
+  * - **实时生效**：更新将立即生效，影响正在进行的服务发布过程。
+  * - **回退操作**：通过增加`Partition`值可以实现版本回退，但不会自动触发，需要手动更新服务镜像。
+  * - **暂停不影响参数**：暂停发布不会改变已设置的`Partition`或`Batch`参数，仅暂停执行当前策略。
+  * @param request  the request parameters of UpdateServiceRollout  UpdateServiceRolloutRequest
+  * @return UpdateServiceRolloutResponse
+ */
+async function updateServiceRollout(request: UpdateServiceRolloutRequest): UpdateServiceRolloutResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'UpdateServiceRollout', 'PUT', '/api/v2/services/{ClusterId}/{ServiceName}/rollout', 'json', false, 'json', request);
 }
 
 model UpdateServiceSafetyLockRequest {

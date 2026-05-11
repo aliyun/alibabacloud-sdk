@@ -374,6 +374,7 @@ Valid values:
 *   grouping: grouped traffic.', example='standalone'),
   updateTime?: string(name='UpdateTime', description='The time when the service was updated. The time is displayed in the UTC RFC3339 format.', example='2021-01-29T11:13:20Z'),
   weight?: int32(name='Weight', description='The weight of the service in canary release.', example='100'),
+  workloadType?: string(name='WorkloadType'),
   workspaceId?: string(name='WorkspaceId', description='The ID of the workspace to which the service belongs.', example='123445'),
 }
 
@@ -2134,6 +2135,96 @@ async function createServiceMirror(ClusterId: string, ServiceName: string, reque
   return createServiceMirrorWithOptions(ClusterId, ServiceName, request, headers, runtime);
 }
 
+model CreateServiceRolloutRequest {
+  batch?: {
+    batchSize?: string(name='BatchSize', example='1'),
+    interval?: string(name='Interval', example='5m'),
+  }(name='Batch'),
+  partition?: {
+    partition?: string(name='Partition', example='1'),
+  }(name='Partition'),
+  paused?: boolean(name='Paused', example='False'),
+}
+
+model CreateServiceRolloutResponseBody = {
+  message?: string(name='Message', example='Rollout created successfully'),
+  requestId?: string(name='RequestId', example='40325405-579C-4D82****'),
+}
+
+model CreateServiceRolloutResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: CreateServiceRolloutResponseBody(name='body'),
+}
+
+/**
+ * @summary 创建服务更新计划
+ *
+ * @description ## 请求说明
+ * - **策略互斥**：`Partition`（分区发布）和`Batch`（批量发布）两种策略只能选择其中一种，不能同时使用。
+ * - **请求速率限制**：每秒最多100次请求。
+ * - **授权信息**：需要具备`eas:CreateServiceRollout`权限才能调用此接口。
+ * - **资源ARN**：`acs:eas:{#regionId}:{#accountId}:service/{#ServiceName}`。
+ * - **暂停发布**：通过设置`Paused`参数为`true`可以暂停发布流程，之后可通过`UpdateServiceRollout`接口恢复或取消发布。
+ * - **监控与回滚**：在发布过程中建议持续监控服务指标，以便及时发现并处理问题；如需回滚，可以通过调整`Partition`值或删除发布策略来实现。
+ *
+ * @param request CreateServiceRolloutRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return CreateServiceRolloutResponse
+ */
+@context("createServiceRolloutWithContext")
+async function createServiceRolloutWithOptions(ClusterId: string, ServiceName: string, request: CreateServiceRolloutRequest, headers: map[string]string, runtime: $RuntimeOptions): CreateServiceRolloutResponse {
+  request.validate();
+  var body : map[string]any = {};
+  if (!$isNull(request.batch)) {
+    body['Batch'] = request.batch;
+  }
+  if (!$isNull(request.partition)) {
+    body['Partition'] = request.partition;
+  }
+  if (!$isNull(request.paused)) {
+    body['Paused'] = request.paused;
+  }
+
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    headers = headers,
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'CreateServiceRollout',
+    version = '2021-07-01',
+    protocol = 'HTTPS',
+    pathname = `/api/v2/services/${$URL.percentEncode(ClusterId)}/${$URL.percentEncode(ServiceName)}/rollout`,
+    method = 'POST',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 创建服务更新计划
+ *
+ * @description ## 请求说明
+ * - **策略互斥**：`Partition`（分区发布）和`Batch`（批量发布）两种策略只能选择其中一种，不能同时使用。
+ * - **请求速率限制**：每秒最多100次请求。
+ * - **授权信息**：需要具备`eas:CreateServiceRollout`权限才能调用此接口。
+ * - **资源ARN**：`acs:eas:{#regionId}:{#accountId}:service/{#ServiceName}`。
+ * - **暂停发布**：通过设置`Paused`参数为`true`可以暂停发布流程，之后可通过`UpdateServiceRollout`接口恢复或取消发布。
+ * - **监控与回滚**：在发布过程中建议持续监控服务指标，以便及时发现并处理问题；如需回滚，可以通过调整`Partition`值或删除发布策略来实现。
+ *
+ * @param request CreateServiceRolloutRequest
+ * @return CreateServiceRolloutResponse
+ */
+async function createServiceRollout(ClusterId: string, ServiceName: string, request: CreateServiceRolloutRequest): CreateServiceRolloutResponse {
+  var runtime = new $RuntimeOptions{};
+  var headers : map[string]string = {};
+  return createServiceRolloutWithOptions(ClusterId, ServiceName, request, headers, runtime);
+}
+
 model CreateVirtualResourceRequest {
   disableSpotProtectionPeriod?: boolean(name='DisableSpotProtectionPeriod', description='Specifies whether to disable the retention period of preemptible instances.', example='true'),
   resources?: [ 
@@ -3368,6 +3459,78 @@ async function deleteServiceMirror(ClusterId: string, ServiceName: string, reque
   var runtime = new $RuntimeOptions{};
   var headers : map[string]string = {};
   return deleteServiceMirrorWithOptions(ClusterId, ServiceName, request, headers, runtime);
+}
+
+model DeleteServiceRolloutRequest {
+}
+
+model DeleteServiceRolloutResponseBody = {
+  message?: string(name='Message', example='Rollout deleted successfully'),
+  requestId?: string(name='RequestId', example='40325405-579C-4D82****'),
+}
+
+model DeleteServiceRolloutResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: DeleteServiceRolloutResponseBody(name='body'),
+}
+
+/**
+ * @summary 删除服务更新计划
+ *
+ * @description ## 请求说明
+ * - **不可恢复**：删除操作不可撤销，请谨慎操作。
+ * - **不自动回退**：删除策略不会回退已更新的副本。
+ * - **停止发布**：正在进行的发布会立即停止。
+ * - **状态保留**：已更新的副本保持新版本，未更新的保持旧版本。
+ * - 删除后，后续服务更新将采用默认的滚动更新方式。
+ * - 在删除前，请确认要删除的服务名称和地域，并了解当前发布状态（可以通过调用`DescribeServiceRollout`接口获取）。
+ * - 如果需要回退版本，请在删除策略后通过重新创建策略或直接更新服务镜像来实现。
+ *
+ * @param request DeleteServiceRolloutRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return DeleteServiceRolloutResponse
+ */
+@context("deleteServiceRolloutWithContext")
+async function deleteServiceRolloutWithOptions(ClusterId: string, ServiceName: string, request: DeleteServiceRolloutRequest, headers: map[string]string, runtime: $RuntimeOptions): DeleteServiceRolloutResponse {
+  request.validate();
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    headers = headers,
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'DeleteServiceRollout',
+    version = '2021-07-01',
+    protocol = 'HTTPS',
+    pathname = `/api/v2/services/${$URL.percentEncode(ClusterId)}/${$URL.percentEncode(ServiceName)}/rollout`,
+    method = 'DELETE',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 删除服务更新计划
+ *
+ * @description ## 请求说明
+ * - **不可恢复**：删除操作不可撤销，请谨慎操作。
+ * - **不自动回退**：删除策略不会回退已更新的副本。
+ * - **停止发布**：正在进行的发布会立即停止。
+ * - **状态保留**：已更新的副本保持新版本，未更新的保持旧版本。
+ * - 删除后，后续服务更新将采用默认的滚动更新方式。
+ * - 在删除前，请确认要删除的服务名称和地域，并了解当前发布状态（可以通过调用`DescribeServiceRollout`接口获取）。
+ * - 如果需要回退版本，请在删除策略后通过重新创建策略或直接更新服务镜像来实现。
+ *
+ * @param request DeleteServiceRolloutRequest
+ * @return DeleteServiceRolloutResponse
+ */
+async function deleteServiceRollout(ClusterId: string, ServiceName: string, request: DeleteServiceRolloutRequest): DeleteServiceRolloutResponse {
+  var runtime = new $RuntimeOptions{};
+  var headers : map[string]string = {};
+  return deleteServiceRolloutWithOptions(ClusterId, ServiceName, request, headers, runtime);
 }
 
 model DeleteVirtualResourceRequest {
@@ -4907,6 +5070,94 @@ async function describeServiceMirror(ClusterId: string, ServiceName: string, req
   var runtime = new $RuntimeOptions{};
   var headers : map[string]string = {};
   return describeServiceMirrorWithOptions(ClusterId, ServiceName, request, headers, runtime);
+}
+
+model DescribeServiceRolloutRequest {
+}
+
+model DescribeServiceRolloutResponseBody = {
+  requestId?: string(name='RequestId', example='40325405-579C-4D82****'),
+  rollout?: {
+    status?: {
+      currentRevision?: string(name='CurrentRevision', example='service-abc123-v1'),
+      nextBatchStartTime?: string(name='NextBatchStartTime', example='2026/05/08 16:10:56'),
+      phase?: string(name='Phase', example='Running'),
+      totalReplicas?: int32(name='TotalReplicas', example='10'),
+      updateRevision?: string(name='UpdateRevision', example='service-abc123-v2'),
+      updatedReplicas?: int32(name='UpdatedReplicas', example='5'),
+    }(name='Status'),
+    strategy?: {
+      batch?: {
+        batchSize?: string(name='BatchSize', example='1'),
+        interval?: string(name='Interval', example='5m'),
+      }(name='Batch'),
+      partition?: {
+        partition?: string(name='Partition', example='50%'),
+      }(name='Partition'),
+    }(name='Strategy'),
+  }(name='Rollout'),
+}
+
+model DescribeServiceRolloutResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: DescribeServiceRolloutResponseBody(name='body'),
+}
+
+/**
+ * @summary 查看服务更新计划
+ *
+ * @description ## 请求说明
+ * - 该接口用于查询特定服务的发布策略（Rollout）配置和当前执行状态。
+ * - 返回的信息包括但不限于发布策略的具体参数、当前发布进度等。
+ * - 请求时需提供`ClusterId`和服务名称`ServiceName`作为路径参数。
+ * - 注意，请求速率限制为每秒最多100次。
+ * - 如果服务不存在或未创建发布策略，调用此接口将返回错误。
+ * - 返回的状态是实时查询的结果，可能会随时间而变化，请根据实际需要调整轮询间隔。
+ *
+ * @param request DescribeServiceRolloutRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return DescribeServiceRolloutResponse
+ */
+@context("describeServiceRolloutWithContext")
+async function describeServiceRolloutWithOptions(ClusterId: string, ServiceName: string, request: DescribeServiceRolloutRequest, headers: map[string]string, runtime: $RuntimeOptions): DescribeServiceRolloutResponse {
+  request.validate();
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    headers = headers,
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'DescribeServiceRollout',
+    version = '2021-07-01',
+    protocol = 'HTTPS',
+    pathname = `/api/v2/services/${$URL.percentEncode(ClusterId)}/${$URL.percentEncode(ServiceName)}/rollout`,
+    method = 'GET',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 查看服务更新计划
+ *
+ * @description ## 请求说明
+ * - 该接口用于查询特定服务的发布策略（Rollout）配置和当前执行状态。
+ * - 返回的信息包括但不限于发布策略的具体参数、当前发布进度等。
+ * - 请求时需提供`ClusterId`和服务名称`ServiceName`作为路径参数。
+ * - 注意，请求速率限制为每秒最多100次。
+ * - 如果服务不存在或未创建发布策略，调用此接口将返回错误。
+ * - 返回的状态是实时查询的结果，可能会随时间而变化，请根据实际需要调整轮询间隔。
+ *
+ * @param request DescribeServiceRolloutRequest
+ * @return DescribeServiceRolloutResponse
+ */
+async function describeServiceRollout(ClusterId: string, ServiceName: string, request: DescribeServiceRolloutRequest): DescribeServiceRolloutResponse {
+  var runtime = new $RuntimeOptions{};
+  var headers : map[string]string = {};
+  return describeServiceRolloutWithOptions(ClusterId, ServiceName, request, headers, runtime);
 }
 
 model DescribeServiceSignedUrlRequest {
@@ -9786,6 +10037,94 @@ async function updateServiceMirror(ClusterId: string, ServiceName: string, reque
   var runtime = new $RuntimeOptions{};
   var headers : map[string]string = {};
   return updateServiceMirrorWithOptions(ClusterId, ServiceName, request, headers, runtime);
+}
+
+model UpdateServiceRolloutRequest {
+  batch?: {
+    batchSize?: string(name='BatchSize', example='25%'),
+    interval?: string(name='Interval', example='60s'),
+  }(name='Batch'),
+  partition?: {
+    partition?: string(name='Partition', example='30%'),
+  }(name='Partition'),
+  paused?: boolean(name='Paused', example='true'),
+}
+
+model UpdateServiceRolloutResponseBody = {
+  message?: string(name='Message', example='Rollout updated successfully'),
+  requestId?: string(name='RequestId', example='40325405-579C-4D82****'),
+}
+
+model UpdateServiceRolloutResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: UpdateServiceRolloutResponseBody(name='body'),
+}
+
+/**
+ * @summary 更新服务发布计划
+ *
+ * @description ## 请求说明
+ * - **至少提供一个参数**：必须在请求中指定`Partition`、`Batch`或`Paused`中的至少一个参数。
+ * - **互斥策略**：不能同时提供`Partition`和`Batch`配置。
+ * - **实时生效**：更新将立即生效，影响正在进行的服务发布过程。
+ * - **回退操作**：通过增加`Partition`值可以实现版本回退，但不会自动触发，需要手动更新服务镜像。
+ * - **暂停不影响参数**：暂停发布不会改变已设置的`Partition`或`Batch`参数，仅暂停执行当前策略。
+ *
+ * @param request UpdateServiceRolloutRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return UpdateServiceRolloutResponse
+ */
+@context("updateServiceRolloutWithContext")
+async function updateServiceRolloutWithOptions(ClusterId: string, ServiceName: string, request: UpdateServiceRolloutRequest, headers: map[string]string, runtime: $RuntimeOptions): UpdateServiceRolloutResponse {
+  request.validate();
+  var body : map[string]any = {};
+  if (!$isNull(request.batch)) {
+    body['Batch'] = request.batch;
+  }
+  if (!$isNull(request.partition)) {
+    body['Partition'] = request.partition;
+  }
+  if (!$isNull(request.paused)) {
+    body['Paused'] = request.paused;
+  }
+
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    headers = headers,
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'UpdateServiceRollout',
+    version = '2021-07-01',
+    protocol = 'HTTPS',
+    pathname = `/api/v2/services/${$URL.percentEncode(ClusterId)}/${$URL.percentEncode(ServiceName)}/rollout`,
+    method = 'PUT',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 更新服务发布计划
+ *
+ * @description ## 请求说明
+ * - **至少提供一个参数**：必须在请求中指定`Partition`、`Batch`或`Paused`中的至少一个参数。
+ * - **互斥策略**：不能同时提供`Partition`和`Batch`配置。
+ * - **实时生效**：更新将立即生效，影响正在进行的服务发布过程。
+ * - **回退操作**：通过增加`Partition`值可以实现版本回退，但不会自动触发，需要手动更新服务镜像。
+ * - **暂停不影响参数**：暂停发布不会改变已设置的`Partition`或`Batch`参数，仅暂停执行当前策略。
+ *
+ * @param request UpdateServiceRolloutRequest
+ * @return UpdateServiceRolloutResponse
+ */
+async function updateServiceRollout(ClusterId: string, ServiceName: string, request: UpdateServiceRolloutRequest): UpdateServiceRolloutResponse {
+  var runtime = new $RuntimeOptions{};
+  var headers : map[string]string = {};
+  return updateServiceRolloutWithOptions(ClusterId, ServiceName, request, headers, runtime);
 }
 
 model UpdateServiceSafetyLockRequest {
