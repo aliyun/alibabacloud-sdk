@@ -1,0 +1,125 @@
+/**
+ *
+ */
+import Util;
+import OpenApi;
+import OpenApiUtil;
+import EndpointUtil;
+
+extends OpenApi;
+
+
+init(config: OpenApi.Config){
+  super(config);
+  @endpointRule = '';
+  
+  checkConfig(config);
+  @endpoint = getEndpoint('maasaisearchproxy', @regionId, @endpointRule, @network, @suffix, @endpointMap, @endpoint);
+}
+
+function getEndpoint(productId: string, regionId: string, endpointRule: string, network: string, suffix: string, endpointMap: map[string]string, endpoint: string) throws: string{
+  if (!Util.empty(endpoint)) {
+    return endpoint;
+  }
+  
+  if (!Util.isUnset(endpointMap) && !Util.empty(endpointMap[regionId])) {
+    return endpointMap[regionId];
+  }
+  return EndpointUtil.getEndpointRules(productId, regionId, endpointRule, network, suffix);
+}
+
+model WebSearchRequest {
+  endTime?: string(name='endTime', example='1754973000000'),
+  excludeDomain?: [ string ](name='excludeDomain'),
+  includeDomain?: [ string ](name='includeDomain'),
+  limit?: int32(name='limit', example='100'),
+  query?: string(name='query', example='{\\\\"entityFilter\\\\":{\\\\"domain\\\\":\\\\"synthetics\\\\",\\\\"filters\\\\":[],\\\\"type\\\\":\\\\"synthetics.task\\\\"},\\\\"metric\\\\":\\\\"availability\\\\",\\\\"metricSet\\\\":\\\\"synthetics.metric.task\\\\",\\\\"type\\\\":\\\\"METRIC_SET_QUERY\\\\"}'),
+  region?: string(name='region', example='cn-hangzhou'),
+  startTime?: string(name='startTime', example='2026-03-06 10:04:45'),
+}
+
+model WebSearchResponseBody = {
+  code?: int32(name='code', example='Ok'),
+  data?: {
+    result?: [ 
+      {
+        snippet?: string(name='snippet'),
+        title?: string(name='title', example='4567'),
+        url?: string(name='url', example='https://pai-dlc-proxy-1-cn-wulanchabu.aliyun.com/ray/dashboard/dlc1a9r0uhfn24cl'),
+      }
+    ](name='result'),
+    total?: int32(name='total', example='1'),
+  }(name='data'),
+  message?: string(name='message', example='successful'),
+  traceId?: string(name='traceId', description='requestId', example='3b5215d417623961959166934d009a'),
+}
+
+model WebSearchResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: WebSearchResponseBody(name='body'),
+}
+
+/**
+ * @summary 联网搜API
+ *
+ * @param request WebSearchRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return WebSearchResponse
+ */
+async function webSearchWithOptions(request: WebSearchRequest, headers: map[string]string, runtime: Util.RuntimeOptions): WebSearchResponse {
+  Util.validateModel(request);
+  var body : map[string]any = {};
+  if (!Util.isUnset(request.endTime)) {
+    body['endTime'] = request.endTime;
+  }
+  if (!Util.isUnset(request.excludeDomain)) {
+    body['excludeDomain'] = request.excludeDomain;
+  }
+  if (!Util.isUnset(request.includeDomain)) {
+    body['includeDomain'] = request.includeDomain;
+  }
+  if (!Util.isUnset(request.limit)) {
+    body['limit'] = request.limit;
+  }
+  if (!Util.isUnset(request.query)) {
+    body['query'] = request.query;
+  }
+  if (!Util.isUnset(request.region)) {
+    body['region'] = request.region;
+  }
+  if (!Util.isUnset(request.startTime)) {
+    body['startTime'] = request.startTime;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApi.Params{
+    action = 'WebSearch',
+    version = '2026-04-24',
+    protocol = 'HTTPS',
+    pathname = `/api/web-search`,
+    method = 'POST',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 联网搜API
+ *
+ * @param request WebSearchRequest
+ * @return WebSearchResponse
+ */
+async function webSearch(request: WebSearchRequest): WebSearchResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return webSearchWithOptions(request, headers, runtime);
+}
+
