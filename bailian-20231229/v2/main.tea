@@ -134,6 +134,10 @@ This parameter is required.', example='68abd1dea7b6404d8f7d7b9f7fbd332d.17166989
 *   DASHSCOPE_DOCMIND: Intelligent document parsing by Alibaba Cloud.
 
 This parameter is required.', example='DASHSCOPE_DOCMIND'),
+  parserConfig?: {
+    modelName?: string(name='ModelName', example='qwen-vl-max'),
+    modelPrompt?: string(name='ModelPrompt', example='#角色 你是一个专业的图片内容标注人员，擅长识别并描述出图片中的内容。 # 任务目标 请结合输入图片，详细描述图片中的内容。'),
+  }(name='ParserConfig'),
   tags?: [ string ](name='Tags', description='A list of tags associated with the document. The default value is null, which means no tags. You can specify up to 10 tags.'),
 }
 
@@ -153,6 +157,7 @@ This parameter is required.', example='68abd1dea7b6404d8f7d7b9f7fbd332d.17166989
 *   DASHSCOPE_DOCMIND: Intelligent document parsing by Alibaba Cloud.
 
 This parameter is required.', example='DASHSCOPE_DOCMIND'),
+  parserConfigShrink?: string(name='ParserConfig'),
   tagsShrink?: string(name='Tags', description='A list of tags associated with the document. The default value is null, which means no tags. You can specify up to 10 tags.'),
 }
 
@@ -198,6 +203,9 @@ async function addFileWithOptions(WorkspaceId: string, tmpReq: AddFileRequest, h
   tmpReq.validate();
   var request = new AddFileShrinkRequest{};
   OpenApiUtil.convert(tmpReq, request);
+  if (!$isNull(tmpReq.parserConfig)) {
+    request.parserConfigShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.parserConfig, 'ParserConfig', 'json');
+  }
   if (!$isNull(tmpReq.tags)) {
     request.tagsShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.tags, 'Tags', 'json');
   }
@@ -216,6 +224,9 @@ async function addFileWithOptions(WorkspaceId: string, tmpReq: AddFileRequest, h
   }
   if (!$isNull(request.parser)) {
     body['Parser'] = request.parser;
+  }
+  if (!$isNull(request.parserConfigShrink)) {
+    body['ParserConfig'] = request.parserConfigShrink;
   }
   if (!$isNull(request.tagsShrink)) {
     body['Tags'] = request.tagsShrink;
@@ -667,6 +678,99 @@ async function applyTempStorageLease(WorkspaceId: string, request: ApplyTempStor
   var runtime = new $RuntimeOptions{};
   var headers : map[string]string = {};
   return applyTempStorageLeaseWithOptions(WorkspaceId, request, headers, runtime);
+}
+
+model BatchUpdateFileTagRequest {
+  fileInfos?: [ 
+    {
+      fileId?: string(name='FileId', description='This parameter is required.', example='file_3d5319366e2c46309f4c11cfbeacd5fd_10045951'),
+      tags?: [ string ](name='tags', description='This parameter is required.'),
+    }
+  ](name='FileInfos', description='This parameter is required.'),
+  updateMode?: string(name='UpdateMode', example='OVERWRITE'),
+}
+
+model BatchUpdateFileTagShrinkRequest {
+  fileInfosShrink?: string(name='FileInfos', description='This parameter is required.'),
+  updateMode?: string(name='UpdateMode', example='OVERWRITE'),
+}
+
+model BatchUpdateFileTagResponseBody = {
+  code?: string(name='Code', example='Success'),
+  data?: {
+    updateFileTagResultList?: [ 
+      {
+        errorCode?: string(name='ErrorCode', example='NoPermission'),
+        errorMessage?: string(name='ErrorMessage', example='FileId not exists.'),
+        fileId?: string(name='FileId', example='file_f40f2a32205d44b4a93b11617113da15_10045951'),
+        success?: boolean(name='Success', example='true'),
+      }
+    ](name='UpdateFileTagResultList'),
+  }(name='Data'),
+  message?: string(name='Message', example='Required parameter(FileId) missing or invalid, please check the request parameters.'),
+  requestId?: string(name='RequestId', description='Id of the request', example='17204B98-xxxx-4F9A-8464-2446A84821CA'),
+  status?: string(name='Status', example='200'),
+  success?: boolean(name='Success', example='true'),
+}
+
+model BatchUpdateFileTagResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: BatchUpdateFileTagResponseBody(name='body'),
+}
+
+/**
+ * @summary 批量更新文档Tag
+ *
+ * @param tmpReq BatchUpdateFileTagRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return BatchUpdateFileTagResponse
+ */
+@context("batchUpdateFileTagWithContext")
+async function batchUpdateFileTagWithOptions(WorkspaceId: string, tmpReq: BatchUpdateFileTagRequest, headers: map[string]string, runtime: $RuntimeOptions): BatchUpdateFileTagResponse {
+  tmpReq.validate();
+  var request = new BatchUpdateFileTagShrinkRequest{};
+  OpenApiUtil.convert(tmpReq, request);
+  if (!$isNull(tmpReq.fileInfos)) {
+    request.fileInfosShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.fileInfos, 'FileInfos', 'json');
+  }
+  var body : map[string]any = {};
+  if (!$isNull(request.fileInfosShrink)) {
+    body['FileInfos'] = request.fileInfosShrink;
+  }
+  if (!$isNull(request.updateMode)) {
+    body['UpdateMode'] = request.updateMode;
+  }
+
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    headers = headers,
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'BatchUpdateFileTag',
+    version = '2023-12-29',
+    protocol = 'HTTPS',
+    pathname = `/${$URL.percentEncode(WorkspaceId)}/datacenter/batchupdatetag`,
+    method = 'PUT',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 批量更新文档Tag
+ *
+ * @param request BatchUpdateFileTagRequest
+ * @return BatchUpdateFileTagResponse
+ */
+async function batchUpdateFileTag(WorkspaceId: string, request: BatchUpdateFileTagRequest): BatchUpdateFileTagResponse {
+  var runtime = new $RuntimeOptions{};
+  var headers : map[string]string = {};
+  return batchUpdateFileTagWithOptions(WorkspaceId, request, headers, runtime);
 }
 
 model ChangeParseSettingRequest {
