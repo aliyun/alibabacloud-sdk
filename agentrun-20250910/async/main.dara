@@ -47,6 +47,18 @@ model AgentEndpointConfig {
   endpointUrl?: string(name='endpointUrl'),
 }
 
+model AgentResource {
+  flow?: Flow(name='flow', description='当 resourceType 为 Flow 时，此字段包含完整的工作流对象，包括所有配置和状态信息；当 resourceType 为 AgentRuntime 时，此字段为空'),
+  latestVersion?: {
+    createdAt?: string(name='createdAt', description='版本发布时间，采用ISO 8601格式', example='2025-03-15T08:30:00Z'),
+    description?: string(name='description', description='该版本的描述信息', example='修复了消息处理的并发问题'),
+    publisher?: string(name='publisher', description='版本发布者（仅 AgentRuntime 类型资源返回）', example='admin'),
+    version?: string(name='version', description='最新发布的版本号', example='3'),
+  }(name='latestVersion', description='资源的最新发布版本摘要，包含版本号、描述和创建时间。如果资源没有已发布版本，则此字段为空'),
+  resourceType?: string(name='resourceType', description='资源类型标识符，用于区分资源是智能体运行时（AgentRuntime）还是工作流（Flow）', example='AgentRuntime'),
+  runtime?: AgentRuntime(name='runtime', description='当 resourceType 为 AgentRuntime 时，此字段包含完整的智能体运行时对象，包括所有配置和状态信息；当 resourceType 为 Flow 时，此字段为空'),
+}
+
 model AgentRuntime {
   agentRuntimeArn?: string(name='agentRuntimeArn', description='智能体运行时的全局唯一资源名称', example='acs:agentrun:cn-hangzhou:1760720386195983:runtimes/7a1b6d39-9f8f-4ce2-b9c9-6db1b0b9e169'),
   agentRuntimeId?: string(name='agentRuntimeId', description='智能体运行时的唯一标识符', example='ar-1234567890abcdef'),
@@ -389,6 +401,22 @@ model CommonResult {
   requestId?: string(name='requestId', description='唯一的请求标识符，用于问题追踪'),
 }
 
+model ConsumerAPIKey {
+  active?: boolean(name='active', description='密钥是否启用，true表示启用，false表示禁用', example='true'),
+  consumerApiKeyId?: string(name='consumerApiKeyId', description='消费者API密钥的唯一标识符', example='12345678-1234-1234-1234-123456789abc'),
+  createdAt?: string(name='createdAt', description='消费者API密钥的创建时间，采用ISO 8601格式', example='2025-01-10T10:30:00Z'),
+  description?: string(name='description', description='消费者API密钥的描述信息', example='用于生产环境的API密钥'),
+  lastUpdatedAt?: string(name='lastUpdatedAt', description='消费者API密钥最后一次更新的时间，采用ISO 8601格式', example='2025-01-10T11:45:00Z'),
+  maskedKey?: string(name='maskedKey', description='API密钥的掩码展示形式，仅显示前后几位字符', example='sk-****1234'),
+  modelConnectionId?: string(name='modelConnectionId', description='关联的模型连接标识符', example='mc-1234567890abcdef'),
+}
+
+model ConsumerAPIKeyResult {
+  code?: string(name='code', description='SUCCESS 为成功，失败情况返回对应错误类型，比如 ERR_BAD_REQUEST ERR_VALIDATION_FAILED ERR_INTERNAL_SERVER_ERROR', example='SUCCESS'),
+  data?: ConsumerAPIKey(name='data', description='消费者API密钥的详细信息', example='{}'),
+  requestId?: string(name='requestId', description='唯一的请求标识符，用于问题追踪', example='F8A0F5F3-0C3E-4C82-9D4F-5E4B6A7C8D9E'),
+}
+
 model ContainerConfiguration {
   acrInstanceId?: string(name='acrInstanceId', description='阿里云容器镜像服务（ACR）的实例ID或名称', example='cri-xxxxx'),
   command?: [ string ](name='command', description='在容器中运行的命令（例如：[\\"python3\\", \\"app.py\\"]）', example='python3,app.py'),
@@ -493,7 +521,7 @@ This parameter is required.', example='dify'),
 This parameter is required.'),
   options?: {
     compatibilityCheck?: boolean(name='compatibilityCheck', description='是否执行兼容性检查，默认为true', example='true'),
-    credentialName?: string(name='credentialName'),
+    credentialName?: string(name='credentialName', description='调用方指定的 AgentRun 凭证资源名称。转换后会替换模型相关节点访问凭证'),
     flowName?: string(name='flowName'),
     vpcEndpointName?: string(name='vpcEndpointName', description='全局VPC端点名称，对所有节点统一生效。如果指定了vpcEndpoints映射，则映射中的节点优先使用映射值'),
     vpcEndpoints?: map[string]string(name='vpcEndpoints', description='按节点名称指定VPC端点，key为节点名称(stateName)，value为该节点使用的VPC端点名称。优先级高于vpcEndpointName', example='{"LLM节点":"vpc-endpoint-1","Agent节点":"vpc-endpoint-2"}'),
@@ -603,6 +631,31 @@ This parameter is required.', example='1024', minimum=128, maximum=16384),
 
 This parameter is required.', example='{}'),
   sessionIdleTimeoutSeconds?: int32(name='sessionIdleTimeoutSeconds', description='会话的空闲超时时间，单位为秒。实例没有会话请求后处于空闲状态，空闲态为闲置计费模式，超过此超时时间后会话自动过期，不可继续使用', example='3600'),
+}
+
+model CreateConsumerAPIKeyInput {
+  apiKey?: string(name='apiKey', description='用户自定义的完整API密钥；为空时由服务自动生成', example='sk-xxxxxxxxxxxxxxxxxxxx'),
+  description?: string(name='description', description='消费者API密钥的描述信息，用于说明该密钥的用途', example='用于生产环境的API密钥'),
+  modelConnectionId: string(name='modelConnectionId', description='关联的模型连接标识符
+
+This parameter is required.', example='mc-1234567890abcdef'),
+}
+
+model CreateConsumerAPIKeyOutput {
+  active?: boolean(name='active', description='密钥是否启用', example='true'),
+  apiKey?: string(name='apiKey', description='完整的API密钥明文，仅在创建时返回一次，请妥善保存', example='sk-xxxxxxxxxxxxxxxxxxxx'),
+  consumerApiKeyId?: string(name='consumerApiKeyId', description='消费者API密钥的唯一标识符', example='12345678-1234-1234-1234-123456789abc'),
+  createdAt?: string(name='createdAt', description='创建时间，采用ISO 8601格式', example='2025-01-10T10:30:00Z'),
+  description?: string(name='description', description='消费者API密钥的描述信息', example='用于生产环境的API密钥'),
+  lastUpdatedAt?: string(name='lastUpdatedAt', description='更新时间，采用ISO 8601格式', example='2025-01-10T10:30:00Z'),
+  maskedKey?: string(name='maskedKey', description='API密钥的掩码展示形式', example='sk-****1234'),
+  modelConnectionId?: string(name='modelConnectionId', description='关联的模型连接标识符', example='mc-1234567890abcdef'),
+}
+
+model CreateConsumerAPIKeyResult {
+  code?: string(name='code', description='SUCCESS 为成功，失败情况返回对应错误类型', example='SUCCESS'),
+  data?: CreateConsumerAPIKeyOutput(name='data', description='创建的消费者API密钥详细信息（包含完整密钥）', example='{}'),
+  requestId?: string(name='requestId', description='唯一的请求标识符，用于问题追踪', example='F8A0F5F3-0C3E-4C82-9D4F-5E4B6A7C8D9E'),
 }
 
 model CreateCredentialInput {
@@ -782,6 +835,29 @@ model CreateMemoryCollectionInput {
   workspaceId?: string(name='workspaceId'),
 }
 
+model CreateModelConnectionInput {
+  consumerApiKeys?: [ 
+    {
+      apiKeyId?: string(name='apiKeyId'),
+      value?: string(name='value'),
+    }
+  ](name='consumerApiKeys', description='要绑定的消费者API密钥列表；空表示开放模式'),
+  description?: string(name='description', description='模型连接的描述信息', example='OpenAI GPT-4 connection for production'),
+  modelConnectionName: string(name='modelConnectionName', description='模型连接的唯一名称标识
+
+This parameter is required.', example='my-openai-connection'),
+  modelInfoConfigs?: [
+    ModelInfoConfig
+  ](name='modelInfoConfigs', description='模型元数据配置列表'),
+  provider: string(name='provider', description='模型提供商名称
+
+This parameter is required.', example='openai'),
+  providerSettings: ModelConnectionProviderSettings(name='providerSettings', description='模型提供商的配置信息，包括基础URL、模型列表等
+
+This parameter is required.', example='{}'),
+  workspaceId?: string(name='workspaceId', description='模型连接所属的工作空间标识符', example='ws-1234567890abcdef'),
+}
+
 model CreateModelInput {
   address?: string(name='address'),
   apiKey?: string(name='apiKey'),
@@ -824,6 +900,19 @@ model CreateModelServiceInput {
   workspaceId?: string(name='workspaceId'),
 }
 
+model CreateRateLimitRuleInput {
+  descriptorId?: string(name='descriptorId', description='限流规则的描述符标识；非model维时必填，model维由服务端拼接', example='model:gpt-4'),
+  descriptorType: string(name='descriptorType', description='限流规则的描述符类型，如model、user等
+
+This parameter is required.', example='model'),
+  enabled?: boolean(name='enabled', description='是否启用该限流规则', example='true'),
+  windows: [
+    WindowLimit
+  ](name='windows', description='限流时间窗口配置列表，至少需要一个窗口
+
+This parameter is required.'),
+}
+
 model CreateSandboxInput {
   nasConfig?: NASConfig(name='nasConfig'),
   ossMountConfig?: OSSMountConfig(name='ossMountConfig'),
@@ -859,7 +948,7 @@ This parameter is required.'),
     OssConfiguration
   ](name='ossConfiguration'),
   sandboxIdleTimeoutInSeconds?: int32(name='sandboxIdleTimeoutInSeconds', description='沙箱空闲超时时间（秒）', minimum=1, maximum=21600),
-  sandboxTTLInSeconds?: int32(name='sandboxTTLInSeconds', description='沙箱存活时间（秒）', deprecated='true', minimum=1, maximum=21600),
+  sandboxTTLInSeconds?: int32(name='sandboxTTLInSeconds', description='沙箱存活时间（秒）', minimum=1, maximum=21600),
   scalingConfig?: ScalingConfig(name='scalingConfig'),
   templateConfiguration?: map[string]any(name='templateConfiguration', description='模板配置（灵活的对象结构，根据 templateType 不同而不同）'),
   templateName: string(name='templateName', description='模板名称（要求账号唯一的）
@@ -1430,6 +1519,21 @@ model LLMDeployConfig {
   ](name='serviceConfigs'),
 }
 
+model ListAgentResourcesOutput {
+  items?: [
+    AgentResource
+  ](name='items', description='智能体资源的列表'),
+  pageNumber?: int32(name='pageNumber', description='当前页码，从 1 开始计数', example='1'),
+  pageSize?: int32(name='pageSize', description='每页返回的记录数量', example='20'),
+  total?: long(name='total', description='符合条件的资源总数', example='100'),
+}
+
+model ListAgentResourcesResult {
+  code?: string(name='code', description='SUCCESS 为成功，失败情况返回对应错误类型，比如 ERR_BAD_REQUEST ERR_VALIDATION_FAILED ERR_INTERNAL_SERVER_ERROR', example='SUCCESS'),
+  data?: ListAgentResourcesOutput(name='data', description='智能体资源列表的详细信息', example='{}'),
+  requestId?: string(name='requestId', description='唯一的请求标识符，用于问题追踪', example='F8A0F5F3-0C3E-4C82-9D4F-5E4B6A7C8D9E'),
+}
+
 model ListAgentRuntimeEndpointsInput {
   endpointName?: string(name='endpointName', description='按端点名称过滤'),
   pageNumber?: integer(name='pageNumber', description='页码'),
@@ -1546,6 +1650,21 @@ model ListCodeInterpretersOutput {
 model ListCodeInterpretersResult {
   code?: string(name='code', description='SUCCESS 为成功，失败情况返回对应错误类型，比如 ERR_BAD_REQUEST ERR_VALIDATION_FAILED ERR_INTERNAL_SERVER_ERROR', example='SUCCESS'),
   data?: ListCodeInterpretersOutput(name='data', description='代码解释器列表的详细信息', example='{}'),
+  requestId?: string(name='requestId', description='唯一的请求标识符，用于问题追踪', example='F8A0F5F3-0C3E-4C82-9D4F-5E4B6A7C8D9E'),
+}
+
+model ListConsumerAPIKeysOutput {
+  items?: [
+    ConsumerAPIKey
+  ](name='items', description='消费者API密钥列表'),
+  pageNumber?: integer(name='pageNumber', description='当前页码', example='1'),
+  pageSize?: integer(name='pageSize', description='每页记录数', example='20'),
+  total?: integer(name='total', description='符合条件的消费者API密钥总数', example='10'),
+}
+
+model ListConsumerAPIKeysResult {
+  code?: string(name='code', description='SUCCESS 为成功，失败情况返回对应错误类型', example='SUCCESS'),
+  data?: ListConsumerAPIKeysOutput(name='data', description='消费者API密钥列表的详细信息', example='{}'),
   requestId?: string(name='requestId', description='唯一的请求标识符，用于问题追踪', example='F8A0F5F3-0C3E-4C82-9D4F-5E4B6A7C8D9E'),
 }
 
@@ -1707,6 +1826,21 @@ model ListMemoryCollectionsResult {
   requestId?: string(name='requestId'),
 }
 
+model ListModelConnectionsOutput {
+  items?: [
+    ModelConnection
+  ](name='items', description='模型连接列表'),
+  pageNumber?: integer(name='pageNumber', description='当前页码', example='1'),
+  pageSize?: integer(name='pageSize', description='每页记录数', example='20'),
+  total?: integer(name='total', description='符合条件的模型连接总数', example='10'),
+}
+
+model ListModelConnectionsResult {
+  code?: string(name='code', description='SUCCESS 为成功，失败情况返回对应错误类型', example='SUCCESS'),
+  data?: ListModelConnectionsOutput(name='data', description='模型连接列表的详细信息', example='{}'),
+  requestId?: string(name='requestId', description='唯一的请求标识符，用于问题追踪', example='F8A0F5F3-0C3E-4C82-9D4F-5E4B6A7C8D9E'),
+}
+
 model ListModelProxiesOutput {
   items?: [
     ModelProxy
@@ -1735,6 +1869,21 @@ model ListModelServicesResult {
   code?: string(name='code'),
   data?: ListModelServicesOutput(name='data'),
   requestId?: string(name='requestId'),
+}
+
+model ListRateLimitRulesOutput {
+  items?: [
+    RateLimitRule
+  ](name='items', description='限流规则列表'),
+  pageNumber?: integer(name='pageNumber', description='当前页码', example='1'),
+  pageSize?: integer(name='pageSize', description='每页记录数', example='20'),
+  total?: integer(name='total', description='符合条件的限流规则总数', example='10'),
+}
+
+model ListRateLimitRulesResult {
+  code?: string(name='code', description='SUCCESS 为成功，失败情况返回对应错误类型', example='SUCCESS'),
+  data?: ListRateLimitRulesOutput(name='data', description='限流规则列表的详细信息', example='{}'),
+  requestId?: string(name='requestId', description='唯一的请求标识符，用于问题追踪', example='F8A0F5F3-0C3E-4C82-9D4F-5E4B6A7C8D9E'),
 }
 
 model ListSandboxesOutput {
@@ -1915,6 +2064,39 @@ model Model {
   tenantId?: string(name='tenantId'),
   type?: string(name='type'),
   updateTime?: string(name='updateTime'),
+}
+
+model ModelConnection {
+  consumerApiKeys?: [
+    ModelConnectionConsumerAPIKey
+  ](name='consumerApiKeys', description='绑定的消费者API密钥列表'),
+  createdAt?: string(name='createdAt', description='模型连接的创建时间，采用ISO 8601格式', example='2025-01-10T10:30:00Z'),
+  description?: string(name='description', description='模型连接的描述信息', example='OpenAI GPT-4 connection for production'),
+  lastUpdatedAt?: string(name='lastUpdatedAt', description='模型连接最后一次更新的时间，采用ISO 8601格式', example='2025-01-10T11:45:00Z'),
+  modelConnectionId?: string(name='modelConnectionId', description='模型连接的唯一标识符', example='mc-1234567890abcdef'),
+  modelConnectionName?: string(name='modelConnectionName', description='模型连接的唯一名称标识', example='my-openai-connection'),
+  modelInfoConfigs?: [
+    ModelInfoConfig
+  ](name='modelInfoConfigs', description='模型元数据配置列表，包含各个模型的功能特性和参数规则'),
+  provider?: string(name='provider', description='模型提供商名称', example='openai'),
+  providerSettings?: ModelConnectionProviderSettings(name='providerSettings', description='模型提供商的配置信息', example='{}'),
+  workspaceId?: string(name='workspaceId', description='模型连接所属的工作空间标识符', example='ws-1234567890abcdef'),
+}
+
+model ModelConnectionConsumerAPIKey {
+  apiKeyId?: string(name='apiKeyId', description='消费者API密钥记录的唯一标识', example='12345678-1234-1234-1234-123456789abc'),
+  value?: string(name='value'),
+}
+
+model ModelConnectionProviderSettings {
+  baseUrl?: string(name='baseUrl', description='模型提供商的默认API基础地址', example='https://api.openai.com/v1'),
+  modelNames?: [ string ](name='modelNames', description='该连接支持的模型名称列表'),
+}
+
+model ModelConnectionResult {
+  code?: string(name='code', description='SUCCESS 为成功，失败情况返回对应错误类型', example='SUCCESS'),
+  data?: ModelConnection(name='data', description='模型连接的详细信息', example='{}'),
+  requestId?: string(name='requestId', description='唯一的请求标识符，用于问题追踪', example='F8A0F5F3-0C3E-4C82-9D4F-5E4B6A7C8D9E'),
 }
 
 model ModelFeatures {
@@ -2160,6 +2342,24 @@ model PublishRuntimeVersionInput {
   publisher?: string(name='publisher', description='发布此版本的用户或系统标识', example='user123'),
 }
 
+model RateLimitRule {
+  createdAt?: string(name='createdAt', description='限流规则的创建时间，采用ISO 8601格式', example='2025-01-10T10:30:00Z'),
+  descriptorId?: string(name='descriptorId', description='限流规则的描述符标识，用于关联具体的限流对象', example='model:gpt-4'),
+  descriptorType?: string(name='descriptorType', description='限流规则的描述符类型，如model、user等', example='model'),
+  enabled?: boolean(name='enabled', description='限流规则是否启用，true表示启用，false表示禁用', example='true'),
+  lastUpdatedAt?: string(name='lastUpdatedAt', description='限流规则最后一次更新的时间，采用ISO 8601格式', example='2025-01-10T11:45:00Z'),
+  rateLimitRuleId?: string(name='rateLimitRuleId', description='限流规则的唯一标识符', example='12345678-1234-1234-1234-123456789abc'),
+  windows?: [
+    WindowLimit
+  ](name='windows', description='限流时间窗口配置列表，支持多个窗口叠加限流'),
+}
+
+model RateLimitRuleResult {
+  code?: string(name='code', description='SUCCESS 为成功，失败情况返回对应错误类型', example='SUCCESS'),
+  data?: RateLimitRule(name='data', description='限流规则的详细信息', example='{}'),
+  requestId?: string(name='requestId', description='唯一的请求标识符，用于问题追踪', example='F8A0F5F3-0C3E-4C82-9D4F-5E4B6A7C8D9E'),
+}
+
 model RecordingConfiguration {
   enabled: boolean(name='enabled', description='是否启用录制
 
@@ -2397,7 +2597,7 @@ model Template {
   ](name='ossConfiguration'),
   resourceName?: string(name='resourceName'),
   sandboxIdleTimeoutInSeconds?: string(name='sandboxIdleTimeoutInSeconds'),
-  sandboxTTLInSeconds?: string(name='sandboxTTLInSeconds', deprecated='true'),
+  sandboxTTLInSeconds?: string(name='sandboxTTLInSeconds'),
   scalingStatus?: ScalingStatus(name='scalingStatus'),
   status?: string(name='status'),
   statusReason?: string(name='statusReason'),
@@ -2534,6 +2734,11 @@ model UpdateApigLLMModelInput {
   type?: string(name='type'),
 }
 
+model UpdateConsumerAPIKeyInput {
+  active?: boolean(name='active', description='是否启用该密钥', example='false'),
+  description?: string(name='description', description='更新后的描述信息', example='更新后的密钥描述'),
+}
+
 model UpdateCredentialInput {
   credentialPublicConfig?: CredentialPublicConfig(name='credentialPublicConfig'),
   credentialSecret?: string(name='credentialSecret'),
@@ -2658,6 +2863,20 @@ model UpdateMemoryCollectionInput {
   workspaceId?: string(name='workspaceId'),
 }
 
+model UpdateModelConnectionInput {
+  consumerApiKeys?: [ 
+    {
+      apiKeyId?: string(name='apiKeyId'),
+      value?: string(name='value'),
+    }
+  ](name='consumerApiKeys', description='更新绑定的消费者API密钥列表'),
+  description?: string(name='description', description='更新后的描述信息', example='Updated connection description'),
+  modelInfoConfigs?: [
+    ModelInfoConfig
+  ](name='modelInfoConfigs', description='更新后的模型元数据配置列表'),
+  providerSettings?: ModelConnectionProviderSettings(name='providerSettings', description='更新后的模型提供商配置信息', example='{}'),
+}
+
 model UpdateModelInput {
   address?: string(name='address'),
   apiKey?: string(name='apiKey'),
@@ -2692,6 +2911,13 @@ model UpdateModelServiceInput {
   workspaceId?: string(name='workspaceId'),
 }
 
+model UpdateRateLimitRuleInput {
+  enabled?: boolean(name='enabled', description='是否启用该限流规则', example='false'),
+  windows?: [
+    WindowLimit
+  ](name='windows', description='限流时间窗口配置列表，提供时将整组覆盖'),
+}
+
 model UpdateTargetConfigurationInput {
   domainId?: string(name='domainId'),
   targetConfiguration?: TargetConfiguration(name='targetConfiguration'),
@@ -2715,7 +2941,7 @@ model UpdateTemplateInput {
     OssConfiguration
   ](name='ossConfiguration'),
   sandboxIdleTimeoutInSeconds?: int32(name='sandboxIdleTimeoutInSeconds', description='沙箱空闲超时时间（秒）', minimum=1, maximum=21600),
-  sandboxTTLInSeconds?: int32(name='sandboxTTLInSeconds', description='沙箱存活时间（秒）', deprecated='true', minimum=1, maximum=21600),
+  sandboxTTLInSeconds?: int32(name='sandboxTTLInSeconds', description='沙箱存活时间（秒）', minimum=1, maximum=21600),
   scalingConfig?: ScalingConfig(name='scalingConfig'),
   templateConfiguration?: map[string]any(name='templateConfiguration', description='模板配置（灵活的对象结构，根据 templateType 不同而不同）'),
   workspaceId?: string(name='workspaceId'),
@@ -2798,6 +3024,15 @@ This parameter is required.'),
   width: float(name='width', description='视口宽度（像素）
 
 This parameter is required.'),
+}
+
+model WindowLimit {
+  durationSecs: long(name='durationSecs', description='限流时间窗口的持续时间，单位为秒
+
+This parameter is required.', example='60'),
+  limit: long(name='limit', description='在指定时间窗口内允许的最大请求数量
+
+This parameter is required.', example='100'),
 }
 
 model Workspace {
@@ -3045,6 +3280,26 @@ model CreateFlowEndpointResponse = {
 async function createFlowEndpoint(request: CreateFlowEndpointRequest): CreateFlowEndpointResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RESTFUL', 'CreateFlowEndpoint', 'POST', '/2025-09-10/flows/{flowName}/endpoints', 'json', false, 'json', request);
+}
+
+model CreateIMBotRequest {
+  body: CreateIMBotInput(name='body', description='This parameter is required.', position='Body'),
+}
+
+model CreateIMBotResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: IMBotResult  
+}
+
+/**
+  * @description POST /2025-09-10/agents/im-bots；成功 HTTP 201；请求体无 status（创建后恒为 running）；Body 标准包装，data 为 IMBotInfo
+  * @param request  the request parameters of CreateIMBot  CreateIMBotRequest
+  * @return CreateIMBotResponse
+ */
+async function createIMBot(request: CreateIMBotRequest): CreateIMBotResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'CreateIMBot', 'POST', '/2025-09-10/agents/im-bots', 'json', false, 'json', request);
 }
 
 model CreateKnowledgeBaseRequest {
@@ -3405,6 +3660,26 @@ model DeleteFlowVersionResponse = {
 async function deleteFlowVersion(request: DeleteFlowVersionRequest): DeleteFlowVersionResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RESTFUL', 'DeleteFlowVersion', 'DELETE', '/2025-09-10/flows/{flowName}/versions/{flowVersion}', 'json', false, 'json', request);
+}
+
+model DeleteIMBotRequest {
+  imBotId: string(name='imBotId', description='This parameter is required.', position='Path'),
+}
+
+model DeleteIMBotResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: DeleteIMBotNoContent  
+}
+
+/**
+  * @description DELETE /2025-09-10/agents/im-bots/{imBotId}；成功为 HTTP 204 No Content，无 JSON 响应体
+  * @param request  the request parameters of DeleteIMBot  DeleteIMBotRequest
+  * @return DeleteIMBotResponse
+ */
+async function deleteIMBot(request: DeleteIMBotRequest): DeleteIMBotResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'DeleteIMBot', 'DELETE', '/2025-09-10/agents/im-bots/{imBotId}', 'json', false, 'json', request);
 }
 
 model DeleteKnowledgeBaseRequest {
@@ -3818,6 +4093,28 @@ model GetFlowVersionResponse = {
 async function getFlowVersion(request: GetFlowVersionRequest): GetFlowVersionResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RESTFUL', 'GetFlowVersion', 'GET', '/2025-09-10/flows/{flowName}/versions/{flowVersion}', 'json', false, 'json', request);
+}
+
+model GetIMBotRequest {
+  imBotId: string(name='imBotId', description='Bot 主键 UUID
+
+This parameter is required.', position='Path'),
+}
+
+model GetIMBotResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: IMBotResult  
+}
+
+/**
+  * @description GET /2025-09-10/agents/im-bots/{imBotId}；200 OK，Body 标准包装，data 为 IMBotInfo
+  * @param request  the request parameters of GetIMBot  GetIMBotRequest
+  * @return GetIMBotResponse
+ */
+async function getIMBot(request: GetIMBotRequest): GetIMBotResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'GetIMBot', 'GET', '/2025-09-10/agents/im-bots/{imBotId}', 'json', false, 'json', request);
 }
 
 model GetKnowledgeBaseRequest {
@@ -4247,6 +4544,31 @@ model ListFlowsResponse = {
 async function listFlows(request: ListFlowsRequest): ListFlowsResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RESTFUL', 'ListFlows', 'GET', '/2025-09-10/flows', 'json', false, 'json', request);
+}
+
+model ListIMBotsRequest {
+  agentRuntimeId?: string(name='agentRuntimeId', position='Query'),
+  botBizType?: string(name='botBizType', position='Query'),
+  botName?: string(name='botName', position='Query'),
+  pageNumber?: int32(name='pageNumber', description='默认 1；传入时须 ≥ 1', position='Query'),
+  pageSize?: int32(name='pageSize', description='默认 20；传入时须 1–100', position='Query'),
+  status?: string(name='status', position='Query'),
+}
+
+model ListIMBotsResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ListIMBotsResult  
+}
+
+/**
+  * @description GET /2025-09-10/agents/im-bots；200 OK；data 含 items、pageNumber、pageSize、total；pageNumber 默认 1、pageSize 默认 20、上限 100；可按 botName（子串忽略大小写）、agentRuntimeId、botBizType、status 筛选
+  * @param request  the request parameters of ListIMBots  ListIMBotsRequest
+  * @return ListIMBotsResponse
+ */
+async function listIMBots(request: ListIMBotsRequest): ListIMBotsResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'ListIMBots', 'GET', '/2025-09-10/agents/im-bots', 'json', false, 'json', request);
 }
 
 model ListKnowledgeBasesRequest {
@@ -4783,6 +5105,27 @@ model UpdateFlowEndpointResponse = {
 async function updateFlowEndpoint(request: UpdateFlowEndpointRequest): UpdateFlowEndpointResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RESTFUL', 'UpdateFlowEndpoint', 'PUT', '/2025-09-10/flows/{flowName}/endpoints/{flowEndpointName}', 'json', false, 'json', request);
+}
+
+model UpdateIMBotRequest {
+  imBotId: string(name='imBotId', description='This parameter is required.', position='Path'),
+  body: UpdateIMBotInput(name='body', description='This parameter is required.', position='Body'),
+}
+
+model UpdateIMBotResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: IMBotResult  
+}
+
+/**
+  * @description PUT /2025-09-10/agents/im-bots/{imBotId}；成功建议 HTTP 202，Body 标准包装，data 为更新后 IMBotInfo
+  * @param request  the request parameters of UpdateIMBot  UpdateIMBotRequest
+  * @return UpdateIMBotResponse
+ */
+async function updateIMBot(request: UpdateIMBotRequest): UpdateIMBotResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'UpdateIMBot', 'PUT', '/2025-09-10/agents/im-bots/{imBotId}', 'json', false, 'json', request);
 }
 
 model UpdateKnowledgeBaseRequest {
