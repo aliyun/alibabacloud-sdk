@@ -300,27 +300,27 @@ model OneMetaKnowledgeBase {
 }
 
 model OneMetaKnowledgeBaseChunk {
-  chunkMtime?: string(name='ChunkMtime'),
-  chunkTitle?: string(name='ChunkTitle'),
-  content?: string(name='Content'),
-  docName?: string(name='DocName'),
-  id?: string(name='Id'),
+  chunkMtime?: string(name='ChunkMtime', example='2026-04-20 15:51:27'),
+  chunkTitle?: string(name='ChunkTitle', example='titile1'),
+  content?: string(name='Content', example='abc'),
+  docName?: string(name='DocName', example='test.md'),
+  id?: string(name='Id', example='2e12aeb5-52cd-4834-bcd8-****'),
 }
 
 model OneMetaKnowledgeBaseDocument {
-  description?: string(name='Description'),
-  docsCount?: int32(name='DocsCount'),
-  documentLoaderName?: string(name='DocumentLoaderName'),
-  fileExt?: string(name='FileExt'),
-  fileSize?: long(name='FileSize'),
-  gmtCreate?: string(name='GmtCreate'),
-  gmtModified?: string(name='GmtModified'),
-  kbUuid?: string(name='KbUuid'),
-  keywords?: string(name='Keywords'),
-  name?: string(name='Name'),
-  state?: int32(name='State'),
-  summary?: string(name='Summary'),
-  textSplitterName?: string(name='TextSplitterName'),
+  description?: string(name='Description', example='abc'),
+  docsCount?: int32(name='DocsCount', example='123'),
+  documentLoaderName?: string(name='DocumentLoaderName', example='ADBPGLoader'),
+  fileExt?: string(name='FileExt', example='md'),
+  fileSize?: long(name='FileSize', example='20307'),
+  gmtCreate?: string(name='GmtCreate', example='2026-04-22 22:59:35'),
+  gmtModified?: string(name='GmtModified', example='2026-04-24 21:22:53'),
+  kbUuid?: string(name='KbUuid', example='kb-***'),
+  keywords?: string(name='Keywords', example='["test","abc"]'),
+  name?: string(name='Name', example='test.md'),
+  state?: int32(name='State', example='0'),
+  summary?: string(name='Summary', example='This is a test document.'),
+  textSplitterName?: string(name='TextSplitterName', example='ChineseRecursiveTextSplitter'),
 }
 
 model OneMetaTableBaseInfo {
@@ -2667,6 +2667,149 @@ async function deleteDataLakeTable(request: DeleteDataLakeTableRequest): DeleteD
   return deleteDataLakeTableWithOptions(request, runtime);
 }
 
+model DeleteDocumentRequest {
+  documentName?: string(name='DocumentName', description='This parameter is required.', example='test.md'),
+  kbUuid?: string(name='KbUuid', description='This parameter is required.', example='kb-***'),
+}
+
+model DeleteDocumentResponseBody = {
+  data?: boolean(name='Data', example='true'),
+  errorCode?: string(name='ErrorCode', example='KnowledgeBaseNotFound'),
+  errorMessage?: string(name='ErrorMessage', example='Resource not found kb-***'),
+  requestId?: string(name='RequestId', example='67E910F2-4B62-5B0C-ACA3-7547695C****'),
+  success?: boolean(name='Success', example='true'),
+}
+
+model DeleteDocumentResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: DeleteDocumentResponseBody(name='body'),
+}
+
+/**
+ * @summary 删除文档
+ *
+ * @param request DeleteDocumentRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return DeleteDocumentResponse
+ */
+@context("deleteDocumentWithContext")
+async function deleteDocumentWithOptions(request: DeleteDocumentRequest, runtime: $RuntimeOptions): DeleteDocumentResponse {
+  request.validate();
+  var body : map[string]any = {};
+  if (!$isNull(request.documentName)) {
+    body['DocumentName'] = request.documentName;
+  }
+  if (!$isNull(request.kbUuid)) {
+    body['KbUuid'] = request.kbUuid;
+  }
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'DeleteDocument',
+    version = '2025-04-14',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 删除文档
+ *
+ * @param request DeleteDocumentRequest
+ * @return DeleteDocumentResponse
+ */
+async function deleteDocument(request: DeleteDocumentRequest): DeleteDocumentResponse {
+  var runtime = new $RuntimeOptions{};
+  return deleteDocumentWithOptions(request, runtime);
+}
+
+model DeleteDocumentChunksRequest {
+  chunkIds?: [ string ](name='ChunkIds', description='This parameter is required.'),
+  documentName?: string(name='DocumentName', description='This parameter is required.', example='test.md'),
+  kbUuid?: string(name='KbUuid', description='This parameter is required.', example='kb-***'),
+}
+
+model DeleteDocumentChunksShrinkRequest {
+  chunkIdsShrink?: string(name='ChunkIds', description='This parameter is required.'),
+  documentName?: string(name='DocumentName', description='This parameter is required.', example='test.md'),
+  kbUuid?: string(name='KbUuid', description='This parameter is required.', example='kb-***'),
+}
+
+model DeleteDocumentChunksResponseBody = {
+  data?: int32(name='Data', description='实际删除的行数', example='1'),
+  errorCode?: string(name='ErrorCode', example='KnowledgeBaseNotFound'),
+  errorMessage?: string(name='ErrorMessage', example='Resource not found kb-***'),
+  requestId?: string(name='RequestId', example='67E910F2-4B62-5B0C-ACA3-7547695C****'),
+  success?: boolean(name='Success', example='true'),
+}
+
+model DeleteDocumentChunksResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: DeleteDocumentChunksResponseBody(name='body'),
+}
+
+/**
+ * @summary 删除onemeta3.0的知识库chunks
+ *
+ * @param tmpReq DeleteDocumentChunksRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return DeleteDocumentChunksResponse
+ */
+@context("deleteDocumentChunksWithContext")
+async function deleteDocumentChunksWithOptions(tmpReq: DeleteDocumentChunksRequest, runtime: $RuntimeOptions): DeleteDocumentChunksResponse {
+  tmpReq.validate();
+  var request = new DeleteDocumentChunksShrinkRequest{};
+  OpenApiUtil.convert(tmpReq, request);
+  if (!$isNull(tmpReq.chunkIds)) {
+    request.chunkIdsShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.chunkIds, 'ChunkIds', 'json');
+  }
+  var body : map[string]any = {};
+  if (!$isNull(request.chunkIdsShrink)) {
+    body['ChunkIds'] = request.chunkIdsShrink;
+  }
+  if (!$isNull(request.documentName)) {
+    body['DocumentName'] = request.documentName;
+  }
+  if (!$isNull(request.kbUuid)) {
+    body['KbUuid'] = request.kbUuid;
+  }
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'DeleteDocumentChunks',
+    version = '2025-04-14',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 删除onemeta3.0的知识库chunks
+ *
+ * @param request DeleteDocumentChunksRequest
+ * @return DeleteDocumentChunksResponse
+ */
+async function deleteDocumentChunks(request: DeleteDocumentChunksRequest): DeleteDocumentChunksResponse {
+  var runtime = new $RuntimeOptions{};
+  return deleteDocumentChunksWithOptions(request, runtime);
+}
+
 model DeleteFileUploadRequest {
   callFrom?: string(name='CallFrom', example='TrailCenter'),
   dmsUnit?: string(name='DmsUnit', example='cn-hangzhou'),
@@ -2951,6 +3094,84 @@ async function describeDataAgentSession(request: DescribeDataAgentSessionRequest
   return describeDataAgentSessionWithOptions(request, runtime);
 }
 
+model DescribeDocumentRequest {
+  documentName?: string(name='DocumentName', description='This parameter is required.', example='test.md'),
+  kbUuid?: string(name='KbUuid', description='This parameter is required.', example='kb-***'),
+}
+
+model DescribeDocumentResponseBody = {
+  data?: {
+    description?: string(name='Description', example='abc'),
+    docsCount?: long(name='DocsCount', example='123'),
+    documentLoaderName?: string(name='DocumentLoaderName', example='ADBPGLoader'),
+    fileExt?: string(name='FileExt', example='md'),
+    fileSize?: long(name='FileSize', example='20307'),
+    gmtCreate?: string(name='GmtCreate', example='2026-04-22 22:59:35'),
+    gmtModified?: string(name='GmtModified', example='2026-04-24 21:22:53'),
+    kbUuid?: string(name='KbUuid', example='kb-***'),
+    keywords?: string(name='Keywords', example='["test","abc"]'),
+    name?: string(name='Name', example='test.md'),
+    state?: long(name='State', example='0'),
+    summary?: string(name='Summary', example='This is a test document.'),
+    textSplitterName?: string(name='TextSplitterName', example='ChineseRecursiveTextSplitter'),
+  }(name='Data'),
+  errorCode?: string(name='ErrorCode', example='KnowledgeBaseNotFound'),
+  errorMessage?: string(name='ErrorMessage', example='Resource not found kb-***'),
+  requestId?: string(name='RequestId', example='67E910F2-4B62-5B0C-ACA3-7547695C****'),
+  success?: boolean(name='Success', example='true'),
+}
+
+model DescribeDocumentResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: DescribeDocumentResponseBody(name='body'),
+}
+
+/**
+ * @summary 获取文档详情
+ *
+ * @param request DescribeDocumentRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return DescribeDocumentResponse
+ */
+@context("describeDocumentWithContext")
+async function describeDocumentWithOptions(request: DescribeDocumentRequest, runtime: $RuntimeOptions): DescribeDocumentResponse {
+  request.validate();
+  var body : map[string]any = {};
+  if (!$isNull(request.documentName)) {
+    body['DocumentName'] = request.documentName;
+  }
+  if (!$isNull(request.kbUuid)) {
+    body['KbUuid'] = request.kbUuid;
+  }
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'DescribeDocument',
+    version = '2025-04-14',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 获取文档详情
+ *
+ * @param request DescribeDocumentRequest
+ * @return DescribeDocumentResponse
+ */
+async function describeDocument(request: DescribeDocumentRequest): DescribeDocumentResponse {
+  var runtime = new $RuntimeOptions{};
+  return describeDocumentWithOptions(request, runtime);
+}
+
 model DescribeFileUploadSignatureRequest {
   callFrom?: string(name='CallFrom'),
   dmsUnit?: string(name='DmsUnit', example='cn-hangzhou'),
@@ -3088,6 +3309,75 @@ async function describeKnowledgeBaseStatsWithOptions(request: DescribeKnowledgeB
 async function describeKnowledgeBaseStats(request: DescribeKnowledgeBaseStatsRequest): DescribeKnowledgeBaseStatsResponse {
   var runtime = new $RuntimeOptions{};
   return describeKnowledgeBaseStatsWithOptions(request, runtime);
+}
+
+model DescribeKnowledgeBaseUploadSignatureRequest {
+  kbUuid?: string(name='KbUuid', description='This parameter is required.', example='kb-***'),
+}
+
+model DescribeKnowledgeBaseUploadSignatureResponseBody = {
+  data?: {
+    ossCredential?: string(name='OssCredential'),
+    ossDate?: string(name='OssDate', example='20260101T135341Z'),
+    ossSecurityToken?: string(name='OssSecurityToken', example='CAIS4gJ1q6Ft5B2yfSjIr5vPHMj4p+lHx/utUUjg13ptZ+5u3oDzkzz2IHhMdXlrCOgYt/8xnG1V6f8flrJ/ToQAX0HfatZq5ZkS9AqnaoXM/te496IFg5D9y7dIs8GgjqHoeOzcYI73WJXEMiLp9EJaxb/9ak/RPTiMOoGIjphKd8keWhLCAxNNGNZRIHkJyqZYTwyzU8ygKRn3mGHdIVN1sw5n8wNF5L+439eX52i17jS46JdM/9ysesH5NpQxbMwkDYnk5oEsKPqdihw3wgNR6aJ7gJZD/Tr6pdyHCzFTmU7ea7uEqYw3clYiOPBnRvEd8eKPnPl5q/HVm4Hs0wxKNuxOSCXZS4yp3MLeH+ekJgOGwWFHz9qnOLmtQXqV22tMCRpzXIj6Zlmz+/reI6iNW+Ory74mxSFbrz3ZP4yv+o+Yv3QbMVumcySkKVbBbVvnv0R8GNsIC2lMUbp+rfShhfFuG2QagAECCyigwAlSAryrFmteD+EVuvxvi0NE7zDJLbUkhek6dcY+/u5V5jcmvL67CQ7bTNk+9lV8WDCvtoCD9ucqTaHweJEd8fS2DaFedAMDf8BfZa2C1CTLhVXdSgE2WORYbMqidelRm7dH3fTbZVvryWKDaveDRLt5J/Qfs**********'),
+    ossSignature?: string(name='OssSignature', example='9bebe0900716bdefaab899781c7bdfd614ec6ed711e0de5ddf6f5a**********'),
+    ossSignatureVersion?: string(name='OssSignatureVersion', example='OSS4-HMAC-SHA256'),
+    policy?: string(name='Policy', example='eyJjb25kaXRpb25zIjpbeyJ4LW9zcy1jcmVkZW50aWFsIjoiU1RTLk5aRmR2RDJRWlFSeWlwZmpkS295NEYxb2ovMjAyNjA1MTQvY24taGFuZ3pob3Uvb3NzL2FsaXl1bl92NF9yZXF1ZXN0In0seyJ4LW9zcy1kYXRlIjoiMjAyNjA1MTRUMDMzMjI3WiJ9LHsieC1vc3Mtc2VjdXJpdHktdG9rZW4iOiJDQUlTMmdKMXE2RnQ1QjJ5ZlNqSXI1bnpMOHp3MzQ1NzVwQ1NhMWJYam1RZVkvWVlxZlRFaUR6MklIaE1**'),
+    uploadDir?: string(name='UploadDir'),
+    uploadHost?: string(name='UploadHost', example='https://onemeta-kb-staging.oss-cn-hangzhou.aliyuncs.com'),
+  }(name='Data'),
+  errorCode?: string(name='ErrorCode', example='KnowledgeBaseNotFound'),
+  errorMessage?: string(name='ErrorMessage', example='Resource not found xxx'),
+  requestId?: string(name='RequestId', example='67E910F2-4B62-5B0C-ACA3-7547695C****'),
+  success?: boolean(name='Success', example='true'),
+}
+
+model DescribeKnowledgeBaseUploadSignatureResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: DescribeKnowledgeBaseUploadSignatureResponseBody(name='body'),
+}
+
+/**
+ * @summary 获取知识库中的上传签名
+ *
+ * @param request DescribeKnowledgeBaseUploadSignatureRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return DescribeKnowledgeBaseUploadSignatureResponse
+ */
+@context("describeKnowledgeBaseUploadSignatureWithContext")
+async function describeKnowledgeBaseUploadSignatureWithOptions(request: DescribeKnowledgeBaseUploadSignatureRequest, runtime: $RuntimeOptions): DescribeKnowledgeBaseUploadSignatureResponse {
+  request.validate();
+  var query = {};
+  if (!$isNull(request.kbUuid)) {
+    query['KbUuid'] = request.kbUuid;
+  }
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'DescribeKnowledgeBaseUploadSignature',
+    version = '2025-04-14',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 获取知识库中的上传签名
+ *
+ * @param request DescribeKnowledgeBaseUploadSignatureRequest
+ * @return DescribeKnowledgeBaseUploadSignatureResponse
+ */
+async function describeKnowledgeBaseUploadSignature(request: DescribeKnowledgeBaseUploadSignatureRequest): DescribeKnowledgeBaseUploadSignatureResponse {
+  var runtime = new $RuntimeOptions{};
+  return describeKnowledgeBaseUploadSignatureWithOptions(request, runtime);
 }
 
 model FileUploadCallbackRequest {
@@ -5960,6 +6250,184 @@ async function listDataLakeTablebaseInfo(request: ListDataLakeTablebaseInfoReque
   return listDataLakeTablebaseInfoWithOptions(request, runtime);
 }
 
+model ListDocumentChunksRequest {
+  chunkTitlePattern?: string(name='ChunkTitlePattern', example='test'),
+  documentName?: string(name='DocumentName', example='test.md'),
+  kbUuid?: string(name='KbUuid', description='This parameter is required.', example='kb-***'),
+  maxResults?: int32(name='MaxResults', example='20'),
+  nextToken?: string(name='NextToken', example='zCXSmY0CJbybp6FZV7vo0Wjw64X-*****'),
+  sortFieldName?: string(name='SortFieldName', example='hits'),
+  sortOrder?: string(name='SortOrder', example='DESC'),
+}
+
+model ListDocumentChunksResponseBody = {
+  data?: [
+    OneMetaKnowledgeBaseChunk
+  ](name='Data'),
+  errorCode?: string(name='ErrorCode', example='KnowledgeBaseNotFound'),
+  errorMessage?: string(name='ErrorMessage', example='Resource not found kb-***'),
+  maxResults?: int32(name='MaxResults', example='20'),
+  nextToken?: string(name='NextToken', example='zCXSmY0CJbybp6FZV7vo0Wjw64X-*****'),
+  requestId?: string(name='RequestId', example='67E910F2-4B62-5B0C-ACA3-7547695C****'),
+  success?: boolean(name='Success', example='true'),
+  totalCount?: long(name='TotalCount', example='0'),
+}
+
+model ListDocumentChunksResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ListDocumentChunksResponseBody(name='body'),
+}
+
+/**
+ * @summary 分页查询onemeta3.0的知识库chunks
+ *
+ * @param request ListDocumentChunksRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return ListDocumentChunksResponse
+ */
+@context("listDocumentChunksWithContext")
+async function listDocumentChunksWithOptions(request: ListDocumentChunksRequest, runtime: $RuntimeOptions): ListDocumentChunksResponse {
+  request.validate();
+  var body : map[string]any = {};
+  if (!$isNull(request.chunkTitlePattern)) {
+    body['ChunkTitlePattern'] = request.chunkTitlePattern;
+  }
+  if (!$isNull(request.documentName)) {
+    body['DocumentName'] = request.documentName;
+  }
+  if (!$isNull(request.kbUuid)) {
+    body['KbUuid'] = request.kbUuid;
+  }
+  if (!$isNull(request.maxResults)) {
+    body['MaxResults'] = request.maxResults;
+  }
+  if (!$isNull(request.nextToken)) {
+    body['NextToken'] = request.nextToken;
+  }
+  if (!$isNull(request.sortFieldName)) {
+    body['SortFieldName'] = request.sortFieldName;
+  }
+  if (!$isNull(request.sortOrder)) {
+    body['SortOrder'] = request.sortOrder;
+  }
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'ListDocumentChunks',
+    version = '2025-04-14',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 分页查询onemeta3.0的知识库chunks
+ *
+ * @param request ListDocumentChunksRequest
+ * @return ListDocumentChunksResponse
+ */
+async function listDocumentChunks(request: ListDocumentChunksRequest): ListDocumentChunksResponse {
+  var runtime = new $RuntimeOptions{};
+  return listDocumentChunksWithOptions(request, runtime);
+}
+
+model ListDocumentsRequest {
+  filters?: string(name='Filters', example='{"fileExt":"pdf","state":0}'),
+  kbUuid?: string(name='KbUuid', description='This parameter is required.', example='kb-***'),
+  maxResults?: int32(name='MaxResults', example='20'),
+  namePattern?: string(name='NamePattern', example='test'),
+  nextToken?: string(name='NextToken', example='zCXSmY0CJbybp6FZV7vo0Wjw64X-*****'),
+  sortFieldName?: string(name='SortFieldName', example='hits'),
+  sortOrder?: string(name='SortOrder', example='DESC'),
+}
+
+model ListDocumentsResponseBody = {
+  data?: [
+    OneMetaKnowledgeBaseDocument
+  ](name='Data'),
+  errorCode?: string(name='ErrorCode', example='KnowledgeBaseNotFound'),
+  errorMessage?: string(name='ErrorMessage', example='Resource not found kb-***'),
+  maxResults?: int32(name='MaxResults', example='20'),
+  nextToken?: string(name='NextToken', example='zCXSmY0CJbybp6FZV7vo0Wjw64X-*****'),
+  requestId?: string(name='RequestId', example='67E910F2-4B62-5B0C-ACA3-7547695C****'),
+  success?: boolean(name='Success', example='true'),
+  totalCount?: long(name='TotalCount', example='0'),
+}
+
+model ListDocumentsResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ListDocumentsResponseBody(name='body'),
+}
+
+/**
+ * @summary 获取文档列表
+ *
+ * @param request ListDocumentsRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return ListDocumentsResponse
+ */
+@context("listDocumentsWithContext")
+async function listDocumentsWithOptions(request: ListDocumentsRequest, runtime: $RuntimeOptions): ListDocumentsResponse {
+  request.validate();
+  var body : map[string]any = {};
+  if (!$isNull(request.filters)) {
+    body['Filters'] = request.filters;
+  }
+  if (!$isNull(request.kbUuid)) {
+    body['KbUuid'] = request.kbUuid;
+  }
+  if (!$isNull(request.maxResults)) {
+    body['MaxResults'] = request.maxResults;
+  }
+  if (!$isNull(request.namePattern)) {
+    body['NamePattern'] = request.namePattern;
+  }
+  if (!$isNull(request.nextToken)) {
+    body['NextToken'] = request.nextToken;
+  }
+  if (!$isNull(request.sortFieldName)) {
+    body['SortFieldName'] = request.sortFieldName;
+  }
+  if (!$isNull(request.sortOrder)) {
+    body['SortOrder'] = request.sortOrder;
+  }
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'ListDocuments',
+    version = '2025-04-14',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 获取文档列表
+ *
+ * @param request ListDocumentsRequest
+ * @return ListDocumentsResponse
+ */
+async function listDocuments(request: ListDocumentsRequest): ListDocumentsResponse {
+  var runtime = new $RuntimeOptions{};
+  return listDocumentsWithOptions(request, runtime);
+}
+
 model ListFileUploadRequest {
   callFrom?: string(name='CallFrom'),
   dmsUnit?: string(name='DmsUnit', example='cn-hangzhou'),
@@ -6067,6 +6535,95 @@ async function listFileUploadWithOptions(request: ListFileUploadRequest, runtime
 async function listFileUpload(request: ListFileUploadRequest): ListFileUploadResponse {
   var runtime = new $RuntimeOptions{};
   return listFileUploadWithOptions(request, runtime);
+}
+
+model ListKnowledgeBasesRequest {
+  filters?: string(name='Filters', example='{"state":1}'),
+  maxResults?: int32(name='MaxResults', example='20'),
+  namePattern?: string(name='NamePattern', example='order'),
+  nextToken?: string(name='NextToken', example='zCXSmY0CJbybp6FZV7vo0Wjw64X-*****'),
+  sortFieldName?: string(name='SortFieldName', example='name'),
+  sortOrder?: string(name='SortOrder', example='Desc'),
+  tag?: string(name='Tag', description='This parameter is required.', example='1dq7qod8hxtt1***'),
+}
+
+model ListKnowledgeBasesResponseBody = {
+  data?: [
+    OneMetaKnowledgeBase
+  ](name='Data'),
+  errorCode?: string(name='ErrorCode', example='UnknownError'),
+  errorMessage?: string(name='ErrorMessage', example='Specified parameter Tag is not valid.'),
+  maxResults?: int32(name='MaxResults', example='20'),
+  nextToken?: string(name='NextToken', example='NesLoKLEdIZrKhDT7I2gS****'),
+  requestId?: string(name='RequestId', example='E0D21075-CD3E-4D98-8264-FD8AD04A63B6'),
+  success?: boolean(name='Success', example='true'),
+  totalCount?: long(name='TotalCount', example='0'),
+}
+
+model ListKnowledgeBasesResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ListKnowledgeBasesResponseBody(name='body'),
+}
+
+/**
+ * @summary 分页查询onemeta3.0的知识库
+ *
+ * @param request ListKnowledgeBasesRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return ListKnowledgeBasesResponse
+ */
+@context("listKnowledgeBasesWithContext")
+async function listKnowledgeBasesWithOptions(request: ListKnowledgeBasesRequest, runtime: $RuntimeOptions): ListKnowledgeBasesResponse {
+  request.validate();
+  var body : map[string]any = {};
+  if (!$isNull(request.filters)) {
+    body['Filters'] = request.filters;
+  }
+  if (!$isNull(request.maxResults)) {
+    body['MaxResults'] = request.maxResults;
+  }
+  if (!$isNull(request.namePattern)) {
+    body['NamePattern'] = request.namePattern;
+  }
+  if (!$isNull(request.nextToken)) {
+    body['NextToken'] = request.nextToken;
+  }
+  if (!$isNull(request.sortFieldName)) {
+    body['SortFieldName'] = request.sortFieldName;
+  }
+  if (!$isNull(request.sortOrder)) {
+    body['SortOrder'] = request.sortOrder;
+  }
+  if (!$isNull(request.tag)) {
+    body['Tag'] = request.tag;
+  }
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'ListKnowledgeBases',
+    version = '2025-04-14',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 分页查询onemeta3.0的知识库
+ *
+ * @param request ListKnowledgeBasesRequest
+ * @return ListKnowledgeBasesResponse
+ */
+async function listKnowledgeBases(request: ListKnowledgeBasesRequest): ListKnowledgeBasesResponse {
+  var runtime = new $RuntimeOptions{};
+  return listKnowledgeBasesWithOptions(request, runtime);
 }
 
 model ModifyCustomAgentRequest {
@@ -7524,6 +8081,343 @@ async function updateDataLakeTableWithOptions(tmpReq: UpdateDataLakeTableRequest
 async function updateDataLakeTable(request: UpdateDataLakeTableRequest): UpdateDataLakeTableResponse {
   var runtime = new $RuntimeOptions{};
   return updateDataLakeTableWithOptions(request, runtime);
+}
+
+model UpdateDocumentRequest {
+  documentName?: string(name='DocumentName', description='This parameter is required.', example='test.md'),
+  kbUuid?: string(name='KbUuid', description='This parameter is required.', example='kb-***'),
+  newDescription?: string(name='NewDescription', description='This parameter is required.', example='test123'),
+}
+
+model UpdateDocumentResponseBody = {
+  data?: OneMetaKnowledgeBaseDocument(name='Data'),
+  errorCode?: string(name='ErrorCode', example='KnowledgeBaseNotFound'),
+  errorMessage?: string(name='ErrorMessage', example='Resource not found kb-***'),
+  requestId?: string(name='RequestId', example='67E910F2-4B62-5B0C-ACA3-7547695C****'),
+  success?: boolean(name='Success', example='true'),
+}
+
+model UpdateDocumentResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: UpdateDocumentResponseBody(name='body'),
+}
+
+/**
+ * @summary 更新文档
+ *
+ * @param request UpdateDocumentRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return UpdateDocumentResponse
+ */
+@context("updateDocumentWithContext")
+async function updateDocumentWithOptions(request: UpdateDocumentRequest, runtime: $RuntimeOptions): UpdateDocumentResponse {
+  request.validate();
+  var body : map[string]any = {};
+  if (!$isNull(request.documentName)) {
+    body['DocumentName'] = request.documentName;
+  }
+  if (!$isNull(request.kbUuid)) {
+    body['KbUuid'] = request.kbUuid;
+  }
+  if (!$isNull(request.newDescription)) {
+    body['NewDescription'] = request.newDescription;
+  }
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'UpdateDocument',
+    version = '2025-04-14',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 更新文档
+ *
+ * @param request UpdateDocumentRequest
+ * @return UpdateDocumentResponse
+ */
+async function updateDocument(request: UpdateDocumentRequest): UpdateDocumentResponse {
+  var runtime = new $RuntimeOptions{};
+  return updateDocumentWithOptions(request, runtime);
+}
+
+model UpdateKnowledgeBaseRequest {
+  description?: string(name='Description', example='updated kb desc'),
+  kbUuid?: string(name='KbUuid', description='This parameter is required.', example='kb-HZ-zgr1***'),
+  name?: string(name='Name', example='updated kb name'),
+}
+
+model UpdateKnowledgeBaseResponseBody = {
+  data?: OneMetaKnowledgeBase(name='Data'),
+  errorCode?: string(name='ErrorCode', example='KnowledgeBaseNotFound'),
+  errorMessage?: string(name='ErrorMessage', example='Resource not found kb-***'),
+  requestId?: string(name='RequestId', example='E0D21075-CD3E-4D98-8264-FD8AD04A63B6'),
+  success?: boolean(name='Success', example='true'),
+}
+
+model UpdateKnowledgeBaseResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: UpdateKnowledgeBaseResponseBody(name='body'),
+}
+
+/**
+ * @summary 更新onemeta3.0的知识库
+ *
+ * @param request UpdateKnowledgeBaseRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return UpdateKnowledgeBaseResponse
+ */
+@context("updateKnowledgeBaseWithContext")
+async function updateKnowledgeBaseWithOptions(request: UpdateKnowledgeBaseRequest, runtime: $RuntimeOptions): UpdateKnowledgeBaseResponse {
+  request.validate();
+  var query = {};
+  if (!$isNull(request.description)) {
+    query['Description'] = request.description;
+  }
+  if (!$isNull(request.kbUuid)) {
+    query['KbUuid'] = request.kbUuid;
+  }
+  if (!$isNull(request.name)) {
+    query['Name'] = request.name;
+  }
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'UpdateKnowledgeBase',
+    version = '2025-04-14',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 更新onemeta3.0的知识库
+ *
+ * @param request UpdateKnowledgeBaseRequest
+ * @return UpdateKnowledgeBaseResponse
+ */
+async function updateKnowledgeBase(request: UpdateKnowledgeBaseRequest): UpdateKnowledgeBaseResponse {
+  var runtime = new $RuntimeOptions{};
+  return updateKnowledgeBaseWithOptions(request, runtime);
+}
+
+model UploadDocumentRequest {
+  chunkOverlap?: long(name='ChunkOverlap', example='50'),
+  chunkSize?: long(name='ChunkSize', example='250'),
+  description?: string(name='Description', example='test'),
+  documentLoaderName?: string(name='DocumentLoaderName', example='ADBPGLoader'),
+  fileName?: string(name='FileName', description='This parameter is required.', example='test.md'),
+  kbUuid?: string(name='KbUuid', description='This parameter is required.', example='kb-***'),
+  location?: string(name='Location', description='This parameter is required.'),
+  separators?: [ string ](name='Separators'),
+  splitterModel?: string(name='SplitterModel', example='qwen3-8b'),
+  textSplitterName?: string(name='TextSplitterName', example='ChineseRecursiveTextSplitter'),
+  vlEnhance?: boolean(name='VlEnhance', example='false'),
+  zhTitleEnhance?: boolean(name='ZhTitleEnhance', example='false'),
+}
+
+model UploadDocumentShrinkRequest {
+  chunkOverlap?: long(name='ChunkOverlap', example='50'),
+  chunkSize?: long(name='ChunkSize', example='250'),
+  description?: string(name='Description', example='test'),
+  documentLoaderName?: string(name='DocumentLoaderName', example='ADBPGLoader'),
+  fileName?: string(name='FileName', description='This parameter is required.', example='test.md'),
+  kbUuid?: string(name='KbUuid', description='This parameter is required.', example='kb-***'),
+  location?: string(name='Location', description='This parameter is required.'),
+  separatorsShrink?: string(name='Separators'),
+  splitterModel?: string(name='SplitterModel', example='qwen3-8b'),
+  textSplitterName?: string(name='TextSplitterName', example='ChineseRecursiveTextSplitter'),
+  vlEnhance?: boolean(name='VlEnhance', example='false'),
+  zhTitleEnhance?: boolean(name='ZhTitleEnhance', example='false'),
+}
+
+model UploadDocumentResponseBody = {
+  data?: OneMetaKnowledgeBaseDocument(name='Data'),
+  errorCode?: string(name='ErrorCode', example='KnowledgeBaseNotFound'),
+  errorMessage?: string(name='ErrorMessage', example='Resource not found kb-***'),
+  requestId?: string(name='RequestId', example='67E910F2-4B62-5B0C-ACA3-7547695C****'),
+  success?: boolean(name='Success'),
+}
+
+model UploadDocumentResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: UploadDocumentResponseBody(name='body'),
+}
+
+/**
+ * @summary 上传文档
+ *
+ * @param tmpReq UploadDocumentRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return UploadDocumentResponse
+ */
+@context("uploadDocumentWithContext")
+async function uploadDocumentWithOptions(tmpReq: UploadDocumentRequest, runtime: $RuntimeOptions): UploadDocumentResponse {
+  tmpReq.validate();
+  var request = new UploadDocumentShrinkRequest{};
+  OpenApiUtil.convert(tmpReq, request);
+  if (!$isNull(tmpReq.separators)) {
+    request.separatorsShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.separators, 'Separators', 'json');
+  }
+  var body : map[string]any = {};
+  if (!$isNull(request.chunkOverlap)) {
+    body['ChunkOverlap'] = request.chunkOverlap;
+  }
+  if (!$isNull(request.chunkSize)) {
+    body['ChunkSize'] = request.chunkSize;
+  }
+  if (!$isNull(request.description)) {
+    body['Description'] = request.description;
+  }
+  if (!$isNull(request.documentLoaderName)) {
+    body['DocumentLoaderName'] = request.documentLoaderName;
+  }
+  if (!$isNull(request.fileName)) {
+    body['FileName'] = request.fileName;
+  }
+  if (!$isNull(request.kbUuid)) {
+    body['KbUuid'] = request.kbUuid;
+  }
+  if (!$isNull(request.location)) {
+    body['Location'] = request.location;
+  }
+  if (!$isNull(request.separatorsShrink)) {
+    body['Separators'] = request.separatorsShrink;
+  }
+  if (!$isNull(request.splitterModel)) {
+    body['SplitterModel'] = request.splitterModel;
+  }
+  if (!$isNull(request.textSplitterName)) {
+    body['TextSplitterName'] = request.textSplitterName;
+  }
+  if (!$isNull(request.vlEnhance)) {
+    body['VlEnhance'] = request.vlEnhance;
+  }
+  if (!$isNull(request.zhTitleEnhance)) {
+    body['ZhTitleEnhance'] = request.zhTitleEnhance;
+  }
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'UploadDocument',
+    version = '2025-04-14',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 上传文档
+ *
+ * @param request UploadDocumentRequest
+ * @return UploadDocumentResponse
+ */
+async function uploadDocument(request: UploadDocumentRequest): UploadDocumentResponse {
+  var runtime = new $RuntimeOptions{};
+  return uploadDocumentWithOptions(request, runtime);
+}
+
+model UpsertDocumentChunksRequest {
+  chunks?: string(name='Chunks', description='This parameter is required.', example='[
+  {
+    "Id": "2e12aeb5-52cd-4834-bcd8-****",
+    "Content": "test1"
+  },
+  {
+    "Id": "2fdnwefi5-dsad-4t35-bcd8-****",
+    "Content": "test2"
+  }
+]'),
+  documentName?: string(name='DocumentName', description='This parameter is required.', example='test.md'),
+  kbUuid?: string(name='KbUuid', description='This parameter is required.', example='kb-***'),
+}
+
+model UpsertDocumentChunksResponseBody = {
+  data?: boolean(name='Data', example='true'),
+  errorCode?: string(name='ErrorCode', example='KnowledgeBaseNotFound'),
+  errorMessage?: string(name='ErrorMessage', example='Resource not found kb-***'),
+  requestId?: string(name='RequestId', example='67E910F2-4B62-5B0C-ACA3-7547695C****'),
+  success?: boolean(name='Success', example='true'),
+}
+
+model UpsertDocumentChunksResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: UpsertDocumentChunksResponseBody(name='body'),
+}
+
+/**
+ * @summary 更新或插入onemeta3.0的知识库chunks
+ *
+ * @param request UpsertDocumentChunksRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return UpsertDocumentChunksResponse
+ */
+@context("upsertDocumentChunksWithContext")
+async function upsertDocumentChunksWithOptions(request: UpsertDocumentChunksRequest, runtime: $RuntimeOptions): UpsertDocumentChunksResponse {
+  request.validate();
+  var body : map[string]any = {};
+  if (!$isNull(request.chunks)) {
+    body['Chunks'] = request.chunks;
+  }
+  if (!$isNull(request.documentName)) {
+    body['DocumentName'] = request.documentName;
+  }
+  if (!$isNull(request.kbUuid)) {
+    body['KbUuid'] = request.kbUuid;
+  }
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'UpsertDocumentChunks',
+    version = '2025-04-14',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 更新或插入onemeta3.0的知识库chunks
+ *
+ * @param request UpsertDocumentChunksRequest
+ * @return UpsertDocumentChunksResponse
+ */
+async function upsertDocumentChunks(request: UpsertDocumentChunksRequest): UpsertDocumentChunksResponse {
+  var runtime = new $RuntimeOptions{};
+  return upsertDocumentChunksWithOptions(request, runtime);
 }
 
 model WorkspaceActionLogRequest {
