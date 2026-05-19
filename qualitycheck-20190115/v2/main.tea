@@ -6449,6 +6449,153 @@ async function revertAssignedSessionGroup(request: RevertAssignedSessionGroupReq
   return revertAssignedSessionGroupWithOptions(request, runtime);
 }
 
+model RunCompletionMessageRequest {
+  messages?: [ 
+    {
+      content?: string(name='Content'),
+      role?: string(name='Role', example='user'),
+    }
+  ](name='Messages'),
+  modelCode?: string(name='ModelCode', example='TYXM_PLUS'),
+  stream?: boolean(name='Stream', example='true'),
+}
+
+model RunCompletionMessageShrinkRequest {
+  messagesShrink?: string(name='Messages'),
+  modelCode?: string(name='ModelCode', example='TYXM_PLUS'),
+  stream?: boolean(name='Stream', example='true'),
+}
+
+model RunCompletionMessageResponseBody = {
+  code?: string(name='Code', example='200'),
+  data?: {
+    finishReason?: string(name='FinishReason', example='stop'),
+    inputTokens?: long(name='InputTokens', example='100'),
+    llmRequestId?: string(name='LlmRequestId', example='106C6CA0-282D-4AF7-85F0-D2D24***'),
+    outputTokens?: long(name='OutputTokens', example='200'),
+    text?: string(name='Text'),
+    totalTokens?: long(name='TotalTokens', example='300'),
+  }(name='Data'),
+  message?: string(name='Message', example='successful'),
+  requestId?: string(name='RequestId', example='106C6CA0-282D-4AF7-85F0-D2D24***'),
+  success?: boolean(name='Success', example='true'),
+}
+
+model RunCompletionMessageResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  id?: string(name='id'),
+  event?: string(name='event'),
+  body?: RunCompletionMessageResponseBody(name='body'),
+}
+
+/**
+ * @summary 使用原生Prompt调用通义晓蜜
+ *
+ * @param tmpReq RunCompletionMessageRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return RunCompletionMessageResponse
+ */
+@sse(true)
+@context("runCompletionMessageWithSSECtx")
+async function runCompletionMessageWithSSE(tmpReq: RunCompletionMessageRequest, runtime: $RuntimeOptions): asyncIterator[RunCompletionMessageResponse] {
+  tmpReq.validate();
+  var request = new RunCompletionMessageShrinkRequest{};
+  OpenApiUtil.convert(tmpReq, request);
+  if (!$isNull(tmpReq.messages)) {
+    request.messagesShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.messages, 'Messages', 'json');
+  }
+  var body : map[string]any = {};
+  if (!$isNull(request.messagesShrink)) {
+    body['Messages'] = request.messagesShrink;
+  }
+  if (!$isNull(request.modelCode)) {
+    body['ModelCode'] = request.modelCode;
+  }
+  if (!$isNull(request.stream)) {
+    body['Stream'] = request.stream;
+  }
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'RunCompletionMessage',
+    version = '2019-01-15',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  var sseResp = callSSEApi(params, req, runtime);
+  for (var resp : sseResp) {
+    if (!$isNull(resp.event) && !$isNull(resp.event.data)) {
+      var data = $object($JSON.parseJSON(resp.event.data));
+      yield {
+        statusCode = resp.statusCode,
+        headers = resp.headers,
+        id = resp.event.id,
+        event = resp.event.event,
+        body = data
+      };
+    }
+  }
+}
+/**
+ * @summary 使用原生Prompt调用通义晓蜜
+ *
+ * @param tmpReq RunCompletionMessageRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return RunCompletionMessageResponse
+ */
+@context("runCompletionMessageWithContext")
+async function runCompletionMessageWithOptions(tmpReq: RunCompletionMessageRequest, runtime: $RuntimeOptions): RunCompletionMessageResponse {
+  tmpReq.validate();
+  var request = new RunCompletionMessageShrinkRequest{};
+  OpenApiUtil.convert(tmpReq, request);
+  if (!$isNull(tmpReq.messages)) {
+    request.messagesShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.messages, 'Messages', 'json');
+  }
+  var body : map[string]any = {};
+  if (!$isNull(request.messagesShrink)) {
+    body['Messages'] = request.messagesShrink;
+  }
+  if (!$isNull(request.modelCode)) {
+    body['ModelCode'] = request.modelCode;
+  }
+  if (!$isNull(request.stream)) {
+    body['Stream'] = request.stream;
+  }
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'RunCompletionMessage',
+    version = '2019-01-15',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 使用原生Prompt调用通义晓蜜
+ *
+ * @param request RunCompletionMessageRequest
+ * @return RunCompletionMessageResponse
+ */
+async function runCompletionMessage(request: RunCompletionMessageRequest): RunCompletionMessageResponse {
+  var runtime = new $RuntimeOptions{};
+  return runCompletionMessageWithOptions(request, runtime);
+}
+
 model SaveConfigDataSetRequest {
   baseMeAgentId?: long(name='BaseMeAgentId', description='baseMeAgentId'),
   jsonStr?: string(name='JsonStr', description='This parameter is required.'),
