@@ -72,6 +72,7 @@ model AgentRuntime {
   credentialName?: string(name='credentialName', description='用于访问智能体的凭证名称，访问智能体运行时将使用此凭证进行身份验证', example='my-credential'),
   description?: string(name='description', description='智能体运行时的描述信息，说明该运行时的用途和功能', example='AI agent runtime for customer service automation'),
   diskSize?: integer(name='diskSize'),
+  edition?: string(name='edition'),
   enableSessionIsolation?: boolean(name='enableSessionIsolation', description='是否启用会话隔离，启用后每个会话将在独立的环境中运行', example='false'),
   environmentVariables?: map[string]string(name='environmentVariables', description='智能体运行时的环境变量配置', example='ENV_VAR1=value1,ENV_VAR2=value2'),
   executionRoleArn?: string(name='executionRoleArn', description='为智能体运行时提供访问云服务权限的执行角色ARN', example='acs:ram::1760720386195983:role/AgentRunExecutionRole'),
@@ -560,6 +561,7 @@ This parameter is required.', example='2.0'),
   credentialName?: string(name='credentialName', description='用于访问智能体的凭证名称，访问智能体运行时将使用此凭证进行身份验证', example='my-credential'),
   description?: string(name='description', description='智能体运行时的描述信息，用于说明该运行时的用途和功能', example='AI agent runtime for customer service automation'),
   diskSize?: int32(name='diskSize'),
+  edition?: string(name='edition'),
   enableSessionIsolation?: boolean(name='enableSessionIsolation', description='是否启用会话隔离，启用后每个会话将在独立的环境中运行', example='false'),
   environmentVariables?: map[string]string(name='environmentVariables', description='智能体运行时的环境变量配置，用于在运行时传递配置参数', example='ENV_VAR1=value1,ENV_VAR2=value2'),
   executionRoleArn?: string(name='executionRoleArn', description='为智能体运行时提供访问云服务权限的执行角色ARN', example='acs:ram::1760720386195983:role/AgentRunExecutionRole'),
@@ -707,6 +709,7 @@ model CreateDomainInput {
 
 model CreateFlowEndpointInput {
   description?: string(name='description', description='工作流端点的描述信息', example='Production endpoint for flow'),
+  disablePublicNetworkAccess?: boolean(name='disablePublicNetworkAccess', description='是否禁用该端点的公网访问。创建时未指定则从父工作流继承'),
   flowEndpointName: string(name='flowEndpointName', description='工作流端点的唯一标识名称
 
 This parameter is required.', example='my-flow-endpoint'),
@@ -719,6 +722,7 @@ This parameter is required.', example='my-flow-endpoint'),
 model CreateFlowInput {
   definition?: string(name='definition', description='工作流的定义内容，采用JSON或YAML格式', example='{}'),
   description?: string(name='description', description='工作流的描述信息，用于说明该工作流的用途和功能', example='Customer service automation flow'),
+  disablePublicNetworkAccess?: boolean(name='disablePublicNetworkAccess', description='是否禁用该工作流的公网访问，作为工作流级别的默认策略。当 FlowEndpoint 未指定时，将继承此值'),
   environmentConfiguration?: EnvironmentConfiguration(name='environmentConfiguration', description='工作流的环境变量配置，包含一组命名变量列表'),
   executionRoleArn?: string(name='executionRoleArn', description='为工作流提供访问云服务权限的执行角色ARN', example='acs:ram::1760720386195983:role/FlowExecutionRole'),
   externalStorageLocation?: string(name='externalStorageLocation', description='工作流的外部存储位置，如OSS路径', example='oss://bucket/path'),
@@ -1220,6 +1224,7 @@ model Flow {
   createdAt?: string(name='createdAt', description='工作流的创建时间，采用ISO 8601格式', example='2025-01-10T10:30:00Z'),
   definition?: string(name='definition', description='工作流的定义内容', example='{}'),
   description?: string(name='description', description='工作流的描述信息，说明该工作流的用途和功能', example='Customer service automation flow'),
+  disablePublicNetworkAccess?: boolean(name='disablePublicNetworkAccess', description='是否禁用该工作流的公网访问，作为工作流级别的默认策略'),
   environmentConfiguration?: EnvironmentConfiguration(name='environmentConfiguration', description='工作流的环境变量配置，包含一组命名变量列表'),
   executionRoleArn?: string(name='executionRoleArn', description='为工作流提供访问云服务权限的执行角色ARN', example='acs:ram::1760720386195983:role/FlowExecutionRole'),
   externalStorageLocation?: string(name='externalStorageLocation', description='工作流的外部存储位置', example='oss://bucket/path'),
@@ -1236,6 +1241,7 @@ model Flow {
 model FlowEndpoint {
   createdAt?: string(name='createdAt', description='工作流端点的创建时间，采用ISO 8601格式', example='2025-01-10T10:30:00Z'),
   description?: string(name='description', description='工作流端点的描述信息', example='Production endpoint for flow'),
+  disablePublicNetworkAccess?: boolean(name='disablePublicNetworkAccess', description='是否禁用该端点的公网访问'),
   flowEndpointArn?: string(name='flowEndpointArn', description='工作流端点的全局唯一资源名称', example='acs:agentrun:cn-hangzhou:1760720386195983:workspaces/ws-xxx/flows/flow-xxx/endpoints/fe-xxx'),
   flowEndpointId?: string(name='flowEndpointId', description='工作流端点的唯一标识符', example='fe-1234567890abcdef'),
   flowEndpointName?: string(name='flowEndpointName', description='工作流端点的名称', example='my-flow-endpoint'),
@@ -2236,6 +2242,8 @@ model PaginationInfo {
 
 model PathConfig {
   agentRuntimeEndpointName?: string(name='agentRuntimeEndpointName', description='agent runtime 版本（仅当 resourceType 为 runtime 时有效）'),
+  compatibleProtocol?: string(name='compatibleProtocol', description='兼容协议，指定后端响应格式转换。仅当 resourceType 为 flow 时必填：native 表示 FnF 原生调用；openai、dify-workflow、dify-chatflow 为对应兼容 API。', example='native'),
+  flowEndpointName?: string(name='flowEndpointName', description='Flow 版本/别名（仅当 resourceType 为 flow 时有效，默认 Default）', example='Default'),
   methods?: [ string ](name='methods', description='支持的方法有：HEAD, GET, POST, PUT, DELETE, PATCH, OPTIONS', example='[\\"GET\\"]'),
   path?: string(name='path', description='此条路由规则对应的请求路径。', example='/login'),
   removeBasePathOnForward?: boolean(name='removeBasePathOnForward'),
@@ -2706,6 +2714,7 @@ model UpdateAgentRuntimeInput {
   credentialName?: string(name='credentialName', description='用于访问智能体的凭证名称，访问智能体运行时将使用此凭证进行身份验证', example='my-credential'),
   description?: string(name='description', example='更新后的智能体运行时描述'),
   diskSize?: int32(name='diskSize'),
+  edition?: string(name='edition'),
   enableSessionIsolation?: boolean(name='enableSessionIsolation', description='是否启用会话隔离，启用后每个会话将在独立的环境中运行', example='false'),
   environmentVariables?: map[string]string(name='environmentVariables', description='智能体运行时的环境变量配置，用于在运行时传递配置参数', example='ENV_VAR1=value1,ENV_VAR2=value2'),
   executionRoleArn?: string(name='executionRoleArn', description='为智能体运行时提供访问云服务权限的执行角色ARN', example='acs:ram::1760720386195983:role/AgentRunExecutionRole'),
@@ -2793,6 +2802,7 @@ model UpdateFlowDraftInput {
 
 model UpdateFlowEndpointInput {
   description?: string(name='description', description='工作流端点的描述信息', example='Production endpoint for flow'),
+  disablePublicNetworkAccess?: boolean(name='disablePublicNetworkAccess', description='是否禁用该端点的公网访问'),
   flowEndpointName?: string(name='flowEndpointName', description='工作流端点的唯一标识名称', example='my-flow-endpoint'),
   routingConfiguration?: [
     FlowEndpointRoutingConfig
@@ -2803,6 +2813,7 @@ model UpdateFlowEndpointInput {
 model UpdateFlowInput {
   definition?: string(name='definition', description='工作流的定义内容，采用JSON或YAML格式', example='{}'),
   description?: string(name='description', description='工作流的描述信息，用于说明该工作流的用途和功能', example='Customer service automation flow'),
+  disablePublicNetworkAccess?: boolean(name='disablePublicNetworkAccess', description='是否禁用该工作流的公网访问，作为工作流级别的默认策略。当 FlowEndpoint 未指定时，将继承此值'),
   environmentConfiguration?: EnvironmentConfiguration(name='environmentConfiguration', description='工作流的环境变量配置，包含一组命名变量列表'),
   executionRoleArn?: string(name='executionRoleArn', description='为工作流提供访问云服务权限的执行角色ARN', example='acs:ram::1760720386195983:role/FlowExecutionRole'),
   externalStorageLocation?: string(name='externalStorageLocation', description='工作流的外部存储位置，如OSS路径', example='oss://bucket/path'),
