@@ -119,6 +119,100 @@ async function addCategory(WorkspaceId: string, request: AddCategoryRequest): Ad
   return addCategoryWithOptions(WorkspaceId, request, headers, runtime);
 }
 
+model AddConnectorRequest {
+  connectorName?: string(name='ConnectorName', description='This parameter is required.', example='test-connector'),
+  connectorType?: string(name='ConnectorType', description='This parameter is required.', example='FILE'),
+  description?: string(name='Description', description='This parameter is required.'),
+  fileConnectorConfig?: {
+    bucketName?: string(name='BucketName', example='zyb-docker-registry-jn'),
+    regionId?: string(name='RegionId', example='cn-hangzhou'),
+    storageType?: string(name='StorageType', example='OSS_CUSTOM'),
+  }(name='FileConnectorConfig'),
+}
+
+model AddConnectorShrinkRequest {
+  connectorName?: string(name='ConnectorName', description='This parameter is required.', example='test-connector'),
+  connectorType?: string(name='ConnectorType', description='This parameter is required.', example='FILE'),
+  description?: string(name='Description', description='This parameter is required.'),
+  fileConnectorConfigShrink?: string(name='FileConnectorConfig'),
+}
+
+model AddConnectorResponseBody = {
+  code?: string(name='Code', example='Success'),
+  data?: {
+    connectorId?: string(name='ConnectorId', example='conn_file_e0c9db4030b2465a9478028f7d76cd92_1234'),
+  }(name='Data'),
+  message?: string(name='Message', example='Current file status does not support delete.'),
+  requestId?: string(name='RequestId', description='Id of the request', example='35A267BF-FBFA-54DB-8394-AA3B0742D833'),
+  status?: string(name='Status', example='200'),
+  success?: boolean(name='Success', example='true'),
+}
+
+model AddConnectorResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: AddConnectorResponseBody(name='body'),
+}
+
+/**
+ * @summary 创建连接器
+ *
+ * @param tmpReq AddConnectorRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return AddConnectorResponse
+ */
+async function addConnectorWithOptions(WorkspaceId: string, tmpReq: AddConnectorRequest, headers: map[string]string, runtime: Util.RuntimeOptions): AddConnectorResponse {
+  Util.validateModel(tmpReq);
+  var request = new AddConnectorShrinkRequest{};
+  OpenApiUtil.convert(tmpReq, request);
+  if (!Util.isUnset(tmpReq.fileConnectorConfig)) {
+    request.fileConnectorConfigShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.fileConnectorConfig, 'FileConnectorConfig', 'json');
+  }
+  var body : map[string]any = {};
+  if (!Util.isUnset(request.connectorName)) {
+    body['ConnectorName'] = request.connectorName;
+  }
+  if (!Util.isUnset(request.connectorType)) {
+    body['ConnectorType'] = request.connectorType;
+  }
+  if (!Util.isUnset(request.description)) {
+    body['Description'] = request.description;
+  }
+  if (!Util.isUnset(request.fileConnectorConfigShrink)) {
+    body['FileConnectorConfig'] = request.fileConnectorConfigShrink;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApi.Params{
+    action = 'AddConnector',
+    version = '2023-12-29',
+    protocol = 'HTTPS',
+    pathname = `/${OpenApiUtil.getEncodeParam(WorkspaceId)}/datacenter/connector`,
+    method = 'POST',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 创建连接器
+ *
+ * @param request AddConnectorRequest
+ * @return AddConnectorResponse
+ */
+async function addConnector(WorkspaceId: string, request: AddConnectorRequest): AddConnectorResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return addConnectorWithOptions(WorkspaceId, request, headers, runtime);
+}
+
 model AddFileRequest {
   categoryId?: string(name='CategoryId', description='The primary key ID of the category to which the document is uploaded. This parameter corresponds to the `CategoryId` returned by the [AddCategory](https://www.alibabacloud.com/help/eh/model-studio/developer-reference/api-bailian-2023-12-29-addcategory) operation. You can also click the ID icon next to the category name on the Unstructured Data tab of the [Application Data](https://modelstudio.console.alibabacloud.com/#/data-center) page to view the ID. You can set the parameter to default, which specifies the Default Category created by the system.
 
@@ -2591,6 +2685,79 @@ async function getAvailableParserTypes(WorkspaceId: string, request: GetAvailabl
   return getAvailableParserTypesWithOptions(WorkspaceId, request, headers, runtime);
 }
 
+model GetConnectorRequest {
+  connectorId?: string(name='ConnectorId', example='file_conn_xxxx'),
+  connectorName?: string(name='ConnectorName'),
+}
+
+model GetConnectorResponseBody = {
+  code?: string(name='Code', example='success'),
+  data?: {
+    connectorId?: string(name='ConnectorId', example='conn_file_e0c9db4030b2465a9478028f7d76cd92_1234'),
+    connectorName?: string(name='ConnectorName', example='name'),
+    connectorType?: string(name='ConnectorType', example='FILE'),
+    description?: string(name='Description', example='Description'),
+  }(name='Data'),
+  message?: string(name='Message', example='Requests throttling triggered.'),
+  requestId?: string(name='RequestId', description='Id of the request', example='7BA8ADD9-53D6-53F0-918F-A1E776AD230E'),
+  status?: string(name='Status', example='200'),
+  success?: boolean(name='Success', example='True'),
+}
+
+model GetConnectorResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: GetConnectorResponseBody(name='body'),
+}
+
+/**
+ * @summary GetConnector
+ *
+ * @param request GetConnectorRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return GetConnectorResponse
+ */
+async function getConnectorWithOptions(WorkspaceId: string, request: GetConnectorRequest, headers: map[string]string, runtime: Util.RuntimeOptions): GetConnectorResponse {
+  Util.validateModel(request);
+  var query : map[string]any = {};
+  if (!Util.isUnset(request.connectorId)) {
+    query['ConnectorId'] = request.connectorId;
+  }
+  if (!Util.isUnset(request.connectorName)) {
+    query['ConnectorName'] = request.connectorName;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'GetConnector',
+    version = '2023-12-29',
+    protocol = 'HTTPS',
+    pathname = `/${OpenApiUtil.getEncodeParam(WorkspaceId)}/datacenter/connector`,
+    method = 'GET',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary GetConnector
+ *
+ * @param request GetConnectorRequest
+ * @return GetConnectorResponse
+ */
+async function getConnector(WorkspaceId: string, request: GetConnectorRequest): GetConnectorResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return getConnectorWithOptions(WorkspaceId, request, headers, runtime);
+}
+
 model GetIndexJobStatusRequest {
   indexId?: string(name='IndexId', description='The primary key ID of the knowledge base, which is the `Data.Id` parameter returned by the [CreateIndex](https://www.alibabacloud.com/help/en/model-studio/developer-reference/api-bailian-2023-12-29-createindex) operation.
 
@@ -3226,6 +3393,7 @@ async function highCodeDeploy(workspaceId: string, request: HighCodeDeployReques
 model ListCategoryRequest {
   categoryName?: string(name='CategoryName'),
   categoryType?: string(name='CategoryType', description='This parameter is required.', example='UNSTRUCTURED'),
+  connectorId?: string(name='ConnectorId', example='file_conn_xxxxx'),
   maxResults?: int32(name='MaxResults', example='20'),
   nextToken?: string(name='NextToken', example='AAAAAdH70eOCSCKtacdomNzak4U='),
   parentCategoryId?: string(name='ParentCategoryId', example='cate_cdd11b1b79a74e8bbd675c356a91ee3XXXXXXXX'),
@@ -3276,6 +3444,9 @@ async function listCategoryWithOptions(WorkspaceId: string, request: ListCategor
   }
   if (!Util.isUnset(request.categoryType)) {
     body['CategoryType'] = request.categoryType;
+  }
+  if (!Util.isUnset(request.connectorId)) {
+    body['ConnectorId'] = request.connectorId;
   }
   if (!Util.isUnset(request.maxResults)) {
     body['MaxResults'] = request.maxResults;
@@ -3425,6 +3596,17 @@ model ListFileRequest {
   categoryId?: string(name='CategoryId', description='The category ID, which is the `CategoryId` returned by the [AddCategory](~~AddCategory~~) operation. To view the category ID, click the ID icon next to the category name on the Unstructured Data tab of the [Data Management](https://bailian.console.alibabacloud.com/#/data-center) page.
 
 This parameter is required.', example='cate_cdd11b1b79a74e8bbd675c356a91ee3510024405'),
+  fileIds?: [ string ](name='FileIds'),
+  fileName?: string(name='FileName'),
+  maxResults?: int32(name='MaxResults', example='20'),
+  nextToken?: string(name='NextToken', example='AAAAAdH70eOCSCKtacdomNzak4U='),
+}
+
+model ListFileShrinkRequest {
+  categoryId?: string(name='CategoryId', description='The category ID, which is the `CategoryId` returned by the [AddCategory](~~AddCategory~~) operation. To view the category ID, click the ID icon next to the category name on the Unstructured Data tab of the [Data Management](https://bailian.console.alibabacloud.com/#/data-center) page.
+
+This parameter is required.', example='cate_cdd11b1b79a74e8bbd675c356a91ee3510024405'),
+  fileIdsShrink?: string(name='FileIds'),
   fileName?: string(name='FileName'),
   maxResults?: int32(name='MaxResults', example='20'),
   nextToken?: string(name='NextToken', example='AAAAAdH70eOCSCKtacdomNzak4U='),
@@ -3471,16 +3653,24 @@ model ListFileResponse = {
  * *   This operation is idempotent.
  * **Throttling:** Throttling will be triggered if you call this operation frequently. Do not exceed 5 times per second. If throttling is triggered, try again later.
  *
- * @param request ListFileRequest
+ * @param tmpReq ListFileRequest
  * @param headers map
  * @param runtime runtime options for this request RuntimeOptions
  * @return ListFileResponse
  */
-async function listFileWithOptions(WorkspaceId: string, request: ListFileRequest, headers: map[string]string, runtime: Util.RuntimeOptions): ListFileResponse {
-  Util.validateModel(request);
+async function listFileWithOptions(WorkspaceId: string, tmpReq: ListFileRequest, headers: map[string]string, runtime: Util.RuntimeOptions): ListFileResponse {
+  Util.validateModel(tmpReq);
+  var request = new ListFileShrinkRequest{};
+  OpenApiUtil.convert(tmpReq, request);
+  if (!Util.isUnset(tmpReq.fileIds)) {
+    request.fileIdsShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.fileIds, 'FileIds', 'json');
+  }
   var query : map[string]any = {};
   if (!Util.isUnset(request.categoryId)) {
     query['CategoryId'] = request.categoryId;
+  }
+  if (!Util.isUnset(request.fileIdsShrink)) {
+    query['FileIds'] = request.fileIdsShrink;
   }
   if (!Util.isUnset(request.fileName)) {
     query['FileName'] = request.fileName;
