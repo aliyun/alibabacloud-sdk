@@ -1,0 +1,251 @@
+/**
+ *
+ */
+import OpenApi;
+import OpenApi.OpenApiUtil;
+
+extends OpenApi;
+
+
+init(config: OpenApiUtil.Config){
+  super(config);
+  @endpointRule = '';
+  
+  checkConfig(config);
+  @endpoint = getEndpoint('agentexplorer', @regionId, @endpointRule, @network, @suffix, @endpointMap, @endpoint);
+}
+
+function getEndpoint(productId: string, regionId: string, endpointRule: string, network: string, suffix: string, endpointMap: map[string]string, endpoint: string) throws: string{
+  if (!$isNull(endpoint)) {
+    return endpoint;
+  }
+  
+  if (!$isNull(endpointMap) && !$isNull(endpointMap[regionId])) {
+    return endpointMap[regionId];
+  }
+  return OpenApiUtil.getEndpointRules(productId, regionId, endpointRule, network, suffix);
+}
+
+model Category {
+  children?: [ 
+    {
+      code?: string(name='code', example='ecs'),
+      name?: string(name='name'),
+    }
+  ](name='children'),
+  code?: string(name='code', example='compute'),
+  name?: string(name='name'),
+}
+
+model Skill {
+  categoryCode?: string(name='categoryCode', example='compute'),
+  categoryName?: string(name='categoryName'),
+  createdAt?: string(name='createdAt', example='2026-01-01T00:00:00Z'),
+  description?: string(name='description'),
+  displayName?: string(name='displayName'),
+  installCount?: int32(name='installCount', example='1024'),
+  likeCount?: int32(name='likeCount', example='128'),
+  skillName?: string(name='skillName', example='deploy-to-vercel'),
+  subCategoryCode?: string(name='subCategoryCode', example='ecs'),
+  subCategoryName?: string(name='subCategoryName'),
+  updatedAt?: string(name='updatedAt', example='2026-03-17T00:00:00Z'),
+}
+
+model GetSkillContentRequest {
+}
+
+model GetSkillContentResponseBody = {
+  content?: string(name='content', example='---
+name: alibabacloud-find-skills
+description: "Search for official Alibaba Cloud Agent Skills based on user requirements"
+---
+
+Agent Skill Body Content Here'),
+  requestId?: string(name='requestId', description='Id of the request', example='1764D64D-5262-55DA-BDBF-1F949B1B34F7'),
+}
+
+model GetSkillContentResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: GetSkillContentResponseBody(name='body'),
+}
+
+/**
+ * @summary 获取阿里云 Agent Skill 内容
+ *
+ * @param request GetSkillContentRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return GetSkillContentResponse
+ */
+@context("getSkillContentWithContext")
+async function getSkillContentWithOptions(skillName: string, request: GetSkillContentRequest, headers: map[string]string, runtime: $RuntimeOptions): GetSkillContentResponse {
+  request.validate();
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    headers = headers,
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'GetSkillContent',
+    version = '2026-03-17',
+    protocol = 'HTTPS',
+    pathname = `/openapi/skills/${$URL.percentEncode(skillName)}`,
+    method = 'GET',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 获取阿里云 Agent Skill 内容
+ *
+ * @param request GetSkillContentRequest
+ * @return GetSkillContentResponse
+ */
+async function getSkillContent(skillName: string, request: GetSkillContentRequest): GetSkillContentResponse {
+  var runtime = new $RuntimeOptions{};
+  var headers : map[string]string = {};
+  return getSkillContentWithOptions(skillName, request, headers, runtime);
+}
+
+model ListCategoriesRequest {
+}
+
+model ListCategoriesResponseBody = {
+  data?: [
+    Category
+  ](name='data'),
+  message?: string(name='message', example='success'),
+  requestId?: string(name='requestId', example='099A671E-FA21-5A36-8A73-918572DDEF53'),
+}
+
+model ListCategoriesResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ListCategoriesResponseBody(name='body'),
+}
+
+/**
+ * @summary 列举所有的阿里云 Skills 类目
+ *
+ * @param request ListCategoriesRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return ListCategoriesResponse
+ */
+@context("listCategoriesWithContext")
+async function listCategoriesWithOptions(request: ListCategoriesRequest, headers: map[string]string, runtime: $RuntimeOptions): ListCategoriesResponse {
+  request.validate();
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    headers = headers,
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'ListCategories',
+    version = '2026-03-17',
+    protocol = 'HTTPS',
+    pathname = `/openapi/categories`,
+    method = 'GET',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 列举所有的阿里云 Skills 类目
+ *
+ * @param request ListCategoriesRequest
+ * @return ListCategoriesResponse
+ */
+async function listCategories(request: ListCategoriesRequest): ListCategoriesResponse {
+  var runtime = new $RuntimeOptions{};
+  var headers : map[string]string = {};
+  return listCategoriesWithOptions(request, headers, runtime);
+}
+
+model SearchSkillsRequest {
+  categoryCode?: string(name='categoryCode', example='compute.serverless,network'),
+  keyword?: string(name='keyword', example='ecs'),
+  maxResults?: int32(name='maxResults', example='20'),
+  nextToken?: string(name='nextToken', example='AAAAAZjtYxxxxxxxx'),
+  skip?: int32(name='skip', example='10'),
+}
+
+model SearchSkillsResponseBody = {
+  data?: [
+    Skill
+  ](name='data'),
+  maxResults?: int32(name='maxResults', example='20'),
+  nextToken?: string(name='nextToken', example='AAAAAZjtYxxxxxxxx'),
+  requestId?: string(name='requestId', description='Id of the request', example='53EAEBC0-4DEC-5AF4-AA21-3923D5A819C3'),
+  totalCount?: int32(name='totalCount', example='22'),
+}
+
+model SearchSkillsResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: SearchSkillsResponseBody(name='body'),
+}
+
+/**
+ * @summary 通过关键词、类目搜索阿里云 Agent Skills
+ *
+ * @param request SearchSkillsRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return SearchSkillsResponse
+ */
+@context("searchSkillsWithContext")
+async function searchSkillsWithOptions(request: SearchSkillsRequest, headers: map[string]string, runtime: $RuntimeOptions): SearchSkillsResponse {
+  request.validate();
+  var query : map[string]any = {};
+  if (!$isNull(request.categoryCode)) {
+    query['categoryCode'] = request.categoryCode;
+  }
+  if (!$isNull(request.keyword)) {
+    query['keyword'] = request.keyword;
+  }
+  if (!$isNull(request.maxResults)) {
+    query['maxResults'] = request.maxResults;
+  }
+  if (!$isNull(request.nextToken)) {
+    query['nextToken'] = request.nextToken;
+  }
+  if (!$isNull(request.skip)) {
+    query['skip'] = request.skip;
+  }
+
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'SearchSkills',
+    version = '2026-03-17',
+    protocol = 'HTTPS',
+    pathname = `/openapi/skills`,
+    method = 'GET',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 通过关键词、类目搜索阿里云 Agent Skills
+ *
+ * @param request SearchSkillsRequest
+ * @return SearchSkillsResponse
+ */
+async function searchSkills(request: SearchSkillsRequest): SearchSkillsResponse {
+  var runtime = new $RuntimeOptions{};
+  var headers : map[string]string = {};
+  return searchSkillsWithOptions(request, headers, runtime);
+}
+
