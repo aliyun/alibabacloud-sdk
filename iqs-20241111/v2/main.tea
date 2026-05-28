@@ -311,6 +311,32 @@ model RequestContents {
   summary?: boolean(name='summary'),
 }
 
+model ScanFileInfo {
+  angle?: int32(name='angle', example='100'),
+  height?: int32(name='height', example='100'),
+  imageBase64?: bytes(name='imageBase64', example='erwre'),
+  width?: int32(name='width', example='100'),
+}
+
+model ScanFileInput {
+  imageBase64?: string(name='imageBase64', example='wrwqr'),
+  imageUrl?: string(name='imageUrl', example='https://www.1241.png'),
+  scanFileInputConfig?: ScanFileInputConfig(name='scanFileInputConfig'),
+}
+
+model ScanFileInputConfig {
+  autoCrop?: string(name='autoCrop'),
+  autoRotate?: string(name='autoRotate'),
+}
+
+model ScanFileOutput {
+  requestId?: string(name='requestId', example='ECB2144C-E277-5434-80E6-12D26678D364'),
+  scanFileInfoList?: [
+    ScanFileInfo
+  ](name='scanFileInfoList'),
+  searchInformation?: UnifiedSearchInformation(name='searchInformation'),
+}
+
 model SceneItem {
   detail?: string(name='detail'),
   type?: string(name='type'),
@@ -1169,7 +1195,7 @@ async function omniAnswerWithSSE(request: OmniAnswerRequest, headers: map[string
   var sseResp = callSSEApi(params, req, runtime);
   for (var resp : sseResp) {
     if (!$isNull(resp.event) && !$isNull(resp.event.data)) {
-      var data = $object($JSON.parseJSON(resp.event.data));
+      var data = resp.event.data;
       yield {
         statusCode = resp.statusCode,
         headers = resp.headers,
@@ -1335,6 +1361,57 @@ async function readPageScrape(request: ReadPageScrapeRequest): ReadPageScrapeRes
   var runtime = new $RuntimeOptions{};
   var headers : map[string]string = {};
   return readPageScrapeWithOptions(request, headers, runtime);
+}
+
+model ScanFileRequest {
+  body?: ScanFileInput(name='body'),
+}
+
+model ScanFileResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ScanFileOutput  
+}
+
+/**
+ * @summary 扫描文件
+ *
+ * @param request ScanFileRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return ScanFileResponse
+ */
+@context("scanFileWithContext")
+async function scanFileWithOptions(request: ScanFileRequest, headers: map[string]string, runtime: $RuntimeOptions): ScanFileResponse {
+  request.validate();
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    headers = headers,
+    body = OpenApiUtil.parseToMap(request.body),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'ScanFile',
+    version = '2024-11-11',
+    protocol = 'HTTPS',
+    pathname = `/linked-retrieval/linked-retrieval-entry/v1/iqs/domain/scan/file`,
+    method = 'POST',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 扫描文件
+ *
+ * @param request ScanFileRequest
+ * @return ScanFileResponse
+ */
+async function scanFile(request: ScanFileRequest): ScanFileResponse {
+  var runtime = new $RuntimeOptions{};
+  var headers : map[string]string = {};
+  return scanFileWithOptions(request, headers, runtime);
 }
 
 model UnifiedSearchRequest {

@@ -313,6 +313,32 @@ model RequestContents {
   summary?: boolean(name='summary'),
 }
 
+model ScanFileInfo {
+  angle?: int32(name='angle'),
+  height?: int32(name='height'),
+  imageBase64?: bytes(name='imageBase64'),
+  width?: int32(name='width'),
+}
+
+model ScanFileInput {
+  imageBase64?: string(name='imageBase64'),
+  imageUrl?: string(name='imageUrl'),
+  scanFileInputConfig?: ScanFileInputConfig(name='scanFileInputConfig'),
+}
+
+model ScanFileInputConfig {
+  autoCrop?: string(name='autoCrop'),
+  autoRotate?: string(name='autoRotate'),
+}
+
+model ScanFileOutput {
+  requestId?: string(name='requestId'),
+  scanFileInfoList?: [
+    ScanFileInfo
+  ](name='scanFileInfoList'),
+  searchInformation?: UnifiedSearchInformation(name='searchInformation'),
+}
+
 model SceneItem {
   detail?: string(name='detail'),
   type?: string(name='type'),
@@ -700,9 +726,9 @@ async function omniAnswerWithAsyncResponseHandler(request: OmniAnswerRequest, re
   return @handler.doResponseHandler('RESTFUL', 'OmniAnswer', 'POST', '/linked-retrieval/linked-retrieval-entry/v1/iqs/answer/omni/search', 'string', false, 'json', request, responseHandler);
 }
 
-function omniAnswerWithResponseIterable(request: OmniAnswerRequest): iterator[any] {
+function omniAnswerWithResponseIterable(request: OmniAnswerRequest): iterator[string] {
   @handler.validateRequestModel(request);
-  yield @handler.doSSERequest('SSE', 'OmniAnswer', 'POST', '/linked-retrieval/linked-retrieval-entry/v1/iqs/answer/omni/search', 'string', false, 'json', request);
+  yield @handler.doSSERequestReturnString('SSE', 'OmniAnswer', 'POST', '/linked-retrieval/linked-retrieval-entry/v1/iqs/answer/omni/search', 'string', false, 'json', request);
 }
 
 model ReadPageBasicRequest {
@@ -755,6 +781,25 @@ model ReadPageScrapeResponse = {
 async function readPageScrape(request: ReadPageScrapeRequest): ReadPageScrapeResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RESTFUL', 'ReadPageScrape', 'POST', '/linked-retrieval/linked-retrieval-entry/v1/iqs/readpage/scrape', 'json', false, 'json', request);
+}
+
+model ScanFileRequest {
+  body?: ScanFileInput(name='body', position='Body'),
+}
+
+model ScanFileResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ScanFileOutput  
+}
+
+/**
+  * @param request  the request parameters of ScanFile  ScanFileRequest
+  * @return ScanFileResponse
+ */
+async function scanFile(request: ScanFileRequest): ScanFileResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'ScanFile', 'POST', '/linked-retrieval/linked-retrieval-entry/v1/iqs/domain/scan/file', 'json', false, 'json', request);
 }
 
 model UnifiedSearchRequest {
