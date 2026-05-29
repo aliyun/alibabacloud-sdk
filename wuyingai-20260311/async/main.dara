@@ -30,6 +30,80 @@ function close(): void {
   @handler.close();
 }
 
+model ChatRequest {
+  authorization?: string(name='Authorization', example='Bearer%20eyJhb****...****k', position='Query'),
+  externalUserId?: string(name='ExternalUserId', example='test-user', position='Body'),
+  input?: [ 
+    {
+      content?: [ 
+        {
+          fileUrl?: string(name='FileUrl', example='/workspace/report.pdf'),
+          imageUrl?: string(name='ImageUrl', example='https://example.com/img.jpg'),
+          text?: string(name='Text', example='帮我分析这张图片'),
+          type?: string(name='Type', example='text'),
+        }
+      ](name='Content'),
+      role?: string(name='Role', example='user'),
+    }
+  ](name='Input', example='[{"Role":"user","Content":[{"Type":"text","Text":"你好"}]}]', shrink='json', position='Body'),
+  routingKey?: string(name='RoutingKey', example='""', position='Body'),
+  sessionId?: string(name='SessionId', example='test-session-001', position='Body'),
+  settings?: {
+    outputFileMode?: string(name='OutputFileMode', example='base64'),
+  }(name='Settings', example='{"OutputFileMode": "url"}', shrink='json', position='Body'),
+  streamOptions?: {
+    includeReasoning?: boolean(name='IncludeReasoning', example='true'),
+    includeToolCalls?: boolean(name='IncludeToolCalls', example='true'),
+  }(name='StreamOptions', example='{"IncludeReasoning": false, "IncludeToolCalls": false}', shrink='json', position='Body'),
+  templateId?: string(name='TemplateId', example='template-abc123', position='Query'),
+}
+
+model ChatResponseBody = {
+  code?: string(name='Code', example='200'),
+  content?: [ 
+    {
+      data?: map[string]any(name='Data', example='{"call_id":"call_xxx","name":"get_weather","arguments":"{"city":"Beijing"}"}'),
+      object?: string(name='Object', example='""'),
+      text?: string(name='Text', example='您好'),
+      type?: string(name='Type', example='text'),
+    }
+  ](name='Content'),
+  created?: string(name='Created', example='1773380609'),
+  createdAt?: string(name='CreatedAt', example='1773380609'),
+  httpStatusCode?: int32(name='HttpStatusCode', example='200'),
+  id?: string(name='Id', example='msg_xxx'),
+  message?: string(name='Message', example='null'),
+  object?: string(name='Object', example='response'),
+  requestId?: string(name='RequestId', example='EA12****-****-****-****-****E5C'),
+  role?: string(name='Role', example='user'),
+  sequenceNumber?: string(name='SequenceNumber', example='1'),
+  sessionId?: string(name='SessionId', example='176405663****961'),
+  status?: string(name='Status', example='in_progress'),
+  success?: boolean(name='Success', example='true'),
+  text?: string(name='Text', example='"hello"'),
+  type?: string(name='Type', example='message / text'),
+}
+
+model ChatResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ChatResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of Chat  ChatRequest
+  * @return ChatResponse
+ */
+async function chat(request: ChatRequest): ChatResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'Chat', 'POST', '/api/agent/chat', 'json', true, 'form', request);
+}
+
+function chatWithResponseIterable(request: ChatRequest): iterator[ChatResponseBody] {
+  @handler.validateRequestModel(request);
+  yield @handler.doSSERequest('SSE', 'Chat', 'POST', '/api/agent/chat', 'json', true, 'form', request);
+}
+
 model GetAccessTokenRequest {
   externalUserId?: string(name='ExternalUserId', example='"user-38764"', position='Query'),
   templateId?: string(name='TemplateId', example='1600112233445566', position='Query'),

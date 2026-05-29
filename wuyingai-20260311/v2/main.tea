@@ -26,6 +26,232 @@ function getEndpoint(productId: string, regionId: string, endpointRule: string, 
   return OpenApiUtil.getEndpointRules(productId, regionId, endpointRule, network, suffix);
 }
 
+model ChatRequest {
+  authorization?: string(name='Authorization', example='Bearer%20eyJhb****...****k'),
+  externalUserId?: string(name='ExternalUserId', example='test-user'),
+  input?: [ 
+    {
+      content?: [ 
+        {
+          fileUrl?: string(name='FileUrl', example='/workspace/report.pdf'),
+          imageUrl?: string(name='ImageUrl', example='https://example.com/img.jpg'),
+          text?: string(name='Text', example='帮我分析这张图片'),
+          type?: string(name='Type', example='text'),
+        }
+      ](name='Content'),
+      role?: string(name='Role', example='user'),
+    }
+  ](name='Input', example='[{"Role":"user","Content":[{"Type":"text","Text":"你好"}]}]'),
+  routingKey?: string(name='RoutingKey', example='""'),
+  sessionId?: string(name='SessionId', example='test-session-001'),
+  settings?: {
+    outputFileMode?: string(name='OutputFileMode', example='base64'),
+  }(name='Settings', example='{"OutputFileMode": "url"}'),
+  streamOptions?: {
+    includeReasoning?: boolean(name='IncludeReasoning', example='true'),
+    includeToolCalls?: boolean(name='IncludeToolCalls', example='true'),
+  }(name='StreamOptions', example='{"IncludeReasoning": false, "IncludeToolCalls": false}'),
+  templateId?: string(name='TemplateId', example='template-abc123'),
+}
+
+model ChatShrinkRequest {
+  authorization?: string(name='Authorization', example='Bearer%20eyJhb****...****k'),
+  externalUserId?: string(name='ExternalUserId', example='test-user'),
+  inputShrink?: string(name='Input', example='[{"Role":"user","Content":[{"Type":"text","Text":"你好"}]}]'),
+  routingKey?: string(name='RoutingKey', example='""'),
+  sessionId?: string(name='SessionId', example='test-session-001'),
+  settingsShrink?: string(name='Settings', example='{"OutputFileMode": "url"}'),
+  streamOptionsShrink?: string(name='StreamOptions', example='{"IncludeReasoning": false, "IncludeToolCalls": false}'),
+  templateId?: string(name='TemplateId', example='template-abc123'),
+}
+
+model ChatResponseBody = {
+  code?: string(name='Code', example='200'),
+  content?: [ 
+    {
+      data?: map[string]any(name='Data', example='{"call_id":"call_xxx","name":"get_weather","arguments":"{"city":"Beijing"}"}'),
+      object?: string(name='Object', example='""'),
+      text?: string(name='Text', example='您好'),
+      type?: string(name='Type', example='text'),
+    }
+  ](name='Content'),
+  created?: string(name='Created', example='1773380609'),
+  createdAt?: string(name='CreatedAt', example='1773380609'),
+  httpStatusCode?: int32(name='HttpStatusCode', example='200'),
+  id?: string(name='Id', example='msg_xxx'),
+  message?: string(name='Message', example='null'),
+  object?: string(name='Object', example='response'),
+  requestId?: string(name='RequestId', example='EA12****-****-****-****-****E5C'),
+  role?: string(name='Role', example='user'),
+  sequenceNumber?: string(name='SequenceNumber', example='1'),
+  sessionId?: string(name='SessionId', example='176405663****961'),
+  status?: string(name='Status', example='in_progress'),
+  success?: boolean(name='Success', example='true'),
+  text?: string(name='Text', example='"hello"'),
+  type?: string(name='Type', example='message / text'),
+}
+
+model ChatResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  id?: string(name='id'),
+  event?: string(name='event'),
+  body?: ChatResponseBody(name='body'),
+}
+
+/**
+ * @summary 与 JVS Crew 进行流式对话，采用 Server-Sent Events (SSE) 协议实时推送对话内容。
+ *
+ * @param tmpReq ChatRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return ChatResponse
+ */
+@sse(true)
+@context("chatWithSSECtx")
+async function chatWithSSE(tmpReq: ChatRequest, runtime: $RuntimeOptions): asyncIterator[ChatResponse] {
+  tmpReq.validate();
+  var request = new ChatShrinkRequest{};
+  OpenApiUtil.convert(tmpReq, request);
+  if (!$isNull(tmpReq.input)) {
+    request.inputShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.input, 'Input', 'json');
+  }
+  if (!$isNull(tmpReq.settings)) {
+    request.settingsShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.settings, 'Settings', 'json');
+  }
+  if (!$isNull(tmpReq.streamOptions)) {
+    request.streamOptionsShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.streamOptions, 'StreamOptions', 'json');
+  }
+  var query = {};
+  if (!$isNull(request.authorization)) {
+    query['Authorization'] = request.authorization;
+  }
+  if (!$isNull(request.templateId)) {
+    query['TemplateId'] = request.templateId;
+  }
+  var body : map[string]any = {};
+  if (!$isNull(request.externalUserId)) {
+    body['ExternalUserId'] = request.externalUserId;
+  }
+  if (!$isNull(request.inputShrink)) {
+    body['Input'] = request.inputShrink;
+  }
+  if (!$isNull(request.routingKey)) {
+    body['RoutingKey'] = request.routingKey;
+  }
+  if (!$isNull(request.sessionId)) {
+    body['SessionId'] = request.sessionId;
+  }
+  if (!$isNull(request.settingsShrink)) {
+    body['Settings'] = request.settingsShrink;
+  }
+  if (!$isNull(request.streamOptionsShrink)) {
+    body['StreamOptions'] = request.streamOptionsShrink;
+  }
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'Chat',
+    version = '2026-03-11',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'Anonymous',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  var sseResp = callSSEApi(params, req, runtime);
+  for (var resp : sseResp) {
+    if (!$isNull(resp.event) && !$isNull(resp.event.data)) {
+      var data = $object($JSON.parseJSON(resp.event.data));
+      yield {
+        statusCode = resp.statusCode,
+        headers = resp.headers,
+        id = resp.event.id,
+        event = resp.event.event,
+        body = data
+      };
+    }
+  }
+}
+/**
+ * @summary 与 JVS Crew 进行流式对话，采用 Server-Sent Events (SSE) 协议实时推送对话内容。
+ *
+ * @param tmpReq ChatRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return ChatResponse
+ */
+@context("chatWithContext")
+async function chatWithOptions(tmpReq: ChatRequest, runtime: $RuntimeOptions): ChatResponse {
+  tmpReq.validate();
+  var request = new ChatShrinkRequest{};
+  OpenApiUtil.convert(tmpReq, request);
+  if (!$isNull(tmpReq.input)) {
+    request.inputShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.input, 'Input', 'json');
+  }
+  if (!$isNull(tmpReq.settings)) {
+    request.settingsShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.settings, 'Settings', 'json');
+  }
+  if (!$isNull(tmpReq.streamOptions)) {
+    request.streamOptionsShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.streamOptions, 'StreamOptions', 'json');
+  }
+  var query = {};
+  if (!$isNull(request.authorization)) {
+    query['Authorization'] = request.authorization;
+  }
+  if (!$isNull(request.templateId)) {
+    query['TemplateId'] = request.templateId;
+  }
+  var body : map[string]any = {};
+  if (!$isNull(request.externalUserId)) {
+    body['ExternalUserId'] = request.externalUserId;
+  }
+  if (!$isNull(request.inputShrink)) {
+    body['Input'] = request.inputShrink;
+  }
+  if (!$isNull(request.routingKey)) {
+    body['RoutingKey'] = request.routingKey;
+  }
+  if (!$isNull(request.sessionId)) {
+    body['SessionId'] = request.sessionId;
+  }
+  if (!$isNull(request.settingsShrink)) {
+    body['Settings'] = request.settingsShrink;
+  }
+  if (!$isNull(request.streamOptionsShrink)) {
+    body['StreamOptions'] = request.streamOptionsShrink;
+  }
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'Chat',
+    version = '2026-03-11',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'Anonymous',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return doRPCRequest(params.action, params.version, params.protocol, params.method, params.authType, params.bodyType, req, runtime);
+}
+
+/**
+ * @summary 与 JVS Crew 进行流式对话，采用 Server-Sent Events (SSE) 协议实时推送对话内容。
+ *
+ * @param request ChatRequest
+ * @return ChatResponse
+ */
+async function chat(request: ChatRequest): ChatResponse {
+  var runtime = new $RuntimeOptions{};
+  return chatWithOptions(request, runtime);
+}
+
 model GetAccessTokenRequest {
   externalUserId?: string(name='ExternalUserId', example='"user-38764"'),
   templateId?: string(name='TemplateId', example='1600112233445566'),
