@@ -144,15 +144,40 @@ You can use the client to generate the token, but you must make sure that the to
 This parameter is required.', example='sgp-atstuj3rtop****'),
   servers?: [ 
     {
-      description?: string(name='Description', example='test'),
-      port?: int32(name='Port', example='80'),
-      remoteIpEnabled?: boolean(name='RemoteIpEnabled'),
-      serverId?: string(name='ServerId', example='ecs-123'),
-      serverIp?: string(name='ServerIp', example='192.168.1.1'),
-      serverType?: string(name='ServerType', description='This parameter is required.', example='ecs'),
-      weight?: int32(name='Weight', example='100'),
+      description?: string(name='Description', description='The description of the backend server. The description must be 2 to 256 characters in length and cannot start with http:// or https://.', example='test'),
+      port?: int32(name='Port', description='The port that is used by the backend server. Valid values: **1** to **65535**. You can specify at most 200 servers in each call.
+
+>  This parameter is required if you set **ServerType** to **Ecs**, **Eni**, **Eci**, or **Ip**. You do not need to set this parameter if **ServerType** is set to **Fc**.', example='80'),
+      remoteIpEnabled?: boolean(name='RemoteIpEnabled', description='Specifies whether to enable the remote IP feature. You can specify at most 200 servers in each call. Default values:
+
+*   **true**: enables the feature.
+*   **false**: disables the feature.
+
+>  This parameter takes effect only when **ServerType** is set to **Ip**.', example='false'),
+      serverId?: string(name='ServerId', description='The ID of the server group. You can specify at most 200 servers in each call.
+
+*   If the server group is of the **Instance** type, set ServerId to the ID of a resource of the **Ecs**, **Eni**, or **Eci** type.
+*   If the server group is of the **Ip** type, set this parameter to IP addresses.
+*   If the server group is of the **Fc** type, set ServerId to an Alibaba Cloud Resource Name (ARN).', example='ecs-bp67acfmxazb4p****'),
+      serverIp?: string(name='ServerIp', description='The IP address of the backend server. You can specify at most 200 servers in each call.
+
+>  You do not need to set this parameter if you set **ServerType** to **Fc**.', example='192.168.1.1'),
+      serverType?: string(name='ServerType', description='The type of the backend server. You can specify at most 200 servers in each call. Default values:
+
+*   **Ecs**: Elastic Compute Service (ECS) instance
+*   **Eni**: elastic network interface (ENI)
+*   **Eci**: elastic container instance
+*   **Ip**: IP address
+*   **Fc**: Function Compute
+
+This parameter is required.', example='Ecs'),
+      weight?: int32(name='Weight', description='The weight of the backend server. Valid values: **0** to **100**. Default value: **100**. If the value is set to **0**, no requests are forwarded to the server. You can specify at most 200 servers in each call.
+
+>  You do not need to set this parameter if you set **ServerType** to **Fc**.', example='100'),
     }
-  ](name='Servers', description='This parameter is required.'),
+  ](name='Servers', description='The backend servers. You can specify at most 200 servers in each call.
+
+This parameter is required.'),
 }
 
 model AddServersToServerGroupResponseBody = {
@@ -547,7 +572,7 @@ model AttachCommonBandwidthPackageToLoadBalancerResponse = {
 }
 
 /**
- * @summary Associates an EIP bandwidth plan with an Application Load Balancer (ALB) instance.
+ * @summary Associates an Internet Shared Bandwidth instance with an Application Load Balancer (ALB) instance.
  *
  * @description **AttachCommonBandwidthPackageToLoadBalancer** is an asynchronous operation. After a request is sent, the system returns a request ID and runs the task in the background. You can call [GetLoadBalancerAttribute](https://help.aliyun.com/document_detail/214362.html) to query the status of the task.
  * *   If the ALB instance is in the **Configuring** state, the EIP bandwidth plan is being associated with the ALB instance.
@@ -594,7 +619,7 @@ async function attachCommonBandwidthPackageToLoadBalancerWithOptions(request: At
 }
 
 /**
- * @summary Associates an EIP bandwidth plan with an Application Load Balancer (ALB) instance.
+ * @summary Associates an Internet Shared Bandwidth instance with an Application Load Balancer (ALB) instance.
  *
  * @description **AttachCommonBandwidthPackageToLoadBalancer** is an asynchronous operation. After a request is sent, the system returns a request ID and runs the task in the background. You can call [GetLoadBalancerAttribute](https://help.aliyun.com/document_detail/214362.html) to query the status of the task.
  * *   If the ALB instance is in the **Configuring** state, the EIP bandwidth plan is being associated with the ALB instance.
@@ -1496,6 +1521,11 @@ The reason must be 2 to 128 characters in length, can contain letters, digits, p
 >  If the parameter is set to **ConsoleProtection**, the configuration read-only mode is enabled. You cannot modify the configurations of the ALB instance in the ALB console. However, you can call API operations to modify the configurations of the ALB instance.', example='ConsoleProtection'),
   }(name='ModificationProtectionConfig', description='The configuration read-only mode settings.'),
   resourceGroupId?: string(name='ResourceGroupId', description='The ID of the resource group.', example='rg-atstuj3rtop****'),
+  securityGroupIds?: [ 
+    {
+      securityGroupId?: string(name='SecurityGroupId', example='sg-gw82chzr7ru23iwbn9mu'),
+    }
+  ](name='SecurityGroupIds'),
   tag?: [ 
     {
       key?: string(name='Key', description='The tag key can be up to 128 characters in length, and cannot start with acs: or aliyun. It cannot contain http:// or https://.', example='env'),
@@ -1585,6 +1615,9 @@ async function createLoadBalancerWithOptions(request: CreateLoadBalancerRequest,
   }
   if (!$isNull(request.resourceGroupId)) {
     query['ResourceGroupId'] = request.resourceGroupId;
+  }
+  if (!$isNull(request.securityGroupIds)) {
+    query['SecurityGroupIds'] = request.securityGroupIds;
   }
   if (!$isNull(request.tag)) {
     query['Tag'] = request.tag;
@@ -2047,127 +2080,297 @@ You can use the client to generate the token, but you must make sure that the to
 This parameter is required.', example='lsr-bp1bpn0kn908w4nbw****'),
   rules?: [ 
     {
-      direction?: string(name='Direction'),
-      priority?: int32(name='Priority', description='This parameter is required.'),
+      direction?: string(name='Direction', description='The traffic direction to which the forwarding rule is applied.
+
+Valid values:
+
+*   Response
+*   Request', example='Request'),
+      priority?: int32(name='Priority', description='The priority of the forwarding rule.
+
+This parameter is required.', example='10'),
       ruleActions?: [ 
         {
           corsConfig?: {
-            allowCredentials?: string(name='AllowCredentials'),
-            allowHeaders?: [ string ](name='AllowHeaders'),
-            allowMethods?: [ string ](name='AllowMethods'),
-            allowOrigin?: [ string ](name='AllowOrigin'),
-            exposeHeaders?: [ string ](name='ExposeHeaders'),
-            maxAge?: long(name='MaxAge'),
-          }(name='CorsConfig'),
+            allowCredentials?: string(name='AllowCredentials', description='Include credentials in CORS requests. Valid values:
+
+*   **on**
+*   **off**', example='on'),
+            allowHeaders?: [ string ](name='AllowHeaders', description='The trusted header of CORS requests.'),
+            allowMethods?: [ string ](name='AllowMethods', description='The trusted HTTP methods of CORS requests.'),
+            allowOrigin?: [ string ](name='AllowOrigin', description='The trusted origins of CORS requests.'),
+            exposeHeaders?: [ string ](name='ExposeHeaders', description='The headers that can be exposed.'),
+            maxAge?: long(name='MaxAge', description='The maximum cache time for preflight requests in the browser. Unit: seconds.
+
+Valid values: **-1** to **172800**.', example='1000'),
+          }(name='CorsConfig', description='The CORS configuration.'),
           fixedResponseConfig?: {
-            content?: string(name='Content'),
-            contentType?: string(name='ContentType'),
-            httpCode?: string(name='HttpCode'),
-          }(name='FixedResponseConfig'),
+            content?: string(name='Content', description='The content of the custom response. The content cannot exceed 1 KB in size, and can contain only ASCII characters.', example='dssacav'),
+            contentType?: string(name='ContentType', description='The format of the custom response.
+
+Valid values: **text/plain**, **text/css**, **text/html**, **application/javascript**, and **application/json**', example='text/plain'),
+            httpCode?: string(name='HttpCode', description='The HTTP status code in responses. Valid values: **2xx**, **4xx**, and **5xx**. The value must be a numeric string. **x** can be any digit.', example='HTTP_200'),
+          }(name='FixedResponseConfig', description='The configuration of the action to return a fixed response.'),
           forwardGroupConfig?: {
             serverGroupStickySession?: {
-              enabled?: boolean(name='Enabled'),
-              timeout?: int32(name='Timeout'),
-            }(name='ServerGroupStickySession'),
+              enabled?: boolean(name='Enabled', description='Enables session persistence. Valid values:
+
+*   **true**
+*   **false** (default)', example='false'),
+              timeout?: int32(name='Timeout', description='The timeout period for sessions. Unit: seconds. Valid values: **1** to **86400**. Default value: **1000**.', example='2'),
+            }(name='ServerGroupStickySession', description='The configuration of session persistence.'),
             serverGroupTuples?: [ 
               {
-                serverGroupId?: string(name='ServerGroupId'),
-                weight?: int32(name='Weight'),
+                serverGroupId?: string(name='ServerGroupId', description='The ID of the server group.', example='sgp-k86c1ov501id6p****'),
+                weight?: int32(name='Weight', description='The weight of the server group. A larger value indicates a higher weight. A server group with a higher weight receives more requests. Valid values: **0** to **100**
+
+*   If the number of destination server groups is 1, the default weight of the server group is **100**. You can specify another value.
+*   If the number of destination server groups is larger than 1, you must specify weights for the server groups.', example='100'),
               }
-            ](name='ServerGroupTuples'),
-          }(name='ForwardGroupConfig'),
+            ](name='ServerGroupTuples', description='The server groups to which requests are forwarded.'),
+          }(name='ForwardGroupConfig', description='The configuration of the action to forward requests to server groups.'),
           insertHeaderConfig?: {
-            key?: string(name='Key'),
-            value?: string(name='Value'),
-            valueType?: string(name='ValueType'),
-          }(name='InsertHeaderConfig'),
-          order?: int32(name='Order', description='This parameter is required.'),
+            key?: string(name='Key', description='The key of the header, which can contain a maximum of 40 characters. Supported characters include letters, digits, underscores (_), and hyphens (-). The header keys specified by **InsertHeaderConfig** must be unique.
+
+>  You cannot specify the following header keys: `slb-id`, `slb-ip`, `x-forwarded-for`, `x-forwarded-proto`, `x-forwarded-eip`, `x-forwarded-port`, `x-forwarded-client-srcport`, `connection`, `upgrade`, `content-length`, `transfer-encoding`, `keep-alive`, `te`, `host`, `cookie`, `remoteip`, `authority`, and `x-forwarded-host`. The header keys are case-insensitive.', example='key'),
+            value?: string(name='Value', description='The value of the header.
+
+*   If **ValueType** is set to **SystemDefined**, you can set this parameter to one of the following values:
+
+    *   **ClientSrcPort**: the client port.
+    *   **ClientSrcIp**: the client IP address.
+    *   **Protocol**: the request protocol (HTTP or HTTPS).
+    *   **SLBId**: the ID of the ALB instance.
+    *   **SLBPort**: the listener port of the ALB instance.
+
+*   If **ValueType** is set to **UserDefined**, specify a custom header value. The header value can contain a maximum of 128 characters, and supports printable characters whose ASCII values are `greater than or equal to 32 and lower than 127` and asterisks (\\\\*) and question marks (?) as wildcard characters. Quotation marks (`"`) are not supported. The header value cannot start or end with a space or end with a backslash (`\\\\`).
+
+*   If **ValueType** is set to **ReferenceHeader**, you can reference a value from request headers. The value can contain a maximum of 128 characters. Supported characters include lowercase letters, digits, hyphens (-), and underscores (_).', example='UserDefined'),
+            valueType?: string(name='ValueType', description='The type of the header value. Valid values are:
+
+*   **UserDefined**: a custom header value
+*   **ReferenceHeader**: a header value that references one of the request headers
+*   **SystemDefined**: a system-defined header value', example='UserDefined'),
+          }(name='InsertHeaderConfig', description='The configuration of the action to insert a header.'),
+          order?: int32(name='Order', description='The priority of the action. Valid values: **1 to 50000**. A lower value indicates a higher priority. The actions of a forwarding rule are applied in descending order of priority. This parameter is required. The priority of each action within a forwarding rule must be unique.
+
+This parameter is required.', example='1'),
           redirectConfig?: {
-            host?: string(name='Host'),
-            httpCode?: string(name='HttpCode'),
-            path?: string(name='Path'),
-            port?: string(name='Port'),
-            protocol?: string(name='Protocol'),
-            query?: string(name='Query'),
-          }(name='RedirectConfig'),
+            host?: string(name='Host', description='The hostname to which requests are redirected. Valid values are:
+
+*   **${host}** (default): This value cannot be concatenated with any other characters.
+
+*   A custom hostname, which must meet the following requirements:
+
+    *   Contain 3 to 128 characters. Supported characters include lowercase letters, digits, and the following characters: - . \\\\* (as wildcard characters) = ~ _ + \\\\ ^ ! $ & | ( ) [ ] ?
+    *   Contain at least one period (.) but cannot start or end with a period (.).
+    *   The rightmost domain label can contain only letters and wildcard characters, and cannot contain digits or hyphens (-). The leftmost `domain label` can be an asterisk (\\\\*).
+    *   The other domain labels do not start or end with hyphens (-).
+    *   Support asterisks (\\\\*) and question marks (?) anywhere in a domain label as wildcard characters.', example='www.example.com'),
+            httpCode?: string(name='HttpCode', description='The HTTP status code that indicates the redirect type. Valid values: **301**, **302**, **303**, **307**, and **308**.', example='301'),
+            path?: string(name='Path', description='The path to which requests are redirected. Valid values are:
+
+*   **${path}** (default): You can reference **${host}**, **${protocol}**, and **${port}**, with each appearing only once. You can also concatenate any preceding variable with strings that meet the following requirements.
+
+*   A custom path, which must meet the following requirements:
+
+    *   Contain a maximum of 128 characters and is case-sensitive. Support asterisks (\\\\*) and question marks (?) as wildcard characters.
+    *   Start with a forward slash (/), and can contain letters, digits, and the following special characters: `$-_.+/&~@:\\\\"*?`. It cannot contain the following special characters: `“%#;!()[]^,”\\\\"`. Support asterisks (\\\\*) and question marks (?) as wildcard characters.', example='/test'),
+            port?: string(name='Port', description='The port to which requests are redirected. Valid values are:
+
+*   **${port}** (default): This value cannot be concatenated with any other characters.
+*   A custom port number. Valid values: **1 to 63335**.', example='10'),
+            protocol?: string(name='Protocol', description='The redirect protocol. Valid values are:
+
+*   **${protocol}** (default): This value cannot be modified or concatenated with any other characters.
+*   **HTTP**
+*   **HTTPS**
+
+> 
+
+*   For HTTPS listeners, you can only redirect HTTPS to HTTPS.
+
+*   For HTTP listeners, you can redirect HTTP to either HTTP or HTTPS.', example='HTTP'),
+            query?: string(name='Query', description='The query string to which requests are redirected.
+
+*   **${query}** (default): You can reference **${host}**, **${protocol}**, and **${port}**, with each appearing only once. You can also concatenate any preceding variable with strings that meet the following requirements.
+
+*   A custom query string, which must meet the following requirements:
+
+    *   Contain a maximum of 128 characters.
+    *   Contain printable characters, excluding space characters, the special characters `#[]{}\\\\|<>"`, and uppercase letters.', example='quert'),
+          }(name='RedirectConfig', description='The configuration of the redirect action.
+
+>  Do not set all parameters in **RedirectConfig** to default values, excluding **httpCode**.'),
           removeHeaderConfig?: {
-            key?: string(name='Key'),
-          }(name='RemoveHeaderConfig'),
+            key?: string(name='Key', description='The key of the header to be removed. It can contain a maximum of 40 characters and supports letters, digits, underscores (_), and hyphens (-). The header keys specified in RemoveHeader must be unique.
+
+*   If Direction is set to Request, the following request headers cannot be removed: `slb-id`, `slb-ip`, `x-forwarded-for`, `x-forwarded-proto`, `x-forwarded-eip`, `x-forwarded-port`, `x-forwarded-client-srcport`, `connection`, `upgrade`, `content-length`, `transfer-encoding`, `keep-alive`, `te`, `host`, `cookie`, `remoteip`, `authority`, and `x-forwarded-host`.
+*   If Direction is set to Response, the following response headers (case-insensitive) cannot be removed: `connection`, `upgrade`, `content-length`, and `transfer-encoding`.', example='test'),
+          }(name='RemoveHeaderConfig', description='The configuration of the action to remove a header.'),
           rewriteConfig?: {
-            host?: string(name='Host'),
-            path?: string(name='Path'),
-            query?: string(name='Query'),
-          }(name='RewriteConfig'),
+            host?: string(name='Host', description='The hostname to which requests are rewritten. Valid values are:
+
+*   **${host}** (default): This value cannot be concatenated with any other characters.
+
+*   A custom hostname, which must meet the following requirements:
+
+    *   Contain 3 to 128 characters. Supported characters include lowercase letters, digits, and the following characters: - . \\\\* (as wildcard characters) = ~ _ + \\\\ ^ ! $ & | ( ) [ ] ?
+    *   Contain at least one period (.) but cannot start or end with a period (.).
+    *   The rightmost domain label can contain only letters and wildcard characters, and cannot contain digits or hyphens (-). The leftmost `domain label` can be an asterisk (\\\\*).
+    *   The other domain labels do not start or end with hyphens (-). You can use asterisks (\\\\*) and question marks (?) anywhere in a domain label as wildcard characters.', example='www.example.com'),
+            path?: string(name='Path', description='The path to which requests are rewritten. Valid values are:
+
+*   **${path}** (default): You can reference **${host}**, **${protocol}**, and **${port}**, with each appearing only once. You can also concatenate any preceding variable with strings that meet the following requirements.
+
+*   A custom path, which must meet the following requirements:
+
+    *   Contain a maximum of 128 characters and is case-sensitive. Support asterisks (\\\\*) and question marks (?) as wildcard characters.
+    *   Start with a forward slash (/), and can contain letters, digits, and the following special characters: `$-_.+/&~@:\\\\"*?`. It cannot contain the following special characters: `“%#;!()[]^,”\\\\"`. Support asterisks (\\\\*) and question marks (?) as wildcard characters.', example='/tsdf'),
+            query?: string(name='Query', description='The query string of the URL to which requests are rewritten.
+
+*   **${query}** (default): You can reference **${host}**, **${protocol}**, and **${port}**, with each appearing only once. You can also concatenate any preceding variable with strings that meet the following requirements.
+
+*   A custom query string, which must meet the following requirements:
+
+    *   Contain a maximum of 128 characters.
+    *   Contain printable characters, excluding space characters, the special characters `#[]{}\\\\|<>"`, and uppercase letters.', example='quedsa'),
+          }(name='RewriteConfig', description='The configuration of the rewrite action.
+
+>  If you specify a **Rewrite** action along with other types of actions in a forwarding rule, you must also specify a **ForwardGroup** action.'),
           trafficLimitConfig?: {
-            perIpQps?: int32(name='PerIpQps'),
-            QPS?: int32(name='QPS'),
-          }(name='TrafficLimitConfig'),
+            perIpQps?: int32(name='PerIpQps', description='QPS per IP address. Valid values: **1 to 1000000**.
+
+>  If both the **QPS** and **PerIpQps** parameters are specified, the value of the **QPS** parameter must be smaller than that of the PerIpQps parameter.', example='80'),
+            QPS?: int32(name='QPS', description='Queries per second (QPS). Valid values: **1** to **1000000**.', example='100'),
+          }(name='TrafficLimitConfig', description='The configuration of the action to throttle traffic.'),
           trafficMirrorConfig?: {
             mirrorGroupConfig?: {
               serverGroupTuples?: [ 
                 {
-                  serverGroupId?: string(name='ServerGroupId'),
+                  serverGroupId?: string(name='ServerGroupId', description='The ID of the server group.', example='srg-00mkgijak0w4qgz9****'),
                 }
-              ](name='ServerGroupTuples'),
-            }(name='MirrorGroupConfig'),
-            targetType?: string(name='TargetType'),
-          }(name='TrafficMirrorConfig'),
-          type?: string(name='Type', description='This parameter is required.'),
+              ](name='ServerGroupTuples', description='The server group to which traffic is mirrored.'),
+            }(name='MirrorGroupConfig', description='The configuration of the server group to which traffic is mirrored.'),
+            targetType?: string(name='TargetType', description='The type of destination to which network traffic is mirrored. Valid value:
+
+*   **ForwardGroupMirror**: a server group', example='ForwardGroupMirror'),
+          }(name='TrafficMirrorConfig', description='The configuration of the action to mirror traffic.'),
+          type?: string(name='Type', description='The type of the action. Valid values are:
+
+*   **ForwardGroup**: forwards requests to multiple vServer groups.
+*   **Redirect**: redirects requests.
+*   **FixedResponse**: returns a fixed response.
+*   **Rewrite**: rewrites requests.
+*   **InsertHeader**: inserts a header.
+*   **RemoveHeader**: deletes a header.
+*   **TrafficLimit**: throttles traffic.
+*   **trafficMirror**: mirrors network traffic.
+*   **Cors**: forwards requests based on CORS.
+
+Actions in each forwarding rule must meet the following requirements:
+
+*   **Each forwarding rule must include one and only one of the following actions: **ForwardGroup**, **Redirect**, or **FixedResponse**, and this action must be performed last.**
+*   **Each forwarding rule may contain none, one, or more actions of other types.************** You can specify multiple **InsertHeader** actions or one **Rewrite** action.
+
+This parameter is required.', example='ForwardGroup'),
         }
-      ](name='RuleActions', description='This parameter is required.'),
+      ](name='RuleActions', description='The actions of the forwarding rule.
+
+This parameter is required.'),
       ruleConditions?: [ 
         {
           cookieConfig?: {
             values?: [ 
               {
-                key?: string(name='Key'),
-                value?: string(name='Value'),
+                key?: string(name='Key', description='The cookie key.
+
+*   Contain a maximum of 100 characters.
+*   Support asterisks (\\\\*) and question marks (?) as wildcard characters.
+*   Support printable characters, excluding uppercase letters, space characters, and the following special characters: `; # [ ] { } \\\\ | < > & "`.', example='test'),
+                value?: string(name='Value', description='The cookie value.
+
+*   Contain a maximum of 100 characters.
+*   Support asterisks (\\\\*) and question marks (?) as wildcard characters.
+*   Support printable characters, excluding uppercase letters, space characters, and the following special characters: `; # [ ] { } \\\\ | < > & "`.', example='test'),
               }
-            ](name='Values'),
-          }(name='CookieConfig'),
+            ](name='Values', description='The key-value pairs in cookies.'),
+          }(name='CookieConfig', description='The configuration of the cookie condition.'),
           headerConfig?: {
-            key?: string(name='Key'),
-            values?: [ string ](name='Values'),
-          }(name='HeaderConfig'),
+            key?: string(name='Key', description='The key of the HTTP header.
+
+*   Contain a maximum of 40 characters.
+*   Support letters, digits, hyphens (-), and underscores (_).
+*   Do not support Cookie or Host.', example='Port'),
+            values?: [ string ](name='Values', description='The values of the HTTP header.'),
+          }(name='HeaderConfig', description='The configuration of the HTTP header condition.'),
           hostConfig?: {
-            values?: [ string ](name='Values'),
-          }(name='HostConfig'),
+            values?: [ string ](name='Values', description='The hostnames.'),
+          }(name='HostConfig', description='The configuration of the hostname condition.'),
           methodConfig?: {
-            values?: [ string ](name='Values'),
-          }(name='MethodConfig'),
+            values?: [ string ](name='Values', description='The HTTP request methods.'),
+          }(name='MethodConfig', description='The configuration of the HTTP request method condition.'),
           pathConfig?: {
-            values?: [ string ](name='Values'),
-          }(name='PathConfig'),
+            values?: [ string ](name='Values', description='The paths to which requests are forwarded.'),
+          }(name='PathConfig', description='The configuration of the path condition.'),
           queryStringConfig?: {
             values?: [ 
               {
-                key?: string(name='Key'),
-                value?: string(name='Value'),
+                key?: string(name='Key', description='The key of the query string.
+
+*   Contain a maximum of 100 characters.
+*   Support asterisks (\\\\*) and question marks (?) as wildcard characters. Support printable characters, excluding uppercase letters, space characters, and the following special characters: `# [ ] { } \\\\ | < > & "`.', example='test'),
+                value?: string(name='Value', description='The value of the query string.
+
+*   Contain a maximum of 128 characters.
+*   Support printable characters, excluding uppercase letters, space characters, and the following special characters: `# [ ] { } \\\\ | < > & "`. You can use asterisks (\\\\*) and question marks (?) as wildcard characters.', example='test'),
               }
-            ](name='Values'),
-          }(name='QueryStringConfig'),
+            ](name='Values', description='The key-value pairs in query strings.'),
+          }(name='QueryStringConfig', description='The configurations of the query string condition.'),
           responseHeaderConfig?: {
-            key?: string(name='Key'),
-            values?: [ string ](name='Values'),
-          }(name='ResponseHeaderConfig'),
+            key?: string(name='Key', description='The key of the HTTP response header.
+
+*   Contain a maximum of 40 characters.
+*   Support letters, digits, hyphens (-), and underscores (_).
+*   Do not support Cookie or Host.', example='Port'),
+            values?: [ string ](name='Values', description='The values of the HTTP response header.'),
+          }(name='ResponseHeaderConfig', description='The configuration of the HTTP response header condition.'),
           responseStatusCodeConfig?: {
-            values?: [ string ](name='Values'),
-          }(name='ResponseStatusCodeConfig'),
+            values?: [ string ](name='Values', description='The response status codes.'),
+          }(name='ResponseStatusCodeConfig', description='The configuration of the response status code condition.'),
           sourceIpConfig?: {
-            values?: [ string ](name='Values'),
-          }(name='SourceIpConfig'),
-          type?: string(name='Type', description='This parameter is required.'),
+            values?: [ string ](name='Values', description='The condition that matches requests based on source IP addresses.'),
+          }(name='SourceIpConfig', description='The configuration of the condition that matches requests based on source IP addresses.'),
+          type?: string(name='Type', description='The type of the condition. Valid values:
+
+*   Host: forwards requests based on hosts.
+*   Path: forwards requests based on paths.
+*   Header: forwards requests based on HTTP headers.
+*   QueryString: forwards requests based on query strings.
+*   Method: forwards requests based on HTTP request methods.
+*   Cookie: forwards requests based on cookies.
+*   SourceIp: forwards requests based on source IP addresses.
+*   ResponseHeader: forwards requests based on HTTP response headers.
+*   ResponseStatusCode: forwards requests based on response status codes.
+
+This parameter is required.', example='Host'),
         }
-      ](name='RuleConditions', description='This parameter is required.'),
-      ruleName?: string(name='RuleName', description='This parameter is required.'),
+      ](name='RuleConditions', description='The conditions of the forwarding rule.
+
+This parameter is required.'),
+      ruleName?: string(name='RuleName', description='The name of the forwarding rule.
+
+This parameter is required.', example='test'),
       tag?: [ 
         {
-          key?: string(name='Key'),
-          value?: string(name='Value'),
+          key?: string(name='Key', description='The key of the tag. It can contain a maximum of 128 characters, cannot start with aliyun or acs:, and cannot contain http:// or https://.', example='env'),
+          value?: string(name='Value', description='The value of the tag. It can contain a maximum of 128 characters, cannot start with aliyun or acs:, and cannot contain http:// or https://.', example='product'),
         }
-      ](name='Tag'),
+      ](name='Tag', description='The tags.'),
     }
-  ](name='Rules', description='This parameter is required.'),
+  ](name='Rules', description='The details about the forwarding rules.
+
+This parameter is required.'),
 }
 
 model CreateRulesResponseBody = {
@@ -2476,6 +2679,7 @@ Default value: **3**', example='3'),
   }(name='HealthCheckConfig', description='The configuration of the health check feature.
 
 This parameter is required.'),
+  ipVersionAffinityMode?: string(name='IpVersionAffinityMode', example='Affinity'),
   ipv6Enabled?: boolean(name='Ipv6Enabled', description='Specifies whether to enable Ipv6.', example='false'),
   protocol?: string(name='Protocol', description='The backend protocol. Valid values:
 
@@ -2605,6 +2809,9 @@ async function createServerGroupWithOptions(request: CreateServerGroupRequest, r
   }
   if (!$isNull(request.healthCheckConfig)) {
     query['HealthCheckConfig'] = request.healthCheckConfig;
+  }
+  if (!$isNull(request.ipVersionAffinityMode)) {
+    query['IpVersionAffinityMode'] = request.ipVersionAffinityMode;
   }
   if (!$isNull(request.ipv6Enabled)) {
     query['Ipv6Enabled'] = request.ipv6Enabled;
@@ -3001,6 +3208,7 @@ You can use the client to generate the token, but you must make sure that the to
   loadBalancerId?: string(name='LoadBalancerId', description='The ALB instance ID.
 
 This parameter is required.', example='lb-bp1b6c719dfa08ex****'),
+  retainResourceType?: [ string ](name='RetainResourceType'),
 }
 
 model DeleteLoadBalancerResponseBody = {
@@ -3037,6 +3245,9 @@ async function deleteLoadBalancerWithOptions(request: DeleteLoadBalancerRequest,
   }
   if (!$isNull(request.loadBalancerId)) {
     query['LoadBalancerId'] = request.loadBalancerId;
+  }
+  if (!$isNull(request.retainResourceType)) {
+    query['RetainResourceType'] = request.retainResourceType;
   }
   var req = new OpenApiUtil.OpenApiRequest{ 
     query = OpenApiUtil.query(query),
@@ -3624,7 +3835,7 @@ model DetachCommonBandwidthPackageFromLoadBalancerResponse = {
 }
 
 /**
- * @summary Disassociates an elastic IP address (EIP) bandwidth plan from an Application Load Balancer (ALB) instance.
+ * @summary Disassociates an Internet Shared Bandwidth instance from an Application Load Balancer (ALB) instance.
  *
  * @description **DetachCommonBandwidthPackageFromLoadBalancer** is an asynchronous operation. After a request is sent, the system returns a request ID and runs the task in the background. You can call the [GetLoadBalancerAttribute](https://help.aliyun.com/document_detail/214359.html) operation to query the status of the task.
  * *   If an ALB instance is in the **Configuring** state, the EIP bandwidth plan is being disassociated from the ALB instance.
@@ -3671,7 +3882,7 @@ async function detachCommonBandwidthPackageFromLoadBalancerWithOptions(request: 
 }
 
 /**
- * @summary Disassociates an elastic IP address (EIP) bandwidth plan from an Application Load Balancer (ALB) instance.
+ * @summary Disassociates an Internet Shared Bandwidth instance from an Application Load Balancer (ALB) instance.
  *
  * @description **DetachCommonBandwidthPackageFromLoadBalancer** is an asynchronous operation. After a request is sent, the system returns a request ID and runs the task in the background. You can call the [GetLoadBalancerAttribute](https://help.aliyun.com/document_detail/214359.html) operation to query the status of the task.
  * *   If an ALB instance is in the **Configuring** state, the EIP bandwidth plan is being disassociated from the ALB instance.
@@ -3778,7 +3989,7 @@ model DisableLoadBalancerAccessLogResponse = {
 }
 
 /**
- * @summary Disables the access log feature for a Server Load Balancer (SLB) instance.
+ * @summary Disables the access log feature for a Application Load Balancer (ALB) instance.
  *
  * @param request DisableLoadBalancerAccessLogRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -3815,7 +4026,7 @@ async function disableLoadBalancerAccessLogWithOptions(request: DisableLoadBalan
 }
 
 /**
- * @summary Disables the access log feature for a Server Load Balancer (SLB) instance.
+ * @summary Disables the access log feature for a Application Load Balancer (ALB) instance.
  *
  * @param request DisableLoadBalancerAccessLogRequest
  * @return DisableLoadBalancerAccessLogResponse
@@ -7148,6 +7359,7 @@ Valid values: **HTTP1.0** and **HTTP1.1**.
         healthyThreshold?: int32(name='HealthyThreshold', description='The number of times that an unhealthy backend server must consecutively pass health checks before it is declared healthy. In this case, the health status is changed from **fail** to **success**.', example='4'),
         unhealthyThreshold?: int32(name='UnhealthyThreshold', description='The number of times that a healthy backend server must consecutively fail health checks before it is declared unhealthy. In this case, the health status is changed from **success** to **fail**.', example='4'),
       }(name='HealthCheckConfig', description='The health check configurations.'),
+      ipVersionAffinityMode?: string(name='IpVersionAffinityMode', example='Affinity'),
       ipv6Enabled?: boolean(name='Ipv6Enabled', description='Indicates whether IPv6 is supported. Valid values:
 
 *   **true**
@@ -7315,7 +7527,6 @@ model ListSystemSecurityPoliciesResponse = {
 /**
  * @summary Queries system security policies in a region.
  *
- * @param request ListSystemSecurityPoliciesRequest
  * @param runtime runtime options for this request RuntimeOptions
  * @return ListSystemSecurityPoliciesResponse
  */
@@ -8184,14 +8395,27 @@ async function removeServersFromServerGroup(request: RemoveServersFromServerGrou
 model ReplaceServersInServerGroupRequest {
   addedServers?: [ 
     {
-      description?: string(name='Description', example='test'),
-      port?: int32(name='Port', example='80'),
-      serverId?: string(name='ServerId', example='ecs-123'),
-      serverIp?: string(name='ServerIp', example='192.168.1.1'),
-      serverType?: string(name='ServerType', example='ecs'),
-      weight?: int32(name='Weight', example='100'),
+      description?: string(name='Description', description='The description of the backend server. The description must be 2 to 256 characters in length, and cannot start with http:// or https://.', example='test'),
+      port?: int32(name='Port', description='The port used by the backend server in the server group. Valid values: **1** to **65535**. You can specify at most 200 servers in each call.', example='80'),
+      serverId?: string(name='ServerId', description='The ID of the backend server. You can specify at most 200 servers in each call.
+
+*   If the server group is of the **Instance** type, set ServerId to the ID of a resource of the **Ecs**, **Eni**, or **Eci** type.
+*   If the server group is of the **Ip** type, set ServerId to IP addresses.
+
+>  You cannot perform this operation on a server group of the Function Compute type. You can call the [ListServerGroups](https://help.aliyun.com/document_detail/213627.html) operation to query the type of server groups.', example='i-bp1f9kdprbgy9uiu****'),
+      serverIp?: string(name='ServerIp', description='The IP address of the elastic network interface (ENI) in exclusive mode.', example='192.168.1.1'),
+      serverType?: string(name='ServerType', description='The type of backend server. You can specify at most 200 servers in each call. Valid values:
+
+*   **Ecs**: Elastic Compute Service (ECS) instance
+*   **Eni**: ENI
+*   **Eci**: elastic container instance', example='Ecs'),
+      weight?: int32(name='Weight', description='The weight of the backend server. You can specify at most 200 servers in each call.
+
+Valid values: **0** to **100**. Default value: **100**. If the value is set to **0**, no requests are forwarded to the server.', example='100'),
     }
-  ](name='AddedServers', description='This parameter is required.'),
+  ](name='AddedServers', description='The backend servers. You can specify at most 200 servers in each call.
+
+This parameter is required.'),
   clientToken?: string(name='ClientToken', description='The client token that is used to ensure the idempotence of the request.
 
 You can use the client to generate the token, but you must make sure that the token is unique among different requests. The token can contain only ASCII characters.
@@ -9516,6 +9740,7 @@ You can use the client to generate the token, but you must make sure that the to
   loadBalancerId?: string(name='LoadBalancerId', description='The ALB instance ID.
 
 This parameter is required.', example='lb-bp1o94dp5i6ea****'),
+  retainResourceType?: [ string ](name='RetainResourceType'),
   zoneMappings?: [ 
     {
       allocationId?: string(name='AllocationId', description='The ID of the elastic IP address (EIP). You can specify a maximum of 10 zones.
@@ -9576,6 +9801,9 @@ async function updateLoadBalancerAddressTypeConfigWithOptions(request: UpdateLoa
   }
   if (!$isNull(request.loadBalancerId)) {
     query['LoadBalancerId'] = request.loadBalancerId;
+  }
+  if (!$isNull(request.retainResourceType)) {
+    query['RetainResourceType'] = request.retainResourceType;
   }
   if (!$isNull(request.zoneMappings)) {
     query['ZoneMappings'] = request.zoneMappings;
@@ -9824,6 +10052,7 @@ You can use the client to generate the token, but you must make sure that the to
   loadBalancerId?: string(name='LoadBalancerId', description='The ID of the ALB instance.
 
 This parameter is required.', example='lb-bp1b6c719dfa08ex****'),
+  retainResourceType?: [ string ](name='RetainResourceType'),
   zoneMappings?: [ 
     {
       eipType?: string(name='EipType', description='The type of EIP. Valid values:
@@ -9880,6 +10109,9 @@ async function updateLoadBalancerZonesWithOptions(request: UpdateLoadBalancerZon
   }
   if (!$isNull(request.loadBalancerId)) {
     query['LoadBalancerId'] = request.loadBalancerId;
+  }
+  if (!$isNull(request.retainResourceType)) {
+    query['RetainResourceType'] = request.retainResourceType;
   }
   if (!$isNull(request.zoneMappings)) {
     query['ZoneMappings'] = request.zoneMappings;
@@ -10272,122 +10504,130 @@ You can use the client to generate the token, but you must make sure that the to
 *   **false** (default): performs a dry run and performs the actual request. If the request passes the dry run, a `2xx HTTP` status code is returned and the operation is performed.', example='false'),
   rules?: [ 
     {
-      priority?: int32(name='Priority'),
+      priority?: int32(name='Priority', description='The priority of the forwarding rule.', example='10'),
       ruleActions?: [ 
         {
           corsConfig?: {
-            allowCredentials?: string(name='AllowCredentials'),
-            allowHeaders?: [ string ](name='AllowHeaders'),
-            allowMethods?: [ string ](name='AllowMethods'),
-            allowOrigin?: [ string ](name='AllowOrigin'),
-            exposeHeaders?: [ string ](name='ExposeHeaders'),
-            maxAge?: long(name='MaxAge'),
-          }(name='CorsConfig'),
+            allowCredentials?: string(name='AllowCredentials', description='Specifies whether to allow credentials to be carried in CORS requests.', example='on'),
+            allowHeaders?: [ string ](name='AllowHeaders', description='The trusted headers of CORS requests.'),
+            allowMethods?: [ string ](name='AllowMethods', description='The trusted HTTP methods of CORS requests.'),
+            allowOrigin?: [ string ](name='AllowOrigin', description='The trusted origins.'),
+            exposeHeaders?: [ string ](name='ExposeHeaders', description='The headers that can be exposed.'),
+            maxAge?: long(name='MaxAge', description='The maximum cache time for dry runs in the browser.', example='1000'),
+          }(name='CorsConfig', description='The cross-origin resource sharing (CORS) configuration.'),
           fixedResponseConfig?: {
-            content?: string(name='Content'),
-            contentType?: string(name='ContentType'),
-            httpCode?: string(name='HttpCode'),
-          }(name='FixedResponseConfig'),
+            content?: string(name='Content', description='The content of the response.', example='dssacav'),
+            contentType?: string(name='ContentType', description='The content type of the response.', example='text/plain'),
+            httpCode?: string(name='HttpCode', description='The HTTP status code in the response.', example='200'),
+          }(name='FixedResponseConfig', description='The configuration of the action to return a custom response.'),
           forwardGroupConfig?: {
             serverGroupStickySession?: {
-              enabled?: boolean(name='Enabled'),
-              timeout?: int32(name='Timeout'),
-            }(name='ServerGroupStickySession'),
+              enabled?: boolean(name='Enabled', description='Specifies whether to enable session persistence.', example='false'),
+              timeout?: int32(name='Timeout', description='The timeout period for sessions.', example='2'),
+            }(name='ServerGroupStickySession', description='The configuration of session persistence for server groups.'),
             serverGroupTuples?: [ 
               {
-                serverGroupId?: string(name='ServerGroupId'),
-                weight?: int32(name='Weight'),
+                serverGroupId?: string(name='ServerGroupId', description='The ID of the server group.', example='sg-atstuj3rtoptyui****'),
+                weight?: int32(name='Weight', description='The weight of the server group.', example='30'),
               }
-            ](name='ServerGroupTuples'),
-          }(name='ForwardGroupConfig'),
+            ](name='ServerGroupTuples', description='The server groups to which requests are forwarded.'),
+          }(name='ForwardGroupConfig', description='The configuration of the action to forward requests to server groups.'),
           insertHeaderConfig?: {
-            coverEnabled?: boolean(name='CoverEnabled'),
-            key?: string(name='Key'),
-            value?: string(name='Value'),
-            valueType?: string(name='ValueType'),
-          }(name='InsertHeaderConfig'),
-          order?: int32(name='Order', description='This parameter is required.'),
+            coverEnabled?: boolean(name='CoverEnabled', description='Specifies whether to overwrite the header in the request.', example='false'),
+            key?: string(name='Key', description='The key of the HTTP header.', example='test'),
+            value?: string(name='Value', description='The value of the HTTP header.', example='UserDefined'),
+            valueType?: string(name='ValueType', description='The type of the header value.', example='UserDefined'),
+          }(name='InsertHeaderConfig', description='The configuration of the action to insert a header.'),
+          order?: int32(name='Order', description='The priority of the action.
+
+This parameter is required.', example='1'),
           redirectConfig?: {
-            host?: string(name='Host'),
-            httpCode?: string(name='HttpCode'),
-            path?: string(name='Path'),
-            port?: string(name='Port'),
-            protocol?: string(name='Protocol'),
-            query?: string(name='Query'),
-          }(name='RedirectConfig'),
+            host?: string(name='Host', description='The hostname to which requests are redirected.', example='www.example.com'),
+            httpCode?: string(name='HttpCode', description='The HTTP status code that indicates the redirect type.', example='301'),
+            path?: string(name='Path', description='The path of the destination to which requests are forwarded.', example='/test'),
+            port?: string(name='Port', description='The port to which requests are forwarded.', example='10'),
+            protocol?: string(name='Protocol', description='The protocol of the destination to which requests are forwarded.', example='HTTP'),
+            query?: string(name='Query', description='The query string to which requests are redirected.', example='quert'),
+          }(name='RedirectConfig', description='The configuration of the redirect action.'),
           removeHeaderConfig?: {
-            key?: string(name='Key'),
-          }(name='RemoveHeaderConfig'),
+            key?: string(name='Key', description='The key of the header.', example='Port'),
+          }(name='RemoveHeaderConfig', description='The configuration of the HTTP header to be removed.'),
           rewriteConfig?: {
-            host?: string(name='Host'),
-            path?: string(name='Path'),
-            query?: string(name='Query'),
-          }(name='RewriteConfig'),
+            host?: string(name='Host', description='The hostname of the destination to which requests are forwarded.', example='www.example.com'),
+            path?: string(name='Path', description='The path to which requests are forwarded.', example='/tsdf'),
+            query?: string(name='Query', description='The query string of the URL to which requests are forwarded.', example='quedsa'),
+          }(name='RewriteConfig', description='The configuration of the rewrite action.'),
           trafficLimitConfig?: {
-            perIpQps?: int32(name='PerIpQps'),
-            QPS?: int32(name='QPS'),
-          }(name='TrafficLimitConfig'),
+            perIpQps?: int32(name='PerIpQps', description='The number of requests per IP address.', example='80'),
+            QPS?: int32(name='QPS', description='The number of queries per second (QPS).', example='2'),
+          }(name='TrafficLimitConfig', description='The configuration of traffic throttling.'),
           trafficMirrorConfig?: {
             mirrorGroupConfig?: {
               serverGroupTuples?: [ 
                 {
-                  serverGroupId?: string(name='ServerGroupId'),
+                  serverGroupId?: string(name='ServerGroupId', description='The server group ID.', example='srg-00mkgijak0w4qgz9****'),
                 }
-              ](name='ServerGroupTuples'),
-            }(name='MirrorGroupConfig'),
-            targetType?: string(name='TargetType'),
-          }(name='TrafficMirrorConfig'),
-          type?: string(name='Type', description='This parameter is required.'),
+              ](name='ServerGroupTuples', description='The server group to which traffic is mirrored.'),
+            }(name='MirrorGroupConfig', description='The configuration of the server group to which traffic is mirrored.'),
+            targetType?: string(name='TargetType', description='The type of the target to which network traffic is mirrored.', example='ForwardGroupMirror'),
+          }(name='TrafficMirrorConfig', description='The configuration of traffic mirroring.'),
+          type?: string(name='Type', description='The type of action.
+
+This parameter is required.', example='Host'),
         }
-      ](name='RuleActions'),
+      ](name='RuleActions', description='The forwarding rules.'),
       ruleConditions?: [ 
         {
           cookieConfig?: {
             values?: [ 
               {
-                key?: string(name='Key'),
-                value?: string(name='Value'),
+                key?: string(name='Key', description='The cookie key.', example='test'),
+                value?: string(name='Value', description='The cookie value.', example='test'),
               }
-            ](name='Values'),
-          }(name='CookieConfig'),
+            ](name='Values', description='The key-value pairs of cookies.'),
+          }(name='CookieConfig', description='The configuration of the cookie.'),
           headerConfig?: {
-            key?: string(name='Key'),
-            values?: [ string ](name='Values'),
-          }(name='HeaderConfig'),
+            key?: string(name='Key', description='The key of the header.', example='Port'),
+            values?: [ string ](name='Values', description='The values of the HTTP header.'),
+          }(name='HeaderConfig', description='The configuration of the HTTP header.'),
           hostConfig?: {
-            values?: [ string ](name='Values'),
-          }(name='HostConfig'),
+            values?: [ string ](name='Values', description='The hostnames.'),
+          }(name='HostConfig', description='The match conditions for hostnames.'),
           methodConfig?: {
-            values?: [ string ](name='Values'),
-          }(name='MethodConfig'),
+            values?: [ string ](name='Values', description='The HTTP request methods.'),
+          }(name='MethodConfig', description='The configuration of the HTTP request method.'),
           pathConfig?: {
-            values?: [ string ](name='Values'),
-          }(name='PathConfig'),
+            values?: [ string ](name='Values', description='The paths to which requests are forwarded.'),
+          }(name='PathConfig', description='The match conditions for query strings.'),
           queryStringConfig?: {
             values?: [ 
               {
-                key?: string(name='Key'),
-                value?: string(name='Value'),
+                key?: string(name='Key', description='The key of the query string.', example='test'),
+                value?: string(name='Value', description='The value of the query string.', example='test'),
               }
-            ](name='Values'),
-          }(name='QueryStringConfig'),
+            ](name='Values', description='The key-value pairs of query strings.'),
+          }(name='QueryStringConfig', description='The match conditions for query strings.'),
           responseHeaderConfig?: {
-            key?: string(name='Key'),
-            values?: [ string ](name='Values'),
-          }(name='ResponseHeaderConfig'),
+            key?: string(name='Key', description='The key of the response header.', example='test'),
+            values?: [ string ](name='Values', description='The values of the response header.'),
+          }(name='ResponseHeaderConfig', description='The HTTP response headers.'),
           responseStatusCodeConfig?: {
-            values?: [ string ](name='Values'),
-          }(name='ResponseStatusCodeConfig'),
+            values?: [ string ](name='Values', description='The match conditions.'),
+          }(name='ResponseStatusCodeConfig', description='The match conditions for response status codes.'),
           sourceIpConfig?: {
-            values?: [ string ](name='Values'),
-          }(name='SourceIpConfig'),
-          type?: string(name='Type'),
+            values?: [ string ](name='Values', description='You can add one or more IP addresses, including CIDR blocks.'),
+          }(name='SourceIpConfig', description='Traffic matching based on source IP addresses.'),
+          type?: string(name='Type', description='The condition type of the forwarding rule.', example='ForwardGroup'),
         }
-      ](name='RuleConditions'),
-      ruleId?: string(name='RuleId', description='This parameter is required.'),
-      ruleName?: string(name='RuleName'),
+      ](name='RuleConditions', description='The match conditions of the forwarding rule.'),
+      ruleId?: string(name='RuleId', description='The ID of the forwarding rule.
+
+This parameter is required.', example='rule-cxjh7vazn2jpnl****'),
+      ruleName?: string(name='RuleName', description='The name of the forwarding rule.', example='rule-instance-test'),
     }
-  ](name='Rules', description='This parameter is required.'),
+  ](name='Rules', description='The forwarding rules.
+
+This parameter is required.'),
 }
 
 model UpdateRulesAttributeResponseBody = {
@@ -10668,6 +10908,7 @@ Valid values: **2** to **10**.', example='4'),
 
 Valid values: **2** to **10**.', example='4'),
   }(name='HealthCheckConfig', description='The configuration of health checks.'),
+  ipVersionAffinityMode?: string(name='IpVersionAffinityMode', example='Affinity'),
   scheduler?: string(name='Scheduler', description='The scheduling algorithm. Valid values:
 
 *   **Wrr**: the weighted round robin algorithm. Backend servers that have higher weights receive more requests than those that have lower weights.
@@ -10743,7 +10984,7 @@ model UpdateServerGroupAttributeResponse = {
 }
 
 /**
- * @summary Modifies the configurations of a server group, such as health checks, session persistence, server group names, routing algorithms, and protocols.
+ * @summary Modifies the configurations of a server group, such as health checks, session persistence, the server group name, the routing algorithm, and the protocol.
  *
  * @description ## Description
  * **UpdateServerGroupAttribute** is an asynchronous operation. After a request is sent, the system returns a request ID and runs the task in the background. You can call the [ListServerGroups](https://help.aliyun.com/document_detail/213627.html) operation to query the status of a server group:
@@ -10772,6 +11013,9 @@ async function updateServerGroupAttributeWithOptions(request: UpdateServerGroupA
   }
   if (!$isNull(request.healthCheckConfig)) {
     query['HealthCheckConfig'] = request.healthCheckConfig;
+  }
+  if (!$isNull(request.ipVersionAffinityMode)) {
+    query['IpVersionAffinityMode'] = request.ipVersionAffinityMode;
   }
   if (!$isNull(request.scheduler)) {
     query['Scheduler'] = request.scheduler;
@@ -10815,7 +11059,7 @@ async function updateServerGroupAttributeWithOptions(request: UpdateServerGroupA
 }
 
 /**
- * @summary Modifies the configurations of a server group, such as health checks, session persistence, server group names, routing algorithms, and protocols.
+ * @summary Modifies the configurations of a server group, such as health checks, session persistence, the server group name, the routing algorithm, and the protocol.
  *
  * @description ## Description
  * **UpdateServerGroupAttribute** is an asynchronous operation. After a request is sent, the system returns a request ID and runs the task in the background. You can call the [ListServerGroups](https://help.aliyun.com/document_detail/213627.html) operation to query the status of a server group:
@@ -10845,14 +11089,32 @@ You can use the client to generate the token, but you must make sure that the to
 This parameter is required.', example='sgp-atstuj3rtop****'),
   servers?: [ 
     {
-      description?: string(name='Description', example='test'),
-      port?: int32(name='Port', example='80'),
-      serverId?: string(name='ServerId', example='ecs-123'),
-      serverIp?: string(name='ServerIp', example='192.168.1.1'),
-      serverType?: string(name='ServerType', description='This parameter is required.', example='ecs'),
-      weight?: int32(name='Weight', example='100'),
+      description?: string(name='Description', description='The description of the backend server. The description must be 2 to 256 characters in length, and cannot start with http:// or https://.', example='test'),
+      port?: int32(name='Port', description='The port that is used by the backend server. Valid values: **1** to **65535**.
+
+> You do not need to set this parameter if **ServerType** is set to **Fc**.', example='80'),
+      serverId?: string(name='ServerId', description='The ID of the backend server.
+
+*   Specify the ID of an Elastic Compute Service (ECS) instance, an elastic network interface (ENI), or an elastic container instance if you set **ServerType** to **Ecs**, **Eni**, or **Eci**.
+*   Specify an IP address if you set **ServerType** to **Ip**.
+*   Specify the Alibaba Cloud Resource Name (ARN) of a Function Compute function if you set **ServerType** to **Fc**.', example='i-bp1f9kdprbgy9uiu****'),
+      serverIp?: string(name='ServerIp', description='The IP address of the backend server.', example='192.168.1.1'),
+      serverType?: string(name='ServerType', description='The type of the backend server. Valid values:
+
+*   **Ecs**: ECS instance
+*   **Eni**: ENI
+*   **Eci**: elastic container instance
+*   **Ip**: IP address
+*   **Fc**: Function Compute
+
+This parameter is required.', example='Ecs'),
+      weight?: int32(name='Weight', description='The weight of the backend server. Valid values: **0** to **100**. Default value: **100**. If the value is set to **0**, no requests are forwarded to the server. You can specify up to 40 servers in each call.
+
+> You do not need to set this parameter if **ServerType** is set to **Fc**.', example='100'),
     }
-  ](name='Servers', description='This parameter is required.'),
+  ](name='Servers', description='The server groups. You can specify at most 40 server groups in each call.
+
+This parameter is required.'),
 }
 
 model UpdateServerGroupServersAttributeResponseBody = {
