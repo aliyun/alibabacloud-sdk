@@ -385,6 +385,31 @@ model ForeignInstanceCredInfo {
   credType?: string(name='CredType', description='The type of the credential. Set the value to DEFAULT.', example='DEFAULT'),
 }
 
+model OneMetaDatabase {
+  catalogName?: string(name='CatalogName'),
+  catalogType?: string(name='CatalogType'),
+  catalogUuid?: string(name='CatalogUuid'),
+  dataSourceType?: string(name='DataSourceType'),
+  databaseBizAttrs?: map[string]any(name='DatabaseBizAttrs'),
+  databaseUuid?: string(name='DatabaseUuid'),
+  description?: string(name='Description'),
+  engineMeta?: OneMetaDatabaseEngineMeta(name='EngineMeta'),
+  name?: string(name='Name'),
+  properties?: map[string]any(name='Properties'),
+  qualifiedName?: string(name='QualifiedName'),
+  regionId?: string(name='RegionId'),
+  searchName?: string(name='SearchName'),
+  state?: int32(name='State'),
+  storageLocation?: string(name='StorageLocation'),
+}
+
+model OneMetaDatabaseEngineMeta {
+  catalogName?: string(name='CatalogName'),
+  encoding?: string(name='Encoding'),
+  schemaName?: string(name='SchemaName'),
+  storageCapacity?: long(name='StorageCapacity'),
+}
+
 model OneMetaDatabaseObject {
   objectName?: string(name='ObjectName'),
   objectQualifiedName?: string(name='ObjectQualifiedName'),
@@ -1321,6 +1346,7 @@ model CreateCustomAgentRequest {
     }
   ](name='KnowledgeConfigList'),
   name?: string(name='Name'),
+  relatedSessionId?: string(name='RelatedSessionId'),
   scheduleTaskConfig?: {
     cronExpression?: string(name='CronExpression', example='0 0 0 ? * 1-7'),
     query?: string(name='Query'),
@@ -1341,6 +1367,7 @@ model CreateCustomAgentShrinkRequest {
   knowledge?: string(name='Knowledge'),
   knowledgeConfigListShrink?: string(name='KnowledgeConfigList'),
   name?: string(name='Name'),
+  relatedSessionId?: string(name='RelatedSessionId'),
   scheduleTaskConfigShrink?: string(name='ScheduleTaskConfig'),
   textReportConfig?: string(name='TextReportConfig'),
   webReportConfig?: string(name='WebReportConfig'),
@@ -1388,6 +1415,7 @@ model CreateCustomAgentResponseBody = {
     nextRuntime?: long(name='NextRuntime', example='1767715200'),
     offlineTime?: string(name='OfflineTime', example='2025-12-11T14:04:32.000+00:00'),
     region?: string(name='Region', example='cn-hangzhou'),
+    relatedSessionId?: string(name='RelatedSessionId'),
     releaseTime?: string(name='ReleaseTime', example='2025-12-11T14:04:32.000+00:00'),
     scheduleTaskConfig?: {
       cronExpression?: string(name='CronExpression', example='0 0 0 ? * 1-7'),
@@ -1462,6 +1490,9 @@ async function createCustomAgentWithOptions(tmpReq: CreateCustomAgentRequest, ru
   }
   if (!$isNull(request.name)) {
     query['Name'] = request.name;
+  }
+  if (!$isNull(request.relatedSessionId)) {
+    query['RelatedSessionId'] = request.relatedSessionId;
   }
   if (!$isNull(request.scheduleTaskConfigShrink)) {
     query['ScheduleTaskConfig'] = request.scheduleTaskConfigShrink;
@@ -2985,6 +3016,78 @@ async function deleteFileUpload(request: DeleteFileUploadRequest): DeleteFileUpl
   return deleteFileUploadWithOptions(request, runtime);
 }
 
+model DeleteWorkspaceCodeRequest {
+  path?: string(name='Path', description='This parameter is required.', example='/Workspace/code/default/test.ipynb'),
+  repo?: string(name='Repo', example='database/adb'),
+  symlink?: boolean(name='Symlink', example='false'),
+  workspaceId?: string(name='WorkspaceId', description='This parameter is required.', example='12****'),
+}
+
+model DeleteWorkspaceCodeResponseBody = {
+  errorCode?: string(name='ErrorCode', example='InvalidTid'),
+  httpStatusCode?: int32(name='HttpStatusCode', example='200'),
+  message?: string(name='Message', example='This record is being collected, please wait for a moment.'),
+  requestId?: string(name='RequestId', example='E0D21075-CD3E-4D98-8264-FD8AD04A63B6'),
+  success?: boolean(name='Success', example='true'),
+}
+
+model DeleteWorkspaceCodeResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: DeleteWorkspaceCodeResponseBody(name='body'),
+}
+
+/**
+ * @summary 删除工作空间代码以及目录
+ *
+ * @param request DeleteWorkspaceCodeRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return DeleteWorkspaceCodeResponse
+ */
+@context("deleteWorkspaceCodeWithContext")
+async function deleteWorkspaceCodeWithOptions(request: DeleteWorkspaceCodeRequest, runtime: $RuntimeOptions): DeleteWorkspaceCodeResponse {
+  request.validate();
+  var query = {};
+  if (!$isNull(request.path)) {
+    query['Path'] = request.path;
+  }
+  if (!$isNull(request.repo)) {
+    query['Repo'] = request.repo;
+  }
+  if (!$isNull(request.symlink)) {
+    query['Symlink'] = request.symlink;
+  }
+  if (!$isNull(request.workspaceId)) {
+    query['WorkspaceId'] = request.workspaceId;
+  }
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'DeleteWorkspaceCode',
+    version = '2025-04-14',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 删除工作空间代码以及目录
+ *
+ * @param request DeleteWorkspaceCodeRequest
+ * @return DeleteWorkspaceCodeResponse
+ */
+async function deleteWorkspaceCode(request: DeleteWorkspaceCodeRequest): DeleteWorkspaceCodeResponse {
+  var runtime = new $RuntimeOptions{};
+  return deleteWorkspaceCodeWithOptions(request, runtime);
+}
+
 model DescribeCustomAgentRequest {
   customAgentId?: string(name='CustomAgentId', example='ca-4y3ca4khkcu**********ysf'),
   workspaceId?: string(name='WorkspaceId', example='56kv1pvl9uvt9**********bb'),
@@ -3032,6 +3135,7 @@ model DescribeCustomAgentResponseBody = {
     nextRuntime?: long(name='NextRuntime'),
     offlineTime?: string(name='OfflineTime', example='2025-12-11T14:04:32.000+00:00'),
     region?: string(name='Region', example='cn-hangzhou'),
+    relatedSessionId?: string(name='RelatedSessionId', example='5xyz...'),
     releaseTime?: string(name='ReleaseTime', example='2025-12-11T14:04:32.000+00:00'),
     scheduleTaskConfig?: {
       cronExpression?: string(name='CronExpression'),
@@ -4470,6 +4574,75 @@ async function getNotebookTaskStatus(request: GetNotebookTaskStatusRequest): Get
   return getNotebookTaskStatusWithOptions(request, runtime);
 }
 
+model GetWorkspaceCodeRequest {
+  iac?: string(name='Iac', example='false'),
+  path?: string(name='Path', description='This parameter is required.', example='/Workspace/code/default/test.ipynb'),
+  workspaceId?: string(name='WorkspaceId', description='This parameter is required.', example='12****'),
+}
+
+model GetWorkspaceCodeResponseBody = {
+  data?: string(name='Data', example='log info'),
+  errorCode?: string(name='ErrorCode', example='UnknownError'),
+  httpStatusCode?: int32(name='HttpStatusCode', example='200'),
+  message?: string(name='Message', example='This record is being collected, please wait for a moment.'),
+  requestId?: string(name='RequestId', example='E0D21075-CD3E-4D98-8264-FD8AD04A63B6'),
+  success?: boolean(name='Success', example='true'),
+}
+
+model GetWorkspaceCodeResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: GetWorkspaceCodeResponseBody(name='body'),
+}
+
+/**
+ * @summary 读取工作空间的代码文件内容
+ *
+ * @param request GetWorkspaceCodeRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return GetWorkspaceCodeResponse
+ */
+@context("getWorkspaceCodeWithContext")
+async function getWorkspaceCodeWithOptions(request: GetWorkspaceCodeRequest, runtime: $RuntimeOptions): GetWorkspaceCodeResponse {
+  request.validate();
+  var query = {};
+  if (!$isNull(request.iac)) {
+    query['Iac'] = request.iac;
+  }
+  if (!$isNull(request.path)) {
+    query['Path'] = request.path;
+  }
+  if (!$isNull(request.workspaceId)) {
+    query['WorkspaceId'] = request.workspaceId;
+  }
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'GetWorkspaceCode',
+    version = '2025-04-14',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 读取工作空间的代码文件内容
+ *
+ * @param request GetWorkspaceCodeRequest
+ * @return GetWorkspaceCodeResponse
+ */
+async function getWorkspaceCode(request: GetWorkspaceCodeRequest): GetWorkspaceCodeResponse {
+  var runtime = new $RuntimeOptions{};
+  return getWorkspaceCodeWithOptions(request, runtime);
+}
+
 model GetWorkspaceCodePublishSettingRequest {
   workspaceId?: string(name='WorkspaceId', description='This parameter is required.', example='8630242382****'),
 }
@@ -4833,6 +5006,7 @@ model ListCustomAgentResponseBody = {
         nextRuntime?: long(name='NextRuntime'),
         offlineTime?: string(name='OfflineTime', example='2025-12-11T14:04:32.000+00:00'),
         region?: string(name='Region', example='cn-hangzhou'),
+        relatedSessionId?: string(name='RelatedSessionId'),
         releaseTime?: string(name='ReleaseTime', example='2025-12-11T14:04:32.000+00:00'),
         scheduleTaskConfig?: {
           cronExpression?: string(name='CronExpression'),
@@ -6735,6 +6909,81 @@ async function listKnowledgeBases(request: ListKnowledgeBasesRequest): ListKnowl
   return listKnowledgeBasesWithOptions(request, runtime);
 }
 
+model ListWorkspaceCodeRequest {
+  path?: string(name='Path', description='This parameter is required.', example='/Workspace/code/default/test.ipynb'),
+  workspaceId?: string(name='WorkspaceId', description='This parameter is required.', example='56kv1pvl9uvt9**********bb'),
+}
+
+model ListWorkspaceCodeResponseBody = {
+  data?: {
+    list?: [ 
+      {
+        isDir?: boolean(name='IsDir', example='true'),
+        mtime?: string(name='Mtime', example='2026-01-01T10:11:12Z'),
+        name?: string(name='Name', example='default'),
+        size?: long(name='Size', example='59'),
+        symlink?: string(name='Symlink', example='../abc.py'),
+      }
+    ](name='List'),
+  }(name='Data'),
+  errorCode?: string(name='ErrorCode', example='InvalidTid'),
+  httpStatusCode?: int32(name='HttpStatusCode', example='200'),
+  message?: string(name='Message', example='This record is being collected, please wait for a moment.'),
+  requestId?: string(name='RequestId', example='67E910F2-4B62-5B0C-ACA3-7547695C****'),
+  success?: boolean(name='Success', example='true'),
+}
+
+model ListWorkspaceCodeResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ListWorkspaceCodeResponseBody(name='body'),
+}
+
+/**
+ * @summary 列出工作空间目录下的code文件
+ *
+ * @param request ListWorkspaceCodeRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return ListWorkspaceCodeResponse
+ */
+@context("listWorkspaceCodeWithContext")
+async function listWorkspaceCodeWithOptions(request: ListWorkspaceCodeRequest, runtime: $RuntimeOptions): ListWorkspaceCodeResponse {
+  request.validate();
+  var query = {};
+  if (!$isNull(request.path)) {
+    query['Path'] = request.path;
+  }
+  if (!$isNull(request.workspaceId)) {
+    query['WorkspaceId'] = request.workspaceId;
+  }
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'ListWorkspaceCode',
+    version = '2025-04-14',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 列出工作空间目录下的code文件
+ *
+ * @param request ListWorkspaceCodeRequest
+ * @return ListWorkspaceCodeResponse
+ */
+async function listWorkspaceCode(request: ListWorkspaceCodeRequest): ListWorkspaceCodeResponse {
+  var runtime = new $RuntimeOptions{};
+  return listWorkspaceCodeWithOptions(request, runtime);
+}
+
 model ModifyCustomAgentRequest {
   callbackConfig?: {
     callbackArgs?: string(name='CallbackArgs'),
@@ -6763,6 +7012,7 @@ model ModifyCustomAgentRequest {
     }
   ](name='KnowledgeConfigList'),
   name?: string(name='Name'),
+  relatedSessionId?: string(name='RelatedSessionId'),
   scheduleTaskConfig?: {
     cronExpression?: string(name='CronExpression', example='0 0 0,1 ? * 1-7'),
     query?: string(name='Query'),
@@ -6784,6 +7034,7 @@ model ModifyCustomAgentShrinkRequest {
   knowledge?: string(name='Knowledge'),
   knowledgeConfigListShrink?: string(name='KnowledgeConfigList'),
   name?: string(name='Name'),
+  relatedSessionId?: string(name='RelatedSessionId'),
   scheduleTaskConfigShrink?: string(name='ScheduleTaskConfig'),
   textReportConfig?: string(name='TextReportConfig'),
   webReportConfig?: string(name='WebReportConfig'),
@@ -6831,6 +7082,7 @@ model ModifyCustomAgentResponseBody = {
     nextRuntime?: long(name='NextRuntime', example='1767715200'),
     offlineTime?: string(name='OfflineTime', example='2025-12-11T14:04:32.000+00:00'),
     region?: string(name='Region', example='cn-hangzhou'),
+    relatedSessionId?: string(name='RelatedSessionId'),
     releaseTime?: string(name='ReleaseTime', example='2025-12-11T14:04:32.000+00:00'),
     scheduleTaskConfig?: {
       cronExpression?: string(name='CronExpression', example='0 0 0 ? * 1-7'),
@@ -6908,6 +7160,9 @@ async function modifyCustomAgentWithOptions(tmpReq: ModifyCustomAgentRequest, ru
   }
   if (!$isNull(request.name)) {
     query['Name'] = request.name;
+  }
+  if (!$isNull(request.relatedSessionId)) {
+    query['RelatedSessionId'] = request.relatedSessionId;
   }
   if (!$isNull(request.scheduleTaskConfigShrink)) {
     query['ScheduleTaskConfig'] = request.scheduleTaskConfigShrink;
@@ -7152,6 +7407,93 @@ async function removeUserToDataAgentWorkspaceWithOptions(request: RemoveUserToDa
 async function removeUserToDataAgentWorkspace(request: RemoveUserToDataAgentWorkspaceRequest): RemoveUserToDataAgentWorkspaceResponse {
   var runtime = new $RuntimeOptions{};
   return removeUserToDataAgentWorkspaceWithOptions(request, runtime);
+}
+
+model SaveWorkspaceCodeRequest {
+  content?: string(name='Content', description='This parameter is required.', example='Description: \\\\"Example template, describe instances in some status\\\\"nFormatVersion: OOS-2019-06-01nTasks:n  - Name: SleepTaskn    Action: ACS::Sleepn    Properties:n      Duration: PT1Mn'),
+  force?: boolean(name='Force', example='True'),
+  iac?: boolean(name='Iac', example='false'),
+  mtime?: string(name='Mtime', example='2026-01-01T10:11:12Z'),
+  path?: string(name='Path', description='This parameter is required.', example='{"repos":[{"repo":"git@xxxx.git", "branch":"master"}], "exclude":["/.dms", "/username"]}'),
+  repo?: string(name='Repo', example='computing/ecs'),
+  workspaceId?: string(name='WorkspaceId', description='This parameter is required.', example='12345678'),
+}
+
+model SaveWorkspaceCodeResponseBody = {
+  data?: string(name='Data', example='1'),
+  errorCode?: string(name='ErrorCode', example='InvalidTid'),
+  httpStatusCode?: int32(name='HttpStatusCode', example='200'),
+  message?: string(name='Message', example='Failed to publish，repo branch empty'),
+  requestId?: string(name='RequestId', example='67E910F2-4B62-5B0C-ACA3-7547695C****'),
+  success?: boolean(name='Success', example='true'),
+}
+
+model SaveWorkspaceCodeResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: SaveWorkspaceCodeResponseBody(name='body'),
+}
+
+/**
+ * @summary 保存工作空间代码，如果文件不存在则自动新建
+ *
+ * @param request SaveWorkspaceCodeRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return SaveWorkspaceCodeResponse
+ */
+@context("saveWorkspaceCodeWithContext")
+async function saveWorkspaceCodeWithOptions(request: SaveWorkspaceCodeRequest, runtime: $RuntimeOptions): SaveWorkspaceCodeResponse {
+  request.validate();
+  var query = {};
+  if (!$isNull(request.content)) {
+    query['Content'] = request.content;
+  }
+  if (!$isNull(request.force)) {
+    query['Force'] = request.force;
+  }
+  if (!$isNull(request.iac)) {
+    query['Iac'] = request.iac;
+  }
+  if (!$isNull(request.mtime)) {
+    query['Mtime'] = request.mtime;
+  }
+  if (!$isNull(request.repo)) {
+    query['Repo'] = request.repo;
+  }
+  if (!$isNull(request.workspaceId)) {
+    query['WorkspaceId'] = request.workspaceId;
+  }
+  var body : map[string]any = {};
+  if (!$isNull(request.path)) {
+    body['Path'] = request.path;
+  }
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'SaveWorkspaceCode',
+    version = '2025-04-14',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 保存工作空间代码，如果文件不存在则自动新建
+ *
+ * @param request SaveWorkspaceCodeRequest
+ * @return SaveWorkspaceCodeResponse
+ */
+async function saveWorkspaceCode(request: SaveWorkspaceCodeRequest): SaveWorkspaceCodeResponse {
+  var runtime = new $RuntimeOptions{};
+  return saveWorkspaceCodeWithOptions(request, runtime);
 }
 
 model SendChatMessageRequest {
