@@ -99,6 +99,7 @@ model Catalog {
 
 model Column {
   businessMetadata?: {
+    customAttributes?: map[string][ string ](name='CustomAttributes'),
     description?: string(name='Description', example='字段1的业务描述'),
   }(name='BusinessMetadata'),
   comment?: string(name='Comment', example='字段1'),
@@ -123,6 +124,19 @@ model CrawlerType {
     }
   ](name='SupportedEntityTypes'),
   type?: string(name='Type', example='dlf'),
+}
+
+model CustomAttribute {
+  comment?: string(name='Comment'),
+  createTime?: long(name='CreateTime'),
+  displayEnabled?: boolean(name='DisplayEnabled', example='true'),
+  displayName?: string(name='DisplayName', example='业务负责人'),
+  entityTypes?: [ string ](name='EntityTypes'),
+  id?: string(name='Id', example='custom-attribute:biz_owner'),
+  modifyTime?: long(name='ModifyTime'),
+  searchFilterEnabled?: boolean(name='SearchFilterEnabled', example='false'),
+  type?: string(name='Type', example='TEXT'),
+  valueEnums?: [ string ](name='ValueEnums'),
 }
 
 model DataQualityEvaluationTask {
@@ -436,6 +450,51 @@ model LineageTask {
   type?: string(name='Type', example='custom-sql'),
 }
 
+model MetaEntity {
+  attributes?: map[string]string(name='Attributes'),
+  comment?: string(name='Comment'),
+  createTime?: long(name='CreateTime'),
+  customAttributes?: map[string][ string ](name='CustomAttributes'),
+  entityType?: string(name='EntityType', example='custom_entity-customer_api'),
+  id?: string(name='Id', example='custom_entity-customer_api:api_001'),
+  metaEntityDef?: MetaEntityDef(name='MetaEntityDef'),
+  modifyTime?: long(name='ModifyTime'),
+  name?: string(name='Name', example='api_001'),
+  ownerId?: string(name='OwnerId'),
+}
+
+model MetaEntityAttributeDef {
+  allowedValues?: [ string ](name='AllowedValues'),
+  description?: string(name='Description'),
+  displayEnabled?: boolean(name='DisplayEnabled', example='true'),
+  displayName?: string(name='DisplayName', example='API编码'),
+  isOptional?: boolean(name='IsOptional', example='true'),
+  name?: string(name='Name', example='apiCode'),
+  searchFilterEnabled?: boolean(name='SearchFilterEnabled', example='false'),
+  type?: string(name='Type', example='STRING'),
+}
+
+model MetaEntityDef {
+  attributeDefs?: [
+    MetaEntityAttributeDef
+  ](name='AttributeDefs'),
+  createTime?: long(name='CreateTime'),
+  description?: string(name='Description'),
+  displayName?: string(name='DisplayName'),
+  entityType?: string(name='EntityType', example='custom_entity-customer_api'),
+  extend?: string(name='Extend', example='NONE'),
+  modifyTime?: long(name='ModifyTime'),
+  name?: string(name='Name', example='customer_api'),
+}
+
+model MetaEntityWriteResult {
+  entityType?: string(name='EntityType'),
+  errorMessage?: string(name='ErrorMessage'),
+  id?: string(name='Id'),
+  name?: string(name='Name'),
+  success?: boolean(name='Success'),
+}
+
 model Partition {
   createTime?: long(name='CreateTime', example='1700192563000'),
   dataSize?: long(name='DataSize', example='4096'),
@@ -464,6 +523,7 @@ model Table {
         parentId?: string(name='ParentId', example='CATEGORY.123'),
       }
     ]    ](name='Categories'),
+    customAttributes?: map[string][ string ](name='CustomAttributes'),
     extension?: {
       envType?: string(name='EnvType', example='Dev'),
       favorCount?: long(name='FavorCount', example='0'),
@@ -664,6 +724,70 @@ model AttachDataQualityRulesToEvaluationTaskResponse = {
 async function attachDataQualityRulesToEvaluationTask(request: AttachDataQualityRulesToEvaluationTaskRequest): AttachDataQualityRulesToEvaluationTaskResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RPC', 'AttachDataQualityRulesToEvaluationTask', 'POST', '/', 'json', true, 'form', request);
+}
+
+model BatchCreateMetaEntitiesRequest {
+  regionId?: string(name='RegionId', description='This parameter is required.', position='Host'),
+  entities: [ 
+    {
+      attributes?: map[string]string(name='Attributes'),
+      comment?: string(name='Comment', example='this is a comment'),
+      customAttributes?: map[string][ string ](name='CustomAttributes'),
+      entityType: string(name='EntityType', description='This parameter is required.', example='custom_entity-customer_api'),
+      name: string(name='Name', description='This parameter is required.', example='api_001'),
+    }
+  ](name='Entities', description='This parameter is required.', example='[]', shrink='json', position='Body'),
+}
+
+model BatchCreateMetaEntitiesResponseBody = {
+  requestId?: string(name='RequestId', description='Id of the request', example='9E0C8E7A-C6BE-5A73-9562-2A030A80E8C6'),
+  results?: [
+    MetaEntityWriteResult
+  ](name='Results'),
+  success?: boolean(name='Success', example='true'),
+}
+
+model BatchCreateMetaEntitiesResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: BatchCreateMetaEntitiesResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of BatchCreateMetaEntities  BatchCreateMetaEntitiesRequest
+  * @return BatchCreateMetaEntitiesResponse
+ */
+async function batchCreateMetaEntities(request: BatchCreateMetaEntitiesRequest): BatchCreateMetaEntitiesResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'BatchCreateMetaEntities', 'POST', '/', 'json', true, 'form', request);
+}
+
+model BatchDeleteMetaEntitiesRequest {
+  regionId?: string(name='RegionId', description='This parameter is required.', position='Host'),
+  ids: [ string ](name='Ids', description='This parameter is required.', shrink='simple', position='Body'),
+}
+
+model BatchDeleteMetaEntitiesResponseBody = {
+  requestId?: string(name='RequestId', description='Id of the request', example='1FC02D76-4A94-5D97-B52C-00A031B95359'),
+  results?: [
+    MetaEntityWriteResult
+  ](name='Results'),
+  success?: boolean(name='Success', example='[]'),
+}
+
+model BatchDeleteMetaEntitiesResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: BatchDeleteMetaEntitiesResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of BatchDeleteMetaEntities  BatchDeleteMetaEntitiesRequest
+  * @return BatchDeleteMetaEntitiesResponse
+ */
+async function batchDeleteMetaEntities(request: BatchDeleteMetaEntitiesRequest): BatchDeleteMetaEntitiesResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'BatchDeleteMetaEntities', 'POST', '/', 'json', true, 'form', request);
 }
 
 model BatchUpdateTasksRequest {
@@ -1120,6 +1244,39 @@ model CreateComputeResourceResponse = {
 async function createComputeResource(request: CreateComputeResourceRequest): CreateComputeResourceResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RPC', 'CreateComputeResource', 'POST', '/', 'json', false, 'json', request);
+}
+
+model CreateCustomAttributeRequest {
+  regionId?: string(name='RegionId', description='This parameter is required.', position='Host'),
+  comment?: string(name='Comment', example='test comment', position='Body'),
+  displayEnabled?: boolean(name='DisplayEnabled', example='true', position='Body'),
+  displayName: string(name='DisplayName', description='This parameter is required.', example='业务负责人', position='Body'),
+  entityTypes: [ string ](name='EntityTypes', description='This parameter is required.', shrink='simple', position='Body'),
+  id: string(name='Id', description='This parameter is required.', example='custom-attribute:biz_owner', position='Body'),
+  searchFilterEnabled?: boolean(name='SearchFilterEnabled', example='false', position='Body'),
+  type: string(name='Type', description='This parameter is required.', example='TEXT', position='Body'),
+  valueEnums?: [ string ](name='ValueEnums', shrink='simple', position='Body'),
+}
+
+model CreateCustomAttributeResponseBody = {
+  requestId?: string(name='RequestId', description='Id of the request', example='5A1E9EBB-FEA6-5BBB-B7BE-BFC0FB3F8C71'),
+  result?: boolean(name='Result', example='true'),
+  success?: boolean(name='Success', example='true'),
+}
+
+model CreateCustomAttributeResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: CreateCustomAttributeResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of CreateCustomAttribute  CreateCustomAttributeRequest
+  * @return CreateCustomAttributeResponse
+ */
+async function createCustomAttribute(request: CreateCustomAttributeRequest): CreateCustomAttributeResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'CreateCustomAttribute', 'POST', '/', 'json', true, 'form', request);
 }
 
 model CreateDIAlarmRuleRequest {
@@ -2688,6 +2845,38 @@ async function createMetaCollection(request: CreateMetaCollectionRequest): Creat
   return @handler.do('RPC', 'CreateMetaCollection', 'POST', '/', 'json', false, 'json', request);
 }
 
+model CreateMetaEntityDefRequest {
+  regionId?: string(name='RegionId', description='This parameter is required.', position='Host'),
+  attributeDefs?: [
+    MetaEntityAttributeDef
+  ](name='AttributeDefs', example='[]', shrink='json', position='Body'),
+  description?: string(name='Description', example='description', position='Body'),
+  displayName: string(name='DisplayName', description='This parameter is required.', example='Business API', position='Body'),
+  extend?: string(name='Extend', example='NONE', position='Body'),
+  name: string(name='Name', description='This parameter is required.', example='biz_api', position='Body'),
+}
+
+model CreateMetaEntityDefResponseBody = {
+  entityType?: string(name='EntityType', example='custom_entity-biz_api'),
+  requestId?: string(name='RequestId', description='Id of the request', example='0A04C673-BEFA-5803-94E5-89E2D9F8C567'),
+  success?: boolean(name='Success', example='true'),
+}
+
+model CreateMetaEntityDefResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: CreateMetaEntityDefResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of CreateMetaEntityDef  CreateMetaEntityDefRequest
+  * @return CreateMetaEntityDefResponse
+ */
+async function createMetaEntityDef(request: CreateMetaEntityDefRequest): CreateMetaEntityDefResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'CreateMetaEntityDef', 'POST', '/', 'json', true, 'form', request);
+}
+
 model CreateNetworkRequest {
   regionId?: string(name='RegionId', description='This parameter is required.', position='Host'),
   clientToken: string(name='ClientToken', description='The client token that is used to ensure the idempotence of the request.
@@ -3588,6 +3777,32 @@ async function deleteComputeResource(request: DeleteComputeResourceRequest): Del
   return @handler.do('RPC', 'DeleteComputeResource', 'POST', '/', 'json', false, 'json', request);
 }
 
+model DeleteCustomAttributeRequest {
+  regionId?: string(name='RegionId', description='This parameter is required.', position='Host'),
+  id: string(name='Id', description='This parameter is required.', example='custom-attribute:biz_owner', position='Query'),
+}
+
+model DeleteCustomAttributeResponseBody = {
+  requestId?: string(name='RequestId', description='Id of the request', example='7B4D81F1-98CF-500C-8D25-2865EB652EA0'),
+  result?: boolean(name='Result', example='true'),
+  success?: boolean(name='Success', example='true'),
+}
+
+model DeleteCustomAttributeResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: DeleteCustomAttributeResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of DeleteCustomAttribute  DeleteCustomAttributeRequest
+  * @return DeleteCustomAttributeResponse
+ */
+async function deleteCustomAttribute(request: DeleteCustomAttributeRequest): DeleteCustomAttributeResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'DeleteCustomAttribute', 'POST', '/', 'json', false, 'json', request);
+}
+
 model DeleteDIAlarmRuleRequest {
   regionId?: string(name='RegionId', position='Host'),
   DIAlarmRuleId?: long(name='DIAlarmRuleId', description='This parameter is deprecated. Use the Id parameter instead.', example='2', deprecated='true', position='Query'),
@@ -4131,6 +4346,32 @@ model DeleteMetaCollectionResponse = {
 async function deleteMetaCollection(request: DeleteMetaCollectionRequest): DeleteMetaCollectionResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RPC', 'DeleteMetaCollection', 'POST', '/', 'json', false, 'json', request);
+}
+
+model DeleteMetaEntityDefRequest {
+  regionId?: string(name='RegionId', description='This parameter is required.', position='Host'),
+  entityType: string(name='EntityType', description='This parameter is required.', example='custom_entity-customer_api', position='Body'),
+  force?: boolean(name='Force', example='true', position='Body'),
+}
+
+model DeleteMetaEntityDefResponseBody = {
+  requestId?: string(name='RequestId', description='Id of the request', example='3C1E755D-B606-57A4-9B9C-7B214E81354C'),
+  success?: boolean(name='Success', example='true'),
+}
+
+model DeleteMetaEntityDefResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: DeleteMetaEntityDefResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of DeleteMetaEntityDef  DeleteMetaEntityDefRequest
+  * @return DeleteMetaEntityDefResponse
+ */
+async function deleteMetaEntityDef(request: DeleteMetaEntityDefRequest): DeleteMetaEntityDefResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'DeleteMetaEntityDef', 'POST', '/', 'json', true, 'form', request);
 }
 
 model DeleteNetworkRequest {
@@ -5367,6 +5608,32 @@ model GetCreateWorkflowInstancesResultResponse = {
 async function getCreateWorkflowInstancesResult(request: GetCreateWorkflowInstancesResultRequest): GetCreateWorkflowInstancesResultResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RPC', 'GetCreateWorkflowInstancesResult', 'GET', '/', 'json', false, 'json', request);
+}
+
+model GetCustomAttributeRequest {
+  regionId?: string(name='RegionId', description='This parameter is required.', position='Host'),
+  id: string(name='Id', description='This parameter is required.', example='custom-attribute:biz_owner', position='Query'),
+}
+
+model GetCustomAttributeResponseBody = {
+  customAttribute?: CustomAttribute(name='CustomAttribute'),
+  requestId?: string(name='RequestId', description='Id of the request', example='BA51C9E6-0CBC-5BB9-92BD-0C4FE66E1717'),
+  success?: boolean(name='Success', example='true'),
+}
+
+model GetCustomAttributeResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: GetCustomAttributeResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of GetCustomAttribute  GetCustomAttributeRequest
+  * @return GetCustomAttributeResponse
+ */
+async function getCustomAttribute(request: GetCustomAttributeRequest): GetCustomAttributeResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'GetCustomAttribute', 'POST', '/', 'json', false, 'json', request);
 }
 
 model GetDIJobRequest {
@@ -7479,6 +7746,58 @@ model GetMetaCollectionResponse = {
 async function getMetaCollection(request: GetMetaCollectionRequest): GetMetaCollectionResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RPC', 'GetMetaCollection', 'GET', '/', 'json', false, 'json', request);
+}
+
+model GetMetaEntityRequest {
+  regionId?: string(name='RegionId', description='This parameter is required.', position='Host'),
+  id: string(name='Id', description='This parameter is required.', example='custom_entity-customer_api:api_001', position='Body'),
+}
+
+model GetMetaEntityResponseBody = {
+  metaEntity?: MetaEntity(name='MetaEntity'),
+  requestId?: string(name='RequestId', description='Id of the request', example='0A04C673-BEFA-5803-94E5-89E2D9F8C567'),
+  success?: boolean(name='Success', example='true'),
+}
+
+model GetMetaEntityResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: GetMetaEntityResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of GetMetaEntity  GetMetaEntityRequest
+  * @return GetMetaEntityResponse
+ */
+async function getMetaEntity(request: GetMetaEntityRequest): GetMetaEntityResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'GetMetaEntity', 'POST', '/', 'json', true, 'form', request);
+}
+
+model GetMetaEntityDefRequest {
+  regionId?: string(name='RegionId', description='This parameter is required.', position='Host'),
+  entityType: string(name='EntityType', description='This parameter is required.', example='custom_entity-customer_api', position='Body'),
+}
+
+model GetMetaEntityDefResponseBody = {
+  metaEntityDef?: MetaEntityDef(name='MetaEntityDef'),
+  requestId?: string(name='RequestId', description='Id of the request', example='C636A747-7E4E-594D-94CD-2B4F8A9A9A63'),
+  success?: boolean(name='Success', example='true'),
+}
+
+model GetMetaEntityDefResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: GetMetaEntityDefResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of GetMetaEntityDef  GetMetaEntityDefRequest
+  * @return GetMetaEntityDefResponse
+ */
+async function getMetaEntityDef(request: GetMetaEntityDefRequest): GetMetaEntityDefResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'GetMetaEntityDef', 'POST', '/', 'json', true, 'form', request);
 }
 
 model GetNetworkRequest {
@@ -9868,6 +10187,45 @@ model ListCrawlerTypesResponse = {
 async function listCrawlerTypes(request: ListCrawlerTypesRequest): ListCrawlerTypesResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RPC', 'ListCrawlerTypes', 'GET', '/', 'json', false, 'json', request);
+}
+
+model ListCustomAttributesRequest {
+  regionId?: string(name='RegionId', description='This parameter is required.', position='Host'),
+  comment?: string(name='Comment', example='owner', position='Query'),
+  displayName?: string(name='DisplayName', example='Owner', position='Query'),
+  entityTypes?: string(name='EntityTypes', example='maxcompute-table', position='Query'),
+  order?: string(name='Order', example='Asc', position='Query'),
+  pageNumber?: int32(name='PageNumber', example='1', minimum=1, position='Query'),
+  pageSize?: int32(name='PageSize', example='10', minimum=1, maximum=100, position='Query'),
+  sortBy?: string(name='SortBy', example='CreateTime', position='Query'),
+}
+
+model ListCustomAttributesResponseBody = {
+  pagingInfo?: {
+    customAttributes?: [
+      CustomAttribute
+    ](name='CustomAttributes'),
+    pageNumber?: int32(name='PageNumber', example='1'),
+    pageSize?: int32(name='PageSize', example='10'),
+    totalCount?: long(name='TotalCount', example='10'),
+  }(name='PagingInfo'),
+  requestId?: string(name='RequestId', description='RequestId', example='54594ACA-7976-5273-958B-02E15E9B867C'),
+  success?: boolean(name='Success', example='true'),
+}
+
+model ListCustomAttributesResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ListCustomAttributesResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of ListCustomAttributes  ListCustomAttributesRequest
+  * @return ListCustomAttributesResponse
+ */
+async function listCustomAttributes(request: ListCustomAttributesRequest): ListCustomAttributesResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'ListCustomAttributes', 'POST', '/', 'json', false, 'json', request);
 }
 
 model ListDIAlarmRulesRequest {
@@ -12981,6 +13339,96 @@ async function listMetaCollections(request: ListMetaCollectionsRequest): ListMet
   return @handler.do('RPC', 'ListMetaCollections', 'GET', '/', 'json', false, 'json', request);
 }
 
+model ListMetaEntitiesRequest {
+  regionId?: string(name='RegionId', description='This parameter is required.', example='cn-shanghai', position='Host'),
+  attributeFilters?: [ 
+    {
+      key: string(name='Key', description='This parameter is required.', example='key1'),
+      values?: [ string ](name='Values'),
+    }
+  ](name='AttributeFilters', example='[]', shrink='json', position='Body'),
+  comment?: string(name='Comment', example='this is a comment', position='Body'),
+  customAttributeFilters?: [ 
+    {
+      key: string(name='Key', description='This parameter is required.', example='custom_attr_1'),
+      values?: [ string ](name='Values'),
+    }
+  ](name='CustomAttributeFilters', example='[]', shrink='json', position='Body'),
+  entityType: string(name='EntityType', description='This parameter is required.', example='custom_entity-customer_api', position='Body'),
+  maxResults?: int32(name='MaxResults', example='10', minimum=1, maximum=100, position='Body'),
+  name?: string(name='Name', example='xm_create_test', position='Body'),
+  nextToken?: string(name='NextToken', example='AAAAAaUpAxoCTD/+sbOf3f+uxvnYyILMeAjoTFQSX64R12GN', position='Body'),
+  order?: string(name='Order', example='Asc', position='Body'),
+  sortBy?: string(name='SortBy', example='Name', position='Body'),
+}
+
+model ListMetaEntitiesResponseBody = {
+  pagingInfo?: {
+    maxResults?: int32(name='MaxResults', example='10'),
+    metaEntities?: [
+      MetaEntity
+    ](name='MetaEntities'),
+    nextToken?: string(name='NextToken', example='AAAAAdEdsXbwG2ZlbWCzN4wTTg6NmTbhyvglcoMCJsiEdngaTov15YaMyduvjIHYeTOIcEeXqCevM1qffZkwCkUTUYc='),
+    totalCount?: long(name='TotalCount', example='10'),
+  }(name='PagingInfo'),
+  requestId?: string(name='RequestId', description='RequestId', example='ADFASDFASDFA-ADFASDF-ASDFADSDF-AFFADS'),
+  success?: boolean(name='Success', example='true'),
+}
+
+model ListMetaEntitiesResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ListMetaEntitiesResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of ListMetaEntities  ListMetaEntitiesRequest
+  * @return ListMetaEntitiesResponse
+ */
+async function listMetaEntities(request: ListMetaEntitiesRequest): ListMetaEntitiesResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'ListMetaEntities', 'POST', '/', 'json', true, 'form', request);
+}
+
+model ListMetaEntityDefsRequest {
+  regionId?: string(name='RegionId', description='This parameter is required.', position='Host'),
+  description?: string(name='Description', example='description', position='Body'),
+  displayName?: string(name='DisplayName', example='CustomReport', position='Body'),
+  extend?: string(name='Extend', example='NONE', position='Body'),
+  order?: string(name='Order', example='Asc', position='Body'),
+  pageNumber?: int32(name='PageNumber', example='1', minimum=1, position='Body'),
+  pageSize?: int32(name='PageSize', example='10', minimum=1, maximum=100, position='Body'),
+  sortBy?: string(name='SortBy', example='CreateTime', position='Body'),
+}
+
+model ListMetaEntityDefsResponseBody = {
+  pagingInfo?: {
+    metaEntityDefs?: [
+      MetaEntityDef
+    ](name='MetaEntityDefs'),
+    pageNumber?: int32(name='PageNumber', example='1'),
+    pageSize?: int32(name='PageSize', example='10'),
+    totalCount?: long(name='TotalCount', example='10'),
+  }(name='PagingInfo'),
+  requestId?: string(name='RequestId', description='RequestId', example='ADFASDFASDFA-ADFASDF-ASDFADSDF-AFFADS'),
+  success?: boolean(name='Success', example='true'),
+}
+
+model ListMetaEntityDefsResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ListMetaEntityDefsResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of ListMetaEntityDefs  ListMetaEntityDefsRequest
+  * @return ListMetaEntityDefsResponse
+ */
+async function listMetaEntityDefs(request: ListMetaEntityDefsRequest): ListMetaEntityDefsResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'ListMetaEntityDefs', 'POST', '/', 'json', true, 'form', request);
+}
+
 model ListNetworksRequest {
   regionId?: string(name='RegionId', description='This parameter is required.', position='Host'),
   pageNumber?: int32(name='PageNumber', description='The page number.', example='1', position='Query'),
@@ -14409,7 +14857,7 @@ async function listSchemas(request: ListSchemasRequest): ListSchemasResponse {
 }
 
 model ListTablesRequest {
-  regionId?: string(name='RegionId', description='This parameter is required.', position='Host'),
+  regionId?: string(name='RegionId', description='This parameter is required.', example='cn-shanghai', position='Host'),
   comment?: string(name='Comment', description='The comment. Supports fuzzy matching.', example='this is a comment', position='Query'),
   name?: string(name='Name', description='The name. Supports fuzzy matching.', example='abc', position='Query'),
   order?: string(name='Order', description='The order in which the tables are sorted. Default value: Asc. Valid values:
@@ -16872,7 +17320,8 @@ async function updateBusiness(request: UpdateBusinessRequest): UpdateBusinessRes
 }
 
 model UpdateColumnBusinessMetadataRequest {
-  regionId?: string(name='RegionId', description='This parameter is required.', position='Host'),
+  regionId?: string(name='RegionId', description='This parameter is required.', example='cn-shanghai', position='Host'),
+  customAttributes?: map[string] [ string ](name='CustomAttributes', example='{"biz_owner":["张三"]}', shrink='json', position='Body'),
   description?: string(name='Description', description='The field business description.', example='test description', position='Body'),
   id: string(name='Id', description='The field ID. You can refer to the response from the ListColumns operation. You can also refer to the [Concepts related to metadata entities](https://help.aliyun.com/document_detail/2880092.html).
 
@@ -16989,6 +17438,38 @@ model UpdateComputeResourceResponse = {
 async function updateComputeResource(request: UpdateComputeResourceRequest): UpdateComputeResourceResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RPC', 'UpdateComputeResource', 'POST', '/', 'json', false, 'json', request);
+}
+
+model UpdateCustomAttributeRequest {
+  regionId?: string(name='RegionId', description='This parameter is required.', position='Host'),
+  comment?: string(name='Comment', example='test comment', position='Body'),
+  displayEnabled?: boolean(name='DisplayEnabled', example='true', position='Body'),
+  displayName?: string(name='DisplayName', example='业务负责人', position='Body'),
+  entityTypes?: [ string ](name='EntityTypes', shrink='simple', position='Body'),
+  id: string(name='Id', description='This parameter is required.', example='custom-attribute:biz_owner', position='Body'),
+  searchFilterEnabled?: boolean(name='SearchFilterEnabled', example='false', position='Body'),
+  valueEnums?: [ string ](name='ValueEnums', shrink='simple', position='Body'),
+}
+
+model UpdateCustomAttributeResponseBody = {
+  requestId?: string(name='RequestId', description='Id of the request', example='6B56C4A2-C7F3-52AF-8417-6DFF7447011B'),
+  result?: boolean(name='Result', example='true'),
+  success?: boolean(name='Success', example='true'),
+}
+
+model UpdateCustomAttributeResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: UpdateCustomAttributeResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of UpdateCustomAttribute  UpdateCustomAttributeRequest
+  * @return UpdateCustomAttributeResponse
+ */
+async function updateCustomAttribute(request: UpdateCustomAttributeRequest): UpdateCustomAttributeResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'UpdateCustomAttribute', 'POST', '/', 'json', true, 'form', request);
 }
 
 model UpdateDIAlarmRuleRequest {
@@ -18239,6 +18720,71 @@ async function updateMetaCollection(request: UpdateMetaCollectionRequest): Updat
   return @handler.do('RPC', 'UpdateMetaCollection', 'POST', '/', 'json', false, 'json', request);
 }
 
+model UpdateMetaEntityRequest {
+  regionId?: string(name='RegionId', description='This parameter is required.', position='Host'),
+  attributes?: map[string]string(name='Attributes', example='[]', shrink='json', position='Body'),
+  comment?: string(name='Comment', example='this is a comment', position='Body'),
+  customAttributes?: map[string] [ string ](name='CustomAttributes', example='[]', shrink='json', position='Body'),
+  id: string(name='Id', description='This parameter is required.', example='custom_entity-customer_api:api_001', position='Body'),
+}
+
+model UpdateMetaEntityResponseBody = {
+  requestId?: string(name='RequestId', description='Id of the request', example='AASFDFSDFG-DFSDF-DFSDFD-SDFSDF'),
+  result?: {
+    id?: string(name='Id', example='custom_entity-customer_api:api_001'),
+    success?: boolean(name='Success', example='true'),
+  }(name='Result'),
+  success?: boolean(name='Success', example='true'),
+}
+
+model UpdateMetaEntityResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: UpdateMetaEntityResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of UpdateMetaEntity  UpdateMetaEntityRequest
+  * @return UpdateMetaEntityResponse
+ */
+async function updateMetaEntity(request: UpdateMetaEntityRequest): UpdateMetaEntityResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'UpdateMetaEntity', 'POST', '/', 'json', true, 'form', request);
+}
+
+model UpdateMetaEntityDefRequest {
+  regionId?: string(name='RegionId', description='This parameter is required.', position='Host'),
+  description?: string(name='Description', example='description', position='Body'),
+  displayName?: string(name='DisplayName', example='Business API', position='Body'),
+  entityType: string(name='EntityType', description='This parameter is required.', example='custom_entity-customer_api', position='Body'),
+  newAttributeDefs?: [
+    MetaEntityAttributeDef
+  ](name='NewAttributeDefs', example='[]', shrink='json', position='Body'),
+  updateAttributeDefs?: [
+    MetaEntityAttributeDef
+  ](name='UpdateAttributeDefs', example='[]', shrink='json', position='Body'),
+}
+
+model UpdateMetaEntityDefResponseBody = {
+  requestId?: string(name='RequestId', description='Id of the request', example='E08F38AB-3BA0-5047-8E9E-9AA4839263EA'),
+  success?: boolean(name='Success', example='true'),
+}
+
+model UpdateMetaEntityDefResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: UpdateMetaEntityDefResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of UpdateMetaEntityDef  UpdateMetaEntityDefRequest
+  * @return UpdateMetaEntityDefResponse
+ */
+async function updateMetaEntityDef(request: UpdateMetaEntityDefRequest): UpdateMetaEntityDefResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'UpdateMetaEntityDef', 'POST', '/', 'json', true, 'form', request);
+}
+
 model UpdateNodeRequest {
   regionId?: string(name='RegionId', description='This parameter is required.', position='Host'),
   id: string(name='Id', description='The unique identifier of the Data Studio node.
@@ -18522,7 +19068,8 @@ async function updateRoute(request: UpdateRouteRequest): UpdateRouteResponse {
 }
 
 model UpdateTableBusinessMetadataRequest {
-  regionId?: string(name='RegionId', description='This parameter is required.', position='Host'),
+  regionId?: string(name='RegionId', description='This parameter is required.', example='cn-shanghai', position='Host'),
+  customAttributes?: map[string] [ string ](name='CustomAttributes', example='{"biz_owner":["张三"]}', shrink='json', position='Body'),
   id: string(name='Id', description='The table ID. You can refer to the format of the table ID returned by the ListTables operation.
 
 This parameter is required.', example='maxcompute-table:123456XXX::test_project::test_tbl

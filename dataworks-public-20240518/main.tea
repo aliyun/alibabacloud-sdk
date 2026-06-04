@@ -120,6 +120,7 @@ starrocks:c-abc123xxx'),
 
 model Column {
   businessMetadata?: {
+    customAttributes?: map[string][ string ](name='CustomAttributes'),
     description?: string(name='Description', description='A business-level description of the field (supported only by MaxCompute, HMS (EMR clusters) and DLF.'),
   }(name='BusinessMetadata', description='Business metadata.'),
   comment?: string(name='Comment', description='The comment.'),
@@ -189,6 +190,19 @@ For example, whether the schema level of the MaxCompute crawler type is optional
 *   `ots`
 *   `clickhouse`
 *   `starrocks`: This type of crawler can be used to query metadata entities only in internal catalogs.', example='dlf'),
+}
+
+model CustomAttribute {
+  comment?: string(name='Comment'),
+  createTime?: long(name='CreateTime'),
+  displayEnabled?: boolean(name='DisplayEnabled', example='true'),
+  displayName?: string(name='DisplayName', example='业务负责人'),
+  entityTypes?: [ string ](name='EntityTypes'),
+  id?: string(name='Id', example='custom-attribute:biz_owner'),
+  modifyTime?: long(name='ModifyTime'),
+  searchFilterEnabled?: boolean(name='SearchFilterEnabled', example='false'),
+  type?: string(name='Type', example='TEXT'),
+  valueEnums?: [ string ](name='ValueEnums'),
 }
 
 model DataQualityEvaluationTask {
@@ -729,6 +743,51 @@ model LineageTask {
   type?: string(name='Type', description='The type of the task.', example='custom-sql'),
 }
 
+model MetaEntity {
+  attributes?: map[string]string(name='Attributes'),
+  comment?: string(name='Comment'),
+  createTime?: long(name='CreateTime'),
+  customAttributes?: map[string][ string ](name='CustomAttributes'),
+  entityType?: string(name='EntityType', example='custom_entity-customer_api'),
+  id?: string(name='Id', example='custom_entity-customer_api:api_001'),
+  metaEntityDef?: MetaEntityDef(name='MetaEntityDef'),
+  modifyTime?: long(name='ModifyTime'),
+  name?: string(name='Name', example='api_001'),
+  ownerId?: string(name='OwnerId'),
+}
+
+model MetaEntityAttributeDef {
+  allowedValues?: [ string ](name='AllowedValues'),
+  description?: string(name='Description'),
+  displayEnabled?: boolean(name='DisplayEnabled', example='true'),
+  displayName?: string(name='DisplayName', example='API编码'),
+  isOptional?: boolean(name='IsOptional', example='true'),
+  name?: string(name='Name', example='apiCode'),
+  searchFilterEnabled?: boolean(name='SearchFilterEnabled', example='false'),
+  type?: string(name='Type', example='STRING'),
+}
+
+model MetaEntityDef {
+  attributeDefs?: [
+    MetaEntityAttributeDef
+  ](name='AttributeDefs'),
+  createTime?: long(name='CreateTime'),
+  description?: string(name='Description'),
+  displayName?: string(name='DisplayName'),
+  entityType?: string(name='EntityType', example='custom_entity-customer_api'),
+  extend?: string(name='Extend', example='NONE'),
+  modifyTime?: long(name='ModifyTime'),
+  name?: string(name='Name', example='customer_api'),
+}
+
+model MetaEntityWriteResult {
+  entityType?: string(name='EntityType'),
+  errorMessage?: string(name='ErrorMessage'),
+  id?: string(name='Id'),
+  name?: string(name='Name'),
+  success?: boolean(name='Success'),
+}
+
 model Partition {
   createTime?: long(name='CreateTime', description='The creation time. This value is a UNIX timestamp. Unit: milliseconds.', example='1700192563000'),
   dataSize?: long(name='DataSize', description='The storage size of the partition. Unit: bytes.', example='4096'),
@@ -790,6 +849,7 @@ model Table {
         parentId?: string(name='ParentId', description='The parent category ID. You can leave this parameter empty.', example='CATEGORY.123'),
       }
     ]    ](name='Categories', description='The categories.'),
+    customAttributes?: map[string][ string ](name='CustomAttributes'),
     extension?: {
       envType?: string(name='EnvType', description='The type of the environment. Valid values:
 
@@ -1267,6 +1327,150 @@ async function attachDataQualityRulesToEvaluationTaskWithOptions(tmpReq: AttachD
 async function attachDataQualityRulesToEvaluationTask(request: AttachDataQualityRulesToEvaluationTaskRequest): AttachDataQualityRulesToEvaluationTaskResponse {
   var runtime = new Util.RuntimeOptions{};
   return attachDataQualityRulesToEvaluationTaskWithOptions(request, runtime);
+}
+
+model BatchCreateMetaEntitiesRequest {
+  entities?: [ 
+    {
+      attributes?: map[string]string(name='Attributes'),
+      comment?: string(name='Comment', example='this is a comment'),
+      customAttributes?: map[string][ string ](name='CustomAttributes'),
+      entityType?: string(name='EntityType', description='This parameter is required.', example='custom_entity-customer_api'),
+      name?: string(name='Name', description='This parameter is required.', example='api_001'),
+    }
+  ](name='Entities', description='This parameter is required.', example='[]'),
+}
+
+model BatchCreateMetaEntitiesShrinkRequest {
+  entitiesShrink?: string(name='Entities', description='This parameter is required.', example='[]'),
+}
+
+model BatchCreateMetaEntitiesResponseBody = {
+  requestId?: string(name='RequestId', description='Id of the request', example='9E0C8E7A-C6BE-5A73-9562-2A030A80E8C6'),
+  results?: [
+    MetaEntityWriteResult
+  ](name='Results'),
+  success?: boolean(name='Success', example='true'),
+}
+
+model BatchCreateMetaEntitiesResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: BatchCreateMetaEntitiesResponseBody(name='body'),
+}
+
+/**
+ * @summary 批量创建自定义实体
+ *
+ * @param tmpReq BatchCreateMetaEntitiesRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return BatchCreateMetaEntitiesResponse
+ */
+async function batchCreateMetaEntitiesWithOptions(tmpReq: BatchCreateMetaEntitiesRequest, runtime: Util.RuntimeOptions): BatchCreateMetaEntitiesResponse {
+  Util.validateModel(tmpReq);
+  var request = new BatchCreateMetaEntitiesShrinkRequest{};
+  OpenApiUtil.convert(tmpReq, request);
+  if (!Util.isUnset(tmpReq.entities)) {
+    request.entitiesShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.entities, 'Entities', 'json');
+  }
+  var body : map[string]any = {};
+  if (!Util.isUnset(request.entitiesShrink)) {
+    body['Entities'] = request.entitiesShrink;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApi.Params{
+    action = 'BatchCreateMetaEntities',
+    version = '2024-05-18',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 批量创建自定义实体
+ *
+ * @param request BatchCreateMetaEntitiesRequest
+ * @return BatchCreateMetaEntitiesResponse
+ */
+async function batchCreateMetaEntities(request: BatchCreateMetaEntitiesRequest): BatchCreateMetaEntitiesResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return batchCreateMetaEntitiesWithOptions(request, runtime);
+}
+
+model BatchDeleteMetaEntitiesRequest {
+  ids?: [ string ](name='Ids', description='This parameter is required.'),
+}
+
+model BatchDeleteMetaEntitiesShrinkRequest {
+  idsShrink?: string(name='Ids', description='This parameter is required.'),
+}
+
+model BatchDeleteMetaEntitiesResponseBody = {
+  requestId?: string(name='RequestId', description='Id of the request', example='1FC02D76-4A94-5D97-B52C-00A031B95359'),
+  results?: [
+    MetaEntityWriteResult
+  ](name='Results'),
+  success?: boolean(name='Success', example='[]'),
+}
+
+model BatchDeleteMetaEntitiesResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: BatchDeleteMetaEntitiesResponseBody(name='body'),
+}
+
+/**
+ * @summary 批量删除自定义实体
+ *
+ * @param tmpReq BatchDeleteMetaEntitiesRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return BatchDeleteMetaEntitiesResponse
+ */
+async function batchDeleteMetaEntitiesWithOptions(tmpReq: BatchDeleteMetaEntitiesRequest, runtime: Util.RuntimeOptions): BatchDeleteMetaEntitiesResponse {
+  Util.validateModel(tmpReq);
+  var request = new BatchDeleteMetaEntitiesShrinkRequest{};
+  OpenApiUtil.convert(tmpReq, request);
+  if (!Util.isUnset(tmpReq.ids)) {
+    request.idsShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.ids, 'Ids', 'simple');
+  }
+  var body : map[string]any = {};
+  if (!Util.isUnset(request.idsShrink)) {
+    body['Ids'] = request.idsShrink;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApi.Params{
+    action = 'BatchDeleteMetaEntities',
+    version = '2024-05-18',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 批量删除自定义实体
+ *
+ * @param request BatchDeleteMetaEntitiesRequest
+ * @return BatchDeleteMetaEntitiesResponse
+ */
+async function batchDeleteMetaEntities(request: BatchDeleteMetaEntitiesRequest): BatchDeleteMetaEntitiesResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return batchDeleteMetaEntitiesWithOptions(request, runtime);
 }
 
 model BatchUpdateTasksRequest {
@@ -2103,6 +2307,110 @@ async function createComputeResourceWithOptions(request: CreateComputeResourceRe
 async function createComputeResource(request: CreateComputeResourceRequest): CreateComputeResourceResponse {
   var runtime = new Util.RuntimeOptions{};
   return createComputeResourceWithOptions(request, runtime);
+}
+
+model CreateCustomAttributeRequest {
+  comment?: string(name='Comment', example='test comment'),
+  displayEnabled?: boolean(name='DisplayEnabled', example='true'),
+  displayName?: string(name='DisplayName', description='This parameter is required.', example='业务负责人'),
+  entityTypes?: [ string ](name='EntityTypes', description='This parameter is required.'),
+  id?: string(name='Id', description='This parameter is required.', example='custom-attribute:biz_owner'),
+  searchFilterEnabled?: boolean(name='SearchFilterEnabled', example='false'),
+  type?: string(name='Type', description='This parameter is required.', example='TEXT'),
+  valueEnums?: [ string ](name='ValueEnums'),
+}
+
+model CreateCustomAttributeShrinkRequest {
+  comment?: string(name='Comment', example='test comment'),
+  displayEnabled?: boolean(name='DisplayEnabled', example='true'),
+  displayName?: string(name='DisplayName', description='This parameter is required.', example='业务负责人'),
+  entityTypesShrink?: string(name='EntityTypes', description='This parameter is required.'),
+  id?: string(name='Id', description='This parameter is required.', example='custom-attribute:biz_owner'),
+  searchFilterEnabled?: boolean(name='SearchFilterEnabled', example='false'),
+  type?: string(name='Type', description='This parameter is required.', example='TEXT'),
+  valueEnumsShrink?: string(name='ValueEnums'),
+}
+
+model CreateCustomAttributeResponseBody = {
+  requestId?: string(name='RequestId', description='Id of the request', example='5A1E9EBB-FEA6-5BBB-B7BE-BFC0FB3F8C71'),
+  result?: boolean(name='Result', example='true'),
+  success?: boolean(name='Success', example='true'),
+}
+
+model CreateCustomAttributeResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: CreateCustomAttributeResponseBody(name='body'),
+}
+
+/**
+ * @summary 创建自定义属性定义
+ *
+ * @param tmpReq CreateCustomAttributeRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return CreateCustomAttributeResponse
+ */
+async function createCustomAttributeWithOptions(tmpReq: CreateCustomAttributeRequest, runtime: Util.RuntimeOptions): CreateCustomAttributeResponse {
+  Util.validateModel(tmpReq);
+  var request = new CreateCustomAttributeShrinkRequest{};
+  OpenApiUtil.convert(tmpReq, request);
+  if (!Util.isUnset(tmpReq.entityTypes)) {
+    request.entityTypesShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.entityTypes, 'EntityTypes', 'simple');
+  }
+  if (!Util.isUnset(tmpReq.valueEnums)) {
+    request.valueEnumsShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.valueEnums, 'ValueEnums', 'simple');
+  }
+  var body : map[string]any = {};
+  if (!Util.isUnset(request.comment)) {
+    body['Comment'] = request.comment;
+  }
+  if (!Util.isUnset(request.displayEnabled)) {
+    body['DisplayEnabled'] = request.displayEnabled;
+  }
+  if (!Util.isUnset(request.displayName)) {
+    body['DisplayName'] = request.displayName;
+  }
+  if (!Util.isUnset(request.entityTypesShrink)) {
+    body['EntityTypes'] = request.entityTypesShrink;
+  }
+  if (!Util.isUnset(request.id)) {
+    body['Id'] = request.id;
+  }
+  if (!Util.isUnset(request.searchFilterEnabled)) {
+    body['SearchFilterEnabled'] = request.searchFilterEnabled;
+  }
+  if (!Util.isUnset(request.type)) {
+    body['Type'] = request.type;
+  }
+  if (!Util.isUnset(request.valueEnumsShrink)) {
+    body['ValueEnums'] = request.valueEnumsShrink;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApi.Params{
+    action = 'CreateCustomAttribute',
+    version = '2024-05-18',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 创建自定义属性定义
+ *
+ * @param request CreateCustomAttributeRequest
+ * @return CreateCustomAttributeResponse
+ */
+async function createCustomAttribute(request: CreateCustomAttributeRequest): CreateCustomAttributeResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return createCustomAttributeWithOptions(request, runtime);
 }
 
 model CreateDIAlarmRuleRequest {
@@ -5297,6 +5605,94 @@ async function createMetaCollection(request: CreateMetaCollectionRequest): Creat
   return createMetaCollectionWithOptions(request, runtime);
 }
 
+model CreateMetaEntityDefRequest {
+  attributeDefs?: [
+    MetaEntityAttributeDef
+  ](name='AttributeDefs', example='[]'),
+  description?: string(name='Description', example='description'),
+  displayName?: string(name='DisplayName', description='This parameter is required.', example='Business API'),
+  extend?: string(name='Extend', example='NONE'),
+  name?: string(name='Name', description='This parameter is required.', example='biz_api'),
+}
+
+model CreateMetaEntityDefShrinkRequest {
+  attributeDefsShrink?: string(name='AttributeDefs', example='[]'),
+  description?: string(name='Description', example='description'),
+  displayName?: string(name='DisplayName', description='This parameter is required.', example='Business API'),
+  extend?: string(name='Extend', example='NONE'),
+  name?: string(name='Name', description='This parameter is required.', example='biz_api'),
+}
+
+model CreateMetaEntityDefResponseBody = {
+  entityType?: string(name='EntityType', example='custom_entity-biz_api'),
+  requestId?: string(name='RequestId', description='Id of the request', example='0A04C673-BEFA-5803-94E5-89E2D9F8C567'),
+  success?: boolean(name='Success', example='true'),
+}
+
+model CreateMetaEntityDefResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: CreateMetaEntityDefResponseBody(name='body'),
+}
+
+/**
+ * @summary 创建自定义实体定义
+ *
+ * @param tmpReq CreateMetaEntityDefRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return CreateMetaEntityDefResponse
+ */
+async function createMetaEntityDefWithOptions(tmpReq: CreateMetaEntityDefRequest, runtime: Util.RuntimeOptions): CreateMetaEntityDefResponse {
+  Util.validateModel(tmpReq);
+  var request = new CreateMetaEntityDefShrinkRequest{};
+  OpenApiUtil.convert(tmpReq, request);
+  if (!Util.isUnset(tmpReq.attributeDefs)) {
+    request.attributeDefsShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.attributeDefs, 'AttributeDefs', 'json');
+  }
+  var body : map[string]any = {};
+  if (!Util.isUnset(request.attributeDefsShrink)) {
+    body['AttributeDefs'] = request.attributeDefsShrink;
+  }
+  if (!Util.isUnset(request.description)) {
+    body['Description'] = request.description;
+  }
+  if (!Util.isUnset(request.displayName)) {
+    body['DisplayName'] = request.displayName;
+  }
+  if (!Util.isUnset(request.extend)) {
+    body['Extend'] = request.extend;
+  }
+  if (!Util.isUnset(request.name)) {
+    body['Name'] = request.name;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApi.Params{
+    action = 'CreateMetaEntityDef',
+    version = '2024-05-18',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 创建自定义实体定义
+ *
+ * @param request CreateMetaEntityDefRequest
+ * @return CreateMetaEntityDefResponse
+ */
+async function createMetaEntityDef(request: CreateMetaEntityDefRequest): CreateMetaEntityDefResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return createMetaEntityDefWithOptions(request, runtime);
+}
+
 model CreateNetworkRequest {
   clientToken?: string(name='ClientToken', description='The client token that is used to ensure the idempotence of the request.
 
@@ -7617,6 +8013,63 @@ async function deleteComputeResource(request: DeleteComputeResourceRequest): Del
   return deleteComputeResourceWithOptions(request, runtime);
 }
 
+model DeleteCustomAttributeRequest {
+  id?: string(name='Id', description='This parameter is required.', example='custom-attribute:biz_owner'),
+}
+
+model DeleteCustomAttributeResponseBody = {
+  requestId?: string(name='RequestId', description='Id of the request', example='7B4D81F1-98CF-500C-8D25-2865EB652EA0'),
+  result?: boolean(name='Result', example='true'),
+  success?: boolean(name='Success', example='true'),
+}
+
+model DeleteCustomAttributeResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: DeleteCustomAttributeResponseBody(name='body'),
+}
+
+/**
+ * @summary 删除自定义属性定义
+ *
+ * @param request DeleteCustomAttributeRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return DeleteCustomAttributeResponse
+ */
+async function deleteCustomAttributeWithOptions(request: DeleteCustomAttributeRequest, runtime: Util.RuntimeOptions): DeleteCustomAttributeResponse {
+  Util.validateModel(request);
+  var query = {};
+  if (!Util.isUnset(request.id)) {
+    query['Id'] = request.id;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'DeleteCustomAttribute',
+    version = '2024-05-18',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 删除自定义属性定义
+ *
+ * @param request DeleteCustomAttributeRequest
+ * @return DeleteCustomAttributeResponse
+ */
+async function deleteCustomAttribute(request: DeleteCustomAttributeRequest): DeleteCustomAttributeResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return deleteCustomAttributeWithOptions(request, runtime);
+}
+
 model DeleteDIAlarmRuleRequest {
   DIAlarmRuleId?: long(name='DIAlarmRuleId', description='This parameter is deprecated. Use the Id parameter instead.', example='2', deprecated=true),
   DIJobId?: long(name='DIJobId', description='The ID of the synchronization task.', example='1'),
@@ -8788,6 +9241,66 @@ async function deleteMetaCollectionWithOptions(request: DeleteMetaCollectionRequ
 async function deleteMetaCollection(request: DeleteMetaCollectionRequest): DeleteMetaCollectionResponse {
   var runtime = new Util.RuntimeOptions{};
   return deleteMetaCollectionWithOptions(request, runtime);
+}
+
+model DeleteMetaEntityDefRequest {
+  entityType?: string(name='EntityType', description='This parameter is required.', example='custom_entity-customer_api'),
+  force?: boolean(name='Force', example='true'),
+}
+
+model DeleteMetaEntityDefResponseBody = {
+  requestId?: string(name='RequestId', description='Id of the request', example='3C1E755D-B606-57A4-9B9C-7B214E81354C'),
+  success?: boolean(name='Success', example='true'),
+}
+
+model DeleteMetaEntityDefResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: DeleteMetaEntityDefResponseBody(name='body'),
+}
+
+/**
+ * @summary 删除自定义实体定义
+ *
+ * @param request DeleteMetaEntityDefRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return DeleteMetaEntityDefResponse
+ */
+async function deleteMetaEntityDefWithOptions(request: DeleteMetaEntityDefRequest, runtime: Util.RuntimeOptions): DeleteMetaEntityDefResponse {
+  Util.validateModel(request);
+  var body : map[string]any = {};
+  if (!Util.isUnset(request.entityType)) {
+    body['EntityType'] = request.entityType;
+  }
+  if (!Util.isUnset(request.force)) {
+    body['Force'] = request.force;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApi.Params{
+    action = 'DeleteMetaEntityDef',
+    version = '2024-05-18',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 删除自定义实体定义
+ *
+ * @param request DeleteMetaEntityDefRequest
+ * @return DeleteMetaEntityDefResponse
+ */
+async function deleteMetaEntityDef(request: DeleteMetaEntityDefRequest): DeleteMetaEntityDefResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return deleteMetaEntityDefWithOptions(request, runtime);
 }
 
 model DeleteNetworkRequest {
@@ -11137,6 +11650,63 @@ async function getCreateWorkflowInstancesResultWithOptions(request: GetCreateWor
 async function getCreateWorkflowInstancesResult(request: GetCreateWorkflowInstancesResultRequest): GetCreateWorkflowInstancesResultResponse {
   var runtime = new Util.RuntimeOptions{};
   return getCreateWorkflowInstancesResultWithOptions(request, runtime);
+}
+
+model GetCustomAttributeRequest {
+  id?: string(name='Id', description='This parameter is required.', example='custom-attribute:biz_owner'),
+}
+
+model GetCustomAttributeResponseBody = {
+  customAttribute?: CustomAttribute(name='CustomAttribute'),
+  requestId?: string(name='RequestId', description='Id of the request', example='BA51C9E6-0CBC-5BB9-92BD-0C4FE66E1717'),
+  success?: boolean(name='Success', example='true'),
+}
+
+model GetCustomAttributeResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: GetCustomAttributeResponseBody(name='body'),
+}
+
+/**
+ * @summary Obtain custom property definition details
+ *
+ * @param request GetCustomAttributeRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return GetCustomAttributeResponse
+ */
+async function getCustomAttributeWithOptions(request: GetCustomAttributeRequest, runtime: Util.RuntimeOptions): GetCustomAttributeResponse {
+  Util.validateModel(request);
+  var query = {};
+  if (!Util.isUnset(request.id)) {
+    query['Id'] = request.id;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'GetCustomAttribute',
+    version = '2024-05-18',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Obtain custom property definition details
+ *
+ * @param request GetCustomAttributeRequest
+ * @return GetCustomAttributeResponse
+ */
+async function getCustomAttribute(request: GetCustomAttributeRequest): GetCustomAttributeResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return getCustomAttributeWithOptions(request, runtime);
 }
 
 model GetDIJobRequest {
@@ -14082,6 +14652,120 @@ async function getMetaCollectionWithOptions(request: GetMetaCollectionRequest, r
 async function getMetaCollection(request: GetMetaCollectionRequest): GetMetaCollectionResponse {
   var runtime = new Util.RuntimeOptions{};
   return getMetaCollectionWithOptions(request, runtime);
+}
+
+model GetMetaEntityRequest {
+  id?: string(name='Id', description='This parameter is required.', example='custom_entity-customer_api:api_001'),
+}
+
+model GetMetaEntityResponseBody = {
+  metaEntity?: MetaEntity(name='MetaEntity'),
+  requestId?: string(name='RequestId', description='Id of the request', example='0A04C673-BEFA-5803-94E5-89E2D9F8C567'),
+  success?: boolean(name='Success', example='true'),
+}
+
+model GetMetaEntityResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: GetMetaEntityResponseBody(name='body'),
+}
+
+/**
+ * @summary 获取自定义实体详情
+ *
+ * @param request GetMetaEntityRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return GetMetaEntityResponse
+ */
+async function getMetaEntityWithOptions(request: GetMetaEntityRequest, runtime: Util.RuntimeOptions): GetMetaEntityResponse {
+  Util.validateModel(request);
+  var body : map[string]any = {};
+  if (!Util.isUnset(request.id)) {
+    body['Id'] = request.id;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApi.Params{
+    action = 'GetMetaEntity',
+    version = '2024-05-18',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 获取自定义实体详情
+ *
+ * @param request GetMetaEntityRequest
+ * @return GetMetaEntityResponse
+ */
+async function getMetaEntity(request: GetMetaEntityRequest): GetMetaEntityResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return getMetaEntityWithOptions(request, runtime);
+}
+
+model GetMetaEntityDefRequest {
+  entityType?: string(name='EntityType', description='This parameter is required.', example='custom_entity-customer_api'),
+}
+
+model GetMetaEntityDefResponseBody = {
+  metaEntityDef?: MetaEntityDef(name='MetaEntityDef'),
+  requestId?: string(name='RequestId', description='Id of the request', example='C636A747-7E4E-594D-94CD-2B4F8A9A9A63'),
+  success?: boolean(name='Success', example='true'),
+}
+
+model GetMetaEntityDefResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: GetMetaEntityDefResponseBody(name='body'),
+}
+
+/**
+ * @summary 获取自定义实体定义详情
+ *
+ * @param request GetMetaEntityDefRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return GetMetaEntityDefResponse
+ */
+async function getMetaEntityDefWithOptions(request: GetMetaEntityDefRequest, runtime: Util.RuntimeOptions): GetMetaEntityDefResponse {
+  Util.validateModel(request);
+  var body : map[string]any = {};
+  if (!Util.isUnset(request.entityType)) {
+    body['EntityType'] = request.entityType;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApi.Params{
+    action = 'GetMetaEntityDef',
+    version = '2024-05-18',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 获取自定义实体定义详情
+ *
+ * @param request GetMetaEntityDefRequest
+ * @return GetMetaEntityDefResponse
+ */
+async function getMetaEntityDef(request: GetMetaEntityDefRequest): GetMetaEntityDefResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return getMetaEntityDefWithOptions(request, runtime);
 }
 
 model GetNetworkRequest {
@@ -17889,6 +18573,94 @@ async function listCrawlerTypesWithOptions(runtime: Util.RuntimeOptions): ListCr
 async function listCrawlerTypes(): ListCrawlerTypesResponse {
   var runtime = new Util.RuntimeOptions{};
   return listCrawlerTypesWithOptions(runtime);
+}
+
+model ListCustomAttributesRequest {
+  comment?: string(name='Comment', example='owner'),
+  displayName?: string(name='DisplayName', example='Owner'),
+  entityTypes?: string(name='EntityTypes', example='maxcompute-table'),
+  order?: string(name='Order', example='Asc'),
+  pageNumber?: int32(name='PageNumber', example='1'),
+  pageSize?: int32(name='PageSize', example='10'),
+  sortBy?: string(name='SortBy', example='CreateTime'),
+}
+
+model ListCustomAttributesResponseBody = {
+  pagingInfo?: {
+    customAttributes?: [
+      CustomAttribute
+    ](name='CustomAttributes'),
+    pageNumber?: int32(name='PageNumber', example='1'),
+    pageSize?: int32(name='PageSize', example='10'),
+    totalCount?: long(name='TotalCount', example='10'),
+  }(name='PagingInfo'),
+  requestId?: string(name='RequestId', description='RequestId', example='54594ACA-7976-5273-958B-02E15E9B867C'),
+  success?: boolean(name='Success', example='true'),
+}
+
+model ListCustomAttributesResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ListCustomAttributesResponseBody(name='body'),
+}
+
+/**
+ * @summary Querying a Custom Attribute Definition List
+ *
+ * @param request ListCustomAttributesRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return ListCustomAttributesResponse
+ */
+async function listCustomAttributesWithOptions(request: ListCustomAttributesRequest, runtime: Util.RuntimeOptions): ListCustomAttributesResponse {
+  Util.validateModel(request);
+  var query = {};
+  if (!Util.isUnset(request.comment)) {
+    query['Comment'] = request.comment;
+  }
+  if (!Util.isUnset(request.displayName)) {
+    query['DisplayName'] = request.displayName;
+  }
+  if (!Util.isUnset(request.entityTypes)) {
+    query['EntityTypes'] = request.entityTypes;
+  }
+  if (!Util.isUnset(request.order)) {
+    query['Order'] = request.order;
+  }
+  if (!Util.isUnset(request.pageNumber)) {
+    query['PageNumber'] = request.pageNumber;
+  }
+  if (!Util.isUnset(request.pageSize)) {
+    query['PageSize'] = request.pageSize;
+  }
+  if (!Util.isUnset(request.sortBy)) {
+    query['SortBy'] = request.sortBy;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'ListCustomAttributes',
+    version = '2024-05-18',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Querying a Custom Attribute Definition List
+ *
+ * @param request ListCustomAttributesRequest
+ * @return ListCustomAttributesResponse
+ */
+async function listCustomAttributes(request: ListCustomAttributesRequest): ListCustomAttributesResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return listCustomAttributesWithOptions(request, runtime);
 }
 
 model ListDIAlarmRulesRequest {
@@ -22637,6 +23409,220 @@ async function listMetaCollectionsWithOptions(request: ListMetaCollectionsReques
 async function listMetaCollections(request: ListMetaCollectionsRequest): ListMetaCollectionsResponse {
   var runtime = new Util.RuntimeOptions{};
   return listMetaCollectionsWithOptions(request, runtime);
+}
+
+model ListMetaEntitiesRequest {
+  attributeFilters?: [ 
+    {
+      key?: string(name='Key', description='This parameter is required.', example='key1'),
+      values?: [ string ](name='Values'),
+    }
+  ](name='AttributeFilters', example='[]'),
+  comment?: string(name='Comment', example='this is a comment'),
+  customAttributeFilters?: [ 
+    {
+      key?: string(name='Key', description='This parameter is required.', example='custom_attr_1'),
+      values?: [ string ](name='Values'),
+    }
+  ](name='CustomAttributeFilters', example='[]'),
+  entityType?: string(name='EntityType', description='This parameter is required.', example='custom_entity-customer_api'),
+  maxResults?: int32(name='MaxResults', example='10'),
+  name?: string(name='Name', example='xm_create_test'),
+  nextToken?: string(name='NextToken', example='AAAAAaUpAxoCTD/+sbOf3f+uxvnYyILMeAjoTFQSX64R12GN'),
+  order?: string(name='Order', example='Asc'),
+  sortBy?: string(name='SortBy', example='Name'),
+}
+
+model ListMetaEntitiesShrinkRequest {
+  attributeFiltersShrink?: string(name='AttributeFilters', example='[]'),
+  comment?: string(name='Comment', example='this is a comment'),
+  customAttributeFiltersShrink?: string(name='CustomAttributeFilters', example='[]'),
+  entityType?: string(name='EntityType', description='This parameter is required.', example='custom_entity-customer_api'),
+  maxResults?: int32(name='MaxResults', example='10'),
+  name?: string(name='Name', example='xm_create_test'),
+  nextToken?: string(name='NextToken', example='AAAAAaUpAxoCTD/+sbOf3f+uxvnYyILMeAjoTFQSX64R12GN'),
+  order?: string(name='Order', example='Asc'),
+  sortBy?: string(name='SortBy', example='Name'),
+}
+
+model ListMetaEntitiesResponseBody = {
+  pagingInfo?: {
+    maxResults?: int32(name='MaxResults', example='10'),
+    metaEntities?: [
+      MetaEntity
+    ](name='MetaEntities'),
+    nextToken?: string(name='NextToken', example='AAAAAdEdsXbwG2ZlbWCzN4wTTg6NmTbhyvglcoMCJsiEdngaTov15YaMyduvjIHYeTOIcEeXqCevM1qffZkwCkUTUYc='),
+    totalCount?: long(name='TotalCount', example='10'),
+  }(name='PagingInfo'),
+  requestId?: string(name='RequestId', description='RequestId', example='ADFASDFASDFA-ADFASDF-ASDFADSDF-AFFADS'),
+  success?: boolean(name='Success', example='true'),
+}
+
+model ListMetaEntitiesResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ListMetaEntitiesResponseBody(name='body'),
+}
+
+/**
+ * @summary 查询自定义实体列表
+ *
+ * @param tmpReq ListMetaEntitiesRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return ListMetaEntitiesResponse
+ */
+async function listMetaEntitiesWithOptions(tmpReq: ListMetaEntitiesRequest, runtime: Util.RuntimeOptions): ListMetaEntitiesResponse {
+  Util.validateModel(tmpReq);
+  var request = new ListMetaEntitiesShrinkRequest{};
+  OpenApiUtil.convert(tmpReq, request);
+  if (!Util.isUnset(tmpReq.attributeFilters)) {
+    request.attributeFiltersShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.attributeFilters, 'AttributeFilters', 'json');
+  }
+  if (!Util.isUnset(tmpReq.customAttributeFilters)) {
+    request.customAttributeFiltersShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.customAttributeFilters, 'CustomAttributeFilters', 'json');
+  }
+  var body : map[string]any = {};
+  if (!Util.isUnset(request.attributeFiltersShrink)) {
+    body['AttributeFilters'] = request.attributeFiltersShrink;
+  }
+  if (!Util.isUnset(request.comment)) {
+    body['Comment'] = request.comment;
+  }
+  if (!Util.isUnset(request.customAttributeFiltersShrink)) {
+    body['CustomAttributeFilters'] = request.customAttributeFiltersShrink;
+  }
+  if (!Util.isUnset(request.entityType)) {
+    body['EntityType'] = request.entityType;
+  }
+  if (!Util.isUnset(request.maxResults)) {
+    body['MaxResults'] = request.maxResults;
+  }
+  if (!Util.isUnset(request.name)) {
+    body['Name'] = request.name;
+  }
+  if (!Util.isUnset(request.nextToken)) {
+    body['NextToken'] = request.nextToken;
+  }
+  if (!Util.isUnset(request.order)) {
+    body['Order'] = request.order;
+  }
+  if (!Util.isUnset(request.sortBy)) {
+    body['SortBy'] = request.sortBy;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApi.Params{
+    action = 'ListMetaEntities',
+    version = '2024-05-18',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 查询自定义实体列表
+ *
+ * @param request ListMetaEntitiesRequest
+ * @return ListMetaEntitiesResponse
+ */
+async function listMetaEntities(request: ListMetaEntitiesRequest): ListMetaEntitiesResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return listMetaEntitiesWithOptions(request, runtime);
+}
+
+model ListMetaEntityDefsRequest {
+  description?: string(name='Description', example='description'),
+  displayName?: string(name='DisplayName', example='CustomReport'),
+  extend?: string(name='Extend', example='NONE'),
+  order?: string(name='Order', example='Asc'),
+  pageNumber?: int32(name='PageNumber', example='1'),
+  pageSize?: int32(name='PageSize', example='10'),
+  sortBy?: string(name='SortBy', example='CreateTime'),
+}
+
+model ListMetaEntityDefsResponseBody = {
+  pagingInfo?: {
+    metaEntityDefs?: [
+      MetaEntityDef
+    ](name='MetaEntityDefs'),
+    pageNumber?: int32(name='PageNumber', example='1'),
+    pageSize?: int32(name='PageSize', example='10'),
+    totalCount?: long(name='TotalCount', example='10'),
+  }(name='PagingInfo'),
+  requestId?: string(name='RequestId', description='RequestId', example='ADFASDFASDFA-ADFASDF-ASDFADSDF-AFFADS'),
+  success?: boolean(name='Success', example='true'),
+}
+
+model ListMetaEntityDefsResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ListMetaEntityDefsResponseBody(name='body'),
+}
+
+/**
+ * @summary 查询自定义实体定义列表
+ *
+ * @param request ListMetaEntityDefsRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return ListMetaEntityDefsResponse
+ */
+async function listMetaEntityDefsWithOptions(request: ListMetaEntityDefsRequest, runtime: Util.RuntimeOptions): ListMetaEntityDefsResponse {
+  Util.validateModel(request);
+  var body : map[string]any = {};
+  if (!Util.isUnset(request.description)) {
+    body['Description'] = request.description;
+  }
+  if (!Util.isUnset(request.displayName)) {
+    body['DisplayName'] = request.displayName;
+  }
+  if (!Util.isUnset(request.extend)) {
+    body['Extend'] = request.extend;
+  }
+  if (!Util.isUnset(request.order)) {
+    body['Order'] = request.order;
+  }
+  if (!Util.isUnset(request.pageNumber)) {
+    body['PageNumber'] = request.pageNumber;
+  }
+  if (!Util.isUnset(request.pageSize)) {
+    body['PageSize'] = request.pageSize;
+  }
+  if (!Util.isUnset(request.sortBy)) {
+    body['SortBy'] = request.sortBy;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApi.Params{
+    action = 'ListMetaEntityDefs',
+    version = '2024-05-18',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 查询自定义实体定义列表
+ *
+ * @param request ListMetaEntityDefsRequest
+ * @return ListMetaEntityDefsResponse
+ */
+async function listMetaEntityDefs(request: ListMetaEntityDefsRequest): ListMetaEntityDefsResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return listMetaEntityDefsWithOptions(request, runtime);
 }
 
 model ListNetworksRequest {
@@ -29595,6 +30581,15 @@ async function updateBusiness(request: UpdateBusinessRequest): UpdateBusinessRes
 }
 
 model UpdateColumnBusinessMetadataRequest {
+  customAttributes?: map[string] [ string ](name='CustomAttributes', example='{"biz_owner":["张三"]}'),
+  description?: string(name='Description', description='The field business description.', example='test description'),
+  id?: string(name='Id', description='The field ID. You can refer to the response from the ListColumns operation. You can also refer to the [Concepts related to metadata entities](https://help.aliyun.com/document_detail/2880092.html).
+
+This parameter is required.', example='maxcompute-column:11075xxxx::test_project:test_schema:test_table:test_column'),
+}
+
+model UpdateColumnBusinessMetadataShrinkRequest {
+  customAttributesShrink?: string(name='CustomAttributes', example='{"biz_owner":["张三"]}'),
   description?: string(name='Description', description='The field business description.', example='test description'),
   id?: string(name='Id', description='The field ID. You can refer to the response from the ListColumns operation. You can also refer to the [Concepts related to metadata entities](https://help.aliyun.com/document_detail/2880092.html).
 
@@ -29615,13 +30610,21 @@ model UpdateColumnBusinessMetadataResponse = {
 /**
  * @summary Updates the business metadata of a column in a table in Data Map. Only the business description of a column can be updated.
  *
- * @param request UpdateColumnBusinessMetadataRequest
+ * @param tmpReq UpdateColumnBusinessMetadataRequest
  * @param runtime runtime options for this request RuntimeOptions
  * @return UpdateColumnBusinessMetadataResponse
  */
-async function updateColumnBusinessMetadataWithOptions(request: UpdateColumnBusinessMetadataRequest, runtime: Util.RuntimeOptions): UpdateColumnBusinessMetadataResponse {
-  Util.validateModel(request);
+async function updateColumnBusinessMetadataWithOptions(tmpReq: UpdateColumnBusinessMetadataRequest, runtime: Util.RuntimeOptions): UpdateColumnBusinessMetadataResponse {
+  Util.validateModel(tmpReq);
+  var request = new UpdateColumnBusinessMetadataShrinkRequest{};
+  OpenApiUtil.convert(tmpReq, request);
+  if (!Util.isUnset(tmpReq.customAttributes)) {
+    request.customAttributesShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.customAttributes, 'CustomAttributes', 'json');
+  }
   var body : map[string]any = {};
+  if (!Util.isUnset(request.customAttributesShrink)) {
+    body['CustomAttributes'] = request.customAttributesShrink;
+  }
   if (!Util.isUnset(request.description)) {
     body['Description'] = request.description;
   }
@@ -29829,6 +30832,105 @@ async function updateComputeResourceWithOptions(request: UpdateComputeResourceRe
 async function updateComputeResource(request: UpdateComputeResourceRequest): UpdateComputeResourceResponse {
   var runtime = new Util.RuntimeOptions{};
   return updateComputeResourceWithOptions(request, runtime);
+}
+
+model UpdateCustomAttributeRequest {
+  comment?: string(name='Comment', example='test comment'),
+  displayEnabled?: boolean(name='DisplayEnabled', example='true'),
+  displayName?: string(name='DisplayName', example='业务负责人'),
+  entityTypes?: [ string ](name='EntityTypes'),
+  id?: string(name='Id', description='This parameter is required.', example='custom-attribute:biz_owner'),
+  searchFilterEnabled?: boolean(name='SearchFilterEnabled', example='false'),
+  valueEnums?: [ string ](name='ValueEnums'),
+}
+
+model UpdateCustomAttributeShrinkRequest {
+  comment?: string(name='Comment', example='test comment'),
+  displayEnabled?: boolean(name='DisplayEnabled', example='true'),
+  displayName?: string(name='DisplayName', example='业务负责人'),
+  entityTypesShrink?: string(name='EntityTypes'),
+  id?: string(name='Id', description='This parameter is required.', example='custom-attribute:biz_owner'),
+  searchFilterEnabled?: boolean(name='SearchFilterEnabled', example='false'),
+  valueEnumsShrink?: string(name='ValueEnums'),
+}
+
+model UpdateCustomAttributeResponseBody = {
+  requestId?: string(name='RequestId', description='Id of the request', example='6B56C4A2-C7F3-52AF-8417-6DFF7447011B'),
+  result?: boolean(name='Result', example='true'),
+  success?: boolean(name='Success', example='true'),
+}
+
+model UpdateCustomAttributeResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: UpdateCustomAttributeResponseBody(name='body'),
+}
+
+/**
+ * @summary 更新自定义属性定义
+ *
+ * @param tmpReq UpdateCustomAttributeRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return UpdateCustomAttributeResponse
+ */
+async function updateCustomAttributeWithOptions(tmpReq: UpdateCustomAttributeRequest, runtime: Util.RuntimeOptions): UpdateCustomAttributeResponse {
+  Util.validateModel(tmpReq);
+  var request = new UpdateCustomAttributeShrinkRequest{};
+  OpenApiUtil.convert(tmpReq, request);
+  if (!Util.isUnset(tmpReq.entityTypes)) {
+    request.entityTypesShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.entityTypes, 'EntityTypes', 'simple');
+  }
+  if (!Util.isUnset(tmpReq.valueEnums)) {
+    request.valueEnumsShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.valueEnums, 'ValueEnums', 'simple');
+  }
+  var body : map[string]any = {};
+  if (!Util.isUnset(request.comment)) {
+    body['Comment'] = request.comment;
+  }
+  if (!Util.isUnset(request.displayEnabled)) {
+    body['DisplayEnabled'] = request.displayEnabled;
+  }
+  if (!Util.isUnset(request.displayName)) {
+    body['DisplayName'] = request.displayName;
+  }
+  if (!Util.isUnset(request.entityTypesShrink)) {
+    body['EntityTypes'] = request.entityTypesShrink;
+  }
+  if (!Util.isUnset(request.id)) {
+    body['Id'] = request.id;
+  }
+  if (!Util.isUnset(request.searchFilterEnabled)) {
+    body['SearchFilterEnabled'] = request.searchFilterEnabled;
+  }
+  if (!Util.isUnset(request.valueEnumsShrink)) {
+    body['ValueEnums'] = request.valueEnumsShrink;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApi.Params{
+    action = 'UpdateCustomAttribute',
+    version = '2024-05-18',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 更新自定义属性定义
+ *
+ * @param request UpdateCustomAttributeRequest
+ * @return UpdateCustomAttributeResponse
+ */
+async function updateCustomAttribute(request: UpdateCustomAttributeRequest): UpdateCustomAttributeResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return updateCustomAttributeWithOptions(request, runtime);
 }
 
 model UpdateDIAlarmRuleRequest {
@@ -32327,6 +33429,185 @@ async function updateMetaCollection(request: UpdateMetaCollectionRequest): Updat
   return updateMetaCollectionWithOptions(request, runtime);
 }
 
+model UpdateMetaEntityRequest {
+  attributes?: map[string]string(name='Attributes', example='[]'),
+  comment?: string(name='Comment', example='this is a comment'),
+  customAttributes?: map[string] [ string ](name='CustomAttributes', example='[]'),
+  id?: string(name='Id', description='This parameter is required.', example='custom_entity-customer_api:api_001'),
+}
+
+model UpdateMetaEntityShrinkRequest {
+  attributesShrink?: string(name='Attributes', example='[]'),
+  comment?: string(name='Comment', example='this is a comment'),
+  customAttributesShrink?: string(name='CustomAttributes', example='[]'),
+  id?: string(name='Id', description='This parameter is required.', example='custom_entity-customer_api:api_001'),
+}
+
+model UpdateMetaEntityResponseBody = {
+  requestId?: string(name='RequestId', description='Id of the request', example='AASFDFSDFG-DFSDF-DFSDFD-SDFSDF'),
+  result?: {
+    id?: string(name='Id', example='custom_entity-customer_api:api_001'),
+    success?: boolean(name='Success', example='true'),
+  }(name='Result'),
+  success?: boolean(name='Success', example='true'),
+}
+
+model UpdateMetaEntityResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: UpdateMetaEntityResponseBody(name='body'),
+}
+
+/**
+ * @summary 更新自定义实体
+ *
+ * @param tmpReq UpdateMetaEntityRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return UpdateMetaEntityResponse
+ */
+async function updateMetaEntityWithOptions(tmpReq: UpdateMetaEntityRequest, runtime: Util.RuntimeOptions): UpdateMetaEntityResponse {
+  Util.validateModel(tmpReq);
+  var request = new UpdateMetaEntityShrinkRequest{};
+  OpenApiUtil.convert(tmpReq, request);
+  if (!Util.isUnset(tmpReq.attributes)) {
+    request.attributesShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.attributes, 'Attributes', 'json');
+  }
+  if (!Util.isUnset(tmpReq.customAttributes)) {
+    request.customAttributesShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.customAttributes, 'CustomAttributes', 'json');
+  }
+  var body : map[string]any = {};
+  if (!Util.isUnset(request.attributesShrink)) {
+    body['Attributes'] = request.attributesShrink;
+  }
+  if (!Util.isUnset(request.comment)) {
+    body['Comment'] = request.comment;
+  }
+  if (!Util.isUnset(request.customAttributesShrink)) {
+    body['CustomAttributes'] = request.customAttributesShrink;
+  }
+  if (!Util.isUnset(request.id)) {
+    body['Id'] = request.id;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApi.Params{
+    action = 'UpdateMetaEntity',
+    version = '2024-05-18',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 更新自定义实体
+ *
+ * @param request UpdateMetaEntityRequest
+ * @return UpdateMetaEntityResponse
+ */
+async function updateMetaEntity(request: UpdateMetaEntityRequest): UpdateMetaEntityResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return updateMetaEntityWithOptions(request, runtime);
+}
+
+model UpdateMetaEntityDefRequest {
+  description?: string(name='Description', example='description'),
+  displayName?: string(name='DisplayName', example='Business API'),
+  entityType?: string(name='EntityType', description='This parameter is required.', example='custom_entity-customer_api'),
+  newAttributeDefs?: [
+    MetaEntityAttributeDef
+  ](name='NewAttributeDefs', example='[]'),
+  updateAttributeDefs?: [
+    MetaEntityAttributeDef
+  ](name='UpdateAttributeDefs', example='[]'),
+}
+
+model UpdateMetaEntityDefShrinkRequest {
+  description?: string(name='Description', example='description'),
+  displayName?: string(name='DisplayName', example='Business API'),
+  entityType?: string(name='EntityType', description='This parameter is required.', example='custom_entity-customer_api'),
+  newAttributeDefsShrink?: string(name='NewAttributeDefs', example='[]'),
+  updateAttributeDefsShrink?: string(name='UpdateAttributeDefs', example='[]'),
+}
+
+model UpdateMetaEntityDefResponseBody = {
+  requestId?: string(name='RequestId', description='Id of the request', example='E08F38AB-3BA0-5047-8E9E-9AA4839263EA'),
+  success?: boolean(name='Success', example='true'),
+}
+
+model UpdateMetaEntityDefResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: UpdateMetaEntityDefResponseBody(name='body'),
+}
+
+/**
+ * @summary 更新自定义实体定义
+ *
+ * @param tmpReq UpdateMetaEntityDefRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return UpdateMetaEntityDefResponse
+ */
+async function updateMetaEntityDefWithOptions(tmpReq: UpdateMetaEntityDefRequest, runtime: Util.RuntimeOptions): UpdateMetaEntityDefResponse {
+  Util.validateModel(tmpReq);
+  var request = new UpdateMetaEntityDefShrinkRequest{};
+  OpenApiUtil.convert(tmpReq, request);
+  if (!Util.isUnset(tmpReq.newAttributeDefs)) {
+    request.newAttributeDefsShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.newAttributeDefs, 'NewAttributeDefs', 'json');
+  }
+  if (!Util.isUnset(tmpReq.updateAttributeDefs)) {
+    request.updateAttributeDefsShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.updateAttributeDefs, 'UpdateAttributeDefs', 'json');
+  }
+  var body : map[string]any = {};
+  if (!Util.isUnset(request.description)) {
+    body['Description'] = request.description;
+  }
+  if (!Util.isUnset(request.displayName)) {
+    body['DisplayName'] = request.displayName;
+  }
+  if (!Util.isUnset(request.entityType)) {
+    body['EntityType'] = request.entityType;
+  }
+  if (!Util.isUnset(request.newAttributeDefsShrink)) {
+    body['NewAttributeDefs'] = request.newAttributeDefsShrink;
+  }
+  if (!Util.isUnset(request.updateAttributeDefsShrink)) {
+    body['UpdateAttributeDefs'] = request.updateAttributeDefsShrink;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApi.Params{
+    action = 'UpdateMetaEntityDef',
+    version = '2024-05-18',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 更新自定义实体定义
+ *
+ * @param request UpdateMetaEntityDefRequest
+ * @return UpdateMetaEntityDefResponse
+ */
+async function updateMetaEntityDef(request: UpdateMetaEntityDefRequest): UpdateMetaEntityDefResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return updateMetaEntityDefWithOptions(request, runtime);
+}
+
 model UpdateNodeRequest {
   id?: string(name='Id', description='The unique identifier of the Data Studio node.
 
@@ -33119,6 +34400,18 @@ async function updateRoute(request: UpdateRouteRequest): UpdateRouteResponse {
 }
 
 model UpdateTableBusinessMetadataRequest {
+  customAttributes?: map[string] [ string ](name='CustomAttributes', example='{"biz_owner":["张三"]}'),
+  id?: string(name='Id', description='The table ID. You can refer to the format of the table ID returned by the ListTables operation.
+
+This parameter is required.', example='maxcompute-table:123456XXX::test_project::test_tbl
+dlf-table:123456XXX:test_catalog:test_db::test_tbl
+hms-table:c-abc123xxx::test_db::test_tbl
+holo-table:h-abc123xxx::test_db:test_schema:test_tbl'),
+  readme?: string(name='Readme', description='The usage notes. The rich text format is supported.', example='## introduction'),
+}
+
+model UpdateTableBusinessMetadataShrinkRequest {
+  customAttributesShrink?: string(name='CustomAttributes', example='{"biz_owner":["张三"]}'),
   id?: string(name='Id', description='The table ID. You can refer to the format of the table ID returned by the ListTables operation.
 
 This parameter is required.', example='maxcompute-table:123456XXX::test_project::test_tbl
@@ -33142,13 +34435,21 @@ model UpdateTableBusinessMetadataResponse = {
 /**
  * @summary Updates the business metadata of a table in Data Map. Currently, only the usage notes of a table can be updated.
  *
- * @param request UpdateTableBusinessMetadataRequest
+ * @param tmpReq UpdateTableBusinessMetadataRequest
  * @param runtime runtime options for this request RuntimeOptions
  * @return UpdateTableBusinessMetadataResponse
  */
-async function updateTableBusinessMetadataWithOptions(request: UpdateTableBusinessMetadataRequest, runtime: Util.RuntimeOptions): UpdateTableBusinessMetadataResponse {
-  Util.validateModel(request);
+async function updateTableBusinessMetadataWithOptions(tmpReq: UpdateTableBusinessMetadataRequest, runtime: Util.RuntimeOptions): UpdateTableBusinessMetadataResponse {
+  Util.validateModel(tmpReq);
+  var request = new UpdateTableBusinessMetadataShrinkRequest{};
+  OpenApiUtil.convert(tmpReq, request);
+  if (!Util.isUnset(tmpReq.customAttributes)) {
+    request.customAttributesShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.customAttributes, 'CustomAttributes', 'json');
+  }
   var body : map[string]any = {};
+  if (!Util.isUnset(request.customAttributesShrink)) {
+    body['CustomAttributes'] = request.customAttributesShrink;
+  }
   if (!Util.isUnset(request.id)) {
     body['Id'] = request.id;
   }
