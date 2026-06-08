@@ -37,25 +37,56 @@ model Agent {
 
 model AguiMessage {
   content?: string(name='Content'),
-  id?: string(name='Id'),
+  id?: string(name='Id', example='msg_123456_a1b2c3d4'),
   metadata?: {
     attachments?: {
-      name?: string(name='Name'),
-      type?: string(name='Type'),
+      name?: string(name='Name', example='acs:eventbridge:cn-hangzhou:12345:eventhouse/system-rocketmq/namespace/rmq-cn-xxx/table/order'),
+      type?: string(name='Type', example='inner-resource/event-table'),
     }(name='Attachments'),
   }(name='Metadata'),
-  role?: string(name='Role'),
-  toolCallId?: string(name='ToolCallId'),
+  role?: string(name='Role', example='assistant'),
+  toolCallId?: string(name='ToolCallId', example='call_xxx'),
   toolCalls?: [ 
     {
       function?: {
-        arguments?: string(name='Arguments'),
-        name?: string(name='Name'),
+        arguments?: string(name='Arguments', example='{}'),
+        name?: string(name='Name', example='discoverMetadata'),
       }(name='Function'),
-      id?: string(name='Id'),
-      type?: string(name='Type'),
+      id?: string(name='Id', example='call_xxx'),
+      type?: string(name='Type', example='function'),
     }
   ](name='ToolCalls'),
+}
+
+model AskLumaLogEntry {
+  agentName?: string(name='AgentName', example='my-agent'),
+  clarificationNeeded?: boolean(name='ClarificationNeeded', example='false'),
+  clarificationQuestion?: string(name='ClarificationQuestion'),
+  content?: Content(name='Content'),
+  conversationId?: string(name='ConversationId', example='conv_xxx'),
+  createdAt?: string(name='CreatedAt', example='1717200000000'),
+  durationMs?: long(name='DurationMs', example='3200'),
+  errorCode?: string(name='ErrorCode', example='ExecutionFailed'),
+  errorMessage?: string(name='ErrorMessage', example='Agent with name \\\\"xxx\\\\" not found for account 1186xxx'),
+  isError?: boolean(name='IsError', example='false'),
+  messageId?: string(name='MessageId', example='msg_xxx'),
+  question?: string(name='Question'),
+  source?: string(name='Source', example='MCP, CHAT'),
+  status?: string(name='Status', example='RUNNING, SUCCEEDED, FAILED, TIMEOUT'),
+}
+
+model AskLumaResult {
+  clarificationNeeded?: boolean(name='ClarificationNeeded', example='false'),
+  clarificationQuestion?: string(name='ClarificationQuestion'),
+  constraints?: Constraints(name='Constraints'),
+  content?: Content(name='Content'),
+  conversationId?: string(name='ConversationId', example='conv_xxx'),
+  errorCode?: string(name='ErrorCode', example='ExecutionFailed, Timeout, RateLimited, InternalError, ConversationExpired'),
+  errorMessage?: string(name='ErrorMessage', example='Agent with name \\\\"xxx\\\\" not found for account 1186xxx'),
+  isError?: boolean(name='IsError', example='false'),
+  messageId?: string(name='MessageId', example='msg_xxx'),
+  status?: string(name='Status', example='RUNNING, SUCCEEDED, FAILED, TIMEOUT'),
+  storageTruncated?: boolean(name='StorageTruncated', example='true'),
 }
 
 model BaiLianAgentTransformParameters {
@@ -83,6 +114,21 @@ model Column {
   name?: string(name='Name'),
   type?: string(name='Type'),
   value?: string(name='Value'),
+}
+
+model Constraints {
+  beginTime?: long(name='BeginTime', example='1717200000000'),
+  endTime?: long(name='EndTime', example='1717200000000'),
+}
+
+model Content {
+  messageAttachments?: [
+    AguiMessage
+  ](name='MessageAttachments'),
+  queryAttachments?: [
+    QueryAttachment
+  ](name='QueryAttachments'),
+  textAttachments?: [ string ](name='TextAttachments'),
 }
 
 model Conversation {
@@ -125,11 +171,21 @@ model EventTableQueryHistogram {
   to?: long(name='To'),
 }
 
+model ExecutionResult {
+  isTruncated?: boolean(name='IsTruncated', example='false'),
+  rowCount?: int32(name='RowCount', example='2'),
+  rows?: string(name='Rows'),
+  schema?: [
+    SchemaColumn
+  ](name='Schema'),
+  totalRows?: int32(name='TotalRows', example='2'),
+}
+
 model Metadata {
   attachments?: [ 
     {
-      arn?: string(name='Arn'),
-      mimeType?: string(name='MimeType'),
+      arn?: string(name='Arn', example='acs:eventbridge:cn-hangzhou:12345:eventhouse/system-rocketmq/namespace/rmq-cn-xxx/table/order'),
+      mimeType?: string(name='MimeType', example='inner-resource/event-table'),
     }
   ](name='Attachments'),
 }
@@ -141,10 +197,28 @@ model Namespace {
   properties?: string(name='properties'),
 }
 
+model QueryAskLumaLogResult {
+  entries?: [
+    AskLumaLogEntry
+  ](name='Entries'),
+  hasMore?: boolean(name='HasMore'),
+  lastKey?: string(name='LastKey'),
+}
+
+model QueryAttachment {
+  query?: string(name='Query', example='"SELECT city, COUNT(*) AS cnt FROM events GROUP BY city"'),
+  result?: ExecutionResult(name='Result'),
+}
+
 model Row {
   columns?: [
     Column
   ](name='Columns'),
+}
+
+model SchemaColumn {
+  name?: string(name='Name', example='name'),
+  type?: string(name='Type', example='VARCHAR'),
 }
 
 model SinkApiDestinationParameters {
@@ -164,6 +238,7 @@ model SinkApiDestinationParameters {
     template?: string(name='Template'),
     value?: string(name='Value'),
   }(name='QueryStringParameters'),
+  timeout?: int32(name='Timeout'),
 }
 
 model SinkBaiLianParameters {
@@ -397,6 +472,78 @@ model Table {
   updateTime?: long(name='UpdateTime'),
 }
 
+model AskLumaRequest {
+  agentName?: string(name='AgentName', description='This parameter is required.', example='demo-luma-agent'),
+  conversationId?: string(name='ConversationId', example='conv_1474xxx32_593b9d08-9'),
+  maxRows?: int32(name='MaxRows', example='100'),
+  question?: string(name='Question', description='This parameter is required.'),
+}
+
+model AskLumaResponseBody = {
+  code?: string(name='Code', example='AgentNotFound'),
+  data?: AskLumaResult(name='Data'),
+  message?: string(name='Message', example='Agent with name \\\\"xxx\\\\" not found for account 1186xxx'),
+  requestId?: string(name='RequestId', example='97FB3BAE-XXXXXX-36435495B7EB'),
+  success?: boolean(name='Success', example='true'),
+}
+
+model AskLumaResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: AskLumaResponseBody(name='body'),
+}
+
+/**
+ * @summary 用自然语言查询事件数据。输入问题后系统自动生成SQL并执行，返回结构化结果；若问题含糊则返回澄清提示。支持通过ConversationId进行多轮追问。
+ *
+ * @param request AskLumaRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return AskLumaResponse
+ */
+@context("askLumaWithContext")
+async function askLumaWithOptions(request: AskLumaRequest, runtime: $RuntimeOptions): AskLumaResponse {
+  request.validate();
+  var body : map[string]any = {};
+  if (!$isNull(request.agentName)) {
+    body['AgentName'] = request.agentName;
+  }
+  if (!$isNull(request.conversationId)) {
+    body['ConversationId'] = request.conversationId;
+  }
+  if (!$isNull(request.maxRows)) {
+    body['MaxRows'] = request.maxRows;
+  }
+  if (!$isNull(request.question)) {
+    body['Question'] = request.question;
+  }
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'AskLuma',
+    version = '2020-04-01',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 用自然语言查询事件数据。输入问题后系统自动生成SQL并执行，返回结构化结果；若问题含糊则返回澄清提示。支持通过ConversationId进行多轮追问。
+ *
+ * @param request AskLumaRequest
+ * @return AskLumaResponse
+ */
+async function askLuma(request: AskLumaRequest): AskLumaResponse {
+  var runtime = new $RuntimeOptions{};
+  return askLumaWithOptions(request, runtime);
+}
+
 model CheckServiceLinkedRoleForProductRequest {
   productName?: string(name='ProductName', example='AliyunServiceRoleForEventBridgeConnectVPC'),
 }
@@ -458,6 +605,99 @@ async function checkServiceLinkedRoleForProductWithOptions(request: CheckService
 async function checkServiceLinkedRoleForProduct(request: CheckServiceLinkedRoleForProductRequest): CheckServiceLinkedRoleForProductResponse {
   var runtime = new $RuntimeOptions{};
   return checkServiceLinkedRoleForProductWithOptions(request, runtime);
+}
+
+model CreateAgentRequest {
+  description?: string(name='Description'),
+  metadata?: {
+    attachments?: [ 
+      {
+        arn?: string(name='Arn', example='acs:eventbridge:cn-hangzhou:12345:eventhouse/system-rocketmq/namespace/rmq-cn-XXX/table/order'),
+        mimeType?: string(name='MimeType', example='inner-resource/event-table'),
+      }
+    ](name='Attachments'),
+  }(name='Metadata'),
+  name?: string(name='Name', example='my-agent'),
+  prompt?: string(name='Prompt'),
+}
+
+model CreateAgentShrinkRequest {
+  description?: string(name='Description'),
+  metadataShrink?: string(name='Metadata'),
+  name?: string(name='Name', example='my-agent'),
+  prompt?: string(name='Prompt'),
+}
+
+model CreateAgentResponseBody = {
+  code?: string(name='Code', example='Success'),
+  data?: {
+    agentArn?: string(name='AgentArn', description='Agent ARN', example='acs:eventbridge:{region}:{accountId}:agent/{agentName}'),
+  }(name='Data'),
+  message?: string(name='Message', example='Agent with name \\\\"XXX\\\\" already exists for account 12345'),
+  requestId?: string(name='RequestId', example='B896B484-XXXXXX-DD0E5C361108'),
+  success?: boolean(name='Success', example='true'),
+}
+
+model CreateAgentResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: CreateAgentResponseBody(name='body'),
+}
+
+/**
+ * @summary 查询历史会话
+ *
+ * @param tmpReq CreateAgentRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return CreateAgentResponse
+ */
+@context("createAgentWithContext")
+async function createAgentWithOptions(tmpReq: CreateAgentRequest, runtime: $RuntimeOptions): CreateAgentResponse {
+  tmpReq.validate();
+  var request = new CreateAgentShrinkRequest{};
+  OpenApiUtil.convert(tmpReq, request);
+  if (!$isNull(tmpReq.metadata)) {
+    request.metadataShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.metadata, 'Metadata', 'json');
+  }
+  var body : map[string]any = {};
+  if (!$isNull(request.description)) {
+    body['Description'] = request.description;
+  }
+  if (!$isNull(request.metadataShrink)) {
+    body['Metadata'] = request.metadataShrink;
+  }
+  if (!$isNull(request.name)) {
+    body['Name'] = request.name;
+  }
+  if (!$isNull(request.prompt)) {
+    body['Prompt'] = request.prompt;
+  }
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'CreateAgent',
+    version = '2020-04-01',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 查询历史会话
+ *
+ * @param request CreateAgentRequest
+ * @return CreateAgentResponse
+ */
+async function createAgent(request: CreateAgentRequest): CreateAgentResponse {
+  var runtime = new $RuntimeOptions{};
+  return createAgentWithOptions(request, runtime);
 }
 
 model CreateApiDestinationRequest {
@@ -1119,6 +1359,11 @@ This parameter is required.'),
       acks?: string(name='Acks'),
       bootstraps?: string(name='Bootstraps'),
       compressionType?: string(name='CompressionType'),
+      dynamicTopic?: {
+        form?: string(name='Form'),
+        template?: string(name='Template'),
+        value?: string(name='Value'),
+      }(name='DynamicTopic'),
       headers?: {
         form?: string(name='Form'),
         template?: string(name='Template'),
@@ -1143,6 +1388,12 @@ This parameter is required.'),
         value?: string(name='Value'),
       }(name='SecurityGroupId'),
       securityProtocol?: string(name='SecurityProtocol'),
+      sslKeyPassword?: string(name='SslKeyPassword'),
+      sslKeystoreCertificateChain?: string(name='SslKeystoreCertificateChain'),
+      sslKeystoreKey?: {
+        kmsArn?: string(name='KmsArn'),
+        kmsSecretValueKey?: string(name='KmsSecretValueKey'),
+      }(name='SslKeystoreKey'),
       sslTruststoreCertificates?: string(name='SslTruststoreCertificates'),
       topic?: string(name='Topic'),
       vSwitchIds?: {
@@ -1444,6 +1695,11 @@ This parameter is required.'),
 *   If you set this parameter to 1, a response is returned when data is written to the leader. In this mode, the performance and the risk of data loss are moderate. Data loss may occur if a failure occurs on the leader.
 *   If you set this parameter to all, a response is returned when data is written to the leader and synchronized to the followers. In this mode, the performance is low, but the risk of data loss is also low. Data loss occurs if the leader and the followers fail at the same time.'),
       compressionType?: string(name='CompressionType'),
+      dynamicTopic?: {
+        form?: string(name='Form'),
+        template?: string(name='Template'),
+        value?: string(name='Value'),
+      }(name='DynamicTopic'),
       headers?: {
         form?: string(name='Form'),
         template?: string(name='Template'),
@@ -1807,6 +2063,12 @@ This parameter is required.'),
       saslUser?: string(name='SaslUser'),
       securityGroupId?: string(name='SecurityGroupId'),
       securityProtocol?: string(name='SecurityProtocol'),
+      sslKeyPassword?: string(name='SslKeyPassword'),
+      sslKeystoreCertificateChain?: string(name='SslKeystoreCertificateChain'),
+      sslKeystoreKey?: {
+        kmsArn?: string(name='KmsArn'),
+        kmsSecretValueKey?: string(name='KmsSecretValueKey'),
+      }(name='SslKeystoreKey'),
       sslTruststoreCertificates?: string(name='SslTruststoreCertificates'),
       topic?: string(name='Topic'),
       vSwitchIds?: string(name='VSwitchIds'),
@@ -2342,6 +2604,64 @@ async function createServiceLinkedRoleForProductWithOptions(request: CreateServi
 async function createServiceLinkedRoleForProduct(request: CreateServiceLinkedRoleForProductRequest): CreateServiceLinkedRoleForProductResponse {
   var runtime = new $RuntimeOptions{};
   return createServiceLinkedRoleForProductWithOptions(request, runtime);
+}
+
+model DeleteAgentRequest {
+  name?: string(name='Name', example='my-agent'),
+}
+
+model DeleteAgentResponseBody = {
+  code?: string(name='Code', example='AgentNotFound'),
+  message?: string(name='Message', example='Agent with name \\\\"xxx\\\\" not found for account 1186xxx'),
+  requestId?: string(name='RequestId', example='B896B484-F16D-59DE-9E23-DD0E5C361108'),
+}
+
+model DeleteAgentResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: DeleteAgentResponseBody(name='body'),
+}
+
+/**
+ * @summary DeleteAgent
+ *
+ * @param request DeleteAgentRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return DeleteAgentResponse
+ */
+@context("deleteAgentWithContext")
+async function deleteAgentWithOptions(request: DeleteAgentRequest, runtime: $RuntimeOptions): DeleteAgentResponse {
+  request.validate();
+  var body : map[string]any = {};
+  if (!$isNull(request.name)) {
+    body['Name'] = request.name;
+  }
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'DeleteAgent',
+    version = '2020-04-01',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary DeleteAgent
+ *
+ * @param request DeleteAgentRequest
+ * @return DeleteAgentResponse
+ */
+async function deleteAgent(request: DeleteAgentRequest): DeleteAgentResponse {
+  var runtime = new $RuntimeOptions{};
+  return deleteAgentWithOptions(request, runtime);
 }
 
 model DeleteApiDestinationRequest {
@@ -3251,6 +3571,66 @@ async function eventCenterQueryEvents(request: EventCenterQueryEventsRequest): E
   return eventCenterQueryEventsWithOptions(request, runtime);
 }
 
+model GetAgentRequest {
+  name?: string(name='Name', description='This parameter is required.', example='my-agent'),
+}
+
+model GetAgentResponseBody = {
+  code?: string(name='Code', example='Success'),
+  data?: Agent(name='Data', example='true'),
+  message?: string(name='Message', example='Agent with name \\\\"xxx\\\\" not found for account 1186xxx'),
+  requestId?: string(name='RequestId', example='E0FFAB67-XXXXXX-CAD4D37448C4'),
+  success?: boolean(name='Success', example='true'),
+}
+
+model GetAgentResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: GetAgentResponseBody(name='body'),
+}
+
+/**
+ * @summary 获取当前Agent的基本信息，包括名称、描述和已绑定的数据目录列表。用于了解当前接入点的能力范围。
+ *
+ * @param request GetAgentRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return GetAgentResponse
+ */
+@context("getAgentWithContext")
+async function getAgentWithOptions(request: GetAgentRequest, runtime: $RuntimeOptions): GetAgentResponse {
+  request.validate();
+  var body : map[string]any = {};
+  if (!$isNull(request.name)) {
+    body['Name'] = request.name;
+  }
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'GetAgent',
+    version = '2020-04-01',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 获取当前Agent的基本信息，包括名称、描述和已绑定的数据目录列表。用于了解当前接入点的能力范围。
+ *
+ * @param request GetAgentRequest
+ * @return GetAgentResponse
+ */
+async function getAgent(request: GetAgentRequest): GetAgentResponse {
+  var runtime = new $RuntimeOptions{};
+  return getAgentWithOptions(request, runtime);
+}
+
 model GetApiDestinationRequest {
   apiDestinationName?: string(name='ApiDestinationName', description='The name of the API destination.
 
@@ -3588,6 +3968,11 @@ model GetEventStreamingResponseBody = {
         acks?: string(name='Acks'),
         bootstraps?: string(name='Bootstraps'),
         compressionType?: string(name='CompressionType'),
+        dynamicTopic?: {
+          form?: string(name='Form'),
+          template?: string(name='Template'),
+          value?: string(name='Value'),
+        }(name='DynamicTopic'),
         headers?: {
           form?: string(name='Form'),
           template?: string(name='Template'),
@@ -3612,6 +3997,12 @@ model GetEventStreamingResponseBody = {
           value?: string(name='Value'),
         }(name='SecurityGroupId'),
         securityProtocol?: string(name='SecurityProtocol'),
+        sslKeyPassword?: string(name='SslKeyPassword'),
+        sslKeystoreCertificateChain?: string(name='SslKeystoreCertificateChain'),
+        sslKeystoreKey?: {
+          kmsArn?: string(name='KmsArn'),
+          kmsSecretValueKey?: string(name='KmsSecretValueKey'),
+        }(name='SslKeystoreKey'),
         sslTruststoreCertificates?: string(name='SslTruststoreCertificates'),
         topic?: string(name='Topic'),
         vSwitchIds?: {
@@ -3885,6 +4276,11 @@ model GetEventStreamingResponseBody = {
           value?: string(name='Value', description='The acknowledgment information.', example='1'),
         }(name='Acks', description='The acknowledgment information.'),
         compressionType?: string(name='CompressionType'),
+        dynamicTopic?: {
+          form?: string(name='Form'),
+          template?: string(name='Template'),
+          value?: string(name='Value'),
+        }(name='DynamicTopic'),
         headers?: {
           form?: string(name='Form', example='CONSTANT'),
           template?: string(name='Template', example='The value of ${key} is ${value}!'),
@@ -4185,6 +4581,12 @@ model GetEventStreamingResponseBody = {
         saslUser?: string(name='SaslUser'),
         securityGroupId?: string(name='SecurityGroupId'),
         securityProtocol?: string(name='SecurityProtocol'),
+        sslKeyPassword?: string(name='SslKeyPassword'),
+        sslKeystoreCertificateChain?: string(name='SslKeystoreCertificateChain'),
+        sslKeystoreKey?: {
+          kmsArn?: string(name='KmsArn'),
+          kmsSecretValueKey?: string(name='KmsSecretValueKey'),
+        }(name='SslKeystoreKey'),
         sslTruststoreCertificates?: string(name='SslTruststoreCertificates'),
         topic?: string(name='Topic'),
         vSwitchIds?: string(name='VSwitchIds'),
@@ -4518,6 +4920,81 @@ async function getRuleWithOptions(request: GetRuleRequest, runtime: $RuntimeOpti
 async function getRule(request: GetRuleRequest): GetRuleResponse {
   var runtime = new $RuntimeOptions{};
   return getRuleWithOptions(request, runtime);
+}
+
+model ListAgentsRequest {
+  after?: string(name='After', example='my-agent'),
+  limit?: string(name='Limit', example='50'),
+  order?: string(name='Order', example='acs'),
+}
+
+model ListAgentsResponseBody = {
+  code?: string(name='Code', example='Success'),
+  data?: {
+    agents?: [
+      Agent
+    ](name='Agents'),
+    firstId?: string(name='FirstId', example='uat-agent'),
+    hasMore?: string(name='HasMore', example='false'),
+    lastId?: string(name='LastId', example='last-agent'),
+  }(name='Data'),
+  message?: string(name='Message', example='Failed to list agents'),
+  requestId?: string(name='RequestId', example='7DA60DED-CD36-5837-B848-C01A23D2****'),
+  success?: boolean(name='Success', example='true'),
+}
+
+model ListAgentsResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ListAgentsResponseBody(name='body'),
+}
+
+/**
+ * @summary 查询 Agent 列表
+ *
+ * @param request ListAgentsRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return ListAgentsResponse
+ */
+@context("listAgentsWithContext")
+async function listAgentsWithOptions(request: ListAgentsRequest, runtime: $RuntimeOptions): ListAgentsResponse {
+  request.validate();
+  var body : map[string]any = {};
+  if (!$isNull(request.after)) {
+    body['After'] = request.after;
+  }
+  if (!$isNull(request.limit)) {
+    body['Limit'] = request.limit;
+  }
+  if (!$isNull(request.order)) {
+    body['Order'] = request.order;
+  }
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'ListAgents',
+    version = '2020-04-01',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 查询 Agent 列表
+ *
+ * @param request ListAgentsRequest
+ * @return ListAgentsResponse
+ */
+async function listAgents(request: ListAgentsRequest): ListAgentsResponse {
+  var runtime = new $RuntimeOptions{};
+  return listAgentsWithOptions(request, runtime);
 }
 
 model ListAliyunOfficialEventSourcesResponseBody = {
@@ -5267,6 +5744,11 @@ Other codes: The request failed. For more information about error codes, see Err
 *   If you set this parameter to 1, a response is returned when data is written to the leader. In this mode, the performance and the risk of data loss are moderate. Data loss may occur if a failure occurs on the leader.
 *   If you set this parameter to all, a response is returned when data is written to the leader and synchronized to the followers. In this mode, the performance is low, but the risk of data loss is also low. Data loss occurs if the leader and the followers fail at the same time.'),
             compressionType?: string(name='CompressionType'),
+            dynamicTopic?: {
+              form?: string(name='Form'),
+              template?: string(name='Template'),
+              value?: string(name='Value'),
+            }(name='DynamicTopic'),
             instanceId?: {
               form?: string(name='Form', description='The method that is used to transform events. Default value: CONSTANT.', example='CONSTANT'),
               template?: string(name='Template', description='None.'),
@@ -6266,6 +6748,70 @@ async function pauseEventStreaming(request: PauseEventStreamingRequest): PauseEv
   return pauseEventStreamingWithOptions(request, runtime);
 }
 
+model PollAskResultRequest {
+  agentName?: string(name='AgentName', description='This parameter is required.', example='demo-luma-agent'),
+  messageId?: string(name='MessageId', description='This parameter is required.', example='msg_xxx'),
+}
+
+model PollAskResultResponseBody = {
+  code?: string(name='Code', example='Success'),
+  data?: AskLumaResult(name='Data', example='true'),
+  message?: string(name='Message', example='Agent with name \\\\"xxx\\\\" not found for account 1186xxx'),
+  requestId?: string(name='RequestId', example='A995F07C-E503-XXXXXX-9CECA8566876'),
+  success?: boolean(name='Success', example='true'),
+}
+
+model PollAskResultResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: PollAskResultResponseBody(name='body'),
+}
+
+/**
+ * @summary 轮询AskLuma的异步查询结果。传入AskLuma返回的MessageId，获取执行状态和最终结果；状态为RUNNING时应立即重试，无需退避。
+ *
+ * @param request PollAskResultRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return PollAskResultResponse
+ */
+@context("pollAskResultWithContext")
+async function pollAskResultWithOptions(request: PollAskResultRequest, runtime: $RuntimeOptions): PollAskResultResponse {
+  request.validate();
+  var body : map[string]any = {};
+  if (!$isNull(request.agentName)) {
+    body['AgentName'] = request.agentName;
+  }
+  if (!$isNull(request.messageId)) {
+    body['MessageId'] = request.messageId;
+  }
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'PollAskResult',
+    version = '2020-04-01',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 轮询AskLuma的异步查询结果。传入AskLuma返回的MessageId，获取执行状态和最终结果；状态为RUNNING时应立即重试，无需退避。
+ *
+ * @param request PollAskResultRequest
+ * @return PollAskResultResponse
+ */
+async function pollAskResult(request: PollAskResultRequest): PollAskResultResponse {
+  var runtime = new $RuntimeOptions{};
+  return pollAskResultWithOptions(request, runtime);
+}
+
 model PutTargetsRequest {
   eventBusName?: string(name='EventBusName', description='The name of the event bus.
 
@@ -6413,6 +6959,74 @@ async function putTargetsWithOptions(tmpReq: PutTargetsRequest, runtime: $Runtim
 async function putTargets(request: PutTargetsRequest): PutTargetsResponse {
   var runtime = new $RuntimeOptions{};
   return putTargetsWithOptions(request, runtime);
+}
+
+model QueryAskLumaLogRequest {
+  after?: string(name='After', example='eyJ0cyI6MTcxN...'),
+  agentName?: string(name='AgentName', example='demo-luma-agent'),
+  limit?: int32(name='Limit', example='10'),
+}
+
+model QueryAskLumaLogResponseBody = {
+  code?: string(name='Code', example='Success'),
+  data?: QueryAskLumaLogResult(name='Data', example='true'),
+  message?: string(name='Message', example='AgentNotFound'),
+  requestId?: string(name='RequestId', example='6FB52207-7621-5292-BDF2-A17E2E984160'),
+  success?: boolean(name='Success', example='true'),
+}
+
+model QueryAskLumaLogResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: QueryAskLumaLogResponseBody(name='body'),
+}
+
+/**
+ * @summary 查询历史会话
+ *
+ * @param request QueryAskLumaLogRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return QueryAskLumaLogResponse
+ */
+@context("queryAskLumaLogWithContext")
+async function queryAskLumaLogWithOptions(request: QueryAskLumaLogRequest, runtime: $RuntimeOptions): QueryAskLumaLogResponse {
+  request.validate();
+  var body : map[string]any = {};
+  if (!$isNull(request.after)) {
+    body['After'] = request.after;
+  }
+  if (!$isNull(request.agentName)) {
+    body['AgentName'] = request.agentName;
+  }
+  if (!$isNull(request.limit)) {
+    body['Limit'] = request.limit;
+  }
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'QueryAskLumaLog',
+    version = '2020-04-01',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 查询历史会话
+ *
+ * @param request QueryAskLumaLogRequest
+ * @return QueryAskLumaLogResponse
+ */
+async function queryAskLumaLog(request: QueryAskLumaLogRequest): QueryAskLumaLogResponse {
+  var runtime = new $RuntimeOptions{};
+  return queryAskLumaLogWithOptions(request, runtime);
 }
 
 model QueryEventRequest {
@@ -7057,6 +7671,104 @@ async function testEventSourceConfigWithOptions(tmpReq: TestEventSourceConfigReq
 async function testEventSourceConfig(request: TestEventSourceConfigRequest): TestEventSourceConfigResponse {
   var runtime = new $RuntimeOptions{};
   return testEventSourceConfigWithOptions(request, runtime);
+}
+
+model UpdateAgentRequest {
+  clientToken?: string(name='ClientToken', example='TF-CreateRule-1652253755-aa33f762-7e99-4aee-bd27-d3370afa5625'),
+  description?: string(name='Description'),
+  metadata?: {
+    attachments?: [ 
+      {
+        arn?: string(name='Arn', example='acs:eventbridge:cn-hangzhou:12345:eventhouse/system-rocketmq/namespace/rmq-cn-xxx/table/order'),
+        mimeType?: string(name='MimeType', example='inner-resource/event-table'),
+      }
+    ](name='Attachments'),
+  }(name='Metadata'),
+  name?: string(name='Name', example='my-agent'),
+  prompt?: string(name='Prompt'),
+}
+
+model UpdateAgentShrinkRequest {
+  clientToken?: string(name='ClientToken', example='TF-CreateRule-1652253755-aa33f762-7e99-4aee-bd27-d3370afa5625'),
+  description?: string(name='Description'),
+  metadataShrink?: string(name='Metadata'),
+  name?: string(name='Name', example='my-agent'),
+  prompt?: string(name='Prompt'),
+}
+
+model UpdateAgentResponseBody = {
+  code?: string(name='Code', example='Success'),
+  data?: {
+    agentArn?: string(name='AgentArn', description='Agent ARN', example='acs:eventbridge:{region}:{accountId}:agent/{agentName}'),
+  }(name='Data'),
+  message?: string(name='Message', example='InvalidArgument'),
+  requestId?: string(name='RequestId', example='382E6272-XXXXX-A8AF0BFAC1A5'),
+  success?: boolean(name='Success', example='true'),
+}
+
+model UpdateAgentResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: UpdateAgentResponseBody(name='body'),
+}
+
+/**
+ * @summary 查询历史会话
+ *
+ * @param tmpReq UpdateAgentRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return UpdateAgentResponse
+ */
+@context("updateAgentWithContext")
+async function updateAgentWithOptions(tmpReq: UpdateAgentRequest, runtime: $RuntimeOptions): UpdateAgentResponse {
+  tmpReq.validate();
+  var request = new UpdateAgentShrinkRequest{};
+  OpenApiUtil.convert(tmpReq, request);
+  if (!$isNull(tmpReq.metadata)) {
+    request.metadataShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.metadata, 'Metadata', 'json');
+  }
+  var body : map[string]any = {};
+  if (!$isNull(request.clientToken)) {
+    body['ClientToken'] = request.clientToken;
+  }
+  if (!$isNull(request.description)) {
+    body['Description'] = request.description;
+  }
+  if (!$isNull(request.metadataShrink)) {
+    body['Metadata'] = request.metadataShrink;
+  }
+  if (!$isNull(request.name)) {
+    body['Name'] = request.name;
+  }
+  if (!$isNull(request.prompt)) {
+    body['Prompt'] = request.prompt;
+  }
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'UpdateAgent',
+    version = '2020-04-01',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 查询历史会话
+ *
+ * @param request UpdateAgentRequest
+ * @return UpdateAgentResponse
+ */
+async function updateAgent(request: UpdateAgentRequest): UpdateAgentResponse {
+  var runtime = new $RuntimeOptions{};
+  return updateAgentWithOptions(request, runtime);
 }
 
 model UpdateApiDestinationRequest {
@@ -7716,6 +8428,11 @@ This parameter is required.', example='{
       acks?: string(name='Acks'),
       bootstraps?: string(name='Bootstraps'),
       compressionType?: string(name='CompressionType'),
+      dynamicTopic?: {
+        form?: string(name='Form'),
+        template?: string(name='Template'),
+        value?: string(name='Value'),
+      }(name='DynamicTopic'),
       headers?: {
         form?: string(name='Form'),
         template?: string(name='Template'),
@@ -7740,6 +8457,12 @@ This parameter is required.', example='{
         value?: string(name='Value'),
       }(name='SecurityGroupId'),
       securityProtocol?: string(name='SecurityProtocol'),
+      sslKeyPassword?: string(name='SslKeyPassword'),
+      sslKeystoreCertificateChain?: string(name='SslKeystoreCertificateChain'),
+      sslKeystoreKey?: {
+        kmsArn?: string(name='KmsArn'),
+        kmsSecretValueKey?: string(name='KmsSecretValueKey'),
+      }(name='SslKeystoreKey'),
       sslTruststoreCertificates?: string(name='SslTruststoreCertificates'),
       topic?: string(name='Topic'),
       vSwitchIds?: {
@@ -8083,6 +8806,11 @@ This parameter is required.', example='{
 *   If you set this parameter to 1, a response is returned when data is written to the leader. In this mode, the performance and the risk of data loss are moderate. Data loss may occur if a failure occurs on the leader.
 *   If you set this parameter to all, a response is returned when data is written to the leader and synchronized to the followers. In this mode, the performance is low, but the risk of data loss is also low. Data loss occurs if the leader and the followers fail at the same time.'),
       compressionType?: string(name='CompressionType'),
+      dynamicTopic?: {
+        form?: string(name='Form'),
+        template?: string(name='Template'),
+        value?: string(name='Value'),
+      }(name='DynamicTopic'),
       headers?: {
         form?: string(name='Form', description='The method that you want to use to transform events. Valid values:
 
@@ -8490,6 +9218,12 @@ This parameter is required.'),
       saslUser?: string(name='SaslUser'),
       securityGroupId?: string(name='SecurityGroupId'),
       securityProtocol?: string(name='SecurityProtocol'),
+      sslKeyPassword?: string(name='SslKeyPassword'),
+      sslKeystoreCertificateChain?: string(name='SslKeystoreCertificateChain'),
+      sslKeystoreKey?: {
+        kmsArn?: string(name='KmsArn'),
+        kmsSecretValueKey?: string(name='KmsSecretValueKey'),
+      }(name='SslKeystoreKey'),
       sslTruststoreCertificates?: string(name='SslTruststoreCertificates'),
       topic?: string(name='Topic'),
       vSwitchIds?: string(name='VSwitchIds'),
