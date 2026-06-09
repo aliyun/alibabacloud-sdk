@@ -106,11 +106,12 @@ model BaiLianAgentTransformParameters {
 }
 
 model Catalog {
-  comment?: string(name='Comment'),
-  name?: string(name='Name'),
-  properties?: map[string]any(name='Properties'),
-  provider?: string(name='Provider'),
-  type?: string(name='Type'),
+  comment?: string(name='Comment', description='数据目录的备注描述信息', example='测试数据目录'),
+  connectionName?: string(name='ConnectionName', description='挂载类型 Catalog 关联的连接名称。仅 Provider 为 MySQL/PostgreSQL/Elasticsearch 时有值', example='my_connection'),
+  name?: string(name='Name', description='数据目录的唯一标识名称', example='my_catalog'),
+  properties?: map[string]any(name='Properties', description='扩展属性（JSON 对象）。Elasticsearch 类型包含 IndexPattern 等信息', example='{"IndexPattern":"my-index-*"}'),
+  provider?: string(name='Provider', description='数据源提供方。EventHouse 为内置存储，MySQL/PostgreSQL/Elasticsearch 为外部挂载', example='EventHouse'),
+  type?: string(name='Type', description='数据目录类型，如 RELATIONAL', example='RELATIONAL'),
 }
 
 model Column {
@@ -195,10 +196,12 @@ model Metadata {
 }
 
 model Namespace {
-  catalog: string(name='Catalog', description='This parameter is required.'),
-  comment?: string(name='Comment'),
-  name?: string(name='Name'),
-  properties?: string(name='properties'),
+  catalog: string(name='Catalog', description='命名空间所属的数据目录名称
+
+This parameter is required.', example='my_catalog'),
+  comment?: string(name='Comment', description='命名空间的备注描述信息', example='测试命名空间'),
+  name?: string(name='Name', description='命名空间的唯一标识名称', example='my_namespace'),
+  properties?: string(name='properties', description='命名空间的扩展属性', example='{"key":"value"}'),
 }
 
 model QueryAskLumaLogResult {
@@ -457,23 +460,23 @@ model SourceRabbitMQMsgSyncParameters {
 }
 
 model Table {
-  catalog?: string(name='Catalog'),
+  catalog?: string(name='Catalog', description='表所属的数据目录名称', example='my_catalog'),
   columns?: [ 
     {
-      comment?: string(name='Comment'),
-      name?: string(name='Name'),
-      type?: string(name='Type'),
+      comment?: string(name='Comment', example='主键ID'),
+      name?: string(name='Name', example='id'),
+      type?: string(name='Type', example='bigint'),
     }
-  ](name='Columns'),
-  comment?: string(name='Comment'),
-  createTime?: long(name='CreateTime'),
-  name?: string(name='Name'),
-  namespace?: string(name='Namespace'),
+  ](name='Columns', description='表的列定义列表。每列包含 Name（列名）、Type（数据类型）、Comment（备注）', example='[{"Name":"id","Type":"bigint","Comment":"主键"}]'),
+  comment?: string(name='Comment', description='表的备注描述信息', example='测试事件表'),
+  createTime?: long(name='CreateTime', description='表的创建时间（Unix 时间戳，毫秒）', example='1717948800000'),
+  name?: string(name='Name', description='事件表的唯一标识名称', example='my_table'),
+  namespace?: string(name='Namespace', description='表所属的命名空间名称', example='my_namespace'),
   retentionPolicy?: {
-    coldTTL?: int32(name='ColdTTL'),
-    hotTTL?: int32(name='HotTTL'),
-  }(name='RetentionPolicy'),
-  updateTime?: long(name='UpdateTime'),
+    coldTTL?: int32(name='ColdTTL', description='冷数据保留天数，低成本归档存储', example='30'),
+    hotTTL?: int32(name='HotTTL', description='热数据保留天数，高性能查询存储', example='7'),
+  }(name='RetentionPolicy', description='数据保留策略。包含热数据和冷数据的保留天数'),
+  updateTime?: long(name='UpdateTime', description='表的最后更新时间（Unix 时间戳，毫秒）', example='1717948800000'),
 }
 
 model AskLumaRequest {
@@ -701,6 +704,8 @@ This parameter is required.', example='PublicNetwork'),
   }(name='NetworkParameters', description='The parameters that are configured for the network.
 
 This parameter is required.', shrink='json', position='Query'),
+  parameters?: any(name='Parameters', description='数据源连接参数（JSON 对象），Type 为数据源类型时必填，Http 类型不需要。具体字段定义请调用 GetConnectionType 接口，参考返回结果中的 ParamsSchema', example='{"HostName":"xxx.mysql.rds.aliyuncs.com","Port":"3306","User":"root","Password":"xxx","DatabaseName":"demo_db"}', shrink='json', position='Query'),
+  type?: string(name='Type', description='连接类型。可选值：MySQL、PostgreSQL、Elasticsearch、Http。数据源类型连接必填，不传默认为 Http。Http 类型用于 API Destination 等 HTTP 协议目标；数据源类型用于集成广场的数据连接', example='Http', position='Query'),
 }
 
 model CreateConnectionResponseBody = {
@@ -1862,6 +1867,40 @@ async function createEventStreaming(request: CreateEventStreamingRequest): Creat
   return @handler.do('RPC', 'CreateEventStreaming', 'POST', '/', 'json', true, 'form', request);
 }
 
+model CreateNamespaceRequest {
+  catalog?: string(name='Catalog', description='命名空间所属的数据目录名称。可通过 ListCatalogs 接口获取已有目录列表', example='my_catalog', position='Query'),
+  clientToken?: string(name='ClientToken', description='用于保证请求幂等性的Token', example='1e9b8f60-3a2c-4d7e-9f1b-8c3d5e7a2b4f', position='Body'),
+  comment?: string(name='Comment', description='命名空间的备注描述信息', example='测试命名空间', position='Query'),
+  name: string(name='Name', description='命名空间名称，在同一数据目录下唯一。以字母或数字开头，支持字母、数字、下划线和短横线，长度1~127
+
+This parameter is required.', example='my_namespace', minLength=1, maxLength=127, position='Query'),
+}
+
+model CreateNamespaceResponseBody = {
+  code?: string(name='Code', example='200'),
+  data?: {
+    namespaceARN?: string(name='NamespaceARN', example='acs:eventbridge:cn-hangzhou:123456789:catalog/my_catalog/namespace/my_namespace'),
+  }(name='Data'),
+  message?: string(name='Message', example='Operation success'),
+  requestId?: string(name='RequestId', example='34AD682D-5B91-5773-8132-AA38C130****'),
+  success?: boolean(name='Success', example='true'),
+}
+
+model CreateNamespaceResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: CreateNamespaceResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of CreateNamespace  CreateNamespaceRequest
+  * @return CreateNamespaceResponse
+ */
+async function createNamespace(request: CreateNamespaceRequest): CreateNamespaceResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'CreateNamespace', 'POST', '/', 'json', true, 'form', request);
+}
+
 model CreateRuleRequest {
   description?: string(name='Description', description='The description of the event bus.', position='Query'),
   eventBusName: string(name='EventBusName', description='The name of the event bus.
@@ -1981,6 +2020,52 @@ model CreateServiceLinkedRoleForProductResponse = {
 async function createServiceLinkedRoleForProduct(request: CreateServiceLinkedRoleForProductRequest): CreateServiceLinkedRoleForProductResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RPC', 'CreateServiceLinkedRoleForProduct', 'POST', '/', 'json', false, 'json', request);
+}
+
+model CreateTableRequest {
+  catalog?: string(name='Catalog', description='表所属的数据目录名称。可通过 ListCatalogs 获取已有目录列表', example='my_catalog', maxLength=255, position='Query'),
+  clientToken?: string(name='ClientToken', description='用于保证请求幂等性的Token，防止因网络重试导致重复创建。建议使用 UUID', example='1e9b8f60-3a2c-4d7e-9f1b-8c3d5e7a2b4f', position='Query'),
+  columns?: [ 
+    {
+      comment?: string(name='Comment', example='Isp'),
+      name?: string(name='Name', example='kafka-default-agent-alikafka_pre-cn-28t3sfzno003'),
+      type?: string(name='Type', example='ehpc_cluster'),
+    }
+  ](name='Columns', description='表的列定义（JSON 数组）。每列包含 Name（列名，必填）、Type（数据类型，必填，如 STRING、INT32、INT64、FLOAT、DOUBLE、BOOLEAN、TIMESTAMP）、Comment（列备注，选填）', example='[{"Name":"id","Type":"bigint","Comment":"主键"}]', shrink='json', position='Query'),
+  comment?: string(name='Comment', description='表的备注描述信息，无格式限制', example='测试事件表', position='Query'),
+  name: string(name='Name', description='事件表名称。以字母或数字开头，支持字母、数字、下划线和短横线，长度1~127。在同一命名空间下唯一
+
+This parameter is required.', example='my_table', minLength=1, maxLength=127, position='Query'),
+  namespace?: string(name='Namespace', description='表所属的命名空间名称。可通过 ListNamespaces 获取已有命名空间列表', example='my_namespace', position='Query'),
+  retentionPolicy?: {
+    coldTTL?: int32(name='ColdTTL', example='30'),
+    hotTTL?: int32(name='HotTTL', example='30'),
+  }(name='RetentionPolicy', description='数据保留策略（JSON 对象）。包含 HotTTL（热数据保留天数，高性能查询）和 ColdTTL（冷数据保留天数，低成本存储）。不传则使用系统默认值', example='{"HotTTL":7,"ColdTTL":30}', shrink='json', position='Query'),
+}
+
+model CreateTableResponseBody = {
+  code?: string(name='Code', example='200'),
+  data?: {
+    tableARN?: string(name='TableARN', example='acs:eventbridge:cn-hangzhou:123456789:catalog/my_catalog/namespace/my_namespace/table/my_table'),
+  }(name='Data', example='{"TableARN":"acs:eventbridge:cn-hangzhou:123456789:catalog/my_catalog/namespace/my_namespace/table/my_table"}'),
+  message?: string(name='Message', example='Operation success'),
+  requestId?: string(name='RequestId', example='34AD682D-5B91-5773-8132-AA38C130****'),
+  success?: boolean(name='Success', example='true'),
+}
+
+model CreateTableResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: CreateTableResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of CreateTable  CreateTableRequest
+  * @return CreateTableResponse
+ */
+async function createTable(request: CreateTableRequest): CreateTableResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'CreateTable', 'POST', '/', 'json', false, 'json', request);
 }
 
 model DeleteAgentRequest {
@@ -2154,6 +2239,36 @@ async function deleteEventStreaming(request: DeleteEventStreamingRequest): Delet
   return @handler.do('RPC', 'DeleteEventStreaming', 'POST', '/', 'json', true, 'form', request);
 }
 
+model DeleteNamespaceRequest {
+  catalog?: string(name='Catalog', description='命名空间所属的数据目录名称。可通过 ListCatalogs 接口获取已有目录列表', example='my_catalog', position='Query'),
+  clientToken?: string(name='ClientToken', description='用于保证请求幂等性的Token。建议使用 UUID', example='1e9b8f60-3a2c-4d7e-9f1b-8c3d5e7a2b4f', position='Body'),
+  name: string(name='Name', description='要删除的命名空间名称。删除后不可恢复，命名空间下的所有表会一并删除。需同时指定所属 Catalog。可通过 ListNamespaces 获取
+
+This parameter is required.', example='my_namespace', minLength=1, maxLength=127, position='Query'),
+}
+
+model DeleteNamespaceResponseBody = {
+  code?: string(name='Code', example='200'),
+  message?: string(name='Message', example='Operation success'),
+  requestId?: string(name='RequestId', example='34AD682D-5B91-5773-8132-AA38C130****'),
+  success?: boolean(name='Success', example='true'),
+}
+
+model DeleteNamespaceResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: DeleteNamespaceResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of DeleteNamespace  DeleteNamespaceRequest
+  * @return DeleteNamespaceResponse
+ */
+async function deleteNamespace(request: DeleteNamespaceRequest): DeleteNamespaceResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'DeleteNamespace', 'POST', '/', 'json', true, 'form', request);
+}
+
 model DeleteRuleRequest {
   eventBusName: string(name='EventBusName', description='The name of the event bus.
 
@@ -2184,6 +2299,37 @@ model DeleteRuleResponse = {
 async function deleteRule(request: DeleteRuleRequest): DeleteRuleResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RPC', 'DeleteRule', 'POST', '/', 'json', false, 'json', request);
+}
+
+model DeleteTableRequest {
+  catalog?: string(name='Catalog', description='表所属的数据目录名称。可通过 ListCatalogs 获取', example='my_catalog', position='Query'),
+  clientToken?: string(name='ClientToken', description='用于保证请求幂等性的Token。建议使用 UUID', example='1e9b8f60-3a2c-4d7e-9f1b-8c3d5e7a2b4f', position='Body'),
+  name: string(name='Name', description='要删除的事件表名称。删除后不可恢复，表中的所有数据将被永久清除。需同时指定所属 Catalog 和 Namespace。可通过 ListTables 获取
+
+This parameter is required.', example='my_table', minLength=1, maxLength=127, position='Query'),
+  namespace?: string(name='Namespace', description='表所属的命名空间名称。可通过 ListNamespaces 获取', example='my_namespace', position='Query'),
+}
+
+model DeleteTableResponseBody = {
+  code?: string(name='Code', example='200'),
+  message?: string(name='Message', example='Operation success'),
+  requestId?: string(name='RequestId', example='34AD682D-5B91-5773-8132-AA38C130****'),
+  success?: boolean(name='Success', example='true'),
+}
+
+model DeleteTableResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: DeleteTableResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of DeleteTable  DeleteTableRequest
+  * @return DeleteTableResponse
+ */
+async function deleteTable(request: DeleteTableRequest): DeleteTableResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'DeleteTable', 'POST', '/', 'json', true, 'form', request);
 }
 
 model DeleteTargetsRequest {
@@ -2532,6 +2678,36 @@ async function getApiDestination(request: GetApiDestinationRequest): GetApiDesti
   return @handler.do('RPC', 'GetApiDestination', 'POST', '/', 'json', false, 'json', request);
 }
 
+model GetCatalogRequest {
+  clientToken?: string(name='ClientToken', description='用于保证请求幂等性的Token。建议使用 UUID', example='1e9b8f60-3a2c-4d7e-9f1b-8c3d5e7a2b4f', position='Body'),
+  name: string(name='Name', description='要查询的数据目录名称。可通过 ListCatalogs 接口获取已有目录列表
+
+This parameter is required.', example='my_catalog', minLength=1, maxLength=127, position='Query'),
+}
+
+model GetCatalogResponseBody = {
+  code?: string(name='Code', example='200'),
+  data?: Catalog(name='Data'),
+  message?: string(name='Message', example='Operation success'),
+  requestId?: string(name='RequestId', example='34AD682D-5B91-5773-8132-AA38C130****'),
+  success?: boolean(name='Success', example='true'),
+}
+
+model GetCatalogResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: GetCatalogResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of GetCatalog  GetCatalogRequest
+  * @return GetCatalogResponse
+ */
+async function getCatalog(request: GetCatalogRequest): GetCatalogResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'GetCatalog', 'POST', '/', 'json', true, 'form', request);
+}
+
 model GetConnectionRequest {
   connectionName: string(name='ConnectionName', description='The connection name.
 
@@ -2604,6 +2780,8 @@ model GetConnectionResponseBody = {
           vpcId?: string(name='VpcId', description='The VPC ID.', example='eb-test/vpc-bp1symadadwnwg****'),
           vswitcheId?: string(name='VswitcheId', description='The vSwitch ID.', example='vsw-bp1iu4x7aeradadown****,vsw-bp193sqmadadlaszpeq****'),
         }(name='NetworkParameters', description='The information about the network.'),
+        parameters?: any(name='Parameters', description='数据源连接参数（JSON 对象）。仅数据源类型连接返回，Http 类型为空。字段定义参考 GetConnectionType 返回的 ParamsSchema', example='{"HostName":"xxx.mysql.rds.aliyuncs.com","Port":"3306","User":"root","Password":"xxx","DatabaseName":"demo_db"}'),
+        type?: string(name='Type', description='连接类型。可选值：Http、MySQL、PostgreSQL、Elasticsearch', example='Http'),
       }
     ](name='Connections', description='The queried connections.'),
   }(name='Data', description='The returned data.'),
@@ -3523,6 +3701,37 @@ async function getEventStreaming(request: GetEventStreamingRequest): GetEventStr
   return @handler.do('RPC', 'GetEventStreaming', 'POST', '/', 'json', true, 'form', request);
 }
 
+model GetNamespaceRequest {
+  catalog?: string(name='Catalog', description='命名空间所属的数据目录名称。可通过 ListCatalogs 接口获取已有目录列表', example='my_catalog', position='Query'),
+  clientToken?: string(name='ClientToken', description='用于保证请求幂等性的Token。建议使用 UUID', example='1e9b8f60-3a2c-4d7e-9f1b-8c3d5e7a2b4f', position='Body'),
+  name: string(name='Name', description='要查询的命名空间名称。需同时指定所属 Catalog。可通过 ListNamespaces 获取已有命名空间列表
+
+This parameter is required.', example='my_namespace', minLength=1, maxLength=127, position='Query'),
+}
+
+model GetNamespaceResponseBody = {
+  code?: string(name='Code', example='200'),
+  data?: Namespace(name='Data'),
+  message?: string(name='Message', example='Operation success'),
+  requestId?: string(name='RequestId', example='34AD682D-5B91-5773-8132-AA38C130****'),
+  success?: boolean(name='Success', example='true'),
+}
+
+model GetNamespaceResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: GetNamespaceResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of GetNamespace  GetNamespaceRequest
+  * @return GetNamespaceResponse
+ */
+async function getNamespace(request: GetNamespaceRequest): GetNamespaceResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'GetNamespace', 'POST', '/', 'json', true, 'form', request);
+}
+
 model GetRuleRequest {
   eventBusName: string(name='EventBusName', description='The name of the event bus.
 
@@ -3593,6 +3802,38 @@ model GetRuleResponse = {
 async function getRule(request: GetRuleRequest): GetRuleResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RPC', 'GetRule', 'POST', '/', 'json', false, 'json', request);
+}
+
+model GetTableRequest {
+  catalog?: string(name='Catalog', description='表所属的数据目录名称。可通过 ListCatalogs 获取', example='my_catalog', position='Query'),
+  clientToken?: string(name='ClientToken', description='用于保证请求幂等性的Token。建议使用 UUID', example='1e9b8f60-3a2c-4d7e-9f1b-8c3d5e7a2b4f', position='Body'),
+  name: string(name='Name', description='要查询的事件表名称。需同时指定所属 Catalog 和 Namespace。可通过 ListTables 获取已有表列表
+
+This parameter is required.', example='my_table', minLength=1, maxLength=127, position='Query'),
+  namespace?: string(name='Namespace', description='表所属的命名空间名称。可通过 ListNamespaces 获取', example='my_namespace', position='Query'),
+}
+
+model GetTableResponseBody = {
+  code?: string(name='Code', example='200'),
+  data?: Table(name='Data'),
+  message?: string(name='Message', example='Operation success'),
+  requestId?: string(name='RequestId', example='34AD682D-5B91-5773-8132-AA38C130****'),
+  success?: boolean(name='Success', example='true'),
+}
+
+model GetTableResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: GetTableResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of GetTable  GetTableRequest
+  * @return GetTableResponse
+ */
+async function getTable(request: GetTableRequest): GetTableResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'GetTable', 'POST', '/', 'json', true, 'form', request);
 }
 
 model ListAgentsRequest {
@@ -3743,6 +3984,40 @@ async function listApiDestinations(request: ListApiDestinationsRequest): ListApi
   return @handler.do('RPC', 'ListApiDestinations', 'POST', '/', 'json', false, 'json', request);
 }
 
+model ListCatalogsRequest {
+  limit?: int32(name='Limit', description='每页返回的最大数据条数。不传时默认 10，最大 100', example='10', position='Query'),
+  nextToken?: string(name='NextToken', description='分页查询的起始Token。首次查询不传或传 "0"；后续翻页使用上一次响应中返回的 NextToken 值', example='0', position='Query'),
+}
+
+model ListCatalogsResponseBody = {
+  code?: string(name='Code', example='200'),
+  data?: {
+    catalogs?: [
+      Catalog
+    ](name='Catalogs'),
+    nextToken?: string(name='NextToken', example='10'),
+    total?: int32(name='Total', example='1'),
+  }(name='Data'),
+  message?: string(name='Message', example='Operation success'),
+  requestId?: string(name='RequestId', example='34AD682D-5B91-5773-8132-AA38C130****'),
+  success?: boolean(name='Success', example='true'),
+}
+
+model ListCatalogsResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ListCatalogsResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of ListCatalogs  ListCatalogsRequest
+  * @return ListCatalogsResponse
+ */
+async function listCatalogs(request: ListCatalogsRequest): ListCatalogsResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'ListCatalogs', 'POST', '/', 'json', false, 'json', request);
+}
+
 model ListConnectionsRequest {
   connectionNamePrefix?: string(name='ConnectionNamePrefix', description='The key word that you specify to query connections. Connections can be queried by prefixes.', example='connection-name', position='Body'),
   maxResults?: long(name='MaxResults', description='The maximum number of entries to be returned in a single call. You can use this parameter and the NextToken parameter to implement paging.
@@ -3751,6 +4026,7 @@ model ListConnectionsRequest {
   nextToken?: string(name='NextToken', description='If you set the Limit parameter and excess return values exist, this parameter is returned.
 
 *   Default value: 0.', example='0', position='Body'),
+  type?: string(name='Type', description='按连接类型过滤查询结果。可选值：Http、MySQL、PostgreSQL、Elasticsearch。不传则返回所有类型', example='Http', position='Body'),
 }
 
 model ListConnectionsResponseBody = {
@@ -3819,6 +4095,8 @@ model ListConnectionsResponseBody = {
           vpcId?: string(name='VpcId', description='The VPC ID.', example='eb-test/vpc-bp1symadadwnwgmqud'),
           vswitcheId?: string(name='VswitcheId', description='The vSwitch ID.', example='vsw-bp1iu4x7aeradadown1og8,vsw-bp193sqmadadlaszpeqbt2c'),
         }(name='NetworkParameters', description='The parameters that are returned for the network.'),
+        parameters?: any(name='Parameters', description='数据源连接参数（JSON 对象）。仅数据源类型连接返回，Http 类型为空。字段定义参考 GetConnectionType 返回的 ParamsSchema', example='{"HostName":"xxx.mysql.rds.aliyuncs.com","Port":"3306","User":"root","Password":"xxx","DatabaseName":"demo_db"}'),
+        type?: string(name='Type', description='连接类型。可选值：Http、MySQL、PostgreSQL、Elasticsearch', example='Http'),
       }
     ](name='Connections', description='The connections.'),
     maxResults?: float(name='MaxResults', description='The number of entries returned per page.', example='10'),
@@ -4709,6 +4987,41 @@ async function listEventStreamings(request: ListEventStreamingsRequest): ListEve
   return @handler.do('RPC', 'ListEventStreamings', 'POST', '/', 'json', true, 'form', request);
 }
 
+model ListNamespacesRequest {
+  catalog?: string(name='Catalog', description='要查询的数据目录名称。可通过 ListCatalogs 接口获取', example='my_catalog', position='Query'),
+  limit?: int32(name='Limit', description='每页返回的最大数据条数。不传时默认 10，最大 100', example='10', position='Query'),
+  nextToken?: string(name='NextToken', description='分页查询的起始Token。首次查询不传或传 "0"；后续翻页使用上一次响应中返回的 NextToken 值', example='0', position='Query'),
+}
+
+model ListNamespacesResponseBody = {
+  code?: string(name='Code', example='200'),
+  data?: {
+    namespaces?: [
+      Namespace
+    ](name='Namespaces'),
+    nextToken?: string(name='NextToken', example='10'),
+    total?: int32(name='Total', example='1'),
+  }(name='Data'),
+  message?: string(name='Message', example='Operation success'),
+  requestId?: string(name='RequestId', example='34AD682D-5B91-5773-8132-AA38C130****'),
+  success?: boolean(name='Success', example='true'),
+}
+
+model ListNamespacesResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ListNamespacesResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of ListNamespaces  ListNamespacesRequest
+  * @return ListNamespacesResponse
+ */
+async function listNamespaces(request: ListNamespacesRequest): ListNamespacesResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'ListNamespaces', 'POST', '/', 'json', false, 'json', request);
+}
+
 model ListRulesRequest {
   eventBusName: string(name='EventBusName', description='The name of the event bus.
 
@@ -4776,6 +5089,42 @@ model ListRulesResponse = {
 async function listRules(request: ListRulesRequest): ListRulesResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RPC', 'ListRules', 'POST', '/', 'json', false, 'json', request);
+}
+
+model ListTablesRequest {
+  catalog?: string(name='Catalog', description='表所属的数据目录名称。可通过 ListCatalogs 获取', example='my_catalog', position='Query'),
+  limit?: int32(name='Limit', description='每页返回的最大数据条数。不传时默认 10，最大 100', example='10', position='Query'),
+  namespace?: string(name='Namespace', description='表所属的命名空间名称。可通过 ListNamespaces 获取', example='my_namespace', position='Query'),
+  nextToken?: string(name='NextToken', description='分页查询的起始Token。首次查询不传或传 "0"；后续翻页使用上一次响应中返回的 NextToken 值', example='0', position='Query'),
+}
+
+model ListTablesResponseBody = {
+  code?: string(name='Code', example='200'),
+  data?: {
+    nextToken?: string(name='NextToken', example='10'),
+    tables?: [
+      Table
+    ](name='Tables'),
+    total?: int32(name='Total', example='1'),
+  }(name='Data', example='{"Tables":[{"Name":"my_table","Comment":"测试事件表"}],"NextToken":"10","Total":1}'),
+  message?: string(name='Message', example='Operation success'),
+  requestId?: string(name='RequestId', example='34AD682D-5B91-5773-8132-AA38C130****'),
+  success?: boolean(name='Success', example='true'),
+}
+
+model ListTablesResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ListTablesResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of ListTables  ListTablesRequest
+  * @return ListTablesResponse
+ */
+async function listTables(request: ListTablesRequest): ListTablesResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'ListTables', 'POST', '/', 'json', false, 'json', request);
 }
 
 model ListTargetsRequest {
@@ -5194,6 +5543,39 @@ model QueryEventResponse = {
 async function queryEvent(request: QueryEventRequest): QueryEventResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RPC', 'QueryEvent', 'POST', '/', 'json', false, 'json', request);
+}
+
+model QueryEventHouseRequest {
+  limit?: int32(name='Limit', example='10', position='Query'),
+  query: string(name='Query', description='This parameter is required.', example='SELECT * FROM "test-es"."default"."product_info"', position='Query'),
+}
+
+model QueryEventHouseResponseBody = {
+  code?: string(name='Code', example='Success'),
+  data?: {
+    rows?: [
+      Row
+    ](name='Rows'),
+    total?: int32(name='Total', example='18'),
+  }(name='Data'),
+  message?: string(name='Message', example='Remote error. requestId: [xxxx], error code: [xxx], message: [The target in event rule is invalid! Endpoint is xxx'),
+  requestId?: string(name='RequestId', example='f2099962-1628-45f1-9782-2bf6daad823f'),
+  success?: boolean(name='Success', example='true'),
+}
+
+model QueryEventHouseResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: QueryEventHouseResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of QueryEventHouse  QueryEventHouseRequest
+  * @return QueryEventHouseResponse
+ */
+async function queryEventHouse(request: QueryEventHouseRequest): QueryEventHouseResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'QueryEventHouse', 'POST', '/', 'json', false, 'json', request);
 }
 
 model QueryEventTracesRequest {
@@ -5652,6 +6034,8 @@ This parameter is required.', example='PublicNetwork'),
   }(name='NetworkParameters', description='The parameters that are configured for the network.
 
 This parameter is required.', shrink='json', position='Query'),
+  parameters?: any(name='Parameters', description='数据源连接参数（JSON 对象）。具体字段定义请调用 GetConnectionType 接口，参考返回结果中的 ParamsSchema', example='{"HostName":"xxx.mysql.rds.aliyuncs.com","Port":"3306","User":"root","Password":"xxx","DatabaseName":"demo_db"}', shrink='json', position='Query'),
+  type?: string(name='Type', description='连接类型。可选值：MySQL、PostgreSQL、Elasticsearch、Http', example='Http', position='Query'),
 }
 
 model UpdateConnectionResponseBody = {
@@ -6928,6 +7312,40 @@ async function updateEventStreamingBusinessOption(request: UpdateEventStreamingB
   return @handler.do('RPC', 'UpdateEventStreamingBusinessOption', 'POST', '/', 'json', true, 'form', request);
 }
 
+model UpdateNamespaceRequest {
+  catalog?: string(name='Catalog', description='命名空间所属的数据目录名称。可通过 ListCatalogs 接口获取已有目录列表', example='my_catalog', position='Query'),
+  clientToken?: string(name='ClientToken', description='用于保证请求幂等性的Token，防止因网络重试导致重复操作。建议使用 UUID', example='1e9b8f60-3a2c-4d7e-9f1b-8c3d5e7a2b4f', position='Body'),
+  comment?: string(name='Comment', description='命名空间的备注描述信息。传空字符串可清除原有备注，无格式限制', example='更新后的备注', position='Query'),
+  name: string(name='Name', description='要修改的命名空间名称。名称本身不可修改，此处用于定位目标命名空间。需同时指定所属 Catalog。可通过 ListNamespaces 获取
+
+This parameter is required.', example='my_namespace', minLength=1, maxLength=127, position='Query'),
+}
+
+model UpdateNamespaceResponseBody = {
+  code?: string(name='Code', example='200'),
+  data?: {
+    namespaceARN?: string(name='NamespaceARN', example='acs:eventbridge:cn-hangzhou:123456789:catalog/my_catalog/namespace/my_namespace'),
+  }(name='Data'),
+  message?: string(name='Message', example='Operation success'),
+  requestId?: string(name='RequestId', example='34AD682D-5B91-5773-8132-AA38C130****'),
+  success?: boolean(name='Success', example='true'),
+}
+
+model UpdateNamespaceResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: UpdateNamespaceResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of UpdateNamespace  UpdateNamespaceRequest
+  * @return UpdateNamespaceResponse
+ */
+async function updateNamespace(request: UpdateNamespaceRequest): UpdateNamespaceResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'UpdateNamespace', 'POST', '/', 'json', true, 'form', request);
+}
+
 model UpdateRuleRequest {
   description?: string(name='Description', description='The description of the event bus.', example='demo', position='Query'),
   eventBusName: string(name='EventBusName', description='The name of the event bus.
@@ -6966,5 +7384,64 @@ model UpdateRuleResponse = {
 async function updateRule(request: UpdateRuleRequest): UpdateRuleResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RPC', 'UpdateRule', 'POST', '/', 'json', false, 'json', request);
+}
+
+model UpdateTableRequest {
+  addColumn?: {
+    comment?: string(name='Comment'),
+    name?: string(name='Name', example='kafka-default-agent-alikafka_pre-cn-28t3sfzno003'),
+    type?: string(name='Type', example='custom'),
+  }(name='AddColumn', description='新增列定义（JSON 对象）。包含 Name（列名，必填）、Type（数据类型，必填，如 STRING、INT32、INT64、FLOAT、DOUBLE、BOOLEAN、TIMESTAMP）、Comment（列备注，选填）。每次调用只能新增一列', example='{"Name":"id","Type":"bigint","Comment":"主键"}', shrink='json', position='Query'),
+  catalog?: string(name='Catalog', description='表所属的数据目录名称。可通过 ListCatalogs 获取', example='my_catalog', maxLength=255, position='Query'),
+  clientToken?: string(name='ClientToken', description='用于保证请求幂等性的Token。建议使用 UUID', example='1e9b8f60-3a2c-4d7e-9f1b-8c3d5e7a2b4f', position='Query'),
+  deleteColumn?: {
+    name?: string(name='Name', example='kafka-default-agent-alikafka_pre-cn-28t3sfzno003'),
+  }(name='DeleteColumn', description='删除列定义（JSON 对象）。包含 Name（要删除的列名，必填）。删除后不可恢复，已有数据中该列的值将丢失。每次调用只能删除一列', example='{"Name":"old_column"}', shrink='json', position='Query'),
+  name: string(name='Name', description='要修改的事件表名称。名称本身不可修改，此处用于定位目标表。需同时指定所属 Catalog 和 Namespace。可通过 ListTables 获取
+
+This parameter is required.', example='my_table', minLength=1, maxLength=127, position='Query'),
+  namespace?: string(name='Namespace', description='表所属的命名空间名称。可通过 ListNamespaces 获取', example='my_namespace', position='Query'),
+  renameColumn?: {
+    name?: string(name='Name', example='kafka-default-agent-alikafka_pre-cn-28t3sfzno003'),
+    newName?: string(name='NewName', example='fvt-oos-application-group-56ca74b000'),
+  }(name='RenameColumn', description='重命名列（JSON 对象）。包含 Name（原列名，必填）、NewName（新列名，必填）。每次调用只能重命名一列', example='{"Name":"old_name","NewName":"new_name"}', shrink='json', position='Query'),
+  updateColumnComment?: {
+    comment?: string(name='Comment'),
+    name?: string(name='Name', example='kafka-default-agent-alikafka_pre-cn-28t3sfzno003'),
+  }(name='UpdateColumnComment', description='修改列的备注信息（JSON 对象）。包含 Name（目标列名，必填）、Comment（新备注内容，必填，传空字符串可清除备注）。每次调用只能修改一列', example='{"Name":"id","Comment":"主键ID"}', shrink='json', position='Query'),
+  updateColumnType?: {
+    name?: string(name='Name', example='kafka-default-agent-alikafka_pre-cn-28t3sfzno003'),
+    type?: string(name='Type', example='PRIVATE'),
+  }(name='UpdateColumnType', description='修改列的数据类型（JSON 对象）。包含 Name（目标列名，必填）、Type（新数据类型，必填）。仅支持兼容类型转换，每次调用只能修改一列', example='{"Name":"id","Type":"bigint"}', shrink='json', position='Query'),
+  updateComment?: string(name='UpdateComment', description='修改表的备注描述。传入新的备注内容替换原有备注，传空字符串可清除备注', example='更新后的备注', position='Query'),
+  updateRetentionPolicy?: {
+    coldTTL?: int32(name='ColdTTL', example='17'),
+    hotTTL?: int32(name='HotTTL', example='7'),
+  }(name='UpdateRetentionPolicy', description='修改数据保留策略（JSON 对象）。包含 HotTTL（热数据保留天数）、ColdTTL（冷数据保留天数）。传入后会替换原有策略', example='{"HotTTL":7,"ColdTTL":30}', shrink='json', position='Query'),
+}
+
+model UpdateTableResponseBody = {
+  code?: string(name='Code', example='200'),
+  data?: {
+    tableARN?: string(name='TableARN', example='acs:eventbridge:cn-hangzhou:123456789:catalog/my_catalog/namespace/my_namespace/table/my_table'),
+  }(name='Data', example='{"TableARN":"acs:eventbridge:cn-hangzhou:123456789:catalog/my_catalog/namespace/my_namespace/table/my_table"}'),
+  message?: string(name='Message', example='Operation success'),
+  requestId?: string(name='RequestId', example='34AD682D-5B91-5773-8132-AA38C130****'),
+  success?: boolean(name='Success', example='true'),
+}
+
+model UpdateTableResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: UpdateTableResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of UpdateTable  UpdateTableRequest
+  * @return UpdateTableResponse
+ */
+async function updateTable(request: UpdateTableRequest): UpdateTableResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'UpdateTable', 'POST', '/', 'json', false, 'json', request);
 }
 

@@ -102,18 +102,19 @@ model BaiLianAgentTransformParameters {
 }
 
 model Catalog {
-  comment?: string(name='Comment'),
-  name?: string(name='Name'),
-  properties?: map[string]any(name='Properties'),
-  provider?: string(name='Provider'),
-  type?: string(name='Type'),
+  comment?: string(name='Comment', description='数据目录的备注描述信息', example='测试数据目录'),
+  connectionName?: string(name='ConnectionName', description='挂载类型 Catalog 关联的连接名称。仅 Provider 为 MySQL/PostgreSQL/Elasticsearch 时有值', example='my_connection'),
+  name?: string(name='Name', description='数据目录的唯一标识名称', example='my_catalog'),
+  properties?: map[string]any(name='Properties', description='扩展属性（JSON 对象）。Elasticsearch 类型包含 IndexPattern 等信息', example='{"IndexPattern":"my-index-*"}'),
+  provider?: string(name='Provider', description='数据源提供方。EventHouse 为内置存储，MySQL/PostgreSQL/Elasticsearch 为外部挂载', example='EventHouse'),
+  type?: string(name='Type', description='数据目录类型，如 RELATIONAL', example='RELATIONAL'),
 }
 
 model Column {
-  isNull?: boolean(name='IsNull'),
-  name?: string(name='Name'),
-  type?: string(name='Type'),
-  value?: string(name='Value'),
+  isNull?: boolean(name='IsNull', example='false'),
+  name?: string(name='Name', example='index'),
+  type?: string(name='Type', example='text'),
+  value?: string(name='Value', example='product_info'),
 }
 
 model Constraints {
@@ -191,10 +192,12 @@ model Metadata {
 }
 
 model Namespace {
-  catalog?: string(name='Catalog', description='This parameter is required.'),
-  comment?: string(name='Comment'),
-  name?: string(name='Name'),
-  properties?: string(name='properties'),
+  catalog?: string(name='Catalog', description='命名空间所属的数据目录名称
+
+This parameter is required.', example='my_catalog'),
+  comment?: string(name='Comment', description='命名空间的备注描述信息', example='测试命名空间'),
+  name?: string(name='Name', description='命名空间的唯一标识名称', example='my_namespace'),
+  properties?: string(name='properties', description='命名空间的扩展属性', example='{"key":"value"}'),
 }
 
 model QueryAskLumaLogResult {
@@ -453,23 +456,23 @@ model SourceRabbitMQMsgSyncParameters {
 }
 
 model Table {
-  catalog?: string(name='Catalog'),
+  catalog?: string(name='Catalog', description='表所属的数据目录名称', example='my_catalog'),
   columns?: [ 
     {
-      comment?: string(name='Comment'),
-      name?: string(name='Name'),
-      type?: string(name='Type'),
+      comment?: string(name='Comment', example='主键ID'),
+      name?: string(name='Name', example='id'),
+      type?: string(name='Type', example='bigint'),
     }
-  ](name='Columns'),
-  comment?: string(name='Comment'),
-  createTime?: long(name='CreateTime'),
-  name?: string(name='Name'),
-  namespace?: string(name='Namespace'),
+  ](name='Columns', description='表的列定义列表。每列包含 Name（列名）、Type（数据类型）、Comment（备注）', example='[{"Name":"id","Type":"bigint","Comment":"主键"}]'),
+  comment?: string(name='Comment', description='表的备注描述信息', example='测试事件表'),
+  createTime?: long(name='CreateTime', description='表的创建时间（Unix 时间戳，毫秒）', example='1717948800000'),
+  name?: string(name='Name', description='事件表的唯一标识名称', example='my_table'),
+  namespace?: string(name='Namespace', description='表所属的命名空间名称', example='my_namespace'),
   retentionPolicy?: {
-    coldTTL?: int32(name='ColdTTL'),
-    hotTTL?: int32(name='HotTTL'),
-  }(name='RetentionPolicy'),
-  updateTime?: long(name='UpdateTime'),
+    coldTTL?: int32(name='ColdTTL', description='冷数据保留天数，低成本归档存储', example='30'),
+    hotTTL?: int32(name='HotTTL', description='热数据保留天数，高性能查询存储', example='7'),
+  }(name='RetentionPolicy', description='数据保留策略。包含热数据和冷数据的保留天数'),
+  updateTime?: long(name='UpdateTime', description='表的最后更新时间（Unix 时间戳，毫秒）', example='1717948800000'),
 }
 
 model AskLumaRequest {
@@ -892,6 +895,8 @@ This parameter is required.', example='PublicNetwork'),
   }(name='NetworkParameters', description='The parameters that are configured for the network.
 
 This parameter is required.'),
+  parameters?: any(name='Parameters', description='数据源连接参数（JSON 对象），Type 为数据源类型时必填，Http 类型不需要。具体字段定义请调用 GetConnectionType 接口，参考返回结果中的 ParamsSchema', example='{"HostName":"xxx.mysql.rds.aliyuncs.com","Port":"3306","User":"root","Password":"xxx","DatabaseName":"demo_db"}'),
+  type?: string(name='Type', description='连接类型。可选值：MySQL、PostgreSQL、Elasticsearch、Http。数据源类型连接必填，不传默认为 Http。Http 类型用于 API Destination 等 HTTP 协议目标；数据源类型用于集成广场的数据连接', example='Http'),
 }
 
 model CreateConnectionShrinkRequest {
@@ -903,6 +908,8 @@ This parameter is required.', example='connection-name'),
   networkParametersShrink?: string(name='NetworkParameters', description='The parameters that are configured for the network.
 
 This parameter is required.'),
+  parametersShrink?: string(name='Parameters', description='数据源连接参数（JSON 对象），Type 为数据源类型时必填，Http 类型不需要。具体字段定义请调用 GetConnectionType 接口，参考返回结果中的 ParamsSchema', example='{"HostName":"xxx.mysql.rds.aliyuncs.com","Port":"3306","User":"root","Password":"xxx","DatabaseName":"demo_db"}'),
+  type?: string(name='Type', description='连接类型。可选值：MySQL、PostgreSQL、Elasticsearch、Http。数据源类型连接必填，不传默认为 Http。Http 类型用于 API Destination 等 HTTP 协议目标；数据源类型用于集成广场的数据连接', example='Http'),
 }
 
 model CreateConnectionResponseBody = {
@@ -940,6 +947,9 @@ async function createConnectionWithOptions(tmpReq: CreateConnectionRequest, runt
   if (!$isNull(tmpReq.networkParameters)) {
     request.networkParametersShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.networkParameters, 'NetworkParameters', 'json');
   }
+  if (!$isNull(tmpReq.parameters)) {
+    request.parametersShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.parameters, 'Parameters', 'json');
+  }
   var query = {};
   if (!$isNull(request.authParametersShrink)) {
     query['AuthParameters'] = request.authParametersShrink;
@@ -952,6 +962,12 @@ async function createConnectionWithOptions(tmpReq: CreateConnectionRequest, runt
   }
   if (!$isNull(request.networkParametersShrink)) {
     query['NetworkParameters'] = request.networkParametersShrink;
+  }
+  if (!$isNull(request.parametersShrink)) {
+    query['Parameters'] = request.parametersShrink;
+  }
+  if (!$isNull(request.type)) {
+    query['Type'] = request.type;
   }
   var req = new OpenApiUtil.OpenApiRequest{ 
     query = OpenApiUtil.query(query),
@@ -2376,6 +2392,84 @@ async function createEventStreaming(request: CreateEventStreamingRequest): Creat
   return createEventStreamingWithOptions(request, runtime);
 }
 
+model CreateNamespaceRequest {
+  catalog?: string(name='Catalog', description='命名空间所属的数据目录名称。可通过 ListCatalogs 接口获取已有目录列表', example='my_catalog'),
+  clientToken?: string(name='ClientToken', description='用于保证请求幂等性的Token', example='1e9b8f60-3a2c-4d7e-9f1b-8c3d5e7a2b4f'),
+  comment?: string(name='Comment', description='命名空间的备注描述信息', example='测试命名空间'),
+  name?: string(name='Name', description='命名空间名称，在同一数据目录下唯一。以字母或数字开头，支持字母、数字、下划线和短横线，长度1~127
+
+This parameter is required.', example='my_namespace'),
+}
+
+model CreateNamespaceResponseBody = {
+  code?: string(name='Code', example='200'),
+  data?: {
+    namespaceARN?: string(name='NamespaceARN', example='acs:eventbridge:cn-hangzhou:123456789:catalog/my_catalog/namespace/my_namespace'),
+  }(name='Data'),
+  message?: string(name='Message', example='Operation success'),
+  requestId?: string(name='RequestId', example='34AD682D-5B91-5773-8132-AA38C130****'),
+  success?: boolean(name='Success', example='true'),
+}
+
+model CreateNamespaceResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: CreateNamespaceResponseBody(name='body'),
+}
+
+/**
+ * @summary 创建命名空间
+ *
+ * @param request CreateNamespaceRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return CreateNamespaceResponse
+ */
+@context("createNamespaceWithContext")
+async function createNamespaceWithOptions(request: CreateNamespaceRequest, runtime: $RuntimeOptions): CreateNamespaceResponse {
+  request.validate();
+  var query = {};
+  if (!$isNull(request.catalog)) {
+    query['Catalog'] = request.catalog;
+  }
+  if (!$isNull(request.comment)) {
+    query['Comment'] = request.comment;
+  }
+  if (!$isNull(request.name)) {
+    query['Name'] = request.name;
+  }
+  var body : map[string]any = {};
+  if (!$isNull(request.clientToken)) {
+    body['ClientToken'] = request.clientToken;
+  }
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'CreateNamespace',
+    version = '2020-04-01',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 创建命名空间
+ *
+ * @param request CreateNamespaceRequest
+ * @return CreateNamespaceResponse
+ */
+async function createNamespace(request: CreateNamespaceRequest): CreateNamespaceResponse {
+  var runtime = new $RuntimeOptions{};
+  return createNamespaceWithOptions(request, runtime);
+}
+
 model CreateRuleRequest {
   description?: string(name='Description', description='The description of the event bus.'),
   eventBusName?: string(name='EventBusName', description='The name of the event bus.
@@ -2604,6 +2698,123 @@ async function createServiceLinkedRoleForProductWithOptions(request: CreateServi
 async function createServiceLinkedRoleForProduct(request: CreateServiceLinkedRoleForProductRequest): CreateServiceLinkedRoleForProductResponse {
   var runtime = new $RuntimeOptions{};
   return createServiceLinkedRoleForProductWithOptions(request, runtime);
+}
+
+model CreateTableRequest {
+  catalog?: string(name='Catalog', description='表所属的数据目录名称。可通过 ListCatalogs 获取已有目录列表', example='my_catalog'),
+  clientToken?: string(name='ClientToken', description='用于保证请求幂等性的Token，防止因网络重试导致重复创建。建议使用 UUID', example='1e9b8f60-3a2c-4d7e-9f1b-8c3d5e7a2b4f'),
+  columns?: [ 
+    {
+      comment?: string(name='Comment', example='Isp'),
+      name?: string(name='Name', example='kafka-default-agent-alikafka_pre-cn-28t3sfzno003'),
+      type?: string(name='Type', example='ehpc_cluster'),
+    }
+  ](name='Columns', description='表的列定义（JSON 数组）。每列包含 Name（列名，必填）、Type（数据类型，必填，如 STRING、INT32、INT64、FLOAT、DOUBLE、BOOLEAN、TIMESTAMP）、Comment（列备注，选填）', example='[{"Name":"id","Type":"bigint","Comment":"主键"}]'),
+  comment?: string(name='Comment', description='表的备注描述信息，无格式限制', example='测试事件表'),
+  name?: string(name='Name', description='事件表名称。以字母或数字开头，支持字母、数字、下划线和短横线，长度1~127。在同一命名空间下唯一
+
+This parameter is required.', example='my_table'),
+  namespace?: string(name='Namespace', description='表所属的命名空间名称。可通过 ListNamespaces 获取已有命名空间列表', example='my_namespace'),
+  retentionPolicy?: {
+    coldTTL?: int32(name='ColdTTL', example='30'),
+    hotTTL?: int32(name='HotTTL', example='30'),
+  }(name='RetentionPolicy', description='数据保留策略（JSON 对象）。包含 HotTTL（热数据保留天数，高性能查询）和 ColdTTL（冷数据保留天数，低成本存储）。不传则使用系统默认值', example='{"HotTTL":7,"ColdTTL":30}'),
+}
+
+model CreateTableShrinkRequest {
+  catalog?: string(name='Catalog', description='表所属的数据目录名称。可通过 ListCatalogs 获取已有目录列表', example='my_catalog'),
+  clientToken?: string(name='ClientToken', description='用于保证请求幂等性的Token，防止因网络重试导致重复创建。建议使用 UUID', example='1e9b8f60-3a2c-4d7e-9f1b-8c3d5e7a2b4f'),
+  columnsShrink?: string(name='Columns', description='表的列定义（JSON 数组）。每列包含 Name（列名，必填）、Type（数据类型，必填，如 STRING、INT32、INT64、FLOAT、DOUBLE、BOOLEAN、TIMESTAMP）、Comment（列备注，选填）', example='[{"Name":"id","Type":"bigint","Comment":"主键"}]'),
+  comment?: string(name='Comment', description='表的备注描述信息，无格式限制', example='测试事件表'),
+  name?: string(name='Name', description='事件表名称。以字母或数字开头，支持字母、数字、下划线和短横线，长度1~127。在同一命名空间下唯一
+
+This parameter is required.', example='my_table'),
+  namespace?: string(name='Namespace', description='表所属的命名空间名称。可通过 ListNamespaces 获取已有命名空间列表', example='my_namespace'),
+  retentionPolicyShrink?: string(name='RetentionPolicy', description='数据保留策略（JSON 对象）。包含 HotTTL（热数据保留天数，高性能查询）和 ColdTTL（冷数据保留天数，低成本存储）。不传则使用系统默认值', example='{"HotTTL":7,"ColdTTL":30}'),
+}
+
+model CreateTableResponseBody = {
+  code?: string(name='Code', example='200'),
+  data?: {
+    tableARN?: string(name='TableARN', example='acs:eventbridge:cn-hangzhou:123456789:catalog/my_catalog/namespace/my_namespace/table/my_table'),
+  }(name='Data', example='{"TableARN":"acs:eventbridge:cn-hangzhou:123456789:catalog/my_catalog/namespace/my_namespace/table/my_table"}'),
+  message?: string(name='Message', example='Operation success'),
+  requestId?: string(name='RequestId', example='34AD682D-5B91-5773-8132-AA38C130****'),
+  success?: boolean(name='Success', example='true'),
+}
+
+model CreateTableResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: CreateTableResponseBody(name='body'),
+}
+
+/**
+ * @summary 创建表
+ *
+ * @param tmpReq CreateTableRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return CreateTableResponse
+ */
+@context("createTableWithContext")
+async function createTableWithOptions(tmpReq: CreateTableRequest, runtime: $RuntimeOptions): CreateTableResponse {
+  tmpReq.validate();
+  var request = new CreateTableShrinkRequest{};
+  OpenApiUtil.convert(tmpReq, request);
+  if (!$isNull(tmpReq.columns)) {
+    request.columnsShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.columns, 'Columns', 'json');
+  }
+  if (!$isNull(tmpReq.retentionPolicy)) {
+    request.retentionPolicyShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.retentionPolicy, 'RetentionPolicy', 'json');
+  }
+  var query = {};
+  if (!$isNull(request.catalog)) {
+    query['Catalog'] = request.catalog;
+  }
+  if (!$isNull(request.clientToken)) {
+    query['ClientToken'] = request.clientToken;
+  }
+  if (!$isNull(request.columnsShrink)) {
+    query['Columns'] = request.columnsShrink;
+  }
+  if (!$isNull(request.comment)) {
+    query['Comment'] = request.comment;
+  }
+  if (!$isNull(request.name)) {
+    query['Name'] = request.name;
+  }
+  if (!$isNull(request.namespace)) {
+    query['Namespace'] = request.namespace;
+  }
+  if (!$isNull(request.retentionPolicyShrink)) {
+    query['RetentionPolicy'] = request.retentionPolicyShrink;
+  }
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'CreateTable',
+    version = '2020-04-01',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 创建表
+ *
+ * @param request CreateTableRequest
+ * @return CreateTableResponse
+ */
+async function createTable(request: CreateTableRequest): CreateTableResponse {
+  var runtime = new $RuntimeOptions{};
+  return createTableWithOptions(request, runtime);
 }
 
 model DeleteAgentRequest {
@@ -2992,6 +3203,77 @@ async function deleteEventStreaming(request: DeleteEventStreamingRequest): Delet
   return deleteEventStreamingWithOptions(request, runtime);
 }
 
+model DeleteNamespaceRequest {
+  catalog?: string(name='Catalog', description='命名空间所属的数据目录名称。可通过 ListCatalogs 接口获取已有目录列表', example='my_catalog'),
+  clientToken?: string(name='ClientToken', description='用于保证请求幂等性的Token。建议使用 UUID', example='1e9b8f60-3a2c-4d7e-9f1b-8c3d5e7a2b4f'),
+  name?: string(name='Name', description='要删除的命名空间名称。删除后不可恢复，命名空间下的所有表会一并删除。需同时指定所属 Catalog。可通过 ListNamespaces 获取
+
+This parameter is required.', example='my_namespace'),
+}
+
+model DeleteNamespaceResponseBody = {
+  code?: string(name='Code', example='200'),
+  message?: string(name='Message', example='Operation success'),
+  requestId?: string(name='RequestId', example='34AD682D-5B91-5773-8132-AA38C130****'),
+  success?: boolean(name='Success', example='true'),
+}
+
+model DeleteNamespaceResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: DeleteNamespaceResponseBody(name='body'),
+}
+
+/**
+ * @summary 删除命名空间
+ *
+ * @param request DeleteNamespaceRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return DeleteNamespaceResponse
+ */
+@context("deleteNamespaceWithContext")
+async function deleteNamespaceWithOptions(request: DeleteNamespaceRequest, runtime: $RuntimeOptions): DeleteNamespaceResponse {
+  request.validate();
+  var query = {};
+  if (!$isNull(request.catalog)) {
+    query['Catalog'] = request.catalog;
+  }
+  if (!$isNull(request.name)) {
+    query['Name'] = request.name;
+  }
+  var body : map[string]any = {};
+  if (!$isNull(request.clientToken)) {
+    body['ClientToken'] = request.clientToken;
+  }
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'DeleteNamespace',
+    version = '2020-04-01',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 删除命名空间
+ *
+ * @param request DeleteNamespaceRequest
+ * @return DeleteNamespaceResponse
+ */
+async function deleteNamespace(request: DeleteNamespaceRequest): DeleteNamespaceResponse {
+  var runtime = new $RuntimeOptions{};
+  return deleteNamespaceWithOptions(request, runtime);
+}
+
 model DeleteRuleRequest {
   eventBusName?: string(name='EventBusName', description='The name of the event bus.
 
@@ -3061,6 +3343,81 @@ async function deleteRuleWithOptions(request: DeleteRuleRequest, runtime: $Runti
 async function deleteRule(request: DeleteRuleRequest): DeleteRuleResponse {
   var runtime = new $RuntimeOptions{};
   return deleteRuleWithOptions(request, runtime);
+}
+
+model DeleteTableRequest {
+  catalog?: string(name='Catalog', description='表所属的数据目录名称。可通过 ListCatalogs 获取', example='my_catalog'),
+  clientToken?: string(name='ClientToken', description='用于保证请求幂等性的Token。建议使用 UUID', example='1e9b8f60-3a2c-4d7e-9f1b-8c3d5e7a2b4f'),
+  name?: string(name='Name', description='要删除的事件表名称。删除后不可恢复，表中的所有数据将被永久清除。需同时指定所属 Catalog 和 Namespace。可通过 ListTables 获取
+
+This parameter is required.', example='my_table'),
+  namespace?: string(name='Namespace', description='表所属的命名空间名称。可通过 ListNamespaces 获取', example='my_namespace'),
+}
+
+model DeleteTableResponseBody = {
+  code?: string(name='Code', example='200'),
+  message?: string(name='Message', example='Operation success'),
+  requestId?: string(name='RequestId', example='34AD682D-5B91-5773-8132-AA38C130****'),
+  success?: boolean(name='Success', example='true'),
+}
+
+model DeleteTableResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: DeleteTableResponseBody(name='body'),
+}
+
+/**
+ * @summary 删除表
+ *
+ * @param request DeleteTableRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return DeleteTableResponse
+ */
+@context("deleteTableWithContext")
+async function deleteTableWithOptions(request: DeleteTableRequest, runtime: $RuntimeOptions): DeleteTableResponse {
+  request.validate();
+  var query = {};
+  if (!$isNull(request.catalog)) {
+    query['Catalog'] = request.catalog;
+  }
+  if (!$isNull(request.name)) {
+    query['Name'] = request.name;
+  }
+  if (!$isNull(request.namespace)) {
+    query['Namespace'] = request.namespace;
+  }
+  var body : map[string]any = {};
+  if (!$isNull(request.clientToken)) {
+    body['ClientToken'] = request.clientToken;
+  }
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'DeleteTable',
+    version = '2020-04-01',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 删除表
+ *
+ * @param request DeleteTableRequest
+ * @return DeleteTableResponse
+ */
+async function deleteTable(request: DeleteTableRequest): DeleteTableResponse {
+  var runtime = new $RuntimeOptions{};
+  return deleteTableWithOptions(request, runtime);
 }
 
 model DeleteTargetsRequest {
@@ -3713,6 +4070,74 @@ async function getApiDestination(request: GetApiDestinationRequest): GetApiDesti
   return getApiDestinationWithOptions(request, runtime);
 }
 
+model GetCatalogRequest {
+  clientToken?: string(name='ClientToken', description='用于保证请求幂等性的Token。建议使用 UUID', example='1e9b8f60-3a2c-4d7e-9f1b-8c3d5e7a2b4f'),
+  name?: string(name='Name', description='要查询的数据目录名称。可通过 ListCatalogs 接口获取已有目录列表
+
+This parameter is required.', example='my_catalog'),
+}
+
+model GetCatalogResponseBody = {
+  code?: string(name='Code', example='200'),
+  data?: Catalog(name='Data'),
+  message?: string(name='Message', example='Operation success'),
+  requestId?: string(name='RequestId', example='34AD682D-5B91-5773-8132-AA38C130****'),
+  success?: boolean(name='Success', example='true'),
+}
+
+model GetCatalogResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: GetCatalogResponseBody(name='body'),
+}
+
+/**
+ * @summary 获取指定数据目录的详细信息，包括目录名称和描述。传入Name即可查询。
+ *
+ * @param request GetCatalogRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return GetCatalogResponse
+ */
+@context("getCatalogWithContext")
+async function getCatalogWithOptions(request: GetCatalogRequest, runtime: $RuntimeOptions): GetCatalogResponse {
+  request.validate();
+  var query = {};
+  if (!$isNull(request.name)) {
+    query['Name'] = request.name;
+  }
+  var body : map[string]any = {};
+  if (!$isNull(request.clientToken)) {
+    body['ClientToken'] = request.clientToken;
+  }
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'GetCatalog',
+    version = '2020-04-01',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 获取指定数据目录的详细信息，包括目录名称和描述。传入Name即可查询。
+ *
+ * @param request GetCatalogRequest
+ * @return GetCatalogResponse
+ */
+async function getCatalog(request: GetCatalogRequest): GetCatalogResponse {
+  var runtime = new $RuntimeOptions{};
+  return getCatalogWithOptions(request, runtime);
+}
+
 model GetConnectionRequest {
   connectionName?: string(name='ConnectionName', description='The connection name.
 
@@ -3785,6 +4210,8 @@ model GetConnectionResponseBody = {
           vpcId?: string(name='VpcId', description='The VPC ID.', example='eb-test/vpc-bp1symadadwnwg****'),
           vswitcheId?: string(name='VswitcheId', description='The vSwitch ID.', example='vsw-bp1iu4x7aeradadown****,vsw-bp193sqmadadlaszpeq****'),
         }(name='NetworkParameters', description='The information about the network.'),
+        parameters?: any(name='Parameters', description='数据源连接参数（JSON 对象）。仅数据源类型连接返回，Http 类型为空。字段定义参考 GetConnectionType 返回的 ParamsSchema', example='{"HostName":"xxx.mysql.rds.aliyuncs.com","Port":"3306","User":"root","Password":"xxx","DatabaseName":"demo_db"}'),
+        type?: string(name='Type', description='连接类型。可选值：Http、MySQL、PostgreSQL、Elasticsearch', example='Http'),
       }
     ](name='Connections', description='The queried connections.'),
   }(name='Data', description='The returned data.'),
@@ -4811,6 +5238,78 @@ async function getEventStreaming(request: GetEventStreamingRequest): GetEventStr
   return getEventStreamingWithOptions(request, runtime);
 }
 
+model GetNamespaceRequest {
+  catalog?: string(name='Catalog', description='命名空间所属的数据目录名称。可通过 ListCatalogs 接口获取已有目录列表', example='my_catalog'),
+  clientToken?: string(name='ClientToken', description='用于保证请求幂等性的Token。建议使用 UUID', example='1e9b8f60-3a2c-4d7e-9f1b-8c3d5e7a2b4f'),
+  name?: string(name='Name', description='要查询的命名空间名称。需同时指定所属 Catalog。可通过 ListNamespaces 获取已有命名空间列表
+
+This parameter is required.', example='my_namespace'),
+}
+
+model GetNamespaceResponseBody = {
+  code?: string(name='Code', example='200'),
+  data?: Namespace(name='Data'),
+  message?: string(name='Message', example='Operation success'),
+  requestId?: string(name='RequestId', example='34AD682D-5B91-5773-8132-AA38C130****'),
+  success?: boolean(name='Success', example='true'),
+}
+
+model GetNamespaceResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: GetNamespaceResponseBody(name='body'),
+}
+
+/**
+ * @summary 获取指定命名空间的详细信息。需传入Catalog和Name。
+ *
+ * @param request GetNamespaceRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return GetNamespaceResponse
+ */
+@context("getNamespaceWithContext")
+async function getNamespaceWithOptions(request: GetNamespaceRequest, runtime: $RuntimeOptions): GetNamespaceResponse {
+  request.validate();
+  var query = {};
+  if (!$isNull(request.catalog)) {
+    query['Catalog'] = request.catalog;
+  }
+  if (!$isNull(request.name)) {
+    query['Name'] = request.name;
+  }
+  var body : map[string]any = {};
+  if (!$isNull(request.clientToken)) {
+    body['ClientToken'] = request.clientToken;
+  }
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'GetNamespace',
+    version = '2020-04-01',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 获取指定命名空间的详细信息。需传入Catalog和Name。
+ *
+ * @param request GetNamespaceRequest
+ * @return GetNamespaceResponse
+ */
+async function getNamespace(request: GetNamespaceRequest): GetNamespaceResponse {
+  var runtime = new $RuntimeOptions{};
+  return getNamespaceWithOptions(request, runtime);
+}
+
 model GetRuleRequest {
   eventBusName?: string(name='EventBusName', description='The name of the event bus.
 
@@ -4920,6 +5419,82 @@ async function getRuleWithOptions(request: GetRuleRequest, runtime: $RuntimeOpti
 async function getRule(request: GetRuleRequest): GetRuleResponse {
   var runtime = new $RuntimeOptions{};
   return getRuleWithOptions(request, runtime);
+}
+
+model GetTableRequest {
+  catalog?: string(name='Catalog', description='表所属的数据目录名称。可通过 ListCatalogs 获取', example='my_catalog'),
+  clientToken?: string(name='ClientToken', description='用于保证请求幂等性的Token。建议使用 UUID', example='1e9b8f60-3a2c-4d7e-9f1b-8c3d5e7a2b4f'),
+  name?: string(name='Name', description='要查询的事件表名称。需同时指定所属 Catalog 和 Namespace。可通过 ListTables 获取已有表列表
+
+This parameter is required.', example='my_table'),
+  namespace?: string(name='Namespace', description='表所属的命名空间名称。可通过 ListNamespaces 获取', example='my_namespace'),
+}
+
+model GetTableResponseBody = {
+  code?: string(name='Code', example='200'),
+  data?: Table(name='Data'),
+  message?: string(name='Message', example='Operation success'),
+  requestId?: string(name='RequestId', example='34AD682D-5B91-5773-8132-AA38C130****'),
+  success?: boolean(name='Success', example='true'),
+}
+
+model GetTableResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: GetTableResponseBody(name='body'),
+}
+
+/**
+ * @summary 获取指定数据表的完整结构，包括所有列的名称、类型和描述。在编写查询前调用此工具了解表结构。
+ *
+ * @param request GetTableRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return GetTableResponse
+ */
+@context("getTableWithContext")
+async function getTableWithOptions(request: GetTableRequest, runtime: $RuntimeOptions): GetTableResponse {
+  request.validate();
+  var query = {};
+  if (!$isNull(request.catalog)) {
+    query['Catalog'] = request.catalog;
+  }
+  if (!$isNull(request.name)) {
+    query['Name'] = request.name;
+  }
+  if (!$isNull(request.namespace)) {
+    query['Namespace'] = request.namespace;
+  }
+  var body : map[string]any = {};
+  if (!$isNull(request.clientToken)) {
+    body['ClientToken'] = request.clientToken;
+  }
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'GetTable',
+    version = '2020-04-01',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 获取指定数据表的完整结构，包括所有列的名称、类型和描述。在编写查询前调用此工具了解表结构。
+ *
+ * @param request GetTableRequest
+ * @return GetTableResponse
+ */
+async function getTable(request: GetTableRequest): GetTableResponse {
+  var runtime = new $RuntimeOptions{};
+  return getTableWithOptions(request, runtime);
 }
 
 model ListAgentsRequest {
@@ -5177,6 +5752,76 @@ async function listApiDestinations(request: ListApiDestinationsRequest): ListApi
   return listApiDestinationsWithOptions(request, runtime);
 }
 
+model ListCatalogsRequest {
+  limit?: int32(name='Limit', description='每页返回的最大数据条数。不传时默认 10，最大 100', example='10'),
+  nextToken?: string(name='NextToken', description='分页查询的起始Token。首次查询不传或传 "0"；后续翻页使用上一次响应中返回的 NextToken 值', example='0'),
+}
+
+model ListCatalogsResponseBody = {
+  code?: string(name='Code', example='200'),
+  data?: {
+    catalogs?: [
+      Catalog
+    ](name='Catalogs'),
+    nextToken?: string(name='NextToken', example='10'),
+    total?: int32(name='Total', example='1'),
+  }(name='Data'),
+  message?: string(name='Message', example='Operation success'),
+  requestId?: string(name='RequestId', example='34AD682D-5B91-5773-8132-AA38C130****'),
+  success?: boolean(name='Success', example='true'),
+}
+
+model ListCatalogsResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ListCatalogsResponseBody(name='body'),
+}
+
+/**
+ * @summary 列出当前Agent可访问的所有数据目录。每个Catalog是一个独立的数据源，内含多个命名空间和表。支持分页。
+ *
+ * @param request ListCatalogsRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return ListCatalogsResponse
+ */
+@context("listCatalogsWithContext")
+async function listCatalogsWithOptions(request: ListCatalogsRequest, runtime: $RuntimeOptions): ListCatalogsResponse {
+  request.validate();
+  var query = {};
+  if (!$isNull(request.limit)) {
+    query['Limit'] = request.limit;
+  }
+  if (!$isNull(request.nextToken)) {
+    query['NextToken'] = request.nextToken;
+  }
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'ListCatalogs',
+    version = '2020-04-01',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 列出当前Agent可访问的所有数据目录。每个Catalog是一个独立的数据源，内含多个命名空间和表。支持分页。
+ *
+ * @param request ListCatalogsRequest
+ * @return ListCatalogsResponse
+ */
+async function listCatalogs(request: ListCatalogsRequest): ListCatalogsResponse {
+  var runtime = new $RuntimeOptions{};
+  return listCatalogsWithOptions(request, runtime);
+}
+
 model ListConnectionsRequest {
   connectionNamePrefix?: string(name='ConnectionNamePrefix', description='The key word that you specify to query connections. Connections can be queried by prefixes.', example='connection-name'),
   maxResults?: long(name='MaxResults', description='The maximum number of entries to be returned in a single call. You can use this parameter and the NextToken parameter to implement paging.
@@ -5185,6 +5830,7 @@ model ListConnectionsRequest {
   nextToken?: string(name='NextToken', description='If you set the Limit parameter and excess return values exist, this parameter is returned.
 
 *   Default value: 0.', example='0'),
+  type?: string(name='Type', description='按连接类型过滤查询结果。可选值：Http、MySQL、PostgreSQL、Elasticsearch。不传则返回所有类型', example='Http'),
 }
 
 model ListConnectionsResponseBody = {
@@ -5253,6 +5899,8 @@ model ListConnectionsResponseBody = {
           vpcId?: string(name='VpcId', description='The VPC ID.', example='eb-test/vpc-bp1symadadwnwgmqud'),
           vswitcheId?: string(name='VswitcheId', description='The vSwitch ID.', example='vsw-bp1iu4x7aeradadown1og8,vsw-bp193sqmadadlaszpeqbt2c'),
         }(name='NetworkParameters', description='The parameters that are returned for the network.'),
+        parameters?: any(name='Parameters', description='数据源连接参数（JSON 对象）。仅数据源类型连接返回，Http 类型为空。字段定义参考 GetConnectionType 返回的 ParamsSchema', example='{"HostName":"xxx.mysql.rds.aliyuncs.com","Port":"3306","User":"root","Password":"xxx","DatabaseName":"demo_db"}'),
+        type?: string(name='Type', description='连接类型。可选值：Http、MySQL、PostgreSQL、Elasticsearch', example='Http'),
       }
     ](name='Connections', description='The connections.'),
     maxResults?: float(name='MaxResults', description='The number of entries returned per page.', example='10'),
@@ -5290,6 +5938,9 @@ async function listConnectionsWithOptions(request: ListConnectionsRequest, runti
   }
   if (!$isNull(request.nextToken)) {
     body['NextToken'] = request.nextToken;
+  }
+  if (!$isNull(request.type)) {
+    body['Type'] = request.type;
   }
   var req = new OpenApiUtil.OpenApiRequest{ 
     body = OpenApiUtil.parseToMap(body),
@@ -6277,6 +6928,80 @@ async function listEventStreamings(request: ListEventStreamingsRequest): ListEve
   return listEventStreamingsWithOptions(request, runtime);
 }
 
+model ListNamespacesRequest {
+  catalog?: string(name='Catalog', description='要查询的数据目录名称。可通过 ListCatalogs 接口获取', example='my_catalog'),
+  limit?: int32(name='Limit', description='每页返回的最大数据条数。不传时默认 10，最大 100', example='10'),
+  nextToken?: string(name='NextToken', description='分页查询的起始Token。首次查询不传或传 "0"；后续翻页使用上一次响应中返回的 NextToken 值', example='0'),
+}
+
+model ListNamespacesResponseBody = {
+  code?: string(name='Code', example='200'),
+  data?: {
+    namespaces?: [
+      Namespace
+    ](name='Namespaces'),
+    nextToken?: string(name='NextToken', example='10'),
+    total?: int32(name='Total', example='1'),
+  }(name='Data'),
+  message?: string(name='Message', example='Operation success'),
+  requestId?: string(name='RequestId', example='34AD682D-5B91-5773-8132-AA38C130****'),
+  success?: boolean(name='Success', example='true'),
+}
+
+model ListNamespacesResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ListNamespacesResponseBody(name='body'),
+}
+
+/**
+ * @summary 列出指定数据目录下的所有命名空间。命名空间用于组织同一目录内的表，类似数据库中的schema。支持分页。
+ *
+ * @param request ListNamespacesRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return ListNamespacesResponse
+ */
+@context("listNamespacesWithContext")
+async function listNamespacesWithOptions(request: ListNamespacesRequest, runtime: $RuntimeOptions): ListNamespacesResponse {
+  request.validate();
+  var query = {};
+  if (!$isNull(request.catalog)) {
+    query['Catalog'] = request.catalog;
+  }
+  if (!$isNull(request.limit)) {
+    query['Limit'] = request.limit;
+  }
+  if (!$isNull(request.nextToken)) {
+    query['NextToken'] = request.nextToken;
+  }
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'ListNamespaces',
+    version = '2020-04-01',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 列出指定数据目录下的所有命名空间。命名空间用于组织同一目录内的表，类似数据库中的schema。支持分页。
+ *
+ * @param request ListNamespacesRequest
+ * @return ListNamespacesResponse
+ */
+async function listNamespaces(request: ListNamespacesRequest): ListNamespacesResponse {
+  var runtime = new $RuntimeOptions{};
+  return listNamespacesWithOptions(request, runtime);
+}
+
 model ListRulesRequest {
   eventBusName?: string(name='EventBusName', description='The name of the event bus.
 
@@ -6389,6 +7114,84 @@ async function listRulesWithOptions(request: ListRulesRequest, runtime: $Runtime
 async function listRules(request: ListRulesRequest): ListRulesResponse {
   var runtime = new $RuntimeOptions{};
   return listRulesWithOptions(request, runtime);
+}
+
+model ListTablesRequest {
+  catalog?: string(name='Catalog', description='表所属的数据目录名称。可通过 ListCatalogs 获取', example='my_catalog'),
+  limit?: int32(name='Limit', description='每页返回的最大数据条数。不传时默认 10，最大 100', example='10'),
+  namespace?: string(name='Namespace', description='表所属的命名空间名称。可通过 ListNamespaces 获取', example='my_namespace'),
+  nextToken?: string(name='NextToken', description='分页查询的起始Token。首次查询不传或传 "0"；后续翻页使用上一次响应中返回的 NextToken 值', example='0'),
+}
+
+model ListTablesResponseBody = {
+  code?: string(name='Code', example='200'),
+  data?: {
+    nextToken?: string(name='NextToken', example='10'),
+    tables?: [
+      Table
+    ](name='Tables'),
+    total?: int32(name='Total', example='1'),
+  }(name='Data', example='{"Tables":[{"Name":"my_table","Comment":"测试事件表"}],"NextToken":"10","Total":1}'),
+  message?: string(name='Message', example='Operation success'),
+  requestId?: string(name='RequestId', example='34AD682D-5B91-5773-8132-AA38C130****'),
+  success?: boolean(name='Success', example='true'),
+}
+
+model ListTablesResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ListTablesResponseBody(name='body'),
+}
+
+/**
+ * @summary 列出指定命名空间下的数据表，支持按表名模糊搜索。返回表名和描述列表，支持分页。
+ *
+ * @param request ListTablesRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return ListTablesResponse
+ */
+@context("listTablesWithContext")
+async function listTablesWithOptions(request: ListTablesRequest, runtime: $RuntimeOptions): ListTablesResponse {
+  request.validate();
+  var query = {};
+  if (!$isNull(request.catalog)) {
+    query['Catalog'] = request.catalog;
+  }
+  if (!$isNull(request.limit)) {
+    query['Limit'] = request.limit;
+  }
+  if (!$isNull(request.namespace)) {
+    query['Namespace'] = request.namespace;
+  }
+  if (!$isNull(request.nextToken)) {
+    query['NextToken'] = request.nextToken;
+  }
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'ListTables',
+    version = '2020-04-01',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 列出指定命名空间下的数据表，支持按表名模糊搜索。返回表名和描述列表，支持分页。
+ *
+ * @param request ListTablesRequest
+ * @return ListTablesResponse
+ */
+async function listTables(request: ListTablesRequest): ListTablesResponse {
+  var runtime = new $RuntimeOptions{};
+  return listTablesWithOptions(request, runtime);
 }
 
 model ListTargetsRequest {
@@ -7109,6 +7912,75 @@ async function queryEventWithOptions(request: QueryEventRequest, runtime: $Runti
 async function queryEvent(request: QueryEventRequest): QueryEventResponse {
   var runtime = new $RuntimeOptions{};
   return queryEventWithOptions(request, runtime);
+}
+
+model QueryEventHouseRequest {
+  limit?: int32(name='Limit', example='10'),
+  query?: string(name='Query', description='This parameter is required.', example='SELECT * FROM "test-es"."default"."product_info"'),
+}
+
+model QueryEventHouseResponseBody = {
+  code?: string(name='Code', example='Success'),
+  data?: {
+    rows?: [
+      Row
+    ](name='Rows'),
+    total?: int32(name='Total', example='18'),
+  }(name='Data'),
+  message?: string(name='Message', example='Remote error. requestId: [xxxx], error code: [xxx], message: [The target in event rule is invalid! Endpoint is xxx'),
+  requestId?: string(name='RequestId', example='f2099962-1628-45f1-9782-2bf6daad823f'),
+  success?: boolean(name='Success', example='true'),
+}
+
+model QueryEventHouseResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: QueryEventHouseResponseBody(name='body'),
+}
+
+/**
+ * @summary 直接执行SQL语句查询事件仓数据。适用于已知确切SQL的场景，无需自然语言转换，无对话上下文。返回结构化结果集。
+ *
+ * @param request QueryEventHouseRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return QueryEventHouseResponse
+ */
+@context("queryEventHouseWithContext")
+async function queryEventHouseWithOptions(request: QueryEventHouseRequest, runtime: $RuntimeOptions): QueryEventHouseResponse {
+  request.validate();
+  var query = {};
+  if (!$isNull(request.limit)) {
+    query['Limit'] = request.limit;
+  }
+  if (!$isNull(request.query)) {
+    query['Query'] = request.query;
+  }
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'QueryEventHouse',
+    version = '2020-04-01',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 直接执行SQL语句查询事件仓数据。适用于已知确切SQL的场景，无需自然语言转换，无对话上下文。返回结构化结果集。
+ *
+ * @param request QueryEventHouseRequest
+ * @return QueryEventHouseResponse
+ */
+async function queryEventHouse(request: QueryEventHouseRequest): QueryEventHouseResponse {
+  var runtime = new $RuntimeOptions{};
+  return queryEventHouseWithOptions(request, runtime);
 }
 
 model QueryEventTracesRequest {
@@ -7947,6 +8819,8 @@ This parameter is required.', example='PublicNetwork'),
   }(name='NetworkParameters', description='The parameters that are configured for the network.
 
 This parameter is required.'),
+  parameters?: any(name='Parameters', description='数据源连接参数（JSON 对象）。具体字段定义请调用 GetConnectionType 接口，参考返回结果中的 ParamsSchema', example='{"HostName":"xxx.mysql.rds.aliyuncs.com","Port":"3306","User":"root","Password":"xxx","DatabaseName":"demo_db"}'),
+  type?: string(name='Type', description='连接类型。可选值：MySQL、PostgreSQL、Elasticsearch、Http', example='Http'),
 }
 
 model UpdateConnectionShrinkRequest {
@@ -7958,6 +8832,8 @@ This parameter is required.', example='connection-name'),
   networkParametersShrink?: string(name='NetworkParameters', description='The parameters that are configured for the network.
 
 This parameter is required.'),
+  parametersShrink?: string(name='Parameters', description='数据源连接参数（JSON 对象）。具体字段定义请调用 GetConnectionType 接口，参考返回结果中的 ParamsSchema', example='{"HostName":"xxx.mysql.rds.aliyuncs.com","Port":"3306","User":"root","Password":"xxx","DatabaseName":"demo_db"}'),
+  type?: string(name='Type', description='连接类型。可选值：MySQL、PostgreSQL、Elasticsearch、Http', example='Http'),
 }
 
 model UpdateConnectionResponseBody = {
@@ -7992,6 +8868,9 @@ async function updateConnectionWithOptions(tmpReq: UpdateConnectionRequest, runt
   if (!$isNull(tmpReq.networkParameters)) {
     request.networkParametersShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.networkParameters, 'NetworkParameters', 'json');
   }
+  if (!$isNull(tmpReq.parameters)) {
+    request.parametersShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.parameters, 'Parameters', 'json');
+  }
   var query = {};
   if (!$isNull(request.authParametersShrink)) {
     query['AuthParameters'] = request.authParametersShrink;
@@ -8004,6 +8883,12 @@ async function updateConnectionWithOptions(tmpReq: UpdateConnectionRequest, runt
   }
   if (!$isNull(request.networkParametersShrink)) {
     query['NetworkParameters'] = request.networkParametersShrink;
+  }
+  if (!$isNull(request.parametersShrink)) {
+    query['Parameters'] = request.parametersShrink;
+  }
+  if (!$isNull(request.type)) {
+    query['Type'] = request.type;
   }
   var req = new OpenApiUtil.OpenApiRequest{ 
     query = OpenApiUtil.query(query),
@@ -9593,6 +10478,84 @@ async function updateEventStreamingBusinessOption(request: UpdateEventStreamingB
   return updateEventStreamingBusinessOptionWithOptions(request, runtime);
 }
 
+model UpdateNamespaceRequest {
+  catalog?: string(name='Catalog', description='命名空间所属的数据目录名称。可通过 ListCatalogs 接口获取已有目录列表', example='my_catalog'),
+  clientToken?: string(name='ClientToken', description='用于保证请求幂等性的Token，防止因网络重试导致重复操作。建议使用 UUID', example='1e9b8f60-3a2c-4d7e-9f1b-8c3d5e7a2b4f'),
+  comment?: string(name='Comment', description='命名空间的备注描述信息。传空字符串可清除原有备注，无格式限制', example='更新后的备注'),
+  name?: string(name='Name', description='要修改的命名空间名称。名称本身不可修改，此处用于定位目标命名空间。需同时指定所属 Catalog。可通过 ListNamespaces 获取
+
+This parameter is required.', example='my_namespace'),
+}
+
+model UpdateNamespaceResponseBody = {
+  code?: string(name='Code', example='200'),
+  data?: {
+    namespaceARN?: string(name='NamespaceARN', example='acs:eventbridge:cn-hangzhou:123456789:catalog/my_catalog/namespace/my_namespace'),
+  }(name='Data'),
+  message?: string(name='Message', example='Operation success'),
+  requestId?: string(name='RequestId', example='34AD682D-5B91-5773-8132-AA38C130****'),
+  success?: boolean(name='Success', example='true'),
+}
+
+model UpdateNamespaceResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: UpdateNamespaceResponseBody(name='body'),
+}
+
+/**
+ * @summary 修改命名空间
+ *
+ * @param request UpdateNamespaceRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return UpdateNamespaceResponse
+ */
+@context("updateNamespaceWithContext")
+async function updateNamespaceWithOptions(request: UpdateNamespaceRequest, runtime: $RuntimeOptions): UpdateNamespaceResponse {
+  request.validate();
+  var query = {};
+  if (!$isNull(request.catalog)) {
+    query['Catalog'] = request.catalog;
+  }
+  if (!$isNull(request.comment)) {
+    query['Comment'] = request.comment;
+  }
+  if (!$isNull(request.name)) {
+    query['Name'] = request.name;
+  }
+  var body : map[string]any = {};
+  if (!$isNull(request.clientToken)) {
+    body['ClientToken'] = request.clientToken;
+  }
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'UpdateNamespace',
+    version = '2020-04-01',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 修改命名空间
+ *
+ * @param request UpdateNamespaceRequest
+ * @return UpdateNamespaceResponse
+ */
+async function updateNamespace(request: UpdateNamespaceRequest): UpdateNamespaceResponse {
+  var runtime = new $RuntimeOptions{};
+  return updateNamespaceWithOptions(request, runtime);
+}
+
 model UpdateRuleRequest {
   description?: string(name='Description', description='The description of the event bus.', example='demo'),
   eventBusName?: string(name='EventBusName', description='The name of the event bus.
@@ -9679,5 +10642,163 @@ async function updateRuleWithOptions(request: UpdateRuleRequest, runtime: $Runti
 async function updateRule(request: UpdateRuleRequest): UpdateRuleResponse {
   var runtime = new $RuntimeOptions{};
   return updateRuleWithOptions(request, runtime);
+}
+
+model UpdateTableRequest {
+  addColumn?: {
+    comment?: string(name='Comment'),
+    name?: string(name='Name', example='kafka-default-agent-alikafka_pre-cn-28t3sfzno003'),
+    type?: string(name='Type', example='custom'),
+  }(name='AddColumn', description='新增列定义（JSON 对象）。包含 Name（列名，必填）、Type（数据类型，必填，如 STRING、INT32、INT64、FLOAT、DOUBLE、BOOLEAN、TIMESTAMP）、Comment（列备注，选填）。每次调用只能新增一列', example='{"Name":"id","Type":"bigint","Comment":"主键"}'),
+  catalog?: string(name='Catalog', description='表所属的数据目录名称。可通过 ListCatalogs 获取', example='my_catalog'),
+  clientToken?: string(name='ClientToken', description='用于保证请求幂等性的Token。建议使用 UUID', example='1e9b8f60-3a2c-4d7e-9f1b-8c3d5e7a2b4f'),
+  deleteColumn?: {
+    name?: string(name='Name', example='kafka-default-agent-alikafka_pre-cn-28t3sfzno003'),
+  }(name='DeleteColumn', description='删除列定义（JSON 对象）。包含 Name（要删除的列名，必填）。删除后不可恢复，已有数据中该列的值将丢失。每次调用只能删除一列', example='{"Name":"old_column"}'),
+  name?: string(name='Name', description='要修改的事件表名称。名称本身不可修改，此处用于定位目标表。需同时指定所属 Catalog 和 Namespace。可通过 ListTables 获取
+
+This parameter is required.', example='my_table'),
+  namespace?: string(name='Namespace', description='表所属的命名空间名称。可通过 ListNamespaces 获取', example='my_namespace'),
+  renameColumn?: {
+    name?: string(name='Name', example='kafka-default-agent-alikafka_pre-cn-28t3sfzno003'),
+    newName?: string(name='NewName', example='fvt-oos-application-group-56ca74b000'),
+  }(name='RenameColumn', description='重命名列（JSON 对象）。包含 Name（原列名，必填）、NewName（新列名，必填）。每次调用只能重命名一列', example='{"Name":"old_name","NewName":"new_name"}'),
+  updateColumnComment?: {
+    comment?: string(name='Comment'),
+    name?: string(name='Name', example='kafka-default-agent-alikafka_pre-cn-28t3sfzno003'),
+  }(name='UpdateColumnComment', description='修改列的备注信息（JSON 对象）。包含 Name（目标列名，必填）、Comment（新备注内容，必填，传空字符串可清除备注）。每次调用只能修改一列', example='{"Name":"id","Comment":"主键ID"}'),
+  updateColumnType?: {
+    name?: string(name='Name', example='kafka-default-agent-alikafka_pre-cn-28t3sfzno003'),
+    type?: string(name='Type', example='PRIVATE'),
+  }(name='UpdateColumnType', description='修改列的数据类型（JSON 对象）。包含 Name（目标列名，必填）、Type（新数据类型，必填）。仅支持兼容类型转换，每次调用只能修改一列', example='{"Name":"id","Type":"bigint"}'),
+  updateComment?: string(name='UpdateComment', description='修改表的备注描述。传入新的备注内容替换原有备注，传空字符串可清除备注', example='更新后的备注'),
+  updateRetentionPolicy?: {
+    coldTTL?: int32(name='ColdTTL', example='17'),
+    hotTTL?: int32(name='HotTTL', example='7'),
+  }(name='UpdateRetentionPolicy', description='修改数据保留策略（JSON 对象）。包含 HotTTL（热数据保留天数）、ColdTTL（冷数据保留天数）。传入后会替换原有策略', example='{"HotTTL":7,"ColdTTL":30}'),
+}
+
+model UpdateTableShrinkRequest {
+  addColumnShrink?: string(name='AddColumn', description='新增列定义（JSON 对象）。包含 Name（列名，必填）、Type（数据类型，必填，如 STRING、INT32、INT64、FLOAT、DOUBLE、BOOLEAN、TIMESTAMP）、Comment（列备注，选填）。每次调用只能新增一列', example='{"Name":"id","Type":"bigint","Comment":"主键"}'),
+  catalog?: string(name='Catalog', description='表所属的数据目录名称。可通过 ListCatalogs 获取', example='my_catalog'),
+  clientToken?: string(name='ClientToken', description='用于保证请求幂等性的Token。建议使用 UUID', example='1e9b8f60-3a2c-4d7e-9f1b-8c3d5e7a2b4f'),
+  deleteColumnShrink?: string(name='DeleteColumn', description='删除列定义（JSON 对象）。包含 Name（要删除的列名，必填）。删除后不可恢复，已有数据中该列的值将丢失。每次调用只能删除一列', example='{"Name":"old_column"}'),
+  name?: string(name='Name', description='要修改的事件表名称。名称本身不可修改，此处用于定位目标表。需同时指定所属 Catalog 和 Namespace。可通过 ListTables 获取
+
+This parameter is required.', example='my_table'),
+  namespace?: string(name='Namespace', description='表所属的命名空间名称。可通过 ListNamespaces 获取', example='my_namespace'),
+  renameColumnShrink?: string(name='RenameColumn', description='重命名列（JSON 对象）。包含 Name（原列名，必填）、NewName（新列名，必填）。每次调用只能重命名一列', example='{"Name":"old_name","NewName":"new_name"}'),
+  updateColumnCommentShrink?: string(name='UpdateColumnComment', description='修改列的备注信息（JSON 对象）。包含 Name（目标列名，必填）、Comment（新备注内容，必填，传空字符串可清除备注）。每次调用只能修改一列', example='{"Name":"id","Comment":"主键ID"}'),
+  updateColumnTypeShrink?: string(name='UpdateColumnType', description='修改列的数据类型（JSON 对象）。包含 Name（目标列名，必填）、Type（新数据类型，必填）。仅支持兼容类型转换，每次调用只能修改一列', example='{"Name":"id","Type":"bigint"}'),
+  updateComment?: string(name='UpdateComment', description='修改表的备注描述。传入新的备注内容替换原有备注，传空字符串可清除备注', example='更新后的备注'),
+  updateRetentionPolicyShrink?: string(name='UpdateRetentionPolicy', description='修改数据保留策略（JSON 对象）。包含 HotTTL（热数据保留天数）、ColdTTL（冷数据保留天数）。传入后会替换原有策略', example='{"HotTTL":7,"ColdTTL":30}'),
+}
+
+model UpdateTableResponseBody = {
+  code?: string(name='Code', example='200'),
+  data?: {
+    tableARN?: string(name='TableARN', example='acs:eventbridge:cn-hangzhou:123456789:catalog/my_catalog/namespace/my_namespace/table/my_table'),
+  }(name='Data', example='{"TableARN":"acs:eventbridge:cn-hangzhou:123456789:catalog/my_catalog/namespace/my_namespace/table/my_table"}'),
+  message?: string(name='Message', example='Operation success'),
+  requestId?: string(name='RequestId', example='34AD682D-5B91-5773-8132-AA38C130****'),
+  success?: boolean(name='Success', example='true'),
+}
+
+model UpdateTableResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: UpdateTableResponseBody(name='body'),
+}
+
+/**
+ * @summary 修改表
+ *
+ * @param tmpReq UpdateTableRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return UpdateTableResponse
+ */
+@context("updateTableWithContext")
+async function updateTableWithOptions(tmpReq: UpdateTableRequest, runtime: $RuntimeOptions): UpdateTableResponse {
+  tmpReq.validate();
+  var request = new UpdateTableShrinkRequest{};
+  OpenApiUtil.convert(tmpReq, request);
+  if (!$isNull(tmpReq.addColumn)) {
+    request.addColumnShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.addColumn, 'AddColumn', 'json');
+  }
+  if (!$isNull(tmpReq.deleteColumn)) {
+    request.deleteColumnShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.deleteColumn, 'DeleteColumn', 'json');
+  }
+  if (!$isNull(tmpReq.renameColumn)) {
+    request.renameColumnShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.renameColumn, 'RenameColumn', 'json');
+  }
+  if (!$isNull(tmpReq.updateColumnComment)) {
+    request.updateColumnCommentShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.updateColumnComment, 'UpdateColumnComment', 'json');
+  }
+  if (!$isNull(tmpReq.updateColumnType)) {
+    request.updateColumnTypeShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.updateColumnType, 'UpdateColumnType', 'json');
+  }
+  if (!$isNull(tmpReq.updateRetentionPolicy)) {
+    request.updateRetentionPolicyShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.updateRetentionPolicy, 'UpdateRetentionPolicy', 'json');
+  }
+  var query = {};
+  if (!$isNull(request.addColumnShrink)) {
+    query['AddColumn'] = request.addColumnShrink;
+  }
+  if (!$isNull(request.catalog)) {
+    query['Catalog'] = request.catalog;
+  }
+  if (!$isNull(request.clientToken)) {
+    query['ClientToken'] = request.clientToken;
+  }
+  if (!$isNull(request.deleteColumnShrink)) {
+    query['DeleteColumn'] = request.deleteColumnShrink;
+  }
+  if (!$isNull(request.name)) {
+    query['Name'] = request.name;
+  }
+  if (!$isNull(request.namespace)) {
+    query['Namespace'] = request.namespace;
+  }
+  if (!$isNull(request.renameColumnShrink)) {
+    query['RenameColumn'] = request.renameColumnShrink;
+  }
+  if (!$isNull(request.updateColumnCommentShrink)) {
+    query['UpdateColumnComment'] = request.updateColumnCommentShrink;
+  }
+  if (!$isNull(request.updateColumnTypeShrink)) {
+    query['UpdateColumnType'] = request.updateColumnTypeShrink;
+  }
+  if (!$isNull(request.updateComment)) {
+    query['UpdateComment'] = request.updateComment;
+  }
+  if (!$isNull(request.updateRetentionPolicyShrink)) {
+    query['UpdateRetentionPolicy'] = request.updateRetentionPolicyShrink;
+  }
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'UpdateTable',
+    version = '2020-04-01',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 修改表
+ *
+ * @param request UpdateTableRequest
+ * @return UpdateTableResponse
+ */
+async function updateTable(request: UpdateTableRequest): UpdateTableResponse {
+  var runtime = new $RuntimeOptions{};
+  return updateTableWithOptions(request, runtime);
 }
 
