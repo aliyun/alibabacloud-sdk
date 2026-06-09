@@ -56,6 +56,8 @@ model AnswerSSEResponseBody = {
 model AnswerSSEResponse = {
   headers?: map[string]string(name='headers'),
   statusCode?: int32(name='statusCode'),
+  id?: string(name='id'),
+  event?: string(name='event'),
   body?: AnswerSSEResponseBody(name='body'),
 }
 
@@ -101,17 +103,17 @@ async function answerSSEWithSSE(request: AnswerSSERequest, headers: map[string]s
     bodyType = 'json',
   };
   var sseResp = callSSEApi(params, req, runtime);
-  for(var resp : sseResp) {
-    var data = $object($JSON.parseJSON(resp.event.data));
-    yield {
-      statusCode = resp.statusCode,
-      headers = resp.headers,
-      body = {
-        ...data,
-        RequestId = resp.event.id,
-        Message = resp.event.event,
-      },
-    };
+  for (var resp : sseResp) {
+    if (!$isNull(resp.event) && !$isNull(resp.event.data)) {
+      var data = $object($JSON.parseJSON(resp.event.data));
+      yield {
+        statusCode = resp.statusCode,
+        headers = resp.headers,
+        id = resp.event.id,
+        event = resp.event.event,
+        body = data
+      };
+    }
   }
 }
 /**
