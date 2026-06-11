@@ -46,6 +46,8 @@ model Artifact {
 
 model CacheCluster {
   bindedWorkspaces?: [ string ](name='bindedWorkspaces'),
+  cacheClusterId?: string(name='cacheClusterId'),
+  cacheClusterName?: string(name='cacheClusterName'),
   cachesets?: [ 
     {
       name?: string(name='name'),
@@ -60,6 +62,7 @@ model CacheCluster {
       name?: string(name='name', example='cacheset.xml'),
     }
   ](name='configurations'),
+  createTime?: string(name='createTime'),
   creator?: string(name='creator'),
   gmtCreated?: long(name='gmtCreated'),
   gmtModified?: long(name='gmtModified'),
@@ -67,15 +70,33 @@ model CacheCluster {
   name?: string(name='name'),
   paymentType?: string(name='paymentType'),
   regionId?: string(name='regionId'),
+  resourceGroupId?: string(name='resourceGroupId'),
   resourceSpec?: {
     bandWidth?: long(name='bandWidth'),
+    ha?: boolean(name='ha'),
     storage?: long(name='storage'),
   }(name='resourceSpec'),
   state?: string(name='state'),
+  tables?: [ 
+    {
+      catalogId?: string(name='catalogId'),
+      catalogProvider?: string(name='catalogProvider'),
+      database?: string(name='database'),
+      table?: string(name='table'),
+      workspaceId?: string(name='workspaceId'),
+    }
+  ](name='tables'),
+  tags?: [ 
+    {
+      key?: string(name='key'),
+      value?: string(name='value'),
+    }
+  ](name='tags'),
   usedResourceSpec?: {
     bandWidth?: long(name='bandWidth'),
     storage?: long(name='storage'),
   }(name='usedResourceSpec'),
+  version?: string(name='version'),
 }
 
 model Category {
@@ -220,6 +241,44 @@ model Task {
   name: string(name='name', description='This parameter is required.'),
   params?: map[string]string(name='params'),
   pyFiles?: [ string ](name='pyFiles'),
+  rayActiveDeadlineSeconds?: long(name='rayActiveDeadlineSeconds'),
+  rayBackoffLimit?: int32(name='rayBackoffLimit'),
+  rayEntrypoint?: string(name='rayEntrypoint'),
+  rayEntrypointMemory?: string(name='rayEntrypointMemory'),
+  rayEntrypointNumCpus?: string(name='rayEntrypointNumCpus'),
+  rayEntrypointNumGpus?: string(name='rayEntrypointNumGpus'),
+  rayEntrypointResources?: string(name='rayEntrypointResources'),
+  rayExtraParam?: string(name='rayExtraParam'),
+  rayHeadSpec?: {
+    cpu?: string(name='cpu'),
+    enableAutoScaling?: boolean(name='enableAutoScaling'),
+    gpuSpec?: string(name='gpuSpec'),
+    idleTimeoutSeconds?: long(name='idleTimeoutSeconds'),
+    memory?: string(name='memory'),
+    queueName?: string(name='queueName'),
+    replica?: int32(name='replica'),
+  }(name='rayHeadSpec'),
+  rayMetadataJson?: string(name='rayMetadataJson'),
+  rayNetworkServiceName?: string(name='rayNetworkServiceName'),
+  rayRuntimeEnvJson?: string(name='rayRuntimeEnvJson'),
+  rayShutdownAfterJobFinishes?: boolean(name='rayShutdownAfterJobFinishes'),
+  raySubmissionMode?: string(name='raySubmissionMode'),
+  rayTtlSecondsAfterFinished?: long(name='rayTtlSecondsAfterFinished'),
+  rayVersion?: string(name='rayVersion'),
+  rayVolumeIds?: [ string ](name='rayVolumeIds'),
+  rayWorkerSpec?: [ 
+    {
+      cpu?: string(name='cpu'),
+      gpuSpec?: string(name='gpuSpec'),
+      groupName?: string(name='groupName'),
+      maxReplica?: int32(name='maxReplica'),
+      memory?: string(name='memory'),
+      minReplica?: int32(name='minReplica'),
+      queueName?: string(name='queueName'),
+      replica?: int32(name='replica'),
+    }
+  ](name='rayWorkerSpec'),
+  rayWorkingDir?: string(name='rayWorkingDir'),
   sessionClusterId?: string(name='sessionClusterId'),
   sparkArgs?: string(name='sparkArgs', example='100'),
   sparkConf?: [
@@ -396,6 +455,31 @@ model CancelKyuubiSparkApplicationResponse = {
 async function cancelKyuubiSparkApplication(request: CancelKyuubiSparkApplicationRequest): CancelKyuubiSparkApplicationResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RESTFUL', 'CancelKyuubiSparkApplication', 'DELETE', '/api/v1/kyuubi/{workspaceId}/{kyuubiServiceId}/application/{applicationId}', 'json', false, 'json', request);
+}
+
+model CancelRayJobRequest {
+  workspaceId?: string(name='workspaceId', example='w-d2d82aa09155', position='Path'),
+  submissionId?: string(name='submissionId', description='rayjob ID。', example='rj-k7nm8ahl5te4tg91', position='Path'),
+}
+
+model CancelRayJobResponseBody = {
+  requestId?: string(name='requestId', example='DD6B1B2A-5837-5237-ABE4-FF0C8944'),
+  success?: boolean(name='success', example='true'),
+}
+
+model CancelRayJobResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: CancelRayJobResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of CancelRayJob  CancelRayJobRequest
+  * @return CancelRayJobResponse
+ */
+async function cancelRayJob(request: CancelRayJobRequest): CancelRayJobResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'CancelRayJob', 'POST', '/api/v1/workspaces/{workspaceId}/rayJob/{submissionId}/cancel', 'json', false, 'json', request);
 }
 
 model ChangeResourceGroupRequest {
@@ -1584,6 +1668,91 @@ async function getRayCluster(request: GetRayClusterRequest): GetRayClusterRespon
   return @handler.do('RESTFUL', 'GetRayCluster', 'GET', '/api/v1/workspaces/{workspaceId}/rayCluster/{clusterId}', 'json', false, 'json', request);
 }
 
+model GetRayJobRequest {
+  workspaceId?: string(name='workspaceId', example='w-d2d82aa09155', position='Path'),
+  submissionId?: string(name='submissionId', example='rj-xxxxxxxxxx', position='Path'),
+}
+
+model GetRayJobResponseBody = {
+  activeDeadlineSeconds?: int32(name='activeDeadlineSeconds', example='3600'),
+  backoffLimit?: int32(name='backoffLimit', example='2'),
+  clusterState?: string(name='clusterState', example='Running'),
+  creatorName?: string(name='creatorName', example='Alice'),
+  cuHours?: double(name='cuHours', example='1899'),
+  dashboardUrl?: string(name='dashboardUrl', example='https://emr-ray-gateway-cn-hangzhou.aliyuncs.com/workspace/w-xxxxxxxx/raycluster/ray-xxxxxx/dashboard?token=xxxxxx'),
+  dashboardUrlExtra?: [ string ](name='dashboardUrlExtra'),
+  displayReleaseVersion?: string(name='displayReleaseVersion', example='err-1.2.0 (Ray 2.55.1, Python 3.12)'),
+  duration?: long(name='duration', example='2459764'),
+  endTime?: long(name='endTime', example='1762949372000'),
+  entrypoint?: string(name='entrypoint', example='python main.py'),
+  entrypointMemory?: string(name='entrypointMemory', example='4Gi'),
+  entrypointNumCpus?: string(name='entrypointNumCpus', example='1'),
+  entrypointNumGpus?: string(name='entrypointNumGpus', example='0'),
+  entrypointResources?: string(name='entrypointResources', example='{"fpu": 1}'),
+  extraParam?: string(name='extraParam', example='{"userDefinedFiles": "oss://mybucket/artifact/config.json,oss://mybucket/artifact/config2.json", "userRequirementsFile": "oss://mybucket/requirements.txt"}'),
+  guHours?: {
+    gpuHours?: double(name='gpuHours', example='2.6'),
+    gpuSpec?: string(name='gpuSpec', example='ecs.gn6i-c4g1.xlarge'),
+  }(name='guHours'),
+  headSpec?: {
+    cpu?: string(name='cpu', example='2'),
+    enableAutoScaling?: boolean(name='enableAutoScaling', example='true'),
+    gpuSpec?: string(name='gpuSpec', example='ecs.gn6i-c4g1.xlarge'),
+    idleTimeoutSeconds?: int32(name='idleTimeoutSeconds', example='60'),
+    memory?: string(name='memory', example='8Gi'),
+    queueName?: string(name='queueName', example='root_queue'),
+    replica?: int32(name='replica', example='1'),
+  }(name='headSpec'),
+  logBucketName?: string(name='logBucketName', example='ss-ray-cn-hangzhou'),
+  logPath?: string(name='logPath', example='w-xxxxxxx/ray/logs/xxxxxx/'),
+  message?: string(name='message', example='Job finished successfully.'),
+  metadataJson?: string(name='metadataJson', example='{"owner": "alice"}'),
+  name?: string(name='name', example='myRayCluster'),
+  networkServiceName?: string(name='networkServiceName', example='vpc'),
+  requestId?: string(name='requestId', example='DD6B1B2A-5837-5237-ABE4-FF0C8944'),
+  runtimeEnvJson?: string(name='runtimeEnvJson', example='{"pip":["requests==2.26.0","pendulum==2.1.2"],"env_vars":{"KEY":"VALUE"}}'),
+  shutdownAfterJobFinishes?: boolean(name='shutdownAfterJobFinishes', example='true'),
+  startTime?: long(name='startTime', example='1750327083303'),
+  status?: string(name='status', example='Running'),
+  submissionId?: string(name='submissionId', example='rj-xxxxxxxxxx'),
+  submissionMode?: string(name='submissionMode', example='HTTPMode'),
+  submitTime?: long(name='submitTime', example='1750327082303'),
+  tags?: [
+    Tag
+  ](name='tags'),
+  taskBizId?: string(name='taskBizId', example='TSK-682e0112f6f24d9f9305b92174846985'),
+  ttlSecondsAfterFinished?: int32(name='ttlSecondsAfterFinished', example='60'),
+  volumeIds?: [ string ](name='volumeIds'),
+  workerSpecs?: [ 
+    {
+      cpu?: string(name='cpu', example='2'),
+      gpuSpec?: string(name='gpuSpec', example='ecs.gn6i-c4g1.xlarge'),
+      groupName?: string(name='groupName', example='WorkerGroup1'),
+      maxReplica?: int32(name='maxReplica', example='10'),
+      memory?: string(name='memory', example='8Gi'),
+      minReplica?: int32(name='minReplica', example='1'),
+      queueName?: string(name='queueName', example='root_queue'),
+      replica?: int32(name='replica', example='1'),
+    }
+  ](name='workerSpecs'),
+  workingDir?: string(name='workingDir', example='oss://mybucket/hello.zip'),
+}
+
+model GetRayJobResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: GetRayJobResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of GetRayJob  GetRayJobRequest
+  * @return GetRayJobResponse
+ */
+async function getRayJob(request: GetRayJobRequest): GetRayJobResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'GetRayJob', 'GET', '/api/v1/workspaces/{workspaceId}/rayJob/{submissionId}', 'json', false, 'json', request);
+}
+
 model GetRunConfigurationRequest {
   workspaceId: string(name='workspaceId', description='工作空间id。
 
@@ -2577,6 +2746,55 @@ async function listRayCluster(request: ListRayClusterRequest): ListRayClusterRes
   return @handler.do('RESTFUL', 'ListRayCluster', 'GET', '/api/v1/workspaces/{workspaceId}/rayCluster', 'json', false, 'json', request);
 }
 
+model ListRayJobRequest {
+  workspaceId?: string(name='workspaceId', example='w-d2d82aa09155', position='Path'),
+  name?: string(name='name', example='myrayjob', position='Query'),
+  pageNum?: int32(name='pageNum', example='1', position='Query'),
+  pageSize?: int32(name='pageSize', example='20', position='Query'),
+  submissionId?: string(name='submissionId', example='rj-xxxxxxxxxxx', position='Query'),
+  submitTime?: {
+    endTime?: long(name='endTime', example='1780018822000'),
+    startTime?: long(name='startTime', example='1780017822000'),
+  }(name='submitTime', shrink='json', position='Query'),
+  taskBizId?: string(name='taskBizId', example='TSK-db8b870d901e443ba0aebba40c923e02', position='Query'),
+}
+
+model ListRayJobResponseBody = {
+  rayJobs?: [ 
+    {
+      clusterState?: string(name='clusterState', example='Running'),
+      creatorName?: string(name='creatorName', example='Alice'),
+      cuHours?: double(name='cuHours', example='120'),
+      dashboardUrl?: string(name='dashboardUrl', example='https://emr-ray-gateway.aliyuncs.com?token=xxxxxxxxx'),
+      duration?: long(name='duration', example='3564'),
+      endTime?: long(name='endTime', example='1776945509000'),
+      name?: string(name='name', example='testRayJob'),
+      resourceQueue?: string(name='resourceQueue', example='err-1.2.0 (Ray 2.55.1, Python 3.12)'),
+      startTime?: long(name='startTime', example='1776945499000'),
+      status?: string(name='status', example='Running'),
+      submissionId?: string(name='submissionId', example='rj-uiulpgow9xljimm1'),
+      submitTime?: long(name='submitTime', example='1776945399000'),
+    }
+  ](name='rayJobs'),
+  requestId?: string(name='requestId', example='DD6B1B2A-5837-5237-ABE4-FF0C8944'),
+  totalCount?: int32(name='totalCount', example='200'),
+}
+
+model ListRayJobResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ListRayJobResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of ListRayJob  ListRayJobRequest
+  * @return ListRayJobResponse
+ */
+async function listRayJob(request: ListRayJobRequest): ListRayJobResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'ListRayJob', 'GET', '/api/v1/workspaces/{workspaceId}/rayJob', 'json', false, 'json', request);
+}
+
 model ListReleaseVersionsRequest {
   regionId?: string(name='regionId', description='The region ID.', example='cn-hangzhou', position='Query'),
   releaseType?: string(name='releaseType', description='The type of the version.
@@ -2888,6 +3106,7 @@ model ListWorkspacesResponseBody = {
       endTime?: long(name='endTime', description='The end of the end time range.', example='1687103999999'),
       failReason?: string(name='failReason', description='The failure reason.', example='out of stock'),
       gpuSpec?: [ string ](name='gpuSpec'),
+      ipWhiteList?: [ string ](name='ipWhiteList'),
       paymentDurationUnit?: string(name='paymentDurationUnit', description='The unit of the subscription duration.', example='YEAR, MONTH, WEEK, DAY, HOUR, MINUTE'),
       paymentStatus?: string(name='paymentStatus', description='The status of the payment.', example='PAID/UNPAID'),
       paymentType?: string(name='paymentType', description='The billing method. Valid values:
@@ -3290,6 +3509,74 @@ async function stopSessionCluster(request: StopSessionClusterRequest): StopSessi
   return @handler.do('RESTFUL', 'StopSessionCluster', 'POST', '/api/v1/workspaces/{workspaceId}/sessionClusters/action/stopSessionCluster', 'json', false, 'json', request);
 }
 
+model SubmitRayJobRequest {
+  workspaceId?: string(name='workspaceId', example='w-d2d82aa09155', position='Path'),
+  activeDeadlineSeconds?: int32(name='activeDeadlineSeconds', example='3600', position='Body'),
+  displayReleaseVersion?: string(name='displayReleaseVersion', example='err-1.2.0 (Ray 2.55.1, Python 3.12)', position='Body'),
+  entrypoint?: string(name='entrypoint', example='python -c "print(\\"hello ray job\\")"', position='Body'),
+  entrypointMemory?: string(name='entrypointMemory', example='4Gi', position='Body'),
+  entrypointNumCpus?: string(name='entrypointNumCpus', example='1', position='Body'),
+  entrypointNumGpus?: string(name='entrypointNumGpus', example='0', position='Body'),
+  entrypointResources?: string(name='entrypointResources', example='{"fpu": 1}', position='Body'),
+  extraParam?: string(name='extraParam', example='{"userDefinedFiles": "oss://mybucket/artifact/config.json,oss://mybucket/artifact/config2.json", "userRequirementsFile": "oss://mybucket/requirements.txt"}', position='Body'),
+  headSpec?: {
+    cpu?: string(name='cpu', example='2'),
+    enableAutoScaling?: boolean(name='enableAutoScaling', example='true'),
+    gpuSpec?: string(name='gpuSpec', example='ecs.gn6i-c4g1.xlarge'),
+    idleTimeoutSeconds?: int32(name='idleTimeoutSeconds', example='60'),
+    memory?: string(name='memory', example='8Gi'),
+    queueName?: string(name='queueName', example='root_queue'),
+  }(name='headSpec', position='Body'),
+  metadataJson?: string(name='metadataJson', example='{"resourceName": "test"}', position='Body'),
+  name?: string(name='name', example='my-job', position='Body'),
+  networkServiceName?: string(name='networkServiceName', example='vpc', position='Body'),
+  runtimeEnvJson?: string(name='runtimeEnvJson', example='{"pip":["requests==2.26.0","pendulum==2.1.2"],"env_vars":{"KEY":"VALUE"}}', position='Body'),
+  shutdownAfterJobFinishes?: boolean(name='shutdownAfterJobFinishes', example='true', position='Body'),
+  submissionMode?: string(name='submissionMode', example='HTTPMode', position='Body'),
+  tags?: [ 
+    {
+      key?: string(name='key', example='jobname'),
+      value?: string(name='value', example='test'),
+    }
+  ](name='tags', position='Body'),
+  ttlSecondsAfterFinished?: int32(name='ttlSecondsAfterFinished', example='60', position='Body'),
+  volumeIds?: [ string ](name='volumeIds', position='Body'),
+  workerSpec?: [ 
+    {
+      cpu?: string(name='cpu', example='4'),
+      gpuSpec?: string(name='gpuSpec', example='ecs.gn6i-c4g1.xlarge'),
+      groupName?: string(name='groupName', example='WorkerGroup1'),
+      maxReplica?: int32(name='maxReplica', example='10'),
+      memory?: string(name='memory', example='16Gi'),
+      minReplica?: int32(name='minReplica', example='1'),
+      queueName?: string(name='queueName', example='root_queue'),
+      replica?: int32(name='replica', example='2'),
+      workerType?: string(name='workerType', example='CPU'),
+    }
+  ](name='workerSpec', position='Body'),
+  workingDir?: string(name='workingDir', example='oss://mybucket/rayjob.zip', position='Body'),
+}
+
+model SubmitRayJobResponseBody = {
+  requestId?: string(name='requestId', example='DD6B1B2A-5837-5237-ABE4-FF0C8944'),
+  submissionId?: string(name='submissionId', description='Ray Job ID。', example='rj-k7nm8ahl5te4tg91'),
+}
+
+model SubmitRayJobResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: SubmitRayJobResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of SubmitRayJob  SubmitRayJobRequest
+  * @return SubmitRayJobResponse
+ */
+async function submitRayJob(request: SubmitRayJobRequest): SubmitRayJobResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'SubmitRayJob', 'POST', '/api/v1/workspaces/{workspaceId}/rayJob', 'json', false, 'json', request);
+}
+
 model TerminateSqlStatementRequest {
   workspaceId?: string(name='workspaceId', description='The workspace ID.', example='w-d2d82aa09155****', position='Path'),
   statementId?: string(name='statementId', description='The interactive query ID.', example='st-abcadfadf12****', position='Path'),
@@ -3661,6 +3948,7 @@ model UpdateWorkspaceRequest {
   cu?: int32(name='cu', example='5000', position='Body'),
   gpu?: int32(name='gpu', example='100', position='Body'),
   gpuSpec?: [ string ](name='gpuSpec', position='Body'),
+  ipWhiteList?: [ string ](name='ipWhiteList', position='Body'),
   resourceGroupId?: string(name='resourceGroupId', example='rg-acfmwpi66knkxny', position='Body'),
   subscription?: {
     autoRenew?: string(name='autoRenew', example='true'),
