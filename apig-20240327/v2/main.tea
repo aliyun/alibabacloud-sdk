@@ -2295,26 +2295,26 @@ async function createConsumerAuthorizationRule(consumerId: string, request: Crea
 model CreateConsumerAuthorizationRulesRequest {
   authorizationRules?: [ 
     {
-      consumerId?: string(name='consumerId', description='The consumer ID.', example='cs-******'),
-      expireMode?: string(name='expireMode', description='The expiration mode. Valid values: LongTerm and ShortTerm.', example='LongTerm'),
-      expireTimestamp?: long(name='expireTimestamp', description='The expiration timestamp.', example='174116222x'),
+      consumerId?: string(name='consumerId', description='Consumer ID.', example='cs-******'),
+      expireMode?: string(name='expireMode', description='Expiration mode. Currently only LongTerm is supported.', example='LongTerm'),
+      expireTimestamp?: long(name='expireTimestamp', description='Expiration time.', example='174116222x'),
       resourceIdentifier?: {
-        environmentId?: string(name='environmentId', description='The environment ID.', example='env-******'),
-        parentResourceId?: string(name='parentResourceId', description='Parent resource ID', example='api-******'),
-        resourceId?: string(name='resourceId', description='The resource ID.', example='ha-cn-li942gy8p03'),
-        resources?: [ string ](name='resources', description='List of resources'),
-      }(name='resourceIdentifier', description='The resource identifier, which is provided to non-standard code sources for space reuse.'),
-      resourceType?: string(name='resourceType', description='The resource type.', example='HttpApiRoute'),
+        environmentId?: string(name='environmentId', description='Environment ID.', example='env-******'),
+        parentResourceId?: string(name='parentResourceId', description='Parent resource ID.', example='api-******'),
+        resourceId?: string(name='resourceId', description='Resource ID.', example='ha-cn-li942gy8p03'),
+        resources?: [ string ](name='resources', description='Resource information.'),
+      }(name='resourceIdentifier', description='Resource identifier, provided to non-standard code sources as a unique identifier for space reuse'),
+      resourceType?: string(name='resourceType', description='Resource type.', example='HttpApiRoute'),
     }
-  ](name='authorizationRules', description='The consumer authentication rules to be created.'),
+  ](name='authorizationRules', description='Consumer authorization rules.'),
 }
 
 model CreateConsumerAuthorizationRulesResponseBody = {
-  code?: string(name='code', description='The status code.', example='Ok'),
+  code?: string(name='code', description='Response status code.', example='Ok'),
   data?: {
-    consumerAuthorizationRuleIds?: [ string ](name='consumerAuthorizationRuleIds', description='The authentication rule IDs.'),
-  }(name='data', description='The response parameters.'),
-  message?: string(name='message', description='The returned message.', example='success'),
+    consumerAuthorizationRuleIds?: [ string ](name='consumerAuthorizationRuleIds', description='List of consumer authorization rule IDs.'),
+  }(name='data', description='Response data.'),
+  message?: string(name='message', description='Response message.', example='success'),
   requestId?: string(name='requestId', description='Id of the request', example='3ACFC7A7-45A9-58CF-B2D5-765B60254695'),
 }
 
@@ -2325,7 +2325,7 @@ model CreateConsumerAuthorizationRulesResponse = {
 }
 
 /**
- * @summary Creates a consumer authentication rule.
+ * @summary Create consumer authorization rules.
  *
  * @param request CreateConsumerAuthorizationRulesRequest
  * @param headers map
@@ -2359,7 +2359,7 @@ async function createConsumerAuthorizationRulesWithOptions(request: CreateConsum
 }
 
 /**
- * @summary Creates a consumer authentication rule.
+ * @summary Create consumer authorization rules.
  *
  * @param request CreateConsumerAuthorizationRulesRequest
  * @return CreateConsumerAuthorizationRulesResponse
@@ -4951,6 +4951,76 @@ async function deployMcpServer(mcpServerId: string): DeployMcpServerResponse {
   return deployMcpServerWithOptions(mcpServerId, headers, runtime);
 }
 
+model DescribeRegionsRequest {
+  language?: string(name='language', example='zh'),
+}
+
+model DescribeRegionsResponseBody = {
+  code?: string(name='code', example='200'),
+  message?: string(name='message', example='success'),
+  regions?: {
+    region?: [ 
+    {
+      localName?: string(name='localName', example='华东1（杭州）'),
+      regionId?: string(name='regionId', example='cn-hangzhou'),
+    }
+  ](name='Region')
+  }(name='regions'),
+  requestId?: string(name='requestId', example='E6BD6C79-32B1-5D7E-A89A-93C5A6B7xxxx'),
+}
+
+model DescribeRegionsResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: DescribeRegionsResponseBody(name='body'),
+}
+
+/**
+ * @summary 查询当前账号可见的云原生API网关开服地域
+ *
+ * @param request DescribeRegionsRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return DescribeRegionsResponse
+ */
+@context("describeRegionsWithContext")
+async function describeRegionsWithOptions(request: DescribeRegionsRequest, headers: map[string]string, runtime: $RuntimeOptions): DescribeRegionsResponse {
+  request.validate();
+  var query : map[string]any = {};
+  if (!$isNull(request.language)) {
+    query['language'] = request.language;
+  }
+
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'DescribeRegions',
+    version = '2024-03-27',
+    protocol = 'HTTPS',
+    pathname = `/v1/regions`,
+    method = 'POST',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 查询当前账号可见的云原生API网关开服地域
+ *
+ * @param request DescribeRegionsRequest
+ * @return DescribeRegionsResponse
+ */
+async function describeRegions(request: DescribeRegionsRequest): DescribeRegionsResponse {
+  var runtime = new $RuntimeOptions{};
+  var headers : map[string]string = {};
+  return describeRegionsWithOptions(request, headers, runtime);
+}
+
 model ExportHttpApiRequest {
   extensionConfig?: {
     withAuthConfig?: boolean(name='withAuthConfig'),
@@ -6677,6 +6747,7 @@ model ImportHttpApiRequest {
 - `ExistFirst`: Creates new APIs from the imported definition but does not modify any existing APIs. This is the default strategy.', example='ExistFirst'),
   targetHttpApiId?: string(name='targetHttpApiId', description='If you specify this parameter, the import updates the specified API instead of creating a new one or searching for an existing API by name and versioning configuration. The target API must be an HTTP API.', example='api-xxxx'),
   versionConfig?: HttpApiVersionConfig(name='versionConfig', description='The versioning configuration for the API. If an existing API matches the specified name (and version, if enabled), this import updates that API.'),
+  withGatewayExtension?: boolean(name='withGatewayExtension'),
 }
 
 model ImportHttpApiResponseBody = {
@@ -6698,6 +6769,12 @@ model ImportHttpApiResponseBody = {
           path?: string(name='path', description='The operation path.', example='/v1/orders'),
         }
       ](name='failureOperations', description='Operations that failed the dry run.'),
+      failureRoutes?: [ 
+        {
+          errorMessage?: string(name='errorMessage'),
+          name?: string(name='name'),
+        }
+      ](name='failureRoutes'),
       mcpToolsDefinition?: string(name='mcpToolsDefinition'),
       successComponents?: [ 
         {
@@ -6721,6 +6798,12 @@ model ImportHttpApiResponseBody = {
           path?: string(name='path', description='The operation path.', example='/v1/users'),
         }
       ](name='successOperations', description='Operations that passed the dry run.'),
+      successRoutes?: [ 
+        {
+          action?: string(name='action'),
+          name?: string(name='name'),
+        }
+      ](name='successRoutes'),
       warningMessages?: [ string ](name='warningMessages', description='Global warning messages. If this list is not empty, some operations or data structures might not be imported.'),
     }(name='dryRunInfo', description='The results of the dry run.'),
     httpApiId?: string(name='httpApiId', description='The unique ID of the HTTP API.', example='api-xxx'),
@@ -6786,6 +6869,9 @@ async function importHttpApiWithOptions(request: ImportHttpApiRequest, headers: 
   }
   if (!$isNull(request.versionConfig)) {
     body['versionConfig'] = request.versionConfig;
+  }
+  if (!$isNull(request.withGatewayExtension)) {
+    body['withGatewayExtension'] = request.withGatewayExtension;
   }
 
   var req = new OpenApiUtil.OpenApiRequest{ 

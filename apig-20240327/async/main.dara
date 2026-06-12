@@ -2973,6 +2973,39 @@ async function deployMcpServer(request: DeployMcpServerRequest): DeployMcpServer
   return @handler.do('RESTFUL', 'DeployMcpServer', 'POST', '/v1/mcp-servers/{mcpServerId}/deploy', 'json', false, 'json', request);
 }
 
+model DescribeRegionsRequest {
+  language?: string(name='language', example='zh', position='Query'),
+}
+
+model DescribeRegionsResponseBody = {
+  code?: string(name='code', example='200'),
+  message?: string(name='message', example='success'),
+  regions?: {
+    region?: [ 
+    {
+      localName?: string(name='localName', example='华东1（杭州）'),
+      regionId?: string(name='regionId', example='cn-hangzhou'),
+    }
+  ](name='Region')
+  }(name='regions', example='[{"regionId":"cn-hangzhou","localName":"华东1（杭州）"}]'),
+  requestId?: string(name='requestId', example='E6BD6C79-32B1-5D7E-A89A-93C5A6B7xxxx'),
+}
+
+model DescribeRegionsResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: DescribeRegionsResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of DescribeRegions  DescribeRegionsRequest
+  * @return DescribeRegionsResponse
+ */
+async function describeRegions(request: DescribeRegionsRequest): DescribeRegionsResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'DescribeRegions', 'POST', '/v1/regions', 'json', false, 'json', request);
+}
+
 model ExportHttpApiRequest {
   httpApiId: string(name='httpApiId', description='The HTTP API ID.
 
@@ -4014,6 +4047,7 @@ model ImportHttpApiRequest {
 *   ExistFirst (default): Merge with priority on existing APIs. New APIs are created but existing ones remain unchanged. If this parameter is not specified, the ExistFirst policy takes effect.', example='ExistFirst', position='Body'),
   targetHttpApiId?: string(name='targetHttpApiId', description='The target REST API ID for direct updates. If specified, the import operation will directly update the designated API instead of creating new APIs or updating existing APIs based on the name and version. Only REST APIs can be specified.', example='api-xxxx', position='Body'),
   versionConfig?: HttpApiVersionConfig(name='versionConfig', description='The API versioning configuration. If versioning is enabled, an imported API that matches both the version number and the API name of an existing API will update that API. If versioning is disabled, an imported API that matches the API name of an existing API will update it.', position='Body'),
+  withGatewayExtension?: boolean(name='withGatewayExtension', position='Body'),
 }
 
 model ImportHttpApiResponseBody = {
@@ -4035,6 +4069,12 @@ model ImportHttpApiResponseBody = {
           path?: string(name='path', description='The operation path.', example='/v1/orders'),
         }
       ](name='failureOperations', description='The operations that fail the dry run.'),
+      failureRoutes?: [ 
+        {
+          errorMessage?: string(name='errorMessage'),
+          name?: string(name='name'),
+        }
+      ](name='failureRoutes'),
       mcpToolsDefinition?: string(name='mcpToolsDefinition'),
       successComponents?: [ 
         {
@@ -4056,6 +4096,12 @@ model ImportHttpApiResponseBody = {
           path?: string(name='path', description='The operation path.', example='/v1/users'),
         }
       ](name='successOperations', description='The operations that pass the dry run.'),
+      successRoutes?: [ 
+        {
+          action?: string(name='action'),
+          name?: string(name='name'),
+        }
+      ](name='successRoutes'),
       warningMessages?: [ string ](name='warningMessages', description='The alerts. If an alert is returned, specific operations or structs may fail to be imported.'),
     }(name='dryRunInfo', description='The dry run result.'),
     httpApiId?: string(name='httpApiId', description='The API ID.', example='api-xxx'),
