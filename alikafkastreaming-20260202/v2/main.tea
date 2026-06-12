@@ -1,0 +1,94 @@
+/**
+ *
+ */
+import OpenApi;
+import OpenApi.OpenApiUtil;
+
+extends OpenApi;
+
+
+init(config: OpenApiUtil.Config){
+  super(config);
+  @endpointRule = '';
+  
+  checkConfig(config);
+  @endpoint = getEndpoint('alikafkastreaming', @regionId, @endpointRule, @network, @suffix, @endpointMap, @endpoint);
+}
+
+function getEndpoint(productId: string, regionId: string, endpointRule: string, network: string, suffix: string, endpointMap: map[string]string, endpoint: string) throws: string{
+  if (!$isNull(endpoint)) {
+    return endpoint;
+  }
+  
+  if (!$isNull(endpointMap) && !$isNull(endpointMap[regionId])) {
+    return endpointMap[regionId];
+  }
+  return OpenApiUtil.getEndpointRules(productId, regionId, endpointRule, network, suffix);
+}
+
+model CreateComputeInstanceRequest {
+  paidType?: long(name='PaidType', description='This parameter is required.'),
+  regionId?: string(name='RegionId', description='This parameter is required.'),
+}
+
+model CreateComputeInstanceResponseBody = {
+  code?: long(name='Code'),
+  data?: {
+    instanceId?: string(name='InstanceId'),
+    orderId?: string(name='OrderId'),
+  }(name='Data'),
+  requestId?: string(name='RequestId'),
+  success?: boolean(name='Success'),
+}
+
+model CreateComputeInstanceResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: CreateComputeInstanceResponseBody(name='body'),
+}
+
+/**
+ * @summary 创建 流计算实例
+ *
+ * @param request CreateComputeInstanceRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return CreateComputeInstanceResponse
+ */
+@context("createComputeInstanceWithContext")
+async function createComputeInstanceWithOptions(request: CreateComputeInstanceRequest, runtime: $RuntimeOptions): CreateComputeInstanceResponse {
+  request.validate();
+  var query = {};
+  if (!$isNull(request.paidType)) {
+    query['PaidType'] = request.paidType;
+  }
+  if (!$isNull(request.regionId)) {
+    query['RegionId'] = request.regionId;
+  }
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'CreateComputeInstance',
+    version = '2026-02-02',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 创建 流计算实例
+ *
+ * @param request CreateComputeInstanceRequest
+ * @return CreateComputeInstanceResponse
+ */
+async function createComputeInstance(request: CreateComputeInstanceRequest): CreateComputeInstanceResponse {
+  var runtime = new $RuntimeOptions{};
+  return createComputeInstanceWithOptions(request, runtime);
+}
+
