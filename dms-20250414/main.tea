@@ -11,8 +11,18 @@ extends OpenApi;
 
 init(config: OpenApi.Config){
   super(config);
-  @endpointRule = '';
-  
+  @endpointRule = 'regional';
+  @endpointMap = {
+    'us-west-1' = 'dms.us-west-1.aliyuncs.com',
+    'us-east-1' = 'dms.us-east-1.aliyuncs.com',
+    'cn-shenzhen' = 'dms.cn-shenzhen.aliyuncs.com',
+    'cn-shanghai' = 'dms.cn-shanghai.aliyuncs.com',
+    'cn-hongkong' = 'dms.cn-hongkong.aliyuncs.com',
+    'cn-hangzhou' = 'dms.cn-hangzhou.aliyuncs.com',
+    'cn-beijing' = 'dms.cn-beijing.aliyuncs.com',
+    'ap-southeast-1' = 'dms.ap-southeast-1.aliyuncs.com',
+  };
+
   checkConfig(config);
   @endpoint = getEndpoint('dms', @regionId, @endpointRule, @network, @suffix, @endpointMap, @endpoint);
 }
@@ -372,6 +382,19 @@ model DataMountInfo {
   readOnly?: boolean(name='ReadOnly', description='Whether to mount the data volume as read-only.
 
 Default value: false.', example='false'),
+}
+
+model DmsGatewayOrder {
+  bizType?: string(name='BizType'),
+  chargeType?: string(name='ChargeType'),
+  commodityCode?: string(name='CommodityCode'),
+  expireTime?: string(name='ExpireTime'),
+  instanceId?: string(name='InstanceId'),
+  instanceType?: string(name='InstanceType'),
+  orderId?: long(name='OrderId'),
+  payNum?: int32(name='PayNum'),
+  region?: string(name='Region'),
+  state?: string(name='State'),
 }
 
 model DmsKnowledgeSearchOrderInfoDO {
@@ -2182,25 +2205,26 @@ async function createDataAgentSession(request: CreateDataAgentSessionRequest): C
 }
 
 model CreateDataAgentWorkspaceRequest {
-  DMSUnit?: string(name='DMSUnit', description='The DMS unit.', example='cn-hangzhou'),
+  DMSUnit?: string(name='DMSUnit', description='The current DMS unit.', example='cn-hangzhou'),
   isSessionShareEnabled?: boolean(name='IsSessionShareEnabled'),
-  workspaceDesc?: string(name='WorkspaceDesc', description='The description of the workspace.', example='Space for test'),
-  workspaceName?: string(name='WorkspaceName', description='The name of the workspace.', example='workspaceTest'),
+  workspaceDesc?: string(name='WorkspaceDesc', description='The description of the collaborative workspace.', example='Space for test'),
+  workspaceName?: string(name='WorkspaceName', description='The name of the collaborative workspace.', example='workspaceTest'),
 }
 
 model CreateDataAgentWorkspaceResponseBody = {
   data?: {
-    createTime?: long(name='CreateTime', description='The time the workspace was created, as a UNIX timestamp in seconds.', example='1765960516'),
-    creator?: string(name='Creator', description='The user ID of the workspace creator.', example='20282*****7591'),
-    isSessionShareEnabled?: boolean(name='IsSessionShareEnabled', description='Indicates whether session sharing is enabled for the workspace.'),
-    modifyTime?: long(name='ModifyTime', description='The time the workspace was last modified, as a UNIX timestamp in seconds.', example='1765961516'),
-    roleName?: string(name='RoleName', description='The name of the user\\\\"s role in the workspace.', example='owner'),
+    createTime?: long(name='CreateTime', description='The time when the workspace was created. The value is a UNIX timestamp in seconds.', example='1765960516'),
+    creator?: string(name='Creator', description='The UID of the workspace creator.', example='20282*****7591'),
+    isSessionShareEnabled?: boolean(name='IsSessionShareEnabled'),
+    modifyTime?: long(name='ModifyTime', description='The time when the workspace was last modified. The value is a UNIX timestamp in seconds.', example='1765961516'),
+    roleName?: string(name='RoleName', description='The role name of the user in the workspace.', example='owner'),
     totalMember?: long(name='TotalMember', description='The number of members in the workspace.', example='11'),
+    type?: string(name='Type'),
     workspaceDesc?: string(name='WorkspaceDesc', description='The description of the workspace.', example='space for test'),
     workspaceId?: string(name='WorkspaceId', description='The workspace ID.', example='20923*****7291'),
     workspaceName?: string(name='WorkspaceName', description='The name of the workspace.', example='workspaceTest'),
     workspaceStatus?: string(name='WorkspaceStatus', description='The status of the workspace.', example='active'),
-  }(name='Data', description='The returned data structure.'),
+  }(name='Data', description='The response struct.'),
   errorCode?: string(name='ErrorCode', description='The error code.', example='DMS-DA-40114'),
   errorMessage?: string(name='ErrorMessage', description='The error message.', example='Specified parameter is not valid.'),
   requestId?: string(name='RequestId', description='The request ID.', example='E0D2-*****-A63B6'),
@@ -2214,7 +2238,7 @@ model CreateDataAgentWorkspaceResponse = {
 }
 
 /**
- * @summary Creates a DataAgent workspace.
+ * @summary Creates a DataAgent collaborative workspace.
  *
  * @param request CreateDataAgentWorkspaceRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -2253,7 +2277,7 @@ async function createDataAgentWorkspaceWithOptions(request: CreateDataAgentWorks
 }
 
 /**
- * @summary Creates a DataAgent workspace.
+ * @summary Creates a DataAgent collaborative workspace.
  *
  * @param request CreateDataAgentWorkspaceRequest
  * @return CreateDataAgentWorkspaceResponse
@@ -3876,68 +3900,84 @@ async function describeCustomAgent(request: DescribeCustomAgentRequest): Describ
 }
 
 model DescribeDataAgentSessionRequest {
-  DMSUnit?: string(name='DMSUnit', description='The ID of the DMS unit.', example='cn-hangzhou'),
-  sessionId?: string(name='SessionId', description='The ID of the agent session.', example='c61n7gm******rj'),
-  workspaceId?: string(name='WorkspaceId', description='The ID of the workspace.', example='12****'),
+  DMSUnit?: string(name='DMSUnit', description='The current Data Management unit.', example='cn-hangzhou'),
+  sessionId?: string(name='SessionId', description='The agent session ID.', example='c61n7gm******rj'),
+  workspaceId?: string(name='WorkspaceId', description='The workspace ID.', example='12****'),
 }
 
 model DescribeDataAgentSessionResponseBody = {
   data?: {
-    agentId?: string(name='AgentId', description='The ID of the agent.', example='cu0cs*******mf'),
-    agentStatus?: string(name='AgentStatus', description='The status of the agent.', example='RUNNING'),
+    agentId?: string(name='AgentId', description='The current agent ID.', example='cu0cs*******mf'),
+    agentStatus?: string(name='AgentStatus', description='The current agent status.', example='RUNNING'),
+    artifacts?: [ 
+      {
+        description?: string(name='Description'),
+        finishTime?: string(name='FinishTime'),
+        id?: string(name='Id'),
+        name?: string(name='Name'),
+        receiveTime?: string(name='ReceiveTime'),
+        startTime?: string(name='StartTime'),
+        status?: string(name='Status'),
+        type?: string(name='Type'),
+      }
+    ](name='Artifacts'),
     chatHistoryLocations?: [ 
       {
-        key?: string(name='Key', description='The key of the session replay history item.', example='testKey1'),
-        url?: string(name='Url', description='The OSS download URL for the session replay history item.', example='****'),
+        key?: string(name='Key', description='The key of the chat replay history.', example='testKey1'),
+        url?: string(name='Url', description='The OSS download URL of the chat replay history.', example='****'),
       }
-    ](name='ChatHistoryLocations', description='The session replay history.'),
-    createTime?: long(name='CreateTime', description='The timestamp indicating when the session was created.', example='1731645908000'),
-    favoriteInWorkspace?: string(name='FavoriteInWorkspace', description='Indicates whether the current user has favorited the session in the workspace.', example='true'),
-    file?: string(name='File', description='The ID of the file.', example='f-8*******01m'),
-    saved?: boolean(name='Saved', description='Indicates whether the current user has favorited the session.', example='true'),
+    ](name='ChatHistoryLocations', description='The chat replay history.'),
+    createTime?: long(name='CreateTime', description='The session creation time.', example='1731645908000'),
+    dataSources?: [ 
+      {
+        category?: string(name='Category'),
+        detail?: string(name='Detail'),
+      }
+    ](name='DataSources'),
+    favoriteInWorkspace?: string(name='FavoriteInWorkspace', description='Indicates whether the session is saved as a favorite in the workspace by the current logged-in user.', example='true'),
+    file?: string(name='File', description='The file ID.', example='f-8*******01m'),
+    recallResults?: [ 
+      {
+        content?: string(name='Content'),
+        score?: double(name='Score'),
+        type?: string(name='Type'),
+      }
+    ](name='RecallResults'),
+    saved?: boolean(name='Saved', description='Indicates whether the session is saved as a favorite by the current logged-in user.', example='true'),
     sessionConfig?: {
-      customAgentId?: string(name='CustomAgentId', description='The ID of the custom agent.', example='ca-e*******ckd'),
+      customAgentId?: string(name='CustomAgentId', description='The custom agent ID.', example='ca-e*******ckd'),
       customAgentStage?: string(name='CustomAgentStage', description='The stage of the custom agent. Valid values:
-
-- **debug**: The test stage.
-
-- **prod**: The production stage.', example='debug'),
-      enableSearch?: boolean(name='EnableSearch', description='Indicates whether web search is enabled.', example='True'),
+- **debug**: Debug stage.
+- **prod**: Production stage.', example='debug'),
+      enableSearch?: boolean(name='EnableSearch', description='Specifies whether to enable web search.', example='True'),
       encryptKey?: string(name='EncryptKey'),
       encryptType?: string(name='EncryptType'),
       kbUuidList?: [ string ](name='KbUuidList'),
       language?: string(name='Language', description='The language. Valid values:
-
-- **CHINESE**: Chinese
-
-- **ENGLISH**: English', example='CHINESE'),
-      mcpServerIds?: [ string ](name='McpServerIds', description='A list of MCP server IDs.'),
+- **CHINESE**: Chinese.
+- **ENGLISH**: English.', example='CHINESE'),
+      mcpServerIds?: [ string ](name='McpServerIds', description='The list of MCP server IDs in the session configuration.'),
       mode?: string(name='Mode', description='The mode. Valid values:
-
-- **ASK_DATA**: quick inquiry mode
-
-- **ANALYSIS**: analysis mode
-
-- **INSIGHT**: insight mode', example='ANALYSIS'),
+- **ASK_DATA**: Ask data mode.
+- **ANALYSIS**: Analysis mode.
+- **INSIGHT**: Insight mode.', example='ANALYSIS'),
       reportPageWidth?: long(name='ReportPageWidth'),
       reportWaterMark?: string(name='ReportWaterMark'),
-      userOssBucket?: string(name='UserOssBucket', description='The name of the user\\\\"s OSS bucket.
-
-- The service can upload analysis files and reports to this bucket.', example='user-oss-bucket'),
-    }(name='SessionConfig', description='The configuration of the session.'),
-    sessionId?: string(name='SessionId', description='The ID of the agent session.', example='976*********p'),
-    sessionStatus?: string(name='SessionStatus', description='The status of the session.', example='RUNNING'),
-    title?: string(name='Title', description='The title of the session.', example='分析一下这份文件，给出报告。'),
+      userOssBucket?: string(name='UserOssBucket', description='The name of the user OSS bucket.
+- Analysis process files and report artifacts can be uploaded to the user-specified OSS bucket.', example='user-oss-bucket'),
+    }(name='SessionConfig', description='The session configuration item.'),
+    sessionId?: string(name='SessionId', description='The agent session ID.', example='976*********p'),
+    sessionStatus?: string(name='SessionStatus', description='The session status.', example='RUNNING'),
+    title?: string(name='Title', description='The title.', example='分析一下这份文件，给出报告。'),
     userId?: string(name='UserId', description='The ID of the session owner.', example='2096******'),
-  }(name='Data', description='The response data.'),
+  }(name='Data', description='The response struct.'),
   errorCode?: string(name='ErrorCode', description='The error code.', example='success'),
-  errorMessage?: string(name='ErrorMessage', description='The error message returned when the request fails.', example='UnknownError'),
-  requestId?: string(name='RequestId', description='The request ID.', example='18****-*****-*******7A3122F'),
-  success?: boolean(name='Success', description='Indicates whether the request was successful.
+  errorMessage?: string(name='ErrorMessage', description='The error message returned if the call failed.', example='UnknownError'),
+  requestId?: string(name='RequestId', description='Id of the request', example='18****-*****-*******7A3122F'),
+  success?: boolean(name='Success', description='The return value. Valid values:
 
-- **true**: The request was successful.
-
-- **false**: The request failed.', example='true'),
+- **true**: Succeeded.
+- **false**: Failed.', example='true'),
 }
 
 model DescribeDataAgentSessionResponse = {
@@ -3947,7 +3987,7 @@ model DescribeDataAgentSessionResponse = {
 }
 
 /**
- * @summary Gets the details of a DataAgent session.
+ * @summary Retrieves the description of a DataAgent session.
  *
  * @param request DescribeDataAgentSessionRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -3983,7 +4023,7 @@ async function describeDataAgentSessionWithOptions(request: DescribeDataAgentSes
 }
 
 /**
- * @summary Gets the details of a DataAgent session.
+ * @summary Retrieves the description of a DataAgent session.
  *
  * @param request DescribeDataAgentSessionRequest
  * @return DescribeDataAgentSessionResponse
@@ -4644,27 +4684,28 @@ async function getDataAgentSubAccountInfo(request: GetDataAgentSubAccountInfoReq
 }
 
 model GetDataAgentWorkspaceInfoRequest {
-  DMSUnit?: string(name='DMSUnit', description='The DMS unit.', example='cn-hangzhou'),
-  workspaceId?: string(name='WorkspaceId', description='The workspace ID.', example='20923*****7291'),
+  DMSUnit?: string(name='DMSUnit', description='The current DMS unit.', example='cn-hangzhou'),
+  workspaceId?: string(name='WorkspaceId', description='The ID of the collaborative workspace.', example='20923*****7291'),
 }
 
 model GetDataAgentWorkspaceInfoResponseBody = {
   data?: {
-    createTime?: string(name='CreateTime', description='The time when the workspace was created. This value is a UNIX timestamp in seconds.', example='1765960516'),
-    creator?: string(name='Creator', description='The user ID (UID) of the workspace creator.', example='20282*****7591'),
-    isSessionShareEnabled?: boolean(name='IsSessionShareEnabled', description='Indicates whether session sharing is enabled.'),
-    modifyTime?: string(name='ModifyTime', description='The time when the workspace was last modified. This value is a UNIX timestamp in seconds.', example='1765961516'),
-    roleName?: string(name='RoleName', description='The user\\\\"s role in the workspace.', example='admin'),
+    createTime?: string(name='CreateTime', description='The creation time of the session. Unit: seconds. The value is a UNIX timestamp.', example='1765960516'),
+    creator?: string(name='Creator', description='The UID of the workspace creator.', example='20282*****7591'),
+    isSessionShareEnabled?: boolean(name='IsSessionShareEnabled'),
+    modifyTime?: string(name='ModifyTime', description='The most recent modification time of the workspace. Unit: seconds. The value is a UNIX timestamp.', example='1765961516'),
+    roleName?: string(name='RoleName', description='The role name of the user in the workspace.', example='admin'),
     totalMember?: string(name='TotalMember', description='The number of members in the workspace.', example='11'),
-    workspaceDesc?: string(name='WorkspaceDesc', description='The description of the workspace.', example='space for test'),
-    workspaceId?: string(name='WorkspaceId', description='The workspace ID.', example='20923*****7291'),
+    type?: string(name='Type'),
+    workspaceDesc?: string(name='WorkspaceDesc', description='The description of the collaborative workspace.', example='space for test'),
+    workspaceId?: string(name='WorkspaceId', description='The ID of the collaborative workspace.', example='20923*****7291'),
     workspaceName?: string(name='WorkspaceName', description='The name of the workspace.', example='workspaceTest'),
     workspaceStatus?: string(name='WorkspaceStatus', description='The status of the workspace.', example='active'),
-  }(name='Data', description='The returned data.'),
+  }(name='Data', description='The response struct.'),
   errorCode?: string(name='ErrorCode', description='The error code.', example='DMS-DA-40114'),
   errorMessage?: string(name='ErrorMessage', description='The error message.', example='Specified parameter is not valid.'),
   requestId?: string(name='RequestId', description='The request ID.', example='E0D2-*****-A63B6'),
-  success?: boolean(name='Success', description='Indicates whether the request was successful.', example='true'),
+  success?: boolean(name='Success', description='Indicates whether the request is successful.', example='true'),
 }
 
 model GetDataAgentWorkspaceInfoResponse = {
@@ -4674,7 +4715,7 @@ model GetDataAgentWorkspaceInfoResponse = {
 }
 
 /**
- * @summary Retrieves workspace details.
+ * @summary Retrieves the details of a collaborative workspace.
  *
  * @param request GetDataAgentWorkspaceInfoRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -4707,7 +4748,7 @@ async function getDataAgentWorkspaceInfoWithOptions(request: GetDataAgentWorkspa
 }
 
 /**
- * @summary Retrieves workspace details.
+ * @summary Retrieves the details of a collaborative workspace.
  *
  * @param request GetDataAgentWorkspaceInfoRequest
  * @return GetDataAgentWorkspaceInfoResponse
@@ -6041,18 +6082,18 @@ async function listDataAgentSession(request: ListDataAgentSessionRequest): ListD
 
 model ListDataAgentWorkspaceRequest {
   DMSUnit?: string(name='DMSUnit', description='The current DMS unit.', example='cn-hangzhou'),
-  maxResults?: int32(name='MaxResults', description='This parameter is reserved for future use.', example='no use'),
-  nextToken?: string(name='NextToken', description='This parameter is reserved for future use.', example='no use'),
+  maxResults?: int32(name='MaxResults', description='The maximum number of entries per page.', example='no use'),
+  nextToken?: string(name='NextToken', description='The token information.', example='no use'),
   order?: string(name='Order', description='The sort order.', example='DESC'),
-  orderBy?: string(name='OrderBy', description='The field to sort by.', example='CreateTime'),
-  pageNumber?: string(name='PageNumber', description='The page number.
+  orderBy?: string(name='OrderBy', description='The name of the field by which to sort.', example='CreateTime'),
+  pageNumber?: string(name='PageNumber', description='The page number to start from.
 
 This parameter is required.', example='1'),
-  pageSize?: string(name='PageSize', description='The number of entries to return on each page.
+  pageSize?: string(name='PageSize', description='The number of records per page.
 
 This parameter is required.', example='10'),
   workspaceName?: string(name='WorkspaceName', description='The workspace name.', example='workspaceTest'),
-  workspaceType?: string(name='WorkspaceType', description='The workspace type.
+  workspaceType?: string(name='WorkspaceType', description='The type of workspace to query.
 
 This parameter is required.', example='MY'),
 }
@@ -6061,27 +6102,28 @@ model ListDataAgentWorkspaceResponseBody = {
   data?: {
     content?: [ 
       {
-        createTime?: long(name='CreateTime', description='The creation time of the workspace, provided as a UNIX timestamp in seconds.', example='1765960516'),
-        creator?: string(name='Creator', description='The creator\\\\"s user ID (UID).', example='20282*****7591'),
+        createTime?: long(name='CreateTime', description='The creation time of the workspace. This value is a UNIX timestamp in seconds.', example='1765960516'),
+        creator?: string(name='Creator', description='The UID of the workspace creator.', example='20282*****7591'),
         description?: string(name='Description', description='The description of the workspace.', example='space for test'),
         isSessionShareEnabled?: boolean(name='IsSessionShareEnabled'),
-        modifyTime?: long(name='ModifyTime', description='The last modification time of the workspace, provided as a UNIX timestamp in seconds.', example='1765961516'),
-        roleName?: string(name='RoleName', description='The name of the user\\\\"s role in the workspace.', example='admin'),
+        modifyTime?: long(name='ModifyTime', description='The most recent modification time of the workspace. This value is a UNIX timestamp in seconds.', example='1765961516'),
+        roleName?: string(name='RoleName', description='The role name of the user in the workspace.', example='admin'),
         totalMember?: long(name='TotalMember', description='The number of members in the workspace.', example='11'),
-        workspaceId?: string(name='WorkspaceId', description='The ID of the workspace.', example='20923*****7291'),
+        type?: string(name='Type'),
+        workspaceId?: string(name='WorkspaceId', description='The workspace ID.', example='20923*****7291'),
         workspaceName?: string(name='WorkspaceName', description='The name of the workspace.', example='workspaceTest'),
         workspaceStatus?: string(name='WorkspaceStatus', description='The status of the workspace.', example='active'),
       }
-    ](name='Content', description='The details of the workspaces.'),
-    pageNumber?: long(name='PageNumber', description='The page number.', example='12'),
-    pageSize?: long(name='PageSize', description='The number of workspaces on each page.', example='50'),
+    ](name='Content', description='The configuration content.'),
+    pageNumber?: long(name='PageNumber', description='The total number of pages.', example='12'),
+    pageSize?: long(name='PageSize', description='The number of workspaces per page.', example='50'),
     totalElements?: long(name='TotalElements', description='The total number of workspaces.', example='122'),
     totalPages?: long(name='TotalPages', description='The total number of pages.', example='12'),
-  }(name='Data', description='The returned data.'),
+  }(name='Data', description='The response struct.'),
   errorCode?: string(name='ErrorCode', description='The error code.', example='DMS-DA-40114'),
-  errorMessage?: string(name='ErrorMessage', description='The error message returned if the request fails.', example='Specified parameter is not valid.'),
-  maxResults?: int32(name='MaxResults', description='This parameter is not used.', example='nu use'),
-  nextToken?: string(name='NextToken', description='This parameter is not used.', example='no use'),
+  errorMessage?: string(name='ErrorMessage', description='The error message returned if the call failed.', example='Specified parameter is not valid.'),
+  maxResults?: int32(name='MaxResults', description='The maximum number of entries per page.', example='nu use'),
+  nextToken?: string(name='NextToken', description='The token information.', example='no use'),
   requestId?: string(name='RequestId', description='The request ID.', example='E0D2-*****-A63B6'),
   success?: string(name='Success', description='Indicates whether the request was successful.', example='true'),
 }
@@ -6093,7 +6135,7 @@ model ListDataAgentWorkspaceResponse = {
 }
 
 /**
- * @summary Retrieves paginated collaboration workspaces for an Alibaba Cloud account.
+ * @summary Retrieves the collaborative workspaces under the primary account with pagination.
  *
  * @param request ListDataAgentWorkspaceRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -6147,7 +6189,7 @@ async function listDataAgentWorkspaceWithOptions(request: ListDataAgentWorkspace
 }
 
 /**
- * @summary Retrieves paginated collaboration workspaces for an Alibaba Cloud account.
+ * @summary Retrieves the collaborative workspaces under the primary account with pagination.
  *
  * @param request ListDataAgentWorkspaceRequest
  * @return ListDataAgentWorkspaceResponse
@@ -9114,89 +9156,102 @@ async function saveWorkspaceCode(request: SaveWorkspaceCodeRequest): SaveWorkspa
 }
 
 model SendChatMessageRequest {
-  agentId?: string(name='AgentId', description='The agent ID. This parameter is required. You can obtain this ID from the response of the `CreateAgentSession` operation. An agent has a lifecycle, so its ID may change with each request.
+  agentId?: string(name='AgentId', description='The agent ID. This parameter is required. You can obtain the current AgentId from the response of the CreateAgentSession operation. Agent resources have a lifecycle, so the AgentId you need to specify may change with each request.
 
 This parameter is required.', example='agent_***'),
-  DMSUnit?: string(name='DMSUnit', description='The DMS unit where your DMS instance is located. This information is used to connect to your DMS instance for database analysis. You can find this value in the DMS console. For users on the Alibaba Cloud China site, you can enter `cn-hangzhou`.', example='cn-hangzhou'),
+  DMSUnit?: string(name='DMSUnit', description='The Data Management unit you are currently in. If you choose to analyze a database, this information is used to correctly connect to your Data Management instance. You can go to the Data Management console to view your current Data Management unit. If you are a user of Alibaba Cloud China Website (www.aliyun.com), set this parameter to ap-southeast-1.', example='cn-hangzhou'),
   dataSource?: {
-    dataSourceId?: string(name='DataSourceId', description='This parameter is deprecated. Do not use it.', example='123'),
-    dataSourceType?: string(name='DataSourceType', description='The data source type. Valid values are `remote_data_center` for file analysis and `database` for database analysis.', example='remote_data_center'),
-    database?: string(name='Database', description='This parameter is deprecated. Do not use it.', example='test_db'),
+    dataSourceId?: string(name='DataSourceId', description='Deprecated. You do not need to specify this parameter.', example='123'),
+    dataSourceType?: string(name='DataSourceType', description='The data source type. Valid values: `[remote_data_center, database]`, indicating that the analysis is performed on a file or a database respectively.', example='remote_data_center'),
+    database?: string(name='Database', description='Deprecated. You do not need to specify this parameter.', example='test_db'),
     dbName?: string(name='DbName', description='The database name.', example='******'),
-    dmsDatabaseId?: string(name='DmsDatabaseId', description='The ID of the database in DMS.', example='23******'),
-    dmsInstanceId?: string(name='DmsInstanceId', description='The ID of the instance in DMS.', example='12******'),
+    dmsDatabaseId?: string(name='DmsDatabaseId', description='The ID of the database in Data Management.', example='23******'),
+    dmsInstanceId?: string(name='DmsInstanceId', description='The ID of the instance in Data Management.', example='12******'),
     engine?: string(name='Engine', description='The database engine type.', example='mysql'),
     fileId?: string(name='FileId', description='The file ID.', example='35****'),
-    location?: string(name='Location', description='This parameter is deprecated. Do not use it.', example='localhost'),
+    location?: string(name='Location', description='Deprecated. You do not need to specify this parameter.', example='localhost'),
     regionId?: string(name='RegionId', description='The region ID.', example='cn-hangzhou'),
-    tables?: [ string ](name='Tables', description='A list of table names to analyze.'),
-  }(name='DataSource', description='The data source information. Optional.'),
+    tables?: [ string ](name='Tables', description='The list of table names to analyze.'),
+  }(name='DataSource', description='The data source information. This parameter is optional.'),
   dataSources?: [ 
     {
-      dataSourceId?: string(name='DataSourceId', description='This parameter is deprecated. Do not use it.', example='123'),
-      dataSourceType?: string(name='DataSourceType', description='The data source type. Valid values are `remote_data_center` for file analysis and `database` for database analysis.', example='remote_data_center'),
-      database?: string(name='Database', description='This parameter is deprecated. Do not use it.', example='test_db'),
+      dataSourceId?: string(name='DataSourceId', description='Deprecated. You do not need to specify this parameter.', example='123'),
+      dataSourceType?: string(name='DataSourceType', description='The data source type. Valid values: [remote_data_center, database], indicating that the analysis is performed on a file or a database respectively.', example='remote_data_center'),
+      database?: string(name='Database', description='Deprecated. You do not need to specify this parameter.', example='test_db'),
       dbName?: string(name='DbName', description='The database name.', example='mydatabase'),
-      dmsDatabaseId?: string(name='DmsDatabaseId', description='The ID of the database in DMS.', example='123****'),
-      dmsInstanceId?: string(name='DmsInstanceId', description='The ID of the instance in DMS.', example='248*****'),
+      dmsDatabaseId?: string(name='DmsDatabaseId', description='The ID of the database in Data Management.', example='123****'),
+      dmsInstanceId?: string(name='DmsInstanceId', description='The ID of the instance in Data Management.', example='248*****'),
       engine?: string(name='Engine', description='The database engine type.', example='mysql'),
       fileId?: string(name='FileId', description='The file ID.', example='f-4w*******'),
-      location?: string(name='Location', description='This parameter is deprecated. Do not use it.', example='localhost'),
+      location?: string(name='Location', description='Deprecated. You do not need to specify this parameter.', example='localhost'),
       regionId?: string(name='RegionId', description='The region ID.', example='cn-shenzhen'),
-      tables?: [ string ](name='Tables', description='A list of table names to analyze.'),
+      tables?: [ string ](name='Tables', description='The list of table names to analyze.'),
     }
-  ](name='DataSources', description='A list of data sources. Optional.'),
-  message?: string(name='Message', description='The content of the message to send to the agent.
+  ](name='DataSources', description='The detailed data source information. This parameter is optional.'),
+  message?: string(name='Message', description='The message content to send to the Agent in this request.
 
 This parameter is required.', example='what can you do?'),
-  messageType?: string(name='MessageType', description='The message type. The default value is `primary`. Set this parameter to `additional` when responding to a human-in-the-loop question from the agent. Set it to `cancel` to cancel the current session.', example='primary'),
+  messageType?: string(name='MessageType', description='The message type. Default value: `[primary]`. When the message is a response to the Agent\\\\"s human-in-the-loop question, set this parameter to `[additional]`. When the message is intended to cancel the current session, set this parameter to `[cancel]`.', example='primary'),
   parentSessionId?: string(name='ParentSessionId', description='The parent session ID.', example='20qrliuoo7p2vlsfg*****'),
-  question?: string(name='Question', description='This parameter is required if the `MessageType` is `additional`. It contains the specific question asked by the agent during the human-in-the-loop process.', example='请提供计算GMV的口径。'),
-  quotedMessage?: string(name='QuotedMessage', description='The quoted content. This parameter is typically used when interacting with the agent.', example='{"version":"v0"}'),
-  replyTo?: string(name='ReplyTo', description='This parameter specifies the agent message to which this message is a response, enabling message deduplication. Set this to the highest checkpoint sequence number you have received. For the first message, use 0.', example='0'),
+  question?: string(name='Question', description='The specific question that the Agent asks the user through human-in-the-loop. This parameter is required when the message type is `additional`.', example='请提供计算GMV的口径。'),
+  quotedMessage?: string(name='QuotedMessage', description='The quoted content, typically used during interaction with the Agent.', example='{"version":"v0"}'),
+  replyTo?: string(name='ReplyTo', description='Indicates which Agent message this message responds to. Set this parameter to the largest Checkpoint sequence number currently received. Set it to 0 for the first message. This field is used for message deduplication in case of occasional network issues or duplicate message delivery.', example='0'),
   sessionConfig?: {
-    customAgentId?: string(name='CustomAgentId', description='This parameter is deprecated. Use the `CustomAgentId` request parameter from the `CreateAgentSession` operation instead.', example='null'),
-    customAgentStage?: string(name='CustomAgentStage', description='This parameter is deprecated. Use the `CustomAgentStage` request parameter from the `CreateAgentSession` operation instead.', example='null'),
-    language?: string(name='Language', description='The language of the session. Only Chinese and English are supported. The default value is Chinese. The value must be in uppercase.', example='ENGLISH'),
+    customAgentId?: string(name='CustomAgentId', description='Deprecated. Use the input parameters of CreateAgentSession instead.', example='null'),
+    customAgentStage?: string(name='CustomAgentStage', description='Deprecated. Use the input parameters of CreateAgentSession instead.', example='null'),
+    language?: string(name='Language', description='Only Chinese and English are supported. The default value is Chinese. Only uppercase values are supported.', example='ENGLISH'),
     mode?: string(name='Mode'),
-    reportWaterMark?: string(name='ReportWaterMark', description='A text watermark of up to 64 characters that will be added to generated PDF reports.', example='示例水印'),
-  }(name='SessionConfig', description='Session-specific configurations. These apply only if provided in the first `SendMessage` request of the session.', nullable=true),
-  sessionId?: string(name='SessionId', description='The session ID. This parameter is required. You can obtain the session ID by calling the `CreateAgentSession` operation.
+    reportWaterMark?: string(name='ReportWaterMark', description='The text of up to 64 characters that is used as a watermark in the generated PDF report.', example='示例水印'),
+    skipAskHuman?: boolean(name='SkipAskHuman'),
+    skipPlan?: boolean(name='SkipPlan'),
+    skipSqlConfirm?: boolean(name='SkipSqlConfirm'),
+    skipWebReportConfirm?: boolean(name='SkipWebReportConfirm'),
+  }(name='SessionConfig', description='The special configuration for this session. For the same session, only the configuration included in the first SendMessage call takes effect.', nullable=true),
+  sessionId?: string(name='SessionId', description='The session ID. This parameter is required. You can obtain the SessionId by calling the CreateAgentSession operation.
 
 This parameter is required.', example='sess_***'),
+  taskConfig?: {
+    reportConfig?: {
+      reportPrompt?: string(name='ReportPrompt'),
+      reportTheme?: string(name='ReportTheme'),
+      reportType?: string(name='ReportType'),
+    }(name='ReportConfig'),
+  }(name='TaskConfig'),
 }
 
 model SendChatMessageShrinkRequest {
-  agentId?: string(name='AgentId', description='The agent ID. This parameter is required. You can obtain this ID from the response of the `CreateAgentSession` operation. An agent has a lifecycle, so its ID may change with each request.
+  agentId?: string(name='AgentId', description='The agent ID. This parameter is required. You can obtain the current AgentId from the response of the CreateAgentSession operation. Agent resources have a lifecycle, so the AgentId you need to specify may change with each request.
 
 This parameter is required.', example='agent_***'),
-  DMSUnit?: string(name='DMSUnit', description='The DMS unit where your DMS instance is located. This information is used to connect to your DMS instance for database analysis. You can find this value in the DMS console. For users on the Alibaba Cloud China site, you can enter `cn-hangzhou`.', example='cn-hangzhou'),
-  dataSourceShrink?: string(name='DataSource', description='The data source information. Optional.'),
-  dataSourcesShrink?: string(name='DataSources', description='A list of data sources. Optional.'),
-  message?: string(name='Message', description='The content of the message to send to the agent.
+  DMSUnit?: string(name='DMSUnit', description='The Data Management unit you are currently in. If you choose to analyze a database, this information is used to correctly connect to your Data Management instance. You can go to the Data Management console to view your current Data Management unit. If you are a user of Alibaba Cloud China Website (www.aliyun.com), set this parameter to ap-southeast-1.', example='cn-hangzhou'),
+  dataSourceShrink?: string(name='DataSource', description='The data source information. This parameter is optional.'),
+  dataSourcesShrink?: string(name='DataSources', description='The detailed data source information. This parameter is optional.'),
+  message?: string(name='Message', description='The message content to send to the Agent in this request.
 
 This parameter is required.', example='what can you do?'),
-  messageType?: string(name='MessageType', description='The message type. The default value is `primary`. Set this parameter to `additional` when responding to a human-in-the-loop question from the agent. Set it to `cancel` to cancel the current session.', example='primary'),
+  messageType?: string(name='MessageType', description='The message type. Default value: `[primary]`. When the message is a response to the Agent\\\\"s human-in-the-loop question, set this parameter to `[additional]`. When the message is intended to cancel the current session, set this parameter to `[cancel]`.', example='primary'),
   parentSessionId?: string(name='ParentSessionId', description='The parent session ID.', example='20qrliuoo7p2vlsfg*****'),
-  question?: string(name='Question', description='This parameter is required if the `MessageType` is `additional`. It contains the specific question asked by the agent during the human-in-the-loop process.', example='请提供计算GMV的口径。'),
-  quotedMessage?: string(name='QuotedMessage', description='The quoted content. This parameter is typically used when interacting with the agent.', example='{"version":"v0"}'),
-  replyTo?: string(name='ReplyTo', description='This parameter specifies the agent message to which this message is a response, enabling message deduplication. Set this to the highest checkpoint sequence number you have received. For the first message, use 0.', example='0'),
-  sessionConfigShrink?: string(name='SessionConfig', description='Session-specific configurations. These apply only if provided in the first `SendMessage` request of the session.', nullable=true),
-  sessionId?: string(name='SessionId', description='The session ID. This parameter is required. You can obtain the session ID by calling the `CreateAgentSession` operation.
+  question?: string(name='Question', description='The specific question that the Agent asks the user through human-in-the-loop. This parameter is required when the message type is `additional`.', example='请提供计算GMV的口径。'),
+  quotedMessage?: string(name='QuotedMessage', description='The quoted content, typically used during interaction with the Agent.', example='{"version":"v0"}'),
+  replyTo?: string(name='ReplyTo', description='Indicates which Agent message this message responds to. Set this parameter to the largest Checkpoint sequence number currently received. Set it to 0 for the first message. This field is used for message deduplication in case of occasional network issues or duplicate message delivery.', example='0'),
+  sessionConfigShrink?: string(name='SessionConfig', description='The special configuration for this session. For the same session, only the configuration included in the first SendMessage call takes effect.', nullable=true),
+  sessionId?: string(name='SessionId', description='The session ID. This parameter is required. You can obtain the SessionId by calling the CreateAgentSession operation.
 
 This parameter is required.', example='sess_***'),
+  taskConfigShrink?: string(name='TaskConfig'),
 }
 
 model SendChatMessageResponseBody = {
   data?: {
-    agentId?: string(name='AgentId', description='The agent ID.', example='3jqqdiuxun******'),
-    message?: string(name='Message', description='Describes the result of the request.', example='success'),
-    sessionId?: string(name='SessionId', description='The session ID.', example='6zbqbho********'),
+    agentId?: string(name='AgentId', description='AgentId', example='3jqqdiuxun******'),
+    message?: string(name='Message', description='Message', example='success'),
+    messageId?: string(name='MessageId'),
+    sessionId?: string(name='SessionId', description='SessionId', example='6zbqbho********'),
   }(name='Data', description='The response data.'),
-  errorCode?: string(name='ErrorCode', description='The error code. A value of `Success` indicates that the request was successful.', example='Success'),
-  errorMessage?: string(name='ErrorMessage', description='The error message. This field is empty if the request is successful.', example='""'),
+  errorCode?: string(name='ErrorCode', description='The error code.', example='Success'),
+  errorMessage?: string(name='ErrorMessage', description='The error message.', example='""'),
   requestId?: string(name='RequestId', description='The request ID.', example='FE65CE1F-****-****-****-******'),
-  success?: string(name='Success', description='Indicates whether the request was successful.', example='true'),
+  success?: string(name='Success', description='Success', example='true'),
 }
 
 model SendChatMessageResponse = {
@@ -9206,15 +9261,15 @@ model SendChatMessageResponse = {
 }
 
 /**
- * @summary Sends a user message to a specified session or ends the session.
+ * @summary Sends a user message to a specified session or cancels a session.
  *
- * @description ## Request
- * - The `agent_id` and `session_id` fields are required.
- * - The `message_type` field defaults to `primary`. Set it to `additional` to append information or to `cancel` to end the session.
- * - The `reply_to` field specifies which agent message the current message is a response to. It defaults to `0`.
+ * @description ## Request description
+ * - `agent_id` and `session_id` are required fields.
+ * - `message_type` defaults to `primary`. Set it to `additional` when appending information or `cancel` when canceling a session.
+ * - `reply_to` indicates which Agent message this message responds to. The default value is `0`.
  * - When `message_type` is `additional`, the `question` field is required.
- * - Use the `quoted_message` field to reference a previous user message.
- * - The optional fields `data_source`, `dms_user`, `db_metadata`, and `session_config` provide more detailed context.
+ * - `quoted_message` can be used to quote the content of a previous user message.
+ * - `data_source`, `dms_user`, `db_metadata`, `session_config`, and other fields are optional but provide more detailed context information.
  *
  * @param tmpReq SendChatMessageRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -9232,6 +9287,9 @@ async function sendChatMessageWithOptions(tmpReq: SendChatMessageRequest, runtim
   }
   if (!Util.isUnset(tmpReq.sessionConfig)) {
     request.sessionConfigShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.sessionConfig, 'SessionConfig', 'json');
+  }
+  if (!Util.isUnset(tmpReq.taskConfig)) {
+    request.taskConfigShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.taskConfig, 'TaskConfig', 'json');
   }
   var query = {};
   if (!Util.isUnset(request.agentId)) {
@@ -9270,6 +9328,9 @@ async function sendChatMessageWithOptions(tmpReq: SendChatMessageRequest, runtim
   if (!Util.isUnset(request.sessionId)) {
     query['SessionId'] = request.sessionId;
   }
+  if (!Util.isUnset(request.taskConfigShrink)) {
+    query['TaskConfig'] = request.taskConfigShrink;
+  }
   var req = new OpenApi.OpenApiRequest{ 
     query = OpenApiUtil.query(query),
   };
@@ -9288,15 +9349,15 @@ async function sendChatMessageWithOptions(tmpReq: SendChatMessageRequest, runtim
 }
 
 /**
- * @summary Sends a user message to a specified session or ends the session.
+ * @summary Sends a user message to a specified session or cancels a session.
  *
- * @description ## Request
- * - The `agent_id` and `session_id` fields are required.
- * - The `message_type` field defaults to `primary`. Set it to `additional` to append information or to `cancel` to end the session.
- * - The `reply_to` field specifies which agent message the current message is a response to. It defaults to `0`.
+ * @description ## Request description
+ * - `agent_id` and `session_id` are required fields.
+ * - `message_type` defaults to `primary`. Set it to `additional` when appending information or `cancel` when canceling a session.
+ * - `reply_to` indicates which Agent message this message responds to. The default value is `0`.
  * - When `message_type` is `additional`, the `question` field is required.
- * - Use the `quoted_message` field to reference a previous user message.
- * - The optional fields `data_source`, `dms_user`, `db_metadata`, and `session_config` provide more detailed context.
+ * - `quoted_message` can be used to quote the content of a previous user message.
+ * - `data_source`, `dms_user`, `db_metadata`, `session_config`, and other fields are optional but provide more detailed context information.
  *
  * @param request SendChatMessageRequest
  * @return SendChatMessageResponse
