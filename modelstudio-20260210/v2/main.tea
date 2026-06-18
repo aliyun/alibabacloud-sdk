@@ -9,8 +9,14 @@ extends OpenApi;
 
 init(config: OpenApiUtil.Config){
   super(config);
-  @endpointRule = '';
-  
+  @endpointRule = 'regional';
+  @endpointMap = {
+    'eu-central-1' = 'modelstudio.eu-central-1.aliyuncs.com',
+    'cn-hongkong' = 'modelstudio.cn-hongkong.aliyuncs.com',
+    'cn-beijing' = 'modelstudio.cn-beijing.aliyuncs.com',
+    'ap-southeast-1' = 'modelstudio.ap-southeast-1.aliyuncs.com',
+  };
+
   checkConfig(config);
   @endpoint = getEndpoint('modelstudio', @regionId, @endpointRule, @network, @suffix, @endpointMap, @endpoint);
 }
@@ -26,29 +32,223 @@ function getEndpoint(productId: string, regionId: string, endpointRule: string, 
   return OpenApiUtil.getEndpointRules(productId, regionId, endpointRule, network, suffix);
 }
 
+model AddOrganizationMemberRequest {
+  accountName?: string(name='AccountName', description='The display name. If this parameter is not empty, the name field of the account is also updated.
+
+This parameter is required.', example='账号名称'),
+  callerUacAccountId?: string(name='CallerUacAccountId', description='The account information of the TokenPlan management platform.', example='acc_123456789'),
+  namespaceId?: string(name='NamespaceId', description='The product namespace ID. For the TokenPlan product, this field is fixed to namespace-1.', example='namespace-1'),
+  orgId?: string(name='OrgId', description='The organization ID.
+
+This parameter is required.', example='org_123456789'),
+  orgRoleCode?: string(name='OrgRoleCode', description='The organization role code. Valid values: ORG_ADMIN and ORG_MEMBER. Default value: ORG_MEMBER.
+
+This parameter is required.', example='ORG_MEMBER'),
+  specType?: string(name='SpecType', description='The seat specification.', example='standard'),
+}
+
+model AddOrganizationMemberResponseBody = {
+  code?: string(name='Code', description='The error code. This parameter is empty if the request is successful.', example='Success'),
+  data?: {
+    accountId?: string(name='AccountId', description='The account ID.', example='acc_123456789'),
+    seatAssigned?: boolean(name='SeatAssigned', description='Indicates whether the seat was successfully assigned.', example='true'),
+  }(name='Data', description='The business data.'),
+  httpStatusCode?: int32(name='HttpStatusCode', description='The HTTP status code.', example='None'),
+  message?: string(name='Message', description='The error message. This parameter is empty if the request is successful.', example='Success.'),
+  requestId?: string(name='RequestId', description='The request ID.', example='385C2BC3-52FC-564F-9312-97E5DFE1DFC0'),
+  success?: boolean(name='Success', description='Indicates whether the request was successful.', example='True'),
+}
+
+model AddOrganizationMemberResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: AddOrganizationMemberResponseBody(name='body'),
+}
+
+/**
+ * @summary Creates an account and directly adds it as a member.
+ *
+ * @param request AddOrganizationMemberRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return AddOrganizationMemberResponse
+ */
+@context("addOrganizationMemberWithContext")
+async function addOrganizationMemberWithOptions(request: AddOrganizationMemberRequest, headers: map[string]string, runtime: $RuntimeOptions): AddOrganizationMemberResponse {
+  request.validate();
+  var query : map[string]any = {};
+  if (!$isNull(request.accountName)) {
+    query['AccountName'] = request.accountName;
+  }
+  if (!$isNull(request.callerUacAccountId)) {
+    query['CallerUacAccountId'] = request.callerUacAccountId;
+  }
+  if (!$isNull(request.namespaceId)) {
+    query['NamespaceId'] = request.namespaceId;
+  }
+  if (!$isNull(request.orgId)) {
+    query['OrgId'] = request.orgId;
+  }
+  if (!$isNull(request.orgRoleCode)) {
+    query['OrgRoleCode'] = request.orgRoleCode;
+  }
+  if (!$isNull(request.specType)) {
+    query['SpecType'] = request.specType;
+  }
+
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'AddOrganizationMember',
+    version = '2026-02-10',
+    protocol = 'HTTPS',
+    pathname = `/tokenplan/organization/member-additions`,
+    method = 'POST',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Creates an account and directly adds it as a member.
+ *
+ * @param request AddOrganizationMemberRequest
+ * @return AddOrganizationMemberResponse
+ */
+async function addOrganizationMember(request: AddOrganizationMemberRequest): AddOrganizationMemberResponse {
+  var runtime = new $RuntimeOptions{};
+  var headers : map[string]string = {};
+  return addOrganizationMemberWithOptions(request, headers, runtime);
+}
+
+model BatchAssignSeatsRequest {
+  accountIds?: [ string ](name='AccountIds', description='The list of target member IDs.'),
+  accountIdsStr?: string(name='AccountIdsStr', description='The AccountIds in string format.', example='[\\\\"5854302538759072\\\\"]'),
+  callerUacAccountId?: string(name='CallerUacAccountId', description='The account ID of the caller that identifies the initiator of this call.', example='acc_123456789'),
+  locale?: string(name='Locale', description='The language setting. Valid values: zh-CN and en-US.', example='zh-CN'),
+  namespaceId?: string(name='NamespaceId', description='The product namespace ID. For the TokenPlan product, this field is fixed to namespace-1.', example='namespace-1'),
+  seatType?: string(name='SeatType', description='The seat type. Valid values: standard, pro, and max.
+
+This parameter is required.', example='standard'),
+  workspaceId?: string(name='WorkspaceId', description='The ID of the target workspace.
+
+This parameter is required.', example='ws_123456789'),
+}
+
+model BatchAssignSeatsResponseBody = {
+  code?: string(name='Code', description='The error code. This parameter is empty if the request was successful.', example='200'),
+  message?: string(name='Message', description='The error message. This parameter is empty if the request was successful.', example='None'),
+  success?: boolean(name='Success', description='Indicates whether the request was successful.', example='True'),
+}
+
+model BatchAssignSeatsResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: BatchAssignSeatsResponseBody(name='body'),
+}
+
+/**
+ * @summary Assigns seats in bulk to the member level.
+ *
+ * @param request BatchAssignSeatsRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return BatchAssignSeatsResponse
+ */
+@context("batchAssignSeatsWithContext")
+async function batchAssignSeatsWithOptions(request: BatchAssignSeatsRequest, headers: map[string]string, runtime: $RuntimeOptions): BatchAssignSeatsResponse {
+  request.validate();
+  var query : map[string]any = {};
+  if (!$isNull(request.accountIds)) {
+    query['AccountIds'] = request.accountIds;
+  }
+  if (!$isNull(request.accountIdsStr)) {
+    query['AccountIdsStr'] = request.accountIdsStr;
+  }
+  if (!$isNull(request.callerUacAccountId)) {
+    query['CallerUacAccountId'] = request.callerUacAccountId;
+  }
+  if (!$isNull(request.locale)) {
+    query['Locale'] = request.locale;
+  }
+  if (!$isNull(request.namespaceId)) {
+    query['NamespaceId'] = request.namespaceId;
+  }
+  if (!$isNull(request.seatType)) {
+    query['SeatType'] = request.seatType;
+  }
+  if (!$isNull(request.workspaceId)) {
+    query['WorkspaceId'] = request.workspaceId;
+  }
+
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'BatchAssignSeats',
+    version = '2026-02-10',
+    protocol = 'HTTPS',
+    pathname = `/tokenplan/subscription/seat-assignments`,
+    method = 'POST',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Assigns seats in bulk to the member level.
+ *
+ * @param request BatchAssignSeatsRequest
+ * @return BatchAssignSeatsResponse
+ */
+async function batchAssignSeats(request: BatchAssignSeatsRequest): BatchAssignSeatsResponse {
+  var runtime = new $RuntimeOptions{};
+  var headers : map[string]string = {};
+  return batchAssignSeatsWithOptions(request, headers, runtime);
+}
+
 model CreateApiKeyRequest {
   auth?: {
-    accessIps?: [ string ](name='accessIps'),
-    type?: string(name='type', example='All'),
-  }(name='auth'),
-  description?: string(name='description', example='test'),
-  workspaceId?: string(name='workspaceId', example='ws-8af73c50f5596193'),
+    accessIps?: [ string ](name='accessIps', description='The IP address whitelist.
+
+> 
+> - When you use custom permissions, if you do not specify the IP address whitelist, the server sets it to IPv4 (0.0.0.0/0) and IPv6 (::/0) by default, which allows all traffic.'),
+    type?: string(name='type', description='Valid values:
+- All: all permissions.
+- Custom: custom permissions.', example='Custom'),
+  }(name='auth', description='The API key permission settings.'),
+  description?: string(name='description', description='The description.', example='test'),
+  workspaceId?: string(name='workspaceId', description='The workspace ID.
+> 
+> - If you leave this parameter empty, the created API key is automatically assigned to the default workspace.', example='ws-8af73c50f5596193'),
 }
 
 model CreateApiKeyResponseBody = {
   apiKey?: {
     apiKeyId?: long(name='apiKeyId', description='API Key ID。', example='1858636'),
-    apiKeyValue?: string(name='apiKeyValue', example='sk-ws-djI.8O7dkfkW2aICctnid4u4'),
-    createdBy?: string(name='createdBy', example='1378030599924858'),
-    description?: string(name='description', example='desc'),
-    gmtCreate?: long(name='gmtCreate', example='1774338222000'),
-    workspaceId?: string(name='workspaceId', example='ws-3fa048e86117d91f'),
-  }(name='apiKey'),
-  code?: string(name='code', example='200'),
-  httpStatusCode?: int32(name='httpStatusCode', example='200'),
-  message?: string(name='message', example='success'),
+    apiKeyValue?: string(name='apiKeyValue', description='The value of the API key.
+>Notice: Copy your API key immediately. Keep it secure. Anyone who obtains this key can initiate service requests on your behalf and incur charges. If you lose the key, you can reset it or create a new one..', example='sk-ws-djI.8O7dkfkW2aICctnid4u4'),
+    createdBy?: string(name='createdBy', description='The creator.', example='1378030599924858'),
+    description?: string(name='description', description='The description.', example='desc'),
+    gmtCreate?: long(name='gmtCreate', description='The creation time.', example='1774338222000'),
+    workspaceId?: string(name='workspaceId', description='The workspace ID.', example='ws-3fa048e86117d91f'),
+  }(name='apiKey', description='The API key information.'),
+  code?: string(name='code', description='The response code.', example='200'),
+  httpStatusCode?: int32(name='httpStatusCode', description='The HTTP status code.', example='200'),
+  message?: string(name='message', description='The response message.', example='success'),
   requestId?: string(name='requestId', description='Id of the request', example='C0CDC72E-52D7-5BC8-9396-9276B4FDF6B3'),
-  success?: boolean(name='success', example='true'),
+  success?: boolean(name='success', description='Indicates whether the request was successful. Valid values:
+- true: Successful.
+- false: Failed.', example='true'),
 }
 
 model CreateApiKeyResponse = {
@@ -58,7 +258,7 @@ model CreateApiKeyResponse = {
 }
 
 /**
- * @summary 创建ApiKey
+ * @summary Before using large models or applications in Alibaba Cloud Model Studio, create an API key as an authentication credential.
  *
  * @param request CreateApiKeyRequest
  * @param headers map
@@ -101,7 +301,7 @@ async function createApiKeyWithOptions(request: CreateApiKeyRequest, headers: ma
 }
 
 /**
- * @summary 创建ApiKey
+ * @summary Before using large models or applications in Alibaba Cloud Model Studio, create an API key as an authentication credential.
  *
  * @param request CreateApiKeyRequest
  * @return CreateApiKeyResponse
@@ -112,25 +312,119 @@ async function createApiKey(request: CreateApiKeyRequest): CreateApiKeyResponse 
   return createApiKeyWithOptions(request, headers, runtime);
 }
 
+model CreateTokenPlanKeyRequest {
+  accountId?: string(name='AccountId', description='The account ID.
+
+This parameter is required.', example='acc_123456789'),
+  callerUacAccountId?: string(name='CallerUacAccountId', description='The account ID of the caller that identifies the initiator of this call.', example='acc_123456789'),
+  description?: string(name='Description', description='The description of the key.', example='APIKEY描述'),
+  namespaceId?: string(name='NamespaceId', description='The product namespace ID. For the TokenPlan product, this field is fixed to namespace-1.', example='namespace-1'),
+  workspaceId?: string(name='WorkspaceId', description='The workspace ID.
+
+This parameter is required.', example='ws_123456789'),
+}
+
+model CreateTokenPlanKeyResponseBody = {
+  code?: string(name='Code', description='The error code. This parameter is empty if the request is successful.', example='200'),
+  data?: {
+    apiKeyId?: string(name='ApiKeyId', description='The API key ID, which is generated by the system.', example='ak-123456'),
+    createdAt?: string(name='CreatedAt', description='The time when the key was created.', example='2025-07-18T03:19:17Z'),
+    description?: string(name='Description', description='The description of the key.', example='APIKEY描述'),
+    maskedApiKey?: string(name='MaskedApiKey', description='The masked_api_key returned by BaiLian, such as sk_***cdef.', example='sk_***6'),
+    plainApiKey?: string(name='PlainApiKey', description='The plaintext API key returned by BaiLian. This value is returned only once when the key is created.', example='sk-ws.abc123456'),
+    sourceId?: string(name='SourceId', description='The source_id returned by BaiLian.', example='123'),
+  }(name='Data', description='The business data.'),
+  message?: string(name='Message', description='The error message. This parameter is empty if the request is successful.', example='Success.'),
+  success?: boolean(name='Success', description='Indicates whether the request was successful.', example='True'),
+}
+
+model CreateTokenPlanKeyResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: CreateTokenPlanKeyResponseBody(name='body'),
+}
+
+/**
+ * @summary Creates a UAC API key.
+ *
+ * @param request CreateTokenPlanKeyRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return CreateTokenPlanKeyResponse
+ */
+@context("createTokenPlanKeyWithContext")
+async function createTokenPlanKeyWithOptions(request: CreateTokenPlanKeyRequest, headers: map[string]string, runtime: $RuntimeOptions): CreateTokenPlanKeyResponse {
+  request.validate();
+  var query : map[string]any = {};
+  if (!$isNull(request.accountId)) {
+    query['AccountId'] = request.accountId;
+  }
+  if (!$isNull(request.callerUacAccountId)) {
+    query['CallerUacAccountId'] = request.callerUacAccountId;
+  }
+  if (!$isNull(request.description)) {
+    query['Description'] = request.description;
+  }
+  if (!$isNull(request.namespaceId)) {
+    query['NamespaceId'] = request.namespaceId;
+  }
+  if (!$isNull(request.workspaceId)) {
+    query['WorkspaceId'] = request.workspaceId;
+  }
+
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'CreateTokenPlanKey',
+    version = '2026-02-10',
+    protocol = 'HTTPS',
+    pathname = `/tokenplan/api-keys`,
+    method = 'POST',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Creates a UAC API key.
+ *
+ * @param request CreateTokenPlanKeyRequest
+ * @return CreateTokenPlanKeyResponse
+ */
+async function createTokenPlanKey(request: CreateTokenPlanKeyRequest): CreateTokenPlanKeyResponse {
+  var runtime = new $RuntimeOptions{};
+  var headers : map[string]string = {};
+  return createTokenPlanKeyWithOptions(request, headers, runtime);
+}
+
 model CreateWorkspaceRequest {
   serviceSite?: string(name='serviceSite', example='global'),
-  workspaceName?: string(name='workspaceName', description='This parameter is required.', example='workspace_test'),
+  workspaceName?: string(name='workspaceName', description='The name of the business workspace.
+
+This parameter is required.', example='workspace_test'),
 }
 
 model CreateWorkspaceResponseBody = {
-  code?: string(name='code', example='200'),
-  httpStatusCode?: int32(name='httpStatusCode', example='200'),
-  message?: string(name='message', example='success'),
+  code?: string(name='code', description='The response status code.', example='200'),
+  httpStatusCode?: int32(name='httpStatusCode', description='The HTTP status code.', example='200'),
+  message?: string(name='message', description='The response message.', example='success'),
   requestId?: string(name='requestId', description='Id of the request', example='BB521414-5D38-5E66-AA66-963B2B4200E2'),
-  success?: boolean(name='success', example='true'),
+  success?: boolean(name='success', description='Indicates whether the request was successful. Valid values:
+- true: Successful.
+- false: Failed.', example='true'),
   workspace?: {
     apiHost?: string(name='apiHost', description='API Host。', example='llm-34o9ts1dai60z5sf.cn-beijing.maas.aliyuncs.com'),
-    gmtCreate?: long(name='gmtCreate', example='1742785623772'),
-    region?: string(name='region', example='cn-beijing'),
-    serviceSite?: string(name='serviceSite', example='global'),
-    workspaceId?: string(name='workspaceId', example='ws-ac3ef438bec22dc5'),
-    workspaceName?: string(name='workspaceName', example='default'),
-  }(name='workspace'),
+    gmtCreate?: long(name='gmtCreate', description='The creation time.', example='1742785623772'),
+    region?: string(name='region', description='The region ID.', example='cn-beijing'),
+    serviceSite?: string(name='serviceSite', description='The service deployment scope. For more information, see [documentation](https://www.alibabacloud.com/help/zh/model-studio/regions/).', example='global'),
+    workspaceId?: string(name='workspaceId', description='The business workspace ID.', example='ws-ac3ef438bec22dc5'),
+    workspaceName?: string(name='workspaceName', description='The name of the business workspace.', example='default'),
+  }(name='workspace', description='The business workspace information.'),
 }
 
 model CreateWorkspaceResponse = {
@@ -140,7 +434,7 @@ model CreateWorkspaceResponse = {
 }
 
 /**
- * @summary 创建业务空间
+ * @summary Creates a business workspace.
  *
  * @param request CreateWorkspaceRequest
  * @param headers map
@@ -177,7 +471,7 @@ async function createWorkspaceWithOptions(request: CreateWorkspaceRequest, heade
 }
 
 /**
- * @summary 创建业务空间
+ * @summary Creates a business workspace.
  *
  * @param request CreateWorkspaceRequest
  * @return CreateWorkspaceResponse
@@ -189,11 +483,11 @@ async function createWorkspace(request: CreateWorkspaceRequest): CreateWorkspace
 }
 
 model DeleteApiKeyResponseBody = {
-  code?: string(name='code', example='200'),
-  httpStatusCode?: int32(name='httpStatusCode', example='200'),
-  message?: string(name='message', example='ok'),
+  code?: string(name='code', description='The status code.', example='200'),
+  httpStatusCode?: int32(name='httpStatusCode', description='The HTTP status code.', example='200'),
+  message?: string(name='message', description='The response message.', example='ok'),
   requestId?: string(name='requestId', description='Id of the request', example='099A671E-FA21-5A36-8A73-918572DDEF53'),
-  success?: boolean(name='success', example='true'),
+  success?: boolean(name='success', description='Indicates whether the API call was successful.', example='true'),
 }
 
 model DeleteApiKeyResponse = {
@@ -203,7 +497,7 @@ model DeleteApiKeyResponse = {
 }
 
 /**
- * @summary 删除apiKey
+ * @summary Deletes an authentication credential API key.
  *
  * @param headers map
  * @param runtime runtime options for this request RuntimeOptions
@@ -229,7 +523,7 @@ async function deleteApiKeyWithOptions(apiKeyId: string, headers: map[string]str
 }
 
 /**
- * @summary 删除apiKey
+ * @summary Deletes an authentication credential API key.
  *
  * @return DeleteApiKeyResponse
  */
@@ -243,18 +537,25 @@ model DeleteWorkspaceRequest {
 }
 
 model DeleteWorkspaceResponseBody = {
-  code?: string(name='code', example='200'),
+  code?: string(name='code', description='The response status code.', example='200'),
   failReasons?: [ 
     {
-      reason?: string(name='reason', example='API Key exists. Please clear them first.'),
-      resourceType?: string(name='resourceType', example='API Key'),
+      reason?: string(name='reason', description='The specific reason.', example='API Key exists. Please clear them first.'),
+      resourceType?: string(name='resourceType', description='The resource type.', example='API Key'),
     }
-  ](name='failReasons'),
-  httpStatusCode?: int32(name='httpStatusCode', example='200'),
-  isDeleted?: boolean(name='isDeleted', example='true'),
-  message?: string(name='message', example='success'),
+  ](name='failReasons', description='The list of failure reasons.'),
+  httpStatusCode?: int32(name='httpStatusCode', description='The HTTP status code.', example='200'),
+  isDeleted?: boolean(name='isDeleted', description='Indicates whether the workspace is successfully deleted. Valid values:
+
+- true: Succeeded.
+
+- false: Failed.', example='true'),
+  message?: string(name='message', description='The response message.', example='success'),
   requestId?: string(name='requestId', description='Id of the request', example='DFD55E7B-0615-5343-BDA0-FBEE86F29935'),
-  success?: boolean(name='success', example='true'),
+  success?: boolean(name='success', description='Indicates whether the API call is successful. Valid values:
+
+- true: Succeeded.
+- false: Failed.', example='true'),
 }
 
 model DeleteWorkspaceResponse = {
@@ -264,7 +565,13 @@ model DeleteWorkspaceResponse = {
 }
 
 /**
- * @summary 删除业务空间
+ * @summary Deletes a workspace.
+ *
+ * @description A workspace can be deleted only if the following conditional requirements are met:
+ * 1. The workspace is not the default workspace.
+ * 2. The workspace is not used to purchase other products, such as AMB.
+ * 3. In permission management, the workspace is not granted to Resource Access Management (RAM) users or RAM roles.
+ * 4. The workspace does not contain any resources, such as API keys, model deployments, or knowledge bases.
  *
  * @param request DeleteWorkspaceRequest
  * @param headers map
@@ -292,7 +599,13 @@ async function deleteWorkspaceWithOptions(workspaceId: string, request: DeleteWo
 }
 
 /**
- * @summary 删除业务空间
+ * @summary Deletes a workspace.
+ *
+ * @description A workspace can be deleted only if the following conditional requirements are met:
+ * 1. The workspace is not the default workspace.
+ * 2. The workspace is not used to purchase other products, such as AMB.
+ * 3. In permission management, the workspace is not granted to Resource Access Management (RAM) users or RAM roles.
+ * 4. The workspace does not contain any resources, such as API keys, model deployments, or knowledge bases.
  *
  * @param request DeleteWorkspaceRequest
  * @return DeleteWorkspaceResponse
@@ -307,11 +620,13 @@ model DisableApiKeyRequest {
 }
 
 model DisableApiKeyResponseBody = {
-  code?: string(name='code', example='200'),
-  httpStatusCode?: int32(name='httpStatusCode', example='200'),
-  message?: string(name='message', example='success'),
+  code?: string(name='code', description='The error code.', example='200'),
+  httpStatusCode?: int32(name='httpStatusCode', description='The HTTP status code.', example='200'),
+  message?: string(name='message', description='The response message.', example='success'),
   requestId?: string(name='requestId', description='Id of the request', example='36045E0A-551D-592D-B1BC-4C56596CE59E'),
-  success?: boolean(name='success', example='true'),
+  success?: boolean(name='success', description='Indicates whether the request was successful. Valid values:
+- true: The request was successful.
+- false: The request failed.', example='true'),
 }
 
 model DisableApiKeyResponse = {
@@ -321,7 +636,9 @@ model DisableApiKeyResponse = {
 }
 
 /**
- * @summary 禁用API Key
+ * @summary Disables an API key.
+ *
+ * @description An API key cannot be disabled if it is already disabled.
  *
  * @param request DisableApiKeyRequest
  * @param headers map
@@ -349,7 +666,9 @@ async function disableApiKeyWithOptions(apiKeyId: string, request: DisableApiKey
 }
 
 /**
- * @summary 禁用API Key
+ * @summary Disables an API key.
+ *
+ * @description An API key cannot be disabled if it is already disabled.
  *
  * @param request DisableApiKeyRequest
  * @return DisableApiKeyResponse
@@ -364,11 +683,11 @@ model EnableApiKeyRequest {
 }
 
 model EnableApiKeyResponseBody = {
-  code?: string(name='code', example='200'),
-  httpStatusCode?: int32(name='httpStatusCode', example='200'),
-  message?: string(name='message', example='ok'),
+  code?: string(name='code', description='The status code.', example='200'),
+  httpStatusCode?: int32(name='httpStatusCode', description='The HTTP status code.', example='200'),
+  message?: string(name='message', description='The response message.', example='ok'),
   requestId?: string(name='requestId', description='Id of the request', example='BB521414-5D38-5E66-AA66-963B2B4200E2'),
-  success?: boolean(name='success', example='true'),
+  success?: boolean(name='success', description='Indicates whether the API call was successful.', example='true'),
 }
 
 model EnableApiKeyResponse = {
@@ -378,7 +697,9 @@ model EnableApiKeyResponse = {
 }
 
 /**
- * @summary 启用API Key
+ * @summary Enables an API key.
+ *
+ * @description An API key that is already enabled cannot be enabled again.
  *
  * @param request EnableApiKeyRequest
  * @param headers map
@@ -406,7 +727,9 @@ async function enableApiKeyWithOptions(apiKeyId: string, request: EnableApiKeyRe
 }
 
 /**
- * @summary 启用API Key
+ * @summary Enables an API key.
+ *
+ * @description An API key that is already enabled cannot be enabled again.
  *
  * @param request EnableApiKeyRequest
  * @return EnableApiKeyResponse
@@ -420,22 +743,27 @@ async function enableApiKey(apiKeyId: string, request: EnableApiKeyRequest): Ena
 model GetApiKeyResponseBody = {
   apiKey?: {
     apiKeyId?: long(name='apiKeyId', description='API Key ID。', example='2965964'),
-    apiKeyValue?: string(name='apiKeyValue', example='sk-ws-djI.mhU0D****testtestest'),
+    apiKeyValue?: string(name='apiKeyValue', description='The value of the API key.', example='sk-ws-djI.mhU0D****testtestest'),
     auth?: {
-      accessIps?: [ string ](name='accessIps'),
-      type?: string(name='type', example='All'),
-    }(name='auth'),
-    createdBy?: string(name='createdBy', example='1378030599924858'),
-    description?: string(name='description', example='v7'),
-    disabled?: int32(name='disabled', example='0'),
-    gmtCreate?: long(name='gmtCreate', example='1774338222000'),
-    workspaceId?: string(name='workspaceId', example='ws-b2d30f148c236908'),
-  }(name='apiKey'),
-  code?: string(name='code', example='200'),
-  httpStatusCode?: int32(name='httpStatusCode', example='200'),
-  message?: string(name='message', example='success'),
+      accessIps?: [ string ](name='accessIps', description='The IP address whitelist.'),
+      type?: string(name='type', description='The permission type. Valid values: All: all permissions. Custom: custom permissions.', example='Custom'),
+    }(name='auth', description='The permission settings.'),
+    createdBy?: string(name='createdBy', description='The creator.', example='1378030599924858'),
+    description?: string(name='description', description='The description.', example='v7'),
+    disabled?: int32(name='disabled', description='Indicates whether the API key is disabled. Valid values:
+
+- **0**: Active.
+- **1**: Disabled.', example='0'),
+    gmtCreate?: long(name='gmtCreate', description='The creation time.', example='1774338222000'),
+    workspaceId?: string(name='workspaceId', description='The workspace ID.', example='ws-b2d30f148c236908'),
+  }(name='apiKey', description='The API key information.'),
+  code?: string(name='code', description='The response status code.', example='200'),
+  httpStatusCode?: int32(name='httpStatusCode', description='The HTTP status code.', example='200'),
+  message?: string(name='message', description='The response message.', example='success'),
   requestId?: string(name='requestId', description='Id of the request', example='DFD55E7B-0615-5343-BDA0-FBEE86F29935'),
-  success?: boolean(name='success', example='true'),
+  success?: boolean(name='success', description='Indicates whether the request was successful. Valid values:
+- true: The request was successful.
+- false: The request failed.', example='true'),
 }
 
 model GetApiKeyResponse = {
@@ -445,7 +773,7 @@ model GetApiKeyResponse = {
 }
 
 /**
- * @summary 查询ApiKey详情
+ * @summary Retrieves the information of a specified authentication credential API key.
  *
  * @param headers map
  * @param runtime runtime options for this request RuntimeOptions
@@ -471,7 +799,7 @@ async function getApiKeyWithOptions(apiKeyId: string, headers: map[string]string
 }
 
 /**
- * @summary 查询ApiKey详情
+ * @summary Retrieves the information of a specified authentication credential API key.
  *
  * @return GetApiKeyResponse
  */
@@ -481,38 +809,188 @@ async function getApiKey(apiKeyId: string): GetApiKeyResponse {
   return getApiKeyWithOptions(apiKeyId, headers, runtime);
 }
 
+model GetSubscriptionSeatDetailsRequest {
+  callerUacAccountId?: string(name='CallerUacAccountId', description='The ID of the caller account that initiates this call.', example='acc_123456789'),
+  namespaceId?: string(name='NamespaceId', description='The product namespace ID. For the TokenPlan product, this field is fixed to namespace-1.', example='namespace-1'),
+  pageNo?: int32(name='PageNo', description='The page number. Default value: 1. Valid values: positive integers.', example='1'),
+  pageSize?: int32(name='PageSize', description='The number of entries per page. Default value: 10.', example='10'),
+  queryAssigned?: boolean(name='QueryAssigned', description='The seat assignment status filter. Set to true for assigned seats, false for unassigned seats, or null for all seats.', example='true'),
+  seatId?: string(name='SeatId', description='The seat ID.', example='seat-123456'),
+  seatType?: string(name='SeatType', description='The seat type (specType). Valid values:
+
+- standard
+- pro
+- max.', example='standard'),
+  statusList?: [ string ](name='StatusList', description='The list of seat statuses used for filtering.'),
+  statusListStr?: string(name='StatusListStr', description='The string form of StatusList.', example='[\\\\"CREATING\\\\",\\\\"NORMAL\\\\"]'),
+}
+
+model GetSubscriptionSeatDetailsResponseBody = {
+  code?: string(name='Code', description='The response status code.', example='200'),
+  data?: {
+    items?: [ 
+      {
+        accountEmail?: string(name='AccountEmail', description='The email address of the member account.', example='test@email.com'),
+        accountId?: string(name='AccountId', description='The ID of the attached member account.', example='acc_123456789'),
+        accountName?: string(name='AccountName', description='The name of the member account.', example='ExampleName'),
+        assignedStatus?: string(name='AssignedStatus', description='The assignment status. Valid values:
+
+- ASSIGNED
+- UNASSIGNED.', example='ASSIGNED'),
+        endTime?: long(name='EndTime', description='The expiration time of the seat.', example='1781422733'),
+        equityList?: [ 
+          {
+            cycleEndTime?: long(name='CycleEndTime', description='The end time of the current cycle, in milliseconds.', example='1755273600'),
+            cycleInstanceId?: string(name='CycleInstanceId', description='The equity code (subscription code). This does not need to be consumed in the CREDITS scenario.', example='123456'),
+            cycleStartTime?: long(name='CycleStartTime', description='The start time of the current cycle, in milliseconds.', example='1775232000'),
+            cycleSurplusValue?: double(name='CycleSurplusValue', description='The remaining quota of the current cycle.', example='40.00000000'),
+            cycleTotalValue?: double(name='CycleTotalValue', description='The total quota of the current cycle.', example='100.00000000'),
+            cycleVersion?: long(name='CycleVersion', description='The sequential version of the current cycle.', example='1'),
+            equityType?: string(name='EquityType', description='The equity type, such as CREDITS, SPN, or resource plan.', example='CREDITS'),
+          }
+        ](name='EquityList', description='The currently active equity instances. For the TokenPlan product, this list contains only one active equity instance.'),
+        instanceCode?: string(name='InstanceCode', description='The instance code of the seat.', example='subs-1234567'),
+        seatId?: string(name='SeatId', description='The seat ID.', example='seat_123456'),
+        specType?: string(name='SpecType', description='The seat type. Valid values: 
+
+- standard
+- pro
+- max.', example='standard'),
+        startTime?: long(name='StartTime', description='The start time of the seat.', example='1781422733'),
+        status?: string(name='Status', description='The seat status. Valid values:
+- CREATING: being created.
+- NORMAL: active.
+- LIMIT: restricted due to overdue payment.
+- RELEASE: released upon expiration.
+- STOP: stopped upon expiration.
+- REFUNDED: refunded.', example='NORMAL'),
+      }
+    ](name='Items', description='The data items.'),
+    pageNo?: int32(name='PageNo', description='The page number. The value is greater than 0 and does not exceed the maximum value of the Integer data type.', example='1'),
+    pageSize?: int32(name='PageSize', description='The number of entries per page.', example='10'),
+    total?: int32(name='Total', description='The total number of seats.', example='100'),
+  }(name='Data', description='The business data.'),
+  message?: string(name='Message', description='The response message.', example='OK'),
+  success?: boolean(name='Success', description='Indicates whether the call was successful. Valid values:
+
+- true: Successful.
+- false: Failed.', example='True'),
+}
+
+model GetSubscriptionSeatDetailsResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: GetSubscriptionSeatDetailsResponseBody(name='body'),
+}
+
+/**
+ * @summary Queries seat details by paging.
+ *
+ * @param request GetSubscriptionSeatDetailsRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return GetSubscriptionSeatDetailsResponse
+ */
+@context("getSubscriptionSeatDetailsWithContext")
+async function getSubscriptionSeatDetailsWithOptions(request: GetSubscriptionSeatDetailsRequest, headers: map[string]string, runtime: $RuntimeOptions): GetSubscriptionSeatDetailsResponse {
+  request.validate();
+  var query : map[string]any = {};
+  if (!$isNull(request.callerUacAccountId)) {
+    query['CallerUacAccountId'] = request.callerUacAccountId;
+  }
+  if (!$isNull(request.namespaceId)) {
+    query['NamespaceId'] = request.namespaceId;
+  }
+  if (!$isNull(request.pageNo)) {
+    query['PageNo'] = request.pageNo;
+  }
+  if (!$isNull(request.pageSize)) {
+    query['PageSize'] = request.pageSize;
+  }
+  if (!$isNull(request.queryAssigned)) {
+    query['QueryAssigned'] = request.queryAssigned;
+  }
+  if (!$isNull(request.seatId)) {
+    query['SeatId'] = request.seatId;
+  }
+  if (!$isNull(request.seatType)) {
+    query['SeatType'] = request.seatType;
+  }
+  if (!$isNull(request.statusList)) {
+    query['StatusList'] = request.statusList;
+  }
+  if (!$isNull(request.statusListStr)) {
+    query['StatusListStr'] = request.statusListStr;
+  }
+
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'GetSubscriptionSeatDetails',
+    version = '2026-02-10',
+    protocol = 'HTTPS',
+    pathname = `/tokenplan/subscription/seat-detail`,
+    method = 'GET',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Queries seat details by paging.
+ *
+ * @param request GetSubscriptionSeatDetailsRequest
+ * @return GetSubscriptionSeatDetailsResponse
+ */
+async function getSubscriptionSeatDetails(request: GetSubscriptionSeatDetailsRequest): GetSubscriptionSeatDetailsResponse {
+  var runtime = new $RuntimeOptions{};
+  var headers : map[string]string = {};
+  return getSubscriptionSeatDetailsWithOptions(request, headers, runtime);
+}
+
 model ListApiKeysRequest {
-  apiKeyId?: long(name='apiKeyId', example='3076140'),
-  description?: string(name='description', example='test'),
-  maxResults?: int32(name='maxResults', example='30'),
-  nextToken?: string(name='nextToken', example='w9Z+S5+TZyw='),
-  workspaceId?: string(name='workspaceId', example='ws-ac3ef438bec22dc5'),
+  apiKeyId?: long(name='apiKeyId', description='Exact search by API Key ID.', example='3076140'),
+  description?: string(name='description', description='Fuzzy search by description keyword.', example='test'),
+  maxResults?: int32(name='maxResults', description='Page size.', example='30'),
+  nextToken?: string(name='nextToken', description='Used to return more results. This parameter is not required for the first query. The token required for subsequent queries can be obtained from the returned results.', example='w9Z+S5+TZyw='),
+  workspaceId?: string(name='workspaceId', description='Exact search by workspace ID.', example='ws-ac3ef438bec22dc5'),
 }
 
 model ListApiKeysResponseBody = {
   apiKeys?: [ 
     {
-      apiKeyId?: long(name='apiKeyId', description='API Key ID。', example='2965964'),
-      apiKeyValue?: string(name='apiKeyValue', example='sk-ws-djI.8O7d*****2aICctnid4u4'),
+      apiKeyId?: long(name='apiKeyId', description='API Key ID.', example='2965964'),
+      apiKeyValue?: string(name='apiKeyValue', description='Value of the API Key.', example='sk-ws-djI.8O7d*****2aICctnid4u4'),
       auth?: {
-        accessIps?: [ string ](name='accessIps'),
-        type?: string(name='type', example='All'),
-      }(name='auth'),
-      createdBy?: string(name='createdBy', example='1378030599924858'),
-      description?: string(name='description', example='test'),
-      disabled?: int32(name='disabled', example='0'),
-      gmtCreate?: long(name='gmtCreate', example='1774338222000'),
-      workspaceId?: string(name='workspaceId', example='ws-950f9aca7e76c816'),
+        accessIps?: [ string ](name='accessIps', description='IP access whitelist.'),
+        type?: string(name='type', description='All: All permissions; Custom: Custom permissions.', example='Custom'),
+      }(name='auth', description='Permission settings.'),
+      createdBy?: string(name='createdBy', description='Creator.', example='1378030599924858'),
+      description?: string(name='description', description='Description.', example='test'),
+      disabled?: int32(name='disabled', description='Whether the API Key is disabled.
+
+- **0**: Active.
+- **1**: Disabled.', example='0'),
+      gmtCreate?: long(name='gmtCreate', description='Creation time.', example='1774338222000'),
+      workspaceId?: string(name='workspaceId', description='Workspace ID.', example='ws-950f9aca7e76c816'),
     }
-  ](name='apiKeys'),
-  code?: string(name='code', example='200'),
-  httpStatusCode?: int32(name='httpStatusCode', example='200'),
-  maxResults?: int32(name='maxResults', example='10'),
-  message?: string(name='message', example='success'),
-  nextToken?: string(name='nextToken', example='lwytFRtLdNk='),
+  ](name='apiKeys', description='List of API Keys.'),
+  code?: string(name='code', description='Response status code.', example='200'),
+  httpStatusCode?: int32(name='httpStatusCode', description='HTTP status code.', example='200'),
+  maxResults?: int32(name='maxResults', description='Page size.', example='10'),
+  message?: string(name='message', description='Response message.', example='success'),
+  nextToken?: string(name='nextToken', description='Used to return more results. This parameter is not required for the first query. The token required for subsequent queries can be obtained from the returned results.', example='lwytFRtLdNk='),
   requestId?: string(name='requestId', description='Id of the request', example='E4C14AE6-E987-5C2F-9230-9960AB48F4F2'),
-  success?: boolean(name='success', example='true'),
-  totalCount?: int32(name='totalCount', example='4'),
+  success?: boolean(name='success', description='Whether the API call is successful:
+
+- true: Successful.
+- false: Failed.', example='true'),
+  totalCount?: int32(name='totalCount', description='Total number of records.', example='4'),
 }
 
 model ListApiKeysResponse = {
@@ -522,7 +1000,7 @@ model ListApiKeysResponse = {
 }
 
 /**
- * @summary 获取ApiKey列表
+ * @summary Obtain the list of authentication credential API Key information.
  *
  * @param request ListApiKeysRequest
  * @param headers map
@@ -568,7 +1046,7 @@ async function listApiKeysWithOptions(request: ListApiKeysRequest, headers: map[
 }
 
 /**
- * @summary 获取ApiKey列表
+ * @summary Obtain the list of authentication credential API Key information.
  *
  * @param request ListApiKeysRequest
  * @return ListApiKeysResponse
@@ -580,31 +1058,34 @@ async function listApiKeys(request: ListApiKeysRequest): ListApiKeysResponse {
 }
 
 model ListWorkspacesRequest {
-  maxResults?: int32(name='maxResults', example='10'),
-  nextToken?: string(name='nextToken', example='uwCwQ5FFCDo='),
+  maxResults?: int32(name='maxResults', description='The number of entries per page.', example='10'),
+  nextToken?: string(name='nextToken', description='The pagination token used to retrieve more results. You do not need to specify this parameter for the first request. For subsequent requests, use the token returned in the previous response.', example='uwCwQ5FFCDo='),
   workspaceId?: string(name='workspaceId', example='ws-32klhjk2312334jkh'),
-  workspaceName?: string(name='workspaceName', example='ws_test'),
+  workspaceName?: string(name='workspaceName', description='The keyword for fuzzy match by business workspace name.', example='ws_test'),
 }
 
 model ListWorkspacesResponseBody = {
-  code?: string(name='code', example='200'),
-  httpStatusCode?: int32(name='httpStatusCode', example='200'),
-  maxResults?: int32(name='maxResults', example='100'),
-  message?: string(name='message', example='success'),
-  nextToken?: string(name='nextToken', example='TbB1IsZUSR4iE'),
+  code?: string(name='code', description='The response status code.', example='200'),
+  httpStatusCode?: int32(name='httpStatusCode', description='The HTTP status code.', example='200'),
+  maxResults?: int32(name='maxResults', description='The number of entries per page.', example='100'),
+  message?: string(name='message', description='The response message.', example='success'),
+  nextToken?: string(name='nextToken', description='The pagination token used to retrieve more results. You do not need to specify this parameter for the first request. For subsequent requests, use the token returned in the previous response.', example='TbB1IsZUSR4iE'),
   requestId?: string(name='requestId', description='Id of the request', example='75DD3695-77E0-5784-B8A6-C213A01781FE'),
-  success?: boolean(name='success', example='true'),
-  totalCount?: int32(name='totalCount', example='149'),
+  success?: boolean(name='success', description='Indicates whether the API call was successful. Valid values:
+
+- true: Successful.
+- false: Failed.', example='true'),
+  totalCount?: int32(name='totalCount', description='The total number of records.', example='149'),
   workspaces?: [ 
     {
       apiHost?: string(name='apiHost', description='API Host。', example='llm-34o9ts1dai60z5sf.cn-beijing.maas.aliyuncs.com'),
-      gmtCreate?: long(name='gmtCreate', example='1742785623772'),
-      region?: string(name='region', example='cn-beijing'),
-      serviceSite?: string(name='serviceSite', example='global'),
-      workspaceId?: string(name='workspaceId', example='ws-0759e7b7ea7f585b'),
-      workspaceName?: string(name='workspaceName', example='default'),
+      gmtCreate?: long(name='gmtCreate', description='The creation time.', example='1742785623772'),
+      region?: string(name='region', description='The region ID.', example='cn-beijing'),
+      serviceSite?: string(name='serviceSite', description='The service deployment scope. For more information, see [documentation](https://www.alibabacloud.com/help/zh/model-studio/regions/).', example='global'),
+      workspaceId?: string(name='workspaceId', description='The business workspace ID.', example='ws-0759e7b7ea7f585b'),
+      workspaceName?: string(name='workspaceName', description='The business workspace name.', example='default'),
     }
-  ](name='workspaces'),
+  ](name='workspaces', description='The list of business workspaces.'),
 }
 
 model ListWorkspacesResponse = {
@@ -614,7 +1095,7 @@ model ListWorkspacesResponse = {
 }
 
 /**
- * @summary 业务空间列表
+ * @summary Retrieves the list of business workspaces.
  *
  * @param request ListWorkspacesRequest
  * @param headers map
@@ -657,7 +1138,7 @@ async function listWorkspacesWithOptions(request: ListWorkspacesRequest, headers
 }
 
 /**
- * @summary 业务空间列表
+ * @summary Retrieves the list of business workspaces.
  *
  * @param request ListWorkspacesRequest
  * @return ListWorkspacesResponse
@@ -674,14 +1155,16 @@ model ResetApiKeyRequest {
 model ResetApiKeyResponseBody = {
   apiKey?: {
     apiKeyId?: long(name='apiKeyId', description='API Key ID。', example='2965964'),
-    apiKeyValue?: string(name='apiKeyValue', example='sk-ws-djI.8O7dkfkW2aICctnid4u4'),
-    workspaceId?: string(name='workspaceId', example='ws-b2d30f148c236908'),
-  }(name='apiKey'),
-  code?: string(name='code', example='200'),
-  httpStatusCode?: int32(name='httpStatusCode', example='200'),
-  message?: string(name='message', example='ok'),
+    apiKeyValue?: string(name='apiKeyValue', description='The value of the API key.', example='sk-ws-djI.8O7dkfkW2aICctnid4u4'),
+    workspaceId?: string(name='workspaceId', description='The workspace ID.', example='ws-b2d30f148c236908'),
+  }(name='apiKey', description='The API key information.'),
+  code?: string(name='code', description='The response status code.', example='200'),
+  httpStatusCode?: int32(name='httpStatusCode', description='The HTTP status code.', example='200'),
+  message?: string(name='message', description='The response message.', example='ok'),
   requestId?: string(name='requestId', description='Id of the request', example='36045E0A-551D-592D-B1BC-4C56596CE59E'),
-  success?: boolean(name='success', example='true'),
+  success?: boolean(name='success', description='Indicates whether the request was successful. Valid values:
+- true: The request was successful.
+- false: The request failed.', example='true'),
 }
 
 model ResetApiKeyResponse = {
@@ -691,7 +1174,9 @@ model ResetApiKeyResponse = {
 }
 
 /**
- * @summary 重置API Key
+ * @summary Resets an API key.
+ *
+ * @description Only the API key value changes. The API key ID remains unchanged.
  *
  * @param request ResetApiKeyRequest
  * @param headers map
@@ -719,7 +1204,9 @@ async function resetApiKeyWithOptions(apiKeyId: string, request: ResetApiKeyRequ
 }
 
 /**
- * @summary 重置API Key
+ * @summary Resets an API key.
+ *
+ * @description Only the API key value changes. The API key ID remains unchanged.
  *
  * @param request ResetApiKeyRequest
  * @return ResetApiKeyResponse
@@ -732,18 +1219,27 @@ async function resetApiKey(apiKeyId: string, request: ResetApiKeyRequest): Reset
 
 model UpdateApiKeyRequest {
   auth?: {
-    accessIps?: [ string ](name='accessIps'),
-    type?: string(name='type'),
-  }(name='auth'),
-  description?: string(name='description', example='update description.'),
+    accessIps?: [ string ](name='accessIps', description='The IP access whitelist.
+
+> 
+> - When you set custom permissions and do not specify the IP access whitelist, the server sets the whitelist to IPv4 (0.0.0.0/0) and IPv6 (::/0) by default, which allows all traffic.'),
+    type?: string(name='type', description='Valid values:
+
+- All: all permissions.
+- Custom: custom permissions.', example='Custom'),
+  }(name='auth', description='The API key permission settings.'),
+  description?: string(name='description', description='The description.', example='update description.'),
 }
 
 model UpdateApiKeyResponseBody = {
-  code?: string(name='code', example='200'),
-  httpStatusCode?: int32(name='httpStatusCode', example='200'),
-  message?: string(name='message', example='success'),
+  code?: string(name='code', description='The response status code.', example='200'),
+  httpStatusCode?: int32(name='httpStatusCode', description='The HTTP status code.', example='200'),
+  message?: string(name='message', description='The response message.', example='success'),
   requestId?: string(name='requestId', description='Id of the request', example='36045E0A-551D-592D-B1BC-4C56596CE59E'),
-  success?: boolean(name='success', example='true'),
+  success?: boolean(name='success', description='Indicates whether the API call is successful. Valid values:
+
+- true: The call succeeded.
+- false: The call failed.', example='true'),
 }
 
 model UpdateApiKeyResponse = {
@@ -753,7 +1249,7 @@ model UpdateApiKeyResponse = {
 }
 
 /**
- * @summary 编辑apiKey的描述
+ * @summary Edits the information of an authentication credential API key.
  *
  * @param request UpdateApiKeyRequest
  * @param headers map
@@ -793,7 +1289,7 @@ async function updateApiKeyWithOptions(apiKeyId: string, request: UpdateApiKeyRe
 }
 
 /**
- * @summary 编辑apiKey的描述
+ * @summary Edits the information of an authentication credential API key.
  *
  * @param request UpdateApiKeyRequest
  * @return UpdateApiKeyResponse
