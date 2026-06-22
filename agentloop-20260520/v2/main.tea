@@ -9,8 +9,15 @@ extends OpenApi;
 
 init(config: OpenApiUtil.Config){
   super(config);
-  @endpointRule = '';
-  
+  @endpointRule = 'regional';
+  @endpointMap = {
+    'cn-zhangjiakou' = 'agentloop.cn-zhangjiakou.aliyuncs.com',
+    'cn-shanghai' = 'agentloop.cn-shanghai.aliyuncs.com',
+    'cn-hongkong' = 'agentloop.cn-hongkong.aliyuncs.com',
+    'cn-hangzhou' = 'agentloop.cn-hangzhou.aliyuncs.com',
+    'cn-beijing' = 'agentloop.cn-beijing.aliyuncs.com',
+  };
+
   checkConfig(config);
   @endpoint = getEndpoint('agentloop', @regionId, @endpointRule, @network, @suffix, @endpointMap, @endpoint);
 }
@@ -150,36 +157,41 @@ model RunStrategies {
   continuous?: ContinuousStrategy(name='continuous'),
 }
 
-model AddMem0MemoriesRequest {
-  agentSpace?: string(name='agentSpace', example='my-agent-space'),
-  body?: map[string]any(name='body', example='{"messages":[{"role":"user","content":"我喜欢喝拿铁"}],"user_id":"alice","metadata":{"channel":"app"}}'),
+model AddDatasetDataRequest {
+  dataArray?: [ map[string]any ](name='dataArray'),
+  clientToken?: string(name='clientToken', example='a1b2c3d4-1234-5678-90ab-cdef12345678'),
 }
 
-model AddMem0MemoriesResponse = {
+model AddDatasetDataResponseBody = {
+  affectedRows?: int32(name='affectedRows', example='100'),
+  requestId?: string(name='requestId', example='D0173835-9E0F-508F-8BFA-9F556E59C302'),
+}
+
+model AddDatasetDataResponse = {
   headers?: map[string]string(name='headers'),
   statusCode?: int32(name='statusCode'),
-  body?: object(name='body'),
+  body?: AddDatasetDataResponseBody(name='body'),
 }
 
 /**
- * @summary 给记忆库中增加数据
+ * @summary 向指定 Dataset 追加结构化数据行，避免客户端拼接 SQL。
  *
- * @param request AddMem0MemoriesRequest
+ * @param request AddDatasetDataRequest
  * @param headers map
  * @param runtime runtime options for this request RuntimeOptions
- * @return AddMem0MemoriesResponse
+ * @return AddDatasetDataResponse
  */
-@context("addMem0MemoriesWithContext")
-async function addMem0MemoriesWithOptions(request: AddMem0MemoriesRequest, headers: map[string]string, runtime: $RuntimeOptions): AddMem0MemoriesResponse {
+@context("addDatasetDataWithContext")
+async function addDatasetDataWithOptions(agentSpace: string, datasetName: string, request: AddDatasetDataRequest, headers: map[string]string, runtime: $RuntimeOptions): AddDatasetDataResponse {
   request.validate();
   var query : map[string]any = {};
-  if (!$isNull(request.agentSpace)) {
-    query['agentSpace'] = request.agentSpace;
+  if (!$isNull(request.clientToken)) {
+    query['clientToken'] = request.clientToken;
   }
 
   var body : map[string]any = {};
-  if (!$isNull(request.body)) {
-    body['body'] = request.body;
+  if (!$isNull(request.dataArray)) {
+    body['dataArray'] = request.dataArray;
   }
 
   var req = new OpenApiUtil.OpenApiRequest{ 
@@ -188,40 +200,40 @@ async function addMem0MemoriesWithOptions(request: AddMem0MemoriesRequest, heade
     body = OpenApiUtil.parseToMap(body),
   };
   var params = new OpenApiUtil.Params{
-    action = 'AddMem0Memories',
+    action = 'AddDatasetData',
     version = '2026-05-20',
     protocol = 'HTTPS',
-    pathname = `/v1/memories`,
+    pathname = `/agentspace/${$URL.percentEncode(agentSpace)}/dataset/${$URL.percentEncode(datasetName)}/rows`,
     method = 'POST',
-    authType = 'Anonymous',
+    authType = 'AK',
     style = 'ROA',
     reqBodyType = 'json',
     bodyType = 'json',
   };
-  return doROARequest(params.action, params.version, params.protocol, params.method, params.authType, params.pathname, params.bodyType, req, runtime);
+  return callApi(params, req, runtime);
 }
 
 /**
- * @summary 给记忆库中增加数据
+ * @summary 向指定 Dataset 追加结构化数据行，避免客户端拼接 SQL。
  *
- * @param request AddMem0MemoriesRequest
- * @return AddMem0MemoriesResponse
+ * @param request AddDatasetDataRequest
+ * @return AddDatasetDataResponse
  */
-async function addMem0Memories(request: AddMem0MemoriesRequest): AddMem0MemoriesResponse {
+async function addDatasetData(agentSpace: string, datasetName: string, request: AddDatasetDataRequest): AddDatasetDataResponse {
   var runtime = new $RuntimeOptions{};
   var headers : map[string]string = {};
-  return addMem0MemoriesWithOptions(request, headers, runtime);
+  return addDatasetDataWithOptions(agentSpace, datasetName, request, headers, runtime);
 }
 
 model CreateAgentSpaceRequest {
-  agentSpace?: string(name='agentSpace', description='This parameter is required.'),
-  cmsWorkspace?: string(name='cmsWorkspace'),
-  description?: string(name='description'),
+  agentSpace?: string(name='agentSpace', description='This parameter is required.', example='test-agent-space'),
+  cmsWorkspace?: string(name='cmsWorkspace', example='test-cms-workspace'),
+  description?: string(name='description', example='test'),
   clientToken?: string(name='clientToken', example='a1b2c3d4-1234-5678-90ab-cdef12345678'),
 }
 
 model CreateAgentSpaceResponseBody = {
-  requestId?: string(name='requestId'),
+  requestId?: string(name='requestId', example='AA689779-61AB-5077-BD91-9F7EA1205D68'),
 }
 
 model CreateAgentSpaceResponse = {
@@ -746,179 +758,6 @@ async function deleteDataset(agentSpace: string, datasetName: string, request: D
   return deleteDatasetWithOptions(agentSpace, datasetName, request, headers, runtime);
 }
 
-model DeleteMem0MemoriesRequest {
-  agentSpace?: string(name='agentSpace', example='my-agent-space'),
-  agentId?: string(name='agent_id', example='agent-001'),
-  appId?: string(name='app_id', example='app-001'),
-  contextStoreId?: string(name='context_store_id', example='cs-0001'),
-  metadata?: map[string]any(name='metadata', example='{"channel":"app","locale":"zh-CN"}'),
-  orgId?: string(name='org_id', example='org-001'),
-  projectId?: string(name='project_id', example='proj-001'),
-  runId?: string(name='run_id', example='run-001'),
-  userId?: string(name='user_id', example='alice'),
-}
-
-model DeleteMem0MemoriesShrinkRequest {
-  agentSpace?: string(name='agentSpace', example='my-agent-space'),
-  agentId?: string(name='agent_id', example='agent-001'),
-  appId?: string(name='app_id', example='app-001'),
-  contextStoreId?: string(name='context_store_id', example='cs-0001'),
-  metadataShrink?: string(name='metadata', example='{"channel":"app","locale":"zh-CN"}'),
-  orgId?: string(name='org_id', example='org-001'),
-  projectId?: string(name='project_id', example='proj-001'),
-  runId?: string(name='run_id', example='run-001'),
-  userId?: string(name='user_id', example='alice'),
-}
-
-model DeleteMem0MemoriesResponse = {
-  headers?: map[string]string(name='headers'),
-  statusCode?: int32(name='statusCode'),
-  body?: object(name='body'),
-}
-
-/**
- * @summary 批量删除记忆
- *
- * @param tmpReq DeleteMem0MemoriesRequest
- * @param headers map
- * @param runtime runtime options for this request RuntimeOptions
- * @return DeleteMem0MemoriesResponse
- */
-@context("deleteMem0MemoriesWithContext")
-async function deleteMem0MemoriesWithOptions(tmpReq: DeleteMem0MemoriesRequest, headers: map[string]string, runtime: $RuntimeOptions): DeleteMem0MemoriesResponse {
-  tmpReq.validate();
-  var request = new DeleteMem0MemoriesShrinkRequest{};
-  OpenApiUtil.convert(tmpReq, request);
-  if (!$isNull(tmpReq.metadata)) {
-    request.metadataShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.metadata, 'metadata', 'json');
-  }
-  var query : map[string]any = {};
-  if (!$isNull(request.agentSpace)) {
-    query['agentSpace'] = request.agentSpace;
-  }
-  if (!$isNull(request.agentId)) {
-    query['agent_id'] = request.agentId;
-  }
-  if (!$isNull(request.appId)) {
-    query['app_id'] = request.appId;
-  }
-  if (!$isNull(request.contextStoreId)) {
-    query['context_store_id'] = request.contextStoreId;
-  }
-  if (!$isNull(request.metadataShrink)) {
-    query['metadata'] = request.metadataShrink;
-  }
-  if (!$isNull(request.orgId)) {
-    query['org_id'] = request.orgId;
-  }
-  if (!$isNull(request.projectId)) {
-    query['project_id'] = request.projectId;
-  }
-  if (!$isNull(request.runId)) {
-    query['run_id'] = request.runId;
-  }
-  if (!$isNull(request.userId)) {
-    query['user_id'] = request.userId;
-  }
-
-  var req = new OpenApiUtil.OpenApiRequest{ 
-    headers = headers,
-    query = OpenApiUtil.query(query),
-  };
-  var params = new OpenApiUtil.Params{
-    action = 'DeleteMem0Memories',
-    version = '2026-05-20',
-    protocol = 'HTTPS',
-    pathname = `/v1/memories`,
-    method = 'DELETE',
-    authType = 'Anonymous',
-    style = 'ROA',
-    reqBodyType = 'json',
-    bodyType = 'json',
-  };
-  return doROARequest(params.action, params.version, params.protocol, params.method, params.authType, params.pathname, params.bodyType, req, runtime);
-}
-
-/**
- * @summary 批量删除记忆
- *
- * @param request DeleteMem0MemoriesRequest
- * @return DeleteMem0MemoriesResponse
- */
-async function deleteMem0Memories(request: DeleteMem0MemoriesRequest): DeleteMem0MemoriesResponse {
-  var runtime = new $RuntimeOptions{};
-  var headers : map[string]string = {};
-  return deleteMem0MemoriesWithOptions(request, headers, runtime);
-}
-
-model DeleteMem0MemoryRequest {
-  agentSpace?: string(name='agentSpace', example='my-agent-space'),
-  contextStoreId?: string(name='context_store_id', example='cs-0001'),
-  orgId?: string(name='org_id', example='org-001'),
-  projectId?: string(name='project_id', example='proj-001'),
-}
-
-model DeleteMem0MemoryResponse = {
-  headers?: map[string]string(name='headers'),
-  statusCode?: int32(name='statusCode'),
-  body?: object(name='body'),
-}
-
-/**
- * @summary 删除记忆
- *
- * @param request DeleteMem0MemoryRequest
- * @param headers map
- * @param runtime runtime options for this request RuntimeOptions
- * @return DeleteMem0MemoryResponse
- */
-@context("deleteMem0MemoryWithContext")
-async function deleteMem0MemoryWithOptions(memoryId: string, request: DeleteMem0MemoryRequest, headers: map[string]string, runtime: $RuntimeOptions): DeleteMem0MemoryResponse {
-  request.validate();
-  var query : map[string]any = {};
-  if (!$isNull(request.agentSpace)) {
-    query['agentSpace'] = request.agentSpace;
-  }
-  if (!$isNull(request.contextStoreId)) {
-    query['context_store_id'] = request.contextStoreId;
-  }
-  if (!$isNull(request.orgId)) {
-    query['org_id'] = request.orgId;
-  }
-  if (!$isNull(request.projectId)) {
-    query['project_id'] = request.projectId;
-  }
-
-  var req = new OpenApiUtil.OpenApiRequest{ 
-    headers = headers,
-    query = OpenApiUtil.query(query),
-  };
-  var params = new OpenApiUtil.Params{
-    action = 'DeleteMem0Memory',
-    version = '2026-05-20',
-    protocol = 'HTTPS',
-    pathname = `/v1/memories/${$URL.percentEncode(memoryId)}`,
-    method = 'DELETE',
-    authType = 'Anonymous',
-    style = 'ROA',
-    reqBodyType = 'json',
-    bodyType = 'json',
-  };
-  return doROARequest(params.action, params.version, params.protocol, params.method, params.authType, params.pathname, params.bodyType, req, runtime);
-}
-
-/**
- * @summary 删除记忆
- *
- * @param request DeleteMem0MemoryRequest
- * @return DeleteMem0MemoryResponse
- */
-async function deleteMem0Memory(memoryId: string, request: DeleteMem0MemoryRequest): DeleteMem0MemoryResponse {
-  var runtime = new $RuntimeOptions{};
-  var headers : map[string]string = {};
-  return deleteMem0MemoryWithOptions(memoryId, request, headers, runtime);
-}
-
 model DeletePipelineRequest {
 }
 
@@ -1375,153 +1214,6 @@ async function getDataset(agentSpace: string, datasetName: string, request: GetD
   var runtime = new $RuntimeOptions{};
   var headers : map[string]string = {};
   return getDatasetWithOptions(agentSpace, datasetName, request, headers, runtime);
-}
-
-model GetMem0MemoriesRequest {
-  agentSpace?: string(name='agentSpace', example='my-agent-space'),
-  body?: map[string]any(name='body', example='{"filters":{"AND":[{"user_id":"alice"}]}}'),
-  contextStoreId?: string(name='context_store_id', example='cs-0001'),
-  enableGraph?: boolean(name='enable_graph', example='false'),
-  orgId?: string(name='org_id', example='org-001'),
-  projectId?: string(name='project_id', example='proj-001'),
-}
-
-model GetMem0MemoriesResponse = {
-  headers?: map[string]string(name='headers'),
-  statusCode?: int32(name='statusCode'),
-  body?: [  map[string]any ](name='body'),
-}
-
-/**
- * @summary 查询记忆库数据
- *
- * @param request GetMem0MemoriesRequest
- * @param headers map
- * @param runtime runtime options for this request RuntimeOptions
- * @return GetMem0MemoriesResponse
- */
-@context("getMem0MemoriesWithContext")
-async function getMem0MemoriesWithOptions(request: GetMem0MemoriesRequest, headers: map[string]string, runtime: $RuntimeOptions): GetMem0MemoriesResponse {
-  request.validate();
-  var query : map[string]any = {};
-  if (!$isNull(request.agentSpace)) {
-    query['agentSpace'] = request.agentSpace;
-  }
-  if (!$isNull(request.contextStoreId)) {
-    query['context_store_id'] = request.contextStoreId;
-  }
-  if (!$isNull(request.enableGraph)) {
-    query['enable_graph'] = request.enableGraph;
-  }
-  if (!$isNull(request.orgId)) {
-    query['org_id'] = request.orgId;
-  }
-  if (!$isNull(request.projectId)) {
-    query['project_id'] = request.projectId;
-  }
-
-  var body : map[string]any = {};
-  if (!$isNull(request.body)) {
-    body['body'] = request.body;
-  }
-
-  var req = new OpenApiUtil.OpenApiRequest{ 
-    headers = headers,
-    query = OpenApiUtil.query(query),
-    body = OpenApiUtil.parseToMap(body),
-  };
-  var params = new OpenApiUtil.Params{
-    action = 'GetMem0Memories',
-    version = '2026-05-20',
-    protocol = 'HTTPS',
-    pathname = `/v2/memories`,
-    method = 'POST',
-    authType = 'Anonymous',
-    style = 'ROA',
-    reqBodyType = 'json',
-    bodyType = 'array',
-  };
-  return doROARequest(params.action, params.version, params.protocol, params.method, params.authType, params.pathname, params.bodyType, req, runtime);
-}
-
-/**
- * @summary 查询记忆库数据
- *
- * @param request GetMem0MemoriesRequest
- * @return GetMem0MemoriesResponse
- */
-async function getMem0Memories(request: GetMem0MemoriesRequest): GetMem0MemoriesResponse {
-  var runtime = new $RuntimeOptions{};
-  var headers : map[string]string = {};
-  return getMem0MemoriesWithOptions(request, headers, runtime);
-}
-
-model GetMem0MemoryRequest {
-  agentSpace?: string(name='agentSpace', example='my-agent-space'),
-  contextStoreId?: string(name='context_store_id', example='cs-0001'),
-  orgId?: string(name='org_id', example='org-001'),
-  projectId?: string(name='project_id', example='proj-001'),
-}
-
-model GetMem0MemoryResponse = {
-  headers?: map[string]string(name='headers'),
-  statusCode?: int32(name='statusCode'),
-  body?: object(name='body'),
-}
-
-/**
- * @summary 查询记忆
- *
- * @param request GetMem0MemoryRequest
- * @param headers map
- * @param runtime runtime options for this request RuntimeOptions
- * @return GetMem0MemoryResponse
- */
-@context("getMem0MemoryWithContext")
-async function getMem0MemoryWithOptions(memoryId: string, request: GetMem0MemoryRequest, headers: map[string]string, runtime: $RuntimeOptions): GetMem0MemoryResponse {
-  request.validate();
-  var query : map[string]any = {};
-  if (!$isNull(request.agentSpace)) {
-    query['agentSpace'] = request.agentSpace;
-  }
-  if (!$isNull(request.contextStoreId)) {
-    query['context_store_id'] = request.contextStoreId;
-  }
-  if (!$isNull(request.orgId)) {
-    query['org_id'] = request.orgId;
-  }
-  if (!$isNull(request.projectId)) {
-    query['project_id'] = request.projectId;
-  }
-
-  var req = new OpenApiUtil.OpenApiRequest{ 
-    headers = headers,
-    query = OpenApiUtil.query(query),
-  };
-  var params = new OpenApiUtil.Params{
-    action = 'GetMem0Memory',
-    version = '2026-05-20',
-    protocol = 'HTTPS',
-    pathname = `/v1/memories/${$URL.percentEncode(memoryId)}`,
-    method = 'GET',
-    authType = 'Anonymous',
-    style = 'ROA',
-    reqBodyType = 'json',
-    bodyType = 'json',
-  };
-  return doROARequest(params.action, params.version, params.protocol, params.method, params.authType, params.pathname, params.bodyType, req, runtime);
-}
-
-/**
- * @summary 查询记忆
- *
- * @param request GetMem0MemoryRequest
- * @return GetMem0MemoryResponse
- */
-async function getMem0Memory(memoryId: string, request: GetMem0MemoryRequest): GetMem0MemoryResponse {
-  var runtime = new $RuntimeOptions{};
-  var headers : map[string]string = {};
-  return getMem0MemoryWithOptions(memoryId, request, headers, runtime);
 }
 
 model GetPipelineRequest {
@@ -2030,16 +1722,16 @@ async function listPipelines(agentSpace: string, request: ListPipelinesRequest):
 }
 
 model SearchContextRequest {
-  filter?: map[string]any(name='filter'),
-  formatted?: boolean(name='formatted'),
-  limit?: int32(name='limit'),
-  query?: string(name='query', description='This parameter is required.'),
-  retrievalOption?: string(name='retrievalOption'),
-  threshold?: double(name='threshold'),
+  filter?: map[string]any(name='filter', example='{"userId":"alice"}'),
+  formatted?: boolean(name='formatted', example='true'),
+  limit?: int32(name='limit', example='10'),
+  query?: string(name='query', description='This parameter is required.', example='用户最近的偏好设置'),
+  retrievalOption?: string(name='retrievalOption', example='semantic'),
+  threshold?: double(name='threshold', example='0.5'),
 }
 
 model SearchContextResponseBody = {
-  requestId?: string(name='requestId'),
+  requestId?: string(name='requestId', example='9ACFB10A-1B2C-3D4E-5F6G-7H8I9J0K1L2M'),
   results?: [ map[string]any ](name='results'),
 }
 
@@ -2108,85 +1800,6 @@ async function searchContext(agentSpace: string, contextStoreName: string, reque
   var runtime = new $RuntimeOptions{};
   var headers : map[string]string = {};
   return searchContextWithOptions(agentSpace, contextStoreName, request, headers, runtime);
-}
-
-model SearchMem0MemoriesRequest {
-  agentSpace?: string(name='agentSpace', example='my-agent-space'),
-  body?: map[string]any(name='body', example='{"query":"用户喝什么","filters":{"AND":[{"user_id":"alice"}]},"top_k":5}'),
-  contextStoreId?: string(name='context_store_id', example='cs-0001'),
-  enableGraph?: boolean(name='enable_graph', example='false'),
-  orgId?: string(name='org_id', example='org-001'),
-  projectId?: string(name='project_id', example='proj-001'),
-}
-
-model SearchMem0MemoriesResponse = {
-  headers?: map[string]string(name='headers'),
-  statusCode?: int32(name='statusCode'),
-  body?: [  map[string]any ](name='body'),
-}
-
-/**
- * @summary 查询记忆库内容
- *
- * @param request SearchMem0MemoriesRequest
- * @param headers map
- * @param runtime runtime options for this request RuntimeOptions
- * @return SearchMem0MemoriesResponse
- */
-@context("searchMem0MemoriesWithContext")
-async function searchMem0MemoriesWithOptions(request: SearchMem0MemoriesRequest, headers: map[string]string, runtime: $RuntimeOptions): SearchMem0MemoriesResponse {
-  request.validate();
-  var query : map[string]any = {};
-  if (!$isNull(request.agentSpace)) {
-    query['agentSpace'] = request.agentSpace;
-  }
-  if (!$isNull(request.contextStoreId)) {
-    query['context_store_id'] = request.contextStoreId;
-  }
-  if (!$isNull(request.enableGraph)) {
-    query['enable_graph'] = request.enableGraph;
-  }
-  if (!$isNull(request.orgId)) {
-    query['org_id'] = request.orgId;
-  }
-  if (!$isNull(request.projectId)) {
-    query['project_id'] = request.projectId;
-  }
-
-  var body : map[string]any = {};
-  if (!$isNull(request.body)) {
-    body['body'] = request.body;
-  }
-
-  var req = new OpenApiUtil.OpenApiRequest{ 
-    headers = headers,
-    query = OpenApiUtil.query(query),
-    body = OpenApiUtil.parseToMap(body),
-  };
-  var params = new OpenApiUtil.Params{
-    action = 'SearchMem0Memories',
-    version = '2026-05-20',
-    protocol = 'HTTPS',
-    pathname = `/v2/memories/search`,
-    method = 'POST',
-    authType = 'Anonymous',
-    style = 'ROA',
-    reqBodyType = 'json',
-    bodyType = 'array',
-  };
-  return doROARequest(params.action, params.version, params.protocol, params.method, params.authType, params.pathname, params.bodyType, req, runtime);
-}
-
-/**
- * @summary 查询记忆库内容
- *
- * @param request SearchMem0MemoriesRequest
- * @return SearchMem0MemoriesResponse
- */
-async function searchMem0Memories(request: SearchMem0MemoriesRequest): SearchMem0MemoriesResponse {
-  var runtime = new $RuntimeOptions{};
-  var headers : map[string]string = {};
-  return searchMem0MemoriesWithOptions(request, headers, runtime);
 }
 
 model UpdateAgentSpaceRequest {
@@ -2412,81 +2025,6 @@ async function updateDataset(agentSpace: string, datasetName: string, request: U
   return updateDatasetWithOptions(agentSpace, datasetName, request, headers, runtime);
 }
 
-model UpdateMem0MemoryRequest {
-  agentSpace?: string(name='agentSpace', example='my-agent-space'),
-  body?: map[string]any(name='body', example='{"text":"用户改成喜欢喝美式","metadata":{"channel":"app"}}'),
-  contextStoreId?: string(name='context_store_id', example='cs-0001'),
-  orgId?: string(name='org_id', example='org-001'),
-  projectId?: string(name='project_id', example='proj-001'),
-}
-
-model UpdateMem0MemoryResponse = {
-  headers?: map[string]string(name='headers'),
-  statusCode?: int32(name='statusCode'),
-  body?: object(name='body'),
-}
-
-/**
- * @summary 修改记忆
- *
- * @param request UpdateMem0MemoryRequest
- * @param headers map
- * @param runtime runtime options for this request RuntimeOptions
- * @return UpdateMem0MemoryResponse
- */
-@context("updateMem0MemoryWithContext")
-async function updateMem0MemoryWithOptions(memoryId: string, request: UpdateMem0MemoryRequest, headers: map[string]string, runtime: $RuntimeOptions): UpdateMem0MemoryResponse {
-  request.validate();
-  var query : map[string]any = {};
-  if (!$isNull(request.agentSpace)) {
-    query['agentSpace'] = request.agentSpace;
-  }
-  if (!$isNull(request.contextStoreId)) {
-    query['context_store_id'] = request.contextStoreId;
-  }
-  if (!$isNull(request.orgId)) {
-    query['org_id'] = request.orgId;
-  }
-  if (!$isNull(request.projectId)) {
-    query['project_id'] = request.projectId;
-  }
-
-  var body : map[string]any = {};
-  if (!$isNull(request.body)) {
-    body['body'] = request.body;
-  }
-
-  var req = new OpenApiUtil.OpenApiRequest{ 
-    headers = headers,
-    query = OpenApiUtil.query(query),
-    body = OpenApiUtil.parseToMap(body),
-  };
-  var params = new OpenApiUtil.Params{
-    action = 'UpdateMem0Memory',
-    version = '2026-05-20',
-    protocol = 'HTTPS',
-    pathname = `/v1/memories/${$URL.percentEncode(memoryId)}`,
-    method = 'PUT',
-    authType = 'Anonymous',
-    style = 'ROA',
-    reqBodyType = 'json',
-    bodyType = 'json',
-  };
-  return doROARequest(params.action, params.version, params.protocol, params.method, params.authType, params.pathname, params.bodyType, req, runtime);
-}
-
-/**
- * @summary 修改记忆
- *
- * @param request UpdateMem0MemoryRequest
- * @return UpdateMem0MemoryResponse
- */
-async function updateMem0Memory(memoryId: string, request: UpdateMem0MemoryRequest): UpdateMem0MemoryResponse {
-  var runtime = new $RuntimeOptions{};
-  var headers : map[string]string = {};
-  return updateMem0MemoryWithOptions(memoryId, request, headers, runtime);
-}
-
 model UpdatePipelineRequest {
   description?: string(name='description', example='我的流水线'),
   executePolicy?: {
@@ -2598,61 +2136,5 @@ async function updatePipeline(agentSpace: string, pipelineName: string, request:
   var runtime = new $RuntimeOptions{};
   var headers : map[string]string = {};
   return updatePipelineWithOptions(agentSpace, pipelineName, request, headers, runtime);
-}
-
-model ValidateMem0APIKeyRequest {
-  agentSpace?: string(name='agentSpace', example='my-agent-space'),
-}
-
-model ValidateMem0APIKeyResponse = {
-  headers?: map[string]string(name='headers'),
-  statusCode?: int32(name='statusCode'),
-  body?: object(name='body'),
-}
-
-/**
- * @summary 校验 Mem0 / ContextStore API Key
- *
- * @param request ValidateMem0APIKeyRequest
- * @param headers map
- * @param runtime runtime options for this request RuntimeOptions
- * @return ValidateMem0APIKeyResponse
- */
-@context("validateMem0APIKeyWithContext")
-async function validateMem0APIKeyWithOptions(request: ValidateMem0APIKeyRequest, headers: map[string]string, runtime: $RuntimeOptions): ValidateMem0APIKeyResponse {
-  request.validate();
-  var query : map[string]any = {};
-  if (!$isNull(request.agentSpace)) {
-    query['agentSpace'] = request.agentSpace;
-  }
-
-  var req = new OpenApiUtil.OpenApiRequest{ 
-    headers = headers,
-    query = OpenApiUtil.query(query),
-  };
-  var params = new OpenApiUtil.Params{
-    action = 'ValidateMem0APIKey',
-    version = '2026-05-20',
-    protocol = 'HTTPS',
-    pathname = `/v1/ping`,
-    method = 'GET',
-    authType = 'Anonymous',
-    style = 'ROA',
-    reqBodyType = 'json',
-    bodyType = 'json',
-  };
-  return doROARequest(params.action, params.version, params.protocol, params.method, params.authType, params.pathname, params.bodyType, req, runtime);
-}
-
-/**
- * @summary 校验 Mem0 / ContextStore API Key
- *
- * @param request ValidateMem0APIKeyRequest
- * @return ValidateMem0APIKeyResponse
- */
-async function validateMem0APIKey(request: ValidateMem0APIKeyRequest): ValidateMem0APIKeyResponse {
-  var runtime = new $RuntimeOptions{};
-  var headers : map[string]string = {};
-  return validateMem0APIKeyWithOptions(request, headers, runtime);
 }
 
