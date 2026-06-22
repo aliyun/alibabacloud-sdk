@@ -1,0 +1,457 @@
+/**
+ *
+ */
+import OpenApi;
+import OpenApi.OpenApiUtil;
+
+extends OpenApi;
+
+
+init(config: OpenApiUtil.Config){
+  super(config);
+  @endpointRule = '';
+  
+  checkConfig(config);
+  @endpoint = getEndpoint('alikafkakopilot', @regionId, @endpointRule, @network, @suffix, @endpointMap, @endpoint);
+}
+
+function getEndpoint(productId: string, regionId: string, endpointRule: string, network: string, suffix: string, endpointMap: map[string]string, endpoint: string) throws: string{
+  if (!$isNull(endpoint)) {
+    return endpoint;
+  }
+  
+  if (!$isNull(endpointMap) && !$isNull(endpointMap[regionId])) {
+    return endpointMap[regionId];
+  }
+  return OpenApiUtil.getEndpointRules(productId, regionId, endpointRule, network, suffix);
+}
+
+model KopilotChatStreamRequest {
+  message?: string(name='Message'),
+  regionId?: string(name='RegionId', description='This parameter is required.'),
+  sessionId?: string(name='SessionId'),
+}
+
+model KopilotChatStreamResponseBody = {
+  content?: string(name='Content'),
+  delta?: string(name='Delta'),
+  message?: string(name='Message'),
+  messageId?: string(name='MessageId'),
+  requestId?: string(name='RequestId'),
+  role?: string(name='Role'),
+  runId?: string(name='RunId'),
+  threadId?: string(name='ThreadId'),
+  toolCallId?: string(name='ToolCallId'),
+  toolCallName?: string(name='ToolCallName'),
+  type?: string(name='Type'),
+}
+
+model KopilotChatStreamResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  id?: string(name='id'),
+  event?: string(name='event'),
+  body?: KopilotChatStreamResponseBody(name='body'),
+}
+
+/**
+ * @summary 智能体 stream chat
+ *
+ * @param request KopilotChatStreamRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return KopilotChatStreamResponse
+ */
+@sse(true)
+@context("kopilotChatStreamWithSSECtx")
+async function kopilotChatStreamWithSSE(request: KopilotChatStreamRequest, runtime: $RuntimeOptions): asyncIterator[KopilotChatStreamResponse] {
+  request.validate();
+  var query = {};
+  if (!$isNull(request.message)) {
+    query['Message'] = request.message;
+  }
+  if (!$isNull(request.regionId)) {
+    query['RegionId'] = request.regionId;
+  }
+  if (!$isNull(request.sessionId)) {
+    query['SessionId'] = request.sessionId;
+  }
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'KopilotChatStream',
+    version = '2026-04-14',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  var sseResp = callSSEApi(params, req, runtime);
+  for (var resp : sseResp) {
+    if (!$isNull(resp.event) && !$isNull(resp.event.data)) {
+      var data = $object($JSON.parseJSON(resp.event.data));
+      yield {
+        statusCode = resp.statusCode,
+        headers = resp.headers,
+        id = resp.event.id,
+        event = resp.event.event,
+        body = data
+      };
+    }
+  }
+}
+/**
+ * @summary 智能体 stream chat
+ *
+ * @param request KopilotChatStreamRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return KopilotChatStreamResponse
+ */
+@context("kopilotChatStreamWithContext")
+async function kopilotChatStreamWithOptions(request: KopilotChatStreamRequest, runtime: $RuntimeOptions): KopilotChatStreamResponse {
+  request.validate();
+  var query = {};
+  if (!$isNull(request.message)) {
+    query['Message'] = request.message;
+  }
+  if (!$isNull(request.regionId)) {
+    query['RegionId'] = request.regionId;
+  }
+  if (!$isNull(request.sessionId)) {
+    query['SessionId'] = request.sessionId;
+  }
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'KopilotChatStream',
+    version = '2026-04-14',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 智能体 stream chat
+ *
+ * @param request KopilotChatStreamRequest
+ * @return KopilotChatStreamResponse
+ */
+async function kopilotChatStream(request: KopilotChatStreamRequest): KopilotChatStreamResponse {
+  var runtime = new $RuntimeOptions{};
+  return kopilotChatStreamWithOptions(request, runtime);
+}
+
+model KopilotFeedbackRequest {
+  comment?: string(name='Comment'),
+  feedback?: string(name='Feedback'),
+  regionId?: string(name='RegionId', description='This parameter is required.'),
+  sessionId?: string(name='SessionId'),
+  turnId?: string(name='TurnId'),
+}
+
+model KopilotFeedbackResponseBody = {
+  code?: long(name='Code'),
+  data?: map[string]long(name='Data'),
+  requestId?: string(name='RequestId'),
+  success?: boolean(name='Success'),
+}
+
+model KopilotFeedbackResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: KopilotFeedbackResponseBody(name='body'),
+}
+
+/**
+ * @summary 评价
+ *
+ * @param request KopilotFeedbackRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return KopilotFeedbackResponse
+ */
+@context("kopilotFeedbackWithContext")
+async function kopilotFeedbackWithOptions(request: KopilotFeedbackRequest, runtime: $RuntimeOptions): KopilotFeedbackResponse {
+  request.validate();
+  var query = {};
+  if (!$isNull(request.comment)) {
+    query['Comment'] = request.comment;
+  }
+  if (!$isNull(request.feedback)) {
+    query['Feedback'] = request.feedback;
+  }
+  if (!$isNull(request.regionId)) {
+    query['RegionId'] = request.regionId;
+  }
+  if (!$isNull(request.sessionId)) {
+    query['SessionId'] = request.sessionId;
+  }
+  if (!$isNull(request.turnId)) {
+    query['TurnId'] = request.turnId;
+  }
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'KopilotFeedback',
+    version = '2026-04-14',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 评价
+ *
+ * @param request KopilotFeedbackRequest
+ * @return KopilotFeedbackResponse
+ */
+async function kopilotFeedback(request: KopilotFeedbackRequest): KopilotFeedbackResponse {
+  var runtime = new $RuntimeOptions{};
+  return kopilotFeedbackWithOptions(request, runtime);
+}
+
+model KopilotListConversationChatMessagesRequest {
+  beforeTurnId?: int32(name='BeforeTurnId'),
+  pageSize?: int32(name='PageSize'),
+  regionId?: string(name='RegionId', description='This parameter is required.'),
+  sessionId?: string(name='SessionId'),
+}
+
+model KopilotListConversationChatMessagesResponseBody = {
+  code?: long(name='Code'),
+  data?: {
+    hasMore?: boolean(name='HasMore'),
+    messages?: [ 
+      {
+        content?: string(name='Content'),
+        createTime?: string(name='CreateTime'),
+        feedback?: string(name='Feedback'),
+        role?: string(name='Role'),
+        turnId?: string(name='TurnId'),
+      }
+    ](name='Messages'),
+    nextBeforeTurnId?: long(name='NextBeforeTurnId'),
+    sessionId?: string(name='SessionId'),
+    totalTurns?: long(name='TotalTurns'),
+  }(name='Data'),
+  requestId?: string(name='RequestId'),
+  success?: boolean(name='Success'),
+}
+
+model KopilotListConversationChatMessagesResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: KopilotListConversationChatMessagesResponseBody(name='body'),
+}
+
+/**
+ * @summary 历史会话
+ *
+ * @param request KopilotListConversationChatMessagesRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return KopilotListConversationChatMessagesResponse
+ */
+@context("kopilotListConversationChatMessagesWithContext")
+async function kopilotListConversationChatMessagesWithOptions(request: KopilotListConversationChatMessagesRequest, runtime: $RuntimeOptions): KopilotListConversationChatMessagesResponse {
+  request.validate();
+  var query = {};
+  if (!$isNull(request.beforeTurnId)) {
+    query['BeforeTurnId'] = request.beforeTurnId;
+  }
+  if (!$isNull(request.pageSize)) {
+    query['PageSize'] = request.pageSize;
+  }
+  if (!$isNull(request.regionId)) {
+    query['RegionId'] = request.regionId;
+  }
+  if (!$isNull(request.sessionId)) {
+    query['SessionId'] = request.sessionId;
+  }
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'KopilotListConversationChatMessages',
+    version = '2026-04-14',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 历史会话
+ *
+ * @param request KopilotListConversationChatMessagesRequest
+ * @return KopilotListConversationChatMessagesResponse
+ */
+async function kopilotListConversationChatMessages(request: KopilotListConversationChatMessagesRequest): KopilotListConversationChatMessagesResponse {
+  var runtime = new $RuntimeOptions{};
+  return kopilotListConversationChatMessagesWithOptions(request, runtime);
+}
+
+model KopilotListConversationsRequest {
+  page?: int32(name='Page'),
+  regionId?: string(name='RegionId', description='This parameter is required.'),
+  size?: int32(name='Size'),
+}
+
+model KopilotListConversationsResponseBody = {
+  code?: long(name='Code'),
+  data?: {
+    conversationIds?: [ string ](name='ConversationIds'),
+    count?: int32(name='Count'),
+    page?: int32(name='Page'),
+    size?: int32(name='Size'),
+    total?: long(name='Total'),
+    totalPages?: int32(name='TotalPages'),
+    userId?: string(name='UserId'),
+  }(name='Data'),
+  requestId?: string(name='RequestId'),
+  success?: boolean(name='Success'),
+}
+
+model KopilotListConversationsResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: KopilotListConversationsResponseBody(name='body'),
+}
+
+/**
+ * @summary 智能体
+ *
+ * @param request KopilotListConversationsRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return KopilotListConversationsResponse
+ */
+@context("kopilotListConversationsWithContext")
+async function kopilotListConversationsWithOptions(request: KopilotListConversationsRequest, runtime: $RuntimeOptions): KopilotListConversationsResponse {
+  request.validate();
+  var query = {};
+  if (!$isNull(request.page)) {
+    query['Page'] = request.page;
+  }
+  if (!$isNull(request.regionId)) {
+    query['RegionId'] = request.regionId;
+  }
+  if (!$isNull(request.size)) {
+    query['Size'] = request.size;
+  }
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'KopilotListConversations',
+    version = '2026-04-14',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 智能体
+ *
+ * @param request KopilotListConversationsRequest
+ * @return KopilotListConversationsResponse
+ */
+async function kopilotListConversations(request: KopilotListConversationsRequest): KopilotListConversationsResponse {
+  var runtime = new $RuntimeOptions{};
+  return kopilotListConversationsWithOptions(request, runtime);
+}
+
+model KopilotQueryStatusRequest {
+  owner?: string(name='Owner', description='This parameter is required.'),
+  regionId?: string(name='RegionId', description='This parameter is required.'),
+}
+
+model KopilotQueryStatusResponseBody = {
+  code?: long(name='Code'),
+  data?: {
+    activateTime?: long(name='ActivateTime'),
+    instanceId?: string(name='InstanceId'),
+    lifeStatus?: string(name='LifeStatus'),
+    regionId?: string(name='RegionId'),
+    uid?: string(name='Uid'),
+  }(name='Data'),
+  requestId?: string(name='RequestId'),
+  success?: boolean(name='Success'),
+}
+
+model KopilotQueryStatusResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: KopilotQueryStatusResponseBody(name='body'),
+}
+
+/**
+ * @summary 状态
+ *
+ * @param request KopilotQueryStatusRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return KopilotQueryStatusResponse
+ */
+@context("kopilotQueryStatusWithContext")
+async function kopilotQueryStatusWithOptions(request: KopilotQueryStatusRequest, runtime: $RuntimeOptions): KopilotQueryStatusResponse {
+  request.validate();
+  var query = {};
+  if (!$isNull(request.owner)) {
+    query['Owner'] = request.owner;
+  }
+  if (!$isNull(request.regionId)) {
+    query['RegionId'] = request.regionId;
+  }
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'KopilotQueryStatus',
+    version = '2026-04-14',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 状态
+ *
+ * @param request KopilotQueryStatusRequest
+ * @return KopilotQueryStatusResponse
+ */
+async function kopilotQueryStatus(request: KopilotQueryStatusRequest): KopilotQueryStatusResponse {
+  var runtime = new $RuntimeOptions{};
+  return kopilotQueryStatusWithOptions(request, runtime);
+}
+
