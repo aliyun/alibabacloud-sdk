@@ -15,8 +15,14 @@ extends OpenApi;
 
 init(config: OpenApi.Config){
   super(config);
-  @endpointRule = '';
-  
+  @endpointRule = 'regional';
+  @endpointMap = {
+    'us-east-1' = 'dm.us-east-1.aliyuncs.com',
+    'eu-central-1' = 'dm.eu-central-1.aliyuncs.com',
+    'cn-hangzhou' = 'dm.aliyuncs.com',
+    'ap-southeast-1' = 'dm.ap-southeast-1.aliyuncs.com',
+  };
+
   checkConfig(config);
   @endpoint = getEndpoint('dm', @regionId, @endpointRule, @network, @suffix, @endpointMap, @endpoint);
 }
@@ -7101,23 +7107,27 @@ async function updateUser(request: UpdateUserRequest): UpdateUserResponse {
 }
 
 model ValidateEmailRequest {
-  checkGraylist?: boolean(name='CheckGraylist', description='Specifies whether to check the graylist. The default value is false. The result is sent through an asynchronous notification message from EventBridge.', example='true'),
-  email?: string(name='Email', description='The email address to validate.
+  checkGraylist?: boolean(name='CheckGraylist', description='Specifies whether to check the graylist. Default value: false. Results will be sent as asynchronous notifications through EventBridge.', example='true'),
+  email?: string(name='Email', description='The email address to validate
 
 This parameter is required.', example='xxx@yyy.com'),
-  timeout?: long(name='Timeout', description='The timeout period. The default value is 60 seconds.', example='20'),
+  probeType?: string(name='ProbeType', description='The detection type:
+
+- FULL: Enables all detection capabilities, including SMTP probing. Since SMTP probing involves remote connections, the overall latency is higher. This is suitable for scenarios that are not sensitive to response time. Each detection consumes 1 address validation quota.
+- BASIC_ONLY: Enables all detection capabilities except SMTP probing, with low latency. This is suitable for scenarios sensitive to response time, such as real-time validation during registration to check whether an email address is a disposable email or an abnormal address such as MX forwarding, to defend against mass registration by malicious actors. Each detection consumes 1/3 of an address validation quota.', example='FULL'),
+  timeout?: long(name='Timeout', description='Timeout period. Default value: 60 seconds.', example='20'),
 }
 
 model ValidateEmailResponseBody = {
-  domainPart?: string(name='DomainPart', description='The domain part of the email address parsed from the syntax check. The domain part is converted to lowercase.', example='yyy.com'),
-  isFreeMail?: boolean(name='IsFreeMail', description='Indicates whether the address is from a free email service.', example='true'),
-  localPart?: string(name='LocalPart', description='The local part of the email address parsed from the syntax check. The local part is converted to lowercase and the content after the plus sign (+) is removed.', example='xxx'),
-  provider?: string(name='Provider', description='The email service provider of the address.', example='Gmail'),
-  requestId?: string(name='RequestId', description='The request ID.', example='xxxx-xxxx-xxxx-xxxx'),
-  status?: string(name='Status', description='The validation status of the email address.
+  domainPart?: string(name='DomainPart', description='The domain part of the email address parsed from syntax validation (lowercased)', example='yyy.com'),
+  isFreeMail?: boolean(name='IsFreeMail', description='Indicates whether the address is a free email', example='true'),
+  localPart?: string(name='LocalPart', description='The local part of the email address parsed from syntax validation (lowercased with the plus sign portion removed)', example='xxx'),
+  provider?: string(name='Provider', description='Email provider classification of the address', example='Gmail'),
+  requestId?: string(name='RequestId', description='Request ID', example='xxxx-xxxx-xxxx-xxxx'),
+  status?: string(name='Status', description='The email address status obtained from validation
 
 This parameter is required.', example='VALID'),
-  subStatus?: string(name='SubStatus', description='The detailed validation status of the email address. This provides more information about the Status.
+  subStatus?: string(name='SubStatus', description='The email address sub-status obtained from validation, which provides a detailed description of the status
 
 This parameter is required.', example='UNSPECIFIED'),
 }
@@ -7129,7 +7139,7 @@ model ValidateEmailResponse = {
 }
 
 /**
- * @summary Validates an email address.
+ * @summary Validate an email address.
  *
  * @param request ValidateEmailRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -7143,6 +7153,9 @@ async function validateEmailWithOptions(request: ValidateEmailRequest, runtime: 
   }
   if (!Util.isUnset(request.email)) {
     query['Email'] = request.email;
+  }
+  if (!Util.isUnset(request.probeType)) {
+    query['ProbeType'] = request.probeType;
   }
   if (!Util.isUnset(request.timeout)) {
     query['Timeout'] = request.timeout;
@@ -7165,7 +7178,7 @@ async function validateEmailWithOptions(request: ValidateEmailRequest, runtime: 
 }
 
 /**
- * @summary Validates an email address.
+ * @summary Validate an email address.
  *
  * @param request ValidateEmailRequest
  * @return ValidateEmailResponse
