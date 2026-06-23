@@ -231,10 +231,19 @@ async function batchReceiveMessage(queueName: string, request: BatchReceiveMessa
 model BatchSendMessageRequest {
   messages?: [ 
     {
-      delaySeconds?: int32(name='DelaySeconds'),
-      messageBody?: string(name='MessageBody'),
-      messageGroupId?: string(name='MessageGroupId'),
-      priority?: int32(name='Priority'),
+      delaySeconds?: int32(name='DelaySeconds', example='60'),
+      messageBody?: string(name='MessageBody', example='This is test message 1.'),
+      messageGroupId?: string(name='MessageGroupId', example='group1'),
+      priority?: int32(name='Priority', example='1'),
+    }
+  ](name='Messages'),
+}
+
+model BatchSendMessageResponseBody = {
+  messages?: [ 
+    {
+      messageBodyMD5?: string(name='MessageBodyMD5'),
+      messageId?: string(name='MessageId'),
     }
   ](name='Messages'),
 }
@@ -242,10 +251,18 @@ model BatchSendMessageRequest {
 model BatchSendMessageResponse = {
   headers?: map[string]string(name='headers'),
   statusCode?: int32(name='statusCode'),
+  body?: BatchSendMessageResponseBody(name='body'),
 }
 
 /**
  * @summary 批量发送消息
+ *
+ * @description ## 请求说明
+ * - 一次 Batch 请求的消息总大小不得超过 64 KB。
+ * - `BatchSendMessage` 与 `SendMessage` 使用相同的 URL 路径，通过 Body 结构区分：包含 `Messages` 数组即为批量发送，否则为单条发送。
+ * - 批量操作的返回结果可能同时包含成功和失败的子消息。
+ * - 每次请求中可以包含多个消息对象，每个消息对象可以设置不同的延迟时间和优先级。
+ * - 对于 FIFO 队列，可以通过 `MessageGroupId` 参数来指定消息分组 ID。
  *
  * @param request BatchSendMessageRequest
  * @param headers map
@@ -280,6 +297,13 @@ async function batchSendMessageWithOptions(queueName: string, request: BatchSend
 
 /**
  * @summary 批量发送消息
+ *
+ * @description ## 请求说明
+ * - 一次 Batch 请求的消息总大小不得超过 64 KB。
+ * - `BatchSendMessage` 与 `SendMessage` 使用相同的 URL 路径，通过 Body 结构区分：包含 `Messages` 数组即为批量发送，否则为单条发送。
+ * - 批量操作的返回结果可能同时包含成功和失败的子消息。
+ * - 每次请求中可以包含多个消息对象，每个消息对象可以设置不同的延迟时间和优先级。
+ * - 对于 FIFO 队列，可以通过 `MessageGroupId` 参数来指定消息分组 ID。
  *
  * @param request BatchSendMessageRequest
  * @return BatchSendMessageResponse
@@ -480,21 +504,33 @@ async function peekMessage(queueName: string, request: PeekMessageRequest): Peek
 
 model PublishMessageRequest {
   messageAttributes?: {
-    directMail?: string(name='DirectMail'),
-    directSMS?: string(name='DirectSMS'),
-    push?: string(name='Push'),
+    directMail?: string(name='DirectMail', example='详见 https://help.aliyun.com/zh/direct-mail/singlesendmail'),
+    directSMS?: string(name='DirectSMS', example='{"FreeSignName":"阿里云","TemplateCode":"SMS_123456","Type":"singleContent","Receiver":"13800000000","SmsParams":"{\\\\"code\\\\":\\\\"1234\\\\"}"}'),
+    push?: string(name='Push', example='移动推送属性示例值'),
   }(name='MessageAttributes'),
-  messageBody?: string(name='MessageBody'),
-  messageTag?: string(name='MessageTag'),
+  messageBody?: string(name='MessageBody', example='hello topic'),
+  messageTag?: string(name='MessageTag', example='order-event'),
+}
+
+model PublishMessageResponseBody = {
+  messageBodyMD5?: string(name='MessageBodyMD5'),
+  messageId?: string(name='MessageId'),
 }
 
 model PublishMessageResponse = {
   headers?: map[string]string(name='headers'),
   statusCode?: int32(name='statusCode'),
+  body?: PublishMessageResponseBody(name='body'),
 }
 
 /**
  * @summary 发布消息
+ *
+ * @description ## 请求说明
+ * - 消息发布后会被推送到该 Topic 下所有 Subscription 的 Endpoint。
+ * - 推送到 Queue 和 HTTP Endpoint 时不需要设置 `MessageAttributes`。
+ * - 推送到邮件、短信或移动推送时需要设置对应的 `MessageAttributes` 子属性。
+ * - 消息内容建议事先进行 Base64 编码以避免特殊字符问题。
  *
  * @param request PublishMessageRequest
  * @param headers map
@@ -535,6 +571,12 @@ async function publishMessageWithOptions(topicName: string, request: PublishMess
 
 /**
  * @summary 发布消息
+ *
+ * @description ## 请求说明
+ * - 消息发布后会被推送到该 Topic 下所有 Subscription 的 Endpoint。
+ * - 推送到 Queue 和 HTTP Endpoint 时不需要设置 `MessageAttributes`。
+ * - 推送到邮件、短信或移动推送时需要设置对应的 `MessageAttributes` 子属性。
+ * - 消息内容建议事先进行 Base64 编码以避免特殊字符问题。
  *
  * @param request PublishMessageRequest
  * @return PublishMessageResponse
@@ -616,20 +658,35 @@ async function receiveMessage(queueName: string, request: ReceiveMessageRequest)
 }
 
 model SendMessageRequest {
-  delaySeconds?: int32(name='DelaySeconds'),
-  messageBody?: string(name='MessageBody'),
-  messageGroupId?: string(name='MessageGroupId'),
-  priority?: int32(name='Priority'),
-  userProperties?: string(name='UserProperties'),
+  delaySeconds?: int32(name='DelaySeconds', example='0'),
+  messageBody?: string(name='MessageBody', example='"Hello MNS"'),
+  messageGroupId?: string(name='MessageGroupId', example='group-123'),
+  priority?: int32(name='Priority', example='2'),
+  userProperties?: string(name='UserProperties', example='{"key1":"value1", "key2":"value2"}'),
+}
+
+model SendMessageResponseBody = {
+  messageBodyMD5?: string(name='MessageBodyMD5'),
+  messageId?: string(name='MessageId'),
+  receiptHandle?: string(name='ReceiptHandle'),
 }
 
 model SendMessageResponse = {
   headers?: map[string]string(name='headers'),
   statusCode?: int32(name='statusCode'),
+  body?: SendMessageResponseBody(name='body'),
 }
 
 /**
  * @summary 发送消息
+ *
+ * @description ## 请求说明
+ * - **SendMessage** 接口用于将消息发送至指定队列。
+ * - 消息可以立即被消费或通过设置 `DelaySeconds` 参数来延迟消费。
+ * - 发送的消息可以指定优先级，数值越小表示优先级越高。
+ * - 对于 FIFO 队列，可以通过 `MessageGroupId` 来保证同一分组内消息的顺序投递。
+ * - 用户还可以自定义属性 `UserProperties`，以 JSON 格式字符串形式提供额外信息。
+ * - 当 `DelaySeconds` 大于 0 时，API 返回的 `ReceiptHandle` 可用来在消息变为 Active 状态前删除该延迟消息。
  *
  * @param request SendMessageRequest
  * @param headers map
@@ -676,6 +733,14 @@ async function sendMessageWithOptions(queueName: string, request: SendMessageReq
 
 /**
  * @summary 发送消息
+ *
+ * @description ## 请求说明
+ * - **SendMessage** 接口用于将消息发送至指定队列。
+ * - 消息可以立即被消费或通过设置 `DelaySeconds` 参数来延迟消费。
+ * - 发送的消息可以指定优先级，数值越小表示优先级越高。
+ * - 对于 FIFO 队列，可以通过 `MessageGroupId` 来保证同一分组内消息的顺序投递。
+ * - 用户还可以自定义属性 `UserProperties`，以 JSON 格式字符串形式提供额外信息。
+ * - 当 `DelaySeconds` 大于 0 时，API 返回的 `ReceiptHandle` 可用来在消息变为 Active 状态前删除该延迟消息。
  *
  * @param request SendMessageRequest
  * @return SendMessageResponse
