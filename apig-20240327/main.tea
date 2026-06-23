@@ -1691,10 +1691,11 @@ model HttpApiApiInfoDeployCntMapValue = {
 
 model AddGatewayQuotaRuleRequest {
   conflictHash?: string(name='conflictHash', example='f8f44dc6cf369a017d56b7197eb4fb5ac4bbb6b09a92b9b41999541fxxxxxxxx'),
-  consumerGroupIds?: [ string ](name='consumerGroupIds', example='group1,group2'),
+  consumerGroupIds?: [ string ](name='consumerGroupIds', example='group1,group2', deprecated=true),
   consumerIds?: [ string ](name='consumerIds', example='1001,1002,1003'),
   dryRun?: boolean(name='dryRun', example='false'),
   overwrite?: boolean(name='overwrite', example='false'),
+  periodMultiplier?: long(name='periodMultiplier', example='10'),
   periodType?: string(name='periodType', description='This parameter is required.', example='week'),
   quotaDimension?: string(name='quotaDimension', description='This parameter is required.', example='token'),
   quotaLimit?: long(name='quotaLimit', description='This parameter is required.', example='1000'),
@@ -1706,11 +1707,13 @@ model AddGatewayQuotaRuleRequest {
 model AddGatewayQuotaRuleResponseBody = {
   code?: string(name='code', example='200, 404, 500'),
   data?: {
-    accepted?: string(name='accepted', example='true'),
+    accepted?: boolean(name='accepted', example='true'),
     conflictPreview?: {
       conflictHash?: string(name='conflictHash', example='f8f44dc6cf369a017d56b7197eb4fb5ac4bbb6b09a92b9b41999541fxxxxxxxx'),
       items?: [ 
         {
+          conflictPeriodType?: string(name='conflictPeriodType'),
+          conflictType?: string(name='conflictType'),
           consumerId?: string(name='consumerId', example='cs-xxxxxx'),
           consumerName?: string(name='consumerName', example='consumer-a'),
         }
@@ -1765,6 +1768,9 @@ async function addGatewayQuotaRuleWithOptions(gatewayId: string, request: AddGat
   }
   if (!Util.isUnset(request.overwrite)) {
     body['overwrite'] = request.overwrite;
+  }
+  if (!Util.isUnset(request.periodMultiplier)) {
+    body['periodMultiplier'] = request.periodMultiplier;
   }
   if (!Util.isUnset(request.periodType)) {
     body['periodType'] = request.periodType;
@@ -3990,9 +3996,9 @@ async function deleteConsumerAuthorizationRule(consumerAuthorizationRuleId: stri
 }
 
 model DeleteDomainResponseBody = {
-  code?: string(name='code', description='The status code returned.', example='Ok'),
-  message?: string(name='message', description='The response message returned.', example='success'),
-  requestId?: string(name='requestId', description='The request ID, which is used to trace the API call link.', example='A60EE5CA-1294-532A-9775-8D2FD1C6EFBF'),
+  code?: string(name='code', description='The response code.', example='Ok'),
+  message?: string(name='message', description='The response message.', example='success'),
+  requestId?: string(name='requestId', description='The request ID, which is used to trace the API call chain.', example='A60EE5CA-1294-532A-9775-8D2FD1C6EFBF'),
 }
 
 model DeleteDomainResponse = {
@@ -5367,14 +5373,15 @@ xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx=
     forceHttps?: boolean(name='forceHttps', description='Specifies whether to enable forced HTTPS redirect when the HTTPS protocol type is configured.', example='false'),
     http2Option?: string(name='http2Option', description='The HTTP/2 setting.', example='Open'),
     issuer?: string(name='issuer', description='The certification authority.', example='Alibaba'),
-    mTLSEnabled?: boolean(name='mTLSEnabled', description='Indicates whether mutual TLS (mTLS) authentication is enabled.', example='false'),
+    mTLSEnabled?: boolean(name='mTLSEnabled', description='Indicates whether mTLS mutual authentication is enabled.', example='false'),
     name?: string(name='name', description='The domain name.', example='abc.com'),
     notAfterTimstamp?: long(name='notAfterTimstamp', description='The certificate expiration time.', example='1719386834548'),
     notBeforeTimestamp?: long(name='notBeforeTimestamp', description='The certificate effective period.', example='1719386834548'),
-    protocol?: string(name='protocol', description='The protocol type supported by the domain name. Valid values:
+    protocol?: string(name='protocol', description='The protocol type supported by the domain name.
 
-- HTTP: only HTTP is supported.
-- HTTPS: only HTTPS is supported.', example='HTTP'),
+Valid values:
+- HTTP: Only the HTTP protocol is supported.
+- HTTPS: Only the HTTPS protocol is supported.', example='HTTP'),
     resourceGroupId?: string(name='resourceGroupId', description='The resource group ID.', example='rg-aekztduhoagat4y'),
     sans?: string(name='sans', description='All domain names bound to the certificate.', example='aliyun.com'),
     statisticsInfo?: {
@@ -5674,8 +5681,8 @@ async function getGateway(gatewayId: string): GetGatewayResponse {
 }
 
 model GetGatewayQuotaRuleRequest {
-  consumerPageNumber?: string(name='consumerPageNumber', example='1'),
-  consumerPageSize?: string(name='consumerPageSize', example='10'),
+  consumerPageNumber?: string(name='consumerPageNumber', example='1', deprecated=true),
+  consumerPageSize?: string(name='consumerPageSize', example='10', deprecated=true),
   withConsumers?: boolean(name='withConsumers'),
 }
 
@@ -5684,6 +5691,12 @@ model GetGatewayQuotaRuleResponseBody = {
   data?: {
     baseTimestamp?: long(name='baseTimestamp', example='1745846400000'),
     consumerCount?: long(name='consumerCount', example='20'),
+    consumers?: [ 
+      {
+        id?: string(name='id'),
+        name?: string(name='name'),
+      }
+    ](name='consumers'),
     periodType?: string(name='periodType', example='day'),
     quotaDimension?: string(name='quotaDimension', example='token'),
     quotaLimit?: long(name='quotaLimit', example='1000'),
@@ -9528,9 +9541,11 @@ model ResetGatewayQuotaRuleRequest {
   conflictHash?: string(name='conflictHash', example='f8f44dc6cf369a017d56b7197eb4fb5ac4bbb6b09a92b9b41999541fxxxxxxxx'),
   dryRun?: boolean(name='dryRun', example='false'),
   overwrite?: boolean(name='overwrite'),
+  periodMultiplier?: long(name='periodMultiplier'),
   periodType?: string(name='periodType', example='week'),
-  quotaLimit?: long(name='quotaLimit', description='This parameter is required.', example='1000'),
+  quotaLimit?: long(name='quotaLimit', example='1000'),
   timezone?: string(name='timezone', example='UTC+8'),
+  windowAlignment?: string(name='windowAlignment'),
 }
 
 model ResetGatewayQuotaRuleResponseBody = {
@@ -9541,6 +9556,8 @@ model ResetGatewayQuotaRuleResponseBody = {
       conflictHash?: string(name='conflictHash', example='f8f44dc6cf369a017d56b7197eb4fb5ac4bbb6b09a92b9b41999541fxxxxxxxx'),
       items?: [ 
         {
+          conflictPeriodType?: string(name='conflictPeriodType'),
+          conflictType?: string(name='conflictType'),
           consumerId?: string(name='consumerId', example='cs-d82n1g6m1hkm3xxxxxxx'),
           consumerName?: string(name='consumerName', example='consumer-a'),
         }
@@ -9590,6 +9607,9 @@ async function resetGatewayQuotaRuleWithOptions(gatewayId: string, ruleId: strin
   if (!Util.isUnset(request.overwrite)) {
     body['overwrite'] = request.overwrite;
   }
+  if (!Util.isUnset(request.periodMultiplier)) {
+    body['periodMultiplier'] = request.periodMultiplier;
+  }
   if (!Util.isUnset(request.periodType)) {
     body['periodType'] = request.periodType;
   }
@@ -9598,6 +9618,9 @@ async function resetGatewayQuotaRuleWithOptions(gatewayId: string, ruleId: strin
   }
   if (!Util.isUnset(request.timezone)) {
     body['timezone'] = request.timezone;
+  }
+  if (!Util.isUnset(request.windowAlignment)) {
+    body['windowAlignment'] = request.windowAlignment;
   }
 
   var req = new OpenApi.OpenApiRequest{ 
@@ -10518,12 +10541,12 @@ async function updateGatewayName(gatewayId: string, request: UpdateGatewayNameRe
 model UpdateGatewayQuotaRuleRequest {
   addIds?: [ string ](name='addIds', example='cs-001,cs-002'),
   conflictHash?: string(name='conflictHash', example='f8f44dc6cf369a017d56b7197eb4fb5ac4bbb6b09a92b9b41999541f50xxxxxx'),
-  consumerGroupIds?: [ string ](name='consumerGroupIds', example='group1,group2'),
+  consumerGroupIds?: [ string ](name='consumerGroupIds', example='group1,group2', deprecated=true),
   dryRun?: boolean(name='dryRun', example='true'),
   overwrite?: boolean(name='overwrite'),
-  quotaLimit?: long(name='quotaLimit', description='This parameter is required.', example='1000'),
+  quotaLimit?: long(name='quotaLimit', example='1000'),
   removeIds?: [ string ](name='removeIds', example='cs003,cs-004'),
-  ruleName?: string(name='ruleName', description='This parameter is required.', example='team-rule'),
+  ruleName?: string(name='ruleName', example='team-rule'),
 }
 
 model UpdateGatewayQuotaRuleResponseBody = {
@@ -10534,6 +10557,8 @@ model UpdateGatewayQuotaRuleResponseBody = {
       conflictHash?: string(name='conflictHash', example='f8f44dc6cf369a017d56b7197eb4fb5ac4bbb6b09a92b9b41999541f50xxxxxx'),
       items?: [ 
         {
+          conflictPeriodType?: string(name='conflictPeriodType'),
+          conflictType?: string(name='conflictType'),
           consumerId?: string(name='consumerId', example='cs-d82n1g6m1hkm375xxxxx'),
           consumerName?: string(name='consumerName', example='consumer-a'),
         }
