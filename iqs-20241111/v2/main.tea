@@ -9,8 +9,11 @@ extends OpenApi;
 
 init(config: OpenApiUtil.Config){
   super(config);
-  @endpointRule = '';
-  
+  @endpointRule = 'regional';
+  @endpointMap = {
+    'cn-zhangjiakou' = 'iqs.cn-zhangjiakou.aliyuncs.com',
+  };
+
   checkConfig(config);
   @endpoint = getEndpoint('iqs', @regionId, @endpointRule, @network, @suffix, @endpointMap, @endpoint);
 }
@@ -84,39 +87,47 @@ model GetIqsUsageResult {
 }
 
 model GlobalPageItem {
-  link?: string(name='link', description='This parameter is required.', example='https://baijiahao.baidu.com/s?id=1787881554557805096'),
-  snippet?: string(name='snippet'),
-  title?: string(name='title', description='This parameter is required.'),
+  link?: string(name='link', description='The full URL that the search result points to.
+
+This parameter is required.', example='https://baijiahao.baidu.com/s?id=1787881554557805096'),
+  snippet?: string(name='snippet', description='The description excerpt of the search result in text format.', example='100km/h-0制动能力上，仅有33.3m，不黑不吹，单看这个，小米SU7确实表现不错。而续航方面，101kWh电池容量，实现CLTC续航800km，还有现5分钟补能220km，15分钟补能510km的800V高压平台。而在...'),
+  title?: string(name='title', description='The title of the search result in plain text.
+
+This parameter is required.', example='小米SU7售价22.99万元起 高管亲自辟谣：发布前不会有价格'),
 }
 
 model GlobalQueryContext {
   originalQuery?: {
-    page?: string(name='page', example='1'),
-    query?: string(name='query'),
-    timeRange?: string(name='timeRange', example='NoLimit'),
-  }(name='originalQuery'),
+    page?: string(name='page', description='页码', example='1'),
+    query?: string(name='query', description='查询关键字', example='特朗普关税最新消息'),
+    timeRange?: string(name='timeRange', description='时间范围', example='NoLimit'),
+  }(name='originalQuery', description='The initial query condition.'),
 }
 
 model GlobalSceneItem {
-  detail?: string(name='detail'),
-  type?: string(name='type', example='answerBox'),
+  detail?: string(name='detail', description='The detailed information in JSON format.', example='{
+"snippet": "截至2025年3月7日，SpaceX星舰已经发射了8次，并取得4次成功及4次失败。",
+"snippetHighlighted": ["8次"],
+"title": "星舰发射任务列表"
+}'),
+  type?: string(name='type', description='The type of the vertical data.', example='answerBox'),
 }
 
 model GlobalSearchInformation {
-  searchTime?: long(name='searchTime', example='1200'),
-  total?: long(name='total', example='10339'),
+  searchTime?: long(name='searchTime', description='The search time, in milliseconds.', example='1200'),
+  total?: long(name='total', description='The total count.', example='10339'),
 }
 
 model GlobalSearchResult {
   pageItems?: [
     GlobalPageItem
-  ](name='pageItems'),
-  queryContext?: GlobalQueryContext(name='queryContext'),
-  requestId?: string(name='requestId', description='requestId', example='123456'),
+  ](name='pageItems', description='The list of web page content.'),
+  queryContext?: GlobalQueryContext(name='queryContext', description='The query context.'),
+  requestId?: string(name='requestId', description='The request ID.', example='123456'),
   sceneItems?: [
     GlobalSceneItem
-  ](name='sceneItems'),
-  searchInformation?: GlobalSearchInformation(name='searchInformation'),
+  ](name='sceneItems', description='The scenario-specific vertical API recall results.'),
+  searchInformation?: GlobalSearchInformation(name='searchInformation', description='The search information.'),
 }
 
 model IncludeImage {
@@ -182,23 +193,24 @@ model MultimodalOriginalQuery {
 }
 
 model MultimodalQueryContext {
-  originalQuery?: MultimodalOriginalQuery(name='originalQuery'),
+  originalQuery?: MultimodalOriginalQuery(name='originalQuery', description='Alibaba'),
 }
 
 model MultimodalSearchBody {
-  advancedParams?: map[string]any(name='advancedParams', example='{
+  advancedParams?: map[string]any(name='advancedParams', description='Additional query parameters, such as blocked sites', example='{
     "excludeSites": "www.360doc.com,weibo.com"
   }'),
-  query?: string(name='query'),
+  engineType?: string(name='engineType'),
+  query?: string(name='query', description='Query content', example='阿里巴巴'),
 }
 
 model MultimodalSearchOutput {
   imageItems?: [
     UnifiedImageItem
-  ](name='imageItems'),
-  queryContext?: MultimodalQueryContext(name='queryContext'),
-  requestId?: string(name='requestId', example='sdfsd234-2vxcg345-345vc'),
-  searchInformation?: SearchInformation(name='searchInformation'),
+  ](name='imageItems', description='Image List'),
+  queryContext?: MultimodalQueryContext(name='queryContext', description='Query context information'),
+  requestId?: string(name='requestId', description='Request ID', example='sdfsd234-2vxcg345-345vc'),
+  searchInformation?: SearchInformation(name='searchInformation', description='Search basic information'),
 }
 
 model OmniSearchQuery {
@@ -264,64 +276,123 @@ model QueryResult {
 }
 
 model ReadPageBody {
-  formats?: [ string ](name='formats'),
-  location?: string(name='location'),
-  maxAge?: int32(name='maxAge', example='1296000'),
-  pageTimeout?: int32(name='pageTimeout', example='10000'),
+  formats?: [ string ](name='formats', description='The format of the parsing result.
+- rawHtml: the HTML of the target website.
+- html: the page content processed based on readabilityMode.
+- markdown: the Markdown content converted from HTML.
+- text: the text content extracted from HTML.'),
+  location?: string(name='location', description='You do not need to specify this parameter.', example='null'),
+  maxAge?: int32(name='maxAge', description='The maximum cache validity period. Unit: seconds. Default value: 1296000.
+
+- If the cache duration is less than the value of maxAge, cached content is returned.
+
+- If the value of maxAge is 0, caching is not used.', example='1296000'),
+  pageTimeout?: int32(name='pageTimeout', description='The URL read timeout period. The value of pageTimeout must be less than the value of timeout.
+
+Default value: 10000.', example='10000'),
   readability?: {
-    excludeAllImages?: boolean(name='excludeAllImages', example='false'),
-    excludeAllLinks?: boolean(name='excludeAllLinks', example='false'),
-    excludedTags?: [ string ](name='excludedTags'),
-    readabilityMode?: string(name='readabilityMode', example='none'),
-  }(name='readability'),
-  timeout?: int32(name='timeout', example='60000'),
-  url?: string(name='url', description='This parameter is required.', example='https://help.aliyun.com/document_detail/2837301.html?spm=a2c4g.11186623.help-menu-2837261.d_0_0_0.59ed3e95CppOt2&scm=20140722.H_2837301._.OR_help-T_cn~zh-V_1'),
+    excludeAllImages?: boolean(name='excludeAllImages', description='Specifies whether to exclude all images.
+
+Default value: false.', example='false'),
+    excludeAllLinks?: boolean(name='excludeAllLinks', description='Specifies whether to exclude all links.
+
+Default value: false.', example='false'),
+    excludedTags?: [ string ](name='excludedTags', description='The tags to exclude.'),
+    readabilityMode?: string(name='readabilityMode', description='Valid values:
+- none: does not remove any information. Default value: none.
+
+- normal: removes irrelevant information from the target page, such as headers, footers, and navigation elements, based on a proprietary algorithm.
+
+- article: extracts the main body content of the website based on a proprietary algorithm. This mode is suitable for blogs and news websites, but not for directory or navigation pages.', example='none'),
+  }(name='readability', description='The readability configuration for the parsing result.'),
+  timeout?: int32(name='timeout', description='The end-to-end processing timeout period. Unit: ms.
+
+Valid values: [0, 180000].
+
+Default value: 60000.', example='60000'),
+  url?: string(name='url', description='The target URL to parse. The value must start with http:// or https://.
+
+This parameter is required.', example='https://help.aliyun.com/document_detail/2837301.html?spm=a2c4g.11186623.help-menu-2837261.d_0_0_0.59ed3e95CppOt2&scm=20140722.H_2837301._.OR_help-T_cn~zh-V_1'),
 }
 
 model ReadPageItem {
-  errorMessage?: string(name='errorMessage'),
-  html?: string(name='html'),
-  markdown?: string(name='markdown'),
-  rawHtml?: string(name='rawHtml'),
+  errorMessage?: string(name='errorMessage', description='The error related to the target URL.', example='null'),
+  html?: string(name='html', description='The readable HTML of the target URL.', example='<html>\\\\n<head><title>Example Domain</title></head>\\\\n<body><div>\\\\n<h1>Example Domain</h1>\\\\n<p>This domain is for use in documentation examples without needing permission. Avoid use in operations.</p>\\\\n<p><a href=\\\\"https://iana.org/domains/example\\\\">Learn more</a></p>\\\\n</div></body>\\\\n</html>'),
+  markdown?: string(name='markdown', description='The Markdown content of the target URL.', example='# Example Domain\\\\nThis domain is for use in documentation examples without needing permission. Avoid use in operations.\\\\n[Learn more](https://iana.org/domains/example)\\\\n'),
+  rawHtml?: string(name='rawHtml', description='The raw HTML of the target URL.', example='<!doctype html><html lang=\\\\"en\\\\"><head><title>Example Domain</title><meta name=\\\\"viewport\\\\" content=\\\\"width=device-width, initial-scale=1\\\\"><style>body{background:#eee;width:60vw;margin:15vh auto;font-family:system-ui,sans-serif}h1{font-size:1.5em}div{opacity:0.8}a:link,a:visited{color:#348}</style><body><div><h1>Example Domain</h1><p>This domain is for use in documentation examples without needing permission. Avoid use in operations.<p><a href=\\\\"https://iana.org/domains/example\\\\">Learn more</a></div></body></html>\\\\n'),
   screenshot?: string(name='screenshot'),
-  statusCode?: int32(name='statusCode'),
-  text?: string(name='text'),
+  statusCode?: int32(name='statusCode', description='1. If the request to the target site succeeds, the HTTP status code of the target URL is returned.
+
+2. If the request to the target site fails, a custom error code is returned:
+
+    2.1 4030: The target site has security restrictions, such as robots.txt or security policies.
+    
+    2.2 4080: The request timed out.
+    
+    2.3 4290: The rate limiting policy of the site was triggered.
+    
+    2.4 5010: An unknown exception occurred.', example='200'),
+  text?: string(name='text', description='The text content of the target URL.', example='# Example Domain\\\\nThis domain is for use in documentation examples without needing permission. Avoid use in operations.\\\\nLearn more\\\\n'),
 }
 
 model ReadPageScrapeBody {
-  formats?: [ string ](name='formats'),
-  location?: string(name='location', example='null'),
-  maxAge?: int32(name='maxAge', example='1296000'),
-  pageTimeout?: int32(name='pageTimeout', example='15000'),
+  formats?: [ string ](name='formats', description='The format of the parsing result.
+
+- rawHtml: the HTML of the target site.
+- html: the page content processed based on readabilityMode.
+- markdown: the Markdown content converted from the HTML.
+- text: the text content extracted from the HTML.
+- screenshot: a screenshot of the target site.'),
+  location?: string(name='location', description='This parameter does not need to be specified.', example='null'),
+  maxAge?: int32(name='maxAge', description='The maximum cache validity period. Unit: seconds. Default value: 1296000.
+1. If the cache duration is less than the value of maxAge, cached content is returned.
+2. If maxAge is set to 0, caching is not used.', example='1296000'),
+  pageTimeout?: int32(name='pageTimeout', description='The timeout period for waiting for the target site resources to fully load. The value of pageTimeout must be less than the value of timeout.
+
+Default value: 15000.', example='15000'),
   readability?: {
-    excludeAllImages?: boolean(name='excludeAllImages', example='false'),
-    excludeAllLinks?: boolean(name='excludeAllLinks', example='false'),
-    excludedTags?: [ string ](name='excludedTags'),
-    readabilityMode?: string(name='readabilityMode', example='none'),
-  }(name='readability'),
-  timeout?: int32(name='timeout', example='60000'),
-  url?: string(name='url', description='This parameter is required.', example='https://www.example.com'),
+    excludeAllImages?: boolean(name='excludeAllImages', description='是否剔除所有图片
+
+默认值：false', example='false'),
+    excludeAllLinks?: boolean(name='excludeAllLinks', description='是否剔除所有链接
+
+默认值：false', example='false'),
+    excludedTags?: [ string ](name='excludedTags', description='指定排除的标签'),
+    readabilityMode?: string(name='readabilityMode', description='none：不删除信息，默认为 none
+
+normal: 基于自研算法，剔除目标页面无关信息（页头/页脚，导航等）
+
+article: 基于自研算法，获取站点主要正文内容(适用于博客、新闻站点，不适用于目录页、导航页)', example='none'),
+  }(name='readability', description='The readability configuration for the parsing result.'),
+  timeout?: int32(name='timeout', description='The end-to-end processing timeout period. Unit: ms.
+
+Valid values: [0, 180000].
+
+Default value: 60000.', example='60000'),
+  url?: string(name='url', description='The target URL to parse. The URL must start with http:// or https://.
+
+This parameter is required.', example='https://www.example.com'),
 }
 
 model RequestContents {
-  mainText?: boolean(name='mainText'),
-  markdownText?: boolean(name='markdownText'),
-  rerankScore?: boolean(name='rerankScore'),
+  mainText?: boolean(name='mainText', description='Specifies whether to return the main text. Default value: false.'),
+  markdownText?: boolean(name='markdownText', description='Specifies whether to return markdown. Default value: false.'),
+  rerankScore?: boolean(name='rerankScore', description='Specifies whether to enable Rerank and return the RerankScore. Default value: true.'),
   richMainBody?: boolean(name='richMainBody'),
-  summary?: boolean(name='summary'),
+  summary?: boolean(name='summary', description='Specifies whether to return an enhanced summary. Default value: false. The summary feature is billed separately.'),
 }
 
 model ScanFileInfo {
-  angle?: int32(name='angle', example='100'),
-  height?: int32(name='height', example='100'),
-  imageBase64?: string(name='imageBase64', example='erwre'),
-  width?: int32(name='width', example='100'),
+  angle?: int32(name='angle', description='The image rotation angle.', example='100'),
+  height?: int32(name='height', description='The image height.', example='100'),
+  imageBase64?: string(name='imageBase64', description='The Base64 encoding of the image.', example='erwre'),
+  width?: int32(name='width', description='The image width.', example='100'),
 }
 
 model ScanFileInput {
-  imageBase64?: string(name='imageBase64', example='wrwqr'),
-  imageUrl?: string(name='imageUrl', example='https://www.1241.png'),
-  scanFileInputConfig?: ScanFileInputConfig(name='scanFileInputConfig'),
+  imageBase64?: string(name='imageBase64', description='The Base64 encoding of the image.', example='wrwqr'),
+  imageUrl?: string(name='imageUrl', description='The URL of the image.', example='https://www.1241.png'),
+  scanFileInputConfig?: ScanFileInputConfig(name='scanFileInputConfig', description='The scan parameters.'),
 }
 
 model ScanFileInputConfig {
@@ -330,11 +401,11 @@ model ScanFileInputConfig {
 }
 
 model ScanFileOutput {
-  requestId?: string(name='requestId', example='ECB2144C-E277-5434-80E6-12D26678D364'),
+  requestId?: string(name='requestId', description='The request ID.', example='ECB2144C-E277-5434-80E6-12D26678D364'),
   scanFileInfoList?: [
     ScanFileInfo
-  ](name='scanFileInfoList'),
-  searchInformation?: UnifiedSearchInformation(name='searchInformation'),
+  ](name='scanFileInfoList', description='The list of scan result objects.'),
+  searchInformation?: UnifiedSearchInformation(name='searchInformation', description='The search execution information.'),
 }
 
 model SceneItem {
@@ -374,71 +445,77 @@ model ScorePageItem {
 }
 
 model SearchCredits {
-  genericTextSearch?: int32(name='genericTextSearch', example='1'),
-  liteAdvancedTextSearch?: int32(name='liteAdvancedTextSearch'),
+  genericTextSearch?: int32(name='genericTextSearch', description='The number of basic edition text search requests.', example='1'),
+  liteAdvancedTextSearch?: int32(name='liteAdvancedTextSearch', description='The number of LiteAdvanced search requests.'),
 }
 
 model SearchInformation {
-  searchTime?: long(name='searchTime', example='700'),
-  total?: long(name='total', example='13'),
+  searchTime?: long(name='searchTime'),
+  total?: long(name='total'),
 }
 
 model UnifiedCostCredits {
-  search?: SearchCredits(name='search'),
-  valueAdded?: ValueAddedCredits(name='valueAdded'),
+  search?: SearchCredits(name='search', description='The basic search service metering.'),
+  valueAdded?: ValueAddedCredits(name='valueAdded', description='The value-added service metering.'),
 }
 
 model UnifiedImageItem {
-  height?: int32(name='height', example='1330'),
-  hostPageUrl?: string(name='hostPageUrl', example='http://mbd.baidu.com/newspage/data/dtlandingsuper?nid=dt_4541580238898912926'),
-  imageUrl?: string(name='imageUrl', example='http://pic.rmb.bdstatic.com/bjh/bb87f566c0c/241218/f7936f25837b20211e5ef88d7980c143.jpeg'),
-  publishedTime?: string(name='publishedTime', example='2022-07-05T00:54:42+08:00'),
-  title?: string(name='title'),
-  width?: int32(name='width', example='1000'),
+  height?: int32(name='height', description='Height', example='1330'),
+  hostPageUrl?: string(name='hostPageUrl', description='URL of the web page to which the image belongs', example='http://mbd.baidu.com/newspage/data/dtlandingsuper?nid=dt_4541580238898912926'),
+  imageUrl?: string(name='imageUrl', description='Image URL', example='http://pic.rmb.bdstatic.com/bjh/bb87f566c0c/241218/f7936f25837b20211e5ef88d7980c143.jpeg'),
+  publishedTime?: string(name='publishedTime', description='Web page published time, in ISO time format', example='2022-07-05T00:54:42+08:00'),
+  title?: string(name='title', description='Image title', example='阿里巴巴现在以主业上为主,以电商为主,以能够盈利的业务为主'),
+  width?: int32(name='width', description='Image width', example='1000'),
 }
 
 model UnifiedOriginalQuery {
-  query?: string(name='query'),
-  timeRange?: string(name='timeRange', example='NoLimit'),
+  query?: string(name='query', description='The request query.', example='杭州美食'),
+  timeRange?: string(name='timeRange', description='The publish time range.', example='NoLimit'),
 }
 
 model UnifiedPageItem {
   correlationTag?: int32(name='correlationTag'),
   hostAuthorityScore?: double(name='hostAuthorityScore'),
-  hostLogo?: string(name='hostLogo', example='https://www.china.com/zh_cn/img1905/2023/logo.png'),
-  hostname?: string(name='hostname'),
-  images?: [ string ](name='images'),
-  link?: string(name='link', example='https://hea.china.com/articles/20250427/202504271666343.html'),
-  mainText?: string(name='mainText'),
-  markdownText?: string(name='markdownText'),
-  publishedTime?: string(name='publishedTime', example='2025-04-27T20:36:04+08:00'),
-  rerankScore?: double(name='rerankScore', example='0.7786493301391602'),
+  hostLogo?: string(name='hostLogo', description='The site logo.', example='https://www.china.com/zh_cn/img1905/2023/logo.png'),
+  hostname?: string(name='hostname', description='The site name.', example='中华网'),
+  images?: [ string ](name='images', description='The images in the search result URL. A maximum of three images are returned.'),
+  link?: string(name='link', description='The full URL that the search result points to.', example='https://hea.china.com/articles/20250427/202504271666343.html'),
+  mainText?: string(name='mainText', description='The full text of the searched web page.', example='2025上海车展期间，最火爆的无疑是问界品牌，成为众多大佬的话题中心。赛力斯集团董事长（创始人）张兴海、华为常务董事、终端BG董事长余承东、著名演员陈道明、宁德时代董事长曾毓群都分享了对问界的使用体验。\\\\n“问界M9、M8正重构 中国 豪华汽车市场格局。”张兴海说， (此处省略....)。\\\\n责任编辑：kj005\\\\n 文章投诉热线:157 3889 8464 投诉邮箱:7983347 16@qq.com\\\\n关键词：'),
+  markdownText?: string(name='markdownText', description='The Markdown content.', example='# 上海车展大佬齐聚 问界成为话题中心**来源**：财讯网  
+**时间**：2025-04-27 20:36:04  
+2025上海车展期间，最火爆的无疑是问界品牌，成为众多大佬的话题中心。赛力斯集团董事长（创始人）张兴海、华为常务董事、终端BG董事长余承东、著名演员陈道明、宁德时代董事长曾毓群都分享了对问界的使用体验。
+![图片](http://objectnsg.oss-cn-beijing.aliyuncs.com/yhdoc/202504/27/202504272025531927023138.png)余承东表示，问界M9、M8、M7和M5，都深受消费者喜爱！问界M9连续3个月中国纯电车型保值率第一！纯电、增程车型包揽新能源大型SUV保值率前两名！
+![图片](http://objectnsg.oss-cn-beijing.aliyuncs.com/yhdoc/202504/27/202504272025531312025791.jpeg)“自己是问界M9的用户
+*责任编辑：kj005*文章投诉热线: 157 3889 8464  
+投诉邮箱: 798334716@qq.com'),
+  publishedTime?: string(name='publishedTime', description='The time when the web page was published, in ISO time format.', example='2025-04-27T20:36:04+08:00'),
+  rerankScore?: double(name='rerankScore', description='The rerank score.', example='0.7786493301391602'),
   richMainBody?: string(name='richMainBody'),
-  snippet?: string(name='snippet'),
-  summary?: string(name='summary'),
+  snippet?: string(name='snippet', description='The text summary.', example='2025上海车展期间，最火爆的无疑是问界品牌，成为众多大佬的话题中心。赛力斯集团董事长（创始人）张兴海、华为常务董事、终端BG董事长余承东、著名演员陈道明、宁德时代董事长曾毓群都分享了对问界的使用体验。 ...'),
+  summary?: string(name='summary', description='The enhanced summary, which contains 400 or more characters.', example='2025上海车展期间，最火爆的无疑是问界品牌，成为众多大佬的话题中心。赛力斯集团董事长（创始人）张兴海、华为常务董事、终端BG董事长余承东、著名演员陈道明、宁德时代董事长曾毓群都分享了对问界的使用体验。“自己是问界M9的用户，用车感受非常好。”陈道明表示，体验后才敢现场给大家推荐。未来，希望能实现问界M9的特别定制，让外观、内饰、座椅布局等，更符合自己的使用需求。据悉，2025款问界M9上市25天就交付超1万，已连续11个月蝉联50万元级豪车车销冠；问界M8上市4天，大定就突破了五万 台 ，深受市场任何和用户喜爱...“问界M9、M8正重构 中国 豪华汽车市场格局。”张兴海说， 近 期曾极限试驾问界M8，从重庆出发，历时55小时、行驶超3500公里抵达冈仁波齐。整个行程中，车辆的安全 性 和体验感都表现出色。'),
   tags?: map[string]any(name='tags'),
-  title?: string(name='title'),
+  title?: string(name='title', description='The full URL that the search result points to.', example='上海车展大佬齐聚 问界成为话题中心'),
   websiteAuthorityScore?: int32(name='websiteAuthorityScore'),
 }
 
 model UnifiedQueryContext {
-  engineType?: string(name='engineType', example='Generic'),
-  originalQuery?: UnifiedOriginalQuery(name='originalQuery'),
-  rewrite?: UnifiedRewrite(name='rewrite'),
+  engineType?: string(name='engineType', description='The search engine used.', example='Generic'),
+  originalQuery?: UnifiedOriginalQuery(name='originalQuery', description='The initial request.'),
+  rewrite?: UnifiedRewrite(name='rewrite', description='The rewritten result.'),
 }
 
 model UnifiedRewrite {
-  enabled?: boolean(name='enabled'),
-  timeRange?: string(name='timeRange'),
+  enabled?: boolean(name='enabled', description='Indicates whether rewriting is enabled.', example='true'),
+  timeRange?: string(name='timeRange', description='The rewritten timeRange.', example='OneYear'),
 }
 
 model UnifiedSceneItem {
-  detail?: string(name='detail'),
-  type?: string(name='type', example='time'),
+  detail?: string(name='detail', description='The result in JSON structure.', example='{\\\\"title\\\\": \\\\"伦敦时间\\\\", \\\\"targetTimeZone\\\\": \\\\"Europe/London\\\\", \\\\"targetTimeMillisecond\\\\": \\\\"1745820817178\\\\", \\\\"targetTime\\\\": \\\\"2025-04-28 14:13:37\\\\", \\\\"beijingTimeZone\\\\": \\\\"PRC\\\\", \\\\"beijingTimeMillisecond\\\\": \\\\"1745846017178\\\\"}'),
+  type?: string(name='type', description='The type.', example='time'),
 }
 
 model UnifiedSearchInformation {
-  searchTime?: long(name='searchTime'),
+  searchTime?: long(name='searchTime', description='The search duration, in ms.', example='1028'),
 }
 
 model UnifiedSearchInput {
@@ -466,8 +543,8 @@ model UnifiedSearchOutput {
 }
 
 model ValueAddedCredits {
-  advanced?: int32(name='advanced', example='0'),
-  summary?: int32(name='summary', example='1'),
+  advanced?: int32(name='advanced', description='The value-added package - enhanced search.', example='0'),
+  summary?: int32(name='summary', description='The value-added package - enhanced summary.', example='1'),
 }
 
 model WeiboItem {
@@ -481,32 +558,34 @@ model WeiboItem {
 }
 
 model AiSearchRequest {
-  industry?: string(name='industry', example='finance'),
-  page?: int32(name='page', example='{\\\\"total_count\\\\": 6851, \\\\"page_number\\\\": 54, \\\\"page_size\\\\": 100}'),
-  query?: string(name='query', description='This parameter is required.'),
-  sessionId?: string(name='sessionId', example='17dc8bcd-f34a-46d1-a7a3-0fa3d1ce3824'),
-  timeRange?: string(name='timeRange', example='OneWeek'),
+  industry?: string(name='industry', description='The industry. After you specify an industry, only content from websites within the specified industry is recalled. Separate multiple industries with commas.', example='finance'),
+  page?: int32(name='page', description='The page number. Pages start from 1.', example='{\\\\"total_count\\\\": 6851, \\\\"page_number\\\\": 54, \\\\"page_size\\\\": 100}'),
+  query?: string(name='query', description='The query to search for.
+
+This parameter is required.', example='苹果手机'),
+  sessionId?: string(name='sessionId', description='The time range for filtering web page publication dates.', example='17dc8bcd-f34a-46d1-a7a3-0fa3d1ce3824'),
+  timeRange?: string(name='timeRange', description='The session ID for multi-turn interactions.', example='OneWeek'),
 }
 
 model AiSearchResponseBody = {
   header?: {
-    event?: string(name='event', example='on_common_search_end'),
-    eventId?: string(name='eventId', example='988021f0-951a-43d0-ba4d-785359e7e7be'),
+    event?: string(name='event', description='The event name.', example='on_common_search_end'),
+    eventId?: string(name='eventId', description='The event ID.', example='988021f0-951a-43d0-ba4d-785359e7e7be'),
     queryContext?: {
       originalQuery?: {
-        industry?: string(name='industry'),
-        page?: int32(name='page'),
-        query?: string(name='query'),
-        timeRange?: string(name='timeRange'),
-      }(name='originalQuery'),
+        industry?: string(name='industry', description='The industry.'),
+        page?: int32(name='page', description='The page number.'),
+        query?: string(name='query', description='The query condition.'),
+        timeRange?: string(name='timeRange', description='The time range.'),
+      }(name='originalQuery', description='The original query.'),
       rewrite?: {
-        enabled?: boolean(name='enabled'),
-        timeRange?: string(name='timeRange'),
-      }(name='rewrite'),
-    }(name='queryContext'),
-    responseTime?: long(name='responseTime', example='1293'),
-  }(name='header'),
-  payload?: string(name='payload', example='{"header":{"eventId":"6f617de0-204f-406f-a9be-34779c06d498","event":"on_common_search_start","responseTime":120},"payload":"","requestId":"715d01a0-de7e-42c3-abca-b901fcd79b39"}'),
+        enabled?: boolean(name='enabled', description='Indicates whether query rewriting is enabled.'),
+        timeRange?: string(name='timeRange', description='The rewritten time range.'),
+      }(name='rewrite', description='The rewritten query.'),
+    }(name='queryContext', description='The query context.'),
+    responseTime?: long(name='responseTime', description='The response time, in milliseconds.', example='1293'),
+  }(name='header', description='The header of the response.'),
+  payload?: string(name='payload', description='The payload of the response. The value is a JSON structure that varies by event type.', example='{"header":{"eventId":"6f617de0-204f-406f-a9be-34779c06d498","event":"on_common_search_start","responseTime":120},"payload":"","requestId":"715d01a0-de7e-42c3-abca-b901fcd79b39"}'),
   requestId?: string(name='requestId', description='Id of the request', example='ECB2144C-E277-5434-80E6-12D26678D364'),
 }
 
@@ -519,7 +598,10 @@ model AiSearchResponse = {
 }
 
 /**
- * @summary AI搜索流式接口(废弃)
+ * @summary This topic describes the method to invoke the multi-stage streaming API V3 for general search by using the Alibaba Cloud OpenAPI SDK, including parameter descriptions.
+ *
+ * @description Provides streaming results in two stages, common_search and post_retrieval, for on-demand use.
+ * General search results (common_search): The raw search results. Covers key fields such as web page title, dynamic summary, body text, source website, and publication time. Post-retrieval processing (post_retrieval): Uses a rerank model to rerank and filter the common_search results from the previous stage. The mAP metric for context relevancy improves by approximately 5%, with an additional latency of approximately 110 ms.
  *
  * @param request AiSearchRequest
  * @param headers map
@@ -577,7 +659,10 @@ async function aiSearchWithSSE(request: AiSearchRequest, headers: map[string]str
   }
 }
 /**
- * @summary AI搜索流式接口(废弃)
+ * @summary This topic describes the method to invoke the multi-stage streaming API V3 for general search by using the Alibaba Cloud OpenAPI SDK, including parameter descriptions.
+ *
+ * @description Provides streaming results in two stages, common_search and post_retrieval, for on-demand use.
+ * General search results (common_search): The raw search results. Covers key fields such as web page title, dynamic summary, body text, source website, and publication time. Post-retrieval processing (post_retrieval): Uses a rerank model to rerank and filter the common_search results from the previous stage. The mAP metric for context relevancy improves by approximately 5%, with an additional latency of approximately 110 ms.
  *
  * @param request AiSearchRequest
  * @param headers map
@@ -623,7 +708,10 @@ async function aiSearchWithOptions(request: AiSearchRequest, headers: map[string
 }
 
 /**
- * @summary AI搜索流式接口(废弃)
+ * @summary This topic describes the method to invoke the multi-stage streaming API V3 for general search by using the Alibaba Cloud OpenAPI SDK, including parameter descriptions.
+ *
+ * @description Provides streaming results in two stages, common_search and post_retrieval, for on-demand use.
+ * General search results (common_search): The raw search results. Covers key fields such as web page title, dynamic summary, body text, source website, and publication time. Post-retrieval processing (post_retrieval): Uses a rerank model to rerank and filter the common_search results from the previous stage. The mAP metric for context relevancy improves by approximately 5%, with an additional latency of approximately 110 ms.
  *
  * @param request AiSearchRequest
  * @return AiSearchResponse
@@ -646,6 +734,8 @@ model CommonQueryBySceneResponse = {
 
 /**
  * @summary 自然语言通用查询
+ *
+ * @description 自然语言搜索通用接口
  *
  * @param request CommonQueryBySceneRequest
  * @param headers map
@@ -676,6 +766,8 @@ async function commonQueryBySceneWithOptions(request: CommonQueryBySceneRequest,
 /**
  * @summary 自然语言通用查询
  *
+ * @description 自然语言搜索通用接口
+ *
  * @param request CommonQueryBySceneRequest
  * @return CommonQueryBySceneResponse
  */
@@ -686,10 +778,12 @@ async function commonQueryByScene(request: CommonQueryBySceneRequest): CommonQue
 }
 
 model GenericAdvancedSearchRequest {
-  industry?: string(name='industry'),
-  query?: string(name='query', description='This parameter is required.'),
-  sessionId?: string(name='sessionId', example='job-4065bee3-e7aa-49fc-aad2-a8e3a7fd6acd'),
-  timeRange?: string(name='timeRange', example='OneWeek'),
+  industry?: string(name='industry', description='The industry. After you specify this parameter, only content from websites within the specified industries is recalled. Separate multiple industries with commas.'),
+  query?: string(name='query', description='The query text to search for.
+
+This parameter is required.', example='苹果手机'),
+  sessionId?: string(name='sessionId', description='The session ID for multi-turn interactions.', example='job-4065bee3-e7aa-49fc-aad2-a8e3a7fd6acd'),
+  timeRange?: string(name='timeRange', description='The time range for filtering web pages by publish time.', example='OneWeek'),
 }
 
 model GenericAdvancedSearchResponse = {
@@ -699,7 +793,9 @@ model GenericAdvancedSearchResponse = {
 }
 
 /**
- * @summary 增强版通用搜索
+ * @summary This topic describes how to invoke the enhanced search operation (GenericAdvancedSearch) by using the Alibaba Cloud OpenAPI SDK, including the method and metric description. Compared with GenericSearch, GenericAdvancedSearch provides better recall of authoritative websites, with a maximum recall count of 40, delivering improved authoritativeness and data diversity. The response parameters and format of the enhanced operation are consistent with those of GenericAdvancedSearch.
+ *
+ * @description GenericAdvancedSearch is currently in the testing phase. New specifications will be available for purchase in the future.
  *
  * @param request GenericAdvancedSearchRequest
  * @param headers map
@@ -742,7 +838,9 @@ async function genericAdvancedSearchWithOptions(request: GenericAdvancedSearchRe
 }
 
 /**
- * @summary 增强版通用搜索
+ * @summary This topic describes how to invoke the enhanced search operation (GenericAdvancedSearch) by using the Alibaba Cloud OpenAPI SDK, including the method and metric description. Compared with GenericSearch, GenericAdvancedSearch provides better recall of authoritative websites, with a maximum recall count of 40, delivering improved authoritativeness and data diversity. The response parameters and format of the enhanced operation are consistent with those of GenericAdvancedSearch.
+ *
+ * @description GenericAdvancedSearch is currently in the testing phase. New specifications will be available for purchase in the future.
  *
  * @param request GenericAdvancedSearchRequest
  * @return GenericAdvancedSearchResponse
@@ -756,29 +854,43 @@ async function genericAdvancedSearch(request: GenericAdvancedSearchRequest): Gen
 model GenericSearchRequest {
   advancedParams?: map[string]any(name='advancedParams'),
   enableRerank?: boolean(name='enableRerank'),
-  industry?: string(name='industry'),
-  page?: int32(name='page', example='1'),
-  query?: string(name='query', description='This parameter is required.'),
+  industry?: string(name='industry', description='The industry. After you specify an industry, only site content related to the specified industry is recalled. Separate multiple industries with commas.'),
+  page?: int32(name='page', description='The page number. Pages start from 1.', example='1'),
+  query?: string(name='query', description='The search keyword.
+
+This parameter is required.', example='苹果手机'),
   returnMainText?: boolean(name='returnMainText'),
   returnMarkdownText?: boolean(name='returnMarkdownText'),
   returnRichMainBody?: boolean(name='returnRichMainBody'),
   returnSummary?: boolean(name='returnSummary'),
-  sessionId?: string(name='sessionId'),
-  timeRange?: string(name='timeRange', example='OneWeek'),
+  sessionId?: string(name='sessionId', description='The session ID for multi-turn interaction.'),
+  timeRange?: string(name='timeRange', description='The time range for filtering results. Valid values:
+- OneDay: last day
+- OneWeek: last week
+- OneMonth: last month
+- OneYear: last year
+- NoLimit: no limit.', example='OneWeek'),
 }
 
 model GenericSearchShrinkRequest {
   advancedParamsShrink?: string(name='advancedParams'),
   enableRerank?: boolean(name='enableRerank'),
-  industry?: string(name='industry'),
-  page?: int32(name='page', example='1'),
-  query?: string(name='query', description='This parameter is required.'),
+  industry?: string(name='industry', description='The industry. After you specify an industry, only site content related to the specified industry is recalled. Separate multiple industries with commas.'),
+  page?: int32(name='page', description='The page number. Pages start from 1.', example='1'),
+  query?: string(name='query', description='The search keyword.
+
+This parameter is required.', example='苹果手机'),
   returnMainText?: boolean(name='returnMainText'),
   returnMarkdownText?: boolean(name='returnMarkdownText'),
   returnRichMainBody?: boolean(name='returnRichMainBody'),
   returnSummary?: boolean(name='returnSummary'),
-  sessionId?: string(name='sessionId'),
-  timeRange?: string(name='timeRange', example='OneWeek'),
+  sessionId?: string(name='sessionId', description='The session ID for multi-turn interaction.'),
+  timeRange?: string(name='timeRange', description='The time range for filtering results. Valid values:
+- OneDay: last day
+- OneWeek: last week
+- OneMonth: last month
+- OneYear: last year
+- NoLimit: no limit.', example='OneWeek'),
 }
 
 model GenericSearchResponse = {
@@ -788,7 +900,7 @@ model GenericSearchResponse = {
 }
 
 /**
- * @summary 通用搜索
+ * @summary Performs a general-purpose search.
  *
  * @param tmpReq GenericSearchRequest
  * @param headers map
@@ -857,7 +969,7 @@ async function genericSearchWithOptions(tmpReq: GenericSearchRequest, headers: m
 }
 
 /**
- * @summary 通用搜索
+ * @summary Performs a general-purpose search.
  *
  * @param request GenericSearchRequest
  * @return GenericSearchResponse
@@ -870,8 +982,8 @@ async function genericSearch(request: GenericSearchRequest): GenericSearchRespon
 
 model GetIqsUsageRequest {
   callerId?: string(name='callerId'),
-  endDate?: string(name='endDate', example='20241017'),
-  startDate?: string(name='startDate', example='20241011'),
+  endDate?: string(name='endDate', description='End Date.', example='20241017'),
+  startDate?: string(name='startDate', description='Start Date.', example='20241011'),
 }
 
 model GetIqsUsageResponse = {
@@ -881,7 +993,7 @@ model GetIqsUsageResponse = {
 }
 
 /**
- * @summary 信息查询服务接口日维度使用量查询
+ * @summary Query daily usage by dimension for the Information Query Service API
  *
  * @param request GetIqsUsageRequest
  * @param headers map
@@ -921,7 +1033,7 @@ async function getIqsUsageWithOptions(request: GetIqsUsageRequest, headers: map[
 }
 
 /**
- * @summary 信息查询服务接口日维度使用量查询
+ * @summary Query daily usage by dimension for the Information Query Service API
  *
  * @param request GetIqsUsageRequest
  * @return GetIqsUsageResponse
@@ -933,10 +1045,12 @@ async function getIqsUsage(request: GetIqsUsageRequest): GetIqsUsageResponse {
 }
 
 model GlobalSearchRequest {
-  page?: int32(name='page', example='1'),
-  pageSize?: int32(name='pageSize', example='10'),
-  query?: string(name='query', description='This parameter is required.'),
-  timeRange?: string(name='timeRange', example='OneWeek'),
+  page?: int32(name='page', description='Page number, starting from 1', example='1'),
+  pageSize?: int32(name='pageSize', description='Number of items per page', example='10'),
+  query?: string(name='query', description='Search query content
+
+This parameter is required.', example='特朗普最新关税消息'),
+  timeRange?: string(name='timeRange', description='Web page publish time range', example='OneWeek'),
 }
 
 model GlobalSearchResponse = {
@@ -946,7 +1060,9 @@ model GlobalSearchResponse = {
 }
 
 /**
- * @summary 通晓搜索-出海版(全球信息搜索)
+ * @summary IQS Search - Global Edition (Global Information Search)
+ *
+ * @description This document describes the usage and parameter specifications of GlobalSearch, the global edition of IQS Search.
  *
  * @param request GlobalSearchRequest
  * @param headers map
@@ -989,7 +1105,9 @@ async function globalSearchWithOptions(request: GlobalSearchRequest, headers: ma
 }
 
 /**
- * @summary 通晓搜索-出海版(全球信息搜索)
+ * @summary IQS Search - Global Edition (Global Information Search)
+ *
+ * @description This document describes the usage and parameter specifications of GlobalSearch, the global edition of IQS Search.
  *
  * @param request GlobalSearchRequest
  * @return GlobalSearchResponse
@@ -1001,7 +1119,7 @@ async function globalSearch(request: GlobalSearchRequest): GlobalSearchResponse 
 }
 
 model MedicalAnswerRequest {
-  body?: MedicalAnswerInput(name='body'),
+  body?: MedicalAnswerInput(name='body', description='Search information'),
 }
 
 model MedicalAnswerResponse = {
@@ -1011,7 +1129,7 @@ model MedicalAnswerResponse = {
 }
 
 /**
- * @summary 医疗问答
+ * @summary Medical Q&A
  *
  * @param request MedicalAnswerRequest
  * @param headers map
@@ -1040,7 +1158,7 @@ async function medicalAnswerWithOptions(request: MedicalAnswerRequest, headers: 
 }
 
 /**
- * @summary 医疗问答
+ * @summary Medical Q&A
  *
  * @param request MedicalAnswerRequest
  * @return MedicalAnswerResponse
@@ -1052,7 +1170,7 @@ async function medicalAnswer(request: MedicalAnswerRequest): MedicalAnswerRespon
 }
 
 model MedicalKnowledgeRequest {
-  body?: MedicalKnowInput(name='body'),
+  body?: MedicalKnowInput(name='body', description='Health Graph query conditions'),
 }
 
 model MedicalKnowledgeResponse = {
@@ -1062,7 +1180,7 @@ model MedicalKnowledgeResponse = {
 }
 
 /**
- * @summary 医疗图谱
+ * @summary Health Graph
  *
  * @param request MedicalKnowledgeRequest
  * @param headers map
@@ -1091,7 +1209,7 @@ async function medicalKnowledgeWithOptions(request: MedicalKnowledgeRequest, hea
 }
 
 /**
- * @summary 医疗图谱
+ * @summary Health Graph
  *
  * @param request MedicalKnowledgeRequest
  * @return MedicalKnowledgeResponse
@@ -1103,7 +1221,7 @@ async function medicalKnowledge(request: MedicalKnowledgeRequest): MedicalKnowle
 }
 
 model MultimodalSearchRequest {
-  body?: MultimodalSearchBody(name='body'),
+  body?: MultimodalSearchBody(name='body', description='Query parameters and site blocking parameters'),
 }
 
 model MultimodalSearchResponse = {
@@ -1113,7 +1231,7 @@ model MultimodalSearchResponse = {
 }
 
 /**
- * @summary 多模态搜索
+ * @summary Multimodal search
  *
  * @param request MultimodalSearchRequest
  * @param headers map
@@ -1142,7 +1260,7 @@ async function multimodalSearchWithOptions(request: MultimodalSearchRequest, hea
 }
 
 /**
- * @summary 多模态搜索
+ * @summary Multimodal search
  *
  * @param request MultimodalSearchRequest
  * @return MultimodalSearchResponse
@@ -1154,7 +1272,7 @@ async function multimodalSearch(request: MultimodalSearchRequest): MultimodalSea
 }
 
 model OmniAnswerRequest {
-  body?: OmniSearchQuery(name='body'),
+  body?: OmniSearchQuery(name='body', description='Search information'),
 }
 
 model OmniAnswerResponse = {
@@ -1166,7 +1284,7 @@ model OmniAnswerResponse = {
 }
 
 /**
- * @summary 通用问答
+ * @summary This topic describes the intelligent search Q&A streaming API (SearchStream). Based on retrieval-augmented generation (RAG) and large language model technologies, this API accepts natural language questions from users and automatically performs intent recognition, query rewrite, multi-source retrieval, and content generation. The API returns data using the Server-Sent Events (SSE) streaming protocol, supporting real-time output of inference status, reference sources, and token-by-token generated answers. It is suitable for AI chat and search scenarios that require low latency and high interpretability.
  *
  * @param request OmniAnswerRequest
  * @param headers map
@@ -1207,7 +1325,7 @@ async function omniAnswerWithSSE(request: OmniAnswerRequest, headers: map[string
   }
 }
 /**
- * @summary 通用问答
+ * @summary This topic describes the intelligent search Q&A streaming API (SearchStream). Based on retrieval-augmented generation (RAG) and large language model technologies, this API accepts natural language questions from users and automatically performs intent recognition, query rewrite, multi-source retrieval, and content generation. The API returns data using the Server-Sent Events (SSE) streaming protocol, supporting real-time output of inference status, reference sources, and token-by-token generated answers. It is suitable for AI chat and search scenarios that require low latency and high interpretability.
  *
  * @param request OmniAnswerRequest
  * @param headers map
@@ -1236,7 +1354,7 @@ async function omniAnswerWithOptions(request: OmniAnswerRequest, headers: map[st
 }
 
 /**
- * @summary 通用问答
+ * @summary This topic describes the intelligent search Q&A streaming API (SearchStream). Based on retrieval-augmented generation (RAG) and large language model technologies, this API accepts natural language questions from users and automatically performs intent recognition, query rewrite, multi-source retrieval, and content generation. The API returns data using the Server-Sent Events (SSE) streaming protocol, supporting real-time output of inference status, reference sources, and token-by-token generated answers. It is suitable for AI chat and search scenarios that require low latency and high interpretability.
  *
  * @param request OmniAnswerRequest
  * @return OmniAnswerResponse
@@ -1252,10 +1370,10 @@ model ReadPageBasicRequest {
 }
 
 model ReadPageBasicResponseBody = {
-  data?: ReadPageItem(name='data'),
-  errorCode?: string(name='errorCode'),
-  errorMessage?: string(name='errorMessage'),
-  requestId?: string(name='requestId'),
+  data?: ReadPageItem(name='data', description='Parsing result of the target URL'),
+  errorCode?: string(name='errorCode', description='Error code'),
+  errorMessage?: string(name='errorMessage', description='Error message'),
+  requestId?: string(name='requestId', description='Request ID. Provide this information when troubleshooting issues.'),
 }
 
 model ReadPageBasicResponse = {
@@ -1265,7 +1383,11 @@ model ReadPageBasicResponse = {
 }
 
 /**
- * @summary 页面读取
+ * @summary Quickly retrieve HTML and parse static web page content.
+ *
+ * @description 1. When the HTTP status code (httpcode) of the target address is less than 500, it is counted as one valid request.  
+ * 2. If the content type (Content-Type) in the response header of the target address is application/pdf, the system automatically triggers PDF parsing (PDF file size must not exceed 20 MB). This operation is counted as an additional valid request.  
+ * 3. Trial terms: During the trial period, the API is limited to 5 queries per second (QPS); the trial quota is 1,000 requests per 30 days.
  *
  * @param request ReadPageBasicRequest
  * @param headers map
@@ -1294,7 +1416,11 @@ async function readPageBasicWithOptions(request: ReadPageBasicRequest, headers: 
 }
 
 /**
- * @summary 页面读取
+ * @summary Quickly retrieve HTML and parse static web page content.
+ *
+ * @description 1. When the HTTP status code (httpcode) of the target address is less than 500, it is counted as one valid request.  
+ * 2. If the content type (Content-Type) in the response header of the target address is application/pdf, the system automatically triggers PDF parsing (PDF file size must not exceed 20 MB). This operation is counted as an additional valid request.  
+ * 3. Trial terms: During the trial period, the API is limited to 5 queries per second (QPS); the trial quota is 1,000 requests per 30 days.
  *
  * @param request ReadPageBasicRequest
  * @return ReadPageBasicResponse
@@ -1310,10 +1436,10 @@ model ReadPageScrapeRequest {
 }
 
 model ReadPageScrapeResponseBody = {
-  data?: ReadPageItem(name='data'),
-  errorCode?: string(name='errorCode', example='null'),
-  errorMessage?: string(name='errorMessage', example='null'),
-  requestId?: string(name='requestId', example='7cd43c86-731a-4d4c-8385-d070cfc509a4'),
+  data?: ReadPageItem(name='data', description='Parsing result of the target URL'),
+  errorCode?: string(name='errorCode', description='error code', example='null'),
+  errorMessage?: string(name='errorMessage', description='error message', example='null'),
+  requestId?: string(name='requestId', description='Request ID. Provide this information when troubleshooting issues.', example='7cd43c86-731a-4d4c-8385-d070cfc509a4'),
 }
 
 model ReadPageScrapeResponse = {
@@ -1323,7 +1449,12 @@ model ReadPageScrapeResponse = {
 }
 
 /**
- * @summary 动态页面解析
+ * @summary 1. Read HTML and parse web page content through the browser sandbox environment.  
+ * 2. The API starts parsing after all resources on the target page are fully loaded (the maximum waiting duration can be adjusted via the pageTimeout parameter). The overall Duration of the API call is significantly affected by the resource loading performance of the target site.
+ *
+ * @description 1. A request is counted as valid when the HTTP status code (httpcode) of the target URL is less than 500.  
+ * 2. If the content type (Content-Type) in the response header of the target URL is application/pdf, the system automatically triggers PDF parsing (PDF files up to 20 MB are supported). This operation is counted as an additional valid request.  
+ * 3. Trial terms: During the trial period, the API is limited to 5 queries per second (QPS); the trial quota is 1,000 requests per 30 days.
  *
  * @param request ReadPageScrapeRequest
  * @param headers map
@@ -1352,7 +1483,12 @@ async function readPageScrapeWithOptions(request: ReadPageScrapeRequest, headers
 }
 
 /**
- * @summary 动态页面解析
+ * @summary 1. Read HTML and parse web page content through the browser sandbox environment.  
+ * 2. The API starts parsing after all resources on the target page are fully loaded (the maximum waiting duration can be adjusted via the pageTimeout parameter). The overall Duration of the API call is significantly affected by the resource loading performance of the target site.
+ *
+ * @description 1. A request is counted as valid when the HTTP status code (httpcode) of the target URL is less than 500.  
+ * 2. If the content type (Content-Type) in the response header of the target URL is application/pdf, the system automatically triggers PDF parsing (PDF files up to 20 MB are supported). This operation is counted as an additional valid request.  
+ * 3. Trial terms: During the trial period, the API is limited to 5 queries per second (QPS); the trial quota is 1,000 requests per 30 days.
  *
  * @param request ReadPageScrapeRequest
  * @return ReadPageScrapeResponse
@@ -1415,7 +1551,7 @@ async function scanFile(request: ScanFileRequest): ScanFileResponse {
 }
 
 model UnifiedSearchRequest {
-  body?: UnifiedSearchInput(name='body'),
+  body?: UnifiedSearchInput(name='body', description='The search request parameters.'),
 }
 
 model UnifiedSearchResponse = {
@@ -1425,7 +1561,7 @@ model UnifiedSearchResponse = {
 }
 
 /**
- * @summary 通晓统一搜索API
+ * @summary Provides access to the Tongxiao unified search API, enabling quick and easy integration of web-wide general search capabilities.
  *
  * @param request UnifiedSearchRequest
  * @param headers map
@@ -1454,7 +1590,7 @@ async function unifiedSearchWithOptions(request: UnifiedSearchRequest, headers: 
 }
 
 /**
- * @summary 通晓统一搜索API
+ * @summary Provides access to the Tongxiao unified search API, enabling quick and easy integration of web-wide general search capabilities.
  *
  * @param request UnifiedSearchRequest
  * @return UnifiedSearchResponse
