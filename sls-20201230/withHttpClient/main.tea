@@ -20,8 +20,45 @@ init(config: OpenApi.Config){
     @httpClient = defaultHttpClient;
   }
 
-  @endpointRule = 'central';
-  }
+  @endpointRule = 'regional';
+  @endpointMap = {
+    'us-west-1' = 'us-west-1.log.aliyuncs.com',
+    'us-southeast-1' = 'us-southeast-1.log.aliyuncs.com',
+    'us-east-1' = 'us-east-1.log.aliyuncs.com',
+    'me-east-1' = 'me-east-1.log.aliyuncs.com',
+    'me-central-1' = 'me-central-1.log.aliyuncs.com',
+    'eu-west-1' = 'eu-west-1.log.aliyuncs.com',
+    'eu-central-1' = 'eu-central-1.log.aliyuncs.com',
+    'cn-zhangjiakou' = 'cn-zhangjiakou.log.aliyuncs.com',
+    'cn-wulanchabu' = 'cn-wulanchabu.log.aliyuncs.com',
+    'cn-shenzhen-finance-1' = 'cn-shenzhen-finance-1.log.aliyuncs.com',
+    'cn-shenzhen' = 'cn-shenzhen.log.aliyuncs.com',
+    'cn-shanghai-finance-1' = 'cn-shanghai-finance-1.log.aliyuncs.com',
+    'cn-shanghai' = 'cn-shanghai.log.aliyuncs.com',
+    'cn-qingdao' = 'cn-qingdao.log.aliyuncs.com',
+    'cn-nanjing' = 'cn-nanjing.log.aliyuncs.com',
+    'cn-huhehaote' = 'cn-huhehaote.log.aliyuncs.com',
+    'cn-hongkong' = 'cn-hongkong.log.aliyuncs.com',
+    'cn-heyuan-acdr-1' = 'cn-heyuan-acdr-1-intranet.log.aliyuncs.com',
+    'cn-heyuan' = 'cn-heyuan.log.aliyuncs.com',
+    'cn-hangzhou-finance' = 'cn-hangzhou-finance.log.aliyuncs.com',
+    'cn-hangzhou' = 'cn-hangzhou.log.aliyuncs.com',
+    'cn-guangzhou' = 'cn-guangzhou.log.aliyuncs.com',
+    'cn-fuzhou' = 'cn-fuzhou.log.aliyuncs.com',
+    'cn-chengdu' = 'cn-chengdu.log.aliyuncs.com',
+    'cn-beijing-finance-1' = 'cn-beijing-finance-1.log.aliyuncs.com',
+    'cn-beijing' = 'cn-beijing.log.aliyuncs.com',
+    'ap-southeast-7' = 'ap-southeast-7.log.aliyuncs.com',
+    'ap-southeast-6' = 'ap-southeast-6.log.aliyuncs.com',
+    'ap-southeast-5' = 'ap-southeast-5.log.aliyuncs.com',
+    'ap-southeast-3' = 'ap-southeast-3.log.aliyuncs.com',
+    'ap-southeast-2' = 'ap-southeast-2.log.aliyuncs.com',
+    'ap-southeast-1' = 'ap-southeast-1.log.aliyuncs.com',
+    'ap-south-1' = 'ap-south-1.log.aliyuncs.com',
+    'ap-northeast-2' = 'ap-northeast-2.log.aliyuncs.com',
+    'ap-northeast-1' = 'ap-northeast-1.log.aliyuncs.com',
+  };
+}
 
 model AgentInstanceConfigGrayConfigs {
   condition?: string(name='condition', description='The matching rule.', example='appVersion="1.0.0"'),
@@ -1473,20 +1510,21 @@ model Project {
   description?: string(name='description', description='The description of the project.
 
 This parameter is required.', example='Description of my-project'),
+  internalEndpoint?: string(name='internalEndpoint'),
+  internetEndpoint?: string(name='internetEndpoint'),
   lastModifyTime?: string(name='lastModifyTime', description='The time when the project was last modified.', example='2022-04-18 13:30:19'),
-  owner?: string(name='owner', description='The Alibaba Cloud account that owns the project.', example='""'),
-  projectName?: string(name='projectName', description='The name of the project. The name is a part of the endpoint. The project name must be unique in a region of Alibaba Cloud. After a project is created, its name cannot be changed.
+  owner?: string(name='owner', description='The Alibaba Cloud account to which the project belongs.', example='""'),
+  projectName?: string(name='projectName', description='The name of the project, which is used as part of the host. The project name is globally unique within an Alibaba Cloud region and cannot be modified after creation.
 
 This parameter is required.', example='ali-test-project'),
-  quota?: map[string]any(name='quota', description='The quota of the project.'),
+  quota?: map[string]any(name='quota', description='The project quota.'),
   recycleBinEnabled?: boolean(name='recycleBinEnabled', description='Indicates whether the recycle bin is enabled.', example='false'),
-  region?: string(name='region', description='The region where the project resides.', example='cn-hangzhou'),
+  region?: string(name='region', description='The region to which the project belongs.', example='cn-hangzhou'),
   resourceGroupId?: string(name='resourceGroupId', description='The ID of the resource group to which the project belongs.', example='rg-acf******sq'),
-  status?: string(name='status', description='The status of the project.
+  status?: string(name='status', description='The status of the project. Valid values:
 
-- Normal: The project is in the normal state.
-
-- Disable: The project is disabled.', example='Normal'),
+- Normal: Normal.
+- Disable: Disabled.', example='Normal'),
 }
 
 model ServiceStatus {
@@ -1581,7 +1619,7 @@ async function applyConfigToMachineGroup(project: string, machineGroup: string, 
 }
 
 model CallAiToolsRequest {
-  params?: map[string]string(name='params', description='Tool parameters.'),
+  params?: map[string]string(name='params', description='The tool parameters.'),
   regionId?: string(name='regionId', description='The target region.'),
   toolName?: string(name='toolName', description='This parameter is required.'),
 }
@@ -1593,7 +1631,9 @@ model CallAiToolsResponse = {
 }
 
 /**
- * @summary Calls observable AI tools. The capabilities of these tools are continuously updated. You can call the tool list API to retrieve the currently supported capabilities.
+ * @summary Invokes an observability AI tool. Tool capabilities are continuously updated. You can call the tool list operation to retrieve the currently supported capabilities.
+ *
+ * @description This operation is available only at the endpoints in the China (Shanghai) and Singapore regions.
  *
  * @param request CallAiToolsRequest
  * @param headers map
@@ -1632,7 +1672,9 @@ async function callAiToolsWithOptions(request: CallAiToolsRequest, headers: map[
 }
 
 /**
- * @summary Calls observable AI tools. The capabilities of these tools are continuously updated. You can call the tool list API to retrieve the currently supported capabilities.
+ * @summary Invokes an observability AI tool. Tool capabilities are continuously updated. You can call the tool list operation to retrieve the currently supported capabilities.
+ *
+ * @description This operation is available only at the endpoints in the China (Shanghai) and Singapore regions.
  *
  * @param request CallAiToolsRequest
  * @return CallAiToolsResponse
@@ -2050,7 +2092,7 @@ async function createAlert(project: string, request: CreateAlertRequest): Create
 }
 
 model CreateAnnotationDataSetRequest {
-  body?: MLDataSetParam(name='body', description='The data structure of the request.'),
+  body?: MLDataSetParam(name='body', description='The request struct for the dataset.'),
   datasetId?: string(name='datasetId', description='The unique identifier of the dataset.', example='cb8cc4eb51a85e823471cdb368fae9be'),
 }
 
@@ -2061,6 +2103,8 @@ model CreateAnnotationDataSetResponse = {
 
 /**
  * @summary Creates a dataset.
+ *
+ * @description This operation is available only at the China (Shanghai) and Singapore endpoints.
  *
  * @param request CreateAnnotationDataSetRequest
  * @param headers map
@@ -2095,6 +2139,8 @@ async function createAnnotationDataSetWithOptions(request: CreateAnnotationDataS
 
 /**
  * @summary Creates a dataset.
+ *
+ * @description This operation is available only at the China (Shanghai) and Singapore endpoints.
  *
  * @param request CreateAnnotationDataSetRequest
  * @return CreateAnnotationDataSetResponse
@@ -8571,75 +8617,83 @@ async function getLogs(project: string, logstore: string, request: GetLogsReques
 
 model GetLogsV2Headers {
   commonHeaders?: map[string]string,
-  acceptEncoding?: string(name='Accept-Encoding', description='The compression method.
+  acceptEncoding?: string(name='Accept-Encoding', description='The compression method for the response content. SDK users do not need to specify this parameter because the SDK automatically handles compression and decompression.
 
-- Java, Python, and Go support lz4 and gzip decompression.
+- Java, Python, and Go currently support lz4 and gzip decompression.
 
-- PHP, JavaScript, and C# support gzip decompression only.', example='lz4'),
+- php, JavaScript, and C# currently support only gzip decompression.', example='lz4'),
 }
 
 model GetLogsV2Request {
-  forward?: boolean(name='forward', description='For a scan or phrase query, specifies whether to page forward or backward.', example='false'),
-  from?: int32(name='from', description='The start of the time range to query. The value is the log time that was specified when the log was written.
+  forward?: boolean(name='forward', description='Specifies whether to page forward or backward for scan or phrase queries.', example='false'),
+  from?: int32(name='from', description='The start time of the query. This time refers to the log time specified when log data is written.
 
-The time range is a left-closed right-open interval. This means the range includes the start time but not the end time. If the from and to values are the same, the interval is invalid and an error is returned. The value is a UNIX timestamp that represents the number of seconds since 00:00:00 UTC on January 1, 1970.
+The time range defined by the from and to request parameters follows the left-closed, right-open principle. The time range includes the start time but excludes the end time. If the values of from and to are the same, the time range is invalid and the function returns an error.
+The value is a UNIX timestamp representing the number of seconds that have elapsed since January 1, 1970, 00:00:00 UTC.
 
 This parameter is required.', example='1627268185'),
-  highlight?: boolean(name='highlight', description='Specifies whether to highlight the results.', example='false'),
-  isAccurate?: boolean(name='isAccurate', description='Specifies whether to enable nanosecond-level sorting.', example='true'),
-  line?: long(name='line', description='The maximum number of logs to return. This parameter is valid only if the query parameter contains a query statement. The value must be an integer from 0 to 100. The default value is 100.', example='100'),
-  offset?: long(name='offset', description='The line number from which to start the query. This parameter is valid only if the query parameter contains a query statement. The default value is 0.', example='0'),
-  powerSql?: boolean(name='powerSql', description='Specifies whether to enable enhanced SQL. The default value is false.', example='false'),
+  highlight?: boolean(name='highlight', description='Specifies whether to enable highlighting.', example='false'),
+  isAccurate?: boolean(name='isAccurate', description='Specifies whether to enable nanosecond-precision ordering.', example='true'),
+  line?: long(name='line', description='The maximum number of logs to return in the request. This parameter is valid only when the query parameter is a query statement (not an analytic statement). Minimum value: 0. Maximum value: 100. Default value: 100.', example='100'),
+  offset?: long(name='offset', description='The start row of the query. This parameter is valid only when the query parameter is a query statement (not an analytic statement). The value starts from 0. Default value: 0.', example='0'),
+  powerSql?: boolean(name='powerSql', description='Specifies whether to enable Dedicated SQL. Disabled by default.', example='false'),
   query?: string(name='query', description='The query statement or analytic statement. For more information, see [Query overview](https://help.aliyun.com/document_detail/43772.html) and [Analysis overview](https://help.aliyun.com/document_detail/53608.html).
 
-To use the Exclusive SQL feature, add set session parallel_sql=true; to the analytic statement in the query parameter. Example: \\\\* | set session parallel_sql=true; select count(\\\\*) as pv.
+Add set session parallel_sql=true; to the analytic statement in the query parameter to use Dedicated SQL. Example: * | set session parallel_sql=true; select count(*) as pv.
 
-Note: If the query parameter contains an analytic statement (SQL statement), the line and offset parameters are invalid. Set them to 0. Use the LIMIT clause in the SQL statement for paging. For more information, see Paginate query and analysis results.', example='status: 401 | SELECT remote_addr,COUNT(*) as pv GROUP by remote_addr ORDER by pv desc limit 5'),
-  reverse?: boolean(name='reverse', description='Specifies whether to return logs in descending order of their timestamps. The precision is at the minute level.
+Note: When the query parameter contains an analytic statement (SQL statement), the line and offset parameters of this API are invalid. Set them to 0. Use the LIMIT syntax in the SQL statement for pagination. For more information, see Display query and analysis results by page.', example='status: 401 | SELECT remote_addr,COUNT(*) as pv GROUP by remote_addr ORDER by pv desc limit 5'),
+  reverse?: boolean(name='reverse', description='Specifies whether to return logs in descending order of log timestamps, accurate to the minute level. This parameter is valid only when the query parameter is a query statement (not an analytic statement).
 
-true: Returns logs in descending order of their timestamps. false (default): Returns logs in ascending order of their timestamps. Note: If the query parameter contains a query statement, the reverse parameter is valid and specifies the sorting order. If the query parameter contains a query and analysis statement, the reverse parameter is invalid. The sorting order is specified by the ORDER BY clause in the analytic statement. If ORDER BY is asc (default), logs are sorted in ascending order. If ORDER BY is desc, logs are sorted in descending order.', example='false'),
+- true: Returns logs in descending order of log timestamps.
+- false (default): Returns logs in ascending order of log timestamps.
+
+To sort results in an analytic statement, use the ORDER BY syntax. If ORDER BY is set to asc (default), the results are sorted in ascending order. If ORDER BY is set to desc, the results are sorted in descending order.', example='false'),
   session?: string(name='session', description='The query parameter.', example='mode=scan'),
-  to?: int32(name='to', description='The end of the time range to query. The value is the log time that was specified when the log was written.
+  to?: int32(name='to', description='The end time of the query. This time refers to the log time specified when log data is written.
 
-The time range is a left-closed right-open interval. This means the range includes the start time but not the end time. If the from and to values are the same, the interval is invalid and an error is returned. The value is a UNIX timestamp that represents the number of seconds since 00:00:00 UTC on January 1, 1970.
+The time range defined by the from and to request parameters follows the left-closed, right-open principle. The time range includes the start time but excludes the end time. If the values of from and to are the same, the time range is invalid and the function returns an error.
+The value is a UNIX timestamp representing the number of seconds that have elapsed since January 1, 1970, 00:00:00 UTC.
 
 This parameter is required.', example='1627268185'),
-  topic?: string(name='topic', description='The log topic. The default value is double quotation marks ("").', example='""'),
+  topic?: string(name='topic', description='The topic. Default value: empty string.', example='""'),
 }
 
 model GetLogsV2ResponseBody = {
-  data?: [ map[string]string ](name='data', description='The query results.'),
+  data?: [ map[string]string ](name='data', description='The returned results.'),
   meta?: {
-    aggQuery?: string(name='aggQuery', description='The SQL part of the query statement that follows the pipe character (|).', example='select *'),
+    aggQuery?: string(name='aggQuery', description='The SQL part after the pipe (|) in the query statement.', example='select *'),
     columnTypes?: [ string ](name='columnTypes', description='The column types.'),
-    count?: int32(name='count', description='The number of log entries returned in this query.', example='1'),
+    count?: int32(name='count', description='The number of log entries returned in this query request.', example='1'),
     cpuCores?: int32(name='cpuCores', description='The number of CPU cores used.', example='3'),
-    cpuSec?: double(name='cpuSec', description='The core-hours for the Exclusive SQL.', example='0.002'),
-    elapsedMillisecond?: long(name='elapsedMillisecond', description='The time consumed by the query, in milliseconds.', example='5'),
+    cpuSec?: double(name='cpuSec', description='The core-hour consumed by Dedicated SQL.', example='0.002'),
+    elapsedMillisecond?: long(name='elapsedMillisecond', description='The time consumed by this query, in milliseconds.', example='5'),
     hasSQL?: boolean(name='hasSQL', description='Indicates whether the query is an SQL query.', example='false'),
     highlights?: [  map[string]any ](name='highlights', description='The highlighted content.'),
-    isAccurate?: boolean(name='isAccurate', description='Indicates whether nanosecond-level sorting is enabled.', example='true'),
-    keys?: [ string ](name='keys', description='All keys in the query result.'),
-    limited?: int32(name='limited', description='The number of entries returned. This parameter is returned if the SQL statement does not contain a LIMIT clause.', example='100'),
-    mode?: int32(name='mode', description='The query mode. Valid values: 0: Normal query, which includes SQL queries. 1: Phrase query. 2: SCAN query. 3: SCAN SQL query.', example='0'),
+    isAccurate?: boolean(name='isAccurate', description='Specifies whether to enable nanosecond-precision ordering.', example='true'),
+    keys?: [ string ](name='keys', description='All keys in the query results.'),
+    limited?: int32(name='limited', description='The limit on the number of rows. Returned when an SQL statement does not include a LIMIT clause.', example='100'),
+    mode?: int32(name='mode', description='The query mode. Valid values:
+0: standard query (including SQL)
+1: phrase query
+2: SCAN
+3: SCAN SQL.', example='0'),
     phraseQueryInfo?: {
-      beginOffset?: long(name='beginOffset', description='The starting offset of the scan result after index filtering.', example='0'),
-      endOffset?: long(name='endOffset', description='The end offset of the scan result after index filtering.', example='0'),
-      endTime?: long(name='endTime', description='The end time of the scan result after index filtering.', example='1'),
-      scanAll?: boolean(name='scanAll', description='Indicates whether all logs are scanned.', example='true'),
-    }(name='phraseQueryInfo', description='The information about the phrase query.'),
-    processedBytes?: long(name='processedBytes', description='The volume of logs processed in the query, in bytes.', example='10000'),
-    processedRows?: long(name='processedRows', description='The number of rows processed in the query.', example='10000'),
-    progress?: string(name='progress', description='The progress of the query. Valid values:
+      beginOffset?: long(name='beginOffset', description='The start offset of the scan results after index filtering.', example='0'),
+      endOffset?: long(name='endOffset', description='The end offset of the scan results after index filtering.', example='0'),
+      endTime?: long(name='endTime', description='The end time of the scan results after index filtering.', example='1'),
+      scanAll?: boolean(name='scanAll', description='Indicates whether all logs have been scanned.', example='true'),
+    }(name='phraseQueryInfo', description='The phrase query information.'),
+    processedBytes?: long(name='processedBytes', description='The volume of logs processed by the query.', example='10000'),
+    processedRows?: long(name='processedRows', description='The number of rows processed in this query.', example='10000'),
+    progress?: string(name='progress', description='Indicates whether the query results are complete. Valid values:
 
-- Complete: The query is complete, and the returned result is complete.
-
-- Incomplete: The query is complete, but the returned result is incomplete. You must send the request again to obtain the complete result.', example='Complete'),
-    scanBytes?: long(name='scanBytes', description='The volume of data scanned in the scan query, in bytes.', example='1024'),
-    telementryType?: string(name='telementryType', description='The type of observable data.', example='None'),
+- Complete: The query is complete and the results are complete.
+- Incomplete: The query is complete but the results are incomplete. Resend the request to obtain complete results.', example='Complete'),
+    scanBytes?: long(name='scanBytes', description='The amount of data scanned during the scan, in bytes.', example='1024'),
+    telementryType?: string(name='telementryType', description='The observable data type.', example='None'),
     terms?: [  map[string]any ](name='terms', description='All terms in the query statement.'),
-    whereQuery?: string(name='whereQuery', description='The part of the query statement that precedes the pipe character (|).', example='*'),
-  }(name='meta', description='The metadata of the returned data.'),
+    whereQuery?: string(name='whereQuery', description='The part before the pipe (|) in the query statement.', example='*'),
+  }(name='meta', description='The metadata of the response.'),
 }
 
 model GetLogsV2Response = {
@@ -8649,16 +8703,15 @@ model GetLogsV2Response = {
 }
 
 /**
- * @summary Queries raw logs from a specified Logstore in a project. The response contains raw logs within a specified time range and is compressed for transmission.
+ * @summary Queries raw log data from a Logstore in a specified Project and returns raw logs within a specified time range. The results are compressed before transmission.
  *
- * @description - The Simple Log Service software development kit (SDK) is available for Go, Java, and Python. You can also call all OpenAPI operations directly.
- * - Specify a compression method when you call this operation. Available compression algorithms depend on your programming language. For more information, see the Accept-Encoding request parameter.
+ * @description - Specify the compression method during the procedure. Different programming languages implement different compression algorithms. For details, see the Accept-Encoding request parameter.
  * - For more information, see [GetLogs](https://help.aliyun.com/document_detail/2771313.html).
- * ### Permissions
- * The following table lists the permissions required to call this API operation. Add the action to a RAM policy statement to grant a RAM user or RAM role permission to call this operation.
- * | Action                | Resource in an authorization policy                       |
- * | :-------------------- | :-------------------------------------------------------- |
- * | `log:GetLogStoreLogs` | `acs:log:{#regionId}:{#accountId}:project/{#ProjectName}` |
+ * ### Authentication
+ * The following table describes the authorization information required by this API. You can add the information to the Action element in a RAM access policy statement to grant a Resource Access Management (RAM) user or RAM role the permissions to invoke this API.
+ * | Action | Resource |
+ * | :------------ | :------------ |
+ * | `log:GetLogStoreLogs`  | `acs:log:{#regionId}:{#accountId}:project/{#ProjectName}/logstore/{#LogstoreName}`  |
  *
  * @param request GetLogsV2Request
  * @param headers GetLogsV2Headers
@@ -8734,16 +8787,15 @@ async function getLogsV2WithOptions(project: string, logstore: string, request: 
 }
 
 /**
- * @summary Queries raw logs from a specified Logstore in a project. The response contains raw logs within a specified time range and is compressed for transmission.
+ * @summary Queries raw log data from a Logstore in a specified Project and returns raw logs within a specified time range. The results are compressed before transmission.
  *
- * @description - The Simple Log Service software development kit (SDK) is available for Go, Java, and Python. You can also call all OpenAPI operations directly.
- * - Specify a compression method when you call this operation. Available compression algorithms depend on your programming language. For more information, see the Accept-Encoding request parameter.
+ * @description - Specify the compression method during the procedure. Different programming languages implement different compression algorithms. For details, see the Accept-Encoding request parameter.
  * - For more information, see [GetLogs](https://help.aliyun.com/document_detail/2771313.html).
- * ### Permissions
- * The following table lists the permissions required to call this API operation. Add the action to a RAM policy statement to grant a RAM user or RAM role permission to call this operation.
- * | Action                | Resource in an authorization policy                       |
- * | :-------------------- | :-------------------------------------------------------- |
- * | `log:GetLogStoreLogs` | `acs:log:{#regionId}:{#accountId}:project/{#ProjectName}` |
+ * ### Authentication
+ * The following table describes the authorization information required by this API. You can add the information to the Action element in a RAM access policy statement to grant a Resource Access Management (RAM) user or RAM role the permissions to invoke this API.
+ * | Action | Resource |
+ * | :------------ | :------------ |
+ * | `log:GetLogStoreLogs`  | `acs:log:{#regionId}:{#accountId}:project/{#ProjectName}/logstore/{#LogstoreName}`  |
  *
  * @param request GetLogsV2Request
  * @return GetLogsV2Response
@@ -8958,7 +9010,7 @@ async function getMachineGroup(project: string, machineGroup: string): GetMachin
 
 model GetMaterializedViewHeaders {
   commonHeaders?: map[string]string,
-  contentType?: string(name='Content-Type', description='The content type of the request. The value must be `application/json`.'),
+  contentType?: string(name='Content-Type'),
 }
 
 model GetMaterializedViewRequest {
@@ -8966,18 +9018,18 @@ model GetMaterializedViewRequest {
 }
 
 model GetMaterializedViewResponseBody = {
-  aggIntervalMins?: int32(name='aggIntervalMins', description='The time interval for data aggregation, in minutes.'),
-  enabled?: boolean(name='enabled', description='Specifies whether the materialized view is active. Valid values are `true` and `false`.'),
-  logstore?: string(name='logstore', description='The destination logstore that stores the aggregated data.'),
-  name?: string(name='name', description='The name of the materialized view.'),
-  originalSql?: string(name='originalSql', description='The SQL query that defines the materialized view.'),
-  startTime?: int32(name='startTime', description='The time when the materialized view was created. The value is a Unix timestamp.'),
+  aggIntervalMins?: int32(name='aggIntervalMins'),
+  enabled?: boolean(name='enabled'),
+  logstore?: string(name='logstore'),
+  name?: string(name='name'),
+  originalSql?: string(name='originalSql'),
+  startTime?: int32(name='startTime'),
   status?: {
     lastRunError?: string(name='lastRunError'),
     lastRunTime?: long(name='lastRunTime'),
     maxCursorTime?: long(name='maxCursorTime'),
   }(name='status'),
-  ttl?: int32(name='ttl', description='The time to live (ttl) of the data in the destination logstore, in days.'),
+  ttl?: int32(name='ttl'),
 }
 
 model GetMaterializedViewResponse = {
@@ -8987,7 +9039,7 @@ model GetMaterializedViewResponse = {
 }
 
 /**
- * @summary Retrieve a materialized view.
+ * @summary Retrieves a materialized view.
  *
  * @param request GetMaterializedViewRequest
  * @param headers GetMaterializedViewHeaders
@@ -9030,7 +9082,7 @@ async function getMaterializedViewWithOptions(project: string, name: string, req
 }
 
 /**
- * @summary Retrieve a materialized view.
+ * @summary Retrieves a materialized view.
  *
  * @param request GetMaterializedViewRequest
  * @return GetMaterializedViewResponse
@@ -9378,6 +9430,10 @@ async function getOSSIngestion(project: string, ossIngestionName: string): GetOS
   return getOSSIngestionWithOptions(project, ossIngestionName, headers, runtime);
 }
 
+model GetProjectRequest {
+  crossRegion?: boolean(name='crossRegion'),
+}
+
 model GetProjectResponse = {
   headers?: map[string]string(name='headers'),
   statusCode?: int32(name='statusCode'),
@@ -9385,21 +9441,29 @@ model GetProjectResponse = {
 }
 
 /**
- * @summary Gets the details of a project.
+ * @summary Queries the details of a specified project.
  *
- * @description ### Usage notes
- * Host consists of a project name and a Simple Log Service endpoint. You must specify a project in Host.
+ * @description ### Operation description
+ * The Host in the request syntax consists of the project name and the Simple Log Service endpoint. You must specify the project in the Host.
  *
+ * @param request GetProjectRequest
  * @param headers map
  * @param runtime runtime options for this request RuntimeOptions
  * @return GetProjectResponse
  */
-async function getProjectWithOptions(project: string, headers: map[string]string, runtime: Util.RuntimeOptions): GetProjectResponse {
+async function getProjectWithOptions(project: string, request: GetProjectRequest, headers: map[string]string, runtime: Util.RuntimeOptions): GetProjectResponse {
+  Util.validateModel(request);
   var hostMap : map[string]string = {};
   hostMap['project'] = project;
+  var query : map[string]any = {};
+  if (!Util.isUnset(request.crossRegion)) {
+    query['crossRegion'] = request.crossRegion;
+  }
+
   var req = new OpenApi.OpenApiRequest{ 
     hostMap = hostMap,
     headers = headers,
+    query = OpenApiUtil.query(query),
   };
   var params = new OpenApi.Params{
     action = 'GetProject',
@@ -9416,17 +9480,18 @@ async function getProjectWithOptions(project: string, headers: map[string]string
 }
 
 /**
- * @summary Gets the details of a project.
+ * @summary Queries the details of a specified project.
  *
- * @description ### Usage notes
- * Host consists of a project name and a Simple Log Service endpoint. You must specify a project in Host.
+ * @description ### Operation description
+ * The Host in the request syntax consists of the project name and the Simple Log Service endpoint. You must specify the project in the Host.
  *
+ * @param request GetProjectRequest
  * @return GetProjectResponse
  */
-async function getProject(project: string): GetProjectResponse {
+async function getProject(project: string, request: GetProjectRequest): GetProjectResponse {
   var runtime = new Util.RuntimeOptions{};
   var headers : map[string]string = {};
-  return getProjectWithOptions(project, headers, runtime);
+  return getProjectWithOptions(project, request, headers, runtime);
 }
 
 model GetProjectLogsRequest {
@@ -12317,20 +12382,20 @@ async function listOSSIngestions(project: string, request: ListOSSIngestionsRequ
 }
 
 model ListProjectRequest {
-  description?: string(name='description'),
-  fetchQuota?: boolean(name='fetchQuota', description='Specifies whether to retrieve the quota information for the project.', example='false'),
-  offset?: int32(name='offset', description='The line from which the query starts. The default value is 0.', example='0'),
-  projectName?: string(name='projectName', description='The name of the project. Fuzzy queries are supported.', example='ali-test-project'),
-  resourceGroupId?: string(name='resourceGroupId', description='The ID of the resource group.', example='rg-aekzf******sxby'),
-  size?: int32(name='size', description='The number of rows to return on each page for a paged query. The default value is 100. A maximum of 500 projects can be returned.', example='10'),
+  description?: string(name='description', description='The project description, used for filtering.', example='abc'),
+  fetchQuota?: boolean(name='fetchQuota', description='Specifies whether to retrieve the project quota information.', example='false'),
+  offset?: int32(name='offset', description='The line from which the query starts. Default value: 0.', example='0'),
+  projectName?: string(name='projectName', description='The name of the project. Fuzzy match is supported.', example='ali-test-project'),
+  resourceGroupId?: string(name='resourceGroupId', description='The resource group ID.', example='rg-aekzf******sxby'),
+  size?: int32(name='size', description='The number of entries per page in a paged query. Default value: 100. A maximum of 500 project entries can be returned.', example='10'),
 }
 
 model ListProjectResponseBody = {
   count?: long(name='count', description='The number of projects returned on the current page.', example='2'),
   projects?: [
     Project
-  ](name='projects', description='The list of projects that meet the query criteria.', example='Not applicable'),
-  total?: long(name='total', description='The total number of projects that meet the query criteria.', example='11'),
+  ](name='projects', description='The list of projects that meet the query conditions.', example='Not applicable'),
+  total?: long(name='total', description='The total number of projects that meet the query conditions.', example='11'),
 }
 
 model ListProjectResponse = {
@@ -12340,10 +12405,10 @@ model ListProjectResponse = {
 }
 
 /**
- * @summary Lists projects that meet the specified criteria.
+ * @summary Lists project information that meets the specified conditions.
  *
- * @description ### API description
- * The host consists of a project name and a Simple Log Service endpoint. Specify the project in the host.
+ * @description ### Operation description
+ * The Host consists of the project name and the Simple Log Service endpoint. You must specify the project in the Host.
  *
  * @param request ListProjectRequest
  * @param headers map
@@ -12391,10 +12456,10 @@ async function listProjectWithOptions(request: ListProjectRequest, headers: map[
 }
 
 /**
- * @summary Lists projects that meet the specified criteria.
+ * @summary Lists project information that meets the specified conditions.
  *
- * @description ### API description
- * The host consists of a project name and a Simple Log Service endpoint. Specify the project in the host.
+ * @description ### Operation description
+ * The Host consists of the project name and the Simple Log Service endpoint. You must specify the project in the Host.
  *
  * @param request ListProjectRequest
  * @return ListProjectResponse
@@ -16335,6 +16400,108 @@ async function updateLogging(project: string, request: UpdateLoggingRequest): Up
   var runtime = new Util.RuntimeOptions{};
   var headers : map[string]string = {};
   return updateLoggingWithOptions(project, request, headers, runtime);
+}
+
+model UpdateLogsRequest {
+  data?: string(name='data', description='The data to be updated, in JSON format.', example='{"status":"success"}'),
+  from?: int32(name='from', description='The start time of the query. This time refers to the log time specified when the log data was written.
+
+The time range defined by the request parameters from and to follows the left-closed, right-open principle. That is, the time range includes the start time but does not include the end time. If the values of from and to are the same, the range is invalid and the function returns an error directly.
+Unix timestamp format, representing the number of seconds since 1970-01-01 00:00:00 UTC.
+
+This parameter is required.', example='1627268185'),
+  query?: string(name='query', description='Optional: A query statement used to filter the logs to be updated. For more information, see [Query overview](https://help.aliyun.com/document_detail/43772.html).
+
+Note: This parameter only supports query statements and does not support analysis statements such as SPL or SQL.', example='status: 401'),
+  rowId?: string(name='rowId', description='Optional: The value of the built-in field __rowid__ that is automatically returned in the query results.
+
+One of the two fields, rowId and query, must be specified. If both are specified, rowId takes higher priority.', example='0|1000001|638732499'),
+  to?: int32(name='to', description='The end time of the query. This time refers to the log time specified when the log data was written.
+
+The time range defined by the request parameters from and to follows the left-closed, right-open principle. That is, the time range includes the start time but does not include the end time. If the values of from and to are the same, the range is invalid and the function returns an error directly.
+Unix timestamp format, representing the number of seconds since 1970-01-01 00:00:00 UTC.
+
+This parameter is required.', example='1627268200'),
+  updateMode?: string(name='updateMode', description='Optional: The value can be full or partial. The default value is partial.
+  - full —— The request body must contain all fields of the row. The server overwrites the entire old record with the new values.
+  - partial —— The request body only needs to contain the fields to be modified. Fields that are not provided retain their original values.', example='partial'),
+}
+
+model UpdateLogsResponseBody = {
+  affectedRows?: int32(name='affectedRows', description='The number of updated log rows.', example='10'),
+}
+
+model UpdateLogsResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: UpdateLogsResponseBody(name='body'),
+}
+
+/**
+ * @summary Updates log data in a specified Logstore under the specified Project.
+ *
+ * @description The Host consists of the Project name and the Log Service endpoint. You need to specify the Project in the Host.
+ *
+ * @param request UpdateLogsRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return UpdateLogsResponse
+ */
+async function updateLogsWithOptions(project: string, logstore: string, request: UpdateLogsRequest, headers: map[string]string, runtime: Util.RuntimeOptions): UpdateLogsResponse {
+  Util.validateModel(request);
+  var hostMap : map[string]string = {};
+  hostMap['project'] = project;
+  var body : map[string]any = {};
+  if (!Util.isUnset(request.data)) {
+    body['data'] = request.data;
+  }
+  if (!Util.isUnset(request.from)) {
+    body['from'] = request.from;
+  }
+  if (!Util.isUnset(request.query)) {
+    body['query'] = request.query;
+  }
+  if (!Util.isUnset(request.rowId)) {
+    body['rowId'] = request.rowId;
+  }
+  if (!Util.isUnset(request.to)) {
+    body['to'] = request.to;
+  }
+  if (!Util.isUnset(request.updateMode)) {
+    body['updateMode'] = request.updateMode;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    hostMap = hostMap,
+    headers = headers,
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApi.Params{
+    action = 'UpdateLogs',
+    version = '2020-12-30',
+    protocol = 'HTTPS',
+    pathname = `/logstores/${logstore}/updatelogs`,
+    method = 'POST',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return execute(params, req, runtime);
+}
+
+/**
+ * @summary Updates log data in a specified Logstore under the specified Project.
+ *
+ * @description The Host consists of the Project name and the Log Service endpoint. You need to specify the Project in the Host.
+ *
+ * @param request UpdateLogsRequest
+ * @return UpdateLogsResponse
+ */
+async function updateLogs(project: string, logstore: string, request: UpdateLogsRequest): UpdateLogsResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return updateLogsWithOptions(project, logstore, request, headers, runtime);
 }
 
 model UpdateLogtailPipelineConfigRequest {
