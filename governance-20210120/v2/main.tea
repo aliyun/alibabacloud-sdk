@@ -10,7 +10,13 @@ extends OpenApi;
 init(config: OpenApiUtil.Config){
   super(config);
   @endpointRule = 'regional';
-  
+  @endpointMap = {
+    'eu-central-1' = 'governance.eu-central-1.aliyuncs.com',
+    'cn-shanghai-finance-1' = 'governance.cn-shanghai-finance-1.aliyuncs.com',
+    'cn-hangzhou' = 'governance.cn-hangzhou.aliyuncs.com',
+    'ap-southeast-1' = 'governance.ap-southeast-1.aliyuncs.com',
+  };
+
   checkConfig(config);
   @endpoint = getEndpoint('governance', @regionId, @endpointRule, @network, @suffix, @endpointMap, @endpoint);
 }
@@ -29,25 +35,24 @@ function getEndpoint(productId: string, regionId: string, endpointRule: string, 
 model BatchEnrollAccountsRequest {
   accounts?: [ 
     {
-      accountUid?: long(name='AccountUid', description='The account ID. This parameter is required.', example='12868156179****'),
+      accountUid?: long(name='AccountUid', description='The ID of the account to enroll. This parameter is required.', example='12868156179****'),
     }
   ](name='Accounts', description='The resource accounts.'),
-  baselineId?: string(name='BaselineId', description='The baseline ID.
-
-If this parameter is left empty, the default baseline is used.', example='afb-bp1durvn3lgqe28v****'),
+  baselineId?: string(name='BaselineId', description='The ID of the baseline. If you leave this parameter empty, the default baseline is used.', example='afb-bp1durvn3lgqe28v****'),
   baselineItems?: [ 
     {
-      config?: string(name='Config', description='The configurations of the baseline item.', example='{\\\\"Notifications\\\\":[{\\\\"GroupKey\\\\":\\\\"account_msg\\\\",\\\\"Contacts\\\\":[{\\\\"Name\\\\":\\\\"aa\\\\"}],\\\\"PmsgStatus\\\\":1,\\\\"EmailStatus\\\\":1,\\\\"SmsStatus\\\\":1}]}'),
+      config?: string(name='Config', description='The configurations of the baseline item.', example='{"Notifications":[{"GroupKey":"account_msg","Contacts":[{"Name":"aa"}],"PmsgStatus":1,"EmailStatus":1,"SmsStatus":1}]}'),
       name?: string(name='Name', description='The name of the baseline item.', example='ACS-BP_ACCOUNT_FACTORY_VPC'),
       skip?: boolean(name='Skip', description='Specifies whether to skip the baseline item. Valid values:
 
-*   false
-*   true', example='false'),
+- false (default): does not skip the baseline item.
+
+- true: skips the baseline item.', example='false'),
       version?: string(name='Version', description='The version of the baseline item.', example='1.0'),
     }
   ](name='BaselineItems', description='The baseline items.
 
-If this parameter is specified, the configurations of the baseline items are merged with the baseline applied to the specified account. The configurations of the same baseline items are subject to the configurations of this parameter. We recommend that you leave this parameter empty and configure the `BaselineId` parameter to specify an account baseline and apply the configurations of the account baseline to the account.'),
+If you specify this parameter, the baseline item configurations are merged with the configurations of the baseline specified by `BaselineId`. For duplicate baseline items, the configurations in this parameter take precedence. We recommend that you leave this parameter empty and use `BaselineId` to apply baseline configurations.'),
   regionId?: string(name='RegionId', description='The region ID.', example='cn-hangzhou'),
 }
 
@@ -64,8 +69,8 @@ model BatchEnrollAccountsResponse = {
 /**
  * @summary Applies an account baseline to multiple existing resource accounts at a time.
  *
- * @description You can call this operation to apply an account baseline to existing resource accounts.
- * Accounts are enrolled in the account factory in asynchronous mode. After a resource account is created, an account baseline is applied to the account. You can call the [GetEnrolledAccount](https://help.aliyun.com/document_detail/609062.html) operation to query the details of the account enrolled in the account factory and check whether the account baseline is applied to the account.
+ * @description Applies an account baseline to multiple existing resource accounts at a time.
+ * Account enrollment is an asynchronous process. After the accounts are enrolled, the account factory baseline is applied to each account. To query the enrollment details and check the baseline application result, call [GetEnrolledAccount](https://help.aliyun.com/document_detail/609062.html).
  *
  * @param request BatchEnrollAccountsRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -107,8 +112,8 @@ async function batchEnrollAccountsWithOptions(request: BatchEnrollAccountsReques
 /**
  * @summary Applies an account baseline to multiple existing resource accounts at a time.
  *
- * @description You can call this operation to apply an account baseline to existing resource accounts.
- * Accounts are enrolled in the account factory in asynchronous mode. After a resource account is created, an account baseline is applied to the account. You can call the [GetEnrolledAccount](https://help.aliyun.com/document_detail/609062.html) operation to query the details of the account enrolled in the account factory and check whether the account baseline is applied to the account.
+ * @description Applies an account baseline to multiple existing resource accounts at a time.
+ * Account enrollment is an asynchronous process. After the accounts are enrolled, the account factory baseline is applied to each account. To query the enrollment details and check the baseline application result, call [GetEnrolledAccount](https://help.aliyun.com/document_detail/609062.html).
  *
  * @param request BatchEnrollAccountsRequest
  * @return BatchEnrollAccountsResponse
@@ -121,7 +126,7 @@ async function batchEnrollAccounts(request: BatchEnrollAccountsRequest): BatchEn
 model CreateAccountFactoryBaselineRequest {
   baselineItems?: [ 
     {
-      config?: string(name='Config', description='The configurations of the baseline item. The value of this parameter is a JSON string.', example='{\\\\"EnabledServices\\\\":[\\\\"CEN_TR\\\\",\\\\"CDT\\\\",\\\\"CMS\\\\",\\\\"KMS\\\\"]}'),
+      config?: string(name='Config', description='The configurations of the baseline item. The value of this parameter is a JSON string.', example='{"EnabledServices":["CEN_TR","CDT","CMS","KMS"]}'),
       name?: string(name='Name', description='The name of the baseline item.', example='ACS-BP_ACCOUNT_FACTORY_VPC'),
       version?: string(name='Version', description='The version of the baseline item.', example='1.0'),
     }
@@ -134,7 +139,7 @@ You can call the [ListAccountFactoryBaselineItems](~~ListAccountFactoryBaselineI
 }
 
 model CreateAccountFactoryBaselineResponseBody = {
-  baselineId?: string(name='BaselineId', description='The baseline ID.', example='afb-bp1e6ixtiwupap8m****'),
+  baselineId?: string(name='BaselineId', description='The ID of the baseline.', example='afb-bp1e6ixtiwupap8m****'),
   requestId?: string(name='RequestId', description='The request ID.', example='A5592E2E-0FC4-557C-B989-DF229B5EBE13'),
 }
 
@@ -256,47 +261,52 @@ async function deleteAccountFactoryBaseline(request: DeleteAccountFactoryBaselin
 }
 
 model EnrollAccountRequest {
-  accountNamePrefix?: string(name='AccountNamePrefix', description='The prefix for the account name of the member.
+  accountNamePrefix?: string(name='AccountNamePrefix', description='The prefix for the account name.
 
-*   If the account baseline is applied to an account that is newly created, you must configure this parameter.
-*   If the account baseline is applied to an existing account, you do not need to configure this parameter.', example='test-account'),
-  accountUid?: long(name='AccountUid', description='The account ID.
+- If you are creating a new resource account, this parameter is required.
 
-*   If the account baseline is applied to an account that is newly created, you do not need to configure this parameter.
-*   If the account baseline is applied to an existing account, you must configure this parameter.', example='12868156179****'),
-  baselineId?: string(name='BaselineId', description='The baseline ID.
+- If you are enrolling an existing account, this parameter is not required.', example='test-account'),
+  accountUid?: long(name='AccountUid', description='The ID of the account to enroll.
 
-If this parameter is left empty, the default baseline is used.', example='afb-bp1durvn3lgqe28v****'),
+- If you are creating a new resource account, this parameter is not required.
+
+- If you are enrolling an existing account, this parameter is required.', example='12868156179****'),
+  baselineId?: string(name='BaselineId', description='The ID of the baseline. If you leave this parameter empty, the default baseline is used.', example='afb-bp1durvn3lgqe28v****'),
   baselineItems?: [ 
     {
       config?: string(name='Config', description='The configurations of the baseline item.', example='{\\\\"Notifications\\\\":[{\\\\"GroupKey\\\\":\\\\"account_msg\\\\",\\\\"Contacts\\\\":[{\\\\"Name\\\\":\\\\"aa\\\\"}],\\\\"PmsgStatus\\\\":1,\\\\"EmailStatus\\\\":1,\\\\"SmsStatus\\\\":1}]}'),
       name?: string(name='Name', description='The name of the baseline item.', example='ACS-BP_ACCOUNT_FACTORY_VPC'),
-      skip?: boolean(name='Skip', description='Whether to skip the baseline item. Valid values:
+      skip?: boolean(name='Skip', description='Specifies whether to skip the baseline item. Valid values:
 
-*   false: The baseline item is not skipped.
-*   true: The baseline item is skipped.', example='false'),
+- false (default): does not skip the baseline item.
+
+- true: skips the baseline item.', example='false'),
       version?: string(name='Version', description='The version of the baseline item.', example='1.0'),
     }
-  ](name='BaselineItems', description='The array that contains baseline items.
+  ](name='BaselineItems', description='The baseline items.
 
-If this parameter is specified, the configurations of the baseline items are merged with the baseline applied to the specified account. The configurations of the same baseline items are subject to the configurations of this parameter. We recommend that you leave this parameter empty and configure the `BaselineId` parameter to specify an account baseline and apply the configurations of the account baseline to the account.'),
+If you specify this parameter, the baseline item configurations are merged with the configurations of the baseline specified by `BaselineId`. For duplicate baseline items, the configurations in this parameter take precedence. We recommend that you leave this parameter empty and use `BaselineId` to apply baseline configurations.'),
   displayName?: string(name='DisplayName', description='The display name of the account.
 
-*   If the account baseline is applied to an account that is newly created, you must configure this parameter.
-*   If the account baseline is applied to an existing account, you do not need to configure this parameter.', example='test-account'),
+- If you are creating a new resource account, this parameter is required.
+
+- If you are enrolling an existing account, this parameter is not required.', example='test-account'),
   folderId?: string(name='FolderId', description='The ID of the parent folder.
 
-*   If the account baseline is applied to an account that is newly created, you need to specify a parent folder. If you do not configure this parameter, the account is created in the Root folder.
-*   If the account baseline is applied to an existing account, you do not need to configure this parameter.', example='fd-5ESoku****'),
+- If you are creating a new resource account and do not specify this parameter, the account is created in the Root folder.
+
+- If you are enrolling an existing account, this parameter is not required.', example='fd-5ESoku****'),
   payerAccountUid?: long(name='PayerAccountUid', description='The ID of the billing account.
 
-*   If the account baseline is applied to an account that is newly created, you need to specify a billing account. If you do not configure this parameter, the self-pay settlement method is used for the account.
-*   If the account baseline is applied to an existing account, you do not need to configure this parameter.', example='19534534552****'),
+- If you are creating a new resource account and do not specify this parameter, the self-pay settlement method is used.
+
+- If you are enrolling an existing account, this parameter is not required.', example='19534534552****'),
   regionId?: string(name='RegionId', description='The region ID.', example='cn-hangzhou'),
   resellAccountType?: string(name='ResellAccountType', description='The identity type of the member. Valid values:
 
-*   resell (default): The member is an account for a reseller. A relationship is automatically established between the member and the reseller. The management account of the resource directory must be used as the billing account of the member.
-*   non_resell: The member is not an account for a reseller. The member is an account that is not associated with a reseller. You can directly use the account to purchase Alibaba Cloud resources. The member is used as its own billing account.
+- resell (default): The member is a reseller account. A reseller relationship is automatically established between the member and the reseller. The management account of the resource directory is used as the billing account of the member.
+
+- non_resell: The member is a non-reseller account. The member is not associated with a reseller and can directly purchase Alibaba Cloud resources. The member is used as its own billing account.
 
 > This parameter is available only for resellers at the international site (alibabacloud.com).', example='resell'),
   tag?: [ 
@@ -308,54 +318,63 @@ If this parameter is specified, the configurations of the baseline items are mer
 }
 
 model EnrollAccountShrinkRequest {
-  accountNamePrefix?: string(name='AccountNamePrefix', description='The prefix for the account name of the member.
+  accountNamePrefix?: string(name='AccountNamePrefix', description='The prefix for the account name.
 
-*   If the account baseline is applied to an account that is newly created, you must configure this parameter.
-*   If the account baseline is applied to an existing account, you do not need to configure this parameter.', example='test-account'),
-  accountUid?: long(name='AccountUid', description='The account ID.
+- If you are creating a new resource account, this parameter is required.
 
-*   If the account baseline is applied to an account that is newly created, you do not need to configure this parameter.
-*   If the account baseline is applied to an existing account, you must configure this parameter.', example='12868156179****'),
-  baselineId?: string(name='BaselineId', description='The baseline ID.
+- If you are enrolling an existing account, this parameter is not required.', example='test-account'),
+  accountUid?: long(name='AccountUid', description='The ID of the account to enroll.
 
-If this parameter is left empty, the default baseline is used.', example='afb-bp1durvn3lgqe28v****'),
+- If you are creating a new resource account, this parameter is not required.
+
+- If you are enrolling an existing account, this parameter is required.', example='12868156179****'),
+  baselineId?: string(name='BaselineId', description='The ID of the baseline. If you leave this parameter empty, the default baseline is used.', example='afb-bp1durvn3lgqe28v****'),
   baselineItems?: [ 
     {
       config?: string(name='Config', description='The configurations of the baseline item.', example='{\\\\"Notifications\\\\":[{\\\\"GroupKey\\\\":\\\\"account_msg\\\\",\\\\"Contacts\\\\":[{\\\\"Name\\\\":\\\\"aa\\\\"}],\\\\"PmsgStatus\\\\":1,\\\\"EmailStatus\\\\":1,\\\\"SmsStatus\\\\":1}]}'),
       name?: string(name='Name', description='The name of the baseline item.', example='ACS-BP_ACCOUNT_FACTORY_VPC'),
-      skip?: boolean(name='Skip', description='Whether to skip the baseline item. Valid values:
+      skip?: boolean(name='Skip', description='Specifies whether to skip the baseline item. Valid values:
 
-*   false: The baseline item is not skipped.
-*   true: The baseline item is skipped.', example='false'),
+- false (default): does not skip the baseline item.
+
+- true: skips the baseline item.', example='false'),
       version?: string(name='Version', description='The version of the baseline item.', example='1.0'),
     }
-  ](name='BaselineItems', description='The array that contains baseline items.
+  ](name='BaselineItems', description='The baseline items.
 
-If this parameter is specified, the configurations of the baseline items are merged with the baseline applied to the specified account. The configurations of the same baseline items are subject to the configurations of this parameter. We recommend that you leave this parameter empty and configure the `BaselineId` parameter to specify an account baseline and apply the configurations of the account baseline to the account.'),
+If you specify this parameter, the baseline item configurations are merged with the configurations of the baseline specified by `BaselineId`. For duplicate baseline items, the configurations in this parameter take precedence. We recommend that you leave this parameter empty and use `BaselineId` to apply baseline configurations.'),
   displayName?: string(name='DisplayName', description='The display name of the account.
 
-*   If the account baseline is applied to an account that is newly created, you must configure this parameter.
-*   If the account baseline is applied to an existing account, you do not need to configure this parameter.', example='test-account'),
+- If you are creating a new resource account, this parameter is required.
+
+- If you are enrolling an existing account, this parameter is not required.', example='test-account'),
   folderId?: string(name='FolderId', description='The ID of the parent folder.
 
-*   If the account baseline is applied to an account that is newly created, you need to specify a parent folder. If you do not configure this parameter, the account is created in the Root folder.
-*   If the account baseline is applied to an existing account, you do not need to configure this parameter.', example='fd-5ESoku****'),
+- If you are creating a new resource account and do not specify this parameter, the account is created in the Root folder.
+
+- If you are enrolling an existing account, this parameter is not required.', example='fd-5ESoku****'),
   payerAccountUid?: long(name='PayerAccountUid', description='The ID of the billing account.
 
-*   If the account baseline is applied to an account that is newly created, you need to specify a billing account. If you do not configure this parameter, the self-pay settlement method is used for the account.
-*   If the account baseline is applied to an existing account, you do not need to configure this parameter.', example='19534534552****'),
+- If you are creating a new resource account and do not specify this parameter, the self-pay settlement method is used.
+
+- If you are enrolling an existing account, this parameter is not required.', example='19534534552****'),
   regionId?: string(name='RegionId', description='The region ID.', example='cn-hangzhou'),
   resellAccountType?: string(name='ResellAccountType', description='The identity type of the member. Valid values:
 
-*   resell (default): The member is an account for a reseller. A relationship is automatically established between the member and the reseller. The management account of the resource directory must be used as the billing account of the member.
-*   non_resell: The member is not an account for a reseller. The member is an account that is not associated with a reseller. You can directly use the account to purchase Alibaba Cloud resources. The member is used as its own billing account.
+- resell (default): The member is a reseller account. A reseller relationship is automatically established between the member and the reseller. The management account of the resource directory is used as the billing account of the member.
+
+- non_resell: The member is a non-reseller account. The member is not associated with a reseller and can directly purchase Alibaba Cloud resources. The member is used as its own billing account.
 
 > This parameter is available only for resellers at the international site (alibabacloud.com).', example='resell'),
   tagShrink?: string(name='Tag', description='The tags. You can specify up to 20 tags.'),
 }
 
 model EnrollAccountResponseBody = {
-  accountUid?: long(name='AccountUid', description='The account ID.', example='143165363236****'),
+  accountUid?: long(name='AccountUid', description='The ID of the enrolled account.
+
+colspan="1" rowspan="1">
+
+143165363236\\\\*\\\\*\\\\*\\\\*', example='143165363236****'),
   requestId?: string(name='RequestId', description='The request ID.', example='7071E5FA-515E-5F53-B335-B87D619C6A66'),
 }
 
@@ -366,10 +385,10 @@ model EnrollAccountResponse = {
 }
 
 /**
- * @summary Enrolls an account. You can create a new account or manage an existing account in the account factory.
+ * @summary Creates a new resource account or enrolls an existing resource account in Account Factory.
  *
- * @description You can call this API operation to create a new account or manage an existing account and apply the account baseline to the account.
- * Accounts are created in asynchronous mode. After you create an account, you can apply the account baseline to the account. You can call the [GetEnrolledAccount API](~~GetEnrolledAccount~~) operation to view the details about the account to obtain the result of applying the account baseline to the account.
+ * @description Creates a new resource account or enrolls an existing resource account, and applies the account factory baseline to the account.
+ * Account enrollment is an asynchronous process. After an account is created, the account factory baseline is applied to the account. To query the enrollment details and check the baseline application result, call [GetEnrolledAccount](~~GetEnrolledAccount~~).
  *
  * @param tmpReq EnrollAccountRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -432,10 +451,10 @@ async function enrollAccountWithOptions(tmpReq: EnrollAccountRequest, runtime: $
 }
 
 /**
- * @summary Enrolls an account. You can create a new account or manage an existing account in the account factory.
+ * @summary Creates a new resource account or enrolls an existing resource account in Account Factory.
  *
- * @description You can call this API operation to create a new account or manage an existing account and apply the account baseline to the account.
- * Accounts are created in asynchronous mode. After you create an account, you can apply the account baseline to the account. You can call the [GetEnrolledAccount API](~~GetEnrolledAccount~~) operation to view the details about the account to obtain the result of applying the account baseline to the account.
+ * @description Creates a new resource account or enrolls an existing resource account, and applies the account factory baseline to the account.
+ * Account enrollment is an asynchronous process. After an account is created, the account factory baseline is applied to the account. To query the enrollment details and check the baseline application result, call [GetEnrolledAccount](~~GetEnrolledAccount~~).
  *
  * @param request EnrollAccountRequest
  * @return EnrollAccountResponse
@@ -446,26 +465,42 @@ async function enrollAccount(request: EnrollAccountRequest): EnrollAccountRespon
 }
 
 model GenerateEvaluationReportRequest {
-  accountId?: long(name='AccountId', example='103144549568****'),
-  accountIds?: [ long ](name='AccountIds'),
+  accountId?: long(name='AccountId', description='The account ID. If this parameter is not specified, the report is generated for the current account by default. A management account (MA) can pass in a member account ID to generate a report for the member account.', example='103144549568****'),
+  accountIds?: [ long ](name='AccountIds', description='The list of member account IDs for which to generate reports.
+Note: This parameter is required only when you generate a multi-account report and want to specify the scope of accounts.'),
+  evaluationDomain?: string(name='EvaluationDomain'),
   regionId?: string(name='RegionId', description='RegionId', example='cn-hangzhou'),
-  reportType?: string(name='ReportType', example='EvaluationAccountExcelReport'),
+  reportType?: string(name='ReportType', description='The report type. Valid values:
+- EvaluationAccountHtmlReport: single-account HTML report.
+- EvaluationAccountExcelReport: single-account Excel report.
+- EvaluationMultiAccountExcelReport: multi-account Excel report.', example='EvaluationAccountExcelReport'),
 }
 
 model GenerateEvaluationReportShrinkRequest {
-  accountId?: long(name='AccountId', example='103144549568****'),
-  accountIdsShrink?: string(name='AccountIds'),
+  accountId?: long(name='AccountId', description='The account ID. If this parameter is not specified, the report is generated for the current account by default. A management account (MA) can pass in a member account ID to generate a report for the member account.', example='103144549568****'),
+  accountIdsShrink?: string(name='AccountIds', description='The list of member account IDs for which to generate reports.
+Note: This parameter is required only when you generate a multi-account report and want to specify the scope of accounts.'),
+  evaluationDomain?: string(name='EvaluationDomain'),
   regionId?: string(name='RegionId', description='RegionId', example='cn-hangzhou'),
-  reportType?: string(name='ReportType', example='EvaluationAccountExcelReport'),
+  reportType?: string(name='ReportType', description='The report type. Valid values:
+- EvaluationAccountHtmlReport: single-account HTML report.
+- EvaluationAccountExcelReport: single-account Excel report.
+- EvaluationMultiAccountExcelReport: multi-account Excel report.', example='EvaluationAccountExcelReport'),
 }
 
 model GenerateEvaluationReportResponseBody = {
-  accountId?: long(name='AccountId', example='103144549568****'),
-  evaluationScore?: double(name='EvaluationScore', example='0.7684'),
-  evaluationTime?: string(name='EvaluationTime', example='2026-01-12T07:25:33Z'),
-  finished?: string(name='Finished', example='true'),
-  reportType?: string(name='ReportType', example='EvaluationAccountExcelReport'),
-  reportUrl?: string(name='ReportUrl', example='https://governance-prod-cn-hangzhou.oss-cn-hangzhou.aliyuncs.com/reports-html/*****'),
+  accountId?: long(name='AccountId', description='The account ID for which the report is generated.', example='103144549568****'),
+  evaluationScore?: double(name='EvaluationScore', description='The governance maturity evaluation score.', example='0.7684'),
+  evaluationTime?: string(name='EvaluationTime', description='The evaluation time.', example='2026-01-12T07:25:33Z'),
+  finished?: string(name='Finished', description='Indicates whether the report generation is complete.
+
+> - true: The report generation is complete.
+> - false: The report generation is not complete.', example='true'),
+  reportType?: string(name='ReportType', description='The report type. Valid values:
+- EvaluationAccountHtmlReport: single-account HTML report.
+- EvaluationAccountExcelReport: single-account Excel report.
+- EvaluationMultiAccountExcelReport: multi-account Excel report.', example='EvaluationAccountExcelReport'),
+  reportUrl?: string(name='ReportUrl', description='The download URL of the report.', example='https://governance-prod-cn-hangzhou.oss-cn-hangzhou.aliyuncs.com/reports-html/*****'),
   requestId?: string(name='RequestId', description='Id of the request', example='7DCF863F-CBBB-57C4-8AF2-5D4EE35D1EB1'),
 }
 
@@ -476,7 +511,11 @@ model GenerateEvaluationReportResponse = {
 }
 
 /**
- * @summary 生成治理检测报告
+ * @summary Generate Governance Evaluation Report
+ *
+ * @description Generates a governance evaluation report.
+ * > 
+ * > - This is an asynchronous API. You can check the `Finished` field in the response to determine the report generation status.
  *
  * @param tmpReq GenerateEvaluationReportRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -496,6 +535,9 @@ async function generateEvaluationReportWithOptions(tmpReq: GenerateEvaluationRep
   }
   if (!$isNull(request.accountIdsShrink)) {
     query['AccountIds'] = request.accountIdsShrink;
+  }
+  if (!$isNull(request.evaluationDomain)) {
+    query['EvaluationDomain'] = request.evaluationDomain;
   }
   if (!$isNull(request.regionId)) {
     query['RegionId'] = request.regionId;
@@ -521,7 +563,11 @@ async function generateEvaluationReportWithOptions(tmpReq: GenerateEvaluationRep
 }
 
 /**
- * @summary 生成治理检测报告
+ * @summary Generate Governance Evaluation Report
+ *
+ * @description Generates a governance evaluation report.
+ * > 
+ * > - This is an asynchronous API. You can check the `Finished` field in the response to determine the report generation status.
  *
  * @param request GenerateEvaluationReportRequest
  * @return GenerateEvaluationReportResponse
@@ -532,18 +578,18 @@ async function generateEvaluationReport(request: GenerateEvaluationReportRequest
 }
 
 model GetAccountFactoryBaselineRequest {
-  baselineId?: string(name='BaselineId', description='The baseline ID.', example='afb-bp1nf0enuzb89az*****'),
+  baselineId?: string(name='BaselineId', description='The ID of the baseline.', example='afb-bp1nf0enuzb89az*****'),
   regionId?: string(name='RegionId', description='The region ID.', example='cn-hangzhou'),
 }
 
 model GetAccountFactoryBaselineResponseBody = {
-  baselineId?: string(name='BaselineId', description='The baseline ID.', example='afb-bp16ae2k8a3yo3d*****'),
+  baselineId?: string(name='BaselineId', description='The ID of the baseline.', example='afb-bp16ae2k8a3yo3d*****'),
   baselineItems?: [ 
     {
       config?: string(name='Config', description='The configuration of the baseline item.
 
 The value is a JSON string.', example='{\\\\"Notifications\\\\":[{\\\\"GroupKey\\\\":\\\\"account_msg\\\\",\\\\"Contacts\\\\":[{\\\\"Name\\\\":\\\\"aa\\\\"}],\\\\"PmsgStatus\\\\":1,\\\\"EmailStatus\\\\":1,\\\\"SmsStatus\\\\":1}]}'),
-      name?: string(name='Name', description='The name of the baseline item.', example='1097526274671790'),
+      name?: string(name='Name', description='The name of the baseline item.', example='ACS-BP_ACCOUNT_FACTORY_VPC'),
       version?: string(name='Version', description='The version of the baseline item.', example='1.0'),
     }
   ](name='BaselineItems', description='The baseline items.'),
@@ -553,8 +599,9 @@ The value is a JSON string.', example='{\\\\"Notifications\\\\":[{\\\\"GroupKey\
   requestId?: string(name='RequestId', description='The request ID.', example='60D54503-F1F6-51B6-B6FA-A70CBDA2A68C'),
   type?: string(name='Type', description='The type of the baseline. Valid values:
 
-*   System: default baseline.
-*   Custom: custom baseline.', example='Custom'),
+- System: The baseline is a default baseline.
+
+- Custom: The baseline is a custom baseline.', example='Custom'),
   updateTime?: string(name='UpdateTime', description='The time when the baseline was updated.', example='2022-11-02T01:00:07Z'),
 }
 
@@ -610,87 +657,98 @@ async function getAccountFactoryBaseline(request: GetAccountFactoryBaselineReque
 }
 
 model GetEnrolledAccountRequest {
-  accountUid?: long(name='AccountUid', description='The account ID.
+  accountUid?: long(name='AccountUid', description='The ID of the account.
 
 This parameter is required.', example='19534534552****'),
   regionId?: string(name='RegionId', description='The region ID.', example='cn-hangzhou'),
 }
 
 model GetEnrolledAccountResponseBody = {
-  accountUid?: long(name='AccountUid', description='The account ID.', example='12868156179*****'),
-  baselineId?: string(name='BaselineId', description='The ID of the baseline that is implemented.', example='afb-bp1adadfadsf***'),
+  accountUid?: long(name='AccountUid', description='The ID of the account.', example='12868156179*****'),
+  baselineId?: string(name='BaselineId', description='The ID of the baseline that is applied.', example='afb-bp1adadfadsf***'),
   baselineItems?: [ 
     {
       config?: string(name='Config', description='The configuration of the baseline item.', example='{\\\\"Notifications\\\\":[{\\\\"GroupKey\\\\":\\\\"account_msg\\\\",\\\\"Contacts\\\\":[{\\\\"Name\\\\":\\\\"aa\\\\"}],\\\\"PmsgStatus\\\\":1,\\\\"EmailStatus\\\\":1,\\\\"SmsStatus\\\\":1}]}'),
       name?: string(name='Name', description='The name of the baseline item.', example='ACS-BP_ACCOUNT_FACTORY_VPC'),
-      skip?: boolean(name='Skip', description='Indicates whether baseline item is skipped. Valid values:
+      skip?: boolean(name='Skip', description='Indicates whether the baseline item is skipped. Valid values:
 
-*   false
-*   true', example='false'),
+- false: The baseline item is not skipped.
+
+- true: The baseline item is skipped.', example='false'),
       version?: string(name='Version', description='The version of the baseline item.', example='1.0'),
     }
-  ](name='BaselineItems', description='The array that contains baseline items.'),
+  ](name='BaselineItems', description='The baseline items.'),
   createTime?: string(name='CreateTime', description='The time when the account was created.', example='2021-11-01T02:38:27Z'),
   displayName?: string(name='DisplayName', description='The display name of the account.', example='test-account'),
   errorInfo?: {
-    code?: string(name='Code', description='The error code.', example='CompliancePackExists'),
-    message?: string(name='Message', description='The error message.', example='The compliance pack already exists.'),
-    recommend?: string(name='Recommend', description='The recommended solution.', example='https://next.api.aliyun.com/troubleshoot?q=CompliancePackExists\\\\\\\\u0026product=Config'),
+    code?: string(name='Code', description='The error code.', example='EntityAlreadyExists.Role'),
+    message?: string(name='Message', description='The error message.', example='The role already exists.'),
+    recommend?: string(name='Recommend', description='The recommended solution.', example='https://next.api.aliyun.com/troubleshoot?q=EntityAlreadyExists.Role\\\\u0026product=Ram'),
     requestId?: string(name='RequestId', description='The request ID.', example='6D5EAA86-2D41-5CB7-8DA7-B60093ACAA4E'),
   }(name='ErrorInfo', description='The error message.
 
->  This parameter is returned if the value of `Status` is `Failed` or `ScheduleFailed`.'),
+> This parameter is returned if the value of `Status` is `Failed` or `ScheduleFailed`.'),
   folderId?: string(name='FolderId', description='The ID of the parent folder.', example='fd-5ESoku****'),
   initialized?: boolean(name='Initialized', description='Indicates whether the initialization is complete. Valid values:
 
-*   false
-*   true', example='true'),
+- false: The initialization is not complete.
+
+- true: The initialization is complete.', example='true'),
   inputs?: {
     accountNamePrefix?: string(name='AccountNamePrefix', description='The prefix of the account name.', example='test-account'),
-    accountUid?: long(name='AccountUid', description='The account ID.', example='12868156179*****'),
+    accountUid?: long(name='AccountUid', description='The ID of the account.', example='12868156179*****'),
     baselineItems?: [ 
       {
-        config?: string(name='Config', description='The configurations of the baseline item.', example='{\\\\"Contacts\\\\":[{\\\\"Name\\\\":\\\\"governance\\\\",\\\\"Email\\\\":\\\\"wibud****@gmail.com\\\\",\\\\"Mobile\\\\":\\\\"1234\\\\",\\\\"Position\\\\":\\\\"Other\\\\"}]}'),
+        config?: string(name='Config', description='The configurations of the baseline item.', example='{\\\\"Contacts\\\\":[{\\\\"Name\\\\":\\\\"governance\\\\",\\\\"Email\\\\":\\\\"wibud5210+10@gmail.com\\\\",\\\\"Mobile\\\\":\\\\"1234\\\\",\\\\"Position\\\\":\\\\"Other\\\\"}]}'),
         name?: string(name='Name', description='The name of the baseline item.', example='ACS-BP_ACCOUNT_FACTORY_VPC'),
-        skip?: boolean(name='Skip', description='Indicates whether baseline item is skipped. Valid values:
+        skip?: boolean(name='Skip', description='Indicates whether the baseline item is skipped. Valid values:
 
-*   false
-*   true', example='false'),
+- false: The baseline item is not skipped.
+
+- true: The baseline item is skipped.', example='false'),
         version?: string(name='Version', description='The version of the baseline item.', example='1.0'),
       }
     ](name='BaselineItems', description='The baseline items.'),
     displayName?: string(name='DisplayName', description='The display name of the account.', example='test-account'),
     folderId?: string(name='FolderId', description='The ID of the parent folder.', example='fd-5ESoku****'),
-    payerAccountUid?: long(name='PayerAccountUid', description='The ID of the settlement account.', example='19534534552*****'),
+    payerAccountUid?: long(name='PayerAccountUid', description='The ID of the billing account.', example='19534534552*****'),
     tag?: [ 
       {
         key?: string(name='Key', description='The tag key.', example='product'),
         value?: string(name='Value', description='The tag value.', example='governance'),
       }
     ](name='Tag', description='The tag.'),
-  }(name='Inputs', description='Input parameters used to create an account.'),
+  }(name='Inputs', description='The input parameters that were specified when the account was enrolled.'),
   masterAccountUid?: long(name='MasterAccountUid', description='The ID of the management account of the resource directory to which the account belongs.', example='19534534552*****'),
-  payerAccountUid?: long(name='PayerAccountUid', description='The ID of the settlement account.', example='19534534552*****'),
+  payerAccountUid?: long(name='PayerAccountUid', description='The ID of the billing account.', example='19534534552*****'),
   progress?: [ 
     {
       name?: string(name='Name', description='The name of the baseline item.', example='ACS-BP_ACCOUNT_FACTORY_VPC'),
       status?: string(name='Status', description='The status of applying the baseline to the account. Valid values:
 
-*   Pending: The baseline is pending to be applied to the account.
-*   Running: The baseline is being applied to the account.
-*   Finished: : The baseline is applied to the account.
-*   Failed: : The baseline fails to be applied to the account.', example='Running'),
+- Pending: The baseline is waiting to be applied to the account.
+
+- Running: The baseline is being applied to the account.
+
+- Finished: The baseline is applied to the account.
+
+- Failed: The baseline failed to be applied to the account.', example='Running'),
     }
-  ](name='Progress', description='The progress of the applying the baseline to the account.'),
+  ](name='Progress', description='The progress of applying the baseline to the account.'),
   requestId?: string(name='RequestId', description='The request ID.', example='768F908D-A66A-5A5D-816C-20C93CBBFEE3'),
   status?: string(name='Status', description='The status of the account. Valid values:
 
-*   Pending: The account is pending to be created.
-*   Running: The account is being created.
-*   Finished: The account is created.
-*   Failed: The account fails to be created.
-*   Scheduling: The account is being scheduled.
-*   ScheduleFailed: The account fails to be scheduled.', example='Finished'),
+- Pending: The account is waiting to be enrolled.
+
+- Running: The account is being enrolled.
+
+- Finished: The account is enrolled.
+
+- Failed: The account failed to be enrolled.
+
+- Scheduling: The account is being scheduled.
+
+- ScheduleFailed: The account failed to be scheduled.', example='Finished'),
   updateTime?: string(name='UpdateTime', description='The update time.', example='2021-11-01T02:38:27Z'),
 }
 
@@ -765,7 +823,7 @@ model ListAccountFactoryBaselineItemsResponseBody = {
           type?: string(name='Type', description='The type of the baseline item.', example='AccountFactory'),
           version?: string(name='Version', description='The version of the baseline item.', example='1.0'),
         }
-      ](name='DependsOn', description='The dependency of the baseline item.'),
+      ](name='DependsOn', description='The dependencies of the baseline item.'),
       description?: string(name='Description', description='The description of the baseline item.', example='Notification.'),
       name?: string(name='Name', description='The name of the baseline item.', example='ACS-BP_ACCOUNT_FACTORY_ACCOUNT_NOTIFICATION'),
       type?: string(name='Type', description='The type of the baseline item.', example='AccountFactory'),
@@ -852,14 +910,15 @@ You do not need to specify this parameter for the first request.', example='AAAA
 model ListAccountFactoryBaselinesResponseBody = {
   baselines?: [ 
     {
-      baselineId?: string(name='BaselineId', description='The baseline ID.', example='afb-bp1durvn3lgqe28v****'),
+      baselineId?: string(name='BaselineId', description='The ID of the baseline.', example='afb-bp1durvn3lgqe28v****'),
       baselineName?: string(name='BaselineName', description='The name of the baseline.', example='Default'),
-      createTime?: string(name='CreateTime', description='The time at which the baseline was created.', example='2021-11-30T09:09:28Z'),
+      createTime?: string(name='CreateTime', description='The time when the baseline was created.', example='2021-11-30T09:09:28Z'),
       description?: string(name='Description', description='The description of the baseline.', example='Default baseline'),
       type?: string(name='Type', description='The type of the baseline. Valid values:
 
-*   System: default baseline.
-*   Custom: custom baseline.', example='Custom'),
+- System: The baseline is a default baseline.
+
+- Custom: The baseline is a custom baseline.', example='Custom'),
       updateTime?: string(name='UpdateTime', description='The time when the baseline was updated.', example='2022-12-29T07:08:40Z'),
     }
   ](name='Baselines', description='The baselines.'),
@@ -925,33 +984,36 @@ model ListEnrolledAccountsRequest {
   maxResults?: int32(name='MaxResults', description='The maximum number of entries per page.
 
 Valid values: 1 to 100. Default value: 10.', example='10'),
-  nextToken?: string(name='NextToken', description='The returned value of NextToken is a pagination token, which can be used in the next request to retrieve a new page of results.
-
-You do not need to specify this parameter for the first request.', example='AAAAALHWGpGoYCcYMxiFfmlhvh62Xr2DzYbz/SAfc*****'),
+  nextToken?: string(name='NextToken', description='The pagination token that is used in the next request to retrieve a new page of results. You do not need to specify this parameter for the first request.', example='AAAAALHWGpGoYCcYMxiFfmlhvh62Xr2DzYbz/SAfc*****'),
   regionId?: string(name='RegionId', description='The region ID.', example='cn-hangzhou'),
 }
 
 model ListEnrolledAccountsResponseBody = {
   enrolledAccounts?: [ 
     {
-      accountUid?: long(name='AccountUid', description='The account ID.', example='19534534552*****'),
-      baselineId?: string(name='BaselineId', description='The ID of the baseline that is implemented.', example='afb-bp1durvn3lgqe28v****'),
+      accountUid?: long(name='AccountUid', description='The ID of the account.', example='19534534552*****'),
+      baselineId?: string(name='BaselineId', description='The ID of the baseline that is applied.', example='afb-bp1durvn3lgqe28v****'),
       createTime?: string(name='CreateTime', description='The creation time.', example='2021-11-01T02:38:27Z'),
       displayName?: string(name='DisplayName', description='The display name of the account.', example='TestAccount'),
       folderId?: string(name='FolderId', description='The ID of the parent folder.', example='fd-5ESoku****'),
-      payerAccountUid?: long(name='PayerAccountUid', description='The ID of the settlement account.', example='13161210500*****'),
-      status?: string(name='Status', description='The creation status. Valid values:
+      payerAccountUid?: long(name='PayerAccountUid', description='The ID of the billing account.', example='13161210500*****'),
+      status?: string(name='Status', description='The enrollment status. Valid values:
 
-*   Pending: The account is pending to be created.
-*   Running: The account is being created.
-*   Finished: The account is created.
-*   Failed: The account fails to be created.
-*   Scheduling: The account is being scheduled.
-*   ScheduleFailed: The account fails to be scheduled.', example='Running'),
+- Pending: The account is waiting to be enrolled.
+
+- Running: The account is being enrolled.
+
+- Finished: The account is enrolled.
+
+- Failed: The account failed to be enrolled.
+
+- Scheduling: The account is being scheduled.
+
+- ScheduleFailed: The account failed to be scheduled.', example='Running'),
       updateTime?: string(name='UpdateTime', description='The update time.', example='2021-11-01T02:38:27Z'),
     }
   ](name='EnrolledAccounts', description='The enrolled accounts.'),
-  nextToken?: string(name='NextToken', description='The returned value of NextToken is a pagination token, which can be used in the next request to retrieve a new page of results.', example='AAAAALHWGpGoYCcYMxiFfmlhvh62Xr2DzYbz/SAfc*****'),
+  nextToken?: string(name='NextToken', description='The pagination token that is used in the next request to retrieve a new page of results.', example='AAAAALHWGpGoYCcYMxiFfmlhvh62Xr2DzYbz/SAfc*****'),
   requestId?: string(name='RequestId', description='The request ID.', example='768F908D-A66A-5A5D-816C-20C93CBBFEE3'),
 }
 
@@ -1010,13 +1072,19 @@ async function listEnrolledAccounts(request: ListEnrolledAccountsRequest): ListE
 }
 
 model ListEvaluationMetadataRequest {
-  language?: string(name='Language', description='The language. The information is returned in the specified language. Valid values:
+  evaluationDomain?: string(name='EvaluationDomain'),
+  language?: string(name='Language', description='The language type. Governance evaluation definitions are returned in this language. Valid values:
 
-*   en: English
-*   zh: Chinese', example='zh'),
-  lensCode?: string(name='LensCode'),
+- en: English.
+- zh: Chinese.', example='zh'),
+  lensCode?: string(name='LensCode', description='The specialized evaluation code. Valid values:
+
+- basic (default): foundation model (governance maturity) evaluation.
+- ack: container building specialized evaluation.
+- ai: machine learning specialized evaluation.
+- nis: network service specialized evaluation.', example='ack'),
   regionId?: string(name='RegionId', description='The region ID.', example='cn-hangzhou'),
-  topicCode?: string(name='TopicCode', example='ResourceUtilization'),
+  topicCode?: string(name='TopicCode', description='The governance topic code.', example='ResourceUtilization'),
 }
 
 model ListEvaluationMetadataResponseBody = {
@@ -1024,70 +1092,70 @@ model ListEvaluationMetadataResponseBody = {
     {
       metadata?: [ 
         {
-          category?: string(name='Category', description='The category of the check item.', example='Security'),
-          description?: string(name='Description', description='The description of the check item.', example='If you use an AccessKey pair of an Alibaba Cloud account, you have full permissions on the resources of the account. You cannot set limits on the account, such as setting limits on source IP addresses or access duration. If the AccessKey pair is leaked, resources within the account are exposed to high security risks. If your Alibaba Cloud account has an existing AccessKey pair, the check result is Non-compliant.'),
-          displayName?: string(name='DisplayName', description='The display name of the check item.', example='An AccessKey pair is enabled for the Alibaba Cloud account.'),
-          id?: string(name='Id', description='The ID of the metadata.', example='pxgtda****'),
-          recommendationLevel?: string(name='RecommendationLevel', description='The governance level of the check item.', example='High'),
+          category?: string(name='Category', description='The pillar to which the evaluation item belongs.', example='Security'),
+          description?: string(name='Description', description='The description of the evaluation item.', example='If you use an AccessKey pair of an Alibaba Cloud account, you have full permissions that cannot be restricted by conditions such as source IP address or access time. Once leaked, the risk is extremely high. If an AccessKey pair exists for the Alibaba Cloud account, it is considered non-compliant.'),
+          displayName?: string(name='DisplayName', description='The display name.', example='An AccessKey pair is enabled for the Alibaba Cloud account.'),
+          id?: string(name='Id', description='The random ID of the metadata.', example='pxgtda****'),
+          recommendationLevel?: string(name='RecommendationLevel', description='The recommended governance level of the evaluation item.', example='High'),
           remediationMetadata?: {
             remediation?: [ 
               {
                 actions?: [ 
                   {
-                    classification?: string(name='Classification', description='The fixing method.
+                    classification?: string(name='Classification', description='The remediation method category.
 
->  This parameter is returned only if the value of `RemediationType` is `Analysis`.', example='UnusedAccessKeyInRamUser'),
-                    costDescription?: string(name='CostDescription', description='The fixing cost.', example='You are not charged for this operation.'),
-                    description?: string(name='Description', description='The description of the fixing item.
+> This parameter is returned only when `RemediationType` is set to `Analysis`.', example='UnusedAccessKeyInRamUser'),
+                    costDescription?: string(name='CostDescription', description='The remediation cost.', example='You are not charged for this operation.'),
+                    description?: string(name='Description', description='The remediation description.
 
->  This parameter is returned only if the value of `RemediationType` is `Analysis`.', example='Console logon is enabled for the RAM user. The RAM user owns an AccessKey pair that is never used.'),
+> This parameter is returned only when `RemediationType` is set to `Analysis`.', example='A RAM user has both console logon and an AccessKey pair enabled, but the AccessKey pair has never been used.'),
                     guidance?: [ 
                       {
-                        buttonName?: string(name='ButtonName', description='The display name of the fixing button.', example='Manual fixing'),
-                        buttonRef?: string(name='ButtonRef', description='The navigation URL of the fixing button.', example='https://ram.console.aliyun.com/users'),
-                        content?: string(name='Content', description='The fixing procedure.', example='You must replace the AccessKey pair of your Alibaba Cloud account. To do so, perform the following steps:</br>1. Log on to the RAM console. In the left-side navigation pane, choose Identities > Users. On the Users page, click Create User.</br>2. On the Create User page, enter a logon name and select OpenAPI Access for the Access Mode parameter.</br>3. After the RAM user is created, save the AccessKey pair. Then, find the user that you created on the Users page and click Add Permissions in the Actions column. In the Grant Permission panel, find the AdministratorAccess policy and attach it to the RAM user.</br>4. In a program, replace the AccessKey pair of the Alibaba Cloud account with the AccessKey pair of the RAM user created in the previous step and check whether the program runs as expected in the test environment.</br>5. If the program runs as expected, publish the program to the production environment and disable the previous AccessKey pair of your Alibaba Cloud account. Then, check whether the program runs as expected.</br>6. If the program runs as expected, delete the disabled AccessKey pair after the specified period of time, such as 90 days.'),
-                        title?: string(name='Title', description='The title of the fixing procedure.', example='Scenario 3: AccessKey pair that is used within the last 90 days'),
+                        buttonName?: string(name='ButtonName', description='The display name of the remediation step button.', example='Manual fix'),
+                        buttonRef?: string(name='ButtonRef', description='The URL that the remediation step button links to.', example='https://ram.console.aliyun.com/users'),
+                        content?: string(name='Content', description='The content of the remediation step.', example='You must replace the AccessKey pair of your Alibaba Cloud account. To do so, perform the following steps:</br>1. Log on to the RAM console. In the left-side navigation pane, choose Identities > Users. On the Users page, click Create User.</br>2. On the Create User page, enter a logon name and select OpenAPI Access for the Access Mode parameter.</br>3. After the RAM user is created, save the AccessKey pair. Then, find the user that you created on the Users page and click Add Permissions in the Actions column. In the Grant Permission panel, find the AdministratorAccess policy and attach it to the RAM user.</br>4. In a program, replace the AccessKey pair of the Alibaba Cloud account with the AccessKey pair of the RAM user created in the previous step and check whether the program runs as expected in the test environment.</br>5. If the program runs as expected, publish the program to the production environment and disable the previous AccessKey pair of your Alibaba Cloud account. Then, check whether the program runs as expected.</br>6. If the program runs as expected, delete the disabled AccessKey pair after the specified period of time, such as 90 days.'),
+                        title?: string(name='Title', description='The title of the remediation step.', example='Scenario 3: AccessKey pair that is used within the last 90 days'),
                       }
-                    ](name='Guidance', description='The content of the fixing items.'),
-                    notice?: string(name='Notice', description='The usage notes of the fixing item.', example='The BestPracticesForIdentityAndPermissions compliance package is enabled in Cloud Config to check the settings and usage of the AccessKey pair, Alibaba Cloud account, and RAM users.'),
-                    suggestion?: string(name='Suggestion', description='The fixing suggestion.
+                    ](name='Guidance', description='The remediation guidance.'),
+                    notice?: string(name='Notice', description='The remediation precautions.', example='This governance item enables the Best Practices for AccessKey and Permission Governance compliance package in Cloud Config to check the settings and usage of AccessKey pairs, Alibaba Cloud accounts, and RAM users.'),
+                    suggestion?: string(name='Suggestion', description='The remediation suggestion.
 
->  This parameter is returned only if the value of `RemediationType` is `Analysis`.', example='Console logon is enabled for the RAM user and the RAM user owns an AccessKey pair, while the AccessKey pair has never been used by the RAM user. We recommend that you disable the AccessKey pair for 90 days. If no related issue occurs during this period, you can delete the AccessKey pair.'),
+> This parameter is returned only when `RemediationType` is set to `Analysis`.', example='Console logon is enabled for the RAM user and the RAM user owns an AccessKey pair, while the AccessKey pair has never been used by the RAM user. We recommend that you disable the AccessKey pair for 90 days. If no related issue occurs during this period, you can delete the AccessKey pair.'),
                   }
-                ](name='Actions', description='The fixing operations.'),
-                remediationType?: string(name='RemediationType', description='The type of the fixing method. Valid values:
+                ](name='Actions', description='The remediation actions.'),
+                remediationType?: string(name='RemediationType', description='The remediation type. Valid values:
 
-*   Manual: manual fixing
-*   QuickFix: quick fixing
-*   Analysis: auxiliary decision-making', example='Manual'),
+- Manual: Manual remediation.
+- QuickFix: Quick fix.
+- Analysis: Assisted decision-making.', example='Manual'),
               }
-            ](name='Remediation', description='The fixing items.'),
-          }(name='RemediationMetadata', description='The metadata of the fixing task.'),
+            ](name='Remediation', description='The remediation item.'),
+          }(name='RemediationMetadata', description='The remediation metadata.'),
           resourceMetadata?: {
             resourcePropertyMetadata?: [ 
               {
-                displayName?: string(name='DisplayName', description='The display name of the resource property.', example='AccessKey Pair Last Used At'),
-                propertyName?: string(name='PropertyName', description='The name of the resource property.', example='AkLastUsedTime'),
-                propertyType?: string(name='PropertyType', description='The type of the resource property.', example='String'),
+                displayName?: string(name='DisplayName', description='The display name of the property.', example='Last time the AccessKey pair was used'),
+                propertyName?: string(name='PropertyName', description='The resource property name.', example='AkLastUsedTime'),
+                propertyType?: string(name='PropertyType', description='The resource property type.', example='String'),
               }
-            ](name='ResourcePropertyMetadata', description='The metadata of the resource properties.'),
-          }(name='ResourceMetadata', description='The metadata of the checked resources.'),
-          scope?: string(name='Scope', description='The scope of the check item. Valid values:
+            ](name='ResourcePropertyMetadata', description='The resource property metadata.'),
+          }(name='ResourceMetadata', description='The resource metadata of the evaluation item.'),
+          scope?: string(name='Scope', description='The scope to which the evaluation item belongs. Valid values:
 
-*   Account: the check item in a single-account governance maturity check
-*   ResourceDirectory: the check item in a multi-account governance maturity check', example='Account'),
-          stage?: string(name='Stage', description='The status of the check item. Valid values:
+- Account: single-account evaluation item.
+- ResourceDirectory: multi-account evaluation item.', example='Account'),
+          stage?: string(name='Stage', description='The status of the evaluation item. Valid values:
 
-*   Released: The check item is released.
-*   Beta: The check item is pre-released.', example='Released'),
-          topicCode?: string(name='TopicCode', example='ResourceUtilization'),
+- Released: officially released.
+- Beta: pre-release.', example='Released'),
+          topicCode?: string(name='TopicCode', description='The governance topic code to which the evaluation item belongs.', example='ResourceUtilization'),
         }
-      ](name='Metadata', description='The metadata objects of a specific metadata type.'),
-      type?: string(name='Type', description='The type of the metadata. Valid values:
+      ](name='Metadata', description='The list of metadata objects under a specific metadata type.'),
+      type?: string(name='Type', description='The metadata type. Valid values:
 
-*   Metric: the check item', example='Metric'),
+- Metric: evaluation item.', example='Metric'),
     }
-  ](name='EvaluationMetadata', description='The metadata of a governance maturity check.'),
+  ](name='EvaluationMetadata', description='The governance evaluation definition metadata.'),
   requestId?: string(name='RequestId', description='The request ID.', example='16B208DD-86BD-5E7D-AC93-FFD44B6FBDF1'),
 }
 
@@ -1098,7 +1166,7 @@ model ListEvaluationMetadataResponse = {
 }
 
 /**
- * @summary Queries all available information about check items in a governance maturity check, including the name, ID, description, stage, resource metadata, and fixing guide.
+ * @summary Retrieves information about all available governance evaluation items, including names, IDs, descriptions, stages, resource detail metadata, and remediation guidance.
  *
  * @param request ListEvaluationMetadataRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -1108,6 +1176,9 @@ model ListEvaluationMetadataResponse = {
 async function listEvaluationMetadataWithOptions(request: ListEvaluationMetadataRequest, runtime: $RuntimeOptions): ListEvaluationMetadataResponse {
   request.validate();
   var query = {};
+  if (!$isNull(request.evaluationDomain)) {
+    query['EvaluationDomain'] = request.evaluationDomain;
+  }
   if (!$isNull(request.language)) {
     query['Language'] = request.language;
   }
@@ -1138,7 +1209,7 @@ async function listEvaluationMetadataWithOptions(request: ListEvaluationMetadata
 }
 
 /**
- * @summary Queries all available information about check items in a governance maturity check, including the name, ID, description, stage, resource metadata, and fixing guide.
+ * @summary Retrieves information about all available governance evaluation items, including names, IDs, descriptions, stages, resource detail metadata, and remediation guidance.
  *
  * @param request ListEvaluationMetadataRequest
  * @return ListEvaluationMetadataResponse
@@ -1149,46 +1220,49 @@ async function listEvaluationMetadata(request: ListEvaluationMetadataRequest): L
 }
 
 model ListEvaluationMetricDetailsRequest {
-  accountId?: long(name='AccountId', description='The Alibaba Cloud account ID of the member. This parameter takes effect only when a multi-account governance maturity check is performed.', example='103144549568****'),
-  date?: string(name='Date'),
-  id?: string(name='Id', description='The ID of the check item.
+  accountId?: long(name='AccountId', description='The ID of the member account. This parameter is applicable only to the multi-account check pattern.', example='103144549568****'),
+  date?: string(name='Date', description='The date to query.', example='2026-01-01'),
+  evaluationDomain?: string(name='EvaluationDomain'),
+  id?: string(name='Id', description='The ID of the check item for which you want to retrieve non-compliant resources.
 
-You can call the [ListEvaluationMetadata](https://help.aliyun.com/document_detail/2841889.html) operation to query the ID of the check item.', example='xfyve5****'),
-  maxResults?: int32(name='MaxResults', description='The maximum number of entries to return for a single request. Default value: 5.', example='5'),
-  nextToken?: string(name='NextToken', description='The pagination token that is used in the next request to retrieve a new page of results.', example='AAAAAGEaXR18y1rqykZHIqRuBejOqED4S3Xne33c7zbn****'),
+You can call the [ListEvaluationMetadata](https://help.aliyun.com/document_detail/2841889.html) operation to obtain the check item ID.', example='xfyve5****'),
+  maxResults?: int32(name='MaxResults', description='The maximum number of entries to return in a single request. Default value: 5.', example='5'),
+  nextToken?: string(name='NextToken', description='The token for the next query.', example='AAAAAGEaXR18y1rqykZHIqRuBejOqED4S3Xne33c7zbn****'),
   regionId?: string(name='RegionId', description='The region ID.', example='cn-hangzhou'),
-  scope?: string(name='Scope'),
-  snapshotId?: string(name='SnapshotId'),
+  scope?: string(name='Scope', description='The scope of the governance maturity check. Valid values:
+
+- Account (default): queries the check item details for the current account.
+- ResourceDirectory: queries the check item details for all member accounts in the resource directory. Before using this value, upgrade to multi-account governance maturity check.', example='Account'),
+  snapshotId?: string(name='SnapshotId', description='The check snapshot ID.', example='es-bp1r**************'),
 }
 
 model ListEvaluationMetricDetailsResponseBody = {
-  date?: string(name='Date'),
-  nextToken?: string(name='NextToken', description='A pagination token. It can be used in the next request to retrieve a new page of results.', example='AAAAAGEaXR18y1rqykZHIqRuBejOqED4S3Xne33c7zbn****'),
+  date?: string(name='Date', description='The date.', example='2026-01-01'),
+  nextToken?: string(name='NextToken', description='The token used to retrieve the next page of data.', example='AAAAAGEaXR18y1rqykZHIqRuBejOqED4S3Xne33c7zbn****'),
   requestId?: string(name='RequestId', description='The request ID.', example='AC9BD94C-D20C-4D27-88D4-89E8D75C****'),
   resources?: [ 
     {
-      complianceType?: string(name='ComplianceType', description='The compliance status of the resource. Valid values:
-
-*   NonCompliant: non-compliant.
-*   Excluded: ignored.
-*   PendingExclusion: to be ignored.
-*   PendingInclusion: to be unignored.', example='NonCompliant'),
+      complianceType?: string(name='ComplianceType', description='The compliance status. Valid values:
+- NonCompliant: non-compliant.
+- Excluded: ignored.
+- PendingExclusion: ignored but not yet effective.
+- PendingInclusion: unignored but not yet effective.', example='NonCompliant'),
       regionId?: string(name='RegionId', description='The region ID of the resource.', example='cn-hangzhou'),
-      resourceClassification?: string(name='ResourceClassification', description='The check results further analyzed by auxiliary decision-making.
+      resourceClassification?: string(name='ResourceClassification', description='The decision assistance classification.
 
->  This parameter is returned only when the check item supports the auxiliary decision-making feature.', example='RecentUnloginRamUser'),
-      resourceId?: string(name='ResourceId', description='The ID of the resource.', example='26435103783237****'),
-      resourceName?: string(name='ResourceName', description='The name of the resource.', example='test'),
-      resourceOwnerId?: long(name='ResourceOwnerId', description='The ID of the Alibaba Cloud account that owns the resource.', example='176618589410****'),
+> This parameter is returned only for check items that support decision assistance.', example='RecentUnloginRamUser'),
+      resourceId?: string(name='ResourceId', description='The resource ID.', example='26435103783237****'),
+      resourceName?: string(name='ResourceName', description='The resource name.', example='test'),
+      resourceOwnerId?: long(name='ResourceOwnerId', description='The Alibaba Cloud account ID to which the resource belongs.', example='176618589410****'),
       resourceProperties?: [ 
         {
-          propertyName?: string(name='PropertyName', description='The name of the resource attribute.', example='DisplayName'),
-          propertyValue?: string(name='PropertyValue', description='The value of the resource attribute.', example='example'),
+          propertyName?: string(name='PropertyName', description='The name of the resource property.', example='DisplayName'),
+          propertyValue?: string(name='PropertyValue', description='The value of the resource property.', example='TestAccount'),
         }
-      ](name='ResourceProperties', description='The attributes of the resource.'),
-      resourceType?: string(name='ResourceType', description='The type of the resource.', example='ACS::RAM::User'),
+      ](name='ResourceProperties', description='The list of additional resource properties.'),
+      resourceType?: string(name='ResourceType', description='The resource type.', example='ACS::RAM::User'),
     }
-  ](name='Resources', description='The details of the non-compliant resources.'),
+  ](name='Resources', description='The details of non-compliant resources.'),
 }
 
 model ListEvaluationMetricDetailsResponse = {
@@ -1198,7 +1272,7 @@ model ListEvaluationMetricDetailsResponse = {
 }
 
 /**
- * @summary Queries the non-compliant resource information of a check item, including the name, ID, category, type, region, and related metadata of non-compliant resources.
+ * @summary Retrieves non-compliant resource information for a specified check item, including the name, ID, category, type, region, and related metadata of non-compliant resources.
  *
  * @param request ListEvaluationMetricDetailsRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -1213,6 +1287,9 @@ async function listEvaluationMetricDetailsWithOptions(request: ListEvaluationMet
   }
   if (!$isNull(request.date)) {
     query['Date'] = request.date;
+  }
+  if (!$isNull(request.evaluationDomain)) {
+    query['EvaluationDomain'] = request.evaluationDomain;
   }
   if (!$isNull(request.id)) {
     query['Id'] = request.id;
@@ -1250,7 +1327,7 @@ async function listEvaluationMetricDetailsWithOptions(request: ListEvaluationMet
 }
 
 /**
- * @summary Queries the non-compliant resource information of a check item, including the name, ID, category, type, region, and related metadata of non-compliant resources.
+ * @summary Retrieves non-compliant resource information for a specified check item, including the name, ID, category, type, region, and related metadata of non-compliant resources.
  *
  * @param request ListEvaluationMetricDetailsRequest
  * @return ListEvaluationMetricDetailsResponse
@@ -1261,71 +1338,80 @@ async function listEvaluationMetricDetails(request: ListEvaluationMetricDetailsR
 }
 
 model ListEvaluationResultsRequest {
-  accountId?: long(name='AccountId', description='The Alibaba Cloud account ID of the member. This parameter takes effect only when a multi-account governance maturity check is performed.', example='176618589410****'),
+  accountId?: long(name='AccountId', description='Member account ID. This parameter is only applicable to multi-account evaluation mode.', example='176618589410****'),
+  evaluationDomain?: string(name='EvaluationDomain'),
   filters?: [ 
     {
-      key?: string(name='Key', description='The key of the filter condition. Valid values:
+      key?: string(name='Key', description='Filter condition key. Valid values:
 
-*   ResourceId: the resource ID.
-*   ResourceName: the name of the resource.
-*   ResourceType: the resource type.', example='ResourceId'),
-      values?: [ string ](name='Values', description='The list of filter condition values.'),
+- ResourceId: Resource ID.
+- ResourceName: Resource name.
+- ResourceType: Resource type.', example='ResourceId'),
+      values?: [ string ](name='Values', description='List of filter condition values.'),
     }
-  ](name='Filters', description='The filter conditions.'),
-  lensCode?: string(name='LensCode', example='basic'),
-  regionId?: string(name='RegionId', description='The region ID.', example='cn-hangzhou'),
-  scope?: string(name='Scope', example='ResourceDirectory'),
-  snapshotId?: string(name='SnapshotId', example='es-bp1r**************'),
-  topicCode?: string(name='TopicCode', example='IdentityAndAccessManagement'),
+  ](name='Filters', description='Filter conditions.'),
+  lensCode?: string(name='LensCode', description='Special evaluation code. Valid values:
+
+- basic (default): Basic model (governance maturity) evaluation.
+- ack: Container construction special evaluation.
+- ai: Machine learning special evaluation.
+- nis: Network service special evaluation.', example='basic'),
+  regionId?: string(name='RegionId', description='Region ID.', example='cn-hangzhou'),
+  scope?: string(name='Scope', description='Governance maturity evaluation scope. Valid values:
+
+- Account (default): Performs single-account governance maturity evaluation, evaluating only the current account.
+- ResourceDirectory: Performs multi-account governance maturity evaluation, evaluating all member accounts in the resource directory. Before performing this operation, you must first upgrade to multi-account governance maturity evaluation.', example='ResourceDirectory'),
+  snapshotId?: string(name='SnapshotId', description='Evaluation snapshot ID.', example='es-bp1r**************'),
+  topicCode?: string(name='TopicCode', description='Governance topic code.', example='IdentityAndAccessManagement'),
 }
 
 model ListEvaluationResultsResponseBody = {
-  accountId?: long(name='AccountId', description='The Alibaba Cloud account ID of the member.', example='176618589410****'),
-  requestId?: string(name='RequestId', description='The request ID.', example='BD57329E-131A-59F4-8746-E1CD8D7B****'),
+  accountId?: long(name='AccountId', description='Member account ID.', example='176618589410****'),
+  requestId?: string(name='RequestId', description='Request ID.', example='BD57329E-131A-59F4-8746-E1CD8D7B****'),
   results?: {
-    evaluationTime?: string(name='EvaluationTime', description='The end time of the overall check. The time is displayed in UTC.', example='2023-12-13T03:35:00Z'),
+    evaluationTime?: string(name='EvaluationTime', description='Overall evaluation end time (UTC).', example='2023-12-13T03:35:00Z'),
     metricResults?: [ 
       {
         accountSummary?: {
-          nonCompliant?: int32(name='NonCompliant', example='1'),
-        }(name='AccountSummary'),
+          nonCompliant?: int32(name='NonCompliant', description='Number of non-compliant accounts.', example='1'),
+        }(name='AccountSummary', description='Evaluation item account assessment summary.'),
         availableRemediation?: [ 
           {
-            remediationTemplateId?: string(name='RemediationTemplateId'),
+            remediationTemplateId?: string(name='RemediationTemplateId', description='Remediation template ID.'),
           }
-        ](name='AvailableRemediation'),
+        ](name='AvailableRemediation', description='List of available remediations.'),
         errorInfo?: {
-          code?: string(name='Code', description='The error code.', example='EcsInsightEnableFailed'),
-          message?: string(name='Message', description='The error message.', example='Unable to enable ECS Insight due to a server error.'),
-        }(name='ErrorInfo', description='The error information.
+          code?: string(name='Code', description='Error code.', example='EcsInsightEnableFailed'),
+          message?: string(name='Message', description='Error message.', example='Unable to enable ECS Insight due to a server error.'),
+        }(name='ErrorInfo', description='Error information.
 
->  This parameter is returned only if the value of `Status` is `Failed`.'),
-        evaluationTime?: string(name='EvaluationTime', description='The end time of the check item. The time is displayed in UTC.', example='2023-12-13T03:34:02Z'),
-        id?: string(name='Id', description='The ID of the check item.', example='r7xdcu****'),
-        potentialScoreIncrease?: double(name='PotentialScoreIncrease', example='0.2'),
+> This error information is returned when `Status` is `Failed`.'),
+        evaluationTime?: string(name='EvaluationTime', description='Individual evaluation item end time (UTC).', example='2023-12-13T03:34:02Z'),
+        id?: string(name='Id', description='Evaluation item ID.', example='r7xdcu****'),
+        potentialScoreIncrease?: double(name='PotentialScoreIncrease', description='Potential score increase.', example='0.2'),
         resourcesSummary?: {
-          nonCompliant?: int32(name='NonCompliant', description='The number of non-compliant resources.', example='2'),
-        }(name='ResourcesSummary', description='The checked resources.'),
-        result?: double(name='Result', description='The rate of the non-compliant resources.', example='0.67'),
-        risk?: string(name='Risk', description='The risk level. Valid values:
+          nonCompliant?: int32(name='NonCompliant', description='Number of non-compliant resources.', example='2'),
+        }(name='ResourcesSummary', description='Evaluation item resource assessment summary.'),
+        result?: double(name='Result', description='Evaluation item resource compliance rate.', example='0.67'),
+        risk?: string(name='Risk', description='Evaluation risk level. Valid values:
 
-*   Error: high risk
-*   Warning: medium risk
-*   None: no risk', example='Error'),
-        status?: string(name='Status', description='The status of the check item. Valid values:
+- Error: High risk.
+- Warning: Medium risk.
+- None: No risk.', example='Error'),
+        status?: string(name='Status', description='Individual evaluation item status. Valid values:
 
-*   Running: The check is in progress.
-*   Finished: The check is complete.
-*   failed: The check fails.', example='Running'),
+- Running: Evaluation in progress.
+- Finished: Evaluation completed.
+- Failed: Evaluation failed.', example='Running'),
       }
-    ](name='MetricResults', description='The check result.'),
-    status?: string(name='Status', description='The status of the overall check. Valid values:
+    ](name='MetricResults', description='Evaluation results.'),
+    status?: string(name='Status', description='Overall evaluation status. Valid values:
 
-*   Running: The check is in progress.
-*   Finished: The check is complete.
-*   failed: The check fails.', example='Running'),
-    totalScore?: double(name='TotalScore', description='The overall score.', example='0.6453'),
-  }(name='Results', description='The check results, including the status of the overall check and the results of check items.'),
+- Running: Evaluation in progress.
+- Finished: Evaluation completed.
+- Failed: Evaluation failed.', example='Running'),
+    totalScore?: double(name='TotalScore', description='Overall score.', example='0.6453'),
+  }(name='Results', description='Evaluation results, including overall evaluation status and sub-item evaluation results.'),
 }
 
 model ListEvaluationResultsResponse = {
@@ -1335,7 +1421,7 @@ model ListEvaluationResultsResponse = {
 }
 
 /**
- * @summary Queries the result and status of a governance check.
+ * @summary Get governance evaluation results and status.
  *
  * @param request ListEvaluationResultsRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -1347,6 +1433,9 @@ async function listEvaluationResultsWithOptions(request: ListEvaluationResultsRe
   var query = {};
   if (!$isNull(request.accountId)) {
     query['AccountId'] = request.accountId;
+  }
+  if (!$isNull(request.evaluationDomain)) {
+    query['EvaluationDomain'] = request.evaluationDomain;
   }
   if (!$isNull(request.filters)) {
     query['Filters'] = request.filters;
@@ -1384,7 +1473,7 @@ async function listEvaluationResultsWithOptions(request: ListEvaluationResultsRe
 }
 
 /**
- * @summary Queries the result and status of a governance check.
+ * @summary Get governance evaluation results and status.
  *
  * @param request ListEvaluationResultsRequest
  * @return ListEvaluationResultsResponse
@@ -1395,14 +1484,15 @@ async function listEvaluationResults(request: ListEvaluationResultsRequest): Lis
 }
 
 model ListEvaluationScoreHistoryRequest {
-  accountId?: long(name='AccountId', description='The Alibaba Cloud account ID of the member. This parameter takes effect only when a multi-account governance maturity check is performed.', example='176618589410****'),
-  endDate?: string(name='EndDate', description='The end of the time range to query. Specify the time in the YYYY-MM-DD format.
+  accountId?: long(name='AccountId', description='The ID of the member accounts. This parameter is applicable only to the multi-account detection pattern.', example='176618589410****'),
+  endDate?: string(name='EndDate', description='The end date of the query. Format: YYYY-MM-DD.
 
-By default, the historical scores that were generated in the seven days before the current date are queried.', example='2024-07-11'),
+By default, the historical scores from the last 7 days are returned.', example='2024-07-11'),
+  evaluationDomain?: string(name='EvaluationDomain'),
   regionId?: string(name='RegionId', description='The region ID.', example='cn-hangzhou'),
-  startDate?: string(name='StartDate', description='The beginning of the time range to query. Specify the time in the YYYY-MM-DD format.
+  startDate?: string(name='StartDate', description='The start date of the query. Format: YYYY-MM-DD.
 
-You can query the historical scores within the previous 180 days.', example='2024-06-11'),
+You can query records from the last 180 days.', example='2024-06-11'),
 }
 
 model ListEvaluationScoreHistoryResponseBody = {
@@ -1410,13 +1500,13 @@ model ListEvaluationScoreHistoryResponseBody = {
   scoreHistory?: {
     totalScoreHistory?: [ 
       {
-        evaluationTime?: string(name='EvaluationTime', description='The time when the score was generated. The time is in UTC.', example='2024-06-30T03:34:02Z'),
+        evaluationTime?: string(name='EvaluationTime', description='The time when the score was generated, in UTC.', example='2024-06-30T03:34:02Z'),
         score?: double(name='Score', description='The score.
 
 Valid values: 0 to 1.', example='0.6753'),
       }
-    ](name='TotalScoreHistory', description='The historical scores.'),
-  }(name='ScoreHistory', description='The historical scores.'),
+    ](name='TotalScoreHistory', description='The historical detection scores.'),
+  }(name='ScoreHistory', description='The historical detection scores.'),
 }
 
 model ListEvaluationScoreHistoryResponse = {
@@ -1426,7 +1516,7 @@ model ListEvaluationScoreHistoryResponse = {
 }
 
 /**
- * @summary Queries the historical scores of a governance maturity check.
+ * @summary Retrieves the historical scores of governance detection.
  *
  * @param request ListEvaluationScoreHistoryRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -1441,6 +1531,9 @@ async function listEvaluationScoreHistoryWithOptions(request: ListEvaluationScor
   }
   if (!$isNull(request.endDate)) {
     query['EndDate'] = request.endDate;
+  }
+  if (!$isNull(request.evaluationDomain)) {
+    query['EvaluationDomain'] = request.evaluationDomain;
   }
   if (!$isNull(request.regionId)) {
     query['RegionId'] = request.regionId;
@@ -1466,7 +1559,7 @@ async function listEvaluationScoreHistoryWithOptions(request: ListEvaluationScor
 }
 
 /**
- * @summary Queries the historical scores of a governance maturity check.
+ * @summary Retrieves the historical scores of governance detection.
  *
  * @param request ListEvaluationScoreHistoryRequest
  * @return ListEvaluationScoreHistoryResponse
@@ -1477,23 +1570,25 @@ async function listEvaluationScoreHistory(request: ListEvaluationScoreHistoryReq
 }
 
 model RunEvaluationRequest {
-  accountId?: long(name='AccountId', description='The Alibaba Cloud account ID of the member. This parameter takes effect only when a multi-account governance maturity check is performed.', example='176618589410****'),
-  metricIds?: [ string ](name='MetricIds', description='The IDs of the check items to be checked.'),
+  accountId?: long(name='AccountId', description='The ID of the member account. This parameter is applicable only to the multi-account check pattern.', example='176618589410****'),
+  evaluationDomain?: string(name='EvaluationDomain'),
+  metricIds?: [ string ](name='MetricIds', description='The list of check item IDs to check.'),
   regionId?: string(name='RegionId', description='The region ID.', example='cn-hangzhou'),
-  scope?: string(name='Scope', description='The check range of the governance maturity check. Valid values:
+  scope?: string(name='Scope', description='The scope of the governance maturity check. Valid values:
 
-*   Account (default): A single-account governance maturity check is performed to check only the Alibaba Cloud account that you use to access Cloud Governance Center.
-*   ResourceDirectory: A multi-account governance maturity check is performed to check all members within a resource directory. Before you perform a multi-account governance maturity check, you must enable the multi-account governance maturity check feature.', example='ResourceDirectory'),
+- Account (default): runs a single-account governance maturity check that checks only the current account.
+- ResourceDirectory: runs a multi-account governance maturity check that checks all member accounts in the resource directory. Before you perform this operation, upgrade to the multi-account governance maturity check.', example='ResourceDirectory'),
 }
 
 model RunEvaluationShrinkRequest {
-  accountId?: long(name='AccountId', description='The Alibaba Cloud account ID of the member. This parameter takes effect only when a multi-account governance maturity check is performed.', example='176618589410****'),
-  metricIdsShrink?: string(name='MetricIds', description='The IDs of the check items to be checked.'),
+  accountId?: long(name='AccountId', description='The ID of the member account. This parameter is applicable only to the multi-account check pattern.', example='176618589410****'),
+  evaluationDomain?: string(name='EvaluationDomain'),
+  metricIdsShrink?: string(name='MetricIds', description='The list of check item IDs to check.'),
   regionId?: string(name='RegionId', description='The region ID.', example='cn-hangzhou'),
-  scope?: string(name='Scope', description='The check range of the governance maturity check. Valid values:
+  scope?: string(name='Scope', description='The scope of the governance maturity check. Valid values:
 
-*   Account (default): A single-account governance maturity check is performed to check only the Alibaba Cloud account that you use to access Cloud Governance Center.
-*   ResourceDirectory: A multi-account governance maturity check is performed to check all members within a resource directory. Before you perform a multi-account governance maturity check, you must enable the multi-account governance maturity check feature.', example='ResourceDirectory'),
+- Account (default): runs a single-account governance maturity check that checks only the current account.
+- ResourceDirectory: runs a multi-account governance maturity check that checks all member accounts in the resource directory. Before you perform this operation, upgrade to the multi-account governance maturity check.', example='ResourceDirectory'),
 }
 
 model RunEvaluationResponseBody = {
@@ -1507,7 +1602,7 @@ model RunEvaluationResponse = {
 }
 
 /**
- * @summary Performs a governance maturity check.
+ * @summary Runs a Cloud Governance Center governance check.
  *
  * @param tmpReq RunEvaluationRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -1524,6 +1619,9 @@ async function runEvaluationWithOptions(tmpReq: RunEvaluationRequest, runtime: $
   var query = {};
   if (!$isNull(request.accountId)) {
     query['AccountId'] = request.accountId;
+  }
+  if (!$isNull(request.evaluationDomain)) {
+    query['EvaluationDomain'] = request.evaluationDomain;
   }
   if (!$isNull(request.metricIdsShrink)) {
     query['MetricIds'] = request.metricIdsShrink;
@@ -1552,7 +1650,7 @@ async function runEvaluationWithOptions(tmpReq: RunEvaluationRequest, runtime: $
 }
 
 /**
- * @summary Performs a governance maturity check.
+ * @summary Runs a Cloud Governance Center governance check.
  *
  * @param request RunEvaluationRequest
  * @return RunEvaluationResponse
@@ -1566,15 +1664,15 @@ model UpdateAccountFactoryBaselineRequest {
   baselineId?: string(name='BaselineId', description='The baseline ID.', example='afb-bp1pq3emlkt27vsj****'),
   baselineItems?: [ 
     {
-      config?: string(name='Config', description='The configurations of the baseline item. The value of this parameter is a JSON string.', example='{\\\\"EnabledServices\\\\":[\\\\"CEN_TR\\\\",\\\\"CDT\\\\",\\\\"CMS\\\\",\\\\"KMS\\\\"]}'),
+      config?: string(name='Config', description='The configurations of the baseline item. The value of this parameter is a JSON string.', example='{"EnabledServices":["CEN_TR","CDT","CMS","KMS"]}'),
       name?: string(name='Name', description='The name of the baseline item.', example='ACS-BP_ACCOUNT_FACTORY_VPC'),
       version?: string(name='Version', description='The version of the baseline item.', example='1.0'),
     }
   ](name='BaselineItems', description='The baseline items.
 
 You can call the [ListAccountFactoryBaselineItems](~~ListAccountFactoryBaselineItems~~) operation to query a list of baseline items supported by the account factory in Cloud Governance Center.'),
-  baselineName?: string(name='BaselineName', description='The name of the baseline.'),
-  description?: string(name='Description', description='The description of the baseline.'),
+  baselineName?: string(name='BaselineName', description='The name of the baseline.', example='Custom baseline'),
+  description?: string(name='Description', description='The description of the baseline.', example='Default baseline'),
   regionId?: string(name='RegionId', description='The region ID.', example='cn-hangzhou'),
 }
 
