@@ -21,8 +21,10 @@ init(configuration: ClientConfiguration){
   @handler = new TeaAsyncHandler(configuration);
   @product = 'Domain';
   @version = '2018-02-08';
-  @endpointRule = 'central';
+  @endpointRule = 'regional';
   @endpointMap = {
+    'cn-hangzhou' = 'domain.aliyuncs.com',
+    'ap-southeast-1' = 'domain-intl.aliyuncs.com',
   };
 }
 
@@ -53,6 +55,44 @@ model AcceptDemandResponse = {
 async function acceptDemand(request: AcceptDemandRequest): AcceptDemandResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RPC', 'AcceptDemand', 'POST', '/', 'json', false, 'json', request);
+}
+
+model AcceptPushRequest {
+  contactTemplateId: long(name='ContactTemplateId', description='实名认证通过的模板，域名过户时用于WHOIS信息变更
+
+This parameter is required.', example='13862458', position='Query'),
+  pushNo: string(name='PushNo', description='Push编号
+
+This parameter is required.', example='push_20250101_abc123', position='Query'),
+}
+
+model AcceptPushResponseBody = {
+  accessDeniedDetail?: string(name='AccessDeniedDetail', description='RAM鉴权失败时的标准化错误详情，JSON字符串，包含NoPermissionType、PolicyType、AuthPrincipalType、EncodedDiagnosticMessage等字段', example='{"AuthAction":"domain:AcceptPush","AuthPrincipalType":"SubUser","NoPermissionType":"ImplicitDeny","PolicyType":"AccountLevelIdentityBasedPolicy"}'),
+  allowRetry?: boolean(name='AllowRetry', description='是否允许重试', example='false'),
+  httpStatusCode?: long(name='HttpStatusCode', description='HTTP状态码', example='200'),
+  module?: {
+    code?: string(name='Code', description='结果码，失败时返回', example='ALREADY_ACCEPTED'),
+    message?: string(name='Message', description='结果描述', example='接收成功'),
+    pushNo?: string(name='PushNo', description='Push编号', example='push_20250101_abc123'),
+    success?: boolean(name='Success', description='是否接收成功', example='true'),
+  }(name='Module', description='业务数据模块'),
+  requestId?: string(name='RequestId', description='唯一请求识别码', example='2DEDFF32-7827-46B1-BE90-3DB8ABD91A58'),
+  success?: boolean(name='Success', description='是否调用成功', example='true'),
+}
+
+model AcceptPushResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: AcceptPushResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of AcceptPush  AcceptPushRequest
+  * @return AcceptPushResponse
+ */
+async function acceptPush(request: AcceptPushRequest): AcceptPushResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'AcceptPush', 'POST', '/', 'json', false, 'json', request);
 }
 
 model BatchIntrudeDomainsRequest {
@@ -138,6 +178,50 @@ model BatchQueryPushStatusResponse = {
 async function batchQueryPushStatus(request: BatchQueryPushStatusRequest): BatchQueryPushStatusResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RPC', 'BatchQueryPushStatus', 'POST', '/', 'json', false, 'json', request);
+}
+
+model BatchQueryReceivedPushStatusRequest {
+  maxResults?: int32(name='MaxResults', description='本次请求最多返回的记录条数', example='50', position='Query'),
+  nextToken?: string(name='NextToken', description='标记当前开始读取的位置，置空表示从头开始', example='12jkeb1', position='Query'),
+  pushNos: [ string ](name='PushNos', description='Push编号列表，最多50个
+
+This parameter is required.', example='["push_20250101_abc123","push_20250101_def456"]', shrink='json', position='Query'),
+}
+
+model BatchQueryReceivedPushStatusResponseBody = {
+  accessDeniedDetail?: string(name='AccessDeniedDetail', description='RAM鉴权失败时的标准化错误详情，JSON字符串，包含NoPermissionType、PolicyType、AuthPrincipalType、EncodedDiagnosticMessage等字段', example='{"AuthAction":"domain:BatchQueryReceivedPushStatus","AuthPrincipalType":"SubUser","NoPermissionType":"ImplicitDeny","PolicyType":"AccountLevelIdentityBasedPolicy"}'),
+  allowRetry?: boolean(name='AllowRetry', description='是否允许重试', example='false'),
+  httpStatusCode?: long(name='HttpStatusCode', description='HTTP状态码', example='200'),
+  maxResults?: int32(name='MaxResults', description='本次返回的最大记录条数', example='50'),
+  module?: {
+    pushResults?: [ 
+      {
+        domainList?: string(name='DomainList', description='域名列表，逗号分隔', example='example.com,test.net'),
+        outBizId?: string(name='OutBizId', description='外部业务ID，卖家发起时指定', example='biz_order_001'),
+        pushNo?: string(name='PushNo', description='Push编号', example='push_20250101_abc123'),
+        status?: string(name='Status', description='枚举值：PENDING（待接收）、ACCEPTED（已接收）、REJECTED（已拒绝）、EXPIRED（已过期）、CANCELLED（已取消）', example='ACCEPTED'),
+        statusDesc?: string(name='StatusDesc', description='状态描述，买家视角', example='已接收'),
+      }
+    ](name='PushResults', description='Push接收状态结果列表'),
+  }(name='Module', description='业务数据模块'),
+  nextToken?: string(name='NextToken', description='获取下一页需用到的凭证', example='12jkeb1'),
+  requestId?: string(name='RequestId', description='唯一请求识别码', example='2DEDFF32-7827-46B1-BE90-3DB8ABD91A58'),
+  success?: boolean(name='Success', description='是否调用成功', example='true'),
+}
+
+model BatchQueryReceivedPushStatusResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: BatchQueryReceivedPushStatusResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of BatchQueryReceivedPushStatus  BatchQueryReceivedPushStatusRequest
+  * @return BatchQueryReceivedPushStatusResponse
+ */
+async function batchQueryReceivedPushStatus(request: BatchQueryReceivedPushStatusRequest): BatchQueryReceivedPushStatusResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'BatchQueryReceivedPushStatus', 'POST', '/', 'json', false, 'json', request);
 }
 
 model BatchRecallPushRequest {
@@ -337,6 +421,47 @@ model CheckSelectedDomainStatusResponse = {
 async function checkSelectedDomainStatus(request: CheckSelectedDomainStatusRequest): CheckSelectedDomainStatusResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RPC', 'CheckSelectedDomainStatus', 'POST', '/', 'json', false, 'json', request);
+}
+
+model CreateCloseoutOrderRequest {
+  contactId?: long(name='ContactId', position='Query'),
+  domainName?: string(name='DomainName', position='Query'),
+}
+
+model CreateCloseoutOrderResponseBody = {
+  module?: {
+    bizIds?: map[string]string(name='BizIds'),
+    buyerBlockTrade?: [ string ](name='BuyerBlockTrade'),
+    domainBlockTrade?: [ string ](name='DomainBlockTrade'),
+    domainName?: string(name='DomainName'),
+    domainTradeRiskWarn?: [ string ](name='DomainTradeRiskWarn'),
+    extend?: map[string]string(name='Extend'),
+    ignoredDomains?: [ map[string]string ](name='IgnoredDomains'),
+    needPay?: boolean(name='NeedPay'),
+    orderNo?: string(name='OrderNo'),
+    orderSumMoney?: double(name='OrderSumMoney'),
+    outOrderNo?: string(name='OutOrderNo'),
+    payMoney?: double(name='PayMoney'),
+    payUrl?: string(name='PayUrl'),
+    realNameTemplate?: [ long ](name='RealNameTemplate'),
+    requestId?: string(name='RequestId'),
+  }(name='Module'),
+  requestId?: string(name='RequestId'),
+}
+
+model CreateCloseoutOrderResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: CreateCloseoutOrderResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of CreateCloseoutOrder  CreateCloseoutOrderRequest
+  * @return CreateCloseoutOrderResponse
+ */
+async function createCloseoutOrder(request: CreateCloseoutOrderRequest): CreateCloseoutOrderResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'CreateCloseoutOrder', 'POST', '/', 'json', false, 'json', request);
 }
 
 model CreateFixedPriceDemandOrderRequest {
@@ -906,6 +1031,139 @@ async function queryBuyerDomainTradeRecords(request: QueryBuyerDomainTradeRecord
   return @handler.do('RPC', 'QueryBuyerDomainTradeRecords', 'POST', '/', 'json', false, 'json', request);
 }
 
+model QueryCloseoutDomainInfoRequest {
+  domainName?: string(name='DomainName', position='Query'),
+}
+
+model QueryCloseoutDomainInfoResponseBody = {
+  module?: {
+    auctionEndTime?: string(name='AuctionEndTime'),
+    auctionRemainingSeconds?: long(name='AuctionRemainingSeconds'),
+    baiduAntiLink?: int32(name='BaiduAntiLink'),
+    baiduExLink?: int32(name='BaiduExLink'),
+    baiduIndex?: int32(name='BaiduIndex'),
+    baiduWeight?: int32(name='BaiduWeight'),
+    bookEndTime?: string(name='BookEndTime'),
+    bookRemainingSeconds?: long(name='BookRemainingSeconds'),
+    bookedPartners?: string(name='BookedPartners'),
+    constitute?: string(name='Constitute'),
+    currencyType?: string(name='CurrencyType'),
+    deliveryTime?: string(name='DeliveryTime'),
+    domainLen?: int32(name='DomainLen'),
+    domainName?: string(name='DomainName'),
+    domainType?: string(name='DomainType'),
+    expireDate?: string(name='ExpireDate'),
+    extend?: string(name='Extend'),
+    freezeAmount?: double(name='FreezeAmount'),
+    icpNumber?: string(name='IcpNumber'),
+    icpStatus?: boolean(name='IcpStatus'),
+    introduction?: string(name='Introduction'),
+    isPremium?: boolean(name='IsPremium'),
+    partnerTypes?: string(name='PartnerTypes'),
+    price?: double(name='Price'),
+    productId?: string(name='ProductId'),
+    publishTime?: string(name='PublishTime'),
+    regDate?: string(name='RegDate'),
+    registrar?: string(name='Registrar'),
+    reserved?: boolean(name='Reserved'),
+    s360Weight?: int32(name='S360Weight'),
+    seoAttributes?: string(name='SeoAttributes'),
+    shortName?: string(name='ShortName'),
+    snatchNo?: string(name='SnatchNo'),
+    snatchTypeDesc?: string(name='SnatchTypeDesc'),
+    sougouAntiLink?: int32(name='SougouAntiLink'),
+    sougouIndex?: int32(name='SougouIndex'),
+    sougouWeight?: int32(name='SougouWeight'),
+    suffix?: string(name='Suffix'),
+    transferInPrice?: double(name='TransferInPrice'),
+    weight?: int32(name='Weight'),
+  }(name='Module'),
+  requestId?: string(name='RequestId'),
+}
+
+model QueryCloseoutDomainInfoResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: QueryCloseoutDomainInfoResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of QueryCloseoutDomainInfo  QueryCloseoutDomainInfoRequest
+  * @return QueryCloseoutDomainInfoResponse
+ */
+async function queryCloseoutDomainInfo(request: QueryCloseoutDomainInfoRequest): QueryCloseoutDomainInfoResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'QueryCloseoutDomainInfo', 'POST', '/', 'json', false, 'json', request);
+}
+
+model QueryCloseoutDomainListRequest {
+  currentId?: long(name='CurrentId', position='Query'),
+  pageSize?: int32(name='PageSize', position='Query'),
+}
+
+model QueryCloseoutDomainListResponseBody = {
+  data?: [ 
+    {
+      auctionEndTime?: string(name='AuctionEndTime'),
+      auctionRemainingSeconds?: long(name='AuctionRemainingSeconds'),
+      baiduAntiLink?: int32(name='BaiduAntiLink'),
+      baiduExLink?: int32(name='BaiduExLink'),
+      baiduIndex?: int32(name='BaiduIndex'),
+      baiduWeight?: int32(name='BaiduWeight'),
+      bookEndTime?: string(name='BookEndTime'),
+      bookRemainingSeconds?: long(name='BookRemainingSeconds'),
+      bookedPartners?: string(name='BookedPartners'),
+      constitute?: string(name='Constitute'),
+      currencyType?: string(name='CurrencyType'),
+      deliveryTime?: string(name='DeliveryTime'),
+      domainLen?: int32(name='DomainLen'),
+      domainName?: string(name='DomainName'),
+      domainType?: string(name='DomainType'),
+      expireDate?: string(name='ExpireDate'),
+      extend?: string(name='Extend'),
+      freezeAmount?: double(name='FreezeAmount'),
+      icpNumber?: string(name='IcpNumber'),
+      icpStatus?: boolean(name='IcpStatus'),
+      introduction?: string(name='Introduction'),
+      isPremium?: boolean(name='IsPremium'),
+      partnerTypes?: string(name='PartnerTypes'),
+      price?: double(name='Price'),
+      productId?: string(name='ProductId'),
+      publishTime?: string(name='PublishTime'),
+      regDate?: string(name='RegDate'),
+      registrar?: string(name='Registrar'),
+      reserved?: boolean(name='Reserved'),
+      s360Weight?: int32(name='S360Weight'),
+      seoAttributes?: string(name='SeoAttributes'),
+      shortName?: string(name='ShortName'),
+      snatchNo?: string(name='SnatchNo'),
+      snatchTypeDesc?: string(name='SnatchTypeDesc'),
+      sougouAntiLink?: int32(name='SougouAntiLink'),
+      sougouIndex?: int32(name='SougouIndex'),
+      sougouWeight?: int32(name='SougouWeight'),
+      suffix?: string(name='Suffix'),
+      transferInPrice?: double(name='TransferInPrice'),
+      weight?: int32(name='Weight'),
+    }
+  ](name='Data'),
+  requestId?: string(name='RequestId'),
+}
+
+model QueryCloseoutDomainListResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: QueryCloseoutDomainListResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of QueryCloseoutDomainList  QueryCloseoutDomainListRequest
+  * @return QueryCloseoutDomainListResponse
+ */
+async function queryCloseoutDomainList(request: QueryCloseoutDomainListRequest): QueryCloseoutDomainListResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'QueryCloseoutDomainList', 'POST', '/', 'json', false, 'json', request);
+}
+
 model QueryDomainTransferStatusRequest {
   domainName?: string(name='DomainName', position='Body'),
 }
@@ -1069,6 +1327,59 @@ async function queryExportDomainExpireSnatchs(request: QueryExportDomainExpireSn
   return @handler.do('RPC', 'QueryExportDomainExpireSnatchs', 'POST', '/', 'json', false, 'json', request);
 }
 
+model QueryPendingPushListRequest {
+  maxResults?: int32(name='MaxResults', description='本次请求最多返回的记录条数', example='20', position='Query'),
+  nextToken?: string(name='NextToken', description='标记当前开始读取的位置，置空表示从头开始', example='AAAAAV3MpHK1AP0pfERHZN5pu6mhA57EEiZ+Fy3w9KyIp5nt', position='Query'),
+  pageNum?: int32(name='PageNum', description='页码，从1开始，默认1', example='1', position='Query'),
+  pageSize?: int32(name='PageSize', description='每页大小，默认20，最大100', example='20', position='Query'),
+}
+
+model QueryPendingPushListResponseBody = {
+  accessDeniedDetail?: string(name='AccessDeniedDetail', description='RAM鉴权失败时的标准化错误详情，JSON字符串，包含NoPermissionType、PolicyType、AuthPrincipalType、EncodedDiagnosticMessage等字段', example='{"AuthAction":"domain:QueryPendingPushList","AuthPrincipalType":"SubUser","NoPermissionType":"ImplicitDeny","PolicyType":"AccountLevelIdentityBasedPolicy"}'),
+  allowRetry?: boolean(name='AllowRetry', description='是否允许重试', example='false'),
+  httpStatusCode?: long(name='HttpStatusCode', description='HTTP状态码', example='200'),
+  maxResults?: int32(name='MaxResults', description='本次返回的最大记录条数', example='20'),
+  module?: {
+    pageNum?: int32(name='PageNum', description='当前页码', example='1'),
+    pageSize?: int32(name='PageSize', description='每页大小', example='20'),
+    pushList?: [ 
+      {
+        domainCount?: int32(name='DomainCount', description='本次Push包含的域名数量', example='2'),
+        domainList?: string(name='DomainList', description='域名列表，逗号分隔摘要', example='example.com,test.net'),
+        expireTime?: string(name='ExpireTime', description='超过该时间未操作将自动关闭
+
+Use the UTC time format: yyyy-MM-ddTHH:mmZ', example='2025-01-08T10:00:00Z'),
+        outBizId?: string(name='OutBizId', description='卖家发起时指定，用于双方业务关联', example='biz_order_001'),
+        pushNo?: string(name='PushNo', description='Push编号', example='push_20250101_abc123'),
+        pushTime?: string(name='PushTime', description='Push发起时间
+
+Use the UTC time format: yyyy-MM-ddTHH:mmZ', example='2025-01-01T10:00:00Z'),
+        sellerRemark?: string(name='SellerRemark', description='卖家发起Push时填写的备注信息', example='代持域名转移，请尽快处理'),
+        tradeMoney?: string(name='TradeMoney', description='交易金额，0表示免费Push', example='0'),
+      }
+    ](name='PushList', description='待接收Push列表'),
+    totalCount?: int32(name='TotalCount', description='满足条件的总记录数', example='10'),
+  }(name='Module', description='业务数据模块'),
+  nextToken?: string(name='NextToken', description='获取下一页需用到的凭证', example='AAAAAV3MpHK1AP0pfERHZN5pu6lESTRpd5hnHNnmKOP/+w9F'),
+  requestId?: string(name='RequestId', description='唯一请求识别码', example='2DEDFF32-7827-46B1-BE90-3DB8ABD91A58'),
+  success?: boolean(name='Success', description='是否调用成功', example='true'),
+}
+
+model QueryPendingPushListResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: QueryPendingPushListResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of QueryPendingPushList  QueryPendingPushListRequest
+  * @return QueryPendingPushListResponse
+ */
+async function queryPendingPushList(request: QueryPendingPushListRequest): QueryPendingPushListResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'QueryPendingPushList', 'POST', '/', 'json', false, 'json', request);
+}
+
 model QueryPurchasedDomainsRequest {
   currentPage?: int32(name='CurrentPage', position='Body'),
   domainName?: string(name='DomainName', position='Body'),
@@ -1160,6 +1471,41 @@ model RefuseDemandResponse = {
 async function refuseDemand(request: RefuseDemandRequest): RefuseDemandResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RPC', 'RefuseDemand', 'POST', '/', 'json', false, 'json', request);
+}
+
+model RejectPushRequest {
+  pushNo: string(name='PushNo', description='Push编号
+
+This parameter is required.', example='push_20250101_abc123', position='Query'),
+}
+
+model RejectPushResponseBody = {
+  accessDeniedDetail?: string(name='AccessDeniedDetail', description='RAM鉴权失败时的标准化错误详情，JSON字符串，包含NoPermissionType、PolicyType、AuthPrincipalType、EncodedDiagnosticMessage等字段', example='{"AuthAction":"domain:RejectPush","AuthPrincipalType":"SubUser","NoPermissionType":"ImplicitDeny","PolicyType":"AccountLevelIdentityBasedPolicy"}'),
+  allowRetry?: boolean(name='AllowRetry', description='是否允许重试', example='false'),
+  httpStatusCode?: long(name='HttpStatusCode', description='HTTP状态码', example='200'),
+  module?: {
+    code?: string(name='Code', description='结果码，失败时返回', example='ALREADY_REJECTED'),
+    message?: string(name='Message', description='结果描述', example='拒绝成功'),
+    pushNo?: string(name='PushNo', description='Push编号', example='push_20250101_abc123'),
+    success?: boolean(name='Success', description='是否拒绝成功', example='true'),
+  }(name='Module', description='业务数据模块'),
+  requestId?: string(name='RequestId', description='唯一请求识别码', example='2DEDFF32-7827-46B1-BE90-3DB8ABD91A58'),
+  success?: boolean(name='Success', description='是否调用成功', example='true'),
+}
+
+model RejectPushResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: RejectPushResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of RejectPush  RejectPushRequest
+  * @return RejectPushResponse
+ */
+async function rejectPush(request: RejectPushRequest): RejectPushResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'RejectPush', 'POST', '/', 'json', false, 'json', request);
 }
 
 model RequestPayDemandRequest {

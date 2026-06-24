@@ -11,8 +11,12 @@ extends OpenApi;
 
 init(config: OpenApi.Config){
   super(config);
-  @endpointRule = 'central';
-  
+  @endpointRule = 'regional';
+  @endpointMap = {
+    'cn-hangzhou' = 'domain.aliyuncs.com',
+    'ap-southeast-1' = 'domain-intl.aliyuncs.com',
+  };
+
   checkConfig(config);
   @endpoint = getEndpoint('domain', @regionId, @endpointRule, @network, @suffix, @endpointMap, @endpoint);
 }
@@ -29,13 +33,13 @@ function getEndpoint(productId: string, regionId: string, endpointRule: string, 
 }
 
 model AcceptDemandRequest {
-  bizId?: string(name='BizId', description='This parameter is required.', example='SE20183A0Q7C5556'),
+  bizId?: string(name='BizId', description='This parameter is required.'),
   message?: string(name='Message'),
 }
 
 model AcceptDemandResponseBody = {
   bindUrl?: string(name='BindUrl'),
-  requestId?: string(name='RequestId', example='497F7522-82B0-4BD4-84FE-AE8749E4C2F9'),
+  requestId?: string(name='RequestId'),
 }
 
 model AcceptDemandResponse = {
@@ -82,6 +86,79 @@ async function acceptDemandWithOptions(request: AcceptDemandRequest, runtime: Ut
 async function acceptDemand(request: AcceptDemandRequest): AcceptDemandResponse {
   var runtime = new Util.RuntimeOptions{};
   return acceptDemandWithOptions(request, runtime);
+}
+
+model AcceptPushRequest {
+  contactTemplateId?: long(name='ContactTemplateId', description='实名认证通过的模板，域名过户时用于WHOIS信息变更
+
+This parameter is required.', example='13862458'),
+  pushNo?: string(name='PushNo', description='Push编号
+
+This parameter is required.', example='push_20250101_abc123'),
+}
+
+model AcceptPushResponseBody = {
+  accessDeniedDetail?: string(name='AccessDeniedDetail', description='RAM鉴权失败时的标准化错误详情，JSON字符串，包含NoPermissionType、PolicyType、AuthPrincipalType、EncodedDiagnosticMessage等字段', example='{"AuthAction":"domain:AcceptPush","AuthPrincipalType":"SubUser","NoPermissionType":"ImplicitDeny","PolicyType":"AccountLevelIdentityBasedPolicy"}'),
+  allowRetry?: boolean(name='AllowRetry', description='是否允许重试', example='false'),
+  httpStatusCode?: long(name='HttpStatusCode', description='HTTP状态码', example='200'),
+  module?: {
+    code?: string(name='Code', description='结果码，失败时返回', example='ALREADY_ACCEPTED'),
+    message?: string(name='Message', description='结果描述', example='接收成功'),
+    pushNo?: string(name='PushNo', description='Push编号', example='push_20250101_abc123'),
+    success?: boolean(name='Success', description='是否接收成功', example='true'),
+  }(name='Module', description='业务数据模块'),
+  requestId?: string(name='RequestId', description='唯一请求识别码', example='2DEDFF32-7827-46B1-BE90-3DB8ABD91A58'),
+  success?: boolean(name='Success', description='是否调用成功', example='true'),
+}
+
+model AcceptPushResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: AcceptPushResponseBody(name='body'),
+}
+
+/**
+ * @summary 买家（接收方）确认接收带价PUSH，触发域名过户转移
+ *
+ * @param request AcceptPushRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return AcceptPushResponse
+ */
+async function acceptPushWithOptions(request: AcceptPushRequest, runtime: Util.RuntimeOptions): AcceptPushResponse {
+  Util.validateModel(request);
+  var query = {};
+  if (!Util.isUnset(request.contactTemplateId)) {
+    query['ContactTemplateId'] = request.contactTemplateId;
+  }
+  if (!Util.isUnset(request.pushNo)) {
+    query['PushNo'] = request.pushNo;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'AcceptPush',
+    version = '2018-02-08',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 买家（接收方）确认接收带价PUSH，触发域名过户转移
+ *
+ * @param request AcceptPushRequest
+ * @return AcceptPushResponse
+ */
+async function acceptPush(request: AcceptPushRequest): AcceptPushResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return acceptPushWithOptions(request, runtime);
 }
 
 model BatchIntrudeDomainsRequest {
@@ -267,6 +344,101 @@ async function batchQueryPushStatus(request: BatchQueryPushStatusRequest): Batch
   return batchQueryPushStatusWithOptions(request, runtime);
 }
 
+model BatchQueryReceivedPushStatusRequest {
+  maxResults?: int32(name='MaxResults', description='本次请求最多返回的记录条数', example='50'),
+  nextToken?: string(name='NextToken', description='标记当前开始读取的位置，置空表示从头开始'),
+  pushNos?: [ string ](name='PushNos', description='Push编号列表，最多50个
+
+This parameter is required.', example='["push_20250101_abc123","push_20250101_def456"]'),
+}
+
+model BatchQueryReceivedPushStatusShrinkRequest {
+  maxResults?: int32(name='MaxResults', description='本次请求最多返回的记录条数', example='50'),
+  nextToken?: string(name='NextToken', description='标记当前开始读取的位置，置空表示从头开始'),
+  pushNosShrink?: string(name='PushNos', description='Push编号列表，最多50个
+
+This parameter is required.', example='["push_20250101_abc123","push_20250101_def456"]'),
+}
+
+model BatchQueryReceivedPushStatusResponseBody = {
+  accessDeniedDetail?: string(name='AccessDeniedDetail', description='RAM鉴权失败时的标准化错误详情，JSON字符串，包含NoPermissionType、PolicyType、AuthPrincipalType、EncodedDiagnosticMessage等字段', example='{"AuthAction":"domain:BatchQueryReceivedPushStatus","AuthPrincipalType":"SubUser","NoPermissionType":"ImplicitDeny","PolicyType":"AccountLevelIdentityBasedPolicy"}'),
+  allowRetry?: boolean(name='AllowRetry', description='是否允许重试', example='false'),
+  httpStatusCode?: long(name='HttpStatusCode', description='HTTP状态码', example='200'),
+  maxResults?: int32(name='MaxResults', description='本次返回的最大记录条数', example='50'),
+  module?: {
+    pushResults?: [ 
+      {
+        domainList?: string(name='DomainList', description='域名列表，逗号分隔', example='example.com,test.net'),
+        outBizId?: string(name='OutBizId', description='外部业务ID，卖家发起时指定', example='biz_order_001'),
+        pushNo?: string(name='PushNo', description='Push编号', example='push_20250101_abc123'),
+        status?: string(name='Status', description='枚举值：PENDING（待接收）、ACCEPTED（已接收）、REJECTED（已拒绝）、EXPIRED（已过期）、CANCELLED（已取消）', example='ACCEPTED'),
+        statusDesc?: string(name='StatusDesc', description='状态描述，买家视角', example='已接收'),
+      }
+    ](name='PushResults', description='Push接收状态结果列表'),
+  }(name='Module', description='业务数据模块'),
+  nextToken?: string(name='NextToken', description='获取下一页需用到的凭证'),
+  requestId?: string(name='RequestId', description='唯一请求识别码', example='2DEDFF32-7827-46B1-BE90-3DB8ABD91A58'),
+  success?: boolean(name='Success', description='是否调用成功', example='true'),
+}
+
+model BatchQueryReceivedPushStatusResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: BatchQueryReceivedPushStatusResponseBody(name='body'),
+}
+
+/**
+ * @summary 买家视角批量查询Push接收状态
+ *
+ * @param tmpReq BatchQueryReceivedPushStatusRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return BatchQueryReceivedPushStatusResponse
+ */
+async function batchQueryReceivedPushStatusWithOptions(tmpReq: BatchQueryReceivedPushStatusRequest, runtime: Util.RuntimeOptions): BatchQueryReceivedPushStatusResponse {
+  Util.validateModel(tmpReq);
+  var request = new BatchQueryReceivedPushStatusShrinkRequest{};
+  OpenApiUtil.convert(tmpReq, request);
+  if (!Util.isUnset(tmpReq.pushNos)) {
+    request.pushNosShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.pushNos, 'PushNos', 'json');
+  }
+  var query = {};
+  if (!Util.isUnset(request.maxResults)) {
+    query['MaxResults'] = request.maxResults;
+  }
+  if (!Util.isUnset(request.nextToken)) {
+    query['NextToken'] = request.nextToken;
+  }
+  if (!Util.isUnset(request.pushNosShrink)) {
+    query['PushNos'] = request.pushNosShrink;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'BatchQueryReceivedPushStatus',
+    version = '2018-02-08',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 买家视角批量查询Push接收状态
+ *
+ * @param request BatchQueryReceivedPushStatusRequest
+ * @return BatchQueryReceivedPushStatusResponse
+ */
+async function batchQueryReceivedPushStatus(request: BatchQueryReceivedPushStatusRequest): BatchQueryReceivedPushStatusResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return batchQueryReceivedPushStatusWithOptions(request, runtime);
+}
+
 model BatchRecallPushRequest {
   outBizIds?: [ string ](name='OutBizIds', description='This parameter is required.', example='["NL12312323123", "NL12312323124"]'),
 }
@@ -345,14 +517,14 @@ async function batchRecallPush(request: BatchRecallPushRequest): BatchRecallPush
 }
 
 model BidDomainRequest {
-  auctionId?: string(name='AuctionId', description='This parameter is required.', example='12345678'),
-  currency?: string(name='Currency', description='This parameter is required.', example='RMB'),
-  maxBid?: float(name='MaxBid', description='This parameter is required.', example='100'),
+  auctionId?: string(name='AuctionId', description='This parameter is required.'),
+  currency?: string(name='Currency', description='This parameter is required.'),
+  maxBid?: float(name='MaxBid', description='This parameter is required.'),
 }
 
 model BidDomainResponseBody = {
-  auctionId?: string(name='AuctionId', example='12345678'),
-  requestId?: string(name='RequestId', example='CC615585-9D93-4179-BD16-09337E32A3A7'),
+  auctionId?: string(name='AuctionId'),
+  requestId?: string(name='RequestId'),
 }
 
 model BidDomainResponse = {
@@ -666,6 +838,82 @@ async function checkSelectedDomainStatus(request: CheckSelectedDomainStatusReque
   return checkSelectedDomainStatusWithOptions(request, runtime);
 }
 
+model CreateCloseoutOrderRequest {
+  contactId?: long(name='ContactId'),
+  domainName?: string(name='DomainName'),
+}
+
+model CreateCloseoutOrderResponseBody = {
+  module?: {
+    bizIds?: map[string]string(name='BizIds'),
+    buyerBlockTrade?: [ string ](name='BuyerBlockTrade'),
+    domainBlockTrade?: [ string ](name='DomainBlockTrade'),
+    domainName?: string(name='DomainName'),
+    domainTradeRiskWarn?: [ string ](name='DomainTradeRiskWarn'),
+    extend?: map[string]string(name='Extend'),
+    ignoredDomains?: [ map[string]string ](name='IgnoredDomains'),
+    needPay?: boolean(name='NeedPay'),
+    orderNo?: string(name='OrderNo'),
+    orderSumMoney?: double(name='OrderSumMoney'),
+    outOrderNo?: string(name='OutOrderNo'),
+    payMoney?: double(name='PayMoney'),
+    payUrl?: string(name='PayUrl'),
+    realNameTemplate?: [ long ](name='RealNameTemplate'),
+    requestId?: string(name='RequestId'),
+  }(name='Module'),
+  requestId?: string(name='RequestId'),
+}
+
+model CreateCloseoutOrderResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: CreateCloseoutOrderResponseBody(name='body'),
+}
+
+/**
+ * @summary 创建清仓拍订单
+ *
+ * @param request CreateCloseoutOrderRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return CreateCloseoutOrderResponse
+ */
+async function createCloseoutOrderWithOptions(request: CreateCloseoutOrderRequest, runtime: Util.RuntimeOptions): CreateCloseoutOrderResponse {
+  Util.validateModel(request);
+  var query = {};
+  if (!Util.isUnset(request.contactId)) {
+    query['ContactId'] = request.contactId;
+  }
+  if (!Util.isUnset(request.domainName)) {
+    query['DomainName'] = request.domainName;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'CreateCloseoutOrder',
+    version = '2018-02-08',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 创建清仓拍订单
+ *
+ * @param request CreateCloseoutOrderRequest
+ * @return CreateCloseoutOrderResponse
+ */
+async function createCloseoutOrder(request: CreateCloseoutOrderRequest): CreateCloseoutOrderResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return createCloseoutOrderWithOptions(request, runtime);
+}
+
 model CreateFixedPriceDemandOrderRequest {
   code?: string(name='Code'),
   contactId?: string(name='ContactId'),
@@ -823,12 +1071,12 @@ async function createFixedPriceSelectedOrder(request: CreateFixedPriceSelectedOr
 }
 
 model FailDemandRequest {
-  bizId?: string(name='BizId', description='This parameter is required.', example='SE20183A0Q7C5556'),
-  message?: string(name='Message', example='some message'),
+  bizId?: string(name='BizId', description='This parameter is required.'),
+  message?: string(name='Message'),
 }
 
 model FailDemandResponseBody = {
-  requestId?: string(name='RequestId', example='497F7522-82B0-4BD4-84FE-AE8749E4C2F9'),
+  requestId?: string(name='RequestId'),
 }
 
 model FailDemandResponse = {
@@ -878,12 +1126,12 @@ async function failDemand(request: FailDemandRequest): FailDemandResponse {
 }
 
 model FinishDemandRequest {
-  bizId?: string(name='BizId', description='This parameter is required.', example='SE20183A0Q7C5556'),
-  message?: string(name='Message', example='some message'),
+  bizId?: string(name='BizId', description='This parameter is required.'),
+  message?: string(name='Message'),
 }
 
 model FinishDemandResponseBody = {
-  requestId?: string(name='RequestId', example='497F7522-82B0-4BD4-84FE-AE8749E4C2F9'),
+  requestId?: string(name='RequestId'),
 }
 
 model FinishDemandResponse = {
@@ -981,8 +1229,8 @@ async function getIntlDomainDownloadUrl(): GetIntlDomainDownloadUrlResponse {
 }
 
 model GetReserveDomainUrlResponseBody = {
-  requestId?: string(name='RequestId', example='D34B02AE-09AF-41C1-A6D3-951A2233EDB0'),
-  url?: string(name='Url', example='http://example.com'),
+  requestId?: string(name='RequestId'),
+  url?: string(name='Url'),
 }
 
 model GetReserveDomainUrlResponse = {
@@ -1185,34 +1433,34 @@ async function pushDomains(request: PushDomainsRequest): PushDomainsResponse {
 }
 
 model QueryAuctionDetailRequest {
-  auctionId?: string(name='AuctionId', description='This parameter is required.', example='123456'),
+  auctionId?: string(name='AuctionId', description='This parameter is required.'),
 }
 
 model QueryAuctionDetailResponseBody = {
-  auctionEndTime?: long(name='AuctionEndTime', example='1515961936000'),
-  auctionId?: string(name='AuctionId', example='123456'),
-  bookEndTime?: long(name='BookEndTime', example='1515961936000'),
-  bookedPartner?: string(name='BookedPartner', example='4'),
-  currency?: string(name='Currency', example='RMB'),
-  deliveryTime?: long(name='DeliveryTime', example='1515961936000'),
-  domainName?: string(name='DomainName', example='test.com'),
-  domainType?: string(name='DomainType', example='0'),
-  failCode?: string(name='FailCode', example='0'),
-  highBid?: float(name='HighBid', example='100'),
-  highBidder?: string(name='HighBidder', example='abc'),
-  nextValidBid?: float(name='NextValidBid', example='110'),
-  partnerType?: string(name='PartnerType', example='4'),
-  payEndTime?: long(name='PayEndTime', example='1515961936000'),
-  payPrice?: float(name='PayPrice', example='200'),
-  payStatus?: string(name='PayStatus', example='1'),
-  produceStatus?: string(name='ProduceStatus', example='0'),
-  requestId?: string(name='RequestId', example='UUID'),
-  reserveMet?: boolean(name='ReserveMet', example='true'),
+  auctionEndTime?: long(name='AuctionEndTime'),
+  auctionId?: string(name='AuctionId'),
+  bookEndTime?: long(name='BookEndTime'),
+  bookedPartner?: string(name='BookedPartner'),
+  currency?: string(name='Currency'),
+  deliveryTime?: long(name='DeliveryTime'),
+  domainName?: string(name='DomainName'),
+  domainType?: string(name='DomainType'),
+  failCode?: string(name='FailCode'),
+  highBid?: float(name='HighBid'),
+  highBidder?: string(name='HighBidder'),
+  nextValidBid?: float(name='NextValidBid'),
+  partnerType?: string(name='PartnerType'),
+  payEndTime?: long(name='PayEndTime'),
+  payPrice?: float(name='PayPrice'),
+  payStatus?: string(name='PayStatus'),
+  produceStatus?: string(name='ProduceStatus'),
+  requestId?: string(name='RequestId'),
+  reserveMet?: boolean(name='ReserveMet'),
   reservePrice?: float(name='ReservePrice'),
-  status?: string(name='Status', example='2'),
-  transferInPrice?: float(name='TransferInPrice', example='50'),
-  yourCurrentBid?: float(name='YourCurrentBid', example='100'),
-  yourMaxBid?: float(name='YourMaxBid', example='120'),
+  status?: string(name='Status'),
+  transferInPrice?: float(name='TransferInPrice'),
+  yourCurrentBid?: float(name='YourCurrentBid'),
+  yourMaxBid?: float(name='YourMaxBid'),
 }
 
 model QueryAuctionDetailResponse = {
@@ -1260,47 +1508,47 @@ async function queryAuctionDetail(request: QueryAuctionDetailRequest): QueryAuct
 
 model QueryAuctionsRequest {
   auctionEndTimeOrder?: string(name='AuctionEndTimeOrder'),
-  currentPage?: int32(name='CurrentPage', example='1'),
-  pageSize?: int32(name='PageSize', example='10'),
-  status?: string(name='Status', example='0'),
+  currentPage?: int32(name='CurrentPage'),
+  pageSize?: int32(name='PageSize'),
+  status?: string(name='Status'),
   statuses?: string(name='Statuses'),
 }
 
 model QueryAuctionsResponseBody = {
-  currentPageNum?: int32(name='CurrentPageNum', example='1'),
+  currentPageNum?: int32(name='CurrentPageNum'),
   data?: [ 
     {
-      auctionEndTime?: long(name='AuctionEndTime', example='1515961936000'),
-      auctionId?: string(name='AuctionId', example='123456'),
-      bookEndTime?: long(name='BookEndTime', example='1515961936000'),
-      bookedPartner?: string(name='BookedPartner', example='4'),
-      currency?: string(name='Currency', example='RMB'),
-      deliveryTime?: long(name='DeliveryTime', example='1515961936000'),
-      domainName?: string(name='DomainName', example='test.com'),
-      domainType?: string(name='DomainType', example='0'),
-      failCode?: string(name='FailCode', example='0'),
-      highBid?: float(name='HighBid', example='100'),
-      highBidder?: string(name='HighBidder', example='abc'),
-      nextValidBid?: float(name='NextValidBid', example='110'),
-      partnerType?: string(name='PartnerType', example='4'),
-      payEndTime?: long(name='PayEndTime', example='1515961936000'),
-      payPrice?: float(name='PayPrice', example='200'),
-      payStatus?: string(name='PayStatus', example='1'),
-      produceStatus?: string(name='ProduceStatus', example='0'),
+      auctionEndTime?: long(name='AuctionEndTime'),
+      auctionId?: string(name='AuctionId'),
+      bookEndTime?: long(name='BookEndTime'),
+      bookedPartner?: string(name='BookedPartner'),
+      currency?: string(name='Currency'),
+      deliveryTime?: long(name='DeliveryTime'),
+      domainName?: string(name='DomainName'),
+      domainType?: string(name='DomainType'),
+      failCode?: string(name='FailCode'),
+      highBid?: float(name='HighBid'),
+      highBidder?: string(name='HighBidder'),
+      nextValidBid?: float(name='NextValidBid'),
+      partnerType?: string(name='PartnerType'),
+      payEndTime?: long(name='PayEndTime'),
+      payPrice?: float(name='PayPrice'),
+      payStatus?: string(name='PayStatus'),
+      produceStatus?: string(name='ProduceStatus'),
       reserveMax?: long(name='ReserveMax'),
-      reserveMet?: boolean(name='ReserveMet', example='true'),
+      reserveMet?: boolean(name='ReserveMet'),
       reserveMin?: long(name='ReserveMin'),
       reservePrice?: long(name='ReservePrice'),
-      status?: string(name='Status', example='2'),
-      transferInPrice?: float(name='TransferInPrice', example='50'),
-      yourCurrentBid?: float(name='YourCurrentBid', example='100'),
-      yourMaxBid?: float(name='YourMaxBid', example='120'),
+      status?: string(name='Status'),
+      transferInPrice?: float(name='TransferInPrice'),
+      yourCurrentBid?: float(name='YourCurrentBid'),
+      yourMaxBid?: float(name='YourMaxBid'),
     }
   ](name='Data'),
-  pageSize?: int32(name='PageSize', example='10'),
-  requestId?: string(name='RequestId', example='UUID'),
-  totalItemNum?: int32(name='TotalItemNum', example='5'),
-  totalPageNum?: int32(name='TotalPageNum', example='1'),
+  pageSize?: int32(name='PageSize'),
+  requestId?: string(name='RequestId'),
+  totalItemNum?: int32(name='TotalItemNum'),
+  totalPageNum?: int32(name='TotalPageNum'),
 }
 
 model QueryAuctionsResponse = {
@@ -1359,26 +1607,26 @@ async function queryAuctions(request: QueryAuctionsRequest): QueryAuctionsRespon
 }
 
 model QueryBidRecordsRequest {
-  auctionId?: string(name='AuctionId', description='This parameter is required.', example='123456'),
-  currentPage?: int32(name='CurrentPage', example='1'),
-  pageSize?: int32(name='PageSize', example='10'),
+  auctionId?: string(name='AuctionId', description='This parameter is required.'),
+  currentPage?: int32(name='CurrentPage'),
+  pageSize?: int32(name='PageSize'),
 }
 
 model QueryBidRecordsResponseBody = {
-  currentPageNum?: int32(name='CurrentPageNum', example='1'),
+  currentPageNum?: int32(name='CurrentPageNum'),
   data?: [ 
     {
-      bid?: float(name='Bid', example='50'),
-      bidTime?: long(name='BidTime', example='1515961936000'),
-      bidder?: string(name='Bidder', example='abc'),
-      currency?: string(name='Currency', example='RMB'),
-      domainName?: string(name='DomainName', example='test.com'),
+      bid?: float(name='Bid'),
+      bidTime?: long(name='BidTime'),
+      bidder?: string(name='Bidder'),
+      currency?: string(name='Currency'),
+      domainName?: string(name='DomainName'),
     }
   ](name='Data'),
-  pageSize?: int32(name='PageSize', example='10'),
-  requestId?: string(name='RequestId', example='UUID'),
-  totalItemNum?: int32(name='TotalItemNum', example='5'),
-  totalPageNum?: int32(name='TotalPageNum', example='1'),
+  pageSize?: int32(name='PageSize'),
+  requestId?: string(name='RequestId'),
+  totalItemNum?: int32(name='TotalItemNum'),
+  totalPageNum?: int32(name='TotalPageNum'),
 }
 
 model QueryBidRecordsResponse = {
@@ -1431,18 +1679,18 @@ async function queryBidRecords(request: QueryBidRecordsRequest): QueryBidRecords
 }
 
 model QueryBookingDomainInfoRequest {
-  domainName?: string(name='DomainName', description='This parameter is required.', example='abc.com'),
+  domainName?: string(name='DomainName', description='This parameter is required.'),
 }
 
 model QueryBookingDomainInfoResponseBody = {
-  auctionId?: int32(name='AuctionId', example='1234'),
-  bookEndTime?: long(name='BookEndTime', example='1517985730419'),
-  currency?: string(name='Currency', example='USD'),
-  maxBid?: float(name='MaxBid', example='15'),
-  partnerType?: string(name='PartnerType', example='4'),
-  requestId?: string(name='RequestId', example='234234njhjkhkj'),
+  auctionId?: int32(name='AuctionId'),
+  bookEndTime?: long(name='BookEndTime'),
+  currency?: string(name='Currency'),
+  maxBid?: float(name='MaxBid'),
+  partnerType?: string(name='PartnerType'),
+  requestId?: string(name='RequestId'),
   snatchNo?: string(name='SnatchNo'),
-  transferInPrice?: float(name='TransferInPrice', example='17'),
+  transferInPrice?: float(name='TransferInPrice'),
 }
 
 model QueryBookingDomainInfoResponse = {
@@ -1584,13 +1832,13 @@ async function queryBrokerDemand(request: QueryBrokerDemandRequest): QueryBroker
 }
 
 model QueryBrokerDemandRecordRequest {
-  bizId?: string(name='BizId', description='This parameter is required.', example='SE20183A0Q7C5556'),
-  currentPage?: int32(name='CurrentPage', example='1'),
-  pageSize?: int32(name='PageSize', example='20'),
+  bizId?: string(name='BizId', description='This parameter is required.'),
+  currentPage?: int32(name='CurrentPage'),
+  pageSize?: int32(name='PageSize'),
 }
 
 model QueryBrokerDemandRecordResponseBody = {
-  currentPageNum?: int32(name='CurrentPageNum', example='1'),
+  currentPageNum?: int32(name='CurrentPageNum'),
   data?: {
     brokerDemandRecord?: [ 
     {
@@ -1600,10 +1848,10 @@ model QueryBrokerDemandRecordResponseBody = {
     }
   ](name='BrokerDemandRecord')
   }(name='Data'),
-  pageSize?: int32(name='PageSize', example='20'),
-  requestId?: string(name='RequestId', example='497F7522-82B0-4BD4-84FE-AE8749E4C2F9'),
-  totalItemNum?: int32(name='TotalItemNum', example='20'),
-  totalPageNum?: int32(name='TotalPageNum', example='1'),
+  pageSize?: int32(name='PageSize'),
+  requestId?: string(name='RequestId'),
+  totalItemNum?: int32(name='TotalItemNum'),
+  totalPageNum?: int32(name='TotalPageNum'),
 }
 
 model QueryBrokerDemandRecordResponse = {
@@ -1658,13 +1906,13 @@ async function queryBrokerDemandRecord(request: QueryBrokerDemandRecordRequest):
 model QueryBuyerDomainTradeRecordsRequest {
   bizIdList?: [ string ](name='BizIdList'),
   domainNameList?: [ string ](name='DomainNameList'),
-  endDate?: string(name='EndDate', example='2025-07-07 23:59:59'),
+  endDate?: string(name='EndDate', example='2024-05-01 00:00:00'),
   endPrice?: float(name='EndPrice', example='100'),
   pageNum?: long(name='PageNum', example='1'),
   pageSize?: long(name='PageSize', example='20'),
-  sorter?: string(name='Sorter', example='{\\\\"payTime\\\\":\\\\"desc\\\\"}'),
+  sorter?: string(name='Sorter', example='{\\"payTime\\":\\"desc\\"}'),
   startDate?: string(name='StartDate', example='2024-05-01 00:00:00'),
-  startPrice?: float(name='StartPrice', example='0'),
+  startPrice?: float(name='StartPrice', example='1'),
   statusList?: [ string ](name='StatusList'),
   suffixList?: [ string ](name='SuffixList'),
   tradeTypeList?: [ string ](name='TradeTypeList'),
@@ -1673,13 +1921,13 @@ model QueryBuyerDomainTradeRecordsRequest {
 model QueryBuyerDomainTradeRecordsShrinkRequest {
   bizIdListShrink?: string(name='BizIdList'),
   domainNameListShrink?: string(name='DomainNameList'),
-  endDate?: string(name='EndDate', example='2025-07-07 23:59:59'),
+  endDate?: string(name='EndDate', example='2024-05-01 00:00:00'),
   endPrice?: float(name='EndPrice', example='100'),
   pageNum?: long(name='PageNum', example='1'),
   pageSize?: long(name='PageSize', example='20'),
-  sorter?: string(name='Sorter', example='{\\\\"payTime\\\\":\\\\"desc\\\\"}'),
+  sorter?: string(name='Sorter', example='{\\"payTime\\":\\"desc\\"}'),
   startDate?: string(name='StartDate', example='2024-05-01 00:00:00'),
-  startPrice?: float(name='StartPrice', example='0'),
+  startPrice?: float(name='StartPrice', example='1'),
   statusListShrink?: string(name='StatusList'),
   suffixListShrink?: string(name='SuffixList'),
   tradeTypeListShrink?: string(name='TradeTypeList'),
@@ -1691,21 +1939,21 @@ model QueryBuyerDomainTradeRecordsResponseBody = {
     data?: [ 
       {
         bizId?: string(name='BizId', example='T2023122019031400****'),
-        currency?: string(name='Currency', example='RMB'),
-        deliveryTime?: string(name='DeliveryTime', example='2025-07-07 23:59:59'),
-        domainName?: string(name='DomainName', example='kythelmet.cn'),
-        payTime?: string(name='PayTime', example='2025-07-07 23:59:59'),
-        status?: string(name='Status', example='SUCCESS'),
-        tradeId?: string(name='TradeId', example='5b05d1f7-26f0-4ad7-97d9-ac96fd9b65ba'),
-        tradePrice?: float(name='TradePrice', example='27660.0'),
+        currency?: string(name='Currency', example='CNY'),
+        deliveryTime?: string(name='DeliveryTime', example='2024-05-01 00:00:00'),
+        domainName?: string(name='DomainName', example='test.com'),
+        payTime?: string(name='PayTime', example='2024-05-01 00:00:00'),
+        status?: string(name='Status', example='FAIL'),
+        tradeId?: string(name='TradeId', example='TR2025120110192900****'),
+        tradePrice?: float(name='TradePrice', example='100'),
         tradeType?: string(name='TradeType', example='FIX_PRICE'),
       }
     ](name='Data'),
-    pageSize?: int32(name='PageSize', example='10'),
-    totalItemNum?: int32(name='TotalItemNum', example='294'),
-    totalPageNum?: int32(name='TotalPageNum', example='4'),
+    pageSize?: int32(name='PageSize', example='1'),
+    totalItemNum?: int32(name='TotalItemNum', example='1'),
+    totalPageNum?: int32(name='TotalPageNum', example='1'),
   }(name='Module'),
-  requestId?: string(name='RequestId', description='Id of the request', example='8F5BC888-521D-503A-A79B-CEDC9A23D716'),
+  requestId?: string(name='RequestId', example='8F5BC888-521D-503A-A79B-CEDC9A23D716'),
 }
 
 model QueryBuyerDomainTradeRecordsResponse = {
@@ -1803,6 +2051,206 @@ async function queryBuyerDomainTradeRecordsWithOptions(tmpReq: QueryBuyerDomainT
 async function queryBuyerDomainTradeRecords(request: QueryBuyerDomainTradeRecordsRequest): QueryBuyerDomainTradeRecordsResponse {
   var runtime = new Util.RuntimeOptions{};
   return queryBuyerDomainTradeRecordsWithOptions(request, runtime);
+}
+
+model QueryCloseoutDomainInfoRequest {
+  domainName?: string(name='DomainName'),
+}
+
+model QueryCloseoutDomainInfoResponseBody = {
+  module?: {
+    auctionEndTime?: string(name='AuctionEndTime'),
+    auctionRemainingSeconds?: long(name='AuctionRemainingSeconds'),
+    baiduAntiLink?: int32(name='BaiduAntiLink'),
+    baiduExLink?: int32(name='BaiduExLink'),
+    baiduIndex?: int32(name='BaiduIndex'),
+    baiduWeight?: int32(name='BaiduWeight'),
+    bookEndTime?: string(name='BookEndTime'),
+    bookRemainingSeconds?: long(name='BookRemainingSeconds'),
+    bookedPartners?: string(name='BookedPartners'),
+    constitute?: string(name='Constitute'),
+    currencyType?: string(name='CurrencyType'),
+    deliveryTime?: string(name='DeliveryTime'),
+    domainLen?: int32(name='DomainLen'),
+    domainName?: string(name='DomainName'),
+    domainType?: string(name='DomainType'),
+    expireDate?: string(name='ExpireDate'),
+    extend?: string(name='Extend'),
+    freezeAmount?: double(name='FreezeAmount'),
+    icpNumber?: string(name='IcpNumber'),
+    icpStatus?: boolean(name='IcpStatus'),
+    introduction?: string(name='Introduction'),
+    isPremium?: boolean(name='IsPremium'),
+    partnerTypes?: string(name='PartnerTypes'),
+    price?: double(name='Price'),
+    productId?: string(name='ProductId'),
+    publishTime?: string(name='PublishTime'),
+    regDate?: string(name='RegDate'),
+    registrar?: string(name='Registrar'),
+    reserved?: boolean(name='Reserved'),
+    s360Weight?: int32(name='S360Weight'),
+    seoAttributes?: string(name='SeoAttributes'),
+    shortName?: string(name='ShortName'),
+    snatchNo?: string(name='SnatchNo'),
+    snatchTypeDesc?: string(name='SnatchTypeDesc'),
+    sougouAntiLink?: int32(name='SougouAntiLink'),
+    sougouIndex?: int32(name='SougouIndex'),
+    sougouWeight?: int32(name='SougouWeight'),
+    suffix?: string(name='Suffix'),
+    transferInPrice?: double(name='TransferInPrice'),
+    weight?: int32(name='Weight'),
+  }(name='Module'),
+  requestId?: string(name='RequestId'),
+}
+
+model QueryCloseoutDomainInfoResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: QueryCloseoutDomainInfoResponseBody(name='body'),
+}
+
+/**
+ * @summary 查询清仓拍域名信息
+ *
+ * @param request QueryCloseoutDomainInfoRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return QueryCloseoutDomainInfoResponse
+ */
+async function queryCloseoutDomainInfoWithOptions(request: QueryCloseoutDomainInfoRequest, runtime: Util.RuntimeOptions): QueryCloseoutDomainInfoResponse {
+  Util.validateModel(request);
+  var query = {};
+  if (!Util.isUnset(request.domainName)) {
+    query['DomainName'] = request.domainName;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'QueryCloseoutDomainInfo',
+    version = '2018-02-08',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 查询清仓拍域名信息
+ *
+ * @param request QueryCloseoutDomainInfoRequest
+ * @return QueryCloseoutDomainInfoResponse
+ */
+async function queryCloseoutDomainInfo(request: QueryCloseoutDomainInfoRequest): QueryCloseoutDomainInfoResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return queryCloseoutDomainInfoWithOptions(request, runtime);
+}
+
+model QueryCloseoutDomainListRequest {
+  currentId?: long(name='CurrentId'),
+  pageSize?: int32(name='PageSize'),
+}
+
+model QueryCloseoutDomainListResponseBody = {
+  data?: [ 
+    {
+      auctionEndTime?: string(name='AuctionEndTime'),
+      auctionRemainingSeconds?: long(name='AuctionRemainingSeconds'),
+      baiduAntiLink?: int32(name='BaiduAntiLink'),
+      baiduExLink?: int32(name='BaiduExLink'),
+      baiduIndex?: int32(name='BaiduIndex'),
+      baiduWeight?: int32(name='BaiduWeight'),
+      bookEndTime?: string(name='BookEndTime'),
+      bookRemainingSeconds?: long(name='BookRemainingSeconds'),
+      bookedPartners?: string(name='BookedPartners'),
+      constitute?: string(name='Constitute'),
+      currencyType?: string(name='CurrencyType'),
+      deliveryTime?: string(name='DeliveryTime'),
+      domainLen?: int32(name='DomainLen'),
+      domainName?: string(name='DomainName'),
+      domainType?: string(name='DomainType'),
+      expireDate?: string(name='ExpireDate'),
+      extend?: string(name='Extend'),
+      freezeAmount?: double(name='FreezeAmount'),
+      icpNumber?: string(name='IcpNumber'),
+      icpStatus?: boolean(name='IcpStatus'),
+      introduction?: string(name='Introduction'),
+      isPremium?: boolean(name='IsPremium'),
+      partnerTypes?: string(name='PartnerTypes'),
+      price?: double(name='Price'),
+      productId?: string(name='ProductId'),
+      publishTime?: string(name='PublishTime'),
+      regDate?: string(name='RegDate'),
+      registrar?: string(name='Registrar'),
+      reserved?: boolean(name='Reserved'),
+      s360Weight?: int32(name='S360Weight'),
+      seoAttributes?: string(name='SeoAttributes'),
+      shortName?: string(name='ShortName'),
+      snatchNo?: string(name='SnatchNo'),
+      snatchTypeDesc?: string(name='SnatchTypeDesc'),
+      sougouAntiLink?: int32(name='SougouAntiLink'),
+      sougouIndex?: int32(name='SougouIndex'),
+      sougouWeight?: int32(name='SougouWeight'),
+      suffix?: string(name='Suffix'),
+      transferInPrice?: double(name='TransferInPrice'),
+      weight?: int32(name='Weight'),
+    }
+  ](name='Data'),
+  requestId?: string(name='RequestId'),
+}
+
+model QueryCloseoutDomainListResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: QueryCloseoutDomainListResponseBody(name='body'),
+}
+
+/**
+ * @summary 查询清仓拍域名列表
+ *
+ * @param request QueryCloseoutDomainListRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return QueryCloseoutDomainListResponse
+ */
+async function queryCloseoutDomainListWithOptions(request: QueryCloseoutDomainListRequest, runtime: Util.RuntimeOptions): QueryCloseoutDomainListResponse {
+  Util.validateModel(request);
+  var query = {};
+  if (!Util.isUnset(request.currentId)) {
+    query['CurrentId'] = request.currentId;
+  }
+  if (!Util.isUnset(request.pageSize)) {
+    query['PageSize'] = request.pageSize;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'QueryCloseoutDomainList',
+    version = '2018-02-08',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 查询清仓拍域名列表
+ *
+ * @param request QueryCloseoutDomainListRequest
+ * @return QueryCloseoutDomainListResponse
+ */
+async function queryCloseoutDomainList(request: QueryCloseoutDomainListRequest): QueryCloseoutDomainListResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return queryCloseoutDomainListWithOptions(request, runtime);
 }
 
 model QueryDomainTransferStatusRequest {
@@ -2120,6 +2568,100 @@ async function queryExportDomainExpireSnatchs(request: QueryExportDomainExpireSn
   return queryExportDomainExpireSnatchsWithOptions(request, runtime);
 }
 
+model QueryPendingPushListRequest {
+  maxResults?: int32(name='MaxResults', description='本次请求最多返回的记录条数', example='20'),
+  nextToken?: string(name='NextToken', description='标记当前开始读取的位置，置空表示从头开始'),
+  pageNum?: int32(name='PageNum', description='页码，从1开始，默认1', example='1'),
+  pageSize?: int32(name='PageSize', description='每页大小，默认20，最大100', example='20'),
+}
+
+model QueryPendingPushListResponseBody = {
+  accessDeniedDetail?: string(name='AccessDeniedDetail', description='RAM鉴权失败时的标准化错误详情，JSON字符串，包含NoPermissionType、PolicyType、AuthPrincipalType、EncodedDiagnosticMessage等字段', example='{"AuthAction":"domain:QueryPendingPushList","AuthPrincipalType":"SubUser","NoPermissionType":"ImplicitDeny","PolicyType":"AccountLevelIdentityBasedPolicy"}'),
+  allowRetry?: boolean(name='AllowRetry', description='是否允许重试', example='false'),
+  httpStatusCode?: long(name='HttpStatusCode', description='HTTP状态码', example='200'),
+  maxResults?: int32(name='MaxResults', description='本次返回的最大记录条数', example='20'),
+  module?: {
+    pageNum?: int32(name='PageNum', description='当前页码', example='1'),
+    pageSize?: int32(name='PageSize', description='每页大小', example='20'),
+    pushList?: [ 
+      {
+        domainCount?: int32(name='DomainCount', description='本次Push包含的域名数量', example='2'),
+        domainList?: string(name='DomainList', description='域名列表，逗号分隔摘要', example='example.com,test.net'),
+        expireTime?: string(name='ExpireTime', description='超过该时间未操作将自动关闭
+
+Use the UTC time format: yyyy-MM-ddTHH:mmZ', example='2025-01-08T10:00:00Z'),
+        outBizId?: string(name='OutBizId', description='卖家发起时指定，用于双方业务关联', example='biz_order_001'),
+        pushNo?: string(name='PushNo', description='Push编号', example='push_20250101_abc123'),
+        pushTime?: string(name='PushTime', description='Push发起时间
+
+Use the UTC time format: yyyy-MM-ddTHH:mmZ', example='2025-01-01T10:00:00Z'),
+        sellerRemark?: string(name='SellerRemark', description='卖家发起Push时填写的备注信息', example='代持域名转移，请尽快处理'),
+        tradeMoney?: string(name='TradeMoney', description='交易金额，0表示免费Push', example='0'),
+      }
+    ](name='PushList', description='待接收Push列表'),
+    totalCount?: int32(name='TotalCount', description='满足条件的总记录数', example='10'),
+  }(name='Module', description='业务数据模块'),
+  nextToken?: string(name='NextToken', description='获取下一页需用到的凭证'),
+  requestId?: string(name='RequestId', description='唯一请求识别码', example='2DEDFF32-7827-46B1-BE90-3DB8ABD91A58'),
+  success?: boolean(name='Success', description='是否调用成功', example='true'),
+}
+
+model QueryPendingPushListResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: QueryPendingPushListResponseBody(name='body'),
+}
+
+/**
+ * @summary 查询当前账号待接收的Push列表（买家视角）
+ *
+ * @param request QueryPendingPushListRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return QueryPendingPushListResponse
+ */
+async function queryPendingPushListWithOptions(request: QueryPendingPushListRequest, runtime: Util.RuntimeOptions): QueryPendingPushListResponse {
+  Util.validateModel(request);
+  var query = {};
+  if (!Util.isUnset(request.maxResults)) {
+    query['MaxResults'] = request.maxResults;
+  }
+  if (!Util.isUnset(request.nextToken)) {
+    query['NextToken'] = request.nextToken;
+  }
+  if (!Util.isUnset(request.pageNum)) {
+    query['PageNum'] = request.pageNum;
+  }
+  if (!Util.isUnset(request.pageSize)) {
+    query['PageSize'] = request.pageSize;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'QueryPendingPushList',
+    version = '2018-02-08',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 查询当前账号待接收的Push列表（买家视角）
+ *
+ * @param request QueryPendingPushListRequest
+ * @return QueryPendingPushListResponse
+ */
+async function queryPendingPushList(request: QueryPendingPushListRequest): QueryPendingPushListResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return queryPendingPushListWithOptions(request, runtime);
+}
+
 model QueryPurchasedDomainsRequest {
   currentPage?: int32(name='CurrentPage'),
   domainName?: string(name='DomainName'),
@@ -2218,12 +2760,12 @@ async function queryPurchasedDomains(request: QueryPurchasedDomainsRequest): Que
 }
 
 model RecordDemandRequest {
-  bizId?: string(name='BizId', description='This parameter is required.', example='SE20183A0Q7C5556'),
-  message?: string(name='Message', description='This parameter is required.', example='some message'),
+  bizId?: string(name='BizId', description='This parameter is required.'),
+  message?: string(name='Message', description='This parameter is required.'),
 }
 
 model RecordDemandResponseBody = {
-  requestId?: string(name='RequestId', example='497F7522-82B0-4BD4-84FE-AE8749E4C2F9'),
+  requestId?: string(name='RequestId'),
 }
 
 model RecordDemandResponse = {
@@ -2273,12 +2815,12 @@ async function recordDemand(request: RecordDemandRequest): RecordDemandResponse 
 }
 
 model RefuseDemandRequest {
-  bizId?: string(name='BizId', description='This parameter is required.', example='SE20183A0Q7C5556'),
-  message?: string(name='Message', example='some message'),
+  bizId?: string(name='BizId', description='This parameter is required.'),
+  message?: string(name='Message'),
 }
 
 model RefuseDemandResponseBody = {
-  requestId?: string(name='RequestId', example='497F7522-82B0-4BD4-84FE-AE8749E4C2F9'),
+  requestId?: string(name='RequestId'),
 }
 
 model RefuseDemandResponse = {
@@ -2327,16 +2869,83 @@ async function refuseDemand(request: RefuseDemandRequest): RefuseDemandResponse 
   return refuseDemandWithOptions(request, runtime);
 }
 
+model RejectPushRequest {
+  pushNo?: string(name='PushNo', description='Push编号
+
+This parameter is required.', example='push_20250101_abc123'),
+}
+
+model RejectPushResponseBody = {
+  accessDeniedDetail?: string(name='AccessDeniedDetail', description='RAM鉴权失败时的标准化错误详情，JSON字符串，包含NoPermissionType、PolicyType、AuthPrincipalType、EncodedDiagnosticMessage等字段', example='{"AuthAction":"domain:RejectPush","AuthPrincipalType":"SubUser","NoPermissionType":"ImplicitDeny","PolicyType":"AccountLevelIdentityBasedPolicy"}'),
+  allowRetry?: boolean(name='AllowRetry', description='是否允许重试', example='false'),
+  httpStatusCode?: long(name='HttpStatusCode', description='HTTP状态码', example='200'),
+  module?: {
+    code?: string(name='Code', description='结果码，失败时返回', example='ALREADY_REJECTED'),
+    message?: string(name='Message', description='结果描述', example='拒绝成功'),
+    pushNo?: string(name='PushNo', description='Push编号', example='push_20250101_abc123'),
+    success?: boolean(name='Success', description='是否拒绝成功', example='true'),
+  }(name='Module', description='业务数据模块'),
+  requestId?: string(name='RequestId', description='唯一请求识别码', example='2DEDFF32-7827-46B1-BE90-3DB8ABD91A58'),
+  success?: boolean(name='Success', description='是否调用成功', example='true'),
+}
+
+model RejectPushResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: RejectPushResponseBody(name='body'),
+}
+
+/**
+ * @summary 买家（接收方）拒绝接收带价PUSH
+ *
+ * @param request RejectPushRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return RejectPushResponse
+ */
+async function rejectPushWithOptions(request: RejectPushRequest, runtime: Util.RuntimeOptions): RejectPushResponse {
+  Util.validateModel(request);
+  var query = {};
+  if (!Util.isUnset(request.pushNo)) {
+    query['PushNo'] = request.pushNo;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'RejectPush',
+    version = '2018-02-08',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 买家（接收方）拒绝接收带价PUSH
+ *
+ * @param request RejectPushRequest
+ * @return RejectPushResponse
+ */
+async function rejectPush(request: RejectPushRequest): RejectPushResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return rejectPushWithOptions(request, runtime);
+}
+
 model RequestPayDemandRequest {
-  bizId?: string(name='BizId', description='This parameter is required.', example='SE20183A0Q7C5556'),
-  domainName?: string(name='DomainName', description='This parameter is required.', example='test.com'),
-  message?: string(name='Message', example='some message'),
-  price?: float(name='Price', description='This parameter is required.', example='100'),
-  produceType?: int32(name='ProduceType', example='1'),
+  bizId?: string(name='BizId', description='This parameter is required.'),
+  domainName?: string(name='DomainName', description='This parameter is required.'),
+  message?: string(name='Message'),
+  price?: float(name='Price', description='This parameter is required.'),
+  produceType?: int32(name='ProduceType'),
 }
 
 model RequestPayDemandResponseBody = {
-  requestId?: string(name='RequestId', example='497F7522-82B0-4BD4-84FE-AE8749E4C2F9'),
+  requestId?: string(name='RequestId'),
 }
 
 model RequestPayDemandResponse = {
@@ -2395,13 +3004,13 @@ async function requestPayDemand(request: RequestPayDemandRequest): RequestPayDem
 }
 
 model ReserveDomainRequest {
-  channels?: [ string ](name='Channels', example='4'),
-  domainName?: string(name='DomainName', description='This parameter is required.', example='aliyun.com'),
+  channels?: [ string ](name='Channels'),
+  domainName?: string(name='DomainName', description='This parameter is required.'),
 }
 
 model ReserveDomainResponseBody = {
-  auctionId?: string(name='AuctionId', example='12080761'),
-  requestId?: string(name='RequestId', example='64F63E07-3AF6-4D59-8616-55DF1A9E03ED'),
+  auctionId?: string(name='AuctionId'),
+  requestId?: string(name='RequestId'),
 }
 
 model ReserveDomainResponse = {
