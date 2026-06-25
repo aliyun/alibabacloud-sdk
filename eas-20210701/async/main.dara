@@ -38,6 +38,19 @@ init(configuration: ClientConfiguration){
     'cn-shanghai-finance-1' = 'pai-eas.cn-shanghai-finance-1.aliyuncs.com',
     'cn-north-2-gov-1' = 'pai-eas.cn-north-2-gov-1.aliyuncs.com',
     'cn-chengdu' = 'pai-eas.cn-chengdu.aliyuncs.com',
+    'us-southeast-1' = 'pai-eas.us-southeast-1.aliyuncs.com',
+    'na-south-1' = 'pai-eas.na-south-1.aliyuncs.com',
+    'me-east-1' = 'pai-eas.me-east-1.aliyuncs.com',
+    'me-central-1' = 'pai-eas.me-central-1.aliyuncs.com',
+    'cn-zhongwei' = 'pai-eas.cn-zhongwei.aliyuncs.com',
+    'cn-wulanchabu' = 'pai-eas.cn-wulanchabu.aliyuncs.com',
+    'cn-heyuan' = 'pai-eas.cn-heyuan.aliyuncs.com',
+    'cn-guangzhou' = 'pai-eas.cn-guangzhou.aliyuncs.com',
+    'ap-southeast-8' = 'pai-eas.ap-southeast-8.aliyuncs.com',
+    'ap-southeast-7' = 'pai-eas.ap-southeast-7.aliyuncs.com',
+    'ap-southeast-3' = 'pai-eas.ap-southeast-3.aliyuncs.com',
+    'ap-northeast-2' = 'pai-eas.ap-northeast-2.aliyuncs.com',
+    'ap-northeast-1' = 'pai-eas.ap-northeast-1.aliyuncs.com',
   };
 }
 
@@ -61,11 +74,25 @@ model ContainerInfo {
 
 model Group {
   accessToken?: string(name='AccessToken'),
+  callerUid?: string(name='CallerUid'),
   clusterId?: string(name='ClusterId'),
   createTime?: string(name='CreateTime'),
   internetEndpoint?: string(name='InternetEndpoint'),
   intranetEndpoint?: string(name='IntranetEndpoint'),
+  labels?: [ 
+    {
+      labelKey?: string(name='LabelKey'),
+      labelValue?: string(name='LabelValue'),
+    }
+  ](name='Labels'),
   name?: string(name='Name'),
+  network?: {
+    gatewayId?: string(name='GatewayId'),
+    securityGroupId?: string(name='SecurityGroupId'),
+    vSwitchId?: string(name='VSwitchId'),
+    vpcId?: string(name='VpcId'),
+  }(name='Network'),
+  parentUid?: string(name='ParentUid'),
   queueService?: string(name='QueueService'),
   trafficMode?: string(name='TrafficMode'),
   updateTime?: string(name='UpdateTime'),
@@ -685,6 +712,38 @@ model CreateGatewayIntranetLinkedVpcPeerResponse = {
 async function createGatewayIntranetLinkedVpcPeer(request: CreateGatewayIntranetLinkedVpcPeerRequest): CreateGatewayIntranetLinkedVpcPeerResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RESTFUL', 'CreateGatewayIntranetLinkedVpcPeer', 'POST', '/api/v2/gateways/{ClusterId}/{GatewayId}/intranet_endpoint_linked_vpc_peer', 'json', false, 'json', request);
+}
+
+model CreateGroupRequest {
+  labels?: map[string]string(name='Labels', position='Body'),
+  name?: string(name='Name', example='foo', position='Body'),
+  network?: {
+    gatewayId?: string(name='GatewayId', example='gw-248xxxxxxvlkhtbrda'),
+    securityGroupId?: string(name='SecurityGroupId', example='sg-584xxxxxx7h08llvoww5tv5gl'),
+    vSwitchId?: string(name='VSwitchId', example='vsw-bp1xxxxxxwmssgq28gye8'),
+    vpcId?: string(name='VpcId', example='vpc-bp1xxxxxx0qrykjr9b'),
+  }(name='Network', position='Body'),
+  workSpaceId?: string(name='WorkSpaceId', example='12xx34', position='Body'),
+}
+
+model CreateGroupResponseBody = {
+  message?: string(name='Message', example='Create service group foo successfully'),
+  requestId?: string(name='RequestId', example='40325405-579C-4D82****'),
+}
+
+model CreateGroupResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: CreateGroupResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of CreateGroup  CreateGroupRequest
+  * @return CreateGroupResponse
+ */
+async function createGroup(request: CreateGroupRequest): CreateGroupResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'CreateGroup', 'POST', '/api/v2/groups', 'json', false, 'json', request);
 }
 
 model CreateResourceRequest {
@@ -1469,6 +1528,32 @@ model DeleteGatewayLabelResponse = {
 async function deleteGatewayLabel(request: DeleteGatewayLabelRequest): DeleteGatewayLabelResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RESTFUL', 'DeleteGatewayLabel', 'DELETE', '/api/v2/gateways/{ClusterId}/{GatewayId}/label', 'json', false, 'json', request);
+}
+
+model DeleteGroupRequest {
+  clusterId?: string(name='ClusterId', example='cn-shanghai', position='Path'),
+  groupName?: string(name='GroupName', example='foo', position='Path'),
+  cascadeDelete?: string(name='CascadeDelete', example='false', position='Query'),
+}
+
+model DeleteGroupResponseBody = {
+  message?: string(name='Message', example='Delete service group foo successfully'),
+  requestId?: string(name='RequestId', example='40325405-579C-4D82********'),
+}
+
+model DeleteGroupResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: DeleteGroupResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of DeleteGroup  DeleteGroupRequest
+  * @return DeleteGroupResponse
+ */
+async function deleteGroup(request: DeleteGroupRequest): DeleteGroupResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'DeleteGroup', 'DELETE', '/api/v2/groups/{ClusterId}/{GroupName}', 'json', false, 'json', request);
 }
 
 model DeleteResourceRequest {
@@ -3481,6 +3566,7 @@ async function listGatewayIntranetSupportedZone(request: ListGatewayIntranetSupp
 
 model ListGroupsRequest {
   filter?: string(name='Filter', description='The name of the filter that is used to filter out unwanted service groups. Fuzzy match is supported.', example='foo', position='Query'),
+  labels?: map[string]string(name='Labels', shrink='json', position='Query'),
   order?: string(name='Order', position='Query'),
   pageNumber?: string(name='PageNumber', description='The page number. Default value: 1.', example='1', position='Query'),
   pageSize?: string(name='PageSize', description='The number of entries per page. Default value: 100.', example='20', position='Query'),
@@ -4980,10 +5066,18 @@ This parameter is required.', example='cn-wulanchabu', position='Path'),
   groupName: string(name='GroupName', description='The service group name. For more information about how to obtain the service group name, see ListServices.
 
 This parameter is required.', example='foo', position='Path'),
+  labels?: map[string]string(name='Labels', position='Body'),
+  network?: {
+    gatewayId?: string(name='GatewayId'),
+    securityGroupId?: string(name='SecurityGroupId'),
+    vSwitchId?: string(name='VSwitchId'),
+    vpcId?: string(name='VpcId'),
+  }(name='Network', position='Body'),
   trafficMode?: string(name='TrafficMode', description='The traffic mode. Valid values: auto and customized. auto: The traffic is automatically allocated based on the proportion of the number of instances to the total number of instances. customized: The traffic is allocated based on a custom weight.', example='auto', position='Body'),
 }
 
 model UpdateGroupResponseBody = {
+  message?: string(name='Message'),
   requestId?: string(name='RequestId', description='Id of the request', example='40325405-579C-4D82****'),
 }
 
