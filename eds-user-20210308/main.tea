@@ -584,17 +584,18 @@ async function createProperty(request: CreatePropertyRequest): CreatePropertyRes
 }
 
 model CreateResourceGroupRequest {
-  businessChannel?: string(name='BusinessChannel', description='The business channel.', example='ENTERPRISE'),
+  agentType?: string(name='AgentType'),
+  businessChannel?: string(name='BusinessChannel', description='The channel.', example='ENTERPRISE'),
   enableAliyunResourceGroup?: boolean(name='EnableAliyunResourceGroup'),
-  isResourceGroupWithOfficeSite?: long(name='IsResourceGroupWithOfficeSite', description='> This parameter is for internal use only.', example='0'),
-  platform?: string(name='Platform', description='Set this parameter to `AliyunConsole` for Wuying Workspace Enterprise Edition.', example='AliyunConsole'),
+  isResourceGroupWithOfficeSite?: long(name='IsResourceGroupWithOfficeSite', description='> This parameter is not publicly available.', example='0'),
+  platform?: string(name='Platform', description='For WUYING Workspace Enterprise Edition, set this parameter to `AliyunConsole`. Other platforms are not supported.', example='AliyunConsole'),
   resourceClassification?: string(name='ResourceClassification'),
   resourceGroupName?: string(name='ResourceGroupName', description='The name of the resource group.', example='部门A资源组'),
 }
 
 model CreateResourceGroupResponseBody = {
   requestId?: string(name='RequestId', description='The request ID.', example='868B8926-2E7A-5BE7-9897-E811E994****'),
-  resourceGroupId?: string(name='ResourceGroupId', description='The ID of the newly created resource group.', example='rg-ckf3cx7isinhk***'),
+  resourceGroupId?: string(name='ResourceGroupId', description='The resource group ID.', example='rg-ckf3cx7isinhk***'),
 }
 
 model CreateResourceGroupResponse = {
@@ -613,6 +614,9 @@ model CreateResourceGroupResponse = {
 async function createResourceGroupWithOptions(request: CreateResourceGroupRequest, runtime: Util.RuntimeOptions): CreateResourceGroupResponse {
   Util.validateModel(request);
   var query = {};
+  if (!Util.isUnset(request.agentType)) {
+    query['AgentType'] = request.agentType;
+  }
   if (!Util.isUnset(request.businessChannel)) {
     query['BusinessChannel'] = request.businessChannel;
   }
@@ -1432,16 +1436,16 @@ async function describeOrgs(request: DescribeOrgsRequest): DescribeOrgsResponse 
 }
 
 model DescribeResourceGroupsRequest {
-  aliyunResourceGroupIds?: [ string ](name='AliyunResourceGroupIds', description='A list of Aliyun resource group IDs.'),
-  businessChannel?: string(name='BusinessChannel', description='The business channel.', example='ENTERPRISE'),
+  agentType?: string(name='AgentType'),
+  aliyunResourceGroupIds?: [ string ](name='AliyunResourceGroupIds', description='The cloud platform resource group ID.'),
+  businessChannel?: string(name='BusinessChannel', description='The channel tag.', example='ENTERPRISE'),
   needContainResourceGroupWithOfficeSite?: long(name='NeedContainResourceGroupWithOfficeSite', description='> This parameter is not publicly available.', example='0'),
   pageNumber?: int32(name='PageNumber', description='The page number.', example='1'),
-  pageSize?: int32(name='PageSize', description='The number of entries to return per page.', example='20'),
-  platform?: string(name='Platform', description='> The cloud platform.
->
-> - For Elastic Desktop Service (EDS) Enterprise Edition, this parameter must be set to AliyunConsole.', example='AliyunConsole'),
+  pageSize?: int32(name='PageSize', description='The number of entries per page.', example='20'),
+  platform?: string(name='Platform', description='> Fixed value: AliyunConsole.
+> - For Elastic Desktop Service Enterprise Edition, set this parameter to AliyunConsole. Other platforms are not publicly available.', example='AliyunConsole'),
   resourceClassification?: string(name='ResourceClassification'),
-  resourceGroupIds?: [ string ](name='ResourceGroupIds', description='A list of resource group IDs.'),
+  resourceGroupIds?: [ string ](name='ResourceGroupIds', description='The list of resource group IDs.'),
   resourceGroupName?: string(name='ResourceGroupName', description='The name of the resource group.', example='部门A资源组'),
 }
 
@@ -1449,6 +1453,7 @@ model DescribeResourceGroupsResponseBody = {
   requestId?: string(name='RequestId', description='The request ID.', example='68BA1DF7-8814-5AED-B844-F8F7F7****'),
   resourceGroup?: [ 
     {
+      agentType?: string(name='AgentType'),
       aliyunResourceGroupId?: string(name='AliyunResourceGroupId', description='The Alibaba Cloud resource group ID.', example='rg-123456'),
       appRules?: [ 
         {
@@ -1458,19 +1463,17 @@ model DescribeResourceGroupsResponseBody = {
         }
       ](name='AppRules'),
       authCount?: string(name='AuthCount', description='The number of administrators authorized for the resource group.', example='3'),
-      createTime?: string(name='CreateTime', description='The time the resource group was created.', example='2022-11-29T17:25:40.000000000Z'),
+      createTime?: string(name='CreateTime', description='The creation time.', example='2022-11-29T17:25:40.000000000Z'),
       policies?: [ 
         {
           id?: string(name='Id', description='The policy ID.', example='pl-a8jnatl8kjasb***'),
-          isDefault?: boolean(name='IsDefault', description='Specifies whether this is the default policy.', example='False'),
+          isDefault?: boolean(name='IsDefault', description='Indicates whether the policy is the default policy.', example='False'),
           name?: string(name='Name', description='The policy name.', example='测试策略123'),
         }
       ](name='Policies', description='> The policies associated with the resource group.
->
-> - These policies apply to the cloud computers in the resource group. If multiple policies are associated, they are applied in order of priority.
->
-> - Policies associated with the resource group take precedence over policies assigned to individual cloud computers.'),
-      resourceCount?: string(name='ResourceCount', description='The number of resources in the resource group.', example='119'),
+> - Associated policies take effect on cloud desktops in the resource group. If multiple policies are associated, they take effect based on policy priority.
+> - If a cloud desktop in the resource group already has other policies specified, the policies associated with the resource group take precedence.'),
+      resourceCount?: string(name='ResourceCount', description='The resource count in the resource group.', example='119'),
       resourceGroupId?: string(name='ResourceGroupId', description='The resource group ID.', example='rg-cyo0il2pzge1***'),
       resourceGroupName?: string(name='ResourceGroupName', description='The name of the resource group.', example='测试资源组'),
       timers?: [ 
@@ -1480,11 +1483,10 @@ model DescribeResourceGroupsResponseBody = {
           name?: string(name='Name', description='The scheduled task name.', example='测试任务123'),
           timerStatus?: string(name='TimerStatus'),
         }
-      ](name='Timers', description='> The scheduled tasks associated with the resource group.
->
-> - These scheduled tasks apply to cloud computers in the resource group and take precedence over any tasks associated with individual cloud computers.'),
+      ](name='Timers', description='> The associated scheduled tasks.
+> - Associated scheduled tasks take effect on cloud desktops in the resource group. If a cloud desktop in the resource group already has other scheduled tasks associated, the tasks associated with the resource group take precedence.'),
     }
-  ](name='ResourceGroup', description='A list of resource groups.'),
+  ](name='ResourceGroup', description='The list of resource groups.'),
   totalCount?: string(name='TotalCount', description='The total number of resource groups.', example='7'),
 }
 
@@ -1495,7 +1497,7 @@ model DescribeResourceGroupsResponse = {
 }
 
 /**
- * @summary View resource groups.
+ * @summary Queries resource groups.
  *
  * @param request DescribeResourceGroupsRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -1504,6 +1506,9 @@ model DescribeResourceGroupsResponse = {
 async function describeResourceGroupsWithOptions(request: DescribeResourceGroupsRequest, runtime: Util.RuntimeOptions): DescribeResourceGroupsResponse {
   Util.validateModel(request);
   var query = {};
+  if (!Util.isUnset(request.agentType)) {
+    query['AgentType'] = request.agentType;
+  }
   if (!Util.isUnset(request.aliyunResourceGroupIds)) {
     query['AliyunResourceGroupIds'] = request.aliyunResourceGroupIds;
   }
@@ -1549,7 +1554,7 @@ async function describeResourceGroupsWithOptions(request: DescribeResourceGroups
 }
 
 /**
- * @summary View resource groups.
+ * @summary Queries resource groups.
  *
  * @param request DescribeResourceGroupsRequest
  * @return DescribeResourceGroupsResponse
