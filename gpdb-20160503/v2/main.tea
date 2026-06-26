@@ -753,66 +753,58 @@ async function cancelUpsertCollectionDataJob(request: CancelUpsertCollectionData
 
 model ChatWithKnowledgeBaseRequest {
   DBInstanceId?: string(name='DBInstanceId', description='The instance ID.
-
-> You can call the [DescribeDBInstances](https://help.aliyun.com/document_detail/196830.html) operation to view the details of all instances in a target region, including their instance IDs.
+> You can call the [DescribeDBInstances](https://help.aliyun.com/document_detail/196830.html) operation to query the details of all instances in the target region, including the instance ID.
 
 This parameter is required.', example='gp-xxxxxxxxx'),
-  includeKnowledgeBaseResults?: boolean(name='IncludeKnowledgeBaseResults', description='Whether to include the raw retrieval results from the knowledge base in the response. Default: `false`.', example='false'),
+  includeKnowledgeBaseResults?: boolean(name='IncludeKnowledgeBaseResults', description='Specifies whether to return the recall results. Default value: false.', example='false'),
   knowledgeParams?: {
-    mergeMethod?: string(name='MergeMethod', description='The method for merging results from multiple knowledge bases. Default: `RRF`. Valid values:
-
-- `RRF`
-
-- `Weight`', example='"RRF"'),
+    mergeMethod?: string(name='MergeMethod', description='The method for merging multiple knowledge bases. Default is RRF. Valid values:
+- RRF
+- Weight', example='"RRF"'),
     mergeMethodArgs?: {
       rrf?: {
-        k?: long(name='K', description='The constant `k` in the reciprocal rank fusion formula `1/(k + rank_i)`. The value must be a positive integer greater than 1.', example='60'),
-      }(name='Rrf', description='Parameters to use when `MergeMethod` is set to `RRF`.'),
+        k?: long(name='K', description='The k constant in the scoring algorithm 1/(k+rank_i). The value must be a positive integer greater than 1.', example='60'),
+      }(name='Rrf', description='The configurable parameters when MergeMethod is set to RRF.'),
       weight?: {
-        weights?: [ double ](name='Weights', description='An array of weights corresponding to each collection specified in `SourceCollection`.'),
-      }(name='Weight', description='Parameters to use when `MergeMethod` is set to `Weight`.'),
-    }(name='MergeMethodArgs', description='The parameters for the merge method.'),
-    rerankFactor?: double(name='RerankFactor', description='The reranking factor. Specify this to rerank the initial vector retrieval results for improved relevance. Valid range: (1, 5].
-
-> - Reranking may be less efficient if document chunks are sparse.
->
-> - We recommend that the number of items to rerank, calculated as `Ceiling(TopK * RerankFactor)`, does not exceed 50.', example='1.0001'),
+        weights?: [ double ](name='Weights', description='The weight array for each SourceCollection.'),
+      }(name='Weight', description='The configurable parameters when MergeMethod is set to Weight.'),
+    }(name='MergeMethodArgs', description='The parameters for multi-knowledge base fusion.'),
+    rerankFactor?: double(name='RerankFactor', description='The reranking factor. When this value is not empty, the vector retrieval results are reranked. Value range: 1 < RerankFactor <= 5.
+> - Reranking is slow when document segmentation is sparse.
+> - It is recommended that the number of items to rerank (TopK * Factor, rounded up) does not exceed 50.', example='1.0001'),
     rerankModel?: {
-      instruct?: string(name='Instruct', description='The instruction or prompt for the reranking model.', example='Given a web search query, retrieve relevant passages that answer the query'),
-      name?: string(name='Name', description='The name of the reranking model.', example='qwen3-rerank'),
-    }(name='RerankModel', description='The model to use for reranking.'),
+      instruct?: string(name='Instruct', example='Given a web search query, retrieve relevant passages that answer the query'),
+      name?: string(name='Name', example='qwen3-rerank'),
+    }(name='RerankModel'),
     sourceCollection?: [ 
       {
-        collection?: string(name='Collection', description='The name of the collection to query.
+        collection?: string(name='Collection', description='The name of the collection to recall.
 
 This parameter is required.', example='adbpg_document_collection'),
-        namespace?: string(name='Namespace', description='The namespace where the collection resides. Default: `public`.
+        namespace?: string(name='Namespace', description='The namespace. Default value: public.
 
-> You can create a namespace by calling the [CreateNamespace](https://help.aliyun.com/document_detail/2401495.html) operation and view existing namespaces by calling the [ListNamespaces](https://help.aliyun.com/document_detail/2401502.html) operation.', example='dukang'),
-        namespacePassword?: string(name='NamespacePassword', description='The password for the specified namespace.
+> You can create a namespace by calling the [CreateNamespace](https://help.aliyun.com/document_detail/2401495.html) operation, and view the list by calling the [ListNamespaces](https://help.aliyun.com/document_detail/2401502.html) operation.', example='dukang'),
+        namespacePassword?: string(name='NamespacePassword', description='The password corresponding to the namespace.
 
-> This password is set when you call the `CreateNamespace` operation.
+> This value is specified in the CreateNamespace operation.
 
 This parameter is required.', example='namespacePasswd'),
         queryParams?: {
-          filter?: string(name='Filter', description='A filter to apply to the search, specified as a SQL `WHERE` clause.', example='id = \\\\"llm-t87l87fxuhn56woc_8anu8j2d3f_file_e74635e2cc314e838543e724f6b3b1f2_10658020\\\\"'),
-          graphEnhance?: boolean(name='GraphEnhance', description='Whether to enhance the search with a knowledge graph. Default: `false`.', example='false'),
+          filter?: string(name='Filter', description='The filter condition for the data to be updated, in SQL WHERE clause format.', example='id = \\\\"llm-t87l87fxuhn56woc_8anu8j2d3f_file_e74635e2cc314e838543e724f6b3b1f2_10658020\\\\"'),
+          graphEnhance?: boolean(name='GraphEnhance', description='Specifies whether to enable knowledge graph enhancement. Default value: false.', example='false'),
           graphSearchArgs?: {
-            graphTopK?: long(name='GraphTopK', description='The maximum number of entities and relationship edges to return from the knowledge graph search. Default: 60.', example='60'),
-          }(name='GraphSearchArgs', description='Parameters for the knowledge graph search, used when `GraphEnhance` is `true`.'),
-          hybridSearch?: string(name='HybridSearch', description='The multi-channel recall algorithm. If omitted, the system directly compares and sorts scores from dense vector retrieval and full-text search.
+            graphTopK?: long(name='GraphTopK', description='The number of top entities and relationship edges to return. Default value: 60.', example='60'),
+          }(name='GraphSearchArgs', description='The number of top entities and relationship edges to return. Default value: 60.'),
+          hybridSearch?: string(name='HybridSearch', description='The multi-path recall algorithm. Default is empty (i.e., directly compares and sorts the dense vector and full-text scores).
 
 Valid values:
 
-- `RRF`: Uses reciprocal rank fusion. The fusion effect is controlled by the `k` parameter in `HybridSearchArgs`.
+- RRF: Reciprocal Rank Fusion. Has a parameter k to control the fusion effect. See HybridSearchArgs configuration for details.
+- Weight: Weight-based sorting. Uses parameters to control the score weights of vector and full-text retrieval, then sorts. See HybridSearchArgs configuration for details.
+- Cascaded: First performs full-text retrieval, then performs vector retrieval on top of it.', example='RRF'),
+          hybridSearchArgs?: map[string]any(name='HybridSearchArgs', description='The algorithm parameters for multi-path recall. Currently supports RRF and Weight. HybridPathsSetting can specify recall of dense vectors (dense), sparse vectors (sparse), and full-text retrieval (fulltext). If the value is empty, dense vectors (dense) and full-text retrieval (fulltext) are recalled by default.
 
-- `Weight`: Uses weighted sorting. The weights for vector retrieval and full-text search scores are controlled by parameters in `HybridSearchArgs`.
-
-- `Cascaded`: Performs a full-text search first, followed by a vector retrieval on the results.', example='RRF'),
-          hybridSearchArgs?: map[string]any(name='HybridSearchArgs', description='Parameters for the multi-channel recall algorithm. `RRF` and `Weight` are supported. The `HybridPathsSetting` parameter can specify the recall channels: `dense` (dense vector), `sparse` (sparse vector), and `fulltext` (full-text search). If this parameter is empty, `dense` and `fulltext` are used by default.
-
-- `RRF`: Specifies the constant `k` in the formula `1/(k+rank_i)`. The value must be a positive integer greater than 1. Format:
-
+- RRF: Specifies the k constant in the scoring algorithm `1/(k+rank_i)`. The value must be a positive integer greater than 1. Format:
 ```
 {
   "HybridPathsSetting": {
@@ -824,12 +816,9 @@ Valid values:
 }
 ```
 
-- `Weight`:
-
-  - Two-channel recall (if `HybridPathsSetting` is not specified, only `alpha` is required):
-
-    - Formula: `alpha * dense_score + (1-alpha) * fulltext_score`. The `alpha` parameter represents the weight of the dense vector score relative to the full-text search score. The value must be in the range [0, 1]. A value of 0 uses only full-text search. A value of 1 uses only dense vector retrieval.
-
+- Weight: 
+   - Dual-path recall (without specifying HybridPathsSetting, only specifying alpha):
+      - Formula: alpha * dense_score + (1-alpha) * fulltext_score. The parameter alpha represents the score weight between dense vector and full-text retrieval, ranging from 0 to 1, where 0 means full-text only and 1 means dense vector only:
 ```
 { 
    "Weight": {
@@ -837,11 +826,8 @@ Valid values:
    }
 }
 ```
-
-- Three-channel recall:
-
-  - Formula: `normalized_dense * dense_score + normalized_sparse * sparse_score + normalized_fulltext * fulltext_score`. The `dense`, `sparse`, and `fulltext` parameters represent the weights for each channel and must be greater than or equal to 0. The system automatically normalizes these weights (for example, `normalized_x = x / (dense + sparse + fulltext)`).
-
+  - Three-path recall mode:
+     - Formula: normalized_dense * dense_score + normalized_sparse * sparse_score + normalized_fulltext * fulltext_score. Where dense, sparse, and fulltext represent the weights for dense vector, sparse vector, and full-text retrieval respectively, with values greater than or equal to 0. The system automatically normalizes the weights to the range 0-1 (i.e., normalized_x = x / (dense + sparse + fulltext)).
 ```
 {
   "HybridPathsSetting": {
@@ -854,79 +840,70 @@ Valid values:
   }
 }
 ```'),
-          metrics?: string(name='Metrics', description='The distance metric used for vector indexing. Valid values:
-
-- `l2`: euclidean distance.
-
-- `ip`: Inner product (dot product) distance.
-
-- `cosine`: cosine similarity.', example='cosine'),
-          recallWindow?: [ long ](name='RecallWindow', description='The recall window. If specified, expands the context around retrieved text chunks. Must be an array of two integers, `[A, B]`, where `A` is the number of preceding chunks to include (from -10 to 0) and `B` is the number of following chunks (from 0 to 10).
-
-> - We recommend that you use this parameter when document chunks are highly fragmented and retrieval might result in a loss of context.
->
-> - Reranking is performed before windowing is applied.'),
-          rerankFactor?: double(name='RerankFactor', description='The reranking factor for this collection, which overrides the top-level `RerankFactor`. If specified, it reranks the initial retrieval results to improve relevance. Valid range: (1, 5].
-
-> - Reranking may be less efficient if document chunks are sparse.
->
-> - We recommend that the number of items to rerank, calculated as `Ceiling(TopK * RerankFactor)`, does not exceed 50.', example='1.5'),
+          metrics?: string(name='Metrics', description='The method used when building the vector index. Valid values:
+- l2: Euclidean distance.
+- ip: Inner product distance.
+- cosine: Cosine similarity.', example='cosine'),
+          recallWindow?: [ long ](name='RecallWindow', description='The recall window. When this value is not empty, additional context of the retrieval results is returned. The format is a 2-element array: List<A, B>, where -10 <= A <= 0 and 0 <= B <= 10.
+> - It is recommended to use this parameter when document segmentation is too granular and retrieval may lose contextual information.
+> - Reranking takes priority over windowing, meaning reranking is performed first, then windowing is applied.'),
+          rerankFactor?: double(name='RerankFactor', description='The reranking factor. When this value is not empty, the vector retrieval results are reranked. Value range: 1 < RerankFactor <= 5.
+> - Reranking is slow when document segmentation is sparse.
+> - It is recommended that the number of items to rerank (TopK * Factor, rounded up) does not exceed 50.', example='1.5'),
           rerankModel?: {
-            instruct?: string(name='Instruct', description='The instruction or prompt for the reranking model.', example='Given a web search query, retrieve relevant passages that answer the query'),
-            name?: string(name='Name', description='The name of the reranking model.', example='qwen3-rerank'),
-          }(name='RerankModel', description='The model to use for reranking.'),
-          topK?: long(name='TopK', description='The number of top results to return from this collection before merging.', example='10'),
-          useFullTextRetrieval?: boolean(name='UseFullTextRetrieval', description='Whether to enable full-text search in addition to vector retrieval. Default: `false` (uses only vector retrieval).', example='true'),
-        }(name='QueryParams', description='Retrieval parameters for this knowledge base collection.'),
+            instruct?: string(name='Instruct', example='Given a web search query, retrieve relevant passages that answer the query'),
+            name?: string(name='Name', example='qwen3-rerank'),
+            rerankMetadataFields?: string(name='RerankMetadataFields'),
+          }(name='RerankModel'),
+          topK?: long(name='TopK', description='The number of top results to return.', example='10'),
+          useFullTextRetrieval?: boolean(name='UseFullTextRetrieval', description='Specifies whether to use full-text retrieval (dual-path recall). Default value: false, which means only vector retrieval is used.', example='true'),
+        }(name='QueryParams', description='The parameters related to knowledge base retrieval.'),
       }
-    ](name='SourceCollection', description='An array of knowledge base collections to query.
+    ](name='SourceCollection', description='The list of knowledge bases.
 
 This parameter is required.'),
-    topK?: long(name='TopK', description='The number of top results to return after the results from multiple vector collection recalls are merged.', example='10'),
-  }(name='KnowledgeParams', description='Parameters for knowledge retrieval. If omitted, the operation performs a standard chat without retrieving from a knowledge base.'),
+    topK?: long(name='TopK', description='The number of top results to return after merging the recall results from multiple vector collections.', example='10'),
+  }(name='KnowledgeParams', description='The knowledge retrieval parameter object. If not specified, only chat is performed.'),
   modelParams?: {
     maxTokens?: long(name='MaxTokens', description='The maximum number of tokens to generate.', example='8192'),
     messages?: [ 
       {
-        content?: string(name='Content', description='The content of the message.
+        content?: string(name='Content', description='The message content.
 
 This parameter is required.', example='You are a helpful assistant.'),
-        role?: string(name='Role', description='The role of the message author. Valid values:
-
-- `system`
-
-- `user`
-
-- `assistant`
+        role?: string(name='Role', description='The message role. Valid values:
+- system
+- user
+- assistant
 
 This parameter is required.', example='user'),
       }
-    ](name='Messages', description='The list of messages that form the conversation history.
+    ](name='Messages', description='The message list.
 
 This parameter is required.'),
-    model?: string(name='Model', description='The name of the large language model to use. For a list of available models, see the [Model Studio documentation](https://help.aliyun.com/zh/model-studio/compatibility-of-openai-with-dashscope?spm=a2c4g.11186623.help-menu-2400256.d_2_10_0.45b5516eZIciC8\\\\&scm=20140722.H_2833609._.OR_help-T_cn~zh-V_1#eadfc13038jd5).
+    model?: string(name='Model', description='The name of the large model to use. For valid values, see: [Bailian Help Documentation](https://help.aliyun.com/zh/model-studio/compatibility-of-openai-with-dashscope?spm=a2c4g.11186623.help-menu-2400256.d_2_10_0.45b5516eZIciC8&scm=20140722.H_2833609._.OR_help-T_cn~zh-V_1#eadfc13038jd5)
 
 This parameter is required.', example='qwen-plus'),
-    n?: long(name='N', description='The number of candidate responses to generate.', example='1'),
-    presencePenalty?: double(name='PresencePenalty', description='The presence penalty. Valid range: [-2.0, 2.0].', example='1.0'),
+    n?: long(name='N', description='The number of candidate replies to generate.', example='1'),
+    presencePenalty?: double(name='PresencePenalty', description='The presence penalty coefficient (-2.0 to 2.0).', example='1.0'),
     seed?: long(name='Seed', description='The random seed.', example='42'),
-    stop?: [ string ](name='Stop', description='A list of stop words.'),
-    temperature?: double(name='Temperature', description='The sampling temperature. Valid range: (0, 2.0].', example='0.6'),
+    stop?: [ string ](name='Stop', description='The stop word list.'),
+    temperature?: double(name='Temperature', description='The sampling temperature (0 to 2).', example='0.6'),
     tools?: [ 
       {
         function?: {
-          description?: string(name='Description', description='The description of the function tool.', example='获取天气。'),
-          name?: string(name='Name', description='The name of the function tool.', example='get_weather'),
-          parameters?: any(name='Parameters', description='The JSON schema of the function parameters.', example='{"type": "object", ...}'),
+          description?: string(name='Description', description='The function tool description.', example='获取天气。'),
+          name?: string(name='Name', description='The function tool name.', example='get_weather'),
+          parameters?: any(name='Parameters', description='The function parameters in JSON Schema format.', example='{"type": "object", ...}'),
         }(name='Function', description='The function information.'),
       }
-    ](name='Tools', description='The list of tools.'),
-    topP?: double(name='TopP', description='The probability threshold for nucleus sampling. Valid range: (0, 1.0).', example='0.9'),
-  }(name='ModelParams', description='The parameters for calling the large language model (LLM).
+    ](name='Tools', description='The tool list.'),
+    topP?: double(name='TopP', description='The nucleus sampling probability threshold (0 to 1).', example='0.9'),
+  }(name='ModelParams', description='The large language model (LLM) invocation parameter object.
 
 This parameter is required.'),
   ownerId?: long(name='OwnerId'),
-  promptParams?: string(name='PromptParams', description='A custom system prompt template. If specified, it overrides the default prompt. The template must include the {{ text_chunks }}, {{ user_system_prompt }}, {{ graph_entities }}, and {{ graph_relations }} placeholders.', example='"参考以下知识回答问题:{{ text_chunks }}"'),
+  promptParams?: string(name='PromptParams', description='The system prompt template, which must include {{ text_chunks }}, {{ user_system_prompt }}, {{ graph_entities }}, and {{ graph_relations }}. If not specified, this part does not take effect.', example='"参考以下知识回答问题:{{ text_chunks }}"'),
   regionId?: string(name='RegionId', description='The region ID of the instance.
 
 This parameter is required.', example='cn-hangzhou'),
@@ -934,17 +911,16 @@ This parameter is required.', example='cn-hangzhou'),
 
 model ChatWithKnowledgeBaseShrinkRequest {
   DBInstanceId?: string(name='DBInstanceId', description='The instance ID.
-
-> You can call the [DescribeDBInstances](https://help.aliyun.com/document_detail/196830.html) operation to view the details of all instances in a target region, including their instance IDs.
+> You can call the [DescribeDBInstances](https://help.aliyun.com/document_detail/196830.html) operation to query the details of all instances in the target region, including the instance ID.
 
 This parameter is required.', example='gp-xxxxxxxxx'),
-  includeKnowledgeBaseResults?: boolean(name='IncludeKnowledgeBaseResults', description='Whether to include the raw retrieval results from the knowledge base in the response. Default: `false`.', example='false'),
-  knowledgeParamsShrink?: string(name='KnowledgeParams', description='Parameters for knowledge retrieval. If omitted, the operation performs a standard chat without retrieving from a knowledge base.'),
-  modelParamsShrink?: string(name='ModelParams', description='The parameters for calling the large language model (LLM).
+  includeKnowledgeBaseResults?: boolean(name='IncludeKnowledgeBaseResults', description='Specifies whether to return the recall results. Default value: false.', example='false'),
+  knowledgeParamsShrink?: string(name='KnowledgeParams', description='The knowledge retrieval parameter object. If not specified, only chat is performed.'),
+  modelParamsShrink?: string(name='ModelParams', description='The large language model (LLM) invocation parameter object.
 
 This parameter is required.'),
   ownerId?: long(name='OwnerId'),
-  promptParams?: string(name='PromptParams', description='A custom system prompt template. If specified, it overrides the default prompt. The template must include the {{ text_chunks }}, {{ user_system_prompt }}, {{ graph_entities }}, and {{ graph_relations }} placeholders.', example='"参考以下知识回答问题:{{ text_chunks }}"'),
+  promptParams?: string(name='PromptParams', description='The system prompt template, which must include {{ text_chunks }}, {{ user_system_prompt }}, {{ graph_entities }}, and {{ graph_relations }}. If not specified, this part does not take effect.', example='"参考以下知识回答问题:{{ text_chunks }}"'),
   regionId?: string(name='RegionId', description='The region ID of the instance.
 
 This parameter is required.', example='cn-hangzhou'),
@@ -954,82 +930,75 @@ model ChatWithKnowledgeBaseResponseBody = {
   chatCompletion?: {
     choices?: [ 
       {
-        finishReason?: string(name='FinishReason', description='The reason the model stopped generating tokens.', example='finish'),
-        index?: long(name='Index', description='The index of this choice in the `Choices` array.', example='0'),
+        finishReason?: string(name='FinishReason', description='The stop reason.', example='finish'),
+        index?: long(name='Index', description='The reply sequence number.', example='0'),
         message?: {
-          content?: string(name='Content', description='The content of the message.', example='The weather in Hangzhou is sunny.'),
-          reasoningContent?: string(name='ReasoningContent', description='The model\\\\"s reasoning process.', example='Logical reasoning process'),
-          role?: string(name='Role', description='The role of the message:
-
-- `system`
-
-- `user`
-
-- `assistant`', example='user'),
+          content?: string(name='Content', description='The document content.', example='The weather in Hangzhou is sunny.'),
+          reasoningContent?: string(name='ReasoningContent', description='The model reasoning content.', example='Logical reasoning process'),
+          role?: string(name='Role', description='The message role:
+- system
+- user
+- assistant', example='user'),
           toolCalls?: [ 
             {
               function?: {
-                arguments?: string(name='Arguments', description='The arguments to pass to the function.', example='{"city":"hangzhou"}'),
-                name?: string(name='Name', description='The name of the function to call.', example='"get_weather"'),
-              }(name='Function', description='The function that the model wants to call.'),
-              id?: string(name='Id', description='The ID of the tool call.', example='"chatcmpl-c1bebafa-cc48-44e2-88c6-1a3572952f8e"'),
-              index?: long(name='Index', description='The index of the tool call.', example='1'),
+                arguments?: string(name='Arguments', description='The called function parameters.', example='{"city":"hangzhou"}'),
+                name?: string(name='Name', description='The called function name.', example='"get_weather"'),
+              }(name='Function', description='The called function information.'),
+              id?: string(name='Id', description='The ID.', example='"chatcmpl-c1bebafa-cc48-44e2-88c6-1a3572952f8e"'),
+              index?: long(name='Index', description='The tool call sequence number.', example='1'),
             }
-          ](name='ToolCalls', description='A list of tool calls generated by the model.'),
-        }(name='Message', description='The message generated by the large language model.'),
+          ](name='ToolCalls', description='The tool call response list.'),
+        }(name='Message', description='The large model reply response.'),
       }
-    ](name='Choices', description='A list of chat completion choices.'),
-    created?: long(name='Created', description='The creation time of the response, as a Unix timestamp.', example='1758529748'),
+    ](name='Choices', description='The real-time generated text content.'),
+    created?: long(name='Created', description='The creation time.', example='1758529748'),
     id?: string(name='Id', description='The response ID.', example='273e3fc7-8f56-4167-a1bb-d35d2f3b9043'),
-    model?: string(name='Model', description='The model that generated the response.', example='qwen-plus'),
+    model?: string(name='Model', description='The model name used.', example='qwen-plus'),
     usage?: {
-      completionTokens?: long(name='CompletionTokens', description='The number of tokens in the generated response.', example='42'),
-      promptTokens?: long(name='PromptTokens', description='The number of tokens in the input prompt.', example='42'),
+      completionTokens?: long(name='CompletionTokens', description='The number of tokens consumed for generating content.', example='42'),
+      promptTokens?: long(name='PromptTokens', description='The number of tokens consumed by the input prompt.', example='42'),
       promptTokensDetails?: {
-        cachedTokens?: long(name='CachedTokens', description='The number of prompt tokens that resulted in a cache hit.', example='24'),
-      }(name='PromptTokensDetails', description='Details of the prompt tokens.'),
-      totalTokens?: long(name='TotalTokens', description='The total number of tokens used in the request (prompt tokens + completion tokens).', example='42'),
-    }(name='Usage', description='Token usage statistics for the chat completion.'),
-  }(name='ChatCompletion', description='The response from the large language model.'),
-  message?: string(name='Message', description='A message that provides details about the status of the operation.', example='Successful'),
+        cachedTokens?: long(name='CachedTokens', description='The number of tokens that hit the cache.', example='24'),
+      }(name='PromptTokensDetails', description='The prompt token details.'),
+      totalTokens?: long(name='TotalTokens', description='The total number of tokens.', example='42'),
+    }(name='Usage', description='The token usage of the large model output.'),
+  }(name='ChatCompletion', description='The model response.'),
+  message?: string(name='Message', description='The return message.', example='Successful'),
   multiCollectionRecallResult?: {
-    entities?: [ string ](name='Entities', description='A list of identified entity types.'),
+    entities?: [ string ](name='Entities', description='The entity details.'),
     matches?: [ 
       {
         content?: string(name='Content', description='The document content.', example='AnalyticDB PostgreSQL vector database.'),
         fileName?: string(name='FileName', description='The file name.', example='process_info_19b9df4dc9ad4bf2b30eb2faa4a9a987.txt'),
-        fileURL?: string(name='FileURL', description='The public URL of the file. By default, the URL is valid for 2 hours.
+        fileURL?: string(name='FileURL', description='The public URL of the query result image, valid for 2 hours by default.
 
-You can specify a custom validity period by using the `UrlExpiration` request parameter.', example='http://viapi-customer-pop.oss-cn-shanghai.aliyuncs.com/b4d8_207196811002111319_570c0e199f03428f812ab21fcc00dd6a'),
-        id?: string(name='Id', description='The unique ID of the vector.', example='273e3fc7-8f56-4167-a1bb-d35d2f3b9043'),
-        loaderMetadata?: any(name='LoaderMetadata', description='The metadata generated when the document was loaded.', example='{"page":1}'),
+You can specify the validity period using the UrlExpiration input parameter.', example='http://viapi-customer-pop.oss-cn-shanghai.aliyuncs.com/b4d8_207196811002111319_570c0e199f03428f812ab21fcc00dd6a'),
+        id?: string(name='Id', description='The unique ID of the vector data.', example='273e3fc7-8f56-4167-a1bb-d35d2f3b9043'),
+        loaderMetadata?: any(name='LoaderMetadata', description='The metadata information loaded by the document loader.', example='{"page":1}'),
         metadata?: map[string]any(name='Metadata', description='The metadata.'),
         rerankScore?: double(name='RerankScore', description='The reranking score.', example='0.1'),
-        retrievalSource?: long(name='RetrievalSource', description='The retrieval source. Valid values: `1` for vector retrieval, `2` for full-text search, and `3` for two-channel recall.', example='3'),
-        score?: double(name='Score', description='The similarity score. The score is based on the algorithm `(l2/ip/cosine)` specified when the index was created.', example='12'),
+        retrievalSource?: long(name='RetrievalSource', description='The source of the retrieval result. 1 indicates vector retrieval, 2 indicates full-text retrieval, and 3 indicates dual-path recall.', example='3'),
+        score?: double(name='Score', description='The similarity score of this data entry. The scoring algorithm is related to the algorithm specified when creating the index (l2/ip/cosine).', example='12'),
         vector?: [ double ](name='Vector', description='The vector data.'),
       }
-    ](name='Matches', description='The recalled items.'),
-    relations?: [ string ](name='Relations', description='The relationship edges.'),
+    ](name='Matches', description='The recall items.'),
+    relations?: [ string ](name='Relations', description='The relationship edge details.'),
     requestId?: string(name='RequestId', description='The request ID.', example='6B9E3255-4543-5B3B-9E00-6490CA64742B'),
-    status?: string(name='Status', description='The status of the recall operation. Valid values:
-
-- `success`: The recall was successful.
-
-- `fail`: The recall failed.', example='success'),
-    tokens?: long(name='Tokens', description='The number of tokens consumed by the recall process.', example='42'),
+    status?: string(name='Status', description='The API execution status. Valid values:
+- **success**: Execution succeeded.
+- **fail**: Execution failed.', example='success'),
+    tokens?: long(name='Tokens', description='The number of tokens consumed.', example='42'),
     usage?: {
       embeddingTokens?: long(name='EmbeddingTokens', description='The number of tokens used for vectorization.
 
-> A token is the smallest unit of text. A token can be a word, a phrase, a punctuation mark, or a character.', example='21'),
-    }(name='Usage', description='Usage statistics for the recall, such as the number of tokens for vectorization.'),
-  }(name='MultiCollectionRecallResult', description='The recall results from multiple knowledge bases.'),
+> A token is the smallest unit into which input text is divided. A token can be a word, a phrase, a punctuation mark, a character, etc.', example='21'),
+    }(name='Usage', description='The tokens or items consumed by document understanding or embedding.'),
+  }(name='MultiCollectionRecallResult', description='The multi-knowledge base recall information.'),
   requestId?: string(name='RequestId', description='The request ID.', example='ABB39CC3-4488-4857-905D-2E4A051D0521'),
-  status?: string(name='Status', description='The final status of the request. Valid values:
-
-- `success`: The request was successful.
-
-- `fail`: The request failed.', example='success'),
+  status?: string(name='Status', description='The status. Valid values:
+- **success**: Succeeded.
+- **fail**: Failed.', example='success'),
 }
 
 model ChatWithKnowledgeBaseResponse = {
@@ -1039,13 +1008,13 @@ model ChatWithKnowledgeBaseResponse = {
 }
 
 /**
- * @summary Combines a knowledge base with a large language model for intelligent Q&A.
+ * @summary Provides intelligent Q&A services by combining knowledge bases with large models.
  *
- * @description This API lets you interact with a large language model using specific knowledge base collections to ensure responses are grounded in their content. You can customize requests by configuring parameters, including the database instance ID, knowledge retrieval parameters, and model inference parameters. The API provides a default system prompt template and supports custom system prompts.
- * - **DBInstanceId**: Required. Specifies the ID of the database instance.
- * - **KnowledgeParams**: Optional. Contains parameters for knowledge retrieval, such as retrieval content and merge policies.
- * - **ModelParams**: Required. Contains parameters for model inference, such as the message list and the model name.
- * - **PromptTemplate**: Optional. Specifies a custom system prompt template.
+ * @description This API allows users to interact with a large model through specified knowledge base collections to obtain answers based on knowledge base content. It supports configuring various parameters to customize requests, including but not limited to database instance ID, knowledge retrieval parameters, model inference parameters, etc. Additionally, it provides a default system prompt template and allows users to customize system prompts.
+ * - **DBInstanceId**: Required. Specifies the database instance ID.
+ * - **KnowledgeParams**: Optional. Contains parameters related to knowledge retrieval, such as retrieval content, merge strategies, etc.
+ * - **ModelParams**: Required. Contains parameters related to model inference, such as message list, model name, etc.
+ * - **PromptTemplate**: Optional. Used to customize the system prompt template.
  *
  * @param tmpReq ChatWithKnowledgeBaseRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -1102,13 +1071,13 @@ async function chatWithKnowledgeBaseWithOptions(tmpReq: ChatWithKnowledgeBaseReq
 }
 
 /**
- * @summary Combines a knowledge base with a large language model for intelligent Q&A.
+ * @summary Provides intelligent Q&A services by combining knowledge bases with large models.
  *
- * @description This API lets you interact with a large language model using specific knowledge base collections to ensure responses are grounded in their content. You can customize requests by configuring parameters, including the database instance ID, knowledge retrieval parameters, and model inference parameters. The API provides a default system prompt template and supports custom system prompts.
- * - **DBInstanceId**: Required. Specifies the ID of the database instance.
- * - **KnowledgeParams**: Optional. Contains parameters for knowledge retrieval, such as retrieval content and merge policies.
- * - **ModelParams**: Required. Contains parameters for model inference, such as the message list and the model name.
- * - **PromptTemplate**: Optional. Specifies a custom system prompt template.
+ * @description This API allows users to interact with a large model through specified knowledge base collections to obtain answers based on knowledge base content. It supports configuring various parameters to customize requests, including but not limited to database instance ID, knowledge retrieval parameters, model inference parameters, etc. Additionally, it provides a default system prompt template and allows users to customize system prompts.
+ * - **DBInstanceId**: Required. Specifies the database instance ID.
+ * - **KnowledgeParams**: Optional. Contains parameters related to knowledge retrieval, such as retrieval content, merge strategies, etc.
+ * - **ModelParams**: Required. Contains parameters related to model inference, such as message list, model name, etc.
+ * - **PromptTemplate**: Optional. Used to customize the system prompt template.
  *
  * @param request ChatWithKnowledgeBaseRequest
  * @return ChatWithKnowledgeBaseResponse
@@ -1121,65 +1090,58 @@ async function chatWithKnowledgeBase(request: ChatWithKnowledgeBaseRequest): Cha
 model ChatWithKnowledgeBaseStreamRequest {
   DBInstanceId?: string(name='DBInstanceId', description='The instance ID.
 
-> You can call the [DescribeDBInstances](https://help.aliyun.com/document_detail/86911.html) operation to query the IDs of all AnalyticDB for PostgreSQL instances in a specified region.
+> You can call the [DescribeDBInstances](https://help.aliyun.com/document_detail/86911.html) operation to query the IDs of all AnalyticDB for PostgreSQL instances in a region.
 
 This parameter is required.', example='gp-xxxxxxxxx'),
-  includeKnowledgeBaseResults?: boolean(name='IncludeKnowledgeBaseResults', description='Specifies whether to include the retrieved knowledge base results in the response. Default value: `false`.', example='false'),
+  includeKnowledgeBaseResults?: boolean(name='IncludeKnowledgeBaseResults', description='Specifies whether to return recall results. Default value: false.', example='false'),
   knowledgeParams?: {
-    mergeMethod?: string(name='MergeMethod', description='Specifies the method for merging results from multiple knowledge bases. Default: `RRF`. Valid values:
-
-- `RRF`
-
-- `Weight`', example='"RRF"'),
+    mergeMethod?: string(name='MergeMethod', description='The method for merging results from multiple knowledge bases. Default value: RRF. Valid values:
+- RRF
+- Weight.', example='"RRF"'),
     mergeMethodArgs?: {
       rrf?: {
-        k?: long(name='K', description='The constant `k` used in the reciprocal rank fusion (RRF) formula `1/(k + rank_i)`. The value must be an integer greater than 1.', example='60'),
-      }(name='Rrf', description='Parameters for the `RRF` merge method.'),
+        k?: long(name='K', description='The k constant in the score calculation formula `1/(k+rank_i)`. The value must be a positive integer greater than 1.', example='60'),
+      }(name='Rrf', description='The configurable parameters when MergeMethod is set to RRF.'),
       weight?: {
-        weights?: [ double ](name='Weights', description='An array of weights for each `SourceCollection`.'),
-      }(name='Weight', description='Parameters for the `Weight` merge method.'),
-    }(name='MergeMethodArgs', description='The arguments for the result merging method.'),
-    rerankFactor?: double(name='RerankFactor', description='Specifies the factor for reranking vector search results. The value must be greater than 1 and less than or equal to 5.
-
-> - Reranking may be inefficient if document chunks are sparse.
->
-> - The number of items to rerank, calculated as `ceil(TopK * RerankFactor)`, should not exceed 50.', example='5.0'),
+        weights?: [ double ](name='Weights', description='The weight array for each SourceCollection.'),
+      }(name='Weight', description='The configurable parameters when MergeMethod is set to Weight.'),
+    }(name='MergeMethodArgs', description='The parameters for merging results from multiple knowledge bases.'),
+    rerankFactor?: double(name='RerankFactor', description='The reranking factor. If this value is not empty, the AISearch retrieve results are reranked. Valid values: 1 < RerankFactor <= 5.
+> - Reranking is slow when document chunks are sparse.
+> - The recommended number of reranked items (TopK × Factor, rounded up) should not exceed 50.', example='5.0'),
     rerankModel?: {
-      instruct?: string(name='Instruct', description='An instruction for the rerank model.', example='Given a web search query, retrieve relevant passages that answer the query'),
-      name?: string(name='Name', description='The name of the rerank model.', example='qwen3-rerank'),
-    }(name='RerankModel', description='The rerank model to use.'),
+      instruct?: string(name='Instruct', description='This parameter can be set when RerankModel.Name is set to qwen3-rerank. Specifies a custom ranking task type description to guide the model to adopt different ranking strategies.', example='Given a web search query, retrieve relevant passages that answer the query'),
+      name?: string(name='Name', description='The reranking model name. Valid values: qwen3-rerank, gte-rerank-v2.', example='qwen3-rerank'),
+    }(name='RerankModel', description='The reranking model parameters for performing an additional reranking on the merged results from multiple retrieval paths.'),
     sourceCollection?: [ 
       {
-        collection?: string(name='Collection', description='The name of the collection to search.
+        collection?: string(name='Collection', description='The name of the collection to recall.
 
 This parameter is required.', example='cloud_index_adb_50943_prod'),
-        namespace?: string(name='Namespace', description='The namespace that contains the collection.
+        namespace?: string(name='Namespace', description='The namespace.
 
-> You can call the [ListNamespaces](https://help.aliyun.com/document_detail/2401502.html) operation to view available namespaces.', example='ddstar_vector'),
-        namespacePassword?: string(name='NamespacePassword', description='The password for the specified namespace.
+> You can call the [ListNamespaces](https://help.aliyun.com/document_detail/2401502.html) operation to query the list.', example='ddstar_vector'),
+        namespacePassword?: string(name='NamespacePassword', description='The password of the namespace.
 
-> This value is specified in the `CreateNamespace` operation.
+> This value is specified in the CreateNamespace operation.
 
 This parameter is required.', example='namespacePassword'),
         queryParams?: {
-          filter?: string(name='Filter', description='A filter expression to apply to the search, similar to a SQL `WHERE` clause.', example='method_id=\\\\"e41695f0-2851-40ac-b21d-dd337b60d71c\\\\"'),
-          graphEnhance?: boolean(name='GraphEnhance', description='Specifies whether to enable knowledge graph enhancement. Default value: `false`.', example='true'),
+          filter?: string(name='Filter', description='The filter condition for the data to update, in SQL WHERE clause format.', example='method_id=\\\\"e41695f0-2851-40ac-b21d-dd337b60d71c\\\\"'),
+          graphEnhance?: boolean(name='GraphEnhance', description='Specifies whether to enable knowledge graph enhancement. Default value: false.', example='true'),
           graphSearchArgs?: {
-            graphTopK?: long(name='GraphTopK', description='The number of top entities and relationship edges to return. Default value: `60`.', example='60'),
-          }(name='GraphSearchArgs', description='The parameters for knowledge graph search.'),
-          hybridSearch?: string(name='HybridSearch', description='Specifies the hybrid search algorithm. If omitted, the system performs a basic score comparison of vector search and full-text retrieval results.
+            graphTopK?: long(name='GraphTopK', description='The number of top entities and relationship edges to return. Default value: 60.', example='60'),
+          }(name='GraphSearchArgs', description='The knowledge graph retrieval parameters.'),
+          hybridSearch?: string(name='HybridSearch', description='The multi-channel recall algorithm. Default value: empty (AISearch and full-text index scores are directly compared and sorted).
 
 Valid values:
 
-- `RRF`: Reciprocal rank fusion. Configure the `k` parameter in `HybridSearchArgs`.
+- RRF: Reciprocal rank fusion. A parameter k controls the fusion effect. For more information, see HybridSearchArgs.
+- Weight: Weighted reranking. A parameter alpha controls the score weight between AISearch and full-text index results, then performs reranking. For more information, see HybridSearchArgs.
+- Cascaded: Full-text index retrieve is performed first, followed by AISearch retrieve on the full-text index results.', example='Cascaded'),
+          hybridSearchArgs?: map[string]any(name='HybridSearchArgs', description='The algorithm parameters for multi-channel recall. RRF and Weight are supported:
 
-- `Weight`: Weighted score fusion. Use the `alpha` parameter in `HybridSearchArgs` to control the balance between vector and full-text search scores.
-
-- `Cascaded`: First performs full-text retrieval, then runs a vector search on the results.', example='Cascaded'),
-          hybridSearchArgs?: map[string]any(name='HybridSearchArgs', description='The arguments for the specified hybrid search algorithm. Supports `RRF` and `Weight`.
-
-- `RRF`: Specifies the constant `k` in the score calculation formula `1/(k+rank_i)`. `k` must be an integer greater than 1. Format:
-
+- RRF: The k constant in the score calculation formula `1/(k+rank_i)`. The value must be a positive integer greater than 1. Format:
 ```
 { 
    "RRF": {
@@ -1188,89 +1150,80 @@ Valid values:
 }
 ```
 
-- `Weight`: Calculates the final score using the formula `alpha * vector_score + (1 - alpha) * text_score`. The `alpha` parameter balances the scores, ranging from 0 (full-text only) to 1 (vector only). Format:
-
+- Weight: The calculation formula is `alpha * vector_score + (1-alpha) * text_score`. The parameter alpha specifies the score weight between vector and full-text retrieval. Valid values: 0 to 1, where 0 indicates full-text only and 1 indicates vector only:
 ```
 { 
    "Weight": {
     "alpha": 0.5
    }
 }
-```'),
-          metrics?: string(name='Metrics', description='The distance metric for vector search. Valid values:
-
-- `l2`: Euclidean distance.
-
-- `ip`: Inner product.
-
-- `cosine`: Cosine similarity.', example='cosine'),
-          recallWindow?: [ long ](name='RecallWindow', description='The recall window. Specifies a window of context to include around retrieved chunks. The value must be a two-element array `[A, B]`, where -10 <= A <= 0 and 0 <= B <= 10.
-
-> - This parameter is useful when document chunks are small and a search might miss important surrounding context.
->
-> - The window is applied after reranking.'),
-          rerankFactor?: double(name='RerankFactor', description='The rerank factor. If specified, the system reranks the results from the vector search. The value must be greater than 1 and less than or equal to 5.
-
-> - Reranking may be inefficient if document chunks are sparse.
->
-> - The number of items to rerank, calculated as `ceil(TopK * RerankFactor)`, should not exceed 50.', example='2.0'),
+```.'),
+          metrics?: string(name='Metrics', description='The method used to build the vector index. Valid values:
+- l2: Euclidean distance.
+- ip: inner product distance.
+- cosine: cosine similarity.', example='cosine'),
+          recallWindow?: [ long ](name='RecallWindow', description='The recall window. If this value is not empty, additional context is returned for retrieval results. The format is a two-element array: List<A, B>, where -10 <= A <= 0 and 0 <= B <= 10.
+> - Use this parameter when documents are segmented too finely and retrieval may lose contextual information.
+> - Reranking takes priority over windowing. Reranking is performed first, followed by windowing.'),
+          rerankFactor?: double(name='RerankFactor', description='The reranking factor. If this value is not empty, the AISearch retrieve results are reranked. Valid values: 1 < RerankFactor <= 5.
+> - Reranking is slow when document chunks are sparse.
+> - The recommended number of reranked items (TopK × Factor, rounded up) should not exceed 50.', example='2.0'),
           rerankModel?: {
-            instruct?: string(name='Instruct', description='An instruction for the rerank model.', example='Given a web search query, retrieve relevant passages that answer the query'),
-            name?: string(name='Name', description='The name of the rerank model.', example='qwen3-rerank'),
-          }(name='RerankModel', description='The rerank model to use.'),
-          topK?: long(name='TopK', description='The number of top results to return from this collection.', example='101'),
-          useFullTextRetrieval?: boolean(name='UseFullTextRetrieval', description='Specifies whether to use full-text retrieval for hybrid search. If `false` (the default), only vector search is performed.', example='true'),
-        }(name='QueryParams', description='Parameters for the knowledge base query.'),
+            instruct?: string(name='Instruct', description='This parameter can be set when RerankModel.Name is set to qwen3-rerank. Specifies a custom ranking task type description to guide the model to adopt different ranking strategies.', example='Given a web search query, retrieve relevant passages that answer the query'),
+            name?: string(name='Name', description='The reranking model name. Valid values: qwen3-rerank, gte-rerank-v2.', example='qwen3-rerank'),
+            rerankMetadataFields?: string(name='RerankMetadataFields'),
+          }(name='RerankModel', description='The reranking model parameters.'),
+          topK?: long(name='TopK', description='The number of top results to return.', example='101'),
+          useFullTextRetrieval?: boolean(name='UseFullTextRetrieval', description='Specifies whether to use full-text index (multi-channel recall). Default value: false. Only AISearch retrieve is used.', example='true'),
+        }(name='QueryParams', description='The parameters related to retrieval from this knowledge base.'),
       }
-    ](name='SourceCollection', description='An array of knowledge bases to search.
+    ](name='SourceCollection', description='The knowledge base.
 
 This parameter is required.'),
-    topK?: long(name='TopK', description='The total number of top results to return after merging results from all collections.', example='10'),
-  }(name='KnowledgeParams', description='Parameters for knowledge retrieval. If omitted, the API performs a chat-only operation.'),
+    topK?: long(name='TopK', description='The number of top results to return after merging recall results from multiple vector collections.', example='10'),
+  }(name='KnowledgeParams', description='The knowledge retrieval parameter object. If this parameter is not specified, only chat is performed.'),
   modelParams?: {
     maxTokens?: long(name='MaxTokens', description='The maximum number of tokens to generate.', example='8192'),
     messages?: [ 
       {
-        content?: string(name='Content', description='The content of the message.
+        content?: string(name='Content', description='The message content.
 
 This parameter is required.', example='You are a helpful assistant.'),
-        role?: string(name='Role', description='The role of the message author. Valid values:
+        role?: string(name='Role', description='The message role. Valid values:
 
-- `system`
-
-- `user`
-
-- `assistant`
+- system
+- user
+- assistant.
 
 This parameter is required.', example='user'),
       }
-    ](name='Messages', description='A list of messages in the conversation.
+    ](name='Messages', description='The message list.
 
 This parameter is required.'),
-    model?: string(name='Model', description='The name of the Large Language Model to use. For a list of available models, refer to the [Model Studio documentation](https://help.aliyun.com/zh/model-studio/compatibility-of-openai-with-dashscope?spm=openapi-amp.newDocPublishment.0.0.257c281fH8TtM8\\\\&scm=20140722.H_2833609._.OR_help-T_cn~zh-V_1#eadfc13038jd5).
+    model?: string(name='Model', description='The name of the large language model to use. For valid values, see [Model Studio documentation](https://www.alibabacloud.com/help/en/model-studio/compatibility-of-openai-with-dashscope#eadfc13038jd5).
 
 This parameter is required.', example='qwen-plus'),
     n?: long(name='N', description='The number of candidate responses to generate.', example='1'),
-    presencePenalty?: double(name='PresencePenalty', description='The presence penalty. A value between -2.0 and 2.0.', example='1.0'),
-    seed?: long(name='Seed', description='The random seed for sampling.', example='42'),
-    stop?: [ string ](name='Stop', description='A list of stop sequences.'),
-    temperature?: double(name='Temperature', description='The sampling temperature. A value between 0 and 2.', example='0.6'),
+    presencePenalty?: double(name='PresencePenalty', description='The presence penalty coefficient. Valid values: -2.0 to 2.0.', example='1.0'),
+    seed?: long(name='Seed', description='The random seed.', example='42'),
+    stop?: [ string ](name='Stop', description='The list of stop words.'),
+    temperature?: double(name='Temperature', description='The sampling temperature. Valid values: 0 to 2.', example='0.6'),
     tools?: [ 
       {
         function?: {
-          description?: string(name='Description', description='A description of the function tool.', example='Get weather.'),
+          description?: string(name='Description', description='The description of the function tool.', example='Get weather.'),
           name?: string(name='Name', description='The name of the function tool.', example='get_weather'),
-          parameters?: any(name='Parameters', description='The parameters of the function, described as a JSON Schema object.', example='{"type": "object", ...}'),
+          parameters?: any(name='Parameters', description='The JSON Schema of the function parameters.', example='{"type": "object", ...}'),
         }(name='Function', description='The function information.'),
       }
-    ](name='Tools', description='A list of tools the model can call.'),
-    topP?: double(name='TopP', description='The nucleus sampling probability threshold. A value between 0 and 1.', example='0.9'),
-  }(name='ModelParams', description='An object that contains parameters for the Large Language Model (LLM) call.
+    ](name='Tools', description='The tool list.'),
+    topP?: double(name='TopP', description='The nucleus sampling probability threshold. Valid values: 0 to 1.', example='0.9'),
+  }(name='ModelParams', description='The large language model (LLM) invocation parameter object.
 
 This parameter is required.'),
   ownerId?: long(name='OwnerId'),
-  promptParams?: string(name='PromptParams', description='A template for the system prompt. It must include placeholders such as `{{text_chunks}}`, `{{user_system_prompt}}`, `{{graph_entities}}`, and `{{graph_relations}}`. If omitted, no custom prompt template is applied.', example='"参考以下知识回答问题:{{ text_chunks }}"'),
-  regionId?: string(name='RegionId', description='The instance\\\\"s region ID.
+  promptParams?: string(name='PromptParams', description='The system prompt template. The template must include {{ text_chunks }}, {{ user_system_prompt }}, {{ graph_entities }}, and {{ graph_relations }}. If not specified, this part does not take effect.', example='"参考以下知识回答问题:{{ text_chunks }}"'),
+  regionId?: string(name='RegionId', description='The ID of the region where the instance resides.
 
 This parameter is required.', example='cn-hangzhou'),
 }
@@ -1278,17 +1231,17 @@ This parameter is required.', example='cn-hangzhou'),
 model ChatWithKnowledgeBaseStreamShrinkRequest {
   DBInstanceId?: string(name='DBInstanceId', description='The instance ID.
 
-> You can call the [DescribeDBInstances](https://help.aliyun.com/document_detail/86911.html) operation to query the IDs of all AnalyticDB for PostgreSQL instances in a specified region.
+> You can call the [DescribeDBInstances](https://help.aliyun.com/document_detail/86911.html) operation to query the IDs of all AnalyticDB for PostgreSQL instances in a region.
 
 This parameter is required.', example='gp-xxxxxxxxx'),
-  includeKnowledgeBaseResults?: boolean(name='IncludeKnowledgeBaseResults', description='Specifies whether to include the retrieved knowledge base results in the response. Default value: `false`.', example='false'),
-  knowledgeParamsShrink?: string(name='KnowledgeParams', description='Parameters for knowledge retrieval. If omitted, the API performs a chat-only operation.'),
-  modelParamsShrink?: string(name='ModelParams', description='An object that contains parameters for the Large Language Model (LLM) call.
+  includeKnowledgeBaseResults?: boolean(name='IncludeKnowledgeBaseResults', description='Specifies whether to return recall results. Default value: false.', example='false'),
+  knowledgeParamsShrink?: string(name='KnowledgeParams', description='The knowledge retrieval parameter object. If this parameter is not specified, only chat is performed.'),
+  modelParamsShrink?: string(name='ModelParams', description='The large language model (LLM) invocation parameter object.
 
 This parameter is required.'),
   ownerId?: long(name='OwnerId'),
-  promptParams?: string(name='PromptParams', description='A template for the system prompt. It must include placeholders such as `{{text_chunks}}`, `{{user_system_prompt}}`, `{{graph_entities}}`, and `{{graph_relations}}`. If omitted, no custom prompt template is applied.', example='"参考以下知识回答问题:{{ text_chunks }}"'),
-  regionId?: string(name='RegionId', description='The instance\\\\"s region ID.
+  promptParams?: string(name='PromptParams', description='The system prompt template. The template must include {{ text_chunks }}, {{ user_system_prompt }}, {{ graph_entities }}, and {{ graph_relations }}. If not specified, this part does not take effect.', example='"参考以下知识回答问题:{{ text_chunks }}"'),
+  regionId?: string(name='RegionId', description='The ID of the region where the instance resides.
 
 This parameter is required.', example='cn-hangzhou'),
 }
@@ -1297,84 +1250,78 @@ model ChatWithKnowledgeBaseStreamResponseBody = {
   chatCompletion?: {
     choices?: [ 
       {
-        finishReason?: string(name='FinishReason', description='The reason the model stopped generating output.', example='finish'),
-        index?: long(name='Index', description='The index of the choice.', example='0'),
+        finishReason?: string(name='FinishReason', description='The stop reason.', example='finish'),
+        index?: long(name='Index', description='The response index.', example='0'),
         message?: {
-          content?: string(name='Content', description='The message content.', example='The weather in Hangzhou is sunny.'),
-          reasoningContent?: string(name='ReasoningContent', description='The model\\\\"s chain of thought (CoT) content.', example='Logical reasoning process'),
-          role?: string(name='Role', description='The role of the message author. Valid values:
+          content?: string(name='Content', description='The document content.', example='The weather in Hangzhou is sunny.'),
+          reasoningContent?: string(name='ReasoningContent', description='The chain-of-thought content of the model.', example='Logical reasoning process'),
+          role?: string(name='Role', description='The message role. Valid values:
 
-- `system`
-
-- `user`
-
-- `assistant`', example='user'),
+- system
+- user
+- assistant.', example='user'),
           toolCalls?: [ 
             {
               function?: {
-                arguments?: string(name='Arguments', description='The arguments for the function call, generated by the model in JSON format.', example='{"city":"hangzhou"}'),
-                name?: string(name='Name', description='The name of the function to call.', example='"get_weather"'),
-              }(name='Function', description='Details of the function that the model wants to call.'),
-              id?: string(name='Id', description='The ID of the tool call.', example='"chatcmpl-c1bebafa-cc48-44e2-88c6-1a3572952f8e"'),
-              index?: long(name='Index', description='The index of the tool in the `Input` parameter of the request, starting from 0.', example='1'),
+                arguments?: string(name='Arguments', description='The arguments of the called function.', example='{"city":"hangzhou"}'),
+                name?: string(name='Name', description='The name of the called function.', example='"get_weather"'),
+              }(name='Function', description='The information about the called function.'),
+              id?: string(name='Id', description='ID。', example='"chatcmpl-c1bebafa-cc48-44e2-88c6-1a3572952f8e"'),
+              index?: long(name='Index', description='The index of this tool in the Input request parameter, starting from 0.', example='1'),
             }
-          ](name='ToolCalls', description='The tool call responses.'),
-        }(name='Message', description='The response from the large language model (LLM).'),
+          ](name='ToolCalls', description='The tool invocation response.'),
+        }(name='Message', description='The large language model response.'),
       }
-    ](name='Choices', description='The streaming output content.'),
-    created?: long(name='Created', description='The creation time, in Unix timestamp format.', example='1758529748'),
+    ](name='Choices', description='The text content generated in real time.'),
+    created?: long(name='Created', description='The creation time.', example='1758529748'),
     id?: string(name='Id', description='The response ID.', example='273e3fc7-8f56-4167-a1bb-d35d2f3b9043'),
     model?: string(name='Model', description='The name of the model used.', example='qwen-plus'),
     usage?: {
-      completionTokens?: long(name='CompletionTokens', description='The number of tokens in the generated response.', example='42'),
-      promptTokens?: long(name='PromptTokens', description='The number of tokens in the input prompt.', example='42'),
+      completionTokens?: long(name='CompletionTokens', description='The number of tokens consumed for generating the content.', example='42'),
+      promptTokens?: long(name='PromptTokens', description='The number of tokens consumed by the input prompt.', example='42'),
       promptTokensDetails?: {
-        cachedTokens?: long(name='CachedTokens', description='The number of prompt tokens served from the cache.', example='24'),
-      }(name='PromptTokensDetails', description='Details about the prompt token usage.'),
+        cachedTokens?: long(name='CachedTokens', description='The number of tokens that hit the cache.', example='24'),
+      }(name='PromptTokensDetails', description='The prompt token details.'),
       totalTokens?: long(name='TotalTokens', description='The total number of tokens.', example='42'),
-    }(name='Usage', description='The token usage statistics for the completion.'),
+    }(name='Usage', description='The number of tokens used by the large language model output.'),
   }(name='ChatCompletion', description='The model response.'),
   message?: string(name='Message', description='The response message.', example='Successful'),
   multiCollectionRecallResult?: {
-    entities?: [ string ](name='Entities', description='A list of retrieved entities.'),
+    entities?: [ string ](name='Entities', description='The entity details.'),
     matches?: [ 
       {
         content?: string(name='Content', description='The document content.', example='AnalyticDB PostgreSQL vector database.'),
         fileName?: string(name='FileName', description='The file name.', example='a14b0221-e3f2-4cf2-96cd-b3c293510770.jpg'),
-        fileURL?: string(name='FileURL', description='The public URL of the retrieved image. By default, the URL is valid for 2 hours.
+        fileURL?: string(name='FileURL', description='The public URL of the image in the query result. The URL is valid for 2 hours by default.
 
-You can use the `UrlExpiration` parameter to specify a custom validity period.', example='http://dailyshort-sh.oss-cn-shanghai.aliyuncs.com/vod-8efba5/f06147795c6c71f080605420848d0302/0ca34d5743a84bf7c68f489a60715dac-ld.mp4'),
-        id?: string(name='Id', description='The unique ID of the vector record.
+You can specify a custom validity period by using the UrlExpiration parameter.', example='http://dailyshort-sh.oss-cn-shanghai.aliyuncs.com/vod-8efba5/f06147795c6c71f080605420848d0302/0ca34d5743a84bf7c68f489a60715dac-ld.mp4'),
+        id?: string(name='Id', description='The unique ID of this vector data entry.
 
-> If this parameter is left empty, the database automatically generates a UUID. If you provide an ID that conflicts with an existing one, the existing record is updated with the data from the request.', example='273e3fc7-8f56-4167-a1bb-d35d2f3b9043'),
-        loaderMetadata?: any(name='LoaderMetadata', description='Metadata from the document loader, captured during document ingestion.', example='{"page":1}'),
-        metadata?: map[string]any(name='Metadata', description='The user-defined metadata.'),
-        rerankScore?: double(name='RerankScore', description='The rerank score.', example='0.12'),
-        retrievalSource?: long(name='RetrievalSource', description='The source of the match. `1` indicates vector search, `2` indicates full-text search, and `3` indicates hybrid recall.', example='0.12'),
-        score?: double(name='Score', description='The similarity score. The score is calculated based on the distance metric specified when the index was created (`l2/ip/cosine`).', example='10'),
+> If this value is empty, the database automatically generates a UUID. If this value is not empty and conflicts with an existing ID in the database, the API data overwrites the existing value in the database.', example='273e3fc7-8f56-4167-a1bb-d35d2f3b9043'),
+        loaderMetadata?: any(name='LoaderMetadata', description='The metadata generated by the document loader during loading.', example='{"page":1}'),
+        metadata?: map[string]any(name='Metadata', description='The metadata.'),
+        rerankScore?: double(name='RerankScore', description='The reranking score.', example='0.12'),
+        retrievalSource?: long(name='RetrievalSource', description='The source of the retrieve result. A value of 1 indicates AISearch retrieve, 2 indicates full-text index retrieve, and 3 indicates multi-channel recall.', example='0.12'),
+        score?: double(name='Score', description='The similarity score of this data entry. The scoring algorithm is related to the algorithm specified during index creation (l2, ip, or cosine).', example='10'),
         vector?: [ double ](name='Vector', description='The vector data.'),
       }
-    ](name='Matches', description='A list of retrieved matches.'),
-    relations?: [ string ](name='Relations', description='A list of relationship edges.'),
+    ](name='Matches', description='The recall items.'),
+    relations?: [ string ](name='Relations', description='The relation names.'),
     requestId?: string(name='RequestId', description='The request ID.', example='ABB39CC3-4488-4857-905D-2E4A051D0521'),
-    status?: string(name='Status', description='The status of the API call. Valid values:
-
-- **success**: The call succeeded.
-
-- **fail**: The call failed.', example='success'),
+    status?: string(name='Status', description='The API execution status. Valid values:
+- **success**: The execution is successful.
+- **fail**: The execution failed.', example='success'),
     tokens?: long(name='Tokens', description='The number of tokens consumed.', example='42'),
     usage?: {
-      embeddingTokens?: long(name='EmbeddingTokens', description='The number of tokens used for embedding.
+      embeddingTokens?: long(name='EmbeddingTokens', description='The number of tokens used during vectorization.
 
-> A token is the smallest unit created by splitting the input text. A token can be a unit such as a word, a phrase, a punctuation mark, or a character.', example='158'),
-    }(name='Usage', description='The number of tokens consumed for embedding.'),
-  }(name='MultiCollectionRecallResult', description='The retrieval results from multiple knowledge bases.'),
+> A token is the smallest unit into which input text is segmented. A token can be a word, a phrase, a punctuation mark, or a character.', example='158'),
+    }(name='Usage', description='The number of tokens or entries consumed by document understanding or embedding.'),
+  }(name='MultiCollectionRecallResult', description='The recall information from multiple knowledge bases.'),
   requestId?: string(name='RequestId', description='The request ID.', example='ABB39CC3-4488-4857-905D-2E4A051D0521'),
-  status?: string(name='Status', description='The status of the request. Valid values:
-
-- **success**: The request succeeded.
-
-- **fail**: The request failed.', example='success'),
+  status?: string(name='Status', description='The status. Valid values:
+- **success**: Successful.
+- **fail**: Failed.', example='success'),
 }
 
 model ChatWithKnowledgeBaseStreamResponse = {
@@ -1386,13 +1333,13 @@ model ChatWithKnowledgeBaseStreamResponse = {
 }
 
 /**
- * @summary This service combines a knowledge base with a large model to provide intelligent Q&A. You can access the streaming interface using Server-Sent Events (SSE) or the Java asynchronous SDK.
+ * @summary Provides AI chat services by combining knowledge bases with large language models. This is a streaming API called through SSE or the Java asynchronous SDK.
  *
- * @description Use this API to retrieve answers from a large language model based on content from a specified knowledge base. You can customize the request by configuring various parameters, including the database instance ID, knowledge retrieval parameters, and model inference parameters. The API includes a default system prompt template, and you can also specify a custom one.
- * - DBInstanceId: Required. The ID of the database instance.
- * - KnowledgeParams: Optional. Parameters for knowledge retrieval, such as retrieval content and the merge policy.
- * - ModelParams: Required. Parameters for model inference, such as the message list and the model name.
- * - PromptTemplate: Optional. A custom system prompt template.
+ * @description This API allows you to interact with a large language model by using specified knowledge base collections to obtain answers based on knowledge base content. You can configure various parameters to customize requests, including but not limited to the database instance ID, knowledge retrieval parameters, and model inference parameters. A default system prompt template is provided, and you can also customize the system prompt.
+ * - DBInstanceId: Required. Specifies the database instance ID.
+ * - KnowledgeParams: Optional. Contains knowledge retrieval parameters such as retrieval content and merge strategy.
+ * - ModelParams: Required. Contains model inference parameters such as the message list and model name.
+ * - PromptTemplate: Optional. Specifies a custom system prompt template.
  *
  * @param tmpReq ChatWithKnowledgeBaseStreamRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -1461,13 +1408,13 @@ async function chatWithKnowledgeBaseStreamWithSSE(tmpReq: ChatWithKnowledgeBaseS
   }
 }
 /**
- * @summary This service combines a knowledge base with a large model to provide intelligent Q&A. You can access the streaming interface using Server-Sent Events (SSE) or the Java asynchronous SDK.
+ * @summary Provides AI chat services by combining knowledge bases with large language models. This is a streaming API called through SSE or the Java asynchronous SDK.
  *
- * @description Use this API to retrieve answers from a large language model based on content from a specified knowledge base. You can customize the request by configuring various parameters, including the database instance ID, knowledge retrieval parameters, and model inference parameters. The API includes a default system prompt template, and you can also specify a custom one.
- * - DBInstanceId: Required. The ID of the database instance.
- * - KnowledgeParams: Optional. Parameters for knowledge retrieval, such as retrieval content and the merge policy.
- * - ModelParams: Required. Parameters for model inference, such as the message list and the model name.
- * - PromptTemplate: Optional. A custom system prompt template.
+ * @description This API allows you to interact with a large language model by using specified knowledge base collections to obtain answers based on knowledge base content. You can configure various parameters to customize requests, including but not limited to the database instance ID, knowledge retrieval parameters, and model inference parameters. A default system prompt template is provided, and you can also customize the system prompt.
+ * - DBInstanceId: Required. Specifies the database instance ID.
+ * - KnowledgeParams: Optional. Contains knowledge retrieval parameters such as retrieval content and merge strategy.
+ * - ModelParams: Required. Contains model inference parameters such as the message list and model name.
+ * - PromptTemplate: Optional. Specifies a custom system prompt template.
  *
  * @param tmpReq ChatWithKnowledgeBaseStreamRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -1524,13 +1471,13 @@ async function chatWithKnowledgeBaseStreamWithOptions(tmpReq: ChatWithKnowledgeB
 }
 
 /**
- * @summary This service combines a knowledge base with a large model to provide intelligent Q&A. You can access the streaming interface using Server-Sent Events (SSE) or the Java asynchronous SDK.
+ * @summary Provides AI chat services by combining knowledge bases with large language models. This is a streaming API called through SSE or the Java asynchronous SDK.
  *
- * @description Use this API to retrieve answers from a large language model based on content from a specified knowledge base. You can customize the request by configuring various parameters, including the database instance ID, knowledge retrieval parameters, and model inference parameters. The API includes a default system prompt template, and you can also specify a custom one.
- * - DBInstanceId: Required. The ID of the database instance.
- * - KnowledgeParams: Optional. Parameters for knowledge retrieval, such as retrieval content and the merge policy.
- * - ModelParams: Required. Parameters for model inference, such as the message list and the model name.
- * - PromptTemplate: Optional. A custom system prompt template.
+ * @description This API allows you to interact with a large language model by using specified knowledge base collections to obtain answers based on knowledge base content. You can configure various parameters to customize requests, including but not limited to the database instance ID, knowledge retrieval parameters, and model inference parameters. A default system prompt template is provided, and you can also customize the system prompt.
+ * - DBInstanceId: Required. Specifies the database instance ID.
+ * - KnowledgeParams: Optional. Contains knowledge retrieval parameters such as retrieval content and merge strategy.
+ * - ModelParams: Required. Contains model inference parameters such as the message list and model name.
+ * - PromptTemplate: Optional. Specifies a custom system prompt template.
  *
  * @param request ChatWithKnowledgeBaseStreamRequest
  * @return ChatWithKnowledgeBaseStreamResponse
@@ -25995,6 +25942,71 @@ async function pauseInstance(request: PauseInstanceRequest): PauseInstanceRespon
   return pauseInstanceWithOptions(request, runtime);
 }
 
+model PauseSaasServiceRequest {
+  regionId?: string(name='RegionId', example='cn-beijing'),
+  serviceId?: string(name='ServiceId', description='This parameter is required.', example='agdb-xxxxx'),
+}
+
+model PauseSaasServiceResponseBody = {
+  requestId?: string(name='RequestId', example='ABB39CC3-4488-4857-905D-2E4A051D0521'),
+  serviceId?: string(name='ServiceId', example='drama-123456'),
+}
+
+model PauseSaasServiceResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: PauseSaasServiceResponseBody(name='body'),
+}
+
+/**
+ * @summary 暂停SaaS服务
+ *
+ * @description 删除模型服务。
+ *
+ * @param request PauseSaasServiceRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return PauseSaasServiceResponse
+ */
+@context("pauseSaasServiceWithContext")
+async function pauseSaasServiceWithOptions(request: PauseSaasServiceRequest, runtime: $RuntimeOptions): PauseSaasServiceResponse {
+  request.validate();
+  var query = {};
+  if (!$isNull(request.regionId)) {
+    query['RegionId'] = request.regionId;
+  }
+  if (!$isNull(request.serviceId)) {
+    query['ServiceId'] = request.serviceId;
+  }
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'PauseSaasService',
+    version = '2016-05-03',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 暂停SaaS服务
+ *
+ * @description 删除模型服务。
+ *
+ * @param request PauseSaasServiceRequest
+ * @return PauseSaasServiceResponse
+ */
+async function pauseSaasService(request: PauseSaasServiceRequest): PauseSaasServiceResponse {
+  var runtime = new $RuntimeOptions{};
+  return pauseSaasServiceWithOptions(request, runtime);
+}
+
 model PauseSupabaseProjectRequest {
   projectId?: string(name='ProjectId', description='The Supabase instance ID.
 
@@ -26448,41 +26460,39 @@ async function queryCollectionData(request: QueryCollectionDataRequest): QueryCo
 model QueryContentRequest {
   collection?: string(name='Collection', description='The name of the document collection.
 
-> A document collection is created by calling the [CreateDocumentCollection](https://help.aliyun.com/document_detail/2618448.html) operation. Call the [ListDocumentCollections](https://help.aliyun.com/document_detail/2618452.html) operation to list your document collections.
+> The document collection is created by calling the [CreateDocumentCollection](https://help.aliyun.com/document_detail/2618448.html) operation. You can call the [ListDocumentCollections](https://help.aliyun.com/document_detail/2618452.html) operation to query existing document collections.
 
 This parameter is required.', example='document'),
-  content?: string(name='Content', description='The text to use for retrieval.', example='What is AnalyticDB for PostgreSQL?'),
+  content?: string(name='Content', description='The text content used for retrieval.', example='What is AnalyticDB for PostgreSQL?'),
   DBInstanceId?: string(name='DBInstanceId', description='The instance ID.
 
-> You can call the [DescribeDBInstances](https://help.aliyun.com/document_detail/86911.html) operation to find the IDs of all AnalyticDB for PostgreSQL instances in a region.
+> You can call the [DescribeDBInstances](https://help.aliyun.com/document_detail/86911.html) operation to query the details of all AnalyticDB for PostgreSQL instances in a region, including instance IDs.
 
 This parameter is required.', example='gp-xxxxxxxxx'),
-  fileName?: string(name='FileName', description='The filename of the source image for a search-by-image query.
+  fileName?: string(name='FileName', description='The name of the source image file to search in image-to-image search scenarios.
 
-> The image file must have a file extension. The supported extensions are bmp, jpg, jpeg, png, and tiff.', example='test.jpg'),
-  fileUrl?: string(name='FileUrl', description='The publicly accessible URL of the image file for a search-by-image query.
+> The image file must have a file extension. Supported image extensions: bmp, jpg, jpeg, png, and tiff.', example='test.jpg'),
+  fileUrl?: string(name='FileUrl', description='The publicly accessible URL of the image file in image-to-image search scenarios.
 
-> The image file must have a file extension. The supported extensions are bmp, jpg, jpeg, png, and tiff.', example='https://xx/myImage.jpg'),
-  filter?: string(name='Filter', description='A filter condition for the query, specified as a SQL `WHERE` clause that returns a boolean value. The clause can use comparison operators (such as `=`, `<>`, `!=`, `>`, `<`, `>=`, and `<=`), logical operators (`AND`, `OR`, and `NOT`), and keywords such as `IN`, `BETWEEN`, and `LIKE`.
+> The image file must have a file extension. Supported image extensions: bmp, jpg, jpeg, png, and tiff.', example='https://xx/myImage.jpg'),
+  filter?: string(name='Filter', description='The filter condition for the data to query, in SQL WHERE clause format. The filter is an expression that returns a Boolean value (true or false). Conditions can be simple comparison operators such as equal to (=), not equal to (<> or !=), greater than (>), less than (<), greater than or equal to (>=), and less than or equal to (<=). Conditions can also be more complex expressions combined with logical operators (AND, OR, NOT), as well as conditions using the IN, BETWEEN, and LIKE keywords.
 
-> - For details about the syntax, see https\\\\://www\\\\.postgresqltutorial.com/postgresql-tutorial/postgresql-where/.', example='title = \\\\"test\\\\" AND name like \\\\"test%\\\\"'),
-  graphEnhance?: boolean(name='GraphEnhance', description='Specifies whether to enable knowledge graph enhancement. The default value is `false`.', example='false'),
+> 
+> - For detailed syntax, refer to: https://www.postgresqltutorial.com/postgresql-tutorial/postgresql-where/.', example='title = \\\\"test\\\\" AND name like \\\\"test%\\\\"'),
+  graphEnhance?: boolean(name='GraphEnhance', description='Specifies whether to enable knowledge graph enhancement. Default value: false.', example='false'),
   graphSearchArgs?: {
-    graphTopK?: int32(name='GraphTopK', description='The number of top entities and relationship edges to return. The default value is `60`.', example='60'),
-  }(name='GraphSearchArgs', description='The parameters for knowledge graph retrieval.'),
-  hybridSearch?: string(name='HybridSearch', description='Specifies the hybrid search algorithm. If this parameter is not specified, the system directly compares and sorts the scores from dense vector retrieval and full-text search.
+    graphTopK?: int32(name='GraphTopK', description='The number of top entities and relationship edges to return. Default value: 60.', example='60'),
+  }(name='GraphSearchArgs', description='The knowledge graph retrieval parameters.'),
+  hybridSearch?: string(name='HybridSearch', description='The multi-channel recall algorithm. Default value: empty, which indicates that the dense vector and full-text index scores are directly compared and sorted.
 
 Valid values:
 
-- RRF: reciprocal rank fusion. This method uses a `k` parameter to control the fusion effect. For more information, see the `HybridSearchArgs` parameter.
+- RRF: Reciprocal Rank Fusion. A parameter k controls the fusion effect. For more information, see the HybridSearchArgs configuration.
+- Weight: Weighted sorting. Parameters control the score weights of AISearch retrieve and full-text index results before sorting. For more information, see the HybridSearchArgs configuration.
+- Cascaded: Full-text index retrieve is performed first, followed by AISearch retrieve based on the full-text index results.', example='RRF'),
+  hybridSearchArgs?: map[string]object(name='HybridSearchArgs', description='The algorithm parameters for multi-channel recall. RRF and Weight are supported. HybridPathsSetting specifies the recall paths: dense vectors (dense), sparse vectors (sparse), and full-text index (fulltext). If this value is empty, dense vectors (dense) and full-text index (fulltext) are used by default.
 
-- Weight: A weighted sorting method. This method uses parameters to control the score weights of vector retrieval and full-text search before sorting. For more information, see the `HybridSearchArgs` parameter.
-
-- Cascaded: Performs full-text search first, and then performs vector retrieval on the results.', example='RRF'),
-  hybridSearchArgs?: map[string]object(name='HybridSearchArgs', description='Parameters for the multi-channel recall algorithm. Currently, `RRF` and `Weight` are supported. `HybridPathsSetting` can be used to specify the recall paths, including dense vector search (`dense`), sparse vector search (`sparse`), and full-text search (`fulltext`). If this parameter is not specified, the system recalls dense vectors and full-text search results by default.
-
-- RRF: Specifies the constant `k` in the scoring formula `1/(k+rank_i)`. The value must be an integer greater than 1. Example:
-
+- RRF: Specifies the constant k in the score calculation formula `1/(k+rank_i)`. The value must be a positive integer greater than 1. Format:
 ```
 {
   "HybridPathsSetting": {
@@ -26494,12 +26504,9 @@ Valid values:
 }
 ```
 
-- Weight:
-
-  - For dual-channel recall (if `HybridPathsSetting` is not specified, only `alpha` is configured):
-
-    - The score is calculated using the formula: `alpha * dense_score + (1-alpha) * fulltext_score`. The `alpha` parameter represents the score weight of dense vector retrieval relative to full-text search. The value must be in the range of 0 to 1. A value of 0 indicates that only full-text search is used, and a value of 1 indicates that only dense vector retrieval is used.
-
+- Weight: 
+   - Dual-path recall (without specifying HybridPathsSetting, only specifying alpha):
+      - Formula: alpha * dense_score + (1-alpha) * fulltext_score. The alpha parameter specifies the score weight between dense vectors and full-text index retrieve. Valid values: 0 to 1, where 0 indicates full-text index only and 1 indicates dense vector only:
 ```
 { 
    "Weight": {
@@ -26507,11 +26514,8 @@ Valid values:
    }
 }
 ```
-
-- For three-channel recall:
-
-  - The score is calculated using the formula: `normalized_dense * dense_score + normalized_sparse * sparse_score + normalized_fulltext * fulltext_score`. The `dense`, `sparse`, and `fulltext` parameters represent the weights for the dense vector, sparse vector, and full-text search results, respectively. Their values must be greater than or equal to 0. The system automatically normalizes the weights to a sum of 1 (for example, `normalized_x = x / (dense + sparse + fulltext)`).
-
+  - Three-path recall pattern:
+     - Formula: normalized_dense * dense_score + normalized_sparse * sparse_score + normalized_fulltext * fulltext_score. The dense, sparse, and fulltext values represent the weights for dense vectors, sparse vectors, and full-text index retrieve respectively. Valid values: greater than or equal to 0. The system automatically performs normalization of the weights to 0 to 1 (normalized_x = x / (dense + sparse + fulltext)).
 ```
 {
   "HybridPathsSetting": {
@@ -26524,102 +26528,95 @@ Valid values:
   }
 }
 ```'),
-  includeFileUrl?: boolean(name='IncludeFileUrl', description='Specifies whether to return the URL of the document. The default value is `false`.', example='false'),
-  includeMetadataFields?: string(name='IncludeMetadataFields', description='The metadata fields to include in the response. If left empty, no metadata is returned. To specify multiple fields, use a comma-separated list.', example='title,page'),
-  includeVector?: boolean(name='IncludeVector', description='Specifies whether to include the vector in the results. The default value is `false`.
-
-> - **false**: The vector is not returned.
->
-> - **true**: The vector is returned.', example='true'),
-  metrics?: string(name='Metrics', description='The similarity algorithm used for retrieval. If this parameter is not specified, the algorithm that was specified when the document collection was created is used. We recommend that you do not set this parameter unless you have specific requirements.
+  includeFileUrl?: boolean(name='IncludeFileUrl', description='Specifies whether to synchronously return the URL of the document. By default, the URL is not returned.', example='false'),
+  includeMetadataFields?: string(name='IncludeMetadataFields', description='The metadata fields to return. Default value: empty. Separate multiple fields with commas.', example='title,page'),
+  includeVector?: boolean(name='IncludeVector', description='Specifies whether to return vectors. Default value: false.
+> - **false**: Does not return vectors.
+> - **true**: Returns vectors.', example='true'),
+  metrics?: string(name='Metrics', description='The similarity algorithm used for retrieval. If this value is empty, the algorithm specified when the knowledge base was created is used. Leave this parameter empty unless you have specific requirements.
 
 > Valid values:
->
 > - **l2**: Euclidean distance.
->
-> - **ip**: dot product (inner product) distance.
->
+> - **ip**: inner product distance.
 > - **cosine**: cosine similarity.', example='cosine'),
-  namespace?: string(name='Namespace', description='The namespace. The default value is `public`.
+  namespace?: string(name='Namespace', description='The namespace. Default value: public.
 
-> You can call the [CreateNamespace](https://help.aliyun.com/document_detail/2401495.html) operation to create a namespace and the [ListNamespaces](https://help.aliyun.com/document_detail/2401502.html) operation to list existing namespaces.', example='mynamespace'),
-  namespacePassword?: string(name='NamespacePassword', description='The password for the namespace.
+> You can create a namespace by calling the [CreateNamespace](https://help.aliyun.com/document_detail/2401495.html) operation and query namespaces by calling the [ListNamespaces](https://help.aliyun.com/document_detail/2401502.html) operation.', example='mynamespace'),
+  namespacePassword?: string(name='NamespacePassword', description='The password of the namespace.
 
-> This password is set when you call the [CreateNamespace](https://help.aliyun.com/document_detail/2401495.html) operation.
+> This value is specified by the [CreateNamespace](https://help.aliyun.com/document_detail/2401495.html) operation.
 
 This parameter is required.', example='testpassword'),
-  offset?: int32(name='Offset', description='The offset for paginated queries.', example='0'),
-  orderBy?: string(name='OrderBy', description='The field to sort the results by. By default, this parameter is empty.
+  offset?: int32(name='Offset', description='The offset for paged query. Used for paging through results.', example='0'),
+  orderBy?: string(name='OrderBy', description='The field used for sorting. Default value: empty.
 
-The field must be a metadata field or a default field from the table, such as `id`. Supported formats include single fields (e.g., `chunk_id`), multiple comma-separated fields (e.g., `block_id, chunk_id`), and fields with a sort direction (e.g., `block_id DESC, chunk_id DESC`).', example='created_at'),
+The field must belong to metadata or a default field in the table, such as id. Supported formats:
+
+A single field, such as chunk_id.
+Multiple fields separated by commas, such as block_id, chunk_id.
+Descending order, such as block_id DESC, chunk_id DESC.', example='created_at'),
   ownerId?: long(name='OwnerId'),
-  recallWindow?: [ int32 ](name='RecallWindow', description='The recall window. If this parameter is specified, additional context is returned with the retrieval results. The value must be a two-element array, `[A, B]`, where `-10 <= A <= 0` and `0 <= B <= 10`.
-
-> - Use this parameter when documents are finely chunked and retrieval might otherwise lose contextual information.
->
-> - Reranking is prioritized over windowing. The system first applies reranking and then processes the window.'),
+  recallWindow?: [ int32 ](name='RecallWindow', description='The recall window. When this value is not empty, additional context around the retrieval results is returned. The format is a two-element array: List<A, B>, where -10<=A<=0 and 0<=B<=10.
+> - Use this parameter when documents are split into overly small chunks and retrieval may lose contextual information.
+> - Reranking takes priority over windowing. Reranking is performed first, followed by windowing.'),
   regionId?: string(name='RegionId', description='The region ID of the instance.
 
 This parameter is required.', example='cn-hangzhou'),
-  rerankFactor?: double(name='RerankFactor', description='The factor for reranking vector retrieval results. The value must be greater than 1 and less than or equal to 5.
-
-> - Reranking may be slower if document chunks are sparse.
->
-> - For best performance, the number of items to be reranked (`TopK` \\\\* `RerankFactor`, rounded up) should not exceed 50.', example='2'),
+  rerankFactor?: double(name='RerankFactor', description='The reranking factor. When this value is not empty, the AISearch retrieve results are reranked. Valid values: 1 < RerankFactor <= 5.
+> - Reranking is slow when documents are sparsely chunked.
+> - The total number of reranked results (TopK × Factor, rounded up) should not exceed 50.', example='2'),
   rerankModel?: {
-    instruct?: string(name='Instruct', description='This parameter is available only when `RerankModel.Name` is set to `qwen3-rerank`.
-You can add a custom task description to guide the model\\\\"s sorting strategy.', example='Given a web search query, retrieve relevant passages that answer the query'),
-    name?: string(name='Name', description='The name of the reranking model. Valid values: `qwen3-rerank`, `gte-rerank-v2`.', example='qwen3-rerank'),
-  }(name='RerankModel', description='The parameters for the reranking model.'),
+    instruct?: string(name='Instruct', description='This parameter can be set when RerankModel.Name is qwen3-rerank.
+Adds a custom sorting task type description. This parameter guides the model to adopt different sorting strategies.', example='Given a web search query, retrieve relevant passages that answer the query'),
+    name?: string(name='Name', description='The name of the rerank model. Valid values: qwen3-rerank, gte-rerank-v2.', example='qwen3-rerank'),
+    rerankMetadataFields?: string(name='RerankMetadataFields'),
+  }(name='RerankModel', description='The rerank model parameters.'),
   topK?: int32(name='TopK', description='The number of top results to return.', example='10'),
   urlExpiration?: string(name='UrlExpiration', description='The validity period of the returned image URL.
 
-> - The value can be specified in seconds (s) or days (d). For example, `300s` indicates that the link is valid for 300 seconds, and `60d` indicates that the link is valid for 60 days.
->
-> - The value must be in the range of `60s` to `365d`.
->
-> - Default value: `7200s` (2 hours).', example='7200s'),
-  useFullTextRetrieval?: boolean(name='UseFullTextRetrieval', description='(Deprecated) Specifies whether to use full-text search (dual-channel recall). The default value is `false`, which means only vector retrieval is used.', example='true'),
+> Valid values:
+> - Supports seconds (s) and days (d) as units. For example, 300s indicates a validity period of 300 seconds, and 60d indicates a validity period of 60 days.
+> - Valid values: 60s to 365d.
+> - Default value: 7200s (2 hours).', example='7200s'),
+  useFullTextRetrieval?: boolean(name='UseFullTextRetrieval', description='(Deprecated) Specifies whether to use full-text retrieval (dual-path recall). Default value: false, which indicates that only vector retrieval is used.', example='true'),
 }
 
 model QueryContentAdvanceRequest {
   collection?: string(name='Collection', description='The name of the document collection.
 
-> A document collection is created by calling the [CreateDocumentCollection](https://help.aliyun.com/document_detail/2618448.html) operation. Call the [ListDocumentCollections](https://help.aliyun.com/document_detail/2618452.html) operation to list your document collections.
+> The document collection is created by calling the [CreateDocumentCollection](https://help.aliyun.com/document_detail/2618448.html) operation. You can call the [ListDocumentCollections](https://help.aliyun.com/document_detail/2618452.html) operation to query existing document collections.
 
 This parameter is required.', example='document'),
-  content?: string(name='Content', description='The text to use for retrieval.', example='What is AnalyticDB for PostgreSQL?'),
+  content?: string(name='Content', description='The text content used for retrieval.', example='What is AnalyticDB for PostgreSQL?'),
   DBInstanceId?: string(name='DBInstanceId', description='The instance ID.
 
-> You can call the [DescribeDBInstances](https://help.aliyun.com/document_detail/86911.html) operation to find the IDs of all AnalyticDB for PostgreSQL instances in a region.
+> You can call the [DescribeDBInstances](https://help.aliyun.com/document_detail/86911.html) operation to query the details of all AnalyticDB for PostgreSQL instances in a region, including instance IDs.
 
 This parameter is required.', example='gp-xxxxxxxxx'),
-  fileName?: string(name='FileName', description='The filename of the source image for a search-by-image query.
+  fileName?: string(name='FileName', description='The name of the source image file to search in image-to-image search scenarios.
 
-> The image file must have a file extension. The supported extensions are bmp, jpg, jpeg, png, and tiff.', example='test.jpg'),
-  fileUrlObject?: readable(name='FileUrl', description='The publicly accessible URL of the image file for a search-by-image query.
+> The image file must have a file extension. Supported image extensions: bmp, jpg, jpeg, png, and tiff.', example='test.jpg'),
+  fileUrlObject?: readable(name='FileUrl', description='The publicly accessible URL of the image file in image-to-image search scenarios.
 
-> The image file must have a file extension. The supported extensions are bmp, jpg, jpeg, png, and tiff.', example='https://xx/myImage.jpg'),
-  filter?: string(name='Filter', description='A filter condition for the query, specified as a SQL `WHERE` clause that returns a boolean value. The clause can use comparison operators (such as `=`, `<>`, `!=`, `>`, `<`, `>=`, and `<=`), logical operators (`AND`, `OR`, and `NOT`), and keywords such as `IN`, `BETWEEN`, and `LIKE`.
+> The image file must have a file extension. Supported image extensions: bmp, jpg, jpeg, png, and tiff.', example='https://xx/myImage.jpg'),
+  filter?: string(name='Filter', description='The filter condition for the data to query, in SQL WHERE clause format. The filter is an expression that returns a Boolean value (true or false). Conditions can be simple comparison operators such as equal to (=), not equal to (<> or !=), greater than (>), less than (<), greater than or equal to (>=), and less than or equal to (<=). Conditions can also be more complex expressions combined with logical operators (AND, OR, NOT), as well as conditions using the IN, BETWEEN, and LIKE keywords.
 
-> - For details about the syntax, see https\\\\://www\\\\.postgresqltutorial.com/postgresql-tutorial/postgresql-where/.', example='title = \\\\"test\\\\" AND name like \\\\"test%\\\\"'),
-  graphEnhance?: boolean(name='GraphEnhance', description='Specifies whether to enable knowledge graph enhancement. The default value is `false`.', example='false'),
+> 
+> - For detailed syntax, refer to: https://www.postgresqltutorial.com/postgresql-tutorial/postgresql-where/.', example='title = \\\\"test\\\\" AND name like \\\\"test%\\\\"'),
+  graphEnhance?: boolean(name='GraphEnhance', description='Specifies whether to enable knowledge graph enhancement. Default value: false.', example='false'),
   graphSearchArgs?: {
-    graphTopK?: int32(name='GraphTopK', description='The number of top entities and relationship edges to return. The default value is `60`.', example='60'),
-  }(name='GraphSearchArgs', description='The parameters for knowledge graph retrieval.'),
-  hybridSearch?: string(name='HybridSearch', description='Specifies the hybrid search algorithm. If this parameter is not specified, the system directly compares and sorts the scores from dense vector retrieval and full-text search.
+    graphTopK?: int32(name='GraphTopK', description='The number of top entities and relationship edges to return. Default value: 60.', example='60'),
+  }(name='GraphSearchArgs', description='The knowledge graph retrieval parameters.'),
+  hybridSearch?: string(name='HybridSearch', description='The multi-channel recall algorithm. Default value: empty, which indicates that the dense vector and full-text index scores are directly compared and sorted.
 
 Valid values:
 
-- RRF: reciprocal rank fusion. This method uses a `k` parameter to control the fusion effect. For more information, see the `HybridSearchArgs` parameter.
+- RRF: Reciprocal Rank Fusion. A parameter k controls the fusion effect. For more information, see the HybridSearchArgs configuration.
+- Weight: Weighted sorting. Parameters control the score weights of AISearch retrieve and full-text index results before sorting. For more information, see the HybridSearchArgs configuration.
+- Cascaded: Full-text index retrieve is performed first, followed by AISearch retrieve based on the full-text index results.', example='RRF'),
+  hybridSearchArgs?: map[string]object(name='HybridSearchArgs', description='The algorithm parameters for multi-channel recall. RRF and Weight are supported. HybridPathsSetting specifies the recall paths: dense vectors (dense), sparse vectors (sparse), and full-text index (fulltext). If this value is empty, dense vectors (dense) and full-text index (fulltext) are used by default.
 
-- Weight: A weighted sorting method. This method uses parameters to control the score weights of vector retrieval and full-text search before sorting. For more information, see the `HybridSearchArgs` parameter.
-
-- Cascaded: Performs full-text search first, and then performs vector retrieval on the results.', example='RRF'),
-  hybridSearchArgs?: map[string]object(name='HybridSearchArgs', description='Parameters for the multi-channel recall algorithm. Currently, `RRF` and `Weight` are supported. `HybridPathsSetting` can be used to specify the recall paths, including dense vector search (`dense`), sparse vector search (`sparse`), and full-text search (`fulltext`). If this parameter is not specified, the system recalls dense vectors and full-text search results by default.
-
-- RRF: Specifies the constant `k` in the scoring formula `1/(k+rank_i)`. The value must be an integer greater than 1. Example:
-
+- RRF: Specifies the constant k in the score calculation formula `1/(k+rank_i)`. The value must be a positive integer greater than 1. Format:
 ```
 {
   "HybridPathsSetting": {
@@ -26631,12 +26628,9 @@ Valid values:
 }
 ```
 
-- Weight:
-
-  - For dual-channel recall (if `HybridPathsSetting` is not specified, only `alpha` is configured):
-
-    - The score is calculated using the formula: `alpha * dense_score + (1-alpha) * fulltext_score`. The `alpha` parameter represents the score weight of dense vector retrieval relative to full-text search. The value must be in the range of 0 to 1. A value of 0 indicates that only full-text search is used, and a value of 1 indicates that only dense vector retrieval is used.
-
+- Weight: 
+   - Dual-path recall (without specifying HybridPathsSetting, only specifying alpha):
+      - Formula: alpha * dense_score + (1-alpha) * fulltext_score. The alpha parameter specifies the score weight between dense vectors and full-text index retrieve. Valid values: 0 to 1, where 0 indicates full-text index only and 1 indicates dense vector only:
 ```
 { 
    "Weight": {
@@ -26644,11 +26638,8 @@ Valid values:
    }
 }
 ```
-
-- For three-channel recall:
-
-  - The score is calculated using the formula: `normalized_dense * dense_score + normalized_sparse * sparse_score + normalized_fulltext * fulltext_score`. The `dense`, `sparse`, and `fulltext` parameters represent the weights for the dense vector, sparse vector, and full-text search results, respectively. Their values must be greater than or equal to 0. The system automatically normalizes the weights to a sum of 1 (for example, `normalized_x = x / (dense + sparse + fulltext)`).
-
+  - Three-path recall pattern:
+     - Formula: normalized_dense * dense_score + normalized_sparse * sparse_score + normalized_fulltext * fulltext_score. The dense, sparse, and fulltext values represent the weights for dense vectors, sparse vectors, and full-text index retrieve respectively. Valid values: greater than or equal to 0. The system automatically performs normalization of the weights to 0 to 1 (normalized_x = x / (dense + sparse + fulltext)).
 ```
 {
   "HybridPathsSetting": {
@@ -26661,100 +26652,93 @@ Valid values:
   }
 }
 ```'),
-  includeFileUrl?: boolean(name='IncludeFileUrl', description='Specifies whether to return the URL of the document. The default value is `false`.', example='false'),
-  includeMetadataFields?: string(name='IncludeMetadataFields', description='The metadata fields to include in the response. If left empty, no metadata is returned. To specify multiple fields, use a comma-separated list.', example='title,page'),
-  includeVector?: boolean(name='IncludeVector', description='Specifies whether to include the vector in the results. The default value is `false`.
-
-> - **false**: The vector is not returned.
->
-> - **true**: The vector is returned.', example='true'),
-  metrics?: string(name='Metrics', description='The similarity algorithm used for retrieval. If this parameter is not specified, the algorithm that was specified when the document collection was created is used. We recommend that you do not set this parameter unless you have specific requirements.
+  includeFileUrl?: boolean(name='IncludeFileUrl', description='Specifies whether to synchronously return the URL of the document. By default, the URL is not returned.', example='false'),
+  includeMetadataFields?: string(name='IncludeMetadataFields', description='The metadata fields to return. Default value: empty. Separate multiple fields with commas.', example='title,page'),
+  includeVector?: boolean(name='IncludeVector', description='Specifies whether to return vectors. Default value: false.
+> - **false**: Does not return vectors.
+> - **true**: Returns vectors.', example='true'),
+  metrics?: string(name='Metrics', description='The similarity algorithm used for retrieval. If this value is empty, the algorithm specified when the knowledge base was created is used. Leave this parameter empty unless you have specific requirements.
 
 > Valid values:
->
 > - **l2**: Euclidean distance.
->
-> - **ip**: dot product (inner product) distance.
->
+> - **ip**: inner product distance.
 > - **cosine**: cosine similarity.', example='cosine'),
-  namespace?: string(name='Namespace', description='The namespace. The default value is `public`.
+  namespace?: string(name='Namespace', description='The namespace. Default value: public.
 
-> You can call the [CreateNamespace](https://help.aliyun.com/document_detail/2401495.html) operation to create a namespace and the [ListNamespaces](https://help.aliyun.com/document_detail/2401502.html) operation to list existing namespaces.', example='mynamespace'),
-  namespacePassword?: string(name='NamespacePassword', description='The password for the namespace.
+> You can create a namespace by calling the [CreateNamespace](https://help.aliyun.com/document_detail/2401495.html) operation and query namespaces by calling the [ListNamespaces](https://help.aliyun.com/document_detail/2401502.html) operation.', example='mynamespace'),
+  namespacePassword?: string(name='NamespacePassword', description='The password of the namespace.
 
-> This password is set when you call the [CreateNamespace](https://help.aliyun.com/document_detail/2401495.html) operation.
+> This value is specified by the [CreateNamespace](https://help.aliyun.com/document_detail/2401495.html) operation.
 
 This parameter is required.', example='testpassword'),
-  offset?: int32(name='Offset', description='The offset for paginated queries.', example='0'),
-  orderBy?: string(name='OrderBy', description='The field to sort the results by. By default, this parameter is empty.
+  offset?: int32(name='Offset', description='The offset for paged query. Used for paging through results.', example='0'),
+  orderBy?: string(name='OrderBy', description='The field used for sorting. Default value: empty.
 
-The field must be a metadata field or a default field from the table, such as `id`. Supported formats include single fields (e.g., `chunk_id`), multiple comma-separated fields (e.g., `block_id, chunk_id`), and fields with a sort direction (e.g., `block_id DESC, chunk_id DESC`).', example='created_at'),
+The field must belong to metadata or a default field in the table, such as id. Supported formats:
+
+A single field, such as chunk_id.
+Multiple fields separated by commas, such as block_id, chunk_id.
+Descending order, such as block_id DESC, chunk_id DESC.', example='created_at'),
   ownerId?: long(name='OwnerId'),
-  recallWindow?: [ int32 ](name='RecallWindow', description='The recall window. If this parameter is specified, additional context is returned with the retrieval results. The value must be a two-element array, `[A, B]`, where `-10 <= A <= 0` and `0 <= B <= 10`.
-
-> - Use this parameter when documents are finely chunked and retrieval might otherwise lose contextual information.
->
-> - Reranking is prioritized over windowing. The system first applies reranking and then processes the window.'),
+  recallWindow?: [ int32 ](name='RecallWindow', description='The recall window. When this value is not empty, additional context around the retrieval results is returned. The format is a two-element array: List<A, B>, where -10<=A<=0 and 0<=B<=10.
+> - Use this parameter when documents are split into overly small chunks and retrieval may lose contextual information.
+> - Reranking takes priority over windowing. Reranking is performed first, followed by windowing.'),
   regionId?: string(name='RegionId', description='The region ID of the instance.
 
 This parameter is required.', example='cn-hangzhou'),
-  rerankFactor?: double(name='RerankFactor', description='The factor for reranking vector retrieval results. The value must be greater than 1 and less than or equal to 5.
-
-> - Reranking may be slower if document chunks are sparse.
->
-> - For best performance, the number of items to be reranked (`TopK` \\\\* `RerankFactor`, rounded up) should not exceed 50.', example='2'),
+  rerankFactor?: double(name='RerankFactor', description='The reranking factor. When this value is not empty, the AISearch retrieve results are reranked. Valid values: 1 < RerankFactor <= 5.
+> - Reranking is slow when documents are sparsely chunked.
+> - The total number of reranked results (TopK × Factor, rounded up) should not exceed 50.', example='2'),
   rerankModel?: {
-    instruct?: string(name='Instruct', description='This parameter is available only when `RerankModel.Name` is set to `qwen3-rerank`.
-You can add a custom task description to guide the model\\\\"s sorting strategy.', example='Given a web search query, retrieve relevant passages that answer the query'),
-    name?: string(name='Name', description='The name of the reranking model. Valid values: `qwen3-rerank`, `gte-rerank-v2`.', example='qwen3-rerank'),
-  }(name='RerankModel', description='The parameters for the reranking model.'),
+    instruct?: string(name='Instruct', description='This parameter can be set when RerankModel.Name is qwen3-rerank.
+Adds a custom sorting task type description. This parameter guides the model to adopt different sorting strategies.', example='Given a web search query, retrieve relevant passages that answer the query'),
+    name?: string(name='Name', description='The name of the rerank model. Valid values: qwen3-rerank, gte-rerank-v2.', example='qwen3-rerank'),
+    rerankMetadataFields?: string(name='RerankMetadataFields'),
+  }(name='RerankModel', description='The rerank model parameters.'),
   topK?: int32(name='TopK', description='The number of top results to return.', example='10'),
   urlExpiration?: string(name='UrlExpiration', description='The validity period of the returned image URL.
 
-> - The value can be specified in seconds (s) or days (d). For example, `300s` indicates that the link is valid for 300 seconds, and `60d` indicates that the link is valid for 60 days.
->
-> - The value must be in the range of `60s` to `365d`.
->
-> - Default value: `7200s` (2 hours).', example='7200s'),
-  useFullTextRetrieval?: boolean(name='UseFullTextRetrieval', description='(Deprecated) Specifies whether to use full-text search (dual-channel recall). The default value is `false`, which means only vector retrieval is used.', example='true'),
+> Valid values:
+> - Supports seconds (s) and days (d) as units. For example, 300s indicates a validity period of 300 seconds, and 60d indicates a validity period of 60 days.
+> - Valid values: 60s to 365d.
+> - Default value: 7200s (2 hours).', example='7200s'),
+  useFullTextRetrieval?: boolean(name='UseFullTextRetrieval', description='(Deprecated) Specifies whether to use full-text retrieval (dual-path recall). Default value: false, which indicates that only vector retrieval is used.', example='true'),
 }
 
 model QueryContentShrinkRequest {
   collection?: string(name='Collection', description='The name of the document collection.
 
-> A document collection is created by calling the [CreateDocumentCollection](https://help.aliyun.com/document_detail/2618448.html) operation. Call the [ListDocumentCollections](https://help.aliyun.com/document_detail/2618452.html) operation to list your document collections.
+> The document collection is created by calling the [CreateDocumentCollection](https://help.aliyun.com/document_detail/2618448.html) operation. You can call the [ListDocumentCollections](https://help.aliyun.com/document_detail/2618452.html) operation to query existing document collections.
 
 This parameter is required.', example='document'),
-  content?: string(name='Content', description='The text to use for retrieval.', example='What is AnalyticDB for PostgreSQL?'),
+  content?: string(name='Content', description='The text content used for retrieval.', example='What is AnalyticDB for PostgreSQL?'),
   DBInstanceId?: string(name='DBInstanceId', description='The instance ID.
 
-> You can call the [DescribeDBInstances](https://help.aliyun.com/document_detail/86911.html) operation to find the IDs of all AnalyticDB for PostgreSQL instances in a region.
+> You can call the [DescribeDBInstances](https://help.aliyun.com/document_detail/86911.html) operation to query the details of all AnalyticDB for PostgreSQL instances in a region, including instance IDs.
 
 This parameter is required.', example='gp-xxxxxxxxx'),
-  fileName?: string(name='FileName', description='The filename of the source image for a search-by-image query.
+  fileName?: string(name='FileName', description='The name of the source image file to search in image-to-image search scenarios.
 
-> The image file must have a file extension. The supported extensions are bmp, jpg, jpeg, png, and tiff.', example='test.jpg'),
-  fileUrl?: string(name='FileUrl', description='The publicly accessible URL of the image file for a search-by-image query.
+> The image file must have a file extension. Supported image extensions: bmp, jpg, jpeg, png, and tiff.', example='test.jpg'),
+  fileUrl?: string(name='FileUrl', description='The publicly accessible URL of the image file in image-to-image search scenarios.
 
-> The image file must have a file extension. The supported extensions are bmp, jpg, jpeg, png, and tiff.', example='https://xx/myImage.jpg'),
-  filter?: string(name='Filter', description='A filter condition for the query, specified as a SQL `WHERE` clause that returns a boolean value. The clause can use comparison operators (such as `=`, `<>`, `!=`, `>`, `<`, `>=`, and `<=`), logical operators (`AND`, `OR`, and `NOT`), and keywords such as `IN`, `BETWEEN`, and `LIKE`.
+> The image file must have a file extension. Supported image extensions: bmp, jpg, jpeg, png, and tiff.', example='https://xx/myImage.jpg'),
+  filter?: string(name='Filter', description='The filter condition for the data to query, in SQL WHERE clause format. The filter is an expression that returns a Boolean value (true or false). Conditions can be simple comparison operators such as equal to (=), not equal to (<> or !=), greater than (>), less than (<), greater than or equal to (>=), and less than or equal to (<=). Conditions can also be more complex expressions combined with logical operators (AND, OR, NOT), as well as conditions using the IN, BETWEEN, and LIKE keywords.
 
-> - For details about the syntax, see https\\\\://www\\\\.postgresqltutorial.com/postgresql-tutorial/postgresql-where/.', example='title = \\\\"test\\\\" AND name like \\\\"test%\\\\"'),
-  graphEnhance?: boolean(name='GraphEnhance', description='Specifies whether to enable knowledge graph enhancement. The default value is `false`.', example='false'),
-  graphSearchArgsShrink?: string(name='GraphSearchArgs', description='The parameters for knowledge graph retrieval.'),
-  hybridSearch?: string(name='HybridSearch', description='Specifies the hybrid search algorithm. If this parameter is not specified, the system directly compares and sorts the scores from dense vector retrieval and full-text search.
+> 
+> - For detailed syntax, refer to: https://www.postgresqltutorial.com/postgresql-tutorial/postgresql-where/.', example='title = \\\\"test\\\\" AND name like \\\\"test%\\\\"'),
+  graphEnhance?: boolean(name='GraphEnhance', description='Specifies whether to enable knowledge graph enhancement. Default value: false.', example='false'),
+  graphSearchArgsShrink?: string(name='GraphSearchArgs', description='The knowledge graph retrieval parameters.'),
+  hybridSearch?: string(name='HybridSearch', description='The multi-channel recall algorithm. Default value: empty, which indicates that the dense vector and full-text index scores are directly compared and sorted.
 
 Valid values:
 
-- RRF: reciprocal rank fusion. This method uses a `k` parameter to control the fusion effect. For more information, see the `HybridSearchArgs` parameter.
+- RRF: Reciprocal Rank Fusion. A parameter k controls the fusion effect. For more information, see the HybridSearchArgs configuration.
+- Weight: Weighted sorting. Parameters control the score weights of AISearch retrieve and full-text index results before sorting. For more information, see the HybridSearchArgs configuration.
+- Cascaded: Full-text index retrieve is performed first, followed by AISearch retrieve based on the full-text index results.', example='RRF'),
+  hybridSearchArgsShrink?: string(name='HybridSearchArgs', description='The algorithm parameters for multi-channel recall. RRF and Weight are supported. HybridPathsSetting specifies the recall paths: dense vectors (dense), sparse vectors (sparse), and full-text index (fulltext). If this value is empty, dense vectors (dense) and full-text index (fulltext) are used by default.
 
-- Weight: A weighted sorting method. This method uses parameters to control the score weights of vector retrieval and full-text search before sorting. For more information, see the `HybridSearchArgs` parameter.
-
-- Cascaded: Performs full-text search first, and then performs vector retrieval on the results.', example='RRF'),
-  hybridSearchArgsShrink?: string(name='HybridSearchArgs', description='Parameters for the multi-channel recall algorithm. Currently, `RRF` and `Weight` are supported. `HybridPathsSetting` can be used to specify the recall paths, including dense vector search (`dense`), sparse vector search (`sparse`), and full-text search (`fulltext`). If this parameter is not specified, the system recalls dense vectors and full-text search results by default.
-
-- RRF: Specifies the constant `k` in the scoring formula `1/(k+rank_i)`. The value must be an integer greater than 1. Example:
-
+- RRF: Specifies the constant k in the score calculation formula `1/(k+rank_i)`. The value must be a positive integer greater than 1. Format:
 ```
 {
   "HybridPathsSetting": {
@@ -26766,12 +26750,9 @@ Valid values:
 }
 ```
 
-- Weight:
-
-  - For dual-channel recall (if `HybridPathsSetting` is not specified, only `alpha` is configured):
-
-    - The score is calculated using the formula: `alpha * dense_score + (1-alpha) * fulltext_score`. The `alpha` parameter represents the score weight of dense vector retrieval relative to full-text search. The value must be in the range of 0 to 1. A value of 0 indicates that only full-text search is used, and a value of 1 indicates that only dense vector retrieval is used.
-
+- Weight: 
+   - Dual-path recall (without specifying HybridPathsSetting, only specifying alpha):
+      - Formula: alpha * dense_score + (1-alpha) * fulltext_score. The alpha parameter specifies the score weight between dense vectors and full-text index retrieve. Valid values: 0 to 1, where 0 indicates full-text index only and 1 indicates dense vector only:
 ```
 { 
    "Weight": {
@@ -26779,11 +26760,8 @@ Valid values:
    }
 }
 ```
-
-- For three-channel recall:
-
-  - The score is calculated using the formula: `normalized_dense * dense_score + normalized_sparse * sparse_score + normalized_fulltext * fulltext_score`. The `dense`, `sparse`, and `fulltext` parameters represent the weights for the dense vector, sparse vector, and full-text search results, respectively. Their values must be greater than or equal to 0. The system automatically normalizes the weights to a sum of 1 (for example, `normalized_x = x / (dense + sparse + fulltext)`).
-
+  - Three-path recall pattern:
+     - Formula: normalized_dense * dense_score + normalized_sparse * sparse_score + normalized_fulltext * fulltext_score. The dense, sparse, and fulltext values represent the weights for dense vectors, sparse vectors, and full-text index retrieve respectively. Valid values: greater than or equal to 0. The system automatically performs normalization of the weights to 0 to 1 (normalized_x = x / (dense + sparse + fulltext)).
 ```
 {
   "HybridPathsSetting": {
@@ -26796,64 +26774,58 @@ Valid values:
   }
 }
 ```'),
-  includeFileUrl?: boolean(name='IncludeFileUrl', description='Specifies whether to return the URL of the document. The default value is `false`.', example='false'),
-  includeMetadataFields?: string(name='IncludeMetadataFields', description='The metadata fields to include in the response. If left empty, no metadata is returned. To specify multiple fields, use a comma-separated list.', example='title,page'),
-  includeVector?: boolean(name='IncludeVector', description='Specifies whether to include the vector in the results. The default value is `false`.
-
-> - **false**: The vector is not returned.
->
-> - **true**: The vector is returned.', example='true'),
-  metrics?: string(name='Metrics', description='The similarity algorithm used for retrieval. If this parameter is not specified, the algorithm that was specified when the document collection was created is used. We recommend that you do not set this parameter unless you have specific requirements.
+  includeFileUrl?: boolean(name='IncludeFileUrl', description='Specifies whether to synchronously return the URL of the document. By default, the URL is not returned.', example='false'),
+  includeMetadataFields?: string(name='IncludeMetadataFields', description='The metadata fields to return. Default value: empty. Separate multiple fields with commas.', example='title,page'),
+  includeVector?: boolean(name='IncludeVector', description='Specifies whether to return vectors. Default value: false.
+> - **false**: Does not return vectors.
+> - **true**: Returns vectors.', example='true'),
+  metrics?: string(name='Metrics', description='The similarity algorithm used for retrieval. If this value is empty, the algorithm specified when the knowledge base was created is used. Leave this parameter empty unless you have specific requirements.
 
 > Valid values:
->
 > - **l2**: Euclidean distance.
->
-> - **ip**: dot product (inner product) distance.
->
+> - **ip**: inner product distance.
 > - **cosine**: cosine similarity.', example='cosine'),
-  namespace?: string(name='Namespace', description='The namespace. The default value is `public`.
+  namespace?: string(name='Namespace', description='The namespace. Default value: public.
 
-> You can call the [CreateNamespace](https://help.aliyun.com/document_detail/2401495.html) operation to create a namespace and the [ListNamespaces](https://help.aliyun.com/document_detail/2401502.html) operation to list existing namespaces.', example='mynamespace'),
-  namespacePassword?: string(name='NamespacePassword', description='The password for the namespace.
+> You can create a namespace by calling the [CreateNamespace](https://help.aliyun.com/document_detail/2401495.html) operation and query namespaces by calling the [ListNamespaces](https://help.aliyun.com/document_detail/2401502.html) operation.', example='mynamespace'),
+  namespacePassword?: string(name='NamespacePassword', description='The password of the namespace.
 
-> This password is set when you call the [CreateNamespace](https://help.aliyun.com/document_detail/2401495.html) operation.
+> This value is specified by the [CreateNamespace](https://help.aliyun.com/document_detail/2401495.html) operation.
 
 This parameter is required.', example='testpassword'),
-  offset?: int32(name='Offset', description='The offset for paginated queries.', example='0'),
-  orderBy?: string(name='OrderBy', description='The field to sort the results by. By default, this parameter is empty.
+  offset?: int32(name='Offset', description='The offset for paged query. Used for paging through results.', example='0'),
+  orderBy?: string(name='OrderBy', description='The field used for sorting. Default value: empty.
 
-The field must be a metadata field or a default field from the table, such as `id`. Supported formats include single fields (e.g., `chunk_id`), multiple comma-separated fields (e.g., `block_id, chunk_id`), and fields with a sort direction (e.g., `block_id DESC, chunk_id DESC`).', example='created_at'),
+The field must belong to metadata or a default field in the table, such as id. Supported formats:
+
+A single field, such as chunk_id.
+Multiple fields separated by commas, such as block_id, chunk_id.
+Descending order, such as block_id DESC, chunk_id DESC.', example='created_at'),
   ownerId?: long(name='OwnerId'),
-  recallWindowShrink?: string(name='RecallWindow', description='The recall window. If this parameter is specified, additional context is returned with the retrieval results. The value must be a two-element array, `[A, B]`, where `-10 <= A <= 0` and `0 <= B <= 10`.
-
-> - Use this parameter when documents are finely chunked and retrieval might otherwise lose contextual information.
->
-> - Reranking is prioritized over windowing. The system first applies reranking and then processes the window.'),
+  recallWindowShrink?: string(name='RecallWindow', description='The recall window. When this value is not empty, additional context around the retrieval results is returned. The format is a two-element array: List<A, B>, where -10<=A<=0 and 0<=B<=10.
+> - Use this parameter when documents are split into overly small chunks and retrieval may lose contextual information.
+> - Reranking takes priority over windowing. Reranking is performed first, followed by windowing.'),
   regionId?: string(name='RegionId', description='The region ID of the instance.
 
 This parameter is required.', example='cn-hangzhou'),
-  rerankFactor?: double(name='RerankFactor', description='The factor for reranking vector retrieval results. The value must be greater than 1 and less than or equal to 5.
-
-> - Reranking may be slower if document chunks are sparse.
->
-> - For best performance, the number of items to be reranked (`TopK` \\\\* `RerankFactor`, rounded up) should not exceed 50.', example='2'),
-  rerankModelShrink?: string(name='RerankModel', description='The parameters for the reranking model.'),
+  rerankFactor?: double(name='RerankFactor', description='The reranking factor. When this value is not empty, the AISearch retrieve results are reranked. Valid values: 1 < RerankFactor <= 5.
+> - Reranking is slow when documents are sparsely chunked.
+> - The total number of reranked results (TopK × Factor, rounded up) should not exceed 50.', example='2'),
+  rerankModelShrink?: string(name='RerankModel', description='The rerank model parameters.'),
   topK?: int32(name='TopK', description='The number of top results to return.', example='10'),
   urlExpiration?: string(name='UrlExpiration', description='The validity period of the returned image URL.
 
-> - The value can be specified in seconds (s) or days (d). For example, `300s` indicates that the link is valid for 300 seconds, and `60d` indicates that the link is valid for 60 days.
->
-> - The value must be in the range of `60s` to `365d`.
->
-> - Default value: `7200s` (2 hours).', example='7200s'),
-  useFullTextRetrieval?: boolean(name='UseFullTextRetrieval', description='(Deprecated) Specifies whether to use full-text search (dual-channel recall). The default value is `false`, which means only vector retrieval is used.', example='true'),
+> Valid values:
+> - Supports seconds (s) and days (d) as units. For example, 300s indicates a validity period of 300 seconds, and 60d indicates a validity period of 60 days.
+> - Valid values: 60s to 365d.
+> - Default value: 7200s (2 hours).', example='7200s'),
+  useFullTextRetrieval?: boolean(name='UseFullTextRetrieval', description='(Deprecated) Specifies whether to use full-text retrieval (dual-path recall). Default value: false, which indicates that only vector retrieval is used.', example='true'),
 }
 
 model QueryContentResponseBody = {
-  embeddingTokens?: string(name='EmbeddingTokens', description='The number of tokens used for vectorization.
+  embeddingTokens?: string(name='EmbeddingTokens', description='The number of tokens used during vectorization.
 
-> A token is the smallest unit into which the input text is divided. A token can be a word, a phrase, a punctuation mark, or a character.', example='100'),
+> A token is the smallest unit into which the input text is split. A token can be a word, a phrase, a punctuation mark, or a character.', example='100'),
   entities?: {
     entities?: [ 
     {
@@ -26883,7 +26855,7 @@ model QueryContentResponseBody = {
     }
   ](name='MatchList')
   }(name='Matches'),
-  message?: string(name='Message', description='The response message.', example='success'),
+  message?: string(name='Message', description='The returned message.', example='success'),
   relations?: {
     relations?: [ 
     {
@@ -26898,17 +26870,16 @@ model QueryContentResponseBody = {
   requestId?: string(name='RequestId', description='The request ID.', example='ABB39CC3-4488-4857-905D-2E4A051D0521'),
   status?: string(name='Status', description='The status. Valid values:
 
-- **success**: The operation was successful.
-
-- **fail**: The operation failed.', example='success'),
+- **success**: Succeeded.
+- **fail**: Failed.', example='success'),
   usage?: {
-    embeddingEntries?: string(name='EmbeddingEntries', description='The number of entries used for vectorization.
+    embeddingEntries?: string(name='EmbeddingEntries', description='The number of entries used during vectorization.
 
-> An entry is the number of operations during vectorization for text or images. For example, processing text once counts as 1 entry, and processing an image once counts as 2 entries.', example='10'),
-    embeddingTokens?: string(name='EmbeddingTokens', description='The number of tokens used for vectorization.
+> An entry refers to the number of items processed during vectorization of text or images. For example, processing text once counts as 1 entry, and processing an image once counts as 2 entries.', example='10'),
+    embeddingTokens?: string(name='EmbeddingTokens', description='The number of tokens used during vectorization.
 
-> A token is the smallest unit into which the input text is divided. A token can be a word, a phrase, a punctuation mark, or a character.', example='100'),
-  }(name='Usage', description='The resource usage for the query.'),
+> A token is the smallest unit into which the input text is split. A token can be a word, a phrase, a punctuation mark, or a character.', example='100'),
+  }(name='Usage', description='The resource usage of this query.'),
   windowMatches?: {
     windowMatches?: [ 
     {
@@ -26935,7 +26906,7 @@ model QueryContentResponse = {
 }
 
 /**
- * @summary Query a document collection with natural language to retrieve vectors and metadata.
+ * @summary Retrieves vectors and metadata from a specified document collection using natural language queries.
  *
  * @param tmpReq QueryContentRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -27057,7 +27028,7 @@ async function queryContentWithOptions(tmpReq: QueryContentRequest, runtime: $Ru
 }
 
 /**
- * @summary Query a document collection with natural language to retrieve vectors and metadata.
+ * @summary Retrieves vectors and metadata from a specified document collection using natural language queries.
  *
  * @param request QueryContentRequest
  * @return QueryContentResponse
@@ -27151,76 +27122,70 @@ async function queryContentAdvance(request: QueryContentAdvanceRequest, runtime:
 }
 
 model QueryKnowledgeBasesContentRequest {
-  content?: string(name='Content', description='The text content to search for.
+  content?: string(name='Content', description='The text content used for retrieval.
 
 This parameter is required.', example='What is ADBPG?'),
   DBInstanceId?: string(name='DBInstanceId', description='The instance ID.
 
-> You can call the [DescribeDBInstances](https://help.aliyun.com/document_detail/86911.html) operation to view the details of all AnalyticDB for PostgreSQL instances in a specific region, including their instance IDs.
+> You can call the [DescribeDBInstances](https://help.aliyun.com/document_detail/86911.html) operation to query the details of all AnalyticDB for PostgreSQL instances in a region, including instance IDs.
 
 This parameter is required.', example='gp-xxxxxxxxx'),
-  mergeMethod?: string(name='MergeMethod', description='The method for merging results from multiple knowledge bases. The default value is `RRF`. Valid values:
-
+  mergeMethod?: string(name='MergeMethod', description='The method used to merge results from multiple knowledge bases. Default value: RRF. Valid values:
 - RRF
-
-- Weight', example='RRF'),
+- Weight.', example='RRF'),
   mergeMethodArgs?: {
     rrf?: {
-      k?: long(name='K', description='The constant `k` in the scoring formula `1/(k+rank_i)`. It must be a positive integer greater than 1.', example='60'),
-    }(name='Rrf', description='The parameters that you can configure when `MergeMethod` is set to `RRF`.'),
+      k?: long(name='K', description='The k constant in the scoring algorithm `1/(k+rank_i)`. The value must be a positive integer greater than 1.', example='60'),
+    }(name='Rrf', description='The configurable parameters when MergeMethod is set to RRF.'),
     weight?: {
-      weights?: [ double ](name='Weights', description='An array of weights for each source collection.'),
-    }(name='Weight', description='The parameters that you can configure when `MergeMethod` is set to `Weight`.'),
-  }(name='MergeMethodArgs', description='The arguments for the specified `MergeMethod`.'),
+      weights?: [ double ](name='Weights', description='The weight array for each SourceCollection.'),
+    }(name='Weight', description='The configurable parameters when MergeMethod is set to Weight.'),
+  }(name='MergeMethodArgs', description='The parameters for the merge method of each SourceCollection.'),
   ownerId?: long(name='OwnerId'),
   regionId?: string(name='RegionId', description='The region ID of the instance.
 
 This parameter is required.', example='cn-beijing'),
-  rerankFactor?: double(name='RerankFactor', description='The reranking factor. If specified, the system reranks the final merged results. Valid values: 1 < RerankFactor <= 5.
-
-> - Sparse document chunking reduces reranking efficiency.
->
-> - We recommend that the number of items to rerank (TopK × Factor, rounded up) does not exceed 50.', example='2'),
+  rerankFactor?: double(name='RerankFactor', description='The reranking factor. If this parameter is not empty, the vector retrieval results are reranked. Valid values: 1 < RerankFactor <= 5.
+> - Reranking is slow when document chunks are sparse.
+> - The recommended reranking count (TopK × Factor, rounded up) should not exceed 50.', example='2'),
   rerankModel?: {
-    instruct?: string(name='Instruct', description='This parameter can be set only when `RerankModel.Name` is `qwen3-rerank`. Use this parameter to provide a custom instruction that guides the model\\\\"s ranking strategy.', example='Given a web search query, retrieve relevant passages that answer the query'),
-    name?: string(name='Name', description='The name of the rerank model. Valid values: `qwen3-rerank` and `gte-rerank-v2`.', example='qwen3-rerank'),
-  }(name='RerankModel', description='Parameters for the rerank model applied to the final merged results.'),
+    instruct?: string(name='Instruct', description='This parameter can be set when RerankModel.Name is set to qwen3-rerank. Specifies a custom ranking task type description that guides the model to adopt different ranking strategies.', example='Given a web search query, retrieve relevant passages that answer the query'),
+    name?: string(name='Name', description='The name of the reranking model. Valid values: qwen3-rerank, gte-rerank-v2.', example='qwen3-rerank'),
+  }(name='RerankModel', description='The reranking model parameters for performing an additional reranking on the overall results after multi-channel merging.'),
   sourceCollection?: [ 
     {
-      collection?: string(name='Collection', description='The document collection name.
+      collection?: string(name='Collection', description='The name of the document collection.
 
-> To create a document collection, call the [CreateDocumentCollection](https://help.aliyun.com/document_detail/2618448.html) operation. To view existing document collections, call the [ListDocumentCollections](https://help.aliyun.com/document_detail/2618452.html) operation.
+> The document collection is created by calling the [CreateDocumentCollection](https://help.aliyun.com/document_detail/2618448.html) operation. You can call the [ListDocumentCollections](https://help.aliyun.com/document_detail/2618452.html) operation to view existing document collections.
 
 This parameter is required.', example='knowledge22'),
       namespace?: string(name='Namespace', description='The namespace.
 
-> You can call the [CreateNamespace](https://help.aliyun.com/document_detail/2401495.html) operation to create a namespace and call the [ListNamespaces](https://help.aliyun.com/document_detail/2401502.html) operation to view existing namespaces.', example='ns_cloud_index'),
-      namespacePassword?: string(name='NamespacePassword', description='The password for the namespace.
+> You can create a namespace by calling the [CreateNamespace](https://help.aliyun.com/document_detail/2401495.html) operation and view the list by calling the [ListNamespaces](https://help.aliyun.com/document_detail/2401502.html) operation.', example='ns_cloud_index'),
+      namespacePassword?: string(name='NamespacePassword', description='The password of the namespace.
 
-> You specify this value when you call the [CreateNamespace](https://help.aliyun.com/document_detail/2401495.html) operation.
+> This value is specified by the [CreateNamespace](https://help.aliyun.com/document_detail/2401495.html) operation.
 
 This parameter is required.', example='ns_password'),
       queryParams?: {
-        filter?: string(name='Filter', description='A filter expression for the data to retrieve, formatted as a SQL `WHERE` clause. This is a Boolean expression that evaluates to `true` or `false`. The expression can include simple comparison operators (such as `=`, `<>`, `!=`, `>`, `<`, `>=`, and `<=`), logical operators (`AND`, `OR`, `NOT`), and keywords such as `IN`, `BETWEEN`, and `LIKE`.
+        filter?: string(name='Filter', description='The filter conditions for the data to query, in SQL WHERE clause format. This is an expression that returns a Boolean value (true or false). The conditions can be simple comparison operators such as equal to (=), not equal to (<> or !=), greater than (>), less than (<), greater than or equal to (>=), and less than or equal to (<=). They can also be more complex expressions combined with logical operators (AND, OR, NOT), as well as conditions that use keywords such as IN, BETWEEN, and LIKE.
 
-> - For syntax details, see [PostgreSQL WHERE](https://www.postgresqltutorial.com/postgresql-tutorial/postgresql-where/).', example='id = \\\\"llm-52tvykqt6u67iw73_j6ovptwjk7_file_6ce3da1f7e69495d9f491f2180c86973_11967297\\\\"'),
-        graphEnhance?: boolean(name='GraphEnhance', description='Specifies whether to enable knowledge graph enhancement. The default value is `false`.', example='true'),
+> 
+> - For detailed syntax, refer to: https://www.postgresqltutorial.com/postgresql-tutorial/postgresql-where/.', example='id = \\\\"llm-52tvykqt6u67iw73_j6ovptwjk7_file_6ce3da1f7e69495d9f491f2180c86973_11967297\\\\"'),
+        graphEnhance?: boolean(name='GraphEnhance', description='Specifies whether to enable knowledge graph enhancement. Default value: false.', example='true'),
         graphSearchArgs?: {
-          graphTopK?: long(name='GraphTopK', description='The number of top entities and relationship edges to return. The default value is 60.', example='60'),
-        }(name='GraphSearchArgs', description='Parameters for the graph search.'),
-        hybridSearch?: string(name='HybridSearch', description='The hybrid search algorithm. If this parameter is not specified, the system directly compares and sorts the scores from dense vector and full-text searches.
+          graphTopK?: long(name='GraphTopK', description='The number of top entities and relationship edges to return. Default value: 60.', example='60'),
+        }(name='GraphSearchArgs', description='The number of top entities and relationship edges to return. Default value: 60.'),
+        hybridSearch?: string(name='HybridSearch', description='The multi-channel recall algorithm. Default value: empty (the scores from dense vectors and full-text retrieval are directly compared and sorted).
 
 Valid values:
 
-- `RRF`: Reciprocal rank fusion. Uses a parameter `k` to control the fusion effect. For more information, see the `HybridSearchArgs` parameter.
+- RRF: reciprocal rank fusion. A parameter k controls the fusion effect. For more information, see the HybridSearchArgs configuration.
+- Weight: weighted ranking. Parameters control the score weights of vector retrieval and full-text retrieval before sorting. For more information, see the HybridSearchArgs configuration.
+- Cascaded: full-text retrieval is performed first, followed by vector retrieval on the full-text results.', example='Cascaded'),
+        hybridSearchArgs?: map[string]any(name='HybridSearchArgs', description='The algorithm parameters for multi-channel recall. RRF and Weight are supported. HybridPathsSetting specifies the recall paths: dense vectors (dense), sparse vectors (sparse), and full-text retrieval (fulltext). If this value is empty, dense vectors (dense) and full-text retrieval (fulltext) are used by default.
 
-- `Weight`: Weighted ranking. Uses parameters to control the score weights from different retrieval paths, such as dense vector and full-text searches, before sorting. For more information, see the `HybridSearchArgs` parameter.
-
-- `Cascaded`: Performs a full-text search first, and then performs a vector search on the results.', example='Cascaded'),
-        hybridSearchArgs?: map[string]any(name='HybridSearchArgs', description='The parameters for the hybrid search algorithm. `RRF` and `Weight` are supported. `HybridPathsSetting` specifies the retrieval paths: dense vectors (`dense`), sparse vectors (`sparse`), and full-text search (`fulltext`). If this parameter is not specified, the default paths are `dense` and `fulltext`.
-
-- `RRF`: Specifies the constant `k` in the scoring formula `1/(k+rank_i)`. `k` must be a positive integer greater than 1. Format:
-
+- RRF: specifies the k constant in the scoring algorithm `1/(k+rank_i)`. The value must be a positive integer greater than 1. Format:
 ```
 {
   "HybridPathsSetting": {
@@ -27232,12 +27197,9 @@ Valid values:
 }
 ```
 
-- `Weight`:
-
-  - Two-path retrieval (the default if you do not specify `HybridPathsSetting`):
-
-    - Scoring formula: `alpha * dense_score + (1-alpha) * fulltext_score`. The `alpha` parameter represents the score weight of dense vectors relative to full-text search. The value must be in the range of [0, 1]. A value of 0 indicates full-text search only, and a value of 1 indicates dense vector search only.
-
+- Weight: 
+   - Dual-path recall (without specifying HybridPathsSetting, only specifying alpha):
+      - Formula: alpha * dense_score + (1-alpha) * fulltext_score. The alpha parameter specifies the score weight between dense vectors and full-text retrieval. Valid values: 0 to 1, where 0 indicates full-text retrieval only and 1 indicates dense vectors only:
 ```
 { 
    "Weight": {
@@ -27245,11 +27207,8 @@ Valid values:
    }
 }
 ```
-
-- Three-path retrieval:
-
-  - Scoring formula: `normalized_dense * dense_score + normalized_sparse * sparse_score + normalized_fulltext * fulltext_score`. The `dense`, `sparse`, and `fulltext` parameters represent the weights for dense vectors, sparse vectors, and full-text search, respectively. The value of each weight must be greater than or equal to 0. The system automatically normalizes the weights to a range of [0, 1] (for example, `normalized_x = x / (dense + sparse + fulltext)`).
-
+  - Three-path recall pattern:
+     - Formula: normalized_dense * dense_score + normalized_sparse * sparse_score + normalized_fulltext * fulltext_score. dense, sparse, and fulltext represent the weights for dense vectors, sparse vectors, and full-text retrieval respectively. Valid values: greater than or equal to 0. The system automatically performs normalization on the weights to 0 to 1 (normalized_x = x / (dense + sparse + fulltext)).
 ```
 {
   "HybridPathsSetting": {
@@ -27262,78 +27221,70 @@ Valid values:
   }
 }
 ```'),
-        metrics?: string(name='Metrics', description='The distance metric used for building the vector index. Valid values:
+        metrics?: string(name='Metrics', description='The method used to build the vector index. Valid values:
+- l2: Euclidean distance.
+- ip: inner product distance.
+- cosine: cosine similarity.', example='cosine'),
+        offset?: int32(name='Offset', description='The offset for paging query.', example='20'),
+        orderBy?: string(name='OrderBy', description='The field used for sorting. Default value: empty.
 
-- `l2`: Euclidean distance.
+The field must belong to metadata or a default field in the table, such as id. Supported formats:
 
-- `ip`: Inner product distance.
-
-- `cosine`: Cosine similarity.', example='cosine'),
-        offset?: int32(name='Offset', description='The offset for paged queries.', example='20'),
-        orderBy?: string(name='OrderBy', description='Specifies the field by which to sort the results. By default, this parameter is empty.
-
-The field must be a metadata field or a default field in the table, such as `id`. The following formats are supported:
-
-A single field, such as `chunk_id`. Multiple fields separated by commas, such as `block_id, chunk_id`. Descending order, such as `block_id DESC, chunk_id DESC`.', example='file_id,sort_num'),
-        recallWindow?: [ long ](name='RecallWindow', description='The recall window. If specified, adds context from surrounding document chunks to the search results. The format is a two-element array `[A, B]`, where `-10 <= A <= 0` and `0 <= B <= 10`.
-
-> - This parameter is recommended for finely chunked documents where retrieval might otherwise lose context.
->
-> - The system applies reranking before applying the recall window.'),
-        rerankFactor?: double(name='RerankFactor', description='The reranking factor. If specified, the system reranks the results from this source collection before they are merged. Valid values: 1 < RerankFactor <= 5.
-
-> - Sparse document chunking reduces reranking efficiency.
->
-> - We recommend that the number of items to rerank (TopK × Factor, rounded up) does not exceed 50.', example='2.0'),
+A single field, such as chunk_id.
+Multiple fields separated by commas, such as block_id, chunk_id.
+Descending order is supported, such as block_id DESC, chunk_id DESC.', example='file_id,sort_num'),
+        recallWindow?: [ long ](name='RecallWindow', description='The recall window. If this value is not empty, the context of the retrieval results is included. The format is a two-element array: List<A, B>, where -10 <= A <= 0 and 0 <= B <= 10.
+> - Use this parameter when document chunks are too small and retrieval may lose context information.
+> - Reranking takes priority over windowing. Reranking is performed first, followed by windowing.'),
+        rerankFactor?: double(name='RerankFactor', description='The reranking factor. If this parameter is not empty, the vector retrieval results are reranked. Valid values: 1 < RerankFactor <= 5.
+> - Reranking is slow when document chunks are sparse.
+> - The recommended reranking count (TopK × Factor, rounded up) should not exceed 50.', example='2.0'),
         rerankModel?: {
-          instruct?: string(name='Instruct', description='This parameter can be set only when `RerankModel.Name` is `qwen3-rerank`. Use this parameter to provide a custom instruction that guides the model\\\\"s ranking strategy.', example='Given a web search query, retrieve relevant passages that answer the query'),
-          name?: string(name='Name', description='The name of the rerank model. Valid values: `qwen3-rerank` and `gte-rerank-v2`.', example='qwen3-rerank'),
-        }(name='RerankModel', description='Parameters for the rerank model applied to the results from this specific source collection before the final merge.'),
-        topK?: long(name='TopK', description='The number of top results to return from this source collection.', example='776'),
-        useFullTextRetrieval?: boolean(name='UseFullTextRetrieval', description='Specifies whether to use full-text search, which enables two-path retrieval. The default value is `false`, which indicates that only vector retrieval is performed.', example='false'),
-      }(name='QueryParams', description='The query parameters for the source collection.'),
+          instruct?: string(name='Instruct', description='This parameter can be set when RerankModel.Name is set to qwen3-rerank. Specifies a custom ranking task type description that guides the model to adopt different ranking strategies.', example='Given a web search query, retrieve relevant passages that answer the query'),
+          name?: string(name='Name', description='The name of the reranking model. Valid values: qwen3-rerank, gte-rerank-v2.', example='qwen3-rerank'),
+          rerankMetadataFields?: string(name='RerankMetadataFields'),
+        }(name='RerankModel', description='The reranking model parameters.'),
+        topK?: long(name='TopK', description='The number of top results to return.', example='776'),
+        useFullTextRetrieval?: boolean(name='UseFullTextRetrieval', description='Specifies whether to use full-text retrieval (dual-path recall). Default value: false, which indicates that only vector retrieval is used.', example='false'),
+      }(name='QueryParams', description='The filter conditions for the data to query, in SQL WHERE clause format.'),
     }
-  ](name='SourceCollection', description='The source collections to search.
+  ](name='SourceCollection', description='The information about the multiple collections to retrieve.
 
 This parameter is required.'),
-  topK?: long(name='TopK', description='The number of top results to return after the results from all recall paths are merged.', example='10'),
+  topK?: long(name='TopK', description='The number of top results to return after multi-channel recall merging.', example='10'),
 }
 
 model QueryKnowledgeBasesContentShrinkRequest {
-  content?: string(name='Content', description='The text content to search for.
+  content?: string(name='Content', description='The text content used for retrieval.
 
 This parameter is required.', example='What is ADBPG?'),
   DBInstanceId?: string(name='DBInstanceId', description='The instance ID.
 
-> You can call the [DescribeDBInstances](https://help.aliyun.com/document_detail/86911.html) operation to view the details of all AnalyticDB for PostgreSQL instances in a specific region, including their instance IDs.
+> You can call the [DescribeDBInstances](https://help.aliyun.com/document_detail/86911.html) operation to query the details of all AnalyticDB for PostgreSQL instances in a region, including instance IDs.
 
 This parameter is required.', example='gp-xxxxxxxxx'),
-  mergeMethod?: string(name='MergeMethod', description='The method for merging results from multiple knowledge bases. The default value is `RRF`. Valid values:
-
+  mergeMethod?: string(name='MergeMethod', description='The method used to merge results from multiple knowledge bases. Default value: RRF. Valid values:
 - RRF
-
-- Weight', example='RRF'),
-  mergeMethodArgsShrink?: string(name='MergeMethodArgs', description='The arguments for the specified `MergeMethod`.'),
+- Weight.', example='RRF'),
+  mergeMethodArgsShrink?: string(name='MergeMethodArgs', description='The parameters for the merge method of each SourceCollection.'),
   ownerId?: long(name='OwnerId'),
   regionId?: string(name='RegionId', description='The region ID of the instance.
 
 This parameter is required.', example='cn-beijing'),
-  rerankFactor?: double(name='RerankFactor', description='The reranking factor. If specified, the system reranks the final merged results. Valid values: 1 < RerankFactor <= 5.
-
-> - Sparse document chunking reduces reranking efficiency.
->
-> - We recommend that the number of items to rerank (TopK × Factor, rounded up) does not exceed 50.', example='2'),
-  rerankModelShrink?: string(name='RerankModel', description='Parameters for the rerank model applied to the final merged results.'),
-  sourceCollectionShrink?: string(name='SourceCollection', description='The source collections to search.
+  rerankFactor?: double(name='RerankFactor', description='The reranking factor. If this parameter is not empty, the vector retrieval results are reranked. Valid values: 1 < RerankFactor <= 5.
+> - Reranking is slow when document chunks are sparse.
+> - The recommended reranking count (TopK × Factor, rounded up) should not exceed 50.', example='2'),
+  rerankModelShrink?: string(name='RerankModel', description='The reranking model parameters for performing an additional reranking on the overall results after multi-channel merging.'),
+  sourceCollectionShrink?: string(name='SourceCollection', description='The information about the multiple collections to retrieve.
 
 This parameter is required.'),
-  topK?: long(name='TopK', description='The number of top results to return after the results from all recall paths are merged.', example='10'),
+  topK?: long(name='TopK', description='The number of top results to return after multi-channel recall merging.', example='10'),
 }
 
 model QueryKnowledgeBasesContentResponseBody = {
-  embeddingTokens?: string(name='EmbeddingTokens', description='The number of tokens used for vectorization.
+  embeddingTokens?: string(name='EmbeddingTokens', description='The number of tokens used during vectorization.
 
-> A token is the smallest unit of processed text, such as a word, phrase, punctuation mark, or character.', example='100'),
+> A token is the smallest unit into which the input text is split. A token can be a word, a phrase, a punctuation mark, or a character.', example='100'),
   entities?: {
     entities?: [ 
     {
@@ -27344,7 +27295,7 @@ model QueryKnowledgeBasesContentResponseBody = {
       type?: string(name='Type'),
     }
   ](name='entities')
-  }(name='Entities', description='The extracted entities.'),
+  }(name='Entities'),
   matches?: {
     matchList?: [ 
     {
@@ -27359,8 +27310,8 @@ model QueryKnowledgeBasesContentResponseBody = {
       score?: double(name='Score'),
     }
   ](name='MatchList')
-  }(name='Matches', description='The matched data.'),
-  message?: string(name='Message', description='The response message.', example='success'),
+  }(name='Matches'),
+  message?: string(name='Message', description='The returned message.', example='success'),
   relations?: {
     relations?: [ 
     {
@@ -27371,21 +27322,19 @@ model QueryKnowledgeBasesContentResponseBody = {
       targetEntity?: string(name='TargetEntity'),
     }
   ](name='relations')
-  }(name='Relations', description='The extracted relationships.'),
+  }(name='Relations'),
   requestId?: string(name='RequestId', description='The request ID.', example='ABB39CC3-4488-4857-905D-2E4A051D0521'),
-  status?: string(name='Status', description='The status of the request. Valid values:
-
-- **success**: The request succeeded.
-
-- **fail**: The request failed.', example='success'),
+  status?: string(name='Status', description='The API execution status. Valid values:
+- **success**: The execution is successful.
+- **fail**: The execution failed.', example='success'),
   usage?: {
-    embeddingEntries?: string(name='EmbeddingEntries', description='The number of entries used for vectorization.
+    embeddingEntries?: string(name='EmbeddingEntries', description='The number of entries used during vectorization.
 
-> An entry is a unit of processing for vectorization. For example, vectorizing a piece of text counts as one entry, and vectorizing an image counts as two entries.', example='10'),
-    embeddingTokens?: string(name='EmbeddingTokens', description='The number of tokens used for vectorization.
+> An entry refers to the number of items processed during vectorization of text or images. For example, processing text once counts as 1 entry, and processing an image once counts as 2 entries.', example='10'),
+    embeddingTokens?: string(name='EmbeddingTokens', description='The number of tokens used during vectorization.
 
-> A token is the smallest unit of processed text, such as a word, phrase, punctuation mark, or character.', example='475'),
-  }(name='Usage', description='The resource usage for the query.'),
+> A token is the smallest unit into which the input text is split. A token can be a word, a phrase, a punctuation mark, or a character.', example='475'),
+  }(name='Usage', description='The resource usage of this query.'),
 }
 
 model QueryKnowledgeBasesContentResponse = {
@@ -27395,7 +27344,7 @@ model QueryKnowledgeBasesContentResponse = {
 }
 
 /**
- * @summary Retrieve vectors and metadata from specified knowledge bases using a natural-language query, returning the merged results from a multi-channel recall.
+ * @summary Retrieves vectors and metadata from multiple specified document collections by using natural language statements, merges multi-channel recall results, and returns the combined results.
  *
  * @param tmpReq QueryKnowledgeBasesContentRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -27464,7 +27413,7 @@ async function queryKnowledgeBasesContentWithOptions(tmpReq: QueryKnowledgeBases
 }
 
 /**
- * @summary Retrieve vectors and metadata from specified knowledge bases using a natural-language query, returning the merged results from a multi-channel recall.
+ * @summary Retrieves vectors and metadata from multiple specified document collections by using natural language statements, merges multi-channel recall results, and returns the combined results.
  *
  * @param request QueryKnowledgeBasesContentRequest
  * @return QueryKnowledgeBasesContentResponse
@@ -28360,6 +28309,71 @@ async function resumeInstanceWithOptions(request: ResumeInstanceRequest, runtime
 async function resumeInstance(request: ResumeInstanceRequest): ResumeInstanceResponse {
   var runtime = new $RuntimeOptions{};
   return resumeInstanceWithOptions(request, runtime);
+}
+
+model ResumeSaasServiceRequest {
+  regionId?: string(name='RegionId', example='cn-hangzhou'),
+  serviceId?: string(name='ServiceId', description='This parameter is required.', example='agdb-xxxxx'),
+}
+
+model ResumeSaasServiceResponseBody = {
+  requestId?: string(name='RequestId', example='ABB39CC3-4488-4857-905D-2E4A051D0521'),
+  serviceId?: string(name='ServiceId', example='drama-123456'),
+}
+
+model ResumeSaasServiceResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ResumeSaasServiceResponseBody(name='body'),
+}
+
+/**
+ * @summary 恢复SaaS服务
+ *
+ * @description 删除模型服务。
+ *
+ * @param request ResumeSaasServiceRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return ResumeSaasServiceResponse
+ */
+@context("resumeSaasServiceWithContext")
+async function resumeSaasServiceWithOptions(request: ResumeSaasServiceRequest, runtime: $RuntimeOptions): ResumeSaasServiceResponse {
+  request.validate();
+  var query = {};
+  if (!$isNull(request.regionId)) {
+    query['RegionId'] = request.regionId;
+  }
+  if (!$isNull(request.serviceId)) {
+    query['ServiceId'] = request.serviceId;
+  }
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'ResumeSaasService',
+    version = '2016-05-03',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 恢复SaaS服务
+ *
+ * @description 删除模型服务。
+ *
+ * @param request ResumeSaasServiceRequest
+ * @return ResumeSaasServiceResponse
+ */
+async function resumeSaasService(request: ResumeSaasServiceRequest): ResumeSaasServiceResponse {
+  var runtime = new $RuntimeOptions{};
+  return resumeSaasServiceWithOptions(request, runtime);
 }
 
 model ResumeSupabaseProjectRequest {
