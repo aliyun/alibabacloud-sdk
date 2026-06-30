@@ -21,8 +21,22 @@ init(configuration: ClientConfiguration){
   @handler = new TeaAsyncHandler(configuration);
   @product = 'RdsAi';
   @version = '2025-05-07';
-  @endpointRule = '';
+  @endpointRule = 'regional';
   @endpointMap = {
+    'us-west-1' = 'rdsai.us-west-1.aliyuncs.com',
+    'eu-central-1' = 'rdsai.eu-central-1.aliyuncs.com',
+    'cn-wulanchabu' = 'rdsai.aliyuncs.com',
+    'cn-shenzhen' = 'rdsai.aliyuncs.com',
+    'cn-shanghai' = 'rdsai.aliyuncs.com',
+    'cn-hongkong' = 'rdsai.cn-hongkong.aliyuncs.com',
+    'cn-hangzhou' = 'rdsai.aliyuncs.com',
+    'cn-guangzhou' = 'rdsai.aliyuncs.com',
+    'cn-chengdu' = 'rdsai.cn-chengdu.aliyuncs.com',
+    'cn-beijing' = 'rdsai.aliyuncs.com',
+    'ap-southeast-5' = 'rdsai.ap-southeast-5.aliyuncs.com',
+    'ap-southeast-3' = 'rdsai.ap-southeast-3.aliyuncs.com',
+    'ap-southeast-1' = 'rdsai.ap-southeast-1.aliyuncs.com',
+    'ap-northeast-1' = 'rdsai.ap-northeast-1.aliyuncs.com',
   };
 }
 
@@ -35,8 +49,10 @@ model ChatMessagesRequest {
   eventMode?: string(name='EventMode', position='Query'),
   inputs?: {
     customAgentId?: string(name='CustomAgentId', example='d1b7d639-f34e-44c7-8231-987da14d****'),
+    enableThinking?: string(name='EnableThinking'),
     language?: string(name='Language', example='zh-cn'),
     regionId?: string(name='RegionId', example='cn-beijing'),
+    thinkEffort?: string(name='ThinkEffort'),
     timezone?: string(name='Timezone', example='UTC'),
   }(name='Inputs', description='The ID of the parent message.', shrink='json', position='Query'),
   parentMessageId?: string(name='ParentMessageId', description='The ID of the conversation.', example='84dc9f9b-424a-404d-9c36-35e9d000****', position='Query'),
@@ -104,6 +120,7 @@ async function chatMessagesTaskStop(request: ChatMessagesTaskStopRequest): ChatM
 }
 
 model CreateApiKeyRequest {
+  dailyTokenQuota?: long(name='DailyTokenQuota', example='1000000000', position='Query'),
   instanceId?: string(name='InstanceId', example='rds_copilot***_public_cn-*********6', position='Query'),
   keyName?: string(name='KeyName', example='api-*****', position='Query'),
   limitRate?: double(name='LimitRate', minimum=0, maximum=1, position='Query'),
@@ -118,6 +135,7 @@ model CreateApiKeyResponseBody = {
     customKeyList?: [ 
       {
         apiKey?: string(name='ApiKey', description='Api Key', example='sk-rds-*****'),
+        dailyTokenQuota?: long(name='DailyTokenQuota'),
         keyName?: string(name='KeyName', example='api-*****'),
         limitRate?: float(name='LimitRate', example='0.2'),
         limitType?: string(name='LimitType', example='fixed'),
@@ -167,6 +185,7 @@ model CreateAppInstanceRequest {
   dashboardUsername?: string(name='DashboardUsername', description='The password used to access the RDS database.
 
 The password must be 8 to 32 characters in length and must contain at least three of the following characters: uppercase letters, lowercase letters, digits, and underscores (_).', example='supabase', position='Query'),
+  database?: string(name='Database', example='test_database_01', position='Query'),
   databasePassword?: string(name='DatabasePassword', description='The idempotency token. The client token that is used to ensure the idempotence of the request. You can use the client to generate the token, but you must make sure that the token is unique among different requests.', example='test_Password', position='Query'),
   initializeWithExistingData?: boolean(name='InitializeWithExistingData', description='Specifies whether to enable public endpoint.
 
@@ -303,6 +322,36 @@ model CreateInspectionTaskResponse = {
 async function createInspectionTask(request: CreateInspectionTaskRequest): CreateInspectionTaskResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RPC', 'CreateInspectionTask', 'POST', '/', 'json', false, 'json', request);
+}
+
+model CreateSandboxTemplateRequest {
+  defaultCpu?: string(name='DefaultCpu', example='1', position='Query'),
+  defaultMemory?: string(name='DefaultMemory', example='1Gi', position='Query'),
+  description?: string(name='Description', example='code-interpreter', position='Query'),
+  instanceName: string(name='InstanceName', description='This parameter is required.', example='ra-supabase-8moov5lxba****', position='Query'),
+  regionId?: string(name='RegionId', example='cn-beijing', position='Query'),
+  replicas?: long(name='Replicas', example='1', position='Query'),
+  templateName: string(name='TemplateName', description='This parameter is required.', example='code-interpreter', position='Query'),
+}
+
+model CreateSandboxTemplateResponseBody = {
+  instanceName?: string(name='InstanceName', example='ra-supabase-8moov5lxba****'),
+  requestId?: string(name='RequestId', description='Id of the request', example='FE9C65D7-930F-57A5-A207-8C396329****'),
+}
+
+model CreateSandboxTemplateResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: CreateSandboxTemplateResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of CreateSandboxTemplate  CreateSandboxTemplateRequest
+  * @return CreateSandboxTemplateResponse
+ */
+async function createSandboxTemplate(request: CreateSandboxTemplateRequest): CreateSandboxTemplateResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'CreateSandboxTemplate', 'POST', '/', 'json', false, 'json', request);
 }
 
 model CreateScheduledTaskRequest {
@@ -476,6 +525,32 @@ async function deleteCustomAgent(request: DeleteCustomAgentRequest): DeleteCusto
   return @handler.do('RPC', 'DeleteCustomAgent', 'POST', '/', 'json', false, 'json', request);
 }
 
+model DeleteSandboxTemplateRequest {
+  instanceName: string(name='InstanceName', description='This parameter is required.', example='ra-supabase-8moov5lxba****', position='Query'),
+  regionId?: string(name='RegionId', example='cn-beijing', position='Query'),
+  templateId: string(name='TemplateId', description='This parameter is required.', example='desktop-xxxx', position='Query'),
+}
+
+model DeleteSandboxTemplateResponseBody = {
+  instanceName?: string(name='InstanceName', example='ra-supabase-8moov5lxba****'),
+  requestId?: string(name='RequestId', description='Id of the request', example='FE9C65D7-930F-57A5-A207-8C396329****'),
+}
+
+model DeleteSandboxTemplateResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: DeleteSandboxTemplateResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of DeleteSandboxTemplate  DeleteSandboxTemplateRequest
+  * @return DeleteSandboxTemplateResponse
+ */
+async function deleteSandboxTemplate(request: DeleteSandboxTemplateRequest): DeleteSandboxTemplateResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'DeleteSandboxTemplate', 'POST', '/', 'json', false, 'json', request);
+}
+
 model DeleteScheduledTaskRequest {
   scheduledId: string(name='ScheduledId', description='The ID of the scheduled inspection configuration.
 
@@ -549,13 +624,26 @@ model DescribeAppInstanceAttributeResponseBody = {
   instanceClass?: string(name='InstanceClass', description='The instance type of the RDS Supabase instance.', example='rdsai.supabase.basic'),
   instanceMinorVersion?: string(name='InstanceMinorVersion', description='The minor version number of RDS Supabase instance.', example='20241231'),
   instanceName?: string(name='InstanceName', description='The ID of the RDS Supabase instance.', example='ra-supabase-8moov5lxba****'),
+  loginToken?: string(name='LoginToken'),
   natCreatedBy?: string(name='NatCreatedBy'),
   natGatewayId?: string(name='NatGatewayId'),
   natStatus?: string(name='NatStatus'),
   publicConnectionString?: string(name='PublicConnectionString', description='The public endpoint of the AI application.', example='8.152. XXX.XXX:8000'),
   regionId?: string(name='RegionId', description='The region ID.', example='cn-beijing'),
   requestId?: string(name='RequestId', description='The request ID.', example='FE9C65D7-930F-57A5-A207-8C396329241C'),
+  retentionHours?: string(name='RetentionHours'),
+  sqlExtendMoInstanceId?: string(name='SqlExtendMoInstanceId'),
   status?: string(name='Status', description='The status of the instance. For more information, see [Instance state table](https://help.aliyun.com/document_detail/2623972.html).', example='Running'),
+  uploadKey?: string(name='UploadKey'),
+  uploadKeyList?: [ 
+    {
+      isSystemKey?: boolean(name='IsSystemKey'),
+      remark?: string(name='Remark'),
+      slsStorageBytes?: long(name='SlsStorageBytes'),
+      status?: string(name='Status'),
+      uploadKey?: string(name='UploadKey'),
+    }
+  ](name='UploadKeyList'),
   vSwitchId?: string(name='VSwitchId', description='The ID of the vSwitch.', example='vsw-2zeaepb8k4ku05ov2****'),
   vpcConnectionString?: string(name='VpcConnectionString', description='The internal endpoint of the AI application.', example='172.16.XXX.XXX:8000'),
   zoneId?: string(name='ZoneId', description='The zone ID.', example='cn-beijing-i'),
@@ -636,6 +724,42 @@ async function describeAppInstances(request: DescribeAppInstancesRequest): Descr
   return @handler.do('RPC', 'DescribeAppInstances', 'POST', '/', 'json', false, 'json', request);
 }
 
+model DescribeCommonSandboxTemplatesRequest {
+  maxResults?: int32(name='MaxResults', example='None', position='Query'),
+  nextToken?: string(name='NextToken', example='AAAAAc3HCuYhJi/wvpk4xOr0VLYz/NvD85HpgBeRBCusEIeVQ0dHZH9jr+NP3X9Jx0iSoql55b9nd4PIDm252/a0f+U=', position='Query'),
+  regionId: string(name='RegionId', description='This parameter is required.', example='cn-beijing', position='Query'),
+}
+
+model DescribeCommonSandboxTemplatesResponseBody = {
+  maxResults?: int32(name='MaxResults', example='None'),
+  nextToken?: string(name='NextToken', example='AAAAAc3HCuYhJi/wvpk4xOr0VLYz/NvD85HpgBeRBCusEIeVQ0dHZH9jr+NP3X9Jx0iSoql55b9nd4PIDm252/a0f+U='),
+  requestId?: string(name='RequestId', description='Id of the request', example='FE9C65D7-930F-57A5-A207-8C396329241C'),
+  templates?: [ 
+    {
+      defaultCpu?: string(name='DefaultCpu', example='1'),
+      defaultMemory?: string(name='DefaultMemory', example='1Gi'),
+      defaultReplicas?: long(name='DefaultReplicas', example='1'),
+      description?: string(name='Description', example='Execute user-provided Python code in the sandbox environment. Runs any Python script the user provides and returns the output.'),
+      name?: string(name='Name', example='desktop'),
+    }
+  ](name='Templates'),
+}
+
+model DescribeCommonSandboxTemplatesResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: DescribeCommonSandboxTemplatesResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of DescribeCommonSandboxTemplates  DescribeCommonSandboxTemplatesRequest
+  * @return DescribeCommonSandboxTemplatesResponse
+ */
+async function describeCommonSandboxTemplates(request: DescribeCommonSandboxTemplatesRequest): DescribeCommonSandboxTemplatesResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'DescribeCommonSandboxTemplates', 'POST', '/', 'json', false, 'json', request);
+}
+
 model DescribeEventsListRequest {
   endTime?: string(name='EndTime', description='The start time of the query period.', example='2025-08-28 18:00:00', position='Query'),
   instanceIdList?: string(name='InstanceIdList', description='The region ID.', example='r-uf6ce0r08lr7xnriq2', position='Query'),
@@ -691,6 +815,7 @@ model DescribeInstanceAuthInfoRequest {
 model DescribeInstanceAuthInfoResponseBody = {
   apiKeys?: {
     anonKey?: string(name='AnonKey', description='The ANON_KEY of Supabase.', example='eyxxxJ9.ey****'),
+    e2bApiKey?: string(name='E2bApiKey'),
     serviceKey?: string(name='ServiceKey', description='The SERVICE_ROLE_KEY of Supabase.', example='eyxxxJ9.ey****KfQ.DaYxxxt4Q'),
   }(name='ApiKeys', description='The API keys.'),
   configList?: [ 
@@ -953,6 +1078,7 @@ model DescribeMOTokenUsageDetailRequest {
   pageSize?: int32(name='PageSize', example='10', maximum=100, position='Query'),
   region?: string(name='Region', example='cn-beijing', position='Query'),
   startTime?: string(name='StartTime', example='2026-01-04T16:00:00Z', position='Query'),
+  usageType?: string(name='UsageType', example='text', position='Query'),
 }
 
 model DescribeMOTokenUsageDetailResponseBody = {
@@ -962,6 +1088,7 @@ model DescribeMOTokenUsageDetailResponseBody = {
   records?: [ 
     {
       consumerName?: string(name='ConsumerName', example='16******4_rds_copilot****_public_cn-4****02'),
+      extraInfo?: string(name='ExtraInfo', example='{"label": "test"}'),
       inputTokens?: double(name='InputTokens', example='10000'),
       instanceId?: string(name='InstanceId', example='rds_copilot***_public_cn-*********6'),
       model?: string(name='Model', example='qwen-flash'),
@@ -973,6 +1100,7 @@ model DescribeMOTokenUsageDetailResponseBody = {
   ](name='Records'),
   requestId?: string(name='RequestId', description='Id of the request', example='FE9C65D7-930F-57A5-A207-8C396329241C'),
   totalCount?: int32(name='TotalCount', example='20'),
+  usageType?: string(name='UsageType', example='text'),
 }
 
 model DescribeMOTokenUsageDetailResponse = {
@@ -1026,6 +1154,7 @@ model DescribeModelOperatorResponseBody = {
       }
     ](name='KeyUsageList'),
     prefixCacheEnabled?: boolean(name='PrefixCacheEnabled'),
+    sessionIds?: [ string ](name='SessionIds'),
     startTime?: long(name='StartTime', example='1772439028000'),
     status?: string(name='Status', example='active/creating'),
     totalQuota?: long(name='TotalQuota', example='200000000'),
@@ -1110,6 +1239,7 @@ model DescribeSandboxTemplatesResponseBody = {
   requestId?: string(name='RequestId', description='Id of the request', example='FE9C65D7-930F-57A5-A207-8C396329****'),
   sandboxTemplates?: [ 
     {
+      createdBy?: string(name='CreatedBy'),
       defaultCpu?: string(name='DefaultCpu', example='2'),
       defaultMemory?: string(name='DefaultMemory', example='4Gi'),
       description?: string(name='Description', example='code-interpreter-vpc'),
@@ -1658,6 +1788,7 @@ model ListApiKeysResponseBody = {
     customKeyList?: [ 
       {
         apiKey?: string(name='ApiKey', description='API Key', example='sk-rds-*****'),
+        dailyTokenQuota?: long(name='DailyTokenQuota', example='100000000'),
         isRateLimited?: boolean(name='IsRateLimited'),
         keyName?: string(name='KeyName', example='api-*****'),
         limitRate?: float(name='LimitRate', example='0.2'),
@@ -1666,6 +1797,7 @@ model ListApiKeysResponseBody = {
         tokenQuota?: long(name='TokenQuota', example='10000'),
       }
     ](name='CustomKeyList'),
+    dailyTokenQuota?: long(name='DailyTokenQuota', example='100000000'),
     isRateLimited?: boolean(name='IsRateLimited'),
     page?: int32(name='Page', example='1'),
     pageSize?: int32(name='PageSize', example='10'),
@@ -2271,6 +2403,35 @@ async function modifyMessagesFeedbacks(request: ModifyMessagesFeedbacksRequest):
   return @handler.do('RPC', 'ModifyMessagesFeedbacks', 'POST', '/', 'json', false, 'json', request);
 }
 
+model ModifySandboxTemplateRequest {
+  defaultCpu?: string(name='DefaultCpu', example='1', position='Query'),
+  defaultMemory?: string(name='DefaultMemory', example='1Gi', position='Query'),
+  instanceName: string(name='InstanceName', description='This parameter is required.', example='ra-supabase-8moov5lxba****', position='Query'),
+  regionId?: string(name='RegionId', example='cn-beijing', position='Query'),
+  replicas?: long(name='Replicas', example='2', position='Query'),
+  templateId: string(name='TemplateId', description='This parameter is required.', example='desktop-xxx', position='Query'),
+}
+
+model ModifySandboxTemplateResponseBody = {
+  instanceName?: string(name='InstanceName', example='ra-supabase-8moov5lxba****'),
+  requestId?: string(name='RequestId', description='Id of the request', example='FE9C65D7-930F-57A5-A207-8C396329****'),
+}
+
+model ModifySandboxTemplateResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ModifySandboxTemplateResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of ModifySandboxTemplate  ModifySandboxTemplateRequest
+  * @return ModifySandboxTemplateResponse
+ */
+async function modifySandboxTemplate(request: ModifySandboxTemplateRequest): ModifySandboxTemplateResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'ModifySandboxTemplate', 'POST', '/', 'json', false, 'json', request);
+}
+
 model ModifyScheduledTaskRequest {
   description?: string(name='Description', description='The description of the new inspection configuration.', position='Query'),
   frequency?: string(name='Frequency', description='The new inspection frequency. Separate multiple values with commas (,). Default value: DAILY. Valid values:
@@ -2541,6 +2702,7 @@ model UpdateApiKeyQuotaRequest {
   keys?: [ 
     {
       apiKey?: string(name='ApiKey', description='API KEY', example='sk-rds-xxx'),
+      dailyTokenQuota?: long(name='DailyTokenQuota', example='100000000'),
       limitRate?: double(name='LimitRate', example='0.2'),
       limitType?: string(name='LimitType', example='fixed'),
       tokenQuota?: long(name='TokenQuota', example='100000'),
@@ -2553,6 +2715,7 @@ model UpdateApiKeyQuotaResponseBody = {
     customKeyList?: [ 
       {
         apiKey?: string(name='ApiKey', description='Api Key', example='sk-rds-xxx'),
+        dailyTokenQuota?: long(name='DailyTokenQuota', example='1000000000'),
         limitRate?: float(name='LimitRate', example='0.2'),
         limitType?: string(name='LimitType', example='fixed'),
         tokenQuota?: long(name='TokenQuota', example='10000'),
