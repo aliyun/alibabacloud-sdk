@@ -9,8 +9,25 @@ extends OpenApi;
 
 init(config: OpenApiUtil.Config){
   super(config);
-  @endpointRule = '';
-  
+  @endpointRule = 'regional';
+  @endpointMap = {
+    'us-west-1' = 'emr-serverless-spark.us-west-1.aliyuncs.com',
+    'us-east-1' = 'emr-serverless-spark.us-east-1.aliyuncs.com',
+    'na-south-1' = 'emr-serverless-spark.na-south-1.aliyuncs.com',
+    'eu-central-1' = 'emr-serverless-spark.eu-central-1.aliyuncs.com',
+    'cn-zhangjiakou' = 'emr-serverless-spark.cn-zhangjiakou.aliyuncs.com',
+    'cn-wulanchabu' = 'emr-serverless-spark.cn-wulanchabu.aliyuncs.com',
+    'cn-shenzhen' = 'emr-serverless-spark.cn-shenzhen.aliyuncs.com',
+    'cn-shanghai' = 'emr-serverless-spark.cn-shanghai.aliyuncs.com',
+    'cn-hongkong' = 'emr-serverless-spark.cn-hongkong.aliyuncs.com',
+    'cn-hangzhou' = 'emr-serverless-spark.cn-hangzhou.aliyuncs.com',
+    'cn-chengdu' = 'emr-serverless-spark.cn-chengdu.aliyuncs.com',
+    'cn-beijing' = 'emr-serverless-spark.cn-beijing.aliyuncs.com',
+    'ap-southeast-5' = 'emr-serverless-spark.ap-southeast-5.aliyuncs.com',
+    'ap-southeast-1' = 'emr-serverless-spark.ap-southeast-1.aliyuncs.com',
+    'ap-northeast-1' = 'emr-serverless-spark.ap-northeast-1.aliyuncs.com',
+  };
+
   checkConfig(config);
   @endpoint = getEndpoint('emr-serverless-spark', @regionId, @endpointRule, @network, @suffix, @endpointMap, @endpoint);
 }
@@ -2588,12 +2605,12 @@ async function getAICenterState(workspaceId: string, request: GetAICenterStateRe
 }
 
 model GetCacheClusterRequest {
-  regionId?: string(name='regionId', example='cn-hangzhou'),
+  regionId?: string(name='regionId', description='The region ID.', example='cn-hangzhou'),
 }
 
 model GetCacheClusterResponseBody = {
-  cacheClusters?: CacheCluster(name='cacheClusters'),
-  requestId?: string(name='requestId', example='DD6B1B2A-5837-5237-ABE4-FF0C8944****'),
+  cacheClusters?: CacheCluster(name='cacheClusters', description='The list of Cache clusters.'),
+  requestId?: string(name='requestId', description='Id of the request', example='DD6B1B2A-5837-5237-ABE4-FF0C8944****'),
 }
 
 model GetCacheClusterResponse = {
@@ -2603,7 +2620,7 @@ model GetCacheClusterResponse = {
 }
 
 /**
- * @summary 获取CacheCluster详情
+ * @summary Retrieves the details of a Cache cluster.
  *
  * @param request GetCacheClusterRequest
  * @param headers map
@@ -2637,7 +2654,7 @@ async function getCacheClusterWithOptions(cacheClusterId: string, request: GetCa
 }
 
 /**
- * @summary 获取CacheCluster详情
+ * @summary Retrieves the details of a Cache cluster.
  *
  * @param request GetCacheClusterRequest
  * @return GetCacheClusterResponse
@@ -3445,6 +3462,75 @@ async function getRayJob(workspaceId: string, submissionId: string, request: Get
   var runtime = new $RuntimeOptions{};
   var headers : map[string]string = {};
   return getRayJobWithOptions(workspaceId, submissionId, request, headers, runtime);
+}
+
+model GetRayLogRequest {
+  bucketName?: string(name='bucketName', description='The bucket name.', example='mybucket'),
+  path?: string(name='path', description='The log file path.', example='/w-xxxxxxx/ray/logs/rj-xxxxxxxxxx_default/xxxx/rj-xxxx_driver.log'),
+}
+
+model GetRayLogResponseBody = {
+  code?: string(name='code', description='The response code. A value of 1000000 indicates a successful request. Other values indicate a failed request. You can view the specific error description in the message parameter.', example='1000000'),
+  data?: {
+    accessUrl?: string(name='accessUrl', description='The file download URL.', example='https://mybucket.cn-hangzhou.com/xxxxxx'),
+  }(name='data', description='The response data.'),
+  message?: string(name='message', description='The error message.', example='ok'),
+  requestId?: string(name='requestId', description='Id of the request', example='B06AADC1-1627-5B1C-B62F-A2226C122897'),
+}
+
+model GetRayLogResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: GetRayLogResponseBody(name='body'),
+}
+
+/**
+ * @summary Retrieves the log of a Ray job.
+ *
+ * @param request GetRayLogRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return GetRayLogResponse
+ */
+@context("getRayLogWithContext")
+async function getRayLogWithOptions(workspaceId: string, instanceId: string, request: GetRayLogRequest, headers: map[string]string, runtime: $RuntimeOptions): GetRayLogResponse {
+  request.validate();
+  var query : map[string]any = {};
+  if (!$isNull(request.bucketName)) {
+    query['bucketName'] = request.bucketName;
+  }
+  if (!$isNull(request.path)) {
+    query['path'] = request.path;
+  }
+
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'GetRayLog',
+    version = '2023-08-08',
+    protocol = 'HTTPS',
+    pathname = `/api/interactive/v1/workspace/${$URL.percentEncode(workspaceId)}/ray/${$URL.percentEncode(instanceId)}/log`,
+    method = 'GET',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Retrieves the log of a Ray job.
+ *
+ * @param request GetRayLogRequest
+ * @return GetRayLogResponse
+ */
+async function getRayLog(workspaceId: string, instanceId: string, request: GetRayLogRequest): GetRayLogResponse {
+  var runtime = new $RuntimeOptions{};
+  var headers : map[string]string = {};
+  return getRayLogWithOptions(workspaceId, instanceId, request, headers, runtime);
 }
 
 model GetRunConfigurationRequest {
@@ -5429,6 +5515,106 @@ async function listRayJob(workspaceId: string, request: ListRayJobRequest): List
   var runtime = new $RuntimeOptions{};
   var headers : map[string]string = {};
   return listRayJobWithOptions(workspaceId, request, headers, runtime);
+}
+
+model ListRayLogsRequest {
+  bucketName?: string(name='bucketName', description='The bucket name.', example='mybucket'),
+  delimiter?: string(name='delimiter', description='The character used to group object names. All objects whose names contain the specified prefix and between which the delimiter character appears for the first time are grouped as a set of elements (CommonPrefixes).', example='/'),
+  marker?: string(name='marker', description='The marker after which the returned objects are listed in alphabetical order.', example='test1.txt'),
+  maxKeys?: long(name='maxKeys', description='The maximum number of objects to return. If the listing cannot be completed in a single request due to the max-keys setting, a NextMarker element is included in the response as the marker for the next listing request.
+
+Valid values: greater than 0 and less than 1000.
+
+Default value: 100.', example='50'),
+  prefix?: string(name='prefix', description='The prefix that the keys of the returned files must start with.', example='/w-xxxxxxx/ray/logs/rj-xxxxxxxxxx_default/'),
+}
+
+model ListRayLogsResponseBody = {
+  code?: string(name='code', description='The response status code. The value 1000000 indicates success.', example='1000000'),
+  data?: {
+    bucketName?: string(name='bucketName', description='The OSS bucket name.', example='mybucket'),
+    delimiter?: string(name='delimiter', description='The character used to group object names. All objects whose names contain the specified prefix and between which the delimiter character appears for the first time are grouped as a set of elements (CommonPrefixes).', example='/'),
+    isTruncated?: boolean(name='isTruncated', description='Indicates whether the results returned in the request are truncated.', example='true'),
+    marker?: string(name='marker', description='The marker after which the returned objects are listed in alphabetical order.', example='test1.txt'),
+    maxKeys?: long(name='maxKeys', description='The maximum number of objects to return.', example='50'),
+    nextMarker?: string(name='nextMarker', description='The marker from which the next listing of files starts.', example='test2.txt'),
+    objectList?: [ 
+      {
+        isDir?: boolean(name='isDir', description='Indicates whether the entry is a directory.', example='false'),
+        name?: string(name='name', description='The name.', example='test1.txt'),
+        path?: string(name='path', description='The file path.', example='/w-xxxxxxx/ray/logs/rj-xxxxxxxxxx_default/test1.txt'),
+        size?: long(name='size', description='The file size, in bytes.', example='535345'),
+        timeModified?: long(name='timeModified', description='The modification time. The value is a UNIX timestamp in milliseconds.', example='17344656363434'),
+      }
+    ](name='objectList', description='The list of object metadata.'),
+    prefix?: string(name='prefix', description='The prefix that the keys of the returned files must start with.', example='/w-xxxxxxx/ray/logs/rj-xxxxxxxxxx_default/'),
+  }(name='data', description='The returned data.'),
+  message?: string(name='message', description='The error message.', example='ok'),
+  requestId?: string(name='requestId', description='Id of the request', example='DD6B1B2A-5837-5237-ABE4-FF0C8944'),
+}
+
+model ListRayLogsResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ListRayLogsResponseBody(name='body'),
+}
+
+/**
+ * @summary Lists Ray logs.
+ *
+ * @param request ListRayLogsRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return ListRayLogsResponse
+ */
+@context("listRayLogsWithContext")
+async function listRayLogsWithOptions(workspaceId: string, instanceId: string, request: ListRayLogsRequest, headers: map[string]string, runtime: $RuntimeOptions): ListRayLogsResponse {
+  request.validate();
+  var query : map[string]any = {};
+  if (!$isNull(request.bucketName)) {
+    query['bucketName'] = request.bucketName;
+  }
+  if (!$isNull(request.delimiter)) {
+    query['delimiter'] = request.delimiter;
+  }
+  if (!$isNull(request.marker)) {
+    query['marker'] = request.marker;
+  }
+  if (!$isNull(request.maxKeys)) {
+    query['maxKeys'] = request.maxKeys;
+  }
+  if (!$isNull(request.prefix)) {
+    query['prefix'] = request.prefix;
+  }
+
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'ListRayLogs',
+    version = '2023-08-08',
+    protocol = 'HTTPS',
+    pathname = `/api/interactive/v1/workspace/${$URL.percentEncode(workspaceId)}/ray/${$URL.percentEncode(instanceId)}/logs`,
+    method = 'GET',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Lists Ray logs.
+ *
+ * @param request ListRayLogsRequest
+ * @return ListRayLogsResponse
+ */
+async function listRayLogs(workspaceId: string, instanceId: string, request: ListRayLogsRequest): ListRayLogsResponse {
+  var runtime = new $RuntimeOptions{};
+  var headers : map[string]string = {};
+  return listRayLogsWithOptions(workspaceId, instanceId, request, headers, runtime);
 }
 
 model ListReleaseVersionsRequest {
