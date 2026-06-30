@@ -1453,25 +1453,25 @@ async function manualModeration(request: ManualModerationRequest): ManualModerat
 }
 
 model ManualModerationResultRequest {
-  serviceParameters?: string(name='ServiceParameters', description='The set of parameters that the service requires. The value must be a JSON string.
-
-- TaskId: The ID of the task that is returned after you submit the task.', example='{\\\\"TaskId\\\\":\\\\"e5f2d886-4c23-440d-999c-bd98acde11b6\\\\"}'),
+  serviceParameters?: string(name='ServiceParameters', description='The set of parameters required by the service, in JSON string format.
+- TaskId: The task ID returned when the task was submitted.', example='{\\\\"TaskId\\\\":\\\\"e5f2d886-4c23-440d-999c-bd98acde11b6\\\\"}'),
 }
 
 model ManualModerationResultResponseBody = {
   code?: int32(name='Code', description='The error code.', example='200'),
   data?: {
-    dataId?: string(name='DataId', description='The value of the dataId parameter that you specified in the API request. If you did not specify this parameter in the request, this field is not returned.', example='data1234'),
+    dataId?: string(name='DataId', description='The value of dataId passed in the API request. This field is not returned if dataId was not specified in the request.', example='data1234'),
     result?: [ 
       {
-        description?: string(name='Description', description='The description of the label.', example='未检测出风险'),
+        description?: string(name='Description', description='The label description.', example='未检测出风险'),
         label?: string(name='Label', description='The risk label.', example='violent_explosion'),
       }
-    ](name='Result', description='The detailed results of the labels.'),
-    riskLevel?: string(name='RiskLevel', description='The risk level. The value is returned based on the specified high-risk and low-risk scores. Valid values include the following:
+    ](name='Result', description='The detailed label results.'),
+    reviewCount?: string(name='ReviewCount'),
+    riskLevel?: string(name='RiskLevel', description='The risk level, returned based on the configured high and low risk scores. Valid values:
 
 - high: high risk
-
+ 
 - low: low risk
 
 - none: no risk detected', example='high'),
@@ -1488,7 +1488,7 @@ model ManualModerationResultResponse = {
 }
 
 /**
- * @summary Retrieves the manual moderation result.
+ * @summary Retrieves the manual review result.
  *
  * @param request ManualModerationResultRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -1519,7 +1519,7 @@ async function manualModerationResultWithOptions(request: ManualModerationResult
 }
 
 /**
- * @summary Retrieves the manual moderation result.
+ * @summary Retrieves the manual review result.
  *
  * @param request ManualModerationResultRequest
  * @return ManualModerationResultResponse
@@ -2126,16 +2126,16 @@ async function multiModalGuardForBase64(request: MultiModalGuardForBase64Request
 model MultiModalGuardWsRequest {
   modelType?: string(name='ModelType', description='The model type. Valid values:
 
-- LLM.', example='LLM'),
+- LLM', example='LLM'),
   protocolType?: string(name='ProtocolType', description='The protocol type. Valid values:
 
 - OpenAI
 - DashScope
-- Anthropic.', example='DashScope'),
+- Anthropic', example='DashScope'),
   service?: string(name='Service', description='The moderation service category. Valid values:
 
-- query_security_check_pro: AI input content security detection (Pro edition).
-- response_security_check_pro: AI-generated content security detection (Pro edition).
+- query_security_check_pro: AI input content security detection (pro edition).
+- response_security_check_pro: AI-generated content security detection (pro edition).
 - img_query_security_check: AIGC input image security detection.
 - img_response_security_check: AIGC output image security detection.
 - text_img_mix_guard: Multimodal (text + image) hybrid security detection.
@@ -2732,183 +2732,205 @@ async function videoModerationCancel(request: VideoModerationCancelRequest): Vid
 
 model VideoModerationResultRequest {
   service?: string(name='Service', description='The service code for video moderation.', example='videoDetection'),
-  serviceParameters?: string(name='ServiceParameters', description='A JSON string that contains the `taskId` of the detection task. You can specify only one `taskId` per request.', example='{"taskId":"au_f_8PoWiZKoLbczp5HRn69VdT-1y8@U5"}'),
+  serviceParameters?: string(name='ServiceParameters', description='The parameter set required by the moderation service. taskId specifies the task ID of the moderation task to query. Only one taskId can be specified per request.', example='{"taskId":"au_f_8PoWiZKoLbczp5HRn69VdT-1y8@U5"}'),
 }
 
 model VideoModerationResultResponseBody = {
-  code?: int32(name='Code', description='The return code. A value of 200 indicates that the request was successful.', example='200'),
+  code?: int32(name='Code', description='The response code. A value of 200 indicates success.', example='200'),
   data?: {
     audioResult?: {
       audioSummarys?: [ 
         {
-          description?: string(name='Description', description='The description of the label.', example='疑似违禁内容'),
-          label?: string(name='Label', description='The audio moderation label.', example='profanity'),
+          description?: string(name='Description', description='The label descriptions.', example='疑似违禁内容'),
+          label?: string(name='Label', description='The video audio label.', example='profanity'),
           labelSum?: int32(name='LabelSum', description='The number of times the label appears.', example='8'),
         }
-      ](name='AudioSummarys', description='A list of summaries for audio labels.'),
-      riskLevel?: string(name='RiskLevel', description='The risk level, which is determined by the configured thresholds for high and low risk scores. Valid values:
+      ](name='AudioSummarys', description='The audio label summary.'),
+      riskLevel?: string(name='RiskLevel', description='The risk level, returned based on the configured high and low risk score thresholds. Valid values:
 
-- `high`: high risk
+- high: High risk.
 
-- `medium`: medium risk
+- medium: Medium risk.
+ 
+- low: Low risk.
 
-- `low`: low risk
-
-- `none`: no risk detected', example='high'),
+- none: No risk detected.', example='high'),
       sliceDetails?: [ 
         {
-          descriptions?: string(name='Descriptions', description='The description of the label.', example='疑似违禁内容'),
-          endTime?: long(name='EndTime', description='The end time of the audio segment, in seconds.', example='30'),
-          endTimestamp?: long(name='EndTimestamp', description='The end timestamp, in milliseconds.', example='1685245261939'),
-          extend?: string(name='Extend', description='The extension field.', example='{\\\\"consoleProduct\\\\":\\\\"slbnext\\\\"}'),
-          labels?: string(name='Labels', description='The detected violation labels.', example='porn'),
-          riskLevel?: string(name='RiskLevel', description='The risk level, which is determined by the configured thresholds for high and low risk scores. Valid values:
+          descriptions?: string(name='Descriptions', description='The label descriptions.', example='疑似违禁内容'),
+          endTime?: long(name='EndTime', description='The end time of the segment, in seconds.', example='30'),
+          endTimestamp?: long(name='EndTimestamp', description='The end timestamp.', example='1685245261939'),
+          extend?: string(name='Extend', description='The extended field.', example='{\\\\"consoleProduct\\\\":\\\\"slbnext\\\\"}'),
+          labels?: string(name='Labels', description='The violation labels that are hit.', example='porn'),
+          result?: [ 
+            {
+              confidence?: float(name='Confidence'),
+              customizedHit?: [ 
+                {
+                  keyWords?: string(name='KeyWords'),
+                  libName?: string(name='LibName'),
+                }
+              ](name='CustomizedHit'),
+              description?: string(name='Description'),
+              label?: string(name='Label'),
+              riskLevel?: string(name='RiskLevel'),
+              riskPositions?: [ 
+                {
+                  endPos?: int32(name='EndPos'),
+                  riskWord?: string(name='RiskWord'),
+                  startPos?: int32(name='StartPos'),
+                }
+              ](name='RiskPositions'),
+              riskWords?: string(name='RiskWords'),
+            }
+          ](name='Result'),
+          riskLevel?: string(name='RiskLevel', description='The risk level, returned based on the configured high and low risk score thresholds. Valid values:
 
-- `high`: high risk
+- high: High risk.
 
-- `medium`: medium risk
+- medium: Medium risk.
+ 
+- low: Low risk.
 
-- `low`: low risk
-
-- `none`: no risk detected', example='high'),
-          riskTips?: string(name='RiskTips', description='The details of the detected risk.', example='""'),
-          riskWords?: string(name='RiskWords', description='The detected risk keywords.', example='""'),
-          score?: float(name='Score', description='The risk score. The value ranges from 0 to 99 by default.', example='5'),
-          startTime?: long(name='StartTime', description='The start time of the audio segment, in seconds.', example='0'),
+- none: No risk detected.', example='high'),
+          riskTips?: string(name='RiskTips', description='The details of the hit risk.', example='""'),
+          riskWords?: string(name='RiskWords', description='The risk keywords that are hit.', example='""'),
+          score?: float(name='Score', description='The risk score. Default range: 0 to 99.', example='5'),
+          startTime?: long(name='StartTime', description='The start time of the segment, in seconds.', example='0'),
           startTimestamp?: long(name='StartTimestamp', description='The start timestamp, in milliseconds.', example='1659935002123'),
-          text?: string(name='Text', description='The transcribed text from the audio segment.', example='今天天气真不错'),
+          text?: string(name='Text', description='The transcribed text of the audio segment.', example='今天天气真不错'),
           url?: string(name='Url', description='The temporary URL of the audio segment file.', example='http://xxxx.abc.img'),
         }
       ](name='SliceDetails', description='The list of audio segments.'),
-    }(name='AudioResult', description='The moderation results for the video\\\\"s audio segments.'),
-    dataId?: string(name='DataId', description='The value of the `dataId` parameter passed in the request. This field is returned only if the parameter was included in the request.', example='product_content-2055763'),
+    }(name='AudioResult', description='The segmented results of video audio moderation.'),
+    dataId?: string(name='DataId', description='The value of dataId passed in the API request. This field is not returned if dataId was not specified in the request.', example='product_content-2055763'),
     ext?: {
       aigcData?: {
         AIGC?: {
-          contentProducer?: string(name='ContentProducer', description='The code or name identifying the service provider of the content.', example='001191******M000100Y43'),
-          contentPropagator?: string(name='ContentPropagator', description='The name, ID, or code of the propagation platform. For service providers of AI-generated content, this value can be the same as `ContentProducer`.', example='001191******M000100Y43'),
-          label?: string(name='Label', description='Indicates whether the content is generated by AI. Valid values:
+          contentProducer?: string(name='ContentProducer', description='The code or name of the service provider, used to identify the content producer.', example='001191******M000100Y43'),
+          contentPropagator?: string(name='ContentPropagator', description='The name, ID, or code of the propagation platform. For services that provide artificial intelligence-generated content, this value can be the same as ContentProducer.', example='001191******M000100Y43'),
+          label?: string(name='Label', description='Indicates whether the content is generated by artificial intelligence (AI). Valid values:
 
-- `1`: The content is generated by AI.
+- 1: The content is generated through artificial intelligence content generation.
 
-- `2`: (For propagation platforms only) The content may be generated by AI.
+- 2: (Propagation platforms only) The content may be generated through artificial intelligence content generation.
 
-- `3`: (For propagation platforms only) The content is suspected to be generated by AI.', example='1'),
-          produceID?: string(name='ProduceID', description='The content production ID, a unique identifier from the production platform for tracing generated content.', example='123******456'),
-          propagateID?: string(name='PropagateID', description='The content propagation ID, a unique identifier from the propagation platform for the propagated content.', example='123******456'),
-          reservedCode1?: string(name='ReservedCode1', description='A reserved field.
+- 3: (Propagation platforms only) The content is suspected to be generated through artificial intelligence content generation.', example='1'),
+          produceID?: string(name='ProduceID', description='The content production ID, which is the unique identifier used by the production platform to trace synthesized content.', example='123******456'),
+          propagateID?: string(name='PropagateID', description='The content propagation ID, which is the unique identifier assigned by the propagation platform to the propagated AI-generated content.', example='123******456'),
+          reservedCode1?: string(name='ReservedCode1', description='The reserved field.
 
-Can be used by the content generation service provider to ensure the security and integrity of content and its identifiers. For example, a hash of `ContentProducer` and `ProduceID` may be used to store and verify key information.', example='d41d**********427e'),
-          reservedCode2?: string(name='ReservedCode2', description='A reserved field.
+This field can store information used by the content generation service provider for self-initiated security protection to safeguard content and identifier integrity. A hashing mechanism based on ContentProducer and ProduceID can be used to securely store and verify critical information.', example='d41d**********427e'),
+          reservedCode2?: string(name='ReservedCode2', description='The reserved field.
 
-Can be used by the content propagation service provider to ensure the security and integrity of content and its identifiers. For example, a hash of `ContentPropagator` and `PropagateID` may be used to store and verify key information.', example='d41d**********427e'),
+This field can be used by the content propagation service provider for self-initiated security protection to safeguard content and identifier integrity. A hashing mechanism based on ContentProducer and ProduceID can be used to securely store and verify critical information.', example='d41d**********427e'),
         }(name='AIGC', description='The AIGC metadata.'),
         result?: string(name='Result', description='The detection result.', example='None'),
-      }(name='AigcData', description='The AIGC metadata detection results.'),
-    }(name='Ext', description='Additional information.'),
+      }(name='AigcData', description='The AIGC metadata detection result.'),
+    }(name='Ext', description='The extended information.'),
     frameResult?: {
-      frameNum?: int32(name='FrameNum', description='The number of frames with results.', example='10'),
+      frameNum?: int32(name='FrameNum', description='The number of result frames.', example='10'),
       frameSummarys?: [ 
         {
-          description?: string(name='Description', description='The description of the `Label` parameter.', example='未检测出风险'),
-          label?: string(name='Label', description='The video snapshot label.', example='violent_armedForces'),
+          description?: string(name='Description', description='The description of the Label field.', example='未检测出风险'),
+          label?: string(name='Label', description='The video frame label.', example='violent_armedForces'),
           labelSum?: int32(name='LabelSum', description='The number of times the label appears.', example='8'),
         }
-      ](name='FrameSummarys', description='A list of summaries for video snapshot labels.'),
+      ](name='FrameSummarys', description='The video frame label summary.'),
       frames?: [ 
         {
-          offset?: float(name='Offset', description='The snapshot offset.', example='338'),
+          offset?: float(name='Offset', description='The offset of the captured frame.', example='338'),
           results?: [ 
             {
               customImage?: [ 
                 {
-                  imageId?: string(name='ImageId', description='The ID of the matched image in the custom image library.', example='1234'),
-                  libId?: string(name='LibId', description='The ID of the matched custom image library.', example='12345678'),
+                  imageId?: string(name='ImageId', description='The ID of the custom image that is hit.', example='1234'),
+                  libId?: string(name='LibId', description='The ID of the custom image library that is hit.', example='12345678'),
                 }
-              ](name='CustomImage', description='Information about the matched custom image library. Returned only when a match is found.'),
+              ](name='CustomImage', description='The custom image library information that is hit. This field is returned only when a custom image library is hit.'),
               logoData?: [ 
                 {
                   location?: {
-                    h?: int32(name='H', description='The height of the logo area, in pixels.', example='111'),
-                    w?: int32(name='W', description='The width of the logo area, in pixels.', example='111'),
-                    x?: int32(name='X', description='The x-coordinate of the top-left corner of the logo\\\\"s bounding box, relative to the top-left corner of the image. Unit: pixels.', example='111'),
-                    y?: int32(name='Y', description='The y-coordinate of the top-left corner of the logo\\\\"s bounding box, relative to the top-left corner of the image. Unit: pixels.', example='222'),
-                  }(name='Location', description='The bounding box and coordinate information of the logo.'),
+                    h?: int32(name='H', description='The height of the text area. Unit: pixels.', example='111'),
+                    w?: int32(name='W', description='The width of the text area. Unit: pixels.', example='111'),
+                    x?: int32(name='X', description='The distance from the upper-left corner of the text area to the y-axis, with the upper-left corner of the image as the origin. Unit: pixels.', example='111'),
+                    y?: int32(name='Y', description='The distance from the upper-left corner of the text area to the x-axis, with the upper-left corner of the image as the origin. Unit: pixels.', example='222'),
+                  }(name='Location', description='The text line and coordinate information.'),
                   logo?: [ 
                     {
-                      confidence?: long(name='confidence', description='The confidence score. The value ranges from 0 to 100 and is accurate to two decimal places.', example='99.1'),
-                      label?: string(name='label', description='The detected label.', example='pt_logotoSocialNetwork'),
-                      name?: string(name='name', description='The name of the logo.', example='**卫视'),
+                      confidence?: long(name='confidence', description='The confidence score, ranging from 0 to 100, rounded to two decimal places.', example='99.1'),
+                      label?: string(name='label', description='The hit label.', example='pt_logotoSocialNetwork'),
+                      name?: string(name='name', description='The logo name.', example='**卫视'),
                     }
-                  ](name='Logo', description='A list of identified logos.'),
+                  ](name='Logo', description='The logo identification information.'),
                 }
-              ](name='LogoData', description='Information about detected logos. Returned only if a logo is identified.'),
+              ](name='LogoData', description='The logo information returned when the video contains a logo.'),
               publicFigure?: [ 
                 {
-                  figureId?: string(name='FigureId', description='The ID of the recognized public figure.', example='xxx001'),
+                  figureId?: string(name='FigureId', description='The code of the recognized public figure.', example='xxx001'),
                   figureName?: string(name='FigureName', description='The name of the recognized public figure.', example='张三'),
                   location?: [ 
                     {
-                      h?: int32(name='H', description='The height of the bounding box, in pixels.', example='222'),
-                      w?: int32(name='W', description='The width of the bounding box, in pixels.', example='111'),
-                      x?: int32(name='X', description='The x-coordinate of the top-left corner of the bounding box.', example='111'),
-                      y?: int32(name='Y', description='The y-coordinate of the top-left corner of the bounding box.', example='222'),
+                      h?: int32(name='H', description='The height.', example='222'),
+                      w?: int32(name='W', description='The width.', example='111'),
+                      x?: int32(name='X', description='The x-coordinate of the starting point.', example='111'),
+                      y?: int32(name='Y', description='The y-coordinate of the starting point.', example='222'),
                     }
-                  ](name='Location', description='The position of the recognized public figure.'),
+                  ](name='Location', description='The location of the recognized public figure.'),
                 }
-              ](name='PublicFigure', description='Information about recognized public figures. Returned only if a public figure is identified.'),
+              ](name='PublicFigure', description='The recognized public figure codes returned when the video contains specific public figures.'),
               result?: [ 
                 {
-                  confidence?: float(name='Confidence', description='The confidence score. The value ranges from 0 to 100 and is accurate to two decimal places.', example='50'),
-                  description?: string(name='Description', description='The description of the `Label` parameter.', example='未检测出风险'),
-                  label?: string(name='Label', description='The category of the detection result.', example='bloody'),
+                  confidence?: float(name='Confidence', description='The confidence score, ranging from 0 to 100, rounded to two decimal places.', example='50'),
+                  description?: string(name='Description', description='The description of the Label field.', example='未检测出风险'),
+                  label?: string(name='Label', description='The classification of the detection result.', example='bloody'),
                 }
-              ](name='Result', description='The detection results from this service.'),
-              service?: string(name='Service', description='The type of the image moderation service.', example='tonalityImprove'),
-              textInImage?: map[string]any(name='TextInImage', description='Information about text in the image.'),
+              ](name='Result', description='The hit result details.'),
+              service?: string(name='Service', description='The image moderation service type.', example='tonalityImprove'),
+              textInImage?: map[string]any(name='TextInImage', description='The text information in the image that is hit.'),
               vlContent?: {
-                outputText?: string(name='OutputText', description='The text output from the large model.', example='in the picture XXX'),
-              }(name='VlContent', description='The results from the large model.'),
+                outputText?: string(name='OutputText', description='The output text from the foundation model.', example='in the picture XXX'),
+              }(name='VlContent', description='The foundation model result.'),
             }
-          ](name='Results', description='The detection results for the frame.'),
-          riskLevel?: string(name='RiskLevel', description='The risk level, which is determined by the configured thresholds for high and low risk scores. Valid values:
+          ](name='Results', description='The frame detection result details.'),
+          riskLevel?: string(name='RiskLevel', description='The risk level, returned based on the configured high and low risk score thresholds. Valid values:
 
-- `high`: high risk
+- high: High risk.
 
-- `medium`: medium risk
+- medium: Medium risk.
+ 
+- low: Low risk.
 
-- `low`: low risk
-
-- `none`: no risk detected', example='high'),
-          tempUrl?: string(name='TempUrl', description='The temporary URL of the snapshot image.', example='http://xxxx.abc.jpg'),
-          timestamp?: long(name='Timestamp', description='The absolute timestamp, in milliseconds.', example='1684559739000'),
+- none: No risk detected.', example='high'),
+          tempUrl?: string(name='TempUrl', description='The temporary URL of the captured frame image.', example='http://xxxx.abc.jpg'),
+          timestamp?: long(name='Timestamp', description='The absolute timestamp. Unit: milliseconds.', example='1684559739000'),
         }
-      ](name='Frames', description='Information about the video snapshots that contain detected labels.'),
-      riskLevel?: string(name='RiskLevel', description='The risk level, which is determined by the configured thresholds for high and low risk scores. Valid values:
+      ](name='Frames', description='The information about video frames that contain hit labels.'),
+      riskLevel?: string(name='RiskLevel', description='The risk level, returned based on the configured high and low risk score thresholds. Valid values:
 
-- `high`: high risk
+- high: High risk.
 
-- `medium`: medium risk
+- medium: Medium risk.
+ 
+- low: Low risk.
 
-- `low`: low risk
-
-- `none`: no risk detected', example='high'),
-    }(name='FrameResult', description='The results for video snapshots.'),
+- none: No risk detected.', example='high'),
+    }(name='FrameResult', description='The list of video frame capture results.'),
     liveId?: string(name='LiveId', description='The unique ID of the live stream.', example='liveId'),
     manualTaskId?: string(name='ManualTaskId', description='The manual review task ID.', example='xxxxx-xxxxx'),
-    riskLevel?: string(name='RiskLevel', description='The risk level, which is determined by the configured thresholds for high and low risk scores. Valid values:
+    riskLevel?: string(name='RiskLevel', description='The risk level, returned based on the configured high and low risk score thresholds. Valid values:
 
-- `high`: high risk
+- high: High risk.
 
-- `medium`: medium risk
+- medium: Medium risk.
+ 
+- low: Low risk.
 
-- `low`: low risk
-
-- `none`: no risk detected', example='high'),
+- none: No risk detected.', example='high'),
     taskId?: string(name='TaskId', description='The task ID.', example='xxxxx-xxxxx'),
   }(name='Data', description='The moderation result data.'),
-  message?: string(name='Message', description='The return message.', example='success finished'),
-  requestId?: string(name='RequestId', description='The ID of the request.', example='6CF2815C-C8C7-4A01-B52E-FF6E24F53492'),
+  message?: string(name='Message', description='The response message.', example='success finished'),
+  requestId?: string(name='RequestId', description='Id of the request', example='6CF2815C-C8C7-4A01-B52E-FF6E24F53492'),
 }
 
 model VideoModerationResultResponse = {
@@ -2918,9 +2940,9 @@ model VideoModerationResultResponse = {
 }
 
 /**
- * @summary Retrieves the results of an enhanced video moderation task.
+ * @summary Retrieves the task result of an enhanced video content moderation node.
  *
- * @description This operation is free. We recommend querying for the result 30 seconds after submitting the asynchronous detection task. You must retrieve the result within 24 hours, or it will be automatically deleted.
+ * @description This operation is not billed. Set the query interval to 30 seconds (that is, query the results 30 seconds after submitting the asynchronous moderation task). The maximum query window is 24 hours. After 24 hours, the results are automatically deleted.
  *
  * @param request VideoModerationResultRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -2954,9 +2976,9 @@ async function videoModerationResultWithOptions(request: VideoModerationResultRe
 }
 
 /**
- * @summary Retrieves the results of an enhanced video moderation task.
+ * @summary Retrieves the task result of an enhanced video content moderation node.
  *
- * @description This operation is free. We recommend querying for the result 30 seconds after submitting the asynchronous detection task. You must retrieve the result within 24 hours, or it will be automatically deleted.
+ * @description This operation is not billed. Set the query interval to 30 seconds (that is, query the results 30 seconds after submitting the asynchronous moderation task). The maximum query window is 24 hours. After 24 hours, the results are automatically deleted.
  *
  * @param request VideoModerationResultRequest
  * @return VideoModerationResultResponse
