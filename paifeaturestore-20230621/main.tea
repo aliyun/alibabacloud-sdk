@@ -11,8 +11,20 @@ extends OpenApi;
 
 init(config: OpenApi.Config){
   super(config);
-  @endpointRule = '';
-  
+  @endpointRule = 'regional';
+  @endpointMap = {
+    'us-west-1' = 'paifeaturestore.us-west-1.aliyuncs.com',
+    'us-east-1' = 'paifeaturestore.us-east-1.aliyuncs.com',
+    'eu-central-1' = 'paifeaturestore.eu-central-1.aliyuncs.com',
+    'cn-shenzhen' = 'paifeaturestore.cn-shenzhen.aliyuncs.com',
+    'cn-shanghai' = 'paifeaturestore.cn-shanghai.aliyuncs.com',
+    'cn-hongkong' = 'paifeaturestore.cn-hongkong.aliyuncs.com',
+    'cn-hangzhou' = 'paifeaturestore.cn-hangzhou.aliyuncs.com',
+    'cn-beijing' = 'paifeaturestore.cn-beijing.aliyuncs.com',
+    'ap-southeast-5' = 'paifeaturestore.ap-southeast-5.aliyuncs.com',
+    'ap-southeast-1' = 'paifeaturestore.ap-southeast-1.aliyuncs.com',
+  };
+
   checkConfig(config);
   @endpoint = getEndpoint('paifeaturestore', @regionId, @endpointRule, @network, @suffix, @endpointMap, @endpoint);
 }
@@ -380,6 +392,7 @@ model CreateFeatureViewRequest {
 - `PrimaryKey`: primary key.
 
 - `EventTime`: event time.'),
+      dimension?: int32(name='Dimension'),
       name?: string(name='Name', description='The name of the field.', example='age'),
       transform?: [ 
         {
@@ -816,7 +829,7 @@ async function createLabelTable(InstanceId: string, request: CreateLabelTableReq
 model CreateModelFeatureRequest {
   features?: [ 
     {
-      aliasName?: string(name='AliasName', description='The alias of the feature.', example='userid'),
+      aliasName?: string(name='AliasName', description='The feature alias.', example='userid'),
       featureViewId?: string(name='FeatureViewId', description='The feature view ID. You can call the ListFeatureViews operation to obtain the feature view ID.
 
 This parameter is required.', example='5'),
@@ -826,13 +839,19 @@ This parameter is required.', example='user_id'),
       prefixName?: string(name='PrefixName', example='cand_seq__'),
       type?: string(name='Type', description='The feature type. Valid values:
 
-- INT32
-- INT64
-- FLOAT
-- DOUBLE
-- STRING
-- BOOLEAN
-- TIMESTAMP.
+● INT32
+
+● INT64
+
+● FLOAT
+
+● DOUBLE
+
+● STRING
+
+● BOOLEAN
+
+● TIMESTAMP.
 
 This parameter is required.', example='STRING'),
     }
@@ -864,7 +883,7 @@ model CreateModelFeatureResponse = {
 }
 
 /**
- * @summary Creates a model feature. A model feature associates a label table with a set of feature view fields. It is used to generate the training dataset table required for model training and to specify the feature set used for model inference.
+ * @summary Creates a model feature. A model feature associates a label table with a set of feature view fields to generate the training dataset table required for model training and to specify the feature set used for model inference.
  *
  * @param request CreateModelFeatureRequest
  * @param headers map
@@ -912,7 +931,7 @@ async function createModelFeatureWithOptions(InstanceId: string, request: Create
 }
 
 /**
- * @summary Creates a model feature. A model feature associates a label table with a set of feature view fields. It is used to generate the training dataset table required for model training and to specify the feature set used for model inference.
+ * @summary Creates a model feature. A model feature associates a label table with a set of feature view fields to generate the training dataset table required for model training and to specify the feature set used for model inference.
  *
  * @param request CreateModelFeatureRequest
  * @return CreateModelFeatureResponse
@@ -1679,6 +1698,7 @@ model GetFeatureViewResponseBody = {
 ● `PrimaryKey`: The primary key.
 
 ● `EventTime`: The event time.'),
+      dimension?: int32(name='Dimension', example='512'),
       name?: string(name='Name', description='The field name.', example='user'),
       transform?: [ 
         {
@@ -1976,57 +1996,65 @@ async function getLabelTable(InstanceId: string, LabelTableId: string): GetLabel
 }
 
 model GetModelFeatureResponseBody = {
-  exportTrainingSetTableScript?: string(name='ExportTrainingSetTableScript', description='The script for exporting the training sample table.', example='from feature_store_py.fs_client import FeatureStoreClient\\\\nfrom feature_store_py.fs_project import FeatureStoreProject\\\\nfrom feature_store_py.fs_datasource import LabelInput, MaxComputeDataSource, TrainingSetOutput\\\\nfrom feature_store_py.fs_features import FeatureSelector\\\\nfrom feature_store_py.fs_config import LabelInputConfig, PartitionConfig, FeatureViewConfig\\\\nfrom feature_store_py.fs_config import TrainSetOutputConfig, EASDeployConfig\\\\nimport datetime\\\\nimport sys\\\\n\\\\ncur_day = args[\\\\"dt\\\\"]\\\\nprint(\\\\"cur_day = \\\\", cur_day)\\\\noffset = datetime.timedelta(days=-1)\\\\npre_day = (datetime.datetime.strptime(cur_day, \\\\"%Y%m%d\\\\") + offset).strftime(\\\\"%Y%m%d\\\\")\\\\nprint(\\\\"pre_day = \\\\", pre_day)\\\\n\\\\n\\\\naccess_key_id = o.account.access_id\\\\naccess_key_secret = o.account.secret_access_key\\\\nfs = FeatureStoreClient(access_key_id=access_key_id, access_key_secret=access_key_secret, region=\\\\"cn-beijing\\\\")\\\\ncur_project_name = \\\\"p1\\\\"\\\\nproject = fs.get_project(cur_project_name)\\\\n\\\\nlabel_partitions = PartitionConfig(name = \\\\"ds\\\\", value = cur_day)\\\\nlabel_input_config = LabelInputConfig(partition_config=label_partitions)\\\\n\\\\nfeature_view_1_partitions = PartitionConfig(name = \\\\"ds\\\\", value = pre_day)\\\\nfeature_view_1_config = FeatureViewConfig(name = \\\\"user_fea\\\\",\\\\npartition_config=feature_view_1_partitions)\\\\n\\\\nfeature_view_2_partitions = PartitionConfig(name = \\\\"ds\\\\", value = pre_day)\\\\nfeature_view_2_config = FeatureViewConfig(name = \\\\"seq_fea\\\\",\\\\npartition_config=feature_view_2_partitions)\\\\n\\\\nfeature_view_3_partitions = PartitionConfig(name = \\\\"ds\\\\", value = pre_day)\\\\nfeature_view_3_config = FeatureViewConfig(name = \\\\"item_fea\\\\",\\\\npartition_config=feature_view_3_partitions)\\\\n\\\\nfeature_view_config_list = [feature_view_1_config,feature_view_2_config,feature_view_3_config]\\\\ntrain_set_partitions = PartitionConfig(name = \\\\"ds\\\\", value = cur_day)\\\\ntrain_set_output_config = TrainSetOutputConfig(partition_config=train_set_partitions)\\\\n\\\\n\\\\nmodel_name = \\\\"rank_v1\\\\"\\\\ncur_model = project.get_model(model_name)\\\\ntask = cur_model.export_train_set(label_input_config, feature_view_config_list, train_set_output_config)\\\\ntask.wait()\\\\nprint(\\\\"task_summary = \\\\", task.task_summary)\\\\n'),
+  exportTrainingSetTableScript?: string(name='ExportTrainingSetTableScript', description='Script for exporting the training set table.', example='from feature_store_py.fs_client import FeatureStoreClient\\\\nfrom feature_store_py.fs_project import FeatureStoreProject\\\\nfrom feature_store_py.fs_datasource import LabelInput, MaxComputeDataSource, TrainingSetOutput\\\\nfrom feature_store_py.fs_features import FeatureSelector\\\\nfrom feature_store_py.fs_config import LabelInputConfig, PartitionConfig, FeatureViewConfig\\\\nfrom feature_store_py.fs_config import TrainSetOutputConfig, EASDeployConfig\\\\nimport datetime\\\\nimport sys\\\\n\\\\ncur_day = args[\\\\"dt\\\\"]\\\\nprint(\\\\"cur_day = \\\\", cur_day)\\\\noffset = datetime.timedelta(days=-1)\\\\npre_day = (datetime.datetime.strptime(cur_day, \\\\"%Y%m%d\\\\") + offset).strftime(\\\\"%Y%m%d\\\\")\\\\nprint(\\\\"pre_day = \\\\", pre_day)\\\\n\\\\n\\\\naccess_key_id = o.account.access_id\\\\naccess_key_secret = o.account.secret_access_key\\\\nfs = FeatureStoreClient(access_key_id=access_key_id, access_key_secret=access_key_secret, region=\\\\"cn-beijing\\\\")\\\\ncur_project_name = \\\\"p1\\\\"\\\\nproject = fs.get_project(cur_project_name)\\\\n\\\\nlabel_partitions = PartitionConfig(name = \\\\"ds\\\\", value = cur_day)\\\\nlabel_input_config = LabelInputConfig(partition_config=label_partitions)\\\\n\\\\nfeature_view_1_partitions = PartitionConfig(name = \\\\"ds\\\\", value = pre_day)\\\\nfeature_view_1_config = FeatureViewConfig(name = \\\\"user_fea\\\\",\\\\npartition_config=feature_view_1_partitions)\\\\n\\\\nfeature_view_2_partitions = PartitionConfig(name = \\\\"ds\\\\", value = pre_day)\\\\nfeature_view_2_config = FeatureViewConfig(name = \\\\"seq_fea\\\\",\\\\npartition_config=feature_view_2_partitions)\\\\n\\\\nfeature_view_3_partitions = PartitionConfig(name = \\\\"ds\\\\", value = pre_day)\\\\nfeature_view_3_config = FeatureViewConfig(name = \\\\"item_fea\\\\",\\\\npartition_config=feature_view_3_partitions)\\\\n\\\\nfeature_view_config_list = [feature_view_1_config,feature_view_2_config,feature_view_3_config]\\\\ntrain_set_partitions = PartitionConfig(name = \\\\"ds\\\\", value = cur_day)\\\\ntrain_set_output_config = TrainSetOutputConfig(partition_config=train_set_partitions)\\\\n\\\\n\\\\nmodel_name = \\\\"rank_v1\\\\"\\\\ncur_model = project.get_model(model_name)\\\\ntask = cur_model.export_train_set(label_input_config, feature_view_config_list, train_set_output_config)\\\\ntask.wait()\\\\nprint(\\\\"task_summary = \\\\", task.task_summary)\\\\n'),
   features?: [ 
     {
-      aliasName?: string(name='AliasName', description='The feature alias.', example='feature2'),
-      featureViewId?: string(name='FeatureViewId', description='The feature view ID.', example='3'),
-      featureViewName?: string(name='FeatureViewName', description='The feature view name.', example='feature_view_1'),
-      name?: string(name='Name', description='The feature name.', example='feature1'),
+      aliasName?: string(name='AliasName', description='Feature alias.', example='feature2'),
+      featureViewId?: string(name='FeatureViewId', description='Feature view ID.', example='3'),
+      featureViewName?: string(name='FeatureViewName', description='Feature view name.', example='feature_view_1'),
+      name?: string(name='Name', description='Feature name.', example='feature1'),
       prefixName?: string(name='PrefixName', example='cand_seq__'),
-      type?: string(name='Type', description='The feature type. Valid values:
+      type?: string(name='Type', description='Feature type.
 
-- INT32
-- INT64
-- FLOAT
-- DOUBLE
-- STRING
-- BOOLEAN
-- TIMESTAMP.', example='INT32'),
+● INT32
+
+● INT64
+
+● FLOAT
+
+● DOUBLE
+
+● STRING
+
+● BOOLEAN
+
+● TIMESTAMP', example='INT32'),
     }
-  ](name='Features', description='The feature list.'),
-  gmtCreateTime?: string(name='GmtCreateTime', description='The creation time.', example='2023-07-04T14:46:22.227+08:00'),
-  gmtModifiedTime?: string(name='GmtModifiedTime', description='The update time.', example='2023-07-04T14:46:22.227+08:00'),
-  labelPriorityLevel?: long(name='LabelPriorityLevel', description='The priority level of the label table. Default value: 0. Set to 1 to prioritize the label table. Set to 2 to prioritize the feature view.', example='0'),
-  labelTableId?: string(name='LabelTableId', description='The label table ID.', example='3'),
-  labelTableName?: string(name='LabelTableName', description='The label table name.', example='label_table1'),
-  name?: string(name='Name', description='The model feature name.', example='model_feature1'),
-  owner?: string(name='Owner', description='The Alibaba Cloud account ID of the creator.', example='1231243253****'),
-  projectId?: string(name='ProjectId', description='The project ID.', example='5'),
-  projectName?: string(name='ProjectName', description='The project name.', example='project1'),
+  ](name='Features', description='Feature list.'),
+  gmtCreateTime?: string(name='GmtCreateTime', description='Creation time.', example='2023-07-04T14:46:22.227+08:00'),
+  gmtModifiedTime?: string(name='GmtModifiedTime', description='Update time.', example='2023-07-04T14:46:22.227+08:00'),
+  labelPriorityLevel?: long(name='LabelPriorityLevel', description='Label table priority. The default value is 0. Set to 1 to give priority to the label table, or set to 2 to give priority to the feature view.', example='0'),
+  labelTableId?: string(name='LabelTableId', description='Label table ID.', example='3'),
+  labelTableName?: string(name='LabelTableName', description='Label table name.', example='label_table1'),
+  name?: string(name='Name', description='Model feature name.', example='model_feature1'),
+  owner?: string(name='Owner', description='Alibaba Cloud account ID of the creator.', example='1231243253****'),
+  projectId?: string(name='ProjectId', description='Project ID.', example='5'),
+  projectName?: string(name='ProjectName', description='Project name.', example='project1'),
   relations?: {
     domains?: [ 
       {
-        domainType?: string(name='DomainType', description='The domain type. Valid values:
+        domainType?: string(name='DomainType', description='Domain type.
 
-- FeatureEntity: feature entity.
-- FeatureView: feature view.
-- ModelFeature: model feature.', example='FeatureEntity'),
-        id?: string(name='Id', description='Domain ID。', example='3'),
-        name?: string(name='Name', description='The domain name.', example='feature_entity_1'),
+● FeatureEntity - Feature entity
+
+● FeatureView - Feature view
+
+● ModelFeature - Model feature', example='FeatureEntity'),
+        id?: string(name='Id', description='Domain ID.', example='3'),
+        name?: string(name='Name', description='Domain name.', example='feature_entity_1'),
       }
-    ](name='Domains', description='The domain list.'),
+    ](name='Domains', description='Domain list.'),
     links?: [ 
       {
-        from?: string(name='From', description='The source ID of the link.', example='model_feature_2'),
-        link?: string(name='Link', description='The dependency field of the link.', example='user_id'),
-        to?: string(name='To', description='The destination ID of the link.', example='feature_entity_3'),
+        from?: string(name='From', description='Source ID of the link.', example='model_feature_2'),
+        link?: string(name='Link', description='Link dependency field.', example='user_id'),
+        to?: string(name='To', description='Target ID of the link.', example='feature_entity_3'),
       }
-    ](name='Links', description='The feature relationship link list.'),
-  }(name='Relations', description='The feature relationships.'),
-  requestId?: string(name='RequestId', description='The request ID.', example='0C89F5E1-7F24-5EEC-9F05-508A39278CC8'),
-  trainingSetFGTable?: string(name='TrainingSetFGTable', description='The name of the exported training set FG table.', example='table2'),
-  trainingSetTable?: string(name='TrainingSetTable', description='The name of the exported training set table.', example='table1'),
+    ](name='Links', description='Feature relation link information list.'),
+  }(name='Relations', description='Feature relations.'),
+  requestId?: string(name='RequestId', description='Request ID.', example='0C89F5E1-7F24-5EEC-9F05-508A39278CC8'),
+  trainingSetFGTable?: string(name='TrainingSetFGTable', description='Name of the exported training set FG table.', example='table2'),
+  trainingSetTable?: string(name='TrainingSetTable', description='Name of the exported training set table.', example='table1'),
 }
 
 model GetModelFeatureResponse = {
@@ -2036,7 +2064,7 @@ model GetModelFeatureResponse = {
 }
 
 /**
- * @summary Retrieves detailed information about a model feature, including the selected feature list, lineage relationships, and training set export script.
+ * @summary Gets detailed information about a model feature, including the selected feature list, lineage relations, and training set export script.
  *
  * @param headers map
  * @param runtime runtime options for this request RuntimeOptions
@@ -2061,7 +2089,7 @@ async function getModelFeatureWithOptions(InstanceId: string, ModelFeatureId: st
 }
 
 /**
- * @summary Retrieves detailed information about a model feature, including the selected feature list, lineage relationships, and training set export script.
+ * @summary Gets detailed information about a model feature, including the selected feature list, lineage relations, and training set export script.
  *
  * @return GetModelFeatureResponse
  */
@@ -4914,7 +4942,7 @@ model UpdateModelFeatureRequest {
   features?: [ 
     {
       aliasName?: string(name='AliasName', description='The feature alias.', example='sex'),
-      featureViewId?: string(name='FeatureViewId', description='The feature view ID. You can call the ListFeatureViews operation to query the feature view ID.
+      featureViewId?: string(name='FeatureViewId', description='The feature view ID. You can call the ListFeatureViews operation to obtain the feature view ID.
 
 This parameter is required.', example='5'),
       name?: string(name='Name', description='The feature name.
@@ -4935,7 +4963,7 @@ This parameter is required.', example='STRING'),
     }
   ](name='Features', description='The list of features.'),
   labelPriorityLevel?: long(name='LabelPriorityLevel', example='0'),
-  labelTableId?: string(name='LabelTableId', description='The label table ID. You can call the ListLabelTables operation to query the label table ID.', example='4'),
+  labelTableId?: string(name='LabelTableId', description='The label table ID. You can call the ListLabelTables operation to obtain the label table ID.', example='4'),
   sequenceFeatureViewIds?: [ string ](name='SequenceFeatureViewIds'),
 }
 
@@ -4950,7 +4978,7 @@ model UpdateModelFeatureResponse = {
 }
 
 /**
- * @summary Updates the information of a model feature, including the associated label table, selected feature fields, and conflict priority policy. The update is a full replacement. The specified Features value overwrites the existing value.
+ * @summary Updates the information of a model feature, including the associated label table, selected feature fields, and conflict priority policy. The update performs a full replacement. The specified Features overwrite the existing values.
  *
  * @param request UpdateModelFeatureRequest
  * @param headers map
@@ -4992,7 +5020,7 @@ async function updateModelFeatureWithOptions(InstanceId: string, ModelFeatureId:
 }
 
 /**
- * @summary Updates the information of a model feature, including the associated label table, selected feature fields, and conflict priority policy. The update is a full replacement. The specified Features value overwrites the existing value.
+ * @summary Updates the information of a model feature, including the associated label table, selected feature fields, and conflict priority policy. The update performs a full replacement. The specified Features overwrite the existing values.
  *
  * @param request UpdateModelFeatureRequest
  * @return UpdateModelFeatureResponse
