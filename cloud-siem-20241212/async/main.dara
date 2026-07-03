@@ -21,8 +21,10 @@ init(configuration: ClientConfiguration){
   @handler = new TeaAsyncHandler(configuration);
   @product = 'cloud-siem';
   @version = '2024-12-12';
-  @endpointRule = '';
+  @endpointRule = 'regional';
   @endpointMap = {
+    'cn-shanghai' = 'cloud-siem.cn-shanghai.aliyuncs.com',
+    'ap-southeast-1' = 'cloud-siem.ap-southeast-1.aliyuncs.com',
   };
 }
 
@@ -369,6 +371,7 @@ model CreateNormalizationRuleRequest {
   normalizationRuleType?: string(name='NormalizationRuleType', position='Body'),
   normalizationRuleVersion?: int32(name='NormalizationRuleVersion', position='Body'),
   normalizationSchemaId?: string(name='NormalizationSchemaId', example='HTTP_ACTIVITY。', position='Body'),
+  normalizationSecurityDomainId?: string(name='NormalizationSecurityDomainId', example='NETWORK_AND_WEB_SECURITY', position='Body'),
   orderField?: string(name='OrderField', position='Body'),
   productId?: string(name='ProductId', example='alibaba_cloud_sas。', position='Body'),
   regionId?: string(name='RegionId', example='cn-hangzhou。', position='Body'),
@@ -398,7 +401,8 @@ async function createNormalizationRule(request: CreateNormalizationRuleRequest):
 
 model CreateNormalizationSchemaRequest {
   lang?: string(name='Lang', example='zh', position='Body'),
-  normalizationCategoryId: string(name='NormalizationCategoryId', description='This parameter is required.', example='NETWORK_CATEGORY', position='Body'),
+  normalizationCategoryId?: string(name='NormalizationCategoryId', example='NETWORK_CATEGORY', position='Body'),
+  normalizationFieldSource?: string(name='NormalizationFieldSource', example='native', position='Body'),
   normalizationFields?: [ 
     {
       normalizationFieldDescription?: string(name='NormalizationFieldDescription', example='cloud_user'),
@@ -428,9 +432,12 @@ model CreateNormalizationSchemaRequest {
   normalizationSchemaId: string(name='NormalizationSchemaId', description='This parameter is required.', example='PROCESS_QUERY_DNS_ACTIVITY', position='Body'),
   normalizationSchemaName: string(name='NormalizationSchemaName', description='This parameter is required.', example='ProcessQuery', position='Body'),
   normalizationSchemaType: string(name='NormalizationSchemaType', description='This parameter is required.', example='log', position='Body'),
+  normalizationSecurityDomainId?: string(name='NormalizationSecurityDomainId', example='NETWORK_AND_WEB_SECURITY', position='Body'),
+  productId?: string(name='ProductId', example='sas', position='Body'),
   regionId?: string(name='RegionId', example='cn-hangzhou', position='Body'),
   roleFor?: long(name='RoleFor', example='113091674488****', position='Body'),
   targetLogStore: string(name='TargetLogStore', description='This parameter is required.', example='xxx-activity', position='Body'),
+  vendorId?: string(name='VendorId', example='alibaba', position='Body'),
 }
 
 model CreateNormalizationSchemaResponseBody = {
@@ -927,6 +934,7 @@ model ExecuteLogQueryRequest {
   endTime?: string(name='EndTime', example='1733269771123。', position='Body'),
   extendContentPacked?: string(name='ExtendContentPacked', position='Body'),
   lang?: string(name='Lang', example='zh。', position='Body'),
+  logCondition?: string(name='LogCondition', position='Body'),
   logProjectName?: string(name='LogProjectName', example='slsaudit-center-173326*******-cn-hangzhou', position='Body'),
   logQuery?: string(name='LogQuery', example='*', position='Body'),
   logRegionId?: string(name='LogRegionId', example='cn-hangzhou。', position='Body'),
@@ -981,6 +989,37 @@ model ExecuteUpgradeResponse = {
 async function executeUpgrade(request: ExecuteUpgradeRequest): ExecuteUpgradeResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RPC', 'ExecuteUpgrade', 'POST', '/', 'json', true, 'form', request);
+}
+
+model GetAlertRequest {
+  alertUuid?: string(name='AlertUuid', example='sas_71e24437d2797ce8fc59692905a4****', position='Body'),
+  lang?: string(name='Lang', example='zh', position='Body'),
+  regionId?: string(name='RegionId', example='cn-hangzhou', position='Body'),
+  roleFor?: long(name='RoleFor', example='113091674488****', position='Body'),
+  roleType?: long(name='RoleType', example='1', position='Body'),
+}
+
+model GetAlertResponseBody = {
+  alert?: {
+    alertRecord?: string(name='AlertRecord', example='{***}'),
+    alertUuid?: string(name='AlertUuid', example='sas_1175554881779200_e59368b3ce1690eae7978f7712a69050'),
+  }(name='Alert'),
+  requestId?: string(name='RequestId', example='9AAA9ED9-78F4-5021-86DC-D51C7511****'),
+}
+
+model GetAlertResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: GetAlertResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of GetAlert  GetAlertRequest
+  * @return GetAlertResponse
+ */
+async function getAlert(request: GetAlertRequest): GetAlertResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'GetAlert', 'POST', '/', 'json', true, 'form', request);
 }
 
 model GetAutoDisposeConfigRequest {
@@ -1090,6 +1129,13 @@ model GetDataStorageResponseBody = {
         logViewName?: string(name='LogViewName', example='risk_activity'),
       }
     ](name='NormalizationLogViews'),
+    recordLogStores?: [ 
+      {
+        logStoreName?: string(name='LogStoreName'),
+        logStoreTtl?: int32(name='LogStoreTtl'),
+        usedCapacity?: double(name='UsedCapacity'),
+      }
+    ](name='RecordLogStores'),
     sasLogStores?: [ 
       {
         logCode?: string(name='LogCode', example='sas-net-block'),
@@ -1139,6 +1185,7 @@ model GetDetectionStatisticRequest {
 
 model GetDetectionStatisticResponseBody = {
   detectionStatistic?: {
+    aiPoweredAggregationRuleCount?: int32(name='AiPoweredAggregationRuleCount'),
     detectionRuleOnlineCount?: int32(name='DetectionRuleOnlineCount', example='10'),
     detectionRuleTemplateCount?: int32(name='DetectionRuleTemplateCount', example='20'),
     detectionRuleTestCount?: int32(name='DetectionRuleTestCount', example='5'),
@@ -1229,6 +1276,7 @@ model GetIncidentResponseBody = {
     relateAssetCount?: int32(name='RelateAssetCount', example='2'),
     relateDataSourceIds?: any(name='RelateDataSourceIds', example='["siem"]'),
     relateUserIds?: any(name='RelateUserIds', example='["176618589410****","1130916744888****"]'),
+    responseTime?: long(name='ResponseTime'),
     threatLevel?: string(name='ThreatLevel', example='2'),
     threatScore?: string(name='ThreatScore', example='90'),
     updateTime?: long(name='UpdateTime', example='1757386075000'),
@@ -1281,6 +1329,7 @@ async function getLogTicket(request: GetLogTicketRequest): GetLogTicketResponse 
 model GetNormalizationRuleRequest {
   lang?: string(name='Lang', example='zh。', position='Body'),
   normalizationRuleId?: string(name='NormalizationRuleId', example='nr-z0b2ssjteut85uoh9nzp。', position='Body'),
+  normalizationSecurityDomainId?: string(name='NormalizationSecurityDomainId', example='NETWORK_AND_WEB_SECURITY', position='Body'),
   regionId?: string(name='RegionId', example='cn-hangzhou。', position='Body'),
   roleFor?: long(name='RoleFor', example='173326*******。', position='Body'),
 }
@@ -1291,6 +1340,7 @@ model GetNormalizationRuleResponseBody = {
     extendContentPacked?: string(name='ExtendContentPacked'),
     extendFieldStoreMode?: string(name='ExtendFieldStoreMode', example='flat'),
     normalizationCategoryId?: string(name='NormalizationCategoryId', example='NETWORK_CATEGORY。'),
+    normalizationFieldSource?: string(name='NormalizationFieldSource', example='normalized'),
     normalizationRuleDescription?: string(name='NormalizationRuleDescription', example='normalization_rule_Z57np。'),
     normalizationRuleExpression?: string(name='NormalizationRuleExpression', example='* | pack-fields -include=\\"[\\s\\S]+\\" as extend_content。'),
     normalizationRuleFormat?: string(name='NormalizationRuleFormat', example='SPL。'),
@@ -1302,6 +1352,7 @@ model GetNormalizationRuleResponseBody = {
     normalizationRuleType?: string(name='NormalizationRuleType', example='predefined。'),
     normalizationRuleVersion?: int32(name='NormalizationRuleVersion', example='V1。'),
     normalizationSchemaId?: string(name='NormalizationSchemaId', example='HTTP_ACTIVITY。'),
+    normalizationSecurityDomainId?: string(name='NormalizationSecurityDomainId', example='NETWORK_AND_WEB_SECURITY'),
     orderField?: string(name='OrderField'),
     productId?: string(name='ProductId', example='alibaba_cloud_sas。'),
     updateTime?: long(name='UpdateTime', example='1733269771123。'),
@@ -1382,6 +1433,7 @@ model GetNormalizationSchemaResponseBody = {
   normalizationSchema?: {
     createTime?: long(name='CreateTime', example='1733269771123'),
     normalizationCategoryId?: string(name='NormalizationCategoryId', example='NETWORK_CATEGORY。'),
+    normalizationFieldSource?: string(name='NormalizationFieldSource', example='native'),
     normalizationFields?: [ 
       {
         createTime?: long(name='CreateTime', example='1736386610000'),
@@ -1422,9 +1474,13 @@ model GetNormalizationSchemaResponseBody = {
       }
     ](name='NormalizationSchemaReferences'),
     normalizationSchemaType?: string(name='NormalizationSchemaType', example='preset'),
+    normalizationSecurityDomainId?: string(name='NormalizationSecurityDomainId', example='DATA_SECURITY'),
+    productId?: string(name='ProductId', example='alibaba_cloud_bastionhost'),
+    recommendEntities?: [ string ](name='RecommendEntities'),
     targetLogStore?: string(name='TargetLogStore', example='network-activity。'),
     targetStoreView?: string(name='TargetStoreView', example='network_activity。'),
     updateTime?: long(name='UpdateTime', example='1733269771123'),
+    vendorId?: string(name='VendorId', example='alibaba_cloud'),
   }(name='NormalizationSchema'),
   requestId?: string(name='RequestId', example='6276D891-*****-55B2-87B9-74D413F7****。'),
 }
@@ -1442,6 +1498,36 @@ model GetNormalizationSchemaResponse = {
 async function getNormalizationSchema(request: GetNormalizationSchemaRequest): GetNormalizationSchemaResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RPC', 'GetNormalizationSchema', 'POST', '/', 'json', true, 'form', request);
+}
+
+model GetResponseRuleStatisticRequest {
+  lang?: string(name='Lang', example='zh', position='Body'),
+  regionId?: string(name='RegionId', example='cn-hangzhou', position='Body'),
+  roleFor?: long(name='RoleFor', example='113091674488****', position='Body'),
+  roleType?: int32(name='RoleType', example='1', position='Body'),
+}
+
+model GetResponseRuleStatisticResponseBody = {
+  requestId?: string(name='RequestId', example='6276D891-*****-55B2-87B9-74D413F7****'),
+  responseStatistic?: {
+    responseRuleAllCount?: int32(name='ResponseRuleAllCount', example='2'),
+    responseRuleOnlineCount?: int32(name='ResponseRuleOnlineCount', example='1'),
+  }(name='ResponseStatistic'),
+}
+
+model GetResponseRuleStatisticResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: GetResponseRuleStatisticResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of GetResponseRuleStatistic  GetResponseRuleStatisticRequest
+  * @return GetResponseRuleStatisticResponse
+ */
+async function getResponseRuleStatistic(request: GetResponseRuleStatisticRequest): GetResponseRuleStatisticResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'GetResponseRuleStatistic', 'POST', '/', 'json', true, 'form', request);
 }
 
 model GetUserConfigRequest {
@@ -1473,6 +1559,55 @@ model GetUserConfigResponse = {
 async function getUserConfig(request: GetUserConfigRequest): GetUserConfigResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RPC', 'GetUserConfig', 'POST', '/', 'json', true, 'form', request);
+}
+
+model ListAlertsRequest {
+  alertLevel?: [ string ](name='AlertLevel', position='Body'),
+  alertUuid?: string(name='AlertUuid', example='sas_71e24437d2797ce8fc59692905a4****', position='Body'),
+  endTime?: long(name='EndTime', example='1766801904000', position='Body'),
+  lang?: string(name='Lang', example='zh', position='Body'),
+  maxResults?: int32(name='MaxResults', example='50', position='Body'),
+  nextToken?: string(name='NextToken', example='AAAAAUqcj6VO4E3ECWIrFczs****', position='Body'),
+  orderDirection?: string(name='OrderDirection', example='asc', position='Body'),
+  orderFieldName?: string(name='OrderFieldName', example='GmtModified', position='Body'),
+  pageNumber: int32(name='PageNumber', description='This parameter is required.', example='1', minimum=1, position='Body'),
+  pageSize: int32(name='PageSize', description='This parameter is required.', example='10', minimum=1, maximum=100, position='Body'),
+  queryCondition?: string(name='QueryCondition', example='{\\"Type\\":\\"cost\\",\\"Max\\":\\"200\\"}', position='Body'),
+  queryViewId?: string(name='QueryViewId', example='qv-a1b2c3d4e5f6g7****', position='Body'),
+  regionId?: string(name='RegionId', example='cn-shanghai', position='Body'),
+  roleFor?: long(name='RoleFor', example='113091674488****', position='Body'),
+  roleType?: int32(name='RoleType', example='1', position='Body'),
+  startTime?: long(name='StartTime', example='2025-09-30T02:23:00Z', position='Body'),
+}
+
+model ListAlertsResponseBody = {
+  alerts?: [ 
+    {
+      alertRecord?: string(name='AlertRecord', example='{"alert_uuid":"a3f8c2e1-9b7d-4f6a-8c2e-1d5b9a7f****"}'),
+      alertUuid?: string(name='AlertUuid', example='798341271677187'),
+    }
+  ](name='Alerts'),
+  maxResults?: int32(name='MaxResults', example='50'),
+  nextToken?: string(name='NextToken', example='AAAAAUqcj6VO4E3ECWIrFczs****'),
+  pageNumber?: int32(name='PageNumber', example='1'),
+  pageSize?: int32(name='PageSize', example='10'),
+  requestId?: string(name='RequestId', example='6276D891-*****-55B2-87B9-74D413F7****'),
+  totalCount?: int32(name='TotalCount', example='57'),
+}
+
+model ListAlertsResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ListAlertsResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of ListAlerts  ListAlertsRequest
+  * @return ListAlertsResponse
+ */
+async function listAlerts(request: ListAlertsRequest): ListAlertsResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'ListAlerts', 'POST', '/', 'json', true, 'form', request);
 }
 
 model ListAutoDisposeEntitiesRequest {
@@ -2058,6 +2193,7 @@ model ListIncidentsResponseBody = {
       owner?: string(name='Owner', example='1234567890xxxxxx'),
       relateAlertCount?: int32(name='RelateAlertCount', example='3'),
       relateAssetCount?: int32(name='RelateAssetCount', example='4'),
+      responseTime?: long(name='ResponseTime'),
       threatLevel?: string(name='ThreatLevel', example='2'),
       updateTime?: long(name='UpdateTime', example='1603248483000'),
     }
@@ -2219,6 +2355,8 @@ model ListNormalizationFieldsRequest {
   maxResults?: int32(name='MaxResults', example='50。', minimum=0, position='Body'),
   name?: string(name='Name', example='category。', position='Body'),
   nextToken?: string(name='NextToken', example='AAAAAUqcj6VO4E3ECWIrFczs****。', position='Body'),
+  normalizationFieldSource?: string(name='NormalizationFieldSource', example='native', position='Body'),
+  normalizationSchemaType?: string(name='NormalizationSchemaType', example='log', position='Body'),
   regionId?: string(name='RegionId', example='cn-hangzhou。', position='Body'),
   roleFor?: long(name='RoleFor', example='173326*******。', position='Body'),
 }
@@ -2255,6 +2393,7 @@ model ListNormalizationFieldsResponseBody = {
       normalizationFieldTokenize?: boolean(name='NormalizationFieldTokenize'),
       normalizationFieldType?: string(name='NormalizationFieldType', example='varchar。'),
       normalizationSchemaId?: string(name='NormalizationSchemaId', example='NETWORK_SESSION_ACTIVITY。'),
+      normalizationSecurityDomainId?: string(name='NormalizationSecurityDomainId', example='NETWORK_AND_WEB_SECURITY'),
       updateTime?: long(name='UpdateTime', example='1736386610000'),
     }
   ](name='NormalizationFields'),
@@ -2368,6 +2507,7 @@ model ListNormalizationRulesRequest {
   normalizationRuleName?: string(name='NormalizationRuleName', example='normalization_rule_Z57np。', position='Body'),
   normalizationRuleType?: string(name='NormalizationRuleType', example='predefined。', position='Body'),
   normalizationSchemaId?: string(name='NormalizationSchemaId', example='HTTP_ACTIVITY。', position='Body'),
+  normalizationSecurityDomainId?: string(name='NormalizationSecurityDomainId', example='NETWORK_AND_WEB_SECURITY', position='Body'),
   orderField?: string(name='OrderField', example='UpdateTime。', position='Body'),
   orderType?: string(name='OrderType', example='desc。', position='Body'),
   pageNumber?: int32(name='PageNumber', example='3。', position='Body'),
@@ -2387,6 +2527,7 @@ model ListNormalizationRulesResponseBody = {
       extendContentPacked?: string(name='ExtendContentPacked'),
       extendFieldStoreMode?: string(name='ExtendFieldStoreMode', example='flat'),
       normalizationCategoryId?: string(name='NormalizationCategoryId', example='NETWORK_CATEGORY。'),
+      normalizationFieldSource?: string(name='NormalizationFieldSource', example='normalized'),
       normalizationRuleDescription?: string(name='NormalizationRuleDescription', example='normalization_rule_Z57np。'),
       normalizationRuleExpression?: string(name='NormalizationRuleExpression', example='* | pack-fields -include=\\"[\\s\\S]+\\" as extend_content。'),
       normalizationRuleFormat?: string(name='NormalizationRuleFormat', example='SPL。'),
@@ -2402,6 +2543,7 @@ model ListNormalizationRulesResponseBody = {
       normalizationRuleType?: string(name='NormalizationRuleType', example='predefined。'),
       normalizationRuleVersion?: string(name='NormalizationRuleVersion', example='V1。'),
       normalizationSchemaId?: string(name='NormalizationSchemaId', example='HTTP_ACTIVITY。'),
+      normalizationSecurityDomainId?: string(name='NormalizationSecurityDomainId', example='NETWORK_AND_WEB_SECURITY'),
       productId?: string(name='ProductId', example='alibaba_cloud_sas。'),
       updateTime?: long(name='UpdateTime', example='1733269771123。'),
       vendorId?: string(name='VendorId', example='alibaba_cloud。'),
@@ -2434,7 +2576,9 @@ model ListNormalizationSchemasRequest {
   maxResults?: int32(name='MaxResults', example='50。', minimum=0, position='Body'),
   nextToken?: string(name='NextToken', example='AAAAAUqcj6VO4E3ECWIrFczs****。', position='Body'),
   normalizationCategoryId?: string(name='NormalizationCategoryId', example='NETWORK_CATEGORY。', position='Body'),
+  normalizationFieldSource?: string(name='NormalizationFieldSource', example='normalized', position='Body'),
   normalizationSchemaType?: string(name='NormalizationSchemaType', example='entity。', position='Body'),
+  normalizationSecurityDomainId?: string(name='NormalizationSecurityDomainId', example='NETWORK_AND_WEB_SECURITY', position='Body'),
   regionId?: string(name='RegionId', example='cn-hangzhou。', position='Body'),
   roleFor?: long(name='RoleFor', example='173326*******。', position='Body'),
 }
@@ -2446,14 +2590,20 @@ model ListNormalizationSchemasResponseBody = {
     {
       createTime?: long(name='CreateTime', example='1736386610000'),
       normalizationCategoryId?: string(name='NormalizationCategoryId', example='NETWORK_CATEGORY。'),
+      normalizationFieldSource?: string(name='NormalizationFieldSource', example='normalized'),
       normalizationSchemaDescription?: string(name='NormalizationSchemaDescription', example='网络五元组日志'),
       normalizationSchemaFrom?: string(name='NormalizationSchemaFrom', example='preset'),
       normalizationSchemaId?: string(name='NormalizationSchemaId', example='HTTP_ACTIVITY。'),
       normalizationSchemaName?: string(name='NormalizationSchemaName', example='normalization_rule_Z57np。'),
       normalizationSchemaTargetLogStore?: string(name='NormalizationSchemaTargetLogStore', example='network-activity。'),
+      normalizationSchemaType?: string(name='NormalizationSchemaType', example='log'),
+      normalizationSecurityDomainId?: string(name='NormalizationSecurityDomainId', example='NETWORK_AND_WEB_SECURITY'),
+      productId?: string(name='ProductId', example='sas'),
+      recommendEntities?: [ string ](name='RecommendEntities'),
       targetLogStore?: string(name='TargetLogStore', example='network-activity'),
       targetStoreView?: string(name='TargetStoreView', example='network-activity'),
       updateTime?: long(name='UpdateTime', example='1736386610000'),
+      vendorId?: string(name='VendorId', example='alibaba'),
     }
   ](name='NormalizationSchemas'),
   requestId?: string(name='RequestId', example='6276D891-*****-55B2-87B9-74D413F7****。'),
@@ -2473,6 +2623,42 @@ model ListNormalizationSchemasResponse = {
 async function listNormalizationSchemas(request: ListNormalizationSchemasRequest): ListNormalizationSchemasResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RPC', 'ListNormalizationSchemas', 'POST', '/', 'json', true, 'form', request);
+}
+
+model ListNormalizationSecurityDomainsRequest {
+  lang?: string(name='Lang', example='zh', position='Body'),
+  maxResults?: int32(name='MaxResults', example='50', position='Body'),
+  nextToken?: string(name='NextToken', example='AAAAAUqcj6VO4E3ECWIrFczs****', position='Body'),
+  regionId?: string(name='RegionId', example='cn-hangzhou', position='Body'),
+  roleFor?: long(name='RoleFor', example='113091674488****', position='Body'),
+}
+
+model ListNormalizationSecurityDomainsResponseBody = {
+  maxResults?: int32(name='MaxResults', example='50'),
+  nextToken?: string(name='NextToken', example='AAAAAUqcj6VO4E3ECWIrFczs****'),
+  normalizationSecurityDomains?: [ 
+    {
+      normalizationSecurityDomainId?: string(name='NormalizationSecurityDomainId', example='OTHER'),
+      normalizationSecurityDomainName?: string(name='NormalizationSecurityDomainName', example='net'),
+    }
+  ](name='NormalizationSecurityDomains'),
+  requestId?: string(name='RequestId', description='Id of the request', example='6276D891-*****-55B2-87B9-74D413F7****'),
+  totalCount?: int32(name='TotalCount', example='57'),
+}
+
+model ListNormalizationSecurityDomainsResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ListNormalizationSecurityDomainsResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of ListNormalizationSecurityDomains  ListNormalizationSecurityDomainsRequest
+  * @return ListNormalizationSecurityDomainsResponse
+ */
+async function listNormalizationSecurityDomains(request: ListNormalizationSecurityDomainsRequest): ListNormalizationSecurityDomainsResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'ListNormalizationSecurityDomains', 'POST', '/', 'json', true, 'form', request);
 }
 
 model ListProductsRequest {
@@ -2525,6 +2711,104 @@ model ListProductsResponse = {
 async function listProducts(request: ListProductsRequest): ListProductsResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RPC', 'ListProducts', 'POST', '/', 'json', true, 'form', request);
+}
+
+model ListQueryViewsRequest {
+  lang?: string(name='Lang', example='zh', position='Body'),
+  maxResults?: int32(name='MaxResults', example='50', position='Body'),
+  nextToken?: string(name='NextToken', example='AAAAAUqcj6VO4E3ECWIrFczs****', position='Body'),
+  queryViewScene?: string(name='QueryViewScene', example='Alert', position='Body'),
+  queryViewType?: string(name='QueryViewType', example='preset', position='Body'),
+  regionId?: string(name='RegionId', example='cn-hangzhou', position='Query'),
+  roleFor?: long(name='RoleFor', example='113091674488****', position='Body'),
+  roleType?: int32(name='RoleType', example='1', position='Body'),
+}
+
+model ListQueryViewsResponseBody = {
+  maxResults?: int32(name='MaxResults', example='50'),
+  nextToken?: string(name='NextToken', example='AAAAASLVeIxed4466E0LVmGkzwS6hJKd9DGVGMDRM6Lu****'),
+  queryViews?: [ 
+    {
+      queryViewCondition?: string(name='QueryViewCondition', example='preset'),
+      queryViewCriteria?: string(name='QueryViewCriteria', example='module_code: alibaba_cloud_sas_custom_rule'),
+      queryViewFields?: string(name='QueryViewFields', example='["alert_name_cn","alert_type_cn","entity_list","alert_level","alert_status","start_time","end_time"]'),
+      queryViewId?: string(name='QueryViewId', example='qv-a1b2c3d4e5f6g7h8****'),
+      queryViewName?: string(name='QueryViewName', example='alert'),
+      queryViewOrder?: string(name='QueryViewOrder', example='1'),
+      queryViewScene?: string(name='QueryViewScene', example='Alert'),
+      queryViewStatus?: string(name='QueryViewStatus', example='2'),
+      queryViewType?: string(name='QueryViewType', example='preset'),
+    }
+  ](name='QueryViews'),
+  requestId?: string(name='RequestId', example='9AAA9ED9-78F4-5021-86DC-D51C7511****'),
+}
+
+model ListQueryViewsResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ListQueryViewsResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of ListQueryViews  ListQueryViewsRequest
+  * @return ListQueryViewsResponse
+ */
+async function listQueryViews(request: ListQueryViewsRequest): ListQueryViewsResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'ListQueryViews', 'POST', '/', 'json', true, 'form', request);
+}
+
+model ListResponseRuleFieldsRequest {
+  lang?: string(name='Lang', example='zh', position='Body'),
+  maxResults?: int32(name='MaxResults', example='50', position='Body'),
+  nextToken?: string(name='NextToken', example='AAAAAUqcj6VO4E3ECWIrFczs****', position='Body'),
+  regionId?: string(name='RegionId', example='cn-hangzhou', position='Body'),
+  roleFor?: long(name='RoleFor', example='113091674488****', position='Body'),
+  roleType?: int32(name='RoleType', example='1', position='Body'),
+}
+
+model ListResponseRuleFieldsResponseBody = {
+  listResponseRuleFields?: [ 
+    {
+      dataType?: string(name='DataType', example='ip'),
+      field?: string(name='Field', example='appname'),
+      fieldName?: string(name='FieldName', example='OriginIP,ConsoleLog,CPUTime,Duration,ErrorCode,ErrorMessage,ResponseSize,ResponseStatus,RoutineName,ClientRequestID,LogTimestamp,FetchStatus,SubRequestID'),
+      fieldNormalization?: string(name='FieldNormalization', example='alert'),
+      rightValue?: [ 
+        {
+          value?: string(name='Value', example='dev_selectdb_cluster'),
+          valueName?: string(name='ValueName', example='high'),
+        }
+      ](name='RightValue'),
+      supportOperators?: [ 
+        {
+          hasRightValue?: string(name='HasRightValue', example='true'),
+          index?: int32(name='Index', example='1'),
+          operator?: string(name='Operator', example='BETWEEN'),
+          operatorName?: string(name='OperatorName', example='autotest-operator'),
+          supportDataType?: string(name='SupportDataType', example='ip'),
+        }
+      ](name='SupportOperators'),
+    }
+  ](name='ListResponseRuleFields'),
+  maxResults?: int32(name='MaxResults', example='50'),
+  nextToken?: string(name='NextToken', example='AAAAAUqcj6VO4E3ECWIrFczs****'),
+  requestId?: string(name='RequestId', example='6276D891-*****-55B2-87B9-74D413F7****'),
+}
+
+model ListResponseRuleFieldsResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ListResponseRuleFieldsResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of ListResponseRuleFields  ListResponseRuleFieldsRequest
+  * @return ListResponseRuleFieldsResponse
+ */
+async function listResponseRuleFields(request: ListResponseRuleFieldsRequest): ListResponseRuleFieldsResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'ListResponseRuleFields', 'POST', '/', 'json', true, 'form', request);
 }
 
 model ListResponseRulesRequest {
@@ -2580,6 +2864,45 @@ model ListResponseRulesResponse = {
 async function listResponseRules(request: ListResponseRulesRequest): ListResponseRulesResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RPC', 'ListResponseRules', 'POST', '/', 'json', true, 'form', request);
+}
+
+model ListTagsRequest {
+  lang?: string(name='Lang', example='zh', position='Body'),
+  maxResults?: int32(name='MaxResults', example='50', position='Body'),
+  nextToken?: string(name='NextToken', example='AAAAASLVeIxed4466E0LVmGkzwS6hJKd9DGVGMDRM6Lu****', position='Body'),
+  regionId?: string(name='RegionId', example='cn-hangzhou', position='Body'),
+  roleFor?: long(name='RoleFor', example='113091674488****', position='Body'),
+  roleType?: int32(name='RoleType', example='1', position='Body'),
+  targetRelation?: string(name='TargetRelation', example='{"incident_uuid":"3fce2d3b65fc2bd05cac6d******"}', position='Body'),
+  targetType?: string(name='TargetType', example='AliUId', position='Body'),
+  targetUuid?: string(name='TargetUuid', example='a1b2c3-****', position='Body'),
+}
+
+model ListTagsResponseBody = {
+  maxResults?: int32(name='MaxResults', example='50'),
+  nextToken?: string(name='NextToken', example='AAAAAUqcj6VO4E3ECWIrFczs****'),
+  requestId?: string(name='RequestId', example='9AAA9ED9-78F4-5021-86DC-D51C7511****'),
+  tags?: [ 
+    {
+      count?: long(name='Count', example='8'),
+      tag?: string(name='Tag', example='False'),
+    }
+  ](name='Tags'),
+}
+
+model ListTagsResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ListTagsResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of ListTags  ListTagsRequest
+  * @return ListTagsResponse
+ */
+async function listTags(request: ListTagsRequest): ListTagsResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'ListTags', 'POST', '/', 'json', true, 'form', request);
 }
 
 model ListTrafficStatisticsRequest {
@@ -2774,6 +3097,7 @@ model SetDefaultNormalizationRuleVersionResponseBody = {
     normalizationRuleType?: string(name='NormalizationRuleType', example='predefined。'),
     normalizationRuleVersion?: int32(name='NormalizationRuleVersion', example='V1。'),
     normalizationSchemaId?: string(name='NormalizationSchemaId', example='HTTP_ACTIVITY。'),
+    normalizationSecurityDomainId?: string(name='NormalizationSecurityDomainId', example='NETWORK_AND_WEB_SECURITY'),
     productId?: string(name='ProductId', example='alibaba_cloud_sas。'),
     updateTime?: long(name='UpdateTime', example='1733269771123。'),
     vendorId?: string(name='VendorId', example='alibaba_cloud。'),
@@ -3253,6 +3577,7 @@ model UpdateNormalizationRuleRequest {
   normalizationRuleName?: string(name='NormalizationRuleName', example='normalization_rule_Z57np。', position='Body'),
   normalizationRuleType?: string(name='NormalizationRuleType', position='Body'),
   normalizationSchemaId?: string(name='NormalizationSchemaId', example='HTTP_ACTIVITY。', position='Body'),
+  normalizationSecurityDomainId?: string(name='NormalizationSecurityDomainId', example='NETWORK_AND_WEB_SECURITY', position='Body'),
   orderField?: string(name='OrderField', position='Body'),
   productId?: string(name='ProductId', example='alibaba_cloud_sas。', position='Body'),
   regionId?: string(name='RegionId', example='cn-hangzhou。', position='Body'),
