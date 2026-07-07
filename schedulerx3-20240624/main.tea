@@ -403,6 +403,85 @@ async function createCluster(request: CreateClusterRequest): CreateClusterRespon
   return createClusterWithOptions(request, runtime);
 }
 
+model CreateContactRequest {
+  config?: string(name='Config', description='渠道参数配置 JSON 字符串。IM 类型示例：{"channels":[{"channelType":"dingtalk","clientId":"xxx","clientSecret":"xxx","targetType":"group","targetId":"xxx","robotCode":"xxx"}]}
+
+This parameter is required.', example='{"channels":[{"channelType":"dingtalk","clientId":"xxx","clientSecret":"xxx","targetType":"group","targetId":"xxx","robotCode":"xxx"}]}'),
+  contactName?: string(name='ContactName', description='联系人名称（用户自定义，用于展示），同一用户下不可重名
+
+This parameter is required.', example='陈睿'),
+  type?: string(name='Type', description='渠道大类，当前支持 IM
+
+This parameter is required.', example='IM'),
+}
+
+model CreateContactResponseBody = {
+  code?: int32(name='Code', example='200'),
+  data?: {
+    contactId?: long(name='ContactId', description='新建联系人的 id，后续 Update/Delete 时使用', example='5000'),
+  }(name='Data'),
+  message?: string(name='Message', example='Parameter error: content is null.'),
+  requestId?: string(name='RequestId', example='2C3E52FF-CBE9-5C0E-8252-37ACFF1F5EFF'),
+  success?: boolean(name='Success', example='true'),
+}
+
+model CreateContactResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: CreateContactResponseBody(name='body'),
+}
+
+/**
+ * @summary 创建通知联系人
+ *
+ * @description 创建自定义联系人
+ *
+ * @param request CreateContactRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return CreateContactResponse
+ */
+async function createContactWithOptions(request: CreateContactRequest, runtime: Util.RuntimeOptions): CreateContactResponse {
+  Util.validateModel(request);
+  var body : map[string]any = {};
+  if (!Util.isUnset(request.config)) {
+    body['Config'] = request.config;
+  }
+  if (!Util.isUnset(request.contactName)) {
+    body['ContactName'] = request.contactName;
+  }
+  if (!Util.isUnset(request.type)) {
+    body['Type'] = request.type;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApi.Params{
+    action = 'CreateContact',
+    version = '2024-06-24',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 创建通知联系人
+ *
+ * @description 创建自定义联系人
+ *
+ * @param request CreateContactRequest
+ * @return CreateContactResponse
+ */
+async function createContact(request: CreateContactRequest): CreateContactResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return createContactWithOptions(request, runtime);
+}
+
 model CreateDatasourceRequest {
   clusterId?: string(name='ClusterId', description='Cluster ID.
 
@@ -717,9 +796,9 @@ model CreateJobRequest {
   appName?: string(name='AppName', description='The application name.
 
 This parameter is required.', example='test-app'),
-  attemptInterval?: int32(name='AttemptInterval', description='The retry interval on failure. Unit: seconds. Default value: 30.', example='3'),
-  calendar?: string(name='Calendar', description='The custom calendar. This parameter is optional for the cron time type.', example='workday'),
-  childJobId?: string(name='ChildJobId', description='The child node IDs, separated by commas.', example='1,2'),
+  attemptInterval?: int32(name='AttemptInterval', description='The retry interval upon failure. Unit: seconds. Default value: 30.', example='3'),
+  calendar?: string(name='Calendar', description='The custom calendar. This parameter is available only for the cron time type.', example='workday'),
+  childJobId?: string(name='ChildJobId', description='The child node IDs. Separate multiple IDs with commas.', example='1,2'),
   clusterId?: string(name='ClusterId', description='The cluster ID.
 
 This parameter is required.', example='xxljob-b6ec1xxxx'),
@@ -731,15 +810,15 @@ This parameter is required.', example='xxljob-b6ec1xxxx'),
   }(name='Coordinate', description='The node coordinate in the workflow.'),
   dependentStrategy?: int32(name='DependentStrategy', description='The dependency strategy.', example='1'),
   description?: string(name='Description', description='The node description.', example='test'),
-  executorBlockStrategy?: int32(name='ExecutorBlockStrategy', description='The client blocking strategy. Valid values:
+  executorBlockStrategy?: int32(name='ExecutorBlockStrategy', description='The client-side blocking strategy. Valid values:
 - 1: serial execution on a single machine
-- 2: ignore subsequent schedules
-- 3: override previous schedules.', example='1'),
+- 2: ignore subsequent scheduling
+- 3: override previous scheduling', example='1'),
   jobHandler?: string(name='JobHandler', description='The JobHandler name.', example='testJobVoidHandler'),
   jobType?: string(name='JobType', description='The node type.
 
 This parameter is required.', example='xxljob'),
-  maxAttempt?: int32(name='MaxAttempt', description='The maximum number of retries on failure. Set this parameter based on your business requirements.', example='3'),
+  maxAttempt?: int32(name='MaxAttempt', description='The maximum number of retry attempts upon failure. Set this parameter based on your business requirements.', example='3'),
   maxConcurrency?: int32(name='MaxConcurrency', description='The maximum number of concurrent instances.', example='1'),
   name?: string(name='Name', description='The node name.
 
@@ -749,15 +828,15 @@ This parameter is required.', example='test-job'),
     endEarlyEnable?: boolean(name='EndEarlyEnable'),
     failEnable?: boolean(name='FailEnable', description='Specifies whether to enable failure alerting. Valid values:
 
-- **true**: Enabled.
-- **false**: Disabled.', example='true'),
+- **true**: Failure alerting is enabled.
+- **false**: Failure alerting is disabled.', example='true'),
     failLimitTimes?: int32(name='FailLimitTimes', description='The number of consecutive failures.
 > An alert is sent only when the number of consecutive failures exceeds the configured value.', example='1'),
     missWorkerEnable?: boolean(name='MissWorkerEnable', description='Specifies whether to enable alerting when no workers are available. Valid values:
-- **true**: Enabled.
-- **false**: Disabled.', example='true'),
+- **true**: Alerting for no available workers is enabled.
+- **false**: Alerting for no available workers is disabled.', example='true'),
     sendChannel?: string(name='SendChannel', description='The notification channel. Valid values:
-- sms: SMS
+- sms: text message
 - phone: phone call
 - mail: email
 - webhook: webhook
@@ -774,16 +853,16 @@ This parameter is required.', example='test-job'),
 - **false**: Disabled.', example='true'),
     timeoutKillEnable?: boolean(name='TimeoutKillEnable', description='Specifies whether to enable timeout termination. Valid values:
 
-- **true**: Enabled.
-- **false**: Disabled.', example='true'),
+- **true**: Timeout termination is enabled.
+- **false**: Timeout termination is disabled.', example='true'),
   }(name='NoticeConfig', description='The notification configuration.', example='1'),
   noticeContacts?: [ 
     {
-      contactType?: int32(name='ContactType', description='The object type of the notification recipient. Valid values:
+      contactType?: int32(name='ContactType', description='The Notification Recipient type. Valid values:
 
 - 1: alert contact
 
-- 2: alert contact group.', example='1'),
+- 2: alert contact group', example='1'),
       name?: string(name='Name', description='The name of the alert contact or alert contact group.', example='xiaoming'),
     }
   ](name='NoticeContacts', description='The notification contact configuration.'),
@@ -792,7 +871,7 @@ This parameter is required.', example='test-job'),
 - 1: low
 - 5: medium
 - 10: high
-- 15: very high.', example='5'),
+- 15: very high', example='5'),
   routeStrategy?: int32(name='RouteStrategy', description='The routing strategy. Valid values:
 - 1: round robin
 - 2: random
@@ -801,56 +880,56 @@ This parameter is required.', example='test-job'),
 - 5: least frequently used
 - 6: least recently used
 - 7: consistent hashing
-- 8: shard broadcast.', example='1'),
+- 8: shard broadcast', example='1'),
   script?: string(name='Script', description='The script content for non-BEAN node types. Use this field to pass the script content.', example='echo "hello world"'),
   startTime?: long(name='StartTime', description='The start time.', example='1701310327000'),
   startTimeType?: int32(name='StartTimeType', description='The start time type.', example='1'),
   status?: int32(name='Status', description='The node status. Default value: enabled. Valid values:
 - 0: disabled
-- 1: enabled.', example='1'),
+- 1: enabled', example='1'),
   timeExpression?: string(name='TimeExpression', description='The time expression. Set this parameter based on the selected time type.
-- **none**: No value is required.
-- **cron**: Specify a standard cron expression. Online validation is supported.
-- **api**: No value is required.
-- **fixed_rate**: Specify a fixed frequency value in seconds. For example, 200 indicates that the node is triggered every 200 seconds.
-- **one_time**: Specify a scheduling time in the yyyy-MM-dd HH:mm:ss format or a timestamp in milliseconds. For example, "2022-10-10 10:10:00".', example='0 0 4 ? * Mon/1'),
+- **none**: no value required.
+- **cron**: a standard cron expression. Online verification is supported.
+- **api**: no value required.
+- **fixed_rate**: a fixed frequency value in seconds. For example, 200 indicates that the node is triggered every 200 seconds.
+- **one_time**: a scheduling time in the yyyy-MM-dd HH:mm:ss format or a timestamp in milliseconds. For example, "2022-10-10 10:10:00".', example='0 0 4 ? * Mon/1'),
   timeType?: int32(name='TimeType', description='The time type. Valid values:
 - -1: none<br/>
 - 1: cron<br/>
 - 3: fix_rate<br/>
 - 5: one_time<br/>
-- 100: api.
+- 100: api
 
 This parameter is required.', example='-1'),
   timezone?: string(name='Timezone', description='The time zone.', example='GMT+8'),
   weight?: int32(name='Weight', description='The node weight.', example='1'),
   XAttrs?: string(name='XAttrs', description='The extended attributes. This parameter is required for K8s node types.
 Job node: {"resource":"job"}
-Shell node: {"image":"busybox","resource":"shell"}.', example='{"resource":"job"}'),
+Shell node: {"image":"busybox","resource":"shell"}', example='{"resource":"job"}'),
 }
 
 model CreateJobShrinkRequest {
   appName?: string(name='AppName', description='The application name.
 
 This parameter is required.', example='test-app'),
-  attemptInterval?: int32(name='AttemptInterval', description='The retry interval on failure. Unit: seconds. Default value: 30.', example='3'),
-  calendar?: string(name='Calendar', description='The custom calendar. This parameter is optional for the cron time type.', example='workday'),
-  childJobId?: string(name='ChildJobId', description='The child node IDs, separated by commas.', example='1,2'),
+  attemptInterval?: int32(name='AttemptInterval', description='The retry interval upon failure. Unit: seconds. Default value: 30.', example='3'),
+  calendar?: string(name='Calendar', description='The custom calendar. This parameter is available only for the cron time type.', example='workday'),
+  childJobId?: string(name='ChildJobId', description='The child node IDs. Separate multiple IDs with commas.', example='1,2'),
   clusterId?: string(name='ClusterId', description='The cluster ID.
 
 This parameter is required.', example='xxljob-b6ec1xxxx'),
   coordinateShrink?: string(name='Coordinate', description='The node coordinate in the workflow.'),
   dependentStrategy?: int32(name='DependentStrategy', description='The dependency strategy.', example='1'),
   description?: string(name='Description', description='The node description.', example='test'),
-  executorBlockStrategy?: int32(name='ExecutorBlockStrategy', description='The client blocking strategy. Valid values:
+  executorBlockStrategy?: int32(name='ExecutorBlockStrategy', description='The client-side blocking strategy. Valid values:
 - 1: serial execution on a single machine
-- 2: ignore subsequent schedules
-- 3: override previous schedules.', example='1'),
+- 2: ignore subsequent scheduling
+- 3: override previous scheduling', example='1'),
   jobHandler?: string(name='JobHandler', description='The JobHandler name.', example='testJobVoidHandler'),
   jobType?: string(name='JobType', description='The node type.
 
 This parameter is required.', example='xxljob'),
-  maxAttempt?: int32(name='MaxAttempt', description='The maximum number of retries on failure. Set this parameter based on your business requirements.', example='3'),
+  maxAttempt?: int32(name='MaxAttempt', description='The maximum number of retry attempts upon failure. Set this parameter based on your business requirements.', example='3'),
   maxConcurrency?: int32(name='MaxConcurrency', description='The maximum number of concurrent instances.', example='1'),
   name?: string(name='Name', description='The node name.
 
@@ -862,7 +941,7 @@ This parameter is required.', example='test-job'),
 - 1: low
 - 5: medium
 - 10: high
-- 15: very high.', example='5'),
+- 15: very high', example='5'),
   routeStrategy?: int32(name='RouteStrategy', description='The routing strategy. Valid values:
 - 1: round robin
 - 2: random
@@ -871,32 +950,32 @@ This parameter is required.', example='test-job'),
 - 5: least frequently used
 - 6: least recently used
 - 7: consistent hashing
-- 8: shard broadcast.', example='1'),
+- 8: shard broadcast', example='1'),
   script?: string(name='Script', description='The script content for non-BEAN node types. Use this field to pass the script content.', example='echo "hello world"'),
   startTime?: long(name='StartTime', description='The start time.', example='1701310327000'),
   startTimeType?: int32(name='StartTimeType', description='The start time type.', example='1'),
   status?: int32(name='Status', description='The node status. Default value: enabled. Valid values:
 - 0: disabled
-- 1: enabled.', example='1'),
+- 1: enabled', example='1'),
   timeExpression?: string(name='TimeExpression', description='The time expression. Set this parameter based on the selected time type.
-- **none**: No value is required.
-- **cron**: Specify a standard cron expression. Online validation is supported.
-- **api**: No value is required.
-- **fixed_rate**: Specify a fixed frequency value in seconds. For example, 200 indicates that the node is triggered every 200 seconds.
-- **one_time**: Specify a scheduling time in the yyyy-MM-dd HH:mm:ss format or a timestamp in milliseconds. For example, "2022-10-10 10:10:00".', example='0 0 4 ? * Mon/1'),
+- **none**: no value required.
+- **cron**: a standard cron expression. Online verification is supported.
+- **api**: no value required.
+- **fixed_rate**: a fixed frequency value in seconds. For example, 200 indicates that the node is triggered every 200 seconds.
+- **one_time**: a scheduling time in the yyyy-MM-dd HH:mm:ss format or a timestamp in milliseconds. For example, "2022-10-10 10:10:00".', example='0 0 4 ? * Mon/1'),
   timeType?: int32(name='TimeType', description='The time type. Valid values:
 - -1: none<br/>
 - 1: cron<br/>
 - 3: fix_rate<br/>
 - 5: one_time<br/>
-- 100: api.
+- 100: api
 
 This parameter is required.', example='-1'),
   timezone?: string(name='Timezone', description='The time zone.', example='GMT+8'),
   weight?: int32(name='Weight', description='The node weight.', example='1'),
   XAttrs?: string(name='XAttrs', description='The extended attributes. This parameter is required for K8s node types.
 Job node: {"resource":"job"}
-Shell node: {"image":"busybox","resource":"shell"}.', example='{"resource":"job"}'),
+Shell node: {"image":"busybox","resource":"shell"}', example='{"resource":"job"}'),
 }
 
 model CreateJobResponseBody = {
@@ -905,7 +984,7 @@ model CreateJobResponseBody = {
     jobId?: long(name='JobId', description='The node ID.', example='74'),
   }(name='Data', description='-'),
   message?: string(name='Message', description='The error message.', example='Parameter error: content is null.'),
-  requestId?: string(name='RequestId', description='The request ID. Alibaba Cloud generates a unique ID for each request. You can use this ID to troubleshoot issues.', example='3835AA29-2298-5434-BC53-9CC377CDFD2C'),
+  requestId?: string(name='RequestId', description='The request ID. Alibaba Cloud generates a unique ID for each request. You can use the ID to troubleshoot issues.', example='3835AA29-2298-5434-BC53-9CC377CDFD2C'),
   success?: boolean(name='Success', description='Indicates whether the call was successful. Valid values:
 - true: The call was successful.
 - false: The call failed.', example='true'),
@@ -1385,6 +1464,68 @@ async function deleteClusterWithOptions(request: DeleteClusterRequest, runtime: 
 async function deleteCluster(request: DeleteClusterRequest): DeleteClusterResponse {
   var runtime = new Util.RuntimeOptions{};
   return deleteClusterWithOptions(request, runtime);
+}
+
+model DeleteContactRequest {
+  contactName?: string(name='ContactName', description='This parameter is required.', example='黄永丰'),
+}
+
+model DeleteContactResponseBody = {
+  code?: int32(name='Code', example='200'),
+  message?: string(name='Message', example='Parameter check error'),
+  requestId?: string(name='RequestId', example='2ECA6FC9-7557-5576-AF5F-FC3E7BCC9C21'),
+  success?: boolean(name='Success', example='true'),
+}
+
+model DeleteContactResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: DeleteContactResponseBody(name='body'),
+}
+
+/**
+ * @summary 删除通知联系人
+ *
+ * @description 删除自定义联系人
+ *
+ * @param request DeleteContactRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return DeleteContactResponse
+ */
+async function deleteContactWithOptions(request: DeleteContactRequest, runtime: Util.RuntimeOptions): DeleteContactResponse {
+  Util.validateModel(request);
+  var body : map[string]any = {};
+  if (!Util.isUnset(request.contactName)) {
+    body['ContactName'] = request.contactName;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApi.Params{
+    action = 'DeleteContact',
+    version = '2024-06-24',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 删除通知联系人
+ *
+ * @description 删除自定义联系人
+ *
+ * @param request DeleteContactRequest
+ * @return DeleteContactResponse
+ */
+async function deleteContact(request: DeleteContactRequest): DeleteContactResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return deleteContactWithOptions(request, runtime);
 }
 
 model DeleteDatasourceRequest {
@@ -4312,7 +4453,7 @@ model ListClustersRequest {
   clusterName?: string(name='ClusterName', description='The cluster name.', example='cluster-test'),
   clusterType?: int32(name='ClusterType', example='1'),
   pageNum?: int32(name='PageNum', description='The page number.', example='5'),
-  pageSize?: int32(name='PageSize', description='The number of entries per page for paginated queries.', example='10'),
+  pageSize?: int32(name='PageSize', description='The number of entries per page in a paged query.', example='10'),
   tag?: [ 
     {
       key?: string(name='Key'),
@@ -4325,35 +4466,35 @@ model ListClustersResponseBody = {
   code?: int32(name='Code', description='The response code.', example='200'),
   data?: {
     pageNumber?: int32(name='PageNumber', description='The page number.', example='1'),
-    pageSize?: int32(name='PageSize', description='The number of records per page.', example='50'),
+    pageSize?: int32(name='PageSize', description='The number of entries per page.', example='50'),
     records?: [ 
       {
         chargeType?: string(name='ChargeType', description='The billing method. Valid values:
-- PREPAY: Subscription.
-- POSTPAY: Pay-as-you-go.', example='PREPAY'),
+- PREPAY: subscription.
+- POSTPAY: pay-as-you-go.', example='PREPAY'),
         clusterId?: string(name='ClusterId', description='The cluster ID.', example='xxljob-c20f7ec9a78'),
         clusterName?: string(name='ClusterName', description='The cluster name.', example='xxl-job-test-1730427510169'),
-        clusterSpec?: string(name='ClusterSpec', description='The instance specification.', example='scx.small.x2'),
+        clusterSpec?: string(name='ClusterSpec', description='The instance specifications.', example='scx.small.x2'),
         clusterType?: int32(name='ClusterType', example='1'),
         createTime?: string(name='CreateTime', description='The creation time.', example='2024-10-29 15:56:36'),
         endTime?: string(name='EndTime', description='The expiration time.', example='2024-10-29 15:56:36'),
         engineType?: string(name='EngineType', description='The engine type.', example='xxljob'),
-        engineVersion?: string(name='EngineVersion', description='The engine version.', example='2.0.0'),
+        engineVersion?: string(name='EngineVersion', description='The DPI engine version.', example='2.0.0'),
         internetDomain?: string(name='InternetDomain', description='The public domain name.
-> Currently not supported.', example='暂无'),
+> Not supported currently.', example='暂无'),
         intranetDomain?: string(name='IntranetDomain', description='The internal domain name.', example='http://xxljob-b9e19e46c4e.schedulerx.mse.aliyuncs.com'),
-        productType?: int32(name='ProductType', description='The product version.
+        productType?: int32(name='ProductType', description='The product edition. Valid values:
 - 1: Developer Edition.
 - 2: Professional Edition.
 - 3: Enterprise Edition.', example='1'),
         source?: string(name='Source'),
         spInstanceId?: string(name='SpInstanceId', description='The order asset instance ID.', example='mse_schedulerxpost_public_cn-htq402sak02'),
-        status?: int32(name='Status', description='The cluster status.
+        status?: int32(name='Status', description='The cluster status. Valid values:
 
 - 1: Creating.
 - 2: Running.
 - 3: Restarting.
-- 4: Destroying.
+- 4: Deleting.
 - 5: Creation failed.
 - 6: Stopped.
 - 99: Deleted.', example='1'),
@@ -4361,11 +4502,11 @@ model ListClustersResponseBody = {
         vSwitches?: [ 
           {
             vSwitchId?: string(name='VSwitchId', description='The vSwitch ID.', example='vsw-8vbl54xzux86usy61r5zm'),
-            zoneId?: string(name='ZoneId', description='The availability zone.', example='cn-hangzhou-h'),
+            zoneId?: string(name='ZoneId', description='The zone.', example='cn-hangzhou-h'),
           }
-        ](name='VSwitches', description='The availability zone and vSwitch information.'),
+        ](name='VSwitches', description='The zone and vSwitch information.'),
         versionLifecycle?: string(name='VersionLifecycle'),
-        vpcId?: string(name='VpcId', description='The VPC ID.', example='vpc-bp1fxort6ag5h9752i305'),
+        vpcId?: string(name='VpcId', description='VPC ID。', example='vpc-bp1fxort6ag5h9752i305'),
       }
     ](name='Records'),
     total?: int32(name='Total', description='The total number of entries.', example='30'),
@@ -4373,7 +4514,7 @@ model ListClustersResponseBody = {
   message?: string(name='Message', description='The error message.
 
 This parameter is required.', example='Parameter error: content is null.'),
-  requestId?: string(name='RequestId', description='The ID of this request, which is a unique identifier generated by Alibaba Cloud for this request. It can be used for troubleshooting.', example='39938688-0BAB-5AD8-BF02-F4910FAC7589'),
+  requestId?: string(name='RequestId', description='The request ID. Alibaba Cloud generates a unique identifier for each API request. You can use this ID to troubleshoot issues.', example='39938688-0BAB-5AD8-BF02-F4910FAC7589'),
   success?: boolean(name='Success', description='Indicates whether the call was successful.
 - **true**: The call was successful.
 - **false**: The call failed.', example='true'),
@@ -4386,7 +4527,7 @@ model ListClustersResponse = {
 }
 
 /**
- * @summary Query the list of instances.
+ * @summary Queries a list of instances.
  *
  * @param request ListClustersRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -4413,7 +4554,7 @@ async function listClustersWithOptions(request: ListClustersRequest, runtime: Ut
 }
 
 /**
- * @summary Query the list of instances.
+ * @summary Queries a list of instances.
  *
  * @param request ListClustersRequest
  * @return ListClustersResponse
@@ -4421,6 +4562,92 @@ async function listClustersWithOptions(request: ListClustersRequest, runtime: Ut
 async function listClusters(request: ListClustersRequest): ListClustersResponse {
   var runtime = new Util.RuntimeOptions{};
   return listClustersWithOptions(request, runtime);
+}
+
+model ListContactsRequest {
+  contactName?: string(name='ContactName', example='Tom'),
+  pageNum?: int32(name='PageNum', description='页码，从 1 开始，默认 1', example='1'),
+  pageSize?: int32(name='PageSize', description='每页条数，默认 20，最大 100', example='20'),
+}
+
+model ListContactsResponseBody = {
+  code?: int32(name='Code', example='200'),
+  data?: {
+    pageNumber?: int32(name='PageNumber', description='当前页码', example='1'),
+    pageSize?: int32(name='PageSize', description='每页条数', example='10'),
+    records?: [ 
+      {
+        config?: string(name='Config', description='渠道配置 JSON（clientSecret 已脱敏为 ***）', example='{"channels":[{"channelType":"dingtalk","clientId":"xxx","clientSecret":"xxx","targetType":"group","targetId":"xxx","robotCode":"xxx"}]}'),
+        contactId?: long(name='ContactId', description='联系人 ID', example='job-85d64bff-50b5-4d02-aa3f-19956b17449d'),
+        contactName?: string(name='ContactName', description='联系人名称', example='Tom'),
+        enabled?: boolean(name='Enabled', description='是否启用', example='false'),
+        gmtCreate?: string(name='GmtCreate', description='创建时间', example='1783065190000'),
+        gmtModified?: string(name='GmtModified', description='最后修改时间', example='1783065190000'),
+        type?: string(name='Type', description='渠道大类（IM/WEBHOOK/SMS/MAIL）', example='IM'),
+      }
+    ](name='Records', description='联系人列表'),
+    total?: int32(name='Total', description='总记录数', example='21'),
+  }(name='Data'),
+  message?: string(name='Message', example='Parameter check error'),
+  requestId?: string(name='RequestId', example='5EF879D0-3B43-5AD1-9BF7-52418F9C5E73'),
+  success?: boolean(name='Success', example='true'),
+}
+
+model ListContactsResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ListContactsResponseBody(name='body'),
+}
+
+/**
+ * @summary 查询通知联系人列表
+ *
+ * @description 查看联系人
+ *
+ * @param request ListContactsRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return ListContactsResponse
+ */
+async function listContactsWithOptions(request: ListContactsRequest, runtime: Util.RuntimeOptions): ListContactsResponse {
+  Util.validateModel(request);
+  var query = {};
+  if (!Util.isUnset(request.contactName)) {
+    query['ContactName'] = request.contactName;
+  }
+  if (!Util.isUnset(request.pageNum)) {
+    query['PageNum'] = request.pageNum;
+  }
+  if (!Util.isUnset(request.pageSize)) {
+    query['PageSize'] = request.pageSize;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'ListContacts',
+    version = '2024-06-24',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 查询通知联系人列表
+ *
+ * @description 查看联系人
+ *
+ * @param request ListContactsRequest
+ * @return ListContactsResponse
+ */
+async function listContacts(request: ListContactsRequest): ListContactsResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return listContactsWithOptions(request, runtime);
 }
 
 model ListDatasourcesRequest {
@@ -4555,8 +4782,10 @@ model ListExecutorGroupResponseBody = {
           }
         ](name='CiteList'),
         cmsWorkspaceId?: string(name='CmsWorkspaceId'),
+        currentJobs?: int32(name='CurrentJobs'),
         description?: string(name='Description', example='my first workflow'),
         integrationType?: string(name='IntegrationType'),
+        maxJobs?: int32(name='MaxJobs'),
         name?: string(name='Name', example='job01'),
         network?: string(name='Network', example='public'),
         protocol?: string(name='Protocol', example='openai'),
@@ -8416,6 +8645,80 @@ async function updateCluster(request: UpdateClusterRequest): UpdateClusterRespon
   return updateClusterWithOptions(request, runtime);
 }
 
+model UpdateContactRequest {
+  config?: string(name='Config', description='渠道参数配置 JSON 字符串（可选，传入则更新）', example='{"channels":[{"channelType":"dingtalk","clientId":"xxx","clientSecret":"xxx","targetType":"group","targetId":"xxx","robotCode":"xxx"}]}'),
+  contactName?: string(name='ContactName', description='This parameter is required.', example='Tom'),
+  enabled?: boolean(name='Enabled', description='是否启用（true/false，可选）', example='true'),
+  type?: string(name='Type', description='渠道大类（可选，传入则更新）', example='IM'),
+}
+
+model UpdateContactResponseBody = {
+  code?: int32(name='Code', example='200'),
+  message?: string(name='Message', example='not support query script history, please upgrade engine version to 2.2.2+'),
+  requestId?: string(name='RequestId', example='F131C3E0-3FAA-5FA4-A6F3-E974D69EF3C5'),
+  success?: boolean(name='Success', example='true'),
+}
+
+model UpdateContactResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: UpdateContactResponseBody(name='body'),
+}
+
+/**
+ * @summary 更新通知联系人
+ *
+ * @description 更新通知联系人
+ *
+ * @param request UpdateContactRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return UpdateContactResponse
+ */
+async function updateContactWithOptions(request: UpdateContactRequest, runtime: Util.RuntimeOptions): UpdateContactResponse {
+  Util.validateModel(request);
+  var body : map[string]any = {};
+  if (!Util.isUnset(request.config)) {
+    body['Config'] = request.config;
+  }
+  if (!Util.isUnset(request.contactName)) {
+    body['ContactName'] = request.contactName;
+  }
+  if (!Util.isUnset(request.enabled)) {
+    body['Enabled'] = request.enabled;
+  }
+  if (!Util.isUnset(request.type)) {
+    body['Type'] = request.type;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApi.Params{
+    action = 'UpdateContact',
+    version = '2024-06-24',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 更新通知联系人
+ *
+ * @description 更新通知联系人
+ *
+ * @param request UpdateContactRequest
+ * @return UpdateContactResponse
+ */
+async function updateContact(request: UpdateContactRequest): UpdateContactResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return updateContactWithOptions(request, runtime);
+}
+
 model UpdateDatasourceRequest {
   clusterId?: string(name='ClusterId', description='Cluster ID.
 
@@ -8727,118 +9030,103 @@ model UpdateJobRequest {
   appName?: string(name='AppName', description='The application name.
 
 This parameter is required.', example='test-app'),
-  attemptInterval?: int32(name='AttemptInterval', description='The interval in seconds between retry attempts.', example='3'),
+  attemptInterval?: int32(name='AttemptInterval', description='The retry interval upon node failure.', example='3'),
   calendar?: string(name='Calendar', description='The custom calendar.', example='workday'),
-  childJobId?: string(name='ChildJobId', description='The client blocking strategy.
-
-- 1: Serial execution
-
-- 2: Ignore later schedules
-
-- 3: Overwrite earlier schedules', example='1,2'),
+  childJobId?: string(name='ChildJobId', description='The child node IDs, separated by commas.', example='1,2'),
   clusterId?: string(name='ClusterId', description='The cluster ID.
 
 This parameter is required.', example='xxljob-b6ec1xxxx'),
-  dependentStrategy?: int32(name='DependentStrategy', example='1'),
-  description?: string(name='Description', description='The job description.', example='test'),
-  executorBlockStrategy?: int32(name='ExecutorBlockStrategy', description='Notification contact configuration', example='1'),
-  jobHandler?: string(name='JobHandler', description='The job handler name.', example='testJobVoidHandler'),
-  jobId?: long(name='JobId', description='The job ID.
+  dependentStrategy?: int32(name='DependentStrategy', description='The dependency strategy.', example='1'),
+  description?: string(name='Description', description='The node description.', example='test'),
+  executorBlockStrategy?: int32(name='ExecutorBlockStrategy', description='The client blocking strategy. Valid values:
+- 1: serial execution on a single machine
+- 2: ignore subsequent scheduling
+- 3: override previous scheduling', example='1'),
+  jobHandler?: string(name='JobHandler', description='The JobHandler name.', example='testJobVoidHandler'),
+  jobId?: long(name='JobId', description='The node ID.
 
 This parameter is required.', example='74'),
-  maxAttempt?: int32(name='MaxAttempt', description='The maximum number of retries for a failed job.', example='3'),
-  maxConcurrency?: int32(name='MaxConcurrency', description='The maximum number of concurrent job instances.
-
-> This parameter defines the maximum number of instances for a single job that can run concurrently. A value of `1` prevents duplicate execution. If this limit is exceeded, the scheduler skips the current job.', example='1'),
-  name?: string(name='Name', description='The job name.', example='test-job'),
+  maxAttempt?: int32(name='MaxAttempt', description='The maximum number of retry attempts upon node failure.', example='3'),
+  maxConcurrency?: int32(name='MaxConcurrency', description='The maximum number of concurrent instances of the node.
+>The maximum number of instances that can run at the same time for the same node. A value of 1 indicates that repeated execution is not allowed. If the concurrency limit is exceeded, the current scheduling is skipped.', example='1'),
+  name?: string(name='Name', description='The node name.', example='test-job'),
   noticeConfig?: {
-    endEarly?: int32(name='EndEarly', description='The threshold, in seconds, for a job to be considered as finishing early.', example='30'),
-    endEarlyEnable?: boolean(name='EndEarlyEnable', description='Indicates whether to enable an alarm when a job finishes earlier than expected. Set to `true` to enable the alarm, or `false` to disable it.'),
-    failEnable?: boolean(name='FailEnable', description='Indicates whether to enable the failure alarm. Set to `true` to enable the alarm, or `false` to disable it.', example='true'),
-    failLimitTimes?: int32(name='FailLimitTimes', description='The number of consecutive failures required to trigger a failure alarm.', example='true'),
-    missWorkerEnable?: boolean(name='MissWorkerEnable', description='Indicates whether to enable an alarm if no workers are available. Set to `true` to enable the alarm, or `false` to disable it.', example='true'),
-    sendChannel?: string(name='SendChannel', description='The notification channel. Valid values:
-\\\\- `sms`: sms
-\\\\- `phone`: voice call
-\\\\- `mail`: email
-\\\\- `webhook`: webhook
-\\\\> You can specify multiple channels, separated by commas.', example='webhook,sms,mail,phone'),
-    successNotice?: boolean(name='SuccessNotice', description='Indicates whether to enable success notifications. Set to `true` to enable notifications, or `false` to disable them.', example='true'),
-    timeout?: long(name='Timeout', description='The job execution timeout in seconds.', example='90'),
-    timeoutEnable?: boolean(name='TimeoutEnable', description='Indicates whether to enable the timeout alarm. Set to `true` to enable the alarm, or `false` to disable it.', example='true'),
-    timeoutKillEnable?: boolean(name='TimeoutKillEnable', description='Indicates whether to terminate a timed-out job. Set to `true` to terminate the job, or `false` to let it continue.', example='true'),
-  }(name='NoticeConfig', description='Time zone
+    endEarly?: int32(name='EndEarly', example='30'),
+    endEarlyEnable?: boolean(name='EndEarlyEnable'),
+    failEnable?: boolean(name='FailEnable', description='Specifies whether to enable the failure alerting switch. Valid values:
 
-> The default is the time zone of the SchedulerX server.'),
+- **true**: Enabled.
+- **false**: Disabled.', example='true'),
+    failLimitTimes?: int32(name='FailLimitTimes', description='The number of consecutive failures.
+> An alert is sent only when the number of consecutive failures exceeds the configured value.', example='true'),
+    missWorkerEnable?: boolean(name='MissWorkerEnable', description='Specifies whether to enable the no-available-machine alerting switch. Valid values:
+- **true**: Enabled.
+- **false**: Disabled.', example='true'),
+    sendChannel?: string(name='SendChannel', description='The notification channel. Valid values:
+ - sms: text message
+ - phone: phone call
+- mail: email
+- webhook: webhook
+> Separate multiple notification channels with commas.', example='webhook,sms,mail,phone'),
+    successNotice?: boolean(name='SuccessNotice', description='Specifies whether to enable the success notification switch. Valid values:
+
+- true: Enabled.
+- false: Disabled.', example='true'),
+    timeout?: long(name='Timeout', description='The node execution timeout period, in seconds.', example='90'),
+    timeoutEnable?: boolean(name='TimeoutEnable', description='Specifies whether to enable timeout alerting. Valid values:
+
+- true: Enabled.
+
+- false: Disabled.', example='true'),
+    timeoutKillEnable?: boolean(name='TimeoutKillEnable', description='Specifies whether to enable the timeout termination switch for the current trigger. Valid values:
+
+- **true**: Enabled.
+- **false**: Disabled.', example='true'),
+  }(name='NoticeConfig', description='The notification configuration.'),
   noticeContacts?: [ 
     {
-      contactType?: int32(name='ContactType', description='The contact type.
-\\\\> Default value: 1.', example='1'),
+      contactType?: int32(name='ContactType', description='The contact type. 
+>Default configurations: 1.', example='1'),
       name?: string(name='Name', description='The contact name.', example='xiaoming'),
     }
-  ](name='NoticeContacts', description='Notification configuration'),
-  parameters?: string(name='Parameters', description='The job parameters.', example='test'),
-  priority?: int32(name='Priority', description='The job execution priority. Valid values:
+  ](name='NoticeContacts', description='The notification contact configuration.'),
+  parameters?: string(name='Parameters', description='The node parameters.', example='test'),
+  priority?: int32(name='Priority', description='The execution priority of the node. Valid values:
 
-- `1`: Low
+- 1: low
+- 5: medium
+- 10: high
+- 15: very high', example='10'),
+  routeStrategy?: int32(name='RouteStrategy', description='The routing policy. Valid values:
 
-- `5`: Medium
+- 1: round robin
+- 2: random
+- 3: first
+- 4: last
+- 5: least frequently used
+- 6: least recently used
+- 7: consistent hashing
+- 8: shard broadcast', example='1'),
+  script?: string(name='Script', description='The script for non-BEAN nodes. Use this field to configure the script.', example='echo "hello world"'),
+  startTime?: long(name='StartTime', description='The scheduling start time.', example='1716902187'),
+  startTimeType?: string(name='StartTimeType', description='The start time type.', example='1'),
+  timeExpression?: string(name='TimeExpression', description='The time expression. Set the time expression based on the selected time type.
 
-- `10`: High
-
-- `15`: Very High', example='10'),
-  routeStrategy?: int32(name='RouteStrategy', description='The routing strategy. Valid values:
-
-- `1`: round-robin
-
-- `2`: random
-
-- `3`: first
-
-- `4`: last
-
-- `5`: least frequently used
-
-- `6`: least recently used
-
-- `7`: consistent hashing
-
-- `8`: sharded broadcast', example='1'),
-  script?: string(name='Script', description='The script content for non-BEAN jobs.', example='echo "hello world"'),
-  startTime?: long(name='StartTime', description='The type of the start time.', example='1716902187'),
-  startTimeType?: string(name='StartTimeType', description='The task execution priority. The following values are supported:
-
-- 1: Low
-
-- 5: Medium
-
-- 10: High
-
-- 15: Very High', example='1'),
-  timeExpression?: string(name='TimeExpression', description='The time expression. The expression format depends on the `TimeType`.
-
-- `none`: Leave this parameter empty.
-
-- `cron`: Specify a standard cron expression. Online validation is supported.
-
-- `api`: Leave this parameter empty.
-
-- `fixed_rate`: An integer that represents a fixed interval in seconds. For example, `30` triggers the job every 30 seconds.
-
-- `one_time`: A single execution time, specified in the `yyyy-MM-dd HH:mm:ss` format or as a timestamp in milliseconds. For example, "2022-10-10 10:10:00".', example='0 0 4 ? * Mon/1'),
+- none: No value is required.
+- cron: Specify a standard cron expression. Online verification is supported.
+- api: No value is required.
+- fixed_rate: Specify a fixed frequency value in seconds. For example, 30 indicates that the node is triggered every 30 seconds.
+- one_time: Specify a scheduling time in the yyyy-MM-dd HH:mm:ss format or a timestamp in milliseconds. For example, "2022-10-10 10:10:00".', example='0 0 4 ? * Mon/1'),
   timeType?: int32(name='TimeType', description='The time type. Valid values:
 
-- `-1`: none
-
-- `1`: cron
-
-- `3`: fixed_rate
-
-- `5`: one_time
-
-- `100`: api', example='1'),
-  timezone?: string(name='Timezone', description='The start time of the schedule.', example='Hongkong'),
-  weight?: int32(name='Weight', description='The ID of the child job. Separate multiple IDs with a comma.', example='1'),
+- -1: none
+- 1: cron
+- 3: fix_rate
+- 5: one_time
+- 100: api', example='1'),
+  timezone?: string(name='Timezone', description='The time zone.
+> By default, the time zone of the SchedulerX server is used.', example='Hongkong'),
+  weight?: int32(name='Weight', description='The node weight.', example='1'),
   XAttrs?: string(name='XAttrs', example='{"reponseMode":"streaming"}'),
 }
 
@@ -8846,108 +9134,75 @@ model UpdateJobShrinkRequest {
   appName?: string(name='AppName', description='The application name.
 
 This parameter is required.', example='test-app'),
-  attemptInterval?: int32(name='AttemptInterval', description='The interval in seconds between retry attempts.', example='3'),
+  attemptInterval?: int32(name='AttemptInterval', description='The retry interval upon node failure.', example='3'),
   calendar?: string(name='Calendar', description='The custom calendar.', example='workday'),
-  childJobId?: string(name='ChildJobId', description='The client blocking strategy.
-
-- 1: Serial execution
-
-- 2: Ignore later schedules
-
-- 3: Overwrite earlier schedules', example='1,2'),
+  childJobId?: string(name='ChildJobId', description='The child node IDs, separated by commas.', example='1,2'),
   clusterId?: string(name='ClusterId', description='The cluster ID.
 
 This parameter is required.', example='xxljob-b6ec1xxxx'),
-  dependentStrategy?: int32(name='DependentStrategy', example='1'),
-  description?: string(name='Description', description='The job description.', example='test'),
-  executorBlockStrategy?: int32(name='ExecutorBlockStrategy', description='Notification contact configuration', example='1'),
-  jobHandler?: string(name='JobHandler', description='The job handler name.', example='testJobVoidHandler'),
-  jobId?: long(name='JobId', description='The job ID.
+  dependentStrategy?: int32(name='DependentStrategy', description='The dependency strategy.', example='1'),
+  description?: string(name='Description', description='The node description.', example='test'),
+  executorBlockStrategy?: int32(name='ExecutorBlockStrategy', description='The client blocking strategy. Valid values:
+- 1: serial execution on a single machine
+- 2: ignore subsequent scheduling
+- 3: override previous scheduling', example='1'),
+  jobHandler?: string(name='JobHandler', description='The JobHandler name.', example='testJobVoidHandler'),
+  jobId?: long(name='JobId', description='The node ID.
 
 This parameter is required.', example='74'),
-  maxAttempt?: int32(name='MaxAttempt', description='The maximum number of retries for a failed job.', example='3'),
-  maxConcurrency?: int32(name='MaxConcurrency', description='The maximum number of concurrent job instances.
+  maxAttempt?: int32(name='MaxAttempt', description='The maximum number of retry attempts upon node failure.', example='3'),
+  maxConcurrency?: int32(name='MaxConcurrency', description='The maximum number of concurrent instances of the node.
+>The maximum number of instances that can run at the same time for the same node. A value of 1 indicates that repeated execution is not allowed. If the concurrency limit is exceeded, the current scheduling is skipped.', example='1'),
+  name?: string(name='Name', description='The node name.', example='test-job'),
+  noticeConfigShrink?: string(name='NoticeConfig', description='The notification configuration.'),
+  noticeContactsShrink?: string(name='NoticeContacts', description='The notification contact configuration.'),
+  parameters?: string(name='Parameters', description='The node parameters.', example='test'),
+  priority?: int32(name='Priority', description='The execution priority of the node. Valid values:
 
-> This parameter defines the maximum number of instances for a single job that can run concurrently. A value of `1` prevents duplicate execution. If this limit is exceeded, the scheduler skips the current job.', example='1'),
-  name?: string(name='Name', description='The job name.', example='test-job'),
-  noticeConfigShrink?: string(name='NoticeConfig', description='Time zone
+- 1: low
+- 5: medium
+- 10: high
+- 15: very high', example='10'),
+  routeStrategy?: int32(name='RouteStrategy', description='The routing policy. Valid values:
 
-> The default is the time zone of the SchedulerX server.'),
-  noticeContactsShrink?: string(name='NoticeContacts', description='Notification configuration'),
-  parameters?: string(name='Parameters', description='The job parameters.', example='test'),
-  priority?: int32(name='Priority', description='The job execution priority. Valid values:
+- 1: round robin
+- 2: random
+- 3: first
+- 4: last
+- 5: least frequently used
+- 6: least recently used
+- 7: consistent hashing
+- 8: shard broadcast', example='1'),
+  script?: string(name='Script', description='The script for non-BEAN nodes. Use this field to configure the script.', example='echo "hello world"'),
+  startTime?: long(name='StartTime', description='The scheduling start time.', example='1716902187'),
+  startTimeType?: string(name='StartTimeType', description='The start time type.', example='1'),
+  timeExpression?: string(name='TimeExpression', description='The time expression. Set the time expression based on the selected time type.
 
-- `1`: Low
-
-- `5`: Medium
-
-- `10`: High
-
-- `15`: Very High', example='10'),
-  routeStrategy?: int32(name='RouteStrategy', description='The routing strategy. Valid values:
-
-- `1`: round-robin
-
-- `2`: random
-
-- `3`: first
-
-- `4`: last
-
-- `5`: least frequently used
-
-- `6`: least recently used
-
-- `7`: consistent hashing
-
-- `8`: sharded broadcast', example='1'),
-  script?: string(name='Script', description='The script content for non-BEAN jobs.', example='echo "hello world"'),
-  startTime?: long(name='StartTime', description='The type of the start time.', example='1716902187'),
-  startTimeType?: string(name='StartTimeType', description='The task execution priority. The following values are supported:
-
-- 1: Low
-
-- 5: Medium
-
-- 10: High
-
-- 15: Very High', example='1'),
-  timeExpression?: string(name='TimeExpression', description='The time expression. The expression format depends on the `TimeType`.
-
-- `none`: Leave this parameter empty.
-
-- `cron`: Specify a standard cron expression. Online validation is supported.
-
-- `api`: Leave this parameter empty.
-
-- `fixed_rate`: An integer that represents a fixed interval in seconds. For example, `30` triggers the job every 30 seconds.
-
-- `one_time`: A single execution time, specified in the `yyyy-MM-dd HH:mm:ss` format or as a timestamp in milliseconds. For example, "2022-10-10 10:10:00".', example='0 0 4 ? * Mon/1'),
+- none: No value is required.
+- cron: Specify a standard cron expression. Online verification is supported.
+- api: No value is required.
+- fixed_rate: Specify a fixed frequency value in seconds. For example, 30 indicates that the node is triggered every 30 seconds.
+- one_time: Specify a scheduling time in the yyyy-MM-dd HH:mm:ss format or a timestamp in milliseconds. For example, "2022-10-10 10:10:00".', example='0 0 4 ? * Mon/1'),
   timeType?: int32(name='TimeType', description='The time type. Valid values:
 
-- `-1`: none
-
-- `1`: cron
-
-- `3`: fixed_rate
-
-- `5`: one_time
-
-- `100`: api', example='1'),
-  timezone?: string(name='Timezone', description='The start time of the schedule.', example='Hongkong'),
-  weight?: int32(name='Weight', description='The ID of the child job. Separate multiple IDs with a comma.', example='1'),
+- -1: none
+- 1: cron
+- 3: fix_rate
+- 5: one_time
+- 100: api', example='1'),
+  timezone?: string(name='Timezone', description='The time zone.
+> By default, the time zone of the SchedulerX server is used.', example='Hongkong'),
+  weight?: int32(name='Weight', description='The node weight.', example='1'),
   XAttrs?: string(name='XAttrs', example='{"reponseMode":"streaming"}'),
 }
 
 model UpdateJobResponseBody = {
   code?: int32(name='Code', description='The response code.', example='200'),
   message?: string(name='Message', description='The error message.', example='Parameter error: content is null.'),
-  requestId?: string(name='RequestId', description='The unique identifier for the request. Alibaba Cloud generates this ID to help you troubleshoot issues.', example='3808cf26-dde2-4286-8503-b0a2cd4065a7'),
-  success?: boolean(name='Success', description='Whether the request was successful. Valid values:
-
-- `true`: The request succeeded.
-
-- `false`: The request failed.', example='true'),
+  requestId?: string(name='RequestId', description='The request ID. Alibaba Cloud generates a unique identifier for each request. You can use the request ID to troubleshoot issues.', example='3808cf26-dde2-4286-8503-b0a2cd4065a7'),
+  success?: boolean(name='Success', description='Indicates whether the call was successful. Valid values:
+- true: The call was successful.
+- false: The call failed.', example='true'),
 }
 
 model UpdateJobResponse = {
@@ -8957,7 +9212,7 @@ model UpdateJobResponse = {
 }
 
 /**
- * @summary Update task details.
+ * @summary Updates node information.
  *
  * @param tmpReq UpdateJobRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -9070,7 +9325,7 @@ async function updateJobWithOptions(tmpReq: UpdateJobRequest, runtime: Util.Runt
 }
 
 /**
- * @summary Update task details.
+ * @summary Updates node information.
  *
  * @param request UpdateJobRequest
  * @return UpdateJobResponse
