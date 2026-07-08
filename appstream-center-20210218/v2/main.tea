@@ -9,8 +9,12 @@ extends OpenApi;
 
 init(config: OpenApiUtil.Config){
   super(config);
-  @endpointRule = '';
-  
+  @endpointRule = 'regional';
+  @endpointMap = {
+    'cn-shanghai' = 'appstream-center.cn-shanghai.aliyuncs.com',
+    'ap-southeast-1' = 'appstream-center.ap-southeast-1.aliyuncs.com',
+  };
+
   checkConfig(config);
   @endpoint = getEndpoint('appstream-center', @regionId, @endpointRule, @network, @suffix, @endpointMap, @endpoint);
 }
@@ -27,14 +31,20 @@ function getEndpoint(productId: string, regionId: string, endpointRule: string, 
 }
 
 model ExpireLoginTokenRequest {
-  endUserId?: string(name='EndUserId', description='This parameter is required.', example='testuser'),
-  loginToken?: string(name='LoginToken', description='This parameter is required.', example='v185fdd7f6d39fa7861981639366085772e150a390a5bb7b43c4e62440d94fc392b945770e1596cebe90085ce0af4d****'),
-  officeSiteId?: string(name='OfficeSiteId', example='cn-beijing+dir-172301****'),
-  sessionId?: string(name='SessionId', description='This parameter is required.', example='a863f4c3-2f1d-4971-8cf7-e2b92ae9****'),
+  endUserId?: string(name='EndUserId', description='The logon username.
+
+This parameter is required.', example='testuser'),
+  loginToken?: string(name='LoginToken', description='The logon token.
+
+This parameter is required.', example='v185fdd7f6d39fa7861981639366085772e150a390a5bb7b43c4e62440d94fc392b945770e1596cebe90085ce0af4d****'),
+  officeSiteId?: string(name='OfficeSiteId', description='The ID of the workspace. This parameter is required if you log on using a workspace ID. You can leave this parameter empty if you log on using an organization ID.', example='cn-beijing+dir-172301****'),
+  sessionId?: string(name='SessionId', description='The ID of the logon session.
+
+This parameter is required.', example='a863f4c3-2f1d-4971-8cf7-e2b92ae9****'),
 }
 
 model ExpireLoginTokenResponseBody = {
-  requestId?: string(name='RequestId', example='1CBAFFAB-B697-4049-A9B1-67E1FC5F****'),
+  requestId?: string(name='RequestId', description='The ID of the request.', example='1CBAFFAB-B697-4049-A9B1-67E1FC5F****'),
 }
 
 model ExpireLoginTokenResponse = {
@@ -44,7 +54,7 @@ model ExpireLoginTokenResponse = {
 }
 
 /**
- * @summary Manually invalidates a logon token.
+ * @summary Manually expires a logon token before its automatic expiration.
  *
  * @param request ExpireLoginTokenRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -84,7 +94,7 @@ async function expireLoginTokenWithOptions(request: ExpireLoginTokenRequest, run
 }
 
 /**
- * @summary Manually invalidates a logon token.
+ * @summary Manually expires a logon token before its automatic expiration.
  *
  * @param request ExpireLoginTokenRequest
  * @return ExpireLoginTokenResponse
@@ -95,10 +105,30 @@ async function expireLoginToken(request: ExpireLoginTokenRequest): ExpireLoginTo
 }
 
 model GetAuthCodeRequest {
-  autoCreateUser?: boolean(name='AutoCreateUser'),
-  endUserId?: string(name='EndUserId', example='alice'),
-  externalUserId?: string(name='ExternalUserId', example='alice'),
-  policy?: string(name='Policy', example='{
+  accountType?: string(name='AccountType'),
+  adDomain?: string(name='AdDomain'),
+  autoCreateUser?: boolean(name='AutoCreateUser', description='Specifies whether to synchronously create an EndUserId based on `ExternalUserId`. This parameter takes effect only when `EndUserId` is empty.', example='false'),
+  endUserId?: string(name='EndUserId', description='The username of the China Desktop Service (China Desktop Service) convenience account, which is unique within an Alibaba Cloud account. This parameter and `ExternalUserId` cannot both be empty.', example='alice'),
+  externalUserId?: string(name='ExternalUserId', description='The external user ID. This ID is defined by the caller and must be unique within an Alibaba Cloud account. This parameter and `EndUserId` cannot both be empty.', example='alice'),
+  policy?: string(name='Policy', description='The access policy that restricts the access permissions of the authorization code. An empty value indicates no restrictions.
+
+Syntax:
+
+```json
+{
+      "Version": "1",
+      "Resource": {
+            "Type": "<Resource type>",
+            "Id": "<Resource ID>"
+      }
+}
+```
+
+Valid values of <Resource type>:
+
+- AppInstanceGroup: delivery group. You can call the ListAppInstanceGroup operation to obtain the ID.
+- AppInstance: application instance (dedicated field).
+- App: application. You can call the ListAppInstanceGroup operation to obtain the ID.', example='{
       "Version": "1",
       "Resource": {
             "Type": "AppInstanceGroup",
@@ -110,11 +140,11 @@ model GetAuthCodeRequest {
 
 model GetAuthCodeResponseBody = {
   authModel?: {
-    authCode?: string(name='AuthCode', example='acv2ZEq2TNSqOlX+DvyetHGRT08iPhbWg/os1W4HojpBxkMQZkAnbKSfz/wNvS0E149IQZ5TogvBUE8ghCSVV+QBnv48Y+sn4z9fY5ywZA1peI5s4TplQI0TADBhPZXEIzMOdmbNsDGGlGcKOAq8ixd1Epzdu9XfvRzdLOO6o3zQwTZxXsjOgGBW8JTcgCP9W9iYiIjHIdZ2VCAnmMzuyVkyED8gymEevH10QoclyH/O3s8Yq6VF34gMXihDQeiI8PyiAZrW0JWXSWpdy3n4yGtAqMAgv46FzTA+XJ6C********'),
-    endUserId?: string(name='EndUserId', example='alice'),
-    expireTime?: string(name='ExpireTime', example='2015-01-23T12:33:18Z'),
-  }(name='AuthModel'),
-  requestId?: string(name='RequestId', example='1CBAFFAB-B697-4049-A9B1-67E1FC5F****'),
+    authCode?: string(name='AuthCode', description='The authorization code. The authorization code is valid for 3 minutes and can be used only once regardless of whether the verification succeeds or fails. When multiple authorization codes are generated for a user, only the last generated code is valid.', example='acv2ZEq2TNSqOlX+DvyetHGRT08iPhbWg/os1W4HojpBxkMQZkAnbKSfz/wNvS0E149IQZ5TogvBUE8ghCSVV+QBnv48Y+sn4z9fY5ywZA1peI5s4TplQI0TADBhPZXEIzMOdmbNsDGGlGcKOAq8ixd1Epzdu9XfvRzdLOO6o3zQwTZxXsjOgGBW8JTcgCP9W9iYiIjHIdZ2VCAnmMzuyVkyED8gymEevH10QoclyH/O3s8Yq6VF34gMXihDQeiI8PyiAZrW0JWXSWpdy3n4yGtAqMAgv46FzTA+XJ6C********'),
+    endUserId?: string(name='EndUserId', description='The username of the China Desktop Service convenience account.', example='alice'),
+    expireTime?: string(name='ExpireTime', description='The expiration time of the authorization code in UTC, following the ISO 8601 standard.', example='2015-01-23T12:33:18Z'),
+  }(name='AuthModel', description='The authorization code information.'),
+  requestId?: string(name='RequestId', description='The request ID.', example='1CBAFFAB-B697-4049-A9B1-67E1FC5F****'),
 }
 
 model GetAuthCodeResponse = {
@@ -124,7 +154,7 @@ model GetAuthCodeResponse = {
 }
 
 /**
- * @summary Obtains an authorization code that includes the identity and permission information of a user. You can use the code to launch cloud apps in integration scenarios.
+ * @summary Obtains an authorization code that contains user identity and permission information. The authorization code can be used to launch a cloud application in integration scenarios.
  *
  * @param request GetAuthCodeRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -138,6 +168,12 @@ async function getAuthCodeWithOptions(request: GetAuthCodeRequest, runtime: $Run
     query['TokenType'] = request.tokenType;
   }
   var body : map[string]any = {};
+  if (!$isNull(request.accountType)) {
+    body['AccountType'] = request.accountType;
+  }
+  if (!$isNull(request.adDomain)) {
+    body['AdDomain'] = request.adDomain;
+  }
   if (!$isNull(request.autoCreateUser)) {
     body['AutoCreateUser'] = request.autoCreateUser;
   }
@@ -169,7 +205,7 @@ async function getAuthCodeWithOptions(request: GetAuthCodeRequest, runtime: $Run
 }
 
 /**
- * @summary Obtains an authorization code that includes the identity and permission information of a user. You can use the code to launch cloud apps in integration scenarios.
+ * @summary Obtains an authorization code that contains user identity and permission information. The authorization code can be used to launch a cloud application in integration scenarios.
  *
  * @param request GetAuthCodeRequest
  * @return GetAuthCodeResponse
@@ -180,19 +216,21 @@ async function getAuthCode(request: GetAuthCodeRequest): GetAuthCodeResponse {
 }
 
 model GetStsTokenRequest {
-  endUserId?: string(name='EndUserId', example='Alex'),
-  expiration?: long(name='Expiration', example='600'),
-  externalId?: string(name='ExternalId', example='Alex'),
+  endUserId?: string(name='EndUserId', description='The Elastic Desktop Service (EDS) username.
+
+> Either EndUserId or ExternalId is required.', example='Alex'),
+  expiration?: long(name='Expiration', description='The validity period of the token, in seconds. The maximum period is two days.', example='600'),
+  externalId?: string(name='ExternalId', description='The ID of the external user.', example='Alex'),
 }
 
 model GetStsTokenResponseBody = {
-  requestId?: string(name='RequestId', example='CCF92035-6231-5ABB-930E-1E003C32****'),
+  requestId?: string(name='RequestId', description='The request ID.', example='CCF92035-6231-5ABB-930E-1E003C32****'),
   stsTokenModel?: {
-    aliUid?: long(name='AliUid', example='105552640689****'),
-    sessionId?: string(name='SessionId', example='be4be09e-cd00-4b4c-add7-11b4d8****'),
-    stsToken?: string(name='StsToken', example='sts****'),
-    tenantId?: long(name='TenantId', example='105552640689****'),
-  }(name='StsTokenModel'),
+    aliUid?: long(name='AliUid', description='The tenant ID, which is the UID of the Alibaba Cloud account.', example='105552640689****'),
+    sessionId?: string(name='SessionId', description='The session ID.', example='be4be09e-cd00-4b4c-add7-11b4d8****'),
+    stsToken?: string(name='StsToken', description='The temporary credentials.', example='sts****'),
+    tenantId?: long(name='TenantId', description='The tenant ID, which is the UID of the Alibaba Cloud account.', example='105552640689****'),
+  }(name='StsTokenModel', description='The details of the token.'),
 }
 
 model GetStsTokenResponse = {
@@ -202,7 +240,7 @@ model GetStsTokenResponse = {
 }
 
 /**
- * @summary 获取stsToken
+ * @summary Gets a Security Token Service (STS) token.
  *
  * @param request GetStsTokenRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -239,7 +277,7 @@ async function getStsTokenWithOptions(request: GetStsTokenRequest, runtime: $Run
 }
 
 /**
- * @summary 获取stsToken
+ * @summary Gets a Security Token Service (STS) token.
  *
  * @param request GetStsTokenRequest
  * @return GetStsTokenResponse
