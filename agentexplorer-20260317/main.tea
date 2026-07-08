@@ -11,8 +11,12 @@ extends OpenApi;
 
 init(config: OpenApi.Config){
   super(config);
-  @endpointRule = '';
-  
+  @endpointRule = 'regional';
+  @endpointMap = {
+    'public' = 'agentexplorer.aliyuncs.com',
+    'cn-hangzhou' = 'agentexplorer.aliyuncs.com',
+  };
+
   checkConfig(config);
   @endpoint = getEndpoint('agentexplorer', @regionId, @endpointRule, @network, @suffix, @endpointMap, @endpoint);
 }
@@ -31,33 +35,38 @@ function getEndpoint(productId: string, regionId: string, endpointRule: string, 
 model Category {
   children?: [ 
     {
-      code?: string(name='code', example='ecs'),
-      name?: string(name='name'),
+      code?: string(name='code', description='Level 2 Category Code', example='ecs'),
+      name?: string(name='name', description='Level 2 Category Name', example='弹性计算'),
     }
-  ](name='children'),
-  code?: string(name='code', example='compute'),
-  name?: string(name='name'),
+  ](name='children', description='Sub-categories'),
+  code?: string(name='code', description='Level 1 Category Code', example='compute'),
+  name?: string(name='name', description='Level 1 Category Name', example='计算'),
 }
 
 model Skill {
-  categoryCode?: string(name='categoryCode', example='compute'),
-  categoryName?: string(name='categoryName'),
-  createdAt?: string(name='createdAt', example='2026-01-01T00:00:00Z'),
-  description?: string(name='description'),
-  displayName?: string(name='displayName'),
-  installCount?: int32(name='installCount', example='1024'),
-  likeCount?: int32(name='likeCount', example='128'),
-  skillName?: string(name='skillName', example='deploy-to-vercel'),
-  subCategoryCode?: string(name='subCategoryCode', example='ecs'),
-  subCategoryName?: string(name='subCategoryName'),
-  updatedAt?: string(name='updatedAt', example='2026-03-17T00:00:00Z'),
+  categoryCode?: string(name='categoryCode', description='The primary category code.', example='compute'),
+  categoryName?: string(name='categoryName', description='The primary category name.', example='计算'),
+  categoryNameEn?: string(name='categoryNameEn'),
+  createdAt?: string(name='createdAt', description='The time when the Agent Skill was created.', example='2026-01-01T00:00:00Z'),
+  description?: string(name='description', description='The description of the Agent Skill.', example='ECS 实例管理'),
+  descriptionEn?: string(name='descriptionEn'),
+  displayName?: string(name='displayName', description='The display name of the Agent Skill.', example='ECS 实例管理'),
+  githubPath?: string(name='githubPath'),
+  installCount?: int32(name='installCount', description='The number of installations.', example='1024'),
+  likeCount?: int32(name='likeCount', description='The number of likes.', example='128'),
+  nameEn?: string(name='nameEn'),
+  skillName?: string(name='skillName', description='The English name of the Agent Skill, which serves as a unique identifier.', example='deploy-to-vercel'),
+  subCategoryCode?: string(name='subCategoryCode', description='The secondary category code.', example='ecs'),
+  subCategoryName?: string(name='subCategoryName', description='The secondary category name.', example='弹性计算'),
+  subCategoryNameEn?: string(name='subCategoryNameEn'),
+  updatedAt?: string(name='updatedAt', description='The time when the Agent Skill was last updated.', example='2026-03-17T00:00:00Z'),
 }
 
 model GetSkillContentRequest {
 }
 
 model GetSkillContentResponseBody = {
-  content?: string(name='content', example='---
+  content?: string(name='content', description='SKILL.md file content', example='---
 name: alibabacloud-find-skills
 description: "Search for official Alibaba Cloud Agent Skills based on user requirements"
 ---
@@ -73,7 +82,7 @@ model GetSkillContentResponse = {
 }
 
 /**
- * @summary 获取阿里云 Agent Skill 内容
+ * @summary Get the SKILL.md file content of the specified Agent Skill
  *
  * @param request GetSkillContentRequest
  * @param headers map
@@ -100,7 +109,7 @@ async function getSkillContentWithOptions(skillName: string, request: GetSkillCo
 }
 
 /**
- * @summary 获取阿里云 Agent Skill 内容
+ * @summary Get the SKILL.md file content of the specified Agent Skill
  *
  * @param request GetSkillContentRequest
  * @return GetSkillContentResponse
@@ -117,9 +126,9 @@ model ListCategoriesRequest {
 model ListCategoriesResponseBody = {
   data?: [
     Category
-  ](name='data'),
-  message?: string(name='message', example='success'),
-  requestId?: string(name='requestId', example='099A671E-FA21-5A36-8A73-918572DDEF53'),
+  ](name='data', description='The returned category list'),
+  message?: string(name='message', description='Response message', example='success'),
+  requestId?: string(name='requestId', description='request ID', example='099A671E-FA21-5A36-8A73-918572DDEF53'),
 }
 
 model ListCategoriesResponse = {
@@ -129,7 +138,7 @@ model ListCategoriesResponse = {
 }
 
 /**
- * @summary 列举所有的阿里云 Skills 类目
+ * @summary List all Alibaba Cloud Skills categories.
  *
  * @param request ListCategoriesRequest
  * @param headers map
@@ -156,7 +165,7 @@ async function listCategoriesWithOptions(request: ListCategoriesRequest, headers
 }
 
 /**
- * @summary 列举所有的阿里云 Skills 类目
+ * @summary List all Alibaba Cloud Skills categories.
  *
  * @param request ListCategoriesRequest
  * @return ListCategoriesResponse
@@ -168,21 +177,22 @@ async function listCategories(request: ListCategoriesRequest): ListCategoriesRes
 }
 
 model SearchSkillsRequest {
-  categoryCode?: string(name='categoryCode', example='compute.serverless,network'),
-  keyword?: string(name='keyword', example='ecs'),
-  maxResults?: int32(name='maxResults', example='20'),
-  nextToken?: string(name='nextToken', example='AAAAAZjtYxxxxxxxx'),
-  skip?: int32(name='skip', example='10'),
+  categoryCode?: string(name='categoryCode', description='The skill category code. Separate multiple codes with commas. For a second-level category, use the format: first-level category.second-level category.', example='compute.serverless,network'),
+  keyword?: string(name='keyword', description='The search keyword.', example='ecs'),
+  maxResults?: int32(name='maxResults', description='The maximum number of entries per page for a paged query. Maximum value: 100. Default value: 20.', example='20'),
+  nextToken?: string(name='nextToken', description='The token for the next query. Set this to the NextToken value returned by the previous API call.', example='AAAAAZjtYxxxxxxxx'),
+  searchMode?: string(name='searchMode'),
+  skip?: int32(name='skip', description='The number of entries to skip for pagination.', example='10'),
 }
 
 model SearchSkillsResponseBody = {
   data?: [
     Skill
-  ](name='data'),
-  maxResults?: int32(name='maxResults', example='20'),
-  nextToken?: string(name='nextToken', example='AAAAAZjtYxxxxxxxx'),
+  ](name='data', description='The list of skills returned.'),
+  maxResults?: int32(name='maxResults', description='The maximum number of entries per page for a paged query. Maximum value: 100. Default value: 20.', example='20'),
+  nextToken?: string(name='nextToken', description='The NextToken value, which is used to retrieve more results.', example='AAAAAZjtYxxxxxxxx'),
   requestId?: string(name='requestId', description='Id of the request', example='53EAEBC0-4DEC-5AF4-AA21-3923D5A819C3'),
-  totalCount?: int32(name='totalCount', example='22'),
+  totalCount?: int32(name='totalCount', description='The total number of records.', example='22'),
 }
 
 model SearchSkillsResponse = {
@@ -192,7 +202,7 @@ model SearchSkillsResponse = {
 }
 
 /**
- * @summary 通过关键词、类目搜索阿里云 Agent Skills
+ * @summary Searches for Alibaba Cloud Agent Skills by keyword or category.
  *
  * @param request SearchSkillsRequest
  * @param headers map
@@ -213,6 +223,9 @@ async function searchSkillsWithOptions(request: SearchSkillsRequest, headers: ma
   }
   if (!Util.isUnset(request.nextToken)) {
     query['nextToken'] = request.nextToken;
+  }
+  if (!Util.isUnset(request.searchMode)) {
+    query['searchMode'] = request.searchMode;
   }
   if (!Util.isUnset(request.skip)) {
     query['skip'] = request.skip;
@@ -237,7 +250,7 @@ async function searchSkillsWithOptions(request: SearchSkillsRequest, headers: ma
 }
 
 /**
- * @summary 通过关键词、类目搜索阿里云 Agent Skills
+ * @summary Searches for Alibaba Cloud Agent Skills by keyword or category.
  *
  * @param request SearchSkillsRequest
  * @return SearchSkillsResponse
