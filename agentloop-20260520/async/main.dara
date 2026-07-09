@@ -24,10 +24,14 @@ init(configuration: ClientConfiguration){
   @endpointRule = 'regional';
   @endpointMap = {
     'cn-zhangjiakou' = 'agentloop.cn-zhangjiakou.aliyuncs.com',
+    'cn-shenzhen' = 'agentloop.cn-shenzhen.aliyuncs.com',
     'cn-shanghai' = 'agentloop.cn-shanghai.aliyuncs.com',
     'cn-hongkong' = 'agentloop.cn-hongkong.aliyuncs.com',
     'cn-hangzhou' = 'agentloop.cn-hangzhou.aliyuncs.com',
+    'cn-guangzhou' = 'agentloop.cn-guangzhou.aliyuncs.com',
+    'cn-chengdu' = 'agentloop.cn-chengdu.aliyuncs.com',
     'cn-beijing' = 'agentloop.cn-beijing.aliyuncs.com',
+    'ap-southeast-1' = 'agentloop.ap-southeast-1.aliyuncs.com',
   };
 }
 
@@ -38,7 +42,6 @@ function close(): void {
 model BackfillStrategy {
   enabled?: boolean(name='enabled'),
   endTime?: long(name='endTime'),
-  immediate?: boolean(name='immediate'),
   startTime?: long(name='startTime'),
 }
 
@@ -49,6 +52,19 @@ model BatchGroup {
   ](name='records'),
 }
 
+model ConnectorProperties {
+  channelType?: string(name='channelType'),
+  dryRunRequestBody?: string(name='dryRunRequestBody'),
+  modelList?: string(name='modelList'),
+  network?: string(name='network'),
+  protocol?: string(name='protocol'),
+  region?: string(name='region'),
+  responseBodyPath?: string(name='responseBodyPath'),
+  securityGroupId?: string(name='securityGroupId'),
+  vSwitchId?: string(name='vSwitchId'),
+  vpcId?: string(name='vpcId'),
+}
+
 model ContinuousStrategy {
   dataDelayMinutes?: int32(name='dataDelayMinutes'),
   enabled?: boolean(name='enabled'),
@@ -57,12 +73,10 @@ model ContinuousStrategy {
 }
 
 model DataFilter {
-  endTime?: long(name='endTime'),
   maxRecords?: int32(name='maxRecords'),
   provided?: map[string]any(name='provided'),
   query?: string(name='query'),
   samplingRate?: int32(name='samplingRate'),
-  startTime?: long(name='startTime'),
 }
 
 model Evaluator {
@@ -95,33 +109,38 @@ model ExperimentPlanData {
   datasetId?: string(name='datasetId'),
   description?: string(name='description'),
   experimentCount?: int32(name='experimentCount'),
+  experimentType?: string(name='experimentType'),
   planId?: string(name='planId'),
   planName?: string(name='planName'),
+  querySql?: string(name='querySql'),
   status?: string(name='status'),
   updatedAt?: long(name='updatedAt'),
 }
 
 model ExperimentRecord {
-  batchId?: string(name='batchId'),
   completedAt?: long(name='completedAt'),
   completedTasks?: int32(name='completedTasks'),
   dataSourceType?: string(name='dataSourceType'),
   datasetId?: string(name='datasetId'),
   datasetProject?: string(name='datasetProject'),
   errorMessage?: string(name='errorMessage'),
+  evaluationTaskId?: string(name='evaluationTaskId'),
   evaluators?: [
     Evaluator
   ](name='evaluators'),
   executedAt?: long(name='executedAt'),
-  experimentConfig?: ExperimentConfig(name='experimentConfig'),
-  experimentName?: string(name='experimentName'),
+  experimentConfig?: [
+    ExperimentConfig
+  ](name='experimentConfig'),
+  experimentPlanId?: string(name='experimentPlanId'),
   failedTasks?: int32(name='failedTasks'),
   input?: map[string]any(name='input'),
-  modelName?: string(name='modelName'),
-  planId?: string(name='planId'),
+  modelNames?: [ string ](name='modelNames'),
   planName?: string(name='planName'),
   progress?: float(name='progress'),
+  querySql?: string(name='querySql'),
   recordId?: string(name='recordId'),
+  recordName?: string(name='recordName'),
   selectedItemIds?: [ string ](name='selectedItemIds'),
   status?: string(name='status'),
   totalTasks?: int32(name='totalTasks'),
@@ -147,6 +166,12 @@ model ModelParameters {
   temperature?: float(name='temperature'),
   topK?: int32(name='topK'),
   topP?: float(name='topP'),
+}
+
+model OfflineExperimentConfig {
+  desc?: string(name='desc'),
+  label?: string(name='label'),
+  name?: string(name='name'),
 }
 
 model PromptTemplateItem {
@@ -186,10 +211,40 @@ async function addDatasetData(request: AddDatasetDataRequest): AddDatasetDataRes
   return @handler.do('RESTFUL', 'AddDatasetData', 'POST', '/agentspace/{agentSpace}/dataset/{datasetName}/rows', 'json', false, 'json', request);
 }
 
+model CancelPipelineRunRequest {
+  agentSpace?: string(name='agentSpace', example='my-agent-space', position='Path'),
+  pipelineName?: string(name='pipelineName', example='my-pipeline', position='Path'),
+  runId?: string(name='runId', example='run-20260101-0001', position='Path'),
+}
+
+model CancelPipelineRunResponseBody = {
+  finishTime?: string(name='finishTime', description='Use the UTC time format: yyyy-MM-ddTHH:mm:ss.SSSZ', example='2026-01-01T00:00:05.000Z'),
+  requestId?: string(name='requestId', example='9ACFB10A-1B2C-3D4E-5F6G-7H8I9J0K1L2M'),
+  runId?: string(name='runId', example='run-20260101-0001'),
+  status?: string(name='status', example='Cancelled'),
+}
+
+model CancelPipelineRunResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: CancelPipelineRunResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of CancelPipelineRun  CancelPipelineRunRequest
+  * @return CancelPipelineRunResponse
+ */
+async function cancelPipelineRun(request: CancelPipelineRunRequest): CancelPipelineRunResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'CancelPipelineRun', 'POST', '/agentspace/{agentSpace}/pipeline/{pipelineName}/runs/{runId}/cancel', 'json', false, 'json', request);
+}
+
 model CreateAgentSpaceRequest {
+  regionId?: string(name='RegionId', position='Host'),
   agentSpace: string(name='agentSpace', description='This parameter is required.', example='test-agent-space', minLength=2, maxLength=64, position='Body'),
   cmsWorkspace?: string(name='cmsWorkspace', example='test-cms-workspace', position='Body'),
   description?: string(name='description', example='test', position='Body'),
+  trajectoryStoreEnabled?: boolean(name='trajectoryStoreEnabled', position='Body'),
   clientToken?: string(name='clientToken', example='a1b2c3d4-1234-5678-90ab-cdef12345678', position='Query'),
 }
 
@@ -303,6 +358,117 @@ async function createDataset(request: CreateDatasetRequest): CreateDatasetRespon
   return @handler.do('RESTFUL', 'CreateDataset', 'POST', '/agentspace/{agentSpace}/dataset', 'json', false, 'json', request);
 }
 
+model CreateEvaluationTaskRequest {
+  agentSpace?: string(name='agentSpace', example='prod-agentspace', position='Path'),
+  channel?: string(name='channel', example='default', position='Body'),
+  config?: map[string]string(name='config', example='{"dataScope":"trace"}', position='Body'),
+  dataFilter?: string(name='dataFilter', example='{"query":"serviceName=\\"checkout-service\\"","maxRecords":10,"samplingRate":100}', position='Body'),
+  dataType?: string(name='dataType', example='trace', position='Body'),
+  description?: string(name='description', position='Body'),
+  evaluators?: [
+    Evaluator
+  ](name='evaluators', example='[{"evaluatorRef":"Builtin.agent_task_completion","resultName":"agent_task_completion","resultType":"score","variableMapping":{"input":"trace.input","output":"trace.output","agent_trajectory":"trace.agent_trajectory"}}]', position='Body'),
+  runStrategies?: RunStrategies(name='runStrategies', position='Body'),
+  tags?: map[string]string(name='tags', example='{"env":"prod","serviceId":"checkout-service","planId":"plan-20260703"}', position='Body'),
+  taskMode?: string(name='taskMode', example='batch', position='Body'),
+  taskName?: string(name='taskName', example='trace_task_completion_eval', position='Body'),
+  clientToken?: string(name='clientToken', example='a1b2c3d4-1234-5678-90ab-cdef12345678', position='Query'),
+}
+
+model CreateEvaluationTaskResponseBody = {
+  requestId?: string(name='requestId', example='3FE4CD1E-FF41-56BE-B590-7A021D9C1524'),
+  status?: string(name='status', example='Pending'),
+  taskId?: string(name='taskId', example='eval-task-8b36f2e2b1f94f9c91ce7a4b0f6d9c25'),
+}
+
+model CreateEvaluationTaskResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: CreateEvaluationTaskResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of CreateEvaluationTask  CreateEvaluationTaskRequest
+  * @return CreateEvaluationTaskResponse
+ */
+async function createEvaluationTask(request: CreateEvaluationTaskRequest): CreateEvaluationTaskResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'CreateEvaluationTask', 'POST', '/api/v1/evaluation-task/{agentSpace}', 'json', false, 'json', request);
+}
+
+model CreateEvaluatorRequest {
+  agentSpace: string(name='agentSpace', description='This parameter is required.', example='prod-agentspace', position='Path'),
+  annotations?: [ string ](name='annotations', example='["__en"]', position='Body'),
+  config?: map[string]any(name='config', position='Body'),
+  description?: string(name='description', position='Body'),
+  displayName?: string(name='displayName', position='Body'),
+  metricName: string(name='metricName', description='This parameter is required.', example='agent_task_completion', position='Body'),
+  name: string(name='name', description='This parameter is required.', example='trace_task_completion', position='Body'),
+  properties?: map[string]any(name='properties', example='{"agentEvaluatorMode":"raw_prompt"}', position='Body'),
+  type: string(name='type', description='This parameter is required.', example='AGENT', position='Body'),
+  version: string(name='version', description='This parameter is required.', example='1.0.0', position='Body'),
+  versionDescription?: string(name='versionDescription', position='Body'),
+  clientToken?: string(name='clientToken', example='a1b2c3d4-1234-5678-90ab-cdef12345678', position='Query'),
+}
+
+model CreateEvaluatorResponseBody = {
+  name?: string(name='name', example='trace_task_completion'),
+  requestId?: string(name='requestId', example='3FE4CD1E-FF41-56BE-B590-7A021D9C1524'),
+  version?: string(name='version', example='1.0.0'),
+}
+
+model CreateEvaluatorResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: CreateEvaluatorResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of CreateEvaluator  CreateEvaluatorRequest
+  * @return CreateEvaluatorResponse
+ */
+async function createEvaluator(request: CreateEvaluatorRequest): CreateEvaluatorResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'CreateEvaluator', 'POST', '/api/v1/evaluators/{agentSpace}', 'json', false, 'json', request);
+}
+
+model CreateEvaluatorSkillRequest {
+  name: string(name='name', description='This parameter is required.', example='trace_task_completion', position='Path'),
+  agentSpace: string(name='agentSpace', description='This parameter is required.', example='prod-agentspace', position='Query'),
+  description?: string(name='description', position='Body'),
+  displayName?: string(name='displayName', position='Body'),
+  enable?: boolean(name='enable', example='true', position='Body'),
+  files: [ 
+    {
+      content: string(name='content', description='This parameter is required.', example='# Trace Context Loader'),
+      name: string(name='name', description='This parameter is required.', example='SKILL.md'),
+      remark?: string(name='remark'),
+    }
+  ](name='files', description='This parameter is required.', position='Body'),
+  skillName: string(name='skillName', description='This parameter is required.', example='trace_context_loader', position='Body'),
+  clientToken?: string(name='clientToken', example='a1b2c3d4-1234-5678-90ab-cdef12345678', position='Query'),
+}
+
+model CreateEvaluatorSkillResponseBody = {
+  requestId?: string(name='requestId', example='3FE4CD1E-FF41-56BE-B590-7A021D9C1524'),
+  skillName?: string(name='skillName', example='trace_context_loader'),
+}
+
+model CreateEvaluatorSkillResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: CreateEvaluatorSkillResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of CreateEvaluatorSkill  CreateEvaluatorSkillRequest
+  * @return CreateEvaluatorSkillResponse
+ */
+async function createEvaluatorSkill(request: CreateEvaluatorSkillRequest): CreateEvaluatorSkillResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'CreateEvaluatorSkill', 'POST', '/api/v1/evaluator/{name}/skill', 'json', false, 'json', request);
+}
+
 model DeleteAgentSpaceRequest {
   agentSpace: string(name='agentSpace', description='This parameter is required.', example='test-agent-space', minLength=2, maxLength=64, position='Path'),
   deleteCmsWorkspace?: boolean(name='deleteCmsWorkspace', position='Query'),
@@ -402,6 +568,105 @@ async function deleteDataset(request: DeleteDatasetRequest): DeleteDatasetRespon
   return @handler.do('RESTFUL', 'DeleteDataset', 'DELETE', '/agentspace/{agentSpace}/dataset/{datasetName}', 'json', false, 'json', request);
 }
 
+model DeleteEvaluationRunRequest {
+  agentSpace?: string(name='agentSpace', example='prod-agentspace', position='Path'),
+  taskId?: string(name='taskId', example='eval-task-8b36f2e2b1f94f9c91ce7a4b0f6d9c25', position='Path'),
+  runId?: string(name='runId', example='eval-run-4fd47f3d7e684e15b1d3d178c6a5b81a', position='Path'),
+}
+
+model DeleteEvaluationRunResponseBody = {
+  requestId?: string(name='requestId', example='3FE4CD1E-FF41-56BE-B590-7A021D9C1524'),
+}
+
+model DeleteEvaluationRunResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: DeleteEvaluationRunResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of DeleteEvaluationRun  DeleteEvaluationRunRequest
+  * @return DeleteEvaluationRunResponse
+ */
+async function deleteEvaluationRun(request: DeleteEvaluationRunRequest): DeleteEvaluationRunResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'DeleteEvaluationRun', 'DELETE', '/api/v1/evaluation-task/{agentSpace}/{taskId}/run/{runId}', 'json', false, 'json', request);
+}
+
+model DeleteEvaluationTaskRequest {
+  agentSpace?: string(name='agentSpace', example='prod-agentspace', position='Path'),
+  taskId?: string(name='taskId', example='eval-task-8b36f2e2b1f94f9c91ce7a4b0f6d9c25', position='Path'),
+}
+
+model DeleteEvaluationTaskResponseBody = {
+  requestId?: string(name='requestId', example='3FE4CD1E-FF41-56BE-B590-7A021D9C1524'),
+}
+
+model DeleteEvaluationTaskResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: DeleteEvaluationTaskResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of DeleteEvaluationTask  DeleteEvaluationTaskRequest
+  * @return DeleteEvaluationTaskResponse
+ */
+async function deleteEvaluationTask(request: DeleteEvaluationTaskRequest): DeleteEvaluationTaskResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'DeleteEvaluationTask', 'DELETE', '/api/v1/evaluation-task/{agentSpace}/{taskId}', 'json', false, 'json', request);
+}
+
+model DeleteEvaluatorRequest {
+  agentSpace: string(name='agentSpace', description='This parameter is required.', example='prod-agentspace', position='Path'),
+  name: string(name='name', description='This parameter is required.', example='trace_task_completion', position='Path'),
+  version?: string(name='version', example='1.0.0', position='Query'),
+}
+
+model DeleteEvaluatorResponseBody = {
+  requestId?: string(name='requestId', example='3FE4CD1E-FF41-56BE-B590-7A021D9C1524'),
+}
+
+model DeleteEvaluatorResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: DeleteEvaluatorResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of DeleteEvaluator  DeleteEvaluatorRequest
+  * @return DeleteEvaluatorResponse
+ */
+async function deleteEvaluator(request: DeleteEvaluatorRequest): DeleteEvaluatorResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'DeleteEvaluator', 'DELETE', '/api/v1/evaluators/{agentSpace}/{name}', 'json', false, 'json', request);
+}
+
+model DeleteEvaluatorSkillRequest {
+  name: string(name='name', description='This parameter is required.', example='trace_task_completion', position='Path'),
+  skillName: string(name='skillName', description='This parameter is required.', example='trace_context_loader', position='Path'),
+  agentSpace: string(name='agentSpace', description='This parameter is required.', example='prod-agentspace', position='Query'),
+}
+
+model DeleteEvaluatorSkillResponseBody = {
+  requestId?: string(name='requestId', example='3FE4CD1E-FF41-56BE-B590-7A021D9C1524'),
+}
+
+model DeleteEvaluatorSkillResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: DeleteEvaluatorSkillResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of DeleteEvaluatorSkill  DeleteEvaluatorSkillRequest
+  * @return DeleteEvaluatorSkillResponse
+ */
+async function deleteEvaluatorSkill(request: DeleteEvaluatorSkillRequest): DeleteEvaluatorSkillResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'DeleteEvaluatorSkill', 'DELETE', '/api/v1/evaluator/{name}/skill/{skillName}', 'json', false, 'json', request);
+}
+
 model DeletePipelineRequest {
   agentSpace?: string(name='agentSpace', example='my-agent-space', position='Path'),
   pipelineName?: string(name='pipelineName', example='my-pipeline', position='Path'),
@@ -464,7 +729,12 @@ async function describeRegions(request: DescribeRegionsRequest): DescribeRegions
 model ExecuteQueryRequest {
   agentSpace: string(name='agentSpace', description='This parameter is required.', example='sop-agent', minLength=2, maxLength=64, position='Path'),
   datasetName: string(name='datasetName', description='This parameter is required.', example='product_faq_dataset', minLength=2, maxLength=64, position='Path'),
+  from?: int32(name='from', position='Body'),
+  length?: int32(name='length', position='Body'),
+  maxOutputLength?: int32(name='maxOutputLength', position='Body'),
+  offset?: int32(name='offset', position='Body'),
   query: string(name='query', description='This parameter is required.', example='select count(*) from product_faq_dataset', position='Body'),
+  to?: int32(name='to', position='Body'),
   type: string(name='type', description='This parameter is required.', example='SQL', position='Body'),
 }
 
@@ -476,6 +746,10 @@ model ExecuteQueryResponseBody = {
     count?: int32(name='count', example='1'),
     elapsedMillisecond?: long(name='elapsedMillisecond', example='15'),
     progress?: string(name='progress', example='Complete'),
+    truncation?: {
+      truncated?: boolean(name='truncated'),
+      truncatedColumnIndexes?: [[ int32 ]      ](name='truncatedColumnIndexes'),
+    }(name='truncation'),
   }(name='meta'),
   requestId?: string(name='requestId', example='EB27D183-8F6C-5C5A-A6A3-E0508AF54F78'),
   rows?: [[ any ]  ](name='rows'),
@@ -634,12 +908,198 @@ async function getDataset(request: GetDatasetRequest): GetDatasetResponse {
   return @handler.do('RESTFUL', 'GetDataset', 'GET', '/agentspace/{agentSpace}/dataset/{datasetName}', 'json', false, 'json', request);
 }
 
+model GetEvaluationRunRequest {
+  agentSpace?: string(name='agentSpace', example='prod-agentspace', position='Path'),
+  taskId?: string(name='taskId', example='eval-task-8b36f2e2b1f94f9c91ce7a4b0f6d9c25', position='Path'),
+  runId?: string(name='runId', example='eval-run-4fd47f3d7e684e15b1d3d178c6a5b81a', position='Path'),
+}
+
+model GetEvaluationRunResponseBody = {
+  createdAt?: long(name='createdAt', example='1782816000'),
+  dataEndTime?: long(name='dataEndTime', example='1782902400'),
+  dataStartTime?: long(name='dataStartTime', example='1782816000'),
+  evaluatorProgress?: [ 
+    {
+      evaluatorName?: string(name='evaluatorName', example='Builtin.agent_task_completion'),
+      failedCount?: int32(name='failedCount', example='4'),
+      successCount?: int32(name='successCount', example='96'),
+      totalCount?: int32(name='totalCount', example='100'),
+    }
+  ](name='evaluatorProgress', example='[{"evaluatorName":"Builtin.agent_task_completion","totalCount":100,"successCount":96,"failedCount":4}]'),
+  evaluators?: string(name='evaluators', example='[{"evaluatorRef":"Builtin.agent_task_completion"}]'),
+  failedCount?: int32(name='failedCount', example='4'),
+  requestId?: string(name='requestId', example='3FE4CD1E-FF41-56BE-B590-7A021D9C1524'),
+  runId?: string(name='runId', example='eval-run-4fd47f3d7e684e15b1d3d178c6a5b81a'),
+  runName?: string(name='runName', example='trace_task_completion_eval-backfill'),
+  runType?: string(name='runType', example='backfill'),
+  status?: string(name='status', example='Running'),
+  successCount?: int32(name='successCount', example='96'),
+  taskId?: string(name='taskId', example='eval-task-8b36f2e2b1f94f9c91ce7a4b0f6d9c25'),
+  totalCount?: int32(name='totalCount', example='100'),
+  updatedAt?: long(name='updatedAt', example='1782816600'),
+}
+
+model GetEvaluationRunResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: GetEvaluationRunResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of GetEvaluationRun  GetEvaluationRunRequest
+  * @return GetEvaluationRunResponse
+ */
+async function getEvaluationRun(request: GetEvaluationRunRequest): GetEvaluationRunResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'GetEvaluationRun', 'GET', '/api/v1/evaluation-task/{agentSpace}/{taskId}/run/{runId}', 'json', false, 'json', request);
+}
+
+model GetEvaluationTaskRequest {
+  agentSpace?: string(name='agentSpace', example='prod-agentspace', position='Path'),
+  taskId?: string(name='taskId', example='eval-task-8b36f2e2b1f94f9c91ce7a4b0f6d9c25', position='Path'),
+}
+
+model GetEvaluationTaskResponseBody = {
+  agentSpace?: string(name='agentSpace', example='prod-agentspace'),
+  channel?: string(name='channel', example='default'),
+  config?: map[string]string(name='config', example='{"project":"agentspace-project","storeName":"logstore-tracing","dataScope":"trace"}'),
+  createdAt?: long(name='createdAt', example='1782816000'),
+  dataFilter?: string(name='dataFilter', example='{"query":"serviceName=\\"checkout-service\\"","maxRecords":10,"samplingRate":100}'),
+  dataType?: string(name='dataType', example='trace'),
+  description?: string(name='description'),
+  evaluators?: [
+    Evaluator
+  ](name='evaluators', example='[{"evaluatorRef":"Builtin.agent_task_completion","resultName":"agent_task_completion","resultType":"score","variableMapping":{"input":"trace.input","output":"trace.output","agent_trajectory":"trace.agent_trajectory"}}]'),
+  regionId?: string(name='regionId', example='cn-hangzhou'),
+  requestId?: string(name='requestId', example='3FE4CD1E-FF41-56BE-B590-7A021D9C1524'),
+  runStrategyConfig?: RunStrategies(name='runStrategyConfig'),
+  status?: string(name='status', example='Running'),
+  tags?: map[string]string(name='tags', example='{"serviceId":"checkout-service","env":"prod"}'),
+  taskId?: string(name='taskId', example='eval-task-8b36f2e2b1f94f9c91ce7a4b0f6d9c25'),
+  taskMode?: string(name='taskMode', example='batch'),
+  taskName?: string(name='taskName', example='trace_task_completion_eval'),
+  updatedAt?: long(name='updatedAt', example='1782816600'),
+}
+
+model GetEvaluationTaskResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: GetEvaluationTaskResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of GetEvaluationTask  GetEvaluationTaskRequest
+  * @return GetEvaluationTaskResponse
+ */
+async function getEvaluationTask(request: GetEvaluationTaskRequest): GetEvaluationTaskResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'GetEvaluationTask', 'GET', '/api/v1/evaluation-task/{agentSpace}/{taskId}', 'json', false, 'json', request);
+}
+
+model GetEvaluatorRequest {
+  agentSpace: string(name='agentSpace', description='This parameter is required.', example='prod-agentspace', position='Path'),
+  name: string(name='name', description='This parameter is required.', example='trace_task_completion', position='Path'),
+  version?: string(name='version', example='1.0.0', position='Query'),
+}
+
+model GetEvaluatorResponseBody = {
+  evaluator?: {
+    agentSpace?: string(name='agentSpace', example='prod-agentspace'),
+    annotations?: [ string ](name='annotations', example='["__en"]'),
+    config?: map[string]any(name='config'),
+    createdAt?: long(name='createdAt', example='1782816000'),
+    currentVersion?: string(name='currentVersion', example='1.0.0'),
+    description?: string(name='description'),
+    displayName?: string(name='displayName'),
+    latestVersion?: string(name='latestVersion', example='1.0.0'),
+    metricName?: string(name='metricName', example='agent_task_completion'),
+    name?: string(name='name', example='trace_task_completion'),
+    properties?: map[string]any(name='properties', example='{"agentEvaluatorMode":"raw_prompt"}'),
+    type?: string(name='type', example='AGENT'),
+    updatedAt?: long(name='updatedAt', example='1782816600'),
+    versions?: [ 
+      {
+        createdAt?: long(name='createdAt', example='1782816000'),
+        version?: string(name='version', example='1.0.0'),
+        versionDescription?: string(name='versionDescription'),
+      }
+    ](name='versions', example='[{"version":"1.0.0"}]'),
+  }(name='evaluator', example='{"name":"trace_task_completion","type":"AGENT","currentVersion":"1.0.0"}'),
+  requestId?: string(name='requestId', example='3FE4CD1E-FF41-56BE-B590-7A021D9C1524'),
+}
+
+model GetEvaluatorResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: GetEvaluatorResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of GetEvaluator  GetEvaluatorRequest
+  * @return GetEvaluatorResponse
+ */
+async function getEvaluator(request: GetEvaluatorRequest): GetEvaluatorResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'GetEvaluator', 'GET', '/api/v1/evaluators/{agentSpace}/{name}', 'json', false, 'json', request);
+}
+
+model GetEvaluatorSkillRequest {
+  name: string(name='name', description='This parameter is required.', example='trace_task_completion', position='Path'),
+  skillName: string(name='skillName', description='This parameter is required.', example='trace_context_loader', position='Path'),
+  agentSpace: string(name='agentSpace', description='This parameter is required.', example='prod-agentspace', position='Query'),
+  version?: string(name='version', example='1782816000000', position='Query'),
+}
+
+model GetEvaluatorSkillResponseBody = {
+  requestId?: string(name='requestId', example='3FE4CD1E-FF41-56BE-B590-7A021D9C1524'),
+  skill?: {
+    createdAt?: long(name='createdAt', example='1782816000'),
+    currentVersion?: string(name='currentVersion', example='1782816000000'),
+    description?: string(name='description'),
+    displayName?: string(name='displayName'),
+    enable?: boolean(name='enable', example='true'),
+    files?: [ 
+      {
+        content?: string(name='content', example='# Trace Context Loader'),
+        name?: string(name='name', example='SKILL.md'),
+        remark?: string(name='remark'),
+      }
+    ](name='files'),
+    latestVersion?: string(name='latestVersion', example='1782816000000'),
+    skillName?: string(name='skillName', example='trace_context_loader'),
+    updatedAt?: long(name='updatedAt', example='1782816600'),
+    versions?: [ 
+      {
+        createdAt?: long(name='createdAt', example='1782816000'),
+        version?: string(name='version', example='1782816000000'),
+        versionDescription?: string(name='versionDescription'),
+      }
+    ](name='versions'),
+  }(name='skill', example='{"skillName":"trace_context_loader","enable":true,"currentVersion":"1782816000000"}'),
+}
+
+model GetEvaluatorSkillResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: GetEvaluatorSkillResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of GetEvaluatorSkill  GetEvaluatorSkillRequest
+  * @return GetEvaluatorSkillResponse
+ */
+async function getEvaluatorSkill(request: GetEvaluatorSkillRequest): GetEvaluatorSkillResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'GetEvaluatorSkill', 'GET', '/api/v1/evaluator/{name}/skill/{skillName}', 'json', false, 'json', request);
+}
+
 model GetPipelineRequest {
   agentSpace?: string(name='agentSpace', example='my-agent-space', position='Path'),
   pipelineName?: string(name='pipelineName', example='my-pipeline', position='Path'),
 }
 
 model GetPipelineResponseBody = {
+  committedWatermark?: long(name='committedWatermark', example='1735660800'),
   createTime?: string(name='createTime', description='Use the UTC time format: yyyy-MM-ddTHH:mm:ssZ', example='2026-01-01T00:00:00Z'),
   description?: string(name='description', example='我的流水线'),
   executePolicy?: {
@@ -653,6 +1113,7 @@ model GetPipelineResponseBody = {
       interval?: string(name='interval', example='1h'),
     }(name='scheduled'),
   }(name='executePolicy'),
+  nextTriggerTime?: long(name='nextTriggerTime', example='1735661100'),
   pipeline?: {
     nodes?: [ 
       {
@@ -665,6 +1126,7 @@ model GetPipelineResponseBody = {
   pipelineName?: string(name='pipelineName', example='my-pipeline'),
   regionId?: string(name='regionId', example='cn-hangzhou'),
   requestId?: string(name='requestId', example='9ACFB10A-1B2C-3D4E-5F6G-7H8I9J0K1L2M'),
+  scheduleStatus?: string(name='scheduleStatus', example='Active'),
   sink?: {
     dataset?: {
       agentSpace?: string(name='agentSpace', example='my-agent-space'),
@@ -699,10 +1161,110 @@ async function getPipeline(request: GetPipelineRequest): GetPipelineResponse {
   return @handler.do('RESTFUL', 'GetPipeline', 'GET', '/agentspace/{agentSpace}/pipeline/{pipelineName}', 'json', false, 'json', request);
 }
 
+model GetPipelineRunRequest {
+  agentSpace?: string(name='agentSpace', example='my-agent-space', position='Path'),
+  pipelineName?: string(name='pipelineName', example='my-pipeline', position='Path'),
+  runId?: string(name='runId', example='run-20260101-0001', position='Path'),
+}
+
+model GetPipelineRunResponseBody = {
+  agentSpaceName?: string(name='agentSpaceName', example='my-agent-space'),
+  attempt?: int32(name='attempt', example='0'),
+  errorCode?: string(name='errorCode'),
+  errorMessage?: string(name='errorMessage'),
+  finishTime?: string(name='finishTime', description='Use the UTC time format: yyyy-MM-ddTHH:mm:ss.SSSZ', example='2026-01-01T00:00:10.000Z'),
+  fromTime?: long(name='fromTime', example='1735660800'),
+  maxAttempts?: int32(name='maxAttempts', example='3'),
+  nextRetryTime?: string(name='nextRetryTime', description='Use the UTC time format: yyyy-MM-ddTHH:mm:ss.SSSZ', example='2026-01-01T00:01:00.000Z'),
+  pipelineName?: string(name='pipelineName', example='my-pipeline'),
+  requestId?: string(name='requestId', example='9ACFB10A-1B2C-3D4E-5F6G-7H8I9J0K1L2M'),
+  results?: map[string]any(name='results'),
+  runId?: string(name='runId', example='run-20260101-0001'),
+  startTime?: string(name='startTime', description='Use the UTC time format: yyyy-MM-ddTHH:mm:ss.SSSZ', example='2026-01-01T00:00:01.000Z'),
+  stats?: map[string]any(name='stats'),
+  status?: string(name='status', example='Succeeded'),
+  toTime?: long(name='toTime', example='1735747200'),
+  triggerTime?: string(name='triggerTime', description='Use the UTC time format: yyyy-MM-ddTHH:mm:ss.SSSZ', example='2026-01-01T00:00:00.000Z'),
+  triggerType?: string(name='triggerType', example='Scheduled'),
+}
+
+model GetPipelineRunResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: GetPipelineRunResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of GetPipelineRun  GetPipelineRunRequest
+  * @return GetPipelineRunResponse
+ */
+async function getPipelineRun(request: GetPipelineRunRequest): GetPipelineRunResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'GetPipelineRun', 'GET', '/agentspace/{agentSpace}/pipeline/{pipelineName}/runs/{runId}', 'json', false, 'json', request);
+}
+
+model GetPipelineStatsRequest {
+  agentSpace?: string(name='agentSpace', example='my-agent-space', position='Path'),
+  pipelineName?: string(name='pipelineName', example='my-pipeline', position='Path'),
+  endTime?: long(name='endTime', example='1735660800', position='Query'),
+  granularity?: string(name='granularity', example='Hour', position='Query'),
+  startTime?: long(name='startTime', example='1735574400', position='Query'),
+}
+
+model GetPipelineStatsResponseBody = {
+  endTime?: long(name='endTime', example='1735660800'),
+  granularity?: string(name='granularity', example='Hour'),
+  pipelineName?: string(name='pipelineName', example='my-pipeline'),
+  requestId?: string(name='requestId', example='9ACFB10A-1B2C-3D4E-5F6G-7H8I9J0K1L2M'),
+  startTime?: long(name='startTime', example='1735574400'),
+  summary?: {
+    avgElapsedMs?: long(name='avgElapsedMs', example='2500'),
+    cancelledRuns?: long(name='cancelledRuns', example='0'),
+    committedWatermark?: long(name='committedWatermark', example='1735660800'),
+    failedRuns?: long(name='failedRuns', example='0'),
+    scheduleLagSeconds?: long(name='scheduleLagSeconds', example='120'),
+    succeededRuns?: long(name='succeededRuns', example='44'),
+    successRate?: double(name='successRate', example='1.0'),
+    totalOutputBytes?: long(name='totalOutputBytes', example='3221225472'),
+    totalOutputRows?: long(name='totalOutputRows', example='1200000'),
+    totalProcessedBytes?: long(name='totalProcessedBytes', example='5368709120'),
+    totalProcessedRows?: long(name='totalProcessedRows', example='1500000'),
+    totalRuns?: long(name='totalRuns', example='44'),
+  }(name='summary'),
+  timeSeries?: [ 
+    {
+      avgElapsedMs?: long(name='avgElapsedMs', example='2500'),
+      outputBytes?: long(name='outputBytes', example='322122547'),
+      outputRows?: long(name='outputRows', example='80000'),
+      processedBytes?: long(name='processedBytes', example='536870912'),
+      processedRows?: long(name='processedRows', example='100000'),
+      runs?: long(name='runs', example='5'),
+      succeededRuns?: long(name='succeededRuns', example='5'),
+      timestamp?: long(name='timestamp', example='1735574400'),
+    }
+  ](name='timeSeries'),
+}
+
+model GetPipelineStatsResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: GetPipelineStatsResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of GetPipelineStats  GetPipelineStatsRequest
+  * @return GetPipelineStatsResponse
+ */
+async function getPipelineStats(request: GetPipelineStatsRequest): GetPipelineStatsResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'GetPipelineStats', 'GET', '/agentspace/{agentSpace}/pipeline/{pipelineName}/stats', 'json', false, 'json', request);
+}
+
 model ListAgentSpacesRequest {
   agentSpace?: string(name='agentSpace', example='test-agent-space', position='Query'),
   maxResults?: int32(name='maxResults', example='50', position='Query'),
   nextToken?: string(name='nextToken', example='pEL20OGYeZQez8NdW7ve', position='Query'),
+  regionId?: string(name='regionId', position='Query'),
 }
 
 model ListAgentSpacesResponseBody = {
@@ -862,11 +1424,247 @@ async function listDatasets(request: ListDatasetsRequest): ListDatasetsResponse 
   return @handler.do('RESTFUL', 'ListDatasets', 'GET', '/agentspace/{agentSpace}/dataset', 'json', false, 'json', request);
 }
 
+model ListEvaluationRunsRequest {
+  agentSpace?: string(name='agentSpace', example='prod-agentspace', position='Path'),
+  taskId?: string(name='taskId', example='eval-task-8b36f2e2b1f94f9c91ce7a4b0f6d9c25', position='Path'),
+  maxResults?: int32(name='maxResults', example='20', position='Query'),
+  nextToken?: string(name='nextToken', example='eyJsYXN0SWQiOjEwMX0=', position='Query'),
+  runType?: string(name='runType', example='backfill', position='Query'),
+  status?: string(name='status', example='Running', position='Query'),
+}
+
+model ListEvaluationRunsResponseBody = {
+  evaluationRuns?: [ 
+    {
+      createdAt?: long(name='createdAt', example='1782816000'),
+      dataEndTime?: long(name='dataEndTime', example='1782902400'),
+      dataStartTime?: long(name='dataStartTime', example='1782816000'),
+      failedCount?: int32(name='failedCount', example='4'),
+      runId?: string(name='runId', example='eval-run-4fd47f3d7e684e15b1d3d178c6a5b81a'),
+      runName?: string(name='runName', example='trace_task_completion_eval-backfill'),
+      runType?: string(name='runType', example='backfill'),
+      status?: string(name='status', example='Running'),
+      successCount?: int32(name='successCount', example='96'),
+      taskId?: string(name='taskId', example='eval-task-8b36f2e2b1f94f9c91ce7a4b0f6d9c25'),
+      totalCount?: int32(name='totalCount', example='100'),
+      updatedAt?: long(name='updatedAt', example='1782816600'),
+    }
+  ](name='evaluationRuns', example='[{"runId":"eval-run-4fd47f3d7e684e15b1d3d178c6a5b81a","runType":"backfill","status":"Running","totalCount":100}]'),
+  maxResults?: int32(name='maxResults', example='20'),
+  nextToken?: string(name='nextToken', example='eyJsYXN0SWQiOjEyMH0='),
+  requestId?: string(name='requestId', example='3FE4CD1E-FF41-56BE-B590-7A021D9C1524'),
+  totalCount?: long(name='totalCount', example='3'),
+}
+
+model ListEvaluationRunsResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ListEvaluationRunsResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of ListEvaluationRuns  ListEvaluationRunsRequest
+  * @return ListEvaluationRunsResponse
+ */
+async function listEvaluationRuns(request: ListEvaluationRunsRequest): ListEvaluationRunsResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'ListEvaluationRuns', 'GET', '/api/v1/evaluation-task/{agentSpace}/{taskId}/runs', 'json', false, 'json', request);
+}
+
+model ListEvaluationTasksRequest {
+  agentSpace?: string(name='agentSpace', example='prod-agentspace', position='Query'),
+  channel?: string(name='channel', example='default', position='Query'),
+  dataType?: string(name='dataType', example='trace', position='Query'),
+  maxResults?: int32(name='maxResults', example='20', position='Query'),
+  nextToken?: string(name='nextToken', example='eyJsYXN0SWQiOjEyMywib2Zmc2V0IjoyMH0=', position='Query'),
+  status?: string(name='status', example='Running', position='Query'),
+  taskMode?: string(name='taskMode', example='batch', position='Query'),
+  taskName?: string(name='taskName', example='trace_task_completion_eval', position='Query'),
+}
+
+model ListEvaluationTasksResponseBody = {
+  evaluationTasks?: [ 
+    {
+      config?: map[string]string(name='config', example='{"storeName":"logstore-tracing","dataScope":"trace"}'),
+      createdAt?: long(name='createdAt', example='1782816000'),
+      dataType?: string(name='dataType', example='trace'),
+      description?: string(name='description'),
+      evaluators?: string(name='evaluators', example='[{"evaluatorRef":"Builtin.agent_task_completion"}]'),
+      runStrategyConfig?: RunStrategies(name='runStrategyConfig'),
+      status?: string(name='status', example='Running'),
+      tags?: map[string]string(name='tags', example='{"serviceId":"checkout-service","env":"prod"}'),
+      taskId?: string(name='taskId', example='eval-task-8b36f2e2b1f94f9c91ce7a4b0f6d9c25'),
+      taskMode?: string(name='taskMode', example='batch'),
+      taskName?: string(name='taskName', example='trace_task_completion_eval'),
+      updatedAt?: long(name='updatedAt', example='1782816600'),
+    }
+  ](name='evaluationTasks', example='[{"taskId":"eval-task-8b36f2e2b1f94f9c91ce7a4b0f6d9c25","taskName":"trace_task_completion_eval","taskMode":"batch","dataType":"trace","status":"Running"}]'),
+  maxResults?: int32(name='maxResults', example='20'),
+  nextToken?: string(name='nextToken', example='eyJsYXN0SWQiOjEwMSwib2Zmc2V0IjoyMH0='),
+  requestId?: string(name='requestId', example='3FE4CD1E-FF41-56BE-B590-7A021D9C1524'),
+  totalCount?: int32(name='totalCount', example='126'),
+}
+
+model ListEvaluationTasksResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ListEvaluationTasksResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of ListEvaluationTasks  ListEvaluationTasksRequest
+  * @return ListEvaluationTasksResponse
+ */
+async function listEvaluationTasks(request: ListEvaluationTasksRequest): ListEvaluationTasksResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'ListEvaluationTasks', 'GET', '/api/v1/evaluation-tasks', 'json', false, 'json', request);
+}
+
+model ListEvaluatorSkillsRequest {
+  name: string(name='name', description='This parameter is required.', example='trace_task_completion', position='Path'),
+  agentSpace: string(name='agentSpace', description='This parameter is required.', example='prod-agentspace', position='Query'),
+  maxResults?: int32(name='maxResults', example='20', position='Query'),
+  nextToken?: string(name='nextToken', example='eyJuZXh0IjoiMjAifQ==', position='Query'),
+}
+
+model ListEvaluatorSkillsResponseBody = {
+  maxResults?: int32(name='maxResults', example='20'),
+  nextToken?: string(name='nextToken', example='eyJuZXh0IjoiNDAifQ=='),
+  requestId?: string(name='requestId', example='3FE4CD1E-FF41-56BE-B590-7A021D9C1524'),
+  skills?: [ 
+    {
+      createdAt?: long(name='createdAt', example='1782816000'),
+      description?: string(name='description'),
+      displayName?: string(name='displayName'),
+      enable?: boolean(name='enable', example='true'),
+      latestVersion?: string(name='latestVersion', example='1782816000000'),
+      skillName?: string(name='skillName', example='trace_context_loader'),
+      updatedAt?: long(name='updatedAt', example='1782816600'),
+    }
+  ](name='skills'),
+  total?: long(name='total', example='3'),
+}
+
+model ListEvaluatorSkillsResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ListEvaluatorSkillsResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of ListEvaluatorSkills  ListEvaluatorSkillsRequest
+  * @return ListEvaluatorSkillsResponse
+ */
+async function listEvaluatorSkills(request: ListEvaluatorSkillsRequest): ListEvaluatorSkillsResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'ListEvaluatorSkills', 'GET', '/api/v1/evaluator/{name}/skills', 'json', false, 'json', request);
+}
+
+model ListEvaluatorsRequest {
+  agentSpace: string(name='agentSpace', description='This parameter is required.', example='prod-agentspace', position='Query'),
+  maxResults?: int32(name='maxResults', example='20', position='Query'),
+  name?: string(name='name', example='trace_task_completion', position='Query'),
+  nextToken?: string(name='nextToken', example='eyJsYXN0SWQiOjEyM30=', position='Query'),
+  source?: string(name='source', example='custom', position='Query'),
+  type?: string(name='type', example='AGENT', position='Query'),
+}
+
+model ListEvaluatorsResponseBody = {
+  evaluators?: [ 
+    {
+      annotations?: [ string ](name='annotations', example='["__en"]'),
+      createdAt?: long(name='createdAt', example='1782816000'),
+      description?: string(name='description'),
+      displayName?: string(name='displayName'),
+      latestVersion?: string(name='latestVersion', example='1.0.0'),
+      metricName?: string(name='metricName', example='agent_task_completion'),
+      name?: string(name='name', example='trace_task_completion'),
+      properties?: map[string]any(name='properties', example='{"agentEvaluatorMode":"raw_prompt"}'),
+      type?: string(name='type', example='AGENT'),
+      updatedAt?: long(name='updatedAt', example='1782816600'),
+    }
+  ](name='evaluators', example='[{"name":"trace_task_completion","type":"AGENT","latestVersion":"1.0.0"}]'),
+  maxResults?: int32(name='maxResults', example='20'),
+  nextToken?: string(name='nextToken', example='eyJsYXN0SWQiOjEzM30='),
+  requestId?: string(name='requestId', example='3FE4CD1E-FF41-56BE-B590-7A021D9C1524'),
+  total?: int32(name='total', example='12'),
+}
+
+model ListEvaluatorsResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ListEvaluatorsResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of ListEvaluators  ListEvaluatorsRequest
+  * @return ListEvaluatorsResponse
+ */
+async function listEvaluators(request: ListEvaluatorsRequest): ListEvaluatorsResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'ListEvaluators', 'GET', '/api/v1/evaluators', 'json', false, 'json', request);
+}
+
+model ListPipelineRunsRequest {
+  agentSpace?: string(name='agentSpace', example='my-agent-space', position='Path'),
+  pipelineName?: string(name='pipelineName', example='my-pipeline', position='Path'),
+  endTime?: long(name='endTime', example='1735660800', position='Query'),
+  maxResults?: int32(name='maxResults', example='50', position='Query'),
+  nextToken?: string(name='nextToken', example='MTIzNDU2Nzg5MA==', position='Query'),
+  startTime?: long(name='startTime', example='1735574400', position='Query'),
+  status?: string(name='status', example='Succeeded', position='Query'),
+  triggerType?: string(name='triggerType', example='Scheduled', position='Query'),
+}
+
+model ListPipelineRunsResponseBody = {
+  maxResults?: int32(name='maxResults', example='50'),
+  nextToken?: string(name='nextToken', example='MTIzNDU2Nzg5MA=='),
+  requestId?: string(name='requestId', example='9ACFB10A-1B2C-3D4E-5F6G-7H8I9J0K1L2M'),
+  runs?: [ 
+    {
+      agentSpaceName?: string(name='agentSpaceName', example='my-agent-space'),
+      attempt?: int32(name='attempt', example='0'),
+      errorCode?: string(name='errorCode'),
+      errorMessage?: string(name='errorMessage'),
+      finishTime?: string(name='finishTime', description='Use the UTC time format: yyyy-MM-ddTHH:mm:ss.SSSZ', example='2026-01-01T00:00:10.000Z'),
+      fromTime?: long(name='fromTime', example='1735660800'),
+      maxAttempts?: int32(name='maxAttempts', example='3'),
+      nextRetryTime?: string(name='nextRetryTime', description='Use the UTC time format: yyyy-MM-ddTHH:mm:ss.SSSZ', example='2026-01-01T00:01:00.000Z'),
+      pipelineName?: string(name='pipelineName', example='my-pipeline'),
+      runId?: string(name='runId', example='run-20260101-0001'),
+      startTime?: string(name='startTime', description='Use the UTC time format: yyyy-MM-ddTHH:mm:ss.SSSZ', example='2026-01-01T00:00:01.000Z'),
+      stats?: map[string]any(name='stats'),
+      status?: string(name='status', example='Succeeded'),
+      toTime?: long(name='toTime', example='1735747200'),
+      triggerTime?: string(name='triggerTime', description='Use the UTC time format: yyyy-MM-ddTHH:mm:ss.SSSZ', example='2026-01-01T00:00:00.000Z'),
+      triggerType?: string(name='triggerType', example='Scheduled'),
+    }
+  ](name='runs'),
+  totalCount?: int32(name='totalCount', example='100'),
+}
+
+model ListPipelineRunsResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ListPipelineRunsResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of ListPipelineRuns  ListPipelineRunsRequest
+  * @return ListPipelineRunsResponse
+ */
+async function listPipelineRuns(request: ListPipelineRunsRequest): ListPipelineRunsResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'ListPipelineRuns', 'GET', '/agentspace/{agentSpace}/pipeline/{pipelineName}/runs', 'json', false, 'json', request);
+}
+
 model ListPipelinesRequest {
   agentSpace?: string(name='agentSpace', example='my-agent-space', position='Path'),
   maxResults?: int32(name='maxResults', example='20', position='Query'),
   nextToken?: string(name='nextToken', example='MTIzNDU2Nzg5MA==', position='Query'),
   pipelineName?: string(name='pipelineName', example='my-pipeline', position='Query'),
+  scheduleStatus?: string(name='scheduleStatus', example='Active', position='Query'),
+  scheduleType?: string(name='scheduleType', example='RunOnce', position='Query'),
 }
 
 model ListPipelinesResponseBody = {
@@ -876,13 +1674,27 @@ model ListPipelinesResponseBody = {
     {
       createTime?: string(name='createTime', description='Use the UTC time format: yyyy-MM-ddTHH:mm:ssZ', example='2026-01-01T00:00:00Z'),
       description?: string(name='description', example='我的流水线'),
+      executePolicy?: {
+        mode?: string(name='mode', example='RunOnce'),
+        runOnce?: {
+          fromTime?: long(name='fromTime', example='1735660800000'),
+          toTime?: long(name='toTime', example='1735747200000'),
+        }(name='runOnce'),
+        scheduled?: {
+          fromTime?: long(name='fromTime', example='1735660800000'),
+          interval?: string(name='interval', example='1h'),
+        }(name='scheduled'),
+      }(name='executePolicy'),
       pipelineName?: string(name='pipelineName', example='my-pipeline'),
       regionId?: string(name='regionId', example='cn-hangzhou'),
+      scheduleStatus?: string(name='scheduleStatus', example='None'),
+      scheduleType?: string(name='scheduleType', example='RunOnce'),
       updateTime?: string(name='updateTime', description='Use the UTC time format: yyyy-MM-ddTHH:mm:ssZ', example='2026-01-02T00:00:00Z'),
       workspace?: string(name='workspace', example='my-workspace'),
     }
   ](name='pipelines'),
   requestId?: string(name='requestId', example='9ACFB10A-1B2C-3D4E-5F6G-7H8I9J0K1L2M'),
+  totalCount?: int32(name='totalCount', example='100'),
 }
 
 model ListPipelinesResponse = {
@@ -898,6 +1710,99 @@ model ListPipelinesResponse = {
 async function listPipelines(request: ListPipelinesRequest): ListPipelinesResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RESTFUL', 'ListPipelines', 'GET', '/agentspace/{agentSpace}/pipeline', 'json', false, 'json', request);
+}
+
+model PausePipelineRequest {
+  agentSpace?: string(name='agentSpace', example='my-agent-space', position='Path'),
+  pipelineName?: string(name='pipelineName', example='my-pipeline', position='Path'),
+  reason?: string(name='reason', example='manual maintenance', position='Body'),
+}
+
+model PausePipelineResponseBody = {
+  agentSpaceName?: string(name='agentSpaceName', example='my-agent-space'),
+  pauseTime?: string(name='pauseTime', description='Use the UTC time format: yyyy-MM-ddTHH:mm:ss.SSSZ', example='2026-01-01T00:00:00.000Z'),
+  pausedReason?: string(name='pausedReason', example='manual maintenance'),
+  pipelineName?: string(name='pipelineName', example='my-pipeline'),
+  requestId?: string(name='requestId', example='9ACFB10A-1B2C-3D4E-5F6G-7H8I9J0K1L2M'),
+  scheduleStatus?: string(name='scheduleStatus', example='Paused'),
+}
+
+model PausePipelineResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: PausePipelineResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of PausePipeline  PausePipelineRequest
+  * @return PausePipelineResponse
+ */
+async function pausePipeline(request: PausePipelineRequest): PausePipelineResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'PausePipeline', 'POST', '/agentspace/{agentSpace}/pipeline/{pipelineName}/pause', 'json', false, 'json', request);
+}
+
+model ResumePipelineRequest {
+  agentSpace?: string(name='agentSpace', example='my-agent-space', position='Path'),
+  pipelineName?: string(name='pipelineName', example='my-pipeline', position='Path'),
+}
+
+model ResumePipelineResponseBody = {
+  agentSpaceName?: string(name='agentSpaceName', example='my-agent-space'),
+  committedWatermark?: long(name='committedWatermark', example='1735660800'),
+  nextTriggerTime?: long(name='nextTriggerTime', example='1735664400'),
+  pipelineName?: string(name='pipelineName', example='my-pipeline'),
+  requestId?: string(name='requestId', example='9ACFB10A-1B2C-3D4E-5F6G-7H8I9J0K1L2M'),
+  scheduleStatus?: string(name='scheduleStatus', example='Active'),
+}
+
+model ResumePipelineResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ResumePipelineResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of ResumePipeline  ResumePipelineRequest
+  * @return ResumePipelineResponse
+ */
+async function resumePipeline(request: ResumePipelineRequest): ResumePipelineResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'ResumePipeline', 'POST', '/agentspace/{agentSpace}/pipeline/{pipelineName}/resume', 'json', false, 'json', request);
+}
+
+model RunPipelineRequest {
+  agentSpace?: string(name='agentSpace', example='my-agent-space', position='Path'),
+  pipelineName?: string(name='pipelineName', example='my-pipeline', position='Path'),
+  fromTime?: long(name='fromTime', example='1735660800', position='Body'),
+  output?: {
+    dataset?: boolean(name='dataset', example='true'),
+    inline?: boolean(name='inline', example='false'),
+  }(name='output', position='Body'),
+  toTime?: long(name='toTime', example='1735747200', position='Body'),
+}
+
+model RunPipelineResponseBody = {
+  agentSpaceName?: string(name='agentSpaceName', example='my-agent-space'),
+  pipelineName?: string(name='pipelineName', example='my-pipeline'),
+  requestId?: string(name='requestId', example='9ACFB10A-1B2C-3D4E-5F6G-7H8I9J0K1L2M'),
+  runId?: string(name='runId', example='run-20260101-0001'),
+  status?: string(name='status', example='Pending'),
+}
+
+model RunPipelineResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: RunPipelineResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of RunPipeline  RunPipelineRequest
+  * @return RunPipelineResponse
+ */
+async function runPipeline(request: RunPipelineRequest): RunPipelineResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'RunPipeline', 'POST', '/agentspace/{agentSpace}/pipeline/{pipelineName}/run', 'json', false, 'json', request);
 }
 
 model SearchContextRequest {
@@ -929,6 +1834,36 @@ model SearchContextResponse = {
 async function searchContext(request: SearchContextRequest): SearchContextResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RESTFUL', 'SearchContext', 'POST', '/agentspace/{agentSpace}/contextstore/{contextStoreName}/context/search', 'json', false, 'json', request);
+}
+
+model TerminatePipelineRequest {
+  agentSpace?: string(name='agentSpace', example='my-agent-space', position='Path'),
+  pipelineName?: string(name='pipelineName', example='my-pipeline', position='Path'),
+  reason?: string(name='reason', example='project deprecated', position='Body'),
+}
+
+model TerminatePipelineResponseBody = {
+  agentSpaceName?: string(name='agentSpaceName', example='my-agent-space'),
+  pipelineName?: string(name='pipelineName', example='my-pipeline'),
+  requestId?: string(name='requestId', example='9ACFB10A-1B2C-3D4E-5F6G-7H8I9J0K1L2M'),
+  scheduleStatus?: string(name='scheduleStatus', example='Terminated'),
+  terminateTime?: string(name='terminateTime', description='Use the UTC time format: yyyy-MM-ddTHH:mm:ss.SSSZ', example='2026-01-01T00:00:00.000Z'),
+  terminatedReason?: string(name='terminatedReason', example='project deprecated'),
+}
+
+model TerminatePipelineResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: TerminatePipelineResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of TerminatePipeline  TerminatePipelineRequest
+  * @return TerminatePipelineResponse
+ */
+async function terminatePipeline(request: TerminatePipelineRequest): TerminatePipelineResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'TerminatePipeline', 'POST', '/agentspace/{agentSpace}/pipeline/{pipelineName}/terminate', 'json', false, 'json', request);
 }
 
 model UpdateAgentSpaceRequest {
@@ -1016,6 +1951,134 @@ model UpdateDatasetResponse = {
 async function updateDataset(request: UpdateDatasetRequest): UpdateDatasetResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RESTFUL', 'UpdateDataset', 'PUT', '/agentspace/{agentSpace}/dataset/{datasetName}', 'json', false, 'json', request);
+}
+
+model UpdateEvaluationRunRequest {
+  agentSpace?: string(name='agentSpace', example='prod-agentspace', position='Path'),
+  taskId?: string(name='taskId', example='eval-task-8b36f2e2b1f94f9c91ce7a4b0f6d9c25', position='Path'),
+  runId?: string(name='runId', example='eval-run-4fd47f3d7e684e15b1d3d178c6a5b81a', position='Path'),
+  status?: string(name='status', example='Terminated', position='Body'),
+}
+
+model UpdateEvaluationRunResponseBody = {
+  requestId?: string(name='requestId', example='3FE4CD1E-FF41-56BE-B590-7A021D9C1524'),
+}
+
+model UpdateEvaluationRunResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: UpdateEvaluationRunResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of UpdateEvaluationRun  UpdateEvaluationRunRequest
+  * @return UpdateEvaluationRunResponse
+ */
+async function updateEvaluationRun(request: UpdateEvaluationRunRequest): UpdateEvaluationRunResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'UpdateEvaluationRun', 'PUT', '/api/v1/evaluation-task/{agentSpace}/{taskId}/run/{runId}', 'json', false, 'json', request);
+}
+
+model UpdateEvaluationTaskRequest {
+  agentSpace?: string(name='agentSpace', example='prod-agentspace', position='Path'),
+  taskId?: string(name='taskId', example='eval-task-8b36f2e2b1f94f9c91ce7a4b0f6d9c25', position='Path'),
+  config?: map[string]string(name='config', example='{"dataScope":"trace"}', position='Body'),
+  dataFilter?: string(name='dataFilter', example='{"query":"serviceName=\\"checkout-service\\" AND status=\\"OK\\"","maxRecords":10,"samplingRate":50}', position='Body'),
+  description?: string(name='description', position='Body'),
+  evaluators?: [
+    Evaluator
+  ](name='evaluators', example='[{"evaluatorRef":"Builtin.agent_task_completion","resultName":"agent_task_completion","resultType":"score","variableMapping":{"input":"trace.input","output":"trace.output","agent_trajectory":"trace.agent_trajectory"}}]', position='Body'),
+  runStrategies?: RunStrategies(name='runStrategies', position='Body'),
+  status?: string(name='status', example='Terminated', position='Body'),
+  tags?: map[string]string(name='tags', example='{"env":"prod","serviceId":"checkout-service","planId":"plan-20260703"}', position='Body'),
+  clientToken?: string(name='clientToken', example='a1b2c3d4-1234-5678-90ab-cdef12345678', position='Query'),
+}
+
+model UpdateEvaluationTaskResponseBody = {
+  requestId?: string(name='requestId', example='3FE4CD1E-FF41-56BE-B590-7A021D9C1524'),
+}
+
+model UpdateEvaluationTaskResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: UpdateEvaluationTaskResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of UpdateEvaluationTask  UpdateEvaluationTaskRequest
+  * @return UpdateEvaluationTaskResponse
+ */
+async function updateEvaluationTask(request: UpdateEvaluationTaskRequest): UpdateEvaluationTaskResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'UpdateEvaluationTask', 'PUT', '/api/v1/evaluation-task/{agentSpace}/{taskId}', 'json', false, 'json', request);
+}
+
+model UpdateEvaluatorRequest {
+  agentSpace: string(name='agentSpace', description='This parameter is required.', example='prod-agentspace', position='Path'),
+  name: string(name='name', description='This parameter is required.', example='trace_task_completion', position='Path'),
+  annotations?: [ string ](name='annotations', example='["__en"]', position='Body'),
+  config?: map[string]any(name='config', position='Body'),
+  description?: string(name='description', position='Body'),
+  displayName?: string(name='displayName', position='Body'),
+  properties?: map[string]any(name='properties', example='{"agentEvaluatorMode":"raw_prompt"}', position='Body'),
+  version?: string(name='version', example='1.1.0', position='Body'),
+  versionDescription?: string(name='versionDescription', position='Body'),
+  clientToken?: string(name='clientToken', example='a1b2c3d4-1234-5678-90ab-cdef12345678', position='Query'),
+}
+
+model UpdateEvaluatorResponseBody = {
+  requestId?: string(name='requestId', example='3FE4CD1E-FF41-56BE-B590-7A021D9C1524'),
+}
+
+model UpdateEvaluatorResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: UpdateEvaluatorResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of UpdateEvaluator  UpdateEvaluatorRequest
+  * @return UpdateEvaluatorResponse
+ */
+async function updateEvaluator(request: UpdateEvaluatorRequest): UpdateEvaluatorResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'UpdateEvaluator', 'PUT', '/api/v1/evaluators/{agentSpace}/{name}', 'json', false, 'json', request);
+}
+
+model UpdateEvaluatorSkillRequest {
+  name: string(name='name', description='This parameter is required.', example='trace_task_completion', position='Path'),
+  skillName: string(name='skillName', description='This parameter is required.', example='trace_context_loader', position='Path'),
+  agentSpace: string(name='agentSpace', description='This parameter is required.', example='prod-agentspace', position='Query'),
+  description?: string(name='description', position='Body'),
+  displayName?: string(name='displayName', position='Body'),
+  enable?: boolean(name='enable', example='true', position='Body'),
+  files?: [ 
+    {
+      content: string(name='content', description='This parameter is required.', example='# Trace Context Loader'),
+      name: string(name='name', description='This parameter is required.', example='SKILL.md'),
+      remark?: string(name='remark'),
+    }
+  ](name='files', position='Body'),
+  clientToken?: string(name='clientToken', example='a1b2c3d4-1234-5678-90ab-cdef12345678', position='Query'),
+}
+
+model UpdateEvaluatorSkillResponseBody = {
+  requestId?: string(name='requestId', example='3FE4CD1E-FF41-56BE-B590-7A021D9C1524'),
+}
+
+model UpdateEvaluatorSkillResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: UpdateEvaluatorSkillResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of UpdateEvaluatorSkill  UpdateEvaluatorSkillRequest
+  * @return UpdateEvaluatorSkillResponse
+ */
+async function updateEvaluatorSkill(request: UpdateEvaluatorSkillRequest): UpdateEvaluatorSkillResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'UpdateEvaluatorSkill', 'PUT', '/api/v1/evaluator/{name}/skill/{skillName}', 'json', false, 'json', request);
 }
 
 model UpdatePipelineRequest {

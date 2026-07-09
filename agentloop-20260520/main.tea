@@ -14,10 +14,14 @@ init(config: OpenApi.Config){
   @endpointRule = 'regional';
   @endpointMap = {
     'cn-zhangjiakou' = 'agentloop.cn-zhangjiakou.aliyuncs.com',
+    'cn-shenzhen' = 'agentloop.cn-shenzhen.aliyuncs.com',
     'cn-shanghai' = 'agentloop.cn-shanghai.aliyuncs.com',
     'cn-hongkong' = 'agentloop.cn-hongkong.aliyuncs.com',
     'cn-hangzhou' = 'agentloop.cn-hangzhou.aliyuncs.com',
+    'cn-guangzhou' = 'agentloop.cn-guangzhou.aliyuncs.com',
+    'cn-chengdu' = 'agentloop.cn-chengdu.aliyuncs.com',
     'cn-beijing' = 'agentloop.cn-beijing.aliyuncs.com',
+    'ap-southeast-1' = 'agentloop.ap-southeast-1.aliyuncs.com',
   };
 
   checkConfig(config);
@@ -36,10 +40,9 @@ function getEndpoint(productId: string, regionId: string, endpointRule: string, 
 }
 
 model BackfillStrategy {
-  enabled?: boolean(name='enabled'),
-  endTime?: long(name='endTime'),
-  immediate?: boolean(name='immediate'),
-  startTime?: long(name='startTime'),
+  enabled?: boolean(name='enabled', description='Specifies whether the backfill policy is enabled. If this parameter is not specified or is set to true, the policy is enabled. If this parameter is set to false, the policy is disabled but the configuration is retained.', example='true'),
+  endTime?: long(name='endTime', description='The end of the backfill time range, in UNIX millisecond timestamp. Provide a complete time range when you need to manually start a backfill.', example='1782902400000'),
+  startTime?: long(name='startTime', description='The start of the backfill time range, in UNIX millisecond timestamp. Provide a complete time range when you need to manually start a backfill.', example='1782816000000'),
 }
 
 model BatchGroup {
@@ -49,31 +52,42 @@ model BatchGroup {
   ](name='records'),
 }
 
+model ConnectorProperties {
+  channelType?: string(name='channelType'),
+  dryRunRequestBody?: string(name='dryRunRequestBody'),
+  modelList?: string(name='modelList'),
+  network?: string(name='network'),
+  protocol?: string(name='protocol'),
+  region?: string(name='region'),
+  responseBodyPath?: string(name='responseBodyPath'),
+  securityGroupId?: string(name='securityGroupId'),
+  vSwitchId?: string(name='vSwitchId'),
+  vpcId?: string(name='vpcId'),
+}
+
 model ContinuousStrategy {
-  dataDelayMinutes?: int32(name='dataDelayMinutes'),
-  enabled?: boolean(name='enabled'),
-  intervalUnit?: string(name='intervalUnit'),
-  intervalValue?: int32(name='intervalValue'),
+  dataDelayMinutes?: int32(name='dataDelayMinutes', description='The data arrival delay in minutes. After a window ends, the system waits for this duration before creating a run to allow data to arrive completely. Default value: 0.', example='5'),
+  enabled?: boolean(name='enabled', description='Specifies whether to enable continuous evaluation. If this parameter is not specified or is set to true, continuous evaluation is enabled. If this parameter is set to false, continuous evaluation is disabled but the configuration is retained.', example='true'),
+  intervalUnit?: string(name='intervalUnit', description='The unit of the continuous evaluation window interval. This field is required for the current polling implementation.', example='HOUR'),
+  intervalValue?: int32(name='intervalValue', description='The size of the continuous evaluation window interval. This parameter is used together with intervalUnit. The value must be greater than 0.', example='1'),
 }
 
 model DataFilter {
-  endTime?: long(name='endTime'),
-  maxRecords?: int32(name='maxRecords'),
-  provided?: map[string]any(name='provided'),
-  query?: string(name='query'),
-  samplingRate?: int32(name='samplingRate'),
-  startTime?: long(name='startTime'),
+  maxRecords?: int32(name='maxRecords', description='The maximum number of evaluation records. This takes effect for both backfill and continuous runs. If not specified, the backend does not write a default value.', example='10'),
+  provided?: map[string]any(name='provided', description='The one-time temporary evaluation input content, primarily used for oneshot tasks. The value is stored as a string. Object or array values are serialized to a JSON string.', example='{"input":"用户查询订单状态","output":"已查询到订单状态"}'),
+  query?: string(name='query', description='The data query filter condition. This takes effect together with the evaluator-level filters.query. In Trace scenarios, you can specify filter expressions such as service name, environment, or labels.', example='serviceName=\\\\"checkout-service\\\\"'),
+  samplingRate?: int32(name='samplingRate', description='The sampling rate percentage. Valid values: 0 to 100. A value of 0 or not specified indicates no sampling. A value of 100 indicates full data. If the value is less than 100, random sampling is applied first, and then the maxRecords limit is applied.', example='100'),
 }
 
 model Evaluator {
-  config?: map[string]any(name='config'),
-  evaluatorRef?: string(name='evaluatorRef'),
-  filters?: map[string]any(name='filters'),
-  name?: string(name='name'),
-  resultName?: string(name='resultName'),
-  resultType?: string(name='resultType'),
-  type?: string(name='type'),
-  variableMapping?: map[string]string(name='variableMapping'),
+  config?: map[string]any(name='config', description='The evaluator runtime configuration. For inline LLM evaluators, this must include configurations such as prompt. When referencing an existing evaluator, this parameter is typically not required and is only specified when runtime parameters such as version need to be set.', example='{"version":"1.0.0"}'),
+  evaluatorRef?: string(name='evaluatorRef', description='The reference name of a registered evaluator. When specified, the evaluator definition is loaded by this reference with higher priority. Both built-in evaluators and custom evaluators are supported.', example='Builtin.agent_task_completion'),
+  filters?: map[string]any(name='filters', description='The evaluator-level data filter conditions. These take effect together with the task-level dataFilter.query.', example='{"query":"serviceName=\\\\"checkout-service\\\\""}'),
+  name?: string(name='name', description='The evaluator name. Required for inline evaluators when evaluatorRef is not specified. The evaluatorRef or name must be unique within the same task.', example='agent_task_completion'),
+  resultName?: string(name='resultName', description='The field name for the evaluation result. Required for inline evaluators. When referencing an existing evaluator, the metricName defined in the evaluator definition is used if this parameter is not specified.', example='agent_task_completion'),
+  resultType?: string(name='resultType', description='The evaluation result type. Required for inline evaluators. Defaults to score when referencing an existing evaluator and this parameter is not specified.', example='score'),
+  type?: string(name='type', description='The evaluator type. Defaults to LLM if not specified. Inline CODE evaluators are currently not supported. For CODE type evaluators, reference a previously created evaluator by using evaluatorRef.', example='AGENT'),
+  variableMapping?: map[string]string(name='variableMapping', description='The variable mapping that maps evaluator variables to evaluation data fields. Required for LLM/AGENT inline evaluators. When referencing an existing evaluator, the variable names must exist in the evaluator definition.', example='{"input":"trace.input","output":"trace.output","agent_trajectory":"trace.agent_trajectory"}'),
 }
 
 model ExperimentConfig {
@@ -95,33 +109,38 @@ model ExperimentPlanData {
   datasetId?: string(name='datasetId'),
   description?: string(name='description'),
   experimentCount?: int32(name='experimentCount'),
+  experimentType?: string(name='experimentType'),
   planId?: string(name='planId'),
   planName?: string(name='planName'),
+  querySql?: string(name='querySql'),
   status?: string(name='status'),
   updatedAt?: long(name='updatedAt'),
 }
 
 model ExperimentRecord {
-  batchId?: string(name='batchId'),
   completedAt?: long(name='completedAt'),
   completedTasks?: int32(name='completedTasks'),
   dataSourceType?: string(name='dataSourceType'),
   datasetId?: string(name='datasetId'),
   datasetProject?: string(name='datasetProject'),
   errorMessage?: string(name='errorMessage'),
+  evaluationTaskId?: string(name='evaluationTaskId'),
   evaluators?: [
     Evaluator
   ](name='evaluators'),
   executedAt?: long(name='executedAt'),
-  experimentConfig?: ExperimentConfig(name='experimentConfig'),
-  experimentName?: string(name='experimentName'),
+  experimentConfig?: [
+    ExperimentConfig
+  ](name='experimentConfig'),
+  experimentPlanId?: string(name='experimentPlanId'),
   failedTasks?: int32(name='failedTasks'),
   input?: map[string]any(name='input'),
-  modelName?: string(name='modelName'),
-  planId?: string(name='planId'),
+  modelNames?: [ string ](name='modelNames'),
   planName?: string(name='planName'),
   progress?: float(name='progress'),
+  querySql?: string(name='querySql'),
   recordId?: string(name='recordId'),
+  recordName?: string(name='recordName'),
   selectedItemIds?: [ string ](name='selectedItemIds'),
   status?: string(name='status'),
   totalTasks?: int32(name='totalTasks'),
@@ -149,6 +168,12 @@ model ModelParameters {
   topP?: float(name='topP'),
 }
 
+model OfflineExperimentConfig {
+  desc?: string(name='desc'),
+  label?: string(name='label'),
+  name?: string(name='name'),
+}
+
 model PromptTemplateItem {
   content?: string(name='content'),
   role?: string(name='role'),
@@ -160,13 +185,13 @@ model RunStrategies {
 }
 
 model AddDatasetDataRequest {
-  dataArray?: [ map[string]any ](name='dataArray'),
-  clientToken?: string(name='clientToken', example='a1b2c3d4-1234-5678-90ab-cdef12345678'),
+  dataArray?: [ map[string]any ](name='dataArray', description='The array of data rows to append. The array cannot be empty. The server reads the data in streaming mode. The maximum request body size is 100 MB by default. All rows in a single request are committed in an all-or-nothing transaction.'),
+  clientToken?: string(name='clientToken', description='The idempotency token. This is a unique string generated by the client to ensure the idempotence of the create operation.', example='a1b2c3d4-1234-5678-90ab-cdef12345678'),
 }
 
 model AddDatasetDataResponseBody = {
-  affectedRows?: int32(name='affectedRows', example='100'),
-  requestId?: string(name='requestId', example='D0173835-9E0F-508F-8BFA-9F556E59C302'),
+  affectedRows?: int32(name='affectedRows', description='The number of log rows scanned or processed.', example='100'),
+  requestId?: string(name='requestId', description='Id of the request', example='D0173835-9E0F-508F-8BFA-9F556E59C302'),
 }
 
 model AddDatasetDataResponse = {
@@ -176,7 +201,7 @@ model AddDatasetDataResponse = {
 }
 
 /**
- * @summary 向指定 Dataset 追加结构化数据行，避免客户端拼接 SQL。
+ * @summary Appends structured data rows to a specified dataset without requiring the client to construct SQL statements.
  *
  * @param request AddDatasetDataRequest
  * @param headers map
@@ -215,7 +240,7 @@ async function addDatasetDataWithOptions(agentSpace: string, datasetName: string
 }
 
 /**
- * @summary 向指定 Dataset 追加结构化数据行，避免客户端拼接 SQL。
+ * @summary Appends structured data rows to a specified dataset without requiring the client to construct SQL statements.
  *
  * @param request AddDatasetDataRequest
  * @return AddDatasetDataResponse
@@ -226,15 +251,75 @@ async function addDatasetData(agentSpace: string, datasetName: string, request: 
   return addDatasetDataWithOptions(agentSpace, datasetName, request, headers, runtime);
 }
 
+model CancelPipelineRunRequest {
+}
+
+model CancelPipelineRunResponseBody = {
+  finishTime?: string(name='finishTime', description='The time when the cancellation was completed, in ISO 8601 UTC format.
+
+Use the UTC time format: yyyy-MM-ddTHH:mm:ss.SSSZ', example='2026-01-01T00:00:05.000Z'),
+  requestId?: string(name='requestId', description='The request ID, which is used to locate and troubleshoot issues.', example='9ACFB10A-1B2C-3D4E-5F6G-7H8I9J0K1L2M'),
+  runId?: string(name='runId', description='The ID of the canceled run.', example='run-20260101-0001'),
+  status?: string(name='status', description='The status of the run after cancellation. The value is fixed to Cancelled.', example='Cancelled'),
+}
+
+model CancelPipelineRunResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: CancelPipelineRunResponseBody(name='body'),
+}
+
+/**
+ * @summary Cancels a pipeline run.
+ *
+ * @param request CancelPipelineRunRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return CancelPipelineRunResponse
+ */
+async function cancelPipelineRunWithOptions(agentSpace: string, pipelineName: string, runId: string, request: CancelPipelineRunRequest, headers: map[string]string, runtime: Util.RuntimeOptions): CancelPipelineRunResponse {
+  Util.validateModel(request);
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+  };
+  var params = new OpenApi.Params{
+    action = 'CancelPipelineRun',
+    version = '2026-05-20',
+    protocol = 'HTTPS',
+    pathname = `/agentspace/${OpenApiUtil.getEncodeParam(agentSpace)}/pipeline/${OpenApiUtil.getEncodeParam(pipelineName)}/runs/${OpenApiUtil.getEncodeParam(runId)}/cancel`,
+    method = 'POST',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Cancels a pipeline run.
+ *
+ * @param request CancelPipelineRunRequest
+ * @return CancelPipelineRunResponse
+ */
+async function cancelPipelineRun(agentSpace: string, pipelineName: string, runId: string, request: CancelPipelineRunRequest): CancelPipelineRunResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return cancelPipelineRunWithOptions(agentSpace, pipelineName, runId, request, headers, runtime);
+}
+
 model CreateAgentSpaceRequest {
-  agentSpace?: string(name='agentSpace', description='This parameter is required.', example='test-agent-space'),
-  cmsWorkspace?: string(name='cmsWorkspace', example='test-cms-workspace'),
-  description?: string(name='description', example='test'),
-  clientToken?: string(name='clientToken', example='a1b2c3d4-1234-5678-90ab-cdef12345678'),
+  agentSpace?: string(name='agentSpace', description='The AgentSpace name.
+
+This parameter is required.', example='test-agent-space'),
+  cmsWorkspace?: string(name='cmsWorkspace', description='The CMS workspace.', example='test-cms-workspace'),
+  description?: string(name='description', description='The description.', example='test'),
+  trajectoryStoreEnabled?: boolean(name='trajectoryStoreEnabled'),
+  clientToken?: string(name='clientToken', description='The idempotency token. A unique string generated by the client to ensure that the create operation is idempotent.', example='a1b2c3d4-1234-5678-90ab-cdef12345678'),
 }
 
 model CreateAgentSpaceResponseBody = {
-  requestId?: string(name='requestId', example='AA689779-61AB-5077-BD91-9F7EA1205D68'),
+  requestId?: string(name='requestId', description='The request ID.', example='AA689779-61AB-5077-BD91-9F7EA1205D68'),
 }
 
 model CreateAgentSpaceResponse = {
@@ -244,7 +329,7 @@ model CreateAgentSpaceResponse = {
 }
 
 /**
- * @summary 创建AgentSpace
+ * @summary Creates an AgentSpace.
  *
  * @param request CreateAgentSpaceRequest
  * @param headers map
@@ -268,6 +353,9 @@ async function createAgentSpaceWithOptions(request: CreateAgentSpaceRequest, hea
   if (!Util.isUnset(request.description)) {
     body['description'] = request.description;
   }
+  if (!Util.isUnset(request.trajectoryStoreEnabled)) {
+    body['trajectoryStoreEnabled'] = request.trajectoryStoreEnabled;
+  }
 
   var req = new OpenApi.OpenApiRequest{ 
     headers = headers,
@@ -289,7 +377,7 @@ async function createAgentSpaceWithOptions(request: CreateAgentSpaceRequest, hea
 }
 
 /**
- * @summary 创建AgentSpace
+ * @summary Creates an AgentSpace.
  *
  * @param request CreateAgentSpaceRequest
  * @return CreateAgentSpaceResponse
@@ -302,22 +390,30 @@ async function createAgentSpace(request: CreateAgentSpaceRequest): CreateAgentSp
 
 model CreateContextStoreRequest {
   config?: {
-    metadataField?: map[string]string(name='metadataField', example='{"userId":"user_id","sessionId":"session_id"}'),
-    miningInterval?: string(name='miningInterval', example='1d'),
-    serviceNames?: [ string ](name='serviceNames', description='This parameter is required.', example='["order-service","payment-service"]'),
+    metadataField?: map[string]string(name='metadataField', description='The metadata field mapping. The key is the business field and the value is the storage field.', example='{"userId":"user_id","sessionId":"session_id"}'),
+    miningInterval?: string(name='miningInterval', description='The experience mining interval, which specifies how often experience mining is performed. Valid values: 1h, 6h, 12h, and 1d. Default value: 1d. This value cannot be changed after creation.', example='1d'),
+    serviceNames?: [ string ](name='serviceNames', description='The list of service names. This parameter is required and cannot be empty. It works with source.agentSpace to locate the trace data source. The trajectory extraction service uses the AgentSpace to look up the bound CMS workspace and project/logstore, and then filters by service name. This value cannot be changed after creation. No modification entry is available in the current version.
+
+This parameter is required.', example='["order-service","payment-service"]'),
     source?: {
-      agentSpace?: string(name='agentSpace', example='my-agent-space'),
-      startTime?: string(name='startTime', description='Use the UTC time format: yyyy-MM-ddTHH:mm:ssZ', example='2026-01-01T00:00:00Z'),
-    }(name='source'),
-  }(name='config'),
-  contextStoreName?: string(name='contextStoreName', description='This parameter is required.', example='my-context-store'),
-  contextType?: string(name='contextType', description='This parameter is required.', example='experience'),
-  description?: string(name='description', example='我的上下文库'),
-  clientToken?: string(name='clientToken', example='a1b2c3d4-1234-5678-90ab-cdef12345678'),
+      agentSpace?: string(name='agentSpace', description='The AgentSpace where the trace data source resides. If not specified, the AgentSpace in the current path is used by default. Cross-AgentSpace access is not supported in the current version. If specified, the value must match the AgentSpace in the path. Otherwise, a 400 parameter error is returned. This value cannot be changed after creation.', example='my-agent-space'),
+      startTime?: string(name='startTime', description='The start time for data backfill, in ISO 8601 UTC format. If not specified, the current time is used.
+
+Use the UTC time format: yyyy-MM-ddTHH:mm:ssZ', example='2026-01-01T00:00:00Z'),
+    }(name='source', description='The datasource config, which serves only as the root identifier for the data source. This is an optional block.'),
+  }(name='config', description='The context store configuration, including the datasource config and metadata field mapping.'),
+  contextStoreName?: string(name='contextStoreName', description='The context store name, which must be globally unique within the AgentSpace. The name must be 2 to 64 characters in length.
+
+This parameter is required.', example='my-context-store'),
+  contextType?: string(name='contextType', description='The context store type. Valid values: experience and memory.
+
+This parameter is required.', example='experience'),
+  description?: string(name='description', description='The description of the context store, which helps users understand its purpose.', example='我的上下文库'),
+  clientToken?: string(name='clientToken', description='The idempotency token, which is a unique string generated by the client to ensure the idempotence of the create operation.', example='a1b2c3d4-1234-5678-90ab-cdef12345678'),
 }
 
 model CreateContextStoreResponseBody = {
-  requestId?: string(name='requestId', example='9ACFB10A-1B2C-3D4E-5F6G-7H8I9J0K1L2M'),
+  requestId?: string(name='requestId', description='The request ID, which is used to locate and troubleshoot issues.', example='9ACFB10A-1B2C-3D4E-5F6G-7H8I9J0K1L2M'),
 }
 
 model CreateContextStoreResponse = {
@@ -327,7 +423,7 @@ model CreateContextStoreResponse = {
 }
 
 /**
- * @summary 创建上下文库
+ * @summary Creates a context store.
  *
  * @param request CreateContextStoreRequest
  * @param headers map
@@ -375,7 +471,7 @@ async function createContextStoreWithOptions(agentSpace: string, request: Create
 }
 
 /**
- * @summary 创建上下文库
+ * @summary Creates a context store.
  *
  * @param request CreateContextStoreRequest
  * @return CreateContextStoreResponse
@@ -387,14 +483,16 @@ async function createContextStore(agentSpace: string, request: CreateContextStor
 }
 
 model CreateContextStoreAPIKeyRequest {
-  name?: string(name='name', description='This parameter is required.', example='my-api-key'),
-  clientToken?: string(name='clientToken', example='a1b2c3d4-1234-5678-90ab-cdef12345678'),
+  name?: string(name='name', description='The display name of the API key, used to identify its purpose.
+
+This parameter is required.', example='my-api-key'),
+  clientToken?: string(name='clientToken', description='The idempotency token. A unique string generated by the client to ensure the idempotence of the create operation.', example='a1b2c3d4-1234-5678-90ab-cdef12345678'),
 }
 
 model CreateContextStoreAPIKeyResponseBody = {
-  apiKey?: string(name='apiKey', example='sk-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx'),
-  name?: string(name='name', example='my-api-key'),
-  requestId?: string(name='requestId', example='9ACFB10A-1B2C-3D4E-5F6G-7H8I9J0K1L2M'),
+  apiKey?: string(name='apiKey', description='The complete API key value.', example='sk-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx'),
+  name?: string(name='name', description='The name of the API key.', example='my-api-key'),
+  requestId?: string(name='requestId', description='The request ID.', example='9ACFB10A-1B2C-3D4E-5F6G-7H8I9J0K1L2M'),
 }
 
 model CreateContextStoreAPIKeyResponse = {
@@ -404,7 +502,7 @@ model CreateContextStoreAPIKeyResponse = {
 }
 
 /**
- * @summary 创建 API Key
+ * @summary Creates an API key.
  *
  * @param request CreateContextStoreAPIKeyRequest
  * @param headers map
@@ -443,7 +541,7 @@ async function createContextStoreAPIKeyWithOptions(agentSpace: string, contextSt
 }
 
 /**
- * @summary 创建 API Key
+ * @summary Creates an API key.
  *
  * @param request CreateContextStoreAPIKeyRequest
  * @return CreateContextStoreAPIKeyResponse
@@ -455,14 +553,18 @@ async function createContextStoreAPIKey(agentSpace: string, contextStoreName: st
 }
 
 model CreateDatasetRequest {
-  datasetName?: string(name='datasetName', description='This parameter is required.'),
-  description?: string(name='description'),
-  schema?: map[string]IndexKey(name='schema', description='This parameter is required.'),
-  clientToken?: string(name='clientToken', example='a1b2c3d4-1234-5678-90ab-cdef12345678'),
+  datasetName?: string(name='datasetName', description='The name of the dataset.
+
+This parameter is required.', example='product_faq_dataset'),
+  description?: string(name='description', description='The description of the dataset.', example='Product FAQ dataset for semantic search'),
+  schema?: map[string]IndexKey(name='schema', description='The schema of the dataset.
+
+This parameter is required.'),
+  clientToken?: string(name='clientToken', description='The idempotency token. A unique string generated by the client to ensure that the create operation is idempotent.', example='a1b2c3d4-1234-5678-90ab-cdef12345678'),
 }
 
 model CreateDatasetResponseBody = {
-  requestId?: string(name='requestId'),
+  requestId?: string(name='requestId', description='Id of the request', example='EB27D183-8F6C-5C5A-A6A3-E0508AF54F78'),
 }
 
 model CreateDatasetResponse = {
@@ -472,7 +574,7 @@ model CreateDatasetResponse = {
 }
 
 /**
- * @summary 创建数据集
+ * @summary Creates a dataset.
  *
  * @param request CreateDatasetRequest
  * @param headers map
@@ -517,7 +619,7 @@ async function createDatasetWithOptions(agentSpace: string, request: CreateDatas
 }
 
 /**
- * @summary 创建数据集
+ * @summary Creates a dataset.
  *
  * @param request CreateDatasetRequest
  * @return CreateDatasetResponse
@@ -528,14 +630,345 @@ async function createDataset(agentSpace: string, request: CreateDatasetRequest):
   return createDatasetWithOptions(agentSpace, request, headers, runtime);
 }
 
+model CreateEvaluationTaskRequest {
+  channel?: string(name='channel', description='The task source. If this parameter is not specified, the backend uses `default`.', example='default'),
+  config?: map[string]string(name='config', description='The data source and execution configuration. When `dataType` is set to `trace`, the backend automatically populates the SLS Project and sets `storeName` to `logstore-tracing`. For trace-level evaluation, set `dataScope` to `trace`.', example='{"dataScope":"trace"}'),
+  dataFilter?: string(name='dataFilter', description='The filter conditions for evaluation data. This parameter supports a JSON object or a JSON string. Common fields include `query`, `provided`, `maxRecords`, and `samplingRate`.', example='{"query":"serviceName=\\\\"checkout-service\\\\"","maxRecords":10,"samplingRate":100}'),
+  dataType?: string(name='dataType', description='The data source type of the evaluation object. Set this parameter to `trace` for trace-based evaluation.', example='trace'),
+  description?: string(name='description', description='The description of the evaluation task.', example='评估线上 Agent 链路任务完成度'),
+  evaluators?: [
+    Evaluator
+  ](name='evaluators', description='The list of evaluator configurations. This parameter cannot be empty. Within the same task, `evaluatorRef` takes precedence as the unique identifier. Otherwise, `name` is used.', example='[{"evaluatorRef":"Builtin.agent_task_completion","resultName":"agent_task_completion","resultType":"score","variableMapping":{"input":"trace.input","output":"trace.output","agent_trajectory":"trace.agent_trajectory"}}]'),
+  runStrategies?: RunStrategies(name='runStrategies', description='The task execution strategy. This parameter supports a JSON object or a JSON string. Set this parameter to `backfill` for historical data backfill or `continuous` for continuous evaluation of new data.'),
+  tags?: map[string]string(name='tags', description='The key-value pairs of task tags. You do not need to specify this parameter by default. Specify this parameter only when you want to associate or filter tasks by business tags.', example='{"env":"prod","serviceId":"checkout-service","planId":"plan-20260703"}'),
+  taskMode?: string(name='taskMode', description='The evaluation task mode. Set this parameter to `batch` to create a persistent evaluation task.', example='batch'),
+  taskName?: string(name='taskName', description='The task name. The name must be unique among non-deleted tasks within the same user and AgentSpace. The name can be up to 256 characters in length.', example='trace_task_completion_eval'),
+  clientToken?: string(name='clientToken', description='The idempotency token. This query parameter is declared in CloudSpec, but the backend does not currently perform idempotency comparison.', example='a1b2c3d4-1234-5678-90ab-cdef12345678'),
+}
+
+model CreateEvaluationTaskResponseBody = {
+  requestId?: string(name='requestId', description='The request ID.', example='3FE4CD1E-FF41-56BE-B590-7A021D9C1524'),
+  status?: string(name='status', description='The evaluation task status. After creation, the status is typically `Pending`. After asynchronous orchestration, the status may change to `Running` or `Scheduling`.', example='Pending'),
+  taskId?: string(name='taskId', description='The evaluation task ID.', example='eval-task-8b36f2e2b1f94f9c91ce7a4b0f6d9c25'),
+}
+
+model CreateEvaluationTaskResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: CreateEvaluationTaskResponseBody(name='body'),
+}
+
+/**
+ * @summary Creates an evaluation task.
+ *
+ * @description Calls the CreateEvaluationTask operation to create an evaluation task in a specified AgentSpace. The server verifies AgentSpace permissions, initializes evaluation result storage, checks the uniqueness of the task name, and asynchronously creates and executes an EvaluationRun based on `taskMode` and `runStrategies`.
+ * This operation is applicable to running built-in or custom evaluators on Trace, Dataset, or SLS Log data. It supports two execution strategies: historical backfill and continuous evaluation.
+ *
+ * @param request CreateEvaluationTaskRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return CreateEvaluationTaskResponse
+ */
+async function createEvaluationTaskWithOptions(agentSpace: string, request: CreateEvaluationTaskRequest, headers: map[string]string, runtime: Util.RuntimeOptions): CreateEvaluationTaskResponse {
+  Util.validateModel(request);
+  var query : map[string]any = {};
+  if (!Util.isUnset(request.clientToken)) {
+    query['clientToken'] = request.clientToken;
+  }
+
+  var body : map[string]any = {};
+  if (!Util.isUnset(request.channel)) {
+    body['channel'] = request.channel;
+  }
+  if (!Util.isUnset(request.config)) {
+    body['config'] = request.config;
+  }
+  if (!Util.isUnset(request.dataFilter)) {
+    body['dataFilter'] = request.dataFilter;
+  }
+  if (!Util.isUnset(request.dataType)) {
+    body['dataType'] = request.dataType;
+  }
+  if (!Util.isUnset(request.description)) {
+    body['description'] = request.description;
+  }
+  if (!Util.isUnset(request.evaluators)) {
+    body['evaluators'] = request.evaluators;
+  }
+  if (!Util.isUnset(request.runStrategies)) {
+    body['runStrategies'] = request.runStrategies;
+  }
+  if (!Util.isUnset(request.tags)) {
+    body['tags'] = request.tags;
+  }
+  if (!Util.isUnset(request.taskMode)) {
+    body['taskMode'] = request.taskMode;
+  }
+  if (!Util.isUnset(request.taskName)) {
+    body['taskName'] = request.taskName;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApi.Params{
+    action = 'CreateEvaluationTask',
+    version = '2026-05-20',
+    protocol = 'HTTPS',
+    pathname = `/api/v1/evaluation-task/${OpenApiUtil.getEncodeParam(agentSpace)}`,
+    method = 'POST',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Creates an evaluation task.
+ *
+ * @description Calls the CreateEvaluationTask operation to create an evaluation task in a specified AgentSpace. The server verifies AgentSpace permissions, initializes evaluation result storage, checks the uniqueness of the task name, and asynchronously creates and executes an EvaluationRun based on `taskMode` and `runStrategies`.
+ * This operation is applicable to running built-in or custom evaluators on Trace, Dataset, or SLS Log data. It supports two execution strategies: historical backfill and continuous evaluation.
+ *
+ * @param request CreateEvaluationTaskRequest
+ * @return CreateEvaluationTaskResponse
+ */
+async function createEvaluationTask(agentSpace: string, request: CreateEvaluationTaskRequest): CreateEvaluationTaskResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return createEvaluationTaskWithOptions(agentSpace, request, headers, runtime);
+}
+
+model CreateEvaluatorRequest {
+  annotations?: [ string ](name='annotations', description='The list of annotation tags.', example='["__en"]'),
+  config?: map[string]any(name='config', description='The evaluator configuration. For LLM/AGENT evaluators, this typically contains prompt, variables, and outputSchema. For CODE evaluators, this typically contains codeType, faasConfig, variables, and parameters.', example='{"prompt":"请评估任务完成度","variables":[{"name":"input"}]}'),
+  description?: string(name='description', description='The evaluator description. The description can be up to 256 characters in length.', example='判断 Agent 是否完成用户任务'),
+  displayName?: string(name='displayName', description='The display name. The name can be up to 128 characters in length.', example='链路任务完成度'),
+  metricName?: string(name='metricName', description='The evaluation metric name.
+
+This parameter is required.', example='agent_task_completion'),
+  name?: string(name='name', description='The evaluator name. The name cannot start with a system-reserved prefix and can be up to 128 characters in length.
+
+This parameter is required.', example='trace_task_completion'),
+  properties?: map[string]any(name='properties', description='The evaluator properties.', example='{"agentEvaluatorMode":"raw_prompt"}'),
+  type?: string(name='type', description='The evaluator type. Valid values:
+
+- LLM: an inner join large language model evaluation evaluator.
+- AGENT: a StarOps digital human evaluator.
+- CODE: a code evaluator.
+
+This parameter is required.', example='AGENT'),
+  version?: string(name='version', description='The initial version number.
+
+This parameter is required.', example='1.0.0'),
+  versionDescription?: string(name='versionDescription', description='The version description.', example='初始版本'),
+  clientToken?: string(name='clientToken', description='The idempotency token. A unique string generated by the client to ensure idempotent creation. This query parameter is declared in CloudSpec, but the backend does not currently perform idempotency checks.', example='a1b2c3d4-1234-5678-90ab-cdef12345678'),
+}
+
+model CreateEvaluatorResponseBody = {
+  name?: string(name='name', description='The evaluator name.', example='trace_task_completion'),
+  requestId?: string(name='requestId', description='The request ID.', example='3FE4CD1E-FF41-56BE-B590-7A021D9C1524'),
+  version?: string(name='version', description='The version number that is created.', example='1.0.0'),
+}
+
+model CreateEvaluatorResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: CreateEvaluatorResponseBody(name='body'),
+}
+
+/**
+ * @summary Creates an evaluator.
+ *
+ * @param request CreateEvaluatorRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return CreateEvaluatorResponse
+ */
+async function createEvaluatorWithOptions(agentSpace: string, request: CreateEvaluatorRequest, headers: map[string]string, runtime: Util.RuntimeOptions): CreateEvaluatorResponse {
+  Util.validateModel(request);
+  var query : map[string]any = {};
+  if (!Util.isUnset(request.clientToken)) {
+    query['clientToken'] = request.clientToken;
+  }
+
+  var body : map[string]any = {};
+  if (!Util.isUnset(request.annotations)) {
+    body['annotations'] = request.annotations;
+  }
+  if (!Util.isUnset(request.config)) {
+    body['config'] = request.config;
+  }
+  if (!Util.isUnset(request.description)) {
+    body['description'] = request.description;
+  }
+  if (!Util.isUnset(request.displayName)) {
+    body['displayName'] = request.displayName;
+  }
+  if (!Util.isUnset(request.metricName)) {
+    body['metricName'] = request.metricName;
+  }
+  if (!Util.isUnset(request.name)) {
+    body['name'] = request.name;
+  }
+  if (!Util.isUnset(request.properties)) {
+    body['properties'] = request.properties;
+  }
+  if (!Util.isUnset(request.type)) {
+    body['type'] = request.type;
+  }
+  if (!Util.isUnset(request.version)) {
+    body['version'] = request.version;
+  }
+  if (!Util.isUnset(request.versionDescription)) {
+    body['versionDescription'] = request.versionDescription;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApi.Params{
+    action = 'CreateEvaluator',
+    version = '2026-05-20',
+    protocol = 'HTTPS',
+    pathname = `/api/v1/evaluators/${OpenApiUtil.getEncodeParam(agentSpace)}`,
+    method = 'POST',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Creates an evaluator.
+ *
+ * @param request CreateEvaluatorRequest
+ * @return CreateEvaluatorResponse
+ */
+async function createEvaluator(agentSpace: string, request: CreateEvaluatorRequest): CreateEvaluatorResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return createEvaluatorWithOptions(agentSpace, request, headers, runtime);
+}
+
+model CreateEvaluatorSkillRequest {
+  agentSpace?: string(name='agentSpace', description='The AgentSpace name.
+
+This parameter is required.', example='prod-agentspace'),
+  description?: string(name='description', description='The description of the skill.', example='读取链路上下文辅助评估'),
+  displayName?: string(name='displayName', description='The display name of the skill.', example='Trace 上下文读取'),
+  enable?: boolean(name='enable', description='Specifies whether to enable the skill.', example='true'),
+  files?: [ 
+    {
+      content?: string(name='content', description='The skill file content.
+
+This parameter is required.', example='# Trace Context Loader'),
+      name?: string(name='name', description='The skill file name.
+
+This parameter is required.', example='SKILL.md'),
+      remark?: string(name='remark', description='The file remarks.', example='主技能说明'),
+    }
+  ](name='files', description='The list of skill files.
+
+This parameter is required.', example='[{"name":"SKILL.md","content":"# Trace Context Loader","remark":"主技能说明"}]'),
+  skillName?: string(name='skillName', description='The skill name.
+
+This parameter is required.', example='trace_context_loader'),
+  clientToken?: string(name='clientToken', description='The idempotency token. This is a unique string generated by the client to ensure idempotence of the create operation. CloudSpec declares this query parameter, but the backend does not currently perform idempotency comparison.', example='a1b2c3d4-1234-5678-90ab-cdef12345678'),
+}
+
+model CreateEvaluatorSkillResponseBody = {
+  requestId?: string(name='requestId', description='The request ID.', example='3FE4CD1E-FF41-56BE-B590-7A021D9C1524'),
+  skillName?: string(name='skillName', description='The name of the created skill.', example='trace_context_loader'),
+}
+
+model CreateEvaluatorSkillResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: CreateEvaluatorSkillResponseBody(name='body'),
+}
+
+/**
+ * @summary Creates an evaluator skill.
+ *
+ * @param request CreateEvaluatorSkillRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return CreateEvaluatorSkillResponse
+ */
+async function createEvaluatorSkillWithOptions(name: string, request: CreateEvaluatorSkillRequest, headers: map[string]string, runtime: Util.RuntimeOptions): CreateEvaluatorSkillResponse {
+  Util.validateModel(request);
+  var query : map[string]any = {};
+  if (!Util.isUnset(request.agentSpace)) {
+    query['agentSpace'] = request.agentSpace;
+  }
+  if (!Util.isUnset(request.clientToken)) {
+    query['clientToken'] = request.clientToken;
+  }
+
+  var body : map[string]any = {};
+  if (!Util.isUnset(request.description)) {
+    body['description'] = request.description;
+  }
+  if (!Util.isUnset(request.displayName)) {
+    body['displayName'] = request.displayName;
+  }
+  if (!Util.isUnset(request.enable)) {
+    body['enable'] = request.enable;
+  }
+  if (!Util.isUnset(request.files)) {
+    body['files'] = request.files;
+  }
+  if (!Util.isUnset(request.skillName)) {
+    body['skillName'] = request.skillName;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApi.Params{
+    action = 'CreateEvaluatorSkill',
+    version = '2026-05-20',
+    protocol = 'HTTPS',
+    pathname = `/api/v1/evaluator/${OpenApiUtil.getEncodeParam(name)}/skill`,
+    method = 'POST',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Creates an evaluator skill.
+ *
+ * @param request CreateEvaluatorSkillRequest
+ * @return CreateEvaluatorSkillResponse
+ */
+async function createEvaluatorSkill(name: string, request: CreateEvaluatorSkillRequest): CreateEvaluatorSkillResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return createEvaluatorSkillWithOptions(name, request, headers, runtime);
+}
+
 model DeleteAgentSpaceRequest {
-  deleteCmsWorkspace?: boolean(name='deleteCmsWorkspace'),
-  deleteMseNamespace?: boolean(name='deleteMseNamespace'),
-  deleteSlsProject?: boolean(name='deleteSlsProject'),
+  deleteCmsWorkspace?: boolean(name='deleteCmsWorkspace', description='Specifies whether to delete the associated Hybrid Cloud Monitoring workspace.', example='false'),
+  deleteMseNamespace?: boolean(name='deleteMseNamespace', description='Specifies whether to delete the associated MSE namespace.', example='false'),
+  deleteSlsProject?: boolean(name='deleteSlsProject', description='Specifies whether to delete the associated SLS project.', example='false'),
 }
 
 model DeleteAgentSpaceResponseBody = {
-  requestId?: string(name='requestId'),
+  requestId?: string(name='requestId', description='The request ID.', example='D0173835-9E0F-508F-8BFA-9F556E59C302'),
 }
 
 model DeleteAgentSpaceResponse = {
@@ -545,7 +978,7 @@ model DeleteAgentSpaceResponse = {
 }
 
 /**
- * @summary 删除AgentSpace
+ * @summary Deletes an AgentSpace.
  *
  * @param request DeleteAgentSpaceRequest
  * @param headers map
@@ -584,7 +1017,7 @@ async function deleteAgentSpaceWithOptions(agentSpace: string, request: DeleteAg
 }
 
 /**
- * @summary 删除AgentSpace
+ * @summary Deletes an AgentSpace.
  *
  * @param request DeleteAgentSpaceRequest
  * @return DeleteAgentSpaceResponse
@@ -599,7 +1032,7 @@ model DeleteContextStoreRequest {
 }
 
 model DeleteContextStoreResponseBody = {
-  requestId?: string(name='requestId', example='9ACFB10A-1B2C-3D4E-5F6G-7H8I9J0K1L2M'),
+  requestId?: string(name='requestId', description='The request ID, which is used to locate and troubleshoot issues.', example='9ACFB10A-1B2C-3D4E-5F6G-7H8I9J0K1L2M'),
 }
 
 model DeleteContextStoreResponse = {
@@ -609,7 +1042,7 @@ model DeleteContextStoreResponse = {
 }
 
 /**
- * @summary 删除上下文库
+ * @summary Deletes a context store.
  *
  * @param request DeleteContextStoreRequest
  * @param headers map
@@ -636,7 +1069,7 @@ async function deleteContextStoreWithOptions(agentSpace: string, contextStoreNam
 }
 
 /**
- * @summary 删除上下文库
+ * @summary Deletes a context store.
  *
  * @param request DeleteContextStoreRequest
  * @return DeleteContextStoreResponse
@@ -651,7 +1084,7 @@ model DeleteContextStoreAPIKeyRequest {
 }
 
 model DeleteContextStoreAPIKeyResponseBody = {
-  requestId?: string(name='requestId', example='9ACFB10A-1B2C-3D4E-5F6G-7H8I9J0K1L2M'),
+  requestId?: string(name='requestId', description='The request ID, which is used to locate and troubleshoot issues.', example='9ACFB10A-1B2C-3D4E-5F6G-7H8I9J0K1L2M'),
 }
 
 model DeleteContextStoreAPIKeyResponse = {
@@ -661,7 +1094,7 @@ model DeleteContextStoreAPIKeyResponse = {
 }
 
 /**
- * @summary 删除 API Key
+ * @summary Deletes an API key.
  *
  * @param request DeleteContextStoreAPIKeyRequest
  * @param headers map
@@ -688,7 +1121,7 @@ async function deleteContextStoreAPIKeyWithOptions(agentSpace: string, contextSt
 }
 
 /**
- * @summary 删除 API Key
+ * @summary Deletes an API key.
  *
  * @param request DeleteContextStoreAPIKeyRequest
  * @return DeleteContextStoreAPIKeyResponse
@@ -703,7 +1136,7 @@ model DeleteDatasetRequest {
 }
 
 model DeleteDatasetResponseBody = {
-  requestId?: string(name='requestId'),
+  requestId?: string(name='requestId', description='Id of the request', example='3FE4CD1E-FF41-56BE-B590-7A021D9C1524'),
 }
 
 model DeleteDatasetResponse = {
@@ -713,7 +1146,7 @@ model DeleteDatasetResponse = {
 }
 
 /**
- * @summary 删除数据集
+ * @summary Deletes a dataset.
  *
  * @param request DeleteDatasetRequest
  * @param headers map
@@ -740,7 +1173,7 @@ async function deleteDatasetWithOptions(agentSpace: string, datasetName: string,
 }
 
 /**
- * @summary 删除数据集
+ * @summary Deletes a dataset.
  *
  * @param request DeleteDatasetRequest
  * @return DeleteDatasetResponse
@@ -751,11 +1184,235 @@ async function deleteDataset(agentSpace: string, datasetName: string, request: D
   return deleteDatasetWithOptions(agentSpace, datasetName, request, headers, runtime);
 }
 
+model DeleteEvaluationRunRequest {
+}
+
+model DeleteEvaluationRunResponseBody = {
+  requestId?: string(name='requestId', description='The request ID.', example='3FE4CD1E-FF41-56BE-B590-7A021D9C1524'),
+}
+
+model DeleteEvaluationRunResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: DeleteEvaluationRunResponseBody(name='body'),
+}
+
+/**
+ * @summary Deletes an evaluation run.
+ *
+ * @param request DeleteEvaluationRunRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return DeleteEvaluationRunResponse
+ */
+async function deleteEvaluationRunWithOptions(agentSpace: string, taskId: string, runId: string, request: DeleteEvaluationRunRequest, headers: map[string]string, runtime: Util.RuntimeOptions): DeleteEvaluationRunResponse {
+  Util.validateModel(request);
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+  };
+  var params = new OpenApi.Params{
+    action = 'DeleteEvaluationRun',
+    version = '2026-05-20',
+    protocol = 'HTTPS',
+    pathname = `/api/v1/evaluation-task/${OpenApiUtil.getEncodeParam(agentSpace)}/${OpenApiUtil.getEncodeParam(taskId)}/run/${OpenApiUtil.getEncodeParam(runId)}`,
+    method = 'DELETE',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Deletes an evaluation run.
+ *
+ * @param request DeleteEvaluationRunRequest
+ * @return DeleteEvaluationRunResponse
+ */
+async function deleteEvaluationRun(agentSpace: string, taskId: string, runId: string, request: DeleteEvaluationRunRequest): DeleteEvaluationRunResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return deleteEvaluationRunWithOptions(agentSpace, taskId, runId, request, headers, runtime);
+}
+
+model DeleteEvaluationTaskRequest {
+}
+
+model DeleteEvaluationTaskResponseBody = {
+  requestId?: string(name='requestId', description='The request ID.', example='3FE4CD1E-FF41-56BE-B590-7A021D9C1524'),
+}
+
+model DeleteEvaluationTaskResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: DeleteEvaluationTaskResponseBody(name='body'),
+}
+
+/**
+ * @summary Deletes an evaluation task.
+ *
+ * @param request DeleteEvaluationTaskRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return DeleteEvaluationTaskResponse
+ */
+async function deleteEvaluationTaskWithOptions(agentSpace: string, taskId: string, request: DeleteEvaluationTaskRequest, headers: map[string]string, runtime: Util.RuntimeOptions): DeleteEvaluationTaskResponse {
+  Util.validateModel(request);
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+  };
+  var params = new OpenApi.Params{
+    action = 'DeleteEvaluationTask',
+    version = '2026-05-20',
+    protocol = 'HTTPS',
+    pathname = `/api/v1/evaluation-task/${OpenApiUtil.getEncodeParam(agentSpace)}/${OpenApiUtil.getEncodeParam(taskId)}`,
+    method = 'DELETE',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Deletes an evaluation task.
+ *
+ * @param request DeleteEvaluationTaskRequest
+ * @return DeleteEvaluationTaskResponse
+ */
+async function deleteEvaluationTask(agentSpace: string, taskId: string, request: DeleteEvaluationTaskRequest): DeleteEvaluationTaskResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return deleteEvaluationTaskWithOptions(agentSpace, taskId, request, headers, runtime);
+}
+
+model DeleteEvaluatorRequest {
+  version?: string(name='version', description='The version to delete. If this parameter is not specified, the entire evaluator is deleted.', example='1.0.0'),
+}
+
+model DeleteEvaluatorResponseBody = {
+  requestId?: string(name='requestId', description='The request ID.', example='3FE4CD1E-FF41-56BE-B590-7A021D9C1524'),
+}
+
+model DeleteEvaluatorResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: DeleteEvaluatorResponseBody(name='body'),
+}
+
+/**
+ * @summary Deletes an evaluator.
+ *
+ * @param request DeleteEvaluatorRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return DeleteEvaluatorResponse
+ */
+async function deleteEvaluatorWithOptions(agentSpace: string, name: string, request: DeleteEvaluatorRequest, headers: map[string]string, runtime: Util.RuntimeOptions): DeleteEvaluatorResponse {
+  Util.validateModel(request);
+  var query : map[string]any = {};
+  if (!Util.isUnset(request.version)) {
+    query['version'] = request.version;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'DeleteEvaluator',
+    version = '2026-05-20',
+    protocol = 'HTTPS',
+    pathname = `/api/v1/evaluators/${OpenApiUtil.getEncodeParam(agentSpace)}/${OpenApiUtil.getEncodeParam(name)}`,
+    method = 'DELETE',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Deletes an evaluator.
+ *
+ * @param request DeleteEvaluatorRequest
+ * @return DeleteEvaluatorResponse
+ */
+async function deleteEvaluator(agentSpace: string, name: string, request: DeleteEvaluatorRequest): DeleteEvaluatorResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return deleteEvaluatorWithOptions(agentSpace, name, request, headers, runtime);
+}
+
+model DeleteEvaluatorSkillRequest {
+  agentSpace?: string(name='agentSpace', description='The AgentSpace name.
+
+This parameter is required.', example='prod-agentspace'),
+}
+
+model DeleteEvaluatorSkillResponseBody = {
+  requestId?: string(name='requestId', description='The request ID.', example='3FE4CD1E-FF41-56BE-B590-7A021D9C1524'),
+}
+
+model DeleteEvaluatorSkillResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: DeleteEvaluatorSkillResponseBody(name='body'),
+}
+
+/**
+ * @summary Deletes an evaluator skill.
+ *
+ * @param request DeleteEvaluatorSkillRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return DeleteEvaluatorSkillResponse
+ */
+async function deleteEvaluatorSkillWithOptions(name: string, skillName: string, request: DeleteEvaluatorSkillRequest, headers: map[string]string, runtime: Util.RuntimeOptions): DeleteEvaluatorSkillResponse {
+  Util.validateModel(request);
+  var query : map[string]any = {};
+  if (!Util.isUnset(request.agentSpace)) {
+    query['agentSpace'] = request.agentSpace;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'DeleteEvaluatorSkill',
+    version = '2026-05-20',
+    protocol = 'HTTPS',
+    pathname = `/api/v1/evaluator/${OpenApiUtil.getEncodeParam(name)}/skill/${OpenApiUtil.getEncodeParam(skillName)}`,
+    method = 'DELETE',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Deletes an evaluator skill.
+ *
+ * @param request DeleteEvaluatorSkillRequest
+ * @return DeleteEvaluatorSkillResponse
+ */
+async function deleteEvaluatorSkill(name: string, skillName: string, request: DeleteEvaluatorSkillRequest): DeleteEvaluatorSkillResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return deleteEvaluatorSkillWithOptions(name, skillName, request, headers, runtime);
+}
+
 model DeletePipelineRequest {
 }
 
 model DeletePipelineResponseBody = {
-  requestId?: string(name='requestId', example='9ACFB10A-1B2C-3D4E-5F6G-7H8I9J0K1L2M'),
+  requestId?: string(name='requestId', description='The request ID, which is used to locate and troubleshoot issues.', example='9ACFB10A-1B2C-3D4E-5F6G-7H8I9J0K1L2M'),
 }
 
 model DeletePipelineResponse = {
@@ -765,7 +1422,7 @@ model DeletePipelineResponse = {
 }
 
 /**
- * @summary 删除流水线
+ * @summary Deletes a pipeline.
  *
  * @param request DeletePipelineRequest
  * @param headers map
@@ -792,7 +1449,7 @@ async function deletePipelineWithOptions(agentSpace: string, pipelineName: strin
 }
 
 /**
- * @summary 删除流水线
+ * @summary Deletes a pipeline.
  *
  * @param request DeletePipelineRequest
  * @return DeletePipelineResponse
@@ -804,23 +1461,27 @@ async function deletePipeline(agentSpace: string, pipelineName: string, request:
 }
 
 model DescribeRegionsRequest {
-  language?: string(name='language', description='This parameter is required.'),
-  maxResults?: int32(name='maxResults'),
-  nextToken?: string(name='nextToken'),
+  language?: string(name='language', description='The language. Valid values:
+- zh: Chinese
+- en: English
+
+This parameter is required.', example='zh'),
+  maxResults?: int32(name='maxResults', description='The maximum number of entries to return in a single request.', example='50'),
+  nextToken?: string(name='nextToken', description='The pagination token.', example='dXkC1NeQkVKHWkVfOvIVEp4dD+2BRJj42DLT6GrZysw='),
 }
 
 model DescribeRegionsResponseBody = {
-  maxResults?: int32(name='maxResults'),
-  nextToken?: string(name='nextToken'),
+  maxResults?: int32(name='maxResults', description='The maximum number of entries returned per request.', example='100'),
+  nextToken?: string(name='nextToken', description='The pagination token. If no more pages are available, this parameter is empty.', example='ydx438PDAW1lYRJZbBn9'),
   regions?: [ 
     {
-      internetEndpoint?: string(name='internetEndpoint'),
-      localName?: string(name='localName'),
-      regionId?: string(name='regionId'),
-      vpcEndpoint?: string(name='vpcEndpoint'),
+      internetEndpoint?: string(name='internetEndpoint', description='The public endpoint.', example='agentloop.cn-hangzhou.aliyuncs.com'),
+      localName?: string(name='localName', description='The region name.', example='华东1（杭州）'),
+      regionId?: string(name='regionId', description='The region ID.', example='cn-hangzhou'),
+      vpcEndpoint?: string(name='vpcEndpoint', description='The internal endpoint.', example='agentloop.cn-hangzhou.aliyuncs.com'),
     }
-  ](name='regions'),
-  requestId?: string(name='requestId'),
+  ](name='regions', description='The region information.'),
+  requestId?: string(name='requestId', description='The request ID.', example='4FDD8668-516C-5183-9BCF-4CAD8E3CF327'),
 }
 
 model DescribeRegionsResponse = {
@@ -830,7 +1491,7 @@ model DescribeRegionsResponse = {
 }
 
 /**
- * @summary 查询Regions
+ * @summary Queries regions.
  *
  * @param request DescribeRegionsRequest
  * @param headers map
@@ -869,7 +1530,7 @@ async function describeRegionsWithOptions(request: DescribeRegionsRequest, heade
 }
 
 /**
- * @summary 查询Regions
+ * @summary Queries regions.
  *
  * @param request DescribeRegionsRequest
  * @return DescribeRegionsResponse
@@ -881,21 +1542,34 @@ async function describeRegions(request: DescribeRegionsRequest): DescribeRegions
 }
 
 model ExecuteQueryRequest {
-  query?: string(name='query', description='This parameter is required.'),
-  type?: string(name='type', description='This parameter is required.', example='SQL'),
+  from?: int32(name='from'),
+  length?: int32(name='length'),
+  maxOutputLength?: int32(name='maxOutputLength'),
+  offset?: int32(name='offset'),
+  query?: string(name='query', description='The query entered by the user.
+
+This parameter is required.', example='select count(*) from product_faq_dataset'),
+  to?: int32(name='to'),
+  type?: string(name='type', description='The statement type. Currently, only SQL is supported.
+
+This parameter is required.', example='SQL'),
 }
 
 model ExecuteQueryResponseBody = {
-  columnTypes?: [ string ](name='columnTypes'),
-  columns?: [ string ](name='columns'),
+  columnTypes?: [ string ](name='columnTypes', description='The result column types.'),
+  columns?: [ string ](name='columns', description='The result column information.'),
   meta?: {
-    affectedRows?: int32(name='affectedRows'),
-    count?: int32(name='count', example='1'),
-    elapsedMillisecond?: long(name='elapsedMillisecond'),
-    progress?: string(name='progress', example='Complete'),
-  }(name='meta'),
-  requestId?: string(name='requestId'),
-  rows?: [[ any ]  ](name='rows'),
+    affectedRows?: int32(name='affectedRows', description='The number of log rows scanned or processed.', example='100'),
+    count?: int32(name='count', description='The number of log rows returned by this query request.', example='1'),
+    elapsedMillisecond?: long(name='elapsedMillisecond', description='The time consumed by this execution, in milliseconds.', example='15'),
+    progress?: string(name='progress', description='Indicates whether the query result is complete.', example='Complete'),
+    truncation?: {
+      truncated?: boolean(name='truncated'),
+      truncatedColumnIndexes?: [[ int32 ]      ](name='truncatedColumnIndexes'),
+    }(name='truncation'),
+  }(name='meta', description='The metadata of the returned data.'),
+  requestId?: string(name='requestId', description='The request ID.', example='EB27D183-8F6C-5C5A-A6A3-E0508AF54F78'),
+  rows?: [[ any ]  ](name='rows', description='The result rows.'),
 }
 
 model ExecuteQueryResponse = {
@@ -905,7 +1579,7 @@ model ExecuteQueryResponse = {
 }
 
 /**
- * @summary 执行查询语句
+ * @summary Executes a query statement.
  *
  * @param request ExecuteQueryRequest
  * @param headers map
@@ -915,8 +1589,23 @@ model ExecuteQueryResponse = {
 async function executeQueryWithOptions(agentSpace: string, datasetName: string, request: ExecuteQueryRequest, headers: map[string]string, runtime: Util.RuntimeOptions): ExecuteQueryResponse {
   Util.validateModel(request);
   var body : map[string]any = {};
+  if (!Util.isUnset(request.from)) {
+    body['from'] = request.from;
+  }
+  if (!Util.isUnset(request.length)) {
+    body['length'] = request.length;
+  }
+  if (!Util.isUnset(request.maxOutputLength)) {
+    body['maxOutputLength'] = request.maxOutputLength;
+  }
+  if (!Util.isUnset(request.offset)) {
+    body['offset'] = request.offset;
+  }
   if (!Util.isUnset(request.query)) {
     body['query'] = request.query;
+  }
+  if (!Util.isUnset(request.to)) {
+    body['to'] = request.to;
   }
   if (!Util.isUnset(request.type)) {
     body['type'] = request.type;
@@ -941,7 +1630,7 @@ async function executeQueryWithOptions(agentSpace: string, datasetName: string, 
 }
 
 /**
- * @summary 执行查询语句
+ * @summary Executes a query statement.
  *
  * @param request ExecuteQueryRequest
  * @return ExecuteQueryResponse
@@ -956,19 +1645,23 @@ model GetAgentSpaceRequest {
 }
 
 model GetAgentSpaceResponseBody = {
-  agentSpace?: string(name='agentSpace'),
-  cmsWorkspace?: string(name='cmsWorkspace'),
-  cmsWorkspaceBindType?: string(name='cmsWorkspaceBindType'),
-  createTime?: string(name='createTime', description='Use the UTC time format: yyyy-MM-ddTHH:mm:ssZ'),
-  description?: string(name='description'),
+  agentSpace?: string(name='agentSpace', description='The name of the AgentSpace.', example='test-agent-space'),
+  cmsWorkspace?: string(name='cmsWorkspace', description='The CloudMonitor workspace.', example='test-cms-workspace'),
+  cmsWorkspaceBindType?: string(name='cmsWorkspaceBindType', description='The binding type of the CloudMonitor 2.0 workspace.', example='AutoCreated'),
+  createTime?: string(name='createTime', description='The time when the AgentSpace was created.
+
+Use the UTC time format: yyyy-MM-ddTHH:mm:ssZ', example='2026-05-05T12:39:36Z'),
+  description?: string(name='description', description='The description.', example='test'),
   mseNamespace?: {
-    namespaceId?: string(name='namespaceId'),
-    namespaceName?: string(name='namespaceName'),
-  }(name='mseNamespace'),
-  regionId?: string(name='regionId'),
-  requestId?: string(name='requestId'),
-  slsProject?: string(name='slsProject'),
-  updateTime?: string(name='updateTime', description='Use the UTC time format: yyyy-MM-ddTHH:mm:ssZ'),
+    namespaceId?: string(name='namespaceId', description='The ID of the MSE namespace.', example='emr-dataware'),
+    namespaceName?: string(name='namespaceName', description='The name of the MSE namespace.', example='terraform-alicloud-modules'),
+  }(name='mseNamespace', description='The Microservices Engine (MSE) namespace.'),
+  regionId?: string(name='regionId', description='The region ID.', example='cn-hangzhou'),
+  requestId?: string(name='requestId', description='The request ID.', example='D0173835-9E0F-508F-8BFA-9F556E59C302'),
+  slsProject?: string(name='slsProject', description='The name of the Simple Log Service project.', example='default-cms-1837787111545040-cn-beijing'),
+  updateTime?: string(name='updateTime', description='The time when the AgentSpace was last updated.
+
+Use the UTC time format: yyyy-MM-ddTHH:mm:ssZ', example='2025-10-20T02:28:14Z'),
 }
 
 model GetAgentSpaceResponse = {
@@ -978,7 +1671,7 @@ model GetAgentSpaceResponse = {
 }
 
 /**
- * @summary 查询AgentSpace
+ * @summary Queries an AgentSpace.
  *
  * @param request GetAgentSpaceRequest
  * @param headers map
@@ -1005,7 +1698,7 @@ async function getAgentSpaceWithOptions(agentSpace: string, request: GetAgentSpa
 }
 
 /**
- * @summary 查询AgentSpace
+ * @summary Queries an AgentSpace.
  *
  * @param request GetAgentSpaceRequest
  * @return GetAgentSpaceResponse
@@ -1020,24 +1713,33 @@ model GetContextStoreRequest {
 }
 
 model GetContextStoreResponseBody = {
-  agentSpace?: string(name='agentSpace', example='my-agent-space'),
+  agentSpace?: string(name='agentSpace', description='The name of the AgentSpace to which the context store belongs.', example='my-agent-space'),
   config?: {
-    metadataField?: map[string]string(name='metadataField', example='{"userId":"user_id","sessionId":"session_id"}'),
-    miningInterval?: string(name='miningInterval', example='1d'),
-    serviceNames?: [ string ](name='serviceNames', example='["order-service","payment-service"]'),
+    metadataField?: map[string]string(name='metadataField', description='The metadata field mapping. The key is the business field and the value is the storage field.', example='{"userId":"user_id","sessionId":"session_id"}'),
+    miningInterval?: string(name='miningInterval', description='The experience mining interval. Valid values: 1h, 6h, 12h, and 1d. Default value: 1d.', example='1d'),
+    serviceNames?: [ string ](name='serviceNames', description='The list of service names. This works together with source.agentSpace to locate the trace data source. This value cannot be changed in the current version.', example='["order-service","payment-service"]'),
     source?: {
-      agentSpace?: string(name='agentSpace', example='my-agent-space'),
-      startTime?: string(name='startTime', description='Use the UTC time format: yyyy-MM-ddTHH:mm:ssZ', example='2026-01-01T00:00:00Z'),
-    }(name='source'),
-  }(name='config'),
-  contextStoreName?: string(name='contextStoreName', example='my-context-store'),
-  contextType?: string(name='contextType', example='experience'),
-  createTime?: string(name='createTime', description='Use the UTC time format: yyyy-MM-ddTHH:mm:ssZ', example='2026-01-01T00:00:00Z'),
-  description?: string(name='description', example='我的上下文库'),
-  regionId?: string(name='regionId', example='cn-hangzhou'),
-  requestId?: string(name='requestId', example='9ACFB10A-1B2C-3D4E-5F6G-7H8I9J0K1L2M'),
-  status?: string(name='status', example='ACTIVE'),
-  updateTime?: string(name='updateTime', description='Use the UTC time format: yyyy-MM-ddTHH:mm:ssZ', example='2026-01-02T00:00:00Z'),
+      agentSpace?: string(name='agentSpace', description='The AgentSpace where the trace data source resides. This is the same as the AgentSpace specified during creation.', example='my-agent-space'),
+      startTime?: string(name='startTime', description='The start time for data backfill, in ISO 8601 UTC format.
+
+Use the UTC time format: yyyy-MM-ddTHH:mm:ssZ', example='2026-01-01T00:00:00Z'),
+    }(name='source', description='The datasource config passed in by the user. This serves only as the root identifier of the data source.'),
+  }(name='config', description='The configuration of the context store.'),
+  contextStoreName?: string(name='contextStoreName', description='The context store name.', example='my-context-store'),
+  contextType?: string(name='contextType', description='The type of the context store, such as experience or memory.', example='experience'),
+  createTime?: string(name='createTime', description='The time when the context store was created, in ISO 8601 UTC format.
+
+Use the UTC time format: yyyy-MM-ddTHH:mm:ssZ', example='2026-01-01T00:00:00Z'),
+  description?: string(name='description', description='The description of the context store.', example='我的上下文库'),
+  regionId?: string(name='regionId', description='The region ID of the context store.', example='cn-hangzhou'),
+  requestId?: string(name='requestId', description='The request ID, which is used to locate and troubleshoot issues.', example='9ACFB10A-1B2C-3D4E-5F6G-7H8I9J0K1L2M'),
+  status?: string(name='status', description='The status of the context store. Valid values:
+- ACTIVE
+- INITIALIZING
+- FAILED', example='ACTIVE'),
+  updateTime?: string(name='updateTime', description='The time when the context store was last updated, in ISO 8601 UTC format.
+
+Use the UTC time format: yyyy-MM-ddTHH:mm:ssZ', example='2026-01-02T00:00:00Z'),
 }
 
 model GetContextStoreResponse = {
@@ -1047,7 +1749,7 @@ model GetContextStoreResponse = {
 }
 
 /**
- * @summary 查询上下文库
+ * @summary Queries a context store.
  *
  * @param request GetContextStoreRequest
  * @param headers map
@@ -1074,7 +1776,7 @@ async function getContextStoreWithOptions(agentSpace: string, contextStoreName: 
 }
 
 /**
- * @summary 查询上下文库
+ * @summary Queries a context store.
  *
  * @param request GetContextStoreRequest
  * @return GetContextStoreResponse
@@ -1089,13 +1791,15 @@ model GetContextStoreAPIKeyRequest {
 }
 
 model GetContextStoreAPIKeyResponseBody = {
-  agentSpace?: string(name='agentSpace', example='my-agent-space'),
-  apiKey?: string(name='apiKey', example='sk-abcd****'),
-  contextStoreName?: string(name='contextStoreName', example='my-context-store'),
-  createTime?: string(name='createTime', description='Use the UTC time format: yyyy-MM-ddTHH:mm:ssZ', example='2026-01-01T00:00:00Z'),
-  name?: string(name='name', example='my-api-key'),
-  regionId?: string(name='regionId', example='cn-hangzhou'),
-  requestId?: string(name='requestId', example='9ACFB10A-1B2C-3D4E-5F6G-7H8I9J0K1L2M'),
+  agentSpace?: string(name='agentSpace', description='The name of the AgentSpace to which the API key belongs.', example='my-agent-space'),
+  apiKey?: string(name='apiKey', description='The masked prefix of the API key (for example, sk-abcd****). For security purposes, the full plaintext is not returned.', example='sk-abcd****'),
+  contextStoreName?: string(name='contextStoreName', description='The name of the context store to which the API key belongs.', example='my-context-store'),
+  createTime?: string(name='createTime', description='The creation time of the API key, in ISO 8601 UTC format.
+
+Use the UTC time format: yyyy-MM-ddTHH:mm:ssZ', example='2026-01-01T00:00:00Z'),
+  name?: string(name='name', description='The display name of the API key.', example='my-api-key'),
+  regionId?: string(name='regionId', description='The region ID of the API key.', example='cn-hangzhou'),
+  requestId?: string(name='requestId', description='The request ID, which is used to locate and troubleshoot issues.', example='9ACFB10A-1B2C-3D4E-5F6G-7H8I9J0K1L2M'),
 }
 
 model GetContextStoreAPIKeyResponse = {
@@ -1105,7 +1809,7 @@ model GetContextStoreAPIKeyResponse = {
 }
 
 /**
- * @summary 获取 API Key
+ * @summary Retrieves an API key.
  *
  * @param request GetContextStoreAPIKeyRequest
  * @param headers map
@@ -1132,7 +1836,7 @@ async function getContextStoreAPIKeyWithOptions(agentSpace: string, contextStore
 }
 
 /**
- * @summary 获取 API Key
+ * @summary Retrieves an API key.
  *
  * @param request GetContextStoreAPIKeyRequest
  * @return GetContextStoreAPIKeyResponse
@@ -1147,14 +1851,18 @@ model GetDatasetRequest {
 }
 
 model GetDatasetResponseBody = {
-  agentSpace?: string(name='agentSpace'),
-  createTime?: string(name='createTime', description='Use the UTC time format: yyyy-MM-ddTHH:mm:ssZ'),
-  datasetName?: string(name='datasetName'),
-  description?: string(name='description'),
-  regionId?: string(name='regionId'),
-  requestId?: string(name='requestId'),
-  schema?: map[string]IndexKey(name='schema'),
-  updateTime?: string(name='updateTime', description='Use the UTC time format: yyyy-MM-ddTHH:mm:ssZ'),
+  agentSpace?: string(name='agentSpace', description='The agent space name.', example='sop-agent'),
+  createTime?: string(name='createTime', description='The creation time.
+
+Use the UTC time format: yyyy-MM-ddTHH:mm:ssZ', example='2026-06-15T10:30:00Z'),
+  datasetName?: string(name='datasetName', description='The dataset name.', example='product_faq_dataset'),
+  description?: string(name='description', description='The dataset description.', example='Product FAQ dataset for semantic search'),
+  regionId?: string(name='regionId', description='The region ID.', example='cn-beijing'),
+  requestId?: string(name='requestId', description='The request ID.', example='D17DE39E-6C62-50E3-9EB7-FDE41BB0D43D'),
+  schema?: map[string]IndexKey(name='schema', description='The table schema of the dataset.'),
+  updateTime?: string(name='updateTime', description='The update time.
+
+Use the UTC time format: yyyy-MM-ddTHH:mm:ssZ', example='2026-06-15T11:20:00Z'),
 }
 
 model GetDatasetResponse = {
@@ -1164,7 +1872,7 @@ model GetDatasetResponse = {
 }
 
 /**
- * @summary 查询数据集
+ * @summary Queries a dataset.
  *
  * @param request GetDatasetRequest
  * @param headers map
@@ -1191,7 +1899,7 @@ async function getDatasetWithOptions(agentSpace: string, datasetName: string, re
 }
 
 /**
- * @summary 查询数据集
+ * @summary Queries a dataset.
  *
  * @param request GetDatasetRequest
  * @return GetDatasetResponse
@@ -1202,10 +1910,324 @@ async function getDataset(agentSpace: string, datasetName: string, request: GetD
   return getDatasetWithOptions(agentSpace, datasetName, request, headers, runtime);
 }
 
+model GetEvaluationRunRequest {
+}
+
+model GetEvaluationRunResponseBody = {
+  createdAt?: long(name='createdAt', description='The creation time, in seconds-level UNIX timestamp.', example='1782816000'),
+  dataEndTime?: long(name='dataEndTime', description='The end time of the data window for the run, in seconds-level UNIX timestamp.', example='1782902400'),
+  dataStartTime?: long(name='dataStartTime', description='The start time of the data window for the run, in seconds-level UNIX timestamp.', example='1782816000'),
+  evaluatorProgress?: [ 
+    {
+      evaluatorName?: string(name='evaluatorName', description='The evaluator name.', example='Builtin.agent_task_completion'),
+      failedCount?: int32(name='failedCount', description='The number of failed entries for this evaluator.', example='4'),
+      successCount?: int32(name='successCount', description='The number of successful entries for this evaluator.', example='96'),
+      totalCount?: int32(name='totalCount', description='The total number of entries for this evaluator.', example='100'),
+    }
+  ](name='evaluatorProgress', description='The list of progress details by evaluator.', example='[{"evaluatorName":"Builtin.agent_task_completion","totalCount":100,"successCount":96,"failedCount":4}]'),
+  evaluators?: string(name='evaluators', description='The evaluator configuration snapshot at the time the run was created, in JSON string format.', example='[{"evaluatorRef":"Builtin.agent_task_completion"}]'),
+  failedCount?: int32(name='failedCount', description='The number of failed entries.', example='4'),
+  requestId?: string(name='requestId', description='The request ID.', example='3FE4CD1E-FF41-56BE-B590-7A021D9C1524'),
+  runId?: string(name='runId', description='The run ID.', example='eval-run-4fd47f3d7e684e15b1d3d178c6a5b81a'),
+  runName?: string(name='runName', description='The run name.', example='trace_task_completion_eval-backfill'),
+  runType?: string(name='runType', description='The run type.', example='backfill'),
+  status?: string(name='status', description='The run status.', example='Running'),
+  successCount?: int32(name='successCount', description='The number of successful entries.', example='96'),
+  taskId?: string(name='taskId', description='The evaluation task ID.', example='eval-task-8b36f2e2b1f94f9c91ce7a4b0f6d9c25'),
+  totalCount?: int32(name='totalCount', description='The total number of evaluation entries.', example='100'),
+  updatedAt?: long(name='updatedAt', description='The update time, in seconds-level UNIX timestamp.', example='1782816600'),
+}
+
+model GetEvaluationRunResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: GetEvaluationRunResponseBody(name='body'),
+}
+
+/**
+ * @summary Retrieves the details of an evaluation run.
+ *
+ * @param request GetEvaluationRunRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return GetEvaluationRunResponse
+ */
+async function getEvaluationRunWithOptions(agentSpace: string, taskId: string, runId: string, request: GetEvaluationRunRequest, headers: map[string]string, runtime: Util.RuntimeOptions): GetEvaluationRunResponse {
+  Util.validateModel(request);
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+  };
+  var params = new OpenApi.Params{
+    action = 'GetEvaluationRun',
+    version = '2026-05-20',
+    protocol = 'HTTPS',
+    pathname = `/api/v1/evaluation-task/${OpenApiUtil.getEncodeParam(agentSpace)}/${OpenApiUtil.getEncodeParam(taskId)}/run/${OpenApiUtil.getEncodeParam(runId)}`,
+    method = 'GET',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Retrieves the details of an evaluation run.
+ *
+ * @param request GetEvaluationRunRequest
+ * @return GetEvaluationRunResponse
+ */
+async function getEvaluationRun(agentSpace: string, taskId: string, runId: string, request: GetEvaluationRunRequest): GetEvaluationRunResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return getEvaluationRunWithOptions(agentSpace, taskId, runId, request, headers, runtime);
+}
+
+model GetEvaluationTaskRequest {
+}
+
+model GetEvaluationTaskResponseBody = {
+  agentSpace?: string(name='agentSpace', description='The AgentSpace name.', example='prod-agentspace'),
+  channel?: string(name='channel', description='The task source.', example='default'),
+  config?: map[string]string(name='config', description='The data source and execution configuration. Tasks with `dataType=trace` typically include `project`, `storeName`, and `dataScope` fields populated by the backend.', example='{"project":"agentspace-project","storeName":"logstore-tracing","dataScope":"trace"}'),
+  createdAt?: long(name='createdAt', description='The creation time, in seconds-level UNIX timestamp.', example='1782816000'),
+  dataFilter?: string(name='dataFilter', description='The filter conditions for evaluation data, returned by the backend as a JSON string.', example='{"query":"serviceName=\\\\"checkout-service\\\\"","maxRecords":10,"samplingRate":100}'),
+  dataType?: string(name='dataType', description='The data source type of the evaluation object.', example='trace'),
+  description?: string(name='description', description='The evaluation task description.', example='评估线上 Agent 链路任务完成度'),
+  evaluators?: [
+    Evaluator
+  ](name='evaluators', description='The list of evaluator configurations.', example='[{"evaluatorRef":"Builtin.agent_task_completion","resultName":"agent_task_completion","resultType":"score","variableMapping":{"input":"trace.input","output":"trace.output","agent_trajectory":"trace.agent_trajectory"}}]'),
+  regionId?: string(name='regionId', description='The region to which the task belongs.', example='cn-hangzhou'),
+  requestId?: string(name='requestId', description='The request ID.', example='3FE4CD1E-FF41-56BE-B590-7A021D9C1524'),
+  runStrategyConfig?: RunStrategies(name='runStrategyConfig', description='The structured configuration of the run strategy, including the parsed backfill strategy and continuous evaluation strategy.', example='{"backfill":{"enabled":true,"startTime":1782816000000,"endTime":1782902400000},"continuous":{"enabled":true,"intervalUnit":"HOUR","intervalValue":1,"dataDelayMinutes":5}}'),
+  status?: string(name='status', description='The evaluation task status.', example='Running'),
+  tags?: map[string]string(name='tags', description='The key-value pairs of task tags. Empty if not set.', example='{"serviceId":"checkout-service","env":"prod"}'),
+  taskId?: string(name='taskId', description='The evaluation task ID.', example='eval-task-8b36f2e2b1f94f9c91ce7a4b0f6d9c25'),
+  taskMode?: string(name='taskMode', description='The evaluation task mode.', example='batch'),
+  taskName?: string(name='taskName', description='The task name.', example='trace_task_completion_eval'),
+  updatedAt?: long(name='updatedAt', description='The last update time, in seconds-level UNIX timestamp.', example='1782816600'),
+}
+
+model GetEvaluationTaskResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: GetEvaluationTaskResponseBody(name='body'),
+}
+
+/**
+ * @summary Retrieves the details of an evaluation task.
+ *
+ * @param request GetEvaluationTaskRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return GetEvaluationTaskResponse
+ */
+async function getEvaluationTaskWithOptions(agentSpace: string, taskId: string, request: GetEvaluationTaskRequest, headers: map[string]string, runtime: Util.RuntimeOptions): GetEvaluationTaskResponse {
+  Util.validateModel(request);
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+  };
+  var params = new OpenApi.Params{
+    action = 'GetEvaluationTask',
+    version = '2026-05-20',
+    protocol = 'HTTPS',
+    pathname = `/api/v1/evaluation-task/${OpenApiUtil.getEncodeParam(agentSpace)}/${OpenApiUtil.getEncodeParam(taskId)}`,
+    method = 'GET',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Retrieves the details of an evaluation task.
+ *
+ * @param request GetEvaluationTaskRequest
+ * @return GetEvaluationTaskResponse
+ */
+async function getEvaluationTask(agentSpace: string, taskId: string, request: GetEvaluationTaskRequest): GetEvaluationTaskResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return getEvaluationTaskWithOptions(agentSpace, taskId, request, headers, runtime);
+}
+
+model GetEvaluatorRequest {
+  version?: string(name='version', description='The target version number. If not specified, the latest version is used.', example='1.0.0'),
+}
+
+model GetEvaluatorResponseBody = {
+  evaluator?: {
+    agentSpace?: string(name='agentSpace', description='The AgentSpace name.', example='prod-agentspace'),
+    annotations?: [ string ](name='annotations', description='The list of annotations.', example='["__en"]'),
+    config?: map[string]any(name='config', description='The configuration of the current version.', example='{"prompt":"请评估任务完成度"}'),
+    createdAt?: long(name='createdAt', description='The time when the evaluator was created. The value is a UNIX timestamp in seconds.', example='1782816000'),
+    currentVersion?: string(name='currentVersion', description='The version number returned in the current response.', example='1.0.0'),
+    description?: string(name='description', description='The evaluator description.', example='判断 Agent 是否完成用户任务'),
+    displayName?: string(name='displayName', description='The display name.', example='链路任务完成度'),
+    latestVersion?: string(name='latestVersion', description='The latest version number.', example='1.0.0'),
+    metricName?: string(name='metricName', description='The evaluation metric name.', example='agent_task_completion'),
+    name?: string(name='name', description='The evaluator name.', example='trace_task_completion'),
+    properties?: map[string]any(name='properties', description='The evaluator properties.', example='{"agentEvaluatorMode":"raw_prompt"}'),
+    type?: string(name='type', description='The evaluator type.', example='AGENT'),
+    updatedAt?: long(name='updatedAt', description='The time when the evaluator was last updated. The value is a UNIX timestamp in seconds.', example='1782816600'),
+    versions?: [ 
+      {
+        createdAt?: long(name='createdAt', description='The time when the version was created. The value is a UNIX timestamp in seconds.', example='1782816000'),
+        version?: string(name='version', description='The version number.', example='1.0.0'),
+        versionDescription?: string(name='versionDescription', description='The version description.', example='初始版本'),
+      }
+    ](name='versions', description='The list of versions.', example='[{"version":"1.0.0"}]'),
+  }(name='evaluator', description='The evaluator details.', example='{"name":"trace_task_completion","type":"AGENT","currentVersion":"1.0.0"}'),
+  requestId?: string(name='requestId', description='The request ID.', example='3FE4CD1E-FF41-56BE-B590-7A021D9C1524'),
+}
+
+model GetEvaluatorResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: GetEvaluatorResponseBody(name='body'),
+}
+
+/**
+ * @summary Retrieves the details of an evaluator.
+ *
+ * @param request GetEvaluatorRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return GetEvaluatorResponse
+ */
+async function getEvaluatorWithOptions(agentSpace: string, name: string, request: GetEvaluatorRequest, headers: map[string]string, runtime: Util.RuntimeOptions): GetEvaluatorResponse {
+  Util.validateModel(request);
+  var query : map[string]any = {};
+  if (!Util.isUnset(request.version)) {
+    query['version'] = request.version;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'GetEvaluator',
+    version = '2026-05-20',
+    protocol = 'HTTPS',
+    pathname = `/api/v1/evaluators/${OpenApiUtil.getEncodeParam(agentSpace)}/${OpenApiUtil.getEncodeParam(name)}`,
+    method = 'GET',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Retrieves the details of an evaluator.
+ *
+ * @param request GetEvaluatorRequest
+ * @return GetEvaluatorResponse
+ */
+async function getEvaluator(agentSpace: string, name: string, request: GetEvaluatorRequest): GetEvaluatorResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return getEvaluatorWithOptions(agentSpace, name, request, headers, runtime);
+}
+
+model GetEvaluatorSkillRequest {
+  agentSpace?: string(name='agentSpace', description='The AgentSpace name.
+
+This parameter is required.', example='prod-agentspace'),
+  version?: string(name='version', description='The skill version.', example='1782816000000'),
+}
+
+model GetEvaluatorSkillResponseBody = {
+  requestId?: string(name='requestId', description='The request ID.', example='3FE4CD1E-FF41-56BE-B590-7A021D9C1524'),
+  skill?: {
+    createdAt?: long(name='createdAt', description='The time when the skill was created. This value is a UNIX timestamp in seconds.', example='1782816000'),
+    currentVersion?: string(name='currentVersion', description='The current version.', example='1782816000000'),
+    description?: string(name='description', description='The skill description.', example='读取链路上下文辅助评估'),
+    displayName?: string(name='displayName', description='The display name.', example='Trace 上下文读取'),
+    enable?: boolean(name='enable', description='Indicates whether the skill is enabled.', example='true'),
+    files?: [ 
+      {
+        content?: string(name='content', description='The file content.', example='# Trace Context Loader'),
+        name?: string(name='name', description='The file name.', example='SKILL.md'),
+        remark?: string(name='remark', description='The file remarks.', example='主技能说明'),
+      }
+    ](name='files', description='The list of skill files.', example='[{"name":"SKILL.md","content":"# Trace Context Loader","remark":"主技能说明"}]'),
+    latestVersion?: string(name='latestVersion', description='The latest version.', example='1782816000000'),
+    skillName?: string(name='skillName', description='The skill name.', example='trace_context_loader'),
+    updatedAt?: long(name='updatedAt', description='The time when the skill was last updated. This value is a UNIX timestamp in seconds.', example='1782816600'),
+    versions?: [ 
+      {
+        createdAt?: long(name='createdAt', description='The time when the version was created. This value is a UNIX timestamp in seconds.', example='1782816000'),
+        version?: string(name='version', description='The version number.', example='1782816000000'),
+        versionDescription?: string(name='versionDescription', description='The version description.', example='首次发布版本'),
+      }
+    ](name='versions', description='The list of skill versions.', example='[{"version":"1782816000000","versionDescription":"首次发布版本"}]'),
+  }(name='skill', description='The skill details.', example='{"skillName":"trace_context_loader","enable":true,"currentVersion":"1782816000000"}'),
+}
+
+model GetEvaluatorSkillResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: GetEvaluatorSkillResponseBody(name='body'),
+}
+
+/**
+ * @summary Retrieves the details of an evaluator skill.
+ *
+ * @param request GetEvaluatorSkillRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return GetEvaluatorSkillResponse
+ */
+async function getEvaluatorSkillWithOptions(name: string, skillName: string, request: GetEvaluatorSkillRequest, headers: map[string]string, runtime: Util.RuntimeOptions): GetEvaluatorSkillResponse {
+  Util.validateModel(request);
+  var query : map[string]any = {};
+  if (!Util.isUnset(request.agentSpace)) {
+    query['agentSpace'] = request.agentSpace;
+  }
+  if (!Util.isUnset(request.version)) {
+    query['version'] = request.version;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'GetEvaluatorSkill',
+    version = '2026-05-20',
+    protocol = 'HTTPS',
+    pathname = `/api/v1/evaluator/${OpenApiUtil.getEncodeParam(name)}/skill/${OpenApiUtil.getEncodeParam(skillName)}`,
+    method = 'GET',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Retrieves the details of an evaluator skill.
+ *
+ * @param request GetEvaluatorSkillRequest
+ * @return GetEvaluatorSkillResponse
+ */
+async function getEvaluatorSkill(name: string, skillName: string, request: GetEvaluatorSkillRequest): GetEvaluatorSkillResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return getEvaluatorSkillWithOptions(name, skillName, request, headers, runtime);
+}
+
 model GetPipelineRequest {
 }
 
 model GetPipelineResponseBody = {
+  committedWatermark?: long(name='committedWatermark', example='1735660800'),
   createTime?: string(name='createTime', description='Use the UTC time format: yyyy-MM-ddTHH:mm:ssZ', example='2026-01-01T00:00:00Z'),
   description?: string(name='description', example='我的流水线'),
   executePolicy?: {
@@ -1219,6 +2241,7 @@ model GetPipelineResponseBody = {
       interval?: string(name='interval', example='1h'),
     }(name='scheduled'),
   }(name='executePolicy'),
+  nextTriggerTime?: long(name='nextTriggerTime', example='1735661100'),
   pipeline?: {
     nodes?: [ 
       {
@@ -1231,6 +2254,7 @@ model GetPipelineResponseBody = {
   pipelineName?: string(name='pipelineName', example='my-pipeline'),
   regionId?: string(name='regionId', example='cn-hangzhou'),
   requestId?: string(name='requestId', example='9ACFB10A-1B2C-3D4E-5F6G-7H8I9J0K1L2M'),
+  scheduleStatus?: string(name='scheduleStatus', example='Active'),
   sink?: {
     dataset?: {
       agentSpace?: string(name='agentSpace', example='my-agent-space'),
@@ -1257,7 +2281,7 @@ model GetPipelineResponse = {
 }
 
 /**
- * @summary 查询流水线
+ * @summary Queries a CI/CD pipeline.
  *
  * @param request GetPipelineRequest
  * @param headers map
@@ -1284,7 +2308,7 @@ async function getPipelineWithOptions(agentSpace: string, pipelineName: string, 
 }
 
 /**
- * @summary 查询流水线
+ * @summary Queries a CI/CD pipeline.
  *
  * @param request GetPipelineRequest
  * @return GetPipelineResponse
@@ -1295,32 +2319,219 @@ async function getPipeline(agentSpace: string, pipelineName: string, request: Ge
   return getPipelineWithOptions(agentSpace, pipelineName, request, headers, runtime);
 }
 
+model GetPipelineRunRequest {
+}
+
+model GetPipelineRunResponseBody = {
+  agentSpaceName?: string(name='agentSpaceName', description='The name of the AgentSpace to which the pipeline belongs.', example='my-agent-space'),
+  attempt?: int32(name='attempt', description='The current retry count.', example='0'),
+  errorCode?: string(name='errorCode', description='The semantic error code.'),
+  errorMessage?: string(name='errorMessage', description='The error message.'),
+  finishTime?: string(name='finishTime', description='The finish time, in ISO 8601 UTC format.
+
+Use the UTC time format: yyyy-MM-ddTHH:mm:ss.SSSZ', example='2026-01-01T00:00:10.000Z'),
+  fromTime?: long(name='fromTime', description='The start of the data window, in UNIX seconds.', example='1735660800'),
+  maxAttempts?: int32(name='maxAttempts', description='The maximum number of retries.', example='3'),
+  nextRetryTime?: string(name='nextRetryTime', description='The next retry time, in ISO 8601 UTC format.
+
+Use the UTC time format: yyyy-MM-ddTHH:mm:ss.SSSZ', example='2026-01-01T00:01:00.000Z'),
+  pipelineName?: string(name='pipelineName', description='The name of the pipeline.', example='my-pipeline'),
+  requestId?: string(name='requestId', description='The request ID, which is used to locate and troubleshoot issues.', example='9ACFB10A-1B2C-3D4E-5F6G-7H8I9J0K1L2M'),
+  results?: map[string]any(name='results', description='The inline run results. This field is returned only when output.inline is set to true at trigger time.'),
+  runId?: string(name='runId', description='Run Id', example='run-20260101-0001'),
+  startTime?: string(name='startTime', description='The execution start time, in ISO 8601 UTC format.
+
+Use the UTC time format: yyyy-MM-ddTHH:mm:ss.SSSZ', example='2026-01-01T00:00:01.000Z'),
+  stats?: map[string]any(name='stats', description='The run statistics, including processedRows (number of processed rows), processedBytes (number of processed bytes), outputRows (number of output rows), outputBytes (number of output bytes), elapsedMs (elapsed time in milliseconds), cpuSec (CPU seconds), cpuCores (number of CPU cores), and tokenCount (number of tokens consumed).'),
+  status?: string(name='status', description='The run status. Valid values:
+- Pending
+- Running
+- Succeeded
+- Failed
+- Cancelled', example='Succeeded'),
+  toTime?: long(name='toTime', description='The end of the data window, in UNIX seconds.', example='1735747200'),
+  triggerTime?: string(name='triggerTime', description='The trigger time, in ISO 8601 UTC format.
+
+Use the UTC time format: yyyy-MM-ddTHH:mm:ss.SSSZ', example='2026-01-01T00:00:00.000Z'),
+  triggerType?: string(name='triggerType', description='The trigger type. Valid values:
+- Scheduled
+- Manual
+- RunOnce', example='Scheduled'),
+}
+
+model GetPipelineRunResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: GetPipelineRunResponseBody(name='body'),
+}
+
+/**
+ * @summary Queries the details of a single pipeline run.
+ *
+ * @param request GetPipelineRunRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return GetPipelineRunResponse
+ */
+async function getPipelineRunWithOptions(agentSpace: string, pipelineName: string, runId: string, request: GetPipelineRunRequest, headers: map[string]string, runtime: Util.RuntimeOptions): GetPipelineRunResponse {
+  Util.validateModel(request);
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+  };
+  var params = new OpenApi.Params{
+    action = 'GetPipelineRun',
+    version = '2026-05-20',
+    protocol = 'HTTPS',
+    pathname = `/agentspace/${OpenApiUtil.getEncodeParam(agentSpace)}/pipeline/${OpenApiUtil.getEncodeParam(pipelineName)}/runs/${OpenApiUtil.getEncodeParam(runId)}`,
+    method = 'GET',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Queries the details of a single pipeline run.
+ *
+ * @param request GetPipelineRunRequest
+ * @return GetPipelineRunResponse
+ */
+async function getPipelineRun(agentSpace: string, pipelineName: string, runId: string, request: GetPipelineRunRequest): GetPipelineRunResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return getPipelineRunWithOptions(agentSpace, pipelineName, runId, request, headers, runtime);
+}
+
+model GetPipelineStatsRequest {
+  endTime?: long(name='endTime', example='1735660800'),
+  granularity?: string(name='granularity', example='Hour'),
+  startTime?: long(name='startTime', example='1735574400'),
+}
+
+model GetPipelineStatsResponseBody = {
+  endTime?: long(name='endTime', example='1735660800'),
+  granularity?: string(name='granularity', example='Hour'),
+  pipelineName?: string(name='pipelineName', description='The name of the pipeline.', example='my-pipeline'),
+  requestId?: string(name='requestId', description='The request ID, which is used to locate the request during troubleshooting.', example='9ACFB10A-1B2C-3D4E-5F6G-7H8I9J0K1L2M'),
+  startTime?: long(name='startTime', example='1735574400'),
+  summary?: {
+    avgElapsedMs?: long(name='avgElapsedMs', example='2500'),
+    cancelledRuns?: long(name='cancelledRuns', example='0'),
+    committedWatermark?: long(name='committedWatermark', example='1735660800'),
+    failedRuns?: long(name='failedRuns', example='0'),
+    scheduleLagSeconds?: long(name='scheduleLagSeconds', example='120'),
+    succeededRuns?: long(name='succeededRuns', example='44'),
+    successRate?: double(name='successRate', example='1.0'),
+    totalOutputBytes?: long(name='totalOutputBytes', example='3221225472'),
+    totalOutputRows?: long(name='totalOutputRows', example='1200000'),
+    totalProcessedBytes?: long(name='totalProcessedBytes', example='5368709120'),
+    totalProcessedRows?: long(name='totalProcessedRows', example='1500000'),
+    totalRuns?: long(name='totalRuns', example='44'),
+  }(name='summary'),
+  timeSeries?: [ 
+    {
+      avgElapsedMs?: long(name='avgElapsedMs', example='2500'),
+      outputBytes?: long(name='outputBytes', example='322122547'),
+      outputRows?: long(name='outputRows', example='80000'),
+      processedBytes?: long(name='processedBytes', example='536870912'),
+      processedRows?: long(name='processedRows', example='100000'),
+      runs?: long(name='runs', example='5'),
+      succeededRuns?: long(name='succeededRuns', example='5'),
+      timestamp?: long(name='timestamp', example='1735574400'),
+    }
+  ](name='timeSeries'),
+}
+
+model GetPipelineStatsResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: GetPipelineStatsResponseBody(name='body'),
+}
+
+/**
+ * @summary Queries pipeline run statistics.
+ *
+ * @param request GetPipelineStatsRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return GetPipelineStatsResponse
+ */
+async function getPipelineStatsWithOptions(agentSpace: string, pipelineName: string, request: GetPipelineStatsRequest, headers: map[string]string, runtime: Util.RuntimeOptions): GetPipelineStatsResponse {
+  Util.validateModel(request);
+  var query : map[string]any = {};
+  if (!Util.isUnset(request.endTime)) {
+    query['endTime'] = request.endTime;
+  }
+  if (!Util.isUnset(request.granularity)) {
+    query['granularity'] = request.granularity;
+  }
+  if (!Util.isUnset(request.startTime)) {
+    query['startTime'] = request.startTime;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'GetPipelineStats',
+    version = '2026-05-20',
+    protocol = 'HTTPS',
+    pathname = `/agentspace/${OpenApiUtil.getEncodeParam(agentSpace)}/pipeline/${OpenApiUtil.getEncodeParam(pipelineName)}/stats`,
+    method = 'GET',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Queries pipeline run statistics.
+ *
+ * @param request GetPipelineStatsRequest
+ * @return GetPipelineStatsResponse
+ */
+async function getPipelineStats(agentSpace: string, pipelineName: string, request: GetPipelineStatsRequest): GetPipelineStatsResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return getPipelineStatsWithOptions(agentSpace, pipelineName, request, headers, runtime);
+}
+
 model ListAgentSpacesRequest {
-  agentSpace?: string(name='agentSpace'),
-  maxResults?: int32(name='maxResults'),
-  nextToken?: string(name='nextToken'),
+  agentSpace?: string(name='agentSpace', description='The AgentSpace name.', example='test-agent-space'),
+  maxResults?: int32(name='maxResults', description='The maximum number of results to return.', example='50'),
+  nextToken?: string(name='nextToken', description='The pagination token.', example='pEL20OGYeZQez8NdW7ve'),
+  regionId?: string(name='regionId'),
 }
 
 model ListAgentSpacesResponseBody = {
   agentSpaces?: [ 
     {
-      agentSpace?: string(name='agentSpace'),
-      cmsWorkspace?: string(name='cmsWorkspace'),
-      createTime?: string(name='createTime', description='Use the UTC time format: yyyy-MM-ddTHH:mm:ssZ'),
-      description?: string(name='description'),
+      agentSpace?: string(name='agentSpace', description='The AgentSpace name.', example='test-agent-space'),
+      cmsWorkspace?: string(name='cmsWorkspace', description='The CMS workspace.', example='test-cms-workspace'),
+      createTime?: string(name='createTime', description='The creation time.
+
+Use the UTC time format: yyyy-MM-ddTHH:mm:ssZ', example='2023-08-23T04:06:06Z'),
+      description?: string(name='description', description='The description.', example='test'),
       mseNamespace?: {
-        namespaceId?: string(name='namespaceId'),
-        namespaceName?: string(name='namespaceName'),
-      }(name='mseNamespace'),
-      regionId?: string(name='regionId'),
-      slsProject?: string(name='slsProject'),
-      updateTime?: string(name='updateTime', description='Use the UTC time format: yyyy-MM-ddTHH:mm:ssZ'),
+        namespaceId?: string(name='namespaceId', description='The MSE namespace ID.', example='phoenixcloud-raw-logs'),
+        namespaceName?: string(name='namespaceName', description='The MSE namespace name.', example='terraform-alicloud-modules'),
+      }(name='mseNamespace', description='The MSE namespace.'),
+      regionId?: string(name='regionId', description='The region ID.', example='cn-hangzhou'),
+      slsProject?: string(name='slsProject', description='The Simple Log Service project name.', example='default-cms-1152309027070167-cn-beijing'),
+      updateTime?: string(name='updateTime', description='The update time.
+
+Use the UTC time format: yyyy-MM-ddTHH:mm:ssZ', example='2026-02-11T08:40:23Z'),
     }
-  ](name='agentSpaces'),
-  maxResults?: int32(name='maxResults'),
-  nextToken?: string(name='nextToken'),
-  requestId?: string(name='requestId'),
-  total?: int32(name='total'),
+  ](name='agentSpaces', description='The AgentSpaces information.'),
+  maxResults?: int32(name='maxResults', description='The maximum number of results returned.', example='100'),
+  nextToken?: string(name='nextToken', description='The pagination token. This parameter is empty if no more pages are available.', example='b5754ef15c784abc8696d82790d2985c'),
+  requestId?: string(name='requestId', description='The request ID.', example='4E4AC775-2358-5B52-B6FB-171459D7B14B'),
+  total?: int32(name='total', description='The total number of entries.', example='13'),
 }
 
 model ListAgentSpacesResponse = {
@@ -1330,7 +2541,7 @@ model ListAgentSpacesResponse = {
 }
 
 /**
- * @summary 查询AgentSpace列表
+ * @summary Queries a list of AgentSpaces.
  *
  * @param request ListAgentSpacesRequest
  * @param headers map
@@ -1348,6 +2559,9 @@ async function listAgentSpacesWithOptions(request: ListAgentSpacesRequest, heade
   }
   if (!Util.isUnset(request.nextToken)) {
     query['nextToken'] = request.nextToken;
+  }
+  if (!Util.isUnset(request.regionId)) {
+    query['regionId'] = request.regionId;
   }
 
   var req = new OpenApi.OpenApiRequest{ 
@@ -1369,7 +2583,7 @@ async function listAgentSpacesWithOptions(request: ListAgentSpacesRequest, heade
 }
 
 /**
- * @summary 查询AgentSpace列表
+ * @summary Queries a list of AgentSpaces.
  *
  * @param request ListAgentSpacesRequest
  * @return ListAgentSpacesResponse
@@ -1381,24 +2595,26 @@ async function listAgentSpaces(request: ListAgentSpacesRequest): ListAgentSpaces
 }
 
 model ListContextStoreAPIKeysRequest {
-  maxResults?: int32(name='maxResults', example='20'),
-  nextToken?: string(name='nextToken', example='MTIzNDU2Nzg5MA=='),
+  maxResults?: int32(name='maxResults', description='The maximum number of API keys to return. Default value: 20. Maximum value: 100.', example='20'),
+  nextToken?: string(name='nextToken', description='The pagination token. Set this parameter to the nextToken value returned in the previous response to retrieve the next page. Do not specify this parameter for the first request.', example='MTIzNDU2Nzg5MA=='),
 }
 
 model ListContextStoreAPIKeysResponseBody = {
-  maxResults?: int32(name='maxResults', example='20'),
-  nextToken?: string(name='nextToken', example='MTIzNDU2Nzg5MA=='),
-  requestId?: string(name='requestId', example='9ACFB10A-1B2C-3D4E-5F6G-7H8I9J0K1L2M'),
+  maxResults?: int32(name='maxResults', description='The maximum number of entries per page that was specified in the request. This value is echoed back.', example='20'),
+  nextToken?: string(name='nextToken', description='The token for the next page. An empty string indicates that the current page is the last page.', example='MTIzNDU2Nzg5MA=='),
+  requestId?: string(name='requestId', description='The request ID, which is used to locate and troubleshoot issues.', example='9ACFB10A-1B2C-3D4E-5F6G-7H8I9J0K1L2M'),
   results?: [ 
     {
-      agentSpace?: string(name='agentSpace', example='my-agent-space'),
-      apiKey?: string(name='apiKey', example='sk-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx'),
-      contextStoreName?: string(name='contextStoreName', example='my-context-store'),
-      createTime?: string(name='createTime', description='Use the UTC time format: yyyy-MM-ddTHH:mm:ssZ', example='2026-01-01T00:00:00Z'),
-      name?: string(name='name', example='my-api-key'),
+      agentSpace?: string(name='agentSpace', description='The name of the AgentSpace to which the API key belongs.', example='my-agent-space'),
+      apiKey?: string(name='apiKey', description='The full value of the API key. The plaintext value is returned only when the API key is created. In list scenarios, the value is masked based on business rules.', example='sk-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx'),
+      contextStoreName?: string(name='contextStoreName', description='The name of the context store to which the API key belongs.', example='my-context-store'),
+      createTime?: string(name='createTime', description='The time when the API key was created, in ISO 8601 UTC format.
+
+Use the UTC time format: yyyy-MM-ddTHH:mm:ssZ', example='2026-01-01T00:00:00Z'),
+      name?: string(name='name', description='The display name of the API key.', example='my-api-key'),
     }
-  ](name='results'),
-  total?: int32(name='total', example='3'),
+  ](name='results', description='The list of API keys.'),
+  total?: int32(name='total', description='The total number of API keys that match the query conditions.', example='3'),
 }
 
 model ListContextStoreAPIKeysResponse = {
@@ -1408,7 +2624,7 @@ model ListContextStoreAPIKeysResponse = {
 }
 
 /**
- * @summary 获取 API Key 列表
+ * @summary Retrieves a list of API keys.
  *
  * @param request ListContextStoreAPIKeysRequest
  * @param headers map
@@ -1444,7 +2660,7 @@ async function listContextStoreAPIKeysWithOptions(agentSpace: string, contextSto
 }
 
 /**
- * @summary 获取 API Key 列表
+ * @summary Retrieves a list of API keys.
  *
  * @param request ListContextStoreAPIKeysRequest
  * @return ListContextStoreAPIKeysResponse
@@ -1456,30 +2672,34 @@ async function listContextStoreAPIKeys(agentSpace: string, contextStoreName: str
 }
 
 model ListContextStoresRequest {
-  contextStoreName?: string(name='contextStoreName', example='my-context-store'),
-  contextType?: string(name='contextType', example='experience'),
-  maxResults?: int32(name='maxResults', example='20'),
-  nextToken?: string(name='nextToken', example='MTIzNDU2Nzg5MA=='),
+  contextStoreName?: string(name='contextStoreName', description='Filters context stores by name. Exact match is supported. If this parameter is not specified, no filtering is applied.', example='my-context-store'),
+  contextType?: string(name='contextType', description='Filters context stores by type, such as experience or memory. If this parameter is not specified, no filtering is applied.', example='experience'),
+  maxResults?: int32(name='maxResults', description='The maximum number of context stores to return. Default value: 20. Maximum value: 100.', example='20'),
+  nextToken?: string(name='nextToken', description='The pagination token. Set this parameter to the nextToken value returned in the previous response to retrieve the next page. Do not specify this parameter for the first request.', example='MTIzNDU2Nzg5MA=='),
 }
 
 model ListContextStoresResponseBody = {
-  maxResults?: int32(name='maxResults', example='20'),
-  nextToken?: string(name='nextToken', example='MTIzNDU2Nzg5MA=='),
-  requestId?: string(name='requestId', example='9ACFB10A-1B2C-3D4E-5F6G-7H8I9J0K1L2M'),
+  maxResults?: int32(name='maxResults', description='The maximum number of entries per page that was specified in the request. This value is echoed back.', example='20'),
+  nextToken?: string(name='nextToken', description='The token for the next page. An empty string indicates that the current page is the last page.', example='MTIzNDU2Nzg5MA=='),
+  requestId?: string(name='requestId', description='The request ID. You can use this ID to locate and troubleshoot issues.', example='9ACFB10A-1B2C-3D4E-5F6G-7H8I9J0K1L2M'),
   results?: [ 
     {
-      agentSpace?: string(name='agentSpace', example='my-agent-space'),
-      contextStoreName?: string(name='contextStoreName', example='my-context-store'),
-      contextType?: string(name='contextType', example='experience'),
-      createTime?: string(name='createTime', description='Use the UTC time format: yyyy-MM-ddTHH:mm:ssZ', example='2026-01-01T00:00:00Z'),
-      description?: string(name='description', example='我的上下文库'),
-      regionId?: string(name='regionId', example='cn-hangzhou'),
-      serviceNames?: [ string ](name='serviceNames', example='["order-service","payment-service"]'),
-      status?: string(name='status', example='ACTIVE'),
-      updateTime?: string(name='updateTime', description='Use the UTC time format: yyyy-MM-ddTHH:mm:ssZ', example='2026-01-02T00:00:00Z'),
+      agentSpace?: string(name='agentSpace', description='The name of the AgentSpace to which the context store belongs.', example='my-agent-space'),
+      contextStoreName?: string(name='contextStoreName', description='The name of the context store.', example='my-context-store'),
+      contextType?: string(name='contextType', description='The type of the context store, such as experience or memory.', example='experience'),
+      createTime?: string(name='createTime', description='The time when the context store was created, in ISO 8601 UTC format.
+
+Use the UTC time format: yyyy-MM-ddTHH:mm:ssZ', example='2026-01-01T00:00:00Z'),
+      description?: string(name='description', description='The description of the context store.', example='我的上下文库'),
+      regionId?: string(name='regionId', description='The region ID of the context store.', example='cn-hangzhou'),
+      serviceNames?: [ string ](name='serviceNames', description='The list of service names. This parameter has a value only for context stores of the experience type. The service names are used together with the data source AgentSpace to locate trace data sources.', example='["order-service","payment-service"]'),
+      status?: string(name='status', description='The status of the context store. Valid values: ACTIVE, INITIALIZING, and FAILED.', example='ACTIVE'),
+      updateTime?: string(name='updateTime', description='The time when the context store was last updated, in ISO 8601 UTC format.
+
+Use the UTC time format: yyyy-MM-ddTHH:mm:ssZ', example='2026-01-02T00:00:00Z'),
     }
-  ](name='results'),
-  total?: int32(name='total', example='5'),
+  ](name='results', description='The list of context stores.'),
+  total?: int32(name='total', description='The total number of context stores that match the query conditions.', example='5'),
 }
 
 model ListContextStoresResponse = {
@@ -1489,7 +2709,7 @@ model ListContextStoresResponse = {
 }
 
 /**
- * @summary 查询上下文库列表
+ * @summary Queries a list of context stores.
  *
  * @param request ListContextStoresRequest
  * @param headers map
@@ -1531,7 +2751,7 @@ async function listContextStoresWithOptions(agentSpace: string, request: ListCon
 }
 
 /**
- * @summary 查询上下文库列表
+ * @summary Queries a list of context stores.
  *
  * @param request ListContextStoresRequest
  * @return ListContextStoresResponse
@@ -1543,26 +2763,32 @@ async function listContextStores(agentSpace: string, request: ListContextStoresR
 }
 
 model ListDatasetsRequest {
-  datasetName?: string(name='datasetName'),
-  maxResults?: int32(name='maxResults'),
-  nextToken?: string(name='nextToken'),
+  datasetName?: string(name='datasetName', description='The name of the dataset.', example='product_faq_dataset'),
+  maxResults?: int32(name='maxResults', description='The maximum number of results to return.', example='100'),
+  nextToken?: string(name='nextToken', description='The pagination token. You do not need to set this parameter for the first request. For subsequent requests, set this parameter to the nextToken value returned in the previous response.', example='RsfoUqpOJd5nd0F1e4OquY/7dKNGp1JMgsKtvCagmtY='),
 }
 
 model ListDatasetsResponseBody = {
   datasets?: [ 
     {
-      agentSpace?: string(name='agentSpace'),
-      createTime?: string(name='createTime', description='Use the UTC time format: yyyy-MM-ddTHH:mm:ssZ'),
-      datasetName?: string(name='datasetName'),
-      description?: string(name='description'),
-      regionId?: string(name='regionId'),
-      updateTime?: string(name='updateTime', description='Use the UTC time format: yyyy-MM-ddTHH:mm:ssZ'),
+      agentSpace?: string(name='agentSpace', description='The name of the agent space.', example='sop-agent'),
+      createTime?: string(name='createTime', description='The time when the dataset was created.
+
+Use the UTC time format: yyyy-MM-ddTHH:mm:ssZ', example='2026-01-19T02:11:02Z'),
+      datasetName?: string(name='datasetName', description='The name of the dataset.', example='product_faq_dataset'),
+      description?: string(name='description', description='The description of the dataset.', example='Product FAQ dataset for semantic search'),
+      regionId?: string(name='regionId', description='The region ID.', example='cn-shanghai'),
+      updateTime?: string(name='updateTime', description='The time when the dataset was last updated.
+
+Use the UTC time format: yyyy-MM-ddTHH:mm:ssZ', example='2026-05-18T02:21:32Z'),
     }
-  ](name='datasets'),
-  maxResults?: int32(name='maxResults'),
-  nextToken?: string(name='nextToken'),
-  requestId?: string(name='requestId'),
-  total?: int32(name='total'),
+  ](name='datasets', description='The result set.'),
+  maxResults?: int32(name='maxResults', description='The maximum number of results specified in this request.', example='100'),
+  nextToken?: string(name='nextToken', description='The pagination token for the next page of results.
+
+If the total number of results exceeds the maxResults limit, the results are truncated. You can use this token to query the next page of results.', example='umaQfI7x758Ns4TgWrj8yA3fYlnk7dJgsfhMrSViRY8='),
+  requestId?: string(name='requestId', description='The request ID.', example='90F52F93-8800-5A71-8737-18F34BA90166'),
+  total?: int32(name='total', description='The total number of records.', example='33'),
 }
 
 model ListDatasetsResponse = {
@@ -1572,7 +2798,7 @@ model ListDatasetsResponse = {
 }
 
 /**
- * @summary 查询数据集列表
+ * @summary Queries a list of datasets.
  *
  * @param request ListDatasetsRequest
  * @param headers map
@@ -1611,7 +2837,7 @@ async function listDatasetsWithOptions(agentSpace: string, request: ListDatasets
 }
 
 /**
- * @summary 查询数据集列表
+ * @summary Queries a list of datasets.
  *
  * @param request ListDatasetsRequest
  * @return ListDatasetsResponse
@@ -1622,10 +2848,499 @@ async function listDatasets(agentSpace: string, request: ListDatasetsRequest): L
   return listDatasetsWithOptions(agentSpace, request, headers, runtime);
 }
 
+model ListEvaluationRunsRequest {
+  maxResults?: int32(name='maxResults', description='The number of entries per page. Default value: 20. Maximum value: 100.', example='20'),
+  nextToken?: string(name='nextToken', description='The pagination token for the next page.', example='eyJsYXN0SWQiOjEwMX0='),
+  runType?: string(name='runType', description='The run type filter condition.', example='backfill'),
+  status?: string(name='status', description='The run status filter condition.', example='Running'),
+}
+
+model ListEvaluationRunsResponseBody = {
+  evaluationRuns?: [ 
+    {
+      createdAt?: long(name='createdAt', description='The creation time, in seconds-level UNIX timestamp.', example='1782816000'),
+      dataEndTime?: long(name='dataEndTime', description='The end time of the data window for this run, in seconds-level UNIX timestamp.', example='1782902400'),
+      dataStartTime?: long(name='dataStartTime', description='The start time of the data window for this run, in seconds-level UNIX timestamp.', example='1782816000'),
+      failedCount?: int32(name='failedCount', description='The number of failed entries.', example='4'),
+      runId?: string(name='runId', description='The run ID.', example='eval-run-4fd47f3d7e684e15b1d3d178c6a5b81a'),
+      runName?: string(name='runName', description='The run name.', example='trace_task_completion_eval-backfill'),
+      runType?: string(name='runType', description='The run type.', example='backfill'),
+      status?: string(name='status', description='The run status.', example='Running'),
+      successCount?: int32(name='successCount', description='The number of successful entries.', example='96'),
+      taskId?: string(name='taskId', description='The evaluation task ID.', example='eval-task-8b36f2e2b1f94f9c91ce7a4b0f6d9c25'),
+      totalCount?: int32(name='totalCount', description='The total number of evaluation entries.', example='100'),
+      updatedAt?: long(name='updatedAt', description='The update time, in seconds-level UNIX timestamp.', example='1782816600'),
+    }
+  ](name='evaluationRuns', description='The list of run summaries.', example='[{"runId":"eval-run-4fd47f3d7e684e15b1d3d178c6a5b81a","runType":"backfill","status":"Running","totalCount":100}]'),
+  maxResults?: int32(name='maxResults', description='The number of entries per page used in this request.', example='20'),
+  nextToken?: string(name='nextToken', description='The pagination token for the next page. An empty value indicates that no more pages exist.', example='eyJsYXN0SWQiOjEyMH0='),
+  requestId?: string(name='requestId', description='The request ID.', example='3FE4CD1E-FF41-56BE-B590-7A021D9C1524'),
+  totalCount?: long(name='totalCount', description='The total number of runs that match the filter conditions.', example='3'),
+}
+
+model ListEvaluationRunsResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ListEvaluationRunsResponseBody(name='body'),
+}
+
+/**
+ * @summary Queries the list of evaluation runs.
+ *
+ * @param request ListEvaluationRunsRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return ListEvaluationRunsResponse
+ */
+async function listEvaluationRunsWithOptions(agentSpace: string, taskId: string, request: ListEvaluationRunsRequest, headers: map[string]string, runtime: Util.RuntimeOptions): ListEvaluationRunsResponse {
+  Util.validateModel(request);
+  var query : map[string]any = {};
+  if (!Util.isUnset(request.maxResults)) {
+    query['maxResults'] = request.maxResults;
+  }
+  if (!Util.isUnset(request.nextToken)) {
+    query['nextToken'] = request.nextToken;
+  }
+  if (!Util.isUnset(request.runType)) {
+    query['runType'] = request.runType;
+  }
+  if (!Util.isUnset(request.status)) {
+    query['status'] = request.status;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'ListEvaluationRuns',
+    version = '2026-05-20',
+    protocol = 'HTTPS',
+    pathname = `/api/v1/evaluation-task/${OpenApiUtil.getEncodeParam(agentSpace)}/${OpenApiUtil.getEncodeParam(taskId)}/runs`,
+    method = 'GET',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Queries the list of evaluation runs.
+ *
+ * @param request ListEvaluationRunsRequest
+ * @return ListEvaluationRunsResponse
+ */
+async function listEvaluationRuns(agentSpace: string, taskId: string, request: ListEvaluationRunsRequest): ListEvaluationRunsResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return listEvaluationRunsWithOptions(agentSpace, taskId, request, headers, runtime);
+}
+
+model ListEvaluationTasksRequest {
+  agentSpace?: string(name='agentSpace', description='The AgentSpace name.', example='prod-agentspace'),
+  channel?: string(name='channel', description='The filter condition for the task source. If this parameter is not specified, tasks from the default source are queried.', example='default'),
+  dataType?: string(name='dataType', description='The data source type of the evaluation object. Set this parameter to `trace` for trace-based evaluation.', example='trace'),
+  maxResults?: int32(name='maxResults', description='The number of entries per page. Default value: 20. Maximum value: 100.', example='20'),
+  nextToken?: string(name='nextToken', description='The pagination token for the next page, obtained from the previous response.', example='eyJsYXN0SWQiOjEyMywib2Zmc2V0IjoyMH0='),
+  status?: string(name='status', description='The filter condition for the evaluation task status.', example='Running'),
+  taskMode?: string(name='taskMode', description='The evaluation task mode. If this parameter is not specified, the default value is `batch`.', example='batch'),
+  taskName?: string(name='taskName', description='The fuzzy match condition for the task name.', example='trace_task_completion_eval'),
+}
+
+model ListEvaluationTasksResponseBody = {
+  evaluationTasks?: [ 
+    {
+      config?: map[string]string(name='config', description='The data source and execution configuration summary.', example='{"storeName":"logstore-tracing","dataScope":"trace"}'),
+      createdAt?: long(name='createdAt', description='The creation time, in seconds-level UNIX timestamp.', example='1782816000'),
+      dataType?: string(name='dataType', description='The data source type of the evaluation object.', example='trace'),
+      description?: string(name='description', description='The evaluation task description.', example='评估线上 Agent 链路任务完成度'),
+      evaluators?: string(name='evaluators', description='The evaluator configuration summary, in JSON string format.', example='[{"evaluatorRef":"Builtin.agent_task_completion"}]'),
+      runStrategyConfig?: RunStrategies(name='runStrategyConfig', description='The structured run strategy configuration, including the parsed backfill strategy and continuous evaluation strategy.', example='{"backfill":{"enabled":true,"startTime":1782816000000,"endTime":1782902400000},"continuous":{"enabled":true,"intervalUnit":"HOUR","intervalValue":1,"dataDelayMinutes":5}}'),
+      status?: string(name='status', description='The evaluation task status.', example='Running'),
+      tags?: map[string]string(name='tags', description='The key-value pairs of task tags. This parameter is empty if no tags are set.', example='{"serviceId":"checkout-service","env":"prod"}'),
+      taskId?: string(name='taskId', description='The evaluation task ID.', example='eval-task-8b36f2e2b1f94f9c91ce7a4b0f6d9c25'),
+      taskMode?: string(name='taskMode', description='The evaluation task mode.', example='batch'),
+      taskName?: string(name='taskName', description='The task name.', example='trace_task_completion_eval'),
+      updatedAt?: long(name='updatedAt', description='The last update time, in seconds-level UNIX timestamp.', example='1782816600'),
+    }
+  ](name='evaluationTasks', description='The list of evaluation task summaries.', example='[{"taskId":"eval-task-8b36f2e2b1f94f9c91ce7a4b0f6d9c25","taskName":"trace_task_completion_eval","taskMode":"batch","dataType":"trace","status":"Running"}]'),
+  maxResults?: int32(name='maxResults', description='The number of entries per page used in this request.', example='20'),
+  nextToken?: string(name='nextToken', description='The pagination token for the next page. An empty value indicates that no more pages are available.', example='eyJsYXN0SWQiOjEwMSwib2Zmc2V0IjoyMH0='),
+  requestId?: string(name='requestId', description='The request ID.', example='3FE4CD1E-FF41-56BE-B590-7A021D9C1524'),
+  totalCount?: int32(name='totalCount', description='The total number of records. The total count is returned only on the first page. This value may be empty on subsequent pages.', example='126'),
+}
+
+model ListEvaluationTasksResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ListEvaluationTasksResponseBody(name='body'),
+}
+
+/**
+ * @summary Queries a list of evaluation tasks.
+ *
+ * @param request ListEvaluationTasksRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return ListEvaluationTasksResponse
+ */
+async function listEvaluationTasksWithOptions(request: ListEvaluationTasksRequest, headers: map[string]string, runtime: Util.RuntimeOptions): ListEvaluationTasksResponse {
+  Util.validateModel(request);
+  var query : map[string]any = {};
+  if (!Util.isUnset(request.agentSpace)) {
+    query['agentSpace'] = request.agentSpace;
+  }
+  if (!Util.isUnset(request.channel)) {
+    query['channel'] = request.channel;
+  }
+  if (!Util.isUnset(request.dataType)) {
+    query['dataType'] = request.dataType;
+  }
+  if (!Util.isUnset(request.maxResults)) {
+    query['maxResults'] = request.maxResults;
+  }
+  if (!Util.isUnset(request.nextToken)) {
+    query['nextToken'] = request.nextToken;
+  }
+  if (!Util.isUnset(request.status)) {
+    query['status'] = request.status;
+  }
+  if (!Util.isUnset(request.taskMode)) {
+    query['taskMode'] = request.taskMode;
+  }
+  if (!Util.isUnset(request.taskName)) {
+    query['taskName'] = request.taskName;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'ListEvaluationTasks',
+    version = '2026-05-20',
+    protocol = 'HTTPS',
+    pathname = `/api/v1/evaluation-tasks`,
+    method = 'GET',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Queries a list of evaluation tasks.
+ *
+ * @param request ListEvaluationTasksRequest
+ * @return ListEvaluationTasksResponse
+ */
+async function listEvaluationTasks(request: ListEvaluationTasksRequest): ListEvaluationTasksResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return listEvaluationTasksWithOptions(request, headers, runtime);
+}
+
+model ListEvaluatorSkillsRequest {
+  agentSpace?: string(name='agentSpace', description='The AgentSpace name.
+
+This parameter is required.', example='prod-agentspace'),
+  maxResults?: int32(name='maxResults', description='The number of entries per page.', example='20'),
+  nextToken?: string(name='nextToken', description='The pagination token for the next page.', example='eyJuZXh0IjoiMjAifQ=='),
+}
+
+model ListEvaluatorSkillsResponseBody = {
+  maxResults?: int32(name='maxResults', description='The number of entries per page used in this request.', example='20'),
+  nextToken?: string(name='nextToken', description='The pagination token for the next page.', example='eyJuZXh0IjoiNDAifQ=='),
+  requestId?: string(name='requestId', description='The request ID.', example='3FE4CD1E-FF41-56BE-B590-7A021D9C1524'),
+  skills?: [ 
+    {
+      createdAt?: long(name='createdAt', description='The creation time. This field is declared as int64 in CloudSpec, but the backend currently returns the StarOps `createTime` string field.', example='1782816000'),
+      description?: string(name='description', description='The skill description.', example='读取链路上下文辅助评估'),
+      displayName?: string(name='displayName', description='The display name.', example='Trace 上下文读取'),
+      enable?: boolean(name='enable', description='Indicates whether the skill is enabled.', example='true'),
+      latestVersion?: string(name='latestVersion', description='The latest version. This field is declared in CloudSpec but is not currently populated in the backend response.', example='1782816000000'),
+      skillName?: string(name='skillName', description='The skill name.', example='trace_context_loader'),
+      updatedAt?: long(name='updatedAt', description='The update time. This field is declared as int64 in CloudSpec, but the backend currently returns the StarOps `updateTime` string field.', example='1782816600'),
+    }
+  ](name='skills', description='The list of skill summaries.', example='[{"skillName":"trace_context_loader","displayName":"Trace 上下文读取","enable":true}]'),
+  total?: long(name='total', description='The total number of skills.', example='3'),
+}
+
+model ListEvaluatorSkillsResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ListEvaluatorSkillsResponseBody(name='body'),
+}
+
+/**
+ * @summary Queries the skill list of an evaluator.
+ *
+ * @param request ListEvaluatorSkillsRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return ListEvaluatorSkillsResponse
+ */
+async function listEvaluatorSkillsWithOptions(name: string, request: ListEvaluatorSkillsRequest, headers: map[string]string, runtime: Util.RuntimeOptions): ListEvaluatorSkillsResponse {
+  Util.validateModel(request);
+  var query : map[string]any = {};
+  if (!Util.isUnset(request.agentSpace)) {
+    query['agentSpace'] = request.agentSpace;
+  }
+  if (!Util.isUnset(request.maxResults)) {
+    query['maxResults'] = request.maxResults;
+  }
+  if (!Util.isUnset(request.nextToken)) {
+    query['nextToken'] = request.nextToken;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'ListEvaluatorSkills',
+    version = '2026-05-20',
+    protocol = 'HTTPS',
+    pathname = `/api/v1/evaluator/${OpenApiUtil.getEncodeParam(name)}/skills`,
+    method = 'GET',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Queries the skill list of an evaluator.
+ *
+ * @param request ListEvaluatorSkillsRequest
+ * @return ListEvaluatorSkillsResponse
+ */
+async function listEvaluatorSkills(name: string, request: ListEvaluatorSkillsRequest): ListEvaluatorSkillsResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return listEvaluatorSkillsWithOptions(name, request, headers, runtime);
+}
+
+model ListEvaluatorsRequest {
+  agentSpace?: string(name='agentSpace', description='The AgentSpace name.
+
+This parameter is required.', example='prod-agentspace'),
+  maxResults?: int32(name='maxResults', description='The number of entries per page. Default value: 20. Maximum value: 100.', example='20'),
+  name?: string(name='name', description='The fuzzy match condition for the evaluator name.', example='trace_task_completion'),
+  nextToken?: string(name='nextToken', description='The pagination token for the next page.', example='eyJsYXN0SWQiOjEyM30='),
+  source?: string(name='source', description='The evaluator source filter.', example='custom'),
+  type?: string(name='type', description='The evaluator type filter.', example='AGENT'),
+}
+
+model ListEvaluatorsResponseBody = {
+  evaluators?: [ 
+    {
+      annotations?: [ string ](name='annotations', description='The list of annotations.', example='["__en"]'),
+      createdAt?: long(name='createdAt', description='The creation time, in seconds-level UNIX timestamp.', example='1782816000'),
+      description?: string(name='description', description='The evaluator description.', example='判断 Agent 是否完成用户任务'),
+      displayName?: string(name='displayName', description='The display name.', example='链路任务完成度'),
+      latestVersion?: string(name='latestVersion', description='The latest version number.', example='1.0.0'),
+      metricName?: string(name='metricName', description='The metric name.', example='agent_task_completion'),
+      name?: string(name='name', description='The evaluator name.', example='trace_task_completion'),
+      properties?: map[string]any(name='properties', description='The evaluator properties.', example='{"agentEvaluatorMode":"raw_prompt"}'),
+      type?: string(name='type', description='The evaluator type.', example='AGENT'),
+      updatedAt?: long(name='updatedAt', description='The update time, in seconds-level UNIX timestamp.', example='1782816600'),
+    }
+  ](name='evaluators', description='The list of evaluator summaries.', example='[{"name":"trace_task_completion","type":"AGENT","latestVersion":"1.0.0"}]'),
+  maxResults?: int32(name='maxResults', description='The number of entries per page used in this request.', example='20'),
+  nextToken?: string(name='nextToken', description='The pagination token for the next page.', example='eyJsYXN0SWQiOjEzM30='),
+  requestId?: string(name='requestId', description='The request ID.', example='3FE4CD1E-FF41-56BE-B590-7A021D9C1524'),
+  total?: int32(name='total', description='The total number of evaluators that match the filter conditions.', example='12'),
+}
+
+model ListEvaluatorsResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ListEvaluatorsResponseBody(name='body'),
+}
+
+/**
+ * @summary Queries a list of evaluators.
+ *
+ * @param request ListEvaluatorsRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return ListEvaluatorsResponse
+ */
+async function listEvaluatorsWithOptions(request: ListEvaluatorsRequest, headers: map[string]string, runtime: Util.RuntimeOptions): ListEvaluatorsResponse {
+  Util.validateModel(request);
+  var query : map[string]any = {};
+  if (!Util.isUnset(request.agentSpace)) {
+    query['agentSpace'] = request.agentSpace;
+  }
+  if (!Util.isUnset(request.maxResults)) {
+    query['maxResults'] = request.maxResults;
+  }
+  if (!Util.isUnset(request.name)) {
+    query['name'] = request.name;
+  }
+  if (!Util.isUnset(request.nextToken)) {
+    query['nextToken'] = request.nextToken;
+  }
+  if (!Util.isUnset(request.source)) {
+    query['source'] = request.source;
+  }
+  if (!Util.isUnset(request.type)) {
+    query['type'] = request.type;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'ListEvaluators',
+    version = '2026-05-20',
+    protocol = 'HTTPS',
+    pathname = `/api/v1/evaluators`,
+    method = 'GET',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Queries a list of evaluators.
+ *
+ * @param request ListEvaluatorsRequest
+ * @return ListEvaluatorsResponse
+ */
+async function listEvaluators(request: ListEvaluatorsRequest): ListEvaluatorsResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return listEvaluatorsWithOptions(request, headers, runtime);
+}
+
+model ListPipelineRunsRequest {
+  endTime?: long(name='endTime', example='1735660800'),
+  maxResults?: int32(name='maxResults', description='The maximum number of entries to return. Default value: 50. Maximum value: 200.', example='50'),
+  nextToken?: string(name='nextToken', description='The pagination token. Set this parameter to the nextToken value returned in the previous response to retrieve the next page. Do not specify this parameter for the first request.', example='MTIzNDU2Nzg5MA=='),
+  startTime?: long(name='startTime', example='1735574400'),
+  status?: string(name='status', description='Filters by run status. Valid values: Pending, Running, Succeeded, Failed, and Cancelled. If this parameter is not specified, no filtering is applied.', example='Succeeded'),
+  triggerType?: string(name='triggerType', description='Filters by trigger type. Valid values: Manual, Scheduled, and RunOnce. If this parameter is not specified, no filtering is applied.', example='Scheduled'),
+}
+
+model ListPipelineRunsResponseBody = {
+  maxResults?: int32(name='maxResults', description='The maximum number of entries per page specified in the request. This value is echoed back.', example='50'),
+  nextToken?: string(name='nextToken', description='The token for the next page. An empty string indicates that the current page is the last page.', example='MTIzNDU2Nzg5MA=='),
+  requestId?: string(name='requestId', description='The request ID, which is used to locate and troubleshoot issues.', example='9ACFB10A-1B2C-3D4E-5F6G-7H8I9J0K1L2M'),
+  runs?: [ 
+    {
+      agentSpaceName?: string(name='agentSpaceName', description='The name of the AgentSpace to which the run belongs.', example='my-agent-space'),
+      attempt?: int32(name='attempt', description='The current retry count.', example='0'),
+      errorCode?: string(name='errorCode', description='The semantic error code.'),
+      errorMessage?: string(name='errorMessage', description='The error message.'),
+      finishTime?: string(name='finishTime', description='The finish time in ISO 8601 UTC format.
+
+Use the UTC time format: yyyy-MM-ddTHH:mm:ss.SSSZ', example='2026-01-01T00:00:10.000Z'),
+      fromTime?: long(name='fromTime', description='The start of the data window, in UNIX seconds.', example='1735660800'),
+      maxAttempts?: int32(name='maxAttempts', description='The maximum number of retries.', example='3'),
+      nextRetryTime?: string(name='nextRetryTime', description='The next retry time in ISO 8601 UTC format.
+
+Use the UTC time format: yyyy-MM-ddTHH:mm:ss.SSSZ', example='2026-01-01T00:01:00.000Z'),
+      pipelineName?: string(name='pipelineName', description='The name of the pipeline.', example='my-pipeline'),
+      runId?: string(name='runId', description='Run Id', example='run-20260101-0001'),
+      startTime?: string(name='startTime', description='The execution start time in ISO 8601 UTC format.
+
+Use the UTC time format: yyyy-MM-ddTHH:mm:ss.SSSZ', example='2026-01-01T00:00:01.000Z'),
+      stats?: map[string]any(name='stats', description='The run statistics, including processedRows (number of processed rows), processedBytes (number of processed bytes), outputRows (number of output rows), outputBytes (number of output bytes), elapsedMs (elapsed time in milliseconds), cpuSec (CPU seconds), cpuCores (number of CPU cores), and tokenCount (number of tokens consumed).'),
+      status?: string(name='status', description='The run status. Valid values: Pending, Running, Succeeded, Failed, and Cancelled.', example='Succeeded'),
+      toTime?: long(name='toTime', description='The end of the data window, in UNIX seconds.', example='1735747200'),
+      triggerTime?: string(name='triggerTime', description='The trigger time in ISO 8601 UTC format.
+
+Use the UTC time format: yyyy-MM-ddTHH:mm:ss.SSSZ', example='2026-01-01T00:00:00.000Z'),
+      triggerType?: string(name='triggerType', description='The trigger type. Valid values: Scheduled, Manual, and RunOnce.', example='Scheduled'),
+    }
+  ](name='runs', description='The list of pipeline runs.'),
+  totalCount?: int32(name='totalCount', description='The total number of pipeline runs that match the filter conditions.', example='100'),
+}
+
+model ListPipelineRunsResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ListPipelineRunsResponseBody(name='body'),
+}
+
+/**
+ * @summary Queries the execution history list of a pipeline.
+ *
+ * @param request ListPipelineRunsRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return ListPipelineRunsResponse
+ */
+async function listPipelineRunsWithOptions(agentSpace: string, pipelineName: string, request: ListPipelineRunsRequest, headers: map[string]string, runtime: Util.RuntimeOptions): ListPipelineRunsResponse {
+  Util.validateModel(request);
+  var query : map[string]any = {};
+  if (!Util.isUnset(request.endTime)) {
+    query['endTime'] = request.endTime;
+  }
+  if (!Util.isUnset(request.maxResults)) {
+    query['maxResults'] = request.maxResults;
+  }
+  if (!Util.isUnset(request.nextToken)) {
+    query['nextToken'] = request.nextToken;
+  }
+  if (!Util.isUnset(request.startTime)) {
+    query['startTime'] = request.startTime;
+  }
+  if (!Util.isUnset(request.status)) {
+    query['status'] = request.status;
+  }
+  if (!Util.isUnset(request.triggerType)) {
+    query['triggerType'] = request.triggerType;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'ListPipelineRuns',
+    version = '2026-05-20',
+    protocol = 'HTTPS',
+    pathname = `/agentspace/${OpenApiUtil.getEncodeParam(agentSpace)}/pipeline/${OpenApiUtil.getEncodeParam(pipelineName)}/runs`,
+    method = 'GET',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Queries the execution history list of a pipeline.
+ *
+ * @param request ListPipelineRunsRequest
+ * @return ListPipelineRunsResponse
+ */
+async function listPipelineRuns(agentSpace: string, pipelineName: string, request: ListPipelineRunsRequest): ListPipelineRunsResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return listPipelineRunsWithOptions(agentSpace, pipelineName, request, headers, runtime);
+}
+
 model ListPipelinesRequest {
   maxResults?: int32(name='maxResults', example='20'),
   nextToken?: string(name='nextToken', example='MTIzNDU2Nzg5MA=='),
   pipelineName?: string(name='pipelineName', example='my-pipeline'),
+  scheduleStatus?: string(name='scheduleStatus', example='Active'),
+  scheduleType?: string(name='scheduleType', example='RunOnce'),
 }
 
 model ListPipelinesResponseBody = {
@@ -1635,13 +3350,27 @@ model ListPipelinesResponseBody = {
     {
       createTime?: string(name='createTime', description='Use the UTC time format: yyyy-MM-ddTHH:mm:ssZ', example='2026-01-01T00:00:00Z'),
       description?: string(name='description', example='我的流水线'),
+      executePolicy?: {
+        mode?: string(name='mode', example='RunOnce'),
+        runOnce?: {
+          fromTime?: long(name='fromTime', example='1735660800000'),
+          toTime?: long(name='toTime', example='1735747200000'),
+        }(name='runOnce'),
+        scheduled?: {
+          fromTime?: long(name='fromTime', example='1735660800000'),
+          interval?: string(name='interval', example='1h'),
+        }(name='scheduled'),
+      }(name='executePolicy'),
       pipelineName?: string(name='pipelineName', example='my-pipeline'),
       regionId?: string(name='regionId', example='cn-hangzhou'),
+      scheduleStatus?: string(name='scheduleStatus', example='None'),
+      scheduleType?: string(name='scheduleType', example='RunOnce'),
       updateTime?: string(name='updateTime', description='Use the UTC time format: yyyy-MM-ddTHH:mm:ssZ', example='2026-01-02T00:00:00Z'),
       workspace?: string(name='workspace', example='my-workspace'),
     }
   ](name='pipelines'),
   requestId?: string(name='requestId', example='9ACFB10A-1B2C-3D4E-5F6G-7H8I9J0K1L2M'),
+  totalCount?: int32(name='totalCount', example='100'),
 }
 
 model ListPipelinesResponse = {
@@ -1651,7 +3380,7 @@ model ListPipelinesResponse = {
 }
 
 /**
- * @summary 查询流水线列表
+ * @summary Lists CI/CD pipelines.
  *
  * @param request ListPipelinesRequest
  * @param headers map
@@ -1669,6 +3398,12 @@ async function listPipelinesWithOptions(agentSpace: string, request: ListPipelin
   }
   if (!Util.isUnset(request.pipelineName)) {
     query['pipelineName'] = request.pipelineName;
+  }
+  if (!Util.isUnset(request.scheduleStatus)) {
+    query['scheduleStatus'] = request.scheduleStatus;
+  }
+  if (!Util.isUnset(request.scheduleType)) {
+    query['scheduleType'] = request.scheduleType;
   }
 
   var req = new OpenApi.OpenApiRequest{ 
@@ -1690,7 +3425,7 @@ async function listPipelinesWithOptions(agentSpace: string, request: ListPipelin
 }
 
 /**
- * @summary 查询流水线列表
+ * @summary Lists CI/CD pipelines.
  *
  * @param request ListPipelinesRequest
  * @return ListPipelinesResponse
@@ -1701,18 +3436,217 @@ async function listPipelines(agentSpace: string, request: ListPipelinesRequest):
   return listPipelinesWithOptions(agentSpace, request, headers, runtime);
 }
 
+model PausePipelineRequest {
+  reason?: string(name='reason', description='The reason for pausing the pipeline.', example='manual maintenance'),
+}
+
+model PausePipelineResponseBody = {
+  agentSpaceName?: string(name='agentSpaceName', description='The name of the AgentSpace where the pipeline is located.', example='my-agent-space'),
+  pauseTime?: string(name='pauseTime', description='The time when the pipeline was paused, in ISO 8601 UTC format.
+
+Use the UTC time format: yyyy-MM-ddTHH:mm:ss.SSSZ', example='2026-01-01T00:00:00.000Z'),
+  pausedReason?: string(name='pausedReason', description='The reason for pausing the pipeline.', example='manual maintenance'),
+  pipelineName?: string(name='pipelineName', description='The name of the pipeline.', example='my-pipeline'),
+  requestId?: string(name='requestId', description='The request ID, which is used to locate and troubleshoot issues.', example='9ACFB10A-1B2C-3D4E-5F6G-7H8I9J0K1L2M'),
+  scheduleStatus?: string(name='scheduleStatus', description='The scheduling status. The value is fixed as Paused.', example='Paused'),
+}
+
+model PausePipelineResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: PausePipelineResponseBody(name='body'),
+}
+
+/**
+ * @summary Pauses a pipeline.
+ *
+ * @param request PausePipelineRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return PausePipelineResponse
+ */
+async function pausePipelineWithOptions(agentSpace: string, pipelineName: string, request: PausePipelineRequest, headers: map[string]string, runtime: Util.RuntimeOptions): PausePipelineResponse {
+  Util.validateModel(request);
+  var body : map[string]any = {};
+  if (!Util.isUnset(request.reason)) {
+    body['reason'] = request.reason;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApi.Params{
+    action = 'PausePipeline',
+    version = '2026-05-20',
+    protocol = 'HTTPS',
+    pathname = `/agentspace/${OpenApiUtil.getEncodeParam(agentSpace)}/pipeline/${OpenApiUtil.getEncodeParam(pipelineName)}/pause`,
+    method = 'POST',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Pauses a pipeline.
+ *
+ * @param request PausePipelineRequest
+ * @return PausePipelineResponse
+ */
+async function pausePipeline(agentSpace: string, pipelineName: string, request: PausePipelineRequest): PausePipelineResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return pausePipelineWithOptions(agentSpace, pipelineName, request, headers, runtime);
+}
+
+model ResumePipelineRequest {
+}
+
+model ResumePipelineResponseBody = {
+  agentSpaceName?: string(name='agentSpaceName', description='The name of the AgentSpace where the pipeline is located.', example='my-agent-space'),
+  committedWatermark?: long(name='committedWatermark', description='The committed watermark, in UNIX seconds.', example='1735660800'),
+  nextTriggerTime?: long(name='nextTriggerTime', description='The next scheduling trigger time, in UNIX seconds.', example='1735664400'),
+  pipelineName?: string(name='pipelineName', description='The name of the pipeline.', example='my-pipeline'),
+  requestId?: string(name='requestId', description='The request ID, which is used to locate and troubleshoot issues.', example='9ACFB10A-1B2C-3D4E-5F6G-7H8I9J0K1L2M'),
+  scheduleStatus?: string(name='scheduleStatus', description='The scheduling status. The value is fixed to Active.', example='Active'),
+}
+
+model ResumePipelineResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ResumePipelineResponseBody(name='body'),
+}
+
+/**
+ * @summary Resumes a pipeline.
+ *
+ * @param request ResumePipelineRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return ResumePipelineResponse
+ */
+async function resumePipelineWithOptions(agentSpace: string, pipelineName: string, request: ResumePipelineRequest, headers: map[string]string, runtime: Util.RuntimeOptions): ResumePipelineResponse {
+  Util.validateModel(request);
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+  };
+  var params = new OpenApi.Params{
+    action = 'ResumePipeline',
+    version = '2026-05-20',
+    protocol = 'HTTPS',
+    pathname = `/agentspace/${OpenApiUtil.getEncodeParam(agentSpace)}/pipeline/${OpenApiUtil.getEncodeParam(pipelineName)}/resume`,
+    method = 'POST',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Resumes a pipeline.
+ *
+ * @param request ResumePipelineRequest
+ * @return ResumePipelineResponse
+ */
+async function resumePipeline(agentSpace: string, pipelineName: string, request: ResumePipelineRequest): ResumePipelineResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return resumePipelineWithOptions(agentSpace, pipelineName, request, headers, runtime);
+}
+
+model RunPipelineRequest {
+  fromTime?: long(name='fromTime', example='1735660800'),
+  output?: {
+    dataset?: boolean(name='dataset', example='true'),
+    inline?: boolean(name='inline', example='false'),
+  }(name='output'),
+  toTime?: long(name='toTime', example='1735747200'),
+}
+
+model RunPipelineResponseBody = {
+  agentSpaceName?: string(name='agentSpaceName', example='my-agent-space'),
+  pipelineName?: string(name='pipelineName', example='my-pipeline'),
+  requestId?: string(name='requestId', example='9ACFB10A-1B2C-3D4E-5F6G-7H8I9J0K1L2M'),
+  runId?: string(name='runId', example='run-20260101-0001'),
+  status?: string(name='status', example='Pending'),
+}
+
+model RunPipelineResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: RunPipelineResponseBody(name='body'),
+}
+
+/**
+ * @summary Manually triggers a pipeline execution.
+ *
+ * @param request RunPipelineRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return RunPipelineResponse
+ */
+async function runPipelineWithOptions(agentSpace: string, pipelineName: string, request: RunPipelineRequest, headers: map[string]string, runtime: Util.RuntimeOptions): RunPipelineResponse {
+  Util.validateModel(request);
+  var body : map[string]any = {};
+  if (!Util.isUnset(request.fromTime)) {
+    body['fromTime'] = request.fromTime;
+  }
+  if (!Util.isUnset(request.output)) {
+    body['output'] = request.output;
+  }
+  if (!Util.isUnset(request.toTime)) {
+    body['toTime'] = request.toTime;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApi.Params{
+    action = 'RunPipeline',
+    version = '2026-05-20',
+    protocol = 'HTTPS',
+    pathname = `/agentspace/${OpenApiUtil.getEncodeParam(agentSpace)}/pipeline/${OpenApiUtil.getEncodeParam(pipelineName)}/run`,
+    method = 'POST',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Manually triggers a pipeline execution.
+ *
+ * @param request RunPipelineRequest
+ * @return RunPipelineResponse
+ */
+async function runPipeline(agentSpace: string, pipelineName: string, request: RunPipelineRequest): RunPipelineResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return runPipelineWithOptions(agentSpace, pipelineName, request, headers, runtime);
+}
+
 model SearchContextRequest {
-  filter?: map[string]any(name='filter', example='{"userId":"alice"}'),
-  formatted?: boolean(name='formatted', example='true'),
-  limit?: int32(name='limit', example='10'),
-  query?: string(name='query', description='This parameter is required.', example='用户最近的偏好设置'),
-  retrievalOption?: string(name='retrievalOption', example='semantic'),
-  threshold?: double(name='threshold', example='0.5'),
+  filter?: map[string]any(name='filter', description='The structured filter conditions. The key is the field name, and the value is the expected matching value.', example='{"userId":"alice"}'),
+  formatted?: boolean(name='formatted', description='Specifies whether to apply structured formatting to the returned results.', example='true'),
+  limit?: int32(name='limit', description='The maximum number of returned results (similarity Top-N).', example='10'),
+  query?: string(name='query', description='The retrieval query text. Natural language is supported.
+
+This parameter is required.', example='用户最近的偏好设置'),
+  retrievalOption?: string(name='retrievalOption', description='The retrieval options that control the retrieval strategy.', example='semantic'),
+  threshold?: double(name='threshold', description='The similarity threshold. Results with a similarity score lower than this value are filtered out. Valid values: 0 to 1.', example='0.5'),
 }
 
 model SearchContextResponseBody = {
-  requestId?: string(name='requestId', example='9ACFB10A-1B2C-3D4E-5F6G-7H8I9J0K1L2M'),
-  results?: [ map[string]any ](name='results'),
+  requestId?: string(name='requestId', description='The request ID. You can use this ID to locate and troubleshoot issues.', example='9ACFB10A-1B2C-3D4E-5F6G-7H8I9J0K1L2M'),
+  results?: [ map[string]any ](name='results', description='The list of retrieval results, sorted by similarity in descending order.'),
 }
 
 model SearchContextResponse = {
@@ -1722,7 +3656,7 @@ model SearchContextResponse = {
 }
 
 /**
- * @summary 搜索上下文
+ * @summary Searches contexts.
  *
  * @param request SearchContextRequest
  * @param headers map
@@ -1770,7 +3704,7 @@ async function searchContextWithOptions(agentSpace: string, contextStoreName: st
 }
 
 /**
- * @summary 搜索上下文
+ * @summary Searches contexts.
  *
  * @param request SearchContextRequest
  * @return SearchContextResponse
@@ -1781,14 +3715,78 @@ async function searchContext(agentSpace: string, contextStoreName: string, reque
   return searchContextWithOptions(agentSpace, contextStoreName, request, headers, runtime);
 }
 
+model TerminatePipelineRequest {
+  reason?: string(name='reason', example='project deprecated'),
+}
+
+model TerminatePipelineResponseBody = {
+  agentSpaceName?: string(name='agentSpaceName', example='my-agent-space'),
+  pipelineName?: string(name='pipelineName', example='my-pipeline'),
+  requestId?: string(name='requestId', example='9ACFB10A-1B2C-3D4E-5F6G-7H8I9J0K1L2M'),
+  scheduleStatus?: string(name='scheduleStatus', example='Terminated'),
+  terminateTime?: string(name='terminateTime', description='Use the UTC time format: yyyy-MM-ddTHH:mm:ss.SSSZ', example='2026-01-01T00:00:00.000Z'),
+  terminatedReason?: string(name='terminatedReason', example='project deprecated'),
+}
+
+model TerminatePipelineResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: TerminatePipelineResponseBody(name='body'),
+}
+
+/**
+ * @summary Stops a pipeline.
+ *
+ * @param request TerminatePipelineRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return TerminatePipelineResponse
+ */
+async function terminatePipelineWithOptions(agentSpace: string, pipelineName: string, request: TerminatePipelineRequest, headers: map[string]string, runtime: Util.RuntimeOptions): TerminatePipelineResponse {
+  Util.validateModel(request);
+  var body : map[string]any = {};
+  if (!Util.isUnset(request.reason)) {
+    body['reason'] = request.reason;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApi.Params{
+    action = 'TerminatePipeline',
+    version = '2026-05-20',
+    protocol = 'HTTPS',
+    pathname = `/agentspace/${OpenApiUtil.getEncodeParam(agentSpace)}/pipeline/${OpenApiUtil.getEncodeParam(pipelineName)}/terminate`,
+    method = 'POST',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Stops a pipeline.
+ *
+ * @param request TerminatePipelineRequest
+ * @return TerminatePipelineResponse
+ */
+async function terminatePipeline(agentSpace: string, pipelineName: string, request: TerminatePipelineRequest): TerminatePipelineResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return terminatePipelineWithOptions(agentSpace, pipelineName, request, headers, runtime);
+}
+
 model UpdateAgentSpaceRequest {
-  cmsWorkspace?: string(name='cmsWorkspace'),
-  description?: string(name='description'),
-  clientToken?: string(name='clientToken', example='a1b2c3d4-1234-5678-90ab-cdef12345678'),
+  cmsWorkspace?: string(name='cmsWorkspace', description='The CloudMonitor 2.0 workspace.', example='my-workspace'),
+  description?: string(name='description', description='The description.', example='test'),
+  clientToken?: string(name='clientToken', description='The idempotency token. A unique string generated by the client to ensure the idempotence of the update operation.', example='a1b2c3d4-1234-5678-90ab-cdef12345678'),
 }
 
 model UpdateAgentSpaceResponseBody = {
-  requestId?: string(name='requestId'),
+  requestId?: string(name='requestId', description='The request ID.', example='AA689779-61AB-5077-BD91-9F7EA1205D68'),
 }
 
 model UpdateAgentSpaceResponse = {
@@ -1798,7 +3796,7 @@ model UpdateAgentSpaceResponse = {
 }
 
 /**
- * @summary 更新AgentSpace
+ * @summary Updates an AgentSpace.
  *
  * @param request UpdateAgentSpaceRequest
  * @param headers map
@@ -1840,7 +3838,7 @@ async function updateAgentSpaceWithOptions(agentSpace: string, request: UpdateAg
 }
 
 /**
- * @summary 更新AgentSpace
+ * @summary Updates an AgentSpace.
  *
  * @param request UpdateAgentSpaceRequest
  * @return UpdateAgentSpaceResponse
@@ -1853,19 +3851,19 @@ async function updateAgentSpace(agentSpace: string, request: UpdateAgentSpaceReq
 
 model UpdateContextStoreRequest {
   config?: {
-    metadataField?: map[string]string(name='metadataField', example='{"userId":"user_id","sessionId":"session_id"}'),
+    metadataField?: map[string]string(name='metadataField', description='The metadata field mapping. The key is the business field and the value is the storage field.', example='{"userId":"user_id","sessionId":"session_id"}'),
     source?: {
-      agentSpace?: string(name='agentSpace', example='my-agent-space'),
-      startTime?: string(name='startTime', example='2026-01-01T00:00:00Z'),
-    }(name='source'),
-  }(name='config'),
-  contextType?: string(name='contextType', example='experience'),
-  description?: string(name='description', example='我的上下文库'),
-  clientToken?: string(name='clientToken', example='a1b2c3d4-1234-5678-90ab-cdef12345678'),
+      agentSpace?: string(name='agentSpace', description='The AgentSpace where the trace data source resides. Cross-AgentSpace access is not supported. If specified, this value must be the same as the path AgentSpace. Otherwise, a 400 parameter error is returned. The AgentSpace cannot be changed after creation.', example='my-agent-space'),
+      startTime?: string(name='startTime', description='The start time for data backfill, in ISO 8601 UTC format.', example='2026-01-01T00:00:00Z'),
+    }(name='source', description='The datasource config, which serves only as the root identifier of the data source.'),
+  }(name='config', description='The context store configuration. If specified, the entire configuration is overwritten. If not specified, the existing configuration is retained.'),
+  contextType?: string(name='contextType', description='The type of the context store. This value typically cannot be changed after creation. This field is provided only for exception correction.', example='experience'),
+  description?: string(name='description', description='The description of the context store, which helps the business team understand its purpose.', example='我的上下文库'),
+  clientToken?: string(name='clientToken', description='The idempotency token, which is a unique string generated by the client to ensure that the update operation is idempotent.', example='a1b2c3d4-1234-5678-90ab-cdef12345678'),
 }
 
 model UpdateContextStoreResponseBody = {
-  requestId?: string(name='requestId', example='9ACFB10A-1B2C-3D4E-5F6G-7H8I9J0K1L2M'),
+  requestId?: string(name='requestId', description='The request ID, which is used to locate the request during troubleshooting.', example='9ACFB10A-1B2C-3D4E-5F6G-7H8I9J0K1L2M'),
 }
 
 model UpdateContextStoreResponse = {
@@ -1875,7 +3873,7 @@ model UpdateContextStoreResponse = {
 }
 
 /**
- * @summary 修改上下文库配置
+ * @summary Modifies the configuration of a context store.
  *
  * @param request UpdateContextStoreRequest
  * @param headers map
@@ -1920,7 +3918,7 @@ async function updateContextStoreWithOptions(agentSpace: string, contextStoreNam
 }
 
 /**
- * @summary 修改上下文库配置
+ * @summary Modifies the configuration of a context store.
  *
  * @param request UpdateContextStoreRequest
  * @return UpdateContextStoreResponse
@@ -1932,13 +3930,13 @@ async function updateContextStore(agentSpace: string, contextStoreName: string, 
 }
 
 model UpdateDatasetRequest {
-  description?: string(name='description'),
-  schema?: map[string]IndexKey(name='schema'),
-  clientToken?: string(name='clientToken', example='a1b2c3d4-1234-5678-90ab-cdef12345678'),
+  description?: string(name='description', description='The description of the dataset.', example='backend by serverless devs'),
+  schema?: map[string]IndexKey(name='schema', description='The table schema of the dataset.'),
+  clientToken?: string(name='clientToken', description='The idempotency token. A unique string generated by the client to ensure that the update operation is idempotent.', example='a1b2c3d4-1234-5678-90ab-cdef12345678'),
 }
 
 model UpdateDatasetResponseBody = {
-  requestId?: string(name='requestId'),
+  requestId?: string(name='requestId', description='Id of the request', example='BC5B6F62-6FA2-57FC-8285-99753BD34B6D'),
 }
 
 model UpdateDatasetResponse = {
@@ -1948,7 +3946,7 @@ model UpdateDatasetResponse = {
 }
 
 /**
- * @summary 更新数据集
+ * @summary Updates a dataset.
  *
  * @param request UpdateDatasetRequest
  * @param headers map
@@ -1990,7 +3988,7 @@ async function updateDatasetWithOptions(agentSpace: string, datasetName: string,
 }
 
 /**
- * @summary 更新数据集
+ * @summary Updates a dataset.
  *
  * @param request UpdateDatasetRequest
  * @return UpdateDatasetResponse
@@ -2001,47 +3999,382 @@ async function updateDataset(agentSpace: string, datasetName: string, request: U
   return updateDatasetWithOptions(agentSpace, datasetName, request, headers, runtime);
 }
 
+model UpdateEvaluationRunRequest {
+  status?: string(name='status', description='The target status. Currently, only stop-related statuses are supported.', example='Terminated'),
+}
+
+model UpdateEvaluationRunResponseBody = {
+  requestId?: string(name='requestId', description='The request ID.', example='3FE4CD1E-FF41-56BE-B590-7A021D9C1524'),
+}
+
+model UpdateEvaluationRunResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: UpdateEvaluationRunResponseBody(name='body'),
+}
+
+/**
+ * @summary Updates an evaluation run.
+ *
+ * @param request UpdateEvaluationRunRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return UpdateEvaluationRunResponse
+ */
+async function updateEvaluationRunWithOptions(agentSpace: string, taskId: string, runId: string, request: UpdateEvaluationRunRequest, headers: map[string]string, runtime: Util.RuntimeOptions): UpdateEvaluationRunResponse {
+  Util.validateModel(request);
+  var body : map[string]any = {};
+  if (!Util.isUnset(request.status)) {
+    body['status'] = request.status;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApi.Params{
+    action = 'UpdateEvaluationRun',
+    version = '2026-05-20',
+    protocol = 'HTTPS',
+    pathname = `/api/v1/evaluation-task/${OpenApiUtil.getEncodeParam(agentSpace)}/${OpenApiUtil.getEncodeParam(taskId)}/run/${OpenApiUtil.getEncodeParam(runId)}`,
+    method = 'PUT',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Updates an evaluation run.
+ *
+ * @param request UpdateEvaluationRunRequest
+ * @return UpdateEvaluationRunResponse
+ */
+async function updateEvaluationRun(agentSpace: string, taskId: string, runId: string, request: UpdateEvaluationRunRequest): UpdateEvaluationRunResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return updateEvaluationRunWithOptions(agentSpace, taskId, runId, request, headers, runtime);
+}
+
+model UpdateEvaluationTaskRequest {
+  config?: map[string]string(name='config', description='The new task configuration. Some fields that are set during creation cannot be modified.', example='{"dataScope":"trace"}'),
+  dataFilter?: string(name='dataFilter', description='The filter condition for evaluation data. A JSON object or JSON string is supported.', example='{"query":"serviceName=\\\\"checkout-service\\\\" AND status=\\\\"OK\\\\"","maxRecords":10,"samplingRate":50}'),
+  description?: string(name='description', description='The description of the evaluation task.', example='更新后的链路 Trace 任务完成度评估'),
+  evaluators?: [
+    Evaluator
+  ](name='evaluators', description='The new list of evaluator configurations. When specified, this list entirely replaces the existing evaluator list of the task, and the system re-validates evaluator uniqueness and variable mappings.', example='[{"evaluatorRef":"Builtin.agent_task_completion","resultName":"agent_task_completion","resultType":"score","variableMapping":{"input":"trace.input","output":"trace.output","agent_trajectory":"trace.agent_trajectory"}}]'),
+  runStrategies?: RunStrategies(name='runStrategies', description='The new task execution strategies. A JSON object or JSON string is supported. If the task is in `Completed`, `Terminated`, or `Failed` status and the new strategy enables backfill or continuous mode, the backend resets the task to `Pending` and triggers orchestration.'),
+  status?: string(name='status', description='The task status. Currently the backend only allows users to explicitly set this to `Terminated`. Other statuses are managed by the system.', example='Terminated'),
+  tags?: map[string]string(name='tags', description='The key-value pairs of task tags. You do not need to specify this parameter by default. Specify this parameter only when you want to associate or filter tasks by business tags.', example='{"env":"prod","serviceId":"checkout-service","planId":"plan-20260703"}'),
+  clientToken?: string(name='clientToken', description='The idempotency token. CloudSpec declares this query parameter, but the backend does not currently perform idempotency comparison.', example='a1b2c3d4-1234-5678-90ab-cdef12345678'),
+}
+
+model UpdateEvaluationTaskResponseBody = {
+  requestId?: string(name='requestId', description='The request ID.', example='3FE4CD1E-FF41-56BE-B590-7A021D9C1524'),
+}
+
+model UpdateEvaluationTaskResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: UpdateEvaluationTaskResponseBody(name='body'),
+}
+
+/**
+ * @summary Updates an evaluation task.
+ *
+ * @param request UpdateEvaluationTaskRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return UpdateEvaluationTaskResponse
+ */
+async function updateEvaluationTaskWithOptions(agentSpace: string, taskId: string, request: UpdateEvaluationTaskRequest, headers: map[string]string, runtime: Util.RuntimeOptions): UpdateEvaluationTaskResponse {
+  Util.validateModel(request);
+  var query : map[string]any = {};
+  if (!Util.isUnset(request.clientToken)) {
+    query['clientToken'] = request.clientToken;
+  }
+
+  var body : map[string]any = {};
+  if (!Util.isUnset(request.config)) {
+    body['config'] = request.config;
+  }
+  if (!Util.isUnset(request.dataFilter)) {
+    body['dataFilter'] = request.dataFilter;
+  }
+  if (!Util.isUnset(request.description)) {
+    body['description'] = request.description;
+  }
+  if (!Util.isUnset(request.evaluators)) {
+    body['evaluators'] = request.evaluators;
+  }
+  if (!Util.isUnset(request.runStrategies)) {
+    body['runStrategies'] = request.runStrategies;
+  }
+  if (!Util.isUnset(request.status)) {
+    body['status'] = request.status;
+  }
+  if (!Util.isUnset(request.tags)) {
+    body['tags'] = request.tags;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApi.Params{
+    action = 'UpdateEvaluationTask',
+    version = '2026-05-20',
+    protocol = 'HTTPS',
+    pathname = `/api/v1/evaluation-task/${OpenApiUtil.getEncodeParam(agentSpace)}/${OpenApiUtil.getEncodeParam(taskId)}`,
+    method = 'PUT',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Updates an evaluation task.
+ *
+ * @param request UpdateEvaluationTaskRequest
+ * @return UpdateEvaluationTaskResponse
+ */
+async function updateEvaluationTask(agentSpace: string, taskId: string, request: UpdateEvaluationTaskRequest): UpdateEvaluationTaskResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return updateEvaluationTaskWithOptions(agentSpace, taskId, request, headers, runtime);
+}
+
+model UpdateEvaluatorRequest {
+  annotations?: [ string ](name='annotations', description='The list of annotation marks.', example='["__en"]'),
+  config?: map[string]any(name='config', description='The new version configuration. This parameter is typically required when `version` is specified.', example='{"prompt":"请更严格地评估任务完成度"}'),
+  description?: string(name='description', description='The evaluator description.', example='判断 Agent 是否完成用户任务'),
+  displayName?: string(name='displayName', description='The display name.', example='链路任务完成度'),
+  properties?: map[string]any(name='properties', description='The evaluator properties.', example='{"agentEvaluatorMode":"raw_prompt"}'),
+  version?: string(name='version', description='The new version number. If specified, a new version is created.', example='1.1.0'),
+  versionDescription?: string(name='versionDescription', description='The version description.', example='优化评分说明'),
+  clientToken?: string(name='clientToken', description='The idempotency token. CloudSpec declares this query parameter, but the backend does not currently perform idempotency comparison.', example='a1b2c3d4-1234-5678-90ab-cdef12345678'),
+}
+
+model UpdateEvaluatorResponseBody = {
+  requestId?: string(name='requestId', description='The request ID.', example='3FE4CD1E-FF41-56BE-B590-7A021D9C1524'),
+}
+
+model UpdateEvaluatorResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: UpdateEvaluatorResponseBody(name='body'),
+}
+
+/**
+ * @summary Updates an evaluator.
+ *
+ * @param request UpdateEvaluatorRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return UpdateEvaluatorResponse
+ */
+async function updateEvaluatorWithOptions(agentSpace: string, name: string, request: UpdateEvaluatorRequest, headers: map[string]string, runtime: Util.RuntimeOptions): UpdateEvaluatorResponse {
+  Util.validateModel(request);
+  var query : map[string]any = {};
+  if (!Util.isUnset(request.clientToken)) {
+    query['clientToken'] = request.clientToken;
+  }
+
+  var body : map[string]any = {};
+  if (!Util.isUnset(request.annotations)) {
+    body['annotations'] = request.annotations;
+  }
+  if (!Util.isUnset(request.config)) {
+    body['config'] = request.config;
+  }
+  if (!Util.isUnset(request.description)) {
+    body['description'] = request.description;
+  }
+  if (!Util.isUnset(request.displayName)) {
+    body['displayName'] = request.displayName;
+  }
+  if (!Util.isUnset(request.properties)) {
+    body['properties'] = request.properties;
+  }
+  if (!Util.isUnset(request.version)) {
+    body['version'] = request.version;
+  }
+  if (!Util.isUnset(request.versionDescription)) {
+    body['versionDescription'] = request.versionDescription;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApi.Params{
+    action = 'UpdateEvaluator',
+    version = '2026-05-20',
+    protocol = 'HTTPS',
+    pathname = `/api/v1/evaluators/${OpenApiUtil.getEncodeParam(agentSpace)}/${OpenApiUtil.getEncodeParam(name)}`,
+    method = 'PUT',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Updates an evaluator.
+ *
+ * @param request UpdateEvaluatorRequest
+ * @return UpdateEvaluatorResponse
+ */
+async function updateEvaluator(agentSpace: string, name: string, request: UpdateEvaluatorRequest): UpdateEvaluatorResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return updateEvaluatorWithOptions(agentSpace, name, request, headers, runtime);
+}
+
+model UpdateEvaluatorSkillRequest {
+  agentSpace?: string(name='agentSpace', description='The AgentSpace name.
+
+This parameter is required.', example='prod-agentspace'),
+  description?: string(name='description', description='The description of the skill.', example='读取链路上下文辅助评估'),
+  displayName?: string(name='displayName', description='The display name of the skill.', example='Trace 上下文读取'),
+  enable?: boolean(name='enable', description='Specifies whether to enable the skill.', example='true'),
+  files?: [ 
+    {
+      content?: string(name='content', description='The skill file content.
+
+This parameter is required.', example='# Trace Context Loader'),
+      name?: string(name='name', description='The skill file name.
+
+This parameter is required.', example='SKILL.md'),
+      remark?: string(name='remark', description='The file remark.', example='主技能说明'),
+    }
+  ](name='files', description='The list of skill files. When provided, the skill file content is updated.', example='[{"name":"SKILL.md","content":"# Trace Context Loader","remark":"主技能说明"}]'),
+  clientToken?: string(name='clientToken', description='The idempotency token. CloudSpec declares this query parameter, but the backend does not currently perform idempotency comparison.', example='a1b2c3d4-1234-5678-90ab-cdef12345678'),
+}
+
+model UpdateEvaluatorSkillResponseBody = {
+  requestId?: string(name='requestId', description='The request ID.', example='3FE4CD1E-FF41-56BE-B590-7A021D9C1524'),
+}
+
+model UpdateEvaluatorSkillResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: UpdateEvaluatorSkillResponseBody(name='body'),
+}
+
+/**
+ * @summary Updates an evaluator skill.
+ *
+ * @param request UpdateEvaluatorSkillRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return UpdateEvaluatorSkillResponse
+ */
+async function updateEvaluatorSkillWithOptions(name: string, skillName: string, request: UpdateEvaluatorSkillRequest, headers: map[string]string, runtime: Util.RuntimeOptions): UpdateEvaluatorSkillResponse {
+  Util.validateModel(request);
+  var query : map[string]any = {};
+  if (!Util.isUnset(request.agentSpace)) {
+    query['agentSpace'] = request.agentSpace;
+  }
+  if (!Util.isUnset(request.clientToken)) {
+    query['clientToken'] = request.clientToken;
+  }
+
+  var body : map[string]any = {};
+  if (!Util.isUnset(request.description)) {
+    body['description'] = request.description;
+  }
+  if (!Util.isUnset(request.displayName)) {
+    body['displayName'] = request.displayName;
+  }
+  if (!Util.isUnset(request.enable)) {
+    body['enable'] = request.enable;
+  }
+  if (!Util.isUnset(request.files)) {
+    body['files'] = request.files;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApi.Params{
+    action = 'UpdateEvaluatorSkill',
+    version = '2026-05-20',
+    protocol = 'HTTPS',
+    pathname = `/api/v1/evaluator/${OpenApiUtil.getEncodeParam(name)}/skill/${OpenApiUtil.getEncodeParam(skillName)}`,
+    method = 'PUT',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Updates an evaluator skill.
+ *
+ * @param request UpdateEvaluatorSkillRequest
+ * @return UpdateEvaluatorSkillResponse
+ */
+async function updateEvaluatorSkill(name: string, skillName: string, request: UpdateEvaluatorSkillRequest): UpdateEvaluatorSkillResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return updateEvaluatorSkillWithOptions(name, skillName, request, headers, runtime);
+}
+
 model UpdatePipelineRequest {
-  description?: string(name='description', example='我的流水线'),
+  description?: string(name='description', description='The description of the pipeline, which helps users understand its purpose.', example='我的流水线'),
   executePolicy?: {
-    mode?: string(name='mode', example='Scheduled'),
+    mode?: string(name='mode', description='The scheduling mode, such as Scheduled (timed scheduling) or RunOnce (one-time execution).', example='Scheduled'),
     runOnce?: {
-      fromTime?: long(name='fromTime', example='1735660800000'),
-      toTime?: long(name='toTime', example='1735747200000'),
-    }(name='runOnce'),
+      fromTime?: long(name='fromTime', description='The data processing start time, in UNIX millisecond timestamp.', example='1735660800000'),
+      toTime?: long(name='toTime', description='The data processing end time, in UNIX millisecond timestamp.', example='1735747200000'),
+    }(name='runOnce', description='The configuration for one-time execution.'),
     scheduled?: {
-      fromTime?: long(name='fromTime', example='1735660800000'),
-      interval?: string(name='interval', example='1h'),
-    }(name='scheduled'),
-  }(name='executePolicy'),
+      fromTime?: long(name='fromTime', description='The scheduling start time, in UNIX millisecond timestamp.', example='1735660800000'),
+      interval?: string(name='interval', description='The scheduling interval, such as 1h.', example='1h'),
+    }(name='scheduled', description='The timed scheduling configuration.'),
+  }(name='executePolicy', description='The execution policy. If specified, the existing execution policy is entirely overwritten.'),
   pipeline?: {
     nodes?: [ 
       {
-        id?: string(name='id', example='node-1'),
-        parameters?: map[string]any(name='parameters'),
-        type?: string(name='type', example='transform'),
+        id?: string(name='id', description='The node ID.', example='node-1'),
+        parameters?: map[string]any(name='parameters', description='The node parameters in key-value format. The parameters vary by node type.'),
+        type?: string(name='type', description='The node type.', example='transform'),
       }
-    ](name='nodes'),
-  }(name='pipeline'),
+    ](name='nodes', description='The list of nodes.'),
+  }(name='pipeline', description='The pipeline configuration (node orchestration). If specified, the existing pipeline configuration is entirely overwritten.'),
   sink?: {
     dataset?: {
       agentSpace?: string(name='agentSpace', example='my-agent-space'),
-      dataset?: string(name='dataset', example='my-dataset'),
-    }(name='dataset'),
-    type?: string(name='type', example='Dataset'),
-  }(name='sink'),
+      dataset?: string(name='dataset', description='The name of the destination dataset.', example='my-dataset'),
+    }(name='dataset', description='The destination dataset configuration.'),
+    type?: string(name='type', description='The sink type, such as Dataset.', example='Dataset'),
+  }(name='sink', description='The pipeline sink (data write destination). If specified, the existing sink configuration is entirely overwritten.'),
   source?: {
     logstore?: {
-      logstore?: string(name='logstore', example='my-sls-logstore'),
-      query?: string(name='query', example='* | SELECT *'),
-    }(name='logstore'),
-    type?: string(name='type', example='SLS'),
-  }(name='source'),
+      logstore?: string(name='logstore', description='The name of the SLS Logstore.', example='my-sls-logstore'),
+      query?: string(name='query', description='The data filtered query statement in SLS query/analysis syntax.', example='* | SELECT *'),
+    }(name='logstore', description='The SLS Logstore datasource config.'),
+    type?: string(name='type', description='The data source type, such as SLS.', example='SLS'),
+  }(name='source', description='The pipeline data source. If specified, the existing source configuration is entirely overwritten.'),
   clientToken?: string(name='clientToken', example='a1b2c3d4-1234-5678-90ab-cdef12345678'),
 }
 
 model UpdatePipelineResponseBody = {
-  requestId?: string(name='requestId', example='9ACFB10A-1B2C-3D4E-5F6G-7H8I9J0K1L2M'),
+  requestId?: string(name='requestId', description='The request ID, which is used to locate and troubleshoot issues.', example='9ACFB10A-1B2C-3D4E-5F6G-7H8I9J0K1L2M'),
 }
 
 model UpdatePipelineResponse = {
@@ -2051,7 +4384,7 @@ model UpdatePipelineResponse = {
 }
 
 /**
- * @summary 更新流水线
+ * @summary Updates a pipeline.
  *
  * @param request UpdatePipelineRequest
  * @param headers map
@@ -2102,7 +4435,7 @@ async function updatePipelineWithOptions(agentSpace: string, pipelineName: strin
 }
 
 /**
- * @summary 更新流水线
+ * @summary Updates a pipeline.
  *
  * @param request UpdatePipelineRequest
  * @return UpdatePipelineResponse
