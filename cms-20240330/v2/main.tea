@@ -4556,6 +4556,81 @@ async function createServiceObservability(workspace: string, type: string, reque
   return createServiceObservabilityWithOptions(workspace, type, request, headers, runtime);
 }
 
+model CreateServiceRecordRequest {
+  recordContent?: string(name='recordContent', description='The entry content in JSON string format. The format may vary depending on the value of recordType.
+
+This parameter is required.', example='{
+  "project": "proj-xtrace-16c988dcfe21fcb73c5e6f234927d998-cn-hangzhou",
+  "storeName": "app-biz-log",
+  "regionId": "cn-hangzhou",
+  "bindType": "logstore",
+  "traceIdRelateField": ""
+}'),
+  recordType?: string(name='recordType', description='The type of the linked entry. Valid values:
+- logCorrelation: application log association.
+
+This parameter is required.', example='logCorrelation'),
+}
+
+model CreateServiceRecordResponseBody = {
+  requestId?: string(name='requestId', description='Id of the request', example='8FDE2569-626B-5176-9844-28877A*****'),
+}
+
+model CreateServiceRecordResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: CreateServiceRecordResponseBody(name='body'),
+}
+
+/**
+ * @summary Creates a service-linked entry for associating configurations with the application monitoring service, such as log association.
+ *
+ * @param request CreateServiceRecordRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return CreateServiceRecordResponse
+ */
+@context("createServiceRecordWithContext")
+async function createServiceRecordWithOptions(workspace: string, serviceId: string, request: CreateServiceRecordRequest, headers: map[string]string, runtime: $RuntimeOptions): CreateServiceRecordResponse {
+  request.validate();
+  var body : map[string]any = {};
+  if (!$isNull(request.recordContent)) {
+    body['recordContent'] = request.recordContent;
+  }
+  if (!$isNull(request.recordType)) {
+    body['recordType'] = request.recordType;
+  }
+
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    headers = headers,
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'CreateServiceRecord',
+    version = '2024-03-30',
+    protocol = 'HTTPS',
+    pathname = `/workspace/${$URL.percentEncode(workspace)}/service/${$URL.percentEncode(serviceId)}/record`,
+    method = 'POST',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Creates a service-linked entry for associating configurations with the application monitoring service, such as log association.
+ *
+ * @param request CreateServiceRecordRequest
+ * @return CreateServiceRecordResponse
+ */
+async function createServiceRecord(workspace: string, serviceId: string, request: CreateServiceRecordRequest): CreateServiceRecordResponse {
+  var runtime = new $RuntimeOptions{};
+  var headers : map[string]string = {};
+  return createServiceRecordWithOptions(workspace, serviceId, request, headers, runtime);
+}
+
 model CreateTicketRequest {
   accessTokenExpirationTime?: long(name='accessTokenExpirationTime', description='- The expiration time of the access token, in seconds. This is the period during which a user can access the page APIs. The value can range from 0 to 86,400 seconds (one day). The default value is 86,400 seconds (one day).
 
@@ -5880,6 +5955,73 @@ async function deleteService(workspace: string, serviceId: string, request: Dele
   return deleteServiceWithOptions(workspace, serviceId, request, headers, runtime);
 }
 
+model DeleteServiceRecordRequest {
+  recordType?: string(name='recordType', description='The type of the association entry. Valid values:
+logCorrelation: application log association
+
+This parameter is required.', example='logCorrelation'),
+}
+
+model DeleteServiceRecordResponseBody = {
+  requestId?: string(name='requestId', description='Id of the request', example='264C3E89-XXXX-XXXX-XXXX-CE9C2196C7DC'),
+}
+
+model DeleteServiceRecordResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: DeleteServiceRecordResponseBody(name='body'),
+}
+
+/**
+ * @summary Deletes a service association entry.
+ *
+ * @description Deletes a created service association entry.
+ *
+ * @param request DeleteServiceRecordRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return DeleteServiceRecordResponse
+ */
+@context("deleteServiceRecordWithContext")
+async function deleteServiceRecordWithOptions(workspace: string, serviceId: string, request: DeleteServiceRecordRequest, headers: map[string]string, runtime: $RuntimeOptions): DeleteServiceRecordResponse {
+  request.validate();
+  var query : map[string]any = {};
+  if (!$isNull(request.recordType)) {
+    query['recordType'] = request.recordType;
+  }
+
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'DeleteServiceRecord',
+    version = '2024-03-30',
+    protocol = 'HTTPS',
+    pathname = `/workspace/${$URL.percentEncode(workspace)}/service/${$URL.percentEncode(serviceId)}/record`,
+    method = 'DELETE',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Deletes a service association entry.
+ *
+ * @description Deletes a created service association entry.
+ *
+ * @param request DeleteServiceRecordRequest
+ * @return DeleteServiceRecordResponse
+ */
+async function deleteServiceRecord(workspace: string, serviceId: string, request: DeleteServiceRecordRequest): DeleteServiceRecordResponse {
+  var runtime = new $RuntimeOptions{};
+  var headers : map[string]string = {};
+  return deleteServiceRecordWithOptions(workspace, serviceId, request, headers, runtime);
+}
+
 model DeleteUmodelRequest {
 }
 
@@ -6131,7 +6273,7 @@ model DescribeMetricMetaListRequest {
       name?: string(name='name', description='The label name.', example='productCategory'),
       value?: string(name='value', description='The label value.', example='ecs'),
     }
-  ](name='labels', description='Filters resources by label. The following labels are supported:
+  ](name='labels', description='Filters resources by label. The following labels are available:
 - metricCategory: the metric category description.
 - alertEnable: specifies whether alerting is required.
 - alertUnit: the recommended alert unit.
@@ -6140,7 +6282,7 @@ model DescribeMetricMetaListRequest {
 - productCategory: the service type category.'),
   metaFormat?: string(name='metaFormat', description='The metadata source. Valid values:
 - CMS: CloudMonitor Basic monitoring metrics.
-- PROM_BASIC: Managed Service for Prometheus monitoring metrics.', example='CMS'),
+- PROM_BASIC: Prometheus CloudMonitor basic monitoring metrics.', example='CMS'),
   metricName?: string(name='metricName', description='The metric name.', example='CPUUtilization'),
   namespace?: string(name='namespace', description='The namespace, which is used to distinguish between services.', example='acs_ecs_dashboard'),
   pageNumber?: int32(name='pageNumber', description='The page number. Default value: 1.', example='1'),
@@ -6149,7 +6291,7 @@ model DescribeMetricMetaListRequest {
 
 model DescribeMetricMetaListShrinkRequest {
   keywords?: string(name='keywords', description='The keyword.', example='实例理论'),
-  labelsShrink?: string(name='labels', description='Filters resources by label. The following labels are supported:
+  labelsShrink?: string(name='labels', description='Filters resources by label. The following labels are available:
 - metricCategory: the metric category description.
 - alertEnable: specifies whether alerting is required.
 - alertUnit: the recommended alert unit.
@@ -6158,7 +6300,7 @@ model DescribeMetricMetaListShrinkRequest {
 - productCategory: the service type category.'),
   metaFormat?: string(name='metaFormat', description='The metadata source. Valid values:
 - CMS: CloudMonitor Basic monitoring metrics.
-- PROM_BASIC: Managed Service for Prometheus monitoring metrics.', example='CMS'),
+- PROM_BASIC: Prometheus CloudMonitor basic monitoring metrics.', example='CMS'),
   metricName?: string(name='metricName', description='The metric name.', example='CPUUtilization'),
   namespace?: string(name='namespace', description='The namespace, which is used to distinguish between services.', example='acs_ecs_dashboard'),
   pageNumber?: int32(name='pageNumber', description='The page number. Default value: 1.', example='1'),
@@ -6179,9 +6321,7 @@ model DescribeMetricMetaListResponseBody = {
       ](name='dimensionDescription', description='The dimension description.'),
       dimensions?: [ string ](name='dimensions', description='The resource filtering dimensions of CloudMonitor Basic.'),
       labels?: map[string]string(name='labels', description='The CloudMonitor labels. This parameter is returned only when metaFormat is set to CMS.'),
-      metaFormat?: string(name='metaFormat', description='The metadata source. Valid values:
-- CMS: CloudMonitor Basic monitoring metrics.
-- PROM_BASIC: Managed Service for Prometheus monitoring metrics.
+      metaFormat?: string(name='metaFormat', description='The metadata source. CMS indicates CloudMonitor Basic monitoring metrics. PROM_BASIC indicates Prometheus CloudMonitor basic monitoring metrics.
 
 Sample value:
 CMS
@@ -7410,37 +7550,37 @@ model GetDeliveryTaskRequest {
 
 model GetDeliveryTaskResponseBody = {
   deliveryTask?: {
-    createTime?: string(name='createTime', description='The time when the task was created.
+    createTime?: string(name='createTime', description='The creation time.
 
 Use the UTC time format: yyyy-MM-ddTHH:mm:ssZ', example='2025-07-24T02:08:27Z'),
     dataSourceId?: string(name='dataSourceId', description='The data source ID (Managed Service for Prometheus instance ID).', example='rw-xxxxxx'),
     externalLabels?: map[string]string(name='externalLabels', description='The additional labels attached to all delivered metrics. The key is the label name, and the value is the label value.'),
     extraInfo?: {
-      taskNameList?: [ string ](name='taskNameList', description='The list of EventBridge tasks.'),
+      taskNameList?: [ string ](name='taskNameList', description='The EventBridge task list.'),
     }(name='extraInfo', description='The extended information.'),
     labelFilters?: map[string]string(name='labelFilters', description='The metric filter conditions. Used together with labelFiltersType. The key is the metric label name, and the value is the match value.'),
     labelFiltersType?: string(name='labelFiltersType', description='The metric filtering mode.', example='Allow'),
     regionId?: string(name='regionId', description='The region ID.', example='cn-chengdu'),
     sinkList?: [ 
       {
-        sinkConfigs?: map[string]string(name='sinkConfigs', description='The detailed configuration of the delivery target. The meaning of key/value pairs varies depending on the sinkType. For more information, see [CreateDeliveryTask](~~CreateDeliveryTask~~).'),
-        sinkType?: string(name='sinkType', description='The type of the delivery target.', example='Prometheus'),
+        sinkConfigs?: map[string]string(name='sinkConfigs', description='The detailed configuration of the delivery target. The meanings of key/value pairs vary depending on the sinkType. For more information, see CreateDeliveryTask.'),
+        sinkType?: string(name='sinkType', description='The delivery target type.', example='Prometheus'),
       }
     ](name='sinkList', description='The list of delivery targets.'),
-    status?: string(name='status', description='The current status of the task.', example='Pending2Running'),
+    status?: string(name='status', description='The current status of the task.', example='Enable'),
     tags?: [ 
       {
-        key?: string(name='key', description='The tag key.', example='sourcetype'),
-        value?: string(name='value', description='The tag value.', example='production'),
+        key?: string(name='key', description='The tag key of the resource group.', example='sourcetype'),
+        value?: string(name='value', description='The tag value of the resource group.', example='production'),
       }
-    ](name='tags', description='The resource tags.'),
+    ](name='tags', description='The resource group tags.'),
     taskDescription?: string(name='taskDescription', description='The task description.', example='my delivery task'),
     taskId?: string(name='taskId', description='The delivery task ID.', example='8b07eeac8249866d'),
     taskName?: string(name='taskName', description='The task name.', example='test-task'),
-    updateTime?: string(name='updateTime', description='The time when the task was last updated.
+    updateTime?: string(name='updateTime', description='The update time.
 
 Use the UTC time format: yyyy-MM-ddTHH:mm:ssZ', example='2026-01-22T11:50:48Z'),
-  }(name='deliveryTask', description='The details of the delivery task.'),
+  }(name='deliveryTask', description='The delivery task details.'),
   requestId?: string(name='requestId', description='The request ID.', example='0CEC5375-C554-562B-A65F-9A629907C1F0'),
 }
 
@@ -8740,6 +8880,80 @@ async function getServiceObservability(workspace: string, type: string, request:
   var runtime = new $RuntimeOptions{};
   var headers : map[string]string = {};
   return getServiceObservabilityWithOptions(workspace, type, request, headers, runtime);
+}
+
+model GetServiceRecordRequest {
+  recordType?: string(name='recordType', description='The type of the linked entry. Currently supported values:
+logCorrelation: indicates application log association.
+
+This parameter is required.', example='logCorrelation'),
+}
+
+model GetServiceRecordResponseBody = {
+  record?: {
+    recordContent?: string(name='recordContent', description='The entry content in JSON string format. The returned content varies depending on the recordType.', example='{"project":"proj-xtrace-16c988dcfe21fcb73c5e6f234927d998-cn-hangzhou","storeName":"app-biz-log","regionId":"cn-hangzhou","bindType":"logstore","traceIdRelateField":""}'),
+    recordType?: string(name='recordType', description='The type of the linked entry. Currently supported values:
+logCorrelation: indicates application log association.', example='logCorrelation'),
+    serviceId?: string(name='serviceId', description='The unique identifier of the service.', example='ckj0xn6ma3@b96491402f8e1f15a8c79'),
+    workspace?: string(name='workspace', description='The workspace.', example='default-cms-1610600919225911-cn-beijing'),
+  }(name='record', description='The record.'),
+  requestId?: string(name='requestId', description='Id of the request', example='8FDE2569-626B-5176-9844-28877A*****'),
+}
+
+model GetServiceRecordResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: GetServiceRecordResponseBody(name='body'),
+}
+
+/**
+ * @summary Queries a service-linked entry.
+ *
+ * @description Retrieves a service-linked entry.
+ *
+ * @param request GetServiceRecordRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return GetServiceRecordResponse
+ */
+@context("getServiceRecordWithContext")
+async function getServiceRecordWithOptions(workspace: string, serviceId: string, request: GetServiceRecordRequest, headers: map[string]string, runtime: $RuntimeOptions): GetServiceRecordResponse {
+  request.validate();
+  var query : map[string]any = {};
+  if (!$isNull(request.recordType)) {
+    query['recordType'] = request.recordType;
+  }
+
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'GetServiceRecord',
+    version = '2024-03-30',
+    protocol = 'HTTPS',
+    pathname = `/workspace/${$URL.percentEncode(workspace)}/service/${$URL.percentEncode(serviceId)}/record`,
+    method = 'GET',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Queries a service-linked entry.
+ *
+ * @description Retrieves a service-linked entry.
+ *
+ * @param request GetServiceRecordRequest
+ * @return GetServiceRecordResponse
+ */
+async function getServiceRecord(workspace: string, serviceId: string, request: GetServiceRecordRequest): GetServiceRecordResponse {
+  var runtime = new $RuntimeOptions{};
+  var headers : map[string]string = {};
+  return getServiceRecordWithOptions(workspace, serviceId, request, headers, runtime);
 }
 
 model GetUmodelRequest {
@@ -10351,30 +10565,30 @@ async function listDatasets(workspace: string, request: ListDatasetsRequest): Li
 }
 
 model ListDeliveryTasksRequest {
-  keyWords?: string(name='keyWords', description='The keyword used to perform a fuzzy match by task name or task ID.', example='test-task'),
+  keyWords?: string(name='keyWords', description='Fuzzy search by task name or task ID (LIKE semantics).', example='test-task'),
   maxResults?: int32(name='maxResults', description='The number of entries per page. Default value: 20. Maximum value: 100.', example='100'),
-  nextToken?: string(name='nextToken', description='The pagination token. Leave this parameter empty for the first request. For subsequent requests, set this parameter to the nextToken value returned in the previous response.', example='sjC5rekx93Ew7K7VcmI3wkBZBYQ-GphB2ilQu3zJCGxoZuicwyJznfo2riTjr-lq'),
+  nextToken?: string(name='nextToken', description='The pagination token. Leave this parameter empty for the first request. For subsequent requests, pass the nextToken value returned in the previous response.', example='sjC5rekx93Ew7K7VcmI3wkBZBYQ-GphB2ilQu3zJCGxoZuicwyJznfo2riTjr-lq'),
   resourceGroupId?: string(name='resourceGroupId', description='The resource group ID.', example='rg-aek2bhocin5e2na'),
   tag?: [ 
     {
       key?: string(name='key', description='The tag key.', example='testKey'),
       value?: string(name='value', description='The tag value.', example='value1'),
     }
-  ](name='tag', description='The tags.'),
+  ](name='tag', description='The list of tags.'),
 }
 
 model ListDeliveryTasksShrinkRequest {
-  keyWords?: string(name='keyWords', description='The keyword used to perform a fuzzy match by task name or task ID.', example='test-task'),
+  keyWords?: string(name='keyWords', description='Fuzzy search by task name or task ID (LIKE semantics).', example='test-task'),
   maxResults?: int32(name='maxResults', description='The number of entries per page. Default value: 20. Maximum value: 100.', example='100'),
-  nextToken?: string(name='nextToken', description='The pagination token. Leave this parameter empty for the first request. For subsequent requests, set this parameter to the nextToken value returned in the previous response.', example='sjC5rekx93Ew7K7VcmI3wkBZBYQ-GphB2ilQu3zJCGxoZuicwyJznfo2riTjr-lq'),
+  nextToken?: string(name='nextToken', description='The pagination token. Leave this parameter empty for the first request. For subsequent requests, pass the nextToken value returned in the previous response.', example='sjC5rekx93Ew7K7VcmI3wkBZBYQ-GphB2ilQu3zJCGxoZuicwyJznfo2riTjr-lq'),
   resourceGroupId?: string(name='resourceGroupId', description='The resource group ID.', example='rg-aek2bhocin5e2na'),
-  tagShrink?: string(name='tag', description='The tags.'),
+  tagShrink?: string(name='tag', description='The list of tags.'),
 }
 
 model ListDeliveryTasksResponseBody = {
   deliveryTasks?: [ 
     {
-      createTime?: string(name='createTime', description='The time when the task was created.
+      createTime?: string(name='createTime', description='The creation time.
 
 Use the UTC time format: yyyy-MM-ddTHH:mm:ssZ', example='2026-01-22T09:02:01Z'),
       dataSourceId?: string(name='dataSourceId', description='The data source ID (Prometheus instance ID).', example='rw-5f2b4c7e66342s'),
@@ -10387,7 +10601,7 @@ Use the UTC time format: yyyy-MM-ddTHH:mm:ssZ', example='2026-01-22T09:02:01Z'),
       resourceGroupId?: string(name='resourceGroupId', description='The resource group ID.', example='rg-acfm3gn5i6bigbi'),
       sinkList?: [ 
         {
-          sinkConfigs?: map[string]string(name='sinkConfigs', description='The detailed configuration of the delivery target. The meanings of the key/value pairs vary depending on the sinkType.'),
+          sinkConfigs?: map[string]string(name='sinkConfigs', description='The detailed configuration of the delivery target. The meanings of key/value pairs vary depending on the sinkType.'),
           sinkType?: string(name='sinkType', description='The type of the delivery target.', example='Prometheus'),
         }
       ](name='sinkList', description='The list of delivery targets. Multiple sinks can be configured.'),
@@ -10401,7 +10615,7 @@ Use the UTC time format: yyyy-MM-ddTHH:mm:ssZ', example='2026-01-22T09:02:01Z'),
       taskDescription?: string(name='taskDescription', description='The task description.', example='my delivery task'),
       taskId?: string(name='taskId', description='The task ID.', example='db21f8a126d96953'),
       taskName?: string(name='taskName', description='The task name.', example='test-task'),
-      updateTime?: string(name='updateTime', description='The time when the task was last updated.
+      updateTime?: string(name='updateTime', description='The update time.
 
 Use the UTC time format: yyyy-MM-ddTHH:mm:ssZ', example='2026-01-22T09:02:01Z'),
     }
@@ -10419,7 +10633,9 @@ model ListDeliveryTasksResponse = {
 }
 
 /**
- * @summary Retrieves a list of data delivery tasks.
+ * @summary Retrieves the list of data delivery tasks.
+ *
+ * @description Deletes a specified site monitoring task.
  *
  * @param tmpReq ListDeliveryTasksRequest
  * @param headers map
@@ -10470,7 +10686,9 @@ async function listDeliveryTasksWithOptions(tmpReq: ListDeliveryTasksRequest, he
 }
 
 /**
- * @summary Retrieves a list of data delivery tasks.
+ * @summary Retrieves the list of data delivery tasks.
+ *
+ * @description Deletes a specified site monitoring task.
  *
  * @param request ListDeliveryTasksRequest
  * @return ListDeliveryTasksResponse
@@ -12047,6 +12265,106 @@ async function listPrometheusVirtualInstances(request: ListPrometheusVirtualInst
   var runtime = new $RuntimeOptions{};
   var headers : map[string]string = {};
   return listPrometheusVirtualInstancesWithOptions(request, headers, runtime);
+}
+
+model ListServiceRecordsRequest {
+  maxResults?: int32(name='maxResults', description='The maximum number of entries to return. Maximum value: 200.', example='100'),
+  nextToken?: string(name='nextToken', description='The pagination token.', example='xxxxx'),
+  recordType?: string(name='recordType', description='The type of the linked entry. Currently supported:
+logCorrelation, which indicates application log association.
+
+This parameter is required.', example='logCorrelation'),
+  search?: string(name='search', description='The filter information for service-linked entries.', example='{
+  "serviceName": "my-service",
+  "storeName": "my-logstore"
+}'),
+}
+
+model ListServiceRecordsResponseBody = {
+  maxResults?: int32(name='maxResults', description='The maximum number of entries returned.', example='100'),
+  nextToken?: string(name='nextToken', description='The pagination token.', example='2-ba4d-4b9f-aa24-dcb067a30f1c'),
+  records?: [ 
+    {
+      recordContent?: string(name='recordContent', description='The entry content in JSON string format. The format varies depending on the recordType.', example='{
+  "project": "proj-xtrace-16c988dcfe21fcb73c5e6f234927d998-cn-hangzhou",
+  "storeName": "app-biz-log",
+  "regionId": "cn-hangzhou",
+  "bindType": "logstore",
+  "traceIdRelateField": ""
+}'),
+      recordType?: string(name='recordType', description='The type of the linked entry. Currently supported:
+logCorrelation, which indicates application log association.', example='logCorrelation'),
+      serviceId?: string(name='serviceId', description='The unique identifier of the service.', example='gaddp9ap8q@f8ca37734da3eda787dbb'),
+      workspace?: string(name='workspace', description='The workspace.', example='workspace-test'),
+    }
+  ](name='records', description='The list of ticket operation records.'),
+  requestId?: string(name='requestId', description='Id of the request', example='0CEC5375-XXXX-XXXX-XXXX-9A629907C1F0'),
+  totalCount?: int32(name='totalCount', description='The total number of entries.', example='100'),
+}
+
+model ListServiceRecordsResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ListServiceRecordsResponseBody(name='body'),
+}
+
+/**
+ * @summary Lists service-linked entries.
+ *
+ * @description Queries a paginated list of service-linked entries.
+ *
+ * @param request ListServiceRecordsRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return ListServiceRecordsResponse
+ */
+@context("listServiceRecordsWithContext")
+async function listServiceRecordsWithOptions(workspace: string, request: ListServiceRecordsRequest, headers: map[string]string, runtime: $RuntimeOptions): ListServiceRecordsResponse {
+  request.validate();
+  var query : map[string]any = {};
+  if (!$isNull(request.maxResults)) {
+    query['maxResults'] = request.maxResults;
+  }
+  if (!$isNull(request.nextToken)) {
+    query['nextToken'] = request.nextToken;
+  }
+  if (!$isNull(request.recordType)) {
+    query['recordType'] = request.recordType;
+  }
+  if (!$isNull(request.search)) {
+    query['search'] = request.search;
+  }
+
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'ListServiceRecords',
+    version = '2024-03-30',
+    protocol = 'HTTPS',
+    pathname = `/workspace/${$URL.percentEncode(workspace)}/service-records`,
+    method = 'GET',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Lists service-linked entries.
+ *
+ * @description Queries a paginated list of service-linked entries.
+ *
+ * @param request ListServiceRecordsRequest
+ * @return ListServiceRecordsResponse
+ */
+async function listServiceRecords(workspace: string, request: ListServiceRecordsRequest): ListServiceRecordsResponse {
+  var runtime = new $RuntimeOptions{};
+  var headers : map[string]string = {};
+  return listServiceRecordsWithOptions(workspace, request, headers, runtime);
 }
 
 model ListServicesRequest {
@@ -14587,6 +14905,85 @@ async function updateService(workspace: string, serviceId: string, request: Upda
   var runtime = new $RuntimeOptions{};
   var headers : map[string]string = {};
   return updateServiceWithOptions(workspace, serviceId, request, headers, runtime);
+}
+
+model UpdateServiceRecordRequest {
+  recordContent?: string(name='recordContent', description='The entry content in JSON string format. The format varies depending on the recordType value.
+
+This parameter is required.', example='{
+  "project": "proj-xtrace-16c988dcfe21fcb73c5e6f234927d998-cn-hangzhou",
+  "storeName": "app-biz-log",
+  "regionId": "cn-hangzhou",
+  "bindType": "logstore",
+  "traceIdRelateField": ""
+}'),
+  recordType?: string(name='recordType', description='The type of the linked entry. Currently supported value:
+logCorrelation, which indicates application log association.
+
+This parameter is required.', example='logCorrelation'),
+}
+
+model UpdateServiceRecordResponseBody = {
+  requestId?: string(name='requestId', description='Id of the request', example='0CEC5375-XXXX-XXXX-XXXX-9A629907C1F0'),
+}
+
+model UpdateServiceRecordResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: UpdateServiceRecordResponseBody(name='body'),
+}
+
+/**
+ * @summary Updates a service-linked entry.
+ *
+ * @description Updates an existing service-linked entry.
+ *
+ * @param request UpdateServiceRecordRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return UpdateServiceRecordResponse
+ */
+@context("updateServiceRecordWithContext")
+async function updateServiceRecordWithOptions(workspace: string, serviceId: string, request: UpdateServiceRecordRequest, headers: map[string]string, runtime: $RuntimeOptions): UpdateServiceRecordResponse {
+  request.validate();
+  var body : map[string]any = {};
+  if (!$isNull(request.recordContent)) {
+    body['recordContent'] = request.recordContent;
+  }
+  if (!$isNull(request.recordType)) {
+    body['recordType'] = request.recordType;
+  }
+
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    headers = headers,
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'UpdateServiceRecord',
+    version = '2024-03-30',
+    protocol = 'HTTPS',
+    pathname = `/workspace/${$URL.percentEncode(workspace)}/service/${$URL.percentEncode(serviceId)}/record`,
+    method = 'PUT',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Updates a service-linked entry.
+ *
+ * @description Updates an existing service-linked entry.
+ *
+ * @param request UpdateServiceRecordRequest
+ * @return UpdateServiceRecordResponse
+ */
+async function updateServiceRecord(workspace: string, serviceId: string, request: UpdateServiceRecordRequest): UpdateServiceRecordResponse {
+  var runtime = new $RuntimeOptions{};
+  var headers : map[string]string = {};
+  return updateServiceRecordWithOptions(workspace, serviceId, request, headers, runtime);
 }
 
 model UpdateSubscriptionRequest {
