@@ -425,16 +425,16 @@ model HotUpdateJobFailureInfo {
 }
 
 model HotUpdateJobParams {
-  rescaleJobParam?: RescaleJobParam(name='rescaleJobParam', description='资源动态更新。'),
-  updateJobConfigParam?: UpdateJobConfigParam(name='updateJobConfigParam', description='运行参数动态更新。'),
+  rescaleJobParam?: RescaleJobParam(name='rescaleJobParam'),
+  updateJobConfigParam?: UpdateJobConfigParam(name='updateJobConfigParam'),
 }
 
 model HotUpdateJobResult {
-  hotUpdateParams?: HotUpdateJobParams(name='hotUpdateParams', description='动态更新参数。'),
-  jobHotUpdateId?: string(name='jobHotUpdateId', description='动态更新id。', example='123hashd****'),
-  jobId?: string(name='jobId', description='作业实例id。', example='5af678c0-7db0-4650-94c2-d2604f0a****'),
-  status?: HotUpdateJobStatus(name='status', description='动态更新状态。'),
-  targetResourceSetting?: BriefResourceSetting(name='targetResourceSetting', description='目标作业资源配置。'),
+  hotUpdateParams?: HotUpdateJobParams(name='hotUpdateParams'),
+  jobHotUpdateId?: string(name='jobHotUpdateId', example='123hashd****'),
+  jobId?: string(name='jobId', example='5af678c0-7db0-4650-94c2-d2604f0a****'),
+  status?: HotUpdateJobStatus(name='status'),
+  targetResourceSetting?: BriefResourceSetting(name='targetResourceSetting'),
 }
 
 model HotUpdateJobStatus {
@@ -748,8 +748,8 @@ model ResourceQuota {
 }
 
 model ResourceSpec {
-  cpu?: double(name='cpu', example='1.0'),
-  memory?: string(name='memory', example='4Gi'),
+  cpu?: double(name='cpu', description='The CPU size.', example='1.0'),
+  memory?: string(name='memory', description='The memory size.', example='4Gi'),
 }
 
 model Row {
@@ -975,17 +975,7 @@ This parameter is required.', example='CREATE TEMPORARY TABLE datagen_source (
     score BIGINT
 ) WITH (
    \\\\"connector\\\\" = \\\\"datagen\\\\"
-);
-CREATE TEMPORARY TABLE print_table (
-   name VARCHAR,
-   score BIGINT
-) WITH (
-  \\\\"connector\\\\"=\\\\"print\\\\",
-  \\\\"logger\\\\"=\\\\"true\\\\"
-);
-
-INSERT INTO print_table
-select * from datagen_source;'),
+);'),
   versionName?: string(name='versionName', description='The engine version.', example='vvr-8.0.6-flink-1.17'),
 }
 
@@ -7156,6 +7146,79 @@ async function startSessionCluster(namespace: string, sessionClusterName: string
   var runtime = new Util.RuntimeOptions{};
   var headers = new StartSessionClusterHeaders{};
   return startSessionClusterWithOptions(namespace, sessionClusterName, headers, runtime);
+}
+
+model StartSqlExecutionHeaders {
+  commonHeaders?: map[string]string,
+  workspace?: string(name='workspace', description='The workspace ID.
+
+This parameter is required.', example='a14bda1c4a****'),
+}
+
+model StartSqlExecutionRequest {
+  body?: StartSqlExecutionBody(name='body', description='The request body, which contains the SQL content to execute and description information.'),
+}
+
+model StartSqlExecutionResponseBody = {
+  data?: StartSqlExecutionResult(name='data', description='The complete information of the SQL script returned upon success. This parameter is valid when success is true.', example='如返回示例所示'),
+  errorCode?: string(name='errorCode', description='The business error code. This parameter is not empty when success is false. This parameter is empty when success is true.', example='""'),
+  errorMessage?: string(name='errorMessage', description='The business error message. This parameter is not empty when success is false. This parameter is empty when success is true.', example='""'),
+  httpCode?: int32(name='httpCode', description='The business status code, which is always 200. Use success to determine whether the request was successful.', example='200'),
+  requestId?: string(name='requestId', description='The request ID.', example='CBC799F0-AS7S-1D30-8A4F-882ED4DD****'),
+  success?: boolean(name='success', description='Indicates whether the business request was successful.', example='True'),
+}
+
+model StartSqlExecutionResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: StartSqlExecutionResponseBody(name='body'),
+}
+
+/**
+ * @summary Executes an SQL query script task.
+ *
+ * @param request StartSqlExecutionRequest
+ * @param headers StartSqlExecutionHeaders
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return StartSqlExecutionResponse
+ */
+async function startSqlExecutionWithOptions(namespace: string, request: StartSqlExecutionRequest, headers: StartSqlExecutionHeaders, runtime: Util.RuntimeOptions): StartSqlExecutionResponse {
+  Util.validateModel(request);
+  var realHeaders : map[string]string = {};
+  if (!Util.isUnset(headers.commonHeaders)) {
+    realHeaders = headers.commonHeaders;
+  }
+  if (!Util.isUnset(headers.workspace)) {
+    realHeaders['workspace'] = Util.toJSONString(headers.workspace);
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = realHeaders,
+    body = OpenApiUtil.parseToMap(request.body),
+  };
+  var params = new OpenApi.Params{
+    action = 'StartSqlExecution',
+    version = '2022-07-18',
+    protocol = 'HTTPS',
+    pathname = `/api/v2/namespaces/${OpenApiUtil.getEncodeParam(namespace)}/sql-execution`,
+    method = 'POST',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Executes an SQL query script task.
+ *
+ * @param request StartSqlExecutionRequest
+ * @return StartSqlExecutionResponse
+ */
+async function startSqlExecution(namespace: string, request: StartSqlExecutionRequest): StartSqlExecutionResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers = new StartSqlExecutionHeaders{};
+  return startSqlExecutionWithOptions(namespace, request, headers, runtime);
 }
 
 model StopApplyScheduledPlanHeaders {
