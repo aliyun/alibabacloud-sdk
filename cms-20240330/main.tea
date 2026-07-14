@@ -522,17 +522,19 @@ model AlertRuleLabelFilter {
 }
 
 model AlertRuleNotification {
-  contacts?: [ string ](name='contacts', description='A list of contact IDs.'),
-  customWebhooks?: [ string ](name='customWebhooks', description='A list of custom webhook notification object IDs.'),
-  dingCoolAppWebhooks?: [ string ](name='dingCoolAppWebhooks', description='A list of DingTalk Cool App webhook notification object IDs.'),
-  dingWebhooks?: [ string ](name='dingWebhooks', description='A list of DingTalk webhook notification object IDs.'),
-  fsWebhooks?: [ string ](name='fsWebhooks', description='A list of Lark webhook notification object IDs.'),
-  groups?: [ string ](name='groups', description='A list of contact group IDs.'),
-  notifyTime?: AlertRuleTimeSpan(name='notifyTime', description='The notification period. Notifications are sent only within this period.'),
+  contacts?: [ string ](name='contacts', description='The list of contact IDs.'),
+  customWebhooks?: [ string ](name='customWebhooks', description='The list of custom webhook Notification Recipient IDs.'),
+  dingCoolAppWebhooks?: [ string ](name='dingCoolAppWebhooks', description='The list of DingTalk Cool App webhook Notification Recipient IDs.'),
+  dingWebhooks?: [ string ](name='dingWebhooks', description='The list of DingTalk webhook Notification Recipient IDs.'),
+  fsWebhooks?: [ string ](name='fsWebhooks', description='The list of Lark webhook Notification Recipient IDs.'),
+  groups?: [ string ](name='groups', description='The list of contact group IDs.'),
+  notifyTime?: AlertRuleTimeSpan(name='notifyTime', description='The notification time period. Notifications are sent only during this time period.'),
   qwencloudContacts?: map[string]object(name='qwencloudContacts'),
-  silenceTime?: long(name='silenceTime', description='The notification silence period. Unit: seconds.', example='86400'),
-  slackWebhooks?: [ string ](name='slackWebhooks', description='A list of Slack webhook notification object IDs.'),
-  wxWebhooks?: [ string ](name='wxWebhooks', description='A list of WeChat webhook notification object IDs.'),
+  sendOk?: boolean(name='sendOk'),
+  severityNotifications?: map[string]SeverityNotifyConfig(name='severityNotifications'),
+  silenceTime?: long(name='silenceTime', description='The notification mute duration, in seconds.', example='86400'),
+  slackWebhooks?: [ string ](name='slackWebhooks', description='The list of Slack webhook Notification Recipient IDs.'),
+  wxWebhooks?: [ string ](name='wxWebhooks', description='The list of WeChat webhook Notification Recipient IDs.'),
 }
 
 model AlertRuleNotificationFilter {
@@ -994,14 +996,12 @@ model DataStorageItem {
 }
 
 model DatasourceConfigUnified {
-  instanceId?: string(name='instanceId', description='The unique instance ID.'),
-  legacyRaw?: string(name='legacyRaw', description='The raw string value of the legacy configuration, used for backward compatibility.'),
-  legacyType?: string(name='legacyType', description='The legacy type of the data source, used for backward compatibility.'),
-  productCategory?: string(name='productCategory', description='The product category of the data source.'),
-  regionId?: string(name='regionId', description='The region ID.'),
-  type?: string(name='type', description='The type of the data source.
-
-This parameter is required.'),
+  instanceId?: string(name='instanceId'),
+  legacyRaw?: string(name='legacyRaw'),
+  legacyType?: string(name='legacyType'),
+  productCategory?: string(name='productCategory'),
+  regionId?: string(name='regionId'),
+  type?: string(name='type', description='This parameter is required.'),
 }
 
 model DatasourceTypeFilter {
@@ -1009,12 +1009,14 @@ model DatasourceTypeFilter {
 }
 
 model DirectNotifyChannel {
-  identifiers?: [ string ](name='identifiers', description='An array of recipient identifiers. The format of each identifier depends on the `type`. For example, if `type` is `email`, the identifiers are email addresses.
+  identifiers?: [ string ](name='identifiers', description='This parameter is required.'),
+  type?: string(name='type', description='This parameter is required.'),
+}
 
-This parameter is required.'),
-  type?: string(name='type', description='The notification channel type. For example, `sms` or `email`.
-
-This parameter is required.'),
+model DirectNotifyReceiver {
+  channels?: [ string ](name='channels'),
+  identifiers?: [ string ](name='identifiers'),
+  targetType?: string(name='targetType'),
 }
 
 model DisplayNameFilter {
@@ -1790,9 +1792,49 @@ model NotifyConfigUnified {
     DirectNotifyChannel
   ](name='channels'),
   notifyStrategies?: [ string ](name='notifyStrategies'),
+  sendRecoverNotification?: boolean(name='sendRecoverNotification'),
+  severityChannels?: map[string]SeverityNotifyConfig(name='severityChannels'),
   silenceTimeSecs?: int32(name='silenceTimeSecs'),
   type?: string(name='type', description='This parameter is required.'),
   utcOffset?: string(name='utcOffset'),
+}
+
+model NotifyPolicy {
+  createTime?: string(name='createTime', description='The creation time. The value is a UNIX timestamp string in milliseconds.', example='1710000000000'),
+  description?: string(name='description', description='The policy description.', example='生产环境告警通知策略'),
+  enabled?: boolean(name='enabled', description='Indicates whether the policy is enabled. This is a read-only field controlled by the Enable or Disable operation.', example='true'),
+  name?: string(name='name', description='The policy name.', example='生产环境告警通知策略'),
+  notifyStrategy?: NotifyStrategyDetail(name='notifyStrategy', description='The notification policy sub-entity details.', example='{}'),
+  responsePlan?: ResponsePlanDetail(name='responsePlan', description='The response plan sub-entity details.', example='{}'),
+  subscription?: SubscriptionDetail(name='subscription', description='The subscription sub-entity details.', example='{}'),
+  updateTime?: string(name='updateTime', description='The update time. The value is a UNIX timestamp string in milliseconds.', example='1710000000000'),
+  userId?: string(name='userId', description='The Alibaba Cloud account UID.', example='1234567890123456'),
+  uuid?: string(name='uuid', description='The unique identifier of the policy.', example='04779a183add4f2ca06ab440f16cc580'),
+  version?: int32(name='version', description='The optimistic locking version number.', example='1'),
+  workspace?: string(name='workspace', description='The workspace identifier.', example='default-cms-xxxx-cn-hangzhou'),
+}
+
+model NotifyPolicyConfig {
+  description?: string(name='description', description='The description of the policy, which helps identify its purpose.', example='生产环境告警通知策略'),
+  name?: string(name='name', description='The policy name. We recommend that you specify this parameter for the Create operation. If a policy with the same name already exists in the workspace, ConflictName (409) is returned.', example='生产环境告警通知策略'),
+  notifyStrategy?: NotifyStrategyConfig(name='notifyStrategy', description='The notification strategy sub-entity, which includes noise reduction, notification routing, channels, and custom templates. Required for the Create operation.', example='{}'),
+  responsePlan?: ResponsePlanConfig(name='responsePlan', description='The response plan sub-entity, which includes upgrade, repeated notification, automatic recovery, and action integration. Optional.', example='{}'),
+  subscription?: SubscriptionConfig(name='subscription', description='The subscription sub-entity, which includes event filtering, cross-workspace routing, and legacy product event subscription switches. Optional. If not specified, all events in the current workspace are subscribed to.', example='{}'),
+  uuid?: string(name='uuid', description='The unique identifier of the policy. Required for the Update operation. Omitted for the Create operation because it is generated by the backend.', example='04779a183add4f2ca06ab440f16cc580'),
+  version?: int32(name='version', description='Required for the Update operation. The write succeeds only when this value matches the backend record. If the values do not match, OptimisticLockFailed is returned.', example='1'),
+}
+
+model NotifyPolicySummary {
+  createTime?: string(name='createTime'),
+  description?: string(name='description'),
+  enabled?: boolean(name='enabled'),
+  name?: string(name='name'),
+  notifyStrategy?: NotifyStrategyDetail(name='notifyStrategy'),
+  updateTime?: string(name='updateTime'),
+  userId?: string(name='userId'),
+  uuid?: string(name='uuid'),
+  version?: int32(name='version'),
+  workspace?: string(name='workspace'),
 }
 
 model NotifyRouteForSubscription {
@@ -1809,6 +1851,86 @@ model NotifyRouteForSubscription {
     startTimeInMinute?: int32(name='startTimeInMinute', description='The start of the active period, in minutes from 00:00. The value ranges from 0 to 1439.'),
     timeZone?: string(name='timeZone', description='The time zone for the effect time range, specified in the IANA Time Zone Database format. For example, `UTC` or `Asia/Shanghai`.'),
   }(name='effectTimeRange', description='The active period for the notification rule.'),
+}
+
+model NotifyStrategyConfig {
+  customTemplateEntries?: [ 
+    {
+      templateUuid?: string(name='templateUuid', description='The UUID of the notification template.', example='template-uuid-xxx'),
+    }
+  ](name='customTemplateEntries', description='The list of custom notification templates.', example='[]'),
+  description?: string(name='description', description='The description of the notification policy.', example='生产环境告警通知策略'),
+  groupingSetting?: {
+    groupingKeys?: [ string ](name='groupingKeys', description='The event fields by which events are grouped. Events in the same group are merged into a single notification. An empty array indicates no grouping.', example='["alertname"]'),
+    periodMin?: int32(name='periodMin', description='This parameter does not take effect for this operation. You do not need to set this parameter.', example='0'),
+    silenceSec?: int32(name='silenceSec', description='This parameter does not take effect for this operation. You do not need to set this parameter.', example='0'),
+    times?: int32(name='times', description='This parameter does not take effect for this operation. You do not need to set this parameter.', example='0'),
+  }(name='groupingSetting', description='The noise reduction settings.
+
+This parameter is required.'),
+  ignoreRestoredNotification?: boolean(name='ignoreRestoredNotification', description='Specifies whether to ignore notifications for recovery events. A value of true indicates that recovery notifications are not sent.', example='true'),
+  routes?: [ 
+    {
+      channels?: [ 
+        {
+          channelType?: string(name='channelType', description='The channel type. Valid values: DING, WEIXIN, FEISHU, SLACK, TEAMS, WEBHOOK, CONTACT, GROUP, DUTY, and DING_COOL_APP. Lowercase values are not supported. For email, text message, or phone call notifications, use CONTACT with enabledSubChannels.
+
+This parameter is required.', example='WEBHOOK'),
+          enabledSubChannels?: [ string ](name='enabledSubChannels', description='Required only for CONTACT, GROUP, or DUTY. The sub-channel types in uppercase. Valid values: EMAIL, SMS, VOICE, DING, WEIXIN, FEISHU, and WEBHOOK.', example='["EMAIL","SMS"]'),
+          receivers?: [ string ](name='receivers', description='The list of receiver identifiers. At least one receiver is required. Specify a webhook UUID for WEBHOOK, a robot UUID for chatbots, or a contact ID for CONTACT.
+
+This parameter is required.', example='["webhook-uuid-xxx"]'),
+        }
+      ](name='channels', description='The list of notification channels.', example='[]'),
+      digitalEmployeeName?: string(name='digitalEmployeeName', description='The digital employee name. Required when enableRca is set to true.', example='数字员工名'),
+      effectTimeRange?: {
+        dayInWeek?: [ int32 ](name='dayInWeek', description='The effective days. Valid values: 0 to 6 (0 = Sunday, 6 = Saturday). The value 7 is not supported.', example='[0,1,2,3,4,5,6]'),
+        endTimeInMinute?: int32(name='endTimeInMinute', description='The end time of the day in minutes. Valid values: 0 to 1439.', example='1439'),
+        startTimeInMinute?: int32(name='startTimeInMinute', description='The start time of the day in minutes. Valid values: 0 to 1438.', example='0'),
+        timeZone?: string(name='timeZone', description='The IANA time zone identifier.', example='Asia/Shanghai'),
+      }(name='effectTimeRange', description='The effective time range.'),
+      enableRca?: boolean(name='enableRca', description='Specifies whether to enable Root Cause Analysis (RCA).', example='false'),
+      filterSetting?: FilterSetting(name='filterSetting', description='The route-level event filter conditions.', example='{}'),
+    }
+  ](name='routes', description='The list of notification channel routing settings.
+
+This parameter is required.', example='[]'),
+}
+
+model NotifyStrategyDetail {
+  customTemplateEntries?: [ 
+    {
+      templateUuid?: string(name='templateUuid', description='The UUID of the notification template.', example='template-uuid-xxx'),
+    }
+  ](name='customTemplateEntries', description='The list of custom notification templates.', example='[]'),
+  description?: string(name='description', description='The description of the notification policy.', example='生产环境告警通知策略'),
+  groupingSetting?: {
+    groupingKeys?: [ string ](name='groupingKeys', description='The event fields by which events are grouped for noise reduction. Events in the same group are merged into a single notification. An empty array indicates no grouping.', example='["alertname"]'),
+    periodMin?: int32(name='periodMin', description='The check period in minutes.', example='0'),
+    silenceSec?: int32(name='silenceSec', description='The silence duration in seconds.', example='0'),
+    times?: int32(name='times', description='The number of trigger times.', example='0'),
+  }(name='groupingSetting', description='The grouping and merging settings.'),
+  ignoreRestoredNotification?: boolean(name='ignoreRestoredNotification', description='Specifies whether to ignore notifications for recovery events. A value of true indicates that recovery notifications are not sent.', example='true'),
+  routes?: [ 
+    {
+      channels?: [ 
+        {
+          channelType?: string(name='channelType', description='The channel type. Valid values: DING, WEIXIN, FEISHU, SLACK, TEAMS, WEBHOOK, CONTACT, GROUP, DUTY, and DING_COOL_APP.', example='WEBHOOK'),
+          enabledSubChannels?: [ string ](name='enabledSubChannels', description='The enabled sub-channels. Valid values: EMAIL, SMS, VOICE, DING, WEIXIN, FEISHU, and WEBHOOK.', example='["EMAIL","SMS"]'),
+          receivers?: [ string ](name='receivers', description='The list of receiver identifiers.', example='["webhook-uuid-xxx"]'),
+        }
+      ](name='channels', description='The list of notification channels.', example='[]'),
+      digitalEmployeeName?: string(name='digitalEmployeeName', description='The digital employee name. This parameter is required when enableRca is set to true.', example='数字员工名'),
+      effectTimeRange?: {
+        dayInWeek?: [ int32 ](name='dayInWeek', description='The effective days of the week. Valid values: 0 to 6 (0 = Sunday, 6 = Saturday). The value 7 is not supported.', example='[0,1,2,3,4,5,6]'),
+        endTimeInMinute?: int32(name='endTimeInMinute', description='The end time of the day in minutes. Valid values: 0 to 1439.', example='1439'),
+        startTimeInMinute?: int32(name='startTimeInMinute', description='The start time of the day in minutes. Valid values: 0 to 1438.', example='0'),
+        timeZone?: string(name='timeZone', description='The IANA time zone identifier.', example='Asia/Shanghai'),
+      }(name='effectTimeRange', description='The effective time range.'),
+      enableRca?: boolean(name='enableRca', description='Specifies whether to enable root cause analysis (RCA).', example='false'),
+      filterSetting?: FilterSetting(name='filterSetting', description='The route-level event filter conditions.', example='{}'),
+    }
+  ](name='routes', description='The list of notification channel routing settings.', example='[]'),
 }
 
 model NotifyStrategyForModify {
@@ -1898,17 +2020,23 @@ model NotifyStrategyForSNSModify {
     {
       channels?: [ 
         {
-          channelType?: string(name='channelType', description='This parameter is required.'),
-          enabledSubChannels?: [ string ](name='enabledSubChannels'),
-          receivers?: [ string ](name='receivers', description='This parameter is required.'),
+          channelType?: string(name='channelType', description='The notification channel type. The value must be one of the following uppercase enum values: DING (DingTalk chatbot), WEIXIN (WeCom chatbot), FEISHU (Lark chatbot), SLACK, TEAMS, WEBHOOK (custom webhook), CONTACT (contact, requires enabledSubChannels to specify sub-channels), GROUP (contact group), DUTY (on-call schedule), or DING_COOL_APP (DingTalk Cool App). Note: Lowercase values such as EMAIL or SMS are not supported. To send email, text message, or voice notifications, set channelType to CONTACT and specify EMAIL, SMS, or VOICE in enabledSubChannels.
+
+This parameter is required.', example='WEBHOOK'),
+          enabledSubChannels?: [ string ](name='enabledSubChannels', description='Required only when channelType is CONTACT, GROUP, or DUTY. Valid values: EMAIL (email), SMS (text message), VOICE (voice call), DING (DingTalk work notification), WEIXIN (WeCom message), FEISHU (Lark message), and WEBHOOK. For example, to notify a contact by email and text message, set channelType to CONTACT and enabledSubChannels to ["EMAIL","SMS"]. This field is not required for other channelType values such as WEBHOOK or DING.', example='["EMAIL","SMS"]'),
+          receivers?: [ string ](name='receivers', description='The list of receiver identifiers. For the WEBHOOK type, specify the webhook UUID. For DING, WEIXIN, or FEISHU, specify the chatbot UUID. For CONTACT, specify the contact ID. For GROUP, specify the contact group ID. For DUTY, specify the on-call schedule UUID. At least one element is required.
+
+This parameter is required.', example='["my-webhook-uuid"]'),
         }
       ](name='channels'),
+      digitalEmployeeName?: string(name='digitalEmployeeName'),
       effectTimeRange?: {
-        dayInWeek?: [ int32 ](name='dayInWeek'),
-        endTimeInMinute?: int32(name='endTimeInMinute'),
-        startTimeInMinute?: int32(name='startTimeInMinute'),
-        timeZone?: string(name='timeZone'),
-      }(name='effectTimeRange'),
+        dayInWeek?: [ int32 ](name='dayInWeek', description='The days of the week on which the setting takes effect. Array element values range from 0 to 6 (0 = Sunday, 1 = Monday, 2 = Tuesday, ... 6 = Saturday). Note: The value 7 is not supported. The maximum value is 6. Example for all days: [0,1,2,3,4,5,6]. Example for weekdays only: [1,2,3,4,5].', example='[0,1,2,3,4,5,6]'),
+        endTimeInMinute?: int32(name='endTimeInMinute', description='The end time of the day, expressed as the number of minutes from 00:00. Valid values: 0 to 1439 (23 × 60 + 59 = 1439, which represents 23:59).', example='1439'),
+        startTimeInMinute?: int32(name='startTimeInMinute', description='The start time of the day, expressed as the number of minutes from 00:00. Valid values: 0 to 1439 (0 represents 00:00).', example='0'),
+        timeZone?: string(name='timeZone', description='The IANA time zone identifier, such as Asia/Shanghai or America/Los_Angeles.', example='Asia/Shanghai'),
+      }(name='effectTimeRange', description='The effective period settings for notifications. Defines on which days and during which time range the system sends notifications.'),
+      enableRca?: boolean(name='enableRca'),
       filterSetting?: {
         conditions?: [ 
           {
@@ -1926,52 +2054,52 @@ model NotifyStrategyForSNSModify {
 }
 
 model NotifyStrategyForSNSView {
-  createTime?: string(name='createTime', description='The creation time of the notification strategy.'),
+  createTime?: string(name='createTime'),
   customTemplateEntries?: [ 
     {
-      targetType?: string(name='targetType', description='The target type for the custom template.'),
-      templateUuid?: string(name='templateUuid', description='The unique identifier (UUID) of the template.'),
+      targetType?: string(name='targetType'),
+      templateUuid?: string(name='templateUuid'),
     }
-  ](name='customTemplateEntries', description='The list of custom templates.'),
-  description?: string(name='description', description='The description of the notification strategy.'),
-  enable?: boolean(name='enable', description='Specifies whether to enable the notification strategy. Valid values: true, false.'),
-  enableIncidentManagement?: boolean(name='enableIncidentManagement', description='Specifies whether to enable incident management. Valid values: true, false.'),
+  ](name='customTemplateEntries'),
+  description?: string(name='description'),
+  enable?: boolean(name='enable'),
+  enableIncidentManagement?: boolean(name='enableIncidentManagement'),
   groupingSetting?: {
-    groupingKeys?: [ string ](name='groupingKeys', description='The keys for grouping alerts.'),
-    periodMin?: int32(name='periodMin', description='The time window in minutes for grouping alerts.'),
-    silenceSec?: int32(name='silenceSec', description='The silence period in seconds after a notification is sent for a group.'),
-    times?: int32(name='times', description='The number of times to send notifications for a group.'),
-  }(name='groupingSetting', description='The settings for alert grouping.'),
-  ignoreRestoredNotification?: boolean(name='ignoreRestoredNotification', description='Specifies whether to ignore notifications for restored alerts. Valid values: true, false.'),
-  incidentResponsePlanId?: string(name='incidentResponsePlanId', description='The ID of the incident response plan.'),
-  mode?: string(name='mode', description='The mode of the notification strategy.'),
-  notifyStrategyId?: string(name='notifyStrategyId', description='The ID of the notification strategy.'),
-  notifyStrategyName?: string(name='notifyStrategyName', description='The name of the notification strategy.'),
+    groupingKeys?: [ string ](name='groupingKeys'),
+    periodMin?: int32(name='periodMin'),
+    silenceSec?: int32(name='silenceSec'),
+    times?: int32(name='times'),
+  }(name='groupingSetting'),
+  ignoreRestoredNotification?: boolean(name='ignoreRestoredNotification'),
+  incidentResponsePlanId?: string(name='incidentResponsePlanId'),
+  mode?: string(name='mode'),
+  notifyStrategyId?: string(name='notifyStrategyId'),
+  notifyStrategyName?: string(name='notifyStrategyName'),
   routes?: [ 
     {
       channels?: [ 
         {
-          channelType?: string(name='channelType', description='The type of the notification channel, such as \\\\"sms\\\\" or \\\\"email\\\\".'),
-          enabledSubChannels?: [ string ](name='enabledSubChannels', description='The enabled sub-channels.'),
-          receivers?: [ string ](name='receivers', description='The list of receivers for the channel.'),
+          channelType?: string(name='channelType'),
+          enabledSubChannels?: [ string ](name='enabledSubChannels'),
+          receivers?: [ string ](name='receivers'),
         }
-      ](name='channels', description='The notification channels for the route.'),
-      digitalEmployeeName?: string(name='digitalEmployeeName', description='The name of the digital employee assigned to this route.'),
+      ](name='channels'),
+      digitalEmployeeName?: string(name='digitalEmployeeName'),
       effectTimeRange?: {
-        dayInWeek?: [ int32 ](name='dayInWeek', description='The days of the week when the route is active.'),
-        endTimeInMinute?: int32(name='endTimeInMinute', description='The end time of the active period, specified in minutes from 00:00.'),
-        startTimeInMinute?: int32(name='startTimeInMinute', description='The start time of the active period, specified in minutes from 00:00.'),
-        timeZone?: string(name='timeZone', description='The time zone for the active period. For example, \\\\"Asia/Shanghai\\\\".'),
-      }(name='effectTimeRange', description='The time range during which the notification route is active.'),
-      enableRca?: boolean(name='enableRca', description='Specifies whether to enable root cause analysis (RCA) for alerts that match this route. Valid values: true, false.'),
-      filterSetting?: FilterSetting(name='filterSetting', description='The filter settings for the route.'),
-      severities?: [ string ](name='severities', description='The alert severities that trigger this route.'),
+        dayInWeek?: [ int32 ](name='dayInWeek'),
+        endTimeInMinute?: int32(name='endTimeInMinute'),
+        startTimeInMinute?: int32(name='startTimeInMinute'),
+        timeZone?: string(name='timeZone'),
+      }(name='effectTimeRange'),
+      enableRca?: boolean(name='enableRca'),
+      filterSetting?: FilterSetting(name='filterSetting'),
+      severities?: [ string ](name='severities'),
     }
-  ](name='routes', description='The list of notification routes.'),
-  syncFromType?: string(name='syncFromType', description='The source from which the strategy is synchronized.'),
-  updateTime?: string(name='updateTime', description='The last update time of the notification strategy.'),
-  userId?: string(name='userId', description='The user ID.'),
-  workspace?: string(name='workspace', description='The workspace to which the notification strategy belongs.'),
+  ](name='routes'),
+  syncFromType?: string(name='syncFromType'),
+  updateTime?: string(name='updateTime'),
+  userId?: string(name='userId'),
+  workspace?: string(name='workspace'),
 }
 
 model NotifyStrategyForView {
@@ -2054,21 +2182,67 @@ model NotifyStrategyIdFilter {
 
 model ObserveGroup {
   aliUid?: string(name='aliUid', description='The UID of the Alibaba Cloud account to which the group belongs.'),
-  createTime?: string(name='createTime', description='The time when the group was created, in UTC format (yyyy-MM-ddTHH:mm:ssZ).'),
-  description?: string(name='description', description='The description of the observability group, which describes the business purpose.'),
-  discoverRules?: string(name='discoverRules', description='The list of entity discovery rules that define which entities the group automatically matches.'),
-  entityCounts?: map[string]int32(name='entityCounts', description='The number of entities in each category. The key is the category domain (such as acs for Alibaba Cloud services, apm, or rum, which is extensible). The value is the number of entities in that category that belong to this group. This parameter is returned only when withEntityCount is set to true.'),
-  extraInfo?: string(name='extraInfo', description='The extended information, which is a JSON string that contains alert templates, alert contact groups, pause policies, and other settings.'),
-  favorited?: boolean(name='favorited', description='Indicates whether the current user has favorited this group. This value is used as the filter criterion for the My Favorites feature.'),
-  groupId?: string(name='groupId', description='The globally unique ID of the observability group, in the format of og-<16-character hash>. This ID is used across metrics, alerts, and the console.'),
-  groupName?: string(name='groupName', description='The name of the observability group. The name must be unique within the workspace.'),
+  createTime?: string(name='createTime', description='The creation time in UTC format: yyyy-MM-ddTHH:mm:ssZ.'),
+  description?: string(name='description', description='The description of the observability group, which explains its business purpose.'),
+  discoverRules?: [
+    ObserveGroupDiscoverRule
+  ](name='discoverRules', description='The list of entity discovery rules that define which entities the group automatically matches.'),
+  entityCounts?: map[string]int32(name='entityCounts', description='The number of entities in each category. The key is the category domain (acs for cloud services, apm, or rum, which is extensible). The value is the number of entities in that category that belong to this group. Returned only when withEntityCount is set to true.'),
+  extraInfo?: string(name='extraInfo', description='The extended information as a JSON string, which carries alert templates, alert contact groups, and suspension policies.'),
+  favorited?: boolean(name='favorited', description='Indicates whether the current user has followed this group. This value is used as the filter criterion for the My Favorites feature.'),
+  groupId?: string(name='groupId', description='The globally unique ID of the observability group. Format: og-<16-character hash>. Used uniformly across metrics, alerts, and consoles.'),
+  groupName?: string(name='groupName', description='The name of the observability group. Must be unique within the same workspace.'),
   groupType?: string(name='groupType', description='The type of the observability group.'),
   health?: int32(name='health', description='The health status of the group. Valid values:
 - -1: unknown (placeholder).
 - 1: healthy.
 - 0: unhealthy.'),
+  modifyTime?: string(name='modifyTime', description='The last modification time in UTC format: yyyy-MM-ddTHH:mm:ssZ. Automatically updated when any resource attribute changes.'),
+  ogEntityInfoEnabled?: boolean(name='ogEntityInfoEnabled', description='Specifies whether og_entity_info metric output is enabled. When enabled, the data plane writes the group membership information to the target Prometheus instance.'),
+  ogEntityInfoPromInstances?: [
+    ObserveGroupPromInstance
+  ](name='ogEntityInfoPromInstances', description='The set of Prometheus instances to which og_entity_info is written. Includes two source types: system (automatically identified by the system) and custom (user-defined).'),
+  originGroupId?: string(name='originGroupId', description='The product_group.id of the version 1.0 application group. This parameter is valid only when sourceOrigin is set to synced_from_1_0.'),
+  regionId?: string(name='regionId', description='The region ID to which the group belongs.'),
+  resourceGroupId?: string(name='resourceGroupId', description='The Alibaba Cloud resource group ID.'),
+  sourceOrigin?: string(name='sourceOrigin', description='The data source. Valid values:
+- native_2_0: created natively in version 2.0.
+- synced_from_1_0: synchronized from a version 1.0 application group.'),
+  tags?: [ 
+    {
+      tagKey?: string(name='tagKey', description='The tag key.'),
+      tagValue?: string(name='tagValue', description='The tag value.'),
+    }
+  ](name='tags', description='The resource tags (Alibaba Cloud standard tags) as an array of key-value pairs.'),
+  workspaceId?: string(name='workspaceId', description='The workspace ID to which the group belongs. This value is set at the workspace level and cannot be changed after creation.'),
+}
+
+model ObserveGroupDetail {
+  aliUid?: string(name='aliUid', description='The UID of the Alibaba Cloud account to which the group belongs.'),
+  createTime?: string(name='createTime', description='The time when the group was created, in UTC format (yyyy-MM-ddTHH:mm:ssZ).'),
+  description?: string(name='description', description='The description of the observability group, which explains its business purpose.'),
+  discoverRules?: [
+    ObserveGroupDiscoverRule
+  ](name='discoverRules', description='The list of entity discovery rules that define which entities the group automatically matches.'),
+  entitySummaries?: [ 
+    {
+      entityCategory?: string(name='entityCategory', description='The entity category.'),
+      entityCount?: int32(name='entityCount', description='The number of entities.'),
+      entityDomain?: string(name='entityDomain', description='The entity domain.'),
+      entityType?: string(name='entityType', description='The entity type.'),
+    }
+  ](name='entitySummaries', description='The statistics of entities in the group, categorized by entity type.'),
+  extraInfo?: string(name='extraInfo', description='The extended information in JSON string format, which carries alert templates, alert contact groups, suspension policies, and other configurations.'),
+  favorited?: boolean(name='favorited', description='Indicates whether the current user has followed the group.'),
+  groupId?: string(name='groupId'),
+  groupName?: string(name='groupName', description='The name of the observability group. The name must be unique within the same workspace.'),
+  groupType?: string(name='groupType', description='The type of the observability group.'),
   modifyTime?: string(name='modifyTime', description='The time when the group was last modified, in UTC format (yyyy-MM-ddTHH:mm:ssZ). This value is automatically updated when any property of the resource changes.'),
-  originGroupId?: string(name='originGroupId', description='The product_group.id of the version 1.0 application group. This parameter is returned only when sourceOrigin is set to synced_from_1_0.'),
+  ogEntityInfoEnabled?: boolean(name='ogEntityInfoEnabled', description='Specifies whether to enable the og_entity_info metric output. When enabled, the data plane writes the group ownership information to the target Prometheus instance.'),
+  ogEntityInfoPromInstances?: [
+    ObserveGroupPromInstance
+  ](name='ogEntityInfoPromInstances', description='The set of Prometheus instances to which og_entity_info is written. This includes two source types: system (automatically identified by the system) and custom (user-defined).'),
+  originGroupId?: string(name='originGroupId', description='The product_group.id of the version 1.0 application group. This parameter is valid only when sourceOrigin is set to synced_from_1_0.'),
   regionId?: string(name='regionId', description='The region ID of the group.'),
   resourceGroupId?: string(name='resourceGroupId', description='The Alibaba Cloud resource group ID.'),
   sourceOrigin?: string(name='sourceOrigin', description='The data source. Valid values:
@@ -2079,70 +2253,42 @@ model ObserveGroup {
       tagKey?: string(name='tagKey', description='The tag key.'),
       tagValue?: string(name='tagValue', description='The tag value.'),
     }
-  ](name='tags', description='The resource tags (Alibaba Cloud standard tags), which are an array of key-value pairs.'),
-  workspaceId?: string(name='workspaceId', description='The workspace ID to which the group belongs. This value is set at the workspace level and cannot be changed after the group is created.'),
-}
-
-model ObserveGroupDetail {
-  aliUid?: string(name='aliUid', description='The UID of the Alibaba Cloud account to which the group belongs.'),
-  createTime?: string(name='createTime', description='The time when the group was created, in UTC format (yyyy-MM-ddTHH:mm:ssZ).'),
-  description?: string(name='description', description='The description of the observability group, which explains its business purpose.'),
-  discoverRules?: string(name='discoverRules', description='The list of entity discovery rules that define which entities the group automatically matches.'),
-  entitySummaries?: [ 
-    {
-      entityCategory?: string(name='entityCategory', description='The entity category.'),
-      entityCount?: int32(name='entityCount', description='The entity count.'),
-      entityDomain?: string(name='entityDomain', description='The entity domain.'),
-      entityType?: string(name='entityType', description='The entity type.'),
-    }
-  ](name='entitySummaries', description='The statistics of entities in the group, grouped by entity type.'),
-  extraInfo?: string(name='extraInfo', description='The extended information in JSON string format, which carries alert templates, alert contact groups, pause policies, and other configurations.'),
-  favorited?: boolean(name='favorited', description='Indicates whether the current user has favorited the group.'),
-  groupId?: string(name='groupId'),
-  groupName?: string(name='groupName', description='The name of the observability group. The name must be unique within the workspace.'),
-  groupType?: string(name='groupType', description='The type of the observability group.'),
-  modifyTime?: string(name='modifyTime', description='The time when the group was last modified, in UTC format (yyyy-MM-ddTHH:mm:ssZ). This value is automatically updated when any property of the resource changes.'),
-  originGroupId?: string(name='originGroupId', description='The ID of the version 1.0 application group (product_group.id). This parameter is valid only when sourceOrigin is set to synced_from_1_0.'),
-  regionId?: string(name='regionId', description='The region ID of the group.'),
-  resourceGroupId?: string(name='resourceGroupId', description='The Alibaba Cloud resource group ID.'),
-  sourceOrigin?: string(name='sourceOrigin', description='The data source. Valid values:
-- native_2_0: created natively in version 2.0.
-- synced_from_1_0: synchronized from a version 1.0 application group.'),
+  ](name='tags', description='The resource tags (Alibaba Cloud standard tags), represented as an array of key-value pairs.'),
   workspaceId?: string(name='workspaceId', description='The workspace ID to which the group belongs. This value is set at the workspace level and cannot be changed after the group is created.'),
 }
 
 model ObserveGroupDiscoverRule {
-  enabled?: boolean(name='Enabled', description='Indicates whether the rule is enabled. If set to false, the data plane skips this rule and does not perform matching, tagging, or delivery.'),
-  entityType?: string(name='EntityType', description='The entity type (legacy). This parameter is retained for backward compatibility. Use entityTypes instead.'),
-  entityTypes?: [ string ](name='EntityTypes', description='The list of entity types. A single rule can match across multiple types, such as acs.ecs.instance, acs.rds.instance, and acs.arms.service.'),
-  gmtCreate?: long(name='GmtCreate', description='The time when the rule was created, in UNIX millisecond timestamp format. This value is used for display in the console.'),
-  instanceIds?: [ string ](name='InstanceIds', description='The list of manually specified instance IDs. This is an enumeration type and includes instances synchronized manually in version 1.0.'),
+  enabled?: boolean(name='enabled', description='Indicates whether the rule is enabled. If set to false, the data plane skips this rule and does not perform matching, tagging, or delivery.'),
+  entityType?: string(name='entityType', description='The entity type (legacy). Retained for backward compatibility. Use entityTypes instead.'),
+  entityTypes?: [ string ](name='entityTypes', description='The list of entity types. A single rule can match multiple types, such as acs.ecs.instance, acs.rds.instance, and acs.arms.service.'),
+  gmtCreate?: long(name='gmtCreate', description='The time when the rule was created, in UNIX millisecond timestamp format. This value is used for display in the console.'),
+  instanceIds?: [ string ](name='instanceIds', description='The list of manually specified instance IDs in enumeration mode, including instances synchronized manually in version 1.0.'),
   nameRules?: {
-    op?: string(name='Op', description='The name matching logic.'),
+    op?: string(name='op', description='The name matching logic.'),
     tags?: [ 
       {
-        op?: string(name='Op', description='The matching operation.'),
-        tagValues?: [ string ](name='TagValues', description='The list of matching values.'),
+        op?: string(name='op', description='The matching operation.'),
+        tagValues?: [ string ](name='tagValues', description='The matching value list.'),
       }
-    ](name='Tags', description='The list of name conditions.'),
-  }(name='NameRules', description='The name matching rules.'),
-  regionIds?: [ string ](name='RegionIds', description='The list of region IDs used for region-based filtering.'),
-  resourceGroupId?: string(name='ResourceGroupId', description='The resource group ID used for filtering.'),
-  ruleId?: string(name='RuleId', description='The stable ID of the rule, used as an anchor for editing, deleting, and enabling or disabling operations. Format: dr-<16-character hash>.'),
-  ruleType?: string(name='RuleType', description='The matching method. Valid values: byTag, byResourceGroup, byInstanceName, byManual, and bySpl.'),
-  scope?: string(name='Scope', description='The applicable scope. Valid values: all (all entity types, exclusive) and entity (specified entity types).'),
-  spl?: string(name='Spl', description='The complete SPL expression for advanced configuration. If this parameter is not empty, it takes precedence over other filter fields.'),
+    ](name='tags', description='The name condition list.'),
+  }(name='nameRules', description='The name matching rules.'),
+  regionIds?: [ string ](name='regionIds', description='The list of region IDs used for filtering by region.'),
+  resourceGroupId?: string(name='resourceGroupId', description='The resource group ID used for filtering.'),
+  ruleId?: string(name='ruleId', description='The stable rule ID used as an anchor for editing, deleting, and enabling or disabling operations. Format: dr-<16-character hash>.'),
+  ruleType?: string(name='ruleType', description='The matching method. Valid values: byTag, byResourceGroup, byInstanceName, byManual, and bySpl.'),
+  scope?: string(name='scope', description='The applicable scope. Valid values: all (all entity types, exclusive) and entity (specified entity types).'),
+  spl?: string(name='spl', description='The full SPL expression for advanced configuration. If this parameter is not empty, it takes precedence over other filter fields.'),
   tagRules?: {
-    op?: string(name='Op', description='The tag matching logic.'),
+    op?: string(name='op', description='The tag matching logic.'),
     tags?: [ 
       {
-        op?: string(name='Op', description='The matching operation.'),
-        tagKey?: string(name='TagKey', description='The tag key.'),
-        tagValues?: [ string ](name='TagValues', description='The list of tag values.'),
+        op?: string(name='op', description='The matching operation.'),
+        tagKey?: string(name='tagKey', description='The tag key.'),
+        tagValues?: [ string ](name='tagValues', description='The tag value list.'),
       }
-    ](name='Tags', description='The list of tag conditions.'),
-  }(name='TagRules', description='The tag matching rules.'),
-  userId?: string(name='UserId', description='The UID of the user to whom the rule belongs.'),
+    ](name='tags', description='The tag condition list.'),
+  }(name='tagRules', description='The tag matching rules.'),
+  userId?: string(name='userId', description='The UID of the user to whom the rule belongs.'),
 }
 
 model ObserveGroupInstance {
@@ -2157,6 +2303,15 @@ model ObserveGroupInstance {
   resourceGroupId?: string(name='resourceGroupId', description='The resource group ID of the instance.'),
   tags?: map[string]string(name='tags', description='The key-value pairs of instance tags.'),
   userId?: string(name='userId', description='The UID of the user to which the instance belongs.'),
+}
+
+model ObserveGroupPromInstance {
+  id?: string(name='id', description='The ID of the Managed Service for Prometheus instance, such as rw-xxxxxxxxxx.'),
+  kind?: string(name='kind', description='The source of the instance. Valid values:
+- system: The system automatically identifies the instance based on the workspace or UModel.
+- custom: The user manually selects the instance in the console.'),
+  region?: string(name='region', description='The region where the Managed Service for Prometheus instance resides. If this parameter is left empty, the backend automatically populates the region based on the workspace to which the application group belongs.'),
+  time?: string(name='time', description='The time when the record was written or selected. Format: yyyy-MM-dd HH:mm:ss.'),
 }
 
 model ObserveResourceGlobalScopeFilter {
@@ -2275,6 +2430,32 @@ model RepeatNotifySetting {
   repeatInterval?: string(name='repeatInterval', description='The interval between repeated notifications.', example='5'),
 }
 
+model ResponsePlanConfig {
+  autoRecoverSeconds?: long(name='autoRecoverSeconds', description='The number of seconds for automatic recovery. If no new trigger occurs within this duration, the event is automatically recovered.', example='300'),
+  escalationId?: [ string ](name='escalationId', description='The list of escalation plan IDs.', example='["esc-uuid-xxx"]'),
+  pushingSetting?: {
+    alertActionIds?: [ string ](name='alertActionIds', description='The list of action integration IDs triggered by alerts.', example='["action-uuid-xxx"]'),
+    restoreActionIds?: [ string ](name='restoreActionIds', description='The list of action integration IDs triggered by recovery.', example='["action-uuid-yyy"]'),
+  }(name='pushingSetting', description='The action integration push settings.'),
+  repeatNotifySetting?: {
+    endIncidentState?: string(name='endIncidentState', description='The target incident status at which repeat notifications stop.', example='RECOVERED'),
+    repeatInterval?: int32(name='repeatInterval', description='The repeat notification interval, in seconds.', example='300'),
+  }(name='repeatNotifySetting', description='The repeat notification configuration.'),
+}
+
+model ResponsePlanDetail {
+  autoRecoverSeconds?: long(name='autoRecoverSeconds', description='The number of seconds for automatic recovery. If no new trigger occurs within this duration, the event is automatically recovered.', example='300'),
+  escalationId?: [ string ](name='escalationId', description='The list of escalation plan IDs.', example='["esc-uuid-xxx"]'),
+  pushingSetting?: {
+    alertActionIds?: [ string ](name='alertActionIds', description='The list of action integration IDs triggered by alerts.', example='["action-uuid-xxx"]'),
+    restoreActionIds?: [ string ](name='restoreActionIds', description='The list of action integration IDs triggered by recovery.', example='["action-uuid-yyy"]'),
+  }(name='pushingSetting', description='The action integration push settings.'),
+  repeatNotifySetting?: {
+    endIncidentState?: string(name='endIncidentState', description='The target event status at which repeated notifications stop.', example='RECOVERED'),
+    repeatInterval?: int32(name='repeatInterval', description='The interval for repeated notifications, in seconds.', example='300'),
+  }(name='repeatNotifySetting', description='The repeat notification configuration.'),
+}
+
 model RumDnsResponse {
   domain?: string(name='domain', description='The domain name for RUM reporting.', example='rum'),
   message?: string(name='message', description='The message returned if initialization fails.', example='""'),
@@ -2314,6 +2495,13 @@ model ServerResponseQueryAlertRulesResult {
 
 model SeverityLevelsFilter {
   contains?: [ string ](name='contains', description='Matches a log entry if its severity level appears in this array of strings.'),
+}
+
+model SeverityNotifyConfig {
+  receivers?: [
+    DirectNotifyReceiver
+  ](name='receivers'),
+  sendRecoverNotification?: boolean(name='sendRecoverNotification'),
 }
 
 model StatusFilter {
@@ -2373,6 +2561,20 @@ model SubscriptionAndNotifyStrategyForView {
   workspace?: string(name='workspace'),
 }
 
+model SubscriptionConfig {
+  filterSetting?: FilterSetting(name='filterSetting', description='The event content filtering conditions.', example='{}'),
+  subscribeLegacyEvent?: boolean(name='subscribeLegacyEvent', description='Specifies whether to subscribe to legacy product events (events with an empty workspace from CMS 1.0, ARMS, or SLS). Valid values:
+- true: Subscribe.
+- false/null: Do not subscribe.', example='false'),
+  workspaceFilterSetting?: WorkspaceFilterSetting(name='workspaceFilterSetting', description='The cross-workspace event routing (global subscription) settings.', example='{}'),
+}
+
+model SubscriptionDetail {
+  filterSetting?: FilterSetting(name='filterSetting', description='The filter conditions for event content.', example='{}'),
+  subscribeLegacyEvent?: boolean(name='subscribeLegacyEvent', description='Specifies whether to subscribe to legacy product events (events with an empty workspace from CMS 1.0, ARMS, or SLS).', example='false'),
+  workspaceFilterSetting?: WorkspaceFilterSetting(name='workspaceFilterSetting', description='The cross-workspace event routing (global subscription) settings.', example='{}'),
+}
+
 model SubscriptionForModify {
   agentConfig?: {
     agentUuid?: string(name='agentUuid'),
@@ -2400,6 +2602,9 @@ This parameter is required.', example='测试订阅'),
 
 model SubscriptionForSNSModify {
   filterSetting?: FilterSetting(name='filterSetting'),
+  subscribeLegacyEvent?: boolean(name='subscribeLegacyEvent', description='Specifies whether to subscribe to legacy product events (CMS 1.0 / ARMS / SLS events where workspace=null). Valid values:
+- true: Subscribe.
+- false or null: Do not subscribe.'),
   workspaceFilterSetting?: WorkspaceFilterSetting(name='workspaceFilterSetting'),
 }
 
@@ -2411,6 +2616,7 @@ model SubscriptionForSNSView {
   name?: string(name='name'),
   notifyStrategyUuid?: string(name='notifyStrategyUuid'),
   regionId?: string(name='regionId'),
+  subscribeLegacyEvent?: boolean(name='subscribeLegacyEvent', description='Specifies whether to subscribe to legacy product events (CMS 1.0, ARMS, or SLS events where workspace=null). Valid values: true: subscribed. false or null: not subscribed.'),
   subscriptionType?: string(name='subscriptionType'),
   syncFromType?: string(name='syncFromType'),
   updateTime?: string(name='updateTime'),
@@ -3926,6 +4132,74 @@ async function createMemoryStore(workspace: string, request: CreateMemoryStoreRe
   var runtime = new Util.RuntimeOptions{};
   var headers : map[string]string = {};
   return createMemoryStoreWithOptions(workspace, request, headers, runtime);
+}
+
+model CreateNotifyPolicyRequest {
+  body?: NotifyPolicyConfig(name='body', description='The request body, which is the complete notification policy configuration object NotifyPolicyConfig.'),
+  workspace?: string(name='workspace', description='The workspace ID. This parameter is used to isolate notification policy resources across different business spaces.
+
+This parameter is required.', example='default-cms-xxxx-cn-hangzhou'),
+}
+
+model CreateNotifyPolicyResponseBody = {
+  notifyPolicy?: NotifyPolicy(name='notifyPolicy', description='The notification policy object details, including the policy UUID, name, description, enabled status, and sub-entities such as notification strategy (grouping, noise reduction, notification routing, and channels), subscription (event filtering, cross-workspace routing, and legacy product event subscription), and response plan (upgrade, repeated notification, automatic recovery, and action integration).'),
+  requestId?: string(name='requestId', description='The unique ID of the request. You can use this ID for troubleshooting and ticket tracking.', example='0B9377D9-C56B-5C2E-A8A4-A01D6CC3F4B8'),
+}
+
+model CreateNotifyPolicyResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: CreateNotifyPolicyResponseBody(name='body'),
+}
+
+/**
+ * @summary Creates a notification policy.
+ *
+ * @description Creates a notification policy in a specified workspace. The notifyStrategy field in the request body NotifyPolicyConfig is required, while subscription and responsePlan are optional. After the policy is created, the generated policy UUID and complete policy details are returned. If a policy with the same Policy Name already exists in the workspace, a ConflictName error is returned.
+ *
+ * @param request CreateNotifyPolicyRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return CreateNotifyPolicyResponse
+ */
+async function createNotifyPolicyWithOptions(request: CreateNotifyPolicyRequest, headers: map[string]string, runtime: Util.RuntimeOptions): CreateNotifyPolicyResponse {
+  Util.validateModel(request);
+  var query : map[string]any = {};
+  if (!Util.isUnset(request.workspace)) {
+    query['workspace'] = request.workspace;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+    body = OpenApiUtil.parseToMap(request.body),
+  };
+  var params = new OpenApi.Params{
+    action = 'CreateNotifyPolicy',
+    version = '2024-03-30',
+    protocol = 'HTTPS',
+    pathname = `/api/eventbase/notify-policy/create`,
+    method = 'POST',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Creates a notification policy.
+ *
+ * @description Creates a notification policy in a specified workspace. The notifyStrategy field in the request body NotifyPolicyConfig is required, while subscription and responsePlan are optional. After the policy is created, the generated policy UUID and complete policy details are returned. If a policy with the same Policy Name already exists in the workspace, a ConflictName error is returned.
+ *
+ * @param request CreateNotifyPolicyRequest
+ * @return CreateNotifyPolicyResponse
+ */
+async function createNotifyPolicy(request: CreateNotifyPolicyRequest): CreateNotifyPolicyResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return createNotifyPolicyWithOptions(request, headers, runtime);
 }
 
 model CreatePipelineRequest {
@@ -5644,6 +5918,79 @@ async function deleteMemoryStore(workspace: string, memoryStoreName: string, req
   return deleteMemoryStoreWithOptions(workspace, memoryStoreName, request, headers, runtime);
 }
 
+model DeleteNotifyPolicyRequest {
+  uuid?: string(name='uuid', description='The unique identifier of the notification policy, returned by the creation operation.
+
+This parameter is required.', example='np-12345678-1234-1234-1234-123456789012'),
+  workspace?: string(name='workspace', description='The workspace ID. Used to isolate notification policy resources across different business spaces.
+
+This parameter is required.', example='default-cms-xxxx-cn-hangzhou'),
+}
+
+model DeleteNotifyPolicyResponseBody = {
+  requestId?: string(name='requestId', description='The unique ID of the request. Used for troubleshooting and ticket tracking.', example='A1234567-1234-1234-1234-123456789012'),
+  success?: boolean(name='success', description='Indicates whether the operation is successful.'),
+  uuid?: string(name='uuid', description='The uuid of the notification policy that was operated on.', example='np-12345678-1234-1234-1234-123456789012'),
+}
+
+model DeleteNotifyPolicyResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: DeleteNotifyPolicyResponseBody(name='body'),
+}
+
+/**
+ * @summary Deletes a notification policy in a specified workspace. After deletion, the policy no longer sends notifications for subscribed events.
+ *
+ * @description Deletes a notification policy by specifying the workspace and uuid. Returns success to indicate the deletion result and the uuid of the deleted policy.
+ *
+ * @param request DeleteNotifyPolicyRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return DeleteNotifyPolicyResponse
+ */
+async function deleteNotifyPolicyWithOptions(request: DeleteNotifyPolicyRequest, headers: map[string]string, runtime: Util.RuntimeOptions): DeleteNotifyPolicyResponse {
+  Util.validateModel(request);
+  var query : map[string]any = {};
+  if (!Util.isUnset(request.uuid)) {
+    query['uuid'] = request.uuid;
+  }
+  if (!Util.isUnset(request.workspace)) {
+    query['workspace'] = request.workspace;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'DeleteNotifyPolicy',
+    version = '2024-03-30',
+    protocol = 'HTTPS',
+    pathname = `/api/eventbase/notify-policy`,
+    method = 'DELETE',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Deletes a notification policy in a specified workspace. After deletion, the policy no longer sends notifications for subscribed events.
+ *
+ * @description Deletes a notification policy by specifying the workspace and uuid. Returns success to indicate the deletion result and the uuid of the deleted policy.
+ *
+ * @param request DeleteNotifyPolicyRequest
+ * @return DeleteNotifyPolicyResponse
+ */
+async function deleteNotifyPolicy(request: DeleteNotifyPolicyRequest): DeleteNotifyPolicyResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return deleteNotifyPolicyWithOptions(request, headers, runtime);
+}
+
 model DeletePipelineRequest {
 }
 
@@ -6441,6 +6788,140 @@ async function describeRegions(request: DescribeRegionsRequest): DescribeRegions
   var runtime = new Util.RuntimeOptions{};
   var headers : map[string]string = {};
   return describeRegionsWithOptions(request, headers, runtime);
+}
+
+model DisableNotifyPolicyRequest {
+  workspace?: string(name='workspace', description='The workspace ID. Used to isolate notification policy resources across different business spaces.
+
+This parameter is required.', example='default-cms-xxxx-cn-hangzhou'),
+}
+
+model DisableNotifyPolicyResponseBody = {
+  requestId?: string(name='requestId', description='The unique ID of the request. Used for troubleshooting and ticket tracking.', example='70D52620-2609-1802-9788-6BC592C83F03'),
+  success?: boolean(name='success', description='Indicates whether the operation was successful.'),
+  uuid?: string(name='uuid', description='The uuid of the notification policy that was operated on.', example='04779a183add4f2ca06ab440f16cc580'),
+}
+
+model DisableNotifyPolicyResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: DisableNotifyPolicyResponseBody(name='body'),
+}
+
+/**
+ * @summary Disables a specified notification policy. After the policy is disabled, notifications are paused but all configurations are retained. The policy can be re-enabled.
+ *
+ * @description Disables a notification policy by specifying the workspace and uuid (path parameter). Returns success and the policy uuid.
+ *
+ * @param request DisableNotifyPolicyRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return DisableNotifyPolicyResponse
+ */
+async function disableNotifyPolicyWithOptions(uuid: string, request: DisableNotifyPolicyRequest, headers: map[string]string, runtime: Util.RuntimeOptions): DisableNotifyPolicyResponse {
+  Util.validateModel(request);
+  var query : map[string]any = {};
+  if (!Util.isUnset(request.workspace)) {
+    query['workspace'] = request.workspace;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'DisableNotifyPolicy',
+    version = '2024-03-30',
+    protocol = 'HTTPS',
+    pathname = `/api/eventbase/notify-policy/${OpenApiUtil.getEncodeParam(uuid)}/disable`,
+    method = 'PUT',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Disables a specified notification policy. After the policy is disabled, notifications are paused but all configurations are retained. The policy can be re-enabled.
+ *
+ * @description Disables a notification policy by specifying the workspace and uuid (path parameter). Returns success and the policy uuid.
+ *
+ * @param request DisableNotifyPolicyRequest
+ * @return DisableNotifyPolicyResponse
+ */
+async function disableNotifyPolicy(uuid: string, request: DisableNotifyPolicyRequest): DisableNotifyPolicyResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return disableNotifyPolicyWithOptions(uuid, request, headers, runtime);
+}
+
+model EnableNotifyPolicyRequest {
+  workspace?: string(name='workspace', description='The workspace ID.
+
+This parameter is required.', example='default'),
+}
+
+model EnableNotifyPolicyResponseBody = {
+  requestId?: string(name='requestId', description='Id of the request', example='0CEC5375-C554-562B-A65F-***'),
+  success?: boolean(name='success', description='Indicates whether the request was successful.'),
+  uuid?: string(name='uuid', description='The unique identifier of the notification policy.', example='7076c75c-c804-461e-975f-c6f9ed5af745'),
+}
+
+model EnableNotifyPolicyResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: EnableNotifyPolicyResponseBody(name='body'),
+}
+
+/**
+ * @summary Enables a disabled notification policy in a specified workspace. After the policy is enabled, it resumes sending notifications for subscribed events.
+ *
+ * @description Enables a notification policy by specifying the workspace and uuid path parameters. Returns success and the policy uuid.
+ *
+ * @param request EnableNotifyPolicyRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return EnableNotifyPolicyResponse
+ */
+async function enableNotifyPolicyWithOptions(uuid: string, request: EnableNotifyPolicyRequest, headers: map[string]string, runtime: Util.RuntimeOptions): EnableNotifyPolicyResponse {
+  Util.validateModel(request);
+  var query : map[string]any = {};
+  if (!Util.isUnset(request.workspace)) {
+    query['workspace'] = request.workspace;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'EnableNotifyPolicy',
+    version = '2024-03-30',
+    protocol = 'HTTPS',
+    pathname = `/api/eventbase/notify-policy/${OpenApiUtil.getEncodeParam(uuid)}/enable`,
+    method = 'PUT',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Enables a disabled notification policy in a specified workspace. After the policy is enabled, it resumes sending notifications for subscribed events.
+ *
+ * @description Enables a notification policy by specifying the workspace and uuid path parameters. Returns success and the policy uuid.
+ *
+ * @param request EnableNotifyPolicyRequest
+ * @return EnableNotifyPolicyResponse
+ */
+async function enableNotifyPolicy(uuid: string, request: EnableNotifyPolicyRequest): EnableNotifyPolicyResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return enableNotifyPolicyWithOptions(uuid, request, headers, runtime);
 }
 
 model ExecuteQueryRequest {
@@ -8252,6 +8733,78 @@ async function getMemoryStore(workspace: string, memoryStoreName: string, reques
   var runtime = new Util.RuntimeOptions{};
   var headers : map[string]string = {};
   return getMemoryStoreWithOptions(workspace, memoryStoreName, request, headers, runtime);
+}
+
+model GetNotifyPolicyRequest {
+  uuid?: string(name='uuid', description='The unique identifier of the notification policy, returned by the create operation.
+
+This parameter is required.', example='a1b2c3d4-e5f6-7890-abcd-ef1234567890'),
+  workspace?: string(name='workspace', description='The workspace ID. Used to isolate notification policy resources across different business spaces. Example: `default-cms-xxxx-ap-southeast-1`.
+
+This parameter is required.', example='default-cms-xxxx-cn-hangzhou'),
+}
+
+model GetNotifyPolicyResponseBody = {
+  notifyPolicy?: NotifyPolicy(name='notifyPolicy', description='The notification policy object details, including the policy UUID, name, description, enabled status, and sub-entities such as notification policies (noise reduction, notification routing, and channels), subscriptions (event filtering, cross-workspace routing, and legacy product event subscriptions), and response plans (escalation, repeated notifications, automatic recovery, and action integration).'),
+  requestId?: string(name='requestId', description='Id of the request', example='0B9377D9-C56B-5C2E-A8A4-A01D6CC3F4B8'),
+}
+
+model GetNotifyPolicyResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: GetNotifyPolicyResponseBody(name='body'),
+}
+
+/**
+ * @summary Retrieves the details of a specified notification policy.
+ *
+ * @description Queries a specified notification policy by workspace and UUID. If the UUID does not exist, a ResourceNotFound error is returned.
+ *
+ * @param request GetNotifyPolicyRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return GetNotifyPolicyResponse
+ */
+async function getNotifyPolicyWithOptions(request: GetNotifyPolicyRequest, headers: map[string]string, runtime: Util.RuntimeOptions): GetNotifyPolicyResponse {
+  Util.validateModel(request);
+  var query : map[string]any = {};
+  if (!Util.isUnset(request.uuid)) {
+    query['uuid'] = request.uuid;
+  }
+  if (!Util.isUnset(request.workspace)) {
+    query['workspace'] = request.workspace;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'GetNotifyPolicy',
+    version = '2024-03-30',
+    protocol = 'HTTPS',
+    pathname = `/api/eventbase/notify-policy`,
+    method = 'GET',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Retrieves the details of a specified notification policy.
+ *
+ * @description Queries a specified notification policy by workspace and UUID. If the UUID does not exist, a ResourceNotFound error is returned.
+ *
+ * @param request GetNotifyPolicyRequest
+ * @return GetNotifyPolicyResponse
+ */
+async function getNotifyPolicy(request: GetNotifyPolicyRequest): GetNotifyPolicyResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return getNotifyPolicyWithOptions(request, headers, runtime);
 }
 
 model GetPipelineRequest {
@@ -11608,6 +12161,99 @@ async function listMemoryStores(workspace: string, request: ListMemoryStoresRequ
   return listMemoryStoresWithOptions(workspace, request, headers, runtime);
 }
 
+model ListNotifyPoliciesRequest {
+  maxResults?: int32(name='maxResults', description='The maximum number of entries to return in this request.', example='10'),
+  name?: string(name='name', description='The policy name used for fuzzy filtering.', example='prod-alert'),
+  nextToken?: string(name='nextToken', description='The pagination token. Leave this parameter empty for the first page. For subsequent pages, set this parameter to the nextToken value returned in the previous response.', example='eyJjdXJzb3IiOjEwfQ=='),
+  orderBy?: string(name='orderBy', description='The field used for sorting. Valid values: createTime, updateTime, and name.', example='createTime'),
+  orderDesc?: string(name='orderDesc', description='Specifies whether to sort results in descending order. Valid values:
+- true: descending order.
+- false: ascending order.', example='true'),
+  workspace?: string(name='workspace', description='The workspace ID. This parameter is used to isolate notify policy resources across different business spaces.
+
+This parameter is required.', example='default-cms-xxxx-cn-hangzhou'),
+}
+
+model ListNotifyPoliciesResponseBody = {
+  maxResults?: int32(name='maxResults', description='The maximum number of entries returned in this request.', example='10'),
+  nextToken?: string(name='nextToken', description='The pagination token for the next page. This parameter is empty if no more data is available.', example='eyJjdXJzb3IiOjEwfQ=='),
+  notifyPolicyList?: [
+    NotifyPolicySummary
+  ](name='notifyPolicyList', description='The list of notify policies. Each entry is of the NotifyPolicySummary type (lightweight view).', example='[{"uuid":"np-12345678-1234-1234-1234-123456789012","name":"prod-alert","description":"生产环境告警策略","enabled":true,"version":1,"workspace":"default-cms-xxxx-cn-hangzhou","userId":"107640","createTime":"1711792800000","updateTime":"1711792800000"}]'),
+  requestId?: string(name='requestId', description='The request ID. You can use this ID for troubleshooting and ticket submission.', example='0B9377D9-C56B-5C2E-A8A4-A01D6CC3F4B8'),
+  totalCount?: long(name='totalCount', description='The total number of entries. The actual total is returned on the first page. A fixed value of -1 is returned on subsequent pages.', example='100'),
+}
+
+model ListNotifyPoliciesResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ListNotifyPoliciesResponseBody(name='body'),
+}
+
+/**
+ * @summary Lists notify policies.
+ *
+ * @description Queries the list of notify policies in a specified workspace with paging. You can filter results by name using fuzzy match. The response contains a list of NotifyPolicySummary lightweight views.
+ *
+ * @param request ListNotifyPoliciesRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return ListNotifyPoliciesResponse
+ */
+async function listNotifyPoliciesWithOptions(request: ListNotifyPoliciesRequest, headers: map[string]string, runtime: Util.RuntimeOptions): ListNotifyPoliciesResponse {
+  Util.validateModel(request);
+  var query : map[string]any = {};
+  if (!Util.isUnset(request.maxResults)) {
+    query['maxResults'] = request.maxResults;
+  }
+  if (!Util.isUnset(request.name)) {
+    query['name'] = request.name;
+  }
+  if (!Util.isUnset(request.nextToken)) {
+    query['nextToken'] = request.nextToken;
+  }
+  if (!Util.isUnset(request.orderBy)) {
+    query['orderBy'] = request.orderBy;
+  }
+  if (!Util.isUnset(request.orderDesc)) {
+    query['orderDesc'] = request.orderDesc;
+  }
+  if (!Util.isUnset(request.workspace)) {
+    query['workspace'] = request.workspace;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'ListNotifyPolicies',
+    version = '2024-03-30',
+    protocol = 'HTTPS',
+    pathname = `/api/eventbase/notify-policies`,
+    method = 'GET',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Lists notify policies.
+ *
+ * @description Queries the list of notify policies in a specified workspace with paging. You can filter results by name using fuzzy match. The response contains a list of NotifyPolicySummary lightweight views.
+ *
+ * @param request ListNotifyPoliciesRequest
+ * @return ListNotifyPoliciesResponse
+ */
+async function listNotifyPolicies(request: ListNotifyPoliciesRequest): ListNotifyPoliciesResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return listNotifyPoliciesWithOptions(request, headers, runtime);
+}
+
 model ListPipelinesRequest {
   maxResults?: int32(name='maxResults', description='The maximum number of results to return.', example='100'),
   nextToken?: string(name='nextToken', description='The pagination token.', example='fff3442dac1de7950f44d5afc0c735ebd12e27f603b21d17ec30cb1d5c735b1ba7c4fb3a1c124bce'),
@@ -14236,14 +14882,82 @@ async function updateMemoryStore(workspace: string, memoryStoreName: string, req
   return updateMemoryStoreWithOptions(workspace, memoryStoreName, request, headers, runtime);
 }
 
+model UpdateNotifyPolicyRequest {
+  body?: NotifyPolicyConfig(name='body', description='The request body. This is the complete notification policy configuration object NotifyPolicyConfig.'),
+  workspace?: string(name='workspace', description='The workspace ID. This parameter is used to isolate notification policy resources across different business spaces.
+
+This parameter is required.', example='default-cms-xxxx-cn-hangzhou'),
+}
+
+model UpdateNotifyPolicyResponseBody = {
+  notifyPolicy?: NotifyPolicy(name='notifyPolicy', description='The notification policy object details, including the policy uuid, name, description, enabled status, and sub-entities such as notification policies (noise reduction, notification routing, and channels), subscriptions (event filtering, cross-workspace routing, and legacy product event subscriptions), and response plans (escalation, repeated notifications, automatic recovery, and action integration).'),
+  requestId?: string(name='requestId', description='The unique ID of the request. You can use this ID for troubleshooting and ticket locating.', example='70D52620-2609-1802-9788-6BC592C83F03'),
+}
+
+model UpdateNotifyPolicyResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: UpdateNotifyPolicyResponseBody(name='body'),
+}
+
+/**
+ * @summary Updates a notification policy.
+ *
+ * @description Updates a notification policy by workspace and body (containing uuid and version). The version field is an optimistic lock version number that must match the current record on the backend. Otherwise, OptimisticLockFailed is returned. After a successful update, the latest policy details are returned.
+ *
+ * @param request UpdateNotifyPolicyRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return UpdateNotifyPolicyResponse
+ */
+async function updateNotifyPolicyWithOptions(request: UpdateNotifyPolicyRequest, headers: map[string]string, runtime: Util.RuntimeOptions): UpdateNotifyPolicyResponse {
+  Util.validateModel(request);
+  var query : map[string]any = {};
+  if (!Util.isUnset(request.workspace)) {
+    query['workspace'] = request.workspace;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+    body = OpenApiUtil.parseToMap(request.body),
+  };
+  var params = new OpenApi.Params{
+    action = 'UpdateNotifyPolicy',
+    version = '2024-03-30',
+    protocol = 'HTTPS',
+    pathname = `/api/eventbase/notify-policy/update`,
+    method = 'PUT',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Updates a notification policy.
+ *
+ * @description Updates a notification policy by workspace and body (containing uuid and version). The version field is an optimistic lock version number that must match the current record on the backend. Otherwise, OptimisticLockFailed is returned. After a successful update, the latest policy details are returned.
+ *
+ * @param request UpdateNotifyPolicyRequest
+ * @return UpdateNotifyPolicyResponse
+ */
+async function updateNotifyPolicy(request: UpdateNotifyPolicyRequest): UpdateNotifyPolicyResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return updateNotifyPolicyWithOptions(request, headers, runtime);
+}
+
 model UpdateNotifyStrategyRequest {
-  body?: NotifyStrategyForModify(name='body', description='The request body.'),
-  workspace?: string(name='workspace', description='The name of the workspace.', example='workspace-test'),
+  body?: NotifyStrategyForModify(name='body', description='The request body parameters.'),
+  workspace?: string(name='workspace', description='The workspace name.', example='workspace-test'),
 }
 
 model UpdateNotifyStrategyResponseBody = {
   notifyStrategyId?: string(name='notifyStrategyId', description='The UUID of the notification policy.', example='12312-31-23-123-1-23123'),
-  requestId?: string(name='requestId', description='The ID of the request. This is a unique identifier for troubleshooting.', example='8FDE2569-626B-5176-9844-28877A*****'),
+  requestId?: string(name='requestId', description='The unique ID of the request, which is used for troubleshooting.', example='8FDE2569-626B-5176-9844-28877A*****'),
 }
 
 model UpdateNotifyStrategyResponse = {

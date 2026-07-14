@@ -372,6 +372,8 @@ model AlertRuleNotification {
   groups?: [ string ](name='groups'),
   notifyTime?: AlertRuleTimeSpan(name='notifyTime'),
   qwencloudContacts?: map[string]map[string]any(name='qwencloudContacts'),
+  sendOk?: boolean(name='sendOk'),
+  severityNotifications?: map[string]SeverityNotifyConfig(name='severityNotifications'),
   silenceTime?: long(name='silenceTime'),
   slackWebhooks?: [ string ](name='slackWebhooks'),
   wxWebhooks?: [ string ](name='wxWebhooks'),
@@ -752,6 +754,12 @@ model DatasourceTypeFilter {
 model DirectNotifyChannel {
   identifiers: [ string ](name='identifiers', description='This parameter is required.'),
   type: string(name='type', description='This parameter is required.'),
+}
+
+model DirectNotifyReceiver {
+  channels?: [ string ](name='channels'),
+  identifiers?: [ string ](name='identifiers'),
+  targetType?: string(name='targetType'),
 }
 
 model DisplayNameFilter {
@@ -1505,9 +1513,49 @@ model NotifyConfigUnified {
     DirectNotifyChannel
   ](name='channels'),
   notifyStrategies?: [ string ](name='notifyStrategies'),
+  sendRecoverNotification?: boolean(name='sendRecoverNotification'),
+  severityChannels?: map[string]SeverityNotifyConfig(name='severityChannels'),
   silenceTimeSecs?: int32(name='silenceTimeSecs'),
   type: string(name='type', description='This parameter is required.'),
   utcOffset?: string(name='utcOffset'),
+}
+
+model NotifyPolicy {
+  createTime?: string(name='createTime'),
+  description?: string(name='description'),
+  enabled?: boolean(name='enabled'),
+  name?: string(name='name'),
+  notifyStrategy?: NotifyStrategyDetail(name='notifyStrategy'),
+  responsePlan?: ResponsePlanDetail(name='responsePlan'),
+  subscription?: SubscriptionDetail(name='subscription'),
+  updateTime?: string(name='updateTime'),
+  userId?: string(name='userId'),
+  uuid?: string(name='uuid'),
+  version?: int32(name='version'),
+  workspace?: string(name='workspace'),
+}
+
+model NotifyPolicyConfig {
+  description?: string(name='description'),
+  name?: string(name='name'),
+  notifyStrategy?: NotifyStrategyConfig(name='notifyStrategy'),
+  responsePlan?: ResponsePlanConfig(name='responsePlan'),
+  subscription?: SubscriptionConfig(name='subscription'),
+  uuid?: string(name='uuid', description='Update 必填；Create 省略由后端生成'),
+  version?: int32(name='version', description='Update 必填，与后端记录一致才能写入；不一致返回 OptimisticLockFailed'),
+}
+
+model NotifyPolicySummary {
+  createTime?: string(name='createTime'),
+  description?: string(name='description'),
+  enabled?: boolean(name='enabled'),
+  name?: string(name='name'),
+  notifyStrategy?: NotifyStrategyDetail(name='notifyStrategy'),
+  updateTime?: string(name='updateTime'),
+  userId?: string(name='userId'),
+  uuid?: string(name='uuid'),
+  version?: int32(name='version'),
+  workspace?: string(name='workspace'),
 }
 
 model NotifyRouteForSubscription {
@@ -1524,6 +1572,78 @@ model NotifyRouteForSubscription {
     startTimeInMinute?: int32(name='startTimeInMinute'),
     timeZone?: string(name='timeZone'),
   }(name='effectTimeRange'),
+}
+
+model NotifyStrategyConfig {
+  customTemplateEntries?: [ 
+    {
+      templateUuid?: string(name='templateUuid'),
+    }
+  ](name='customTemplateEntries'),
+  description?: string(name='description'),
+  groupingSetting: {
+    groupingKeys?: [ string ](name='groupingKeys'),
+    periodMin?: int32(name='periodMin'),
+    silenceSec?: int32(name='silenceSec'),
+    times?: int32(name='times'),
+  }(name='groupingSetting', description='This parameter is required.'),
+  ignoreRestoredNotification?: boolean(name='ignoreRestoredNotification'),
+  routes: [ 
+    {
+      channels?: [ 
+        {
+          channelType: string(name='channelType', description='This parameter is required.'),
+          enabledSubChannels?: [ string ](name='enabledSubChannels'),
+          receivers: [ string ](name='receivers', description='This parameter is required.'),
+        }
+      ](name='channels'),
+      digitalEmployeeName?: string(name='digitalEmployeeName'),
+      effectTimeRange?: {
+        dayInWeek?: [ int32 ](name='dayInWeek'),
+        endTimeInMinute?: int32(name='endTimeInMinute'),
+        startTimeInMinute?: int32(name='startTimeInMinute'),
+        timeZone?: string(name='timeZone'),
+      }(name='effectTimeRange'),
+      enableRca?: boolean(name='enableRca'),
+      filterSetting?: FilterSetting(name='filterSetting'),
+    }
+  ](name='routes', description='This parameter is required.'),
+}
+
+model NotifyStrategyDetail {
+  customTemplateEntries?: [ 
+    {
+      templateUuid?: string(name='templateUuid'),
+    }
+  ](name='customTemplateEntries'),
+  description?: string(name='description'),
+  groupingSetting?: {
+    groupingKeys?: [ string ](name='groupingKeys'),
+    periodMin?: int32(name='periodMin'),
+    silenceSec?: int32(name='silenceSec'),
+    times?: int32(name='times'),
+  }(name='groupingSetting'),
+  ignoreRestoredNotification?: boolean(name='ignoreRestoredNotification'),
+  routes?: [ 
+    {
+      channels?: [ 
+        {
+          channelType?: string(name='channelType'),
+          enabledSubChannels?: [ string ](name='enabledSubChannels'),
+          receivers?: [ string ](name='receivers'),
+        }
+      ](name='channels'),
+      digitalEmployeeName?: string(name='digitalEmployeeName'),
+      effectTimeRange?: {
+        dayInWeek?: [ int32 ](name='dayInWeek'),
+        endTimeInMinute?: int32(name='endTimeInMinute'),
+        startTimeInMinute?: int32(name='startTimeInMinute'),
+        timeZone?: string(name='timeZone'),
+      }(name='effectTimeRange'),
+      enableRca?: boolean(name='enableRca'),
+      filterSetting?: FilterSetting(name='filterSetting'),
+    }
+  ](name='routes'),
 }
 
 model NotifyStrategyForModify {
@@ -1599,17 +1719,23 @@ model NotifyStrategyForSNSModify {
     {
       channels?: [ 
         {
-          channelType: string(name='channelType', description='This parameter is required.'),
-          enabledSubChannels?: [ string ](name='enabledSubChannels'),
-          receivers: [ string ](name='receivers', description='This parameter is required.'),
+          channelType: string(name='channelType', description='通知渠道类型，必须为以下大写枚举值之一：DING（钉钉机器人）、WEIXIN（企业微信机器人）、FEISHU（飞书机器人）、SLACK、TEAMS、WEBHOOK（自定义 Webhook）、CONTACT（联系人，需配合 enabledSubChannels 指定子渠道）、GROUP（联系人组）、DUTY（值班表）、DING_COOL_APP（钉钉酷应用）。注意：不支持 EMAIL/SMS 等小写值，邮件/短信/电话通知请使用 channelType=CONTACT 并在 enabledSubChannels 中指定 EMAIL/SMS/VOICE。
+
+This parameter is required.', example='WEBHOOK'),
+          enabledSubChannels?: [ string ](name='enabledSubChannels', description='仅当 channelType 为 CONTACT/GROUP/DUTY 时必填。可选值：EMAIL（邮件）、SMS（短信）、VOICE（电话）、DING（钉钉工作通知）、WEIXIN（企微消息）、FEISHU（飞书消息）、WEBHOOK。例如要邮件+短信通知联系人，设 channelType=CONTACT, enabledSubChannels=["EMAIL","SMS"]。其他 channelType（如 WEBHOOK/DING）无需设置此字段。', example='["EMAIL","SMS"]'),
+          receivers: [ string ](name='receivers', description='接收方标识列表。WEBHOOK 类型填 webhook uuid；DING/WEIXIN/FEISHU 填机器人 uuid；CONTACT 填联系人 ID；GROUP 填联系人组 ID；DUTY 填排班 uuid。至少一个元素。
+
+This parameter is required.', example='["my-webhook-uuid"]'),
         }
       ](name='channels'),
+      digitalEmployeeName?: string(name='digitalEmployeeName'),
       effectTimeRange?: {
-        dayInWeek?: [ int32 ](name='dayInWeek'),
-        endTimeInMinute?: int32(name='endTimeInMinute'),
-        startTimeInMinute?: int32(name='startTimeInMinute'),
-        timeZone?: string(name='timeZone'),
-      }(name='effectTimeRange'),
+        dayInWeek?: [ int32 ](name='dayInWeek', description='一周中哪几天生效，数组元素取值范围 0-6（0=周日，1=周一，2=周二...6=周六）。注意：不支持 7，最大值为 6。全周生效示例：[0,1,2,3,4,5,6]；仅工作日：[1,2,3,4,5]', example='[0,1,2,3,4,5,6]'),
+        endTimeInMinute?: int32(name='endTimeInMinute', description='当天结束时间，从00:00起的分钟数，范围 0-1439（23*60+59=1439 表示 23:59）', example='1439'),
+        startTimeInMinute?: int32(name='startTimeInMinute', description='当天开始时间，从00:00起的分钟数，范围 0-1439（0 表示 00:00）', example='0'),
+        timeZone?: string(name='timeZone', description='IANA 时区标识，如 Asia/Shanghai、America/Los_Angeles', example='Asia/Shanghai'),
+      }(name='effectTimeRange', description='通知生效时间段设置，定义在哪些天的哪个时间范围内发送通知'),
+      enableRca?: boolean(name='enableRca'),
       filterSetting?: {
         conditions?: [ 
           {
@@ -1743,7 +1869,9 @@ model ObserveGroup {
   aliUid?: string(name='aliUid', description='分组归属的阿里云主账号 UID。'),
   createTime?: string(name='createTime', description='创建时间，UTC 格式 yyyy-MM-ddTHH:mm:ssZ。'),
   description?: string(name='description', description='观测分组描述（业务用途说明）。'),
-  discoverRules?: string(name='discoverRules', description='实体发现规则列表，定义分组自动匹配哪些实体。'),
+  discoverRules?: [
+    ObserveGroupDiscoverRule
+  ](name='discoverRules', description='实体发现规则列表，定义分组自动匹配哪些实体。'),
   entityCounts?: map[string]int32(name='entityCounts', description='各分类实体数量。key=分类 domain（acs=云产品 / apm / rum，可扩展），value=该分类下属于本分组的实体数。仅 withEntityCount=true 时返回。'),
   extraInfo?: string(name='extraInfo', description='扩展信息（JSON 字符串，承载告警模板/联系人组/暂停策略等）。'),
   favorited?: boolean(name='favorited', description='当前用户是否已关注该分组（「我的关注」筛选依据）。'),
@@ -1752,6 +1880,10 @@ model ObserveGroup {
   groupType?: string(name='groupType', description='观测分组类型。'),
   health?: int32(name='health', description='分组健康状态：-1 未知（占位）/ 1 健康 / 0 不健康。'),
   modifyTime?: string(name='modifyTime', description='最后修改时间，UTC 格式 yyyy-MM-ddTHH:mm:ssZ。资源任意属性变更时自动更新。'),
+  ogEntityInfoEnabled?: boolean(name='ogEntityInfoEnabled', description='是否开启 og_entity_info 指标输出。开启后数据面会把本分组归属写入目标 Prometheus 实例。'),
+  ogEntityInfoPromInstances?: [
+    ObserveGroupPromInstance
+  ](name='ogEntityInfoPromInstances', description='写入 og_entity_info 的 Prometheus 实例集合，包含系统自动识别(system)和用户自定义(custom)两类来源。'),
   originGroupId?: string(name='originGroupId', description='仅 synced_from_1_0 时填值，存 1.0 应用分组的 product_group.id。'),
   regionId?: string(name='regionId', description='分组所属地域 ID。'),
   resourceGroupId?: string(name='resourceGroupId', description='阿里云资源组 ID。'),
@@ -1769,7 +1901,9 @@ model ObserveGroupDetail {
   aliUid?: string(name='aliUid', description='分组归属的阿里云主账号 UID。'),
   createTime?: string(name='createTime', description='创建时间，UTC 格式 yyyy-MM-ddTHH:mm:ssZ。'),
   description?: string(name='description', description='观测分组描述（业务用途说明）。'),
-  discoverRules?: string(name='discoverRules', description='实体发现规则列表，定义分组自动匹配哪些实体。'),
+  discoverRules?: [
+    ObserveGroupDiscoverRule
+  ](name='discoverRules', description='实体发现规则列表，定义分组自动匹配哪些实体。'),
   entitySummaries?: [ 
     {
       entityCategory?: string(name='entityCategory', description='实体分类。'),
@@ -1784,45 +1918,55 @@ model ObserveGroupDetail {
   groupName?: string(name='groupName', description='观测分组名称（同 workspace 下唯一）。'),
   groupType?: string(name='groupType', description='观测分组类型。'),
   modifyTime?: string(name='modifyTime', description='最后修改时间，UTC 格式 yyyy-MM-ddTHH:mm:ssZ。资源任意属性变更时自动更新。'),
+  ogEntityInfoEnabled?: boolean(name='ogEntityInfoEnabled', description='是否开启 og_entity_info 指标输出。开启后数据面会把本分组归属写入目标 Prometheus 实例。'),
+  ogEntityInfoPromInstances?: [
+    ObserveGroupPromInstance
+  ](name='ogEntityInfoPromInstances', description='写入 og_entity_info 的 Prometheus 实例集合，包含系统自动识别(system)和用户自定义(custom)两类来源。'),
   originGroupId?: string(name='originGroupId', description='仅 synced_from_1_0 时填值，存 1.0 应用分组的 product_group.id。'),
   regionId?: string(name='regionId', description='分组所属地域 ID。'),
   resourceGroupId?: string(name='resourceGroupId', description='阿里云资源组 ID。'),
   sourceOrigin?: string(name='sourceOrigin', description='数据来源：native_2_0（2.0 原生）/ synced_from_1_0（从 1.0 应用分组同步）。'),
+  tags?: [ 
+    {
+      tagKey?: string(name='tagKey', description='标签键。'),
+      tagValue?: string(name='tagValue', description='标签值。'),
+    }
+  ](name='tags', description='资源标签（阿里云标准标签），键值对数组。'),
   workspaceId?: string(name='workspaceId', description='分组归属的 workspace ID（workspace 级归属，创建后不可变）。'),
 }
 
 model ObserveGroupDiscoverRule {
-  enabled?: boolean(name='Enabled', description='规则是否启用；false 时数据面跳过该规则（不匹配 / 不打标 / 不下发）。'),
-  entityType?: string(name='EntityType', description='（旧）单实体类型，向后兼容，优先用 entityTypes。'),
-  entityTypes?: [ string ](name='EntityTypes', description='实体类型列表，支持一条规则跨多类型匹配（如 acs.ecs.instance/acs.rds.instance/acs.arms.service）。'),
-  gmtCreate?: long(name='GmtCreate', description='规则创建时间（Unix 毫秒时间戳），控制台展示用。'),
-  instanceIds?: [ string ](name='InstanceIds', description='手动指定的实例 ID 列表（枚举型，含 1.0 手动实例同步）。'),
+  enabled?: boolean(name='enabled', description='规则是否启用；false 时数据面跳过该规则（不匹配 / 不打标 / 不下发）。'),
+  entityType?: string(name='entityType', description='（旧）单实体类型，向后兼容，优先用 entityTypes。'),
+  entityTypes?: [ string ](name='entityTypes', description='实体类型列表，支持一条规则跨多类型匹配（如 acs.ecs.instance/acs.rds.instance/acs.arms.service）。'),
+  gmtCreate?: long(name='gmtCreate', description='规则创建时间（Unix 毫秒时间戳），控制台展示用。'),
+  instanceIds?: [ string ](name='instanceIds', description='手动指定的实例 ID 列表（枚举型，含 1.0 手动实例同步）。'),
   nameRules?: {
-    op?: string(name='Op', description='名称匹配逻辑。'),
+    op?: string(name='op', description='名称匹配逻辑。'),
     tags?: [ 
       {
-        op?: string(name='Op', description='匹配操作。'),
-        tagValues?: [ string ](name='TagValues', description='匹配值列表。'),
+        op?: string(name='op', description='匹配操作。'),
+        tagValues?: [ string ](name='tagValues', description='匹配值列表。'),
       }
-    ](name='Tags', description='名称条件列表。'),
-  }(name='NameRules', description='名称匹配规则。'),
-  regionIds?: [ string ](name='RegionIds', description='按地域过滤的 region ID 列表。'),
-  resourceGroupId?: string(name='ResourceGroupId', description='按资源组过滤。'),
-  ruleId?: string(name='RuleId', description='规则稳定 ID（编辑/删除/启停锚点），格式 dr-<16位hash>。'),
-  ruleType?: string(name='RuleType', description='匹配方式：byTag / byResourceGroup / byInstanceName / byManual / bySpl。'),
-  scope?: string(name='Scope', description='适用范围：all（全部实体类型，独占）/ entity（指定实体类型）。'),
-  spl?: string(name='Spl', description='完整 SPL 表达式（高级配置）；非空时优先生效，覆盖其它过滤字段。'),
+    ](name='tags', description='名称条件列表。'),
+  }(name='nameRules', description='名称匹配规则。'),
+  regionIds?: [ string ](name='regionIds', description='按地域过滤的 region ID 列表。'),
+  resourceGroupId?: string(name='resourceGroupId', description='按资源组过滤。'),
+  ruleId?: string(name='ruleId', description='规则稳定 ID（编辑/删除/启停锚点），格式 dr-<16位hash>。'),
+  ruleType?: string(name='ruleType', description='匹配方式：byTag / byResourceGroup / byInstanceName / byManual / bySpl。'),
+  scope?: string(name='scope', description='适用范围：all（全部实体类型，独占）/ entity（指定实体类型）。'),
+  spl?: string(name='spl', description='完整 SPL 表达式（高级配置）；非空时优先生效，覆盖其它过滤字段。'),
   tagRules?: {
-    op?: string(name='Op', description='标签匹配逻辑。'),
+    op?: string(name='op', description='标签匹配逻辑。'),
     tags?: [ 
       {
-        op?: string(name='Op', description='匹配操作。'),
-        tagKey?: string(name='TagKey', description='标签键。'),
-        tagValues?: [ string ](name='TagValues', description='标签值列表。'),
+        op?: string(name='op', description='匹配操作。'),
+        tagKey?: string(name='tagKey', description='标签键。'),
+        tagValues?: [ string ](name='tagValues', description='标签值列表。'),
       }
-    ](name='Tags', description='标签条件列表。'),
-  }(name='TagRules', description='标签匹配规则。'),
-  userId?: string(name='UserId', description='规则所属用户 UID。'),
+    ](name='tags', description='标签条件列表。'),
+  }(name='tagRules', description='标签匹配规则。'),
+  userId?: string(name='userId', description='规则所属用户 UID。'),
 }
 
 model ObserveGroupInstance {
@@ -1837,6 +1981,13 @@ model ObserveGroupInstance {
   resourceGroupId?: string(name='resourceGroupId', description='实例所属资源组 ID。'),
   tags?: map[string]string(name='tags', description='实例标签键值对。'),
   userId?: string(name='userId', description='实例归属的用户 UID。'),
+}
+
+model ObserveGroupPromInstance {
+  id?: string(name='id', description='Prometheus 实例 ID，如 rw-xxxxxxxxxx。'),
+  kind?: string(name='kind', description='实例来源：system 表示系统根据 workspace/UModel 自动识别，custom 表示用户在控制台手动选择。'),
+  region?: string(name='region', description='Prometheus 实例所在地域。为空时后端按观测分组所属 workspace 地域补齐。'),
+  time?: string(name='time', description='记录写入或选择时间，格式 yyyy-MM-dd HH:mm:ss。'),
 }
 
 model ObserveResourceGlobalScopeFilter {
@@ -1955,6 +2106,32 @@ model RepeatNotifySetting {
   repeatInterval?: string(name='repeatInterval'),
 }
 
+model ResponsePlanConfig {
+  autoRecoverSeconds?: long(name='autoRecoverSeconds'),
+  escalationId?: [ string ](name='escalationId'),
+  pushingSetting?: {
+    alertActionIds?: [ string ](name='alertActionIds'),
+    restoreActionIds?: [ string ](name='restoreActionIds'),
+  }(name='pushingSetting'),
+  repeatNotifySetting?: {
+    endIncidentState?: string(name='endIncidentState'),
+    repeatInterval?: int32(name='repeatInterval'),
+  }(name='repeatNotifySetting'),
+}
+
+model ResponsePlanDetail {
+  autoRecoverSeconds?: long(name='autoRecoverSeconds'),
+  escalationId?: [ string ](name='escalationId'),
+  pushingSetting?: {
+    alertActionIds?: [ string ](name='alertActionIds'),
+    restoreActionIds?: [ string ](name='restoreActionIds'),
+  }(name='pushingSetting'),
+  repeatNotifySetting?: {
+    endIncidentState?: string(name='endIncidentState'),
+    repeatInterval?: int32(name='repeatInterval'),
+  }(name='repeatNotifySetting'),
+}
+
 model RumDnsResponse {
   domain?: string(name='domain'),
   message?: string(name='message'),
@@ -1992,6 +2169,13 @@ model ServerResponseQueryAlertRulesResult {
 
 model SeverityLevelsFilter {
   contains?: [ string ](name='contains'),
+}
+
+model SeverityNotifyConfig {
+  receivers?: [
+    DirectNotifyReceiver
+  ](name='receivers'),
+  sendRecoverNotification?: boolean(name='sendRecoverNotification'),
 }
 
 model StatusFilter {
@@ -2051,6 +2235,18 @@ model SubscriptionAndNotifyStrategyForView {
   workspace?: string(name='workspace'),
 }
 
+model SubscriptionConfig {
+  filterSetting?: FilterSetting(name='filterSetting'),
+  subscribeLegacyEvent?: boolean(name='subscribeLegacyEvent'),
+  workspaceFilterSetting?: WorkspaceFilterSetting(name='workspaceFilterSetting'),
+}
+
+model SubscriptionDetail {
+  filterSetting?: FilterSetting(name='filterSetting'),
+  subscribeLegacyEvent?: boolean(name='subscribeLegacyEvent'),
+  workspaceFilterSetting?: WorkspaceFilterSetting(name='workspaceFilterSetting'),
+}
+
 model SubscriptionForModify {
   agentConfig?: {
     agentUuid?: string(name='agentUuid'),
@@ -2074,6 +2270,7 @@ model SubscriptionForModify {
 
 model SubscriptionForSNSModify {
   filterSetting?: FilterSetting(name='filterSetting'),
+  subscribeLegacyEvent?: boolean(name='subscribeLegacyEvent', description='是否订阅老产品事件（workspace=null 的 cms 1.0 / ARMS / SLS 事件）：true=订阅，false 或 null=不订阅'),
   workspaceFilterSetting?: WorkspaceFilterSetting(name='workspaceFilterSetting'),
 }
 
@@ -2085,6 +2282,7 @@ model SubscriptionForSNSView {
   name?: string(name='name'),
   notifyStrategyUuid?: string(name='notifyStrategyUuid'),
   regionId?: string(name='regionId'),
+  subscribeLegacyEvent?: boolean(name='subscribeLegacyEvent', description='是否订阅老产品事件（workspace=null 的 cms 1.0 / ARMS / SLS 事件）：true=订阅，false 或 null=不订阅'),
   subscriptionType?: string(name='subscriptionType'),
   syncFromType?: string(name='syncFromType'),
   updateTime?: string(name='updateTime'),
@@ -2812,6 +3010,32 @@ model CreateMemoryStoreResponse = {
 async function createMemoryStore(request: CreateMemoryStoreRequest): CreateMemoryStoreResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RESTFUL', 'CreateMemoryStore', 'POST', '/workspace/{workspace}/memorystore', 'json', false, 'json', request);
+}
+
+model CreateNotifyPolicyRequest {
+  regionId?: string(name='regionId', position='Host'),
+  body?: NotifyPolicyConfig(name='body', position='Body'),
+  workspace: string(name='workspace', description='This parameter is required.', example='default-cms-xxxx-cn-hangzhou', position='Query'),
+}
+
+model CreateNotifyPolicyResponseBody = {
+  notifyPolicy?: NotifyPolicy(name='notifyPolicy'),
+  requestId?: string(name='requestId', example='0B9377D9-C56B-5C2E-A8A4-A01D6CC3F4B8'),
+}
+
+model CreateNotifyPolicyResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: CreateNotifyPolicyResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of CreateNotifyPolicy  CreateNotifyPolicyRequest
+  * @return CreateNotifyPolicyResponse
+ */
+async function createNotifyPolicy(request: CreateNotifyPolicyRequest): CreateNotifyPolicyResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'CreateNotifyPolicy', 'POST', '/api/eventbase/notify-policy/create', 'json', false, 'json', request);
 }
 
 model CreatePipelineRequest {
@@ -3602,6 +3826,33 @@ async function deleteMemoryStore(request: DeleteMemoryStoreRequest): DeleteMemor
   return @handler.do('RESTFUL', 'DeleteMemoryStore', 'DELETE', '/workspace/{workspace}/memorystore/{memoryStoreName}', 'json', false, 'json', request);
 }
 
+model DeleteNotifyPolicyRequest {
+  regionId?: string(name='regionId', position='Host'),
+  uuid: string(name='uuid', description='This parameter is required.', example='np-12345678-1234-1234-1234-123456789012', position='Query'),
+  workspace: string(name='workspace', description='This parameter is required.', example='default-cms-xxxx-cn-hangzhou', position='Query'),
+}
+
+model DeleteNotifyPolicyResponseBody = {
+  requestId?: string(name='requestId', example='A1234567-1234-1234-1234-123456789012'),
+  success?: boolean(name='success'),
+  uuid?: string(name='uuid', description='已删除 NotifyPolicy 的 uuid', example='np-12345678-1234-1234-1234-123456789012'),
+}
+
+model DeleteNotifyPolicyResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: DeleteNotifyPolicyResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of DeleteNotifyPolicy  DeleteNotifyPolicyRequest
+  * @return DeleteNotifyPolicyResponse
+ */
+async function deleteNotifyPolicy(request: DeleteNotifyPolicyRequest): DeleteNotifyPolicyResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'DeleteNotifyPolicy', 'DELETE', '/api/eventbase/notify-policy', 'json', false, 'json', request);
+}
+
 model DeletePipelineRequest {
   workspace?: string(name='workspace', example='workspace-test', position='Path'),
   pipelineName?: string(name='pipelineName', example='pipeline-name-1', position='Path'),
@@ -3946,6 +4197,60 @@ model DescribeRegionsResponse = {
 async function describeRegions(request: DescribeRegionsRequest): DescribeRegionsResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RESTFUL', 'DescribeRegions', 'GET', '/regions', 'json', false, 'json', request);
+}
+
+model DisableNotifyPolicyRequest {
+  regionId?: string(name='regionId', position='Host'),
+  uuid: string(name='uuid', description='This parameter is required.', example='04779a183add4f2ca06ab440f16cc580', position='Path'),
+  workspace: string(name='workspace', description='This parameter is required.', example='default-cms-xxxx-cn-hangzhou', position='Query'),
+}
+
+model DisableNotifyPolicyResponseBody = {
+  requestId?: string(name='requestId', example='70D52620-2609-1802-9788-6BC592C83F03'),
+  success?: boolean(name='success'),
+  uuid?: string(name='uuid', description='已禁用的 NotifyPolicy uuid', example='04779a183add4f2ca06ab440f16cc580'),
+}
+
+model DisableNotifyPolicyResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: DisableNotifyPolicyResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of DisableNotifyPolicy  DisableNotifyPolicyRequest
+  * @return DisableNotifyPolicyResponse
+ */
+async function disableNotifyPolicy(request: DisableNotifyPolicyRequest): DisableNotifyPolicyResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'DisableNotifyPolicy', 'PUT', '/api/eventbase/notify-policy/{uuid}/disable', 'json', false, 'json', request);
+}
+
+model EnableNotifyPolicyRequest {
+  regionId?: string(name='regionId', position='Host'),
+  uuid: string(name='uuid', description='This parameter is required.', example='7076c75c-c804-461e-975f-c6f9ed5af745', position='Path'),
+  workspace: string(name='workspace', description='This parameter is required.', example='default', position='Query'),
+}
+
+model EnableNotifyPolicyResponseBody = {
+  requestId?: string(name='requestId', description='Id of the request', example='0CEC5375-C554-562B-A65F-***'),
+  success?: boolean(name='success'),
+  uuid?: string(name='uuid', description='已启用的 NotifyPolicy uuid', example='7076c75c-c804-461e-975f-c6f9ed5af745'),
+}
+
+model EnableNotifyPolicyResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: EnableNotifyPolicyResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of EnableNotifyPolicy  EnableNotifyPolicyRequest
+  * @return EnableNotifyPolicyResponse
+ */
+async function enableNotifyPolicy(request: EnableNotifyPolicyRequest): EnableNotifyPolicyResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'EnableNotifyPolicy', 'PUT', '/api/eventbase/notify-policy/{uuid}/enable', 'json', false, 'json', request);
 }
 
 model ExecuteQueryRequest {
@@ -4949,6 +5254,32 @@ model GetMemoryStoreResponse = {
 async function getMemoryStore(request: GetMemoryStoreRequest): GetMemoryStoreResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RESTFUL', 'GetMemoryStore', 'GET', '/workspace/{workspace}/memorystore/{memoryStoreName}', 'json', false, 'json', request);
+}
+
+model GetNotifyPolicyRequest {
+  regionId?: string(name='regionId', position='Host'),
+  uuid: string(name='uuid', description='This parameter is required.', example='a1b2c3d4-e5f6-7890-abcd-ef1234567890', position='Query'),
+  workspace: string(name='workspace', description='This parameter is required.', example='default-cms-xxxx-cn-hangzhou', position='Query'),
+}
+
+model GetNotifyPolicyResponseBody = {
+  notifyPolicy?: NotifyPolicy(name='notifyPolicy'),
+  requestId?: string(name='requestId', description='Id of the request', example='0B9377D9-C56B-5C2E-A8A4-A01D6CC3F4B8'),
+}
+
+model GetNotifyPolicyResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: GetNotifyPolicyResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of GetNotifyPolicy  GetNotifyPolicyRequest
+  * @return GetNotifyPolicyResponse
+ */
+async function getNotifyPolicy(request: GetNotifyPolicyRequest): GetNotifyPolicyResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'GetNotifyPolicy', 'GET', '/api/eventbase/notify-policy', 'json', false, 'json', request);
 }
 
 model GetPipelineRequest {
@@ -6764,6 +7095,41 @@ async function listMemoryStores(request: ListMemoryStoresRequest): ListMemorySto
   return @handler.do('RESTFUL', 'ListMemoryStores', 'GET', '/workspace/{workspace}/memorystore', 'json', false, 'json', request);
 }
 
+model ListNotifyPoliciesRequest {
+  regionId?: string(name='regionId', position='Host'),
+  maxResults?: int32(name='maxResults', example='10', position='Query'),
+  name?: string(name='name', example='prod-alert', position='Query'),
+  nextToken?: string(name='nextToken', example='eyJjdXJzb3IiOjEwfQ==', position='Query'),
+  orderBy?: string(name='orderBy', example='createTime', position='Query'),
+  orderDesc?: string(name='orderDesc', example='true', position='Query'),
+  workspace: string(name='workspace', description='This parameter is required.', example='default-cms-xxxx-cn-hangzhou', position='Query'),
+}
+
+model ListNotifyPoliciesResponseBody = {
+  maxResults?: int32(name='maxResults', example='10'),
+  nextToken?: string(name='nextToken', example='eyJjdXJzb3IiOjEwfQ=='),
+  notifyPolicyList?: [
+    NotifyPolicySummary
+  ](name='notifyPolicyList'),
+  requestId?: string(name='requestId', example='0B9377D9-C56B-5C2E-A8A4-A01D6CC3F4B8'),
+  totalCount?: long(name='totalCount', example='100'),
+}
+
+model ListNotifyPoliciesResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ListNotifyPoliciesResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of ListNotifyPolicies  ListNotifyPoliciesRequest
+  * @return ListNotifyPoliciesResponse
+ */
+async function listNotifyPolicies(request: ListNotifyPoliciesRequest): ListNotifyPoliciesResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'ListNotifyPolicies', 'GET', '/api/eventbase/notify-policies', 'json', false, 'json', request);
+}
+
 model ListPipelinesRequest {
   workspace?: string(name='workspace', example='workspace-test', position='Path'),
   maxResults?: int32(name='maxResults', example='100', position='Query'),
@@ -7871,6 +8237,32 @@ model UpdateMemoryStoreResponse = {
 async function updateMemoryStore(request: UpdateMemoryStoreRequest): UpdateMemoryStoreResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RESTFUL', 'UpdateMemoryStore', 'PUT', '/workspace/{workspace}/memorystore/{memoryStoreName}', 'json', false, 'json', request);
+}
+
+model UpdateNotifyPolicyRequest {
+  regionId?: string(name='regionId', position='Host'),
+  body?: NotifyPolicyConfig(name='body', position='Body'),
+  workspace: string(name='workspace', description='This parameter is required.', example='default-cms-xxxx-cn-hangzhou', position='Query'),
+}
+
+model UpdateNotifyPolicyResponseBody = {
+  notifyPolicy?: NotifyPolicy(name='notifyPolicy'),
+  requestId?: string(name='requestId', example='70D52620-2609-1802-9788-6BC592C83F03'),
+}
+
+model UpdateNotifyPolicyResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: UpdateNotifyPolicyResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of UpdateNotifyPolicy  UpdateNotifyPolicyRequest
+  * @return UpdateNotifyPolicyResponse
+ */
+async function updateNotifyPolicy(request: UpdateNotifyPolicyRequest): UpdateNotifyPolicyResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'UpdateNotifyPolicy', 'PUT', '/api/eventbase/notify-policy/update', 'json', false, 'json', request);
 }
 
 model UpdateNotifyStrategyRequest {
