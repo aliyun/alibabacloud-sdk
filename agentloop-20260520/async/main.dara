@@ -469,6 +469,67 @@ async function createEvaluatorSkill(request: CreateEvaluatorSkillRequest): Creat
   return @handler.do('RESTFUL', 'CreateEvaluatorSkill', 'POST', '/api/v1/evaluator/{name}/skill', 'json', false, 'json', request);
 }
 
+model CreatePipelineRequest {
+  agentSpace?: string(name='agentSpace', example='my-agent-space', position='Path'),
+  description?: string(name='description', example='从 SLS 采集 Trace 数据清洗入 Dataset', position='Body'),
+  executePolicy?: {
+    mode?: string(name='mode', example='RunOnce'),
+    runOnce?: {
+      fromTime?: long(name='fromTime', example='1735660800'),
+      toTime?: long(name='toTime', example='1735747200'),
+    }(name='runOnce'),
+    scheduled?: {
+      fromTime?: long(name='fromTime', example='1735660800000'),
+      interval?: string(name='interval', example='1h'),
+    }(name='scheduled'),
+  }(name='executePolicy', position='Body'),
+  pipeline?: {
+    nodes?: [ 
+      {
+        id?: string(name='id', example='node-1'),
+        parameters?: map[string]any(name='parameters'),
+        type?: string(name='type', example='transform'),
+      }
+    ](name='nodes'),
+  }(name='pipeline', position='Body'),
+  pipelineName?: string(name='pipelineName', example='my-pipeline', position='Body'),
+  sink?: {
+    dataset?: {
+      agentSpace?: string(name='agentSpace', example='my-agent-space'),
+      dataset?: string(name='dataset', example='my-dataset'),
+    }(name='dataset'),
+    type?: string(name='type', example='Dataset'),
+  }(name='sink', position='Body'),
+  source?: {
+    logstore?: {
+      logstore?: string(name='logstore', example='my-sls-logstore'),
+      project?: string(name='project', example='my-sls-project'),
+      query?: string(name='query', example='* | SELECT *'),
+    }(name='logstore'),
+    type?: string(name='type', example='SLS'),
+  }(name='source', position='Body'),
+  clientToken?: string(name='clientToken', example='a1b2c3d4-1234-5678-90ab-cdef12345678', position='Query'),
+}
+
+model CreatePipelineResponseBody = {
+  requestId?: string(name='requestId', example='9ACFB10A-1B2C-3D4E-5F6G-7H8I9J0K1L2M'),
+}
+
+model CreatePipelineResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: CreatePipelineResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of CreatePipeline  CreatePipelineRequest
+  * @return CreatePipelineResponse
+ */
+async function createPipeline(request: CreatePipelineRequest): CreatePipelineResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'CreatePipeline', 'POST', '/agentspace/{agentSpace}/pipeline', 'json', false, 'json', request);
+}
+
 model DeleteAgentSpaceRequest {
   agentSpace: string(name='agentSpace', description='This parameter is required.', example='test-agent-space', minLength=2, maxLength=64, position='Path'),
   deleteCmsWorkspace?: boolean(name='deleteCmsWorkspace', position='Query'),
@@ -736,6 +797,7 @@ model ExecuteQueryRequest {
   query: string(name='query', description='This parameter is required.', example='select count(*) from product_faq_dataset', position='Body'),
   to?: int32(name='to', position='Body'),
   type: string(name='type', description='This parameter is required.', example='SQL', position='Body'),
+  version?: string(name='version', position='Body'),
 }
 
 model ExecuteQueryResponseBody = {
@@ -1740,6 +1802,68 @@ model PausePipelineResponse = {
 async function pausePipeline(request: PausePipelineRequest): PausePipelineResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RESTFUL', 'PausePipeline', 'POST', '/agentspace/{agentSpace}/pipeline/{pipelineName}/pause', 'json', false, 'json', request);
+}
+
+model PreviewPipelineRequest {
+  agentSpace?: string(name='agentSpace', example='my-agent-space', position='Path'),
+  fromTime?: long(name='fromTime', example='1735660800', position='Body'),
+  pipeline?: {
+    nodes?: [ 
+      {
+        id?: string(name='id', example='node-1'),
+        parameters?: map[string]any(name='parameters'),
+        type?: string(name='type', example='transform'),
+      }
+    ](name='nodes'),
+  }(name='pipeline', position='Body'),
+  source?: {
+    logstore?: {
+      logstore?: string(name='logstore', example='my-sls-logstore'),
+      project?: string(name='project', example='my-sls-project'),
+      query?: string(name='query', example='* | SELECT *'),
+    }(name='logstore'),
+    type?: string(name='type', example='SLS'),
+  }(name='source', position='Body'),
+  toTime?: long(name='toTime', example='1735747200', position='Body'),
+}
+
+model PreviewPipelineResponseBody = {
+  data?: [ map[string]string ](name='data'),
+  meta?: {
+    aggQuery?: string(name='aggQuery', example='* | SELECT status, count(*) AS cnt GROUP BY status'),
+    columnTypes?: [ string ](name='columnTypes'),
+    count?: int32(name='count', example='100'),
+    cpuCores?: int32(name='cpuCores', example='2'),
+    cpuSec?: double(name='cpuSec', example='0.5'),
+    elapsedMillisecond?: long(name='elapsedMillisecond', example='1200'),
+    hasSQL?: boolean(name='hasSQL'),
+    isAccurate?: boolean(name='isAccurate'),
+    keys?: [ string ](name='keys'),
+    limited?: int32(name='limited', example='5'),
+    mode?: int32(name='mode', example='1'),
+    processedBytes?: long(name='processedBytes', example='524288'),
+    processedRows?: long(name='processedRows', example='10000'),
+    progress?: string(name='progress', example='Complete'),
+    scanBytes?: long(name='scanBytes', example='1048576'),
+    terms?: [  map[string]any ](name='terms'),
+    whereQuery?: string(name='whereQuery', example='status: 200'),
+  }(name='meta'),
+  requestId?: string(name='requestId', example='9ACFB10A-1B2C-3D4E-5F6G-7H8I9J0K1L2M'),
+}
+
+model PreviewPipelineResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: PreviewPipelineResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of PreviewPipeline  PreviewPipelineRequest
+  * @return PreviewPipelineResponse
+ */
+async function previewPipeline(request: PreviewPipelineRequest): PreviewPipelineResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'PreviewPipeline', 'POST', '/agentspace/{agentSpace}/pipeline/preview', 'json', false, 'json', request);
 }
 
 model ResumePipelineRequest {
