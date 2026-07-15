@@ -41,6 +41,11 @@ model KeywordSuggestInfo {
   typeDesc?: string(name='type_desc', example='景点'),
 }
 
+model ModulePriceMapValue = {
+  price?: long(name='price'),
+  serviceNo?: string(name='service_no'),
+}
+
 model ModuleFlightItemListBestPriceItemFlightRuleInfosValue = {
   refundChangeRuleDesc?: string(name='refund_change_rule_desc'),
   baggageDesc?: string(name='baggage_desc'),
@@ -4320,28 +4325,31 @@ async function btripBillInfoAdjust(request: BtripBillInfoAdjustRequest): BtripBi
 
 model CarApplyAddHeaders {
   commonHeaders?: map[string]string,
-  xAcsBtripSoCorpToken?: string(name='x-acs-btrip-so-corp-token', description='A header parameter obtained from the "Enterprise Access Credential" operation (added to the header). In HTTP mode, you can use so_corp_token=value or dtb_corp_token=value in the URL as an alternative.', example='feth00jqwls'),
+  xAcsBtripSoCorpToken?: string(name='x-acs-btrip-so-corp-token', description='A header parameter obtained from the "Enterprise Access Credential" operation (added in the header). In HTTP mode, you can use so_corp_token=value or dtb_corp_token=value in the URL as an alternative.', example='feth00jqwls'),
 }
 
 model CarApplyAddRequest {
   cause?: string(name='cause', description='The reason for the business trip.
 
 This parameter is required.', example='访问客户'),
-  city?: string(name='city', description='The cities for car service. Separate multiple cities with Chinese commas (，).
-Note: A maximum of 10 cities are supported. The values in city and city_code_set must correspond one to one.', example='北京，杭州'),
-  cityCodeSet?: string(name='city_code_set', description='The city code set for intra-city car service. Separate multiple cities with Chinese commas (，).
+  city?: string(name='city', description='The car service cities. Separate multiple cities with Chinese commas (，).
+Note: A maximum of 10 cities can be specified. The values in city and city_code_set must correspond one-to-one.', example='北京，杭州'),
+  cityCodeSet?: string(name='city_code_set', description='The set of city codes for intra-city car service. Separate multiple cities with Chinese commas (，).
 Note: 1) Either city_code_set or city is required. If both are specified, city_code_set takes precedence.
-A maximum of 10 cities are supported.', example='110100，330100'),
-  date?: string(name='date', description='The car service time. This parameter is controlled on a daily basis. For example, a value of 2021-03-18 20:26:56 indicates that the car service is available on 2021-03-18. For multi-day scenarios, use this parameter together with the finished_date parameter. The time must be in the yyyy-MM-dd HH:mm:ss format.', example='2022-07-12 14:52:52'),
-  finishedDate?: string(name='finished_date', description='The car service end time. This parameter is controlled on a daily basis. For example, if date is set to 2021-03-18 20:26:56 and finished_date is set to 2021-03-30 20:26:56, the car service is available from 2021-03-18 (inclusive) to 2021-03-30 (inclusive). If this parameter is not specified, the value of date is used as the end time. The time must be in the yyyy-MM-dd HH:mm:ss format.', example='2022-07-12 18:51:25'),
+A maximum of 10 cities can be specified.', example='110100，330100'),
+  date?: string(name='date', description='The car service date. Access is controlled on a daily basis. For example, a value of 2021-03-18 20:26:56 indicates that the car service is available on 2021-03-18. For cross-day scenarios, use this parameter together with the finished_date parameter. The time parameter must be in the yyyy-MM-dd HH:mm:ss string format.', example='2022-07-12 14:52:52'),
+  finishedDate?: string(name='finished_date', description='The car service end date. Access is controlled on a daily basis. For example, if date is set to 2021-03-18 20:26:56 and finished_date is set to 2021-03-30 20:26:56, the car service is available from 2021-03-18 (inclusive) to 2021-03-30 (inclusive). If this parameter is not specified, the value of date is used as the end date. The time parameter must be in the yyyy-MM-dd HH:mm:ss string format.', example='2022-07-12 18:51:25'),
   itineraryList?: [ 
     {
-      city?: string(name='city'),
-      cityCodeSet?: string(name='city_code_set'),
-      date?: string(name='date'),
-      finishedDate?: string(name='finished_date'),
+      city?: string(name='city', description='The car service cities. Separate multiple cities with Chinese commas (，).
+Note: A maximum of 10 cities can be specified. The values in city and city_code_set must correspond one-to-one.', example='北京，杭州'),
+      cityCodeSet?: string(name='city_code_set', description='The set of city codes for intra-city car service. Separate multiple cities with Chinese commas (，).
+Note: 1) Either city_code_set or city is required. If both are specified, city_code_set takes precedence.
+A maximum of 10 cities can be specified.', example='440600，440100'),
+      date?: string(name='date', description='The car service date. Access is controlled on a daily basis. For example, a value of 2021-03-18 20:26:56 indicates that the car service is available on 2021-03-18. For cross-day scenarios, use this parameter together with the finished_date parameter. The time parameter must be in the yyyy-MM-dd HH:mm:ss string format.', example='2022-07-12 14:52:52'),
+      finishedDate?: string(name='finished_date', description='The car service end date. Access is controlled on a daily basis. For example, if date is set to 2021-03-18 20:26:56 and finished_date is set to 2021-03-30 20:26:56, the car service is available from 2021-03-18 (inclusive) to 2021-03-30 (inclusive). If this parameter is not specified, the value of date is used as the end date. The time parameter must be in the yyyy-MM-dd HH:mm:ss string format.', example='2025-11-25 21:00:00'),
     }
-  ](name='itinerary_list'),
+  ](name='itinerary_list', description='The intra-city car service itinerary.'),
   projectCode?: string(name='project_code', description='The project code associated with the approval form.', example='project1413'),
   projectName?: string(name='project_name', description='The project name associated with the approval form.', example='项目1'),
   status?: int32(name='status', description='The approval status.
@@ -4351,17 +4359,18 @@ This parameter is required.', example='0'),
 
 This parameter is required.', example='IRGS1413'),
   thirdPartCostCenterId?: string(name='third_part_cost_center_id', description='The ID of the third-party cost center associated with the approval form.
->Warning: This field is required. To make it optional, contact operations.', example='QA1411'),
+>Warning: This field is required. To configure it as optional, contact operations.', example='QA1411'),
   thirdPartInvoiceId?: string(name='third_part_invoice_id', description='The ID of the third-party invoice header associated with the approval form.
 
->Warning: This field is required. To make it optional, contact operations.', example='GA15131'),
-  timesTotal?: int32(name='times_total', description='The total number of times the approval form can be used.', example='1'),
-  timesType?: int32(name='times_type', description='The usage count type of the approval form. If the enterprise does not need to limit the number of times the approval form can be used, set this parameter to 1 (unlimited) and set both times_total and times_used to 0.
+>Warning: This field is required. To configure it as optional, contact operations.', example='GA15131'),
+  timesTotal?: int32(name='times_total', description='The total available count for the approval form.', example='1'),
+  timesType?: int32(name='times_type', description='The type of available usage count for the approval form. If the enterprise does not need to limit the number of times the approval form can be used, set this parameter to 1 (unlimited) and set both times_total and times_used to 0.
 
 Valid values:
 
 - 1: Unlimited.
-- 2: User-specified count.', example='1'),
+- 2: User-specified count.
+- 3: Admin-limited count.', example='1'),
   timesUsed?: int32(name='times_used', description='The number of times the approval form has been used.', example='1'),
   title?: string(name='title', description='The title of the approval form.
 
@@ -4371,11 +4380,11 @@ This parameter is required.', example='访问客户'),
       carCitySet?: [ 
         {
           cityCode?: string(name='city_code', description='The cross-city city code. Only 6-digit codes are supported. Separate multiple values with Chinese commas.
-Note: A maximum of 10 cities are supported. The values in city_code and city_name must correspond one to one.
+Note: A maximum of 10 cities can be specified. The values in city_code and city_name must correspond one-to-one.
 
 This parameter is required.', example='110100，330100'),
           cityName?: string(name='city_name', description='The cross-city city name. Separate multiple values with Chinese commas.
-Note: A maximum of 10 cities are supported. The values in city_code and city_name must correspond one to one.
+Note: A maximum of 10 cities can be specified. The values in city_code and city_name must correspond one-to-one.
 
 This parameter is required.', example='北京，杭州'),
         }
@@ -4394,14 +4403,14 @@ model CarApplyAddShrinkRequest {
   cause?: string(name='cause', description='The reason for the business trip.
 
 This parameter is required.', example='访问客户'),
-  city?: string(name='city', description='The cities for car service. Separate multiple cities with Chinese commas (，).
-Note: A maximum of 10 cities are supported. The values in city and city_code_set must correspond one to one.', example='北京，杭州'),
-  cityCodeSet?: string(name='city_code_set', description='The city code set for intra-city car service. Separate multiple cities with Chinese commas (，).
+  city?: string(name='city', description='The car service cities. Separate multiple cities with Chinese commas (，).
+Note: A maximum of 10 cities can be specified. The values in city and city_code_set must correspond one-to-one.', example='北京，杭州'),
+  cityCodeSet?: string(name='city_code_set', description='The set of city codes for intra-city car service. Separate multiple cities with Chinese commas (，).
 Note: 1) Either city_code_set or city is required. If both are specified, city_code_set takes precedence.
-A maximum of 10 cities are supported.', example='110100，330100'),
-  date?: string(name='date', description='The car service time. This parameter is controlled on a daily basis. For example, a value of 2021-03-18 20:26:56 indicates that the car service is available on 2021-03-18. For multi-day scenarios, use this parameter together with the finished_date parameter. The time must be in the yyyy-MM-dd HH:mm:ss format.', example='2022-07-12 14:52:52'),
-  finishedDate?: string(name='finished_date', description='The car service end time. This parameter is controlled on a daily basis. For example, if date is set to 2021-03-18 20:26:56 and finished_date is set to 2021-03-30 20:26:56, the car service is available from 2021-03-18 (inclusive) to 2021-03-30 (inclusive). If this parameter is not specified, the value of date is used as the end time. The time must be in the yyyy-MM-dd HH:mm:ss format.', example='2022-07-12 18:51:25'),
-  itineraryListShrink?: string(name='itinerary_list'),
+A maximum of 10 cities can be specified.', example='110100，330100'),
+  date?: string(name='date', description='The car service date. Access is controlled on a daily basis. For example, a value of 2021-03-18 20:26:56 indicates that the car service is available on 2021-03-18. For cross-day scenarios, use this parameter together with the finished_date parameter. The time parameter must be in the yyyy-MM-dd HH:mm:ss string format.', example='2022-07-12 14:52:52'),
+  finishedDate?: string(name='finished_date', description='The car service end date. Access is controlled on a daily basis. For example, if date is set to 2021-03-18 20:26:56 and finished_date is set to 2021-03-30 20:26:56, the car service is available from 2021-03-18 (inclusive) to 2021-03-30 (inclusive). If this parameter is not specified, the value of date is used as the end date. The time parameter must be in the yyyy-MM-dd HH:mm:ss string format.', example='2022-07-12 18:51:25'),
+  itineraryListShrink?: string(name='itinerary_list', description='The intra-city car service itinerary.'),
   projectCode?: string(name='project_code', description='The project code associated with the approval form.', example='project1413'),
   projectName?: string(name='project_name', description='The project name associated with the approval form.', example='项目1'),
   status?: int32(name='status', description='The approval status.
@@ -4411,17 +4420,18 @@ This parameter is required.', example='0'),
 
 This parameter is required.', example='IRGS1413'),
   thirdPartCostCenterId?: string(name='third_part_cost_center_id', description='The ID of the third-party cost center associated with the approval form.
->Warning: This field is required. To make it optional, contact operations.', example='QA1411'),
+>Warning: This field is required. To configure it as optional, contact operations.', example='QA1411'),
   thirdPartInvoiceId?: string(name='third_part_invoice_id', description='The ID of the third-party invoice header associated with the approval form.
 
->Warning: This field is required. To make it optional, contact operations.', example='GA15131'),
-  timesTotal?: int32(name='times_total', description='The total number of times the approval form can be used.', example='1'),
-  timesType?: int32(name='times_type', description='The usage count type of the approval form. If the enterprise does not need to limit the number of times the approval form can be used, set this parameter to 1 (unlimited) and set both times_total and times_used to 0.
+>Warning: This field is required. To configure it as optional, contact operations.', example='GA15131'),
+  timesTotal?: int32(name='times_total', description='The total available count for the approval form.', example='1'),
+  timesType?: int32(name='times_type', description='The type of available usage count for the approval form. If the enterprise does not need to limit the number of times the approval form can be used, set this parameter to 1 (unlimited) and set both times_total and times_used to 0.
 
 Valid values:
 
 - 1: Unlimited.
-- 2: User-specified count.', example='1'),
+- 2: User-specified count.
+- 3: Admin-limited count.', example='1'),
   timesUsed?: int32(name='times_used', description='The number of times the approval form has been used.', example='1'),
   title?: string(name='title', description='The title of the approval form.
 
@@ -4436,7 +4446,7 @@ model CarApplyAddResponseBody = {
   code?: string(name='code', description='The status code.', example='0'),
   message?: string(name='message', description='The response message.', example='成功'),
   module?: long(name='module', description='The internal approval form ID in the business travel system.', example='1002923002'),
-  requestId?: string(name='requestId', description='The unique request ID.', example='C61ECFF6-606B-5F66-B81D-D77369043A5F'),
+  requestId?: string(name='requestId', description='The unique ID of the request.', example='C61ECFF6-606B-5F66-B81D-D77369043A5F'),
   success?: boolean(name='success', description='Indicates whether the request was successful.', example='true'),
   traceId?: string(name='traceId', description='The log trace ID.', example='21041ce316577904808056433edbb2'),
 }
@@ -4451,8 +4461,8 @@ model CarApplyAddResponse = {
  * @summary Synchronizes an intra-city car service approval form.
  *
  * @description Synchronizes an intra-city car service approval form for a specified enterprise.
- * 1. To use this operation, enable the permission for synchronizing intra-city car service approvals in your application. For more information about how to apply for data permissions, see [API Permission Application Process](https://openapi.alibtrip.com/doc/toDocDetail?docId=3771435).                                                                                       
- * 2. To use this operation, include the enterprise access credential (x-acs-btrip-so-corp-token) in the request header. For more information about how to obtain the enterprise access credential, see [Enterprise Access Credential](https://openapi.alibtrip.com/doc/toDocDetail?docId=3769985).
+ * 1. To use this operation, you must enable the permission to synchronize intra-city car service approvals in your application. For more information about how to apply for data permissions, see [API Permission Application Process](https://openapi.alibtrip.com/doc/toDocDetail?docId=3771435).                                                                                       
+ * 2. To use this operation, you must include the enterprise access credential (x-acs-btrip-so-corp-token) in the request header. For more information about how to obtain the enterprise access credential, see [Enterprise Access Credential](https://openapi.alibtrip.com/doc/toDocDetail?docId=3769985).
  *
  * @param tmpReq CarApplyAddRequest
  * @param headers CarApplyAddHeaders
@@ -4555,8 +4565,8 @@ async function carApplyAddWithOptions(tmpReq: CarApplyAddRequest, headers: CarAp
  * @summary Synchronizes an intra-city car service approval form.
  *
  * @description Synchronizes an intra-city car service approval form for a specified enterprise.
- * 1. To use this operation, enable the permission for synchronizing intra-city car service approvals in your application. For more information about how to apply for data permissions, see [API Permission Application Process](https://openapi.alibtrip.com/doc/toDocDetail?docId=3771435).                                                                                       
- * 2. To use this operation, include the enterprise access credential (x-acs-btrip-so-corp-token) in the request header. For more information about how to obtain the enterprise access credential, see [Enterprise Access Credential](https://openapi.alibtrip.com/doc/toDocDetail?docId=3769985).
+ * 1. To use this operation, you must enable the permission to synchronize intra-city car service approvals in your application. For more information about how to apply for data permissions, see [API Permission Application Process](https://openapi.alibtrip.com/doc/toDocDetail?docId=3771435).                                                                                       
+ * 2. To use this operation, you must include the enterprise access credential (x-acs-btrip-so-corp-token) in the request header. For more information about how to obtain the enterprise access credential, see [Enterprise Access Credential](https://openapi.alibtrip.com/doc/toDocDetail?docId=3769985).
  *
  * @param request CarApplyAddRequest
  * @return CarApplyAddResponse
@@ -8495,6 +8505,108 @@ async function estimatedPriceQuery(request: EstimatedPriceQueryRequest): Estimat
   var runtime = new $RuntimeOptions{};
   var headers = new EstimatedPriceQueryHeaders{};
   return estimatedPriceQueryWithOptions(request, headers, runtime);
+}
+
+model EstimatedPriceQueryV2Headers {
+  commonHeaders?: map[string]string,
+  xAcsBtripSoCorpToken?: string(name='x-acs-btrip-so-corp-token'),
+}
+
+model EstimatedPriceQueryV2Request {
+  bizType?: string(name='biz_type', description='This parameter is required.'),
+  departDate?: string(name='depart_date', description='This parameter is required.'),
+  fromCity?: string(name='from_city', description='This parameter is required.'),
+  leaveDate?: string(name='leave_date', description='This parameter is required.'),
+  toCity?: string(name='to_city', description='This parameter is required.'),
+  userId?: string(name='user_id'),
+}
+
+model EstimatedPriceQueryV2ResponseBody = {
+  code?: int32(name='code'),
+  module?: [ 
+    {
+      bizType?: string(name='biz_type'),
+      priceMap?: map[string]ModulePriceMapValue(name='price_map'),
+      type?: string(name='type'),
+    }
+  ](name='module'),
+  requestId?: string(name='requestId'),
+  success?: boolean(name='success'),
+  traceId?: string(name='traceId'),
+}
+
+model EstimatedPriceQueryV2Response = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: EstimatedPriceQueryV2ResponseBody(name='body'),
+}
+
+/**
+ * @summary 预估价格查询v2.0
+ *
+ * @param request EstimatedPriceQueryV2Request
+ * @param headers EstimatedPriceQueryV2Headers
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return EstimatedPriceQueryV2Response
+ */
+@context("estimatedPriceQueryV2WithContext")
+async function estimatedPriceQueryV2WithOptions(request: EstimatedPriceQueryV2Request, headers: EstimatedPriceQueryV2Headers, runtime: $RuntimeOptions): EstimatedPriceQueryV2Response {
+  request.validate();
+  var query : map[string]any = {};
+  if (!$isNull(request.bizType)) {
+    query['biz_type'] = request.bizType;
+  }
+  if (!$isNull(request.departDate)) {
+    query['depart_date'] = request.departDate;
+  }
+  if (!$isNull(request.fromCity)) {
+    query['from_city'] = request.fromCity;
+  }
+  if (!$isNull(request.leaveDate)) {
+    query['leave_date'] = request.leaveDate;
+  }
+  if (!$isNull(request.toCity)) {
+    query['to_city'] = request.toCity;
+  }
+  if (!$isNull(request.userId)) {
+    query['user_id'] = request.userId;
+  }
+
+  var realHeaders : map[string]string = {};
+  if (!$isNull(headers.commonHeaders)) {
+    realHeaders = headers.commonHeaders;
+  }
+  if (!$isNull(headers.xAcsBtripSoCorpToken)) {
+    realHeaders['x-acs-btrip-so-corp-token'] = $string(headers.xAcsBtripSoCorpToken);
+  }
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    headers = realHeaders,
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'EstimatedPriceQueryV2',
+    version = '2022-05-20',
+    protocol = 'HTTPS',
+    pathname = `/costcenter/v3/estimated-price`,
+    method = 'POST',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 预估价格查询v2.0
+ *
+ * @param request EstimatedPriceQueryV2Request
+ * @return EstimatedPriceQueryV2Response
+ */
+async function estimatedPriceQueryV2(request: EstimatedPriceQueryV2Request): EstimatedPriceQueryV2Response {
+  var runtime = new $RuntimeOptions{};
+  var headers = new EstimatedPriceQueryV2Headers{};
+  return estimatedPriceQueryV2WithOptions(request, headers, runtime);
 }
 
 model ExceedApplySyncHeaders {
