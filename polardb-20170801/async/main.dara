@@ -6473,6 +6473,7 @@ model DescribeApplicationLogsResponseBody = {
       fileName?: string(name='FileName'),
       fullFilePath?: string(name='FullFilePath'),
       hostname?: string(name='Hostname', example='pa-2zeg98z1q3ixryz61-lymz8-fbgk7'),
+      insName?: string(name='InsName'),
       logLevelId?: long(name='LogLevelId', example='4'),
       logLevelName?: string(name='LogLevelName', example='WARN'),
       method?: string(name='Method'),
@@ -6480,6 +6481,7 @@ model DescribeApplicationLogsResponseBody = {
       runtime?: string(name='Runtime', example='node'),
       runtimeVersion?: string(name='RuntimeVersion', example='22.22.0'),
       time?: string(name='Time', example='2026-03-14T16:45:30.912Z'),
+      timestamp?: long(name='Timestamp'),
     }
   ](name='LogRecords')
   }(name='Items'),
@@ -6572,10 +6574,14 @@ model DescribeApplicationPerformanceRequest {
   applicationId: string(name='ApplicationId', description='This parameter is required.', example='pa-**************', position='Query'),
   consumer?: string(name='Consumer', example='c-xxxxxxx', position='Query'),
   consumerGroup?: string(name='ConsumerGroup', example='cg-xxxxxx', position='Query'),
+  downsample?: string(name='Downsample', position='Query'),
+  endStep?: long(name='EndStep', position='Query'),
   endTime: string(name='EndTime', description='This parameter is required.', example='2020-09-23T01:00Z', position='Query'),
   interval?: string(name='Interval', example='5', position='Query'),
   key: string(name='Key', description='This parameter is required.', example='PolarDBSupabaseMemUsage', position='Query'),
+  maxPoints?: int32(name='MaxPoints', position='Query'),
   modelService?: string(name='ModelService', example='ms-xxxxxx', position='Query'),
+  startStep?: long(name='StartStep', position='Query'),
   startTime: string(name='StartTime', description='This parameter is required.', example='2020-09-23T01:01Z', position='Query'),
 }
 
@@ -6583,6 +6589,7 @@ model DescribeApplicationPerformanceResponseBody = {
   applicationId?: string(name='ApplicationId', example='pa-**************'),
   applicationType?: string(name='ApplicationType', example='supabase'),
   endTime?: string(name='EndTime', example='2025-05-23T02:21:00Z'),
+  interval?: string(name='Interval'),
   performanceKeys?: {
     performanceItem?: [ 
     {
@@ -6593,6 +6600,7 @@ model DescribeApplicationPerformanceResponseBody = {
       points?: {
         performanceItemValue?: [ 
         {
+          step?: long(name='Step'),
           timestamp?: long(name='Timestamp', example='1600822800000'),
           value?: string(name='Value', example='42.38'),
         }
@@ -6686,6 +6694,50 @@ model DescribeApplicationServerlessConfResponse = {
 async function describeApplicationServerlessConf(request: DescribeApplicationServerlessConfRequest): DescribeApplicationServerlessConfResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RPC', 'DescribeApplicationServerlessConf', 'POST', '/', 'json', false, 'json', request);
+}
+
+model DescribeApplicationSessionIdsRequest {
+  applicationId: string(name='ApplicationId', description='This parameter is required.', example='pa-**************', position='Query'),
+  endTime: string(name='EndTime', description='This parameter is required.', example='2020-02-01T18:00Z', position='Query'),
+  ownerAccount?: string(name='OwnerAccount', position='Query'),
+  ownerId?: long(name='OwnerId', position='Query'),
+  pageNumber?: int32(name='PageNumber', example='1', minimum=1, maximum=2147483647, position='Query'),
+  pageSize?: int32(name='PageSize', example='30', minimum=30, maximum=100, position='Query'),
+  regionId: string(name='RegionId', description='This parameter is required.', example='cn-hangzhou', position='Query'),
+  resourceOwnerAccount?: string(name='ResourceOwnerAccount', position='Query'),
+  startTime: string(name='StartTime', description='This parameter is required.', example='2022-11-15T16:00Z', position='Query'),
+}
+
+model DescribeApplicationSessionIdsResponseBody = {
+  applicationId?: string(name='ApplicationId', example='pa-********************'),
+  items?: {
+    items?: [ 
+    {
+      agent?: string(name='Agent', example='main'),
+      sessionId?: string(name='SessionId', example='c84ae910-7a02-4873-a4f5-9275920fcdb8'),
+      time?: string(name='Time', example='1769047514542'),
+    }
+  ](name='items')
+  }(name='Items'),
+  pageNumber?: int32(name='PageNumber', example='1'),
+  pageRecordCount?: int32(name='PageRecordCount', example='30'),
+  requestId?: string(name='RequestId', example='7F2007D3-7E74-4ECB-89A8-BF130D******'),
+  totalRecordCount?: string(name='TotalRecordCount', example='1'),
+}
+
+model DescribeApplicationSessionIdsResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: DescribeApplicationSessionIdsResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of DescribeApplicationSessionIds  DescribeApplicationSessionIdsRequest
+  * @return DescribeApplicationSessionIdsResponse
+ */
+async function describeApplicationSessionIds(request: DescribeApplicationSessionIdsRequest): DescribeApplicationSessionIdsResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'DescribeApplicationSessionIds', 'POST', '/', 'json', false, 'json', request);
 }
 
 model DescribeApplicationsRequest {
@@ -8113,6 +8165,9 @@ Range: 1 to 15.', example='1'),
       orca?: string(name='Orca', description='Orca feature, valid values are:
 - on: enabled
 - off: disabled', example='off'),
+      remoteMemoryMax?: int32(name='RemoteMemoryMax'),
+      remoteMemoryMin?: int32(name='RemoteMemoryMin'),
+      remoteMemoryRecommended?: int32(name='RemoteMemoryRecommended'),
       remoteMemorySize?: string(name='RemoteMemorySize', description='Remote memory size, in MB.', example='3072'),
       sccMode: string(name='SccMode', description='Whether the node has the global consistency (high-performance mode) feature enabled. Possible values are:
 
@@ -8244,12 +8299,14 @@ Values include:
 - **ON**: Enable cross-AZ disaster recovery mode.
 - **OFF**: Disable cross-AZ disaster recovery mode.
 - **0**: Customer drill mode.', example='OFF'),
+  storageAutoScale?: string(name='StorageAutoScale'),
   storageMax?: long(name='StorageMax', description='The maximum storage capacity of the current cluster specification, in bytes.', example='10995116277760'),
   storagePayType?: string(name='StoragePayType', description='Storage billing type. Valid values are as follows:
 - **Postpaid**: Pay-as-you-go (by capacity).
 - **Prepaid**: Subscription (by space).', example='Prepaid'),
   storageSpace?: long(name='StorageSpace', description='Storage space for pay-by-space (subscription) billing. Unit: Byte.', example='50'),
   storageType?: string(name='StorageType', description='Storage type, with a fixed value of **HighPerformance**.', example='HighPerformance'),
+  storageUpperBound?: int32(name='StorageUpperBound'),
   storageUsed?: long(name='StorageUsed', description='Amount of used storage space, in bytes.', example='3012558848'),
   strictConsistency?: string(name='StrictConsistency', description='Indicates whether multi-AZ data strong consistency is enabled for the cluster. The value ranges are as follows:
 - **ON**: Indicates that multi-AZ data strong consistency is enabled, applicable to the Standard 3AZ scenario.
