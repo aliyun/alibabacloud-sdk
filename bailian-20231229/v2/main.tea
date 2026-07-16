@@ -130,6 +130,134 @@ async function addCategory(WorkspaceId: string, request: AddCategoryRequest): Ad
   return addCategoryWithOptions(WorkspaceId, request, headers, runtime);
 }
 
+model AddChunkRequest {
+  pipelineId?: string(name='PipelineId', description='The knowledge base ID.
+
+This parameter is required.', example='79c0alxxxx'),
+  dataId?: string(name='dataId', description='The file ID.', example='doc_xxx'),
+  field?: map[string]any(name='field', description='The chunk content to insert, passed as key-value pairs. For document search knowledge bases, use the following fixed key list:
+- content (**String**): **Required**. The body content of the chunk.
+- title (**String**): **Optional**. The title of the chunk.
+- image_urls (**Array**): **Optional**. Image URLs contained in the chunk. A maximum of 10 images are supported.
+
+For data query and image Q&A knowledge bases, the keys are not fixed and are determined by the data source spreadsheet of the knowledge base. The key is the Excel column header, and the value is the corresponding column value.', example='{
+  "content": "The Bailian platform supports parsing multiple document formats including PDF, Word, and PPT.",
+  "title": "Document Parsing and Chunking",
+  "image_urls": [
+"https://example.com/images/chunk-flow.png",
+  "https://example.com/images/parsing-result.png"
+  ]
+}'),
+}
+
+model AddChunkShrinkRequest {
+  pipelineId?: string(name='PipelineId', description='The knowledge base ID.
+
+This parameter is required.', example='79c0alxxxx'),
+  dataId?: string(name='dataId', description='The file ID.', example='doc_xxx'),
+  fieldShrink?: string(name='field', description='The chunk content to insert, passed as key-value pairs. For document search knowledge bases, use the following fixed key list:
+- content (**String**): **Required**. The body content of the chunk.
+- title (**String**): **Optional**. The title of the chunk.
+- image_urls (**Array**): **Optional**. Image URLs contained in the chunk. A maximum of 10 images are supported.
+
+For data query and image Q&A knowledge bases, the keys are not fixed and are determined by the data source spreadsheet of the knowledge base. The key is the Excel column header, and the value is the corresponding column value.', example='{
+  "content": "The Bailian platform supports parsing multiple document formats including PDF, Word, and PPT.",
+  "title": "Document Parsing and Chunking",
+  "image_urls": [
+"https://example.com/images/chunk-flow.png",
+  "https://example.com/images/parsing-result.png"
+  ]
+}'),
+}
+
+model AddChunkResponseBody = {
+  code?: string(name='Code', description='The error status code.', example='Index.InvalidParameter'),
+  data?: boolean(name='Data', description='The business data returned upon a successful request.', example='true'),
+  message?: string(name='Message', description='The error message.', example='Required parameter(%s) missing or invalid, please check the request parameters.'),
+  requestId?: string(name='RequestId', description='The request ID.', example='35A267BF-xxxx-54DB-8394-AA3B0742D833'),
+  status?: string(name='Status', description='The status code returned by the operation.', example='200'),
+  success?: boolean(name='Success', description='Indicates whether the operation was successful.', example='true'),
+}
+
+model AddChunkResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: AddChunkResponseBody(name='body'),
+}
+
+/**
+ * @summary Adds chunks to a document search (document), data query (table), or image Q&A (image) knowledge base.
+ *
+ * @description - This operation adds chunk content to a specified knowledge base of the document search (document), data query (table), or image Q&A (image) type. Operations on multimedia search (multimedia) knowledge bases are not supported. For data query and image Q&A knowledge bases, this operation takes effect only when the data source is a spreadsheet connector (excel).
+ * - Resource Access Management (RAM) users must first obtain [API permissions](https://help.aliyun.com/document_detail/2848578.html) for Model Studio (requiring `AliyunBailianDataFullAccess`, which includes the sfm:ChunkList permission) and [join a workspace](https://help.aliyun.com/document_detail/2851098.html) before invoking this operation. Alibaba Cloud accounts can invoke this operation directly without authorization. Use the latest [Model Studio SDK](https://api.aliyun.com/api-tools/sdk/bailian?version=2023-12-29)[Model Studio SDK](https://api.alibabacloud.com/api-tools/sdk/bailian?version=2023-12-29) to invoke this operation.
+ * - Before invoking this operation, make sure that your knowledge base has been created and has not been deleted (that is, the knowledge base ID `IndexId` is valid).
+ * - This operation has idempotence.
+ * **Related operations:**
+ * **Throttling:**
+ * This operation is throttled if called too frequently. Do not exceed 10 calls per second. If throttled, retry later.
+ *
+ * @param tmpReq AddChunkRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return AddChunkResponse
+ */
+@context("addChunkWithContext")
+async function addChunkWithOptions(WorkspaceId: string, tmpReq: AddChunkRequest, headers: map[string]string, runtime: $RuntimeOptions): AddChunkResponse {
+  tmpReq.validate();
+  var request = new AddChunkShrinkRequest{};
+  OpenApiUtil.convert(tmpReq, request);
+  if (!$isNull(tmpReq.field)) {
+    request.fieldShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.field, 'field', 'json');
+  }
+  var query : map[string]any = {};
+  if (!$isNull(request.pipelineId)) {
+    query['PipelineId'] = request.pipelineId;
+  }
+  if (!$isNull(request.dataId)) {
+    query['dataId'] = request.dataId;
+  }
+  if (!$isNull(request.fieldShrink)) {
+    query['field'] = request.fieldShrink;
+  }
+
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'AddChunk',
+    version = '2023-12-29',
+    protocol = 'HTTPS',
+    pathname = `/${$URL.percentEncode(WorkspaceId)}/chunk/create`,
+    method = 'POST',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Adds chunks to a document search (document), data query (table), or image Q&A (image) knowledge base.
+ *
+ * @description - This operation adds chunk content to a specified knowledge base of the document search (document), data query (table), or image Q&A (image) type. Operations on multimedia search (multimedia) knowledge bases are not supported. For data query and image Q&A knowledge bases, this operation takes effect only when the data source is a spreadsheet connector (excel).
+ * - Resource Access Management (RAM) users must first obtain [API permissions](https://help.aliyun.com/document_detail/2848578.html) for Model Studio (requiring `AliyunBailianDataFullAccess`, which includes the sfm:ChunkList permission) and [join a workspace](https://help.aliyun.com/document_detail/2851098.html) before invoking this operation. Alibaba Cloud accounts can invoke this operation directly without authorization. Use the latest [Model Studio SDK](https://api.aliyun.com/api-tools/sdk/bailian?version=2023-12-29)[Model Studio SDK](https://api.alibabacloud.com/api-tools/sdk/bailian?version=2023-12-29) to invoke this operation.
+ * - Before invoking this operation, make sure that your knowledge base has been created and has not been deleted (that is, the knowledge base ID `IndexId` is valid).
+ * - This operation has idempotence.
+ * **Related operations:**
+ * **Throttling:**
+ * This operation is throttled if called too frequently. Do not exceed 10 calls per second. If throttled, retry later.
+ *
+ * @param request AddChunkRequest
+ * @return AddChunkResponse
+ */
+async function addChunk(WorkspaceId: string, request: AddChunkRequest): AddChunkResponse {
+  var runtime = new $RuntimeOptions{};
+  var headers : map[string]string = {};
+  return addChunkWithOptions(WorkspaceId, request, headers, runtime);
+}
+
 model AddConnectorRequest {
   connectorName?: string(name='ConnectorName', description='The name of the connector.
 
@@ -254,167 +382,140 @@ async function addConnector(WorkspaceId: string, request: AddConnectorRequest): 
 model AddFileRequest {
   categoryId?: string(name='CategoryId', description='<props="china">
 
-- If `CategoryType` is set to `UNSTRUCTURED`, you must specify the ID of the category to which the file belongs. This is the `CategoryId` returned by the **AddCategory** API. You can also obtain the category ID by navigating to the \\\\*\\\\*Application data\\\\*\\\\* > \\\\*\\\\*Files\\\\*\\\\* tab and clicking the ID icon next to the category name. You can specify `default` to use the default category.
+- When CategoryType is set to UNSTRUCTURED, set this parameter to the category ID of the uploaded file, which is the `CategoryId` returned by the **AddCategory** operation. You can also go to [Application Data](https://bailian.console.aliyun.com/?tab=app#/data-center), click the File tab, and then click the ID icon next to the category name to obtain the category ID. You can set this parameter to default to use the system-created default category.
 
-- If `CategoryType` is set to `SESSION_FILE`, specify `default`.
-
+- When CategoryType is set to SESSION_FILE, set this parameter to "default".
 
 
 <props="intl">
 
-The ID of the category to which the file belongs. This is the `CategoryId` returned by the **AddCategory** API. You can also obtain the category ID by navigating to the \\\\*\\\\*Application data\\\\*\\\\* > \\\\*\\\\*Files\\\\*\\\\* tab and clicking the ID icon next to the category name. You can specify `default` to use the default category.
+Set this parameter to the category ID of the uploaded file, which is the `CategoryId` returned by the **AddCategory** operation. You can also go to [Application Data](https://modelstudio.console.alibabacloud.com/?tab=app#/data-center), click the File tab, and then click the ID icon next to the category name to obtain the category ID. You can set this parameter to default to use the system-created default category.
 
 This parameter is required.', example='cate_cdd11b1b79a74e8bbd675c356a91ee35xxxxxxxx'),
-  categoryType?: string(name='CategoryType', description='The type of category. This parameter is optional. Default value: `UNSTRUCTURED`. Valid values:
-
-- `UNSTRUCTURED`: A category used for building a knowledge base.
+  categoryType?: string(name='CategoryType', description='The category type. This parameter is optional. Default value: UNSTRUCTURED. Valid values:
+- UNSTRUCTURED: category used for building knowledge base scenarios.
 
 <props="china">
-
-- `SESSION_FILE`: A file used for interactions within an agent [session](https://help.aliyun.com/zh/model-studio/user-guide/file-interaction).
-  > If you set this parameter to `SESSION_FILE`, you must also set the `CategoryType` parameter to `SESSION_FILE` when you call the ApplyFileUploadLease API.
-  > Files of this type are valid only for the current session and expire after the session is closed, with a maximum validity of 7 days. These files are not intended for long-term storage.', example='UNSTRUCTURED'),
-  leaseId?: string(name='LeaseId', description='The upload lease ID. This value maps to the `FileUploadLeaseId` returned by the **ApplyFileUploadLease** API.
+- SESSION_FILE: file used for [session interaction](https://www.alibabacloud.com/help/en/model-studio/user-guide/file-interaction) in agent applications.
+<note>When using `SESSION_FILE`, set the CategoryType parameter to `SESSION_FILE` when calling the ApplyFileUploadLease operation as well.</note>
+<note>The file is valid only for the current user session. After the user closes the session, the file expires. The maximum validity period is 7 days. Long-term storage is not supported.</note>', example='UNSTRUCTURED'),
+  leaseId?: string(name='LeaseId', description='The upload lease ID, which corresponds to the `FileUploadLeaseId` returned by the **ApplyFileUploadLease** operation.
 
 This parameter is required.', example='68abd1dea7b6404d8f7d7b9f7fbd332d.17166xxxxxxxx'),
   originalFileUrl?: string(name='OriginalFileUrl', description='<props="china">
 
-The URL of the file. The system records this link when building a [document retrieval-based knowledge base](https://help.aliyun.com/document_detail/2807740.html). When you interact with an [agent](https://help.aliyun.com/document_detail/2842749.html) in the Alibaba Cloud Model Studio console, this URL is returned with the retrieval results for the file in the `docUrl` field.
+Specifies a URL for the file. The system records this URL when building a [document search knowledge base](https://help.aliyun.com/document_detail/2807740.html). When you use the Alibaba Cloud Model Studio console to interact with an [agent application](https://help.aliyun.com/document_detail/2842749.html), this URL is returned with the retrieval results of the file through the `docUrl` field.
 
-> For this parameter to take effect, the **knowledge base** feature must be enabled for the agent, and the **display the source of the answer** option must be enabled.
+> The agent application must have **Knowledge Base** enabled and the **Show answer sources** feature turned on. Otherwise, this parameter does not take effect.
 
 
-
-<props="intl">
-
-The URL of the file. The system records this link when building a [document retrieval-based knowledge base](https://help.aliyun.com/document_detail/2807740.html). When you interact with an [agent](https://help.aliyun.com/document_detail/2842749.html) in the Alibaba Cloud Model Studio console, this URL is returned with the retrieval results for the file in the `docUrl` field.
-
-> For this parameter to take effect, the **knowledge base** feature must be enabled for the agent, and the **display the source of the answer** option must be enabled.', example='www.test.com/111.docx'),
-  parser?: string(name='Parser', description='The type of parser. Valid values:
-
-- DOCMIND: Intelligent Document Parsing
-
-- DOCMIND_DIGITAL: Digital Document Parsing
-
-- DOCMIND_LLM_VERSION: Large Language Model-based Document Parsing
-
-- DASH_QWEN_VL_PARSER: Qwen-VL Parsing
-
-- DOCMIND_LLM_VERSION_MEDIA: Audio and Video Parsing
-
-- AUTO_SELECT: Automatic Parser Selection
 
 <props="intl">
 
-> The system uses the specified parser to parse the uploaded file. If you set this parameter to `AUTO_SELECT`, the parser configured for the category is used.
+Specifies a URL for the file. The system records this URL when building a [document search knowledge base](https://help.aliyun.com/document_detail/2807740.html). When you use the Alibaba Cloud Model Studio console to interact with an [agent application](https://help.aliyun.com/document_detail/2842749.html), this URL is returned with the retrieval results of the file through the `docUrl` field.
 
+> The agent application must have **Knowledge Base** enabled and the **Show answer sources** feature turned on. Otherwise, this parameter does not take effect.', example='www.test.com/111.docx'),
+  parser?: string(name='Parser', description='The parser type. Valid values:
+
+- DOCMIND: intelligent document parsing
+- DOCMIND_DIGITAL: electronic document parsing
+- DOCMIND_LLM_VERSION: large language model document parsing
+- DASH_QWEN_VL_PARSER: Qwen VL parsing
+- DOCMIND_LLM_VERSION_MEDIA: audio and video parsing
+- AUTO_SELECT: automatic parser selection
+
+<props="intl">
+<note>The uploaded file is parsed by using the currently specified parser. If you set this parameter to AUTO_SELECT, the parser configured for the category is used.</note>
 
 
 <props="china">
-
-> If `CategoryType` is set to `UNSTRUCTURED`, the parser parses your uploaded file based on the category’s data parsing settings.
-> If `CategoryType` is set to `SESSION_FILE`, the system uses a default parsing method that cannot be changed.
+<note>When CategoryType is set to UNSTRUCTURED, the parser parses the uploaded file based on the data parsing settings of the current category.</note>
+<note>When CategoryType is set to SESSION_FILE, the system parses the file content by using the default method, which cannot be changed.</note>
 
 This parameter is required.', example='AUTO_SELECT'),
   parserConfig?: {
     modelName?: string(name='ModelName', description='The model name.', example='qwen-vl-max'),
-    modelPrompt?: string(name='ModelPrompt', description='The prompt to use when calling the Qwen-VL parser.', example='#角色
+    modelPrompt?: string(name='ModelPrompt', description='The prompt used when calling Qwen VL parsing.', example='#角色
 你是一个专业的图片内容标注人员，擅长识别并描述出图片中的内容。
 # 任务目标
 请结合输入图片，详细描述图片中的内容。'),
-  }(name='ParserConfig', description='The parser configuration. This parameter is required only if you set `Parser` to `DASH_QWEN_VL_PARSER`.'),
-  tags?: [ string ](name='Tags', description='- A list of tags for the file. You can specify up to 100 tags. The total length of all tags cannot exceed 700 characters.
-
-- If this parameter is not specified, no tags are added.'),
+  }(name='ParserConfig', description='The parser configuration. This parameter is required only when the parser type is set to Qwen VL parsing.'),
+  tags?: [ string ](name='Tags', description='- The list of tags associated with the file. You can specify up to 100 tags, and the total character length of all tags cannot exceed 700.
+- Default value: empty, which means no tags are set.'),
 }
 
 model AddFileShrinkRequest {
   categoryId?: string(name='CategoryId', description='<props="china">
 
-- If `CategoryType` is set to `UNSTRUCTURED`, you must specify the ID of the category to which the file belongs. This is the `CategoryId` returned by the **AddCategory** API. You can also obtain the category ID by navigating to the \\\\*\\\\*Application data\\\\*\\\\* > \\\\*\\\\*Files\\\\*\\\\* tab and clicking the ID icon next to the category name. You can specify `default` to use the default category.
+- When CategoryType is set to UNSTRUCTURED, set this parameter to the category ID of the uploaded file, which is the `CategoryId` returned by the **AddCategory** operation. You can also go to [Application Data](https://bailian.console.aliyun.com/?tab=app#/data-center), click the File tab, and then click the ID icon next to the category name to obtain the category ID. You can set this parameter to default to use the system-created default category.
 
-- If `CategoryType` is set to `SESSION_FILE`, specify `default`.
-
+- When CategoryType is set to SESSION_FILE, set this parameter to "default".
 
 
 <props="intl">
 
-The ID of the category to which the file belongs. This is the `CategoryId` returned by the **AddCategory** API. You can also obtain the category ID by navigating to the \\\\*\\\\*Application data\\\\*\\\\* > \\\\*\\\\*Files\\\\*\\\\* tab and clicking the ID icon next to the category name. You can specify `default` to use the default category.
+Set this parameter to the category ID of the uploaded file, which is the `CategoryId` returned by the **AddCategory** operation. You can also go to [Application Data](https://modelstudio.console.alibabacloud.com/?tab=app#/data-center), click the File tab, and then click the ID icon next to the category name to obtain the category ID. You can set this parameter to default to use the system-created default category.
 
 This parameter is required.', example='cate_cdd11b1b79a74e8bbd675c356a91ee35xxxxxxxx'),
-  categoryType?: string(name='CategoryType', description='The type of category. This parameter is optional. Default value: `UNSTRUCTURED`. Valid values:
-
-- `UNSTRUCTURED`: A category used for building a knowledge base.
+  categoryType?: string(name='CategoryType', description='The category type. This parameter is optional. Default value: UNSTRUCTURED. Valid values:
+- UNSTRUCTURED: category used for building knowledge base scenarios.
 
 <props="china">
-
-- `SESSION_FILE`: A file used for interactions within an agent [session](https://help.aliyun.com/zh/model-studio/user-guide/file-interaction).
-  > If you set this parameter to `SESSION_FILE`, you must also set the `CategoryType` parameter to `SESSION_FILE` when you call the ApplyFileUploadLease API.
-  > Files of this type are valid only for the current session and expire after the session is closed, with a maximum validity of 7 days. These files are not intended for long-term storage.', example='UNSTRUCTURED'),
-  leaseId?: string(name='LeaseId', description='The upload lease ID. This value maps to the `FileUploadLeaseId` returned by the **ApplyFileUploadLease** API.
+- SESSION_FILE: file used for [session interaction](https://www.alibabacloud.com/help/en/model-studio/user-guide/file-interaction) in agent applications.
+<note>When using `SESSION_FILE`, set the CategoryType parameter to `SESSION_FILE` when calling the ApplyFileUploadLease operation as well.</note>
+<note>The file is valid only for the current user session. After the user closes the session, the file expires. The maximum validity period is 7 days. Long-term storage is not supported.</note>', example='UNSTRUCTURED'),
+  leaseId?: string(name='LeaseId', description='The upload lease ID, which corresponds to the `FileUploadLeaseId` returned by the **ApplyFileUploadLease** operation.
 
 This parameter is required.', example='68abd1dea7b6404d8f7d7b9f7fbd332d.17166xxxxxxxx'),
   originalFileUrl?: string(name='OriginalFileUrl', description='<props="china">
 
-The URL of the file. The system records this link when building a [document retrieval-based knowledge base](https://help.aliyun.com/document_detail/2807740.html). When you interact with an [agent](https://help.aliyun.com/document_detail/2842749.html) in the Alibaba Cloud Model Studio console, this URL is returned with the retrieval results for the file in the `docUrl` field.
+Specifies a URL for the file. The system records this URL when building a [document search knowledge base](https://help.aliyun.com/document_detail/2807740.html). When you use the Alibaba Cloud Model Studio console to interact with an [agent application](https://help.aliyun.com/document_detail/2842749.html), this URL is returned with the retrieval results of the file through the `docUrl` field.
 
-> For this parameter to take effect, the **knowledge base** feature must be enabled for the agent, and the **display the source of the answer** option must be enabled.
+> The agent application must have **Knowledge Base** enabled and the **Show answer sources** feature turned on. Otherwise, this parameter does not take effect.
 
 
-
-<props="intl">
-
-The URL of the file. The system records this link when building a [document retrieval-based knowledge base](https://help.aliyun.com/document_detail/2807740.html). When you interact with an [agent](https://help.aliyun.com/document_detail/2842749.html) in the Alibaba Cloud Model Studio console, this URL is returned with the retrieval results for the file in the `docUrl` field.
-
-> For this parameter to take effect, the **knowledge base** feature must be enabled for the agent, and the **display the source of the answer** option must be enabled.', example='www.test.com/111.docx'),
-  parser?: string(name='Parser', description='The type of parser. Valid values:
-
-- DOCMIND: Intelligent Document Parsing
-
-- DOCMIND_DIGITAL: Digital Document Parsing
-
-- DOCMIND_LLM_VERSION: Large Language Model-based Document Parsing
-
-- DASH_QWEN_VL_PARSER: Qwen-VL Parsing
-
-- DOCMIND_LLM_VERSION_MEDIA: Audio and Video Parsing
-
-- AUTO_SELECT: Automatic Parser Selection
 
 <props="intl">
 
-> The system uses the specified parser to parse the uploaded file. If you set this parameter to `AUTO_SELECT`, the parser configured for the category is used.
+Specifies a URL for the file. The system records this URL when building a [document search knowledge base](https://help.aliyun.com/document_detail/2807740.html). When you use the Alibaba Cloud Model Studio console to interact with an [agent application](https://help.aliyun.com/document_detail/2842749.html), this URL is returned with the retrieval results of the file through the `docUrl` field.
 
+> The agent application must have **Knowledge Base** enabled and the **Show answer sources** feature turned on. Otherwise, this parameter does not take effect.', example='www.test.com/111.docx'),
+  parser?: string(name='Parser', description='The parser type. Valid values:
+
+- DOCMIND: intelligent document parsing
+- DOCMIND_DIGITAL: electronic document parsing
+- DOCMIND_LLM_VERSION: large language model document parsing
+- DASH_QWEN_VL_PARSER: Qwen VL parsing
+- DOCMIND_LLM_VERSION_MEDIA: audio and video parsing
+- AUTO_SELECT: automatic parser selection
+
+<props="intl">
+<note>The uploaded file is parsed by using the currently specified parser. If you set this parameter to AUTO_SELECT, the parser configured for the category is used.</note>
 
 
 <props="china">
-
-> If `CategoryType` is set to `UNSTRUCTURED`, the parser parses your uploaded file based on the category’s data parsing settings.
-> If `CategoryType` is set to `SESSION_FILE`, the system uses a default parsing method that cannot be changed.
+<note>When CategoryType is set to UNSTRUCTURED, the parser parses the uploaded file based on the data parsing settings of the current category.</note>
+<note>When CategoryType is set to SESSION_FILE, the system parses the file content by using the default method, which cannot be changed.</note>
 
 This parameter is required.', example='AUTO_SELECT'),
-  parserConfigShrink?: string(name='ParserConfig', description='The parser configuration. This parameter is required only if you set `Parser` to `DASH_QWEN_VL_PARSER`.'),
-  tagsShrink?: string(name='Tags', description='- A list of tags for the file. You can specify up to 100 tags. The total length of all tags cannot exceed 700 characters.
-
-- If this parameter is not specified, no tags are added.'),
+  parserConfigShrink?: string(name='ParserConfig', description='The parser configuration. This parameter is required only when the parser type is set to Qwen VL parsing.'),
+  tagsShrink?: string(name='Tags', description='- The list of tags associated with the file. You can specify up to 100 tags, and the total character length of all tags cannot exceed 700.
+- Default value: empty, which means no tags are set.'),
 }
 
 model AddFileResponseBody = {
   code?: string(name='Code', description='The error code.', example='DataCenter.FileTooLarge'),
   data?: {
-    fileId?: string(name='FileId', description='The ID of the file. Save this ID for use in subsequent API calls involving this file.', example='file_9a65732555b54d5ea10796ca5742ba22_xxxxxxxx'),
-    parser?: string(name='Parser', description='The parser that was used for the file. A possible value is:
-
-- `DASHSCOPE_DOCMIND`: Alibaba Cloud Document Intelligence', example='DASHSCOPE_DOCMIND'),
-  }(name='Data', description='The data returned for the request.'),
+    fileId?: string(name='FileId', description='The file ID. Keep this value safe because it is used in all subsequent API operations related to this file.', example='file_9a65732555b54d5ea10796ca5742ba22_xxxxxxxx'),
+    parser?: string(name='Parser', description='The parser type used to parse the file. Valid values:
+- DASHSCOPE_DOCMIND: Alibaba Cloud intelligent document parsing.', example='DASHSCOPE_DOCMIND'),
+  }(name='Data', description='The data field returned by the operation.'),
   message?: string(name='Message', description='The error message.', example='User not authorized to operate on the specified resource.'),
   requestId?: string(name='RequestId', description='The request ID.', example='778C0B3B-xxxx-5FC1-A947-36EDD13606AB'),
-  status?: string(name='Status', description='The status code of the request.', example='200'),
-  success?: string(name='Success', description='Indicates whether the API call was successful. Valid values:
-
-- `true`: The call was successful.
-
-- `false`: The call failed.', example='true'),
+  status?: string(name='Status', description='The status code returned by the operation.', example='200'),
+  success?: string(name='Success', description='Indicates whether the call was successful. Valid values:
+- true: The call was successful.
+- false: The call failed.', example='true'),
 }
 
 model AddFileResponse = {
@@ -424,11 +525,12 @@ model AddFileResponse = {
 }
 
 /**
- * @summary Imports a file from the temporary storage space of Alibaba Cloud Model Studio into a data connection (formerly known as application data).
+ * @summary Imports a file from the temporary storage of Alibaba Cloud Model Studio into an Alibaba Cloud Model Studio data connection (formerly known as application data).
  *
- * @description - To call this API, a RAM user (sub-account) must have the required [API permissions](https://help.aliyun.com/document_detail/2848578.html) for Alibaba Cloud Model Studio and be [added to a workspace](https://help.aliyun.com/document_detail/2851098.html). The required policy is `AliyunBailianDataFullAccess`, which includes the `sfm:AddFile` permission. An Alibaba Cloud account (primary account) can call this API directly without authorization. We recommend using the latest <props="china">[Alibaba Cloud Model Studio SDK](https://api.aliyun.com/api-tools/sdk/bailian?version=2023-12-29)<props="intl">[Alibaba Cloud Model Studio SDK](https://api.alibabacloud.com/api-tools/sdk/bailian?version=2023-12-29) to call this API.
- * - This API is not idempotent.
- * **Throttling:** Frequent calls to this API are subject to throttling. Do not exceed a rate of 10 calls per second. If your request is throttled, try again later.
+ * @description - Resource Access Management (RAM) users must first obtain [API permissions](https://help.aliyun.com/document_detail/2848578.html) for Alibaba Cloud Model Studio (requires `AliyunBailianDataFullAccess`, which includes the sfm:AddFile permission), and [join a workspace](https://help.aliyun.com/document_detail/2851098.html) before invoking this operation. Alibaba Cloud accounts can invoke this operation directly without authorization. Invoke this operation by using the latest <props="china">[Alibaba Cloud Model Studio SDK](https://api.aliyun.com/api-tools/sdk/bailian?version=2023-12-29)<props="intl">[Alibaba Cloud Model Studio SDK](https://api.alibabacloud.com/api-tools/sdk/bailian?version=2023-12-29).
+ * - This operation is not idempotent.
+ * **Throttling:**
+ * This operation is subject to throttling. Do not exceed 10 calls per second. If you are throttled, retry later.
  *
  * @param tmpReq AddFileRequest
  * @param headers map
@@ -488,11 +590,12 @@ async function addFileWithOptions(WorkspaceId: string, tmpReq: AddFileRequest, h
 }
 
 /**
- * @summary Imports a file from the temporary storage space of Alibaba Cloud Model Studio into a data connection (formerly known as application data).
+ * @summary Imports a file from the temporary storage of Alibaba Cloud Model Studio into an Alibaba Cloud Model Studio data connection (formerly known as application data).
  *
- * @description - To call this API, a RAM user (sub-account) must have the required [API permissions](https://help.aliyun.com/document_detail/2848578.html) for Alibaba Cloud Model Studio and be [added to a workspace](https://help.aliyun.com/document_detail/2851098.html). The required policy is `AliyunBailianDataFullAccess`, which includes the `sfm:AddFile` permission. An Alibaba Cloud account (primary account) can call this API directly without authorization. We recommend using the latest <props="china">[Alibaba Cloud Model Studio SDK](https://api.aliyun.com/api-tools/sdk/bailian?version=2023-12-29)<props="intl">[Alibaba Cloud Model Studio SDK](https://api.alibabacloud.com/api-tools/sdk/bailian?version=2023-12-29) to call this API.
- * - This API is not idempotent.
- * **Throttling:** Frequent calls to this API are subject to throttling. Do not exceed a rate of 10 calls per second. If your request is throttled, try again later.
+ * @description - Resource Access Management (RAM) users must first obtain [API permissions](https://help.aliyun.com/document_detail/2848578.html) for Alibaba Cloud Model Studio (requires `AliyunBailianDataFullAccess`, which includes the sfm:AddFile permission), and [join a workspace](https://help.aliyun.com/document_detail/2851098.html) before invoking this operation. Alibaba Cloud accounts can invoke this operation directly without authorization. Invoke this operation by using the latest <props="china">[Alibaba Cloud Model Studio SDK](https://api.aliyun.com/api-tools/sdk/bailian?version=2023-12-29)<props="intl">[Alibaba Cloud Model Studio SDK](https://api.alibabacloud.com/api-tools/sdk/bailian?version=2023-12-29).
+ * - This operation is not idempotent.
+ * **Throttling:**
+ * This operation is subject to throttling. Do not exceed 10 calls per second. If you are throttled, retry later.
  *
  * @param request AddFileRequest
  * @return AddFileResponse
@@ -504,121 +607,121 @@ async function addFile(WorkspaceId: string, request: AddFileRequest): AddFileRes
 }
 
 model AddFilesFromAuthorizedOssRequest {
-  categoryId?: string(name='CategoryId', description='Specifies the target category for file import. This is the `CategoryId` returned by the AddCategory operation. You can also obtain the category ID from the <props="china">[Application Data](https://bailian.console.aliyun.com/?tab=app#/data-center) - Files tab<props="intl">[Application Data](https://modelstudio.console.alibabacloud.com/?tab=app#/data-center) - Files tab by clicking the ID icon next to the category name. You can also pass in default, which uses the system-created "Default Category".
+  categoryId?: string(name='CategoryId', description='The ID of the category to which the files are imported. This is the `CategoryId` returned by the AddCategory operation. You can also obtain the category ID by clicking the ID icon next to the category name on the <props="china">[Application Data](https://bailian.console.aliyun.com/?tab=app#/data-center) - Files tab<props="intl">[Application Data](https://modelstudio.console.alibabacloud.com/?tab=app#/data-center) - Files tab. You can pass in `default` to use the system-created default category.
 
 This parameter is required.', example='cate_cdd11b1b79a74e8bbd675c356a91ee35xxxxxxxx'),
-  categoryType?: string(name='CategoryType', description='Category type. Optional. The default value is UNSTRUCTURED. Valid values:
-- UNSTRUCTURED: Category used for building knowledge base scenarios.
+  categoryType?: string(name='CategoryType', description='The category type. Optional. Default value: UNSTRUCTURED. Valid values:
+- UNSTRUCTURED: category for building knowledge base scenarios.
 
 <props="china">
 
-> This operation does not support importing SESSION_FILE used for agent application [session interaction](https://help.aliyun.com/zh/model-studio/user-guide/file-interaction). Please use the **AddFile** operation to upload SESSION_FILE from local.
+> This operation does not support importing SESSION_FILE for agent application [conversation interaction](https://www.alibabacloud.com/help/en/model-studio/user-guide/file-interaction). Use the **AddFile** operation to upload SESSION_FILE from a local source.
 
 This parameter is required.', example='UNSTRUCTURED'),
   fileDetails?: [ 
     {
-      fileName?: string(name='FileName', description='The name of the file to import. Note that the suffix must include the file format type.
-- Supported formats: pdf, docx, doc, txt, md, pptx, ppt, xlsx, xls, html, png, jpg, jpeg, bmp, gif.
-- The file name length is limited to 4-128 characters.
+      fileName?: string(name='FileName', description='The name of the file to import. The file name must include the file format extension.
+- Supported formats: pdf, docx, doc, txt, md, pptx, ppt, xlsx, xls, html, png, jpg, jpeg, bmp, and gif.
+- The file name must be 4 to 128 characters in length.
 - For file upload requirements and limits, see [Knowledge base quotas and limits](https://help.aliyun.com/document_detail/2880605.html).
 
->Notice: When the imported file name duplicates an existing file name in the knowledge base, the operation still returns `Status` as `SUCCESS`, but the file will not actually be imported into the knowledge base, and the existing file with the same name remains unchanged. Please ensure that each imported file name is unique.
-> To add a new data table and upload data, please use the Alibaba Cloud Model Studio console; the API does not support this.
+>Notice: If the name of the imported file is the same as an existing file in the knowledge base, the operation still returns a `Status` of `SUCCESS`, but the file is not actually imported. The existing file with the same name remains unchanged. Make sure that each imported file name is unique.
+> To create a data table and upload data, use the Model Studio console. This is not supported through the API.
 
 This parameter is required.', example='this_is_temp_xxxx.pdf'),
-      ossKey?: string(name='OssKey', description='The key name (Key) of the imported file in the OSS Bucket. For details, see [Object naming](https://help.aliyun.com/document_detail/273129.html).
+      ossKey?: string(name='OssKey', description='The key of the file in the OSS bucket. For more information, see [Object naming conventions](https://help.aliyun.com/document_detail/273129.html).
 
 This parameter is required.', example='root/path/this_is_temp_xxxx.pdf'),
-      parser?: string(name='Parser', description='Parser type. Possible values include:
+      parser?: string(name='Parser', description='The parser type. Valid values:
 
-- DOCMIND (Intelligent document parsing)
-- DOCMIND_DIGITAL (Digital document parsing)
-- DOCMIND_LLM_VERSION (LLM-based document parsing)
-- DASH_QWEN_VL_PARSER (Qwen VL parsing)
-- DOCMIND_LLM_VERSION_MEDIA (Audio/video parsing)
-- AUTO_SELECT (Automatically select parser)
+- DOCMIND: intelligent document parsing.
+- DOCMIND_DIGITAL: electronic document parsing.
+- DOCMIND_LLM_VERSION: LLM-based document parsing.
+- DASH_QWEN_VL_PARSER: Qwen VL parsing.
+- DOCMIND_LLM_VERSION_MEDIA: audio and video parsing.
+- AUTO_SELECT: automatic parser selection.
 
 <props="intl">
-<note>The currently configured parser will be used to parse your uploaded files. If AUTO_SELECT is entered, the parser configured for the corresponding category will be used.</note>
+<note>The uploaded file is parsed by using the specified parser. If you set this parameter to AUTO_SELECT, the parser configured for the category is used.</note>
 
 
 <props="china">
-<note>When CategoryType is UNSTRUCTURED, the parser parses your uploaded files according to the data parsing settings of the current category.</note>
-<note>When CategoryType is SESSION_FILE, the system uses the default method (not changeable) to parse file content.</note>', example='AUTO_SELECT'),
+<note>When CategoryType is UNSTRUCTURED, the parser parses the uploaded file based on the data parsing settings of the current category.</note>
+<note>When CategoryType is SESSION_FILE, the system uses the default method (which cannot be changed) to parse the file content.</note>', example='AUTO_SELECT'),
       parserConfig?: {
-        modelName?: string(name='ModelName', description='Model name.', example='qwen-vl-max'),
-        modelPrompt?: string(name='ModelPrompt', description='The prompt used when invoking Qwen VL parsing.', example='#角色
+        modelName?: string(name='ModelName', description='The model name.', example='qwen-vl-max'),
+        modelPrompt?: string(name='ModelPrompt', description='The prompt used when calling Qwen VL parsing.', example='#角色
 你是一个专业的图片内容标注人员，擅长识别并描述出图片中的内容。
 # 任务目标
 请结合输入图片，详细描述图片中的内容。'),
-      }(name='ParserConfig', description='Parser configuration. Required only when the parser type is set to Qwen VL parsing.'),
+      }(name='ParserConfig', description='The parser configuration. This parameter is required only when the parser type is set to Qwen VL parsing.'),
     }
-  ](name='FileDetails', description='The list of files to import. Up to 10 files can be uploaded at a time.
-> Up to 10 files can be uploaded at a time.
+  ](name='FileDetails', description='The list of files to import. A maximum of 10 files can be uploaded at a time.
+> A maximum of 10 files can be uploaded at a time.
 >
 
 This parameter is required.'),
-  ossBucketName?: string(name='OssBucketName', description='The OSS Bucket name. For details, see [Buckets](https://help.aliyun.com/document_detail/177682.html).
+  ossBucketName?: string(name='OssBucketName', description='The name of the OSS bucket. For more information, see [Buckets](https://help.aliyun.com/document_detail/177682.html).
 
 This parameter is required.', example='bucketNamexxxxx'),
-  ossRegionId?: string(name='OssRegionId', description='The region ID of the OSS Bucket. For how to obtain it, see [OSS regions and endpoints](https://help.aliyun.com/document_detail/31837.html).
+  ossRegionId?: string(name='OssRegionId', description='The region ID of the OSS bucket. For more information, see [OSS regions and endpoints](https://help.aliyun.com/document_detail/31837.html).
 
 This parameter is required.', example='cn-beijing'),
-  overWriteFileByOssKey?: boolean(name='OverWriteFileByOssKey', description='Whether to overwrite the same file in the category by OssKey. The default value is false, meaning no overwrite.', example='false'),
-  tags?: [ string ](name='Tags', description='The list of tags associated with the file. The default is empty, meaning the file is not associated with any tags. Up to 10 tags can be passed in.'),
+  overWriteFileByOssKey?: boolean(name='OverWriteFileByOssKey', description='Specifies whether to overwrite files with the same OssKey in the category. Default value: false, which means files are not overwritten.', example='false'),
+  tags?: [ string ](name='Tags', description='The list of tags associated with the file. Default value: empty, which means the file is not associated with any tags. A maximum of 10 tags can be specified.'),
 }
 
 model AddFilesFromAuthorizedOssShrinkRequest {
-  categoryId?: string(name='CategoryId', description='Specifies the target category for file import. This is the `CategoryId` returned by the AddCategory operation. You can also obtain the category ID from the <props="china">[Application Data](https://bailian.console.aliyun.com/?tab=app#/data-center) - Files tab<props="intl">[Application Data](https://modelstudio.console.alibabacloud.com/?tab=app#/data-center) - Files tab by clicking the ID icon next to the category name. You can also pass in default, which uses the system-created "Default Category".
+  categoryId?: string(name='CategoryId', description='The ID of the category to which the files are imported. This is the `CategoryId` returned by the AddCategory operation. You can also obtain the category ID by clicking the ID icon next to the category name on the <props="china">[Application Data](https://bailian.console.aliyun.com/?tab=app#/data-center) - Files tab<props="intl">[Application Data](https://modelstudio.console.alibabacloud.com/?tab=app#/data-center) - Files tab. You can pass in `default` to use the system-created default category.
 
 This parameter is required.', example='cate_cdd11b1b79a74e8bbd675c356a91ee35xxxxxxxx'),
-  categoryType?: string(name='CategoryType', description='Category type. Optional. The default value is UNSTRUCTURED. Valid values:
-- UNSTRUCTURED: Category used for building knowledge base scenarios.
+  categoryType?: string(name='CategoryType', description='The category type. Optional. Default value: UNSTRUCTURED. Valid values:
+- UNSTRUCTURED: category for building knowledge base scenarios.
 
 <props="china">
 
-> This operation does not support importing SESSION_FILE used for agent application [session interaction](https://help.aliyun.com/zh/model-studio/user-guide/file-interaction). Please use the **AddFile** operation to upload SESSION_FILE from local.
+> This operation does not support importing SESSION_FILE for agent application [conversation interaction](https://www.alibabacloud.com/help/en/model-studio/user-guide/file-interaction). Use the **AddFile** operation to upload SESSION_FILE from a local source.
 
 This parameter is required.', example='UNSTRUCTURED'),
-  fileDetailsShrink?: string(name='FileDetails', description='The list of files to import. Up to 10 files can be uploaded at a time.
-> Up to 10 files can be uploaded at a time.
+  fileDetailsShrink?: string(name='FileDetails', description='The list of files to import. A maximum of 10 files can be uploaded at a time.
+> A maximum of 10 files can be uploaded at a time.
 >
 
 This parameter is required.'),
-  ossBucketName?: string(name='OssBucketName', description='The OSS Bucket name. For details, see [Buckets](https://help.aliyun.com/document_detail/177682.html).
+  ossBucketName?: string(name='OssBucketName', description='The name of the OSS bucket. For more information, see [Buckets](https://help.aliyun.com/document_detail/177682.html).
 
 This parameter is required.', example='bucketNamexxxxx'),
-  ossRegionId?: string(name='OssRegionId', description='The region ID of the OSS Bucket. For how to obtain it, see [OSS regions and endpoints](https://help.aliyun.com/document_detail/31837.html).
+  ossRegionId?: string(name='OssRegionId', description='The region ID of the OSS bucket. For more information, see [OSS regions and endpoints](https://help.aliyun.com/document_detail/31837.html).
 
 This parameter is required.', example='cn-beijing'),
-  overWriteFileByOssKey?: boolean(name='OverWriteFileByOssKey', description='Whether to overwrite the same file in the category by OssKey. The default value is false, meaning no overwrite.', example='false'),
-  tagsShrink?: string(name='Tags', description='The list of tags associated with the file. The default is empty, meaning the file is not associated with any tags. Up to 10 tags can be passed in.'),
+  overWriteFileByOssKey?: boolean(name='OverWriteFileByOssKey', description='Specifies whether to overwrite files with the same OssKey in the category. Default value: false, which means files are not overwritten.', example='false'),
+  tagsShrink?: string(name='Tags', description='The list of tags associated with the file. Default value: empty, which means the file is not associated with any tags. A maximum of 10 tags can be specified.'),
 }
 
 model AddFilesFromAuthorizedOssResponseBody = {
-  code?: string(name='Code', description='Error status code.', example='success'),
+  code?: string(name='Code', description='The error code.', example='success'),
   data?: {
     addFileResultList?: [ 
       {
-        fileId?: string(name='FileId', description='The file ID. Please keep this value safe, as it will be used for all subsequent API operations related to this file.', example='file_809f469a59ac449586ec692576xxxxx_102248XXX'),
-        msg?: string(name='Msg', description='Error information returned when file import fails.', example='size too large'),
-        ossKey?: string(name='OssKey', description='The key name (Key) of the imported file in the OSS Bucket.', example='root/path/this_is_temp_xxxx.pdf'),
-        status?: string(name='Status', description='File import status. Possible values:
+        fileId?: string(name='FileId', description='The file ID. Keep this value safe because it is required for all subsequent API operations related to this file.', example='file_809f469a59ac449586ec692576xxxxx_102248XXX'),
+        msg?: string(name='Msg', description='The error message returned when the file import fails.', example='size too large'),
+        ossKey?: string(name='OssKey', description='The key of the imported file in the OSS bucket.', example='root/path/this_is_temp_xxxx.pdf'),
+        status?: string(name='Status', description='The file import status. Valid values:
 
-- SUCCESS: Import (application data) completed.
-- FAILED: Import (application data) failed.
+- SUCCESS: The import to application data is complete.
+- FAILED: The import to application data failed.
 
-> Only files with the SUCCESS status can be used to create or update knowledge bases.
+> Only files with a SUCCESS status can be used to create or update a knowledge base.
 >', example='SUCCESS'),
       }
     ](name='AddFileResultList', description='The list of file import results.'),
-  }(name='Data', description='Business data field returned by the operation.'),
-  message?: string(name='Message', description='Error information.', example='Cant find out category for category_id param.'),
-  requestId?: string(name='RequestId', description='The ID of the request.', example='17204B98-xxxx-4F9A-8464-2446A84821CA'),
+  }(name='Data', description='The data field returned by the operation.'),
+  message?: string(name='Message', description='The error message.', example='Cant find out category for category_id param.'),
+  requestId?: string(name='RequestId', description='The request ID.', example='17204B98-xxxx-4F9A-8464-2446A84821CA'),
   status?: string(name='Status', description='The status code returned by the operation.', example='200'),
-  success?: string(name='Success', description='Whether the operation call succeeded. Possible values:
-- true: Success.
-- false: Failure.', example='true'),
+  success?: string(name='Success', description='Indicates whether the call was successful. Valid values:
+- true: Successful.
+- false: Failed.', example='true'),
 }
 
 model AddFilesFromAuthorizedOssResponse = {
@@ -628,16 +731,16 @@ model AddFilesFromAuthorizedOssResponse = {
 }
 
 /**
- * @summary Imports files from an authorized OSS Bucket into Alibaba Cloud Model Studio (Bailian) application data.
+ * @summary Imports files from an authorized OSS bucket into Alibaba Cloud Model Studio application data.
  *
- * @description - Please ensure that the OSS Bucket and Alibaba Cloud Model Studio belong to the same Alibaba Cloud account (main account) and that authorization has been completed according to the [Configuration instructions for importing data from OSS](https://help.aliyun.com/document_detail/2782155.html).
+ * @description - Make sure the OSS bucket belongs to the same Alibaba Cloud account as Model Studio and that authorization has been completed as described in [Importing data from OSS configuration instructions](https://help.aliyun.com/document_detail/2782155.html).
  *  
- *      - Supported Bucket storage types do not include Archive, Cold Archive, or Deep Cold Archive. Buckets with content encryption are supported. Public read/write, public read, and private Buckets are supported.
- *      -  If you want to use a Bucket with [Referer hotlink protection](https://help.aliyun.com/document_detail/2636937.html) enabled, refer to [Allow access only from trusted websites](https://help.aliyun.com/document_detail/2636937.html) to add the domain `*.console.aliyun.com` to the Referer allowlist.
- * - A RAM user (sub-account) must first obtain the [API permissions](https://help.aliyun.com/document_detail/2848578.html) for Alibaba Cloud Model Studio (requires `AliyunBailianDataFullAccess`, which includes the sfm:AddFilesFromAuthorizedOss permission point) and [join a workspace](https://help.aliyun.com/document_detail/2851098.html) before calling this operation. The Alibaba Cloud account (main account) can call this directly without authorization. We recommend that you call this operation through the latest version of the <props="china">[Alibaba Cloud Model Studio SDK](https://api.aliyun.com/api-tools/sdk/bailian?version=2023-12-29)<props="intl">[Alibaba Cloud Model Studio SDK](https://api.alibabacloud.com/api-tools/sdk/bailian?version=2023-12-29).
- * - This operation is not idempotent.
- * **Throttling description:**
- * Frequent calls to this operation will be throttled. The frequency should not exceed 5 calls per second. If throttled, please try again later.
+ *      - Supported bucket storage types do not include Archive, Cold Archive, or Deep Cold Archive. Buckets with content encryption enabled are supported. Buckets with public read/write, public read, or private access are supported.
+ *      - To use a bucket with [Referer-based hotlink protection](https://help.aliyun.com/document_detail/2636937.html) enabled, add the domain name `*.console.aliyun.com` to the Referer whitelist as described in [Allow access only from trusted websites](https://help.aliyun.com/document_detail/2636937.html).
+ * - Resource Access Management (RAM) users must first obtain [API permissions](https://help.aliyun.com/document_detail/2848578.html) for Model Studio (the `AliyunBailianDataFullAccess` permission is required, which includes the sfm:AddFilesFromAuthorizedOss permission) and [join a workspace](https://help.aliyun.com/document_detail/2851098.html) before invoking this operation. Alibaba Cloud accounts can invoke this operation directly without authorization. Call this operation by using the latest <props="china">[Model Studio SDK](https://api.aliyun.com/api-tools/sdk/bailian?version=2023-12-29)<props="intl">[Model Studio SDK](https://api.alibabacloud.com/api-tools/sdk/bailian?version=2023-12-29).
+ * - This operation does not have idempotence.
+ * **Rate limit:**
+ * This operation is throttled if called too frequently. Do not exceed 5 calls per second. If throttled, retry later.
  *
  * @param tmpReq AddFilesFromAuthorizedOssRequest
  * @param headers map
@@ -697,16 +800,16 @@ async function addFilesFromAuthorizedOssWithOptions(WorkspaceId: string, tmpReq:
 }
 
 /**
- * @summary Imports files from an authorized OSS Bucket into Alibaba Cloud Model Studio (Bailian) application data.
+ * @summary Imports files from an authorized OSS bucket into Alibaba Cloud Model Studio application data.
  *
- * @description - Please ensure that the OSS Bucket and Alibaba Cloud Model Studio belong to the same Alibaba Cloud account (main account) and that authorization has been completed according to the [Configuration instructions for importing data from OSS](https://help.aliyun.com/document_detail/2782155.html).
+ * @description - Make sure the OSS bucket belongs to the same Alibaba Cloud account as Model Studio and that authorization has been completed as described in [Importing data from OSS configuration instructions](https://help.aliyun.com/document_detail/2782155.html).
  *  
- *      - Supported Bucket storage types do not include Archive, Cold Archive, or Deep Cold Archive. Buckets with content encryption are supported. Public read/write, public read, and private Buckets are supported.
- *      -  If you want to use a Bucket with [Referer hotlink protection](https://help.aliyun.com/document_detail/2636937.html) enabled, refer to [Allow access only from trusted websites](https://help.aliyun.com/document_detail/2636937.html) to add the domain `*.console.aliyun.com` to the Referer allowlist.
- * - A RAM user (sub-account) must first obtain the [API permissions](https://help.aliyun.com/document_detail/2848578.html) for Alibaba Cloud Model Studio (requires `AliyunBailianDataFullAccess`, which includes the sfm:AddFilesFromAuthorizedOss permission point) and [join a workspace](https://help.aliyun.com/document_detail/2851098.html) before calling this operation. The Alibaba Cloud account (main account) can call this directly without authorization. We recommend that you call this operation through the latest version of the <props="china">[Alibaba Cloud Model Studio SDK](https://api.aliyun.com/api-tools/sdk/bailian?version=2023-12-29)<props="intl">[Alibaba Cloud Model Studio SDK](https://api.alibabacloud.com/api-tools/sdk/bailian?version=2023-12-29).
- * - This operation is not idempotent.
- * **Throttling description:**
- * Frequent calls to this operation will be throttled. The frequency should not exceed 5 calls per second. If throttled, please try again later.
+ *      - Supported bucket storage types do not include Archive, Cold Archive, or Deep Cold Archive. Buckets with content encryption enabled are supported. Buckets with public read/write, public read, or private access are supported.
+ *      - To use a bucket with [Referer-based hotlink protection](https://help.aliyun.com/document_detail/2636937.html) enabled, add the domain name `*.console.aliyun.com` to the Referer whitelist as described in [Allow access only from trusted websites](https://help.aliyun.com/document_detail/2636937.html).
+ * - Resource Access Management (RAM) users must first obtain [API permissions](https://help.aliyun.com/document_detail/2848578.html) for Model Studio (the `AliyunBailianDataFullAccess` permission is required, which includes the sfm:AddFilesFromAuthorizedOss permission) and [join a workspace](https://help.aliyun.com/document_detail/2851098.html) before invoking this operation. Alibaba Cloud accounts can invoke this operation directly without authorization. Call this operation by using the latest <props="china">[Model Studio SDK](https://api.aliyun.com/api-tools/sdk/bailian?version=2023-12-29)<props="intl">[Model Studio SDK](https://api.alibabacloud.com/api-tools/sdk/bailian?version=2023-12-29).
+ * - This operation does not have idempotence.
+ * **Rate limit:**
+ * This operation is throttled if called too frequently. Do not exceed 5 calls per second. If throttled, retry later.
  *
  * @param request AddFilesFromAuthorizedOssRequest
  * @return AddFilesFromAuthorizedOssResponse
@@ -734,7 +837,7 @@ This parameter is required.', example='string'),
   ](name='TableColumns', description='The column information of the table.
 
 This parameter is required.'),
-  tableDesc?: string(name='TableDesc'),
+  tableDesc?: string(name='TableDesc', description='The table description.', example='table description'),
   tableName?: string(name='TableName', description='The table name.
 
 This parameter is required.', example='ads_wjjr_basc_enterprise_di'),
@@ -747,24 +850,24 @@ This parameter is required.', example='connector-d51861492df64257'),
   tableColumnsShrink?: string(name='TableColumns', description='The column information of the table.
 
 This parameter is required.'),
-  tableDesc?: string(name='TableDesc'),
+  tableDesc?: string(name='TableDesc', description='The table description.', example='table description'),
   tableName?: string(name='TableName', description='The table name.
 
 This parameter is required.', example='ads_wjjr_basc_enterprise_di'),
 }
 
 model AddTableResponseBody = {
-  code?: string(name='Code', description='The error code.', example='Index.Forbidden'),
+  code?: string(name='Code', description='The error status code.', example='Index.Forbidden'),
   data?: {
     tableId?: string(name='TableId', description='The table ID.', example='table_b6ddc67e7df14db38b74ef5e2e0fe24e_12792097'),
   }(name='Data', description='The returned data.'),
   message?: string(name='Message', description='The error message.', example='Required parameter(%s) missing or invalid, please check the request parameters.'),
-  requestId?: string(name='RequestId', description='Id of the request', example='778C0B3B-03C1-5FC1-A947-36EDD13606AB'),
-  status?: string(name='Status', description='The status code returned by the operation.', example='200'),
-  success?: boolean(name='Success', description='Indicates whether the call was successful. Valid values:
+  requestId?: string(name='RequestId', description='The request ID.', example='778C0B3B-03C1-5FC1-A947-36EDD13606AB'),
+  status?: string(name='Status', description='The status code returned by the interface.', example='200'),
+  success?: boolean(name='Success', description='Indicates whether the API call was successful. Valid values:
 
-- true: Succeeded.
-- false: Failed.', example='True'),
+- true: The call was successful.
+- false: The call failed.', example='True'),
 }
 
 model AddTableResponse = {
@@ -774,12 +877,12 @@ model AddTableResponse = {
 }
 
 /**
- * @summary Adds a table to a tabular data connector.
+ * @summary Add a table for the table data connector.
  *
- * @description - Resource Access Management (RAM) users must first obtain [API permissions](https://help.aliyun.com/document_detail/2848578.html) for Alibaba Cloud Model Studio (requires `AliyunBailianDataFullAccess`, which includes the sfm:AddTable permission), and [join a workspace](https://help.aliyun.com/document_detail/2851098.html) before invoking this operation. Alibaba Cloud accounts can invoke this operation directly without authorization. Use the latest <props="china">[Alibaba Cloud Model Studio SDK](https://api.aliyun.com/api-tools/sdk/bailian?version=2023-12-29)<props="intl">[Alibaba Cloud Model Studio SDK](https://api.alibabacloud.com/api-tools/sdk/bailian?version=2023-12-29) to invoke this operation.
- * - This operation is not idempotent.
- * **Rate limit:**
- * This operation is throttled if called too frequently. Do not exceed 10 calls per second. If throttled, retry later.
+ * @description - RAM users (sub-accounts) must first obtain the [API permissions](https://help.aliyun.com/document_detail/2848578.html) for Chinese China Bailian (requires `AliyunBailianDataFullAccess`, which includes the sfm:AddTable permission), and [join a workspace](https://help.aliyun.com/document_detail/2851098.html) before calling this API. Alibaba Cloud accounts (primary accounts) can call this API directly without authorization. We recommend that you call this API by using the latest <props="china">[Chinese China Bailian SDK](https://api.aliyun.com/api-tools/sdk/bailian?version=2023-12-29)<props="intl">[Chinese China Bailian SDK](https://api.alibabacloud.com/api-tools/sdk/bailian?version=2023-12-29).
+ * - This API is not idempotent.
+ * **Throttling:**
+ * This API is subject to throttling when called frequently. Do not exceed 10 calls per second. If throttling is triggered, retry later.
  *
  * @param tmpReq AddTableRequest
  * @param headers map
@@ -827,12 +930,12 @@ async function addTableWithOptions(WorkspaceId: string, tmpReq: AddTableRequest,
 }
 
 /**
- * @summary Adds a table to a tabular data connector.
+ * @summary Add a table for the table data connector.
  *
- * @description - Resource Access Management (RAM) users must first obtain [API permissions](https://help.aliyun.com/document_detail/2848578.html) for Alibaba Cloud Model Studio (requires `AliyunBailianDataFullAccess`, which includes the sfm:AddTable permission), and [join a workspace](https://help.aliyun.com/document_detail/2851098.html) before invoking this operation. Alibaba Cloud accounts can invoke this operation directly without authorization. Use the latest <props="china">[Alibaba Cloud Model Studio SDK](https://api.aliyun.com/api-tools/sdk/bailian?version=2023-12-29)<props="intl">[Alibaba Cloud Model Studio SDK](https://api.alibabacloud.com/api-tools/sdk/bailian?version=2023-12-29) to invoke this operation.
- * - This operation is not idempotent.
- * **Rate limit:**
- * This operation is throttled if called too frequently. Do not exceed 10 calls per second. If throttled, retry later.
+ * @description - RAM users (sub-accounts) must first obtain the [API permissions](https://help.aliyun.com/document_detail/2848578.html) for Chinese China Bailian (requires `AliyunBailianDataFullAccess`, which includes the sfm:AddTable permission), and [join a workspace](https://help.aliyun.com/document_detail/2851098.html) before calling this API. Alibaba Cloud accounts (primary accounts) can call this API directly without authorization. We recommend that you call this API by using the latest <props="china">[Chinese China Bailian SDK](https://api.aliyun.com/api-tools/sdk/bailian?version=2023-12-29)<props="intl">[Chinese China Bailian SDK](https://api.alibabacloud.com/api-tools/sdk/bailian?version=2023-12-29).
+ * - This API is not idempotent.
+ * **Throttling:**
+ * This API is subject to throttling when called frequently. Do not exceed 10 calls per second. If throttling is triggered, retry later.
  *
  * @param request AddTableRequest
  * @return AddTableResponse
@@ -1191,130 +1294,90 @@ async function batchUpdateFileTag(WorkspaceId: string, request: BatchUpdateFileT
 }
 
 model ChangeParseSettingRequest {
-  categoryId?: string(name='CategoryId', description='The category ID. This is the `CategoryId` returned by the **AddCategory** operation. You can also obtain the ID from the <props="china">[Application Data](https://bailian.console.aliyun.com/?tab=app#/data-center) - File tab<props="intl">[Application Data](https://bailian.console.alibabacloud.com/?tab=app#/data-center) - Unstructured Data tab by clicking the ID icon next to the category name.
+  categoryId?: string(name='CategoryId', description='The category ID, which is the `CategoryId` returned by the **AddCategory** operation. You can also obtain it by clicking the ID icon next to the category name on the <props="china">[Application Data](https://bailian.console.aliyun.com/?tab=app#/data-center) - Files tab<props="intl">[Application Data](https://bailian.console.alibabacloud.com/?tab=app#/data-center) - Unstructured Data tab.
 
 This parameter is required.', example='cate_cdd11b1b79a74e8bbd675c356a91ee35xxxxxxxx'),
-  fileType?: string(name='FileType', description='The file type, specified by its extension. Valid values:
-
+  fileType?: string(name='FileType', description='The file type (extension). Valid values:
 - doc
-
 - docx
-
 - ppt
-
 - pptx
-
 - xls
-
 - xlsx
-
 - md
-
 - txt
-
 - pdf
-
 - png
-
 - jpg
-
 - jpeg
-
 - bmp
-
 - gif
-
 - html
 
 This parameter is required.', example='pdf'),
-  parser?: string(name='Parser', description='The identifier for the parser. Different parsers are suitable for different scenarios. For more information, refer to the knowledge base. Valid values:
-
-- DOCMIND (intelligent document parsing)
-
-- DOCMIND_DIGITAL (digital document parsing)
-
-- DOCMIND_LLM_VERSION (LLM-based document parsing)
-
-- DASH_QWEN_VL_PARSER (Qwen VL Parser)
+  parser?: string(name='Parser', description='The parser identifier code. Different parsers are applicable to different scenarios. For more information, see "Knowledge Base". Valid values:
+- DOCMIND (Intelligent Document Parsing)
+- DOCMIND_DIGITAL (Electronic Document Parsing)
+- DOCMIND_LLM_VERSION (Large Model Document Parsing)
+- DASH_QWEN_VL_PARSER (Qwen VL Parsing)
+- DOCMIND_LLM_VERSION_MEDIA (Audio/Video Parsing)
 
 This parameter is required.', example='DOCMIND'),
   parserConfig?: {
     modelName?: string(name='modelName', description='The model name.', example='qwen-vl-max'),
-    modelPrompt?: string(name='modelPrompt', description='The prompt to use when calling the Qwen VL Parser.', example='#角色
+    modelPrompt?: string(name='modelPrompt', description='The prompt used when calling Qwen VL Parsing.', example='#角色
 你是一个专业的图片内容标注人员，擅长识别并描述出图片中的内容。
 # 任务目标
 请结合输入图片，详细描述图片中的内容。'),
-  }(name='ParserConfig', description='The parser configuration. This parameter is required only when the `Parser` parameter is set to `DASH_QWEN_VL_PARSER`.'),
+  }(name='ParserConfig', description='The parser configuration. This parameter is required only when the parser is set to Qwen VL Parsing.'),
 }
 
 model ChangeParseSettingShrinkRequest {
-  categoryId?: string(name='CategoryId', description='The category ID. This is the `CategoryId` returned by the **AddCategory** operation. You can also obtain the ID from the <props="china">[Application Data](https://bailian.console.aliyun.com/?tab=app#/data-center) - File tab<props="intl">[Application Data](https://bailian.console.alibabacloud.com/?tab=app#/data-center) - Unstructured Data tab by clicking the ID icon next to the category name.
+  categoryId?: string(name='CategoryId', description='The category ID, which is the `CategoryId` returned by the **AddCategory** operation. You can also obtain it by clicking the ID icon next to the category name on the <props="china">[Application Data](https://bailian.console.aliyun.com/?tab=app#/data-center) - Files tab<props="intl">[Application Data](https://bailian.console.alibabacloud.com/?tab=app#/data-center) - Unstructured Data tab.
 
 This parameter is required.', example='cate_cdd11b1b79a74e8bbd675c356a91ee35xxxxxxxx'),
-  fileType?: string(name='FileType', description='The file type, specified by its extension. Valid values:
-
+  fileType?: string(name='FileType', description='The file type (extension). Valid values:
 - doc
-
 - docx
-
 - ppt
-
 - pptx
-
 - xls
-
 - xlsx
-
 - md
-
 - txt
-
 - pdf
-
 - png
-
 - jpg
-
 - jpeg
-
 - bmp
-
 - gif
-
 - html
 
 This parameter is required.', example='pdf'),
-  parser?: string(name='Parser', description='The identifier for the parser. Different parsers are suitable for different scenarios. For more information, refer to the knowledge base. Valid values:
-
-- DOCMIND (intelligent document parsing)
-
-- DOCMIND_DIGITAL (digital document parsing)
-
-- DOCMIND_LLM_VERSION (LLM-based document parsing)
-
-- DASH_QWEN_VL_PARSER (Qwen VL Parser)
+  parser?: string(name='Parser', description='The parser identifier code. Different parsers are applicable to different scenarios. For more information, see "Knowledge Base". Valid values:
+- DOCMIND (Intelligent Document Parsing)
+- DOCMIND_DIGITAL (Electronic Document Parsing)
+- DOCMIND_LLM_VERSION (Large Model Document Parsing)
+- DASH_QWEN_VL_PARSER (Qwen VL Parsing)
+- DOCMIND_LLM_VERSION_MEDIA (Audio/Video Parsing)
 
 This parameter is required.', example='DOCMIND'),
-  parserConfigShrink?: string(name='ParserConfig', description='The parser configuration. This parameter is required only when the `Parser` parameter is set to `DASH_QWEN_VL_PARSER`.'),
+  parserConfigShrink?: string(name='ParserConfig', description='The parser configuration. This parameter is required only when the parser is set to Qwen VL Parsing.'),
 }
 
 model ChangeParseSettingResponseBody = {
-  code?: string(name='Code', description='The error code.', example='InvalidParameter'),
+  code?: string(name='Code', description='The error status code.', example='InvalidParameter'),
   data?: {
-    changeResult?: boolean(name='ChangeResult', description='Indicates whether the configuration was successfully updated.
-
+    changeResult?: boolean(name='ChangeResult', description='Indicates whether the configuration was changed. Valid values:
 - true: The configuration was updated.
-
-- false: The configuration failed to be updated.', example='true'),
-  }(name='Data', description='The data returned for a successful request.'),
+- false: The configuration was not changed. The modification failed.', example='true'),
+  }(name='Data', description='The business data returned when the request is successful.'),
   message?: string(name='Message', description='The error message.', example='User not authorized to operate on the specified resource.'),
   requestId?: string(name='RequestId', description='The request ID.', example='7BA8ADD9-53D6-53F0-918F-A1E776AD230E'),
-  status?: string(name='Status', description='The status code returned for the request.', example='200'),
-  success?: boolean(name='Success', description='Indicates whether the request was successful. Valid values:
-
-- true: The request was successful.
-
-- false: The request failed.', example='true'),
+  status?: string(name='Status', description='The status code returned by the operation.', example='200'),
+  success?: boolean(name='Success', description='Indicates whether the call was successful. Valid values:
+- true: Successful.
+- false: Failed.', example='true'),
 }
 
 model ChangeParseSettingResponse = {
@@ -1324,12 +1387,12 @@ model ChangeParseSettingResponse = {
 }
 
 /**
- * @summary Configures the parsing method for a specific file type. For example, you can specify LLM-based document parsing for .pdf files and the Qwen VL Parser for .jpg files.
+ * @summary Configures the parsing method for specific file types. For example, specifies large model document parsing for .pdf files or Qwen VL parsing for .jpg files.
  *
- * @description - A RAM user (sub-account) must first obtain the required [API permissions](https://help.aliyun.com/document_detail/2848578.html) for Alibaba Cloud Model Studio (the `AliyunBailianDataFullAccess` policy, which includes the `sfm:ChangeParseSetting` permission) and [join a workspace](https://help.aliyun.com/document_detail/2851098.html) before calling this operation. An Alibaba Cloud account (primary account) can call this operation directly without authorization. We recommend using the latest version of the <props="china">[Alibaba Cloud Model Studio SDK](https://api.aliyun.com/api-tools/sdk/bailian?version=2023-12-29)<props="intl">[Alibaba Cloud Model Studio SDK](https://api.alibabacloud.com/api-tools/sdk/bailian?version=2023-12-29) to call this operation.
+ * @description - Resource Access Management (RAM) users must first obtain [API permissions](https://help.aliyun.com/document_detail/2848578.html) for Alibaba Cloud Model Studio (requires `AliyunBailianDataFullAccess`, which includes the sfm:ChangeParseSetting permission), and [join a workspace](https://help.aliyun.com/document_detail/2851098.html) before invoking this operation. Alibaba Cloud accounts can invoke this operation directly without authorization. Invoke this operation by using the latest <props="china">[Alibaba Cloud Model Studio SDK](https://api.aliyun.com/api-tools/sdk/bailian?version=2023-12-29)<props="intl">[Alibaba Cloud Model Studio SDK](https://api.alibabacloud.com/api-tools/sdk/bailian?version=2023-12-29).
  * - This operation is not idempotent.
- * **Throttling**
- * The system throttles frequent calls to this operation. Do not exceed a frequency of 10 requests per second. If your request is throttled, try again later.
+ * **Throttling:**
+ * This operation is throttled if called too frequently. Do not exceed 10 calls per second. If throttled, retry later.
  *
  * @param tmpReq ChangeParseSettingRequest
  * @param headers map
@@ -1377,12 +1440,12 @@ async function changeParseSettingWithOptions(WorkspaceId: string, tmpReq: Change
 }
 
 /**
- * @summary Configures the parsing method for a specific file type. For example, you can specify LLM-based document parsing for .pdf files and the Qwen VL Parser for .jpg files.
+ * @summary Configures the parsing method for specific file types. For example, specifies large model document parsing for .pdf files or Qwen VL parsing for .jpg files.
  *
- * @description - A RAM user (sub-account) must first obtain the required [API permissions](https://help.aliyun.com/document_detail/2848578.html) for Alibaba Cloud Model Studio (the `AliyunBailianDataFullAccess` policy, which includes the `sfm:ChangeParseSetting` permission) and [join a workspace](https://help.aliyun.com/document_detail/2851098.html) before calling this operation. An Alibaba Cloud account (primary account) can call this operation directly without authorization. We recommend using the latest version of the <props="china">[Alibaba Cloud Model Studio SDK](https://api.aliyun.com/api-tools/sdk/bailian?version=2023-12-29)<props="intl">[Alibaba Cloud Model Studio SDK](https://api.alibabacloud.com/api-tools/sdk/bailian?version=2023-12-29) to call this operation.
+ * @description - Resource Access Management (RAM) users must first obtain [API permissions](https://help.aliyun.com/document_detail/2848578.html) for Alibaba Cloud Model Studio (requires `AliyunBailianDataFullAccess`, which includes the sfm:ChangeParseSetting permission), and [join a workspace](https://help.aliyun.com/document_detail/2851098.html) before invoking this operation. Alibaba Cloud accounts can invoke this operation directly without authorization. Invoke this operation by using the latest <props="china">[Alibaba Cloud Model Studio SDK](https://api.aliyun.com/api-tools/sdk/bailian?version=2023-12-29)<props="intl">[Alibaba Cloud Model Studio SDK](https://api.alibabacloud.com/api-tools/sdk/bailian?version=2023-12-29).
  * - This operation is not idempotent.
- * **Throttling**
- * The system throttles frequent calls to this operation. Do not exceed a frequency of 10 requests per second. If your request is throttled, try again later.
+ * **Throttling:**
+ * This operation is throttled if called too frequently. Do not exceed 10 calls per second. If throttled, retry later.
  *
  * @param request ChangeParseSettingRequest
  * @return ChangeParseSettingResponse
@@ -3452,53 +3515,53 @@ model DescribeFileResponseBody = {
     createTime?: string(name='CreateTime', description='The timestamp when the file was added to Model Studio. Format: yyyy-MM-dd HH:mm:ss. Time zone: UTC+8.', example='2024-09-09 12:45:43'),
     fileId?: string(name='FileId', description='The file ID.', example='file_9a65732555b54d5ea10796ca5742ba22_xxxxxxxx'),
     fileName?: string(name='FileName', description='The file name.', example='XXX产品介绍.pdf'),
-    fileType?: string(name='FileType', description='The file type (extension). Valid values: pdf, docx, doc, txt, md, pptx, ppt, xlsx, xls, html, png, jpg, jpeg, bmp, and gif.', example='pdf'),
-    parseErrorMessage?: string(name='ParseErrorMessage'),
+    fileType?: string(name='FileType', description='The file type (extension). Possible values: pdf, docx, doc, txt, md, pptx, ppt, xlsx, xls, html, png, jpg, jpeg, bmp, and gif.', example='pdf'),
+    parseErrorMessage?: string(name='ParseErrorMessage', description='The reason for the parsing failure.', example='Error Message'),
     parseResultDownloadUrl?: string(name='ParseResultDownloadUrl'),
-    parser?: string(name='Parser', description='The parser type used to parse the file. Valid values:
+    parser?: string(name='Parser', description='The parser type used to parse the file. Possible values:
 - DASHSCOPE_DOCMIND: the default document parser.', example='DASHSCOPE_DOCMIND'),
     sizeInBytes?: long(name='SizeInBytes', description='The file size, in bytes.', example='1234'),
     status?: string(name='Status', description='<props="china">
 
-For files used in document-based knowledge bases (type: UNSTRUCTURED), valid values:
+For files used in document-based knowledge bases (type: UNSTRUCTURED), possible values:
 
 
 
 <props="intl">
 
-For files used in unstructured knowledge bases (type: UNSTRUCTURED), valid values:
+For files used in unstructured knowledge bases (type: UNSTRUCTURED), possible values:
 
 
 
 
-- INIT: pending parsing.
-- IN_PARSE_QUEUE: queued for parsing.
-- PARSING: being parsed.
-- PARSE_SUCCESS: parsing completed.
+- INIT: Pending parsing.
+- IN_PARSE_QUEUE: Queued for parsing.
+- PARSING: Being parsed.
+- PARSE_SUCCESS: Parsing completed.
 <note>The document can be imported into a knowledge base only after the status changes to PARSE_SUCCESS.</note>
-- PARSE_FAILED: parsing failed.
+- PARSE_FAILED: Parsing failed.
 
 <props="china">
-For files used in agent application [session interaction](https://www.alibabacloud.com/help/en/model-studio/user-guide/file-interaction) (type: SESSION_FILE), valid values:
+For files used in agent application [session interaction](https://www.alibabacloud.com/help/en/model-studio/user-guide/file-interaction) (type: SESSION_FILE), possible values:
 
-- INIT: pending parsing.
-- IN_PARSE_QUEUE: queued for parsing.
-- PARSING: being parsed.
-- PARSE_SUCCESS: parsing completed.
-- PARSE_FAILED: parsing failed.
-- SAFE_CHECKING: security check in progress.
-- SAFE_CHECK_FAILED: security check failed.
-- INDEX_BUILDING: index being built.
-- INDEX_BUILD_SUCCESS: index built.
-- INDEX_BUILDING_FAILED: index building failed.
-- INDEX_DELETED: file index deleted.
-- FILE_IS_READY: file is ready.
-<note>Q&A can proceed only after the status changes to FILE_IS_READY.</note>
-- FILE_EXPIRED: file expired.
+- INIT: Pending parsing.
+- IN_PARSE_QUEUE: Queued for parsing.
+- PARSING: Being parsed.
+- PARSE_SUCCESS: Parsing completed.
+- PARSE_FAILED: Parsing failed.
+- SAFE_CHECKING: Safety check in progress.
+- SAFE_CHECK_FAILED: Safety check failed.
+- INDEX_BUILDING: Index being built.
+- INDEX_BUILD_SUCCESS: Index built.
+- INDEX_BUILDING_FAILED: Index building failed.
+- INDEX_DELETED: File index deleted.
+- FILE_IS_READY: File is ready.
+<note>Q&A is available only after the status changes to FILE_IS_READY.</note>
+- FILE_EXPIRED: File expired.
 <note>The file is valid only for the current user session. After the user closes the session, the file expires (maximum validity period: 7 days). Long-term retention is not supported.</note>
 .', example='PARSE_SUCCESS'),
     tags?: [ string ](name='Tags', description='The list of tags associated with the file. A file can be associated with multiple tags.'),
-  }(name='Data', description='The data field of the operation.'),
+  }(name='Data', description='The data field returned by the operation.'),
   message?: string(name='Message', description='The error message.', example='Requests throttling triggered.'),
   requestId?: string(name='RequestId', description='The request ID.', example='17204B98-xxxx-4F9A-8464-2446A84821CA'),
   status?: string(name='Status', description='The status code returned by the operation.', example='200'),
@@ -3514,11 +3577,11 @@ model DescribeFileResponse = {
 }
 
 /**
- * @summary Queries the basic information about a file in application data, including the file name, type, and status.
+ * @summary Queries the basic information of a file in application data, including the file name, type, and status.
  *
- * @description - A Resource Access Management (RAM) user must first obtain [API permissions](https://help.aliyun.com/document_detail/2848578.html) for Model Studio (`AliyunBailianDataFullAccess` or `AliyunBailianDataReadOnlyAccess`, both of which include the sfm:DescribeFile permission) and [join a workspace](https://help.aliyun.com/document_detail/2851098.html) before invoking this operation. An Alibaba Cloud account can invoke this operation directly without authorization. Invoke this operation by using the latest <props="china">[Model Studio SDK](https://api.aliyun.com/api-tools/sdk/bailian?version=2023-12-29)<props="intl">[Model Studio SDK](https://api.alibabacloud.com/api-tools/sdk/bailian?version=2023-12-29).
+ * @description - A Resource Access Management (RAM) user must first obtain [API permissions](https://help.aliyun.com/document_detail/2848578.html) for Model Studio (`AliyunBailianDataFullAccess` or `AliyunBailianDataReadOnlyAccess`, both of which include the sfm:DescribeFile permission), and [join a workspace](https://help.aliyun.com/document_detail/2851098.html) before invoking this operation. An Alibaba Cloud account can invoke this operation directly without authorization. Use the latest <props="china">[Model Studio SDK](https://api.aliyun.com/api-tools/sdk/bailian?version=2023-12-29)<props="intl">[Model Studio SDK](https://api.alibabacloud.com/api-tools/sdk/bailian?version=2023-12-29) to invoke this operation.
  * - This operation is idempotent.
- * **Rate limit:**
+ * **Throttling:**
  * This operation is throttled if called too frequently. Do not exceed 10 calls per second. If you are throttled, retry later.
  *
  * @param request DescribeFileRequest
@@ -3547,11 +3610,11 @@ async function describeFileWithOptions(WorkspaceId: string, FileId: string, requ
 }
 
 /**
- * @summary Queries the basic information about a file in application data, including the file name, type, and status.
+ * @summary Queries the basic information of a file in application data, including the file name, type, and status.
  *
- * @description - A Resource Access Management (RAM) user must first obtain [API permissions](https://help.aliyun.com/document_detail/2848578.html) for Model Studio (`AliyunBailianDataFullAccess` or `AliyunBailianDataReadOnlyAccess`, both of which include the sfm:DescribeFile permission) and [join a workspace](https://help.aliyun.com/document_detail/2851098.html) before invoking this operation. An Alibaba Cloud account can invoke this operation directly without authorization. Invoke this operation by using the latest <props="china">[Model Studio SDK](https://api.aliyun.com/api-tools/sdk/bailian?version=2023-12-29)<props="intl">[Model Studio SDK](https://api.alibabacloud.com/api-tools/sdk/bailian?version=2023-12-29).
+ * @description - A Resource Access Management (RAM) user must first obtain [API permissions](https://help.aliyun.com/document_detail/2848578.html) for Model Studio (`AliyunBailianDataFullAccess` or `AliyunBailianDataReadOnlyAccess`, both of which include the sfm:DescribeFile permission), and [join a workspace](https://help.aliyun.com/document_detail/2851098.html) before invoking this operation. An Alibaba Cloud account can invoke this operation directly without authorization. Use the latest <props="china">[Model Studio SDK](https://api.aliyun.com/api-tools/sdk/bailian?version=2023-12-29)<props="intl">[Model Studio SDK](https://api.alibabacloud.com/api-tools/sdk/bailian?version=2023-12-29) to invoke this operation.
  * - This operation is idempotent.
- * **Rate limit:**
+ * **Throttling:**
  * This operation is throttled if called too frequently. Do not exceed 10 calls per second. If you are throttled, retry later.
  *
  * @param request DescribeFileRequest
@@ -3906,40 +3969,42 @@ This parameter is required.', example='79c0alxxxx'),
   jobId?: string(name='JobId', description='The knowledge base job ID, which is the `Data.Id` returned by the **SubmitIndexJob** or **SubmitIndexAddDocumentsJob** operation.
 
 This parameter is required.', example='20230718xxxx-146c93bf'),
-  pageNumber?: int32(name='PageNumber', description='The **SubmitIndexJob** and **SubmitIndexAddDocumentsJob** operations support batch file import. This operation returns the overall knowledge base job status `Status` and the import status of each file `Document.Status`. If there are many files, use the `PageNumber` parameter for paging. Minimum value: 1. Default value: 1.', example='1'),
+  pageNumber?: int32(name='PageNumber', description='Both the **SubmitIndexJob** and **SubmitIndexAddDocumentsJob** operations support batch file import. This operation returns the overall status of the knowledge base job (`Status`) and the import status of each file (`Document.Status`). If there are many files, use the `PageNumber` parameter for paged query. Minimum value: 1. Default value: 1.', example='1'),
   pageSize?: int32(name='pageSize', description='The number of file import tasks to display per page in a paged query. No maximum limit. Default value: 10.', example='10'),
 }
 
 model GetIndexJobStatusResponseBody = {
-  code?: string(name='Code', description='The error code.', example='Index.Forbidden'),
+  code?: string(name='Code', description='The error status code.', example='Index.Forbidden'),
   data?: {
     documents?: [ 
       {
-        code?: string(name='Code', description='The error code.', example='Index.Document.ChunkError'),
+        code?: string(name='Code', description='The error status code.', example='Index.Document.ChunkError'),
         docId?: string(name='DocId', description='The file ID.', example='file_9a65732555b54d5ea10796ca5742ba22_xxxxxxxx'),
         docName?: string(name='DocName', description='The file name.', example='XXX产品介绍'),
         gmtModified?: long(name='GmtModified'),
         message?: string(name='Message', description='The error message.', example='document parse error'),
         status?: string(name='Status', description='The file import status. Valid values:
-- INSERT_ERROR: The file import failed.
-- RUNNING: The file is being imported.
-- DELETED: The file has been deleted.
-- FINISH: The file was imported.', example='RUNNING'),
+- INSERT_ERROR: Failed to import into the index.
+- RUNNING: Index building in progress.
+- DELETED: Deleted.
+- FINISH: Index building succeeded.
+- PARSE_FAILED: Parsing failed.
+- DOC_PARSING: Parsing in progress.', example='RUNNING'),
       }
     ](name='Documents', description='The list of files imported in this job.'),
     jobId?: string(name='JobId', description='The job ID.', example='66122af12a4e45ddae6bd6c84555xxxx'),
     status?: string(name='Status', description='The current status of the knowledge base job. Valid values:
-- COMPLETED: The job succeeded.
-- FAILED: The job failed.
-- RUNNING: The job is running.
-- PENDING: The job is pending execution.', example='PENDING'),
+- COMPLETED: Execution succeeded.
+- FAILED: Execution failed.
+- RUNNING: Execution in progress.
+- PENDING: Waiting for execution.', example='PENDING'),
   }(name='Data', description='The data field returned by the operation.'),
   message?: string(name='Message', description='The error message.', example='User not authorized to operate on the specified resource.'),
   requestId?: string(name='RequestId', description='The request ID.', example='17204B98-xxxx-4F9A-8464-2446A84821CA'),
-  status?: string(name='Status', description='The HTTP status code returned by the operation.', example='200'),
+  status?: string(name='Status', description='The status code returned by the operation.', example='200'),
   success?: boolean(name='Success', description='Indicates whether the operation was successful. Valid values:
-- true: The operation was successful.
-- false: The operation failed.', example='true'),
+- true: Successful.
+- false: Failed.', example='true'),
 }
 
 model GetIndexJobStatusResponse = {
@@ -3949,12 +4014,12 @@ model GetIndexJobStatusResponse = {
 }
 
 /**
- * @summary Queries the current status of a specified knowledge base creation job or knowledge base document append job.
+ * @summary Queries the current status of a specified knowledge base creation task or knowledge base document append task.
  *
  * @description - Resource Access Management (RAM) users must first obtain [API permissions](https://help.aliyun.com/document_detail/2848578.html) for Alibaba Cloud Model Studio (`AliyunBailianDataFullAccess` or `AliyunBailianDataReadOnlyAccess`, both of which include the sfm:GetIndexJobStatus permission), and [join a workspace](https://help.aliyun.com/document_detail/2851098.html) before invoking this operation. Alibaba Cloud accounts can invoke this operation directly without authorization. Use the latest <props="china">[Alibaba Cloud Model Studio SDK](https://api.aliyun.com/api-tools/sdk/bailian?version=2023-12-29)<props="intl">[Alibaba Cloud Model Studio SDK](https://api.alibabacloud.com/api-tools/sdk/bailian?version=2023-12-29) to invoke this operation.
- * - You must have a knowledge base job task in progress. To create a knowledge base creation task, invoke the **SubmitIndexJob** operation. To create a knowledge base document append task, invoke the **SubmitIndexAddDocumentsJob** operation. Obtain the corresponding `JobId` from the response.
+ * - You must have a knowledge base job that is in progress. You can create a knowledge base creation task by invoking the **SubmitIndexJob** operation, or create a knowledge base document append task by invoking the **SubmitIndexAddDocumentsJob** operation. Obtain the corresponding `JobId`.
  * - Invoke this operation at intervals of 5 seconds or more.
- * - This operation is idempotent.
+ * - This operation supports idempotence.
  *
  * @param request GetIndexJobStatusRequest
  * @param headers map
@@ -3997,12 +4062,12 @@ async function getIndexJobStatusWithOptions(WorkspaceId: string, request: GetInd
 }
 
 /**
- * @summary Queries the current status of a specified knowledge base creation job or knowledge base document append job.
+ * @summary Queries the current status of a specified knowledge base creation task or knowledge base document append task.
  *
  * @description - Resource Access Management (RAM) users must first obtain [API permissions](https://help.aliyun.com/document_detail/2848578.html) for Alibaba Cloud Model Studio (`AliyunBailianDataFullAccess` or `AliyunBailianDataReadOnlyAccess`, both of which include the sfm:GetIndexJobStatus permission), and [join a workspace](https://help.aliyun.com/document_detail/2851098.html) before invoking this operation. Alibaba Cloud accounts can invoke this operation directly without authorization. Use the latest <props="china">[Alibaba Cloud Model Studio SDK](https://api.aliyun.com/api-tools/sdk/bailian?version=2023-12-29)<props="intl">[Alibaba Cloud Model Studio SDK](https://api.alibabacloud.com/api-tools/sdk/bailian?version=2023-12-29) to invoke this operation.
- * - You must have a knowledge base job task in progress. To create a knowledge base creation task, invoke the **SubmitIndexJob** operation. To create a knowledge base document append task, invoke the **SubmitIndexAddDocumentsJob** operation. Obtain the corresponding `JobId` from the response.
+ * - You must have a knowledge base job that is in progress. You can create a knowledge base creation task by invoking the **SubmitIndexJob** operation, or create a knowledge base document append task by invoking the **SubmitIndexAddDocumentsJob** operation. Obtain the corresponding `JobId`.
  * - Invoke this operation at intervals of 5 seconds or more.
- * - This operation is idempotent.
+ * - This operation supports idempotence.
  *
  * @param request GetIndexJobStatusRequest
  * @return GetIndexJobStatusResponse
@@ -4958,12 +5023,12 @@ The category ID, which is the `CategoryId` returned by the **AddCategory** opera
 .
 
 This parameter is required.', example='cate_cdd11b1b79a74e8bbd675c356a91ee35xxxxxxxx'),
-  fileIds?: [ string ](name='FileIds', description='The list of file IDs to query. A maximum of 20 files can be queried per request.'),
+  fileIds?: [ string ](name='FileIds', description='The list of file IDs to query. A maximum of 20 files can be queried at a time.'),
   fileName?: string(name='FileName', description='The file name (without extension). Only exact match is supported. Fuzzy search is not supported.', example='product-overview'),
   maxResults?: int32(name='MaxResults', description='The number of entries per page for paging. Valid values: 1 to 200.
 
 Default value:
-If the value is not set or is less than 1, the default value is 20. If the value is greater than 200, the default value is 200.', example='20'),
+If no value is set or the value is less than 1, the default value is 20. If the value is set to greater than 200, the default value is 200.', example='20'),
   nextToken?: string(name='NextToken', description='The pagination token. Set this to the NextToken value returned by the previous API call.', example='AAAAAdH70eOCSCKtacdomNzak4U='),
 }
 
@@ -4981,12 +5046,12 @@ The category ID, which is the `CategoryId` returned by the **AddCategory** opera
 .
 
 This parameter is required.', example='cate_cdd11b1b79a74e8bbd675c356a91ee35xxxxxxxx'),
-  fileIdsShrink?: string(name='FileIds', description='The list of file IDs to query. A maximum of 20 files can be queried per request.'),
+  fileIdsShrink?: string(name='FileIds', description='The list of file IDs to query. A maximum of 20 files can be queried at a time.'),
   fileName?: string(name='FileName', description='The file name (without extension). Only exact match is supported. Fuzzy search is not supported.', example='product-overview'),
   maxResults?: int32(name='MaxResults', description='The number of entries per page for paging. Valid values: 1 to 200.
 
 Default value:
-If the value is not set or is less than 1, the default value is 20. If the value is greater than 200, the default value is 200.', example='20'),
+If no value is set or the value is less than 1, the default value is 20. If the value is set to greater than 200, the default value is 200.', example='20'),
   nextToken?: string(name='NextToken', description='The pagination token. Set this to the NextToken value returned by the previous API call.', example='AAAAAdH70eOCSCKtacdomNzak4U='),
 }
 
@@ -5000,12 +5065,12 @@ model ListFileResponseBody = {
         fileId?: string(name='FileId', description='The file ID, which is the `FileId` returned by the **AddFile** operation. You can also obtain it on the <props="china">[Application Data](https://bailian.console.aliyun.com/?tab=app#/data-center)<props="intl">[Application Data](https://modelstudio.console.alibabacloud.com/?tab=app#/data-center) page by clicking the icon next to the file name.', example='file_5ff599b3455a45db8c41b0054b361518_xxxxxxxx'),
         fileName?: string(name='FileName', description='The file name.', example='product-overview.pdf'),
         fileType?: string(name='FileType', description='The file format type. Valid values: pdf, docx, doc, txt, md, pptx, ppt, xlsx, xls, html, png, jpg, jpeg, bmp, and gif.', example='docx'),
-        parseErrorMessage?: string(name='ParseErrorMessage'),
+        parseErrorMessage?: string(name='ParseErrorMessage', description='The reason for parsing failure.', example='Error Message'),
         parser?: string(name='Parser', description='The document parser. Valid values:
 - DASHSCOPE_DOCMIND: Alibaba Cloud intelligent document parsing.', example='DASHSCOPE_DOCMIND'),
         sizeInBytes?: long(name='SizeInBytes', description='The file size in bytes.', example='512'),
         status?: string(name='Status', description='The file parsing status. Valid values:
-- INIT: Initialization state, waiting to be scheduled.
+- INIT: Initialization state. Waiting to be scheduled.
 - PARSING: Parsing in progress.
 - PARSE_SUCCESS: Parsing completed.
 - PARSE_FAILED: Parsing failed.', example='PARSE_SUCCESS'),
@@ -5037,7 +5102,7 @@ model ListFileResponse = {
  * @summary Retrieves the details of one or more documents in a specified category.
  *
  * @description - Resource Access Management (RAM) users must first obtain [API permissions](https://help.aliyun.com/document_detail/2848578.html) for Alibaba Cloud Model Studio (requires `AliyunBailianDataFullAccess`, which includes the sfm:ListFile permission), and [join a workspace](https://help.aliyun.com/document_detail/2851098.html) before invoking this operation. Alibaba Cloud accounts can invoke this operation directly without authorization. Invoke this operation by using the latest <props="china">[Alibaba Cloud Model Studio SDK](https://api.aliyun.com/api-tools/sdk/bailian?version=2023-12-29)<props="intl">[Alibaba Cloud Model Studio SDK](https://api.alibabacloud.com/api-tools/sdk/bailian?version=2023-12-29).
- * - When performing paging for the first page, only set `MaxResults` to limit the number of entries returned. The `NextToken` in the response serves as the credential for querying subsequent pages. When querying subsequent pages, set the `NextToken` parameter to the `NextToken` value obtained from the previous response as the query credential (if `NextToken` is empty, all results have been returned and no further requests are needed), and set `MaxResults` to limit the number of entries returned.
+ * - For paging on the first page, only set `MaxResults` to limit the number of entries returned. The `NextToken` in the response serves as the credential for querying subsequent pages. When querying subsequent pages, set the `NextToken` parameter to the `NextToken` value obtained from the previous response (if `NextToken` is empty, all results have been returned and no further requests are needed), and set `MaxResults` to limit the number of entries returned.
  * - This operation is idempotent.
  * **Rate limit:**
  * This operation is throttled if called too frequently. Do not exceed 5 calls per second. If throttled, retry later.
@@ -5094,7 +5159,7 @@ async function listFileWithOptions(WorkspaceId: string, tmpReq: ListFileRequest,
  * @summary Retrieves the details of one or more documents in a specified category.
  *
  * @description - Resource Access Management (RAM) users must first obtain [API permissions](https://help.aliyun.com/document_detail/2848578.html) for Alibaba Cloud Model Studio (requires `AliyunBailianDataFullAccess`, which includes the sfm:ListFile permission), and [join a workspace](https://help.aliyun.com/document_detail/2851098.html) before invoking this operation. Alibaba Cloud accounts can invoke this operation directly without authorization. Invoke this operation by using the latest <props="china">[Alibaba Cloud Model Studio SDK](https://api.aliyun.com/api-tools/sdk/bailian?version=2023-12-29)<props="intl">[Alibaba Cloud Model Studio SDK](https://api.alibabacloud.com/api-tools/sdk/bailian?version=2023-12-29).
- * - When performing paging for the first page, only set `MaxResults` to limit the number of entries returned. The `NextToken` in the response serves as the credential for querying subsequent pages. When querying subsequent pages, set the `NextToken` parameter to the `NextToken` value obtained from the previous response as the query credential (if `NextToken` is empty, all results have been returned and no further requests are needed), and set `MaxResults` to limit the number of entries returned.
+ * - For paging on the first page, only set `MaxResults` to limit the number of entries returned. The `NextToken` in the response serves as the credential for querying subsequent pages. When querying subsequent pages, set the `NextToken` parameter to the `NextToken` value obtained from the previous response (if `NextToken` is empty, all results have been returned and no further requests are needed), and set `MaxResults` to limit the number of entries returned.
  * - This operation is idempotent.
  * **Rate limit:**
  * This operation is throttled if called too frequently. Do not exceed 5 calls per second. If throttled, retry later.
@@ -5109,24 +5174,26 @@ async function listFile(WorkspaceId: string, request: ListFileRequest): ListFile
 }
 
 model ListIndexDocumentsRequest {
-  documentName?: string(name='DocumentName', description='Filters the returned file list by file name (without the file extension). Default value: empty, which means the results are not filtered by file name.', example='product-overview'),
+  documentName?: string(name='DocumentName', description='Filters the returned file list by file name (without the file extension). Default value: empty, which means no filtering by file name.', example='product-overview'),
   documentStatus?: string(name='DocumentStatus', description='Filters the returned file list by file import status. Valid values:
-- INSERT_ERROR: The file failed to be imported.
-- RUNNING: The file is being imported.
-- DELETED: The file has been deleted.
-- FINISH: The file was imported.
+- INSERT_ERROR: failed to import to the index.
+- RUNNING: index building in progress.
+- DELETED: deleted.
+- FINISH: index building succeeded.
+- PARSE_FAILED: parsing failed.
+- DOC_PARSING: parsing in progress.
 
-Default value: empty, which means the results are not filtered by file import status.', example='FINISH'),
+Default value: empty, which means no filtering by file import status.', example='FINISH'),
   enableNameLike?: string(name='EnableNameLike', description='Specifies whether to enable fuzzy matching for file names. This parameter is used together with the `DocumentName` parameter. Valid values:
-- true: Fuzzy matching is used to filter the returned file list by file name.
-- false: Exact matching is used to filter the returned file list by file name.
+- true: Performs fuzzy matching on the returned file list based on the file name.
+- false: Performs exact matching on the returned file list based on the file name.
 
 Default value: false.', example='false'),
   indexId?: string(name='IndexId', description='The knowledge base ID, which is the `Data.Id` returned by the **CreateIndex** operation.
 
 This parameter is required.', example='79c0alxxxx'),
   pageNumber?: int32(name='PageNumber', description='The page number. Minimum value: 1. Default value: 1.', example='1'),
-  pageSize?: int32(name='PageSize', description='The number of files to display per page in a paging query. No maximum limit.
+  pageSize?: int32(name='PageSize', description='The number of files to display per page in a paged query. No maximum limit.
 Default value: 10.', example='10'),
 }
 
@@ -5135,38 +5202,36 @@ model ListIndexDocumentsResponseBody = {
   data?: {
     documents?: [ 
       {
-        code?: string(name='Code', description='The error status code for the file import.', example='110002'),
+        code?: string(name='Code', description='The error status code for file import.', example='110002'),
         documentType?: string(name='DocumentType', description='The file format type. Valid values: pdf, docx, doc, txt, md, pptx, ppt, png, jpg, jpeg, bmp, gif, and EXCEL.', example='pdf'),
         gmtModified?: long(name='GmtModified', description='The time when the file was imported to the knowledge base, in UNIX timestamp format.', example='1744856423000'),
         id?: string(name='Id', description='The file ID.', example='doc_c134aa2073204a5d936d870bf960f56axxxxxxxx'),
-        message?: string(name='Message', description='The error message for the file import.', example='check fileUrlKey[file_path] / fileNameKey[null] / fileExtensionKey[file_extension] is invalid'),
+        message?: string(name='Message', description='The error message for file import.', example='check fileUrlKey[file_path] / fileNameKey[null] / fileExtensionKey[file_extension] is invalid'),
         name?: string(name='Name', description='The file name.', example='product-overview'),
         size?: int32(name='Size', description='The file size, in bytes.', example='996765'),
         sourceId?: string(name='SourceId', description='<props="china">
 
-For document search or audio/video search knowledge bases, this parameter specifies the category ID, which is the `CategoryId` returned by the **AddCategory** operation. You can also obtain the category ID by clicking the ID icon next to the category name on the Files tab of the [Application Data](https://bailian.console.aliyun.com/?tab=app#/data-center) page.
+For document search or audio/video search knowledge bases, this parameter specifies the category ID, which is the `CategoryId` returned by the **AddCategory** operation. You can also obtain it by clicking the ID icon next to the category name on the Files tab of [Application Data](https://bailian.console.aliyun.com/?tab=app#/data-center).
 
 
-For data query or image Q&A knowledge bases, this parameter specifies the data table ID. You can obtain the data table ID by clicking the ID icon next to the data table name on the Tables tab of the [Application Data](https://bailian.console.aliyun.com/?tab=app#/data-center) page.
+For data query or image Q&A knowledge bases, this parameter specifies the data table ID. You can obtain it by clicking the ID icon next to the data table name on the Tables tab of [Application Data](https://bailian.console.aliyun.com/?tab=app#/data-center).
 
 
 
 
 <props="intl">
 
-For document search knowledge bases, this parameter specifies the category ID, which is the `CategoryId` returned by the **AddCategory** operation. You can also obtain the category ID by clicking the ID icon next to the category name on the Files tab of the [Application Data](https://bailian.console.aliyun.com/?tab=app#/data-center) page.
+For document search knowledge bases, this parameter specifies the category ID, which is the `CategoryId` returned by the **AddCategory** operation. You can also obtain it by clicking the ID icon next to the category name on the Files tab of [Application Data](https://bailian.console.aliyun.com/?tab=app#/data-center).
 
 
-For data query or image Q&A knowledge bases, this parameter specifies the data table ID. You can obtain the data table ID by clicking the ID icon next to the data table name on the Tables tab of the [Application Data](https://modelstudio.console.alibabacloud.com/?tab=app#/data-center) page.
-
-.', example='cate_21a407a3372c4ba7aedc649709143f0cxxxxxxxx'),
+For data query or image Q&A knowledge bases, this parameter specifies the data table ID. You can obtain it by clicking the ID icon next to the data table name on the Tables tab of [Application Data](https://modelstudio.console.alibabacloud.com/?tab=app#/data-center).', example='cate_21a407a3372c4ba7aedc649709143f0cxxxxxxxx'),
         status?: string(name='Status', description='The file import status. Valid values:
-- INSERT_ERROR: The file failed to be imported.
-- RUNNING: The file is being imported.
-- DELETED: The file has been deleted.
-- FINISH: The file was imported.', example='RUNNING'),
+- INSERT_ERROR: File import failed.
+- RUNNING: File import in progress.
+- DELETED: File deleted.
+- FINISH: File import succeeded.', example='RUNNING'),
       }
-    ](name='Documents', description='The list of files in the knowledge base, sorted by file import time in descending order (consistent with the console).'),
+    ](name='Documents', description='The list of files in the knowledge base, sorted by document import time in descending order (consistent with the console).'),
     indexId?: string(name='IndexId', description='The knowledge base ID.', example='pno97txxxx'),
     pageNumber?: int32(name='PageNumber', description='The returned page number.', example='1'),
     pageSize?: int32(name='PageSize', description='The returned number of entries per page.', example='10'),
@@ -5176,8 +5241,8 @@ For data query or image Q&A knowledge bases, this parameter specifies the data t
   requestId?: string(name='RequestId', description='The request ID.', example='35A267BF-xxxx-54DB-8394-AA3B0742D833'),
   status?: string(name='Status', description='The status code returned by the operation.', example='200'),
   success?: boolean(name='Success', description='Indicates whether the operation was successful. Valid values:
-- true: The operation was successful.
-- false: The operation failed.', example='true'),
+- true: Successful.
+- false: Failed.', example='true'),
 }
 
 model ListIndexDocumentsResponse = {
@@ -5187,9 +5252,9 @@ model ListIndexDocumentsResponse = {
 }
 
 /**
- * @summary Retrieves the files in a specified knowledge base along with their summary information.
+ * @summary Retrieves files and their summary information from a specified knowledge base.
  *
- * @description - Resource Access Management (RAM) users must first obtain [API permissions](https://help.aliyun.com/document_detail/2848578.html) for Model Studio (requiring `AliyunBailianDataFullAccess`, which includes the sfm:ListIndexFiles permission) and [join a workspace](https://help.aliyun.com/document_detail/2851098.html) before invoking this operation. Alibaba Cloud accounts can invoke this operation directly without authorization. Use the latest <props="china">[Model Studio SDK](https://api.aliyun.com/api-tools/sdk/bailian?version=2023-12-29)<props="intl">[Model Studio SDK](https://api.alibabacloud.com/api-tools/sdk/bailian?version=2023-12-29) to invoke this operation.
+ * @description - Resource Access Management (RAM) users must first obtain [API permissions](https://help.aliyun.com/document_detail/2848578.html) for Model Studio (requires `AliyunBailianDataFullAccess`, which includes the sfm:ListIndexFiles permission) and [join a workspace](https://help.aliyun.com/document_detail/2851098.html) before invoking this operation. Alibaba Cloud accounts can invoke this operation directly without authorization. Use the latest <props="china">[Model Studio SDK](https://api.aliyun.com/api-tools/sdk/bailian?version=2023-12-29)<props="intl">[Model Studio SDK](https://api.alibabacloud.com/api-tools/sdk/bailian?version=2023-12-29) to invoke this operation.
  * - Before invoking this operation, make sure that your knowledge base has been created and has not been deleted (that is, the knowledge base ID `IndexId` is valid).
  * - This operation has idempotence.
  * **Throttling:**
@@ -5242,9 +5307,9 @@ async function listIndexDocumentsWithOptions(WorkspaceId: string, request: ListI
 }
 
 /**
- * @summary Retrieves the files in a specified knowledge base along with their summary information.
+ * @summary Retrieves files and their summary information from a specified knowledge base.
  *
- * @description - Resource Access Management (RAM) users must first obtain [API permissions](https://help.aliyun.com/document_detail/2848578.html) for Model Studio (requiring `AliyunBailianDataFullAccess`, which includes the sfm:ListIndexFiles permission) and [join a workspace](https://help.aliyun.com/document_detail/2851098.html) before invoking this operation. Alibaba Cloud accounts can invoke this operation directly without authorization. Use the latest <props="china">[Model Studio SDK](https://api.aliyun.com/api-tools/sdk/bailian?version=2023-12-29)<props="intl">[Model Studio SDK](https://api.alibabacloud.com/api-tools/sdk/bailian?version=2023-12-29) to invoke this operation.
+ * @description - Resource Access Management (RAM) users must first obtain [API permissions](https://help.aliyun.com/document_detail/2848578.html) for Model Studio (requires `AliyunBailianDataFullAccess`, which includes the sfm:ListIndexFiles permission) and [join a workspace](https://help.aliyun.com/document_detail/2851098.html) before invoking this operation. Alibaba Cloud accounts can invoke this operation directly without authorization. Use the latest <props="china">[Model Studio SDK](https://api.aliyun.com/api-tools/sdk/bailian?version=2023-12-29)<props="intl">[Model Studio SDK](https://api.alibabacloud.com/api-tools/sdk/bailian?version=2023-12-29) to invoke this operation.
  * - Before invoking this operation, make sure that your knowledge base has been created and has not been deleted (that is, the knowledge base ID `IndexId` is valid).
  * - This operation has idempotence.
  * **Throttling:**
@@ -5260,72 +5325,66 @@ async function listIndexDocuments(WorkspaceId: string, request: ListIndexDocumen
 }
 
 model ListIndexFileDetailsRequest {
-  documentName?: string(name='DocumentName', description='The name of the documents to return. If you do not specify this parameter, the results are not filtered by name.', example='翻译平台运维文档'),
-  documentStatus?: string(name='DocumentStatus', description='The import status of the documents to return. Valid values:
+  documentName?: string(name='DocumentName', description='Filters the returned file details list by file name. Default value: empty, which means no filtering by file name.', example='翻译平台运维文档'),
+  documentStatus?: string(name='DocumentStatus', description='Filters the returned file list by file import status. Valid values:
 
-- INSERT_ERROR: The document failed to be imported.
+- INSERT_ERROR: Failed to import to the index.
+- RUNNING: Index building in progress.
+- DELETED: Deleted.
+- FINISH: Index building succeeded.
+- PARSE_FAILED: Parsing failed.
+- DOC_PARSING: Parsing in progress.
 
-- RUNNING: The document is being imported.
+Default value: empty, which means no filtering by file import status.', example='FINISH'),
+  enableNameLike?: string(name='EnableNameLike', description='Specifies whether to enable fuzzy matching for file names. This parameter is used together with the `DocumentName` parameter. Valid values:
 
-- DELETED: The document has been deleted.
-
-- FINISH: The document was imported successfully.
-
-If you do not specify this parameter, the results are not filtered by import status.', example='FINISH'),
-  enableNameLike?: string(name='EnableNameLike', description='Specifies whether to perform a fuzzy search based on the document name. This parameter is used with the `DocumentName` parameter. Valid values:
-
-- true: Performs a fuzzy search based on the document name.
-
-- false: Performs an exact match based on the document name.
+- true: Performs fuzzy matching on the returned file list based on the file name.
+- false: Performs exact matching on the returned file list based on the file name.
 
 Default value: false.', example='false'),
-  indexId?: string(name='IndexId', description='The ID of the knowledge base. This is the value of the `Data.Id` parameter returned by the **CreateIndex** operation.', example='79c0alxxxx'),
-  pageNumber?: int32(name='PageNumber', description='The number of the page to return. The value starts from 1. Default value: 1.', example='1'),
-  pageSize?: int32(name='PageSize', description='The number of documents to return on each page. Maximum value: 10.', example='10'),
+  indexId?: string(name='IndexId', description='The knowledge base ID, which is the `Data.Id` returned by the **CreateIndex** operation.', example='79c0alxxxx'),
+  pageNumber?: int32(name='PageNumber', description='The page number to query. Minimum value: 1. Default value: 1.', example='1'),
+  pageSize?: int32(name='PageSize', description='The number of files to display per page for paging. Maximum value: 10.', example='10'),
 }
 
 model ListIndexFileDetailsResponseBody = {
-  code?: string(name='Code', description='The error code.', example='InvalidParameter'),
+  code?: string(name='Code', description='The error status code.', example='InvalidParameter'),
   data?: {
     documents?: [ 
       {
-        chunkMode?: string(name='ChunkMode', description='The custom chunking method.', example='DashSplitter'),
-        chunkSize?: string(name='ChunkSize', description='The length of a chunk, in characters.', example='600'),
-        code?: string(name='Code', description='The error code that is returned if the document fails to be imported.', example='110002'),
-        documentType?: string(name='DocumentType', description='The format of the document. Valid values: pdf, docx, doc, txt, md, pptx, ppt, png, jpg, jpeg, bmp, gif, and EXCEL.', example='pdf'),
-        enableHeaders?: string(name='EnableHeaders', description='Indicates whether the table headers of Excel files in an unstructured knowledge base are concatenated.', example='true'),
-        gmtModified?: long(name='GmtModified', description='The time when the document was imported. This value is a Unix timestamp.', example='1744856423000'),
-        id?: string(name='Id', description='The document ID.', example='doc_c134aa2073204a5d936d870bf960f56axxxxxxxx'),
-        message?: string(name='Message', description='The error message that is returned if the document fails to be imported.', example='check fileUrlKey[file_path] / fileNameKey[null] / fileExtensionKey[file_extension] is invalid'),
-        name?: string(name='Name', description='The name of the document.', example='翻译平台运维文档'),
-        overlapSize?: string(name='OverlapSize', description='The overlap length of chunks.', example='100'),
-        size?: int32(name='Size', description='The size of the document, in bytes.', example='996764'),
+        chunkMode?: string(name='ChunkMode', description='The custom chunking mode.', example='DashSplitter'),
+        chunkSize?: string(name='ChunkSize', description='The segment length, which is the number of characters in each text chunk.', example='600'),
+        code?: string(name='Code', description='The error status code for file import.', example='110002'),
+        documentType?: string(name='DocumentType', description='The file format type. Valid values: pdf, docx, doc, txt, md, pptx, ppt, png, jpg, jpeg, bmp, gif, and EXCEL.', example='pdf'),
+        enableHeaders?: string(name='EnableHeaders', description='Indicates whether Excel file headers support concatenation.', example='true'),
+        gmtModified?: long(name='GmtModified', description='The time when the file was imported to the knowledge base, in UNIX timestamp format.', example='1744856423000'),
+        id?: string(name='Id', description='The file ID.', example='doc_c134aa2073204a5d936d870bf960f56axxxxxxxx'),
+        message?: string(name='Message', description='The error message for file import.', example='check fileUrlKey[file_path] / fileNameKey[null] / fileExtensionKey[file_extension] is invalid'),
+        name?: string(name='Name', description='The file name.', example='翻译平台运维文档'),
+        overlapSize?: string(name='OverlapSize', description='The overlap length between segments.', example='100'),
+        size?: int32(name='Size', description='The file size, in bytes.', example='996764'),
         sourceId?: string(name='SourceId', description='The category ID.', example='cate_21a407a3372c4ba7aedc649709143f0cxxxxxxxx'),
-        status?: string(name='Status', description='The import status of the document. Valid values:
+        status?: string(name='Status', description='The file import status. Valid values:
 
-- INSERT_ERROR: The document failed to be imported.
-
-- RUNNING: The document is being imported.
-
-- DELETED: The document has been deleted.
-
-- FINISH: The document was imported successfully.', example='RUNNING'),
+- INSERT_ERROR: File import failed.
+- RUNNING: File import in progress.
+- DELETED: File deleted.
+- FINISH: File import succeeded.', example='RUNNING'),
         separator?: string(name='separator', description='The sentence separator.', example='" "'),
       }
-    ](name='Documents', description='A list of documents in the knowledge base. The documents are sorted by import time in descending order. This order is the same as the order in the console.'),
+    ](name='Documents', description='The list of files in the knowledge base, sorted by file import time in descending order (consistent with the console).'),
     indexId?: string(name='IndexId', description='The knowledge base ID.', example='79c0alxxxx'),
     pageNumber?: int32(name='PageNumber', description='The returned page number.', example='1'),
-    pageSize?: int32(name='PageSize', description='The number of entries returned on each page.', example='10'),
-    totalCount?: long(name='TotalCount', description='The total number of entries.', example='2437'),
-  }(name='Data', description='The returned data.'),
+    pageSize?: int32(name='PageSize', description='The returned number of entries per page.', example='10'),
+    totalCount?: long(name='TotalCount', description='The total number of returned results.', example='2437'),
+  }(name='Data', description='The data field returned by the operation.'),
   message?: string(name='Message', description='The error message.', example='Required parameter(%s) missing or invalid, please check the request parameters.'),
-  requestId?: string(name='RequestId', description='The ID of the request.', example='35A267BF-xxxx-54DB-8394-AA3B0742D833'),
-  status?: string(name='Status', description='The HTTP status code.', example='200'),
-  success?: boolean(name='Success', description='Indicates whether the request was successful. Valid values:
+  requestId?: string(name='RequestId', description='The request ID.', example='35A267BF-xxxx-54DB-8394-AA3B0742D833'),
+  status?: string(name='Status', description='The status code returned by the operation.', example='200'),
+  success?: boolean(name='Success', description='Indicates whether the operation was successful. Valid values:
 
-- true: The request was successful.
-
-- false: The request failed.', example='true'),
+- true: Successful.
+- false: Failed.', example='true'),
 }
 
 model ListIndexFileDetailsResponse = {
@@ -5335,11 +5394,11 @@ model ListIndexFileDetailsResponse = {
 }
 
 /**
- * @summary Retrieves the details of one or more documents in a specified knowledge base.
+ * @summary Retrieves the files in a specified knowledge base along with their details.
  *
- * @description - A RAM user must have the [API permissions](https://help.aliyun.com/document_detail/2848578.html) for Alibaba Cloud Model Studio to call this operation. The `AliyunBailianDataFullAccess` permission, which includes the \\`sfm:ListIndexFiles\\` permission, is required. An Alibaba Cloud account can call this operation without authorization. You can call this operation using the latest version of the <props="china">[Alibaba Cloud Model Studio SDK](https://api.aliyun.com/api-tools/sdk/bailian?version=2023-12-29)<props="intl">[Alibaba Cloud Model Studio SDK](https://api.alibabacloud.com/api-tools/sdk/bailian?version=2023-12-29).
- * - Before you call this operation, ensure that your knowledge base exists and its ID, `IndexId`, is valid.
- * - This operation is idempotent.
+ * @description - Resource Access Management (RAM) users must first obtain [API permissions](https://help.aliyun.com/document_detail/2848578.html) for Alibaba Cloud Model Studio (`AliyunBailianDataFullAccess` is required, which includes the sfm:ListIndexFiles permission), before invoking this operation. Alibaba Cloud accounts can invoke this operation directly without authorization. Use the latest <props="china">[Alibaba Cloud Model Studio SDK](https://api.aliyun.com/api-tools/sdk/bailian?version=2023-12-29)<props="intl">[Alibaba Cloud Model Studio SDK](https://api.alibabacloud.com/api-tools/sdk/bailian?version=2023-12-29) to invoke this operation.
+ * - Before invoking this operation, make sure that your knowledge base has been created and has not been deleted (that is, the knowledge base ID `IndexId` is valid).
+ * - This operation has idempotence.
  *
  * @param request ListIndexFileDetailsRequest
  * @param headers map
@@ -5388,11 +5447,11 @@ async function listIndexFileDetailsWithOptions(WorkspaceId: string, request: Lis
 }
 
 /**
- * @summary Retrieves the details of one or more documents in a specified knowledge base.
+ * @summary Retrieves the files in a specified knowledge base along with their details.
  *
- * @description - A RAM user must have the [API permissions](https://help.aliyun.com/document_detail/2848578.html) for Alibaba Cloud Model Studio to call this operation. The `AliyunBailianDataFullAccess` permission, which includes the \\`sfm:ListIndexFiles\\` permission, is required. An Alibaba Cloud account can call this operation without authorization. You can call this operation using the latest version of the <props="china">[Alibaba Cloud Model Studio SDK](https://api.aliyun.com/api-tools/sdk/bailian?version=2023-12-29)<props="intl">[Alibaba Cloud Model Studio SDK](https://api.alibabacloud.com/api-tools/sdk/bailian?version=2023-12-29).
- * - Before you call this operation, ensure that your knowledge base exists and its ID, `IndexId`, is valid.
- * - This operation is idempotent.
+ * @description - Resource Access Management (RAM) users must first obtain [API permissions](https://help.aliyun.com/document_detail/2848578.html) for Alibaba Cloud Model Studio (`AliyunBailianDataFullAccess` is required, which includes the sfm:ListIndexFiles permission), before invoking this operation. Alibaba Cloud accounts can invoke this operation directly without authorization. Use the latest <props="china">[Alibaba Cloud Model Studio SDK](https://api.aliyun.com/api-tools/sdk/bailian?version=2023-12-29)<props="intl">[Alibaba Cloud Model Studio SDK](https://api.alibabacloud.com/api-tools/sdk/bailian?version=2023-12-29) to invoke this operation.
+ * - Before invoking this operation, make sure that your knowledge base has been created and has not been deleted (that is, the knowledge base ID `IndexId` is valid).
+ * - This operation has idempotence.
  *
  * @param request ListIndexFileDetailsRequest
  * @return ListIndexFileDetailsResponse
