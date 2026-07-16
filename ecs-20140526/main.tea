@@ -1556,66 +1556,64 @@ async function attachClassicLinkVpc(request: AttachClassicLinkVpcRequest): Attac
 }
 
 model AttachDiskRequest {
-  bootable?: boolean(name='Bootable', description='Specifies whether to attach the disk as the system disk. Valid values:
+  bootable?: boolean(name='Bootable', description='Specifies whether to attach the disk as a system disk. Valid values:
 
-- true: attaches the disk as the system disk.
+- true: The disk is attached as a system disk.
 
-- false: does not attach the disk as the system disk.
+- false: The disk is not attached as a system disk.
 
 Default value: false.
 
-> You can set `Bootable` to true only if the instance does not have a system disk.', example='false'),
+> If you set `Bootable=true`, the destination ECS instance must have no system disk attached.', example='false'),
   deleteWithInstance?: boolean(name='DeleteWithInstance', description='Specifies whether to release the disk when the instance is released. Valid values:
 
-- true: releases the disk when the instance is released.
-
-- false: does not release the disk when the instance is released. The disk is retained as a pay-as-you-go data disk.
+- true: The disk is released together with the instance.
+- false: The disk is not released together with the instance. The disk is retained as a pay-as-you-go data disk.
 
 Default value: false.
 
-When you specify this parameter, take note of the following items:
+When you set this parameter, take note of the following items:
 
-- If `OperationLocks` in the DescribeInstances response contains `"LockReason" : "security"` for the instance to which the disk is attached, the instance is locked for security reasons. Regardless of whether you set `DeleteWithInstance` to `false`, the DeleteWithInstance setting is ignored, and the disk is released when the instance is released.
+- If you set `DeleteWithInstance` to `false` and the ECS instance is locked for security reasons, meaning that `OperationLocks` contains `"LockReason" : "security"`, this parameter is ignored when the instance is released, and the disk is released together with the instance.
 
-- If you want to attach an `elastic ephemeral disk`, you must set `DeleteWithInstance` to `true`.
+- If the disk to be attached is an `elastic ephemeral disk`, you must set `DeleteWithInstance` to `true`.
 
-- You cannot specify DeleteWithInstance for disks for which the multi-attach feature is enabled.', example='false'),
+- Disks with the multi-attach feature enabled do not support this parameter.', example='false'),
   device?: string(name='Device', description='The device name of the disk.
 
-> This parameter will be removed in the future. We recommend that you use other parameters to ensure future compatibility.', example='testDeviceName'),
-  diskId?: string(name='DiskId', description='The ID of the disk. The disk specified by `DiskId` and the instance specified by `InstanceId` must reside in the same zone.
+> This parameter will be deprecated soon. To improve compatibility, use other parameters to identify the disk.', example='testDeviceName'),
+  diskId?: string(name='DiskId', description='The ID of the disk to be attached. The disk (`DiskId`) and the instance (`InstanceId`) must be in the same zone.
 
-> For information about the limits on attaching a data disk and a system disk, see the "Usage notes" section of this topic.
+> Both data disks and system disks can be attached. For related constraints, see the operation description section above.
 
 This parameter is required.', example='d-bp1j4l5axzdy6ftk****'),
-  force?: boolean(name='Force', description='Specifies whether to force attach the disk to the instance. Valid values:
+  force?: boolean(name='Force', description='Specifies whether to forcefully attach the disk. Valid values:
 
-- true: force attaches the disk to the instance.
-
-- false: does not force attach the disk to the instance.
+- true: Forcefully attaches the disk.
+- false: Does not forcefully attach the disk.
 
 Default value: false.
 
-> You can set this parameter to true only for Regional Enterprise SSDs (ESSDs) (cloud_regional_disk_auto).', example='false'),
-  instanceId?: string(name='InstanceId', description='The ID of the instance to which you want to attach the disk.
+
+> Currently, only regional ESSDs (cloud_regional_disk_auto) support setting this parameter to true.', example='false'),
+  instanceId?: string(name='InstanceId', description='The ID of the ECS instance to which you want to attach the disk.
 
 This parameter is required.', example='i-bp1dq5lozx5f4pmd****'),
-  keyPairName?: string(name='KeyPairName', description='The name of the SSH key pair that you bind to the Linux instance when you attach the system disk.
+  keyPairName?: string(name='KeyPairName', description='The name of the SSH key pair that is bound to the Linux ECS instance when you attach a system disk.
 
-- Windows instances do not support logons based on SSH key pairs. The `Password` parameter takes effect even if the KeyPairName parameter is specified.
+- Windows Server instances: SSH key pairs are not supported. Even if this parameter is specified, only the `Password` configuration takes effect.
 
-- For Linux instances, the username and password-based logon method is disabled by default.', example='KeyPairTestName'),
+- Linux instances: The password-based logon method is disabled by default.', example='KeyPairTestName'),
   ownerAccount?: string(name='OwnerAccount'),
   ownerId?: long(name='OwnerId'),
-  password?: string(name='Password', description='The password that is set when you attach the system disk. The password is applicable only to the administrator and root users. The password must be 8 to 30 characters in length and must contain at least three of the following character types: uppercase letters, lowercase letters, digits, and special characters. The following special characters are supported:
+  password?: string(name='Password', description='The password that is set for the instance when you attach a system disk. The password is effective only for the administrator and root usernames and is not effective for other usernames. The password must be 8 to 30 characters in length and must contain at least three of the following character types: uppercase letters, lowercase letters, digits, and special characters. The following special characters are supported:
 
 ```
 ()`~!@#$%^&*-_+=|{}[]:;\\\\"<>,.?/
 ```
+For Windows instances, the password cannot start with a forward slash (/).
 
-For Windows instances, passwords cannot start with a forward slash (/).
-
-> If `Password` is configured, we recommend that you send requests over HTTPS to prevent password leaks.', example='EcsV587!'),
+> If you specify the `Password` parameter, send the request over HTTPS to prevent password leaks.', example='EcsV587!'),
   resourceOwnerAccount?: string(name='ResourceOwnerAccount'),
   resourceOwnerId?: long(name='ResourceOwnerId'),
 }
@@ -1631,23 +1629,26 @@ model AttachDiskResponse = {
 }
 
 /**
- * @summary Attaches a pay-as-you-go data disk or a system disk to an Elastic Compute Service (ECS) instance.
+ * @summary Attaches a data disk or system disk to an ECS instance.
  *
- * @description Take note of the following items:
- * - The ECS instance and the disk must reside in the same zone.
- * - The disk must be in the **Unattached** (`Available`) state.
- * - When you attach the disk as a data disk to an ECS instance, take note of the following items:
- *   - The ECS instance must be in the **Running** (`Running`) or **Stopped** (`Stopped`) state.
- *   - If the disk was separately purchased, the billing method of the disk must be pay-as-you-go.
- *   - If the disk is a system disk that was detached from an ECS instance, no limits apply to the billing method of the disk.
- *   - If the disk is an elastic ephemeral disk that was detached from an ECS instance, the disk can be attached only to the instance.
- * - When you attach the disk as the system disk to an ECS instance, take note of the following items:
- *   - The ECS instance must be the original instance from which the system disk was detached.
- *   - The ECS instance must be in the **Stopped** (`Stopped`) state.
- *   - You must configure logon credentials for the ECS instance.
- *   - The disk cannot be an elastic ephemeral disk.
- *   - For more information about how to attach a system disk, see [Detach or attach a system disk](https://help.aliyun.com/document_detail/146752.html).
- * - If the response contains `{"OperationLocks": {"LockReason" : "security"}}` when you query information about an ECS instance, the instance is locked for security reasons. No operations are allowed on the instance.
+ * @description When you call this operation, take note of the following items:
+ * - The instance and the disk must be in the same zone.
+ * - The disk must be in the **Available** (`Available`) state. 
+ * - When you attach a data disk:
+ *     - The destination ECS instance must be in the **Running** (`Running`) or **Stopped** (`Stopped`) state. 
+ *     - If the disk is separately purchased, the billing method must be pay-as-you-go.
+ *     - A system disk that was uninstalled from an ECS instance can be attached as a data disk without billable methods restrictions. 
+ *     - An elastic ephemeral disk that has been detached can only be re-attached to its original instance.
+ * - When you attach a system disk:
+ *     - The destination ECS instance must be the original instance from which the system disk was detached.
+ *     - The destination ECS instance must be in the **Stopped** (`Stopped`) state. 
+ *     - You must specify the logon credential for the instance.
+ *     - Elastic ephemeral disks cannot be attached as system disks.
+ *     - For more information about attaching system disks, see [Detach or attach a system disk](https://help.aliyun.com/document_detail/146752.html).
+ * - When you query ECS instance information, if the response contains `{"OperationLocks": {"LockReason" : "security"}}`, all operations are prohibited.
+ * <props="china">
+ * - A disk with the multi-attach attribute enabled can only be attached to instances that support the NVMe protocol. 
+ *    For more information, see [Standard SSDs that support NVMe](https://help.aliyun.com/document_detail/256487.html) and [Use the multi-attach feature](https://help.aliyun.com/document_detail/262105.html).
  *
  * @param request AttachDiskRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -1710,23 +1711,26 @@ async function attachDiskWithOptions(request: AttachDiskRequest, runtime: Util.R
 }
 
 /**
- * @summary Attaches a pay-as-you-go data disk or a system disk to an Elastic Compute Service (ECS) instance.
+ * @summary Attaches a data disk or system disk to an ECS instance.
  *
- * @description Take note of the following items:
- * - The ECS instance and the disk must reside in the same zone.
- * - The disk must be in the **Unattached** (`Available`) state.
- * - When you attach the disk as a data disk to an ECS instance, take note of the following items:
- *   - The ECS instance must be in the **Running** (`Running`) or **Stopped** (`Stopped`) state.
- *   - If the disk was separately purchased, the billing method of the disk must be pay-as-you-go.
- *   - If the disk is a system disk that was detached from an ECS instance, no limits apply to the billing method of the disk.
- *   - If the disk is an elastic ephemeral disk that was detached from an ECS instance, the disk can be attached only to the instance.
- * - When you attach the disk as the system disk to an ECS instance, take note of the following items:
- *   - The ECS instance must be the original instance from which the system disk was detached.
- *   - The ECS instance must be in the **Stopped** (`Stopped`) state.
- *   - You must configure logon credentials for the ECS instance.
- *   - The disk cannot be an elastic ephemeral disk.
- *   - For more information about how to attach a system disk, see [Detach or attach a system disk](https://help.aliyun.com/document_detail/146752.html).
- * - If the response contains `{"OperationLocks": {"LockReason" : "security"}}` when you query information about an ECS instance, the instance is locked for security reasons. No operations are allowed on the instance.
+ * @description When you call this operation, take note of the following items:
+ * - The instance and the disk must be in the same zone.
+ * - The disk must be in the **Available** (`Available`) state. 
+ * - When you attach a data disk:
+ *     - The destination ECS instance must be in the **Running** (`Running`) or **Stopped** (`Stopped`) state. 
+ *     - If the disk is separately purchased, the billing method must be pay-as-you-go.
+ *     - A system disk that was uninstalled from an ECS instance can be attached as a data disk without billable methods restrictions. 
+ *     - An elastic ephemeral disk that has been detached can only be re-attached to its original instance.
+ * - When you attach a system disk:
+ *     - The destination ECS instance must be the original instance from which the system disk was detached.
+ *     - The destination ECS instance must be in the **Stopped** (`Stopped`) state. 
+ *     - You must specify the logon credential for the instance.
+ *     - Elastic ephemeral disks cannot be attached as system disks.
+ *     - For more information about attaching system disks, see [Detach or attach a system disk](https://help.aliyun.com/document_detail/146752.html).
+ * - When you query ECS instance information, if the response contains `{"OperationLocks": {"LockReason" : "security"}}`, all operations are prohibited.
+ * <props="china">
+ * - A disk with the multi-attach attribute enabled can only be attached to instances that support the NVMe protocol. 
+ *    For more information, see [Standard SSDs that support NVMe](https://help.aliyun.com/document_detail/256487.html) and [Use the multi-attach feature](https://help.aliyun.com/document_detail/262105.html).
  *
  * @param request AttachDiskRequest
  * @return AttachDiskResponse
@@ -2769,17 +2773,14 @@ model CancelAutoSnapshotPolicyRequest {
   ownerId?: long(name='OwnerId'),
   resourceOwnerAccount?: string(name='ResourceOwnerAccount'),
   resourceOwnerId?: long(name='ResourceOwnerId'),
-  autoSnapshotPolicyId?: string(name='autoSnapshotPolicyId', description='The ID of the auto snapshot policy to cancel.
-
-- If you omit this parameter, the following rules apply:
-
-  - If only one auto snapshot policy is applied to a disk, that policy is canceled.
-
-  - If a disk has more than one auto snapshot policy, the request fails and returns the `OperationDenied.TooManyAutoSnapshotPolicies` error code. In this case, you must specify `autoSnapshotPolicyId` to identify the policy to cancel.', example='sp-bp14yziiuvu3s6jn****'),
-  diskIds?: string(name='diskIds', description='The IDs of the target disks. The value is a JSON array of disk IDs.
+  autoSnapshotPolicyId?: string(name='autoSnapshotPolicyId', description='The ID of the automatic snapshot policy that you want to cancel.
+- Default value: empty. If you use the default value, note the following items:
+  - If only one automatic snapshot policy is applied to the cloud disk, the automatic snapshot policy is canceled.
+  - If more than one automatic snapshot policy is applied to the cloud disk, the `OperationDenied.TooManyAutoSnapshotPolicies` error code is returned and the request fails. Specify the `autoSnapshotPolicyId` parameter to specify the ID of the automatic snapshot policy that you want to cancel.', example='sp-bp14yziiuvu3s6jn****'),
+  diskIds?: string(name='diskIds', description='The IDs of the cloud disks. To cancel the automatic snapshot policy for multiple cloud disks, specify the cloud disk IDs in a JSON array in the format of "d-xxxxxxxxx", "d-yyyyyyyyy", … "d-zzzzzzzzz". Separate multiple cloud disk IDs with commas (,).
 
 This parameter is required.', example='["d-bp14k9cxvr5uzy54****", "d-bp1dtj8v7x6u08iw****", "d-bp1c0tyj9tfli2r8****"]'),
-  regionId?: string(name='regionId', description='The region ID of the auto snapshot policy and disks. You can call the [DescribeRegions](https://help.aliyun.com/document_detail/25609.html) operation to query the latest list of Alibaba Cloud regions.
+  regionId?: string(name='regionId', description='The region ID of the automatic snapshot policy and cloud disks. You can call [DescribeRegions](https://help.aliyun.com/document_detail/25609.html) to query the most recent region list.
 
 This parameter is required.', example='cn-hangzhou'),
 }
@@ -2795,7 +2796,7 @@ model CancelAutoSnapshotPolicyResponse = {
 }
 
 /**
- * @summary Cancels an auto snapshot policy for one or more disks.
+ * @summary Cancels the automatic snapshot policy for one or more cloud disks.
  *
  * @param request CancelAutoSnapshotPolicyRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -2840,7 +2841,7 @@ async function cancelAutoSnapshotPolicyWithOptions(request: CancelAutoSnapshotPo
 }
 
 /**
- * @summary Cancels an auto snapshot policy for one or more disks.
+ * @summary Cancels the automatic snapshot policy for one or more cloud disks.
  *
  * @param request CancelAutoSnapshotPolicyRequest
  * @return CancelAutoSnapshotPolicyResponse
@@ -2938,7 +2939,7 @@ async function cancelCopyImage(request: CancelCopyImageRequest): CancelCopyImage
 }
 
 model CancelImagePipelineExecutionRequest {
-  executionId?: string(name='ExecutionId', description='The ID of the build task.
+  executionId?: string(name='ExecutionId', description='The ID of the image building task.
 
 This parameter is required.', example='exec-5fb8facb8ed7427c****'),
   ownerAccount?: string(name='OwnerAccount'),
@@ -2967,9 +2968,9 @@ model CancelImagePipelineExecutionResponse = {
 }
 
 /**
- * @summary Cancels an image build task.
+ * @summary Cancels an image building task.
  *
- * @description Before you call this operation, make sure that the image build task you want to cancel is in the PREPARING, REPAIRING, or BUILDING state.
+ * @description Before you call this operation, make sure that the image building task you want to cancel is in the PREPARING, REPAIRING, or BUILDING state.
  *
  * @param request CancelImagePipelineExecutionRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -3020,9 +3021,9 @@ async function cancelImagePipelineExecutionWithOptions(request: CancelImagePipel
 }
 
 /**
- * @summary Cancels an image build task.
+ * @summary Cancels an image building task.
  *
- * @description Before you call this operation, make sure that the image build task you want to cancel is in the PREPARING, REPAIRING, or BUILDING state.
+ * @description Before you call this operation, make sure that the image building task you want to cancel is in the PREPARING, REPAIRING, or BUILDING state.
  *
  * @param request CancelImagePipelineExecutionRequest
  * @return CancelImagePipelineExecutionResponse
@@ -3293,36 +3294,36 @@ model CloneDisksRequest {
   clientToken?: string(name='ClientToken', description='The client token that is used to ensure the idempotence of the request. You can use the client to generate the token, but make sure that the token is unique among different requests. The ClientToken value can contain only ASCII characters and cannot exceed 64 characters in length. For more information, see [How to ensure idempotence](https://help.aliyun.com/document_detail/25693.html).', example='123e4567-e89b-12d3-a456-426655440000'),
   diskCategory?: string(name='DiskCategory', description='The category of the new disk. Valid values:
 
-- cloud_essd: standard SSD.
+- cloud_essd: enterprise SSD.
 - cloud_auto: ESSD AutoPL disk.
 - cloud_essd_entry: ESSD Entry disk.
-- cloud_regional_disk_auto: regional Standard SSD (ESSD).
+- cloud_regional_disk_auto: regional ESSD.
 
 > Disk category restrictions for disk cloning:
-> - Non-regional disks can only be cloned to non-regional disk types.
-> - Regional disks can only be cloned to regional disk types.
+> - Non-regional disks can be cloned only to non-regional types.
+> - Regional disks can be cloned only to regional types.
 
 This parameter is required.', example='cloud_essd'),
   diskName?: string(name='DiskName', description='The name of the disk. The name must be 2 to 128 characters in length and can contain letters, digits, colons (:), underscores (_), periods (.), and hyphens (-). The name must start with a letter.
 
 Default value: empty.', example='MyDiskName'),
   dryRun?: string(name='DryRun', description='Specifies whether to perform only a dry run, without performing the actual request. Valid values:
-- true: sends a check request without querying the filing status. The system checks whether your AccessKey pair is valid, whether RAM user authorization is granted, and whether the required parameters are specified. If the check fails, the corresponding error is returned. If the check passes, the DryRunOperation error code is returned.
-- false (default): sends a normal request. After the check passes, a 2XX HTTP status code is returned and the filing status is queried.', example='true'),
+- true: sends a check request without querying the filing status. The check items include whether the AccessKey pair is valid, whether the Resource Access Management (RAM) user is granted the required authorization, and whether the required parameters are specified. If the check fails, the corresponding error message is returned. If the check succeeds, the DryRunOperation error code is returned.
+- false (default): sends a Normal request. After the check succeeds, a 2XX HTTP status code is returned and the filing status is directly queried.', example='true'),
   encrypted?: boolean(name='Encrypted', description='Specifies whether the new disk is encrypted. Valid values:
 - true: The new disk is encrypted.
 - false: The new disk is not encrypted.
 
 Default value: false.', example='false'),
   kmsKeyId?: string(name='KmsKeyId', description='The key ID of the KMS key used by the new disk.', example='key-szz67b2f696f4wh9yeg5d'),
-  multiAttach?: string(name='MultiAttach', description='Specifies whether to enable the multi-attach attribute for the new disk. Settings for this parameter. Valid values:
+  multiAttach?: string(name='MultiAttach', description='Specifies whether to enable the multi-attach attribute for the new disk. Valid values:
 
 - Disabled: disables the multi-attach attribute.
-- Enabled: enables the multi-attach attribute. Only standard SSDs support the value `Enabled`.
+- Enabled: enables the multi-attach attribute. Currently, only enterprise SSDs support Settings to `Enabled`.
 
 This parameter is required.', example='Disabled'),
   ownerId?: long(name='OwnerId'),
-  performanceLevel?: string(name='PerformanceLevel', description='The performance level (PL) of the enterprise SSD to create. Settings for this parameter vary based on the standard SSD type. Valid values:
+  performanceLevel?: string(name='PerformanceLevel', description='The performance level of the standard SSD. Settings for this parameter depend on the disk category. Valid values:
 
 - PL0: a single disk can deliver up to 10,000 random read/write IOPS.
 - PL1: a single disk can deliver up to 50,000 random read/write IOPS.
@@ -3346,7 +3347,7 @@ This parameter is required.', example='cn-hangzhou'),
   resourceOwnerId?: long(name='ResourceOwnerId'),
   size?: int32(name='Size', description='The capacity of the new disk. Unit: GiB. You must specify a value for this parameter. Valid values:
 
-- cloud_essd: the valid value range varies based on the performance level.
+- cloud_essd: The valid values depend on the performance level.
     - PL0: 1 to 65,536.
     - PL1: 20 to 65,536.
     - PL2: 461 to 65,536.
@@ -3379,27 +3380,27 @@ model CloneDisksResponse = {
 }
 
 /**
- * @summary Disk cloning allows you to quickly create a new disk with the same data as the source disk in the same zone. The new disk supports custom capacity, type, and encryption attributes. After the new disk is attached to an instance, you can quickly replicate business data or horizontally scale your services.
+ * @summary Disk cloning allows you to quickly replicate a disk with the same data as the source disk in the same zone. The cloned disk supports custom capacity, type, and encryption attributes. After you attach the cloned disk to an instance, you can quickly replicate business data or horizontally scale services.
  *
- * @description > The disk cloning feature itself is free of charge, but the new disk generated by cloning is billed based on block storage billing rules. Billable items vary by disk type and include disk capacity fees, provisioned performance fees, and performance burst fees. Except for performance burst fees, which are billed after a burst occurs, all other fees start to accrue after the disk is created, regardless of whether the disk is attached to an instance.
- * ### How to use
- * - This is an asynchronous operation. After a successful call, use the taskGroupId and call the DescribeTasks operation to obtain the execution result.
+ * @description > The disk cloning feature itself is free of charge. However, the new disk generated by cloning is billed based on block storage billing rules. Billable items vary by disk type and include disk capacity fees, provisioned performance fees, and performance burst fees. Except for performance burst fees, which are billed after a burst occurs, other fees start to accrue after the disk is created, regardless of whether the disk is attached to an instance.
+ * ### Usage notes
+ * - This is an asynchronous operation. After a successful call, use the taskGroupId and call the DescribeTasks operation to query the execution result.
  * ### Features
- * - Cloning supports only ESSD series disks (cloud_essd, cloud_auto, cloud_essd_entry, cloud_regional_disk_auto) as the source, and the `new disk` can only be an ESSD series disk type.
- *   - Non-regional disks can only be cloned to non-regional disk types. Regional disks can only be cloned to regional disk types.
+ * - Cloning supports only ESSD series disks (cloud_essd, cloud_auto, cloud_essd_entry, cloud_regional_disk_auto) as the source, and the cloned `new disk` supports only ESSD series disk types.
+ *   - Non-regional disks can be cloned only to non-regional types. Regional disks can be cloned only to regional disk types.
  *   - Local disks and elastic ephemeral disks cannot be cloned or used as clone sources.
- * - You can specify the `new disk` type and performance level (PL) during cloning.
- * - You can specify the `new disk` capacity during cloning, but the new disk capacity must be greater than or equal to the `source disk` capacity.
- * - You can configure provisioned performance and performance burst for the `new disk`, provided that the destination disk type supports provisioned performance and performance burst.
- * - You can specify encryption for the `new disk` and change the encryption key. If the `source disk` is encrypted, you cannot clone it into an unencrypted disk, but you can change the encryption key.
- * - You can use a subscription disk as the `source disk`. Even if the subscription disk has expired, it can still be used as the `source disk`.
- * - The `new disk` created by cloning does not support reinitialization.
- * - Cloning does not support storage sets or dedicated block storage clusters, but disks in them can be used as the `source disk`. The cloned disk will not be in the storage set or dedicated block storage cluster.
+ * - You can specify the `new disk` type and performance level during cloning.
+ * - You can specify the `new disk` capacity during cloning. The new disk capacity must be greater than or equal to the `source disk` capacity.
+ * - You can configure provisioned performance and performance burst for the `new disk` during cloning, provided that the destination disk type supports provisioned performance and performance burst.
+ * - You can specify encryption or change the encryption key for the `new disk` during cloning. If the `source disk` is encrypted, you cannot clone it into an unencrypted disk, but you can change the encryption key.
+ * - You can use a subscription disk as the `source disk` for cloning, even if the subscription disk has expired.
+ * - The cloned `new disk` does not support reinitialization.
+ * - Cloning does not support storage sets or dedicated block storage clusters. However, disks in these resources can be used as the `source disk`. The cloned disk will not be in the storage set or dedicated block storage cluster.
  * - `Source disk` status restrictions:
  *   - The `source disk` status is "In Use" and the corresponding instance status is "Running" or "Stopped".
  *   - The `source disk` status is "Available" and the disk has been previously attached.
- *   - A disk undergoing a specification change cannot be used as the `source disk`.
- *   - A disk undergoing expansion cannot be used as the `source disk`.
+ *   - Disks undergoing specification changes cannot be used as the `source disk`.
+ *   - Disks undergoing expansion cannot be used as the `source disk`.
  * - Disk cloning is not supported for instance hibernation scenarios. If a disk is on a hibernated instance, it cannot be used as the `source disk`.
  *
  * @param request CloneDisksRequest
@@ -3481,27 +3482,27 @@ async function cloneDisksWithOptions(request: CloneDisksRequest, runtime: Util.R
 }
 
 /**
- * @summary Disk cloning allows you to quickly create a new disk with the same data as the source disk in the same zone. The new disk supports custom capacity, type, and encryption attributes. After the new disk is attached to an instance, you can quickly replicate business data or horizontally scale your services.
+ * @summary Disk cloning allows you to quickly replicate a disk with the same data as the source disk in the same zone. The cloned disk supports custom capacity, type, and encryption attributes. After you attach the cloned disk to an instance, you can quickly replicate business data or horizontally scale services.
  *
- * @description > The disk cloning feature itself is free of charge, but the new disk generated by cloning is billed based on block storage billing rules. Billable items vary by disk type and include disk capacity fees, provisioned performance fees, and performance burst fees. Except for performance burst fees, which are billed after a burst occurs, all other fees start to accrue after the disk is created, regardless of whether the disk is attached to an instance.
- * ### How to use
- * - This is an asynchronous operation. After a successful call, use the taskGroupId and call the DescribeTasks operation to obtain the execution result.
+ * @description > The disk cloning feature itself is free of charge. However, the new disk generated by cloning is billed based on block storage billing rules. Billable items vary by disk type and include disk capacity fees, provisioned performance fees, and performance burst fees. Except for performance burst fees, which are billed after a burst occurs, other fees start to accrue after the disk is created, regardless of whether the disk is attached to an instance.
+ * ### Usage notes
+ * - This is an asynchronous operation. After a successful call, use the taskGroupId and call the DescribeTasks operation to query the execution result.
  * ### Features
- * - Cloning supports only ESSD series disks (cloud_essd, cloud_auto, cloud_essd_entry, cloud_regional_disk_auto) as the source, and the `new disk` can only be an ESSD series disk type.
- *   - Non-regional disks can only be cloned to non-regional disk types. Regional disks can only be cloned to regional disk types.
+ * - Cloning supports only ESSD series disks (cloud_essd, cloud_auto, cloud_essd_entry, cloud_regional_disk_auto) as the source, and the cloned `new disk` supports only ESSD series disk types.
+ *   - Non-regional disks can be cloned only to non-regional types. Regional disks can be cloned only to regional disk types.
  *   - Local disks and elastic ephemeral disks cannot be cloned or used as clone sources.
- * - You can specify the `new disk` type and performance level (PL) during cloning.
- * - You can specify the `new disk` capacity during cloning, but the new disk capacity must be greater than or equal to the `source disk` capacity.
- * - You can configure provisioned performance and performance burst for the `new disk`, provided that the destination disk type supports provisioned performance and performance burst.
- * - You can specify encryption for the `new disk` and change the encryption key. If the `source disk` is encrypted, you cannot clone it into an unencrypted disk, but you can change the encryption key.
- * - You can use a subscription disk as the `source disk`. Even if the subscription disk has expired, it can still be used as the `source disk`.
- * - The `new disk` created by cloning does not support reinitialization.
- * - Cloning does not support storage sets or dedicated block storage clusters, but disks in them can be used as the `source disk`. The cloned disk will not be in the storage set or dedicated block storage cluster.
+ * - You can specify the `new disk` type and performance level during cloning.
+ * - You can specify the `new disk` capacity during cloning. The new disk capacity must be greater than or equal to the `source disk` capacity.
+ * - You can configure provisioned performance and performance burst for the `new disk` during cloning, provided that the destination disk type supports provisioned performance and performance burst.
+ * - You can specify encryption or change the encryption key for the `new disk` during cloning. If the `source disk` is encrypted, you cannot clone it into an unencrypted disk, but you can change the encryption key.
+ * - You can use a subscription disk as the `source disk` for cloning, even if the subscription disk has expired.
+ * - The cloned `new disk` does not support reinitialization.
+ * - Cloning does not support storage sets or dedicated block storage clusters. However, disks in these resources can be used as the `source disk`. The cloned disk will not be in the storage set or dedicated block storage cluster.
  * - `Source disk` status restrictions:
  *   - The `source disk` status is "In Use" and the corresponding instance status is "Running" or "Stopped".
  *   - The `source disk` status is "Available" and the disk has been previously attached.
- *   - A disk undergoing a specification change cannot be used as the `source disk`.
- *   - A disk undergoing expansion cannot be used as the `source disk`.
+ *   - Disks undergoing specification changes cannot be used as the `source disk`.
+ *   - Disks undergoing expansion cannot be used as the `source disk`.
  * - Disk cloning is not supported for instance hibernation scenarios. If a disk is on a hibernated instance, it cannot be used as the `source disk`.
  *
  * @param request CloneDisksRequest
@@ -3852,49 +3853,48 @@ model CopySnapshotRequest {
       roleType?: string(name='RoleType', description='> This parameter is not publicly available.', example='null'),
       rolearn?: string(name='Rolearn', description='> This parameter is not publicly available.', example='null'),
     }
-  ](name='Arn', description='> This parameter is currently in invitational preview and unavailable for public use.'),
-  clientToken?: string(name='ClientToken', description='The client token that is used to ensure the idempotence of the request. You can use the client to generate the token, but you must make sure that the token is unique among different requests. The token can contain only ASCII characters and cannot exceed 64 characters in length. For more information, see [How to ensure idempotence](https://help.aliyun.com/document_detail/25693.html).', example='123e4567-e89b-12d3-a456-426655440000'),
-  destinationRegionId?: string(name='DestinationRegionId', description='The ID of the destination region to which to copy the source snapshot.
+  ](name='Arn', description='> This parameter is in invitational preview and is not publicly available.'),
+  clientToken?: string(name='ClientToken', description='Ensures the idempotence of the request. The value is generated from your client and must be unique among different requests. The value of ClientToken can contain only ASCII characters and cannot exceed 64 characters in length. For more information, see [How to ensure idempotence](https://help.aliyun.com/document_detail/25693.html).', example='123e4567-e89b-12d3-a456-426655440000'),
+  destinationRegionId?: string(name='DestinationRegionId', description='The ID of the destination region to which to copy the snapshot.
 
 This parameter is required.', example='us-east-1'),
-  destinationSnapshotDescription?: string(name='DestinationSnapshotDescription', description='The description of the new snapshot. The description must be 2 to 256 characters in length and cannot start with http\\\\:// or https\\\\://.
+  destinationSnapshotDescription?: string(name='DestinationSnapshotDescription', description='The description of the new snapshot. The description must be 2 to 256 characters in length and cannot start with http:// or https://.
 
-This parameter is empty by default.
+Default value: null.
 
 This parameter is required.', example='CopySnapshotDemo'),
-  destinationSnapshotName?: string(name='DestinationSnapshotName', description='The name of the new snapshot. The name must be 2 to 128 characters in length. The name must start with a letter and cannot start with http\\\\:// or https\\\\://. The name can contain letters, digits, colons (:), underscores (_), periods (.), and hyphens (-).
+  destinationSnapshotName?: string(name='DestinationSnapshotName', description='The name of the new snapshot. The name must be 2 to 128 characters in length and must start with a letter or a Chinese character. It cannot start with http:// or https://. The name can contain letters, digits, and Unicode characters that are categorized under the letter classification. It can also contain colons (:), underscores (_), periods (.), or hyphens (-).
 
-This parameter is left empty by default.
+Default value: null.
 
 This parameter is required.', example='CopySnapshotDemo'),
   destinationStorageLocationArn?: string(name='DestinationStorageLocationArn', description='> This parameter is not publicly available.', example='null'),
-  encrypted?: boolean(name='Encrypted', description='Specifies whether to encrypt the new snapshot. Valid values:
+  encrypted?: boolean(name='Encrypted', description='Specifies whether to encrypt the cloud disk. Valid values:
 
-- true
-
-- false
+- true: encrypts the cloud disk.
+- false: does not encrypt the cloud disk.
 
 Default value: false.', example='false'),
-  KMSKeyId?: string(name='KMSKeyId', description='The ID of the customer master key (CMK) in Key Management Service (KMS) in the destination region.', example='0e478b7a-4262-4802-b8cb-00d3fb40****'),
+  KMSKeyId?: string(name='KMSKeyId', description='The customer master key (CMK) in the destination region.', example='0e478b7a-4262-4802-b8cb-00d3fb40****'),
   ownerId?: long(name='OwnerId'),
-  regionId?: string(name='RegionId', description='The region ID of the source snapshot. You can call the [DescribeRegions](https://help.aliyun.com/document_detail/25609.html) operation to query the most recent region list.
+  regionId?: string(name='RegionId', description='The region ID of the source snapshot. You can call [DescribeRegions](https://help.aliyun.com/document_detail/25609.html) to query the most recent region list.
 
 This parameter is required.', example='cn-chengdu'),
   resourceGroupId?: string(name='ResourceGroupId', description='This parameter is not publicly available.', example='rg-bp67acfmxazb4p****'),
   resourceOwnerAccount?: string(name='ResourceOwnerAccount'),
   resourceOwnerId?: long(name='ResourceOwnerId'),
-  retentionDays?: int32(name='RetentionDays', description='The retention period of the new snapshot. Unit: days. The new snapshot is automatically released when its retention period ends. Valid values: 1 to 65536.
+  retentionDays?: int32(name='RetentionDays', description='The retention period of the new snapshot, in days. The snapshot undergoes automatic release when the retention period expires. Valid values: 1 to 65536.
 
-This parameter is empty by default, which indicates that the snapshot is not automatically released.', example='60'),
+Default value: null, which indicates that the snapshot does not undergo automatic release.', example='60'),
   snapshotId?: string(name='SnapshotId', description='The ID of the source snapshot.
 
 This parameter is required.', example='s-bp67acfmxazb4p****'),
   tag?: [ 
     {
-      key?: string(name='Key', description='The key of tag N to add to the new snapshot. The tag key cannot be an empty string. It can be up to 128 characters in length and cannot start with acs: or aliyun. It cannot contain http\\\\:// or https\\\\://.', example='TestKey'),
-      value?: string(name='Value', description='The value of tag N to add to the new snapshot. The tag value can be an empty string. It can be up to 128 characters in length and cannot start with acs: or aliyun. It cannot contain http\\\\:// or https\\\\://.', example='TestValue'),
+      key?: string(name='Key', description='The tag key of the new snapshot. Once specified, the tag key cannot be an empty string. The tag key can be up to 128 characters in length and cannot start with aliyun or acs:. It cannot contain http:// or https://.', example='TestKey'),
+      value?: string(name='Value', description='The tag value of the new snapshot. Once specified, the tag value can be an empty string. The tag value can be up to 128 characters in length and cannot start with aliyun or acs:. It cannot contain http:// or https://.', example='TestValue'),
     }
-  ](name='Tag', description='The tag key and value of the new snapshot.'),
+  ](name='Tag', description='The tag information of the new snapshot.'),
 }
 
 model CopySnapshotResponseBody = {
@@ -3909,10 +3909,10 @@ model CopySnapshotResponse = {
 }
 
 /**
- * @summary Copies a standard or encrypted snapshot from one region to another.
+ * @summary Copies a standard snapshot or encrypted snapshot from one region to another.
  *
- * @description When you call this operation, take note of the following item:
- * - New snapshots (snapshot copies) cannot be used to roll back the disks for which source snapshots (copied snapshots) were created.
+ * @description When you call this operation, take note of the following items:
+ * - The new snapshot cannot be used to roll back the cloud disk that is associated with the source snapshot.
  * - Local snapshots cannot be copied.
  *
  * @param request CopySnapshotRequest
@@ -3988,10 +3988,10 @@ async function copySnapshotWithOptions(request: CopySnapshotRequest, runtime: Ut
 }
 
 /**
- * @summary Copies a standard or encrypted snapshot from one region to another.
+ * @summary Copies a standard snapshot or encrypted snapshot from one region to another.
  *
- * @description When you call this operation, take note of the following item:
- * - New snapshots (snapshot copies) cannot be used to roll back the disks for which source snapshots (copied snapshots) were created.
+ * @description When you call this operation, take note of the following items:
+ * - The new snapshot cannot be used to roll back the cloud disk that is associated with the source snapshot.
  * - Local snapshots cannot be copied.
  *
  * @param request CopySnapshotRequest
@@ -5429,11 +5429,10 @@ async function createAutoProvisioningGroup(request: CreateAutoProvisioningGroupR
 }
 
 model CreateAutoSnapshotPolicyRequest {
-  copiedSnapshotsRetentionDays?: int32(name='CopiedSnapshotsRetentionDays', description='The retention period of the snapshot copy in the destination region. Unit: days. Valid values:
+  copiedSnapshotsRetentionDays?: int32(name='CopiedSnapshotsRetentionDays', description='The retention period of cross-region snapshot replicas. Unit: days. Valid values:
 
-- -1: The snapshot copy is retained until it is deleted.
-
-- 1 to 65535: The snapshot copy is retained for the specified number of days. After the retention period of the snapshot copy expires, the snapshot copy is automatically deleted.
+- -1: Snapshot replicas are permanently retained.
+- 1 to 65535: Snapshot replicas are retained for the specified number of days.
 
 Default value: -1.', example='30'),
   copyEncryptionConfiguration?: {
@@ -5444,67 +5443,62 @@ Default value: -1.', example='30'),
         rolearn?: string(name='Rolearn', description='> This parameter is not publicly available.', example='hide'),
       }
     ](name='Arn', description='> This parameter is not publicly available.'),
-    encrypted?: boolean(name='Encrypted', description='Specifies whether to enable cross-region snapshot replication and encryption. Valid values:
+    encrypted?: boolean(name='Encrypted', description='Specifies whether to enable encryption for cross-region snapshot backup. Valid values:
 
-- true
-
-- false
+- true: enables encryption.
+- false: disables encryption.
 
 Default value: false.', example='false'),
-    KMSKeyId?: string(name='KMSKeyId', description='The ID of the Key Management Service (KMS) key used in cross-region snapshot replication and encryption.', example='0e478b7a-4262-4802-b8cb-00d3fb40826X'),
-  }(name='CopyEncryptionConfiguration', description='The encryption parameters for cross-region snapshot replication.'),
-  enableCrossRegionCopy?: boolean(name='EnableCrossRegionCopy', description='Specifies whether to enable cross-region replication for snapshots.
+    KMSKeyId?: string(name='KMSKeyId', description='The KMS key ID used for encrypted cross-region snapshot backup.', example='0e478b7a-4262-4802-b8cb-00d3fb40826X'),
+  }(name='CopyEncryptionConfiguration', description='The backup encryption parameter object for snapshot geo-redundancy.'),
+  enableCrossRegionCopy?: boolean(name='EnableCrossRegionCopy', description='Specifies whether to enable automatic cross-region replication.
 
-- true
-
-- false', example='false'),
+- true: enables automatic cross-region replication.
+- false: disables automatic cross-region replication.', example='false'),
   ownerId?: long(name='OwnerId'),
-  resourceGroupId?: string(name='ResourceGroupId', description='The resource group ID.', example='rg-aek2kkmhmhs****'),
+  resourceGroupId?: string(name='ResourceGroupId', description='The ID of the resource group.', example='rg-aek2kkmhmhs****'),
   resourceOwnerAccount?: string(name='ResourceOwnerAccount'),
   resourceOwnerId?: long(name='ResourceOwnerId'),
   storageLocationArn?: string(name='StorageLocationArn', description='> This parameter is not publicly available.', example='null'),
   tag?: [ 
     {
-      key?: string(name='Key', description='The key of tag N to add to the automatic snapshot policy. Valid values of N: 1 to 20. The tag key cannot be an empty string. The tag key can be up to 128 characters in length and cannot contain http\\\\:// or https\\\\://. The tag key cannot start with acs: or aliyun.', example='TestKey'),
-      value?: string(name='Value', description='The value of tag N to add to the automatic snapshot policy. Valid values of N: 1 to 20. The tag value can be an empty string. The tag value can be up to 128 characters in length and cannot contain http\\\\:// or https\\\\://. The tag value cannot start with acs:.', example='TestValue'),
+      key?: string(name='Key', description='The tag key of the automatic snapshot policy. Valid values of N: 1 to 20. The tag key cannot be an empty string. The tag key can be up to 128 characters in length and cannot start with aliyun or acs:. The tag key cannot contain http:// or https://.', example='TestKey'),
+      value?: string(name='Value', description='The tag value of the automatic snapshot policy. Valid values of N: 1 to 20. The tag value can be an empty string. The tag value can be up to 128 characters in length and cannot start with acs:. The tag value cannot contain http:// or https://.', example='TestValue'),
     }
-  ](name='Tag', description='The tags to add to the automatic snapshot policy.'),
-  targetCopyRegions?: string(name='TargetCopyRegions', description='The destination region to which to copy the snapshot. You can specify only a single destination region.', example='["cn-hangzhou"]'),
-  autoSnapshotPolicyName?: string(name='autoSnapshotPolicyName', description='The name of the automatic snapshot policy. The name must be 2 to 128 characters in length. The name must start with a letter and cannot start with http\\\\:// or https\\\\://. The name can contain letters, digits, colons (:), underscores (_), and hyphens (-).
+  ](name='Tag', description='The tags of the automatic snapshot policy.'),
+  targetCopyRegions?: string(name='TargetCopyRegions', description='The destination region to which snapshots are replicated. You can specify only one destination region.', example='["cn-hangzhou"]'),
+  autoSnapshotPolicyName?: string(name='autoSnapshotPolicyName', description='The name of the automatic snapshot policy. The name must be 2 to 128 characters in length. The name must start with a letter and cannot start with http:// or https://. The name can contain digits, colons (:), underscores (_), and hyphens (-).
 
-By default, this parameter is left empty.', example='TestName'),
-  regionId?: string(name='regionId', description='The ID of the region in which to create the automatic snapshot policy. You can call the [DescribeRegions](https://help.aliyun.com/document_detail/25609.html) operation to query the most recent region list.
+Default value: null.', example='TestName'),
+  regionId?: string(name='regionId', description='The region to which the automatic snapshot policy belongs. You can call [DescribeRegions](https://help.aliyun.com/document_detail/25609.html) to query the most recent region list.
 
 This parameter is required.', example='cn-hangzhou'),
-  repeatWeekdays?: string(name='repeatWeekdays', description='The days of the week on which to create automatic snapshots. Valid values: 1 to 7, which correspond to Monday to Sunday. 1 indicates Monday. Format description:
+  repeatWeekdays?: string(name='repeatWeekdays', description='The days of the week on which automatic snapshots are created. Unit: days. The cycle is weekly. Valid values: 1 to 7. For example, 1 indicates Monday. Format description:
 
-- Set this parameter to a JSON-formatted array. For example, a value of ["1"] specifies automatic snapshots to be created every Monday.
-
-- To schedule multiple automatic snapshots to be created in a week, you can specify multiple values. Separate the values with commas (,). You can specify a maximum of seven days. For example, a value of ["1","3","5"] specifies automatic snapshots to be created every Monday, Wednesday, and Friday.
+- The parameter value must be a JSON array. For example, ["1"\\\\] indicates that automatic snapshots are created every Monday.
+- To create multiple automatic snapshots within a week, specify multiple days separated by commas (,). You can specify a maximum of 7 days. For example, ["1","3","5"\\\\] indicates that automatic snapshots are created every Monday, Wednesday, and Friday.
 
 This parameter is required.', example='["1","2"]'),
-  retentionDays?: int32(name='retentionDays', description='The retention period of the automatic snapshot. Unit: days. Valid values:
+  retentionDays?: int32(name='retentionDays', description='The retention period of automatic snapshots. Unit: days. Valid values:
 
-- -1: The automatic snapshot is retained until it is deleted.
-
-- 1 to 65535: The automatic snapshot is retained for the specified number of days. After the retention period of the automatic snapshot expires, the automatic snapshot is automatically deleted.
+- -1: Automatic snapshots are permanently retained.
+- 1 to 65535: Automatic snapshots are retained for the specified number of days.
 
 Default value: -1.
 
 This parameter is required.', example='30'),
-  timePoints?: string(name='timePoints', description='The points in time of the day at which to create automatic snapshots. The time must be in UTC+8. Unit: hours. Valid values: 0 to 23, which correspond to the 24 on-the-hour points in time from 00:00:00 to 23:00:00. For example, 1 indicates 01:00:00. Format description:
+  timePoints?: string(name='timePoints', description='The points in time at which automatic snapshots are created. The time is displayed in UTC+8. Unit: hours. Valid values: 0 to 23, which represent the 24 points in time from 00:00 to 23:00. For example, 1 indicates 01:00. Format description:
 
-- Set this parameter to a JSON-formatted array. For example, a value of ["1"] specifies automatic snapshots to be created at 01:00:00.
+- The parameter value must be a JSON array. For example, ["1"\\\\] indicates that automatic snapshots are created at 01:00.
+- To create multiple automatic snapshots within a day, specify multiple points in time separated by commas (,). You can specify a maximum of 24 points in time. For example, ["1","3","5"\\\\] indicates that automatic snapshots are created at 01:00, 03:00, and 05:00.
 
-- To schedule multiple automatic snapshots to be created in a day, you can specify multiple values. Separate the values with commas (,). You can specify up to 24 points in time. For example, a value of ["1","3","5"] specifies automatic snapshots to be created at 01:00:00, 03:00:00, and 05:00:00.
-
-> If an automatic snapshot is being created when the time scheduled for creating another automatic snapshot is due, the new snapshot task is skipped. This may occur when a disk contains a large volume of data. For example, you scheduled snapshots to be automatically created at 09:00, 10:00, 11:00, and 12:00. The system starts to create a snapshot for the disk at 09:00:00. The process takes 80 minutes to complete because the disk contains a large volume of data and ends at 10:20:00. The system skips the automatic snapshot task scheduled for 10:00:00 and creates the next automatic snapshot for the disk at 11:00:00.
+> If a disk contains a large amount of data and the time required to create an automatic snapshot exceeds the interval between two consecutive points in time, the next point in time is skipped. For example, you set 09:00, 10:00, 11:00, and 12:00 as the points in time for automatic snapshot creation. The snapshot creation starts at 09:00 and is completed at 10:20, which takes 80 minutes. The system skips the 10:00 point in time and creates the next automatic snapshot at 11:00.
 
 This parameter is required.', example='["0", "1", … "23"]'),
 }
 
 model CreateAutoSnapshotPolicyResponseBody = {
-  autoSnapshotPolicyId?: string(name='AutoSnapshotPolicyId', description='The automatic snapshot policy ID.', example='sp-bp12m37ccmxvbmi5****'),
+  autoSnapshotPolicyId?: string(name='AutoSnapshotPolicyId', description='The ID of the automatic snapshot policy.', example='sp-bp12m37ccmxvbmi5****'),
   requestId?: string(name='RequestId', description='The request ID.', example='473469C7-AA6F-4DC5-B3DB-A3DC0DE3C83E'),
 }
 
@@ -5515,14 +5509,14 @@ model CreateAutoSnapshotPolicyResponse = {
 }
 
 /**
- * @summary Creates an automatic snapshot policy in a specific region. You can specify the schedule on which to create automatic snapshots, the retention period of the automatic snapshots, and whether to enable cross-region replication for the snapshots in the automatic snapshot policy. The automatic snapshot policy can be applied to create snapshots for system disks or data disks to back up disk data.
+ * @summary Creates an automatic snapshot policy in a specified region. You can specify the repeat cycle, retention period, and cross-region backup settings for automatic snapshots to back up data on system disks or data disks.
  *
- * @description Before you call this operation, learn about how to [create an automatic snapshot policy](https://help.aliyun.com/document_detail/127767.html).
+ * @description Before you call this operation, read [Create an automatic snapshot policy](https://help.aliyun.com/document_detail/127767.html).
  * Take note of the following items:
- * - You can create up to 100 automatic snapshot policies per region for a single Alibaba Cloud account. If the maximum number of automatic snapshots for a disk is reached and a new snapshot creation task is created, the system deletes the oldest automatic snapshot of the disk.
- * - If the instance to which a disk is attached is being stopped or restarted, the system cannot create snapshots for the disk based on the associated automatic snapshot policy.
- * - If cross-region snapshot replication is enabled and no encryption parameters are configured, encrypted snapshots are copied to the destination region and snapshot copies are encrypted by using the service key of the destination region. For more information about the limits on cross-region snapshot replication, see [Copy a snapshot](https://help.aliyun.com/document_detail/159441.html).
- * After the automatic snapshot policy is created, call the [ApplyAutoSnapshotPolicy](https://help.aliyun.com/document_detail/25531.html) operation to apply the policy to disks. If you want to modify the automatic snapshot policy, call the [ModifyAutoSnapshotPolicyEx](https://help.aliyun.com/document_detail/25529.html) operation.
+ * - You can create a maximum of 100 automatic snapshot policies in a region for an Alibaba Cloud account. When the number of automatic snapshots for a disk reaches the quota limit, the system deletes the earliest automatic snapshot created by the automatic snapshot policy when a new snapshot task is initiated.
+ * - The system does not execute automatic snapshot policies when an ECS instance has a pending stop or restart task.
+ * - If cross-region snapshot replication is enabled and no encryption parameters are configured, encrypted snapshots are replicated to the destination region by using the service key of the destination region by default. For more information about cross-region snapshot replication, see [Copy a snapshot](https://help.aliyun.com/document_detail/159441.html).
+ * After you create an automatic snapshot policy, call [ApplyAutoSnapshotPolicy](https://help.aliyun.com/document_detail/25531.html) to apply the policy to disks. To modify an automatic snapshot policy, call [ModifyAutoSnapshotPolicyEx](https://help.aliyun.com/document_detail/25529.html).
  *
  * @param request CreateAutoSnapshotPolicyRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -5594,14 +5588,14 @@ async function createAutoSnapshotPolicyWithOptions(request: CreateAutoSnapshotPo
 }
 
 /**
- * @summary Creates an automatic snapshot policy in a specific region. You can specify the schedule on which to create automatic snapshots, the retention period of the automatic snapshots, and whether to enable cross-region replication for the snapshots in the automatic snapshot policy. The automatic snapshot policy can be applied to create snapshots for system disks or data disks to back up disk data.
+ * @summary Creates an automatic snapshot policy in a specified region. You can specify the repeat cycle, retention period, and cross-region backup settings for automatic snapshots to back up data on system disks or data disks.
  *
- * @description Before you call this operation, learn about how to [create an automatic snapshot policy](https://help.aliyun.com/document_detail/127767.html).
+ * @description Before you call this operation, read [Create an automatic snapshot policy](https://help.aliyun.com/document_detail/127767.html).
  * Take note of the following items:
- * - You can create up to 100 automatic snapshot policies per region for a single Alibaba Cloud account. If the maximum number of automatic snapshots for a disk is reached and a new snapshot creation task is created, the system deletes the oldest automatic snapshot of the disk.
- * - If the instance to which a disk is attached is being stopped or restarted, the system cannot create snapshots for the disk based on the associated automatic snapshot policy.
- * - If cross-region snapshot replication is enabled and no encryption parameters are configured, encrypted snapshots are copied to the destination region and snapshot copies are encrypted by using the service key of the destination region. For more information about the limits on cross-region snapshot replication, see [Copy a snapshot](https://help.aliyun.com/document_detail/159441.html).
- * After the automatic snapshot policy is created, call the [ApplyAutoSnapshotPolicy](https://help.aliyun.com/document_detail/25531.html) operation to apply the policy to disks. If you want to modify the automatic snapshot policy, call the [ModifyAutoSnapshotPolicyEx](https://help.aliyun.com/document_detail/25529.html) operation.
+ * - You can create a maximum of 100 automatic snapshot policies in a region for an Alibaba Cloud account. When the number of automatic snapshots for a disk reaches the quota limit, the system deletes the earliest automatic snapshot created by the automatic snapshot policy when a new snapshot task is initiated.
+ * - The system does not execute automatic snapshot policies when an ECS instance has a pending stop or restart task.
+ * - If cross-region snapshot replication is enabled and no encryption parameters are configured, encrypted snapshots are replicated to the destination region by using the service key of the destination region by default. For more information about cross-region snapshot replication, see [Copy a snapshot](https://help.aliyun.com/document_detail/159441.html).
+ * After you create an automatic snapshot policy, call [ApplyAutoSnapshotPolicy](https://help.aliyun.com/document_detail/25531.html) to apply the policy to disks. To modify an automatic snapshot policy, call [ModifyAutoSnapshotPolicyEx](https://help.aliyun.com/document_detail/25529.html).
  *
  * @param request CreateAutoSnapshotPolicyRequest
  * @return CreateAutoSnapshotPolicyResponse
@@ -6454,8 +6448,8 @@ model CreateDiskRequest {
   ](name='Arn', description='> This parameter is not publicly available.'),
   burstingEnabled?: boolean(name='BurstingEnabled', description='Specifies whether to enable the performance burst feature. Valid values:
 
-- true: Enabled.
-- false: Disabled.
+- true: enables the performance burst feature.
+- false: does not enable the performance burst feature.
 
 > This parameter is supported only when `DiskCategory` is set to `cloud_auto`. For more information, see [ESSD AutoPL disks](https://help.aliyun.com/document_detail/368372.html).', example='false'),
   clientToken?: string(name='ClientToken', description='The client token that is used to ensure the idempotence of the request. You can use the client to generate the token, but make sure that the token is unique among different requests. The **ClientToken** value can contain only ASCII characters and cannot exceed 64 characters in length. For more information, see [How to ensure idempotence](https://help.aliyun.com/document_detail/25693.html).', example='123e4567-e89b-12d3-a456-426655440000'),
@@ -6475,14 +6469,14 @@ Default value: empty.', example='testDescription'),
 - elastic_ephemeral_disk_premium: elastic ephemeral disk - Premium Edition.
 
 Default value: cloud.', example='cloud_ssd'),
-  diskName?: string(name='DiskName', description='The name of the disk. The name must be 2 to 128 characters in length and can contain letters in the Unicode letter category (including English and Chinese characters) and ASCII digits (0-9). The name can contain colons (:), underscores (_), periods (.), or hyphens (-). The name must start with a character in the Unicode letter category.
+  diskName?: string(name='DiskName', description='The name of the disk. The name must be 2 to 128 characters in length and can contain letters in the Unicode character set (including English and Chinese characters) and ASCII digits (0-9). The name can contain colons (:), underscores (_), periods (.), or hyphens (-). The name must start with a letter in the Unicode character set.
 
 Default value: empty.', example='testDiskName'),
   encryptAlgorithm?: string(name='EncryptAlgorithm', description='This parameter is not publicly available.', example='hide'),
   encrypted?: boolean(name='Encrypted', description='Specifies whether to encrypt the disk. Valid values:
 
-- true: Encrypted.
-- false: Not encrypted.
+- true: encrypts the disk.
+- false: does not encrypt the disk.
 
 Default value: false.', example='false'),
   instanceId?: string(name='InstanceId', description='The ID of the subscription instance to which the created subscription disk is automatically attached.
@@ -6490,37 +6484,37 @@ Default value: false.', example='false'),
 - After you specify the instance ID, the ResourceGroupId, Tag.N.Key, Tag.N.Value, ClientToken, and KMSKeyId parameters are ignored.
 - You cannot specify both ZoneId and InstanceId.
 
-Default value: empty. A pay-as-you-go disk is created, and the region of the disk is determined by RegionId and ZoneId.', example='i-bp18pnlg1ds9rky4****'),
+Default value: empty. This indicates that a pay-as-you-go disk is created. The region of the disk is determined by RegionId and ZoneId.', example='i-bp18pnlg1ds9rky4****'),
   KMSKeyId?: string(name='KMSKeyId', description='The ID of the Key Management Service (KMS) key used by the disk.
 
 > If Encrypted is set to true and KMSKeyId is not specified, the default key is used for encryption. The KMSKeyId value is returned after the instance is created.
-> - - If the disk is created from a non-shared encrypted snapshot, the encryption key used by the snapshot is used by default.
-> - - If the disk is created from a shared encrypted snapshot, the service key is used by default.
-> - - If the disk is created in a region where account-level default encryption for block storage is enabled, the specified account-level key is used by default.
-> - - In other cases, the service key is used by default.', example='0e478b7a-4262-4802-b8cb-00d3fb40826X'),
-  multiAttach?: string(name='MultiAttach', description='Specifies whether to enable the multi-attach feature. Valid values:
+> - - If the disk is created from a non-shared encrypted snapshot: the encryption key used by the snapshot is used by default.
+> - - If the disk is created from a shared encrypted snapshot: the service key is used by default.
+> - - If the disk is created in a region where account-level default encryption for block storage is enabled: the specified account-level key is used by default.
+> - - In other cases: the service key is used by default.', example='0e478b7a-4262-4802-b8cb-00d3fb40826X'),
+  multiAttach?: string(name='MultiAttach', description='Specifies whether to enable the multi-attach attribute. Valid values:
 
-- Disabled: Disabled.
-- Enabled: Enabled. Only enterprise SSDs support setting this parameter to `Enabled`.
+- Disabled: disables the multi-attach attribute.
+- Enabled: enables the multi-attach attribute. Only enterprise SSDs support this value.
 
 Default value: Disabled.
 
-> Disks with the multi-attach feature enabled support only the pay-as-you-go billing method. Therefore, when `MultiAttach=Enabled`, you cannot specify the `InstanceId` parameter. After the disk is created, you can call [AttachDisk](https://help.aliyun.com/document_detail/25515.html) to attach it. Note that a disk with the multi-attach feature enabled can be attached only as a data disk.', example='Disabled'),
+> Disks with the multi-attach attribute enabled support only the pay-as-you-go billing method. Therefore, when `MultiAttach=Enabled`, you cannot specify the `InstanceId` parameter. You can invoke [AttachDisk](https://help.aliyun.com/document_detail/25515.html) to attach the disk after it is created. Note that a disk with the multi-attach feature enabled can be attached only as a data disk.', example='Disabled'),
   ownerAccount?: string(name='OwnerAccount'),
   ownerId?: long(name='OwnerId'),
-  performanceLevel?: string(name='PerformanceLevel', description='The performance level of the enterprise SSD to create. Set this parameter to one of the following values:
+  performanceLevel?: string(name='PerformanceLevel', description='The performance level of the enterprise SSD. Valid values:
 
-- PL0: A single disk can deliver up to 10,000 random read/write IOPS.
-- PL1: A single disk can deliver up to 50,000 random read/write IOPS.
-- PL2: A single disk can deliver up to 100,000 random read/write IOPS.
-- PL3: A single disk can deliver up to 1,000,000 random read/write IOPS.
+- PL0: a single disk can deliver up to 10,000 random read/write IOPS.
+- PL1: a single disk can deliver up to 50,000 random read/write IOPS.
+- PL2: a single disk can deliver up to 100,000 random read/write IOPS.
+- PL3: a single disk can deliver up to 1,000,000 random read/write IOPS.
 
 Default value: PL1.
 
-For information about how to select an ESSD performance level, see [Enterprise SSDs](https://help.aliyun.com/document_detail/122389.html).', example='PL1'),
+For information about how to select an ESSD performance level, see [ESSD cloud disks](https://help.aliyun.com/document_detail/122389.html).', example='PL1'),
   provisionedIops?: long(name='ProvisionedIops', description='The provisioned read/write IOPS of the ESSD AutoPL disk. Valid values:
 
-- Capacity (GiB) <= 3: Provisioned performance is not supported.
+- Capacity (GiB) <= 3: provisioned performance is not supported.
 
 - Capacity (GiB) >= 4: [0, min{(1,000 IOPS/GiB × Capacity - Baseline IOPS), 50,000}]
 
@@ -6529,7 +6523,7 @@ Baseline performance = max{min{1,800 + 50 × Capacity, 50,000}, 3,000}.
 
 
 > This parameter is supported only when `DiskCategory` is set to `cloud_auto`. For more information, see [ESSD AutoPL disks](https://help.aliyun.com/document_detail/368372.html).', example='40000'),
-  regionId?: string(name='RegionId', description='The ID of the region. You can call [DescribeRegions](https://help.aliyun.com/document_detail/25609.html) to query the most recent region list.
+  regionId?: string(name='RegionId', description='The region ID. You can call [DescribeRegions](https://help.aliyun.com/document_detail/25609.html) to query the most recent region list.
 
 This parameter is required.', example='cn-hangzhou'),
   resourceGroupId?: string(name='ResourceGroupId', description='The ID of the resource group to which the disk belongs.', example='rg-bp67acfmxazb4p****'),
@@ -6540,7 +6534,7 @@ This parameter is required.', example='cn-hangzhou'),
 -   cloud: 5 to 2,000.
 -   cloud_efficiency: 20 to 32,768.
 -   cloud_ssd: 20 to 32,768.
--   cloud_essd: The valid values depend on the `PerformanceLevel` value.
+-   cloud_essd: The valid value range depends on the value of `PerformanceLevel`.
     - PL0: 1 to 65,536.
     - PL1: 20 to 65,536.
     - PL2: 461 to 65,536.
@@ -6555,7 +6549,7 @@ If you specify `SnapshotId`, the `SnapshotId` and `Size` parameters have the fol
 
 - If the snapshot specified by `SnapshotId` is larger than the specified `Size` value, the snapshot size of the created disk equals the size of the specified snapshot.
 - If the snapshot specified by `SnapshotId` is smaller than the specified `Size` value, the snapshot size of the created disk equals the specified `Size` value.', example='2000'),
-  snapshotId?: string(name='SnapshotId', description='The ID of the snapshot to use to create the disk. Snapshots created on or before July 15, 2013 cannot be used to create disks. 
+  snapshotId?: string(name='SnapshotId', description='The ID of the snapshot used to create the disk. Snapshots created on or before July 15, 2013 cannot be used to create disks. 
 
 The `SnapshotId` and `Size` parameters have the following restrictions:
 
@@ -6564,31 +6558,31 @@ The `SnapshotId` and `Size` parameters have the following restrictions:
 - Elastic ephemeral disks cannot be created from snapshots.', example='s-bp67acfmxazb4p****'),
   storageClusterId?: string(name='StorageClusterId', description='The ID of the dedicated block storage cluster. To create a disk in a specific dedicated block storage cluster, specify this parameter.
 
-> You can set either the storage set parameters (`StorageSetId` and `StorageSetPartitionNumber`) or the dedicated block storage cluster parameter (`StorageClusterId`), but not both. If you set both, the API call fails.', example='dbsc-j5e1sf2vaf5he8m2****'),
+> The storage set parameters (`StorageSetId` and `StorageSetPartitionNumber`) and the dedicated block storage cluster parameter (`StorageClusterId`) are mutually exclusive. If you specify both, the API call fails.', example='dbsc-j5e1sf2vaf5he8m2****'),
   storageSetId?: string(name='StorageSetId', description='The ID of the storage set.
 
-> You can set either the storage set parameters (`StorageSetId` and `StorageSetPartitionNumber`) or the dedicated block storage cluster parameter (`StorageClusterId`), but not both. If you set both, the API call fails.', example='ss-bp67acfmxazb4p****'),
-  storageSetPartitionNumber?: int32(name='StorageSetPartitionNumber', description='The number of partitions in the storage set. Valid values: 2 and greater. The maximum value cannot exceed the privilege quota limit returned by calling [DescribeAccountAttributes](https://help.aliyun.com/document_detail/73772.html).
+> The storage set parameters (`StorageSetId` and `StorageSetPartitionNumber`) and the dedicated block storage cluster parameter (`StorageClusterId`) are mutually exclusive. If you specify both, the API call fails.', example='ss-bp67acfmxazb4p****'),
+  storageSetPartitionNumber?: int32(name='StorageSetPartitionNumber', description='The number of partitions in the storage set. Valid values: greater than or equal to 2, up to the privilege quota limit returned by [DescribeAccountAttributes](https://help.aliyun.com/document_detail/73772.html).
 
 Default value: 2.', example='3'),
   tag?: [ 
     {
-      key?: string(name='Key', description='The tag key of the disk. Valid values of N: 1 to 20. The tag key cannot be an empty string. The tag key can be up to 128 characters in length and cannot start with `aliyun` or `acs:`. The tag key cannot contain `http://` or `https://`.', example='TestKey'),
+      key?: string(name='Key', description='The tag key of the disk. Valid values of N: 1 to 20. The tag key cannot be an empty string. The tag key can be up to 128 characters in length and cannot start with `aliyun` or `acs:`. It cannot contain `http://` or `https://`.', example='TestKey'),
       value?: string(name='Value', description='The tag value of the disk. Valid values of N: 1 to 20. The tag value can be an empty string. The tag value can be up to 128 characters in length and cannot contain `http://` or `https://`.', example='TestValue'),
     }
   ](name='Tag', description='The list of tags for the disk.'),
-  zoneId?: string(name='ZoneId', description='The ID of the zone in which to create a pay-as-you-go disk.
+  zoneId?: string(name='ZoneId', description='The zone in which to create a pay-as-you-go disk.
 
 - If you do not specify InstanceId, ZoneId is required.
 - You cannot specify both ZoneId and InstanceId.
 
 
-> You do not need to set ZoneId for disks of the `cloud_regional_disk_auto` type.', example='cn-hangzhou-g'),
+> Disks of the `cloud_regional_disk_auto` type do not require ZoneId to be specified.', example='cn-hangzhou-g'),
 }
 
 model CreateDiskResponseBody = {
-  diskId?: string(name='DiskId', description='The ID of the disk.', example='d-bp131n0q38u3a4zi****'),
-  orderId?: string(name='OrderId', description='The ID of the order.
+  diskId?: string(name='DiskId', description='The disk ID.', example='d-bp131n0q38u3a4zi****'),
+  orderId?: string(name='OrderId', description='The order ID.
 
 > An order ID is returned only when you create a subscription disk.', example='20413515388****'),
   requestId?: string(name='RequestId', description='The request ID.', example='473469C7-AA6F-4DC5-B3DB-A3DC0DE3****'),
@@ -6603,14 +6597,14 @@ model CreateDiskResponse = {
 /**
  * @summary Creates a pay-as-you-go or subscription data disk.
  *
- * @description - When you create a disk, you can enable the multi-attach feature (`MultiAttach`). Learn about this attribute and its limits before you use it. For more information, see [ESSD cloud disks that support NVMe](https://help.aliyun.com/document_detail/256487.html) and [Use the multi-attach feature](https://help.aliyun.com/document_detail/262105.html).
+ * @description - You can enable the multi-attach attribute (`MultiAttach`) when you create a disk. Learn about this attribute and its limits before you use it. For more information, see [ESSD cloud disks that support NVMe](https://help.aliyun.com/document_detail/256487.html) and [Use the multi-attach feature](https://help.aliyun.com/document_detail/262105.html).
  * - The following disk types can be created: basic disks, ultra disks, standard SSDs, enterprise SSDs, ESSD Entry disks, regional Enterprise SSDs (ESSDs), ESSD AutoPL disks, elastic ephemeral disks - Standard Edition, and elastic ephemeral disks - Premium Edition.
- * - To create a disk, complete [real-name registration](https://account.console.aliyun.com/#/auth/home).
- * - Creating a disk incurs fees. Learn about the billing method of Elastic Compute Service (ECS) in advance. For more information, see [Billing overview](https://help.aliyun.com/document_detail/25398.html).
+ * - Complete real-name registration before you create a disk. Go to [Real-name registration](https://account.console.aliyun.com/#/auth/home) in your account information.
+ * - Creating a disk incurs charges. Learn about the billing methods of Elastic Compute Service (ECS) in advance. For more information, see [Billing overview](https://help.aliyun.com/document_detail/25398.html).
  * - Default settings when you create a disk:
- *   - Automatic snapshots of the disk are deleted when the disk is deleted. That is, `DeleteAutoSnapshot` is set to `true`. You can call [DescribeDisks](https://help.aliyun.com/document_detail/2679767.html) to query the parameter settings, and call [ModifyDiskAttribute](https://help.aliyun.com/document_detail/25517.html) to modify the property.
- *   - When you create an enterprise SSD, if you do not configure a performance level, the default level is PL1. You can call [ModifyDiskSpec](https://help.aliyun.com/document_detail/123780.html) to change the performance level.
- *   - The billing method is pay-as-you-go, which means the `Portable` property defaults to `true`.
+ *   - Automatic snapshots of the disk are deleted when the disk is deleted. That is, `DeleteAutoSnapshot` is set to `true`. You can invoke [DescribeDisks](https://help.aliyun.com/document_detail/2679767.html) to query the parameter settings, and invoke [ModifyDiskAttribute](https://help.aliyun.com/document_detail/25517.html) to modify the property.
+ *   - When you create an enterprise SSD, if you do not configure the performance level, the default level is PL1. You can invoke [ModifyDiskSpec](https://help.aliyun.com/document_detail/123780.html) to change the performance level.
+ *   - The billing method is pay-as-you-go. That is, the `Portable` property defaults to `true`.
  *
  * @param request CreateDiskRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -6720,14 +6714,14 @@ async function createDiskWithOptions(request: CreateDiskRequest, runtime: Util.R
 /**
  * @summary Creates a pay-as-you-go or subscription data disk.
  *
- * @description - When you create a disk, you can enable the multi-attach feature (`MultiAttach`). Learn about this attribute and its limits before you use it. For more information, see [ESSD cloud disks that support NVMe](https://help.aliyun.com/document_detail/256487.html) and [Use the multi-attach feature](https://help.aliyun.com/document_detail/262105.html).
+ * @description - You can enable the multi-attach attribute (`MultiAttach`) when you create a disk. Learn about this attribute and its limits before you use it. For more information, see [ESSD cloud disks that support NVMe](https://help.aliyun.com/document_detail/256487.html) and [Use the multi-attach feature](https://help.aliyun.com/document_detail/262105.html).
  * - The following disk types can be created: basic disks, ultra disks, standard SSDs, enterprise SSDs, ESSD Entry disks, regional Enterprise SSDs (ESSDs), ESSD AutoPL disks, elastic ephemeral disks - Standard Edition, and elastic ephemeral disks - Premium Edition.
- * - To create a disk, complete [real-name registration](https://account.console.aliyun.com/#/auth/home).
- * - Creating a disk incurs fees. Learn about the billing method of Elastic Compute Service (ECS) in advance. For more information, see [Billing overview](https://help.aliyun.com/document_detail/25398.html).
+ * - Complete real-name registration before you create a disk. Go to [Real-name registration](https://account.console.aliyun.com/#/auth/home) in your account information.
+ * - Creating a disk incurs charges. Learn about the billing methods of Elastic Compute Service (ECS) in advance. For more information, see [Billing overview](https://help.aliyun.com/document_detail/25398.html).
  * - Default settings when you create a disk:
- *   - Automatic snapshots of the disk are deleted when the disk is deleted. That is, `DeleteAutoSnapshot` is set to `true`. You can call [DescribeDisks](https://help.aliyun.com/document_detail/2679767.html) to query the parameter settings, and call [ModifyDiskAttribute](https://help.aliyun.com/document_detail/25517.html) to modify the property.
- *   - When you create an enterprise SSD, if you do not configure a performance level, the default level is PL1. You can call [ModifyDiskSpec](https://help.aliyun.com/document_detail/123780.html) to change the performance level.
- *   - The billing method is pay-as-you-go, which means the `Portable` property defaults to `true`.
+ *   - Automatic snapshots of the disk are deleted when the disk is deleted. That is, `DeleteAutoSnapshot` is set to `true`. You can invoke [DescribeDisks](https://help.aliyun.com/document_detail/2679767.html) to query the parameter settings, and invoke [ModifyDiskAttribute](https://help.aliyun.com/document_detail/25517.html) to modify the property.
+ *   - When you create an enterprise SSD, if you do not configure the performance level, the default level is PL1. You can invoke [ModifyDiskSpec](https://help.aliyun.com/document_detail/123780.html) to change the performance level.
+ *   - The billing method is pay-as-you-go. That is, the `Portable` property defaults to `true`.
  *
  * @param request CreateDiskRequest
  * @return CreateDiskResponse
@@ -11998,54 +11992,49 @@ async function createSimulatedSystemEvents(request: CreateSimulatedSystemEventsR
 }
 
 model CreateSnapshotRequest {
-  category?: string(name='Category', description='The type of the snapshot. Valid values:
+  category?: string(name='Category', description='The snapshot type. Valid values:
 
-- Standard: a standard snapshot.
+- Standard: standard snapshot.
+- Flash: local snapshot.
 
-- Flash: a Flash Snapshot.
+> This parameter will be deprecated. Standard snapshots of enterprise SSDs have been upgraded to [instant access by default](https://help.aliyun.com/document_detail/193667.html). No additional configuration or fees are required. This applies to enterprise SSDs, ESSD AutoPL disks, ESSD Entry disks, and regional enterprise SSDs. Standard snapshots of standard SSDs are also active by default.', example='Standard'),
+  clientToken?: string(name='ClientToken', description='The client token that is used to ensure the idempotence of the request. You can use the client to generate the token, but make sure that the token is unique among different requests. The **ClientToken** value can contain only ASCII characters and cannot exceed 64 characters in length. For more information, see [How to ensure idempotence](https://help.aliyun.com/document_detail/25693.html).', example='123e4567-e89b-12d3-a456-426655440000'),
+  description?: string(name='Description', description='The description of the snapshot. The description must be 2 to 256 characters in length and cannot start with `http://` or `https://`.
 
-> This parameter is deprecated. standard snapshots for ESSD cloud disks now include the [Instant Access](https://help.aliyun.com/document_detail/193667.html) feature by default at no additional cost.', example='Standard'),
-  clientToken?: string(name='ClientToken', description='A client-generated token to ensure request idempotence. The token must be unique for each request. The **ClientToken** value must be an ASCII string of up to 64 characters. For more information, see [How to ensure idempotence](https://help.aliyun.com/document_detail/25693.html).', example='123e4567-e89b-12d3-a456-426655440000'),
-  description?: string(name='Description', description='The snapshot description must be 2 to 256 characters in length and cannot start with `http://` or `https://`.
-
-This parameter is empty by default.', example='testDescription'),
-  diskId?: string(name='DiskId', description='The ID of the cloud disk.
+Default value: null.', example='testDescription'),
+  diskId?: string(name='DiskId', description='The disk ID.
 
 This parameter is required.', example='d-bp1s5fnvk4gn2tws0****'),
-  instantAccess?: boolean(name='InstantAccess', description='Specifies whether to enable the Instant Access feature. Valid values:
-
-- true: Enables the Instant Access feature. This feature can be enabled only for snapshots of ESSD cloud disks.
-
-- false: Disables the Instant Access feature. A standard snapshot is created.
+  instantAccess?: boolean(name='InstantAccess', description='Specifies whether to enable the snapshot instant access feature. Valid values:
+- true: enables the feature. Only enterprise SSDs support this feature.
+- false: shutdown. A standard snapshot is created.
 
 Default value: false.
 
-> This parameter is deprecated. standard snapshots for ESSD cloud disks now include the [Instant Access](https://help.aliyun.com/document_detail/193667.html) feature by default at no additional cost.', example='false'),
-  instantAccessRetentionDays?: int32(name='InstantAccessRetentionDays', description='The retention period for the Instant Access feature, in days. The snapshot is automatically deleted when this retention period expires. This parameter takes effect only when `InstantAccess` is set to `true`. Valid values: 1 to 65,535.
+> This parameter is deprecated. Standard snapshots of enterprise SSDs have been upgraded to [instant access by default](https://help.aliyun.com/document_detail/193667.html). No additional configuration or fees are required. This applies to enterprise SSDs, ESSD AutoPL disks, ESSD Entry disks, and regional enterprise SSDs. Standard snapshots of standard SSDs are also active by default.', example='false'),
+  instantAccessRetentionDays?: int32(name='InstantAccessRetentionDays', description='Settings for the retention period of the snapshot instant access feature. After the retention period expires, the snapshot is subject to automatic release. This parameter takes effect only when `InstantAccess=true`. Unit: days. Valid values: 1 to 65535.
 
-Defaults to the value of `RetentionDays`.
+Default value: the same as the value of the `RetentionDays` parameter.
 
-> This parameter is deprecated. standard snapshots for ESSD cloud disks now include the [Instant Access](https://help.aliyun.com/document_detail/193667.html) feature by default at no additional cost.', example='1'),
+> This parameter is deprecated. Standard snapshots of enterprise SSDs have been upgraded to [instant access by default](https://help.aliyun.com/document_detail/193667.html). No additional configuration or fees are required. This applies to enterprise SSDs, ESSD AutoPL disks, ESSD Entry disks, and regional enterprise SSDs. Standard snapshots of standard SSDs are also active by default.', example='1'),
   ownerAccount?: string(name='OwnerAccount'),
   ownerId?: long(name='OwnerId'),
-  resourceGroupId?: string(name='ResourceGroupId', description='The ID of the Resource Group to which the snapshot belongs.', example='rg-bp67acfmxazb4p****'),
+  resourceGroupId?: string(name='ResourceGroupId', description='The ID of the resource group to which the snapshot belongs.', example='rg-bp67acfmxazb4p****'),
   resourceOwnerAccount?: string(name='ResourceOwnerAccount'),
   resourceOwnerId?: long(name='ResourceOwnerId'),
-  retentionDays?: int32(name='RetentionDays', description='The retention period of the snapshot, in days. Valid values: 1 to 65,536. The snapshot is automatically deleted when the retention period expires.
+  retentionDays?: int32(name='RetentionDays', description='Settings for the retention period of the snapshot. Unit: days. Valid values: 1 to 65536. The snapshot is subject to automatic release when the retention period expires.
 
-If this parameter is not specified, the snapshot is retained indefinitely.', example='30'),
-  snapshotName?: string(name='SnapshotName', description='The snapshot name must be 2 to 128 characters long. It must start with a letter or a Chinese character and can contain letters, digits, colons (:), underscores (_), periods (.), and hyphens (-).
+Default value: null, which indicates that the snapshot is not subject to automatic release.', example='30'),
+  snapshotName?: string(name='SnapshotName', description='The name of the snapshot. The name must be 2 to 128 characters in length. It must start with a letter and cannot start with `http://` or `https://`. The name can contain Unicode characters under the letter category (including letters in English and Chinese), ASCII digits (0-9), colons (:), underscores (_), periods (.), and hyphens (-).
 
-> The name cannot start with `http://` or `https://`. To avoid conflicts with auto snapshot names, the name cannot start with `auto`.', example='testSnapshotName'),
-  storageLocationArn?: string(name='StorageLocationArn', description='> This parameter is not available for public use.', example='null'),
+> The name cannot start with `auto` to avoid conflicts with the names of automatic snapshots.', example='testSnapshotName'),
+  storageLocationArn?: string(name='StorageLocationArn', description='> This parameter is not publicly available.', example='null'),
   tag?: [ 
     {
-      key?: string(name='Key', description='The key of the tag.
-
-> This parameter is not recommended. For better compatibility, use the Key parameter instead.', example='TestKey'),
-      value?: string(name='Value', description='The tag value. It can be an empty string, must be 128 characters or shorter, and cannot contain http\\\\:// or https\\\\://.', example='TestValue'),
+      key?: string(name='Key', description='The tag key of the snapshot. Valid values of N: 1 to 20. The tag key cannot be an empty string. The tag key can be up to 128 characters in length and cannot start with aliyun or acs:. The tag key cannot contain http:// or https://.', example='TestKey'),
+      value?: string(name='Value', description='The tag value of the snapshot. Valid values of N: 1 to 20. The tag value can be an empty string. The tag value can be up to 128 characters in length and cannot contain http:// or https://.', example='TestValue'),
     }
-  ](name='Tag', description='The tags to add to the snapshot. You can add up to 20 tags.'),
+  ](name='Tag', description='The tags.'),
 }
 
 model CreateSnapshotResponseBody = {
@@ -12060,29 +12049,29 @@ model CreateSnapshotResponse = {
 }
 
 /**
- * @summary Create a snapshot of a cloud disk.
+ * @summary Creates a snapshot for a disk.
  *
- * @description The instant access feature for snapshots replaces the legacy local snapshot feature. The parameters are described as follows:
- * - If you used local snapshots before December 14, 2020, you can continue to use the `Category` parameter.
- * - If you did not use local snapshots before December 14, 2020, no additional configuration is required. New snapshots that are created for ESSD cloud disks (ESSDs, ESSD AutoPL disks, ESSD Entry disks, and zone-redundant ESSDs) have the instant access feature enabled by default. This applies to both manual and automatic snapshots. The instant access-related parameters `InstantAccess`, `InstantAccessRetentionDays`, and `DisableInstantAccess` no longer take effect. The `DescribeSnapshots` and `DescribeSnapshotGroups` API operations return an `Available` parameter that indicates the snapshot\\"s status.
- * Prerequisites:
- * - The snapshot feature is enabled. For more information, see [Enable the snapshot feature](https://help.aliyun.com/document_detail/108381.html).
- * - The cloud disk must be in the **in-use** or **available** state. Note the following points:
- *   - If the cloud disk is in the **in-use** state, the instance to which the disk is attached must be in the **running** or **stopped** state.
- *   - If the cloud disk is in the **available** state, you can create snapshots for it only if it has been previously attached to an ECS instance.
- *   - When you use cloud disks to create dynamic scalable volumes or RAID arrays, we recommend that you use snapshot consistency groups and enable application-consistent snapshots to back up data. A snapshot consistency group ensures the crash consistency and write-order consistency of data written across multiple cloud disks. For more information, see [Create a snapshot consistency group](https://help.aliyun.com/document_detail/199625.html) and [Create an application-consistent snapshot](https://help.aliyun.com/document_detail/208589.html).
- * Keep the following in mind when creating a snapshot:
- * - Create snapshots during off-peak hours. During snapshot creation, the I/O performance of the cloud disk decreases by less than 10% and read and write operations may temporarily slow down.
- * - You cannot use a snapshot that is being created to create a custom image ([CreateImage](https://help.aliyun.com/document_detail/25535.html)).
- * - The snapshot does not back up incremental data generated on the cloud disk during the creation process.
- * - If the cloud disk is attached to an ECS instance, do not change the state of the instance, such as stopping or restarting the instance, during snapshot creation. Otherwise, the snapshot creation will fail.
- * - You cannot resize a cloud disk during snapshot creation. You can resize the cloud disk only after the snapshot is complete.
- * - You can create a snapshot for a cloud disk that is in the **expired** (`Expired`) state. If the cloud disk is released due to expiration when the snapshot is being created, the snapshot in the **creating** (`Creating`) state is also deleted.
- * - After a snapshot is created, you are charged for the snapshot based on its size. The fees are settled on a per-region basis. For more information, see [Snapshots](https://help.aliyun.com/document_detail/56159.html).
- * - You cannot create a snapshot for a cloud disk in the following cases:
- *   - The number of manual snapshots of the cloud disk has reached the upper limit. For more information, see [Limits](~~25412#SnapshotQuota1~~).
- *   - The limit on the number of snapshots that can be created concurrently has been reached. For more information, see [Limits](~~25412#SnapshotQuota1~~).
- *   - When you query the information of an ECS instance, if the returned data contains `{"OperationLocks": {"LockReason" : "security"}}`, all operations on the instance are prohibited.
+ * @description The local snapshot feature has been replaced by the snapshot instant access feature. Metric description is as follows:
+ * - If you used local snapshots before December 14, 2020, you can use the `Category` parameter as Normal.
+ * - If you did not use local snapshots before December 14, 2020, no additional configuration is required. New snapshots created for ESSD series disks (ESSD, ESSD AutoPL, ESSD Entry, and regional ESSD) are instantly active by default, and both manual snapshots and automatic snapshots are supported. The three snapshot instant access-related parameters `InstantAccess`, `InstantAccessRetentionDays`, and `DisableInstantAccess` in API operations no longer take effect. The `DescribeSnapshots` and `DescribeSnapshotGroups` API operations will include a new response parameter named Available to describe the active status of snapshots.
+ * Before you begin:
+ * - Activate the snapshot feature. For more information, see [Activate snapshots](https://help.aliyun.com/document_detail/108381.html).
+ * - The disk must be in the **In Use** or **Unattached** state. Note the following items for different states:
+ *   - If the disk is in the **In Use** state, the instance must be in the **Running** or **Stopped** state.
+ *   - If the disk is in the **Unattached** state, the disk must have been previously attached to an ECS instance. Snapshots cannot be created for disks that have never been attached to an ECS instance.
+ *   - When a disk is used to create a dynamic extended volume or a RAID array, use a snapshot-consistent group and enable application-consistent snapshots to back up data. Snapshot-consistent groups ensure write order consistency and crash consistency for data written to multiple disks in a business system. For more information, see [Create a snapshot-consistent group](https://help.aliyun.com/document_detail/199625.html) and [Create an application-consistent snapshot](https://help.aliyun.com/document_detail/208589.html).
+ * When you create a snapshot, take note of the following items:
+ * - Avoid creating snapshots during peak business hours. When a snapshot is being created, the I/O performance of the disk decreases by up to 10%, and read and write performance may be briefly affected.
+ * - If the snapshot has not been created, it cannot be used to create a custom image ([CreateImage](https://help.aliyun.com/document_detail/25535.html)).
+ * - Incremental data generated by disk operations during snapshot creation is not backup to the snapshot.
+ * - If the disk is attached to an ECS instance, do not change the instance status during snapshot creation, such as stopping or restarting the ECS instance. Otherwise, the snapshot creation is failed.
+ * - A disk for which a snapshot is being created does not support scale-out. Wait until the snapshot is created before you execute the scale-out operation.
+ * - You can create snapshots for disks in the **Expired** (`Expired`) state. If the disk reaches its expiration release time during snapshot creation, the disk is released and the snapshot in the **Creating** (`Creating`) state is also deleted.
+ * - After a snapshot is created, the system calculates fees based on the snapshot size in each region separately. For more information, see [Snapshot billing](https://help.aliyun.com/document_detail/56159.html).
+ * - In the following scenarios, you cannot create a snapshot for the specified disk:
+ *   - The number of manual snapshots retained for the disk has reached the upper limit. For more information, see [Snapshot limits](~~25412#SnapshotQuota1~~).
+ *   - Snapshot creation has concurrency limits. Exceeding the limits causes creation failures. For more information, see [Snapshot limits](~~25412#SnapshotQuota1~~).
+ *   - When you query ECS instance information, if the returned data contains `{"OperationLocks": {"LockReason" : "security"}}`, all operations are prohibited.
  *
  * @param request CreateSnapshotRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -12154,29 +12143,29 @@ async function createSnapshotWithOptions(request: CreateSnapshotRequest, runtime
 }
 
 /**
- * @summary Create a snapshot of a cloud disk.
+ * @summary Creates a snapshot for a disk.
  *
- * @description The instant access feature for snapshots replaces the legacy local snapshot feature. The parameters are described as follows:
- * - If you used local snapshots before December 14, 2020, you can continue to use the `Category` parameter.
- * - If you did not use local snapshots before December 14, 2020, no additional configuration is required. New snapshots that are created for ESSD cloud disks (ESSDs, ESSD AutoPL disks, ESSD Entry disks, and zone-redundant ESSDs) have the instant access feature enabled by default. This applies to both manual and automatic snapshots. The instant access-related parameters `InstantAccess`, `InstantAccessRetentionDays`, and `DisableInstantAccess` no longer take effect. The `DescribeSnapshots` and `DescribeSnapshotGroups` API operations return an `Available` parameter that indicates the snapshot\\"s status.
- * Prerequisites:
- * - The snapshot feature is enabled. For more information, see [Enable the snapshot feature](https://help.aliyun.com/document_detail/108381.html).
- * - The cloud disk must be in the **in-use** or **available** state. Note the following points:
- *   - If the cloud disk is in the **in-use** state, the instance to which the disk is attached must be in the **running** or **stopped** state.
- *   - If the cloud disk is in the **available** state, you can create snapshots for it only if it has been previously attached to an ECS instance.
- *   - When you use cloud disks to create dynamic scalable volumes or RAID arrays, we recommend that you use snapshot consistency groups and enable application-consistent snapshots to back up data. A snapshot consistency group ensures the crash consistency and write-order consistency of data written across multiple cloud disks. For more information, see [Create a snapshot consistency group](https://help.aliyun.com/document_detail/199625.html) and [Create an application-consistent snapshot](https://help.aliyun.com/document_detail/208589.html).
- * Keep the following in mind when creating a snapshot:
- * - Create snapshots during off-peak hours. During snapshot creation, the I/O performance of the cloud disk decreases by less than 10% and read and write operations may temporarily slow down.
- * - You cannot use a snapshot that is being created to create a custom image ([CreateImage](https://help.aliyun.com/document_detail/25535.html)).
- * - The snapshot does not back up incremental data generated on the cloud disk during the creation process.
- * - If the cloud disk is attached to an ECS instance, do not change the state of the instance, such as stopping or restarting the instance, during snapshot creation. Otherwise, the snapshot creation will fail.
- * - You cannot resize a cloud disk during snapshot creation. You can resize the cloud disk only after the snapshot is complete.
- * - You can create a snapshot for a cloud disk that is in the **expired** (`Expired`) state. If the cloud disk is released due to expiration when the snapshot is being created, the snapshot in the **creating** (`Creating`) state is also deleted.
- * - After a snapshot is created, you are charged for the snapshot based on its size. The fees are settled on a per-region basis. For more information, see [Snapshots](https://help.aliyun.com/document_detail/56159.html).
- * - You cannot create a snapshot for a cloud disk in the following cases:
- *   - The number of manual snapshots of the cloud disk has reached the upper limit. For more information, see [Limits](~~25412#SnapshotQuota1~~).
- *   - The limit on the number of snapshots that can be created concurrently has been reached. For more information, see [Limits](~~25412#SnapshotQuota1~~).
- *   - When you query the information of an ECS instance, if the returned data contains `{"OperationLocks": {"LockReason" : "security"}}`, all operations on the instance are prohibited.
+ * @description The local snapshot feature has been replaced by the snapshot instant access feature. Metric description is as follows:
+ * - If you used local snapshots before December 14, 2020, you can use the `Category` parameter as Normal.
+ * - If you did not use local snapshots before December 14, 2020, no additional configuration is required. New snapshots created for ESSD series disks (ESSD, ESSD AutoPL, ESSD Entry, and regional ESSD) are instantly active by default, and both manual snapshots and automatic snapshots are supported. The three snapshot instant access-related parameters `InstantAccess`, `InstantAccessRetentionDays`, and `DisableInstantAccess` in API operations no longer take effect. The `DescribeSnapshots` and `DescribeSnapshotGroups` API operations will include a new response parameter named Available to describe the active status of snapshots.
+ * Before you begin:
+ * - Activate the snapshot feature. For more information, see [Activate snapshots](https://help.aliyun.com/document_detail/108381.html).
+ * - The disk must be in the **In Use** or **Unattached** state. Note the following items for different states:
+ *   - If the disk is in the **In Use** state, the instance must be in the **Running** or **Stopped** state.
+ *   - If the disk is in the **Unattached** state, the disk must have been previously attached to an ECS instance. Snapshots cannot be created for disks that have never been attached to an ECS instance.
+ *   - When a disk is used to create a dynamic extended volume or a RAID array, use a snapshot-consistent group and enable application-consistent snapshots to back up data. Snapshot-consistent groups ensure write order consistency and crash consistency for data written to multiple disks in a business system. For more information, see [Create a snapshot-consistent group](https://help.aliyun.com/document_detail/199625.html) and [Create an application-consistent snapshot](https://help.aliyun.com/document_detail/208589.html).
+ * When you create a snapshot, take note of the following items:
+ * - Avoid creating snapshots during peak business hours. When a snapshot is being created, the I/O performance of the disk decreases by up to 10%, and read and write performance may be briefly affected.
+ * - If the snapshot has not been created, it cannot be used to create a custom image ([CreateImage](https://help.aliyun.com/document_detail/25535.html)).
+ * - Incremental data generated by disk operations during snapshot creation is not backup to the snapshot.
+ * - If the disk is attached to an ECS instance, do not change the instance status during snapshot creation, such as stopping or restarting the ECS instance. Otherwise, the snapshot creation is failed.
+ * - A disk for which a snapshot is being created does not support scale-out. Wait until the snapshot is created before you execute the scale-out operation.
+ * - You can create snapshots for disks in the **Expired** (`Expired`) state. If the disk reaches its expiration release time during snapshot creation, the disk is released and the snapshot in the **Creating** (`Creating`) state is also deleted.
+ * - After a snapshot is created, the system calculates fees based on the snapshot size in each region separately. For more information, see [Snapshot billing](https://help.aliyun.com/document_detail/56159.html).
+ * - In the following scenarios, you cannot create a snapshot for the specified disk:
+ *   - The number of manual snapshots retained for the disk has reached the upper limit. For more information, see [Snapshot limits](~~25412#SnapshotQuota1~~).
+ *   - Snapshot creation has concurrency limits. Exceeding the limits causes creation failures. For more information, see [Snapshot limits](~~25412#SnapshotQuota1~~).
+ *   - When you query ECS instance information, if the returned data contains `{"OperationLocks": {"LockReason" : "security"}}`, all operations are prohibited.
  *
  * @param request CreateSnapshotRequest
  * @return CreateSnapshotResponse
@@ -12187,53 +12176,51 @@ async function createSnapshot(request: CreateSnapshotRequest): CreateSnapshotRes
 }
 
 model CreateSnapshotGroupRequest {
-  clientToken?: string(name='ClientToken', description='The client token that is used to ensure the idempotence of the request. You can use the client to generate the token, but you must make sure that the token is unique among different requests. The token can contain only ASCII characters and cannot exceed 64 characters in length. For more information, see [How to ensure idempotence](https://help.aliyun.com/document_detail/25693.html).', example='123e4567-e89b-12d3-a456-426655440000'),
-  description?: string(name='Description', description='The description of the snapshot-consistent group. The description must be 2 to 256 characters in length and cannot start with `http://` or `https://`.', example='This is description.'),
-  diskId?: [ string ](name='DiskId', description='The IDs of the cloud disks for which you want to create a snapshot-consistent group. You can specify the IDs of cloud disks that are attached to multiple instances within the same zone. Valid values of N: 1 to 16. A snapshot-consistent group can contain snapshots of up to 16 cloud disks whose total disk size does not exceed 32 TiB.
+  clientToken?: string(name='ClientToken', description='The client token that is used to ensure the idempotence of the request. You can use the client to generate the token, but make sure that the token is unique among different requests. The ClientToken value can contain only ASCII characters and cannot exceed 64 characters in length. For more information, see [How to ensure idempotence](https://help.aliyun.com/document_detail/25693.html).', example='123e4567-e89b-12d3-a456-426655440000'),
+  description?: string(name='Description', description='The description. The description must be 2 to 256 characters in length and cannot start with `http://` or `https://`.', example='This is description.'),
+  diskId?: [ string ](name='DiskId', description='The ID of a disk for which you want to create a snapshot-consistent group. You can specify disk IDs across instances within the same zone. Valid values of N: 1 to 16. A snapshot-consistent group can contain up to 16 disks with a total capacity of up to 32 TiB.
 
-Take note of the following:
+Take note of the following items:
 
-- You cannot specify both the DiskId.N and `ExcludeDiskId.N` parameters in the same request.
+- This parameter cannot be specified together with `ExcludeDiskId.N`.
+- If you specify `InstanceId`, this parameter can only be set to disks attached to the specified instance and no longer supports specifying disk IDs across multiple instances.'),
+  excludeDiskId?: [ string ](name='ExcludeDiskId', description='The ID of a disk in the instance for which you do not want to create a snapshot. After you specify this parameter, the snapshot-consistent group does not contain the snapshot of the specified disk. Valid values of N: 1 to 16.
 
-- If you specify `InstanceId`, you can specify the IDs of cloud disks that are attached only to the specified instance. You cannot specify the IDs of cloud disks that are attached to multiple instances.'),
-  excludeDiskId?: [ string ](name='ExcludeDiskId', description='The IDs of the cloud disks for which you do not want to create snapshots. After you specify the IDs of cloud disks, the snapshot-consistent group that you create does not contain the snapshots of the specified cloud disks. Valid values of N: 1 to 16.
+Default value: null, which indicates that snapshots are created for all disks in the instance.
 
-This parameter is empty by default, which indicates that snapshots are created for all disks of the instance.
-
-> This parameter cannot be set at the same time as the `DiskId.N`.', example='d-j6cf7l0ewidb78lq****'),
+> This parameter cannot be specified together with `DiskId.N`.', example='d-j6cf7l0ewidb78lq****'),
   instanceId?: string(name='InstanceId', description='The instance ID.', example='i-j6ca469urv8ei629****'),
-  instantAccess?: boolean(name='InstantAccess', description='Specifies whether to enable the instant access feature. Valid values:
+  instantAccess?: boolean(name='InstantAccess', description='Specifies whether to enable snapshot instant access. Valid values:
 
-- true
-
-- false
+- true: enables snapshot instant access.
+- false: disables snapshot instant access.
 
 Default value: false.
 
-> This parameter is no longer used. By default, new standard snapshots of ESSDs are upgraded to instant access snapshots free of charge without the need for additional configurations. For more information, see [Use the instant access feature](https://help.aliyun.com/document_detail/193667.html).', example='false'),
-  instantAccessRetentionDays?: int32(name='InstantAccessRetentionDays', description='The number of days for which the instant access feature is available. Unit: days. Valid values: 1 to 65535.
+>This parameter is deprecated. Standard snapshots of enterprise SSDs are upgraded to [instant access by default](https://help.aliyun.com/document_detail/193667.html). No additional configuration or fees are required.', example='false'),
+  instantAccessRetentionDays?: int32(name='InstantAccessRetentionDays', description='The number of days for which the snapshot instant access feature remains active. Unit: days. Valid values: 1 to 65535.
 
-This parameter takes effect only when `InstantAccess` is set to true. The instant access feature is automatically disabled when the specified duration ends.
+This parameter takes effect only when `InstantAccess=true`. The snapshot instant access feature is automatically shutdown when the specified duration expires.
 
-This parameter is left empty by default, which indicates that the instant access feature is automatically disabled when the instant access snapshots are released.
+Default value: null, which indicates that the instant access duration is the same as the snapshot release period.
 
-> This parameter is no longer used. By default, new standard snapshots of ESSDs are upgraded to instant access snapshots free of charge without the need for additional configurations. For more information, see [Use the instant access feature](https://help.aliyun.com/document_detail/193667.html).', example='1'),
-  name?: string(name='Name', description='The name of the snapshot-consistent group. The name must be 2 to 128 characters in length. The name can contain letters, digits, periods (.), underscores (_), hyphens (-), and colons (:). It must start with a letter and cannot start with `http://` or `https://`.', example='testName'),
+>This parameter is deprecated. Standard snapshots of enterprise SSDs are upgraded to [instant access by default](https://help.aliyun.com/document_detail/193667.html). No additional configuration or fees are required.', example='1'),
+  name?: string(name='Name', description='The name of the snapshot-consistent group. The name must be 2 to 128 characters in length. It must start with a letter and cannot start with `http://` or `https://`. The name can contain digits, periods (.), underscores (_), hyphens (-), and colons (:).', example='testName'),
   ownerAccount?: string(name='OwnerAccount'),
   ownerId?: long(name='OwnerId'),
-  regionId?: string(name='RegionId', description='The region ID of the instance. You can call the [DescribeRegions](https://help.aliyun.com/document_detail/25609.html) operation to query the most recent list of regions.
+  regionId?: string(name='RegionId', description='The region ID of the instance. You can call [DescribeRegions](https://help.aliyun.com/document_detail/25609.html) to query the most recent region list.
 
 This parameter is required.', example='cn-hangzhou'),
   resourceGroupId?: string(name='ResourceGroupId', description='The ID of the resource group to which the snapshot-consistent group belongs.', example='rg-bp67acfmxazb4p****'),
   resourceOwnerAccount?: string(name='ResourceOwnerAccount'),
   resourceOwnerId?: long(name='ResourceOwnerId'),
-  storageLocationArn?: string(name='StorageLocationArn', description='> This parameter is unavailable for public use.', example='null'),
+  storageLocationArn?: string(name='StorageLocationArn', description='>This parameter is not publicly available.', example='null'),
   tag?: [ 
     {
-      key?: string(name='Key', description='The key of tag N of the snapshot-consistent group. Valid values of N: 1 to 20. The tag key cannot be an empty string. The tag key can be up to 128 characters in length and cannot start with `acs:` or `aliyun`. It cannot contain `http://` or `https://`.', example='TestKey'),
-      value?: string(name='Value', description='The value of tag N of the snapshot-consistent group. Valid values of N: 1 to 20. The tag value can be an empty string. It can be up to 128 characters in length and cannot start with `acs:`. It cannot contain `http://` or `https://`.', example='TestValue'),
+      key?: string(name='Key', description='The tag key of the snapshot-consistent group. Valid values of N: 1 to 20. The tag key cannot be an empty string. The tag key can be up to 128 characters in length and cannot start with `aliyun` or `acs:`. The tag key cannot contain `http://` or `https://`.', example='TestKey'),
+      value?: string(name='Value', description='The tag value of the snapshot-consistent group. Valid values of N: 1 to 20. The tag value can be an empty string. The tag value can be up to 128 characters in length and cannot start with `acs:`. The tag value cannot contain `http://` or `https://`.', example='TestValue'),
     }
-  ](name='Tag', description='The list of tags.'),
+  ](name='Tag', description='The tags.'),
 }
 
 model CreateSnapshotGroupResponseBody = {
@@ -12248,19 +12235,19 @@ model CreateSnapshotGroupResponse = {
 }
 
 /**
- * @summary Creates a snapshot-consistent group for the disks of an Elastic Compute Service (ECS) instance. A snapshot-consistent group contains snapshots of one or more disks.
+ * @summary Creates a snapshot-consistent group for disks attached to a specified ECS instance. A snapshot-consistent group contains snapshots of one or more disks.
  *
- * @description 您可以设置`InstanceId`为实例内的指定云盘创建快照一致性组；也可以只使用`DiskId.N`为同可用区内多台 ECS 实例挂载的多块云盘创建快照一致性组。
- * > `DiskId.N`不可与`ExcludeDiskId.N`同时设置。此外，如果设置了`InstanceId`，则`DiskId.N`只能设置指定实例内已挂载的云盘，不再支持设置多个跨实例的云盘 ID。
- * 创建快照一致性组时，请注意：
- * - 待创建快照的云盘必须处于**使用中**（`In_use`）或**待挂载**（`Available`）的状态。
- *   - 如果云盘处于**使用中**（`In_use`）的状态，则 ECS 实例状态为**运行中**（`Running`）或者**已停止**（`Stopped`）。
- *   - 如果云盘处于**待挂载**（`Available`）的状态，则需要保证云盘有过挂载到 ECS 实例的历史操作。从未挂载过 ECS 实例的云盘不支持创建快照。
- * - 目前快照一致性组只支持 ESSD 系列云盘（ESSD、ESSD AutoPL、ESSD Entry）。
- * - 单个快照一致性组最多包括 16 块云盘（包括系统盘和数据盘），且总容量不超过 32 TiB。
- * - 您自行创建的快照会一直保留，请定期删除不再需要的快照，避免快照容量持续扣费。
- * - 开启多重挂载特性的云盘不支持创建快照一致性组。如果实例挂载了开启多重挂载特性的云盘，您需要设置`ExcludeDiskId.N`参数排除该云盘。
- * 关于快照一致性组的功能、计费等信息，请参见[快照一致性组](https://help.aliyun.com/document_detail/199625.html)。
+ * @description You can set `InstanceId` to create a snapshot-consistent group for specified disks within an instance. Alternatively, you can use only `DiskId.N` to create a snapshot-consistent group for multiple disks attached to multiple ECS instances in the same zone.
+ * > `DiskId.N` and `ExcludeDiskId.N` cannot be specified at the same time. If `InstanceId` is specified, `DiskId.N` can only be set to disks attached to the specified instance and no longer supports specifying disk IDs across multiple instances.
+ * When you create a snapshot-consistent group, take note of the following items:
+ * - The disks for which you want to create snapshots must be in the **In Use** (`In_use`) or **Available** (`Available`) state.
+ *     - If a disk is in the **In Use** (`In_use`) state, the ECS instance status must be **Running** (`Running`) or **Stopped** (`Stopped`).
+ *     - If a disk is in the **Available** (`Available`) state, the disk must have been previously attached to an ECS instance. Disks that have never been attached to an ECS instance do not support snapshot creation.
+ * - Snapshot-consistent groups support only ESSD series disks (ESSD, ESSD AutoPL, and ESSD Entry).
+ * - A single snapshot-consistent group can contain up to 16 disks (including system disks and data disks), and the total capacity cannot exceed 32 TiB.
+ * - Snapshots that you manually create are retained until you delete them. Delete unnecessary snapshots on a regular basis to avoid incurring ongoing snapshot size fees.
+ * - Disks with the multi-attach attribute enabled do not support snapshot-consistent groups. If an instance has a multi-attach disk attached, set the `ExcludeDiskId.N` parameter to exclude the disk.
+ * For more information about the features and billing of snapshot-consistent groups, see [Snapshot-consistent groups](https://help.aliyun.com/document_detail/199625.html).
  *
  * @param request CreateSnapshotGroupRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -12335,19 +12322,19 @@ async function createSnapshotGroupWithOptions(request: CreateSnapshotGroupReques
 }
 
 /**
- * @summary Creates a snapshot-consistent group for the disks of an Elastic Compute Service (ECS) instance. A snapshot-consistent group contains snapshots of one or more disks.
+ * @summary Creates a snapshot-consistent group for disks attached to a specified ECS instance. A snapshot-consistent group contains snapshots of one or more disks.
  *
- * @description 您可以设置`InstanceId`为实例内的指定云盘创建快照一致性组；也可以只使用`DiskId.N`为同可用区内多台 ECS 实例挂载的多块云盘创建快照一致性组。
- * > `DiskId.N`不可与`ExcludeDiskId.N`同时设置。此外，如果设置了`InstanceId`，则`DiskId.N`只能设置指定实例内已挂载的云盘，不再支持设置多个跨实例的云盘 ID。
- * 创建快照一致性组时，请注意：
- * - 待创建快照的云盘必须处于**使用中**（`In_use`）或**待挂载**（`Available`）的状态。
- *   - 如果云盘处于**使用中**（`In_use`）的状态，则 ECS 实例状态为**运行中**（`Running`）或者**已停止**（`Stopped`）。
- *   - 如果云盘处于**待挂载**（`Available`）的状态，则需要保证云盘有过挂载到 ECS 实例的历史操作。从未挂载过 ECS 实例的云盘不支持创建快照。
- * - 目前快照一致性组只支持 ESSD 系列云盘（ESSD、ESSD AutoPL、ESSD Entry）。
- * - 单个快照一致性组最多包括 16 块云盘（包括系统盘和数据盘），且总容量不超过 32 TiB。
- * - 您自行创建的快照会一直保留，请定期删除不再需要的快照，避免快照容量持续扣费。
- * - 开启多重挂载特性的云盘不支持创建快照一致性组。如果实例挂载了开启多重挂载特性的云盘，您需要设置`ExcludeDiskId.N`参数排除该云盘。
- * 关于快照一致性组的功能、计费等信息，请参见[快照一致性组](https://help.aliyun.com/document_detail/199625.html)。
+ * @description You can set `InstanceId` to create a snapshot-consistent group for specified disks within an instance. Alternatively, you can use only `DiskId.N` to create a snapshot-consistent group for multiple disks attached to multiple ECS instances in the same zone.
+ * > `DiskId.N` and `ExcludeDiskId.N` cannot be specified at the same time. If `InstanceId` is specified, `DiskId.N` can only be set to disks attached to the specified instance and no longer supports specifying disk IDs across multiple instances.
+ * When you create a snapshot-consistent group, take note of the following items:
+ * - The disks for which you want to create snapshots must be in the **In Use** (`In_use`) or **Available** (`Available`) state.
+ *     - If a disk is in the **In Use** (`In_use`) state, the ECS instance status must be **Running** (`Running`) or **Stopped** (`Stopped`).
+ *     - If a disk is in the **Available** (`Available`) state, the disk must have been previously attached to an ECS instance. Disks that have never been attached to an ECS instance do not support snapshot creation.
+ * - Snapshot-consistent groups support only ESSD series disks (ESSD, ESSD AutoPL, and ESSD Entry).
+ * - A single snapshot-consistent group can contain up to 16 disks (including system disks and data disks), and the total capacity cannot exceed 32 TiB.
+ * - Snapshots that you manually create are retained until you delete them. Delete unnecessary snapshots on a regular basis to avoid incurring ongoing snapshot size fees.
+ * - Disks with the multi-attach attribute enabled do not support snapshot-consistent groups. If an instance has a multi-attach disk attached, set the `ExcludeDiskId.N` parameter to exclude the disk.
+ * For more information about the features and billing of snapshot-consistent groups, see [Snapshot-consistent groups](https://help.aliyun.com/document_detail/199625.html).
  *
  * @param request CreateSnapshotGroupRequest
  * @return CreateSnapshotGroupResponse
@@ -13748,12 +13735,12 @@ model DeleteDiskResponse = {
 }
 
 /**
- * @summary Releases a pay-as-you-go data disk. Supported disk types include basic disks, ultra disks, standard SSDs, and enterprise SSDs (ESSDs).
+ * @summary Releases a pay-as-you-go data disk. Disk types include basic disks, ultra disks, standard SSDs, and enterprise SSDs.
  *
  * @description When you invoke this operation, take note of the following items:
  * - Manual snapshots of the disk are retained.
- * - You can invoke [ModifyDiskAttribute](https://help.aliyun.com/document_detail/25517.html) to specify whether to retain or release automatic snapshots along with the disk. Delete unnecessary snapshots promptly to maintain sufficient snapshot quota for epoch-based automatic snapshot policy execution.
- * - The disk must be in the **Unattached** (Available) state when you release it.
+ * - You can invoke [ModifyDiskAttribute](https://help.aliyun.com/document_detail/25517.html) to configure the Settings for whether to retain or release automatic snapshots together with the disk. Delete unnecessary snapshots promptly to maintain sufficient snapshot quota for epoch-based automatic snapshot policy.
+ * - The disk must be in the Pending Attach (Available) state when you release it.
  * - If the disk with the specified ID does not exist, the request is ignored.
  *
  * @param request DeleteDiskRequest
@@ -13796,12 +13783,12 @@ async function deleteDiskWithOptions(request: DeleteDiskRequest, runtime: Util.R
 }
 
 /**
- * @summary Releases a pay-as-you-go data disk. Supported disk types include basic disks, ultra disks, standard SSDs, and enterprise SSDs (ESSDs).
+ * @summary Releases a pay-as-you-go data disk. Disk types include basic disks, ultra disks, standard SSDs, and enterprise SSDs.
  *
  * @description When you invoke this operation, take note of the following items:
  * - Manual snapshots of the disk are retained.
- * - You can invoke [ModifyDiskAttribute](https://help.aliyun.com/document_detail/25517.html) to specify whether to retain or release automatic snapshots along with the disk. Delete unnecessary snapshots promptly to maintain sufficient snapshot quota for epoch-based automatic snapshot policy execution.
- * - The disk must be in the **Unattached** (Available) state when you release it.
+ * - You can invoke [ModifyDiskAttribute](https://help.aliyun.com/document_detail/25517.html) to configure the Settings for whether to retain or release automatic snapshots together with the disk. Delete unnecessary snapshots promptly to maintain sufficient snapshot quota for epoch-based automatic snapshot policy.
+ * - The disk must be in the Pending Attach (Available) state when you release it.
  * - If the disk with the specified ID does not exist, the request is ignored.
  *
  * @param request DeleteDiskRequest
@@ -15787,9 +15774,9 @@ async function deleteSecurityGroup(request: DeleteSecurityGroupRequest): DeleteS
 model DeleteSnapshotRequest {
   force?: boolean(name='Force', description='Specifies whether to force delete the snapshot that has been used to create cloud disks. Valid values:
 
-- true: force deletes the snapshot. After the snapshot is force deleted, the cloud disks created from the snapshot cannot be re-initialized.
+- true: Force deletes the snapshot. After the snapshot is forcibly deleted, the cloud disk created from the snapshot cannot be reinitialized.
 
-- false: does not force delete the snapshot.
+- false: Does not force delete the snapshot.
 
 Default value: false.', example='false'),
   ownerAccount?: string(name='OwnerAccount'),
@@ -15812,12 +15799,12 @@ model DeleteSnapshotResponse = {
 }
 
 /**
- * @summary Deletes a specified snapshot. If you call this operation to delete a snapshot that is being created, the associated snapshot creation task is also canceled.
+ * @summary Deletes a specified snapshot. You can also call this operation to cancel a snapshot that is being created.
  *
- * @description Take note of the following items:
- * - If the snapshot does not exist, the request is ignored.
- * - If the snapshot has been used to create custom images, the snapshot cannot be deleted. You need to call the [DeleteImage](https://help.aliyun.com/document_detail/25537.html) operation to delete the custom images before you can delete the snapshot.
- * - If the snapshot has been used to create disks and `Force` is not specified or is set to `false`, the snapshot cannot be deleted directly. If you want to delete the snapshot, set `Force` to true to forcibly delete the snapshot. The disks created from the snapshot cannot be re-initialized after the snapshot is forcibly deleted.
+ * @description When you invoke this operation, note the following items:
+ * - If the specified snapshot ID does not exist, the request is ignored. 
+ * - If the snapshot has been used to create a custom image, the snapshot cannot be deleted. You must first delete the custom image ([DeleteImage](https://help.aliyun.com/document_detail/25537.html)) before you can delete the snapshot.
+ * - If the snapshot has been used to create a cloud disk and the `Force` parameter is not set or is set to `Force=false`, the snapshot cannot be directly deleted. To delete the snapshot, set `Force=true` to force delete it. After the snapshot is force deleted, the corresponding cloud disk cannot be reinitialized.
  *
  * @param request DeleteSnapshotRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -15862,12 +15849,12 @@ async function deleteSnapshotWithOptions(request: DeleteSnapshotRequest, runtime
 }
 
 /**
- * @summary Deletes a specified snapshot. If you call this operation to delete a snapshot that is being created, the associated snapshot creation task is also canceled.
+ * @summary Deletes a specified snapshot. You can also call this operation to cancel a snapshot that is being created.
  *
- * @description Take note of the following items:
- * - If the snapshot does not exist, the request is ignored.
- * - If the snapshot has been used to create custom images, the snapshot cannot be deleted. You need to call the [DeleteImage](https://help.aliyun.com/document_detail/25537.html) operation to delete the custom images before you can delete the snapshot.
- * - If the snapshot has been used to create disks and `Force` is not specified or is set to `false`, the snapshot cannot be deleted directly. If you want to delete the snapshot, set `Force` to true to forcibly delete the snapshot. The disks created from the snapshot cannot be re-initialized after the snapshot is forcibly deleted.
+ * @description When you invoke this operation, note the following items:
+ * - If the specified snapshot ID does not exist, the request is ignored. 
+ * - If the snapshot has been used to create a custom image, the snapshot cannot be deleted. You must first delete the custom image ([DeleteImage](https://help.aliyun.com/document_detail/25537.html)) before you can delete the snapshot.
+ * - If the snapshot has been used to create a cloud disk and the `Force` parameter is not set or is set to `Force=false`, the snapshot cannot be directly deleted. To delete the snapshot, set `Force=true` to force delete it. After the snapshot is force deleted, the corresponding cloud disk cannot be reinitialized.
  *
  * @param request DeleteSnapshotRequest
  * @return DeleteSnapshotResponse
@@ -15880,12 +15867,12 @@ async function deleteSnapshot(request: DeleteSnapshotRequest): DeleteSnapshotRes
 model DeleteSnapshotGroupRequest {
   ownerAccount?: string(name='OwnerAccount'),
   ownerId?: long(name='OwnerId'),
-  regionId?: string(name='RegionId', description='The region ID of the snapshot-consistent group. You can call the [DescribeRegions](https://help.aliyun.com/document_detail/25609.html) operation to query the most recent region list.
+  regionId?: string(name='RegionId', description='The region ID of the snapshot-consistent group. You can call [DescribeRegions](https://help.aliyun.com/document_detail/25609.html) to query the most recent region list.
 
 This parameter is required.', example='cn-hangzhou'),
   resourceOwnerAccount?: string(name='ResourceOwnerAccount'),
   resourceOwnerId?: long(name='ResourceOwnerId'),
-  snapshotGroupId?: string(name='SnapshotGroupId', description='The ID of the snapshot-consistent group. You can call the [DescribeSnapshotGroups](https://help.aliyun.com/document_detail/210940.html) operation to query the IDs of one or more snapshot-consistent groups.
+  snapshotGroupId?: string(name='SnapshotGroupId', description='The ID of the snapshot-consistent group. You can call [DescribeSnapshotGroups](https://help.aliyun.com/document_detail/210940.html) to query snapshot-consistent group IDs.
 
 This parameter is required.', example='ssg-j6c9lpuyxo2uxxny****'),
 }
@@ -15908,7 +15895,7 @@ model DeleteSnapshotGroupResponseBody = {
     }
   ](name='OperationProgress')
   }(name='OperationProgressSet'),
-  requestId?: string(name='RequestId', description='The ID of the request.', example='6EDE885A-FDC1-4FAE-BC44-6EACAEA6CC6E'),
+  requestId?: string(name='RequestId', description='The request ID.', example='6EDE885A-FDC1-4FAE-BC44-6EACAEA6CC6E'),
 }
 
 model DeleteSnapshotGroupResponse = {
@@ -15918,9 +15905,9 @@ model DeleteSnapshotGroupResponse = {
 }
 
 /**
- * @summary Deletes snapshot-consistent groups.
+ * @summary Deletes a snapshot-consistent group.
  *
- * @description If a disk snapshot that is contained in a snapshot-consistent group has been used to create a custom image, the disk snapshot is retained after the snapshot-consistent group is deleted. Before you can delete the disk snapshot, you must call the [DeleteImage](https://help.aliyun.com/document_detail/25537.html) operation to delete the custom image. Then, you can call the [DeleteSnapshot](https://help.aliyun.com/document_detail/25525.html) operation to delete the disk snapshot.
+ * @description If disk snapshots in a snapshot-consistent group have been used to create custom images, the related disk snapshots are not deleted when the snapshot-consistent group is deleted. To delete the related disk snapshots, first delete the custom images ([DeleteImage](https://help.aliyun.com/document_detail/25537.html)), and then delete the related disk snapshots ([DeleteSnapshot](https://help.aliyun.com/document_detail/25525.html)).
  *
  * @param request DeleteSnapshotGroupRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -15965,9 +15952,9 @@ async function deleteSnapshotGroupWithOptions(request: DeleteSnapshotGroupReques
 }
 
 /**
- * @summary Deletes snapshot-consistent groups.
+ * @summary Deletes a snapshot-consistent group.
  *
- * @description If a disk snapshot that is contained in a snapshot-consistent group has been used to create a custom image, the disk snapshot is retained after the snapshot-consistent group is deleted. Before you can delete the disk snapshot, you must call the [DeleteImage](https://help.aliyun.com/document_detail/25537.html) operation to delete the custom image. Then, you can call the [DeleteSnapshot](https://help.aliyun.com/document_detail/25525.html) operation to delete the disk snapshot.
+ * @description If disk snapshots in a snapshot-consistent group have been used to create custom images, the related disk snapshots are not deleted when the snapshot-consistent group is deleted. To delete the related disk snapshots, first delete the custom images ([DeleteImage](https://help.aliyun.com/document_detail/25537.html)), and then delete the related disk snapshots ([DeleteSnapshot](https://help.aliyun.com/document_detail/25525.html)).
  *
  * @param request DeleteSnapshotGroupRequest
  * @return DeleteSnapshotGroupResponse
@@ -20590,14 +20577,14 @@ async function describeDiagnosticReports(request: DescribeDiagnosticReportsReque
 
 model DescribeDiskDefaultKMSKeyIdRequest {
   ownerId?: long(name='OwnerId'),
-  regionId?: string(name='RegionId', description='The ID of the region. You can call the DescribeRegions operation to query the most recent region list.
+  regionId?: string(name='RegionId', description='The region ID. You can call [DescribeRegions](https://help.aliyun.com/document_detail/2679950.html) to query the most recent region list.
 
 This parameter is required.', example='cn-hangzhou'),
   resourceOwnerId?: long(name='ResourceOwnerId'),
 }
 
 model DescribeDiskDefaultKMSKeyIdResponseBody = {
-  KMSKeyId?: string(name='KMSKeyId', description='The ID of the KMS key.', example='0e478b7a-4262-4802-b8cb-00d3fb40****'),
+  KMSKeyId?: string(name='KMSKeyId', description='The KMS key ID.', example='0e478b7a-4262-4802-b8cb-00d3fb40****'),
   requestId?: string(name='RequestId', description='The request ID.', example='473469C7-AA6F-4DC5-B3DB-A3DC0DE3****'),
 }
 
@@ -20608,7 +20595,7 @@ model DescribeDiskDefaultKMSKeyIdResponse = {
 }
 
 /**
- * @summary Queries the Key Management Service (KMS) key used by the Account-level Elastic Block Storage (EBS) Default Encryption feature in a region.
+ * @summary Queries the key used for account-level default encryption of block storage.
  *
  * @param request DescribeDiskDefaultKMSKeyIdRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -20644,7 +20631,7 @@ async function describeDiskDefaultKMSKeyIdWithOptions(request: DescribeDiskDefau
 }
 
 /**
- * @summary Queries the Key Management Service (KMS) key used by the Account-level Elastic Block Storage (EBS) Default Encryption feature in a region.
+ * @summary Queries the key used for account-level default encryption of block storage.
  *
  * @param request DescribeDiskDefaultKMSKeyIdRequest
  * @return DescribeDiskDefaultKMSKeyIdResponse
@@ -20656,18 +20643,20 @@ async function describeDiskDefaultKMSKeyId(request: DescribeDiskDefaultKMSKeyIdR
 
 model DescribeDiskEncryptionByDefaultStatusRequest {
   ownerId?: long(name='OwnerId'),
-  regionId?: string(name='RegionId', description='The region ID. You can call the [DescribeRegions](https://help.aliyun.com/document_detail/2679950.html) operation to query the most recent region list.
+  regionId?: string(name='RegionId', description='The region ID. You can call [DescribeRegions](https://help.aliyun.com/document_detail/2679950.html) to query the most recent region list.
 
 This parameter is required.', example='cn-hangzhou'),
   resourceOwnerId?: long(name='ResourceOwnerId'),
 }
 
 model DescribeDiskEncryptionByDefaultStatusResponseBody = {
-  encrypted?: boolean(name='Encrypted', description='Indicates whether account-level default encryption of EBS resources is enabled in the region. Valid values:
+  encrypted?: boolean(name='Encrypted', description='Indicates whether account-level default encryption is enabled for block storage.
 
-- true
+Valid values:
 
-- false
+- true: Enabled.
+
+- false: Not enabled.
 
 Default value: false.', example='false'),
   requestId?: string(name='RequestId', description='The request ID.', example='473469C7-AA6F-4DC5-B3DB-A3DC0DE3C83E'),
@@ -20680,7 +20669,7 @@ model DescribeDiskEncryptionByDefaultStatusResponse = {
 }
 
 /**
- * @summary Queries whether account-level default encryption of Elastic Block Storage (EBS) resources is enabled in a region.
+ * @summary Queries the service status of account-level default encryption for block storage in a specified region.
  *
  * @param request DescribeDiskEncryptionByDefaultStatusRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -20716,7 +20705,7 @@ async function describeDiskEncryptionByDefaultStatusWithOptions(request: Describ
 }
 
 /**
- * @summary Queries whether account-level default encryption of Elastic Block Storage (EBS) resources is enabled in a region.
+ * @summary Queries the service status of account-level default encryption for block storage in a specified region.
  *
  * @param request DescribeDiskEncryptionByDefaultStatusRequest
  * @return DescribeDiskEncryptionByDefaultStatusResponse
@@ -23601,7 +23590,7 @@ model DescribeImagesRequest {
 - arm64.', example='i386'),
   dryRun?: boolean(name='DryRun', description='Specifies whether to perform only a dry run.
          
-- true: Sends a dry run request without querying resource status. The system checks whether your AccessKey pair is valid, whether Resource Access Management (RAM) user authorization is granted, and whether the required parameters are specified. If the check fails, the corresponding error is returned. If the check succeeds, the DryRunOperation error code is returned.  
+- true: Sends a check request without querying resource status. The check items include whether the AccessKey pair is valid, whether the Resource Access Management (RAM) user has the required authorization, and whether required parameters are specified. If the check fails, the corresponding error is returned. If the check succeeds, the DryRunOperation error code is returned.  
 - false: Sends a normal request. After the check succeeds, a 2XX HTTP status code is returned and the resource status is queried. 
 
 Default value: false.', example='false'),
@@ -23609,17 +23598,17 @@ Default value: false.', example='false'),
     {
       key?: string(name='Key', description='The filter key for querying resources. Valid values:
 
-- When this parameter is set to `CreationStartTime`, you can query resources created after the specified time point (`Filter.N.Value`).
-- When this parameter is set to `CreationEndTime`, you can query resources created before the specified time point (`Filter.N.Value`).
+- When this parameter is set to `CreationStartTime`, you can query resources created after the time specified by `Filter.N.Value`.
+- When this parameter is set to `CreationEndTime`, you can query resources created before the time specified by `Filter.N.Value`.
 - When this parameter is set to `NetworkType`, you can query resources of the specified network type.
-- When this parameter is set to any of `CpuOnlineUpgrade`, `CpuOnlineDowngrade`, `MemoryOnlineUpgrade`, or `MemoryOnlineDowngrade`, you can query the CPU or memory hot-plugging support of the specified image.
+- When this parameter is set to `CpuOnlineUpgrade`, `CpuOnlineDowngrade`, `MemoryOnlineUpgrade`, or `MemoryOnlineDowngrade`, you can query the CPU or memory hot-plugging support of the specified image.
 
 Default value: null.', example='CreationStartTime'),
       value?: string(name='Value', description='The filter value for querying resources.
-- When `Filter.N.Key` is set to `CreationStartTime` or `CreationEndTime`, the format is `yyyy-MM-ddTHH:mmZ`, using the UTC+0 time zone.
-- When `Filter.N.Key` is set to `NetworkType`, valid network type values include `vpc` and `classic`.
+- When `Filter.N.Key` is `CreationStartTime` or `CreationEndTime`, the format is `yyyy-MM-ddTHH:mmZ` in UTC+0.
+- When `Filter.N.Key` is `NetworkType`, valid values for the network type include `vpc` and `classic`.
 
-- When `Filter.N.Key` is set to `CpuOnlineUpgrade`, `CpuOnlineDowngrade`, `MemoryOnlineUpgrade`, or `MemoryOnlineDowngrade`, the value can be `supported` or `unsupported`.
+- When `Filter.N.Key` is `CpuOnlineUpgrade`, `CpuOnlineDowngrade`, `MemoryOnlineUpgrade`, or `MemoryOnlineDowngrade`, valid values are `supported` and `unsupported`.
 
 Default value: null.', example='2017-12-05T22:40Z'),
     }
@@ -23631,9 +23620,9 @@ Default value: empty.
   imageId?: string(name='ImageId', description='The image ID.
 
 <details>
-<summary>Naming conventions for image IDs</summary>
+<summary>Naming rules for image IDs</summary>
 
-- Public images: Named by operating system version, architecture, language, and release date. For example, the image ID for Windows Server 2008 R2 Enterprise Edition, 64-bit English system is win2008r2_64_ent_sp1_en-us_40G_alibase_20190318.vhd.
+- Public images: Named by operating system version, architecture, language, and release date. For example, the image ID of Windows Server 2008 R2 Enterprise Edition, 64-bit English system is win2008r2_64_ent_sp1_en-us_40G_alibase_20190318.vhd.
 
 - Custom images, shared images, Alibaba Cloud Marketplace images, and community images: Start with m.
 
@@ -23641,18 +23630,18 @@ Default value: empty.
   imageName?: string(name='ImageName', description='The image name. Fuzzy search is supported.', example='testImageName'),
   imageOwnerAlias?: string(name='ImageOwnerAlias', description='The source of the image. Valid values:
 
-- system: Public images provided by Alibaba Cloud that are not published through Alibaba Cloud Marketplace. This is different from the concept of "public images" in the console.
+- system: Public images provided by Alibaba Cloud that are not published through Alibaba Cloud Marketplace. This is different from the concept of "Public Image" in the console.
 - self: Custom images that you created.
-- others: Includes shared images (images directly shared by other Alibaba Cloud users) and community images (custom images that are fully shared by any Alibaba Cloud user). Note the following:
+- others: Includes shared images (images directly shared by other Alibaba Cloud users) and community images (custom images that are fully shared publicly by any Alibaba Cloud user). Note:
     - To query community images, IsPublic must be set to true.
     - To query shared images, IsPublic must be set to false or left empty.
-- marketplace: Images published by Alibaba Cloud or third-party independent software vendors (ISVs) in Alibaba Cloud Marketplace. These images must be purchased together with ECS. Check the billing details of Alibaba Cloud Marketplace images.
+- marketplace: Images published by Alibaba Cloud or third-party independent software vendors (ISVs) in Alibaba Cloud Marketplace. These images must be purchased together with ECS. Note the billing details of Alibaba Cloud Marketplace images.
 
 Default value: empty.
 
-> An empty value indicates that images with the system, self, and others values are returned.', example='self'),
+> An empty value indicates that images with system, self, and others values are returned.', example='self'),
   imageOwnerId?: long(name='ImageOwnerId', description='The Alibaba Cloud account ID of the image owner. This parameter takes effect only when you query shared images or community images.', example='20169351435666****'),
-  instanceType?: string(name='InstanceType', description='The instance type for which you want to query available images.', example='ecs.g5.large'),
+  instanceType?: string(name='InstanceType', description='The instance type for which available images are queried.', example='ecs.g5.large'),
   isPublic?: boolean(name='IsPublic', description='Specifies whether to query published community images. Valid values:
 
 - true: Queries published community images. When you set this parameter to true, ImageOwnerAlias must be set to others.
@@ -23680,14 +23669,14 @@ Default value: 10.', example='10'),
   regionId?: string(name='RegionId', description='The region ID of the image. You can call [DescribeRegions](https://help.aliyun.com/document_detail/25609.html) to query the most recent region list.
 
 This parameter is required.', example='cn-hangzhou'),
-  resourceGroupId?: string(name='ResourceGroupId', description='The ID of the resource group to which the custom image belongs. When you use this parameter to filter resources, the resource count cannot exceed 1,000.
+  resourceGroupId?: string(name='ResourceGroupId', description='The ID of the resource group to which the custom image belongs. When you use this parameter to filter resources, the resource count cannot exceed 1000.
 
 > Filtering by the default resource group is not supported.', example='rg-bp67acfmxazb4p****'),
   resourceOwnerAccount?: string(name='ResourceOwnerAccount'),
   resourceOwnerId?: long(name='ResourceOwnerId'),
   showExpired?: boolean(name='ShowExpired', description='Specifies whether the subscription image has expired.', example='false'),
   snapshotId?: string(name='SnapshotId', description='The ID of the snapshot used to create the custom image.', example='s-bp17ot2q7x72ggtw****'),
-  status?: string(name='Status', description='The status of the image. If you do not specify this parameter, only images in the Available state are returned by default. Valid values:
+  status?: string(name='Status', description='The status of the image. If you do not specify this parameter, only images in the Available state are returned. Valid values:
 
 - Creating: The image is being created.
 - Waiting: The image is waiting in a multi-task queue.
@@ -23696,19 +23685,20 @@ This parameter is required.', example='cn-hangzhou'),
 - CreateFailed: The image failed to be created.
 - Deprecated: The image is deprecated.
 
-Default value: Available. This parameter supports multiple values at the same time, separated by commas (,).', example='Available'),
+Default value: Available. This parameter supports multiple values separated by commas (,).', example='Available'),
   tag?: [ 
     {
       key?: string(name='Key', description='The tag key of the image. Valid values of N: 1 to 20.
 
-When you use a single tag to filter resources, the resource count with this tag cannot exceed 1,000. When you use multiple tags to filter resources, the resource count of resources that are attached to all specified tags cannot exceed 1,000. If the resource count exceeds 1,000, call the [ListTagResources](https://help.aliyun.com/document_detail/110425.html) operation.', example='TestKey'),
+When you use a single tag to filter resources, the resource count with this tag cannot exceed 1000. When you use multiple tags to filter resources, the resource count of resources that have all specified tags attached cannot exceed 1000. If the resource count exceeds 1000, use the [ListTagResources](https://help.aliyun.com/document_detail/110425.html) operation.', example='TestKey'),
       value?: string(name='Value', description='The tag value of the image. Valid values of N: 1 to 20.', example='TestValue'),
     }
   ](name='Tag', description='The list of tags.'),
+  usable?: boolean(name='Usable'),
   usage?: string(name='Usage', description='Specifies whether the image is running on ECS instances. Valid values:
 
-- instance: The image is in use. ECS instances are created from this image.
-- none: The image is idle. No ECS instances are created from this image.', example='instance'),
+- instance: The image is in use and associated with ECS instances.
+- none: The image is idle and not associated with any ECS instances.', example='instance'),
 }
 
 model DescribeImagesResponseBody = {
@@ -23788,6 +23778,7 @@ model DescribeImagesResponseBody = {
         }
       ](name='Tag')
       }(name='Tags'),
+      usable?: boolean(name='Usable'),
       usage?: string(name='Usage'),
     }
   ](name='Image')
@@ -23806,7 +23797,7 @@ model DescribeImagesResponse = {
 }
 
 /**
- * @summary Queries the list of available image resources based on specified parameters such as ImageId, image usage scenarios, and filter conditions.
+ * @summary Queries the list of image resources that you can use by specifying parameters such as ImageId, image usage scenarios, and Filter conditions.
  *
  * @description - Image resources that you can query include your custom images, public images provided by Alibaba Cloud, Alibaba Cloud Marketplace images, and shared images that other Alibaba Cloud users have shared with you.
  * - Paging is supported. The query results include the total number of available image resources and the image resources on the current page. The default number of entries per page is 10.
@@ -23898,6 +23889,9 @@ async function describeImagesWithOptions(request: DescribeImagesRequest, runtime
   if (!Util.isUnset(request.tag)) {
     query['Tag'] = request.tag;
   }
+  if (!Util.isUnset(request.usable)) {
+    query['Usable'] = request.usable;
+  }
   if (!Util.isUnset(request.usage)) {
     query['Usage'] = request.usage;
   }
@@ -23919,7 +23913,7 @@ async function describeImagesWithOptions(request: DescribeImagesRequest, runtime
 }
 
 /**
- * @summary Queries the list of available image resources based on specified parameters such as ImageId, image usage scenarios, and filter conditions.
+ * @summary Queries the list of image resources that you can use by specifying parameters such as ImageId, image usage scenarios, and Filter conditions.
  *
  * @description - Image resources that you can query include your custom images, public images provided by Alibaba Cloud, Alibaba Cloud Marketplace images, and shared images that other Alibaba Cloud users have shared with you.
  * - Paging is supported. The query results include the total number of available image resources and the image resources on the current page. The default number of entries per page is 10.
@@ -32910,43 +32904,43 @@ async function describeSecurityGroups(request: DescribeSecurityGroupsRequest): D
 
 model DescribeSendFileResultsRequest {
   instanceId?: string(name='InstanceId', description='The instance ID. If you specify this parameter, all file sending records of the specified instance are queried.', example='i-hz0jdfwd9f****'),
-  invocationStatus?: string(name='InvocationStatus', description='The overall sending status of the file. The overall status depends on the combined execution status of all instances in the sending task. Valid values:
+  invocationStatus?: string(name='InvocationStatus', description='The overall sending status of the file. The overall status depends on the combined execution status of all target instances. Valid values:
 
 - Pending: The system is validating or sending the file. The overall status is Pending if the file sending status of at least one instance is Pending.
-- Running: The file is being sent to instances. The overall status is Running if the file sending status of at least one instance is Running.
-- Success: The file is sent. The overall status is Success if the file sending status of all instances is Success.
+- Running: The file is being sent to the instance. The overall status is Running if the file sending status of at least one instance is Running.
+- Success: The file is sent successfully. The overall status is Success if the file sending status of all instances is Success.
 - Failed: The file failed to be sent. The overall status is Failed if the file sending status of all instances is Failed.
-- PartialFailed: The file is sent to some instances but failed on others. The overall status is PartialFailed if the file sending status of all instances is Success or Failed.', example='Success'),
+- PartialFailed: The file is sent to some instances but fails on others. The overall status is PartialFailed if the file sending status of all instances is Success or Failed.', example='Success'),
   invokeId?: string(name='InvokeId', description='The execution ID.', example='f-hz0jdfwd9f****'),
-  maxResults?: int32(name='MaxResults', description='The maximum number of entries per page for a paged query.
+  maxResults?: int32(name='MaxResults', description='The maximum number of entries per page in a paging query.
 
 Maximum value: 50.
 
 Default value: 10.', example='10'),
-  name?: string(name='Name', description='The name of the file. If you specify this parameter, all sending records of the file with the specified name are queried.', example='test.txt'),
+  name?: string(name='Name', description='The file name. If you specify this parameter, all sending records of the file with the specified name are queried.', example='test.txt'),
   nextToken?: string(name='NextToken', description='The pagination token. Set this parameter to the NextToken value returned in the previous API call.', example='AAAAAdDWBF2'),
   ownerAccount?: string(name='OwnerAccount'),
   ownerId?: long(name='OwnerId'),
-  pageNumber?: long(name='PageNumber', description='> This parameter is about to be deprecated. Use NextToken and MaxResults to complete paging operations.', example='1'),
-  pageSize?: long(name='PageSize', description='> This parameter is about to be deprecated. Use NextToken and MaxResults to complete paging operations.', example='10'),
+  pageNumber?: long(name='PageNumber', description='> This parameter is about to go offline. Use NextToken and MaxResults to complete paging query operations.', example='1'),
+  pageSize?: long(name='PageSize', description='> This parameter is about to go offline. Use NextToken and MaxResults to complete paging query operations.', example='10'),
   regionId?: string(name='RegionId', description='The region ID of the ECS instance. You can call [DescribeRegions](https://help.aliyun.com/document_detail/25609.html) to query the most recent region list.
 
 This parameter is required.', example='cn-hangzhou'),
-  resourceGroupId?: string(name='ResourceGroupId', description='The ID of the resource group to which the file sending task belongs. After you specify this parameter, you must also specify ResourceGroupId when sending the file. This parameter allows you to filter file sending results by resource group.', example='rg-bp67acfmxazb4p****'),
+  resourceGroupId?: string(name='ResourceGroupId', description='The ID of the resource group to which the file sending task belongs. After you specify this parameter, you must also specify ResourceGroupId when sending a file. This parameter allows you to filter file sending results by resource group.', example='rg-bp67acfmxazb4p****'),
   resourceOwnerAccount?: string(name='ResourceOwnerAccount'),
   resourceOwnerId?: long(name='ResourceOwnerId'),
   tag?: [ 
     {
-      key?: string(name='Key', description='The tag key of the file sending task. Valid values of N: 1 to 20. The tag key cannot be an empty string.
+      key?: string(name='Key', description='The tag key for the file sending task. Valid values of N: 1 to 20. The tag key cannot be an empty string.
 
-If you use a single tag to filter resources, the resource count with the specified tag cannot exceed 1000. If you use multiple tags to filter resources, the resource count of resources that attach all specified tags cannot exceed 1000. If the resource count exceeds 1000, call the [ListTagResources](https://help.aliyun.com/document_detail/110425.html) operation.
+If you use a single tag to filter resources, the resource count with the specified tag cannot exceed 1,000. If you use multiple tags to filter resources, the resource count of resources that have all specified tags attached cannot exceed 1,000. If the resource count exceeds 1,000, call the [ListTagResources](https://help.aliyun.com/document_detail/110425.html) operation to query resources.
 
 The tag key can be up to 64 characters in length and cannot start with `aliyun` or `acs:`. It cannot contain `http://` or `https://`.', example='TestKey'),
-      value?: string(name='Value', description='The tag value of the file sending task. Valid values of N: 1 to 20. The tag value can be an empty string.
+      value?: string(name='Value', description='The tag value for the file sending task. Valid values of N: 1 to 20. The tag value can be an empty string.
 
 The tag value can be up to 128 characters in length and cannot contain `http://` or `https://`.', example='TestValue'),
     }
-  ](name='Tag', description='The list of tags.'),
+  ](name='Tag', description='The tags.'),
 }
 
 model DescribeSendFileResultsResponseBody = {
@@ -33005,12 +32999,12 @@ model DescribeSendFileResultsResponse = {
 }
 
 /**
- * @summary Queries the list and status of files sent by Cloud Assistant by calling DescribeSendFileResults.
+ * @summary Queries the list and status of files sent by Cloud Assistant.
  *
  * @description ## Operation description:
- * - After you send a file, the file is not necessarily sent. You must check the actual sending result based on the return value of this operation.
- * - You can query execution information from the last 30 days. A maximum of 10,000 entries of execution information can be retained.
- * - When paged query the first page, set only MaxResults to limit the number of entries to return. The NextToken value returned in the result serves as the token for querying subsequent pages. When paged query subsequent pages, set NextToken to the value obtained from the previous response and set MaxResults to limit the number of entries to return.
+ * - After you send a file, the file is not necessarily sent successfully. You must check the actual delivery result based on the return value of this operation. The actual output prevails.
+ * - You can query execution information from the last day. A maximum of 1,000 entries of execution information can be retained.
+ * - When you execute a paging query for the first page, set only `MaxResults` to limit the number of entries returned. The `NextToken` value in the response serves as the token for querying subsequent pages. When querying subsequent pages, set the `NextToken` parameter to the value obtained from the previous response and set `MaxResults` to limit the number of entries returned.
  *
  * @param request DescribeSendFileResultsRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -33085,12 +33079,12 @@ async function describeSendFileResultsWithOptions(request: DescribeSendFileResul
 }
 
 /**
- * @summary Queries the list and status of files sent by Cloud Assistant by calling DescribeSendFileResults.
+ * @summary Queries the list and status of files sent by Cloud Assistant.
  *
  * @description ## Operation description:
- * - After you send a file, the file is not necessarily sent. You must check the actual sending result based on the return value of this operation.
- * - You can query execution information from the last 30 days. A maximum of 10,000 entries of execution information can be retained.
- * - When paged query the first page, set only MaxResults to limit the number of entries to return. The NextToken value returned in the result serves as the token for querying subsequent pages. When paged query subsequent pages, set NextToken to the value obtained from the previous response and set MaxResults to limit the number of entries to return.
+ * - After you send a file, the file is not necessarily sent successfully. You must check the actual delivery result based on the return value of this operation. The actual output prevails.
+ * - You can query execution information from the last day. A maximum of 1,000 entries of execution information can be retained.
+ * - When you execute a paging query for the first page, set only `MaxResults` to limit the number of entries returned. The `NextToken` value in the response serves as the token for querying subsequent pages. When querying subsequent pages, set the `NextToken` parameter to the value obtained from the previous response and set `MaxResults` to limit the number of entries returned.
  *
  * @param request DescribeSendFileResultsRequest
  * @return DescribeSendFileResultsResponse
@@ -33102,43 +33096,43 @@ async function describeSendFileResults(request: DescribeSendFileResultsRequest):
 
 model DescribeSnapshotGroupsRequest {
   additionalAttributes?: [ string ](name='AdditionalAttributes', description='This parameter is not publicly available.', example='hide'),
-  instanceId?: string(name='InstanceId', description='The ID of the instance.', example='i-j6ca469urv8ei629****'),
-  maxResults?: int32(name='MaxResults', description='The maximum number of entries per page.
+  instanceId?: string(name='InstanceId', description='The instance ID.', example='i-j6ca469urv8ei629****'),
+  maxResults?: int32(name='MaxResults', description='The maximum number of entries per page in a paging query.
 
-Valid values: 1 to 100.
+Maximum value: 100.
 
 Default value: 10.', example='10'),
   name?: string(name='Name', description='The name of the snapshot-consistent group.', example='testName'),
-  nextToken?: string(name='NextToken', description='The token that determines the start point of the next query. Set the value to the NextToken value that is returned from the last call.', example='caeba0bbb2be03f84eb48b699f0a4883'),
+  nextToken?: string(name='NextToken', description='The pagination token. Set this parameter to the NextToken value returned in the previous API call.', example='caeba0bbb2be03f84eb48b699f0a4883'),
   ownerAccount?: string(name='OwnerAccount'),
   ownerId?: long(name='OwnerId'),
-  regionId?: string(name='RegionId', description='The region ID of the snapshot-consistent group. You can call the [DescribeRegions](https://help.aliyun.com/document_detail/25609.html) operation to query the most recent region list.
+  regionId?: string(name='RegionId', description='The region ID. You can call [DescribeRegions](https://help.aliyun.com/document_detail/25609.html) to query the most recent region list.
 
 This parameter is required.', example='cn-hangzhou'),
   resourceGroupId?: string(name='ResourceGroupId', description='The ID of the resource group to which the snapshot-consistent group belongs.', example='rg-bp67acfmxazb4p****'),
   resourceOwnerAccount?: string(name='ResourceOwnerAccount'),
   resourceOwnerId?: long(name='ResourceOwnerId'),
-  snapshotGroupId?: [ string ](name='SnapshotGroupId', description='The ID of snapshot-consistent group N. Valid values of N: 1 to 10.', example='ssg-j6ciyh3k52qp7ovm****'),
-  status?: [ string ](name='Status', description='The state of snapshot-consistent group N. Valid values of the second N: 1, 2, and 3. Valid values:
+  snapshotGroupId?: [ string ](name='SnapshotGroupId', description='The ID of the snapshot-consistent group. Valid values of N: 1 to 10.', example='ssg-j6ciyh3k52qp7ovm****'),
+  status?: [ string ](name='Status', description='The status of the snapshot-consistent group. Valid values of N: 1 to 3. Valid values:
 
 - progressing: The snapshot-consistent group is being created.
 
 - accomplished: The snapshot-consistent group is created.
 
-- failed: The snapshot-consistent group fails to be created.', example='accomplished'),
+- failed: The snapshot-consistent group failed to be created.', example='accomplished'),
   tag?: [ 
     {
-      key?: string(name='Key', description='The key of tag N of the snapshot-consistent group. Valid values of N: 1 to 20.', example='TestKey'),
-      value?: string(name='Value', description='The value of tag N of the snapshot-consistent group. Valid values of N: 1 to 20.', example='TestValue'),
+      key?: string(name='Key', description='The tag key of the snapshot-consistent group. Valid values of N: 1 to 20.', example='TestKey'),
+      value?: string(name='Value', description='The tag value of the snapshot-consistent group. Valid values of N: 1 to 20.', example='TestValue'),
     }
-  ](name='Tag', description='The tags of the snapshot-consistent group.'),
+  ](name='Tag', description='The tag key-value pairs of the snapshot-consistent group.'),
 }
 
 model DescribeSnapshotGroupsResponseBody = {
-  nextToken?: string(name='NextToken', description='The token used to start the next query.
+  nextToken?: string(name='NextToken', description='The pagination token for the next query.
 
-> If the return value is empty, no more data exists.', example='caeba0bbb2be03f84eb48b699f0a4883'),
-  requestId?: string(name='RequestId', description='The ID of the request.', example='3F9A4CC4-362F-469A-B9EF-B3204EF8AA3A'),
+> If this parameter is empty, no more results are available.', example='caeba0bbb2be03f84eb48b699f0a4883'),
+  requestId?: string(name='RequestId', description='The request ID.', example='3F9A4CC4-362F-469A-B9EF-B3204EF8AA3A'),
   snapshotGroups?: {
     snapshotGroup?: [ 
     {
@@ -33191,9 +33185,9 @@ model DescribeSnapshotGroupsResponse = {
 }
 
 /**
- * @summary Queries the information of one or more snapshot-consistent groups, such as the status of the groups, IDs of the instances associated with the groups, and snapshot creation progress.
+ * @summary Queries information about one or more snapshot-consistent groups, such as the status, associated instance ID, and snapshot creation progress.
  *
- * @description You can specify multiple request parameters to be queried, such as `InstanceId`, `SnapshotGroupId.N`, and `Status.N`. Specified parameters have logical AND relations. Only the specified parameters are included in the filter conditions.
+ * @description `InstanceId`, `SnapshotGroupId.N`, and `Status.N` are not required request parameters, but they can be used to build filter logic. The parameters have a logical AND relationship.
  *
  * @param request DescribeSnapshotGroupsRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -33262,9 +33256,9 @@ async function describeSnapshotGroupsWithOptions(request: DescribeSnapshotGroups
 }
 
 /**
- * @summary Queries the information of one or more snapshot-consistent groups, such as the status of the groups, IDs of the instances associated with the groups, and snapshot creation progress.
+ * @summary Queries information about one or more snapshot-consistent groups, such as the status, associated instance ID, and snapshot creation progress.
  *
- * @description You can specify multiple request parameters to be queried, such as `InstanceId`, `SnapshotGroupId.N`, and `Status.N`. Specified parameters have logical AND relations. Only the specified parameters are included in the filter conditions.
+ * @description `InstanceId`, `SnapshotGroupId.N`, and `Status.N` are not required request parameters, but they can be used to build filter logic. The parameters have a logical AND relationship.
  *
  * @param request DescribeSnapshotGroupsRequest
  * @return DescribeSnapshotGroupsResponse
@@ -36973,7 +36967,7 @@ async function disableActivation(request: DisableActivationRequest): DisableActi
 
 model DisableDiskEncryptionByDefaultRequest {
   ownerId?: long(name='OwnerId'),
-  regionId?: string(name='RegionId', description='The ID of the region for which you want to disable Account-level EBS Default Encryption. You can call the [DescribeRegions](https://help.aliyun.com/document_detail/2679950.html) operation to query the most recent region list.
+  regionId?: string(name='RegionId', description='The region ID. You can call [DescribeRegions](https://help.aliyun.com/document_detail/2679950.html) to query the most recent region list.
 
 This parameter is required.', example='cn-hangzhou'),
   resourceOwnerId?: long(name='ResourceOwnerId'),
@@ -36990,13 +36984,13 @@ model DisableDiskEncryptionByDefaultResponse = {
 }
 
 /**
- * @summary Disables account-level default encryption of Elastic Block Storage (EBS) resources in a region. After you disable account-level default encryption of EBS resources in a region, the encryption status of existing disks in the region does not change. When you create a disk, you can still choose to encrypt the disk.
+ * @summary Disables the account-level default encryption for block storage in a specified region.
  *
- * @description - **Instructions**
- *   - You must grant the RAM user the `AliyunECSFullAccess` permissions. For information about how to grant permissions to a RAM user, see [Grant permissions to a RAM user](https://help.aliyun.com/document_detail/116146.html).
- * - **Considerations**
- *   - After Account-level EBS Default Encryption is disabled, the encryption status of existing cloud disks is not affected.
- *   - After Account-level EBS Default Encryption is disabled, you can still choose to encrypt new cloud disks when you purchase the disks.
+ * @description - **Before you begin**
+ *   - Resource Access Management (RAM) users require the `AliyunECSFullAccess` permission. For more information about how to perform authorization, see [Grant permissions to a RAM user](https://help.aliyun.com/document_detail/116146.html).
+ * - **Usage notes**
+ *   - After you shutdown account-level default encryption for block storage, the encryption status of existing cloud disks is not affected.
+ *   - After you shutdown account-level default encryption for block storage, you can still manually select encryption when you create cloud disks.
  *
  * @param request DisableDiskEncryptionByDefaultRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -37032,13 +37026,13 @@ async function disableDiskEncryptionByDefaultWithOptions(request: DisableDiskEnc
 }
 
 /**
- * @summary Disables account-level default encryption of Elastic Block Storage (EBS) resources in a region. After you disable account-level default encryption of EBS resources in a region, the encryption status of existing disks in the region does not change. When you create a disk, you can still choose to encrypt the disk.
+ * @summary Disables the account-level default encryption for block storage in a specified region.
  *
- * @description - **Instructions**
- *   - You must grant the RAM user the `AliyunECSFullAccess` permissions. For information about how to grant permissions to a RAM user, see [Grant permissions to a RAM user](https://help.aliyun.com/document_detail/116146.html).
- * - **Considerations**
- *   - After Account-level EBS Default Encryption is disabled, the encryption status of existing cloud disks is not affected.
- *   - After Account-level EBS Default Encryption is disabled, you can still choose to encrypt new cloud disks when you purchase the disks.
+ * @description - **Before you begin**
+ *   - Resource Access Management (RAM) users require the `AliyunECSFullAccess` permission. For more information about how to perform authorization, see [Grant permissions to a RAM user](https://help.aliyun.com/document_detail/116146.html).
+ * - **Usage notes**
+ *   - After you shutdown account-level default encryption for block storage, the encryption status of existing cloud disks is not affected.
+ *   - After you shutdown account-level default encryption for block storage, you can still manually select encryption when you create cloud disks.
  *
  * @param request DisableDiskEncryptionByDefaultRequest
  * @return DisableDiskEncryptionByDefaultResponse
