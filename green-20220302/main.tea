@@ -1871,14 +1871,14 @@ async function multiModalGuardAsync(request: MultiModalGuardAsyncRequest): Multi
 }
 
 model MultiModalGuardAsyncResultRequest {
-  service?: string(name='Service', description='The moderation service to run.', example='audio_security_check'),
-  serviceParameters?: string(name='ServiceParameters', description='The parameters for the moderation service, provided as a JSON string.', example='{
+  service?: string(name='Service', description='The moderation service type.', example='audio_security_check'),
+  serviceParameters?: string(name='ServiceParameters', description='The parameters required by the moderation service. The value is a JSON string.', example='{
   "taskId": "au_f_xxxxx"
 }'),
 }
 
 model MultiModalGuardAsyncResultResponseBody = {
-  code?: int32(name='Code', description='The status code of the response.', example='200'),
+  code?: int32(name='Code', description='The error code.', example='200'),
   data?: {
     audioResult?: {
       sliceDetails?: [ 
@@ -1886,164 +1886,122 @@ model MultiModalGuardAsyncResultResponseBody = {
           detail?: [ 
             {
               level?: string(name='Level', description='The risk level. Valid values:
-
-- `high`: High risk. If the content matches an entry in a custom keyword library, the risk level defaults to high.
-
-- `medium`: Medium risk.
-
-- `low`: Low risk.
-
-- `none`: No risk detected.', example='high'),
+- high: High risk. If a custom keyword library is hit, the risk level defaults to high.
+- medium: Medium risk.
+- low: Low risk.
+- none: No risk detected.', example='high'),
               result?: [ 
                 {
-                  confidence?: float(name='Confidence', description='The confidence score, ranging from 0 to 100, accurate to two decimal places.', example='90'),
-                  description?: string(name='Description', description='The description of the label.', example='毒品'),
-                  ext?: any(name='Ext', description='Additional information about the detection result.', example='{}'),
-                  label?: string(name='Label', description='The label of the detection result.', example='drug'),
+                  confidence?: float(name='Confidence', description='The confidence score, ranging from 0 to 100, rounded to two decimal places.', example='90'),
+                  description?: string(name='Description', description='The label description.', example='毒品'),
+                  ext?: any(name='Ext', description='The extended information of the detection result.', example='{}'),
+                  label?: string(name='Label', description='The label.', example='drug'),
                   level?: string(name='Level', description='The risk level. Valid values:
-
-- `high`: High risk. If the content matches an entry in a custom keyword library, the risk level defaults to high.
-
-- `medium`: Medium risk.
-
-- `low`: Low risk.
-
-- `none`: No risk detected.', example='high'),
+- high: High risk. If a custom keyword library is hit, the risk level defaults to high.
+- medium: Medium risk.
+- low: Low risk.
+- none: No risk detected.', example='high'),
                 }
-              ](name='Result', description='A list of detection results.'),
-              suggestion?: string(name='Suggestion', description='The recommended action. Valid values:
+              ](name='Result', description='The list of detection results.'),
+              suggestion?: string(name='Suggestion', description='The moderation recommendation. Valid values:
 
-- `block`: Block the content.
-
-- `pass`: Pass the content.
-
-- `watch`: The content requires review.
-
-- `mask`: Mask the content.', example='block'),
+- block: Block the content.
+- pass: Allow the content.
+- watch: Manually review the content.
+- mask: Mask the content.', example='block'),
               type?: string(name='Type', description='The detection type. Valid values:
-
-- `contentModeration`: Content moderation.
-
-- `promptAttack`: Prompt attack detection.
-
-- `sensitiveData`: Sensitive data detection.
-
-- `modelHallucination`: Model hallucination.
-
-- `maliciousFile`: Malicious file detection.', example='contentModeration'),
+- contentModeration: content compliance detection
+- promptAttack: prompt attack detection
+- sensitiveData: sensitive content detection
+- modelHallucination: model hallucination detection
+- maliciousFile: malicious file detection', example='contentModeration'),
             }
-          ](name='Detail', description='Detection details for the audio slice.'),
-          endTime?: long(name='EndTime', description='The end time of the audio slice, in seconds.', example='20'),
-          startTime?: long(name='StartTime', description='The start time of the audio slice, in seconds.', example='0'),
-          suggestion?: string(name='Suggestion', description='The recommended action. Valid values:
+          ](name='Detail', description='The detection details.'),
+          endTime?: long(name='EndTime', description='The end time of the segment, in seconds.', example='20'),
+          startTime?: long(name='StartTime', description='The start time of the segment, in seconds.', example='0'),
+          suggestion?: string(name='Suggestion', description='The moderation recommendation. Valid values:
 
-- `block`: Block the content.
-
-- `pass`: Pass the content.
-
-- `watch`: The content requires review.
-
-- `mask`: Mask the content.', example='block'),
-          text?: string(name='Text', description='The speech-to-text transcript of the audio slice.', example='今天天气真不错'),
-          url?: string(name='Url', description='The temporary URL of the audio slice.', example='http://xxxx.abc.wav'),
+- block: Block the content.
+- pass: Allow the content.
+- watch: Manually review the content.
+- mask: Mask the content.', example='block'),
+          text?: string(name='Text', description='The transcribed text of the audio segment.', example='今天天气真不错'),
+          url?: string(name='Url', description='The temporary URL of the audio segment file.', example='http://xxxx.abc.wav'),
         }
-      ](name='SliceDetails', description='Details for each audio slice.'),
-      sliceNum?: int32(name='SliceNum', description='The slice count.', example='2'),
-      suggestion?: string(name='Suggestion', description='The overall recommended action for the audio content.', example='pass'),
-    }(name='AudioResult', description='The audio moderation result.'),
-    dataId?: string(name='DataId', description='The value of the `dataId` parameter from the request. This field is omitted if `dataId` was not provided.', example='data1234'),
+      ](name='SliceDetails', description='The segment details.'),
+      sliceNum?: int32(name='SliceNum', description='The number of segments.', example='2'),
+      suggestion?: string(name='Suggestion', description='The recommended action.', example='pass'),
+    }(name='AudioResult', description='The audio moderation segment results.'),
+    dataId?: string(name='DataId', description='The value of dataId passed in the API request. This field is not returned if dataId was not specified in the request.', example='data1234'),
     frameResult?: {
       frames?: [ 
         {
           detail?: [ 
             {
-              level?: string(name='Level', description='The risk level. Valid values include:
-
-- high: High risk. If a match is found in a custom dictionary, the risk level defaults to high.
-
+              level?: string(name='Level', description='The risk level. Valid values:
+- high: High risk. If a custom keyword library is hit, the risk level defaults to high.
 - medium: Medium risk.
-
 - low: Low risk.
-
 - none: No risk detected.', example='low'),
               result?: [ 
                 {
-                  confidence?: float(name='Confidence', description='The confidence score, ranging from 0 to 100, accurate to two decimal places.', example='80'),
-                  description?: string(name='Description', description='The description of the label.', example='广告'),
-                  ext?: any(name='Ext', description='Additional information about the detection result.', example='{}'),
-                  label?: string(name='Label', description='The label of the detection result.', example='ad'),
+                  confidence?: float(name='Confidence', description='The confidence score, ranging from 0 to 100, rounded to two decimal places.', example='80'),
+                  description?: string(name='Description', description='The label description.', example='广告'),
+                  ext?: any(name='Ext', description='The extended information of the detection result.', example='{}'),
+                  label?: string(name='Label', description='The label.', example='ad'),
                   level?: string(name='Level', description='The risk level. Valid values:
-
-- `high`: High risk. If the content matches an entry in a custom keyword library, the risk level defaults to high.
-
-- `medium`: Medium risk.
-
-- `low`: Low risk.
-
-- `none`: No risk detected.', example='loose'),
+- high: High risk. If a custom keyword library is hit, the risk level defaults to high.
+- medium: Medium risk.
+- low: Low risk.
+- none: No risk detected.', example='loose'),
                 }
-              ](name='Result', description='A list of detection results.'),
-              suggestion?: string(name='Suggestion', description='Suggestion
+              ](name='Result', description='The detection result.'),
+              suggestion?: string(name='Suggestion', description='The moderation recommendation. Valid values:
 
-- block: A suggestion to block.
-
-- pass: A suggestion to pass.
-
-- watch: A suggestion to watch.
-
-- mask: A suggestion to mask.', example='watch'),
+- block: Block the content.
+- pass: Allow the content.
+- watch: Manually review the content.
+- mask: Mask the content.', example='watch'),
               type?: string(name='Type', description='The detection type. Valid values:
-
-- `contentModeration`: Content moderation.
-
-- `promptAttack`: Prompt attack detection.
-
-- `sensitiveData`: Sensitive data detection.
-
-- `modelHallucination`: Model hallucination.
-
-- `maliciousFile`: Malicious file detection.', example='contentModeration'),
+- contentModeration: content compliance detection
+- promptAttack: prompt attack detection
+- sensitiveData: sensitive content detection
+- modelHallucination: model hallucination detection
+- maliciousFile: malicious file detection', example='contentModeration'),
             }
-          ](name='Detail', description='A list of detection results.'),
-          offset?: float(name='Offset', description='The time offset of the frame in the video, in seconds.', example='1.5'),
-          suggestion?: string(name='Suggestion', description='The recommended action. Valid values:
+          ](name='Detail', description='The list of detection results.'),
+          errorCode?: int32(name='ErrorCode', example='401'),
+          errorMsg?: string(name='ErrorMsg', example='parameter invalid'),
+          offset?: float(name='Offset', description='The frame capture position.', example='1.5'),
+          suggestion?: string(name='Suggestion', description='The moderation recommendation. Valid values:
 
-- `block`: Block the content.
-
-- `pass`: Pass the content.
-
-- `watch`: The content requires review.
-
-- `mask`: Mask the content.', example='block'),
-          timestamp?: long(name='Timestamp', description='The absolute timestamp of the frame, in milliseconds.', example='1684559739000'),
-          url?: string(name='Url', description='The temporary URL of the video frame.', example='https://xxx.jpeg'),
+- block: Block the content.
+- pass: Allow the content.
+- watch: Manually review the content.
+- mask: Mask the content.', example='block'),
+          timestamp?: long(name='Timestamp', description='The absolute timestamp, in milliseconds.', example='1684559739000'),
+          url?: string(name='Url', description='The temporary URL of the frame.', example='https://xxx.jpeg'),
         }
-      ](name='Frames', description='The moderation results for video frames.'),
-      sliceNum?: int32(name='SliceNum', description='The frame count.', example='2'),
-      suggestion?: string(name='Suggestion', description='The recommended action. Valid values:
+      ](name='Frames', description='The frame detection results.'),
+      sliceNum?: int32(name='SliceNum', description='The number of segments.', example='2'),
+      suggestion?: string(name='Suggestion', description='The moderation recommendation. Valid values:
 
-- `block`: Block the content.
-
-- `pass`: Pass the content.
-
-- `watch`: The content requires review.
-
-- `mask`: Mask the content.', example='pass'),
-    }(name='FrameResult', description='The video frame moderation result.'),
-    liveId?: string(name='LiveId', description='The unique identifier for the live stream.', example='liveId'),
+- block: Block the content.
+- pass: Allow the content.
+- watch: Manually review the content.
+- mask: Mask the content.', example='pass'),
+    }(name='FrameResult', description='The list of video frame capture results.'),
+    liveId?: string(name='LiveId', description='The unique ID of the live stream.', example='liveId'),
     suggestion?: string(name='Suggestion', description='The recommended action. Valid values:
 
-- `block`: Block the content.
-
-- `pass`: Pass the content.
-
-- `watch`: The content requires review.
-
-- `mask`: Mask the content.', example='pass'),
+- block: Block the content.
+- pass: Allow the content.
+- watch: Manually review the content.
+- mask: Mask the content.', example='pass'),
     taskId?: string(name='TaskId', description='The task ID.', example='vi_f_xxx'),
-  }(name='Data', description='The response data.'),
-  message?: string(name='Message', description='The response message.', example='SUCCESS'),
-  requestId?: string(name='RequestId', description='The request ID.', example='AAAAAA-BBBB-CCCCC-DDDD-EEEEEEEE****'),
+  }(name='Data', description='The returned data.'),
+  message?: string(name='Message', description='The error message.', example='SUCCESS'),
+  requestId?: string(name='RequestId', description='Id of the request', example='AAAAAA-BBBB-CCCCC-DDDD-EEEEEEEE****'),
 }
 
 model MultiModalGuardAsyncResultResponse = {
@@ -2053,9 +2011,9 @@ model MultiModalGuardAsyncResultResponse = {
 }
 
 /**
- * @summary This AI Security Guardrail API retrieves asynchronous multimodal results from both audio and video.
+ * @summary Queries the asynchronous results of AI safety guardrail multimodal content moderation, supporting audio and video modalities.
  *
- * @description For APIs that incur charges, add the following sentence in bold at the beginning of the description: "Before you use this API, make sure that you fully understand the billing methods and pricing of the XXX product." Link the word \\"pricing\\" to https\\://www\\.aliyun.com/price/product#/ecs/detail.
+ * @description If an API involves fees, add the following bold statement as the first sentence: **Make sure that you fully understand the billing methods and pricing of XXX before you call this operation.** In this statement, "pricing" is a hyperlink that points to: https://www.aliyun.com/price/product#/ecs/detail.
  *
  * @param request MultiModalGuardAsyncResultRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -2088,9 +2046,9 @@ async function multiModalGuardAsyncResultWithOptions(request: MultiModalGuardAsy
 }
 
 /**
- * @summary This AI Security Guardrail API retrieves asynchronous multimodal results from both audio and video.
+ * @summary Queries the asynchronous results of AI safety guardrail multimodal content moderation, supporting audio and video modalities.
  *
- * @description For APIs that incur charges, add the following sentence in bold at the beginning of the description: "Before you use this API, make sure that you fully understand the billing methods and pricing of the XXX product." Link the word \\"pricing\\" to https\\://www\\.aliyun.com/price/product#/ecs/detail.
+ * @description If an API involves fees, add the following bold statement as the first sentence: **Make sure that you fully understand the billing methods and pricing of XXX before you call this operation.** In this statement, "pricing" is a hyperlink that points to: https://www.aliyun.com/price/product#/ecs/detail.
  *
  * @param request MultiModalGuardAsyncResultRequest
  * @return MultiModalGuardAsyncResultResponse
