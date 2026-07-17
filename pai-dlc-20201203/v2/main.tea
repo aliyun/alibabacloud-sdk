@@ -606,7 +606,7 @@ model JobSpec {
   elasticSpotSpecs?: [
     ElasticSpotSpec
   ](name='ElasticSpotSpecs'),
-  extraPodSpec?: ExtraPodSpec(name='ExtraPodSpec', description='The additional pod configuration.'),
+  extraPodSpec?: ExtraPodSpec(name='ExtraPodSpec', description='The extra pod configuration.'),
   hyperNodeSchedulingConfig?: HyperNodeSchedulingConfig(name='HyperNodeSchedulingConfig'),
   image?: string(name='Image', description='The runtime image address for this type of worker. Call [ListImages](https://help.aliyun.com/document_detail/449118.html) to obtain images provided by the PAI platform. You can also specify a third-party public image.', example='registry-vpc.cn-hangzhou.aliyuncs.com/cloud-dsw/tensorflow:1.12PAI-gpu-py36-cu101-ubuntu18.04'),
   imageConfig?: ImageConfig(name='ImageConfig', description='The private image configuration.'),
@@ -1408,6 +1408,84 @@ async function createRayHistoryServer(request: CreateRayHistoryServerRequest): C
   return createRayHistoryServerWithOptions(request, headers, runtime);
 }
 
+model CreateSignalRequest {
+  signal?: string(name='Signal', example='SIGUSR1'),
+  target?: SignalTarget(name='Target'),
+}
+
+model CreateSignalResponseBody = {
+  jobId?: string(name='JobId', example='dlc********'),
+  requestId?: string(name='RequestId', example='019F6385-7481-57A7-BEC9-***********'),
+  signal?: string(name='Signal', example='SIGUSR1'),
+  signalId?: string(name='SignalId', example='oper************'),
+  status?: string(name='Status', example='Succeeded'),
+}
+
+model CreateSignalResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: CreateSignalResponseBody(name='body'),
+}
+
+/**
+ * @summary 创建信号
+ *
+ * @description ## 请求说明
+ * - 该API用于向指定作业的一个或多个Pod发送特定信号。
+ * - 发送信号后，API立即返回一个`SignalId`，实际的信号投递由后台worker处理。
+ * - 信号的状态可以通过`GetSignal`或`ListSignals`接口查询。
+ *
+ * @param request CreateSignalRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return CreateSignalResponse
+ */
+@context("createSignalWithContext")
+async function createSignalWithOptions(JobId: string, request: CreateSignalRequest, headers: map[string]string, runtime: $RuntimeOptions): CreateSignalResponse {
+  request.validate();
+  var body : map[string]any = {};
+  if (!$isNull(request.signal)) {
+    body['Signal'] = request.signal;
+  }
+  if (!$isNull(request.target)) {
+    body['Target'] = request.target;
+  }
+
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    headers = headers,
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'CreateSignal',
+    version = '2020-12-03',
+    protocol = 'HTTPS',
+    pathname = `/api/v1/jobs/${$URL.percentEncode(JobId)}/signals`,
+    method = 'POST',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 创建信号
+ *
+ * @description ## 请求说明
+ * - 该API用于向指定作业的一个或多个Pod发送特定信号。
+ * - 发送信号后，API立即返回一个`SignalId`，实际的信号投递由后台worker处理。
+ * - 信号的状态可以通过`GetSignal`或`ListSignals`接口查询。
+ *
+ * @param request CreateSignalRequest
+ * @return CreateSignalResponse
+ */
+async function createSignal(JobId: string, request: CreateSignalRequest): CreateSignalResponse {
+  var runtime = new $RuntimeOptions{};
+  var headers : map[string]string = {};
+  return createSignalWithOptions(JobId, request, headers, runtime);
+}
+
 model CreateTensorboardRequest {
   accessibility?: string(name='Accessibility', description='The job visibility. Valid values:
 
@@ -1887,11 +1965,11 @@ model GetJobResponseBody = {
   displayName?: string(name='DisplayName', description='The job name.', example='tf-mnist-test'),
   duration?: long(name='Duration', description='The job running duration, in seconds.', example='3602'),
   elasticSpec?: JobElasticSpec(name='ElasticSpec', description='The elastic job parameters.'),
-  enabledDebugger?: boolean(name='EnabledDebugger', description='Indicates whether the debugger job is enabled.', example='false'),
+  enabledDebugger?: boolean(name='EnabledDebugger', description='Indicates whether the debugger is enabled for the job.', example='false'),
   envs?: map[string]string(name='Envs', description='The environment variable configuration.'),
-  gmtCreateTime?: string(name='GmtCreateTime', description='The time when the job was created (UTC).', example='2021-01-12T14:35:01Z'),
+  gmtCreateTime?: string(name='GmtCreateTime', description='The job creation time (UTC).', example='2021-01-12T14:35:01Z'),
   gmtFailedTime?: string(name='GmtFailedTime', description='The time when the job failed (UTC).', example='2021-01-12T15:36:08Z'),
-  gmtFinishTime?: string(name='GmtFinishTime', description='The time when the job finished (UTC).', example='2021-01-12T15:36:08Z'),
+  gmtFinishTime?: string(name='GmtFinishTime', description='The job finish time (UTC).', example='2021-01-12T15:36:08Z'),
   gmtRunningTime?: string(name='GmtRunningTime', description='The time when the job started running (UTC).', example='2021-01-12T14:36:21Z'),
   gmtStoppedTime?: string(name='GmtStoppedTime', description='The time when the job was stopped (UTC).', example='2021-01-12T15:36:08Z'),
   gmtSubmittedTime?: string(name='GmtSubmittedTime', description='The time when the job was submitted to the cluster (UTC).', example='2021-01-12T14:36:01Z'),
@@ -1949,7 +2027,7 @@ model GetJobResponseBody = {
       subStatus?: string(name='SubStatus', description='The pod sub-status, such as preemption status. Valid values:
 - Normal
 - Evicted', example='Normal'),
-      type?: string(name='Type', description='The node type, which corresponds to a JobSpec in the JobSpecs parameter of the CreateJob API.', example='Worker'),
+      type?: string(name='Type', description='The node type, which corresponds to a JobSpec in the JobSpecs parameter of CreateJob.', example='Worker'),
     }
   ](name='Pods', description='All nodes running in the job.'),
   priority?: int32(name='Priority', description='The priority of the job. Valid values: 1 to 9.', example='1'),
@@ -1963,23 +2041,23 @@ model GetJobResponseBody = {
     {
       detailErrorInfoList?: [ 
         {
-          addJobLevelBlacklist?: boolean(name='AddJobLevelBlacklist', description='The job blacklist.'),
+          addJobLevelBlacklist?: boolean(name='AddJobLevelBlacklist', description='The job-level blacklist.'),
           addNodeToBlacklist?: boolean(name='AddNodeToBlacklist', description='The node blacklist.'),
           detailErrorMsg?: string(name='DetailErrorMsg', description='The detailed error message.'),
           errorCode?: string(name='ErrorCode', description='The error code.'),
-          errorMsg?: string(name='ErrorMsg', description='The error message.'),
+          errorMsg?: string(name='ErrorMsg', description='The fault message.'),
           errorSource?: string(name='ErrorSource', description='The error source.'),
           node?: string(name='Node', description='The node.'),
           pod?: string(name='Pod', description='The instance.'),
           triggerRestart?: boolean(name='TriggerRestart', description='Indicates whether a restart is triggered.'),
         }
-      ](name='DetailErrorInfoList', description='The error message list.'),
+      ](name='DetailErrorInfoList', description='The list of fault information.'),
       jobRestartCount?: long(name='JobRestartCount', description='The job restart count.'),
       occurPhase?: string(name='OccurPhase', description='The phase in which the event occurred.'),
       occurTime?: string(name='OccurTime', description='The time when the event occurred.'),
       reason?: string(name='Reason', description='The reason.'),
       restartDurationInSec?: long(name='RestartDurationInSec', description='The restart duration, in seconds.'),
-      restartFailReason?: string(name='RestartFailReason', description='The reason for the restart failure.'),
+      restartFailReason?: string(name='RestartFailReason', description='The restart failure reason.'),
       restartLevelType?: string(name='RestartLevelType'),
       restartStatus?: string(name='RestartStatus', description='The restart status.'),
       triggerID?: string(name='TriggerID', description='TriggerID'),
@@ -2827,6 +2905,83 @@ async function getRayHistoryServer(RayHistoryServerId: string, request: GetRayHi
   var runtime = new $RuntimeOptions{};
   var headers : map[string]string = {};
   return getRayHistoryServerWithOptions(RayHistoryServerId, request, headers, runtime);
+}
+
+model GetSignalRequest {
+  token?: string(name='Token', example='eyXXXX-XXXX.XXXXX'),
+}
+
+model GetSignalResponseBody = {
+  gmtCreated?: string(name='GmtCreated', example='2026-03-18T10:02:04+08:00'),
+  gmtModified?: string(name='GmtModified', example='2026-03-18T10:02:04+08:00'),
+  jobId?: string(name='JobId', example='oper***********'),
+  message?: string(name='Message', example='signal delivered to 1 pods'),
+  podNames?: [ string ](name='PodNames'),
+  reason?: string(name='Reason', example='Completed'),
+  requestId?: string(name='RequestId', example='473469C7-AA6F-4DC5-B3DB-xxxxxxx'),
+  roles?: [ string ](name='Roles'),
+  scope?: string(name='Scope', example='pods'),
+  signal?: string(name='Signal', example='SIGUSR1'),
+  signalId?: string(name='SignalId', example='dlc***********'),
+  status?: string(name='Status', example='Succeeded'),
+}
+
+model GetSignalResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: GetSignalResponseBody(name='body'),
+}
+
+/**
+ * @summary 获取信号
+ *
+ * @description ## 请求说明
+ * 通过此 API，用户可以获取到指定 `JobId` 和 `SignalId` 对应的信号详情，包括信号的状态、发送范围等信息。请注意，返回的结果中不再包含每个 Pod 的原始结果结构，而是通过 `Status`, `Reason`, 和 `Message` 字段来表达信号处理的整体情况。
+ *
+ * @param request GetSignalRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return GetSignalResponse
+ */
+@context("getSignalWithContext")
+async function getSignalWithOptions(JobId: string, SignalId: string, request: GetSignalRequest, headers: map[string]string, runtime: $RuntimeOptions): GetSignalResponse {
+  request.validate();
+  var query : map[string]any = {};
+  if (!$isNull(request.token)) {
+    query['Token'] = request.token;
+  }
+
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'GetSignal',
+    version = '2020-12-03',
+    protocol = 'HTTPS',
+    pathname = `/api/v1/jobs/${$URL.percentEncode(JobId)}/signals/${$URL.percentEncode(SignalId)}`,
+    method = 'GET',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 获取信号
+ *
+ * @description ## 请求说明
+ * 通过此 API，用户可以获取到指定 `JobId` 和 `SignalId` 对应的信号详情，包括信号的状态、发送范围等信息。请注意，返回的结果中不再包含每个 Pod 的原始结果结构，而是通过 `Status`, `Reason`, 和 `Message` 字段来表达信号处理的整体情况。
+ *
+ * @param request GetSignalRequest
+ * @return GetSignalResponse
+ */
+async function getSignal(JobId: string, SignalId: string, request: GetSignalRequest): GetSignalResponse {
+  var runtime = new $RuntimeOptions{};
+  var headers : map[string]string = {};
+  return getSignalWithOptions(JobId, SignalId, request, headers, runtime);
 }
 
 model GetTensorboardRequest {
@@ -3913,6 +4068,110 @@ async function listRayHistoryServers(request: ListRayHistoryServersRequest): Lis
   var runtime = new $RuntimeOptions{};
   var headers : map[string]string = {};
   return listRayHistoryServersWithOptions(request, headers, runtime);
+}
+
+model ListSignalsRequest {
+  order?: string(name='Order', example='desc'),
+  pageNumber?: string(name='PageNumber', example='1'),
+  pageSize?: string(name='PageSize', example='20'),
+  sortBy?: string(name='SortBy', example='GmtCreateTime'),
+  status?: string(name='Status', example='Succeeded'),
+  token?: string(name='Token', example='eyXXXX-XXXX.XXXXX'),
+}
+
+model ListSignalsResponseBody = {
+  jobId?: string(name='JobId', example='dlc-...'),
+  pageNumber?: long(name='PageNumber', example='1'),
+  pageSize?: long(name='PageSize', example='20'),
+  requestId?: string(name='RequestId', example='473469C7-AA6F-4DC5-B3DB-xxxxxxx'),
+  signals?: [ 
+    {
+      gmtCreated?: string(name='GmtCreated', example='2025-12-30T14:07:38+08:00'),
+      gmtModified?: string(name='GmtModified', example='2025-12-30T14:07:38+08:00'),
+      message?: string(name='Message', example='signal delivered to 1 pods'),
+      podNames?: [ string ](name='PodNames'),
+      reason?: string(name='Reason', example='Completed'),
+      roles?: [ string ](name='Roles'),
+      scope?: string(name='Scope', example='pods'),
+      signal?: string(name='Signal', example='SIGUSR1'),
+      signalId?: string(name='SignalId', example='oper*********'),
+      status?: string(name='Status', example='Stopped'),
+    }
+  ](name='Signals'),
+  totalCount?: long(name='TotalCount', example='3'),
+}
+
+model ListSignalsResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ListSignalsResponseBody(name='body'),
+}
+
+/**
+ * @summary 获取信号列表
+ *
+ * @description ## 请求说明
+ * 通过此 API 可以获取特定作业下的所有信号记录详情，包括信号 ID、状态、创建时间等信息。支持通过查询参数进一步筛选或排序结果。
+ *
+ * @param request ListSignalsRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return ListSignalsResponse
+ */
+@context("listSignalsWithContext")
+async function listSignalsWithOptions(JobId: string, request: ListSignalsRequest, headers: map[string]string, runtime: $RuntimeOptions): ListSignalsResponse {
+  request.validate();
+  var query : map[string]any = {};
+  if (!$isNull(request.order)) {
+    query['Order'] = request.order;
+  }
+  if (!$isNull(request.pageNumber)) {
+    query['PageNumber'] = request.pageNumber;
+  }
+  if (!$isNull(request.pageSize)) {
+    query['PageSize'] = request.pageSize;
+  }
+  if (!$isNull(request.sortBy)) {
+    query['SortBy'] = request.sortBy;
+  }
+  if (!$isNull(request.status)) {
+    query['Status'] = request.status;
+  }
+  if (!$isNull(request.token)) {
+    query['Token'] = request.token;
+  }
+
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'ListSignals',
+    version = '2020-12-03',
+    protocol = 'HTTPS',
+    pathname = `/api/v1/jobs/${$URL.percentEncode(JobId)}/signals`,
+    method = 'GET',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 获取信号列表
+ *
+ * @description ## 请求说明
+ * 通过此 API 可以获取特定作业下的所有信号记录详情，包括信号 ID、状态、创建时间等信息。支持通过查询参数进一步筛选或排序结果。
+ *
+ * @param request ListSignalsRequest
+ * @return ListSignalsResponse
+ */
+async function listSignals(JobId: string, request: ListSignalsRequest): ListSignalsResponse {
+  var runtime = new $RuntimeOptions{};
+  var headers : map[string]string = {};
+  return listSignalsWithOptions(JobId, request, headers, runtime);
 }
 
 model ListTensorboardsRequest {
