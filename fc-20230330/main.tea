@@ -272,16 +272,25 @@ model CreateLayerVersionInput {
 }
 
 model CreateSessionInput {
-  disableSessionIdReuse?: boolean(name='disableSessionIdReuse', description='Specifies whether to disable session ID reuse. Default value: False, which indicates that after a session with a specific SessionID expires, you can send requests with the same SessionID, and the system treats it as a new session bound to a new instance. If this parameter is set to True, the SessionID cannot be reused after the session expires.', example='false'),
+  allowInternetAccess?: boolean(name='allowInternetAccess'),
+  disableSessionIdReuse?: boolean(name='disableSessionIdReuse', description='Default value: False. This indicates that after a session with a specific SessionID expires, you can send requests with the same SessionID. The system treats it as a new session and binds it to a new instance. If set to True, the SessionID cannot be reused after the session expires.', example='false'),
   enableAutoPause?: boolean(name='enableAutoPause'),
   enableAutoResume?: boolean(name='enableAutoResume'),
   juiceFsConfig?: JuiceFsConfig(name='juiceFsConfig'),
   nasConfig?: NASConfig(name='nasConfig', description='The NAS configuration. After this parameter is configured, instances associated with the session can access the specified NAS resources.'),
-  ossMountConfig?: OSSMountConfig(name='ossMountConfig', description='The OSS configuration. After this parameter is configured, instances associated with the session can access the specified OSS resources.'),
+  network?: CreateSessionNetworkConfig(name='network'),
+  ossMountConfig?: OSSMountConfig(name='ossMountConfig', description='The OSS mount configuration. After this parameter is configured, instances associated with the session can access the specified OSS resources.'),
   polarFsConfig?: PolarFsConfig(name='polarFsConfig', description='The PolarFs configuration. After this parameter is configured, instances associated with the session can access the specified PolarFs resources.'),
-  sessionId?: string(name='sessionId', description='The custom session ID. If this parameter is not specified, the server generates a session ID. If specified, the value is used as the session ID. This parameter applies only to the HEADER_FIELD affinity mode. Format: the length is limited to [0,64]. The first character must be from **a-zA-Z0-9_**, and subsequent characters can be from **a-zA-Z0-9_-**.', example='custom-test-session-id'),
-  sessionIdleTimeoutInSeconds?: long(name='sessionIdleTimeoutInSeconds', description='The session idle timeout period.', example='1800'),
+  sessionId?: string(name='sessionId', description='The custom session ID. If not specified, the server generates one. If specified, this value is used as the session ID. This parameter applies only to the HEADER_FIELD affinity mode. Format: the length is limited to [0,64]. The first character must be from **a-zA-Z0-9_**. Subsequent characters can be from **a-zA-Z0-9_-**.', example='custom-test-session-id'),
+  sessionIdleTimeoutInSeconds?: long(name='sessionIdleTimeoutInSeconds', description='The session idle timeout.', example='1800'),
   sessionTTLInSeconds?: long(name='sessionTTLInSeconds', description='The session lifetime.', example='21600'),
+}
+
+model CreateSessionNetworkConfig {
+  allowOut?: [ string ](name='allowOut'),
+  allowPublicTraffic?: boolean(name='allowPublicTraffic'),
+  denyOut?: [ string ](name='denyOut'),
+  maskRequestHost?: string(name='maskRequestHost'),
 }
 
 model CreateTimedResidentResourcePoolApplicationInput {
@@ -345,7 +354,7 @@ This parameter is required.', example='vpc-8vb8x8dggvr0a****'),
 
 model CustomContainerConfig {
   accelerationInfo?: AccelerationInfo(name='accelerationInfo', description='The information about image acceleration.'),
-  accelerationType?: string(name='accelerationType', description='Specifies whether to enable image acceleration. Valid values: Default: enables image acceleration. None: disables image acceleration.', example='default'),
+  accelerationType?: string(name='accelerationType', description='Specifies whether to enable image acceleration. Valid values: Default: enables image acceleration. None: disables image acceleration.', example='Default'),
   acrInstanceId?: string(name='acrInstanceId', description='The ID of the image repository for the Container Registry Enterprise Edition. You must specify this parameter if you use an image of Container Registry Enterprise Edition.', example='cri-xxxxxxxxxx'),
   command?: [ string ](name='command', description='The startup parameter of the container.'),
   entrypoint?: [ string ](name='entrypoint', description='The container startup command.'),
@@ -601,7 +610,7 @@ model FunctionRestriction {
 
 model GPUConfig {
   gpuMemorySize?: int32(name='gpuMemorySize', description='The GPU memory size. Unit: MB. The value is a multiple of 1024 MB.', example='2048'),
-  gpuType?: string(name='gpuType', description='The type of GPU cards. Valid values: fc.gpu.tesla.1: Tesla T4 fc.gpu.ampere.1: Ampere A10', example='fc.gpu.ampere.1'),
+  gpuType?: string(name='gpuType', description='The type of GPU cards. Valid values: fc.gpu.tesla.1: Tesla T4 fc.gpu.ampere.1: Ampere A10', example='fc.gpu.tesla.1'),
 }
 
 model GetInstanceLifecycleEventsOutput {
@@ -721,7 +730,7 @@ This parameter is required.', example='MyLayer'),
 }
 
 model LifecycleHook {
-  command?: [ string ](name='command', description='函数生命周期初始化阶段回调指令，生命周期回调方法的执行入口 handler 和 command 不允许同时配置，只能有一个生效，同时配置会产生错误提示'),
+  command?: [ string ](name='command'),
   handler?: string(name='handler', description='The handler of the hook. The definition is similar to that of a request handler.', example='index.initializer'),
   timeout?: int32(name='timeout', description='The timeout period of the hook. Unit: seconds.', example='10'),
 }
@@ -878,14 +887,14 @@ model LogConfig {
 }
 
 model MCPSSESessionAffinityConfig {
-  sessionConcurrencyPerInstance?: long(name='sessionConcurrencyPerInstance'),
-  sseEndpointPath?: string(name='sseEndpointPath'),
+  sessionConcurrencyPerInstance?: long(name='sessionConcurrencyPerInstance', example='20'),
+  sseEndpointPath?: string(name='sseEndpointPath', example='/sse'),
 }
 
 model MCPStreamableSessionAffinityConfig {
-  sessionConcurrencyPerInstance?: long(name='sessionConcurrencyPerInstance'),
-  sessionIdleTimeoutInSeconds?: long(name='sessionIdleTimeoutInSeconds'),
-  sessionTTLInSeconds?: long(name='sessionTTLInSeconds'),
+  sessionConcurrencyPerInstance?: long(name='sessionConcurrencyPerInstance', description='The maximum number of sessions for simultaneous processing by a single instance. Valid values: 1 to 200.', example='20'),
+  sessionIdleTimeoutInSeconds?: long(name='sessionIdleTimeoutInSeconds', description='The maximum idle time in seconds before a session enters an idle state due to user inactivity. The maximum duration is the upper limit of a single session lifecycle. Valid values: 0 to 21600.', example='1800'),
+  sessionTTLInSeconds?: long(name='sessionTTLInSeconds', description='The time-to-live of a session in seconds, covering the entire process from creation and usage to final destruction. If the time-to-live is exceeded, Function Compute automatically destroys the session and no longer guarantees affinity. Valid values: 1 to 21600.', example='21600'),
 }
 
 model MNSTopicTriggerConfig {
@@ -987,24 +996,18 @@ Assume that after the number of provisioned instances is set to 1, a scheduled a
 *   During the time period when the scheduled policy **takes effect**, the value of the target parameter is 5, while the value of the defaultTarget parameter is 1.
 
 *   When the scheduled policy **is ineffective**, both the target value and defaultTarget value are 1.', example='true'),
-  alwaysAllocateGPU?: boolean(name='alwaysAllocateGPU', description='是否始终分配GPU给函数实例。', example='true'),
+  alwaysAllocateGPU?: boolean(name='alwaysAllocateGPU', example='true'),
   current?: long(name='current', description='public', example='1'),
   currentError?: string(name='currentError', description='public', example='image not found'),
   defaultTarget?: long(name='defaultTarget', description='public', example='5'),
-  functionArn?: string(name='functionArn', description='函数的资源描述', example='acs:fc:cn-shanghai:124:functions/myFunction/prod'),
+  functionArn?: string(name='functionArn', example='acs:fc:cn-shanghai:124:functions/myFunction/prod'),
   scheduledActions?: [
     ScheduledAction
   ](name='scheduledActions', description='public'),
-  target?: long(name='target', description='当前目标资源个数，如果存在指标追踪伸缩策略或定时策略，为策略计算的资源个数，否则为默认预留实例数。
-
-
-> 与 defaultTarget 有什么区别？\\\\
-> 假设配置预留实例数为1后，新增了定时伸缩策略，设置某个时间段内的预留实例数为5。
-> - 在定时伸缩策略**生效期间**，target 与 defaultTarget 分别为 5 和 1。
->-  在定时伸缩策略**失效期间**，target 与 defaultTarget 都为 1。', example='5'),
+  target?: long(name='target', example='5'),
   targetTrackingPolicies?: [
     TargetTrackingPolicy
-  ](name='targetTrackingPolicies', description='指标追踪伸缩策略配置。'),
+  ](name='targetTrackingPolicies'),
 }
 
 model PublishVersionInput {
@@ -1036,19 +1039,16 @@ model PutElasticConfigInput {
 }
 
 model PutProvisionConfigInput {
-  alwaysAllocateCPU?: boolean(name='alwaysAllocateCPU', description='是否始终分配CPU，默认为true。', example='true'),
-  alwaysAllocateGPU?: boolean(name='alwaysAllocateGPU', description='是否始终分配GPU，默认为true。', example='true'),
+  alwaysAllocateCPU?: boolean(name='alwaysAllocateCPU', example='true'),
+  alwaysAllocateGPU?: boolean(name='alwaysAllocateGPU', example='true'),
   defaultTarget?: long(name='defaultTarget', description='The number of target provisioned instances. Valid values: [0,10000].', example='5', nullable=true),
   scheduledActions?: [
     ScheduledAction
   ](name='scheduledActions', description='public'),
-  target?: long(name='target', description='>Notice: 建议不再使用该参数，请使用 defaultTarget 参数。 </notice>
-预留的目标资源个数。取值范围为[0,10000]。
-
-This parameter is required.', example='1', deprecated=true, nullable=true),
+  target?: long(name='target', description='This parameter is required.', example='1', deprecated=true, nullable=true),
   targetTrackingPolicies?: [
     TargetTrackingPolicy
-  ](name='targetTrackingPolicies', description='指标追踪伸缩策略配置。'),
+  ](name='targetTrackingPolicies'),
 }
 
 model PutScalingConfigInput {
@@ -1273,25 +1273,32 @@ model ScheduledPolicy {
 }
 
 model Session {
-  containerId?: string(name='containerId', description='The instance ID of the function instance associated with the session.', example='c-68999e02-16a1955c-d2a03d1ccs'),
+  allowInternetAccess?: boolean(name='allowInternetAccess'),
+  containerId?: string(name='containerId', description='The instance ID of the function associated with the session.', example='c-68999e02-16a1955c-d2a03d1ccs'),
   createdTime?: string(name='createdTime', description='The time when the session was created.', example='2025-04-01T08:15:27Z'),
-  disableSessionIdReuse?: boolean(name='disableSessionIdReuse', description='Specifies whether to disable session ID reuse. Default value: False, which indicates that after the session expires, you can use the same session ID to initiate requests. The system treats the request as a new session and binds it to a new instance. If you set this parameter to True, the session ID cannot be reused after the session expires.', example='false'),
+  disableSessionIdReuse?: boolean(name='disableSessionIdReuse', description='Specifies whether to disable session ID reuse after the session expires. Valid values:
+- False: After the session expires, you can use the same session ID to initiate requests. The system treats it as a new session and binds it to a new instance.
+- True: After the session expires, the session ID cannot be reused.
+
+Default value: False.', example='false'),
   enableAutoPause?: boolean(name='enableAutoPause'),
   enableAutoResume?: boolean(name='enableAutoResume'),
   functionName?: string(name='functionName', description='The name of the function to which the session belongs.', example='functionName1'),
   juiceFsConfig?: JuiceFsConfig(name='juiceFsConfig'),
   lastModifiedTime?: string(name='lastModifiedTime', description='The time when the session was last updated.', example='2025-04-01T18:15:27Z'),
   nasConfig?: NASConfig(name='nasConfig', description='The NAS configuration. After configuration, the instance associated with the session can access the specified NAS resource.'),
+  network?: CreateSessionNetworkConfig(name='network'),
   ossMountConfig?: OSSMountConfig(name='ossMountConfig'),
   polarFsConfig?: PolarFsConfig(name='polarFsConfig'),
-  qualifier?: string(name='qualifier', description='The qualifier passed in when the customer created the session. If not specified, the default value is LATEST.', example='AliasName1'),
+  qualifier?: string(name='qualifier', description='The qualifier passed when the customer created the session. If not specified, the default value is LATEST.', example='AliasName1'),
   sessionAffinityType?: string(name='sessionAffinityType', description='The session affinity type.', example='HEADER_FIELD'),
   sessionId?: string(name='sessionId', description='The unique identifier of the function session.', example='81f70ae156904eb9b7d43e12f511fe58'),
-  sessionIdleTimeoutInSeconds?: long(name='sessionIdleTimeoutInSeconds', description='The idle timeout period of the session.', example='1800'),
+  sessionIdleTimeoutInSeconds?: long(name='sessionIdleTimeoutInSeconds', description='The session idle timeout.', example='1800'),
   sessionStatus?: string(name='sessionStatus', description='The session status. Valid values:
 - Active: The session is valid.
 - Expired: The session has expired.', example='Active'),
-  sessionTTLInSeconds?: long(name='sessionTTLInSeconds', description='The maximum lifetime of the session.', example='21600'),
+  sessionTTLInSeconds?: long(name='sessionTTLInSeconds', description='The maximum session lifetime.', example='21600'),
+  trafficAccessToken?: string(name='trafficAccessToken'),
 }
 
 model SourceConfig {
@@ -1368,7 +1375,7 @@ This parameter is required.'),
   maxVersion?: string(name='maxVersion', description='The maximum TLS version. Valid values: TLSv1.3 and TLSv1.2.', example='TLSv1.3'),
   minVersion?: string(name='minVersion', description='The minimum TLS version. Valid values: TLSv1.3 and TLSv1.2.
 
-This parameter is required.', example='TLSv1.0'),
+This parameter is required.', example='TLSv1.2'),
 }
 
 model Tag {
@@ -1545,18 +1552,22 @@ model UpdateResidentResourcePoolInput {
 }
 
 model UpdateSessionInput {
-  disableSessionIdReuse?: boolean(name='disableSessionIdReuse', description='Specifies whether to disable session ID reuse after the session expires. Valid values:
-- False: After the session associated with a SessionID expires, you can use the same SessionID to initiate requests. The system treats this as a new session and binds it to a new instance.
-- True: After the session associated with a SessionID expires, the SessionID cannot be reused.
-Default value: False.', example='false'),
+  allowInternetAccess?: boolean(name='allowInternetAccess'),
+  disableSessionIdReuse?: boolean(name='disableSessionIdReuse', description='Specifies whether to disable session ID reuse after the session expires. Default value: False, which indicates that after a session expires, you can use the same session ID to initiate requests. The system treats the request as a new session and binds it to a new instance. If you set this parameter to True, the session ID cannot be reused after the session expires.', example='false'),
   enableAutoPause?: boolean(name='enableAutoPause'),
   enableAutoResume?: boolean(name='enableAutoResume'),
   juiceFsConfig?: JuiceFsConfig(name='juiceFsConfig'),
   nasConfig?: NASConfig(name='nasConfig'),
+  network?: UpdateSessionNetworkConfig(name='network'),
   ossMountConfig?: OSSMountConfig(name='ossMountConfig'),
   polarFsConfig?: PolarFsConfig(name='polarFsConfig'),
-  sessionIdleTimeoutInSeconds?: long(name='sessionIdleTimeoutInSeconds', description='The session idle timeout period.', example='1800'),
+  sessionIdleTimeoutInSeconds?: long(name='sessionIdleTimeoutInSeconds', description='The session idle timeout.', example='1800'),
   sessionTTLInSeconds?: long(name='sessionTTLInSeconds', description='The session lifetime.', example='21600'),
+}
+
+model UpdateSessionNetworkConfig {
+  allowOut?: [ string ](name='allowOut'),
+  denyOut?: [ string ](name='denyOut'),
 }
 
 model UpdateTriggerInput {
@@ -4666,7 +4677,7 @@ async function listVpcBindings(functionName: string): ListVpcBindingsResponse {
 }
 
 model PauseSessionRequest {
-  qualifier?: string(name='qualifier', description='The function alias or version associated with the session ID to save.', example='aliasName1'),
+  qualifier?: string(name='qualifier', description='The alias or version of the function associated with the session to save.', example='aliasName1'),
 }
 
 model PauseSessionResponse = {
@@ -4678,7 +4689,7 @@ model PauseSessionResponse = {
 /**
  * @summary Pauses and saves a session.
  *
- * @description Pauses an active session by persisting the state of its associated runtime environment and then releasing compute resources. After the call, the session status changes to Paused, and the session no longer accepts function invocation requests. This operation retains the session configuration (such as SessionTTL) and SessionID. You can use this operation to interrupt long-running tasks or save snapshots of development environments for cost optimization and state management. This operation applies to custom image functions that are configured with the HEADER_FIELD or GENERATED_COOKIE affinity type and session isolation.
+ * @description Pauses an active session by persisting the state of its associated runtime environment and then releasing compute resources. After the call, the session status changes to Paused, and the session no longer accepts function invocation requests. This operation retains the session configuration (such as SessionTTL) and SessionID. You can use this operation to interrupt long-running tasks or save snapshots of development environments for cost optimization and state management. This operation applies to custom image functions configured with the HEADER_FIELD or GENERATED_COOKIE affinity type and session isolation.
  *
  * @param request PauseSessionRequest
  * @param headers map
@@ -4713,7 +4724,7 @@ async function pauseSessionWithOptions(functionName: string, sessionId: string, 
 /**
  * @summary Pauses and saves a session.
  *
- * @description Pauses an active session by persisting the state of its associated runtime environment and then releasing compute resources. After the call, the session status changes to Paused, and the session no longer accepts function invocation requests. This operation retains the session configuration (such as SessionTTL) and SessionID. You can use this operation to interrupt long-running tasks or save snapshots of development environments for cost optimization and state management. This operation applies to custom image functions that are configured with the HEADER_FIELD or GENERATED_COOKIE affinity type and session isolation.
+ * @description Pauses an active session by persisting the state of its associated runtime environment and then releasing compute resources. After the call, the session status changes to Paused, and the session no longer accepts function invocation requests. This operation retains the session configuration (such as SessionTTL) and SessionID. You can use this operation to interrupt long-running tasks or save snapshots of development environments for cost optimization and state management. This operation applies to custom image functions configured with the HEADER_FIELD or GENERATED_COOKIE affinity type and session isolation.
  *
  * @param request PauseSessionRequest
  * @return PauseSessionResponse
