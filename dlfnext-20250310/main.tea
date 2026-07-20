@@ -135,6 +135,11 @@ model CatalogSummaryTrend {
   ](name='totalMetaCount', description='The trend of total metadata object count.'),
 }
 
+model ColumnMask {
+  expression?: string(name='expression'),
+  transform?: string(name='transform'),
+}
+
 model DataField {
   description?: string(name='description', description='The column description.', example='description'),
   id?: int32(name='id', description='The column ID.', example='1'),
@@ -143,16 +148,17 @@ model DataField {
 }
 
 model Database {
-  createdAt?: long(name='createdAt', description='The database creation time.', example='1744970111419'),
-  createdBy?: string(name='createdBy', description='The database creator.', example='acs:ram::[accountId]:root'),
-  id?: string(name='id', description='The database UUID.', example='1'),
-  location?: string(name='location', description='The database URI.', example='oss://clg-paimon-xxx/db-xxx'),
-  name?: string(name='name', description='The database name.', example='test_database'),
+  createdAt?: long(name='createdAt', description='The creation time.', example='1744970111419'),
+  createdBy?: string(name='createdBy', description='The creator.', example='acs:ram::[accountId]:root'),
+  id?: string(name='id', description='The UUID of the database.', example='1'),
+  location?: string(name='location', description='The storage path of the database.', example='oss://clg-paimon-xxx/db-xxx'),
+  name?: string(name='name', description='The name of the database.', example='test_database'),
   options?: map[string]string(name='options', description='The extension options.'),
-  owner?: string(name='owner', description='The owner.', example='acs:ram::[accountId]:root'),
-  tableCount?: long(name='tableCount', description='The number of tables in the database.'),
-  updatedAt?: long(name='updatedAt', description='The time when the database was last updated.', example='1744970111419'),
-  updatedBy?: string(name='updatedBy', description='The user who last updated the database.', example='acs:ram::[accountId]:root'),
+  owner?: string(name='owner', description='The owner of the database.', example='acs:ram::[accountId]:root'),
+  status?: string(name='status'),
+  tableCount?: long(name='tableCount'),
+  updatedAt?: long(name='updatedAt', description='The update time.', example='1744970111419'),
+  updatedBy?: string(name='updatedBy', description='The updater.', example='acs:ram::[accountId]:root'),
 }
 
 model DatabaseSummary {
@@ -399,17 +405,18 @@ model PartitionSummary {
 
 model Permission {
   access?: string(name='access', description='The access type.', example='DROP'),
+  columnMasking?: map[string]ColumnMask(name='columnMasking'),
   columns?: {
     columnNames?: [ string ](name='columnNames'),
     excludedColumnNames?: [ string ](name='excludedColumnNames'),
   }(name='columns'),
-  database?: string(name='database', description='The name of the database.', example='database_name'),
+  database?: string(name='database', description='The database name.', example='database_name'),
   expireTime?: string(name='expireTime'),
   function?: string(name='function'),
   principal?: string(name='principal', description='The user resource descriptor.', example='acs:ram::[accountId]:user/user_name'),
-  resourceType?: string(name='resourceType', description='The resource type of the permission.', example='CATALOG'),
+  resourceType?: string(name='resourceType', description='The permission resource type.', example='CATALOG'),
   rowFilter?: RowFilter(name='rowFilter'),
-  table?: string(name='table', description='The name of the data table.', example='table_name'),
+  table?: string(name='table', description='The table name.', example='table_name'),
   view?: string(name='view'),
 }
 
@@ -545,36 +552,37 @@ model Snapshot {
 }
 
 model StatementResult {
-  downloadUrl?: string(name='downloadUrl', description='A temporary URL to download the result set, provided only when the result set is too large to return directly.'),
-  error?: string(name='error', description='The error message, present only if the execution fails.'),
-  errorCode?: string(name='errorCode', description='The error code, present only if the execution fails.'),
-  executionTime?: long(name='executionTime', description='The statement\\\\"s total execution time, in milliseconds.'),
-  index?: int32(name='index', description='The zero-based index of the SQL statement in a batch execution.'),
-  rowCount?: int32(name='rowCount', description='The number of rows affected or returned by the statement.'),
+  downloadUrl?: string(name='downloadUrl', description='The presigned URL of the Arrow IPC file. This parameter is returned when a result set exists. The URL is valid for 1 hour and contains full data. The value is null for an empty result set (rowCount == 0).', example='https://xxx.oss-cn-hangzhou.aliyuncs.com/xxxx'),
+  error?: string(name='error', description='The error message. This parameter is returned only when the status is FAILED.', example='SQL_ERROR'),
+  errorCode?: string(name='errorCode', description='The error code. This parameter is returned only when the status is FAILED.', example='This feature is not implemented: xxx'),
+  executionTime?: long(name='executionTime', description='The execution duration of the statement, in milliseconds.', example='100'),
+  index?: int32(name='index', description='The statement sequence number (0-based).', example='0'),
+  rowCount?: int32(name='rowCount', description='The total number of rows in the result. The value is 0 for statements that do not return a result set.', example='1000'),
   schema?: [ 
     {
-      name?: string(name='name', description='The name of the column.'),
-      type?: string(name='type', description='The data type of the column.'),
+      name?: string(name='name', description='The column name.', example='name'),
+      type?: string(name='type', description='The data type.', example='string'),
     }
-  ](name='schema', description='An array of objects describing the result set\\\\"s schema. Each object defines a column.'),
-  sql?: string(name='sql', description='The original SQL statement.'),
-  status?: string(name='status', description='The statement\\\\"s execution status. Possible values are `RUNNING`, `FINISHED`, `CANCELED`, or `FAILED`.'),
+  ](name='schema', description='The result column information. This parameter is returned when a result set exists.'),
+  sql?: string(name='sql', description='The SQL text of the statement.', example='select * from table_name;'),
+  status?: string(name='status', description='The status of the statement. Valid values: COMPLETED and FAILED.', example='COMPLETED'),
 }
 
 model Table {
   createdAt?: long(name='createdAt', description='The time when the table was created.', example='1741266704867'),
-  createdBy?: string(name='createdBy', description='The user who created the table.', example='acs:ram::[accountId]:root'),
+  createdBy?: string(name='createdBy', description='The creator of the table.', example='acs:ram::[accountId]:root'),
   icebergTableMetadata?: IcebergTableMetadata(name='icebergTableMetadata'),
   id?: string(name='id', description='The UUID of the table.', example='1'),
   isExternal?: boolean(name='isExternal', description='Indicates whether the table is an external table.', example='true'),
   name?: string(name='name', description='The name of the table.', example='table_test'),
   owner?: string(name='owner', description='The owner of the table.', example='acs:ram::[accountId]:root'),
-  path?: string(name='path', description='The table URI.', example='oss://clg-paimon-xxx/db-xxx/tbl-xxxx'),
-  schema?: Schema(name='schema', description='The table schema.'),
-  schemaId?: long(name='schemaId', description='The ID of the schema.', example='1'),
-  storageAction?: string(name='storageAction', description='The storage action.'),
-  storageActionTimestamp?: long(name='storageActionTimestamp', description='The timestamp of the storage action.'),
-  storageClass?: string(name='storageClass', description='The storage class of the table.'),
+  path?: string(name='path', description='The path of the table.', example='oss://clg-paimon-xxx/db-xxx/tbl-xxxx'),
+  schema?: Schema(name='schema', description='The table schema information.'),
+  schemaId?: long(name='schemaId', description='The ID of the table schema.', example='1'),
+  status?: string(name='status'),
+  storageAction?: string(name='storageAction'),
+  storageActionTimestamp?: long(name='storageActionTimestamp'),
+  storageClass?: string(name='storageClass'),
   type?: string(name='type'),
   updatedAt?: long(name='updatedAt', description='The time when the table was last updated.', example='1741266704867'),
   updatedBy?: string(name='updatedBy', description='The user who last updated the table.', example='acs:ram::[accountId]:root'),
@@ -1188,15 +1196,17 @@ async function alterTableSchema(catalogId: string, database: string, table: stri
 model BatchGrantPermissionsRequest {
   permissions?: [
     Permission
-  ](name='permissions', description='The permissions to grant.'),
+  ](name='permissions', description='The list of permissions.'),
 }
 
 model BatchGrantPermissionsResponseBody = {
-  errorMessage?: string(name='errorMessage', description='The error message returned if the request fails. If the request is successful, this parameter is empty.', example='空'),
+  errorMessage?: string(name='errorMessage', description='The error message. This parameter is not empty when success is false, indicating a business error. This parameter is empty when success is true.', example='空'),
   failurePermissions?: [
     FailurePermission
-  ](name='failurePermissions', description='The permissions failed to be granted.'),
-  success?: boolean(name='success', description='Indicates whether the API call was successful.', example='True'),
+  ](name='failurePermissions', description='The list of permissions that failed to be granted.'),
+  success?: boolean(name='success', description='Indicates whether the API call was successful. Valid values:
+- true: The API call was successful.
+- false: The API call failed.', example='True'),
 }
 
 model BatchGrantPermissionsResponse = {
@@ -1206,7 +1216,7 @@ model BatchGrantPermissionsResponse = {
 }
 
 /**
- * @summary Grants permissions to one or more DLF users or roles.
+ * @summary Grants permissions in batches.
  *
  * @param request BatchGrantPermissionsRequest
  * @param headers map
@@ -1239,7 +1249,7 @@ async function batchGrantPermissionsWithOptions(catalogId: string, request: Batc
 }
 
 /**
- * @summary Grants permissions to one or more DLF users or roles.
+ * @summary Grants permissions in batches.
  *
  * @param request BatchGrantPermissionsRequest
  * @return BatchGrantPermissionsResponse
@@ -1253,17 +1263,20 @@ async function batchGrantPermissions(catalogId: string, request: BatchGrantPermi
 model BatchRevokePermissionsRequest {
   permissions?: [
     Permission
-  ](name='permissions', description='The permissions to revoke.'),
+  ](name='permissions', description='The list of permissions to be revoked.'),
 }
 
 model BatchRevokePermissionsResponseBody = {
-  errorMessage?: string(name='errorMessage', description='- A business error message is returned if \\\\`success\\\\` is \\\\`false\\\\`.
+  errorMessage?: string(name='errorMessage', description='- If success is false, a business error message is returned.
 
-- This parameter is empty if \\\\`success\\\\` is \\\\`true\\\\`.', example='空'),
+- If success is true, an empty value is returned.', example='空'),
   failurePermissions?: [
     FailurePermission
-  ](name='failurePermissions', description='The permissions failed to be revoked.'),
-  success?: boolean(name='success', description='Indicates whether the call succeeded.', example='true'),
+  ](name='failurePermissions', description='The results of permissions that failed to be revoked in batches.'),
+  success?: boolean(name='success', description='Indicates whether the API call is successful. Valid values:
+
+- true: The API call is successful.
+- false: The API call failed.', example='true'),
 }
 
 model BatchRevokePermissionsResponse = {
@@ -1273,7 +1286,7 @@ model BatchRevokePermissionsResponse = {
 }
 
 /**
- * @summary Revokes permissions in a batch.
+ * @summary Revokes permissions in batches.
  *
  * @param request BatchRevokePermissionsRequest
  * @param headers map
@@ -1306,7 +1319,7 @@ async function batchRevokePermissionsWithOptions(catalogId: string, request: Bat
 }
 
 /**
- * @summary Revokes permissions in a batch.
+ * @summary Revokes permissions in batches.
  *
  * @param request BatchRevokePermissionsRequest
  * @return BatchRevokePermissionsResponse
@@ -2087,6 +2100,61 @@ async function getCatalogById(id: string): GetCatalogByIdResponse {
   return getCatalogByIdWithOptions(id, headers, runtime);
 }
 
+model GetCatalogKmsGrantsRequest {
+}
+
+model GetCatalogKmsGrantsResponseBody = {
+  dataAccessRoleArn?: string(name='dataAccessRoleArn'),
+  keyPolicyStatement?: string(name='keyPolicyStatement'),
+  region?: string(name='region'),
+  workflowRoleArn?: string(name='workflowRoleArn'),
+}
+
+model GetCatalogKmsGrantsResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: GetCatalogKmsGrantsResponseBody(name='body'),
+}
+
+/**
+ * @summary Retrieves the DLF authorization information required to configure BYOK SSE-KMS for a catalog, including the data-access role ARN and the KMS Key Policy snippet.
+ *
+ * @param request GetCatalogKmsGrantsRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return GetCatalogKmsGrantsResponse
+ */
+async function getCatalogKmsGrantsWithOptions(catalog: string, request: GetCatalogKmsGrantsRequest, headers: map[string]string, runtime: Util.RuntimeOptions): GetCatalogKmsGrantsResponse {
+  Util.validateModel(request);
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+  };
+  var params = new OpenApi.Params{
+    action = 'GetCatalogKmsGrants',
+    version = '2025-03-10',
+    protocol = 'HTTPS',
+    pathname = `/dlf/v1/catalogs/${OpenApiUtil.getEncodeParam(catalog)}/kms/grants`,
+    method = 'GET',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Retrieves the DLF authorization information required to configure BYOK SSE-KMS for a catalog, including the data-access role ARN and the KMS Key Policy snippet.
+ *
+ * @param request GetCatalogKmsGrantsRequest
+ * @return GetCatalogKmsGrantsResponse
+ */
+async function getCatalogKmsGrants(catalog: string, request: GetCatalogKmsGrantsRequest): GetCatalogKmsGrantsResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return getCatalogKmsGrantsWithOptions(catalog, request, headers, runtime);
+}
+
 model GetCatalogSummaryRequest {
   date?: string(name='date', description='The date of the storage overview.', example='2025-09-18'),
 }
@@ -2259,7 +2327,7 @@ model GetDatabaseResponse = {
 }
 
 /**
- * @summary Retrieves the details of a database.
+ * @summary Retrieves the details of a specific database in a data lake.
  *
  * @param headers map
  * @param runtime runtime options for this request RuntimeOptions
@@ -2284,7 +2352,7 @@ async function getDatabaseWithOptions(catalogId: string, database: string, heade
 }
 
 /**
- * @summary Retrieves the details of a database.
+ * @summary Retrieves the details of a specific database in a data lake.
  *
  * @return GetDatabaseResponse
  */
@@ -2431,6 +2499,66 @@ async function getIcebergTable(catalogId: string, namespace: string, table: stri
   var runtime = new Util.RuntimeOptions{};
   var headers : map[string]string = {};
   return getIcebergTableWithOptions(catalogId, namespace, table, headers, runtime);
+}
+
+model GetQueryRequest {
+}
+
+model GetQueryResponseBody = {
+  completedAt?: long(name='completedAt', description='The completion time of the task.', example='1744970111419'),
+  createdAt?: long(name='createdAt', description='The creation time of the task.', example='1744970111419'),
+  queryId?: string(name='queryId', description='The query ID, used for subsequent polling of results.', example='d7b21d1ec4f441e79d5ba917c3283200'),
+  results?: [
+    StatementResult
+  ](name='results', description='The result list.'),
+  sql?: string(name='sql', description='The SQL text. Multiple statements separated by semicolons are supported and executed sequentially within the same session.', example='select * from table_name;'),
+  status?: string(name='status', description='The task running status.', example='COMPLETED'),
+  tier?: string(name='tier', description='The execution specifications. Default value: standard.', example='standard'),
+}
+
+model GetQueryResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: GetQueryResponseBody(name='body'),
+}
+
+/**
+ * @summary Retrieves a query.
+ *
+ * @param request GetQueryRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return GetQueryResponse
+ */
+async function getQueryWithOptions(queryId: string, request: GetQueryRequest, headers: map[string]string, runtime: Util.RuntimeOptions): GetQueryResponse {
+  Util.validateModel(request);
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+  };
+  var params = new OpenApi.Params{
+    action = 'GetQuery',
+    version = '2025-03-10',
+    protocol = 'HTTPS',
+    pathname = `/dlf/v1/query/${OpenApiUtil.getEncodeParam(queryId)}`,
+    method = 'GET',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Retrieves a query.
+ *
+ * @param request GetQueryRequest
+ * @return GetQueryResponse
+ */
+async function getQuery(queryId: string, request: GetQueryRequest): GetQueryResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return getQueryWithOptions(queryId, request, headers, runtime);
 }
 
 model GetReceiverResponse = {
@@ -3099,18 +3227,21 @@ async function listCatalogs(request: ListCatalogsRequest): ListCatalogsResponse 
 }
 
 model ListDatabaseDetailsRequest {
-  databaseNamePattern?: string(name='databaseNamePattern', description='The database name pattern for fuzzy matching. Supports the percent sign (%).', example='database%'),
-  maxResults?: int32(name='maxResults', description='The number of entries to return on each page.
+  databaseNamePattern?: string(name='databaseNamePattern', description='The SQL-style right fuzzy match pattern for database names. The percent sign (%) wildcard is supported.', example='database%'),
+  maxResults?: int32(name='maxResults', description='The page size.
+
 Default value: 1000.
+
 Maximum value: 1000.', example='1000'),
-  pageToken?: string(name='pageToken', description='The token to retrieve the next page of results. If the response does not include this token, pass an empty string ("").', example='""'),
+  pageToken?: string(name='pageToken', description='The pagination token used to retrieve the next page of results. If the response does not include this token, pass an empty string ("") or an empty character (\\\\"\\\\").', example='""'),
+  status?: string(name='status'),
 }
 
 model ListDatabaseDetailsResponseBody = {
   databaseDetails?: [
     Database
-  ](name='databaseDetails', description='The databases.'),
-  nextPageToken?: string(name='nextPageToken', description='The token to retrieve the next page of results. A null value indicates that all results have been retrieved.', example='E8ABEB1C3DB893D16576269017992F57'),
+  ](name='databaseDetails', description='The list of databases.'),
+  nextPageToken?: string(name='nextPageToken', description='The pagination token used to retrieve the next page of results. A value of null indicates that the current page is the last page.', example='E8ABEB1C3DB893D16576269017992F57'),
 }
 
 model ListDatabaseDetailsResponse = {
@@ -3120,7 +3251,7 @@ model ListDatabaseDetailsResponse = {
 }
 
 /**
- * @summary Retrieves database details.
+ * @summary Lists databases in a data lake with paged query support.
  *
  * @param request ListDatabaseDetailsRequest
  * @param headers map
@@ -3138,6 +3269,9 @@ async function listDatabaseDetailsWithOptions(catalogId: string, request: ListDa
   }
   if (!Util.isUnset(request.pageToken)) {
     query['pageToken'] = request.pageToken;
+  }
+  if (!Util.isUnset(request.status)) {
+    query['status'] = request.status;
   }
 
   var req = new OpenApi.OpenApiRequest{ 
@@ -3159,7 +3293,7 @@ async function listDatabaseDetailsWithOptions(catalogId: string, request: ListDa
 }
 
 /**
- * @summary Retrieves database details.
+ * @summary Lists databases in a data lake with paged query support.
  *
  * @param request ListDatabaseDetailsRequest
  * @return ListDatabaseDetailsResponse
@@ -3648,13 +3782,13 @@ async function listPartitions(catalogId: string, database: string, table: string
 }
 
 model ListPartitionsByNamesRequest {
-  specs?: [ map[string]string ](name='specs', description='分区规格列表。'),
+  specs?: [ map[string]string ](name='specs', description='The list of partition specifications.'),
 }
 
 model ListPartitionsByNamesResponseBody = {
   partitions?: [
     Partition
-  ](name='partitions', description='分区。'),
+  ](name='partitions', description='The partitions.'),
 }
 
 model ListPartitionsByNamesResponse = {
@@ -3709,23 +3843,23 @@ async function listPartitionsByNames(catalogId: string, database: string, table:
 }
 
 model ListPermissionsRequest {
-  database?: string(name='database', description='The name of the database.', example='database_name'),
-  function?: string(name='function', description='The name of the function.', example='function_name'),
+  database?: string(name='database', description='The database name.', example='database_name'),
+  function?: string(name='function', description='The function name.', example='function_name'),
   maxResults?: int32(name='maxResults', description='The number of entries per page.', example='1000'),
-  pageToken?: string(name='pageToken', description='The token to retrieve the next page of results. If the response does not include this token, pass an empty string ("").', example='""'),
-  principal?: string(name='principal', description='The resource descriptor of the user.', example='acs:ram::[accountId]:user/user_name'),
-  resourceType?: string(name='resourceType', description='The resource type.
+  pageToken?: string(name='pageToken', description='The pagination token used to retrieve the next page of data. If the response does not include this token, pass an empty string ("") or an empty character (\\\\"\\\\").', example='""'),
+  principal?: string(name='principal', description='The user resource descriptor.', example='acs:ram::[accountId]:user/user_name'),
+  resourceType?: string(name='resourceType', description='The permission resource type.
 
 This parameter is required.', example='CATALOG'),
-  table?: string(name='table', description='The name of the table.', example='table_name'),
-  view?: string(name='view', description='The name of the view.', example='view_name'),
+  table?: string(name='table', description='The data table name.', example='table_name'),
+  view?: string(name='view', description='The view name.', example='view_name'),
 }
 
 model ListPermissionsResponseBody = {
-  nextPageToken?: string(name='nextPageToken', description='The token to retrieve the next page of results. If this parameter is null, all results have been returned.', example='E8ABEB1C3DB893D16576269017992F57'),
+  nextPageToken?: string(name='nextPageToken', description='The pagination token used to retrieve the next page of data. If null is returned, the current page is the last page of results.', example='E8ABEB1C3DB893D16576269017992F57'),
   permissions?: [
     Permission
-  ](name='permissions', description='The permissions.'),
+  ](name='permissions', description='The permission list.'),
 }
 
 model ListPermissionsResponse = {
@@ -3735,7 +3869,7 @@ model ListPermissionsResponse = {
 }
 
 /**
- * @summary Retrieves the permissions for a resource or principal.
+ * @summary Retrieves the permission information of a specified resource or a specified principal.
  *
  * @param request ListPermissionsRequest
  * @param headers map
@@ -3789,7 +3923,7 @@ async function listPermissionsWithOptions(catalogId: string, request: ListPermis
 }
 
 /**
- * @summary Retrieves the permissions for a resource or principal.
+ * @summary Retrieves the permission information of a specified resource or a specified principal.
  *
  * @param request ListPermissionsRequest
  * @return ListPermissionsResponse
@@ -4342,17 +4476,20 @@ async function listSnapshots(catalogId: string, database: string, table: string,
 }
 
 model ListTableDetailsRequest {
-  maxResults?: int32(name='maxResults', description='The maximum number of records to return in a single request.', example='1000'),
-  pageToken?: string(name='pageToken', description='The token to retrieve the next page of results. Pass the token that was returned by the previous request. For the first request, pass an empty string ("").', example='""'),
-  tableNamePattern?: string(name='tableNamePattern', description='The pattern used to filter table names.', example='table%'),
+  maxResults?: int32(name='maxResults', description='The maximum number of records to retrieve in a single request.', example='1000'),
+  pageToken?: string(name='pageToken', description='The pagination token used to retrieve the next page of data. If the response does not provide this value, pass an empty string ("") or an empty character (\\\\"\\\\").', example='""'),
+  status?: string(name='status', description='The deletion status of the table. Valid values:
+- retained: The table is deleted and temporarily stored in the recycle bin.
+- active: The table is in a normal state. This is the default value.', example='active'),
+  tableNamePattern?: string(name='tableNamePattern', description='The fuzzy match pattern for the table name.', example='table%'),
   type?: string(name='type', description='The type.', example='table'),
 }
 
 model ListTableDetailsResponseBody = {
-  nextPageToken?: string(name='nextPageToken', description='The token to retrieve the next page of results. A null value indicates that all results have been returned.', example='E8ABEB1C3DB893D16576269017992F57'),
+  nextPageToken?: string(name='nextPageToken', description='The pagination token used to retrieve the next page of data. If null is returned, the current page is the last page of results.', example='E8ABEB1C3DB893D16576269017992F57'),
   tableDetails?: [
     Table
-  ](name='tableDetails', description='A list of tables.'),
+  ](name='tableDetails', description='The list of tables.'),
 }
 
 model ListTableDetailsResponse = {
@@ -4362,7 +4499,7 @@ model ListTableDetailsResponse = {
 }
 
 /**
- * @summary Lists the details of one or more tables.
+ * @summary Queries the details of tables.
  *
  * @param request ListTableDetailsRequest
  * @param headers map
@@ -4377,6 +4514,9 @@ async function listTableDetailsWithOptions(catalogId: string, database: string, 
   }
   if (!Util.isUnset(request.pageToken)) {
     query['pageToken'] = request.pageToken;
+  }
+  if (!Util.isUnset(request.status)) {
+    query['status'] = request.status;
   }
   if (!Util.isUnset(request.tableNamePattern)) {
     query['tableNamePattern'] = request.tableNamePattern;
@@ -4404,7 +4544,7 @@ async function listTableDetailsWithOptions(catalogId: string, database: string, 
 }
 
 /**
- * @summary Lists the details of one or more tables.
+ * @summary Queries the details of tables.
  *
  * @param request ListTableDetailsRequest
  * @return ListTableDetailsResponse
@@ -4918,6 +5058,81 @@ async function rollbackTable(catalogId: string, database: string, table: string,
   return rollbackTableWithOptions(catalogId, database, table, request, headers, runtime);
 }
 
+model SubmitQueryRequest {
+  defaultCatalog?: string(name='defaultCatalog', description='The default catalog.', example='test_catalog'),
+  defaultDatabase?: string(name='defaultDatabase', description='The default database.', example='test_db'),
+  limit?: int32(name='limit', description='The limit on the number of returned results.', example='1000'),
+  sql?: string(name='sql', description='The SQL text. Multiple statements separated by semicolons are supported and executed sequentially within the same session.', example='select * from table_name;'),
+  tier?: string(name='tier', description='The execution specifications. Default value: standard.', example='standard'),
+}
+
+model SubmitQueryResponseBody = {
+  queryId?: string(name='queryId', description='The query ID, which is used for subsequent polling of results.', example='d7b21d1ec4f441e79d5ba917c3283200'),
+}
+
+model SubmitQueryResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: SubmitQueryResponseBody(name='body'),
+}
+
+/**
+ * @summary Submits a query.
+ *
+ * @param request SubmitQueryRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return SubmitQueryResponse
+ */
+async function submitQueryWithOptions(request: SubmitQueryRequest, headers: map[string]string, runtime: Util.RuntimeOptions): SubmitQueryResponse {
+  Util.validateModel(request);
+  var body : map[string]any = {};
+  if (!Util.isUnset(request.defaultCatalog)) {
+    body['defaultCatalog'] = request.defaultCatalog;
+  }
+  if (!Util.isUnset(request.defaultDatabase)) {
+    body['defaultDatabase'] = request.defaultDatabase;
+  }
+  if (!Util.isUnset(request.limit)) {
+    body['limit'] = request.limit;
+  }
+  if (!Util.isUnset(request.sql)) {
+    body['sql'] = request.sql;
+  }
+  if (!Util.isUnset(request.tier)) {
+    body['tier'] = request.tier;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApi.Params{
+    action = 'SubmitQuery',
+    version = '2025-03-10',
+    protocol = 'HTTPS',
+    pathname = `/dlf/v1/query`,
+    method = 'POST',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Submits a query.
+ *
+ * @param request SubmitQueryRequest
+ * @return SubmitQueryResponse
+ */
+async function submitQuery(request: SubmitQueryRequest): SubmitQueryResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return submitQueryWithOptions(request, headers, runtime);
+}
+
 model SubscribeResponse = {
   headers?: map[string]string(name='headers'),
   statusCode?: int32(name='statusCode'),
@@ -5077,5 +5292,68 @@ async function updateRoleUsers(request: UpdateRoleUsersRequest): UpdateRoleUsers
   var runtime = new Util.RuntimeOptions{};
   var headers : map[string]string = {};
   return updateRoleUsersWithOptions(request, headers, runtime);
+}
+
+model VerifyCatalogKmsRequest {
+  kmsKeyId?: string(name='kmsKeyId', description='This parameter is required.'),
+}
+
+model VerifyCatalogKmsResponseBody = {
+  errorCode?: string(name='errorCode'),
+  hint?: string(name='hint'),
+  kmsKeyId?: string(name='kmsKeyId'),
+  serverSideEncryption?: string(name='serverSideEncryption'),
+  success?: boolean(name='success'),
+}
+
+model VerifyCatalogKmsResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: VerifyCatalogKmsResponseBody(name='body'),
+}
+
+/**
+ * @summary Validates the BYOK SSE-KMS configuration of a catalog by performing an SSE-KMS write probe on the bucket using the issued temporary credentials and verifying the result.
+ *
+ * @param request VerifyCatalogKmsRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return VerifyCatalogKmsResponse
+ */
+async function verifyCatalogKmsWithOptions(catalog: string, request: VerifyCatalogKmsRequest, headers: map[string]string, runtime: Util.RuntimeOptions): VerifyCatalogKmsResponse {
+  Util.validateModel(request);
+  var body : map[string]any = {};
+  if (!Util.isUnset(request.kmsKeyId)) {
+    body['kmsKeyId'] = request.kmsKeyId;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApi.Params{
+    action = 'VerifyCatalogKms',
+    version = '2025-03-10',
+    protocol = 'HTTPS',
+    pathname = `/dlf/v1/catalogs/${OpenApiUtil.getEncodeParam(catalog)}/kms/verify`,
+    method = 'POST',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Validates the BYOK SSE-KMS configuration of a catalog by performing an SSE-KMS write probe on the bucket using the issued temporary credentials and verifying the result.
+ *
+ * @param request VerifyCatalogKmsRequest
+ * @return VerifyCatalogKmsResponse
+ */
+async function verifyCatalogKms(catalog: string, request: VerifyCatalogKmsRequest): VerifyCatalogKmsResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return verifyCatalogKmsWithOptions(catalog, request, headers, runtime);
 }
 
