@@ -84,22 +84,22 @@ async function batchDeleteMessage(queueName: string, request: BatchDeleteMessage
 }
 
 model BatchPeekMessageRequest {
-  numOfMessages?: int32(name='numOfMessages'),
+  numOfMessages?: int32(name='numOfMessages', example='16'),
   peekonly?: boolean(name='peekonly'),
 }
 
 model BatchPeekMessageResponseBody = {
   messages?: [ 
     {
-      dequeueCount?: long(name='DequeueCount'),
-      enqueueTime?: long(name='EnqueueTime'),
-      firstDequeueTime?: long(name='FirstDequeueTime'),
-      messageBody?: string(name='MessageBody'),
-      messageBodyMD5?: string(name='MessageBodyMD5'),
-      messageGroupId?: string(name='MessageGroupId'),
-      messageId?: string(name='MessageId'),
-      priority?: long(name='Priority'),
-      userProperties?: map[string]MessagesUserPropertiesValue(name='UserProperties'),
+      dequeueCount?: long(name='DequeueCount', example='5'),
+      enqueueTime?: long(name='EnqueueTime', example='1250700979248'),
+      firstDequeueTime?: long(name='FirstDequeueTime', example='1250700979348'),
+      messageBody?: string(name='MessageBody', example='This is a test message'),
+      messageBodyMD5?: string(name='MessageBodyMD5', example='F9360F391579E71CA77BC5D50242****'),
+      messageGroupId?: string(name='MessageGroupId', example='test-group'),
+      messageId?: string(name='MessageId', example='C0A80255D7D1163042EA3F2814D055F1'),
+      priority?: long(name='Priority', example='1'),
+      userProperties?: map[string]MessagesUserPropertiesValue(name='UserProperties', example='{"properties1":"value"}'),
     }
   ](name='Messages'),
 }
@@ -112,6 +112,14 @@ model BatchPeekMessageResponse = {
 
 /**
  * @summary 批量查看消息
+ *
+ * @description ## 请求说明
+ * - 该接口用于批量查看指定队列中的消息，一次最多可以查看16条消息。
+ * - 使用此接口不会改变消息的状态，消息仍保持为Active状态。
+ * - 不支持长轮询功能。
+ * - 需要提供`queueName`作为路径参数，并通过查询参数设置`peekonly=true`及指定要查看的消息数量`numOfMessages`（范围在1到16之间）。
+ * - 成功响应将返回一个包含所请求消息详细信息的数组，包括但不限于消息ID、正文、入队时间等。
+ * - 如果指定的队列不存在或队列中没有可见消息，则会返回相应的错误码。
  *
  * @param request BatchPeekMessageRequest
  * @param headers map
@@ -149,6 +157,14 @@ async function batchPeekMessageWithOptions(queueName: string, request: BatchPeek
 /**
  * @summary 批量查看消息
  *
+ * @description ## 请求说明
+ * - 该接口用于批量查看指定队列中的消息，一次最多可以查看16条消息。
+ * - 使用此接口不会改变消息的状态，消息仍保持为Active状态。
+ * - 不支持长轮询功能。
+ * - 需要提供`queueName`作为路径参数，并通过查询参数设置`peekonly=true`及指定要查看的消息数量`numOfMessages`（范围在1到16之间）。
+ * - 成功响应将返回一个包含所请求消息详细信息的数组，包括但不限于消息ID、正文、入队时间等。
+ * - 如果指定的队列不存在或队列中没有可见消息，则会返回相应的错误码。
+ *
  * @param request BatchPeekMessageRequest
  * @return BatchPeekMessageResponse
  */
@@ -159,24 +175,24 @@ async function batchPeekMessage(queueName: string, request: BatchPeekMessageRequ
 }
 
 model BatchReceiveMessageRequest {
-  numOfMessages?: int32(name='numOfMessages'),
-  waitseconds?: int32(name='waitseconds'),
+  numOfMessages?: int32(name='numOfMessages', example='10'),
+  waitseconds?: int32(name='waitseconds', example='0'),
 }
 
 model BatchReceiveMessageResponseBody = {
   messages?: [ 
     {
-      dequeueCount?: long(name='DequeueCount'),
-      enqueueTime?: long(name='EnqueueTime'),
-      firstDequeueTime?: long(name='FirstDequeueTime'),
-      messageBody?: string(name='MessageBody'),
-      messageBodyMD5?: string(name='MessageBodyMD5'),
-      messageGroupId?: string(name='MessageGroupId'),
-      messageId?: string(name='MessageId'),
-      nextVisibleTime?: long(name='NextVisibleTime'),
-      priority?: long(name='Priority'),
-      receiptHandle?: string(name='ReceiptHandle'),
-      userProperties?: map[string]MessagesUserPropertiesValue(name='UserProperties'),
+      dequeueCount?: long(name='DequeueCount', example='1'),
+      enqueueTime?: long(name='EnqueueTime', example='1250700979348'),
+      firstDequeueTime?: long(name='FirstDequeueTime', example='1250700979348'),
+      messageBody?: string(name='MessageBody', example='This is test message 1.'),
+      messageBodyMD5?: string(name='MessageBodyMD5', example='C5DD56A39F5F7BB8B3337C6D11B6D8BE'),
+      messageGroupId?: string(name='MessageGroupId', example='test-group'),
+      messageId?: string(name='MessageId', example='5F290C926D472878214D9529A8FA200000001'),
+      nextVisibleTime?: long(name='NextVisibleTime', example='1250700979348'),
+      priority?: long(name='Priority', example='1'),
+      receiptHandle?: string(name='ReceiptHandle', example='1-ODU4OTkzNDU5My0xNDMyNzI3ODI3LTItOA=='),
+      userProperties?: map[string]MessagesUserPropertiesValue(name='UserProperties', example='{"properties1":"value"}'),
     }
   ](name='Messages'),
 }
@@ -189,6 +205,12 @@ model BatchReceiveMessageResponse = {
 
 /**
  * @summary 批量消费消息
+ *
+ * @description ## 请求说明
+ * - 该操作会将取得的消息状态变为 Inactive，Inactive 持续时间由队列属性 `VisibilityTimeout` 决定。
+ * - 消费者需在 VisibilityTimeout 时间内调用 DeleteMessage 删除消息，否则消息会重新变为 Active。
+ * - 支持长轮询（Long Polling）：设置 `waitseconds > 0` 后，若队列为空则等待至有消息到达或超时返回。
+ * >Notice: 进入长轮询后，建议您降低外部调用长轮询的并发数，选择合适的长轮询时间。目前服务端会根据长轮询数量、长轮询等待时间、访问 IP 数量等因素动态调整长轮询防攻击的并发上限值。当队列无消息时，超过长轮询上限值的请求将无法被监听到，并直接返回 404 MessageNotExist（按请求量正常计费）。如果您有临时提升长轮询上限值的需求，请及时提交工单。
  *
  * @param request BatchReceiveMessageRequest
  * @param headers map
@@ -226,6 +248,12 @@ async function batchReceiveMessageWithOptions(queueName: string, request: BatchR
 /**
  * @summary 批量消费消息
  *
+ * @description ## 请求说明
+ * - 该操作会将取得的消息状态变为 Inactive，Inactive 持续时间由队列属性 `VisibilityTimeout` 决定。
+ * - 消费者需在 VisibilityTimeout 时间内调用 DeleteMessage 删除消息，否则消息会重新变为 Active。
+ * - 支持长轮询（Long Polling）：设置 `waitseconds > 0` 后，若队列为空则等待至有消息到达或超时返回。
+ * >Notice: 进入长轮询后，建议您降低外部调用长轮询的并发数，选择合适的长轮询时间。目前服务端会根据长轮询数量、长轮询等待时间、访问 IP 数量等因素动态调整长轮询防攻击的并发上限值。当队列无消息时，超过长轮询上限值的请求将无法被监听到，并直接返回 404 MessageNotExist（按请求量正常计费）。如果您有临时提升长轮询上限值的需求，请及时提交工单。
+ *
  * @param request BatchReceiveMessageRequest
  * @return BatchReceiveMessageResponse
  */
@@ -238,10 +266,10 @@ async function batchReceiveMessage(queueName: string, request: BatchReceiveMessa
 model BatchSendMessageRequest {
   messages?: [ 
     {
-      delaySeconds?: int32(name='DelaySeconds'),
-      messageBody?: string(name='MessageBody'),
-      messageGroupId?: string(name='MessageGroupId'),
-      priority?: int32(name='Priority'),
+      delaySeconds?: int32(name='DelaySeconds', example='60'),
+      messageBody?: string(name='MessageBody', example='This is test message 1.'),
+      messageGroupId?: string(name='MessageGroupId', example='group1'),
+      priority?: int32(name='Priority', example='1'),
       userProperties?: map[string]MessagesUserPropertiesValue(name='UserProperties'),
     }
   ](name='Messages'),
@@ -264,6 +292,13 @@ model BatchSendMessageResponse = {
 
 /**
  * @summary 批量发送消息
+ *
+ * @description ## 请求说明
+ * - 一次 Batch 请求的消息总大小不得超过 64 KB。
+ * - `BatchSendMessage` 与 `SendMessage` 使用相同的 URL 路径，通过 Body 结构区分：包含 `Messages` 数组即为批量发送，否则为单条发送。
+ * - 批量操作的返回结果可能同时包含成功和失败的子消息。
+ * - 每次请求中可以包含多个消息对象，每个消息对象可以设置不同的延迟时间和优先级。
+ * - 对于 FIFO 队列，可以通过 `MessageGroupId` 参数来指定消息分组 ID。
  *
  * @param request BatchSendMessageRequest
  * @param headers map
@@ -297,6 +332,13 @@ async function batchSendMessageWithOptions(queueName: string, request: BatchSend
 
 /**
  * @summary 批量发送消息
+ *
+ * @description ## 请求说明
+ * - 一次 Batch 请求的消息总大小不得超过 64 KB。
+ * - `BatchSendMessage` 与 `SendMessage` 使用相同的 URL 路径，通过 Body 结构区分：包含 `Messages` 数组即为批量发送，否则为单条发送。
+ * - 批量操作的返回结果可能同时包含成功和失败的子消息。
+ * - 每次请求中可以包含多个消息对象，每个消息对象可以设置不同的延迟时间和优先级。
+ * - 对于 FIFO 队列，可以通过 `MessageGroupId` 参数来指定消息分组 ID。
  *
  * @param request BatchSendMessageRequest
  * @return BatchSendMessageResponse
@@ -371,136 +413,15 @@ async function changeMessageVisibility(queueName: string, request: ChangeMessage
   return changeMessageVisibilityWithOptions(queueName, request, headers, runtime);
 }
 
-model DeleteMessageRequest {
-  receiptHandle?: string(name='ReceiptHandle'),
-}
-
-model DeleteMessageResponse = {
-  headers?: map[string]string(name='headers'),
-  statusCode?: int32(name='statusCode'),
-}
-
-/**
- * @summary 删除已消费消息
- *
- * @param request DeleteMessageRequest
- * @param headers map
- * @param runtime runtime options for this request RuntimeOptions
- * @return DeleteMessageResponse
- */
-async function deleteMessageWithOptions(queueName: string, request: DeleteMessageRequest, headers: map[string]string, runtime: Util.RuntimeOptions): DeleteMessageResponse {
-  Util.validateModel(request);
-  var query : map[string]any = {};
-  if (!Util.isUnset(request.receiptHandle)) {
-    query['ReceiptHandle'] = request.receiptHandle;
-  }
-
-  var req = new OpenApi.OpenApiRequest{ 
-    headers = headers,
-    query = OpenApiUtil.query(query),
-  };
-  var params = new OpenApi.Params{
-    action = 'DeleteMessage',
-    version = '2026-04-09',
-    protocol = 'HTTPS',
-    pathname = `/queues/${queueName}/messages`,
-    method = 'DELETE',
-    authType = 'AK',
-    style = 'ROA',
-    reqBodyType = 'json',
-    bodyType = 'json',
-  };
-  return execute(params, req, runtime);
-}
-
-/**
- * @summary 删除已消费消息
- *
- * @param request DeleteMessageRequest
- * @return DeleteMessageResponse
- */
-async function deleteMessage(queueName: string, request: DeleteMessageRequest): DeleteMessageResponse {
-  var runtime = new Util.RuntimeOptions{};
-  var headers : map[string]string = {};
-  return deleteMessageWithOptions(queueName, request, headers, runtime);
-}
-
-model PeekMessageRequest {
-  peekonly?: boolean(name='peekonly'),
-}
-
-model PeekMessageResponseBody = {
-  dequeueCount?: long(name='DequeueCount'),
-  enqueueTime?: long(name='EnqueueTime'),
-  firstDequeueTime?: long(name='FirstDequeueTime'),
-  messageBody?: string(name='MessageBody'),
-  messageBodyMD5?: string(name='MessageBodyMD5'),
-  messageGroupId?: string(name='MessageGroupId'),
-  messageId?: string(name='MessageId'),
-  priority?: long(name='Priority'),
-  userProperties?: map[string]UserPropertiesValue(name='UserProperties'),
-}
-
-model PeekMessageResponse = {
-  headers?: map[string]string(name='headers'),
-  statusCode?: int32(name='statusCode'),
-  body?: PeekMessageResponseBody(name='body'),
-}
-
-/**
- * @summary 查看消息
- *
- * @param request PeekMessageRequest
- * @param headers map
- * @param runtime runtime options for this request RuntimeOptions
- * @return PeekMessageResponse
- */
-async function peekMessageWithOptions(queueName: string, request: PeekMessageRequest, headers: map[string]string, runtime: Util.RuntimeOptions): PeekMessageResponse {
-  Util.validateModel(request);
-  var query : map[string]any = {};
-  if (!Util.isUnset(request.peekonly)) {
-    query['peekonly'] = request.peekonly;
-  }
-
-  var req = new OpenApi.OpenApiRequest{ 
-    headers = headers,
-    query = OpenApiUtil.query(query),
-  };
-  var params = new OpenApi.Params{
-    action = 'PeekMessage',
-    version = '2026-04-09',
-    protocol = 'HTTPS',
-    pathname = `/queues/${queueName}/messages`,
-    method = 'GET',
-    authType = 'AK',
-    style = 'ROA',
-    reqBodyType = 'json',
-    bodyType = 'json',
-  };
-  return execute(params, req, runtime);
-}
-
-/**
- * @summary 查看消息
- *
- * @param request PeekMessageRequest
- * @return PeekMessageResponse
- */
-async function peekMessage(queueName: string, request: PeekMessageRequest): PeekMessageResponse {
-  var runtime = new Util.RuntimeOptions{};
-  var headers : map[string]string = {};
-  return peekMessageWithOptions(queueName, request, headers, runtime);
-}
-
 model PublishMessageRequest {
   messageAttributes?: {
-    directMail?: string(name='DirectMail'),
-    directSMS?: string(name='DirectSMS'),
-    push?: string(name='Push'),
+    directMail?: string(name='DirectMail', example='详见 https://help.aliyun.com/zh/direct-mail/singlesendmail'),
+    directSMS?: string(name='DirectSMS', example='{"FreeSignName":"阿里云","TemplateCode":"SMS_123456","Type":"singleContent","Receiver":"13800000000","SmsParams":"{\\\\"code\\\\":\\\\"1234\\\\"}"}'),
+    push?: string(name='Push', example='移动推送属性示例值'),
   }(name='MessageAttributes'),
-  messageBody?: string(name='MessageBody'),
+  messageBody?: string(name='MessageBody', example='hello topic'),
   messageGroupId?: string(name='MessageGroupId'),
-  messageTag?: string(name='MessageTag'),
+  messageTag?: string(name='MessageTag', example='order-event'),
 }
 
 model PublishMessageResponseBody = {
@@ -516,6 +437,12 @@ model PublishMessageResponse = {
 
 /**
  * @summary 发布消息
+ *
+ * @description ## 请求说明
+ * - 消息发布后会被推送到该 Topic 下所有 Subscription 的 Endpoint。
+ * - 推送到 Queue 和 HTTP Endpoint 时不需要设置 `MessageAttributes`。
+ * - 推送到邮件、短信或移动推送时需要设置对应的 `MessageAttributes` 子属性。
+ * - 消息内容建议事先进行 Base64 编码以避免特殊字符问题。
  *
  * @param request PublishMessageRequest
  * @param headers map
@@ -559,6 +486,12 @@ async function publishMessageWithOptions(topicName: string, request: PublishMess
 /**
  * @summary 发布消息
  *
+ * @description ## 请求说明
+ * - 消息发布后会被推送到该 Topic 下所有 Subscription 的 Endpoint。
+ * - 推送到 Queue 和 HTTP Endpoint 时不需要设置 `MessageAttributes`。
+ * - 推送到邮件、短信或移动推送时需要设置对应的 `MessageAttributes` 子属性。
+ * - 消息内容建议事先进行 Base64 编码以避免特殊字符问题。
+ *
  * @param request PublishMessageRequest
  * @return PublishMessageResponse
  */
@@ -568,81 +501,12 @@ async function publishMessage(topicName: string, request: PublishMessageRequest)
   return publishMessageWithOptions(topicName, request, headers, runtime);
 }
 
-model ReceiveMessageRequest {
-  waitseconds?: int32(name='waitseconds'),
-}
-
-model ReceiveMessageResponseBody = {
-  dequeueCount?: long(name='DequeueCount'),
-  enqueueTime?: long(name='EnqueueTime'),
-  firstDequeueTime?: long(name='FirstDequeueTime'),
-  messageBody?: string(name='MessageBody'),
-  messageBodyMD5?: string(name='MessageBodyMD5'),
-  messageGroupId?: string(name='MessageGroupId'),
-  messageId?: string(name='MessageId'),
-  nextVisibleTime?: long(name='NextVisibleTime'),
-  priority?: long(name='Priority'),
-  receiptHandle?: string(name='ReceiptHandle'),
-  userProperties?: map[string]UserPropertiesValue(name='UserProperties'),
-}
-
-model ReceiveMessageResponse = {
-  headers?: map[string]string(name='headers'),
-  statusCode?: int32(name='statusCode'),
-  body?: ReceiveMessageResponseBody(name='body'),
-}
-
-/**
- * @summary 消费消息
- *
- * @param request ReceiveMessageRequest
- * @param headers map
- * @param runtime runtime options for this request RuntimeOptions
- * @return ReceiveMessageResponse
- */
-async function receiveMessageWithOptions(queueName: string, request: ReceiveMessageRequest, headers: map[string]string, runtime: Util.RuntimeOptions): ReceiveMessageResponse {
-  Util.validateModel(request);
-  var query : map[string]any = {};
-  if (!Util.isUnset(request.waitseconds)) {
-    query['waitseconds'] = request.waitseconds;
-  }
-
-  var req = new OpenApi.OpenApiRequest{ 
-    headers = headers,
-    query = OpenApiUtil.query(query),
-  };
-  var params = new OpenApi.Params{
-    action = 'ReceiveMessage',
-    version = '2026-04-09',
-    protocol = 'HTTPS',
-    pathname = `/queues/${queueName}/messages`,
-    method = 'GET',
-    authType = 'AK',
-    style = 'ROA',
-    reqBodyType = 'json',
-    bodyType = 'json',
-  };
-  return execute(params, req, runtime);
-}
-
-/**
- * @summary 消费消息
- *
- * @param request ReceiveMessageRequest
- * @return ReceiveMessageResponse
- */
-async function receiveMessage(queueName: string, request: ReceiveMessageRequest): ReceiveMessageResponse {
-  var runtime = new Util.RuntimeOptions{};
-  var headers : map[string]string = {};
-  return receiveMessageWithOptions(queueName, request, headers, runtime);
-}
-
 model SendMessageRequest {
-  delaySeconds?: int32(name='DelaySeconds'),
-  messageBody?: string(name='MessageBody'),
-  messageGroupId?: string(name='MessageGroupId'),
-  priority?: int32(name='Priority'),
-  userProperties?: map[string]UserPropertiesValue(name='UserProperties'),
+  delaySeconds?: int32(name='DelaySeconds', example='0'),
+  messageBody?: string(name='MessageBody', example='"Hello MNS"'),
+  messageGroupId?: string(name='MessageGroupId', example='group-123'),
+  priority?: int32(name='Priority', example='2'),
+  userProperties?: map[string]UserPropertiesValue(name='UserProperties', example='{"key1":"value1", "key2":"value2"}'),
 }
 
 model SendMessageResponseBody = {
@@ -659,6 +523,14 @@ model SendMessageResponse = {
 
 /**
  * @summary 发送消息
+ *
+ * @description ## 请求说明
+ * - **SendMessage** 接口用于将消息发送至指定队列。
+ * - 消息可以立即被消费或通过设置 `DelaySeconds` 参数来延迟消费。
+ * - 发送的消息可以指定优先级，数值越小表示优先级越高。
+ * - 对于 FIFO 队列，可以通过 `MessageGroupId` 来保证同一分组内消息的顺序投递。
+ * - 用户还可以自定义属性 `UserProperties`，以 JSON 格式字符串形式提供额外信息。
+ * - 当 `DelaySeconds` 大于 0 时，API 返回的 `ReceiptHandle` 可用来在消息变为 Active 状态前删除该延迟消息。
  *
  * @param request SendMessageRequest
  * @param headers map
@@ -704,6 +576,14 @@ async function sendMessageWithOptions(queueName: string, request: SendMessageReq
 
 /**
  * @summary 发送消息
+ *
+ * @description ## 请求说明
+ * - **SendMessage** 接口用于将消息发送至指定队列。
+ * - 消息可以立即被消费或通过设置 `DelaySeconds` 参数来延迟消费。
+ * - 发送的消息可以指定优先级，数值越小表示优先级越高。
+ * - 对于 FIFO 队列，可以通过 `MessageGroupId` 来保证同一分组内消息的顺序投递。
+ * - 用户还可以自定义属性 `UserProperties`，以 JSON 格式字符串形式提供额外信息。
+ * - 当 `DelaySeconds` 大于 0 时，API 返回的 `ReceiptHandle` 可用来在消息变为 Active 状态前删除该延迟消息。
  *
  * @param request SendMessageRequest
  * @return SendMessageResponse
