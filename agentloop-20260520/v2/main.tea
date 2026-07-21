@@ -75,6 +75,7 @@ model DataFilter {
   provided?: map[string]any(name='provided', description='The one-time temporary evaluation input content, primarily used for oneshot tasks. The value is stored as a string. Object or array values are serialized to a JSON string.', example='{"input":"用户查询订单状态","output":"已查询到订单状态"}'),
   query?: string(name='query', description='The data query filter condition. This takes effect together with the evaluator-level filters.query. In Trace scenarios, you can specify filter expressions such as service name, environment, or labels.', example='serviceName=\\\\"checkout-service\\\\"'),
   samplingRate?: int32(name='samplingRate', description='The sampling rate percentage. Valid values: 0 to 100. A value of 0 or not specified indicates no sampling. A value of 100 indicates full data. If the value is less than 100, random sampling is applied first, and then the maxRecords limit is applied.', example='100'),
+  serviceNames?: [ string ](name='serviceNames'),
 }
 
 model Evaluator {
@@ -2000,6 +2001,7 @@ model GetDatasetResponseBody = {
 Use the UTC time format: yyyy-MM-ddTHH:mm:ssZ', example='2026-06-15T10:30:00Z'),
   datasetName?: string(name='datasetName', description='The dataset name.', example='product_faq_dataset'),
   description?: string(name='description', description='The dataset description.', example='Product FAQ dataset for semantic search'),
+  isFavorite?: boolean(name='isFavorite'),
   regionId?: string(name='regionId', description='The region ID.', example='cn-beijing'),
   requestId?: string(name='requestId', description='The request ID.', example='D17DE39E-6C62-50E3-9EB7-FDE41BB0D43D'),
   schema?: map[string]IndexKey(name='schema', description='The table schema of the dataset.'),
@@ -2917,7 +2919,7 @@ async function listContextStores(agentSpace: string, request: ListContextStoresR
 }
 
 model ListDatasetsRequest {
-  datasetName?: string(name='datasetName', description='The name of the dataset.', example='product_faq_dataset'),
+  datasetName?: string(name='datasetName', description='The dataset name.', example='product_faq_dataset'),
   maxResults?: int32(name='maxResults', description='The maximum number of results to return.', example='100'),
   nextToken?: string(name='nextToken', description='The pagination token. You do not need to set this parameter for the first request. For subsequent requests, set this parameter to the nextToken value returned in the previous response.', example='RsfoUqpOJd5nd0F1e4OquY/7dKNGp1JMgsKtvCagmtY='),
 }
@@ -2925,22 +2927,23 @@ model ListDatasetsRequest {
 model ListDatasetsResponseBody = {
   datasets?: [ 
     {
-      agentSpace?: string(name='agentSpace', description='The name of the agent space.', example='sop-agent'),
-      createTime?: string(name='createTime', description='The time when the dataset was created.
+      agentSpace?: string(name='agentSpace', description='The agent space name.', example='sop-agent'),
+      createTime?: string(name='createTime', description='The creation time.
 
 Use the UTC time format: yyyy-MM-ddTHH:mm:ssZ', example='2026-01-19T02:11:02Z'),
-      datasetName?: string(name='datasetName', description='The name of the dataset.', example='product_faq_dataset'),
-      description?: string(name='description', description='The description of the dataset.', example='Product FAQ dataset for semantic search'),
+      datasetName?: string(name='datasetName', description='The dataset name.', example='product_faq_dataset'),
+      description?: string(name='description', description='The dataset description.', example='Product FAQ dataset for semantic search'),
+      isFavorite?: boolean(name='isFavorite'),
       regionId?: string(name='regionId', description='The region ID.', example='cn-shanghai'),
-      updateTime?: string(name='updateTime', description='The time when the dataset was last updated.
+      updateTime?: string(name='updateTime', description='The update time.
 
 Use the UTC time format: yyyy-MM-ddTHH:mm:ssZ', example='2026-05-18T02:21:32Z'),
     }
   ](name='datasets', description='The result set.'),
   maxResults?: int32(name='maxResults', description='The maximum number of results specified in this request.', example='100'),
-  nextToken?: string(name='nextToken', description='The pagination token for the next page of results.
+  nextToken?: string(name='nextToken', description='The token for the next page of results.
 
-If the total number of results exceeds the maxResults limit, the results are truncated. You can use this token to query the next page of results.', example='umaQfI7x758Ns4TgWrj8yA3fYlnk7dJgsfhMrSViRY8='),
+If the total number of results exceeds the maxResults limit, the data is truncated. You can use nextToken to query the next page of data.', example='umaQfI7x758Ns4TgWrj8yA3fYlnk7dJgsfhMrSViRY8='),
   requestId?: string(name='requestId', description='The request ID.', example='90F52F93-8800-5A71-8737-18F34BA90166'),
   total?: int32(name='total', description='The total number of records.', example='33'),
 }
@@ -4141,13 +4144,14 @@ model UpdateContextStoreRequest {
   config?: {
     metadataField?: map[string]string(name='metadataField', description='The metadata field mapping. The key is the business field and the value is the storage field.', example='{"userId":"user_id","sessionId":"session_id"}'),
     source?: {
-      agentSpace?: string(name='agentSpace', description='The AgentSpace where the trace data source resides. Cross-AgentSpace access is not supported. If specified, this value must be the same as the path AgentSpace. Otherwise, a 400 parameter error is returned. The AgentSpace cannot be changed after creation.', example='my-agent-space'),
+      agentSpace?: string(name='agentSpace', description='The AgentSpace where the trace data source resides. Cross-AgentSpace access is not supported. If specified, the value must be the same as the path AgentSpace. Otherwise, a 400 parameter error is returned. The AgentSpace cannot be changed after creation.', example='my-agent-space'),
       startTime?: string(name='startTime', description='The start time for data backfill, in ISO 8601 UTC format.', example='2026-01-01T00:00:00Z'),
     }(name='source', description='The datasource config, which serves only as the root identifier of the data source.'),
   }(name='config', description='The context store configuration. If specified, the entire configuration is overwritten. If not specified, the existing configuration is retained.'),
   contextType?: string(name='contextType', description='The type of the context store. This value typically cannot be changed after creation. This field is provided only for exception correction.', example='experience'),
-  description?: string(name='description', description='The description of the context store, which helps the business team understand its purpose.', example='我的上下文库'),
-  clientToken?: string(name='clientToken', description='The idempotency token, which is a unique string generated by the client to ensure that the update operation is idempotent.', example='a1b2c3d4-1234-5678-90ab-cdef12345678'),
+  description?: string(name='description', description='The description of the context store, which helps business users understand its purpose.', example='我的上下文库'),
+  status?: string(name='status', example='Paused'),
+  clientToken?: string(name='clientToken', description='The idempotency token. A unique string generated by the client to ensure that the update operation is idempotent.', example='a1b2c3d4-1234-5678-90ab-cdef12345678'),
 }
 
 model UpdateContextStoreResponseBody = {
@@ -4185,6 +4189,9 @@ async function updateContextStoreWithOptions(agentSpace: string, contextStoreNam
   }
   if (!$isNull(request.description)) {
     body['description'] = request.description;
+  }
+  if (!$isNull(request.status)) {
+    body['status'] = request.status;
   }
 
   var req = new OpenApiUtil.OpenApiRequest{ 
