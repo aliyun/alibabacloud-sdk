@@ -21,8 +21,12 @@ init(configuration: ClientConfiguration){
   @handler = new TeaAsyncHandler(configuration);
   @product = 'AiContent';
   @version = '20240611';
-  @endpointRule = '';
+  @endpointRule = 'regional';
   @endpointMap = {
+    'public' = 'aicontent.aliyuncs.com',
+    'cn-shanghai' = 'aicontent.aliyuncs.com',
+    'cn-hangzhou' = 'aicontent.cn-hangzhou.aliyuncs.com',
+    'cn-beijing' = 'aicontent.cn-beijing.aliyuncs.com',
   };
 }
 
@@ -78,6 +82,24 @@ model ApiKeyListQry {
 model ApiKeyUpdateCmd {
   name?: string(name='name', example='MyApiKey'),
   status?: int32(name='status', example='1'),
+}
+
+model BatchCreateModelItemDTO {
+  description?: string(name='description', example='通义千问 Max'),
+  extensions?: string(name='extensions', example='{}'),
+  inOut?: string(name='inOut', example='text'),
+  maxInputLength?: string(name='maxInputLength', example='128000'),
+  maxOutputLength?: string(name='maxOutputLength', example='8192'),
+  modelId: string(name='modelId', description='This parameter is required.', example='qwen-max'),
+  modelType: string(name='modelType', description='This parameter is required.', example='Chat'),
+  name: string(name='name', description='This parameter is required.', example='qwen-max'),
+  tags?: string(name='tags', example='chat,NLP'),
+}
+
+model BatchModelErrorDTO {
+  errorMsg?: string(name='errorMsg', example='模型类型不能为空'),
+  modelId?: string(name='modelId', example='qwen-max'),
+  name?: string(name='name', example='qwen-max'),
 }
 
 model BillingBillSummaryPointDTO {
@@ -646,6 +668,18 @@ model RequestLogListQry {
   page?: int32(name='page', example='1'),
   pageSize?: int32(name='pageSize', example='20'),
   status?: int32(name='status', example='1'),
+}
+
+model SubscriptionDTO {
+  balanceType?: string(name='balanceType', example='permanent'),
+  clientId?: long(name='clientId', example='100'),
+  createTime?: string(name='createTime', example='2024-06-15T10:00:00Z'),
+  id?: long(name='id', example='1'),
+  status?: string(name='status', example='active'),
+  stopTime?: string(name='stopTime'),
+  subscriptionAmount?: double(name='subscriptionAmount', example='100.00'),
+  updateTime?: string(name='updateTime', example='2024-06-15T10:00:00Z'),
+  validFrom?: string(name='validFrom', example='2024-07-01T00:00:00Z'),
 }
 
 model TimeSeriesPointDTO {
@@ -2501,6 +2535,8 @@ async function modelRouterCreateApiKey(request: ModelRouterCreateApiKeyRequest):
 model ModelRouterCreateBalanceTransactionRequest {
   id?: long(name='id', example='1', position='Path'),
   amount?: double(name='amount', example='100.00', position='Body'),
+  balanceType?: string(name='balanceType', example='permanent', position='Body'),
+  idempotencyKey?: string(name='idempotencyKey', example='550e8400-e29b-41d4-a716-446655440000', position='Body'),
   remark?: string(name='remark', example='充值', position='Body'),
   type?: string(name='type', example='recharge', position='Body'),
 }
@@ -2678,6 +2714,38 @@ model ModelRouterCreateModelResponse = {
 async function modelRouterCreateModel(request: ModelRouterCreateModelRequest): ModelRouterCreateModelResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RESTFUL', 'ModelRouterCreateModel', 'POST', '/api/v1/modelRouter/open/models', 'json', false, 'json', request);
+}
+
+model ModelRouterCreateSubscriptionRequest {
+  id?: long(name='id', example='1', position='Path'),
+  balanceType?: string(name='balanceType', example='permanent', position='Body'),
+  effectiveTime?: long(name='effectiveTime', example='1719792000', position='Body'),
+  idempotencyKey?: string(name='idempotencyKey', example='550e8400e29b41d4a716446655440000', position='Body'),
+  subscriptionAmount?: double(name='subscriptionAmount', example='100.00', position='Body'),
+}
+
+model ModelRouterCreateSubscriptionResponseBody = {
+  data?: SubscriptionDTO(name='data', example='[]'),
+  errCode?: string(name='errCode', example='UNKNOWN_ERROR'),
+  errMessage?: string(name='errMessage', example='null'),
+  httpStatusCode?: int32(name='httpStatusCode', example='200'),
+  requestId?: string(name='requestId', example='xxxx-xxxx-xxxx-xxxxxxxx'),
+  success?: boolean(name='success', example='true'),
+}
+
+model ModelRouterCreateSubscriptionResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ModelRouterCreateSubscriptionResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of ModelRouterCreateSubscription  ModelRouterCreateSubscriptionRequest
+  * @return ModelRouterCreateSubscriptionResponse
+ */
+async function modelRouterCreateSubscription(request: ModelRouterCreateSubscriptionRequest): ModelRouterCreateSubscriptionResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'ModelRouterCreateSubscription', 'POST', '/api/v1/modelRouter/open/clients/{id}/balance/subscription', 'json', false, 'json', request);
 }
 
 model ModelRouterDeleteApiKeyRequest {
@@ -2860,6 +2928,44 @@ model ModelRouterGetClientBalanceLogsResponse = {
 async function modelRouterGetClientBalanceLogs(request: ModelRouterGetClientBalanceLogsRequest): ModelRouterGetClientBalanceLogsResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RESTFUL', 'ModelRouterGetClientBalanceLogs', 'GET', '/api/v1/modelRouter/open/clients/{id}/balance/logs', 'json', false, 'json', request);
+}
+
+model ModelRouterListSubscriptionsRequest {
+  id?: long(name='id', example='1', position='Path'),
+  balanceType?: string(name='balanceType', example='permanent', position='Query'),
+  maxResults?: int32(name='maxResults', example='20', position='Query'),
+  nextToken?: string(name='nextToken', position='Query'),
+  status?: string(name='status', example='active', position='Query'),
+}
+
+model ModelRouterListSubscriptionsResponseBody = {
+  data?: {
+    list?: [
+      SubscriptionDTO
+    ](name='list'),
+    maxResults?: int32(name='maxResults'),
+    nextToken?: string(name='nextToken'),
+  }(name='data'),
+  errCode?: string(name='errCode'),
+  errMessage?: string(name='errMessage'),
+  httpStatusCode?: int32(name='httpStatusCode'),
+  requestId?: string(name='requestId'),
+  success?: boolean(name='success'),
+}
+
+model ModelRouterListSubscriptionsResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ModelRouterListSubscriptionsResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of ModelRouterListSubscriptions  ModelRouterListSubscriptionsRequest
+  * @return ModelRouterListSubscriptionsResponse
+ */
+async function modelRouterListSubscriptions(request: ModelRouterListSubscriptionsRequest): ModelRouterListSubscriptionsResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'ModelRouterListSubscriptions', 'GET', '/api/v1/modelRouter/open/clients/{id}/balance/subscription', 'json', false, 'json', request);
 }
 
 model ModelRouterQueryApiKeyRequest {
@@ -3761,6 +3867,35 @@ model ModelRouterSaveFlowConfigResponse = {
 async function modelRouterSaveFlowConfig(request: ModelRouterSaveFlowConfigRequest): ModelRouterSaveFlowConfigResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RESTFUL', 'ModelRouterSaveFlowConfig', 'POST', '/api/v1/modelRouter/open/flow-config', 'json', false, 'json', request);
+}
+
+model ModelRouterStopSubscriptionRequest {
+  id?: long(name='id', example='1', position='Path'),
+  balanceType?: string(name='balanceType', example='permanent', position='Body'),
+}
+
+model ModelRouterStopSubscriptionResponseBody = {
+  data?: SubscriptionDTO(name='data'),
+  errCode?: string(name='errCode', example='UNKNOWN_ERROR'),
+  errMessage?: string(name='errMessage'),
+  httpStatusCode?: int32(name='httpStatusCode', example='200'),
+  requestId?: string(name='requestId', example='xxxx-xxxx-xxxx-xxxxxxxx'),
+  success?: boolean(name='success', example='true'),
+}
+
+model ModelRouterStopSubscriptionResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ModelRouterStopSubscriptionResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of ModelRouterStopSubscription  ModelRouterStopSubscriptionRequest
+  * @return ModelRouterStopSubscriptionResponse
+ */
+async function modelRouterStopSubscription(request: ModelRouterStopSubscriptionRequest): ModelRouterStopSubscriptionResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'ModelRouterStopSubscription', 'PUT', '/api/v1/modelRouter/open/clients/{id}/balance/subscription/stop', 'json', false, 'json', request);
 }
 
 model ModelRouterUpdateBillingRuleRequest {
