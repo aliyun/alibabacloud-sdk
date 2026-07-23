@@ -962,6 +962,223 @@ async function createEvaluatorSkill(name: string, request: CreateEvaluatorSkillR
   return createEvaluatorSkillWithOptions(name, request, headers, runtime);
 }
 
+model CreateExperimentPlanRequest {
+  datasetId?: string(name='datasetId', description='The associated dataset ID. If this parameter is not specified, the execution phase processes in simple mode.', example='rca_benckmark_eval'),
+  description?: string(name='description', description='The description of the experiment plan.', example='rca_benchmark_eval_experiment offline experiment.'),
+  evaluators?: [
+    Evaluator
+  ](name='evaluators', description='The evaluator list. If configured, evaluation is automatically triggered when the experiment completes.', example='[{"evaluatorRef": "Builtin.agent_correctness", "name": "Builtin.agent_correctness", "type": "AGENT", "resultName": "Builtin.agent_correctness", "resultType": "score", "variableMapping": {"input": "experiment_input", "output": "experiment_output", "expected_output": "dataset.ground_truth_json"}, "filters": {"query": "", "sample": "100"}, "config": {"variables": [], "prompt": ""}}, {"evaluatorRef": "rca-toxicity-safety-accuracy", "name": "rca-toxicity-safety-accuracy", "type": "AGENT", "resultName": "rca-toxicity-safety-accuracy", "resultType": "score", "variableMapping": {"input": "experiment_input", "output": "experiment_output", "question": "dataset.question", "expected_output": "dataset.ground_truth_json", "payload_json": "dataset.payload_json"}, "filters": {"query": "", "sample": "100"}, "config": {"variables": [], "prompt": ""}}]'),
+  experimentType?: string(name='experimentType', description='The experiment type. Set this parameter to `OFFLINE` or `ONLINE`.
+
+This parameter is required.', example='OFFLINE'),
+  experiments?: [
+    ExperimentConfig
+  ](name='experiments', description='The experiment configuration list. A maximum of 5 entries are supported. For offline experiments, this parameter can be omitted or set to an empty array. For online experiments, at least one entry is required.
+
+This parameter is required.', example='[{"label": "A", "name": "experimentA", "modelName": "qwen3.7-plus", "modelProvider": "dashscope", "modelParameters": {"temperature": 0.7, "topP": 0.8, "presencePenalty": 0.0, "frequencyPenalty": 0.0}, "promptTemplate": [{"role": "system", "content": "You are an Alibaba Cloud ARMS product Q&A bot"}, {"role": "user", "content": "{{input}}"}]}, {"label": "B", "name": "experimentB", "modelName": "qwen3.7-max", "modelProvider": "dashscope", "modelParameters": {"temperature": 0.7, "topP": 0.8, "presencePenalty": 0.0, "frequencyPenalty": 0.0}, "promptTemplate": [{"role": "system", "content": "You are an Alibaba Cloud ARMS product Q&A bot"}, {"role": "user", "content": "{{input}}"}]}]'),
+  input?: map[string]any(name='input', description='Optional.', example='{"question": "How do I request a refund?"}'),
+  planName?: string(name='planName', description='The experiment plan name. The name must be unique within the same AgentSpace under the same account.
+
+This parameter is required.', example='rca_benchmark_eval_experiment'),
+  querySql?: string(name='querySql', description='The custom query SQL clause in partial dataset mode. This parameter can be used when `selectedItemIds` is empty.', example='status=\\\\"OK\\\\"'),
+  selectedItemIds?: [ string ](name='selectedItemIds', description='The list of selected data item IDs in partial dataset mode. Use this parameter together with `datasetId`.', example='["019ef4d5-a0f0-7114-832d-5542d771cd8c", "019f1729-be9b-7769-a006-8e98023ad7ad"]'),
+}
+
+model CreateExperimentPlanResponseBody = {
+  message?: string(name='message', description='The message.', example='Experiment plan created successfully.'),
+  planId?: string(name='planId', description='The experiment plan ID.', example='exp-plan-e95bff54685a4ae29ff3a834c1008a71'),
+  requestId?: string(name='requestId', description='The request ID.', example='3FE4CD1E-FF41-56BE-B590-7A021D9C1524'),
+  status?: string(name='status', description='The creation result. The value is `created` if the operation is successful.', example='created'),
+}
+
+model CreateExperimentPlanResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: CreateExperimentPlanResponseBody(name='body'),
+}
+
+/**
+ * @summary Creates an experiment plan.
+ *
+ * @description Calls CreateExperimentPlan to create an experiment plan under a specified AgentSpace. Use this operation to define the configuration of an offline or online experiment, including the data source, optional evaluators, and experiment groups required for online experiments. After the plan is created, call CreateExperimentRun to start execution.
+ *
+ * @param request CreateExperimentPlanRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return CreateExperimentPlanResponse
+ */
+async function createExperimentPlanWithOptions(agentSpace: string, request: CreateExperimentPlanRequest, headers: map[string]string, runtime: Util.RuntimeOptions): CreateExperimentPlanResponse {
+  Util.validateModel(request);
+  var body : map[string]any = {};
+  if (!Util.isUnset(request.datasetId)) {
+    body['datasetId'] = request.datasetId;
+  }
+  if (!Util.isUnset(request.description)) {
+    body['description'] = request.description;
+  }
+  if (!Util.isUnset(request.evaluators)) {
+    body['evaluators'] = request.evaluators;
+  }
+  if (!Util.isUnset(request.experimentType)) {
+    body['experimentType'] = request.experimentType;
+  }
+  if (!Util.isUnset(request.experiments)) {
+    body['experiments'] = request.experiments;
+  }
+  if (!Util.isUnset(request.input)) {
+    body['input'] = request.input;
+  }
+  if (!Util.isUnset(request.planName)) {
+    body['planName'] = request.planName;
+  }
+  if (!Util.isUnset(request.querySql)) {
+    body['querySql'] = request.querySql;
+  }
+  if (!Util.isUnset(request.selectedItemIds)) {
+    body['selectedItemIds'] = request.selectedItemIds;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApi.Params{
+    action = 'CreateExperimentPlan',
+    version = '2026-05-20',
+    protocol = 'HTTPS',
+    pathname = `/api/v1/experiments/${OpenApiUtil.getEncodeParam(agentSpace)}/plans`,
+    method = 'POST',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Creates an experiment plan.
+ *
+ * @description Calls CreateExperimentPlan to create an experiment plan under a specified AgentSpace. Use this operation to define the configuration of an offline or online experiment, including the data source, optional evaluators, and experiment groups required for online experiments. After the plan is created, call CreateExperimentRun to start execution.
+ *
+ * @param request CreateExperimentPlanRequest
+ * @return CreateExperimentPlanResponse
+ */
+async function createExperimentPlan(agentSpace: string, request: CreateExperimentPlanRequest): CreateExperimentPlanResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return createExperimentPlanWithOptions(agentSpace, request, headers, runtime);
+}
+
+model CreateExperimentRunRequest {
+  completedAt?: long(name='completedAt', description='The completion time, in millisecond-level UNIX timestamp.', example='1784721811392'),
+  completedTasks?: int32(name='completedTasks', description='The number of completed tasks. If not specified, the default value is 0.', example='0'),
+  executedAt?: long(name='executedAt', description='The execution time, in millisecond-level UNIX timestamp.', example='1784721775379'),
+  experimentPlanId?: string(name='experimentPlanId', description='The experiment plan ID.
+
+This parameter is required.', example='exp-plan-0242d983f5d340fd8479cf2c19eb279e'),
+  failedTasks?: int32(name='failedTasks', description='The number of failed tasks. If not specified, the default value is 0.', example='0'),
+  offlineExperiments?: [
+    OfflineExperimentConfig
+  ](name='offlineExperiments', description='The list of offline experiment configurations. Required when the plan type is offline. The number of items ranges from 1 to 5.', example='[{"label": "experimentA", "name": "experimentA"}]'),
+  recordName?: string(name='recordName', description='The experiment record name. If not specified, the default value is the plan name plus a timestamp.', example='arms_agent_experiment 2026/07/22 20:02:55'),
+  status?: string(name='status', description='The initial status. If not specified, the default value is `pending`.', example='pending'),
+  totalTasks?: int32(name='totalTasks', description='The total number of tasks. For online experiments, if not specified, the value is calculated based on the number of generated tasks.', example='40'),
+  clientToken?: string(name='clientToken', description='Optional.', example='a1b2c3d4-1234-5678-90ab-cdef12345678'),
+}
+
+model CreateExperimentRunResponseBody = {
+  message?: string(name='message', description='The message.', example='Experiment created, execution started.'),
+  recordId?: string(name='recordId', description='The experiment record ID. For online experiments, the format is typically exp-run-{uuid32}. For offline experiments, the format may also be a standard UUID.', example='exp-run-f6d419b0ed3d43a7b585948a55efc07b'),
+  requestId?: string(name='requestId', description='The request ID.', example='019F89B5-1B07-3BB3-A32E-F5B007029E9C'),
+  status?: string(name='status', description='The experiment record status. After creation, the status is typically pending.', example='pending'),
+}
+
+model CreateExperimentRunResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: CreateExperimentRunResponseBody(name='body'),
+}
+
+/**
+ * @summary Executes an experiment.
+ *
+ * @description Calls CreateExperimentRun to initiate an experiment execution based on an existing experiment plan. For online experiments, you typically only need to pass `experimentPlanId`. For offline experiments, you need to pass `offlineExperiments` (1 to 5 items).
+ *
+ * @param request CreateExperimentRunRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return CreateExperimentRunResponse
+ */
+async function createExperimentRunWithOptions(agentSpace: string, request: CreateExperimentRunRequest, headers: map[string]string, runtime: Util.RuntimeOptions): CreateExperimentRunResponse {
+  Util.validateModel(request);
+  var query : map[string]any = {};
+  if (!Util.isUnset(request.clientToken)) {
+    query['clientToken'] = request.clientToken;
+  }
+
+  var body : map[string]any = {};
+  if (!Util.isUnset(request.completedAt)) {
+    body['completedAt'] = request.completedAt;
+  }
+  if (!Util.isUnset(request.completedTasks)) {
+    body['completedTasks'] = request.completedTasks;
+  }
+  if (!Util.isUnset(request.executedAt)) {
+    body['executedAt'] = request.executedAt;
+  }
+  if (!Util.isUnset(request.experimentPlanId)) {
+    body['experimentPlanId'] = request.experimentPlanId;
+  }
+  if (!Util.isUnset(request.failedTasks)) {
+    body['failedTasks'] = request.failedTasks;
+  }
+  if (!Util.isUnset(request.offlineExperiments)) {
+    body['offlineExperiments'] = request.offlineExperiments;
+  }
+  if (!Util.isUnset(request.recordName)) {
+    body['recordName'] = request.recordName;
+  }
+  if (!Util.isUnset(request.status)) {
+    body['status'] = request.status;
+  }
+  if (!Util.isUnset(request.totalTasks)) {
+    body['totalTasks'] = request.totalTasks;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApi.Params{
+    action = 'CreateExperimentRun',
+    version = '2026-05-20',
+    protocol = 'HTTPS',
+    pathname = `/api/v1/experimentruns/${OpenApiUtil.getEncodeParam(agentSpace)}/execute`,
+    method = 'POST',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Executes an experiment.
+ *
+ * @description Calls CreateExperimentRun to initiate an experiment execution based on an existing experiment plan. For online experiments, you typically only need to pass `experimentPlanId`. For offline experiments, you need to pass `offlineExperiments` (1 to 5 items).
+ *
+ * @param request CreateExperimentRunRequest
+ * @return CreateExperimentRunResponse
+ */
+async function createExperimentRun(agentSpace: string, request: CreateExperimentRunRequest): CreateExperimentRunResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return createExperimentRunWithOptions(agentSpace, request, headers, runtime);
+}
+
 model CreatePipelineRequest {
   description?: string(name='description', description='The pipeline description. The description can be up to 256 characters in length.', example='从 SLS 采集 Trace 数据清洗入 Dataset'),
   executePolicy?: {
@@ -1524,6 +1741,120 @@ async function deleteEvaluatorSkill(name: string, skillName: string, request: De
   var runtime = new Util.RuntimeOptions{};
   var headers : map[string]string = {};
   return deleteEvaluatorSkillWithOptions(name, skillName, request, headers, runtime);
+}
+
+model DeleteExperimentPlanRequest {
+}
+
+model DeleteExperimentPlanResponseBody = {
+  planId?: string(name='planId', description='The experiment plan ID.', example='exp-plan-aa1a66b074bc42aa8696c73c7dc9b718'),
+  requestId?: string(name='requestId', description='The request ID.', example='3FE4CD1E-FF41-56BE-B590-7A021D9C1524'),
+  status?: string(name='status', description='The deletion result. The value is deleted if the operation is successful.', example='deleted'),
+}
+
+model DeleteExperimentPlanResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: DeleteExperimentPlanResponseBody(name='body'),
+}
+
+/**
+ * @summary Deletes an experiment plan.
+ *
+ * @description Calls DeleteExperimentPlan to delete a specified experiment plan. After deletion, no new executions can be initiated based on this plan. Existing experiment records can still be queried.
+ *
+ * @param request DeleteExperimentPlanRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return DeleteExperimentPlanResponse
+ */
+async function deleteExperimentPlanWithOptions(agentSpace: string, planId: string, request: DeleteExperimentPlanRequest, headers: map[string]string, runtime: Util.RuntimeOptions): DeleteExperimentPlanResponse {
+  Util.validateModel(request);
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+  };
+  var params = new OpenApi.Params{
+    action = 'DeleteExperimentPlan',
+    version = '2026-05-20',
+    protocol = 'HTTPS',
+    pathname = `/api/v1/experiments/${OpenApiUtil.getEncodeParam(agentSpace)}/plans/${OpenApiUtil.getEncodeParam(planId)}`,
+    method = 'DELETE',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Deletes an experiment plan.
+ *
+ * @description Calls DeleteExperimentPlan to delete a specified experiment plan. After deletion, no new executions can be initiated based on this plan. Existing experiment records can still be queried.
+ *
+ * @param request DeleteExperimentPlanRequest
+ * @return DeleteExperimentPlanResponse
+ */
+async function deleteExperimentPlan(agentSpace: string, planId: string, request: DeleteExperimentPlanRequest): DeleteExperimentPlanResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return deleteExperimentPlanWithOptions(agentSpace, planId, request, headers, runtime);
+}
+
+model DeleteExperimentRunRequest {
+}
+
+model DeleteExperimentRunResponseBody = {
+  requestId?: string(name='requestId', description='The request ID.', example='019F89BE-9190-3AAA-B5A4-DBAE3BABBBEA'),
+}
+
+model DeleteExperimentRunResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: DeleteExperimentRunResponseBody(name='body'),
+}
+
+/**
+ * @summary Deletes an experiment record.
+ *
+ * @description Calls DeleteExperimentRun to delete a specified experiment run record. Deleting the record does not delete the experiment plan to which it belongs.
+ *
+ * @param request DeleteExperimentRunRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return DeleteExperimentRunResponse
+ */
+async function deleteExperimentRunWithOptions(agentSpace: string, recordId: string, request: DeleteExperimentRunRequest, headers: map[string]string, runtime: Util.RuntimeOptions): DeleteExperimentRunResponse {
+  Util.validateModel(request);
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+  };
+  var params = new OpenApi.Params{
+    action = 'DeleteExperimentRun',
+    version = '2026-05-20',
+    protocol = 'HTTPS',
+    pathname = `/api/v1/experimentruns/${OpenApiUtil.getEncodeParam(agentSpace)}/records/${OpenApiUtil.getEncodeParam(recordId)}`,
+    method = 'DELETE',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Deletes an experiment record.
+ *
+ * @description Calls DeleteExperimentRun to delete a specified experiment run record. Deleting the record does not delete the experiment plan to which it belongs.
+ *
+ * @param request DeleteExperimentRunRequest
+ * @return DeleteExperimentRunResponse
+ */
+async function deleteExperimentRun(agentSpace: string, recordId: string, request: DeleteExperimentRunRequest): DeleteExperimentRunResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return deleteExperimentRunWithOptions(agentSpace, recordId, request, headers, runtime);
 }
 
 model DeletePipelineRequest {
@@ -2344,6 +2675,137 @@ async function getEvaluatorSkill(name: string, skillName: string, request: GetEv
   var runtime = new Util.RuntimeOptions{};
   var headers : map[string]string = {};
   return getEvaluatorSkillWithOptions(name, skillName, request, headers, runtime);
+}
+
+model GetExperimentPlanRequest {
+}
+
+model GetExperimentPlanResponseBody = {
+  createdAt?: long(name='createdAt', description='The creation time, in millisecond Unix timestamp.', example='1782816000000'),
+  datasetId?: string(name='datasetId', description='The associated dataset ID.', example='arms_customer_agent_level1'),
+  description?: string(name='description', description='The description.', example='对比 checkout Agent 基线与优化版本'),
+  evaluators?: [
+    Evaluator
+  ](name='evaluators', description='The list of evaluators.', example='[{"evaluatorRef": "Builtin.agent_task_completion"}]'),
+  experimentType?: string(name='experimentType', description='The experiment type.', example='online'),
+  experiments?: [
+    ExperimentConfig
+  ](name='experiments', description='The list of experiment configurations.', example='[{"label": "A", "name": "baseline", "modelName": "qwen-max"}]'),
+  input?: map[string]any(name='input', description='Optional.', example='{"question": "如何退款？"}'),
+  planId?: string(name='planId', description='The experiment plan ID.', example='exp-plan-0242d983f5d340fd8479cf2c19eb279e'),
+  planName?: string(name='planName', description='The experiment plan name.', example='arms_agent_experiment'),
+  querySql?: string(name='querySql', description='The custom query SQL clause in partial dataset mode.', example='status=\\\\"OK\\\\"'),
+  requestId?: string(name='requestId', description='The request ID.', example='3FE4CD1E-FF41-56BE-B590-7A021D9C1524'),
+  selectedItemIds?: [ string ](name='selectedItemIds', description='The list of selected data item IDs in partial dataset mode.', example='["019ef4d5-a0f0-7114-832d-5542d771cd8c"]'),
+  status?: string(name='status', description='The plan status.', example='stopped'),
+  updatedAt?: long(name='updatedAt', description='The update time, in millisecond Unix timestamp.', example='1782816600000'),
+}
+
+model GetExperimentPlanResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: GetExperimentPlanResponseBody(name='body'),
+}
+
+/**
+ * @summary Query an experiment plan
+ *
+ * @description Calls the GetExperimentPlan operation to query the complete configuration of a specified experiment plan, including experiment groups, data sources, evaluators, and timestamps.
+ *
+ * @param request GetExperimentPlanRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return GetExperimentPlanResponse
+ */
+async function getExperimentPlanWithOptions(agentSpace: string, planId: string, request: GetExperimentPlanRequest, headers: map[string]string, runtime: Util.RuntimeOptions): GetExperimentPlanResponse {
+  Util.validateModel(request);
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+  };
+  var params = new OpenApi.Params{
+    action = 'GetExperimentPlan',
+    version = '2026-05-20',
+    protocol = 'HTTPS',
+    pathname = `/api/v1/experiments/${OpenApiUtil.getEncodeParam(agentSpace)}/plans/${OpenApiUtil.getEncodeParam(planId)}`,
+    method = 'GET',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Query an experiment plan
+ *
+ * @description Calls the GetExperimentPlan operation to query the complete configuration of a specified experiment plan, including experiment groups, data sources, evaluators, and timestamps.
+ *
+ * @param request GetExperimentPlanRequest
+ * @return GetExperimentPlanResponse
+ */
+async function getExperimentPlan(agentSpace: string, planId: string, request: GetExperimentPlanRequest): GetExperimentPlanResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return getExperimentPlanWithOptions(agentSpace, planId, request, headers, runtime);
+}
+
+model GetExperimentRunRequest {
+}
+
+model GetExperimentRunResponseBody = {
+  record?: ExperimentRecord(name='record', description='The experiment run record details. Fields with null values are not returned.', example='{"recordId": "exp-run-f6d419b0ed3d43a7b585948a55efc07b", "experimentPlanId": "exp-plan-0242d983f5d340fd8479cf2c19eb279e", "recordName": "arms_agent_experiment 2026/07/22 20:02:55", "planName": "arms_agent_experiment", "status": "evaluating", "totalTasks": 40, "completedTasks": 40, "failedTasks": 0, "progress": 100.0, "executedAt": 1784721775379, "completedAt": 1784721811392, "dataSourceType": "dataset-full", "datasetId": "arms_customer_agent_level1", "modelNames": ["qwen3.7-plus", "qwen3.7-max"], "evaluationTaskId": "eval-task-6bec93bfa03740dd86ce2bf1496e65fb"}'),
+  regionId?: string(name='regionId', description='The region ID.', example='cn-hangzhou'),
+  requestId?: string(name='requestId', description='The request ID.', example='3FE4CD1E-FF41-56BE-B590-7A021D9C1524'),
+}
+
+model GetExperimentRunResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: GetExperimentRunResponseBody(name='body'),
+}
+
+/**
+ * @summary Queries the details of an experiment run record.
+ *
+ * @description Calls GetExperimentRun to query the details of a specific experiment run record, including the status, progress, configuration snapshot, and associated evaluation task ID.
+ *
+ * @param request GetExperimentRunRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return GetExperimentRunResponse
+ */
+async function getExperimentRunWithOptions(agentSpace: string, recordId: string, request: GetExperimentRunRequest, headers: map[string]string, runtime: Util.RuntimeOptions): GetExperimentRunResponse {
+  Util.validateModel(request);
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+  };
+  var params = new OpenApi.Params{
+    action = 'GetExperimentRun',
+    version = '2026-05-20',
+    protocol = 'HTTPS',
+    pathname = `/api/v1/experimentruns/${OpenApiUtil.getEncodeParam(agentSpace)}/records/${OpenApiUtil.getEncodeParam(recordId)}`,
+    method = 'GET',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Queries the details of an experiment run record.
+ *
+ * @description Calls GetExperimentRun to query the details of a specific experiment run record, including the status, progress, configuration snapshot, and associated evaluation task ID.
+ *
+ * @param request GetExperimentRunRequest
+ * @return GetExperimentRunResponse
+ */
+async function getExperimentRun(agentSpace: string, recordId: string, request: GetExperimentRunRequest): GetExperimentRunResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return getExperimentRunWithOptions(agentSpace, recordId, request, headers, runtime);
 }
 
 model GetPipelineRequest {
@@ -3347,6 +3809,196 @@ async function listEvaluators(request: ListEvaluatorsRequest): ListEvaluatorsRes
   var runtime = new Util.RuntimeOptions{};
   var headers : map[string]string = {};
   return listEvaluatorsWithOptions(request, headers, runtime);
+}
+
+model ListExperimentPlansRequest {
+  limit?: int32(name='limit', description='The number of entries to return. Default value: 20.', example='20'),
+  maxResults?: int32(name='maxResults', description='Optional. Use `offset` and `limit` for pagination instead.', example='20'),
+  nextToken?: string(name='nextToken', description='Optional. Use `offset` and `limit` for pagination instead.', example='eyJsYXN0SWQiOjEyM30='),
+  offset?: int32(name='offset', description='The offset. Default value: 0.', example='0'),
+  planName?: string(name='planName', description='Fuzzy match by plan name.', example='arms_agent'),
+  status?: string(name='status', description='Filters by exact status.', example='pending'),
+}
+
+model ListExperimentPlansResponseBody = {
+  maxResults?: int32(name='maxResults', description='The maximum number of entries returned.', example='20'),
+  nextToken?: string(name='nextToken', description='The token for the next page.', example='eyJsYXN0SWQiOjEwMX0='),
+  page?: int32(name='page', description='The page number.', example='0'),
+  pageSize?: int32(name='pageSize', description='The number of entries per page.', example='20'),
+  plans?: [
+    ExperimentPlanData
+  ](name='plans', description='The list of experiment plan summaries.', example='[{"planId": "exp-plan-e95bff54685a4ae29ff3a834c1008a71", "planName": "rca_benchmark_eval_experiment", "experimentType": "offline", "description": "", "status": "pending", "datasetId": "rca_benckmark_eval", "querySql": "", "experimentCount": 5, "createdAt": 1784612365000, "updatedAt": 1784619562000}, {"planId": "exp-plan-0242d983f5d340fd8479cf2c19eb279e", "planName": "arms_agent_experiment", "experimentType": "online", "description": "", "status": "stopped", "datasetId": "arms_customer_agent_level1", "querySql": "", "experimentCount": 4, "createdAt": 1784257858000, "updatedAt": 1784721811000}, {"planId": "b7f0ad3d-3765-446a-a744-ab64ab8bf386", "planName": "arms_customer_agent_plan", "experimentType": "offline", "description": "", "status": "stopped", "datasetId": "arms_customer_agent_level1", "querySql": "where \\\\"input\\\\" LIKE \\\\"%探针%\\\\"", "experimentCount": 65, "createdAt": 1782310430000, "updatedAt": 1784692254000}]'),
+  requestId?: string(name='requestId', description='The request ID.', example='3FE4CD1E-FF41-56BE-B590-7A021D9C1524'),
+  total?: int32(name='total', description='The total number of records that match the filter criteria.', example='6'),
+}
+
+model ListExperimentPlansResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ListExperimentPlansResponseBody(name='body'),
+}
+
+/**
+ * @summary Queries the list of experiment plans.
+ *
+ * @description Calls ListExperimentPlans to query the list of experiment plans under a specified AgentSpace for the current account. Supports fuzzy match by plan name, filtering by status, and pagination using `offset`/`limit`.
+ *
+ * @param request ListExperimentPlansRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return ListExperimentPlansResponse
+ */
+async function listExperimentPlansWithOptions(agentSpace: string, request: ListExperimentPlansRequest, headers: map[string]string, runtime: Util.RuntimeOptions): ListExperimentPlansResponse {
+  Util.validateModel(request);
+  var query : map[string]any = {};
+  if (!Util.isUnset(request.limit)) {
+    query['limit'] = request.limit;
+  }
+  if (!Util.isUnset(request.maxResults)) {
+    query['maxResults'] = request.maxResults;
+  }
+  if (!Util.isUnset(request.nextToken)) {
+    query['nextToken'] = request.nextToken;
+  }
+  if (!Util.isUnset(request.offset)) {
+    query['offset'] = request.offset;
+  }
+  if (!Util.isUnset(request.planName)) {
+    query['planName'] = request.planName;
+  }
+  if (!Util.isUnset(request.status)) {
+    query['status'] = request.status;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'ListExperimentPlans',
+    version = '2026-05-20',
+    protocol = 'HTTPS',
+    pathname = `/api/v1/experiments/${OpenApiUtil.getEncodeParam(agentSpace)}/plans`,
+    method = 'GET',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Queries the list of experiment plans.
+ *
+ * @description Calls ListExperimentPlans to query the list of experiment plans under a specified AgentSpace for the current account. Supports fuzzy match by plan name, filtering by status, and pagination using `offset`/`limit`.
+ *
+ * @param request ListExperimentPlansRequest
+ * @return ListExperimentPlansResponse
+ */
+async function listExperimentPlans(agentSpace: string, request: ListExperimentPlansRequest): ListExperimentPlansResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return listExperimentPlansWithOptions(agentSpace, request, headers, runtime);
+}
+
+model ListExperimentRunsRequest {
+  datasetId?: string(name='datasetId', description='Filters results by exact dataset ID.', example='arms_customer_agent_level1'),
+  experimentName?: string(name='experimentName', description='Filters results by fuzzy match on the experiment configuration name.', example='experimentA'),
+  maxResults?: int32(name='maxResults', description='Optional. Use `page` and `pageSize` for pagination instead.', example='20'),
+  nextToken?: string(name='nextToken', description='Optional. Use `page` and `pageSize` for pagination instead.', example='eyJwYWdlIjoxfQ=='),
+  page?: int32(name='page', description='The page number, starting from 0. Default value: 0.', example='0'),
+  pageSize?: int32(name='pageSize', description='The number of entries per page. Default value: 20.', example='10'),
+  planName?: string(name='planName', description='Filters results by fuzzy match on experiment plan name.', example='arms_agent_experiment'),
+  status?: string(name='status', description='Filters results by status.', example='evaluating'),
+}
+
+model ListExperimentRunsResponseBody = {
+  maxResults?: int32(name='maxResults', description='The maximum number of entries returned.', example='20'),
+  nextToken?: string(name='nextToken', description='Optional.', example='eyJwYWdlIjoxfQ=='),
+  page?: int32(name='page', description='The current page number.', example='0'),
+  pageSize?: int32(name='pageSize', description='The number of entries per page.', example='10'),
+  records?: [
+    ExperimentRecord
+  ](name='records', description='The list of experiment run records.', example='[{"recordId": "exp-run-f6d419b0ed3d43a7b585948a55efc07b", "experimentPlanId": "exp-plan-0242d983f5d340fd8479cf2c19eb279e", "recordName": "arms_agent_experiment 2026/07/22 20:02:55", "planName": "arms_agent_experiment", "status": "evaluating", "progress": 100.0, "totalTasks": 40, "completedTasks": 40, "failedTasks": 0, "dataSourceType": "dataset-full", "datasetId": "arms_customer_agent_level1", "modelNames": ["qwen3.7-plus", "qwen3.7-max"], "evaluationTaskId": "eval-task-6bec93bfa03740dd86ce2bf1496e65fb", "executedAt": 1784721775379, "completedAt": 1784721811392}, {"recordId": "a5397261-6e6d-4e45-bf52-feb8686f7524", "experimentPlanId": "exp-plan-e95bff54685a4ae29ff3a834c1008a71", "recordName": "rca_benchmark_eval_experiment 2026/07/22 19:23:59", "planName": "rca_benchmark_eval_experiment", "status": "completed", "progress": 100.0, "totalTasks": 20, "completedTasks": 20, "failedTasks": 0, "dataSourceType": "dataset-full", "datasetId": "rca_benckmark_eval", "modelNames": [], "evaluationTaskId": "eval-task-b1395b3bdf3e4dc994d7dcde7a66da45", "executedAt": 1784719439255, "completedAt": 1784719989371}]'),
+  requestId?: string(name='requestId', description='The request ID.', example='3FE4CD1E-FF41-56BE-B590-7A021D9C1524'),
+  total?: int32(name='total', description='The total number of records.', example='100'),
+}
+
+model ListExperimentRunsResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ListExperimentRunsResponseBody(name='body'),
+}
+
+/**
+ * @summary Queries the list of experiment run records.
+ *
+ * @description Calls ListExperimentRuns to query experiment run records under a specified AgentSpace for the current account. You can filter results by status, dataset, plan name, or experiment name, and use `page`/`pageSize` for pagination.
+ *
+ * @param request ListExperimentRunsRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return ListExperimentRunsResponse
+ */
+async function listExperimentRunsWithOptions(agentSpace: string, request: ListExperimentRunsRequest, headers: map[string]string, runtime: Util.RuntimeOptions): ListExperimentRunsResponse {
+  Util.validateModel(request);
+  var query : map[string]any = {};
+  if (!Util.isUnset(request.datasetId)) {
+    query['datasetId'] = request.datasetId;
+  }
+  if (!Util.isUnset(request.experimentName)) {
+    query['experimentName'] = request.experimentName;
+  }
+  if (!Util.isUnset(request.maxResults)) {
+    query['maxResults'] = request.maxResults;
+  }
+  if (!Util.isUnset(request.nextToken)) {
+    query['nextToken'] = request.nextToken;
+  }
+  if (!Util.isUnset(request.page)) {
+    query['page'] = request.page;
+  }
+  if (!Util.isUnset(request.pageSize)) {
+    query['pageSize'] = request.pageSize;
+  }
+  if (!Util.isUnset(request.planName)) {
+    query['planName'] = request.planName;
+  }
+  if (!Util.isUnset(request.status)) {
+    query['status'] = request.status;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'ListExperimentRuns',
+    version = '2026-05-20',
+    protocol = 'HTTPS',
+    pathname = `/api/v1/experimentruns/${OpenApiUtil.getEncodeParam(agentSpace)}/records`,
+    method = 'GET',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Queries the list of experiment run records.
+ *
+ * @description Calls ListExperimentRuns to query experiment run records under a specified AgentSpace for the current account. You can filter results by status, dataset, plan name, or experiment name, and use `page`/`pageSize` for pagination.
+ *
+ * @param request ListExperimentRunsRequest
+ * @return ListExperimentRunsResponse
+ */
+async function listExperimentRuns(agentSpace: string, request: ListExperimentRunsRequest): ListExperimentRunsResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return listExperimentRunsWithOptions(agentSpace, request, headers, runtime);
 }
 
 model ListPipelineRunsRequest {
@@ -4580,6 +5232,209 @@ async function updateEvaluatorSkill(name: string, skillName: string, request: Up
   var runtime = new Util.RuntimeOptions{};
   var headers : map[string]string = {};
   return updateEvaluatorSkillWithOptions(name, skillName, request, headers, runtime);
+}
+
+model UpdateExperimentPlanRequest {
+  datasetId?: string(name='datasetId', description='The associated dataset ID.', example='rca_benckmark_eval'),
+  datasetProject?: string(name='datasetProject', description='Optional.', example='agentspace-project'),
+  description?: string(name='description', description='The description.', example='rca_benchmark_eval_experiment offline experiment.'),
+  evaluators?: [
+    Evaluator
+  ](name='evaluators', description='The evaluator list. Omitting this field means no modification. Passing an empty array clears the list.', example='[{"evaluatorRef": "Builtin.agent_task_completion"}]'),
+  experimentType?: string(name='experimentType', description='The experiment type.', example='OFFLINE'),
+  experiments?: [
+    ExperimentConfig
+  ](name='experiments', description='The experiment configuration list. When passed, the entire list is replaced. The number of items must be 1 to 5.', example='[{"label": "A", "name": "baseline", "modelName": "qwen-max"}]'),
+  input?: map[string]any(name='input', description='Optional.', example='{"question": "How do I get a refund?"}'),
+  planName?: string(name='planName', description='The experiment plan name.', example='rca_benchmark_eval_experiment'),
+  querySql?: string(name='querySql', description='The custom query SQL clause in partial dataset mode.', example='level > 2'),
+  selectedItemIds?: [ string ](name='selectedItemIds', description='The list of selected data item IDs in partial dataset mode. Passing an empty array clears the list.', example='[]'),
+}
+
+model UpdateExperimentPlanResponseBody = {
+  message?: string(name='message', description='The prompt message.', example='Experiment plan updated successfully.'),
+  planId?: string(name='planId', description='The experiment plan ID.', example='exp-plan-e95bff54685a4ae29ff3a834c1008a71'),
+  requestId?: string(name='requestId', description='The request ID.', example='3FE4CD1E-FF41-56BE-B590-7A021D9C1524'),
+  status?: string(name='status', description='The update result. The value is updated if successful.', example='updated'),
+}
+
+model UpdateExperimentPlanResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: UpdateExperimentPlanResponseBody(name='body'),
+}
+
+/**
+ * @summary Updates an experiment plan.
+ *
+ * @description Calls UpdateExperimentPlan to update a specified experiment plan. Fields that are not passed remain unchanged. Only plans created by the current account can be updated.
+ *
+ * @param request UpdateExperimentPlanRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return UpdateExperimentPlanResponse
+ */
+async function updateExperimentPlanWithOptions(agentSpace: string, planId: string, request: UpdateExperimentPlanRequest, headers: map[string]string, runtime: Util.RuntimeOptions): UpdateExperimentPlanResponse {
+  Util.validateModel(request);
+  var body : map[string]any = {};
+  if (!Util.isUnset(request.datasetId)) {
+    body['datasetId'] = request.datasetId;
+  }
+  if (!Util.isUnset(request.datasetProject)) {
+    body['datasetProject'] = request.datasetProject;
+  }
+  if (!Util.isUnset(request.description)) {
+    body['description'] = request.description;
+  }
+  if (!Util.isUnset(request.evaluators)) {
+    body['evaluators'] = request.evaluators;
+  }
+  if (!Util.isUnset(request.experimentType)) {
+    body['experimentType'] = request.experimentType;
+  }
+  if (!Util.isUnset(request.experiments)) {
+    body['experiments'] = request.experiments;
+  }
+  if (!Util.isUnset(request.input)) {
+    body['input'] = request.input;
+  }
+  if (!Util.isUnset(request.planName)) {
+    body['planName'] = request.planName;
+  }
+  if (!Util.isUnset(request.querySql)) {
+    body['querySql'] = request.querySql;
+  }
+  if (!Util.isUnset(request.selectedItemIds)) {
+    body['selectedItemIds'] = request.selectedItemIds;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApi.Params{
+    action = 'UpdateExperimentPlan',
+    version = '2026-05-20',
+    protocol = 'HTTPS',
+    pathname = `/api/v1/experiments/${OpenApiUtil.getEncodeParam(agentSpace)}/plans/${OpenApiUtil.getEncodeParam(planId)}`,
+    method = 'PUT',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Updates an experiment plan.
+ *
+ * @description Calls UpdateExperimentPlan to update a specified experiment plan. Fields that are not passed remain unchanged. Only plans created by the current account can be updated.
+ *
+ * @param request UpdateExperimentPlanRequest
+ * @return UpdateExperimentPlanResponse
+ */
+async function updateExperimentPlan(agentSpace: string, planId: string, request: UpdateExperimentPlanRequest): UpdateExperimentPlanResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return updateExperimentPlanWithOptions(agentSpace, planId, request, headers, runtime);
+}
+
+model UpdateExperimentRunRequest {
+  completedAt?: long(name='completedAt', description='The experiment completion time. A millisecond-level UNIX timestamp.', example='1784719989371'),
+  completedTasks?: int32(name='completedTasks', description='The number of completed tasks.', example='10'),
+  executedAt?: long(name='executedAt', description='The experiment execution time. A millisecond-level UNIX timestamp.', example='1784719439255'),
+  failedTasks?: int32(name='failedTasks', description='The number of failed tasks.', example='0'),
+  recordName?: string(name='recordName', description='The experiment record name.', example='rca_benchmark_eval_experiment 2026/07/22 19:23:59'),
+  status?: string(name='status', description='The experiment record status. Set to cancelled to cancel execution.', example='running'),
+  totalTasks?: int32(name='totalTasks', description='The total number of tasks.', example='20'),
+  clientToken?: string(name='clientToken', description='Optional.', example='a1b2c3d4-1234-5678-90ab-cdef12345678'),
+}
+
+model UpdateExperimentRunResponseBody = {
+  message?: string(name='message', description='The prompt message.', example='Experiment record updated successfully.'),
+  recordId?: string(name='recordId', description='The experiment record ID.', example='a5397261-6e6d-4e45-bf52-feb8686f7524'),
+  requestId?: string(name='requestId', description='The request ID.', example='019F89B5-1B07-3BB3-A32E-F5B007029E9C'),
+  status?: string(name='status', description='The status after the update (the persisted value).', example='running'),
+}
+
+model UpdateExperimentRunResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: UpdateExperimentRunResponseBody(name='body'),
+}
+
+/**
+ * @summary Updates an experiment run.
+ *
+ * @description Calls UpdateExperimentRun to update the name, status, and task counts of an experiment record. Fields that are not specified remain unchanged. Typical sequence for offline experiments: running → progress writeback → completed.
+ *
+ * @param request UpdateExperimentRunRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return UpdateExperimentRunResponse
+ */
+async function updateExperimentRunWithOptions(agentSpace: string, recordId: string, request: UpdateExperimentRunRequest, headers: map[string]string, runtime: Util.RuntimeOptions): UpdateExperimentRunResponse {
+  Util.validateModel(request);
+  var query : map[string]any = {};
+  if (!Util.isUnset(request.clientToken)) {
+    query['clientToken'] = request.clientToken;
+  }
+
+  var body : map[string]any = {};
+  if (!Util.isUnset(request.completedAt)) {
+    body['completedAt'] = request.completedAt;
+  }
+  if (!Util.isUnset(request.completedTasks)) {
+    body['completedTasks'] = request.completedTasks;
+  }
+  if (!Util.isUnset(request.executedAt)) {
+    body['executedAt'] = request.executedAt;
+  }
+  if (!Util.isUnset(request.failedTasks)) {
+    body['failedTasks'] = request.failedTasks;
+  }
+  if (!Util.isUnset(request.recordName)) {
+    body['recordName'] = request.recordName;
+  }
+  if (!Util.isUnset(request.status)) {
+    body['status'] = request.status;
+  }
+  if (!Util.isUnset(request.totalTasks)) {
+    body['totalTasks'] = request.totalTasks;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApi.Params{
+    action = 'UpdateExperimentRun',
+    version = '2026-05-20',
+    protocol = 'HTTPS',
+    pathname = `/api/v1/experimentruns/${OpenApiUtil.getEncodeParam(agentSpace)}/records/${OpenApiUtil.getEncodeParam(recordId)}`,
+    method = 'PUT',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Updates an experiment run.
+ *
+ * @description Calls UpdateExperimentRun to update the name, status, and task counts of an experiment record. Fields that are not specified remain unchanged. Typical sequence for offline experiments: running → progress writeback → completed.
+ *
+ * @param request UpdateExperimentRunRequest
+ * @return UpdateExperimentRunResponse
+ */
+async function updateExperimentRun(agentSpace: string, recordId: string, request: UpdateExperimentRunRequest): UpdateExperimentRunResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return updateExperimentRunWithOptions(agentSpace, recordId, request, headers, runtime);
 }
 
 model UpdatePipelineRequest {
