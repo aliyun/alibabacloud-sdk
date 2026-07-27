@@ -61,7 +61,6 @@ init(configuration: ClientConfiguration){
     'ap-southeast-6' = 'metrics.ap-southeast-6.aliyuncs.com',
     'ap-southeast-5' = 'metrics.ap-southeast-5.aliyuncs.com',
     'ap-southeast-3' = 'metrics.ap-southeast-3.aliyuncs.com',
-    'ap-southeast-2' = 'metrics.ap-southeast-2.aliyuncs.com',
     'ap-southeast-1' = 'metrics.ap-southeast-1.aliyuncs.com',
     'ap-south-1' = 'metrics.ap-south-1.aliyuncs.com',
     'ap-northeast-2' = 'metrics.ap-northeast-2.aliyuncs.com',
@@ -521,6 +520,8 @@ model AlertRuleTemplate {
   id?: long(name='id'),
   isSystem?: int32(name='isSystem'),
   labels?: string(name='labels'),
+  namespace?: string(name='namespace'),
+  productCategory?: string(name='productCategory'),
   ruleConfigs?: string(name='ruleConfigs'),
   scenes?: string(name='scenes'),
   schemaVersion?: string(name='schemaVersion'),
@@ -543,6 +544,7 @@ model AlertRuleV2 {
   actionIntegrationConfig?: ActionIntegrationConfig(name='actionIntegrationConfig'),
   annotations?: map[string]string(name='annotations'),
   armsIntegrationConfig?: ArmsIntegrationConfig(name='armsIntegrationConfig'),
+  bizSource?: string(name='bizSource'),
   conditionConfig?: ConditionConfigUnified(name='conditionConfig'),
   contentTemplate?: string(name='contentTemplate'),
   createdAt?: string(name='createdAt'),
@@ -553,11 +555,14 @@ model AlertRuleV2 {
   labels?: map[string]string(name='labels'),
   notifyConfig?: NotifyConfigUnified(name='notifyConfig'),
   notifyStrategyId?: string(name='notifyStrategyId'),
-  observeResourceGlobalScope?: boolean(name='observeResourceGlobalScope'),
+  observeResourceConfig?: ObserveResourceConfig(name='observeResourceConfig'),
+  observeResourceGlobalScope?: boolean(name='observeResourceGlobalScope', deprecated='true'),
   observeResourceList?: [ string ](name='observeResourceList'),
-  observeResourceType?: string(name='observeResourceType'),
+  observeResourceType?: string(name='observeResourceType', deprecated='true'),
   partitionKey?: string(name='partitionKey'),
   queryConfig?: QueryConfigUnified(name='queryConfig'),
+  rcaConfig?: AlertRuleRcaConfig(name='rcaConfig'),
+  regionId?: string(name='regionId'),
   scheduleConfig?: ScheduleConfigUnified(name='scheduleConfig'),
   severityLevels?: string(name='severityLevels'),
   status?: string(name='status'),
@@ -595,6 +600,10 @@ model ApmThresholdConfig {
 
 model ArmsIntegrationConfig {
   enabled?: boolean(name='enabled'),
+}
+
+model BizSourceFilter {
+  eq?: string(name='eq'),
 }
 
 model BizTraceConfig {
@@ -680,10 +689,19 @@ model CmsEventForView {
   workspaceTags?: map[string]any(name='workspaceTags'),
 }
 
+model CompareList {
+  aggregate: string(name='aggregate', description='This parameter is required.'),
+  operator: string(name='operator', description='This parameter is required.'),
+  threshold: float(name='threshold', description='This parameter is required.'),
+  yoyTimeUnit?: string(name='yoyTimeUnit'),
+  yoyTimeValue?: int32(name='yoyTimeValue'),
+}
+
 model ConditionConfigUnified {
   aggregate?: string(name='aggregate'),
+  alertCount?: int32(name='alertCount'),
   compareList?: [
-    ApmCompositeCompareConfig
+    CompareList
   ](name='compareList'),
   compositeEscalation?: CloudMonitoringCompositeEscalation(name='compositeEscalation'),
   countOperator?: string(name='countOperator'),
@@ -699,6 +717,9 @@ model ConditionConfigUnified {
   matchValue?: string(name='matchValue'),
   max?: double(name='max'),
   min?: double(name='min'),
+  noDataAlertLevel?: string(name='noDataAlertLevel'),
+  noDataAlertSeverity?: string(name='noDataAlertSeverity'),
+  noDataAppendValue?: double(name='noDataAppendValue'),
   noDataPolicy?: string(name='noDataPolicy'),
   operator?: string(name='operator'),
   prometheus?: CloudMonitoringPrometheusEscalation(name='prometheus'),
@@ -707,10 +728,10 @@ model ConditionConfigUnified {
   simpleEscalation?: CloudMonitoringSimpleEscalation(name='simpleEscalation'),
   threshold?: double(name='threshold'),
   thresholdList?: [
-    ApmThresholdConfig
+    ThresholdList
   ](name='thresholdList'),
   triggers?: [
-    MetricSetMultiTrigger
+    Triggers
   ](name='triggers'),
   type: string(name='type', description='This parameter is required.'),
   yoyTimeUnit?: string(name='yoyTimeUnit'),
@@ -743,7 +764,11 @@ model DatasourceConfigUnified {
   legacyRaw?: string(name='legacyRaw'),
   legacyType?: string(name='legacyType'),
   productCategory?: string(name='productCategory'),
+  project?: string(name='project'),
   regionId?: string(name='regionId'),
+  stores?: [
+    Stores
+  ](name='stores'),
   type: string(name='type', description='This parameter is required.'),
 }
 
@@ -815,6 +840,17 @@ model EntityDiscoverRule {
       tagValues?: [ string ](name='tagValues'),
     }
   ](name='tags'),
+}
+
+model EntityFields {
+  field?: string(name='field'),
+  value?: string(name='value'),
+}
+
+model EntityFilters {
+  field?: string(name='field'),
+  operator?: string(name='operator'),
+  value?: string(name='value'),
 }
 
 model EntityGroupBase {
@@ -919,6 +955,12 @@ model Filter {
 model FilterCondition {
   field?: string(name='field'),
   op?: string(name='op'),
+  value?: string(name='value'),
+}
+
+model FilterList {
+  key: string(name='key', description='This parameter is required.'),
+  type: string(name='type', description='This parameter is required.'),
   value?: string(name='value'),
 }
 
@@ -1294,6 +1336,25 @@ model IndexKey {
   type?: string(name='type'),
 }
 
+model JoinConditions {
+  lhsField?: string(name='lhsField'),
+  operator?: string(name='operator'),
+  rhsField?: string(name='rhsField'),
+}
+
+model Joinings {
+  conditions?: [
+    JoinConditions
+  ](name='conditions'),
+  type?: string(name='type'),
+}
+
+model LabelFilters {
+  name?: string(name='name'),
+  operator?: string(name='operator'),
+  value?: string(name='value'),
+}
+
 model LabelMatcher {
   key?: string(name='key'),
   value?: string(name='value'),
@@ -1363,6 +1424,7 @@ model ManageAlertRulesUnifiedActionInput {
   actionIntegrationConfig?: ActionIntegrationConfig(name='actionIntegrationConfig'),
   annotations?: map[string]string(name='annotations'),
   armsIntegrationConfig?: ArmsIntegrationConfig(name='armsIntegrationConfig'),
+  bizSource?: string(name='bizSource'),
   conditionConfig?: ConditionConfigUnified(name='conditionConfig'),
   contentTemplate?: string(name='contentTemplate'),
   datasourceConfig?: DatasourceConfigUnified(name='datasourceConfig'),
@@ -1370,13 +1432,22 @@ model ManageAlertRulesUnifiedActionInput {
   enabled?: boolean(name='enabled'),
   labels?: map[string]string(name='labels'),
   notifyConfig?: NotifyConfigUnified(name='notifyConfig'),
-  observeResourceInstanceId?: string(name='observeResourceInstanceId'),
-  observeResourceType?: string(name='observeResourceType'),
+  observeResourceConfig?: ObserveResourceConfig(name='observeResourceConfig'),
+  observeResourceInstanceId?: string(name='observeResourceInstanceId', deprecated='true'),
+  observeResourceType?: string(name='observeResourceType', deprecated='true'),
   queryConfig?: QueryConfigUnified(name='queryConfig'),
+  rcaConfig?: AlertRuleRcaConfig(name='rcaConfig'),
+  regionId?: string(name='regionId'),
   scheduleConfig?: ScheduleConfigUnified(name='scheduleConfig'),
   uuid?: string(name='uuid'),
   uuidList?: [ string ](name='uuidList'),
   workspace?: string(name='workspace'),
+}
+
+model MeasureList {
+  groupBy?: [ string ](name='groupBy'),
+  measureCode: string(name='measureCode', description='This parameter is required.'),
+  windowSecs: int32(name='windowSecs', description='This parameter is required.'),
 }
 
 model MergeContact {
@@ -1465,7 +1536,7 @@ model MetricSetMultiTrigger {
 
 model MetricSetNamedQueryEntry {
   labelFilters?: [
-    UmodelLabelFilter
+    LabelFilters
   ](name='labelFilters'),
   metric?: string(name='metric'),
   metricSet?: string(name='metricSet'),
@@ -1497,6 +1568,16 @@ model ModelParameters {
   temperature?: float(name='temperature'),
   topK?: int32(name='topK'),
   topP?: float(name='topP'),
+}
+
+model NotificationChannelsFilter {
+  containsContacts?: [ string ](name='containsContacts'),
+  containsCustomWebhooks?: [ string ](name='containsCustomWebhooks'),
+  containsDingWebhooks?: [ string ](name='containsDingWebhooks'),
+  containsFsWebhooks?: [ string ](name='containsFsWebhooks'),
+  containsGroups?: [ string ](name='containsGroups'),
+  containsSlackWebhooks?: [ string ](name='containsSlackWebhooks'),
+  containsWxWebhooks?: [ string ](name='containsWxWebhooks'),
 }
 
 model NotifyChannel {
@@ -1990,6 +2071,24 @@ model ObserveGroupPromInstance {
   time?: string(name='time', description='记录写入或选择时间，格式 yyyy-MM-dd HH:mm:ss。'),
 }
 
+model ObserveResourceConfig {
+  entityDomain?: string(name='entityDomain'),
+  entityType?: string(name='entityType'),
+  namespace?: string(name='namespace'),
+  productCategory?: string(name='productCategory'),
+  relationType?: string(name='relationType'),
+  resources?: [ string ](name='resources'),
+}
+
+model ObserveResourceConfigFilter {
+  entityDomain?: QueryAlertRulesEntityDomainFilter(name='entityDomain'),
+  entityType?: QueryAlertRulesEntityTypeFilter(name='entityType'),
+  namespace?: QueryAlertRulesNamespaceFilter(name='namespace'),
+  productCategory?: QueryAlertRulesProductCategoryFilter(name='productCategory'),
+  relationType?: QueryAlertRulesRelationTypeFilter(name='relationType'),
+  resources?: QueryAlertRulesResourcesFilter(name='resources'),
+}
+
 model ObserveResourceGlobalScopeFilter {
   eq?: boolean(name='eq'),
 }
@@ -2021,6 +2120,41 @@ model PrometheusManagedInstance {
   workspace?: string(name='workspace'),
 }
 
+model PrometheusMetricFilterValue {
+  dim?: string(name='dim'),
+  opt?: string(name='opt'),
+  value?: string(name='value'),
+}
+
+model PrometheusMetricParamValue {
+  name?: string(name='name'),
+  value?: string(name='value'),
+}
+
+model PrometheusMultiTrigger {
+  conditions?: [
+    PrometheusSimpleExpression
+  ](name='conditions'),
+  durationSecs?: int32(name='durationSecs'),
+  expressionType?: string(name='expressionType'),
+  logicOperator?: string(name='logicOperator'),
+  operator?: string(name='operator'),
+  queryName?: string(name='queryName'),
+  severity?: string(name='severity'),
+  threshold?: double(name='threshold'),
+}
+
+model PrometheusNamedQueryEntry {
+  expr?: string(name='expr'),
+  name?: string(name='name'),
+}
+
+model PrometheusSimpleExpression {
+  operator?: string(name='operator'),
+  queryName?: string(name='queryName'),
+  threshold?: double(name='threshold'),
+}
+
 model PromptTemplateItem {
   content?: string(name='content'),
   role?: string(name='role'),
@@ -2032,16 +2166,42 @@ model PushingSetting {
   templateUuid?: string(name='templateUuid'),
 }
 
+model Queries {
+  end?: long(name='end'),
+  expr?: string(name='expr'),
+  labelFilters?: [
+    LabelFilters
+  ](name='labelFilters'),
+  metric?: string(name='metric'),
+  metricSet?: string(name='metricSet'),
+  name?: string(name='name'),
+  start?: long(name='start'),
+  timeUnit?: string(name='timeUnit'),
+  window?: long(name='window'),
+}
+
+model QueryAlertRulesEntityDomainFilter {
+  eq?: string(name='eq'),
+}
+
+model QueryAlertRulesEntityTypeFilter {
+  in?: [ string ](name='in'),
+  notIn?: [ string ](name='notIn'),
+}
+
 model QueryAlertRulesFilter {
+  bizSource?: BizSourceFilter(name='bizSource'),
   datasourceType?: DatasourceTypeFilter(name='datasourceType'),
   displayName?: DisplayNameFilter(name='displayName'),
   enabled?: EnabledFilter(name='enabled'),
   labels?: LabelsFilter(name='labels'),
+  notificationChannels?: NotificationChannelsFilter(name='notificationChannels'),
   notifyStrategyId?: NotifyStrategyIdFilter(name='notifyStrategyId'),
+  observeResourceConfig?: ObserveResourceConfigFilter(name='observeResourceConfig'),
   observeResourceGlobalScope?: ObserveResourceGlobalScopeFilter(name='observeResourceGlobalScope'),
   observeResourceInstanceId?: string(name='observeResourceInstanceId', example='i-bp1abcxxxxxxxx', deprecated='true'),
   observeResourceList?: ObserveResourceListFilter(name='observeResourceList'),
-  observeResourceType?: ObserveResourceTypeFilter(name='observeResourceType'),
+  observeResourceType?: ObserveResourceTypeFilter(name='observeResourceType', deprecated='true'),
   partitionKey?: PartitionKeyFilter(name='partitionKey'),
   severityLevels?: SeverityLevelsFilter(name='severityLevels'),
   status?: StatusFilter(name='status'),
@@ -2054,6 +2214,24 @@ model QueryAlertRulesInput {
   workspace?: string(name='workspace'),
 }
 
+model QueryAlertRulesNamespaceFilter {
+  eq?: string(name='eq'),
+}
+
+model QueryAlertRulesProductCategoryFilter {
+  eq?: string(name='eq'),
+}
+
+model QueryAlertRulesRelationTypeFilter {
+  in?: [ string ](name='in'),
+  notIn?: [ string ](name='notIn'),
+}
+
+model QueryAlertRulesResourcesFilter {
+  contains?: [ string ](name='contains'),
+  notContains?: [ string ](name='notContains'),
+}
+
 model QueryAlertRulesResult {
   alertRules?: [
     AlertRuleV2
@@ -2063,37 +2241,54 @@ model QueryAlertRulesResult {
 
 model QueryConfigUnified {
   aggregate?: string(name='aggregate'),
+  checkAfterDataComplete?: boolean(name='checkAfterDataComplete', deprecated='true'),
   dimensions?: [ map[string]string ](name='dimensions'),
+  durationSecs?: long(name='durationSecs'),
   enableDataCompleteCheck?: boolean(name='enableDataCompleteCheck'),
   entityDomain?: string(name='entityDomain'),
   entityFields?: [
-    UmodelEntityField
+    EntityFields
   ](name='entityFields'),
   entityFilters?: [
-    UmodelEntityFilter
+    EntityFilters
   ](name='entityFilters'),
   entityType?: string(name='entityType'),
   expr?: string(name='expr'),
   filterList?: [
-    ApmFilterConfig
+    FilterList
   ](name='filterList'),
+  filterValues?: [
+    PrometheusMetricFilterValue
+  ](name='filterValues'),
+  groupFieldList?: [ string ](name='groupFieldList'),
   groupId?: string(name='groupId'),
+  groupType?: string(name='groupType'),
+  joinings?: [
+    Joinings
+  ](name='joinings'),
   labelFilters?: [
-    UmodelLabelFilter
+    LabelFilters
   ](name='labelFilters'),
   legacyRaw?: string(name='legacyRaw'),
   legacyType?: string(name='legacyType'),
   logSet?: string(name='logSet'),
+  measureGroupKey?: string(name='measureGroupKey'),
   measureList?: [
-    ApmMeasureConfig
+    MeasureList
   ](name='measureList'),
   metric?: string(name='metric'),
+  metricGroupId?: string(name='metricGroupId'),
+  metricId?: string(name='metricId'),
+  metricIds?: [ string ](name='metricIds', deprecated='true'),
   metricSet?: string(name='metricSet'),
   namespace?: string(name='namespace'),
   offsetSecs?: long(name='offsetSecs'),
+  paramValues?: [
+    PrometheusMetricParamValue
+  ](name='paramValues'),
   promQl?: string(name='promQl', deprecated='true'),
   queries?: [
-    MetricSetNamedQueryEntry
+    Queries
   ](name='queries'),
   relationType?: string(name='relationType'),
   serviceIdList?: [ string ](name='serviceIdList'),
@@ -2178,8 +2373,45 @@ model SeverityNotifyConfig {
   sendRecoverNotification?: boolean(name='sendRecoverNotification'),
 }
 
+model SlsJoinCondition {
+  lhsField?: string(name='lhsField'),
+  operator?: string(name='operator'),
+  rhsField?: string(name='rhsField'),
+}
+
+model SlsMultiConditionCaseConfig {
+  countOperator?: string(name='countOperator'),
+  countThreshold?: long(name='countThreshold'),
+  matchField?: string(name='matchField'),
+  matchOperator?: string(name='matchOperator'),
+  matchValue?: string(name='matchValue'),
+  severity?: string(name='severity'),
+}
+
+model SlsNamedQueryEntry {
+  end?: long(name='end'),
+  expr?: string(name='expr'),
+  start?: long(name='start'),
+  timeUnit?: string(name='timeUnit'),
+  window?: long(name='window'),
+}
+
+model SlsQueryJoin {
+  conditions?: [
+    SlsJoinCondition
+  ](name='conditions'),
+  type?: string(name='type'),
+}
+
 model StatusFilter {
   eq?: string(name='eq'),
+}
+
+model Stores {
+  project?: string(name='project', deprecated='true'),
+  regionId?: string(name='regionId', deprecated='true'),
+  store?: string(name='store'),
+  storeType?: string(name='storeType'),
 }
 
 model SubscriptionAndNotifyStrategyForListView {
@@ -2346,6 +2578,13 @@ model TagSelector {
   relation?: string(name='relation'),
 }
 
+model ThresholdList {
+  max?: double(name='max'),
+  min?: double(name='min'),
+  severity: string(name='severity', description='This parameter is required.'),
+  threshold?: float(name='threshold'),
+}
+
 model TransformAction {
   filterSetting?: FilterSetting(name='filterSetting'),
   labelKey?: string(name='labelKey'),
@@ -2384,6 +2623,41 @@ model TransformerForView {
   updateTime?: string(name='updateTime'),
   userId?: string(name='userId'),
   workspace?: string(name='workspace'),
+}
+
+model TriggerConditions {
+  expressionType?: string(name='expressionType'),
+  max?: double(name='max'),
+  min?: double(name='min'),
+  operator?: string(name='operator'),
+  queryName?: string(name='queryName'),
+  threshold?: double(name='threshold'),
+}
+
+model Triggers {
+  comparisonOperator?: string(name='comparisonOperator'),
+  conditions?: [
+    TriggerConditions
+  ](name='conditions'),
+  countOperator?: string(name='countOperator'),
+  countThreshold?: long(name='countThreshold'),
+  durationSecs?: int32(name='durationSecs'),
+  expressionType?: string(name='expressionType'),
+  logicOperator?: string(name='logicOperator'),
+  matchField?: string(name='matchField'),
+  matchOperator?: string(name='matchOperator'),
+  matchValue?: string(name='matchValue'),
+  max?: double(name='max'),
+  metricName?: string(name='metricName'),
+  min?: double(name='min'),
+  operator?: string(name='operator'),
+  period?: int32(name='period'),
+  preCondition?: string(name='preCondition'),
+  queryName?: string(name='queryName'),
+  severity?: string(name='severity'),
+  statistics?: string(name='statistics'),
+  threshold?: any(name='threshold'),
+  times?: int32(name='times'),
 }
 
 model UmodelEntityField {
@@ -7577,6 +7851,7 @@ async function listWorkspaces(request: ListWorkspacesRequest): ListWorkspacesRes
 model ManageAlertRulesRequest {
   regionId?: string(name='RegionId', position='Host'),
   body?: ManageAlertRulesUnifiedActionInput(name='body', shrink='json', position='Body'),
+  callSource?: string(name='callSource', position='Query'),
 }
 
 model ManageAlertRulesResponse = {
@@ -7655,6 +7930,7 @@ model QueryAlertRulesRequest {
   clientToken?: string(name='clientToken', example='xxxxx-xxxx-xxxx', position='Query'),
   maxResults?: int32(name='maxResults', example='10', position='Query'),
   nextToken?: string(name='nextToken', example='123456', position='Query'),
+  queryJson?: string(name='queryJson', position='Query'),
 }
 
 model QueryAlertRulesResponse = {
