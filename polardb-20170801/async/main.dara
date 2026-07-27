@@ -80,9 +80,7 @@ init(configuration: ClientConfiguration){
     'ap-southeast-6' = 'polardb.ap-southeast-6.aliyuncs.com',
     'ap-southeast-5' = 'polardb.ap-southeast-5.aliyuncs.com',
     'ap-southeast-3' = 'polardb.ap-southeast-3.aliyuncs.com',
-    'ap-southeast-2' = 'polardb.ap-southeast-2.aliyuncs.com',
     'ap-southeast-1' = 'polardb.ap-southeast-1.aliyuncs.com',
-    'ap-south-1' = 'polardb.ap-south-1.aliyuncs.com',
     'ap-northeast-2' = 'polardb.ap-northeast-2.aliyuncs.com',
     'ap-northeast-1' = 'polardb.ap-northeast-1.aliyuncs.com',
   };
@@ -224,6 +222,8 @@ model AddPolarFsPathMappingRequest {
   customBucketPathList?: [ 
     {
       bucket?: string(name='Bucket', example='Bucket1'),
+      bucketAccessKeyId?: string(name='BucketAccessKeyId'),
+      bucketAccessKeySecret?: string(name='BucketAccessKeySecret'),
       path?: string(name='Path', example='/data1'),
     }
   ](name='CustomBucketPathList', position='Query'),
@@ -1640,8 +1640,10 @@ async function createBackup(request: CreateBackupRequest): CreateBackupResponse 
 
 model CreateBatchConsumerRequest {
   clientToken?: string(name='ClientToken', example='6000170000591aed949d0f5********************', position='Query'),
-  consumerGroupId: string(name='ConsumerGroupId', description='This parameter is required.', example='cg-xxxxxx', position='Query'),
-  count: int32(name='Count', description='This parameter is required.', example='1', position='Query'),
+  consumerGroupId?: string(name='ConsumerGroupId', example='cg-xxxxxx', position='Query'),
+  count?: int32(name='Count', example='1', position='Query'),
+  creditToken?: string(name='CreditToken', position='Query'),
+  description?: string(name='Description', position='Query'),
   gwClusterId: string(name='GwClusterId', description='This parameter is required.', example='pg-xxxxxxxx', position='Query'),
   regionId: string(name='RegionId', description='This parameter is required.', position='Query'),
 }
@@ -1649,11 +1651,22 @@ model CreateBatchConsumerRequest {
 model CreateBatchConsumerResponseBody = {
   items?: [ 
     {
+      active?: boolean(name='Active'),
       apiKey?: string(name='ApiKey', example='xxxxxxxx'),
+      apiKeyMd5?: string(name='ApiKeyMd5'),
+      apiKeyStatus?: string(name='ApiKeyStatus'),
       apiStatus?: string(name='ApiStatus', example='Active'),
+      budgetLimit?: long(name='BudgetLimit'),
+      budgetPolicyId?: string(name='BudgetPolicyId'),
+      budgetUsed?: long(name='BudgetUsed'),
       consumerGroupId?: string(name='ConsumerGroupId', example='cg-xxxxxx'),
       consumerId?: string(name='ConsumerId', example='c-mqveroemc***'),
       consumerTag?: string(name='ConsumerTag', example='test'),
+      description?: string(name='Description'),
+      expireTime?: string(name='ExpireTime'),
+      expired?: boolean(name='Expired'),
+      gmtCreated?: string(name='GmtCreated'),
+      gmtModified?: string(name='GmtModified'),
       gwClusterId?: string(name='GwClusterId', example='pg-xxxxxxxxxx'),
       name?: string(name='Name', example='test'),
       status?: string(name='Status', example='Enabled'),
@@ -2910,6 +2923,38 @@ model CreateGlobalSecurityIPGroupResponse = {
 async function createGlobalSecurityIPGroup(request: CreateGlobalSecurityIPGroupRequest): CreateGlobalSecurityIPGroupResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RPC', 'CreateGlobalSecurityIPGroup', 'POST', '/', 'json', false, 'json', request);
+}
+
+model CreateGwConsumerOrderRequest {
+  clientToken?: string(name='ClientToken', example='6000170000591aed949d0f54a343f1a42***********', position='Query'),
+  expireTime: string(name='ExpireTime', description='This parameter is required.', example='2027-07-23T03:09:08Z', position='Query'),
+  gatewayId: string(name='GatewayId', description='This parameter is required.', example='pg-2ze24rr575j5b18cg', position='Query'),
+  keyCount: int32(name='KeyCount', description='This parameter is required.', example='6', position='Query'),
+  packageSpec: string(name='PackageSpec', description='This parameter is required.', example='basic', position='Query'),
+  regionId: string(name='RegionId', description='This parameter is required.', example='cn-beijing', position='Query'),
+}
+
+model CreateGwConsumerOrderResponseBody = {
+  creditToken?: string(name='CreditToken', example='"9"'),
+  expireTime?: string(name='ExpireTime', example='2020-11-14T16:00:00Z'),
+  gatewayId?: string(name='GatewayId', example='pg-2ze24rr575j5b18cg'),
+  orderId?: string(name='OrderId', example='2035638*******'),
+  requestId?: string(name='RequestId', description='Id of the request', example='A7E6A8FD-C50B-46B2-BA85-D8B8D3******'),
+}
+
+model CreateGwConsumerOrderResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: CreateGwConsumerOrderResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of CreateGwConsumerOrder  CreateGwConsumerOrderRequest
+  * @return CreateGwConsumerOrderResponse
+ */
+async function createGwConsumerOrder(request: CreateGwConsumerOrderRequest): CreateGwConsumerOrderResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'CreateGwConsumerOrder', 'POST', '/', 'json', false, 'json', request);
 }
 
 model CreateModelApiRequest {
@@ -17555,6 +17600,7 @@ async function modifyDBClusterResourceGroup(request: ModifyDBClusterResourceGrou
 }
 
 model ModifyDBClusterSSLRequest {
+  certValidDays?: string(name='CertValidDays', example='1095', position='Query'),
   connectionString?: string(name='ConnectionString', example='xxx', position='Query'),
   DBClusterId: string(name='DBClusterId', description='The ID of the cluster.
 
@@ -19599,7 +19645,7 @@ model RestartPolarClawGatewayResponseBody = {
   mode?: string(name='Mode', example='in-process'),
   ok?: boolean(name='Ok', example='true'),
   operation?: string(name='Operation', example='RestartPolarClawGateway'),
-  requestId?: string(name='RequestId', example='F45FFACC-xxx'),
+  requestId?: string(name='RequestId', description='Id of the request', example='F45FFACC-xxx'),
   restarted?: boolean(name='Restarted', example='true'),
   state?: string(name='State', example='pending'),
   taskId?: string(name='TaskId', example='0ee00f56-f467-4d41-858c-ca4ede2c770e'),
