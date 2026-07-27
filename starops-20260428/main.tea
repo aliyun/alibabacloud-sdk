@@ -11,8 +11,12 @@ extends OpenApi;
 
 init(config: OpenApi.Config){
   super(config);
-  @endpointRule = '';
-  
+  @endpointRule = 'regional';
+  @endpointMap = {
+    'cn-beijing' = 'starops.cn-beijing.aliyuncs.com',
+    'ap-southeast-1' = 'starops.ap-southeast-1.aliyuncs.com',
+  };
+
   checkConfig(config);
   @endpoint = getEndpoint('starops', @regionId, @endpointRule, @network, @suffix, @endpointMap, @endpoint);
 }
@@ -29,28 +33,100 @@ function getEndpoint(productId: string, regionId: string, endpointRule: string, 
 }
 
 model Tag {
-  key?: string(name='key', example='test-key'),
-  value?: string(name='value', example='test-value'),
+  key?: string(name='key', description='The key for the tag.', example='test-key'),
+  value?: string(name='value', description='The value for the tag.', example='test-value'),
+}
+
+model CreateArtifactUploadTokenRequest {
+  artifactPath?: string(name='artifactPath', example='upload/2026-05-25/'),
+}
+
+model CreateArtifactUploadTokenResponseBody = {
+  accessId?: string(name='accessId', example='LTAI******'),
+  artifactPath?: string(name='artifactPath', example='upload/2026-05-25/'),
+  dir?: string(name='dir', example='agents/123/sample-agent/home/starops/upload/2026-05-25/'),
+  expire?: long(name='expire', example='1770000000'),
+  host?: string(name='host', example='https://example-bucket.oss-cn-shanghai.aliyuncs.com'),
+  maxSize?: long(name='maxSize', example='104857600'),
+  policy?: string(name='policy', example='eyJleHBpcmF0aW9uIjoiMjAyNi0wNS0yMVQwODowMDowMFoifQ=='),
+  requestId?: string(name='requestId', example='0A1B2C3D-4E5F-6789-ABCD-1234567890AB'),
+  signature?: string(name='signature', example='abc123signature'),
+  successActionStatus?: string(name='successActionStatus', example='200'),
+}
+
+model CreateArtifactUploadTokenResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: CreateArtifactUploadTokenResponseBody(name='body'),
+}
+
+/**
+ * @summary 创建产物上传凭证
+ *
+ * @description 获取上传内容所需链接，适用于大文件。
+ *
+ * @param request CreateArtifactUploadTokenRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return CreateArtifactUploadTokenResponse
+ */
+async function createArtifactUploadTokenWithOptions(name: string, request: CreateArtifactUploadTokenRequest, headers: map[string]string, runtime: Util.RuntimeOptions): CreateArtifactUploadTokenResponse {
+  Util.validateModel(request);
+  var query : map[string]any = {};
+  if (!Util.isUnset(request.artifactPath)) {
+    query['artifactPath'] = request.artifactPath;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'CreateArtifactUploadToken',
+    version = '2026-04-28',
+    protocol = 'HTTPS',
+    pathname = `/digitalEmployee/${OpenApiUtil.getEncodeParam(name)}/artifacts/uploadToken`,
+    method = 'POST',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 创建产物上传凭证
+ *
+ * @description 获取上传内容所需链接，适用于大文件。
+ *
+ * @param request CreateArtifactUploadTokenRequest
+ * @return CreateArtifactUploadTokenResponse
+ */
+async function createArtifactUploadToken(name: string, request: CreateArtifactUploadTokenRequest): CreateArtifactUploadTokenResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return createArtifactUploadTokenWithOptions(name, request, headers, runtime);
 }
 
 model CreateChatRequest {
-  action?: string(name='action', example='create'),
-  digitalEmployeeName?: string(name='digitalEmployeeName', example='test'),
+  action?: string(name='action', description='The operation type. Valid values: `create` (default), `reconnect`, and `stop`.', example='create'),
+  digitalEmployeeName?: string(name='digitalEmployeeName', description='The name of the digital employee.', example='test'),
   messages?: [ 
     {
       contents?: [ 
         {
-          type?: string(name='type', example='text'),
-          value?: string(name='value', example='test'),
+          type?: string(name='type', description='The content type.', example='text'),
+          value?: string(name='value', description='The value of the content.', example='test'),
         }
-      ](name='contents'),
-      messageId?: string(name='messageId', example='message_id02'),
-      role?: string(name='role', example='system'),
-      tools?: [  map[string]any ](name='tools'),
+      ](name='contents', description='The multimodal content of the message.'),
+      messageId?: string(name='messageId', description='A unique identifier for the message.', example='message_id02'),
+      role?: string(name='role', description='The role of the message.', example='system'),
+      tools?: [  map[string]any ](name='tools', description='The tool call list.'),
     }
-  ](name='messages'),
-  threadId?: string(name='threadId', example='thread_id01'),
-  variables?: map[string]any(name='variables', example='{
+  ](name='messages', description='The message list.'),
+  threadId?: string(name='threadId', description='The session thread ID.', example='thread_id01'),
+  variables?: map[string]any(name='variables', description='The set of variables.', example='{
   "workspace": "test",
   "region": "cn-beijing",
   "project": "test",
@@ -66,23 +142,23 @@ model CreateChatRequest {
 model CreateChatResponseBody = {
   messages?: [ 
     {
-      agents?: [  map[string]any ](name='agents'),
-      artifacts?: [  map[string]any ](name='artifacts'),
-      callId?: string(name='callId', example='call_search_001'),
-      contents?: [  map[string]any ](name='contents'),
-      detail?: string(name='detail', example='test'),
-      events?: [  map[string]any ](name='events'),
-      parentCallId?: string(name='parentCallId', example='sess_abc123'),
-      role?: string(name='role', example='tool'),
-      seq?: int32(name='seq', example='1'),
-      timestamp?: string(name='timestamp', example='1765000005'),
-      tools?: [  map[string]any ](name='tools'),
-      type?: string(name='type', example='done'),
-      version?: string(name='version', example='v0.1.0'),
+      agents?: [  map[string]any ](name='agents', description='A list of invoked agents.'),
+      artifacts?: [  map[string]any ](name='artifacts', description='A list of generated artifacts.'),
+      callId?: string(name='callId', description='The ID of the current call.', example='call_search_001'),
+      contents?: [  map[string]any ](name='contents', description='A list of content objects.'),
+      detail?: string(name='detail', description='Message details.', example='test'),
+      events?: [  map[string]any ](name='events', description='A list of events.'),
+      parentCallId?: string(name='parentCallId', description='The ID of the parent call.', example='sess_abc123'),
+      role?: string(name='role', description='The role of the message sender.', example='tool'),
+      seq?: int32(name='seq', description='The message sequence number.', example='1'),
+      timestamp?: string(name='timestamp', description='The timestamp, in nanoseconds.', example='1765000005'),
+      tools?: [  map[string]any ](name='tools', description='A list of tool calls.'),
+      type?: string(name='type', description='The message type.', example='done'),
+      version?: string(name='version', description='The message version.', example='v0.1.0'),
     }
-  ](name='messages'),
-  requestId?: string(name='requestId', example='0CEC5375-XXXX-XXXX-XXXX-9A629907C1F0'),
-  traceId?: string(name='traceId', example='21504600000008405622576e3b48'),
+  ](name='messages', description='A list of message objects in the session.'),
+  requestId?: string(name='requestId', description='A unique identifier for the API request, useful for troubleshooting.', example='0CEC5375-XXXX-XXXX-XXXX-9A629907C1F0'),
+  traceId?: string(name='traceId', description='Uniquely identifies the request chain for tracing.', example='21504600000008405622576e3b48'),
 }
 
 model CreateChatResponse = {
@@ -92,7 +168,9 @@ model CreateChatResponse = {
 }
 
 /**
- * @summary 创建对话
+ * @summary New conversation
+ *
+ * @description Starts a session.
  *
  * @param request CreateChatRequest
  * @param headers map
@@ -137,7 +215,9 @@ async function createChatWithOptions(request: CreateChatRequest, headers: map[st
 }
 
 /**
- * @summary 创建对话
+ * @summary New conversation
+ *
+ * @description Starts a session.
  *
  * @param request CreateChatRequest
  * @return CreateChatResponse
@@ -150,44 +230,53 @@ async function createChat(request: CreateChatRequest): CreateChatResponse {
 
 model CreateDigitalEmployeeRequest {
   attributes?: map[string]string(name='attributes'),
-  defaultRule?: string(name='defaultRule', example='test'),
-  description?: string(name='description', example='aaa'),
-  displayName?: string(name='displayName', example='digial-employee-test'),
+  defaultRule?: string(name='defaultRule', description='The default rule of the digital employee.', example='test'),
+  description?: string(name='description', description='The description of the digital employee.', example='aaa'),
+  displayName?: string(name='displayName', description='The display name of the digital employee.', example='digial-employee-test'),
   knowledges?: {
     bailian?: [ 
       {
-        attributes?: string(name='attributes', example='test'),
-        indexId?: string(name='indexId', example='index-xxxx'),
-        region?: string(name='region', example='cn-beijing'),
-        workspaceId?: string(name='workspaceId', example='llm-xxxxx'),
+        attributes?: string(name='attributes', description='The attributes of the knowledge base.', example='test'),
+        indexId?: string(name='indexId', description='The Bailian index ID.', example='index-xxxx'),
+        region?: string(name='region', description='The region of the knowledge base.', example='cn-beijing'),
+        workspaceId?: string(name='workspaceId', description='The Bailian workspace ID.', example='llm-xxxxx'),
       }
-    ](name='bailian'),
-    sop?: [  map[string]any ](name='sop'),
-  }(name='knowledges'),
-  name?: string(name='name', description='This parameter is required.', example='test'),
-  resourceGroupId?: string(name='resourceGroupId', example='rg-ae******ey'),
-  roleArn?: string(name='roleArn', description='This parameter is required.', example='acs:ram::12345678912:role/testrole'),
+    ](name='bailian', description='The list of Bailian knowledge bases.'),
+    sop?: [  map[string]any ](name='sop', description='The list of SOP knowledge bases.'),
+  }(name='knowledges', description='The list of knowledge bases.'),
+  name?: string(name='name', description='The name of the digital employee.
+
+This parameter is required.', example='test'),
+  resourceGroupId?: string(name='resourceGroupId', description='The resource group ID.', example='rg-ae******ey'),
+  roleArn?: string(name='roleArn', description='The ARN of the RAM role.
+
+This parameter is required.', example='acs:ram::12345678912:role/testrole'),
+  sandboxNetworkPolicy?: {
+    allowCidrs?: [ string ](name='allowCidrs', description='The list of allowed CIDRs or IP addresses. A maximum of 50 entries are supported.'),
+    allowFqdns?: [ string ](name='allowFqdns', description='The list of allowed FQDNs. A maximum of 50 FQDNs are supported.'),
+    enableAcl?: boolean(name='enableAcl', description='Specifies whether to enable the sandbox network ACL.', example='false'),
+  }(name='sandboxNetworkPolicy', description='The sandbox network ACL policy configuration of the digital employee.', example='{"allowFqdns":["api.example.com"],"allowCidrs":["1.2.3.0/24","8.8.8.8"],"enableAcl":false}'),
   tags?: [
     Tag
-  ](name='tags'),
+  ](name='tags', description='The tags.'),
   toolPolicy?: {
     aliyun?: {
-      enable?: boolean(name='enable', description='是否启用 Aliyun MCP 工具策略。', example='true'),
+      enable?: boolean(name='enable', description='Specifies whether to enable the Aliyun MCP tool policy.', example='true'),
       statements?: [ 
         {
-          actions?: [ string ](name='actions', description='Aliyun OpenAPI Action 列表，格式为 product:ApiName、product:Prefix* 或 product:*。', example='["log:GetProject","log:CreateDashboard"]'),
-          apiVersion?: string(name='apiVersion', description='本条语句对应的 Aliyun OpenAPI API 版本。', example='2020-12-30'),
-          decision?: string(name='decision', description='命中该 API 后的执行策略。', example='user_ack'),
-          product?: string(name='product', description='本条语句对应的 Aliyun OpenAPI 产品名。', example='Sls'),
+          actions?: [ string ](name='actions', description='The list of Aliyun OpenAPI actions. The format is product:ApiName, product:Prefix*, or product:*.', example='["log:GetProject","log:CreateDashboard"]'),
+          apiVersion?: string(name='apiVersion', description='The Aliyun OpenAPI version that this statement applies to.', example='2020-12-30', deprecated=true),
+          decision?: string(name='decision', description='The execution policy when the API is matched.', example='user_ack'),
+          product?: string(name='product', description='The Aliyun OpenAPI product name that this statement applies to.', example='Sls'),
         }
-      ](name='statements', description='Aliyun OpenAPI 工具策略语句列表。', example='[{"decision":"user_ack","product":"Sls","apiVersion":"2020-12-30","actions":["log:GetProject","log:CreateDashboard"]}]'),
-    }(name='aliyun', description='Aliyun MCP 工具调用安全策略配置。', example='{"enable":true,"statements":[{"decision":"user_ack","product":"Sls","apiVersion":"2020-12-30","actions":["log:GetProject","log:CreateDashboard"]}]}'),
-  }(name='toolPolicy', description='数字员工工具调用安全策略配置。', example='{"aliyun":{"enable":true,"statements":[{"decision":"user_ack","product":"Sls","apiVersion":"2020-12-30","actions":["log:GetProject","log:CreateDashboard"]}]}}'),
+      ](name='statements', description='The list of Aliyun OpenAPI tool policy statements.', example='[{"decision":"user_ack","product":"Sls","apiVersion":"2020-12-30","actions":["log:GetProject","log:CreateDashboard"]}]'),
+    }(name='aliyun', description='The Aliyun MCP tool calling security policy configuration.', example='{"enable":true,"statements":[{"decision":"user_ack","product":"Sls","apiVersion":"2020-12-30","actions":["log:GetProject","log:CreateDashboard"]}]}'),
+  }(name='toolPolicy', description='The tool calling security policy configuration of the digital employee.', example='{"aliyun":{"enable":true,"statements":[{"decision":"user_ack","product":"Sls","apiVersion":"2020-12-30","actions":["log:GetProject","log:CreateDashboard"]}]}}'),
 }
 
 model CreateDigitalEmployeeResponseBody = {
-  name?: string(name='name', example='test'),
-  requestId?: string(name='requestId', example='3B311FD9-A60B-55E0-A896-A0C73*********'),
+  name?: string(name='name', description='The name of the digital employee.', example='test'),
+  requestId?: string(name='requestId', description='The request ID.', example='3B311FD9-A60B-55E0-A896-A0C73*********'),
 }
 
 model CreateDigitalEmployeeResponse = {
@@ -197,7 +286,9 @@ model CreateDigitalEmployeeResponse = {
 }
 
 /**
- * @summary 创建DigitalEmployee
+ * @summary Creates a digital employee.
+ *
+ * @description Creates a digital employee.
  *
  * @param request CreateDigitalEmployeeRequest
  * @param headers map
@@ -231,6 +322,9 @@ async function createDigitalEmployeeWithOptions(request: CreateDigitalEmployeeRe
   if (!Util.isUnset(request.roleArn)) {
     body['roleArn'] = request.roleArn;
   }
+  if (!Util.isUnset(request.sandboxNetworkPolicy)) {
+    body['sandboxNetworkPolicy'] = request.sandboxNetworkPolicy;
+  }
   if (!Util.isUnset(request.tags)) {
     body['tags'] = request.tags;
   }
@@ -257,7 +351,9 @@ async function createDigitalEmployeeWithOptions(request: CreateDigitalEmployeeRe
 }
 
 /**
- * @summary 创建DigitalEmployee
+ * @summary Creates a digital employee.
+ *
+ * @description Creates a digital employee.
  *
  * @param request CreateDigitalEmployeeRequest
  * @return CreateDigitalEmployeeResponse
@@ -269,12 +365,12 @@ async function createDigitalEmployee(request: CreateDigitalEmployeeRequest): Cre
 }
 
 model CreateDigitalEmployeeSkillRequest {
-  description?: string(name='description', example='test'),
-  displayName?: string(name='displayName', example='test'),
-  enable?: boolean(name='enable', example='true'),
+  description?: string(name='description', description='The description of the skill.', example='test'),
+  displayName?: string(name='displayName', description='The display name of the skill.', example='test'),
+  enable?: boolean(name='enable', description='Specifies whether to enable the skill.', example='true'),
   files?: [ 
     {
-      content?: string(name='content', example='---
+      content?: string(name='content', description='The content of the file.', example='---
 name: skill
 description: description
 ---
@@ -282,16 +378,20 @@ description: description
 # skill 
 
 skill test'),
-      name?: string(name='name', example='SKILL.md'),
+      name?: string(name='name', description='The name of the file.', example='SKILL.md'),
     }
-  ](name='files', description='This parameter is required.'),
-  remark?: string(name='remark', example='remark'),
-  skillName?: string(name='skillName', description='This parameter is required.', example='skill'),
+  ](name='files', description='The files for the skill.
+
+This parameter is required.'),
+  remark?: string(name='remark', description='Remarks about the skill.', example='remark'),
+  skillName?: string(name='skillName', description='The name of the skill.
+
+This parameter is required.', example='skill'),
 }
 
 model CreateDigitalEmployeeSkillResponseBody = {
-  requestId?: string(name='requestId', description='Id of the request', example='8FDE2569-626B-5176-9844-28877A*****'),
-  skillName?: string(name='skillName', example='skill'),
+  requestId?: string(name='requestId', description='The ID of the request.', example='8FDE2569-626B-5176-9844-28877A*****'),
+  skillName?: string(name='skillName', description='The name of the created skill.', example='skill'),
 }
 
 model CreateDigitalEmployeeSkillResponse = {
@@ -301,7 +401,9 @@ model CreateDigitalEmployeeSkillResponse = {
 }
 
 /**
- * @summary 创建技能
+ * @summary Creates a skill for a digital employee.
+ *
+ * @description Creates a new skill for a specified digital employee.
  *
  * @param request CreateDigitalEmployeeSkillRequest
  * @param headers map
@@ -349,7 +451,9 @@ async function createDigitalEmployeeSkillWithOptions(name: string, request: Crea
 }
 
 /**
- * @summary 创建技能
+ * @summary Creates a skill for a digital employee.
+ *
+ * @description Creates a new skill for a specified digital employee.
  *
  * @param request CreateDigitalEmployeeSkillRequest
  * @return CreateDigitalEmployeeSkillResponse
@@ -363,49 +467,72 @@ async function createDigitalEmployeeSkill(name: string, request: CreateDigitalEm
 model CreateMcpServiceRequest {
   connection?: {
     auth?: {
-      keyInfo?: map[string]string(name='keyInfo', description='key'),
-      type?: string(name='type', example='bearer'),
-    }(name='auth'),
-    endpoint?: string(name='endpoint', description='This parameter is required.', example='http://10.0.1.23:8080/mcp'),
-    platform?: string(name='platform', description='This parameter is required.', example='Custom'),
-    timeout?: long(name='timeout', example='10000'),
-    transport?: string(name='transport', description='This parameter is required.', example='http'),
-  }(name='connection', description='This parameter is required.'),
-  description?: string(name='description', example='test'),
-  displayName?: string(name='displayName', example='test'),
-  enable?: boolean(name='enable', description='This parameter is required.', example='true'),
-  mcpServiceName?: string(name='mcpServiceName', description='This parameter is required.', example='test'),
+      keyInfo?: map[string]string(name='keyInfo', description='The request body parameters.', example='{"token":"example-token"}'),
+      type?: string(name='type', description='The authentication type. Currently, only bearer is supported.', example='bearer'),
+    }(name='auth', description='The request body parameters.'),
+    endpoint?: string(name='endpoint', description='The access endpoint of the MCP service.
+
+This parameter is required.', example='https://example.com/mcp'),
+    headers?: map[string]string(name='headers'),
+    platform?: string(name='platform', description='The platform type of the MCP service. Valid values: AIGateway and Custom.
+
+This parameter is required.', example='Custom'),
+    timeout?: long(name='timeout', description='The timeout period for requests to the MCP service. Unit: milliseconds.', example='5000'),
+    transport?: string(name='transport', description='The transport protocol of the MCP service. Valid values: http and sse.
+
+This parameter is required.', example='http'),
+  }(name='connection', description='The request body parameters.
+
+This parameter is required.'),
+  description?: string(name='description', description='The description of the MCP service.', example='通过 MCP 调用日志查询工具。'),
+  displayName?: string(name='displayName', description='The display name of the MCP service.', example='日志查询'),
+  enable?: boolean(name='enable', description='Specifies whether to enable the MCP service.
+
+This parameter is required.', example='true'),
+  mcpServiceName?: string(name='mcpServiceName', description='The service name of the MCP service.
+
+This parameter is required.', example='log-query'),
   network?: {
-    accessIp?: string(name='accessIp', example='100.2.243.1'),
-    accessPort?: long(name='accessPort', example='8080'),
-    gatewayId?: string(name='gatewayId', example='gw-xxx'),
-    mcpServerId?: string(name='mcpServerId', example='mcp-xxxx'),
-    mode?: string(name='mode', description='This parameter is required.', example='public'),
-    region?: string(name='region', example='cn-zhangjiakou'),
-    securityGroupId?: string(name='securityGroupId', example='sg-xxxx'),
-    vpcId?: string(name='vpcId', example='vpc-xxx'),
-    vswId?: string(name='vswId', example='vsw-xxxx'),
-  }(name='network', description='This parameter is required.'),
+    accessIp?: string(name='accessIp', description='The IP address used to access the MCP service over the VPC network.', example='10.0.0.12'),
+    accessPort?: long(name='accessPort', description='The port used to access the MCP service over the VPC network. Valid values: 1 to 65535.', example='8080'),
+    gatewayId?: string(name='gatewayId', description='The gateway ID.', example='gw-xxx'),
+    mcpServerId?: string(name='mcpServerId', description='The MCP Server instance ID.', example='mcp-xxx'),
+    mode?: string(name='mode', description='The network access mode of the MCP service. Valid values: public and vpc.
+
+This parameter is required.', example='public'),
+    region?: string(name='region', description='The region where the VPC network resides.', example='cn-hangzhou'),
+    securityGroupId?: string(name='securityGroupId', description='The security group ID.', example='sg-xxx'),
+    vpcId?: string(name='vpcId', description='The VPC ID.', example='vpc-xxx'),
+    vswId?: string(name='vswId', description='The vSwitch ID.', example='vsw-xxx'),
+  }(name='network', description='The request body parameters.
+
+This parameter is required.'),
   tools?: [ 
     {
-      annotations?: map[string]any(name='annotations'),
-      confirm?: boolean(name='confirm'),
-      description?: string(name='description', example='hahahhahaha'),
-      displayName?: string(name='displayName', example='ahahah'),
-      enable?: boolean(name='enable', example='True'),
-      execution?: map[string]any(name='execution'),
-      icons?: [ map[string]any ](name='icons'),
-      inputSchema?: map[string]any(name='inputSchema', description='This parameter is required.'),
-      name?: string(name='name', description='This parameter is required.', example='agentloop-1654218979e79fb55dbddac2'),
-      outputSchema?: map[string]any(name='outputSchema'),
-      title?: string(name='title', example='1'),
+      annotations?: map[string]any(name='annotations', description='The request body parameters.', example='{}'),
+      confirm?: boolean(name='confirm', description='Specifies whether user confirmation is required before calling the MCP tool.', example='false'),
+      description?: string(name='description', description='The description of the MCP tool.', example='查询指定日志库中的日志。'),
+      displayName?: string(name='displayName', description='The display name of the MCP tool.', example='日志查询工具'),
+      enable?: boolean(name='enable', description='Specifies whether to enable the MCP tool.', example='true'),
+      execution?: map[string]any(name='execution', description='The request body parameters.', example='{}'),
+      icons?: [ map[string]any ](name='icons', description='The list of MCP tool icons.', example='[]'),
+      inputSchema?: map[string]any(name='inputSchema', description='The request body parameters.
+
+This parameter is required.', example='{"type":"object","properties":{"query":{"type":"string"}},"required":["query"]}'),
+      name?: string(name='name', description='The name of the MCP tool.
+
+This parameter is required.', example='query_logs'),
+      outputSchema?: map[string]any(name='outputSchema', description='The request body parameters.', example='{"type":"object"}'),
+      title?: string(name='title', description='The title of the MCP tool.', example='查询日志'),
     }
-  ](name='tools', description='This parameter is required.'),
+  ](name='tools', description='The list of MCP tools.
+
+This parameter is required.', example='[{"name":"query_logs"}]'),
 }
 
 model CreateMcpServiceResponseBody = {
-  mcpServiceName?: string(name='mcpServiceName'),
-  requestId?: string(name='requestId', example='0B9377D9-C56B-5C2E-A8A4-************'),
+  mcpServiceName?: string(name='mcpServiceName', description='The service name of the MCP service.', example='log-query'),
+  requestId?: string(name='requestId', description='The request ID.', example='0B9377D9-C56B-5C2E-A8A4-************'),
 }
 
 model CreateMcpServiceResponse = {
@@ -415,7 +542,9 @@ model CreateMcpServiceResponse = {
 }
 
 /**
- * @summary 创建 MCP 服务
+ * @summary Creates an MCP service.
+ *
+ * @description Creates an MCP service.
  *
  * @param request CreateMcpServiceRequest
  * @param headers map
@@ -466,7 +595,9 @@ async function createMcpServiceWithOptions(name: string, request: CreateMcpServi
 }
 
 /**
- * @summary 创建 MCP 服务
+ * @summary Creates an MCP service.
+ *
+ * @description Creates an MCP service.
  *
  * @param request CreateMcpServiceRequest
  * @return CreateMcpServiceResponse
@@ -478,17 +609,17 @@ async function createMcpService(name: string, request: CreateMcpServiceRequest):
 }
 
 model CreateThreadRequest {
-  attributes?: map[string]string(name='attributes'),
-  title?: string(name='title', example='test'),
+  attributes?: map[string]string(name='attributes', description='Key-value pairs that you can attach to the thread.'),
+  title?: string(name='title', description='The title of the thread.', example='test'),
   variables?: {
-    project?: string(name='project', example='project'),
-    workspace?: string(name='workspace', example='workspace'),
-  }(name='variables'),
+    project?: string(name='project', description='The name of the Log Service project.', example='project'),
+    workspace?: string(name='workspace', description='The name of the workspace.', example='workspace'),
+  }(name='variables', description='The variables for the thread. You can use them to pass custom data to the digital employee.'),
 }
 
 model CreateThreadResponseBody = {
-  requestId?: string(name='requestId', description='Id of the request', example='8FDE2569-626B-5176-9844-28877A*****'),
-  threadId?: string(name='threadId', example='thread_id01'),
+  requestId?: string(name='requestId', description='The request id.', example='8FDE2569-626B-5176-9844-28877A*****'),
+  threadId?: string(name='threadId', description='The thread id.', example='thread_id01'),
 }
 
 model CreateThreadResponse = {
@@ -498,7 +629,9 @@ model CreateThreadResponse = {
 }
 
 /**
- * @summary 创建会话
+ * @summary Creates a thread.
+ *
+ * @description Creates a thread for a specified digital employee.
  *
  * @param request CreateThreadRequest
  * @param headers map
@@ -537,7 +670,9 @@ async function createThreadWithOptions(name: string, request: CreateThreadReques
 }
 
 /**
- * @summary 创建会话
+ * @summary Creates a thread.
+ *
+ * @description Creates a thread for a specified digital employee.
  *
  * @param request CreateThreadRequest
  * @return CreateThreadResponse
@@ -549,12 +684,16 @@ async function createThread(name: string, request: CreateThreadRequest): CreateT
 }
 
 model CreateTicketRequest {
-  accessTokenExpirationTime?: long(name='accessTokenExpirationTime', example='600'),
-  expirationTime?: long(name='expirationTime', example='86400'),
+  accessTokenExpirationTime?: long(name='accessTokenExpirationTime', description='- The access token expiration time, in seconds. This specifies the expiration time for the user to access page operations. Default value: 86400 (one day). Valid values: 0 to 86400 (one day).
+
+- The actual access token expiration time is the minimum value of accessTokenExpirationTime and expirationTime.
+
+- If you call this operation by using Security Token Service (STS), the actual access token expiration time is the minimum value of accessTokenExpirationTime, expirationTime, and the STS token expiration time.', example='600'),
+  expirationTime?: long(name='expirationTime', description='- The expiration time, in seconds. This specifies the expiration time of the embedded page URL. Default value: 86400 (one day). Valid values: 0 to 2592000 (30 days).', example='86400'),
 }
 
 model CreateTicketResponseBody = {
-  ticket?: string(name='ticket', example='eyJ***************.eyJ******************.KUT****************'),
+  ticket?: string(name='ticket', description='The passwordless logon ticket.', example='eyJ***************.eyJ******************.KUT****************'),
 }
 
 model CreateTicketResponse = {
@@ -564,7 +703,7 @@ model CreateTicketResponse = {
 }
 
 /**
- * @summary 创建票据
+ * @summary Creates a ticket.
  *
  * @param request CreateTicketRequest
  * @param headers map
@@ -600,7 +739,7 @@ async function createTicketWithOptions(request: CreateTicketRequest, headers: ma
 }
 
 /**
- * @summary 创建票据
+ * @summary Creates a ticket.
  *
  * @param request CreateTicketRequest
  * @return CreateTicketResponse
@@ -615,7 +754,7 @@ model DeleteDigitalEmployeeRequest {
 }
 
 model DeleteDigitalEmployeeResponseBody = {
-  requestId?: string(name='requestId', example='8FDE2569-626B-5176-9844-28877A*****'),
+  requestId?: string(name='requestId', description='The request ID.', example='8FDE2569-626B-5176-9844-28877A*****'),
 }
 
 model DeleteDigitalEmployeeResponse = {
@@ -625,7 +764,9 @@ model DeleteDigitalEmployeeResponse = {
 }
 
 /**
- * @summary 删除DigitalEmployee
+ * @summary Deletes a digital employee.
+ *
+ * @description Deletes a digital employee.
  *
  * @param request DeleteDigitalEmployeeRequest
  * @param headers map
@@ -652,7 +793,9 @@ async function deleteDigitalEmployeeWithOptions(name: string, request: DeleteDig
 }
 
 /**
- * @summary 删除DigitalEmployee
+ * @summary Deletes a digital employee.
+ *
+ * @description Deletes a digital employee.
  *
  * @param request DeleteDigitalEmployeeRequest
  * @return DeleteDigitalEmployeeResponse
@@ -667,7 +810,7 @@ model DeleteDigitalEmployeeSkillRequest {
 }
 
 model DeleteDigitalEmployeeSkillResponseBody = {
-  requestId?: string(name='requestId', example='0CEC5375-XXXX-XXXX-XXXX-9A629907C1F0'),
+  requestId?: string(name='requestId', description='The ID of the request.', example='0CEC5375-XXXX-XXXX-XXXX-9A629907C1F0'),
 }
 
 model DeleteDigitalEmployeeSkillResponse = {
@@ -677,7 +820,9 @@ model DeleteDigitalEmployeeSkillResponse = {
 }
 
 /**
- * @summary 删除技能
+ * @summary Deletes a skill from a digital employee.
+ *
+ * @description Deletes a skill from the specified digital employee.
  *
  * @param request DeleteDigitalEmployeeSkillRequest
  * @param headers map
@@ -704,7 +849,9 @@ async function deleteDigitalEmployeeSkillWithOptions(name: string, skillName: st
 }
 
 /**
- * @summary 删除技能
+ * @summary Deletes a skill from a digital employee.
+ *
+ * @description Deletes a skill from the specified digital employee.
  *
  * @param request DeleteDigitalEmployeeSkillRequest
  * @return DeleteDigitalEmployeeSkillResponse
@@ -719,7 +866,7 @@ model DeleteMcpServiceRequest {
 }
 
 model DeleteMcpServiceResponseBody = {
-  requestId?: string(name='requestId', example='0B9377D9-C56B-5C2E-A8A4-************'),
+  requestId?: string(name='requestId', description='The request ID.', example='0B9377D9-C56B-5C2E-A8A4-************'),
 }
 
 model DeleteMcpServiceResponse = {
@@ -729,7 +876,7 @@ model DeleteMcpServiceResponse = {
 }
 
 /**
- * @summary 删除 MCP 服务
+ * @summary Deletes an MCP service.
  *
  * @param request DeleteMcpServiceRequest
  * @param headers map
@@ -756,7 +903,7 @@ async function deleteMcpServiceWithOptions(name: string, mcpServiceName: string,
 }
 
 /**
- * @summary 删除 MCP 服务
+ * @summary Deletes an MCP service.
  *
  * @param request DeleteMcpServiceRequest
  * @return DeleteMcpServiceResponse
@@ -771,7 +918,7 @@ model DeleteThreadRequest {
 }
 
 model DeleteThreadResponseBody = {
-  requestId?: string(name='requestId', description='Id of the request', example='123-0F43-23423-AC43-34234'),
+  requestId?: string(name='requestId', description='The request ID.', example='123-0F43-23423-AC43-34234'),
 }
 
 model DeleteThreadResponse = {
@@ -781,7 +928,9 @@ model DeleteThreadResponse = {
 }
 
 /**
- * @summary 删除会话
+ * @summary This operation deletes a thread.
+ *
+ * @description This operation deletes a specified thread.
  *
  * @param request DeleteThreadRequest
  * @param headers map
@@ -808,7 +957,9 @@ async function deleteThreadWithOptions(name: string, threadId: string, request: 
 }
 
 /**
- * @summary 删除会话
+ * @summary This operation deletes a thread.
+ *
+ * @description This operation deletes a specified thread.
  *
  * @param request DeleteThreadRequest
  * @return DeleteThreadResponse
@@ -822,30 +973,37 @@ async function deleteThread(name: string, threadId: string, request: DeleteThrea
 model FetchRemoteMcpToolsRequest {
   connection?: {
     auth?: {
-      keyInfo?: map[string]string(name='keyInfo', example='{"token":"example-token"}'),
-      type?: string(name='type', example='bearer'),
-    }(name='auth'),
-    endpoint?: string(name='endpoint', description='This parameter is required.', example='https://example.com/mcp'),
-    platform?: string(name='platform', example='Custom'),
-    timeout?: long(name='timeout', example='5000'),
-    transport?: string(name='transport', description='This parameter is required.', example='http'),
-  }(name='connection', description='This parameter is required.'),
+      keyInfo?: map[string]string(name='keyInfo', description='The request body parameters.', example='{"token":"example-token"}'),
+      type?: string(name='type', description='The authentication type. Currently, only bearer is supported.', example='bearer'),
+    }(name='auth', description='The request body parameters.'),
+    endpoint?: string(name='endpoint', description='The access endpoint of the MCP service.
+
+This parameter is required.', example='https://example.com/mcp'),
+    headers?: map[string]string(name='headers'),
+    platform?: string(name='platform', description='The MCP service platform type. Valid values: AIGateway and Custom.', example='Custom'),
+    timeout?: long(name='timeout', description='The timeout period for requests to the MCP service. Unit: milliseconds.', example='5000'),
+    transport?: string(name='transport', description='The transport protocol of the MCP service. Valid values: http and sse.
+
+This parameter is required.', example='http'),
+  }(name='connection', description='The request body parameters.
+
+This parameter is required.'),
   network?: {
-    accessIp?: string(name='accessIp', example='10.0.0.12'),
-    accessPort?: long(name='accessPort', example='8080'),
-    gatewayId?: string(name='gatewayId', example='gw-xxx'),
-    mcpServerId?: string(name='mcpServerId', example='mcp-xxx'),
-    mode?: string(name='mode', example='public'),
-    region?: string(name='region', example='cn-hangzhou'),
-    securityGroupId?: string(name='securityGroupId', example='sg-xxx'),
-    vpcId?: string(name='vpcId', example='vpc-xxx'),
-    vswId?: string(name='vswId', example='vsw-xxx'),
-  }(name='network'),
+    accessIp?: string(name='accessIp', description='The IP address used to access the MCP service over the VPC network.', example='10.0.0.12'),
+    accessPort?: long(name='accessPort', description='The port used to access the MCP service over the VPC network. Valid values: 1 to 65535.', example='8080'),
+    gatewayId?: string(name='gatewayId', description='The gateway ID.', example='gw-xxx'),
+    mcpServerId?: string(name='mcpServerId', description='The MCP Server instance ID.', example='mcp-xxx'),
+    mode?: string(name='mode', description='The network access mode of the MCP service. Valid values: public and vpc.', example='public'),
+    region?: string(name='region', description='The region where the VPC network resides.', example='cn-hangzhou'),
+    securityGroupId?: string(name='securityGroupId', description='The security group ID.', example='sg-xxx'),
+    vpcId?: string(name='vpcId', description='The VPC ID.', example='vpc-xxx'),
+    vswId?: string(name='vswId', description='The vSwitch ID.', example='vsw-xxx'),
+  }(name='network', description='The request body parameters.'),
 }
 
 model FetchRemoteMcpToolsResponseBody = {
-  requestId?: string(name='requestId', example='0B9377D9-C56B-5C2E-A8A4-************'),
-  tools?: string(name='tools', example='{"jsonrpc":"2.0","id":1,"result":{"tools":[]}}'),
+  requestId?: string(name='requestId', description='The request ID.', example='0B9377D9-C56B-5C2E-A8A4-************'),
+  tools?: string(name='tools', description='The raw tools/list response returned by the remote MCP service.', example='{"jsonrpc":"2.0","id":1,"result":{"tools":[]}}'),
 }
 
 model FetchRemoteMcpToolsResponse = {
@@ -855,7 +1013,7 @@ model FetchRemoteMcpToolsResponse = {
 }
 
 /**
- * @summary 预览远端 MCP 工具列表
+ * @summary Retrieves the tool list from a remote MCP server.
  *
  * @param request FetchRemoteMcpToolsRequest
  * @param headers map
@@ -891,7 +1049,7 @@ async function fetchRemoteMcpToolsWithOptions(request: FetchRemoteMcpToolsReques
 }
 
 /**
- * @summary 预览远端 MCP 工具列表
+ * @summary Retrieves the tool list from a remote MCP server.
  *
  * @param request FetchRemoteMcpToolsRequest
  * @return FetchRemoteMcpToolsResponse
@@ -903,7 +1061,9 @@ async function fetchRemoteMcpTools(request: FetchRemoteMcpToolsRequest): FetchRe
 }
 
 model GetArtifactRequest {
-  artifactPath?: string(name='artifactPath', description='This parameter is required.', example='missions/mission-xxx/artifacts/2026-05/05-01/xxxx.md'),
+  artifactPath?: string(name='artifactPath', description='The path to the artifact.
+
+This parameter is required.', example='missions/mission-xxx/artifacts/2026-05/05-01/xxxx.md'),
 }
 
 model GetArtifactResponse = {
@@ -913,7 +1073,9 @@ model GetArtifactResponse = {
 }
 
 /**
- * @summary 下载小型产物文件
+ * @summary Retrieves the content of an artifact.
+ *
+ * @description Retrieves the content of an artifact.
  *
  * @param request GetArtifactRequest
  * @param headers map
@@ -960,7 +1122,9 @@ async function getArtifactWithOptions(name: string, request: GetArtifactRequest,
 }
 
 /**
- * @summary 下载小型产物文件
+ * @summary Retrieves the content of an artifact.
+ *
+ * @description Retrieves the content of an artifact.
  *
  * @param request GetArtifactRequest
  * @return GetArtifactResponse
@@ -971,53 +1135,121 @@ async function getArtifact(name: string, request: GetArtifactRequest): GetArtifa
   return getArtifactWithOptions(name, request, headers, runtime);
 }
 
+model GetArtifactDownloadUrlRequest {
+  artifactPath?: string(name='artifactPath', description='This parameter is required.', example='reports/summary.pdf'),
+}
+
+model GetArtifactDownloadUrlResponseBody = {
+  expire?: long(name='expire', example='1770000000'),
+  requestId?: string(name='requestId', example='0A1B2C3D-4E5F-6789-ABCD-1234567890AB'),
+  url?: string(name='url', example='https://example-bucket.oss-cn-shanghai.aliyuncs.com/agents/123/sample-agent/home/starops/reports/summary.pdf?response-content-disposition=attachment&Expires=1770000000&OSSAccessKeyId=LTAI******&Signature=******'),
+}
+
+model GetArtifactDownloadUrlResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: GetArtifactDownloadUrlResponseBody(name='body'),
+}
+
+/**
+ * @summary 获取产物下载链接
+ *
+ * @param request GetArtifactDownloadUrlRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return GetArtifactDownloadUrlResponse
+ */
+async function getArtifactDownloadUrlWithOptions(name: string, request: GetArtifactDownloadUrlRequest, headers: map[string]string, runtime: Util.RuntimeOptions): GetArtifactDownloadUrlResponse {
+  Util.validateModel(request);
+  var query : map[string]any = {};
+  if (!Util.isUnset(request.artifactPath)) {
+    query['artifactPath'] = request.artifactPath;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'GetArtifactDownloadUrl',
+    version = '2026-04-28',
+    protocol = 'HTTPS',
+    pathname = `/digitalEmployee/${OpenApiUtil.getEncodeParam(name)}/artifacts/downloadUrl`,
+    method = 'GET',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 获取产物下载链接
+ *
+ * @param request GetArtifactDownloadUrlRequest
+ * @return GetArtifactDownloadUrlResponse
+ */
+async function getArtifactDownloadUrl(name: string, request: GetArtifactDownloadUrlRequest): GetArtifactDownloadUrlResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return getArtifactDownloadUrlWithOptions(name, request, headers, runtime);
+}
+
 model GetDigitalEmployeeRequest {
 }
 
 model GetDigitalEmployeeResponseBody = {
-  attributes?: map[string]string(name='attributes'),
-  createTime?: string(name='createTime', description='Use the UTC time format: yyyy-MM-ddTHH:mm:ssZ', example='2025-03-11T08:21:58Z'),
-  defaultRule?: string(name='defaultRule', example='test'),
-  description?: string(name='description', example='test'),
-  displayName?: string(name='displayName', example='test'),
-  employeeType?: string(name='employeeType', example='custom'),
+  attributes?: map[string]string(name='attributes', description='The attributes.'),
+  createTime?: string(name='createTime', description='The creation time.
+
+Use the UTC time format: yyyy-MM-ddTHH:mm:ssZ', example='2025-03-11T08:21:58Z'),
+  defaultRule?: string(name='defaultRule', description='The default rule of the digital employee.', example='test'),
+  description?: string(name='description', description='The description of the digital employee.', example='test'),
+  displayName?: string(name='displayName', description='The display name of the digital employee.', example='test'),
+  employeeType?: string(name='employeeType', description='The type of the digital employee.', example='custom'),
   knowledges?: {
     bailian?: [ 
       {
-        attributes?: string(name='attributes', example='test'),
-        indexId?: string(name='indexId', example='index-xxxx'),
-        region?: string(name='region', example='cn-beijing'),
-        workspaceId?: string(name='workspaceId', example='llm-xxxxx'),
+        attributes?: string(name='attributes', description='The knowledge base attributes.', example='test'),
+        indexId?: string(name='indexId', description='The Bailian index ID.', example='index-xxxx'),
+        region?: string(name='region', description='The region of the knowledge base.', example='cn-beijing'),
+        workspaceId?: string(name='workspaceId', description='The Bailian workspace ID.', example='llm-xxxxx'),
       }
-    ](name='bailian'),
-    sop?: [  map[string]any ](name='sop'),
-  }(name='knowledges'),
-  name?: string(name='name', example='test'),
-  regionId?: string(name='regionId', example='cn-beijing'),
-  requestId?: string(name='requestId', example='0B9377D9-C56B-5C2E-A8A4-************'),
-  resourceGroupId?: string(name='resourceGroupId', example='rg-ae******ey'),
-  roleArn?: string(name='roleArn', example='acs:ram::12345678912:role/testrole'),
+    ](name='bailian', description='The Bailian knowledge base list.'),
+    sop?: [  map[string]any ](name='sop', description='The SOP knowledge base list.'),
+  }(name='knowledges', description='The knowledge base list.'),
+  name?: string(name='name', description='The name of the digital employee.', example='test'),
+  regionId?: string(name='regionId', description='The region ID.', example='cn-beijing'),
+  requestId?: string(name='requestId', description='The request ID.', example='0B9377D9-C56B-5C2E-A8A4-************'),
+  resourceGroupId?: string(name='resourceGroupId', description='The resource group ID.', example='rg-ae******ey'),
+  roleArn?: string(name='roleArn', description='The ARN of the RAM role.', example='acs:ram::12345678912:role/testrole'),
+  sandboxNetworkPolicy?: {
+    allowCidrs?: [ string ](name='allowCidrs', description='The list of allowed CIDRs or IP addresses.'),
+    allowFqdns?: [ string ](name='allowFqdns', description='The list of allowed FQDNs.'),
+    enableAcl?: boolean(name='enableAcl', description='Indicates whether the sandbox network ACL is enabled.', example='false'),
+  }(name='sandboxNetworkPolicy', description='The sandbox network ACL policy configuration for the digital employee.', example='{"allowFqdns":["api.example.com"],"allowCidrs":["1.2.3.0/24","8.8.8.8"],"enableAcl":false}'),
   tags?: [
     Tag
-  ](name='tags'),
+  ](name='tags', description='The tags.'),
   toolPolicy?: {
     aliyun?: {
-      enable?: boolean(name='enable', description='是否启用 Aliyun MCP 工具策略。', example='true'),
+      enable?: boolean(name='enable', description='Indicates whether the policy is enabled.', example='true'),
       statements?: [ 
         {
-          actions?: [ string ](name='actions', description='Aliyun OpenAPI Action 列表，格式为 product:ApiName、product:Prefix* 或 product:*。', example='["log:GetProject","log:CreateDashboard"]'),
-          apiVersion?: string(name='apiVersion', description='本条语句对应的 Aliyun OpenAPI API 版本。
-
-This parameter is required.', example='2020-12-30'),
-          decision?: string(name='decision', description='命中该 API 后的执行策略。', example='user_ack'),
-          product?: string(name='product', description='本条语句对应的 Aliyun OpenAPI 产品名。
+          actions?: [ string ](name='actions', description='The list of RAM actions.', example='["log:GetProject","log:CreateDashboard"]'),
+          apiVersion?: string(name='apiVersion', description='The API version.', example='2020-12-30', deprecated=true),
+          decision?: string(name='decision', description='The execution policy.', example='user_ack'),
+          product?: string(name='product', description='The cloud product code.
 
 This parameter is required.', example='Sls'),
         }
-      ](name='statements', description='Aliyun OpenAPI 工具策略语句列表。', example='[{"decision":"user_ack","product":"Sls","apiVersion":"2020-12-30","actions":["log:GetProject","log:CreateDashboard"]}]'),
-    }(name='aliyun', description='Aliyun MCP 工具调用安全策略配置。', example='{"enable":true,"statements":[{"decision":"user_ack","product":"Sls","apiVersion":"2020-12-30","actions":["log:GetProject","log:CreateDashboard"]}]}'),
-  }(name='toolPolicy', description='数字员工工具调用安全策略配置。', example='{"aliyun":{"enable":true,"statements":[{"decision":"user_ack","product":"Sls","apiVersion":"2020-12-30","actions":["log:GetProject","log:CreateDashboard"]}]}}'),
-  updateTime?: string(name='updateTime', description='Use the UTC time format: yyyy-MM-ddTHH:mm:ssZ', example='2025-02-18T02:25:06Z'),
+      ](name='statements', description='The list of Aliyun CLI tool policy statements.', example='[{"decision":"user_ack","product":"Sls","apiVersion":"2020-12-30","actions":["log:GetProject","log:CreateDashboard"]}]'),
+    }(name='aliyun', description='The security policy configuration for Aliyun CLI tool calling.', example='{"enable":true,"statements":[{"decision":"user_ack","product":"Sls","apiVersion":"2020-12-30","actions":["log:GetProject","log:CreateDashboard"]}]}'),
+  }(name='toolPolicy', description='The tool policy.', example='{"aliyun":{"enable":true,"statements":[{"decision":"user_ack","product":"Sls","apiVersion":"2020-12-30","actions":["log:GetProject","log:CreateDashboard"]}]}}'),
+  updateTime?: string(name='updateTime', description='The update time.
+
+Use the UTC time format: yyyy-MM-ddTHH:mm:ssZ', example='2025-02-18T02:25:06Z'),
 }
 
 model GetDigitalEmployeeResponse = {
@@ -1027,7 +1259,9 @@ model GetDigitalEmployeeResponse = {
 }
 
 /**
- * @summary 查询 DigitalEmployee
+ * @summary Retrieves a digital employee.
+ *
+ * @description Retrieves a digital employee.
  *
  * @param request GetDigitalEmployeeRequest
  * @param headers map
@@ -1054,7 +1288,9 @@ async function getDigitalEmployeeWithOptions(name: string, request: GetDigitalEm
 }
 
 /**
- * @summary 查询 DigitalEmployee
+ * @summary Retrieves a digital employee.
+ *
+ * @description Retrieves a digital employee.
  *
  * @param request GetDigitalEmployeeRequest
  * @return GetDigitalEmployeeResponse
@@ -1066,17 +1302,19 @@ async function getDigitalEmployee(name: string, request: GetDigitalEmployeeReque
 }
 
 model GetDigitalEmployeeSkillRequest {
-  version?: string(name='version', example='1770386951147366810'),
+  version?: string(name='version', description='The version of the skill to retrieve. If this parameter is not specified, the latest version is returned.', example='1770386951147366810'),
 }
 
 model GetDigitalEmployeeSkillResponseBody = {
-  createTime?: string(name='createTime', description='Use the UTC time format: yyyy-MM-ddTHH:mm:ssZ', example='2026-02-06T14:09:11Z'),
-  description?: string(name='description', example='test'),
-  displayName?: string(name='displayName', example='test'),
-  enable?: boolean(name='enable', example='true'),
+  createTime?: string(name='createTime', description='The time when the skill was created.
+
+Use the UTC time format: yyyy-MM-ddTHH:mm:ssZ', example='2026-02-06T14:09:11Z'),
+  description?: string(name='description', description='The description of the skill.', example='test'),
+  displayName?: string(name='displayName', description='The display name of the skill.', example='test'),
+  enable?: boolean(name='enable', description='Indicates whether the skill is enabled.', example='true'),
   files?: [ 
     {
-      content?: string(name='content', example='---
+      content?: string(name='content', description='The file content.', example='---
 name: skill
 description: description
 ---
@@ -1084,14 +1322,16 @@ description: description
 # skill 
 
 skill test'),
-      name?: string(name='name', example='SKILL.md'),
+      name?: string(name='name', description='The file name.', example='SKILL.md'),
     }
-  ](name='files'),
-  remark?: string(name='remark', example='remark'),
-  requestId?: string(name='requestId', description='Id of the request', example='8FDE2569-626B-5176-9844-28877A*****'),
-  skillName?: string(name='skillName', example='test'),
-  updateTime?: string(name='updateTime', description='Use the UTC time format: yyyy-MM-ddTHH:mm:ssZ', example='2026-02-06T14:09:11Z'),
-  version?: string(name='version', example='1770386951147366810'),
+  ](name='files', description='The file list of the skill.'),
+  remark?: string(name='remark', description='A user-provided remark about the skill.', example='remark'),
+  requestId?: string(name='requestId', description='The request ID.', example='8FDE2569-626B-5176-9844-28877A*****'),
+  skillName?: string(name='skillName', description='The name of the skill.', example='test'),
+  updateTime?: string(name='updateTime', description='The time when the skill was last updated.
+
+Use the UTC time format: yyyy-MM-ddTHH:mm:ssZ', example='2026-02-06T14:09:11Z'),
+  version?: string(name='version', description='The version of the skill.', example='1770386951147366810'),
 }
 
 model GetDigitalEmployeeSkillResponse = {
@@ -1101,7 +1341,9 @@ model GetDigitalEmployeeSkillResponse = {
 }
 
 /**
- * @summary 获取技能详情
+ * @summary Retrieves the details of a specific skill.
+ *
+ * @description Retrieves the details of a specified skill for a digital employee.
  *
  * @param request GetDigitalEmployeeSkillRequest
  * @param headers map
@@ -1134,7 +1376,9 @@ async function getDigitalEmployeeSkillWithOptions(name: string, skillName: strin
 }
 
 /**
- * @summary 获取技能详情
+ * @summary Retrieves the details of a specific skill.
+ *
+ * @description Retrieves the details of a specified skill for a digital employee.
  *
  * @param request GetDigitalEmployeeSkillRequest
  * @return GetDigitalEmployeeSkillResponse
@@ -1152,47 +1396,48 @@ model GetMcpServiceResponseBody = {
   mcpService?: {
     connection?: {
       auth?: {
-        keyInfo?: map[string]string(name='keyInfo', example='{"token":"example-token"}'),
-        type?: string(name='type', example='bearer'),
-      }(name='auth'),
-      endpoint?: string(name='endpoint', example='https://example.com/mcp'),
-      platform?: string(name='platform', example='Custom'),
-      timeout?: long(name='timeout', example='5000'),
-      transport?: string(name='transport', example='http'),
-    }(name='connection'),
-    description?: string(name='description'),
-    displayName?: string(name='displayName'),
-    enable?: boolean(name='enable', example='true'),
-    mcpServiceName?: string(name='mcpServiceName', example='log-query'),
+        keyInfo?: map[string]string(name='keyInfo', description='The key-value information required for authentication.', example='{"token":"example-token"}'),
+        type?: string(name='type', description='The authentication type. Currently, bearer is supported.', example='bearer'),
+      }(name='auth', description='The authentication configuration of the MCP service.'),
+      endpoint?: string(name='endpoint', description='The access endpoint of the MCP service.', example='https://example.com/mcp'),
+      headers?: map[string]string(name='headers'),
+      platform?: string(name='platform', description='The MCP service platform type. Valid values: AIGateway and Custom.', example='Custom'),
+      timeout?: long(name='timeout', description='The timeout period for requests to the MCP service. Unit: milliseconds.', example='5000'),
+      transport?: string(name='transport', description='The MCP service transport protocol. Valid values: http and sse.', example='http'),
+    }(name='connection', description='The MCP service connection configuration.'),
+    description?: string(name='description', description='The description of the MCP service.', example='通过 MCP 调用日志查询工具。'),
+    displayName?: string(name='displayName', description='The display name of the MCP service.', example='日志查询'),
+    enable?: boolean(name='enable', description='Indicates whether the MCP service is enabled.', example='true'),
+    mcpServiceName?: string(name='mcpServiceName', description='The service name of the MCP service.', example='log-query'),
     network?: {
-      accessIp?: string(name='accessIp', example='10.0.0.12'),
-      accessPort?: long(name='accessPort', example='8080'),
-      gatewayId?: string(name='gatewayId', example='gw-xxx'),
-      mcpServerId?: string(name='mcpServerId', example='mcp-xxx'),
-      mode?: string(name='mode', example='public'),
-      region?: string(name='region', example='cn-hangzhou'),
-      securityGroupId?: string(name='securityGroupId', example='sg-xxx'),
-      vpcId?: string(name='vpcId', example='vpc-xxx'),
-      vswId?: string(name='vswId', example='vsw-xxx'),
-    }(name='network'),
+      accessIp?: string(name='accessIp', description='The IP address used to access the MCP service over the VPC network.', example='10.0.0.12'),
+      accessPort?: long(name='accessPort', description='The port used to access the MCP service over the VPC network. Valid values: 1 to 65535.', example='8080'),
+      gatewayId?: string(name='gatewayId', description='The gateway ID.', example='gw-xxx'),
+      mcpServerId?: string(name='mcpServerId', description='The MCP Server instance ID.', example='mcp-xxx'),
+      mode?: string(name='mode', description='The network access mode of the MCP service. Valid values: public and vpc.', example='public'),
+      region?: string(name='region', description='The region where the VPC network resides.', example='cn-hangzhou'),
+      securityGroupId?: string(name='securityGroupId', description='The security group ID.', example='sg-xxx'),
+      vpcId?: string(name='vpcId', description='The virtual private cloud (VPC) ID.', example='vpc-xxx'),
+      vswId?: string(name='vswId', description='The vSwitch ID.', example='vsw-xxx'),
+    }(name='network', description='The network connectivity information.'),
     tools?: [ 
       {
-        annotations?: map[string]any(name='annotations', example='{}'),
-        confirm?: boolean(name='confirm', example='false'),
-        description?: string(name='description'),
-        displayName?: string(name='displayName'),
-        enable?: boolean(name='enable', example='true'),
-        execution?: map[string]any(name='execution', example='{}'),
-        icons?: [ map[string]any ](name='icons', example='[]'),
-        inputSchema?: map[string]any(name='inputSchema', example='{"type":"object","properties":{"query":{"type":"string"}},"required":["query"]}'),
-        name?: string(name='name', example='query_logs'),
-        outputSchema?: map[string]any(name='outputSchema', example='{"type":"object"}'),
-        title?: string(name='title'),
+        annotations?: map[string]any(name='annotations', description='The annotation information of the MCP tool.', example='{}'),
+        confirm?: boolean(name='confirm', description='Indicates whether user confirmation is required before the MCP tool is called.', example='false'),
+        description?: string(name='description', description='The description of the MCP tool.', example='查询指定日志库中的日志。'),
+        displayName?: string(name='displayName', description='The display name of the MCP tool.', example='日志查询工具'),
+        enable?: boolean(name='enable', description='Indicates whether the MCP tool is enabled.', example='true'),
+        execution?: map[string]any(name='execution', description='The execution configuration of the MCP tool.', example='{}'),
+        icons?: [ map[string]any ](name='icons', description='The list of MCP tool icons.', example='[]'),
+        inputSchema?: map[string]any(name='inputSchema', description='The JSON Schema of the MCP tool input parameters.', example='{"type":"object","properties":{"query":{"type":"string"}},"required":["query"]}'),
+        name?: string(name='name', description='The name of the MCP tool.', example='query_logs'),
+        outputSchema?: map[string]any(name='outputSchema', description='The JSON Schema of the MCP tool output.', example='{"type":"object"}'),
+        title?: string(name='title', description='The title of the MCP tool.', example='查询日志'),
       }
-    ](name='tools', example='[{"name":"query_logs"}]'),
-  }(name='mcpService'),
-  regionId?: string(name='regionId', example='cn-hangzhou'),
-  requestId?: string(name='requestId', example='0B9377D9-C56B-5C2E-A8A4-************'),
+    ](name='tools', description='The list of MCP tools.', example='[{"name":"query_logs"}]'),
+  }(name='mcpService', description='The MCP service details.'),
+  regionId?: string(name='regionId', description='The region of the current request.', example='cn-hangzhou'),
+  requestId?: string(name='requestId', description='The request ID.', example='0B9377D9-C56B-5C2E-A8A4-************'),
 }
 
 model GetMcpServiceResponse = {
@@ -1202,7 +1447,7 @@ model GetMcpServiceResponse = {
 }
 
 /**
- * @summary 查询 MCP 服务
+ * @summary Queries an MCP service.
  *
  * @param request GetMcpServiceRequest
  * @param headers map
@@ -1229,7 +1474,7 @@ async function getMcpServiceWithOptions(name: string, mcpServiceName: string, re
 }
 
 /**
- * @summary 查询 MCP 服务
+ * @summary Queries an MCP service.
  *
  * @param request GetMcpServiceRequest
  * @return GetMcpServiceResponse
@@ -1244,19 +1489,19 @@ model GetThreadRequest {
 }
 
 model GetThreadResponseBody = {
-  attributes?: map[string]string(name='attributes'),
-  createTime?: string(name='createTime', example='2025-12-19T15:19:55.040403272+08:00'),
-  digitalEmployeeName?: string(name='digitalEmployeeName', example='test'),
-  requestId?: string(name='requestId', description='Id of the request', example='8FDE2569-626B-5176-9844-28877A*****'),
-  status?: string(name='status', example='active'),
-  threadId?: string(name='threadId', example='thread_id01'),
-  title?: string(name='title', example='testLive'),
-  updateTime?: string(name='updateTime', example='2025-12-19T15:19:55.040403272+08:00'),
+  attributes?: map[string]string(name='attributes', description='The thread\\\\"s attributes.'),
+  createTime?: string(name='createTime', description='The thread\\\\"s creation time, in ISO 8601 format.', example='2025-12-19T15:19:55.040403272+08:00'),
+  digitalEmployeeName?: string(name='digitalEmployeeName', description='The name of the digital employee.', example='test'),
+  requestId?: string(name='requestId', description='The request ID.', example='8FDE2569-626B-5176-9844-28877A*****'),
+  status?: string(name='status', description='The thread\\\\"s status.', example='active'),
+  threadId?: string(name='threadId', description='The thread ID.', example='thread_id01'),
+  title?: string(name='title', description='The thread\\\\"s title.', example='testLive'),
+  updateTime?: string(name='updateTime', description='The thread\\\\"s last update time, in ISO 8601 format.', example='2025-12-19T15:19:55.040403272+08:00'),
   variables?: {
-    project?: string(name='project', example='test'),
-    workspace?: string(name='workspace', example='test'),
-  }(name='variables'),
-  version?: long(name='version', example='1231'),
+    project?: string(name='project', description='The name of the SLS project.', example='test'),
+    workspace?: string(name='workspace', description='The name of the workspace.', example='test'),
+  }(name='variables', description='The thread\\\\"s variables.'),
+  version?: long(name='version', description='The thread\\\\"s version.', example='1231'),
 }
 
 model GetThreadResponse = {
@@ -1266,7 +1511,9 @@ model GetThreadResponse = {
 }
 
 /**
- * @summary 获取会话
+ * @summary Retrieves a thread.
+ *
+ * @description Retrieves the details of a thread.
  *
  * @param request GetThreadRequest
  * @param headers map
@@ -1293,7 +1540,9 @@ async function getThreadWithOptions(name: string, threadId: string, request: Get
 }
 
 /**
- * @summary 获取会话
+ * @summary Retrieves a thread.
+ *
+ * @description Retrieves the details of a thread.
  *
  * @param request GetThreadRequest
  * @return GetThreadResponse
@@ -1305,8 +1554,8 @@ async function getThread(name: string, threadId: string, request: GetThreadReque
 }
 
 model GetThreadDataRequest {
-  maxResults?: long(name='maxResults', example='10'),
-  nextToken?: string(name='nextToken', example='xxxxxxxxxx'),
+  maxResults?: long(name='maxResults', description='The maximum number of session entries to return. The maximum value is 100.', example='10'),
+  nextToken?: string(name='nextToken', description='The pagination cursor.', example='xxxxxxxxxx'),
 }
 
 model GetThreadDataResponseBody = {
@@ -1314,30 +1563,30 @@ model GetThreadDataResponseBody = {
     {
       messages?: [ 
         {
-          agents?: [  map[string]any ](name='agents'),
-          artifacts?: [  map[string]any ](name='artifacts'),
-          callId?: string(name='callId', example='3b5287b7176360'),
-          contents?: [  map[string]any ](name='contents'),
-          detail?: string(name='detail', example='context of model exceed'),
-          events?: [  map[string]any ](name='events'),
-          parentCallId?: string(name='parentCallId', example='3b5287b7176360'),
-          role?: string(name='role', example='user'),
-          seq?: int32(name='seq', example='0'),
-          timestamp?: string(name='timestamp', example='1768702985000000000'),
-          tools?: [  map[string]any ](name='tools'),
-          type?: string(name='type', example='task_finished'),
-          version?: string(name='version', example='v0.1.0'),
+          agents?: [  map[string]any ](name='agents', description='A list of called agents.'),
+          artifacts?: [  map[string]any ](name='artifacts', description='A list of generated artifacts.'),
+          callId?: string(name='callId', description='The current call ID.', example='3b5287b7176360'),
+          contents?: [  map[string]any ](name='contents', description='The contents of the message.'),
+          detail?: string(name='detail', description='The message details.', example='context of model exceed'),
+          events?: [  map[string]any ](name='events', description='A list of events.'),
+          parentCallId?: string(name='parentCallId', description='The parent call ID.', example='3b5287b7176360'),
+          role?: string(name='role', description='The role that initiates the message.', example='user'),
+          seq?: int32(name='seq', description='The sequence number of the message.', example='0'),
+          timestamp?: string(name='timestamp', description='The message creation time in nanoseconds since the Unix epoch.', example='1768702985000000000'),
+          tools?: [  map[string]any ](name='tools', description='A list of tools used to generate the message.'),
+          type?: string(name='type', description='The message type.', example='task_finished'),
+          version?: string(name='version', description='The message data version.', example='v0.1.0'),
         }
-      ](name='messages'),
-      requestId?: string(name='requestId', example='8FDE2569-626B-5176-9844-28877A*****'),
-      traceId?: string(name='traceId', example='3b5287b717636040171772050d0095'),
+      ](name='messages', description='A list of messages in the thread.'),
+      requestId?: string(name='requestId', description='The ID of the original request that generated this message.', example='8FDE2569-626B-5176-9844-28877A*****'),
+      traceId?: string(name='traceId', description='The unique ID that identifies the entire trace of a request.', example='3b5287b717636040171772050d0095'),
     }
-  ](name='data'),
-  digitalEmployeeName?: string(name='digitalEmployeeName', example='test'),
-  maxResults?: long(name='maxResults', example='2'),
-  nextToken?: string(name='nextToken', example='xxxxxxxxx'),
-  requestId?: string(name='requestId', example='8FDE2569-626B-5176-9844-28877A*****'),
-  threadId?: string(name='threadId', example='thread_id01'),
+  ](name='data', description='The message data.'),
+  digitalEmployeeName?: string(name='digitalEmployeeName', description='The name of the current digital employee.', example='test'),
+  maxResults?: long(name='maxResults', description='The maximum number of results to return.', example='2'),
+  nextToken?: string(name='nextToken', description='The token to retrieve the next page of results. If this parameter is not returned, there are no more results.', example='xxxxxxxxx'),
+  requestId?: string(name='requestId', description='The unique ID for this GetThreadData API request.', example='8FDE2569-626B-5176-9844-28877A*****'),
+  threadId?: string(name='threadId', description='The unique ID of the thread.', example='thread_id01'),
 }
 
 model GetThreadDataResponse = {
@@ -1347,7 +1596,9 @@ model GetThreadDataResponse = {
 }
 
 /**
- * @summary 获取会话数据
+ * @summary Get session data
+ *
+ * @description Gets session data.
  *
  * @param request GetThreadDataRequest
  * @param headers map
@@ -1383,7 +1634,9 @@ async function getThreadDataWithOptions(name: string, threadId: string, request:
 }
 
 /**
- * @summary 获取会话数据
+ * @summary Get session data
+ *
+ * @description Gets session data.
  *
  * @param request GetThreadDataRequest
  * @return GetThreadDataResponse
@@ -1395,23 +1648,25 @@ async function getThreadData(name: string, threadId: string, request: GetThreadD
 }
 
 model ListArtifactsRequest {
-  artifactPath?: string(name='artifactPath', description='This parameter is required.', example='missions/mission-xxx/artifacts/2026-05/05-01/'),
-  maxResults?: int32(name='maxResults', example='10'),
-  nextToken?: string(name='nextToken', example='xxx'),
+  artifactPath?: string(name='artifactPath', description='The artifact path from which to list artifacts. If this parameter is not specified, artifacts are listed from the root directory.
+
+This parameter is required.', example='missions/mission-xxx/artifacts/2026-05/05-01/'),
+  maxResults?: int32(name='maxResults', description='The maximum number of results to return. If more results are available, the response includes a `nextToken` to retrieve the next page.', example='10'),
+  nextToken?: string(name='nextToken', description='The token used to retrieve the next page of results. You can obtain this token from the `nextToken` parameter of a previous response.', example='xxx'),
 }
 
 model ListArtifactsResponseBody = {
   artifacts?: [ 
     {
-      isDirectory?: boolean(name='isDirectory', example='false'),
-      lastModified?: string(name='lastModified', example='2026-04-30T16:03:54Z'),
-      path?: string(name='path', example='missions/mission-xxx/artifacts/2026-05/05-01/xxxx.md'),
-      size?: long(name='size', example='21950'),
+      isDirectory?: boolean(name='isDirectory', description='Specifies whether the item is a directory. A value of `true` indicates a directory and `false` indicates a file.', example='false'),
+      lastModified?: string(name='lastModified', description='The time the artifact was last modified, in UTC.', example='2026-04-30T16:03:54Z'),
+      path?: string(name='path', description='The path of the artifact.', example='missions/mission-xxx/artifacts/2026-05/05-01/xxxx.md'),
+      size?: long(name='size', description='The size of the artifact in bytes.', example='21950'),
     }
-  ](name='artifacts', example='[{"path":"reports/summary.pdf","size":1024,"lastModified":"2026-05-25T08:00:00Z","isDirectory":false}]'),
-  maxResults?: int32(name='maxResults', example='10'),
-  nextToken?: string(name='nextToken', example='xxx'),
-  requestId?: string(name='requestId', example='8FDE2569-626B-5176-9844-28877A*****'),
+  ](name='artifacts', description='The list of artifacts.', example='[{"path":"reports/summary.pdf","size":1024,"lastModified":"2026-05-25T08:00:00Z","isDirectory":false}]'),
+  maxResults?: int32(name='maxResults', description='The maximum number of results returned on the current page.', example='10'),
+  nextToken?: string(name='nextToken', description='The token for the next page of results. This parameter is returned only if more results are available. To retrieve the next page, use this token in the `nextToken` query parameter of your next request.', example='xxx'),
+  requestId?: string(name='requestId', description='The request ID.', example='8FDE2569-626B-5176-9844-28877A*****'),
 }
 
 model ListArtifactsResponse = {
@@ -1421,7 +1676,9 @@ model ListArtifactsResponse = {
 }
 
 /**
- * @summary 列出产物文件
+ * @summary Lists artifacts.
+ *
+ * @description Lists the artifacts for a specified digital employee.
  *
  * @param request ListArtifactsRequest
  * @param headers map
@@ -1460,7 +1717,9 @@ async function listArtifactsWithOptions(name: string, request: ListArtifactsRequ
 }
 
 /**
- * @summary 列出产物文件
+ * @summary Lists artifacts.
+ *
+ * @description Lists the artifacts for a specified digital employee.
  *
  * @param request ListArtifactsRequest
  * @return ListArtifactsResponse
@@ -1477,17 +1736,21 @@ model ListDigitalEmployeeSkillVersionsRequest {
 model ListDigitalEmployeeSkillVersionsResponseBody = {
   data?: [ 
     {
-      createTime?: string(name='createTime', description='Use the UTC time format: yyyy-MM-ddTHH:mm:ssZ', example='2026-02-06T14:09:11Z'),
-      description?: string(name='description', example='test'),
-      displayName?: string(name='displayName', example='test'),
-      enable?: boolean(name='enable', example='true'),
-      remark?: string(name='remark', example='remark'),
-      skillName?: string(name='skillName', example='test'),
-      updateTime?: string(name='updateTime', description='Use the UTC time format: yyyy-MM-ddTHH:mm:ssZ', example='2026-02-06T14:09:11Z'),
-      version?: string(name='version', example='1770386951147366810'),
+      createTime?: string(name='createTime', description='The time when the skill version was created.
+
+Use the UTC time format: yyyy-MM-ddTHH:mm:ssZ', example='2026-02-06T14:09:11Z'),
+      description?: string(name='description', description='The description.', example='test'),
+      displayName?: string(name='displayName', description='The display name.', example='test'),
+      enable?: boolean(name='enable', description='Indicates whether the skill version is enabled.', example='true'),
+      remark?: string(name='remark', description='The remark for the skill version.', example='remark'),
+      skillName?: string(name='skillName', description='The skill name.', example='test'),
+      updateTime?: string(name='updateTime', description='The time when the skill version was last updated.
+
+Use the UTC time format: yyyy-MM-ddTHH:mm:ssZ', example='2026-02-06T14:09:11Z'),
+      version?: string(name='version', description='The version number.', example='1770386951147366810'),
     }
-  ](name='data'),
-  requestId?: string(name='requestId', example='0B9377D9-C56B-5C2E-A8A4-A01D6CC3F4B8'),
+  ](name='data', description='A list of previous skill versions.'),
+  requestId?: string(name='requestId', description='The request ID.', example='0B9377D9-C56B-5C2E-A8A4-A01D6CC3F4B8'),
 }
 
 model ListDigitalEmployeeSkillVersionsResponse = {
@@ -1497,7 +1760,9 @@ model ListDigitalEmployeeSkillVersionsResponse = {
 }
 
 /**
- * @summary 列出技能版本
+ * @summary Lists the versions of a skill.
+ *
+ * @description Lists the previous versions of a skill.
  *
  * @param request ListDigitalEmployeeSkillVersionsRequest
  * @param headers map
@@ -1524,7 +1789,9 @@ async function listDigitalEmployeeSkillVersionsWithOptions(name: string, skillNa
 }
 
 /**
- * @summary 列出技能版本
+ * @summary Lists the versions of a skill.
+ *
+ * @description Lists the previous versions of a skill.
  *
  * @param request ListDigitalEmployeeSkillVersionsRequest
  * @return ListDigitalEmployeeSkillVersionsResponse
@@ -1536,26 +1803,30 @@ async function listDigitalEmployeeSkillVersions(name: string, skillName: string,
 }
 
 model ListDigitalEmployeeSkillsRequest {
-  maxResults?: int32(name='maxResults', example='10'),
-  nextToken?: string(name='nextToken', example='sjC5rekx93Ew7K7VcmI3wkBZBYQ-GphB2ilQu3zJCGxoZuicwyJznfo2riTjr-lq'),
-  skillName?: string(name='skillName', example='test'),
+  maxResults?: int32(name='maxResults', description='The maximum number of entries to return in the response.', example='10'),
+  nextToken?: string(name='nextToken', description='The pagination token that is used in a subsequent request to retrieve the next page of results. To retrieve the first page, do not specify this parameter.', example='sjC5rekx93Ew7K7VcmI3wkBZBYQ-GphB2ilQu3zJCGxoZuicwyJznfo2riTjr-lq'),
+  skillName?: string(name='skillName', description='The name of the skill.', example='test'),
 }
 
 model ListDigitalEmployeeSkillsResponseBody = {
-  maxResults?: int32(name='maxResults', example='10'),
-  nextToken?: string(name='nextToken', example='sjC5rekx93Ew7K7VcmI3wkBZBYQ-GphB2ilQu3zJCGxoZuicwyJznfo2riTjr-lq'),
-  requestId?: string(name='requestId', description='Id of the request', example='0CEC5375-XXXX-XXXX-XXXX-9A629907C1F0'),
+  maxResults?: int32(name='maxResults', description='The maximum number of entries returned.', example='10'),
+  nextToken?: string(name='nextToken', description='The pagination token to retrieve the next page of results. If this parameter is not returned, it indicates that no more results are available.', example='sjC5rekx93Ew7K7VcmI3wkBZBYQ-GphB2ilQu3zJCGxoZuicwyJznfo2riTjr-lq'),
+  requestId?: string(name='requestId', description='The request ID.', example='0CEC5375-XXXX-XXXX-XXXX-9A629907C1F0'),
   skills?: [ 
     {
-      createTime?: string(name='createTime', description='Use the UTC time format: yyyy-MM-ddTHH:mm:ssZ', example='2026-02-06T14:09:11Z'),
-      description?: string(name='description', example='test'),
-      displayName?: string(name='displayName', example='test'),
-      enable?: boolean(name='enable', example='true'),
-      skillName?: string(name='skillName', example='test'),
-      updateTime?: string(name='updateTime', description='Use the UTC time format: yyyy-MM-ddTHH:mm:ssZ', example='2026-02-06T14:09:11Z'),
+      createTime?: string(name='createTime', description='The time at which the skill was created.
+
+Use the UTC time format: yyyy-MM-ddTHH:mm:ssZ', example='2026-02-06T14:09:11Z'),
+      description?: string(name='description', description='The description of the skill.', example='test'),
+      displayName?: string(name='displayName', description='The display name of the skill.', example='test'),
+      enable?: boolean(name='enable', description='Indicates whether the skill is enabled.', example='true'),
+      skillName?: string(name='skillName', description='The name of the skill.', example='test'),
+      updateTime?: string(name='updateTime', description='The time at which the skill was last updated.
+
+Use the UTC time format: yyyy-MM-ddTHH:mm:ssZ', example='2026-02-06T14:09:11Z'),
     }
-  ](name='skills'),
-  total?: long(name='total', example='15'),
+  ](name='skills', description='The list of skills.'),
+  total?: long(name='total', description='The total number of entries that match the query.', example='15'),
 }
 
 model ListDigitalEmployeeSkillsResponse = {
@@ -1565,7 +1836,9 @@ model ListDigitalEmployeeSkillsResponse = {
 }
 
 /**
- * @summary 列出技能
+ * @summary Lists the skills of a digital employee.
+ *
+ * @description Lists the skills of a specified digital employee.
  *
  * @param request ListDigitalEmployeeSkillsRequest
  * @param headers map
@@ -1604,7 +1877,9 @@ async function listDigitalEmployeeSkillsWithOptions(name: string, request: ListD
 }
 
 /**
- * @summary 列出技能
+ * @summary Lists the skills of a digital employee.
+ *
+ * @description Lists the skills of a specified digital employee.
  *
  * @param request ListDigitalEmployeeSkillsRequest
  * @return ListDigitalEmployeeSkillsResponse
@@ -1616,60 +1891,64 @@ async function listDigitalEmployeeSkills(name: string, request: ListDigitalEmplo
 }
 
 model ListDigitalEmployeesRequest {
-  displayName?: string(name='displayName', example='test'),
-  employeeType?: string(name='employeeType', example='custom'),
-  maxResults?: int32(name='maxResults', example='10'),
-  name?: string(name='name', example='test'),
-  nextToken?: string(name='nextToken', example='xxxxxx'),
-  resourceGroupId?: string(name='resourceGroupId', example='rg-ae******ey'),
+  displayName?: string(name='displayName', description='The display name of the digital employee.', example='test'),
+  employeeType?: string(name='employeeType', description='The type of the digital employee.', example='custom'),
+  maxResults?: int32(name='maxResults', description='The number of entries to return on each page. Valid values: 1 to 100. Default value: 20.', example='10'),
+  name?: string(name='name', description='The name of the digital employee.', example='test'),
+  nextToken?: string(name='nextToken', description='The token that is used to retrieve the next page of results.', example='xxxxxx'),
+  resourceGroupId?: string(name='resourceGroupId', description='The ID of the resource group.', example='rg-ae******ey'),
   tags?: [
     Tag
-  ](name='tags'),
+  ](name='tags', description='The tags.'),
 }
 
 model ListDigitalEmployeesShrinkRequest {
-  displayName?: string(name='displayName', example='test'),
-  employeeType?: string(name='employeeType', example='custom'),
-  maxResults?: int32(name='maxResults', example='10'),
-  name?: string(name='name', example='test'),
-  nextToken?: string(name='nextToken', example='xxxxxx'),
-  resourceGroupId?: string(name='resourceGroupId', example='rg-ae******ey'),
-  tagsShrink?: string(name='tags'),
+  displayName?: string(name='displayName', description='The display name of the digital employee.', example='test'),
+  employeeType?: string(name='employeeType', description='The type of the digital employee.', example='custom'),
+  maxResults?: int32(name='maxResults', description='The number of entries to return on each page. Valid values: 1 to 100. Default value: 20.', example='10'),
+  name?: string(name='name', description='The name of the digital employee.', example='test'),
+  nextToken?: string(name='nextToken', description='The token that is used to retrieve the next page of results.', example='xxxxxx'),
+  resourceGroupId?: string(name='resourceGroupId', description='The ID of the resource group.', example='rg-ae******ey'),
+  tagsShrink?: string(name='tags', description='The tags.'),
 }
 
 model ListDigitalEmployeesResponseBody = {
   digitalEmployees?: [ 
     {
-      attributes?: map[string]string(name='attributes'),
-      createTime?: string(name='createTime', description='Use the UTC time format: yyyy-MM-ddTHH:mm:ssZ', example='2025-11-04T08:08:57Z'),
-      defaultRule?: string(name='defaultRule', example='test'),
-      description?: string(name='description', example='test'),
-      displayName?: string(name='displayName', example='test'),
-      employeeType?: string(name='employeeType', example='custom'),
+      attributes?: map[string]string(name='attributes', description='The custom attributes of the digital employee.'),
+      createTime?: string(name='createTime', description='The creation time.
+
+Use the UTC time format: yyyy-MM-ddTHH:mm:ssZ', example='2025-11-04T08:08:57Z'),
+      defaultRule?: string(name='defaultRule', description='The default rule of the digital employee.', example='test'),
+      description?: string(name='description', description='The description of the digital employee.', example='test'),
+      displayName?: string(name='displayName', description='The display name of the digital employee.', example='test'),
+      employeeType?: string(name='employeeType', description='The type of the digital employee.', example='custom'),
       knowledges?: {
         bailian?: [ 
           {
-            attributes?: string(name='attributes', example='test'),
-            indexId?: string(name='indexId', example='index-xxxx'),
-            region?: string(name='region', example='cn-beijing'),
-            workspaceId?: string(name='workspaceId', example='llm-xxxx'),
+            attributes?: string(name='attributes', description='The attributes of the knowledge base.', example='test'),
+            indexId?: string(name='indexId', description='The ID of the Model Studio index.', example='index-xxxx'),
+            region?: string(name='region', description='The region of the knowledge base.', example='cn-beijing'),
+            workspaceId?: string(name='workspaceId', description='The ID of the Model Studio workspace.', example='llm-xxxx'),
           }
-        ](name='bailian'),
-        sop?: [  map[string]any ](name='sop'),
-      }(name='knowledges'),
-      name?: string(name='name', example='test'),
-      resourceGroupId?: string(name='resourceGroupId', example='rg-ae******ey'),
-      roleArn?: string(name='roleArn', example='acs:ram::12345678912:role/testrole'),
+        ](name='bailian', description='A list of Model Studio knowledge bases.'),
+        sop?: [  map[string]any ](name='sop', description='A list of SOP knowledge bases.'),
+      }(name='knowledges', description='A list of knowledge bases.'),
+      name?: string(name='name', description='The name of the digital employee.', example='test'),
+      resourceGroupId?: string(name='resourceGroupId', description='The ID of the resource group.', example='rg-ae******ey'),
+      roleArn?: string(name='roleArn', description='The RAM role ARN.', example='acs:ram::12345678912:role/testrole'),
       tags?: [
         Tag
-      ](name='tags'),
-      updateTime?: string(name='updateTime', description='Use the UTC time format: yyyy-MM-ddTHH:mm:ssZ', example='2025-05-07T02:26:01Z'),
+      ](name='tags', description='A list of tags.'),
+      updateTime?: string(name='updateTime', description='The modification time.
+
+Use the UTC time format: yyyy-MM-ddTHH:mm:ssZ', example='2025-05-07T02:26:01Z'),
     }
-  ](name='digitalEmployees'),
-  maxResults?: int32(name='maxResults', example='10'),
-  nextToken?: string(name='nextToken', example='xxxxx'),
-  requestId?: string(name='requestId', example='8FDE2569-626B-5176-9844-28877A*****'),
-  total?: int32(name='total', example='56'),
+  ](name='digitalEmployees', description='A list of digital employees.'),
+  maxResults?: int32(name='maxResults', description='The maximum number of entries returned.', example='10'),
+  nextToken?: string(name='nextToken', description='The token to retrieve the next page of results.', example='xxxxx'),
+  requestId?: string(name='requestId', description='The ID of the request.', example='8FDE2569-626B-5176-9844-28877A*****'),
+  total?: int32(name='total', description='The total count.', example='56'),
 }
 
 model ListDigitalEmployeesResponse = {
@@ -1679,7 +1958,9 @@ model ListDigitalEmployeesResponse = {
 }
 
 /**
- * @summary 列出资源DigitalEmployee
+ * @summary Returns a list of digital employees.
+ *
+ * @description Lists digital employees.
  *
  * @param tmpReq ListDigitalEmployeesRequest
  * @param headers map
@@ -1735,7 +2016,9 @@ async function listDigitalEmployeesWithOptions(tmpReq: ListDigitalEmployeesReque
 }
 
 /**
- * @summary 列出资源DigitalEmployee
+ * @summary Returns a list of digital employees.
+ *
+ * @description Lists digital employees.
  *
  * @param request ListDigitalEmployeesRequest
  * @return ListDigitalEmployeesResponse
@@ -1747,61 +2030,62 @@ async function listDigitalEmployees(request: ListDigitalEmployeesRequest): ListD
 }
 
 model ListMcpServicesRequest {
-  maxResults?: int32(name='maxResults', example='20'),
-  nextToken?: string(name='nextToken', example='eyJvZmZzZXQiOjIwfQ=='),
+  maxResults?: int32(name='maxResults', description='The maximum number of entries to return in this query.', example='20'),
+  nextToken?: string(name='nextToken', description='The pagination token for the next query.', example='eyJvZmZzZXQiOjIwfQ=='),
 }
 
 model ListMcpServicesResponseBody = {
-  maxResults?: int32(name='maxResults', example='20'),
+  maxResults?: int32(name='maxResults', description='The maximum number of entries to return in this query.', example='20'),
   mcpServices?: {
     mcpServiceList?: [ 
       {
         connection?: {
           auth?: {
-            keyInfo?: map[string]string(name='keyInfo', example='{"token":"example-token"}'),
-            type?: string(name='type', example='bearer'),
-          }(name='auth'),
-          endpoint?: string(name='endpoint', example='https://example.com/mcp'),
-          platform?: string(name='platform', example='Custom'),
-          timeout?: long(name='timeout', example='5000'),
-          transport?: string(name='transport', example='http'),
-        }(name='connection'),
-        description?: string(name='description'),
-        displayName?: string(name='displayName'),
-        enable?: boolean(name='enable', example='true'),
-        mcpServiceName?: string(name='mcpServiceName', example='log-query'),
+            keyInfo?: map[string]string(name='keyInfo', description='The key-value information required for authentication.', example='{"token":"example-token"}'),
+            type?: string(name='type', description='The authentication type. Currently, bearer is supported.', example='bearer'),
+          }(name='auth', description='The authentication configuration of the MCP service.'),
+          endpoint?: string(name='endpoint', description='The access endpoint of the MCP service.', example='https://example.com/mcp'),
+          headers?: map[string]string(name='headers'),
+          platform?: string(name='platform', description='The platform type of the MCP service. Valid values: AIGateway and Custom.', example='Custom'),
+          timeout?: long(name='timeout', description='The timeout period for requests to the MCP service. Unit: milliseconds.', example='5000'),
+          transport?: string(name='transport', description='The transport protocol of the MCP service. Valid values: http and sse.', example='http'),
+        }(name='connection', description='The connection configuration of the MCP service.'),
+        description?: string(name='description', description='The description of the MCP service.', example='通过 MCP 调用日志查询工具。'),
+        displayName?: string(name='displayName', description='The display name of the MCP service.', example='日志查询'),
+        enable?: boolean(name='enable', description='Indicates whether the MCP service is enabled.', example='true'),
+        mcpServiceName?: string(name='mcpServiceName', description='The service name of the MCP service.', example='log-query'),
         network?: {
-          accessIp?: string(name='accessIp', example='10.0.0.12'),
-          accessPort?: long(name='accessPort', example='8080'),
-          gatewayId?: string(name='gatewayId', example='gw-xxx'),
-          mcpServerId?: string(name='mcpServerId', example='mcp-xxx'),
-          mode?: string(name='mode', example='public'),
-          region?: string(name='region', example='cn-hangzhou'),
-          securityGroupId?: string(name='securityGroupId', example='sg-xxx'),
-          vpcId?: string(name='vpcId', example='vpc-xxx'),
-          vswId?: string(name='vswId', example='vsw-xxx'),
-        }(name='network'),
+          accessIp?: string(name='accessIp', description='The IP address used to access the MCP service over the VPC network.', example='10.0.0.12'),
+          accessPort?: long(name='accessPort', description='The port used to access the MCP service over the VPC network. Valid values: 1 to 65535.', example='8080'),
+          gatewayId?: string(name='gatewayId', description='The gateway ID.', example='gw-xxx'),
+          mcpServerId?: string(name='mcpServerId', description='The MCP Server instance ID.', example='mcp-xxx'),
+          mode?: string(name='mode', description='The network access mode of the MCP service. Valid values: public and vpc.', example='public'),
+          region?: string(name='region', description='The region where the VPC network is located.', example='cn-hangzhou'),
+          securityGroupId?: string(name='securityGroupId', description='The security group ID.', example='sg-xxx'),
+          vpcId?: string(name='vpcId', description='The VPC ID.', example='vpc-xxx'),
+          vswId?: string(name='vswId', description='The vSwitch ID.', example='vsw-xxx'),
+        }(name='network', description='The network connectivity information.'),
         tools?: [ 
           {
-            annotations?: map[string]any(name='annotations', example='{}'),
-            confirm?: boolean(name='confirm', example='false'),
-            description?: string(name='description'),
-            displayName?: string(name='displayName'),
-            enable?: boolean(name='enable', example='true'),
-            execution?: map[string]any(name='execution', example='{}'),
-            icons?: [ map[string]any ](name='icons', example='[]'),
-            inputSchema?: map[string]any(name='inputSchema', example='{"type":"object","properties":{"query":{"type":"string"}},"required":["query"]}'),
-            name?: string(name='name', example='query_logs'),
-            outputSchema?: map[string]any(name='outputSchema', example='{"type":"object"}'),
-            title?: string(name='title'),
+            annotations?: map[string]any(name='annotations', description='The annotation information of the MCP tool.', example='{}'),
+            confirm?: boolean(name='confirm', description='Indicates whether user confirmation is required before calling the MCP tool.', example='false'),
+            description?: string(name='description', description='The description of the MCP tool.', example='查询指定日志库中的日志。'),
+            displayName?: string(name='displayName', description='The display name of the MCP tool.', example='日志查询工具'),
+            enable?: boolean(name='enable', description='Indicates whether the MCP tool is enabled.', example='true'),
+            execution?: map[string]any(name='execution', description='The execution configuration of the MCP tool.', example='{}'),
+            icons?: [ map[string]any ](name='icons', description='The list of MCP tool icons.', example='[]'),
+            inputSchema?: map[string]any(name='inputSchema', description='The JSON Schema of the MCP tool input parameters.', example='{"type":"object","properties":{"query":{"type":"string"}},"required":["query"]}'),
+            name?: string(name='name', description='The name of the MCP tool.', example='query_logs'),
+            outputSchema?: map[string]any(name='outputSchema', description='The JSON Schema of the MCP tool output results.', example='{"type":"object"}'),
+            title?: string(name='title', description='The title of the MCP tool.', example='查询日志'),
           }
-        ](name='tools', example='[{"name":"query_logs"}]'),
+        ](name='tools', description='The list of MCP tools.', example='[{"name":"query_logs"}]'),
       }
-    ](name='mcpServiceList'),
-  }(name='mcpServices'),
-  nextToken?: string(name='nextToken', example='eyJvZmZzZXQiOjIwfQ=='),
-  requestId?: string(name='requestId', example='0B9377D9-C56B-5C2E-A8A4-************'),
-  total?: long(name='total', example='10'),
+    ](name='mcpServiceList', description='The list of MCP services.'),
+  }(name='mcpServices', description='The paginated results of MCP services.'),
+  nextToken?: string(name='nextToken', description='The pagination token for the next query.', example='eyJvZmZzZXQiOjIwfQ=='),
+  requestId?: string(name='requestId', description='The request ID.', example='0B9377D9-C56B-5C2E-A8A4-************'),
+  total?: long(name='total', description='The total number of MCP services that match the query conditions.', example='10'),
 }
 
 model ListMcpServicesResponse = {
@@ -1811,7 +2095,7 @@ model ListMcpServicesResponse = {
 }
 
 /**
- * @summary 查询数字员工下的 MCP 服务列表
+ * @summary Queries the list of MCP services.
  *
  * @param request ListMcpServicesRequest
  * @param headers map
@@ -1847,7 +2131,7 @@ async function listMcpServicesWithOptions(name: string, request: ListMcpServices
 }
 
 /**
- * @summary 查询数字员工下的 MCP 服务列表
+ * @summary Queries the list of MCP services.
  *
  * @param request ListMcpServicesRequest
  * @return ListMcpServicesResponse
@@ -1861,48 +2145,52 @@ async function listMcpServices(name: string, request: ListMcpServicesRequest): L
 model ListThreadsRequest {
   filter?: [ 
     {
-      key?: string(name='key', description='This parameter is required.', example='title'),
-      value?: string(name='value', description='This parameter is required.', example='test'),
+      key?: string(name='key', description='The filter key. Supported values are title, workspace, and project.
+
+This parameter is required.', example='title'),
+      value?: string(name='value', description='The value for the filter key.
+
+This parameter is required.', example='test'),
     }
-  ](name='filter'),
-  includeMission?: boolean(name='includeMission'),
-  maxResults?: long(name='maxResults', example='20'),
-  nextToken?: string(name='nextToken', example='xxxxxx'),
-  status?: string(name='status', example='active'),
-  threadId?: string(name='threadId', example='thread-123123'),
+  ](name='filter', description='Filters the results. If this parameter is omitted, the operation returns all threads in the instance.'),
+  includeMission?: boolean(name='includeMission', description='Specifies whether to include threads created by missions.'),
+  maxResults?: long(name='maxResults', description='The maximum number of results to return. Maximum value: 200.', example='20'),
+  nextToken?: string(name='nextToken', description='The pagination token.', example='xxxxxx'),
+  status?: string(name='status', description='The status of the thread.', example='active'),
+  threadId?: string(name='threadId', description='The thread ID.', example='thread-123123'),
 }
 
 model ListThreadsShrinkRequest {
-  filterShrink?: string(name='filter'),
-  includeMission?: boolean(name='includeMission'),
-  maxResults?: long(name='maxResults', example='20'),
-  nextToken?: string(name='nextToken', example='xxxxxx'),
-  status?: string(name='status', example='active'),
-  threadId?: string(name='threadId', example='thread-123123'),
+  filterShrink?: string(name='filter', description='Filters the results. If this parameter is omitted, the operation returns all threads in the instance.'),
+  includeMission?: boolean(name='includeMission', description='Specifies whether to include threads created by missions.'),
+  maxResults?: long(name='maxResults', description='The maximum number of results to return. Maximum value: 200.', example='20'),
+  nextToken?: string(name='nextToken', description='The pagination token.', example='xxxxxx'),
+  status?: string(name='status', description='The status of the thread.', example='active'),
+  threadId?: string(name='threadId', description='The thread ID.', example='thread-123123'),
 }
 
 model ListThreadsResponseBody = {
-  maxResults?: long(name='maxResults', example='20'),
-  nextToken?: string(name='nextToken', example='xxxxxxxxxx'),
-  requestId?: string(name='requestId', description='Id of the request', example='CD8BA7D6-995D-578D-9941-xxxx'),
-  threadId?: string(name='threadId', example='thread-123123'),
+  maxResults?: long(name='maxResults', description='The maximum number of results to return. The maximum value is 200.', example='20'),
+  nextToken?: string(name='nextToken', description='A token to retrieve the next page of results. If this parameter is absent, no more results are available.', example='xxxxxxxxxx'),
+  requestId?: string(name='requestId', description='The request ID.', example='CD8BA7D6-995D-578D-9941-xxxx'),
+  threadId?: string(name='threadId', description='The thread ID.', example='thread-123123'),
   threads?: [ 
     {
-      attributes?: map[string]string(name='attributes'),
-      createTime?: string(name='createTime', example='2025-12-19T15:19:55.040403272+08:00'),
-      digitalEmployeeName?: string(name='digitalEmployeeName', example='test'),
-      status?: string(name='status', example='active'),
-      threadId?: string(name='threadId', example='thread-123123'),
-      title?: string(name='title', example='test'),
-      updateTime?: string(name='updateTime', example='2025-12-19T15:19:55.040403272+08:00'),
+      attributes?: map[string]string(name='attributes', description='A map of key-value pairs that you can attach to the thread.'),
+      createTime?: string(name='createTime', description='The creation time of the thread, in ISO 8601 format.', example='2025-12-19T15:19:55.040403272+08:00'),
+      digitalEmployeeName?: string(name='digitalEmployeeName', description='The digital employee name.', example='test'),
+      status?: string(name='status', description='The thread status.', example='active'),
+      threadId?: string(name='threadId', description='The thread ID.', example='thread-123123'),
+      title?: string(name='title', description='The thread title.', example='test'),
+      updateTime?: string(name='updateTime', description='The last update time of the thread, in ISO 8601 format.', example='2025-12-19T15:19:55.040403272+08:00'),
       variables?: {
-        project?: string(name='project', description='SLS project。', example='project'),
-        workspace?: string(name='workspace', example='workspace'),
-      }(name='variables'),
-      version?: long(name='version', example='123123'),
+        project?: string(name='project', description='The project in SLS.', example='project'),
+        workspace?: string(name='workspace', description='The workspace.', example='workspace'),
+      }(name='variables', description='The thread variables.'),
+      version?: long(name='version', description='The thread version.', example='123123'),
     }
-  ](name='threads'),
-  total?: long(name='total', example='1'),
+  ](name='threads', description='A list of threads.'),
+  total?: long(name='total', description='The total number of threads.', example='1'),
 }
 
 model ListThreadsResponse = {
@@ -1912,7 +2200,9 @@ model ListThreadsResponse = {
 }
 
 /**
- * @summary 列出会话
+ * @summary List sessions
+ *
+ * @description List sessions
  *
  * @param tmpReq ListThreadsRequest
  * @param headers map
@@ -1965,7 +2255,9 @@ async function listThreadsWithOptions(name: string, tmpReq: ListThreadsRequest, 
 }
 
 /**
- * @summary 列出会话
+ * @summary List sessions
+ *
+ * @description List sessions
  *
  * @param request ListThreadsRequest
  * @return ListThreadsResponse
@@ -1977,39 +2269,44 @@ async function listThreads(name: string, request: ListThreadsRequest): ListThrea
 }
 
 model UpdateDigitalEmployeeRequest {
-  attributes?: map[string]string(name='attributes'),
-  defaultRule?: string(name='defaultRule', example='test'),
-  description?: string(name='description', example='test'),
-  displayName?: string(name='displayName', example='test'),
+  attributes?: map[string]string(name='attributes', description='The attributes.'),
+  defaultRule?: string(name='defaultRule', description='The default rule of the digital employee.', example='test'),
+  description?: string(name='description', description='The description of the digital employee.', example='test'),
+  displayName?: string(name='displayName', description='The display name of the digital employee.', example='test'),
   knowledges?: {
     bailian?: [ 
       {
-        attributes?: string(name='attributes', example='test'),
-        indexId?: string(name='indexId', example='index-xxxx'),
-        region?: string(name='region', example='cn-beijing'),
-        workspaceId?: string(name='workspaceId', example='llm-xxxx'),
+        attributes?: string(name='attributes', description='The attributes of the knowledge base.', example='test'),
+        indexId?: string(name='indexId', description='The Bailian index ID.', example='index-xxxx'),
+        region?: string(name='region', description='The region of the knowledge base.', example='cn-beijing'),
+        workspaceId?: string(name='workspaceId', description='The Bailian workspace ID.', example='llm-xxxx'),
       }
-    ](name='bailian'),
-    sop?: [  map[string]any ](name='sop'),
-  }(name='knowledges'),
-  roleArn?: string(name='roleArn', example='acs:ram::12345678912:role/testrole'),
+    ](name='bailian', description='The list of Bailian knowledge bases.'),
+    sop?: [  map[string]any ](name='sop', description='The list of SOP knowledge bases.'),
+  }(name='knowledges', description='The list of knowledge bases.'),
+  roleArn?: string(name='roleArn', description='The ARN of the RAM role.', example='acs:ram::12345678912:role/testrole'),
+  sandboxNetworkPolicy?: {
+    allowCidrs?: [ string ](name='allowCidrs', description='The list of CIDRs or IP addresses that are allowed to be accessed.'),
+    allowFqdns?: [ string ](name='allowFqdns', description='The list of FQDNs that are allowed to be accessed.'),
+    enableAcl?: boolean(name='enableAcl', description='Specifies whether to enable the sandbox network ACL.', example='false'),
+  }(name='sandboxNetworkPolicy', description='The list of CIDRs or IP addresses that are allowed to be accessed.', example='{"allowFqdns":["api.example.com"],"allowCidrs":["1.2.3.0/24","8.8.8.8"],"enableAcl":false}'),
   toolPolicy?: {
     aliyun?: {
-      enable?: boolean(name='enable', description='是否启用 Aliyun MCP 工具策略。', example='true'),
+      enable?: boolean(name='enable', description='Specifies whether to enable the policy.', example='true'),
       statements?: [ 
         {
-          actions?: [ string ](name='actions', description='Aliyun OpenAPI Action 列表，格式为 product:ApiName、product:Prefix* 或 product:*。', example='["log:GetProject","log:CreateDashboard"]'),
-          apiVersion?: string(name='apiVersion', description='本条语句对应的 Aliyun OpenAPI API 版本。', example='2020-12-30'),
-          decision?: string(name='decision', description='命中该 API 后的执行策略。', example='user_ack'),
-          product?: string(name='product', description='本条语句对应的 Aliyun OpenAPI 产品名。', example='Sls'),
+          actions?: [ string ](name='actions', description='RAM action', example='["log:GetProject","log:CreateDashboard"]'),
+          apiVersion?: string(name='apiVersion', description='The API version. This parameter is deprecated.', example='2024-03-30', deprecated=true),
+          decision?: string(name='decision', description='The execution policy.', example='user_ack'),
+          product?: string(name='product', description='The cloud service code.', example='Cms'),
         }
-      ](name='statements', description='Aliyun OpenAPI 工具策略语句列表。', example='[{"decision":"user_ack","product":"Sls","apiVersion":"2020-12-30","actions":["log:GetProject","log:CreateDashboard"]}]'),
-    }(name='aliyun', description='Aliyun MCP 工具调用安全策略配置。', example='{"enable":true,"statements":[{"decision":"user_ack","product":"Sls","apiVersion":"2020-12-30","actions":["log:GetProject","log:CreateDashboard"]}]}'),
-  }(name='toolPolicy', description='数字员工工具调用安全策略配置。', example='{"aliyun":{"enable":true,"statements":[{"decision":"user_ack","product":"Sls","apiVersion":"2020-12-30","actions":["log:GetProject","log:CreateDashboard"]}]}}'),
+      ](name='statements', description='The list of Aliyun CLI tool policy statements.', example='[{"decision":"user_ack","product":"Sls","apiVersion":"2020-12-30","actions":["log:GetProject","log:CreateDashboard"]}]'),
+    }(name='aliyun', description='The security policy configuration for Aliyun CLI tool calling.', example='{"enable":true,"statements":[{"decision":"user_ack","product":"Sls","apiVersion":"2020-12-30","actions":["log:GetProject","log:CreateDashboard"]}]}'),
+  }(name='toolPolicy', description='The security policy configuration for tool calling of the digital employee.', example='{"aliyun":{"enable":true,"statements":[{"decision":"user_ack","product":"Sls","apiVersion":"2020-12-30","actions":["log:GetProject","log:CreateDashboard"]}]}}'),
 }
 
 model UpdateDigitalEmployeeResponseBody = {
-  requestId?: string(name='requestId', example='0CEC5375-C554-562B-A65F-***'),
+  requestId?: string(name='requestId', description='The request ID.', example='0CEC5375-C554-562B-A65F-***'),
 }
 
 model UpdateDigitalEmployeeResponse = {
@@ -2019,7 +2316,9 @@ model UpdateDigitalEmployeeResponse = {
 }
 
 /**
- * @summary 更新UpdateDigitalEmployee
+ * @summary Updates a digital employee.
+ *
+ * @description Updates a digital employee.
  *
  * @param request UpdateDigitalEmployeeRequest
  * @param headers map
@@ -2047,6 +2346,9 @@ async function updateDigitalEmployeeWithOptions(name: string, request: UpdateDig
   if (!Util.isUnset(request.roleArn)) {
     body['roleArn'] = request.roleArn;
   }
+  if (!Util.isUnset(request.sandboxNetworkPolicy)) {
+    body['sandboxNetworkPolicy'] = request.sandboxNetworkPolicy;
+  }
   if (!Util.isUnset(request.toolPolicy)) {
     body['toolPolicy'] = request.toolPolicy;
   }
@@ -2070,7 +2372,9 @@ async function updateDigitalEmployeeWithOptions(name: string, request: UpdateDig
 }
 
 /**
- * @summary 更新UpdateDigitalEmployee
+ * @summary Updates a digital employee.
+ *
+ * @description Updates a digital employee.
  *
  * @param request UpdateDigitalEmployeeRequest
  * @return UpdateDigitalEmployeeResponse
@@ -2082,12 +2386,14 @@ async function updateDigitalEmployee(name: string, request: UpdateDigitalEmploye
 }
 
 model UpdateDigitalEmployeeSkillRequest {
-  description?: string(name='description', example='test'),
-  displayName?: string(name='displayName', example='test'),
-  enable?: boolean(name='enable', description='This parameter is required.', example='true'),
+  description?: string(name='description', description='The description of the skill.', example='test'),
+  displayName?: string(name='displayName', description='The display name of the skill.', example='test'),
+  enable?: boolean(name='enable', description='Specifies whether the skill is enabled.
+
+This parameter is required.', example='true'),
   files?: [ 
     {
-      content?: string(name='content', example='---
+      content?: string(name='content', description='The content of the skill file.', example='---
 name: skill
 description: description
 ---
@@ -2095,14 +2401,16 @@ description: description
 # skill 
 
 skill test'),
-      name?: string(name='name', example='SKILL.md'),
+      name?: string(name='name', description='The name of the skill file.', example='SKILL.md'),
     }
-  ](name='files', description='This parameter is required.'),
-  remark?: string(name='remark', example='remark'),
+  ](name='files', description='An array of skill files.
+
+This parameter is required.'),
+  remark?: string(name='remark', description='Notes or comments about the skill.', example='remark'),
 }
 
 model UpdateDigitalEmployeeSkillResponseBody = {
-  requestId?: string(name='requestId', example='350779DC-980D-58FD-BECB-D2275D2487CA'),
+  requestId?: string(name='requestId', description='The request ID.', example='350779DC-980D-58FD-BECB-D2275D2487CA'),
 }
 
 model UpdateDigitalEmployeeSkillResponse = {
@@ -2112,7 +2420,9 @@ model UpdateDigitalEmployeeSkillResponse = {
 }
 
 /**
- * @summary 更新技能
+ * @summary Updates a skill for a digital employee.
+ *
+ * @description This operation updates a skill for a specified digital employee.
  *
  * @param request UpdateDigitalEmployeeSkillRequest
  * @param headers map
@@ -2157,7 +2467,9 @@ async function updateDigitalEmployeeSkillWithOptions(name: string, skillName: st
 }
 
 /**
- * @summary 更新技能
+ * @summary Updates a skill for a digital employee.
+ *
+ * @description This operation updates a skill for a specified digital employee.
  *
  * @param request UpdateDigitalEmployeeSkillRequest
  * @return UpdateDigitalEmployeeSkillResponse
@@ -2171,48 +2483,69 @@ async function updateDigitalEmployeeSkill(name: string, skillName: string, reque
 model UpdateMcpServiceRequest {
   connection?: {
     auth?: {
-      keyInfo?: map[string]string(name='keyInfo', example='{"token":"example-token"}'),
-      type?: string(name='type', example='bearer'),
-    }(name='auth'),
-    endpoint?: string(name='endpoint', description='This parameter is required.', example='https://example.com/mcp'),
-    platform?: string(name='platform', description='This parameter is required.', example='Custom'),
-    timeout?: long(name='timeout', example='5000'),
-    transport?: string(name='transport', description='This parameter is required.', example='http'),
-  }(name='connection', description='This parameter is required.'),
-  description?: string(name='description'),
-  displayName?: string(name='displayName'),
-  enable?: boolean(name='enable', description='This parameter is required.', example='true'),
+      keyInfo?: map[string]string(name='keyInfo', description='The request body parameters.', example='{"token":"example-token"}'),
+      type?: string(name='type', description='The authentication type. Currently, only bearer is supported.', example='bearer'),
+    }(name='auth', description='The request body parameters.'),
+    endpoint?: string(name='endpoint', description='The access endpoint of the MCP service.
+
+This parameter is required.', example='https://example.com/mcp'),
+    headers?: map[string]string(name='headers'),
+    platform?: string(name='platform', description='The platform type of the MCP service. Valid values: AIGateway and Custom.
+
+This parameter is required.', example='Custom'),
+    timeout?: long(name='timeout', description='The timeout period for requests to the MCP service. Unit: milliseconds.', example='5000'),
+    transport?: string(name='transport', description='The transport protocol of the MCP service. Valid values: http and sse.
+
+This parameter is required.', example='http'),
+  }(name='connection', description='The request body parameters.
+
+This parameter is required.'),
+  description?: string(name='description', description='The description of the MCP service.', example='通过 MCP 调用日志查询工具。'),
+  displayName?: string(name='displayName', description='The display name of the MCP service.', example='日志查询'),
+  enable?: boolean(name='enable', description='Specifies whether to enable the MCP service.
+
+This parameter is required.', example='true'),
   network?: {
-    accessIp?: string(name='accessIp', example='10.0.0.12'),
-    accessPort?: long(name='accessPort', example='8080'),
-    gatewayId?: string(name='gatewayId', example='gw-xxx'),
-    mcpServerId?: string(name='mcpServerId', example='mcp-xxx'),
-    mode?: string(name='mode', description='This parameter is required.', example='public'),
-    region?: string(name='region', example='cn-hangzhou'),
-    securityGroupId?: string(name='securityGroupId', example='sg-xxx'),
-    vpcId?: string(name='vpcId', example='vpc-xxx'),
-    vswId?: string(name='vswId', example='vsw-xxx'),
-  }(name='network', description='This parameter is required.'),
+    accessIp?: string(name='accessIp', description='The IP address used to access the MCP service over the VPC network.', example='10.0.0.12'),
+    accessPort?: long(name='accessPort', description='The port used to access the MCP service over the VPC network. Valid values: 1 to 65535.', example='8080'),
+    gatewayId?: string(name='gatewayId', description='The gateway ID.', example='gw-xxx'),
+    mcpServerId?: string(name='mcpServerId', description='The MCP Server instance ID.', example='mcp-xxx'),
+    mode?: string(name='mode', description='The network access mode of the MCP service. Valid values: public and vpc.
+
+This parameter is required.', example='public'),
+    region?: string(name='region', description='The region where the VPC network resides.', example='cn-hangzhou'),
+    securityGroupId?: string(name='securityGroupId', description='The security group ID.', example='sg-xxx'),
+    vpcId?: string(name='vpcId', description='The VPC ID.', example='vpc-xxx'),
+    vswId?: string(name='vswId', description='The vSwitch ID.', example='vsw-xxx'),
+  }(name='network', description='The request body parameters.
+
+This parameter is required.'),
   tools?: [ 
     {
-      annotations?: map[string]any(name='annotations', example='{}'),
-      confirm?: boolean(name='confirm', example='false'),
-      description?: string(name='description'),
-      displayName?: string(name='displayName'),
-      enable?: boolean(name='enable', example='true'),
-      execution?: map[string]any(name='execution', example='{}'),
-      icons?: [ map[string]any ](name='icons', example='[]'),
-      inputSchema?: map[string]any(name='inputSchema', description='This parameter is required.', example='{"type":"object","properties":{"query":{"type":"string"}},"required":["query"]}'),
-      name?: string(name='name', description='This parameter is required.', example='query_logs'),
-      outputSchema?: map[string]any(name='outputSchema', example='{"type":"object"}'),
-      title?: string(name='title'),
+      annotations?: map[string]any(name='annotations', description='The request body parameters.', example='{}'),
+      confirm?: boolean(name='confirm', description='Specifies whether user confirmation is required before calling the MCP tool.', example='false'),
+      description?: string(name='description', description='The description of the MCP tool.', example='查询指定日志库中的日志。'),
+      displayName?: string(name='displayName', description='The display name of the MCP tool.', example='日志查询工具'),
+      enable?: boolean(name='enable', description='Specifies whether to enable the MCP tool.', example='true'),
+      execution?: map[string]any(name='execution', description='The request body parameters.', example='{}'),
+      icons?: [ map[string]any ](name='icons', description='The list of MCP tool icons.', example='[]'),
+      inputSchema?: map[string]any(name='inputSchema', description='The request body parameters.
+
+This parameter is required.', example='{"type":"object","properties":{"query":{"type":"string"}},"required":["query"]}'),
+      name?: string(name='name', description='The name of the MCP tool.
+
+This parameter is required.', example='query_logs'),
+      outputSchema?: map[string]any(name='outputSchema', description='The request body parameters.', example='{"type":"object"}'),
+      title?: string(name='title', description='The title of the MCP tool.', example='查询日志'),
     }
-  ](name='tools', description='This parameter is required.', example='[{"name":"query_logs"}]'),
+  ](name='tools', description='The list of MCP tools.
+
+This parameter is required.', example='[{"name":"query_logs"}]'),
 }
 
 model UpdateMcpServiceResponseBody = {
-  mcpServiceName?: string(name='mcpServiceName', example='log-query'),
-  requestId?: string(name='requestId', example='0B9377D9-C56B-5C2E-A8A4-************'),
+  mcpServiceName?: string(name='mcpServiceName', description='The service name of the MCP service.', example='log-query'),
+  requestId?: string(name='requestId', description='The request ID.', example='0B9377D9-C56B-5C2E-A8A4-************'),
 }
 
 model UpdateMcpServiceResponse = {
@@ -2222,7 +2555,7 @@ model UpdateMcpServiceResponse = {
 }
 
 /**
- * @summary 更新 MCP 服务
+ * @summary Updates an MCP service.
  *
  * @param request UpdateMcpServiceRequest
  * @param headers map
@@ -2270,7 +2603,7 @@ async function updateMcpServiceWithOptions(name: string, mcpServiceName: string,
 }
 
 /**
- * @summary 更新 MCP 服务
+ * @summary Updates an MCP service.
  *
  * @param request UpdateMcpServiceRequest
  * @return UpdateMcpServiceResponse
@@ -2282,15 +2615,15 @@ async function updateMcpService(name: string, mcpServiceName: string, request: U
 }
 
 model UpdateThreadRequest {
-  attributes?: map[string]string(name='attributes'),
-  status?: string(name='status', example='active'),
-  title?: string(name='title', example='title'),
+  attributes?: map[string]string(name='attributes', description='The attributes of the thread.'),
+  status?: string(name='status', description='The status of the thread.', example='active'),
+  title?: string(name='title', description='The title of the thread.', example='title'),
 }
 
 model UpdateThreadResponseBody = {
-  requestId?: string(name='requestId', description='Id of the request', example='264C3E89-XXXX-XXXX-XXXX-CE9C2196C7DC'),
-  threadId?: string(name='threadId', example='thread-12313'),
-  version?: long(name='version', example='123123'),
+  requestId?: string(name='requestId', description='The request ID.', example='264C3E89-XXXX-XXXX-XXXX-CE9C2196C7DC'),
+  threadId?: string(name='threadId', description='The ID of the thread.', example='thread-12313'),
+  version?: long(name='version', description='The version number.', example='123123'),
 }
 
 model UpdateThreadResponse = {
@@ -2300,7 +2633,9 @@ model UpdateThreadResponse = {
 }
 
 /**
- * @summary 更新会话
+ * @summary Updates a thread.
+ *
+ * @description Updates a thread.
  *
  * @param request UpdateThreadRequest
  * @param headers map
@@ -2339,7 +2674,9 @@ async function updateThreadWithOptions(name: string, threadId: string, request: 
 }
 
 /**
- * @summary 更新会话
+ * @summary Updates a thread.
+ *
+ * @description Updates a thread.
  *
  * @param request UpdateThreadRequest
  * @return UpdateThreadResponse

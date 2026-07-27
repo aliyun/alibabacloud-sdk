@@ -21,8 +21,10 @@ init(configuration: ClientConfiguration){
   @handler = new TeaAsyncHandler(configuration);
   @product = 'STAROps';
   @version = '2026-04-28';
-  @endpointRule = '';
+  @endpointRule = 'regional';
   @endpointMap = {
+    'cn-beijing' = 'starops.cn-beijing.aliyuncs.com',
+    'ap-southeast-1' = 'starops.ap-southeast-1.aliyuncs.com',
   };
 }
 
@@ -33,6 +35,39 @@ function close(): void {
 model Tag {
   key?: string(name='key', example='test-key', maxLength=128),
   value?: string(name='value', example='test-value', maxLength=256),
+}
+
+model CreateArtifactUploadTokenRequest {
+  name: string(name='name', description='This parameter is required.', example='sample-agent', position='Path'),
+  artifactPath?: string(name='artifactPath', example='upload/2026-05-25/', position='Query'),
+}
+
+model CreateArtifactUploadTokenResponseBody = {
+  accessId?: string(name='accessId', example='LTAI******'),
+  artifactPath?: string(name='artifactPath', example='upload/2026-05-25/'),
+  dir?: string(name='dir', example='agents/123/sample-agent/home/starops/upload/2026-05-25/'),
+  expire?: long(name='expire', example='1770000000'),
+  host?: string(name='host', example='https://example-bucket.oss-cn-shanghai.aliyuncs.com'),
+  maxSize?: long(name='maxSize', example='104857600'),
+  policy?: string(name='policy', example='eyJleHBpcmF0aW9uIjoiMjAyNi0wNS0yMVQwODowMDowMFoifQ=='),
+  requestId?: string(name='requestId', example='0A1B2C3D-4E5F-6789-ABCD-1234567890AB'),
+  signature?: string(name='signature', example='abc123signature'),
+  successActionStatus?: string(name='successActionStatus', example='200'),
+}
+
+model CreateArtifactUploadTokenResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: CreateArtifactUploadTokenResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of CreateArtifactUploadToken  CreateArtifactUploadTokenRequest
+  * @return CreateArtifactUploadTokenResponse
+ */
+async function createArtifactUploadToken(request: CreateArtifactUploadTokenRequest): CreateArtifactUploadTokenResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'CreateArtifactUploadToken', 'POST', '/digitalEmployee/{name}/artifacts/uploadToken', 'json', false, 'json', request);
 }
 
 model CreateChatRequest {
@@ -138,6 +173,11 @@ model CreateDigitalEmployeeRequest {
   name: string(name='name', description='This parameter is required.', example='test', position='Body'),
   resourceGroupId?: string(name='resourceGroupId', example='rg-ae******ey', position='Body'),
   roleArn: string(name='roleArn', description='This parameter is required.', example='acs:ram::12345678912:role/testrole', position='Body'),
+  sandboxNetworkPolicy?: {
+    allowCidrs?: [ string ](name='allowCidrs', description='允许访问的 CIDR 或 IP 列表，最多 50 个。'),
+    allowFqdns?: [ string ](name='allowFqdns', description='允许访问的 FQDN 列表，最多 50 个。'),
+    enableAcl?: boolean(name='enableAcl', description='是否启用沙箱网络 ACL。', example='false'),
+  }(name='sandboxNetworkPolicy', description='数字员工沙箱网络 ACL 策略配置。', example='{"allowFqdns":["api.example.com"],"allowCidrs":["1.2.3.0/24","8.8.8.8"],"enableAcl":false}', position='Body'),
   tags?: [
     Tag
   ](name='tags', position='Body'),
@@ -147,7 +187,7 @@ model CreateDigitalEmployeeRequest {
       statements?: [ 
         {
           actions?: [ string ](name='actions', description='Aliyun OpenAPI Action 列表，格式为 product:ApiName、product:Prefix* 或 product:*。', example='["log:GetProject","log:CreateDashboard"]'),
-          apiVersion?: string(name='apiVersion', description='本条语句对应的 Aliyun OpenAPI API 版本。', example='2020-12-30'),
+          apiVersion?: string(name='apiVersion', description='本条语句对应的 Aliyun OpenAPI API 版本。', example='2020-12-30', deprecated='true'),
           decision?: string(name='decision', description='命中该 API 后的执行策略。', example='user_ack'),
           product?: string(name='product', description='本条语句对应的 Aliyun OpenAPI 产品名。', example='Sls'),
         }
@@ -228,6 +268,7 @@ model CreateMcpServiceRequest {
       type?: string(name='type', example='bearer'),
     }(name='auth'),
     endpoint: string(name='endpoint', description='This parameter is required.', example='http://10.0.1.23:8080/mcp'),
+    headers?: map[string]string(name='headers'),
     platform: string(name='platform', description='This parameter is required.', example='Custom'),
     timeout?: long(name='timeout', example='10000'),
     transport: string(name='transport', description='This parameter is required.', example='http'),
@@ -444,6 +485,7 @@ model FetchRemoteMcpToolsRequest {
       type?: string(name='type', example='bearer'),
     }(name='auth'),
     endpoint: string(name='endpoint', description='This parameter is required.', example='https://example.com/mcp'),
+    headers?: map[string]string(name='headers'),
     platform?: string(name='platform', example='Custom'),
     timeout?: long(name='timeout', example='5000'),
     transport: string(name='transport', description='This parameter is required.', example='http'),
@@ -501,6 +543,32 @@ async function getArtifact(request: GetArtifactRequest): GetArtifactResponse {
   return @handler.do('RESTFUL', 'GetArtifact', 'GET', '/digitalEmployee/{name}/artifact', 'binary', false, 'json', request);
 }
 
+model GetArtifactDownloadUrlRequest {
+  name: string(name='name', description='This parameter is required.', example='sample-agent', position='Path'),
+  artifactPath: string(name='artifactPath', description='This parameter is required.', example='reports/summary.pdf', position='Query'),
+}
+
+model GetArtifactDownloadUrlResponseBody = {
+  expire?: long(name='expire', example='1770000000'),
+  requestId?: string(name='requestId', example='0A1B2C3D-4E5F-6789-ABCD-1234567890AB'),
+  url?: string(name='url', example='https://example-bucket.oss-cn-shanghai.aliyuncs.com/agents/123/sample-agent/home/starops/reports/summary.pdf?response-content-disposition=attachment&Expires=1770000000&OSSAccessKeyId=LTAI******&Signature=******'),
+}
+
+model GetArtifactDownloadUrlResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: GetArtifactDownloadUrlResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of GetArtifactDownloadUrl  GetArtifactDownloadUrlRequest
+  * @return GetArtifactDownloadUrlResponse
+ */
+async function getArtifactDownloadUrl(request: GetArtifactDownloadUrlRequest): GetArtifactDownloadUrlResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'GetArtifactDownloadUrl', 'GET', '/digitalEmployee/{name}/artifacts/downloadUrl', 'json', false, 'json', request);
+}
+
 model GetDigitalEmployeeRequest {
   name: string(name='name', description='This parameter is required.', example='test', position='Path'),
   regionId?: string(name='RegionId', position='Host'),
@@ -529,6 +597,11 @@ model GetDigitalEmployeeResponseBody = {
   requestId?: string(name='requestId', example='0B9377D9-C56B-5C2E-A8A4-************'),
   resourceGroupId?: string(name='resourceGroupId', example='rg-ae******ey'),
   roleArn?: string(name='roleArn', example='acs:ram::12345678912:role/testrole'),
+  sandboxNetworkPolicy?: {
+    allowCidrs?: [ string ](name='allowCidrs', description='允许访问的 CIDR 或 IP 列表，最多 50 个。'),
+    allowFqdns?: [ string ](name='allowFqdns', description='允许访问的 FQDN 列表，最多 50 个。'),
+    enableAcl?: boolean(name='enableAcl', description='是否启用沙箱网络 ACL。', example='false'),
+  }(name='sandboxNetworkPolicy', description='数字员工沙箱网络 ACL 策略配置。', example='{"allowFqdns":["api.example.com"],"allowCidrs":["1.2.3.0/24","8.8.8.8"],"enableAcl":false}'),
   tags?: [
     Tag
   ](name='tags'),
@@ -538,9 +611,7 @@ model GetDigitalEmployeeResponseBody = {
       statements?: [ 
         {
           actions?: [ string ](name='actions', description='Aliyun OpenAPI Action 列表，格式为 product:ApiName、product:Prefix* 或 product:*。', example='["log:GetProject","log:CreateDashboard"]'),
-          apiVersion: string(name='apiVersion', description='本条语句对应的 Aliyun OpenAPI API 版本。
-
-This parameter is required.', example='2020-12-30'),
+          apiVersion?: string(name='apiVersion', description='本条语句对应的 Aliyun OpenAPI API 版本。', example='2020-12-30', deprecated='true'),
           decision?: string(name='decision', description='命中该 API 后的执行策略。', example='user_ack'),
           product: string(name='product', description='本条语句对应的 Aliyun OpenAPI 产品名。
 
@@ -628,6 +699,7 @@ model GetMcpServiceResponseBody = {
         type?: string(name='type', example='bearer'),
       }(name='auth'),
       endpoint?: string(name='endpoint', example='https://example.com/mcp'),
+      headers?: map[string]string(name='headers'),
       platform?: string(name='platform', example='Custom'),
       timeout?: long(name='timeout', example='5000'),
       transport?: string(name='transport', example='http'),
@@ -965,6 +1037,7 @@ model ListMcpServicesResponseBody = {
             type?: string(name='type', example='bearer'),
           }(name='auth'),
           endpoint?: string(name='endpoint', example='https://example.com/mcp'),
+          headers?: map[string]string(name='headers'),
           platform?: string(name='platform', example='Custom'),
           timeout?: long(name='timeout', example='5000'),
           transport?: string(name='transport', example='http'),
@@ -1095,13 +1168,18 @@ model UpdateDigitalEmployeeRequest {
     sop?: [  map[string]any ](name='sop'),
   }(name='knowledges', position='Body'),
   roleArn?: string(name='roleArn', example='acs:ram::12345678912:role/testrole', position='Body'),
+  sandboxNetworkPolicy?: {
+    allowCidrs?: [ string ](name='allowCidrs', description='允许访问的 CIDR 或 IP 列表，最多 50 个。'),
+    allowFqdns?: [ string ](name='allowFqdns', description='允许访问的 FQDN 列表，最多 50 个。'),
+    enableAcl?: boolean(name='enableAcl', description='是否启用沙箱网络 ACL。', example='false'),
+  }(name='sandboxNetworkPolicy', description='数字员工沙箱网络 ACL 策略配置。', example='{"allowFqdns":["api.example.com"],"allowCidrs":["1.2.3.0/24","8.8.8.8"],"enableAcl":false}', position='Body'),
   toolPolicy?: {
     aliyun?: {
       enable?: boolean(name='enable', description='是否启用 Aliyun MCP 工具策略。', example='true'),
       statements?: [ 
         {
           actions?: [ string ](name='actions', description='Aliyun OpenAPI Action 列表，格式为 product:ApiName、product:Prefix* 或 product:*。', example='["log:GetProject","log:CreateDashboard"]'),
-          apiVersion?: string(name='apiVersion', description='本条语句对应的 Aliyun OpenAPI API 版本。', example='2020-12-30'),
+          apiVersion?: string(name='apiVersion', description='本条语句对应的 Aliyun OpenAPI API 版本。', example='2020-12-30', deprecated='true'),
           decision?: string(name='decision', description='命中该 API 后的执行策略。', example='user_ack'),
           product?: string(name='product', description='本条语句对应的 Aliyun OpenAPI 产品名。', example='Sls'),
         }
@@ -1181,6 +1259,7 @@ model UpdateMcpServiceRequest {
       type?: string(name='type', example='bearer'),
     }(name='auth'),
     endpoint: string(name='endpoint', description='This parameter is required.', example='https://example.com/mcp'),
+    headers?: map[string]string(name='headers'),
     platform: string(name='platform', description='This parameter is required.', example='Custom'),
     timeout?: long(name='timeout', example='5000'),
     transport: string(name='transport', description='This parameter is required.', example='http'),
