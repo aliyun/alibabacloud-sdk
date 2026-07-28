@@ -162,6 +162,7 @@ model ContainerSpec {
   image?: string(name='Image', description='The endpoint of the container image.', example='registry.cn-hangzhou.aliyuncs.com/pai-dlc/curl:v1.0.0'),
   name?: string(name='Name', description='The name of the container.', example='data-init'),
   resources?: ResourceRequirements(name='Resources', description='The container resources.'),
+  securityContext?: SecurityContext(name='SecurityContext'),
   workingDir?: string(name='WorkingDir', description='The working directory in the container.', example='/root'),
 }
 
@@ -190,18 +191,16 @@ model CredentialRole {
 }
 
 model DataJuicerConfig {
-  commandType?: string(name='CommandType', description='The command type.
+  commandType?: string(name='CommandType', description='The command type. Valid values:
 
-- shell: A shell command.
+- shell: shell command.
+- config: DataJuicer YAML configuration.', example='config'),
+  enableResourceEstimation?: boolean(name='EnableResourceEstimation', description='Specifies whether to enable resource estimation. When resource estimation is enabled, the execution mode must be distributed, and the command type must be config (DataJuicer YAML configuration).', example='true'),
+  executionMode?: string(name='ExecutionMode', description='The execution mode. Valid values:
 
-- config: The YAML configuration for DataJuicer.', example='config'),
-  enableResourceEstimation?: boolean(name='EnableResourceEstimation', description='Specifies whether to enable resource estimation.'),
-  executionMode?: string(name='ExecutionMode', description='The execution mode.
-
-- standalone: Single node.
-
-- distributed: Distributed.', example='standalone'),
-  resourceLimit?: ResourceLimit(name='ResourceLimit'),
+- standalone: single-node.
+- distributed: distributed.', example='standalone'),
+  resourceLimit?: ResourceLimit(name='ResourceLimit', description='The resource estimation limit. This parameter takes effect only when resource estimation is enabled.'),
 }
 
 model DataSourceItem {
@@ -450,7 +449,7 @@ model JobItem {
   codeSource?: {
     branch?: string(name='Branch', description='The code repository branch.', example='master'),
     codeSourceId?: string(name='CodeSourceId', description='The code source configuration ID.', example='code-20210111103721-********'),
-    commit?: string(name='Commit', description='The commit ID of the code repository used for this job.', example='44da109b59f8596152987eaa8f3b2487bb******'),
+    commit?: string(name='Commit', description='The commit ID of the code repository used by this job.', example='44da109b59f8596152987eaa8f3b2487bb******'),
     mountPath?: string(name='MountPath', description='The local mount path of the code.', example='/mnt/data'),
   }(name='CodeSource', description='The code source configuration used by this job.'),
   credentialConfig?: CredentialConfig(name='CredentialConfig', description='The access credential configuration associated with the job.'),
@@ -464,87 +463,73 @@ model JobItem {
   duration?: long(name='Duration', description='The job running duration, in seconds.', example='243'),
   elasticSpec?: JobElasticSpec(name='ElasticSpec', description='The elastic job parameters.'),
   enablePreemptibleJob?: boolean(name='EnablePreemptibleJob', description='Indicates whether PreemptibleJob is enabled.', example='false'),
-  enabledDebugger?: boolean(name='EnabledDebugger', description='Indicates whether Debugger analysis is enabled.', example='false'),
-  envs?: map[string]string(name='Envs', description='The environment variables injected at job runtime.'),
-  gmtCreateTime?: string(name='GmtCreateTime', description='The time when the job was created, in UTC format.', example='2025-04-16T07:25:34Z'),
-  gmtFailedTime?: string(name='GmtFailedTime', description='The time when the job failed, in UTC format.', example='null'),
-  gmtFinishTime?: string(name='GmtFinishTime', description='The time when the job finished, in UTC format.', example='2025-04-16T07:28:20Z'),
-  gmtModifiedTime?: string(name='GmtModifiedTime', description='The time when the job was last modified, in UTC format.', example='2025-04-16T07:28:22Z'),
-  gmtRunningTime?: string(name='GmtRunningTime', description='The time when the job started running, in UTC format.', example='2025-04-16T07:26:41Z'),
-  gmtStoppedTime?: string(name='GmtStoppedTime', description='The time when the job was stopped, in UTC format.', example='null'),
-  gmtSubmittedTime?: string(name='GmtSubmittedTime', description='The time when the job was submitted, in UTC format.', example='2025-04-16T07:26:14Z'),
-  gmtSuccessedTime?: string(name='GmtSuccessedTime', description='The time when the job completed successfully, in UTC format.', example='2025-04-16T07:28:20Z'),
+  enabledDebugger?: boolean(name='EnabledDebugger', description='Indicates whether debugger analysis is enabled.', example='false'),
+  envs?: map[string]string(name='Envs', description='The environment variables injected into the job at runtime.'),
+  gmtCreateTime?: string(name='GmtCreateTime', description='The job creation time in UTC format.', example='2025-04-16T07:25:34Z'),
+  gmtFailedTime?: string(name='GmtFailedTime', description='The time when the job failed (UTC).', example='null'),
+  gmtFinishTime?: string(name='GmtFinishTime', description='The time when the job finished (UTC).', example='2025-04-16T07:28:20Z'),
+  gmtModifiedTime?: string(name='GmtModifiedTime', description='The time when the job was modified (UTC).', example='2025-04-16T07:28:22Z'),
+  gmtRunningTime?: string(name='GmtRunningTime', description='The time when the job started running in UTC format.', example='2025-04-16T07:26:41Z'),
+  gmtStoppedTime?: string(name='GmtStoppedTime', description='The time when the job was stopped (UTC).', example='null'),
+  gmtSubmittedTime?: string(name='GmtSubmittedTime', description='The job submission time in UTC format.', example='2025-04-16T07:26:14Z'),
+  gmtSuccessedTime?: string(name='GmtSuccessedTime', description='The time when the job completed successfully in UTC format.', example='2025-04-16T07:28:20Z'),
   isDeleted?: boolean(name='IsDeleted', description='Indicates whether the job is deleted.', example='false'),
   jobId?: string(name='JobId', description='The job ID.', example='dlc-20210126170216-********'),
-  jobMaxRunningTimeMinutes?: long(name='JobMaxRunningTimeMinutes', description='The maximum running duration of the job.', example='0'),
+  jobMaxRunningTimeMinutes?: long(name='JobMaxRunningTimeMinutes', description='The maximum job running duration.', example='0'),
   jobReplicaStatuses?: [
     JobReplicaStatus
   ](name='JobReplicaStatuses'),
   jobSpecs?: [
     JobSpec
-  ](name='JobSpecs', description='The node configurations of the job at runtime.'),
-  jobType?: string(name='JobType', description='The job type. Valid values:
-- TFJob
-- PyTorchJob
-- MPIJob
-- XGBoostJob
-- OneFlowJob
-- ElasticBatchJob
-- RayJob
-- SlurmJob', example='TFJob'),
+  ](name='JobSpecs', description='The node configurations for the job at runtime.'),
+  jobType?: string(name='JobType', description='The job type. Valid values:', example='TFJob'),
   nodeCount?: string(name='NodeCount', description='The number of nodes.', example='1'),
   nodeNames?: [ string ](name='NodeNames', description='The node names.'),
   pods?: [
     PodItem
-  ](name='Pods', description='The pods.'),
+  ](name='Pods', description='Pods。'),
   priority?: int32(name='Priority', description='The job priority.', example='1'),
-  reasonCode?: string(name='ReasonCode', description='The reason code for the current job status. Valid values:
-- InvalidParameter
-- JobSucceeded
-- JobStoppedByUser', example='JobStoppedByUser'),
-  reasonMessage?: string(name='ReasonMessage', description='The detailed description of the reason for the current job status.', example='Job is stopped by user.'),
+  reasonCode?: string(name='ReasonCode', description='The reason code for the job entering its current status. Valid values:', example='JobStoppedByUser'),
+  reasonMessage?: string(name='ReasonMessage', description='The detailed description of the reason for the job entering its current status.', example='Job is stopped by user.'),
   requestCPU?: long(name='RequestCPU', description='The requested CPU resources.', example='1'),
   requestGPU?: string(name='RequestGPU', description='The requested GPU resources.', example='1'),
   requestMemory?: string(name='RequestMemory', description='The requested memory resources.', example='1Gi'),
   resourceId?: string(name='ResourceId', description='The ID of the resource group in which the job runs.', example='dlc-quota'),
   resourceLevel?: string(name='ResourceLevel', description='The resource level of the job at runtime.', example='L0'),
   resourceName?: string(name='ResourceName', description='The name of the resource on which the job runs.', example='my_resource_group'),
-  resourceQuotaName?: string(name='ResourceQuotaName', description='The resource quota name.', example='test'),
+  resourceQuotaName?: string(name='ResourceQuotaName', description='The resource name.', example='test'),
   resourceType?: string(name='ResourceType', description='The resource type. Valid values: ECS, Lingjun, and ACS.', example='ECS'),
   restartTimes?: string(name='RestartTimes', description='The number of times the job has been restarted.', example='1'),
   retryCount?: int32(name='RetryCount'),
   schedulingStrategy?: string(name='SchedulingStrategy'),
   settings?: JobSettings(name='Settings', description='The additional parameters of the job.'),
-  status?: string(name='Status', description='The job status. Valid values:
-- Succeeded
-- Failed', example='Stopped'),
+  status?: string(name='Status', description='The job status. Valid values:', example='Stopped'),
   statusHistory?: [
     StatusTransitionItem
-  ](name='StatusHistory', description='The job status transition history.'),
-  subStatus?: string(name='SubStatus', description='The job substatus, such as the preemption retry status.', example='Restarting'),
-  systemEnvs?: map[string]string(name='SystemEnvs', description='The system environment variable configurations.'),
+  ](name='StatusHistory', description='The job status transition information.'),
+  subStatus?: string(name='SubStatus', description='The job sub-status, such as preemption retry status.', example='Restarting'),
+  systemEnvs?: map[string]string(name='SystemEnvs', description='The system environment variable configuration.'),
   templateId?: string(name='TemplateId'),
   templateName?: string(name='TemplateName'),
   tenantId?: string(name='TenantId', description='The tenant ID.', example='****93955616****'),
-  thirdpartyLibDir?: string(name='ThirdpartyLibDir', description='The directory where the third-party library file Requirements.txt is located.', example='/root/code/'),
+  thirdpartyLibDir?: string(name='ThirdpartyLibDir', description='The directory where the third-party library file requirements.txt is located.', example='/root/code/'),
   thirdpartyLibs?: [ string ](name='ThirdpartyLibs', description='The list of third-party Python libraries installed before the job runs.'),
   useOversoldResource?: boolean(name='UseOversoldResource', description='Indicates whether the job uses idle resources.', example='false'),
   userCommand?: string(name='UserCommand', description='The startup command that runs on each node of the job.', example='python /root/code/mnist.py'),
   userId?: string(name='UserId', description='The UID of the user who owns the job.', example='123456789'),
   userScript?: string(name='UserScript', description='The user script.', example='ls'),
   userVpc?: {
-    defaultRoute?: string(name='DefaultRoute', description='The default routing. Valid values:
-- eth0: uses the default network interface controller (NIC) to access external networks through the public gateway.
-- eth1: uses the user elastic network interfaces (ENIs) to access external networks through the private gateway.', example='eth0'),
+    defaultRoute?: string(name='DefaultRoute', description='The default route. Valid values:', example='eth0'),
     extendedCidrs?: [ string ](name='ExtendedCidrs', description='The extended CIDR blocks to connect.'),
     securityGroupId?: string(name='SecurityGroupId', description='The security group ID.', example='sg-2zeef***'),
     switchId?: string(name='SwitchId', description='The vSwitch ID.', example='vsw-2ze6***'),
     vpcId?: string(name='VpcId', description='VPC ID', example='vpc-2zed***'),
   }(name='UserVpc', description='The user VPC.', example='vpc-1'),
-  username?: string(name='Username', description='The username of the user who submitted the job.', example='pai-dlc-role'),
+  username?: string(name='Username', description='The username of the job submitter.', example='pai-dlc-role'),
   workingDir?: string(name='WorkingDir', description='The working directory.', example='/mnt/data'),
   workspaceId?: string(name='WorkspaceId', description='The ID of the workspace to which the job belongs.', example='268'),
   workspaceName?: string(name='WorkspaceName', description='The name of the workspace to which the job belongs.', example='dlc-workspace'),
+  supportedProfilingTypes?: string(name='supportedProfilingTypes', example='sysom'),
 }
 
 model JobReplicaStatus {
@@ -565,32 +550,32 @@ model JobSettings {
   businessUserId?: string(name='BusinessUserId', description='The user ID associated with the job.', example='16****'),
   caller?: string(name='Caller', description='The caller.', example='SilkFlow'),
   dataJuicerConfig?: DataJuicerConfig(name='DataJuicerConfig', description='The DataJuicer task configuration.'),
-  disableEcsStockCheck?: boolean(name='DisableEcsStockCheck', description='Specifies whether to skip the inventory check. Valid values:
+  disableEcsStockCheck?: boolean(name='DisableEcsStockCheck', description='Specifies whether to skip inventory check. Valid values:
 - true
 - false', example='false'),
   driver?: string(name='Driver', description='The NVIDIA driver configuration.', example='535.54.03'),
-  enableCPUAffinity?: boolean(name='EnableCPUAffinity', description='The CPU affinity setting. This setting takes effect only when general-purpose subscription computing resources are used.', example='true'),
+  enableCPUAffinity?: boolean(name='EnableCPUAffinity', description='The CPU affinity setting. This setting is effective only when using general computing subscription resources.', example='true'),
   enableDSWDev?: boolean(name='EnableDSWDev'),
   enableErrorMonitoringInAIMaster?: boolean(name='EnableErrorMonitoringInAIMaster', description='Specifies whether to enable fault tolerance monitoring for the job. Valid values:
 - true
 - false', example='false'),
-  enableOssAppend?: boolean(name='EnableOssAppend', description='Specifies whether OSS append writes are allowed. Valid values:
+  enableOssAppend?: boolean(name='EnableOssAppend', description='Specifies whether to allow OSS append write. Valid values:
 - true
 - false', example='true'),
-  enableRDMA?: boolean(name='EnableRDMA', description='Specifies whether the job is allowed to use RDMA. Valid values:
+  enableRDMA?: boolean(name='EnableRDMA', description='Specifies whether to allow the job to use RDMA. Valid values:
 - true
 - false', example='true'),
   enableSanityCheck?: boolean(name='EnableSanityCheck', description='Specifies whether to enable computing power health check for the job. Valid values:
 - true
 - false', example='true'),
-  enableTideResource?: boolean(name='EnableTideResource', description='Specifies whether the job is allowed to use tidal resources. Valid values:
+  enableTideResource?: boolean(name='EnableTideResource', description='Specifies whether to allow the job to use tidal resources. Valid values:
 - true
 - false', example='true'),
-  errorMonitoringArgs?: string(name='ErrorMonitoringArgs', description='The configuration parameters for fault tolerance monitoring after it is enabled. For example, you can specify whether to enable log hang-based detection.', example='--enable-log-hang-detection true'),
-  jobReservedMinutes?: int32(name='JobReservedMinutes', description='The duration (in minutes) for which the job is retained after it ends.', example='30'),
-  jobReservedPolicy?: string(name='JobReservedPolicy', description='The retention policy after the job ends.', example='Always'),
-  modelConfig?: ModelConfig(name='ModelConfig', description='The output model configuration. This parameter currently takes effect only in federated training scenarios.'),
-  oversoldType?: string(name='OversoldType', description='The oversold resource usage mode for the job (not accepted, acceptable, or only accepted).', example='AcceptQuotaOverSold'),
+  errorMonitoringArgs?: string(name='ErrorMonitoringArgs', description='The configuration parameters for fault tolerance monitoring after it is enabled, such as whether to enable log hang-based detection.', example='--enable-log-hang-detection true'),
+  jobReservedMinutes?: int32(name='JobReservedMinutes', description='The retention duration after job completion, in minutes.', example='30'),
+  jobReservedPolicy?: string(name='JobReservedPolicy', description='The retention policy after job completion.', example='Always'),
+  modelConfig?: ModelConfig(name='ModelConfig', description='The output model configuration. This parameter is currently effective only in federated training scenarios.'),
+  oversoldType?: string(name='OversoldType', description='The oversold resource usage mode for the job (reject/accept/only accept).', example='AcceptQuotaOverSold'),
   pipelineId?: string(name='PipelineId', description='The workflow ID.', example='pid-12****'),
   sanityCheckArgs?: string(name='SanityCheckArgs', description='The configuration parameters for computing power health check.', example='--sanity-check-timing=AfterJobFaultTolerant --sanity-check-timeout-ops=MarkJobFail'),
   shell?: string(name='Shell', example='/bin/bash'),
@@ -599,9 +584,10 @@ model JobSettings {
 }
 
 model JobSpec {
-  assignNodeSpec?: AssignNodeSpec(name='AssignNodeSpec', description='The scheduling node assignment configuration.'),
+  assignNodeSpec?: AssignNodeSpec(name='AssignNodeSpec', description='The assigned scheduling node configuration.'),
   autoScalingSpec?: AutoScalingSpec(name='AutoScalingSpec', description='The auto scaling configuration.'),
-  considerInSuccessPolicy?: boolean(name='ConsiderInSuccessPolicy', description='Specifies whether to consider this role when determining job success. This parameter takes effect only when the success policy is set to Partial.'),
+  considerInSuccessPolicy?: boolean(name='ConsiderInSuccessPolicy', description='Specifies whether this role is considered when determining job success. This parameter takes effect only when the success policy is set to Partial.'),
+  driver?: string(name='Driver'),
   ecsSpec?: string(name='EcsSpec', description='The hardware specifications of the worker. Visit [PAI-DLC billing](https://help.aliyun.com/document_detail/171758.html) for the detailed list of specifications.>Notice: Prices vary depending on the specifications.', example='ecs.c6.large'),
   elasticSpotSpecs?: [
     ElasticSpotSpec
@@ -626,7 +612,7 @@ model JobSpec {
     StartupDependency
   ](name='StartupDependencies', description='The dependencies required before this role starts.'),
   systemDisk?: SystemDisk(name='SystemDisk'),
-  type?: string(name='Type', description='Type is closely related to Job Type. Different Job Types support different Worker Types.
+  type?: string(name='Type', description='Type is closely related to Job Type. Different job types support different worker types.
 
 - **TFJob**: Supports Chief, PS, Worker, Evaluator, and GraphLearn.
 
@@ -726,6 +712,7 @@ model PodItem {
   status?: string(name='Status', example='Stopped'),
   subStatus?: string(name='SubStatus'),
   type?: string(name='Type', example='Worker'),
+  supportedProfilingTypes?: string(name='supportedProfilingTypes', example='sysom'),
 }
 
 model PodMetric {
@@ -842,9 +829,9 @@ model ServiceSpec {
 }
 
 model SignalTarget {
-  podNames?: [ string ](name='PodNames'),
-  roles?: [ string ](name='Roles'),
-  scope?: string(name='Scope'),
+  podNames?: [ string ](name='PodNames', description='The pod name. Required when Scope is set to pods.'),
+  roles?: [ string ](name='Roles', description='The role information. Required when Scope is set to roles.'),
+  scope?: string(name='Scope', description='The send scope.', example='pods'),
 }
 
 model SmartCache {
@@ -970,14 +957,15 @@ model Workspace {
 
 model CreateJobRequest {
   accessibility?: string(name='Accessibility', description='The visibility of the job. Valid values:
-- PUBLIC: visible to all members in the workspace.
-- PRIVATE: visible only to you and administrators in the workspace.', example='PRIVATE'),
+- PUBLIC: visible to all members in this workspace.
+- PRIVATE: visible only to you and administrators in this workspace.', example='PRIVATE'),
   codeSource?: {
-    branch?: string(name='Branch', description='The branch of the code repository referenced at runtime. This parameter is optional. By default, the branch configured in the code source is used.', example='master'),
-    codeSourceId?: string(name='CodeSourceId', description='The code source ID. <props="china">For information about how to obtain the code source ID, see [ListCodeSources](https://help.aliyun.com/document_detail/459922.html)..', example='code-20210111103721-xxxxxxx'),
-    commit?: string(name='Commit', description='The commit ID of the code to download for this job. This parameter is optional. By default, the commit ID configured in the code source is used.', example='44da109b5******'),
-    mountPath?: string(name='MountPath', description='The mount path for this job. This parameter is optional. By default, the mount path configured in the code source is used.', example='/root/data'),
-  }(name='CodeSource', description='The code source used by this job. Before the job nodes start, DLC automatically downloads the code configured in the code source and mounts it to a local directory of the container.'),
+    branch?: string(name='Branch', description='The branch of the code repository referenced when this job runs. This is an optional parameter. By default, the branch configured in the code source is used.', example='master'),
+    codeSourceId?: string(name='CodeSourceId', description='The code source ID. <props="china">For information about how to obtain the code source ID, see [ListCodeSources](https://help.aliyun.com/document_detail/459922.html).', example='code-20210111103721-xxxxxxx'),
+    commit?: string(name='Commit', description='The commit ID of the code to download for this job. This is an optional parameter. By default, the CommitID configured in the code source is used.', example='44da109b5******'),
+    isSharedMountPath?: boolean(name='IsSharedMountPath'),
+    mountPath?: string(name='MountPath', description='The mount path for this job. This is an optional parameter. By default, the mount path configured in the code source is used.', example='/root/data'),
+  }(name='CodeSource', description='The code source used by this job. Before the job nodes start, DLC automatically downloads the code configured in the code source and mounts it to a local directory in the container.'),
   credentialConfig?: CredentialConfig(name='CredentialConfig', description='The access credential configuration.'),
   customEnvs?: [ 
     {
@@ -989,12 +977,12 @@ model CreateJobRequest {
   dataSources?: [ 
     {
       accessPointId?: string(name='AccessPointId'),
-      dataSourceId?: string(name='DataSourceId', description='The ID of the data source. <props="china">For information about how to obtain the data source ID, see [ListDatasets](https://help.aliyun.com/document_detail/457222.html)..', example='d-cn9dl*******'),
+      dataSourceId?: string(name='DataSourceId', description='The ID of the data source. <props="china">For information about how to obtain the data source ID, see [ListDatasets](https://help.aliyun.com/document_detail/457222.html).', example='d-cn9dl*******'),
       dataSourceVersion?: string(name='DataSourceVersion'),
       enableCache?: boolean(name='EnableCache'),
       mountAccess?: string(name='MountAccess'),
-      mountPath?: string(name='MountPath', description='The mount path for this job. This parameter is optional. By default, the mount path configured in the data source is used.', example='/root/data'),
-      options?: string(name='Options', description='The custom dataset mount properties. Only OSS is supported.', example='{
+      mountPath?: string(name='MountPath', description='The mount path for this job. This is an optional parameter. By default, the mount path configured in the data source is used.', example='/root/data'),
+      options?: string(name='Options', description='Custom dataset mount properties. Currently, only OSS is supported.', example='{
   "fs.oss.download.thread.concurrency": "10",
   "fs.oss.upload.thread.concurrency": "10",
   "fs.jindo.args": "-oattr_timeout=3 -oentry_timeout=0 -onegative_timeout=0 -oauto_cache -ono_symlink"
@@ -1005,17 +993,17 @@ model CreateJobRequest {
   ](name='DataSources', description='The list of data sources used by the job.'),
   debuggerConfigContent?: string(name='DebuggerConfigContent', description='This parameter is not supported. Ignore this parameter.', example='“”'),
   description?: string(name='Description'),
-  displayName?: string(name='DisplayName', description='The name of the job. The name must meet the following requirements:
+  displayName?: string(name='DisplayName', description='The name of the job. The naming conventions are as follows:
 - The name cannot exceed 256 characters in length.
 - The name can contain digits, letters, underscores (_), periods (.), and hyphens (-).
 
 This parameter is required.', example='tf-mnist-test'),
   elasticSpec?: JobElasticSpec(name='ElasticSpec', description='This parameter is not supported. Ignore this parameter.'),
   envs?: map[string]string(name='Envs', description='The environment variable configuration.'),
-  jobMaxRunningTimeMinutes?: long(name='JobMaxRunningTimeMinutes', description='The maximum running duration of the job, in minutes.', example='1024'),
+  jobMaxRunningTimeMinutes?: long(name='JobMaxRunningTimeMinutes', description='The maximum running time of the job. Unit: minutes.', example='1024'),
   jobSpecs?: [
     JobSpec
-  ](name='JobSpecs', description='The various runtime configurations of the job, such as the image address, startup command, node resource declarations, and number of replicas.
+  ](name='JobSpecs', description='**JobSpecs** describes various configurations for job runtime, such as image address, startup command, node resource declarations, and replica count.
 
 A DLC job consists of different types of nodes. Nodes of the same type share identical configurations, which is called a JobSpec. **JobSpecs** describes the configurations of all node types and is an array of JobSpec objects.
 
@@ -1029,25 +1017,25 @@ This parameter is required.'),
 - ElasticBatchJob
 - SlurmJob
 - RayJob
-- DataJuicerJob.
+- DataJuicerJob
 
 This parameter is required.', example='TFJob'),
-  options?: string(name='Options', description='The additional configuration for this node. You can use this parameter to adjust the behavior of mounted data sources. For example, if the node has an OSS data source mounted, you can set this parameter to `fs.oss.download.thread.concurrency=4,fs.oss.download.queue.size=16` to overwrite the default JindoFS parameter settings.', example='key1=value1,key2=value2'),
-  priority?: int32(name='Priority', description='The priority of the job. This parameter is optional. Default value: 1. Valid values: 1 to 9.
+  options?: string(name='Options', description='The additional configuration for this node. You can use this parameter to adjust the behavior of mounted data sources. For example, if the node has an OSS-type data source mounted, you can set this parameter to `fs.oss.download.thread.concurrency=4,fs.oss.download.queue.size=16` to overwrite the default JindoFS parameter settings.', example='key1=value1,key2=value2'),
+  priority?: int32(name='Priority', description='The priority of the job. This is an optional parameter. Default value: 1. Valid values: 1 to 9.
 
 - 1: the lowest priority.
 - 9: the highest priority.', example='8'),
-  resourceId?: string(name='ResourceId', description='The resource group ID. This parameter is optional.
-- If this parameter is left empty, the job is submitted to the public resource group.
-- If the current workspace has an attached resource quota, you can specify the corresponding resource quota ID. For details about how to query the resource quota ID, see [Manage resource quotas](https://help.aliyun.com/document_detail/2651299.html).', example='rs-xxx'),
+  resourceId?: string(name='ResourceId', description='The resource group ID. This is an optional parameter.
+- If the value is empty, the job is submitted to the public resource group.
+- If the current workspace has a resource quota attached, you can specify the corresponding resource quota ID. For details about how to query the resource quota ID, see [Manage resource quotas](https://help.aliyun.com/document_detail/2651299.html).', example='rs-xxx'),
   schedulingStrategy?: string(name='SchedulingStrategy', example='Auto'),
   settings?: JobSettings(name='Settings', description='The additional parameter settings for the job.'),
-  successPolicy?: string(name='SuccessPolicy', description='The success policy for distributed multi-node jobs. Only TensorFlow multi-node jobs support this parameter. Valid values:
-- ChiefWorker: the entire job is considered successful when the Chief pod finishes successfully.
-- AllWorkers (default): the entire job is considered successful only when all Worker pods finish successfully.', example='AllWorkers'),
+  successPolicy?: string(name='SuccessPolicy', description='The success policy for distributed multi-node jobs. Currently, only TensorFlow multi-node jobs support this parameter.
+- ChiefWorker: the entire job is considered successful as long as the Chief pod finishes successfully.
+- AllWorkers (default): the entire job is considered successful only when all Workers finish successfully.', example='AllWorkers'),
   templateId?: string(name='TemplateId', description='The job template ID.', example='tplabc1234567'),
   templateVersion?: int32(name='TemplateVersion', description='The job template version.', example='1'),
-  thirdpartyLibDir?: string(name='ThirdpartyLibDir', description='The name of the folder that contains the third-party Python library file (requirements.txt). Before running the specified UserCommand on each node, PAI-DLC retrieves the requirements.txt file from the specified folder and runs `pip install -r` to install the libraries.', example='/root/code/'),
+  thirdpartyLibDir?: string(name='ThirdpartyLibDir', description='The folder name where the third-party Python library (requirements.txt) file is located. Before running the specified UserCommand on each node, PAI-DLC retrieves the requirements.txt file from the specified folder and runs `pip install -r` to install the libraries.', example='/root/code/'),
   thirdpartyLibs?: [ string ](name='ThirdpartyLibs', description='The list of third-party Python libraries to install.'),
   userCommand?: string(name='UserCommand', description='The startup command for all nodes of the job.
 
@@ -1055,22 +1043,22 @@ This parameter is required.', example='python /root/code/mnist.py'),
   userVpc?: {
     defaultRoute?: string(name='DefaultRoute', description='The default routing. Valid values:
 - eth0: uses the default network interface controller (NIC) to access external networks through the public gateway.
-- eth1: uses the user elastic network interfaces (ENIs) to access external networks through the private gateway. For the specific configuration method, see [Configure a DSW instance to access the Internet through a dedicated public gateway](https://help.aliyun.com/document_detail/2525343.html).', example='eth0'),
+- eth1: uses the user elastic network interfaces (ENIs) to access external networks through the private gateway. For the configuration method, see [Configure a DSW instance to access the Internet through a dedicated public gateway](https://help.aliyun.com/document_detail/2525343.html).', example='eth0'),
     extendedCIDRs?: [ string ](name='ExtendedCIDRs', description='The extended CIDR blocks.
-- If the vSwitch ID is empty, this parameter is not required. The system automatically obtains all CIDR blocks under the VPC.
+- If the vSwitch ID is empty, this parameter is optional. The system automatically retrieves all CIDR blocks under the VPC.
 - If the vSwitch ID is specified, this parameter is required. Specify all CIDR blocks under the VPC.'),
     securityGroupId?: string(name='SecurityGroupId', description='The ID of the user security group.', example='sg-abcdef****'),
-    switchId?: string(name='SwitchId', description='The ID of the user vSwitch. This parameter is optional.
-- If this parameter is left empty, the system automatically selects an appropriate vSwitch based on inventory.
+    switchId?: string(name='SwitchId', description='The ID of the user vSwitch. This is an optional parameter.
+- If the value is empty, the system automatically selects an appropriate vSwitch based on inventory availability.
 - You can also specify a vSwitch ID.', example='vs-abcdef****'),
     vpcId?: string(name='VpcId', description='The ID of the user VPC.', example='vpc-abcdef****'),
   }(name='UserVpc', description='The user VPC configuration.'),
-  workspaceId?: string(name='WorkspaceId', description='The workspace ID. <props="china">For information about how to obtain the workspace ID, see [ListWorkspaces](https://help.aliyun.com/document_detail/449124.html)..', example='ws-20210126170216-xxxxxxx'),
+  workspaceId?: string(name='WorkspaceId', description='The workspace ID. <props="china">For information about how to obtain the workspace ID, see [ListWorkspaces](https://help.aliyun.com/document_detail/449124.html).', example='ws-20210126170216-xxxxxxx'),
 }
 
 model CreateJobResponseBody = {
   jobId?: string(name='JobId', description='The ID of the job created by this call.', example='dlc7*******'),
-  requestId?: string(name='RequestId', description='The request ID, used for diagnostics and troubleshooting.', example='473469C7-AA6F-4DC5-B3DB-xxxxxxx'),
+  requestId?: string(name='RequestId', description='The ID of this request, used for diagnostics and troubleshooting.', example='473469C7-AA6F-4DC5-B3DB-xxxxxxx'),
 }
 
 model CreateJobResponse = {
@@ -1080,10 +1068,10 @@ model CreateJobResponse = {
 }
 
 /**
- * @summary Creates a job and runs it in a cluster. You can specify the datasource config, code source configuration, startup command, and compute resource configuration for each node on which the job runs.
+ * @summary Creates a job and runs it in a cluster. You can specify the datasource config, code source configuration, startup command, and compute resource configuration for each node of the job.
  *
- * @description Before you call this operation, make sure that you are familiar with the billing and [pricing](https://help.aliyun.com/document_detail/171758.html) of PAI-DLC.
- * >Notice: The total length of CreateJob request parameters, including system-generated parameters, cannot exceed 65,536 bytes..
+ * @description Make sure that you are familiar with the billing and [pricing](https://help.aliyun.com/document_detail/171758.html) of PAI-DLC before you call this operation.
+ * >Notice: The total length of CreateJob request parameters (including system-generated parameters) cannot exceed 65,536 bytes.
  *
  * @param request CreateJobRequest
  * @param headers map
@@ -1192,10 +1180,10 @@ async function createJobWithOptions(request: CreateJobRequest, headers: map[stri
 }
 
 /**
- * @summary Creates a job and runs it in a cluster. You can specify the datasource config, code source configuration, startup command, and compute resource configuration for each node on which the job runs.
+ * @summary Creates a job and runs it in a cluster. You can specify the datasource config, code source configuration, startup command, and compute resource configuration for each node of the job.
  *
- * @description Before you call this operation, make sure that you are familiar with the billing and [pricing](https://help.aliyun.com/document_detail/171758.html) of PAI-DLC.
- * >Notice: The total length of CreateJob request parameters, including system-generated parameters, cannot exceed 65,536 bytes..
+ * @description Make sure that you are familiar with the billing and [pricing](https://help.aliyun.com/document_detail/171758.html) of PAI-DLC before you call this operation.
+ * >Notice: The total length of CreateJob request parameters (including system-generated parameters) cannot exceed 65,536 bytes.
  *
  * @param request CreateJobRequest
  * @return CreateJobResponse
@@ -1937,8 +1925,8 @@ model GetJobRequest {
 
 model GetJobResponseBody = {
   accessibility?: string(name='Accessibility', description='The visibility of the job. Valid values:
-- PUBLIC: Visible to all members in the workspace.
-- PRIVATE (default): Visible only to you and administrators in the workspace.', example='PRIVATE'),
+- PUBLIC: Visible to all users in this workspace.
+- PRIVATE (default): Visible only to you and administrators in this workspace.', example='PRIVATE'),
   clusterId?: string(name='ClusterId', description='The cluster ID.', example='a*****'),
   codeSource?: {
     branch?: string(name='Branch', description='The code branch.', example='master'),
@@ -1980,14 +1968,14 @@ model GetJobResponseBody = {
   ](name='JobReplicaStatuses', description='The job replica statuses.'),
   jobSpecs?: [
     JobSpec
-  ](name='JobSpecs', description='The node configurations in the job. For more information, see the **JobSpecs** parameter in the CreateJob API.'),
+  ](name='JobSpecs', description='The node configurations in the job. Refer to **JobSpecs** in the CreateJob API.'),
   jobType?: string(name='JobType', description='The job type. Specified by the JobType parameter in the [CreateJob](https://help.aliyun.com/document_detail/459672.html) API.', example='TFJob'),
   pods?: [ 
     {
       duration?: double(name='Duration', description='The pod running duration.'),
       gmtCreateTime?: string(name='GmtCreateTime', description='The pod creation time (UTC).', example='2021-01-12T14:36:01Z'),
-      gmtFinishTime?: string(name='GmtFinishTime', description='The node finish time (UTC).', example='2021-01-12T15:36:05Z'),
-      gmtStartTime?: string(name='GmtStartTime', description='The node start time (UTC).', example='2021-01-12T14:36:01Z'),
+      gmtFinishTime?: string(name='GmtFinishTime', description='The pod finish time (UTC).', example='2021-01-12T15:36:05Z'),
+      gmtStartTime?: string(name='GmtStartTime', description='The pod start time (UTC).', example='2021-01-12T14:36:01Z'),
       historyPods?: [ 
         {
           duration?: double(name='Duration', description='The pod running duration.'),
@@ -2007,17 +1995,18 @@ model GetJobResponseBody = {
 - Normal
 - Evicted', example='Normal'),
           type?: string(name='Type', description='The pod type.', example='Worker'),
+          supportedProfilingTypes?: string(name='supportedProfilingTypes', example='sysom'),
         }
       ](name='HistoryPods', description='The historical pods.'),
-      ip?: string(name='Ip', description='The network IP address of the node.', example='10.0.1.2'),
+      ip?: string(name='Ip', description='The network IP address of the pod.', example='10.0.1.2'),
       nodeName?: string(name='NodeName', description='The node name.'),
-      podId?: string(name='PodId', description='The node ID. You can use this ID with the GetPodLogs and GetPodEvents APIs to retrieve detailed logs and events for the node.', example='Worker'),
+      podId?: string(name='PodId', description='The pod ID. You can use this ID with the GetPodLogs and GetPodEvents APIs to retrieve detailed logs and events of the pod.', example='Worker'),
       podIps?: [
         PodNetworkInterface
       ](name='PodIps', description='The IP addresses of the pod.'),
       podUid?: string(name='PodUid', description='Pod UID。', example='fe846462-af2c-4521-bd6f-96787a57591d'),
       resourceType?: string(name='ResourceType', description='The pod resource usage type.', example='Normal'),
-      status?: string(name='Status', description='The node status. Valid values:
+      status?: string(name='Status', description='The pod status. Valid values:
 
 - Pending
 - Running
@@ -2027,11 +2016,12 @@ model GetJobResponseBody = {
       subStatus?: string(name='SubStatus', description='The pod sub-status, such as preemption status. Valid values:
 - Normal
 - Evicted', example='Normal'),
-      type?: string(name='Type', description='The node type, which corresponds to a JobSpec in the JobSpecs parameter of CreateJob.', example='Worker'),
+      type?: string(name='Type', description='The pod type, which corresponds to a JobSpec in the JobSpecs parameter of CreateJob.', example='Worker'),
+      supportedProfilingTypes?: string(name='supportedProfilingTypes', example='sysom'),
     }
-  ](name='Pods', description='All nodes running in the job.'),
+  ](name='Pods', description='All pods running in the job.'),
   priority?: int32(name='Priority', description='The priority of the job. Valid values: 1 to 9.', example='1'),
-  reasonCode?: string(name='ReasonCode', description='The status detail code, which categorizes the sub-status under the current status (Status).', example='JobStoppedByUser'),
+  reasonCode?: string(name='ReasonCode', description='The status detail code, which is a classification of the sub-status under the current status (Status).', example='JobStoppedByUser'),
   reasonMessage?: string(name='ReasonMessage', description='The detailed description of the status.', example='Job is stopped by user.'),
   requestId?: string(name='RequestId', description='The request ID, used for diagnostics and troubleshooting.', example='473469C7-AA6F-4DC5-B3DB-xxxxxxxx'),
   resourceId?: string(name='ResourceId', description='The ID of the resource group in which the job runs.', example='r******'),
@@ -2041,7 +2031,7 @@ model GetJobResponseBody = {
     {
       detailErrorInfoList?: [ 
         {
-          addJobLevelBlacklist?: boolean(name='AddJobLevelBlacklist', description='The job-level blacklist.'),
+          addJobLevelBlacklist?: boolean(name='AddJobLevelBlacklist', description='The job blacklist.'),
           addNodeToBlacklist?: boolean(name='AddNodeToBlacklist', description='The node blacklist.'),
           detailErrorMsg?: string(name='DetailErrorMsg', description='The detailed error message.'),
           errorCode?: string(name='ErrorCode', description='The error code.'),
@@ -2056,7 +2046,7 @@ model GetJobResponseBody = {
       occurPhase?: string(name='OccurPhase', description='The phase in which the event occurred.'),
       occurTime?: string(name='OccurTime', description='The time when the event occurred.'),
       reason?: string(name='Reason', description='The reason.'),
-      restartDurationInSec?: long(name='RestartDurationInSec', description='The restart duration, in seconds.'),
+      restartDurationInSec?: long(name='RestartDurationInSec', description='The restart duration.'),
       restartFailReason?: string(name='RestartFailReason', description='The restart failure reason.'),
       restartLevelType?: string(name='RestartLevelType'),
       restartStatus?: string(name='RestartStatus', description='The restart status.'),
@@ -2086,15 +2076,15 @@ model GetJobResponseBody = {
   ](name='StatusHistory', description='The historical statuses.'),
   subStatus?: string(name='SubStatus', description='The job sub-status, such as preemption retry status.', example='Restarting'),
   tenantId?: string(name='TenantId', description='The tenant ID.', example='GAR***W134'),
-  thirdpartyLibDir?: string(name='ThirdpartyLibDir', description='The folder that contains the third-party library (requirements.txt) file.', example='/root/code/'),
+  thirdpartyLibDir?: string(name='ThirdpartyLibDir', description='The folder where the third-party library (requirements.txt) file is located.', example='/root/code/'),
   thirdpartyLibs?: [ string ](name='ThirdpartyLibs', description='The list of third-party Python libraries to install.'),
   userCommand?: string(name='UserCommand', description='The startup command for each node.', example='python /root/code/mnist.py'),
   userId?: string(name='UserId', description='The Alibaba Cloud UID of the job submitter.', example='12*********'),
   userVpc?: {
     defaultRoute?: string(name='DefaultRoute', description='The default routing. This parameter is valid only for general computing resources. Valid values:
 
-eth0: uses the default network interface controller (NIC) to access external networks through the public gateway.
-eth1: uses the user elastic network interfaces (ENIs) to access external networks through the private gateway.'),
+eth0: uses the default network interface controller (NIC) to access external networks through a public gateway.
+eth1: uses the user elastic network interfaces (ENIs) to access external networks through a private gateway.'),
     extendedCidrs?: [ string ](name='ExtendedCidrs', description='The extended CIDR blocks, for example, 192.168.0.1/24.'),
     securityGroupId?: string(name='SecurityGroupId', description='The ID of the user security group.', example='sg-abcdef****'),
     switchId?: string(name='SwitchId', description='The ID of the user vSwitch.', example='vs-abcdef****'),
@@ -2102,6 +2092,7 @@ eth1: uses the user elastic network interfaces (ENIs) to access external network
   }(name='UserVpc', description='The user VPC.'),
   workspaceId?: string(name='WorkspaceId', description='The ID of the workspace to which the job belongs.', example='268'),
   workspaceName?: string(name='WorkspaceName', description='The name of the workspace to which the job belongs.', example='dlc-workspace'),
+  supportedProfilingTypes?: string(name='supportedProfilingTypes', example='sysom'),
 }
 
 model GetJobResponse = {
@@ -2111,7 +2102,7 @@ model GetJobResponse = {
 }
 
 /**
- * @summary Retrieves the detailed configuration and runtime information of a DLC job.
+ * @summary Retrieves the detailed configuration and runtime information of a job.
  *
  * @param request GetJobRequest
  * @param headers map
@@ -2145,7 +2136,7 @@ async function getJobWithOptions(JobId: string, request: GetJobRequest, headers:
 }
 
 /**
- * @summary Retrieves the detailed configuration and runtime information of a DLC job.
+ * @summary Retrieves the detailed configuration and runtime information of a job.
  *
  * @param request GetJobRequest
  * @return GetJobResponse
@@ -3579,10 +3570,10 @@ model ListJobsRequest {
 For example, entering test matches test-job1, job-test, job-test2, or job-Test, but does not match job-t1.
 Default value: empty, which indicates all job names.', example='tf-mnist-test'),
   displayNameSearchMode?: string(name='DisplayNameSearchMode', description='The search mode for DisplayName. Default value: wildcard match.', example='wildcard'),
-  enableAssignNode?: string(name='EnableAssignNode', description='Filters jobs based on whether running on specified nodes is enabled.', example='true'),
-  endTime?: string(name='EndTime', description='The end time of the query range. Jobs are filtered by creation time. Default value: the current time.', example='2025-04-16T07:26:41Z'),
+  enableAssignNode?: string(name='EnableAssignNode', description='Specifies whether to filter jobs that have assigned-node execution enabled.', example='true'),
+  endTime?: string(name='EndTime', description='The end time of the query range. The job creation time is used for filtering. Default value: the current time.', example='2025-04-16T07:26:41Z'),
   fromAllWorkspaces?: boolean(name='FromAllWorkspaces', description='Specifies whether to retrieve jobs across all workspaces. This parameter must be used together with `ShowOwn=true` to query jobs recently submitted by the current user.', example='false'),
-  imageSearch?: string(name='ImageSearch', description='Retrieves nodes by performing a full-text index on the images field. Supports Chinese and English tokenization.', example='pytorch'),
+  imageSearch?: string(name='ImageSearch', description='Uses full-text index to retrieve the images field. Supports Chinese and English tokenization.', example='pytorch'),
   jobId?: string(name='JobId', description='The job ID. Fuzzy match is not supported. Case-insensitive. Wildcards are not supported.
 Default value: empty, which indicates all job IDs.', example='dlc********'),
   jobIds?: string(name='JobIds', description='A list of job IDs separated by commas. If both JobIds and JobId are specified, JobId takes precedence.', example='dlc123abc'),
@@ -3604,16 +3595,17 @@ Default value: empty, which indicates all job IDs.', example='dlc********'),
 - ForceQuotaOverSold
 - AcceptQuotaOverSold-true (true indicates the job actually used off-peak resources)
 - AcceptQuotaOverSold-false (false indicates the job actually used guaranteed resources)', example='ForbiddenQuotaOverSold'),
-  pageNumber?: int32(name='PageNumber', description='The page number to return in a paged query. Minimum value: 1. Default value: 1.', example='1'),
+  pageNumber?: int32(name='PageNumber', description='The page number to return in a paged query. Minimum value: 1. Default value: 1. Paging starts from page 1.', example='1'),
   pageSize?: int32(name='PageSize', description='The number of jobs to return per page.', example='50'),
   paymentType?: string(name='PaymentType', description='The resource type. Valid values:
-- PrePaid: resource quota
-- Spot: preemptible resources
-- PostPaid: public resources', example='PostPaid'),
-  pipelineId?: string(name='PipelineId', description='Filters jobs created by the specified workflow ID.', example='flow-*******'),
-  reasonSearch?: string(name='ReasonSearch', description='Retrieves nodes by performing a full-text index on the node failed reason field. Supports Chinese and English tokenization.', example='OOM'),
-  resourceId?: string(name='ResourceId', description='The resource group ID. For information about how to query the dedicated resource group ID, see [Manage resource quotas](https://help.aliyun.com/document_detail/2651299.html).', example='r*****'),
-  resourceQuotaName?: string(name='ResourceQuotaName', description='Filters the job list by the resource quota name. Supports fuzzy match. Wildcards are not supported. Default value: empty, which indicates no filtering by resource quota.', example='quota***'),
+- PrePaid: resource quota.
+- Spot: preemptible resources.
+- PostPaid: public resources.', example='PostPaid'),
+  pipelineId?: string(name='PipelineId', description='Filters jobs created by the specified pipeline ID.', example='flow-*******'),
+  reasonSearch?: string(name='ReasonSearch', description='Uses full-text index to retrieve the node failed reason field. Supports Chinese and English tokenization.', example='OOM'),
+  resourceId?: string(name='ResourceId', description='The resource group ID. For information about how to obtain the dedicated resource group ID, see [Manage resource quotas](https://help.aliyun.com/document_detail/2651299.html).', example='r*****'),
+  resourceIds?: string(name='ResourceIds'),
+  resourceQuotaName?: string(name='ResourceQuotaName', description='The name of the resource quota, used to filter the job list. Supports fuzzy match. Wildcards are not supported. Default value: empty, which indicates no filtering by resource quota.', example='quota***'),
   showOwn?: boolean(name='ShowOwn', description='Specifies whether to return only jobs submitted by the current user.', example='true'),
   sortBy?: string(name='SortBy', description='The field by which to sort results. Valid values:
 
@@ -3622,7 +3614,7 @@ Default value: empty, which indicates all job IDs.', example='dlc********'),
 - Status
 - GmtCreateTime
 - GmtFinishTime', example='GmtCreateTime'),
-  startTime?: string(name='StartTime', description='The start time of the query range. Jobs are filtered by creation time. Default value: the current time minus 7 days. If neither StartTime nor EndTime is specified, jobs created in the last 7 days are returned by default.', example='2025-04-16T07:25:34Z'),
+  startTime?: string(name='StartTime', description='The start time of the query range. The job creation time is used for filtering. Default value: the current time minus 7 days. If neither StartTime nor EndTime is specified, jobs created in the last 7 days are returned by default.', example='2025-04-16T07:25:34Z'),
   status?: string(name='Status', description='The job status. Valid values:
 - Creating
 - Queuing
@@ -3638,12 +3630,12 @@ Default value: empty, which indicates all job IDs.', example='dlc********'),
 - Failed
 - Stopped', example='Running'),
   tags?: map[string]string(name='Tags', description='The tags used for filtering.'),
-  templateId?: string(name='TemplateId', description='The template ID. Filters jobs created from the specified template.', example='tmlabc123'),
+  templateId?: string(name='TemplateId', description='The template ID, used to filter jobs created from the specified template.', example='tmlabc123'),
   timeRangeField?: string(name='TimeRangeField', description='The time field used for StartTime/EndTime filtering. Default value: creation time.', example='GmtFinishTime'),
-  userCommandSearch?: string(name='UserCommandSearch', description='Retrieves nodes by performing a full-text index on the user_command field. Supports Chinese and English tokenization.', example='python train.py'),
-  userIdForFilter?: string(name='UserIdForFilter', description='Filters the job list by the user ID of the job submitter.', example='20**************'),
-  username?: string(name='Username', description='Filters the job list by the username of the job submitter. Supports fuzzy match. Wildcards are not supported. Default value: empty, which indicates no filtering by username.', example='test***'),
-  workspaceId?: string(name='WorkspaceId', description='The workspace ID. <props="china">For information about how to obtain the workspace ID, see [ListWorkspaces](https://help.aliyun.com/document_detail/449124.html).', example='1****'),
+  userCommandSearch?: string(name='UserCommandSearch', description='Uses full-text index to retrieve the user_command field. Supports Chinese and English tokenization.', example='python train.py'),
+  userIdForFilter?: string(name='UserIdForFilter', description='The user ID of the job submitter, used to filter the job list.', example='20**************'),
+  username?: string(name='Username', description='The username of the job submitter, used to filter the job list. Supports fuzzy match. Wildcards are not supported. Default value: empty, which indicates no filtering by username.', example='test***'),
+  workspaceId?: string(name='WorkspaceId', description='The workspace ID.<props="china"> For information about how to obtain the workspace ID, see [ListWorkspaces](https://help.aliyun.com/document_detail/449124.html).', example='1****'),
 }
 
 model ListJobsShrinkRequest {
@@ -3657,10 +3649,10 @@ model ListJobsShrinkRequest {
 For example, entering test matches test-job1, job-test, job-test2, or job-Test, but does not match job-t1.
 Default value: empty, which indicates all job names.', example='tf-mnist-test'),
   displayNameSearchMode?: string(name='DisplayNameSearchMode', description='The search mode for DisplayName. Default value: wildcard match.', example='wildcard'),
-  enableAssignNode?: string(name='EnableAssignNode', description='Filters jobs based on whether running on specified nodes is enabled.', example='true'),
-  endTime?: string(name='EndTime', description='The end time of the query range. Jobs are filtered by creation time. Default value: the current time.', example='2025-04-16T07:26:41Z'),
+  enableAssignNode?: string(name='EnableAssignNode', description='Specifies whether to filter jobs that have assigned-node execution enabled.', example='true'),
+  endTime?: string(name='EndTime', description='The end time of the query range. The job creation time is used for filtering. Default value: the current time.', example='2025-04-16T07:26:41Z'),
   fromAllWorkspaces?: boolean(name='FromAllWorkspaces', description='Specifies whether to retrieve jobs across all workspaces. This parameter must be used together with `ShowOwn=true` to query jobs recently submitted by the current user.', example='false'),
-  imageSearch?: string(name='ImageSearch', description='Retrieves nodes by performing a full-text index on the images field. Supports Chinese and English tokenization.', example='pytorch'),
+  imageSearch?: string(name='ImageSearch', description='Uses full-text index to retrieve the images field. Supports Chinese and English tokenization.', example='pytorch'),
   jobId?: string(name='JobId', description='The job ID. Fuzzy match is not supported. Case-insensitive. Wildcards are not supported.
 Default value: empty, which indicates all job IDs.', example='dlc********'),
   jobIds?: string(name='JobIds', description='A list of job IDs separated by commas. If both JobIds and JobId are specified, JobId takes precedence.', example='dlc123abc'),
@@ -3682,16 +3674,17 @@ Default value: empty, which indicates all job IDs.', example='dlc********'),
 - ForceQuotaOverSold
 - AcceptQuotaOverSold-true (true indicates the job actually used off-peak resources)
 - AcceptQuotaOverSold-false (false indicates the job actually used guaranteed resources)', example='ForbiddenQuotaOverSold'),
-  pageNumber?: int32(name='PageNumber', description='The page number to return in a paged query. Minimum value: 1. Default value: 1.', example='1'),
+  pageNumber?: int32(name='PageNumber', description='The page number to return in a paged query. Minimum value: 1. Default value: 1. Paging starts from page 1.', example='1'),
   pageSize?: int32(name='PageSize', description='The number of jobs to return per page.', example='50'),
   paymentType?: string(name='PaymentType', description='The resource type. Valid values:
-- PrePaid: resource quota
-- Spot: preemptible resources
-- PostPaid: public resources', example='PostPaid'),
-  pipelineId?: string(name='PipelineId', description='Filters jobs created by the specified workflow ID.', example='flow-*******'),
-  reasonSearch?: string(name='ReasonSearch', description='Retrieves nodes by performing a full-text index on the node failed reason field. Supports Chinese and English tokenization.', example='OOM'),
-  resourceId?: string(name='ResourceId', description='The resource group ID. For information about how to query the dedicated resource group ID, see [Manage resource quotas](https://help.aliyun.com/document_detail/2651299.html).', example='r*****'),
-  resourceQuotaName?: string(name='ResourceQuotaName', description='Filters the job list by the resource quota name. Supports fuzzy match. Wildcards are not supported. Default value: empty, which indicates no filtering by resource quota.', example='quota***'),
+- PrePaid: resource quota.
+- Spot: preemptible resources.
+- PostPaid: public resources.', example='PostPaid'),
+  pipelineId?: string(name='PipelineId', description='Filters jobs created by the specified pipeline ID.', example='flow-*******'),
+  reasonSearch?: string(name='ReasonSearch', description='Uses full-text index to retrieve the node failed reason field. Supports Chinese and English tokenization.', example='OOM'),
+  resourceId?: string(name='ResourceId', description='The resource group ID. For information about how to obtain the dedicated resource group ID, see [Manage resource quotas](https://help.aliyun.com/document_detail/2651299.html).', example='r*****'),
+  resourceIds?: string(name='ResourceIds'),
+  resourceQuotaName?: string(name='ResourceQuotaName', description='The name of the resource quota, used to filter the job list. Supports fuzzy match. Wildcards are not supported. Default value: empty, which indicates no filtering by resource quota.', example='quota***'),
   showOwn?: boolean(name='ShowOwn', description='Specifies whether to return only jobs submitted by the current user.', example='true'),
   sortBy?: string(name='SortBy', description='The field by which to sort results. Valid values:
 
@@ -3700,7 +3693,7 @@ Default value: empty, which indicates all job IDs.', example='dlc********'),
 - Status
 - GmtCreateTime
 - GmtFinishTime', example='GmtCreateTime'),
-  startTime?: string(name='StartTime', description='The start time of the query range. Jobs are filtered by creation time. Default value: the current time minus 7 days. If neither StartTime nor EndTime is specified, jobs created in the last 7 days are returned by default.', example='2025-04-16T07:25:34Z'),
+  startTime?: string(name='StartTime', description='The start time of the query range. The job creation time is used for filtering. Default value: the current time minus 7 days. If neither StartTime nor EndTime is specified, jobs created in the last 7 days are returned by default.', example='2025-04-16T07:25:34Z'),
   status?: string(name='Status', description='The job status. Valid values:
 - Creating
 - Queuing
@@ -3716,12 +3709,12 @@ Default value: empty, which indicates all job IDs.', example='dlc********'),
 - Failed
 - Stopped', example='Running'),
   tagsShrink?: string(name='Tags', description='The tags used for filtering.'),
-  templateId?: string(name='TemplateId', description='The template ID. Filters jobs created from the specified template.', example='tmlabc123'),
+  templateId?: string(name='TemplateId', description='The template ID, used to filter jobs created from the specified template.', example='tmlabc123'),
   timeRangeField?: string(name='TimeRangeField', description='The time field used for StartTime/EndTime filtering. Default value: creation time.', example='GmtFinishTime'),
-  userCommandSearch?: string(name='UserCommandSearch', description='Retrieves nodes by performing a full-text index on the user_command field. Supports Chinese and English tokenization.', example='python train.py'),
-  userIdForFilter?: string(name='UserIdForFilter', description='Filters the job list by the user ID of the job submitter.', example='20**************'),
-  username?: string(name='Username', description='Filters the job list by the username of the job submitter. Supports fuzzy match. Wildcards are not supported. Default value: empty, which indicates no filtering by username.', example='test***'),
-  workspaceId?: string(name='WorkspaceId', description='The workspace ID. <props="china">For information about how to obtain the workspace ID, see [ListWorkspaces](https://help.aliyun.com/document_detail/449124.html).', example='1****'),
+  userCommandSearch?: string(name='UserCommandSearch', description='Uses full-text index to retrieve the user_command field. Supports Chinese and English tokenization.', example='python train.py'),
+  userIdForFilter?: string(name='UserIdForFilter', description='The user ID of the job submitter, used to filter the job list.', example='20**************'),
+  username?: string(name='Username', description='The username of the job submitter, used to filter the job list. Supports fuzzy match. Wildcards are not supported. Default value: empty, which indicates no filtering by username.', example='test***'),
+  workspaceId?: string(name='WorkspaceId', description='The workspace ID.<props="china"> For information about how to obtain the workspace ID, see [ListWorkspaces](https://help.aliyun.com/document_detail/449124.html).', example='1****'),
 }
 
 model ListJobsResponseBody = {
@@ -3826,6 +3819,9 @@ async function listJobsWithOptions(tmpReq: ListJobsRequest, headers: map[string]
   }
   if (!$isNull(request.resourceId)) {
     query['ResourceId'] = request.resourceId;
+  }
+  if (!$isNull(request.resourceIds)) {
+    query['ResourceIds'] = request.resourceIds;
   }
   if (!$isNull(request.resourceQuotaName)) {
     query['ResourceQuotaName'] = request.resourceQuotaName;
