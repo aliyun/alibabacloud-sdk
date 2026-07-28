@@ -9,8 +9,19 @@ extends OpenApi;
 
 init(config: OpenApiUtil.Config){
   super(config);
-  @endpointRule = '';
-  
+  @endpointRule = 'regional';
+  @endpointMap = {
+    'eu-central-1' = 'milvus.eu-central-1.aliyuncs.com',
+    'cn-zhangjiakou' = 'milvus.cn-zhangjiakou.aliyuncs.com',
+    'cn-wulanchabu' = 'milvus.cn-wulanchabu.aliyuncs.com',
+    'cn-shenzhen' = 'milvus.cn-shenzhen.aliyuncs.com',
+    'cn-shanghai' = 'milvus.cn-shanghai.aliyuncs.com',
+    'cn-hongkong' = 'milvus.cn-hongkong.aliyuncs.com',
+    'cn-hangzhou' = 'milvus.cn-hangzhou.aliyuncs.com',
+    'cn-beijing' = 'milvus.cn-beijing.aliyuncs.com',
+    'ap-southeast-1' = 'milvus.ap-southeast-1.aliyuncs.com',
+  };
+
   checkConfig(config);
   @endpoint = getEndpoint('milvus', @regionId, @endpointRule, @network, @suffix, @endpointMap, @endpoint);
 }
@@ -26,173 +37,269 @@ function getEndpoint(productId: string, regionId: string, endpointRule: string, 
   return OpenApiUtil.getEndpointRules(productId, regionId, endpointRule, network, suffix);
 }
 
+model ComponentCapacityConstraint {
+  componentType?: string(name='componentType'),
+  maxCapacity?: int32(name='maxCapacity'),
+  minCapacity?: int32(name='minCapacity'),
+}
+
 model DBVersionDetail {
   specs?: [ 
     {
       componentSpecs?: [ 
         {
-          defaultReplicas?: int32(name='defaultReplicas'),
-          maxReplicas?: int32(name='maxReplicas'),
-          minReplicas?: int32(name='minReplicas'),
-          name?: string(name='name'),
-          specs?: [ string ](name='specs'),
-          step?: int32(name='step'),
-          type?: string(name='type'),
+          defaultReplicas?: int32(name='defaultReplicas', description='The default number of replicas for the component.'),
+          maxReplicas?: int32(name='maxReplicas', description='The maximum number of replicas for the component.'),
+          minReplicas?: int32(name='minReplicas', description='The minimum number of replicas for the component.'),
+          name?: string(name='name', description='The name of the component.'),
+          specs?: [ string ](name='specs', description='The available specifications for the component.'),
+          step?: int32(name='step', description='The step size for scaling the number of replicas.'),
+          type?: string(name='type', description='The type of the component.'),
         }
-      ](name='componentSpecs'),
-      isHA?: boolean(name='isHA'),
-      isStandalone?: boolean(name='isStandalone'),
-      isStandalonePro?: boolean(name='isStandalonePro'),
-      zoneMode?: string(name='zoneMode'),
+      ](name='componentSpecs', description='The component specifications.'),
+      isHA?: boolean(name='isHA', description='Indicates whether the high availability (HA) edition is supported.'),
+      isStandalone?: boolean(name='isStandalone', description='Indicates whether the Standalone edition is supported.'),
+      isStandalonePro?: boolean(name='isStandalonePro', description='Indicates whether the Standalone Pro edition is supported.'),
+      zoneMode?: string(name='zoneMode', description='The zone mode of the specification.'),
     }
-  ](name='specs'),
-  status?: string(name='status'),
-  version?: string(name='version'),
+  ](name='specs', description='The specifications supported by the version.'),
+  status?: string(name='status', description='The status of the version.'),
+  version?: string(name='version', description='The version number.'),
+}
+
+model DlfDatabase {
+  databaseName?: string(name='databaseName', description='The name of the database.', example='my_database'),
+  description?: string(name='description', description='The description of the database.', example='Test database'),
+  tableCount?: int32(name='tableCount', description='The number of tables in the database. Read-only.', example='10'),
+}
+
+model DlfFieldSchema {
+  comment?: string(name='comment', description='A comment for the field.', example='Primary key field'),
+  dimension?: int32(name='dimension', description='The dimension of the vector field. This parameter applies only when `isVectorField` is `true`.', example='128'),
+  dlfFieldType?: string(name='dlfFieldType', description='The DLF field type.', example='BIGINT'),
+  fieldName?: string(name='fieldName', description='The field name.', example='id'),
+  isPrimaryKey?: boolean(name='isPrimaryKey', description='Indicates whether the field is a primary key.', example='true'),
+  isSupported?: boolean(name='isSupported', description='Indicates whether the DLF field type can be mapped to a Milvus field type.', example='true'),
+  isVectorField?: boolean(name='isVectorField', description='Indicates whether the field is a vector field.', example='false'),
+  milvusFieldType?: string(name='milvusFieldType', description='The corresponding Milvus field type.', example='Int64'),
+  nullable?: boolean(name='nullable', description='Indicates whether the field can be null.', example='true'),
+  unsupportedReason?: string(name='unsupportedReason', description='The reason the DLF field type is unsupported. This field is present only when `isSupported` is `false`.', example='Unsupported type'),
+}
+
+model DlfInstance {
+  instanceId?: string(name='instanceId', description='The unique ID of the DLF instance.', example='dlf-cn-xxx'),
+  instanceName?: string(name='instanceName', description='The name of the DLF instance.', example='my-dlf-instance'),
+  instanceType?: string(name='instanceType', description='The type of the DLF instance.', example='DLF_2_0'),
+  regionId?: string(name='regionId', description='The ID of the region where the DLF instance is located.', example='cn-hangzhou'),
+  status?: string(name='status', description='The current status of the DLF instance.', example='RUNNING'),
+}
+
+model DlfTable {
+  description?: string(name='description', description='A description of the table.', example='Test table'),
+  location?: string(name='location', description='The location of the table data, specified as an Object Storage Service (OSS) URI.', example='oss://bucket/path'),
+  tableFormat?: string(name='tableFormat', description='The table format, such as `PAIMON`.', example='PAIMON'),
+  tableName?: string(name='tableName', description='The table name.', example='my_table'),
+  tableType?: string(name='tableType', description='The table type. For example, `MANAGED` indicates that DLF manages the data and metadata lifecycle.', example='MANAGED'),
 }
 
 model InstanceDetail {
-  autoBackup?: boolean(name='autoBackup', example='true'),
+  autoBackup?: boolean(name='autoBackup', description='The automatic backup configuration.', example='true'),
   components?: [ 
     {
-      cuNum?: int32(name='cuNum', example='4'),
-      cuType?: string(name='cuType', example='general'),
-      diskSizeType?: string(name='diskSizeType', example='Normal'),
+      cuNum?: int32(name='cuNum', description='The number of CUs.', example='4'),
+      cuType?: string(name='cuType', description='The CU type.', example='general'),
+      dataDisk?: {
+        enabled?: boolean(name='enabled'),
+        performanceLevel?: string(name='performanceLevel'),
+        size?: int32(name='size'),
+        storageClass?: string(name='storageClass'),
+      }(name='dataDisk'),
+      diskSizeType?: string(name='diskSizeType', description='The disk size type for the Query Node. Set this parameter to Large for storage-optimized configurations, and to Normal for other configurations.', example='Normal'),
       payType?: string(name='payType'),
-      replica?: int32(name='replica', example='1'),
-      type?: string(name='type', example='data'),
+      podsList?: [ 
+        {
+          podId?: string(name='podId'),
+          podName?: string(name='podName'),
+        }
+      ](name='podsList'),
+      replica?: int32(name='replica', description='The number of replicas.', example='1'),
+      type?: string(name='type', description='The component type.', example='data'),
     }
-  ](name='components'),
-  configuration?: string(name='configuration', example='rootCoord:
+  ](name='components', description='The component information.'),
+  configuration?: string(name='configuration', description='The configuration.', example='rootCoord:
     maxDatabaseNum: 64 # Maximum number of database
     maxPartitionNum: 4096'),
-  createTime?: string(name='createTime', description='Use the UTC time format: yyyy-MM-ddTHH:mmZ', example='2025-04-27T02:04:25Z'),
-  dbVersion?: string(name='dbVersion', example='2.5'),
-  encrypted?: boolean(name='encrypted', example='false'),
-  expireTime?: string(name='expireTime', description='Use the UTC time format: yyyy-MM-ddTHH:mmZ', example='2025-04-27T02:04:25Z'),
-  ha?: boolean(name='ha', example='true'),
-  instanceId?: string(name='instanceId', example='c-xxx'),
-  instanceName?: string(name='instanceName', example='milvus-test'),
+  createTime?: string(name='createTime', description='The creation time.
+
+Use the UTC time format: yyyy-MM-ddTHH:mmZ', example='2025-04-27T02:04:25Z'),
+  dbVersion?: string(name='dbVersion', description='The instance version.', example='2.5'),
+  encrypted?: boolean(name='encrypted', description='Indicates whether data encryption is enabled.', example='false'),
+  expireTime?: string(name='expireTime', description='The expiration time.
+
+Use the UTC time format: yyyy-MM-ddTHH:mmZ', example='2025-04-27T02:04:25Z'),
+  ha?: boolean(name='ha', description='Indicates whether high availability is enabled.', example='true'),
+  instanceId?: string(name='instanceId', description='The instance ID.', example='c-xxx'),
+  instanceName?: string(name='instanceName', description='The instance name.', example='milvus-test'),
   kmsKeyId?: string(name='kmsKeyId', description='kms key Id。', example='key-xxx'),
-  multiZoneMode?: string(name='multiZoneMode', example='Single'),
-  orderId?: string(name='orderId', example='4751'),
-  paymentType?: string(name='paymentType', example='PayAsYouGo'),
-  regionId?: string(name='regionId', example='cn-beijing'),
-  resourceGroupId?: string(name='resourceGroupId', example='rg-aek3dcgyq7pnqwa'),
-  runningTime?: long(name='runningTime', example='1'),
-  securityGroupIds?: [ string ](name='securityGroupIds'),
-  status?: string(name='status', example='running'),
+  multiZoneMode?: string(name='multiZoneMode', description='The multi-zone deployment mode.', example='Single'),
+  orderId?: string(name='orderId', description='The order ID.', example='4751'),
+  paymentType?: string(name='paymentType', description='The billing method. Valid values: PayAsYouGo: pay-as-you-go billing method. Subscription: subscription.', example='PayAsYouGo'),
+  regionId?: string(name='regionId', description='The region ID.', example='cn-beijing'),
+  resourceGroupId?: string(name='resourceGroupId', description='The resource group ID.', example='rg-aek3dcgyq7pnqwa'),
+  runningTime?: long(name='runningTime', description='The running time.', example='1'),
+  securityGroupIds?: [ string ](name='securityGroupIds', description='The security group IDs.'),
+  status?: string(name='status', description='The instance status. Valid values:
+
+- creating: Being created.
+- running: Running.
+- updating: Being upgraded. This includes specification changes, configuration changes, and public network access changes.
+- disable: Unavailable. The cluster has expired and requires renewal to reactivate.
+- deleting: Being deleted.
+- deleted: Deleted.', example='running'),
   tags?: [ 
     {
-      key?: string(name='key', example='k1'),
-      value?: string(name='value', example='v1'),
+      key?: string(name='key', description='The tag key.', example='k1'),
+      value?: string(name='value', description='The tag value.', example='v1'),
     }
-  ](name='tags'),
+  ](name='tags', description='The tags.'),
   vSwitchIds?: [ 
     {
-      vswId?: string(name='vswId', example='vsw-xxx'),
-      zoneId?: string(name='zoneId', example='cn-hangzhou-i'),
+      vswId?: string(name='vswId', description='The vSwitch IDs.', example='vsw-xxx'),
+      zoneId?: string(name='zoneId', description='The zone ID.', example='cn-hangzhou-i'),
     }
-  ](name='vSwitchIds'),
-  vpcId?: string(name='vpcId', example='vpc-xxx'),
-  zoneId?: string(name='zoneId', example='cn-hangzhou-i'),
+  ](name='vSwitchIds', description='The vSwitch IDs.'),
+  vpcId?: string(name='vpcId', description='The VPC ID.', example='vpc-xxx'),
+  zoneId?: string(name='zoneId', description='The zone ID of the instance.', example='cn-hangzhou-i'),
 }
 
 model MigrationSource {
   authInfo?: {
-    authType?: string(name='authType'),
-    password?: string(name='password'),
-    token?: string(name='token'),
-    username?: string(name='username'),
-  }(name='authInfo'),
-  database?: string(name='database'),
+    authType?: string(name='authType', description='The authentication type.'),
+    password?: string(name='password', description='The password used for authentication.'),
+    token?: string(name='token', description='The token used for authentication.'),
+    username?: string(name='username', description='The username used for authentication.'),
+  }(name='authInfo', description='The authentication information of the migration source.'),
+  database?: string(name='database', description='The name of the database to migrate.'),
   endpoint?: {
-    endpoint?: string(name='endpoint'),
-    port?: string(name='port'),
-  }(name='endpoint'),
+    endpoint?: string(name='endpoint', description='The endpoint address of the migration source.'),
+    port?: string(name='port', description='The port number of the migration source.'),
+  }(name='endpoint', description='The endpoint information of the migration source.'),
 }
 
 model PriceInfo {
-  currency?: string(name='currency'),
-  discountAmount?: string(name='discountAmount'),
+  currency?: string(name='currency', description='The currency of the price.'),
+  discountAmount?: string(name='discountAmount', description='The discount amount.'),
   optionalPromotions?: [
     PromotionInfo
-  ](name='optionalPromotions'),
-  originalAmount?: string(name='originalAmount'),
+  ](name='optionalPromotions', description='The optional promotions.'),
+  originalAmount?: string(name='originalAmount', description='The original price.'),
   priceModules?: [ 
     {
-      originalAmount?: string(name='originalAmount'),
-      type?: string(name='type'),
+      originalAmount?: string(name='originalAmount', description='The original amount of the price module.'),
+      type?: string(name='type', description='The type of the price module.'),
     }
-  ](name='priceModules'),
+  ](name='priceModules', description='The price modules.'),
   rules?: [ 
     {
-      amount?: string(name='amount'),
-      name?: string(name='name'),
-      ruleId?: string(name='ruleId'),
+      amount?: string(name='amount', description='The amount associated with the pricing rule.'),
+      name?: string(name='name', description='The name of the pricing rule.'),
+      ruleId?: string(name='ruleId', description='The ID of the pricing rule.'),
     }
-  ](name='rules'),
-  taxAmount?: string(name='taxAmount'),
-  tradeAmount?: string(name='tradeAmount'),
+  ](name='rules', description='The pricing rules.'),
+  taxAmount?: string(name='taxAmount', description='The tax amount.'),
+  tradeAmount?: string(name='tradeAmount', description='The actual trade price.'),
 }
 
 model PromotionInfo {
-  canPromFee?: string(name='canPromFee'),
-  isSelected?: boolean(name='isSelected'),
-  promotionDesc?: string(name='promotionDesc'),
-  promotionName?: string(name='promotionName'),
-  promotionOptionCode?: string(name='promotionOptionCode'),
-  promotionOptionNo?: string(name='promotionOptionNo'),
-  selected?: boolean(name='selected'),
+  canPromFee?: string(name='canPromFee', description='The fee that can be covered by the promotion.'),
+  isSelected?: boolean(name='isSelected', description='Indicates whether the promotion is selected.'),
+  promotionDesc?: string(name='promotionDesc', description='The description of the promotion.'),
+  promotionName?: string(name='promotionName', description='The name of the promotion.'),
+  promotionOptionCode?: string(name='promotionOptionCode', description='The code of the promotion option.'),
+  promotionOptionNo?: string(name='promotionOptionNo', description='The number of the promotion option.'),
+  selected?: boolean(name='selected', description='Indicates whether the promotion is selected.'),
+}
+
+model RamAccount {
+  bindable?: boolean(name='bindable', description='Specifies whether the RamAccount can be bound to other resources.', example='true'),
+  displayName?: string(name='displayName', description='The display name for the RamAccount, which appears in the console.', example='Test User'),
+  uid?: string(name='uid', description='The unique identifier for the RamAccount.', example='1234567890123456'),
+  userName?: string(name='userName', description='The user name for the RamAccount.', example='test-user'),
+}
+
+model RamBindingEntry {
+  boundUid?: string(name='boundUid', description='The unique identifier (UID) of the bound RAM user.', example='1234567890123456'),
+  boundUserName?: string(name='boundUserName', description='The bound RAM username.', example='test-user'),
+  milvusUsername?: string(name='milvusUsername', description='The Milvus username.', example='root'),
 }
 
 model ScalingActivity {
-  componentTypes?: string(name='componentTypes'),
-  description?: string(name='description'),
-  endTime?: string(name='endTime'),
-  instanceId?: string(name='instanceId'),
-  policyType?: string(name='policyType'),
-  scalingActivityId?: string(name='scalingActivityId'),
-  scalingActivityState?: string(name='scalingActivityState'),
-  scalingPolicyId?: string(name='scalingPolicyId'),
-  scalingRuleDetail?: string(name='scalingRuleDetail'),
-  scalingRuleId?: string(name='scalingRuleId'),
-  scalingRuleName?: string(name='scalingRuleName'),
-  startTime?: string(name='startTime'),
-  timeZone?: string(name='timeZone'),
+  componentTypes?: string(name='componentTypes', description='The types of components involved in the scaling activity.'),
+  description?: string(name='description', description='The description of the scaling activity.'),
+  endTime?: string(name='endTime', description='The end time of the scaling activity.'),
+  instanceId?: string(name='instanceId', description='The ID of the instance.'),
+  policyType?: string(name='policyType', description='The type of the scaling policy.'),
+  scalingActivityId?: string(name='scalingActivityId', description='The ID of the scaling activity.'),
+  scalingActivityState?: string(name='scalingActivityState', description='The state of the scaling activity.'),
+  scalingPolicyId?: string(name='scalingPolicyId', description='The ID of the scaling policy.'),
+  scalingRuleDetail?: string(name='scalingRuleDetail', description='The details of the scaling rule.'),
+  scalingRuleId?: string(name='scalingRuleId', description='The ID of the scaling rule.'),
+  scalingRuleName?: string(name='scalingRuleName', description='The name of the scaling rule that triggered the activity.'),
+  startTime?: string(name='startTime', description='The start time of the scaling activity.'),
+  timeZone?: string(name='timeZone', description='The time zone of the scaling activity.'),
 }
 
 model ScalingRule {
   adjustInfos?: [ 
     {
-      componentType?: string(name='componentType'),
-      targetValue?: string(name='targetValue'),
+      componentType?: string(name='componentType', description='The type of the component to be adjusted.'),
+      targetValue?: string(name='targetValue', description='The target value for the adjustment.'),
     }
-  ](name='adjustInfos'),
-  cronStr?: string(name='cronStr'),
-  disabled?: boolean(name='disabled'),
-  endTime?: long(name='endTime'),
-  ruleId?: string(name='ruleId'),
-  scalingRuleName?: string(name='scalingRuleName'),
-  startTime?: long(name='startTime'),
-  timeZone?: string(name='timeZone'),
+  ](name='adjustInfos', description='The adjustment information of the scaling rule.'),
+  cronStr?: string(name='cronStr', description='The cron expression for the scaling schedule.'),
+  disabled?: boolean(name='disabled', description='Indicates whether the scaling rule is disabled.'),
+  endTime?: long(name='endTime', description='The end time of the scaling rule. Unit: milliseconds.'),
+  ruleId?: string(name='ruleId', description='The ID of the scaling rule.'),
+  scalingRuleName?: string(name='scalingRuleName', description='The name of the scaling rule.'),
+  startTime?: long(name='startTime', description='The start time of the scaling rule. Unit: milliseconds.'),
+  timeZone?: string(name='timeZone', description='The time zone of the scaling rule.'),
+}
+
+model OpenStructDlfSnapshotDto {
+  changelogRecordCount?: long(name='changelogRecordCount', example='500'),
+  commitKind?: string(name='commitKind', example='APPEND'),
+  deltaRecordCount?: long(name='deltaRecordCount', example='1000'),
+  schemaId?: long(name='schemaId', example='1'),
+  snapshotId?: long(name='snapshotId', example='123456789'),
+  timeMillis?: long(name='timeMillis', example='1711334400000'),
+  totalRecordCount?: long(name='totalRecordCount', example='100000'),
+}
+
+model OpenStructDlfTagDto {
+  snapshotId?: long(name='snapshotId', example='123456789'),
+  tagName?: string(name='tagName', example='milvus-auto-20260101'),
+  timeMillis?: long(name='timeMillis', example='1711334400000'),
+  totalRecordCount?: long(name='totalRecordCount', example='100000'),
 }
 
 model ChangeResourceGroupRequest {
-  newResourceGroupId?: string(name='NewResourceGroupId', description='This parameter is required.', example='rg-acfnsjj5tgai4wi'),
-  regionId?: string(name='RegionId', example='cn-beijing'),
-  resourceGroupId?: string(name='ResourceGroupId', example='rg-123xxx'),
-  resourceId?: string(name='ResourceId', example='c-xxx'),
-  resourceType?: string(name='ResourceType', example='instance'),
+  newResourceGroupId?: string(name='NewResourceGroupId', description='The new resource group ID.
+
+This parameter is required.', example='rg-acfnsjj5tgai4wi'),
+  regionId?: string(name='RegionId', description='The region ID.', example='cn-beijing'),
+  resourceGroupId?: string(name='ResourceGroupId', description='The resource group ID.', example='rg-123xxx'),
+  resourceId?: string(name='ResourceId', description='The resource ID.', example='c-xxx'),
+  resourceType?: string(name='ResourceType', description='The resource type.', example='instance'),
 }
 
 model ChangeResourceGroupResponseBody = {
-  accessDeniedDetail?: string(name='AccessDeniedDetail', description='AccessDeniedDetail', example='None'),
-  data?: boolean(name='Data', example='true'),
-  errCode?: string(name='ErrCode', example='Instance.NotFound'),
-  errMessage?: string(name='ErrMessage', example='Failed to find instance c-123xxx'),
-  httpStatusCode?: int32(name='HttpStatusCode', example='200'),
-  requestId?: string(name='RequestId', example='ABCD-1234-5678-EFGH'),
-  success?: boolean(name='Success', example='true'),
+  accessDeniedDetail?: string(name='AccessDeniedDetail', description='The details about the access denial.', example='None'),
+  data?: boolean(name='Data', description='The data returned.', example='true'),
+  errCode?: string(name='ErrCode', description='The error code.', example='Instance.NotFound'),
+  errMessage?: string(name='ErrMessage', description='The error message.', example='Failed to find instance c-123xxx'),
+  httpStatusCode?: int32(name='HttpStatusCode', description='The HTTP status code.', example='200'),
+  requestId?: string(name='RequestId', description='The request ID.', example='ABCD-1234-5678-EFGH'),
+  success?: boolean(name='Success', description='Indicates whether the request was successful.', example='true'),
 }
 
 model ChangeResourceGroupResponse = {
@@ -202,7 +309,7 @@ model ChangeResourceGroupResponse = {
 }
 
 /**
- * @summary 资源转组
+ * @summary Changes the resource group of a resource.
  *
  * @param request ChangeResourceGroupRequest
  * @param headers map
@@ -248,7 +355,7 @@ async function changeResourceGroupWithOptions(request: ChangeResourceGroupReques
 }
 
 /**
- * @summary 资源转组
+ * @summary Changes the resource group of a resource.
  *
  * @param request ChangeResourceGroupRequest
  * @return ChangeResourceGroupResponse
@@ -260,20 +367,20 @@ async function changeResourceGroup(request: ChangeResourceGroupRequest): ChangeR
 }
 
 model CreateAclGroupRequest {
-  cidrs?: string(name='cidrs', example='140.205.11.0/24,140.205.11.2'),
-  groupName?: string(name='groupName', example='test'),
-  instanceId?: string(name='instanceId', example='c-xxxx'),
-  regionId?: string(name='regionId', example='cn-hangzhou'),
+  cidrs?: string(name='cidrs', description='Specify one or more CIDR blocks, separated by commas.', example='140.205.11.0/24,140.205.11.2'),
+  groupName?: string(name='groupName', description='The name of the ACL group.', example='test'),
+  instanceId?: string(name='instanceId', description='The instance ID.', example='c-xxxx'),
+  regionId?: string(name='regionId', description='The region ID.', example='cn-hangzhou'),
 }
 
 model CreateAclGroupResponseBody = {
-  accessDeniedDetail?: string(name='accessDeniedDetail', example='None'),
-  data?: boolean(name='data', example='{\\\\"instanceId\\\\": \\\\"c-fa521a2393de4623\\\\", \\\\"orderId\\\\": \\\\"271129670950939\\\\"}'),
-  errCode?: string(name='errCode', example='0'),
-  errMessage?: string(name='errMessage', example='[%60wget Nds0v6lx.popscan.xaliyun.com%60]'),
-  httpStatusCode?: int32(name='httpStatusCode', example='200'),
-  requestId?: string(name='requestId', example='BE7E95C4-10DE-5EA7-9D10-2D3E0FCCE68C'),
-  success?: boolean(name='success', example='true'),
+  accessDeniedDetail?: string(name='accessDeniedDetail', description='Details about the access denial. This parameter is returned only if a request is denied due to insufficient RAM permissions.', example='None'),
+  data?: boolean(name='data', description='The data returned for the request.', example='{\\\\"instanceId\\\\": \\\\"c-fa521a2393de4623\\\\", \\\\"orderId\\\\": \\\\"271129670950939\\\\"}'),
+  errCode?: string(name='errCode', description='The error code returned if the request fails.', example='0'),
+  errMessage?: string(name='errMessage', description='The error message returned if the request fails.', example='[%60wget Nds0v6lx.popscan.xaliyun.com%60]'),
+  httpStatusCode?: int32(name='httpStatusCode', description='The HTTP status code.', example='200'),
+  requestId?: string(name='requestId', description='The unique ID generated for the request. Use this ID for troubleshooting.', example='BE7E95C4-10DE-5EA7-9D10-2D3E0FCCE68C'),
+  success?: boolean(name='success', description='Indicates if the request succeeded, where a value of `true` means success.', example='true'),
 }
 
 model CreateAclGroupResponse = {
@@ -283,7 +390,7 @@ model CreateAclGroupResponse = {
 }
 
 /**
- * @summary 创建白名单分组
+ * @summary Creates an ACL group.
  *
  * @param request CreateAclGroupRequest
  * @param headers map
@@ -326,7 +433,7 @@ async function createAclGroupWithOptions(request: CreateAclGroupRequest, headers
 }
 
 /**
- * @summary 创建白名单分组
+ * @summary Creates an ACL group.
  *
  * @param request CreateAclGroupRequest
  * @return CreateAclGroupResponse
@@ -338,10 +445,10 @@ async function createAclGroup(request: CreateAclGroupRequest): CreateAclGroupRes
 }
 
 model CreateDefaultRoleResponseBody = {
-  accessDeniedDetail?: string(name='AccessDeniedDetail', description='The details about the failed permission verification.', example='{ "PolicyType": "AccountLevelIdentityBasedPolicy", "AuthPrincipalOwnerId": "xxxx", "EncodedDiagnosticMessage": "xxxx", "AuthPrincipalType": "SubUser", "AuthPrincipalDisplayName": "xxxx", "NoPermissionType": "ImplicitDeny", "AuthAction": "milvus:xxxx" }'),
-  data?: boolean(name='Data', description='The returned result.', example='true'),
-  errCode?: string(name='ErrCode', description='The error code', example='Instance.NotFound'),
-  errMessage?: string(name='ErrMessage', description='The error message returned.', example='Failed to find instance c-123xxx'),
+  accessDeniedDetail?: string(name='AccessDeniedDetail', description='Details about the access denial.', example='{ "PolicyType": "AccountLevelIdentityBasedPolicy", "AuthPrincipalOwnerId": "xxxx", "EncodedDiagnosticMessage": "xxxx", "AuthPrincipalType": "SubUser", "AuthPrincipalDisplayName": "xxxx", "NoPermissionType": "ImplicitDeny", "AuthAction": "milvus:xxxx" }'),
+  data?: boolean(name='Data', description='The returned data.', example='true'),
+  errCode?: string(name='ErrCode', description='The error code.', example='Instance.NotFound'),
+  errMessage?: string(name='ErrMessage', description='The error message.', example='Failed to find instance c-123xxx'),
   httpStatusCode?: int32(name='HttpStatusCode', description='The HTTP status code.', example='200'),
   requestId?: string(name='RequestId', description='The ID of the request.', example='ABCD-1234-5678-EFGH'),
   success?: boolean(name='Success', description='Indicates whether the request was successful.', example='true'),
@@ -354,7 +461,7 @@ model CreateDefaultRoleResponse = {
 }
 
 /**
- * @summary Create a service role for Milvus to access other cloud products
+ * @summary Creates the server role required by Milvus to access other cloud products.
  *
  * @param headers map
  * @param runtime runtime options for this request RuntimeOptions
@@ -380,7 +487,7 @@ async function createDefaultRoleWithOptions(headers: map[string]string, runtime:
 }
 
 /**
- * @summary Create a service role for Milvus to access other cloud products
+ * @summary Creates the server role required by Milvus to access other cloud products.
  *
  * @return CreateDefaultRoleResponse
  */
@@ -391,64 +498,86 @@ async function createDefaultRole(): CreateDefaultRoleResponse {
 }
 
 model CreateInstanceRequest {
-  regionId?: string(name='RegionId', example='cn-beijing'),
-  aiFunction?: boolean(name='aiFunction'),
-  autoBackup?: boolean(name='autoBackup'),
-  autoPay?: boolean(name='autoPay'),
-  autoRenew?: boolean(name='autoRenew'),
+  regionId?: string(name='RegionId', description='The region ID.', example='cn-beijing'),
+  aiFunction?: boolean(name='aiFunction', description='Specifies whether to enable AI function.'),
+  autoBackup?: boolean(name='autoBackup', description='Specifies whether to enable automatic backup.', example='true'),
+  autoPay?: boolean(name='autoPay', description='Specifies whether to enable automatic payment. Default value: true. Valid values:', example='true'),
+  autoRenew?: boolean(name='autoRenew', description='Specifies whether to enable auto-renewal. This parameter takes effect only when the payment type is set to Subscription.', example='true'),
   backupRestoreInfo?: {
-    backupId?: string(name='backupId'),
-    backupName?: string(name='backupName'),
-    sourceClusterId?: string(name='sourceClusterId'),
-  }(name='backupRestoreInfo'),
+    backupId?: string(name='backupId', description='The backup ID.', example='bt-xxxxx'),
+    backupName?: string(name='backupName', description='The backup name.', example='Backup1'),
+    sourceClusterId?: string(name='sourceClusterId', description='The ID of the source backup cluster.', example='c-xxxxxxx'),
+  }(name='backupRestoreInfo', description='The backup and restoration information.'),
   components?: [ 
     {
-      cuNum?: int32(name='cuNum', description='This parameter is required.', example='8'),
-      cuType?: string(name='cuType', example='general'),
-      diskSizeType?: string(name='diskSizeType'),
-      replica?: int32(name='replica', description='This parameter is required.', example='1'),
-      type?: string(name='type', description='This parameter is required.', example='standalone'),
+      cuNum?: int32(name='cuNum', description='The number of compute units (CUs).
+
+This parameter is required.', example='8'),
+      cuType?: string(name='cuType', description='The CU type.', example='general'),
+      dataDisk?: {
+        enabled?: boolean(name='enabled', example='true'),
+        performanceLevel?: string(name='performanceLevel', example='PL1'),
+        size?: int32(name='size', example='100'),
+        storageClass?: string(name='storageClass', example='alicloud-disk-essd-pl1'),
+      }(name='dataDisk'),
+      diskSizeType?: string(name='diskSizeType', description='The disk size type for Query Node. Set to Large for storage-optimized, and Normal for compute-optimized or other configurations.', example='Normal'),
+      replica?: int32(name='replica', description='The number of replicas.
+
+This parameter is required.', example='1'),
+      type?: string(name='type', description='The component type.
+
+This parameter is required.', example='standalone'),
     }
-  ](name='components'),
-  configuration?: string(name='configuration'),
-  dbAdminPassword?: string(name='dbAdminPassword', example='test12'),
-  dbVersion?: string(name='dbVersion', description='This parameter is required.', example='2.4'),
-  encrypted?: boolean(name='encrypted'),
-  ha?: boolean(name='ha', example='true'),
-  instanceName?: string(name='instanceName', example='milvus-test'),
-  isMultiAzStorage?: boolean(name='isMultiAzStorage'),
-  kmsKeyId?: string(name='kmsKeyId'),
-  loadReplicas?: int32(name='loadReplicas'),
-  multiZoneMode?: string(name='multiZoneMode'),
-  paymentDuration?: int32(name='paymentDuration', example='1'),
-  paymentDurationUnit?: string(name='paymentDurationUnit', example='month'),
-  paymentType?: string(name='paymentType', description='This parameter is required.', example='PayAsYouGo'),
-  promotionNo?: string(name='promotionNo'),
-  resourceGroupId?: string(name='resourceGroupId', example='rg-xxx'),
+  ](name='components', description='The component information.'),
+  configuration?: string(name='configuration', description='The configuration items.', example='rootCoord:
+    maxDatabaseNum: 64 # Maximum number of database
+    maxPartitionNum: 4096'),
+  dbAdminPassword?: string(name='dbAdminPassword', description='The database administrator password.', example='test12'),
+  dbVersion?: string(name='dbVersion', description='The Milvus version.
+
+This parameter is required.', example='2.4'),
+  encrypted?: boolean(name='encrypted', description='Specifies whether to enable OSS encryption.', example='false'),
+  ha?: boolean(name='ha', description='Specifies whether to enable high availability.', example='true'),
+  instanceName?: string(name='instanceName', description='The instance name.', example='milvus-test'),
+  isMultiAzStorage?: boolean(name='isMultiAzStorage', description='Specifies whether to enable multi-zone storage.'),
+  kmsKeyId?: string(name='kmsKeyId', description='The ID of the KMS key used for encryption.', example='key-xxx'),
+  loadReplicas?: int32(name='loadReplicas', description='The number of load replicas.', example='2'),
+  multiZoneMode?: string(name='multiZoneMode', description='The zone configuration.', example='Single'),
+  paymentDuration?: int32(name='paymentDuration', description='The payment duration.', example='1'),
+  paymentDurationUnit?: string(name='paymentDurationUnit', description='The payment duration unit.', example='month'),
+  paymentType?: string(name='paymentType', description='The payment type.
+
+This parameter is required.', example='PayAsYouGo'),
+  promotionNo?: string(name='promotionNo', description='The coupon code.', example='22120151****'),
+  resourceGroupId?: string(name='resourceGroupId', description='The resource group ID.', example='rg-xxx'),
   tags?: [ 
     {
-      key?: string(name='key'),
-      value?: string(name='value'),
+      key?: string(name='key', description='The key of the resource tag.', example='key'),
+      value?: string(name='value', description='The value of the resource tag.', example='value'),
     }
-  ](name='tags'),
+  ](name='tags', description='The instance tags.'),
   vSwitchIds?: [ 
     {
-      vswId?: string(name='vswId'),
-      zoneId?: string(name='zoneId'),
+      vswId?: string(name='vswId', description='The vSwitch ID configuration in the zone.', example='vsw-xxx'),
+      zoneId?: string(name='zoneId', description='The zone.', example='cn-shanghai-a'),
     }
-  ](name='vSwitchIds', example='["vsw-123xxx"]'),
-  vpcId?: string(name='vpcId', description='This parameter is required.', example='vpc-123xxx'),
-  zoneId?: string(name='zoneId', description='This parameter is required.', example='cn-beijing-g'),
-  clientToken?: string(name='clientToken'),
+  ](name='vSwitchIds', description='The vSwitches.', example='["vsw-123xxx"]'),
+  vpcId?: string(name='vpcId', description='The VPC ID.
+
+This parameter is required.', example='vpc-123xxx'),
+  zoneId?: string(name='zoneId', description='The primary zone.
+
+This parameter is required.', example='cn-beijing-g'),
+  clientToken?: string(name='clientToken', description='The client token that is used to ensure the idempotence of the request. You can use the client to generate the token, but you must make sure that the token is unique among different requests. The token can contain only ASCII characters and cannot exceed 64 characters in length.', example='xxx'),
 }
 
 model CreateInstanceResponseBody = {
-  requestId?: string(name='RequestId', example='ABCD-1234-5678-EFGH'),
+  requestId?: string(name='RequestId', description='The request ID.', example='ABCD-1234-5678-EFGH'),
   data?: {
-    instanceId?: string(name='instanceId'),
-    orderId?: string(name='orderId'),
-  }(name='data'),
-  success?: boolean(name='success', example='true'),
+    instanceId?: string(name='instanceId', description='The instance ID.', example='c-xxx'),
+    orderId?: string(name='orderId', description='The order ID.', example='xxx'),
+  }(name='data', description='The returned result.'),
+  success?: boolean(name='success', description='Indicates whether the request was successful.', example='true'),
 }
 
 model CreateInstanceResponse = {
@@ -458,7 +587,7 @@ model CreateInstanceResponse = {
 }
 
 /**
- * @summary 创建实例
+ * @summary Creates a cluster instance.
  *
  * @param request CreateInstanceRequest
  * @param headers map
@@ -573,7 +702,7 @@ async function createInstanceWithOptions(request: CreateInstanceRequest, headers
 }
 
 /**
- * @summary 创建实例
+ * @summary Creates a cluster instance.
  *
  * @param request CreateInstanceRequest
  * @return CreateInstanceResponse
@@ -585,15 +714,17 @@ async function createInstance(request: CreateInstanceRequest): CreateInstanceRes
 }
 
 model DeleteInstanceRequest {
-  regionId?: string(name='RegionId', example='cn-beijing'),
-  instanceId?: string(name='instanceId', description='This parameter is required.', example='c-xxxx'),
+  regionId?: string(name='RegionId', description='The region ID.', example='cn-beijing'),
+  instanceId?: string(name='instanceId', description='The instance ID.
+
+This parameter is required.', example='c-xxxx'),
 }
 
 model DeleteInstanceResponseBody = {
-  requestId?: string(name='RequestId', example='ABCD-1234-5678-EFGH'),
-  instanceId?: string(name='instanceId', example='c-xxxx'),
-  orderId?: string(name='orderId', example='123456'),
-  success?: boolean(name='success', example='true'),
+  requestId?: string(name='RequestId', description='The unique request ID.', example='ABCD-1234-5678-EFGH'),
+  instanceId?: string(name='instanceId', description='The instance ID.', example='c-xxxx'),
+  orderId?: string(name='orderId', description='The order ID.', example='123456'),
+  success?: boolean(name='success', description='Indicates whether the request was successful.', example='true'),
 }
 
 model DeleteInstanceResponse = {
@@ -603,7 +734,7 @@ model DeleteInstanceResponse = {
 }
 
 /**
- * @summary 删除实例
+ * @summary Deletes an instance.
  *
  * @param request DeleteInstanceRequest
  * @param headers map
@@ -640,7 +771,7 @@ async function deleteInstanceWithOptions(request: DeleteInstanceRequest, headers
 }
 
 /**
- * @summary 删除实例
+ * @summary Deletes an instance.
  *
  * @param request DeleteInstanceRequest
  * @return DeleteInstanceResponse
@@ -789,14 +920,16 @@ async function describeInstanceConfigs(request: DescribeInstanceConfigsRequest):
 }
 
 model GetInstanceRequest {
-  regionId?: string(name='RegionId', example='cn-beijing'),
-  instanceId?: string(name='instanceId', description='This parameter is required.', example='c-xxxx'),
+  regionId?: string(name='RegionId', description='The region ID.', example='cn-beijing'),
+  instanceId?: string(name='instanceId', description='The instance ID.
+
+This parameter is required.', example='c-xxxx'),
 }
 
 model GetInstanceResponseBody = {
-  requestId?: string(name='RequestId', example='ABCD-1234-5678-EFGH'),
-  instance?: InstanceDetail(name='instance'),
-  success?: boolean(name='success', example='true'),
+  requestId?: string(name='RequestId', description='The request ID.', example='ABCD-1234-5678-EFGH'),
+  instance?: InstanceDetail(name='instance', description='The instance details.'),
+  success?: boolean(name='success', description='Indicates whether the request was successful.', example='true'),
 }
 
 model GetInstanceResponse = {
@@ -806,7 +939,7 @@ model GetInstanceResponse = {
 }
 
 /**
- * @summary 获取实例详情
+ * @summary Retrieves the details of an instance.
  *
  * @param request GetInstanceRequest
  * @param headers map
@@ -843,7 +976,7 @@ async function getInstanceWithOptions(request: GetInstanceRequest, headers: map[
 }
 
 /**
- * @summary 获取实例详情
+ * @summary Retrieves the details of an instance.
  *
  * @param request GetInstanceRequest
  * @return GetInstanceResponse
@@ -855,47 +988,49 @@ async function getInstance(request: GetInstanceRequest): GetInstanceResponse {
 }
 
 model GetInstanceDetailRequest {
-  instanceId?: string(name='InstanceId', description='The ID of the instance.', example='c-123xxx'),
+  instanceId?: string(name='InstanceId', description='The instance ID.', example='c-123xxx'),
 }
 
 model GetInstanceDetailResponseBody = {
-  accessDeniedDetail?: string(name='AccessDeniedDetail', description='The detailed information about the failed permission verification.', example='{     "PolicyType": "AccountLevelIdentityBasedPolicy",     "AuthPrincipalOwnerId": "xxxx",     "EncodedDiagnosticMessage": "xxxx",     "AuthPrincipalType": "SubUser",     "AuthPrincipalDisplayName": "xxxx",     "NoPermissionType": "ImplicitDeny",     "AuthAction": "milvus:xxxx" }'),
+  accessDeniedDetail?: string(name='AccessDeniedDetail', description='The details of the permission verification failure.', example='{     "PolicyType": "AccountLevelIdentityBasedPolicy",     "AuthPrincipalOwnerId": "xxxx",     "EncodedDiagnosticMessage": "xxxx",     "AuthPrincipalType": "SubUser",     "AuthPrincipalDisplayName": "xxxx",     "NoPermissionType": "ImplicitDeny",     "AuthAction": "milvus:xxxx" }'),
   data?: {
-    aclId?: string(name='AclId', description='AclId for Public Network Access Control.', example='acl-123xxx'),
+    aclId?: string(name='AclId', description='The ACL ID for public network access control.', example='acl-123xxx'),
     beginTime?: long(name='BeginTime', description='The start time.', example='1716863508000'),
-    bucketName?: string(name='BucketName', description='The name of the bucket.', example='milvus-test'),
-    bucketPath?: string(name='BucketPath', description='The address of the bucket.', example='https://oss.console.aliyun.com/bucket/oss-cn-beijing/xxxx/object?spm=a2cug.25127996.0.0.577990370Ebsqt&path=milvus-c-123xxxx'),
+    bucketName?: string(name='BucketName', description='The bucket name.', example='milvus-test'),
+    bucketPath?: string(name='BucketPath', description='The bucket path.', example='https://oss.console.aliyun.com/bucket/oss-cn-beijing/xxxx/object?spm=a2cug.25127996.0.0.577990370Ebsqt&path=milvus-c-123xxxx'),
     clusterInfo?: {
-      attuPort?: int32(name='AttuPort', description='The port of the Attu component.', example='3000'),
-      internetUrl?: string(name='InternetUrl', description='The public IP address.', example='c-123xxx-.milvus.aliyuncs.com'),
-      intranetUrl?: string(name='IntranetUrl', description='The internal IP address.', example='c-123xxx-internal.milvus.aliyuncs.com'),
+      attuPort?: int32(name='AttuPort', description='The Attu component port.', example='3000'),
+      internetUrl?: string(name='InternetUrl', description='The public network address.', example='c-123xxx-.milvus.aliyuncs.com'),
+      intranetUrl?: string(name='IntranetUrl', description='The internal network address.', example='c-123xxx-internal.milvus.aliyuncs.com'),
       milvusResourceInfoList?: [ 
         {
-          componentType?: string(name='ComponentType', description='The component type. Valid values:
-
-*   standalone
-*   proxy
-*   mix_coordinator
-*   query
-*   index
-*   data', example='QueryNode'),
-          cuNum?: int32(name='CuNum', description='The number of CUs.', example='8'),
-          cuRatio?: int32(name='CuRatio', example='4'),
+          componentType?: string(name='ComponentType', description='The component type. Valid values:', example='standalone'),
+          cuNum?: int32(name='CuNum', description='The number of compute units (CUs).', example='8'),
+          cuRatio?: int32(name='CuRatio', description='The CU specifications. Valid values:', example='4'),
           diskSize?: int32(name='DiskSize', description='The disk size.', example='100'),
           diskType?: string(name='DiskType', description='The disk type.', example='essd'),
           payType?: string(name='PayType'),
           replica?: int32(name='Replica', description='The number of replicas.', example='2'),
           zoneId?: string(name='ZoneId'),
+          dataDiskEnabled?: boolean(name='dataDiskEnabled', example='true'),
+          dataDiskSize?: int32(name='dataDiskSize', example='100'),
+          dataDiskStorageClass?: string(name='dataDiskStorageClass', example='alicloud-disk-essd-pl1'),
+          podsList?: [ 
+            {
+              podId?: string(name='podId'),
+              podName?: string(name='podName'),
+            }
+          ](name='podsList'),
         }
       ](name='MilvusResourceInfoList', description='The resource details.'),
-      ossStorageSize?: string(name='OssStorageSize', description='The size of the data stored in OSS.', example='125.15 GB'),
-      ossStorageTimestamp?: long(name='OssStorageTimestamp', description='The timestamp when the OSS metric is stored.', example='1718604000000'),
+      ossStorageSize?: string(name='OssStorageSize', description='The OSS storage data size.', example='125.15 GB'),
+      ossStorageTimestamp?: long(name='OssStorageTimestamp', description='The timestamp of the OSS storage metric.', example='1718604000000'),
       proxyPort?: int32(name='ProxyPort', description='The proxy port.', example='19530'),
       totalCuNum?: int32(name='TotalCuNum', description='The total number of CUs.', example='24'),
-      totalDiskSize?: int32(name='TotalDiskSize', description='The total number of disks.', example='500'),
+      totalDiskSize?: int32(name='TotalDiskSize', description='The total disk size.', example='500'),
     }(name='ClusterInfo', description='The instance details.'),
     clusterName?: string(name='ClusterName', description='The instance name.', example='aliyun-test'),
-    enableHa?: boolean(name='EnableHa', example='true'),
+    enableHa?: boolean(name='EnableHa', description='Indicates whether high availability is enabled.', example='true'),
     encrypted?: string(name='Encrypted'),
     expireTime?: long(name='ExpireTime', description='The expiration time.', example='1721664000000'),
     highAvailability?: {
@@ -904,68 +1039,56 @@ model GetInstanceDetailResponseBody = {
       primaryZoneId?: string(name='PrimaryZoneId'),
       secondaryZoneId?: string(name='SecondaryZoneId'),
     }(name='HighAvailability'),
-    instanceId?: string(name='InstanceId', description='The ID of the instance.', example='c-123xxx'),
-    instanceStatus?: string(name='InstanceStatus', description='The instance status. Valid values:
-
-*   creating.
-*   running.
-*   updating. Cluster scaling (up/down), configuration changes, and enabling/disabling public network access.
-*   disable. The cluster has expired and needs to be renewed for activation.
-*   deleting.
-*   deleted.', example='running'),
+    instanceId?: string(name='InstanceId', description='The instance ID.', example='c-123xxx'),
+    instanceStatus?: string(name='InstanceStatus', description='The instance status. Valid values:', example='running'),
     kmsKeyId?: string(name='KmsKeyId'),
     maintainablePeriod?: string(name='MaintainablePeriod'),
     measureConfig?: {
-      dataNodeCuNum?: int32(name='DataNodeCuNum', example='4'),
-      dataNodeReplica?: int32(name='DataNodeReplica', example='2'),
-      indexNodeCuNum?: int32(name='IndexNodeCuNum', example='4'),
-      indexNodeReplica?: int32(name='IndexNodeReplica', example='2'),
-      mixCoodinatorNodeCuNum?: int32(name='MixCoodinatorNodeCuNum', example='4'),
-      mixCoodinatorNodeReplica?: int32(name='MixCoodinatorNodeReplica', example='2'),
-      proxyNodeCuNum?: int32(name='ProxyNodeCuNum', example='4'),
-      proxyNodeReplica?: int32(name='ProxyNodeReplica', example='2'),
-      queryNodeCuNum?: int32(name='QueryNodeCuNum', example='4'),
-      queryNodeReplica?: int32(name='QueryNodeReplica', example='2'),
-    }(name='MeasureConfig'),
+      dataNodeCuNum?: int32(name='DataNodeCuNum', description='The number of CUs for the Data node.', example='4'),
+      dataNodeReplica?: int32(name='DataNodeReplica', description='The number of replicas for the Data node.', example='2'),
+      indexNodeCuNum?: int32(name='IndexNodeCuNum', description='The number of CUs for the Index node.', example='4'),
+      indexNodeReplica?: int32(name='IndexNodeReplica', description='The number of replicas for the Index node.', example='2'),
+      mixCoodinatorNodeCuNum?: int32(name='MixCoodinatorNodeCuNum', description='The number of CUs for the MixCoordinator node.', example='4'),
+      mixCoodinatorNodeReplica?: int32(name='MixCoodinatorNodeReplica', description='The number of replicas for the MixCoordinator node.', example='2'),
+      proxyNodeCuNum?: int32(name='ProxyNodeCuNum', description='The number of CUs for the Proxy node.', example='4'),
+      proxyNodeReplica?: int32(name='ProxyNodeReplica', description='The number of replicas for the Proxy node.', example='2'),
+      queryNodeCuNum?: int32(name='QueryNodeCuNum', description='The number of CUs for the Query node.', example='4'),
+      queryNodeReplica?: int32(name='QueryNodeReplica', description='The number of replicas for the Query node.', example='2'),
+    }(name='MeasureConfig', description='The configuration information.'),
     multiZoneMode?: string(name='MultiZoneMode'),
-    nodeType?: string(name='NodeType', example='perf'),
-    openPublicNet?: boolean(name='OpenPublicNet', description='Indicates whether Internet access is enabled.', example='true'),
-    packageType?: string(name='PackageType', description='The specification details. Valid values:
-
-*   trial.
-*   standard.', example='standard'),
-    payType?: int32(name='PayType', description='The billing method of the instance. Valid values:
-
-*   0: pay-as-you-go
-*   1: subscription', example='1'),
+    nodeType?: string(name='NodeType', description='The node type. Valid values:', example='perf'),
+    openPublicNet?: boolean(name='OpenPublicNet', description='Indicates whether public network access is enabled.', example='true'),
+    packageType?: string(name='PackageType', description='The specification details. Valid values:', example='standard'),
+    payType?: int32(name='PayType', description='The billing type. Valid values:', example='1'),
     productCode?: string(name='ProductCode', description='The commodity code.', example='milvus_milvuspre_public_cn'),
-    regionId?: string(name='RegionId', description='The region code.', example='cn-beijing'),
+    regionId?: string(name='RegionId', description='The region.', example='cn-beijing'),
     resourceGroupId?: string(name='ResourceGroupId', description='The resource group ID.', example='rg-123xxx'),
-    runningTime?: long(name='RunningTime', description='The runtime.', example='1743679'),
+    runningTime?: long(name='RunningTime', description='The running time.', example='1743679'),
     sgId?: string(name='SgId', description='The security group ID.', example='sg-123xxx'),
     tags?: [ 
       {
-        key?: string(name='Key', example='key1'),
-        value?: string(name='Value', example='value1'),
+        key?: string(name='Key', description='The key of the tag.', example='key1'),
+        value?: string(name='Value', description='The value of the tag.', example='value1'),
       }
-    ](name='Tags'),
-    templateVersion?: string(name='TemplateVersion', description='The version of the software stack.', example='2.4.1-1.0-0.0.1'),
-    userConfig?: string(name='UserConfig', description='User-defined configuration.', example='dataCoord:\\\\n  segment:\\\\n    maxSize: 1024'),
+    ](name='Tags', description='The tag information.'),
+    templateVersion?: string(name='TemplateVersion', description='The software stack version.', example='2.4.1-1.0-0.0.1'),
+    userConfig?: string(name='UserConfig', description='The user-defined configuration.', example='dataCoord:\\\\n  segment:\\\\n    maxSize: 1024'),
     vSwitches?: [ 
       {
         vswId?: string(name='VswId'),
         zoneId?: string(name='ZoneId'),
       }
     ](name='VSwitches'),
-    version?: string(name='Version', description='The kernel version.', example='2.4'),
-    vpcId?: string(name='VpcId', description='The virtual private cloud (VPC) ID.', example='vpc-123xxx'),
-    vswId?: string(name='VswId', description='The ID of the vSwitch.', example='vsw-123xxx'),
+    version?: string(name='Version', description='The Milvus version.', example='2.4'),
+    vpcId?: string(name='VpcId', description='The VPC ID.', example='vpc-123xxx'),
+    vswId?: string(name='VswId', description='The vSwitch ID.', example='vsw-123xxx'),
     zoneId?: string(name='ZoneId', description='The zone.', example='cn-beijing-g'),
-  }(name='Data', description='The returned result.'),
-  errCode?: string(name='ErrCode', description='The error code returned.', example='Instance.NotFound'),
+    maintainablePeriodTimeZone?: string(name='maintainablePeriodTimeZone'),
+  }(name='Data', description='The response data.'),
+  errCode?: string(name='ErrCode', description='The error code.', example='Instance.NotFound'),
   errMessage?: string(name='ErrMessage', description='The error message.', example='Failed to find instance c-123xxx'),
   httpStatusCode?: int32(name='HttpStatusCode', description='The HTTP status code.', example='200'),
-  requestId?: string(name='RequestId', description='The ID of the request.', example='ABCD-1234-5678-EFGH'),
+  requestId?: string(name='RequestId', description='The request ID.', example='ABCD-1234-5678-EFGH'),
   success?: boolean(name='Success', description='Indicates whether the request was successful.', example='true'),
 }
 
@@ -976,7 +1099,7 @@ model GetInstanceDetailResponse = {
 }
 
 /**
- * @summary Get the details of an instance.
+ * @summary Retrieves the details of a single instance.
  *
  * @param request GetInstanceDetailRequest
  * @param headers map
@@ -1010,7 +1133,7 @@ async function getInstanceDetailWithOptions(request: GetInstanceDetailRequest, h
 }
 
 /**
- * @summary Get the details of an instance.
+ * @summary Retrieves the details of a single instance.
  *
  * @param request GetInstanceDetailRequest
  * @return GetInstanceDetailResponse
@@ -1022,24 +1145,24 @@ async function getInstanceDetail(request: GetInstanceDetailRequest): GetInstance
 }
 
 model ListAclGroupsRequest {
-  instanceId?: string(name='instanceId', example='c-123xxx'),
-  regionId?: string(name='regionId', example='cn-beijing'),
+  instanceId?: string(name='instanceId', description='The instance ID.', example='c-123xxx'),
+  regionId?: string(name='regionId', description='The region ID.', example='cn-beijing'),
 }
 
 model ListAclGroupsResponseBody = {
-  accessDeniedDetail?: string(name='accessDeniedDetail', example='None'),
+  accessDeniedDetail?: string(name='accessDeniedDetail', description='Details about the access denial. Returned only for requests denied due to insufficient RAM permissions.', example='None'),
   data?: [ 
     {
-      cidrs?: [ string ](name='cidrs'),
-      createTime?: string(name='createTime', example='2022-10-17T13:53:27Z'),
-      groupName?: string(name='groupName', example='test'),
-      id?: long(name='id', example='376774'),
-      instanceId?: string(name='instanceId', example='c-xxx'),
-      uid?: long(name='uid', example='50832118'),
+      cidrs?: [ string ](name='cidrs', description='The CIDR blocks in the group.'),
+      createTime?: string(name='createTime', description='The timestamp of the group\\\\"s creation.', example='2022-10-17T13:53:27Z'),
+      groupName?: string(name='groupName', description='The group name.', example='test'),
+      id?: long(name='id', description='The group ID.', example='376774'),
+      instanceId?: string(name='instanceId', description='The instance ID.', example='c-xxx'),
+      uid?: long(name='uid', description='The ID of the Alibaba Cloud account. This parameter is read-only.', example='50832118'),
     }
-  ](name='data'),
-  httpStatusCode?: long(name='httpStatusCode', example='200'),
-  requestId?: string(name='requestId', example='66A13C31-473A-5B3A-8974-0B07A40649CF'),
+  ](name='data', description='The response data.'),
+  httpStatusCode?: long(name='httpStatusCode', description='The HTTP status code.', example='200'),
+  requestId?: string(name='requestId', description='The request ID.', example='66A13C31-473A-5B3A-8974-0B07A40649CF'),
 }
 
 model ListAclGroupsResponse = {
@@ -1049,7 +1172,7 @@ model ListAclGroupsResponse = {
 }
 
 /**
- * @summary 获取当前用户下的分组信息和内容
+ * @summary Retrieves one or more access control list (ACL) groups.
  *
  * @param request ListAclGroupsRequest
  * @param headers map
@@ -1086,7 +1209,7 @@ async function listAclGroupsWithOptions(request: ListAclGroupsRequest, headers: 
 }
 
 /**
- * @summary 获取当前用户下的分组信息和内容
+ * @summary Retrieves one or more access control list (ACL) groups.
  *
  * @param request ListAclGroupsRequest
  * @return ListAclGroupsResponse
@@ -1100,103 +1223,115 @@ async function listAclGroups(request: ListAclGroupsRequest): ListAclGroupsRespon
 model ListInstancesRequest {
   clusterId?: string(name='ClusterId', description='The instance ID.', example='c-123xxx'),
   clusterName?: string(name='ClusterName', description='The instance name.', example='milvus-test'),
-  pageNumber?: int32(name='PageNumber', description='The page number of the returned page.', example='1'),
-  pageSize?: int32(name='PageSize', description='The number of entries per page.', example='10'),
-  regionId?: string(name='RegionId', description='The region code.', example='cn-beijing'),
+  pageNumber?: int32(name='PageNumber', description='The page number.', example='1'),
+  pageSize?: int32(name='PageSize', description='The page size.', example='10'),
+  regionId?: string(name='RegionId', description='The region ID.', example='cn-beijing'),
   resourceGroupId?: string(name='ResourceGroupId', description='The resource group ID.', example='rg-123xxx'),
   tag?: [ 
     {
-      key?: string(name='Key', example='key1'),
-      value?: string(name='Value', example='value1'),
+      key?: string(name='Key', description='The tag key.', example='key1'),
+      value?: string(name='Value', description='The tag value.', example='value1'),
     }
-  ](name='Tag'),
+  ](name='Tag', description='The tags used to filter instances.'),
 }
 
 model ListInstancesShrinkRequest {
   clusterId?: string(name='ClusterId', description='The instance ID.', example='c-123xxx'),
   clusterName?: string(name='ClusterName', description='The instance name.', example='milvus-test'),
-  pageNumber?: int32(name='PageNumber', description='The page number of the returned page.', example='1'),
-  pageSize?: int32(name='PageSize', description='The number of entries per page.', example='10'),
-  regionId?: string(name='RegionId', description='The region code.', example='cn-beijing'),
+  pageNumber?: int32(name='PageNumber', description='The page number.', example='1'),
+  pageSize?: int32(name='PageSize', description='The page size.', example='10'),
+  regionId?: string(name='RegionId', description='The region ID.', example='cn-beijing'),
   resourceGroupId?: string(name='ResourceGroupId', description='The resource group ID.', example='rg-123xxx'),
-  tagShrink?: string(name='Tag'),
+  tagShrink?: string(name='Tag', description='The tags used to filter instances.'),
 }
 
 model ListInstancesResponseBody = {
-  accessDeniedDetail?: string(name='AccessDeniedDetail', description='The detailed information about the failed permission verification.', example='{     "PolicyType": "AccountLevelIdentityBasedPolicy",     "AuthPrincipalOwnerId": "xxxx",     "EncodedDiagnosticMessage": "xxxx",     "AuthPrincipalType": "SubUser",     "AuthPrincipalDisplayName": "xxxx",     "NoPermissionType": "ImplicitDeny",     "AuthAction": "milvus:xxxx" }'),
+  accessDeniedDetail?: string(name='AccessDeniedDetail', description='Details for an access denial error.', example='{     "PolicyType": "AccountLevelIdentityBasedPolicy",     "AuthPrincipalOwnerId": "xxxx",     "EncodedDiagnosticMessage": "xxxx",     "AuthPrincipalType": "SubUser",     "AuthPrincipalDisplayName": "xxxx",     "NoPermissionType": "ImplicitDeny",     "AuthAction": "milvus:xxxx" }'),
   data?: [ 
     {
-      autoBackup?: boolean(name='AutoBackup', example='true'),
-      beginTime?: long(name='BeginTime', description='The start time.', example='1718608505000'),
+      autoBackup?: boolean(name='AutoBackup', description='Indicates whether automatic backup is enabled.', example='true'),
+      beginTime?: long(name='BeginTime', description='The creation time of the instance.', example='1718608505000'),
       clusterInfo?: {
-        attuPort?: int32(name='AttuPort', description='The port of the Attu component.', example='3000'),
-        internetUrl?: string(name='InternetUrl', description='The public IP address.', example='c-123xxx.milvus.aliyuncs.com'),
+        attuPort?: int32(name='AttuPort', description='The Attu port.', example='3000'),
+        internetUrl?: string(name='InternetUrl', description='The public endpoint.', example='c-123xxx.milvus.aliyuncs.com'),
         intranetUrl?: string(name='IntranetUrl', description='The internal endpoint.', example='c-123xxx-internal.milvus.aliyuncs.com'),
         milvusResourceInfoList?: [ 
           {
-            componentType?: string(name='ComponentType', description='The type of the component. Valid values:
+            componentType?: string(name='ComponentType', description='The component type. Valid values:
 
-*   standalone
-*   proxy
-*   mix_coordinator
-*   query
-*   index
-*   data', example='standalone'),
+- `standalone`
+
+- `proxy`
+
+- `mix_coordinator`
+
+- `query`
+
+- `index`
+
+- `data`', example='standalone'),
             cuNum?: int32(name='CuNum', description='The number of CUs.', example='16'),
-            diskSize?: int32(name='DiskSize', description='The disk size.', example='100'),
+            diskSize?: int32(name='DiskSize', description='The disk size in GB.', example='100'),
             diskType?: string(name='DiskType', description='The disk type.', example='essd'),
             replica?: int32(name='Replica', description='The number of replicas.', example='1'),
           }
-        ](name='MilvusResourceInfoList', description='The resource details.'),
+        ](name='MilvusResourceInfoList', description='A list of resource details for the instance\\\\"s components.'),
         proxyPort?: int32(name='ProxyPort', description='The proxy port.', example='19530'),
-        totalCuNum?: int32(name='TotalCuNum', description='The number of CUs.', example='24'),
-        totalDiskSize?: int32(name='TotalDiskSize', description='The total capacity of the disk.', example='500'),
+        totalCuNum?: int32(name='TotalCuNum', description='The total number of CUs.', example='24'),
+        totalDiskSize?: int32(name='TotalDiskSize', description='The total disk size in GB.', example='500'),
       }(name='ClusterInfo', description='The instance details.'),
       clusterName?: string(name='ClusterName', description='The instance name.', example='milvus-test'),
-      expireTime?: long(name='ExpireTime', description='The expiration time.', example='1721232000000'),
-      instanceId?: string(name='InstanceId', description='The ID of the instance.', example='c-123xxx'),
-      instanceStatus?: string(name='InstanceStatus', description='The status of the bastion host. Valid values:
+      expireTime?: long(name='ExpireTime', description='The expiration time of the instance.', example='1721232000000'),
+      instanceId?: string(name='InstanceId', description='The instance ID.', example='c-123xxx'),
+      instanceStatus?: string(name='InstanceStatus', description='The instance status. Valid values:
 
-*   creating.
-*   running.
-*   updating. Cluster scaling (up/down), configuration changes, and enabling/disabling public network access.
-*   disable. The cluster has expired and needs to be renewed for activation.
-*   deleting.
-*   deleted.', example='running'),
-      nodeType?: string(name='NodeType', example='perf'),
-      openPublicNet?: boolean(name='OpenPublicNet', description='Indicates whether Internet access is enabled.', example='true'),
-      packageType?: string(name='PackageType', description='The specification details. Valid values:
+- `creating`: The instance is being created.
 
-*   trial.
-*   standard.', example='trial'),
-      payType?: int32(name='PayType', description='The billing method of the instance. Valid values:
+- `running`: The instance is running.
 
-*   0: pay-as-you-go
-*   1: subscription', example='1'),
-      productCode?: string(name='ProductCode', description='The commodity code.', example='milvus_milvuspre_public_cn'),
-      regionId?: string(name='RegionId', description='The region code.', example='cn-beijing'),
+- `updating`: The instance is being updated. This includes scaling the instance, changing configurations, or modifying public network access.
+
+- `disable`: The instance is unavailable because it has expired and requires renewal.
+
+- `deleting`: The instance is being deleted.
+
+- `deleted`: The instance has been deleted.', example='running'),
+      nodeType?: string(name='NodeType', description='The node type.', example='perf'),
+      openPublicNet?: boolean(name='OpenPublicNet', description='Indicates whether public network access is enabled.', example='true'),
+      packageType?: string(name='PackageType', description='The instance edition. Valid values:
+
+- `trial`: Trial Edition.
+
+- `standard`: Standard Edition.', example='trial'),
+      payType?: int32(name='PayType', description='The billing method. Valid values:
+
+- `0`: pay-as-you-go.
+
+- `1`: subscription.', example='1'),
+      productCode?: string(name='ProductCode', description='The product code.', example='milvus_milvuspre_public_cn'),
+      regionId?: string(name='RegionId', description='The region ID.', example='cn-beijing'),
       resourceGroupId?: string(name='ResourceGroupId', description='The resource group ID.', example='rg-123xxx'),
-      runningTime?: int32(name='RunningTime', description='The runtime.', example='536611'),
+      runningTime?: int32(name='RunningTime', description='The duration the instance has been running.', example='536611'),
       sgId?: string(name='SgId', description='The security group ID.', example='sg-123xxx'),
       tags?: [ 
         {
-          key?: string(name='Key', example='key1'),
-          value?: string(name='Value', example='value1'),
+          key?: string(name='Key', description='The tag key.', example='key1'),
+          value?: string(name='Value', description='The tag value.', example='value1'),
         }
-      ](name='Tags'),
-      templateVersion?: string(name='TemplateVersion'),
-      version?: string(name='Version'),
-      vpcId?: string(name='VpcId', description='The virtual private cloud (VPC) ID.', example='vpc-123xxx'),
-      vswId?: string(name='VswId', description='The ID of the vSwitch.', example='vsw-123xxx'),
-      zoneId?: string(name='ZoneId', description='The zone.', example='cn-beijing-g'),
+      ](name='Tags', description='The tags attached to the instance.'),
+      templateVersion?: string(name='TemplateVersion', description='The template version.'),
+      version?: string(name='Version', description='The instance version.'),
+      vpcId?: string(name='VpcId', description='The VPC ID.', example='vpc-123xxx'),
+      vswId?: string(name='VswId', description='The vSwitch ID.', example='vsw-123xxx'),
+      zoneId?: string(name='ZoneId', description='The zone ID.', example='cn-beijing-g'),
     }
-  ](name='Data', description='The returned result.'),
-  errCode?: string(name='ErrCode', description='The error code returned.', example='Instance.NotFound'),
+  ](name='Data', description='An array of instance objects.'),
+  errCode?: string(name='ErrCode', description='The error code.', example='Instance.NotFound'),
   errMessage?: string(name='ErrMessage', description='The error message.', example='Failed to find instance c-123xxx'),
   httpStatusCode?: int32(name='HttpStatusCode', description='The HTTP status code.', example='200'),
-  requestId?: string(name='RequestId', description='The ID of the request.', example='ABCD-1234-5678-EFGH'),
+  requestId?: string(name='RequestId', description='The request ID.', example='ABCD-1234-5678-EFGH'),
   success?: boolean(name='Success', description='Indicates whether the request was successful.', example='true'),
-  total?: int32(name='Total', description='The total number.', example='15'),
+  total?: int32(name='Total', description='The total number of instances found.', example='15'),
 }
 
 model ListInstancesResponse = {
@@ -1206,7 +1341,7 @@ model ListInstancesResponse = {
 }
 
 /**
- * @summary Get the list of Milvus instances under the current account.
+ * @summary Retrieves a list of Milvus instances in the current account.
  *
  * @param tmpReq ListInstancesRequest
  * @param headers map
@@ -1263,7 +1398,7 @@ async function listInstancesWithOptions(tmpReq: ListInstancesRequest, headers: m
 }
 
 /**
- * @summary Get the list of Milvus instances under the current account.
+ * @summary Retrieves a list of Milvus instances in the current account.
  *
  * @param request ListInstancesRequest
  * @return ListInstancesResponse
@@ -1275,43 +1410,43 @@ async function listInstances(request: ListInstancesRequest): ListInstancesRespon
 }
 
 model ListInstancesV2Request {
-  regionId?: string(name='RegionId', example='cn-beijing'),
-  instanceId?: string(name='instanceId', example='c-123xxx'),
-  instanceName?: string(name='instanceName', example='milvus-test'),
-  maxResults?: int32(name='maxResults', example='100'),
-  nextToken?: string(name='nextToken', example='None'),
-  pageNumber?: int32(name='pageNumber', example='1'),
-  pageSize?: int32(name='pageSize', example='10'),
-  resourceGroupId?: string(name='resourceGroupId', example='rg-123xxx'),
+  regionId?: string(name='RegionId', description='The region ID.', example='cn-beijing'),
+  instanceId?: string(name='instanceId', description='The cluster ID.', example='c-123xxx'),
+  instanceName?: string(name='instanceName', description='The cluster name.', example='milvus-test'),
+  maxResults?: int32(name='maxResults', description='The maximum number of records to retrieve in a single request.', example='100'),
+  nextToken?: string(name='nextToken', description='The pagination token for the next request (not currently enabled).', example='None'),
+  pageNumber?: int32(name='pageNumber', description='The page number.', example='1'),
+  pageSize?: int32(name='pageSize', description='The page size.', example='10'),
+  resourceGroupId?: string(name='resourceGroupId', description='The resource group ID.', example='rg-123xxx'),
   tag?: [ 
     {
-      key?: string(name='key', example='k1'),
-      value?: string(name='value', example='v1'),
+      key?: string(name='key', description='The tag key.', example='k1'),
+      value?: string(name='value', description='The tag value.', example='v1'),
     }
-  ](name='tag'),
+  ](name='tag', description='The list of tags in JSON format.'),
 }
 
 model ListInstancesV2ShrinkRequest {
-  regionId?: string(name='RegionId', example='cn-beijing'),
-  instanceId?: string(name='instanceId', example='c-123xxx'),
-  instanceName?: string(name='instanceName', example='milvus-test'),
-  maxResults?: int32(name='maxResults', example='100'),
-  nextToken?: string(name='nextToken', example='None'),
-  pageNumber?: int32(name='pageNumber', example='1'),
-  pageSize?: int32(name='pageSize', example='10'),
-  resourceGroupId?: string(name='resourceGroupId', example='rg-123xxx'),
-  tagShrink?: string(name='tag'),
+  regionId?: string(name='RegionId', description='The region ID.', example='cn-beijing'),
+  instanceId?: string(name='instanceId', description='The cluster ID.', example='c-123xxx'),
+  instanceName?: string(name='instanceName', description='The cluster name.', example='milvus-test'),
+  maxResults?: int32(name='maxResults', description='The maximum number of records to retrieve in a single request.', example='100'),
+  nextToken?: string(name='nextToken', description='The pagination token for the next request (not currently enabled).', example='None'),
+  pageNumber?: int32(name='pageNumber', description='The page number.', example='1'),
+  pageSize?: int32(name='pageSize', description='The page size.', example='10'),
+  resourceGroupId?: string(name='resourceGroupId', description='The resource group ID.', example='rg-123xxx'),
+  tagShrink?: string(name='tag', description='The list of tags in JSON format.'),
 }
 
 model ListInstancesV2ResponseBody = {
-  requestId?: string(name='RequestId', example='ABCD-1234-5678-EFGH'),
+  requestId?: string(name='RequestId', description='The request ID.', example='ABCD-1234-5678-EFGH'),
   instances?: [
     InstanceDetail
-  ](name='instances'),
-  maxResults?: int32(name='maxResults', example='20'),
-  nextToken?: string(name='nextToken', example='None'),
-  success?: boolean(name='success', example='true'),
-  total?: int32(name='total', example='15'),
+  ](name='instances', description='The list of instances.'),
+  maxResults?: int32(name='maxResults', description='The maximum number of records to retrieve in a single request.', example='20'),
+  nextToken?: string(name='nextToken', description='The pagination token (not currently enabled).', example='None'),
+  success?: boolean(name='success', description='Indicates whether the request was successful.', example='true'),
+  total?: int32(name='total', description='The total number of records.', example='15'),
 }
 
 model ListInstancesV2Response = {
@@ -1321,7 +1456,7 @@ model ListInstancesV2Response = {
 }
 
 /**
- * @summary 根据集群ID或者名称搜索集群
+ * @summary Searches for clusters by cluster ID or name.
  *
  * @param tmpReq ListInstancesV2Request
  * @param headers map
@@ -1384,7 +1519,7 @@ async function listInstancesV2WithOptions(tmpReq: ListInstancesV2Request, header
 }
 
 /**
- * @summary 根据集群ID或者名称搜索集群
+ * @summary Searches for clusters by cluster ID or name.
  *
  * @param request ListInstancesV2Request
  * @return ListInstancesV2Response
@@ -1396,23 +1531,23 @@ async function listInstancesV2(request: ListInstancesV2Request): ListInstancesV2
 }
 
 model ModifyInstanceConfigRequest {
-  instanceId?: string(name='InstanceId', description='The ID of the instance.
+  instanceId?: string(name='InstanceId', description='The instance ID.
 
 This parameter is required.', example='c-123xxx'),
-  reason?: string(name='Reason', description='The reason for the update.
+  reason?: string(name='Reason', description='The reason for the modification.
 
 This parameter is required.', example='for test'),
-  userConfig?: string(name='UserConfig', description='User-defined configuration.', example='dataCoord:\\\\n  segment:\\\\n    maxSize: 1024'),
+  userConfig?: string(name='UserConfig', description='The custom user configuration.', example='dataCoord:\\\\n  segment:\\\\n    maxSize: 1024'),
 }
 
 model ModifyInstanceConfigResponseBody = {
-  accessDeniedDetail?: string(name='AccessDeniedDetail', description='The detailed information about the failed permission verification.', example='{     "PolicyType": "AccountLevelIdentityBasedPolicy",     "AuthPrincipalOwnerId": "xxxx",     "EncodedDiagnosticMessage": "xxxx",     "AuthPrincipalType": "SubUser",     "AuthPrincipalDisplayName": "xxxx",     "NoPermissionType": "ImplicitDeny",     "AuthAction": "milvus:xxxx" }'),
-  data?: boolean(name='Data', description='The returned result.', example='true'),
-  errCode?: string(name='ErrCode', description='The error code returned.', example='Instance.NotFound'),
+  accessDeniedDetail?: string(name='AccessDeniedDetail', description='The details of the access denied error.', example='{     "PolicyType": "AccountLevelIdentityBasedPolicy",     "AuthPrincipalOwnerId": "xxxx",     "EncodedDiagnosticMessage": "xxxx",     "AuthPrincipalType": "SubUser",     "AuthPrincipalDisplayName": "xxxx",     "NoPermissionType": "ImplicitDeny",     "AuthAction": "milvus:xxxx" }'),
+  data?: boolean(name='Data', description='The returned data.', example='true'),
+  errCode?: string(name='ErrCode', description='The error code.', example='Instance.NotFound'),
   errMessage?: string(name='ErrMessage', description='The error message.', example='Failed to find instance c-123xxx'),
   httpStatusCode?: int32(name='HttpStatusCode', description='The HTTP status code.', example='200'),
-  requestId?: string(name='RequestId', description='The ID of the request.', example='ABCD-1234-5678-EFGH'),
-  success?: boolean(name='Success', description='Indicates whether the call was successful.', example='true'),
+  requestId?: string(name='RequestId', description='The request ID.', example='ABCD-1234-5678-EFGH'),
+  success?: boolean(name='Success', description='Indicates whether the request was successful.', example='true'),
 }
 
 model ModifyInstanceConfigResponse = {
@@ -1422,7 +1557,7 @@ model ModifyInstanceConfigResponse = {
 }
 
 /**
- * @summary Update the configuration parameters of each component of Milvus.
+ * @summary Modifies the configuration parameters for Milvus components.
  *
  * @param request ModifyInstanceConfigRequest
  * @param headers map
@@ -1462,7 +1597,7 @@ async function modifyInstanceConfigWithOptions(request: ModifyInstanceConfigRequ
 }
 
 /**
- * @summary Update the configuration parameters of each component of Milvus.
+ * @summary Modifies the configuration parameters for Milvus components.
  *
  * @param request ModifyInstanceConfigRequest
  * @return ModifyInstanceConfigResponse
@@ -1474,19 +1609,27 @@ async function modifyInstanceConfig(request: ModifyInstanceConfigRequest): Modif
 }
 
 model TagResourcesRequest {
-  regionId?: string(name='RegionId', description='This parameter is required.', example='cn-zhangjiakou'),
-  resourceId?: [ string ](name='ResourceId', description='This parameter is required.'),
-  resourceType?: string(name='ResourceType', description='This parameter is required.', example='instance'),
+  regionId?: string(name='RegionId', description='The region ID.
+
+This parameter is required.', example='cn-zhangjiakou'),
+  resourceId?: [ string ](name='ResourceId', description='The IDs of the resources. You can specify up to 50 resource IDs.
+
+This parameter is required.'),
+  resourceType?: string(name='ResourceType', description='The resource type.
+
+This parameter is required.', example='instance'),
   tag?: [ 
     {
-      key?: string(name='Key', example='k1'),
-      value?: string(name='Value', example='v1'),
+      key?: string(name='Key', description='The tag key.', example='k1'),
+      value?: string(name='Value', description='The tag value.', example='v1'),
     }
-  ](name='Tag', description='This parameter is required.'),
+  ](name='Tag', description='The tags to add to the resources. You can add up to 20 tags.
+
+This parameter is required.'),
 }
 
 model TagResourcesResponseBody = {
-  requestId?: string(name='RequestId', example='ABCD-1234-5678-EFGH'),
+  requestId?: string(name='RequestId', description='The ID of the request.', example='ABCD-1234-5678-EFGH'),
 }
 
 model TagResourcesResponse = {
@@ -1496,7 +1639,7 @@ model TagResourcesResponse = {
 }
 
 /**
- * @summary 打标
+ * @summary Adds tags to resources.
  *
  * @param request TagResourcesRequest
  * @param headers map
@@ -1539,7 +1682,7 @@ async function tagResourcesWithOptions(request: TagResourcesRequest, headers: ma
 }
 
 /**
- * @summary 打标
+ * @summary Adds tags to resources.
  *
  * @param request TagResourcesRequest
  * @return TagResourcesResponse
@@ -1551,23 +1694,35 @@ async function tagResources(request: TagResourcesRequest): TagResourcesResponse 
 }
 
 model UnTagResourcesRequest {
-  all?: boolean(name='All', example='false'),
-  regionId?: string(name='RegionId', description='This parameter is required.', example='cn-beijing'),
-  resourceId?: [ string ](name='ResourceId', description='This parameter is required.'),
-  resourceType?: string(name='ResourceType', description='This parameter is required.', example='instance'),
-  tagKey?: [ string ](name='TagKey'),
+  all?: boolean(name='All', description='Specifies whether to remove all tags from the resources. This parameter takes effect only when the TagKey parameter is left empty. Valid values: true and false (default).', example='false'),
+  regionId?: string(name='RegionId', description='The region ID.
+
+This parameter is required.', example='cn-beijing'),
+  resourceId?: [ string ](name='ResourceId', description='The resource IDs. A maximum of 50 resource IDs are supported.
+
+This parameter is required.'),
+  resourceType?: string(name='ResourceType', description='The resource type.
+
+This parameter is required.', example='instance'),
+  tagKey?: [ string ](name='TagKey', description='The tag keys to remove. A maximum of 20 tag keys are supported.'),
 }
 
 model UnTagResourcesShrinkRequest {
-  all?: boolean(name='All', example='false'),
-  regionId?: string(name='RegionId', description='This parameter is required.', example='cn-beijing'),
-  resourceIdShrink?: string(name='ResourceId', description='This parameter is required.'),
-  resourceType?: string(name='ResourceType', description='This parameter is required.', example='instance'),
-  tagKeyShrink?: string(name='TagKey'),
+  all?: boolean(name='All', description='Specifies whether to remove all tags from the resources. This parameter takes effect only when the TagKey parameter is left empty. Valid values: true and false (default).', example='false'),
+  regionId?: string(name='RegionId', description='The region ID.
+
+This parameter is required.', example='cn-beijing'),
+  resourceIdShrink?: string(name='ResourceId', description='The resource IDs. A maximum of 50 resource IDs are supported.
+
+This parameter is required.'),
+  resourceType?: string(name='ResourceType', description='The resource type.
+
+This parameter is required.', example='instance'),
+  tagKeyShrink?: string(name='TagKey', description='The tag keys to remove. A maximum of 20 tag keys are supported.'),
 }
 
 model UnTagResourcesResponseBody = {
-  requestId?: string(name='RequestId', example='ABCD-1234-5678-EFGH'),
+  requestId?: string(name='RequestId', description='The request ID.', example='ABCD-1234-5678-EFGH'),
 }
 
 model UnTagResourcesResponse = {
@@ -1577,7 +1732,7 @@ model UnTagResourcesResponse = {
 }
 
 /**
- * @summary 删除标签
+ * @summary Remove resource tags.
  *
  * @param tmpReq UnTagResourcesRequest
  * @param headers map
@@ -1631,7 +1786,7 @@ async function unTagResourcesWithOptions(tmpReq: UnTagResourcesRequest, headers:
 }
 
 /**
- * @summary 删除标签
+ * @summary Remove resource tags.
  *
  * @param request UnTagResourcesRequest
  * @return UnTagResourcesResponse
@@ -1643,18 +1798,18 @@ async function unTagResources(request: UnTagResourcesRequest): UnTagResourcesRes
 }
 
 model UpdateAccessControlListRequest {
-  aclId?: string(name='AclId', description='The ID of public network access control', example='acl-123xxx'),
-  cidr?: string(name='Cidr', description='The CIDR blocks.', example='192.168.1.0/24,172.16.0.0/16'),
-  instanceId?: string(name='InstanceId', description='The ID of the instance.', example='c-123xxx'),
+  aclId?: string(name='AclId', description='The public access control ID.', example='acl-123xxx'),
+  cidr?: string(name='Cidr', description='The CIDR block.', example='``192.168.**.**``/24,``172.1.**.**``/16'),
+  instanceId?: string(name='InstanceId', description='The instance ID.', example='c-123xxx'),
 }
 
 model UpdateAccessControlListResponseBody = {
-  accessDeniedDetail?: string(name='AccessDeniedDetail', description='The detailed information about the failed permission verification.', example='{     "PolicyType": "AccountLevelIdentityBasedPolicy",     "AuthPrincipalOwnerId": "xxxx",     "EncodedDiagnosticMessage": "xxxx",     "AuthPrincipalType": "SubUser",     "AuthPrincipalDisplayName": "xxxx",     "NoPermissionType": "ImplicitDeny",     "AuthAction": "milvus:xxxx" }'),
-  data?: boolean(name='Data', description='The returned result.', example='true'),
+  accessDeniedDetail?: string(name='AccessDeniedDetail', description='The details of the access denial.', example='{     "PolicyType": "AccountLevelIdentityBasedPolicy",     "AuthPrincipalOwnerId": "xxxx",     "EncodedDiagnosticMessage": "xxxx",     "AuthPrincipalType": "SubUser",     "AuthPrincipalDisplayName": "xxxx",     "NoPermissionType": "ImplicitDeny",     "AuthAction": "milvus:xxxx" }'),
+  data?: boolean(name='Data', description='The returned data.', example='true'),
   errMessage?: string(name='ErrMessage', description='The error message.', example='The format of cidr is illegal.'),
-  errorCode?: string(name='ErrorCode', description='The error code returned.', example='ILLEGAL.MilvusCidrFormat'),
-  httpStatusCode?: int32(name='HttpStatusCode', description='The HTTP status code.', example='200'),
-  requestId?: string(name='RequestId', description='The ID of the request.', example='ABCD-1234-5678-EFGH'),
+  errorCode?: string(name='ErrorCode', description='The error code.', example='ILLEGAL.MilvusCidrFormat'),
+  httpStatusCode?: int32(name='HttpStatusCode', description='The HTTP status code of the request.', example='200'),
+  requestId?: string(name='RequestId', description='The request ID.', example='ABCD-1234-5678-EFGH'),
   success?: boolean(name='Success', description='Indicates whether the request was successful.', example='true'),
 }
 
@@ -1665,7 +1820,7 @@ model UpdateAccessControlListResponse = {
 }
 
 /**
- * @summary Configure Public IP Address Whitelist
+ * @summary Sets the IP address whitelist for public access to a Milvus instance.
  *
  * @param request UpdateAccessControlListRequest
  * @param headers map
@@ -1705,7 +1860,7 @@ async function updateAccessControlListWithOptions(request: UpdateAccessControlLi
 }
 
 /**
- * @summary Configure Public IP Address Whitelist
+ * @summary Sets the IP address whitelist for public access to a Milvus instance.
  *
  * @param request UpdateAccessControlListRequest
  * @return UpdateAccessControlListResponse
@@ -1717,19 +1872,19 @@ async function updateAccessControlList(request: UpdateAccessControlListRequest):
 }
 
 model UpdateAclGroupCidrsRequest {
-  groupName?: string(name='groupName'),
-  instanceId?: string(name='instanceId', example='c-xxxx'),
-  newCidrs?: string(name='newCidrs', example='140.205.11.0/24,140.205.11.2'),
+  groupName?: string(name='groupName', description='The name of the allow list group.'),
+  instanceId?: string(name='instanceId', description='The instance ID.', example='c-xxxx'),
+  newCidrs?: string(name='newCidrs', description='The new CIDR blocks for the allow list group. To specify multiple CIDR blocks, separate them with a comma.', example='140.205.11.0/24,140.205.11.2'),
 }
 
 model UpdateAclGroupCidrsResponseBody = {
-  accessDeniedDetail?: string(name='accessDeniedDetail', example='None'),
-  data?: boolean(name='data', example='true'),
-  errCode?: string(name='errCode', example='0'),
-  errMessage?: string(name='errMessage', example='[RDS%22]'),
-  httpStatusCode?: int32(name='httpStatusCode', example='200'),
-  requestId?: string(name='requestId', example='CB356AEE-6B3F-5FC8-9C2C-7B2D881EA9E2'),
-  success?: boolean(name='success', example='true'),
+  accessDeniedDetail?: string(name='accessDeniedDetail', description='Details about why access was denied. Returned only when RAM denies access due to insufficient permissions.', example='None'),
+  data?: boolean(name='data', description='A value of `true` indicates that the operation was successful.', example='true'),
+  errCode?: string(name='errCode', description='The error code.', example='0'),
+  errMessage?: string(name='errMessage', description='The error message.', example='[RDS%22]'),
+  httpStatusCode?: int32(name='httpStatusCode', description='The HTTP status code.', example='200'),
+  requestId?: string(name='requestId', description='The request ID.', example='CB356AEE-6B3F-5FC8-9C2C-7B2D881EA9E2'),
+  success?: boolean(name='success', description='Indicates whether the request was successful.', example='true'),
 }
 
 model UpdateAclGroupCidrsResponse = {
@@ -1739,7 +1894,7 @@ model UpdateAclGroupCidrsResponse = {
 }
 
 /**
- * @summary 修改分组内的白名单
+ * @summary Modifies the CIDR blocks in a specified allow list group.
  *
  * @param request UpdateAclGroupCidrsRequest
  * @param headers map
@@ -1779,7 +1934,7 @@ async function updateAclGroupCidrsWithOptions(request: UpdateAclGroupCidrsReques
 }
 
 /**
- * @summary 修改分组内的白名单
+ * @summary Modifies the CIDR blocks in a specified allow list group.
  *
  * @param request UpdateAclGroupCidrsRequest
  * @return UpdateAclGroupCidrsResponse
@@ -1791,30 +1946,44 @@ async function updateAclGroupCidrs(request: UpdateAclGroupCidrsRequest): UpdateA
 }
 
 model UpdateInstanceRequest {
-  regionId?: string(name='RegionId', example='cn-beijing'),
-  autoBackup?: boolean(name='autoBackup', example='true'),
+  regionId?: string(name='RegionId', description='The region ID.', example='cn-beijing'),
+  autoBackup?: boolean(name='autoBackup', description='Specifies whether to enable automatic backup.', example='true'),
   autoPay?: boolean(name='autoPay'),
   components?: [ 
     {
-      cuNum?: int32(name='cuNum', description='This parameter is required.', example='8'),
+      cuNum?: int32(name='cuNum', description='The number of compute units (CUs).
+
+This parameter is required.', example='8'),
       cuType?: string(name='cuType'),
+      dataDisk?: {
+        enabled?: boolean(name='enabled', example='true'),
+        performanceLevel?: string(name='performanceLevel', example='PL1'),
+        size?: int32(name='size', example='100'),
+        storageClass?: string(name='storageClass', example='alicloud-disk-essd-pl1'),
+      }(name='dataDisk'),
       payType?: string(name='payType'),
-      replica?: int32(name='replica', description='This parameter is required.', example='1'),
-      type?: string(name='type', description='This parameter is required.', example='standalone'),
+      replica?: int32(name='replica', description='The number of replicas.
+
+This parameter is required.', example='1'),
+      type?: string(name='type', description='The component type.
+
+This parameter is required.', example='standalone'),
     }
-  ](name='components'),
-  configuration?: string(name='configuration', example='rootCoord:\\\\n  maxDatabaseNum: 64'),
-  ha?: boolean(name='ha', example='true'),
-  instanceId?: string(name='instanceId', description='This parameter is required.', example='c-xxxx'),
-  instanceName?: string(name='instanceName', example='milvus-test'),
-  clientToken?: string(name='clientToken', example='xxx'),
+  ](name='components', description='The component information.'),
+  configuration?: string(name='configuration', description='The configuration information.', example='rootCoord:\\\\n  maxDatabaseNum: 64'),
+  ha?: boolean(name='ha', description='Specifies whether to enable high availability.', example='true'),
+  instanceId?: string(name='instanceId', description='The instance ID.
+
+This parameter is required.', example='c-xxxx'),
+  instanceName?: string(name='instanceName', description='The instance name.', example='milvus-test'),
+  clientToken?: string(name='clientToken', description='The client token that is used to ensure the idempotence of the request. This parameter value is generated by the client and must be unique among different requests. The value can be up to 64 ASCII characters in length.', example='xxx'),
 }
 
 model UpdateInstanceResponseBody = {
-  requestId?: string(name='RequestId', example='ABCD-1234-5678-EFGH'),
-  data?: boolean(name='data', example='true'),
+  requestId?: string(name='RequestId', description='The request ID.', example='ABCD-1234-5678-EFGH'),
+  data?: boolean(name='data', description='The operation result.', example='true'),
   orderId?: string(name='orderId'),
-  success?: boolean(name='success', example='true'),
+  success?: boolean(name='success', description='Indicates whether the request was successful.', example='true'),
 }
 
 model UpdateInstanceResponse = {
@@ -1824,7 +1993,7 @@ model UpdateInstanceResponse = {
 }
 
 /**
- * @summary 更新实例
+ * @summary Updates an instance.
  *
  * @param request UpdateInstanceRequest
  * @param headers map
@@ -1885,7 +2054,7 @@ async function updateInstanceWithOptions(request: UpdateInstanceRequest, headers
 }
 
 /**
- * @summary 更新实例
+ * @summary Updates an instance.
  *
  * @param request UpdateInstanceRequest
  * @return UpdateInstanceResponse
@@ -1897,7 +2066,7 @@ async function updateInstance(request: UpdateInstanceRequest): UpdateInstanceRes
 }
 
 model UpdateInstanceNameRequest {
-  clusterName?: string(name='ClusterName', description='The instance ID.
+  clusterName?: string(name='ClusterName', description='The name of the instance.
 
 This parameter is required.', example='milvus-test'),
   instanceId?: string(name='InstanceId', description='The ID of the instance.
@@ -1906,13 +2075,13 @@ This parameter is required.', example='c-123xxx'),
 }
 
 model UpdateInstanceNameResponseBody = {
-  accessDeniedDetail?: string(name='AccessDeniedDetail', description='The detailed information about the failed permission verification.', example='{     "PolicyType": "AccountLevelIdentityBasedPolicy",     "AuthPrincipalOwnerId": "xxxx",     "EncodedDiagnosticMessage": "xxxx",     "AuthPrincipalType": "SubUser",     "AuthPrincipalDisplayName": "xxxx",     "NoPermissionType": "ImplicitDeny",     "AuthAction": "milvus:xxxx" }'),
-  data?: boolean(name='Data', description='The returned result.', example='true'),
-  errCode?: string(name='ErrCode', description='The error code returned.', example='Instance.NotFound'),
+  accessDeniedDetail?: string(name='AccessDeniedDetail', description='Details about the access denied error.', example='{     "PolicyType": "AccountLevelIdentityBasedPolicy",     "AuthPrincipalOwnerId": "xxxx",     "EncodedDiagnosticMessage": "xxxx",     "AuthPrincipalType": "SubUser",     "AuthPrincipalDisplayName": "xxxx",     "NoPermissionType": "ImplicitDeny",     "AuthAction": "milvus:xxxx" }'),
+  data?: boolean(name='Data', description='The returned data.', example='true'),
+  errCode?: string(name='ErrCode', description='The error code.', example='Instance.NotFound'),
   errMessage?: string(name='ErrMessage', description='The error message.', example='Failed to find instance c-123xxx'),
   httpStatusCode?: int32(name='HttpStatusCode', description='The HTTP status code.', example='200'),
-  requestId?: string(name='RequestId', description='The ID of the request.', example='ABCD-1234-5678-EFGH'),
-  success?: boolean(name='Success', description='Indicates whether the request was successful.', example='true'),
+  requestId?: string(name='RequestId', description='The request ID.', example='ABCD-1234-5678-EFGH'),
+  success?: boolean(name='Success', description='Indicates whether the request is successful.', example='true'),
 }
 
 model UpdateInstanceNameResponse = {
@@ -1922,7 +2091,7 @@ model UpdateInstanceNameResponse = {
 }
 
 /**
- * @summary Modifies the name of an instance.
+ * @summary Changes the name of an instance.
  *
  * @param request UpdateInstanceNameRequest
  * @param headers map
@@ -1959,7 +2128,7 @@ async function updateInstanceNameWithOptions(request: UpdateInstanceNameRequest,
 }
 
 /**
- * @summary Modifies the name of an instance.
+ * @summary Changes the name of an instance.
  *
  * @param request UpdateInstanceNameRequest
  * @return UpdateInstanceNameResponse
@@ -1971,27 +2140,27 @@ async function updateInstanceName(request: UpdateInstanceNameRequest): UpdateIns
 }
 
 model UpdatePublicNetworkStatusRequest {
-  cidr?: string(name='Cidr', description='The CIDR blocks.', example='``192.168.**.**``/24,``172.1.**.**``/16'),
-  componentType?: string(name='ComponentType', description='The component type. Valid values:
+  cidr?: string(name='Cidr', description='The CIDR block.', example='``192.168.**.**``/24,``172.1.**.**``/16'),
+  componentType?: string(name='ComponentType', description='The component type. Valid value:
 
-*   Proxy
+- Proxy
 
 This parameter is required.', example='Proxy'),
-  instanceId?: string(name='InstanceId', description='The ID of the instance.
+  instanceId?: string(name='InstanceId', description='The instance ID.
 
 This parameter is required.', example='c-123xxx'),
-  publicNetworkEnabled?: boolean(name='PublicNetworkEnabled', description='Enable /disable the Internet.
+  publicNetworkEnabled?: boolean(name='PublicNetworkEnabled', description='Specifies whether to enable public network access.
 
 This parameter is required.', example='true'),
 }
 
 model UpdatePublicNetworkStatusResponseBody = {
-  accessDeniedDetail?: string(name='AccessDeniedDetail', description='The detailed information about the failed permission verification.', example='{     "PolicyType": "AccountLevelIdentityBasedPolicy",     "AuthPrincipalOwnerId": "xxxx",     "EncodedDiagnosticMessage": "xxxx",     "AuthPrincipalType": "SubUser",     "AuthPrincipalDisplayName": "xxxx",     "NoPermissionType": "ImplicitDeny",     "AuthAction": "milvus:xxxx" }'),
-  data?: boolean(name='Data', description='The returned result.', example='true'),
-  errCode?: string(name='ErrCode', description='The error code returned.', example='Failed to find instance'),
+  accessDeniedDetail?: string(name='AccessDeniedDetail', description='Details about the access denied error.', example='{     "PolicyType": "AccountLevelIdentityBasedPolicy",     "AuthPrincipalOwnerId": "xxxx",     "EncodedDiagnosticMessage": "xxxx",     "AuthPrincipalType": "SubUser",     "AuthPrincipalDisplayName": "xxxx",     "NoPermissionType": "ImplicitDeny",     "AuthAction": "milvus:xxxx" }'),
+  data?: boolean(name='Data', description='The returned data.', example='true'),
+  errCode?: string(name='ErrCode', description='The error code.', example='Failed to find instance'),
   errMessage?: string(name='ErrMessage', description='The error message.', example='Failed to find instance c-123xxx'),
   httpStatusCode?: int32(name='HttpStatusCode', description='The HTTP status code.', example='200'),
-  requestId?: string(name='RequestId', description='The ID of the request.', example='ABCD-1234-5678-EFGH'),
+  requestId?: string(name='RequestId', description='The request ID.', example='ABCD-1234-5678-EFGH'),
   success?: boolean(name='Success', description='Indicates whether the request was successful.', example='true'),
 }
 
@@ -2002,7 +2171,7 @@ model UpdatePublicNetworkStatusResponse = {
 }
 
 /**
- * @summary Enable or disable Internet access for Milvus.
+ * @summary Enables or disables public network access for a Milvus instance.
  *
  * @param request UpdatePublicNetworkStatusRequest
  * @param headers map
@@ -2045,7 +2214,7 @@ async function updatePublicNetworkStatusWithOptions(request: UpdatePublicNetwork
 }
 
 /**
- * @summary Enable or disable Internet access for Milvus.
+ * @summary Enables or disables public network access for a Milvus instance.
  *
  * @param request UpdatePublicNetworkStatusRequest
  * @return UpdatePublicNetworkStatusResponse

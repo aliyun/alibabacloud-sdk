@@ -21,13 +21,28 @@ init(configuration: ClientConfiguration){
   @handler = new TeaAsyncHandler(configuration);
   @product = 'milvus';
   @version = '2023-10-12';
-  @endpointRule = '';
+  @endpointRule = 'regional';
   @endpointMap = {
+    'eu-central-1' = 'milvus.eu-central-1.aliyuncs.com',
+    'cn-zhangjiakou' = 'milvus.cn-zhangjiakou.aliyuncs.com',
+    'cn-wulanchabu' = 'milvus.cn-wulanchabu.aliyuncs.com',
+    'cn-shenzhen' = 'milvus.cn-shenzhen.aliyuncs.com',
+    'cn-shanghai' = 'milvus.cn-shanghai.aliyuncs.com',
+    'cn-hongkong' = 'milvus.cn-hongkong.aliyuncs.com',
+    'cn-hangzhou' = 'milvus.cn-hangzhou.aliyuncs.com',
+    'cn-beijing' = 'milvus.cn-beijing.aliyuncs.com',
+    'ap-southeast-1' = 'milvus.ap-southeast-1.aliyuncs.com',
   };
 }
 
 function close(): void {
   @handler.close();
+}
+
+model ComponentCapacityConstraint {
+  componentType?: string(name='componentType'),
+  maxCapacity?: int32(name='maxCapacity'),
+  minCapacity?: int32(name='minCapacity'),
 }
 
 model DBVersionDetail {
@@ -54,14 +69,61 @@ model DBVersionDetail {
   version?: string(name='version'),
 }
 
+model DlfDatabase {
+  databaseName?: string(name='databaseName', example='my_database'),
+  description?: string(name='description', example='Test database'),
+  tableCount?: int32(name='tableCount', example='10'),
+}
+
+model DlfFieldSchema {
+  comment?: string(name='comment', example='Primary key field'),
+  dimension?: int32(name='dimension', example='128'),
+  dlfFieldType?: string(name='dlfFieldType', example='BIGINT'),
+  fieldName?: string(name='fieldName', example='id'),
+  isPrimaryKey?: boolean(name='isPrimaryKey', example='true'),
+  isSupported?: boolean(name='isSupported', example='true'),
+  isVectorField?: boolean(name='isVectorField', example='false'),
+  milvusFieldType?: string(name='milvusFieldType', example='Int64'),
+  nullable?: boolean(name='nullable', example='true'),
+  unsupportedReason?: string(name='unsupportedReason', example='Unsupported type'),
+}
+
+model DlfInstance {
+  instanceId?: string(name='instanceId', example='dlf-cn-xxx'),
+  instanceName?: string(name='instanceName', example='my-dlf-instance'),
+  instanceType?: string(name='instanceType', example='DLF_2_0'),
+  regionId?: string(name='regionId', example='cn-hangzhou'),
+  status?: string(name='status', example='RUNNING'),
+}
+
+model DlfTable {
+  description?: string(name='description', example='Test table'),
+  location?: string(name='location', example='oss://bucket/path'),
+  tableFormat?: string(name='tableFormat', example='PAIMON'),
+  tableName?: string(name='tableName', example='my_table'),
+  tableType?: string(name='tableType', example='MANAGED'),
+}
+
 model InstanceDetail {
   autoBackup?: boolean(name='autoBackup'),
   components?: [ 
     {
       cuNum?: int32(name='cuNum'),
       cuType?: string(name='cuType'),
+      dataDisk?: {
+        enabled?: boolean(name='enabled'),
+        performanceLevel?: string(name='performanceLevel'),
+        size?: int32(name='size'),
+        storageClass?: string(name='storageClass'),
+      }(name='dataDisk'),
       diskSizeType?: string(name='diskSizeType'),
       payType?: string(name='payType'),
+      podsList?: [ 
+        {
+          podId?: string(name='podId'),
+          podName?: string(name='podName'),
+        }
+      ](name='podsList'),
       replica?: int32(name='replica'),
       type?: string(name='type'),
     }
@@ -147,6 +209,19 @@ model PromotionInfo {
   selected?: boolean(name='selected'),
 }
 
+model RamAccount {
+  bindable?: boolean(name='bindable', example='true'),
+  displayName?: string(name='displayName', example='Test User'),
+  uid?: string(name='uid', example='1234567890123456'),
+  userName?: string(name='userName', example='test-user'),
+}
+
+model RamBindingEntry {
+  boundUid?: string(name='boundUid', example='1234567890123456'),
+  boundUserName?: string(name='boundUserName', example='test-user'),
+  milvusUsername?: string(name='milvusUsername', example='root'),
+}
+
 model ScalingActivity {
   componentTypes?: string(name='componentTypes'),
   description?: string(name='description'),
@@ -177,6 +252,23 @@ model ScalingRule {
   scalingRuleName?: string(name='scalingRuleName'),
   startTime?: long(name='startTime'),
   timeZone?: string(name='timeZone'),
+}
+
+model OpenStructDlfSnapshotDto {
+  changelogRecordCount?: long(name='changelogRecordCount', example='500'),
+  commitKind?: string(name='commitKind', example='APPEND'),
+  deltaRecordCount?: long(name='deltaRecordCount', example='1000'),
+  schemaId?: long(name='schemaId', example='1'),
+  snapshotId?: long(name='snapshotId', example='123456789'),
+  timeMillis?: long(name='timeMillis', example='1711334400000'),
+  totalRecordCount?: long(name='totalRecordCount', example='100000'),
+}
+
+model OpenStructDlfTagDto {
+  snapshotId?: long(name='snapshotId', example='123456789'),
+  tagName?: string(name='tagName', example='milvus-auto-20260101'),
+  timeMillis?: long(name='timeMillis', example='1711334400000'),
+  totalRecordCount?: long(name='totalRecordCount', example='100000'),
 }
 
 model ChangeResourceGroupRequest {
@@ -288,6 +380,12 @@ model CreateInstanceRequest {
     {
       cuNum: int32(name='cuNum', description='This parameter is required.', example='8'),
       cuType?: string(name='cuType', example='general'),
+      dataDisk?: {
+        enabled?: boolean(name='enabled', example='true'),
+        performanceLevel?: string(name='performanceLevel', example='PL1'),
+        size?: int32(name='size', example='100'),
+        storageClass?: string(name='storageClass', example='alicloud-disk-essd-pl1'),
+      }(name='dataDisk'),
       diskSizeType?: string(name='diskSizeType'),
       replica: int32(name='replica', description='This parameter is required.', example='1'),
       type: string(name='type', description='This parameter is required.', example='standalone'),
@@ -500,6 +598,15 @@ model GetInstanceDetailResponseBody = {
           payType?: string(name='PayType'),
           replica?: int32(name='Replica', description='The number of replicas.', example='2'),
           zoneId?: string(name='ZoneId'),
+          dataDiskEnabled?: boolean(name='dataDiskEnabled', example='true'),
+          dataDiskSize?: int32(name='dataDiskSize', example='100'),
+          dataDiskStorageClass?: string(name='dataDiskStorageClass', example='alicloud-disk-essd-pl1'),
+          podsList?: [ 
+            {
+              podId?: string(name='podId'),
+              podName?: string(name='podName'),
+            }
+          ](name='podsList'),
         }
       ](name='MilvusResourceInfoList', description='The resource details.'),
       ossStorageSize?: string(name='OssStorageSize', description='The size of the data stored in OSS.', example='125.15 GB'),
@@ -575,6 +682,7 @@ model GetInstanceDetailResponseBody = {
     vpcId?: string(name='VpcId', description='The virtual private cloud (VPC) ID.', example='vpc-123xxx'),
     vswId?: string(name='VswId', description='The ID of the vSwitch.', example='vsw-123xxx'),
     zoneId?: string(name='ZoneId', description='The zone.', example='cn-beijing-g'),
+    maintainablePeriodTimeZone?: string(name='maintainablePeriodTimeZone'),
   }(name='Data', description='The returned result.'),
   errCode?: string(name='ErrCode', description='The error code returned.', example='Instance.NotFound'),
   errMessage?: string(name='ErrMessage', description='The error message.', example='Failed to find instance c-123xxx'),
@@ -950,6 +1058,12 @@ model UpdateInstanceRequest {
     {
       cuNum: int32(name='cuNum', description='This parameter is required.', example='8'),
       cuType?: string(name='cuType'),
+      dataDisk?: {
+        enabled?: boolean(name='enabled', example='true'),
+        performanceLevel?: string(name='performanceLevel', example='PL1'),
+        size?: int32(name='size', example='100'),
+        storageClass?: string(name='storageClass', example='alicloud-disk-essd-pl1'),
+      }(name='dataDisk'),
       payType?: string(name='payType'),
       replica: int32(name='replica', description='This parameter is required.', example='1'),
       type: string(name='type', description='This parameter is required.', example='standalone'),
