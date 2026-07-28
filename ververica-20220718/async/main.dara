@@ -85,6 +85,66 @@ model AsyncResourcePlanOperationResult {
   ticketStatus?: string(name='ticketStatus', example='FINISHED'),
 }
 
+model AutopilotPolicy {
+  advancedRules?: {
+    enabled?: boolean(name='enabled'),
+    parameters?: map[string]string(name='parameters'),
+  }(name='advancedRules'),
+  limits?: {
+    coolDownMinutes?: long(name='coolDownMinutes'),
+    jobMaxCpu?: double(name='jobMaxCpu'),
+    jobMaxMemory?: string(name='jobMaxMemory'),
+    jobMaxParallelism?: int32(name='jobMaxParallelism'),
+    jobMinParallelism?: int32(name='jobMinParallelism'),
+  }(name='limits'),
+  scaleDownRules?: {
+    memoryScaleDownRule?: {
+      enabled?: boolean(name='enabled'),
+      memUsageScaleDownSampleInterval?: string(name='memUsageScaleDownSampleInterval'),
+      memUsageScaleDownThreshold?: double(name='memUsageScaleDownThreshold'),
+    }(name='memoryScaleDownRule'),
+    slotBusyScaleDownRule?: {
+      enabled?: boolean(name='enabled'),
+      slotBusyScaleDownSampleInterval?: string(name='slotBusyScaleDownSampleInterval'),
+      slotBusyScaleDownThreshold?: double(name='slotBusyScaleDownThreshold'),
+    }(name='slotBusyScaleDownRule'),
+  }(name='scaleDownRules'),
+  scaleUpRules?: {
+    delayRule?: {
+      delaySampleInterval?: string(name='delaySampleInterval'),
+      delayThreshold?: string(name='delayThreshold'),
+      enabled?: boolean(name='enabled'),
+    }(name='delayRule'),
+    gcRule?: {
+      enabled?: boolean(name='enabled'),
+      gcSampleInterval?: string(name='gcSampleInterval'),
+      gcTimeRatioThreshold?: double(name='gcTimeRatioThreshold'),
+    }(name='gcRule'),
+    memoryScaleUpRule?: {
+      enabled?: boolean(name='enabled'),
+      memUsageScaleUpThreshold?: double(name='memUsageScaleUpThreshold'),
+    }(name='memoryScaleUpRule'),
+    oomScaleUpRule?: {
+      enabled?: boolean(name='enabled'),
+    }(name='oomScaleUpRule'),
+    slotBusyScaleUpRule?: {
+      enabled?: boolean(name='enabled'),
+      slotBusyScaleUpSampleInterval?: string(name='slotBusyScaleUpSampleInterval'),
+      slotBusyScaleUpThreshold?: double(name='slotBusyScaleUpThreshold'),
+    }(name='slotBusyScaleUpRule'),
+  }(name='scaleUpRules'),
+  silentPeriodConfig?: {
+    enabled?: boolean(name='enabled'),
+    silentPeriods?: [ 
+      {
+        beginTime?: long(name='beginTime'),
+        endTime?: long(name='endTime'),
+        level?: string(name='level'),
+      }
+    ](name='silentPeriods'),
+  }(name='silentPeriodConfig'),
+}
+
 model BasicResourceSetting {
   jobmanagerResourceSettingSpec?: BasicResourceSettingSpec(name='jobmanagerResourceSettingSpec'),
   parallelism?: long(name='parallelism', example='4'),
@@ -978,6 +1038,28 @@ model TableSchema {
   tableName?: string(name='tableName'),
 }
 
+model TuningHistory {
+  actionType?: string(name='actionType'),
+  annotations?: map[string]string(name='annotations'),
+  deploymentName?: string(name='deploymentName'),
+  isHotUpdate?: boolean(name='isHotUpdate'),
+  jobId?: string(name='jobId'),
+  newResourceSetting?: {
+    cpu?: double(name='cpu'),
+    memory?: string(name='memory'),
+    parallelism?: int32(name='parallelism'),
+  }(name='newResourceSetting'),
+  oldResourceSetting?: {
+    cpu?: double(name='cpu'),
+    memory?: string(name='memory'),
+    parallelism?: int32(name='parallelism'),
+  }(name='oldResourceSetting'),
+  triggerTime?: long(name='triggerTime'),
+  tuningId?: string(name='tuningId'),
+  tuningMessage?: string(name='tuningMessage'),
+  tuningState?: string(name='tuningState'),
+}
+
 model UdfArtifact {
   artifactType?: string(name='artifactType'),
   createdAt?: long(name='createdAt'),
@@ -1106,6 +1188,81 @@ model CancelSqlPreviewResponse = {
 async function cancelSqlPreview(request: CancelSqlPreviewRequest): CancelSqlPreviewResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RESTFUL', 'CancelSqlPreview', 'DELETE', '/api/v2/namespaces/{namespace}/sql-preview/cancel', 'json', false, 'json', request);
+}
+
+model ChatAiAgentRequest {
+  namespace: string(name='namespace', description='This parameter is required.', example='test-flink-bigdata-default', position='Path'),
+  hitlDecisions?: [ 
+    {
+      decision?: string(name='decision'),
+      hitlId?: string(name='hitlId'),
+    }
+  ](name='hitlDecisions', position='Body'),
+  refs?: {
+    jobs?: [ 
+      {
+        deploymentId?: string(name='deploymentId', description='Deployment ID', example='2a63abb7-7ae7-4902-9970-fe5cff4bd7c1'),
+        jobId?: string(name='jobId', description='Job ID', example='ccb853c3-1d5a-438d-bf98-346815ad875a'),
+      }
+    ](name='jobs'),
+    skills?: [ string ](name='skills'),
+  }(name='refs', position='Body'),
+  sessionId?: string(name='sessionId', example='019F8CC7-EAD3-5E06-B0BF-3A2A0638B3DD-deliverData-20260723102220-VM8X0A5VZQ', position='Body'),
+  userMessage?: string(name='userMessage', position='Body'),
+  workspace: string(name='workspace', description='This parameter is required.', example='710d6a64d8****', position='Header'),
+}
+
+model ChatAiAgentResponseBody = {
+  completed?: boolean(name='completed'),
+  displayName?: string(name='displayName'),
+  errorMessage?: string(name='errorMessage'),
+  errorType?: string(name='errorType'),
+  event?: string(name='event'),
+  input?: any(name='input'),
+  items?: [ 
+    {
+      args?: any(name='args'),
+      displayName?: string(name='displayName'),
+      hitlId?: string(name='hitlId'),
+      toolName?: string(name='toolName'),
+    }
+  ](name='items'),
+  message?: string(name='message'),
+  sessionId?: string(name='sessionId'),
+  success?: string(name='success'),
+  text?: string(name='text'),
+  toolCallId?: string(name='toolCallId'),
+  toolName?: string(name='toolName'),
+  usage?: {
+    inputTokens?: long(name='inputTokens'),
+    outputTokens?: long(name='outputTokens'),
+    totalTokens?: long(name='totalTokens'),
+  }(name='usage'),
+}
+
+model ChatAiAgentResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ChatAiAgentResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of ChatAiAgent  ChatAiAgentRequest
+  * @return ChatAiAgentResponse
+ */
+async function chatAiAgent(request: ChatAiAgentRequest): ChatAiAgentResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'ChatAiAgent', 'POST', '/advisor/v2/namespaces/{namespace}/ai-agent/stream/agent/v2/chat', 'json', false, 'json', request);
+}
+
+async function chatAiAgentWithAsyncResponseHandler(request: ChatAiAgentRequest, responseHandler: AsyncResponseHandler): ChatAiAgentResponse {
+  @handler.validateRequestModel(request);
+  return @handler.doResponseHandler('RESTFUL', 'ChatAiAgent', 'POST', '/advisor/v2/namespaces/{namespace}/ai-agent/stream/agent/v2/chat', 'json', false, 'json', request, responseHandler);
+}
+
+function chatAiAgentWithResponseIterable(request: ChatAiAgentRequest): iterator[ChatAiAgentResponseBody] {
+  @handler.validateRequestModel(request);
+  yield @handler.doSSERequest('SSE', 'ChatAiAgent', 'POST', '/advisor/v2/namespaces/{namespace}/ai-agent/stream/agent/v2/chat', 'json', false, 'json', request);
 }
 
 model CreateDeploymentRequest {
@@ -2280,6 +2437,39 @@ async function getAppliedScheduledPlan(request: GetAppliedScheduledPlanRequest):
   return @handler.do('RESTFUL', 'GetAppliedScheduledPlan', 'GET', '/api/v2/namespaces/{namespace}/scheduled-plans:getExecutedScheduledPlan', 'json', false, 'json', request);
 }
 
+model GetAutopilotPolicyRequest {
+  namespace: string(name='namespace', description='This parameter is required.', position='Path'),
+  deploymentId: string(name='deploymentId', description='This parameter is required.', position='Path'),
+  workspace: string(name='workspace', description='This parameter is required.', position='Header'),
+}
+
+model GetAutopilotPolicyResponseBody = {
+  data?: {
+    enabled?: boolean(name='enabled', example='false'),
+    policyConfig?: AutopilotPolicy(name='policyConfig', description='当前完整的调优策略配置，始终返回。'),
+  }(name='data'),
+  errorCode?: string(name='errorCode', example='""'),
+  errorMessage?: string(name='errorMessage', example='""'),
+  httpCode?: int32(name='httpCode', example='200'),
+  requestId?: string(name='requestId', example='CBC799F0-AS7S-1D30-8A4F-882ED4DD****'),
+  success?: boolean(name='success', example='true'),
+}
+
+model GetAutopilotPolicyResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: GetAutopilotPolicyResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of GetAutopilotPolicy  GetAutopilotPolicyRequest
+  * @return GetAutopilotPolicyResponse
+ */
+async function getAutopilotPolicy(request: GetAutopilotPolicyRequest): GetAutopilotPolicyResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'GetAutopilotPolicy', 'GET', '/autopilot/v2/namespaces/{namespace}/deployments/{deploymentId}/autopilotpolicy-describe', 'json', false, 'json', request);
+}
+
 model GetCatalogsRequest {
   namespace: string(name='namespace', description='This parameter is required.', example='default-namespace', position='Path'),
   catalogName?: string(name='catalogName', example='paimon', position='Query'),
@@ -3165,6 +3355,48 @@ model HotUpdateJobResponse = {
 async function hotUpdateJob(request: HotUpdateJobRequest): HotUpdateJobResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RESTFUL', 'HotUpdateJob', 'POST', '/api/v2/namespaces/{namespace}/jobs/{jobId}:hotUpdate', 'json', false, 'json', request);
+}
+
+model ListAutopilotTuningHistoriesRequest {
+  namespace: string(name='namespace', description='This parameter is required.', position='Path'),
+  deploymentId: string(name='deploymentId', description='This parameter is required.', position='Path'),
+  acceptLanguage?: string(name='Accept-Language', position='Header'),
+  endTime?: long(name='endTime', example='1689321600000', position='Query'),
+  pageNumber?: int32(name='pageNumber', example='1', position='Query'),
+  pageSize?: int32(name='pageSize', example='20', position='Query'),
+  startTime?: long(name='startTime', example='1689235200000', position='Query'),
+  workspace: string(name='workspace', description='This parameter is required.', position='Header'),
+}
+
+model ListAutopilotTuningHistoriesResponseBody = {
+  data?: {
+    pageNumber?: int32(name='pageNumber', example='1'),
+    pageSize?: int32(name='pageSize', example='20'),
+    totalCount?: int32(name='totalCount', example='42'),
+    tuningHistories?: [
+      TuningHistory
+    ](name='tuningHistories'),
+  }(name='data'),
+  errorCode?: string(name='errorCode'),
+  errorMessage?: string(name='errorMessage'),
+  httpCode?: int32(name='httpCode'),
+  requestId?: string(name='requestId'),
+  success?: boolean(name='success'),
+}
+
+model ListAutopilotTuningHistoriesResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ListAutopilotTuningHistoriesResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of ListAutopilotTuningHistories  ListAutopilotTuningHistoriesRequest
+  * @return ListAutopilotTuningHistoriesResponse
+ */
+async function listAutopilotTuningHistories(request: ListAutopilotTuningHistoriesRequest): ListAutopilotTuningHistoriesResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'ListAutopilotTuningHistories', 'GET', '/autopilot/v2/namespaces/{namespace}/deployments/{deploymentId}/tuninghistories', 'json', false, 'json', request);
 }
 
 model ListCustomConnectorsRequest {
@@ -4093,6 +4325,41 @@ model SubmitSqlPreviewResponse = {
 async function submitSqlPreview(request: SubmitSqlPreviewRequest): SubmitSqlPreviewResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RESTFUL', 'SubmitSqlPreview', 'POST', '/api/v2/namespaces/{namespace}/sql-preview/submit', 'json', false, 'json', request);
+}
+
+model UpdateAutopilotPolicyRequest {
+  namespace: string(name='namespace', description='This parameter is required.', example='default-namespace', position='Path'),
+  deploymentId: string(name='deploymentId', description='This parameter is required.', example='737d0921-c5ac-47fc-9ba9-07a1e0b4****', position='Path'),
+  enabled?: boolean(name='enabled', example='true', position='Body'),
+  policyConfig?: AutopilotPolicy(name='policyConfig', position='Body'),
+  workspace: string(name='workspace', description='This parameter is required.', example='a14bd5d90a****', position='Header'),
+}
+
+model UpdateAutopilotPolicyResponseBody = {
+  data?: {
+    enabled?: boolean(name='enabled', example='true'),
+    policyConfig?: AutopilotPolicy(name='policyConfig'),
+  }(name='data'),
+  errorCode?: string(name='errorCode', example='""'),
+  errorMessage?: string(name='errorMessage', example='""'),
+  httpCode?: int32(name='httpCode', example='200'),
+  requestId?: string(name='requestId', example='CBC799F0-AS7S-1D30-8A4F-882ED4DD****'),
+  success?: boolean(name='success', example='True'),
+}
+
+model UpdateAutopilotPolicyResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: UpdateAutopilotPolicyResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of UpdateAutopilotPolicy  UpdateAutopilotPolicyRequest
+  * @return UpdateAutopilotPolicyResponse
+ */
+async function updateAutopilotPolicy(request: UpdateAutopilotPolicyRequest): UpdateAutopilotPolicyResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'UpdateAutopilotPolicy', 'PUT', '/autopilot/v2/namespaces/{namespace}/deployments/{deploymentId}/autopilotpolicy-update', 'json', false, 'json', request);
 }
 
 model UpdateDeploymentRequest {

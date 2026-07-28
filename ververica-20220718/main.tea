@@ -99,6 +99,66 @@ model AsyncResourcePlanOperationResult {
 - FAILED', example='FINISHED'),
 }
 
+model AutopilotPolicy {
+  advancedRules?: {
+    enabled?: boolean(name='enabled'),
+    parameters?: map[string]string(name='parameters'),
+  }(name='advancedRules'),
+  limits?: {
+    coolDownMinutes?: long(name='coolDownMinutes'),
+    jobMaxCpu?: double(name='jobMaxCpu'),
+    jobMaxMemory?: string(name='jobMaxMemory'),
+    jobMaxParallelism?: int32(name='jobMaxParallelism'),
+    jobMinParallelism?: int32(name='jobMinParallelism'),
+  }(name='limits'),
+  scaleDownRules?: {
+    memoryScaleDownRule?: {
+      enabled?: boolean(name='enabled'),
+      memUsageScaleDownSampleInterval?: string(name='memUsageScaleDownSampleInterval'),
+      memUsageScaleDownThreshold?: double(name='memUsageScaleDownThreshold'),
+    }(name='memoryScaleDownRule'),
+    slotBusyScaleDownRule?: {
+      enabled?: boolean(name='enabled'),
+      slotBusyScaleDownSampleInterval?: string(name='slotBusyScaleDownSampleInterval'),
+      slotBusyScaleDownThreshold?: double(name='slotBusyScaleDownThreshold'),
+    }(name='slotBusyScaleDownRule'),
+  }(name='scaleDownRules'),
+  scaleUpRules?: {
+    delayRule?: {
+      delaySampleInterval?: string(name='delaySampleInterval'),
+      delayThreshold?: string(name='delayThreshold'),
+      enabled?: boolean(name='enabled'),
+    }(name='delayRule'),
+    gcRule?: {
+      enabled?: boolean(name='enabled'),
+      gcSampleInterval?: string(name='gcSampleInterval'),
+      gcTimeRatioThreshold?: double(name='gcTimeRatioThreshold'),
+    }(name='gcRule'),
+    memoryScaleUpRule?: {
+      enabled?: boolean(name='enabled'),
+      memUsageScaleUpThreshold?: double(name='memUsageScaleUpThreshold'),
+    }(name='memoryScaleUpRule'),
+    oomScaleUpRule?: {
+      enabled?: boolean(name='enabled'),
+    }(name='oomScaleUpRule'),
+    slotBusyScaleUpRule?: {
+      enabled?: boolean(name='enabled'),
+      slotBusyScaleUpSampleInterval?: string(name='slotBusyScaleUpSampleInterval'),
+      slotBusyScaleUpThreshold?: double(name='slotBusyScaleUpThreshold'),
+    }(name='slotBusyScaleUpRule'),
+  }(name='scaleUpRules'),
+  silentPeriodConfig?: {
+    enabled?: boolean(name='enabled'),
+    silentPeriods?: [ 
+      {
+        beginTime?: long(name='beginTime'),
+        endTime?: long(name='endTime'),
+        level?: string(name='level'),
+      }
+    ](name='silentPeriods'),
+  }(name='silentPeriodConfig'),
+}
+
 model BasicResourceSetting {
   jobmanagerResourceSettingSpec?: BasicResourceSettingSpec(name='jobmanagerResourceSettingSpec', description='The resource configuration of the JobManager.'),
   parallelism?: long(name='parallelism', description='The parallelism for a deployment.', example='4'),
@@ -1081,6 +1141,28 @@ model TableSchema {
   tableName?: string(name='tableName', description='The name of the table.'),
 }
 
+model TuningHistory {
+  actionType?: string(name='actionType'),
+  annotations?: map[string]string(name='annotations'),
+  deploymentName?: string(name='deploymentName'),
+  isHotUpdate?: boolean(name='isHotUpdate'),
+  jobId?: string(name='jobId'),
+  newResourceSetting?: {
+    cpu?: double(name='cpu'),
+    memory?: string(name='memory'),
+    parallelism?: int32(name='parallelism'),
+  }(name='newResourceSetting'),
+  oldResourceSetting?: {
+    cpu?: double(name='cpu'),
+    memory?: string(name='memory'),
+    parallelism?: int32(name='parallelism'),
+  }(name='oldResourceSetting'),
+  triggerTime?: long(name='triggerTime'),
+  tuningId?: string(name='tuningId'),
+  tuningMessage?: string(name='tuningMessage'),
+  tuningState?: string(name='tuningState'),
+}
+
 model UdfArtifact {
   artifactType?: string(name='artifactType', description='The type of the JAR file.', example='ARTIFACT_TYPE_JAVA'),
   createdAt?: long(name='createdAt', description='The time when the JAR file was created.', example='1723532876'),
@@ -1302,6 +1384,128 @@ async function cancelSqlPreview(namespace: string, request: CancelSqlPreviewRequ
   var runtime = new Util.RuntimeOptions{};
   var headers = new CancelSqlPreviewHeaders{};
   return cancelSqlPreviewWithOptions(namespace, request, headers, runtime);
+}
+
+model ChatAiAgentHeaders {
+  commonHeaders?: map[string]string,
+  workspace?: string(name='workspace', description='The workspace.
+
+This parameter is required.', example='710d6a64d8****'),
+}
+
+model ChatAiAgentRequest {
+  hitlDecisions?: [ 
+    {
+      decision?: string(name='decision', description='The approval decision. Valid values: approve and deny.', example='approve'),
+      hitlId?: string(name='hitlId', description='The approval item ID corresponding to the hitlPending event.', example='-'),
+    }
+  ](name='hitlDecisions', description='The list of Human-in-the-Loop (HITL) approval decisions, used to resume a session interrupted by a hitlPending event.'),
+  refs?: {
+    jobs?: [ 
+      {
+        deploymentId?: string(name='deploymentId', description='Deployment ID', example='2a63abb7-7ae7-4902-9970-fe5cff4bd7c1'),
+        jobId?: string(name='jobId', description='Job ID', example='ccb853c3-1d5a-438d-bf98-346815ad875a'),
+      }
+    ](name='jobs', description='The list of job references.'),
+    skills?: [ string ](name='skills', description='The list of skills to inject.'),
+  }(name='refs', description='The resource references, including jobs and skill lists.'),
+  sessionId?: string(name='sessionId', description='The session ID. If not specified, the server generates one. For multi-turn conversations, pass the same value across requests.', example='019F8CC7-EAD3-5E06-B0BF-3A2A0638B3DD-deliverData-20260723102220-VM8X0A5VZQ'),
+  userMessage?: string(name='userMessage', description='The user natural language input. The value must be 1 to 64,000 characters in length.', example='“”'),
+}
+
+model ChatAiAgentResponseBody = {
+  completed?: boolean(name='completed', description='Indicates whether this text segment is complete (the last segment of the message it belongs to).', example='true'),
+  displayName?: string(name='displayName', description='The localized display name of the tool.', example='""'),
+  errorMessage?: string(name='errorMessage', description='The error message when the tool call fails (only when success is false).', example='TIMEOUT'),
+  errorType?: string(name='errorType', description='The error type when the tool call fails (only when success is false).', example='TIMEOUT'),
+  event?: string(name='event', description='The event type.', example='-'),
+  input?: any(name='input', description='The tool input key-value pairs. The structure varies depending on the toolName.', example='{ "namespace": "vvp-dev-team", "jobId": "aa91ec66-...", "deploymentId": "b78aae4c-..." }'),
+  items?: [ 
+    {
+      args?: any(name='args', description='The original tool parameter key-value pairs.', example='[]'),
+      displayName?: string(name='displayName', description='The display name of the tool.', example='“”'),
+      hitlId?: string(name='hitlId', description='The approval item ID, used when returning hitlDecisions.', example='""'),
+      toolName?: string(name='toolName', description='The name of the intercepted tool.', example='“”'),
+    }
+  ](name='items', description='The list of items pending approval.'),
+  message?: string(name='message', description='The error message (for error events).', example='“”'),
+  sessionId?: string(name='sessionId', description='The session ID for this conversation.', example='462E2707-590E-51B6-9940-0AB33044828B-deliverData-202603020950-WCSN4MEC8T'),
+  success?: string(name='success', description='Indicates whether the tool calling invoke is successful.', example='true'),
+  text?: string(name='text', description='The text output from the assistant.', example='-'),
+  toolCallId?: string(name='toolCallId', description='The tool calling ID, used to pair the invoke call and result.', example='"c1"'),
+  toolName?: string(name='toolName', description='The tool function name.', example='"get_job_events"'),
+  usage?: {
+    inputTokens?: long(name='inputTokens', description='The number of input tokens.', example='10'),
+    outputTokens?: long(name='outputTokens', description='The number of output tokens.', example='5'),
+    totalTokens?: long(name='totalTokens', description='The total number of tokens.', example='15'),
+  }(name='usage', description='The token usage.'),
+}
+
+model ChatAiAgentResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ChatAiAgentResponseBody(name='body'),
+}
+
+/**
+ * @summary Initiates a streaming conversation with an AI Agent.
+ *
+ * @param request ChatAiAgentRequest
+ * @param headers ChatAiAgentHeaders
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return ChatAiAgentResponse
+ */
+async function chatAiAgentWithOptions(namespace: string, request: ChatAiAgentRequest, headers: ChatAiAgentHeaders, runtime: Util.RuntimeOptions): ChatAiAgentResponse {
+  Util.validateModel(request);
+  var body : map[string]any = {};
+  if (!Util.isUnset(request.hitlDecisions)) {
+    body['hitlDecisions'] = request.hitlDecisions;
+  }
+  if (!Util.isUnset(request.refs)) {
+    body['refs'] = request.refs;
+  }
+  if (!Util.isUnset(request.sessionId)) {
+    body['sessionId'] = request.sessionId;
+  }
+  if (!Util.isUnset(request.userMessage)) {
+    body['userMessage'] = request.userMessage;
+  }
+
+  var realHeaders : map[string]string = {};
+  if (!Util.isUnset(headers.commonHeaders)) {
+    realHeaders = headers.commonHeaders;
+  }
+  if (!Util.isUnset(headers.workspace)) {
+    realHeaders['workspace'] = Util.toJSONString(headers.workspace);
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = realHeaders,
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApi.Params{
+    action = 'ChatAiAgent',
+    version = '2022-07-18',
+    protocol = 'HTTPS',
+    pathname = `/advisor/v2/namespaces/${OpenApiUtil.getEncodeParam(namespace)}/ai-agent/stream/agent/v2/chat`,
+    method = 'POST',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Initiates a streaming conversation with an AI Agent.
+ *
+ * @param request ChatAiAgentRequest
+ * @return ChatAiAgentResponse
+ */
+async function chatAiAgent(namespace: string, request: ChatAiAgentRequest): ChatAiAgentResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers = new ChatAiAgentHeaders{};
+  return chatAiAgentWithOptions(namespace, request, headers, runtime);
 }
 
 model CreateDeploymentHeaders {
@@ -3903,6 +4107,80 @@ async function getAppliedScheduledPlan(namespace: string, request: GetAppliedSch
   return getAppliedScheduledPlanWithOptions(namespace, request, headers, runtime);
 }
 
+model GetAutopilotPolicyHeaders {
+  commonHeaders?: map[string]string,
+  workspace?: string(name='workspace', description='The workspace ID.
+
+This parameter is required.', example='a14bd5d90a****'),
+}
+
+model GetAutopilotPolicyRequest {
+}
+
+model GetAutopilotPolicyResponseBody = {
+  data?: {
+    enabled?: boolean(name='enabled', description='Indicates whether automatic tuning is enabled. A value of true indicates that automatic tuning is in the ACTIVE state. A value of false indicates that tuning is not enabled.', example='false'),
+    policyConfig?: AutopilotPolicy(name='policyConfig', description='The tuning policy configuration.'),
+  }(name='data', description='The Autopilot tuning policy response data.'),
+  errorCode?: string(name='errorCode', description='The business error code. This field is not empty when success is false. This field is empty when success is true.', example='""'),
+  errorMessage?: string(name='errorMessage', description='The business error message. This field is not empty when success is false. This field is empty when success is true.', example='""'),
+  httpCode?: int32(name='httpCode', description='The business status code, which is always 200. Use the success field to determine whether the request was successful.', example='200'),
+  requestId?: string(name='requestId', description='The request ID.', example='CBC799F0-AS7S-1D30-8A4F-882ED4DD****'),
+  success?: boolean(name='success', description='Indicates whether the request was successful.', example='true'),
+}
+
+model GetAutopilotPolicyResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: GetAutopilotPolicyResponseBody(name='body'),
+}
+
+/**
+ * @summary Queries the Autopilot tuning configuration. Returns the enabled status and full configuration. Does not affect the existing V2 configuration.
+ *
+ * @param request GetAutopilotPolicyRequest
+ * @param headers GetAutopilotPolicyHeaders
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return GetAutopilotPolicyResponse
+ */
+async function getAutopilotPolicyWithOptions(namespace: string, deploymentId: string, request: GetAutopilotPolicyRequest, headers: GetAutopilotPolicyHeaders, runtime: Util.RuntimeOptions): GetAutopilotPolicyResponse {
+  Util.validateModel(request);
+  var realHeaders : map[string]string = {};
+  if (!Util.isUnset(headers.commonHeaders)) {
+    realHeaders = headers.commonHeaders;
+  }
+  if (!Util.isUnset(headers.workspace)) {
+    realHeaders['workspace'] = Util.toJSONString(headers.workspace);
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = realHeaders,
+  };
+  var params = new OpenApi.Params{
+    action = 'GetAutopilotPolicy',
+    version = '2022-07-18',
+    protocol = 'HTTPS',
+    pathname = `/autopilot/v2/namespaces/${OpenApiUtil.getEncodeParam(namespace)}/deployments/${OpenApiUtil.getEncodeParam(deploymentId)}/autopilotpolicy-describe`,
+    method = 'GET',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Queries the Autopilot tuning configuration. Returns the enabled status and full configuration. Does not affect the existing V2 configuration.
+ *
+ * @param request GetAutopilotPolicyRequest
+ * @return GetAutopilotPolicyResponse
+ */
+async function getAutopilotPolicy(namespace: string, deploymentId: string, request: GetAutopilotPolicyRequest): GetAutopilotPolicyResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers = new GetAutopilotPolicyHeaders{};
+  return getAutopilotPolicyWithOptions(namespace, deploymentId, request, headers, runtime);
+}
+
 model GetCatalogsHeaders {
   commonHeaders?: map[string]string,
   workspace?: string(name='workspace', description='The ID of the workspace.
@@ -5905,6 +6183,107 @@ async function hotUpdateJob(namespace: string, jobId: string): HotUpdateJobRespo
   var runtime = new Util.RuntimeOptions{};
   var headers = new HotUpdateJobHeaders{};
   return hotUpdateJobWithOptions(namespace, jobId, headers, runtime);
+}
+
+model ListAutopilotTuningHistoriesHeaders {
+  commonHeaders?: map[string]string,
+  acceptLanguage?: string(name='Accept-Language', description='The language type. Default value: en-US. Set this to zh-CN for Chinese.', example='en-US'),
+  workspace?: string(name='workspace', description='The workspace ID.
+
+This parameter is required.', example='a14bd5d90a****'),
+}
+
+model ListAutopilotTuningHistoriesRequest {
+  endTime?: long(name='endTime', description='The query end timestamp in milliseconds. If not specified, the default is the current time. The time span between startTime and endTime cannot exceed 30 days.', example='1689321600000'),
+  pageNumber?: int32(name='pageNumber', description='The page number, starting from 1. Default value: 1.', example='1'),
+  pageSize?: int32(name='pageSize', description='The number of entries per page. Default value: 20. Maximum value: 100.', example='20'),
+  startTime?: long(name='startTime', description='The query start timestamp in milliseconds. If not specified, the default is the last 3 days.', example='1689235200000'),
+}
+
+model ListAutopilotTuningHistoriesResponseBody = {
+  data?: {
+    pageNumber?: int32(name='pageNumber', description='The current page number.', example='1'),
+    pageSize?: int32(name='pageSize', description='The number of entries per page.', example='20'),
+    totalCount?: int32(name='totalCount', description='The total number of records.', example='42'),
+    tuningHistories?: [
+      TuningHistory
+    ](name='tuningHistories', description='The list of tuning history records.'),
+  }(name='data', description='The tuning history list result.'),
+  errorCode?: string(name='errorCode', description='When success is false, this value is not empty and indicates the business error code. When success is true, this value is empty.', example='""'),
+  errorMessage?: string(name='errorMessage', description='When success is false, this value is not empty and indicates the business error message. When success is true, this value is empty.', example='""'),
+  httpCode?: int32(name='httpCode', description='The business status code, which is always 200. Use success to determine whether the business request is successful.', example='200'),
+  requestId?: string(name='requestId', description='The request ID.', example='CBC799F0-AS7S-1D30-8A4F-882ED4DD****'),
+  success?: boolean(name='success', description='Indicates whether the business request is successful.', example='true'),
+}
+
+model ListAutopilotTuningHistoriesResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ListAutopilotTuningHistoriesResponseBody(name='body'),
+}
+
+/**
+ * @summary Retrieves the Autopilot tuning history records.
+ *
+ * @param request ListAutopilotTuningHistoriesRequest
+ * @param headers ListAutopilotTuningHistoriesHeaders
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return ListAutopilotTuningHistoriesResponse
+ */
+async function listAutopilotTuningHistoriesWithOptions(namespace: string, deploymentId: string, request: ListAutopilotTuningHistoriesRequest, headers: ListAutopilotTuningHistoriesHeaders, runtime: Util.RuntimeOptions): ListAutopilotTuningHistoriesResponse {
+  Util.validateModel(request);
+  var query : map[string]any = {};
+  if (!Util.isUnset(request.endTime)) {
+    query['endTime'] = request.endTime;
+  }
+  if (!Util.isUnset(request.pageNumber)) {
+    query['pageNumber'] = request.pageNumber;
+  }
+  if (!Util.isUnset(request.pageSize)) {
+    query['pageSize'] = request.pageSize;
+  }
+  if (!Util.isUnset(request.startTime)) {
+    query['startTime'] = request.startTime;
+  }
+
+  var realHeaders : map[string]string = {};
+  if (!Util.isUnset(headers.commonHeaders)) {
+    realHeaders = headers.commonHeaders;
+  }
+  if (!Util.isUnset(headers.acceptLanguage)) {
+    realHeaders['Accept-Language'] = Util.toJSONString(headers.acceptLanguage);
+  }
+  if (!Util.isUnset(headers.workspace)) {
+    realHeaders['workspace'] = Util.toJSONString(headers.workspace);
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = realHeaders,
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'ListAutopilotTuningHistories',
+    version = '2022-07-18',
+    protocol = 'HTTPS',
+    pathname = `/autopilot/v2/namespaces/${OpenApiUtil.getEncodeParam(namespace)}/deployments/${OpenApiUtil.getEncodeParam(deploymentId)}/tuninghistories`,
+    method = 'GET',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Retrieves the Autopilot tuning history records.
+ *
+ * @param request ListAutopilotTuningHistoriesRequest
+ * @return ListAutopilotTuningHistoriesResponse
+ */
+async function listAutopilotTuningHistories(namespace: string, deploymentId: string, request: ListAutopilotTuningHistoriesRequest): ListAutopilotTuningHistoriesResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers = new ListAutopilotTuningHistoriesHeaders{};
+  return listAutopilotTuningHistoriesWithOptions(namespace, deploymentId, request, headers, runtime);
 }
 
 model ListCustomConnectorsHeaders {
@@ -7951,6 +8330,91 @@ async function submitSqlPreview(namespace: string, request: SubmitSqlPreviewRequ
   var runtime = new Util.RuntimeOptions{};
   var headers = new SubmitSqlPreviewHeaders{};
   return submitSqlPreviewWithOptions(namespace, request, headers, runtime);
+}
+
+model UpdateAutopilotPolicyHeaders {
+  commonHeaders?: map[string]string,
+  workspace?: string(name='workspace', description='The workspace ID.
+
+This parameter is required.', example='a14bd5d90a****'),
+}
+
+model UpdateAutopilotPolicyRequest {
+  enabled?: boolean(name='enabled', description='Specifies whether to enable automatic tuning. A value of true enables automatic tuning (ACTIVE), and a value of false disables tuning (DISABLED). If this parameter is not specified, the current status is not changed.', example='true'),
+  policyConfig?: AutopilotPolicy(name='policyConfig', description='The tuning policy configuration. This parameter uses full PUT mode: when specified, the complete policy object replaces the existing configuration entirely (fields not included are cleared). If this parameter is not specified, the existing configuration is retained.'),
+}
+
+model UpdateAutopilotPolicyResponseBody = {
+  data?: {
+    enabled?: boolean(name='enabled', description='Indicates whether automatic tuning is enabled. A value of true indicates that automatic tuning is active (ACTIVE), and a value of false indicates that tuning is not enabled.', example='true'),
+    policyConfig?: AutopilotPolicy(name='policyConfig', description='The tuning policy configuration. This parameter uses full PUT mode: when specified, the complete policy object replaces the existing configuration entirely (fields not included are cleared). If this parameter is not specified, the existing configuration is retained.'),
+  }(name='data', description='The Autopilot tuning policy response data.'),
+  errorCode?: string(name='errorCode', description='The error code. This parameter is not empty when success is false, indicating a business error code. This parameter is empty when success is true.', example='""'),
+  errorMessage?: string(name='errorMessage', description='The error message. This parameter is not empty when success is false, indicating a business error message. This parameter is empty when success is true.', example='""'),
+  httpCode?: int32(name='httpCode', description='The HTTP status code, which is always 200. Use the success parameter to determine whether the request was successful.', example='200'),
+  requestId?: string(name='requestId', description='The request ID.', example='CBC799F0-AS7S-1D30-8A4F-882ED4DD****'),
+  success?: boolean(name='success', description='Indicates whether the request was successful.', example='True'),
+}
+
+model UpdateAutopilotPolicyResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: UpdateAutopilotPolicyResponseBody(name='body'),
+}
+
+/**
+ * @summary Updates an Autopilot tuning policy.
+ *
+ * @param request UpdateAutopilotPolicyRequest
+ * @param headers UpdateAutopilotPolicyHeaders
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return UpdateAutopilotPolicyResponse
+ */
+async function updateAutopilotPolicyWithOptions(namespace: string, deploymentId: string, request: UpdateAutopilotPolicyRequest, headers: UpdateAutopilotPolicyHeaders, runtime: Util.RuntimeOptions): UpdateAutopilotPolicyResponse {
+  Util.validateModel(request);
+  var body : map[string]any = {};
+  if (!Util.isUnset(request.enabled)) {
+    body['enabled'] = request.enabled;
+  }
+  if (!Util.isUnset(request.policyConfig)) {
+    body['policyConfig'] = request.policyConfig;
+  }
+
+  var realHeaders : map[string]string = {};
+  if (!Util.isUnset(headers.commonHeaders)) {
+    realHeaders = headers.commonHeaders;
+  }
+  if (!Util.isUnset(headers.workspace)) {
+    realHeaders['workspace'] = Util.toJSONString(headers.workspace);
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = realHeaders,
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApi.Params{
+    action = 'UpdateAutopilotPolicy',
+    version = '2022-07-18',
+    protocol = 'HTTPS',
+    pathname = `/autopilot/v2/namespaces/${OpenApiUtil.getEncodeParam(namespace)}/deployments/${OpenApiUtil.getEncodeParam(deploymentId)}/autopilotpolicy-update`,
+    method = 'PUT',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Updates an Autopilot tuning policy.
+ *
+ * @param request UpdateAutopilotPolicyRequest
+ * @return UpdateAutopilotPolicyResponse
+ */
+async function updateAutopilotPolicy(namespace: string, deploymentId: string, request: UpdateAutopilotPolicyRequest): UpdateAutopilotPolicyResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers = new UpdateAutopilotPolicyHeaders{};
+  return updateAutopilotPolicyWithOptions(namespace, deploymentId, request, headers, runtime);
 }
 
 model UpdateDeploymentHeaders {
