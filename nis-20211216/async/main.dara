@@ -21,8 +21,10 @@ init(configuration: ClientConfiguration){
   @handler = new TeaAsyncHandler(configuration);
   @product = 'nis';
   @version = '2021-12-16';
-  @endpointRule = '';
+  @endpointRule = 'regional';
   @endpointMap = {
+    'cn-shanghai' = 'nis.aliyuncs.com',
+    'ap-southeast-1' = 'nis-intl.aliyuncs.com',
   };
 }
 
@@ -555,6 +557,8 @@ model DescribeNisTrafficRankingResponseBody = {
       instanceId?: string(name='InstanceId', example='eip-fb6wzjl9hm****'),
       networkInterfaceId?: string(name='NetworkInterfaceId', example='eni-8vbf2jxul***'),
       packets?: double(name='Packets', example='100'),
+      packetsIncrease?: double(name='PacketsIncrease'),
+      packetsIncreaseRatio?: double(name='PacketsIncreaseRatio'),
       packetsLostBlackhole?: double(name='PacketsLostBlackhole', example='4'),
       packetsLostNoRoute?: double(name='PacketsLostNoRoute', example='2'),
       packetsLostTTLExpired?: double(name='PacketsLostTTLExpired', example='7'),
@@ -562,6 +566,7 @@ model DescribeNisTrafficRankingResponseBody = {
       publicIpAddress?: string(name='PublicIpAddress', example='118.31.***.86'),
       regionId?: string(name='RegionId', example='cn-hangzhou'),
       roundTripTime?: double(name='RoundTripTime', example='2'),
+      roundTripTimeIncrease?: double(name='RoundTripTimeIncrease'),
       sourceIp?: string(name='SourceIp', example='47.92.245.***'),
       sourcePort?: string(name='SourcePort', example='5432'),
       sourceRegionNo?: string(name='SourceRegionNo', example='cn-hangzhou'),
@@ -1179,10 +1184,10 @@ model GetNisNetworkRankingRequest {
   ](name='Filter', shrink='json', position='Query'),
   groupBy: string(name='GroupBy', description='This parameter is required.', example='Protocol', position='Query'),
   orderBy: string(name='OrderBy', description='This parameter is required.', example='bps', position='Query'),
-  regionNo: string(name='RegionNo', description='This parameter is required.', example='cn-beijing', position='Query'),
+  regionNo?: string(name='RegionNo', example='cn-beijing', position='Query'),
   resourceType: string(name='ResourceType', description='This parameter is required.', example='AccessInternetIpV4', position='Query'),
   sort?: string(name='Sort', example='desc', position='Query'),
-  topN?: int32(name='TopN', example='10', minimum=1, maximum=100, position='Query'),
+  topN?: int32(name='TopN', example='10', minimum=1, position='Query'),
   useCrossAccount?: boolean(name='UseCrossAccount', example='false', position='Query'),
 }
 
@@ -1201,11 +1206,14 @@ model GetNisNetworkRankingResponseBody = {
       destinationPort?: string(name='DestinationPort', example='80'),
       destinationRegionNo?: string(name='DestinationRegionNo', example='cn-hangzhou'),
       destinationZone?: string(name='DestinationZone', example='cn-hangzhou-b'),
+      globalCountryCode?: string(name='GlobalCountryCode'),
+      globalProvinceCode?: string(name='GlobalProvinceCode'),
       ip?: string(name='IP', example='120.238.XX.XX'),
       inBps?: double(name='InBps', example='10'),
       inPps?: double(name='InPps', example='3'),
       instanceId?: string(name='InstanceId', example='eip-sample*'),
       isp?: string(name='Isp'),
+      lineType?: string(name='LineType'),
       newSessionPerSecond?: double(name='NewSessionPerSecond', example='18'),
       outBps?: double(name='OutBps', example='88'),
       outPps?: double(name='OutPps', example='8'),
@@ -1218,6 +1226,7 @@ model GetNisNetworkRankingResponseBody = {
       sourceIp?: string(name='SourceIp', example='42.120.XX.XX'),
       sourceIsp?: string(name='SourceIsp'),
       sourcePort?: string(name='SourcePort', example='443'),
+      sourceRegion?: string(name='SourceRegion'),
       sourceZone?: string(name='SourceZone', example='cn-hangzhou-a'),
       vbrId?: string(name='VbrId', example='vbr-sample*'),
     }
@@ -1238,6 +1247,58 @@ model GetNisNetworkRankingResponse = {
 async function getNisNetworkRanking(request: GetNisNetworkRankingRequest): GetNisNetworkRankingResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RPC', 'GetNisNetworkRanking', 'POST', '/', 'json', false, 'json', request);
+}
+
+model GetNisTrafficMetricsRequest {
+  beginTime: long(name='BeginTime', description='This parameter is required.', example='1638239092000', position='Query'),
+  direction: string(name='Direction', description='This parameter is required.', example='In', position='Query'),
+  endTime: long(name='EndTime', description='This parameter is required.', example='1684373700099', position='Query'),
+  filter?: [ 
+    {
+      key?: string(name='Key', example='NetworkInterfaceId'),
+      operator?: string(name='Operator', example='in'),
+      value?: [ string ](name='Value'),
+    }
+  ](name='Filter', shrink='json', position='Query'),
+  maxResults?: int32(name='MaxResults', example='1440', position='Query'),
+  metricName: string(name='MetricName', description='This parameter is required.', example='bps', position='Query'),
+  nextToken?: string(name='NextToken', example='f7zUd3gArYj/xjPttJo5L5dK0R+gSbfHElLqi8C2IPWMQxtV8XckOg5lk7F2bhC+', position='Query'),
+  regionNo: string(name='RegionNo', description='This parameter is required.', example='cn-hangzhou', position='Query'),
+  scanBy?: string(name='ScanBy', example='TimestampAscending', position='Query'),
+  stepMinutes?: int32(name='StepMinutes', example='10', position='Query'),
+  storageInterval?: int32(name='StorageInterval', example='10', position='Query'),
+  trafficAnalyzerId: string(name='TrafficAnalyzerId', description='This parameter is required.', example='nta-e093cb80c7c047afbd1d', position='Query'),
+  trafficScenario: string(name='TrafficScenario', description='This parameter is required.', example='VpcFlowLogAll', position='Query'),
+  tupleDimension?: string(name='TupleDimension', example='Tuple2', position='Query'),
+}
+
+model GetNisTrafficMetricsResponseBody = {
+  maxResults?: int32(name='MaxResults', example='1440'),
+  metricStatics?: [ 
+    {
+      timeStamp?: long(name='TimeStamp', example='1785219000000'),
+      value?: double(name='Value', example='102400.25'),
+    }
+  ](name='MetricStatics'),
+  nextToken?: string(name='NextToken', example='qqt9NJ3/AWeMXCntK4Kyhrt0QclAmfbtYB4899hEUzVNEo/F148UPCh2itDku111'),
+  requestId?: string(name='RequestId', example='019FA764-BA47-56F8-88E1-7AB503A62112'),
+  totalCount?: int32(name='TotalCount', example='1440'),
+  unit?: string(name='Unit', example='Bits/Second'),
+}
+
+model GetNisTrafficMetricsResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: GetNisTrafficMetricsResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of GetNisTrafficMetrics  GetNisTrafficMetricsRequest
+  * @return GetNisTrafficMetricsResponse
+ */
+async function getNisTrafficMetrics(request: GetNisTrafficMetricsRequest): GetNisTrafficMetricsResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'GetNisTrafficMetrics', 'POST', '/', 'json', false, 'json', request);
 }
 
 model GetTransitRouterFlowTopNRequest {
