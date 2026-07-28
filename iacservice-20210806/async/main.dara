@@ -21,8 +21,9 @@ init(configuration: ClientConfiguration){
   @handler = new TeaAsyncHandler(configuration);
   @product = 'IaCService';
   @version = '2021-08-06';
-  @endpointRule = '';
+  @endpointRule = 'regional';
   @endpointMap = {
+    'cn-zhangjiakou' = 'iac.cn-zhangjiakou.aliyuncs.com',
   };
 }
 
@@ -510,6 +511,7 @@ model CreateStackRequest {
   clientToken: string(name='clientToken', description='This parameter is required.', example='a65451293e64979ba7a4b573950217fe', position='Body'),
   description?: string(name='description', example='Stack to create ecs and related resource for multiple enviroments.', position='Body'),
   name?: string(name='name', example='stack-test', position='Body'),
+  parameterSetIds?: [ string ](name='parameterSetIds', position='Body'),
   ramRole?: string(name='ramRole', example='TestIacRole', position='Body'),
   source: string(name='source', description='This parameter is required.', example='OSS', position='Body'),
   sourcePath?: string(name='sourcePath', example='oss::https://terraform-pipeline.oss-eu-central-1.aliyuncs.com/code.zip', position='Body'),
@@ -553,6 +555,7 @@ model CreateTaskRequest {
   protectionStrategy?: [ string ](name='protectionStrategy', position='Body'),
   ramRole?: string(name='ramRole', example='{}', position='Body'),
   skipPropertyValidation?: boolean(name='skipPropertyValidation', position='Body'),
+  skipRegionValidation?: boolean(name='skipRegionValidation', position='Body'),
   tags?: [ 
     {
       tagKey?: string(name='tagKey'),
@@ -564,6 +567,7 @@ model CreateTaskRequest {
     bucketName?: string(name='bucketName'),
     objectPath?: string(name='objectPath'),
   }(name='taskBackend', position='Body'),
+  terraformProviderVersion?: string(name='terraformProviderVersion', position='Body'),
   terraformVersion?: string(name='terraformVersion', example='1.2.6', position='Body'),
   triggerStrategy?: string(name='triggerStrategy', example='Always', position='Body'),
 }
@@ -1487,6 +1491,33 @@ async function getProject(request: GetProjectRequest): GetProjectResponse {
   return @handler.do('RESTFUL', 'GetProject', 'GET', '/project/{projectId}', 'json', false, 'json', request);
 }
 
+model GetProviderDocumentRequest {
+  providerVersion?: string(name='providerVersion', position='Query'),
+  terraformResourceType: string(name='terraformResourceType', description='This parameter is required.', position='Query'),
+}
+
+model GetProviderDocumentResponseBody = {
+  document?: string(name='document'),
+  providerVersion?: string(name='providerVersion'),
+  requestId?: string(name='requestId'),
+  terraformResourceType?: string(name='terraformResourceType'),
+}
+
+model GetProviderDocumentResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: GetProviderDocumentResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of GetProviderDocument  GetProviderDocumentRequest
+  * @return GetProviderDocumentResponse
+ */
+async function getProviderDocument(request: GetProviderDocumentRequest): GetProviderDocumentResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'GetProviderDocument', 'GET', '/version/terraform/provider/document', 'json', false, 'json', request);
+}
+
 model GetRegistryModuleRequest {
   namespaceName: string(name='namespaceName', description='This parameter is required.', example='terraform-alicloud-modules', position='Path'),
   moduleName: string(name='moduleName', description='This parameter is required.', example='ecs-rds-redis', position='Path'),
@@ -1683,6 +1714,7 @@ model GetResourceTypeResponseBody = {
     properties?: map[string]any(name='properties', example='{}'),
     resourceDetailPageUrl?: string(name='resourceDetailPageUrl', example='https://vpc.console.aliyun.com/vpc/${RegionId}/route-tables/${RouteTableId}'),
     resourceListPageUrl?: string(name='resourceListPageUrl', example='https://vpc.console.aliyun.com/vpc/${RegionId}/route-tables'),
+    resourceType?: string(name='resourceType'),
     status?: string(name='status', example='Available'),
     statusStartVersion?: string(name='statusStartVersion', example='1.227.0'),
     subcategory?: string(name='subcategory', example='network'),
@@ -1904,6 +1936,7 @@ model GetTaskResponseBody = {
     protectionStrategy?: [ string ](name='protectionStrategy'),
     ramRole?: string(name='ramRole', example='{}'),
     skipPropertyValidation?: boolean(name='skipPropertyValidation'),
+    skipRegionValidation?: boolean(name='skipRegionValidation'),
     status?: string(name='status', example='Running'),
     tags?: [ 
       {
@@ -3696,12 +3729,14 @@ model UpdateTaskAttributeRequest {
   protectionStrategy?: [ string ](name='protectionStrategy', position='Body'),
   ramRole?: string(name='ramRole', example='{}', position='Body'),
   skipPropertyValidation?: boolean(name='skipPropertyValidation', position='Body'),
+  skipRegionValidation?: boolean(name='skipRegionValidation', position='Body'),
   tags?: [ 
     {
       tagKey?: string(name='tagKey'),
       tagValue?: string(name='tagValue'),
     }
   ](name='tags', position='Body'),
+  terraformProviderVersion?: string(name='terraformProviderVersion', position='Body'),
   terraformVersion?: string(name='terraformVersion', example='1.2.6', position='Body'),
   triggerStrategy?: string(name='triggerStrategy', example='Manual', position='Body'),
 }
