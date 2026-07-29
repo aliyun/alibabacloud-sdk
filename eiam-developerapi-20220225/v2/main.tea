@@ -9,8 +9,16 @@ extends OpenApi;
 
 init(config: OpenApiUtil.Config){
   super(config);
-  @endpointRule = '';
-  
+  @endpointRule = 'regional';
+  @endpointMap = {
+    'eu-central-1' = 'eiam-developerapi.eu-central-1.aliyuncs.com',
+    'cn-hongkong' = 'eiam-developerapi.cn-hongkong.aliyuncs.com',
+    'cn-hangzhou' = 'eiam-developerapi.cn-hangzhou.aliyuncs.com',
+    'ap-southeast-5' = 'eiam-developerapi.ap-southeast-5.aliyuncs.com',
+    'ap-southeast-1' = 'eiam-developerapi.ap-southeast-1.aliyuncs.com',
+    'ap-northeast-2' = 'eiam-developerapi.ap-northeast-2.aliyuncs.com',
+  };
+
   checkConfig(config);
   @endpoint = getEndpoint('eiam-developerapi', @regionId, @endpointRule, @network, @suffix, @endpointMap, @endpoint);
 }
@@ -28,11 +36,16 @@ function getEndpoint(productId: string, regionId: string, endpointRule: string, 
 
 model AddUserToOrganizationalUnitsHeaders {
   commonHeaders?: map[string]string,
-  authorization?: string(name='Authorization', description='This parameter is required.', example='Bearer xxxx'),
+  authorization?: string(name='Authorization', description='The authentication information.
+Format: Bearer ${access_token}.
+
+This parameter is required.', example='Bearer xxxx'),
 }
 
 model AddUserToOrganizationalUnitsRequest {
-  organizationalUnitIds?: [ string ](name='organizationalUnitIds', description='This parameter is required.', example='[ou_wovwffm62xifdziem7an7xxxxx]'),
+  organizationalUnitIds?: [ string ](name='organizationalUnitIds', description='A list of organization IDs.
+
+This parameter is required.', example='[ou_wovwffm62xifdziem7an7xxxxx]'),
 }
 
 model AddUserToOrganizationalUnitsResponse = {
@@ -41,7 +54,7 @@ model AddUserToOrganizationalUnitsResponse = {
 }
 
 /**
- * @summary 将账户加入多个组织
+ * @summary Adds an EIAM account to one or more EIAM organizations. These organizations serve as subordinate organizations for the account. If the account is already a member of a specified organization, no update is performed.
  *
  * @param request AddUserToOrganizationalUnitsRequest
  * @param headers AddUserToOrganizationalUnitsHeaders
@@ -82,7 +95,7 @@ async function addUserToOrganizationalUnitsWithOptions(instanceId: string, appli
 }
 
 /**
- * @summary 将账户加入多个组织
+ * @summary Adds an EIAM account to one or more EIAM organizations. These organizations serve as subordinate organizations for the account. If the account is already a member of a specified organization, no update is performed.
  *
  * @param request AddUserToOrganizationalUnitsRequest
  * @return AddUserToOrganizationalUnitsResponse
@@ -252,7 +265,7 @@ This parameter is required.', example='Bearer AT8csE2seYxxxxxij'),
 }
 
 model CreateOrganizationalUnitRequest {
-  description?: string(name='description', description='The description of the organizational unit.', example='test organizational unit'),
+  description?: string(name='description', description='The description of the organizational unit.', example='测试组织'),
   organizationalUnitExternalId?: string(name='organizationalUnitExternalId', description='The external ID of the organizational unit. The external ID can be used to map external data to the data of the organizational unit in Employee Identity and Access Management (EIAM) of Identity as a Service (IDaaS). By default, the external ID is the organizational unit ID.
 
 For organizational units with the same source type and source ID, each organizational unit has a unique external ID.', example='ou_wovwffm62xifdziem7an7xxxxx'),
@@ -338,7 +351,9 @@ async function createOrganizationalUnit(instanceId: string, applicationId: strin
 
 model CreateUserHeaders {
   commonHeaders?: map[string]string,
-  authorization?: string(name='Authorization', description='The authentication information. Format: Bearer ${access_token}. Example: Bearer ATxxxx.
+  authorization?: string(name='Authorization', description='The authentication information.
+Format: `Bearer ${access_token}`.
+Example: `Bearer ATxxxx`.
 
 This parameter is required.', example='Bearer AT8csE2seYxxxxxij'),
 }
@@ -346,35 +361,49 @@ This parameter is required.', example='Bearer AT8csE2seYxxxxxij'),
 model CreateUserRequest {
   customFields?: [ 
     {
-      fieldName?: string(name='fieldName', description='Field name', example='age'),
-      fieldValue?: string(name='fieldValue', description='Filed value', example='fieldValue_001'),
+      fieldName?: string(name='fieldName', description='The name of the custom field. You can view the field\\\\"s data type and value range in the IDaaS console.', example='age'),
+      fieldValue?: string(name='fieldValue', description='The value of the custom field.', example='fieldValue_001'),
     }
-  ](name='customFields', description='Custom fields'),
-  description?: string(name='description', description='The description of the account. The description can be up to 256 characters in length.', example='test user'),
-  displayName?: string(name='displayName', description='The display name of the account. The display name can be up to 64 characters in length.', example='display_name001'),
-  email?: string(name='email', description='The email address of the user who owns the account.', example='example@example.com'),
-  emailVerified?: boolean(name='emailVerified', description='Indicates whether the email address is verified. This field is required if an email address is specified. If you have no special requirement, set this parameter to true.', example='true'),
-  password?: string(name='password', description='The password of the account. For information about the password rules, go to the Create User panel in the Identity as a Service (IDaaS) console.', example='xxxxx'),
+  ](name='customFields', description='A list of custom fields for the account.'),
+  description?: string(name='description', description='The account description. The maximum length is 256 characters.', example='测试账户'),
+  displayName?: string(name='displayName', description='The display name. The maximum length is 128 characters.', example='display_name001'),
+  email?: string(name='email', description='The email address. The local-part of the address can contain uppercase and lowercase letters, digits, periods (`.`), underscores (`_`), and hyphens (`-`). The maximum length is 128 characters.', example='example@example.com'),
+  emailVerified?: boolean(name='emailVerified', description='Specifies whether the email is verified. This parameter is required if `email` is set. Typically, set this to `true`.', example='true'),
+  password?: string(name='password', description='The account password. For password complexity rules, see the password policy in the IDaaS console.', example='xxxxx'),
   passwordInitializationConfig?: {
-    passwordForcedUpdateStatus?: string(name='passwordForcedUpdateStatus', description='Password  forced update', example='enabled'),
-    passwordInitializationPolicyPriority?: string(name='passwordInitializationPolicyPriority', description='Password policy', example='global'),
-    passwordInitializationType?: string(name='passwordInitializationType', description='Password Initialization Type', example='random'),
-    userNotificationChannels?: [ string ](name='userNotificationChannels', description='User Notification Channels', example='sms'),
-  }(name='passwordInitializationConfig', description='Configure the initial password'),
-  phoneNumber?: string(name='phoneNumber', description='The mobile number of the user who owns the account.', example='156xxxxxxx'),
-  phoneNumberVerified?: boolean(name='phoneNumberVerified', description='Indicates whether the mobile number is verified. This field is required if a mobile number is specified. If you have no special requirement, set this parameter to true.', example='true'),
-  phoneRegion?: string(name='phoneRegion', description='The country code of the mobile number. For example, the country code of China is 86 without 00 or +. This parameter is required if a mobile number is specified.', example='86'),
+    passwordForcedUpdateStatus?: string(name='passwordForcedUpdateStatus', description='The password forced update status. By default, this feature is disabled. Valid values:
+
+- `enabled`: Enables the feature.
+
+- `disabled`: Disables the feature.', example='enabled'),
+    passwordInitializationPolicyPriority?: string(name='passwordInitializationPolicyPriority', description='The priority of the password initialization policy. Valid values:
+
+- `global`: Uses the instance-level password initialization policy and ignores the custom settings in this request. For more information, see the password initialization policy configuration in the IDaaS console.
+
+- `custom`: Uses the custom password initialization policy defined in this request. This includes settings for forced password updates, the initialization type, and notification channels.', example='global'),
+    passwordInitializationType?: string(name='passwordInitializationType', description='The password initialization type. Valid values:
+
+- `random`: A randomly generated password.', example='random'),
+    userNotificationChannels?: [ string ](name='userNotificationChannels', description='The user notification channels. Valid values:
+
+- `email`: Email
+
+- `sms`: SMS', example='sms'),
+  }(name='passwordInitializationConfig', description='The password initialization configuration.'),
+  phoneNumber?: string(name='phoneNumber', description='The account phone number. It must be 6 to 15 digits long.', example='156xxxxxxx'),
+  phoneNumberVerified?: boolean(name='phoneNumberVerified', description='Specifies whether the phone number is verified. This parameter is required if `phoneNumber` is set. Typically, set this to `true`.', example='true'),
+  phoneRegion?: string(name='phoneRegion', description='The phone region code. For example, the code for the Chinese mainland is `86`. Do not include a `00` prefix or a plus sign (`+`). This parameter is required if `phoneNumber` is set.', example='86'),
   primaryOrganizationalUnitId?: string(name='primaryOrganizationalUnitId', description='The ID of the primary organizational unit.
 
 This parameter is required.', example='ou_wovwffm62xifdziem7an7xxxxx'),
-  userExternalId?: string(name='userExternalId', description='The external ID of the account. The external ID can be used to map external data to the data of the account in EIAM of Identity as a Service (IDaaS). By default, the external ID is the account ID.', example='user_d6sbsuumeta4h66ec3il7yxxxx'),
-  username?: string(name='username', description='The username of the account.
+  userExternalId?: string(name='userExternalId', description='The external user ID, used to associate the account with an external system. The maximum length is 128 characters. If unspecified, it defaults to the account ID.', example='user_d6sbsuumeta4h66ec3il7yxxxx'),
+  username?: string(name='username', description='The username. It can contain letters, digits, and the following special characters: underscore (`_`), period (`.`), at sign (`@`), and hyphen (`-`). The maximum length is 256 characters.
 
 This parameter is required.', example='name001'),
 }
 
 model CreateUserResponseBody = {
-  userId?: string(name='userId', description='The account ID.', example='user_d6sbsuumeta4h66ec3il7yxxxx'),
+  userId?: string(name='userId', description='The user ID.', example='user_d6sbsuumeta4h66ec3il7yxxxx'),
 }
 
 model CreateUserResponse = {
@@ -384,7 +413,7 @@ model CreateUserResponse = {
 }
 
 /**
- * @summary Creates an Employee Identity and Access Management (EIAM) account in an organizational unit.
+ * @summary Creates a new EIAM account in a specified organization.
  *
  * @param request CreateUserRequest
  * @param headers CreateUserHeaders
@@ -461,7 +490,7 @@ async function createUserWithOptions(instanceId: string, applicationId: string, 
 }
 
 /**
- * @summary Creates an Employee Identity and Access Management (EIAM) account in an organizational unit.
+ * @summary Creates a new EIAM account in a specified organization.
  *
  * @param request CreateUserRequest
  * @return CreateUserResponse
@@ -474,26 +503,45 @@ async function createUser(instanceId: string, applicationId: string, request: Cr
 
 model CreateUserExclusiveCredentialHeaders {
   commonHeaders?: map[string]string,
-  authorization?: string(name='Authorization', description='This parameter is required.', example='Bearer xxxxxx'),
+  authorization?: string(name='Authorization', description='The authentication information. Format: Bearer ${access_token}. 
+> Enter the Access Token issued by IDaaS.
+
+This parameter is required.', example='Bearer xxxxxx'),
 }
 
 model CreateUserExclusiveCredentialRequest {
   credentialContent?: {
     apiKeyContent?: {
-      apiKey?: string(name='apiKey', description='This parameter is required.', example='sk-nsklncmwizncxxxx'),
-    }(name='apiKeyContent'),
-  }(name='credentialContent', description='This parameter is required.'),
+      apiKey?: string(name='apiKey', description='The value of the API Key.
+
+This parameter is required.', example='sk-nsklncmwizncxxxx'),
+    }(name='apiKeyContent', description='The credential content for the API Key credential type.'),
+  }(name='credentialContent', description='The credential content.
+
+This parameter is required.'),
   credentialExternalId?: string(name='credentialExternalId'),
-  credentialIdentifier?: string(name='credentialIdentifier', description='This parameter is required.', example='credential_identifier_test'),
-  credentialName?: string(name='credentialName', description='This parameter is required.', example='credential_name'),
-  credentialScenarioLabel?: string(name='credentialScenarioLabel', example='llm'),
-  credentialType?: string(name='credentialType', description='This parameter is required.', example='api_key'),
-  description?: string(name='description', example='credential_description'),
+  credentialIdentifier?: string(name='credentialIdentifier', description='The credential identifier.
+
+This parameter is required.', example='credential_identifier_test'),
+  credentialName?: string(name='credentialName', description='The credential name.
+
+This parameter is required.', example='credential_name'),
+  credentialScenarioLabel?: string(name='credentialScenarioLabel', description='The scenarios label of the credential. Valid values:
+- llm: large language model.
+- saas: third-party SaaS service.', example='llm'),
+  credentialType?: string(name='credentialType', description='The credential type. Valid values:
+- api_key: API Key authentication credential.
+- oauth_client: OAuth client authentication credential.
+
+This parameter is required.', example='api_key'),
+  description?: string(name='description', description='The credential description.', example='credential_description'),
+  returnCiphertext?: boolean(name='returnCiphertext'),
 }
 
 model CreateUserExclusiveCredentialResponseBody = {
-  credentialId?: string(name='credentialId', example='cred_mkv7rgt4d7i4u7zqtzev2mxxxx'),
-  credentialIdentifier?: string(name='credentialIdentifier', description='凭据标识。', example='credential_identifier_test'),
+  credentialCiphertext?: string(name='credentialCiphertext'),
+  credentialId?: string(name='credentialId', description='The credential ID.', example='cred_mkv7rgt4d7i4u7zqtzev2mxxxx'),
+  credentialIdentifier?: string(name='credentialIdentifier', description='The credential identifier.', example='credential_identifier_test'),
 }
 
 model CreateUserExclusiveCredentialResponse = {
@@ -503,7 +551,11 @@ model CreateUserExclusiveCredentialResponse = {
 }
 
 /**
- * @summary 创建账户专属凭据。
+ * @summary Creates an account-specific credential.
+ *
+ * @description This API uses an Access Token issued by IDaaS for identity authentication and authorization.
+ * Ensure that the Access Token you provide has the "Manage Static Credentials" permission for the IDaaS built-in PAM application (Privileged Access Management).
+ * > The corresponding scope is `urn:cloud:idaas:pam|credential:manage`.
  *
  * @param request CreateUserExclusiveCredentialRequest
  * @param headers CreateUserExclusiveCredentialHeaders
@@ -535,6 +587,9 @@ async function createUserExclusiveCredentialWithOptions(instanceId: string, requ
   if (!$isNull(request.description)) {
     body['description'] = request.description;
   }
+  if (!$isNull(request.returnCiphertext)) {
+    body['returnCiphertext'] = request.returnCiphertext;
+  }
 
   var realHeaders : map[string]string = {};
   if (!$isNull(headers.commonHeaders)) {
@@ -562,7 +617,11 @@ async function createUserExclusiveCredentialWithOptions(instanceId: string, requ
 }
 
 /**
- * @summary 创建账户专属凭据。
+ * @summary Creates an account-specific credential.
+ *
+ * @description This API uses an Access Token issued by IDaaS for identity authentication and authorization.
+ * Ensure that the Access Token you provide has the "Manage Static Credentials" permission for the IDaaS built-in PAM application (Privileged Access Management).
+ * > The corresponding scope is `urn:cloud:idaas:pam|credential:manage`.
  *
  * @param request CreateUserExclusiveCredentialRequest
  * @return CreateUserExclusiveCredentialResponse
@@ -885,32 +944,57 @@ async function enableUser(instanceId: string, applicationId: string, userId: str
 
 model FetchOAuthAuthenticationTokenHeaders {
   commonHeaders?: map[string]string,
-  authorization?: string(name='Authorization', description='This parameter is required.', example='Bearer xxxxxx'),
+  authorization?: string(name='Authorization', description='The authentication information. Format: Bearer ${access_token}.
+
+> Enter the Access Token issued by IDaaS.
+
+This parameter is required.', example='Bearer xxxxxx'),
 }
 
 model FetchOAuthAuthenticationTokenRequest {
-  credentialProviderIdentifier?: string(name='credentialProviderIdentifier', description='This parameter is required.', example='test_example_identifier'),
-  scope?: string(name='scope', example='example:test_01 example:test_02'),
+  credentialProviderIdentifier?: string(name='credentialProviderIdentifier', description='The credential provider identifier.
+
+This parameter is required.', example='test_example_identifier'),
+  customParameters?: map[string]string(name='customParameters'),
+  forceAuthentication?: boolean(name='forceAuthentication'),
+  scope?: string(name='scope', description='The scope in the OAuth protocol.
+
+> If not specified, the scope of the issued OAuth Access Token defaults to the Scope configuration of the corresponding credential provider.
+
+>Notice: Multiple Scope values are separated by spaces.', example='example:test_01 example:test_02'),
 }
 
 model FetchOAuthAuthenticationTokenResponseBody = {
-  authenticationTokenId?: string(name='authenticationTokenId', example='atntkn_01kqflm0sxxx8nmdc1cb5dskxxxxx'),
-  authenticationTokenType?: string(name='authenticationTokenType', example='oauth_access_token'),
-  consumerId?: string(name='consumerId', example='app_ngtkgrrxxxxktg5eao6z4xxxxx'),
-  consumerType?: string(name='consumerType', example='application'),
-  createTime?: long(name='createTime', example='1649830225000'),
-  creatorId?: string(name='creatorId', example='app_ngtkgrrxxxxktg5eao6z4xxxxx'),
-  creatorType?: string(name='creatorType', example='application'),
-  credentialProviderId?: string(name='credentialProviderId', example='atp_01kr2cmj5gxxx4fvmls2e93dxxxxx'),
-  expirationTime?: long(name='expirationTime', example='1772693568000'),
-  instanceId?: string(name='instanceId', description='EIAM实例ID。', example='idaas_ue2jvisn35ea5lmthk267xxxxx'),
+  authenticationTokenId?: string(name='authenticationTokenId', description='The authentication token ID.', example='atntkn_01kqflm0sxxx8nmdc1cb5dskxxxxx'),
+  authenticationTokenType?: string(name='authenticationTokenType', description='The authentication token type.
+
+> The value is fixed as `oauth_access_token`, indicating an OAuth Access Token type authentication token.', example='oauth_access_token'),
+  consumerId?: string(name='consumerId', description='The consumer ID of the authentication token.', example='app_ngtkgrrxxxxktg5eao6z4xxxxx'),
+  consumerType?: string(name='consumerType', description='The consumer type of the authentication token. Valid values:
+
+- application: application
+- custom: custom type', example='application'),
+  createTime?: long(name='createTime', description='The creation time of the authentication token. This value is a UNIX timestamp in milliseconds.', example='1649830225000'),
+  creatorId?: string(name='creatorId', description='The creator ID of the authentication token.', example='app_ngtkgrrxxxxktg5eao6z4xxxxx'),
+  creatorType?: string(name='creatorType', description='The creator type of the authentication token. Valid values:
+
+- application: application', example='application'),
+  credentialProviderId?: string(name='credentialProviderId', description='The credential provider ID.', example='atp_01kr2cmj5gxxx4fvmls2e93dxxxxx'),
+  expirationTime?: long(name='expirationTime', description='The expiration time of the authentication token. This value is a UNIX timestamp in milliseconds.', example='1772693568000'),
+  instanceId?: string(name='instanceId', description='The instance ID.', example='idaas_ue2jvisn35ea5lmthk267xxxxx'),
   oauthAccessTokenContent?: {
-    accessTokenValue?: string(name='accessTokenValue', example='DgEBAGP2xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx'),
-    scope?: string(name='scope', example='example:test_01 example:test_02'),
-    tokenType?: string(name='tokenType', example='Bearer'),
-  }(name='oauthAccessTokenContent'),
-  revoked?: boolean(name='revoked', example='false'),
-  updateTime?: long(name='updateTime', example='1649830225000'),
+    accessTokenValue?: string(name='accessTokenValue', description='The access_token field in the OAuth protocol Token endpoint response.', example='DgEBAGP2xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx'),
+    scope?: string(name='scope', description='The scope field in the OAuth protocol Token endpoint response.', example='example:test_01 example:test_02'),
+    tokenType?: string(name='tokenType', description='The token_type field in the OAuth protocol Token endpoint response.', example='Bearer'),
+  }(name='oauthAccessTokenContent', description='The authentication token content of the OAuth Access Token type.'),
+  oauthAuthorizationSession?: {
+    authorizationUrl?: string(name='authorizationUrl', example='https://auth.example.com'),
+    sessionId?: string(name='sessionId', example='atpoas_yyy'),
+    sessionStatus?: string(name='sessionStatus', example='pending'),
+    sessionUri?: string(name='sessionUri', example='urn:ietf:params:oauth:request_uri:atpoas_yyy'),
+  }(name='oauthAuthorizationSession'),
+  revoked?: boolean(name='revoked', description='Indicates whether the authentication token is revoked.', example='false'),
+  updateTime?: long(name='updateTime', description='The update time of the authentication token. This value is a UNIX timestamp in milliseconds.', example='1649830225000'),
 }
 
 model FetchOAuthAuthenticationTokenResponse = {
@@ -920,7 +1004,11 @@ model FetchOAuthAuthenticationTokenResponse = {
 }
 
 /**
- * @summary 拉取一个有效的OAuth认证令牌。
+ * @summary Retrieves a valid OAuth authentication token.
+ *
+ * @description This API authenticates and authorizes requests based on an Access Token issued by IDaaS.
+ * Ensure that the Access Token you provide has the function authorization to "obtain authentication token" for the IDaaS built-in PAM application (Privileged Access Management).
+ * > The corresponding scope is `urn:cloud:idaas:pam|authentication_token:obtain`.
  *
  * @param request FetchOAuthAuthenticationTokenRequest
  * @param headers FetchOAuthAuthenticationTokenHeaders
@@ -933,6 +1021,12 @@ async function fetchOAuthAuthenticationTokenWithOptions(instanceId: string, requ
   var body : map[string]any = {};
   if (!$isNull(request.credentialProviderIdentifier)) {
     body['credentialProviderIdentifier'] = request.credentialProviderIdentifier;
+  }
+  if (!$isNull(request.customParameters)) {
+    body['customParameters'] = request.customParameters;
+  }
+  if (!$isNull(request.forceAuthentication)) {
+    body['forceAuthentication'] = request.forceAuthentication;
   }
   if (!$isNull(request.scope)) {
     body['scope'] = request.scope;
@@ -964,7 +1058,11 @@ async function fetchOAuthAuthenticationTokenWithOptions(instanceId: string, requ
 }
 
 /**
- * @summary 拉取一个有效的OAuth认证令牌。
+ * @summary Retrieves a valid OAuth authentication token.
+ *
+ * @description This API authenticates and authorizes requests based on an Access Token issued by IDaaS.
+ * Ensure that the Access Token you provide has the function authorization to "obtain authentication token" for the IDaaS built-in PAM application (Privileged Access Management).
+ * > The corresponding scope is `urn:cloud:idaas:pam|authentication_token:obtain`.
  *
  * @param request FetchOAuthAuthenticationTokenRequest
  * @return FetchOAuthAuthenticationTokenResponse
@@ -1044,36 +1142,58 @@ async function generateDeviceCode(instanceId: string, applicationId: string, req
 
 model GenerateJwtAuthenticationTokenHeaders {
   commonHeaders?: map[string]string,
-  authorization?: string(name='Authorization', description='This parameter is required.', example='Bearer xxxxxx'),
+  authorization?: string(name='Authorization', description='Authentication information. Format: Bearer ${access_token}.
+
+> Enter the Access Token issued by IDaaS.
+
+This parameter is required.', example='Bearer xxxxxx'),
 }
 
 model GenerateJwtAuthenticationTokenRequest {
-  audiences?: [ string ](name='audiences', description='This parameter is required.'),
-  credentialProviderIdentifier?: string(name='credentialProviderIdentifier', description='This parameter is required.', example='test_example_identifier'),
-  customClaims?: map[string]any(name='customClaims'),
-  expiration?: int32(name='expiration', example='900'),
-  includeDerivedShortToken?: boolean(name='includeDerivedShortToken', example='true'),
-  issuer?: string(name='issuer', example='https://test.issuer.com'),
-  subject?: string(name='subject', description='This parameter is required.', example='test_jwt_subject'),
+  audiences?: [ string ](name='audiences', description='The \\\\`aud\\\\` field of the JWT.
+
+This parameter is required.'),
+  credentialProviderIdentifier?: string(name='credentialProviderIdentifier', description='Credential provider identity.
+
+This parameter is required.', example='test_example_identifier'),
+  customClaims?: map[string]any(name='customClaims', description='Custom claims.
+
+>Notice: 
+
+Key-value pairs. Keys must be strings.'),
+  expiration?: int32(name='expiration', description='The validity period of the JWT, in seconds.', example='900'),
+  includeDerivedShortToken?: boolean(name='includeDerivedShortToken', description='Whether the generated JWT needs to include a "derived short token".', example='true'),
+  issuer?: string(name='issuer', description='The \\\\`iss\\\\` field of the JWT.', example='https://test.issuer.com'),
+  subject?: string(name='subject', description='The \\\\`sub\\\\` field of the JWT.
+
+This parameter is required.', example='test_jwt_subject'),
 }
 
 model GenerateJwtAuthenticationTokenResponseBody = {
-  authenticationTokenId?: string(name='authenticationTokenId', example='atntkn_01kqflm0sxxx8nmdc1cb5dskxxxxx'),
-  authenticationTokenType?: string(name='authenticationTokenType', example='jwt'),
-  consumerId?: string(name='consumerId', example='test_jwt_subject'),
-  consumerType?: string(name='consumerType', example='custom'),
-  createTime?: long(name='createTime', example='1649830225000'),
-  creatorId?: string(name='creatorId', example='app_ngtkgrrxxxxktg5eao6z4xxxxx'),
-  creatorType?: string(name='creatorType', example='application'),
-  credentialProviderId?: string(name='credentialProviderId', example='atp_01kr2cmj5gxxx4fvmls2e93dxxxxx'),
-  expirationTime?: long(name='expirationTime', example='1772693568000'),
-  instanceId?: string(name='instanceId', description='EIAM实例ID。', example='idaas_ue2jvisn35ea5lmthk267xxxxx'),
+  authenticationTokenId?: string(name='authenticationTokenId', description='Authentication token ID.', example='atntkn_01kqflm0sxxx8nmdc1cb5dskxxxxx'),
+  authenticationTokenType?: string(name='authenticationTokenType', description='Authentication token type.
+
+> The value is fixed as `jwt`, indicating a JWT authentication token.', example='jwt'),
+  consumerId?: string(name='consumerId', description='Authentication token consumer ID.', example='test_jwt_subject'),
+  consumerType?: string(name='consumerType', description='Authentication token consumer type. Valid values:
+
+- application: Application
+
+- custom: Custom type', example='custom'),
+  createTime?: long(name='createTime', description='The creation time of the authentication token, UNIX timestamp, in milliseconds.', example='1649830225000'),
+  creatorId?: string(name='creatorId', description='Authentication token creator ID.', example='app_ngtkgrrxxxxktg5eao6z4xxxxx'),
+  creatorType?: string(name='creatorType', description='Authentication token creator type. Valid values:
+
+- application: Application', example='application'),
+  credentialProviderId?: string(name='credentialProviderId', description='Credential provider ID.', example='atp_01kr2cmj5gxxx4fvmls2e93dxxxxx'),
+  expirationTime?: long(name='expirationTime', description='Authentication token expiration time, UNIX timestamp, in milliseconds.', example='1772693568000'),
+  instanceId?: string(name='instanceId', description='Instance ID.', example='idaas_ue2jvisn35ea5lmthk267xxxxx'),
   jwtContent?: {
-    derivedShortToken?: string(name='derivedShortToken', example='sk-Nx2vzxxxxxxxxxxxxxxxxx'),
-    jwtValue?: string(name='jwtValue', example='eyJhbGciOixxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx'),
-  }(name='jwtContent'),
-  revoked?: boolean(name='revoked', example='false'),
-  updateTime?: long(name='updateTime', example='1649830225000'),
+    derivedShortToken?: string(name='derivedShortToken', description='The derived short token of the JWT.', example='sk-Nx2vzxxxxxxxxxxxxxxxxx'),
+    jwtValue?: string(name='jwtValue', description='JWT content.', example='eyJhbGciOixxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx'),
+  }(name='jwtContent', description='JWT authentication token content.'),
+  revoked?: boolean(name='revoked', description='Whether the authentication token is revoked.', example='false'),
+  updateTime?: long(name='updateTime', description='The update time of the authentication token, UNIX timestamp, in milliseconds.', example='1649830225000'),
 }
 
 model GenerateJwtAuthenticationTokenResponse = {
@@ -1083,7 +1203,11 @@ model GenerateJwtAuthenticationTokenResponse = {
 }
 
 /**
- * @summary 生成一个有效的JWT认证令牌。
+ * @summary Generates a JSON Web Token (JWT) authentication token.
+ *
+ * @description This API performs identity authentication and authorization using the Access Token issued by IDaaS.
+ * Ensure that the provided Access Token has the authorization to access the "Obtain Authentication Token" feature of the built-in Privileged Access Management (PAM) application in IDaaS.
+ * > The corresponding scope is `urn:cloud:idaas:pam|authentication_token:obtain`.
  *
  * @param request GenerateJwtAuthenticationTokenRequest
  * @param headers GenerateJwtAuthenticationTokenHeaders
@@ -1142,7 +1266,11 @@ async function generateJwtAuthenticationTokenWithOptions(instanceId: string, req
 }
 
 /**
- * @summary 生成一个有效的JWT认证令牌。
+ * @summary Generates a JSON Web Token (JWT) authentication token.
+ *
+ * @description This API performs identity authentication and authorization using the Access Token issued by IDaaS.
+ * Ensure that the provided Access Token has the authorization to access the "Obtain Authentication Token" feature of the built-in Privileged Access Management (PAM) application in IDaaS.
+ * > The corresponding scope is `urn:cloud:idaas:pam|authentication_token:obtain`.
  *
  * @param request GenerateJwtAuthenticationTokenRequest
  * @return GenerateJwtAuthenticationTokenResponse
@@ -1155,38 +1283,49 @@ async function generateJwtAuthenticationToken(instanceId: string, request: Gener
 
 model GenerateTokenRequest {
   clientId?: string(name='client_id', description='The client ID.', example='app_mkv7rgt4d7i4u7zqtzev2mxxxx'),
-  clientSecret?: string(name='client_secret', description='The client secret. This parameter is required if grant_type is set to client_credentials.', example='CSEHDcHcrUKHw1CuxkJEHPveWRXBGqVqRsxxxx'),
-  code?: string(name='code', description='The authorization code. This parameter is required if grant_type is set to authorization_code.', example='xxxx'),
-  codeVerifier?: string(name='code_verifier', description='The verification code.', example='xxx'),
-  deviceCode?: string(name='device_code', description='The device code. This parameter is required if grant_type is set to authorization_code.urn:ietf:params:oauth:grant-type:device_code.', example='xxxx'),
-  exclusiveTag?: string(name='exclusive_tag', description='The excluded tags.', example='ATxxx'),
-  grantType?: string(name='grant_type', description='The supported authorization types are as follows:
-- client_credentials:Client credentials flow, requires client_id and client_secret.
-- refresh_token:Refresh token flow.
-- authorization_code:Authorization code flow.
-- urn:ietf:params:oauth:grant-type:device_code:Device authorization flow.
-- password:Password (Resource Owner Password Credentials) flow.
+  clientSecret?: string(name='client_secret', description='The client secret. This parameter is required when \\\\`grant_type\\\\` is \\\\`client_credentials\\\\` and the \\\\`client_secret_post\\\\` method is used.', example='CSEHDcHcrUKHw1CuxkJEHPveWRXBGqVqRsxxxx'),
+  code?: string(name='code', description='The authorization code. This parameter is required when \\\\`grant_type\\\\` is \\\\`authorization_code\\\\`.', example='xxxx'),
+  codeVerifier?: string(name='code_verifier', description='The code verifier. This is used in the authorization code grant type when PKCE is enabled.', example='xxx'),
+  deviceCode?: string(name='device_code', description='The device code. This parameter is required when \\\\`grant_type\\\\` is \\\\`urn:ietf:params:oauth:grant-type:device_code\\\\` (device flow).', example='xxxx'),
+  exclusiveTag?: string(name='exclusive_tag', description='The excluded tag.', example='ATxxx'),
+  grantType?: string(name='grant_type', description='The authorization grant type. The following types are supported:
+
+- \\\\`client_credentials\\\\`: Client credentials grant. Requires \\\\`client_id\\\\` and \\\\`client_secret\\\\`.
+
+- \\\\`refresh_token\\\\`: Refresh token grant.
+
+- \\\\`authorization_code\\\\`: Authorization code grant.
+
+- \\\\`urn:ietf:params:oauth:grant-type:device_code\\\\`: Device flow.
+
+- \\\\`password\\\\`: Password grant.
 
 This parameter is required.', example='client_credentials'),
-  password?: string(name='password', description='The username. This parameter is required if grant_type is set to password. The password authentication type is not supported.', example='xxxxxx'),
-  redirectUri?: string(name='redirect_uri', description='The redirect URI. This parameter is required if grant_type is set to authorization_code. The value of this parameter must be the same as the redirect URI in the request to obtain the authorization code.', example='xxx'),
-  refreshToken?: string(name='refresh_token', description='The refreshed token. This parameter is required if grant_type is set to refresh_token.', example='ATxxx'),
-  scope?: string(name='scope', description='The authorization scope. Valid values:
+  password?: string(name='password', description='The username. This parameter is required for password mode.', example='xxxxxx'),
+  redirectUri?: string(name='redirect_uri', description='The redirection URI. This parameter is required for the authorization code grant type. It must match the redirection URI in the request to get the authorization code.', example='xxx'),
+  refreshToken?: string(name='refresh_token', description='The refresh token. This parameter is required when \\\\`grant_type\\\\` is \\\\`refresh_token\\\\` (refresh token grant).', example='ATxxx'),
+  scope?: string(name='scope', description='The scope. This parameter is optional. Multiple values are supported. Separate multiple values with spaces.
+Valid values:
 
-*   openid
-*   email
-*   phone
-*   profile', example='xxxx'),
-  username?: string(name='username', description='The username. This parameter is required if grant_type is set to password. The password authentication type is not supported.', example='uesrname_001'),
+- openid
+
+- email
+
+- phone
+
+- profile', example='xxxx'),
+  username?: string(name='username', description='The username. This parameter is required for the password grant type.', example='uesrname_001'),
 }
 
 model GenerateTokenResponseBody = {
   accessToken?: string(name='access_token', description='The access token.', example='ATxxx'),
-  expiresAt?: long(name='expires_at', description='The time when the token expires. This value is a UNIX timestamp representing the number of seconds that have elapsed since January 1, 1970, 00:00:00 UTC.', example='1653288641'),
-  expiresIn?: long(name='expires_in', description='The remaining validity period of the token. Unit: seconds.', example='1200'),
+  expiresAt?: long(name='expires_at', description='The expiration time. The value is a UNIX timestamp in seconds.', example='1653288641'),
+  expiresIn?: long(name='expires_in', description='The validity period of the token in seconds.', example='1200'),
   idToken?: string(name='id_token', description='The ID token.', example='xxxxx'),
   refreshToken?: string(name='refresh_token', description='The refresh token.', example='RTxxx'),
-  tokenType?: string(name='token_type', description='The type of the token. Valid values: Basic Bearer', example='Bearer'),
+  tokenType?: string(name='token_type', description='The token type. Valid values:
+Basic - Basic type
+Bearer - Bearer type', example='Bearer'),
 }
 
 model GenerateTokenResponse = {
@@ -1196,9 +1335,93 @@ model GenerateTokenResponse = {
 }
 
 /**
- * @summary Generates a token for accessing an application in an instance.
+ * @summary Generates an access token for an application in a specified IDaaS instance based on credential information.
  *
- * @description The following authorization types are supported: authorization code, device code, refresh token, and client credentials.
+ * @description The following methods are supported: Authorization Code, Device Flow, Refresh Token, Client Credentials, and Password.
+ * ### 1. Authorization Code
+ * Scenario: This is the standard OAuth 2.0 authorization code flow, which is suitable for web applications with frontend interaction.
+ * Example call:
+ * ```
+ * POST /v2/{instanceId}/{applicationId}/oauth2/token
+ * Content-Type: application/x-www-form-urlencoded
+ * grant_type=authorization_code
+ * &code={authorization_code}
+ * &redirect_uri={redirect_uri}
+ * &client_id={client_id}
+ * &client_secret={client_secret}
+ * ```
+ * Parameters:
+ * ● code: The authorization code obtained from the authorization endpoint.
+ * ● redirect_uri: Must be the same as the redirect_uri that was used to obtain the authorization code.
+ * ### 1.1 Authorization Code for public clients
+ * Scenario: This scenario is suitable for applications that cannot securely store a secret, such as single-page applications (SPAs) or native applications. In this flow, a client_secret is not required, but you must use the Proof Key for Code Exchange (PKCE) mechanism. Example call:
+ * ```
+ * POST /v2/{instanceId}/{applicationId}/oauth2/token
+ * Content-Type: application/x-www-form-urlencoded
+ * grant_type=authorization_code
+ * &code={authorization_code}
+ * &redirect_uri={redirect_uri}
+ * &client_id={client_id}
+ * &code_verifier={code_verifier}
+ * ```
+ * Parameters:
+ * ● code_verifier: The code verifier for the PKCE mechanism. The client generates it when initiating an authorization request and uses it to derive the \\`code_challenge\\`. When exchanging for a token, you must submit this value. It must be identical to the value used to generate the \\`code_challenge\\`.
+ * Java example for generating a code_verifier and code_challenge:
+ * ```java
+ * String codeVerifier = Base64.getUrlEncoder().withoutPadding().encodeToString(new SecureRandom().generateSeed(43));
+ * String codeChallenge = Base64.getUrlEncoder().withoutPadding().encodeToString(java.security.MessageDigest.getInstance("SHA-256").digest(codeVerifier.getBytes()));
+ * ```
+ * ### 2. Device Flow
+ * Scenario: This scenario is suitable for input-constrained devices, such as TVs and IoT devices. Example call:
+ * ```
+ * POST /v2/{instanceId}/{applicationId}/oauth2/token
+ * Content-Type: application/x-www-form-urlencoded
+ * grant_type=urn:ietf:params:oauth:grant-type:device_code
+ * &device_code={device_code}
+ * &client_id={client_id}
+ * &client_secret={client_secret}
+ * ```
+ * To obtain the device code, first call `/oauth2/device/code` to retrieve the device_code and user_code.
+ * ### 2.1 Device Flow for public clients
+ * Scenario: This scenario is used when interactive logon is not convenient and the client is a public client. Example call:
+ * ```
+ * POST /v2/{instanceId}/{applicationId}/oauth2/token
+ * Content-Type: application/x-www-form-urlencoded
+ * grant_type=urn:ietf:params:oauth:grant-type:device_code
+ * &device_code={device_code}
+ * &client_id={client_id}
+ * ```
+ * ### 3. Refresh Token
+ * Scenario: This scenario uses a refresh_token to obtain a new access_token. Example call:
+ * ```
+ * POST /v2/{instanceId}/{applicationId}/oauth2/token
+ * Content-Type: application/x-www-form-urlencoded
+ * grant_type=refresh_token
+ * &refresh_token={refresh_token}
+ * &client_id={client_id}
+ * &client_secret={client_secret}
+ * ```
+ * ### 4. Client Credentials
+ * Scenario: This scenario is for server-to-server authentication without user involvement. Example call:
+ * ```
+ * POST /v2/{instanceId}/{applicationId}/oauth2/token
+ * Content-Type: application/x-www-form-urlencoded
+ * grant_type=client_credentials
+ * &client_id={client_id}
+ * &client_secret={client_secret}
+ * &scope={scope}
+ * ```
+ * ### 5. Password
+ * Scenario: This scenario uses traditional username and password authentication. Use this method with caution. Example call:
+ * ```
+ * POST /v2/{instanceId}/{applicationId}/oauth2/token
+ * Content-Type: application/x-www-form-urlencoded
+ * grant_type=password
+ * &username={username}
+ * &password={password}
+ * &client_id={client_id}
+ * &scope={scope}
+ * ```
  *
  * @param request GenerateTokenRequest
  * @param headers map
@@ -1265,9 +1488,93 @@ async function generateTokenWithOptions(instanceId: string, applicationId: strin
 }
 
 /**
- * @summary Generates a token for accessing an application in an instance.
+ * @summary Generates an access token for an application in a specified IDaaS instance based on credential information.
  *
- * @description The following authorization types are supported: authorization code, device code, refresh token, and client credentials.
+ * @description The following methods are supported: Authorization Code, Device Flow, Refresh Token, Client Credentials, and Password.
+ * ### 1. Authorization Code
+ * Scenario: This is the standard OAuth 2.0 authorization code flow, which is suitable for web applications with frontend interaction.
+ * Example call:
+ * ```
+ * POST /v2/{instanceId}/{applicationId}/oauth2/token
+ * Content-Type: application/x-www-form-urlencoded
+ * grant_type=authorization_code
+ * &code={authorization_code}
+ * &redirect_uri={redirect_uri}
+ * &client_id={client_id}
+ * &client_secret={client_secret}
+ * ```
+ * Parameters:
+ * ● code: The authorization code obtained from the authorization endpoint.
+ * ● redirect_uri: Must be the same as the redirect_uri that was used to obtain the authorization code.
+ * ### 1.1 Authorization Code for public clients
+ * Scenario: This scenario is suitable for applications that cannot securely store a secret, such as single-page applications (SPAs) or native applications. In this flow, a client_secret is not required, but you must use the Proof Key for Code Exchange (PKCE) mechanism. Example call:
+ * ```
+ * POST /v2/{instanceId}/{applicationId}/oauth2/token
+ * Content-Type: application/x-www-form-urlencoded
+ * grant_type=authorization_code
+ * &code={authorization_code}
+ * &redirect_uri={redirect_uri}
+ * &client_id={client_id}
+ * &code_verifier={code_verifier}
+ * ```
+ * Parameters:
+ * ● code_verifier: The code verifier for the PKCE mechanism. The client generates it when initiating an authorization request and uses it to derive the \\`code_challenge\\`. When exchanging for a token, you must submit this value. It must be identical to the value used to generate the \\`code_challenge\\`.
+ * Java example for generating a code_verifier and code_challenge:
+ * ```java
+ * String codeVerifier = Base64.getUrlEncoder().withoutPadding().encodeToString(new SecureRandom().generateSeed(43));
+ * String codeChallenge = Base64.getUrlEncoder().withoutPadding().encodeToString(java.security.MessageDigest.getInstance("SHA-256").digest(codeVerifier.getBytes()));
+ * ```
+ * ### 2. Device Flow
+ * Scenario: This scenario is suitable for input-constrained devices, such as TVs and IoT devices. Example call:
+ * ```
+ * POST /v2/{instanceId}/{applicationId}/oauth2/token
+ * Content-Type: application/x-www-form-urlencoded
+ * grant_type=urn:ietf:params:oauth:grant-type:device_code
+ * &device_code={device_code}
+ * &client_id={client_id}
+ * &client_secret={client_secret}
+ * ```
+ * To obtain the device code, first call `/oauth2/device/code` to retrieve the device_code and user_code.
+ * ### 2.1 Device Flow for public clients
+ * Scenario: This scenario is used when interactive logon is not convenient and the client is a public client. Example call:
+ * ```
+ * POST /v2/{instanceId}/{applicationId}/oauth2/token
+ * Content-Type: application/x-www-form-urlencoded
+ * grant_type=urn:ietf:params:oauth:grant-type:device_code
+ * &device_code={device_code}
+ * &client_id={client_id}
+ * ```
+ * ### 3. Refresh Token
+ * Scenario: This scenario uses a refresh_token to obtain a new access_token. Example call:
+ * ```
+ * POST /v2/{instanceId}/{applicationId}/oauth2/token
+ * Content-Type: application/x-www-form-urlencoded
+ * grant_type=refresh_token
+ * &refresh_token={refresh_token}
+ * &client_id={client_id}
+ * &client_secret={client_secret}
+ * ```
+ * ### 4. Client Credentials
+ * Scenario: This scenario is for server-to-server authentication without user involvement. Example call:
+ * ```
+ * POST /v2/{instanceId}/{applicationId}/oauth2/token
+ * Content-Type: application/x-www-form-urlencoded
+ * grant_type=client_credentials
+ * &client_id={client_id}
+ * &client_secret={client_secret}
+ * &scope={scope}
+ * ```
+ * ### 5. Password
+ * Scenario: This scenario uses traditional username and password authentication. Use this method with caution. Example call:
+ * ```
+ * POST /v2/{instanceId}/{applicationId}/oauth2/token
+ * Content-Type: application/x-www-form-urlencoded
+ * grant_type=password
+ * &username={username}
+ * &password={password}
+ * &client_id={client_id}
+ * &scope={scope}
+ * ```
  *
  * @param request GenerateTokenRequest
  * @return GenerateTokenResponse
@@ -1279,32 +1586,36 @@ async function generateToken(instanceId: string, applicationId: string, request:
 }
 
 model GenerateTokenByAuthorizationServerRequest {
-  applicationFederatedCredentialName?: string(name='application_federated_credential_name', example='testxxxxx'),
-  clientAssertion?: string(name='client_assertion', example='eyJraWQiOiJLRVlLZ0Iyxxxxx'),
-  clientAssertionType?: string(name='client_assertion_type', example='urn:ietf:params:oauth:client-assertion-type:jwt-bearer'),
-  clientId?: string(name='client_id', description='This parameter is required.', example='app_mkv7rgt4d7i4u7zqtzev2mxxxx'),
-  clientSecret?: string(name='client_secret', example='CSEHDcHcrUKHw1CuxkJEHPveWRxxxxx'),
-  clientX509?: string(name='client_x509', example='testxxxxx'),
-  clientX509Chain?: string(name='client_x509_chain', example='testxxxxx'),
-  code?: string(name='code', example='CO541xY59EsKniV2wvWDXZ4jiKxxxxx'),
-  codeVerifier?: string(name='code_verifier', example='xxxxx'),
-  deviceCode?: string(name='device_code', example='DCxxxxxx'),
-  grantType?: string(name='grant_type', description='This parameter is required.', example='authorization_code'),
-  password?: string(name='password', example='testxxxxx'),
-  redirectUri?: string(name='redirect_uri', example='https://example.com/xxxxx'),
-  refreshToken?: string(name='refresh_token', example='RTxxxxx'),
-  scope?: string(name='scope', example='openid'),
-  username?: string(name='username', example='userxxxxx'),
+  applicationFederatedCredentialName?: string(name='application_federated_credential_name', description='Federated application credential name.', example='testxxxxx'),
+  clientAssertion?: string(name='client_assertion', description='Client assertion.', example='eyJraWQiOiJLRVlLZ0Iyxxxxx'),
+  clientAssertionType?: string(name='client_assertion_type', description='Client assertion type.', example='urn:ietf:params:oauth:client-assertion-type:jwt-bearer'),
+  clientId?: string(name='client_id', description='Client ID.
+
+This parameter is required.', example='app_mkv7rgt4d7i4u7zqtzev2mxxxx'),
+  clientSecret?: string(name='client_secret', description='Client key.', example='CSEHDcHcrUKHw1CuxkJEHPveWRxxxxx'),
+  clientX509?: string(name='client_x509', description='Client certificate.', example='testxxxxx'),
+  clientX509Chain?: string(name='client_x509_chain', description='Intermediate certificate list.', example='testxxxxx'),
+  code?: string(name='code', description='Authorization code. Required when grant_type is authorization_code.', example='CO541xY59EsKniV2wvWDXZ4jiKxxxxx'),
+  codeVerifier?: string(name='code_verifier', description='You can validate the code.', example='xxxxx'),
+  deviceCode?: string(name='device_code', description='Device code. Required when grant_type is urn:ietf:params:oauth:grant-type:device_code.', example='DCxxxxxx'),
+  grantType?: string(name='grant_type', description='Grant type.
+
+This parameter is required.', example='authorization_code'),
+  password?: string(name='password', description='Password.', example='testxxxxx'),
+  redirectUri?: string(name='redirect_uri', description='Redirection URI. Required when grant_type is authorization_code. Must match the redirect_uri used in the authorization code request.', example='https://example.com/xxxxx'),
+  refreshToken?: string(name='refresh_token', description='Refresh token.', example='RTxxxxx'),
+  scope?: string(name='scope', description='Scope.', example='openid'),
+  username?: string(name='username', description='Username.', example='userxxxxx'),
 }
 
 model GenerateTokenByAuthorizationServerResponseBody = {
-  accessToken?: string(name='access_token', example='eyJraWQiOiJLRVlLZ0Iyxxxxx'),
-  expiresAt?: long(name='expires_at', example='1653288641'),
-  expiresIn?: long(name='expires_in', example='1200'),
-  idToken?: string(name='id_token', example='eyJraWQiOiJLRVlLZ0Iyxxxxx'),
-  refreshToken?: string(name='refresh_token', example='ATxxxxx'),
-  scope?: string(name='scope', example='openid'),
-  tokenType?: string(name='token_type', example='Bearer'),
+  accessToken?: string(name='access_token', description='Access credential.', example='eyJraWQiOiJLRVlLZ0Iyxxxxx'),
+  expiresAt?: long(name='expires_at', description='Expiration time of the access credential, as a UNIX timestamp in seconds.', example='1653288641'),
+  expiresIn?: long(name='expires_in', description='Validity period of the access credential, in seconds.', example='1200'),
+  idToken?: string(name='id_token', description='Identity credential.', example='eyJraWQiOiJLRVlLZ0Iyxxxxx'),
+  refreshToken?: string(name='refresh_token', description='Refresh token.', example='ATxxxxx'),
+  scope?: string(name='scope', description='Scope.', example='openid'),
+  tokenType?: string(name='token_type', description='Token type.', example='Bearer'),
 }
 
 model GenerateTokenByAuthorizationServerResponse = {
@@ -1314,7 +1625,7 @@ model GenerateTokenByAuthorizationServerResponse = {
 }
 
 /**
- * @summary 实例级授权服务器 Token 端点
+ * @summary The token endpoint for an instance-level authorization server.
  *
  * @param request GenerateTokenByAuthorizationServerRequest
  * @param headers map
@@ -1393,7 +1704,7 @@ async function generateTokenByAuthorizationServerWithOptions(instanceId: string,
 }
 
 /**
- * @summary 实例级授权服务器 Token 端点
+ * @summary The token endpoint for an instance-level authorization server.
  *
  * @param request GenerateTokenByAuthorizationServerRequest
  * @return GenerateTokenByAuthorizationServerResponse
@@ -1406,7 +1717,9 @@ async function generateTokenByAuthorizationServer(instanceId: string, authorizat
 
 model GetApplicationProvisioningScopeHeaders {
   commonHeaders?: map[string]string,
-  authorization?: string(name='Authorization', description='The authentication information. Format: Bearer ${access_token}. Example: Bearer ATxxxx.
+  authorization?: string(name='Authorization', description='The authentication information.
+Format: Bearer ${access_token}.
+Example: Bearer ATxxxx.
 
 This parameter is required.', example='Bearer AT8csE2seYxxxxxij'),
 }
@@ -1415,8 +1728,8 @@ model GetApplicationProvisioningScopeRequest {
 }
 
 model GetApplicationProvisioningScopeResponseBody = {
-  groupIds?: [ string ](name='groupIds'),
-  organizationalUnitIds?: [ string ](name='organizationalUnitIds', description='The IDs of organizational units.', example='[ou_xxx001]'),
+  groupIds?: [ string ](name='groupIds', description='The list of group IDs.'),
+  organizationalUnitIds?: [ string ](name='organizationalUnitIds', description='The list of organization IDs.', example='[ou_xxx001]'),
 }
 
 model GetApplicationProvisioningScopeResponse = {
@@ -1426,10 +1739,9 @@ model GetApplicationProvisioningScopeResponse = {
 }
 
 /**
- * @summary Queries the synchronization scope of an application in an instance.
+ * @summary The GetApplicationProvisioningScope operation retrieves the synchronization scope of an application in a specific instance.
  *
- * @description > 
- * *   You can go to the Applications page in the IDaaS console to set the synchronization scope. After an application is created, the application has the permission to call this operation by default.
+ * @description > - You can set the synchronization scope in Application Management in the IDaaS console. After you create an application, you have permission to call this API by default.
  *
  * @param request GetApplicationProvisioningScopeRequest
  * @param headers GetApplicationProvisioningScopeHeaders
@@ -1464,10 +1776,9 @@ async function getApplicationProvisioningScopeWithOptions(instanceId: string, ap
 }
 
 /**
- * @summary Queries the synchronization scope of an application in an instance.
+ * @summary The GetApplicationProvisioningScope operation retrieves the synchronization scope of an application in a specific instance.
  *
- * @description > 
- * *   You can go to the Applications page in the IDaaS console to set the synchronization scope. After an application is created, the application has the permission to call this operation by default.
+ * @description > - You can set the synchronization scope in Application Management in the IDaaS console. After you create an application, you have permission to call this API by default.
  *
  * @param request GetApplicationProvisioningScopeRequest
  * @return GetApplicationProvisioningScopeResponse
@@ -1507,7 +1818,7 @@ model GetGroupResponse = {
 }
 
 /**
- * @summary Queries the details of a group.
+ * @summary Retrieves the details of a group.
  *
  * @param request GetGroupRequest
  * @param headers GetGroupHeaders
@@ -1542,7 +1853,7 @@ async function getGroupWithOptions(instanceId: string, applicationId: string, gr
 }
 
 /**
- * @summary Queries the details of a group.
+ * @summary Retrieves the details of a group.
  *
  * @param request GetGroupRequest
  * @return GetGroupResponse
@@ -1573,10 +1884,13 @@ model GetOrganizationalUnitResponseBody = {
   organizationalUnitSourceId?: string(name='organizationalUnitSourceId', description='The source ID of the organizational unit.', example='id_wovwffm62xifdziem7an7xxxxx'),
   organizationalUnitSourceType?: string(name='organizationalUnitSourceType', description='The source type of the organizational unit. Valid values:
 
-*   build_in: The organizational unit was created in Identity as a Service (IDaaS).
-*   ding_talk: The organizational unit was imported from DingTalk.
-*   ad: The organizational unit was imported from Microsoft Active Directory (AD).
-*   ldap: The organizational unit was imported from a Lightweight Directory Access Protocol (LDAP) service.', example='build_in'),
+- build_in: The organizational unit was created in Identity as a Service (IDaaS).
+
+- ding_talk: The organizational unit was imported from DingTalk.
+
+- ad: The organizational unit was imported from Microsoft Active Directory (AD).
+
+- ldap: The organizational unit was imported from a Lightweight Directory Access Protocol (LDAP) service.', example='build_in'),
   parentId?: string(name='parentId', description='The ID of the parent organizational unit.', example='ou_wovwffm62xifdziem7an7xxxxx'),
   updateTime?: long(name='updateTime', description='The time when the organizational unit was last updated. This value is a UNIX timestamp representing the number of milliseconds that have elapsed since January 1, 1970, 00:00:00 UTC.', example='1652083425923'),
 }
@@ -1588,7 +1902,7 @@ model GetOrganizationalUnitResponse = {
 }
 
 /**
- * @summary Queries the information of an organizational unit.
+ * @summary Retrieves the information about an organizational unit.
  *
  * @param request GetOrganizationalUnitRequest
  * @param headers GetOrganizationalUnitHeaders
@@ -1623,7 +1937,7 @@ async function getOrganizationalUnitWithOptions(instanceId: string, applicationI
 }
 
 /**
- * @summary Queries the information of an organizational unit.
+ * @summary Retrieves the information about an organizational unit.
  *
  * @param request GetOrganizationalUnitRequest
  * @return GetOrganizationalUnitResponse
@@ -1654,10 +1968,13 @@ If the organizational unit was created in IDaaS, its source ID is the ID of the 
 This parameter is required.', example='idaas_ue2jvisn35ea5lmthk267xxxxx'),
   organizationalUnitSourceType?: string(name='organizationalUnitSourceType', description='The source type of the organizational unit. Valid values:
 
-*   build_in: The organizational unit was created in IDaaS.
-*   ding_talk: The organizational unit was imported from DingTalk.
-*   ad: The organizational unit was imported from Microsoft Active Directory (AD).
-*   ldap: The organizational unit was imported from a Lightweight Directory Access Protocol (LDAP) service.
+- build_in: The organizational unit was created in IDaaS.
+
+- ding_talk: The organizational unit was imported from DingTalk.
+
+- ad: The organizational unit was imported from Microsoft Active Directory (AD).
+
+- ldap: The organizational unit was imported from a Lightweight Directory Access Protocol (LDAP) service.
 
 This parameter is required.', example='build_in'),
 }
@@ -1750,7 +2067,7 @@ model GetUserResponseBody = {
       fieldValue?: string(name='fieldValue', description='The value of the extended field. Field values are returned as strings regardless of the data types of the fields. For example, true or false is returned for a Boolean field.', example='字段数据值'),
     }
   ](name='customFields', description='The extended fields of the account.'),
-  description?: string(name='description', description='The description of the account.', example='xxxx'),
+  description?: string(name='description', description='The description of the account.', example='测试账户'),
   displayName?: string(name='displayName', description='The display name of the account.', example='display_name001'),
   email?: string(name='email', description='The email address of the user.', example='example@example.com'),
   emailVerified?: boolean(name='emailVerified', description='Indicates whether the email address has been verified. A value of true indicates that the email address has been verified by the user or has been set to the verified status by the administrator. A value of false indicates that the email address has not been verified.', example='true'),
@@ -1787,10 +2104,13 @@ Note: For accounts with the same source type and source ID, each account has a u
 If the account was created in IDaaS, its source ID is the ID of the IDaaS instance. If the account was imported, its source ID is the enterprise ID in the source. For example, if the account was imported from DingTalk, its source ID is the corpId value of the enterprise in DingTalk.', example='idaas_ue2jvisn35ea5lmthk267xxxxx'),
   userSourceType?: string(name='userSourceType', description='The source type of the account. Valid values:
 
-*   build_in: The account was created in IDaaS.
-*   ding_talk: The account was imported from DingTalk.
-*   ad: The account was imported from Microsoft Active Directory (AD).
-*   ldap: The account was imported from a Lightweight Directory Access Protocol (LDAP) service.', example='build_in'),
+- build_in: The account was created in IDaaS.
+
+- ding_talk: The account was imported from DingTalk.
+
+- ad: The account was imported from Microsoft Active Directory (AD).
+
+- ldap: The account was imported from a Lightweight Directory Access Protocol (LDAP) service.', example='build_in'),
   username?: string(name='username', description='The username of the account.', example='name001'),
 }
 
@@ -1801,7 +2121,7 @@ model GetUserResponse = {
 }
 
 /**
- * @summary Queries the details of an Employee Identity and Access Management (EIAM) account.
+ * @summary Retrieves the details of an Employee Identity and Access Management (EIAM) account.
  *
  * @param request GetUserRequest
  * @param headers GetUserHeaders
@@ -1836,7 +2156,7 @@ async function getUserWithOptions(instanceId: string, applicationId: string, use
 }
 
 /**
- * @summary Queries the details of an Employee Identity and Access Management (EIAM) account.
+ * @summary Retrieves the details of an Employee Identity and Access Management (EIAM) account.
  *
  * @param request GetUserRequest
  * @return GetUserResponse
@@ -2015,10 +2335,13 @@ This parameter is required.', example='xxx001'),
 This parameter is required.', example='idaas_ue2jvisn35ea5lmthk267xxxxx'),
   userSourceType?: string(name='userSourceType', description='The source type of the account. Valid values:
 
-*   build_in: The account was created in Identity as a Service (IDaaS).
-*   ding_talk: The account was imported from DingTalk.
-*   ad: The account was imported from Microsoft Active Directory (AD).
-*   ldap: The account was imported from a Lightweight Directory Access Protocol (LDAP) service.
+- build_in: The account was created in Identity as a Service (IDaaS).
+
+- ding_talk: The account was imported from DingTalk.
+
+- ad: The account was imported from Microsoft Active Directory (AD).
+
+- ldap: The account was imported from a Lightweight Directory Access Protocol (LDAP) service.
 
 This parameter is required.', example='build_in'),
 }
@@ -2185,7 +2508,7 @@ model GetUserInfoResponse = {
 }
 
 /**
- * @summary Queries the information of a user by using the user token.
+ * @summary Retrieves the information about a user by using the user token.
  *
  * @param request GetUserInfoRequest
  * @param headers GetUserInfoHeaders
@@ -2220,7 +2543,7 @@ async function getUserInfoWithOptions(instanceId: string, applicationId: string,
 }
 
 /**
- * @summary Queries the information of a user by using the user token.
+ * @summary Retrieves the information about a user by using the user token.
  *
  * @param request GetUserInfoRequest
  * @return GetUserInfoResponse
@@ -2233,38 +2556,56 @@ async function getUserInfo(instanceId: string, applicationId: string, request: G
 
 model ListAuthenticationTokensHeaders {
   commonHeaders?: map[string]string,
-  authorization?: string(name='Authorization', description='This parameter is required.', example='Bearer xxxxxx'),
+  authorization?: string(name='Authorization', description='Authentication information. Format: Bearer ${access_token}.
+
+> Enter an IDaaS-issued Access Token.
+
+This parameter is required.', example='Bearer xxxxxx'),
 }
 
 model ListAuthenticationTokensRequest {
-  consumerId?: string(name='consumerId', description='This parameter is required.', example='app_ngtkgrrxxxxktg5eao6z4xxxxx'),
-  credentialProviderIdentifier?: string(name='credentialProviderIdentifier', description='This parameter is required.', example='test_example_identifier'),
-  expired?: boolean(name='expired', example='false'),
-  maxResults?: long(name='maxResults', example='20'),
-  nextToken?: string(name='nextToken', example='NTxxxxxexample'),
-  revoked?: boolean(name='revoked', example='false'),
+  consumerId?: string(name='consumerId', description='ID of the authentication token consumer.
+
+This parameter is required.', example='app_ngtkgrrxxxxktg5eao6z4xxxxx'),
+  credentialProviderIdentifier?: string(name='credentialProviderIdentifier', description='Credential provider identifier.
+
+This parameter is required.', example='test_example_identifier'),
+  expired?: boolean(name='expired', description='Indicates whether the authentication token is expired.', example='false'),
+  maxResults?: long(name='maxResults', description='Maximum number of records to return in this paged query.', example='20'),
+  nextToken?: string(name='nextToken', description='Token that marks the start of the next page in a paged query.', example='NTxxxxxexample'),
+  revoked?: boolean(name='revoked', description='Indicates whether the authentication token is revoked.', example='false'),
 }
 
 model ListAuthenticationTokensResponseBody = {
   entities?: [ 
     {
-      authenticationTokenId?: string(name='authenticationTokenId', example='atntkn_01kqflm0sxxx8nmdc1cb5dskxxxxx'),
-      authenticationTokenType?: string(name='authenticationTokenType', example='jwt'),
-      consumerId?: string(name='consumerId', example='test_jwt_subject'),
-      consumerType?: string(name='consumerType', example='custom'),
-      createTime?: long(name='createTime', example='1649830225000'),
-      creatorId?: string(name='creatorId', example='app_ngtkgrrxxxxktg5eao6z4xxxxx'),
-      creatorType?: string(name='creatorType', example='application'),
-      credentialProviderId?: string(name='credentialProviderId', example='atp_01kr2cmj5gxxx4fvmls2e93dxxxxx'),
-      expirationTime?: long(name='expirationTime', example='1772693568000'),
-      instanceId?: string(name='instanceId', description='EIAM实例ID。', example='idaas_ue2jvisn35ea5lmthk267xxxxx'),
-      revoked?: boolean(name='revoked', example='false'),
-      updateTime?: long(name='updateTime', example='1649830225000'),
+      authenticationTokenId?: string(name='authenticationTokenId', description='Authentication token ID.', example='atntkn_01kqflm0sxxx8nmdc1cb5dskxxxxx'),
+      authenticationTokenType?: string(name='authenticationTokenType', description='Authentication token type. Valid values:
+
+- jwt: JWT authentication token
+
+- oauth_access_token: OAuth Access Token authentication token', example='jwt'),
+      consumerId?: string(name='consumerId', description='ID of the authentication token consumer.', example='test_jwt_subject'),
+      consumerType?: string(name='consumerType', description='Type of the authentication token consumer. Valid values:
+
+- application: Application
+
+- custom: Custom type', example='custom'),
+      createTime?: long(name='createTime', description='Creation time of the authentication token, as a UNIX timestamp in milliseconds.', example='1649830225000'),
+      creatorId?: string(name='creatorId', description='ID of the authentication token creator.', example='app_ngtkgrrxxxxktg5eao6z4xxxxx'),
+      creatorType?: string(name='creatorType', description='Type of the authentication token creator. Valid values:
+
+- application: Application', example='application'),
+      credentialProviderId?: string(name='credentialProviderId', description='Credential provider ID.', example='atp_01kr2cmj5gxxx4fvmls2e93dxxxxx'),
+      expirationTime?: long(name='expirationTime', description='Expiration time of the authentication token, as a UNIX timestamp in milliseconds.', example='1772693568000'),
+      instanceId?: string(name='instanceId', description='Instance ID.', example='idaas_ue2jvisn35ea5lmthk267xxxxx'),
+      revoked?: boolean(name='revoked', description='Indicates whether the authentication token is revoked.', example='false'),
+      updateTime?: long(name='updateTime', description='Last update time of the authentication token, as a UNIX timestamp in milliseconds.', example='1649830225000'),
     }
-  ](name='entities', description='资源实体列表。'),
-  maxResults?: long(name='maxResults', example='20'),
-  nextToken?: string(name='nextToken', example='NTxxxexample'),
-  totalCount?: long(name='totalCount', example='100'),
+  ](name='entities', description='List of resource entities.'),
+  maxResults?: long(name='maxResults', description='Maximum number of records returned in this query.', example='20'),
+  nextToken?: string(name='nextToken', description='Token returned by this call. Use it for the next paged query to get the next page.', example='NTxxxexample'),
+  totalCount?: long(name='totalCount', description='Total number of resource entities that match the query criteria.', example='100'),
 }
 
 model ListAuthenticationTokensResponse = {
@@ -2274,7 +2615,11 @@ model ListAuthenticationTokensResponse = {
 }
 
 /**
- * @summary 列举认证令牌。
+ * @summary Lists authentication tokens.
+ *
+ * @description This API uses an Access Token issued by IDaaS for identity authentication and authorization.
+ * Ensure that the Access Token you provide has the Query authentication tokens permission for the built-in Privileged Access Management (PAM) application in IDaaS.
+ * > The required scope is `urn:cloud:idaas:pam|authentication_token:read`.
  *
  * @param request ListAuthenticationTokensRequest
  * @param headers ListAuthenticationTokensHeaders
@@ -2330,7 +2675,11 @@ async function listAuthenticationTokensWithOptions(instanceId: string, request: 
 }
 
 /**
- * @summary 列举认证令牌。
+ * @summary Lists authentication tokens.
+ *
+ * @description This API uses an Access Token issued by IDaaS for identity authentication and authorization.
+ * Ensure that the Access Token you provide has the Query authentication tokens permission for the built-in Privileged Access Management (PAM) application in IDaaS.
+ * > The required scope is `urn:cloud:idaas:pam|authentication_token:read`.
  *
  * @param request ListAuthenticationTokensRequest
  * @return ListAuthenticationTokensResponse
@@ -2380,7 +2729,7 @@ model ListGroupsResponse = {
 }
 
 /**
- * @summary Queries information about Employee Identity and Access Management (EIAM) groups by page.
+ * @summary Retrieves information about Employee Identity and Access Management (EIAM) groups by page.
  *
  * @param request ListGroupsRequest
  * @param headers ListGroupsHeaders
@@ -2427,7 +2776,7 @@ async function listGroupsWithOptions(instanceId: string, applicationId: string, 
 }
 
 /**
- * @summary Queries information about Employee Identity and Access Management (EIAM) groups by page.
+ * @summary Retrieves information about Employee Identity and Access Management (EIAM) groups by page.
  *
  * @param request ListGroupsRequest
  * @return ListGroupsResponse
@@ -2440,26 +2789,30 @@ async function listGroups(instanceId: string, applicationId: string, request: Li
 
 model ListGroupsForUserHeaders {
   commonHeaders?: map[string]string,
-  authorization?: string(name='Authorization', description='This parameter is required.', example='Bearer xxxx'),
+  authorization?: string(name='Authorization', description='The authentication information.
+Format: Bearer ${access_token}.
+Example: Bearer ATxxxx.
+
+This parameter is required.', example='Bearer xxxx'),
 }
 
 model ListGroupsForUserRequest {
-  maxResults?: int32(name='maxResults', example='20'),
-  nextToken?: string(name='nextToken', description='nextToken', example='NTxxx'),
+  maxResults?: int32(name='maxResults', description='The number of entries per page. Default value: 20.', example='20'),
+  nextToken?: string(name='nextToken', description='The token to retrieve the next page of results. Leave this parameter empty to query from the first page.', example='NTxxx'),
 }
 
 model ListGroupsForUserResponseBody = {
   data?: [ 
     {
-      groupId?: string(name='groupId', example='user_d6sbsuumeta4h66ec3il7yxxxx'),
-      groupMemberRelationSourceId?: string(name='groupMemberRelationSourceId', example='idaas_ue2jvisn35ea5lmthk267xxxxx'),
-      groupMemberRelationSourceType?: string(name='groupMemberRelationSourceType', example='build_in'),
-      instanceId?: string(name='instanceId', example='idaas_ue2jvisn35ea5lmthk267xxxxx'),
+      groupId?: string(name='groupId', description='The group ID.', example='user_d6sbsuumeta4h66ec3il7yxxxx'),
+      groupMemberRelationSourceId?: string(name='groupMemberRelationSourceId', description='The source ID of the group membership.', example='idaas_ue2jvisn35ea5lmthk267xxxxx'),
+      groupMemberRelationSourceType?: string(name='groupMemberRelationSourceType', description='The source type of the group membership.', example='build_in'),
+      instanceId?: string(name='instanceId', description='The instance ID.', example='idaas_ue2jvisn35ea5lmthk267xxxxx'),
     }
-  ](name='data'),
-  maxResults?: long(name='maxResults', example='20'),
-  nextToken?: string(name='nextToken', example='NTxxx'),
-  totalCount?: long(name='totalCount', example='1000'),
+  ](name='data', description='The data object.'),
+  maxResults?: long(name='maxResults', description='The maximum number of entries returned on each page.', example='20'),
+  nextToken?: string(name='nextToken', description='The token to retrieve the next page of results. If this parameter is not returned, all results have been returned.', example='NTxxx'),
+  totalCount?: long(name='totalCount', description='The total number of entries.', example='1000'),
 }
 
 model ListGroupsForUserResponse = {
@@ -2469,7 +2822,7 @@ model ListGroupsForUserResponse = {
 }
 
 /**
- * @summary 获取账户关联组列表
+ * @summary Lists the groups that an EIAM user is a member of.
  *
  * @param request ListGroupsForUserRequest
  * @param headers ListGroupsForUserHeaders
@@ -2513,7 +2866,7 @@ async function listGroupsForUserWithOptions(instanceId: string, applicationId: s
 }
 
 /**
- * @summary 获取账户关联组列表
+ * @summary Lists the groups that an EIAM user is a member of.
  *
  * @param request ListGroupsForUserRequest
  * @return ListGroupsForUserResponse
@@ -2545,7 +2898,7 @@ model ListOrganizationalUnitParentIdsResponse = {
 }
 
 /**
- * @summary Queries the information of all the parent organizational units of an organizational unit.
+ * @summary Retrieves the information about all the parent organizational units of an organizational unit.
  *
  * @param request ListOrganizationalUnitParentIdsRequest
  * @param headers ListOrganizationalUnitParentIdsHeaders
@@ -2580,7 +2933,7 @@ async function listOrganizationalUnitParentIdsWithOptions(instanceId: string, ap
 }
 
 /**
- * @summary Queries the information of all the parent organizational units of an organizational unit.
+ * @summary Retrieves the information about all the parent organizational units of an organizational unit.
  *
  * @param request ListOrganizationalUnitParentIdsRequest
  * @return ListOrganizationalUnitParentIdsResponse
@@ -2593,15 +2946,15 @@ async function listOrganizationalUnitParentIds(instanceId: string, applicationId
 
 model ListOrganizationalUnitsHeaders {
   commonHeaders?: map[string]string,
-  authorization?: string(name='Authorization', description='The authentication information. Format: Bearer ${access_token}. Example: Bearer ATxxxx.
+  authorization?: string(name='Authorization', description='The authentication information. The value must be in the format of \\\\`Bearer ${access_token}\\\\`. Example: \\\\`Bearer ATxxxx\\\\`.
 
 This parameter is required.', example='Bearer AT8csE2seYxxxxxij'),
 }
 
 model ListOrganizationalUnitsRequest {
-  pageNumber?: int32(name='pageNumber', description='The page number. Default value: 1.', example='1'),
-  pageSize?: int32(name='pageSize', description='The number of entries per page. Default value: 20. Valid values: 1 to 100.', example='20'),
-  parentId?: string(name='parentId', description='The ID of the parent organizational unit.
+  pageNumber?: int32(name='pageNumber', description='The page number. The default value is 1.', example='1'),
+  pageSize?: int32(name='pageSize', description='The number of records on each page. The default value is 20. The value can range from 1 to 100.', example='20'),
+  parentId?: string(name='parentId', description='The parent organization ID.
 
 This parameter is required.', example='ou_wovwffm62xifdziem7an7xxxxx'),
 }
@@ -2609,28 +2962,31 @@ This parameter is required.', example='ou_wovwffm62xifdziem7an7xxxxx'),
 model ListOrganizationalUnitsResponseBody = {
   data?: [ 
     {
-      createTime?: long(name='createTime', description='The time when the organizational unit was created. This value is a UNIX timestamp representing the number of milliseconds that have elapsed since January 1, 1970, 00:00:00 UTC.', example='1652083425923'),
-      description?: string(name='description', description='The description of the organizational unit.', example='test organizational unit'),
+      createTime?: long(name='createTime', description='The time when the organization was created. This is a UNIX timestamp. Unit: milliseconds.', example='1652083425923'),
+      description?: string(name='description', description='The description of the organization.', example='测试组织'),
       instanceId?: string(name='instanceId', description='The instance ID.', example='idaas_ue2jvisn35ea5lmthk267xxxxx'),
-      organizationalUnitExternalId?: string(name='organizationalUnitExternalId', description='The external ID of the organizational unit. The external ID can be used to map external data to the data of the organizational unit in EIAM of Identity as a Service (IDaaS). By default, the external ID is the organizational unit ID.
+      organizationalUnitExternalId?: string(name='organizationalUnitExternalId', description='The external ID of the organization. This ID is used to map external data to the organization\\\\"s data in IDaaS. The default value is the IDaaS organization ID.
 
-Note: For organizational units with the same source type and source ID, each organizational unit has a unique external ID.', example='ou_wovwffm62xifdziem7an7xxxxx'),
-      organizationalUnitId?: string(name='organizationalUnitId', description='The ID of the organizational unit.', example='ou_wovwffm62xifdziem7an7xxxxx'),
-      organizationalUnitName?: string(name='organizationalUnitName', description='The name of the organizational unit.', example='name001'),
-      organizationalUnitSourceId?: string(name='organizationalUnitSourceId', description='The source ID of the organizational unit.
+Note: The external ID must be unique for the same source type and source ID.', example='ou_wovwffm62xifdziem7an7xxxxx'),
+      organizationalUnitId?: string(name='organizationalUnitId', description='The organization ID.', example='ou_wovwffm62xifdziem7an7xxxxx'),
+      organizationalUnitName?: string(name='organizationalUnitName', description='The organization name.', example='name001'),
+      organizationalUnitSourceId?: string(name='organizationalUnitSourceId', description='The source ID of the organization.
 
-If the organizational unit was created in IDaaS, its source ID is the ID of the IDaaS instance. If the organizational unit was imported, its source ID is the enterprise ID in the source. For example, if the organizational unit was imported from DingTalk, its source ID is the corpId value of the enterprise in DingTalk.', example='idaas_ue2jvisn35ea5lmthk267xxxxx'),
-      organizationalUnitSourceType?: string(name='organizationalUnitSourceType', description='The source type of the organizational unit. Valid values:
+For the \\\\`build_in\\\\` type, the default value is the instance ID. For other types, the value is the enterprise ID from the source. For example, if the source is DingTalk, the value is the \\\\`corpId\\\\` of the DingTalk enterprise.', example='idaas_ue2jvisn35ea5lmthk267xxxxx'),
+      organizationalUnitSourceType?: string(name='organizationalUnitSourceType', description='The source type of the organization. Valid values:
 
-*   build_in: The organizational unit was created in IDaaS.
-*   ding_talk: The organizational unit was imported from DingTalk.
-*   ad: The organizational unit was imported from Microsoft Active Directory (AD).
-*   ldap: The organizational unit was imported from a Lightweight Directory Access Protocol (LDAP) service.', example='build_in'),
-      parentId?: string(name='parentId', description='The ID of the parent organizational unit.', example='ou_wovwffm62xifdziem7an7xxxxx'),
-      updateTime?: long(name='updateTime', description='The time when the organizational unit was last updated. This value is a UNIX timestamp representing the number of milliseconds that have elapsed since January 1, 1970, 00:00:00 UTC.', example='1652083425923'),
+- \\\\`build_in\\\\`: The organization is created in IDaaS.
+
+- \\\\`ding_talk\\\\`: The organization is imported from DingTalk.
+
+- \\\\`ad\\\\`: The organization is imported from Active Directory (AD).
+
+- \\\\`ldap\\\\`: The organization is imported from LDAP.', example='build_in'),
+      parentId?: string(name='parentId', description='The parent organization ID.', example='ou_wovwffm62xifdziem7an7xxxxx'),
+      updateTime?: long(name='updateTime', description='The time when the organization was last updated. This is a UNIX timestamp. Unit: milliseconds.', example='1652083425923'),
     }
-  ](name='data', description='The queried organizational units.'),
-  totalCount?: long(name='totalCount', description='The total number of entries returned.', example='1000'),
+  ](name='data', description='A list of data objects.'),
+  totalCount?: long(name='totalCount', description='The total number of records.', example='1000'),
 }
 
 model ListOrganizationalUnitsResponse = {
@@ -2640,7 +2996,14 @@ model ListOrganizationalUnitsResponse = {
 }
 
 /**
- * @summary Queries the information of Employee Identity and Access Management (EIAM) organizational units by page.
+ * @summary Performs a paged query to retrieve organization information from EIAM.
+ *
+ * @description To retrieve the direct child organizations of the root organization, set the request parameter as follows:
+ * ```
+ * {
+ *   "parentOrganizationalUnitId": "ou_root"
+ * }
+ * ```
  *
  * @param request ListOrganizationalUnitsRequest
  * @param headers ListOrganizationalUnitsHeaders
@@ -2687,7 +3050,14 @@ async function listOrganizationalUnitsWithOptions(instanceId: string, applicatio
 }
 
 /**
- * @summary Queries the information of Employee Identity and Access Management (EIAM) organizational units by page.
+ * @summary Performs a paged query to retrieve organization information from EIAM.
+ *
+ * @description To retrieve the direct child organizations of the root organization, set the request parameter as follows:
+ * ```
+ * {
+ *   "parentOrganizationalUnitId": "ou_root"
+ * }
+ * ```
  *
  * @param request ListOrganizationalUnitsRequest
  * @return ListOrganizationalUnitsResponse
@@ -2700,52 +3070,55 @@ async function listOrganizationalUnits(instanceId: string, applicationId: string
 
 model ListUsersHeaders {
   commonHeaders?: map[string]string,
-  authorization?: string(name='Authorization', description='The authentication information. The value is in the Bearer ${access_token} format. Example: Bearer ATxxxx.
+  authorization?: string(name='Authorization', description='The authentication information. Format: Bearer ${access_token}. Example: Bearer ATxxxx.
 
 This parameter is required.', example='Bearer AT8csE2seYxxxxxij'),
 }
 
 model ListUsersRequest {
-  organizationalUnitId?: string(name='organizationalUnitId', description='The ID of the organizational unit.', example='ou_wovwffm62xifdziem7an7xxxxx'),
-  pageNumber?: int32(name='pageNumber', description='The page number. Default value: 1.', example='1'),
-  pageSize?: int32(name='pageSize', description='The number of entries per page. Default value: 20. Valid values: 1 to 100.', example='20'),
+  organizationalUnitId?: string(name='organizationalUnitId', description='The organization ID.', example='ou_wovwffm62xifdziem7an7xxxxx'),
+  pageNumber?: int32(name='pageNumber', description='The page number. The default value is 1.', example='1'),
+  pageSize?: int32(name='pageSize', description='The number of records to return on each page. The default value is 20. The value must be in the range of 1 to 100.', example='20'),
 }
 
 model ListUsersResponseBody = {
   data?: [ 
     {
-      accountExpireTime?: long(name='accountExpireTime', description='The time when the account expires. This value is a UNIX timestamp representing the number of milliseconds that have elapsed since January 1, 1970, 00:00:00 UTC.', example='1652085686179'),
-      createTime?: long(name='createTime', description='The time when the account was created. This value is a UNIX timestamp representing the number of milliseconds that have elapsed since January 1, 1970, 00:00:00 UTC.', example='1652085686179'),
-      description?: string(name='description', example='xxxx'),
+      accountExpireTime?: long(name='accountExpireTime', description='The time when the account expires. This value is a UNIX timestamp. Unit: milliseconds.', example='1652085686179'),
+      createTime?: long(name='createTime', description='The time when the account was created. This value is a UNIX timestamp. Unit: milliseconds.', example='1652085686179'),
+      description?: string(name='description', description='The description of the account.', example='测试账户'),
       displayName?: string(name='displayName', description='The display name of the account.', example='display_name001'),
-      email?: string(name='email', description='The email address of the user who owns the account.', example='example@example.com'),
-      emailVerified?: boolean(name='emailVerified', description='Indicates whether the email address has been verified. A value of true indicates that the email address has been verified by the user or has been set to the verified status by the administrator. A value of false indicates that the email address has not been verified.', example='true'),
+      email?: string(name='email', description='The email address of the account.', example='example@example.com'),
+      emailVerified?: boolean(name='emailVerified', description='Indicates whether the email address is verified. A value of true indicates that the email address is verified by the user or set to verified by the administrator. A value of false indicates that the email address is not verified.', example='true'),
       instanceId?: string(name='instanceId', description='The instance ID.', example='idaas_ue2jvisn35ea5lmthk267xxxxx'),
-      lockExpireTime?: long(name='lockExpireTime', description='The time when the account lock expires. This value is a UNIX timestamp representing the number of milliseconds that have elapsed since January 1, 1970, 00:00:00 UTC.', example='1652085686179'),
-      passwordSet?: boolean(name='passwordSet', example='true'),
-      phoneNumber?: string(name='phoneNumber', description='The mobile number of the user who owns the account.', example='156xxxxxxx'),
-      phoneNumberVerified?: boolean(name='phoneNumberVerified', description='Indicates whether the mobile number has been verified. A value of true indicates that the mobile number has been verified by the user or has been set to the verified status by the administrator. A value of false indicates that the mobile number has not been verified.', example='true'),
-      phoneRegion?: string(name='phoneRegion', description='The country code of the mobile number. For example, the country code of China is 86 without 00 or +.', example='86'),
-      registerTime?: long(name='registerTime', description='The time when the account was registered. This value is a UNIX timestamp representing the number of milliseconds that have elapsed since January 1, 1970, 00:00:00 UTC.', example='1652085686179'),
-      status?: string(name='status', description='The status of the account. Valid values: enabled disabled', example='enabled'),
-      updateTime?: long(name='updateTime', description='The time when the account was last modified. This value is a UNIX timestamp representing the number of milliseconds that have elapsed since January 1, 1970, 00:00:00 UTC.', example='1652085686179'),
-      userExternalId?: string(name='userExternalId', description='The external ID of the account. The external ID can be used to map external data to the data of the account in EIAM of Identity as a Service (IDaaS). By default, the external ID is the account ID.
+      lockExpireTime?: long(name='lockExpireTime', description='The time when the account lock expires. This value is a UNIX timestamp. Unit: milliseconds.', example='1652085686179'),
+      passwordSet?: boolean(name='passwordSet', description='Indicates whether a password is set.', example='true'),
+      phoneNumber?: string(name='phoneNumber', description='The mobile phone number of the account.', example='156xxxxxxx'),
+      phoneNumberVerified?: boolean(name='phoneNumberVerified', description='Indicates whether the mobile phone number is verified. A value of true indicates that the mobile phone number is verified by the user or set to verified by the administrator. A value of false indicates that the mobile phone number is not verified.', example='true'),
+      phoneRegion?: string(name='phoneRegion', description='The area code for the mobile phone number. For example, the area code for a mobile phone number in the Chinese mainland is 86. Do not add 00 or a plus sign (+).', example='86'),
+      registerTime?: long(name='registerTime', description='The time when the account was registered. This value is a UNIX timestamp. Unit: milliseconds.', example='1652085686179'),
+      status?: string(name='status', description='The status of the account. Valid values: enabled: The account is enabled. disabled: The account is disabled.', example='enabled'),
+      updateTime?: long(name='updateTime', description='The time when the account was last updated. This value is a UNIX timestamp. Unit: milliseconds.', example='1652085686179'),
+      userExternalId?: string(name='userExternalId', description='The external ID of the account. This ID is used to map external data to the IDaaS account. By default, this parameter is the same as the IDaaS account ID.
 
-Note: For accounts with the same source type and source ID, each account has a unique external ID.', example='user_d6sbsuumeta4h66ec3il7yxxxx'),
+Note: The external ID must be unique for the same source type and source ID.', example='user_d6sbsuumeta4h66ec3il7yxxxx'),
       userId?: string(name='userId', description='The account ID.', example='user_d6sbsuumeta4h66ec3il7yxxxx'),
       userSourceId?: string(name='userSourceId', description='The source ID of the account.
 
-If the account was created in IDaaS, its source ID is the ID of the IDaaS instance. If the account was imported, its source ID is the enterprise ID in the source. For example, if the account was imported from DingTalk, its source ID is the corpId value of the enterprise in DingTalk.', example='idaas_ue2jvisn35ea5lmthk267xxxxx'),
+For accounts created in IDaaS, the default value is the instance ID. For other types of accounts, the value is the enterprise ID from the source. For example, for an account from DingTalk, the value is the corpId of the DingTalk enterprise.', example='idaas_ue2jvisn35ea5lmthk267xxxxx'),
       userSourceType?: string(name='userSourceType', description='The source type of the account. Valid values:
 
-*   build_in: The account was created in IDaaS.
-*   ding_talk: The account was imported from DingTalk.
-*   ad: The account was imported from Microsoft Active Directory (AD).
-*   ldap: The account was imported from a Lightweight Directory Access Protocol (LDAP) service.', example='build_in'),
-      username?: string(name='username', description='The username of the account.', example='name001'),
+- build_in: The account is created in IDaaS.
+
+- ding_talk: The account is imported from DingTalk.
+
+- ad: The account is imported from Active Directory (AD).
+
+- ldap: The account is imported from LDAP.', example='build_in'),
+      username?: string(name='username', description='The account name.', example='name001'),
     }
-  ](name='data', description='The queried EIAM accounts.'),
-  totalCount?: long(name='totalCount', description='The total number of entries returned.', example='1000'),
+  ](name='data', description='The list of returned data objects.'),
+  totalCount?: long(name='totalCount', description='The total number of records.', example='1000'),
 }
 
 model ListUsersResponse = {
@@ -2755,7 +3128,7 @@ model ListUsersResponse = {
 }
 
 /**
- * @summary Queries the information of Employee Identity and Access Management (EIAM) accounts by page.
+ * @summary Performs a paged query for EIAM account information.
  *
  * @param request ListUsersRequest
  * @param headers ListUsersHeaders
@@ -2802,7 +3175,7 @@ async function listUsersWithOptions(instanceId: string, applicationId: string, r
 }
 
 /**
- * @summary Queries the information of Employee Identity and Access Management (EIAM) accounts by page.
+ * @summary Performs a paged query for EIAM account information.
  *
  * @param request ListUsersRequest
  * @return ListUsersResponse
@@ -2901,35 +3274,51 @@ async function listUsersForGroup(instanceId: string, applicationId: string, grou
 
 model ObtainCloudAccountRoleAccessCredentialHeaders {
   commonHeaders?: map[string]string,
-  authorization?: string(name='Authorization', description='This parameter is required.', example='Bearer xxxxxx'),
+  authorization?: string(name='Authorization', description='The authentication information. Format: Bearer ${access_token}. 
+> Enter the Access Token issued by IDaaS.
+
+This parameter is required.', example='Bearer xxxxxx'),
 }
 
 model ObtainCloudAccountRoleAccessCredentialRequest {
-  cloudAccountRoleExternalId?: string(name='cloudAccountRoleExternalId', description='This parameter is required.', example='acs:ram::xxx:role/role-test'),
-  durationSeconds?: int32(name='durationSeconds'),
+  cloudAccountRoleExternalId?: string(name='cloudAccountRoleExternalId', description='The business identifier of the cloud account role.
+
+This parameter is required.', example='acs:ram::xxx:role/role-test'),
+  durationSeconds?: int32(name='durationSeconds', description='Specifies the validity duration of the temporary security credentials (STS Token) for the cloud account role, in seconds. Valid values: 900 to 43200 (15 minutes to 12 hours).
+Constraints:
+- The minimum value cannot be less than 900 seconds.
+- The maximum value is subject to the maximum session duration of the cloud provider role or service account. For example, the default maximum session duration for an AWS role is 3600 seconds.', example='1800'),
 }
 
 model ObtainCloudAccountRoleAccessCredentialResponseBody = {
-  cloudAccountId?: string(name='cloudAccountId', example='ca_01kmegjc11qa1txxxxx'),
+  cloudAccountId?: string(name='cloudAccountId', description='The cloud account ID.', example='ca_01kmegjc11qa1txxxxx'),
   cloudAccountRoleAccessCredential?: {
-    accessCredentialExpiresAt?: long(name='accessCredentialExpiresAt', example='1767196800'),
+    accessCredentialExpiresAt?: long(name='accessCredentialExpiresAt', description='The expiration time of the temporary access credentials for the cloud account role, in UNIX timestamp format and in seconds.', example='1767196800'),
     alibabaCloudStsToken?: {
-      accessKeyId?: string(name='accessKeyId', example='STS.NUgYrLnoC37mZZCNnAbez****'),
-      accessKeySecret?: string(name='accessKeySecret', example='CVwjCkNzTMupZ8NbTCxCBRq3K16jtcWFTJAyBEv2****'),
-      expiration?: string(name='expiration', example='2021-10-20T04:27:09Z'),
-      securityToken?: string(name='securityToken', example='CAIShwJ1q6Ft5B2yfSjIr5bSEsj4g7BihPWGWHz****'),
-    }(name='alibabaCloudStsToken'),
+      accessKeyId?: string(name='accessKeyId', description='The access key ID.', example='STS.NUgYrLnoC37mZZCNnAbez****'),
+      accessKeySecret?: string(name='accessKeySecret', description='The access key secret.', example='CVwjCkNzTMupZ8NbTCxCBRq3K16jtcWFTJAyBEv2****'),
+      expiration?: string(name='expiration', description='The expiration time of the token (UTC).', example='2021-10-20T04:27:09Z'),
+      securityToken?: string(name='securityToken', description='The security token.', example='CAIShwJ1q6Ft5B2yfSjIr5bSEsj4g7BihPWGWHz****'),
+    }(name='alibabaCloudStsToken', description='The temporary identity credentials (STS Token) for assuming an Alibaba Cloud RAM role.
+> This field is returned only when the cloud account type associated with the cloud account role is Alibaba Cloud (alibaba_cloud).'),
     awsStsToken?: {
-      accessKeyId?: string(name='accessKeyId'),
+      accessKeyId?: string(name='accessKeyId', description='The access key ID.', example='ASIAYBGN7XJKRFOM****'),
+      expiration?: string(name='expiration', description='The expiration time of the STS Token (UTC).', example='2021-10-20T04:27:09Z'),
+      secretAccessKey?: string(name='secretAccessKey', description='The secret access key.', example='CVwjCkNzTMupZ8NbTCxCBRq3K16jtcWFTJAyBEv2****'),
+      sessionToken?: string(name='sessionToken', description='The session token of the temporary credentials.', example='FwoDYXdzEJzfSjIr5bSEsj4g7BihPWGWHz****'),
+    }(name='awsStsToken', description='The STS Token representing an AWS role.'),
+    tencentCloudStsToken?: {
       expiration?: string(name='expiration'),
-      secretAccessKey?: string(name='secretAccessKey'),
-      sessionToken?: string(name='sessionToken'),
-    }(name='awsStsToken'),
-  }(name='cloudAccountRoleAccessCredential'),
-  cloudAccountRoleExternalId?: string(name='cloudAccountRoleExternalId', example='acs:ram::xxx:role/role-test'),
-  cloudAccountRoleId?: string(name='cloudAccountRoleId', example='carole_01kmek49aqxxxx'),
-  cloudAccountRoleName?: string(name='cloudAccountRoleName', example='role-test'),
-  cloudAccountVendorType?: string(name='cloudAccountVendorType', example='alibaba_cloud'),
+      tmpSecretId?: string(name='tmpSecretId'),
+      tmpSecretKey?: string(name='tmpSecretKey'),
+      token?: string(name='token'),
+    }(name='tencentCloudStsToken'),
+  }(name='cloudAccountRoleAccessCredential', description='The temporary access credentials for assuming the cloud account role.'),
+  cloudAccountRoleExternalId?: string(name='cloudAccountRoleExternalId', description='The business identifier of the cloud account role.', example='acs:ram::xxx:role/role-test'),
+  cloudAccountRoleId?: string(name='cloudAccountRoleId', description='The cloud account role ID.', example='carole_01kmek49aqxxxx'),
+  cloudAccountRoleName?: string(name='cloudAccountRoleName', description='The cloud account role name.', example='role-test'),
+  cloudAccountVendorType?: string(name='cloudAccountVendorType', description='The cloud account type. Valid values:
+- alibaba_cloud: Alibaba Cloud.', example='alibaba_cloud'),
 }
 
 model ObtainCloudAccountRoleAccessCredentialResponse = {
@@ -2939,7 +3328,11 @@ model ObtainCloudAccountRoleAccessCredentialResponse = {
 }
 
 /**
- * @summary 获取云角色（CloudAccountRole）的临时访问凭证
+ * @summary Retrieves temporary access credentials for a cloud account role (CloudAccountRole).
+ *
+ * @description This API authenticates and authorizes requests based on an Access Token issued by IDaaS.
+ * Ensure that the Access Token has the "Obtain Cloud Role Access Credential" permission for the IDaaS built-in PAM application (Privileged Access Management).
+ * > The corresponding scope is `urn:cloud:idaas:pam|cloud_account_role:obtain_access_credential`.
  *
  * @param request ObtainCloudAccountRoleAccessCredentialRequest
  * @param headers ObtainCloudAccountRoleAccessCredentialHeaders
@@ -2983,7 +3376,11 @@ async function obtainCloudAccountRoleAccessCredentialWithOptions(instanceId: str
 }
 
 /**
- * @summary 获取云角色（CloudAccountRole）的临时访问凭证
+ * @summary Retrieves temporary access credentials for a cloud account role (CloudAccountRole).
+ *
+ * @description This API authenticates and authorizes requests based on an Access Token issued by IDaaS.
+ * Ensure that the Access Token has the "Obtain Cloud Role Access Credential" permission for the IDaaS built-in PAM application (Privileged Access Management).
+ * > The corresponding scope is `urn:cloud:idaas:pam|cloud_account_role:obtain_access_credential`.
  *
  * @param request ObtainCloudAccountRoleAccessCredentialRequest
  * @return ObtainCloudAccountRoleAccessCredentialResponse
@@ -2996,39 +3393,63 @@ async function obtainCloudAccountRoleAccessCredential(instanceId: string, reques
 
 model ObtainCredentialHeaders {
   commonHeaders?: map[string]string,
-  authorization?: string(name='Authorization', description='This parameter is required.', example='Bearer xxxxxx'),
+  authorization?: string(name='Authorization', description='Authentication information. The format is `Bearer ${access_token}`.
+
+> Use an access token issued by IDaaS.
+
+This parameter is required.', example='Bearer xxxxxx'),
 }
 
 model ObtainCredentialRequest {
-  credentialIdentifier?: string(name='credentialIdentifier', description='This parameter is required.', example='credential_identifier_test'),
+  credentialIdentifier?: string(name='credentialIdentifier', description='The identifier for the credential to obtain.
+
+This parameter is required.', example='credential_identifier_test'),
 }
 
 model ObtainCredentialResponseBody = {
-  createTime?: long(name='createTime', description='云角色创建时间', example='1649830225000'),
+  createTime?: long(name='createTime', description='The creation time of the credential, formatted as a Unix timestamp in milliseconds.', example='1649830225000'),
   credentialContent?: {
     apiKeyContent?: {
-      apiKey?: string(name='apiKey', example='nsklncmwizncxxxx'),
-    }(name='apiKeyContent'),
+      apiKey?: string(name='apiKey', description='The API key value.', example='sk-nsklncmwizncxxxx'),
+    }(name='apiKeyContent', description='Contains details for an API key credential. Returned only when `credentialType` is `api_key`.'),
     oauthClientContent?: {
-      clientId?: string(name='clientId', description='OAuth协议的client_id', example='dmvncmxersdxxxxxx'),
-      clientSecret?: string(name='clientSecret', example='nsklnertyt5ddwizncxxxx'),
-    }(name='oauthClientContent', description='OAuth客户端认证凭证类型的凭据内容。'),
-  }(name='credentialContent', description='凭据的内容。'),
-  credentialCreationType?: string(name='credentialCreationType', description='凭据的创建类型。', example='user_custom'),
+      clientId?: string(name='clientId', description='The `client_id` for OAuth 2.0.', example='dmvncmxersdxxxxxx'),
+      clientSecret?: string(name='clientSecret', description='The `client_secret` for OAuth 2.0.', example='nsklnertyt5ddwizncxxxx'),
+    }(name='oauthClientContent', description='Contains details for an OAuth client credential. Returned only when `credentialType` is `oauth_client`.'),
+  }(name='credentialContent', description='The detailed content of the credential. The structure of this object depends on the value of `credentialType`.'),
+  credentialCreationType?: string(name='credentialCreationType', description='Indicates how the credential was created. Valid values:
+
+- `system_init`: System-initiated.
+
+- `user_custom`: User-created.', example='user_custom'),
   credentialExternalId?: string(name='credentialExternalId'),
-  credentialId?: string(name='credentialId', description='凭据ID。', example='cred_mkv7rgt4d7i4u7zqtzev2mxxxx'),
-  credentialIdentifier?: string(name='credentialIdentifier', description='凭据标识', example='credential_identifier_test'),
-  credentialName?: string(name='credentialName', description='凭据名称', example='credential_name'),
-  credentialScenarioLabel?: string(name='credentialScenarioLabel', description='凭据的使用场景标签。', example='llm'),
-  credentialSharingScope?: string(name='credentialSharingScope', description='凭据的共享范围。', example='user_exclusive'),
-  credentialSubjectId?: string(name='credentialSubjectId', description='凭据所属的主体ID。', example='apt_werthgfdsasffxxxxx'),
-  credentialSubjectType?: string(name='credentialSubjectType', description='凭据所属的主体类型。', example='authentication_token_provider'),
-  credentialType?: string(name='credentialType', description='凭据类型。', example='api_key'),
-  description?: string(name='description', description='描述', example='credential_description'),
-  exclusiveUserId?: string(name='exclusiveUserId', description='凭据的专属账户ID。', example='user_xxx'),
-  instanceId?: string(name='instanceId', description='EIAM实例ID。', example='idaas_ue2jvisn35ea5lmthk267xxxxx'),
-  status?: string(name='status', description='凭据状态', example='enabled'),
-  updateTime?: long(name='updateTime', description='云角色更新时间', example='1649830227000'),
+  credentialId?: string(name='credentialId', description='The credential ID.', example='cred_mkv7rgt4d7i4u7zqtzev2mxxxx'),
+  credentialIdentifier?: string(name='credentialIdentifier', description='The credential identifier.', example='credential_identifier_test'),
+  credentialName?: string(name='credentialName', description='The credential name.', example='credential_name'),
+  credentialScenarioLabel?: string(name='credentialScenarioLabel', description='The usage scenario for the credential. Valid values:
+
+- `llm`: For use with a large language model.
+
+- `saas`: For use with a third-party SaaS application.', example='llm'),
+  credentialSharingScope?: string(name='credentialSharingScope', description='The sharing scope of the credential, such as whether it is exclusive to a specific account.', example='user_exclusive'),
+  credentialSubjectId?: string(name='credentialSubjectId', description='The ID of the credential\\\\"s subject.', example='apt_werthgfdsasffxxxxx'),
+  credentialSubjectType?: string(name='credentialSubjectType', description='The credential\\\\"s subject type. Valid values:
+
+- `authentication_token_provider`: An authentication token provider.', example='authentication_token_provider'),
+  credentialType?: string(name='credentialType', description='The credential type. Valid values:
+
+- `api_key`: The credential is an API key.
+
+- `oauth_client`: The credential represents an OAuth client.', example='api_key'),
+  description?: string(name='description', description='The credential description.', example='credential_description'),
+  exclusiveUserId?: string(name='exclusiveUserId', description='The ID of the account that exclusively owns the credential. This field is present only when `credentialSharingScope` is `user_exclusive`.', example='user_xxx'),
+  instanceId?: string(name='instanceId', description='The EIAM instance ID.', example='idaas_ue2jvisn35ea5lmthk267xxxxx'),
+  status?: string(name='status', description='The status of the credential. Valid values:
+
+- `enabled`: The credential can be used.
+
+- `disabled`: The credential cannot be used.', example='enabled'),
+  updateTime?: long(name='updateTime', description='The last update time of the credential, formatted as a Unix timestamp in milliseconds.', example='1649830227000'),
 }
 
 model ObtainCredentialResponse = {
@@ -3038,7 +3459,11 @@ model ObtainCredentialResponse = {
 }
 
 /**
- * @summary 获取凭据明文。
+ * @summary Retrieves the plaintext of a secret.
+ *
+ * @description This API uses an access token from IDaaS for authentication and authorization.
+ * The access token must have permissions to obtain static credentials for the built-in privileged access management (PAM) application in IDaaS.
+ * > The required scope is `urn:cloud:idaas:pam|credential:obtain`.
  *
  * @param request ObtainCredentialRequest
  * @param headers ObtainCredentialHeaders
@@ -3079,7 +3504,11 @@ async function obtainCredentialWithOptions(instanceId: string, request: ObtainCr
 }
 
 /**
- * @summary 获取凭据明文。
+ * @summary Retrieves the plaintext of a secret.
+ *
+ * @description This API uses an access token from IDaaS for authentication and authorization.
+ * The access token must have permissions to obtain static credentials for the built-in privileged access management (PAM) application in IDaaS.
+ * > The required scope is `urn:cloud:idaas:pam|credential:obtain`.
  *
  * @param request ObtainCredentialRequest
  * @return ObtainCredentialResponse
@@ -3092,31 +3521,47 @@ async function obtainCredential(instanceId: string, request: ObtainCredentialReq
 
 model ObtainJwtAuthenticationTokenHeaders {
   commonHeaders?: map[string]string,
-  authorization?: string(name='Authorization', description='This parameter is required.', example='Bearer xxxxxx'),
+  authorization?: string(name='Authorization', description='The authentication credential. The format is `Bearer ${access_token}`.
+
+> Use an access token issued by IDaaS.
+
+This parameter is required.', example='Bearer xxxxxx'),
 }
 
 model ObtainJwtAuthenticationTokenRequest {
-  authenticationTokenId?: string(name='authenticationTokenId', description='This parameter is required.', example='atntkn_01kqflm0sxxx8nmdc1cb5dskxxxxx'),
-  consumerId?: string(name='consumerId', description='This parameter is required.', example='test_jwt_subject'),
+  authenticationTokenId?: string(name='authenticationTokenId', description='The ID of the authentication token.
+
+This parameter is required.', example='atntkn_01kqflm0sxxx8nmdc1cb5dskxxxxx'),
+  consumerId?: string(name='consumerId', description='The ID of the authentication token consumer.
+
+This parameter is required.', example='test_jwt_subject'),
 }
 
 model ObtainJwtAuthenticationTokenResponseBody = {
-  authenticationTokenId?: string(name='authenticationTokenId', example='atntkn_01kqflm0sxxx8nmdc1cb5dskxxxxx'),
-  authenticationTokenType?: string(name='authenticationTokenType', example='jwt'),
-  consumerId?: string(name='consumerId', example='test_jwt_subject'),
-  consumerType?: string(name='consumerType', example='custom'),
-  createTime?: long(name='createTime', example='1649830225000'),
-  creatorId?: string(name='creatorId', example='app_ngtkgrrxxxxktg5eao6z4xxxxx'),
-  creatorType?: string(name='creatorType', example='application'),
-  credentialProviderId?: string(name='credentialProviderId', example='atp_01kr2cmj5gxxx4fvmls2e93dxxxxx'),
-  expirationTime?: long(name='expirationTime', example='1772693568000'),
-  instanceId?: string(name='instanceId', description='EIAM实例ID。', example='idaas_ue2jvisn35ea5lmthk267xxxxx'),
+  authenticationTokenId?: string(name='authenticationTokenId', description='The ID of the authentication token.', example='atntkn_01kqflm0sxxx8nmdc1cb5dskxxxxx'),
+  authenticationTokenType?: string(name='authenticationTokenType', description='The type of the authentication token.
+
+> The value is always `jwt`, indicating a JWT-based authentication token.', example='jwt'),
+  consumerId?: string(name='consumerId', description='The ID of the authentication token consumer.', example='test_jwt_subject'),
+  consumerType?: string(name='consumerType', description='The type of entity that consumes the authentication token. Valid values:
+
+- `application`: The token is consumed by an application.
+
+- `custom`: Indicates a user-defined consumer.', example='custom'),
+  createTime?: long(name='createTime', description='The creation time of the authentication token, provided as a Unix timestamp in milliseconds.', example='1649830225000'),
+  creatorId?: string(name='creatorId', description='The ID of the authentication token\\\\"s creator.', example='app_ngtkgrrxxxxktg5eao6z4xxxxx'),
+  creatorType?: string(name='creatorType', description='The type of the entity that created the authentication token. Valid value:
+
+- `application`: The token was created by an application.', example='application'),
+  credentialProviderId?: string(name='credentialProviderId', description='The ID of the credential provider.', example='atp_01kr2cmj5gxxx4fvmls2e93dxxxxx'),
+  expirationTime?: long(name='expirationTime', description='The expiration time of the authentication token, provided as a Unix timestamp in milliseconds.', example='1772693568000'),
+  instanceId?: string(name='instanceId', description='The ID of the instance.', example='idaas_ue2jvisn35ea5lmthk267xxxxx'),
   jwtContent?: {
-    derivedShortToken?: string(name='derivedShortToken', example='sk-Nx2vzxxxxxxxxxxxxxxxxx'),
-    jwtValue?: string(name='jwtValue', example='eyJhbGciOixxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx'),
-  }(name='jwtContent'),
-  revoked?: boolean(name='revoked', example='false'),
-  updateTime?: long(name='updateTime', example='1649830225000'),
+    derivedShortToken?: string(name='derivedShortToken', description='A short token derived from the JWT.', example='sk-Nx2vzxxxxxxxxxxxxxxxxx'),
+    jwtValue?: string(name='jwtValue', description='The JWT content.', example='eyJhbGciOixxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx'),
+  }(name='jwtContent', description='The content of the JWT-based authentication token.'),
+  revoked?: boolean(name='revoked', description='Indicates whether the authentication token has been revoked.', example='false'),
+  updateTime?: long(name='updateTime', description='The time the authentication token was last updated, provided as a Unix timestamp in milliseconds.', example='1649830225000'),
 }
 
 model ObtainJwtAuthenticationTokenResponse = {
@@ -3126,7 +3571,11 @@ model ObtainJwtAuthenticationTokenResponse = {
 }
 
 /**
- * @summary 获取JWT认证令牌明文。
+ * @summary Obtains a JWT authentication token.
+ *
+ * @description This API requires an access token issued by IDaaS for authentication and authorization.
+ * The provided access token must have permission to obtain authentication tokens for the built-in privileged access management (PAM) application in IDaaS.
+ * > The corresponding scope is `urn:cloud:idaas:pam|authentication_token:obtain`.
  *
  * @param request ObtainJwtAuthenticationTokenRequest
  * @param headers ObtainJwtAuthenticationTokenHeaders
@@ -3170,7 +3619,11 @@ async function obtainJwtAuthenticationTokenWithOptions(instanceId: string, reque
 }
 
 /**
- * @summary 获取JWT认证令牌明文。
+ * @summary Obtains a JWT authentication token.
+ *
+ * @description This API requires an access token issued by IDaaS for authentication and authorization.
+ * The provided access token must have permission to obtain authentication tokens for the built-in privileged access management (PAM) application in IDaaS.
+ * > The corresponding scope is `urn:cloud:idaas:pam|authentication_token:obtain`.
  *
  * @param request ObtainJwtAuthenticationTokenRequest
  * @return ObtainJwtAuthenticationTokenResponse
@@ -3182,26 +3635,36 @@ async function obtainJwtAuthenticationToken(instanceId: string, request: ObtainJ
 }
 
 model ObtainJwtAuthenticationTokenByDerivedShortTokenRequest {
-  derivedShortToken?: string(name='derivedShortToken', description='This parameter is required.', example='sk-Nx2vzxxxxxxxxxxxxxxxxx'),
+  derivedShortToken?: string(name='derivedShortToken', description='Derived short token for the JWT authentication token.
+
+This parameter is required.', example='sk-Nx2vzxxxxxxxxxxxxxxxxx'),
 }
 
 model ObtainJwtAuthenticationTokenByDerivedShortTokenResponseBody = {
-  authenticationTokenId?: string(name='authenticationTokenId', example='atntkn_01kqflm0sxxx8nmdc1cb5dskxxxxx'),
-  authenticationTokenType?: string(name='authenticationTokenType', example='jwt'),
-  consumerId?: string(name='consumerId', example='test_jwt_subject'),
-  consumerType?: string(name='consumerType', example='custom'),
-  createTime?: long(name='createTime', example='1649830225000'),
-  creatorId?: string(name='creatorId', example='app_ngtkgrrxxxxktg5eao6z4xxxxx'),
-  creatorType?: string(name='creatorType', example='application'),
-  credentialProviderId?: string(name='credentialProviderId', example='atp_01kr2cmj5gxxx4fvmls2e93dxxxxx'),
-  expirationTime?: long(name='expirationTime', example='1772693568000'),
-  instanceId?: string(name='instanceId', description='EIAM实例ID。', example='idaas_ue2jvisn35ea5lmthk267xxxxx'),
+  authenticationTokenId?: string(name='authenticationTokenId', description='Authentication token ID.', example='atntkn_01kqflm0sxxx8nmdc1cb5dskxxxxx'),
+  authenticationTokenType?: string(name='authenticationTokenType', description='Type of the authentication token.
+
+> The value is always `jwt`, indicating a JWT authentication token.', example='jwt'),
+  consumerId?: string(name='consumerId', description='ID of the authentication token consumer.', example='test_jwt_subject'),
+  consumerType?: string(name='consumerType', description='Type of the authentication token consumer. Valid values:
+
+- application
+
+- custom', example='custom'),
+  createTime?: long(name='createTime', description='Creation time of the authentication token, as a UNIX timestamp in milliseconds.', example='1649830225000'),
+  creatorId?: string(name='creatorId', description='ID of the authentication token creator.', example='app_ngtkgrrxxxxktg5eao6z4xxxxx'),
+  creatorType?: string(name='creatorType', description='Type of the authentication token creator. Valid values:
+
+- application', example='application'),
+  credentialProviderId?: string(name='credentialProviderId', description='Credential provider ID.', example='atp_01kr2cmj5gxxx4fvmls2e93dxxxxx'),
+  expirationTime?: long(name='expirationTime', description='Expiration time of the authentication token, as a UNIX timestamp in milliseconds.', example='1772693568000'),
+  instanceId?: string(name='instanceId', description='Instance ID.', example='idaas_ue2jvisn35ea5lmthk267xxxxx'),
   jwtContent?: {
-    derivedShortToken?: string(name='derivedShortToken', example='sk-Nx2vzxxxxxxxxxxxxxxxxx'),
-    jwtValue?: string(name='jwtValue', example='eyJhbGciOixxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx'),
-  }(name='jwtContent'),
-  revoked?: boolean(name='revoked', example='false'),
-  updateTime?: long(name='updateTime', example='1649830225000'),
+    derivedShortToken?: string(name='derivedShortToken', description='Derived short token for the JWT.', example='sk-Nx2vzxxxxxxxxxxxxxxxxx'),
+    jwtValue?: string(name='jwtValue', description='JWT content.', example='eyJhbGciOixxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx'),
+  }(name='jwtContent', description='Content of the JWT authentication token.'),
+  revoked?: boolean(name='revoked', description='Indicates whether the authentication token is revoked.', example='false'),
+  updateTime?: long(name='updateTime', description='Last update time of the authentication token, as a UNIX timestamp in milliseconds.', example='1649830225000'),
 }
 
 model ObtainJwtAuthenticationTokenByDerivedShortTokenResponse = {
@@ -3211,7 +3674,7 @@ model ObtainJwtAuthenticationTokenByDerivedShortTokenResponse = {
 }
 
 /**
- * @summary 使用派生短令牌查询对应的JWT认证令牌详情。
+ * @summary Obtain a JWT authentication token using a derived short token.
  *
  * @param request ObtainJwtAuthenticationTokenByDerivedShortTokenRequest
  * @param headers map
@@ -3245,7 +3708,7 @@ async function obtainJwtAuthenticationTokenByDerivedShortTokenWithOptions(instan
 }
 
 /**
- * @summary 使用派生短令牌查询对应的JWT认证令牌详情。
+ * @summary Obtain a JWT authentication token using a derived short token.
  *
  * @param request ObtainJwtAuthenticationTokenByDerivedShortTokenRequest
  * @return ObtainJwtAuthenticationTokenByDerivedShortTokenResponse
@@ -3333,7 +3796,7 @@ This parameter is required.', example='Bearer AT8csE2seYxxxxxij'),
 }
 
 model PatchOrganizationalUnitRequest {
-  description?: string(name='description', description='The description of the organizational unit.', example='test organizational unit'),
+  description?: string(name='description', description='The description of the organizational unit.', example='测试组织'),
   organizationalUnitName?: string(name='organizationalUnitName', description='The name of the organizational unit.', example='name001'),
 }
 
@@ -3416,9 +3879,11 @@ model PatchUserRequest {
       fieldValue?: string(name='fieldValue', description='The value of the extended field.', example='test_value'),
       operation?: string(name='operation', description='The operation to be performed on the field. Valid values:
 
-*   add
-*   replace If you leave the value of the extended field empty, the replace operation is converted to an add operation.
-*   remove', example='replace'),
+- add
+
+- replace If you leave the value of the extended field empty, the replace operation is converted to an add operation.
+
+- remove', example='replace'),
       operator?: string(name='operator', description='The type of the operation. This parameter is deprecated. Replace it with operation.', example='replace', deprecated=true),
     }
   ](name='customFields', description='The extended fields of the account.'),
@@ -3516,12 +3981,24 @@ async function patchUser(instanceId: string, applicationId: string, userId: stri
 
 model ReinstateAuthenticationTokenHeaders {
   commonHeaders?: map[string]string,
-  authorization?: string(name='Authorization', description='This parameter is required.', example='Bearer xxxxxx'),
+  authorization?: string(name='Authorization', description='The authentication information. Format: Bearer ${access_token}.
+
+> Enter an IDaaS-issued Access Token.
+
+This parameter is required.', example='Bearer xxxxxx'),
 }
 
 model ReinstateAuthenticationTokenRequest {
-  token?: string(name='token', description='This parameter is required.', example='eyJhbGciOixxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx'),
-  tokenTypeHint?: string(name='token_type_hint', example='-'),
+  token?: string(name='token', description='The original authentication token.
+
+> You can pass either the original authentication token or its derived short token.
+
+This parameter is required.', example='eyJhbGciOixxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx'),
+  tokenTypeHint?: string(name='token_type_hint', description='A hint about the authentication token type.
+
+>Notice: 
+
+Do not provide a value for this parameter.', example='-'),
 }
 
 model ReinstateAuthenticationTokenResponse = {
@@ -3530,7 +4007,13 @@ model ReinstateAuthenticationTokenResponse = {
 }
 
 /**
- * @summary 恢复一个认证令牌。
+ * @summary Reinstate an authentication token.
+ *
+ * @description This API uses an IDaaS-issued Access Token for identity authentication and authorization.
+ * Ensure that the Access Token you provide has the Manage authentication tokens permission for the IDaaS built-in Privileged Access Management (PAM) application.
+ * > The required scope is `urn:cloud:idaas:pam|authentication_token:manage`.
+ * >Notice: 
+ * Only JWT authentication tokens support this operation.
  *
  * @param request ReinstateAuthenticationTokenRequest
  * @param headers ReinstateAuthenticationTokenHeaders
@@ -3574,7 +4057,13 @@ async function reinstateAuthenticationTokenWithOptions(instanceId: string, reque
 }
 
 /**
- * @summary 恢复一个认证令牌。
+ * @summary Reinstate an authentication token.
+ *
+ * @description This API uses an IDaaS-issued Access Token for identity authentication and authorization.
+ * Ensure that the Access Token you provide has the Manage authentication tokens permission for the IDaaS built-in Privileged Access Management (PAM) application.
+ * > The required scope is `urn:cloud:idaas:pam|authentication_token:manage`.
+ * >Notice: 
+ * Only JWT authentication tokens support this operation.
  *
  * @param request ReinstateAuthenticationTokenRequest
  * @return ReinstateAuthenticationTokenResponse
@@ -3587,12 +4076,20 @@ async function reinstateAuthenticationToken(instanceId: string, request: Reinsta
 
 model ReinstateAuthenticationTokenByConsumerHeaders {
   commonHeaders?: map[string]string,
-  authorization?: string(name='Authorization', description='This parameter is required.', example='Bearer xxxxxx'),
+  authorization?: string(name='Authorization', description='The authentication information. Format: Bearer ${access_token}.
+
+> Enter the Access Token issued by IDaaS.
+
+This parameter is required.', example='Bearer xxxxxx'),
 }
 
 model ReinstateAuthenticationTokenByConsumerRequest {
-  consumerId?: string(name='consumerId', description='This parameter is required.', example='test_jwt_subject'),
-  credentialProviderIdentifier?: string(name='credentialProviderIdentifier', description='This parameter is required.', example='test_example_identifier'),
+  consumerId?: string(name='consumerId', description='The ID of the authentication token consumer.
+
+This parameter is required.', example='test_jwt_subject'),
+  credentialProviderIdentifier?: string(name='credentialProviderIdentifier', description='The credential provider identifier.
+
+This parameter is required.', example='test_example_identifier'),
 }
 
 model ReinstateAuthenticationTokenByConsumerResponse = {
@@ -3601,7 +4098,13 @@ model ReinstateAuthenticationTokenByConsumerResponse = {
 }
 
 /**
- * @summary 基于使用者吊销认证令牌。
+ * @summary Reinstate an authentication token for a consumer.
+ *
+ * @description This API uses an access token issued by IDaaS to perform identity authentication and authorization.
+ * Ensure that the provided access token is authorized to access the Manage Authentication Token feature in the IDaaS built-in PAM (Privileged Access Management) application.
+ * > The corresponding scope is `urn:cloud:idaas:pam|authentication_token:manage`.
+ * >Notice: 
+ * This operation supports only JWT-type authentication tokens.
  *
  * @param request ReinstateAuthenticationTokenByConsumerRequest
  * @param headers ReinstateAuthenticationTokenByConsumerHeaders
@@ -3645,7 +4148,13 @@ async function reinstateAuthenticationTokenByConsumerWithOptions(instanceId: str
 }
 
 /**
- * @summary 基于使用者吊销认证令牌。
+ * @summary Reinstate an authentication token for a consumer.
+ *
+ * @description This API uses an access token issued by IDaaS to perform identity authentication and authorization.
+ * Ensure that the provided access token is authorized to access the Manage Authentication Token feature in the IDaaS built-in PAM (Privileged Access Management) application.
+ * > The corresponding scope is `urn:cloud:idaas:pam|authentication_token:manage`.
+ * >Notice: 
+ * This operation supports only JWT-type authentication tokens.
  *
  * @param request ReinstateAuthenticationTokenByConsumerRequest
  * @return ReinstateAuthenticationTokenByConsumerResponse
@@ -3658,11 +4167,17 @@ async function reinstateAuthenticationTokenByConsumer(instanceId: string, reques
 
 model RemoveUserFromOrganizationalUnitsHeaders {
   commonHeaders?: map[string]string,
-  authorization?: string(name='Authorization', description='This parameter is required.', example='Bearer xxxx'),
+  authorization?: string(name='Authorization', description='The authorization credential for the request.
+Format: Bearer ${access_token}.
+Example: Bearer ATxxxx.
+
+This parameter is required.', example='Bearer xxxx'),
 }
 
 model RemoveUserFromOrganizationalUnitsRequest {
-  organizationalUnitIds?: [ string ](name='organizationalUnitIds', description='This parameter is required.', example='[ou_wovwffm62xifdziem7an7xxxxx]'),
+  organizationalUnitIds?: [ string ](name='organizationalUnitIds', description='The organizational unit IDs.
+
+This parameter is required.', example='[ou_wovwffm62xifdziem7an7xxxxx]'),
 }
 
 model RemoveUserFromOrganizationalUnitsResponse = {
@@ -3671,7 +4186,7 @@ model RemoveUserFromOrganizationalUnitsResponse = {
 }
 
 /**
- * @summary 将账户从多个组织移除【不支持移除主组织】
+ * @summary Removes an EIAM account from one or more EIAM organizational units. The operation succeeds even if the account is not in the specified organizational units.
  *
  * @param request RemoveUserFromOrganizationalUnitsRequest
  * @param headers RemoveUserFromOrganizationalUnitsHeaders
@@ -3712,7 +4227,7 @@ async function removeUserFromOrganizationalUnitsWithOptions(instanceId: string, 
 }
 
 /**
- * @summary 将账户从多个组织移除【不支持移除主组织】
+ * @summary Removes an EIAM account from one or more EIAM organizational units. The operation succeeds even if the account is not in the specified organizational units.
  *
  * @param request RemoveUserFromOrganizationalUnitsRequest
  * @return RemoveUserFromOrganizationalUnitsResponse
@@ -3796,12 +4311,24 @@ async function removeUsersFromGroup(instanceId: string, applicationId: string, g
 
 model RevokeAuthenticationTokenHeaders {
   commonHeaders?: map[string]string,
-  authorization?: string(name='Authorization', description='This parameter is required.', example='Bearer xxxxxx'),
+  authorization?: string(name='Authorization', description='Authentication information. Format: Bearer ${access_token}.
+
+> Enter the Access Token issued by IDaaS.
+
+This parameter is required.', example='Bearer xxxxxx'),
 }
 
 model RevokeAuthenticationTokenRequest {
-  token?: string(name='token', description='This parameter is required.', example='eyJhbGciOixxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx'),
-  tokenTypeHint?: string(name='token_type_hint', example='-'),
+  token?: string(name='token', description='Original authentication token.
+
+> You can pass either the original authentication token or a derived short token.
+
+This parameter is required.', example='eyJhbGciOixxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx'),
+  tokenTypeHint?: string(name='token_type_hint', description='Authentication token type hint.
+
+>Notice: 
+
+Currently, no value is required.', example='-'),
 }
 
 model RevokeAuthenticationTokenResponse = {
@@ -3810,7 +4337,13 @@ model RevokeAuthenticationTokenResponse = {
 }
 
 /**
- * @summary 吊销一个认证令牌。
+ * @summary Revokes an authentication token.
+ *
+ * @description This API uses an Access Token issued by IDaaS to perform identity authentication and authorization.
+ * Ensure that the Access Token is authorized to access the "Manage Authentication Tokens" feature of the built-in Privileged Access Management (PAM) application in IDaaS.
+ * > The corresponding scope is `urn:cloud:idaas:pam|authentication_token:manage`.
+ * >Notice: 
+ * This operation currently supports only JWT authentication tokens.
  *
  * @param request RevokeAuthenticationTokenRequest
  * @param headers RevokeAuthenticationTokenHeaders
@@ -3854,7 +4387,13 @@ async function revokeAuthenticationTokenWithOptions(instanceId: string, request:
 }
 
 /**
- * @summary 吊销一个认证令牌。
+ * @summary Revokes an authentication token.
+ *
+ * @description This API uses an Access Token issued by IDaaS to perform identity authentication and authorization.
+ * Ensure that the Access Token is authorized to access the "Manage Authentication Tokens" feature of the built-in Privileged Access Management (PAM) application in IDaaS.
+ * > The corresponding scope is `urn:cloud:idaas:pam|authentication_token:manage`.
+ * >Notice: 
+ * This operation currently supports only JWT authentication tokens.
  *
  * @param request RevokeAuthenticationTokenRequest
  * @return RevokeAuthenticationTokenResponse
@@ -3867,12 +4406,20 @@ async function revokeAuthenticationToken(instanceId: string, request: RevokeAuth
 
 model RevokeAuthenticationTokenByConsumerHeaders {
   commonHeaders?: map[string]string,
-  authorization?: string(name='Authorization', description='This parameter is required.', example='Bearer xxxxxx'),
+  authorization?: string(name='Authorization', description='Authentication information. Format: Bearer ${access_token}.
+
+> Enter the Access Token issued by IDaaS.
+
+This parameter is required.', example='Bearer xxxxxx'),
 }
 
 model RevokeAuthenticationTokenByConsumerRequest {
-  consumerId?: string(name='consumerId', description='This parameter is required.', example='test_jwt_subject'),
-  credentialProviderIdentifier?: string(name='credentialProviderIdentifier', description='This parameter is required.', example='test_example_identifier'),
+  consumerId?: string(name='consumerId', description='Consumer ID of the authentication token.
+
+This parameter is required.', example='test_jwt_subject'),
+  credentialProviderIdentifier?: string(name='credentialProviderIdentifier', description='Credential provider identifier.
+
+This parameter is required.', example='test_example_identifier'),
 }
 
 model RevokeAuthenticationTokenByConsumerResponse = {
@@ -3881,7 +4428,13 @@ model RevokeAuthenticationTokenByConsumerResponse = {
 }
 
 /**
- * @summary 基于使用者吊销认证令牌。
+ * @summary Revokes an authentication token for a consumer.
+ *
+ * @description This API uses an access token issued by IDaaS to authenticate and authorize requests.
+ * Make sure that the access token you provide has the \\"Manage authentication tokens\\" permission for the built-in Privileged Access Management (PAM) application in IDaaS.
+ * > The required scope is `urn:cloud:idaas:pam|authentication_token:manage`.
+ * >Notice: 
+ * This operation can revoke only JWT authentication tokens.
  *
  * @param request RevokeAuthenticationTokenByConsumerRequest
  * @param headers RevokeAuthenticationTokenByConsumerHeaders
@@ -3925,7 +4478,13 @@ async function revokeAuthenticationTokenByConsumerWithOptions(instanceId: string
 }
 
 /**
- * @summary 基于使用者吊销认证令牌。
+ * @summary Revokes an authentication token for a consumer.
+ *
+ * @description This API uses an access token issued by IDaaS to authenticate and authorize requests.
+ * Make sure that the access token you provide has the \\"Manage authentication tokens\\" permission for the built-in Privileged Access Management (PAM) application in IDaaS.
+ * > The required scope is `urn:cloud:idaas:pam|authentication_token:manage`.
+ * >Notice: 
+ * This operation can revoke only JWT authentication tokens.
  *
  * @param request RevokeAuthenticationTokenByConsumerRequest
  * @return RevokeAuthenticationTokenByConsumerResponse
@@ -4008,11 +4567,17 @@ async function revokeToken(instanceId: string, applicationId: string, request: R
 
 model SetUserPrimaryOrganizationalUnitHeaders {
   commonHeaders?: map[string]string,
-  authorization?: string(name='Authorization', description='This parameter is required.', example='Bearer xxxx'),
+  authorization?: string(name='Authorization', description='The authentication information.
+Format: Bearer ${access_token}.
+Example: Bearer ATxxxx.
+
+This parameter is required.', example='Bearer xxxx'),
 }
 
 model SetUserPrimaryOrganizationalUnitRequest {
-  organizationalUnitId?: string(name='organizationalUnitId', description='This parameter is required.', example='ou_wovwffm62xifdziem7an7xxxxx'),
+  organizationalUnitId?: string(name='organizationalUnitId', description='The primary organization ID.
+
+This parameter is required.', example='ou_wovwffm62xifdziem7an7xxxxx'),
 }
 
 model SetUserPrimaryOrganizationalUnitResponse = {
@@ -4021,7 +4586,7 @@ model SetUserPrimaryOrganizationalUnitResponse = {
 }
 
 /**
- * @summary 将指定组织设置为账户主组织，移除旧主组织，加入新主组织。
+ * @summary Sets the primary organization for an EIAM account. This operation removes the account from the old primary organization and adds it to the new one.
  *
  * @param request SetUserPrimaryOrganizationalUnitRequest
  * @param headers SetUserPrimaryOrganizationalUnitHeaders
@@ -4062,7 +4627,7 @@ async function setUserPrimaryOrganizationalUnitWithOptions(instanceId: string, a
 }
 
 /**
- * @summary 将指定组织设置为账户主组织，移除旧主组织，加入新主组织。
+ * @summary Sets the primary organization for an EIAM account. This operation removes the account from the old primary organization and adds it to the new one.
  *
  * @param request SetUserPrimaryOrganizationalUnitRequest
  * @return SetUserPrimaryOrganizationalUnitResponse
@@ -4075,11 +4640,13 @@ async function setUserPrimaryOrganizationalUnit(instanceId: string, applicationI
 
 model UpdateUserPasswordHeaders {
   commonHeaders?: map[string]string,
-  authorization?: string(name='Authorization', description='This parameter is required.', example='Bearer xxxx'),
+  authorization?: string(name='Authorization', description='The authentication credential. Format: \\\\`Bearer ${access_token}\\\\`. Example: \\\\`Bearer ATxxxx\\\\`.
+
+This parameter is required.', example='Bearer xxxx'),
 }
 
 model UpdateUserPasswordRequest {
-  password?: string(name='password', example='xxxx'),
+  password?: string(name='password', description='The new password. For the password requirements, see the password policy in the console.', example='xxxx'),
 }
 
 model UpdateUserPasswordResponse = {
@@ -4088,7 +4655,7 @@ model UpdateUserPasswordResponse = {
 }
 
 /**
- * @summary 更新账户密码
+ * @summary Updates the password for a specified EIAM account.
  *
  * @param request UpdateUserPasswordRequest
  * @param headers UpdateUserPasswordHeaders
@@ -4129,7 +4696,7 @@ async function updateUserPasswordWithOptions(instanceId: string, applicationId: 
 }
 
 /**
- * @summary 更新账户密码
+ * @summary Updates the password for a specified EIAM account.
  *
  * @param request UpdateUserPasswordRequest
  * @return UpdateUserPasswordResponse
@@ -4141,12 +4708,20 @@ async function updateUserPassword(instanceId: string, applicationId: string, use
 }
 
 model ValidateAuthenticationTokenRequest {
-  token?: string(name='token', description='This parameter is required.', example='eyJhbGciOixxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx'),
-  tokenTypeHint?: string(name='token_type_hint', example='-'),
+  token?: string(name='token', description='The original authentication token.
+
+> Pass either the original authentication token or a derived short token.
+
+This parameter is required.', example='eyJhbGciOixxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx'),
+  tokenTypeHint?: string(name='token_type_hint', description='A hint about the type of the authentication token.
+
+>Notice: 
+
+No value is currently required for this parameter.', example='-'),
 }
 
 model ValidateAuthenticationTokenResponseBody = {
-  active?: boolean(name='active', example='true'),
+  active?: boolean(name='active', description='Indicates whether the authentication token is valid.', example='true'),
 }
 
 model ValidateAuthenticationTokenResponse = {
@@ -4156,7 +4731,10 @@ model ValidateAuthenticationTokenResponse = {
 }
 
 /**
- * @summary 校验认证令牌是否有效。
+ * @summary Validates an authentication token.
+ *
+ * @description >Notice: 
+ * This operation is supported only for JSON Web Token (JWT) authentication tokens.
  *
  * @param request ValidateAuthenticationTokenRequest
  * @param headers map
@@ -4193,7 +4771,10 @@ async function validateAuthenticationTokenWithOptions(instanceId: string, reques
 }
 
 /**
- * @summary 校验认证令牌是否有效。
+ * @summary Validates an authentication token.
+ *
+ * @description >Notice: 
+ * This operation is supported only for JSON Web Token (JWT) authentication tokens.
  *
  * @param request ValidateAuthenticationTokenRequest
  * @return ValidateAuthenticationTokenResponse
