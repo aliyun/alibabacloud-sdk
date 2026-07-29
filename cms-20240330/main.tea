@@ -5159,6 +5159,92 @@ async function createServiceRecord(workspace: string, serviceId: string, request
   return createServiceRecordWithOptions(workspace, serviceId, request, headers, runtime);
 }
 
+model CreateServiceTaskRequest {
+  ip?: string(name='ip', description='The IP address of the target instance. This parameter is optional. If not specified, some tasks can match instances by scope (such as instanceIds). This parameter is typically required for heap dump scenarios.
+
+This parameter is required.', example='10.0.0.1'),
+  taskConfig?: string(name='taskConfig', description='The task configuration. The value is a JSON string with a maximum length of 65536 characters. This parameter is required for LiveDebug task types. Use a flat JSON structure and pass a single command or probe object directly. Do not wrap it in a commands or probes array. Probe example (dynamic log): {"probeType":"LOG","language":"java","target":{"typeName":"com.example.UserService","methodName":"getUser","location":"exit","instanceIds":["*"]},"action":{"type":"LOG","template":"userId=${args[0]}","templateSegments":[{"type":"TEXT","value":"userId="},{"type":"EXPRESSION","value":"args[0]"]},"ttl":"1h","captureCount":100}. Command example (OGNL): {"commandType":"EVALUATE_EXPRESSION","language":"java","params":{"expression":"@java.lang.System@getProperty(\\\\"java.home\\\\")"},"instanceIds":["*"]}. Note: The Command type must include instanceIds at the top level. For Probe types, instanceIds is placed inside the target object. The action.metricType for METRIC probes can be set to COUNTER, GAUGE, HISTOGRAM, or SUMMARY. The Java Agent supports only COUNTER and GAUGE.', example='{"probeType":"LOG","language":"java","target":{"typeName":"com.example.service.UserServiceImpl","methodName":"findById","location":"exit","instanceIds":["*"]},"action":{"type":"LOG","template":"userId=${args[0]} cost=${durationMs}ms","templateSegments":[{"type":"TEXT","value":"userId="},{"type":"EXPRESSION","value":"args[0]"},{"type":"TEXT","value":" cost="},{"type":"EXPRESSION","value":"durationMs"},{"type":"TEXT","value":"ms"}]},"ttl":"1h","captureCount":100}'),
+  type?: string(name='type', description='The task type. This parameter is required. Valid values: heapdump (heap dump). LiveDebug Probe: live_debug_log_probe, live_debug_snapshot_probe, live_debug_metric_probe, live_debug_span_probe, live_debug_span_tag_probe. LiveDebug Command: live_debug_inspect_object, live_debug_search_type, live_debug_search_method, live_debug_decompile, live_debug_get_thread_info, live_debug_get_runtime_info, live_debug_get_memory_info, live_debug_evaluate_expression, live_debug_modify_logger_level. LiveDebug Code Replace: live_debug_code_replace.', example='live_debug_log_probe'),
+}
+
+model CreateServiceTaskResponseBody = {
+  requestId?: string(name='requestId', description='The request ID.', example='A1B2C3D4-E5F6-7890-ABCD-EF1234567890'),
+  taskId?: string(name='taskId', description='The ID of the created task. Use this ID for subsequent query or deletion operations.', example='a1b2c3d4-e5f6-7890-abcd-ef1234567890'),
+}
+
+model CreateServiceTaskResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: CreateServiceTaskResponseBody(name='body'),
+}
+
+/**
+ * @summary Creates a ServiceTask (heap dump or LiveDebug diagnostic task) for a specified application.
+ *
+ * @description Creates a service task for an application in a specified workspace.
+ * Common use cases:
+ * - heapdump: Triggers a JVM heap dump.
+ * - LiveDebug Probe: Dynamically instruments a target method (log, snapshot, metric, span, etc.).
+ * - LiveDebug Command: Performs a one-time active inspection (OGNL, decompilation, thread/memory information, etc.).
+ * - LiveDebug Code Replace: Performs hot code replacement.
+ * After successful creation, a taskId is returned. You can manage the task by using GetServiceTask, ListServiceTask, or DeleteServiceTask. After a LiveDebug task is created, the configuration is synchronously delivered to ConfigServer.
+ *
+ * @param request CreateServiceTaskRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return CreateServiceTaskResponse
+ */
+async function createServiceTaskWithOptions(workspace: string, serviceId: string, request: CreateServiceTaskRequest, headers: map[string]string, runtime: Util.RuntimeOptions): CreateServiceTaskResponse {
+  Util.validateModel(request);
+  var body : map[string]any = {};
+  if (!Util.isUnset(request.ip)) {
+    body['ip'] = request.ip;
+  }
+  if (!Util.isUnset(request.taskConfig)) {
+    body['taskConfig'] = request.taskConfig;
+  }
+  if (!Util.isUnset(request.type)) {
+    body['type'] = request.type;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApi.Params{
+    action = 'CreateServiceTask',
+    version = '2024-03-30',
+    protocol = 'HTTPS',
+    pathname = `/serviceTask/${OpenApiUtil.getEncodeParam(workspace)}/${OpenApiUtil.getEncodeParam(serviceId)}/task`,
+    method = 'POST',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Creates a ServiceTask (heap dump or LiveDebug diagnostic task) for a specified application.
+ *
+ * @description Creates a service task for an application in a specified workspace.
+ * Common use cases:
+ * - heapdump: Triggers a JVM heap dump.
+ * - LiveDebug Probe: Dynamically instruments a target method (log, snapshot, metric, span, etc.).
+ * - LiveDebug Command: Performs a one-time active inspection (OGNL, decompilation, thread/memory information, etc.).
+ * - LiveDebug Code Replace: Performs hot code replacement.
+ * After successful creation, a taskId is returned. You can manage the task by using GetServiceTask, ListServiceTask, or DeleteServiceTask. After a LiveDebug task is created, the configuration is synchronously delivered to ConfigServer.
+ *
+ * @param request CreateServiceTaskRequest
+ * @return CreateServiceTaskResponse
+ */
+async function createServiceTask(workspace: string, serviceId: string, request: CreateServiceTaskRequest): CreateServiceTaskResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return createServiceTaskWithOptions(workspace, serviceId, request, headers, runtime);
+}
+
 model CreateTicketRequest {
   accessTokenExpirationTime?: long(name='accessTokenExpirationTime', description='- The expiration time of the access token, in seconds. This is the period during which a user can access the page APIs. The value can range from 0 to 86,400 seconds (one day). The default value is 86,400 seconds (one day).
 
@@ -6597,6 +6683,80 @@ async function deleteServiceRecord(workspace: string, serviceId: string, request
   var runtime = new Util.RuntimeOptions{};
   var headers : map[string]string = {};
   return deleteServiceRecordWithOptions(workspace, serviceId, request, headers, runtime);
+}
+
+model DeleteServiceTaskRequest {
+  type?: string(name='type', description='The task type. This parameter is required. Valid values:
+
+- heapdump: heap dump.
+- LiveDebug Probe: live_debug_log_probe, live_debug_snapshot_probe, live_debug_metric_probe, live_debug_span_probe, live_debug_span_tag_probe.
+- LiveDebug Command: live_debug_inspect_object, live_debug_search_type, live_debug_search_method, live_debug_decompile, live_debug_get_thread_info, live_debug_get_runtime_info, live_debug_get_memory_info, live_debug_evaluate_expression, live_debug_modify_logger_level.
+- LiveDebug code hot replacement: live_debug_code_replace.
+
+The value must be the same as the type specified during task creation.', example='live_debug_log_probe'),
+}
+
+model DeleteServiceTaskResponseBody = {
+  requestId?: string(name='requestId', description='The request ID.', example='A1B2C3D4-E5F6-7890-ABCD-EF1234567890'),
+}
+
+model DeleteServiceTaskResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: DeleteServiceTaskResponseBody(name='body'),
+}
+
+/**
+ * @summary Deletes a specified ServiceTask under a specified application.
+ *
+ * @description Deletes a specified service task by taskId.
+ * heapdump: Simultaneously deletes the corresponding heap dump record.
+ * LiveDebug: After deleting the task record, synchronously updates the live_debug aggregation configuration on ConfigServer.
+ *
+ * @param request DeleteServiceTaskRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return DeleteServiceTaskResponse
+ */
+async function deleteServiceTaskWithOptions(workspace: string, serviceId: string, taskId: string, request: DeleteServiceTaskRequest, headers: map[string]string, runtime: Util.RuntimeOptions): DeleteServiceTaskResponse {
+  Util.validateModel(request);
+  var query : map[string]any = {};
+  if (!Util.isUnset(request.type)) {
+    query['type'] = request.type;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'DeleteServiceTask',
+    version = '2024-03-30',
+    protocol = 'HTTPS',
+    pathname = `/serviceTask/${OpenApiUtil.getEncodeParam(workspace)}/${OpenApiUtil.getEncodeParam(serviceId)}/task/${OpenApiUtil.getEncodeParam(taskId)}`,
+    method = 'DELETE',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Deletes a specified ServiceTask under a specified application.
+ *
+ * @description Deletes a specified service task by taskId.
+ * heapdump: Simultaneously deletes the corresponding heap dump record.
+ * LiveDebug: After deleting the task record, synchronously updates the live_debug aggregation configuration on ConfigServer.
+ *
+ * @param request DeleteServiceTaskRequest
+ * @return DeleteServiceTaskResponse
+ */
+async function deleteServiceTask(workspace: string, serviceId: string, taskId: string, request: DeleteServiceTaskRequest): DeleteServiceTaskResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return deleteServiceTaskWithOptions(workspace, serviceId, taskId, request, headers, runtime);
 }
 
 model DeleteUmodelRequest {
@@ -9702,6 +9862,72 @@ async function getServiceRecord(workspace: string, serviceId: string, request: G
   var runtime = new Util.RuntimeOptions{};
   var headers : map[string]string = {};
   return getServiceRecordWithOptions(workspace, serviceId, request, headers, runtime);
+}
+
+model GetServiceTaskRequest {
+  type?: string(name='type', example='live_debug_log_probe'),
+}
+
+model GetServiceTaskResponseBody = {
+  requestId?: string(name='requestId', example='A1B2C3D4-E5F6-7890-ABCD-EF1234567890'),
+  serviceTask?: map[string]any(name='serviceTask', example='{"taskId":"a1b2c3d4-e5f6-7890-abcd-ef1234567890","serviceId":"ggxw4lnjuz@f2fd3a6265a254a052afb","taskType":"live_debug_log_probe","ip":"10.0.0.1","extraInfo":"{\\\\"probeType\\\\":\\\\"LOG\\\\",\\\\"language\\\\":\\\\"java\\\\"}"}'),
+}
+
+model GetServiceTaskResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: GetServiceTaskResponseBody(name='body'),
+}
+
+/**
+ * @summary 查询ServiceTask
+ *
+ * @description 根据 taskId 查询单个服务任务详情。
+ * 返回内容随 type 变化：heapdump 返回堆转储任务信息；LiveDebug 返回任务记录及 taskConfig（extraInfo）等字段。
+ *
+ * @param request GetServiceTaskRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return GetServiceTaskResponse
+ */
+async function getServiceTaskWithOptions(workspace: string, serviceId: string, taskId: string, request: GetServiceTaskRequest, headers: map[string]string, runtime: Util.RuntimeOptions): GetServiceTaskResponse {
+  Util.validateModel(request);
+  var query : map[string]any = {};
+  if (!Util.isUnset(request.type)) {
+    query['type'] = request.type;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'GetServiceTask',
+    version = '2024-03-30',
+    protocol = 'HTTPS',
+    pathname = `/serviceTask/${OpenApiUtil.getEncodeParam(workspace)}/${OpenApiUtil.getEncodeParam(serviceId)}/task/${OpenApiUtil.getEncodeParam(taskId)}`,
+    method = 'GET',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 查询ServiceTask
+ *
+ * @description 根据 taskId 查询单个服务任务详情。
+ * 返回内容随 type 变化：heapdump 返回堆转储任务信息；LiveDebug 返回任务记录及 taskConfig（extraInfo）等字段。
+ *
+ * @param request GetServiceTaskRequest
+ * @return GetServiceTaskResponse
+ */
+async function getServiceTask(workspace: string, serviceId: string, taskId: string, request: GetServiceTaskRequest): GetServiceTaskResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return getServiceTaskWithOptions(workspace, serviceId, taskId, request, headers, runtime);
 }
 
 model GetUmodelRequest {
@@ -13176,6 +13402,93 @@ async function listServiceRecords(workspace: string, request: ListServiceRecords
   return listServiceRecordsWithOptions(workspace, request, headers, runtime);
 }
 
+model ListServiceTaskRequest {
+  maxResults?: int32(name='maxResults', example='20'),
+  nextToken?: string(name='nextToken', example='d23d8f3f0f0cd1984566b1986c9343122fa0385a05c09694c17fe87709f3eb56d1a7ead56b4a2536'),
+  searchCondition?: string(name='searchCondition', example='{"ip":"10.0.0.1"}'),
+  type?: string(name='type', example='live_debug_log_probe'),
+}
+
+model ListServiceTaskResponseBody = {
+  maxResults?: int32(name='maxResults', example='20'),
+  nextToken?: string(name='nextToken', example='d23d8f3f0f0cd1984566b1986c9343122fa0385a05c09694c17fe87709f3eb56d1a7ead56b4a2536'),
+  requestId?: string(name='requestId', example='A1B2C3D4-E5F6-7890-ABCD-EF1234567890'),
+  serviceTasks?: [  map[string]any ](name='serviceTasks', example='[{"taskId":"a1b2c3d4-e5f6-7890-abcd-ef1234567890","taskType":"live_debug_log_probe"}]'),
+  totalCount?: int32(name='totalCount', example='2'),
+}
+
+model ListServiceTaskResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ListServiceTaskResponseBody(name='body'),
+}
+
+/**
+ * @summary 列举ServiceTask
+ *
+ * @description 按任务类型列举应用下的服务任务。
+ * - type=heapdump：返回堆转储任务列表
+ * - type=pprof：返回 pprof dump 列表（需配合 searchCondition）
+ * - type=live_debug_*：返回对应 LiveDebug 任务列表
+ * 支持 nextToken / maxResults 分页，以及 searchCondition 过滤。
+ *
+ * @param request ListServiceTaskRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return ListServiceTaskResponse
+ */
+async function listServiceTaskWithOptions(workspace: string, serviceId: string, request: ListServiceTaskRequest, headers: map[string]string, runtime: Util.RuntimeOptions): ListServiceTaskResponse {
+  Util.validateModel(request);
+  var query : map[string]any = {};
+  if (!Util.isUnset(request.maxResults)) {
+    query['maxResults'] = request.maxResults;
+  }
+  if (!Util.isUnset(request.nextToken)) {
+    query['nextToken'] = request.nextToken;
+  }
+  if (!Util.isUnset(request.searchCondition)) {
+    query['searchCondition'] = request.searchCondition;
+  }
+  if (!Util.isUnset(request.type)) {
+    query['type'] = request.type;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'ListServiceTask',
+    version = '2024-03-30',
+    protocol = 'HTTPS',
+    pathname = `/serviceTask/${OpenApiUtil.getEncodeParam(workspace)}/${OpenApiUtil.getEncodeParam(serviceId)}/tasks`,
+    method = 'GET',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 列举ServiceTask
+ *
+ * @description 按任务类型列举应用下的服务任务。
+ * - type=heapdump：返回堆转储任务列表
+ * - type=pprof：返回 pprof dump 列表（需配合 searchCondition）
+ * - type=live_debug_*：返回对应 LiveDebug 任务列表
+ * 支持 nextToken / maxResults 分页，以及 searchCondition 过滤。
+ *
+ * @param request ListServiceTaskRequest
+ * @return ListServiceTaskResponse
+ */
+async function listServiceTask(workspace: string, serviceId: string, request: ListServiceTaskRequest): ListServiceTaskResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return listServiceTaskWithOptions(workspace, serviceId, request, headers, runtime);
+}
+
 model ListServicesRequest {
   maxResults?: int32(name='maxResults', description='The maximum number of records to return for this request.', example='10'),
   nextToken?: string(name='nextToken', description='The token for the next page of results. If this parameter is empty, it means you have reached the last page.', example='7-b81a-4bc9-bbfa-a50cc6988667'),
@@ -14860,26 +15173,22 @@ async function updateDataset(workspace: string, datasetName: string, request: Up
 model UpdateDeliveryTaskRequest {
   dataSourceId?: string(name='dataSourceId', description='The data source ID (Prometheus instance ID).', example='rw-5f2b4sc7es4d66'),
   externalLabels?: map[string]string(name='externalLabels', description='The additional labels attached to all delivered metrics. The key is the label name and the value is the label value.'),
-  labelFilters?: map[string]string(name='labelFilters', description='The metric filter conditions. The entire value is replaced and not incrementally merged.'),
-  labelFiltersType?: string(name='labelFiltersType', description='The metric filtering mode. Valid values:
-- Deny: denied.
-- Allow: allowed.', example='Deny'),
+  labelFilters?: map[string]string(name='labelFilters', description='The metric filter conditions. The entire value is replaced and incremental merging is not performed.'),
+  labelFiltersType?: string(name='labelFiltersType', description='The metric filtering mode.', example='Deny'),
   resourceGroupId?: string(name='resourceGroupId', description='The resource group ID.', example='rg-aekzoiafjtr7zyq'),
   sinkList?: [ 
     {
-      sinkConfigs?: map[string]string(name='sinkConfigs', description='The detailed configuration of the delivery target. The meanings of the key/value pairs vary depending on the sinkType.'),
-      sinkType?: string(name='sinkType', description='The delivery target type. Valid values:
-- AcsMaxCompute: MaxCompute.
-- AcsKafka: Message Queue for Apache Kafka.
-- Prometheus: Managed Service for Prometheus.', example='Prometheus', nullable=true),
+      sinkConfigs?: map[string]string(name='sinkConfigs', description='The detailed configuration of the delivery target. The meanings of key/value pairs vary depending on the sinkType.'),
+      sinkType?: string(name='sinkType', description='The delivery target type.', example='Prometheus', nullable=true),
     }
   ](name='sinkList', description='The list of delivery targets.'),
-  status?: string(name='status', description='The task status. This parameter is used to start or stop the task. Valid values:
-- Running: running.
-- Enable: enabled.
-- Disable: disabled.', example='Enable'),
+  status?: string(name='status', description='The task status. This parameter is used to start or stop a task. Valid values:
+
+- Enable: enables the task.
+- Disable: disables the task.
+- Running: the task is running.', example='Enable'),
   taskDescription?: string(name='taskDescription', description='The task description.', example='updated desc'),
-  taskName?: string(name='taskName', description='The task name. The name can contain letters, digits, underscores (_), and hyphens (-), and can also contain Chinese characters.', example='new-task-name'),
+  taskName?: string(name='taskName', description='The task name. The name can contain letters, digits, underscores (_), and hyphens (-), and can be in Chinese.', example='new-task-name'),
 }
 
 model UpdateDeliveryTaskResponseBody = {
