@@ -946,13 +946,13 @@ model FetchOAuthAuthenticationTokenRequest {
   credentialProviderIdentifier?: string(name='credentialProviderIdentifier', description='The credential provider identifier.
 
 This parameter is required.', example='test_example_identifier'),
-  customParameters?: map[string]string(name='customParameters'),
-  forceAuthentication?: boolean(name='forceAuthentication'),
-  scope?: string(name='scope', description='The scope in the OAuth protocol.
+  customParameters?: map[string]string(name='customParameters', description='Custom key-value pairs appended to the OAuth authorization URL to pass additional parameters supported by the OAuth provider.'),
+  forceAuthentication?: boolean(name='forceAuthentication', description='Specifies whether to ignore existing valid tokens and force re-authorization. Default value: false.', example='false'),
+  scope?: string(name='scope', description='The scope corresponding to the OAuth protocol.
 
-> If not specified, the scope of the issued OAuth Access Token defaults to the Scope configuration of the corresponding credential provider.
+> If not specified, the scope of the issued OAuth Access Token defaults to the scope configuration of the corresponding credential provider.
 
->Notice: Multiple Scope values are separated by spaces.', example='example:test_01 example:test_02'),
+>Notice: Multiple scope values are separated by spaces.', example='example:test_01 example:test_02'),
 }
 
 model FetchOAuthAuthenticationTokenResponseBody = {
@@ -961,29 +961,24 @@ model FetchOAuthAuthenticationTokenResponseBody = {
 
 > The value is fixed as `oauth_access_token`, indicating an OAuth Access Token type authentication token.', example='oauth_access_token'),
   consumerId?: string(name='consumerId', description='The consumer ID of the authentication token.', example='app_ngtkgrrxxxxktg5eao6z4xxxxx'),
-  consumerType?: string(name='consumerType', description='The consumer type of the authentication token. Valid values:
-
-- application: application
-- custom: custom type', example='application'),
+  consumerType?: string(name='consumerType', description='The consumer type of the authentication token.', example='application'),
   createTime?: long(name='createTime', description='The creation time of the authentication token. This value is a UNIX timestamp in milliseconds.', example='1649830225000'),
   creatorId?: string(name='creatorId', description='The creator ID of the authentication token.', example='app_ngtkgrrxxxxktg5eao6z4xxxxx'),
-  creatorType?: string(name='creatorType', description='The creator type of the authentication token. Valid values:
-
-- application: application', example='application'),
+  creatorType?: string(name='creatorType', description='The creator type of the authentication token.', example='application'),
   credentialProviderId?: string(name='credentialProviderId', description='The credential provider ID.', example='atp_01kr2cmj5gxxx4fvmls2e93dxxxxx'),
   expirationTime?: long(name='expirationTime', description='The expiration time of the authentication token. This value is a UNIX timestamp in milliseconds.', example='1772693568000'),
   instanceId?: string(name='instanceId', description='The instance ID.', example='idaas_ue2jvisn35ea5lmthk267xxxxx'),
   oauthAccessTokenContent?: {
-    accessTokenValue?: string(name='accessTokenValue', description='The access_token field in the OAuth protocol Token endpoint response.', example='DgEBAGP2xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx'),
-    scope?: string(name='scope', description='The scope field in the OAuth protocol Token endpoint response.', example='example:test_01 example:test_02'),
-    tokenType?: string(name='tokenType', description='The token_type field in the OAuth protocol Token endpoint response.', example='Bearer'),
-  }(name='oauthAccessTokenContent', description='The authentication token content of the OAuth Access Token type.'),
+    accessTokenValue?: string(name='accessTokenValue', description='The access_token field in the OAuth protocol token endpoint response.', example='DgEBAGP2xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx'),
+    scope?: string(name='scope', description='The scope field in the OAuth protocol token endpoint response.', example='example:test_01 example:test_02'),
+    tokenType?: string(name='tokenType', description='The token_type field in the OAuth protocol token endpoint response.', example='Bearer'),
+  }(name='oauthAccessTokenContent', description='The content of the OAuth Access Token type authentication token.'),
   oauthAuthorizationSession?: {
-    authorizationUrl?: string(name='authorizationUrl', example='https://auth.example.com'),
-    sessionId?: string(name='sessionId', example='atpoas_yyy'),
-    sessionStatus?: string(name='sessionStatus', example='pending'),
-    sessionUri?: string(name='sessionUri', example='urn:ietf:params:oauth:request_uri:atpoas_yyy'),
-  }(name='oauthAuthorizationSession'),
+    authorizationUrl?: string(name='authorizationUrl', description='The user authorization URL.', example='https://login.dingtalk.com/oauth2/auth?client_id=...'),
+    sessionId?: string(name='sessionId', description='The authorization session ID.', example='atpoas_01l6losojlojbbv01adsq56xxxxx'),
+    sessionStatus?: string(name='sessionStatus', description='The authorization session status.', example='pending'),
+    sessionUri?: string(name='sessionUri', description='The authorization session URI.', example='urn:ietf:params:oauth:request_uri:atpoas_01l6ljnvrpc5niakl3gj3amxxxxxx'),
+  }(name='oauthAuthorizationSession', description='The authorization session of the OAuth user_federation flow. Returned during first-time authorization or when user interaction is required.'),
   revoked?: boolean(name='revoked', description='Indicates whether the authentication token is revoked.', example='false'),
   updateTime?: long(name='updateTime', description='The update time of the authentication token. This value is a UNIX timestamp in milliseconds.', example='1649830225000'),
 }
@@ -1846,6 +1841,98 @@ async function getGroup(instanceId: string, applicationId: string, groupId: stri
   var runtime = new Util.RuntimeOptions{};
   var headers = new GetGroupHeaders{};
   return getGroupWithOptions(instanceId, applicationId, groupId, request, headers, runtime);
+}
+
+model GetOAuthAuthorizationSessionHeaders {
+  commonHeaders?: map[string]string,
+  authorization?: string(name='Authorization', description='The authentication information. Format: Bearer ${access_token}.
+
+> Enter the Access Token issued by IDaaS.
+
+This parameter is required.', example='Bearer xxxxxx'),
+}
+
+model GetOAuthAuthorizationSessionRequest {
+  sessionUri?: string(name='sessionUri', description='The authorization session URI.
+
+> Returned by the FetchOAuthAuthenticationToken call.
+
+This parameter is required.', example='urn:ietf:params:oauth:request_uri:atpoas_01l6ljnvrpc5niakl3gj3amxxxxxx'),
+}
+
+model GetOAuthAuthorizationSessionResponseBody = {
+  authenticationTokenId?: string(name='authenticationTokenId', description='The authentication token ID.', example='atntkn_01l6lot7o4e4r77oelp6qtuxxxxx'),
+  authorizationUrl?: string(name='authorizationUrl', description='The user authorization URL.', example='https://login.dingtalk.com/oauth2/auth?client_id=...'),
+  consumerId?: string(name='consumerId', description='The authentication token consumer ID.', example='app_ngtkgrrxxxxktg5eao6z4xxxxx'),
+  consumerType?: string(name='consumerType', description='The authentication token consumer type.', example='application'),
+  creatorId?: string(name='creatorId', description='The authentication token creator ID.', example='app_ngtkgrrxxxxktg5eao6z4xxxxx'),
+  creatorType?: string(name='creatorType', description='The authentication token creator type.', example='application'),
+  credentialProviderIdentifier?: string(name='credentialProviderIdentifier', description='The credential provider business identifier.', example='test_example_identifier'),
+  errorCode?: string(name='errorCode', description='The error code.', example='access_denied'),
+  errorDescription?: string(name='errorDescription', description='The error description.', example='The user denied the authorization request'),
+  expirationTime?: long(name='expirationTime', description='The authentication token expiration time. UNIX timestamp in milliseconds.', example='1704153600000'),
+  instanceId?: string(name='instanceId', description='The instance ID.', example='idaas_ue2jvisn35ea5lmthk267xxxxx'),
+  sessionId?: string(name='sessionId', description='The authorization session ID.', example='atpoas_01l6losojlojbbv01adsq56xxxxx'),
+  sessionStatus?: string(name='sessionStatus', description='The authorization session status.', example='pending'),
+  sessionUri?: string(name='sessionUri', description='The authorization session URI.', example='urn:ietf:params:oauth:request_uri:atpoas_01l6ljnvrpc5niakl3gj3amxxxxxx'),
+}
+
+model GetOAuthAuthorizationSessionResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: GetOAuthAuthorizationSessionResponseBody(name='body'),
+}
+
+/**
+ * @summary Queries the current status and authorization result of an OAuth authorization session.
+ *
+ * @param request GetOAuthAuthorizationSessionRequest
+ * @param headers GetOAuthAuthorizationSessionHeaders
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return GetOAuthAuthorizationSessionResponse
+ */
+async function getOAuthAuthorizationSessionWithOptions(instanceId: string, request: GetOAuthAuthorizationSessionRequest, headers: GetOAuthAuthorizationSessionHeaders, runtime: Util.RuntimeOptions): GetOAuthAuthorizationSessionResponse {
+  Util.validateModel(request);
+  var body : map[string]any = {};
+  if (!Util.isUnset(request.sessionUri)) {
+    body['sessionUri'] = request.sessionUri;
+  }
+
+  var realHeaders : map[string]string = {};
+  if (!Util.isUnset(headers.commonHeaders)) {
+    realHeaders = headers.commonHeaders;
+  }
+  if (!Util.isUnset(headers.authorization)) {
+    realHeaders['Authorization'] = Util.toJSONString(headers.authorization);
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = realHeaders,
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApi.Params{
+    action = 'GetOAuthAuthorizationSession',
+    version = '2022-02-25',
+    protocol = 'HTTPS',
+    pathname = `/v2/${OpenApiUtil.getEncodeParam(instanceId)}/oauthAuthorizationSessions/_/actions/get`,
+    method = 'POST',
+    authType = 'Anonymous',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return doROARequest(params.action, params.version, params.protocol, params.method, params.authType, params.pathname, params.bodyType, req, runtime);
+}
+
+/**
+ * @summary Queries the current status and authorization result of an OAuth authorization session.
+ *
+ * @param request GetOAuthAuthorizationSessionRequest
+ * @return GetOAuthAuthorizationSessionResponse
+ */
+async function getOAuthAuthorizationSession(instanceId: string, request: GetOAuthAuthorizationSessionRequest): GetOAuthAuthorizationSessionResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers = new GetOAuthAuthorizationSessionHeaders{};
+  return getOAuthAuthorizationSessionWithOptions(instanceId, request, headers, runtime);
 }
 
 model GetOrganizationalUnitHeaders {
