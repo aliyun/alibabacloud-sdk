@@ -109,6 +109,7 @@ model ExperimentPlanData {
   description?: string(name='description'),
   experimentCount?: int32(name='experimentCount'),
   experimentType?: string(name='experimentType'),
+  pipelineName?: string(name='pipelineName'),
   planId?: string(name='planId'),
   planName?: string(name='planName'),
   querySql?: string(name='querySql'),
@@ -970,32 +971,33 @@ async function createEvaluatorSkill(name: string, request: CreateEvaluatorSkillR
 }
 
 model CreateExperimentPlanRequest {
-  datasetId?: string(name='datasetId', description='The associated dataset ID. If this parameter is not specified, the execution phase processes in simple mode.', example='rca_benckmark_eval'),
+  datasetId?: string(name='datasetId', description='The ID of the associated dataset. If this parameter is not specified, the execution phase processes in simple mode.', example='rca_benckmark_eval'),
   description?: string(name='description', description='The description of the experiment plan.', example='rca_benchmark_eval_experiment offline experiment.'),
   evaluators?: [
     Evaluator
-  ](name='evaluators', description='The evaluator list. If configured, evaluation is automatically triggered when the experiment completes.', example='[{"evaluatorRef": "Builtin.agent_correctness", "name": "Builtin.agent_correctness", "type": "AGENT", "resultName": "Builtin.agent_correctness", "resultType": "score", "variableMapping": {"input": "experiment_input", "output": "experiment_output", "expected_output": "dataset.ground_truth_json"}, "filters": {"query": "", "sample": "100"}, "config": {"variables": [], "prompt": ""}}, {"evaluatorRef": "rca-toxicity-safety-accuracy", "name": "rca-toxicity-safety-accuracy", "type": "AGENT", "resultName": "rca-toxicity-safety-accuracy", "resultType": "score", "variableMapping": {"input": "experiment_input", "output": "experiment_output", "question": "dataset.question", "expected_output": "dataset.ground_truth_json", "payload_json": "dataset.payload_json"}, "filters": {"query": "", "sample": "100"}, "config": {"variables": [], "prompt": ""}}]'),
+  ](name='evaluators', description='The list of evaluators. After configuration, evaluation can be automatically triggered when the experiment completes.', example='[{"evaluatorRef": "Builtin.agent_correctness", "name": "Builtin.agent_correctness", "type": "AGENT", "resultName": "Builtin.agent_correctness", "resultType": "score", "variableMapping": {"input": "experiment_input", "output": "experiment_output", "expected_output": "dataset.ground_truth_json"}, "filters": {"query": "", "sample": "100"}, "config": {"variables": [], "prompt": ""}}, {"evaluatorRef": "rca-toxicity-safety-accuracy", "name": "rca-toxicity-safety-accuracy", "type": "AGENT", "resultName": "rca-toxicity-safety-accuracy", "resultType": "score", "variableMapping": {"input": "experiment_input", "output": "experiment_output", "question": "dataset.question", "expected_output": "dataset.ground_truth_json", "payload_json": "dataset.payload_json"}, "filters": {"query": "", "sample": "100"}, "config": {"variables": [], "prompt": ""}}]'),
   experimentType?: string(name='experimentType', description='The experiment type. Set this parameter to `OFFLINE` or `ONLINE`.
 
 This parameter is required.', example='OFFLINE'),
   experiments?: [
     ExperimentConfig
-  ](name='experiments', description='The experiment configuration list. A maximum of 5 entries are supported. For offline experiments, this parameter can be omitted or set to an empty array. For online experiments, at least one entry is required.
+  ](name='experiments', description='The list of experiment configurations. A maximum of 5 configurations are supported. For offline experiments, this parameter can be omitted or set to an empty array. For online experiments, at least one configuration is required.
 
 This parameter is required.', example='[{"label": "A", "name": "experimentA", "modelName": "qwen3.7-plus", "modelProvider": "dashscope", "modelParameters": {"temperature": 0.7, "topP": 0.8, "presencePenalty": 0.0, "frequencyPenalty": 0.0}, "promptTemplate": [{"role": "system", "content": "You are an Alibaba Cloud ARMS product Q&A bot"}, {"role": "user", "content": "{{input}}"}]}, {"label": "B", "name": "experimentB", "modelName": "qwen3.7-max", "modelProvider": "dashscope", "modelParameters": {"temperature": 0.7, "topP": 0.8, "presencePenalty": 0.0, "frequencyPenalty": 0.0}, "promptTemplate": [{"role": "system", "content": "You are an Alibaba Cloud ARMS product Q&A bot"}, {"role": "user", "content": "{{input}}"}]}]'),
-  input?: map[string]any(name='input', description='Optional.', example='{"question": "How do I request a refund?"}'),
-  planName?: string(name='planName', description='The experiment plan name. The name must be unique within the same AgentSpace under the same account.
+  input?: map[string]any(name='input', description='Optional.', example='{"question": "How do I get a refund?"}'),
+  pipelineName?: string(name='pipelineName'),
+  planName?: string(name='planName', description='The experiment plan name. The name must be unique within the same AgentSpace and account.
 
 This parameter is required.', example='rca_benchmark_eval_experiment'),
   querySql?: string(name='querySql', description='The custom query SQL clause in partial dataset mode. This parameter can be used when `selectedItemIds` is empty.', example='status=\\\\"OK\\\\"'),
-  selectedItemIds?: [ string ](name='selectedItemIds', description='The list of selected data item IDs in partial dataset mode. Use this parameter together with `datasetId`.', example='["019ef4d5-a0f0-7114-832d-5542d771cd8c", "019f1729-be9b-7769-a006-8e98023ad7ad"]'),
+  selectedItemIds?: [ string ](name='selectedItemIds', description='The list of selected data item IDs in partial dataset mode. This parameter must be used together with `datasetId`.', example='["019ef4d5-a0f0-7114-832d-5542d771cd8c", "019f1729-be9b-7769-a006-8e98023ad7ad"]'),
 }
 
 model CreateExperimentPlanResponseBody = {
   message?: string(name='message', description='The message.', example='Experiment plan created successfully.'),
   planId?: string(name='planId', description='The experiment plan ID.', example='exp-plan-e95bff54685a4ae29ff3a834c1008a71'),
   requestId?: string(name='requestId', description='The request ID.', example='3FE4CD1E-FF41-56BE-B590-7A021D9C1524'),
-  status?: string(name='status', description='The creation result. The value is `created` if the operation is successful.', example='created'),
+  status?: string(name='status', description='The creation result. The value is `created` upon success.', example='created'),
 }
 
 model CreateExperimentPlanResponse = {
@@ -1007,7 +1009,7 @@ model CreateExperimentPlanResponse = {
 /**
  * @summary Creates an experiment plan.
  *
- * @description Calls CreateExperimentPlan to create an experiment plan under a specified AgentSpace. Use this operation to define the configuration of an offline or online experiment, including the data source, optional evaluators, and experiment groups required for online experiments. After the plan is created, call CreateExperimentRun to start execution.
+ * @description Calls CreateExperimentPlan to create an experiment plan under a specified AgentSpace. Use this operation to define the configuration of an offline or online experiment, including the data source, optional evaluators, and experiment groups required for online experiments. After the plan is created, call CreateExperimentRun to start the execution.
  *
  * @param request CreateExperimentPlanRequest
  * @param headers map
@@ -1035,6 +1037,9 @@ async function createExperimentPlanWithOptions(agentSpace: string, request: Crea
   }
   if (!$isNull(request.input)) {
     body['input'] = request.input;
+  }
+  if (!$isNull(request.pipelineName)) {
+    body['pipelineName'] = request.pipelineName;
   }
   if (!$isNull(request.planName)) {
     body['planName'] = request.planName;
@@ -1067,7 +1072,7 @@ async function createExperimentPlanWithOptions(agentSpace: string, request: Crea
 /**
  * @summary Creates an experiment plan.
  *
- * @description Calls CreateExperimentPlan to create an experiment plan under a specified AgentSpace. Use this operation to define the configuration of an offline or online experiment, including the data source, optional evaluators, and experiment groups required for online experiments. After the plan is created, call CreateExperimentRun to start execution.
+ * @description Calls CreateExperimentPlan to create an experiment plan under a specified AgentSpace. Use this operation to define the configuration of an offline or online experiment, including the data source, optional evaluators, and experiment groups required for online experiments. After the plan is created, call CreateExperimentRun to start the execution.
  *
  * @param request CreateExperimentPlanRequest
  * @return CreateExperimentPlanResponse
@@ -2337,6 +2342,7 @@ Use the UTC time format: yyyy-MM-ddTHH:mm:ssZ', example='2026-06-15T10:30:00Z'),
   datasetName?: string(name='datasetName', description='The dataset name.', example='product_faq_dataset'),
   description?: string(name='description', description='The dataset description.', example='Product FAQ dataset for semantic search'),
   isFavorite?: boolean(name='isFavorite'),
+  labels?: map[string][ string ](name='labels'),
   regionId?: string(name='regionId', description='The region ID.', example='cn-beijing'),
   requestId?: string(name='requestId', description='The request ID.', example='D17DE39E-6C62-50E3-9EB7-FDE41BB0D43D'),
   schema?: map[string]IndexKey(name='schema', description='The table schema of the dataset.'),
@@ -2712,9 +2718,9 @@ model GetExperimentPlanRequest {
 }
 
 model GetExperimentPlanResponseBody = {
-  createdAt?: long(name='createdAt', description='The creation time, in millisecond Unix timestamp.', example='1782816000000'),
+  createdAt?: long(name='createdAt', description='The creation time. This value is a millisecond-level UNIX timestamp.', example='1782816000000'),
   datasetId?: string(name='datasetId', description='The associated dataset ID.', example='arms_customer_agent_level1'),
-  description?: string(name='description', description='The description.', example='对比 checkout Agent 基线与优化版本'),
+  description?: string(name='description', description='The description.', example='Compare the checkout Agent baseline with the optimized version.'),
   evaluators?: [
     Evaluator
   ](name='evaluators', description='The list of evaluators.', example='[{"evaluatorRef": "Builtin.agent_task_completion"}]'),
@@ -2722,14 +2728,15 @@ model GetExperimentPlanResponseBody = {
   experiments?: [
     ExperimentConfig
   ](name='experiments', description='The list of experiment configurations.', example='[{"label": "A", "name": "baseline", "modelName": "qwen-max"}]'),
-  input?: map[string]any(name='input', description='Optional.', example='{"question": "如何退款？"}'),
+  input?: map[string]any(name='input', description='Optional.', example='{"question": "How do I request a refund?"}'),
+  pipelineName?: string(name='pipelineName'),
   planId?: string(name='planId', description='The experiment plan ID.', example='exp-plan-0242d983f5d340fd8479cf2c19eb279e'),
   planName?: string(name='planName', description='The experiment plan name.', example='arms_agent_experiment'),
   querySql?: string(name='querySql', description='The custom query SQL clause in partial dataset mode.', example='status=\\\\"OK\\\\"'),
   requestId?: string(name='requestId', description='The request ID.', example='3FE4CD1E-FF41-56BE-B590-7A021D9C1524'),
   selectedItemIds?: [ string ](name='selectedItemIds', description='The list of selected data item IDs in partial dataset mode.', example='["019ef4d5-a0f0-7114-832d-5542d771cd8c"]'),
   status?: string(name='status', description='The plan status.', example='stopped'),
-  updatedAt?: long(name='updatedAt', description='The update time, in millisecond Unix timestamp.', example='1782816600000'),
+  updatedAt?: long(name='updatedAt', description='The update time. This value is a millisecond-level UNIX timestamp.', example='1782816600000'),
 }
 
 model GetExperimentPlanResponse = {
@@ -2739,9 +2746,9 @@ model GetExperimentPlanResponse = {
 }
 
 /**
- * @summary Query an experiment plan
+ * @summary Queries an experiment plan.
  *
- * @description Calls the GetExperimentPlan operation to query the complete configuration of a specified experiment plan, including experiment groups, data sources, evaluators, and timestamps.
+ * @description Calls GetExperimentPlan to query the complete configuration of a specified experiment plan, including experiment groups, data sources, evaluators, and timestamps.
  *
  * @param request GetExperimentPlanRequest
  * @param headers map
@@ -2769,9 +2776,9 @@ async function getExperimentPlanWithOptions(agentSpace: string, planId: string, 
 }
 
 /**
- * @summary Query an experiment plan
+ * @summary Queries an experiment plan.
  *
- * @description Calls the GetExperimentPlan operation to query the complete configuration of a specified experiment plan, including experiment groups, data sources, evaluators, and timestamps.
+ * @description Calls GetExperimentPlan to query the complete configuration of a specified experiment plan, including experiment groups, data sources, evaluators, and timestamps.
  *
  * @param request GetExperimentPlanRequest
  * @return GetExperimentPlanResponse
@@ -3388,6 +3395,14 @@ async function listContextStores(agentSpace: string, request: ListContextStoresR
 
 model ListDatasetsRequest {
   datasetName?: string(name='datasetName', description='The dataset name.', example='product_faq_dataset'),
+  labels?: map[string] [ string ](name='labels'),
+  maxResults?: int32(name='maxResults', description='The maximum number of results to return.', example='100'),
+  nextToken?: string(name='nextToken', description='The pagination token. You do not need to set this parameter for the first request. For subsequent requests, set this parameter to the nextToken value returned in the previous response.', example='RsfoUqpOJd5nd0F1e4OquY/7dKNGp1JMgsKtvCagmtY='),
+}
+
+model ListDatasetsShrinkRequest {
+  datasetName?: string(name='datasetName', description='The dataset name.', example='product_faq_dataset'),
+  labelsShrink?: string(name='labels'),
   maxResults?: int32(name='maxResults', description='The maximum number of results to return.', example='100'),
   nextToken?: string(name='nextToken', description='The pagination token. You do not need to set this parameter for the first request. For subsequent requests, set this parameter to the nextToken value returned in the previous response.', example='RsfoUqpOJd5nd0F1e4OquY/7dKNGp1JMgsKtvCagmtY='),
 }
@@ -3402,6 +3417,7 @@ Use the UTC time format: yyyy-MM-ddTHH:mm:ssZ', example='2026-01-19T02:11:02Z'),
       datasetName?: string(name='datasetName', description='The dataset name.', example='product_faq_dataset'),
       description?: string(name='description', description='The dataset description.', example='Product FAQ dataset for semantic search'),
       isFavorite?: boolean(name='isFavorite'),
+      labels?: map[string][ string ](name='labels'),
       regionId?: string(name='regionId', description='The region ID.', example='cn-shanghai'),
       updateTime?: string(name='updateTime', description='The update time.
 
@@ -3425,17 +3441,25 @@ model ListDatasetsResponse = {
 /**
  * @summary Queries a list of datasets.
  *
- * @param request ListDatasetsRequest
+ * @param tmpReq ListDatasetsRequest
  * @param headers map
  * @param runtime runtime options for this request RuntimeOptions
  * @return ListDatasetsResponse
  */
 @context("listDatasetsWithContext")
-async function listDatasetsWithOptions(agentSpace: string, request: ListDatasetsRequest, headers: map[string]string, runtime: $RuntimeOptions): ListDatasetsResponse {
-  request.validate();
+async function listDatasetsWithOptions(agentSpace: string, tmpReq: ListDatasetsRequest, headers: map[string]string, runtime: $RuntimeOptions): ListDatasetsResponse {
+  tmpReq.validate();
+  var request = new ListDatasetsShrinkRequest{};
+  OpenApiUtil.convert(tmpReq, request);
+  if (!$isNull(tmpReq.labels)) {
+    request.labelsShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.labels, 'labels', 'json');
+  }
   var query : map[string]any = {};
   if (!$isNull(request.datasetName)) {
     query['datasetName'] = request.datasetName;
+  }
+  if (!$isNull(request.labelsShrink)) {
+    query['labels'] = request.labelsShrink;
   }
   if (!$isNull(request.maxResults)) {
     query['maxResults'] = request.maxResults;
@@ -5307,6 +5331,7 @@ model UpdateExperimentPlanRequest {
     ExperimentConfig
   ](name='experiments', description='The experiment configuration list. When passed, the entire list is replaced. The number of items must be 1 to 5.', example='[{"label": "A", "name": "baseline", "modelName": "qwen-max"}]'),
   input?: map[string]any(name='input', description='Optional.', example='{"question": "How do I get a refund?"}'),
+  pipelineName?: string(name='pipelineName'),
   planName?: string(name='planName', description='The experiment plan name.', example='rca_benchmark_eval_experiment'),
   querySql?: string(name='querySql', description='The custom query SQL clause in partial dataset mode.', example='level > 2'),
   selectedItemIds?: [ string ](name='selectedItemIds', description='The list of selected data item IDs in partial dataset mode. Passing an empty array clears the list.', example='[]'),
@@ -5359,6 +5384,9 @@ async function updateExperimentPlanWithOptions(agentSpace: string, planId: strin
   }
   if (!$isNull(request.input)) {
     body['input'] = request.input;
+  }
+  if (!$isNull(request.pipelineName)) {
+    body['pipelineName'] = request.pipelineName;
   }
   if (!$isNull(request.planName)) {
     body['planName'] = request.planName;
