@@ -1,0 +1,219 @@
+/**
+ *
+ */
+import Util;
+import OpenApi;
+import OpenApiUtil;
+import EndpointUtil;
+
+extends OpenApi;
+
+
+init(config: OpenApi.Config){
+  super(config);
+  @endpointRule = '';
+  
+  checkConfig(config);
+  @endpoint = getEndpoint('ossagent', @regionId, @endpointRule, @network, @suffix, @endpointMap, @endpoint);
+}
+
+function getEndpoint(productId: string, regionId: string, endpointRule: string, network: string, suffix: string, endpointMap: map[string]string, endpoint: string) throws: string{
+  if (!Util.empty(endpoint)) {
+    return endpoint;
+  }
+  
+  if (!Util.isUnset(endpointMap) && !Util.empty(endpointMap[regionId])) {
+    return endpointMap[regionId];
+  }
+  return EndpointUtil.getEndpointRules(productId, regionId, endpointRule, network, suffix);
+}
+
+model ChatRequest {
+  messages?: [ 
+    {
+      content?: string(name='content'),
+      role?: string(name='role'),
+    }
+  ](name='messages'),
+  sessionId?: string(name='sessionId'),
+}
+
+model ChatResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: string(name='body'),
+}
+
+/**
+ * @summary 聊天流式接口
+ *
+ * @param request ChatRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return ChatResponse
+ */
+async function chatWithOptions(request: ChatRequest, headers: map[string]string, runtime: Util.RuntimeOptions): ChatResponse {
+  Util.validateModel(request);
+  var body : map[string]any = {};
+  if (!Util.isUnset(request.messages)) {
+    body['messages'] = request.messages;
+  }
+  if (!Util.isUnset(request.sessionId)) {
+    body['sessionId'] = request.sessionId;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApi.Params{
+    action = 'Chat',
+    version = '2026-06-22',
+    protocol = 'HTTPS',
+    pathname = `/api/chat/stream`,
+    method = 'POST',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'string',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 聊天流式接口
+ *
+ * @param request ChatRequest
+ * @return ChatResponse
+ */
+async function chat(request: ChatRequest): ChatResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return chatWithOptions(request, headers, runtime);
+}
+
+model ConfirmRequest {
+  confirmed?: boolean(name='confirmed'),
+  phase?: string(name='phase'),
+  reason?: string(name='reason'),
+  sessionId?: string(name='sessionId'),
+  toolCalls?: [ 
+    {
+      id?: string(name='id'),
+      modifiedInput?: map[string]any(name='modifiedInput'),
+      name?: string(name='name'),
+    }
+  ](name='toolCalls'),
+}
+
+model ConfirmResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: string(name='body'),
+}
+
+/**
+ * @summary 工具确认接口
+ *
+ * @param request ConfirmRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return ConfirmResponse
+ */
+async function confirmWithOptions(request: ConfirmRequest, headers: map[string]string, runtime: Util.RuntimeOptions): ConfirmResponse {
+  Util.validateModel(request);
+  var body : map[string]any = {};
+  if (!Util.isUnset(request.confirmed)) {
+    body['confirmed'] = request.confirmed;
+  }
+  if (!Util.isUnset(request.phase)) {
+    body['phase'] = request.phase;
+  }
+  if (!Util.isUnset(request.reason)) {
+    body['reason'] = request.reason;
+  }
+  if (!Util.isUnset(request.sessionId)) {
+    body['sessionId'] = request.sessionId;
+  }
+  if (!Util.isUnset(request.toolCalls)) {
+    body['toolCalls'] = request.toolCalls;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApi.Params{
+    action = 'Confirm',
+    version = '2026-06-22',
+    protocol = 'HTTPS',
+    pathname = `/api/chat/confirm`,
+    method = 'POST',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'string',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 工具确认接口
+ *
+ * @param request ConfirmRequest
+ * @return ConfirmResponse
+ */
+async function confirm(request: ConfirmRequest): ConfirmResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return confirmWithOptions(request, headers, runtime);
+}
+
+model InterruptRequest {
+}
+
+model InterruptResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: string(name='body'),
+}
+
+/**
+ * @summary 聊天中断接口
+ *
+ * @param request InterruptRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return InterruptResponse
+ */
+async function interruptWithOptions(sessionId: string, request: InterruptRequest, headers: map[string]string, runtime: Util.RuntimeOptions): InterruptResponse {
+  Util.validateModel(request);
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+  };
+  var params = new OpenApi.Params{
+    action = 'Interrupt',
+    version = '2026-06-22',
+    protocol = 'HTTPS',
+    pathname = `/api/chat/interrupt/${OpenApiUtil.getEncodeParam(sessionId)}`,
+    method = 'POST',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'string',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 聊天中断接口
+ *
+ * @param request InterruptRequest
+ * @return InterruptResponse
+ */
+async function interrupt(sessionId: string, request: InterruptRequest): InterruptResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return interruptWithOptions(sessionId, request, headers, runtime);
+}
+

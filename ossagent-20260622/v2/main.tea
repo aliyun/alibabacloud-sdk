@@ -1,0 +1,331 @@
+/**
+ *
+ */
+import OpenApi;
+import OpenApi.OpenApiUtil;
+
+extends OpenApi;
+
+
+init(config: OpenApiUtil.Config){
+  super(config);
+  @endpointRule = '';
+  
+  checkConfig(config);
+  @endpoint = getEndpoint('ossagent', @regionId, @endpointRule, @network, @suffix, @endpointMap, @endpoint);
+}
+
+function getEndpoint(productId: string, regionId: string, endpointRule: string, network: string, suffix: string, endpointMap: map[string]string, endpoint: string) throws: string{
+  if (!$isNull(endpoint)) {
+    return endpoint;
+  }
+  
+  if (!$isNull(endpointMap) && !$isNull(endpointMap[regionId])) {
+    return endpointMap[regionId];
+  }
+  return OpenApiUtil.getEndpointRules(productId, regionId, endpointRule, network, suffix);
+}
+
+model ChatRequest {
+  messages?: [ 
+    {
+      content?: string(name='content'),
+      role?: string(name='role'),
+    }
+  ](name='messages'),
+  sessionId?: string(name='sessionId'),
+}
+
+model ChatResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  id?: string(name='id'),
+  event?: string(name='event'),
+  body?: string(name='body'),
+}
+
+/**
+ * @summary 聊天流式接口
+ *
+ * @param request ChatRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return ChatResponse
+ */
+@sse(true)
+@context("chatWithSSECtx")
+async function chatWithSSE(request: ChatRequest, headers: map[string]string, runtime: $RuntimeOptions): asyncIterator[ChatResponse] {
+  request.validate();
+  var body : map[string]any = {};
+  if (!$isNull(request.messages)) {
+    body['messages'] = request.messages;
+  }
+  if (!$isNull(request.sessionId)) {
+    body['sessionId'] = request.sessionId;
+  }
+
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    headers = headers,
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'Chat',
+    version = '2026-06-22',
+    protocol = 'HTTPS',
+    pathname = `/api/chat/stream`,
+    method = 'POST',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'string',
+  };
+  var sseResp = callSSEApi(params, req, runtime);
+  for (var resp : sseResp) {
+    if (!$isNull(resp.event) && !$isNull(resp.event.data)) {
+      var data = resp.event.data;
+      yield {
+        statusCode = resp.statusCode,
+        headers = resp.headers,
+        id = resp.event.id,
+        event = resp.event.event,
+        body = data
+      };
+    }
+  }
+}
+/**
+ * @summary 聊天流式接口
+ *
+ * @param request ChatRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return ChatResponse
+ */
+@context("chatWithContext")
+async function chatWithOptions(request: ChatRequest, headers: map[string]string, runtime: $RuntimeOptions): ChatResponse {
+  request.validate();
+  var body : map[string]any = {};
+  if (!$isNull(request.messages)) {
+    body['messages'] = request.messages;
+  }
+  if (!$isNull(request.sessionId)) {
+    body['sessionId'] = request.sessionId;
+  }
+
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    headers = headers,
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'Chat',
+    version = '2026-06-22',
+    protocol = 'HTTPS',
+    pathname = `/api/chat/stream`,
+    method = 'POST',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'string',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 聊天流式接口
+ *
+ * @param request ChatRequest
+ * @return ChatResponse
+ */
+async function chat(request: ChatRequest): ChatResponse {
+  var runtime = new $RuntimeOptions{};
+  var headers : map[string]string = {};
+  return chatWithOptions(request, headers, runtime);
+}
+
+model ConfirmRequest {
+  confirmed?: boolean(name='confirmed'),
+  phase?: string(name='phase'),
+  reason?: string(name='reason'),
+  sessionId?: string(name='sessionId'),
+  toolCalls?: [ 
+    {
+      id?: string(name='id'),
+      modifiedInput?: map[string]any(name='modifiedInput'),
+      name?: string(name='name'),
+    }
+  ](name='toolCalls'),
+}
+
+model ConfirmResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  id?: string(name='id'),
+  event?: string(name='event'),
+  body?: string(name='body'),
+}
+
+/**
+ * @summary 工具确认接口
+ *
+ * @param request ConfirmRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return ConfirmResponse
+ */
+@sse(true)
+@context("confirmWithSSECtx")
+async function confirmWithSSE(request: ConfirmRequest, headers: map[string]string, runtime: $RuntimeOptions): asyncIterator[ConfirmResponse] {
+  request.validate();
+  var body : map[string]any = {};
+  if (!$isNull(request.confirmed)) {
+    body['confirmed'] = request.confirmed;
+  }
+  if (!$isNull(request.phase)) {
+    body['phase'] = request.phase;
+  }
+  if (!$isNull(request.reason)) {
+    body['reason'] = request.reason;
+  }
+  if (!$isNull(request.sessionId)) {
+    body['sessionId'] = request.sessionId;
+  }
+  if (!$isNull(request.toolCalls)) {
+    body['toolCalls'] = request.toolCalls;
+  }
+
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    headers = headers,
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'Confirm',
+    version = '2026-06-22',
+    protocol = 'HTTPS',
+    pathname = `/api/chat/confirm`,
+    method = 'POST',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'string',
+  };
+  var sseResp = callSSEApi(params, req, runtime);
+  for (var resp : sseResp) {
+    if (!$isNull(resp.event) && !$isNull(resp.event.data)) {
+      var data = resp.event.data;
+      yield {
+        statusCode = resp.statusCode,
+        headers = resp.headers,
+        id = resp.event.id,
+        event = resp.event.event,
+        body = data
+      };
+    }
+  }
+}
+/**
+ * @summary 工具确认接口
+ *
+ * @param request ConfirmRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return ConfirmResponse
+ */
+@context("confirmWithContext")
+async function confirmWithOptions(request: ConfirmRequest, headers: map[string]string, runtime: $RuntimeOptions): ConfirmResponse {
+  request.validate();
+  var body : map[string]any = {};
+  if (!$isNull(request.confirmed)) {
+    body['confirmed'] = request.confirmed;
+  }
+  if (!$isNull(request.phase)) {
+    body['phase'] = request.phase;
+  }
+  if (!$isNull(request.reason)) {
+    body['reason'] = request.reason;
+  }
+  if (!$isNull(request.sessionId)) {
+    body['sessionId'] = request.sessionId;
+  }
+  if (!$isNull(request.toolCalls)) {
+    body['toolCalls'] = request.toolCalls;
+  }
+
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    headers = headers,
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'Confirm',
+    version = '2026-06-22',
+    protocol = 'HTTPS',
+    pathname = `/api/chat/confirm`,
+    method = 'POST',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'string',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 工具确认接口
+ *
+ * @param request ConfirmRequest
+ * @return ConfirmResponse
+ */
+async function confirm(request: ConfirmRequest): ConfirmResponse {
+  var runtime = new $RuntimeOptions{};
+  var headers : map[string]string = {};
+  return confirmWithOptions(request, headers, runtime);
+}
+
+model InterruptRequest {
+}
+
+model InterruptResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: string(name='body'),
+}
+
+/**
+ * @summary 聊天中断接口
+ *
+ * @param request InterruptRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return InterruptResponse
+ */
+@context("interruptWithContext")
+async function interruptWithOptions(sessionId: string, request: InterruptRequest, headers: map[string]string, runtime: $RuntimeOptions): InterruptResponse {
+  request.validate();
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    headers = headers,
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'Interrupt',
+    version = '2026-06-22',
+    protocol = 'HTTPS',
+    pathname = `/api/chat/interrupt/${$URL.percentEncode(sessionId)}`,
+    method = 'POST',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'string',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 聊天中断接口
+ *
+ * @param request InterruptRequest
+ * @return InterruptResponse
+ */
+async function interrupt(sessionId: string, request: InterruptRequest): InterruptResponse {
+  var runtime = new $RuntimeOptions{};
+  var headers : map[string]string = {};
+  return interruptWithOptions(sessionId, request, headers, runtime);
+}
+
