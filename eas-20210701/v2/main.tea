@@ -56,6 +56,29 @@ function getEndpoint(productId: string, regionId: string, endpointRule: string, 
   return OpenApiUtil.getEndpointRules(productId, regionId, endpointRule, network, suffix);
 }
 
+model Artifact {
+  createdAt?: string(name='CreatedAt', description='The creation time.', example='2024-01-15T10:30:00Z'),
+  name?: string(name='Name', description='The artifact name.', example='foo'),
+  type?: string(name='Type', description='The artifact type.', example='Image'),
+  versions?: [ 
+    {
+      alias?: string(name='Alias', description='The version alias.', example='foo'),
+      description?: string(name='Description', description='The template description associated with the version.', example='Supports new xx feature'),
+      releaseName?: string(name='ReleaseName', description='The version name.', example='ali-ahpa-hz'),
+      version?: string(name='Version', description='The version number.', example='V2.0'),
+    }
+  ](name='Versions', description='The version list.'),
+}
+
+model ArtifactRelease {
+  artifactRef?: string(name='ArtifactRef'),
+  createdAt?: string(name='CreatedAt'),
+  description?: string(name='Description'),
+  image?: string(name='Image'),
+  type?: string(name='Type'),
+  version?: string(name='Version'),
+}
+
 model ContainerInfo {
   currentReaon?: string(name='CurrentReaon', description='The reason for the current status.', example='PodInitializing'),
   currentStatus?: string(name='CurrentStatus', description='The current status. Valid values:
@@ -3826,6 +3849,55 @@ async function deleteVirtualResource(ClusterId: string, VirtualResourceId: strin
   return deleteVirtualResourceWithOptions(ClusterId, VirtualResourceId, request, headers, runtime);
 }
 
+model DescribeArtifactRequest {
+}
+
+model DescribeArtifactResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: Artifact  
+}
+
+/**
+ * @summary Queries the details of a cloud native artifact.
+ *
+ * @param request DescribeArtifactRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return DescribeArtifactResponse
+ */
+@context("describeArtifactWithContext")
+async function describeArtifactWithOptions(ClusterId: string, ArtifactName: string, request: DescribeArtifactRequest, headers: map[string]string, runtime: $RuntimeOptions): DescribeArtifactResponse {
+  request.validate();
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    headers = headers,
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'DescribeArtifact',
+    version = '2021-07-01',
+    protocol = 'HTTPS',
+    pathname = `/api/v2/artifacts/${$URL.percentEncode(ClusterId)}/${$URL.percentEncode(ArtifactName)}`,
+    method = 'GET',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Queries the details of a cloud native artifact.
+ *
+ * @param request DescribeArtifactRequest
+ * @return DescribeArtifactResponse
+ */
+async function describeArtifact(ClusterId: string, ArtifactName: string, request: DescribeArtifactRequest): DescribeArtifactResponse {
+  var runtime = new $RuntimeOptions{};
+  var headers : map[string]string = {};
+  return describeArtifactWithOptions(ClusterId, ArtifactName, request, headers, runtime);
+}
+
 model DescribeBenchmarkTaskRequest {
 }
 
@@ -4077,28 +4149,28 @@ model DescribeGatewayRequest {
 
 model DescribeGatewayResponseBody = {
   chargeType?: string(name='ChargeType', description='The billing method.', example='PrePaid'),
-  createTime?: string(name='CreateTime', description='The time when the private gateway was created. The time is in Coordinated Universal Time (UTC).', example='2020-05-19T14:19:42Z'),
-  externalClusterId?: string(name='ExternalClusterId', description='The ID of the self-managed cluster.', example='c935eadf284c14c2da57a2a13ad6******'),
-  gatewayId?: string(name='GatewayId', description='The ID of the private gateway.', example='gw-1uhcqmsc7x22******'),
-  gatewayName?: string(name='GatewayName', description='The alias of the private gateway.', example='mygateway1'),
-  instanceType?: string(name='InstanceType', description='The instance type of the private gateway.', example='2c4g'),
-  internetDomain?: string(name='InternetDomain', description='The public endpoint.', example='gw-1uhcqmsc7x22******-1801786532******.cn-wulanchabu.pai-eas.aliyuncs.com'),
+  createTime?: string(name='CreateTime', description='The time when the dedicated gateway was created. The time is in UTC.', example='2020-05-19T14:19:42Z'),
+  externalClusterId?: string(name='ExternalClusterId', description='The self-managed cluster ID.', example='c935eadf284c14c2da57a2a13ad6******'),
+  gatewayId?: string(name='GatewayId', description='The dedicated gateway ID.', example='gw-1uhcqmsc7x22******'),
+  gatewayName?: string(name='GatewayName', description='The alias of the dedicated gateway.', example='mygateway1'),
+  instanceType?: string(name='InstanceType', description='The instance type used by the dedicated gateway.', example='2c4g'),
+  internetDomain?: string(name='InternetDomain', description='The public network access domain name.', example='gw-1uhcqmsc7x22******-1801786532******.cn-wulanchabu.pai-eas.aliyuncs.com'),
   internetEnabled?: boolean(name='InternetEnabled', description='Indicates whether public network access is enabled.', example='true'),
-  internetStatus?: string(name='InternetStatus', description='The status of public network access.', example='Running'),
-  intranetDomain?: string(name='IntranetDomain', description='The private endpoint.', example='gw-1uhcqmsc7x22******-1801786532******-vpc.cn-wulanchabu.pai-eas.aliyuncs.com'),
+  internetStatus?: string(name='InternetStatus', description='The status of public network access enablement or disablement.', example='Running'),
+  intranetDomain?: string(name='IntranetDomain', description='The internal access domain name.', example='gw-1uhcqmsc7x22******-1801786532******-vpc.cn-wulanchabu.pai-eas.aliyuncs.com'),
   intranetEnabled?: boolean(name='IntranetEnabled'),
-  isDefault?: boolean(name='IsDefault', description='Indicates whether the gateway is the default private gateway.', example='true'),
+  isDefault?: boolean(name='IsDefault', description='Indicates whether the dedicated gateway is the default one.', example='true'),
   labels?: [ 
     {
       labelKey?: string(name='LabelKey', example='key1'),
       labelValue?: string(name='LabelValue', example='value1'),
     }
   ](name='Labels'),
-  replicas?: int32(name='Replicas', description='The number of private gateway nodes.', example='2'),
+  replicas?: int32(name='Replicas', description='The number of nodes in the dedicated gateway.', example='2'),
   requestId?: string(name='RequestId', description='The request ID.', example='40325405-579C-4D82****'),
-  SSLRedirectionEnabled?: boolean(name='SSLRedirectionEnabled', description='Indicates whether HTTP to HTTPS redirection is enabled.', example='true'),
-  status?: string(name='Status', description='The status of the private gateway.', example='Running'),
-  updateTime?: string(name='UpdateTime', description='The time when the private gateway was last updated. The time is in UTC.', example='2021-02-24T11:52:17Z'),
+  SSLRedirectionEnabled?: boolean(name='SSLRedirectionEnabled', description='Indicates whether HTTP-to-HTTPS redirection is enabled.', example='true'),
+  status?: string(name='Status', description='The status of the dedicated gateway.', example='Running'),
+  updateTime?: string(name='UpdateTime', description='The time when the dedicated gateway was last updated. The time is in UTC.', example='2021-02-24T11:52:17Z'),
 }
 
 model DescribeGatewayResponse = {
@@ -4108,7 +4180,7 @@ model DescribeGatewayResponse = {
 }
 
 /**
- * @summary Queries the details of a private gateway.
+ * @summary Queries the details of a dedicated gateway.
  *
  * @param request DescribeGatewayRequest
  * @param headers map
@@ -4136,7 +4208,7 @@ async function describeGatewayWithOptions(ClusterId: string, GatewayId: string, 
 }
 
 /**
- * @summary Queries the details of a private gateway.
+ * @summary Queries the details of a dedicated gateway.
  *
  * @param request DescribeGatewayRequest
  * @return DescribeGatewayResponse
