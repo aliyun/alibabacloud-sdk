@@ -16,6 +16,7 @@ init(config: OpenApi.Config){
     'eu-central-1' = 'eiam.eu-central-1.aliyuncs.com',
     'cn-hongkong' = 'eiam.cn-hongkong.aliyuncs.com',
     'cn-hangzhou' = 'eiam.cn-hangzhou.aliyuncs.com',
+    'cn-beijing' = 'eiam.cn-beijing.aliyuncs.com',
     'ap-southeast-5' = 'eiam.ap-southeast-5.aliyuncs.com',
     'ap-southeast-1' = 'eiam.ap-southeast-1.aliyuncs.com',
     'ap-northeast-2' = 'eiam.ap-northeast-2.aliyuncs.com',
@@ -2789,48 +2790,53 @@ async function createCredential(request: CreateCredentialRequest): CreateCredent
 model CreateCredentialProviderRequest {
   clientToken?: string(name='ClientToken', description='The idempotency token that ensures the idempotence of the request.
 
-Generate a parameter value from your client to ensure that the value is unique across different requests. ClientToken supports only ASCII characters and cannot exceed 64 characters in length. For more information, see References [How to ensure idempotence](https://www.alibabacloud.com/help/zh/ecs/developer-reference/how-to-ensure-idempotence).
+Generate a parameter value from your client to ensure uniqueness across different requests. ClientToken supports only ASCII characters and cannot exceed 64 characters in length. For more information, see References [How to ensure idempotence](https://www.alibabacloud.com/help/zh/ecs/developer-reference/how-to-ensure-idempotence).
 
 This parameter is required.', example='client-token-example'),
   credentialProviderConfig?: {
     jwtProviderConfig?: {
       allowedTokenIssuers?: [ string ](name='AllowedTokenIssuers', description='The list of allowed JWT issuers.
 
-> The list can contain up to 200 entries.'),
+> The list length cannot exceed 200.'),
       derivedShortTokenEnabled?: boolean(name='DerivedShortTokenEnabled', description='Specifies whether to enable the JWT derived short token capability.', example='false'),
-      expiration?: int32(name='Expiration', description='The validity period of the JWT. Unit: seconds.', example='900'),
+      expiration?: int32(name='Expiration', description='The validity duration of the JWT. Unit: seconds.', example='900'),
       expirationCleanupEnabled?: boolean(name='ExpirationCleanupEnabled', description='Specifies whether to enable JWT expiration cleanup.', example='true'),
     }(name='JwtProviderConfig', description='The configuration of the JWT credential provider.'),
     OAuthProviderConfig?: {
-      clientId?: string(name='ClientId', description='The client_id in the OAuth protocol, which is the client ID.
+      authorizationEndpoint?: string(name='AuthorizationEndpoint', description='The endpoint address used to guide users through authorization. Conditionally required: required when AuthorizationFlow=user_federation and ProviderVendor=custom. For preset vendors, this can be automatically populated through DiscoveryUrl.'),
+      authorizationFlow?: string(name='AuthorizationFlow', description='The OAuth authorization flow type. Valid values: m2m: machine-to-machine (2LO, Client Credentials). user_federation: user federation (3LO, Authorization Code).'),
+      clientId?: string(name='ClientId', description='The client_id in the OAuth protocol.
 
 > The length cannot exceed 128 characters.
 
 This parameter is required.', example='client_id_example_xxx'),
-      clientSecret?: string(name='ClientSecret', description='The client_secret in the OAuth protocol, which is the client secret.
+      clientSecret?: string(name='ClientSecret', description='The client_secret in the OAuth protocol.
 
 > The length cannot exceed 1024 characters.
 
 This parameter is required.', example='client_secret_example_xxx'),
-      scope?: string(name='Scope', description='The scope in the OAuth protocol, which specifies the permission scope.
+      discoveryUrl?: string(name='DiscoveryUrl', description='The Discovery document URL used to automatically retrieve OAuth endpoint configurations. Conditionally optional: used when AuthorizationFlow=user_federation. If DiscoveryUrl is not provided, you must manually configure fields such as TokenEndpoint and AuthorizationEndpoint.'),
+      issuer?: string(name='Issuer'),
+      pkceChallengeMethod?: string(name='PkceChallengeMethod', description='The PKCE code_challenge generation method. Default value: s256.'),
+      pkceEnabled?: boolean(name='PkceEnabled', description='Specifies whether to use the PKCE extension to enhance security. We recommend that you always enable this feature.'),
+      providerVendor?: string(name='ProviderVendor', description='The preset vendor or custom configuration. Optional. Default value: custom.'),
+      scope?: string(name='Scope', description='The scope in the OAuth protocol, which defines the permission range.
 
-> The Scope configuration on the credential provider serves as the default value. If the scope parameter is not specified when calling the DeveloperAPI to obtain an OAuth Access Token, the Scope configuration on the credential provider is used for issuance.
+> The Scope configuration on the credential provider serves as the fallback value. If the scope parameter is not specified when calling the DeveloperAPI to obtain an OAuth Access Token, the Scope configuration on the credential provider is used for issuance.
 
 >Notice: Separate multiple Scope values with spaces.
 
-The following restrictions apply to each individual Scope value:
+Restrictions for each individual Scope value:
 1. Allowed characters: lowercase letters, digits, and the special characters `|/:_-.`
 2. Must contain at least one lowercase letter or digit.
 3. Must start with the special character `.`, a lowercase letter, or a digit.
 4. The length cannot exceed 1024 characters.', example='example:test_01 example:test_02'),
       tokenEndpoint?: string(name='TokenEndpoint', description='The token endpoint of the OAuth protocol.
 
-> The value must start with `http://` or `https://`, and the length cannot exceed 1024 characters.
-
-This parameter is required.', example='https://example.com/token'),
+> Must start with `http://` or `https://`, and the length cannot exceed 1024 characters.', example='https://example.com/token'),
     }(name='OAuthProviderConfig', description='The configuration of the OAuth credential provider.'),
   }(name='CredentialProviderConfig', description='The configuration of the credential provider.'),
-  credentialProviderIdentifier?: string(name='CredentialProviderIdentifier', description='The business identifier of the credential provider.
+  credentialProviderIdentifier?: string(name='CredentialProviderIdentifier', description='The identifier of the credential provider.
 
 > Allowed characters include uppercase and lowercase letters, digits, and the special characters `.-_`. The length cannot exceed 64 characters.
 
@@ -2842,8 +2848,8 @@ This parameter is required.', example='test_example_identifier'),
 This parameter is required.', example='test_example_name'),
   credentialProviderType?: string(name='CredentialProviderType', description='The type of the credential provider. Valid values:
 
-- oauth: OAuth credential provider
-- jwt: JWT credential provider
+- oauth: OAuth credential provider.
+- jwt: JWT credential provider.
 
 This parameter is required.', example='oauth'),
   description?: string(name='Description', description='The description.
@@ -12207,47 +12213,55 @@ This parameter is required.', example='idaas_ue2jvisn35ea5lmthk267xxxxx'),
 
 model GetCredentialProviderResponseBody = {
   credentialProvider?: {
-    createTime?: long(name='CreateTime', description='The creation time of the credential provider. The value is a UNIX timestamp in milliseconds.', example='1649830225000'),
+    createTime?: long(name='CreateTime', description='The time when the credential provider was created. The value is a UNIX timestamp in milliseconds.', example='1649830225000'),
     credentialProviderConfig?: {
       jwtProviderConfig?: {
         allowedTokenIssuers?: [ string ](name='AllowedTokenIssuers', description='The list of allowed JWT issuers.'),
-        derivedShortTokenEnabled?: boolean(name='DerivedShortTokenEnabled', description='Indicates whether the JWT derived short token feature is enabled.', example='false'),
-        expiration?: int32(name='Expiration', description='The validity period of the JWT, in seconds.', example='900'),
-        expirationCleanupEnabled?: boolean(name='ExpirationCleanupEnabled', description='Indicates whether JWT expiration cleanup is enabled.', example='true'),
+        derivedShortTokenEnabled?: boolean(name='DerivedShortTokenEnabled', description='Specifies whether to enable the JWT derived short token capability.', example='false'),
+        expiration?: int32(name='Expiration', description='The validity period of the JWT. Unit: seconds.', example='900'),
+        expirationCleanupEnabled?: boolean(name='ExpirationCleanupEnabled', description='Specifies whether to enable JWT expiration cleanup.', example='true'),
         issuer?: string(name='Issuer', description='JWT issuer。', example='https://test.issuer.com'),
-        jwksEndpoint?: string(name='JwksEndpoint', description='The JWKs endpoint URL.', example='https://example123456.aliyunidaas.com/api/v2/auths_ngz2wj35ixxxdyat55nexxxxxx/oauth2/jwks'),
+        jwksEndpoint?: string(name='JwksEndpoint', description='The JWKs endpoint address.', example='https://example123456.aliyunidaas.com/api/v2/auths_ngz2wj35ixxxdyat55nexxxxxx/oauth2/jwks'),
       }(name='JwtProviderConfig', description='The configuration of the JWT credential provider.'),
       OAuthProviderConfig?: {
+        authorizationEndpoint?: string(name='AuthorizationEndpoint', description='The endpoint address used to guide users through authorization. This parameter is conditionally required: it is required when AuthorizationFlow is set to user_federation and ProviderVendor is set to custom. For preset vendors, this value can be automatically populated through DiscoveryUrl.'),
+        authorizationFlow?: string(name='AuthorizationFlow', description='The OAuth authorization flow type. Valid values: m2m: machine-to-machine (2LO, Client Credentials). user_federation: user federation (3LO, Authorization Code).'),
         clientId?: string(name='ClientId', description='The client_id in the OAuth protocol.', example='client_id_example_xxx'),
-        scope?: string(name='Scope', description='The scope in the OAuth protocol.
+        discoveryUrl?: string(name='DiscoveryUrl', description='The URL of the discovery document used to automatically obtain OAuth endpoint configurations. This parameter is conditionally optional: it is used when AuthorizationFlow is set to user_federation. If DiscoveryUrl is not provided, you must manually configure fields such as TokenEndpoint and AuthorizationEndpoint.'),
+        issuer?: string(name='Issuer'),
+        pkceChallengeMethod?: string(name='PkceChallengeMethod', description='The PKCE code_challenge generation method. Default value: s256.'),
+        pkceEnabled?: boolean(name='PkceEnabled', description='Specifies whether to use the PKCE extension to enhance security. We recommend that you always enable this feature.'),
+        providerVendor?: string(name='ProviderVendor', description='The preset vendor or custom configuration. This parameter is optional. Default value: custom.'),
+        scope?: string(name='Scope', description='The scope in the OAuth protocol, which specifies the permission scope.
 
-> The scope configuration of the OAuth credential provider serves as the default value. If the scope parameter is not specified when calling the DeveloperAPI to obtain an OAuth access token, the scope configuration of the credential provider is used for issuance.
+> The scope configuration of the OAuth credential provider serves as the default value. If the scope parameter is not specified when calling the DeveloperAPI to obtain an OAuth access token, the scope configuration of the credential provider is used for token issuance.
 
 >Notice: Multiple scope values are separated by spaces.', example='example:test_01 example:test_02'),
+        systemRedirectUri?: string(name='SystemRedirectUri', description='The redirect URI automatically generated by the system when the credential provider is created. Configure this value as the redirect_uri in the OAuth provider.'),
         tokenEndpoint?: string(name='TokenEndpoint', description='The token endpoint of the OAuth protocol.', example='https://example.com/token'),
       }(name='OAuthProviderConfig', description='The configuration of the OAuth credential provider.'),
-      providerCredentialIds?: [ string ](name='ProviderCredentialIds', description='The list of credential IDs corresponding to the sensitive configurations of the credential provider.
+      providerCredentialIds?: [ string ](name='ProviderCredentialIds', description='The list of credential IDs that correspond to the sensitive configurations of the credential provider.
 
 > The system securely stores the sensitive configuration information of the credential provider in the form of credentials.'),
-    }(name='CredentialProviderConfig', description='The credential provider configuration.'),
-    credentialProviderCreationType?: string(name='CredentialProviderCreationType', description='The credential provider creation type. Valid values:
+    }(name='CredentialProviderConfig', description='The configuration of the credential provider.'),
+    credentialProviderCreationType?: string(name='CredentialProviderCreationType', description='The creation type of the credential provider. Valid values:
 
 - system_init: Created by the system.
 - user_custom: Created by the user.', example='user_custom'),
     credentialProviderId?: string(name='CredentialProviderId', description='The credential provider ID.', example='atp_01kr2cmj5gxxx4fvmls2e93dxxxxx'),
-    credentialProviderIdentifier?: string(name='CredentialProviderIdentifier', description='The credential provider identifier.', example='test_example_identifier'),
-    credentialProviderName?: string(name='CredentialProviderName', description='The credential provider name.', example='test_example_name'),
-    credentialProviderType?: string(name='CredentialProviderType', description='The credential provider type. Valid values:
+    credentialProviderIdentifier?: string(name='CredentialProviderIdentifier', description='The business identifier of the credential provider.', example='test_example_identifier'),
+    credentialProviderName?: string(name='CredentialProviderName', description='The name of the credential provider.', example='test_example_name'),
+    credentialProviderType?: string(name='CredentialProviderType', description='The type of the credential provider. Valid values:
 
 - oauth: OAuth credential provider.
 - jwt: JWT credential provider.', example='oauth'),
     description?: string(name='Description', description='The description.', example='This is an example description'),
     instanceId?: string(name='InstanceId', description='The instance ID.', example='idaas_ue2jvisn35ea5lmthk267xxxxx'),
-    status?: string(name='Status', description='The credential provider status. Valid values:
+    status?: string(name='Status', description='The status of the credential provider. Valid values:
 
 - enabled: Enabled.
 - disabled: Disabled.', example='enabled'),
-    updateTime?: long(name='UpdateTime', description='The update time of the credential provider. The value is a UNIX timestamp in milliseconds.', example='1649830225000'),
+    updateTime?: long(name='UpdateTime', description='The time when the credential provider was last updated. The value is a UNIX timestamp in milliseconds.', example='1649830225000'),
   }(name='CredentialProvider', description='The credential provider.'),
   requestId?: string(name='RequestId', description='The request ID.', example='0441BD79-92F3-53AA-8657-F8CE4A2B912A'),
 }
@@ -18212,10 +18226,7 @@ model ListCredentialProvidersRequest {
   credentialProviderTypes?: [ string ](name='CredentialProviderTypes', description='The list of credential provider types.'),
   filter?: [ 
     {
-      name?: string(name='Name', description='The filter condition name. Valid values:
-
-- CredentialProviderName: the credential provider name.
-- CredentialProviderIdentifier: the credential provider identifier.', example='CredentialProviderName'),
+      name?: string(name='Name', description='The filter condition name. Valid values:', example='CredentialProviderName'),
       value?: [ string ](name='Value', description='The list of filter condition values.'),
     }
   ](name='Filter', description='The list of filter conditions.'),
@@ -18230,51 +18241,46 @@ This parameter is required.', example='idaas_ue2jvisn35ea5lmthk267xxxxx'),
 model ListCredentialProvidersResponseBody = {
   credentialProviders?: [ 
     {
-      createTime?: long(name='CreateTime', description='The creation time of the credential provider. This value is a UNIX timestamp in milliseconds.', example='1649830225000'),
+      createTime?: long(name='CreateTime', description='The time when the credential provider was created. The value is a UNIX timestamp in milliseconds.', example='1649830225000'),
       credentialProviderConfig?: {
         jwtProviderConfig?: {
           allowedTokenIssuers?: [ string ](name='AllowedTokenIssuers', description='The list of allowed JWT issuers.'),
-          derivedShortTokenEnabled?: boolean(name='DerivedShortTokenEnabled', description='Indicates whether the JWT derived short token feature is enabled.', example='false'),
+          derivedShortTokenEnabled?: boolean(name='DerivedShortTokenEnabled', description='Specifies whether to enable the JWT-derived short token capability.', example='false'),
           expiration?: int32(name='Expiration', description='The validity period of the JWT, in seconds.', example='900'),
-          expirationCleanupEnabled?: boolean(name='ExpirationCleanupEnabled', description='Indicates whether JWT expiration cleanup is enabled.', example='true'),
+          expirationCleanupEnabled?: boolean(name='ExpirationCleanupEnabled', description='Specifies whether to enable JWT expiration cleanup.', example='true'),
           issuer?: string(name='Issuer', description='JWT issuer。', example='https://test.issuer.com'),
           jwksEndpoint?: string(name='JwksEndpoint', description='The JWKs endpoint URL.', example='https://example123456.aliyunidaas.com/api/v2/auths_ngz2wj35ixxxdyat55nexxxxxx/oauth2/jwks'),
-        }(name='JwtProviderConfig', description='The configuration of the JWT credential provider.'),
+        }(name='JwtProviderConfig', description='The configuration of the JWT-type credential provider.'),
         OAuthProviderConfig?: {
-          clientId?: string(name='ClientId', description='The client_id in the OAuth protocol, which is the client ID.', example='client_id_example_xxx'),
-          scope?: string(name='Scope', description='The scope in the OAuth protocol, which specifies the permission scope.
-
-> The Scope configuration of the OAuth credential provider serves as the default value. If the scope parameter is not specified when calling the DeveloperAPI to obtain an OAuth access token, the Scope configuration of the credential provider is used for token issuance.
-
->Notice: Multiple Scope values are separated by spaces.', example='example:test_01 example:test_02'),
+          authorizationEndpoint?: string(name='AuthorizationEndpoint', description='The endpoint URL used to guide users through authorization. Conditionally required: this parameter is required when AuthorizationFlow is set to user_federation and ProviderVendor is set to custom. For preset vendors, this value can be automatically populated through DiscoveryUrl.'),
+          authorizationFlow?: string(name='AuthorizationFlow', description='The OAuth authorization flow type. Valid values:
+- m2m: machine-to-machine (2LO, Client Credentials).
+- user_federation: user federation (3LO, Authorization Code).'),
+          clientId?: string(name='ClientId', description='The client_id in the OAuth protocol.', example='client_id_example_xxx'),
+          discoveryUrl?: string(name='DiscoveryUrl', description='The URL of the discovery document used to automatically obtain OAuth endpoint configurations. Conditionally optional: used when AuthorizationFlow is set to user_federation. If DiscoveryUrl is not provided, you must manually configure fields such as TokenEndpoint and AuthorizationEndpoint.'),
+          issuer?: string(name='Issuer'),
+          pkceChallengeMethod?: string(name='PkceChallengeMethod', description='The method used to generate the PKCE code_challenge. Default value: s256.'),
+          pkceEnabled?: boolean(name='PkceEnabled', description='Specifies whether to use the PKCE extension to enhance security. We recommend that you always enable this feature.'),
+          providerVendor?: string(name='ProviderVendor', description='The preset vendor or custom configuration. Optional. Default value: custom.'),
+          scope?: string(name='Scope', description='The scope in the OAuth protocol, which specifies the permission scope.', example='example:test_01 example:test_02'),
+          systemRedirectUri?: string(name='SystemRedirectUri', description='The redirect URI automatically generated by the system when the credential provider is created. Configure this value as the redirect_uri in the OAuth provider.'),
           tokenEndpoint?: string(name='TokenEndpoint', description='The token endpoint of the OAuth protocol.', example='https://example.com/token'),
-        }(name='OAuthProviderConfig', description='The configuration of the OAuth credential provider.'),
-        providerCredentialIds?: [ string ](name='ProviderCredentialIds', description='The list of credential IDs that correspond to the sensitive configuration of the credential provider.
-
-> The system securely stores the sensitive configuration of the credential provider as credentials.'),
-      }(name='CredentialProviderConfig', description='The credential provider configuration.'),
-      credentialProviderCreationType?: string(name='CredentialProviderCreationType', description='The creation type of the credential provider. Valid values:
-
-- system_init: Created by the system.
-- user_custom: Created by the user.', example='user_custom'),
+        }(name='OAuthProviderConfig', description='The configuration of the OAuth-type credential provider.'),
+        providerCredentialIds?: [ string ](name='ProviderCredentialIds', description='The list of credential IDs that correspond to the sensitive configurations of the credential provider.'),
+      }(name='CredentialProviderConfig', description='The configuration of the credential provider.'),
+      credentialProviderCreationType?: string(name='CredentialProviderCreationType', description='The creation type of the credential provider. Valid values:', example='user_custom'),
       credentialProviderId?: string(name='CredentialProviderId', description='The credential provider ID.', example='atp_01kr2cmj5gxxx4fvmls2e93dxxxxx'),
-      credentialProviderIdentifier?: string(name='CredentialProviderIdentifier', description='The credential provider identifier.', example='test_example_identifier'),
-      credentialProviderName?: string(name='CredentialProviderName', description='The credential provider name.', example='test_example_name'),
-      credentialProviderType?: string(name='CredentialProviderType', description='The credential provider type. Valid values:
-
-- oauth: OAuth credential provider.
-- jwt: JWT credential provider.', example='oauth'),
-      description?: string(name='Description', description='The description.', example='This is an example description'),
+      credentialProviderIdentifier?: string(name='CredentialProviderIdentifier', description='The business identifier of the credential provider.', example='test_example_identifier'),
+      credentialProviderName?: string(name='CredentialProviderName', description='The name of the credential provider.', example='test_example_name'),
+      credentialProviderType?: string(name='CredentialProviderType', description='The credential provider type. Valid values:', example='oauth'),
+      description?: string(name='Description', description='The description of the credential provider.', example='This is an example description'),
       instanceId?: string(name='InstanceId', description='The instance ID.', example='idaas_ue2jvisn35ea5lmthk267xxxxx'),
-      status?: string(name='Status', description='The credential provider status. Valid values:
-
-- enabled: Enabled.
-- disabled: Disabled.', example='enabled'),
-      updateTime?: long(name='UpdateTime', description='The update time of the credential provider. This value is a UNIX timestamp in milliseconds.', example='1649830225000'),
+      status?: string(name='Status', description='The credential provider status. Valid values:', example='enabled'),
+      updateTime?: long(name='UpdateTime', description='The time when the credential provider was last updated. The value is a UNIX timestamp in milliseconds.', example='1649830225000'),
     }
   ](name='CredentialProviders', description='The list of credential providers.'),
   maxResults?: int32(name='MaxResults', description='The maximum number of entries per page for a paged query.', example='20'),
-  nextToken?: string(name='NextToken', description='The pagination token returned by this call.', example='NTxxxexample'),
+  nextToken?: string(name='NextToken', description='The pagination token returned in this call.', example='NTxxxexample'),
   requestId?: string(name='RequestId', description='The request ID.', example='0441BD79-92F3-53AA-8657-F8CE4A2B912A'),
   totalCount?: int32(name='TotalCount', description='The total number of entries in the list.', example='100'),
 }
@@ -27687,7 +27693,7 @@ async function updateCredentialDescription(request: UpdateCredentialDescriptionR
 model UpdateCredentialProviderRequest {
   clientToken?: string(name='ClientToken', description='The idempotency token that ensures the idempotence of the request.
 
-Generate a unique parameter value from your client to ensure that the value is unique among different requests. ClientToken supports only ASCII characters and cannot exceed 64 characters in length. For more information, see References: [How to ensure idempotence](https://www.alibabacloud.com/help/zh/ecs/developer-reference/how-to-ensure-idempotence).
+Generate a unique parameter value from your client to ensure uniqueness across different requests. ClientToken supports only ASCII characters and cannot exceed 64 characters in length. For more information, see References: [How to ensure idempotence](https://www.alibabacloud.com/help/zh/ecs/developer-reference/how-to-ensure-idempotence).
 
 This parameter is required.', example='client-token-example'),
   credentialProviderConfig?: {
@@ -27696,22 +27702,31 @@ This parameter is required.', example='client-token-example'),
 
 > The list cannot contain more than 200 entries.
 
->Notice: To clear the issuer list, pass an empty list or an empty string.'),
-      derivedShortTokenEnabled?: boolean(name='DerivedShortTokenEnabled', description='Specifies whether to enable the JWT derived short token feature.', example='false'),
+>Notice: To clear the issuer list, pass an empty list or an empty string when calling the API.'),
+      derivedShortTokenEnabled?: boolean(name='DerivedShortTokenEnabled', description='Specifies whether to enable the JWT derived short token capability.', example='false'),
       expiration?: int32(name='Expiration', description='The validity period of the JWT, in seconds.', example='900'),
       expirationCleanupEnabled?: boolean(name='ExpirationCleanupEnabled', description='Specifies whether to enable JWT expiration cleanup.', example='true'),
     }(name='JwtProviderConfig', description='The configuration of the JWT credential provider.'),
     OAuthProviderConfig?: {
-      clientSecret?: string(name='ClientSecret', description='The client_secret in the OAuth protocol, which is the client secret.
+      authorizationEndpoint?: string(name='AuthorizationEndpoint', description='The endpoint URL used to guide users through authorization. Conditionally required: this parameter is required when AuthorizationFlow is set to user_federation and ProviderVendor is set to custom. For preset vendors, this value can be automatically populated through DiscoveryUrl.'),
+      authorizationFlow?: string(name='AuthorizationFlow', description='The OAuth authorization flow type. Valid values:
+- m2m: Machine-to-machine (2LO, Client Credentials).
+- user_federation: User federation (3LO, Authorization Code).'),
+      clientSecret?: string(name='ClientSecret', description='The client_secret in the OAuth protocol.
 
 > The value cannot exceed 1024 characters in length.', example='client_secret_example_xxx'),
+      discoveryUrl?: string(name='DiscoveryUrl', description='The Discovery document URL used to automatically retrieve OAuth endpoint configurations. Conditionally optional: this parameter is used when AuthorizationFlow is set to user_federation. If DiscoveryUrl is not provided, you must manually configure fields such as TokenEndpoint and AuthorizationEndpoint.'),
+      issuer?: string(name='Issuer'),
+      pkceChallengeMethod?: string(name='PkceChallengeMethod', description='The PKCE code_challenge generation method. Default value: s256.'),
+      pkceEnabled?: boolean(name='PkceEnabled', description='Specifies whether to use the PKCE extension for enhanced security. We recommend that you always enable this feature.'),
+      providerVendor?: string(name='ProviderVendor', description='The preset vendor or custom configuration. This parameter is optional. Default value: custom.'),
       scope?: string(name='Scope', description='The scope in the OAuth protocol, which specifies the permission scope.
 
-> The Scope configuration at the credential provider serves as the default value. If the scope parameter is not specified when calling the DeveloperAPI to obtain an OAuth Access Token, the Scope configuration at the credential provider is used for issuance.
+> The Scope configuration on the OAuth credential provider serves as a fallback value. If the scope parameter is not specified when calling the DeveloperAPI to obtain an OAuth Access Token, the Scope configuration on the credential provider is used for token issuance.
 
 >Notice: Separate multiple Scope values with spaces. To clear the Scope configuration, pass an empty string.
 
-Restrictions on a single Scope value:
+Restrictions for each individual Scope value:
 1. Allowed characters: lowercase letters, digits, and special characters `|/:_-.`
 2. Must contain at least one lowercase letter or digit.
 3. Must start with a special character `.`, a lowercase letter, or a digit.
