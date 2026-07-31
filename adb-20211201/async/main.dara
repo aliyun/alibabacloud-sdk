@@ -67,11 +67,34 @@ init(configuration: ClientConfiguration){
     'eu-west-1-oxs' = 'adb.ap-northeast-1.aliyuncs.com',
     'me-east-1' = 'adb.ap-northeast-1.aliyuncs.com',
     'rus-west-1-pop' = 'adb.ap-northeast-1.aliyuncs.com',
+    'na-south-1' = 'adb.na-south-1.aliyuncs.com',
+    'me-central-1' = 'adb.me-central-1.aliyuncs.com',
+    'eu-west-1' = 'adb.eu-west-1.aliyuncs.com',
+    'eu-central-1' = 'adb.eu-central-1.aliyuncs.com',
+    'cn-zhangjiakou' = 'adb.cn-zhangjiakou.aliyuncs.com',
+    'cn-wulanchabu' = 'adb.cn-wulanchabu.aliyuncs.com',
+    'cn-huhehaote' = 'adb.cn-huhehaote.aliyuncs.com',
+    'cn-guangzhou' = 'adb.cn-guangzhou.aliyuncs.com',
+    'cn-chengdu' = 'adb.cn-chengdu.aliyuncs.com',
+    'ap-southeast-7' = 'adb.ap-southeast-7.aliyuncs.com',
+    'ap-southeast-6' = 'adb.ap-southeast-6.aliyuncs.com',
+    'ap-southeast-5' = 'adb.ap-southeast-5.aliyuncs.com',
+    'ap-southeast-3' = 'adb.ap-southeast-3.aliyuncs.com',
+    'ap-northeast-2' = 'adb.ap-northeast-2.aliyuncs.com',
+    'ap-northeast-1' = 'adb.ap-northeast-1.aliyuncs.com',
   };
 }
 
 function close(): void {
   @handler.close();
+}
+
+model AccessTokenModel {
+  accessToken?: string(name='AccessToken'),
+  comment?: string(name='Comment'),
+  createdAt?: string(name='CreatedAt'),
+  expiredAt?: string(name='ExpiredAt'),
+  status?: string(name='Status'),
 }
 
 model Adb4MysqlSparkDiagnosisInfo {
@@ -212,6 +235,14 @@ model OperatorNode {
     peakMemory?: long(name='peakMemory'),
     timeCost?: long(name='timeCost'),
   }(name='stats'),
+}
+
+model SemanticViewModel {
+  comment?: string(name='Comment'),
+  definition?: string(name='Definition'),
+  score?: double(name='Score'),
+  viewName?: string(name='ViewName'),
+  viewSchema?: string(name='ViewSchema'),
 }
 
 model SerDeInfoModel {
@@ -427,6 +458,16 @@ model TableSummaryModel {
   updateTime?: string(name='UpdateTime'),
 }
 
+model UserSummaryModel {
+  accessTokens?: [
+    AccessTokenModel
+  ](name='AccessTokens'),
+  host?: string(name='Host'),
+  ramUser?: string(name='RamUser'),
+  status?: string(name='Status'),
+  userName?: string(name='UserName'),
+}
+
 model OpenStructMVRecommendResultModel {
   acceleratedQueriesCount?: long(name='AcceleratedQueriesCount'),
   baseTables?: [
@@ -509,6 +550,34 @@ model OpenStructRefreshJobModel {
   status?: string(name='Status'),
 }
 
+model AddKnowledgeFileRequest {
+  DBClusterId: string(name='DBClusterId', description='This parameter is required.', example='am-bp19aaaaaa****', position='Query'),
+  fileLocation: string(name='FileLocation', description='This parameter is required.', example='oss://bucket_name/file/path', position='Query'),
+  fileType?: string(name='FileType', example='pdf', position='Query'),
+  isDir?: boolean(name='IsDir', example='false', position='Query'),
+  tags?: string(name='Tags', example='{"type":"game"}', position='Query'),
+  uploadUser?: string(name='UploadUser', example='user1', position='Query'),
+}
+
+model AddKnowledgeFileResponseBody = {
+  requestId?: string(name='RequestId', description='Id of the request', example='1AD222E9-E606-4A42-BF6D-8A4442913CEF'),
+}
+
+model AddKnowledgeFileResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: AddKnowledgeFileResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of AddKnowledgeFile  AddKnowledgeFileRequest
+  * @return AddKnowledgeFileResponse
+ */
+async function addKnowledgeFile(request: AddKnowledgeFileRequest): AddKnowledgeFileResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'AddKnowledgeFile', 'POST', '/', 'json', false, 'json', request);
+}
+
 model AllocateClusterPublicConnectionRequest {
   connectionStringPrefix?: string(name='ConnectionStringPrefix', description='The prefix of the public endpoint.
 
@@ -521,6 +590,7 @@ This parameter is required.', example='amv-bp1z5d2q71is2****', position='Query')
 
 *   **AnalyticDB** (default): the AnalyticDB for MySQL engine.
 *   **Clickhouse**: the wide table engine.', example='Clickhouse', position='Query'),
+  resourceGroupName?: string(name='ResourceGroupName', position='Query'),
 }
 
 model AllocateClusterPublicConnectionResponseBody = {
@@ -645,9 +715,8 @@ This parameter is required.', example='test_accout', position='Query'),
   DBClusterId: string(name='DBClusterId', description='The ID of the AnalyticDB for MySQL Data Lakehouse Edition cluster.
 
 This parameter is required.', example='amv-wz99d9nh532****', position='Query'),
-  ramUser: string(name='RamUser', description='The ID of the RAM user.
-
-This parameter is required.', example='1444832459****', position='Query'),
+  ramUser?: string(name='RamUser', description='The ID of the RAM user.', example='1444832459****', position='Query'),
+  ramUserList?: [ string ](name='RamUserList', shrink='json', position='Query'),
 }
 
 model BindAccountResponseBody = {
@@ -810,6 +879,41 @@ model CheckBindRamUserResponse = {
 async function checkBindRamUser(request: CheckBindRamUserRequest): CheckBindRamUserResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RPC', 'CheckBindRamUser', 'POST', '/', 'json', false, 'json', request);
+}
+
+model CheckFormationSchemaExistsRequest {
+  DBClusterId: string(name='DBClusterId', description='This parameter is required.', example='amv-bp11q28kvl688****', position='Body'),
+  prefixMode: boolean(name='PrefixMode', description='This parameter is required.', example='false', position='Body'),
+  regionId: string(name='RegionId', description='RegionId
+
+This parameter is required.', example='cn-hangzhou', position='Body'),
+  schema: string(name='Schema', description='schema 。
+
+This parameter is required.', example='testdb01', position='Body'),
+}
+
+model CheckFormationSchemaExistsResponseBody = {
+  code?: string(name='Code', example='200'),
+  data?: string(name='Data', example='false'),
+  httpStatusCode?: int32(name='HttpStatusCode', example='200'),
+  message?: string(name='Message', example='OK'),
+  requestId?: string(name='RequestId', example='82C80833-BE26-424D-B485-1ABC8431E14'),
+  success?: boolean(name='Success', example='true'),
+}
+
+model CheckFormationSchemaExistsResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: CheckFormationSchemaExistsResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of CheckFormationSchemaExists  CheckFormationSchemaExistsRequest
+  * @return CheckFormationSchemaExistsResponse
+ */
+async function checkFormationSchemaExists(request: CheckFormationSchemaExistsRequest): CheckFormationSchemaExistsResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'CheckFormationSchemaExists', 'POST', '/', 'json', true, 'form', request);
 }
 
 model CheckSampleDataSetRequest {
@@ -1005,6 +1109,7 @@ This parameter is required.', example='amv-bp11q28kvl688****', position='Query')
 
 *   **AnalyticDB** (default): the AnalyticDB for MySQL engine.
 *   **Clickhouse**: the wide table engine.', example='Clickhouse', position='Query'),
+  ramUserList?: [ string ](name='RamUserList', shrink='json', position='Query'),
 }
 
 model CreateAccountResponseBody = {
@@ -1492,6 +1597,8 @@ async function createBackup(request: CreateBackupRequest): CreateBackupResponse 
 }
 
 model CreateDBClusterRequest {
+  AINodeNumber?: int32(name='AINodeNumber', example='1', position='Query'),
+  AINodeSpec?: string(name='AINodeSpec', example='ADB.MLPlus.4', position='Query'),
   backupSetId?: string(name='BackupSetId', description='The ID of the backup set that you want to use to restore data.
 
 >  You can call the [DescribeBackups](https://help.aliyun.com/document_detail/612318.html) operation to query the backup sets of the cluster.', example='1880808684', position='Query'),
@@ -1622,7 +1729,21 @@ async function createDBCluster(request: CreateDBClusterRequest): CreateDBCluster
 }
 
 model CreateDBResourceGroupRequest {
+  atmConfig?: {
+    authNodeNum?: int32(name='AuthNodeNum', example='2'),
+    authNodeSpec?: string(name='AuthNodeSpec', example='8ACU'),
+    insertNodeNum?: int32(name='InsertNodeNum', example='2'),
+    insertNodeSpec?: string(name='InsertNodeSpec', example='8ACU'),
+    selectNodeCacheSize?: int32(name='SelectNodeCacheSize', example='10'),
+    selectNodeNum?: int32(name='SelectNodeNum', example='1'),
+    selectNodeSpec?: string(name='SelectNodeSpec', example='8ACU'),
+    storageNodeDiskSize?: int32(name='StorageNodeDiskSize', example='1'),
+    storageNodeDiskType?: string(name='StorageNodeDiskType', example='essd_pl1'),
+    storageNodeNum?: int32(name='StorageNodeNum', example='2'),
+    storageNodeSpec?: string(name='StorageNodeSpec', example='8ACU'),
+  }(name='AtmConfig', shrink='json', position='Query'),
   autoStopInterval?: string(name='AutoStopInterval', example='5m', position='Query'),
+  classification?: string(name='Classification', position='Query'),
   clusterMode?: string(name='ClusterMode', description='A reserved parameter.', example='N/A', position='Query'),
   clusterSizeResource?: string(name='ClusterSizeResource', description='A reserved parameter.', example='N/A', position='Query'),
   DBClusterId: string(name='DBClusterId', description='The ID of the AnalyticDB for MySQL Data Lakehouse Edition (V3.0) cluster.
@@ -1677,6 +1798,7 @@ This parameter is required.', example='Job', position='Query'),
     headDiskCapacity?: string(name='HeadDiskCapacity'),
     headSpec?: string(name='HeadSpec', example='xlarge'),
     headSpecType?: string(name='HeadSpecType'),
+    userDefinedRequirements?: string(name='UserDefinedRequirements'),
     workerGroups?: [ 
       {
         allocateUnit?: string(name='AllocateUnit', example='1'),
@@ -1703,6 +1825,7 @@ This parameter is required.', example='Job', position='Query'),
       targetGroupName?: string(name='TargetGroupName', description='The name of the resource group to which you want to resubmit the query job.', example='job'),
     }
   ](name='Rules', description='The job resubmission rules.', shrink='json', position='Query'),
+  scalePolicy?: string(name='ScalePolicy', position='Query'),
   specName?: string(name='SpecName', description='A reserved parameter.', position='Query'),
   targetResourceGroupName?: string(name='TargetResourceGroupName', description='A reserved parameter.', position='Query'),
 }
@@ -1801,6 +1924,37 @@ model CreateElasticPlanResponse = {
 async function createElasticPlan(request: CreateElasticPlanRequest): CreateElasticPlanResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RPC', 'CreateElasticPlan', 'POST', '/', 'json', false, 'json', request);
+}
+
+model CreateFormationCrawlerRequest {
+  crawlerInfo: string(name='CrawlerInfo', description='This parameter is required.', position='Body'),
+  DBClusterId: string(name='DBClusterId', description='This parameter is required.', example='am-bp*****', position='Body'),
+  regionId: string(name='RegionId', description='This parameter is required.', example='cn-beijing', position='Body'),
+}
+
+model CreateFormationCrawlerResponseBody = {
+  code?: string(name='Code', example='200'),
+  data?: boolean(name='Data', example='True'),
+  httpStatusCode?: int32(name='HttpStatusCode', example='200'),
+  message?: string(name='Message', example='OK'),
+  requestId?: string(name='RequestId', example='019F3BE7-E8FA-3DC5-8EE7-501A90B5A54D'),
+  success?: boolean(name='Success', example='True'),
+  taskId?: string(name='TaskId', example='241'),
+}
+
+model CreateFormationCrawlerResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: CreateFormationCrawlerResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of CreateFormationCrawler  CreateFormationCrawlerRequest
+  * @return CreateFormationCrawlerResponse
+ */
+async function createFormationCrawler(request: CreateFormationCrawlerRequest): CreateFormationCrawlerResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'CreateFormationCrawler', 'POST', '/', 'json', true, 'form', request);
 }
 
 model CreateLakeStorageRequest {
@@ -2038,6 +2192,32 @@ model CreatePerformanceViewResponse = {
 async function createPerformanceView(request: CreatePerformanceViewRequest): CreatePerformanceViewResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RPC', 'CreatePerformanceView', 'POST', '/', 'json', false, 'json', request);
+}
+
+model CreateSemanticViewRequest {
+  DBClusterId: string(name='DBClusterId', description='This parameter is required.', example='am-bp198m028ih55****', position='Query'),
+  definition: string(name='Definition', description='This parameter is required.', example='YAML 内容', position='Query'),
+  schemaName: string(name='SchemaName', description='This parameter is required.', example='adb_demo', position='Query'),
+  viewName: string(name='ViewName', description='This parameter is required.', example='adb_sv_name', position='Query'),
+}
+
+model CreateSemanticViewResponseBody = {
+  requestId?: string(name='RequestId', description='Id of the request', example='1AD222E9-E606-4A42-BF6D-8A4442913CEF'),
+}
+
+model CreateSemanticViewResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: CreateSemanticViewResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of CreateSemanticView  CreateSemanticViewRequest
+  * @return CreateSemanticViewResponse
+ */
+async function createSemanticView(request: CreateSemanticViewRequest): CreateSemanticViewResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'CreateSemanticView', 'POST', '/', 'json', false, 'json', request);
 }
 
 model CreateSparkTemplateRequest {
@@ -2385,6 +2565,37 @@ async function deleteElasticPlan(request: DeleteElasticPlanRequest): DeleteElast
   return @handler.do('RPC', 'DeleteElasticPlan', 'POST', '/', 'json', false, 'json', request);
 }
 
+model DeleteFormationCrawlerRequest {
+  crawlerTaskId: long(name='CrawlerTaskId', description='This parameter is required.', example='247', position='Body'),
+  crawlerTaskName: string(name='CrawlerTaskName', description='This parameter is required.', example='wz_log', position='Body'),
+  DBClusterId: string(name='DBClusterId', description='This parameter is required.', example='amv-8vbc***', position='Body'),
+  regionId: string(name='RegionId', description='This parameter is required.', example='cn-hangzhou', position='Body'),
+}
+
+model DeleteFormationCrawlerResponseBody = {
+  code?: string(name='Code', example='InvalidInput'),
+  data?: boolean(name='Data', example='True'),
+  httpStatusCode?: int32(name='HttpStatusCode', example='200'),
+  message?: string(name='Message', example='OK'),
+  requestId?: string(name='RequestId', example='E8DA77FA-FF0F-5516-A551-86C6E2D4BE92'),
+  success?: boolean(name='Success', example='True'),
+}
+
+model DeleteFormationCrawlerResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: DeleteFormationCrawlerResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of DeleteFormationCrawler  DeleteFormationCrawlerRequest
+  * @return DeleteFormationCrawlerResponse
+ */
+async function deleteFormationCrawler(request: DeleteFormationCrawlerRequest): DeleteFormationCrawlerResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'DeleteFormationCrawler', 'POST', '/', 'json', true, 'form', request);
+}
+
 model DeleteLakeStorageRequest {
   DBClusterId?: string(name='DBClusterId', description='The ID of the AnalyticDB for MySQL cluster.', example='amv-bp*********', position='Query'),
   lakeStorageId: string(name='LakeStorageId', description='The ID of the lake storage.
@@ -2503,6 +2714,31 @@ model DeletePerformanceViewResponse = {
 async function deletePerformanceView(request: DeletePerformanceViewRequest): DeletePerformanceViewResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RPC', 'DeletePerformanceView', 'POST', '/', 'json', false, 'json', request);
+}
+
+model DeleteSemanticViewRequest {
+  DBClusterId: string(name='DBClusterId', description='This parameter is required.', example='am-bp11q28kvl688****', position='Query'),
+  schemaName: string(name='SchemaName', description='This parameter is required.', example='adb_demo', position='Query'),
+  viewName: string(name='ViewName', description='This parameter is required.', example='adb_sv_name', position='Query'),
+}
+
+model DeleteSemanticViewResponseBody = {
+  requestId?: string(name='RequestId', description='Id of the request', example='3A8F6106-6AFD-5A34-9C80-8DE2C42D06E8'),
+}
+
+model DeleteSemanticViewResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: DeleteSemanticViewResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of DeleteSemanticView  DeleteSemanticViewRequest
+  * @return DeleteSemanticViewResponse
+ */
+async function deleteSemanticView(request: DeleteSemanticViewRequest): DeleteSemanticViewResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'DeleteSemanticView', 'POST', '/', 'json', false, 'json', request);
 }
 
 model DeleteSparkTemplateRequest {
@@ -2886,6 +3122,9 @@ model DescribeAccountsResponseBody = {
 
 *   **AnalyticDB**: the AnalyticDB for MySQL engine.
 *   **Clickhouse**: the wide table engine.', example='Clickhouse'),
+      ramUserList?: {
+        ramUserList?: [ string ](name='RamUserList')
+      }(name='RamUserList'),
       ramUsers?: string(name='RamUsers', description='The ID of the Resource Access Management (RAM) user.', example='1958134230****'),
     }
   ](name='DBAccount')
@@ -4461,6 +4700,7 @@ This parameter is required.', example='amv-wz9dqvn0o7****', position='Query'),
 
 *   **AnalyticDB** (default): the AnalyticDB for MySQL engine.
 *   **Clickhouse**: the wide table engine.', example='Clickhouse', position='Query'),
+  resourceGroupName?: string(name='ResourceGroupName', position='Query'),
 }
 
 model DescribeClusterNetInfoResponseBody = {
@@ -5504,7 +5744,21 @@ This parameter is required.', example='amv-bp11q28kvl688****', position='Query')
 model DescribeDBResourceGroupResponseBody = {
   groupsInfo?: [ 
     {
+      atmConfig?: {
+        authNodeNum?: string(name='AuthNodeNum', example='2'),
+        authNodeSpec?: string(name='AuthNodeSpec', example='8ACU'),
+        insertNodeNum?: string(name='InsertNodeNum', example='1'),
+        insertNodeSpec?: string(name='InsertNodeSpec', example='8ACU'),
+        selectNodeCacheSize?: string(name='SelectNodeCacheSize', example='10'),
+        selectNodeNum?: string(name='SelectNodeNum', example='1'),
+        selectNodeSpec?: string(name='SelectNodeSpec', example='8ACU'),
+        storageNodeDiskSize?: string(name='StorageNodeDiskSize', example='100'),
+        storageNodeDiskType?: string(name='StorageNodeDiskType', example='essd_pl1'),
+        storageNodeNum?: string(name='StorageNodeNum', example='2'),
+        storageNodeSpec?: string(name='StorageNodeSpec', example='8ACU'),
+      }(name='AtmConfig'),
       autoStopInterval?: string(name='AutoStopInterval'),
+      classification?: string(name='Classification'),
       clusterMode?: string(name='ClusterMode', description='A reserved parameter.', example='N/A'),
       clusterSizeResource?: string(name='ClusterSizeResource', description='A reserved parameter.', example='N/A'),
       createTime?: string(name='CreateTime', description='The time when the resource group was created. The time follows the ISO 8601 standard in the *yyyy-MM-ddTHH:mm:ssZ* format. The time is displayed in UTC.', example='2022-08-29T03:34:30Z'),
@@ -5560,12 +5814,14 @@ The True value is returned only for job resource groups.', example='True'),
         rayClusterAddress?: string(name='RayClusterAddress', example='http://ray-cluster-address.example.com'),
         rayDashboardAddress?: string(name='RayDashboardAddress', example='http://ray-dashboard-address.example.com'),
         rayGrafanaAddress?: string(name='RayGrafanaAddress', example='http://ray-grafana-address.example.com'),
+        rayServePublicAddress?: string(name='RayServePublicAddress', example='1.2.3.4:8100'),
         storageMounts?: [ 
           {
             mountPath?: string(name='MountPath', example='/mnt/data01'),
             storageId?: long(name='StorageId', example='1'),
           }
         ](name='StorageMounts'),
+        userDefinedRequirements?: string(name='UserDefinedRequirements'),
         workerGroups?: [ 
           {
             allocateUnit?: string(name='AllocateUnit', example='1'),
@@ -5586,6 +5842,7 @@ The True value is returned only for job resource groups.', example='True'),
         }
       ](name='Rules', description='The job resubmission rules.'),
       runningClusterCount?: int32(name='RunningClusterCount', description='A reserved parameter.', example='N/A'),
+      scalePolicy?: string(name='ScalePolicy'),
       specName?: string(name='SpecName'),
       status?: string(name='Status', description='The status of the resource group. Valid values:
 
@@ -6522,12 +6779,10 @@ model DescribeHistoryTasksRequest {
 This parameter is required.', example='2022-01-02T11:31:03Z', position='Query'),
   instanceId?: string(name='InstanceId', description='The cluster ID. Separate multiple cluster IDs with commas (,). Maximum 30 cluster IDs. If not filled, defaults to querying historical tasks of all clusters in that region.', example='amv-********', position='Query'),
   instanceType?: string(name='InstanceType', description='The instance type. The value is fixed to Instance.', example='Instance', position='Query'),
-  ownerId?: long(name='OwnerId', position='Query'),
   pageNumber?: int32(name='PageNumber', description='The number of the page to return. Valid range: positive integers. Default value: 1', example='1', minimum=1, maximum=2147483647, position='Query'),
   pageSize?: int32(name='PageSize', description='The number of entries per page. Valid values: 10 to 100. Default value: 10.', example='10', minimum=10, maximum=100, position='Query'),
   regionId?: string(name='RegionId', description='The region ID', example='cn-beijing', position='Query'),
   resourceGroupId?: string(name='ResourceGroupId', description='Resource group ID.', example='rg-ae****', position='Query'),
-  resourceOwnerId?: long(name='ResourceOwnerId', position='Query'),
   status?: string(name='Status', description='The state of the task. Valid values:
 
 *   **Scheduled**
@@ -6639,14 +6894,11 @@ model DescribeHistoryTasksStatRequest {
 
 This parameter is required.', example='2023-05-08T07:04:17Z', position='Query'),
   instanceId?: string(name='InstanceId', description='Cluster ID.', example='amv-********', position='Query'),
-  ownerId?: long(name='OwnerId', position='Query'),
   regionId: string(name='RegionId', description='The ID of the region where the instance resides.
 
 This parameter is required.', example='cn-beijing', position='Query'),
   resourceGroupId?: string(name='ResourceGroupId', description='Resource group ID.', example='rg-acfmy*****', position='Query'),
-  resourceOwnerAccount?: long(name='ResourceOwnerAccount', position='Query'),
-  resourceOwnerId?: long(name='ResourceOwnerId', position='Query'),
-  securityToken?: string(name='SecurityToken', position='Query'),
+  securityToken?: string(name='SecurityToken', example='abc', position='Query'),
   status?: string(name='Status', description='The state of the task. Valid values:
 
 *   **Scheduled**
@@ -6891,6 +7143,7 @@ This parameter is required.', example='am-uf6g8w25jacm7****', position='Query'),
 This parameter is required.', example='2023-03-17T16:00:00Z', position='Query'),
   pageNumber?: int32(name='PageNumber', position='Query'),
   pageSize?: int32(name='PageSize', position='Query'),
+  sparkAppName?: string(name='SparkAppName', position='Query'),
   startTime: string(name='StartTime', description='The beginning of the time range to query. Specify the time in the ISO 8601 standard in the *yyyy-MM-ddTHH:mm:ssZ* format. The time must be in UTC.
 
 This parameter is required.', example='2023-02-04T03:45:00Z', position='Query'),
@@ -6914,6 +7167,7 @@ model DescribeJobResourceUsageResponseBody = {
         jobId?: string(name='JobId', description='The job ID.', example='1592'),
         jobStartTime?: string(name='JobStartTime', description='The start time of the job. The time follows the ISO 8601 standard in the yyyy-MM-ddTHH:mm:ssZ format. The time is displayed in UTC.', example='2023-05-22T16:00:00Z'),
         resourceGroupName?: string(name='ResourceGroupName', description='The name of the job resource group.', example='job_default'),
+        sparkAppName?: string(name='SparkAppName'),
         useCachePool?: boolean(name='UseCachePool'),
       }
     ](name='JobAcuUsage', description='The AnalyticDB compute unit (ACU) usage of the job resource group.'),
@@ -6984,95 +7238,6 @@ model DescribeKernelVersionResponse = {
 async function describeKernelVersion(request: DescribeKernelVersionRequest): DescribeKernelVersionResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RPC', 'DescribeKernelVersion', 'POST', '/', 'json', false, 'json', request);
-}
-
-model DescribeLLMAnswerRequest {
-  DBClusterId?: string(name='DBClusterId', description='The cluster ID.
-
->  Enterprise Edition, Basic Edition, and Data Lakehouse Edition: You can call the [DescribeDBClusters](https://help.aliyun.com/document_detail/454250.html) operation to query the information about all AnalyticDB for MySQL clusters within a region, including cluster IDs.', example='am-uf6g8w25jacm7****', position='Query'),
-  ownerAccount?: string(name='OwnerAccount', position='Query'),
-  ownerId?: long(name='OwnerId', position='Query'),
-  query: string(name='Query', description='The question proposed by a user.
-
-This parameter is required.', position='Query'),
-  regionId?: string(name='RegionId', description='The region ID
-
->  You can call the [DescribeRegions](https://help.aliyun.com/document_detail/612393.html) operation to query the most recent region list.', example='cn-beijing', position='Query'),
-  resourceOwnerAccount?: string(name='ResourceOwnerAccount', position='Query'),
-  resourceOwnerId?: long(name='ResourceOwnerId', position='Query'),
-}
-
-model DescribeLLMAnswerResponseBody = {
-  content?: string(name='Content', description='The answer by the intelligent assistant to the question.'),
-  requestId?: string(name='RequestId', description='The request ID.', example='1AD222E9-E606-4A42-BF6D-8A4442913CEF'),
-  sessionId?: string(name='SessionId', description='The session ID.', example='456'),
-}
-
-model DescribeLLMAnswerResponse = {
-  headers?: map[string]string(name='headers'),
-  statusCode?: int32(name='statusCode'),
-  body?: DescribeLLMAnswerResponseBody(name='body'),
-}
-
-/**
-  * @param request  the request parameters of DescribeLLMAnswer  DescribeLLMAnswerRequest
-  * @return DescribeLLMAnswerResponse
- */
-async function describeLLMAnswer(request: DescribeLLMAnswerRequest): DescribeLLMAnswerResponse {
-  @handler.validateRequestModel(request);
-  return @handler.do('RPC', 'DescribeLLMAnswer', 'POST', '/', 'json', false, 'json', request);
-}
-
-function describeLLMAnswerWithResponseIterable(request: DescribeLLMAnswerRequest): iterator[DescribeLLMAnswerResponseBody] {
-  @handler.validateRequestModel(request);
-  yield @handler.doSSERequest('SSE', 'DescribeLLMAnswer', 'POST', '/', 'json', false, 'json', request);
-}
-
-model DescribeLLMSimilarQuestionsRequest {
-  DBClusterId?: string(name='DBClusterId', description='The cluster ID.
-
->  You can call the [DescribeDBClusters](https://help.aliyun.com/document_detail/454250.html) operation to query the information about all AnalyticDB for MySQL clusters within a region, including cluster IDs.', example='am-bp1565u55p32****', position='Query'),
-  ownerAccount?: string(name='OwnerAccount', position='Query'),
-  ownerId?: long(name='OwnerId', position='Query'),
-  query: string(name='Query', description='The question proposed by a user.
-
-This parameter is required.', position='Query'),
-  regionId?: string(name='RegionId', description='The region ID
-
->  You can call the [DescribeRegions](https://help.aliyun.com/document_detail/612393.html) operation to query the most recent region list.', example='cn-hangzhou', position='Query'),
-  resourceOwnerAccount?: string(name='ResourceOwnerAccount', position='Query'),
-  resourceOwnerId?: long(name='ResourceOwnerId', position='Query'),
-}
-
-model DescribeLLMSimilarQuestionsResponseBody = {
-  items?: [ 
-    {
-      answer?: string(name='Answer', description='The answer to the similar question.'),
-      id?: string(name='Id', description='The ID of the similar question.', example='2389899'),
-      score?: double(name='Score', description='The similarity of the similar question.', example='0.58'),
-      source?: string(name='Source', description='The source of the similar question.'),
-      summary?: string(name='Summary', description='The summary of the similar question.'),
-      title?: string(name='Title', description='The content of the similar question.'),
-      url?: string(name='Url', description='The URL of the answer to the similar question.', example='www.aliyun.com/product'),
-    }
-  ](name='Items', description='The queried similar questions.'),
-  requestId?: string(name='RequestId', description='The request ID.', example='96A55627-28E9-5E47-B8F6-D786BE551349'),
-  sessionId?: string(name='SessionId', description='The session ID.', example='4847'),
-}
-
-model DescribeLLMSimilarQuestionsResponse = {
-  headers?: map[string]string(name='headers'),
-  statusCode?: int32(name='statusCode'),
-  body?: DescribeLLMSimilarQuestionsResponseBody(name='body'),
-}
-
-/**
-  * @param request  the request parameters of DescribeLLMSimilarQuestions  DescribeLLMSimilarQuestionsRequest
-  * @return DescribeLLMSimilarQuestionsResponse
- */
-async function describeLLMSimilarQuestions(request: DescribeLLMSimilarQuestionsRequest): DescribeLLMSimilarQuestionsResponse {
-  @handler.validateRequestModel(request);
-  return @handler.do('RPC', 'DescribeLLMSimilarQuestions', 'POST', '/', 'json', false, 'json', request);
 }
 
 model DescribeLakeCacheSizeRequest {
@@ -7640,6 +7805,58 @@ async function describePerformanceViews(request: DescribePerformanceViewsRequest
   return @handler.do('RPC', 'DescribePerformanceViews', 'POST', '/', 'json', false, 'json', request);
 }
 
+model DescribeProcessListRequest {
+  DBClusterId: string(name='DBClusterId', description='This parameter is required.', example='amv-xxxxxxxxx', position='Query'),
+  keyword?: string(name='Keyword', example='SELECT', position='Query'),
+  order?: string(name='Order', example='[ { "Field":"Time","Type":"Desc" },  { "Field":"User", "Type":"Asc" }]', position='Query'),
+  ownerAccount?: string(name='OwnerAccount', position='Query'),
+  ownerId?: long(name='OwnerId', position='Query'),
+  pageNumber?: int32(name='PageNumber', example='1', minimum=1, maximum=2147483647, position='Query'),
+  pageSize?: int32(name='PageSize', example='30', minimum=30, maximum=100, position='Query'),
+  resourceOwnerAccount?: string(name='ResourceOwnerAccount', position='Query'),
+  resourceOwnerId?: long(name='ResourceOwnerId', position='Query'),
+  runningTime?: int32(name='RunningTime', example='20', position='Query'),
+  showFull?: boolean(name='ShowFull', example='True', position='Query'),
+  user?: string(name='User', example='admin', position='Query'),
+}
+
+model DescribeProcessListResponseBody = {
+  items?: {
+    process?: [ 
+    {
+      command?: string(name='Command', example='SELECT'),
+      db?: string(name='DB', example='adb_demo'),
+      host?: string(name='Host', example='192.168.XX.XX:12308'),
+      id?: int32(name='Id', example='49104'),
+      info?: string(name='Info', example='select * from sbtest1,sbtest2,sbtest3,sbtest4'),
+      processId?: string(name='ProcessId', example='202011191048151921681492420315100****'),
+      startTime?: string(name='StartTime', example='2020-11-19T02:48:15Z'),
+      time?: int32(name='Time', example='40'),
+      user?: string(name='User', example='admin'),
+    }
+  ](name='Process')
+  }(name='Items'),
+  pageNumber?: string(name='PageNumber', example='1'),
+  pageSize?: string(name='PageSize', example='30'),
+  requestId?: string(name='RequestId', example='1AD222E9-E606-4A42-BF6D-8A4442913CEF'),
+  totalCount?: string(name='TotalCount', example='10'),
+}
+
+model DescribeProcessListResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: DescribeProcessListResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of DescribeProcessList  DescribeProcessListRequest
+  * @return DescribeProcessListResponse
+ */
+async function describeProcessList(request: DescribeProcessListRequest): DescribeProcessListResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'DescribeProcessList', 'POST', '/', 'json', false, 'json', request);
+}
+
 model DescribeRegionsRequest {
   acceptLanguage?: string(name='AcceptLanguage', description='The language that is used for the region and zone names indicated by the LocalName parameter in the response parameters. Valid values:
 
@@ -7841,6 +8058,7 @@ This parameter is required.', example='amv-8vb8de93v9b****', position='Query'),
   regionId: string(name='RegionId', description='The region ID of the cluster.
 
 This parameter is required.', example='cn-hangzhou', position='Query'),
+  sqlPatternHash?: long(name='SqlPatternHash', position='Query'),
   startTime?: string(name='StartTime', description='The beginning of the time range to query. Specify the time in the ISO 8601 standard in the *yyyy-MM-ddTHH:mm:ssZ* format. The time must be in UTC.
 
 > *   Only data within the last 14 days can be queried.
@@ -9631,6 +9849,36 @@ async function existRunningSQLEngine(request: ExistRunningSQLEngineRequest): Exi
   return @handler.do('RPC', 'ExistRunningSQLEngine', 'POST', '/', 'json', true, 'form', request);
 }
 
+model GenerateSqlBySemanticSqlRequest {
+  DBClusterId: string(name='DBClusterId', description='This parameter is required.', example='am-uf6wjk5xxxxxxxxxx', position='Query'),
+  schemaName?: string(name='SchemaName', example='adb_demo', position='Query'),
+  sql: string(name='Sql', description='This parameter is required.', example='select sum(amount) from sv_sales', position='Query'),
+}
+
+model GenerateSqlBySemanticSqlResponseBody = {
+  data?: {
+    errorMessage?: string(name='ErrorMessage'),
+    generatedSql?: string(name='GeneratedSql'),
+    success?: boolean(name='Success', example='true'),
+  }(name='Data'),
+  requestId?: string(name='RequestId', description='Id of the request', example='1AD222E9-E606-4A42-BF6D-8A4442913CEF'),
+}
+
+model GenerateSqlBySemanticSqlResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: GenerateSqlBySemanticSqlResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of GenerateSqlBySemanticSql  GenerateSqlBySemanticSqlRequest
+  * @return GenerateSqlBySemanticSqlResponse
+ */
+async function generateSqlBySemanticSql(request: GenerateSqlBySemanticSqlRequest): GenerateSqlBySemanticSqlResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'GenerateSqlBySemanticSql', 'POST', '/', 'json', false, 'json', request);
+}
+
 model GetADBSparkNecessaryRAMPermissionsRequest {
   DBClusterId: string(name='DBClusterId', description='The cluster ID.
 
@@ -9684,44 +9932,6 @@ model GetADBSparkNecessaryRAMPermissionsResponse = {
 async function getADBSparkNecessaryRAMPermissions(request: GetADBSparkNecessaryRAMPermissionsRequest): GetADBSparkNecessaryRAMPermissionsResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RPC', 'GetADBSparkNecessaryRAMPermissions', 'POST', '/', 'json', true, 'form', request);
-}
-
-model GetApsManagedDatabasesRequest {
-  DBClusterId: string(name='DBClusterId', description='The ID of the AnalyticDB for MySQL cluster.
-
-This parameter is required.', example='amv-******', position='Body'),
-  regionId: string(name='RegionId', description='The region ID.
-
-This parameter is required.', example='cn-hangzhou', position='Body'),
-}
-
-model GetApsManagedDatabasesResponseBody = {
-  data?: string(name='Data', description='The returned data.', example='-'),
-  httpStatusCode?: int32(name='HttpStatusCode', description='The response code. The status code 200 indicates that the request was successful.', example='200'),
-  message?: string(name='Message', description='The returned message. Valid values:
-
-*   If the request was successful, a success message is returned.****
-*   If the request failed, an error message is returned.', example='Success'),
-  requestId?: string(name='RequestId', description='The request ID.', example='******-3EEC-******-9F06-******'),
-  success?: boolean(name='Success', description='Indicates whether the request was successful. Valid values:
-
-*   **true**
-*   **false**', example='true'),
-}
-
-model GetApsManagedDatabasesResponse = {
-  headers?: map[string]string(name='headers'),
-  statusCode?: int32(name='statusCode'),
-  body?: GetApsManagedDatabasesResponseBody(name='body'),
-}
-
-/**
-  * @param request  the request parameters of GetApsManagedDatabases  GetApsManagedDatabasesRequest
-  * @return GetApsManagedDatabasesResponse
- */
-async function getApsManagedDatabases(request: GetApsManagedDatabasesRequest): GetApsManagedDatabasesResponse {
-  @handler.validateRequestModel(request);
-  return @handler.do('RPC', 'GetApsManagedDatabases', 'POST', '/', 'json', true, 'form', request);
 }
 
 model GetCreateTableSQLRequest {
@@ -9830,6 +10040,68 @@ async function getDatabaseObjects(request: GetDatabaseObjectsRequest): GetDataba
   return @handler.do('RPC', 'GetDatabaseObjects', 'POST', '/', 'json', false, 'json', request);
 }
 
+model GetFormationCrawlerRequest {
+  crawlerTaskId?: long(name='CrawlerTaskId', example='247', position='Body'),
+  crawlerTaskName?: string(name='CrawlerTaskName', example='test-crawler-dbname', position='Body'),
+  DBClusterId: string(name='DBClusterId', description='This parameter is required.', example='am-bp1xxxxxxxx47', position='Body'),
+  regionId: string(name='RegionId', description='This parameter is required.', example='cn-beijing', position='Body'),
+}
+
+model GetFormationCrawlerResponseBody = {
+  code?: string(name='Code', example='200'),
+  data?: string(name='Data'),
+  httpStatusCode?: int32(name='HttpStatusCode', example='200'),
+  message?: string(name='Message', example='OK'),
+  requestId?: string(name='RequestId', example='1AD222E9-E606-4A42-BF6D-8A4442913CEF'),
+  success?: boolean(name='Success', example='true'),
+}
+
+model GetFormationCrawlerResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: GetFormationCrawlerResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of GetFormationCrawler  GetFormationCrawlerRequest
+  * @return GetFormationCrawlerResponse
+ */
+async function getFormationCrawler(request: GetFormationCrawlerRequest): GetFormationCrawlerResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'GetFormationCrawler', 'POST', '/', 'json', true, 'form', request);
+}
+
+model GetKnowledgeRecallRequest {
+  DBClusterId: string(name='DBClusterId', description='This parameter is required.', example='am-bp19aaaaaa****', position='Query'),
+  question: string(name='Question', description='This parameter is required.', example='What are the reports for the clothing category this month?', position='Query'),
+  topk?: int32(name='Topk', example='5', position='Query'),
+}
+
+model GetKnowledgeRecallResponseBody = {
+  data?: {
+    count?: int32(name='Count', example='5'),
+    message?: string(name='Message', example='recall 5 files'),
+    results?: [  map[string]any ](name='Results'),
+    traceId?: string(name='TraceId', example='qf_c41fc27697d3'),
+  }(name='Data'),
+  requestId?: string(name='RequestId', description='Id of the request', example='1AD222E9-E606-4A42-BF6D-8A4442913CEF'),
+}
+
+model GetKnowledgeRecallResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: GetKnowledgeRecallResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of GetKnowledgeRecall  GetKnowledgeRecallRequest
+  * @return GetKnowledgeRecallResponse
+ */
+async function getKnowledgeRecall(request: GetKnowledgeRecallRequest): GetKnowledgeRecallResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'GetKnowledgeRecall', 'POST', '/knowledge/recall', 'json', false, 'json', request);
+}
+
 model GetLakeStorageRequest {
   DBClusterId?: string(name='DBClusterId', description='The cluster ID.', example='amv-*******', position='Query'),
   lakeStorageId?: string(name='LakeStorageId', description='The lake storage ID.', example='-', position='Query'),
@@ -9886,6 +10158,32 @@ model GetLakeStorageResponse = {
 async function getLakeStorage(request: GetLakeStorageRequest): GetLakeStorageResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RPC', 'GetLakeStorage', 'POST', '/', 'json', true, 'form', request);
+}
+
+model GetSemanticViewRequest {
+  DBClusterId: string(name='DBClusterId', description='This parameter is required.', example='amv-bp1d8lbdj22rx****', position='Query'),
+  schemaName: string(name='SchemaName', description='This parameter is required.', example='adb_demo', position='Query'),
+  viewName: string(name='ViewName', description='This parameter is required.', example='sv_name', position='Query'),
+}
+
+model GetSemanticViewResponseBody = {
+  data?: SemanticViewModel(name='Data', example='69'),
+  requestId?: string(name='RequestId', description='Id of the request', example='1AD222E9-E606-4A42-BF6D-8A4442913CEF'),
+}
+
+model GetSemanticViewResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: GetSemanticViewResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of GetSemanticView  GetSemanticViewRequest
+  * @return GetSemanticViewResponse
+ */
+async function getSemanticView(request: GetSemanticViewRequest): GetSemanticViewResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'GetSemanticView', 'POST', '/', 'json', false, 'json', request);
 }
 
 model GetSparkAppAttemptLogRequest {
@@ -11078,195 +11376,6 @@ async function killSparkSQLEngine(request: KillSparkSQLEngineRequest): KillSpark
   return @handler.do('RPC', 'KillSparkSQLEngine', 'POST', '/', 'json', true, 'form', request);
 }
 
-model ListApsLifecycleStrategyRequest {
-  DBClusterId: string(name='DBClusterId', description='The cluster ID.
-
-This parameter is required.', example='amv-*******', position='Body'),
-  endTime?: string(name='EndTime', description='The end of the time range to query. Specify the time in the ISO 8601 standard in the yyyy-MM-ddTHH:mmZ format. The time must be in UTC.', example='2024-01-02T11:22Z', position='Body'),
-  pageNumber?: string(name='PageNumber', description='The page number.', example='1', position='Body'),
-  pageSize?: string(name='PageSize', description='The number of entries per page.', example='30', position='Body'),
-  regionId: string(name='RegionId', description='The region ID.
-
-This parameter is required.', example='cn-hangzhou', position='Body'),
-  startTime?: string(name='StartTime', description='The beginning of the time range to query. Specify the time in the ISO 8601 standard in the yyyy-MM-ddTHH:mmZ format. The time must be in UTC.', example='2024-01-01T11:22Z', position='Body'),
-}
-
-model ListApsLifecycleStrategyResponseBody = {
-  code?: string(name='Code', description='The HTTP status code or the error code.', example='200'),
-  httpStatusCode?: int32(name='HttpStatusCode', description='The response code. The status code 200 indicates that the request was successful.', example='200'),
-  items?: [ 
-    {
-      apsJobId?: string(name='ApsJobId', description='The job ID.', example='aps-******'),
-      createdTime?: string(name='CreatedTime', description='The time when the policy was created.', example='2021-06-30T02:44:27Z'),
-      DBClusterId?: string(name='DBClusterId', description='The cluster ID.', example='amv-*******'),
-      modifiedTime?: string(name='ModifiedTime', description='The time when the policy was modified.', example='2021-07-03T06:33:00Z'),
-      operationTables?: [ 
-        {
-          databaseName?: string(name='DatabaseName', description='The name of the database.', example='test'),
-          processAll?: string(name='ProcessAll', description='Indicates whether all tables in the database are selected.', example='true'),
-          tableNames?: [ string ](name='TableNames', description='The names of the tables.'),
-        }
-      ](name='OperationTables', description='The operation tables.'),
-      status?: string(name='Status', description='The status of the lifecycle management policy. Valid values:
-
-1.  on: enables the current policy.
-2.  off: disables the current policy.', example='on'),
-      strategyDatabases?: long(name='StrategyDatabases', description='The number of databases that are managed during the lifecycle management.', example='5'),
-      strategyDesc?: string(name='StrategyDesc', description='The description of the lifecycle management policy.', example='test'),
-      strategyName?: string(name='StrategyName', description='The name of the lifecycle management policy.', example='test'),
-      strategyTables?: long(name='StrategyTables', description='The number of tables that are managed during the lifecycle management.', example='5'),
-      strategyType?: string(name='StrategyType', description='The type of the lifecycle management policy.', example='KEEP_BY_TIME'),
-      strategyValue?: string(name='StrategyValue', description='The value of the lifecycle management policy.', example='10'),
-    }
-  ](name='Items', description='The queried lifecycle management policies.'),
-  message?: string(name='Message', description='The returned message. Valid values:
-
-*   If the request was successful, a success message is returned.****
-*   If the request failed, an error message is returned.', example='OK'),
-  pageNumber?: int32(name='PageNumber', description='The page number.', example='1'),
-  pageSize?: int32(name='PageSize', description='The number of entries per page.', example='10'),
-  requestId?: string(name='RequestId', description='The request ID.', example='******-3EEC-******-9F06-******'),
-  success?: boolean(name='Success', description='Indicates whether the request was successful. Valid values:
-
-*   **true**
-*   **false**', example='true'),
-  totalCount?: long(name='TotalCount', description='The total number of entries returned.', example='10'),
-}
-
-model ListApsLifecycleStrategyResponse = {
-  headers?: map[string]string(name='headers'),
-  statusCode?: int32(name='statusCode'),
-  body?: ListApsLifecycleStrategyResponseBody(name='body'),
-}
-
-/**
-  * @param request  the request parameters of ListApsLifecycleStrategy  ListApsLifecycleStrategyRequest
-  * @return ListApsLifecycleStrategyResponse
- */
-async function listApsLifecycleStrategy(request: ListApsLifecycleStrategyRequest): ListApsLifecycleStrategyResponse {
-  @handler.validateRequestModel(request);
-  return @handler.do('RPC', 'ListApsLifecycleStrategy', 'POST', '/', 'json', true, 'form', request);
-}
-
-model ListApsOptimizationStrategyRequest {
-  DBClusterId: string(name='DBClusterId', description='The cluster ID.
-
-This parameter is required.', example='amv-*******', position='Body'),
-  regionId: string(name='RegionId', description='The region ID.
-
-This parameter is required.', example='cn-hangzhou', position='Body'),
-}
-
-model ListApsOptimizationStrategyResponseBody = {
-  code?: string(name='Code', description='The response code.', example='InvalidInput'),
-  data?: [ 
-    {
-      DBClusterId?: string(name='DBClusterId', description='The cluster ID.', example='amv-23xxxx'),
-      status?: string(name='Status', description='The status of the lifecycle management policy. Valid values:
-
-1.  on: enabled.
-2.  off: disabled.', example='off'),
-      strategyDesc?: string(name='StrategyDesc', description='The description of the lifecycle management policy.', example='test'),
-      strategyName?: string(name='StrategyName', description='The name of the lifecycle management policy.', example='test'),
-      strategyType?: string(name='StrategyType', description='The type of the lifecycle management policy. Only StrategyValue is returned.', example='StrategyValue'),
-    }
-  ](name='Data', description='The returned data.', example='-'),
-  httpStatusCode?: int32(name='HttpStatusCode', description='The response code. The status code 200 indicates that the request was successful.', example='200'),
-  message?: string(name='Message', description='The returned message. Valid values:
-
-*   If the request was successful, a success message is returned.****
-*   If the request failed, an error message is returned.', example='Success'),
-  requestId?: string(name='RequestId', description='The request ID.', example='******-3EEC-******-9F06-******'),
-  success?: boolean(name='Success', description='Indicates whether the request was successful. Valid values:
-
-*   **true**
-*   **false**', example='true'),
-}
-
-model ListApsOptimizationStrategyResponse = {
-  headers?: map[string]string(name='headers'),
-  statusCode?: int32(name='statusCode'),
-  body?: ListApsOptimizationStrategyResponseBody(name='body'),
-}
-
-/**
-  * @description For information about the endpoints of AnalyticDB for MySQL, see [Endpoints](https://help.aliyun.com/document_detail/612373.html).
-  * @param request  the request parameters of ListApsOptimizationStrategy  ListApsOptimizationStrategyRequest
-  * @return ListApsOptimizationStrategyResponse
- */
-async function listApsOptimizationStrategy(request: ListApsOptimizationStrategyRequest): ListApsOptimizationStrategyResponse {
-  @handler.validateRequestModel(request);
-  return @handler.do('RPC', 'ListApsOptimizationStrategy', 'POST', '/', 'json', true, 'form', request);
-}
-
-model ListApsOptimizationTasksRequest {
-  DBClusterId: string(name='DBClusterId', description='The cluster ID.
-
-This parameter is required.', example='amv-*******', position='Body'),
-  endTime?: string(name='EndTime', description='The end of the time range to query. Specify the time in the ISO 8601 standard in the yyyy-MM-ddTHH:mmZ format. The time must be in UTC.', example='2022-09-30T00:15Z', position='Body'),
-  pageNumber?: int32(name='PageNumber', description='The page number.', example='1', position='Body'),
-  pageSize?: int32(name='PageSize', description='The number of entries per page.', example='30', position='Body'),
-  regionId: string(name='RegionId', description='The region ID.
-
-This parameter is required.', example='cn-hangzhou', position='Body'),
-  startTime?: string(name='StartTime', description='The beginning of the time range to query. Specify the time in the ISO 8601 standard in the yyyy-MM-ddTHH:mmZ format. The time must be in UTC.', example='2022-01-23T02:18Z', position='Body'),
-  strategyType: string(name='StrategyType', description='The type of the lifecycle management policy.
-
-This parameter is required.', example='StrategyValue', position='Body'),
-}
-
-model ListApsOptimizationTasksResponseBody = {
-  code?: string(name='Code', description='The HTTP status code or the error code.', example='InvalidInput'),
-  httpStatusCode?: int32(name='HttpStatusCode', description='The response code. The status code 200 indicates that the request was successful.', example='200'),
-  items?: [ 
-    {
-      computeUnit?: string(name='ComputeUnit', description='The computing resources used by the optimization job.', example='2'),
-      createdTime?: string(name='CreatedTime', description='The time when the optimization job was created.', example='2022-01-23T02:18Z'),
-      DBClusterId?: string(name='DBClusterId', description='The cluster ID.', example='amv-*******'),
-      modifiedTime?: string(name='ModifiedTime', description='The time when the optimization job was modified.', example='2022-09-30T00:15Z'),
-      strategyType?: string(name='StrategyType', description='The type of the lifecycle management policy.', example='StrategyValue'),
-      taskDesc?: string(name='TaskDesc', description='The description of the optimization job.', example='test'),
-      taskDuration?: long(name='TaskDuration', description='The execution duration of the optimization job.', example='1000'),
-      taskId?: string(name='TaskId', description='The job ID.', example='sj-hz******'),
-      taskMessage?: string(name='TaskMessage', description='The error message.', example='-'),
-      taskStatus?: string(name='TaskStatus', description='The execution status. Valid values:
-
-1.  NEW
-2.  RUNNING
-3.  SUCCESS
-4.  STOPPED
-5.  FAILED', example='RUNNING'),
-    }
-  ](name='Items', description='The queried optimization jobs.', example='-'),
-  message?: string(name='Message', description='The returned message. Valid values:
-
-*   If the request was successful, a success message is returned.****
-*   If the request failed, an error message is returned.', example='SUCCESS'),
-  pageNumber?: int32(name='PageNumber', description='The page number.', example='1'),
-  pageSize?: int32(name='PageSize', description='The number of entries per page.', example='30'),
-  requestId?: string(name='RequestId', description='The request ID.', example='******-3EEC-******-9F06-******'),
-  success?: boolean(name='Success', description='Indicates whether the request was successful. Valid values:
-
-*   **true**
-*   **false**', example='true'),
-  totalCount?: long(name='TotalCount', description='The total number of entries returned.', example='15'),
-}
-
-model ListApsOptimizationTasksResponse = {
-  headers?: map[string]string(name='headers'),
-  statusCode?: int32(name='statusCode'),
-  body?: ListApsOptimizationTasksResponseBody(name='body'),
-}
-
-/**
-  * @param request  the request parameters of ListApsOptimizationTasks  ListApsOptimizationTasksRequest
-  * @return ListApsOptimizationTasksResponse
- */
-async function listApsOptimizationTasks(request: ListApsOptimizationTasksRequest): ListApsOptimizationTasksResponse {
-  @handler.validateRequestModel(request);
-  return @handler.do('RPC', 'ListApsOptimizationTasks', 'POST', '/', 'json', true, 'form', request);
-}
-
 model ListApsWebhookRequest {
   DBClusterId: string(name='DBClusterId', description='The cluster ID.
 
@@ -11505,6 +11614,37 @@ model ListResultExportJobHistoryResponse = {
 async function listResultExportJobHistory(request: ListResultExportJobHistoryRequest): ListResultExportJobHistoryResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RPC', 'ListResultExportJobHistory', 'POST', '/', 'json', true, 'form', request);
+}
+
+model ListSemanticViewNamesRequest {
+  DBClusterId: string(name='DBClusterId', description='This parameter is required.', example='am-bp*****', position='Query'),
+  schemaName?: string(name='SchemaName', example='adb_demo', position='Query'),
+}
+
+model ListSemanticViewNamesResponseBody = {
+  data?: [ 
+    {
+      comment?: string(name='Comment'),
+      viewName?: string(name='ViewName', example='revenue_analysis'),
+      viewSchema?: string(name='ViewSchema', example='sales_db'),
+    }
+  ](name='Data'),
+  requestId?: string(name='RequestId', description='Id of the request', example='1AD222E9-E606-4A42-BF6D-8A4442913CEF'),
+}
+
+model ListSemanticViewNamesResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ListSemanticViewNamesResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of ListSemanticViewNames  ListSemanticViewNamesRequest
+  * @return ListSemanticViewNamesResponse
+ */
+async function listSemanticViewNames(request: ListSemanticViewNamesRequest): ListSemanticViewNamesResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'ListSemanticViewNames', 'POST', '/', 'json', false, 'json', request);
 }
 
 model ListSparkAppAttemptsRequest {
@@ -12394,42 +12534,6 @@ async function modifyClusterAccessWhiteList(request: ModifyClusterAccessWhiteLis
   return @handler.do('RPC', 'ModifyClusterAccessWhiteList', 'POST', '/', 'json', false, 'json', request);
 }
 
-model ModifyClusterConnectionStringRequest {
-  connectionStringPrefix: string(name='ConnectionStringPrefix', description='The prefix of the public endpoint.
-
-*   The prefix can contain lowercase letters, digits, and hyphens (-). It must start with a lowercase letter.
-*   The prefix can be up to 30 characters in length.
-
-This parameter is required.', example='test-123', position='Query'),
-  currentConnectionString: string(name='CurrentConnectionString', description='The public endpoint of the AnalyticDB for MySQL Data Lakehouse Edition cluster.
-
-This parameter is required.', example='amv-bp11q28kvl688****.ads.aliyuncs.com', position='Query'),
-  DBClusterId: string(name='DBClusterId', description='The ID of the AnalyticDB for MySQL Data Lakehouse Edition cluster.
-
-This parameter is required.', example='amv-bp11q28kvl688****', position='Query'),
-  port?: int32(name='Port', description='The port number. Set the value to **3306**.', example='3306', position='Query'),
-}
-
-model ModifyClusterConnectionStringResponseBody = {
-  requestId?: string(name='RequestId', description='The request ID.', example='370D09FD-442A-5225-AAD3-7362CAE39177'),
-}
-
-model ModifyClusterConnectionStringResponse = {
-  headers?: map[string]string(name='headers'),
-  statusCode?: int32(name='statusCode'),
-  body?: ModifyClusterConnectionStringResponseBody(name='body'),
-}
-
-/**
-  * @description For information about the endpoints of AnalyticDB for MySQL, see [Endpoints](https://help.aliyun.com/document_detail/612373.html).
-  * @param request  the request parameters of ModifyClusterConnectionString  ModifyClusterConnectionStringRequest
-  * @return ModifyClusterConnectionStringResponse
- */
-async function modifyClusterConnectionString(request: ModifyClusterConnectionStringRequest): ModifyClusterConnectionStringResponse {
-  @handler.validateRequestModel(request);
-  return @handler.do('RPC', 'ModifyClusterConnectionString', 'POST', '/', 'json', false, 'json', request);
-}
-
 model ModifyCompactionServiceSwitchRequest {
   DBClusterId: string(name='DBClusterId', description='The cluster ID.
 
@@ -12464,6 +12568,8 @@ async function modifyCompactionServiceSwitch(request: ModifyCompactionServiceSwi
 }
 
 model ModifyDBClusterRequest {
+  AINodeNumber?: int32(name='AINodeNumber', position='Query'),
+  AINodeSpec?: string(name='AINodeSpec', example='ADB.MLPlus.4', position='Query'),
   computeResource?: string(name='ComputeResource', description='The reserved computing resources. Valid values: 0ACU to 4096ACU. The value must be in increments of 16ACU. Each ACU is approximately equal to 1 core and 4 GB memory.
 
 >  This parameter must be specified with a unit.', example='16ACU', position='Query'),
@@ -12690,6 +12796,19 @@ async function modifyDBClusterVip(request: ModifyDBClusterVipRequest): ModifyDBC
 }
 
 model ModifyDBResourceGroupRequest {
+  atmConfig?: {
+    authNodeNum?: int32(name='AuthNodeNum', example='2'),
+    authNodeSpec?: string(name='AuthNodeSpec', example='8ACU'),
+    insertNodeNum?: int32(name='InsertNodeNum', example='2'),
+    insertNodeSpec?: string(name='InsertNodeSpec', example='8ACU'),
+    selectNodeCacheSize?: int32(name='SelectNodeCacheSize', example='10'),
+    selectNodeNum?: int32(name='SelectNodeNum', example='1'),
+    selectNodeSpec?: string(name='SelectNodeSpec', example='8ACU'),
+    storageNodeDiskSize?: int32(name='StorageNodeDiskSize', example='1'),
+    storageNodeDiskType?: string(name='StorageNodeDiskType', example='essd_pl1'),
+    storageNodeNum?: int32(name='StorageNodeNum', example='2'),
+    storageNodeSpec?: string(name='StorageNodeSpec', example='8ACU'),
+  }(name='AtmConfig', shrink='json', position='Query'),
   autoStopInterval?: string(name='AutoStopInterval', example='5m', position='Query'),
   clusterMode?: string(name='ClusterMode', description='A reserved parameter.', example='N/A', position='Query'),
   clusterSizeResource?: string(name='ClusterSizeResource', description='A reserved parameter.', example='N/A', position='Query'),
@@ -12757,6 +12876,7 @@ This parameter is required.', example='Interactive', position='Query'),
         storageId?: long(name='StorageId', example='1'),
       }
     ](name='StorageMounts'),
+    userDefinedRequirements?: string(name='UserDefinedRequirements'),
     workerGroups?: [ 
       {
         allocateUnit?: string(name='AllocateUnit'),
@@ -13256,6 +13376,138 @@ async function preloadSparkAppMetrics(request: PreloadSparkAppMetricsRequest): P
   return @handler.do('RPC', 'PreloadSparkAppMetrics', 'POST', '/', 'json', true, 'form', request);
 }
 
+model QueryFormationInstsByTaskIDRequest {
+  DBClusterId: string(name='DBClusterId', description='This parameter is required.', example='am-bp1r053byu48p****', position='Body'),
+  regionId: string(name='RegionId', description='This parameter is required.', example='cn-hangzhou', position='Body'),
+  taskId: string(name='TaskId', description='This parameter is required.', example='123', position='Body'),
+}
+
+model QueryFormationInstsByTaskIDResponseBody = {
+  code?: string(name='Code', example='200'),
+  data?: [ 
+    {
+      createTime?: string(name='CreateTime', example='2023-05-15T07:24:58Z'),
+      lastTaskInstCostTime?: string(name='LastTaskInstCostTime'),
+      lastTaskInstID?: string(name='LastTaskInstID'),
+      lastTaskInstMessage?: string(name='LastTaskInstMessage'),
+      lastTaskInstState?: string(name='LastTaskInstState'),
+      scheduleState?: string(name='ScheduleState'),
+      schema?: string(name='Schema', example='default'),
+      sourceType?: string(name='SourceType', example='shareScreen'),
+      syncTime?: string(name='SyncTime'),
+      taskId?: string(name='TaskId', example='10'),
+      taskName?: string(name='TaskName', example='doc_test_daily'),
+      taskType?: string(name='TaskType', example='Update\\"\\"'),
+    }
+  ](name='Data'),
+  httpStatusCode?: int32(name='HttpStatusCode', example='200'),
+  items?: [  map[string]any ](name='Items'),
+  message?: string(name='Message', example='OK'),
+  pageNumber?: string(name='PageNumber', example='1'),
+  pageSize?: string(name='PageSize', example='30'),
+  requestId?: string(name='RequestId', example='1AD222E9-E606-4A42-BF6D-8A4442913CEF'),
+  success?: boolean(name='Success', example='true'),
+  totalCount?: string(name='TotalCount', example='1'),
+}
+
+model QueryFormationInstsByTaskIDResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: QueryFormationInstsByTaskIDResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of QueryFormationInstsByTaskID  QueryFormationInstsByTaskIDRequest
+  * @return QueryFormationInstsByTaskIDResponse
+ */
+async function queryFormationInstsByTaskID(request: QueryFormationInstsByTaskIDRequest): QueryFormationInstsByTaskIDResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'QueryFormationInstsByTaskID', 'POST', '/', 'json', true, 'form', request);
+}
+
+model QueryFormationTaskByIDRequest {
+  DBClusterId: string(name='DBClusterId', description='This parameter is required.', example='am-bp1ub9grke1****', position='Body'),
+  regionId: string(name='RegionId', description='This parameter is required.', example='cn-hangzhou', position='Body'),
+  taskId: long(name='TaskId', description='This parameter is required.', example='36', position='Body'),
+  taskType: string(name='TaskType', description='This parameter is required.', example='["CRAWLER"]', position='Body'),
+}
+
+model QueryFormationTaskByIDResponseBody = {
+  code?: string(name='Code', example='200'),
+  data?: string(name='Data', example='{
+    "id": 123,
+    "taskName": "sale_db",
+    "scheduleState": "NORMAL",
+    "frequency": {"type": "custom", "cron": "0 0/1 * * * ?"},
+    "failedCount": 0,
+    "lastTaskInstContent": "{\\"task_inst_id\\":67890,\\"state\\":\\"SUCCESS\\"}"
+  }'),
+  httpStatusCode?: int32(name='HttpStatusCode', example='200'),
+  message?: string(name='Message', example='OK'),
+  requestId?: string(name='RequestId', example='5DC10091-348D-12B1-906D-AB49D658012E'),
+  success?: boolean(name='Success', example='true'),
+}
+
+model QueryFormationTaskByIDResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: QueryFormationTaskByIDResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of QueryFormationTaskByID  QueryFormationTaskByIDRequest
+  * @return QueryFormationTaskByIDResponse
+ */
+async function queryFormationTaskByID(request: QueryFormationTaskByIDRequest): QueryFormationTaskByIDResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'QueryFormationTaskByID', 'POST', '/', 'json', true, 'form', request);
+}
+
+model QueryFormationTasksByTypeRequest {
+  DBClusterId: string(name='DBClusterId', description='This parameter is required.', example='am-uf6g8w25jacm7****', position='Body'),
+  regionId: string(name='RegionId', description='This parameter is required.', example='cn-hangzhou', position='Body'),
+  taskType: string(name='TaskType', description='This parameter is required.', example='["CRAWLER"]', position='Body'),
+}
+
+model QueryFormationTasksByTypeResponseBody = {
+  code?: string(name='Code', example='200'),
+  data?: [ 
+    {
+      createTime?: string(name='CreateTime', example='2026-07-08 17:05:25'),
+      lastTaskInstCostTime?: string(name='LastTaskInstCostTime', example='2'),
+      lastTaskInstID?: string(name='LastTaskInstID', example='46872'),
+      lastTaskInstMessage?: string(name='LastTaskInstMessage', example='xxx'),
+      lastTaskInstState?: string(name='LastTaskInstState', example='SUCCESS'),
+      scheduleState?: string(name='ScheduleState', example='STOP'),
+      schema?: string(name='Schema', example='sales_db'),
+      sourceType?: string(name='SourceType', example='OSSWAREHOUSE'),
+      syncTime?: string(name='SyncTime', example='{\\"cron\\":\\"\\",\\"type\\":\\"run_on_demand\\"}'),
+      taskId?: string(name='TaskId', example='10'),
+      taskName?: string(name='TaskName'),
+      taskType?: string(name='TaskType', example='CRAWLER'),
+    }
+  ](name='Data'),
+  httpStatusCode?: int32(name='HttpStatusCode', example='200'),
+  message?: string(name='Message', example='OK'),
+  requestId?: string(name='RequestId', example='1AD222E9-E606-4A42-BF6D-8A4442913CEF'),
+  success?: boolean(name='Success', example='true'),
+}
+
+model QueryFormationTasksByTypeResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: QueryFormationTasksByTypeResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of QueryFormationTasksByType  QueryFormationTasksByTypeRequest
+  * @return QueryFormationTasksByTypeResponse
+ */
+async function queryFormationTasksByType(request: QueryFormationTasksByTypeRequest): QueryFormationTasksByTypeResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'QueryFormationTasksByType', 'POST', '/', 'json', true, 'form', request);
+}
+
 model ReleaseClusterPublicConnectionRequest {
   DBClusterId: string(name='DBClusterId', description='The ID of the AnalyticDB for MySQL Data Lakehouse Edition (V3.0) cluster.
 
@@ -13264,6 +13516,7 @@ This parameter is required.', example='amv-bp11q28kvl688****', position='Query')
 
 *   **AnalyticDB** (default): the AnalyticDB for MySQL engine.
 *   **Clickhouse**: the wide table engine.', example='Clickhouse', position='Query'),
+  resourceGroupName?: string(name='ResourceGroupName', position='Query'),
 }
 
 model ReleaseClusterPublicConnectionResponseBody = {
@@ -13284,6 +13537,59 @@ model ReleaseClusterPublicConnectionResponse = {
 async function releaseClusterPublicConnection(request: ReleaseClusterPublicConnectionRequest): ReleaseClusterPublicConnectionResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RPC', 'ReleaseClusterPublicConnection', 'POST', '/', 'json', false, 'json', request);
+}
+
+model RenameSemanticViewRequest {
+  DBClusterId: string(name='DBClusterId', description='This parameter is required.', example='am-bp1u8c0mgfg58****', position='Query'),
+  newSchemaName: string(name='NewSchemaName', description='This parameter is required.', example='adb_sv', position='Query'),
+  newViewName: string(name='NewViewName', description='This parameter is required.', example='new_sv_name', position='Query'),
+  oldSchemaName: string(name='OldSchemaName', description='This parameter is required.', example='adb_sv_old', position='Query'),
+  oldViewName: string(name='OldViewName', description='This parameter is required.', example='old_sv_name', position='Query'),
+}
+
+model RenameSemanticViewResponseBody = {
+  requestId?: string(name='RequestId', description='Id of the request', example='1AD222E9-E606-4A42-BF6D-8A4442913CEF'),
+}
+
+model RenameSemanticViewResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: RenameSemanticViewResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of RenameSemanticView  RenameSemanticViewRequest
+  * @return RenameSemanticViewResponse
+ */
+async function renameSemanticView(request: RenameSemanticViewRequest): RenameSemanticViewResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'RenameSemanticView', 'POST', '/', 'json', false, 'json', request);
+}
+
+model ReplaceSemanticViewRequest {
+  DBClusterId: string(name='DBClusterId', description='This parameter is required.', example='am-bp1u8c0mgfg58****', position='Query'),
+  definition: string(name='Definition', description='This parameter is required.', example='YAML 内容', position='Query'),
+  schemaName: string(name='SchemaName', description='This parameter is required.', example='adb_demo', position='Query'),
+  viewName: string(name='ViewName', description='This parameter is required.', example='sales_sv', position='Query'),
+}
+
+model ReplaceSemanticViewResponseBody = {
+  requestId?: string(name='RequestId', description='Id of the request', example='1AD222E9-E606-4A42-BF6D-8A4442913CEF'),
+}
+
+model ReplaceSemanticViewResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ReplaceSemanticViewResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of ReplaceSemanticView  ReplaceSemanticViewRequest
+  * @return ReplaceSemanticViewResponse
+ */
+async function replaceSemanticView(request: ReplaceSemanticViewRequest): ReplaceSemanticViewResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'ReplaceSemanticView', 'POST', '/', 'json', false, 'json', request);
 }
 
 model ResetAccountPasswordRequest {
@@ -13359,6 +13665,63 @@ model RevokeOperatorPermissionResponse = {
 async function revokeOperatorPermission(request: RevokeOperatorPermissionRequest): RevokeOperatorPermissionResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RPC', 'RevokeOperatorPermission', 'POST', '/', 'json', false, 'json', request);
+}
+
+model RunMaterializedViewRecommendRequest {
+  DBClusterId: string(name='DBClusterId', description='This parameter is required.', example='am-bp1u8c0mgfg58****', position='Query'),
+  ownerAccount?: string(name='OwnerAccount', position='Query'),
+  ownerId?: long(name='OwnerId', position='Query'),
+  regionId?: string(name='RegionId', example='cn-hangzhou', position='Query'),
+  resourceOwnerAccount?: string(name='ResourceOwnerAccount', position='Query'),
+  resourceOwnerId?: long(name='ResourceOwnerId', position='Query'),
+  taskName: string(name='TaskName', description='This parameter is required.', example='task1', position='Query'),
+}
+
+model RunMaterializedViewRecommendResponseBody = {
+  requestId?: string(name='RequestId', description='Id of the request', example='1AD222E9-E606-4A42-BF6D-8A444291****'),
+}
+
+model RunMaterializedViewRecommendResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: RunMaterializedViewRecommendResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of RunMaterializedViewRecommend  RunMaterializedViewRecommendRequest
+  * @return RunMaterializedViewRecommendResponse
+ */
+async function runMaterializedViewRecommend(request: RunMaterializedViewRecommendRequest): RunMaterializedViewRecommendResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'RunMaterializedViewRecommend', 'POST', '/', 'json', false, 'json', request);
+}
+
+model SearchSemanticViewsRequest {
+  DBClusterId: string(name='DBClusterId', description='This parameter is required.', example='am-bp*****', position='Query'),
+  queryText?: string(name='QueryText', example='销售额', position='Query'),
+  topK?: int32(name='TopK', example='3', position='Query'),
+}
+
+model SearchSemanticViewsResponseBody = {
+  data?: [
+    SemanticViewModel
+  ](name='Data'),
+  requestId?: string(name='RequestId', description='Id of the request', example='1AD222E9-E606-4A42-BF6D-8A4442913CEF'),
+}
+
+model SearchSemanticViewsResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: SearchSemanticViewsResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of SearchSemanticViews  SearchSemanticViewsRequest
+  * @return SearchSemanticViewsResponse
+ */
+async function searchSemanticViews(request: SearchSemanticViewsRequest): SearchSemanticViewsResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'SearchSemanticViews', 'POST', '/', 'json', false, 'json', request);
 }
 
 model SetSparkAppLogRootPathRequest {
@@ -13437,6 +13800,35 @@ model StartApsJobResponse = {
 async function startApsJob(request: StartApsJobRequest): StartApsJobResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RPC', 'StartApsJob', 'POST', '/', 'json', true, 'form', request);
+}
+
+model StartFormationCrawlerRequest {
+  crawlerTaskId: long(name='CrawlerTaskId', description='This parameter is required.', example='247', minimum=1, maximum=10000, position='Body'),
+  crawlerTaskName?: string(name='CrawlerTaskName', example='test-crawler-dbname', position='Body'),
+  DBClusterId?: string(name='DBClusterId', example='am-bp1pke2pcfavw****', position='Body'),
+  regionId: string(name='RegionId', description='This parameter is required.', example='cn-hangzhou', position='Body'),
+}
+
+model StartFormationCrawlerResponseBody = {
+  data?: string(name='Data', example='69'),
+  requestId?: string(name='RequestId', example='2FED790E-FB61-4721-8C1C-07C627FA5A19'),
+  success?: boolean(name='Success', example='True'),
+  taskId?: long(name='TaskId', example='1564657730'),
+}
+
+model StartFormationCrawlerResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: StartFormationCrawlerResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of StartFormationCrawler  StartFormationCrawlerRequest
+  * @return StartFormationCrawlerResponse
+ */
+async function startFormationCrawler(request: StartFormationCrawlerRequest): StartFormationCrawlerResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'StartFormationCrawler', 'POST', '/', 'json', true, 'form', request);
 }
 
 model StartSparkReplSessionRequest {
@@ -13527,6 +13919,37 @@ model StartSparkSQLEngineResponse = {
 async function startSparkSQLEngine(request: StartSparkSQLEngineRequest): StartSparkSQLEngineResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RPC', 'StartSparkSQLEngine', 'POST', '/', 'json', true, 'form', request);
+}
+
+model StopFormationCrawlerRequest {
+  crawlerTaskId: long(name='CrawlerTaskId', description='This parameter is required.', example='21', position='Body'),
+  crawlerTaskName: string(name='CrawlerTaskName', description='This parameter is required.', example='test-crawler-dbname', position='Body'),
+  DBClusterId: string(name='DBClusterId', description='This parameter is required.', example='am-bp1xxxxxxxx47', position='Body'),
+  regionId: string(name='RegionId', description='This parameter is required.', example='cn-hangzhou', position='Body'),
+}
+
+model StopFormationCrawlerResponseBody = {
+  code?: string(name='Code', example='200'),
+  data?: string(name='Data', example='true'),
+  httpStatusCode?: int32(name='HttpStatusCode', example='200'),
+  message?: string(name='Message', example='Success'),
+  requestId?: string(name='RequestId', example='9CCFAAB4-97B7-5800-B9F2-685EB596E3EF'),
+  success?: boolean(name='Success', example='true'),
+}
+
+model StopFormationCrawlerResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: StopFormationCrawlerResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of StopFormationCrawler  StopFormationCrawlerRequest
+  * @return StopFormationCrawlerResponse
+ */
+async function stopFormationCrawler(request: StopFormationCrawlerRequest): StopFormationCrawlerResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'StopFormationCrawler', 'POST', '/', 'json', true, 'form', request);
 }
 
 model SubmitResultExportJobRequest {
@@ -13815,6 +14238,70 @@ model UpdateApsWebhookResponse = {
 async function updateApsWebhook(request: UpdateApsWebhookRequest): UpdateApsWebhookResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RPC', 'UpdateApsWebhook', 'POST', '/', 'json', true, 'form', request);
+}
+
+model UpdateFormationCrawlerRequest {
+  crawlerInfo: string(name='CrawlerInfo', description='This parameter is required.', position='Body'),
+  crawlerTaskId?: string(name='CrawlerTaskId', example='21', position='Body'),
+  DBClusterId: string(name='DBClusterId', description='This parameter is required.', example='am-bp1r053byu48p****', position='Body'),
+  regionId: string(name='RegionId', description='This parameter is required.', example='cn-beijing', position='Body'),
+}
+
+model UpdateFormationCrawlerResponseBody = {
+  code?: string(name='Code', example='200'),
+  data?: boolean(name='Data', example='true'),
+  httpStatusCode?: int32(name='HttpStatusCode', example='200'),
+  message?: string(name='Message', example='OK'),
+  requestId?: string(name='RequestId', example='1AD222E9-E606-4A42-BF6D-8A4442913CEF'),
+  success?: boolean(name='Success', example='true'),
+  taskId?: long(name='TaskId', example='15'),
+}
+
+model UpdateFormationCrawlerResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: UpdateFormationCrawlerResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of UpdateFormationCrawler  UpdateFormationCrawlerRequest
+  * @return UpdateFormationCrawlerResponse
+ */
+async function updateFormationCrawler(request: UpdateFormationCrawlerRequest): UpdateFormationCrawlerResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'UpdateFormationCrawler', 'POST', '/', 'json', true, 'form', request);
+}
+
+model UpdateFormationCrawlerScheduleStateRequest {
+  crawlerTaskId: long(name='CrawlerTaskId', description='This parameter is required.', example='247', position='Body'),
+  crawlerTaskName: string(name='CrawlerTaskName', description='This parameter is required.', example='test-crawler-dbname', position='Body'),
+  DBClusterId: string(name='DBClusterId', description='This parameter is required.', example='am-bp1565u55p32****', position='Body'),
+  regionId: string(name='RegionId', description='This parameter is required.', example='cn-hangzhou', position='Body'),
+  scheduleState: string(name='ScheduleState', description='This parameter is required.', example='DISABLED', position='Body'),
+}
+
+model UpdateFormationCrawlerScheduleStateResponseBody = {
+  code?: string(name='Code', example='200'),
+  data?: boolean(name='Data', example='true'),
+  httpStatusCode?: int32(name='HttpStatusCode', example='200'),
+  message?: string(name='Message', example='OK'),
+  requestId?: string(name='RequestId', example='642F3512-C628-5D0C-8815-F6670CEA00D4'),
+  success?: boolean(name='Success', example='true'),
+}
+
+model UpdateFormationCrawlerScheduleStateResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: UpdateFormationCrawlerScheduleStateResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of UpdateFormationCrawlerScheduleState  UpdateFormationCrawlerScheduleStateRequest
+  * @return UpdateFormationCrawlerScheduleStateResponse
+ */
+async function updateFormationCrawlerScheduleState(request: UpdateFormationCrawlerScheduleStateRequest): UpdateFormationCrawlerScheduleStateResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'UpdateFormationCrawlerScheduleState', 'POST', '/', 'json', true, 'form', request);
 }
 
 model UpdateLakeStorageRequest {
