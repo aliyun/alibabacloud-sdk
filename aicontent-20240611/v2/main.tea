@@ -54,6 +54,8 @@ model ApiKeyDTO {
   id?: long(name='id', example='1'),
   key?: string(name='key', example='key'),
   keyPreview?: string(name='keyPreview', example='sk-xxx****xxx'),
+  memberUserId?: long(name='memberUserId', example='30001'),
+  memberUserName?: string(name='memberUserName', example='张三'),
   name?: string(name='name', example='MyApiKey'),
 }
 
@@ -99,6 +101,12 @@ model BalanceOrderDTO {
   totalBefore?: double(name='totalBefore', example='1500.00'),
 }
 
+model BalancePoolSummaryDTO {
+  allocated?: double(name='allocated', example='40.00'),
+  available?: double(name='available', example='60.00'),
+  total?: double(name='total', example='100.00'),
+}
+
 model BatchCreateModelItemDTO {
   description?: string(name='description', example='通义千问 Max'),
   extensions?: string(name='extensions', example='{}'),
@@ -111,10 +119,39 @@ model BatchCreateModelItemDTO {
   tags?: string(name='tags', example='chat,NLP'),
 }
 
+model BatchFailedItemDTO {
+  reason?: string(name='reason', example='Member node is missing'),
+  userId?: long(name='userId', example='1'),
+}
+
 model BatchModelErrorDTO {
   errorMsg?: string(name='errorMsg', example='模型类型不能为空'),
   modelId?: string(name='modelId', example='qwen-max'),
   name?: string(name='name', example='qwen-max'),
+}
+
+model BatchOpResultDTO {
+  failed?: [
+    BatchFailedItemDTO
+  ](name='failed', example='[]'),
+  succeeded?: [ long ](name='succeeded', example='[]'),
+}
+
+model BillOrderEntryDTO {
+  amount?: double(name='amount', example='100.00'),
+  balanceAfter?: double(name='balanceAfter', example='100.00'),
+  balanceBefore?: double(name='balanceBefore', example='0.00'),
+  balanceType?: string(name='balanceType', example='permanent'),
+  createTime?: string(name='createTime', example='2024-01-01T00:00:00Z'),
+  direction?: string(name='direction', example='in'),
+  modelCode?: string(name='modelCode', example='qwen-max'),
+  operatorId?: string(name='operatorId', example='1'),
+  orderId?: string(name='orderId', example='ord_xxxxxxxx'),
+  orderType?: string(name='orderType', example='recharge'),
+  remark?: string(name='remark', example='Top-up'),
+  source?: string(name='source', example='console'),
+  totalAfter?: double(name='totalAfter', example='100.00'),
+  totalBefore?: double(name='totalBefore', example='0.00'),
 }
 
 model BillingBillSummaryPointDTO {
@@ -155,10 +192,14 @@ model BillingCostBreakdownRowDTO {
   clientId?: long(name='clientId', description='Department ID; 0 indicates no associated department', example='0'),
   clientName?: string(name='clientName', description='Department name', example='研发部'),
   dimValues?: string(name='dimValues', example='{"billing_version": "v1"}'),
+  memberUserId?: long(name='memberUserId', example='30001'),
+  memberUserName?: string(name='memberUserName', example='张三'),
   modelCode?: string(name='modelCode', description='Model identifier', example='qwen-plus'),
   modelId?: long(name='modelId', description='Model ID', example='1'),
   modelName?: string(name='modelName', description='Model name', example='通义千问-Plus'),
+  modelSymbol?: string(name='modelSymbol', example='qwen'),
   modelType?: string(name='modelType', description='Statistics category', example='llm'),
+  modelVersion?: int32(name='modelVersion', example='1'),
   payableAmount?: float(name='payableAmount', description='Payable amount, rounded to 8 decimal places', example='0.00012800'),
   summaryTime?: long(name='summaryTime', description='Statistics time point, Unix timestamp (seconds)', example='1700000000'),
   tiers?: [
@@ -197,17 +238,23 @@ model ClientCreateCmd {
 }
 
 model ClientDTO {
-  address?: string(name='address', example='杭州市'),
+  address?: string(name='address', example='Hangzhou'),
+  allowedModelGroupConfig?: string(name='allowedModelGroupConfig', example='{"model_ids":[1,2],"group_ids":["mg_xxx"]}'),
   allowedModels?: string(name='allowedModels', example='1,2,3'),
   clientUuid?: string(name='clientUuid', example='st-xxxx'),
   contact?: string(name='contact', example='13800138000'),
   deleteTag?: int32(name='deleteTag', example='0'),
+  discount?: double(name='discount', example='1.0'),
   gmtCreate?: string(name='gmtCreate', example='2024-01-01T00:00:00Z'),
   gmtModified?: string(name='gmtModified', example='2024-01-01T00:00:00Z'),
   id?: long(name='id', example='1'),
+  level?: int32(name='level', example='1'),
   main?: int32(name='main', example='0'),
-  name?: string(name='name', example='我的客户'),
-  remark?: string(name='remark', example='备注'),
+  name?: string(name='name', example='My customer'),
+  nodeType?: string(name='nodeType', example='department'),
+  parentId?: long(name='parentId', example='1'),
+  remark?: string(name='remark', example='Remarks'),
+  userId?: long(name='userId', example='30001'),
 }
 
 model ClientListQry {
@@ -218,7 +265,7 @@ model ClientListQry {
 }
 
 model ClientTreeDTO {
-  address?: string(name='address', example='杭州市'),
+  address?: string(name='address', example='Hangzhou'),
   allowedModels?: string(name='allowedModels', example='1,2,3'),
   balance?: ClientBalanceDTO(name='balance', example='null'),
   children?: [
@@ -233,9 +280,11 @@ model ClientTreeDTO {
   id?: long(name='id', example='1'),
   level?: int32(name='level', example='1'),
   main?: int32(name='main', example='0'),
-  name?: string(name='name', example='我的客户'),
+  name?: string(name='name', example='My customer'),
+  nodeType?: string(name='nodeType', example='department'),
   parentId?: long(name='parentId', example='null'),
-  remark?: string(name='remark', example='备注'),
+  remark?: string(name='remark', example='Remarks'),
+  userId?: long(name='userId', example='30001'),
 }
 
 model ClientUpdateCmd {
@@ -324,6 +373,60 @@ model CostTabDTO {
   key?: string(name='key', description='Tab UUID', example='all'),
   label?: string(name='label', description='Tab display name', example='全部'),
   modelTypes?: [ string ](name='modelTypes', description='List of associated model types'),
+}
+
+model DepartmentRoleCmd {
+  clientId?: long(name='clientId', example='1'),
+  roleCode?: string(name='roleCode', example='member'),
+}
+
+model DeptBalanceSummaryDTO {
+  monthly?: BalancePoolSummaryDTO(name='monthly', example='{}'),
+  permanent?: BalancePoolSummaryDTO(name='permanent', example='{}'),
+}
+
+model DeptMemberDTO {
+  allowedModels?: string(name='allowedModels', example='1,2'),
+  authConfig?: string(name='authConfig', example='inherit'),
+  gmtCreate?: string(name='gmtCreate', example='2024-01-01T00:00:00Z'),
+  id?: long(name='id', example='1'),
+  keyCount?: int32(name='keyCount', example='1'),
+  loginName?: string(name='loginName', example='zhangsan'),
+  monthlyBalance?: double(name='monthlyBalance', example='10.00'),
+  name?: string(name='name', example='John Smith'),
+  permanentBalance?: double(name='permanentBalance', example='20.00'),
+  phone?: string(name='phone', example='138****0000'),
+  roleCode?: string(name='roleCode', example='member'),
+  roleName?: string(name='roleName', example='Member'),
+}
+
+model ExportTaskDTO {
+  createdAt?: long(name='createdAt', example='1753858800'),
+  error?: string(name='error'),
+  filename?: string(name='filename', example='成员余额变更记录_20260730.csv'),
+  finishedAt?: long(name='finishedAt', example='1753858860'),
+  id?: string(name='id', example='task_xxxxxxxx'),
+  maxRows?: int32(name='maxRows', example='50000'),
+  progress?: int32(name='progress', example='0'),
+  status?: string(name='status', example='pending'),
+  total?: int32(name='total', example='100'),
+  type?: string(name='type', example='balance_orders'),
+}
+
+model MemberApiKeyDTO {
+  client?: ClientDTO(name='client'),
+  clientId?: long(name='clientId', example='438'),
+  deleteTag?: int32(name='deleteTag', example='0'),
+  expireAt?: string(name='expireAt', example='2026-12-31T00:00:00Z'),
+  gmtCreate?: string(name='gmtCreate', example='2026-08-03T18:41:40+08:00'),
+  gmtModified?: string(name='gmtModified', example='2026-08-03T18:41:40+08:00'),
+  id?: long(name='id', example='502'),
+  key?: string(name='key'),
+  keyPreview?: string(name='keyPreview', example='sk-us****9876'),
+  memberUserId?: long(name='memberUserId', example='304'),
+  memberUserName?: string(name='memberUserName', example='John'),
+  name?: string(name='name', example='John\\\\"s Key'),
+  status?: string(name='status', example='active'),
 }
 
 model MetricDefRespDTO {
@@ -444,6 +547,14 @@ model ModelGroupModelDTO {
   name?: string(name='name', example='通义千问-Max'),
   platform?: string(name='platform', example='qwen'),
   version?: string(name='version', example='v0'),
+}
+
+model ModelGroupUserDTO {
+  apiKeys?: [
+    ModelGroupClientKeyItemDTO
+  ](name='apiKeys', example='[]'),
+  userId?: long(name='userId', example='30001'),
+  userName?: string(name='userName', example='Zhang San'),
 }
 
 model ModelListQry {
@@ -824,6 +935,8 @@ model UsageBreakdownRowDTO {
   apiKeyName?: string(name='apiKeyName', example='默认密钥'),
   clientId?: long(name='clientId', description='Department ID; 0 indicates no associated department', example='0'),
   clientName?: string(name='clientName', description='Department name', example='研发部'),
+  memberUserId?: long(name='memberUserId', example='30001'),
+  memberUserName?: string(name='memberUserName', example='张三'),
   metrics?: [
     MetricKVPairDTO
   ](name='metrics', description='Array of usage metrics, containing only entries with non-zero values', example='[{"key": "total_calls", "value": 100}]'),
@@ -841,6 +954,24 @@ model UsageInfoDTO {
   totalTokens?: int32(name='totalTokens', example='150'),
   videoCount?: int32(name='videoCount', example='0'),
   videoDuration?: int32(name='videoDuration', example='0'),
+}
+
+model UserDepartmentDTO {
+  clientId?: long(name='clientId', example='1'),
+  clientName?: string(name='clientName', example='研发部'),
+  roleCode?: string(name='roleCode', example='member'),
+  roleName?: string(name='roleName', example='成员'),
+}
+
+model UserListItemDTO {
+  departments?: [
+    UserDepartmentDTO
+  ](name='departments', example='[]'),
+  gmtCreate?: string(name='gmtCreate', example='2026-07-01 10:00:00'),
+  id?: long(name='id', example='1'),
+  loginName?: string(name='loginName', example='zhangsan'),
+  name?: string(name='name', example='Zhang San'),
+  phone?: string(name='phone', example='13800000000'),
 }
 
 model AITeacherExpansionPracticeTaskGenerateRequest {
@@ -4857,6 +4988,372 @@ async function modelRouterBatchBindModelGroup(request: ModelRouterBatchBindModel
   return modelRouterBatchBindModelGroupWithOptions(request, headers, runtime);
 }
 
+model ModelRouterBatchCreateMemberApiKeysRequest {
+  expireAt?: string(name='expireAt', example='2027-01-01T00:00:00Z'),
+  name?: string(name='name', example='TestKey'),
+  userIds?: [ long ](name='userIds', example='[]'),
+}
+
+model ModelRouterBatchCreateMemberApiKeysResponseBody = {
+  data?: BatchOpResultDTO(name='data', example='{}'),
+  errCode?: string(name='errCode', example='UNKNOWN_ERROR'),
+  errMessage?: string(name='errMessage', example='Unknown error'),
+  httpStatusCode?: int32(name='httpStatusCode', example='200'),
+  requestId?: string(name='requestId', example='xxxx-xxxx-xxxx-xxxxxxxx'),
+  success?: boolean(name='success', example='true'),
+}
+
+model ModelRouterBatchCreateMemberApiKeysResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ModelRouterBatchCreateMemberApiKeysResponseBody(name='body'),
+}
+
+/**
+ * @summary Batch creates API keys for members under a department in organization management.
+ *
+ * @param request ModelRouterBatchCreateMemberApiKeysRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return ModelRouterBatchCreateMemberApiKeysResponse
+ */
+@context("modelRouterBatchCreateMemberApiKeysWithContext")
+async function modelRouterBatchCreateMemberApiKeysWithOptions(id: string, request: ModelRouterBatchCreateMemberApiKeysRequest, headers: map[string]string, runtime: $RuntimeOptions): ModelRouterBatchCreateMemberApiKeysResponse {
+  request.validate();
+  var body : map[string]any = {};
+  if (!$isNull(request.expireAt)) {
+    body['expireAt'] = request.expireAt;
+  }
+  if (!$isNull(request.name)) {
+    body['name'] = request.name;
+  }
+  if (!$isNull(request.userIds)) {
+    body['userIds'] = request.userIds;
+  }
+
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    headers = headers,
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'ModelRouterBatchCreateMemberApiKeys',
+    version = '20240611',
+    protocol = 'HTTPS',
+    pathname = `/api/v1/modelRouter/open/clients/${$URL.percentEncode(id)}/member-apikeys`,
+    method = 'POST',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Batch creates API keys for members under a department in organization management.
+ *
+ * @param request ModelRouterBatchCreateMemberApiKeysRequest
+ * @return ModelRouterBatchCreateMemberApiKeysResponse
+ */
+async function modelRouterBatchCreateMemberApiKeys(id: string, request: ModelRouterBatchCreateMemberApiKeysRequest): ModelRouterBatchCreateMemberApiKeysResponse {
+  var runtime = new $RuntimeOptions{};
+  var headers : map[string]string = {};
+  return modelRouterBatchCreateMemberApiKeysWithOptions(id, request, headers, runtime);
+}
+
+model ModelRouterBatchCreateModelRequest {
+  apiKey?: string(name='apiKey', description='The API key. This parameter is required. The key is shared by the same provider and reused by all models.
+
+This parameter is required.', example='sk-xxxxxxxxxxxxxxxx'),
+  baseUrl?: string(name='baseUrl', description='The base URL. This parameter is optional. Specify this parameter when you use a custom gateway address. If you do not specify this parameter, the default address of the provider is used.', example='https://dashscope.aliyuncs.com/compatible-mode/v1'),
+  models?: [
+    BatchCreateModelItemDTO
+  ](name='models', description='The list of models to create in batches. This parameter is required. At least one item must be specified.
+
+This parameter is required.'),
+  symbol?: string(name='symbol', description='The provider symbol. This parameter is required. All models items share the same provider.
+
+This parameter is required.', example='qwen'),
+}
+
+model ModelRouterBatchCreateModelResponseBody = {
+  data?: {
+    created?: [
+      ModelDTO
+    ](name='created', description='The list of models that were successfully created.', example='[]'),
+    failCount?: int32(name='failCount', description='The number of models that failed or were skipped.', example='0'),
+    failures?: [
+      BatchModelErrorDTO
+    ](name='failures', description='The list of models that failed or were skipped.', example='[]'),
+    successCount?: int32(name='successCount', description='The number of models that were successfully created.', example='3'),
+  }(name='data', description='The data object.', example='{}'),
+  errCode?: string(name='errCode', description='The fault code.', example='UNKNOWN_ERROR'),
+  errMessage?: string(name='errMessage', description='The error message.', example='Unknown error'),
+  httpStatusCode?: int32(name='httpStatusCode', description='The HTTP status code.', example='200'),
+  requestId?: string(name='requestId', description='The request ID.', example='xxxx-xxxx-xxxx-xxxxxxxx'),
+  success?: boolean(name='success', description='Indicates whether the request was successful.', example='true'),
+}
+
+model ModelRouterBatchCreateModelResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ModelRouterBatchCreateModelResponseBody(name='body'),
+}
+
+/**
+ * @summary Manages models by performing batch model creation.
+ *
+ * @param request ModelRouterBatchCreateModelRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return ModelRouterBatchCreateModelResponse
+ */
+@context("modelRouterBatchCreateModelWithContext")
+async function modelRouterBatchCreateModelWithOptions(request: ModelRouterBatchCreateModelRequest, headers: map[string]string, runtime: $RuntimeOptions): ModelRouterBatchCreateModelResponse {
+  request.validate();
+  var body : map[string]any = {};
+  if (!$isNull(request.apiKey)) {
+    body['apiKey'] = request.apiKey;
+  }
+  if (!$isNull(request.baseUrl)) {
+    body['baseUrl'] = request.baseUrl;
+  }
+  if (!$isNull(request.models)) {
+    body['models'] = request.models;
+  }
+  if (!$isNull(request.symbol)) {
+    body['symbol'] = request.symbol;
+  }
+
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    headers = headers,
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'ModelRouterBatchCreateModel',
+    version = '20240611',
+    protocol = 'HTTPS',
+    pathname = `/api/v1/modelRouter/open/models/batch`,
+    method = 'POST',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Manages models by performing batch model creation.
+ *
+ * @param request ModelRouterBatchCreateModelRequest
+ * @return ModelRouterBatchCreateModelResponse
+ */
+async function modelRouterBatchCreateModel(request: ModelRouterBatchCreateModelRequest): ModelRouterBatchCreateModelResponse {
+  var runtime = new $RuntimeOptions{};
+  var headers : map[string]string = {};
+  return modelRouterBatchCreateModelWithOptions(request, headers, runtime);
+}
+
+model ModelRouterBatchDisableMemberApiKeysRequest {
+  userIds?: [ long ](name='userIds', description='The list of member user IDs.', example='[]'),
+}
+
+model ModelRouterBatchDisableMemberApiKeysResponseBody = {
+  data?: BatchOpResultDTO(name='data', description='The data object.', example='{}'),
+  errCode?: string(name='errCode', description='The fault information code.', example='UNKNOWN_ERROR'),
+  errMessage?: string(name='errMessage', description='The error message.', example='Unknown error'),
+  httpStatusCode?: int32(name='httpStatusCode', description='The HTTP status code.', example='200'),
+  requestId?: string(name='requestId', description='The request ID.', example='xxxx-xxxx-xxxx-xxxxxxxx'),
+  success?: boolean(name='success', description='Indicates whether the request was successful.', example='true'),
+}
+
+model ModelRouterBatchDisableMemberApiKeysResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ModelRouterBatchDisableMemberApiKeysResponseBody(name='body'),
+}
+
+/**
+ * @summary Disables API keys in batches for members under a department in organization management.
+ *
+ * @param request ModelRouterBatchDisableMemberApiKeysRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return ModelRouterBatchDisableMemberApiKeysResponse
+ */
+@context("modelRouterBatchDisableMemberApiKeysWithContext")
+async function modelRouterBatchDisableMemberApiKeysWithOptions(id: string, request: ModelRouterBatchDisableMemberApiKeysRequest, headers: map[string]string, runtime: $RuntimeOptions): ModelRouterBatchDisableMemberApiKeysResponse {
+  request.validate();
+  var body : map[string]any = {};
+  if (!$isNull(request.userIds)) {
+    body['userIds'] = request.userIds;
+  }
+
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    headers = headers,
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'ModelRouterBatchDisableMemberApiKeys',
+    version = '20240611',
+    protocol = 'HTTPS',
+    pathname = `/api/v1/modelRouter/open/clients/${$URL.percentEncode(id)}/member-apikeys/disable`,
+    method = 'POST',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Disables API keys in batches for members under a department in organization management.
+ *
+ * @param request ModelRouterBatchDisableMemberApiKeysRequest
+ * @return ModelRouterBatchDisableMemberApiKeysResponse
+ */
+async function modelRouterBatchDisableMemberApiKeys(id: string, request: ModelRouterBatchDisableMemberApiKeysRequest): ModelRouterBatchDisableMemberApiKeysResponse {
+  var runtime = new $RuntimeOptions{};
+  var headers : map[string]string = {};
+  return modelRouterBatchDisableMemberApiKeysWithOptions(id, request, headers, runtime);
+}
+
+model ModelRouterBatchResetMemberAuthorizationRequest {
+  userIds?: [ long ](name='userIds', description='The list of member user IDs.', example='[]'),
+}
+
+model ModelRouterBatchResetMemberAuthorizationResponseBody = {
+  data?: BatchOpResultDTO(name='data', description='The data object.', example='{}'),
+  errCode?: string(name='errCode', description='The error message code.', example='UNKNOWN_ERROR'),
+  errMessage?: string(name='errMessage', description='The error message.', example='Unknown error'),
+  httpStatusCode?: int32(name='httpStatusCode', description='The HTTP status code.', example='200'),
+  requestId?: string(name='requestId', description='The request ID.', example='xxxx-xxxx-xxxx-xxxxxxxx'),
+  success?: boolean(name='success', description='Indicates whether the request was successful.', example='true'),
+}
+
+model ModelRouterBatchResetMemberAuthorizationResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ModelRouterBatchResetMemberAuthorizationResponseBody(name='body'),
+}
+
+/**
+ * @summary Batch resets member authorizations to inherit under a department in organization management.
+ *
+ * @param request ModelRouterBatchResetMemberAuthorizationRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return ModelRouterBatchResetMemberAuthorizationResponse
+ */
+@context("modelRouterBatchResetMemberAuthorizationWithContext")
+async function modelRouterBatchResetMemberAuthorizationWithOptions(id: string, request: ModelRouterBatchResetMemberAuthorizationRequest, headers: map[string]string, runtime: $RuntimeOptions): ModelRouterBatchResetMemberAuthorizationResponse {
+  request.validate();
+  var body : map[string]any = {};
+  if (!$isNull(request.userIds)) {
+    body['userIds'] = request.userIds;
+  }
+
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    headers = headers,
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'ModelRouterBatchResetMemberAuthorization',
+    version = '20240611',
+    protocol = 'HTTPS',
+    pathname = `/api/v1/modelRouter/open/clients/${$URL.percentEncode(id)}/member-authorizations/reset`,
+    method = 'POST',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Batch resets member authorizations to inherit under a department in organization management.
+ *
+ * @param request ModelRouterBatchResetMemberAuthorizationRequest
+ * @return ModelRouterBatchResetMemberAuthorizationResponse
+ */
+async function modelRouterBatchResetMemberAuthorization(id: string, request: ModelRouterBatchResetMemberAuthorizationRequest): ModelRouterBatchResetMemberAuthorizationResponse {
+  var runtime = new $RuntimeOptions{};
+  var headers : map[string]string = {};
+  return modelRouterBatchResetMemberAuthorizationWithOptions(id, request, headers, runtime);
+}
+
+model ModelRouterBatchSetMemberAuthorizationRequest {
+  allowedModelGroupConfig?: string(name='allowedModelGroupConfig', description='The authorization configuration. This parameter is a required JSON string that uses overwrite mode: {"model_ids":[...],"group_ids":["mg_xxx"]}. Internal key names use a fixed underscore style and are not converted to the camelCase convention of the API.', example='{"model_ids":[],"group_ids":["mg_qwen_19"]}'),
+  userIdList?: [ long ](name='userIdList', description='The list of user IDs. This parameter is required. You can specify 1 to 50 user IDs. If more than 50 user IDs are required, call this operation in batches. All users must be direct members of the specified department.', example='[30001,30002,30003]'),
+}
+
+model ModelRouterBatchSetMemberAuthorizationResponseBody = {
+  data?: boolean(name='data', description='The data object. This object contains no business data. This operation uses all-or-nothing semantics. If the operation succeeds, all changes take effect.', example='true'),
+  errCode?: string(name='errCode', description='The fault code.', example='UNKNOWN_ERROR'),
+  errMessage?: string(name='errMessage', description='The error message.', example='Unknown error'),
+  httpStatusCode?: int32(name='httpStatusCode', description='The HTTP status code.', example='200'),
+  requestId?: string(name='requestId', description='The request ID.', example='xxxx-xxxx-xxxx-xxxxxxxx'),
+  success?: boolean(name='success', description='Indicates whether the operation is successful.', example='true'),
+}
+
+model ModelRouterBatchSetMemberAuthorizationResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ModelRouterBatchSetMemberAuthorizationResponseBody(name='body'),
+}
+
+/**
+ * @summary Sets authorization for multiple members under a department in batch.
+ *
+ * @param request ModelRouterBatchSetMemberAuthorizationRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return ModelRouterBatchSetMemberAuthorizationResponse
+ */
+@context("modelRouterBatchSetMemberAuthorizationWithContext")
+async function modelRouterBatchSetMemberAuthorizationWithOptions(id: string, request: ModelRouterBatchSetMemberAuthorizationRequest, headers: map[string]string, runtime: $RuntimeOptions): ModelRouterBatchSetMemberAuthorizationResponse {
+  request.validate();
+  var body : map[string]any = {};
+  if (!$isNull(request.allowedModelGroupConfig)) {
+    body['allowedModelGroupConfig'] = request.allowedModelGroupConfig;
+  }
+  if (!$isNull(request.userIdList)) {
+    body['userIdList'] = request.userIdList;
+  }
+
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    headers = headers,
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'ModelRouterBatchSetMemberAuthorization',
+    version = '20240611',
+    protocol = 'HTTPS',
+    pathname = `/api/v1/modelRouter/open/clients/${$URL.percentEncode(id)}/member-authorizations`,
+    method = 'POST',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Sets authorization for multiple members under a department in batch.
+ *
+ * @param request ModelRouterBatchSetMemberAuthorizationRequest
+ * @return ModelRouterBatchSetMemberAuthorizationResponse
+ */
+async function modelRouterBatchSetMemberAuthorization(id: string, request: ModelRouterBatchSetMemberAuthorizationRequest): ModelRouterBatchSetMemberAuthorizationResponse {
+  var runtime = new $RuntimeOptions{};
+  var headers : map[string]string = {};
+  return modelRouterBatchSetMemberAuthorizationWithOptions(id, request, headers, runtime);
+}
+
 model ModelRouterBillingCostTabsRequest {
   maxResults?: int32(name='maxResults', description='The maximum number of results.', example='10'),
   nextToken?: string(name='nextToken', description='nextToken', example='xxxx-xxx-xxxxx'),
@@ -5123,13 +5620,86 @@ async function modelRouterConfigureClientBalance(id: string, request: ModelRoute
   return modelRouterConfigureClientBalanceWithOptions(id, request, headers, runtime);
 }
 
+model ModelRouterConfigureMemberBalanceRequest {
+  balanceType?: string(name='balanceType', example='amount'),
+  enableBalance?: boolean(name='enableBalance', example='true'),
+  initialBalance?: double(name='initialBalance', example='0'),
+}
+
+model ModelRouterConfigureMemberBalanceResponseBody = {
+  data?: ClientBalanceDTO(name='data', example='{}'),
+  errCode?: string(name='errCode', example='UNKNOWN_ERROR'),
+  errMessage?: string(name='errMessage', example='未知错误'),
+  httpStatusCode?: int32(name='httpStatusCode', example='200'),
+  requestId?: string(name='requestId', example='xxxx-xxxx-xxxx-xxxxxxxx'),
+  success?: boolean(name='success', example='true'),
+}
+
+model ModelRouterConfigureMemberBalanceResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ModelRouterConfigureMemberBalanceResponseBody(name='body'),
+}
+
+/**
+ * @summary 组织管理/配置成员子钱包余额
+ *
+ * @param request ModelRouterConfigureMemberBalanceRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return ModelRouterConfigureMemberBalanceResponse
+ */
+@context("modelRouterConfigureMemberBalanceWithContext")
+async function modelRouterConfigureMemberBalanceWithOptions(clientId: string, id: string, request: ModelRouterConfigureMemberBalanceRequest, headers: map[string]string, runtime: $RuntimeOptions): ModelRouterConfigureMemberBalanceResponse {
+  request.validate();
+  var body : map[string]any = {};
+  if (!$isNull(request.balanceType)) {
+    body['balanceType'] = request.balanceType;
+  }
+  if (!$isNull(request.enableBalance)) {
+    body['enableBalance'] = request.enableBalance;
+  }
+  if (!$isNull(request.initialBalance)) {
+    body['initialBalance'] = request.initialBalance;
+  }
+
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    headers = headers,
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'ModelRouterConfigureMemberBalance',
+    version = '20240611',
+    protocol = 'HTTPS',
+    pathname = `/api/v1/modelRouter/open/clients/${$URL.percentEncode(clientId)}/members/${$URL.percentEncode(id)}/balance`,
+    method = 'PUT',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 组织管理/配置成员子钱包余额
+ *
+ * @param request ModelRouterConfigureMemberBalanceRequest
+ * @return ModelRouterConfigureMemberBalanceResponse
+ */
+async function modelRouterConfigureMemberBalance(clientId: string, id: string, request: ModelRouterConfigureMemberBalanceRequest): ModelRouterConfigureMemberBalanceResponse {
+  var runtime = new $RuntimeOptions{};
+  var headers : map[string]string = {};
+  return modelRouterConfigureMemberBalanceWithOptions(clientId, id, request, headers, runtime);
+}
+
 model ModelRouterCopyApiKeyResponseBody = {
   data?: ApiKeyDTO(name='data', description='The data object.', example='[]'),
   errCode?: string(name='errCode', description='The fault message code.', example='UNKNOWN_ERROR'),
   errMessage?: string(name='errMessage', description='The error message.', example='Unknown error'),
   httpStatusCode?: int32(name='httpStatusCode', description='The HTTP status code.', example='200'),
   requestId?: string(name='requestId', description='The request ID.', example='xxxx-xxxx-xxxx-xxxxxxxx'),
-  success?: boolean(name='success', description='Indicates whether the operation is successful.', example='true'),
+  success?: boolean(name='success', description='Indicates whether the request was successful.', example='true'),
 }
 
 model ModelRouterCopyApiKeyResponse = {
@@ -5181,7 +5751,7 @@ model ModelRouterCreateApiKeyRequest {
 
 model ModelRouterCreateApiKeyResponseBody = {
   data?: ApiKeyDTO(name='data', description='The data object.', example='[]'),
-  errCode?: string(name='errCode', description='The fault code.', example='UNKNOWN_ERROR'),
+  errCode?: string(name='errCode', description='The fault message code.', example='UNKNOWN_ERROR'),
   errMessage?: string(name='errMessage', description='The error message.', example='Unknown error'),
   httpStatusCode?: int32(name='httpStatusCode', description='The HTTP status code.', example='200'),
   requestId?: string(name='requestId', description='The request ID.', example='xxxx-xxxx-xxxx-xxxxxxxx'),
@@ -5766,6 +6336,244 @@ async function modelRouterCreateConversation(request: ModelRouterCreateConversat
   return modelRouterCreateConversationWithOptions(request, headers, runtime);
 }
 
+model ModelRouterCreateMemberApiKeyRequest {
+  expireAt?: string(name='expireAt', description='The expiration time in the format of yyyy-MM-dd HH:mm:ss. This parameter is optional. If not specified, the key is permanently valid.', example='2027-07-31 00:00:00'),
+  name?: string(name='name', description='The name of the API key. This parameter is optional.', example='TestKey'),
+}
+
+model ModelRouterCreateMemberApiKeyResponseBody = {
+  data?: {
+    apiKey?: string(name='apiKey', description='The full API key in plaintext. This value is returned only once during creation. Store it securely.', example='sk-xxxxxxxxxxxxxxxx'),
+    apiKeyId?: long(name='apiKeyId', description='The API key ID. You can use this ID to query the bound groups by API key.', example='502'),
+  }(name='data', description='The data object.', example='{ "apiKeyId": 502, "apiKey": "sk-xxxxxxxxxxxxxxxx" }'),
+  errCode?: string(name='errCode', description='The fault message code.', example='UNKNOWN_ERROR'),
+  errMessage?: string(name='errMessage', description='The error message.', example='Unknown error'),
+  httpStatusCode?: int32(name='httpStatusCode', description='The HTTP status code.', example='200'),
+  requestId?: string(name='requestId', description='The request ID.', example='xxxx-xxxx-xxxx-xxxxxxxx'),
+  success?: boolean(name='success', description='Indicates whether the request was successful.', example='true'),
+}
+
+model ModelRouterCreateMemberApiKeyResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ModelRouterCreateMemberApiKeyResponseBody(name='body'),
+}
+
+/**
+ * @summary Creates an API key for a member in the organization.
+ *
+ * @param request ModelRouterCreateMemberApiKeyRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return ModelRouterCreateMemberApiKeyResponse
+ */
+@context("modelRouterCreateMemberApiKeyWithContext")
+async function modelRouterCreateMemberApiKeyWithOptions(clientId: string, id: string, request: ModelRouterCreateMemberApiKeyRequest, headers: map[string]string, runtime: $RuntimeOptions): ModelRouterCreateMemberApiKeyResponse {
+  request.validate();
+  var body : map[string]any = {};
+  if (!$isNull(request.expireAt)) {
+    body['expireAt'] = request.expireAt;
+  }
+  if (!$isNull(request.name)) {
+    body['name'] = request.name;
+  }
+
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    headers = headers,
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'ModelRouterCreateMemberApiKey',
+    version = '20240611',
+    protocol = 'HTTPS',
+    pathname = `/api/v1/modelRouter/open/clients/${$URL.percentEncode(clientId)}/members/${$URL.percentEncode(id)}/apikeys`,
+    method = 'POST',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Creates an API key for a member in the organization.
+ *
+ * @param request ModelRouterCreateMemberApiKeyRequest
+ * @return ModelRouterCreateMemberApiKeyResponse
+ */
+async function modelRouterCreateMemberApiKey(clientId: string, id: string, request: ModelRouterCreateMemberApiKeyRequest): ModelRouterCreateMemberApiKeyResponse {
+  var runtime = new $RuntimeOptions{};
+  var headers : map[string]string = {};
+  return modelRouterCreateMemberApiKeyWithOptions(clientId, id, request, headers, runtime);
+}
+
+model ModelRouterCreateMemberBalanceTransactionRequest {
+  amount?: double(name='amount', description='The transaction amount.', example='100.00'),
+  balanceType?: string(name='balanceType', description='The balance type. Valid values:
+
+- permanent
+- monthly
+
+Default value: permanent.', example='permanent'),
+  idempotencyKey?: string(name='idempotencyKey', description='The idempotency key. UUID v4 format is recommended.', example='550e8400-e29b-41d4-a716-446655440000'),
+  remark?: string(name='remark', description='The remark for the transaction.', example='Recharge'),
+  type?: string(name='type', description='The transaction type. Valid values: recharge, deduct, and transfer.', example='recharge'),
+}
+
+model ModelRouterCreateMemberBalanceTransactionResponseBody = {
+  data?: ClientBalanceDTO(name='data', description='The data object.', example='{}'),
+  errCode?: string(name='errCode', description='The fault information code.', example='UNKNOWN_ERROR'),
+  errMessage?: string(name='errMessage', description='The error message.', example='Unknown error'),
+  httpStatusCode?: int32(name='httpStatusCode', description='The HTTP status code.', example='200'),
+  requestId?: string(name='requestId', description='The request ID.', example='xxxx-xxxx-xxxx-xxxxxxxx'),
+  success?: boolean(name='success', description='Indicates whether the request was successful.', example='true'),
+}
+
+model ModelRouterCreateMemberBalanceTransactionResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ModelRouterCreateMemberBalanceTransactionResponseBody(name='body'),
+}
+
+/**
+ * @summary Performs a balance transaction on a member sub-wallet in organization management.
+ *
+ * @param request ModelRouterCreateMemberBalanceTransactionRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return ModelRouterCreateMemberBalanceTransactionResponse
+ */
+@context("modelRouterCreateMemberBalanceTransactionWithContext")
+async function modelRouterCreateMemberBalanceTransactionWithOptions(clientId: string, id: string, request: ModelRouterCreateMemberBalanceTransactionRequest, headers: map[string]string, runtime: $RuntimeOptions): ModelRouterCreateMemberBalanceTransactionResponse {
+  request.validate();
+  var body : map[string]any = {};
+  if (!$isNull(request.amount)) {
+    body['amount'] = request.amount;
+  }
+  if (!$isNull(request.balanceType)) {
+    body['balanceType'] = request.balanceType;
+  }
+  if (!$isNull(request.idempotencyKey)) {
+    body['idempotencyKey'] = request.idempotencyKey;
+  }
+  if (!$isNull(request.remark)) {
+    body['remark'] = request.remark;
+  }
+  if (!$isNull(request.type)) {
+    body['type'] = request.type;
+  }
+
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    headers = headers,
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'ModelRouterCreateMemberBalanceTransaction',
+    version = '20240611',
+    protocol = 'HTTPS',
+    pathname = `/api/v1/modelRouter/open/clients/${$URL.percentEncode(clientId)}/members/${$URL.percentEncode(id)}/balance/transactions`,
+    method = 'POST',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Performs a balance transaction on a member sub-wallet in organization management.
+ *
+ * @param request ModelRouterCreateMemberBalanceTransactionRequest
+ * @return ModelRouterCreateMemberBalanceTransactionResponse
+ */
+async function modelRouterCreateMemberBalanceTransaction(clientId: string, id: string, request: ModelRouterCreateMemberBalanceTransactionRequest): ModelRouterCreateMemberBalanceTransactionResponse {
+  var runtime = new $RuntimeOptions{};
+  var headers : map[string]string = {};
+  return modelRouterCreateMemberBalanceTransactionWithOptions(clientId, id, request, headers, runtime);
+}
+
+model ModelRouterCreateMemberSubscriptionRequest {
+  amount?: double(name='amount', description='The subscription amount.', example='100.00'),
+  balanceType?: string(name='balanceType', description='The balance type. Valid values:
+
+- permanent: permanent balance.
+- monthly: monthly balance.', example='monthly'),
+  effectiveTime?: long(name='effectiveTime', description='The effective period in UNIX timestamp (seconds).', example='1753858800'),
+  idempotencyKey?: string(name='idempotencyKey', description='The idempotency key. UUID v4 format is recommended.', example='550e8400-e29b-41d4-a716-446655440000'),
+}
+
+model ModelRouterCreateMemberSubscriptionResponseBody = {
+  data?: SubscriptionDTO(name='data', description='The data object.', example='{}'),
+  errCode?: string(name='errCode', description='The fault code.', example='UNKNOWN_ERROR'),
+  errMessage?: string(name='errMessage', description='The error message.', example='Unknown error'),
+  httpStatusCode?: int32(name='httpStatusCode', description='The HTTP status code.', example='200'),
+  requestId?: string(name='requestId', description='The request ID.', example='xxxx-xxxx-xxxx-xxxxxxxx'),
+  success?: boolean(name='success', description='Indicates whether the request was successful.', example='true'),
+}
+
+model ModelRouterCreateMemberSubscriptionResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ModelRouterCreateMemberSubscriptionResponseBody(name='body'),
+}
+
+/**
+ * @summary Creates a balance subscription for a member in an organization.
+ *
+ * @param request ModelRouterCreateMemberSubscriptionRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return ModelRouterCreateMemberSubscriptionResponse
+ */
+@context("modelRouterCreateMemberSubscriptionWithContext")
+async function modelRouterCreateMemberSubscriptionWithOptions(clientId: string, id: string, request: ModelRouterCreateMemberSubscriptionRequest, headers: map[string]string, runtime: $RuntimeOptions): ModelRouterCreateMemberSubscriptionResponse {
+  request.validate();
+  var body : map[string]any = {};
+  if (!$isNull(request.amount)) {
+    body['amount'] = request.amount;
+  }
+  if (!$isNull(request.balanceType)) {
+    body['balanceType'] = request.balanceType;
+  }
+  if (!$isNull(request.effectiveTime)) {
+    body['effectiveTime'] = request.effectiveTime;
+  }
+  if (!$isNull(request.idempotencyKey)) {
+    body['idempotencyKey'] = request.idempotencyKey;
+  }
+
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    headers = headers,
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'ModelRouterCreateMemberSubscription',
+    version = '20240611',
+    protocol = 'HTTPS',
+    pathname = `/api/v1/modelRouter/open/clients/${$URL.percentEncode(clientId)}/members/${$URL.percentEncode(id)}/balance/subscription`,
+    method = 'POST',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Creates a balance subscription for a member in an organization.
+ *
+ * @param request ModelRouterCreateMemberSubscriptionRequest
+ * @return ModelRouterCreateMemberSubscriptionResponse
+ */
+async function modelRouterCreateMemberSubscription(clientId: string, id: string, request: ModelRouterCreateMemberSubscriptionRequest): ModelRouterCreateMemberSubscriptionResponse {
+  var runtime = new $RuntimeOptions{};
+  var headers : map[string]string = {};
+  return modelRouterCreateMemberSubscriptionWithOptions(clientId, id, request, headers, runtime);
+}
+
 model ModelRouterCreateModelRequest {
   apiKey?: string(name='apiKey', description='API Key', example='sk-xxxx'),
   baseUrl?: string(name='baseUrl', description='Base URL', example='https://dashscope.aliyuncs.com'),
@@ -6031,6 +6839,95 @@ async function modelRouterCreateSubscription(id: string, request: ModelRouterCre
   var runtime = new $RuntimeOptions{};
   var headers : map[string]string = {};
   return modelRouterCreateSubscriptionWithOptions(id, request, headers, runtime);
+}
+
+model ModelRouterCreateUserRequest {
+  departmentRoles?: [
+    DepartmentRoleCmd
+  ](name='departmentRoles', description='The department roles to assign to the user during creation. This parameter is optional.', example='[]'),
+  loginName?: string(name='loginName', description='The logon name. This parameter is required. The logon name can be the same as the phone number.
+
+This parameter is required.', example='zhangsan'),
+  name?: string(name='name', description='The name. This parameter is required. The value must be 2 to 20 characters in length.
+
+This parameter is required.', example='John Smith'),
+  phone?: string(name='phone', description='The phone number. This parameter is required.', example='13800000000'),
+}
+
+model ModelRouterCreateUserResponseBody = {
+  data?: {
+    userId?: long(name='userId', description='The user ID. This ID is used as the userId addressing key for subsequent member API operations.', example='30001'),
+  }(name='data', description='The data object.', example='{ "userId": 30001 }'),
+  errCode?: string(name='errCode', description='The fault code.', example='UNKNOWN_ERROR'),
+  errMessage?: string(name='errMessage', description='The error message.', example='Unknown error'),
+  httpStatusCode?: int32(name='httpStatusCode', description='The HTTP status code.', example='200'),
+  requestId?: string(name='requestId', description='The request ID.', example='xxxx-xxxx-xxxx-xxxxxxxx'),
+  success?: boolean(name='success', description='Indicates whether the request was successful.', example='true'),
+}
+
+model ModelRouterCreateUserResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ModelRouterCreateUserResponseBody(name='body'),
+}
+
+/**
+ * @summary Creates a user.
+ *
+ * @description Creates a user.
+ *
+ * @param request ModelRouterCreateUserRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return ModelRouterCreateUserResponse
+ */
+@context("modelRouterCreateUserWithContext")
+async function modelRouterCreateUserWithOptions(request: ModelRouterCreateUserRequest, headers: map[string]string, runtime: $RuntimeOptions): ModelRouterCreateUserResponse {
+  request.validate();
+  var body : map[string]any = {};
+  if (!$isNull(request.departmentRoles)) {
+    body['departmentRoles'] = request.departmentRoles;
+  }
+  if (!$isNull(request.loginName)) {
+    body['loginName'] = request.loginName;
+  }
+  if (!$isNull(request.name)) {
+    body['name'] = request.name;
+  }
+  if (!$isNull(request.phone)) {
+    body['phone'] = request.phone;
+  }
+
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    headers = headers,
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'ModelRouterCreateUser',
+    version = '20240611',
+    protocol = 'HTTPS',
+    pathname = `/api/v1/modelRouter/open/users`,
+    method = 'POST',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Creates a user.
+ *
+ * @description Creates a user.
+ *
+ * @param request ModelRouterCreateUserRequest
+ * @return ModelRouterCreateUserResponse
+ */
+async function modelRouterCreateUser(request: ModelRouterCreateUserRequest): ModelRouterCreateUserResponse {
+  var runtime = new $RuntimeOptions{};
+  var headers : map[string]string = {};
+  return modelRouterCreateUserWithOptions(request, headers, runtime);
 }
 
 model ModelRouterDeleteApiKeyResponseBody = {
@@ -6303,6 +7200,133 @@ async function modelRouterDeleteModelGroup(groupId: string, request: ModelRouter
   return modelRouterDeleteModelGroupWithOptions(groupId, request, headers, runtime);
 }
 
+model ModelRouterDeleteUserRequest {
+}
+
+model ModelRouterDeleteUserResponseBody = {
+  data?: boolean(name='data', description='The data object. This object contains no business data and is always empty.', example='true'),
+  errCode?: string(name='errCode', description='The fault code.', example='UNKNOWN_ERROR'),
+  errMessage?: string(name='errMessage', description='The error message.', example='Unknown error'),
+  httpStatusCode?: int32(name='httpStatusCode', description='The HTTP status code.', example='200'),
+  requestId?: string(name='requestId', description='The request ID.', example='xxxx-xxxx-xxxx-xxxxxxxx'),
+  success?: boolean(name='success', description='Indicates whether the request was successful.', example='true'),
+}
+
+model ModelRouterDeleteUserResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ModelRouterDeleteUserResponseBody(name='body'),
+}
+
+/**
+ * @summary Deletes a user.
+ *
+ * @param request ModelRouterDeleteUserRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return ModelRouterDeleteUserResponse
+ */
+@context("modelRouterDeleteUserWithContext")
+async function modelRouterDeleteUserWithOptions(id: string, request: ModelRouterDeleteUserRequest, headers: map[string]string, runtime: $RuntimeOptions): ModelRouterDeleteUserResponse {
+  request.validate();
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    headers = headers,
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'ModelRouterDeleteUser',
+    version = '20240611',
+    protocol = 'HTTPS',
+    pathname = `/api/v1/modelRouter/open/users/${$URL.percentEncode(id)}`,
+    method = 'DELETE',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Deletes a user.
+ *
+ * @param request ModelRouterDeleteUserRequest
+ * @return ModelRouterDeleteUserResponse
+ */
+async function modelRouterDeleteUser(id: string, request: ModelRouterDeleteUserRequest): ModelRouterDeleteUserResponse {
+  var runtime = new $RuntimeOptions{};
+  var headers : map[string]string = {};
+  return modelRouterDeleteUserWithOptions(id, request, headers, runtime);
+}
+
+model ModelRouterExportMemberBalanceOrdersRequest {
+  balanceType?: string(name='balanceType', description='The balance type filter. Valid values: permanent and monthly.', example='permanent'),
+  direction?: string(name='direction', description='The change direction filter. Valid values: in and out.', example='in'),
+}
+
+model ModelRouterExportMemberBalanceOrdersResponseBody = {
+  data?: ExportTaskDTO(name='data', description='The data object.', example='{}'),
+  errCode?: string(name='errCode', description='The fault code.', example='UNKNOWN_ERROR'),
+  errMessage?: string(name='errMessage', description='The error message.', example='Unknown error'),
+  httpStatusCode?: int32(name='httpStatusCode', description='The HTTP status code.', example='200'),
+  requestId?: string(name='requestId', description='The request ID.', example='xxxx-xxxx-xxxx-xxxxxxxx'),
+  success?: boolean(name='success', description='Indicates whether the request was successful.', example='true'),
+}
+
+model ModelRouterExportMemberBalanceOrdersResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ModelRouterExportMemberBalanceOrdersResponseBody(name='body'),
+}
+
+/**
+ * @summary Exports the balance change records of a member in the organization.
+ *
+ * @param request ModelRouterExportMemberBalanceOrdersRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return ModelRouterExportMemberBalanceOrdersResponse
+ */
+@context("modelRouterExportMemberBalanceOrdersWithContext")
+async function modelRouterExportMemberBalanceOrdersWithOptions(clientId: string, id: string, request: ModelRouterExportMemberBalanceOrdersRequest, headers: map[string]string, runtime: $RuntimeOptions): ModelRouterExportMemberBalanceOrdersResponse {
+  request.validate();
+  var query : map[string]any = {};
+  if (!$isNull(request.balanceType)) {
+    query['balanceType'] = request.balanceType;
+  }
+  if (!$isNull(request.direction)) {
+    query['direction'] = request.direction;
+  }
+
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'ModelRouterExportMemberBalanceOrders',
+    version = '20240611',
+    protocol = 'HTTPS',
+    pathname = `/api/v1/modelRouter/open/clients/${$URL.percentEncode(clientId)}/members/${$URL.percentEncode(id)}/balance/orders/export`,
+    method = 'GET',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Exports the balance change records of a member in the organization.
+ *
+ * @param request ModelRouterExportMemberBalanceOrdersRequest
+ * @return ModelRouterExportMemberBalanceOrdersResponse
+ */
+async function modelRouterExportMemberBalanceOrders(clientId: string, id: string, request: ModelRouterExportMemberBalanceOrdersRequest): ModelRouterExportMemberBalanceOrdersResponse {
+  var runtime = new $RuntimeOptions{};
+  var headers : map[string]string = {};
+  return modelRouterExportMemberBalanceOrdersWithOptions(clientId, id, request, headers, runtime);
+}
+
 model ModelRouterGetClientBalanceRequest {
 }
 
@@ -6451,6 +7475,352 @@ async function modelRouterGetClientBalanceLogs(id: string, request: ModelRouterG
   return modelRouterGetClientBalanceLogsWithOptions(id, request, headers, runtime);
 }
 
+model ModelRouterGetDeptBalanceSummaryRequest {
+}
+
+model ModelRouterGetDeptBalanceSummaryResponseBody = {
+  data?: DeptBalanceSummaryDTO(name='data', example='{}'),
+  errCode?: string(name='errCode', example='UNKNOWN_ERROR'),
+  errMessage?: string(name='errMessage', example='未知错误'),
+  httpStatusCode?: int32(name='httpStatusCode', example='200'),
+  requestId?: string(name='requestId', example='xxxx-xxxx-xxxx-xxxxxxxx'),
+  success?: boolean(name='success', example='true'),
+}
+
+model ModelRouterGetDeptBalanceSummaryResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ModelRouterGetDeptBalanceSummaryResponseBody(name='body'),
+}
+
+/**
+ * @summary 组织管理/获取部门余额概览
+ *
+ * @param request ModelRouterGetDeptBalanceSummaryRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return ModelRouterGetDeptBalanceSummaryResponse
+ */
+@context("modelRouterGetDeptBalanceSummaryWithContext")
+async function modelRouterGetDeptBalanceSummaryWithOptions(id: string, request: ModelRouterGetDeptBalanceSummaryRequest, headers: map[string]string, runtime: $RuntimeOptions): ModelRouterGetDeptBalanceSummaryResponse {
+  request.validate();
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    headers = headers,
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'ModelRouterGetDeptBalanceSummary',
+    version = '20240611',
+    protocol = 'HTTPS',
+    pathname = `/api/v1/modelRouter/open/clients/${$URL.percentEncode(id)}/balance-summary`,
+    method = 'GET',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 组织管理/获取部门余额概览
+ *
+ * @param request ModelRouterGetDeptBalanceSummaryRequest
+ * @return ModelRouterGetDeptBalanceSummaryResponse
+ */
+async function modelRouterGetDeptBalanceSummary(id: string, request: ModelRouterGetDeptBalanceSummaryRequest): ModelRouterGetDeptBalanceSummaryResponse {
+  var runtime = new $RuntimeOptions{};
+  var headers : map[string]string = {};
+  return modelRouterGetDeptBalanceSummaryWithOptions(id, request, headers, runtime);
+}
+
+model ModelRouterGetMemberApiKeysRequest {
+  keyword?: string(name='keyword', description='The search keyword.', example='John'),
+  pageIndex?: int32(name='pageIndex', description='The page number.', example='1'),
+  pageSize?: int32(name='pageSize', description='The number of entries per page.', example='20'),
+}
+
+model ModelRouterGetMemberApiKeysResponseBody = {
+  data?: {
+    list?: [
+      MemberApiKeyDTO
+    ](name='list', description='The list of returned data.', example='[]'),
+    page?: int32(name='page', description='The page number.', example='1'),
+    pageSize?: int32(name='pageSize', description='The number of entries per page.', example='20'),
+    total?: int32(name='total', description='The total number of records.', example='0'),
+  }(name='data', description='The response data object.', example='{}'),
+  errCode?: string(name='errCode', description='The fault code.', example='UNKNOWN_ERROR'),
+  errMessage?: string(name='errMessage', description='The error message.', example='Unknown error'),
+  httpStatusCode?: int32(name='httpStatusCode', description='The HTTP status code.', example='200'),
+  requestId?: string(name='requestId', description='The request ID.', example='xxxx-xxxx-xxxx-xxxxxxxx'),
+  success?: boolean(name='success', description='Indicates whether the request was successful.', example='true'),
+}
+
+model ModelRouterGetMemberApiKeysResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ModelRouterGetMemberApiKeysResponseBody(name='body'),
+}
+
+/**
+ * @summary Retrieves the list of API keys for a member in the organization.
+ *
+ * @param request ModelRouterGetMemberApiKeysRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return ModelRouterGetMemberApiKeysResponse
+ */
+@context("modelRouterGetMemberApiKeysWithContext")
+async function modelRouterGetMemberApiKeysWithOptions(clientId: string, id: string, request: ModelRouterGetMemberApiKeysRequest, headers: map[string]string, runtime: $RuntimeOptions): ModelRouterGetMemberApiKeysResponse {
+  request.validate();
+  var query : map[string]any = {};
+  if (!$isNull(request.keyword)) {
+    query['keyword'] = request.keyword;
+  }
+  if (!$isNull(request.pageIndex)) {
+    query['pageIndex'] = request.pageIndex;
+  }
+  if (!$isNull(request.pageSize)) {
+    query['pageSize'] = request.pageSize;
+  }
+
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'ModelRouterGetMemberApiKeys',
+    version = '20240611',
+    protocol = 'HTTPS',
+    pathname = `/api/v1/modelRouter/open/clients/${$URL.percentEncode(clientId)}/members/${$URL.percentEncode(id)}/apikeys`,
+    method = 'GET',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Retrieves the list of API keys for a member in the organization.
+ *
+ * @param request ModelRouterGetMemberApiKeysRequest
+ * @return ModelRouterGetMemberApiKeysResponse
+ */
+async function modelRouterGetMemberApiKeys(clientId: string, id: string, request: ModelRouterGetMemberApiKeysRequest): ModelRouterGetMemberApiKeysResponse {
+  var runtime = new $RuntimeOptions{};
+  var headers : map[string]string = {};
+  return modelRouterGetMemberApiKeysWithOptions(clientId, id, request, headers, runtime);
+}
+
+model ModelRouterGetMemberBalanceRequest {
+}
+
+model ModelRouterGetMemberBalanceResponseBody = {
+  data?: ClientBalanceDTO(name='data', example='{}'),
+  errCode?: string(name='errCode', example='UNKNOWN_ERROR'),
+  errMessage?: string(name='errMessage', example='未知错误'),
+  httpStatusCode?: int32(name='httpStatusCode', example='200'),
+  requestId?: string(name='requestId', example='xxxx-xxxx-xxxx-xxxxxxxx'),
+  success?: boolean(name='success', example='true'),
+}
+
+model ModelRouterGetMemberBalanceResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ModelRouterGetMemberBalanceResponseBody(name='body'),
+}
+
+/**
+ * @summary 组织管理/获取成员子钱包余额
+ *
+ * @param request ModelRouterGetMemberBalanceRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return ModelRouterGetMemberBalanceResponse
+ */
+@context("modelRouterGetMemberBalanceWithContext")
+async function modelRouterGetMemberBalanceWithOptions(clientId: string, id: string, request: ModelRouterGetMemberBalanceRequest, headers: map[string]string, runtime: $RuntimeOptions): ModelRouterGetMemberBalanceResponse {
+  request.validate();
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    headers = headers,
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'ModelRouterGetMemberBalance',
+    version = '20240611',
+    protocol = 'HTTPS',
+    pathname = `/api/v1/modelRouter/open/clients/${$URL.percentEncode(clientId)}/members/${$URL.percentEncode(id)}/balance`,
+    method = 'GET',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 组织管理/获取成员子钱包余额
+ *
+ * @param request ModelRouterGetMemberBalanceRequest
+ * @return ModelRouterGetMemberBalanceResponse
+ */
+async function modelRouterGetMemberBalance(clientId: string, id: string, request: ModelRouterGetMemberBalanceRequest): ModelRouterGetMemberBalanceResponse {
+  var runtime = new $RuntimeOptions{};
+  var headers : map[string]string = {};
+  return modelRouterGetMemberBalanceWithOptions(clientId, id, request, headers, runtime);
+}
+
+model ModelRouterGetMemberBalanceLogsRequest {
+  changeType?: string(name='changeType', example='recharge'),
+  page?: int32(name='page', example='1'),
+  size?: int32(name='size', example='20'),
+  skipTotal?: boolean(name='skipTotal', example='false'),
+}
+
+model ModelRouterGetMemberBalanceLogsResponseBody = {
+  data?: {
+    list?: [
+      ClientBalanceLogDTO
+    ](name='list', example='[]'),
+    page?: int32(name='page', example='1'),
+    size?: int32(name='size', example='20'),
+    total?: int32(name='total', example='0'),
+  }(name='data', example='{}'),
+  errCode?: string(name='errCode', example='UNKNOWN_ERROR'),
+  errMessage?: string(name='errMessage', example='未知错误'),
+  httpStatusCode?: int32(name='httpStatusCode', example='200'),
+  requestId?: string(name='requestId', example='xxxx-xxxx-xxxx-xxxxxxxx'),
+  success?: boolean(name='success', example='true'),
+}
+
+model ModelRouterGetMemberBalanceLogsResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ModelRouterGetMemberBalanceLogsResponseBody(name='body'),
+}
+
+/**
+ * @summary 组织管理/获取成员余额变更日志
+ *
+ * @param request ModelRouterGetMemberBalanceLogsRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return ModelRouterGetMemberBalanceLogsResponse
+ */
+@context("modelRouterGetMemberBalanceLogsWithContext")
+async function modelRouterGetMemberBalanceLogsWithOptions(clientId: string, id: string, request: ModelRouterGetMemberBalanceLogsRequest, headers: map[string]string, runtime: $RuntimeOptions): ModelRouterGetMemberBalanceLogsResponse {
+  request.validate();
+  var query : map[string]any = {};
+  if (!$isNull(request.changeType)) {
+    query['changeType'] = request.changeType;
+  }
+  if (!$isNull(request.page)) {
+    query['page'] = request.page;
+  }
+  if (!$isNull(request.size)) {
+    query['size'] = request.size;
+  }
+  if (!$isNull(request.skipTotal)) {
+    query['skipTotal'] = request.skipTotal;
+  }
+
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'ModelRouterGetMemberBalanceLogs',
+    version = '20240611',
+    protocol = 'HTTPS',
+    pathname = `/api/v1/modelRouter/open/clients/${$URL.percentEncode(clientId)}/members/${$URL.percentEncode(id)}/balance/logs`,
+    method = 'GET',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 组织管理/获取成员余额变更日志
+ *
+ * @param request ModelRouterGetMemberBalanceLogsRequest
+ * @return ModelRouterGetMemberBalanceLogsResponse
+ */
+async function modelRouterGetMemberBalanceLogs(clientId: string, id: string, request: ModelRouterGetMemberBalanceLogsRequest): ModelRouterGetMemberBalanceLogsResponse {
+  var runtime = new $RuntimeOptions{};
+  var headers : map[string]string = {};
+  return modelRouterGetMemberBalanceLogsWithOptions(clientId, id, request, headers, runtime);
+}
+
+model ModelRouterGetUserRolesRequest {
+}
+
+model ModelRouterGetUserRolesResponseBody = {
+  data?: {
+    departmentRoles?: [
+      UserDepartmentDTO
+    ](name='departmentRoles', description='The list of department role assignments.', example='[]'),
+  }(name='data', description='The response data object.', example='{}'),
+  errCode?: string(name='errCode', description='The error message code.', example='UNKNOWN_ERROR'),
+  errMessage?: string(name='errMessage', description='The error message.', example='Unknown error'),
+  httpStatusCode?: int32(name='httpStatusCode', description='The HTTP status code.', example='200'),
+  requestId?: string(name='requestId', description='The request ID.', example='xxxx-xxxx-xxxx-xxxxxxxx'),
+  success?: boolean(name='success', description='Indicates whether the request was successful.', example='true'),
+}
+
+model ModelRouterGetUserRolesResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ModelRouterGetUserRolesResponseBody(name='body'),
+}
+
+/**
+ * @summary Queries the cross-department role assignments of a user.
+ *
+ * @description Queries the role assignments of a user.
+ *
+ * @param request ModelRouterGetUserRolesRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return ModelRouterGetUserRolesResponse
+ */
+@context("modelRouterGetUserRolesWithContext")
+async function modelRouterGetUserRolesWithOptions(id: string, request: ModelRouterGetUserRolesRequest, headers: map[string]string, runtime: $RuntimeOptions): ModelRouterGetUserRolesResponse {
+  request.validate();
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    headers = headers,
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'ModelRouterGetUserRoles',
+    version = '20240611',
+    protocol = 'HTTPS',
+    pathname = `/api/v1/modelRouter/open/users/${$URL.percentEncode(id)}/roles`,
+    method = 'GET',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Queries the cross-department role assignments of a user.
+ *
+ * @description Queries the role assignments of a user.
+ *
+ * @param request ModelRouterGetUserRolesRequest
+ * @return ModelRouterGetUserRolesResponse
+ */
+async function modelRouterGetUserRoles(id: string, request: ModelRouterGetUserRolesRequest): ModelRouterGetUserRolesResponse {
+  var runtime = new $RuntimeOptions{};
+  var headers : map[string]string = {};
+  return modelRouterGetUserRolesWithOptions(id, request, headers, runtime);
+}
+
 model ModelRouterListBalanceOrdersRequest {
   balanceType?: string(name='balanceType', description='The balance type filter. Valid values: permanent, monthly. If this parameter is left empty, all types are queried.', example='permanent'),
   direction?: string(name='direction', description='The direction filter. Valid values: in (income), out (expenditure). If this parameter is left empty, all directions are queried.', example='in'),
@@ -6551,6 +7921,252 @@ async function modelRouterListBalanceOrders(id: string, request: ModelRouterList
   var runtime = new $RuntimeOptions{};
   var headers : map[string]string = {};
   return modelRouterListBalanceOrdersWithOptions(id, request, headers, runtime);
+}
+
+model ModelRouterListDeptMembersRequest {
+  authConfig?: string(name='authConfig', example='inherit'),
+  includeAuthorization?: boolean(name='includeAuthorization', example='false'),
+  includeBalance?: boolean(name='includeBalance', example='true'),
+  keyword?: string(name='keyword', example='张三'),
+  model?: string(name='model', example='1'),
+  pageIndex?: int32(name='pageIndex', example='1'),
+  pageSize?: int32(name='pageSize', example='20'),
+}
+
+model ModelRouterListDeptMembersResponseBody = {
+  data?: {
+    list?: [
+      DeptMemberDTO
+    ](name='list', example='[]'),
+    page?: int32(name='page', example='1'),
+    pageSize?: int32(name='pageSize', example='20'),
+    total?: int32(name='total', example='0'),
+  }(name='data', example='{}'),
+  errCode?: string(name='errCode', example='UNKNOWN_ERROR'),
+  errMessage?: string(name='errMessage', example='未知错误'),
+  httpStatusCode?: int32(name='httpStatusCode', example='200'),
+  requestId?: string(name='requestId', example='xxxx-xxxx-xxxx-xxxxxxxx'),
+  success?: boolean(name='success', example='true'),
+}
+
+model ModelRouterListDeptMembersResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ModelRouterListDeptMembersResponseBody(name='body'),
+}
+
+/**
+ * @summary 组织管理/获取部门成员列表
+ *
+ * @param request ModelRouterListDeptMembersRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return ModelRouterListDeptMembersResponse
+ */
+@context("modelRouterListDeptMembersWithContext")
+async function modelRouterListDeptMembersWithOptions(id: string, request: ModelRouterListDeptMembersRequest, headers: map[string]string, runtime: $RuntimeOptions): ModelRouterListDeptMembersResponse {
+  request.validate();
+  var query : map[string]any = {};
+  if (!$isNull(request.authConfig)) {
+    query['authConfig'] = request.authConfig;
+  }
+  if (!$isNull(request.includeAuthorization)) {
+    query['includeAuthorization'] = request.includeAuthorization;
+  }
+  if (!$isNull(request.includeBalance)) {
+    query['includeBalance'] = request.includeBalance;
+  }
+  if (!$isNull(request.keyword)) {
+    query['keyword'] = request.keyword;
+  }
+  if (!$isNull(request.model)) {
+    query['model'] = request.model;
+  }
+  if (!$isNull(request.pageIndex)) {
+    query['pageIndex'] = request.pageIndex;
+  }
+  if (!$isNull(request.pageSize)) {
+    query['pageSize'] = request.pageSize;
+  }
+
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'ModelRouterListDeptMembers',
+    version = '20240611',
+    protocol = 'HTTPS',
+    pathname = `/api/v1/modelRouter/open/clients/${$URL.percentEncode(id)}/members`,
+    method = 'GET',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 组织管理/获取部门成员列表
+ *
+ * @param request ModelRouterListDeptMembersRequest
+ * @return ModelRouterListDeptMembersResponse
+ */
+async function modelRouterListDeptMembers(id: string, request: ModelRouterListDeptMembersRequest): ModelRouterListDeptMembersResponse {
+  var runtime = new $RuntimeOptions{};
+  var headers : map[string]string = {};
+  return modelRouterListDeptMembersWithOptions(id, request, headers, runtime);
+}
+
+model ModelRouterListMemberBalanceOrdersRequest {
+  balanceType?: string(name='balanceType', example='permanent'),
+  direction?: string(name='direction', example='in'),
+  orderType?: string(name='orderType', example='recharge'),
+  page?: int32(name='page', example='1'),
+  pageSize?: int32(name='pageSize', example='20'),
+}
+
+model ModelRouterListMemberBalanceOrdersResponseBody = {
+  data?: {
+    list?: [
+      BillOrderEntryDTO
+    ](name='list', example='[]'),
+    page?: int32(name='page', example='1'),
+    size?: int32(name='size', example='20'),
+    total?: int32(name='total', example='0'),
+  }(name='data', example='{}'),
+  errCode?: string(name='errCode', example='UNKNOWN_ERROR'),
+  errMessage?: string(name='errMessage', example='未知错误'),
+  httpStatusCode?: int32(name='httpStatusCode', example='200'),
+  requestId?: string(name='requestId', example='xxxx-xxxx-xxxx-xxxxxxxx'),
+  success?: boolean(name='success', example='true'),
+}
+
+model ModelRouterListMemberBalanceOrdersResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ModelRouterListMemberBalanceOrdersResponseBody(name='body'),
+}
+
+/**
+ * @summary 组织管理/获取成员余额变更记录
+ *
+ * @param request ModelRouterListMemberBalanceOrdersRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return ModelRouterListMemberBalanceOrdersResponse
+ */
+@context("modelRouterListMemberBalanceOrdersWithContext")
+async function modelRouterListMemberBalanceOrdersWithOptions(clientId: string, id: string, request: ModelRouterListMemberBalanceOrdersRequest, headers: map[string]string, runtime: $RuntimeOptions): ModelRouterListMemberBalanceOrdersResponse {
+  request.validate();
+  var query : map[string]any = {};
+  if (!$isNull(request.balanceType)) {
+    query['balanceType'] = request.balanceType;
+  }
+  if (!$isNull(request.direction)) {
+    query['direction'] = request.direction;
+  }
+  if (!$isNull(request.orderType)) {
+    query['orderType'] = request.orderType;
+  }
+  if (!$isNull(request.page)) {
+    query['page'] = request.page;
+  }
+  if (!$isNull(request.pageSize)) {
+    query['pageSize'] = request.pageSize;
+  }
+
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'ModelRouterListMemberBalanceOrders',
+    version = '20240611',
+    protocol = 'HTTPS',
+    pathname = `/api/v1/modelRouter/open/clients/${$URL.percentEncode(clientId)}/members/${$URL.percentEncode(id)}/balance/orders`,
+    method = 'GET',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 组织管理/获取成员余额变更记录
+ *
+ * @param request ModelRouterListMemberBalanceOrdersRequest
+ * @return ModelRouterListMemberBalanceOrdersResponse
+ */
+async function modelRouterListMemberBalanceOrders(clientId: string, id: string, request: ModelRouterListMemberBalanceOrdersRequest): ModelRouterListMemberBalanceOrdersResponse {
+  var runtime = new $RuntimeOptions{};
+  var headers : map[string]string = {};
+  return modelRouterListMemberBalanceOrdersWithOptions(clientId, id, request, headers, runtime);
+}
+
+model ModelRouterListMemberSubscriptionsRequest {
+}
+
+model ModelRouterListMemberSubscriptionsResponseBody = {
+  data?: {
+    list?: [
+      SubscriptionDTO
+    ](name='list', example='[]'),
+  }(name='data', example='{}'),
+  errCode?: string(name='errCode', example='UNKNOWN_ERROR'),
+  errMessage?: string(name='errMessage', example='未知错误'),
+  httpStatusCode?: int32(name='httpStatusCode', example='200'),
+  requestId?: string(name='requestId', example='xxxx-xxxx-xxxx-xxxxxxxx'),
+  success?: boolean(name='success', example='true'),
+}
+
+model ModelRouterListMemberSubscriptionsResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ModelRouterListMemberSubscriptionsResponseBody(name='body'),
+}
+
+/**
+ * @summary 组织管理/获取成员订阅列表
+ *
+ * @param request ModelRouterListMemberSubscriptionsRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return ModelRouterListMemberSubscriptionsResponse
+ */
+@context("modelRouterListMemberSubscriptionsWithContext")
+async function modelRouterListMemberSubscriptionsWithOptions(clientId: string, id: string, request: ModelRouterListMemberSubscriptionsRequest, headers: map[string]string, runtime: $RuntimeOptions): ModelRouterListMemberSubscriptionsResponse {
+  request.validate();
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    headers = headers,
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'ModelRouterListMemberSubscriptions',
+    version = '20240611',
+    protocol = 'HTTPS',
+    pathname = `/api/v1/modelRouter/open/clients/${$URL.percentEncode(clientId)}/members/${$URL.percentEncode(id)}/balance/subscription`,
+    method = 'GET',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 组织管理/获取成员订阅列表
+ *
+ * @param request ModelRouterListMemberSubscriptionsRequest
+ * @return ModelRouterListMemberSubscriptionsResponse
+ */
+async function modelRouterListMemberSubscriptions(clientId: string, id: string, request: ModelRouterListMemberSubscriptionsRequest): ModelRouterListMemberSubscriptionsResponse {
+  var runtime = new $RuntimeOptions{};
+  var headers : map[string]string = {};
+  return modelRouterListMemberSubscriptionsWithOptions(clientId, id, request, headers, runtime);
 }
 
 model ModelRouterListSubscriptionsRequest {
@@ -6693,17 +8309,19 @@ async function modelRouterQueryApiKey(id: string): ModelRouterQueryApiKeyRespons
 }
 
 model ModelRouterQueryApiKeyListRequest {
-  clientId?: long(name='clientId', description='Filters the results by the specified client ID.', example='1'),
-  groupBy?: string(name='groupBy', description='The grouping field.', example='resourceId'),
+  clientId?: long(name='clientId', description='The client ID used to filter the results.', example='1'),
+  groupBy?: string(name='groupBy', description='The field by which to group the results.', example='resourceId'),
+  includeMemberKeys?: boolean(name='includeMemberKeys', description='Optional. If set to true, the keys of members under the department are also included when filtering by department.', example='true'),
   keyword?: string(name='keyword', description='The search keyword.', example='test'),
   maxResults?: int32(name='maxResults', description='The maximum number of results to return.', example='10'),
-  needTotalCount?: boolean(name='needTotalCount', description='Specifies whether to return the total count of results.', example='true'),
-  nextToken?: string(name='nextToken', description='The token for retrieving the next page of results. An empty value indicates that all results have been returned.', example='1'),
-  orderBy?: string(name='orderBy', description='The sort field.', example='resourceId'),
-  orderDirection?: string(name='orderDirection', description='The sort order.', example='DESC'),
-  pageIndex?: int32(name='pageIndex', description='The page number to retrieve.', example='1'),
-  pageSize?: int32(name='pageSize', description='The number of results per page.', example='10'),
-  status?: int32(name='status', description='Filters the results by the specified status.', example='1'),
+  memberUserIds?: string(name='memberUserIds', description='Optional. Filters by member IDs. Separate multiple member IDs with commas. If this parameter is not specified, the department and all its members are included. If an empty value is specified, only the department is included without members.', example='30001,30002'),
+  needTotalCount?: boolean(name='needTotalCount', description='Specifies whether to return the total count.', example='true'),
+  nextToken?: string(name='nextToken', description='The pagination token. An empty value indicates that no more pages are available.', example='1'),
+  orderBy?: string(name='orderBy', description='The field by which to sort the results.', example='resourceId'),
+  orderDirection?: string(name='orderDirection', description='The sort direction.', example='DESC'),
+  pageIndex?: int32(name='pageIndex', description='The page number.', example='1'),
+  pageSize?: int32(name='pageSize', description='The number of entries per page.', example='10'),
+  status?: int32(name='status', description='The status used to filter the results.', example='1'),
 }
 
 model ModelRouterQueryApiKeyListResponseBody = {
@@ -6716,11 +8334,11 @@ model ModelRouterQueryApiKeyListResponseBody = {
     page?: int32(name='page', example='1'),
     pageSize?: int32(name='pageSize', example='10'),
     total?: int32(name='total', example='0'),
-  }(name='data', description='An array of API key objects.', example='[]'),
-  errCode?: string(name='errCode', description='The error code.', example='UNKNOWN_ERROR'),
-  errMessage?: string(name='errMessage', description='The error message.', example='未知错误'),
+  }(name='data', description='The data object.', example='[]'),
+  errCode?: string(name='errCode', description='The error message code.', example='UNKNOWN_ERROR'),
+  errMessage?: string(name='errMessage', description='The error message.', example='Unknown error'),
   httpStatusCode?: int32(name='httpStatusCode', description='The HTTP status code.', example='200'),
-  maxResults?: int32(name='maxResults', description='The maximum number of results per page.', example='10'),
+  maxResults?: int32(name='maxResults', description='maxResults', example='10'),
   requestId?: string(name='requestId', description='The request ID.', example='xxxx-xxxx-xxxx-xxxxxxxx'),
   success?: boolean(name='success', description='Indicates whether the request was successful.', example='true'),
 }
@@ -6749,11 +8367,17 @@ async function modelRouterQueryApiKeyListWithOptions(request: ModelRouterQueryAp
   if (!$isNull(request.groupBy)) {
     query['groupBy'] = request.groupBy;
   }
+  if (!$isNull(request.includeMemberKeys)) {
+    query['includeMemberKeys'] = request.includeMemberKeys;
+  }
   if (!$isNull(request.keyword)) {
     query['keyword'] = request.keyword;
   }
   if (!$isNull(request.maxResults)) {
     query['maxResults'] = request.maxResults;
+  }
+  if (!$isNull(request.memberUserIds)) {
+    query['memberUserIds'] = request.memberUserIds;
   }
   if (!$isNull(request.needTotalCount)) {
     query['needTotalCount'] = request.needTotalCount;
@@ -6808,32 +8432,36 @@ async function modelRouterQueryApiKeyList(request: ModelRouterQueryApiKeyListReq
 }
 
 model ModelRouterQueryBillingCostBreakdownRequest {
-  apiKeyId?: long(name='apiKeyId', example='100'),
-  clientId?: long(name='clientId', description='The ID of the client to query. If not specified, data for all clients is returned.', example='5'),
-  endTime?: long(name='endTime', description='The end time for the query, specified as a Unix timestamp in seconds.
+  apiKeyId?: long(name='apiKeyId', description='Optional. Filters results by API key ID. This parameter is linked with the department. Specify clientId first.', example='100'),
+  clientId?: long(name='clientId', description='Optional. Filters results by department ID.', example='5'),
+  endTime?: long(name='endTime', description='The query end time, in UNIX timestamp (seconds).
 
 This parameter is required.', example='1700086400'),
-  granularity?: string(name='granularity', description='The granularity for data aggregation. Valid values: `hourly` and `daily`.
+  granularity?: string(name='granularity', description='The aggregation granularity. Valid values:
+
+- hourly
+- daily
 
 This parameter is required.', example='hourly'),
-  maxResults?: int32(name='maxResults', description='The maximum number of results to return. This parameter is used for pagination along with `nextToken` and is mutually exclusive with `page` and `pageSize`.', example='20'),
-  modelId?: long(name='modelId', description='The ID of the model to query. If not specified, data for all models is returned.', example='12'),
-  modelTypes?: string(name='modelTypes', description='The types of the models to query, separated by commas. For example: `Chat,Embedding`. If not specified, data for all model types is returned.', example='Chat'),
-  nextToken?: string(name='nextToken', description='The pagination token that is used to retrieve the next page of results.', example='xxxx-xxx-xxxxx'),
-  page?: int32(name='page', description='The page number. Default: 1.', example='1'),
-  pageSize?: int32(name='pageSize', description='The number of entries per page. Default: 20. Maximum: 500.', example='20'),
-  startTime?: long(name='startTime', description='The start time for the query, specified as a Unix timestamp in seconds.
+  maxResults?: int32(name='maxResults', description='The maximum number of results to return.', example='20'),
+  memberUserIds?: string(name='memberUserIds', description='Optional. Filters results by member ID. Separate multiple values with commas. If not specified, the department and all its members are included. If an empty value is specified, only the department is included without members.', example='30001,30002'),
+  modelId?: long(name='modelId', description='Optional. Filters results by model ID.', example='12'),
+  modelTypes?: string(name='modelTypes', description='Optional. Filters results by model type. Separate multiple values with commas.', example='Chat'),
+  nextToken?: string(name='nextToken', description='The pagination token.', example='xxxx-xxx-xxxxx'),
+  page?: int32(name='page', description='The page number. Default value: 1.', example='1'),
+  pageSize?: int32(name='pageSize', description='The number of entries per page. Default value: 20. Maximum value: 500.', example='20'),
+  startTime?: long(name='startTime', description='The query start time, in UNIX timestamp (seconds).
 
 This parameter is required.', example='1700000000'),
 }
 
 model ModelRouterQueryBillingCostBreakdownResponseBody = {
-  data?: BillingCostBreakdownRespDTO(name='data', description='The data object containing the billing breakdown. For details, see the response example.', example='{}'),
-  errCode?: string(name='errCode', description='The error code.', example='UNKNOWN_ERROR'),
-  errMessage?: string(name='errMessage', description='The error message.', example='未知错误'),
+  data?: BillingCostBreakdownRespDTO(name='data', description='The data object.', example='{}'),
+  errCode?: string(name='errCode', description='The error message code.', example='UNKNOWN_ERROR'),
+  errMessage?: string(name='errMessage', description='The error message.', example='Unknown error'),
   httpStatusCode?: int32(name='httpStatusCode', description='The HTTP status code.', example='200'),
-  maxResults?: int32(name='maxResults', description='The maximum number of results returned.', example='20'),
-  nextToken?: string(name='nextToken', description='The pagination token. If this parameter is not empty, pass its value in a subsequent request to retrieve the next page of results.', example='xxxx-xxx-xxxxx'),
+  maxResults?: int32(name='maxResults', description='The maximum number of results to return.', example='20'),
+  nextToken?: string(name='nextToken', description='The pagination token.', example='xxxx-xxx-xxxxx'),
   requestId?: string(name='requestId', description='The request ID.', example='xxxx-xxxx-xxxx-xxxxxxxx'),
   success?: boolean(name='success', description='Indicates whether the request was successful.', example='true'),
 }
@@ -6845,7 +8473,7 @@ model ModelRouterQueryBillingCostBreakdownResponse = {
 }
 
 /**
- * @summary Billing > Query billing cost breakdown
+ * @summary Queries billing details in batches.
  *
  * @param request ModelRouterQueryBillingCostBreakdownRequest
  * @param headers map
@@ -6870,6 +8498,9 @@ async function modelRouterQueryBillingCostBreakdownWithOptions(request: ModelRou
   }
   if (!$isNull(request.maxResults)) {
     query['maxResults'] = request.maxResults;
+  }
+  if (!$isNull(request.memberUserIds)) {
+    query['memberUserIds'] = request.memberUserIds;
   }
   if (!$isNull(request.modelId)) {
     query['modelId'] = request.modelId;
@@ -6909,7 +8540,7 @@ async function modelRouterQueryBillingCostBreakdownWithOptions(request: ModelRou
 }
 
 /**
- * @summary Billing > Query billing cost breakdown
+ * @summary Queries billing details in batches.
  *
  * @param request ModelRouterQueryBillingCostBreakdownRequest
  * @return ModelRouterQueryBillingCostBreakdownResponse
@@ -7134,6 +8765,7 @@ model ModelRouterQueryClientListRequest {
   orderDirection?: string(name='orderDirection', description='The sort direction.', example='DESC'),
   pageIndex?: int32(name='pageIndex', description='The page number of the results to return. The first page is 1.', example='1'),
   pageSize?: int32(name='pageSize', description='The number of entries to return per page.', example='10'),
+  parentId?: long(name='parentId', example='1'),
   status?: int32(name='status', description='Filters the results by status.', example='1'),
 }
 
@@ -7199,6 +8831,9 @@ async function modelRouterQueryClientListWithOptions(request: ModelRouterQueryCl
   }
   if (!$isNull(request.pageSize)) {
     query['pageSize'] = request.pageSize;
+  }
+  if (!$isNull(request.parentId)) {
+    query['parentId'] = request.parentId;
   }
   if (!$isNull(request.status)) {
     query['status'] = request.status;
@@ -7470,31 +9105,32 @@ async function modelRouterQueryConversationList(request: ModelRouterQueryConvers
 }
 
 model ModelRouterQueryCostModelDetailRequest {
-  apiKeyId?: long(name='apiKeyId', example='100'),
-  clientId?: long(name='clientId', description='The department ID by which to filter results.', example='1'),
-  endTime?: long(name='endTime', description='The end of the time range to query, specified as a Unix timestamp in seconds.
+  apiKeyId?: long(name='apiKeyId', description='Optional. Filters by API Key ID. This parameter is linked to the department and requires clientId to be specified first.', example='100'),
+  clientId?: long(name='clientId', description='The department ID used to filter results.', example='1'),
+  endTime?: long(name='endTime', description='The end time, in UNIX timestamp (seconds).
 
 This parameter is required.', example='1700086400'),
-  maxResults?: int32(name='maxResults', description='The maximum number of results to return per page. This parameter is recommended for pagination.', example='10'),
+  maxResults?: int32(name='maxResults', description='maxResults', example='10'),
+  memberUserIds?: string(name='memberUserIds', description='Optional. Filters by member IDs. Separate multiple IDs with commas. If not specified, the department and all its members are included. If an empty value is specified, only the department is included without members.', example='30001,30002'),
   modelId?: long(name='modelId', description='The model ID.
 
 This parameter is required.', example='1'),
-  nextToken?: string(name='nextToken', description='The token to retrieve the next page of results. Obtain this token from the `nextToken` field in a previous response.', example='xxxx-xxx-xxxxx'),
-  page?: int32(name='page', description='The page number. This parameter is part of an older pagination method. For better performance and consistency, use `maxResults` and `nextToken` instead.', example='1'),
-  pageIndex?: int32(name='pageIndex', description='The page number. This parameter is part of an older pagination method. For better performance and consistency, use `maxResults` and `nextToken` instead.', example='1'),
-  pageSize?: int32(name='pageSize', description='The page size. Default: 20.', example='20'),
-  startTime?: long(name='startTime', description='The start of the time range to query, specified as a Unix timestamp in seconds.
+  nextToken?: string(name='nextToken', description='nextToken', example='xxxx-xxx-xxxxx'),
+  page?: int32(name='page', description='The page number. Default value: 1.', example='1'),
+  pageIndex?: int32(name='pageIndex', description='The page number. This parameter takes priority over the page parameter.', example='1'),
+  pageSize?: int32(name='pageSize', description='The number of entries per page. Default value: 20.', example='20'),
+  startTime?: long(name='startTime', description='The start time, in UNIX timestamp (seconds).
 
 This parameter is required.', example='1700000000'),
 }
 
 model ModelRouterQueryCostModelDetailResponseBody = {
   data?: CostModelDetailRespDTO(name='data', description='The data object.', example='[]'),
-  errCode?: string(name='errCode', description='The error code.', example='UNKNOWN_ERROR'),
-  errMessage?: string(name='errMessage', description='The error message.', example='未知错误'),
+  errCode?: string(name='errCode', description='The fault code.', example='UNKNOWN_ERROR'),
+  errMessage?: string(name='errMessage', description='The error message.', example='Unknown error'),
   httpStatusCode?: int32(name='httpStatusCode', description='The HTTP status code.', example='200'),
-  maxResults?: int32(name='maxResults', description='The maximum number of results returned on the current page.', example='10'),
-  nextToken?: string(name='nextToken', description='The token for the next page of results. If this field is empty, you have reached the end of the results.', example='xxxx-xxx-xxxxx'),
+  maxResults?: int32(name='maxResults', description='The maximum number of results.', example='10'),
+  nextToken?: string(name='nextToken', description='nextToken', example='xxxx-xxx-xxxxx'),
   requestId?: string(name='requestId', description='The request ID.', example='xxxx-xxxx-xxxx-xxxxxxxx'),
   success?: boolean(name='success', description='Indicates whether the request was successful.', example='true'),
 }
@@ -7506,7 +9142,7 @@ model ModelRouterQueryCostModelDetailResponse = {
 }
 
 /**
- * @summary billing management / Model details
+ * @summary Retrieves the usage details of a model for billing management.
  *
  * @param request ModelRouterQueryCostModelDetailRequest
  * @param headers map
@@ -7528,6 +9164,9 @@ async function modelRouterQueryCostModelDetailWithOptions(request: ModelRouterQu
   }
   if (!$isNull(request.maxResults)) {
     query['maxResults'] = request.maxResults;
+  }
+  if (!$isNull(request.memberUserIds)) {
+    query['memberUserIds'] = request.memberUserIds;
   }
   if (!$isNull(request.modelId)) {
     query['modelId'] = request.modelId;
@@ -7567,7 +9206,7 @@ async function modelRouterQueryCostModelDetailWithOptions(request: ModelRouterQu
 }
 
 /**
- * @summary billing management / Model details
+ * @summary Retrieves the usage details of a model for billing management.
  *
  * @param request ModelRouterQueryCostModelDetailRequest
  * @return ModelRouterQueryCostModelDetailResponse
@@ -7579,28 +9218,29 @@ async function modelRouterQueryCostModelDetail(request: ModelRouterQueryCostMode
 }
 
 model ModelRouterQueryCostModelListRequest {
-  apiKeyId?: long(name='apiKeyId', example='100'),
-  clientId?: long(name='clientId', description='The department ID to filter the results.', example='1'),
-  endTime?: long(name='endTime', description='The query\\\\"s end time, specified as a UNIX timestamp in seconds.
+  apiKeyId?: long(name='apiKeyId', description='Optional. Filters results by API key ID. This parameter works in conjunction with the department and requires clientId to be specified first.', example='100'),
+  clientId?: long(name='clientId', description='Filters results by department ID.', example='1'),
+  endTime?: long(name='endTime', description='The end time, as a UNIX timestamp in seconds.
 
 This parameter is required.', example='1700086400'),
-  granularity?: string(name='granularity', description='The time granularity for data aggregation. Valid values: `hourly` and `daily`. Default value: `hourly`.', example='hourly'),
-  maxResults?: int32(name='maxResults', description='The maximum number of results per page.', example='10'),
-  modelTypes?: string(name='modelTypes', description='The model types to query. Separate multiple types with a comma.', example='LLM,VL'),
-  nextToken?: string(name='nextToken', description='A token from a previous response used to retrieve the next page of results.', example='xxxx-xxx-xxxxx'),
-  search?: string(name='search', description='A keyword for a fuzzy search on the model name or model code.', example='qwen'),
-  startTime?: long(name='startTime', description='The query\\\\"s start time, specified as a UNIX timestamp in seconds.
+  granularity?: string(name='granularity', description='Automatic aggregation. You do not need to pass this parameter. Granularity: hourly/daily. Default value: hourly.', example='hourly'),
+  maxResults?: int32(name='maxResults', description='The maximum number of results to return.', example='10'),
+  memberUserIds?: string(name='memberUserIds', description='Optional. Filters results by member IDs, separated by commas. If not specified, the department and all its members are included. If an empty value is passed, only the department is included without members.', example='30001,30002'),
+  modelTypes?: string(name='modelTypes', description='The model types, separated by commas.', example='LLM,VL'),
+  nextToken?: string(name='nextToken', description='nextToken', example='xxxx-xxx-xxxxx'),
+  search?: string(name='search', description='Performs a fuzzy match on the model name or code.', example='qwen'),
+  startTime?: long(name='startTime', description='The start time, as a UNIX timestamp in seconds.
 
 This parameter is required.', example='1700000000'),
 }
 
 model ModelRouterQueryCostModelListResponseBody = {
   data?: CostQueryModelsDTO(name='data', description='The data object.', example='[]'),
-  errCode?: string(name='errCode', description='The error code.', example='UNKNOWN_ERROR'),
-  errMessage?: string(name='errMessage', description='The error message.', example='未知错误'),
+  errCode?: string(name='errCode', description='The fault code.', example='UNKNOWN_ERROR'),
+  errMessage?: string(name='errMessage', description='The error message.', example='Unknown error'),
   httpStatusCode?: int32(name='httpStatusCode', description='The HTTP status code.', example='200'),
-  maxResults?: int32(name='maxResults', description='The number of results returned on the current page.', example='10'),
-  nextToken?: string(name='nextToken', description='The token for retrieving the next page of results. If this parameter is not returned, all results have been returned.', example='xxxx-xxx-xxxxx'),
+  maxResults?: int32(name='maxResults', description='The maximum number of results to return.', example='10'),
+  nextToken?: string(name='nextToken', description='nextToken', example='xxxx-xxx-xxxxx'),
   requestId?: string(name='requestId', description='The request ID.', example='xxxx-xxxx-xxxx-xxxxxxxx'),
   success?: boolean(name='success', description='Indicates whether the request was successful.', example='true'),
 }
@@ -7612,7 +9252,7 @@ model ModelRouterQueryCostModelListResponse = {
 }
 
 /**
- * @summary billing management / Retrieves a list of invoked models
+ * @summary Retrieves the list of models called for billing management.
  *
  * @param request ModelRouterQueryCostModelListRequest
  * @param headers map
@@ -7637,6 +9277,9 @@ async function modelRouterQueryCostModelListWithOptions(request: ModelRouterQuer
   }
   if (!$isNull(request.maxResults)) {
     query['maxResults'] = request.maxResults;
+  }
+  if (!$isNull(request.memberUserIds)) {
+    query['memberUserIds'] = request.memberUserIds;
   }
   if (!$isNull(request.modelTypes)) {
     query['modelTypes'] = request.modelTypes;
@@ -7670,7 +9313,7 @@ async function modelRouterQueryCostModelListWithOptions(request: ModelRouterQuer
 }
 
 /**
- * @summary billing management / Retrieves a list of invoked models
+ * @summary Retrieves the list of models called for billing management.
  *
  * @param request ModelRouterQueryCostModelListRequest
  * @return ModelRouterQueryCostModelListResponse
@@ -7682,16 +9325,17 @@ async function modelRouterQueryCostModelList(request: ModelRouterQueryCostModelL
 }
 
 model ModelRouterQueryCostOverviewMetricsRequest {
-  apiKeyId?: long(name='apiKeyId', example='100'),
-  clientId?: long(name='clientId', description='The department ID used to filter the results.', example='1'),
-  endTime?: long(name='endTime', description='The end time for the query, specified as a Unix timestamp in seconds.
+  apiKeyId?: long(name='apiKeyId', description='Optional. Filters by API key ID. This parameter works in conjunction with the department and requires clientId to be specified first.', example='100'),
+  clientId?: long(name='clientId', description='The department ID used to filter results.', example='1'),
+  endTime?: long(name='endTime', description='The end time, as a UNIX timestamp in seconds.
 
 This parameter is required.', example='1700086400'),
-  granularity?: string(name='granularity', description='The granularity of the data. Valid values: `hourly` and `daily`. Default value: `hourly`.', example='hourly'),
-  maxResults?: int32(name='maxResults', description='The maximum number of results to return in a single request.', example='10'),
-  modelTypes?: string(name='modelTypes', description='The model types to query. Separate multiple types with commas.', example='LLM,VL'),
-  nextToken?: string(name='nextToken', description='The token to retrieve the next page of results. If you do not specify this parameter, the first page of results is returned.', example='xxxx-xxx-xxxxx'),
-  startTime?: long(name='startTime', description='The start time for the query, specified as a Unix timestamp in seconds.
+  granularity?: string(name='granularity', description='Automatically aggregated. No input required. The granularity of the data. Valid values: hourly and daily. Default value: hourly.', example='hourly'),
+  maxResults?: int32(name='maxResults', description='The maximum number of results to return.', example='10'),
+  memberUserIds?: string(name='memberUserIds', description='Optional. Filters by members (member IDs, separated by commas). If not specified, the department and all its members are included. If an empty value is specified, only the department is included without members.', example='30001,30002'),
+  modelTypes?: string(name='modelTypes', description='The model types, separated by commas.', example='LLM,VL'),
+  nextToken?: string(name='nextToken', description='nextToken', example='xxxx-xxx-xxxxx'),
+  startTime?: long(name='startTime', description='The start time, as a UNIX timestamp in seconds.
 
 This parameter is required.', example='1700000000'),
 }
@@ -7699,12 +9343,12 @@ This parameter is required.', example='1700000000'),
 model ModelRouterQueryCostOverviewMetricsResponseBody = {
   data?: [
     MetricValueDTO
-  ](name='data', description='The data object that contains the returned metrics.', example='[]'),
-  errCode?: string(name='errCode', description='The error code that is returned if the request fails.', example='UNKNOWN_ERROR'),
-  errMessage?: string(name='errMessage', description='The error message that is returned if the request fails.', example='未知错误'),
+  ](name='data', description='The data object.', example='[]'),
+  errCode?: string(name='errCode', description='The fault code.', example='UNKNOWN_ERROR'),
+  errMessage?: string(name='errMessage', description='The error message.', example='Unknown error'),
   httpStatusCode?: int32(name='httpStatusCode', description='The HTTP status code.', example='200'),
-  maxResults?: int32(name='maxResults', description='The maximum number of entries returned on each page.', example='10'),
-  nextToken?: string(name='nextToken', description='The token to retrieve the next page of results.', example='xxxx-xxx-xxxxx'),
+  maxResults?: int32(name='maxResults', description='The maximum number of results to return.', example='10'),
+  nextToken?: string(name='nextToken', description='nextToken', example='xxxx-xxx-xxxxx'),
   requestId?: string(name='requestId', description='The request ID.', example='xxxx-xxxx-xxxx-xxxxxxxx'),
   success?: boolean(name='success', description='Indicates whether the request was successful.', example='true'),
 }
@@ -7716,7 +9360,7 @@ model ModelRouterQueryCostOverviewMetricsResponse = {
 }
 
 /**
- * @summary billing management / Get cost overview metrics
+ * @summary Retrieves cost overview metrics for billing management.
  *
  * @param request ModelRouterQueryCostOverviewMetricsRequest
  * @param headers map
@@ -7741,6 +9385,9 @@ async function modelRouterQueryCostOverviewMetricsWithOptions(request: ModelRout
   }
   if (!$isNull(request.maxResults)) {
     query['maxResults'] = request.maxResults;
+  }
+  if (!$isNull(request.memberUserIds)) {
+    query['memberUserIds'] = request.memberUserIds;
   }
   if (!$isNull(request.modelTypes)) {
     query['modelTypes'] = request.modelTypes;
@@ -7771,7 +9418,7 @@ async function modelRouterQueryCostOverviewMetricsWithOptions(request: ModelRout
 }
 
 /**
- * @summary billing management / Get cost overview metrics
+ * @summary Retrieves cost overview metrics for billing management.
  *
  * @param request ModelRouterQueryCostOverviewMetricsRequest
  * @return ModelRouterQueryCostOverviewMetricsResponse
@@ -7783,29 +9430,35 @@ async function modelRouterQueryCostOverviewMetrics(request: ModelRouterQueryCost
 }
 
 model ModelRouterQueryCostTrendMetricsRequest {
-  apiKeyId?: long(name='apiKeyId', example='100'),
-  clientId?: long(name='clientId', description='Filters the results by department ID.', example='1'),
-  endTime?: long(name='endTime', description='The end time of the query, specified as a Unix timestamp in seconds.
+  apiKeyId?: long(name='apiKeyId', description='Optional. Filters results by API Key ID. This parameter works in conjunction with the department and requires clientId to be specified first.', example='100'),
+  clientId?: long(name='clientId', description='Filters results by department ID.', example='1'),
+  endTime?: long(name='endTime', description='The end time, in UNIX timestamp format (seconds).
 
 This parameter is required.', example='1700086400'),
-  granularity?: string(name='granularity', description='The granularity of the data. Valid values: `hourly` and `daily`. Default: `hourly`.', example='hourly'),
-  maxResults?: int32(name='maxResults', description='The maximum number of results to return per page.', example='10'),
-  modelTypes?: string(name='modelTypes', description='The model types to query, separated by commas.', example='LLM,VL'),
-  nextToken?: string(name='nextToken', description='The pagination token from a previous response to retrieve the next page of results. If this parameter is omitted, the first page of results is returned.', example='xxxx-xxx-xxxxx'),
-  startTime?: long(name='startTime', description='The start time of the query, specified as a Unix timestamp in seconds.
+  granularity?: string(name='granularity', description='The time granularity. Valid values:
+
+- hourly
+- daily
+
+Default value: hourly.', example='hourly'),
+  maxResults?: int32(name='maxResults', description='The maximum number of results to return.', example='10'),
+  memberUserIds?: string(name='memberUserIds', description='Optional. Filters results by members (member IDs, separated by commas). If not specified, the department and all its members are included. If an empty value is specified, only the department is included without members.', example='30001,30002'),
+  modelTypes?: string(name='modelTypes', description='The model types, separated by commas.', example='LLM,VL'),
+  nextToken?: string(name='nextToken', description='nextToken', example='xxxx-xxx-xxxxx'),
+  startTime?: long(name='startTime', description='The start time, in UNIX timestamp format (seconds).
 
 This parameter is required.', example='1700000000'),
 }
 
 model ModelRouterQueryCostTrendMetricsResponseBody = {
-  data?: CostQueryTrendDTO(name='data', description='The data object containing the cost trend metrics.', example='[]'),
-  errCode?: string(name='errCode', description='The error code returned when the request fails.', example='UNKNOWN_ERROR'),
-  errMessage?: string(name='errMessage', description='The error message returned when the request fails.', example='未知错误'),
+  data?: CostQueryTrendDTO(name='data', description='The data object.', example='[]'),
+  errCode?: string(name='errCode', description='The fault code.', example='UNKNOWN_ERROR'),
+  errMessage?: string(name='errMessage', description='The error message.', example='Unknown error'),
   httpStatusCode?: int32(name='httpStatusCode', description='The HTTP status code.', example='200'),
-  maxResults?: int32(name='maxResults', description='The maximum number of results returned per page.', example='10'),
-  nextToken?: string(name='nextToken', description='A token to retrieve the next page of results. If no token is returned, all results have been retrieved.', example='xxxx-xxx-xxxxx'),
-  requestId?: string(name='requestId', description='The unique request ID. If you encounter a problem, provide this ID to technical support for troubleshooting.', example='xxxx-xxxx-xxxx-xxxxxxxx'),
-  success?: boolean(name='success', description='Indicates whether the request was successful. A value of `true` indicates success, and `false` indicates failure.', example='true'),
+  maxResults?: int32(name='maxResults', description='The maximum number of results to return.', example='10'),
+  nextToken?: string(name='nextToken', description='nextToken', example='xxxx-xxx-xxxxx'),
+  requestId?: string(name='requestId', description='The request ID.', example='xxxx-xxxx-xxxx-xxxxxxxx'),
+  success?: boolean(name='success', description='Indicates whether the request was successful.', example='true'),
 }
 
 model ModelRouterQueryCostTrendMetricsResponse = {
@@ -7815,7 +9468,7 @@ model ModelRouterQueryCostTrendMetricsResponse = {
 }
 
 /**
- * @summary billing management / Cost trends
+ * @summary Retrieves usage cost trends.
  *
  * @param request ModelRouterQueryCostTrendMetricsRequest
  * @param headers map
@@ -7840,6 +9493,9 @@ async function modelRouterQueryCostTrendMetricsWithOptions(request: ModelRouterQ
   }
   if (!$isNull(request.maxResults)) {
     query['maxResults'] = request.maxResults;
+  }
+  if (!$isNull(request.memberUserIds)) {
+    query['memberUserIds'] = request.memberUserIds;
   }
   if (!$isNull(request.modelTypes)) {
     query['modelTypes'] = request.modelTypes;
@@ -7870,7 +9526,7 @@ async function modelRouterQueryCostTrendMetricsWithOptions(request: ModelRouterQ
 }
 
 /**
- * @summary billing management / Cost trends
+ * @summary Retrieves usage cost trends.
  *
  * @param request ModelRouterQueryCostTrendMetricsRequest
  * @return ModelRouterQueryCostTrendMetricsResponse
@@ -8277,12 +9933,103 @@ async function modelRouterQueryModelGroupModels(groupId: string, request: ModelR
   return modelRouterQueryModelGroupModelsWithOptions(groupId, request, headers, runtime);
 }
 
+model ModelRouterQueryModelGroupUsersRequest {
+  maxResults?: int32(name='maxResults', description='The maximum number of results.', example='10'),
+  nextToken?: string(name='nextToken', description='An unused parameter.', example='xxxx-xxx-xxxxx'),
+  pageIndex?: int32(name='pageIndex', description='The page number.', example='1'),
+  pageSize?: int32(name='pageSize', description='The number of entries per page.', example='20'),
+}
+
+model ModelRouterQueryModelGroupUsersResponseBody = {
+  data?: {
+    list?: [
+      ModelGroupUserDTO
+    ](name='list', description='The bound users.'),
+    page?: int32(name='page', description='The requested page.', example='1'),
+    pageSize?: int32(name='pageSize', description='The number of entries per page.', example='20'),
+    total?: int32(name='total', description='The total number of records.', example='None'),
+  }(name='data', description='The response data struct.'),
+  errCode?: string(name='errCode', description='The fault code.', example='B_USER_NOT_FOUND_EXCEPTION'),
+  errMessage?: string(name='errMessage', description='The error message.', example='null'),
+  httpStatusCode?: int32(name='httpStatusCode', description='The HTTP status code.', example='200'),
+  maxResults?: int32(name='maxResults', description='The maximum number of results.', example='10'),
+  nextToken?: string(name='nextToken', description='nextToken', example='xxxx-xxx-xxxxx'),
+  requestId?: string(name='requestId', description='The request ID.', example='xxxx-xxxx-xxxx-xxxxxxxx'),
+  success?: boolean(name='success', description='Indicates whether the request was successful.', example='true'),
+}
+
+model ModelRouterQueryModelGroupUsersResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ModelRouterQueryModelGroupUsersResponseBody(name='body'),
+}
+
+/**
+ * @summary Queries the users attached to a model group by paging.
+ *
+ * @description Queries the users attached to a model group by paging.
+ *
+ * @param request ModelRouterQueryModelGroupUsersRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return ModelRouterQueryModelGroupUsersResponse
+ */
+@context("modelRouterQueryModelGroupUsersWithContext")
+async function modelRouterQueryModelGroupUsersWithOptions(groupId: string, request: ModelRouterQueryModelGroupUsersRequest, headers: map[string]string, runtime: $RuntimeOptions): ModelRouterQueryModelGroupUsersResponse {
+  request.validate();
+  var query : map[string]any = {};
+  if (!$isNull(request.maxResults)) {
+    query['maxResults'] = request.maxResults;
+  }
+  if (!$isNull(request.nextToken)) {
+    query['nextToken'] = request.nextToken;
+  }
+  if (!$isNull(request.pageIndex)) {
+    query['pageIndex'] = request.pageIndex;
+  }
+  if (!$isNull(request.pageSize)) {
+    query['pageSize'] = request.pageSize;
+  }
+
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'ModelRouterQueryModelGroupUsers',
+    version = '20240611',
+    protocol = 'HTTPS',
+    pathname = `/api/v1/modelRouter/open/model-groups/${$URL.percentEncode(groupId)}/users`,
+    method = 'GET',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Queries the users attached to a model group by paging.
+ *
+ * @description Queries the users attached to a model group by paging.
+ *
+ * @param request ModelRouterQueryModelGroupUsersRequest
+ * @return ModelRouterQueryModelGroupUsersResponse
+ */
+async function modelRouterQueryModelGroupUsers(groupId: string, request: ModelRouterQueryModelGroupUsersRequest): ModelRouterQueryModelGroupUsersResponse {
+  var runtime = new $RuntimeOptions{};
+  var headers : map[string]string = {};
+  return modelRouterQueryModelGroupUsersWithOptions(groupId, request, headers, runtime);
+}
+
 model ModelRouterQueryModelGroupsByApiKeyRequest {
 }
 
 model ModelRouterQueryModelGroupsByApiKeyResponseBody = {
   data?: {
-    clientId?: long(name='clientId', description='The ID of the department to which the key belongs.', example='1001'),
+    bindType?: string(name='bindType', example='department'),
+    clientId?: long(name='clientId', description='The department ID to which the key belongs.', example='1001'),
     groups?: [
       ModelGroupDTO
     ](name='groups', description='The list of bound model groups.', example='[]'),
@@ -8302,9 +10049,9 @@ model ModelRouterQueryModelGroupsByApiKeyResponse = {
 }
 
 /**
- * @summary Lists the model groups and models bound to a specified API key.
+ * @summary Queries the bound groups and models by API key.
  *
- * @description Queries the groups and models bound to a specified API key.
+ * @description Queries the bound groups and models by API key.
  *
  * @param request ModelRouterQueryModelGroupsByApiKeyRequest
  * @param headers map
@@ -8332,9 +10079,9 @@ async function modelRouterQueryModelGroupsByApiKeyWithOptions(id: string, reques
 }
 
 /**
- * @summary Lists the model groups and models bound to a specified API key.
+ * @summary Queries the bound groups and models by API key.
  *
- * @description Queries the groups and models bound to a specified API key.
+ * @description Queries the bound groups and models by API key.
  *
  * @param request ModelRouterQueryModelGroupsByApiKeyRequest
  * @return ModelRouterQueryModelGroupsByApiKeyResponse
@@ -8676,20 +10423,21 @@ async function modelRouterQueryNacosTags(request: ModelRouterQueryNacosTagsReque
 }
 
 model ModelRouterQueryObservationChartsRequest {
-  apiKeyId?: long(name='apiKeyId', description='The API key ID to use as a filter.', example='1'),
-  clientId?: long(name='clientId', description='The client ID to use as a filter.', example='1'),
-  endTime?: string(name='endTime', description='The end time of the custom time range, in ISO 8601 UTC format. If specified, `startTime` must also be provided.', example='2024-01-02T00:00:00Z'),
-  modelId?: long(name='modelId', description='The model ID to use as a filter.', example='1'),
-  startTime?: string(name='startTime', description='The start time of the custom time range, in ISO 8601 UTC format. If specified, `endTime` must also be provided.', example='2024-01-01T00:00:00Z'),
-  timeRange?: string(name='timeRange', description='The time range for the query. Valid values are `1h`, `6h`, `24h`, `7d`, and `30d`. This parameter is mutually exclusive with `startTime` and `endTime`.', example='24h'),
+  apiKeyId?: long(name='apiKeyId', description='The API key ID used to filter results.', example='1'),
+  clientId?: long(name='clientId', description='The client ID used to filter results.', example='1'),
+  endTime?: string(name='endTime', description='The custom end time.', example='2024-01-02T00:00:00Z'),
+  memberUserIds?: string(name='memberUserIds', description='Optional. Filters by member IDs. Separate multiple IDs with commas. If this parameter is not specified, the department and all its members are included. If an empty value is specified, only the department is included without members.', example='30001,30002'),
+  modelId?: long(name='modelId', description='The model ID used to filter results.', example='1'),
+  startTime?: string(name='startTime', description='The custom start time.', example='2024-01-01T00:00:00Z'),
+  timeRange?: string(name='timeRange', description='The time range for the query. Valid values: 1h, 6h, 24h, 7d, and 30d.', example='24h'),
 }
 
 model ModelRouterQueryObservationChartsResponseBody = {
-  data?: ObservationChartsDTO(name='data', description='The data returned for the request.', example='[]'),
-  errCode?: string(name='errCode', description='The error code returned if the request fails.', example='UNKNOWN_ERROR'),
-  errMessage?: string(name='errMessage', description='The error message returned if the request fails.', example='未知错误'),
-  httpStatusCode?: int32(name='httpStatusCode', description='The HTTP status code of the response.', example='200'),
-  requestId?: string(name='requestId', description='The unique request ID.', example='xxxx-xxxx-xxxx-xxxxxxxx'),
+  data?: ObservationChartsDTO(name='data', description='The data object.', example='[]'),
+  errCode?: string(name='errCode', description='The fault code.', example='UNKNOWN_ERROR'),
+  errMessage?: string(name='errMessage', description='The error message.', example='Unknown error'),
+  httpStatusCode?: int32(name='httpStatusCode', description='The HTTP status code.', example='200'),
+  requestId?: string(name='requestId', description='The request ID.', example='xxxx-xxxx-xxxx-xxxxxxxx'),
   success?: boolean(name='success', description='Indicates whether the request was successful.', example='true'),
 }
 
@@ -8700,7 +10448,7 @@ model ModelRouterQueryObservationChartsResponse = {
 }
 
 /**
- * @summary Retrieves chart data for model observation.
+ * @summary Retrieves observation chart data for model monitoring.
  *
  * @param request ModelRouterQueryObservationChartsRequest
  * @param headers map
@@ -8719,6 +10467,9 @@ async function modelRouterQueryObservationChartsWithOptions(request: ModelRouter
   }
   if (!$isNull(request.endTime)) {
     query['endTime'] = request.endTime;
+  }
+  if (!$isNull(request.memberUserIds)) {
+    query['memberUserIds'] = request.memberUserIds;
   }
   if (!$isNull(request.modelId)) {
     query['modelId'] = request.modelId;
@@ -8749,7 +10500,7 @@ async function modelRouterQueryObservationChartsWithOptions(request: ModelRouter
 }
 
 /**
- * @summary Retrieves chart data for model observation.
+ * @summary Retrieves observation chart data for model monitoring.
  *
  * @param request ModelRouterQueryObservationChartsRequest
  * @return ModelRouterQueryObservationChartsResponse
@@ -8766,6 +10517,7 @@ model ModelRouterQueryObservationLogsRequest {
   endTime?: string(name='endTime', description='The custom end time.', example='2024-01-02T00:00:00Z'),
   groupBy?: string(name='groupBy', description='The field by which to group the results.', example='resourceId'),
   maxResults?: int32(name='maxResults', description='The maximum number of results to return.', example='10'),
+  memberUserIds?: string(name='memberUserIds', example='30001,30002'),
   modelId?: long(name='modelId', description='The model ID used to filter the results.', example='1'),
   needTotalCount?: boolean(name='needTotalCount', description='Specifies whether to return the total count.', example='true'),
   nextToken?: string(name='nextToken', description='The pagination token. An empty value indicates that no more pages are available.', example='1'),
@@ -8829,6 +10581,9 @@ async function modelRouterQueryObservationLogsWithOptions(request: ModelRouterQu
   }
   if (!$isNull(request.maxResults)) {
     query['maxResults'] = request.maxResults;
+  }
+  if (!$isNull(request.memberUserIds)) {
+    query['memberUserIds'] = request.memberUserIds;
   }
   if (!$isNull(request.modelId)) {
     query['modelId'] = request.modelId;
@@ -8894,6 +10649,7 @@ model ModelRouterQueryObservationMetricsRequest {
   endTime?: string(name='endTime', description='The custom end time.', example='2024-01-02T00:00:00Z'),
   groupBy?: string(name='groupBy', description='The field by which to group the results.', example='resourceId'),
   maxResults?: int32(name='maxResults', description='The maximum number of results to return.', example='10'),
+  memberUserIds?: string(name='memberUserIds', description='Optional. Filters by member IDs. Separate multiple IDs with commas. If not specified, the department and all its members are included. If an empty value is specified, only the department is included without members.', example='30001,30002'),
   modelId?: long(name='modelId', description='The model ID used to filter the results.', example='1'),
   needTotalCount?: boolean(name='needTotalCount', description='Specifies whether to return the total count.', example='true'),
   nextToken?: string(name='nextToken', description='The token for the next query. An empty value indicates the last page.', example='2'),
@@ -8902,12 +10658,12 @@ model ModelRouterQueryObservationMetricsRequest {
   pageIndex?: int32(name='pageIndex', description='The page number.', example='1'),
   pageSize?: int32(name='pageSize', description='The number of entries per page.', example='10'),
   startTime?: string(name='startTime', description='The custom start time.', example='2024-01-01T00:00:00Z'),
-  timeRange?: string(name='timeRange', description='The time range for the query. Valid values: 1h, 6h, 24h, 7d, and 30d.', example='24h'),
+  timeRange?: string(name='timeRange', description='The time range for the query. Valid values: 1h, 6h, 24h, 7d, 30d.', example='24h'),
 }
 
 model ModelRouterQueryObservationMetricsResponseBody = {
   data?: ModelMetricsDTO(name='data', description='The data object.', example='[]'),
-  errCode?: string(name='errCode', description='The fault code.', example='UNKNOWN_ERROR'),
+  errCode?: string(name='errCode', description='The error message code.', example='UNKNOWN_ERROR'),
   errMessage?: string(name='errMessage', description='The error message.', example='Unknown error'),
   httpStatusCode?: int32(name='httpStatusCode', description='The HTTP status code.', example='200'),
   requestId?: string(name='requestId', description='The request ID.', example='xxxx-xxxx-xxxx-xxxxxxxx'),
@@ -8946,6 +10702,9 @@ async function modelRouterQueryObservationMetricsWithOptions(request: ModelRoute
   }
   if (!$isNull(request.maxResults)) {
     query['maxResults'] = request.maxResults;
+  }
+  if (!$isNull(request.memberUserIds)) {
+    query['memberUserIds'] = request.memberUserIds;
   }
   if (!$isNull(request.modelId)) {
     query['modelId'] = request.modelId;
@@ -9008,25 +10767,26 @@ async function modelRouterQueryObservationMetrics(request: ModelRouterQueryObser
 model ModelRouterQueryUsageBreakdownRequest {
   apiKeyId?: long(name='apiKeyId', description='Optional. Filters results by API Key ID. This parameter is linked to the department and requires clientId to be specified first.', example='100'),
   clientId?: long(name='clientId', description='Optional. Filters results by department ID.', example='1'),
-  endTime?: long(name='endTime', description='The query end time, in UNIX timestamp (seconds).
+  endTime?: long(name='endTime', description='The query end time, in UNIX timestamp format (seconds).
 
 This parameter is required.', example='1700086400'),
   granularity?: string(name='granularity', description='The aggregation granularity. Valid values: hourly and daily.
 
 This parameter is required.', example='hourly'),
   maxResults?: int32(name='maxResults', description='The maximum number of results to return.', example='20'),
+  memberUserIds?: string(name='memberUserIds', description='Optional. Filters results by members (member IDs, separated by commas). If not specified, the department and all its members are included. If an empty value is specified, only the department is included without members.', example='30001,30002'),
   nextToken?: string(name='nextToken', description='The pagination token.', example='xxxx-xxx-xxxxx'),
   page?: int32(name='page', description='The page number. Default value: 1.', example='1'),
   pageSize?: int32(name='pageSize', description='The number of entries per page. Default value: 20. Maximum value: 500.', example='20'),
-  startTime?: long(name='startTime', description='The query start time, in UNIX timestamp (seconds).
+  startTime?: long(name='startTime', description='The query start time, in UNIX timestamp format (seconds).
 
 This parameter is required.', example='1700000000'),
 }
 
 model ModelRouterQueryUsageBreakdownResponseBody = {
   data?: UsageBreakdownRespDTO(name='data', description='The data object.', example='{}'),
-  errCode?: string(name='errCode', description='The fault code.', example='UNKNOWN_ERROR'),
-  errMessage?: string(name='errMessage', description='The error message.', example='Unknown error.'),
+  errCode?: string(name='errCode', description='The error message code.', example='UNKNOWN_ERROR'),
+  errMessage?: string(name='errMessage', description='The error message.', example='Unknown error'),
   httpStatusCode?: int32(name='httpStatusCode', description='The HTTP status code.', example='200'),
   maxResults?: int32(name='maxResults', description='The maximum number of results to return.', example='20'),
   nextToken?: string(name='nextToken', description='The pagination token.', example='xxxx-xxx-xxxxx'),
@@ -9066,6 +10826,9 @@ async function modelRouterQueryUsageBreakdownWithOptions(request: ModelRouterQue
   }
   if (!$isNull(request.maxResults)) {
     query['maxResults'] = request.maxResults;
+  }
+  if (!$isNull(request.memberUserIds)) {
+    query['memberUserIds'] = request.memberUserIds;
   }
   if (!$isNull(request.nextToken)) {
     query['nextToken'] = request.nextToken;
@@ -9108,6 +10871,148 @@ async function modelRouterQueryUsageBreakdown(request: ModelRouterQueryUsageBrea
   var runtime = new $RuntimeOptions{};
   var headers : map[string]string = {};
   return modelRouterQueryUsageBreakdownWithOptions(request, headers, runtime);
+}
+
+model ModelRouterQueryUserListRequest {
+  keyword?: string(name='keyword', description='The search keyword.', example='John'),
+  pageIndex?: int32(name='pageIndex', description='The page number.', example='1'),
+  pageSize?: int32(name='pageSize', description='The number of entries per page.', example='20'),
+}
+
+model ModelRouterQueryUserListResponseBody = {
+  data?: {
+    list?: [
+      UserListItemDTO
+    ](name='list', description='The list of returned data.', example='[]'),
+    page?: int32(name='page', description='The page number.', example='1'),
+    pageSize?: int32(name='pageSize', description='The number of entries per page.', example='20'),
+    total?: int32(name='total', description='The total number of records.', example='0'),
+  }(name='data', description='The response data object.', example='{}'),
+  errCode?: string(name='errCode', description='The fault code.', example='UNKNOWN_ERROR'),
+  errMessage?: string(name='errMessage', description='The error message.', example='Unknown error'),
+  httpStatusCode?: int32(name='httpStatusCode', description='The HTTP status code.', example='200'),
+  requestId?: string(name='requestId', description='The request ID.', example='xxxx-xxxx-xxxx-xxxxxxxx'),
+  success?: boolean(name='success', description='Indicates whether the request was successful.', example='true'),
+}
+
+model ModelRouterQueryUserListResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ModelRouterQueryUserListResponseBody(name='body'),
+}
+
+/**
+ * @summary Queries the list of users.
+ *
+ * @description Queries the list of users.
+ *
+ * @param request ModelRouterQueryUserListRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return ModelRouterQueryUserListResponse
+ */
+@context("modelRouterQueryUserListWithContext")
+async function modelRouterQueryUserListWithOptions(request: ModelRouterQueryUserListRequest, headers: map[string]string, runtime: $RuntimeOptions): ModelRouterQueryUserListResponse {
+  request.validate();
+  var query : map[string]any = {};
+  if (!$isNull(request.keyword)) {
+    query['keyword'] = request.keyword;
+  }
+  if (!$isNull(request.pageIndex)) {
+    query['pageIndex'] = request.pageIndex;
+  }
+  if (!$isNull(request.pageSize)) {
+    query['pageSize'] = request.pageSize;
+  }
+
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'ModelRouterQueryUserList',
+    version = '20240611',
+    protocol = 'HTTPS',
+    pathname = `/api/v1/modelRouter/open/users`,
+    method = 'GET',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Queries the list of users.
+ *
+ * @description Queries the list of users.
+ *
+ * @param request ModelRouterQueryUserListRequest
+ * @return ModelRouterQueryUserListResponse
+ */
+async function modelRouterQueryUserList(request: ModelRouterQueryUserListRequest): ModelRouterQueryUserListResponse {
+  var runtime = new $RuntimeOptions{};
+  var headers : map[string]string = {};
+  return modelRouterQueryUserListWithOptions(request, headers, runtime);
+}
+
+model ModelRouterResetMemberAuthorizationRequest {
+}
+
+model ModelRouterResetMemberAuthorizationResponseBody = {
+  data?: boolean(name='data', description='The data object. This parameter contains no business data and is always empty.', example='true'),
+  errCode?: string(name='errCode', description='The fault message code.', example='UNKNOWN_ERROR'),
+  errMessage?: string(name='errMessage', description='The error message.', example='Unknown error'),
+  httpStatusCode?: int32(name='httpStatusCode', description='The HTTP status code.', example='200'),
+  requestId?: string(name='requestId', description='The request ID.', example='xxxx-xxxx-xxxx-xxxxxxxx'),
+  success?: boolean(name='success', description='Indicates whether the request was successful.', example='true'),
+}
+
+model ModelRouterResetMemberAuthorizationResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ModelRouterResetMemberAuthorizationResponseBody(name='body'),
+}
+
+/**
+ * @summary Resets the authorization of a member to inherit from the organization.
+ *
+ * @param request ModelRouterResetMemberAuthorizationRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return ModelRouterResetMemberAuthorizationResponse
+ */
+@context("modelRouterResetMemberAuthorizationWithContext")
+async function modelRouterResetMemberAuthorizationWithOptions(clientId: string, id: string, request: ModelRouterResetMemberAuthorizationRequest, headers: map[string]string, runtime: $RuntimeOptions): ModelRouterResetMemberAuthorizationResponse {
+  request.validate();
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    headers = headers,
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'ModelRouterResetMemberAuthorization',
+    version = '20240611',
+    protocol = 'HTTPS',
+    pathname = `/api/v1/modelRouter/open/clients/${$URL.percentEncode(clientId)}/members/${$URL.percentEncode(id)}/authorization`,
+    method = 'DELETE',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Resets the authorization of a member to inherit from the organization.
+ *
+ * @param request ModelRouterResetMemberAuthorizationRequest
+ * @return ModelRouterResetMemberAuthorizationResponse
+ */
+async function modelRouterResetMemberAuthorization(clientId: string, id: string, request: ModelRouterResetMemberAuthorizationRequest): ModelRouterResetMemberAuthorizationResponse {
+  var runtime = new $RuntimeOptions{};
+  var headers : map[string]string = {};
+  return modelRouterResetMemberAuthorizationWithOptions(clientId, id, request, headers, runtime);
 }
 
 model ModelRouterSaveFlowConfigRequest {
@@ -9197,6 +11102,278 @@ async function modelRouterSaveFlowConfig(request: ModelRouterSaveFlowConfigReque
   return modelRouterSaveFlowConfigWithOptions(request, headers, runtime);
 }
 
+model ModelRouterSearchClientTreeRequest {
+  keyword?: string(name='keyword', example='研发部'),
+}
+
+model ModelRouterSearchClientTreeResponseBody = {
+  data?: {
+    matchedDeptIds?: [ long ](name='matchedDeptIds', example='[]'),
+  }(name='data', example='{}'),
+  errCode?: string(name='errCode', example='UNKNOWN_ERROR'),
+  errMessage?: string(name='errMessage', example='未知错误'),
+  httpStatusCode?: int32(name='httpStatusCode', example='200'),
+  requestId?: string(name='requestId', example='xxxx-xxxx-xxxx-xxxxxxxx'),
+  success?: boolean(name='success', example='true'),
+}
+
+model ModelRouterSearchClientTreeResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ModelRouterSearchClientTreeResponseBody(name='body'),
+}
+
+/**
+ * @summary 组织管理/部门树搜索定位
+ *
+ * @param request ModelRouterSearchClientTreeRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return ModelRouterSearchClientTreeResponse
+ */
+@context("modelRouterSearchClientTreeWithContext")
+async function modelRouterSearchClientTreeWithOptions(request: ModelRouterSearchClientTreeRequest, headers: map[string]string, runtime: $RuntimeOptions): ModelRouterSearchClientTreeResponse {
+  request.validate();
+  var query : map[string]any = {};
+  if (!$isNull(request.keyword)) {
+    query['keyword'] = request.keyword;
+  }
+
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'ModelRouterSearchClientTree',
+    version = '20240611',
+    protocol = 'HTTPS',
+    pathname = `/api/v1/modelRouter/open/clients/tree/search`,
+    method = 'GET',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 组织管理/部门树搜索定位
+ *
+ * @param request ModelRouterSearchClientTreeRequest
+ * @return ModelRouterSearchClientTreeResponse
+ */
+async function modelRouterSearchClientTree(request: ModelRouterSearchClientTreeRequest): ModelRouterSearchClientTreeResponse {
+  var runtime = new $RuntimeOptions{};
+  var headers : map[string]string = {};
+  return modelRouterSearchClientTreeWithOptions(request, headers, runtime);
+}
+
+model ModelRouterSetMemberAuthorizationRequest {
+  allowedModelGroupConfig?: string(name='allowedModelGroupConfig', description='The authorization configuration (JSON string, overwrite mode): {"model_ids":[...],"group_ids":["mg_xxx"]}. The internal key names use a fixed underscore style and are not converted to the camelCase convention used by the API. If this field is specified together with allowedModels, this field takes precedence.', example='{"model_ids":[],"group_ids":["mg_qwen_49"]}'),
+  allowedModels?: string(name='allowedModels', description='The legacy authorization field (comma-separated numeric model IDs). This field is retained during the canary release of group-based authorization: tenants that have not enabled the grouping feature continue to use this field. If this field is specified together with allowedModelGroupConfig, the latter takes precedence.', example='101,102,103'),
+}
+
+model ModelRouterSetMemberAuthorizationResponseBody = {
+  data?: boolean(name='data', description='The data object (contains no business data and is always empty).', example='true'),
+  errCode?: string(name='errCode', description='The fault code.', example='UNKNOWN_ERROR'),
+  errMessage?: string(name='errMessage', description='The error message.', example='Unknown error'),
+  httpStatusCode?: int32(name='httpStatusCode', description='The HTTP status code.', example='200'),
+  requestId?: string(name='requestId', description='The request ID.', example='xxxx-xxxx-xxxx-xxxxxxxx'),
+  success?: boolean(name='success', description='Indicates whether the request was successful.', example='true'),
+}
+
+model ModelRouterSetMemberAuthorizationResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ModelRouterSetMemberAuthorizationResponseBody(name='body'),
+}
+
+/**
+ * @summary Sets the member authorization model for an organization.
+ *
+ * @param request ModelRouterSetMemberAuthorizationRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return ModelRouterSetMemberAuthorizationResponse
+ */
+@context("modelRouterSetMemberAuthorizationWithContext")
+async function modelRouterSetMemberAuthorizationWithOptions(clientId: string, id: string, request: ModelRouterSetMemberAuthorizationRequest, headers: map[string]string, runtime: $RuntimeOptions): ModelRouterSetMemberAuthorizationResponse {
+  request.validate();
+  var body : map[string]any = {};
+  if (!$isNull(request.allowedModelGroupConfig)) {
+    body['allowedModelGroupConfig'] = request.allowedModelGroupConfig;
+  }
+  if (!$isNull(request.allowedModels)) {
+    body['allowedModels'] = request.allowedModels;
+  }
+
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    headers = headers,
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'ModelRouterSetMemberAuthorization',
+    version = '20240611',
+    protocol = 'HTTPS',
+    pathname = `/api/v1/modelRouter/open/clients/${$URL.percentEncode(clientId)}/members/${$URL.percentEncode(id)}/authorization`,
+    method = 'PUT',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Sets the member authorization model for an organization.
+ *
+ * @param request ModelRouterSetMemberAuthorizationRequest
+ * @return ModelRouterSetMemberAuthorizationResponse
+ */
+async function modelRouterSetMemberAuthorization(clientId: string, id: string, request: ModelRouterSetMemberAuthorizationRequest): ModelRouterSetMemberAuthorizationResponse {
+  var runtime = new $RuntimeOptions{};
+  var headers : map[string]string = {};
+  return modelRouterSetMemberAuthorizationWithOptions(clientId, id, request, headers, runtime);
+}
+
+model ModelRouterSetUserRolesRequest {
+  departmentRoles?: [
+    DepartmentRoleCmd
+  ](name='departmentRoles', description='The department role list (required, full overwrite).', example='[{"clientId":1001,"roleCode":"member"},{"clientId":1002,"roleCode":"member"}]'),
+}
+
+model ModelRouterSetUserRolesResponseBody = {
+  data?: boolean(name='data', description='The data object (no business data, always empty).', example='true'),
+  errCode?: string(name='errCode', description='The error message code.', example='UNKNOWN_ERROR'),
+  errMessage?: string(name='errMessage', description='The error message.', example='Unknown error'),
+  httpStatusCode?: int32(name='httpStatusCode', description='The HTTP status code.', example='200'),
+  requestId?: string(name='requestId', description='The request ID.', example='xxxx-xxxx-xxxx-xxxxxxxx'),
+  success?: boolean(name='success', description='Indicates whether the request was successful.', example='true'),
+}
+
+model ModelRouterSetUserRolesResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ModelRouterSetUserRolesResponseBody(name='body'),
+}
+
+/**
+ * @summary Sets user roles or changes the department to which a user belongs.
+ *
+ * @description Sets user roles or changes the department to which a user belongs.
+ *
+ * @param request ModelRouterSetUserRolesRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return ModelRouterSetUserRolesResponse
+ */
+@context("modelRouterSetUserRolesWithContext")
+async function modelRouterSetUserRolesWithOptions(id: string, request: ModelRouterSetUserRolesRequest, headers: map[string]string, runtime: $RuntimeOptions): ModelRouterSetUserRolesResponse {
+  request.validate();
+  var body : map[string]any = {};
+  if (!$isNull(request.departmentRoles)) {
+    body['departmentRoles'] = request.departmentRoles;
+  }
+
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    headers = headers,
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'ModelRouterSetUserRoles',
+    version = '20240611',
+    protocol = 'HTTPS',
+    pathname = `/api/v1/modelRouter/open/users/${$URL.percentEncode(id)}/roles`,
+    method = 'PUT',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Sets user roles or changes the department to which a user belongs.
+ *
+ * @description Sets user roles or changes the department to which a user belongs.
+ *
+ * @param request ModelRouterSetUserRolesRequest
+ * @return ModelRouterSetUserRolesResponse
+ */
+async function modelRouterSetUserRoles(id: string, request: ModelRouterSetUserRolesRequest): ModelRouterSetUserRolesResponse {
+  var runtime = new $RuntimeOptions{};
+  var headers : map[string]string = {};
+  return modelRouterSetUserRolesWithOptions(id, request, headers, runtime);
+}
+
+model ModelRouterStopMemberSubscriptionRequest {
+  balanceType?: string(name='balanceType', example='monthly'),
+}
+
+model ModelRouterStopMemberSubscriptionResponseBody = {
+  data?: boolean(name='data', example='true'),
+  errCode?: string(name='errCode', example='UNKNOWN_ERROR'),
+  errMessage?: string(name='errMessage', example='未知错误'),
+  httpStatusCode?: int32(name='httpStatusCode', example='200'),
+  requestId?: string(name='requestId', example='xxxx-xxxx-xxxx-xxxxxxxx'),
+  success?: boolean(name='success', example='true'),
+}
+
+model ModelRouterStopMemberSubscriptionResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ModelRouterStopMemberSubscriptionResponseBody(name='body'),
+}
+
+/**
+ * @summary 组织管理/停止成员订阅
+ *
+ * @param request ModelRouterStopMemberSubscriptionRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return ModelRouterStopMemberSubscriptionResponse
+ */
+@context("modelRouterStopMemberSubscriptionWithContext")
+async function modelRouterStopMemberSubscriptionWithOptions(clientId: string, id: string, request: ModelRouterStopMemberSubscriptionRequest, headers: map[string]string, runtime: $RuntimeOptions): ModelRouterStopMemberSubscriptionResponse {
+  request.validate();
+  var body : map[string]any = {};
+  if (!$isNull(request.balanceType)) {
+    body['balanceType'] = request.balanceType;
+  }
+
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    headers = headers,
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'ModelRouterStopMemberSubscription',
+    version = '20240611',
+    protocol = 'HTTPS',
+    pathname = `/api/v1/modelRouter/open/clients/${$URL.percentEncode(clientId)}/members/${$URL.percentEncode(id)}/balance/subscription/stop`,
+    method = 'POST',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 组织管理/停止成员订阅
+ *
+ * @param request ModelRouterStopMemberSubscriptionRequest
+ * @return ModelRouterStopMemberSubscriptionResponse
+ */
+async function modelRouterStopMemberSubscription(clientId: string, id: string, request: ModelRouterStopMemberSubscriptionRequest): ModelRouterStopMemberSubscriptionResponse {
+  var runtime = new $RuntimeOptions{};
+  var headers : map[string]string = {};
+  return modelRouterStopMemberSubscriptionWithOptions(clientId, id, request, headers, runtime);
+}
+
 model ModelRouterStopSubscriptionRequest {
   balanceType?: string(name='balanceType', description='The type of subscription balance to stop (permanent/monthly).', example='permanent'),
 }
@@ -9260,6 +11437,87 @@ async function modelRouterStopSubscription(id: string, request: ModelRouterStopS
   var runtime = new $RuntimeOptions{};
   var headers : map[string]string = {};
   return modelRouterStopSubscriptionWithOptions(id, request, headers, runtime);
+}
+
+model ModelRouterTransferToMemberRequest {
+  amount?: double(name='amount', example='100.00'),
+  balanceType?: string(name='balanceType', example='permanent'),
+  idempotencyKey?: string(name='idempotencyKey', example='550e8400-e29b-41d4-a716-446655440000'),
+  monthlyQuota?: double(name='monthlyQuota', example='0'),
+  remark?: string(name='remark', example='转账'),
+}
+
+model ModelRouterTransferToMemberResponseBody = {
+  data?: ClientBalanceDTO(name='data', example='{}'),
+  errCode?: string(name='errCode', example='UNKNOWN_ERROR'),
+  errMessage?: string(name='errMessage', example='未知错误'),
+  httpStatusCode?: int32(name='httpStatusCode', example='200'),
+  requestId?: string(name='requestId', example='xxxx-xxxx-xxxx-xxxxxxxx'),
+  success?: boolean(name='success', example='true'),
+}
+
+model ModelRouterTransferToMemberResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ModelRouterTransferToMemberResponseBody(name='body'),
+}
+
+/**
+ * @summary 组织管理/部门向成员转账
+ *
+ * @param request ModelRouterTransferToMemberRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return ModelRouterTransferToMemberResponse
+ */
+@context("modelRouterTransferToMemberWithContext")
+async function modelRouterTransferToMemberWithOptions(clientId: string, id: string, request: ModelRouterTransferToMemberRequest, headers: map[string]string, runtime: $RuntimeOptions): ModelRouterTransferToMemberResponse {
+  request.validate();
+  var body : map[string]any = {};
+  if (!$isNull(request.amount)) {
+    body['amount'] = request.amount;
+  }
+  if (!$isNull(request.balanceType)) {
+    body['balanceType'] = request.balanceType;
+  }
+  if (!$isNull(request.idempotencyKey)) {
+    body['idempotencyKey'] = request.idempotencyKey;
+  }
+  if (!$isNull(request.monthlyQuota)) {
+    body['monthlyQuota'] = request.monthlyQuota;
+  }
+  if (!$isNull(request.remark)) {
+    body['remark'] = request.remark;
+  }
+
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    headers = headers,
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'ModelRouterTransferToMember',
+    version = '20240611',
+    protocol = 'HTTPS',
+    pathname = `/api/v1/modelRouter/open/clients/${$URL.percentEncode(clientId)}/members/${$URL.percentEncode(id)}/transfer`,
+    method = 'POST',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 组织管理/部门向成员转账
+ *
+ * @param request ModelRouterTransferToMemberRequest
+ * @return ModelRouterTransferToMemberResponse
+ */
+async function modelRouterTransferToMember(clientId: string, id: string, request: ModelRouterTransferToMemberRequest): ModelRouterTransferToMemberResponse {
+  var runtime = new $RuntimeOptions{};
+  var headers : map[string]string = {};
+  return modelRouterTransferToMemberWithOptions(clientId, id, request, headers, runtime);
 }
 
 model ModelRouterUpdateBillingRuleRequest {
@@ -9882,6 +12140,79 @@ async function modelRouterUpdateModelGroup(groupId: string, request: ModelRouter
   var runtime = new $RuntimeOptions{};
   var headers : map[string]string = {};
   return modelRouterUpdateModelGroupWithOptions(groupId, request, headers, runtime);
+}
+
+model ModelRouterUpdateUserRequest {
+  name?: string(name='name', description='The name of the user.', example='John'),
+  phone?: string(name='phone', description='The phone number of the user.', example='13800000000'),
+}
+
+model ModelRouterUpdateUserResponseBody = {
+  data?: boolean(name='data', description='The data object. This parameter contains no business data and is always empty.', example='true'),
+  errCode?: string(name='errCode', description='The fault code.', example='UNKNOWN_ERROR'),
+  errMessage?: string(name='errMessage', description='The error message.', example='Unknown error'),
+  httpStatusCode?: int32(name='httpStatusCode', description='The HTTP status code.', example='200'),
+  requestId?: string(name='requestId', description='The request ID.', example='xxxx-xxxx-xxxx-xxxxxxxx'),
+  success?: boolean(name='success', description='Indicates whether the request was successful.', example='true'),
+}
+
+model ModelRouterUpdateUserResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ModelRouterUpdateUserResponseBody(name='body'),
+}
+
+/**
+ * @summary Updates user information.
+ *
+ * @description Updates user information.
+ *
+ * @param request ModelRouterUpdateUserRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return ModelRouterUpdateUserResponse
+ */
+@context("modelRouterUpdateUserWithContext")
+async function modelRouterUpdateUserWithOptions(id: string, request: ModelRouterUpdateUserRequest, headers: map[string]string, runtime: $RuntimeOptions): ModelRouterUpdateUserResponse {
+  request.validate();
+  var body : map[string]any = {};
+  if (!$isNull(request.name)) {
+    body['name'] = request.name;
+  }
+  if (!$isNull(request.phone)) {
+    body['phone'] = request.phone;
+  }
+
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    headers = headers,
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'ModelRouterUpdateUser',
+    version = '20240611',
+    protocol = 'HTTPS',
+    pathname = `/api/v1/modelRouter/open/users/${$URL.percentEncode(id)}`,
+    method = 'PUT',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Updates user information.
+ *
+ * @description Updates user information.
+ *
+ * @param request ModelRouterUpdateUserRequest
+ * @return ModelRouterUpdateUserResponse
+ */
+async function modelRouterUpdateUser(id: string, request: ModelRouterUpdateUserRequest): ModelRouterUpdateUserResponse {
+  var runtime = new $RuntimeOptions{};
+  var headers : map[string]string = {};
+  return modelRouterUpdateUserWithOptions(id, request, headers, runtime);
 }
 
 model PersonalizedTextToImageAddInferenceJobRequest {

@@ -56,6 +56,8 @@ model ApiKeyDTO {
   id?: long(name='id', example='1'),
   key?: string(name='key', example='key'),
   keyPreview?: string(name='keyPreview', example='sk-xxx****xxx'),
+  memberUserId?: long(name='memberUserId', example='30001'),
+  memberUserName?: string(name='memberUserName', example='张三'),
   name?: string(name='name', example='MyApiKey'),
 }
 
@@ -101,6 +103,12 @@ model BalanceOrderDTO {
   totalBefore?: double(name='totalBefore', example='1500.00'),
 }
 
+model BalancePoolSummaryDTO {
+  allocated?: double(name='allocated', example='40.00'),
+  available?: double(name='available', example='60.00'),
+  total?: double(name='total', example='100.00'),
+}
+
 model BatchCreateModelItemDTO {
   description?: string(name='description', example='通义千问 Max'),
   extensions?: string(name='extensions', example='{}'),
@@ -113,10 +121,39 @@ model BatchCreateModelItemDTO {
   tags?: string(name='tags', example='chat,NLP'),
 }
 
+model BatchFailedItemDTO {
+  reason?: string(name='reason', example='成员节点缺失'),
+  userId?: long(name='userId', example='1'),
+}
+
 model BatchModelErrorDTO {
   errorMsg?: string(name='errorMsg', example='模型类型不能为空'),
   modelId?: string(name='modelId', example='qwen-max'),
   name?: string(name='name', example='qwen-max'),
+}
+
+model BatchOpResultDTO {
+  failed?: [
+    BatchFailedItemDTO
+  ](name='failed', example='[]'),
+  succeeded?: [ long ](name='succeeded', example='[]'),
+}
+
+model BillOrderEntryDTO {
+  amount?: double(name='amount', example='100.00'),
+  balanceAfter?: double(name='balanceAfter', example='100.00'),
+  balanceBefore?: double(name='balanceBefore', example='0.00'),
+  balanceType?: string(name='balanceType', example='permanent'),
+  createTime?: string(name='createTime', example='2024-01-01T00:00:00Z'),
+  direction?: string(name='direction', example='in'),
+  modelCode?: string(name='modelCode', example='qwen-max'),
+  operatorId?: string(name='operatorId', example='1'),
+  orderId?: string(name='orderId', example='ord_xxxxxxxx'),
+  orderType?: string(name='orderType', example='recharge'),
+  remark?: string(name='remark', example='充值'),
+  source?: string(name='source', example='console'),
+  totalAfter?: double(name='totalAfter', example='100.00'),
+  totalBefore?: double(name='totalBefore', example='0.00'),
 }
 
 model BillingBillSummaryPointDTO {
@@ -157,10 +194,14 @@ model BillingCostBreakdownRowDTO {
   clientId?: long(name='clientId', example='0'),
   clientName?: string(name='clientName', example='研发部'),
   dimValues?: string(name='dimValues', example='{"billing_version": "v1"}'),
+  memberUserId?: long(name='memberUserId', example='30001'),
+  memberUserName?: string(name='memberUserName', example='张三'),
   modelCode?: string(name='modelCode', example='qwen-plus'),
   modelId?: long(name='modelId', example='1'),
   modelName?: string(name='modelName', example='通义千问-Plus'),
+  modelSymbol?: string(name='modelSymbol', example='qwen'),
   modelType?: string(name='modelType', example='llm'),
+  modelVersion?: int32(name='modelVersion', example='1'),
   payableAmount?: float(name='payableAmount', example='0.00012800'),
   summaryTime?: long(name='summaryTime', example='1700000000'),
   tiers?: [
@@ -200,16 +241,22 @@ model ClientCreateCmd {
 
 model ClientDTO {
   address?: string(name='address', example='杭州市'),
+  allowedModelGroupConfig?: string(name='allowedModelGroupConfig', example='{"model_ids":[1,2],"group_ids":["mg_xxx"]}'),
   allowedModels?: string(name='allowedModels', example='1,2,3'),
   clientUuid?: string(name='clientUuid', example='st-xxxx'),
   contact?: string(name='contact', example='13800138000'),
   deleteTag?: int32(name='deleteTag', example='0'),
+  discount?: double(name='discount', example='1.0'),
   gmtCreate?: string(name='gmtCreate', example='2024-01-01T00:00:00Z'),
   gmtModified?: string(name='gmtModified', example='2024-01-01T00:00:00Z'),
   id?: long(name='id', example='1'),
+  level?: int32(name='level', example='1'),
   main?: int32(name='main', example='0'),
   name?: string(name='name', example='我的客户'),
+  nodeType?: string(name='nodeType', example='department'),
+  parentId?: long(name='parentId', example='1'),
   remark?: string(name='remark', example='备注'),
+  userId?: long(name='userId', example='30001'),
 }
 
 model ClientListQry {
@@ -236,8 +283,10 @@ model ClientTreeDTO {
   level?: int32(name='level', example='1'),
   main?: int32(name='main', example='0'),
   name?: string(name='name', example='我的客户'),
+  nodeType?: string(name='nodeType', example='department'),
   parentId?: long(name='parentId', example='null'),
   remark?: string(name='remark', example='备注'),
+  userId?: long(name='userId', example='30001'),
 }
 
 model ClientUpdateCmd {
@@ -328,6 +377,60 @@ model CostTabDTO {
   modelTypes?: [ string ](name='modelTypes'),
 }
 
+model DepartmentRoleCmd {
+  clientId?: long(name='clientId', example='1'),
+  roleCode?: string(name='roleCode', example='member'),
+}
+
+model DeptBalanceSummaryDTO {
+  monthly?: BalancePoolSummaryDTO(name='monthly', example='{}'),
+  permanent?: BalancePoolSummaryDTO(name='permanent', example='{}'),
+}
+
+model DeptMemberDTO {
+  allowedModels?: string(name='allowedModels', example='1,2'),
+  authConfig?: string(name='authConfig', example='inherit'),
+  gmtCreate?: string(name='gmtCreate', example='2024-01-01T00:00:00Z'),
+  id?: long(name='id', example='1'),
+  keyCount?: int32(name='keyCount', example='1'),
+  loginName?: string(name='loginName', example='zhangsan'),
+  monthlyBalance?: double(name='monthlyBalance', example='10.00'),
+  name?: string(name='name', example='张三'),
+  permanentBalance?: double(name='permanentBalance', example='20.00'),
+  phone?: string(name='phone', example='138****0000'),
+  roleCode?: string(name='roleCode', example='member'),
+  roleName?: string(name='roleName', example='成员'),
+}
+
+model ExportTaskDTO {
+  createdAt?: long(name='createdAt', example='1753858800'),
+  error?: string(name='error'),
+  filename?: string(name='filename', example='成员余额变更记录_20260730.csv'),
+  finishedAt?: long(name='finishedAt', example='1753858860'),
+  id?: string(name='id', example='task_xxxxxxxx'),
+  maxRows?: int32(name='maxRows', example='50000'),
+  progress?: int32(name='progress', example='0'),
+  status?: string(name='status', example='pending'),
+  total?: int32(name='total', example='100'),
+  type?: string(name='type', example='balance_orders'),
+}
+
+model MemberApiKeyDTO {
+  client?: ClientDTO(name='client'),
+  clientId?: long(name='clientId', example='438'),
+  deleteTag?: int32(name='deleteTag', example='0'),
+  expireAt?: string(name='expireAt', example='2026-12-31T00:00:00Z'),
+  gmtCreate?: string(name='gmtCreate', example='2026-08-03T18:41:40+08:00'),
+  gmtModified?: string(name='gmtModified', example='2026-08-03T18:41:40+08:00'),
+  id?: long(name='id', example='502'),
+  key?: string(name='key'),
+  keyPreview?: string(name='keyPreview', example='sk-us****9876'),
+  memberUserId?: long(name='memberUserId', example='304'),
+  memberUserName?: string(name='memberUserName', example='张三'),
+  name?: string(name='name', example='张三的Key'),
+  status?: string(name='status', example='active'),
+}
+
 model MetricDefRespDTO {
   key?: string(name='key', example='total_calls'),
   label?: string(name='label', example='调用次数'),
@@ -414,6 +517,14 @@ model ModelGroupModelDTO {
   name?: string(name='name', example='通义千问-Max'),
   platform?: string(name='platform', example='qwen'),
   version?: string(name='version', example='v0'),
+}
+
+model ModelGroupUserDTO {
+  apiKeys?: [
+    ModelGroupClientKeyItemDTO
+  ](name='apiKeys', example='[]'),
+  userId?: long(name='userId', example='30001'),
+  userName?: string(name='userName', example='张三'),
 }
 
 model ModelListQry {
@@ -758,6 +869,8 @@ model UsageBreakdownRowDTO {
   apiKeyName?: string(name='apiKeyName', example='默认密钥'),
   clientId?: long(name='clientId', example='0'),
   clientName?: string(name='clientName', example='研发部'),
+  memberUserId?: long(name='memberUserId', example='30001'),
+  memberUserName?: string(name='memberUserName', example='张三'),
   metrics?: [
     MetricKVPairDTO
   ](name='metrics', example='[{"key": "total_calls", "value": 100}]'),
@@ -775,6 +888,24 @@ model UsageInfoDTO {
   totalTokens?: int32(name='totalTokens', example='150'),
   videoCount?: int32(name='videoCount', example='0'),
   videoDuration?: int32(name='videoDuration', example='0'),
+}
+
+model UserDepartmentDTO {
+  clientId?: long(name='clientId', example='1'),
+  clientName?: string(name='clientName', example='研发部'),
+  roleCode?: string(name='roleCode', example='member'),
+  roleName?: string(name='roleName', example='成员'),
+}
+
+model UserListItemDTO {
+  departments?: [
+    UserDepartmentDTO
+  ](name='departments', example='[]'),
+  gmtCreate?: string(name='gmtCreate', example='2026-07-01 10:00:00'),
+  id?: long(name='id', example='1'),
+  loginName?: string(name='loginName', example='zhangsan'),
+  name?: string(name='name', example='张三'),
+  phone?: string(name='phone', example='13800000000'),
 }
 
 model AITeacherExpansionPracticeTaskGenerateRequest {
@@ -2441,6 +2572,167 @@ async function modelRouterBatchBindModelGroup(request: ModelRouterBatchBindModel
   return @handler.do('RESTFUL', 'ModelRouterBatchBindModelGroup', 'POST', '/api/v1/modelRouter/open/clients/batch-bind-model-group', 'json', false, 'json', request);
 }
 
+model ModelRouterBatchCreateMemberApiKeysRequest {
+  id?: long(name='id', example='1', position='Path'),
+  expireAt?: string(name='expireAt', example='2027-01-01T00:00:00Z', position='Body'),
+  name?: string(name='name', example='测试Key', position='Body'),
+  userIds?: [ long ](name='userIds', example='[]', position='Body'),
+}
+
+model ModelRouterBatchCreateMemberApiKeysResponseBody = {
+  data?: BatchOpResultDTO(name='data', example='{}'),
+  errCode?: string(name='errCode', example='UNKNOWN_ERROR'),
+  errMessage?: string(name='errMessage', example='未知错误'),
+  httpStatusCode?: int32(name='httpStatusCode', example='200'),
+  requestId?: string(name='requestId', example='xxxx-xxxx-xxxx-xxxxxxxx'),
+  success?: boolean(name='success', example='true'),
+}
+
+model ModelRouterBatchCreateMemberApiKeysResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ModelRouterBatchCreateMemberApiKeysResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of ModelRouterBatchCreateMemberApiKeys  ModelRouterBatchCreateMemberApiKeysRequest
+  * @return ModelRouterBatchCreateMemberApiKeysResponse
+ */
+async function modelRouterBatchCreateMemberApiKeys(request: ModelRouterBatchCreateMemberApiKeysRequest): ModelRouterBatchCreateMemberApiKeysResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'ModelRouterBatchCreateMemberApiKeys', 'POST', '/api/v1/modelRouter/open/clients/{id}/member-apikeys', 'json', false, 'json', request);
+}
+
+model ModelRouterBatchCreateModelRequest {
+  apiKey: string(name='apiKey', description='This parameter is required.', example='sk-xxxxxxxxxxxxxxxx', position='Body'),
+  baseUrl?: string(name='baseUrl', example='https://dashscope.aliyuncs.com/compatible-mode/v1', position='Body'),
+  models: [
+    BatchCreateModelItemDTO
+  ](name='models', description='This parameter is required.', position='Body'),
+  symbol: string(name='symbol', description='This parameter is required.', example='qwen', position='Body'),
+}
+
+model ModelRouterBatchCreateModelResponseBody = {
+  data?: {
+    created?: [
+      ModelDTO
+    ](name='created', example='[]'),
+    failCount?: int32(name='failCount', example='0'),
+    failures?: [
+      BatchModelErrorDTO
+    ](name='failures', example='[]'),
+    successCount?: int32(name='successCount', example='3'),
+  }(name='data', example='{}'),
+  errCode?: string(name='errCode', example='UNKNOWN_ERROR'),
+  errMessage?: string(name='errMessage', example='未知错误'),
+  httpStatusCode?: int32(name='httpStatusCode', example='200'),
+  requestId?: string(name='requestId', example='xxxx-xxxx-xxxx-xxxxxxxx'),
+  success?: boolean(name='success', example='true'),
+}
+
+model ModelRouterBatchCreateModelResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ModelRouterBatchCreateModelResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of ModelRouterBatchCreateModel  ModelRouterBatchCreateModelRequest
+  * @return ModelRouterBatchCreateModelResponse
+ */
+async function modelRouterBatchCreateModel(request: ModelRouterBatchCreateModelRequest): ModelRouterBatchCreateModelResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'ModelRouterBatchCreateModel', 'POST', '/api/v1/modelRouter/open/models/batch', 'json', false, 'json', request);
+}
+
+model ModelRouterBatchDisableMemberApiKeysRequest {
+  id?: long(name='id', example='1', position='Path'),
+  userIds?: [ long ](name='userIds', example='[]', position='Body'),
+}
+
+model ModelRouterBatchDisableMemberApiKeysResponseBody = {
+  data?: BatchOpResultDTO(name='data', example='{}'),
+  errCode?: string(name='errCode', example='UNKNOWN_ERROR'),
+  errMessage?: string(name='errMessage', example='未知错误'),
+  httpStatusCode?: int32(name='httpStatusCode', example='200'),
+  requestId?: string(name='requestId', example='xxxx-xxxx-xxxx-xxxxxxxx'),
+  success?: boolean(name='success', example='true'),
+}
+
+model ModelRouterBatchDisableMemberApiKeysResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ModelRouterBatchDisableMemberApiKeysResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of ModelRouterBatchDisableMemberApiKeys  ModelRouterBatchDisableMemberApiKeysRequest
+  * @return ModelRouterBatchDisableMemberApiKeysResponse
+ */
+async function modelRouterBatchDisableMemberApiKeys(request: ModelRouterBatchDisableMemberApiKeysRequest): ModelRouterBatchDisableMemberApiKeysResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'ModelRouterBatchDisableMemberApiKeys', 'POST', '/api/v1/modelRouter/open/clients/{id}/member-apikeys/disable', 'json', false, 'json', request);
+}
+
+model ModelRouterBatchResetMemberAuthorizationRequest {
+  id?: long(name='id', example='1', position='Path'),
+  userIds?: [ long ](name='userIds', example='[]', position='Body'),
+}
+
+model ModelRouterBatchResetMemberAuthorizationResponseBody = {
+  data?: BatchOpResultDTO(name='data', example='{}'),
+  errCode?: string(name='errCode', example='UNKNOWN_ERROR'),
+  errMessage?: string(name='errMessage', example='未知错误'),
+  httpStatusCode?: int32(name='httpStatusCode', example='200'),
+  requestId?: string(name='requestId', example='xxxx-xxxx-xxxx-xxxxxxxx'),
+  success?: boolean(name='success', example='true'),
+}
+
+model ModelRouterBatchResetMemberAuthorizationResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ModelRouterBatchResetMemberAuthorizationResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of ModelRouterBatchResetMemberAuthorization  ModelRouterBatchResetMemberAuthorizationRequest
+  * @return ModelRouterBatchResetMemberAuthorizationResponse
+ */
+async function modelRouterBatchResetMemberAuthorization(request: ModelRouterBatchResetMemberAuthorizationRequest): ModelRouterBatchResetMemberAuthorizationResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'ModelRouterBatchResetMemberAuthorization', 'POST', '/api/v1/modelRouter/open/clients/{id}/member-authorizations/reset', 'json', false, 'json', request);
+}
+
+model ModelRouterBatchSetMemberAuthorizationRequest {
+  id?: long(name='id', example='1', position='Path'),
+  allowedModelGroupConfig?: string(name='allowedModelGroupConfig', example='{"model_ids":[],"group_ids":["mg_qwen_19"]}', position='Body'),
+  userIdList?: [ long ](name='userIdList', example='[30001,30002,30003]', minLength=1, maxLength=50, position='Body'),
+}
+
+model ModelRouterBatchSetMemberAuthorizationResponseBody = {
+  data?: boolean(name='data', example='true'),
+  errCode?: string(name='errCode', example='UNKNOWN_ERROR'),
+  errMessage?: string(name='errMessage', example='未知错误'),
+  httpStatusCode?: int32(name='httpStatusCode', example='200'),
+  requestId?: string(name='requestId', example='xxxx-xxxx-xxxx-xxxxxxxx'),
+  success?: boolean(name='success', example='true'),
+}
+
+model ModelRouterBatchSetMemberAuthorizationResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ModelRouterBatchSetMemberAuthorizationResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of ModelRouterBatchSetMemberAuthorization  ModelRouterBatchSetMemberAuthorizationRequest
+  * @return ModelRouterBatchSetMemberAuthorizationResponse
+ */
+async function modelRouterBatchSetMemberAuthorization(request: ModelRouterBatchSetMemberAuthorizationRequest): ModelRouterBatchSetMemberAuthorizationResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'ModelRouterBatchSetMemberAuthorization', 'POST', '/api/v1/modelRouter/open/clients/{id}/member-authorizations', 'json', false, 'json', request);
+}
+
 model ModelRouterBillingCostTabsRequest {
   maxResults?: int32(name='maxResults', example='10', position='Query'),
   nextToken?: string(name='nextToken', description='nextToken', example='xxxx-xxx-xxxxx', position='Query'),
@@ -2553,6 +2845,38 @@ model ModelRouterConfigureClientBalanceResponse = {
 async function modelRouterConfigureClientBalance(request: ModelRouterConfigureClientBalanceRequest): ModelRouterConfigureClientBalanceResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RESTFUL', 'ModelRouterConfigureClientBalance', 'PUT', '/api/v1/modelRouter/open/clients/{id}/balance', 'json', false, 'json', request);
+}
+
+model ModelRouterConfigureMemberBalanceRequest {
+  clientId?: long(name='clientId', example='1', position='Path'),
+  id?: long(name='id', example='1', position='Path'),
+  balanceType?: string(name='balanceType', example='amount', position='Body'),
+  enableBalance?: boolean(name='enableBalance', example='true', position='Body'),
+  initialBalance?: double(name='initialBalance', example='0', position='Body'),
+}
+
+model ModelRouterConfigureMemberBalanceResponseBody = {
+  data?: ClientBalanceDTO(name='data', example='{}'),
+  errCode?: string(name='errCode', example='UNKNOWN_ERROR'),
+  errMessage?: string(name='errMessage', example='未知错误'),
+  httpStatusCode?: int32(name='httpStatusCode', example='200'),
+  requestId?: string(name='requestId', example='xxxx-xxxx-xxxx-xxxxxxxx'),
+  success?: boolean(name='success', example='true'),
+}
+
+model ModelRouterConfigureMemberBalanceResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ModelRouterConfigureMemberBalanceResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of ModelRouterConfigureMemberBalance  ModelRouterConfigureMemberBalanceRequest
+  * @return ModelRouterConfigureMemberBalanceResponse
+ */
+async function modelRouterConfigureMemberBalance(request: ModelRouterConfigureMemberBalanceRequest): ModelRouterConfigureMemberBalanceResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'ModelRouterConfigureMemberBalance', 'PUT', '/api/v1/modelRouter/open/clients/{clientId}/members/{id}/balance', 'json', false, 'json', request);
 }
 
 model ModelRouterCopyApiKeyRequest {
@@ -2757,6 +3081,107 @@ async function modelRouterCreateConversation(request: ModelRouterCreateConversat
   return @handler.do('RESTFUL', 'ModelRouterCreateConversation', 'POST', '/api/v1/modelRouter/open/conversations', 'json', false, 'json', request);
 }
 
+model ModelRouterCreateMemberApiKeyRequest {
+  clientId?: long(name='clientId', example='1', position='Path'),
+  id?: long(name='id', example='1', position='Path'),
+  expireAt?: string(name='expireAt', example='2027-07-31 00:00:00', position='Body'),
+  name?: string(name='name', example='测试Key', position='Body'),
+}
+
+model ModelRouterCreateMemberApiKeyResponseBody = {
+  data?: {
+    apiKey?: string(name='apiKey', example='sk-xxxxxxxxxxxxxxxx'),
+    apiKeyId?: long(name='apiKeyId', example='502'),
+  }(name='data', example='{ "apiKeyId": 502, "apiKey": "sk-xxxxxxxxxxxxxxxx" }'),
+  errCode?: string(name='errCode', example='UNKNOWN_ERROR'),
+  errMessage?: string(name='errMessage', example='未知错误'),
+  httpStatusCode?: int32(name='httpStatusCode', example='200'),
+  requestId?: string(name='requestId', example='xxxx-xxxx-xxxx-xxxxxxxx'),
+  success?: boolean(name='success', example='true'),
+}
+
+model ModelRouterCreateMemberApiKeyResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ModelRouterCreateMemberApiKeyResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of ModelRouterCreateMemberApiKey  ModelRouterCreateMemberApiKeyRequest
+  * @return ModelRouterCreateMemberApiKeyResponse
+ */
+async function modelRouterCreateMemberApiKey(request: ModelRouterCreateMemberApiKeyRequest): ModelRouterCreateMemberApiKeyResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'ModelRouterCreateMemberApiKey', 'POST', '/api/v1/modelRouter/open/clients/{clientId}/members/{id}/apikeys', 'json', false, 'json', request);
+}
+
+model ModelRouterCreateMemberBalanceTransactionRequest {
+  clientId?: long(name='clientId', example='1', position='Path'),
+  id?: long(name='id', example='1', position='Path'),
+  amount?: double(name='amount', example='100.00', position='Body'),
+  balanceType?: string(name='balanceType', example='permanent', position='Body'),
+  idempotencyKey?: string(name='idempotencyKey', example='550e8400-e29b-41d4-a716-446655440000', position='Body'),
+  remark?: string(name='remark', example='充值', position='Body'),
+  type?: string(name='type', example='recharge', position='Body'),
+}
+
+model ModelRouterCreateMemberBalanceTransactionResponseBody = {
+  data?: ClientBalanceDTO(name='data', example='{}'),
+  errCode?: string(name='errCode', example='UNKNOWN_ERROR'),
+  errMessage?: string(name='errMessage', example='未知错误'),
+  httpStatusCode?: int32(name='httpStatusCode', example='200'),
+  requestId?: string(name='requestId', example='xxxx-xxxx-xxxx-xxxxxxxx'),
+  success?: boolean(name='success', example='true'),
+}
+
+model ModelRouterCreateMemberBalanceTransactionResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ModelRouterCreateMemberBalanceTransactionResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of ModelRouterCreateMemberBalanceTransaction  ModelRouterCreateMemberBalanceTransactionRequest
+  * @return ModelRouterCreateMemberBalanceTransactionResponse
+ */
+async function modelRouterCreateMemberBalanceTransaction(request: ModelRouterCreateMemberBalanceTransactionRequest): ModelRouterCreateMemberBalanceTransactionResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'ModelRouterCreateMemberBalanceTransaction', 'POST', '/api/v1/modelRouter/open/clients/{clientId}/members/{id}/balance/transactions', 'json', false, 'json', request);
+}
+
+model ModelRouterCreateMemberSubscriptionRequest {
+  clientId?: long(name='clientId', example='1', position='Path'),
+  id?: long(name='id', example='1', position='Path'),
+  amount?: double(name='amount', example='100.00', position='Body'),
+  balanceType?: string(name='balanceType', example='monthly', position='Body'),
+  effectiveTime?: long(name='effectiveTime', example='1753858800', position='Body'),
+  idempotencyKey?: string(name='idempotencyKey', example='550e8400-e29b-41d4-a716-446655440000', position='Body'),
+}
+
+model ModelRouterCreateMemberSubscriptionResponseBody = {
+  data?: SubscriptionDTO(name='data', example='{}'),
+  errCode?: string(name='errCode', example='UNKNOWN_ERROR'),
+  errMessage?: string(name='errMessage', example='未知错误'),
+  httpStatusCode?: int32(name='httpStatusCode', example='200'),
+  requestId?: string(name='requestId', example='xxxx-xxxx-xxxx-xxxxxxxx'),
+  success?: boolean(name='success', example='true'),
+}
+
+model ModelRouterCreateMemberSubscriptionResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ModelRouterCreateMemberSubscriptionResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of ModelRouterCreateMemberSubscription  ModelRouterCreateMemberSubscriptionRequest
+  * @return ModelRouterCreateMemberSubscriptionResponse
+ */
+async function modelRouterCreateMemberSubscription(request: ModelRouterCreateMemberSubscriptionRequest): ModelRouterCreateMemberSubscriptionResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'ModelRouterCreateMemberSubscription', 'POST', '/api/v1/modelRouter/open/clients/{clientId}/members/{id}/balance/subscription', 'json', false, 'json', request);
+}
+
 model ModelRouterCreateModelRequest {
   apiKey?: string(name='apiKey', description='API Key', example='sk-xxxx', position='Body'),
   baseUrl?: string(name='baseUrl', description='Base URL', example='https://dashscope.aliyuncs.com', position='Body'),
@@ -2857,6 +3282,41 @@ model ModelRouterCreateSubscriptionResponse = {
 async function modelRouterCreateSubscription(request: ModelRouterCreateSubscriptionRequest): ModelRouterCreateSubscriptionResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RESTFUL', 'ModelRouterCreateSubscription', 'POST', '/api/v1/modelRouter/open/clients/{id}/balance/subscription', 'json', false, 'json', request);
+}
+
+model ModelRouterCreateUserRequest {
+  departmentRoles?: [
+    DepartmentRoleCmd
+  ](name='departmentRoles', example='[]', position='Body'),
+  loginName: string(name='loginName', description='This parameter is required.', example='zhangsan', position='Body'),
+  name: string(name='name', description='This parameter is required.', example='张三', position='Body'),
+  phone?: string(name='phone', example='13800000000', position='Body'),
+}
+
+model ModelRouterCreateUserResponseBody = {
+  data?: {
+    userId?: long(name='userId', example='30001'),
+  }(name='data', example='{ "userId": 30001 }'),
+  errCode?: string(name='errCode', example='UNKNOWN_ERROR'),
+  errMessage?: string(name='errMessage', example='未知错误'),
+  httpStatusCode?: int32(name='httpStatusCode', example='200'),
+  requestId?: string(name='requestId', example='xxxx-xxxx-xxxx-xxxxxxxx'),
+  success?: boolean(name='success', example='true'),
+}
+
+model ModelRouterCreateUserResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ModelRouterCreateUserResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of ModelRouterCreateUser  ModelRouterCreateUserRequest
+  * @return ModelRouterCreateUserResponse
+ */
+async function modelRouterCreateUser(request: ModelRouterCreateUserRequest): ModelRouterCreateUserResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'ModelRouterCreateUser', 'POST', '/api/v1/modelRouter/open/users', 'json', false, 'json', request);
 }
 
 model ModelRouterDeleteApiKeyRequest {
@@ -2999,6 +3459,65 @@ async function modelRouterDeleteModelGroup(request: ModelRouterDeleteModelGroupR
   return @handler.do('RESTFUL', 'ModelRouterDeleteModelGroup', 'DELETE', '/api/v1/modelRouter/open/model-groups/{groupId}', 'json', false, 'json', request);
 }
 
+model ModelRouterDeleteUserRequest {
+  id?: long(name='id', example='30001', position='Path'),
+}
+
+model ModelRouterDeleteUserResponseBody = {
+  data?: boolean(name='data', example='true'),
+  errCode?: string(name='errCode', example='UNKNOWN_ERROR'),
+  errMessage?: string(name='errMessage', example='未知错误'),
+  httpStatusCode?: int32(name='httpStatusCode', example='200'),
+  requestId?: string(name='requestId', example='xxxx-xxxx-xxxx-xxxxxxxx'),
+  success?: boolean(name='success', example='true'),
+}
+
+model ModelRouterDeleteUserResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ModelRouterDeleteUserResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of ModelRouterDeleteUser  ModelRouterDeleteUserRequest
+  * @return ModelRouterDeleteUserResponse
+ */
+async function modelRouterDeleteUser(request: ModelRouterDeleteUserRequest): ModelRouterDeleteUserResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'ModelRouterDeleteUser', 'DELETE', '/api/v1/modelRouter/open/users/{id}', 'json', false, 'json', request);
+}
+
+model ModelRouterExportMemberBalanceOrdersRequest {
+  clientId?: long(name='clientId', example='1', position='Path'),
+  id?: long(name='id', example='1', position='Path'),
+  balanceType?: string(name='balanceType', example='permanent', position='Query'),
+  direction?: string(name='direction', example='in', position='Query'),
+}
+
+model ModelRouterExportMemberBalanceOrdersResponseBody = {
+  data?: ExportTaskDTO(name='data', example='{}'),
+  errCode?: string(name='errCode', example='UNKNOWN_ERROR'),
+  errMessage?: string(name='errMessage', example='未知错误'),
+  httpStatusCode?: int32(name='httpStatusCode', example='200'),
+  requestId?: string(name='requestId', example='xxxx-xxxx-xxxx-xxxxxxxx'),
+  success?: boolean(name='success', example='true'),
+}
+
+model ModelRouterExportMemberBalanceOrdersResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ModelRouterExportMemberBalanceOrdersResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of ModelRouterExportMemberBalanceOrders  ModelRouterExportMemberBalanceOrdersRequest
+  * @return ModelRouterExportMemberBalanceOrdersResponse
+ */
+async function modelRouterExportMemberBalanceOrders(request: ModelRouterExportMemberBalanceOrdersRequest): ModelRouterExportMemberBalanceOrdersResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'ModelRouterExportMemberBalanceOrders', 'GET', '/api/v1/modelRouter/open/clients/{clientId}/members/{id}/balance/orders/export', 'json', false, 'json', request);
+}
+
 model ModelRouterGetClientBalanceRequest {
   id?: long(name='id', example='1', position='Path'),
 }
@@ -3069,6 +3588,174 @@ async function modelRouterGetClientBalanceLogs(request: ModelRouterGetClientBala
   return @handler.do('RESTFUL', 'ModelRouterGetClientBalanceLogs', 'GET', '/api/v1/modelRouter/open/clients/{id}/balance/logs', 'json', false, 'json', request);
 }
 
+model ModelRouterGetDeptBalanceSummaryRequest {
+  id?: long(name='id', example='1', position='Path'),
+}
+
+model ModelRouterGetDeptBalanceSummaryResponseBody = {
+  data?: DeptBalanceSummaryDTO(name='data', example='{}'),
+  errCode?: string(name='errCode', example='UNKNOWN_ERROR'),
+  errMessage?: string(name='errMessage', example='未知错误'),
+  httpStatusCode?: int32(name='httpStatusCode', example='200'),
+  requestId?: string(name='requestId', example='xxxx-xxxx-xxxx-xxxxxxxx'),
+  success?: boolean(name='success', example='true'),
+}
+
+model ModelRouterGetDeptBalanceSummaryResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ModelRouterGetDeptBalanceSummaryResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of ModelRouterGetDeptBalanceSummary  ModelRouterGetDeptBalanceSummaryRequest
+  * @return ModelRouterGetDeptBalanceSummaryResponse
+ */
+async function modelRouterGetDeptBalanceSummary(request: ModelRouterGetDeptBalanceSummaryRequest): ModelRouterGetDeptBalanceSummaryResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'ModelRouterGetDeptBalanceSummary', 'GET', '/api/v1/modelRouter/open/clients/{id}/balance-summary', 'json', false, 'json', request);
+}
+
+model ModelRouterGetMemberApiKeysRequest {
+  clientId?: long(name='clientId', example='1', position='Path'),
+  id?: long(name='id', example='1', position='Path'),
+  keyword?: string(name='keyword', example='张三', position='Query'),
+  pageIndex?: int32(name='pageIndex', example='1', position='Query'),
+  pageSize?: int32(name='pageSize', example='20', position='Query'),
+}
+
+model ModelRouterGetMemberApiKeysResponseBody = {
+  data?: {
+    list?: [
+      MemberApiKeyDTO
+    ](name='list', example='[]'),
+    page?: int32(name='page', example='1'),
+    pageSize?: int32(name='pageSize', example='20'),
+    total?: int32(name='total', example='0'),
+  }(name='data', example='{}'),
+  errCode?: string(name='errCode', example='UNKNOWN_ERROR'),
+  errMessage?: string(name='errMessage', example='未知错误'),
+  httpStatusCode?: int32(name='httpStatusCode', example='200'),
+  requestId?: string(name='requestId', example='xxxx-xxxx-xxxx-xxxxxxxx'),
+  success?: boolean(name='success', example='true'),
+}
+
+model ModelRouterGetMemberApiKeysResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ModelRouterGetMemberApiKeysResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of ModelRouterGetMemberApiKeys  ModelRouterGetMemberApiKeysRequest
+  * @return ModelRouterGetMemberApiKeysResponse
+ */
+async function modelRouterGetMemberApiKeys(request: ModelRouterGetMemberApiKeysRequest): ModelRouterGetMemberApiKeysResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'ModelRouterGetMemberApiKeys', 'GET', '/api/v1/modelRouter/open/clients/{clientId}/members/{id}/apikeys', 'json', false, 'json', request);
+}
+
+model ModelRouterGetMemberBalanceRequest {
+  clientId?: long(name='clientId', example='1', position='Path'),
+  id?: long(name='id', example='1', position='Path'),
+}
+
+model ModelRouterGetMemberBalanceResponseBody = {
+  data?: ClientBalanceDTO(name='data', example='{}'),
+  errCode?: string(name='errCode', example='UNKNOWN_ERROR'),
+  errMessage?: string(name='errMessage', example='未知错误'),
+  httpStatusCode?: int32(name='httpStatusCode', example='200'),
+  requestId?: string(name='requestId', example='xxxx-xxxx-xxxx-xxxxxxxx'),
+  success?: boolean(name='success', example='true'),
+}
+
+model ModelRouterGetMemberBalanceResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ModelRouterGetMemberBalanceResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of ModelRouterGetMemberBalance  ModelRouterGetMemberBalanceRequest
+  * @return ModelRouterGetMemberBalanceResponse
+ */
+async function modelRouterGetMemberBalance(request: ModelRouterGetMemberBalanceRequest): ModelRouterGetMemberBalanceResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'ModelRouterGetMemberBalance', 'GET', '/api/v1/modelRouter/open/clients/{clientId}/members/{id}/balance', 'json', false, 'json', request);
+}
+
+model ModelRouterGetMemberBalanceLogsRequest {
+  clientId?: long(name='clientId', example='1', position='Path'),
+  id?: long(name='id', example='1', position='Path'),
+  changeType?: string(name='changeType', example='recharge', position='Query'),
+  page?: int32(name='page', example='1', position='Query'),
+  size?: int32(name='size', example='20', position='Query'),
+  skipTotal?: boolean(name='skipTotal', example='false', position='Query'),
+}
+
+model ModelRouterGetMemberBalanceLogsResponseBody = {
+  data?: {
+    list?: [
+      ClientBalanceLogDTO
+    ](name='list', example='[]'),
+    page?: int32(name='page', example='1'),
+    size?: int32(name='size', example='20'),
+    total?: int32(name='total', example='0'),
+  }(name='data', example='{}'),
+  errCode?: string(name='errCode', example='UNKNOWN_ERROR'),
+  errMessage?: string(name='errMessage', example='未知错误'),
+  httpStatusCode?: int32(name='httpStatusCode', example='200'),
+  requestId?: string(name='requestId', example='xxxx-xxxx-xxxx-xxxxxxxx'),
+  success?: boolean(name='success', example='true'),
+}
+
+model ModelRouterGetMemberBalanceLogsResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ModelRouterGetMemberBalanceLogsResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of ModelRouterGetMemberBalanceLogs  ModelRouterGetMemberBalanceLogsRequest
+  * @return ModelRouterGetMemberBalanceLogsResponse
+ */
+async function modelRouterGetMemberBalanceLogs(request: ModelRouterGetMemberBalanceLogsRequest): ModelRouterGetMemberBalanceLogsResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'ModelRouterGetMemberBalanceLogs', 'GET', '/api/v1/modelRouter/open/clients/{clientId}/members/{id}/balance/logs', 'json', false, 'json', request);
+}
+
+model ModelRouterGetUserRolesRequest {
+  id?: long(name='id', example='1', position='Path'),
+}
+
+model ModelRouterGetUserRolesResponseBody = {
+  data?: {
+    departmentRoles?: [
+      UserDepartmentDTO
+    ](name='departmentRoles', example='[]'),
+  }(name='data', example='{}'),
+  errCode?: string(name='errCode', example='UNKNOWN_ERROR'),
+  errMessage?: string(name='errMessage', example='未知错误'),
+  httpStatusCode?: int32(name='httpStatusCode', example='200'),
+  requestId?: string(name='requestId', example='xxxx-xxxx-xxxx-xxxxxxxx'),
+  success?: boolean(name='success', example='true'),
+}
+
+model ModelRouterGetUserRolesResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ModelRouterGetUserRolesResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of ModelRouterGetUserRoles  ModelRouterGetUserRolesRequest
+  * @return ModelRouterGetUserRolesResponse
+ */
+async function modelRouterGetUserRoles(request: ModelRouterGetUserRolesRequest): ModelRouterGetUserRolesResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'ModelRouterGetUserRoles', 'GET', '/api/v1/modelRouter/open/users/{id}/roles', 'json', false, 'json', request);
+}
+
 model ModelRouterListBalanceOrdersRequest {
   id?: long(name='id', example='1', position='Path'),
   balanceType?: string(name='balanceType', example='permanent', position='Query'),
@@ -3111,6 +3798,122 @@ model ModelRouterListBalanceOrdersResponse = {
 async function modelRouterListBalanceOrders(request: ModelRouterListBalanceOrdersRequest): ModelRouterListBalanceOrdersResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RESTFUL', 'ModelRouterListBalanceOrders', 'GET', '/api/v1/modelRouter/open/clients/{id}/balance/orders', 'json', false, 'json', request);
+}
+
+model ModelRouterListDeptMembersRequest {
+  id?: long(name='id', example='1', position='Path'),
+  authConfig?: string(name='authConfig', example='inherit', position='Query'),
+  includeAuthorization?: boolean(name='includeAuthorization', example='false', position='Query'),
+  includeBalance?: boolean(name='includeBalance', example='true', position='Query'),
+  keyword?: string(name='keyword', example='张三', position='Query'),
+  model?: string(name='model', example='1', position='Query'),
+  pageIndex?: int32(name='pageIndex', example='1', position='Query'),
+  pageSize?: int32(name='pageSize', example='20', position='Query'),
+}
+
+model ModelRouterListDeptMembersResponseBody = {
+  data?: {
+    list?: [
+      DeptMemberDTO
+    ](name='list', example='[]'),
+    page?: int32(name='page', example='1'),
+    pageSize?: int32(name='pageSize', example='20'),
+    total?: int32(name='total', example='0'),
+  }(name='data', example='{}'),
+  errCode?: string(name='errCode', example='UNKNOWN_ERROR'),
+  errMessage?: string(name='errMessage', example='未知错误'),
+  httpStatusCode?: int32(name='httpStatusCode', example='200'),
+  requestId?: string(name='requestId', example='xxxx-xxxx-xxxx-xxxxxxxx'),
+  success?: boolean(name='success', example='true'),
+}
+
+model ModelRouterListDeptMembersResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ModelRouterListDeptMembersResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of ModelRouterListDeptMembers  ModelRouterListDeptMembersRequest
+  * @return ModelRouterListDeptMembersResponse
+ */
+async function modelRouterListDeptMembers(request: ModelRouterListDeptMembersRequest): ModelRouterListDeptMembersResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'ModelRouterListDeptMembers', 'GET', '/api/v1/modelRouter/open/clients/{id}/members', 'json', false, 'json', request);
+}
+
+model ModelRouterListMemberBalanceOrdersRequest {
+  clientId?: long(name='clientId', example='1', position='Path'),
+  id?: long(name='id', example='1', position='Path'),
+  balanceType?: string(name='balanceType', example='permanent', position='Query'),
+  direction?: string(name='direction', example='in', position='Query'),
+  orderType?: string(name='orderType', example='recharge', position='Query'),
+  page?: int32(name='page', example='1', position='Query'),
+  pageSize?: int32(name='pageSize', example='20', position='Query'),
+}
+
+model ModelRouterListMemberBalanceOrdersResponseBody = {
+  data?: {
+    list?: [
+      BillOrderEntryDTO
+    ](name='list', example='[]'),
+    page?: int32(name='page', example='1'),
+    size?: int32(name='size', example='20'),
+    total?: int32(name='total', example='0'),
+  }(name='data', example='{}'),
+  errCode?: string(name='errCode', example='UNKNOWN_ERROR'),
+  errMessage?: string(name='errMessage', example='未知错误'),
+  httpStatusCode?: int32(name='httpStatusCode', example='200'),
+  requestId?: string(name='requestId', example='xxxx-xxxx-xxxx-xxxxxxxx'),
+  success?: boolean(name='success', example='true'),
+}
+
+model ModelRouterListMemberBalanceOrdersResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ModelRouterListMemberBalanceOrdersResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of ModelRouterListMemberBalanceOrders  ModelRouterListMemberBalanceOrdersRequest
+  * @return ModelRouterListMemberBalanceOrdersResponse
+ */
+async function modelRouterListMemberBalanceOrders(request: ModelRouterListMemberBalanceOrdersRequest): ModelRouterListMemberBalanceOrdersResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'ModelRouterListMemberBalanceOrders', 'GET', '/api/v1/modelRouter/open/clients/{clientId}/members/{id}/balance/orders', 'json', false, 'json', request);
+}
+
+model ModelRouterListMemberSubscriptionsRequest {
+  clientId?: long(name='clientId', example='1', position='Path'),
+  id?: long(name='id', example='1', position='Path'),
+}
+
+model ModelRouterListMemberSubscriptionsResponseBody = {
+  data?: {
+    list?: [
+      SubscriptionDTO
+    ](name='list', example='[]'),
+  }(name='data', example='{}'),
+  errCode?: string(name='errCode', example='UNKNOWN_ERROR'),
+  errMessage?: string(name='errMessage', example='未知错误'),
+  httpStatusCode?: int32(name='httpStatusCode', example='200'),
+  requestId?: string(name='requestId', example='xxxx-xxxx-xxxx-xxxxxxxx'),
+  success?: boolean(name='success', example='true'),
+}
+
+model ModelRouterListMemberSubscriptionsResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ModelRouterListMemberSubscriptionsResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of ModelRouterListMemberSubscriptions  ModelRouterListMemberSubscriptionsRequest
+  * @return ModelRouterListMemberSubscriptionsResponse
+ */
+async function modelRouterListMemberSubscriptions(request: ModelRouterListMemberSubscriptionsRequest): ModelRouterListMemberSubscriptionsResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'ModelRouterListMemberSubscriptions', 'GET', '/api/v1/modelRouter/open/clients/{clientId}/members/{id}/balance/subscription', 'json', false, 'json', request);
 }
 
 model ModelRouterListSubscriptionsRequest {
@@ -3182,8 +3985,10 @@ async function modelRouterQueryApiKey(request: ModelRouterQueryApiKeyRequest): M
 model ModelRouterQueryApiKeyListRequest {
   clientId?: long(name='clientId', example='1', position='Query'),
   groupBy?: string(name='groupBy', example='resourceId', position='Query'),
+  includeMemberKeys?: boolean(name='includeMemberKeys', example='true', position='Query'),
   keyword?: string(name='keyword', example='test', position='Query'),
   maxResults?: int32(name='maxResults', example='10', position='Query'),
+  memberUserIds?: string(name='memberUserIds', example='30001,30002', position='Query'),
   needTotalCount?: boolean(name='needTotalCount', example='true', position='Query'),
   nextToken?: string(name='nextToken', example='1', position='Query'),
   orderBy?: string(name='orderBy', example='resourceId', position='Query'),
@@ -3233,6 +4038,7 @@ model ModelRouterQueryBillingCostBreakdownRequest {
   endTime: long(name='endTime', description='This parameter is required.', example='1700086400', position='Query'),
   granularity: string(name='granularity', description='This parameter is required.', example='hourly', position='Query'),
   maxResults?: int32(name='maxResults', example='20', position='Query'),
+  memberUserIds?: string(name='memberUserIds', example='30001,30002', position='Query'),
   modelId?: long(name='modelId', example='12', position='Query'),
   modelTypes?: string(name='modelTypes', example='Chat', position='Query'),
   nextToken?: string(name='nextToken', example='xxxx-xxx-xxxxx', position='Query'),
@@ -3381,6 +4187,7 @@ model ModelRouterQueryClientListRequest {
   orderDirection?: string(name='orderDirection', example='DESC', position='Query'),
   pageIndex?: int32(name='pageIndex', example='1', position='Query'),
   pageSize?: int32(name='pageSize', example='10', position='Query'),
+  parentId?: long(name='parentId', example='1', position='Query'),
   status?: int32(name='status', example='1', position='Query'),
 }
 
@@ -3529,6 +4336,7 @@ model ModelRouterQueryCostModelDetailRequest {
   clientId?: long(name='clientId', example='1', position='Query'),
   endTime: long(name='endTime', description='This parameter is required.', example='1700086400', position='Query'),
   maxResults?: int32(name='maxResults', description='maxResults', example='10', position='Query'),
+  memberUserIds?: string(name='memberUserIds', example='30001,30002', position='Query'),
   modelId: long(name='modelId', description='This parameter is required.', example='1', position='Query'),
   nextToken?: string(name='nextToken', description='nextToken', example='xxxx-xxx-xxxxx', position='Query'),
   page?: int32(name='page', example='1', position='Query'),
@@ -3569,6 +4377,7 @@ model ModelRouterQueryCostModelListRequest {
   endTime: long(name='endTime', description='This parameter is required.', example='1700086400', position='Query'),
   granularity?: string(name='granularity', example='hourly', position='Query'),
   maxResults?: int32(name='maxResults', example='10', position='Query'),
+  memberUserIds?: string(name='memberUserIds', example='30001,30002', position='Query'),
   modelTypes?: string(name='modelTypes', example='LLM,VL', position='Query'),
   nextToken?: string(name='nextToken', description='nextToken', example='xxxx-xxx-xxxxx', position='Query'),
   search?: string(name='search', example='qwen', position='Query'),
@@ -3607,6 +4416,7 @@ model ModelRouterQueryCostOverviewMetricsRequest {
   endTime: long(name='endTime', description='This parameter is required.', example='1700086400', position='Query'),
   granularity?: string(name='granularity', example='hourly', position='Query'),
   maxResults?: int32(name='maxResults', example='10', position='Query'),
+  memberUserIds?: string(name='memberUserIds', example='30001,30002', position='Query'),
   modelTypes?: string(name='modelTypes', example='LLM,VL', position='Query'),
   nextToken?: string(name='nextToken', description='nextToken', example='xxxx-xxx-xxxxx', position='Query'),
   startTime: long(name='startTime', description='This parameter is required.', example='1700000000', position='Query'),
@@ -3646,6 +4456,7 @@ model ModelRouterQueryCostTrendMetricsRequest {
   endTime: long(name='endTime', description='This parameter is required.', example='1700086400', position='Query'),
   granularity?: string(name='granularity', example='hourly', position='Query'),
   maxResults?: int32(name='maxResults', example='10', position='Query'),
+  memberUserIds?: string(name='memberUserIds', example='30001,30002', position='Query'),
   modelTypes?: string(name='modelTypes', example='LLM,VL', position='Query'),
   nextToken?: string(name='nextToken', description='nextToken', example='xxxx-xxx-xxxxx', position='Query'),
   startTime: long(name='startTime', description='This parameter is required.', example='1700000000', position='Query'),
@@ -3858,12 +4669,54 @@ async function modelRouterQueryModelGroupModels(request: ModelRouterQueryModelGr
   return @handler.do('RESTFUL', 'ModelRouterQueryModelGroupModels', 'GET', '/api/v1/modelRouter/open/model-groups/{groupId}/models', 'json', false, 'json', request);
 }
 
+model ModelRouterQueryModelGroupUsersRequest {
+  groupId?: string(name='groupId', example='mg_a1b2c3d4e5f6g7h8i9j0', position='Path'),
+  maxResults?: int32(name='maxResults', example='10', position='Query'),
+  nextToken?: string(name='nextToken', example='xxxx-xxx-xxxxx', position='Query'),
+  pageIndex?: int32(name='pageIndex', example='1', position='Query'),
+  pageSize?: int32(name='pageSize', example='20', position='Query'),
+}
+
+model ModelRouterQueryModelGroupUsersResponseBody = {
+  data?: {
+    list?: [
+      ModelGroupUserDTO
+    ](name='list'),
+    page?: int32(name='page', example='1'),
+    pageSize?: int32(name='pageSize', example='20'),
+    total?: int32(name='total', example='None'),
+  }(name='data'),
+  errCode?: string(name='errCode', example='B_USER_NOT_FOUND_EXCEPTION'),
+  errMessage?: string(name='errMessage', example='null'),
+  httpStatusCode?: int32(name='httpStatusCode', example='200'),
+  maxResults?: int32(name='maxResults', example='10'),
+  nextToken?: string(name='nextToken', description='nextToken', example='xxxx-xxx-xxxxx'),
+  requestId?: string(name='requestId', example='xxxx-xxxx-xxxx-xxxxxxxx'),
+  success?: boolean(name='success', example='true'),
+}
+
+model ModelRouterQueryModelGroupUsersResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ModelRouterQueryModelGroupUsersResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of ModelRouterQueryModelGroupUsers  ModelRouterQueryModelGroupUsersRequest
+  * @return ModelRouterQueryModelGroupUsersResponse
+ */
+async function modelRouterQueryModelGroupUsers(request: ModelRouterQueryModelGroupUsersRequest): ModelRouterQueryModelGroupUsersResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'ModelRouterQueryModelGroupUsers', 'GET', '/api/v1/modelRouter/open/model-groups/{groupId}/users', 'json', false, 'json', request);
+}
+
 model ModelRouterQueryModelGroupsByApiKeyRequest {
   id?: long(name='id', example='501', position='Path'),
 }
 
 model ModelRouterQueryModelGroupsByApiKeyResponseBody = {
   data?: {
+    bindType?: string(name='bindType', example='department'),
     clientId?: long(name='clientId', example='1001'),
     groups?: [
       ModelGroupDTO
@@ -4040,6 +4893,7 @@ model ModelRouterQueryObservationChartsRequest {
   apiKeyId?: long(name='apiKeyId', example='1', position='Query'),
   clientId?: long(name='clientId', example='1', position='Query'),
   endTime?: string(name='endTime', example='2024-01-02T00:00:00Z', position='Query'),
+  memberUserIds?: string(name='memberUserIds', example='30001,30002', position='Query'),
   modelId?: long(name='modelId', example='1', position='Query'),
   startTime?: string(name='startTime', example='2024-01-01T00:00:00Z', position='Query'),
   timeRange?: string(name='timeRange', example='24h', position='Query'),
@@ -4075,6 +4929,7 @@ model ModelRouterQueryObservationLogsRequest {
   endTime?: string(name='endTime', example='2024-01-02T00:00:00Z', position='Query'),
   groupBy?: string(name='groupBy', example='resourceId', position='Query'),
   maxResults?: int32(name='maxResults', example='10', position='Query'),
+  memberUserIds?: string(name='memberUserIds', example='30001,30002', position='Query'),
   modelId?: long(name='modelId', example='1', position='Query'),
   needTotalCount?: boolean(name='needTotalCount', example='true', position='Query'),
   nextToken?: string(name='nextToken', example='1', position='Query'),
@@ -4127,6 +4982,7 @@ model ModelRouterQueryObservationMetricsRequest {
   endTime?: string(name='endTime', example='2024-01-02T00:00:00Z', position='Query'),
   groupBy?: string(name='groupBy', example='resourceId', position='Query'),
   maxResults?: int32(name='maxResults', example='10', position='Query'),
+  memberUserIds?: string(name='memberUserIds', example='30001,30002', position='Query'),
   modelId?: long(name='modelId', example='1', position='Query'),
   needTotalCount?: boolean(name='needTotalCount', example='true', position='Query'),
   nextToken?: string(name='nextToken', example='2', position='Query'),
@@ -4168,6 +5024,7 @@ model ModelRouterQueryUsageBreakdownRequest {
   endTime: long(name='endTime', description='This parameter is required.', example='1700086400', position='Query'),
   granularity: string(name='granularity', description='This parameter is required.', example='hourly', position='Query'),
   maxResults?: int32(name='maxResults', example='20', position='Query'),
+  memberUserIds?: string(name='memberUserIds', example='30001,30002', position='Query'),
   nextToken?: string(name='nextToken', example='xxxx-xxx-xxxxx', position='Query'),
   page?: int32(name='page', example='1', position='Query'),
   pageSize?: int32(name='pageSize', example='20', position='Query'),
@@ -4198,6 +5055,72 @@ model ModelRouterQueryUsageBreakdownResponse = {
 async function modelRouterQueryUsageBreakdown(request: ModelRouterQueryUsageBreakdownRequest): ModelRouterQueryUsageBreakdownResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RESTFUL', 'ModelRouterQueryUsageBreakdown', 'GET', '/api/v1/modelRouter/open/usage/breakdown', 'json', false, 'json', request);
+}
+
+model ModelRouterQueryUserListRequest {
+  keyword?: string(name='keyword', example='张三', position='Query'),
+  pageIndex?: int32(name='pageIndex', example='1', position='Query'),
+  pageSize?: int32(name='pageSize', example='20', position='Query'),
+}
+
+model ModelRouterQueryUserListResponseBody = {
+  data?: {
+    list?: [
+      UserListItemDTO
+    ](name='list', example='[]'),
+    page?: int32(name='page', example='1'),
+    pageSize?: int32(name='pageSize', example='20'),
+    total?: int32(name='total', example='0'),
+  }(name='data', example='{}'),
+  errCode?: string(name='errCode', example='UNKNOWN_ERROR'),
+  errMessage?: string(name='errMessage', example='未知错误'),
+  httpStatusCode?: int32(name='httpStatusCode', example='200'),
+  requestId?: string(name='requestId', example='xxxx-xxxx-xxxx-xxxxxxxx'),
+  success?: boolean(name='success', example='true'),
+}
+
+model ModelRouterQueryUserListResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ModelRouterQueryUserListResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of ModelRouterQueryUserList  ModelRouterQueryUserListRequest
+  * @return ModelRouterQueryUserListResponse
+ */
+async function modelRouterQueryUserList(request: ModelRouterQueryUserListRequest): ModelRouterQueryUserListResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'ModelRouterQueryUserList', 'GET', '/api/v1/modelRouter/open/users', 'json', false, 'json', request);
+}
+
+model ModelRouterResetMemberAuthorizationRequest {
+  clientId?: long(name='clientId', example='1', position='Path'),
+  id?: long(name='id', example='1', position='Path'),
+}
+
+model ModelRouterResetMemberAuthorizationResponseBody = {
+  data?: boolean(name='data', example='true'),
+  errCode?: string(name='errCode', example='UNKNOWN_ERROR'),
+  errMessage?: string(name='errMessage', example='未知错误'),
+  httpStatusCode?: int32(name='httpStatusCode', example='200'),
+  requestId?: string(name='requestId', example='xxxx-xxxx-xxxx-xxxxxxxx'),
+  success?: boolean(name='success', example='true'),
+}
+
+model ModelRouterResetMemberAuthorizationResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ModelRouterResetMemberAuthorizationResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of ModelRouterResetMemberAuthorization  ModelRouterResetMemberAuthorizationRequest
+  * @return ModelRouterResetMemberAuthorizationResponse
+ */
+async function modelRouterResetMemberAuthorization(request: ModelRouterResetMemberAuthorizationRequest): ModelRouterResetMemberAuthorizationResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'ModelRouterResetMemberAuthorization', 'DELETE', '/api/v1/modelRouter/open/clients/{clientId}/members/{id}/authorization', 'json', false, 'json', request);
 }
 
 model ModelRouterSaveFlowConfigRequest {
@@ -4239,6 +5162,128 @@ async function modelRouterSaveFlowConfig(request: ModelRouterSaveFlowConfigReque
   return @handler.do('RESTFUL', 'ModelRouterSaveFlowConfig', 'POST', '/api/v1/modelRouter/open/flow-config', 'json', false, 'json', request);
 }
 
+model ModelRouterSearchClientTreeRequest {
+  keyword?: string(name='keyword', example='研发部', position='Query'),
+}
+
+model ModelRouterSearchClientTreeResponseBody = {
+  data?: {
+    matchedDeptIds?: [ long ](name='matchedDeptIds', example='[]'),
+  }(name='data', example='{}'),
+  errCode?: string(name='errCode', example='UNKNOWN_ERROR'),
+  errMessage?: string(name='errMessage', example='未知错误'),
+  httpStatusCode?: int32(name='httpStatusCode', example='200'),
+  requestId?: string(name='requestId', example='xxxx-xxxx-xxxx-xxxxxxxx'),
+  success?: boolean(name='success', example='true'),
+}
+
+model ModelRouterSearchClientTreeResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ModelRouterSearchClientTreeResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of ModelRouterSearchClientTree  ModelRouterSearchClientTreeRequest
+  * @return ModelRouterSearchClientTreeResponse
+ */
+async function modelRouterSearchClientTree(request: ModelRouterSearchClientTreeRequest): ModelRouterSearchClientTreeResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'ModelRouterSearchClientTree', 'GET', '/api/v1/modelRouter/open/clients/tree/search', 'json', false, 'json', request);
+}
+
+model ModelRouterSetMemberAuthorizationRequest {
+  clientId?: long(name='clientId', example='1', position='Path'),
+  id?: long(name='id', example='1', position='Path'),
+  allowedModelGroupConfig?: string(name='allowedModelGroupConfig', example='{"model_ids":[],"group_ids":["mg_qwen_49"]}', position='Body'),
+  allowedModels?: string(name='allowedModels', example='101,102,103', position='Body'),
+}
+
+model ModelRouterSetMemberAuthorizationResponseBody = {
+  data?: boolean(name='data', example='true'),
+  errCode?: string(name='errCode', example='UNKNOWN_ERROR'),
+  errMessage?: string(name='errMessage', example='未知错误'),
+  httpStatusCode?: int32(name='httpStatusCode', example='200'),
+  requestId?: string(name='requestId', example='xxxx-xxxx-xxxx-xxxxxxxx'),
+  success?: boolean(name='success', example='true'),
+}
+
+model ModelRouterSetMemberAuthorizationResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ModelRouterSetMemberAuthorizationResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of ModelRouterSetMemberAuthorization  ModelRouterSetMemberAuthorizationRequest
+  * @return ModelRouterSetMemberAuthorizationResponse
+ */
+async function modelRouterSetMemberAuthorization(request: ModelRouterSetMemberAuthorizationRequest): ModelRouterSetMemberAuthorizationResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'ModelRouterSetMemberAuthorization', 'PUT', '/api/v1/modelRouter/open/clients/{clientId}/members/{id}/authorization', 'json', false, 'json', request);
+}
+
+model ModelRouterSetUserRolesRequest {
+  id?: long(name='id', example='30001', position='Path'),
+  departmentRoles?: [
+    DepartmentRoleCmd
+  ](name='departmentRoles', example='[{"clientId":1001,"roleCode":"member"},{"clientId":1002,"roleCode":"member"}]', position='Body'),
+}
+
+model ModelRouterSetUserRolesResponseBody = {
+  data?: boolean(name='data', example='true'),
+  errCode?: string(name='errCode', example='UNKNOWN_ERROR'),
+  errMessage?: string(name='errMessage', example='未知错误'),
+  httpStatusCode?: int32(name='httpStatusCode', example='200'),
+  requestId?: string(name='requestId', example='xxxx-xxxx-xxxx-xxxxxxxx'),
+  success?: boolean(name='success', example='true'),
+}
+
+model ModelRouterSetUserRolesResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ModelRouterSetUserRolesResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of ModelRouterSetUserRoles  ModelRouterSetUserRolesRequest
+  * @return ModelRouterSetUserRolesResponse
+ */
+async function modelRouterSetUserRoles(request: ModelRouterSetUserRolesRequest): ModelRouterSetUserRolesResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'ModelRouterSetUserRoles', 'PUT', '/api/v1/modelRouter/open/users/{id}/roles', 'json', false, 'json', request);
+}
+
+model ModelRouterStopMemberSubscriptionRequest {
+  clientId?: long(name='clientId', example='1', position='Path'),
+  id?: long(name='id', example='1', position='Path'),
+  balanceType?: string(name='balanceType', example='monthly', position='Body'),
+}
+
+model ModelRouterStopMemberSubscriptionResponseBody = {
+  data?: boolean(name='data', example='true'),
+  errCode?: string(name='errCode', example='UNKNOWN_ERROR'),
+  errMessage?: string(name='errMessage', example='未知错误'),
+  httpStatusCode?: int32(name='httpStatusCode', example='200'),
+  requestId?: string(name='requestId', example='xxxx-xxxx-xxxx-xxxxxxxx'),
+  success?: boolean(name='success', example='true'),
+}
+
+model ModelRouterStopMemberSubscriptionResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ModelRouterStopMemberSubscriptionResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of ModelRouterStopMemberSubscription  ModelRouterStopMemberSubscriptionRequest
+  * @return ModelRouterStopMemberSubscriptionResponse
+ */
+async function modelRouterStopMemberSubscription(request: ModelRouterStopMemberSubscriptionRequest): ModelRouterStopMemberSubscriptionResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'ModelRouterStopMemberSubscription', 'POST', '/api/v1/modelRouter/open/clients/{clientId}/members/{id}/balance/subscription/stop', 'json', false, 'json', request);
+}
+
 model ModelRouterStopSubscriptionRequest {
   id?: long(name='id', example='1', position='Path'),
   balanceType?: string(name='balanceType', example='permanent', position='Body'),
@@ -4266,6 +5311,40 @@ model ModelRouterStopSubscriptionResponse = {
 async function modelRouterStopSubscription(request: ModelRouterStopSubscriptionRequest): ModelRouterStopSubscriptionResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RESTFUL', 'ModelRouterStopSubscription', 'PUT', '/api/v1/modelRouter/open/clients/{id}/balance/subscription/stop', 'json', false, 'json', request);
+}
+
+model ModelRouterTransferToMemberRequest {
+  clientId?: long(name='clientId', example='1', position='Path'),
+  id?: long(name='id', example='1', position='Path'),
+  amount?: double(name='amount', example='100.00', position='Body'),
+  balanceType?: string(name='balanceType', example='permanent', position='Body'),
+  idempotencyKey?: string(name='idempotencyKey', example='550e8400-e29b-41d4-a716-446655440000', position='Body'),
+  monthlyQuota?: double(name='monthlyQuota', example='0', position='Body'),
+  remark?: string(name='remark', example='转账', position='Body'),
+}
+
+model ModelRouterTransferToMemberResponseBody = {
+  data?: ClientBalanceDTO(name='data', example='{}'),
+  errCode?: string(name='errCode', example='UNKNOWN_ERROR'),
+  errMessage?: string(name='errMessage', example='未知错误'),
+  httpStatusCode?: int32(name='httpStatusCode', example='200'),
+  requestId?: string(name='requestId', example='xxxx-xxxx-xxxx-xxxxxxxx'),
+  success?: boolean(name='success', example='true'),
+}
+
+model ModelRouterTransferToMemberResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ModelRouterTransferToMemberResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of ModelRouterTransferToMember  ModelRouterTransferToMemberRequest
+  * @return ModelRouterTransferToMemberResponse
+ */
+async function modelRouterTransferToMember(request: ModelRouterTransferToMemberRequest): ModelRouterTransferToMemberResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'ModelRouterTransferToMember', 'POST', '/api/v1/modelRouter/open/clients/{clientId}/members/{id}/transfer', 'json', false, 'json', request);
 }
 
 model ModelRouterUpdateBillingRuleRequest {
@@ -4452,6 +5531,36 @@ model ModelRouterUpdateModelGroupResponse = {
 async function modelRouterUpdateModelGroup(request: ModelRouterUpdateModelGroupRequest): ModelRouterUpdateModelGroupResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RESTFUL', 'ModelRouterUpdateModelGroup', 'PUT', '/api/v1/modelRouter/open/model-groups/{groupId}', 'json', false, 'json', request);
+}
+
+model ModelRouterUpdateUserRequest {
+  id?: long(name='id', example='30001', position='Path'),
+  name?: string(name='name', example='张三', position='Body'),
+  phone?: string(name='phone', example='13800000000', position='Body'),
+}
+
+model ModelRouterUpdateUserResponseBody = {
+  data?: boolean(name='data', example='true'),
+  errCode?: string(name='errCode', example='UNKNOWN_ERROR'),
+  errMessage?: string(name='errMessage', example='未知错误'),
+  httpStatusCode?: int32(name='httpStatusCode', example='200'),
+  requestId?: string(name='requestId', example='xxxx-xxxx-xxxx-xxxxxxxx'),
+  success?: boolean(name='success', example='true'),
+}
+
+model ModelRouterUpdateUserResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ModelRouterUpdateUserResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of ModelRouterUpdateUser  ModelRouterUpdateUserRequest
+  * @return ModelRouterUpdateUserResponse
+ */
+async function modelRouterUpdateUser(request: ModelRouterUpdateUserRequest): ModelRouterUpdateUserResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'ModelRouterUpdateUser', 'PUT', '/api/v1/modelRouter/open/users/{id}', 'json', false, 'json', request);
 }
 
 model PersonalizedTextToImageAddInferenceJobRequest {
