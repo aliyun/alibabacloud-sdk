@@ -14,13 +14,16 @@ init(config: OpenApi.Config){
   @endpointRule = 'regional';
   @endpointMap = {
     'us-west-1' = 'alikafka.us-west-1.aliyuncs.com',
+    'us-southeast-1' = 'alikafka.us-southeast-1.aliyuncs.com',
     'us-east-1' = 'alikafka.us-east-1.aliyuncs.com',
     'na-south-1' = 'alikafka.na-south-1.aliyuncs.com',
     'me-east-1' = 'alikafka.me-east-1.aliyuncs.com',
     'me-central-1' = 'alikafka.me-central-1.aliyuncs.com',
     'eu-west-1' = 'alikafka.eu-west-1.aliyuncs.com',
     'eu-central-1' = 'alikafka.eu-central-1.aliyuncs.com',
+    'cn-zhengzhou-jva' = 'alikafka.cn-zhengzhou-jva.aliyuncs.com',
     'cn-zhangjiakou' = 'alikafka.cn-zhangjiakou.aliyuncs.com',
+    'cn-wulanchabu-gic-1' = 'alikafka.cn-wulanchabu-gic-1.aliyuncs.com',
     'cn-wulanchabu' = 'alikafka.cn-wulanchabu.aliyuncs.com',
     'cn-shenzhen-finance-1' = 'alikafka.cn-shenzhen-finance-1.aliyuncs.com',
     'cn-shenzhen' = 'alikafka.cn-shenzhen.aliyuncs.com',
@@ -33,13 +36,14 @@ init(config: OpenApi.Config){
     'cn-hangzhou-finance' = 'alikafka.cn-hangzhou-finance.aliyuncs.com',
     'cn-hangzhou' = 'alikafka.cn-hangzhou.aliyuncs.com',
     'cn-guangzhou' = 'alikafka.cn-guangzhou.aliyuncs.com',
+    'cn-fuzhou' = 'alikafka.cn-fuzhou.aliyuncs.com',
     'cn-chengdu' = 'alikafka.cn-chengdu.aliyuncs.com',
     'cn-beijing-finance-1' = 'alikafka.cn-beijing-finance-1.aliyuncs.com',
     'cn-beijing' = 'alikafka.cn-beijing.aliyuncs.com',
     'ap-southeast-7' = 'alikafka.ap-southeast-7.aliyuncs.com',
+    'ap-southeast-6' = 'alikafka.ap-southeast-6.aliyuncs.com',
     'ap-southeast-5' = 'alikafka.ap-southeast-5.aliyuncs.com',
     'ap-southeast-3' = 'alikafka.ap-southeast-3.aliyuncs.com',
-    'ap-southeast-2' = 'alikafka.ap-southeast-2.aliyuncs.com',
     'ap-southeast-1' = 'alikafka.ap-southeast-1.aliyuncs.com',
     'ap-northeast-2' = 'alikafka.ap-northeast-2.aliyuncs.com',
     'ap-northeast-1' = 'alikafka.ap-northeast-1.aliyuncs.com',
@@ -137,26 +141,121 @@ async function addUserDefinedSg(request: AddUserDefinedSgRequest): AddUserDefine
   return addUserDefinedSgWithOptions(request, runtime);
 }
 
-model ChangeResourceGroupRequest {
-  newResourceGroupId?: string(name='NewResourceGroupId', description='The ID of the resource group to which you want to move the cloud resource instance.
+model BatchDeleteTopicsRequest {
+  instanceId?: string(name='InstanceId', description='This parameter is required.'),
+  regionId?: string(name='RegionId', description='This parameter is required.'),
+  topics?: [ string ](name='Topics'),
+}
 
-> Resource groups are a mechanism for grouping and managing resources under an Alibaba Cloud account, which helps you solve the complexity of resource grouping and authorization management within a single cloud account. For more information, see [Resource Management](https://help.aliyun.com/document_detail/94475.html).
+model BatchDeleteTopicsShrinkRequest {
+  instanceId?: string(name='InstanceId', description='This parameter is required.'),
+  regionId?: string(name='RegionId', description='This parameter is required.'),
+  topicsShrink?: string(name='Topics'),
+}
+
+model BatchDeleteTopicsResponseBody = {
+  code?: int32(name='Code'),
+  data?: {
+    failedCount?: int32(name='FailedCount'),
+    results?: {
+      topicDeleteResultItemVO?: [ 
+      {
+        code?: int32(name='Code'),
+        dynamicCode?: string(name='DynamicCode'),
+        dynamicMessage?: string(name='DynamicMessage'),
+        message?: string(name='Message'),
+        status?: string(name='Status'),
+        success?: boolean(name='Success'),
+        topic?: string(name='Topic'),
+      }
+    ](name='TopicDeleteResultItemVO')
+    }(name='Results'),
+    successCount?: int32(name='SuccessCount'),
+    total?: int32(name='Total'),
+  }(name='Data'),
+  message?: string(name='Message'),
+  requestId?: string(name='RequestId'),
+  success?: boolean(name='Success'),
+}
+
+model BatchDeleteTopicsResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: BatchDeleteTopicsResponseBody(name='body'),
+}
+
+/**
+ * @summary 删除
+ *
+ * @param tmpReq BatchDeleteTopicsRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return BatchDeleteTopicsResponse
+ */
+async function batchDeleteTopicsWithOptions(tmpReq: BatchDeleteTopicsRequest, runtime: Util.RuntimeOptions): BatchDeleteTopicsResponse {
+  Util.validateModel(tmpReq);
+  var request = new BatchDeleteTopicsShrinkRequest{};
+  OpenApiUtil.convert(tmpReq, request);
+  if (!Util.isUnset(tmpReq.topics)) {
+    request.topicsShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.topics, 'Topics', 'json');
+  }
+  var query = {};
+  if (!Util.isUnset(request.instanceId)) {
+    query['InstanceId'] = request.instanceId;
+  }
+  if (!Util.isUnset(request.regionId)) {
+    query['RegionId'] = request.regionId;
+  }
+  if (!Util.isUnset(request.topicsShrink)) {
+    query['Topics'] = request.topicsShrink;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'BatchDeleteTopics',
+    version = '2019-09-16',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 删除
+ *
+ * @param request BatchDeleteTopicsRequest
+ * @return BatchDeleteTopicsResponse
+ */
+async function batchDeleteTopics(request: BatchDeleteTopicsRequest): BatchDeleteTopicsResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return batchDeleteTopicsWithOptions(request, runtime);
+}
+
+model ChangeResourceGroupRequest {
+  newResourceGroupId?: string(name='NewResourceGroupId', description='The ID of the resource group to which you want to transfer the cloud resource instance.
+
+> A resource group is a mechanism for managing resources by group within an Alibaba Cloud account. Resource groups help you resolve complex issues such as resource grouping and authorization management within a single cloud account. For more information, see [What is Resource Management](https://help.aliyun.com/document_detail/94475.html).
 
 This parameter is required.', example='rg-ac***********7q'),
   regionId?: string(name='RegionId', description='The region ID of the resource.
 
 This parameter is required.', example='cn-hangzhou'),
-  resourceId?: string(name='ResourceId', description='The ID of the resource to be tagged. Currently, only instance-level tagging is supported.
+  resourceId?: string(name='ResourceId', description='The ID of the resource that you want to tag. Only instance-level resources are supported.
 
-For example, if the instance ID is alikafka_post-cn-v0h1fgs2xxxx, the resource ID is alikafka_post-cn-v0h1fgs2xxxx.
+Example: If the instance ID is alikafka_post-cn-v0h1fgs2xxxx, the resource ID is alikafka_post-cn-v0h1fgs2xxxx.
 
 This parameter is required.', example='alikafka_post-cn-v0h1fgs2****'),
 }
 
 model ChangeResourceGroupResponseBody = {
-  code?: int32(name='Code', description='The status code. A value of 200 indicates that the call was successful.', example='200'),
-  message?: string(name='Message', description='The returned message.', example='operation success'),
-  newResourceGroupId?: string(name='NewResourceGroupId', description='The new resource group ID. You can view available resource groups in the resource group console.', example='rg-ac***********7q'),
+  code?: int32(name='Code', description='The status code. A value of 200 indicates success.', example='200'),
+  message?: string(name='Message', description='The response message.', example='operation success'),
+  newResourceGroupId?: string(name='NewResourceGroupId', description='The new resource group ID. You can view available resource groups in the Resource Group console.', example='rg-ac***********7q'),
   requestId?: string(name='RequestId', description='The request ID.', example='C5CA600C-7D5A-45B5-B6DB-44FAC2C****'),
   success?: long(name='Success', description='Indicates whether the call was successful.', example='true'),
 }
@@ -168,7 +267,7 @@ model ChangeResourceGroupResponse = {
 }
 
 /**
- * @summary Moves a resource to a different resource group.
+ * @summary Transfers a resource to a different resource group.
  *
  * @param request ChangeResourceGroupRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -204,7 +303,7 @@ async function changeResourceGroupWithOptions(request: ChangeResourceGroupReques
 }
 
 /**
- * @summary Moves a resource to a different resource group.
+ * @summary Transfers a resource to a different resource group.
  *
  * @param request ChangeResourceGroupRequest
  * @return ChangeResourceGroupResponse
@@ -215,9 +314,9 @@ async function changeResourceGroup(request: ChangeResourceGroupRequest): ChangeR
 }
 
 model ConvertPostPayOrderRequest {
-  duration?: int32(name='Duration', description='The subscription duration in months. The default value is 1. Valid values:
+  duration?: int32(name='Duration', description='The subscription duration. Unit: months. Default value: 1. Valid values:
 
-- 1 to **12**
+- **1 to 12**
 
 - **24**
 
@@ -225,21 +324,21 @@ model ConvertPostPayOrderRequest {
   instanceId?: string(name='InstanceId', description='The ID of the instance.
 
 This parameter is required.', example='alikafka_post-cn-v0h1fgs2****'),
-  paidType?: int32(name='PaidType', description='The billing method. Valid values:
+  paidType?: int32(name='PaidType', description='The billing type. Valid values:
 
-- **0**: subscription
+- **0**: subscription.
 
-- **4**: Confluent series subscription', example='1'),
+- **4**: Confluent series subscription.', example='1'),
   regionId?: string(name='RegionId', description='The region ID of the instance.
 
 This parameter is required.', example='cn-hangzhou'),
 }
 
 model ConvertPostPayOrderResponseBody = {
-  code?: int32(name='Code', description='The return code. A value of 200 indicates success.', example='200'),
-  message?: string(name='Message', description='The returned message.', example='operation success.'),
-  orderId?: string(name='OrderId', description='The ID of the order.', example='20497346575****'),
-  requestId?: string(name='RequestId', description='The ID of the request.', example='06084011-E093-46F3-A51F-4B19A8AD****'),
+  code?: int32(name='Code', description='The response code. A value of 200 indicates success.', example='200'),
+  message?: string(name='Message', description='The response message.', example='operation success.'),
+  orderId?: string(name='OrderId', description='The order ID.', example='20497346575****'),
+  requestId?: string(name='RequestId', description='The request ID.', example='06084011-E093-46F3-A51F-4B19A8AD****'),
   success?: boolean(name='Success', description='Indicates whether the call was successful.', example='true'),
 }
 
@@ -300,96 +399,91 @@ async function convertPostPayOrder(request: ConvertPostPayOrderRequest): Convert
 }
 
 model CreateAclRequest {
-  aclOperationType?: string(name='AclOperationType', description='Operation type. Valid values:
+  aclOperationType?: string(name='AclOperationType', description='The operation type. Valid values:
 
-- **Write**: write
+- **Write**: write.
 
-- **Read**: read
+- **Read**: read.
 
-- **Describe**: read TransactionalId
-
-- **IdempotentWrite**: idempotent write to Cluster
-
-- **IDEMPOTENT_WRITE**: idempotent write to Cluster, only available for Serverless instances.
-
-- **DESCRIBE_CONFIGS**: query configuration, only available for Serverless instances.
+- **Describe**: read TransactionalId.
+- **IdempotentWrite**: idempotent write to Cluster.
+- **IDEMPOTENT_WRITE**: idempotent write to Cluster. This value is available only for serverless instances.
+- **DESCRIBE_CONFIGS**: query configurations. This value is available only for serverless instances.
 
 This parameter is required.', example='Read'),
-  aclOperationTypes?: string(name='AclOperationTypes', description='Batch authorization operation types. Multiple operations are separated by commas (,).
+  aclOperationTypes?: string(name='AclOperationTypes', description='The operation types for batch authorization. Separate multiple operations with commas (,).
 
 Valid values:
 
-- **Write**: read
+- **Write**: write.
 
-- **Read**: write
+- **Read**: read.
 
-- **Describe**: read TransactionalId
+- **Describe**: read TransactionalId.
+- **IdempotentWrite**: idempotent write to Cluster.
+- **IDEMPOTENT_WRITE**: idempotent write to Cluster. This value is available only for serverless instances.
+- **DESCRIBE_CONFIGS**: query configurations. This value is available only for serverless instances.
 
-- **IdempotentWrite**: idempotent write to Cluster
 
-- **IDEMPOTENT_WRITE**: idempotent write to Cluster, only available for Serverless instances.
+> This parameter is available only for serverless instances.', example='Write,Read'),
+  aclPermissionType?: string(name='AclPermissionType', description='The authorization method. Valid values:
+- **DENY**: Denied.
+ 
+- **ALLOW**: Allowed.
 
-- **DESCRIBE_CONFIGS**: query configuration, only available for Serverless instances.
+> This parameter is available only for serverless instances.', example='DENY'),
+  aclResourceName?: string(name='AclResourceName', description='The resource name.
 
-> This parameter is only supported for Serverless instances.', example='Write,Read'),
-  aclPermissionType?: string(name='AclPermissionType', description='Authorization method. Valid values:
-
-- **DENY**: deny.
-
-- **ALLOW**: allow.
-
-> This parameter is only supported for Serverless instances.', example='DENY'),
-  aclResourceName?: string(name='AclResourceName', description='Resource name.
-
-- The name of the resource, which can be a topic name, Group ID, cluster name, or transaction ID.
+- The name of the resource, which can be a topic name, group ID, cluster name, or transaction ID.
 
 - You can use an asterisk (\\\\*) to represent all resources of this type.
 
-> * Only after authorization is granted to all resources can you query the authorized resources using an asterisk (\\\\*).
+
+> 
+> - The asterisk (\\\\*) returns results only after permissions are granted to all resources.
 
 This parameter is required.', example='X****'),
-  aclResourcePatternType?: string(name='AclResourcePatternType', description='Matching pattern. Valid values:
+  aclResourcePatternType?: string(name='AclResourcePatternType', description='The matching mode. Valid values:
 
-- **LITERAL**: exact match
+- **LITERAL**: exact match.
 
-- **PREFIXED**: prefix match
+- **PREFIXED**: prefix match.
 
 This parameter is required.', example='LITERAL'),
-  aclResourceType?: string(name='AclResourceType', description='Resource type. Valid values:
+  aclResourceType?: string(name='AclResourceType', description='The resource type. Valid values:
 
 - **Topic**: message topic.
 
 - **Group**: consumer group.
-
 - **Cluster**: instance.
-
 - **TransactionalId**: transaction ID.
 
 This parameter is required.', example='Group'),
-  host?: string(name='Host', description='Source IP.
-
-> - Only specific IP addresses or \\\\* (all IPs) are supported. IP address ranges are not supported.
->
-> - This parameter is only supported for Serverless instances.', example='*'),
-  instanceId?: string(name='InstanceId', description='Instance ID.
+  host?: string(name='Host', description='The source IP address.
+>- Only specific IP addresses or an asterisk (\\\\*) to allow all IP addresses are supported. IP CIDR blocks are not supported.
+>- This parameter is available only for serverless instances.', example='*'),
+  instanceId?: string(name='InstanceId', description='The instance ID.
 
 This parameter is required.', example='alikafka_pre-cn-v0h1cng0****'),
-  regionId?: string(name='RegionId', description='Region ID.
+  regionId?: string(name='RegionId', description='The region ID.
 
 This parameter is required.', example='cn-hangzhou'),
-  username?: string(name='Username', description='Username.
+  username?: string(name='Username', description='The username.
 
 - You can use an asterisk (\\\\*) to represent all usernames.
 
-> * Only after authorization is granted to all users can you query the authorized users using an asterisk (\\\\*).
+
+
+> 
+> - The asterisk (\\\\*) returns results only after permissions are granted to all users.
 
 This parameter is required.', example='test***'),
 }
 
 model CreateAclResponseBody = {
-  code?: int32(name='Code', description='Status code. A value of 200 indicates success.', example='200'),
-  message?: string(name='Message', description='Return message.', example='operation success'),
-  requestId?: string(name='RequestId', description='Request ID.', example='56729737-C428-4E1B-AC68-7A8C2D5****'),
+  code?: int32(name='Code', description='The HTTP status code. A value of 200 indicates success.', example='200'),
+  message?: string(name='Message', description='The returned message.', example='operation success'),
+  requestId?: string(name='RequestId', description='The request ID.', example='56729737-C428-4E1B-AC68-7A8C2D5****'),
   success?: boolean(name='Success', description='Indicates whether the call was successful.', example='true'),
 }
 
@@ -400,7 +494,7 @@ model CreateAclResponse = {
 }
 
 /**
- * @summary This operation is used to create an access control list (ACL).
+ * @summary Creates an access control list (ACL).
  *
  * @param request CreateAclRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -457,7 +551,7 @@ async function createAclWithOptions(request: CreateAclRequest, runtime: Util.Run
 }
 
 /**
- * @summary This operation is used to create an access control list (ACL).
+ * @summary Creates an access control list (ACL).
  *
  * @param request CreateAclRequest
  * @return CreateAclResponse
@@ -468,41 +562,46 @@ async function createAcl(request: CreateAclRequest): CreateAclResponse {
 }
 
 model CreateConsumerGroupRequest {
-  consumerId?: string(name='ConsumerId', description='Group name.
-
-- Reserved instance: Supports uppercase and lowercase letters, numbers, underscores (_), hyphens (-), and periods (.), limited to 3-64 characters.
-- Serverless instance: Can only contain letters, numbers, and special characters "@._\\\\*$#^!&-", limited to 1-249 characters.
+  consumerId?: string(name='ConsumerId', description='The consumer group name.
+- Reserved instances:
+Can contain letters, digits, underscores (_), hyphens (-), and periods (.). The value must be 3 to 64 characters in length.
+- Serverless instances:
+Can contain only letters, digits, and special characters "@._*$#^!&-". The value must be 1 to 249 characters in length.
 
 This parameter is required.', example='test'),
-  instanceId?: string(name='InstanceId', description='Instance ID.
+  instanceId?: string(name='InstanceId', description='The instance ID.
 
 This parameter is required.', example='alikafka_post-cn-0pp1l9z8****'),
-  regionId?: string(name='RegionId', description='Region ID of the instance.
+  regionId?: string(name='RegionId', description='The region ID of the instance.
 
 This parameter is required.', example='cn-hangzhou'),
-  remark?: string(name='Remark', description='Remarks.', example='test'),
+  remark?: string(name='Remark', description='The description.', example='test'),
   tag?: [ 
     {
       key?: string(name='Key', description='The tag key of the resource.
 
 - N ranges from 1 to 20.
-- Cannot be empty.
-- Supports up to 128 characters, cannot start with aliyun or acs:, and cannot contain `http://` or `https://`.
+
+- The tag key cannot be empty.
+
+- The tag key can be up to 128 characters in length and cannot start with aliyun or acs:. It cannot contain `http://` or `https://`.
 
 This parameter is required.', example='FinanceDept'),
       value?: string(name='Value', description='The tag value of the resource.
 
 - N ranges from 1 to 20.
-- Can be empty.
-- Supports up to 128 characters, cannot start with aliyun or acs:, and cannot contain `http://` or `https://`.', example='FinanceJoshua'),
+
+- The tag value can be empty.
+
+- The tag value can be up to 128 characters in length and cannot start with aliyun or acs:. It cannot contain `http://` or `https://`.', example='FinanceJoshua'),
     }
-  ](name='Tag', description='Tag list.'),
+  ](name='Tag', description='The tags.'),
 }
 
 model CreateConsumerGroupResponseBody = {
-  code?: int32(name='Code', description='Status code. A return value of 200 indicates success.', example='200'),
-  message?: string(name='Message', description='Return message.', example='operation success'),
-  requestId?: string(name='RequestId', description='Request ID.', example='E57A8862-DF68-4055-8E55-B80CB4****'),
+  code?: int32(name='Code', description='The status code. A value of 200 indicates success.', example='200'),
+  message?: string(name='Message', description='The response message.', example='operation success'),
+  requestId?: string(name='RequestId', description='The request ID.', example='E57A8862-DF68-4055-8E55-B80CB4****'),
   success?: boolean(name='Success', description='Indicates whether the call was successful.', example='true'),
 }
 
@@ -513,7 +612,7 @@ model CreateConsumerGroupResponse = {
 }
 
 /**
- * @summary You can call CreateConsumerGroup to create a consumer group.
+ * @summary Calls CreateConsumerGroup to create a consumer group.
  *
  * @param request CreateConsumerGroupRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -555,7 +654,7 @@ async function createConsumerGroupWithOptions(request: CreateConsumerGroupReques
 }
 
 /**
- * @summary You can call CreateConsumerGroup to create a consumer group.
+ * @summary Calls CreateConsumerGroup to create a consumer group.
  *
  * @param request CreateConsumerGroupRequest
  * @return CreateConsumerGroupResponse
@@ -568,198 +667,171 @@ async function createConsumerGroup(request: CreateConsumerGroupRequest): CreateC
 model CreatePostPayInstanceRequest {
   deployType?: int32(name='DeployType', description='The deployment type. Valid values:
 
-- **4**: instance that is accessible over the internet and a VPC
+- **4**: Internet- and VPC-connected instance
 
-- **5**: instance that is accessible only over a VPC
+- **5**: VPC-connected instance
 
 This parameter is required.', example='4'),
   diskSize?: int32(name='DiskSize', description='The disk capacity.
 
-For more information about the value range, see [Billing](https://help.aliyun.com/document_detail/84737.html).
-
-> This parameter is not required when you create a Serverless instance.', example='1500'),
+For the value range, see [Billing](https://help.aliyun.com/document_detail/84737.html).
+> This parameter is not required if you create a serverless instance.', example='1500'),
   diskType?: string(name='DiskType', description='The disk type. Valid values:
 
 - **0**: ultra disk
 
 - **1**: SSD
-
-> This parameter is not required when you create a Serverless instance.', example='0'),
+> This parameter is not required if you create a serverless instance.', example='0'),
   eipMax?: int32(name='EipMax', description='The Internet traffic.
 
-- This parameter is required if you set **DeployType** to **4**.
+- This parameter is required if **DeployType** is set to **4**.
 
-- For more information about the value range, see [Billing](https://help.aliyun.com/document_detail/84737.html).
+- For the value range, see [Billing](https://help.aliyun.com/document_detail/84737.html).
 
-> This parameter is not required when you create a Serverless instance.', example='3'),
+> This parameter is not required if you create a serverless instance.', example='3'),
   ioMaxSpec?: string(name='IoMaxSpec', description='The traffic specification.
 
-- For more information about the value range, see [Billing](https://help.aliyun.com/document_detail/84737.html).
+- For the value range, see [Billing](https://help.aliyun.com/document_detail/84737.html).
 
-> This parameter is not required when you create a Serverless instance.', example='alikafka.hw.2xlarge'),
-  paidType?: int32(name='PaidType', description='The billing method. Valid values:
+> This parameter is not required if you create a serverless instance.', example='alikafka.hw.2xlarge'),
+  paidType?: int32(name='PaidType', description='The billing type. Valid values:
 
 - 1 (default): pay-as-you-go for reserved instances.
+- 3: pay-as-you-go for serverless reserved specifications + pay-as-you-go for serverless elastic scaling.', example='0'),
+  partitionNum?: int32(name='PartitionNum', description='The number of partitions to purchase.
 
-- 3: pay-as-you-go for reserved capacity and elastic scaling of Serverless instances.', example='0'),
-  partitionNum?: int32(name='PartitionNum', description='The number of partitions.
-
-- For more information about the value range, see [Billing](https://help.aliyun.com/document_detail/84737.html).
-
-> This parameter is not required if the instance is a Serverless instance.', example='100'),
+* For the value range, see [Billing](https://help.aliyun.com/document_detail/84737.html).
+> This parameter is not required if the instance is a serverless instance.', example='100'),
   regionId?: string(name='RegionId', description='The region ID of the instance.
 
 This parameter is required.', example='cn-hangzhou'),
-  resourceGroupId?: string(name='ResourceGroupId', description='The ID of the resource group.
+  resourceGroupId?: string(name='ResourceGroupId', description='The resource group ID.
 
-If you do not specify this parameter, the instance is added to the default resource group. You can view the resource group ID in the Resource Group console.', example='rg-ac***********7q'),
+If this parameter is not specified, the instance is placed in the default resource group. You can view the resource group ID in the Resource Management console.', example='rg-ac***********7q'),
   serverlessConfig?: {
-    reservedPublishCapacity?: long(name='ReservedPublishCapacity', description='The reserved publish traffic. The value must be an integer. Minimum value: 60. This parameter is required for Serverless instances.
+    reservedPublishCapacity?: long(name='ReservedPublishCapacity', description='The reserved publish traffic specification value. Only integers are supported. The minimum value is 60. This parameter is required for serverless instances.
 
-> The actual upper limit is subject to the inventory in the current region. For more information, see the value range on the buy page.', example='60'),
-    reservedSubscribeCapacity?: long(name='ReservedSubscribeCapacity', description='The reserved subscribe traffic. The value must be an integer. Minimum value: 20. This parameter is required for Serverless instances.
 
-> The actual upper limit is subject to the inventory in the current region. For more information, see the value range on the buy page.', example='20'),
-  }(name='ServerlessConfig', description='The settings of the Serverless instance. This parameter is required when you create a Serverless instance.'),
-  specType?: string(name='SpecType', description='The edition of the instance.
+> The actual upper limit is subject to the inventory in the current region. Refer to the purchase page for the available range.', example='60'),
+    reservedSubscribeCapacity?: long(name='ReservedSubscribeCapacity', description='The reserved subscribe traffic specification value. Only integers are supported. The minimum value is 20. This parameter is required for serverless instances.
 
-If you set the PaidType parameter to 1 (pay-as-you-go for reserved instances), valid values are:
+> The actual upper limit is subject to the inventory in the current region. Refer to the purchase page for the available range.', example='20'),
+  }(name='ServerlessConfig', description='The settings for the serverless instance. This parameter is required when you create a serverless instance.'),
+  specType?: string(name='SpecType', description='The specification type.
 
-- normal: Standard Edition (High-write)
+Valid values when PaidType is set to 1 (pay-as-you-go for reserved instances):
 
-- professional: Professional Edition (High-write)
+- normal: Standard Edition (shared throughput)
+- professional: Professional Edition (shared throughput)
+- professionalForHighRead: Professional Edition (shared throughput for high read)
 
-- professionalForHighRead: Professional Edition (High-read)
-
-If you set the PaidType parameter to 3 (pay-as-you-go for reserved capacity and elastic scaling of Serverless instances), valid values are:
+Valid values when PaidType is set to 3 (pay-as-you-go for serverless reserved specifications + pay-as-you-go for serverless elastic scaling):
 
 - basic: Serverless Basic Edition
-
 - normal: Serverless Standard Edition
-
 - professional: Serverless Professional Edition
 
-For more information about these instance editions, see [Billing](https://help.aliyun.com/document_detail/84737.html).', example='professional'),
+For more information about the specification types, see [Billing](https://help.aliyun.com/document_detail/84737.html).', example='professional'),
   tag?: [ 
     {
       key?: string(name='Key', description='The tag key of the resource.
-
-- The value of N can be from 1 to 20.
-
+- N ranges from 1 to 20.
 - If this parameter is left empty, all tag keys are matched.
-
-- The tag key can be up to 128 characters in length. It cannot start with aliyun or acs: and cannot contain http\\\\:// or https\\\\://.
+- The tag key can be up to 128 characters in length and cannot start with aliyun or acs:. It cannot contain http:// or https://.
 
 This parameter is required.', example='FinanceDept'),
       value?: string(name='Value', description='The tag value of the resource.
-
-- The value of N can be from 1 to 20.
-
-- If the tag key is empty, this parameter must also be empty. If this parameter is empty, all tag values are matched.
-
-- The tag value can be up to 128 characters in length. It cannot start with aliyun or acs: and cannot contain http\\\\:// or https\\\\://.', example='test'),
+- N ranges from 1 to 20.
+- If the tag key is left empty, this parameter must also be left empty. If this parameter is left empty, all tag values are matched.
+- The tag value can be up to 128 characters in length and cannot start with aliyun or acs:. It cannot contain http:// or https://.', example='test'),
     }
-  ](name='Tag', description='The tags.'),
+  ](name='Tag', description='The tag list.'),
 }
 
 model CreatePostPayInstanceShrinkRequest {
   deployType?: int32(name='DeployType', description='The deployment type. Valid values:
 
-- **4**: instance that is accessible over the internet and a VPC
+- **4**: Internet- and VPC-connected instance
 
-- **5**: instance that is accessible only over a VPC
+- **5**: VPC-connected instance
 
 This parameter is required.', example='4'),
   diskSize?: int32(name='DiskSize', description='The disk capacity.
 
-For more information about the value range, see [Billing](https://help.aliyun.com/document_detail/84737.html).
-
-> This parameter is not required when you create a Serverless instance.', example='1500'),
+For the value range, see [Billing](https://help.aliyun.com/document_detail/84737.html).
+> This parameter is not required if you create a serverless instance.', example='1500'),
   diskType?: string(name='DiskType', description='The disk type. Valid values:
 
 - **0**: ultra disk
 
 - **1**: SSD
-
-> This parameter is not required when you create a Serverless instance.', example='0'),
+> This parameter is not required if you create a serverless instance.', example='0'),
   eipMax?: int32(name='EipMax', description='The Internet traffic.
 
-- This parameter is required if you set **DeployType** to **4**.
+- This parameter is required if **DeployType** is set to **4**.
 
-- For more information about the value range, see [Billing](https://help.aliyun.com/document_detail/84737.html).
+- For the value range, see [Billing](https://help.aliyun.com/document_detail/84737.html).
 
-> This parameter is not required when you create a Serverless instance.', example='3'),
+> This parameter is not required if you create a serverless instance.', example='3'),
   ioMaxSpec?: string(name='IoMaxSpec', description='The traffic specification.
 
-- For more information about the value range, see [Billing](https://help.aliyun.com/document_detail/84737.html).
+- For the value range, see [Billing](https://help.aliyun.com/document_detail/84737.html).
 
-> This parameter is not required when you create a Serverless instance.', example='alikafka.hw.2xlarge'),
-  paidType?: int32(name='PaidType', description='The billing method. Valid values:
+> This parameter is not required if you create a serverless instance.', example='alikafka.hw.2xlarge'),
+  paidType?: int32(name='PaidType', description='The billing type. Valid values:
 
 - 1 (default): pay-as-you-go for reserved instances.
+- 3: pay-as-you-go for serverless reserved specifications + pay-as-you-go for serverless elastic scaling.', example='0'),
+  partitionNum?: int32(name='PartitionNum', description='The number of partitions to purchase.
 
-- 3: pay-as-you-go for reserved capacity and elastic scaling of Serverless instances.', example='0'),
-  partitionNum?: int32(name='PartitionNum', description='The number of partitions.
-
-- For more information about the value range, see [Billing](https://help.aliyun.com/document_detail/84737.html).
-
-> This parameter is not required if the instance is a Serverless instance.', example='100'),
+* For the value range, see [Billing](https://help.aliyun.com/document_detail/84737.html).
+> This parameter is not required if the instance is a serverless instance.', example='100'),
   regionId?: string(name='RegionId', description='The region ID of the instance.
 
 This parameter is required.', example='cn-hangzhou'),
-  resourceGroupId?: string(name='ResourceGroupId', description='The ID of the resource group.
+  resourceGroupId?: string(name='ResourceGroupId', description='The resource group ID.
 
-If you do not specify this parameter, the instance is added to the default resource group. You can view the resource group ID in the Resource Group console.', example='rg-ac***********7q'),
-  serverlessConfigShrink?: string(name='ServerlessConfig', description='The settings of the Serverless instance. This parameter is required when you create a Serverless instance.'),
-  specType?: string(name='SpecType', description='The edition of the instance.
+If this parameter is not specified, the instance is placed in the default resource group. You can view the resource group ID in the Resource Management console.', example='rg-ac***********7q'),
+  serverlessConfigShrink?: string(name='ServerlessConfig', description='The settings for the serverless instance. This parameter is required when you create a serverless instance.'),
+  specType?: string(name='SpecType', description='The specification type.
 
-If you set the PaidType parameter to 1 (pay-as-you-go for reserved instances), valid values are:
+Valid values when PaidType is set to 1 (pay-as-you-go for reserved instances):
 
-- normal: Standard Edition (High-write)
+- normal: Standard Edition (shared throughput)
+- professional: Professional Edition (shared throughput)
+- professionalForHighRead: Professional Edition (shared throughput for high read)
 
-- professional: Professional Edition (High-write)
-
-- professionalForHighRead: Professional Edition (High-read)
-
-If you set the PaidType parameter to 3 (pay-as-you-go for reserved capacity and elastic scaling of Serverless instances), valid values are:
+Valid values when PaidType is set to 3 (pay-as-you-go for serverless reserved specifications + pay-as-you-go for serverless elastic scaling):
 
 - basic: Serverless Basic Edition
-
 - normal: Serverless Standard Edition
-
 - professional: Serverless Professional Edition
 
-For more information about these instance editions, see [Billing](https://help.aliyun.com/document_detail/84737.html).', example='professional'),
+For more information about the specification types, see [Billing](https://help.aliyun.com/document_detail/84737.html).', example='professional'),
   tag?: [ 
     {
       key?: string(name='Key', description='The tag key of the resource.
-
-- The value of N can be from 1 to 20.
-
+- N ranges from 1 to 20.
 - If this parameter is left empty, all tag keys are matched.
-
-- The tag key can be up to 128 characters in length. It cannot start with aliyun or acs: and cannot contain http\\\\:// or https\\\\://.
+- The tag key can be up to 128 characters in length and cannot start with aliyun or acs:. It cannot contain http:// or https://.
 
 This parameter is required.', example='FinanceDept'),
       value?: string(name='Value', description='The tag value of the resource.
-
-- The value of N can be from 1 to 20.
-
-- If the tag key is empty, this parameter must also be empty. If this parameter is empty, all tag values are matched.
-
-- The tag value can be up to 128 characters in length. It cannot start with aliyun or acs: and cannot contain http\\\\:// or https\\\\://.', example='test'),
+- N ranges from 1 to 20.
+- If the tag key is left empty, this parameter must also be left empty. If this parameter is left empty, all tag values are matched.
+- The tag value can be up to 128 characters in length and cannot start with aliyun or acs:. It cannot contain http:// or https://.', example='test'),
     }
-  ](name='Tag', description='The tags.'),
+  ](name='Tag', description='The tag list.'),
 }
 
 model CreatePostPayInstanceResponseBody = {
-  code?: int32(name='Code', description='The status code. A value of 200 indicates that the request was successful.', example='200'),
+  code?: int32(name='Code', description='The status code. A value of 200 indicates success.', example='200'),
   data?: {
     instanceId?: string(name='InstanceId', description='The instance ID.', example='alikafka_pre-cn-pe333xxxxxx'),
-    orderId?: long(name='OrderId', description='The ID of the order.', example='236972661580636'),
-  }(name='Data', description='The returned results.'),
-  message?: string(name='Message', description='The returned message.', example='operation success.'),
-  requestId?: string(name='RequestId', description='The ID of the request.', example='ABA4A7FD-E10F-45C7-9774-A5236015A***'),
+    orderId?: long(name='OrderId', description='The order ID.', example='236972661580636'),
+  }(name='Data', description='The returned result.'),
+  message?: string(name='Message', description='The response message.', example='operation success.'),
+  requestId?: string(name='RequestId', description='The request ID.', example='ABA4A7FD-E10F-45C7-9774-A5236015A***'),
   success?: boolean(name='Success', description='Indicates whether the request was successful.', example='true'),
 }
 
@@ -770,7 +842,7 @@ model CreatePostPayInstanceResponse = {
 }
 
 /**
- * @summary This operation creates a pay-as-you-go instance and returns the instance ID and order ID.
+ * @summary Creates a pay-as-you-go instance and returns the instance ID and order ID.
  *
  * @param tmpReq CreatePostPayInstanceRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -838,7 +910,7 @@ async function createPostPayInstanceWithOptions(tmpReq: CreatePostPayInstanceReq
 }
 
 /**
- * @summary This operation creates a pay-as-you-go instance and returns the instance ID and order ID.
+ * @summary Creates a pay-as-you-go instance and returns the instance ID and order ID.
  *
  * @param request CreatePostPayInstanceRequest
  * @return CreatePostPayInstanceResponse
@@ -851,243 +923,218 @@ async function createPostPayInstance(request: CreatePostPayInstanceRequest): Cre
 model CreatePostPayOrderRequest {
   deployType?: int32(name='DeployType', description='The deployment type. Valid values:
 
-- **4**: An instance that is accessible from the Internet and a VPC.
+- **4**: Internet- and VPC-connected instance
 
-- **5**: An instance that is accessible only from a VPC.
+- **5**: VPC-connected instance
 
 This parameter is required.', example='5'),
   diskSize?: int32(name='DiskSize', description='The disk capacity.
 
-For the valid values, see [Billing](https://help.aliyun.com/document_detail/84737.html).
-
-> Do not specify this parameter if you create a Serverless instance.', example='500'),
+For the value range, see [Billing overview](https://help.aliyun.com/document_detail/84737.html).
+> If you create a serverless instance, you do not need to set this parameter.', example='500'),
   diskType?: string(name='DiskType', description='The disk type. Valid values:
 
-- **0**: Ultra disk
+- **0**: premium cloud disk
 
 - **1**: SSD
-
-> Do not specify this parameter if you create a Serverless instance.', example='0'),
+> If you create a serverless instance, you do not need to set this parameter.', example='0'),
   eipMax?: int32(name='EipMax', description='The Internet traffic.
 
-- This parameter is required if you set **DeployType** to **4**.
+- If **DeployType** is set to **4**, this parameter is required.
 
-- For the valid values, see [Billing](https://help.aliyun.com/document_detail/84737.html).
+- For the value range, see [Billing overview](https://help.aliyun.com/document_detail/84737.html).
 
-> Do not specify this parameter if you create a Serverless instance.', example='0'),
-  ioMax?: int32(name='IoMax', description='The peak traffic. This parameter is not recommended.
+> If you create a serverless instance, you do not need to set this parameter.', example='0'),
+  ioMax?: int32(name='IoMax', description='The maximum traffic (not recommended).
 
-- You must specify this parameter or \\\\`IoMaxSpec\\\\`. If you specify both parameters, the value of \\\\`IoMaxSpec\\\\` takes precedence. We recommend that you specify only \\\\`IoMaxSpec\\\\`.
+- You must specify one of IoMax and IoMaxSpec. If both parameters are specified, the value of IoMaxSpec takes precedence. Specify only IoMaxSpec.
 
-- For the valid values, see [Billing](https://help.aliyun.com/document_detail/84737.html).
+- For the value range, see [Billing overview](https://help.aliyun.com/document_detail/84737.html).
 
-> Do not specify this parameter if you create a Serverless instance.', example='20'),
-  ioMaxSpec?: string(name='IoMaxSpec', description='The traffic specification. This parameter is recommended.
+> If you create a serverless instance, you do not need to set this parameter.', example='20'),
+  ioMaxSpec?: string(name='IoMaxSpec', description='The traffic specification (recommended).
 
-- You must specify this parameter or \\\\`IoMax\\\\`. If you specify both parameters, the value of this parameter takes precedence. We recommend that you specify only this parameter.
+- You must specify one of IoMax and IoMaxSpec. If both parameters are specified, the value of IoMaxSpec takes precedence. Specify only IoMaxSpec.
 
-- For the valid values, see [Billing](https://help.aliyun.com/document_detail/84737.html).
+- For the value range, see [Billing overview](https://help.aliyun.com/document_detail/84737.html).
 
-> Do not specify this parameter if you create a Serverless instance.', example='alikafka.hw.2xlarge'),
-  paidType?: int32(name='PaidType', description='The billing method. Valid values:
+> If you create a serverless instance, you do not need to set this parameter.', example='alikafka.hw.2xlarge'),
+  paidType?: int32(name='PaidType', description='The billing type. Valid values:
 
-- 1 (default): Pay-as-you-go for a reserved instance.
+- 1 (default): reserved instance with pay-as-you-go billing.
+- 3: serverless instance with reserved specification pay-as-you-go billing + serverless elastic scaling pay-as-you-go billing.', example='1'),
+  partitionNum?: int32(name='PartitionNum', description='The number of partitions (recommended).
 
-- 3: Pay-as-you-go for a reserved Serverless instance and pay-as-you-go for elastic scaling of a Serverless instance.', example='1'),
-  partitionNum?: int32(name='PartitionNum', description='The number of partitions. This parameter is recommended.
+* You must specify one of PartitionNum and TopicQuota. Specify only PartitionNum.
 
-- You must specify this parameter or \\\\`TopicQuota\\\\`. We recommend that you specify only this parameter.
+* If both PartitionNum and TopicQuota are specified, the system verifies whether the values are equivalent based on the legacy topic sales model. If the values are not equivalent, the request fails. If the values are equivalent, the purchase is made based on the number of partitions.
 
-- If you specify both this parameter and \\\\`TopicQuota\\\\`, the system verifies whether the values of the two parameters are equivalent based on the previous topic-based sales model. If the values are not equivalent, the system returns a failure. If the values are equivalent, the purchase is made based on the number of partitions.
+* For the value range, see [Billing overview](https://help.aliyun.com/document_detail/84737.html).
 
-- For the valid values, see [Billing](https://help.aliyun.com/document_detail/84737.html).
-
-> Do not specify this parameter if you create a Serverless instance.', example='50'),
+> If you create a serverless instance, you do not need to set this parameter.', example='50'),
   regionId?: string(name='RegionId', description='The region ID of the instance.
 
 This parameter is required.', example='cn-hangzhou'),
-  resourceGroupId?: string(name='ResourceGroupId', description='The ID of the resource group.
+  resourceGroupId?: string(name='ResourceGroupId', description='The resource group ID.
 
-If you do not set this parameter, the instance is added to the default resource group. You can view the resource group ID in the Resource Group console.', example='rg-ac***********7q'),
+If this parameter is not specified, the instance is placed in the default resource group. You can view the resource group ID in the Resource Management console.', example='rg-ac***********7q'),
   serverlessConfig?: {
-    reservedPublishCapacity?: long(name='ReservedPublishCapacity', description='The reserved capacity for message publishing. You can specify only an integer for this parameter. The minimum value is 60. This parameter is required if you create a Serverless instance.
+    reservedPublishCapacity?: long(name='ReservedPublishCapacity', description='The reserved publish traffic specification value. Only integers are supported. The minimum value is 60. This parameter is required for serverless instances.
 
-> The actual upper limit is subject to the inventory in the current region. For more information, see the instance purchase page.', example='60'),
-    reservedSubscribeCapacity?: long(name='ReservedSubscribeCapacity', description='The reserved capacity for message subscription. You can specify only an integer for this parameter. The minimum value is 20. This parameter is required if you create a Serverless instance.
 
-> The actual upper limit is subject to the inventory in the current region. For more information, see the instance purchase page.', example='60'),
-  }(name='ServerlessConfig', description='The settings of the Serverless instance. This parameter is required if you create a Serverless instance.'),
+> The actual upper limit depends on the inventory in the current region. Refer to the purchase page for the available range.', example='60'),
+    reservedSubscribeCapacity?: long(name='ReservedSubscribeCapacity', description='The reserved subscribe traffic specification value. Only integers are supported. The minimum value is 20. This parameter is required for serverless instances.
+
+> The actual upper limit depends on the inventory in the current region. Refer to the purchase page for the available range.', example='60'),
+  }(name='ServerlessConfig', description='The settings of the serverless instance. This parameter is required when you create a serverless instance.'),
   specType?: string(name='SpecType', description='The specification type.
 
-If you set \\\\`PaidType\\\\` to 1 (pay-as-you-go for a reserved instance), valid values are:
+Valid values when PaidType is set to 1 (reserved instance with pay-as-you-go billing):
 
-- normal: Standard Edition (High-write)
+- normal: Standard Edition (shared throughput for writes)
+- professional: Professional Edition (shared throughput for writes)
+- professionalForHighRead: Professional Edition (shared throughput for reads)
 
-- professional: Professional Edition (High-write)
-
-- professionalForHighRead: Professional Edition (High-read)
-
-If you set \\\\`PaidType\\\\` to 3 (pay-as-you-go for a reserved Serverless instance and pay-as-you-go for elastic scaling of a Serverless instance), valid values are:
+Valid values when PaidType is set to 3 (serverless instance with reserved specification pay-as-you-go billing + serverless elastic scaling pay-as-you-go billing):
 
 - basic: Serverless Basic Edition
-
 - normal: Serverless Standard Edition
-
 - professional: Serverless Professional Edition
 
-For more information about these specification types, see [Billing](https://help.aliyun.com/document_detail/84737.html).', example='normal'),
+For more information about these specification types, see [Billing overview](https://help.aliyun.com/document_detail/84737.html).', example='normal'),
   tag?: [ 
     {
-      key?: string(name='Key', description='The tag key.
-
-- N can be an integer from 1 to 20.
-
-- If this parameter is empty, all tag keys are matched.
-
-- The tag key can be up to 128 characters in length. It cannot start with \\\\`aliyun\\\\` or \\\\`acs:\\\\` and cannot contain \\\\`http\\\\://\\\\` or \\\\`https\\\\://\\\\`.
+      key?: string(name='Key', description='The tag key of the resource.
+- N ranges from 1 to 20.
+- If this parameter is left empty, all tag keys are matched.
+- The tag key can be up to 128 characters in length and cannot start with aliyun or acs:. It cannot contain http:// or https://.
 
 This parameter is required.', example='FinanceDept'),
-      value?: string(name='Value', description='The tag value.
-
-- N can be an integer from 1 to 20.
-
-- This parameter must be empty if the tag key is empty. If this parameter is empty, all tag values are matched.
-
-- The tag value can be up to 128 characters in length. It cannot start with \\\\`aliyun\\\\` or \\\\`acs:\\\\` and cannot contain \\\\`http\\\\://\\\\` or \\\\`https\\\\://\\\\`.', example='FinanceJoshua'),
+      value?: string(name='Value', description='The tag value of the resource.
+- N ranges from 1 to 20.
+- If the tag key is left empty, this parameter must also be left empty. If this parameter is left empty, all tag values are matched.
+- The tag value can be up to 128 characters in length and cannot start with aliyun or acs:. It cannot contain http:// or https://.', example='FinanceJoshua'),
     }
-  ](name='Tag', description='The tags.'),
-  topicQuota?: int32(name='TopicQuota', description='The number of topics. This parameter is not recommended.
+  ](name='Tag', description='The list of tags.'),
+  topicQuota?: int32(name='TopicQuota', description='The number of topics (not recommended).
 
-- You must specify this parameter or \\\\`PartitionNum\\\\`. We recommend that you specify only \\\\`PartitionNum\\\\`.
+- You must specify one of PartitionNum and TopicQuota. Specify only PartitionNum.
 
-- If you specify both this parameter and \\\\`PartitionNum\\\\`, the system verifies whether the values of the two parameters are equivalent based on the previous topic-based sales model. If the values are not equivalent, the system returns a failure. If the values are equivalent, the purchase is made based on the number of partitions.
+- If both PartitionNum and TopicQuota are specified, the system verifies whether the values are equivalent based on the legacy topic sales model. If the values are not equivalent, the request fails. If the values are equivalent, the purchase is made based on the number of partitions.
 
-- The default value of this parameter varies based on the traffic specification. You are charged for the extra topics that exceed the default value.
+- The default value varies based on the traffic specification. If the value exceeds the default value, additional fees are charged.
 
-- For the valid values, see [Billing](https://help.aliyun.com/document_detail/84737.html).
+- For the value range, see [Billing overview](https://help.aliyun.com/document_detail/84737.html).
 
-> Do not specify this parameter if you create a Serverless instance.', example='50'),
+> If you create a serverless instance, you do not need to set this parameter.', example='50'),
 }
 
 model CreatePostPayOrderShrinkRequest {
   deployType?: int32(name='DeployType', description='The deployment type. Valid values:
 
-- **4**: An instance that is accessible from the Internet and a VPC.
+- **4**: Internet- and VPC-connected instance
 
-- **5**: An instance that is accessible only from a VPC.
+- **5**: VPC-connected instance
 
 This parameter is required.', example='5'),
   diskSize?: int32(name='DiskSize', description='The disk capacity.
 
-For the valid values, see [Billing](https://help.aliyun.com/document_detail/84737.html).
-
-> Do not specify this parameter if you create a Serverless instance.', example='500'),
+For the value range, see [Billing overview](https://help.aliyun.com/document_detail/84737.html).
+> If you create a serverless instance, you do not need to set this parameter.', example='500'),
   diskType?: string(name='DiskType', description='The disk type. Valid values:
 
-- **0**: Ultra disk
+- **0**: premium cloud disk
 
 - **1**: SSD
-
-> Do not specify this parameter if you create a Serverless instance.', example='0'),
+> If you create a serverless instance, you do not need to set this parameter.', example='0'),
   eipMax?: int32(name='EipMax', description='The Internet traffic.
 
-- This parameter is required if you set **DeployType** to **4**.
+- If **DeployType** is set to **4**, this parameter is required.
 
-- For the valid values, see [Billing](https://help.aliyun.com/document_detail/84737.html).
+- For the value range, see [Billing overview](https://help.aliyun.com/document_detail/84737.html).
 
-> Do not specify this parameter if you create a Serverless instance.', example='0'),
-  ioMax?: int32(name='IoMax', description='The peak traffic. This parameter is not recommended.
+> If you create a serverless instance, you do not need to set this parameter.', example='0'),
+  ioMax?: int32(name='IoMax', description='The maximum traffic (not recommended).
 
-- You must specify this parameter or \\\\`IoMaxSpec\\\\`. If you specify both parameters, the value of \\\\`IoMaxSpec\\\\` takes precedence. We recommend that you specify only \\\\`IoMaxSpec\\\\`.
+- You must specify one of IoMax and IoMaxSpec. If both parameters are specified, the value of IoMaxSpec takes precedence. Specify only IoMaxSpec.
 
-- For the valid values, see [Billing](https://help.aliyun.com/document_detail/84737.html).
+- For the value range, see [Billing overview](https://help.aliyun.com/document_detail/84737.html).
 
-> Do not specify this parameter if you create a Serverless instance.', example='20'),
-  ioMaxSpec?: string(name='IoMaxSpec', description='The traffic specification. This parameter is recommended.
+> If you create a serverless instance, you do not need to set this parameter.', example='20'),
+  ioMaxSpec?: string(name='IoMaxSpec', description='The traffic specification (recommended).
 
-- You must specify this parameter or \\\\`IoMax\\\\`. If you specify both parameters, the value of this parameter takes precedence. We recommend that you specify only this parameter.
+- You must specify one of IoMax and IoMaxSpec. If both parameters are specified, the value of IoMaxSpec takes precedence. Specify only IoMaxSpec.
 
-- For the valid values, see [Billing](https://help.aliyun.com/document_detail/84737.html).
+- For the value range, see [Billing overview](https://help.aliyun.com/document_detail/84737.html).
 
-> Do not specify this parameter if you create a Serverless instance.', example='alikafka.hw.2xlarge'),
-  paidType?: int32(name='PaidType', description='The billing method. Valid values:
+> If you create a serverless instance, you do not need to set this parameter.', example='alikafka.hw.2xlarge'),
+  paidType?: int32(name='PaidType', description='The billing type. Valid values:
 
-- 1 (default): Pay-as-you-go for a reserved instance.
+- 1 (default): reserved instance with pay-as-you-go billing.
+- 3: serverless instance with reserved specification pay-as-you-go billing + serverless elastic scaling pay-as-you-go billing.', example='1'),
+  partitionNum?: int32(name='PartitionNum', description='The number of partitions (recommended).
 
-- 3: Pay-as-you-go for a reserved Serverless instance and pay-as-you-go for elastic scaling of a Serverless instance.', example='1'),
-  partitionNum?: int32(name='PartitionNum', description='The number of partitions. This parameter is recommended.
+* You must specify one of PartitionNum and TopicQuota. Specify only PartitionNum.
 
-- You must specify this parameter or \\\\`TopicQuota\\\\`. We recommend that you specify only this parameter.
+* If both PartitionNum and TopicQuota are specified, the system verifies whether the values are equivalent based on the legacy topic sales model. If the values are not equivalent, the request fails. If the values are equivalent, the purchase is made based on the number of partitions.
 
-- If you specify both this parameter and \\\\`TopicQuota\\\\`, the system verifies whether the values of the two parameters are equivalent based on the previous topic-based sales model. If the values are not equivalent, the system returns a failure. If the values are equivalent, the purchase is made based on the number of partitions.
+* For the value range, see [Billing overview](https://help.aliyun.com/document_detail/84737.html).
 
-- For the valid values, see [Billing](https://help.aliyun.com/document_detail/84737.html).
-
-> Do not specify this parameter if you create a Serverless instance.', example='50'),
+> If you create a serverless instance, you do not need to set this parameter.', example='50'),
   regionId?: string(name='RegionId', description='The region ID of the instance.
 
 This parameter is required.', example='cn-hangzhou'),
-  resourceGroupId?: string(name='ResourceGroupId', description='The ID of the resource group.
+  resourceGroupId?: string(name='ResourceGroupId', description='The resource group ID.
 
-If you do not set this parameter, the instance is added to the default resource group. You can view the resource group ID in the Resource Group console.', example='rg-ac***********7q'),
-  serverlessConfigShrink?: string(name='ServerlessConfig', description='The settings of the Serverless instance. This parameter is required if you create a Serverless instance.'),
+If this parameter is not specified, the instance is placed in the default resource group. You can view the resource group ID in the Resource Management console.', example='rg-ac***********7q'),
+  serverlessConfigShrink?: string(name='ServerlessConfig', description='The settings of the serverless instance. This parameter is required when you create a serverless instance.'),
   specType?: string(name='SpecType', description='The specification type.
 
-If you set \\\\`PaidType\\\\` to 1 (pay-as-you-go for a reserved instance), valid values are:
+Valid values when PaidType is set to 1 (reserved instance with pay-as-you-go billing):
 
-- normal: Standard Edition (High-write)
+- normal: Standard Edition (shared throughput for writes)
+- professional: Professional Edition (shared throughput for writes)
+- professionalForHighRead: Professional Edition (shared throughput for reads)
 
-- professional: Professional Edition (High-write)
-
-- professionalForHighRead: Professional Edition (High-read)
-
-If you set \\\\`PaidType\\\\` to 3 (pay-as-you-go for a reserved Serverless instance and pay-as-you-go for elastic scaling of a Serverless instance), valid values are:
+Valid values when PaidType is set to 3 (serverless instance with reserved specification pay-as-you-go billing + serverless elastic scaling pay-as-you-go billing):
 
 - basic: Serverless Basic Edition
-
 - normal: Serverless Standard Edition
-
 - professional: Serverless Professional Edition
 
-For more information about these specification types, see [Billing](https://help.aliyun.com/document_detail/84737.html).', example='normal'),
+For more information about these specification types, see [Billing overview](https://help.aliyun.com/document_detail/84737.html).', example='normal'),
   tag?: [ 
     {
-      key?: string(name='Key', description='The tag key.
-
-- N can be an integer from 1 to 20.
-
-- If this parameter is empty, all tag keys are matched.
-
-- The tag key can be up to 128 characters in length. It cannot start with \\\\`aliyun\\\\` or \\\\`acs:\\\\` and cannot contain \\\\`http\\\\://\\\\` or \\\\`https\\\\://\\\\`.
+      key?: string(name='Key', description='The tag key of the resource.
+- N ranges from 1 to 20.
+- If this parameter is left empty, all tag keys are matched.
+- The tag key can be up to 128 characters in length and cannot start with aliyun or acs:. It cannot contain http:// or https://.
 
 This parameter is required.', example='FinanceDept'),
-      value?: string(name='Value', description='The tag value.
-
-- N can be an integer from 1 to 20.
-
-- This parameter must be empty if the tag key is empty. If this parameter is empty, all tag values are matched.
-
-- The tag value can be up to 128 characters in length. It cannot start with \\\\`aliyun\\\\` or \\\\`acs:\\\\` and cannot contain \\\\`http\\\\://\\\\` or \\\\`https\\\\://\\\\`.', example='FinanceJoshua'),
+      value?: string(name='Value', description='The tag value of the resource.
+- N ranges from 1 to 20.
+- If the tag key is left empty, this parameter must also be left empty. If this parameter is left empty, all tag values are matched.
+- The tag value can be up to 128 characters in length and cannot start with aliyun or acs:. It cannot contain http:// or https://.', example='FinanceJoshua'),
     }
-  ](name='Tag', description='The tags.'),
-  topicQuota?: int32(name='TopicQuota', description='The number of topics. This parameter is not recommended.
+  ](name='Tag', description='The list of tags.'),
+  topicQuota?: int32(name='TopicQuota', description='The number of topics (not recommended).
 
-- You must specify this parameter or \\\\`PartitionNum\\\\`. We recommend that you specify only \\\\`PartitionNum\\\\`.
+- You must specify one of PartitionNum and TopicQuota. Specify only PartitionNum.
 
-- If you specify both this parameter and \\\\`PartitionNum\\\\`, the system verifies whether the values of the two parameters are equivalent based on the previous topic-based sales model. If the values are not equivalent, the system returns a failure. If the values are equivalent, the purchase is made based on the number of partitions.
+- If both PartitionNum and TopicQuota are specified, the system verifies whether the values are equivalent based on the legacy topic sales model. If the values are not equivalent, the request fails. If the values are equivalent, the purchase is made based on the number of partitions.
 
-- The default value of this parameter varies based on the traffic specification. You are charged for the extra topics that exceed the default value.
+- The default value varies based on the traffic specification. If the value exceeds the default value, additional fees are charged.
 
-- For the valid values, see [Billing](https://help.aliyun.com/document_detail/84737.html).
+- For the value range, see [Billing overview](https://help.aliyun.com/document_detail/84737.html).
 
-> Do not specify this parameter if you create a Serverless instance.', example='50'),
+> If you create a serverless instance, you do not need to set this parameter.', example='50'),
 }
 
 model CreatePostPayOrderResponseBody = {
-  code?: int32(name='Code', description='The return code. A value of 200 indicates success.', example='200'),
-  message?: string(name='Message', description='The returned message.', example='operation success.'),
-  orderId?: string(name='OrderId', description='The ID of the order.', example='20497346575****'),
-  requestId?: string(name='RequestId', description='The ID of the request.', example='06084011-E093-46F3-A51F-4B19A8AD****'),
+  code?: int32(name='Code', description='The response code. A value of 200 indicates success.', example='200'),
+  message?: string(name='Message', description='The response message.', example='operation success.'),
+  orderId?: string(name='OrderId', description='The order ID.', example='20497346575****'),
+  requestId?: string(name='RequestId', description='The request ID.', example='06084011-E093-46F3-A51F-4B19A8AD****'),
   success?: boolean(name='Success', description='Indicates whether the call was successful.', example='true'),
 }
 
@@ -1098,9 +1145,9 @@ model CreatePostPayOrderResponse = {
 }
 
 /**
- * @summary Pay-as-you-go instances are billed based on actual usage. This billing method is ideal for testing or short-term scenarios with unpredictable traffic peaks. This topic describes how to call the CreatePostPayOrder operation to create a pay-as-you-go instance.
+ * @summary Pay-as-you-go instances are billed based on the actual usage of purchased resource specifications. You use resources first and then pay for them. This billing method is suitable for testing or short-term scenarios with unpredictable traffic peaks. This topic describes how to call CreatePostPayOrder to create a pay-as-you-go instance.
  *
- * @description Before you call this operation, make sure you understand the billing methods and pricing of pay-as-you-go instances. For more information, see [Billing](https://help.aliyun.com/document_detail/84737.html).
+ * @description Before you use this operation, make sure that you fully understand the billing methods and pricing of pay-as-you-go instances. For more information, see [Billing overview](https://help.aliyun.com/document_detail/84737.html).
  *
  * @param tmpReq CreatePostPayOrderRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -1174,9 +1221,9 @@ async function createPostPayOrderWithOptions(tmpReq: CreatePostPayOrderRequest, 
 }
 
 /**
- * @summary Pay-as-you-go instances are billed based on actual usage. This billing method is ideal for testing or short-term scenarios with unpredictable traffic peaks. This topic describes how to call the CreatePostPayOrder operation to create a pay-as-you-go instance.
+ * @summary Pay-as-you-go instances are billed based on the actual usage of purchased resource specifications. You use resources first and then pay for them. This billing method is suitable for testing or short-term scenarios with unpredictable traffic peaks. This topic describes how to call CreatePostPayOrder to create a pay-as-you-go instance.
  *
- * @description Before you call this operation, make sure you understand the billing methods and pricing of pay-as-you-go instances. For more information, see [Billing](https://help.aliyun.com/document_detail/84737.html).
+ * @description Before you use this operation, make sure that you fully understand the billing methods and pricing of pay-as-you-go instances. For more information, see [Billing overview](https://help.aliyun.com/document_detail/84737.html).
  *
  * @param request CreatePostPayOrderRequest
  * @return CreatePostPayOrderResponse
@@ -1188,17 +1235,21 @@ async function createPostPayOrder(request: CreatePostPayOrderRequest): CreatePos
 
 model CreatePrePayInstanceRequest {
   confluentConfig?: {
-    connectCU?: int32(name='ConnectCU', description='The number of CPU cores for Connect.', example='4'),
-    connectReplica?: int32(name='ConnectReplica', description='The number of replicas for Connect.', example='2'),
-    controlCenterCU?: int32(name='ControlCenterCU', description='The number of CPU cores for Control Center.', example='4'),
-    controlCenterReplica?: int32(name='ControlCenterReplica', description='The number of replicas for Control Center.', example='1'),
-    controlCenterStorage?: int32(name='ControlCenterStorage', description='The disk capacity for Control Center, in GB.', example='300'),
-    kafkaCU?: int32(name='KafkaCU', description='The number of CPU cores for the Kafka broker.', example='4'),
-    kafkaReplica?: int32(name='KafkaReplica', description='The number of replicas for the Kafka broker.', example='3'),
-    kafkaRestProxyCU?: int32(name='KafkaRestProxyCU', description='The number of CPU cores for Kafka REST Proxy.', example='4'),
-    kafkaRestProxyReplica?: int32(name='KafkaRestProxyReplica', description='The number of replicas for Kafka REST Proxy.', example='2'),
-    kafkaStorage?: int32(name='KafkaStorage', description='The disk capacity for the Kafka broker, in GB.', example='800'),
-    ksqlCU?: int32(name='KsqlCU', description='The number of CPU cores for ksqlDB.', example='4'),
+    confluentVersion?: string(name='ConfluentVersion'),
+    connectCU?: int32(name='ConnectCU', description='The number of CPU cores for the Connect component.', example='4'),
+    connectReplica?: int32(name='ConnectReplica', description='The number of Connect component replicas.', example='2'),
+    controlCenterCU?: int32(name='ControlCenterCU', description='The number of CPU cores for the ControlCenter component.', example='4'),
+    controlCenterReplica?: int32(name='ControlCenterReplica', description='The number of ControlCenter component replicas.', example='1'),
+    controlCenterStorage?: int32(name='ControlCenterStorage', description='The disk capacity of the ControlCenter component. Unit: GB.', example='300'),
+    kafkaCU?: int32(name='KafkaCU', description='The number of CPU cores for Kafka Broker.', example='4'),
+    kafkaReplica?: int32(name='KafkaReplica', description='The number of Kafka Broker replicas.', example='3'),
+    kafkaRestProxyCU?: int32(name='KafkaRestProxyCU', description='The number of CPU cores for the KafkaRestProxy component.', example='4'),
+    kafkaRestProxyReplica?: int32(name='KafkaRestProxyReplica', description='The number of KafkaRestProxy component replicas.', example='2'),
+    kafkaStorage?: int32(name='KafkaStorage', description='The disk capacity of Kafka Broker. Unit: GB.', example='800'),
+    kraftControllerCU?: int32(name='KraftControllerCU'),
+    kraftControllerReplica?: int32(name='KraftControllerReplica'),
+    kraftControllerStorage?: int32(name='KraftControllerStorage'),
+    ksqlCU?: int32(name='KsqlCU', description='The number of CPU cores for the KsqlDB component.', example='4'),
     ksqlList?: [ 
       {
         internalId?: string(name='InternalId'),
@@ -1208,77 +1259,78 @@ model CreatePrePayInstanceRequest {
         type?: string(name='type'),
       }
     ](name='KsqlList'),
-    ksqlReplica?: int32(name='KsqlReplica', description='The number of replicas for ksqlDB.', example='2'),
-    ksqlStorage?: int32(name='KsqlStorage', description='The disk capacity for ksqlDB, in GB.', example='100'),
-    schemaRegistryCU?: int32(name='SchemaRegistryCU', description='The number of CPU cores for Schema Registry.', example='1'),
-    schemaRegistryReplica?: int32(name='SchemaRegistryReplica', description='The number of replicas for Schema Registry.', example='2'),
-    zooKeeperCU?: int32(name='ZooKeeperCU', description='The number of CPU cores for ZooKeeper.', example='2'),
-    zooKeeperReplica?: int32(name='ZooKeeperReplica', description='The number of replicas for ZooKeeper.', example='3'),
-    zooKeeperStorage?: int32(name='ZooKeeperStorage', description='The disk capacity for ZooKeeper, in GB.', example='100'),
-  }(name='ConfluentConfig', description='The configurations of the Confluent components.
+    ksqlReplica?: int32(name='KsqlReplica', description='The number of KsqlDB component replicas.', example='2'),
+    ksqlStorage?: int32(name='KsqlStorage', description='The disk capacity of the KsqlDB component. Unit: GB.', example='100'),
+    schemaRegistryCU?: int32(name='SchemaRegistryCU', description='The number of CPU cores for the SchemaRegistry component.', example='1'),
+    schemaRegistryReplica?: int32(name='SchemaRegistryReplica', description='The number of SchemaRegistry component replicas.', example='2'),
+    zooKeeperCU?: int32(name='ZooKeeperCU', description='The number of CPU cores for the ZooKeeper component.', example='2'),
+    zooKeeperReplica?: int32(name='ZooKeeperReplica', description='The number of ZooKeeper component replicas.', example='3'),
+    zooKeeperStorage?: int32(name='ZooKeeperStorage', description='The disk capacity of the ZooKeeper component. Unit: GB.', example='100'),
+  }(name='ConfluentConfig', description='The Confluent component configurations.
 
-> This parameter is required if you create a Confluent instance.'),
+
+> This parameter is required when you create a Confluent instance.'),
   deployType?: int32(name='DeployType', description='The deployment type. Valid values:
 
-- **4**: an instance accessible from the internet and a VPC
+- **4**: Internet- and VPC-connected instance
 
-- **5**: an instance accessible from a VPC only
+- **5**: VPC-connected instance
 
-> If you create a Confluent instance, you cannot specify the deployment type and must set this parameter to 5. After the instance is created, you can configure internet access for each component.', example='5'),
-  diskSize?: int32(name='DiskSize', description='The disk capacity, in GB.
+
+> When you create a Confluent instance, you cannot select the deployment type. Only the value 5 is allowed. After the purchase, you can configure whether to enable public access for each component.', example='5'),
+  diskSize?: int32(name='DiskSize', description='The disk capacity. Unit: GB.
 
 For the value range, see [Billing](https://help.aliyun.com/document_detail/84737.html).
 
-> This parameter is not required if you create a Confluent instance.', example='500'),
+> This parameter is not required when you create a Confluent instance.', example='500'),
   diskType?: string(name='DiskType', description='The disk type. Valid values:
 
-- **0**: ultra disk
+- **0**: ultra cloud disk
 
 - **1**: SSD
 
-> This parameter is not required if you create a Confluent instance.', example='1'),
-  duration?: int32(name='Duration', description='The subscription duration, in months. Default value: 1. Valid values:
+> This parameter is not required when you create a Confluent instance.', example='1'),
+  duration?: int32(name='Duration', description='The subscription duration. Unit: months. Default value: 1. Valid values:
 
-- Confluent instances: **1** and **12**
+- **Confluent instances: 1 or 12**
+- **ApsaraMQ for Kafka instances: 1**', example='1'),
+  eipMax?: int32(name='EipMax', description='The Internet traffic.
 
-- Kafka instances: **1**', example='1'),
-  eipMax?: int32(name='EipMax', description='The peak internet bandwidth.
+- This parameter is required if **DeployType** is set to **4**.
 
-- This parameter is required if you set **DeployType** to **4**.
+- For the value range, see [Pay-as-you-go billing method](https://help.aliyun.com/document_detail/72142.html).
 
-- For the value range, see [pay-as-you-go](https://help.aliyun.com/document_detail/72142.html).
 
-> This parameter is not required if you create a Confluent instance.', example='3'),
-  ioMaxSpec?: string(name='IoMaxSpec', description='The I/O specification.
+> This parameter is not required when you create a Confluent instance.', example='3'),
+  ioMaxSpec?: string(name='IoMaxSpec', description='The traffic specification.
+ 
 
 - For the value range, see [Billing](https://help.aliyun.com/document_detail/84737.html).
-
-> This parameter is not required if you create a Confluent instance.', example='alikafka.hw.2xlarge'),
-  paidType?: int32(name='PaidType', description='The billing method. Valid values:
+> This parameter is not required when you create a Confluent instance.', example='alikafka.hw.2xlarge'),
+  paidType?: int32(name='PaidType', description='The billing type. Valid values:
 
 - **0**: subscription
 
-- **4**: subscription for Confluent instances', example='1'),
-  partitionNum?: int32(name='PartitionNum', description='The number of partitions.
+- **4**: Confluent subscription', example='1'),
+  partitionNum?: int32(name='PartitionNum', description='The number of partitions to purchase.
 
-- For the value range, see [Billing](https://help.aliyun.com/document_detail/84737.html).
-
-> This parameter is not required if you create a Confluent instance.', example='1000'),
+* For the value range, see [Billing](https://help.aliyun.com/document_detail/84737.html).
+> This parameter is not required when you create a Confluent instance.', example='1000'),
   regionId?: string(name='RegionId', description='The region ID of the instance.
 
 This parameter is required.', example='cn-hangzhou'),
-  resourceGroupId?: string(name='ResourceGroupId', description='The ID of the resource group.
+  resourceGroupId?: string(name='ResourceGroupId', description='The resource group ID.
 
-If you do not specify this parameter, the instance is placed in the default resource group. You can find the resource group ID in the Resource Group console.', example='rg-ac***********7q'),
-  specType?: string(name='SpecType', description='The specification type.
+If you do not specify this parameter, the instance is placed in the default resource group. You can view the resource group ID in the Resource Management console.', example='rg-ac***********7q'),
+  specType?: string(name='SpecType', description='The edition type.
 
-Valid values for Kafka instances:
+Valid values for ApsaraMQ for Kafka instances:
 
-- **normal**: Standard Edition (High-write)
+- **normal**: Standard Edition (shared throughput for writes)
 
-- **professional**: Professional Edition (High-write)
+- **professional**: Professional Edition (shared throughput for writes)
 
-- **professionalForHighRead**: Professional Edition (High-read)
+- **professionalForHighRead**: Professional Edition (shared throughput for reads)
 
 Valid values for Confluent instances:
 
@@ -1289,91 +1341,92 @@ Valid values for Confluent instances:
 For more information, see [Billing](https://help.aliyun.com/document_detail/84737.html).', example='professional'),
   tag?: [ 
     {
-      key?: string(name='Key', description='The tag key.
+      key?: string(name='Key', description='The tag key of the resource.
 
--
+- N ranges from 1 to 20.
 
--
+- If this parameter is left empty, all tag keys are matched.
 
-- The key must be 1 to 128 characters long. It cannot start with aliyun or acs:, nor can it contain http\\\\:// or https\\\\://.
+- The tag key can be up to 128 characters in length and cannot start with aliyun or acs:. It cannot contain http:// or https://.
 
 This parameter is required.', example='FinanceDept'),
-      value?: string(name='Value', description='The tag value.
+      value?: string(name='Value', description='The tag value of the resource.
 
--
+- N ranges from 1 to 20.
 
--
+- This parameter can be left empty.
 
-- The value can be 0 to 128 characters long. It cannot start with aliyun or acs:, nor can it contain http\\\\:// or https\\\\://.', example='test'),
+- The tag value can be up to 128 characters in length and cannot start with aliyun or acs:. It cannot contain http:// or https://.', example='test'),
     }
-  ](name='Tag', description='The tags to attach to the instance. You can specify up to 20 tags.'),
+  ](name='Tag', description='The tags.'),
 }
 
 model CreatePrePayInstanceShrinkRequest {
-  confluentConfigShrink?: string(name='ConfluentConfig', description='The configurations of the Confluent components.
+  confluentConfigShrink?: string(name='ConfluentConfig', description='The Confluent component configurations.
 
-> This parameter is required if you create a Confluent instance.'),
+
+> This parameter is required when you create a Confluent instance.'),
   deployType?: int32(name='DeployType', description='The deployment type. Valid values:
 
-- **4**: an instance accessible from the internet and a VPC
+- **4**: Internet- and VPC-connected instance
 
-- **5**: an instance accessible from a VPC only
+- **5**: VPC-connected instance
 
-> If you create a Confluent instance, you cannot specify the deployment type and must set this parameter to 5. After the instance is created, you can configure internet access for each component.', example='5'),
-  diskSize?: int32(name='DiskSize', description='The disk capacity, in GB.
+
+> When you create a Confluent instance, you cannot select the deployment type. Only the value 5 is allowed. After the purchase, you can configure whether to enable public access for each component.', example='5'),
+  diskSize?: int32(name='DiskSize', description='The disk capacity. Unit: GB.
 
 For the value range, see [Billing](https://help.aliyun.com/document_detail/84737.html).
 
-> This parameter is not required if you create a Confluent instance.', example='500'),
+> This parameter is not required when you create a Confluent instance.', example='500'),
   diskType?: string(name='DiskType', description='The disk type. Valid values:
 
-- **0**: ultra disk
+- **0**: ultra cloud disk
 
 - **1**: SSD
 
-> This parameter is not required if you create a Confluent instance.', example='1'),
-  duration?: int32(name='Duration', description='The subscription duration, in months. Default value: 1. Valid values:
+> This parameter is not required when you create a Confluent instance.', example='1'),
+  duration?: int32(name='Duration', description='The subscription duration. Unit: months. Default value: 1. Valid values:
 
-- Confluent instances: **1** and **12**
+- **Confluent instances: 1 or 12**
+- **ApsaraMQ for Kafka instances: 1**', example='1'),
+  eipMax?: int32(name='EipMax', description='The Internet traffic.
 
-- Kafka instances: **1**', example='1'),
-  eipMax?: int32(name='EipMax', description='The peak internet bandwidth.
+- This parameter is required if **DeployType** is set to **4**.
 
-- This parameter is required if you set **DeployType** to **4**.
+- For the value range, see [Pay-as-you-go billing method](https://help.aliyun.com/document_detail/72142.html).
 
-- For the value range, see [pay-as-you-go](https://help.aliyun.com/document_detail/72142.html).
 
-> This parameter is not required if you create a Confluent instance.', example='3'),
-  ioMaxSpec?: string(name='IoMaxSpec', description='The I/O specification.
+> This parameter is not required when you create a Confluent instance.', example='3'),
+  ioMaxSpec?: string(name='IoMaxSpec', description='The traffic specification.
+ 
 
 - For the value range, see [Billing](https://help.aliyun.com/document_detail/84737.html).
-
-> This parameter is not required if you create a Confluent instance.', example='alikafka.hw.2xlarge'),
-  paidType?: int32(name='PaidType', description='The billing method. Valid values:
+> This parameter is not required when you create a Confluent instance.', example='alikafka.hw.2xlarge'),
+  paidType?: int32(name='PaidType', description='The billing type. Valid values:
 
 - **0**: subscription
 
-- **4**: subscription for Confluent instances', example='1'),
-  partitionNum?: int32(name='PartitionNum', description='The number of partitions.
+- **4**: Confluent subscription', example='1'),
+  partitionNum?: int32(name='PartitionNum', description='The number of partitions to purchase.
 
-- For the value range, see [Billing](https://help.aliyun.com/document_detail/84737.html).
-
-> This parameter is not required if you create a Confluent instance.', example='1000'),
+* For the value range, see [Billing](https://help.aliyun.com/document_detail/84737.html).
+> This parameter is not required when you create a Confluent instance.', example='1000'),
   regionId?: string(name='RegionId', description='The region ID of the instance.
 
 This parameter is required.', example='cn-hangzhou'),
-  resourceGroupId?: string(name='ResourceGroupId', description='The ID of the resource group.
+  resourceGroupId?: string(name='ResourceGroupId', description='The resource group ID.
 
-If you do not specify this parameter, the instance is placed in the default resource group. You can find the resource group ID in the Resource Group console.', example='rg-ac***********7q'),
-  specType?: string(name='SpecType', description='The specification type.
+If you do not specify this parameter, the instance is placed in the default resource group. You can view the resource group ID in the Resource Management console.', example='rg-ac***********7q'),
+  specType?: string(name='SpecType', description='The edition type.
 
-Valid values for Kafka instances:
+Valid values for ApsaraMQ for Kafka instances:
 
-- **normal**: Standard Edition (High-write)
+- **normal**: Standard Edition (shared throughput for writes)
 
-- **professional**: Professional Edition (High-write)
+- **professional**: Professional Edition (shared throughput for writes)
 
-- **professionalForHighRead**: Professional Edition (High-read)
+- **professionalForHighRead**: Professional Edition (shared throughput for reads)
 
 Valid values for Confluent instances:
 
@@ -1384,35 +1437,35 @@ Valid values for Confluent instances:
 For more information, see [Billing](https://help.aliyun.com/document_detail/84737.html).', example='professional'),
   tag?: [ 
     {
-      key?: string(name='Key', description='The tag key.
+      key?: string(name='Key', description='The tag key of the resource.
 
--
+- N ranges from 1 to 20.
 
--
+- If this parameter is left empty, all tag keys are matched.
 
-- The key must be 1 to 128 characters long. It cannot start with aliyun or acs:, nor can it contain http\\\\:// or https\\\\://.
+- The tag key can be up to 128 characters in length and cannot start with aliyun or acs:. It cannot contain http:// or https://.
 
 This parameter is required.', example='FinanceDept'),
-      value?: string(name='Value', description='The tag value.
+      value?: string(name='Value', description='The tag value of the resource.
 
--
+- N ranges from 1 to 20.
 
--
+- This parameter can be left empty.
 
-- The value can be 0 to 128 characters long. It cannot start with aliyun or acs:, nor can it contain http\\\\:// or https\\\\://.', example='test'),
+- The tag value can be up to 128 characters in length and cannot start with aliyun or acs:. It cannot contain http:// or https://.', example='test'),
     }
-  ](name='Tag', description='The tags to attach to the instance. You can specify up to 20 tags.'),
+  ](name='Tag', description='The tags.'),
 }
 
 model CreatePrePayInstanceResponseBody = {
-  code?: int32(name='Code', description='The status code. A value of 200 indicates a successful request.', example='200'),
+  code?: int32(name='Code', description='The HTTP status code. A value of 200 indicates success.', example='200'),
   data?: {
     instanceId?: string(name='InstanceId', description='The instance ID.', example='alikafka_post-cn-xxxxxx'),
-    orderId?: long(name='OrderId', description='The unique ID of the order.', example='236972661xxxx'),
-  }(name='Data', description='The response data.'),
-  message?: string(name='Message', description='The response message.', example='operation success'),
-  requestId?: string(name='RequestId', description='The unique ID of the request.', example='E57A8862-DF68-4055-8E55-B80CB4****'),
-  success?: boolean(name='Success', description='Indicates whether the request was successful.', example='true'),
+    orderId?: long(name='OrderId', description='The order ID.', example='236972661xxxx'),
+  }(name='Data', description='The returned data.'),
+  message?: string(name='Message', description='The returned message.', example='operation success'),
+  requestId?: string(name='RequestId', description='The request ID.', example='E57A8862-DF68-4055-8E55-B80CB4****'),
+  success?: boolean(name='Success', description='Indicates whether the call was successful.', example='true'),
 }
 
 model CreatePrePayInstanceResponse = {
@@ -1424,8 +1477,8 @@ model CreatePrePayInstanceResponse = {
 /**
  * @summary Creates a subscription instance and returns the instance ID and order ID.
  *
- * @description - Before calling this operation, ensure you understand the billing methods and pricing of subscription instances. For more information, see [billing overview](https://help.aliyun.com/document_detail/84737.html).
- * - By default, a subscription instance created using this operation has a one-month subscription period and is set to auto-renew monthly. To change the renewal period or disable auto-renewal, go to the [renewal management](https://renew.console.aliyun.com/#/ecs) page in the Alibaba Cloud Management Console.<props="china"> For more information, see [Set up auto-renewal](https://help.aliyun.com/document_detail/37128.html).
+ * @description - Make sure that you fully understand the billing methods and pricing of subscription instances before you call this operation. For more information, see [Billing](https://help.aliyun.com/document_detail/84737.html).
+ * - After you call this operation, the upfront instance is purchased for one epoch of one month by default. Auto-renewal is enabled by default, and the Unified Auto Renewal Cycle is one month. If you want to modify the Unified Auto Renewal Cycle or disable auto-renewal, go to the [Renewal](https://renew.console.aliyun.com/#/ecs) page in the Alibaba Cloud Management Console.<props="china"> For more information, see [Settings for auto-renewal](https://help.aliyun.com/document_detail/37128.html).
  *
  * @param tmpReq CreatePrePayInstanceRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -1498,8 +1551,8 @@ async function createPrePayInstanceWithOptions(tmpReq: CreatePrePayInstanceReque
 /**
  * @summary Creates a subscription instance and returns the instance ID and order ID.
  *
- * @description - Before calling this operation, ensure you understand the billing methods and pricing of subscription instances. For more information, see [billing overview](https://help.aliyun.com/document_detail/84737.html).
- * - By default, a subscription instance created using this operation has a one-month subscription period and is set to auto-renew monthly. To change the renewal period or disable auto-renewal, go to the [renewal management](https://renew.console.aliyun.com/#/ecs) page in the Alibaba Cloud Management Console.<props="china"> For more information, see [Set up auto-renewal](https://help.aliyun.com/document_detail/37128.html).
+ * @description - Make sure that you fully understand the billing methods and pricing of subscription instances before you call this operation. For more information, see [Billing](https://help.aliyun.com/document_detail/84737.html).
+ * - After you call this operation, the upfront instance is purchased for one epoch of one month by default. Auto-renewal is enabled by default, and the Unified Auto Renewal Cycle is one month. If you want to modify the Unified Auto Renewal Cycle or disable auto-renewal, go to the [Renewal](https://renew.console.aliyun.com/#/ecs) page in the Alibaba Cloud Management Console.<props="china"> For more information, see [Settings for auto-renewal](https://help.aliyun.com/document_detail/37128.html).
  *
  * @param request CreatePrePayInstanceRequest
  * @return CreatePrePayInstanceResponse
@@ -1512,20 +1565,20 @@ async function createPrePayInstance(request: CreatePrePayInstanceRequest): Creat
 model CreatePrePayOrderRequest {
   confluentConfig?: {
     confluentVersion?: string(name='ConfluentVersion'),
-    connectCU?: int32(name='ConnectCU', description='The number of CPU cores for Connect component.', example='4'),
-    connectReplica?: int32(name='ConnectReplica', description='The number of replicas for Connect component.', example='2'),
-    controlCenterCU?: int32(name='ControlCenterCU', description='The number of CPU cores for ControlCenter component.', example='4'),
-    controlCenterReplica?: int32(name='ControlCenterReplica', description='The number of replicas for ControlCenter component.', example='1'),
-    controlCenterStorage?: int32(name='ControlCenterStorage', description='The disk capacity of ControlCenter component. Unit: GB.', example='300'),
-    kafkaCU?: int32(name='KafkaCU', description='The number of CPU cores for Kafka broker.', example='4'),
-    kafkaReplica?: int32(name='KafkaReplica', description='The number of replicas for Kafka broker.', example='3'),
-    kafkaRestProxyCU?: int32(name='KafkaRestProxyCU', description='The number of CPU cores for KafkaRestProxy component.', example='4'),
-    kafkaRestProxyReplica?: int32(name='KafkaRestProxyReplica', description='The number of replicas for KafkaRestProxy component.', example='2'),
-    kafkaStorage?: int32(name='KafkaStorage', description='The disk capacity of Kafka broker. Unit: GB.', example='800'),
+    connectCU?: int32(name='ConnectCU', description='The number of CPU cores for the Connect component.', example='4'),
+    connectReplica?: int32(name='ConnectReplica', description='The number of Connect component replicas.', example='2'),
+    controlCenterCU?: int32(name='ControlCenterCU', description='The number of CPU cores for the ControlCenter component.', example='4'),
+    controlCenterReplica?: int32(name='ControlCenterReplica', description='The number of ControlCenter component replicas.', example='1'),
+    controlCenterStorage?: int32(name='ControlCenterStorage', description='The disk capacity of the ControlCenter component. Unit: GB.', example='300'),
+    kafkaCU?: int32(name='KafkaCU', description='The number of CPU cores for Kafka Broker.', example='4'),
+    kafkaReplica?: int32(name='KafkaReplica', description='The number of Kafka Broker replicas.', example='3'),
+    kafkaRestProxyCU?: int32(name='KafkaRestProxyCU', description='The number of CPU cores for the KafkaRestProxy component.', example='4'),
+    kafkaRestProxyReplica?: int32(name='KafkaRestProxyReplica', description='The number of KafkaRestProxy component replicas.', example='2'),
+    kafkaStorage?: int32(name='KafkaStorage', description='The disk capacity of Kafka Broker. Unit: GB.', example='800'),
     kraftControllerCU?: int32(name='KraftControllerCU'),
     kraftControllerReplica?: int32(name='KraftControllerReplica'),
     kraftControllerStorage?: int32(name='KraftControllerStorage'),
-    ksqlCU?: int32(name='KsqlCU', description='The number of CPU cores for KsqlDB component.', example='4'),
+    ksqlCU?: int32(name='KsqlCU', description='The number of CPU cores for the KsqlDB component.', example='4'),
     ksqlList?: [ 
       {
         cu?: int32(name='Cu'),
@@ -1535,90 +1588,91 @@ model CreatePrePayOrderRequest {
         type?: string(name='Type'),
       }
     ](name='KsqlList'),
-    ksqlReplica?: int32(name='KsqlReplica', description='The number of replicas for KsqlDB component.', example='2'),
-    ksqlStorage?: int32(name='KsqlStorage', description='The disk capacity of KsqlDB component. Unit: GB.', example='100'),
-    schemaRegistryCU?: int32(name='SchemaRegistryCU', description='The number of CPU cores for SchemaRegistry component.', example='1'),
-    schemaRegistryReplica?: int32(name='SchemaRegistryReplica', description='The number of replicas for SchemaRegistry component.', example='2'),
-    zooKeeperCU?: int32(name='ZooKeeperCU', description='The number of CPU cores for ZooKeeper component.', example='2'),
-    zooKeeperReplica?: int32(name='ZooKeeperReplica', description='The number of replicas for ZooKeeper component.', example='3'),
-    zooKeeperStorage?: int32(name='ZooKeeperStorage', description='The disk capacity of ZooKeeper component. Unit: GB.', example='100'),
-  }(name='ConfluentConfig', description='The configuration of Confluent components.
+    ksqlReplica?: int32(name='KsqlReplica', description='The number of KsqlDB component replicas.', example='2'),
+    ksqlStorage?: int32(name='KsqlStorage', description='The disk capacity of the KsqlDB component. Unit: GB.', example='100'),
+    schemaRegistryCU?: int32(name='SchemaRegistryCU', description='The number of CPU cores for the SchemaRegistry component.', example='1'),
+    schemaRegistryReplica?: int32(name='SchemaRegistryReplica', description='The number of SchemaRegistry component replicas.', example='2'),
+    zooKeeperCU?: int32(name='ZooKeeperCU', description='The number of CPU cores for the ZooKeeper component.', example='2'),
+    zooKeeperReplica?: int32(name='ZooKeeperReplica', description='The number of ZooKeeper component replicas.', example='3'),
+    zooKeeperStorage?: int32(name='ZooKeeperStorage', description='The disk capacity of the ZooKeeper component. Unit: GB.', example='100'),
+  }(name='ConfluentConfig', description='The Confluent component configurations.
 
-> This parameter is required when you create a Confluent series instance.'),
+
+> This parameter is required when you create a Confluent instance.'),
   deployType?: int32(name='DeployType', description='The deployment type. Valid values:
 
-- **4**: Internet/VPC instance
+- **4**: Internet- and VPC-connected instance
 
-- **5**: VPC instance
+- **5**: VPC-connected instance
 
-> If you are creating a Confluent series instance, you cannot select the deployment type. You can only set the value to 5. After the purchase, you can adjust whether each component is open to the Internet.', example='5'),
+
+> If you create a Confluent instance, the deployment type is not supported. You can only set this parameter to 5. After the purchase, you can configure whether to enable public access for each component.', example='5'),
   diskSize?: int32(name='DiskSize', description='The disk capacity. Unit: GB.
 
-For the valid values, see [Billing](https://help.aliyun.com/document_detail/84737.html).
+For the value range, see [Billing](https://help.aliyun.com/document_detail/84737.html).
 
-> If you are creating a Confluent series instance, you do not need to pass this parameter.', example='500'),
+> If you create a Confluent instance, you do not need to specify this parameter.', example='500'),
   diskType?: string(name='DiskType', description='The disk type. Valid values:
 
-- **0**: ultra disk
+- **0**: ultra cloud disk
 
 - **1**: SSD
 
-> If you are creating a Confluent series instance, you do not need to pass this parameter.', example='0'),
-  duration?: int32(name='Duration', description='The subscription duration. Unit: month. Default value: 1. Valid values:
+> If you create a Confluent instance, you do not need to specify this parameter.', example='0'),
+  duration?: int32(name='Duration', description='The subscription duration. Unit: months. Default value: 1. Valid values:
 
 - **Confluent instances: 1 or 12**
-
 - **Kafka instances: 1**', example='1'),
-  eipMax?: int32(name='EipMax', description='The Internet traffic.
+  eipMax?: int32(name='EipMax', description='The public network traffic.
 
-- If **DeployType** is set to **4**, you must specify this parameter.
+- This parameter is required if **DeployType** is set to **4**.
 
-- For the valid values, see [pay-as-you-go](https://help.aliyun.com/document_detail/72142.html).
+- For the value range, see [Pay-as-you-go billing method](https://help.aliyun.com/document_detail/72142.html).
 
-> If you are creating a Confluent series instance, you do not need to pass this parameter.', example='0'),
-  ioMax?: int32(name='IoMax', description='The traffic peak (not recommended).
 
-- You must specify either **IoMax** or **IoMaxSpec**. If you specify both parameters, **IoMaxSpec** takes precedence. We recommend that you specify only **IoMaxSpec**.
+> If you create a Confluent instance, you do not need to specify this parameter.', example='0'),
+  ioMax?: int32(name='IoMax', description='The peak traffic (not recommended).
 
-- For the valid values, see [Billing](https://help.aliyun.com/document_detail/84737.html).
+- You must specify at least one of **IoMax** and **IoMaxSpec**. If you specify both, **IoMaxSpec** takes precedence. We recommend that you specify only **IoMaxSpec**.
 
-> If you are creating a Confluent series instance, you do not need to pass this parameter.', example='20'),
+- For the value range, see [Billing](https://help.aliyun.com/document_detail/84737.html).
+
+> If you create a Confluent instance, you do not need to specify this parameter.', example='20'),
   ioMaxSpec?: string(name='IoMaxSpec', description='The traffic specification (recommended).
 
-- You must specify either **IoMax** or **IoMaxSpec**. If you specify both parameters, **IoMaxSpec** takes precedence. We recommend that you specify only **IoMaxSpec**.
+- You must specify at least one of **IoMax** and **IoMaxSpec**. If you specify both, **IoMaxSpec** takes precedence. We recommend that you specify only **IoMaxSpec**.
 
-- For the valid values, see [Billing](https://help.aliyun.com/document_detail/84737.html).
-
-> If you are creating a Confluent series instance, you do not need to pass this parameter.', example='alikafka.hw.2xlarge'),
-  paidType?: int32(name='PaidType', description='The billing method. Valid values:
+- For the value range, see [Billing](https://help.aliyun.com/document_detail/84737.html).
+> If you create a Confluent instance, you do not need to specify this parameter.', example='alikafka.hw.2xlarge'),
+  paidType?: int32(name='PaidType', description='The billing type. Valid values:
 
 - **0**: subscription
 
-- **4**: Confluent series subscription', example='0'),
+- **4**: Confluent subscription', example='0'),
   partitionNum?: int32(name='PartitionNum', description='The number of partitions (recommended).
 
-- You must specify either the number of partitions or the topic specification. We recommend that you specify only the number of partitions.
+* You must specify either the number of partitions or the topic specification. We recommend that you specify only the number of partitions.
 
-- If you specify both the number of partitions and the topic specification, the system verifies whether the number of partitions is equivalent to the topic specification based on the old topic sales model. If they are not equivalent, the system returns a failure. If they are equivalent, the system makes the purchase based on the number of partitions.
+* If you specify both the number of partitions and the topic specification, the system verifies whether the number of partitions and the topic specification are equivalent based on the legacy topic sales model. If they are not equivalent, the request fails. If they are equivalent, the purchase is made based on the number of partitions.
 
-- For the valid values, see [Billing](https://help.aliyun.com/document_detail/84737.html).
+* For the value range, see [Billing](https://help.aliyun.com/document_detail/84737.html).
 
-> If you are creating a Confluent series instance, you do not need to pass this parameter.', example='50'),
+> If you create a Confluent instance, you do not need to specify this parameter.', example='50'),
   regionId?: string(name='RegionId', description='The region ID of the instance.
 
 This parameter is required.', example='cn-hangzhou'),
   resourceGroupId?: string(name='ResourceGroupId', description='The resource group ID.
 
-If you do not specify this parameter, the instance is added to the default resource group. You can view the resource group ID in the Resource Group console.', example='rg-ac***********7q'),
+If you do not specify this parameter, the instance is placed in the default resource group. You can view the resource group ID in the Resource Group console.', example='rg-ac***********7q'),
   specType?: string(name='SpecType', description='The specification type.
 
-Valid values for Kafka instances:
+Valid values for ApsaraMQ for Kafka instances:
 
-- **normal**: Standard Edition (high write)
+- **normal**: Normal Edition (shared high-write)
 
-- **professional**: Professional Edition (high write)
+- **professional**: Professional Edition (shared high-write)
 
-- **professionalForHighRead**: Professional Edition (high read)
+- **professionalForHighRead**: Professional Edition (shared high-read)
 
 Valid values for Confluent instances:
 
@@ -1633,111 +1687,111 @@ For more information, see [Billing](https://help.aliyun.com/document_detail/8473
 
 - N ranges from 1 to 20.
 
-- If this parameter is empty, all tag keys are matched.
+- If this parameter is left empty, all tag keys are matched.
 
-- The tag key can be up to 128 characters in length and cannot start with aliyun or acs:. It cannot contain http\\\\:// or https\\\\://.
+- The tag key can be up to 128 characters in length and cannot start with aliyun or acs:. It cannot contain http:// or https://.
 
 This parameter is required.', example='FinanceDept'),
       value?: string(name='Value', description='The tag value of the resource.
 
 - N ranges from 1 to 20.
 
-- This parameter can be empty.
+- This parameter can be left empty.
 
-- The tag value can be up to 128 characters in length and cannot start with aliyun or acs:. It cannot contain http\\\\:// or https\\\\://.', example='FinanceJoshua'),
+- The tag value can be up to 128 characters in length and cannot start with aliyun or acs:. It cannot contain http:// or https://.', example='FinanceJoshua'),
     }
-  ](name='Tag', description='The list of tags.'),
+  ](name='Tag', description='The tags.'),
   topicQuota?: int32(name='TopicQuota', description='The number of topics (not recommended).
 
 - You must specify either the number of partitions or the topic specification. We recommend that you specify only the number of partitions.
 
-- If you specify both the number of partitions and the topic specification, the system verifies whether the number of partitions is equivalent to the topic specification based on the old topic sales model. If they are not equivalent, the system returns a failure. If they are equivalent, the system makes the purchase based on the number of partitions.
+- If you specify both the number of partitions and the topic specification, the system verifies whether the number of partitions and the topic specification are equivalent based on the legacy topic sales model. If they are not equivalent, the request fails. If they are equivalent, the purchase is made based on the number of partitions.
 
 - The default value varies based on the traffic specification. Additional fees are charged if the value exceeds the default value.
 
-- For the valid values, see [Billing](https://help.aliyun.com/document_detail/84737.html).
-
-> If you are creating a Confluent series instance, you do not need to pass this parameter.', example='50'),
+- For the value range, see [Billing](https://help.aliyun.com/document_detail/84737.html).
+> If you create a Confluent instance, you do not need to specify this parameter.', example='50'),
 }
 
 model CreatePrePayOrderShrinkRequest {
-  confluentConfigShrink?: string(name='ConfluentConfig', description='The configuration of Confluent components.
+  confluentConfigShrink?: string(name='ConfluentConfig', description='The Confluent component configurations.
 
-> This parameter is required when you create a Confluent series instance.'),
+
+> This parameter is required when you create a Confluent instance.'),
   deployType?: int32(name='DeployType', description='The deployment type. Valid values:
 
-- **4**: Internet/VPC instance
+- **4**: Internet- and VPC-connected instance
 
-- **5**: VPC instance
+- **5**: VPC-connected instance
 
-> If you are creating a Confluent series instance, you cannot select the deployment type. You can only set the value to 5. After the purchase, you can adjust whether each component is open to the Internet.', example='5'),
+
+> If you create a Confluent instance, the deployment type is not supported. You can only set this parameter to 5. After the purchase, you can configure whether to enable public access for each component.', example='5'),
   diskSize?: int32(name='DiskSize', description='The disk capacity. Unit: GB.
 
-For the valid values, see [Billing](https://help.aliyun.com/document_detail/84737.html).
+For the value range, see [Billing](https://help.aliyun.com/document_detail/84737.html).
 
-> If you are creating a Confluent series instance, you do not need to pass this parameter.', example='500'),
+> If you create a Confluent instance, you do not need to specify this parameter.', example='500'),
   diskType?: string(name='DiskType', description='The disk type. Valid values:
 
-- **0**: ultra disk
+- **0**: ultra cloud disk
 
 - **1**: SSD
 
-> If you are creating a Confluent series instance, you do not need to pass this parameter.', example='0'),
-  duration?: int32(name='Duration', description='The subscription duration. Unit: month. Default value: 1. Valid values:
+> If you create a Confluent instance, you do not need to specify this parameter.', example='0'),
+  duration?: int32(name='Duration', description='The subscription duration. Unit: months. Default value: 1. Valid values:
 
 - **Confluent instances: 1 or 12**
-
 - **Kafka instances: 1**', example='1'),
-  eipMax?: int32(name='EipMax', description='The Internet traffic.
+  eipMax?: int32(name='EipMax', description='The public network traffic.
 
-- If **DeployType** is set to **4**, you must specify this parameter.
+- This parameter is required if **DeployType** is set to **4**.
 
-- For the valid values, see [pay-as-you-go](https://help.aliyun.com/document_detail/72142.html).
+- For the value range, see [Pay-as-you-go billing method](https://help.aliyun.com/document_detail/72142.html).
 
-> If you are creating a Confluent series instance, you do not need to pass this parameter.', example='0'),
-  ioMax?: int32(name='IoMax', description='The traffic peak (not recommended).
 
-- You must specify either **IoMax** or **IoMaxSpec**. If you specify both parameters, **IoMaxSpec** takes precedence. We recommend that you specify only **IoMaxSpec**.
+> If you create a Confluent instance, you do not need to specify this parameter.', example='0'),
+  ioMax?: int32(name='IoMax', description='The peak traffic (not recommended).
 
-- For the valid values, see [Billing](https://help.aliyun.com/document_detail/84737.html).
+- You must specify at least one of **IoMax** and **IoMaxSpec**. If you specify both, **IoMaxSpec** takes precedence. We recommend that you specify only **IoMaxSpec**.
 
-> If you are creating a Confluent series instance, you do not need to pass this parameter.', example='20'),
+- For the value range, see [Billing](https://help.aliyun.com/document_detail/84737.html).
+
+> If you create a Confluent instance, you do not need to specify this parameter.', example='20'),
   ioMaxSpec?: string(name='IoMaxSpec', description='The traffic specification (recommended).
 
-- You must specify either **IoMax** or **IoMaxSpec**. If you specify both parameters, **IoMaxSpec** takes precedence. We recommend that you specify only **IoMaxSpec**.
+- You must specify at least one of **IoMax** and **IoMaxSpec**. If you specify both, **IoMaxSpec** takes precedence. We recommend that you specify only **IoMaxSpec**.
 
-- For the valid values, see [Billing](https://help.aliyun.com/document_detail/84737.html).
-
-> If you are creating a Confluent series instance, you do not need to pass this parameter.', example='alikafka.hw.2xlarge'),
-  paidType?: int32(name='PaidType', description='The billing method. Valid values:
+- For the value range, see [Billing](https://help.aliyun.com/document_detail/84737.html).
+> If you create a Confluent instance, you do not need to specify this parameter.', example='alikafka.hw.2xlarge'),
+  paidType?: int32(name='PaidType', description='The billing type. Valid values:
 
 - **0**: subscription
 
-- **4**: Confluent series subscription', example='0'),
+- **4**: Confluent subscription', example='0'),
   partitionNum?: int32(name='PartitionNum', description='The number of partitions (recommended).
 
-- You must specify either the number of partitions or the topic specification. We recommend that you specify only the number of partitions.
+* You must specify either the number of partitions or the topic specification. We recommend that you specify only the number of partitions.
 
-- If you specify both the number of partitions and the topic specification, the system verifies whether the number of partitions is equivalent to the topic specification based on the old topic sales model. If they are not equivalent, the system returns a failure. If they are equivalent, the system makes the purchase based on the number of partitions.
+* If you specify both the number of partitions and the topic specification, the system verifies whether the number of partitions and the topic specification are equivalent based on the legacy topic sales model. If they are not equivalent, the request fails. If they are equivalent, the purchase is made based on the number of partitions.
 
-- For the valid values, see [Billing](https://help.aliyun.com/document_detail/84737.html).
+* For the value range, see [Billing](https://help.aliyun.com/document_detail/84737.html).
 
-> If you are creating a Confluent series instance, you do not need to pass this parameter.', example='50'),
+> If you create a Confluent instance, you do not need to specify this parameter.', example='50'),
   regionId?: string(name='RegionId', description='The region ID of the instance.
 
 This parameter is required.', example='cn-hangzhou'),
   resourceGroupId?: string(name='ResourceGroupId', description='The resource group ID.
 
-If you do not specify this parameter, the instance is added to the default resource group. You can view the resource group ID in the Resource Group console.', example='rg-ac***********7q'),
+If you do not specify this parameter, the instance is placed in the default resource group. You can view the resource group ID in the Resource Group console.', example='rg-ac***********7q'),
   specType?: string(name='SpecType', description='The specification type.
 
-Valid values for Kafka instances:
+Valid values for ApsaraMQ for Kafka instances:
 
-- **normal**: Standard Edition (high write)
+- **normal**: Normal Edition (shared high-write)
 
-- **professional**: Professional Edition (high write)
+- **professional**: Professional Edition (shared high-write)
 
-- **professionalForHighRead**: Professional Edition (high read)
+- **professionalForHighRead**: Professional Edition (shared high-read)
 
 Valid values for Confluent instances:
 
@@ -1752,38 +1806,37 @@ For more information, see [Billing](https://help.aliyun.com/document_detail/8473
 
 - N ranges from 1 to 20.
 
-- If this parameter is empty, all tag keys are matched.
+- If this parameter is left empty, all tag keys are matched.
 
-- The tag key can be up to 128 characters in length and cannot start with aliyun or acs:. It cannot contain http\\\\:// or https\\\\://.
+- The tag key can be up to 128 characters in length and cannot start with aliyun or acs:. It cannot contain http:// or https://.
 
 This parameter is required.', example='FinanceDept'),
       value?: string(name='Value', description='The tag value of the resource.
 
 - N ranges from 1 to 20.
 
-- This parameter can be empty.
+- This parameter can be left empty.
 
-- The tag value can be up to 128 characters in length and cannot start with aliyun or acs:. It cannot contain http\\\\:// or https\\\\://.', example='FinanceJoshua'),
+- The tag value can be up to 128 characters in length and cannot start with aliyun or acs:. It cannot contain http:// or https://.', example='FinanceJoshua'),
     }
-  ](name='Tag', description='The list of tags.'),
+  ](name='Tag', description='The tags.'),
   topicQuota?: int32(name='TopicQuota', description='The number of topics (not recommended).
 
 - You must specify either the number of partitions or the topic specification. We recommend that you specify only the number of partitions.
 
-- If you specify both the number of partitions and the topic specification, the system verifies whether the number of partitions is equivalent to the topic specification based on the old topic sales model. If they are not equivalent, the system returns a failure. If they are equivalent, the system makes the purchase based on the number of partitions.
+- If you specify both the number of partitions and the topic specification, the system verifies whether the number of partitions and the topic specification are equivalent based on the legacy topic sales model. If they are not equivalent, the request fails. If they are equivalent, the purchase is made based on the number of partitions.
 
 - The default value varies based on the traffic specification. Additional fees are charged if the value exceeds the default value.
 
-- For the valid values, see [Billing](https://help.aliyun.com/document_detail/84737.html).
-
-> If you are creating a Confluent series instance, you do not need to pass this parameter.', example='50'),
+- For the value range, see [Billing](https://help.aliyun.com/document_detail/84737.html).
+> If you create a Confluent instance, you do not need to specify this parameter.', example='50'),
 }
 
 model CreatePrePayOrderResponseBody = {
-  code?: int32(name='Code', description='The return code. A value of 200 indicates that the call is successful.', example='200'),
-  message?: string(name='Message', description='The returned message.', example='operation success.'),
-  orderId?: string(name='OrderId', description='The ID of the order.', example='20497346575****'),
-  requestId?: string(name='RequestId', description='The ID of the request.', example='06084011-E093-46F3-A51F-4B19A8AD****'),
+  code?: int32(name='Code', description='The response code. A value of 200 indicates success.', example='200'),
+  message?: string(name='Message', description='The response message.', example='operation success.'),
+  orderId?: string(name='OrderId', description='The order ID.', example='20497346575****'),
+  requestId?: string(name='RequestId', description='The request ID.', example='06084011-E093-46F3-A51F-4B19A8AD****'),
   success?: boolean(name='Success', description='Indicates whether the call was successful.', example='true'),
 }
 
@@ -1794,10 +1847,10 @@ model CreatePrePayOrderResponse = {
 }
 
 /**
- * @summary Subscription instances require prepayment for resources and are ideal for long-term, stable business scenarios. This topic describes how to call the CreatePrePayOrder operation to create a subscription instance.
+ * @summary Creates a subscription instance. Subscription instances require upfront payment before you can use resources. This billing method is suitable for long-term stable business scenarios.
  *
- * @description - Before you call this operation, ensure that you understand the billing method and pricing of subscription instances. For more information, see [Billing](https://help.aliyun.com/document_detail/84737.html).
- * - By default, when you call this operation, the subscription duration is one month and auto-renewal is enabled with a Unified Auto Renewal Cycle of one month. To modify the Unified Auto Renewal Cycle or disable auto-renewal, go to the [Renewal Management](https://renew.console.aliyun.com/#/ecs) page in the Alibaba Cloud Management Console. For more information, see [Configure auto-renewal](https://help.aliyun.com/document_detail/37128.html).
+ * @description - Before calling this operation, make sure that you fully understand the billing method and pricing of upfront instances. For more information, see [Billing](https://help.aliyun.com/document_detail/84737.html).
+ * - After you call this operation, the subscription instance is purchased for one epoch by default, and auto-renewal is enabled by default with a Unified Auto Renewal Cycle of one month. To modify the auto-renewal epoch or disable auto-renewal, go to the [Renewal Management](https://renew.console.aliyun.com/#/ecs) page in the Alibaba Cloud Management Console Settings.<props="china"> For more information, see [Configure auto-renewal](https://help.aliyun.com/document_detail/37128.html).
  *
  * @param tmpReq CreatePrePayOrderRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -1874,10 +1927,10 @@ async function createPrePayOrderWithOptions(tmpReq: CreatePrePayOrderRequest, ru
 }
 
 /**
- * @summary Subscription instances require prepayment for resources and are ideal for long-term, stable business scenarios. This topic describes how to call the CreatePrePayOrder operation to create a subscription instance.
+ * @summary Creates a subscription instance. Subscription instances require upfront payment before you can use resources. This billing method is suitable for long-term stable business scenarios.
  *
- * @description - Before you call this operation, ensure that you understand the billing method and pricing of subscription instances. For more information, see [Billing](https://help.aliyun.com/document_detail/84737.html).
- * - By default, when you call this operation, the subscription duration is one month and auto-renewal is enabled with a Unified Auto Renewal Cycle of one month. To modify the Unified Auto Renewal Cycle or disable auto-renewal, go to the [Renewal Management](https://renew.console.aliyun.com/#/ecs) page in the Alibaba Cloud Management Console. For more information, see [Configure auto-renewal](https://help.aliyun.com/document_detail/37128.html).
+ * @description - Before calling this operation, make sure that you fully understand the billing method and pricing of upfront instances. For more information, see [Billing](https://help.aliyun.com/document_detail/84737.html).
+ * - After you call this operation, the subscription instance is purchased for one epoch by default, and auto-renewal is enabled by default with a Unified Auto Renewal Cycle of one month. To modify the auto-renewal epoch or disable auto-renewal, go to the [Renewal Management](https://renew.console.aliyun.com/#/ecs) page in the Alibaba Cloud Management Console Settings.<props="china"> For more information, see [Configure auto-renewal](https://help.aliyun.com/document_detail/37128.html).
  *
  * @param request CreatePrePayOrderRequest
  * @return CreatePrePayOrderResponse
@@ -1888,29 +1941,29 @@ async function createPrePayOrder(request: CreatePrePayOrderRequest): CreatePrePa
 }
 
 model CreateSaslUserRequest {
-  instanceId?: string(name='InstanceId', description='The ID of the instance.
+  instanceId?: string(name='InstanceId', description='The instance ID.
 
 This parameter is required.', example='alikafka_pre-cn-v0h1cng0****'),
-  mechanism?: string(name='Mechanism', description='The encryption method. Valid values:
+  mechanism?: string(name='Mechanism', description='The encryption mechanism. Valid values:
 
-- SCRAM-SHA-512 (default)
+- SCRAM-SHA-512 (selected by default)
 
 - SCRAM-SHA-256
 
-> This parameter is supported only for Serverless instances.', example='SCRAM-SHA-256'),
+>This parameter is supported only for Serverless instances.', example='SCRAM-SHA-256'),
   password?: string(name='Password', description='The password.
 
 This parameter is required.', example='12***'),
-  regionId?: string(name='RegionId', description='The ID of the region.
+  regionId?: string(name='RegionId', description='The region ID.
 
 This parameter is required.', example='cn-hangzhou'),
-  type?: string(name='Type', description='The SASL mechanism. Valid values:
+  type?: string(name='Type', description='The type. Valid values:
 
-- plain: a simple username and password authentication mechanism. Message Queue for Apache Kafka optimizes the PLAIN mechanism to support the dynamic creation of SASL users without the need to restart the instance.
+- plain: a simple username and password verification mechanism. ApsaraMQ for Kafka has optimized the PLAIN mechanism to support dynamically adding SASL users without restarting the instance.
 
-- scram: a username and password authentication mechanism that provides higher security than the PLAIN mechanism. Message Queue for Apache Kafka uses Salted Challenge Response Authentication Mechanism (SCRAM)-SHA-256.
+- scram: a username and password verification mechanism that provides higher security than PLAIN. ApsaraMQ for Kafka uses SCRAM-SHA-256.
 
-- LDAP: This value is applicable only when you create users for Confluent instances.
+- LDAP: applicable only to adding users for Confluent instances.
 
 Default value: plain.', example='plain'),
   username?: string(name='Username', description='The username.
@@ -1919,10 +1972,10 @@ This parameter is required.', example='test***'),
 }
 
 model CreateSaslUserResponseBody = {
-  code?: int32(name='Code', description='The status code. A value of 200 indicates that the request was successful.', example='200'),
-  message?: string(name='Message', description='The returned message.', example='operation success.'),
-  requestId?: string(name='RequestId', description='The ID of the request.', example='C5CA600C-7D5A-45B5-B6DB-44FAC2C****'),
-  success?: boolean(name='Success', description='Indicates whether the request was successful.', example='true'),
+  code?: int32(name='Code', description='The status code. A value of 200 indicates success.', example='200'),
+  message?: string(name='Message', description='The response message.', example='operation success.'),
+  requestId?: string(name='RequestId', description='The request ID.', example='C5CA600C-7D5A-45B5-B6DB-44FAC2C****'),
+  success?: boolean(name='Success', description='Indicates whether the call was successful.', example='true'),
 }
 
 model CreateSaslUserResponse = {
@@ -1932,7 +1985,7 @@ model CreateSaslUserResponse = {
 }
 
 /**
- * @summary This operation creates a SASL user.
+ * @summary Creates a Simple Authentication and Security Layer (SASL) user by calling CreateSaslUser.
  *
  * @param request CreateSaslUserRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -1977,7 +2030,7 @@ async function createSaslUserWithOptions(request: CreateSaslUserRequest, runtime
 }
 
 /**
- * @summary This operation creates a SASL user.
+ * @summary Creates a Simple Authentication and Security Layer (SASL) user by calling CreateSaslUser.
  *
  * @param request CreateSaslUserRequest
  * @return CreateSaslUserResponse
@@ -1988,24 +2041,22 @@ async function createSaslUser(request: CreateSaslUserRequest): CreateSaslUserRes
 }
 
 model CreateScheduledScalingRuleRequest {
-  durationMinutes?: int32(name='DurationMinutes', description='The duration (unit: minutes) of a scheduled elastic task.
+  durationMinutes?: int32(name='DurationMinutes', description='The duration (unit: minutes) of a single scheduled elastic scaling task.
 
-> The parameter value must be at least 15 minutes.
+> The value must be at least 15 minutes.
 
 This parameter is required.', example='60'),
-  enable?: boolean(name='Enable', description='Enables or disables the scheduled task policy. Valid values:
+  enable?: boolean(name='Enable', description='Specifies whether to enable or disable the scheduled policy. Valid values:
 
-- **true**: Enables the policy.
-- **false**: Disables the policy.', example='true'),
-  firstScheduledTime?: long(name='FirstScheduledTime', description='The time when the scheduled policy starts to execute.
+- **true**: Enabled.
+- **false**: Disabled.', example='true'),
+  firstScheduledTime?: long(name='FirstScheduledTime', description='The time when the scheduled policy starts to take effect.
 
-For a one-time scheduling policy type, the start execution time must be more than 30 minutes later than the current time.
+If the schedule type is single execution, the start time must be at least 30 minutes later than the current time.
 
->Notice: 
 
-To avoid the service from continuously executing upgrade and downgrade tasks, the time interval between different scheduled tasks must be at least 60 minutes.
 
-</notice>
+>Notice: To prevent the server from continuously performing scale-up and scale-down tasks, the interval between different scheduled tasks must be at least 60 minutes.
 
 This parameter is required.', example='1714467540000'),
   instanceId?: string(name='InstanceId', description='The instance ID.
@@ -2014,57 +2065,53 @@ This parameter is required.', example='alikafka_serverless-cn-vxxxxxxxx'),
   regionId?: string(name='RegionId', description='The region ID of the instance.
 
 This parameter is required.', example='cn-hangzhou'),
-  repeatType?: string(name='RepeatType', description='When ScheduleType is set to repeat, you need to fill in this parameter. Enumeration values are:
+  repeatType?: string(name='RepeatType', description='The repeat type. This parameter is required when ScheduleType is set to repeat. Valid values:
+      <li> Daily: timed scheduling every day.
+      <li> Weekly: timed scheduling every week.', example='Weekly'),
+  reservedPubFlow?: int32(name='ReservedPubFlow', description='The reserved production specification for scheduled elastic scaling (unit: MB/s).
 
-- Daily: Daily scheduled task.
-
-- Weekly: Weekly scheduled task.', example='Weekly'),
-  reservedPubFlow?: int32(name='ReservedPubFlow', description='The scheduled elastic reserved production specification (unit: MB/s).
-
-> At least one of the ReservedPubFlow and ReservedSubFlow parameters must be higher than the current specification.
+> At least one of ReservedPubFlow and ReservedSubFlow must be higher than the current specification.
 
 This parameter is required.', example='120'),
-  reservedSubFlow?: int32(name='ReservedSubFlow', description='The scheduled elastic reserved consumption specification (unit: MB/s).
-
-> At least one of the ReservedSubFlow and ReservedPubFlow parameters must be higher than the current specification.
+  reservedSubFlow?: int32(name='ReservedSubFlow', description='The reserved consumption specification for scheduled elastic scaling (unit: MB/s).
+> At least one of ReservedSubFlow and ReservedPubFlow must be higher than the current specification.
 
 This parameter is required.', example='120'),
   ruleName?: string(name='RuleName', description='The name of the scheduled policy rule.
 
-> The name cannot be the same as other rule names for the same instance.
+> The name must be unique among all rules of the same instance.
 
 This parameter is required.', example='test'),
   scheduleType?: string(name='ScheduleType', description='The schedule type. Valid values:
 
-- at: Scheduled only once.
-- repeat: Scheduled repeatedly.
+- at: scheduled once only.
+
+- repeat: scheduled repeatedly.
 
 This parameter is required.', example='at'),
   timeZone?: string(name='TimeZone', description='The time zone (Coordinated Universal Time).
 
 This parameter is required.', example='GMT+8'),
-  weeklyTypes?: [ string ](name='WeeklyTypes', description='The weekly types. Supports execution on multiple days.'),
+  weeklyTypes?: [ string ](name='WeeklyTypes', description='The days of the week. Multiple days are supported for repeated execution.'),
 }
 
 model CreateScheduledScalingRuleShrinkRequest {
-  durationMinutes?: int32(name='DurationMinutes', description='The duration (unit: minutes) of a scheduled elastic task.
+  durationMinutes?: int32(name='DurationMinutes', description='The duration (unit: minutes) of a single scheduled elastic scaling task.
 
-> The parameter value must be at least 15 minutes.
+> The value must be at least 15 minutes.
 
 This parameter is required.', example='60'),
-  enable?: boolean(name='Enable', description='Enables or disables the scheduled task policy. Valid values:
+  enable?: boolean(name='Enable', description='Specifies whether to enable or disable the scheduled policy. Valid values:
 
-- **true**: Enables the policy.
-- **false**: Disables the policy.', example='true'),
-  firstScheduledTime?: long(name='FirstScheduledTime', description='The time when the scheduled policy starts to execute.
+- **true**: Enabled.
+- **false**: Disabled.', example='true'),
+  firstScheduledTime?: long(name='FirstScheduledTime', description='The time when the scheduled policy starts to take effect.
 
-For a one-time scheduling policy type, the start execution time must be more than 30 minutes later than the current time.
+If the schedule type is single execution, the start time must be at least 30 minutes later than the current time.
 
->Notice: 
 
-To avoid the service from continuously executing upgrade and downgrade tasks, the time interval between different scheduled tasks must be at least 60 minutes.
 
-</notice>
+>Notice: To prevent the server from continuously performing scale-up and scale-down tasks, the interval between different scheduled tasks must be at least 60 minutes.
 
 This parameter is required.', example='1714467540000'),
   instanceId?: string(name='InstanceId', description='The instance ID.
@@ -2073,41 +2120,39 @@ This parameter is required.', example='alikafka_serverless-cn-vxxxxxxxx'),
   regionId?: string(name='RegionId', description='The region ID of the instance.
 
 This parameter is required.', example='cn-hangzhou'),
-  repeatType?: string(name='RepeatType', description='When ScheduleType is set to repeat, you need to fill in this parameter. Enumeration values are:
+  repeatType?: string(name='RepeatType', description='The repeat type. This parameter is required when ScheduleType is set to repeat. Valid values:
+      <li> Daily: timed scheduling every day.
+      <li> Weekly: timed scheduling every week.', example='Weekly'),
+  reservedPubFlow?: int32(name='ReservedPubFlow', description='The reserved production specification for scheduled elastic scaling (unit: MB/s).
 
-- Daily: Daily scheduled task.
-
-- Weekly: Weekly scheduled task.', example='Weekly'),
-  reservedPubFlow?: int32(name='ReservedPubFlow', description='The scheduled elastic reserved production specification (unit: MB/s).
-
-> At least one of the ReservedPubFlow and ReservedSubFlow parameters must be higher than the current specification.
+> At least one of ReservedPubFlow and ReservedSubFlow must be higher than the current specification.
 
 This parameter is required.', example='120'),
-  reservedSubFlow?: int32(name='ReservedSubFlow', description='The scheduled elastic reserved consumption specification (unit: MB/s).
-
-> At least one of the ReservedSubFlow and ReservedPubFlow parameters must be higher than the current specification.
+  reservedSubFlow?: int32(name='ReservedSubFlow', description='The reserved consumption specification for scheduled elastic scaling (unit: MB/s).
+> At least one of ReservedSubFlow and ReservedPubFlow must be higher than the current specification.
 
 This parameter is required.', example='120'),
   ruleName?: string(name='RuleName', description='The name of the scheduled policy rule.
 
-> The name cannot be the same as other rule names for the same instance.
+> The name must be unique among all rules of the same instance.
 
 This parameter is required.', example='test'),
   scheduleType?: string(name='ScheduleType', description='The schedule type. Valid values:
 
-- at: Scheduled only once.
-- repeat: Scheduled repeatedly.
+- at: scheduled once only.
+
+- repeat: scheduled repeatedly.
 
 This parameter is required.', example='at'),
   timeZone?: string(name='TimeZone', description='The time zone (Coordinated Universal Time).
 
 This parameter is required.', example='GMT+8'),
-  weeklyTypesShrink?: string(name='WeeklyTypes', description='The weekly types. Supports execution on multiple days.'),
+  weeklyTypesShrink?: string(name='WeeklyTypes', description='The days of the week. Multiple days are supported for repeated execution.'),
 }
 
 model CreateScheduledScalingRuleResponseBody = {
-  code?: long(name='Code', description='The return code. A value of 200 indicates success.', example='200'),
-  message?: string(name='Message', description='The returned message.', example='operation success'),
+  code?: long(name='Code', description='The response code. A value of 200 indicates success.', example='200'),
+  message?: string(name='Message', description='The response message.', example='operation success'),
   requestId?: string(name='RequestId', description='Id of the request', example='DB6F1BEA-903B-4FD8-8809-46E7E9CE***'),
   success?: boolean(name='Success', description='Indicates whether the call was successful.
 
@@ -2122,9 +2167,9 @@ model CreateScheduledScalingRuleResponse = {
 }
 
 /**
- * @summary After you deploy a serverless instance, you can use this API to create a scheduled scaling rule for the instance.
+ * @summary Creates a scheduled elastic scaling policy for a serverless instance after deployment.
  *
- * @description ###### This operation supports only serverless instances.
+ * @description ###### Only serverless instances are supported.
  *
  * @param tmpReq CreateScheduledScalingRuleRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -2192,9 +2237,9 @@ async function createScheduledScalingRuleWithOptions(tmpReq: CreateScheduledScal
 }
 
 /**
- * @summary After you deploy a serverless instance, you can use this API to create a scheduled scaling rule for the instance.
+ * @summary Creates a scheduled elastic scaling policy for a serverless instance after deployment.
  *
- * @description ###### This operation supports only serverless instances.
+ * @description ###### Only serverless instances are supported.
  *
  * @param request CreateScheduledScalingRuleRequest
  * @return CreateScheduledScalingRuleResponse
@@ -2205,109 +2250,103 @@ async function createScheduledScalingRule(request: CreateScheduledScalingRuleReq
 }
 
 model CreateTopicRequest {
-  compactTopic?: boolean(name='CompactTopic', description='The cleanup policy for the topic. This parameter is available only if the storage engine of the topic is local storage. Valid values:
+  compactTopic?: boolean(name='CompactTopic', description='The cleanup policy configured when the storage engine of the topic is set to local storage. Valid values:
 
-- false: The delete cleanup policy.
+- false: delete cleanup policy.
+- true: compact cleanup policy.', example='false'),
+  config?: string(name='Config', description='The supplementary configuration.
 
-- true: The compact cleanup policy.', example='false'),
-  config?: string(name='Config', description='The advanced configurations of the topic.
+- Must be in JSON format.
 
-- Configure this parameter in the JSON format.
 
-- This parameter is available only if **LocalTopic** is set to **true**.
+- This parameter takes effect only when **LocalTopic** is set to **true**.
 
-- The following configurations are supported for reserved instances:
+- Supported configurations for reserved instances:
+  -   **retention.ms** (message retention period): ranges from 3600000 to 31536000000 milliseconds.
+  - **max.message.bytes** (maximum message size): ranges from 1048576 to 10485760 bytes. 
+  - **message.timestamp.type**: specifies the type of message timestamp. CreateTime indicates the timestamp specified by the producer when sending a message. If not specified, it is the message creation time on the client. LogAppendTime indicates the time when the message is written to disk on the server. Valid values: CreateTime or LogAppendTime. Default value: CreateTime. We recommend LogAppendTime.
 
-  - **retention.ms**: The message retention period. The value must be an integer from 3,600,000 to 31,536,000,000. Unit: milliseconds.
-
-  - **max.message.bytes**: The maximum size of a message that can be sent. The value must be an integer from 1,048,576 to 10,485,760. Unit: bytes.
-
-  - message.timestamp.type: The timestamp type of a message. Valid values: CreateTime or LogAppendTime. CreateTime indicates that the message timestamp is the time when the producer creates the message. If you do not specify a timestamp, the client time is used. LogAppendTime indicates that the message timestamp is the time when the server stores the message. The default value is CreateTime. We recommend that you set this parameter to **LogAppendTime**.
-
-- The following configurations are supported for Serverless instances:
-
-  - **retention.hours**: The message retention period. The value is of the string type. The value must be an integer from 24 to 8,760.
-
-  - **max.message.bytes**: The maximum size of a message that can be sent. The value is of the string type. The value must be an integer from 1,048,576 to 10,485,760.
-
-  - message.timestamp.type: The timestamp type of a message. Valid values: CreateTime or LogAppendTime. CreateTime indicates that the message timestamp is the time when the producer creates the message. If you do not specify a timestamp, the client time is used. LogAppendTime indicates that the message timestamp is the time when the server stores the message. The default value is CreateTime. We recommend that you set this parameter to **LogAppendTime**.', example='{"retention.ms": "3600000"}', nullable=true),
-  instanceId?: string(name='InstanceId', description='The ID of the instance.
+ - Supported configurations for Serverless instances:
+   -  **retention.hours** (message retention period): value type is String. Valid values: 24 to 8760.
+   -  **max.message.bytes** (maximum message size): value type is String. Valid values: 1048576 to 10485760.
+   -  **message.timestamp.type** (type of message timestamp): CreateTime indicates the timestamp specified by the producer when sending a message. If not specified, it is the message creation time on the client. LogAppendTime indicates the time when the message is written to disk on the server. Valid values: CreateTime or LogAppendTime. Default value: CreateTime. We recommend LogAppendTime.', example='{"retention.ms": "3600000"}', nullable=true),
+  instanceId?: string(name='InstanceId', description='The instance ID.
 
 This parameter is required.', example='alikafka_pre-cn-mp919o4v****'),
   localTopic?: boolean(name='LocalTopic', description='The storage engine of the topic. Valid values:
 
 - false: cloud storage.
-
 - true: local storage.', example='false'),
-  minInsyncReplicas?: long(name='MinInsyncReplicas', description='The minimum number of in-sync replicas (ISRs).
+  minInsyncReplicas?: long(name='MinInsyncReplicas', description='The minimum number of in-sync replicas (ISR).
 
-- This parameter is available only if **LocalTopic** is set to **true**.
+- This parameter takes effect only when **LocalTopic** is set to **true**.
 
-- The value of this parameter must be smaller than the number of replicas for the topic.
+- The value must be less than the number of topic replicas.
 
-- The value must be an integer from 1 to 3.', example='1', nullable=true),
-  partitionNum?: string(name='PartitionNum', description='The number of partitions in the topic.
+- The number of in-sync replicas ranges from 1 to 3.', example='1', nullable=true),
+  partitionNum?: string(name='PartitionNum', description='The number of partitions for the topic.
 
-- The value must be an integer from 1 to 360.
+- The number of partitions ranges from 1 to 360.
 
-- The console suggests a number of partitions based on the instance type. Follow the suggestion to reduce the risk of data skew.
+- The console provides different configuration suggestions based on the instance edition. Configure the number of partitions based on the console suggestions to reduce the risk of data skew.
 
 Default value:
 
-- Reserved instance: 12
+- Reserved instances: 12
 
-- Serverless instance: 3', example='12'),
-  regionId?: string(name='RegionId', description='The ID of the region where the instance that contains the topic is located.
+- Serverless instances: 3', example='12'),
+  regionId?: string(name='RegionId', description='The region ID of the instance to which the topic belongs.
 
 This parameter is required.', example='cn-hangzhou'),
-  remark?: string(name='Remark', description='The remarks on the topic.
+  remark?: string(name='Remark', description='The description of the topic.
 
-- The remarks can contain only letters, digits, underscores (_), and hyphens (-).
+- Can contain only letters, digits, underscores (_), and hyphens (-).
 
-- The remarks must be 3 to 64 characters in length.
+- Must be 3 to 64 characters in length.
 
 This parameter is required.', example='alikafka_topic_test'),
   replicationFactor?: long(name='ReplicationFactor', description='The number of replicas for the topic.
 
-- This parameter is available only if **LocalTopic** is set to **true**.
+- This parameter takes effect only when **LocalTopic** is set to **true**.
 
-- The value must be an integer from 1 to 3.
+- The number of replicas ranges from 1 to 3.
 
-> If you set the number of replicas to **1**, you may lose data. Set this parameter with caution.', example='3', nullable=true),
+> If the number of replicas is set to **1**, data loss may occur. Set this parameter with caution.', example='3', nullable=true),
   tag?: [ 
     {
       key?: string(name='Key', description='The tag key of the resource.
 
-- N specifies the number of the tag. The value of N must be an integer from 1 to 20.
+- N ranges from 1 to 20.
 
 - If this parameter is left empty, all tag keys are matched.
 
-- The tag key can be up to 128 characters in length. It cannot start with `aliyun` or `acs:`, and cannot contain `http://` or `https://`.
+- The tag key can be up to 128 characters in length and cannot start with `aliyun` or `acs:`, or contain `http://` or `https://`.
 
 This parameter is required.', example='FinanceDept'),
       value?: string(name='Value', description='The tag value of the resource.
 
-- N specifies the number of the tag. The value of N must be an integer from 1 to 20.
+- N ranges from 1 to 20.
 
-- The tag value can be empty.
+- This parameter can be left empty.
 
-- The tag value can be up to 128 characters in length. It cannot start with aliyun or acs:, and cannot contain http\\\\:// or https\\\\://.', example='FinanceJoshua'),
+- The tag value can be up to 128 characters in length and cannot start with aliyun or acs:, or contain http:// or https://.', example='FinanceJoshua'),
     }
-  ](name='Tag', description='The list of tags.'),
+  ](name='Tag', description='The tag list.'),
   topic?: string(name='Topic', description='The name of the topic.
 
-- Reserved instance: The name can contain uppercase letters, lowercase letters, digits, underscores (_), hyphens (-), and periods (.). The name must be 3 to 64 characters in length.
-
-- Serverless instance: The name can contain uppercase letters, lowercase letters, digits, underscores (_), hyphens (-), and periods (.). The name must be 1 to 249 characters in length.
+- Reserved instances:
+Supports uppercase and lowercase letters, digits, underscores (_), hyphens (-), and periods (.). The name must be 3 to 64 characters in length.
+- Serverless instances:
+Supports uppercase and lowercase letters, digits, underscores (_), hyphens (-), and periods (.). The name must be 1 to 249 characters in length.
 
 This parameter is required.', example='alikafka_topic_test'),
 }
 
 model CreateTopicResponseBody = {
-  code?: int32(name='Code', description='The response code. A value of 200 indicates that the request is successful.', example='200'),
+  code?: int32(name='Code', description='The response code. A value of 200 indicates success.', example='200'),
   message?: string(name='Message', description='The response message.', example='operation success'),
-  requestId?: string(name='RequestId', description='The ID of the request.', example='9C0F207C-77A6-43E5-991C-9D98510A****'),
-  success?: boolean(name='Success', description='Indicates whether the request was successful.', example='true'),
+  requestId?: string(name='RequestId', description='The request ID.', example='9C0F207C-77A6-43E5-991C-9D98510A****'),
+  success?: boolean(name='Success', description='Indicates whether the call was successful.', example='true'),
 }
 
 model CreateTopicResponse = {
@@ -2319,8 +2358,8 @@ model CreateTopicResponse = {
 /**
  * @summary Creates a topic.
  *
- * @description - Each user can send up to 20 queries per second (QPS).
- * - The maximum number of topics for an instance depends on its instance type.
+ * @description - The maximum request frequency per user is 20 QPS.
+ * - The maximum number of topics that can be created for each instance depends on the instance edition you purchased.
  *
  * @param request CreateTopicRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -2382,8 +2421,8 @@ async function createTopicWithOptions(request: CreateTopicRequest, runtime: Util
 /**
  * @summary Creates a topic.
  *
- * @description - Each user can send up to 20 queries per second (QPS).
- * - The maximum number of topics for an instance depends on its instance type.
+ * @description - The maximum request frequency per user is 20 QPS.
+ * - The maximum number of topics that can be created for each instance depends on the instance edition you purchased.
  *
  * @param request CreateTopicRequest
  * @return CreateTopicResponse
@@ -2394,90 +2433,79 @@ async function createTopic(request: CreateTopicRequest): CreateTopicResponse {
 }
 
 model DeleteAclRequest {
-  aclOperationType?: string(name='AclOperationType', description='Operation type. Valid values:
+  aclOperationType?: string(name='AclOperationType', description='The operation type. Valid values:
 
-- **Write**: Write
+- **Write**: write.
 
-- **Read**: Read
+- **Read**: read.
 
-- **Describe**: Read TransactionalId
-
-- **IdempotentWrite**: Idempotent write to Cluster
-
-- **IDEMPOTENT_WRITE**: Idempotent write to Cluster, only available for Serverless instances.
-
-- **DESCRIBE_CONFIGS**: Query configuration, only available for Serverless instances.
+- **Describe**: read TransactionalId.
+- **IdempotentWrite**: idempotent write to Cluster.
+- **IDEMPOTENT_WRITE**: idempotent write to Cluster. This value is available only for serverless instances.
+- **DESCRIBE_CONFIGS**: query configurations. This value is available only for serverless instances.
 
 This parameter is required.', example='Write'),
-  aclOperationTypes?: string(name='AclOperationTypes', description='Batch authorization operation types. Multiple operations are separated by commas (,).
+  aclOperationTypes?: string(name='AclOperationTypes', description='The batch authorization operation types. Separate multiple operations with commas (,).
 
 Valid values:
+- **Write**: write.
 
-- **Write**: Read
+- **Read**: read.
 
-- **Read**: Write
+- **Describe**: read TransactionalId.
+- **IdempotentWrite**: idempotent write to Cluster.
+- **IDEMPOTENT_WRITE**: idempotent write to Cluster. This value is available only for serverless instances.
+- **DESCRIBE_CONFIGS**: query configurations. This value is available only for serverless instances.
 
-- **Describe**: Read TransactionalId
+> This parameter is available only for serverless instances.', example='Write,Read'),
+  aclPermissionType?: string(name='AclPermissionType', description='The authorization method. Valid values:
 
-- **IdempotentWrite**: Idempotent write to Cluster
+- DENY: deny.
+- ALLOW: allow.
 
-- **IDEMPOTENT_WRITE**: Idempotent write to Cluster, only available for Serverless instances.
+> This parameter is available only for serverless instances.', example='DENY'),
+  aclResourceName?: string(name='AclResourceName', description='The resource name.
 
-- **DESCRIBE_CONFIGS**: Query configuration, only available for Serverless instances.
+- The name of a topic or consumer group.
 
-> This parameter is only supported for Serverless instances.', example='Write,Read'),
-  aclPermissionType?: string(name='AclPermissionType', description='Authorization method. Valid values:
-
-- DENY: Deny
-
-- ALLOW: Allow
-
-> This parameter is only supported for Serverless instances.', example='DENY'),
-  aclResourceName?: string(name='AclResourceName', description='Resource name.
-
-- Topic name or Group name.
-
-- Asterisk (\\\\*) represents all Topic or Group names.
+- An asterisk (\\\\*) indicates the names of all topics or consumer groups.
 
 This parameter is required.', example='demo'),
-  aclResourcePatternType?: string(name='AclResourcePatternType', description='Matching pattern. Valid values:
+  aclResourcePatternType?: string(name='AclResourcePatternType', description='The matching mode. Valid values:
 
-- **LITERAL**: Exact matching pattern
+- **LITERAL**: full-name match.
 
-- **PREFIXED**: Prefix matching pattern
+- **PREFIXED**: prefix match.
 
 This parameter is required.', example='LITERAL'),
-  aclResourceType?: string(name='AclResourceType', description='Resource type.
+  aclResourceType?: string(name='AclResourceType', description='The resource type. Valid values:
 
-- **Topic**: Message topic.
+- **Topic**: topic.
 
-- **Group**: Consumer group.
+- **Group**: consumer group.
 
-- **Cluster**: Instance.
-
-- **TransactionalId**: Transaction ID.
+- **Cluster**: instance.
+- **TransactionalId**: transaction ID.
 
 This parameter is required.', example='Topic'),
-  host?: string(name='Host', description='Source IP.
-
-> - Only supports specific IP addresses or setting \\\\* (all IPs), does not support IP segments.
->
-> - This parameter is only supported for Serverless instances.', example='*'),
-  instanceId?: string(name='InstanceId', description='Instance ID.
+  host?: string(name='Host', description='The source IP address.
+>- Only specific IP addresses or an asterisk (\\\\*) to allow all IP addresses are supported. CIDR blocks are not supported.
+>- This parameter is available only for serverless instances.', example='*'),
+  instanceId?: string(name='InstanceId', description='The instance ID.
 
 This parameter is required.', example='alikafka_pre-cn-v0h1cng0****'),
-  regionId?: string(name='RegionId', description='Region ID.
+  regionId?: string(name='RegionId', description='The region ID.
 
 This parameter is required.', example='cn-hangzhou'),
-  username?: string(name='Username', description='Username.
+  username?: string(name='Username', description='The username.
 
 This parameter is required.', example='test12****'),
 }
 
 model DeleteAclResponseBody = {
-  code?: int32(name='Code', description='Status code. A return value of 200 indicates success.', example='200'),
-  message?: string(name='Message', description='Return message.', example='operation success'),
-  requestId?: string(name='RequestId', description='Request ID.', example='B0740227-AA9A-4E14-8E9F-36ED665****'),
+  code?: int32(name='Code', description='The HTTP status code. A value of 200 indicates success.', example='200'),
+  message?: string(name='Message', description='The returned message.', example='operation success'),
+  requestId?: string(name='RequestId', description='The request ID.', example='B0740227-AA9A-4E14-8E9F-36ED665****'),
   success?: boolean(name='Success', description='Indicates whether the call was successful.', example='true'),
 }
 
@@ -2556,21 +2584,21 @@ async function deleteAcl(request: DeleteAclRequest): DeleteAclResponse {
 }
 
 model DeleteConsumerGroupRequest {
-  consumerId?: string(name='ConsumerId', description='Group name.
+  consumerId?: string(name='ConsumerId', description='The name of the consumer group.
 
 This parameter is required.', example='CID-test'),
-  instanceId?: string(name='InstanceId', description='Instance ID.
+  instanceId?: string(name='InstanceId', description='The instance ID.
 
 This parameter is required.', example='alikafka_post-cn-v0h1fgs2****'),
-  regionId?: string(name='RegionId', description='Region ID of the instance.
+  regionId?: string(name='RegionId', description='The region ID of the instance.
 
 This parameter is required.', example='cn-hangzhou'),
 }
 
 model DeleteConsumerGroupResponseBody = {
-  code?: int32(name='Code', description='Status code. A value of 200 indicates success.', example='200'),
-  message?: string(name='Message', description='Return message.', example='operation success.'),
-  requestId?: string(name='RequestId', description='Request ID.', example='06084011-E093-46F3-A51F-4B19A8AD****'),
+  code?: int32(name='Code', description='The status code. A value of 200 indicates success.', example='200'),
+  message?: string(name='Message', description='The response message.', example='operation success.'),
+  requestId?: string(name='RequestId', description='The request ID.', example='06084011-E093-46F3-A51F-4B19A8AD****'),
   success?: boolean(name='Success', description='Indicates whether the call was successful.', example='true'),
 }
 
@@ -2581,7 +2609,7 @@ model DeleteConsumerGroupResponse = {
 }
 
 /**
- * @summary Deletes a Group.
+ * @summary Deletes a consumer group.
  *
  * @param request DeleteConsumerGroupRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -2617,7 +2645,7 @@ async function deleteConsumerGroupWithOptions(request: DeleteConsumerGroupReques
 }
 
 /**
- * @summary Deletes a Group.
+ * @summary Deletes a consumer group.
  *
  * @param request DeleteConsumerGroupRequest
  * @return DeleteConsumerGroupResponse
@@ -2637,10 +2665,10 @@ This parameter is required.', example='cn-hangzhou'),
 }
 
 model DeleteInstanceResponseBody = {
-  code?: int32(name='Code', description='The return code. A value of 200 indicates success.', example='200'),
-  message?: string(name='Message', description='The return message.', example='operation success.'),
+  code?: int32(name='Code', description='The response code. A value of 200 indicates success.', example='200'),
+  message?: string(name='Message', description='The response message.', example='operation success.'),
   requestId?: string(name='RequestId', description='The request ID.', example='ABA4A7FD-E10F-45C7-9774-A5236015****'),
-  success?: boolean(name='Success', description='Indicates whether the call is successful.', example='true'),
+  success?: boolean(name='Success', description='Indicates whether the call was successful.', example='true'),
 }
 
 model DeleteInstanceResponse = {
@@ -2650,7 +2678,7 @@ model DeleteInstanceResponse = {
 }
 
 /**
- * @summary The DeleteInstance operation deletes an instance after a subscription instance or a pay-as-you-go instance is released.
+ * @summary Deletes an instance after a subscription or pay-as-you-go instance is released. This topic describes how to call the DeleteInstance operation to delete an instance.
  *
  * @param request DeleteInstanceRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -2683,7 +2711,7 @@ async function deleteInstanceWithOptions(request: DeleteInstanceRequest, runtime
 }
 
 /**
- * @summary The DeleteInstance operation deletes an instance after a subscription instance or a pay-as-you-go instance is released.
+ * @summary Deletes an instance after a subscription or pay-as-you-go instance is released. This topic describes how to call the DeleteInstance operation to delete an instance.
  *
  * @param request DeleteInstanceRequest
  * @return DeleteInstanceResponse
@@ -2866,22 +2894,22 @@ async function deleteScheduledScalingRule(request: DeleteScheduledScalingRuleReq
 }
 
 model DeleteTopicRequest {
-  instanceId?: string(name='InstanceId', description='The ID of the instance.
+  instanceId?: string(name='InstanceId', description='The instance ID.
 
 This parameter is required.', example='alikafka_post-cn-v0h1fgs2****'),
   regionId?: string(name='RegionId', description='The region ID of the instance.
 
 This parameter is required.', example='cn-hangzhou'),
-  topic?: string(name='Topic', description='The name of the topic.
+  topic?: string(name='Topic', description='The topic name.
 
 This parameter is required.', example='test'),
 }
 
 model DeleteTopicResponseBody = {
-  code?: int32(name='Code', description='The HTTP status code. The status code 200 indicates that the request is successful.', example='200'),
-  message?: string(name='Message', description='The returned message.', example='operation success.'),
+  code?: int32(name='Code', description='The response code. A value of 200 indicates success.', example='200'),
+  message?: string(name='Message', description='The response message.', example='operation success.'),
   requestId?: string(name='RequestId', description='The request ID.', example='06084011-E093-46F3-A51F-4B19A8AD****'),
-  success?: boolean(name='Success', description='Indicates whether the request is successful.', example='true'),
+  success?: boolean(name='Success', description='Indicates whether the call was successful.', example='true'),
 }
 
 model DeleteTopicResponse = {
@@ -3015,44 +3043,28 @@ async function deleteUserDefinedSg(request: DeleteUserDefinedSgRequest): DeleteU
 }
 
 model DescribeAclResourceNameRequest {
-  aclResourcePatternType?: string(name='AclResourcePatternType', description='Matching pattern. Valid values:
-
-- LITERAL: exact match
-
-- PREFIXED: prefix match
+  aclResourcePatternType?: string(name='AclResourcePatternType', description='The matching mode. Valid values:
 
 This parameter is required.', example='LITERAL'),
-  aclResourceType?: string(name='AclResourceType', description='Resource type.
-
-- **Topic**: message topic.
-
-- **Group**: consumer group.
-
-- **Cluster**: instance.
-
-- **TransactionalId**: transaction ID.
+  aclResourceType?: string(name='AclResourceType', description='The resource type.
 
 This parameter is required.', example='Topic'),
-  instanceId?: string(name='InstanceId', description='Instance ID.
+  instanceId?: string(name='InstanceId', description='The instance ID.
 
 This parameter is required.', example='alikafka_post-cn-mp919o4v****'),
-  regionId?: string(name='RegionId', description='Region ID.
+  regionId?: string(name='RegionId', description='The region ID.
 
 This parameter is required.', example='cn-hangzhou'),
 }
 
 model DescribeAclResourceNameResponseBody = {
-  code?: int32(name='Code', description='Return code. A value of 200 indicates success.', example='200'),
+  code?: int32(name='Code', description='The response code. A value of 200 indicates success.', example='200'),
   data?: {
     data?: [ string ](name='data')
   }(name='Data'),
-  message?: string(name='Message', description='Return message.', example='operation success.'),
-  requestId?: string(name='RequestId', description='Request ID.', example='ABA4A7FD-E10F-45C7-9774-A5236015A***'),
-  success?: boolean(name='Success', description='Indicates whether the call was successful.
-
-- **true**: The call was successful.
-
-- **false**: The call failed.', example='true'),
+  message?: string(name='Message', description='The response message.', example='operation success.'),
+  requestId?: string(name='RequestId', description='The request ID.', example='ABA4A7FD-E10F-45C7-9774-A5236015A***'),
+  success?: boolean(name='Success', description='Indicates whether the call was successful.', example='true'),
 }
 
 model DescribeAclResourceNameResponse = {
@@ -3062,7 +3074,7 @@ model DescribeAclResourceNameResponse = {
 }
 
 /**
- * @summary Queries access control list (ACL) resource names.
+ * @summary Queries ACL resource names.
  *
  * @param request DescribeAclResourceNameRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -3101,7 +3113,7 @@ async function describeAclResourceNameWithOptions(request: DescribeAclResourceNa
 }
 
 /**
- * @summary Queries access control list (ACL) resource names.
+ * @summary Queries ACL resource names.
  *
  * @param request DescribeAclResourceNameRequest
  * @return DescribeAclResourceNameResponse
@@ -3607,16 +3619,15 @@ async function downgradePrePayOrder(request: DowngradePrePayOrderRequest): Downg
 }
 
 model EnableAutoGroupCreationRequest {
-  enable?: boolean(name='Enable', description='Enable or disable the free use of Groups. Valid values:
+  enable?: boolean(name='Enable', description='Specifies whether to enable the free use of groups. Valid values:
 
 - **true**: Enable.
-
 - **false**: Disable.
 
 This parameter is required.', example='true'),
   instanceId?: string(name='InstanceId', description='The instance ID.
 
-You can call [GetInstanceList](https://help.aliyun.com/document_detail/437663.html) to obtain it.
+You can call [GetInstanceList](https://help.aliyun.com/document_detail/437663.html) to obtain the instance ID.
 
 This parameter is required.', example='alikafka_post-cn-mp919o4v****'),
   regionId?: string(name='RegionId', description='The region ID.
@@ -3625,12 +3636,12 @@ This parameter is required.', example='cn-hangzhou'),
 }
 
 model EnableAutoGroupCreationResponseBody = {
-  code?: int32(name='Code', description='The return code.
+  code?: int32(name='Code', description='The response code.
 
 A value of **200** indicates success.', example='200'),
   message?: string(name='Message', description='The returned message.', example='operation success'),
   requestId?: string(name='RequestId', description='The request ID.', example='A421CCD7-5BC5-4B32-8DD8-64668A8FCB56'),
-  success?: boolean(name='Success', description='Indicates whether the request was successful.', example='true'),
+  success?: boolean(name='Success', description='Indicates whether the request is successful.', example='true'),
 }
 
 model EnableAutoGroupCreationResponse = {
@@ -3640,10 +3651,10 @@ model EnableAutoGroupCreationResponse = {
 }
 
 /**
- * @summary This topic describes how to call EnableAutoGroupCreation to enable or disable the free use of Groups.
+ * @summary Enables or disables the free use of groups by calling EnableAutoGroupCreation.
  *
- * @description Currently, only reserved instances support this API.
- * Serverless instances are not supported at this time.
+ * @description Only reserved instances support this API operation.
+ * Serverless instances are not supported.
  *
  * @param request EnableAutoGroupCreationRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -3679,10 +3690,10 @@ async function enableAutoGroupCreationWithOptions(request: EnableAutoGroupCreati
 }
 
 /**
- * @summary This topic describes how to call EnableAutoGroupCreation to enable or disable the free use of Groups.
+ * @summary Enables or disables the free use of groups by calling EnableAutoGroupCreation.
  *
- * @description Currently, only reserved instances support this API.
- * Serverless instances are not supported at this time.
+ * @description Only reserved instances support this API operation.
+ * Serverless instances are not supported.
  *
  * @param request EnableAutoGroupCreationRequest
  * @return EnableAutoGroupCreationResponse
@@ -4944,21 +4955,21 @@ async function getRiskList(request: GetRiskListRequest): GetRiskListResponse {
 }
 
 model GetTopicListRequest {
-  currentPage?: string(name='CurrentPage', description='The number of the page to return. Default value: 1.', example='1'),
+  currentPage?: string(name='CurrentPage', description='The current page number. Default value: 1.', example='1'),
   instanceId?: string(name='InstanceId', description='The ID of the instance to which the topic belongs.
 
 This parameter is required.', example='alikafka_pre-cn-0pp1954n****'),
-  pageSize?: string(name='PageSize', description='The number of entries to return on each page. Default value: 10.', example='10'),
-  regionId?: string(name='RegionId', description='The ID of the region where the instance resides.', example='cn-hangzhou'),
-  topic?: string(name='Topic', description='The name of the topic whose information you want to query.', example='topic_name'),
+  pageSize?: string(name='PageSize', description='The page size. Default value: 10.', example='10'),
+  regionId?: string(name='RegionId', description='The region ID of the instance to which the topic belongs.', example='cn-hangzhou'),
+  topic?: string(name='Topic', description='The name of the topic whose information you want to retrieve.', example='topic_name'),
 }
 
 model GetTopicListResponseBody = {
-  code?: int32(name='Code', description='The return code. A value of 200 indicates that the call was successful.', example='200'),
-  currentPage?: int32(name='CurrentPage', description='The number of the page returned.', example='1'),
-  message?: string(name='Message', description='The returned message.', example='operation success.'),
-  pageSize?: int32(name='PageSize', description='The number of entries returned per page.', example='10'),
-  requestId?: string(name='RequestId', description='The ID of the request.', example='C0D3DC5B-5C37-47AD-9F22-1F559880****'),
+  code?: int32(name='Code', description='The response code. A value of 200 indicates success.', example='200'),
+  currentPage?: int32(name='CurrentPage', description='The current page number.', example='1'),
+  message?: string(name='Message', description='The response message.', example='operation success.'),
+  pageSize?: int32(name='PageSize', description='The page size.', example='10'),
+  requestId?: string(name='RequestId', description='The request ID.', example='C0D3DC5B-5C37-47AD-9F22-1F559880****'),
   success?: boolean(name='Success', description='Indicates whether the call was successful.', example='true'),
   topicList?: {
     topicVO?: [ 
@@ -4996,7 +5007,7 @@ model GetTopicListResponse = {
 }
 
 /**
- * @summary Retrieves information about topics.
+ * @summary Retrieves topic information.
  *
  * @param request GetTopicListRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -5038,7 +5049,7 @@ async function getTopicListWithOptions(request: GetTopicListRequest, runtime: Ut
 }
 
 /**
- * @summary Retrieves information about topics.
+ * @summary Retrieves topic information.
  *
  * @param request GetTopicListRequest
  * @return GetTopicListResponse
@@ -5816,7 +5827,7 @@ async function modifyUserDefinedSg(request: ModifyUserDefinedSgRequest): ModifyU
 }
 
 model QueryMessageRequest {
-  beginTime?: long(name='BeginTime', description='The start timestamp of the query range. Unit: milliseconds.', example='1672410180000'),
+  beginTime?: long(name='BeginTime', description='The beginning of the time range to query. Unit: milliseconds.', example='1672410180000'),
   instanceId?: string(name='InstanceId', description='The instance ID.
 
 This parameter is required.', example='alikafka_pre-cn-mp919o4v****'),
@@ -5824,9 +5835,9 @@ This parameter is required.', example='alikafka_pre-cn-mp919o4v****'),
   partition?: string(name='Partition', description='The partition ID.', example='0'),
   queryType?: string(name='QueryType', description='The query type. Valid values:
 
-- byOffset: Query by offset. When selecting offset query, you need to fill in the partition ID and partition offset parameters.
+- byOffset: queries messages by offset. If you select this type, you must specify the Partition and Offset parameters.
 
-- byTimestamp: Query by time. When selecting time query, you need to fill in the BeginTime parameter.
+- byTimestamp: queries messages by time. If you select this type, you must specify the BeginTime parameter.
 
 This parameter is required.', example='byTimestamp'),
   regionId?: string(name='RegionId', description='The region ID of the resource.
@@ -5838,35 +5849,36 @@ This parameter is required.', example='testkafka'),
 }
 
 model QueryMessageResponseBody = {
-  code?: int32(name='Code', description='The return code. A value of 200 indicates success.', example='200'),
-  message?: string(name='Message', description='The return message.', example='operation success.'),
+  code?: int32(name='Code', description='The returned code. A value of 200 indicates success.', example='200'),
+  message?: string(name='Message', description='The returned message.', example='operation success.'),
   messageList?: [ 
     {
-      checksum?: long(name='Checksum', description='The chaincode checksum.', example='0'),
-      key?: string(name='Key', description='The message key.', example='this is key'),
+      checksum?: long(name='Checksum', description='The checksum value.', example='0'),
+      key?: string(name='Key', description='The key of the message.', example='this is key'),
       keyTruncated?: boolean(name='KeyTruncated', description='Indicates whether the key is truncated.', example='false'),
       offset?: long(name='Offset', description='The partition offset.', example='1'),
       partition?: long(name='Partition', description='The partition ID.', example='0'),
       serializedKeySize?: int32(name='SerializedKeySize', description='The size of the serialized key. Unit: bytes.', example='11'),
       serializedValueSize?: int32(name='SerializedValueSize', description='The size of the serialized value. Unit: bytes.', example='20'),
-      timestamp?: long(name='Timestamp', description='The message creation time. Represented as a UNIX timestamp. Unit: milliseconds.', example='1705482172640'),
+      timestamp?: long(name='Timestamp', description='The message creation time. The value is a UNIX timestamp. Unit: milliseconds.', example='1705482172640'),
       timestampType?: string(name='TimestampType', description='The timestamp type.', example='CreateTime'),
       topic?: string(name='Topic', description='The topic name.', example='dqc_test2'),
-      truncatedKeySize?: int32(name='TruncatedKeySize', description='The size of the truncated key message. Value: bytes.
+      truncatedKeySize?: int32(name='TruncatedKeySize', description='The size of the truncated key message. Unit: bytes.
 
-> Each queried message displays up to 1 KB of content; content exceeding this limit will be automatically truncated. [Learn more](https://help.aliyun.com/document_detail/113172.html).', example='0'),
+
+> Each queried message displays a maximum of 1 KB of content. Content that exceeds 1 KB is automatically truncated.
+[For more information, refer to the documentation](https://help.aliyun.com/document_detail/113172.html).', example='0'),
       truncatedValueSize?: int32(name='TruncatedValueSize', description='The size of the truncated value message. Unit: bytes.
 
-> Each queried message displays up to 1 KB of content; content exceeding this limit will be automatically truncated. [Learn more](https://help.aliyun.com/document_detail/113172.html).', example='0'),
-      value?: string(name='Value', description='The message value.', example='Welcome to Ali kafka'),
+> Each queried message displays a maximum of 1 KB of content. Content that exceeds 1 KB is automatically truncated.
+[For more information, refer to the documentation](https://help.aliyun.com/document_detail/113172.html).', example='0'),
+      value?: string(name='Value', description='The value of the message.', example='Welcome to Ali kafka'),
       valueTruncated?: boolean(name='ValueTruncated', description='Indicates whether the value is truncated.', example='false'),
     }
-  ](name='MessageList', description='The query message results.'),
+  ](name='MessageList', description='The query results of messages.'),
   requestId?: string(name='RequestId', description='The request ID.', example='ABA4A7FD-E10F-45C7-9774-A5236015****'),
-  success?: boolean(name='Success', description='Indicates whether the call was successful.
-
+  success?: boolean(name='Success', description='Indicates whether the call was successful. Valid values:
 - **true**: The call was successful.
-
 - **false**: The call failed.', example='true'),
 }
 
@@ -5877,7 +5889,7 @@ model QueryMessageResponse = {
 }
 
 /**
- * @summary This operation queries messages stored in a topic by message creation time or offset.
+ * @summary Queries messages stored in a topic by message creation time or offset.
  *
  * @param request QueryMessageRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -5904,7 +5916,7 @@ async function queryMessageWithOptions(request: QueryMessageRequest, runtime: Ut
 }
 
 /**
- * @summary This operation queries messages stored in a topic by message creation time or offset.
+ * @summary Queries messages stored in a topic by message creation time or offset.
  *
  * @param request QueryMessageRequest
  * @return QueryMessageResponse
@@ -7169,13 +7181,13 @@ model UpgradePostPayOrderRequest {
 - For the value range, see [Billing](https://help.aliyun.com/document_detail/84737.html).
 
 > If the instance is a serverless instance, you do not need to specify this parameter. This parameter is required for pay-as-you-go instances.', example='500'),
-  eipMax?: int32(name='EipMax', description='The Internet traffic.
+  eipMax?: int32(name='EipMax', description='The public network traffic.
 
-- The Internet traffic that you specify must be greater than or equal to the current Internet traffic of the instance.
+- The public network traffic that you specify must be greater than or equal to the current public network traffic of the instance.
 - For the value range, see [Billing](https://help.aliyun.com/document_detail/84737.html).
 
-> - If EipModel is set to true, the value of EipMax must be greater than 0.
-> - If EipModel is set to false, the value of EipMax must be 0.
+> - If **EipModel** is set to **true**, the value of **EipMax** must be greater than 0.
+> - If **EipModel** is set to **false**, the value of **EipMax** must be **0**.
 > - If the instance is a serverless instance, you do not need to specify this parameter.', example='0'),
   eipModel?: boolean(name='EipModel', description='Specifies whether the instance requires Internet access. Valid values:
 
@@ -7190,7 +7202,7 @@ This parameter is required.', example='alikafka_post-cn-mp919o4v****'),
 
 - The peak traffic that you specify must be greater than or equal to the current peak traffic of the instance.
 
-- You must specify either the peak traffic or the traffic specification. If you specify both, the traffic specification takes precedence. Specify only the traffic specification.
+- You must specify either the traffic specification or the peak traffic. If you specify both, the traffic specification takes precedence. Specify only the traffic specification.
 
 - For the value range, see [Billing](https://help.aliyun.com/document_detail/84737.html).
 > If the instance is a serverless instance, you do not need to specify this parameter.', example='60'),
@@ -7198,7 +7210,7 @@ This parameter is required.', example='alikafka_post-cn-mp919o4v****'),
 
 - The traffic specification that you specify must be greater than or equal to the current traffic specification of the instance.
 
-- You must specify either the peak traffic or the traffic specification. If you specify both, the traffic specification takes precedence. Specify only the traffic specification.
+- You must specify either the traffic specification or the peak traffic. If you specify both, the traffic specification takes precedence. Specify only the traffic specification.
 
 - For the value range, see [Billing](https://help.aliyun.com/document_detail/84737.html).
 > If the instance is a serverless instance, you do not need to specify this parameter. This parameter is required for pay-as-you-go instances.', example='alikafka.hw.6xlarge'),
@@ -7206,7 +7218,7 @@ This parameter is required.', example='alikafka_post-cn-mp919o4v****'),
 
 * You must specify either the number of partitions or the topic specification. Specify only the number of partitions.
 
-* If you specify both the number of partitions and the topic specification, the system validates whether the number of partitions and the topic specification are equivalent based on the legacy topic sales model. If they are not equivalent, an error is returned. If they are equivalent, the purchase is made based on the number of partitions.
+* If you specify both the number of partitions and the topic specification, the system verifies whether the number of partitions and the topic specification are equivalent based on the legacy topic sales model. If they are not equivalent, the request fails. If they are equivalent, the purchase is made based on the number of partitions.
 
 * For the value range, see [Billing](https://help.aliyun.com/document_detail/84737.html).
 > If the instance is a serverless instance, you do not need to specify this parameter. This parameter is required for pay-as-you-go instances.', example='80'),
@@ -7214,19 +7226,19 @@ This parameter is required.', example='alikafka_post-cn-mp919o4v****'),
 
 This parameter is required.', example='cn-hangzhou'),
   serverlessConfig?: {
-    reservedPublishCapacity?: long(name='ReservedPublishCapacity', description='The reserved publish traffic specification. Only integers are supported. The minimum value is 60. This parameter is required for serverless instances.
-> The actual upper limit is subject to the inventory in the current region. Refer to the purchase page for the available range.', example='60'),
-    reservedSubscribeCapacity?: long(name='ReservedSubscribeCapacity', description='The reserved subscribe traffic specification. Only integers are supported. The minimum value is 20. This parameter is required for serverless instances.
+    reservedPublishCapacity?: long(name='ReservedPublishCapacity', description='The reserved publish capacity. Only integers are supported. The minimum value is 60. This parameter is required for serverless instances.
+> The actual upper limit is subject to the available inventory in the current region. Refer to the purchase page for the available range.', example='60'),
+    reservedSubscribeCapacity?: long(name='ReservedSubscribeCapacity', description='The reserved subscribe capacity. Only integers are supported. The minimum value is 20. This parameter is required for serverless instances.
 
-> The actual upper limit is subject to the inventory in the current region. Refer to the purchase page for the available range.', example='60'),
-  }(name='ServerlessConfig', description='The settings of the serverless instance. This parameter is required when you change the specifications of a serverless instance.'),
+> The actual upper limit is subject to the available inventory in the current region. Refer to the purchase page for the available range.', example='60'),
+  }(name='ServerlessConfig', description='The settings of the serverless instance. This parameter is required when you upgrade a serverless instance.'),
   specType?: string(name='SpecType', description='The specification type.
 
 If the PaidType of the instance is 1 (pay-as-you-go), valid values:
 
 - normal: Standard Edition (shared throughput)
 - professional: Professional Edition (shared throughput)
-- professionalForHighRead: Professional Edition (shared read throughput)
+- professionalForHighRead: Professional Edition (shared throughput for high read)
 
 If the PaidType of the instance is 3 (reserved specification pay-as-you-go + serverless elastic scaling pay-as-you-go), valid values:
 - normal: Serverless Standard Edition
@@ -7236,7 +7248,7 @@ For more information, see [Billing](https://help.aliyun.com/document_detail/8473
 
 - You must specify either the number of partitions or the topic specification. Specify only the number of partitions.
 
-- If you specify both the number of partitions and the topic specification, the system validates whether the number of partitions and the topic specification are equivalent based on the legacy topic sales model. If they are not equivalent, an error is returned. If they are equivalent, the purchase is made based on the number of partitions.
+- If you specify both the number of partitions and the topic specification, the system verifies whether the number of partitions and the topic specification are equivalent based on the legacy topic sales model. If they are not equivalent, the request fails. If they are equivalent, the purchase is made based on the number of partitions.
 
 - The default value varies based on the traffic specification. Additional fees are charged if the value exceeds the default value.
 
@@ -7252,13 +7264,13 @@ model UpgradePostPayOrderShrinkRequest {
 - For the value range, see [Billing](https://help.aliyun.com/document_detail/84737.html).
 
 > If the instance is a serverless instance, you do not need to specify this parameter. This parameter is required for pay-as-you-go instances.', example='500'),
-  eipMax?: int32(name='EipMax', description='The Internet traffic.
+  eipMax?: int32(name='EipMax', description='The public network traffic.
 
-- The Internet traffic that you specify must be greater than or equal to the current Internet traffic of the instance.
+- The public network traffic that you specify must be greater than or equal to the current public network traffic of the instance.
 - For the value range, see [Billing](https://help.aliyun.com/document_detail/84737.html).
 
-> - If EipModel is set to true, the value of EipMax must be greater than 0.
-> - If EipModel is set to false, the value of EipMax must be 0.
+> - If **EipModel** is set to **true**, the value of **EipMax** must be greater than 0.
+> - If **EipModel** is set to **false**, the value of **EipMax** must be **0**.
 > - If the instance is a serverless instance, you do not need to specify this parameter.', example='0'),
   eipModel?: boolean(name='EipModel', description='Specifies whether the instance requires Internet access. Valid values:
 
@@ -7273,7 +7285,7 @@ This parameter is required.', example='alikafka_post-cn-mp919o4v****'),
 
 - The peak traffic that you specify must be greater than or equal to the current peak traffic of the instance.
 
-- You must specify either the peak traffic or the traffic specification. If you specify both, the traffic specification takes precedence. Specify only the traffic specification.
+- You must specify either the traffic specification or the peak traffic. If you specify both, the traffic specification takes precedence. Specify only the traffic specification.
 
 - For the value range, see [Billing](https://help.aliyun.com/document_detail/84737.html).
 > If the instance is a serverless instance, you do not need to specify this parameter.', example='60'),
@@ -7281,7 +7293,7 @@ This parameter is required.', example='alikafka_post-cn-mp919o4v****'),
 
 - The traffic specification that you specify must be greater than or equal to the current traffic specification of the instance.
 
-- You must specify either the peak traffic or the traffic specification. If you specify both, the traffic specification takes precedence. Specify only the traffic specification.
+- You must specify either the traffic specification or the peak traffic. If you specify both, the traffic specification takes precedence. Specify only the traffic specification.
 
 - For the value range, see [Billing](https://help.aliyun.com/document_detail/84737.html).
 > If the instance is a serverless instance, you do not need to specify this parameter. This parameter is required for pay-as-you-go instances.', example='alikafka.hw.6xlarge'),
@@ -7289,21 +7301,21 @@ This parameter is required.', example='alikafka_post-cn-mp919o4v****'),
 
 * You must specify either the number of partitions or the topic specification. Specify only the number of partitions.
 
-* If you specify both the number of partitions and the topic specification, the system validates whether the number of partitions and the topic specification are equivalent based on the legacy topic sales model. If they are not equivalent, an error is returned. If they are equivalent, the purchase is made based on the number of partitions.
+* If you specify both the number of partitions and the topic specification, the system verifies whether the number of partitions and the topic specification are equivalent based on the legacy topic sales model. If they are not equivalent, the request fails. If they are equivalent, the purchase is made based on the number of partitions.
 
 * For the value range, see [Billing](https://help.aliyun.com/document_detail/84737.html).
 > If the instance is a serverless instance, you do not need to specify this parameter. This parameter is required for pay-as-you-go instances.', example='80'),
   regionId?: string(name='RegionId', description='The region ID of the instance.
 
 This parameter is required.', example='cn-hangzhou'),
-  serverlessConfigShrink?: string(name='ServerlessConfig', description='The settings of the serverless instance. This parameter is required when you change the specifications of a serverless instance.'),
+  serverlessConfigShrink?: string(name='ServerlessConfig', description='The settings of the serverless instance. This parameter is required when you upgrade a serverless instance.'),
   specType?: string(name='SpecType', description='The specification type.
 
 If the PaidType of the instance is 1 (pay-as-you-go), valid values:
 
 - normal: Standard Edition (shared throughput)
 - professional: Professional Edition (shared throughput)
-- professionalForHighRead: Professional Edition (shared read throughput)
+- professionalForHighRead: Professional Edition (shared throughput for high read)
 
 If the PaidType of the instance is 3 (reserved specification pay-as-you-go + serverless elastic scaling pay-as-you-go), valid values:
 - normal: Serverless Standard Edition
@@ -7313,7 +7325,7 @@ For more information, see [Billing](https://help.aliyun.com/document_detail/8473
 
 - You must specify either the number of partitions or the topic specification. Specify only the number of partitions.
 
-- If you specify both the number of partitions and the topic specification, the system validates whether the number of partitions and the topic specification are equivalent based on the legacy topic sales model. If they are not equivalent, an error is returned. If they are equivalent, the purchase is made based on the number of partitions.
+- If you specify both the number of partitions and the topic specification, the system verifies whether the number of partitions and the topic specification are equivalent based on the legacy topic sales model. If they are not equivalent, the request fails. If they are equivalent, the purchase is made based on the number of partitions.
 
 - The default value varies based on the traffic specification. Additional fees are charged if the value exceeds the default value.
 
@@ -7337,7 +7349,7 @@ model UpgradePostPayOrderResponse = {
 /**
  * @summary Upgrades a pay-as-you-go instance.
  *
- * @description Before you call this operation, make sure that you fully understand the billing method and pricing of pay-as-you-go instances. For more information, see [Billing](https://help.aliyun.com/document_detail/84737.html).
+ * @description Before you call this operation, make sure that you fully understand the billing methods and pricing of pay-as-you-go instances. For more information, see [Billing](https://help.aliyun.com/document_detail/84737.html).
  *
  * @param tmpReq UpgradePostPayOrderRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -7404,7 +7416,7 @@ async function upgradePostPayOrderWithOptions(tmpReq: UpgradePostPayOrderRequest
 /**
  * @summary Upgrades a pay-as-you-go instance.
  *
- * @description Before you call this operation, make sure that you fully understand the billing method and pricing of pay-as-you-go instances. For more information, see [Billing](https://help.aliyun.com/document_detail/84737.html).
+ * @description Before you call this operation, make sure that you fully understand the billing methods and pricing of pay-as-you-go instances. For more information, see [Billing](https://help.aliyun.com/document_detail/84737.html).
  *
  * @param request UpgradePostPayOrderRequest
  * @return UpgradePostPayOrderResponse
