@@ -17,6 +17,7 @@ init(config: OpenApiUtil.Config){
   @endpointMap = {
     'us-west-1' = 'kms.us-west-1.aliyuncs.com',
     'us-east-1' = 'kms.us-east-1.aliyuncs.com',
+    'na-south-1' = 'kms.na-south-1.aliyuncs.com',
     'me-east-1' = 'kms.me-east-1.aliyuncs.com',
     'me-central-1' = 'kms.me-central-1.aliyuncs.com',
     'eu-west-1' = 'kms.eu-west-1.aliyuncs.com',
@@ -32,6 +33,7 @@ init(config: OpenApiUtil.Config){
     'cn-qingdao' = 'kms.cn-qingdao.aliyuncs.com',
     'cn-huhehaote' = 'kms.cn-huhehaote.aliyuncs.com',
     'cn-hongkong' = 'kms.cn-hongkong.aliyuncs.com',
+    'cn-heyuan-acdr-1' = 'kms.cn-heyuan-acdr-1.aliyuncs.com',
     'cn-heyuan' = 'kms.cn-heyuan.aliyuncs.com',
     'cn-hangzhou-finance' = 'kms.cn-hangzhou-finance.aliyuncs.com',
     'cn-hangzhou' = 'kms.cn-hangzhou.aliyuncs.com',
@@ -638,6 +640,160 @@ async function asymmetricVerifyWithOptions(request: AsymmetricVerifyRequest, run
 async function asymmetricVerify(request: AsymmetricVerifyRequest): AsymmetricVerifyResponse {
   var runtime = new $RuntimeOptions{};
   return asymmetricVerifyWithOptions(request, runtime);
+}
+
+model BatchGetSecretValueRequest {
+  secretsList?: [ 
+    {
+      fetchExtendedConfig?: string(name='FetchExtendedConfig', description='Specifies whether to retrieve the extended configuration of the secret. Valid values:
+
+- true: Retrieve the extended configuration.
+- false (default): Do not retrieve the extended configuration.
+
+> Generic secrets do not support extended configurations. This parameter is ignored for generic secrets.', example='true'),
+      secretName?: string(name='SecretName', description='The secret name or secret Alibaba Cloud Resource Name (ARN).
+>When accessing a secret in another Alibaba Cloud account, you must specify the secret ARN. The format of a secret ARN is `acs:kms:${region}:${account}:secret/${secret-name}`.
+
+This parameter is required.', example='secret001'),
+      versionId?: string(name='VersionId', description='The version number.', example='v1'),
+      versionStage?: string(name='VersionStage', description='The version stage. Default value: ACSCurrent.
+
+If you specify this parameter, the secret value of the specified version stage is returned. If you do not specify this parameter, the secret value of the ACSCurrent version stage is returned.
+> For ApsaraDB RDS secrets, PolarDB secrets, Redis/Tair secrets, RAM secrets, and ECS secrets, you can retrieve only the secret values of the ACSPrevious and ACSCurrent versions.', example='ACSCurrent'),
+    }
+  ](name='SecretsList', description='The list of secret information. You can query up to 20 different secrets at a time.'),
+}
+
+model BatchGetSecretValueShrinkRequest {
+  secretsListShrink?: string(name='SecretsList', description='The list of secret information. You can query up to 20 different secrets at a time.'),
+}
+
+model BatchGetSecretValueResponseBody = {
+  errors?: [ 
+    {
+      code?: string(name='Code', description='The service error code.', example='Forbidden.ResourceNotFound'),
+      httpStatus?: int32(name='HttpStatus', description='The HTTP status code returned for the error.', example='404'),
+      message?: string(name='Message', description='The error message for the failed secret retrieval.', example='Resource not found.'),
+      secretName?: string(name='SecretName', description='The secret name.', example='secret002'),
+    }
+  ](name='Errors', description='The list of errors for secrets that failed to be retrieved.'),
+  requestId?: string(name='RequestId', description='The request ID.', example='8252db58-2036-408c-a3d5-56e656dc2551'),
+  secretValues?: [ 
+    {
+      automaticRotation?: string(name='AutomaticRotation', description='Indicates whether automatic rotation is enabled. Valid values:
+- Enabled: Automatic rotation is enabled.
+- Disabled: Automatic rotation is disabled.
+- Invalid: The rotation status is abnormal. KMS cannot automatically rotate the secret.
+
+> This parameter is returned only for ApsaraDB RDS secrets, PolarDB secrets, Redis/Tair secrets, RAM secrets, or ECS secrets.', example='Enabled'),
+      createTime?: string(name='CreateTime', description='The time when the secret was created (UTC).', example='2024-02-21T15:39:26Z'),
+      extendedConfig?: string(name='ExtendedConfig', description='The extended configuration of the secret.  
+
+> This parameter is returned only for ApsaraDB RDS secrets, PolarDB secrets, Redis/Tair secrets, RAM secrets, or ECS secrets when FetchExtendedConfig is set to true.', example='{\\\\"SecretSubType\\\\":\\\\"SingleUser\\\\", \\\\"DBInstanceId\\\\":\\\\"rm-uf667446pc955****\\\\",  \\\\"CustomData\\\\":{} }'),
+      lastRotationDate?: string(name='LastRotationDate', description='The time of the most recent rotation (UTC).
+> This parameter is returned only when the secret has been rotated.', example='2023-07-05T08:22:03Z'),
+      nextRotationDate?: string(name='NextRotationDate', description='The time of the next rotation (UTC).
+> This parameter is returned only when automatic rotation is enabled.', example='2024-07-06T18:22:03Z'),
+      requestId?: string(name='RequestId', description='The ID of this request, which is a unique identifier generated by Alibaba Cloud for troubleshooting purposes.', example='8252db58-2036-408c-a3d5-56e656dc2551'),
+      rotationInterval?: string(name='RotationInterval', description='The interval for automatic rotation of the secret.
+The format is integer[unit], where integer specifies the duration and unit specifies the time unit. The value of unit is s (seconds). For example, a rotation interval of 7 days is 604800s.
+
+> This parameter is returned only when automatic rotation is enabled.', example='604800s'),
+      secretData?: string(name='SecretData', description='The secret value. KMS decrypts the stored ciphertext secret value and returns this parameter.  
+
+- A generic secret returns the secret value that you specified.
+
+- An ApsaraDB RDS secret or Redis/Tair secret returns the secret value in the following format: `{"AccountName":"","AccountPassword":""}`.
+
+- A RAM secret returns the secret value in the following format: `{"AccessKeyId":"Adfdsfd","AccessKeySecret":"fdsfdsf","GenerateTimestamp": "2023-03-25T10:42:40Z"}`.  
+
+- An ECS secret returns the secret value in the following formats:  
+  - Password-type secret: `{"UserName":"ecs-user","Password":"H5asdasdsads****"}`.  
+  - Public-private key-type secret (private key in PEM format): `{"UserName":"ecs-user","PublicKey":"ssh-rsa ****mKwnVix9YTFY9Rs= imported-openssh-key","PrivateKey": "d6bee1cb-2e14-4277-ba6b-73786b21****"}`.
+
+- A PolarDB secret returns the secret value in the following format: `{"AccountName":"","AccountPassword":""}`.', example='testdata1'),
+      secretDataType?: string(name='SecretDataType', description='The type of the secret value. Valid values:
+- text
+- binary', example='binary'),
+      secretName?: string(name='SecretName', description='The secret name.', example='secret001'),
+      secretType?: string(name='SecretType', description='The type of the secret. Valid values:
+- Generic: generic secret.  
+- Rds: ApsaraDB RDS secret.  
+- Redis: Redis/Tair secret.
+- RAMCredentials: RAM secret.  
+- ECS: ECS secret.
+- PolarDB: PolarDB secret.', example='Generic'),
+      versionId?: string(name='VersionId', description='The version number of the secret.', example='v1'),
+      versionStages?: {
+        versionStage?: [ string ](name='VersionStage', description='The version stages of the secret.'),
+      }(name='VersionStages', description='The version stages of the secret.'),
+    }
+  ](name='SecretValues', description='The list of secrets that are successfully retrieved.'),
+}
+
+model BatchGetSecretValueResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: BatchGetSecretValueResponseBody(name='body'),
+}
+
+/**
+ * @summary Retrieves secret values in batches.
+ *
+ * @description - For details about the access policy required for a Resource Access Management (RAM) user or RAM role to invoke this operation, see [Access control](https://help.aliyun.com/document_detail/2767210.html).
+ * - If you do not specify a version number or version stage, KMS returns the secret value of the version marked as ACSCurrent by default.
+ * - The caller must have the `kms:GetSecretValue` permission on all secrets in the batch.
+ * - If a secret uses a customer master key to protect the secret value, the caller must also have the `kms:Decrypt` permission on the corresponding master key.
+ * This topic provides an example of how to retrieve the secret value of a secret named `secret001`. The response shows that the secret value `SecretData` is `testdata1`.
+ *
+ * @param tmpReq BatchGetSecretValueRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return BatchGetSecretValueResponse
+ */
+@context("batchGetSecretValueWithContext")
+async function batchGetSecretValueWithOptions(tmpReq: BatchGetSecretValueRequest, runtime: $RuntimeOptions): BatchGetSecretValueResponse {
+  tmpReq.validate();
+  var request = new BatchGetSecretValueShrinkRequest{};
+  OpenApiUtil.convert(tmpReq, request);
+  if (!$isNull(tmpReq.secretsList)) {
+    request.secretsListShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.secretsList, 'SecretsList', 'json');
+  }
+  var query = {};
+  if (!$isNull(request.secretsListShrink)) {
+    query['SecretsList'] = request.secretsListShrink;
+  }
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'BatchGetSecretValue',
+    version = '2016-01-20',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Retrieves secret values in batches.
+ *
+ * @description - For details about the access policy required for a Resource Access Management (RAM) user or RAM role to invoke this operation, see [Access control](https://help.aliyun.com/document_detail/2767210.html).
+ * - If you do not specify a version number or version stage, KMS returns the secret value of the version marked as ACSCurrent by default.
+ * - The caller must have the `kms:GetSecretValue` permission on all secrets in the batch.
+ * - If a secret uses a customer master key to protect the secret value, the caller must also have the `kms:Decrypt` permission on the corresponding master key.
+ * This topic provides an example of how to retrieve the secret value of a secret named `secret001`. The response shows that the secret value `SecretData` is `testdata1`.
+ *
+ * @param request BatchGetSecretValueRequest
+ * @return BatchGetSecretValueResponse
+ */
+async function batchGetSecretValue(request: BatchGetSecretValueRequest): BatchGetSecretValueResponse {
+  var runtime = new $RuntimeOptions{};
+  return batchGetSecretValueWithOptions(request, runtime);
 }
 
 model CancelKeyDeletionRequest {
@@ -6526,27 +6682,24 @@ async function listResourceTags(request: ListResourceTagsRequest): ListResourceT
 }
 
 model ListSecretVersionIdsRequest {
-  includeDeprecated?: string(name='IncludeDeprecated', description='Specifies whether to include credential versions that have no version stages in the response.
+  includeDeprecated?: string(name='IncludeDeprecated', description='Specifies whether to include secret versions that do not have version stages in the response.
 
 Valid values:
-
-- false (default): No
-
-- true: Yes', example='false'),
-  pageNumber?: int32(name='PageNumber', description='The number of the page to return for a paged query. Default value: 1.', example='1'),
-  pageSize?: int32(name='PageSize', description='The number of entries to return on each page for a paged query. Default value: 20.', example='10'),
-  secretName?: string(name='SecretName', description='The name or Alibaba Cloud Resource Name (ARN) of the credential.
-
-> When you access a credential that belongs to another Alibaba Cloud account, you must specify the ARN of the credential. The ARN of a credential is in the format of `acs:kms:${region}:${account}:secret/${secret-name}`.
+- false (default): does not include
+- true: includes', example='false'),
+  pageNumber?: int32(name='PageNumber', description='The page number of the current page in a paged query. Default value: 1.', example='1'),
+  pageSize?: int32(name='PageSize', description='The number of entries per page in a paged query. Default value: 20.', example='10'),
+  secretName?: string(name='SecretName', description='The secret name or secret Amazon Resource Name (ARN).
+>When accessing a secret under another Alibaba Cloud account, you must specify the secret ARN. The format of the secret ARN is `acs:kms:${region}:${account}:secret/${secret-name}`.
 
 This parameter is required.', example='secret001'),
 }
 
 model ListSecretVersionIdsResponseBody = {
-  pageNumber?: int32(name='PageNumber', description='The page number of the returned page.', example='1'),
-  pageSize?: int32(name='PageSize', description='The number of entries returned on each page.', example='10'),
-  requestId?: string(name='RequestId', description='The ID of the request, which is a unique identifier generated by Alibaba Cloud. You can use this ID to troubleshoot issues.', example='5b75d8b1-5b6a-4ec0-8e0c-c08befdfad47'),
-  secretName?: string(name='SecretName', description='The name of the credential.', example='secret001'),
+  pageNumber?: int32(name='PageNumber', description='The current page number.', example='1'),
+  pageSize?: int32(name='PageSize', description='The page size of the current page.', example='10'),
+  requestId?: string(name='RequestId', description='The ID of the request. The ID is a unique identifier that Alibaba Cloud generates for the request and can be used to troubleshoot issues.', example='5b75d8b1-5b6a-4ec0-8e0c-c08befdfad47'),
+  secretName?: string(name='SecretName', description='The secret name.', example='secret001'),
   totalCount?: int32(name='TotalCount', description='The total number of entries.', example='1'),
   versionIds?: {
     versionId?: [ 
@@ -6568,10 +6721,10 @@ model ListSecretVersionIdsResponse = {
 }
 
 /**
- * @summary Queries all version IDs and stage labels of a specified secret.
+ * @summary Queries all version information of a secret.
  *
- * @description - For more information about the access policy required for a RAM user or RAM role to call this OpenAPI, see [Resource Access Management](https://help.aliyun.com/document_detail/2767210.html).
- * - The version information does not include the secret value. By default, this operation returns only the secret versions that are marked with a version stage.
+ * @description - For details about the access policy required for a Resource Access Management (RAM) user or RAM role to invoke this operation, refer to [Access control](https://help.aliyun.com/document_detail/2767210.html).
+ * - Version information does not include secret values. By default, only secret versions that have version stages are returned.
  *
  * @param request ListSecretVersionIdsRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -6611,10 +6764,10 @@ async function listSecretVersionIdsWithOptions(request: ListSecretVersionIdsRequ
 }
 
 /**
- * @summary Queries all version IDs and stage labels of a specified secret.
+ * @summary Queries all version information of a secret.
  *
- * @description - For more information about the access policy required for a RAM user or RAM role to call this OpenAPI, see [Resource Access Management](https://help.aliyun.com/document_detail/2767210.html).
- * - The version information does not include the secret value. By default, this operation returns only the secret versions that are marked with a version stage.
+ * @description - For details about the access policy required for a Resource Access Management (RAM) user or RAM role to invoke this operation, refer to [Access control](https://help.aliyun.com/document_detail/2767210.html).
+ * - Version information does not include secret values. By default, only secret versions that have version stages are returned.
  *
  * @param request ListSecretVersionIdsRequest
  * @return ListSecretVersionIdsResponse
