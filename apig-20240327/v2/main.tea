@@ -53,6 +53,50 @@ function getEndpoint(productId: string, regionId: string, endpointRule: string, 
   return OpenApiUtil.getEndpointRules(productId, regionId, endpointRule, network, suffix);
 }
 
+model AgentAccessConfig {
+  aiRequestLogEnabled?: boolean(name='aiRequestLogEnabled'),
+  authorization?: {
+    authType?: string(name='authType'),
+    enabled?: boolean(name='enabled', description='This parameter is required.'),
+    principals?: [
+      AgentAuthorizationPrincipal
+    ](name='principals'),
+  }(name='authorization'),
+  basePath?: string(name='basePath', description='This parameter is required.'),
+  domainIds?: [ string ](name='domainIds', description='This parameter is required.'),
+  removeBasePathOnForward?: boolean(name='removeBasePathOnForward'),
+}
+
+model AgentAuthorizationPrincipal {
+  principalId?: string(name='principalId', description='This parameter is required.'),
+  principalType?: string(name='principalType', description='This parameter is required.'),
+}
+
+model AgentInfo {
+  agentAccess?: {
+    httpApiId?: string(name='httpApiId'),
+  }(name='agentAccess', nullable=true),
+  agentId?: string(name='agentId'),
+  agentType?: string(name='agentType'),
+  allowedCapabilities?: [ string ](name='allowedCapabilities'),
+  createTimestamp?: long(name='createTimestamp'),
+  description?: string(name='description'),
+  gatewayId?: string(name='gatewayId'),
+  modelAccess?: {
+    consumerIds?: [ string ](name='consumerIds'),
+    modelApiId?: string(name='modelApiId'),
+  }(name='modelAccess', nullable=true),
+  name?: string(name='name'),
+  resourceGroupId?: string(name='resourceGroupId'),
+  status?: string(name='status'),
+  updateTimestamp?: long(name='updateTimestamp'),
+}
+
+model AgentModelAccessConfig {
+  consumerIds?: [ string ](name='consumerIds', description='This parameter is required.'),
+  modelApiId?: string(name='modelApiId', description='This parameter is required.'),
+}
+
 model AgentServiceConfig {
   address?: string(name='address', description='The address.
 
@@ -362,21 +406,21 @@ model AkSkIdentityConfig {
 
 model ApiKeyIdentityConfig {
   apikeySource?: {
-    source?: string(name='source', description='The source of the API key.
-
-Valid values:
-
-*   Header
-*   QueryString
-*   Default', example='Default'),
-    value?: string(name='value', description='The value of the API key.', example='xxxx'),
-  }(name='apikeySource', description='The source configuration of the API key.'),
+    source?: string(name='source', description='The API key source.', example='Default'),
+    value?: string(name='value', description='The API key value.', example='xxxx'),
+  }(name='apikeySource', description='The API key source configuration.'),
+  apikeySources?: [ 
+    {
+      source?: string(name='source', description='The credential source type.'),
+      value?: string(name='value', description='The field name of the HTTP header or query string.'),
+    }
+  ](name='apikeySources', description='The complete set of API key credential sources. The set contains one to three items. Multiple sources are applicable only to the AI gateway Header mode. Query String and non-AI gateway scenarios allow only a single source. If submitted together with apikeySource, the latter must be consistent with the compatible projection.'),
   credentials?: [ 
     {
       apikey?: string(name='apikey', description='The API key configuration.', example='xxxxx'),
-      generateMode?: string(name='generateMode', description='The production mode.', example='System'),
+      generateMode?: string(name='generateMode', description='The generation mode.', example='System'),
     }
-  ](name='credentials', description='The list of certificates.'),
+  ](name='credentials', description='The list of credentials.'),
   type?: string(name='type', description='The type.', example='Apikey'),
 }
 
@@ -1672,25 +1716,15 @@ model SslCertMetaInfo {
 model SubDomainInfo {
   domainId?: string(name='domainId', description='The domain name ID.', example='d-cpudb0llhtgl2djvq2sg'),
   name?: string(name='name', description='The domain name.', example='abc.com'),
-  networkType?: string(name='networkType', description='The network type. Valid values:
-
-Valid values:
-
-*   Intranet
-*   Internet', example='Intranet'),
-  protocol?: string(name='protocol', description='The protocol.
-
-Valid values:
-
-*   HTTPS
-*   HTTP', example='HTTP'),
+  networkType?: string(name='networkType', description='The network type.', example='Intranet'),
+  protocol?: string(name='protocol', description='The protocol type supported by the subdomain. Valid values: HTTP, HTTPS.', example='HTTP'),
 }
 
 model TlsCipherSuitesConfig {
   configType?: string(name='configType', description='The configuration type.', example='Default'),
   tlsCipherSuite?: [ 
     {
-      name?: string(name='name', description='The suite name.', example='ECDHE-ECDSA-AES256-GCM-SHA384'),
+      name?: string(name='name', description='The TLS cipher suite name, such as ECDHE-ECDSA-AES256-GCM-SHA384.', example='ECDHE-ECDSA-AES256-GCM-SHA384'),
       supportVersions?: [ string ](name='supportVersions', description='The supported versions.'),
     }
   ](name='tlsCipherSuite', description='tlsCipherSuite'),
@@ -2952,26 +2986,37 @@ async function createConsumerGroup(request: CreateConsumerGroupRequest): CreateC
 }
 
 model CreateDomainRequest {
-  caCertIdentifier?: string(name='caCertIdentifier', description='The CA certificate identifier. Optional for Dedicated+HTTPS. Not allowed for Serverless. Not validated for Dedicated+HTTP.', example='1ef1da5f-38ed-69b3-****-037781890265'),
-  certIdentifier?: string(name='certIdentifier', description='The certificate identifier. Required for Dedicated+HTTPS and must pass submission validation. Not allowed for Serverless. Not validated for Dedicated+HTTP.', example='1ef1da5f-38ed-69b3-****-037781890265'),
-  clientCACert?: string(name='clientCACert', description='The client CA certificate. Conditionally required for Dedicated+HTTPS when MTLSEnabled is set to true. Not allowed for Serverless. Not validated for Dedicated+HTTP.', example='-----BEGIN CERTIFICATE-----
+  caCertIdentifier?: string(name='caCertIdentifier', description='The CA certificate identifier. This parameter is optional for Dedicated with HTTPS. This parameter is not allowed for Serverless and is not validated for Dedicated with HTTP.', example='1ef1da5f-38ed-69b3-****-037781890265'),
+  certIdentifier?: string(name='certIdentifier', description='The certificate identifier. This parameter is required for Dedicated with HTTPS and must pass validation. This parameter is not allowed for Serverless and is not validated for Dedicated with HTTP.', example='1ef1da5f-38ed-69b3-****-037781890265'),
+  clientCACert?: string(name='clientCACert', description='The client CA certificate. This parameter is conditionally required for Dedicated with HTTPS (when MTLSEnabled is set to true). This parameter is not allowed for Serverless and is not validated for Dedicated with HTTP.', example='-----BEGIN CERTIFICATE-----
 MIIFBTCCAu2gAwIBAgIUORLpYPGSFD1YOP6PMbE7Wd/mpTQwDQYJKoZIhvcNAQEL
 BQAwE************************************************2VwVOJ2gqX3
 YuGaxvIbDy0iQJ1GMerPRyzJTeVEtdIKT29u0PdFRr4KZWom35qX7G4=
 -----END CERTIFICATE-----'),
-  domainScope?: string(name='domainScope', description='The domain name scope. Optional. If not specified, the default value is Dedicated.', example='Dedicated'),
-  forceHttps?: boolean(name='forceHttps', description='Specifies whether to enable forced HTTPS redirect for the HTTPS protocol type. This parameter is required for Serverless and for Dedicated+HTTPS. It is not validated for Dedicated+HTTP.', example='false'),
-  gatewayType?: string(name='gatewayType', description='The gateway type. Optional. If not specified, the default value is API.', example='API'),
-  http2Option?: string(name='http2Option', description='The HTTP/2 setting. Optional for Dedicated+HTTPS. If not specified, the default value is GlobalConfig. Not allowed for Serverless.', example='Open'),
-  mTLSEnabled?: boolean(name='mTLSEnabled', description='Specifies whether to enable mTLS mutual authentication. Optional for Dedicated+HTTPS. When set to true, ClientCACert is required. Not allowed for Serverless.'),
-  name?: string(name='name', description='The domain name.
+  domainScope?: string(name='domainScope', description='The domain name scope. Valid values:
+
+- Dedicated: dedicated gateway domain name.
+- Serverless: Serverless gateway domain name.
+
+Default value: Dedicated.', example='Dedicated'),
+  forceHttps?: boolean(name='forceHttps', description='Specifies whether to enable forced HTTPS redirect for the HTTPS protocol type. This parameter is required for Serverless and for Dedicated with HTTPS. This parameter is not validated for Dedicated with HTTP.', example='false'),
+  gatewayType?: string(name='gatewayType', description='The gateway type. If not specified, the default value is API.', example='API'),
+  http2Option?: string(name='http2Option', description='The HTTP/2 setting. Valid values:
+
+- GlobalConfig: follows the global configuration.
+- Open: enabled.
+- Close: disabled.
+
+Default value: GlobalConfig. This setting is supported only for HTTPS domain names in the Dedicated scope.', example='Open'),
+  mTLSEnabled?: boolean(name='mTLSEnabled', description='Specifies whether to enable mTLS mutual authentication. This parameter is optional for Dedicated with HTTPS. When set to true, ClientCACert is required. This parameter is not allowed for Serverless.'),
+  name?: string(name='name', description='The domain name. The name must be 1 to 128 characters in length, such as abc.com.
 
 This parameter is required.', example='abc.com'),
-  protocol?: string(name='protocol', description='The protocol type supported by the domain name. This parameter is required for Dedicated and must not be specified for Serverless.', example='HTTP'),
+  protocol?: string(name='protocol', description='The protocol type used by the domain name. Valid values: HTTP and HTTPS. This parameter is required for the Dedicated scope and is not allowed for the Serverless scope.', example='HTTP'),
   resourceGroupId?: string(name='resourceGroupId', description='The [resource group ID](https://help.aliyun.com/document_detail/151181.html).', example='rg-aekzhiv7derfweq'),
-  tlsCipherSuitesConfig?: TlsCipherSuitesConfig(name='tlsCipherSuitesConfig', description='The cipher suite configuration. Optional for Dedicated+HTTPS and must pass cipher suite validation. Not allowed for Serverless. Set to empty for Dedicated+HTTP.'),
-  tlsMax?: string(name='tlsMax', description='The maximum TLS protocol version. Optional for Dedicated+HTTPS. If not specified, the value is derived from TlsMin and must be greater than or equal to TlsMin. Not allowed for Serverless.', example='TLS1.3'),
-  tlsMin?: string(name='tlsMin', description='The minimum TLS protocol version. Optional for Dedicated+HTTPS. If not specified, the default value is TLS 1.0. Valid values range from TLS 1.0 to TLS 1.3, compatible with TLSv1.x. Not allowed for Serverless.', example='TLS1.0'),
+  tlsCipherSuitesConfig?: TlsCipherSuitesConfig(name='tlsCipherSuitesConfig', description='The TLS cipher suite configuration, including the configuration type, cipher suite names, and supported TLS versions. This configuration is supported only for HTTPS domain names in the Dedicated scope.'),
+  tlsMax?: string(name='tlsMax', description='The maximum TLS protocol version. This parameter is optional for Dedicated with HTTPS. If not specified, the value is derived from TlsMin. The value must be greater than or equal to TlsMin. This parameter is not allowed for Serverless.', example='TLS1.3'),
+  tlsMin?: string(name='tlsMin', description='The minimum TLS protocol version. This parameter is optional for Dedicated with HTTPS. If not specified, the default value is TLS 1.0. Valid values: TLS 1.0 to TLS 1.3, compatible with TLSv1.x. This parameter is not allowed for Serverless.', example='TLS1.0'),
 }
 
 model CreateDomainResponseBody = {
@@ -3168,9 +3213,7 @@ async function createEnvironment(request: CreateEnvironmentRequest): CreateEnvir
 }
 
 model CreateGatewayRequest {
-  chargeType?: string(name='chargeType', description='The billing method. Valid values:
-- POSTPAY: subscription.
-- PREPAY: pay-as-you-go.', example='POSTPAY'),
+  chargeType?: string(name='chargeType', description='The billing method.', example='POSTPAY'),
   gatewayEdition?: string(name='gatewayEdition', description='The gateway instance edition. Valid values:
 
 - Professional: standard instance.
@@ -3180,20 +3223,16 @@ model CreateGatewayRequest {
 - MultiTenantServerless: multi-tenant Serverless instance.
 
 - Unknown: unknown.', example='Professional'),
-  gatewayType?: string(name='gatewayType', description='The gateway type. Valid values:
-- AI: AI gateway.
-- API: cloud-native API gateway.', example='API'),
+  gatewayMode?: string(name='gatewayMode'),
+  gatewayType?: string(name='gatewayType', description='The gateway type.', example='API'),
   logConfig?: {
     sls?: {
-      enable?: boolean(name='enable', description='Specifies whether to enable SLS logging.', example='false'),
-    }(name='sls', description='The Simple Log Service (SLS) log configuration.'),
+      enable?: boolean(name='enable', description='Specifies whether to enable SLS log collection.', example='false'),
+    }(name='sls', description='The Simple Log Service (SLS) configuration, which controls gateway log collection.'),
   }(name='logConfig', description='The gateway log configuration.'),
   name?: string(name='name', description='The gateway name.', example='test-ceshi'),
   networkAccessConfig?: {
-    type?: string(name='type', description='The network access type. Valid values:
-- InternetAndIntranet: public and internal network.
-- Intranet: internal network.
-- Internet: public network.', example='Internet'),
+    type?: string(name='type', description='The network access type.', example='Internet'),
   }(name='networkAccessConfig', description='The network access configuration.'),
   resourceGroupId?: string(name='resourceGroupId', description='The resource group ID.', example='rg-ahr5uil8raz0rq3b'),
   spec?: string(name='spec', description='The node specifications.', example='apigw.dev.x2'),
@@ -3205,9 +3244,7 @@ model CreateGatewayRequest {
   ](name='tag', description='The list of tags.'),
   vpcId?: string(name='vpcId', description='The VPC ID.', example='vpc-zm0x16tomfiat1mk9f6rs'),
   zoneConfig?: {
-    selectOption?: string(name='selectOption', description='The zone selection option. Valid values:
-- Auto: automatic.
-- Manual: manual.', example='Manual'),
+    selectOption?: string(name='selectOption', description='The zone selection option.', example='Manual'),
     vSwitchId?: string(name='vSwitchId', description='The vSwitch ID.', example='vsw-xxx'),
     zones?: [ 
       {
@@ -3250,6 +3287,9 @@ async function createGatewayWithOptions(request: CreateGatewayRequest, headers: 
   }
   if (!$isNull(request.gatewayEdition)) {
     body['gatewayEdition'] = request.gatewayEdition;
+  }
+  if (!$isNull(request.gatewayMode)) {
+    body['gatewayMode'] = request.gatewayMode;
   }
   if (!$isNull(request.gatewayType)) {
     body['gatewayType'] = request.gatewayType;
@@ -3310,17 +3350,17 @@ async function createGateway(request: CreateGatewayRequest): CreateGatewayRespon
 }
 
 model CreateHttpApiRequest {
-  agentProtocols?: [ string ](name='agentProtocols', description='The list of protocols supported by the agent. This parameter is required when type is set to Agent. This parameter is not required for other types.'),
-  aiProtocols?: [ string ](name='aiProtocols', description='The AI API protocols. This parameter is required when type is set to LLM, and only one protocol can be specified. This parameter is required when type is set to Ai, and multiple protocols can be specified. This parameter is not required for other types.'),
-  authConfig?: AuthConfig(name='authConfig', description='The authentication configuration. This parameter is required when enableAuth is set to true.'),
-  basePath?: string(name='basePath', description='The API base path. The path must start with a forward slash (/), cannot exceed 256 bytes in length, and cannot contain spaces. This parameter is required when type is set to Rest. When type is set to LLM, Ai, or Agent, this parameter is optional and defaults to /.', example='/v1'),
+  agentProtocols?: [ string ](name='agentProtocols', description='The list of protocols supported by the agent. Required when type is Agent. Not required for other types.'),
+  aiProtocols?: [ string ](name='aiProtocols', description='The list of AI API protocols. Required when type is LLM, and only one protocol can be specified. Required when type is Ai, and multiple protocols can be specified. Not required for other types. Example protocol entry: OpenAI/v1.'),
+  authConfig?: AuthConfig(name='authConfig', description='The authentication configuration. Required when enableAuth=true.'),
+  basePath?: string(name='basePath', description='The API base path. Must start with a forward slash (/), cannot exceed 256 bytes in length, and cannot contain spaces. Required when type=Rest. Optional when type=LLM, Ai, or Agent. Default value: /', example='/v1'),
   belongGatewayId?: string(name='belongGatewayId', description='The ID of the gateway to which the API belongs.', example='gw-abc123xyz789'),
   deployConfigs?: [
     HttpApiDeployConfig
-  ](name='deployConfigs', description='The API deployment configurations. This parameter is required when type is set to LLM or Ai, and only one deployment configuration can be specified. This parameter is not validated at the request level for other types.'),
+  ](name='deployConfigs', description='The list of deployment configurations for the HTTP API. Required when type is LLM or Ai, and only one deployment configuration can be specified. Not validated at the request level for other types.'),
   description?: string(name='description', description='The API description.', example='Test API for integration'),
   dryRun?: boolean(name='dryRun', description='Specifies whether to perform a dry run without executing the operation.', example='true', deprecated=true),
-  enableAuth?: boolean(name='enableAuth', description='Specifies whether to enable authentication. This parameter is validated when type is set to LLM, Ai, or Agent. This parameter is not validated at the request level when type is set to Rest.', example='true'),
+  enableAuth?: boolean(name='enableAuth', description='Specifies whether to enable authentication. Validated when type is LLM, Ai, or Agent. Not validated at the request level when type is Rest.', example='true'),
   firstByteTimeout?: int32(name='firstByteTimeout', description='The timeout period for waiting for the first byte from the backend.', example='30'),
   ingressConfig?: {
     clusterId?: string(name='clusterId', description='The cluster ID.', example='k7v5eobfzttudni2pw***'),
@@ -3329,22 +3369,16 @@ model CreateHttpApiRequest {
     overrideIngressIp?: boolean(name='overrideIngressIp', description='Specifies whether to update the address in the Ingress Status.', example='false'),
     sourceId?: string(name='sourceId', description='The source ID.', example='src-crdddallhtgtr***', deprecated=true),
     watchNamespace?: string(name='watchNamespace', description='The namespace to listen on.', example='default'),
-  }(name='ingressConfig', description='The HTTP Ingress API configuration. This parameter is required and cannot be nil when type is set to HttpIngress. This parameter is not required for other types.'),
-  modelCategory?: string(name='modelCategory', description='The model category. This parameter is optional when type is set to LLM or Ai. This parameter is not required for other types. Valid values:', example='Text'),
-  name?: string(name='name', description='The API name.
+  }(name='ingressConfig', description='The HTTP Ingress API configuration. Required when type is HttpIngress and cannot be nil. Not required for other types.'),
+  modelCategory?: string(name='modelCategory', description='The AI model category. Optional when type is LLM or Ai. Not required for other types. Valid values: Text (text generation), Image (image generation), Audio (audio processing), Video (AI video generation), MultiModal (multi-modal), Embedding (text embedding), Rerank (reranking), Others (other).', example='Text'),
+  name?: string(name='name', description='The name of the HTTP API, used to identify the current API resource. Example: test-api.
 
 This parameter is required.', example='test-api'),
   protocols?: [ string ](name='protocols', description='The list of API access protocols.'),
   removeBasePathOnForward?: boolean(name='removeBasePathOnForward', description='Specifies whether to remove the base path when forwarding requests.', example='true'),
   resourceGroupId?: string(name='resourceGroupId', description='The resource group ID.', example='rg-xxx'),
   strategy?: string(name='strategy', description='The conflict merge strategy for import.', example='ExistFirst'),
-  type?: string(name='type', description='The type of the HTTP API. Valid values:
-- Http
-- Rest
-- WebSocket
-- HttpIngress
-- LLM
-- Agent
+  type?: string(name='type', description='The HTTP API type. Valid values: Http (standard HTTP API), Rest (RESTful API), WebSocket (WebSocket API), HttpIngress (HTTP API accessed through Ingress), LLM (large language model API), Agent (Agent proxy API).
 
 This parameter is required.', example='Http'),
   versionConfig?: HttpApiVersionConfig(name='versionConfig', description='The API versioning configuration.'),
@@ -6239,20 +6273,20 @@ model GetConsumerResponseBody = {
   data?: {
     akSkIdentityConfigs?: [
       AkSkIdentityConfig
-    ](name='akSkIdentityConfigs', description='The AccessKey identity authentication configurations.'),
+    ](name='akSkIdentityConfigs', description='The AK/SK identity authentication configuration.'),
     apiKeyIdentityConfig?: ApiKeyIdentityConfig(name='apiKeyIdentityConfig', description='The API key identity authentication configuration.'),
     consumerGroups?: [ 
       {
         consumerGroupId?: string(name='consumerGroupId', description='The consumer group ID.', example='csg-8c13d2b4f8a1'),
-        description?: string(name='description', description='The consumer group description.', example='用于线上 API 调用方分组'),
-        joinTimestamp?: long(name='joinTimestamp', description='The time when the API consumer joined the consumer group. The value is a UNIX timestamp in milliseconds.', example='1715769600000'),
+        description?: string(name='description', description='The consumer group description.', example='Used for grouping online API callers'),
+        joinTimestamp?: long(name='joinTimestamp', description='The time when the API consumer joined the consumer group, in Unix milliseconds timestamp.', example='1715769600000'),
         name?: string(name='name', description='The consumer group name.', example='api-consumer-group'),
       }
     ](name='consumerGroups', description='The list of consumer groups to which the API consumer belongs.'),
     consumerId?: string(name='consumerId', description='The API consumer ID.', example='cs-cvgbtk6m1hkji5sb8dr0'),
     createTimestamp?: long(name='createTimestamp', description='The creation timestamp.', example='1719386834548'),
-    deployStatus?: string(name='deployStatus', description='The deployment status of the API in the current environment.', example='""'),
-    description?: string(name='description', description='The description.', example='测试专用消费者'),
+    deployStatus?: string(name='deployStatus', description='The publish status of the API in the current environment.', example='""'),
+    description?: string(name='description', description='The description.', example='Test-dedicated consumer'),
     enable?: boolean(name='enable', description='Indicates whether the API consumer is enabled.', example='true'),
     jwtIdentityConfig?: JwtIdentityConfig(name='jwtIdentityConfig', description='The JWT identity authentication configuration.'),
     name?: string(name='name', description='The API consumer name.', example='consumer-1'),
@@ -6763,59 +6797,40 @@ async function getEnvironment(environmentId: string, request: GetEnvironmentRequ
 model GetGatewayResponseBody = {
   code?: string(name='code', description='The response status code.', example='Ok'),
   data?: {
-    chargeType?: string(name='chargeType', description='The billing type. Valid values:
-- POSTPAY: pay-as-you-go
-- PREPAY: subscription', example='POSTPAY'),
-    createFrom?: string(name='createFrom', description='The source from which the gateway was created. Valid values:
-- Console: The gateway was created from the console.', example='Console'),
+    chargeType?: string(name='chargeType', description='The billing method.', example='POSTPAY'),
+    createFrom?: string(name='createFrom', description='The source from which the gateway was created. Valid values:', example='Console'),
     createTimestamp?: long(name='createTimestamp', description='The creation timestamp. Unit: milliseconds.', example='1719386834548'),
     environments?: [ 
       {
-        alias?: string(name='alias', description='The environment alias.', example='默认环境'),
+        alias?: string(name='alias', description='The environment alias.', example='Default environment'),
         environmentId?: string(name='environmentId', description='The environment ID.', example='env-cp9uhudlht***'),
         name?: string(name='name', description='The environment name.', example='default-gw-cp9ugg5***'),
       }
     ](name='environments', description='The list of environments associated with the gateway.'),
     expireTimestamp?: long(name='expireTimestamp', description='The subscription expiration timestamp. Unit: milliseconds.', example='1719386834548'),
-    gatewayEdition?: string(name='gatewayEdition', description='The gateway instance edition. Valid values:
-
-- Professional: Standard instance.
-
-- Serverless: Serverless instance.', example='Serverless'),
+    gatewayEdition?: string(name='gatewayEdition', description='The gateway instance edition. Valid values:', example='Serverless'),
     gatewayId?: string(name='gatewayId', description='The gateway ID.', example='gw-cq2vundlhtg***'),
-    gatewayType?: string(name='gatewayType', description='The gateway type. Valid values:
-- API: API gateway.
-- AI: AI gateway.', example='API'),
-    isp?: string(name='isp', description='The network ISP type.', example='BGP'),
+    gatewayMode?: string(name='gatewayMode'),
+    gatewayType?: string(name='gatewayType', description='The gateway type. Valid values:', example='API'),
+    isp?: string(name='isp', description='The type of the network service provider.', example='BGP'),
     loadBalancers?: [ 
       {
         address?: string(name='address', description='The load balancing address.', example='nlb-xoh3pghr***.cn-hangzhou.nlb.aliyuncs.com'),
-        addressIpVersion?: string(name='addressIpVersion', description='The protocol version. Valid values:
-- ipv4: IPv4.
-- ipv6: IPv6.', example='ipv4'),
-        addressType?: string(name='addressType', description='The load balancing address type. Valid values:
-- Internet: public network.
-- Intranet: private network.', example='Internet'),
+        addressIpVersion?: string(name='addressIpVersion', description='The protocol version. Valid values:', example='ipv4'),
+        addressType?: string(name='addressType', description='The load balancing address type. Valid values:', example='Internet'),
         gatewayDefault?: boolean(name='gatewayDefault', description='Indicates whether this is the default ingress address of the gateway.', example='true'),
         ipv4Addresses?: [ string ](name='ipv4Addresses', description='The list of IPv4 addresses.'),
         ipv6Addresses?: [ string ](name='ipv6Addresses', description='The list of IPv6 addresses.'),
         loadBalancerId?: string(name='loadBalancerId', description='The load balancing instance ID.', example='nlb-xoh3pghru7c***'),
-        mode?: string(name='mode', description='The load balancing provisioning mode of the gateway. Valid values:
-- Managed: Managed by the cloud-native API gateway.', example='Managed'),
+        mode?: string(name='mode', description='The load balancing mode of the gateway. Valid values:', example='Managed'),
         ports?: [ 
           {
             port?: int32(name='port', description='The port number.', example='443'),
-            protocol?: string(name='protocol', description='The protocol. Valid values:
-- TCP
-- UDP', example='TCP'),
+            protocol?: string(name='protocol', description='The protocol. Valid values:', example='TCP'),
           }
         ](name='ports', description='The list of listening ports.'),
-        status?: string(name='status', description='The load balancing status. Valid values:
-- Ready: Active.
-- NotCreate: No associated instance.', example='Ready'),
-        type?: string(name='type', description='The load balancing type. Valid values:
-- NLB: Network Load Balancer (NLB).
-- CLB: Classic Load Balancer (CLB).', example='NLB'),
+        status?: string(name='status', description='The status of load balancing. Valid values:', example='Ready'),
+        type?: string(name='type', description='The load balancing type.', example='NLB'),
       }
     ](name='loadBalancers', description='The list of ingress addresses of the gateway.'),
     maintenancePeriod?: {
@@ -6829,40 +6844,31 @@ model GetGatewayResponseBody = {
       name?: string(name='name', description='The security group name.', example='APIG-sg-gw-cq7ke5ll***'),
       securityGroupId?: string(name='securityGroupId', description='The security group ID.', example='sg-bp16tafq9***'),
     }(name='securityGroup', description='The security group of the gateway.'),
-    spec?: string(name='spec', description='The gateway specification. Valid values:
-- apigw.small.x1: Small specification.', example='apigw.small.x1'),
-    status?: string(name='status', description='The gateway status. Valid values:
-- Running: The gateway is running.
-- Creating: The gateway is being created.
-- CreateFailed: The gateway failed to be created.
-- Upgrading: The gateway is being upgraded.
-- UpgradeFailed: The gateway failed to be upgraded.
-- Restarting: The gateway is being restarted.
-- RestartFailed: The gateway failed to be restarted.
-- Deleting: The gateway is being released.
-- DeleteFailed: The gateway failed to be released.', example='Running'),
+    spec?: string(name='spec', description='The gateway specification. Valid values:', example='apigw.small.x1'),
+    status?: string(name='status', description='The gateway status. Valid values:', example='Running'),
     tags?: [ 
       {
         key?: string(name='key', description='The key of the resource tag.', example='owner'),
         value?: string(name='value', description='The value of the resource tag.', example='zhangsan'),
       }
     ](name='tags', description='The resource tags.'),
-    targetVersion?: string(name='targetVersion', description='The target version of the gateway. If this value differs from version, a version upgrade can be performed.', example='2.0.2'),
+    targetVersion?: string(name='targetVersion', description='The target version of the gateway. When this value differs from version, a version upgrade can be performed.', example='2.0.2'),
+    tenantId?: string(name='tenantId'),
     updateTimestamp?: long(name='updateTimestamp', description='The update timestamp. Unit: milliseconds.', example='1719386834548'),
     vSwitch?: {
-      name?: string(name='name', description='The vSwitch name.', example='杭州VPC虚拟交换机'),
+      name?: string(name='name', description='The vSwitch name.', example='Hangzhou VPC vSwitch'),
       vSwitchId?: string(name='vSwitchId', description='The vSwitch ID.', example='vsw-bp1c7ggkj***'),
     }(name='vSwitch', description='The vSwitch associated with the gateway.'),
     version?: string(name='version', description='The gateway version.', example='2.0.2'),
     vpc?: {
-      name?: string(name='name', description='The VPC name.', example='杭州VPC'),
+      name?: string(name='name', description='The VPC name.', example='Hangzhou VPC'),
       vpcId?: string(name='vpcId', description='The VPC ID.', example='vpc-bp1llj52lvj6xc***'),
     }(name='vpc', description='The VPC associated with the gateway.'),
     zones?: [ 
       {
-        name?: string(name='name', description='The zone name.', example='杭州可用区E'),
+        name?: string(name='name', description='The zone name.', example='Hangzhou Zone E'),
         vSwitch?: {
-          name?: string(name='name', description='The vSwitch name.', example='杭州VPC虚拟交换机'),
+          name?: string(name='name', description='The vSwitch name.', example='Hangzhou VPC vSwitch'),
           vSwitchId?: string(name='vSwitchId', description='The vSwitch ID.', example='vsw-bp1c7ggkj***'),
         }(name='vSwitch', description='The vSwitch.'),
         zoneId?: string(name='zoneId', description='The zone ID.', example='cn-hangzhou-e'),
@@ -6880,7 +6886,7 @@ model GetGatewayResponse = {
 }
 
 /**
- * @summary Retrieves basic information about a gateway, including the associated VPC, vSwitch, and gateway ingress.
+ * @summary Retrieves basic information about a gateway, including the VPC, vSwitch, and gateway ingress.
  *
  * @param headers map
  * @param runtime runtime options for this request RuntimeOptions
@@ -6906,7 +6912,7 @@ async function getGatewayWithOptions(gatewayId: string, headers: map[string]stri
 }
 
 /**
- * @summary Retrieves basic information about a gateway, including the associated VPC, vSwitch, and gateway ingress.
+ * @summary Retrieves basic information about a gateway, including the VPC, vSwitch, and gateway ingress.
  *
  * @return GetGatewayResponse
  */
@@ -9457,7 +9463,7 @@ async function listGatewayQuotaRules(gatewayId: string, request: ListGatewayQuot
 model ListGatewaysRequest {
   gatewayId?: string(name='gatewayId', description='The gateway ID for exact match query.', example='gw-cpv4sqdl****'),
   gatewayType?: string(name='gatewayType', description='The gateway type.', example='API'),
-  keyword?: string(name='keyword', description='The keyword for full match search. The search is case-insensitive.', example='dev'),
+  keyword?: string(name='keyword', description='The keyword for full match search. Case-insensitive.', example='dev'),
   name?: string(name='name', description='The gateway name for exact match query.', example='itemcenter-gateway'),
   pageNumber?: int32(name='pageNumber', description='The page number.', example='1'),
   pageSize?: int32(name='pageSize', description='The page size.', example='10'),
@@ -9468,19 +9474,19 @@ model ListGatewaysRequest {
       value?: string(name='value', description='The tag value.', example='zhangsan'),
     }
   ](name='tag', description='The list of tags.'),
-  vpcId?: string(name='vpcId', description='The virtual private cloud (VPC) ID.', example='vpc-2zeqrgx6jrlb063y06yjo'),
+  vpcId?: string(name='vpcId', description='The VPC ID.', example='vpc-2zeqrgx6jrlb063y06yjo'),
 }
 
 model ListGatewaysShrinkRequest {
   gatewayId?: string(name='gatewayId', description='The gateway ID for exact match query.', example='gw-cpv4sqdl****'),
   gatewayType?: string(name='gatewayType', description='The gateway type.', example='API'),
-  keyword?: string(name='keyword', description='The keyword for full match search. The search is case-insensitive.', example='dev'),
+  keyword?: string(name='keyword', description='The keyword for full match search. Case-insensitive.', example='dev'),
   name?: string(name='name', description='The gateway name for exact match query.', example='itemcenter-gateway'),
   pageNumber?: int32(name='pageNumber', description='The page number.', example='1'),
   pageSize?: int32(name='pageSize', description='The page size.', example='10'),
   resourceGroupId?: string(name='resourceGroupId', description='The resource group ID.', example='rg-aekzq6bzz5uyg2q'),
   tagShrink?: string(name='tag', description='The list of tags.'),
-  vpcId?: string(name='vpcId', description='The virtual private cloud (VPC) ID.', example='vpc-2zeqrgx6jrlb063y06yjo'),
+  vpcId?: string(name='vpcId', description='The VPC ID.', example='vpc-2zeqrgx6jrlb063y06yjo'),
 }
 
 model ListGatewaysResponseBody = {
@@ -9494,6 +9500,7 @@ model ListGatewaysResponseBody = {
         expireTimestamp?: long(name='expireTimestamp', description='The expiration timestamp for subscription instances. Unit: milliseconds.', example='172086834548'),
         gatewayEdition?: string(name='gatewayEdition', description='The gateway instance edition.', example='Serverless'),
         gatewayId?: string(name='gatewayId', description='The gateway ID.', example='gw-cpv54p5***'),
+        gatewayMode?: string(name='gatewayMode', example='ENTERPRISE'),
         gatewayType?: string(name='gatewayType', description='The gateway type.', example='API'),
         legacy?: boolean(name='legacy', description='Indicates whether the gateway instance was created before AI gateway was released.', example='true'),
         loadBalancers?: [ 
@@ -9512,7 +9519,7 @@ model ListGatewaysResponseBody = {
                 protocol?: string(name='protocol', description='The protocol.', example='TCP'),
               }
             ](name='ports', description='The list of listening ports.'),
-            status?: string(name='status', description='The load balancing status. Valid values:', example='Ready'),
+            status?: string(name='status', description='The status of the load balancing instance.', example='Ready'),
             type?: string(name='type', description='The load balancing type of the gateway. Valid values:', example='NLB'),
           }
         ](name='loadBalancers', description='The list of gateway entry addresses.'),
@@ -9533,7 +9540,7 @@ model ListGatewaysResponseBody = {
             value?: string(name='value', description='The tag value.', example='zhangsan'),
           }
         ](name='tags', description='The list of tags.'),
-        targetVersion?: string(name='targetVersion', description='The target version of the gateway. When this value differs from version, a version upgrade can be performed.', example='2.0.2'),
+        targetVersion?: string(name='targetVersion', description='The target version of the gateway. If this value differs from the version, a version upgrade can be performed.', example='2.0.2'),
         updateTimestamp?: long(name='updateTimestamp', description='The update timestamp. Unit: milliseconds.', example='1719386834548'),
         vSwitch?: {
           vSwitchId?: string(name='vSwitchId', description='The vSwitch ID.', example='vsw-bp14efv***'),
@@ -9555,7 +9562,7 @@ model ListGatewaysResponseBody = {
     pageNumber?: int32(name='pageNumber', description='The page number.', example='1'),
     pageSize?: int32(name='pageSize', description='The page size.', example='10'),
     totalSize?: long(name='totalSize', description='The total number of gateways.', example='6'),
-  }(name='data', description='The gateway list query result.'),
+  }(name='data', description='The query result of the gateway list.'),
   message?: string(name='message', description='The response message.', example='success'),
   requestId?: string(name='requestId', description='The request ID.', example='5B626361-070A-56A7-B127-ADAC8F3655DB'),
 }
@@ -9887,25 +9894,27 @@ async function listHttpApiRoutes(httpApiId: string, request: ListHttpApiRoutesRe
 
 model ListHttpApisRequest {
   gatewayId?: string(name='gatewayId', description='The ID of the cloud-native API gateway.', example='gw-cq2avtllh****'),
-  gatewayType?: string(name='gatewayType', description='The gateway type filter. Valid values: **AI** and **API**.', example='API'),
+  gatewayType?: string(name='gatewayType', description='The gateway type associated with the HTTP API. Valid values:
+- API: cloud-native API gateway.
+- AI: AI gateway.', example='API'),
   keyword?: string(name='keyword', description='The search keyword. Supports fuzzy match by API name or exact search by API ID.', example='test-'),
-  name?: string(name='name', description='The exact name to search for.', example='login'),
+  name?: string(name='name', description='Searches by exact name match.', example='login'),
   pageNumber?: int32(name='pageNumber', description='The page number, starting from 1. Default value: 1.', example='1'),
-  pageSize?: int32(name='pageSize', description='The number of entries per page. Valid values: 1 to 100. Default value: 10.', example='10'),
-  resourceGroupId?: string(name='resourceGroupId', description='The ID of the resource group.', example='rg-ahr5uil8raz0rq3b'),
+  pageSize?: int32(name='pageSize', description='The page size. Valid range: [1, 100]. Default value: 10.', example='10'),
+  resourceGroupId?: string(name='resourceGroupId', description='The resource group ID.', example='rg-ahr5uil8raz0rq3b'),
   types?: string(name='types', description='The type of the HTTP API. You can specify multiple types separated by commas (,). Valid values:
 - Http
 - Rest
 - WebSocket
 - HttpIngress', example='Http,Rest'),
-  withAPIsPublishedToEnvironment?: boolean(name='withAPIsPublishedToEnvironment', description='Specifies whether to return information about APIs published to the specified environment.', example='true'),
-  withAuthPolicyInEnvironmentId?: string(name='withAuthPolicyInEnvironmentId', description='The environment ID. If specified, the response includes consumer authentication policy information for each API in the specified environment.', example='env-xxx'),
-  withAuthPolicyList?: boolean(name='withAuthPolicyList', description='Specifies whether authentication policies are enabled.', example='true'),
-  withConsumerInfoById?: string(name='withConsumerInfoById', description='The consumer ID. If specified, the response includes the authorization rule list for the specified consumer for each API.', example='cs-xxx'),
+  withAPIsPublishedToEnvironment?: boolean(name='withAPIsPublishedToEnvironment', description='Specifies whether to return API information that has been published to the specified environment.', example='true'),
+  withAuthPolicyInEnvironmentId?: string(name='withAuthPolicyInEnvironmentId', description='Specifies the environment ID. The response includes consumer authentication policy information for each API in the specified environment.', example='env-xxx'),
+  withAuthPolicyList?: boolean(name='withAuthPolicyList', description='Specifies whether permission authentication policies are enabled.', example='true'),
+  withConsumerInfoById?: string(name='withConsumerInfoById', description='Specifies the consumer ID. The response includes the authorization rule list for the specified consumer for each API.', example='cs-xxx'),
   withEnvironmentInfo?: boolean(name='withEnvironmentInfo', description='The environment context.', example='true'),
   withEnvironmentInfoById?: string(name='withEnvironmentInfoById', description='The environment ID.', example='env-ctovu5mm1hksb4q8ln40'),
   withIngressInfo?: boolean(name='withIngressInfo', description='Specifies whether to include ingress information.', example='false'),
-  withPluginAttachmentByPluginId?: string(name='withPluginAttachmentByPluginId', description='The plug-in ID. If specified, the response includes the plug-in publishing information for the specified plug-in.', example='pl-ct9qn3um1hktue8dqol0'),
+  withPluginAttachmentByPluginId?: string(name='withPluginAttachmentByPluginId', description='The plug-in ID. Used to retrieve plug-in publishing information based on this plug-in ID.', example='pl-ct9qn3um1hktue8dqol0'),
   withPolicyConfigs?: boolean(name='withPolicyConfigs', description='Specifies whether to include policy information.', example='false'),
 }
 
@@ -9916,7 +9925,7 @@ model ListHttpApisResponseBody = {
       HttpApiInfoByName
     ](name='items', description='The API information.'),
     pageNumber?: int32(name='pageNumber', description='The page number.', example='1'),
-    pageSize?: int32(name='pageSize', description='The number of entries per page.', example='10'),
+    pageSize?: int32(name='pageSize', description='The page size.', example='10'),
     totalSize?: int32(name='totalSize', description='The total number of entries.', example='10'),
   }(name='data', description='The API list.'),
   message?: string(name='message', description='The response message.', example='success'),
@@ -11784,7 +11793,7 @@ async function syncMCPServers(request: SyncMCPServersRequest): SyncMCPServersRes
 
 model TagResourcesRequest {
   resourceId?: [ string ](name='resourceId', description='The resource IDs. A maximum of 50 subkeys are supported.'),
-  resourceType?: string(name='resourceType', description='The resource type.', example='gateway'),
+  resourceType?: string(name='resourceType', description='The resource type used for the tagging operation. Set this to Gateway.', example='gateway'),
   tag?: [ 
     {
       key?: string(name='key', description='The label key.', example='env'),
@@ -11804,7 +11813,7 @@ model TagResourcesResponse = {
 }
 
 /**
- * @summary Adds labels to resources.
+ * @summary Tags resources.
  *
  * @param request TagResourcesRequest
  * @param headers map
@@ -11844,7 +11853,7 @@ async function tagResourcesWithOptions(request: TagResourcesRequest, headers: ma
 }
 
 /**
- * @summary Adds labels to resources.
+ * @summary Tags resources.
  *
  * @param request TagResourcesRequest
  * @return TagResourcesResponse
@@ -12476,8 +12485,8 @@ model UpdateConsumerRequest {
     AkSkIdentityConfig
   ](name='akSkIdentityConfigs', description='The list of AccessKey pair authentication configurations.'),
   apikeyIdentityConfig?: ApiKeyIdentityConfig(name='apikeyIdentityConfig', description='The API key authentication configuration.'),
-  description?: string(name='description', description='The description.', example='测试消费者'),
-  enable?: boolean(name='enable', description='Specifies whether to enable the API consumer.', example='false'),
+  description?: string(name='description', description='The description.', example='Test consumer'),
+  enable?: boolean(name='enable', description='Specifies whether to enable the consumer.', example='false'),
   jwtIdentityConfig?: JwtIdentityConfig(name='jwtIdentityConfig', description='The JWT authentication configuration.'),
 }
 
@@ -12494,7 +12503,7 @@ model UpdateConsumerResponse = {
 }
 
 /**
- * @summary Updates an API consumer.
+ * @summary Updates a consumer.
  *
  * @param request UpdateConsumerRequest
  * @param headers map
@@ -12540,7 +12549,7 @@ async function updateConsumerWithOptions(consumerId: string, request: UpdateCons
 }
 
 /**
- * @summary Updates an API consumer.
+ * @summary Updates a consumer.
  *
  * @param request UpdateConsumerRequest
  * @return UpdateConsumerResponse

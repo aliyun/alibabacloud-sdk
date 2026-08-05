@@ -55,6 +55,50 @@ function close(): void {
   @handler.close();
 }
 
+model AgentAccessConfig {
+  aiRequestLogEnabled?: boolean(name='aiRequestLogEnabled'),
+  authorization?: {
+    authType?: string(name='authType'),
+    enabled: boolean(name='enabled', description='This parameter is required.'),
+    principals?: [
+      AgentAuthorizationPrincipal
+    ](name='principals'),
+  }(name='authorization'),
+  basePath: string(name='basePath', description='This parameter is required.'),
+  domainIds: [ string ](name='domainIds', description='This parameter is required.'),
+  removeBasePathOnForward?: boolean(name='removeBasePathOnForward'),
+}
+
+model AgentAuthorizationPrincipal {
+  principalId: string(name='principalId', description='This parameter is required.'),
+  principalType: string(name='principalType', description='This parameter is required.'),
+}
+
+model AgentInfo {
+  agentAccess?: {
+    httpApiId?: string(name='httpApiId'),
+  }(name='agentAccess'),
+  agentId?: string(name='agentId'),
+  agentType?: string(name='agentType'),
+  allowedCapabilities?: [ string ](name='allowedCapabilities'),
+  createTimestamp?: long(name='createTimestamp'),
+  description?: string(name='description'),
+  gatewayId?: string(name='gatewayId'),
+  modelAccess?: {
+    consumerIds?: [ string ](name='consumerIds'),
+    modelApiId?: string(name='modelApiId'),
+  }(name='modelAccess'),
+  name?: string(name='name'),
+  resourceGroupId?: string(name='resourceGroupId'),
+  status?: string(name='status'),
+  updateTimestamp?: long(name='updateTimestamp'),
+}
+
+model AgentModelAccessConfig {
+  consumerIds: [ string ](name='consumerIds', description='This parameter is required.'),
+  modelApiId: string(name='modelApiId', description='This parameter is required.'),
+}
+
 model AgentServiceConfig {
   address: string(name='address', description='This parameter is required.', example='https://dashscope.aliyuncs.com/api/v1'),
   customConfig?: {
@@ -339,7 +383,13 @@ model ApiKeyIdentityConfig {
   apikeySource?: {
     source?: string(name='source'),
     value?: string(name='value'),
-  }(name='apikeySource'),
+  }(name='apikeySource', description='API Key 单来源兼容字段。未携带 apikeySources 时，服务端按该字段解释为单项来源；新多来源调用方使用 apikeySources。'),
+  apikeySources?: [ 
+    {
+      source?: string(name='source', description='凭证来源类别。'),
+      value?: string(name='value', description='HTTP Header 或 Query String 的字段名称。'),
+    }
+  ](name='apikeySources', description='API Key 凭证来源完整集合。集合包含一至三项；多来源仅适用于 AI 网关 Header 模式，Query String 和非 AI 网关仅允许单来源。与 apikeySource 同时提交时，后者必须与兼容投影一致。'),
   credentials?: [ 
     {
       apikey?: string(name='apikey'),
@@ -2157,6 +2207,7 @@ async function createEnvironment(request: CreateEnvironmentRequest): CreateEnvir
 model CreateGatewayRequest {
   chargeType?: string(name='chargeType', description='The logging configurations.', example='POSTPAY', position='Body'),
   gatewayEdition?: string(name='gatewayEdition', example='Professional', position='Body'),
+  gatewayMode?: string(name='gatewayMode', position='Body'),
   gatewayType?: string(name='gatewayType', description='The ID of the resource group.', example='API', position='Body'),
   logConfig?: {
     sls?: {
@@ -3997,6 +4048,7 @@ model GetGatewayResponseBody = {
     expireTimestamp?: long(name='expireTimestamp', description='The ingress information.', example='1719386834548'),
     gatewayEdition?: string(name='gatewayEdition', description='gatewayEdition', example='Serverless'),
     gatewayId?: string(name='gatewayId', description='The security group ID.', example='gw-cq2vundlhtg***'),
+    gatewayMode?: string(name='gatewayMode'),
     gatewayType?: string(name='gatewayType', description='The vSwitch ID.', example='API'),
     isp?: string(name='isp', description='The ISP type for traffic routing', example='BGP'),
     loadBalancers?: [ 
@@ -4045,6 +4097,7 @@ model GetGatewayResponseBody = {
 
 *   Internet
 *   Intranet', example='2.0.2'),
+    tenantId?: string(name='tenantId'),
     updateTimestamp?: long(name='updateTimestamp', description='The ingress addresses of the instance.', example='1719386834548'),
     vSwitch?: {
       name?: string(name='name', description='The resource tags.', example='The resource tag.'),
@@ -5509,6 +5562,7 @@ model ListGatewaysResponseBody = {
 *   Managed: Cloud-native API Gateway manages and provides the load balancer.', example='172086834548'),
         gatewayEdition?: string(name='gatewayEdition', description='The gateway edition', example='Serverless'),
         gatewayId?: string(name='gatewayId', description='The information about a gateway.', example='gw-cpv54p5***'),
+        gatewayMode?: string(name='gatewayMode', example='ENTERPRISE'),
         gatewayType?: string(name='gatewayType', description='The instance state. Valid values:
 
 *   Running: The instance is running.
