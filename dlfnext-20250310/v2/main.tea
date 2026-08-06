@@ -2127,10 +2127,11 @@ model GetCatalogKmsGrantsRequest {
 }
 
 model GetCatalogKmsGrantsResponseBody = {
-  dataAccessRoleArn?: string(name='dataAccessRoleArn'),
-  keyPolicyStatement?: string(name='keyPolicyStatement'),
-  region?: string(name='region'),
-  workflowRoleArn?: string(name='workflowRoleArn'),
+  dataAccessRoleArn?: string(name='dataAccessRoleArn', description='The ARN of the RAM role used by DLF to access catalog data. When configuring the KMS key policy, you must grant this role permissions to use the customer master key.', example='acs:ram::123456789012****:role/AliyunDlfNextDataAccessRole'),
+  keyPolicyStatement?: string(name='keyPolicyStatement', description='The authorization statement that must be added to the customer master key policy. This statement grants the DLF data access role corresponding to dataAccessRoleArn the KMS permissions required for data encryption and decryption.', example='{"Sid":"AllowDLFDataAccess","Effect":"Allow","Principal":{"RAM":["acs:ram::123456789012****:role/
+  AliyunDlfNextDataAccessRole"]},"Action":["kms:Decrypt","kms:GenerateDataKey"],"Resource":["*"]}'),
+  region?: string(name='region', description='The region ID to which the catalog belongs.', example='cn-hangzhou'),
+  workflowRoleArn?: string(name='workflowRoleArn', description='The DLF workflow role ARN. In the current version, the workflow role is not granted customer master key access permissions based on the least privilege principle. Therefore, this field returns an empty value.', example='null'),
 }
 
 model GetCatalogKmsGrantsResponse = {
@@ -2140,7 +2141,9 @@ model GetCatalogKmsGrantsResponse = {
 }
 
 /**
- * @summary Retrieves the DLF authorization information required to configure BYOK SSE-KMS for a catalog, including the data-access role ARN and the KMS Key Policy snippet.
+ * @summary Retrieves the DLF data access role ARN and KMS key policy authorization statement required to configure BYOK SSE KMS for a catalog. This operation returns the DLF data access role and KMS key policy authorization statement required to configure BYOK SSE KMS. The customer master key is configured at the catalog level through oss.sse.kms.key-id. When creating a table, you can enable SSE KMS for the table by setting the table property oss.sse.kms.enabled=true. Tables with KMS encryption enabled and tables without encryption can coexist under the same catalog.
+ *
+ * @description This operation returns the DLF data access role and KMS key policy authorization statement required to configure BYOK SSE KMS. The customer master key is configured at the catalog level through oss.sse.kms.key-id. When creating a table, you can enable SSE KMS for the table by setting the table property oss.sse.kms.enabled=true. Tables with KMS encryption enabled and tables without encryption can coexist under the same catalog.
  *
  * @param request GetCatalogKmsGrantsRequest
  * @param headers map
@@ -2168,7 +2171,9 @@ async function getCatalogKmsGrantsWithOptions(catalog: string, request: GetCatal
 }
 
 /**
- * @summary Retrieves the DLF authorization information required to configure BYOK SSE-KMS for a catalog, including the data-access role ARN and the KMS Key Policy snippet.
+ * @summary Retrieves the DLF data access role ARN and KMS key policy authorization statement required to configure BYOK SSE KMS for a catalog. This operation returns the DLF data access role and KMS key policy authorization statement required to configure BYOK SSE KMS. The customer master key is configured at the catalog level through oss.sse.kms.key-id. When creating a table, you can enable SSE KMS for the table by setting the table property oss.sse.kms.enabled=true. Tables with KMS encryption enabled and tables without encryption can coexist under the same catalog.
+ *
+ * @description This operation returns the DLF data access role and KMS key policy authorization statement required to configure BYOK SSE KMS. The customer master key is configured at the catalog level through oss.sse.kms.key-id. When creating a table, you can enable SSE KMS for the table by setting the table property oss.sse.kms.enabled=true. Tables with KMS encryption enabled and tables without encryption can coexist under the same catalog.
  *
  * @param request GetCatalogKmsGrantsRequest
  * @return GetCatalogKmsGrantsResponse
@@ -2453,7 +2458,7 @@ model GetIcebergNamespaceResponse = {
 }
 
 /**
- * @summary Retrieves information about an Iceberg namespace.
+ * @summary Queries an Iceberg database.
  *
  * @param headers map
  * @param runtime runtime options for this request RuntimeOptions
@@ -2479,7 +2484,7 @@ async function getIcebergNamespaceWithOptions(catalogId: string, namespace: stri
 }
 
 /**
- * @summary Retrieves information about an Iceberg namespace.
+ * @summary Queries an Iceberg database.
  *
  * @return GetIcebergNamespaceResponse
  */
@@ -5370,16 +5375,82 @@ async function updateRoleUsers(request: UpdateRoleUsersRequest): UpdateRoleUsers
   return updateRoleUsersWithOptions(request, headers, runtime);
 }
 
+model UpdateVpcConfigRequest {
+  removals?: [ string ](name='removals', description='The list of VPC IDs to delete.'),
+  updates?: [ 
+    {
+      extendedOptions?: map[string]string(name='extendedOptions', description='The list of configuration items.'),
+      vpcId?: string(name='vpcId', description='VPC ID。', example='vpc-uf67xxxx'),
+    }
+  ](name='updates', description='The list of VPCs to update.'),
+}
+
+model UpdateVpcConfigResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+}
+
+/**
+ * @summary Updates the trusted VPC configuration.
+ *
+ * @param request UpdateVpcConfigRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return UpdateVpcConfigResponse
+ */
+@context("updateVpcConfigWithContext")
+async function updateVpcConfigWithOptions(request: UpdateVpcConfigRequest, headers: map[string]string, runtime: $RuntimeOptions): UpdateVpcConfigResponse {
+  request.validate();
+  var body : map[string]any = {};
+  if (!$isNull(request.removals)) {
+    body['removals'] = request.removals;
+  }
+  if (!$isNull(request.updates)) {
+    body['updates'] = request.updates;
+  }
+
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    headers = headers,
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'UpdateVpcConfig',
+    version = '2025-03-10',
+    protocol = 'HTTPS',
+    pathname = `/dlf/v1/auth/vpc`,
+    method = 'POST',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'none',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Updates the trusted VPC configuration.
+ *
+ * @param request UpdateVpcConfigRequest
+ * @return UpdateVpcConfigResponse
+ */
+async function updateVpcConfig(request: UpdateVpcConfigRequest): UpdateVpcConfigResponse {
+  var runtime = new $RuntimeOptions{};
+  var headers : map[string]string = {};
+  return updateVpcConfigWithOptions(request, headers, runtime);
+}
+
 model VerifyCatalogKmsRequest {
-  kmsKeyId?: string(name='kmsKeyId', description='This parameter is required.'),
+  kmsKeyId?: string(name='kmsKeyId', description='The ID of the KMS customer master key (CMK) to be validated. The server uses this key to perform an SSE-KMS write probe.
+
+This parameter is required.', example='key-1234567890abcdef'),
 }
 
 model VerifyCatalogKmsResponseBody = {
-  errorCode?: string(name='errorCode'),
-  hint?: string(name='hint'),
-  kmsKeyId?: string(name='kmsKeyId'),
-  serverSideEncryption?: string(name='serverSideEncryption'),
-  success?: boolean(name='success'),
+  errorCode?: string(name='errorCode', description='The error code returned when the validation fails. An empty string is returned when the validation is successful.', example='KeyNotFound'),
+  hint?: string(name='hint', description='The description of the failure cause and remediation suggestions returned when the validation fails. An empty string is returned when the validation is successful.', example='The specified parameter KMS keyId is not found.'),
+  kmsKeyId?: string(name='kmsKeyId', description='The KMS key identifier actually used by the probe object. When the validation is successful, this corresponds to the customer master key (CMK) specified in the request.', example='key-1234567890abcdef'),
+  serverSideEncryption?: string(name='serverSideEncryption', description='The server-side encryption method actually used by the probe object. Returns KMS when the validation is successful.', example='KMS'),
+  success?: boolean(name='success', description='Indicates whether the validation is successful. A value of true indicates that the write probe succeeded and the SSE-KMS configuration of the object meets expectations. A value of false indicates that the validation failed.', example='true'),
 }
 
 model VerifyCatalogKmsResponse = {
@@ -5389,7 +5460,9 @@ model VerifyCatalogKmsResponse = {
 }
 
 /**
- * @summary Validates the BYOK SSE-KMS configuration of a catalog by performing an SSE-KMS write probe on the bucket using the issued temporary credentials and verifying the result.
+ * @summary Validates the BYOK SSE-KMS configuration of a Catalog: performs an SSE-KMS write probe on the storage bucket using the issued temporary credentials. This operation only validates whether the specified customer master key (CMK) can be used for BYOK SSE-KMS of the Catalog. It does not automatically enable encryption for all tables in the Catalog. The CMK is configured at the Catalog level through oss.sse.kms.key-id. When creating a table, set the table property oss.sse.kms.enabled=true to enable SSE-KMS for the specified table.
+ *
+ * @description This operation only validates whether the specified customer master key (CMK) can be used for BYOK SSE-KMS of the Catalog. It does not automatically enable encryption for all tables in the Catalog. The CMK is configured at the Catalog level through oss.sse.kms.key-id. When creating a table, set the table property oss.sse.kms.enabled=true to enable SSE-KMS for the specified table.
  *
  * @param request VerifyCatalogKmsRequest
  * @param headers map
@@ -5423,7 +5496,9 @@ async function verifyCatalogKmsWithOptions(catalog: string, request: VerifyCatal
 }
 
 /**
- * @summary Validates the BYOK SSE-KMS configuration of a catalog by performing an SSE-KMS write probe on the bucket using the issued temporary credentials and verifying the result.
+ * @summary Validates the BYOK SSE-KMS configuration of a Catalog: performs an SSE-KMS write probe on the storage bucket using the issued temporary credentials. This operation only validates whether the specified customer master key (CMK) can be used for BYOK SSE-KMS of the Catalog. It does not automatically enable encryption for all tables in the Catalog. The CMK is configured at the Catalog level through oss.sse.kms.key-id. When creating a table, set the table property oss.sse.kms.enabled=true to enable SSE-KMS for the specified table.
+ *
+ * @description This operation only validates whether the specified customer master key (CMK) can be used for BYOK SSE-KMS of the Catalog. It does not automatically enable encryption for all tables in the Catalog. The CMK is configured at the Catalog level through oss.sse.kms.key-id. When creating a table, set the table property oss.sse.kms.enabled=true to enable SSE-KMS for the specified table.
  *
  * @param request VerifyCatalogKmsRequest
  * @return VerifyCatalogKmsResponse
