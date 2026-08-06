@@ -752,17 +752,17 @@ async function cancelAgentTask(request: CancelAgentTaskRequest): CancelAgentTask
 }
 
 model ChangeCloudPhoneNodeRequest {
-  autoPay?: boolean(name='AutoPay', description='Indicates if automatic payment is enabled. Default: false.', example='false'),
+  autoPay?: boolean(name='AutoPay', description='Specifies whether to enable automatic payment. Default value: false.', example='false'),
   displayConfig?: string(name='DisplayConfig'),
-  downBandwidthLimit?: int32(name='DownBandwidthLimit', description='The downstream bandwidth limit, in Mbps.', example='50'),
+  downBandwidthLimit?: int32(name='DownBandwidthLimit', description='The downstream bandwidth throttling. Unit: Mbit/s.', example='50'),
   instanceType?: string(name='InstanceType', description='The instance type.', example='ac.max'),
-  nodeId?: string(name='NodeId', description='The ID of the cloud phone matrix.', example='cpn-0ugbptfu473fy****'),
-  phoneCount?: int32(name='PhoneCount', description='The number of cloud phone instances. Call the [](t2729804.xdita#)operation to query the minimum and maximum number of allowed instances.', example='20'),
-  phoneDataVolume?: int32(name='PhoneDataVolume', description='The capacity of the internal storage, in GiB. Valid values: 10 to 4000. If you do not specify this parameter, the current capacity is retained.', example='10'),
+  nodeId?: string(name='NodeId', description='The cloud phone matrix ID.', example='cpn-0ugbptfu473fy****'),
+  phoneCount?: int32(name='PhoneCount', description='The number of cloud phone instances. Call the [DescribeSpec](https://help.aliyun.com/document_detail/2807299.html) operation to query the maximum and minimum instance count limits.', example='20'),
+  phoneDataVolume?: int32(name='PhoneDataVolume', description='The device storage size. Valid values: 10 GiB to 4000 GiB. If this parameter is left empty, the current size is retained.', example='10'),
   promotionId?: string(name='PromotionId', description='The promotion ID.', example='50003308011****'),
   shareDataVolume?: int32(name='ShareDataVolume'),
   swapSize?: int32(name='SwapSize'),
-  upBandwidthLimit?: int32(name='UpBandwidthLimit', description='The upstream bandwidth limit, in Mbps.', example='50'),
+  upBandwidthLimit?: int32(name='UpBandwidthLimit', description='The upstream bandwidth throttling. Unit: Mbit/s.', example='50'),
 }
 
 model ChangeCloudPhoneNodeResponseBody = {
@@ -771,14 +771,14 @@ model ChangeCloudPhoneNodeResponseBody = {
       instanceInfos?: [ 
         {
           instanceId?: string(name='InstanceId', description='The instance ID.', example='cpn-jewjt8xryuitu****'),
-          phoneDataVolume?: int32(name='PhoneDataVolume', description='The internal storage capacity, in GiB.', example='200'),
+          phoneDataVolume?: int32(name='PhoneDataVolume', description='The dedicated device storage capacity.', example='200'),
         }
-      ](name='InstanceInfos', description='Information about the cloud phone instances.'),
-      nodeId?: string(name='NodeId', description='The ID of the cloud phone matrix.', example='cpn-e5kxgjyt8s1mb****'),
-      shareDataVolume?: int32(name='ShareDataVolume', description='The size of the shared storage, in GiB. If the matrix uses independent internal storage, this defaults to a fixed 64 GiB for global files, such as images. If the matrix was configured with shared storage at purchase, this indicates the size of that storage.', example='100'),
+      ](name='InstanceInfos', description='The cloud phone instance information.'),
+      nodeId?: string(name='NodeId', description='The cloud phone matrix ID.', example='cpn-e5kxgjyt8s1mb****'),
+      shareDataVolume?: int32(name='ShareDataVolume', description='When the matrix uses dedicated device storage, a 64 GiB shared storage space is allocated by default (not modifiable) for storing images and other matrix-wide files. When the matrix uses shared device storage (with the size specified at purchase), this storage space is shared by all instances.', example='100'),
     }
-  ](name='NodeInfos', description='Information about the modified cloud phone matrix.'),
-  orderId?: string(name='OrderId', description='The ID of the order for this change.', example='223684716098****'),
+  ](name='NodeInfos', description='The cloud phone matrix information.'),
+  orderId?: string(name='OrderId', description='The generated order ID.', example='223684716098****'),
   requestId?: string(name='RequestId', description='The request ID.', example='4610632D-D661-5982-B3D7-5D3FD183F****'),
 }
 
@@ -789,7 +789,7 @@ model ChangeCloudPhoneNodeResponse = {
 }
 
 /**
- * @summary Modifies the configuration of a cloud phone matrix, including the instance type and the number of cloud phone instances.
+ * @summary Modifies the configuration of a cloud phone matrix. Currently, only the instance type and the number of cloud phone instances (the instance count of the cloud phone matrix) can be changed.
  *
  * @param request ChangeCloudPhoneNodeRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -849,7 +849,7 @@ async function changeCloudPhoneNodeWithOptions(request: ChangeCloudPhoneNodeRequ
 }
 
 /**
- * @summary Modifies the configuration of a cloud phone matrix, including the instance type and the number of cloud phone instances.
+ * @summary Modifies the configuration of a cloud phone matrix. Currently, only the instance type and the number of cloud phone instances (the instance count of the cloud phone matrix) can be changed.
  *
  * @param request ChangeCloudPhoneNodeRequest
  * @return ChangeCloudPhoneNodeResponse
@@ -2448,45 +2448,62 @@ async function createPolicyGroup(request: CreatePolicyGroupRequest): CreatePolic
 }
 
 model CreateScheduledTaskRequest {
-  cronExpression?: string(name='CronExpression', description='This parameter is required.', example='0 0 * * *'),
-  instanceIds?: [ string ](name='InstanceIds', description='This parameter is required.', example='["ai-instance-001"]'),
-  maxExecutions?: int32(name='MaxExecutions', example='1'),
+  cronExpression?: string(name='CronExpression', description='The cron expression.
+
+This parameter is required.', example='0 0 * * *'),
+  instanceIds?: [ string ](name='InstanceIds', description='The list of instance IDs.
+
+This parameter is required.', example='["ai-instance-001"]'),
+  maxExecutions?: int32(name='MaxExecutions', description='The maximum number of executions.', example='1'),
   runConfig?: {
-    extraParams?: string(name='ExtraParams', example='{"batchSize":"1000"}'),
-    maxSteps?: int32(name='MaxSteps', example='10'),
-    timeoutSeconds?: int32(name='TimeoutSeconds', example='3600'),
-  }(name='RunConfig', example='{"maxSteps":10,"timeoutSeconds":3600}'),
-  taskName?: string(name='TaskName', description='This parameter is required.', example='自动回复钉钉消息'),
-  userPrompt?: string(name='UserPrompt', description='This parameter is required.', example='打开钉钉，回复前5个未读消息'),
+    extraParams?: string(name='ExtraParams', description='The extended parameter JSON string.', example='{"batchSize":"1000"}'),
+    maxSteps?: int32(name='MaxSteps', description='The maximum number of execution steps.', example='10'),
+    skills?: [ string ](name='Skills', example='["sk-abc"]'),
+    timeoutSeconds?: int32(name='TimeoutSeconds', description='The timeout period, in seconds.', example='3600'),
+  }(name='RunConfig', description='The run configuration.', example='{"maxSteps":10,"timeoutSeconds":3600}'),
+  taskName?: string(name='TaskName', description='The task name.
+
+This parameter is required.', example='Auto-reply to DingTalk messages.'),
+  userPrompt?: string(name='UserPrompt', description='The user prompt.
+
+This parameter is required.', example='Open DingTalk and reply to the first 5 unread messages.'),
 }
 
 model CreateScheduledTaskShrinkRequest {
-  cronExpression?: string(name='CronExpression', description='This parameter is required.', example='0 0 * * *'),
-  instanceIds?: [ string ](name='InstanceIds', description='This parameter is required.', example='["ai-instance-001"]'),
-  maxExecutions?: int32(name='MaxExecutions', example='1'),
-  runConfigShrink?: string(name='RunConfig', example='{"maxSteps":10,"timeoutSeconds":3600}'),
-  taskName?: string(name='TaskName', description='This parameter is required.', example='自动回复钉钉消息'),
-  userPrompt?: string(name='UserPrompt', description='This parameter is required.', example='打开钉钉，回复前5个未读消息'),
+  cronExpression?: string(name='CronExpression', description='The cron expression.
+
+This parameter is required.', example='0 0 * * *'),
+  instanceIds?: [ string ](name='InstanceIds', description='The list of instance IDs.
+
+This parameter is required.', example='["ai-instance-001"]'),
+  maxExecutions?: int32(name='MaxExecutions', description='The maximum number of executions.', example='1'),
+  runConfigShrink?: string(name='RunConfig', description='The run configuration.', example='{"maxSteps":10,"timeoutSeconds":3600}'),
+  taskName?: string(name='TaskName', description='The task name.
+
+This parameter is required.', example='Auto-reply to DingTalk messages.'),
+  userPrompt?: string(name='UserPrompt', description='The user prompt.
+
+This parameter is required.', example='Open DingTalk and reply to the first 5 unread messages.'),
 }
 
 model CreateScheduledTaskResponseBody = {
-  code?: string(name='Code', example='200'),
-  message?: string(name='Message', example='Success.'),
-  requestId?: string(name='RequestId', example='9A51B1DF-96FF-3BCC-B08C-783161D3****'),
+  code?: string(name='Code', description='The API status code.', example='200'),
+  message?: string(name='Message', description='The response message.', example='Success.'),
+  requestId?: string(name='RequestId', description='The request ID.', example='9A51B1DF-96FF-3BCC-B08C-783161D3****'),
   tasks?: [ 
     {
       instanceResults?: [ 
         {
-          errorMessage?: string(name='ErrorMessage', example='privateAccount not exist.'),
-          instanceId?: string(name='InstanceId', example='acp-iuyb1zv1ap6nb****'),
-          success?: boolean(name='Success', example='true'),
+          errorMessage?: string(name='ErrorMessage', description='The error message.', example='privateAccount not exist.'),
+          instanceId?: string(name='InstanceId', description='The instance ID.', example='acp-iuyb1zv1ap6nb****'),
+          success?: boolean(name='Success', description='Indicates whether the operation is successful.', example='true'),
         }
-      ](name='InstanceResults'),
-      scheduledId?: string(name='ScheduledId', example='sch-260705-agb*****'),
-      taskConfigId?: string(name='TaskConfigId', example='tsk-260705-0jj*****'),
+      ](name='InstanceResults', description='The list of batch delivery results for instance scheduled tasks.'),
+      scheduledId?: string(name='ScheduledId', description='The scheduled task ID.', example='sch-260705-agb*****'),
+      taskConfigId?: string(name='TaskConfigId', description='The task configuration ID.', example='tsk-260705-0jj*****'),
     }
-  ](name='Tasks'),
-  totalCount?: int32(name='TotalCount', example='1'),
+  ](name='Tasks', description='The list of creation results.'),
+  totalCount?: int32(name='TotalCount', description='The total number of records.', example='1'),
 }
 
 model CreateScheduledTaskResponse = {
@@ -2496,7 +2513,7 @@ model CreateScheduledTaskResponse = {
 }
 
 /**
- * @summary 创建定时任务
+ * @summary Creates a scheduled task for an agent.
  *
  * @param tmpReq CreateScheduledTaskRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -2546,7 +2563,7 @@ async function createScheduledTaskWithOptions(tmpReq: CreateScheduledTaskRequest
 }
 
 /**
- * @summary 创建定时任务
+ * @summary Creates a scheduled task for an agent.
  *
  * @param request CreateScheduledTaskRequest
  * @return CreateScheduledTaskResponse
@@ -4475,6 +4492,7 @@ model DescribeCreditDetailResponseBody = {
         changeTime?: string(name='ChangeTime', description='The time when the change occurred.', example='2026-06-30T08:14:02Z'),
         creditChange?: string(name='CreditChange', description='The credit change amount.', example='0.7637'),
         description?: string(name='Description', description='The task description.', example='Open Xiaohongshu.'),
+        durationMs?: long(name='DurationMs'),
         inputTokens?: long(name='InputTokens'),
         instanceId?: string(name='InstanceId', description='The instance ID.', example='acp-12oe0l75vl7o5****'),
         instanceName?: string(name='InstanceName'),
@@ -4484,6 +4502,7 @@ model DescribeCreditDetailResponseBody = {
         requestId?: string(name='RequestId'),
         taskId?: string(name='TaskId', description='The task ID, which is globally unique.', example='t-1fr0k51pozyr5****'),
         totalTokens?: long(name='TotalTokens'),
+        ttftMs?: long(name='TtftMs'),
       }
     ](name='Details', description='The credit change details.'),
     nextToken?: string(name='NextToken'),
@@ -4997,36 +5016,57 @@ async function describeInvocations(request: DescribeInvocationsRequest): Describ
 }
 
 model DescribeJVSInstanceRequest {
-  instanceIds?: [ string ](name='InstanceIds', description='A list of instance IDs.'),
-  maxResults?: int32(name='MaxResults', description='The number of entries to return on each page.', example='10'),
-  nextToken?: string(name='NextToken', description='The pagination token from a previous request to retrieve the next page of results. Omit this parameter for the first request.', example='AAAAAV3MpHK1AP0pfERHZN5pu6kU+SQXzm0H9mu/FiSc****'),
+  instanceIds?: [ string ](name='InstanceIds', description='The list of instance IDs.'),
+  maxResults?: int32(name='MaxResults', description='The number of entries per page.', example='10'),
+  nextToken?: string(name='NextToken', description='The pagination token.', example='AAAAAV3MpHK1AP0pfERHZN5pu6kU+SQXzm0H9mu/FiSc****'),
 }
 
 model DescribeJVSInstanceResponseBody = {
   data?: [ 
     {
-      createTime?: string(name='CreateTime', description='The time the instance was created.', example='2026-04-10T01:31:32Z'),
+      agentVersion?: {
+        upgradeStatus?: string(name='UpgradeStatus'),
+        version?: string(name='Version'),
+      }(name='AgentVersion'),
+      createTime?: string(name='CreateTime', description='The creation time.', example='2026-04-10T01:31:32Z'),
       creditConfig?: [ 
         {
-          creditLimit?: long(name='CreditLimit', description='The Credit limit.', example='-1'),
-          limitPeriod?: string(name='LimitPeriod', description='The limit period.', example='day'),
+          creditLimit?: long(name='CreditLimit', description='The quota limit. Valid values:
+- 0: not available for use.
+- >0: the quota is configured based on the numeric value.
+- -1: unlimited.', example='-1'),
+          limitPeriod?: string(name='LimitPeriod', description='The quota period. Valid values:
+- total: The total usage limit.
+- month: Monthly. The quota resets based on the resource activation time as one cycle.
+- day: Daily. The quota resets at 00:00.', example='day'),
         }
-      ](name='CreditConfig', description='The Credit limit configuration. If you apply multiple configurations, the latest one overwrites the others.'),
+      ](name='CreditConfig', description='The credit quota configuration. Subsequent quota configurations overwrite previous configurations.'),
       expireTime?: string(name='ExpireTime', description='The expiration time.', example='2026-04-10T01:31:32Z'),
+      installedSkills?: [ 
+        {
+          description?: string(name='Description'),
+          iconUrl?: string(name='IconUrl'),
+          installedAt?: string(name='InstalledAt'),
+          skillId?: string(name='SkillId'),
+          skillName?: string(name='SkillName'),
+          skillType?: string(name='SkillType'),
+        }
+      ](name='InstalledSkills'),
       instanceId?: string(name='InstanceId', description='The instance ID.', example='acp-uto81vfd8t8z****'),
       jvsPackageId?: string(name='JvsPackageId', description='This parameter is not supported.', example='null'),
-      modifyTime?: string(name='ModifyTime', description='The time the instance was last modified.', example='2026-04-10T01:31:32Z'),
+      modifyTime?: string(name='ModifyTime', description='The modification time.', example='2026-04-10T01:31:32Z'),
       status?: string(name='Status', description='The instance status.', example='RUNNNING'),
       usedCredit?: [ 
         {
-          credit?: long(name='Credit', description='The amount of Credit.', example='5'),
-          limitPeriod?: string(name='LimitPeriod', description='The calculation period for used Credit.', example='day'),
+          credit?: long(name='Credit', description='The number of credits.', example='5'),
+          limitPeriod?: string(name='LimitPeriod', description='The dimension of the current credit.', example='day'),
         }
-      ](name='UsedCredit', description='The amount of used Credit.'),
+      ](name='UsedCredit', description='The used credits.'),
     }
-  ](name='Data', description='A list of JVS instances.'),
-  maxResults?: int32(name='MaxResults', description='The number of entries returned on the current page.', example='10'),
-  nextToken?: string(name='NextToken', description='The token to retrieve the next page of results. If this field is empty, there are no more results.', example='AAAAAV3MpHK1AP0pfERHZN5pu6kU+SQXzm0H9mu/FiSc****'),
+  ](name='Data', description='The returned result object.'),
+  maxResults?: int32(name='MaxResults', description='The maximum number of entries returned per page.', example='10'),
+  nextToken?: string(name='NextToken', description='The token that indicates the current position from which to start reading. An empty value indicates reading from the beginning.', example='AAAAAV3MpHK1AP0pfERHZN5pu6kU+SQXzm0H9mu/FiSc****'),
+  pendingUpgradeCount?: int32(name='PendingUpgradeCount'),
   requestId?: string(name='RequestId', description='The request ID.', example='425F351C-3F8E-5218-A520-B6311D0D****'),
   totalCount?: int32(name='TotalCount', description='The total number of entries.', example='30'),
 }
@@ -5038,7 +5078,7 @@ model DescribeJVSInstanceResponse = {
 }
 
 /**
- * @summary Retrieves details of JVS instances.
+ * @summary Queries JVS instance information.
  *
  * @param request DescribeJVSInstanceRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -5074,7 +5114,7 @@ async function describeJVSInstanceWithOptions(request: DescribeJVSInstanceReques
 }
 
 /**
- * @summary Retrieves details of JVS instances.
+ * @summary Queries JVS instance information.
  *
  * @param request DescribeJVSInstanceRequest
  * @return DescribeJVSInstanceResponse
@@ -5832,9 +5872,9 @@ model DescribeScheduledTasksRequest {
   nextToken?: string(name='NextToken', description='The pagination token that indicates the position from which to start reading. Leave this parameter empty to read from the beginning.', example='AAAAAV3MpHK1AP0pfERHZN5pu6kU+SQXzm0H9mu/FiSc****'),
   pageNumber?: int32(name='PageNumber', description='The page number. Default value: 1.', example='1'),
   pageSize?: int32(name='PageSize', description='The number of entries per page. Default value: 20. Maximum value: 100.', example='20'),
-  scheduledIds?: [ string ](name='ScheduledIds', description='The scheduled task IDs used to filter results.', example='["scheduled-abcd1234"]'),
-  status?: string(name='Status', description='The status used to filter results. Valid values: ACTIVE and DISABLED.', example='ACTIVE'),
-  taskName?: string(name='TaskName', description='The task name.', example='Data synchronization.'),
+  scheduledIds?: [ string ](name='ScheduledIds', description='The scheduled task IDs used for filtering.', example='["scheduled-abcd1234"]'),
+  status?: string(name='Status', description='The status used for filtering. Valid values: ACTIVE and DISABLED.', example='ACTIVE'),
+  taskName?: string(name='TaskName', description='The task name.', example='DataSync'),
 }
 
 model DescribeScheduledTasksResponseBody = {
@@ -5854,15 +5894,16 @@ model DescribeScheduledTasksResponseBody = {
       runConfig?: {
         extraParams?: string(name='ExtraParams', description='The extra parameters.', example='{"batchSize":"1000"}'),
         maxSteps?: int32(name='MaxSteps', description='The maximum number of steps.', example='10'),
+        skills?: [ string ](name='Skills', example='["sk-abc"]'),
         timeoutSeconds?: int32(name='TimeoutSeconds', description='The timeout period, in seconds.', example='3600'),
       }(name='RunConfig', description='The run configuration.'),
       scheduledId?: string(name='ScheduledId', description='The scheduled task ID.', example='sch-260705-agb*****'),
       status?: string(name='Status', description='The status.', example='ACTIVE'),
       taskConfigId?: string(name='TaskConfigId', description='The task configuration ID.', example='tsk-260615-*****'),
-      taskName?: string(name='TaskName', description='The task name.', example='Daily data synchronization task.'),
+      taskName?: string(name='TaskName', description='The task name.', example='DailyDataSyncTask'),
       totalExecutions?: long(name='TotalExecutions', description='The total number of executions.', example='100'),
       totalFailures?: long(name='TotalFailures', description='The total number of failures.', example='2'),
-      userPrompt?: string(name='UserPrompt', description='The user prompt or task description.', example='Execute daily data synchronization task.'),
+      userPrompt?: string(name='UserPrompt', description='The user prompt or task description.', example='Execute daily data synchronization task'),
       version?: int32(name='Version', description='The CAS version number.', example='1'),
     }
   ](name='Tasks', description='The list of scheduled tasks.'),
@@ -8183,18 +8224,104 @@ async function modifyInstanceChargeType(request: ModifyInstanceChargeTypeRequest
   return modifyInstanceChargeTypeWithOptions(request, runtime);
 }
 
+model ModifyInstanceGroupSpecRequest {
+  autoPay?: boolean(name='AutoPay', description='Specifies whether to enable automatic payment. Valid values:
+
+- **true**: Automatic payment is enabled. Make sure that your account balance is sufficient.
+- **false** (default): Only generates an order without deducting fees.
+
+
+
+
+> If your payment method balance is insufficient, set this parameter to false. An unpaid order is generated, and you can log on to the Cloud Phone console to complete the payment.
+>', example='false'),
+  instanceGroupIds?: [ string ](name='InstanceGroupIds', description='The list of instance group IDs.'),
+  instanceGroupSpec?: string(name='InstanceGroupSpec', description='The instance group specification. You can call [DescribeSpec](~~DescribeSpec~~) to query the specifications available for purchase for cloud phones.
+
+This parameter is required.', example='acp.basic.small'),
+  promotionId?: string(name='PromotionId', description='The promotion ID.', example='50003308011****'),
+}
+
+model ModifyInstanceGroupSpecResponseBody = {
+  orderInfo?: [ 
+    {
+      instanceIds?: [ string ](name='InstanceIds', description='The list of instance IDs.'),
+      orderId?: string(name='OrderId', description='The order ID.', example='296325540190****'),
+    }
+  ](name='OrderInfo', description='The order information.'),
+  orderTaskId?: string(name='OrderTaskId', description='The order task ID that is returned when specifications of more than 10 instance groups are changed in a batch. You can call the **DescribeOrderTasks** operation to query the information about each order.', example='t-aycabdsjsbgd****'),
+  requestId?: string(name='RequestId', description='Id of the request', example='425F351C-3F8E-5218-A520-B6311D0D****'),
+}
+
+model ModifyInstanceGroupSpecResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ModifyInstanceGroupSpecResponseBody(name='body'),
+}
+
+/**
+ * @summary Changes the specifications of instance groups. Currently, only specification upgrades are supported. Specification downgrades are not supported.
+ *
+ * @param request ModifyInstanceGroupSpecRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return ModifyInstanceGroupSpecResponse
+ */
+async function modifyInstanceGroupSpecWithOptions(request: ModifyInstanceGroupSpecRequest, runtime: Util.RuntimeOptions): ModifyInstanceGroupSpecResponse {
+  Util.validateModel(request);
+  var query = {};
+  if (!Util.isUnset(request.autoPay)) {
+    query['AutoPay'] = request.autoPay;
+  }
+  if (!Util.isUnset(request.instanceGroupIds)) {
+    query['InstanceGroupIds'] = request.instanceGroupIds;
+  }
+  if (!Util.isUnset(request.instanceGroupSpec)) {
+    query['InstanceGroupSpec'] = request.instanceGroupSpec;
+  }
+  if (!Util.isUnset(request.promotionId)) {
+    query['PromotionId'] = request.promotionId;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'ModifyInstanceGroupSpec',
+    version = '2023-09-30',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Changes the specifications of instance groups. Currently, only specification upgrades are supported. Specification downgrades are not supported.
+ *
+ * @param request ModifyInstanceGroupSpecRequest
+ * @return ModifyInstanceGroupSpecResponse
+ */
+async function modifyInstanceGroupSpec(request: ModifyInstanceGroupSpecRequest): ModifyInstanceGroupSpecResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return modifyInstanceGroupSpecWithOptions(request, runtime);
+}
+
 model ModifyJVSInstanceRequest {
+  agentVersion?: string(name='AgentVersion', description='The target version, such as 2607W1. Set this parameter to latest to automatically resolve to the latest available version.'),
   applyToAll?: boolean(name='ApplyToAll', description='Specifies whether to apply the configuration to all instances.', example='true'),
   creditConfig?: [ 
     {
-      creditLimit?: long(name='CreditLimit', description='The credit limit.', example='10'),
+      creditLimit?: long(name='CreditLimit', description='The quota limit.', example='10'),
       limitPeriod?: string(name='LimitPeriod', description='The dimension of the current credit. Valid values:
 
-- total: total usage limit.
-- month: monthly. The limit resets based on the resource activation time cycle.
-- day: daily. The limit resets at 00:00.', example='day'),
+- total: Total usage limit.
+- month: Monthly. The quota resets based on the resource activation time cycle.
+- day: Daily. The quota resets at 00:00.', example='day'),
     }
-  ](name='CreditConfig', description='The credit limit configuration. Subsequent configurations overwrite previous ones.'),
+  ](name='CreditConfig', description='The credit quota configuration. If you submit the configuration multiple times, the latest configuration overwrites the previous one.'),
   imageId?: string(name='ImageId'),
   instanceIds?: [ string ](name='InstanceIds', description='The list of instance IDs.'),
   instanceName?: string(name='InstanceName', description='The instance name.', example='defaultInstanceName'),
@@ -8220,6 +8347,9 @@ model ModifyJVSInstanceResponse = {
 async function modifyJVSInstanceWithOptions(request: ModifyJVSInstanceRequest, runtime: Util.RuntimeOptions): ModifyJVSInstanceResponse {
   Util.validateModel(request);
   var query = {};
+  if (!Util.isUnset(request.agentVersion)) {
+    query['AgentVersion'] = request.agentVersion;
+  }
   if (!Util.isUnset(request.applyToAll)) {
     query['ApplyToAll'] = request.applyToAll;
   }
@@ -8470,6 +8600,7 @@ model ModifyScheduledTaskRequest {
   runConfig?: {
     extraParams?: string(name='ExtraParams', description='The extended parameters as a JSON string.', example='{"batchSize":"1000"}'),
     maxSteps?: int32(name='MaxSteps', description='The maximum number of execution steps.', example='10'),
+    skills?: [ string ](name='Skills', example='["sk-abc"]', nullable=false),
     timeoutSeconds?: int32(name='TimeoutSeconds', description='The timeout in seconds.', example='3600'),
   }(name='RunConfig', description='The run configuration.', example='{"maxSteps":10,"timeoutSeconds":3600}'),
   scheduledId?: string(name='ScheduledId', description='The scheduled task ID.
@@ -9725,6 +9856,26 @@ model RunAgentTaskRequest {
   bizRegionId?: string(name='BizRegionId', description='The region ID of the Mobile node.', example='cn-shanghai'),
   instanceIds?: [ string ](name='InstanceIds', description='The list of Mobile node IDs. A maximum of 100 nodes are supported per request.'),
   maxSteps?: int32(name='MaxSteps', description='The maximum number of execution steps for the task. This prevents infinite loops. Valid values: 30 to 1000. Default value: 1000.', example='30'),
+  runConfig?: {
+    skills?: [ string ](name='Skills', example='["sk-abc","sk-def"]'),
+  }(name='RunConfig', example='{"Skills":["sk-abc","sk-def"]}'),
+  scheduleId?: string(name='ScheduleId', description='The scheduling plan ID. When specified, execution records are associated with the corresponding scheduled node, which facilitates aggregation query by scheduling dimension.', example='sch-260625-pbj2****'),
+  targets?: [ 
+    {
+      instanceId?: string(name='InstanceId', description='The Mobile node ID, such as acp-xxx.', example='acp-5hh4a31emkt6u****'),
+      sessionId?: string(name='SessionId', description='The session ID. Tasks with the same session ID share context, such as ses-260702-21b****.', example='ses-260702-21bh****。'),
+    }
+  ](name='Targets', description='The array of target objects. Each element contains an InstanceId and a SessionId.'),
+  taskConfigId?: string(name='TaskConfigId', description='The task configuration ID used to trigger a task with the specified configuration.', example='tsk-260625-49be****'),
+  timeoutSeconds?: int32(name='TimeoutSeconds', description='The timeout period of the task, in seconds. Valid values: 300 to 3600. Default value: 3600.', example='3600'),
+  userPrompt?: string(name='UserPrompt', description='The user instruction in natural language. The Agent performs operations based on this instruction.', example='去应用宝下载钉钉'),
+}
+
+model RunAgentTaskShrinkRequest {
+  bizRegionId?: string(name='BizRegionId', description='The region ID of the Mobile node.', example='cn-shanghai'),
+  instanceIds?: [ string ](name='InstanceIds', description='The list of Mobile node IDs. A maximum of 100 nodes are supported per request.'),
+  maxSteps?: int32(name='MaxSteps', description='The maximum number of execution steps for the task. This prevents infinite loops. Valid values: 30 to 1000. Default value: 1000.', example='30'),
+  runConfigShrink?: string(name='RunConfig', example='{"Skills":["sk-abc","sk-def"]}'),
   scheduleId?: string(name='ScheduleId', description='The scheduling plan ID. When specified, execution records are associated with the corresponding scheduled node, which facilitates aggregation query by scheduling dimension.', example='sch-260625-pbj2****'),
   targets?: [ 
     {
@@ -9787,12 +9938,17 @@ model RunAgentTaskResponse = {
 /**
  * @summary Triggers an Agent to execute an AI automation task on Mobile nodes.
  *
- * @param request RunAgentTaskRequest
+ * @param tmpReq RunAgentTaskRequest
  * @param runtime runtime options for this request RuntimeOptions
  * @return RunAgentTaskResponse
  */
-async function runAgentTaskWithOptions(request: RunAgentTaskRequest, runtime: Util.RuntimeOptions): RunAgentTaskResponse {
-  Util.validateModel(request);
+async function runAgentTaskWithOptions(tmpReq: RunAgentTaskRequest, runtime: Util.RuntimeOptions): RunAgentTaskResponse {
+  Util.validateModel(tmpReq);
+  var request = new RunAgentTaskShrinkRequest{};
+  OpenApiUtil.convert(tmpReq, request);
+  if (!Util.isUnset(tmpReq.runConfig)) {
+    request.runConfigShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.runConfig, 'RunConfig', 'json');
+  }
   var query = {};
   if (!Util.isUnset(request.bizRegionId)) {
     query['BizRegionId'] = request.bizRegionId;
@@ -9802,6 +9958,9 @@ async function runAgentTaskWithOptions(request: RunAgentTaskRequest, runtime: Ut
   }
   if (!Util.isUnset(request.maxSteps)) {
     query['MaxSteps'] = request.maxSteps;
+  }
+  if (!Util.isUnset(request.runConfigShrink)) {
+    query['RunConfig'] = request.runConfigShrink;
   }
   if (!Util.isUnset(request.scheduleId)) {
     query['ScheduleId'] = request.scheduleId;

@@ -1086,6 +1086,7 @@ model CreateScheduledTaskRequest {
   runConfig?: {
     extraParams?: string(name='ExtraParams', example='{"batchSize":"1000"}'),
     maxSteps?: int32(name='MaxSteps', example='10'),
+    skills?: [ string ](name='Skills', example='["sk-abc"]'),
     timeoutSeconds?: int32(name='TimeoutSeconds', example='3600'),
   }(name='RunConfig', example='{"maxSteps":10,"timeoutSeconds":3600}', shrink='json', position='Query'),
   taskName: string(name='TaskName', description='This parameter is required.', example='每日数据同步任务', position='Query'),
@@ -2158,6 +2159,7 @@ model DescribeCreditDetailResponseBody = {
         changeTime?: string(name='ChangeTime', example='2026-06-30T08:14:02Z'),
         creditChange?: string(name='CreditChange', example='0.7637'),
         description?: string(name='Description'),
+        durationMs?: long(name='DurationMs'),
         inputTokens?: long(name='InputTokens'),
         instanceId?: string(name='InstanceId', example='acp-12oe0l75vl7o5****'),
         instanceName?: string(name='InstanceName'),
@@ -2167,6 +2169,7 @@ model DescribeCreditDetailResponseBody = {
         requestId?: string(name='RequestId'),
         taskId?: string(name='TaskId', example='t-1fr0k51pozyr5****'),
         totalTokens?: long(name='TotalTokens'),
+        ttftMs?: long(name='TtftMs'),
       }
     ](name='Details'),
     nextToken?: string(name='NextToken'),
@@ -2461,6 +2464,10 @@ model DescribeJVSInstanceRequest {
 model DescribeJVSInstanceResponseBody = {
   data?: [ 
     {
+      agentVersion?: {
+        upgradeStatus?: string(name='UpgradeStatus'),
+        version?: string(name='Version'),
+      }(name='AgentVersion'),
       createTime?: string(name='CreateTime', example='2026-04-10T01:31:32Z'),
       creditConfig?: [ 
         {
@@ -2469,6 +2476,16 @@ model DescribeJVSInstanceResponseBody = {
         }
       ](name='CreditConfig'),
       expireTime?: string(name='ExpireTime', example='2026-04-10T01:31:32Z'),
+      installedSkills?: [ 
+        {
+          description?: string(name='Description'),
+          iconUrl?: string(name='IconUrl'),
+          installedAt?: string(name='InstalledAt'),
+          skillId?: string(name='SkillId'),
+          skillName?: string(name='SkillName'),
+          skillType?: string(name='SkillType'),
+        }
+      ](name='InstalledSkills'),
       instanceId?: string(name='InstanceId', example='acp-uto81vfd8t8z****'),
       jvsPackageId?: string(name='JvsPackageId', example='null'),
       modifyTime?: string(name='ModifyTime', example='2026-04-10T01:31:32Z'),
@@ -2483,6 +2500,7 @@ model DescribeJVSInstanceResponseBody = {
   ](name='Data'),
   maxResults?: int32(name='MaxResults', description='当前页实际返回条数', example='10'),
   nextToken?: string(name='NextToken', description='下一页游标，末页不返回', example='AAAAAV3MpHK1AP0pfERHZN5pu6kU+SQXzm0H9mu/FiSc****'),
+  pendingUpgradeCount?: int32(name='PendingUpgradeCount'),
   requestId?: string(name='RequestId', example='425F351C-3F8E-5218-A520-B6311D0D****'),
   totalCount?: int32(name='TotalCount', description='符合条件的总记录数', example='30'),
 }
@@ -2871,6 +2889,7 @@ model DescribeScheduledTasksResponseBody = {
       runConfig?: {
         extraParams?: string(name='ExtraParams', example='{"batchSize":"1000"}'),
         maxSteps?: int32(name='MaxSteps', example='10'),
+        skills?: [ string ](name='Skills', example='["sk-abc"]'),
         timeoutSeconds?: int32(name='TimeoutSeconds', example='3600'),
       }(name='RunConfig'),
       scheduledId?: string(name='ScheduledId', example='sch-260705-agb*****'),
@@ -3974,7 +3993,41 @@ async function modifyInstanceChargeType(request: ModifyInstanceChargeTypeRequest
   return @handler.do('RPC', 'ModifyInstanceChargeType', 'POST', '/', 'json', false, 'json', request);
 }
 
+model ModifyInstanceGroupSpecRequest {
+  autoPay?: boolean(name='AutoPay', example='false', position='Query'),
+  instanceGroupIds?: [ string ](name='InstanceGroupIds', position='Query'),
+  instanceGroupSpec: string(name='InstanceGroupSpec', description='This parameter is required.', example='acp.basic.small', position='Query'),
+  promotionId?: string(name='PromotionId', example='50003308011****', position='Query'),
+}
+
+model ModifyInstanceGroupSpecResponseBody = {
+  orderInfo?: [ 
+    {
+      instanceIds?: [ string ](name='InstanceIds'),
+      orderId?: string(name='OrderId', example='296325540190****'),
+    }
+  ](name='OrderInfo'),
+  orderTaskId?: string(name='OrderTaskId', example='t-aycabdsjsbgd****'),
+  requestId?: string(name='RequestId', description='Id of the request', example='425F351C-3F8E-5218-A520-B6311D0D****'),
+}
+
+model ModifyInstanceGroupSpecResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ModifyInstanceGroupSpecResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of ModifyInstanceGroupSpec  ModifyInstanceGroupSpecRequest
+  * @return ModifyInstanceGroupSpecResponse
+ */
+async function modifyInstanceGroupSpec(request: ModifyInstanceGroupSpecRequest): ModifyInstanceGroupSpecResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'ModifyInstanceGroupSpec', 'POST', '/', 'json', false, 'json', request);
+}
+
 model ModifyJVSInstanceRequest {
+  agentVersion?: string(name='AgentVersion', description='目标版本号，如2607W1，支持latest自动解析为最新可用版本', position='Query'),
   applyToAll?: boolean(name='ApplyToAll', example='true', position='Query'),
   creditConfig?: [ 
     {
@@ -4137,6 +4190,7 @@ model ModifyScheduledTaskRequest {
   runConfig?: {
     extraParams?: string(name='ExtraParams', example='{"batchSize":"1000"}'),
     maxSteps?: int32(name='MaxSteps', example='10'),
+    skills?: [ string ](name='Skills', example='["sk-abc"]'),
     timeoutSeconds?: int32(name='TimeoutSeconds', example='3600'),
   }(name='RunConfig', example='{"maxSteps":10,"timeoutSeconds":3600}', shrink='json', position='Query'),
   scheduledId: string(name='ScheduledId', description='This parameter is required.', example='sch-260705-agb*****', position='Query'),
@@ -4690,6 +4744,9 @@ model RunAgentTaskRequest {
   bizRegionId?: string(name='BizRegionId', example='cn-shanghai', position='Query'),
   instanceIds?: [ string ](name='InstanceIds', position='Query'),
   maxSteps?: int32(name='MaxSteps', position='Query'),
+  runConfig?: {
+    skills?: [ string ](name='Skills', example='["sk-abc","sk-def"]'),
+  }(name='RunConfig', example='{"Skills":["sk-abc","sk-def"]}', shrink='json', position='Query'),
   scheduleId?: string(name='ScheduleId', position='Query'),
   targets?: [ 
     {
