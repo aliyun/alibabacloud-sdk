@@ -2551,11 +2551,10 @@ Default value: **false**.
 > This parameter takes effect only when **PayType** is set to **Prepaid**.', example='false'),
   autoUseCoupon?: boolean(name='AutoUseCoupon', description='Specifies whether to automatically use a coupon. Valid values:', example='false'),
   clientToken?: string(name='ClientToken', description='The client token that is used to ensure the idempotence of the request. You can use the client to generate the token, but you must make sure that the token is unique among different requests. The token can contain only ASCII characters and cannot exceed 64 characters in length.'),
+  createPublicEndpoint?: string(name='CreatePublicEndpoint', example='ON'),
   DBClusterDescription?: string(name='DBClusterDescription', description='The description of the cluster. You can use the description to perform a fuzzy search.', example='test'),
   DBClusterId?: string(name='DBClusterId', description='The ID of the PolarDB cluster that the application depends on.', example='pc-******************'),
-  DBNodeClass?: string(name='DBNodeClass', description='The node specification.
-
-This parameter is required.', example='polar.pg.g4.6xlarge.gu4'),
+  DBNodeClass?: string(name='DBNodeClass', description='The node specification.', example='polar.pg.g4.6xlarge.gu4'),
   extension?: string(name='Extension', description='The extension.', example='maas'),
   inferenceEngine?: string(name='InferenceEngine', description='The inference engine.', example='sglang'),
   kubeClusterId?: string(name='KubeClusterId', description='The Container Service for Kubernetes (ACK) cluster ID.', example='xxxxxxxxxxxxxxxxxxxxxxx'),
@@ -2565,6 +2564,7 @@ This parameter is required.', example='polar.pg.g4.6xlarge.gu4'),
   kubernetesConfig?: string(name='KubernetesConfig', description='The Kubernetes configuration.', example='xxx'),
   managementMode?: string(name='ManagementMode', description='The management mode.', example='ack'),
   modelName?: string(name='ModelName', example='Qwen3-30B-A3B'),
+  modelSpace?: string(name='ModelSpace', example='pms-xxx'),
   ownerAccount?: string(name='OwnerAccount'),
   ownerId?: long(name='OwnerId'),
   password?: string(name='Password', description='The password.', example='xxx'),
@@ -2648,6 +2648,9 @@ async function createAIDBClusterWithOptions(request: CreateAIDBClusterRequest, r
   if (!Util.isUnset(request.clientToken)) {
     query['ClientToken'] = request.clientToken;
   }
+  if (!Util.isUnset(request.createPublicEndpoint)) {
+    query['CreatePublicEndpoint'] = request.createPublicEndpoint;
+  }
   if (!Util.isUnset(request.DBClusterDescription)) {
     query['DBClusterDescription'] = request.DBClusterDescription;
   }
@@ -2683,6 +2686,9 @@ async function createAIDBClusterWithOptions(request: CreateAIDBClusterRequest, r
   }
   if (!Util.isUnset(request.modelName)) {
     query['ModelName'] = request.modelName;
+  }
+  if (!Util.isUnset(request.modelSpace)) {
+    query['ModelSpace'] = request.modelSpace;
   }
   if (!Util.isUnset(request.ownerAccount)) {
     query['OwnerAccount'] = request.ownerAccount;
@@ -2765,6 +2771,7 @@ async function createAIDBCluster(request: CreateAIDBClusterRequest): CreateAIDBC
 
 model CreateAIDBClusterApiKeyRequest {
   description?: string(name='Description', description='The description.', example='test'),
+  modelSpaceName?: string(name='ModelSpaceName', example='pms-xxx'),
   regionId?: string(name='RegionId', description='The region ID.
 > * You can call the [DescribeRegions](https://help.aliyun.com/document_detail/98041.html) operation to query the regions of all clusters under the specified account.
 > * If you leave this parameter empty, scheduled tasks across all regions under the current account are queried.
@@ -2801,6 +2808,9 @@ async function createAIDBClusterApiKeyWithOptions(request: CreateAIDBClusterApiK
   var query = {};
   if (!Util.isUnset(request.description)) {
     query['Description'] = request.description;
+  }
+  if (!Util.isUnset(request.modelSpaceName)) {
+    query['ModelSpaceName'] = request.modelSpaceName;
   }
   if (!Util.isUnset(request.regionId)) {
     query['RegionId'] = request.regionId;
@@ -2942,10 +2952,12 @@ async function createAIDBClusterDataset(request: CreateAIDBClusterDatasetRequest
 }
 
 model CreateAIDBClusterTaskRequest {
+  customOssBucketName?: string(name='CustomOssBucketName', example='my-bucket'),
   DBClusterId?: string(name='DBClusterId', description='The cluster ID.
 
 This parameter is required.', example='pc-****************'),
   DBInstanceClass?: string(name='DBInstanceClass', description='The instance type.', example='polar.pg.g6.4xlarge.guh'),
+  dataserviceMode?: string(name='DataserviceMode', example='cold_storage'),
   datasetPath?: string(name='DatasetPath', description='The training dataset ID. This parameter is required for fine-tuning.', example='pds-2zetrain***'),
   evalDatasetPath?: string(name='EvalDatasetPath', description='The validation dataset ID. This parameter is required for evaluation.', example='pds-2zetrain***'),
   kubeType?: string(name='KubeType', description='The model service type. Valid values:
@@ -3001,11 +3013,17 @@ model CreateAIDBClusterTaskResponse = {
 async function createAIDBClusterTaskWithOptions(request: CreateAIDBClusterTaskRequest, runtime: Util.RuntimeOptions): CreateAIDBClusterTaskResponse {
   Util.validateModel(request);
   var query = {};
+  if (!Util.isUnset(request.customOssBucketName)) {
+    query['CustomOssBucketName'] = request.customOssBucketName;
+  }
   if (!Util.isUnset(request.DBClusterId)) {
     query['DBClusterId'] = request.DBClusterId;
   }
   if (!Util.isUnset(request.DBInstanceClass)) {
     query['DBInstanceClass'] = request.DBInstanceClass;
+  }
+  if (!Util.isUnset(request.dataserviceMode)) {
+    query['DataserviceMode'] = request.dataserviceMode;
   }
   if (!Util.isUnset(request.datasetPath)) {
     query['DatasetPath'] = request.datasetPath;
@@ -5129,24 +5147,32 @@ async function createConsumerGroup(request: CreateConsumerGroupRequest): CreateC
 }
 
 model CreateCostRuleRequest {
-  cacheCostPointsPerMillion?: string(name='CacheCostPointsPerMillion', description='The number of cost points per million cache tokens. The default value is 0.', example='0'),
+  cacheCostPointsPerMillion?: string(name='CacheCostPointsPerMillion', description='The cost points per million cached tokens. Default value: 0.', example='0'),
+  effectiveTargetType?: string(name='EffectiveTargetType', description='The effective target type. Valid values:
+
+- global
+- consumerGroup
+- consumer
+
+Default value: global.', example='global'),
+  effectiveTargetValue?: string(name='EffectiveTargetValue', description='The effective target value. This parameter is required when EffectiveTargetType is not set to global.', example='user'),
   gwClusterId?: string(name='GwClusterId', description='The gateway instance ID.
 
 This parameter is required.', example='pg-xxxxxxx'),
-  inputCostPointsPerMillion?: string(name='InputCostPointsPerMillion', description='The number of cost points per million input tokens. The default value is 0.', example='0'),
-  modelName?: string(name='ModelName', description='The name of the model, such as `gpt-4` or `qwen-turbo`.
+  inputCostPointsPerMillion?: string(name='InputCostPointsPerMillion', description='The cost points per million input tokens. Default value: 0.', example='0'),
+  modelName?: string(name='ModelName', description='The model name, such as gpt-4 or qwen-turbo.
 
 This parameter is required.', example='gpt-4'),
   modelServiceId?: string(name='ModelServiceId', description='The model service ID.
 
 This parameter is required.', example='ms-xxxxxx'),
-  outputCostPointsPerMillion?: string(name='OutputCostPointsPerMillion', description='The number of cost points per million output tokens. The default value is 0.', example='0'),
+  outputCostPointsPerMillion?: string(name='OutputCostPointsPerMillion', description='The cost points per million output tokens. Default value: 0.', example='0'),
   regionId?: string(name='RegionId', description='The region ID.', example='cn-beijing'),
 }
 
 model CreateCostRuleResponseBody = {
   costRuleId?: string(name='CostRuleId', description='The cost rule ID.', example='924d450014e64e88ac6e8486f8e990**'),
-  requestId?: string(name='RequestId', description='The request ID.', example='580EF224-9647-59E7-9950-D9EBFD6A2921'),
+  requestId?: string(name='RequestId', description='Id of the request', example='580EF224-9647-59E7-9950-D9EBFD6A2921'),
 }
 
 model CreateCostRuleResponse = {
@@ -5167,6 +5193,12 @@ async function createCostRuleWithOptions(request: CreateCostRuleRequest, runtime
   var query = {};
   if (!Util.isUnset(request.cacheCostPointsPerMillion)) {
     query['CacheCostPointsPerMillion'] = request.cacheCostPointsPerMillion;
+  }
+  if (!Util.isUnset(request.effectiveTargetType)) {
+    query['EffectiveTargetType'] = request.effectiveTargetType;
+  }
+  if (!Util.isUnset(request.effectiveTargetValue)) {
+    query['EffectiveTargetValue'] = request.effectiveTargetValue;
   }
   if (!Util.isUnset(request.gwClusterId)) {
     query['GwClusterId'] = request.gwClusterId;
@@ -9308,6 +9340,7 @@ model DeleteAIDBClusterRequest {
   DBClusterId?: string(name='DBClusterId', description='The ID of the AI cluster.
 
 This parameter is required.', example='pc-**************'),
+  modelSpace?: string(name='ModelSpace', example='pms-xxx'),
 }
 
 model DeleteAIDBClusterResponseBody = {
@@ -9333,6 +9366,9 @@ async function deleteAIDBClusterWithOptions(request: DeleteAIDBClusterRequest, r
   var query = {};
   if (!Util.isUnset(request.DBClusterId)) {
     query['DBClusterId'] = request.DBClusterId;
+  }
+  if (!Util.isUnset(request.modelSpace)) {
+    query['ModelSpace'] = request.modelSpace;
   }
   var req = new OpenApi.OpenApiRequest{ 
     query = OpenApiUtil.query(query),
@@ -9366,6 +9402,7 @@ model DeleteAIDBClusterApiKeyRequest {
   apiKey?: string(name='ApiKey', description='The API key of the model service.
 
 This parameter is required.', example='xxx'),
+  modelSpaceName?: string(name='ModelSpaceName', example='pms-xxx'),
   regionId?: string(name='RegionId', description='The region ID.
 >You can call the [DescribeRegions](https://help.aliyun.com/document_detail/98041.html) operation to query region IDs.
 
@@ -9395,6 +9432,9 @@ async function deleteAIDBClusterApiKeyWithOptions(request: DeleteAIDBClusterApiK
   var query = {};
   if (!Util.isUnset(request.apiKey)) {
     query['ApiKey'] = request.apiKey;
+  }
+  if (!Util.isUnset(request.modelSpaceName)) {
+    query['ModelSpaceName'] = request.modelSpaceName;
   }
   if (!Util.isUnset(request.regionId)) {
     query['RegionId'] = request.regionId;
@@ -13235,6 +13275,7 @@ async function deleteSQLRateLimitingRules(request: DeleteSQLRateLimitingRulesReq
 }
 
 model DescribeAIDBClusterApiKeysRequest {
+  modelSpaceName?: string(name='ModelSpaceName', example='pms-xxx'),
   regionId?: string(name='RegionId', description='The region ID.
 
 This parameter is required.', example='cn-beijing'),
@@ -13250,6 +13291,8 @@ model DescribeAIDBClusterApiKeysResponseBody = {
       status?: string(name='Status', description='The status of the API key.', example='active'),
     }
   ](name='ApiKeys', description='API Keys。'),
+  pageNumber?: string(name='PageNumber'),
+  pageSize?: string(name='PageSize'),
   requestId?: string(name='RequestId', description='Id of the request', example='7F2007D3-7E74-4ECB-89A8-BF130D******'),
 }
 
@@ -13269,6 +13312,9 @@ model DescribeAIDBClusterApiKeysResponse = {
 async function describeAIDBClusterApiKeysWithOptions(request: DescribeAIDBClusterApiKeysRequest, runtime: Util.RuntimeOptions): DescribeAIDBClusterApiKeysResponse {
   Util.validateModel(request);
   var query = {};
+  if (!Util.isUnset(request.modelSpaceName)) {
+    query['ModelSpaceName'] = request.modelSpaceName;
+  }
   if (!Util.isUnset(request.regionId)) {
     query['RegionId'] = request.regionId;
   }
@@ -13312,7 +13358,7 @@ This parameter is required.', example='pc-****************'),
 
 model DescribeAIDBClusterAttributeResponseBody = {
   aiNodeType?: string(name='AiNodeType', description='The node type. Valid values:
-- vnode: ACK-managed
+- vnode: managed by ACK
 - container: loginable container
 - maas: model service', example='vnode'),
   apiKey?: string(name='ApiKey', description='The API key.', example='x********'),
@@ -13328,6 +13374,7 @@ model DescribeAIDBClusterAttributeResponseBody = {
 - **DBNodeDeleting**: deleting a node
 - **ClassChanging**: changing node specifications 
 - **Deleted**: released', example='Running'),
+  DBInstanceStatusDesc?: string(name='DBInstanceStatusDesc'),
   DBNodes?: [ 
     {
       childVolumes?: [ 
@@ -13353,12 +13400,21 @@ model DescribeAIDBClusterAttributeResponseBody = {
 * **DBNodeDeleting**: deleting a node 
 * **ClassChanging**: changing node specifications  
 * **MinorVersionUpgrading**: upgrading the minor version
-* **Maintaining**: under maintenance  
+* **Maintaining**: being maintained  
 * **Switching**: being switched', example='Running'),
       GPU?: string(name='GPU', description='The number of GPU cards.', example='2'),
       linkIP?: string(name='LinkIP', description='The private IP address.', example='10.*.*12'),
       memorySize?: string(name='MemorySize', description='The memory size of the node. Unit: MB.', example='8192'),
+      modelName?: string(name='ModelName'),
       publicIp?: string(name='PublicIp', description='The public IP address.', example='101.101.101.101'),
+      supportedApis?: [ 
+        {
+          apiName?: string(name='ApiName'),
+          generationMode?: string(name='GenerationMode'),
+          path?: string(name='Path'),
+          protocol?: string(name='Protocol'),
+        }
+      ](name='SupportedApis'),
       VNodeId?: string(name='VNodeId', description='The Kubernetes virtual node ID.', example='vn-***************'),
       VPCId?: string(name='VPCId', description='The VPC ID.', example='vpc-*******************'),
       vSwitchId?: string(name='VSwitchId', description='The vSwitch ID.', example='vsw-*********************'),
@@ -13377,7 +13433,7 @@ model DescribeAIDBClusterAttributeResponseBody = {
     {
       netInfoItems?: [ 
         {
-          connectionString?: string(name='ConnectionString', description='The database connection address.', example='pc-**********.rwlb.rds.aliyuncs.com'),
+          connectionString?: string(name='ConnectionString', description='The database endpoint.', example='pc-**********.rwlb.rds.aliyuncs.com'),
           netType?: string(name='NetType', description='The network type of the connection string. Valid values:
 * **Public**: public endpoint
 * **Private**: private endpoint
@@ -13389,7 +13445,7 @@ model DescribeAIDBClusterAttributeResponseBody = {
   ](name='EndpointList', description='The list of network connection addresses of the instance.'),
   expireTime?: string(name='ExpireTime', description='The cluster expiration time.
 
-> This parameter returns a value only for clusters whose billing method is **Prepaid** (subscription). An empty value is returned for **Postpaid** (pay-as-you-go) clusters.', example='2020-11-14T16:00:00Z'),
+> A specific value is returned only for clusters whose billing method is **Prepaid** (subscription). An empty value is returned for **Postpaid** (pay-as-you-go) clusters.', example='2020-11-14T16:00:00Z'),
   expired?: boolean(name='Expired', description='Indicates whether the cluster has expired. Valid values:
 
 - **true**
@@ -13401,7 +13457,9 @@ model DescribeAIDBClusterAttributeResponseBody = {
   kubeClusterId?: string(name='KubeClusterId', description='The ACK cluster ID.', example='xxxxxxxxxxxxxxxxxxxxxxx'),
   lockMode?: string(name='LockMode', description='The instance lock mode. The value **lock** indicates that the instance is automatically expired or has an overdue payment.', example='Unlock'),
   maxQPM?: string(name='MaxQPM', description='The maximum number of requests per minute.', example='20'),
+  maxTPM?: string(name='MaxTPM'),
   modelName?: string(name='ModelName', description='The model name.', example='Qwen3-Embedding-8B'),
+  modelSpaceName?: string(name='ModelSpaceName'),
   modelType?: string(name='ModelType', description='The model type.', example='custom'),
   payType?: string(name='PayType', description='The billing method. Valid values:
 
@@ -13413,11 +13471,11 @@ model DescribeAIDBClusterAttributeResponseBody = {
   runType?: string(name='RunType', description='The architecture type. Valid values:
 - container: AI container
 - ainode: AI node', example='container'),
-  storageType?: string(name='StorageType', description='Valid values for Enterprise Edition storage type:
+  storageType?: string(name='StorageType', description='The storage type for Enterprise Edition. Valid values:
 - **PSL5**
 - **PSL4**
 
-Valid values for Standard Edition storage type:
+The storage type for Standard Edition. Valid values:
 - **ESSDPL0**
 - **ESSDPL1**
 - **ESSDPL2**
@@ -13432,7 +13490,7 @@ Valid values for Standard Edition storage type:
     ](name='TimeSlices'),
   }(name='TimeSlicesInfo'),
   timeSlicesType?: string(name='TimeSlicesType'),
-  VPCId?: string(name='VPCId', description='The VPC ID specified for the zone switchover.', example='vpc-*******************'),
+  VPCId?: string(name='VPCId', description='The VPC ID that can be specified when switching zones.', example='vpc-*******************'),
   vSwitchId?: string(name='VSwitchId', description='The vSwitch ID.
 
 > If VPCId is specified, VSwitchId is required.', example='vsw-*********************'),
@@ -13461,7 +13519,7 @@ Valid values for Standard Edition storage type:
     }
   ](name='Volumes', description='The list of data cloud disks.'),
   zoneId?: string(name='ZoneId', description='The zone ID of the PolarDB cluster node.', example='cn-hangzhou-d'),
-  zoneIds?: string(name='ZoneIds', description='The zone IDs.', example='cn-hangzhou-i,cn-hangzhou-g'),
+  zoneIds?: string(name='ZoneIds', description='The zone ID.', example='cn-hangzhou-i,cn-hangzhou-g'),
 }
 
 model DescribeAIDBClusterAttributeResponse = {
@@ -13812,6 +13870,9 @@ model DescribeAIDBClusterTaskAttributeResponseBody = {
   accessInfo?: string(name='AccessInfo', description='The access information of the model in the test deployment scenario.', example='{\\\\"networkInterfaceId\\\\":\\\\"eni-2zea***\\\\",\\\\"port\\\\":\\\\"8000\\\\",\\\\"host\\\\":\\\\"192.**.**.**\\\\"}'),
   clusterNetworkType?: string(name='ClusterNetworkType', description='The network type of the cluster.', example='VPC'),
   createTime?: string(name='CreateTime', description='The creation time.', example='2025-11-12T03:45:13Z'),
+  customBucketInfo?: {
+    customOssBucketName?: string(name='CustomOssBucketName', example='my-bucket'),
+  }(name='CustomBucketInfo'),
   DBClusterDescription?: string(name='DBClusterDescription', description='The task name.', example='task01'),
   DBClusterId?: string(name='DBClusterId', description='The task ID.', example='pm-2ze99***'),
   DBClusterStatus?: string(name='DBClusterStatus', description='The training status. Valid values:
@@ -14367,6 +14428,7 @@ model DescribeAIDBClustersResponseBody = {
       expired?: boolean(name='Expired'),
       kubeClusterId?: string(name='KubeClusterId'),
       lockMode?: string(name='LockMode'),
+      modelSpace?: string(name='ModelSpace'),
       modelType?: string(name='ModelType'),
       payType?: string(name='PayType'),
       regionId?: string(name='RegionId'),
@@ -16892,6 +16954,40 @@ This parameter is required.', example='PolarDBSupabaseMemUsage'),
   startTime?: string(name='StartTime', description='The beginning of the time range to query. Specify the time in the yyyy-MM-ddTHH:mmZ format (UTC).
 
 This parameter is required.', example='2020-09-23T01:01Z'),
+  filter?: map[string]any(name='filter'),
+}
+
+model DescribeApplicationPerformanceShrinkRequest {
+  applicationId?: string(name='ApplicationId', description='The application cluster ID.
+
+This parameter is required.', example='pa-**************'),
+  consumer?: string(name='Consumer', description='The user.', example='c-xxxxxxx'),
+  consumerGroup?: string(name='ConsumerGroup', description='The user group.', example='cg-xxxxxx'),
+  downsample?: string(name='Downsample', description='The downsampling policy.', example='raw_sample'),
+  endStep?: long(name='EndStep', description='The end step number.', example='100'),
+  endTime?: string(name='EndTime', description='The end of the time range to query. Specify the time in the yyyy-MM-ddTHH:mmZ format (UTC).
+
+This parameter is required.', example='2020-09-23T01:00Z'),
+  interval?: string(name='Interval', description='The data granularity of performance data. Valid values:
+- 5
+- 30
+- 60
+- 600
+- 1800
+- 3600
+- 86400', example='5'),
+  key?: string(name='Key', description='The performance metrics to query. Separate multiple values with commas (,).
+
+> **Note** You can specify up to 5 performance metrics.
+
+This parameter is required.', example='PolarDBSupabaseMemUsage'),
+  maxPoints?: int32(name='MaxPoints', description='The maximum number of data points to return.', example='1000'),
+  modelService?: string(name='ModelService', description='The model service.', example='ms-xxxxxx'),
+  startStep?: long(name='StartStep', description='The start step number.', example='1'),
+  startTime?: string(name='StartTime', description='The beginning of the time range to query. Specify the time in the yyyy-MM-ddTHH:mmZ format (UTC).
+
+This parameter is required.', example='2020-09-23T01:01Z'),
+  filterShrink?: string(name='filter'),
 }
 
 model DescribeApplicationPerformanceResponseBody = {
@@ -16931,12 +17027,17 @@ model DescribeApplicationPerformanceResponse = {
 /**
  * @summary Queries the performance of a PolarDB AI application.
  *
- * @param request DescribeApplicationPerformanceRequest
+ * @param tmpReq DescribeApplicationPerformanceRequest
  * @param runtime runtime options for this request RuntimeOptions
  * @return DescribeApplicationPerformanceResponse
  */
-async function describeApplicationPerformanceWithOptions(request: DescribeApplicationPerformanceRequest, runtime: Util.RuntimeOptions): DescribeApplicationPerformanceResponse {
-  Util.validateModel(request);
+async function describeApplicationPerformanceWithOptions(tmpReq: DescribeApplicationPerformanceRequest, runtime: Util.RuntimeOptions): DescribeApplicationPerformanceResponse {
+  Util.validateModel(tmpReq);
+  var request = new DescribeApplicationPerformanceShrinkRequest{};
+  OpenApiUtil.convert(tmpReq, request);
+  if (!Util.isUnset(tmpReq.filter)) {
+    request.filterShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.filter, 'filter', 'json');
+  }
   var query = {};
   if (!Util.isUnset(request.applicationId)) {
     query['ApplicationId'] = request.applicationId;
@@ -16973,6 +17074,9 @@ async function describeApplicationPerformanceWithOptions(request: DescribeApplic
   }
   if (!Util.isUnset(request.startTime)) {
     query['StartTime'] = request.startTime;
+  }
+  if (!Util.isUnset(request.filterShrink)) {
+    query['filter'] = request.filterShrink;
   }
   var req = new OpenApi.OpenApiRequest{ 
     query = OpenApiUtil.query(query),
@@ -19428,19 +19532,18 @@ async function describeConsumers(request: DescribeConsumersRequest): DescribeCon
 }
 
 model DescribeCostRulesRequest {
+  effectiveTargetType?: string(name='EffectiveTargetType', description='Filters by effective target type. Valid values: global, consumerGroup, and consumer.', example='global'),
+  effectiveTargetValue?: string(name='EffectiveTargetValue', description='Filters by effective target value.', example='user'),
   gwClusterId?: string(name='GwClusterId', description='The gateway instance ID.
 
 This parameter is required.', example='pg-xxxxxxxx'),
-  modelName?: string(name='ModelName', description='The model name, such as `gpt-4` or `qwen-turbo`.', example='qwen3-max'),
+  modelName?: string(name='ModelName', description='The model name, such as gpt-4 or qwen-turbo.', example='qwen3-max'),
   modelServiceId?: string(name='ModelServiceId', description='The model service ID.', example='ms-xxxxxx'),
   pageNumber?: int32(name='PageNumber', description='The page number.', example='1'),
   pageSize?: int32(name='PageSize', description='The number of entries per page. Valid values:
-
-- **30**
-
-- **50**
-
-- **100**
+* **30**
+* **50**
+* **100**
 
 Default value: 30.', example='30'),
   regionId?: string(name='RegionId', description='The region ID.', example='cn-beijing'),
@@ -19449,21 +19552,23 @@ Default value: 30.', example='30'),
 model DescribeCostRulesResponseBody = {
   items?: [ 
     {
-      cacheCostPointsPerMillion?: string(name='CacheCostPointsPerMillion', description='The cost in points per one million cached tokens.', example='0'),
+      cacheCostPointsPerMillion?: string(name='CacheCostPointsPerMillion', description='The cost points per million cache tokens. Default value: 0.', example='0'),
       costRuleId?: string(name='CostRuleId', description='The cost rule ID.', example='924d450014e64e88ac6e8486f8e990**'),
-      gmtCreated?: string(name='GmtCreated', description='The time when the cost rule was created.', example='2026-01-04T16:09:29+08:00'),
-      gmtModified?: string(name='GmtModified', description='The time when the cost rule was last updated.', example='2024-10-16 16:46:20'),
+      effectiveTargetType?: string(name='EffectiveTargetType', description='The effective target type.', example='global'),
+      effectiveTargetValue?: string(name='EffectiveTargetValue', description='The effective target value.', example='user'),
+      gmtCreated?: string(name='GmtCreated', description='The creation time.', example='2026-01-04T16:09:29+08:00'),
+      gmtModified?: string(name='GmtModified', description='The last modification time.', example='2024-10-16 16:46:20'),
       gwClusterId?: string(name='GwClusterId', description='The gateway instance ID.', example='pg-xxxxxxxxxx'),
-      inputCostPointsPerMillion?: string(name='InputCostPointsPerMillion', description='The cost in points per one million input tokens.', example='0'),
+      inputCostPointsPerMillion?: string(name='InputCostPointsPerMillion', description='The cost points per million input tokens. Default value: 0.', example='0'),
       model?: string(name='Model', description='The model name.', example='gpt-4'),
       modelServiceId?: string(name='ModelServiceId', description='The model service ID.', example='ms-xxxxxxxxx'),
-      outputCostPointsPerMillion?: string(name='OutputCostPointsPerMillion', description='The cost in points per one million output tokens.', example='0'),
+      outputCostPointsPerMillion?: string(name='OutputCostPointsPerMillion', description='The cost points per million output tokens. Default value: 0.', example='0'),
     }
-  ](name='Items', description='A list of cost rules.'),
+  ](name='Items', description='The list of cost rules.'),
   pageNumber?: int32(name='PageNumber', description='The page number.', example='1'),
   pageRecordCount?: int32(name='PageRecordCount', description='The number of records on the current page.', example='30'),
-  pageSize?: int32(name='PageSize', description='The number of entries returned per page.', example='30'),
-  requestId?: string(name='RequestId', description='The request ID.', example='24A1990B-4F6E-482B-B8CB-75C612******'),
+  pageSize?: int32(name='PageSize', description='The number of entries per page. Valid values: 30, 50, and 100. Default value: 30.', example='30'),
+  requestId?: string(name='RequestId', description='Id of the request', example='24A1990B-4F6E-482B-B8CB-75C612******'),
   totalRecordCount?: int32(name='TotalRecordCount', description='The total number of records.', example='1'),
 }
 
@@ -19483,6 +19588,12 @@ model DescribeCostRulesResponse = {
 async function describeCostRulesWithOptions(request: DescribeCostRulesRequest, runtime: Util.RuntimeOptions): DescribeCostRulesResponse {
   Util.validateModel(request);
   var query = {};
+  if (!Util.isUnset(request.effectiveTargetType)) {
+    query['EffectiveTargetType'] = request.effectiveTargetType;
+  }
+  if (!Util.isUnset(request.effectiveTargetValue)) {
+    query['EffectiveTargetValue'] = request.effectiveTargetValue;
+  }
   if (!Util.isUnset(request.gwClusterId)) {
     query['GwClusterId'] = request.gwClusterId;
   }
@@ -31071,14 +31182,14 @@ This parameter is required.', example='pfs-2ze0i74ka607*****'),
 
 model DescribePolarFsAttributeResponseBody = {
   accelerateType?: string(name='AccelerateType', description='The acceleration type.', example='alluxio'),
-  acceleratedStorageSpace?: double(name='AcceleratedStorageSpace', description='The acceleration space. Unit: GB.', example='1000'),
+  acceleratedStorageSpace?: double(name='AcceleratedStorageSpace', description='The acceleration storage space, in GB.', example='1000'),
   acceleratingEnable?: string(name='AcceleratingEnable', description='Indicates whether the acceleration cache is enabled. Valid values:
 - **ON**: Enabled.
 - **OFF**: Disabled.', example='ON'),
   authorizedUserArnIds?: string(name='AuthorizedUserArnIds', description='The list of authorized RAM role ARNs, separated by commas.', example='arn:sts::123456:assumed-role/myrole/*'),
   authorizedUserIds?: string(name='AuthorizedUserIds', description='The list of authorized UIDs, separated by commas.', example='1234567890,9876543210'),
-  bandwidth?: double(name='Bandwidth', description='The bandwidth. Unit: MB/s.', example='100'),
-  bandwidthBaseLine?: double(name='BandwidthBaseLine', description='The bandwidth baseline. Unit: MB/s/TiB.', example='100'),
+  bandwidth?: double(name='Bandwidth', description='The bandwidth, in MB/s.', example='100'),
+  bandwidthBaseLine?: double(name='BandwidthBaseLine', description='The bandwidth baseline, in MB/s/TiB.', example='100'),
   bucketId?: string(name='BucketId', description='The bucket ID.', example='xxx'),
   category?: string(name='Category', description='The Polarlakebase edition. Valid values:
 
@@ -31096,7 +31207,7 @@ model DescribePolarFsAttributeResponseBody = {
       path?: string(name='Path', description='The custom storage path.', example='/data'),
     }
   ](name='CustomBucketPathList', description='The list of custom storage paths.'),
-  DBEndpointId?: string(name='DBEndpointId'),
+  DBEndpointId?: string(name='DBEndpointId', description='The endpoint ID.', example='pe-zo1z5qw5nb39s699n'),
   DBType?: string(name='DBType', description='The database ecosystem type. Valid values: 
 * **MySQL**
 * **PostgreSQL**', example='MySQL'),
@@ -31104,18 +31215,21 @@ model DescribePolarFsAttributeResponseBody = {
     {
       addressItems?: [ 
         {
-          connectionString?: string(name='ConnectionString'),
-          IPAddress?: string(name='IPAddress'),
-          netType?: string(name='NetType'),
-          port?: string(name='Port'),
-          VPCId?: string(name='VPCId'),
-          vSwitchId?: string(name='VSwitchId'),
+          connectionString?: string(name='ConnectionString', description='The endpoint of the protocol connection.', example='aclsh-prd-pdb12-rw.rwlb.rds.aliyuncs.com'),
+          IPAddress?: string(name='IPAddress', description='The IP address.', example='47.116.9.224'),
+          netType?: string(name='NetType', description='The network type of the connection string. Valid values:
+* **Public**: public endpoint.
+* **Private**: private endpoint.
+* **Inner**: private endpoint (classic network).', example='Public'),
+          port?: string(name='Port', description='The port number.', example='3306'),
+          VPCId?: string(name='VPCId', description='The VPC ID.', example='vpc-**********'),
+          vSwitchId?: string(name='VSwitchId', description='The vSwitch ID.', example='vsw-**************'),
         }
       ](name='AddressItems', description='The list of addresses.'),
       DBEndpointId?: string(name='DBEndpointId', description='The endpoint ID.', example='ep-xxxxxxxxx'),
-      endpointType?: string(name='EndpointType', description='The endpoint type, such as Nas or S3Gateway.', example='S3Gateway'),
+      endpointType?: string(name='EndpointType', description='The endpoint type. Valid values: Nas, S3Gateway, and others.', example='S3Gateway'),
     }
-  ](name='EndpointItems', description='The list of endpoints, including endpoint information for types such as NAS and S3Gateway.'),
+  ](name='EndpointItems', description='The list of endpoints, including endpoint information for NAS, S3Gateway, and other types.'),
   expireTime?: string(name='ExpireTime', description='The expiration time of the cluster.
 
 > This parameter is returned only for clusters whose billing method is **Prepaid** (subscription). An empty value is returned for **Postpaid** (pay-as-you-go) clusters.', example='2025-10-10T16:00:00Z'),
@@ -31127,11 +31241,11 @@ model DescribePolarFsAttributeResponseBody = {
 - **Unlock**: Not locked.
 - **ManualLock**: Manually locked. 
 - **LockByExpiration**: Automatically locked due to cluster expiration.', example='Unlock'),
-  maxscaleEndpointId?: string(name='MaxscaleEndpointId'),
-  metaConnString?: string(name='MetaConnString'),
+  maxscaleEndpointId?: string(name='MaxscaleEndpointId', description='The proxy endpoint ID.', example='pe-cz9inwqec7ifd98c3'),
+  metaConnString?: string(name='MetaConnString', description='The metadata service cluster endpoint.', example='pc-x67w12d2d5t13mt88.pg.polardb.rds.aliyuncs.com'),
   metaInstanceName?: string(name='MetaInstanceName', description='The metadata instance name.', example='pc-xxxxxxxxxxxxxxxxx'),
-  metaMxsConnString?: string(name='MetaMxsConnString'),
-  metaUrl?: string(name='MetaUrl', description='The metadata URL for Fuse mounting (encrypted).', example='e6cc1d2e2a6fa292038d999fda6501*****'),
+  metaMxsConnString?: string(name='MetaMxsConnString', description='The metadata proxy service cluster endpoint.', example='pc-y3610mp168p3bb740.rwlb.rds.aliyuncs.com'),
+  metaUrl?: string(name='MetaUrl', description='The metadata address for Fuse mount (encrypted).', example='e6cc1d2e2a6fa292038d999fda6501*****'),
   minorVersion?: string(name='MinorVersion', description='The minor version of the instance.', example='v1.3.0-v1.1.1'),
   mountInfo?: {
     polarDbProxy?: string(name='PolarDbProxy', description='The cluster management endpoint.', example='TCP://**.**.**.**:3000,TCP://**.**.**.**:3000,TCP://**.**.**.**:3000'),
@@ -31146,22 +31260,22 @@ model DescribePolarFsAttributeResponseBody = {
   polarFsInstanceId?: string(name='PolarFsInstanceId', description='The Polarlakebase instance ID.', example='pfs-2ze0i74ka607*****'),
   polarFsStatus?: string(name='PolarFsStatus', description='The Polarlakebase instance status.', example='Running'),
   polarFsType?: string(name='PolarFsType', description='The instance version. Valid values:
-- **PolarFS 2.0**: 2.0.
-- **PolarFS 1.0**: 1.0.', example='PolarFS 2.0'),
+- **PolarFS 2.0**: 2.0
+- **PolarFS 1.0**: 1.0', example='PolarFS 2.0'),
   polarFsVersion?: string(name='PolarFsVersion', description='The version.', example='1.0.1-1.0.3'),
   regionId?: string(name='RegionId', description='The region ID.', example='cn-beijing'),
   relativeDbClusterId?: string(name='RelativeDbClusterId', description='The ID of the associated PolarDB cluster.', example='pc-2zejpr41d9xk3uk34'),
   relativePfsClusterId?: string(name='RelativePfsClusterId', description='The instance ID of the associated Polarlakebase instance.', example='pfs-**********'),
   requestId?: string(name='RequestId', description='Id of the request', example='3F9E6A3B-C13E-4064-A010-18582A******'),
   securityGroupId?: string(name='SecurityGroupId', description='The managed security group ID.', example='sg-bp**************'),
-  storageSpace?: double(name='StorageSpace', description='The storage space. Unit: GB.', example='1000'),
+  storageSpace?: double(name='StorageSpace', description='The storage space, in GB.', example='1000'),
   storageType?: string(name='StorageType', description='The storage type for the High-performance Edition. Valid values:
 * **ESSDPL1**
 * **ESSDPL0**
 
 The storage type for the Basic Edition. Valid values:
-* **city_redundancy**: zone-redundant storage.', example='essdpl1'),
-  storageUsed?: double(name='StorageUsed', description='The used storage space. Unit: bytes.', example='3012558848'),
+* **city_redundancy**: cross-zone redundancy.', example='essdpl1'),
+  storageUsed?: double(name='StorageUsed', description='The storage usage, in bytes.', example='3012558848'),
   userDefaultAccName?: string(name='UserDefaultAccName', description='The default user account name for S3 Gateway.', example='lakebase_acc'),
   userDefaultAccSk?: string(name='UserDefaultAccSk', description='The default user account key for S3 Gateway (encrypted ciphertext).', example='EncryptedSecretKey=='),
   VPCId?: string(name='VPCId', description='The VPC ID.', example='vpc-**********'),
@@ -47356,32 +47470,36 @@ model SearchMemoriesRequest {
   applicationId?: string(name='ApplicationId', description='The application ID.
 
 This parameter is required.', example='pa-**************'),
-  createTimeBegin?: string(name='CreateTimeBegin', description='The start time for filtering memories by creation time. Must be in UTC and ISO 8601 format.', example='yyyy-MM-ddTHH:mm:ssZ'),
-  createTimeEnd?: string(name='CreateTimeEnd', description='The end time for filtering memories by creation time. Must be in UTC and ISO 8601 format.', example='yyyy-MM-ddTHH:mm:ssZ'),
-  memoryAgentId?: string(name='MemoryAgentId', description='The agent ID associated with the memory.', example='agent1'),
-  memoryUserId?: string(name='MemoryUserId', description='The user ID associated with the memory.
+  createTimeBegin?: string(name='CreateTimeBegin', description='The start time for memory creation.', example='yyyy-MM-ddTHH:mm:ssZ'),
+  createTimeEnd?: string(name='CreateTimeEnd', description='The end time for memory creation.', example='yyyy-MM-ddTHH:mm:ssZ'),
+  memoryAgentId?: string(name='MemoryAgentId', description='The memory agent ID.', example='agent1'),
+  memoryUserId?: string(name='MemoryUserId', description='The memory user ID.
 
 This parameter is required.', example='user1'),
-  query?: string(name='Query', description='The search query.
-
-This parameter is required.', example='who are you'),
-  topK?: string(name='TopK', description='The maximum number of results to return.', example='3'),
+  page?: int32(name='Page', description='The page number.'),
+  pageSize?: int32(name='PageSize', description='The number of records per page.'),
+  query?: string(name='Query', description='The search query.', example='who are you'),
+  topK?: string(name='TopK', description='Specifies the number of top results to return.', example='3'),
 }
 
 model SearchMemoriesResponseBody = {
-  requestId?: string(name='RequestId', description='The unique request ID.', example='3E5CD764-FCCA-5C9C-838E-20E0DE84B2AF'),
+  page?: string(name='Page'),
+  pageSize?: string(name='PageSize'),
+  requestId?: string(name='RequestId', description='The request ID.', example='3E5CD764-FCCA-5C9C-838E-20E0DE84B2AF'),
   results?: [ 
     {
-      createTime?: string(name='CreateTime', description='The creation time of the memory.', example='2025-09-26T08:25:44Z'),
-      id?: string(name='Id', description='The unique ID of the memory.', example='423'),
-      memory?: string(name='Memory', description='The content of the memory.', example='xxx'),
-      memoryAgentId?: string(name='MemoryAgentId', description='The agent ID that owns the memory.', example='agent1'),
-      memoryUserId?: string(name='MemoryUserId', description='The user ID that owns the memory.', example='user1'),
-      metadata?: string(name='Metadata', description='Additional metadata associated with the memory.', example='{\\\\"tags\\\\":\\\\"Issue_date_2023-11-30,VD_现行有效\\\\"}'),
-      score?: string(name='Score', description='The relevance score of the result.', example='12'),
-      updateTime?: string(name='UpdateTime', description='The update time of the memory.', example='2025-10-16T02:27:33Z'),
+      createTime?: string(name='CreateTime', description='The creation time.', example='2025-09-26T08:25:44Z'),
+      id?: string(name='Id', description='The memory ID.', example='423'),
+      memory?: string(name='Memory', description='The memory content.', example='xxx'),
+      memoryAgentId?: string(name='MemoryAgentId', description='The agent to which the memory belongs.', example='agent1'),
+      memoryUserId?: string(name='MemoryUserId', description='The user to whom the memory belongs.', example='user1'),
+      metadata?: string(name='Metadata', description='The metadata.', example='{\\\\"tags\\\\":\\\\"Issue_date_2023-11-30,VD_现行有效\\\\"}'),
+      score?: string(name='Score', description='The score.', example='12'),
+      updateTime?: string(name='UpdateTime', description='The update time.', example='2025-10-16T02:27:33Z'),
     }
-  ](name='Results', description='An array of search results.'),
+  ](name='Results', description='The list of results.'),
+  total?: string(name='Total'),
+  totalPages?: string(name='TotalPages'),
 }
 
 model SearchMemoriesResponse = {
@@ -47391,7 +47509,7 @@ model SearchMemoriesResponse = {
 }
 
 /**
- * @summary Retrieves memories based on a search query.
+ * @summary Retrieves memories.
  *
  * @param request SearchMemoriesRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -47414,6 +47532,12 @@ async function searchMemoriesWithOptions(request: SearchMemoriesRequest, runtime
   }
   if (!Util.isUnset(request.memoryUserId)) {
     query['MemoryUserId'] = request.memoryUserId;
+  }
+  if (!Util.isUnset(request.page)) {
+    query['Page'] = request.page;
+  }
+  if (!Util.isUnset(request.pageSize)) {
+    query['PageSize'] = request.pageSize;
   }
   if (!Util.isUnset(request.query)) {
     query['Query'] = request.query;
@@ -47439,7 +47563,7 @@ async function searchMemoriesWithOptions(request: SearchMemoriesRequest, runtime
 }
 
 /**
- * @summary Retrieves memories based on a search query.
+ * @summary Retrieves memories.
  *
  * @param request SearchMemoriesRequest
  * @return SearchMemoriesResponse
