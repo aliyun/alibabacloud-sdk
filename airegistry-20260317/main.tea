@@ -11,7 +11,7 @@ extends OpenApi;
 
 init(config: OpenApi.Config){
   super(config);
-  @endpointRule = '';
+  @endpointRule = 'regional';
   
   checkConfig(config);
   @endpoint = getEndpoint('airegistry', @regionId, @endpointRule, @network, @suffix, @endpointMap, @endpoint);
@@ -29,24 +29,31 @@ function getEndpoint(productId: string, regionId: string, endpointRule: string, 
 }
 
 model DataResourceValue = {
-  name?: string(name='Name'),
-  type?: string(name='Type'),
-  content?: string(name='Content'),
-  metadata?: map[string]any(name='Metadata'),
+  name?: string(name='Name', description='The resource name (including the file name extension).', example='sample.md'),
+  type?: string(name='Type', description='The resource type: template, data, script, etc.', example='script'),
+  content?: string(name='Content', description='The resource content.', example='This is a sample file.'),
+  metadata?: map[string]any(name='Metadata', description='The resource metadata.'),
 }
 
 model CreateNamespaceRequest {
-  description?: string(name='Description', example='用于管理客服场景的Prompt'),
-  name?: string(name='Name', example='我的Prompt空间'),
-  scanPolicy?: string(name='ScanPolicy', example='{"minBlockRiskLevel":"medium","maxSkipRatio":0.2}'),
-  tags?: string(name='Tags', example='customer-service,production'),
+  description?: string(name='Description', description='The workspace description.', example='用于管理客服场景的Prompt'),
+  name?: string(name='Name', description='The workspace name.', example='我的Prompt空间'),
+  scanPolicy?: string(name='ScanPolicy', description='The scan policy.
+
+This parameter contains two configuration items:
+- minBlockRiskLevel: the risk level for blocking.
+  - high: blocks high-risk items.
+  - medium: blocks medium-risk and high-risk items.
+  - low: blocks all risk levels including high, medium, and low.
+- maxSkipRatio: the max false positive rate. If the scan skip ratio exceeds this value, the scan is considered as failed.', example='{"minBlockRiskLevel":"medium","maxSkipRatio":0.2}'),
+  tags?: string(name='Tags', description='The tags. Separate multiple tags with commas.', example='customer-service,production'),
 }
 
 model CreateNamespaceResponseBody = {
   data?: {
-    namespaceId?: string(name='NamespaceId'),
-  }(name='Data'),
-  requestId?: string(name='RequestId'),
+    namespaceId?: string(name='NamespaceId', description='The namespace ID. The default namespace cannot be queried, modified, or deleted.', example='a2a9310a-9d91-4283-b4e2-844f6d45fe64'),
+  }(name='Data', description='The namespace creation result.'),
+  requestId?: string(name='RequestId', description='The request ID.', example='D9E87E66-9EF0-5C10-A5E6-924020A0C9B7'),
 }
 
 model CreateNamespaceResponse = {
@@ -56,7 +63,7 @@ model CreateNamespaceResponse = {
 }
 
 /**
- * @summary 创建 AI Registry 命名空间
+ * @summary Creates a namespace in AI Registry and returns the corresponding namespace ID.
  *
  * @param request CreateNamespaceRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -95,7 +102,7 @@ async function createNamespaceWithOptions(request: CreateNamespaceRequest, runti
 }
 
 /**
- * @summary 创建 AI Registry 命名空间
+ * @summary Creates a namespace in AI Registry and returns the corresponding namespace ID.
  *
  * @param request CreateNamespaceRequest
  * @return CreateNamespaceResponse
@@ -106,19 +113,25 @@ async function createNamespace(request: CreateNamespaceRequest): CreateNamespace
 }
 
 model CreatePromptRequest {
-  bizTags?: string(name='BizTags', example='cs,qa,support'),
-  commitMsg?: string(name='CommitMsg', example='初始版本'),
-  description?: string(name='Description', example='客服问答 Prompt'),
-  namespaceId?: string(name='NamespaceId', description='This parameter is required.', example='550e8400-e29b-41d4-a716-446655440000'),
-  promptKey?: string(name='PromptKey', description='This parameter is required.', example='customer-service-qa'),
-  targetVersion?: string(name='TargetVersion', example='0.0.1'),
-  template?: string(name='Template', description='This parameter is required.', example='你是一个客服助手，请回答：{question}'),
-  variables?: string(name='Variables', example='[{"name":"question","defaultValue":"Hello"}]'),
+  bizTags?: string(name='BizTags', description='Business tags, comma-separated', example='cs,qa,support'),
+  commitMsg?: string(name='CommitMsg', description='Commit message', example='初始版本'),
+  description?: string(name='Description', description='Prompt description', example='客服问答 Prompt'),
+  namespaceId?: string(name='NamespaceId', description='Workspace ID
+
+This parameter is required.', example='550e8400-e29b-41d4-a716-446655440000'),
+  promptKey?: string(name='PromptKey', description='Prompt unique identifier
+
+This parameter is required.', example='customer-service-qa'),
+  targetVersion?: string(name='TargetVersion', description='Version number for the initial draft version of the prompt. Defaults to 0.0.1 if not specified.', example='0.0.1'),
+  template?: string(name='Template', description='Template content for the initial draft version of the prompt
+
+This parameter is required.', example='你是一个客服助手，请回答：{question}'),
+  variables?: string(name='Variables', description='Variable definitions, JSON array string, supporting name, description, and defaultValue parameters', example='[{"name":"question","defaultValue":"Hello"}]'),
 }
 
 model CreatePromptResponseBody = {
-  data?: string(name='Data'),
-  requestId?: string(name='RequestId'),
+  data?: string(name='Data', description='Draft version number of the created prompt', example='0.0.1'),
+  requestId?: string(name='RequestId', description='Request ID', example='D9E87E66-9EF0-5C10-A5E6-924020A0C9B7'),
 }
 
 model CreatePromptResponse = {
@@ -128,7 +141,7 @@ model CreatePromptResponse = {
 }
 
 /**
- * @summary 创建 Prompt
+ * @summary Create a prompt and create the initial draft version content of that prompt
  *
  * @param request CreatePromptRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -179,7 +192,7 @@ async function createPromptWithOptions(request: CreatePromptRequest, runtime: Ut
 }
 
 /**
- * @summary 创建 Prompt
+ * @summary Create a prompt and create the initial draft version content of that prompt
  *
  * @param request CreatePromptRequest
  * @return CreatePromptResponse
@@ -190,18 +203,22 @@ async function createPrompt(request: CreatePromptRequest): CreatePromptResponse 
 }
 
 model CreatePromptVersionRequest {
-  basedOnVersion?: string(name='BasedOnVersion', example='0.0.1'),
-  commitMsg?: string(name='CommitMsg', example='初始版本'),
-  namespaceId?: string(name='NamespaceId', description='This parameter is required.', example='550e8400-e29b-41d4-a716-446655440000'),
-  promptKey?: string(name='PromptKey', description='This parameter is required.', example='customer-service-qa'),
-  targetVersion?: string(name='TargetVersion', example='0.0.2'),
-  template?: string(name='Template', example='你是一个客服助手，请回答：{question}'),
-  variables?: string(name='Variables', example='[{"name":"question","defaultValue":"Hello"}]'),
+  basedOnVersion?: string(name='BasedOnVersion', description='Fork from this version. Either this parameter or Template must be specified.', example='0.0.1'),
+  commitMsg?: string(name='CommitMsg', description='Commit message.', example='初始版本'),
+  namespaceId?: string(name='NamespaceId', description='Workspace ID.
+
+This parameter is required.', example='550e8400-e29b-41d4-a716-446655440000'),
+  promptKey?: string(name='PromptKey', description='Unique identifier of the prompt.
+
+This parameter is required.', example='customer-service-qa'),
+  targetVersion?: string(name='TargetVersion', description='Draft version number. If not specified, the version number is automatically incremented.', example='0.0.2'),
+  template?: string(name='Template', description='Prompt template content. Either this parameter or BasedOnVersion must be specified.', example='你是一个客服助手，请回答：{question}'),
+  variables?: string(name='Variables', description='Variable definitions in a JSON array string.', example='[{"name":"question","defaultValue":"Hello"}]'),
 }
 
 model CreatePromptVersionResponseBody = {
-  data?: string(name='Data'),
-  requestId?: string(name='RequestId'),
+  data?: string(name='Data', description='Version number of the created draft version.', example='0.0.1'),
+  requestId?: string(name='RequestId', description='Request ID.', example='D9E87E66-9EF0-5C10-A5E6-924020A0C9B7'),
 }
 
 model CreatePromptVersionResponse = {
@@ -211,7 +228,7 @@ model CreatePromptVersionResponse = {
 }
 
 /**
- * @summary 创建 Prompt 草稿版本。Prompt 必须已存在，且当前没有正在编辑的草稿。只对草稿版本生效。
+ * @summary Creates a new version of a prompt. The new version defaults to draft status. An error is returned if a draft version already exists.
  *
  * @param request CreatePromptVersionRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -259,7 +276,7 @@ async function createPromptVersionWithOptions(request: CreatePromptVersionReques
 }
 
 /**
- * @summary 创建 Prompt 草稿版本。Prompt 必须已存在，且当前没有正在编辑的草稿。只对草稿版本生效。
+ * @summary Creates a new version of a prompt. The new version defaults to draft status. An error is returned if a draft version already exists.
  *
  * @param request CreatePromptVersionRequest
  * @return CreatePromptVersionResponse
@@ -270,17 +287,21 @@ async function createPromptVersion(request: CreatePromptVersionRequest): CreateP
 }
 
 model CreateSkillDraftRequest {
-  basedOnVersion?: string(name='BasedOnVersion', example='0.0.1'),
-  commitMsg?: string(name='CommitMsg', example='初始版本'),
-  namespaceId?: string(name='NamespaceId', description='This parameter is required.', example='550e8400-e29b-41d4-a716-446655440000'),
-  skillCard?: string(name='SkillCard', example='{"name":"customer-service-skill","description":"..."}'),
-  skillName?: string(name='SkillName', description='This parameter is required.', example='customer-service-skill'),
-  targetVersion?: string(name='TargetVersion', example='0.0.2'),
+  basedOnVersion?: string(name='BasedOnVersion', description='The version to fork from. If not specified, a new Skill is created based on the latest version.', example='0.0.1'),
+  commitMsg?: string(name='CommitMsg', description='The commit message.', example='Initial version.'),
+  namespaceId?: string(name='NamespaceId', description='The workspace ID.
+
+This parameter is required.', example='550e8400-e29b-41d4-a716-446655440000'),
+  skillCard?: string(name='SkillCard', description='The Skill card JSON string that contains complete Skill information.', example='{"name":"customer-service-skill","description":"customer-skill-desc","skillMd":"---\\\\nname: customer-service-skill\\\\ndescription: customer-skill-desc\\\\n---\\\\ncustomer-skill-content"}'),
+  skillName?: string(name='SkillName', description='The Skill name.
+
+This parameter is required.', example='customer-service-skill'),
+  targetVersion?: string(name='TargetVersion', description='The specified draft version number. If not specified, the version number is automatically incremented.', example='0.0.2'),
 }
 
 model CreateSkillDraftResponseBody = {
-  data?: string(name='Data'),
-  requestId?: string(name='RequestId'),
+  data?: string(name='Data', description='The Skill version.', example='3aa3fb14dddd4bdb941cf4536e4e918b'),
+  requestId?: string(name='RequestId', description='The request ID.', example='D9E87E66-9EF0-5C10-A5E6-924020A0C9B7'),
 }
 
 model CreateSkillDraftResponse = {
@@ -290,7 +311,7 @@ model CreateSkillDraftResponse = {
 }
 
 /**
- * @summary 创建 Skill 草稿版本
+ * @summary Creates a Skill draft and returns the Skill version.
  *
  * @param request CreateSkillDraftRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -335,7 +356,7 @@ async function createSkillDraftWithOptions(request: CreateSkillDraftRequest, run
 }
 
 /**
- * @summary 创建 Skill 草稿版本
+ * @summary Creates a Skill draft and returns the Skill version.
  *
  * @param request CreateSkillDraftRequest
  * @return CreateSkillDraftResponse
@@ -346,12 +367,14 @@ async function createSkillDraft(request: CreateSkillDraftRequest): CreateSkillDr
 }
 
 model DeleteNamespaceRequest {
-  namespaceId?: string(name='NamespaceId', description='This parameter is required.', example='550e8400-e29b-41d4-a716-446655440000'),
+  namespaceId?: string(name='NamespaceId', description='The workspace ID.
+
+This parameter is required.', example='550e8400-e29b-41d4-a716-446655440000'),
 }
 
 model DeleteNamespaceResponseBody = {
-  data?: boolean(name='Data'),
-  requestId?: string(name='RequestId'),
+  data?: boolean(name='Data', description='The namespace deletion result.', example='True'),
+  requestId?: string(name='RequestId', description='The request ID.', example='D9E87E66-9EF0-5C10-A5E6-924020A0C9B7'),
 }
 
 model DeleteNamespaceResponse = {
@@ -361,7 +384,7 @@ model DeleteNamespaceResponse = {
 }
 
 /**
- * @summary 删除命名空间
+ * @summary Deletes a specified namespace from the AI Governance Center. The system checks whether the namespace contains any resources in use (such as Skills or Prompts) before deletion. If such resources exist, the deletion fails.
  *
  * @param request DeleteNamespaceRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -391,7 +414,7 @@ async function deleteNamespaceWithOptions(request: DeleteNamespaceRequest, runti
 }
 
 /**
- * @summary 删除命名空间
+ * @summary Deletes a specified namespace from the AI Governance Center. The system checks whether the namespace contains any resources in use (such as Skills or Prompts) before deletion. If such resources exist, the deletion fails.
  *
  * @param request DeleteNamespaceRequest
  * @return DeleteNamespaceResponse
@@ -402,13 +425,17 @@ async function deleteNamespace(request: DeleteNamespaceRequest): DeleteNamespace
 }
 
 model DeletePromptRequest {
-  namespaceId?: string(name='NamespaceId', description='This parameter is required.', example='550e8400-e29b-41d4-a716-446655440000'),
-  promptKey?: string(name='PromptKey', description='This parameter is required.', example='customer-service-qa'),
+  namespaceId?: string(name='NamespaceId', description='The workspace ID.
+
+This parameter is required.', example='550e8400-e29b-41d4-a716-446655440000'),
+  promptKey?: string(name='PromptKey', description='The unique identifier of the prompt.
+
+This parameter is required.', example='customer-service-qa'),
 }
 
 model DeletePromptResponseBody = {
-  data?: boolean(name='Data'),
-  requestId?: string(name='RequestId'),
+  data?: boolean(name='Data', description='Indicates whether the operation is successful.', example='true'),
+  requestId?: string(name='RequestId', description='The request ID.', example='D9E87E66-9EF0-5C10-A5E6-924020A0C9B7'),
 }
 
 model DeletePromptResponse = {
@@ -418,7 +445,7 @@ model DeletePromptResponse = {
 }
 
 /**
- * @summary 删除 Prompt
+ * @summary Deletes a specified prompt.
  *
  * @param request DeletePromptRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -451,7 +478,7 @@ async function deletePromptWithOptions(request: DeletePromptRequest, runtime: Ut
 }
 
 /**
- * @summary 删除 Prompt
+ * @summary Deletes a specified prompt.
  *
  * @param request DeletePromptRequest
  * @return DeletePromptResponse
@@ -462,12 +489,16 @@ async function deletePrompt(request: DeletePromptRequest): DeletePromptResponse 
 }
 
 model DeleteSkillRequest {
-  namespaceId?: string(name='NamespaceId', description='This parameter is required.', example='550e8400-e29b-41d4-a716-446655440000'),
-  skillName?: string(name='SkillName', description='This parameter is required.', example='customer-service-skill'),
+  namespaceId?: string(name='NamespaceId', description='The workspace ID.
+
+This parameter is required.', example='550e8400-e29b-41d4-a716-446655440000'),
+  skillName?: string(name='SkillName', description='The Skill name.
+
+This parameter is required.', example='customer-service-skill'),
 }
 
 model DeleteSkillResponseBody = {
-  requestId?: string(name='RequestId'),
+  requestId?: string(name='RequestId', description='The request ID.', example='195BF118-9AEF-5F3F-9A58-D88A77EB07DE'),
 }
 
 model DeleteSkillResponse = {
@@ -477,7 +508,7 @@ model DeleteSkillResponse = {
 }
 
 /**
- * @summary 删除 Skill
+ * @summary Deletes a specified Skill.
  *
  * @param request DeleteSkillRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -510,7 +541,7 @@ async function deleteSkillWithOptions(request: DeleteSkillRequest, runtime: Util
 }
 
 /**
- * @summary 删除 Skill
+ * @summary Deletes a specified Skill.
  *
  * @param request DeleteSkillRequest
  * @return DeleteSkillResponse
@@ -521,14 +552,20 @@ async function deleteSkill(request: DeleteSkillRequest): DeleteSkillResponse {
 }
 
 model DownloadSkillVersionViaOssRequest {
-  namespaceId?: string(name='NamespaceId', description='This parameter is required.', example='550e8400-e29b-41d4-a716-446655440000'),
-  skillName?: string(name='SkillName', description='This parameter is required.', example='customer-service-skill'),
-  skillVersion?: string(name='SkillVersion', description='This parameter is required.', example='0.0.1'),
+  namespaceId?: string(name='NamespaceId', description='The workspace ID.
+
+This parameter is required.', example='550e8400-e29b-41d4-a716-446655440000'),
+  skillName?: string(name='SkillName', description='The name of the skill.
+
+This parameter is required.', example='customer-service-skill'),
+  skillVersion?: string(name='SkillVersion', description='The version number of the skill.
+
+This parameter is required.', example='0.0.1'),
 }
 
 model DownloadSkillVersionViaOssResponseBody = {
-  data?: string(name='Data'),
-  requestId?: string(name='RequestId'),
+  data?: string(name='Data', description='The OSS URL for downloading the skill.', example='https://sample-bucket.oss-region.aliyuncs.com/xxxxxx'),
+  requestId?: string(name='RequestId', description='The request ID.', example='D9E87E66-9EF0-5C10-A5E6-924020A0C9B7'),
 }
 
 model DownloadSkillVersionViaOssResponse = {
@@ -538,7 +575,7 @@ model DownloadSkillVersionViaOssResponse = {
 }
 
 /**
- * @summary 通过 OSS 下载 Skill 版本 - 返回 OSS 下载 URL
+ * @summary Downloads a skill version through OSS and returns the OSS download URL.
  *
  * @param request DownloadSkillVersionViaOssRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -574,7 +611,7 @@ async function downloadSkillVersionViaOssWithOptions(request: DownloadSkillVersi
 }
 
 /**
- * @summary 通过 OSS 下载 Skill 版本 - 返回 OSS 下载 URL
+ * @summary Downloads a skill version through OSS and returns the OSS download URL.
  *
  * @param request DownloadSkillVersionViaOssRequest
  * @return DownloadSkillVersionViaOssResponse
@@ -585,14 +622,20 @@ async function downloadSkillVersionViaOss(request: DownloadSkillVersionViaOssReq
 }
 
 model ForcePublishSkillVersionRequest {
-  namespaceId?: string(name='NamespaceId', description='This parameter is required.', example='550e8400-e29b-41d4-a716-446655440000'),
-  skillName?: string(name='SkillName', description='This parameter is required.', example='customer-service-skill'),
-  skillVersion?: string(name='SkillVersion', description='This parameter is required.', example='0.0.2'),
-  updateLatestLabel?: boolean(name='UpdateLatestLabel', example='true'),
+  namespaceId?: string(name='NamespaceId', description='The workspace ID.
+
+This parameter is required.', example='550e8400-e29b-41d4-a716-446655440000'),
+  skillName?: string(name='SkillName', description='The Skill name.
+
+This parameter is required.', example='customer-service-skill'),
+  skillVersion?: string(name='SkillVersion', description='The version number.
+
+This parameter is required.', example='0.0.2'),
+  updateLatestLabel?: boolean(name='UpdateLatestLabel', description='Specifies whether to update the latest label.', example='true'),
 }
 
 model ForcePublishSkillVersionResponseBody = {
-  requestId?: string(name='RequestId'),
+  requestId?: string(name='RequestId', description='The request ID.', example='D9E87E66-9EF0-5C10-A5E6-924020A0C9B7'),
 }
 
 model ForcePublishSkillVersionResponse = {
@@ -602,7 +645,7 @@ model ForcePublishSkillVersionResponse = {
 }
 
 /**
- * @summary 强制发布版本
+ * @summary Force-publishes a version.
  *
  * @param request ForcePublishSkillVersionRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -641,7 +684,7 @@ async function forcePublishSkillVersionWithOptions(request: ForcePublishSkillVer
 }
 
 /**
- * @summary 强制发布版本
+ * @summary Force-publishes a version.
  *
  * @param request ForcePublishSkillVersionRequest
  * @return ForcePublishSkillVersionResponse
@@ -652,23 +695,35 @@ async function forcePublishSkillVersion(request: ForcePublishSkillVersionRequest
 }
 
 model GetNamespaceRequest {
-  namespaceId?: string(name='NamespaceId', description='This parameter is required.', example='550e8400-e29b-41d4-a716-446655440000'),
+  namespaceId?: string(name='NamespaceId', description='The workspace ID.
+
+This parameter is required.', example='550e8400-e29b-41d4-a716-446655440000'),
 }
 
 model GetNamespaceResponseBody = {
   data?: {
-    createdTime?: string(name='CreatedTime'),
-    description?: string(name='Description'),
-    name?: string(name='Name'),
-    namespaceId?: string(name='NamespaceId'),
-    promptCount?: int32(name='PromptCount'),
-    scanPolicy?: string(name='ScanPolicy'),
-    skillCount?: int32(name='SkillCount'),
-    source?: string(name='Source'),
-    sourceIndex?: int32(name='SourceIndex'),
-    tags?: string(name='Tags'),
-  }(name='Data'),
-  requestId?: string(name='RequestId'),
+    createdTime?: string(name='CreatedTime', description='The time when the namespace was created.', example='2025-11-17T09:57:38+08:00'),
+    description?: string(name='Description', description='The description of the namespace.', example='secret for bbtadmin'),
+    ipWhitelist?: string(name='IpWhitelist'),
+    name?: string(name='Name', description='The namespace name.', example='magic:magic-cn-1us4sed5d01'),
+    namespaceId?: string(name='NamespaceId', description='The namespace ID.', example='a2a9310a-9d91-4283-b4e2-844f6d45fe64'),
+    promptCount?: int32(name='PromptCount', description='The number of prompts in the namespace.', example='1'),
+    publicAccessEnabled?: boolean(name='PublicAccessEnabled'),
+    publicDomain?: string(name='PublicDomain'),
+    scanPolicy?: string(name='ScanPolicy', description='The scan policy.
+
+The policy contains two configuration items:
+- minBlockRiskLevel: the risk level for blocking.
+  - high: blocks high-risk items.
+  - medium: blocks medium- and high-risk items.
+  - low: blocks all risk levels including high, medium, and low.
+- maxSkipRatio: the maximum skip ratio. If the scan skip ratio exceeds this value, the scan is considered as failed.', example='{"minBlockRiskLevel":"medium","maxSkipRatio":0.2}'),
+    skillCount?: int32(name='SkillCount', description='The number of skills in the namespace.', example='1'),
+    source?: string(name='Source', description='The source of the namespace.', example='magic:magic-cn-1us4sed5d01'),
+    sourceIndex?: int32(name='SourceIndex', description='The source ordinal number of the namespace.', example='0'),
+    tags?: string(name='Tags', description='The tags of the namespace.', example='{}'),
+  }(name='Data', description='The namespace information.'),
+  requestId?: string(name='RequestId', description='The request ID.', example='D9E87E66-9EF0-5C10-A5E6-924020A0C9B7'),
 }
 
 model GetNamespaceResponse = {
@@ -678,7 +733,7 @@ model GetNamespaceResponse = {
 }
 
 /**
- * @summary 获取命名空间详细信息
+ * @summary Queries the details of an AI Governance Center namespace.
  *
  * @param request GetNamespaceRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -708,7 +763,7 @@ async function getNamespaceWithOptions(request: GetNamespaceRequest, runtime: Ut
 }
 
 /**
- * @summary 获取命名空间详细信息
+ * @summary Queries the details of an AI Governance Center namespace.
  *
  * @param request GetNamespaceRequest
  * @return GetNamespaceResponse
@@ -719,35 +774,39 @@ async function getNamespace(request: GetNamespaceRequest): GetNamespaceResponse 
 }
 
 model GetPromptRequest {
-  namespaceId?: string(name='NamespaceId', description='This parameter is required.', example='550e8400-e29b-41d4-a716-446655440000'),
-  promptKey?: string(name='PromptKey', description='This parameter is required.', example='customer-service-qa'),
+  namespaceId?: string(name='NamespaceId', description='The workspace ID.
+
+This parameter is required.', example='550e8400-e29b-41d4-a716-446655440000'),
+  promptKey?: string(name='PromptKey', description='The unique identifier of the prompt.
+
+This parameter is required.', example='customer-service-qa'),
 }
 
 model GetPromptResponseBody = {
   data?: {
-    bizTags?: [ string ](name='BizTags'),
-    description?: string(name='Description'),
-    editingVersion?: string(name='EditingVersion'),
-    gmtModified?: long(name='GmtModified'),
-    labels?: map[string]string(name='Labels'),
-    latestVersion?: string(name='LatestVersion'),
-    onlineCnt?: int32(name='OnlineCnt'),
-    promptKey?: string(name='PromptKey'),
-    reviewingVersion?: string(name='ReviewingVersion'),
-    schemaVersion?: int32(name='SchemaVersion'),
+    bizTags?: [ string ](name='BizTags', description='The list of business tags.'),
+    description?: string(name='Description', description='The description of the prompt.', example='Prompt for test'),
+    editingVersion?: string(name='EditingVersion', description='The version number of the draft version. This value is empty if no draft version exists.', example='0.0.1'),
+    gmtModified?: long(name='GmtModified', description='The time when the prompt was last modified.', example='2025-11-13T02:11:53Z'),
+    labels?: map[string]string(name='Labels', description='The mapping between prompt labels and versions.'),
+    latestVersion?: string(name='LatestVersion', description='The version number of the latest version of the prompt.', example='0.0.1'),
+    onlineCnt?: int32(name='OnlineCnt', description='The number of online versions of the prompt.', example='1'),
+    promptKey?: string(name='PromptKey', description='The unique identifier of the prompt.', example='customer-service-qa'),
+    reviewingVersion?: string(name='ReviewingVersion', description='The version number of the prompt version that is under review.', example='0.0.1'),
+    schemaVersion?: int32(name='SchemaVersion', description='The schema version.', example='1.0'),
     versionDetails?: [ 
       {
-        commitMsg?: string(name='CommitMsg'),
-        gmtModified?: long(name='GmtModified'),
-        promptKey?: string(name='PromptKey'),
-        srcUser?: string(name='SrcUser'),
-        status?: string(name='Status'),
-        version?: string(name='Version'),
+        commitMsg?: string(name='CommitMsg', description='The commit message of the version.', example='This is a test Version'),
+        gmtModified?: long(name='GmtModified', description='The time when the version was last modified.', example='1627545952000'),
+        promptKey?: string(name='PromptKey', description='The unique identifier of the prompt.', example='customer-service-qa'),
+        srcUser?: string(name='SrcUser', description='The creator of the version.', example='admin'),
+        status?: string(name='Status', description='The version status. Valid values: draft and online.', example='online'),
+        version?: string(name='Version', description='The version number.', example='0.0.1'),
       }
-    ](name='VersionDetails'),
-    versions?: [ string ](name='Versions'),
-  }(name='Data'),
-  requestId?: string(name='RequestId'),
+    ](name='VersionDetails', description='The list of version details.'),
+    versions?: [ string ](name='Versions', description='The list of version numbers.'),
+  }(name='Data', description='The returned result.'),
+  requestId?: string(name='RequestId', description='The request ID.', example='D9E87E66-9EF0-5C10-A5E6-924020A0C9B7'),
 }
 
 model GetPromptResponse = {
@@ -757,7 +816,7 @@ model GetPromptResponse = {
 }
 
 /**
- * @summary 获取 Prompt 详情信息
+ * @summary Retrieves the details of a prompt.
  *
  * @param request GetPromptRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -790,7 +849,7 @@ async function getPromptWithOptions(request: GetPromptRequest, runtime: Util.Run
 }
 
 /**
- * @summary 获取 Prompt 详情信息
+ * @summary Retrieves the details of a prompt.
  *
  * @param request GetPromptRequest
  * @return GetPromptResponse
@@ -801,30 +860,36 @@ async function getPrompt(request: GetPromptRequest): GetPromptResponse {
 }
 
 model GetPromptVersionRequest {
-  namespaceId?: string(name='NamespaceId', description='This parameter is required.', example='550e8400-e29b-41d4-a716-446655440000'),
-  promptKey?: string(name='PromptKey', description='This parameter is required.', example='customer-service-qa'),
-  promptVersion?: string(name='PromptVersion', description='This parameter is required.', example='0.0.1'),
+  namespaceId?: string(name='NamespaceId', description='Workspace ID
+
+This parameter is required.', example='550e8400-e29b-41d4-a716-446655440000'),
+  promptKey?: string(name='PromptKey', description='Unique identifier of the prompt
+
+This parameter is required.', example='customer-service-qa'),
+  promptVersion?: string(name='PromptVersion', description='Version number
+
+This parameter is required.', example='0.0.1'),
 }
 
 model GetPromptVersionResponseBody = {
   data?: {
-    commitMsg?: string(name='CommitMsg'),
-    gmtModified?: long(name='GmtModified'),
-    md5?: string(name='Md5'),
-    promptKey?: string(name='PromptKey'),
-    srcUser?: string(name='SrcUser'),
-    status?: string(name='Status'),
-    template?: string(name='Template'),
+    commitMsg?: string(name='CommitMsg', description='Commit message of this version', example='This is a test version'),
+    gmtModified?: long(name='GmtModified', description='Last modified time of the prompt', example='1605345828000'),
+    md5?: string(name='Md5', description='MD5 hash of the prompt content for this version', example='93EF3AC0C56DDACB5A9E528BB1C825C8'),
+    promptKey?: string(name='PromptKey', description='Unique identifier of the prompt', example='customer-service-qa'),
+    srcUser?: string(name='SrcUser', description='Creator of this version', example='admin'),
+    status?: string(name='Status', description='Version status. Draft: draft / Published: online', example='online'),
+    template?: string(name='Template', description='Template content of the prompt version', example='You are a {{domain}} expert.'),
     variables?: [ 
       {
-        defaultValue?: string(name='DefaultValue'),
-        description?: string(name='Description'),
-        name?: string(name='Name'),
+        defaultValue?: string(name='DefaultValue', description='Default value', example='code'),
+        description?: string(name='Description', description='Variable description', example='domain'),
+        name?: string(name='Name', description='Variable name', example='domain'),
       }
-    ](name='Variables'),
-    version?: string(name='Version'),
-  }(name='Data'),
-  requestId?: string(name='RequestId'),
+    ](name='Variables', description='List of variables for this version'),
+    version?: string(name='Version', description='Version number', example='0.0.1'),
+  }(name='Data', description='Query result'),
+  requestId?: string(name='RequestId', description='Request ID', example='D9E87E66-9EF0-5C10-A5E6-924020A0C9B7'),
 }
 
 model GetPromptVersionResponse = {
@@ -834,7 +899,7 @@ model GetPromptVersionResponse = {
 }
 
 /**
- * @summary 获取 Prompt 某个版本的信息
+ * @summary Query the detailed information of a specified version of a prompt.
  *
  * @param request GetPromptVersionRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -870,7 +935,7 @@ async function getPromptVersionWithOptions(request: GetPromptVersionRequest, run
 }
 
 /**
- * @summary 获取 Prompt 某个版本的信息
+ * @summary Query the detailed information of a specified version of a prompt.
  *
  * @param request GetPromptVersionRequest
  * @return GetPromptVersionResponse
@@ -881,42 +946,85 @@ async function getPromptVersion(request: GetPromptVersionRequest): GetPromptVers
 }
 
 model GetSkillDetailRequest {
-  namespaceId?: string(name='NamespaceId', description='This parameter is required.', example='550e8400-e29b-41d4-a716-446655440000'),
-  skillName?: string(name='SkillName', description='This parameter is required.', example='customer-service-skill'),
+  namespaceId?: string(name='NamespaceId', description='The workspace ID.
+
+This parameter is required.', example='550e8400-e29b-41d4-a716-446655440000'),
+  skillName?: string(name='SkillName', description='The skill name.
+
+This parameter is required.', example='customer-service-skill'),
 }
 
 model GetSkillDetailResponseBody = {
   data?: {
-    bizTags?: string(name='BizTags'),
-    description?: string(name='Description'),
-    downloadCount?: long(name='DownloadCount'),
-    editingVersion?: string(name='EditingVersion'),
-    enable?: boolean(name='Enable'),
-    from?: string(name='From'),
-    labels?: map[string]string(name='Labels'),
-    name?: string(name='Name'),
-    namespaceId?: string(name='NamespaceId'),
-    onlineCnt?: int32(name='OnlineCnt'),
-    owner?: string(name='Owner'),
-    reviewingVersion?: string(name='ReviewingVersion'),
-    scope?: string(name='Scope'),
-    updateTime?: long(name='UpdateTime'),
+    bizTags?: string(name='BizTags', description='The business tags as a JSON array string.', example='test'),
+    description?: string(name='Description', description='The skill description.', example='kms-rds-rduphoenix-val-mysql kms key'),
+    downloadCount?: long(name='DownloadCount', description='The total number of downloads.', example='100'),
+    editingVersion?: string(name='EditingVersion', description='The version that is being edited.', example='0.0.3'),
+    enable?: boolean(name='Enable', description='Indicates whether the skill is enabled.', example='false'),
+    from?: string(name='From', description='The source tag.', example='aqs'),
+    labels?: map[string]string(name='Labels', description='The version label mapping.'),
+    name?: string(name='Name', description='The skill name.', example='0521B历史1'),
+    namespaceId?: string(name='NamespaceId', description='The namespace ID.', example='cn-beijing:beta'),
+    onlineCnt?: int32(name='OnlineCnt', description='The number of online versions.', example='1'),
+    owner?: string(name='Owner', description='The UID of the owner.', example='199458752209xxxx'),
+    reviewingVersion?: string(name='ReviewingVersion', description='The version that is under review.', example='0.0.2'),
+    scope?: string(name='Scope', description='The visibility scope.', example='PUBLIC'),
+    updateTime?: long(name='UpdateTime', description='The update time.', example='2021-05-06T06:37Z'),
     versions?: [ 
       {
-        author?: string(name='Author'),
-        commitMsg?: string(name='CommitMsg'),
-        createTime?: long(name='CreateTime'),
-        description?: string(name='Description'),
-        downloadCount?: long(name='DownloadCount'),
-        publishPipelineInfo?: string(name='PublishPipelineInfo'),
-        status?: string(name='Status'),
-        updateTime?: long(name='UpdateTime'),
-        version?: string(name='Version'),
+        author?: string(name='Author', description='The author.', example='22618'),
+        commitMsg?: string(name='CommitMsg', description='The version commit message.', example='版本1说明。'),
+        createTime?: long(name='CreateTime', description='The timestamp when the file was created, in milliseconds.', example='2025-12-02T02:12:01Z'),
+        description?: string(name='Description', description='The description.', example='dataphin_300067022_pre'),
+        downloadCount?: long(name='DownloadCount', description='The number of downloads.', example='100'),
+        publishPipelineInfo?: string(name='PublishPipelineInfo', description='The skill review information.', example='{
+  "executionId": "54408ebe-3c19-4e2e-82a3-f400cedfcd24",
+  "status": "APPROVED",
+  "pipeline": [
+    {
+      "nodeId": "fence",
+      "executedAt": "2026-05-21T07:42:24.684194457Z",
+      "passed": true,
+      "messageType": "json",
+      "message": {
+        "resultCode": "PASS_PARTIAL_SKIP",
+        "reports": [
+          {
+            "file": "SKILL.md",
+            "taskId": "E25BDA44-6E10-51AF-B6AB-417EBB4CEF40",
+            "riskLevel": "none"
+          },
+          {
+            "file": "pdf-3/presentation.pptx",
+            "taskId": "BEEC2D66-B9AE-5C4F-828D-BFAB6E561891",
+            "riskLevel": "skip",
+            "errorCode": "500",
+            "errorMessage": "Scan failed. Please contact us through the online service."
+          }
+        ]
+      },
+      "checkpoints": [
+        {
+          "title": "promptAttack",
+          "passed": true
+        },
+        {
+          "title": "contentModeration",
+          "passed": true
+        }
+      ],
+      "durationMs": 18933
+    }
+  ]
+}'),
+        status?: string(name='Status', description='The resource status.', example='online'),
+        updateTime?: long(name='UpdateTime', description='The update time.', example='2021-05-06T06:37Z'),
+        version?: string(name='Version', description='The version number.', example='2017-08-01'),
       }
-    ](name='Versions'),
-    writeable?: boolean(name='Writeable'),
-  }(name='Data'),
-  requestId?: string(name='RequestId'),
+    ](name='Versions', description='The list of all version summaries.'),
+    writeable?: boolean(name='Writeable', description='Indicates whether the skill can be edited.', example='true'),
+  }(name='Data', description='The detailed information about the skill.'),
+  requestId?: string(name='RequestId', description='The unique request ID generated by Alibaba Cloud for this request.', example='C5272879-3C44-5E5A-8056-CB4E8EB36DCD'),
 }
 
 model GetSkillDetailResponse = {
@@ -926,7 +1034,7 @@ model GetSkillDetailResponse = {
 }
 
 /**
- * @summary 获取 Skill 详情
+ * @summary Retrieves the metadata and version information of a skill.
  *
  * @param request GetSkillDetailRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -959,7 +1067,7 @@ async function getSkillDetailWithOptions(request: GetSkillDetailRequest, runtime
 }
 
 /**
- * @summary 获取 Skill 详情
+ * @summary Retrieves the metadata and version information of a skill.
  *
  * @param request GetSkillDetailRequest
  * @return GetSkillDetailResponse
@@ -970,18 +1078,22 @@ async function getSkillDetail(request: GetSkillDetailRequest): GetSkillDetailRes
 }
 
 model GetSkillImportFileUrlRequest {
-  contentType?: string(name='ContentType', example='application/zip'),
-  namespaceId?: string(name='NamespaceId', description='This parameter is required.', example='550e8400-e29b-41d4-a716-446655440000'),
+  contentType?: string(name='ContentType', description='The Content-Type of the uploaded file. Default value: application/zip.', example='application/zip'),
+  namespaceId?: string(name='NamespaceId', description='The workspace ID.
+
+This parameter is required.', example='550e8400-e29b-41d4-a716-446655440000'),
 }
 
 model GetSkillImportFileUrlResponseBody = {
   data?: {
-    contentType?: string(name='ContentType'),
-    maxSize?: string(name='MaxSize'),
-    ossObjectName?: string(name='OssObjectName'),
-    uploadUrl?: string(name='UploadUrl'),
-  }(name='Data'),
-  requestId?: string(name='RequestId'),
+    contentType?: string(name='ContentType', description='The file type.', example='application/zip'),
+    maxSize?: string(name='MaxSize', description='The maximum size of the file that can be uploaded, in MB.', example='10'),
+    ossObjectName?: string(name='OssObjectName', description='The file name in the authorized OSS bucket.
+
+> You can use one of the following methods to pass in images: FaceContrastPicture, FaceContrastPictureUrl, CertifyId, or OSS. Select one of these methods.', example='1190239587066411/skill/import/5e993afe-f629-4619-9ac2-51b125300cdd/2026/06/09/35059076-5992-4a71-a706-89230e57f2a2/ui-ux-pro-max.zip'),
+    uploadUrl?: string(name='UploadUrl', description='The file upload URL. The client uses this URL to upload the file.', example='https://mse-shared-cn-hangzhou.oss-cn-hangzhou.aliyuncs.com/skill/import/199xxxxxxxx0842/xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxx/2026/06/10/xxxx-xxxx-xxxx-xxxx-xxxxxxxxxx/1781082579097.zip?Expires=1781083479&OSSAccessKeyId=STS.NZXGXTD2yoDLd5PfsYxjFrvBJ&Signature=Loyyzzzzzzzz%3D&security-token=CAIStgxxxxxxx'),
+  }(name='Data', description='The returned result.'),
+  requestId?: string(name='RequestId', description='The request ID.', example='D9E87E66-9EF0-5C10-A5E6-924020A0C9B7'),
 }
 
 model GetSkillImportFileUrlResponse = {
@@ -991,7 +1103,7 @@ model GetSkillImportFileUrlResponse = {
 }
 
 /**
- * @summary 获取 Skill 导入用 OSS 上传 URL。客户端使用返回的 uploadUrl 执行 PUT 上传后，
+ * @summary Retrieves a URL for uploading a Skill to OSS. The client uses the returned URL to upload the Skill by performing a PUT request.
  *
  * @param request GetSkillImportFileUrlRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -1024,7 +1136,7 @@ async function getSkillImportFileUrlWithOptions(request: GetSkillImportFileUrlRe
 }
 
 /**
- * @summary 获取 Skill 导入用 OSS 上传 URL。客户端使用返回的 uploadUrl 执行 PUT 上传后，
+ * @summary Retrieves a URL for uploading a Skill to OSS. The client uses the returned URL to upload the Skill by performing a PUT request.
  *
  * @param request GetSkillImportFileUrlRequest
  * @return GetSkillImportFileUrlResponse
@@ -1035,20 +1147,31 @@ async function getSkillImportFileUrl(request: GetSkillImportFileUrlRequest): Get
 }
 
 model GetSkillVersionDetailRequest {
-  namespaceId?: string(name='NamespaceId', description='This parameter is required.', example='550e8400-e29b-41d4-a716-446655440000'),
-  skillName?: string(name='SkillName', description='This parameter is required.', example='customer-service-skill'),
-  skillVersion?: string(name='SkillVersion', description='This parameter is required.', example='0.0.1'),
+  namespaceId?: string(name='NamespaceId', description='The workspace ID.
+
+This parameter is required.', example='550e8400-e29b-41d4-a716-446655440000'),
+  skillName?: string(name='SkillName', description='The skill name.
+
+This parameter is required.', example='customer-service-skill'),
+  skillVersion?: string(name='SkillVersion', description='The version number.
+
+This parameter is required.', example='0.0.1'),
 }
 
 model GetSkillVersionDetailResponseBody = {
   data?: {
-    description?: string(name='Description'),
-    name?: string(name='Name'),
-    namespaceId?: string(name='NamespaceId'),
-    resource?: map[string]DataResourceValue(name='Resource'),
-    skillMd?: string(name='SkillMd'),
-  }(name='Data'),
-  requestId?: string(name='RequestId'),
+    description?: string(name='Description', description='The description of the skill for the current version.', example='secret for bbtadmin'),
+    name?: string(name='Name', description='The skill name.', example='BusinessModel.'),
+    namespaceId?: string(name='NamespaceId', description='The namespace ID to which the application belongs.', example='f52aea1c-774e-4cc1-9dd1-d91432484d44'),
+    resource?: map[string]DataResourceValue(name='Resource', description='The resource mapping (key is the resource name).'),
+    skillMd?: string(name='SkillMd', description='The skill card content (SKILL.md).', example='---
+name: hello-world
+description: Say hello to users
+---
+
+Hello World Skill'),
+  }(name='Data', description='The detailed information of the recording plan.'),
+  requestId?: string(name='RequestId', description='The unique request ID generated by Alibaba Cloud for this request.', example='3EF4C9EC-0D5B-5AD6-8585-4D2AAA22B1E3'),
 }
 
 model GetSkillVersionDetailResponse = {
@@ -1058,7 +1181,7 @@ model GetSkillVersionDetailResponse = {
 }
 
 /**
- * @summary 获取指定版本详情
+ * @summary Retrieves the details of a specified version.
  *
  * @param request GetSkillVersionDetailRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -1094,7 +1217,7 @@ async function getSkillVersionDetailWithOptions(request: GetSkillVersionDetailRe
 }
 
 /**
- * @summary 获取指定版本详情
+ * @summary Retrieves the details of a specified version.
  *
  * @param request GetSkillVersionDetailRequest
  * @return GetSkillVersionDetailResponse
@@ -1105,32 +1228,35 @@ async function getSkillVersionDetail(request: GetSkillVersionDetailRequest): Get
 }
 
 model ListNamespacesRequest {
-  name?: string(name='Name', example='客服'),
-  pageNo?: int32(name='PageNo', example='1'),
-  pageSize?: int32(name='PageSize', example='10'),
-  tags?: string(name='Tags', example='production,customer-service'),
+  name?: string(name='Name', description='Performs a fuzzy search by name.', example='test-namespace'),
+  pageNo?: int32(name='PageNo', description='The page number. Default value: 1.', example='1'),
+  pageSize?: int32(name='PageSize', description='The number of entries per page. Default value: 10.', example='10'),
+  tags?: string(name='Tags', description='Filters by tags. Separate multiple tags with commas. Results are matched by intersection.', example='production,customer-service'),
 }
 
 model ListNamespacesResponseBody = {
   data?: {
     items?: [ 
       {
-        createdTime?: string(name='CreatedTime'),
-        description?: string(name='Description'),
-        name?: string(name='Name'),
-        namespaceId?: string(name='NamespaceId'),
-        promptCount?: int32(name='PromptCount'),
-        skillCount?: int32(name='SkillCount'),
-        source?: string(name='Source'),
-        sourceIndex?: int32(name='SourceIndex'),
-        tags?: string(name='Tags'),
+        createdTime?: string(name='CreatedTime', description='The time when the namespace was created.', example='2022-07-11T09:32:03+08:00'),
+        description?: string(name='Description', description='The description of the namespace.', example='Default project, auto-created by EMR.'),
+        ipWhitelist?: string(name='IpWhitelist'),
+        name?: string(name='Name', description='The namespace name.', example='magic:magic-cn-1us4sed5d01'),
+        namespaceId?: string(name='NamespaceId', description='The namespace ID.', example='76d4b6e4-31bf-475a-8710-6217ec049c1f'),
+        promptCount?: int32(name='PromptCount', description='The number of prompts in the namespace.', example='1'),
+        publicAccessEnabled?: boolean(name='PublicAccessEnabled'),
+        publicDomain?: string(name='PublicDomain'),
+        skillCount?: int32(name='SkillCount', description='The number of skills in the namespace.', example='1'),
+        source?: string(name='Source', description='The source of the namespace.', example='magic:magic-cn-fpi4secsq01'),
+        sourceIndex?: int32(name='SourceIndex', description='The source index of the namespace.', example='0'),
+        tags?: string(name='Tags', description='The tags of the namespace.', example='qa,test'),
       }
-    ](name='Items'),
-    pageNumber?: int32(name='PageNumber'),
-    pageSize?: int32(name='PageSize'),
-    totalCount?: int32(name='TotalCount'),
-  }(name='Data'),
-  requestId?: string(name='RequestId'),
+    ](name='Items', description='The returned data entries.'),
+    pageNumber?: int32(name='PageNumber', description='The page number.', example='1'),
+    pageSize?: int32(name='PageSize', description='The page size. Default value: 10.', example='50'),
+    totalCount?: int32(name='TotalCount', description='The total number of entries.', example='2'),
+  }(name='Data', description='The namespace query result.'),
+  requestId?: string(name='RequestId', description='The request ID.', example='D9E87E66-9EF0-5C10-A5E6-924020A0C9B7'),
 }
 
 model ListNamespacesResponse = {
@@ -1140,7 +1266,7 @@ model ListNamespacesResponse = {
 }
 
 /**
- * @summary 获取命名空间列表
+ * @summary Lists the namespaces in the AI Governance Center.
  *
  * @param request ListNamespacesRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -1179,7 +1305,7 @@ async function listNamespacesWithOptions(request: ListNamespacesRequest, runtime
 }
 
 /**
- * @summary 获取命名空间列表
+ * @summary Lists the namespaces in the AI Governance Center.
  *
  * @param request ListNamespacesRequest
  * @return ListNamespacesResponse
@@ -1190,29 +1316,33 @@ async function listNamespaces(request: ListNamespacesRequest): ListNamespacesRes
 }
 
 model ListPromptVersionsRequest {
-  namespaceId?: string(name='NamespaceId', description='This parameter is required.', example='550e8400-e29b-41d4-a716-446655440000'),
-  pageNo?: int32(name='PageNo', example='1'),
-  pageSize?: int32(name='PageSize', example='10'),
-  promptKey?: string(name='PromptKey', description='This parameter is required.', example='customer-service-qa'),
+  namespaceId?: string(name='NamespaceId', description='The workspace ID.
+
+This parameter is required.', example='550e8400-e29b-41d4-a716-446655440000'),
+  pageNo?: int32(name='PageNo', description='The page number. Default value: 1.', example='1'),
+  pageSize?: int32(name='PageSize', description='The number of entries per page. Default value: 10.', example='10'),
+  promptKey?: string(name='PromptKey', description='The unique identifier of the prompt.
+
+This parameter is required.', example='customer-service-qa'),
 }
 
 model ListPromptVersionsResponseBody = {
   data?: {
     pageItems?: [ 
       {
-        commitMsg?: string(name='CommitMsg'),
-        gmtModified?: long(name='GmtModified'),
-        promptKey?: string(name='PromptKey'),
-        srcUser?: string(name='SrcUser'),
-        status?: string(name='Status'),
-        version?: string(name='Version'),
+        commitMsg?: string(name='CommitMsg', description='The commit message of the prompt version.', example='This is a test version'),
+        gmtModified?: long(name='GmtModified', description='The modification date.', example='2026-01-04T16:09:29+08:00'),
+        promptKey?: string(name='PromptKey', description='The unique identifier of the prompt.', example='customer-service-qa'),
+        srcUser?: string(name='SrcUser', description='The creator of the prompt version.', example='admin'),
+        status?: string(name='Status', description='The status of the prompt version.', example='draft'),
+        version?: string(name='Version', description='The version number.', example='0.0.1'),
       }
-    ](name='PageItems'),
-    pageNumber?: int32(name='PageNumber'),
-    pagesAvailable?: int32(name='PagesAvailable'),
-    totalCount?: int32(name='TotalCount'),
-  }(name='Data'),
-  requestId?: string(name='RequestId'),
+    ](name='PageItems', description='The list of prompt versions.'),
+    pageNumber?: int32(name='PageNumber', description='The page number. Valid values: 1 to 100.', example='1'),
+    pagesAvailable?: int32(name='PagesAvailable', description='The number of available pages.', example='1'),
+    totalCount?: int32(name='TotalCount', description='The total number of entries.', example='1'),
+  }(name='Data', description='The data returned.'),
+  requestId?: string(name='RequestId', description='The request ID.', example='D9E87E66-9EF0-5C10-A5E6-924020A0C9B7'),
 }
 
 model ListPromptVersionsResponse = {
@@ -1222,7 +1352,7 @@ model ListPromptVersionsResponse = {
 }
 
 /**
- * @summary 列出Prompt版本列表
+ * @summary Lists the versions of a prompt.
  *
  * @param request ListPromptVersionsRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -1261,7 +1391,7 @@ async function listPromptVersionsWithOptions(request: ListPromptVersionsRequest,
 }
 
 /**
- * @summary 列出Prompt版本列表
+ * @summary Lists the versions of a prompt.
  *
  * @param request ListPromptVersionsRequest
  * @return ListPromptVersionsResponse
@@ -1272,35 +1402,40 @@ async function listPromptVersions(request: ListPromptVersionsRequest): ListPromp
 }
 
 model ListPromptsRequest {
-  bizTags?: string(name='BizTags', example='cs,qa'),
-  namespaceId?: string(name='NamespaceId', description='This parameter is required.', example='550e8400-e29b-41d4-a716-446655440000'),
-  pageNo?: int32(name='PageNo', example='1'),
-  pageSize?: int32(name='PageSize', example='10'),
-  promptKey?: string(name='PromptKey', example='customer'),
-  search?: string(name='Search', example='blur'),
+  bizTags?: string(name='BizTags', description='The business tags used to filter prompts. Separate multiple tags with commas (,).', example='cs,qa'),
+  namespaceId?: string(name='NamespaceId', description='The namespace ID.
+
+This parameter is required.', example='550e8400-e29b-41d4-a716-446655440000'),
+  pageNo?: int32(name='PageNo', description='The page number. Default value: 1.', example='1'),
+  pageSize?: int32(name='PageSize', description='The number of entries per page. Default value: 10. Maximum value: 50.', example='10'),
+  promptKey?: string(name='PromptKey', description='The identifier of the prompt to search for. This parameter is optional.', example='customer'),
+  search?: string(name='Search', description='The search mode. Valid values:
+
+- accurate: exact match.
+- blur: fuzzy match.', example='blur'),
 }
 
 model ListPromptsResponseBody = {
   data?: {
     pageItems?: [ 
       {
-        bizTags?: [ string ](name='BizTags'),
-        description?: string(name='Description'),
-        editingVersion?: string(name='EditingVersion'),
-        gmtModified?: long(name='GmtModified'),
-        labels?: map[string]string(name='Labels'),
-        latestVersion?: string(name='LatestVersion'),
-        onlineCnt?: int32(name='OnlineCnt'),
-        promptKey?: string(name='PromptKey'),
-        reviewingVersion?: string(name='ReviewingVersion'),
-        schemaVersion?: int32(name='SchemaVersion'),
+        bizTags?: [ string ](name='BizTags', description='The list of business tags.'),
+        description?: string(name='Description', description='The description.', example='test prompt'),
+        editingVersion?: string(name='EditingVersion', description='The version number of the draft version of the prompt. This value is empty if no draft version exists.', example='0.0.1'),
+        gmtModified?: long(name='GmtModified', description='The time when the prompt was last modified.', example='2026-04-22 11:51:03'),
+        labels?: map[string]string(name='Labels', description='The mapping between prompt versions and labels.'),
+        latestVersion?: string(name='LatestVersion', description='The latest version number of the prompt.', example='0.0.1'),
+        onlineCnt?: int32(name='OnlineCnt', description='The number of online versions of the prompt.', example='1'),
+        promptKey?: string(name='PromptKey', description='The unique identifier of the prompt.', example='customer'),
+        reviewingVersion?: string(name='ReviewingVersion', description='The version number of the prompt version that is under review. This value is empty if no version is under review.', example='0.0.1'),
+        schemaVersion?: int32(name='SchemaVersion', description='The schema version of the prompt.', example='1'),
       }
-    ](name='PageItems'),
-    pageNumber?: int32(name='PageNumber'),
-    pagesAvailable?: int32(name='PagesAvailable'),
-    totalCount?: int32(name='TotalCount'),
-  }(name='Data'),
-  requestId?: string(name='RequestId'),
+    ](name='PageItems', description='The list of prompts.'),
+    pageNumber?: int32(name='PageNumber', description='The page number.', example='1'),
+    pagesAvailable?: int32(name='PagesAvailable', description='The number of available pages.', example='1'),
+    totalCount?: int32(name='TotalCount', description='The total number of prompts.', example='5'),
+  }(name='Data', description='The returned result.'),
+  requestId?: string(name='RequestId', description='The request ID.', example='D9E87E66-9EF0-5C10-A5E6-924020A0C9B7'),
 }
 
 model ListPromptsResponse = {
@@ -1310,7 +1445,7 @@ model ListPromptsResponse = {
 }
 
 /**
- * @summary 获取Prompt列表
+ * @summary Lists the prompts in a namespace.
  *
  * @param request ListPromptsRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -1355,7 +1490,7 @@ async function listPromptsWithOptions(request: ListPromptsRequest, runtime: Util
 }
 
 /**
- * @summary 获取Prompt列表
+ * @summary Lists the prompts in a namespace.
  *
  * @param request ListPromptsRequest
  * @return ListPromptsResponse
@@ -1366,42 +1501,50 @@ async function listPrompts(request: ListPromptsRequest): ListPromptsResponse {
 }
 
 model ListSkillsRequest {
-  namespaceId?: string(name='NamespaceId', description='This parameter is required.', example='550e8400-e29b-41d4-a716-446655440000'),
-  orderBy?: string(name='OrderBy', example='download_count'),
-  owner?: string(name='Owner', example='user123'),
-  pageNo?: int32(name='PageNo', example='1'),
-  pageSize?: int32(name='PageSize', example='10'),
-  scope?: string(name='Scope', example='PUBLIC'),
-  search?: string(name='Search', example='blur'),
-  skillName?: string(name='SkillName', example='customer'),
+  namespaceId?: string(name='NamespaceId', description='The workspace ID.
+
+This parameter is required.', example='550e8400-e29b-41d4-a716-446655440000'),
+  orderBy?: string(name='OrderBy', description='The field by which to sort the results. Set the value to download_count to sort by download count. Default value: gmt_modified.', example='download_count'),
+  owner?: string(name='Owner', description='Filters results by owner.', example='user123'),
+  pageNo?: int32(name='PageNo', description='The page number. Default value: 1.', example='1'),
+  pageSize?: int32(name='PageSize', description='The number of entries per page. Default value: 10. Maximum value: 50.', example='10'),
+  scope?: string(name='Scope', description='Filters results by visibility. Valid values:
+- PUBLIC: public
+- PRIVATE: private.', example='PUBLIC'),
+  search?: string(name='Search', description='The search mode. Valid values:
+- accurate: exact match
+- blur: fuzzy match.', example='blur'),
+  skillName?: string(name='SkillName', description='The filter keyword.', example='customer'),
 }
 
 model ListSkillsResponseBody = {
   data?: {
     pageItems?: [ 
       {
-        bizTags?: string(name='BizTags'),
-        description?: string(name='Description'),
-        downloadCount?: long(name='DownloadCount'),
-        editingVersion?: string(name='EditingVersion'),
-        enable?: boolean(name='Enable'),
-        from?: string(name='From'),
-        labels?: map[string]string(name='Labels'),
-        name?: string(name='Name'),
-        namespaceId?: string(name='NamespaceId'),
-        onlineCnt?: int32(name='OnlineCnt'),
-        owner?: string(name='Owner'),
-        reviewingVersion?: string(name='ReviewingVersion'),
-        scope?: string(name='Scope'),
-        updateTime?: long(name='UpdateTime'),
-        writeable?: boolean(name='Writeable'),
+        bizTags?: string(name='BizTags', description='The business tags as a JSON array string.', example='test'),
+        description?: string(name='Description', description='The description.', example='secret for bbtadmin'),
+        downloadCount?: long(name='DownloadCount', description='The total number of downloads.', example='100'),
+        editingVersion?: string(name='EditingVersion', description='The version being edited.', example='0.0.3'),
+        enable?: boolean(name='Enable', description='Indicates whether the skill is enabled.', example='false'),
+        from?: string(name='From', description='The source tag.', example='aqs'),
+        labels?: map[string]string(name='Labels', description='The label mapping.'),
+        name?: string(name='Name', description='The name.', example='OCR品牌'),
+        namespaceId?: string(name='NamespaceId', description='The ID of the group or workspace to which the repository belongs.', example='cn-hangzhou:creatulize-test'),
+        onlineCnt?: int32(name='OnlineCnt', description='The number of online versions.', example='1'),
+        owner?: string(name='Owner', description='The account ID of the owner.', example='manual'),
+        reviewingVersion?: string(name='ReviewingVersion', description='The version under review.', example='0.0.2'),
+        scope?: string(name='Scope', description='The visibility scope.', example='rd-yORclL'),
+        updateTime?: long(name='UpdateTime', description='The update time.', example='2025-03-05T19:24:43.798'),
+        writeable?: boolean(name='Writeable', description='Indicates whether the skill can be edited.'),
       }
-    ](name='PageItems'),
-    pageNumber?: int32(name='PageNumber'),
-    pagesAvailable?: int32(name='PagesAvailable'),
-    totalCount?: int32(name='TotalCount'),
-  }(name='Data'),
-  requestId?: string(name='RequestId'),
+    ](name='PageItems', description='The MCP server information.'),
+    pageNumber?: int32(name='PageNumber', description='The page number.', example='1'),
+    pagesAvailable?: int32(name='PagesAvailable', description='pagesAvailable.', example='10'),
+    totalCount?: int32(name='TotalCount', description='The total number of tasks.', example='0'),
+  }(name='Data', description='The list of rule information returned when the call succeeds. For more information, see **RuleInfo**.
+
+> The returned rule information is sorted by rule creation time in descending order.'),
+  requestId?: string(name='RequestId', description='The request ID.', example='195BF118-9AEF-5F3F-9A58-D88A77EB07DE'),
 }
 
 model ListSkillsResponse = {
@@ -1411,7 +1554,7 @@ model ListSkillsResponse = {
 }
 
 /**
- * @summary 列出 Skills
+ * @summary Lists skills.
  *
  * @param request ListSkillsRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -1462,7 +1605,7 @@ async function listSkillsWithOptions(request: ListSkillsRequest, runtime: Util.R
 }
 
 /**
- * @summary 列出 Skills
+ * @summary Lists skills.
  *
  * @param request ListSkillsRequest
  * @return ListSkillsResponse
@@ -1473,14 +1616,20 @@ async function listSkills(request: ListSkillsRequest): ListSkillsResponse {
 }
 
 model OfflineSkillRequest {
-  namespaceId?: string(name='NamespaceId', description='This parameter is required.', example='550e8400-e29b-41d4-a716-446655440000'),
-  scope?: string(name='Scope', example='version'),
-  skillName?: string(name='SkillName', description='This parameter is required.', example='customer-service-skill'),
-  skillVersion?: string(name='SkillVersion', example='0.0.2'),
+  namespaceId?: string(name='NamespaceId', description='The workspace ID.
+
+This parameter is required.', example='550e8400-e29b-41d4-a716-446655440000'),
+  scope?: string(name='Scope', description='The operation scope. Valid values:
+- skill: the entire Skill.
+- version: a specific version.', example='version'),
+  skillName?: string(name='SkillName', description='The Skill name.
+
+This parameter is required.', example='customer-service-skill'),
+  skillVersion?: string(name='SkillVersion', description='The version number. This parameter is required when scope is set to version.', example='0.0.2'),
 }
 
 model OfflineSkillResponseBody = {
-  requestId?: string(name='RequestId'),
+  requestId?: string(name='RequestId', description='The request ID.', example='D9E87E66-9EF0-5C10-A5E6-924020A0C9B7'),
 }
 
 model OfflineSkillResponse = {
@@ -1490,7 +1639,7 @@ model OfflineSkillResponse = {
 }
 
 /**
- * @summary 下线版本
+ * @summary Offlines a Skill or a specific version of a Skill.
  *
  * @param request OfflineSkillRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -1529,7 +1678,7 @@ async function offlineSkillWithOptions(request: OfflineSkillRequest, runtime: Ut
 }
 
 /**
- * @summary 下线版本
+ * @summary Offlines a Skill or a specific version of a Skill.
  *
  * @param request OfflineSkillRequest
  * @return OfflineSkillResponse
@@ -1540,14 +1689,21 @@ async function offlineSkill(request: OfflineSkillRequest): OfflineSkillResponse 
 }
 
 model OnlineSkillRequest {
-  namespaceId?: string(name='NamespaceId', description='This parameter is required.', example='550e8400-e29b-41d4-a716-446655440000'),
-  scope?: string(name='Scope', example='version'),
-  skillName?: string(name='SkillName', description='This parameter is required.', example='customer-service-skill'),
-  skillVersion?: string(name='SkillVersion', example='0.0.2'),
+  namespaceId?: string(name='NamespaceId', description='The workspace ID.
+
+This parameter is required.', example='550e8400-e29b-41d4-a716-446655440000'),
+  scope?: string(name='Scope', description='The operation scope. Valid values:
+
+- skill: the entire Skill.
+- version: a specified version.', example='version'),
+  skillName?: string(name='SkillName', description='The Skill name.
+
+This parameter is required.', example='customer-service-skill'),
+  skillVersion?: string(name='SkillVersion', description='The version number. This parameter is required when scope is set to version.', example='0.0.2'),
 }
 
 model OnlineSkillResponseBody = {
-  requestId?: string(name='RequestId'),
+  requestId?: string(name='RequestId', description='The request ID.', example='D9E87E66-9EF0-5C10-A5E6-924020A0C9B7'),
 }
 
 model OnlineSkillResponse = {
@@ -1557,7 +1713,7 @@ model OnlineSkillResponse = {
 }
 
 /**
- * @summary 上线 Skill
+ * @summary Brings online a Skill or a specific version of a Skill.
  *
  * @param request OnlineSkillRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -1596,7 +1752,7 @@ async function onlineSkillWithOptions(request: OnlineSkillRequest, runtime: Util
 }
 
 /**
- * @summary 上线 Skill
+ * @summary Brings online a Skill or a specific version of a Skill.
  *
  * @param request OnlineSkillRequest
  * @return OnlineSkillResponse
@@ -1607,14 +1763,20 @@ async function onlineSkill(request: OnlineSkillRequest): OnlineSkillResponse {
 }
 
 model PublishSkillVersionRequest {
-  namespaceId?: string(name='NamespaceId', description='This parameter is required.', example='550e8400-e29b-41d4-a716-446655440000'),
-  skillName?: string(name='SkillName', description='This parameter is required.', example='customer-service-skill'),
-  skillVersion?: string(name='SkillVersion', description='This parameter is required.', example='0.0.2'),
-  updateLatestLabel?: boolean(name='UpdateLatestLabel', example='true'),
+  namespaceId?: string(name='NamespaceId', description='The workspace ID.
+
+This parameter is required.', example='550e8400-e29b-41d4-a716-446655440000'),
+  skillName?: string(name='SkillName', description='The Skill name.
+
+This parameter is required.', example='customer-service-skill'),
+  skillVersion?: string(name='SkillVersion', description='The version number.
+
+This parameter is required.', example='0.0.2'),
+  updateLatestLabel?: boolean(name='UpdateLatestLabel', description='Specifies whether to update the latest label.', example='true'),
 }
 
 model PublishSkillVersionResponseBody = {
-  requestId?: string(name='RequestId'),
+  requestId?: string(name='RequestId', description='The request ID generated by Alibaba Cloud for this request. You can use this ID to troubleshoot issues.', example='5D26736A-7CB1-5133-9D51-7F7451BBB2C3'),
 }
 
 model PublishSkillVersionResponse = {
@@ -1624,7 +1786,7 @@ model PublishSkillVersionResponse = {
 }
 
 /**
- * @summary 发布版本
+ * @summary Publishes a specific version of a Skill.
  *
  * @param request PublishSkillVersionRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -1663,7 +1825,7 @@ async function publishSkillVersionWithOptions(request: PublishSkillVersionReques
 }
 
 /**
- * @summary 发布版本
+ * @summary Publishes a specific version of a Skill.
  *
  * @param request PublishSkillVersionRequest
  * @return PublishSkillVersionResponse
@@ -1674,14 +1836,18 @@ async function publishSkillVersion(request: PublishSkillVersionRequest): Publish
 }
 
 model SubmitPromptVersionRequest {
-  namespaceId?: string(name='NamespaceId', description='This parameter is required.', example='550e8400-e29b-41d4-a716-446655440000'),
-  promptKey?: string(name='PromptKey', description='This parameter is required.', example='customer-service-qa'),
-  promptVersion?: string(name='PromptVersion', example='0.0.1'),
+  namespaceId?: string(name='NamespaceId', description='The workspace ID.
+
+This parameter is required.', example='550e8400-e29b-41d4-a716-446655440000'),
+  promptKey?: string(name='PromptKey', description='The unique identifier of the prompt.
+
+This parameter is required.', example='customer-service-qa'),
+  promptVersion?: string(name='PromptVersion', description='The version number to publish. If not specified, the current draft version is published by default.', example='0.0.1'),
 }
 
 model SubmitPromptVersionResponseBody = {
-  data?: string(name='Data'),
-  requestId?: string(name='RequestId'),
+  data?: string(name='Data', description='The version number of the published version.', example='0.0.1'),
+  requestId?: string(name='RequestId', description='The request ID.', example='D9E87E66-9EF0-5C10-A5E6-924020A0C9B7'),
 }
 
 model SubmitPromptVersionResponse = {
@@ -1691,7 +1857,7 @@ model SubmitPromptVersionResponse = {
 }
 
 /**
- * @summary 提交 Prompt 版本, 将 Prompt 的草稿版本转化为正式版本
+ * @summary Publishes a draft version of a prompt as an official version. The specified version must be a draft version.
  *
  * @param request SubmitPromptVersionRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -1727,7 +1893,7 @@ async function submitPromptVersionWithOptions(request: SubmitPromptVersionReques
 }
 
 /**
- * @summary 提交 Prompt 版本, 将 Prompt 的草稿版本转化为正式版本
+ * @summary Publishes a draft version of a prompt as an official version. The specified version must be a draft version.
  *
  * @param request SubmitPromptVersionRequest
  * @return SubmitPromptVersionResponse
@@ -1738,14 +1904,20 @@ async function submitPromptVersion(request: SubmitPromptVersionRequest): SubmitP
 }
 
 model SubmitSkillVersionRequest {
-  namespaceId?: string(name='NamespaceId', description='This parameter is required.', example='550e8400-e29b-41d4-a716-446655440000'),
-  skillName?: string(name='SkillName', description='This parameter is required.', example='customer-service-skill'),
-  skillVersion?: string(name='SkillVersion', description='This parameter is required.', example='0.0.2'),
+  namespaceId?: string(name='NamespaceId', description='The workspace ID.
+
+This parameter is required.', example='550e8400-e29b-41d4-a716-446655440000'),
+  skillName?: string(name='SkillName', description='The skill name.
+
+This parameter is required.', example='customer-service-skill'),
+  skillVersion?: string(name='SkillVersion', description='The draft version number.
+
+This parameter is required.', example='0.0.2'),
 }
 
 model SubmitSkillVersionResponseBody = {
-  data?: string(name='Data'),
-  requestId?: string(name='RequestId'),
+  data?: string(name='Data', description='The skill version.', example='ba9b5c2466dc408c9fcd9df72bcd762a'),
+  requestId?: string(name='RequestId', description='The request ID.', example='BE66410A-37F8-55C5-8471-589CA195760C'),
 }
 
 model SubmitSkillVersionResponse = {
@@ -1755,7 +1927,7 @@ model SubmitSkillVersionResponse = {
 }
 
 /**
- * @summary 提交 Skill Draft 审核
+ * @summary Submits a specific version of a skill for review.
  *
  * @param request SubmitSkillVersionRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -1791,7 +1963,7 @@ async function submitSkillVersionWithOptions(request: SubmitSkillVersionRequest,
 }
 
 /**
- * @summary 提交 Skill Draft 审核
+ * @summary Submits a specific version of a skill for review.
  *
  * @param request SubmitSkillVersionRequest
  * @return SubmitSkillVersionResponse
@@ -1802,16 +1974,25 @@ async function submitSkillVersion(request: SubmitSkillVersionRequest): SubmitSki
 }
 
 model UpdateNamespaceRequest {
-  description?: string(name='Description', example='用于管理客服场景的Prompt'),
-  name?: string(name='Name', example='我的Prompt空间'),
-  namespaceId?: string(name='NamespaceId', description='This parameter is required.', example='550e8400-e29b-41d4-a716-446655440000'),
-  scanPolicy?: string(name='ScanPolicy'),
-  tags?: string(name='Tags', example='customer-service,production'),
+  description?: string(name='Description', description='The workspace description.', example='用于管理客服场景的Prompt'),
+  name?: string(name='Name', description='The workspace name.', example='我的Prompt空间'),
+  namespaceId?: string(name='NamespaceId', description='The workspace ID.
+
+This parameter is required.', example='550e8400-e29b-41d4-a716-446655440000'),
+  scanPolicy?: string(name='ScanPolicy', description='The scan policy.
+
+The policy contains two configuration items:
+- minBlockRiskLevel: the risk level for blocking.
+  - high: blocks high-risk items.
+  - medium: blocks medium-risk and high-risk items.
+  - low: blocks all risk levels including high, medium, and low.
+- maxSkipRatio: the max false positive rate. If the scan skip ratio exceeds this value, the scan is considered failed.', example='{"minBlockRiskLevel":"medium","maxSkipRatio":0.2}'),
+  tags?: string(name='Tags', description='The tags, separated by commas. Pass an empty string to clear all tags.', example='customer-service,production'),
 }
 
 model UpdateNamespaceResponseBody = {
-  data?: boolean(name='Data'),
-  requestId?: string(name='RequestId'),
+  data?: boolean(name='Data', description='Indicates whether the operation is successful.', example='true'),
+  requestId?: string(name='RequestId', description='The unique request ID generated by Alibaba Cloud for this request.', example='D9E87E66-9EF0-5C10-A5E6-924020A0C9B7'),
 }
 
 model UpdateNamespaceResponse = {
@@ -1821,7 +2002,7 @@ model UpdateNamespaceResponse = {
 }
 
 /**
- * @summary 更新命名空间信息
+ * @summary Updates namespace information.
  *
  * @param request UpdateNamespaceRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -1863,7 +2044,7 @@ async function updateNamespaceWithOptions(request: UpdateNamespaceRequest, runti
 }
 
 /**
- * @summary 更新命名空间信息
+ * @summary Updates namespace information.
  *
  * @param request UpdateNamespaceRequest
  * @return UpdateNamespaceResponse
@@ -1874,24 +2055,32 @@ async function updateNamespace(request: UpdateNamespaceRequest): UpdateNamespace
 }
 
 model UpdatePromptRequest {
-  bizTags?: [ string ](name='BizTags', example='["cs","qa","support"]'),
-  description?: string(name='Description', example='客服问答 Prompt'),
-  labels?: map[string]any(name='Labels'),
-  namespaceId?: string(name='NamespaceId', description='This parameter is required.', example='550e8400-e29b-41d4-a716-446655440000'),
-  promptKey?: string(name='PromptKey', description='This parameter is required.', example='customer-service-qa'),
+  bizTags?: [ string ](name='BizTags', description='The list of business tags. The value is a string array.', example='["cs","qa","support"]'),
+  description?: string(name='Description', description='The description of the prompt.', example='客服问答 Prompt'),
+  labels?: map[string]any(name='Labels', description='The mapping between prompt versions and labels.', example='{"latest":"0.0.1","stable":"0.0.1"}'),
+  namespaceId?: string(name='NamespaceId', description='The workspace ID.
+
+This parameter is required.', example='550e8400-e29b-41d4-a716-446655440000'),
+  promptKey?: string(name='PromptKey', description='The unique identifier of the prompt.
+
+This parameter is required.', example='customer-service-qa'),
 }
 
 model UpdatePromptShrinkRequest {
-  bizTagsShrink?: string(name='BizTags', example='["cs","qa","support"]'),
-  description?: string(name='Description', example='客服问答 Prompt'),
-  labelsShrink?: string(name='Labels'),
-  namespaceId?: string(name='NamespaceId', description='This parameter is required.', example='550e8400-e29b-41d4-a716-446655440000'),
-  promptKey?: string(name='PromptKey', description='This parameter is required.', example='customer-service-qa'),
+  bizTagsShrink?: string(name='BizTags', description='The list of business tags. The value is a string array.', example='["cs","qa","support"]'),
+  description?: string(name='Description', description='The description of the prompt.', example='客服问答 Prompt'),
+  labelsShrink?: string(name='Labels', description='The mapping between prompt versions and labels.', example='{"latest":"0.0.1","stable":"0.0.1"}'),
+  namespaceId?: string(name='NamespaceId', description='The workspace ID.
+
+This parameter is required.', example='550e8400-e29b-41d4-a716-446655440000'),
+  promptKey?: string(name='PromptKey', description='The unique identifier of the prompt.
+
+This parameter is required.', example='customer-service-qa'),
 }
 
 model UpdatePromptResponseBody = {
-  data?: boolean(name='Data'),
-  requestId?: string(name='RequestId'),
+  data?: boolean(name='Data', description='The modification result.', example='true'),
+  requestId?: string(name='RequestId', description='The request ID.', example='D9E87E66-9EF0-5C10-A5E6-924020A0C9B7'),
 }
 
 model UpdatePromptResponse = {
@@ -1901,7 +2090,7 @@ model UpdatePromptResponse = {
 }
 
 /**
- * @summary 更新 Prompt 元数据，支持同时更新 description、bizTags、labels。
+ * @summary Modifies the metadata of a prompt, such as the description and business tags.
  *
  * @param tmpReq UpdatePromptRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -1951,7 +2140,7 @@ async function updatePromptWithOptions(tmpReq: UpdatePromptRequest, runtime: Uti
 }
 
 /**
- * @summary 更新 Prompt 元数据，支持同时更新 description、bizTags、labels。
+ * @summary Modifies the metadata of a prompt, such as the description and business tags.
  *
  * @param request UpdatePromptRequest
  * @return UpdatePromptResponse
@@ -1962,16 +2151,22 @@ async function updatePrompt(request: UpdatePromptRequest): UpdatePromptResponse 
 }
 
 model UpdatePromptVersionRequest {
-  commitMsg?: string(name='CommitMsg', example='优化回答语气'),
-  namespaceId?: string(name='NamespaceId', description='This parameter is required.', example='550e8400-e29b-41d4-a716-446655440000'),
-  promptKey?: string(name='PromptKey', description='This parameter is required.', example='customer-service-qa'),
-  template?: string(name='Template', description='This parameter is required.', example='你是一个客服助手，请回答：{question}'),
-  variables?: string(name='Variables', example='[{"name":"question","defaultValue":"Hello"}]'),
+  commitMsg?: string(name='CommitMsg', description='The commit message.', example='Optimize response tone.'),
+  namespaceId?: string(name='NamespaceId', description='The workspace ID.
+
+This parameter is required.', example='550e8400-e29b-41d4-a716-446655440000'),
+  promptKey?: string(name='PromptKey', description='The unique identifier of the prompt.
+
+This parameter is required.', example='customer-service-qa'),
+  template?: string(name='Template', description='The updated template content.
+
+This parameter is required.', example='You are a customer service assistant. Please answer: {question}'),
+  variables?: string(name='Variables', description='The updated variable definition in JSON format.', example='[{"name":"question","defaultValue":"Hello"}]'),
 }
 
 model UpdatePromptVersionResponseBody = {
-  data?: boolean(name='Data'),
-  requestId?: string(name='RequestId'),
+  data?: boolean(name='Data', description='The modification result.', example='true'),
+  requestId?: string(name='RequestId', description='The request ID.', example='D9E87E66-9EF0-5C10-A5E6-924020A0C9B7'),
 }
 
 model UpdatePromptVersionResponse = {
@@ -1981,7 +2176,7 @@ model UpdatePromptVersionResponse = {
 }
 
 /**
- * @summary 更新 Prompt 草稿版本内容。只对草稿版本生效，已发布的版本不可修改。
+ * @summary Updates the content of a prompt version. Only the draft version of a prompt can be modified.
  *
  * @param request UpdatePromptVersionRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -2023,7 +2218,7 @@ async function updatePromptVersionWithOptions(request: UpdatePromptVersionReques
 }
 
 /**
- * @summary 更新 Prompt 草稿版本内容。只对草稿版本生效，已发布的版本不可修改。
+ * @summary Updates the content of a prompt version. Only the draft version of a prompt can be modified.
  *
  * @param request UpdatePromptVersionRequest
  * @return UpdatePromptVersionResponse
@@ -2034,9 +2229,15 @@ async function updatePromptVersion(request: UpdatePromptVersionRequest): UpdateP
 }
 
 model UpdateSkillBizTagsRequest {
-  bizTags?: string(name='BizTags', description='This parameter is required.', example='["cs","qa","support"]'),
-  namespaceId?: string(name='NamespaceId', description='This parameter is required.', example='550e8400-e29b-41d4-a716-446655440000'),
-  skillName?: string(name='SkillName', description='This parameter is required.', example='customer-service-skill'),
+  bizTags?: string(name='BizTags', description='The business label JSON array string.
+
+This parameter is required.', example='["cs","qa","support"]'),
+  namespaceId?: string(name='NamespaceId', description='The workspace ID.
+
+This parameter is required.', example='550e8400-e29b-41d4-a716-446655440000'),
+  skillName?: string(name='SkillName', description='The Skill name.
+
+This parameter is required.', example='customer-service-skill'),
 }
 
 model UpdateSkillBizTagsResponseBody = {
@@ -2050,7 +2251,7 @@ model UpdateSkillBizTagsResponse = {
 }
 
 /**
- * @summary 更新业务标签
+ * @summary Updates business labels.
  *
  * @param request UpdateSkillBizTagsRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -2086,7 +2287,7 @@ async function updateSkillBizTagsWithOptions(request: UpdateSkillBizTagsRequest,
 }
 
 /**
- * @summary 更新业务标签
+ * @summary Updates business labels.
  *
  * @param request UpdateSkillBizTagsRequest
  * @return UpdateSkillBizTagsResponse
@@ -2097,14 +2298,20 @@ async function updateSkillBizTags(request: UpdateSkillBizTagsRequest): UpdateSki
 }
 
 model UpdateSkillDraftRequest {
-  commitMsg?: string(name='CommitMsg', example='更新说明'),
-  namespaceId?: string(name='NamespaceId', description='This parameter is required.', example='550e8400-e29b-41d4-a716-446655440000'),
-  skillCard?: string(name='SkillCard', description='This parameter is required.', example='{"name":"customer-service-skill","description":"..."}'),
-  skillName?: string(name='SkillName', description='This parameter is required.', example='customer-service-skill'),
+  commitMsg?: string(name='CommitMsg', description='The commit message.', example='更新说明'),
+  namespaceId?: string(name='NamespaceId', description='The workspace ID.
+
+This parameter is required.', example='550e8400-e29b-41d4-a716-446655440000'),
+  skillCard?: string(name='SkillCard', description='The skill card JSON string that contains complete skill information.
+
+This parameter is required.', example='{"name":"customer-service-skill","description":"..."}'),
+  skillName?: string(name='SkillName', description='The skill name.
+
+This parameter is required.', example='customer-service-skill'),
 }
 
 model UpdateSkillDraftResponseBody = {
-  requestId?: string(name='RequestId'),
+  requestId?: string(name='RequestId', description='The unique request ID generated by Alibaba Cloud for this request.', example='6F402E85-E6D9-5A79-9EAF-8A1B6DCE7F79'),
 }
 
 model UpdateSkillDraftResponse = {
@@ -2114,7 +2321,7 @@ model UpdateSkillDraftResponse = {
 }
 
 /**
- * @summary 更新 Draft
+ * @summary Updates a draft.
  *
  * @param request UpdateSkillDraftRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -2153,7 +2360,7 @@ async function updateSkillDraftWithOptions(request: UpdateSkillDraftRequest, run
 }
 
 /**
- * @summary 更新 Draft
+ * @summary Updates a draft.
  *
  * @param request UpdateSkillDraftRequest
  * @return UpdateSkillDraftResponse
@@ -2164,13 +2371,19 @@ async function updateSkillDraft(request: UpdateSkillDraftRequest): UpdateSkillDr
 }
 
 model UpdateSkillLabelsRequest {
-  labels?: string(name='Labels', description='This parameter is required.', example='{"latest":"0.0.2","stable":"0.0.1"}'),
-  namespaceId?: string(name='NamespaceId', description='This parameter is required.', example='550e8400-e29b-41d4-a716-446655440000'),
-  skillName?: string(name='SkillName', description='This parameter is required.', example='customer-service-skill'),
+  labels?: string(name='Labels', description='The version label mapping JSON string.
+
+This parameter is required.', example='{"latest":"0.0.2","stable":"0.0.1"}'),
+  namespaceId?: string(name='NamespaceId', description='The workspace ID.
+
+This parameter is required.', example='550e8400-e29b-41d4-a716-446655440000'),
+  skillName?: string(name='SkillName', description='The Skill name.
+
+This parameter is required.', example='customer-service-skill'),
 }
 
 model UpdateSkillLabelsResponseBody = {
-  requestId?: string(name='RequestId'),
+  requestId?: string(name='RequestId', description='The unique request ID generated by Alibaba Cloud for this request.', example='195BF118-9AEF-5F3F-9A58-D88A77EB07DE'),
 }
 
 model UpdateSkillLabelsResponse = {
@@ -2180,7 +2393,7 @@ model UpdateSkillLabelsResponse = {
 }
 
 /**
- * @summary 更新版本标签
+ * @summary Updates version labels.
  *
  * @param request UpdateSkillLabelsRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -2216,7 +2429,7 @@ async function updateSkillLabelsWithOptions(request: UpdateSkillLabelsRequest, r
 }
 
 /**
- * @summary 更新版本标签
+ * @summary Updates version labels.
  *
  * @param request UpdateSkillLabelsRequest
  * @return UpdateSkillLabelsResponse
@@ -2227,13 +2440,19 @@ async function updateSkillLabels(request: UpdateSkillLabelsRequest): UpdateSkill
 }
 
 model UpdateSkillScopeRequest {
-  namespaceId?: string(name='NamespaceId', description='This parameter is required.', example='550e8400-e29b-41d4-a716-446655440000'),
-  scope?: string(name='Scope', description='This parameter is required.', example='PUBLIC'),
-  skillName?: string(name='SkillName', description='This parameter is required.', example='customer-service-skill'),
+  namespaceId?: string(name='NamespaceId', description='The workspace ID.
+
+This parameter is required.', example='550e8400-e29b-41d4-a716-446655440000'),
+  scope?: string(name='Scope', description='The visibility.
+
+This parameter is required.', example='PUBLIC'),
+  skillName?: string(name='SkillName', description='The skill name.
+
+This parameter is required.', example='customer-service-skill'),
 }
 
 model UpdateSkillScopeResponseBody = {
-  requestId?: string(name='RequestId'),
+  requestId?: string(name='RequestId', description='The unique request ID generated by Alibaba Cloud for this request.', example='F4BFD370-7466-5F56-ACE5-A2D11A26C6BB'),
 }
 
 model UpdateSkillScopeResponse = {
@@ -2243,7 +2462,7 @@ model UpdateSkillScopeResponse = {
 }
 
 /**
- * @summary 更新可见性
+ * @summary Updates the visibility.
  *
  * @param request UpdateSkillScopeRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -2279,7 +2498,7 @@ async function updateSkillScopeWithOptions(request: UpdateSkillScopeRequest, run
 }
 
 /**
- * @summary 更新可见性
+ * @summary Updates the visibility.
  *
  * @param request UpdateSkillScopeRequest
  * @return UpdateSkillScopeResponse
@@ -2291,9 +2510,14 @@ async function updateSkillScope(request: UpdateSkillScopeRequest): UpdateSkillSc
 
 model UploadSkillViaOssRequest {
   commitMsg?: string(name='CommitMsg'),
-  namespaceId?: string(name='NamespaceId', description='This parameter is required.', example='550e8400-e29b-41d4-a716-446655440000'),
-  ossObjectName?: string(name='OssObjectName', description='This parameter is required.'),
-  overwrite?: boolean(name='Overwrite', example='false'),
+  namespaceId?: string(name='NamespaceId', description='The workspace ID.
+
+This parameter is required.', example='550e8400-e29b-41d4-a716-446655440000'),
+  ossObjectName?: string(name='OssObjectName', description='The OSS object name (path).
+
+This parameter is required.'),
+  overwrite?: boolean(name='Overwrite', description='Specifies whether to overwrite an existing skill. Default value: false.', example='false'),
+  targetVersion?: string(name='TargetVersion', example='1.0.0'),
 }
 
 model UploadSkillViaOssResponseBody = {
@@ -2308,7 +2532,7 @@ model UploadSkillViaOssResponse = {
 }
 
 /**
- * @summary 通过 OSS 上传 Skill (ZIP) - 从 OSS 拉取文件内容后上传到 Nacos
+ * @summary Uploads a skill (ZIP) from OSS. Retrieves file content from OSS and uploads it to Nacos.
  *
  * @param request UploadSkillViaOssRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -2329,6 +2553,9 @@ async function uploadSkillViaOssWithOptions(request: UploadSkillViaOssRequest, r
   if (!Util.isUnset(request.overwrite)) {
     query['Overwrite'] = request.overwrite;
   }
+  if (!Util.isUnset(request.targetVersion)) {
+    query['TargetVersion'] = request.targetVersion;
+  }
   var req = new OpenApi.OpenApiRequest{ 
     query = OpenApiUtil.query(query),
   };
@@ -2347,7 +2574,7 @@ async function uploadSkillViaOssWithOptions(request: UploadSkillViaOssRequest, r
 }
 
 /**
- * @summary 通过 OSS 上传 Skill (ZIP) - 从 OSS 拉取文件内容后上传到 Nacos
+ * @summary Uploads a skill (ZIP) from OSS. Retrieves file content from OSS and uploads it to Nacos.
  *
  * @param request UploadSkillViaOssRequest
  * @return UploadSkillViaOssResponse
