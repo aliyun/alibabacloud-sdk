@@ -1,0 +1,356 @@
+/**
+ *
+ */
+import Util;
+import OpenApi;
+import OpenApiUtil;
+import EndpointUtil;
+
+extends OpenApi;
+
+
+init(config: OpenApi.Config){
+  super(config);
+  @endpointRule = '';
+  
+  checkConfig(config);
+  @endpoint = getEndpoint('codesec', @regionId, @endpointRule, @network, @suffix, @endpointMap, @endpoint);
+}
+
+function getEndpoint(productId: string, regionId: string, endpointRule: string, network: string, suffix: string, endpointMap: map[string]string, endpoint: string) throws: string{
+  if (!Util.empty(endpoint)) {
+    return endpoint;
+  }
+  
+  if (!Util.isUnset(endpointMap) && !Util.empty(endpointMap[regionId])) {
+    return endpointMap[regionId];
+  }
+  return EndpointUtil.getEndpointRules(productId, regionId, endpointRule, network, suffix);
+}
+
+model DescribeProjectsRequest {
+  maxResults?: int32(name='maxResults'),
+  nextToken?: string(name='nextToken'),
+  query?: string(name='query'),
+}
+
+model DescribeProjectsResponseBody = {
+  items?: [ 
+    {
+      configRevision?: long(name='configRevision'),
+      createdAt?: string(name='createdAt', description='扫描项目创建时间（RFC3339）'),
+      createdBy?: string(name='createdBy'),
+      description?: string(name='description'),
+      engines?: {
+        sast?: boolean(name='sast'),
+        sca?: boolean(name='sca'),
+      }(name='engines'),
+      id?: long(name='id'),
+      instructionPrompt?: string(name='instructionPrompt'),
+      name?: string(name='name'),
+      source?: {
+        type?: string(name='type'),
+      }(name='source'),
+      updatedAt?: string(name='updatedAt', description='扫描项目更新时间（RFC3339）'),
+    }
+  ](name='items'),
+  maxResults?: int32(name='maxResults'),
+  nextToken?: string(name='nextToken'),
+  requestId?: string(name='requestId'),
+  totalCount?: long(name='totalCount'),
+}
+
+model DescribeProjectsResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: DescribeProjectsResponseBody(name='body'),
+}
+
+/**
+ * @summary List projects for tenant
+ *
+ * @param request DescribeProjectsRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return DescribeProjectsResponse
+ */
+async function describeProjectsWithOptions(request: DescribeProjectsRequest, headers: map[string]string, runtime: Util.RuntimeOptions): DescribeProjectsResponse {
+  Util.validateModel(request);
+  var query : map[string]any = {};
+  if (!Util.isUnset(request.maxResults)) {
+    query['maxResults'] = request.maxResults;
+  }
+  if (!Util.isUnset(request.nextToken)) {
+    query['nextToken'] = request.nextToken;
+  }
+  if (!Util.isUnset(request.query)) {
+    query['query'] = request.query;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'DescribeProjects',
+    version = '2026-04-01',
+    protocol = 'HTTPS',
+    pathname = `/v1/projects`,
+    method = 'GET',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary List projects for tenant
+ *
+ * @param request DescribeProjectsRequest
+ * @return DescribeProjectsResponse
+ */
+async function describeProjects(request: DescribeProjectsRequest): DescribeProjectsResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return describeProjectsWithOptions(request, headers, runtime);
+}
+
+model DescribeScanResultsByEngineRequest {
+  baselineState?: string(name='baselineState', description='按 baseline_state 过滤 findings。值为 new/unchanged/absent/updated 之一。'),
+  lang?: string(name='lang'),
+  maxResults?: long(name='maxResults'),
+  nextToken?: string(name='nextToken'),
+  packageName?: string(name='packageName'),
+}
+
+model DescribeScanResultsByEngineResponseBody = {
+  engine?: string(name='engine'),
+  items?: [ 
+    {
+      baselineState?: string(name='baselineState'),
+      category?: string(name='category'),
+      codeSnippet?: string(name='codeSnippet'),
+      confidence?: double(name='confidence'),
+      createdAt?: string(name='createdAt', description='发现记录创建时间（RFC3339）'),
+      cweId?: string(name='cweId'),
+      description?: string(name='description'),
+      endLine?: long(name='endLine'),
+      filePath?: string(name='filePath'),
+      id?: long(name='id'),
+      itemSummary?: string(name='itemSummary'),
+      owaspCategory?: string(name='owaspCategory'),
+      projectName?: string(name='projectName'),
+      remediationCodeExample?: string(name='remediationCodeExample'),
+      remediationSuggestion?: string(name='remediationSuggestion'),
+      ruleId?: string(name='ruleId'),
+      scaComponent?: {
+        cveCount?: long(name='cveCount'),
+        cveDetails?: [ 
+          {
+            cveId?: string(name='cveId'),
+            cvss?: double(name='cvss'),
+            cvssVersion?: string(name='cvssVersion'),
+            description?: string(name='description'),
+            references?: [ string ](name='references'),
+            severity?: string(name='severity'),
+          }
+        ](name='cveDetails'),
+        introPaths?: [ string ](name='introPaths'),
+        isDirect?: boolean(name='isDirect'),
+        packageName?: string(name='packageName'),
+        remediation?: string(name='remediation'),
+        version?: string(name='version'),
+      }(name='scaComponent'),
+      scanId?: long(name='scanId'),
+      severity?: string(name='severity'),
+      source?: string(name='source'),
+      startLine?: long(name='startLine'),
+      status?: string(name='status'),
+      taintFlow?: [ 
+        {
+          code?: string(name='code'),
+          file?: string(name='file'),
+          kind?: string(name='kind'),
+          line?: int32(name='line'),
+          note?: string(name='note'),
+          step?: int32(name='step'),
+        }
+      ](name='taintFlow'),
+      taintFlowSummary?: string(name='taintFlowSummary'),
+      title?: string(name='title'),
+    }
+  ](name='items'),
+  maxResults?: long(name='maxResults'),
+  nextToken?: string(name='nextToken'),
+  projectId?: long(name='projectId'),
+  requestId?: string(name='requestId'),
+  scanId?: long(name='scanId'),
+  totalCount?: long(name='totalCount'),
+}
+
+model DescribeScanResultsByEngineResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: DescribeScanResultsByEngineResponseBody(name='body'),
+}
+
+/**
+ * @summary List findings for one engine (SAST / SCA)
+ *
+ * @param request DescribeScanResultsByEngineRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return DescribeScanResultsByEngineResponse
+ */
+async function describeScanResultsByEngineWithOptions(projectId: string, scanId: string, engine: string, request: DescribeScanResultsByEngineRequest, headers: map[string]string, runtime: Util.RuntimeOptions): DescribeScanResultsByEngineResponse {
+  Util.validateModel(request);
+  var query : map[string]any = {};
+  if (!Util.isUnset(request.baselineState)) {
+    query['baselineState'] = request.baselineState;
+  }
+  if (!Util.isUnset(request.lang)) {
+    query['lang'] = request.lang;
+  }
+  if (!Util.isUnset(request.maxResults)) {
+    query['maxResults'] = request.maxResults;
+  }
+  if (!Util.isUnset(request.nextToken)) {
+    query['nextToken'] = request.nextToken;
+  }
+  if (!Util.isUnset(request.packageName)) {
+    query['packageName'] = request.packageName;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'DescribeScanResultsByEngine',
+    version = '2026-04-01',
+    protocol = 'HTTPS',
+    pathname = `/v1/projects/${OpenApiUtil.getEncodeParam(projectId)}/scans/${OpenApiUtil.getEncodeParam(scanId)}/results/${OpenApiUtil.getEncodeParam(engine)}`,
+    method = 'GET',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary List findings for one engine (SAST / SCA)
+ *
+ * @param request DescribeScanResultsByEngineRequest
+ * @return DescribeScanResultsByEngineResponse
+ */
+async function describeScanResultsByEngine(projectId: string, scanId: string, engine: string, request: DescribeScanResultsByEngineRequest): DescribeScanResultsByEngineResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return describeScanResultsByEngineWithOptions(projectId, scanId, engine, request, headers, runtime);
+}
+
+model DescribeScansRequest {
+  maxResults?: long(name='maxResults'),
+  nextToken?: string(name='nextToken'),
+  status?: string(name='status'),
+  taskName?: string(name='taskName'),
+}
+
+model DescribeScansResponseBody = {
+  items?: [ 
+    {
+      codeBundleId?: long(name='codeBundleId'),
+      createdAt?: string(name='createdAt', description='扫描任务创建时间（RFC3339）'),
+      createdBy?: string(name='createdBy'),
+      engineSnapshot?: {
+        sast?: boolean(name='sast'),
+        sca?: boolean(name='sca'),
+      }(name='engineSnapshot'),
+      finishedAt?: string(name='finishedAt', description='扫描结束时间（RFC3339）'),
+      id?: long(name='id'),
+      kind?: string(name='kind'),
+      projectId?: long(name='projectId'),
+      scanMetrics?: {
+        credit?: float(name='credit'),
+        fileCount?: long(name='fileCount'),
+        linesOfCode?: long(name='linesOfCode'),
+        tokenTotal?: long(name='tokenTotal'),
+      }(name='scanMetrics'),
+      scanProgress?: long(name='scanProgress'),
+      startedAt?: string(name='startedAt', description='扫描开始时间（RFC3339）'),
+      status?: string(name='status'),
+      taskName?: string(name='taskName'),
+      updatedAt?: string(name='updatedAt', description='扫描任务更新时间（RFC3339）'),
+      workerId?: string(name='workerId'),
+    }
+  ](name='items'),
+  maxResults?: long(name='maxResults'),
+  nextToken?: string(name='nextToken'),
+  requestId?: string(name='requestId'),
+  totalCount?: long(name='totalCount'),
+}
+
+model DescribeScansResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: DescribeScansResponseBody(name='body'),
+}
+
+/**
+ * @summary List scans for project
+ *
+ * @param request DescribeScansRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return DescribeScansResponse
+ */
+async function describeScansWithOptions(projectId: string, request: DescribeScansRequest, headers: map[string]string, runtime: Util.RuntimeOptions): DescribeScansResponse {
+  Util.validateModel(request);
+  var query : map[string]any = {};
+  if (!Util.isUnset(request.maxResults)) {
+    query['maxResults'] = request.maxResults;
+  }
+  if (!Util.isUnset(request.nextToken)) {
+    query['nextToken'] = request.nextToken;
+  }
+  if (!Util.isUnset(request.status)) {
+    query['status'] = request.status;
+  }
+  if (!Util.isUnset(request.taskName)) {
+    query['taskName'] = request.taskName;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'DescribeScans',
+    version = '2026-04-01',
+    protocol = 'HTTPS',
+    pathname = `/v1/projects/${OpenApiUtil.getEncodeParam(projectId)}/scans`,
+    method = 'GET',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary List scans for project
+ *
+ * @param request DescribeScansRequest
+ * @return DescribeScansResponse
+ */
+async function describeScans(projectId: string, request: DescribeScansRequest): DescribeScansResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return describeScansWithOptions(projectId, request, headers, runtime);
+}
+
