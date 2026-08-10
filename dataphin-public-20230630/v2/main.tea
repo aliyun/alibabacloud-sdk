@@ -634,10 +634,11 @@ model AddTenantMembersBySourceUserRequest {
       {
         accountName?: string(name='AccountName', description='The account name.', example='123@xx.com'),
         dingNumber?: string(name='DingNumber', description='The DingTalk number.', example='123@dingding'),
-        displayName?: string(name='DisplayName', description='The display name.', example='xx测试'),
+        displayName?: string(name='DisplayName', description='The display name.', example='xxTest'),
         mail?: string(name='Mail', description='The email address.', example='123@xx.com'),
         mobilePhone?: string(name='MobilePhone', description='The phone number.', example='13888888888'),
-        sourceId?: string(name='SourceId', description='The original ID of the user.', example='2323131'),
+        sourceId?: string(name='SourceId', description='The source user ID.', example='2323131'),
+        sourceType?: string(name='SourceType'),
       }
     ](name='SourceUserList', description='The list of source users.'),
   }(name='AddCommand', description='The add request.'),
@@ -657,7 +658,7 @@ model AddTenantMembersBySourceUserResponseBody = {
   code?: string(name='Code', description='The error code. A value of OK indicates that the request was successful.', example='OK'),
   data?: boolean(name='Data', description='The result of the add operation.', example='true'),
   httpStatusCode?: int32(name='HttpStatusCode', description='The HTTP status code returned by the backend.', example='200'),
-  message?: string(name='Message', description='The error message.', example='successful'),
+  message?: string(name='Message', description='The error message returned if the request failed.', example='successful'),
   requestId?: string(name='RequestId', description='The request ID.', example='75DD06F8-1661-5A6E-B0A6-7E23133BDC60'),
   success?: boolean(name='Success', description='Indicates whether the request was successful.', example='true'),
 }
@@ -669,7 +670,7 @@ model AddTenantMembersBySourceUserResponse = {
 }
 
 /**
- * @summary Adds tenant members by using original user identities.
+ * @summary Adds tenant members by using source users.
  *
  * @param tmpReq AddTenantMembersBySourceUserRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -710,7 +711,7 @@ async function addTenantMembersBySourceUserWithOptions(tmpReq: AddTenantMembersB
 }
 
 /**
- * @summary Adds tenant members by using original user identities.
+ * @summary Adds tenant members by using source users.
  *
  * @param request AddTenantMembersBySourceUserRequest
  * @return AddTenantMembersBySourceUserResponse
@@ -10159,6 +10160,141 @@ async function executeAdHocTaskWithOptions(tmpReq: ExecuteAdHocTaskRequest, runt
 async function executeAdHocTask(request: ExecuteAdHocTaskRequest): ExecuteAdHocTaskResponse {
   var runtime = new $RuntimeOptions{};
   return executeAdHocTaskWithOptions(request, runtime);
+}
+
+model ExecuteDDLRequest {
+  context?: {
+    env?: string(name='Env', description='The current operating environment. Valid values:
+
+- DEV: development environment.
+- PROD: production environment.
+
+This parameter is required.', example='DEV'),
+    projectId?: long(name='ProjectId', description='The ID of the project to which the integration pipeline task belongs.
+
+This parameter is required.', example='123'),
+  }(name='Context', description='The request context information.
+
+This parameter is required.'),
+  DDLCommand?: {
+    datasourceId?: {
+      catalog?: string(name='Catalog', description='The catalog of the data source or compute cluster. This parameter is required only in OneCatalog scenarios.', example='dummy_cdm_dev'),
+      dsCategory?: string(name='DsCategory', description='The data source category. Valid values:
+
+- DATA_SOURCE: physical data source.
+- PROJECT_COMPUTE_SOURCE: compute source bound to a project.
+- ONE_CATALOG: compute source or data source in multi-engine mode (OneCatalog).
+- DATA_SET: dataset.
+
+This parameter is optional. The system automatically infers the category based on other fields if this parameter is not specified.', example='DATA_SOURCE'),
+      dsId?: string(name='DsId', description='The ID of the data source, compute source, or dataset. This parameter is optional when DsCategory is set to PROJECT_COMPUTE_SOURCE.', example='123'),
+      env?: string(name='Env', description='The environment. Valid values:
+
+- DEV: development environment.
+- PROD: production environment.', example='DEV'),
+      oneCatalogType?: string(name='OneCatalogType', description='The catalog type when DsCategory is set to ONE_CATALOG. Valid values:
+
+- COMPUTE_CLUSTER: compute cluster.
+- DATA_SOURCE: physical data source.', example='COMPUTE_CLUSTER'),
+      projectId?: long(name='ProjectId', description='The ID of the project bound to the compute source. This parameter is required only when DsCategory is set to PROJECT_COMPUTE_SOURCE.', example='123'),
+      version?: string(name='Version', description='The dataset version. This parameter is required only when DsCategory is set to DATA_SET.', example='3'),
+    }(name='DatasourceId', description='The identifier of the data source, compute source, or dataset used for table creation.
+
+This parameter is required.'),
+    ddl?: string(name='Ddl', description='The DDL statement for table creation.
+
+This parameter is required.', example='CREATE TABLE test (id bigint)'),
+    dropTable?: boolean(name='DropTable', description='Specifies whether to drop the table if it already exists.', example='true'),
+  }(name='DDLCommand', description='The one-click table creation parameters.
+
+This parameter is required.'),
+  opTenantId?: long(name='OpTenantId', description='The tenant ID.
+
+This parameter is required.', example='30001011'),
+}
+
+model ExecuteDDLShrinkRequest {
+  contextShrink?: string(name='Context', description='The request context information.
+
+This parameter is required.'),
+  DDLCommandShrink?: string(name='DDLCommand', description='The one-click table creation parameters.
+
+This parameter is required.'),
+  opTenantId?: long(name='OpTenantId', description='The tenant ID.
+
+This parameter is required.', example='30001011'),
+}
+
+model ExecuteDDLResponseBody = {
+  code?: string(name='Code', description='The backend response code.', example='OK'),
+  httpStatusCode?: int32(name='HttpStatusCode', description='The HTTP status code.', example='200'),
+  message?: string(name='Message', description='The backend exception details.', example='internal error'),
+  requestId?: string(name='RequestId', description='Id of the request', example='82E78D6B-AA8F-1FEF-8AA3-5C9DA2A79140'),
+  success?: boolean(name='Success', description='Indicates whether the request was successful.', example='True'),
+}
+
+model ExecuteDDLResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ExecuteDDLResponseBody(name='body'),
+}
+
+/**
+ * @summary Executes a DDL statement: creates a table on a data source based on the specified data source identifier and DDL statement.
+ *
+ * @param tmpReq ExecuteDDLRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return ExecuteDDLResponse
+ */
+@context("executeDDLWithContext")
+async function executeDDLWithOptions(tmpReq: ExecuteDDLRequest, runtime: $RuntimeOptions): ExecuteDDLResponse {
+  tmpReq.validate();
+  var request = new ExecuteDDLShrinkRequest{};
+  OpenApiUtil.convert(tmpReq, request);
+  if (!$isNull(tmpReq.context)) {
+    request.contextShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.context, 'Context', 'json');
+  }
+  if (!$isNull(tmpReq.DDLCommand)) {
+    request.DDLCommandShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.DDLCommand, 'DDLCommand', 'json');
+  }
+  var query = {};
+  if (!$isNull(request.opTenantId)) {
+    query['OpTenantId'] = request.opTenantId;
+  }
+  var body : map[string]any = {};
+  if (!$isNull(request.contextShrink)) {
+    body['Context'] = request.contextShrink;
+  }
+  if (!$isNull(request.DDLCommandShrink)) {
+    body['DDLCommand'] = request.DDLCommandShrink;
+  }
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'ExecuteDDL',
+    version = '2023-06-30',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Executes a DDL statement: creates a table on a data source based on the specified data source identifier and DDL statement.
+ *
+ * @param request ExecuteDDLRequest
+ * @return ExecuteDDLResponse
+ */
+async function executeDDL(request: ExecuteDDLRequest): ExecuteDDLResponse {
+  var runtime = new $RuntimeOptions{};
+  return executeDDLWithOptions(request, runtime);
 }
 
 model ExecuteManualNodeRequest {
@@ -27141,6 +27277,180 @@ async function listOperationRecord(request: ListOperationRecordRequest): ListOpe
   return listOperationRecordWithOptions(request, runtime);
 }
 
+model ListPipelinesRequest {
+  context?: {
+    env?: string(name='Env', description='The environment identifier. Valid values:
+
+- DEV: development environment.
+- PROD: production environment.
+
+Default value: PROD.', example='PROD'),
+    projectId?: long(name='ProjectId', description='The project ID.
+
+This parameter is required.', example='7128268454335680'),
+  }(name='Context', description='The request context.
+
+This parameter is required.'),
+  listCommand?: {
+    creatorList?: [ string ](name='CreatorList', description='The list of creator user IDs for filtering. If left empty, no filtering is applied. Multiple values have an OR relationship.'),
+    developOwnerList?: [ string ](name='DevelopOwnerList', description='The list of development owner user IDs for filtering. If left empty, no filtering is applied. Multiple values have an OR relationship.'),
+    directories?: [ string ](name='Directories', description='The list of full folder paths to query. If left empty, the root folder is queried.'),
+    exactMatch?: boolean(name='ExactMatch', description='Specifies whether to use exact match for node names. Default value: false.'),
+    keywords?: [ string ](name='Keywords', description='The list of node name keywords. This parameter is optional. If left empty, no filtering by name is applied. For exact match, this is a list of full names. For fuzzy match, this is a list of keywords. Multiple values have an OR relationship.'),
+    nextCursor?: long(name='NextCursor', description='The cursor-based pagination parameter (an opaque cursor that callers do not need to interpret). This parameter is optional. If not specified, the request is treated as a first-page request and returns the actual total count. If specified, the request is treated as a subsequent-page request. Pass the NextCursor value from the previous page response as-is. The SQL layer automatically filters by incrementing ID to query the next page without re-querying the total count. No OFFSET is used throughout, which avoids performance degradation in deep paging scenarios.', example='123'),
+    opsOwnerList?: [ string ](name='OpsOwnerList', description='The list of O&M owner user IDs for filtering. If left empty, no filtering is applied. Multiple values have an OR relationship.'),
+    pageNum?: int32(name='PageNum', description='The page number. Default value: 1. Starts from 1.', example='3'),
+    pageSize?: int32(name='PageSize', description='The number of entries per page. Default value: 10. Maximum value: 100.', example='20'),
+    pipelineTypeList?: [ int32 ](name='PipelineTypeList', description='The list of node types. Valid values:
+
+- 0: offline integration.
+- 1: real-time integration.
+- 13: data aggregation.
+- 14: offline unstructured workflow.
+- 15: real-time unstructured workflow.
+- 16: online unstructured workflow.
+
+Default value: [0]. If null or an empty list is passed, the default value [0] is used.'),
+    recursive?: boolean(name='Recursive', description='Specifies whether to recursively query subfolders. Default value: false.', example='true'),
+    scheduleTypeList?: [ int32 ](name='ScheduleTypeList', description='The list of scheduling types for filtering. If left empty, no filtering is applied. Valid values:
+
+- 1: periodic scheduling.
+- 3: manual scheduling.
+- 5: real-time scheduling.
+- 7: online workflow.'),
+    submitStatusList?: [ string ](name='SubmitStatusList', description='The list of submit statuses for filtering. If left empty, no filtering is applied. Valid values:
+
+- DRAFT: draft.
+- SUBMITTING: submitting.
+- SUBMITTED: submitted.
+- PUBLISHED: published.'),
+    tagList?: [ string ](name='TagList', description='The list of label names for filtering. If left empty, no filtering is applied. Multiple values have an OR relationship.'),
+    totalCount?: int32(name='TotalCount', description='The total number of records for cursor-based pagination. This parameter is optional and takes effect only when NextCursor is not empty. After the first-page request returns the actual total count, pass this value back as-is for subsequent pages. The server does not re-query the total count and directly returns this value, which avoids redundant count overhead. If not specified, the system falls back to querying one extra record to determine whether a next page exists.', example='1233'),
+  }(name='ListCommand', description='The query parameters.
+
+This parameter is required.'),
+  opTenantId?: long(name='OpTenantId', description='The tenant ID.
+
+This parameter is required.', example='30001011'),
+}
+
+model ListPipelinesShrinkRequest {
+  contextShrink?: string(name='Context', description='The request context.
+
+This parameter is required.'),
+  listCommandShrink?: string(name='ListCommand', description='The query parameters.
+
+This parameter is required.'),
+  opTenantId?: long(name='OpTenantId', description='The tenant ID.
+
+This parameter is required.', example='30001011'),
+}
+
+model ListPipelinesResponseBody = {
+  code?: string(name='Code', description='The error code. OK indicates that the request was successful.', example='OK'),
+  data?: {
+    list?: [ 
+      {
+        developOwners?: [ string ](name='DevelopOwners', description='The list of user IDs of development owners.'),
+        directory?: string(name='Directory', description='The directory in which the task resides.', example='/dwd/Finance/'),
+        fileId?: long(name='FileId', description='The file ID.', example='12121111'),
+        nodeId?: string(name='NodeId', description='The scheduling node ID.', example='n_6793582765516849152'),
+        nodeName?: string(name='NodeName', description='The node name.', example='test'),
+        opsOwners?: [ string ](name='OpsOwners', description='The list of user IDs of O&M owners.'),
+        pipelineId?: long(name='PipelineId', description='The pipeline ID.', example='1450811'),
+        scheduleType?: int32(name='ScheduleType', description='The schedule type. Valid values:
+- 1: periodic scheduling.
+- 3: manual scheduling.
+- 5: real-time scheduling.', example='1'),
+        tags?: [ string ](name='Tags', description='The list of task tag names.'),
+        taskStatus?: string(name='TaskStatus', description='The task status. Valid values:
+- DRAFT: draft.
+- SUBMITTING: being submitted.
+- SUBMITTED: submitted.
+- PUBLISHED: published.', example='SUBMITTED'),
+        taskType?: int32(name='TaskType', description='The task type. Valid values:
+- 0: offline integration.
+- 1: real-time integration.
+- 13: data aggregation.
+- 14: offline unstructured workflow.
+- 15: real-time unstructured workflow.', example='0'),
+      }
+    ](name='List', description='The list of task information on the current page.'),
+    nextCursor?: long(name='NextCursor', description='The cursor for the next page (an opaque cursor that the caller does not need to interpret). A null value indicates that there are no more pages. Otherwise, pass this value as the nextCursor parameter in the next request to retrieve the next page.', example='123'),
+    pageNum?: int32(name='PageNum', description='The current page number, starting from 1.', example='1'),
+    pageSize?: int32(name='PageSize', description='The number of entries per page.', example='10'),
+    total?: int32(name='Total', description='The total number of records that match the conditions. On the first page request, the actual total is returned. On subsequent page requests (when nextCursor is passed in), if totalCount is included in the request, the same value is returned. Otherwise, this field is not returned. The total value is a snapshot taken at the time of the first page query and is not updated in real time as data changes during pagination.', example='105'),
+  }(name='Data', description='The paged query result.'),
+  httpStatusCode?: int32(name='HttpStatusCode', description='The HTTP status code returned by the backend.', example='200'),
+  message?: string(name='Message', description='The error message.', example='successful'),
+  requestId?: string(name='RequestId', description='The request ID.', example='75DD06F8-1661-5A6E-B0A6-7E23133BDC60'),
+  success?: boolean(name='Success', description='Indicates whether the request was successful.', example='true'),
+}
+
+model ListPipelinesResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ListPipelinesResponseBody(name='body'),
+}
+
+/**
+ * @summary Queries a list of nodes. Supports querying offline integration, real-time integration, and unstructured workflows (data aggregation, offline workflows, and real-time workflows). Supports multi-dimensional filtering by folder, keyword, node type, submit status, scheduling type, owner, label, and creator. Results are returned with pagination.
+ *
+ * @param tmpReq ListPipelinesRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return ListPipelinesResponse
+ */
+@context("listPipelinesWithContext")
+async function listPipelinesWithOptions(tmpReq: ListPipelinesRequest, runtime: $RuntimeOptions): ListPipelinesResponse {
+  tmpReq.validate();
+  var request = new ListPipelinesShrinkRequest{};
+  OpenApiUtil.convert(tmpReq, request);
+  if (!$isNull(tmpReq.context)) {
+    request.contextShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.context, 'Context', 'json');
+  }
+  if (!$isNull(tmpReq.listCommand)) {
+    request.listCommandShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.listCommand, 'ListCommand', 'json');
+  }
+  var query = {};
+  if (!$isNull(request.opTenantId)) {
+    query['OpTenantId'] = request.opTenantId;
+  }
+  var body : map[string]any = {};
+  if (!$isNull(request.contextShrink)) {
+    body['Context'] = request.contextShrink;
+  }
+  if (!$isNull(request.listCommandShrink)) {
+    body['ListCommand'] = request.listCommandShrink;
+  }
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'ListPipelines',
+    version = '2023-06-30',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Queries a list of nodes. Supports querying offline integration, real-time integration, and unstructured workflows (data aggregation, offline workflows, and real-time workflows). Supports multi-dimensional filtering by folder, keyword, node type, submit status, scheduling type, owner, label, and creator. Results are returned with pagination.
+ *
+ * @param request ListPipelinesRequest
+ * @return ListPipelinesResponse
+ */
+async function listPipelines(request: ListPipelinesRequest): ListPipelinesResponse {
+  var runtime = new $RuntimeOptions{};
+  return listPipelinesWithOptions(request, runtime);
+}
+
 model ListProjectMembersRequest {
   id?: long(name='Id', description='The project ID.
 
@@ -28526,16 +28836,17 @@ model ListResourcePermissionOperationLogRequest {
     page?: int32(name='Page', description='The page number.
 
 This parameter is required.', example='1'),
-    pageSize?: int32(name='PageSize', description='The number of records per page.
+    pageSize?: int32(name='PageSize', description='The number of entries per page.
 
 This parameter is required.', example='10'),
-    searchText?: string(name='SearchText', description='The search keyword.', example='xx测试'),
-    tabType?: string(name='TabType', description='The tab name. Valid values:
-- TABLE: table
-- DATASOURCE: datasource.
+    searchText?: string(name='SearchText', description='The search keyword.', example='xxTest'),
+    tabType?: string(name='TabType', description='The tab type. Valid values:
+
+- TABLE: table.
+- DATASOURCE: data source.
 
 This parameter is required.', example='TABLE'),
-  }(name='ListQuery', description='The paged request parameters.
+  }(name='ListQuery', description='The pagination request.
 
 This parameter is required.'),
   opTenantId?: long(name='OpTenantId', description='The tenant ID.
@@ -28544,7 +28855,7 @@ This parameter is required.', example='30001011'),
 }
 
 model ListResourcePermissionOperationLogShrinkRequest {
-  listQueryShrink?: string(name='ListQuery', description='The paged request parameters.
+  listQueryShrink?: string(name='ListQuery', description='The pagination request.
 
 This parameter is required.'),
   opTenantId?: long(name='OpTenantId', description='The tenant ID.
@@ -28555,81 +28866,82 @@ This parameter is required.', example='30001011'),
 model ListResourcePermissionOperationLogResponseBody = {
   code?: string(name='Code', description='The error code. A value of OK indicates that the request was successful.', example='OK'),
   httpStatusCode?: int32(name='HttpStatusCode', description='The HTTP status code returned by the backend.', example='200'),
-  message?: string(name='Message', description='The error message.', example='successful'),
+  message?: string(name='Message', description='The error message returned if the request failed.', example='successful'),
   pageResult?: {
     data?: [ 
       {
         account?: {
-          id?: string(name='Id', description='The account ID.
-- Individual account: the userId on the Dataphin side.
-- Production account: the UserId obtained by calling the GetProjectProduceUser operation.
-- User group: the user group ID obtained by calling the ListUserGroup operation.', example='1212131'),
+          id?: string(name='Id', description='The account ID. For a personal account, this is the Dataphin-side userId. For a production account, this is the UserId obtained through the GetProjectProduceUser operation. For a user group, this is the user group ID obtained through the ListUserGroup operation.', example='1212131'),
           name?: string(name='Name', description='The account name.', example='xx'),
-          type?: string(name='Type', description='The authorization account type. Valid values:
-- PERSONAL: individual account
-- PRODUCE: production account
+          type?: string(name='Type', description='The authorized account type. Valid values:
+- PERSONAL: personal account.
+- PRODUCE: production account.
 - USER_GROUP: user group.', example='PERSONAL'),
         }(name='Account', description='The operator.'),
         authScope?: string(name='AuthScope', description='The authorization scope of the table. Valid values:
+
 - selectTable: specified table
 - projectAllTable: all tables in the project
-- bizUnitAllLogicTable: all logical tables in the business unit.', example='selectTable'),
+- bizUnitAllLogicTable: all logical tables in the business unit', example='selectTable'),
         operateId?: long(name='OperateId', description='The operation ID.', example='123133'),
         operateTime?: long(name='OperateTime', description='The operation time.', example='1710012121000'),
         operateType?: string(name='OperateType', description='The operation type. Valid values:
-- APPLY: Apply for permissions.
-- GRANT: Grant permissions.', example='APPLY'),
+- APPLY: apply.
+- GRANT: grant.', example='APPLY'),
         period?: {
           endTime?: string(name='EndTime', description='The expiration time.', example='1712000000000'),
           type?: string(name='Type', description='The validity period type. Valid values:
 - CUSTOM: custom
-- LONG_TERM: permanently valid
+- LONG_TERM: long-term validity
 - DAYS_30: valid for 30 days
 - DAYS_90: valid for 90 days
-- DAYS_180: valid for 180 days.', example='CUSTOM'),
+- DAYS_180: valid for 180 days', example='CUSTOM'),
         }(name='Period', description='The validity period settings.'),
-        reason?: string(name='Reason', description='The reason.', example='xx测试'),
+        reason?: string(name='Reason', description='The reason.', example='xxTest'),
         resourceInfo?: {
           bizUnitInfo?: {
             displayName?: string(name='DisplayName', description='The display name.', example='xx'),
-            env?: string(name='Env', description='The environment identifier. Valid values: 
-- DEV
-- PROD.', example='DEV'),
+            env?: string(name='Env', description='The environment identifier. Valid values:
+- DEV: development.
+- PROD: production.', example='DEV'),
             id?: string(name='Id', description='Id', example='121323'),
             name?: string(name='Name', description='The name.', example='xx'),
-          }(name='BizUnitInfo', description='The business unit information.'),
+          }(name='BizUnitInfo', description='The business unit.'),
           displayName?: string(name='DisplayName', description='The display name of the resource.', example='tb1'),
           env?: string(name='Env', description='The resource environment. Valid values:
-- DEV
-- PROD.', example='DEV'),
+- DEV: development.
+- PROD: production.', example='DEV'),
           id?: string(name='Id', description='The permission resource ID.', example='a.tb1'),
           name?: string(name='Name', description='The permission resource name.', example='tb1'),
           projectInfo?: {
             displayName?: string(name='DisplayName', description='The display name.', example='xx'),
-            env?: string(name='Env', description='The environment identifier. Valid values: 
-- DEV
-- PROD.', example='DEV'),
+            env?: string(name='Env', description='The environment identifier. Valid values:
+- DEV: development.
+- PROD: production.', example='DEV'),
             id?: long(name='Id', description='The project ID.', example='1123131'),
             name?: string(name='Name', description='The name.', example='xx'),
-          }(name='ProjectInfo', description='The project information.'),
+          }(name='ProjectInfo', description='The project.'),
           type?: string(name='Type', description='The resource type. Valid values:
-- PHYSICAL_TABLE: physical table
-- PHYSICAL_VIEW: physical view
-- LOGICAL_TABLE: fact logical table
-- LOGICAL_VIEW: fact logical view
-- REALTIME_LOGICAL_TABLE: real-time meta table
-- REALTIME_MIRROR_TABLE: real-time meta table
-- DATASOURCE: datasource.', example='PHYSICAL_TABLE'),
+- PHYSICAL_TABLE: physical table.
+- PHYSICAL_VIEW: physical view.
+- LOGICAL_TABLE: fact logical table.
+- LOGICAL_VIEW: fact logical view.
+- REALTIME_LOGICAL_TABLE: real-time meta table.
+- REALTIME_MIRROR_TABLE: real-time meta table.
+- DATASOURCE: data source.', example='PHYSICAL_TABLE'),
         }(name='ResourceInfo', description='The permission resource.'),
         targetAccount?: {
-          id?: string(name='Id', description='The account ID.', example='1212131'),
+          id?: string(name='Id', description='The account ID. For a personal account, this is the Dataphin-side userId. For a production account, this is the UserId obtained through the GetProjectProduceUser operation. For a user group, this is the user group ID obtained through the ListUserGroup operation.', example='1212131'),
           name?: string(name='Name', description='The account name.', example='xx'),
-          type?: string(name='Type', description='The authorized account type.', example='PERSONAL'),
+          type?: string(name='Type', description='The authorized account type. Valid values:
+- PERSONAL: personal account.
+- PRODUCE: production account.
+- USER_GROUP: user group.', example='PERSONAL'),
         }(name='TargetAccount', description='The authorized object.'),
       }
-    ](name='Data', description='The paginated records.'),
+    ](name='Data', description='The paged records.'),
     totalCount?: long(name='TotalCount', description='The total number of records.', example='121'),
-  }(name='PageResult', description='The paging query result.'),
+  }(name='PageResult', description='The paged query result.'),
   requestId?: string(name='RequestId', description='The request ID.', example='75DD06F8-1661-5A6E-B0A6-7E23133BDC60'),
   success?: boolean(name='Success', description='Indicates whether the request was successful.', example='true'),
 }
@@ -28694,85 +29006,100 @@ async function listResourcePermissionOperationLog(request: ListResourcePermissio
 
 model ListResourcePermissionsRequest {
   listQuery?: {
-    page?: int32(name='Page', description='Page number.
+    page?: int32(name='Page', description='The page number.
 
 This parameter is required.', example='1'),
-    pageSize?: int32(name='PageSize', description='Number of records per page.
+    pageSize?: int32(name='PageSize', description='The number of records per page.
 
 This parameter is required.', example='10'),
-    searchText?: string(name='SearchText', description='Search keyword.', example='xx测试'),
-    tabType?: string(name='TabType', description='Tab name. Table: TABLE. Data source: DATASOURCE.
+    searchText?: string(name='SearchText', description='The search keyword.', example='xxTest'),
+    tabType?: string(name='TabType', description='The tab type. Valid values:
+
+- TABLE: table.
+- DATASOURCE: datasource.
 
 This parameter is required.', example='TABLE'),
-  }(name='ListQuery', description='Paginated request.
+  }(name='ListQuery', description='The paged query request.
 
 This parameter is required.'),
-  opTenantId?: long(name='OpTenantId', description='Tenant ID.
+  opTenantId?: long(name='OpTenantId', description='The tenant ID.
 
 This parameter is required.', example='30001011'),
 }
 
 model ListResourcePermissionsShrinkRequest {
-  listQueryShrink?: string(name='ListQuery', description='Paginated request.
+  listQueryShrink?: string(name='ListQuery', description='The paged query request.
 
 This parameter is required.'),
-  opTenantId?: long(name='OpTenantId', description='Tenant ID.
+  opTenantId?: long(name='OpTenantId', description='The tenant ID.
 
 This parameter is required.', example='30001011'),
 }
 
 model ListResourcePermissionsResponseBody = {
-  code?: string(name='Code', description='Error code. OK indicates a normal request.', example='OK'),
-  httpStatusCode?: int32(name='HttpStatusCode', description='HTTP status code returned by the backend.', example='200'),
-  message?: string(name='Message', description='Error message.', example='successful'),
+  code?: string(name='Code', description='The error code. A value of OK indicates that the request was successful.', example='OK'),
+  httpStatusCode?: int32(name='HttpStatusCode', description='The HTTP status code returned by the backend.', example='200'),
+  message?: string(name='Message', description='The error message returned for the request.', example='successful'),
   pageResult?: {
     data?: [ 
       {
-        authScope?: string(name='AuthScope', description='Authorization scope of the table. Specified table: selectTable. All tables in the project: projectAllTable. All logical tables in the business unit: bizUnitAllLogicTable.', example='selectTable'),
+        authScope?: string(name='AuthScope', description='The authorization scope of the table. Valid values:
+- selectTable: a specified table.
+- projectAllTable: all tables in the project.
+- bizUnitAllLogicTable: all logical tables in the business unit.', example='selectTable'),
         period?: {
-          endTime?: string(name='EndTime', description='Expiration time.', example='1712000000000'),
-          type?: string(name='Type', description='Validity period type. Custom: CUSTOM. Long-term: LONG_TERM.', example='CUSTOM'),
-        }(name='Period', description='Validity period settings.'),
+          endTime?: string(name='EndTime', description='The expiration time.', example='1712000000000'),
+          type?: string(name='Type', description='The validity period type.', example='CUSTOM'),
+        }(name='Period', description='The validity period settings.'),
         permissionPeriodList?: [ 
           {
             period?: {
-              endTime?: string(name='EndTime', description='Expiration time.', example='1712000000000'),
-              type?: string(name='Type', description='Validity period type. Custom: CUSTOM. Long-term: LONG_TERM.', example='CUSTOM'),
-            }(name='Period', description='Validity period settings.'),
-            permissionType?: string(name='PermissionType', description='Permission type.', example='SELECT'),
+              endTime?: string(name='EndTime', description='The expiration time.', example='1712000000000'),
+              type?: string(name='Type', description='The validity period type.', example='CUSTOM'),
+            }(name='Period', description='The validity period settings.'),
+            permissionType?: string(name='PermissionType', description='The permission type.', example='SELECT'),
           }
-        ](name='PermissionPeriodList', description='List of validity periods for different permission types.'),
-        recordId?: string(name='RecordId', description='Record ID.', example='12123111'),
+        ](name='PermissionPeriodList', description='The list of validity periods for different permission types.'),
+        recordId?: string(name='RecordId', description='The record ID.', example='12123111'),
         resourceInfo?: {
           bizUnitInfo?: {
-            displayName?: string(name='DisplayName', description='Display name.', example='xx'),
-            env?: string(name='Env', description='Environment identifier. Development: DEV. Production: PROD.', example='DEV'),
-            id?: string(name='Id', description='ID.', example='121323'),
-            name?: string(name='Name', description='Name.', example='xx'),
-          }(name='BizUnitInfo', description='Business unit.'),
-          displayName?: string(name='DisplayName', description='Resource display name.', example='tb1'),
-          env?: string(name='Env', description='Resource environment type. Development: DEV. Production: PROD.', example='DEV'),
-          id?: string(name='Id', description='Permission resource ID.', example='a.tb1'),
-          name?: string(name='Name', description='Permission resource name.', example='tb1'),
+            displayName?: string(name='DisplayName', description='The display name.', example='xx'),
+            env?: string(name='Env', description='The environment identifier. Valid values:
+- DEV: development.
+- PROD: production.', example='DEV'),
+            id?: string(name='Id', description='Id', example='121323'),
+            name?: string(name='Name', description='The name.', example='xx'),
+          }(name='BizUnitInfo', description='The business unit.'),
+          displayName?: string(name='DisplayName', description='The display name of the resource.', example='tb1'),
+          env?: string(name='Env', description='The resource environment type. Valid values:
+- DEV: development.
+- PROD: production.', example='DEV'),
+          id?: string(name='Id', description='The ID of the permission resource.', example='a.tb1'),
+          name?: string(name='Name', description='The name of the permission resource.', example='tb1'),
           projectInfo?: {
-            displayName?: string(name='DisplayName', description='Display name.', example='xx'),
-            env?: string(name='Env', description='Environment identifier. Development: DEV. Production: PROD.', example='DEV'),
-            id?: long(name='Id', description='Project ID.', example='1123131'),
-            name?: string(name='Name', description='Name.', example='xx'),
-          }(name='ProjectInfo', description='Project.'),
-          type?: string(name='Type', description='Resource type. Valid values: PHYSICAL_TABLE, PHYSICAL_VIEW, LOGICAL_TABLE, LOGICAL_VIEW, REALTIME_LOGICAL_TABLE, REALTIME_MIRROR_TABLE, and DATASOURCE.', example='PHYSICAL_TABLE'),
-        }(name='ResourceInfo', description='Permission resource.'),
+            displayName?: string(name='DisplayName', description='The display name.', example='xx'),
+            env?: string(name='Env', description='The environment identifier. Valid values:
+- DEV: development.
+- PROD: production.', example='DEV'),
+            id?: long(name='Id', description='The project ID.', example='1123131'),
+            name?: string(name='Name', description='The name.', example='xx'),
+          }(name='ProjectInfo', description='The project.'),
+          type?: string(name='Type', description='The resource type. Valid values: PHYSICAL_TABLE, PHYSICAL_VIEW, LOGICAL_TABLE, LOGICAL_VIEW, REALTIME_LOGICAL_TABLE, REALTIME_MIRROR_TABLE, DATASOURCE.', example='PHYSICAL_TABLE'),
+        }(name='ResourceInfo', description='The permission resource.'),
         targetAccount?: {
-          id?: string(name='Id', description='Personal account: the userId on the Dataphin side. Production account: the UserId obtained by calling the GetProjectProduceUser operation. User group: the user group ID obtained by calling the ListUserGroup operation.', example='1212131'),
-          name?: string(name='Name', description='Personal account: the userId on the Dataphin side. Production account: the UserId obtained by calling the GetProjectProduceUser operation. User group: the user group ID obtained by calling the ListUserGroup operation.', example='xx'),
-          type?: string(name='Type', description='Authorization account type. Valid values: PERSONAL (personal account), PRODUCE (production account), and USER_GROUP (user group).', example='PERSONAL'),
-        }(name='TargetAccount', description='Authorized object.'),
+          id?: string(name='Id', description='The account ID. For an individual account, this is the Dataphin-side userId. For a production account, this is the UserId obtained by calling the GetProjectProduceUser operation. For a user group, this is the user group ID obtained by calling the ListUserGroup operation.', example='1212131'),
+          name?: string(name='Name', description='The account ID. For an individual account, this is the Dataphin-side userId. For a production account, this is the UserId obtained by calling the GetProjectProduceUser operation. For a user group, this is the user group ID obtained by calling the ListUserGroup operation.', example='xx'),
+          type?: string(name='Type', description='The type of the authorized account. Valid values:
+- PERSONAL: individual account.
+- PRODUCE: production account.
+- USER_GROUP: user group.', example='PERSONAL'),
+        }(name='TargetAccount', description='The authorized object.'),
       }
-    ](name='Data', description='Paginated list.'),
-    totalCount?: long(name='TotalCount', description='Total number of records.', example='121'),
-  }(name='PageResult', description='Paginated query result.'),
-  requestId?: string(name='RequestId', description='Request ID.', example='75DD06F8-1661-5A6E-B0A6-7E23133BDC60'),
-  success?: boolean(name='Success', description='Whether the request is successful.', example='true'),
+    ](name='Data', description='The paged list.'),
+    totalCount?: long(name='TotalCount', description='The total number of records.', example='121'),
+  }(name='PageResult', description='The paged query result.'),
+  requestId?: string(name='RequestId', description='The request ID.', example='75DD06F8-1661-5A6E-B0A6-7E23133BDC60'),
+  success?: boolean(name='Success', description='Indicates whether the request was successful.', example='true'),
 }
 
 model ListResourcePermissionsResponse = {
@@ -28782,7 +29109,7 @@ model ListResourcePermissionsResponse = {
 }
 
 /**
- * @summary Retrieves permission authorization records with pagination.
+ * @summary Retrieves permission authorization records by page.
  *
  * @param tmpReq ListResourcePermissionsRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -28823,7 +29150,7 @@ async function listResourcePermissionsWithOptions(tmpReq: ListResourcePermission
 }
 
 /**
- * @summary Retrieves permission authorization records with pagination.
+ * @summary Retrieves permission authorization records by page.
  *
  * @param request ListResourcePermissionsRequest
  * @return ListResourcePermissionsResponse
@@ -29121,6 +29448,110 @@ async function listRowPermissionByUserIdWithOptions(tmpReq: ListRowPermissionByU
 async function listRowPermissionByUserId(request: ListRowPermissionByUserIdRequest): ListRowPermissionByUserIdResponse {
   var runtime = new $RuntimeOptions{};
   return listRowPermissionByUserIdWithOptions(request, runtime);
+}
+
+model ListSecurityClassifyRequest {
+  listQuery?: {
+    levelIndex?: long(name='LevelIndex', description='The data level ID.', example='1'),
+    name?: string(name='Name', description='The classification name. Fuzzy match is supported.', example='Personal Information'),
+    pageNo?: int32(name='PageNo', description='The page number. Default value: 1.', example='1'),
+    pageSize?: int32(name='PageSize', description='The number of entries per page. Default value: 20.', example='20'),
+    statusList?: [ string ](name='StatusList', description='The list of effective statuses. Valid values: ENABLE, DISABLE.', example='["ENABLE"]'),
+  }(name='ListQuery', description='The query conditions.'),
+  opTenantId?: long(name='OpTenantId', description='The tenant ID.
+
+This parameter is required.', example='30001011'),
+}
+
+model ListSecurityClassifyShrinkRequest {
+  listQueryShrink?: string(name='ListQuery', description='The query conditions.'),
+  opTenantId?: long(name='OpTenantId', description='The tenant ID.
+
+This parameter is required.', example='30001011'),
+}
+
+model ListSecurityClassifyResponseBody = {
+  classifyListResult?: {
+    classifyList?: [ 
+      {
+        catalogPath?: string(name='CatalogPath', description='The catalog path of the classification.', example='/Root/Personal Information'),
+        description?: string(name='Description', description='The classification description.', example='Personal sensitive information classification'),
+        effectiveFieldCount?: int32(name='EffectiveFieldCount', description='The number of effective fields.', example='100'),
+        id?: long(name='Id', description='The classification ID.', example='1'),
+        isBindDesensitizeRule?: boolean(name='IsBindDesensitizeRule', description='Indicates whether a masking rule is bound.', example='false'),
+        levelId?: long(name='LevelId', description='The level ID.', example='1'),
+        levelName?: string(name='LevelName', description='The level name.', example='L3'),
+        name?: string(name='Name', description='The classification name.', example='Personal Information'),
+        priority?: int32(name='Priority', description='The priority.', example='1'),
+        shortName?: string(name='ShortName', description='The short name of the classification.', example='PI'),
+        status?: string(name='Status', description='The status.', example='ENABLE'),
+      }
+    ](name='ClassifyList', description='The list of data classifications.'),
+    totalCount?: int32(name='TotalCount', description='The total number of entries.', example='10'),
+  }(name='ClassifyListResult', description='The result of the data classification list.'),
+  code?: string(name='Code', description='The backend response code.', example='OK'),
+  httpStatusCode?: int32(name='HttpStatusCode', description='The HTTP status code.', example='200'),
+  message?: string(name='Message', description='The details of the backend error.', example='internal error'),
+  requestId?: string(name='RequestId', description='Id of the request', example='82E78D6B-AA8F-1FEF-8AA3-5C9DA2A79140'),
+  success?: boolean(name='Success', description='Indicates whether the request was successful.'),
+}
+
+model ListSecurityClassifyResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ListSecurityClassifyResponseBody(name='body'),
+}
+
+/**
+ * @summary Queries the data classification list by paging.
+ *
+ * @param tmpReq ListSecurityClassifyRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return ListSecurityClassifyResponse
+ */
+@context("listSecurityClassifyWithContext")
+async function listSecurityClassifyWithOptions(tmpReq: ListSecurityClassifyRequest, runtime: $RuntimeOptions): ListSecurityClassifyResponse {
+  tmpReq.validate();
+  var request = new ListSecurityClassifyShrinkRequest{};
+  OpenApiUtil.convert(tmpReq, request);
+  if (!$isNull(tmpReq.listQuery)) {
+    request.listQueryShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.listQuery, 'ListQuery', 'json');
+  }
+  var query = {};
+  if (!$isNull(request.opTenantId)) {
+    query['OpTenantId'] = request.opTenantId;
+  }
+  var body : map[string]any = {};
+  if (!$isNull(request.listQueryShrink)) {
+    body['ListQuery'] = request.listQueryShrink;
+  }
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'ListSecurityClassify',
+    version = '2023-06-30',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Queries the data classification list by paging.
+ *
+ * @param request ListSecurityClassifyRequest
+ * @return ListSecurityClassifyResponse
+ */
+async function listSecurityClassify(request: ListSecurityClassifyRequest): ListSecurityClassifyResponse {
+  var runtime = new $RuntimeOptions{};
+  return listSecurityClassifyWithOptions(request, runtime);
 }
 
 model ListSecurityIdentifyRecordsRequest {
@@ -32723,6 +33154,119 @@ async function revokeResourcePermission(request: RevokeResourcePermissionRequest
   return revokeResourcePermissionWithOptions(request, runtime);
 }
 
+model SearchKgBySemanticRequest {
+  opTenantId?: long(name='OpTenantId', description='The tenant ID.
+
+This parameter is required.', example='30001011'),
+  searchCommand?: {
+    entityTypeCodes?: [ string ](name='EntityTypeCodes', description='The entity type codes used for filtering. If this parameter is not specified, all entity types are searched.'),
+    minSimilarity?: float(name='MinSimilarity', description='The minimum similarity threshold. Valid values: 0.0 to 1.0. Default value: 0.0 (no filtering). This parameter takes effect only for the semantic search path.', example='0.5'),
+    propertyCode?: string(name='PropertyCode', description='The property code for semantic search. If this parameter is not specified, all properties with semantic search enabled are searched.', example='name'),
+    queryText?: string(name='QueryText', description='The natural language query text. The value can be 0 to 500 characters in length.
+
+This parameter is required.', example='Query students in Beijing'),
+    topK?: int32(name='TopK', description='The maximum number of results to return. Default value: 20. Valid values: 1 to 100.', example='10'),
+  }(name='SearchCommand', description='The search command.
+
+This parameter is required.'),
+  workspaceId?: string(name='WorkspaceId', description='The workspace ID.
+
+This parameter is required.', example='f1d4559a4db044158305e2d89bccf81f'),
+}
+
+model SearchKgBySemanticShrinkRequest {
+  opTenantId?: long(name='OpTenantId', description='The tenant ID.
+
+This parameter is required.', example='30001011'),
+  searchCommandShrink?: string(name='SearchCommand', description='The search command.
+
+This parameter is required.'),
+  workspaceId?: string(name='WorkspaceId', description='The workspace ID.
+
+This parameter is required.', example='f1d4559a4db044158305e2d89bccf81f'),
+}
+
+model SearchKgBySemanticResponseBody = {
+  code?: string(name='Code', description='The backend response code.', example='OK'),
+  data?: {
+    searchResults?: [ 
+      {
+        itemId?: string(name='ItemId', description='The ID of the matched entity record.', example='itemId'),
+        itemTypeCode?: string(name='ItemTypeCode', description='The entity type code.', example='EntityTypeCode1'),
+        matchedPropertyCode?: string(name='MatchedPropertyCode', description='The property code that matched the semantic search.', example='name'),
+        matchedPropertyValue?: string(name='MatchedPropertyValue', description='The actual value of the matched property.', example='张三'),
+        similarityScore?: float(name='SimilarityScore', description='The similarity score ranging from 0.0 to 1.0, based on cosine similarity.', example='0.88'),
+      }
+    ](name='SearchResults', description='The list of search results.'),
+    totalCount?: int32(name='TotalCount', description='The total number of results.', example='1640276'),
+  }(name='Data', description='The search results.'),
+  httpStatusCode?: int32(name='HttpStatusCode', description='The HTTP status code.', example='200'),
+  message?: string(name='Message', description='The backend exception details.', example='internal error'),
+  requestId?: string(name='RequestId', description='Id of the request', example='82E78D6B-AA8F-1FEF-8AA3-5C9DA2A79140'),
+  success?: boolean(name='Success', description='Indicates whether the request was successful.'),
+}
+
+model SearchKgBySemanticResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: SearchKgBySemanticResponseBody(name='body'),
+}
+
+/**
+ * @summary Retrieves knowledge graph entity or relationship records through semantic search.
+ *
+ * @param tmpReq SearchKgBySemanticRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return SearchKgBySemanticResponse
+ */
+@context("searchKgBySemanticWithContext")
+async function searchKgBySemanticWithOptions(tmpReq: SearchKgBySemanticRequest, runtime: $RuntimeOptions): SearchKgBySemanticResponse {
+  tmpReq.validate();
+  var request = new SearchKgBySemanticShrinkRequest{};
+  OpenApiUtil.convert(tmpReq, request);
+  if (!$isNull(tmpReq.searchCommand)) {
+    request.searchCommandShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.searchCommand, 'SearchCommand', 'json');
+  }
+  var query = {};
+  if (!$isNull(request.opTenantId)) {
+    query['OpTenantId'] = request.opTenantId;
+  }
+  if (!$isNull(request.workspaceId)) {
+    query['WorkspaceId'] = request.workspaceId;
+  }
+  var body : map[string]any = {};
+  if (!$isNull(request.searchCommandShrink)) {
+    body['SearchCommand'] = request.searchCommandShrink;
+  }
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'SearchKgBySemantic',
+    version = '2023-06-30',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Retrieves knowledge graph entity or relationship records through semantic search.
+ *
+ * @param request SearchKgBySemanticRequest
+ * @return SearchKgBySemanticResponse
+ */
+async function searchKgBySemantic(request: SearchKgBySemanticRequest): SearchKgBySemanticResponse {
+  var runtime = new $RuntimeOptions{};
+  return searchKgBySemanticWithOptions(request, runtime);
+}
+
 model StopAdHocTaskRequest {
   opTenantId?: long(name='OpTenantId', description='The tenant ID.
 
@@ -33001,6 +33545,123 @@ async function submitBatchTaskWithOptions(tmpReq: SubmitBatchTaskRequest, runtim
 async function submitBatchTask(request: SubmitBatchTaskRequest): SubmitBatchTaskResponse {
   var runtime = new $RuntimeOptions{};
   return submitBatchTaskWithOptions(request, runtime);
+}
+
+model SubmitPipelineByIdRequest {
+  context?: {
+    env?: string(name='Env', description='The current operating environment. Valid values:
+
+- DEV: the development environment.
+- PROD: the production environment.
+
+This parameter is required.', example='DEV'),
+    projectId?: long(name='ProjectId', description='The ID of the project to which the integration pipeline task belongs.
+
+This parameter is required.', example='123'),
+  }(name='Context', description='The request context information.
+
+This parameter is required.'),
+  opTenantId?: long(name='OpTenantId', description='The tenant ID.
+
+This parameter is required.', example='30001011'),
+  queryId?: {
+    fileId?: long(name='FileId', description='The file ID of the integration task. You can specify any one of pipelineId, fileId, or nodeId.', example='123'),
+    nodeId?: string(name='NodeId', description='The node ID of the integration task scheduling node. You can specify any one of pipelineId, fileId, or nodeId.', example='n_123'),
+    pipelineId?: long(name='PipelineId', description='The primary key ID of the integration pipeline. You can specify any one of pipelineId, fileId, or nodeId.', example='123'),
+  }(name='QueryId', description='The ID used to query the pipeline task.
+
+This parameter is required.'),
+}
+
+model SubmitPipelineByIdShrinkRequest {
+  contextShrink?: string(name='Context', description='The request context information.
+
+This parameter is required.'),
+  opTenantId?: long(name='OpTenantId', description='The tenant ID.
+
+This parameter is required.', example='30001011'),
+  queryIdShrink?: string(name='QueryId', description='The ID used to query the pipeline task.
+
+This parameter is required.'),
+}
+
+model SubmitPipelineByIdResponseBody = {
+  code?: string(name='Code', description='The backend response code.', example='OK'),
+  data?: {
+    hostMachine?: string(name='HostMachine', description='The name and IP address of the server machine that executed the task.', example='hostName:hostIp'),
+    nodeId?: string(name='NodeId', description='The scheduling node ID of the pipeline task after successful submission.', example='123'),
+    pipelineId?: long(name='PipelineId', description='The pipeline ID after successful submission.', example='123'),
+    submitId?: long(name='SubmitId', description='The submit ID of the pending publish list generated by submitting the pipeline. Use this ID to publish through the publish domain.', example='123'),
+    version?: string(name='Version', description='The version number generated after the submission.', example='1'),
+  }(name='Data', description='The submit result of the pipeline task.'),
+  httpStatusCode?: int32(name='HttpStatusCode', description='The HTTP status code.', example='200'),
+  message?: string(name='Message', description='The details of the backend exception.', example='internal error'),
+  requestId?: string(name='RequestId', description='Id of the request', example='82E78D6B-AA8F-1FEF-8AA3-5C9DA2A79140'),
+  success?: boolean(name='Success', description='Indicates whether the request was successful.'),
+}
+
+model SubmitPipelineByIdResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: SubmitPipelineByIdResponseBody(name='body'),
+}
+
+/**
+ * @summary Submits an integration pipeline task by OAQueryId.
+ *
+ * @param tmpReq SubmitPipelineByIdRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return SubmitPipelineByIdResponse
+ */
+@context("submitPipelineByIdWithContext")
+async function submitPipelineByIdWithOptions(tmpReq: SubmitPipelineByIdRequest, runtime: $RuntimeOptions): SubmitPipelineByIdResponse {
+  tmpReq.validate();
+  var request = new SubmitPipelineByIdShrinkRequest{};
+  OpenApiUtil.convert(tmpReq, request);
+  if (!$isNull(tmpReq.context)) {
+    request.contextShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.context, 'Context', 'json');
+  }
+  if (!$isNull(tmpReq.queryId)) {
+    request.queryIdShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.queryId, 'QueryId', 'json');
+  }
+  var query = {};
+  if (!$isNull(request.opTenantId)) {
+    query['OpTenantId'] = request.opTenantId;
+  }
+  var body : map[string]any = {};
+  if (!$isNull(request.contextShrink)) {
+    body['Context'] = request.contextShrink;
+  }
+  if (!$isNull(request.queryIdShrink)) {
+    body['QueryId'] = request.queryIdShrink;
+  }
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'SubmitPipelineById',
+    version = '2023-06-30',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Submits an integration pipeline task by OAQueryId.
+ *
+ * @param request SubmitPipelineByIdRequest
+ * @return SubmitPipelineByIdResponse
+ */
+async function submitPipelineById(request: SubmitPipelineByIdRequest): SubmitPipelineByIdResponse {
+  var runtime = new $RuntimeOptions{};
+  return submitPipelineByIdWithOptions(request, runtime);
 }
 
 model SubmitQualityRuleTasksRequest {
