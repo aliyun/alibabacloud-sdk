@@ -30,10 +30,10 @@ init(config: OpenApiUtil.Config){
     'cn-shanghai-finance-1' = 'green.aliyuncs.com',
     'cn-north-2-gov-1' = 'green.aliyuncs.com',
     'cn-shenzhen' = 'green-cip.cn-shenzhen.aliyuncs.com',
-    'cn-shanghai' = 'green-cip.cn-shanghai.aliyuncs.com',
-    'cn-hangzhou' = 'green-cip.cn-hangzhou.aliyuncs.com',
     'cn-beijing' = 'green-cip.cn-beijing.aliyuncs.com',
+    'cn-shanghai' = 'green-cip.cn-shanghai.aliyuncs.com',
     'ap-southeast-1' = 'green-cip.ap-southeast-1.aliyuncs.com',
+    'cn-hangzhou' = 'green-cip.cn-hangzhou.aliyuncs.com',
   };
 
   checkConfig(config);
@@ -51,9 +51,31 @@ function getEndpoint(productId: string, regionId: string, endpointRule: string, 
   return OpenApiUtil.getEndpointRules(productId, regionId, endpointRule, network, suffix);
 }
 
+model DataTotalStatValue = {
+  total?: long(name='Total', description='The total count.', example='100'),
+  share?: string(name='Share', description='The proportion.', example='12.50%'),
+}
+
 model ConfigBucketPrefixFilterConfigValue = {
   prefixFilterType?: string(name='PrefixFilterType', description='The prefix filter type.', example='all'),
   prefixFilters?: [ string ](name='PrefixFilters', description='The prefix list.'),
+}
+
+model ChartsValue = {
+  x?: [ string ](name='X', description='The X-axis.'),
+  y?: [ 
+    {
+      name?: string(name='Name', description='The name.', example='cn-shanghai'),
+      data?: [ long ](name='Data', description='The QPS at the point in time.'),
+    }
+  ](name='Y', description='The Y-axis.'),
+}
+
+model AuthInfoConfigValue = {
+  authToken?: string(name='AuthToken', description='The credential.', example='token-xxx'),
+  privateDomain?: string(name='PrivateDomain', description='The private domain name.', example='https://xxx'),
+  project?: string(name='Project', description='The project space.', example='proj-xxx'),
+  publicDomain?: string(name='PublicDomain', description='The public domain name.', example='https://xxx'),
 }
 
 model AddAnswerSampleRequest {
@@ -216,6 +238,85 @@ async function addAppAgentWithOptions(request: AddAppAgentRequest, runtime: $Run
 async function addAppAgent(request: AddAppAgentRequest): AddAppAgentResponse {
   var runtime = new $RuntimeOptions{};
   return addAppAgentWithOptions(request, runtime);
+}
+
+model AddAppConfigRequest {
+  classify?: string(name='Classify', description='The category.', example='guard-scene'),
+  name?: string(name='Name', description='The name.', example='example'),
+  regionId?: string(name='RegionId', description='The region ID.', example='cn-shanghai'),
+  resourceType?: string(name='ResourceType', description='The resource type.', example='text'),
+  sysAppId?: string(name='SysAppId', description='appId', example='xxx'),
+  type?: string(name='Type', description='The type.', example='plus'),
+}
+
+model AddAppConfigResponseBody = {
+  data?: {
+    appId?: string(name='AppId', description='App ID。', example='txt_check_pro_agent_01'),
+  }(name='Data', description='The returned data.'),
+  requestId?: string(name='RequestId', description='The ID assigned by the backend to uniquely identify a request. You can use this ID to troubleshoot issues.', example='AAAAAA-BBBB-CCCCC-DDDD-EEEEEEEE****'),
+}
+
+model AddAppConfigResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: AddAppConfigResponseBody(name='body'),
+}
+
+/**
+ * @summary Creates an app configuration.
+ *
+ * @param request AddAppConfigRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return AddAppConfigResponse
+ */
+@context("addAppConfigWithContext")
+async function addAppConfigWithOptions(request: AddAppConfigRequest, runtime: $RuntimeOptions): AddAppConfigResponse {
+  request.validate();
+  var query = {};
+  if (!$isNull(request.classify)) {
+    query['Classify'] = request.classify;
+  }
+  if (!$isNull(request.name)) {
+    query['Name'] = request.name;
+  }
+  if (!$isNull(request.regionId)) {
+    query['RegionId'] = request.regionId;
+  }
+  if (!$isNull(request.resourceType)) {
+    query['ResourceType'] = request.resourceType;
+  }
+  if (!$isNull(request.sysAppId)) {
+    query['SysAppId'] = request.sysAppId;
+  }
+  if (!$isNull(request.type)) {
+    query['Type'] = request.type;
+  }
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'AddAppConfig',
+    version = '2022-09-26',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Creates an app configuration.
+ *
+ * @param request AddAppConfigRequest
+ * @return AddAppConfigResponse
+ */
+async function addAppConfig(request: AddAppConfigRequest): AddAppConfigResponse {
+  var runtime = new $RuntimeOptions{};
+  return addAppConfigWithOptions(request, runtime);
 }
 
 model AddImageLibRequest {
@@ -3058,6 +3159,648 @@ async function exportTextScanResult(request: ExportTextScanResultRequest): Expor
   return exportTextScanResultWithOptions(request, runtime);
 }
 
+model GetAiAppDetailRequest {
+  appId?: string(name='AppId', description='The ID of the AI application. This parameter is required.
+
+This parameter is required.', example='id-xxx'),
+  regionId?: string(name='RegionId', description='The region ID.', example='cn-shanghai'),
+}
+
+model GetAiAppDetailResponseBody = {
+  appId?: string(name='AppId', description='appId。', example='id-xxx'),
+  appName?: string(name='AppName', description='The application name.', example='app-xxx'),
+  chart?: {
+    x?: [ string ](name='X', description='The X value of the coordinate point.'),
+    y?: [ 
+      {
+        data?: [ long ](name='Data', description='The returned collection.'),
+        name?: string(name='Name', description='The name.', example='score'),
+      }
+    ](name='Y', description='The Y value of the coordinate point.'),
+  }(name='Chart', description='The chart.'),
+  requestId?: string(name='RequestId', description='The ID assigned by the backend to uniquely identify a request. You can use this ID to troubleshoot issues.', example='AAAAAA-BBBB-CCCCC-DDDD-EEEEEEEE****'),
+  riskEvents?: [ 
+    {
+      eventCode?: string(name='EventCode', description='The risk event code.', example='hit_xxx'),
+      eventCount?: long(name='EventCount', description='The number of events.', example='10'),
+      eventIds?: [ string ](name='EventIds', description='The list of risk event IDs.'),
+      eventName?: string(name='EventName', description='The risk event name.', example='xxx'),
+      eventStatus?: string(name='EventStatus', description='The event status. Valid values:
+- **unhandled**: Not handled.
+- **resolved**: Handled.', example='resolved'),
+      labels?: [ 
+        {
+          label?: string(name='Label', description='The labels.', example='inappropriate_profanity'),
+          labelDesc?: string(name='LabelDesc', description='The label description.', example='xxx'),
+          type?: string(name='Type', description='The type.', example='contentModeration'),
+        }
+      ](name='Labels', description='The labels.'),
+    }
+  ](name='RiskEvents', description='The risk events.'),
+  score?: int32(name='Score', description='The score.', example='100'),
+  uid?: string(name='Uid', description='UID。', example='17726*****370735'),
+}
+
+model GetAiAppDetailResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: GetAiAppDetailResponseBody(name='body'),
+}
+
+/**
+ * @summary Retrieves the details of an AI application.
+ *
+ * @param request GetAiAppDetailRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return GetAiAppDetailResponse
+ */
+@context("getAiAppDetailWithContext")
+async function getAiAppDetailWithOptions(request: GetAiAppDetailRequest, runtime: $RuntimeOptions): GetAiAppDetailResponse {
+  request.validate();
+  var query = {};
+  if (!$isNull(request.appId)) {
+    query['AppId'] = request.appId;
+  }
+  if (!$isNull(request.regionId)) {
+    query['RegionId'] = request.regionId;
+  }
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'GetAiAppDetail',
+    version = '2022-09-26',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Retrieves the details of an AI application.
+ *
+ * @param request GetAiAppDetailRequest
+ * @return GetAiAppDetailResponse
+ */
+async function getAiAppDetail(request: GetAiAppDetailRequest): GetAiAppDetailResponse {
+  var runtime = new $RuntimeOptions{};
+  return getAiAppDetailWithOptions(request, runtime);
+}
+
+model GetAiAppDetailStatRequest {
+  appId?: string(name='AppId', description='The ID of the AI application. This parameter is required.
+
+This parameter is required.', example='id-xxx'),
+  endTime?: string(name='EndTime', description='The end time of the query.', example='2025-07-09 10:30:00'),
+  regionId?: string(name='RegionId', description='The ID of the region where the application resides.', example='cn-shanghai'),
+  startTime?: string(name='StartTime', description='The start time of the query.', example='2024-09-10 14:48:01'),
+}
+
+model GetAiAppDetailStatResponseBody = {
+  appId?: string(name='AppId', description='The application ID.', example='id-xxx'),
+  avgModelDuration?: float(name='AvgModelDuration', description='The average duration of model calls.', example='2.55'),
+  avgModelDurationDau?: float(name='AvgModelDurationDau', description='The day-over-day change ratio of average model call duration.', example='0.05'),
+  modelCount?: long(name='ModelCount', description='The number of model calls.', example='15'),
+  modelCountDau?: float(name='ModelCountDau', description='The day-over-day change ratio of model call count.', example='0.15'),
+  requestId?: string(name='RequestId', description='The ID assigned by the backend to uniquely identify a request. You can use this ID to troubleshoot issues.', example='AAAAAA-BBBB-CCCCC-DDDD-EEEEEEEE****'),
+  riskEventCount?: long(name='RiskEventCount', description='The number of risk events.', example='1'),
+  tokenCount?: long(name='TokenCount', description='The number of tokens consumed.', example='11000'),
+  tokenCountDau?: float(name='TokenCountDau', description='The day-over-day change ratio of token consumption count.', example='-0.15'),
+}
+
+model GetAiAppDetailStatResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: GetAiAppDetailStatResponseBody(name='body'),
+}
+
+/**
+ * @summary Retrieves statistics for AI application details.
+ *
+ * @param request GetAiAppDetailStatRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return GetAiAppDetailStatResponse
+ */
+@context("getAiAppDetailStatWithContext")
+async function getAiAppDetailStatWithOptions(request: GetAiAppDetailStatRequest, runtime: $RuntimeOptions): GetAiAppDetailStatResponse {
+  request.validate();
+  var query = {};
+  if (!$isNull(request.appId)) {
+    query['AppId'] = request.appId;
+  }
+  if (!$isNull(request.endTime)) {
+    query['EndTime'] = request.endTime;
+  }
+  if (!$isNull(request.regionId)) {
+    query['RegionId'] = request.regionId;
+  }
+  if (!$isNull(request.startTime)) {
+    query['StartTime'] = request.startTime;
+  }
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'GetAiAppDetailStat',
+    version = '2022-09-26',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Retrieves statistics for AI application details.
+ *
+ * @param request GetAiAppDetailStatRequest
+ * @return GetAiAppDetailStatResponse
+ */
+async function getAiAppDetailStat(request: GetAiAppDetailStatRequest): GetAiAppDetailStatResponse {
+  var runtime = new $RuntimeOptions{};
+  return getAiAppDetailStatWithOptions(request, runtime);
+}
+
+model GetAiAppDetailTopoRequest {
+  appId?: string(name='AppId', description='The application ID that identifies a specific AI application.
+
+This parameter is required.', example='id-xxx'),
+  regionId?: string(name='RegionId', description='The region ID.', example='cn-shanghai'),
+  timeQuery?: {
+    dimension?: string(name='Dimension', description='The dimension.', example='DAY'),
+    endTime?: string(name='EndTime', description='The end time.', example='2025-07-28 17:04:08'),
+    startTime?: string(name='StartTime', description='The start time.', example='2025-07-22 17:04:08'),
+  }(name='TimeQuery', description='The time query.'),
+}
+
+model GetAiAppDetailTopoShrinkRequest {
+  appId?: string(name='AppId', description='The application ID that identifies a specific AI application.
+
+This parameter is required.', example='id-xxx'),
+  regionId?: string(name='RegionId', description='The region ID.', example='cn-shanghai'),
+  timeQueryShrink?: string(name='TimeQuery', description='The time query.'),
+}
+
+model GetAiAppDetailTopoResponseBody = {
+  data?: [ 
+    {
+      nodeCategory?: string(name='NodeCategory', description='The node category.
+
+- LLM
+
+- Knowledge
+
+- Tools
+
+- Others', example='LLM'),
+      nodeId?: string(name='NodeId', description='The ID of the node.', example='idxxx'),
+      nodeName?: string(name='NodeName', description='The name of the node.', example='namexxx'),
+      nodeType?: string(name='NodeType', description='The node type. Valid values:
+
+- **APP**: end-to-end agent.
+- **MODEL**: large language model.
+- **TOOL**: tool.', example='TOOL'),
+      requestCount?: long(name='RequestCount', description='The request count.', example='100'),
+      riskLevel?: string(name='RiskLevel', description='The risk level.', example='high'),
+      warningCount?: int32(name='WarningCount', description='The number of alerts.', example='20'),
+    }
+  ](name='Data', description='The returned data.'),
+  requestId?: string(name='RequestId', description='The ID assigned by the backend to uniquely identify a request. You can use this ID to troubleshoot issues.', example='AAAAAA-BBBB-CCCCC-DDDD-EEEEEEEE****'),
+}
+
+model GetAiAppDetailTopoResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: GetAiAppDetailTopoResponseBody(name='body'),
+}
+
+/**
+ * @summary Retrieves the topology of an AI application.
+ *
+ * @param tmpReq GetAiAppDetailTopoRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return GetAiAppDetailTopoResponse
+ */
+@context("getAiAppDetailTopoWithContext")
+async function getAiAppDetailTopoWithOptions(tmpReq: GetAiAppDetailTopoRequest, runtime: $RuntimeOptions): GetAiAppDetailTopoResponse {
+  tmpReq.validate();
+  var request = new GetAiAppDetailTopoShrinkRequest{};
+  OpenApiUtil.convert(tmpReq, request);
+  if (!$isNull(tmpReq.timeQuery)) {
+    request.timeQueryShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.timeQuery, 'TimeQuery', 'json');
+  }
+  var query = {};
+  if (!$isNull(request.appId)) {
+    query['AppId'] = request.appId;
+  }
+  if (!$isNull(request.regionId)) {
+    query['RegionId'] = request.regionId;
+  }
+  if (!$isNull(request.timeQueryShrink)) {
+    query['TimeQuery'] = request.timeQueryShrink;
+  }
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'GetAiAppDetailTopo',
+    version = '2022-09-26',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Retrieves the topology of an AI application.
+ *
+ * @param request GetAiAppDetailTopoRequest
+ * @return GetAiAppDetailTopoResponse
+ */
+async function getAiAppDetailTopo(request: GetAiAppDetailTopoRequest): GetAiAppDetailTopoResponse {
+  var runtime = new $RuntimeOptions{};
+  return getAiAppDetailTopoWithOptions(request, runtime);
+}
+
+model GetAiAppNodeDetailRequest {
+  appId?: string(name='AppId', description='The application ID. This parameter is required.
+
+This parameter is required.', example='id-xxx'),
+  endTime?: string(name='EndTime', description='The end time of the query.', example='2026-01-02 16:08:38'),
+  nodeId?: string(name='NodeId', description='The node ID. This parameter is required.
+
+This parameter is required.', example='node-xxx'),
+  nodeName?: string(name='NodeName', description='The node name.
+
+This parameter is required.', example='xxx'),
+  nodeType?: string(name='NodeType', description='The node type. This parameter is required.
+
+This parameter is required.', example='TOOL'),
+  regionId?: string(name='RegionId', description='The region ID.', example='cn-shanghai'),
+  startTime?: string(name='StartTime', description='The start time of the query.', example='2026-01-01 16:08:38'),
+}
+
+model GetAiAppNodeDetailResponseBody = {
+  appId?: string(name='AppId', description='The application ID.', example='id-xxx'),
+  channel?: string(name='Channel', description='The channel information.', example='bailian'),
+  eventData?: [ 
+    {
+      channel?: string(name='Channel', description='The channel.', example='bailian'),
+      labels?: [ 
+        {
+          label?: string(name='Label', description='The label name.', example='porn'),
+          labelDesc?: string(name='LabelDesc', description='The label description.', example='porn desc'),
+          riskLevel?: string(name='RiskLevel', description='The risk level.', example='high'),
+        }
+      ](name='Labels', description='The list of labels.'),
+      name?: string(name='Name', description='The name.', example='xxx'),
+      riskLevel?: string(name='RiskLevel', description='The risk level.', example='high'),
+      time?: string(name='Time', description='The time when the event occurred.', example='2026-01-01 16:08:38'),
+      traceId?: string(name='TraceId', description='The trace ID, which is used to query the exact call information.', example='xxxxx'),
+      type?: string(name='Type', description='The event type.', example='hit_sensitive_data'),
+    }
+  ](name='EventData', description='The list of event data.'),
+  nodeId?: string(name='NodeId', description='The node ID.', example='node-xxx'),
+  nodeName?: string(name='NodeName', description='The node name.', example='namexxx'),
+  nodeType?: string(name='NodeType', description='The node type.', example='TOOL'),
+  requestId?: string(name='RequestId', description='The ID assigned by the backend to uniquely identify a request. You can use this ID to troubleshoot issues.', example='AAAAAA-BBBB-CCCCC-DDDD-EEEEEEEE****'),
+  riskLevel?: string(name='RiskLevel', description='The risk level.', example='high'),
+}
+
+model GetAiAppNodeDetailResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: GetAiAppNodeDetailResponseBody(name='body'),
+}
+
+/**
+ * @summary Retrieves the details of an application node in the agent topology.
+ *
+ * @param request GetAiAppNodeDetailRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return GetAiAppNodeDetailResponse
+ */
+@context("getAiAppNodeDetailWithContext")
+async function getAiAppNodeDetailWithOptions(request: GetAiAppNodeDetailRequest, runtime: $RuntimeOptions): GetAiAppNodeDetailResponse {
+  request.validate();
+  var query = {};
+  if (!$isNull(request.appId)) {
+    query['AppId'] = request.appId;
+  }
+  if (!$isNull(request.endTime)) {
+    query['EndTime'] = request.endTime;
+  }
+  if (!$isNull(request.nodeId)) {
+    query['NodeId'] = request.nodeId;
+  }
+  if (!$isNull(request.nodeName)) {
+    query['NodeName'] = request.nodeName;
+  }
+  if (!$isNull(request.nodeType)) {
+    query['NodeType'] = request.nodeType;
+  }
+  if (!$isNull(request.regionId)) {
+    query['RegionId'] = request.regionId;
+  }
+  if (!$isNull(request.startTime)) {
+    query['StartTime'] = request.startTime;
+  }
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'GetAiAppNodeDetail',
+    version = '2022-09-26',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Retrieves the details of an application node in the agent topology.
+ *
+ * @param request GetAiAppNodeDetailRequest
+ * @return GetAiAppNodeDetailResponse
+ */
+async function getAiAppNodeDetail(request: GetAiAppNodeDetailRequest): GetAiAppNodeDetailResponse {
+  var runtime = new $RuntimeOptions{};
+  return getAiAppNodeDetailWithOptions(request, runtime);
+}
+
+model GetAiAppOverviewRequest {
+  endTime?: string(name='EndTime', description='The end time. Format: YYYY-MM-DD HH:mm:ss.', example='2025-07-09 10:30:00'),
+  regionId?: string(name='RegionId', description='The region ID.', example='cn-shanghai'),
+  startTime?: string(name='StartTime', description='The start time. Format: YYYY-MM-DD HH:mm:ss.', example='2023-08-21 16:08:38'),
+}
+
+model GetAiAppOverviewResponseBody = {
+  appTotal?: long(name='AppTotal', description='The total number of agents.', example='100'),
+  requestId?: string(name='RequestId', description='The ID assigned by the backend to uniquely identify a request. You can use this ID to troubleshoot issues.', example='AAAAAA-BBBB-CCCCC-DDDD-EEEEEEEE****'),
+  riskEventLevelDistribution?: map[string]any(name='RiskEventLevelDistribution', description='The distribution of risk events by level.'),
+  riskEventResolvedTotal?: long(name='RiskEventResolvedTotal', description='The total number of resolved risk events.', example='10'),
+  riskEventTotal?: long(name='RiskEventTotal', description='The total number of risk events.', example='20'),
+  riskEventUnhandledTotal?: long(name='RiskEventUnhandledTotal', description='The total number of unhandled risk events.', example='10'),
+}
+
+model GetAiAppOverviewResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: GetAiAppOverviewResponseBody(name='body'),
+}
+
+/**
+ * @summary Retrieves the overview information of AI applications.
+ *
+ * @param request GetAiAppOverviewRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return GetAiAppOverviewResponse
+ */
+@context("getAiAppOverviewWithContext")
+async function getAiAppOverviewWithOptions(request: GetAiAppOverviewRequest, runtime: $RuntimeOptions): GetAiAppOverviewResponse {
+  request.validate();
+  var query = {};
+  if (!$isNull(request.endTime)) {
+    query['EndTime'] = request.endTime;
+  }
+  if (!$isNull(request.regionId)) {
+    query['RegionId'] = request.regionId;
+  }
+  if (!$isNull(request.startTime)) {
+    query['StartTime'] = request.startTime;
+  }
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'GetAiAppOverview',
+    version = '2022-09-26',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Retrieves the overview information of AI applications.
+ *
+ * @param request GetAiAppOverviewRequest
+ * @return GetAiAppOverviewResponse
+ */
+async function getAiAppOverview(request: GetAiAppOverviewRequest): GetAiAppOverviewResponse {
+  var runtime = new $RuntimeOptions{};
+  return getAiAppOverviewWithOptions(request, runtime);
+}
+
+model GetAiAppStatsRequest {
+  byMonth?: boolean(name='ByMonth', description='Specifies whether to aggregate by month. Default value: false.', example='false'),
+  endDate?: string(name='EndDate', description='The query end date.', example='2026-01-02 00:00:00'),
+  query?: string(name='Query', description='The query condition.', example='{}'),
+  regionId?: string(name='RegionId', description='The region ID.', example='cn-shanghai'),
+  startDate?: string(name='StartDate', description='The query start date.', example='2026-01-01 00:00:00'),
+  type?: string(name='Type', description='The type.', example='sensitive_data'),
+}
+
+model GetAiAppStatsResponseBody = {
+  data?: {
+    labelStatChart?: [ 
+      {
+        treeChart?: [ 
+          {
+            description?: string(name='Description', description='The label description.', example='desc'),
+            name?: string(name='Name', description='The label.', example='example'),
+            value?: string(name='Value', description='The score.', example='99.91'),
+          }
+        ](name='TreeChart', description='The tree chart.'),
+      }
+    ](name='LabelStatChart', description='The label usage chart.'),
+    totalStat?: map[string]DataTotalStatValue(name='TotalStat', description='The total count categorized statistics.'),
+    x?: [ string ](name='X', description='The X value of the coordinate point.'),
+    y?: [ 
+      {
+        data?: [ long ](name='Data', description='The returned data.'),
+        name?: string(name='Name', description='The name.', example='example'),
+      }
+    ](name='Y', description='The Y value of the coordinate point.'),
+  }(name='Data', description='The returned data.'),
+  requestId?: string(name='RequestId', description='The ID assigned by the backend to uniquely identify a request. Used for troubleshooting.', example='AAAAAA-BBBB-CCCCC-DDDD-EEEEEEEE****'),
+}
+
+model GetAiAppStatsResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: GetAiAppStatsResponseBody(name='body'),
+}
+
+/**
+ * @summary Retrieves statistics data for AI applications.
+ *
+ * @param request GetAiAppStatsRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return GetAiAppStatsResponse
+ */
+@context("getAiAppStatsWithContext")
+async function getAiAppStatsWithOptions(request: GetAiAppStatsRequest, runtime: $RuntimeOptions): GetAiAppStatsResponse {
+  request.validate();
+  var query = {};
+  if (!$isNull(request.byMonth)) {
+    query['ByMonth'] = request.byMonth;
+  }
+  if (!$isNull(request.endDate)) {
+    query['EndDate'] = request.endDate;
+  }
+  if (!$isNull(request.query)) {
+    query['Query'] = request.query;
+  }
+  if (!$isNull(request.regionId)) {
+    query['RegionId'] = request.regionId;
+  }
+  if (!$isNull(request.startDate)) {
+    query['StartDate'] = request.startDate;
+  }
+  if (!$isNull(request.type)) {
+    query['Type'] = request.type;
+  }
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'GetAiAppStats',
+    version = '2022-09-26',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Retrieves statistics data for AI applications.
+ *
+ * @param request GetAiAppStatsRequest
+ * @return GetAiAppStatsResponse
+ */
+async function getAiAppStats(request: GetAiAppStatsRequest): GetAiAppStatsResponse {
+  var runtime = new $RuntimeOptions{};
+  return getAiAppStatsWithOptions(request, runtime);
+}
+
+model GetAiAppTraceDetailRequest {
+  appId?: string(name='AppId', description='The AI application ID that identifies a specific AI application instance.', example='id-xxx'),
+  endTime?: string(name='EndTime', description='The end time of the query.', example='2026-01-02 16:08:38'),
+  regionId?: string(name='RegionId', description='The region ID.', example='cn-shanghai'),
+  startTime?: string(name='StartTime', description='The start time of the query.', example='2026-01-01 16:08:38'),
+  traceId?: string(name='TraceId', description='The trace ID used to track and correlate a specific request chain.
+
+This parameter is required.', example='xxxxx'),
+}
+
+model GetAiAppTraceDetailResponseBody = {
+  analysis?: string(name='Analysis', description='The AI analysis result.', example='xxxx'),
+  appId?: string(name='AppId', description='The application ID.', example='id-xxx'),
+  appName?: string(name='AppName', description='The application name.', example='appxxx'),
+  channel?: string(name='Channel', description='The application channel.', example='bailian'),
+  labels?: [ 
+    {
+      count?: long(name='Count', description='The count.', example='0'),
+      label?: string(name='Label', description='The label name.', example='porn'),
+      labelDesc?: string(name='LabelDesc', description='The label description.', example='xxx'),
+      type?: string(name='Type', description='The type.', example='sensitiveData'),
+    }
+  ](name='Labels', description='The list of labels.'),
+  requestId?: string(name='RequestId', description='The backend-assigned ID that uniquely identifies a request. You can use this ID for troubleshooting.', example='AAAAAA-BBBB-CCCCC-DDDD-EEEEEEEE****'),
+  traceId?: string(name='TraceId', description='The trace ID used to correlate and track alert events.', example='0abb7ee117615311812886711e0a15'),
+  warningTime?: string(name='WarningTime', description='The alert time.', example='2026-01-01 16:08:38'),
+}
+
+model GetAiAppTraceDetailResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: GetAiAppTraceDetailResponseBody(name='body'),
+}
+
+/**
+ * @summary Retrieves the details of an app alert.
+ *
+ * @param request GetAiAppTraceDetailRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return GetAiAppTraceDetailResponse
+ */
+@context("getAiAppTraceDetailWithContext")
+async function getAiAppTraceDetailWithOptions(request: GetAiAppTraceDetailRequest, runtime: $RuntimeOptions): GetAiAppTraceDetailResponse {
+  request.validate();
+  var query = {};
+  if (!$isNull(request.appId)) {
+    query['AppId'] = request.appId;
+  }
+  if (!$isNull(request.endTime)) {
+    query['EndTime'] = request.endTime;
+  }
+  if (!$isNull(request.regionId)) {
+    query['RegionId'] = request.regionId;
+  }
+  if (!$isNull(request.startTime)) {
+    query['StartTime'] = request.startTime;
+  }
+  if (!$isNull(request.traceId)) {
+    query['TraceId'] = request.traceId;
+  }
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'GetAiAppTraceDetail',
+    version = '2022-09-26',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Retrieves the details of an app alert.
+ *
+ * @param request GetAiAppTraceDetailRequest
+ * @return GetAiAppTraceDetailResponse
+ */
+async function getAiAppTraceDetail(request: GetAiAppTraceDetailRequest): GetAiAppTraceDetailResponse {
+  var runtime = new $RuntimeOptions{};
+  return getAiAppTraceDetailWithOptions(request, runtime);
+}
+
 model GetAnswerImportProgressRequest {
   regionId?: string(name='RegionId', description='The region ID.', example='cn-shanghai'),
   taskId?: string(name='TaskId', description='The task ID.', example='alAxbbxxxx-xxx'),
@@ -3842,6 +4585,90 @@ async function getGuardLogStatsWithOptions(request: GetGuardLogStatsRequest, run
 async function getGuardLogStats(request: GetGuardLogStatsRequest): GetGuardLogStatsResponse {
   var runtime = new $RuntimeOptions{};
   return getGuardLogStatsWithOptions(request, runtime);
+}
+
+model GetGuardStatusRequest {
+  commodityCode?: string(name='CommodityCode', description='The commodity code.', example='xxx'),
+  regionId?: string(name='RegionId', description='The region ID.', example='cn-shanghai'),
+}
+
+model GetGuardStatusResponseBody = {
+  logScanStatus?: [ 
+    {
+      status?: string(name='Status', description='The status. Valid values:
+- enabled: Running.
+- disabled: Not accessed.', example='enabled'),
+      type?: string(name='Type', description='The type.', example='ai_app_scan_bailian'),
+    }
+  ](name='LogScanStatus', description='The list of log scan statistics.'),
+  protectionStatus?: [ 
+    {
+      status?: string(name='Status', description='The status. Valid values:
+- enabled: Running.
+- disabled: Not accessed.', example='enabled'),
+      type?: string(name='Type', description='The type.', example='api'),
+    }
+  ](name='ProtectionStatus', description='The list of protection status statistics.'),
+  realTimeStatus?: [ 
+    {
+      status?: string(name='Status', description='The status. Valid values:
+- enabled: Running.
+- disabled: Not accessed.', example='enabled'),
+      type?: string(name='Type', description='The type.', example='api'),
+    }
+  ](name='RealTimeStatus', description='The list of real-time protection statistics.'),
+  requestId?: string(name='RequestId', description='The ID assigned by the backend to uniquely identify a request. This ID can be used to troubleshoot issues.', example='AAAAAA-BBBB-CCCCC-DDDD-EEEEEEEE****'),
+}
+
+model GetGuardStatusResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: GetGuardStatusResponseBody(name='body'),
+}
+
+/**
+ * @summary Retrieves statistics information on AI application protection data.
+ *
+ * @param request GetGuardStatusRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return GetGuardStatusResponse
+ */
+@context("getGuardStatusWithContext")
+async function getGuardStatusWithOptions(request: GetGuardStatusRequest, runtime: $RuntimeOptions): GetGuardStatusResponse {
+  request.validate();
+  var query = {};
+  if (!$isNull(request.commodityCode)) {
+    query['CommodityCode'] = request.commodityCode;
+  }
+  if (!$isNull(request.regionId)) {
+    query['RegionId'] = request.regionId;
+  }
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'GetGuardStatus',
+    version = '2022-09-26',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Retrieves statistics information on AI application protection data.
+ *
+ * @param request GetGuardStatusRequest
+ * @return GetGuardStatusResponse
+ */
+async function getGuardStatus(request: GetGuardStatusRequest): GetGuardStatusResponse {
+  var runtime = new $RuntimeOptions{};
+  return getGuardStatusWithOptions(request, runtime);
 }
 
 model GetImageSceneLabelConfRequest {
@@ -4840,6 +5667,150 @@ async function getPromptTestResultWithOptions(request: GetPromptTestResultReques
 async function getPromptTestResult(request: GetPromptTestResultRequest): GetPromptTestResultResponse {
   var runtime = new $RuntimeOptions{};
   return getPromptTestResultWithOptions(request, runtime);
+}
+
+model GetQpsStatsRequest {
+  query?: string(name='Query', description='The query condition. The value is a string in JSON format.
+
+>Different query conditions return different protected objects. For more information, see **Query parameter description**.', example='{}'),
+  regionId?: string(name='RegionId', description='The region ID.', example='cn-shanghai'),
+}
+
+model GetQpsStatsResponseBody = {
+  charts?: map[string]ChartsValue(name='Charts', description='The chart configurations.'),
+  requestId?: string(name='RequestId', description='The ID assigned by the backend to uniquely identify a request. It can be used to troubleshoot issues.', example='AAAAAA-BBBB-CCCCC-DDDD-EEEEEEEE****'),
+}
+
+model GetQpsStatsResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: GetQpsStatsResponseBody(name='body'),
+}
+
+/**
+ * @summary Queries QPS statistics information.
+ *
+ * @param request GetQpsStatsRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return GetQpsStatsResponse
+ */
+@context("getQpsStatsWithContext")
+async function getQpsStatsWithOptions(request: GetQpsStatsRequest, runtime: $RuntimeOptions): GetQpsStatsResponse {
+  request.validate();
+  var query = {};
+  if (!$isNull(request.query)) {
+    query['Query'] = request.query;
+  }
+  if (!$isNull(request.regionId)) {
+    query['RegionId'] = request.regionId;
+  }
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'GetQpsStats',
+    version = '2022-09-26',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Queries QPS statistics information.
+ *
+ * @param request GetQpsStatsRequest
+ * @return GetQpsStatsResponse
+ */
+async function getQpsStats(request: GetQpsStatsRequest): GetQpsStatsResponse {
+  var runtime = new $RuntimeOptions{};
+  return getQpsStatsWithOptions(request, runtime);
+}
+
+model GetRiskStatsRequest {
+  classify?: string(name='Classify', description='The classification.', example='guard-scene'),
+  endTime?: string(name='EndTime', description='The end time.', example='2026-01-02 00:00:00'),
+  regionId?: string(name='RegionId', description='The region ID.', example='cn-shanghai'),
+  startTime?: string(name='StartTime', description='The start time.', example='2026-01-01 00:00:00'),
+  type?: string(name='Type', description='The type.
+
+This parameter is required.', example='RealTime'),
+}
+
+model GetRiskStatsResponseBody = {
+  requestId?: string(name='RequestId', description='The ID assigned by the backend to uniquely identify a request. This ID can be used to troubleshoot issues.', example='AAAAAA-BBBB-CCCCC-DDDD-EEEEEEEE****'),
+  riskStats?: [ 
+    {
+      requestCount?: long(name='RequestCount', description='The total number of requests.', example='100'),
+      riskCount?: long(name='RiskCount', description='The number of detected risks.', example='1'),
+      type?: string(name='Type', description='The type.', example='prompt_attack'),
+    }
+  ](name='RiskStats', description='The list of risk posture statistics.'),
+}
+
+model GetRiskStatsResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: GetRiskStatsResponseBody(name='body'),
+}
+
+/**
+ * @summary Queries risk posture statistics.
+ *
+ * @param request GetRiskStatsRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return GetRiskStatsResponse
+ */
+@context("getRiskStatsWithContext")
+async function getRiskStatsWithOptions(request: GetRiskStatsRequest, runtime: $RuntimeOptions): GetRiskStatsResponse {
+  request.validate();
+  var query = {};
+  if (!$isNull(request.classify)) {
+    query['Classify'] = request.classify;
+  }
+  if (!$isNull(request.endTime)) {
+    query['EndTime'] = request.endTime;
+  }
+  if (!$isNull(request.regionId)) {
+    query['RegionId'] = request.regionId;
+  }
+  if (!$isNull(request.startTime)) {
+    query['StartTime'] = request.startTime;
+  }
+  if (!$isNull(request.type)) {
+    query['Type'] = request.type;
+  }
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'GetRiskStats',
+    version = '2022-09-26',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Queries risk posture statistics.
+ *
+ * @param request GetRiskStatsRequest
+ * @return GetRiskStatsResponse
+ */
+async function getRiskStats(request: GetRiskStatsRequest): GetRiskStatsResponse {
+  var runtime = new $RuntimeOptions{};
+  return getRiskStatsWithOptions(request, runtime);
 }
 
 model GetScanNumRequest {
@@ -5991,6 +6962,475 @@ async function getUserBuyStatus(request: GetUserBuyStatusRequest): GetUserBuySta
   return getUserBuyStatusWithOptions(request, runtime);
 }
 
+model InitAiAppScanRequest {
+  channel?: string(name='Channel', description='The channel type.', example='bailian'),
+  commodityCode?: string(name='CommodityCode', description='The commodity code.
+
+This parameter is required.', example='xxx'),
+  regionId?: string(name='RegionId', description='The region ID.', example='cn-shanghai'),
+}
+
+model InitAiAppScanResponseBody = {
+  authInfo?: {
+    authToken?: string(name='AuthToken', description='The credential.', example='token-xxx'),
+    privateDomain?: string(name='PrivateDomain', description='The private domain name.', example='https://xxx'),
+    project?: string(name='Project', description='The project space.', example='proj-xxx'),
+    publicDomain?: string(name='PublicDomain', description='The public domain name.', example='https://xxx'),
+  }(name='AuthInfo', description='The access entry information.'),
+  authInfoConfig?: map[string]AuthInfoConfigValue(name='AuthInfoConfig', description='The access information.'),
+  authStatus?: string(name='AuthStatus', description='The authorization status.', example='enabled'),
+  openStatus?: string(name='OpenStatus', description='The service activation status.', example='enabled'),
+  readyStatus?: string(name='ReadyStatus', description='The ready status.', example='enabled'),
+  requestId?: string(name='RequestId', description='The ID assigned by the backend to uniquely identify a request. Used for troubleshooting.', example='AAAAAA-BBBB-CCCCC-DDDD-EEEEEEEE****'),
+}
+
+model InitAiAppScanResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: InitAiAppScanResponseBody(name='body'),
+}
+
+/**
+ * @summary Initializes AI application log scanning and activates the service.
+ *
+ * @param request InitAiAppScanRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return InitAiAppScanResponse
+ */
+@context("initAiAppScanWithContext")
+async function initAiAppScanWithOptions(request: InitAiAppScanRequest, runtime: $RuntimeOptions): InitAiAppScanResponse {
+  request.validate();
+  var query = {};
+  if (!$isNull(request.channel)) {
+    query['Channel'] = request.channel;
+  }
+  if (!$isNull(request.commodityCode)) {
+    query['CommodityCode'] = request.commodityCode;
+  }
+  if (!$isNull(request.regionId)) {
+    query['RegionId'] = request.regionId;
+  }
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'InitAiAppScan',
+    version = '2022-09-26',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Initializes AI application log scanning and activates the service.
+ *
+ * @param request InitAiAppScanRequest
+ * @return InitAiAppScanResponse
+ */
+async function initAiAppScan(request: InitAiAppScanRequest): InitAiAppScanResponse {
+  var runtime = new $RuntimeOptions{};
+  return initAiAppScanWithOptions(request, runtime);
+}
+
+model ListAiAppByPageRequest {
+  currentPage?: int32(name='CurrentPage', description='The current page number.', example='1'),
+  pageSize?: int32(name='PageSize', description='The number of entries per page.', example='10'),
+  query?: string(name='Query', description='The query condition.', example='{}'),
+  regionId?: string(name='RegionId', description='The region ID.', example='cn-shanghai'),
+}
+
+model ListAiAppByPageResponseBody = {
+  currentPage?: int32(name='CurrentPage', description='The current page number.', example='1'),
+  items?: [ 
+    {
+      appId?: string(name='AppId', description='appId。', example='id-xxx'),
+      appName?: string(name='AppName', description='The application name.', example='name-xxx'),
+      appStatus?: string(name='AppStatus', description='The application status.', example='online'),
+      channel?: string(name='Channel', description='The channel.', example='bailian'),
+      lastTraceTime?: string(name='LastTraceTime', description='The last active time.', example='2026-01-01 00:00:00'),
+      riskEvents?: [ 
+        {
+          eventCode?: string(name='EventCode', description='The risk event code.', example='hit-xxx'),
+          eventCount?: long(name='EventCount', description='The number of events.', example='10'),
+          eventDescs?: [ string ](name='EventDescs', description='The event descriptions.'),
+          eventIds?: [ string ](name='EventIds', description='The list of risk event IDs.'),
+          eventName?: string(name='EventName', description='The risk event name.', example='xxx'),
+          eventStatus?: string(name='EventStatus', description='The event status. Valid values:
+
+- **unhandled**: Not handled.
+- **resolved**: Handled.', example='resolved'),
+          labels?: [ 
+            {
+              label?: string(name='Label', description='The label name.', example='porn'),
+              labelDesc?: string(name='LabelDesc', description='The label description.', example='xxx'),
+              type?: string(name='Type', description='The type.', example='sensitiveData'),
+            }
+          ](name='Labels', description='The list of label items.'),
+        }
+      ](name='RiskEvents', description='The risk events.'),
+      riskLevel?: string(name='RiskLevel', description='The risk level.', example='high'),
+      traceStatus?: string(name='TraceStatus', description='The Tracing Analysis status.', example='enable'),
+      uid?: string(name='Uid', description='UID。', example='104813*****2399'),
+      warningCount?: int32(name='WarningCount', description='The number of alerts.', example='10'),
+    }
+  ](name='Items', description='The data on the current page.'),
+  pageSize?: int32(name='PageSize', description='The number of entries per page.', example='10'),
+  requestId?: string(name='RequestId', description='The ID assigned by the backend to uniquely identify the request. You can use this ID to troubleshoot issues.', example='AAAAAA-BBBB-CCCCC-DDDD-EEEEEEEE****'),
+  totalCount?: long(name='TotalCount', description='The total number of entries.', example='10'),
+}
+
+model ListAiAppByPageResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ListAiAppByPageResponseBody(name='body'),
+}
+
+/**
+ * @summary Retrieves a paginated list of AI applications.
+ *
+ * @param request ListAiAppByPageRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return ListAiAppByPageResponse
+ */
+@context("listAiAppByPageWithContext")
+async function listAiAppByPageWithOptions(request: ListAiAppByPageRequest, runtime: $RuntimeOptions): ListAiAppByPageResponse {
+  request.validate();
+  var query = {};
+  if (!$isNull(request.currentPage)) {
+    query['CurrentPage'] = request.currentPage;
+  }
+  if (!$isNull(request.pageSize)) {
+    query['PageSize'] = request.pageSize;
+  }
+  if (!$isNull(request.query)) {
+    query['Query'] = request.query;
+  }
+  if (!$isNull(request.regionId)) {
+    query['RegionId'] = request.regionId;
+  }
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'ListAiAppByPage',
+    version = '2022-09-26',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Retrieves a paginated list of AI applications.
+ *
+ * @param request ListAiAppByPageRequest
+ * @return ListAiAppByPageResponse
+ */
+async function listAiAppByPage(request: ListAiAppByPageRequest): ListAiAppByPageResponse {
+  var runtime = new $RuntimeOptions{};
+  return listAiAppByPageWithOptions(request, runtime);
+}
+
+model ListAiAppRiskEventRequest {
+  appId?: string(name='AppId', description='The application ID. This parameter is required.
+
+This parameter is required.', example='id-xxx'),
+  endTime?: string(name='EndTime', description='The end time.', example='2026-01-02 16:08:38'),
+  regionId?: string(name='RegionId', description='The region ID.', example='cn-shanghai'),
+  startTime?: string(name='StartTime', description='The start time.', example='2026-01-01 16:08:38'),
+}
+
+model ListAiAppRiskEventResponseBody = {
+  data?: [ 
+    {
+      endTime?: string(name='EndTime', description='The end time. Format: YYYY-MM-DD HH:mm:ss.', example='2026-03-25 10:22:02'),
+      eventCode?: string(name='EventCode', description='The event code that identifies the type or category of the event.', example='hit-xxxx'),
+      eventDesc?: string(name='EventDesc', description='The event description that provides details about the risk event.', example='desc-xxx'),
+      eventDescEn?: string(name='EventDescEn', description='The event description in English.', example='desc-xxx'),
+      eventId?: string(name='EventId', description='The event ID that uniquely identifies a risk event.', example='id-xxx'),
+      eventName?: string(name='EventName', description='The event name that briefly describes the risk event.', example='name-xxx'),
+      label?: string(name='Label', description='The label used to mark or categorize the event.', example='porn'),
+      labelDesc?: string(name='LabelDesc', description='The label description that provides details about the label.', example='desc-xxx'),
+      level?: string(name='Level', description='The risk level that indicates the severity of the event, such as high, medium, or low.', example='high'),
+      startTime?: string(name='StartTime', description='The effective period. Format: YYYY-MM-DD HH:mm:ss (default time zone: UTC+08:00).', example='2025-07-22 16:41:15'),
+      status?: string(name='Status', description='The event status that indicates the current processing state of the event, such as pending or resolved.', example='resovled'),
+      type?: string(name='Type', description='The event type that indicates the category of the risk event, such as security or performance.', example='sensitiveData'),
+    }
+  ](name='Data', description='The returned data.'),
+  requestId?: string(name='RequestId', description='The ID assigned by the backend to uniquely identify a request. This ID can be used for troubleshooting.', example='AAAAAA-BBBB-CCCCC-DDDD-EEEEEEEE****'),
+}
+
+model ListAiAppRiskEventResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ListAiAppRiskEventResponseBody(name='body'),
+}
+
+/**
+ * @summary Retrieves the list of risk events for AI applications.
+ *
+ * @param request ListAiAppRiskEventRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return ListAiAppRiskEventResponse
+ */
+@context("listAiAppRiskEventWithContext")
+async function listAiAppRiskEventWithOptions(request: ListAiAppRiskEventRequest, runtime: $RuntimeOptions): ListAiAppRiskEventResponse {
+  request.validate();
+  var query = {};
+  if (!$isNull(request.appId)) {
+    query['AppId'] = request.appId;
+  }
+  if (!$isNull(request.endTime)) {
+    query['EndTime'] = request.endTime;
+  }
+  if (!$isNull(request.regionId)) {
+    query['RegionId'] = request.regionId;
+  }
+  if (!$isNull(request.startTime)) {
+    query['StartTime'] = request.startTime;
+  }
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'ListAiAppRiskEvent',
+    version = '2022-09-26',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Retrieves the list of risk events for AI applications.
+ *
+ * @param request ListAiAppRiskEventRequest
+ * @return ListAiAppRiskEventResponse
+ */
+async function listAiAppRiskEvent(request: ListAiAppRiskEventRequest): ListAiAppRiskEventResponse {
+  var runtime = new $RuntimeOptions{};
+  return listAiAppRiskEventWithOptions(request, runtime);
+}
+
+model ListAiAppRiskEventByPageRequest {
+  currentPage?: int32(name='CurrentPage', description='The current page number.', example='1'),
+  maxResults?: int32(name='MaxResults', description='The maximum number of results to return per request.', example='10'),
+  nextToken?: string(name='NextToken', description='The pagination token for the next query.', example='1a320d468c75e987765861ec6d10f8cd3aea63fac9610c5c'),
+  pageSize?: int32(name='PageSize', description='The number of entries per page.', example='10'),
+  query?: string(name='Query', description='The query parameter.', example='{\\\\"Lang\\\\":\\\\"zh\\\\"}'),
+  regionId?: string(name='RegionId', description='The region ID.', example='cn-shanghai'),
+}
+
+model ListAiAppRiskEventByPageResponseBody = {
+  currentPage?: int32(name='CurrentPage', description='The current page number.', example='1'),
+  items?: [ 
+    {
+      appId?: string(name='AppId', description='The unique ID of the AI application.', example='id-xxx'),
+      appName?: string(name='AppName', description='The name of the AI application.', example='name-xxx'),
+      channel?: string(name='Channel', description='The channel source.', example='bailian'),
+      endTime?: string(name='EndTime', description='The end time that indicates when the event was resolved.', example='2026-01-10 11:42:31'),
+      eventCode?: string(name='EventCode', description='The event code that identifies the type or category of the event.', example='de_aamexg3015'),
+      eventDesc?: string(name='EventDesc', description='The detailed description of the risk event.', example='xxx'),
+      eventDescEn?: string(name='EventDescEn', description='The detailed description of the risk event in English.', example='xxx'),
+      eventId?: string(name='EventId', description='The event ID that uniquely identifies a risk event.', example='e-a7gvnv3vid536dfxj'),
+      eventName?: string(name='EventName', description='The brief name that describes the risk event.', example='ALL'),
+      handleTime?: string(name='HandleTime', description='The time when the event was handled.', example='2026-01-10 11:42:31'),
+      label?: string(name='Label', description='The label used to mark or categorize the event.', example='label-03'),
+      labelDesc?: string(name='LabelDesc', description='The detailed description of the label.', example='xxxx'),
+      level?: string(name='Level', description='The risk level that indicates the severity of the event, such as high, medium, or low.', example='normal'),
+      startTime?: string(name='StartTime', description='The start time that indicates when the event occurred.', example='2025-12-21 15:30:19'),
+      status?: string(name='Status', description='The event status that indicates the current processing state of the event, such as pending or resolved.', example='resolved'),
+      type?: string(name='Type', description='The event type that indicates the category of the risk event, such as security or performance.', example='0'),
+    }
+  ](name='Items', description='The returned data.'),
+  maxResults?: int32(name='MaxResults', description='The maximum number of results returned per page.', example='100'),
+  nextToken?: string(name='NextToken', description='The pagination token for the next page. An empty value indicates that no more pages exist.', example='1a320d468c75e987f297484532c16e34d0ab6e7e43f8b73d'),
+  pageSize?: int32(name='PageSize', description='The number of entries per page.', example='10'),
+  requestId?: string(name='RequestId', description='The ID assigned by the backend to uniquely identify the request. You can use this ID to troubleshoot issues.', example='AAAAAA-BBBB-CCCCC-DDDD-EEEEEEEE****'),
+  totalCount?: long(name='TotalCount', description='The total number of records.', example='10'),
+}
+
+model ListAiAppRiskEventByPageResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ListAiAppRiskEventByPageResponseBody(name='body'),
+}
+
+/**
+ * @summary Retrieves a paginated list of risk events for AI applications.
+ *
+ * @param request ListAiAppRiskEventByPageRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return ListAiAppRiskEventByPageResponse
+ */
+@context("listAiAppRiskEventByPageWithContext")
+async function listAiAppRiskEventByPageWithOptions(request: ListAiAppRiskEventByPageRequest, runtime: $RuntimeOptions): ListAiAppRiskEventByPageResponse {
+  request.validate();
+  var query = {};
+  if (!$isNull(request.currentPage)) {
+    query['CurrentPage'] = request.currentPage;
+  }
+  if (!$isNull(request.maxResults)) {
+    query['MaxResults'] = request.maxResults;
+  }
+  if (!$isNull(request.nextToken)) {
+    query['NextToken'] = request.nextToken;
+  }
+  if (!$isNull(request.pageSize)) {
+    query['PageSize'] = request.pageSize;
+  }
+  if (!$isNull(request.query)) {
+    query['Query'] = request.query;
+  }
+  if (!$isNull(request.regionId)) {
+    query['RegionId'] = request.regionId;
+  }
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'ListAiAppRiskEventByPage',
+    version = '2022-09-26',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Retrieves a paginated list of risk events for AI applications.
+ *
+ * @param request ListAiAppRiskEventByPageRequest
+ * @return ListAiAppRiskEventByPageResponse
+ */
+async function listAiAppRiskEventByPage(request: ListAiAppRiskEventByPageRequest): ListAiAppRiskEventByPageResponse {
+  var runtime = new $RuntimeOptions{};
+  return listAiAppRiskEventByPageWithOptions(request, runtime);
+}
+
+model ListAiAppWarningByPageRequest {
+  appId?: string(name='AppId', description='The application ID.', example='id-xxx'),
+  currentPage?: int32(name='CurrentPage', description='The current page number.
+
+This parameter is required.', example='1'),
+  pageSize?: int32(name='PageSize', description='The number of entries per page.
+
+This parameter is required.', example='10'),
+  query?: string(name='Query', description='The query condition. This parameter is required and cannot be empty.
+
+This parameter is required.', example='{}'),
+  regionId?: string(name='RegionId', description='The region ID.', example='cn-shanghai'),
+}
+
+model ListAiAppWarningByPageResponseBody = {
+  currentPage?: int32(name='CurrentPage', description='The current page number.', example='1'),
+  ext?: {
+    option?: map[string]any(name='Option', description='The option.'),
+  }(name='Ext', description='The extension field.'),
+  items?: [ 
+    {
+      appId?: string(name='AppId', description='appId。', example='id-xxx'),
+      appName?: string(name='AppName', description='The application name.', example='name-xxx'),
+      labels?: [ 
+        {
+          count?: long(name='Count', description='The count.', example='20'),
+          label?: string(name='Label', description='The label name.', example='porn'),
+          labelDesc?: string(name='LabelDesc', description='The label description.', example='desc-xxx'),
+          type?: string(name='Type', description='The type.', example='promptAttack'),
+        }
+      ](name='Labels', description='The list of labels.'),
+      serviceCode?: string(name='ServiceCode', description='The service code.', example='baselineCheck_01'),
+      traceId?: string(name='TraceId', description='The trace ID used to correlate and trace alert events.', example='0bc3b4b0********516098843e19bc'),
+      warningCount?: long(name='WarningCount', description='The number of alerts.', example='10'),
+      warningTime?: string(name='WarningTime', description='The time when the alert was triggered.', example='2026-01-01 00:00:00'),
+    }
+  ](name='Items', description='The data on the current page.'),
+  pageSize?: int32(name='PageSize', description='The number of entries per page.', example='10'),
+  requestId?: string(name='RequestId', description='The ID assigned by the backend to uniquely identify a request. You can use this ID to troubleshoot issues.', example='AAAAAA-BBBB-CCCCC-DDDD-EEEEEEEE****'),
+  totalCount?: long(name='TotalCount', description='The total number of records.', example='10'),
+}
+
+model ListAiAppWarningByPageResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ListAiAppWarningByPageResponseBody(name='body'),
+}
+
+/**
+ * @summary Queries the alert list of an application with pagination.
+ *
+ * @param request ListAiAppWarningByPageRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return ListAiAppWarningByPageResponse
+ */
+@context("listAiAppWarningByPageWithContext")
+async function listAiAppWarningByPageWithOptions(request: ListAiAppWarningByPageRequest, runtime: $RuntimeOptions): ListAiAppWarningByPageResponse {
+  request.validate();
+  var query = {};
+  if (!$isNull(request.appId)) {
+    query['AppId'] = request.appId;
+  }
+  if (!$isNull(request.currentPage)) {
+    query['CurrentPage'] = request.currentPage;
+  }
+  if (!$isNull(request.pageSize)) {
+    query['PageSize'] = request.pageSize;
+  }
+  if (!$isNull(request.query)) {
+    query['Query'] = request.query;
+  }
+  if (!$isNull(request.regionId)) {
+    query['RegionId'] = request.regionId;
+  }
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'ListAiAppWarningByPage',
+    version = '2022-09-26',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Queries the alert list of an application with pagination.
+ *
+ * @param request ListAiAppWarningByPageRequest
+ * @return ListAiAppWarningByPageResponse
+ */
+async function listAiAppWarningByPage(request: ListAiAppWarningByPageRequest): ListAiAppWarningByPageResponse {
+  var runtime = new $RuntimeOptions{};
+  return listAiAppWarningByPageWithOptions(request, runtime);
+}
+
 model ListAnswerLibRequest {
   regionId?: string(name='RegionId', description='The region ID.', example='cn-shanghai'),
 }
@@ -7107,18 +8547,25 @@ async function llmStreamChat(request: LlmStreamChatRequest): LlmStreamChatRespon
 }
 
 model MarkOssV2ResultRequest {
-  endDate?: string(name='EndDate'),
-  freezeType?: string(name='FreezeType'),
-  operation?: string(name='Operation'),
-  requestIds?: string(name='RequestIds'),
-  startDate?: string(name='StartDate'),
-  taskName?: string(name='TaskName'),
+  endDate?: string(name='EndDate', description='The end time.', example='2023-10-21 16:08:38 +0800'),
+  freezeType?: string(name='FreezeType', description='The freeze type. This parameter is required when Operation is set to freeze. Valid values:
+- ACL: Modify file permissions.
+- COPY: Move the file to a directory. The destination directory is determined as follows: 1. The directory selected when the task was created takes priority. 2. If automatic freezing was not enabled during creation, or ACL freezing was configured, the directory selected during freezing in the console is used. 3. The default directory is alicip_riskfile_backup/.', example='ACL'),
+  operation?: string(name='Operation', description='The processing operation. Valid values:
+
+- freeze: freeze.
+- unfreeze: unfreeze.
+- misreport: false positive (not in violation).
+- missOut: missed violation.', example='freeze'),
+  requestIds?: string(name='RequestIds', description='The request ID.', example='AAAAAA-BBBB-CCCCC-DDDD-EEEEEEEE****'),
+  startDate?: string(name='StartDate', description='The start time.', example='2023-08-21 16:08:38 +0800'),
+  taskName?: string(name='TaskName', description='The task name.', example='Image stock task 20240914100517757'),
 }
 
 model MarkOssV2ResultResponseBody = {
-  failureRequestIds?: [ string ](name='FailureRequestIds'),
-  requestId?: string(name='RequestId'),
-  successRequestIds?: [ string ](name='SuccessRequestIds'),
+  failureRequestIds?: [ string ](name='FailureRequestIds', description='The list of request IDs for failed operations.'),
+  requestId?: string(name='RequestId', description='The ID assigned by the backend to uniquely identify a request. You can use this ID to troubleshoot issues.', example='AAAAAA-BBBB-CCCCC-DDDD-EEEEEEEE****'),
+  successRequestIds?: [ string ](name='SuccessRequestIds', description='The list of request IDs for successful operations.'),
 }
 
 model MarkOssV2ResultResponse = {
@@ -7128,7 +8575,9 @@ model MarkOssV2ResultResponse = {
 }
 
 /**
- * @summary oss结果反馈
+ * @summary Provides feedback on OSS detection results.
+ *
+ * @description This operation is not billed. Set the polling interval to 30 seconds (query results 30 seconds after submitting an asynchronous detection task). The maximum interval cannot exceed 24 hours. Otherwise, results are automatically deleted.
  *
  * @param request MarkOssV2ResultRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -7174,7 +8623,9 @@ async function markOssV2ResultWithOptions(request: MarkOssV2ResultRequest, runti
 }
 
 /**
- * @summary oss结果反馈
+ * @summary Provides feedback on OSS detection results.
+ *
+ * @description This operation is not billed. Set the polling interval to 30 seconds (query results 30 seconds after submitting an asynchronous detection task). The maximum interval cannot exceed 24 hours. Otherwise, results are automatically deleted.
  *
  * @param request MarkOssV2ResultRequest
  * @return MarkOssV2ResultResponse
@@ -8120,6 +9571,80 @@ async function queryCallbackByPage(request: QueryCallbackByPageRequest): QueryCa
   return queryCallbackByPageWithOptions(request, runtime);
 }
 
+model QueryLabelConfigRequest {
+  classify?: string(name='Classify', description='The classification. Separate multiple values with commas.', example='guard-scene'),
+  regionId?: string(name='RegionId', description='The region ID.', example='cn-shanghai'),
+  resourceType?: string(name='ResourceType', description='The resource type. Separate multiple values with commas.', example='image'),
+  serviceCode?: string(name='ServiceCode', description='The service code. Separate multiple values with commas.', example='baselineCheck'),
+  type?: string(name='Type', description='The type. Separate multiple values with commas.
+content_moderation', example='content_moderation'),
+}
+
+model QueryLabelConfigResponseBody = {
+  contentModeration?: [ any ](name='ContentModeration', description='The content moderation configuration.'),
+  requestId?: string(name='RequestId', description='The ID assigned by the backend to uniquely identify a request. You can use this ID to troubleshoot issues.', example='AAAAAA-BBBB-CCCCC-DDDD-EEEEEEEE****'),
+}
+
+model QueryLabelConfigResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: QueryLabelConfigResponseBody(name='body'),
+}
+
+/**
+ * @summary Queries label configurations.
+ *
+ * @param request QueryLabelConfigRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return QueryLabelConfigResponse
+ */
+@context("queryLabelConfigWithContext")
+async function queryLabelConfigWithOptions(request: QueryLabelConfigRequest, runtime: $RuntimeOptions): QueryLabelConfigResponse {
+  request.validate();
+  var query = {};
+  if (!$isNull(request.classify)) {
+    query['Classify'] = request.classify;
+  }
+  if (!$isNull(request.regionId)) {
+    query['RegionId'] = request.regionId;
+  }
+  if (!$isNull(request.resourceType)) {
+    query['ResourceType'] = request.resourceType;
+  }
+  if (!$isNull(request.serviceCode)) {
+    query['ServiceCode'] = request.serviceCode;
+  }
+  if (!$isNull(request.type)) {
+    query['Type'] = request.type;
+  }
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'QueryLabelConfig',
+    version = '2022-09-26',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Queries label configurations.
+ *
+ * @param request QueryLabelConfigRequest
+ * @return QueryLabelConfigResponse
+ */
+async function queryLabelConfig(request: QueryLabelConfigRequest): QueryLabelConfigResponse {
+  var runtime = new $RuntimeOptions{};
+  return queryLabelConfigWithOptions(request, runtime);
+}
+
 model RecoverAppConfigHistoryRequest {
   appId?: string(name='AppId', description='App ID。', example='txt_check_agent_01'),
   appVersion?: long(name='AppVersion', description='The version number.', example='1785898163'),
@@ -8257,6 +9782,86 @@ async function stopOnlineTest(request: StopOnlineTestRequest): StopOnlineTestRes
   return stopOnlineTestWithOptions(request, runtime);
 }
 
+model UpdateAiAppScanStatusRequest {
+  appIds?: string(name='AppIds', description='The application IDs.
+
+This parameter is required.', example='10d74f5b-6edf-4826-a989-de03463e479d'),
+  regionId?: string(name='RegionId', description='The region ID.', example='cn-shanghai'),
+  status?: string(name='Status', description='The status. Valid values:
+
+- enable: enabled.
+- disable: disabled.
+
+This parameter is required.', example='enable'),
+}
+
+model UpdateAiAppScanStatusResponseBody = {
+  failedAppIds?: [ string ](name='FailedAppIds', description='The list of application IDs that failed.'),
+  requestId?: string(name='RequestId', description='The ID assigned by the backend to uniquely identify a request. You can use this ID to troubleshoot issues.', example='AAAAAA-BBBB-CCCCC-DDDD-EEEEEEEE****'),
+  status?: string(name='Status', description='The status. Valid values:
+
+- SUCCESS: Succeeded.
+
+- PARTIAL_SUCCESS: Partially succeeded.
+
+- FAILED: Failed.', example='Success'),
+  successAppIds?: [ string ](name='SuccessAppIds', description='The list of application IDs that succeeded.'),
+}
+
+model UpdateAiAppScanStatusResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: UpdateAiAppScanStatusResponseBody(name='body'),
+}
+
+/**
+ * @summary Updates the scan status of AI applications.
+ *
+ * @param request UpdateAiAppScanStatusRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return UpdateAiAppScanStatusResponse
+ */
+@context("updateAiAppScanStatusWithContext")
+async function updateAiAppScanStatusWithOptions(request: UpdateAiAppScanStatusRequest, runtime: $RuntimeOptions): UpdateAiAppScanStatusResponse {
+  request.validate();
+  var query = {};
+  if (!$isNull(request.appIds)) {
+    query['AppIds'] = request.appIds;
+  }
+  if (!$isNull(request.regionId)) {
+    query['RegionId'] = request.regionId;
+  }
+  if (!$isNull(request.status)) {
+    query['Status'] = request.status;
+  }
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'UpdateAiAppScanStatus',
+    version = '2022-09-26',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Updates the scan status of AI applications.
+ *
+ * @param request UpdateAiAppScanStatusRequest
+ * @return UpdateAiAppScanStatusResponse
+ */
+async function updateAiAppScanStatus(request: UpdateAiAppScanStatusRequest): UpdateAiAppScanStatusResponse {
+  var runtime = new $RuntimeOptions{};
+  return updateAiAppScanStatusWithOptions(request, runtime);
+}
+
 model UpdateBackupConfigRequest {
   backupConfig?: string(name='BackupConfig', description='The evidence transfer configuration.', example='{}'),
   regionId?: string(name='RegionId', description='The region ID.', example='cn-shanghai'),
@@ -8324,6 +9929,105 @@ async function updateBackupConfigWithOptions(request: UpdateBackupConfigRequest,
 async function updateBackupConfig(request: UpdateBackupConfigRequest): UpdateBackupConfigResponse {
   var runtime = new $RuntimeOptions{};
   return updateBackupConfigWithOptions(request, runtime);
+}
+
+model UpdateEventStatusRequest {
+  appId?: string(name='AppId', description='The application ID that identifies the application to which the operation belongs.
+
+This parameter is required.', example='id-xxx'),
+  eventIds?: [ string ](name='EventIds', description='The list of risk event IDs.'),
+  operationCode?: string(name='OperationCode', description='The operation code that defines the specific type of event status change operation.
+
+This parameter is required.', example='resolve'),
+  operationParams?: string(name='OperationParams', description='The operation parameters that contain additional parameter information required to execute the operation.', example='{}'),
+  regionId?: string(name='RegionId', description='The region ID.', example='cn-shanghai'),
+  source?: string(name='Source', description='The operation source that identifies the source system or module that triggered this status update request.', example='xx'),
+}
+
+model UpdateEventStatusShrinkRequest {
+  appId?: string(name='AppId', description='The application ID that identifies the application to which the operation belongs.
+
+This parameter is required.', example='id-xxx'),
+  eventIdsShrink?: string(name='EventIds', description='The list of risk event IDs.'),
+  operationCode?: string(name='OperationCode', description='The operation code that defines the specific type of event status change operation.
+
+This parameter is required.', example='resolve'),
+  operationParams?: string(name='OperationParams', description='The operation parameters that contain additional parameter information required to execute the operation.', example='{}'),
+  regionId?: string(name='RegionId', description='The region ID.', example='cn-shanghai'),
+  source?: string(name='Source', description='The operation source that identifies the source system or module that triggered this status update request.', example='xx'),
+}
+
+model UpdateEventStatusResponseBody = {
+  requestId?: string(name='RequestId', description='The ID assigned by the backend to uniquely identify a request. You can use this ID for troubleshooting.', example='AAAAAA-BBBB-CCCCC-DDDD-EEEEEEEE****'),
+  success?: boolean(name='Success', description='Indicates whether the request was successful.', example='True'),
+}
+
+model UpdateEventStatusResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: UpdateEventStatusResponseBody(name='body'),
+}
+
+/**
+ * @summary Updates the status of risk events.
+ *
+ * @param tmpReq UpdateEventStatusRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return UpdateEventStatusResponse
+ */
+@context("updateEventStatusWithContext")
+async function updateEventStatusWithOptions(tmpReq: UpdateEventStatusRequest, runtime: $RuntimeOptions): UpdateEventStatusResponse {
+  tmpReq.validate();
+  var request = new UpdateEventStatusShrinkRequest{};
+  OpenApiUtil.convert(tmpReq, request);
+  if (!$isNull(tmpReq.eventIds)) {
+    request.eventIdsShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.eventIds, 'EventIds', 'json');
+  }
+  var query = {};
+  if (!$isNull(request.appId)) {
+    query['AppId'] = request.appId;
+  }
+  if (!$isNull(request.eventIdsShrink)) {
+    query['EventIds'] = request.eventIdsShrink;
+  }
+  if (!$isNull(request.operationCode)) {
+    query['OperationCode'] = request.operationCode;
+  }
+  if (!$isNull(request.operationParams)) {
+    query['OperationParams'] = request.operationParams;
+  }
+  if (!$isNull(request.regionId)) {
+    query['RegionId'] = request.regionId;
+  }
+  if (!$isNull(request.source)) {
+    query['Source'] = request.source;
+  }
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'UpdateEventStatus',
+    version = '2022-09-26',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Updates the status of risk events.
+ *
+ * @param request UpdateEventStatusRequest
+ * @return UpdateEventStatusResponse
+ */
+async function updateEventStatus(request: UpdateEventStatusRequest): UpdateEventStatusResponse {
+  var runtime = new $RuntimeOptions{};
+  return updateEventStatusWithOptions(request, runtime);
 }
 
 model UpdateImageLibRequest {
@@ -8561,6 +10265,75 @@ async function updateKeywordLibWithOptions(request: UpdateKeywordLibRequest, run
 async function updateKeywordLib(request: UpdateKeywordLibRequest): UpdateKeywordLibResponse {
   var runtime = new $RuntimeOptions{};
   return updateKeywordLibWithOptions(request, runtime);
+}
+
+model UpdateMetaLogRequest {
+  commodityCode?: string(name='CommodityCode', description='The commodity code.', example='lvwang_guardrail_public_cn'),
+  deliveryRegion?: string(name='DeliveryRegion', description='The delivery region.', example='cn-beijing'),
+  storage?: long(name='Storage', description='The storage capacity.', example='1'),
+  ttl?: int32(name='Ttl', description='The time to live.', example='30'),
+}
+
+model UpdateMetaLogResponseBody = {
+  requestId?: string(name='RequestId', description='The ID assigned by the backend to uniquely identify the request. You can use this ID to troubleshoot issues.', example='AAAAAA-BBBB-CCCCC-DDDD-EEEEEEEE****'),
+  result?: boolean(name='Result', description='The result.', example='true'),
+}
+
+model UpdateMetaLogResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: UpdateMetaLogResponseBody(name='body'),
+}
+
+/**
+ * @summary Updates Meta log information.
+ *
+ * @param request UpdateMetaLogRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return UpdateMetaLogResponse
+ */
+@context("updateMetaLogWithContext")
+async function updateMetaLogWithOptions(request: UpdateMetaLogRequest, runtime: $RuntimeOptions): UpdateMetaLogResponse {
+  request.validate();
+  var query = {};
+  if (!$isNull(request.commodityCode)) {
+    query['CommodityCode'] = request.commodityCode;
+  }
+  if (!$isNull(request.deliveryRegion)) {
+    query['DeliveryRegion'] = request.deliveryRegion;
+  }
+  if (!$isNull(request.storage)) {
+    query['Storage'] = request.storage;
+  }
+  if (!$isNull(request.ttl)) {
+    query['Ttl'] = request.ttl;
+  }
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'UpdateMetaLog',
+    version = '2022-09-26',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Updates Meta log information.
+ *
+ * @param request UpdateMetaLogRequest
+ * @return UpdateMetaLogResponse
+ */
+async function updateMetaLog(request: UpdateMetaLogRequest): UpdateMetaLogResponse {
+  var runtime = new $RuntimeOptions{};
+  return updateMetaLogWithOptions(request, runtime);
 }
 
 model UpdateOssCheckResultsBatchFeedbackRequest {
