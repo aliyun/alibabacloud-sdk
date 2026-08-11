@@ -23,12 +23,13 @@ init(configuration: ClientConfiguration){
   @version = '2021-12-01';
   @endpointRule = 'regional';
   @endpointMap = {
-    'eu-central-1' = 'eiam.eu-central-1.aliyuncs.com',
     'cn-hongkong' = 'eiam.cn-hongkong.aliyuncs.com',
-    'cn-hangzhou' = 'eiam.cn-hangzhou.aliyuncs.com',
-    'ap-southeast-5' = 'eiam.ap-southeast-5.aliyuncs.com',
-    'ap-southeast-1' = 'eiam.ap-southeast-1.aliyuncs.com',
     'ap-northeast-2' = 'eiam.ap-northeast-2.aliyuncs.com',
+    'ap-southeast-1' = 'eiam.ap-southeast-1.aliyuncs.com',
+    'ap-southeast-5' = 'eiam.ap-southeast-5.aliyuncs.com',
+    'cn-hangzhou' = 'eiam.cn-hangzhou.aliyuncs.com',
+    'cn-beijing' = 'eiam.cn-beijing.aliyuncs.com',
+    'eu-central-1' = 'eiam.eu-central-1.aliyuncs.com',
   };
 }
 
@@ -987,6 +988,7 @@ model CreateAuthorizationRuleRequest {
   authorizationRuleName: string(name='AuthorizationRuleName', description='授权规则名称，长度限制最大64个字符。
 
 This parameter is required.', example='test_rule', maxLength=64, position='Query'),
+  authorizationRuleScenarioLabel?: string(name='AuthorizationRuleScenarioLabel', description='授权规则场景标签，长度限制最大64个字符。', example='privileged_cloud_account', maxLength=64, position='Query'),
   clientToken: string(name='ClientToken', description='This parameter is required.', example='client-token-example', position='Body'),
   description?: string(name='Description', description='授权规则备注描述，长度限制最大128个字符。', example='this is a test rule', maxLength=128, position='Query'),
   instanceId: string(name='InstanceId', description='IDaaS EIAM实例的ID。
@@ -1323,16 +1325,21 @@ This parameter is required.', example='client-token-example', position='Query'),
       expirationCleanupEnabled?: boolean(name='ExpirationCleanupEnabled', description='是否开启JWT过期清理。', example='true'),
     }(name='JwtProviderConfig', description='JWT身份提供商配置。'),
     oAuthProviderConfig?: {
+      authorizationEndpoint?: string(name='AuthorizationEndpoint', description='用于引导用户进行授权的端点地址。条件必填：当AuthorizationFlow=user_federation且ProviderVendor=custom时必填；预置厂商可通过DiscoveryUrl自动填充'),
+      authorizationFlow?: string(name='AuthorizationFlow', description='OAuth的具体授权类型。m2m: 机器对机器(2LO, Client Credentials)；user_federation: 用户联邦(3LO, Authorization Code)'),
       clientId: string(name='ClientId', description='OAuth协议中的client_id，客户端ID。
 
 This parameter is required.', example='client_id_example_xxx'),
       clientSecret: string(name='ClientSecret', description='OAuth协议中的client_secret，客户端密钥。
 
 This parameter is required.', example='client_secret_example_xxx'),
+      discoveryUrl?: string(name='DiscoveryUrl', description='用于自动获取OAuth端点配置的Discovery文档地址。条件可选：当AuthorizationFlow=user_federation时使用，如不提供DiscoveryUrl，则需手动配置TokenEndpoint、AuthorizationEndpoint等字段'),
+      issuer?: string(name='Issuer'),
+      pkceChallengeMethod?: string(name='PkceChallengeMethod', description='PKCE code_challenge 生成方法。默认s256'),
+      pkceEnabled?: boolean(name='PkceEnabled', description='是否使用PKCE扩展增强安全性，推荐始终启用'),
+      providerVendor?: string(name='ProviderVendor', description='预置厂商或自定义配置。非必填，默认值：custom'),
       scope?: string(name='Scope', description='OAuth协议中的scope，权限范围。', example='example:test_01 example:test_02'),
-      tokenEndpoint: string(name='TokenEndpoint', description='OAuth协议的Token端点。
-
-This parameter is required.', example='https://example.com/token'),
+      tokenEndpoint?: string(name='TokenEndpoint', description='OAuth协议的Token端点。', example='https://example.com/token'),
     }(name='OAuthProviderConfig', description='OAuth 2LO机用类型的提供商的配置。'),
   }(name='CredentialProviderConfig', description='认证令牌提供商的配置。', position='Query'),
   credentialProviderIdentifier: string(name='CredentialProviderIdentifier', description='认证令牌提供商的业务标识。是一个具备可读性的唯一标识。
@@ -5531,6 +5538,7 @@ model GetAuthorizationRuleResponseBody = {
     authorizationRuleCreationType?: string(name='AuthorizationRuleCreationType', description='授权规则的创建类型，枚举类型：user_created（用户创建)，approval_created（审批创建)。', example='user_custom'),
     authorizationRuleId?: string(name='AuthorizationRuleId', description='授权规则标识。', example='arrule_01kf143ug06fg7m9f43u7vahxxxx'),
     authorizationRuleName?: string(name='AuthorizationRuleName', description='授权规则名称。', example='test-name'),
+    authorizationRuleScenarioLabel?: string(name='AuthorizationRuleScenarioLabel', description='授权规则场景标签。'),
     authorizationRuleSubjectId?: string(name='AuthorizationRuleSubjectId', description='授权规则主体ID，主体类型对应的主体ID。'),
     authorizationRuleSubjectScope?: string(name='AuthorizationRuleSubjectScope', description='授权规则主体范围，枚举类型：shared（共享型，即支持所有主体，包括账户、应用），exclusive（专属类型）'),
     authorizationRuleSubjectType?: string(name='AuthorizationRuleSubjectType', description='授权规则主体类型，枚举类型：application（应用)，user（账户)。'),
@@ -5723,11 +5731,19 @@ model GetCloudAccountResponseBody = {
       oidcJwksEndpoint?: string(name='OidcJwksEndpoint', description='验签公钥端点', example='https://xxxxx.aliyunidaas.com/api/v2/iauths_system/oauth2/jwks'),
     }(name='CloudAccountProviderConfig', description='云账号提供商配置'),
     cloudAccountProviderName?: string(name='CloudAccountProviderName', description='云账号提供商名称', example='idaas-eiam-oidc-provider'),
+    cloudAccountRoleCreationType?: string(name='CloudAccountRoleCreationType'),
     cloudAccountSite?: string(name='CloudAccountSite'),
     cloudAccountVendorType?: string(name='CloudAccountVendorType', description='云账号类别', example='alibaba_cloud'),
     createTime?: long(name='CreateTime', example='1649830225000'),
     description?: string(name='Description', description='云账号描述', example='cloud_accout_description'),
     instanceId?: string(name='InstanceId', description='IDaaS EIAM 实例Id', example='idaas_ue2jvisn35ea5lmthk267xxxxx'),
+    privilegeApplicationIds?: [ string ](name='PrivilegeApplicationIds', description='关联的特权应用ID列表'),
+    privilegeHostingError?: {
+      errorCode?: string(name='ErrorCode', description='失败错误码'),
+      errorMessage?: string(name='ErrorMessage', description='失败信息'),
+    }(name='PrivilegeHostingError', description='特权托管或移除失败原因'),
+    privilegeHostingState?: string(name='PrivilegeHostingState', description='特权托管状态，即是否有特权能力'),
+    privilegeStatus?: string(name='PrivilegeStatus', description='特权的开关状态，即特权能力是否可用'),
     updateTime?: long(name='UpdateTime', example='1649830227000'),
   }(name='CloudAccount'),
   requestId?: string(name='RequestId', example='0441BD79-92F3-53AA-8657-F8CE4A2B912A'),
@@ -5762,6 +5778,7 @@ This parameter is required.', example='idaas_ue2jvisn35ea5lmthk267xxxxx', maxLen
 model GetCloudAccountRoleResponseBody = {
   cloudAccountRole?: {
     cloudAccountId?: string(name='CloudAccountId', description='云账号ID', example='ca_01kmegjc11qa1txxxxx'),
+    cloudAccountRoleCreationType?: string(name='CloudAccountRoleCreationType'),
     cloudAccountRoleExternalId?: string(name='CloudAccountRoleExternalId', description='云账号角色外部唯一ID', example='acs:ram::xxx:role/role-test'),
     cloudAccountRoleHealth?: string(name='CloudAccountRoleHealth', description='云账号角色可用性', example='healthy'),
     cloudAccountRoleHealthCheckResult?: {
@@ -5941,8 +5958,16 @@ model GetCredentialProviderResponseBody = {
         jwksEndpoint?: string(name='JwksEndpoint', description='JWKs端点地址。', example='https://example123456.aliyunidaas.com/api/v2/auths_ngz2wj35ixxxdyat55nexxxxxx/oauth2/jwks'),
       }(name='JwtProviderConfig', description='JWT身份提供商配置。'),
       oAuthProviderConfig?: {
+        authorizationEndpoint?: string(name='AuthorizationEndpoint', description='用于引导用户进行授权的端点地址。条件必填：当AuthorizationFlow=user_federation且ProviderVendor=custom时必填；预置厂商可通过DiscoveryUrl自动填充'),
+        authorizationFlow?: string(name='AuthorizationFlow', description='OAuth的具体授权类型。m2m: 机器对机器(2LO, Client Credentials)；user_federation: 用户联邦(3LO, Authorization Code)'),
         clientId?: string(name='ClientId', description='OAuth协议中的client_id，客户端ID。', example='client_id_example_xxx'),
+        discoveryUrl?: string(name='DiscoveryUrl', description='用于自动获取OAuth端点配置的Discovery文档地址。条件可选：当AuthorizationFlow=user_federation时使用，如不提供DiscoveryUrl，则需手动配置TokenEndpoint、AuthorizationEndpoint等字段'),
+        issuer?: string(name='Issuer'),
+        pkceChallengeMethod?: string(name='PkceChallengeMethod', description='PKCE code_challenge 生成方法。默认s256'),
+        pkceEnabled?: boolean(name='PkceEnabled', description='是否使用PKCE扩展增强安全性，推荐始终启用'),
+        providerVendor?: string(name='ProviderVendor', description='预置厂商或自定义配置。非必填，默认值：custom'),
         scope?: string(name='Scope', description='OAuth协议中的scope，权限范围。', example='example:test_01 example:test_02'),
+        systemRedirectUri?: string(name='SystemRedirectUri', description='创建凭据提供商时系统自动生成的重定向地址，需在OAuth提供商处配置为redirect_uri'),
         tokenEndpoint?: string(name='TokenEndpoint', description='OAuth协议的Token端点。', example='https://example.com/token'),
       }(name='OAuthProviderConfig', description='OAuth 2LO机用类型的提供商的配置。'),
       providerCredentialIds?: [ string ](name='ProviderCredentialIds', description='认证令牌提供商的敏感配置对应的凭据ID列表。'),
@@ -8694,6 +8719,7 @@ model ListAuthorizationRulesResponseBody = {
       authorizationRuleCreationType?: string(name='AuthorizationRuleCreationType', description='授权规则的创建类型，枚举类型：user_created（用户创建)，approval_created（审批创建)。', example='user_custom'),
       authorizationRuleId?: string(name='AuthorizationRuleId', description='授权规则标识。', example='arrule_01kf143ug06fg7m9f43u7vahxxxx'),
       authorizationRuleName?: string(name='AuthorizationRuleName', description='授权规则名称。', example='test-name'),
+      authorizationRuleScenarioLabel?: string(name='AuthorizationRuleScenarioLabel', description='授权规则场景标签。'),
       authorizationRuleSubjectId?: string(name='AuthorizationRuleSubjectId', description='授权规则主体ID，主体类型对应的主体ID。'),
       authorizationRuleSubjectScope?: string(name='AuthorizationRuleSubjectScope', description='授权规则主体范围，枚举类型：shared（共享型，即支持所有主体，包括账户、应用），exclusive（专属类型）'),
       authorizationRuleSubjectType?: string(name='AuthorizationRuleSubjectType', description='授权规则主体类型，枚举类型：application（应用)，user（账户)。'),
@@ -9022,6 +9048,7 @@ model ListCloudAccountRolesResponseBody = {
   cloudAccountRoles?: [ 
     {
       cloudAccountId?: string(name='CloudAccountId', description='云账号ID', example='ca_01kmegjc11qa1txxxxx'),
+      cloudAccountRoleCreationType?: string(name='CloudAccountRoleCreationType'),
       cloudAccountRoleExternalId?: string(name='CloudAccountRoleExternalId', description='云账号角色外部唯一ID', example='acs:ram::xxx:role/role-test'),
       cloudAccountRoleHealth?: string(name='CloudAccountRoleHealth', description='云账号角色可用性', example='healthy'),
       cloudAccountRoleHealthCheckResult?: {
@@ -9100,6 +9127,13 @@ model ListCloudAccountsResponseBody = {
       createTime?: long(name='CreateTime', example='1649830225000'),
       description?: string(name='Description', description='云账号描述', example='cloud_accout_description'),
       instanceId?: string(name='InstanceId', description='IDaaS EIAM 实例Id', example='idaas_ue2jvisn35ea5lmthk267xxxxx'),
+      privilegeApplicationIds?: [ string ](name='PrivilegeApplicationIds', description='关联的特权应用ID列表'),
+      privilegeHostingError?: {
+        errorCode?: string(name='ErrorCode', description='失败错误码'),
+        errorMessage?: string(name='ErrorMessage', description='失败信息'),
+      }(name='PrivilegeHostingError', description='特权托管或移除失败原因'),
+      privilegeHostingState?: string(name='PrivilegeHostingState', description='特权托管状态，即是否有特权能力'),
+      privilegeStatus?: string(name='PrivilegeStatus', description='特权的开关状态，即特权能力是否可用'),
       updateTime?: long(name='UpdateTime', example='1649830227000'),
     }
   ](name='CloudAccounts'),
@@ -9439,8 +9473,16 @@ model ListCredentialProvidersResponseBody = {
           jwksEndpoint?: string(name='JwksEndpoint', description='JWKs端点地址。', example='https://example123456.aliyunidaas.com/api/v2/auths_ngz2wj35ixxxdyat55nexxxxxx/oauth2/jwks'),
         }(name='JwtProviderConfig', description='JWT身份提供商配置。'),
         oAuthProviderConfig?: {
+          authorizationEndpoint?: string(name='AuthorizationEndpoint', description='用于引导用户进行授权的端点地址。条件必填：当AuthorizationFlow=user_federation且ProviderVendor=custom时必填；预置厂商可通过DiscoveryUrl自动填充'),
+          authorizationFlow?: string(name='AuthorizationFlow', description='OAuth的具体授权类型。m2m: 机器对机器(2LO, Client Credentials)；user_federation: 用户联邦(3LO, Authorization Code)'),
           clientId?: string(name='ClientId', description='OAuth协议中的client_id，客户端ID。', example='client_id_example_xxx'),
+          discoveryUrl?: string(name='DiscoveryUrl', description='用于自动获取OAuth端点配置的Discovery文档地址。条件可选：当AuthorizationFlow=user_federation时使用，如不提供DiscoveryUrl，则需手动配置TokenEndpoint、AuthorizationEndpoint等字段'),
+          issuer?: string(name='Issuer'),
+          pkceChallengeMethod?: string(name='PkceChallengeMethod', description='PKCE code_challenge 生成方法。默认s256'),
+          pkceEnabled?: boolean(name='PkceEnabled', description='是否使用PKCE扩展增强安全性，推荐始终启用'),
+          providerVendor?: string(name='ProviderVendor', description='预置厂商或自定义配置。非必填，默认值：custom'),
           scope?: string(name='Scope', description='OAuth协议中的scope，权限范围。', example='example:test_01 example:test_02'),
+          systemRedirectUri?: string(name='SystemRedirectUri', description='创建凭据提供商时系统自动生成的重定向地址，需在OAuth提供商处配置为redirect_uri'),
           tokenEndpoint?: string(name='TokenEndpoint', description='OAuth协议的Token端点。', example='https://example.com/token'),
         }(name='OAuthProviderConfig', description='OAuth 2LO机用类型的提供商的配置。'),
         providerCredentialIds?: [ string ](name='ProviderCredentialIds', description='认证令牌提供商的敏感配置对应的凭据ID列表。'),
@@ -14162,7 +14204,14 @@ This parameter is required.', example='client-token-example', position='Query'),
       expirationCleanupEnabled?: boolean(name='ExpirationCleanupEnabled', description='是否开启JWT过期清理。', example='true'),
     }(name='JwtProviderConfig', description='JWT身份提供商配置。'),
     oAuthProviderConfig?: {
+      authorizationEndpoint?: string(name='AuthorizationEndpoint', description='用于引导用户进行授权的端点地址。条件必填：当AuthorizationFlow=user_federation且ProviderVendor=custom时必填；预置厂商可通过DiscoveryUrl自动填充'),
+      authorizationFlow?: string(name='AuthorizationFlow', description='OAuth的具体授权类型。m2m: 机器对机器(2LO, Client Credentials)；user_federation: 用户联邦(3LO, Authorization Code)'),
       clientSecret?: string(name='ClientSecret', description='OAuth协议中的client_secret，客户端密钥。', example='client_secret_example_xxx'),
+      discoveryUrl?: string(name='DiscoveryUrl', description='用于自动获取OAuth端点配置的Discovery文档地址。条件可选：当AuthorizationFlow=user_federation时使用，如不提供DiscoveryUrl，则需手动配置TokenEndpoint、AuthorizationEndpoint等字段'),
+      issuer?: string(name='Issuer'),
+      pkceChallengeMethod?: string(name='PkceChallengeMethod', description='PKCE code_challenge 生成方法。默认s256'),
+      pkceEnabled?: boolean(name='PkceEnabled', description='是否使用PKCE扩展增强安全性，推荐始终启用'),
+      providerVendor?: string(name='ProviderVendor', description='预置厂商或自定义配置。非必填，默认值：custom'),
       scope?: string(name='Scope', description='OAuth协议中的scope，权限范围。', example='example:test_01 example:test_02'),
       tokenEndpoint?: string(name='TokenEndpoint', description='OAuth协议的Token端点。', example='https://example.com/token'),
     }(name='OAuthProviderConfig', description='OAuth 2LO机用类型的提供商的配置。'),
