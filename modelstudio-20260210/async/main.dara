@@ -23,10 +23,12 @@ init(configuration: ClientConfiguration){
   @version = '2026-02-10';
   @endpointRule = 'regional';
   @endpointMap = {
-    'eu-central-1' = 'modelstudio.eu-central-1.aliyuncs.com',
-    'cn-hongkong' = 'modelstudio.cn-hongkong.aliyuncs.com',
     'cn-beijing' = 'modelstudio.cn-beijing.aliyuncs.com',
+    'cn-hongkong' = 'modelstudio.cn-hongkong.aliyuncs.com',
     'ap-southeast-1' = 'modelstudio.ap-southeast-1.aliyuncs.com',
+    'ap-northeast-1' = 'modelstudio.ap-northeast-1.aliyuncs.com',
+    'us-east-1' = 'modelstudio.us-east-1.aliyuncs.com',
+    'eu-central-1' = 'modelstudio.eu-central-1.aliyuncs.com',
   };
 }
 
@@ -760,6 +762,193 @@ async function listApiKeys(request: ListApiKeysRequest): ListApiKeysResponse {
   return @handler.do('RESTFUL', 'ListApiKeys', 'GET', '/modelstudio/apikeys', 'json', false, 'json', request);
 }
 
+model ListModelLimitsRequest {
+  maxResults?: long(name='maxResults', example='20', position='Query'),
+  model?: string(name='model', example='qwen-plus', position='Query'),
+  name?: string(name='name', example='qwen-plus', position='Query'),
+  nextToken?: string(name='nextToken', example='lwytFRtLdNk=', position='Query'),
+  workspaceId?: string(name='workspaceId', example='ws-8af73c50f5596193', position='Query'),
+}
+
+model ListModelLimitsResponseBody = {
+  code?: string(name='code', example='200'),
+  errorMessage?: string(name='errorMessage', example='The specified parameter is invalid.'),
+  httpStatusCode?: long(name='httpStatusCode', example='200'),
+  limits?: [ 
+    {
+      model?: string(name='model', example='qwen-plus'),
+      modelLimit?: {
+        asyncUserConcurrencyLimit?: long(name='asyncUserConcurrencyLimit', example='10'),
+        asyncUserQueueLimit?: long(name='asyncUserQueueLimit', example='10'),
+        requestLimit?: long(name='requestLimit', example='10'),
+        requestLimitPeriod?: int32(name='requestLimitPeriod', example='1'),
+        usageLimit?: long(name='usageLimit', example='10'),
+        usageLimitField?: string(name='usageLimitField', example='10'),
+        usageLimitPeriod?: int32(name='usageLimitPeriod', example='1'),
+      }(name='modelLimit'),
+      name?: string(name='name', example='qwen-plus'),
+      workspaceLimit?: {
+        asyncUserConcurrencyLimit?: long(name='asyncUserConcurrencyLimit', example='10'),
+        asyncUserQueueLimit?: long(name='asyncUserQueueLimit', example='10'),
+        requestLimit?: long(name='requestLimit', example='10'),
+        requestLimitPeriod?: int32(name='requestLimitPeriod', example='1'),
+        usageLimit?: long(name='usageLimit', example='10'),
+        usageLimitField?: string(name='usageLimitField', example='token'),
+        usageLimitPeriod?: int32(name='usageLimitPeriod', example='1'),
+      }(name='workspaceLimit'),
+    }
+  ](name='limits'),
+  maxResults?: long(name='maxResults', example='20'),
+  nextToken?: string(name='nextToken', example='lwytFRtLdNk='),
+  requestId?: string(name='requestId', description='Id of the request', example='36045E0A-551D-592D-B1BC-4C56596CE59E'),
+  success?: boolean(name='success', example='true'),
+  totalCount?: long(name='totalCount', example='100'),
+}
+
+model ListModelLimitsResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ListModelLimitsResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of ListModelLimits  ListModelLimitsRequest
+  * @return ListModelLimitsResponse
+ */
+async function listModelLimits(request: ListModelLimitsRequest): ListModelLimitsResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'ListModelLimits', 'GET', '/modelstudio/models/limits', 'json', false, 'json', request);
+}
+
+model ListModelPermissionsRequest {
+  authorizationScope?: string(name='authorizationScope', example='AUTHORIZABLE', position='Query'),
+  filter?: {
+    model?: string(name='model', example='qwen-plus'),
+    name?: string(name='name', example='OVERLAY'),
+  }(name='filter', position='Query'),
+  maxResults?: int32(name='maxResults', example='10', position='Query'),
+  modelAction?: string(name='modelAction', example='INFERENCE', position='Query'),
+  nextToken?: string(name='nextToken', example='lwytFRtLdNk=', position='Query'),
+  workspaceId: string(name='workspaceId', description='This parameter is required.', example='ws-32klhjk2312334jkh', maxLength=128, position='Query'),
+}
+
+model ListModelPermissionsResponseBody = {
+  code?: string(name='code', example='200'),
+  errorMessage?: string(name='errorMessage', example='The specified parameter is invalid'),
+  httpStatusCode?: int32(name='httpStatusCode', example='200'),
+  list?: [ 
+    {
+      model?: string(name='model', example='qwen-plus'),
+      name?: string(name='name', example='qwen-plus'),
+      permissions?: {
+        deploy?: boolean(name='deploy', example='true'),
+        fineTune?: boolean(name='fineTune', example='true'),
+        inference?: boolean(name='inference', example='true'),
+      }(name='permissions'),
+    }
+  ](name='list'),
+  maxResults?: int32(name='maxResults', example='20'),
+  nextToken?: string(name='nextToken', example='lwytFRtLdNk='),
+  requestId?: string(name='requestId', example='36045E0A-551D-592D-B1BC-4C56596CE59E'),
+  success?: boolean(name='success', example='true'),
+  totalCount?: long(name='totalCount', example='20'),
+}
+
+model ListModelPermissionsResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ListModelPermissionsResponseBody(name='body'),
+}
+
+/**
+  * @description ## 请求说明
+  * - 通过 `workspaceId` 指定要查询的业务空间（必填，不可为空）。
+  * - 采用 Token 分页：`nextToken` 为字符串型 offset，首页不传；`maxResults` 默认 20，超过上限报 `InvalidParameter.maxResults`。
+  * - `authorizationScope` 控制查询维度：`AUTHORIZED`=已授权指定 action 的模型，`AUTHORIZABLE`=全量可授权目录。
+  * - `modelAction` 指定授权 action 维度，当前仅支持 `INFERENCE`，为空默认 `INFERENCE`。
+  * - `filter` 支持按 `name`（模糊匹配 model+name）或 `model`（精确匹配单个模型）过滤。
+  * - 返回 `TokenBasedPage`，含每个模型的授权态（inference/fineTune/deploy）与限流信息。
+  * @param request  the request parameters of ListModelPermissions  ListModelPermissionsRequest
+  * @return ListModelPermissionsResponse
+ */
+async function listModelPermissions(request: ListModelPermissionsRequest): ListModelPermissionsResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'ListModelPermissions', 'GET', '/modelstudio/models/permissions', 'json', false, 'json', request);
+}
+
+model ListModelsRequest {
+  capabilities?: [ string ](name='capabilities', shrink='json', position='Query'),
+  contextWindow?: long(name='contextWindow', example='10', position='Query'),
+  features?: [ string ](name='features', shrink='json', position='Query'),
+  language?: string(name='language', example='zh-CN', position='Query'),
+  maxResults?: long(name='maxResults', example='10', position='Query'),
+  model?: string(name='model', example='qwen-plus', position='Query'),
+  name?: string(name='name', example='qwen-plus', position='Query'),
+  nextToken?: string(name='nextToken', example='lwytFRtLdNk=', position='Query'),
+  providers?: [ string ](name='providers', shrink='json', position='Query'),
+}
+
+model ListModelsResponseBody = {
+  code?: string(name='code', example='200'),
+  errorMessage?: string(name='errorMessage', example='The specified parameter is invalid'),
+  httpStatusCode?: long(name='httpStatusCode', example='200'),
+  maxResults?: long(name='maxResults', example='20'),
+  models?: [ 
+    {
+      capabilities?: [ string ](name='capabilities'),
+      description?: string(name='description', example='provided by qwen'),
+      features?: [ string ](name='features'),
+      inferenceMetadata?: {
+        requestModality?: [ string ](name='requestModality'),
+        responseModality?: [ string ](name='responseModality'),
+      }(name='inferenceMetadata'),
+      model?: string(name='model', example='qwen-plus'),
+      modelInfo?: {
+        contextWindow?: long(name='contextWindow', example='10'),
+        maxInputTokens?: long(name='maxInputTokens', example='10'),
+        maxOutputTokens?: long(name='maxOutputTokens', example='10'),
+        maxReasoningTokens?: long(name='maxReasoningTokens', example='10'),
+        reasoningMaxInputTokens?: long(name='reasoningMaxInputTokens', example='10'),
+        reasoningMaxOutputTokens?: long(name='reasoningMaxOutputTokens', example='10'),
+      }(name='modelInfo'),
+      name?: string(name='name', example='qwen-plus'),
+      prices?: [ 
+        {
+          prices?: [ 
+            {
+              price?: string(name='price', example='12'),
+              priceName?: string(name='priceName', example='input'),
+              priceUnit?: string(name='priceUnit', example='Per 1M tokens'),
+            }
+          ](name='prices'),
+          rangeName?: string(name='rangeName', example='Default'),
+        }
+      ](name='prices'),
+      provider?: string(name='provider', example='qwen'),
+      publishedTime?: long(name='publishedTime', example='1779268196000'),
+    }
+  ](name='models'),
+  nextToken?: string(name='nextToken', example='lwytFRtLdNk='),
+  requestId?: string(name='requestId', example='36045E0A-551D-592D-B1BC-4C56596CE59E'),
+  success?: boolean(name='success', example='true'),
+  totalCount?: long(name='totalCount', example='100'),
+}
+
+model ListModelsResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ListModelsResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of ListModels  ListModelsRequest
+  * @return ListModelsResponse
+ */
+async function listModels(request: ListModelsRequest): ListModelsResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'ListModels', 'GET', '/modelstudio/models', 'json', false, 'json', request);
+}
+
 model ListOrganizationMembersRequest {
   hasSeat?: boolean(name='HasSeat', example='true', position='Query'),
   name?: string(name='Name', position='Query'),
@@ -1080,6 +1269,79 @@ model UpdateApiKeyResponse = {
 async function updateApiKey(request: UpdateApiKeyRequest): UpdateApiKeyResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RESTFUL', 'UpdateApiKey', 'PUT', '/modelstudio/apikeys/{apiKeyId}', 'json', true, 'form', request);
+}
+
+model UpdateModelLimitsRequest {
+  workspaceId: string(name='workspaceId', description='This parameter is required.', example='ws-ac3ef438bec22dc5', maxLength=128, position='Body'),
+  workspaceLimits?: [ 
+    {
+      model?: string(name='model', example='qwen-plus'),
+      operationType?: string(name='operationType', example='OVERLAY'),
+      requestLimit?: long(name='requestLimit', example='10'),
+      requestLimitPeriod?: long(name='requestLimitPeriod', example='1'),
+      usageLimit?: long(name='usageLimit', example='10'),
+      usageLimitPeriod?: long(name='usageLimitPeriod', example='1'),
+    }
+  ](name='workspaceLimits', shrink='json', position='Body'),
+}
+
+model UpdateModelLimitsResponseBody = {
+  code?: string(name='code', example='200'),
+  errorMessage?: string(name='errorMessage', example='A workspace with ID beb173d2361941 does not exist.'),
+  httpStatusCode?: int32(name='httpStatusCode', example='200'),
+  requestId?: string(name='requestId', example='E4C14AE6-E987-5C2F-9230-9960AB48F4F2'),
+  success?: boolean(name='success', example='true'),
+}
+
+model UpdateModelLimitsResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: UpdateModelLimitsResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of UpdateModelLimits  UpdateModelLimitsRequest
+  * @return UpdateModelLimitsResponse
+ */
+async function updateModelLimits(request: UpdateModelLimitsRequest): UpdateModelLimitsResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'UpdateModelLimits', 'POST', '/modelstudio/models/limits', 'json', true, 'form', request);
+}
+
+model UpdateModelPermissionsRequest {
+  accessAllEntities?: string(name='accessAllEntities', example='OPEN', position='Body'),
+  models?: [ 
+    {
+      deploy?: boolean(name='deploy'),
+      fineTune?: boolean(name='fineTune'),
+      inference?: boolean(name='inference'),
+      model: string(name='model', description='This parameter is required.', example='qwen-plus'),
+    }
+  ](name='models', position='Body'),
+  workspaceId: string(name='workspaceId', description='This parameter is required.', example='ws-32klhjk2312334jkh', maxLength=128, position='Body'),
+}
+
+model UpdateModelPermissionsResponseBody = {
+  code?: string(name='code', example='200'),
+  errorMessage?: string(name='errorMessage', example='The specified parameter is invalid'),
+  httpStatusCode?: long(name='httpStatusCode', example='200'),
+  requestId?: string(name='requestId', example='36045E0A-551D-592D-B1BC-4C56596CE59E'),
+  success?: boolean(name='success', example='true'),
+}
+
+model UpdateModelPermissionsResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: UpdateModelPermissionsResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of UpdateModelPermissions  UpdateModelPermissionsRequest
+  * @return UpdateModelPermissionsResponse
+ */
+async function updateModelPermissions(request: UpdateModelPermissionsRequest): UpdateModelPermissionsResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'UpdateModelPermissions', 'POST', '/modelstudio/models/permissions', 'json', true, 'form', request);
 }
 
 model UpdateOrganizationRequest {
