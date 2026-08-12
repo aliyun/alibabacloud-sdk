@@ -9,8 +9,29 @@ extends OpenApi;
 
 init(config: OpenApiUtil.Config){
   super(config);
-  @endpointRule = 'central';
-  
+  @endpointRule = 'regional';
+  @endpointMap = {
+    'cn-qingdao' = 'foasconsole.cn-qingdao.aliyuncs.com',
+    'cn-wulanchabu' = 'foasconsole.cn-wulanchabu.aliyuncs.com',
+    'cn-beijing' = 'foasconsole.cn-beijing.aliyuncs.com',
+    'cn-shanghai' = 'foasconsole.cn-shanghai.aliyuncs.com',
+    'cn-hongkong' = 'foasconsole.cn-hongkong.aliyuncs.com',
+    'cn-zhangjiakou' = 'foasconsole.cn-zhangjiakou.aliyuncs.com',
+    'cn-shenzhen' = 'foasconsole.cn-shenzhen.aliyuncs.com',
+    'ap-northeast-1' = 'foasconsole.ap-northeast-1.aliyuncs.com',
+    'ap-southeast-1' = 'foasconsole.ap-southeast-1.aliyuncs.com',
+    'ap-southeast-3' = 'foasconsole.ap-southeast-3.aliyuncs.com',
+    'ap-southeast-5' = 'foasconsole.ap-southeast-5.aliyuncs.com',
+    'cn-hangzhou' = 'foasconsole.cn-hangzhou.aliyuncs.com',
+    'us-east-1' = 'foasconsole.us-east-1.aliyuncs.com',
+    'eu-west-1' = 'foasconsole.eu-west-1.aliyuncs.com',
+    'us-west-1' = 'foasconsole.us-west-1.aliyuncs.com',
+    'eu-central-1' = 'foasconsole.eu-central-1.aliyuncs.com',
+    'cn-shenzhen-finance-1' = 'foasconsole.cn-shenzhen-finance-1.aliyuncs.com',
+    'cn-shanghai-finance-1' = 'foasconsole.cn-shanghai-finance-1.aliyuncs.com',
+    'cn-north-2-gov-1' = 'foasconsole.aliyuncs.com',
+  };
+
   checkConfig(config);
   @endpoint = getEndpoint('foasconsole', @regionId, @endpointRule, @network, @suffix, @endpointMap, @endpoint);
 }
@@ -43,23 +64,34 @@ model ClusterState {
 
 model FlussInstance {
   clusterState?: ClusterState(name='ClusterState'),
-  clusterStatus?: string(name='ClusterStatus'),
-  consoleUrl?: string(name='ConsoleUrl'),
-  diskSize?: long(name='DiskSize'),
-  instanceId?: string(name='InstanceId'),
-  instanceName?: string(name='InstanceName'),
-  orderState?: string(name='OrderState'),
-  regionId?: string(name='RegionId'),
-  resourceCreateTime?: long(name='ResourceCreateTime'),
-  resourceExpiredTime?: long(name='ResourceExpiredTime'),
-  tabletServerModel?: string(name='TabletServerModel'),
-  tabletServerNum?: long(name='TabletServerNum'),
-  tabletServerType?: string(name='TabletServerType'),
-  uid?: string(name='Uid'),
+  clusterStatus?: string(name='ClusterStatus', description='The cluster status.'),
+  consoleUrl?: string(name='ConsoleUrl', description='The URL of the instance management console.'),
+  diskSize?: long(name='DiskSize', description='The disk size, in GB.'),
+  ha?: boolean(name='Ha', description='Specifies whether high availability (HA) is enabled.'),
+  instanceId?: string(name='InstanceId', description='The instance ID.'),
+  instanceName?: string(name='InstanceName', description='The instance name.'),
+  orderState?: string(name='OrderState', description='The order state.'),
+  regionId?: string(name='RegionId', description='The ID of the region.'),
+  resourceCreateTime?: long(name='ResourceCreateTime', description='The creation time of the resource, as a UNIX timestamp in milliseconds.'),
+  resourceExpiredTime?: long(name='ResourceExpiredTime', description='The expiration time of the resource, as a UNIX timestamp in milliseconds.'),
+  tabletServerModel?: string(name='TabletServerModel', description='The tablet server model.'),
+  tabletServerNum?: long(name='TabletServerNum', description='The number of tablet servers.'),
+  tabletServerType?: string(name='TabletServerType', description='The tablet server type.'),
+  tieringPostCu?: long(name='TieringPostCu', description='The number of compute units (CUs) for post-tiering.'),
+  tieringPreCu?: long(name='TieringPreCu', description='The number of compute units (CUs) for pre-tiering.'),
+  uid?: string(name='Uid', description='The Alibaba Cloud account ID (UID).'),
   vSwitches?: [
     FlussVswitch
-  ](name='VSwitches'),
-  vpcId?: string(name='VpcId'),
+  ](name='VSwitches', description='The VSwitch details.'),
+  vpcId?: string(name='VpcId', description='The VPC ID.'),
+}
+
+model FlussResourceSpec {
+  diskSizeInGB?: long(name='DiskSizeInGB', description='Disk size per node, in GB.'),
+  slaveModel?: string(name='SlaveModel', description='Instance type of the slave nodes.'),
+  slaveNum?: long(name='SlaveNum', description='Number of slave nodes.'),
+  tieringPostCu?: long(name='TieringPostCu', description='Number of CUs for the post-tiering stage.'),
+  tieringPreCu?: long(name='TieringPreCu', description='Number of compute units (CUs) for the pre-tiering stage.'),
 }
 
 model FlussVswitch {
@@ -74,29 +106,47 @@ model StageWithWeight {
 }
 
 model ConvertHybridInstanceRequest {
-  instanceId?: string(name='InstanceId', description='This parameter is required.', example='sc_flinkserverless_public_cn-7e22ae5sess'),
-  region?: string(name='Region', description='This parameter is required.', example='cn-shenzhen'),
+  instanceId?: string(name='InstanceId', description='The order instance ID.
+
+This parameter is required.', example='sc_flinkserverless_public_cn-7e22*****'),
+  region?: string(name='Region', description='The region.
+
+This parameter is required.', example='cn-shenzhen'),
   resourceSpec?: {
-    cpu?: int32(name='Cpu', description='This parameter is required.', example='10'),
-    memoryGB?: int32(name='MemoryGB', description='This parameter is required.', example='40GB'),
-  }(name='ResourceSpec', description='This parameter is required.'),
+    cpu?: int32(name='Cpu', description='The number of CPUs.
+
+This parameter is required.', example='10'),
+    memoryGB?: int32(name='MemoryGB', description='The memory size. Unit: GB.
+
+> The memory size must be 4 times the number of CPUs.
+
+This parameter is required.', example='40GB'),
+  }(name='ResourceSpec', description='The maximum resource specifications available for the pay-as-you-go portion of hybrid billing.
+
+This parameter is required.'),
 }
 
 model ConvertHybridInstanceShrinkRequest {
-  instanceId?: string(name='InstanceId', description='This parameter is required.', example='sc_flinkserverless_public_cn-7e22ae5sess'),
-  region?: string(name='Region', description='This parameter is required.', example='cn-shenzhen'),
-  resourceSpecShrink?: string(name='ResourceSpec', description='This parameter is required.'),
+  instanceId?: string(name='InstanceId', description='The order instance ID.
+
+This parameter is required.', example='sc_flinkserverless_public_cn-7e22*****'),
+  region?: string(name='Region', description='The region.
+
+This parameter is required.', example='cn-shenzhen'),
+  resourceSpecShrink?: string(name='ResourceSpec', description='The maximum resource specifications available for the pay-as-you-go portion of hybrid billing.
+
+This parameter is required.'),
 }
 
 model ConvertHybridInstanceResponseBody = {
-  errCode?: string(name='ErrCode', example='000000'),
+  errCode?: string(name='ErrCode', description='The error code.', example='000000'),
   orderInfo?: {
-    elasticInstanceId?: string(name='ElasticInstanceId'),
-    instanceId?: string(name='InstanceId', example='f-cn-zvp2q0zik06'),
-    orderId?: long(name='OrderId', example='210406354694567'),
-  }(name='OrderInfo'),
-  requestId?: string(name='RequestId', example='67F33190-946B-1105-B6A1-E2DF0426DD51'),
-  success?: boolean(name='Success', example='true'),
+    elasticInstanceId?: string(name='ElasticInstanceId', description='The instance ID of the pay-as-you-go portion of hybrid billing.', example='f-cn-asd***'),
+    instanceId?: string(name='InstanceId', description='The instance ID of the subscription portion of hybrid billing.', example='f-cn-zvp2q*****'),
+    orderId?: long(name='OrderId', description='The order ID.', example='2104063546****'),
+  }(name='OrderInfo', description='The order information.'),
+  requestId?: string(name='RequestId', description='The request ID.', example='67F33190-946B-1105-B6A1-E2DF042*****'),
+  success?: boolean(name='Success', description='Indicates whether the request was successful.', example='true'),
 }
 
 model ConvertHybridInstanceResponse = {
@@ -106,7 +156,9 @@ model ConvertHybridInstanceResponse = {
 }
 
 /**
- * @summary 开通弹性计算
+ * @summary Converts a subscription instance to a hybrid billing instance.
+ *
+ * @description **Before using this API, make sure that you fully understand the billing method and [pricing](https://www.alibabacloud.com/help/en/flink/product-overview/hybrid-pricing) of hybrid billing for Realtime Compute for Apache Flink.**
  *
  * @param tmpReq ConvertHybridInstanceRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -148,7 +200,9 @@ async function convertHybridInstanceWithOptions(tmpReq: ConvertHybridInstanceReq
 }
 
 /**
- * @summary 开通弹性计算
+ * @summary Converts a subscription instance to a hybrid billing instance.
+ *
+ * @description **Before using this API, make sure that you fully understand the billing method and [pricing](https://www.alibabacloud.com/help/en/flink/product-overview/hybrid-pricing) of hybrid billing for Realtime Compute for Apache Flink.**
  *
  * @param request ConvertHybridInstanceRequest
  * @return ConvertHybridInstanceResponse
@@ -159,39 +213,71 @@ async function convertHybridInstance(request: ConvertHybridInstanceRequest): Con
 }
 
 model ConvertInstanceRequest {
-  duration?: int32(name='Duration', description='This parameter is required.', example='1'),
-  instanceId?: string(name='InstanceId', description='This parameter is required.', example='f-cn-wwo36qj4g06'),
-  isAutoRenew?: boolean(name='IsAutoRenew', description='This parameter is required.', example='true'),
+  duration?: int32(name='Duration', description='The number of subscription cycles.
+
+This parameter is required.', example='1'),
+  instanceId?: string(name='InstanceId', description='The order instance ID.
+
+This parameter is required.', example='f-cn-wwo36qj4g06'),
+  isAutoRenew?: boolean(name='IsAutoRenew', description='Specifies whether to enable auto-renewal.
+
+This parameter is required.', example='true'),
   namespaceResourceSpecs?: [ 
     {
-      namespace?: string(name='Namespace', description='This parameter is required.', example='ns-1'),
+      namespace?: string(name='Namespace', description='The namespace name.
+
+This parameter is required.', example='ns-1'),
       resourceSpec?: {
-        cpu?: int32(name='Cpu', description='This parameter is required.', example='1'),
-        memoryGB?: int32(name='MemoryGB', description='This parameter is required.', example='4'),
-      }(name='ResourceSpec', description='This parameter is required.'),
+        cpu?: int32(name='Cpu', description='The number of CPUs.
+
+This parameter is required.', example='1'),
+        memoryGB?: int32(name='MemoryGB', description='The memory size.
+
+This parameter is required.', example='4'),
+      }(name='ResourceSpec', description='The resource specifications.
+
+This parameter is required.'),
     }
-  ](name='NamespaceResourceSpecs', description='This parameter is required.'),
-  pricingCycle?: string(name='PricingCycle', description='This parameter is required.', example='Month'),
+  ](name='NamespaceResourceSpecs', description='The resource specifications of the namespace.
+
+This parameter is required.'),
+  pricingCycle?: string(name='PricingCycle', description='The subscription cycle.
+
+This parameter is required.', example='Month'),
   promotionCode?: string(name='PromotionCode'),
-  region?: string(name='Region', description='This parameter is required.', example='cn-beijing'),
+  region?: string(name='Region', description='The region.
+
+This parameter is required.', example='cn-beijing'),
   usePromotionCode?: boolean(name='UsePromotionCode'),
 }
 
 model ConvertInstanceShrinkRequest {
-  duration?: int32(name='Duration', description='This parameter is required.', example='1'),
-  instanceId?: string(name='InstanceId', description='This parameter is required.', example='f-cn-wwo36qj4g06'),
-  isAutoRenew?: boolean(name='IsAutoRenew', description='This parameter is required.', example='true'),
-  namespaceResourceSpecsShrink?: string(name='NamespaceResourceSpecs', description='This parameter is required.'),
-  pricingCycle?: string(name='PricingCycle', description='This parameter is required.', example='Month'),
+  duration?: int32(name='Duration', description='The number of subscription cycles.
+
+This parameter is required.', example='1'),
+  instanceId?: string(name='InstanceId', description='The order instance ID.
+
+This parameter is required.', example='f-cn-wwo36qj4g06'),
+  isAutoRenew?: boolean(name='IsAutoRenew', description='Specifies whether to enable auto-renewal.
+
+This parameter is required.', example='true'),
+  namespaceResourceSpecsShrink?: string(name='NamespaceResourceSpecs', description='The resource specifications of the namespace.
+
+This parameter is required.'),
+  pricingCycle?: string(name='PricingCycle', description='The subscription cycle.
+
+This parameter is required.', example='Month'),
   promotionCode?: string(name='PromotionCode'),
-  region?: string(name='Region', description='This parameter is required.', example='cn-beijing'),
+  region?: string(name='Region', description='The region.
+
+This parameter is required.', example='cn-beijing'),
   usePromotionCode?: boolean(name='UsePromotionCode'),
 }
 
 model ConvertInstanceResponseBody = {
-  orderId?: long(name='OrderId', example='211473228320700'),
-  requestId?: string(name='RequestId', example='67F33190-946B-1105-B6A1-E2DF0426DD51'),
-  success?: boolean(name='Success', example='true'),
+  orderId?: long(name='OrderId', description='The order ID.', example='211473228320700'),
+  requestId?: string(name='RequestId', description='The request ID.', example='67F33190-946B-1105-B6A1-E2DF0426DD51'),
+  success?: boolean(name='Success', description='Indicates whether the request was successful.', example='true'),
 }
 
 model ConvertInstanceResponse = {
@@ -201,7 +287,9 @@ model ConvertInstanceResponse = {
 }
 
 /**
- * @summary Changes the billing method of a workspace from pay-as-you-go to subscription.
+ * @summary Converts a pay-as-you-go workspace to a subscription workspace.
+ *
+ * @description **Before using this operation, make sure that you fully understand the billing methods and [pricing](https://www.alibabacloud.com/help/en/flink/product-overview/switch-from-pay-as-you-go-to-subscription) of fully managed Flink.**
  *
  * @param tmpReq ConvertInstanceRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -258,7 +346,9 @@ async function convertInstanceWithOptions(tmpReq: ConvertInstanceRequest, runtim
 }
 
 /**
- * @summary Changes the billing method of a workspace from pay-as-you-go to subscription.
+ * @summary Converts a pay-as-you-go workspace to a subscription workspace.
+ *
+ * @description **Before using this operation, make sure that you fully understand the billing methods and [pricing](https://www.alibabacloud.com/help/en/flink/product-overview/switch-from-pay-as-you-go-to-subscription) of fully managed Flink.**
  *
  * @param request ConvertInstanceRequest
  * @return ConvertInstanceResponse
@@ -269,14 +359,18 @@ async function convertInstance(request: ConvertInstanceRequest): ConvertInstance
 }
 
 model ConvertPrepayInstanceRequest {
-  instanceId?: string(name='InstanceId', description='This parameter is required.', example='f-cn-wwo36qj4g06'),
-  region?: string(name='Region', description='This parameter is required.', example='cn-beijing'),
+  instanceId?: string(name='InstanceId', description='The order instance ID.
+
+This parameter is required.', example='f-cn-wwo36qj*****'),
+  region?: string(name='Region', description='The region.
+
+This parameter is required.', example='cn-beijing'),
 }
 
 model ConvertPrepayInstanceResponseBody = {
-  orderId?: long(name='OrderId', example='210406354690749'),
-  requestId?: string(name='RequestId', example='67F33190-946B-1105-B6A1-E2DF0426DD51'),
-  success?: boolean(name='Success', example='true'),
+  orderId?: long(name='OrderId', description='The order ID.', example='2104063546*****'),
+  requestId?: string(name='RequestId', description='The request ID.', example='67F33190-946B-1105-B6A1-E2DF0426****'),
+  success?: boolean(name='Success', description='Indicates whether the conversion is successful.', example='true'),
 }
 
 model ConvertPrepayInstanceResponse = {
@@ -286,7 +380,9 @@ model ConvertPrepayInstanceResponse = {
 }
 
 /**
- * @summary Changes the billing method of a workspace from subscription to pay-as-you-go.
+ * @summary Converts a subscription instance to pay-as-you-go.
+ *
+ * @description Before using this operation, make sure that you fully understand the [billing methods and pricing](https://www.alibabacloud.com/help/en/flink/product-overview/switch-from-subscription-to-pay-as-you-go) of Alibaba Cloud Realtime Compute for Apache Flink.
  *
  * @param request ConvertPrepayInstanceRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -320,7 +416,9 @@ async function convertPrepayInstanceWithOptions(request: ConvertPrepayInstanceRe
 }
 
 /**
- * @summary Changes the billing method of a workspace from subscription to pay-as-you-go.
+ * @summary Converts a subscription instance to pay-as-you-go.
+ *
+ * @description Before using this operation, make sure that you fully understand the [billing methods and pricing](https://www.alibabacloud.com/help/en/flink/product-overview/switch-from-subscription-to-pay-as-you-go) of Alibaba Cloud Realtime Compute for Apache Flink.
  *
  * @param request ConvertPrepayInstanceRequest
  * @return ConvertPrepayInstanceResponse
@@ -331,76 +429,141 @@ async function convertPrepayInstance(request: ConvertPrepayInstanceRequest): Con
 }
 
 model CreateInstanceRequest {
-  architectureType?: string(name='ArchitectureType'),
-  autoRenew?: boolean(name='AutoRenew', example='true'),
-  chargeType?: string(name='ChargeType', description='This parameter is required.', example='PRE'),
-  duration?: int32(name='Duration', example='1'),
-  extra?: string(name='Extra'),
-  ha?: boolean(name='Ha', nullable=true),
+  architectureType?: string(name='ArchitectureType', description='The processor architecture.', example='X86'),
+  autoRenew?: boolean(name='AutoRenew', description='Specifies whether to enable auto-renewal. Valid values:
+
+- **true**: Enabled.
+- **false**: Disabled. This is the default value.
+
+> This parameter does not take effect for pay-as-you-go instances.', example='true'),
+  chargeType?: string(name='ChargeType', description='The billing method. Valid values:
+- POST: pay-as-you-go.
+- PRE: subscription.
+
+This parameter is required.', example='PRE'),
+  duration?: int32(name='Duration', description='The subscription duration.
+
+> This parameter is required when ChargeType is set to PRE.', example='1'),
+  extra?: string(name='Extra', description='The extended field.', example='“”'),
+  ha?: boolean(name='Ha', description='Specifies whether to use zone-disaster recovery resources.', example='true', nullable=true),
   haResourceSpec?: {
-    cpu?: int32(name='Cpu'),
-    memoryGB?: int32(name='MemoryGB'),
-  }(name='HaResourceSpec', nullable=true),
-  haVSwitchIds?: [ string ](name='HaVSwitchIds', nullable=true),
-  instanceName?: string(name='InstanceName', description='This parameter is required.', example='rtc-e2e-test-pre'),
-  monitorType?: string(name='MonitorType'),
-  pricingCycle?: string(name='PricingCycle', example='Month'),
-  promotionCode?: string(name='PromotionCode', example='500043499350689'),
-  region?: string(name='Region', description='This parameter is required.', example='cn-beijing'),
-  resourceGroupId?: string(name='ResourceGroupId'),
+    cpu?: int32(name='Cpu', description='The number of CPUs for zone-disaster recovery.', example='10'),
+    memoryGB?: int32(name='MemoryGB', description='The memory size for zone-disaster recovery.', example='40'),
+  }(name='HaResourceSpec', description='The zone-disaster recovery resource specifications.', nullable=true),
+  haVSwitchIds?: [ string ](name='HaVSwitchIds', description='The list of vSwitch IDs in the secondary zone for zone-disaster recovery.', nullable=true),
+  instanceName?: string(name='InstanceName', description='The workspace name. The name must start with a lowercase letter and can contain lowercase letters, digits, and hyphens (-). The name cannot end with a hyphen.
+
+This parameter is required.', example='rtc-e2e-test-pre'),
+  monitorType?: string(name='MonitorType', description='The type of monitoring and alerting service. You can select ARMS or CloudMonitor.', example='TAIHAO'),
+  pricingCycle?: string(name='PricingCycle', description='The unit of the subscription duration. Valid values:
+
+- **year**: year.
+- **month**: month.
+
+> This parameter is required when ChargeType is set to PRE.', example='Month'),
+  promotionCode?: string(name='PromotionCode', description='The coupon code.', example='500043499350689'),
+  region?: string(name='Region', description='The region ID.
+
+This parameter is required.', example='cn-beijing'),
+  resourceGroupId?: string(name='ResourceGroupId', description='The resource group ID.', example='rg-acfmxbavps3rpiy'),
   resourceSpec?: {
-    cpu?: int32(name='Cpu', example='30'),
-    memoryGB?: int32(name='MemoryGB', example='120'),
-  }(name='ResourceSpec'),
+    cpu?: int32(name='Cpu', description='The number of CPUs.
+> - This parameter is required for subscription workspaces. For pay-as-you-go workspaces, you do not need to specify this parameter.- The number of CPUs for the target project must be less than the remaining CPUs in the workspace (total purchased CPUs minus CPUs already allocated to other projects). Otherwise, an error is returned.', example='30'),
+    memoryGB?: int32(name='MemoryGB', description='The memory size. Unit: GB.
+
+> The memory size must be 4 times the number of CPUs.', example='120'),
+  }(name='ResourceSpec', description='The resource specifications.
+
+> This parameter is required when ChargeType is set to PRE.'),
   storage?: {
-    fullyManaged?: boolean(name='FullyManaged'),
+    fullyManaged?: boolean(name='FullyManaged', description='Specifies whether to use fully managed storage. You can select only one of fully managed storage or binding an OSS bucket. Valid values:
+- true: Use fully managed storage.
+- false: Do not use fully managed storage.', example='false'),
     oss?: {
-      bucket?: string(name='Bucket', example='oss-flink-cn-shanghai-260343971602724445'),
-    }(name='Oss'),
-  }(name='Storage', description='This parameter is required.'),
+      bucket?: string(name='Bucket', description='The name of the OSS bucket to bind.', example='oss-flink-cn-shanghai-260343971602724445'),
+    }(name='Oss', description='The Object Storage Service (OSS) storage.'),
+  }(name='Storage', description='The storage parameters.
+
+This parameter is required.'),
   tag?: [ 
     {
-      key?: string(name='Key'),
-      value?: string(name='Value'),
+      key?: string(name='Key', description='The tag key.', example='test'),
+      value?: string(name='Value', description='The tag value.', example='tag'),
     }
-  ](name='Tag'),
-  usePromotionCode?: boolean(name='UsePromotionCode'),
-  vSwitchIds?: [ string ](name='VSwitchIds', description='This parameter is required.'),
-  vpcId?: string(name='VpcId', description='This parameter is required.', example='vpc-2ze9xoh8qyt1rnxfmfcdi'),
+  ](name='Tag', description='The list of tags. A maximum of 20 tags can be specified.'),
+  usePromotionCode?: boolean(name='UsePromotionCode', description='Specifies whether to use a coupon. Valid values:
+- true: Use a coupon.
+- false: Do not use a coupon.', example='true'),
+  vSwitchIds?: [ string ](name='VSwitchIds', description='The list of vSwitch IDs.
+
+This parameter is required.'),
+  vpcId?: string(name='VpcId', description='The virtual private cloud (VPC) ID.
+
+This parameter is required.', example='vpc-2ze9xoh8qyt1rnxfmfcdi'),
 }
 
 model CreateInstanceShrinkRequest {
-  architectureType?: string(name='ArchitectureType'),
-  autoRenew?: boolean(name='AutoRenew', example='true'),
-  chargeType?: string(name='ChargeType', description='This parameter is required.', example='PRE'),
-  duration?: int32(name='Duration', example='1'),
-  extra?: string(name='Extra'),
-  ha?: boolean(name='Ha', nullable=true),
-  haResourceSpecShrink?: string(name='HaResourceSpec', nullable=true),
-  haVSwitchIdsShrink?: string(name='HaVSwitchIds', nullable=true),
-  instanceName?: string(name='InstanceName', description='This parameter is required.', example='rtc-e2e-test-pre'),
-  monitorType?: string(name='MonitorType'),
-  pricingCycle?: string(name='PricingCycle', example='Month'),
-  promotionCode?: string(name='PromotionCode', example='500043499350689'),
-  region?: string(name='Region', description='This parameter is required.', example='cn-beijing'),
-  resourceGroupId?: string(name='ResourceGroupId'),
-  resourceSpecShrink?: string(name='ResourceSpec'),
-  storageShrink?: string(name='Storage', description='This parameter is required.'),
-  tagShrink?: string(name='Tag'),
-  usePromotionCode?: boolean(name='UsePromotionCode'),
-  vSwitchIdsShrink?: string(name='VSwitchIds', description='This parameter is required.'),
-  vpcId?: string(name='VpcId', description='This parameter is required.', example='vpc-2ze9xoh8qyt1rnxfmfcdi'),
+  architectureType?: string(name='ArchitectureType', description='The processor architecture.', example='X86'),
+  autoRenew?: boolean(name='AutoRenew', description='Specifies whether to enable auto-renewal. Valid values:
+
+- **true**: Enabled.
+- **false**: Disabled. This is the default value.
+
+> This parameter does not take effect for pay-as-you-go instances.', example='true'),
+  chargeType?: string(name='ChargeType', description='The billing method. Valid values:
+- POST: pay-as-you-go.
+- PRE: subscription.
+
+This parameter is required.', example='PRE'),
+  duration?: int32(name='Duration', description='The subscription duration.
+
+> This parameter is required when ChargeType is set to PRE.', example='1'),
+  extra?: string(name='Extra', description='The extended field.', example='“”'),
+  ha?: boolean(name='Ha', description='Specifies whether to use zone-disaster recovery resources.', example='true', nullable=true),
+  haResourceSpecShrink?: string(name='HaResourceSpec', description='The zone-disaster recovery resource specifications.', nullable=true),
+  haVSwitchIdsShrink?: string(name='HaVSwitchIds', description='The list of vSwitch IDs in the secondary zone for zone-disaster recovery.', nullable=true),
+  instanceName?: string(name='InstanceName', description='The workspace name. The name must start with a lowercase letter and can contain lowercase letters, digits, and hyphens (-). The name cannot end with a hyphen.
+
+This parameter is required.', example='rtc-e2e-test-pre'),
+  monitorType?: string(name='MonitorType', description='The type of monitoring and alerting service. You can select ARMS or CloudMonitor.', example='TAIHAO'),
+  pricingCycle?: string(name='PricingCycle', description='The unit of the subscription duration. Valid values:
+
+- **year**: year.
+- **month**: month.
+
+> This parameter is required when ChargeType is set to PRE.', example='Month'),
+  promotionCode?: string(name='PromotionCode', description='The coupon code.', example='500043499350689'),
+  region?: string(name='Region', description='The region ID.
+
+This parameter is required.', example='cn-beijing'),
+  resourceGroupId?: string(name='ResourceGroupId', description='The resource group ID.', example='rg-acfmxbavps3rpiy'),
+  resourceSpecShrink?: string(name='ResourceSpec', description='The resource specifications.
+
+> This parameter is required when ChargeType is set to PRE.'),
+  storageShrink?: string(name='Storage', description='The storage parameters.
+
+This parameter is required.'),
+  tagShrink?: string(name='Tag', description='The list of tags. A maximum of 20 tags can be specified.'),
+  usePromotionCode?: boolean(name='UsePromotionCode', description='Specifies whether to use a coupon. Valid values:
+- true: Use a coupon.
+- false: Do not use a coupon.', example='true'),
+  vSwitchIdsShrink?: string(name='VSwitchIds', description='The list of vSwitch IDs.
+
+This parameter is required.'),
+  vpcId?: string(name='VpcId', description='The virtual private cloud (VPC) ID.
+
+This parameter is required.', example='vpc-2ze9xoh8qyt1rnxfmfcdi'),
 }
 
 model CreateInstanceResponseBody = {
   orderInfo?: {
-    instanceId?: string(name='InstanceId', example='f-cn-zvp2q0zik06'),
-    orderId?: long(name='OrderId', example='210406354694567'),
-    storageInstanceId?: string(name='StorageInstanceId'),
-    storageOrderId?: long(name='StorageOrderId'),
-  }(name='OrderInfo'),
-  requestId?: string(name='RequestId', example='67F33190-946B-1105-B6A1-E2DF0426DD51'),
-  success?: boolean(name='Success', example='true'),
+    instanceId?: string(name='InstanceId', description='The instance ID of the order.', example='f-cn-zvp2q0zik06'),
+    orderId?: long(name='OrderId', description='The order ID.', example='210406354694567'),
+    storageInstanceId?: string(name='StorageInstanceId', description='The storage instance ID.', example='sc_flinkstorage_public_cn-w*****'),
+    storageOrderId?: long(name='StorageOrderId', description='The storage order ID.', example='240353501970749'),
+  }(name='OrderInfo', description='The order information.'),
+  requestId?: string(name='RequestId', description='The request ID.', example='67F33190-946B-1105-B6A1-E2DF0426DD51'),
+  success?: boolean(name='Success', description='Indicates whether the request was successful.', example='true'),
 }
 
 model CreateInstanceResponse = {
@@ -410,7 +573,9 @@ model CreateInstanceResponse = {
 }
 
 /**
- * @summary Creates a subscription workspace or a pay-as-you-go workspace of Realtime Compute for Apache Flink.
+ * @summary Creates a subscription or pay-as-you-go fully managed Flink workspace.
+ *
+ * @description **Make sure that you fully understand the billing methods and [pricing](https://www.alibabacloud.com/help/en/flink/product-overview/billing-overview) of fully managed Flink before you call this operation.**
  *
  * @param tmpReq CreateInstanceRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -518,7 +683,9 @@ async function createInstanceWithOptions(tmpReq: CreateInstanceRequest, runtime:
 }
 
 /**
- * @summary Creates a subscription workspace or a pay-as-you-go workspace of Realtime Compute for Apache Flink.
+ * @summary Creates a subscription or pay-as-you-go fully managed Flink workspace.
+ *
+ * @description **Make sure that you fully understand the billing methods and [pricing](https://www.alibabacloud.com/help/en/flink/product-overview/billing-overview) of fully managed Flink before you call this operation.**
  *
  * @param request CreateInstanceRequest
  * @return CreateInstanceResponse
@@ -530,26 +697,40 @@ async function createInstance(request: CreateInstanceRequest): CreateInstanceRes
 
 model CreateNamespaceRequest {
   ha?: boolean(name='Ha', nullable=true),
-  instanceId?: string(name='InstanceId', description='This parameter is required.', example='f-cn-wwo36qj4g06'),
-  namespace?: string(name='Namespace', description='This parameter is required.', example='di-593440390152545'),
-  region?: string(name='Region', description='This parameter is required.', example='cn-shenzhen'),
+  instanceId?: string(name='InstanceId', description='The order instance ID.
+
+This parameter is required.', example='f-cn-wwo36qj4g06'),
+  namespace?: string(name='Namespace', description='The namespace name.
+
+This parameter is required.', example='di-593440390152545'),
+  region?: string(name='Region', description='The region.
+
+This parameter is required.', example='cn-shenzhen'),
   resourceSpec?: {
-    cpu?: int32(name='Cpu', example='30'),
-    memoryGB?: int32(name='MemoryGB', example='120'),
-  }(name='ResourceSpec'),
+    cpu?: int32(name='Cpu', description='The number of CPUs.', example='30'),
+    memoryGB?: int32(name='MemoryGB', description='The memory size. Unit: GB.
+
+> The memory size must be 4 times the number of CPUs.', example='120'),
+  }(name='ResourceSpec', description='The resource specifications.'),
 }
 
 model CreateNamespaceShrinkRequest {
   ha?: boolean(name='Ha', nullable=true),
-  instanceId?: string(name='InstanceId', description='This parameter is required.', example='f-cn-wwo36qj4g06'),
-  namespace?: string(name='Namespace', description='This parameter is required.', example='di-593440390152545'),
-  region?: string(name='Region', description='This parameter is required.', example='cn-shenzhen'),
-  resourceSpecShrink?: string(name='ResourceSpec'),
+  instanceId?: string(name='InstanceId', description='The order instance ID.
+
+This parameter is required.', example='f-cn-wwo36qj4g06'),
+  namespace?: string(name='Namespace', description='The namespace name.
+
+This parameter is required.', example='di-593440390152545'),
+  region?: string(name='Region', description='The region.
+
+This parameter is required.', example='cn-shenzhen'),
+  resourceSpecShrink?: string(name='ResourceSpec', description='The resource specifications.'),
 }
 
 model CreateNamespaceResponseBody = {
-  requestId?: string(name='RequestId', example='67F33190-946B-1105-B6A1-E2DF0426DD51'),
-  success?: boolean(name='Success', example='是否成功'),
+  requestId?: string(name='RequestId', description='The request ID.', example='67F33190-946B-1105-B6A1-E2DF0426DD51'),
+  success?: boolean(name='Success', description='Indicates whether the request was successful.', example='Is successful'),
 }
 
 model CreateNamespaceResponse = {
@@ -559,7 +740,7 @@ model CreateNamespaceResponse = {
 }
 
 /**
- * @summary Creates a namespace in a Realtime Compute for Apache Flink workspace.
+ * @summary Creates a workspace in a fully managed Flink instance.
  *
  * @param tmpReq CreateNamespaceRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -607,7 +788,7 @@ async function createNamespaceWithOptions(tmpReq: CreateNamespaceRequest, runtim
 }
 
 /**
- * @summary Creates a namespace in a Realtime Compute for Apache Flink workspace.
+ * @summary Creates a workspace in a fully managed Flink instance.
  *
  * @param request CreateNamespaceRequest
  * @return CreateNamespaceResponse
@@ -618,13 +799,17 @@ async function createNamespace(request: CreateNamespaceRequest): CreateNamespace
 }
 
 model DeleteInstanceRequest {
-  instanceId?: string(name='InstanceId', description='This parameter is required.', example='f-cn-wwo36qj4g06'),
-  region?: string(name='Region', description='This parameter is required.', example='cn-beijing'),
+  instanceId?: string(name='InstanceId', description='The order instance ID.
+
+This parameter is required.', example='f-cn-wwo36qj4g06'),
+  region?: string(name='Region', description='The region.
+
+This parameter is required.', example='cn-beijing'),
 }
 
 model DeleteInstanceResponseBody = {
-  requestId?: string(name='RequestId', example='67F33190-946B-1105-B6A1-E2DF0426DD51'),
-  success?: boolean(name='Success', example='True'),
+  requestId?: string(name='RequestId', description='The request ID.', example='67F33190-946B-1105-B6A1-E2DF0426DD51'),
+  success?: boolean(name='Success', description='Indicates whether the request was successful.', example='True'),
 }
 
 model DeleteInstanceResponse = {
@@ -634,7 +819,9 @@ model DeleteInstanceResponse = {
 }
 
 /**
- * @summary Deletes a pay-as-you-go workspace of Realtime Compute for Apache Flink.
+ * @summary Releases a pay-as-you-go Realtime Compute for Apache Flink workspace.
+ *
+ * @description **Before using this operation, make sure that you fully understand the billing method and [pricing](https://www.alibabacloud.com/help/en/flink/product-overview/refund-policy) of Realtime Compute for Apache Flink.**
  *
  * @param request DeleteInstanceRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -668,7 +855,9 @@ async function deleteInstanceWithOptions(request: DeleteInstanceRequest, runtime
 }
 
 /**
- * @summary Deletes a pay-as-you-go workspace of Realtime Compute for Apache Flink.
+ * @summary Releases a pay-as-you-go Realtime Compute for Apache Flink workspace.
+ *
+ * @description **Before using this operation, make sure that you fully understand the billing method and [pricing](https://www.alibabacloud.com/help/en/flink/product-overview/refund-policy) of Realtime Compute for Apache Flink.**
  *
  * @param request DeleteInstanceRequest
  * @return DeleteInstanceResponse
@@ -679,14 +868,20 @@ async function deleteInstance(request: DeleteInstanceRequest): DeleteInstanceRes
 }
 
 model DeleteNamespaceRequest {
-  instanceId?: string(name='InstanceId', description='This parameter is required.', example='f-cn-wwo36qj4g06'),
-  namespace?: string(name='Namespace', description='This parameter is required.', example='di-593439443804417'),
-  region?: string(name='Region', description='This parameter is required.', example='cn-beijing'),
+  instanceId?: string(name='InstanceId', description='The order instance ID.
+
+This parameter is required.', example='f-cn-wwo36qj4g06'),
+  namespace?: string(name='Namespace', description='The namespace name.
+
+This parameter is required.', example='di-593439443804417'),
+  region?: string(name='Region', description='The region.
+
+This parameter is required.', example='cn-beijing'),
 }
 
 model DeleteNamespaceResponseBody = {
-  requestId?: string(name='RequestId', example='67F33190-946B-1105-B6A1-E2DF0426DD51'),
-  success?: boolean(name='Success', example='是否成功'),
+  requestId?: string(name='RequestId', description='The request ID.', example='67F33190-946B-1105-B6A1-E2DF0426DD51'),
+  success?: boolean(name='Success', description='Indicates whether the operation is successful.', example='true'),
 }
 
 model DeleteNamespaceResponse = {
@@ -696,7 +891,7 @@ model DeleteNamespaceResponse = {
 }
 
 /**
- * @summary Deletes a namespace.
+ * @summary Deletes a project workspace.
  *
  * @param request DeleteNamespaceRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -733,7 +928,7 @@ async function deleteNamespaceWithOptions(request: DeleteNamespaceRequest, runti
 }
 
 /**
- * @summary Deletes a namespace.
+ * @summary Deletes a project workspace.
  *
  * @param request DeleteNamespaceRequest
  * @return DeleteNamespaceResponse
@@ -744,36 +939,40 @@ async function deleteNamespace(request: DeleteNamespaceRequest): DeleteNamespace
 }
 
 model DescribeInstancesRequest {
-  architectureType?: string(name='ArchitectureType', example='X86'),
-  chargeType?: string(name='ChargeType', example='PRE'),
-  elastic?: boolean(name='Elastic', example='true'),
-  instanceId?: string(name='InstanceId', example='f-cn-wwo36qj4g06'),
-  instanceName?: string(name='InstanceName', example='e2e-test'),
-  namespaceName?: string(name='NamespaceName', example='e2e-test-default'),
-  pageIndex?: int32(name='PageIndex', example='2'),
-  pageSize?: int32(name='PageSize', example='10'),
-  region?: string(name='Region', description='This parameter is required.', example='cn-shenzhen'),
+  architectureType?: string(name='ArchitectureType', description='The architecture type.', example='X86'),
+  chargeType?: string(name='ChargeType', description='The payment type.', example='PRE'),
+  elastic?: boolean(name='Elastic', description='Specifies whether mixed billing is used.', example='true'),
+  instanceId?: string(name='InstanceId', description='The order instance ID.', example='f-cn-wwo36qj4g06'),
+  instanceName?: string(name='InstanceName', description='The instance name.', example='e2e-test'),
+  namespaceName?: string(name='NamespaceName', description='The namespace name.', example='e2e-test-default'),
+  pageIndex?: int32(name='PageIndex', description='The current page number.', example='2'),
+  pageSize?: int32(name='PageSize', description='The number of entries per page for a paged query. Maximum value: 100. Default value: 10.', example='10'),
+  region?: string(name='Region', description='The region ID.
+
+This parameter is required.', example='cn-shenzhen'),
   resourceGroupId?: string(name='ResourceGroupId'),
   tags?: [ 
     {
-      key?: string(name='Key', example='test'),
-      value?: string(name='Value', example='ys'),
+      key?: string(name='Key', description='The tag key.', example='test'),
+      value?: string(name='Value', description='The tag value. The value can be up to 64 Unicode characters in length.', example='ys'),
     }
-  ](name='Tags'),
+  ](name='Tags', description='The tags of the instance.'),
 }
 
 model DescribeInstancesShrinkRequest {
-  architectureType?: string(name='ArchitectureType', example='X86'),
-  chargeType?: string(name='ChargeType', example='PRE'),
-  elastic?: boolean(name='Elastic', example='true'),
-  instanceId?: string(name='InstanceId', example='f-cn-wwo36qj4g06'),
-  instanceName?: string(name='InstanceName', example='e2e-test'),
-  namespaceName?: string(name='NamespaceName', example='e2e-test-default'),
-  pageIndex?: int32(name='PageIndex', example='2'),
-  pageSize?: int32(name='PageSize', example='10'),
-  region?: string(name='Region', description='This parameter is required.', example='cn-shenzhen'),
+  architectureType?: string(name='ArchitectureType', description='The architecture type.', example='X86'),
+  chargeType?: string(name='ChargeType', description='The payment type.', example='PRE'),
+  elastic?: boolean(name='Elastic', description='Specifies whether mixed billing is used.', example='true'),
+  instanceId?: string(name='InstanceId', description='The order instance ID.', example='f-cn-wwo36qj4g06'),
+  instanceName?: string(name='InstanceName', description='The instance name.', example='e2e-test'),
+  namespaceName?: string(name='NamespaceName', description='The namespace name.', example='e2e-test-default'),
+  pageIndex?: int32(name='PageIndex', description='The current page number.', example='2'),
+  pageSize?: int32(name='PageSize', description='The number of entries per page for a paged query. Maximum value: 100. Default value: 10.', example='10'),
+  region?: string(name='Region', description='The region ID.
+
+This parameter is required.', example='cn-shenzhen'),
   resourceGroupId?: string(name='ResourceGroupId'),
-  tagsShrink?: string(name='Tags'),
+  tagsShrink?: string(name='Tags', description='The tags of the instance.'),
 }
 
 model DescribeInstancesResponseBody = {
@@ -782,7 +981,9 @@ model DescribeInstancesResponseBody = {
       ansm?: boolean(name='Ansm'),
       architectureType?: string(name='ArchitectureType'),
       askClusterId?: string(name='AskClusterId'),
-      chargeType?: string(name='ChargeType', example='PRE'),
+      chargeType?: string(name='ChargeType', description='The billing method. Valid values:
+- POST: pay-as-you-go.
+- PRE: subscription.', example='PRE'),
       clusterState?: {
         clusterId?: string(name='ClusterId'),
         clusterStage?: {
@@ -816,7 +1017,12 @@ model DescribeInstancesResponseBody = {
         }(name='UserSlbDto'),
         vpcCidr?: string(name='VpcCidr'),
       }(name='ClusterState'),
-      clusterStatus?: string(name='ClusterStatus', example='RUNNING'),
+      clusterStatus?: string(name='ClusterStatus', description='The cluster status. Valid values:
+- CREATING: Being created.
+- RUNNING: Running.
+- DISABLE: Invalid.
+- DELETING: Being deleted.
+- DELETED: Deleted.', example='RUNNING'),
       clusterUsedResources?: {
         clusterId?: string(name='ClusterId'),
         elasticUsedCpu?: float(name='ElasticUsedCpu'),
@@ -838,7 +1044,7 @@ model DescribeInstancesResponseBody = {
         usedStorage?: float(name='UsedStorage'),
       }(name='ClusterUsedStorage'),
       elastic?: boolean(name='Elastic'),
-      elasticInstanceId?: string(name='ElasticInstanceId', example='f-cn-e3afbd321'),
+      elasticInstanceId?: string(name='ElasticInstanceId', description='The elastic order ID.', example='f-cn-e3afbd321'),
       elasticOrderState?: string(name='ElasticOrderState'),
       elasticResourceSpec?: {
         cpu?: int32(name='Cpu'),
@@ -869,10 +1075,14 @@ model DescribeInstancesResponseBody = {
           ip?: string(name='Ip', description='This parameter is required.'),
         }
       ](name='HostAliases', description='This parameter is required.'),
-      instanceId?: string(name='InstanceId', example='f-cn-zvp2q0zik06'),
-      instanceName?: string(name='InstanceName', example='vvp1'),
+      instanceId?: string(name='InstanceId', description='The instance ID.', example='f-cn-zvp2q0z****'),
+      instanceName?: string(name='InstanceName', description='The workspace name.', example='vvp1'),
       monitorType?: string(name='MonitorType'),
-      orderState?: string(name='OrderState', example='NORMAL'),
+      orderState?: string(name='OrderState', description='The order status. Valid values:
+- NOT_INIT: The order is placed but components are not deployed.
+- NORMAL: Normal.
+- CEASE: Expired.
+- RELEASE: Overdue.', example='NORMAL'),
       ossInfo?: {
         accessId?: string(name='AccessId'),
         accessKey?: string(name='AccessKey'),
@@ -880,32 +1090,33 @@ model DescribeInstancesResponseBody = {
         bucketVersioningStatus?: string(name='BucketVersioningStatus'),
         endpoint?: string(name='Endpoint'),
       }(name='OssInfo'),
-      region?: string(name='Region', example='cn-beijing'),
-      resourceCreateTime?: long(name='ResourceCreateTime', example='1629879567394'),
-      resourceExpiredTime?: long(name='ResourceExpiredTime', example='1637337600000'),
+      region?: string(name='Region', description='The region of the instance.', example='cn-beijing'),
+      resourceCreateTime?: long(name='ResourceCreateTime', description='The time when the instance was created.', example='1629879567394'),
+      resourceExpiredTime?: long(name='ResourceExpiredTime', description='The expiration time.', example='1637337600000'),
       resourceGroupId?: string(name='ResourceGroupId'),
-      resourceId?: string(name='ResourceId', example='b3690a1655da47'),
+      resourceId?: string(name='ResourceId', description='The resource ID.', example='b3690a1655****'),
       resourceSpec?: {
-        cpu?: int32(name='Cpu', example='10'),
-        memoryGB?: int32(name='MemoryGB', example='40'),
-      }(name='ResourceSpec'),
+        cpu?: int32(name='Cpu', description='The number of CPUs.', example='10'),
+        memoryGB?: int32(name='MemoryGB', description='The configured memory size.', example='40'),
+      }(name='ResourceSpec', description='The resource specification information.'),
       storage?: {
         fullyManaged?: boolean(name='FullyManaged'),
         orderState?: string(name='OrderState'),
         oss?: {
-          bucket?: string(name='Bucket', example='oss_flink'),
-        }(name='Oss'),
+          bucket?: string(name='Bucket', description='The name of the OSS bucket.', example='oss_flink'),
+        }(name='Oss', description='The OSS storage information.'),
         supportCreateFullyManagedStorage?: boolean(name='SupportCreateFullyManagedStorage'),
         supportMigrationProgressDetection?: boolean(name='SupportMigrationProgressDetection'),
-      }(name='Storage'),
+      }(name='Storage', description='The storage information.'),
+      supportDisasterRecoveryDrill?: boolean(name='SupportDisasterRecoveryDrill'),
       tags?: [ 
         {
-          key?: string(name='Key', example='flink'),
-          value?: string(name='Value', example='test'),
+          key?: string(name='Key', description='The tag key.', example='flink'),
+          value?: string(name='Value', description='The tag value.', example='test'),
         }
-      ](name='Tags'),
-      uid?: string(name='Uid', example='1838996687368452'),
-      vSwitchIds?: [ string ](name='VSwitchIds'),
+      ](name='Tags', description='The tags.'),
+      uid?: string(name='Uid', description='The ID of the user to whom the instance belongs.', example='183899668736****'),
+      vSwitchIds?: [ string ](name='VSwitchIds', description='The vSwitch IDs.'),
       vSwitchInfo?: [ 
         {
           availableIpAddressCount?: string(name='AvailableIpAddressCount'),
@@ -918,7 +1129,7 @@ model DescribeInstancesResponseBody = {
           zoneId?: string(name='ZoneId'),
         }
       ](name='VSwitchInfo'),
-      vpcId?: string(name='VpcId', example='vpc-2ze9*******nxfmfcdi'),
+      vpcId?: string(name='VpcId', description='The VPC ID.', example='vpc-2ze9*******nxfmfcdi'),
       vpcInfo?: {
         cidrBlock?: string(name='CidrBlock'),
         description?: string(name='Description'),
@@ -927,15 +1138,17 @@ model DescribeInstancesResponseBody = {
         vpcId?: string(name='VpcId'),
         vpcName?: string(name='VpcName'),
       }(name='VpcInfo'),
-      zoneId?: string(name='ZoneId', example='cn-beijing-g'),
+      zoneId?: string(name='ZoneId', description='The zone ID of the instance.', example='cn-beijing-g'),
     }
-  ](name='Instances'),
-  pageIndex?: int32(name='PageIndex', example='1'),
-  pageSize?: int32(name='PageSize', example='10'),
-  requestId?: string(name='RequestId', example='C8DF2A5B-6FBA-5651-A3D4-960F36640E6B'),
-  success?: boolean(name='Success', example='true'),
-  totalCount?: long(name='TotalCount', example='15'),
-  totalPage?: int32(name='TotalPage', example='2'),
+  ](name='Instances', description='The details of the instance group.'),
+  pageIndex?: int32(name='PageIndex', description='The current page number.', example='1'),
+  pageSize?: int32(name='PageSize', description='The number of instances per page.', example='10'),
+  requestId?: string(name='RequestId', description='The request ID.', example='C8DF2A5B-6FBA-5651-A3D4-960F3664****'),
+  success?: boolean(name='Success', description='Indicates whether the request was successful. Valid values:
+- true: The request was successful.
+- false: The request failed.', example='true'),
+  totalCount?: long(name='TotalCount', description='The total number of instances.', example='15'),
+  totalPage?: int32(name='TotalPage', description='The total number of pages.', example='2'),
 }
 
 model DescribeInstancesResponse = {
@@ -945,7 +1158,7 @@ model DescribeInstancesResponse = {
 }
 
 /**
- * @summary Queries the details of one or more Realtime Compute for Apache Flink workspaces.
+ * @summary Queries the details of one or more fully managed Flink workspaces.
  *
  * @param tmpReq DescribeInstancesRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -978,7 +1191,7 @@ async function describeInstancesWithOptions(tmpReq: DescribeInstancesRequest, ru
 }
 
 /**
- * @summary Queries the details of one or more Realtime Compute for Apache Flink workspaces.
+ * @summary Queries the details of one or more fully managed Flink workspaces.
  *
  * @param request DescribeInstancesRequest
  * @return DescribeInstancesResponse
@@ -990,27 +1203,35 @@ async function describeInstances(request: DescribeInstancesRequest): DescribeIns
 
 model DescribeNamespacesRequest {
   ha?: boolean(name='Ha', nullable=true),
-  instanceId?: string(name='InstanceId', description='This parameter is required.', example='f-cn-wwo36qj4g06'),
-  namespace?: string(name='Namespace', example='di-590843445844225'),
-  pageIndex?: int32(name='PageIndex', example='1'),
-  pageSize?: int32(name='PageSize', example='10'),
-  region?: string(name='Region', description='This parameter is required.', example='cn-beijing'),
+  instanceId?: string(name='InstanceId', description='The order instance ID.
+
+This parameter is required.', example='f-cn-wwo36qj4g06'),
+  namespace?: string(name='Namespace', description='The namespace name.', example='di-590843445844225'),
+  pageIndex?: int32(name='PageIndex', description='The current page number.', example='1'),
+  pageSize?: int32(name='PageSize', description='The number of entries per page.', example='10'),
+  region?: string(name='Region', description='The region.
+
+This parameter is required.', example='cn-beijing'),
   tags?: [ 
     {
-      key?: string(name='Key', example='FLink'),
-      value?: string(name='Value', example='test'),
+      key?: string(name='Key', description='The tag key.', example='Flink'),
+      value?: string(name='Value', description='The tag value.', example='test'),
     }
-  ](name='Tags'),
+  ](name='Tags', description='The list of tags.'),
 }
 
 model DescribeNamespacesShrinkRequest {
   ha?: boolean(name='Ha', nullable=true),
-  instanceId?: string(name='InstanceId', description='This parameter is required.', example='f-cn-wwo36qj4g06'),
-  namespace?: string(name='Namespace', example='di-590843445844225'),
-  pageIndex?: int32(name='PageIndex', example='1'),
-  pageSize?: int32(name='PageSize', example='10'),
-  region?: string(name='Region', description='This parameter is required.', example='cn-beijing'),
-  tagsShrink?: string(name='Tags'),
+  instanceId?: string(name='InstanceId', description='The order instance ID.
+
+This parameter is required.', example='f-cn-wwo36qj4g06'),
+  namespace?: string(name='Namespace', description='The namespace name.', example='di-590843445844225'),
+  pageIndex?: int32(name='PageIndex', description='The current page number.', example='1'),
+  pageSize?: int32(name='PageSize', description='The number of entries per page.', example='10'),
+  region?: string(name='Region', description='The region.
+
+This parameter is required.', example='cn-beijing'),
+  tagsShrink?: string(name='Tags', description='The list of tags.'),
 }
 
 model DescribeNamespacesResponseBody = {
@@ -1020,38 +1241,46 @@ model DescribeNamespacesResponseBody = {
         cpu?: int32(name='Cpu'),
         memoryGB?: int32(name='MemoryGB'),
       }(name='ElasticResourceSpec'),
-      gmtCreate?: long(name='GmtCreate', example='1629879567394'),
-      gmtModified?: long(name='GmtModified', example='1629879567394'),
+      gmtCreate?: long(name='GmtCreate', description='The creation time.', example='1629879567394'),
+      gmtModified?: long(name='GmtModified', description='The modification time.', example='1629879567394'),
       guaranteedResourceSpec?: {
         cpu?: int32(name='Cpu'),
         memoryGB?: int32(name='MemoryGB'),
       }(name='GuaranteedResourceSpec'),
       ha?: boolean(name='Ha'),
-      namespace?: string(name='Namespace', example='ns-1'),
+      namespace?: string(name='Namespace', description='The name of the namespace.', example='ns-1'),
       resourceSpec?: {
-        cpu?: int32(name='Cpu', example='10'),
-        memoryGB?: int32(name='MemoryGB', example='40'),
-      }(name='ResourceSpec'),
+        cpu?: int32(name='Cpu', description='The number of CPUs.', example='10'),
+        memoryGB?: int32(name='MemoryGB', description='The memory size.', example='40'),
+      }(name='ResourceSpec', description='The resource specification information.'),
       resourceUsed?: {
-        cpu?: float(name='Cpu', example='2'),
+        cpu?: float(name='Cpu', description='The number of used CPUs.', example='2'),
         cu?: float(name='Cu'),
-        memoryGB?: float(name='MemoryGB', example='4'),
-      }(name='ResourceUsed'),
-      status?: string(name='Status', example='SUCCESS'),
+        memoryGB?: float(name='MemoryGB', description='The amount of used memory.', example='4'),
+      }(name='ResourceUsed', description='The used resources.'),
+      status?: string(name='Status', description='The status of the namespace. Valid values:
+- CREATING: Being created.
+- DELETING: Being deleted.
+- MODIFYING: Resource specifications are being modified.
+- SUCCESS: The last operation was successful.
+- FAILED: The last operation failed.', example='SUCCESS'),
       tags?: [ 
         {
-          key?: string(name='Key', example='flink'),
-          value?: string(name='Value', example='test'),
+          key?: string(name='Key', description='The tag key.', example='flink'),
+          value?: string(name='Value', description='The tag value.', example='test'),
         }
-      ](name='Tags'),
+      ](name='Tags', description='The list of tags.'),
     }
-  ](name='Namespaces'),
-  pageIndex?: int32(name='PageIndex', example='1'),
-  pageSize?: int32(name='PageSize', example='10'),
-  requestId?: string(name='RequestId', example='67F33190-946B-1105-B6A1-E2DF0426DD51'),
-  success?: boolean(name='Success', example='true'),
-  totalCount?: long(name='TotalCount', example='5'),
-  totalPage?: int32(name='TotalPage', example='2'),
+  ](name='Namespaces', description='The list of namespaces.'),
+  pageIndex?: int32(name='PageIndex', description='The current page number.', example='1'),
+  pageSize?: int32(name='PageSize', description='The number of entries per page.', example='10'),
+  requestId?: string(name='RequestId', description='The request ID.', example='67F33190-946B-1105-B6A1-E2DF0426DD51'),
+  success?: boolean(name='Success', description='Indicates whether the request is successful. Valid values:
+
+- true: Successful.
+- false: Failed.', example='true'),
+  totalCount?: long(name='TotalCount', description='The total number of entries.', example='5'),
+  totalPage?: int32(name='TotalPage', description='The total number of pages.', example='2'),
 }
 
 model DescribeNamespacesResponse = {
@@ -1061,7 +1290,7 @@ model DescribeNamespacesResponse = {
 }
 
 /**
- * @summary Queries the information about a namespace that belongs to a workspace.
+ * @summary Queries the namespace information of a specified instance.
  *
  * @param tmpReq DescribeNamespacesRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -1094,7 +1323,7 @@ async function describeNamespacesWithOptions(tmpReq: DescribeNamespacesRequest, 
 }
 
 /**
- * @summary Queries the information about a namespace that belongs to a workspace.
+ * @summary Queries the namespace information of a specified instance.
  *
  * @param request DescribeNamespacesRequest
  * @return DescribeNamespacesResponse
@@ -1105,20 +1334,23 @@ async function describeNamespaces(request: DescribeNamespacesRequest): DescribeN
 }
 
 model DescribeSupportedRegionsResponseBody = {
-  pageIndex?: int32(name='PageIndex', example='1'),
-  pageSize?: int32(name='PageSize', example='10'),
+  pageIndex?: int32(name='PageIndex', description='The current page number.', example='1'),
+  pageSize?: int32(name='PageSize', description='The number of regions per page.', example='10'),
   regions?: [ 
     {
-      description?: string(name='Description'),
-      extra?: string(name='Extra'),
-      region?: string(name='Region', example='cn-beijing'),
-      regionName?: string(name='RegionName', example='华北2 (北京)'),
+      description?: string(name='Description', description='The description.', example='“”'),
+      extra?: string(name='Extra', description='The extended field.', example='“”'),
+      region?: string(name='Region', description='The region ID.', example='cn-beijing'),
+      regionName?: string(name='RegionName', description='The region name.', example='China (Beijing)'),
     }
-  ](name='Regions'),
-  requestId?: string(name='RequestId', example='B21DC47E-8928-199A-9F32-36D45E4693B4'),
-  success?: boolean(name='Success', example='true'),
-  totalCount?: long(name='TotalCount', example='10'),
-  totalPage?: int32(name='TotalPage', example='2'),
+  ](name='Regions', description='The list of region information.'),
+  requestId?: string(name='RequestId', description='The request ID.', example='B21DC47E-8928-199A-9F32-36D45E4693B4'),
+  success?: boolean(name='Success', description='Indicates whether the request is successful. Valid values:
+
+- true: Successful.
+- false: Failed.', example='true'),
+  totalCount?: long(name='TotalCount', description='The total number of regions returned.', example='10'),
+  totalPage?: int32(name='TotalPage', description='The total number of pages.', example='2'),
 }
 
 model DescribeSupportedRegionsResponse = {
@@ -1128,9 +1360,8 @@ model DescribeSupportedRegionsResponse = {
 }
 
 /**
- * @summary Queries the regions that are available in which Realtime Compute for Apache Flink is supported.
+ * @summary Retrieves information about regions that support purchases of fully managed Flink.
  *
- * @param request DescribeSupportedRegionsRequest
  * @param runtime runtime options for this request RuntimeOptions
  * @return DescribeSupportedRegionsResponse
  */
@@ -1151,7 +1382,7 @@ async function describeSupportedRegionsWithOptions(runtime: $RuntimeOptions): De
 }
 
 /**
- * @summary Queries the regions that are available in which Realtime Compute for Apache Flink is supported.
+ * @summary Retrieves information about regions that support purchases of fully managed Flink.
  *
  * @return DescribeSupportedRegionsResponse
  */
@@ -1161,18 +1392,18 @@ async function describeSupportedRegions(): DescribeSupportedRegionsResponse {
 }
 
 model DescribeSupportedZonesRequest {
-  architectureType?: string(name='ArchitectureType'),
-  region?: string(name='Region', example='cn-beijing'),
+  architectureType?: string(name='ArchitectureType', description='The processor architecture.', example='X86'),
+  region?: string(name='Region', description='The region ID.', example='cn-beijing'),
 }
 
 model DescribeSupportedZonesResponseBody = {
-  pageIndex?: int32(name='PageIndex', example='1'),
-  pageSize?: int32(name='PageSize', example='10'),
-  requestId?: string(name='RequestId', example='23A9C718-DDAB-1696-B025-18FBC830F7C5'),
-  success?: boolean(name='Success', example='true'),
-  totalCount?: long(name='TotalCount', example='8'),
-  totalPage?: int32(name='TotalPage', example='1'),
-  zoneIds?: [ string ](name='ZoneIds'),
+  pageIndex?: int32(name='PageIndex', description='The current page number.', example='1'),
+  pageSize?: int32(name='PageSize', description='The number of entries per page.', example='10'),
+  requestId?: string(name='RequestId', description='The request ID.', example='23A9C718-DDAB-1696-B025-18FBC830F7C5'),
+  success?: boolean(name='Success', description='Indicates whether the request is successful.', example='true'),
+  totalCount?: long(name='TotalCount', description='The number of zones.', example='8'),
+  totalPage?: int32(name='TotalPage', description='The total number of pages.', example='1'),
+  zoneIds?: [ string ](name='ZoneIds', description='The zone information.'),
 }
 
 model DescribeSupportedZonesResponse = {
@@ -1182,7 +1413,7 @@ model DescribeSupportedZonesResponse = {
 }
 
 /**
- * @summary Obtains the zones that are supported by Realtime Compute for Apache Flink.
+ * @summary Retrieves information about zones that are available for purchase.
  *
  * @param request DescribeSupportedZonesRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -1210,7 +1441,7 @@ async function describeSupportedZonesWithOptions(request: DescribeSupportedZones
 }
 
 /**
- * @summary Obtains the zones that are supported by Realtime Compute for Apache Flink.
+ * @summary Retrieves information about zones that are available for purchase.
  *
  * @param request DescribeSupportedZonesRequest
  * @return DescribeSupportedZonesResponse
@@ -1221,31 +1452,38 @@ async function describeSupportedZones(request: DescribeSupportedZonesRequest): D
 }
 
 model ListTagResourcesRequest {
-  nextToken?: string(name='NextToken', example='27AE00'),
-  regionId?: string(name='RegionId', description='This parameter is required.', example='cn-beijing'),
-  resourceId?: [ string ](name='ResourceId'),
-  resourceType?: string(name='ResourceType', description='This parameter is required.', example='vvpinstance'),
+  nextToken?: string(name='NextToken', description='The token for the next query.', example='27AE00'),
+  regionId?: string(name='RegionId', description='The region ID.
+
+This parameter is required.', example='cn-beijing'),
+  resourceId?: [ string ](name='ResourceId', description='The order instance IDs.'),
+  resourceType?: string(name='ResourceType', description='The resource type. Set the value to vvpinstance.
+
+This parameter is required.', example='vvpinstance'),
   tag?: [ 
     {
-      key?: string(name='Key', example='test'),
-      value?: string(name='Value', example='tag'),
+      key?: string(name='Key', description='The tag key.', example='test'),
+      value?: string(name='Value', description='The tag value.', example='tag'),
     }
-  ](name='Tag'),
+  ](name='Tag', description='The tag list. A maximum of 20 items are supported.'),
 }
 
 model ListTagResourcesResponseBody = {
-  nextToken?: string(name='NextToken', example='27AE00'),
-  requestId?: string(name='RequestId', example='0E5D17CE-BD83-5DC9-8CD2-3C40C2F7A135'),
-  success?: boolean(name='Success', example='true'),
-  tagReponseId?: string(name='TagReponseId', example='87AE00'),
+  nextToken?: string(name='NextToken', description='The token for the next query.', example='27AE00'),
+  requestId?: string(name='RequestId', description='The request ID.', example='0E5D17CE-BD83-5DC9-8CD2-3C40C2F7A135'),
+  success?: boolean(name='Success', description='Indicates whether the request was successful. Valid values:
+
+- true: Successful.
+- false: Failed.', example='true'),
+  tagReponseId?: string(name='TagReponseId', description='The tag request ID.', example='87AE00'),
   tagResources?: [ 
     {
-      resourceId?: string(name='ResourceId', example='f-cn-tyts'),
-      resourceType?: string(name='ResourceType', example='vvpinstance'),
-      tagKey?: string(name='TagKey', example='test'),
-      tagValue?: string(name='TagValue', example='tag'),
+      resourceId?: string(name='ResourceId', description='The order instance ID.', example='f-cn-tyts'),
+      resourceType?: string(name='ResourceType', description='The resource type. The value is fixed as vvpinstance.', example='vvpinstance'),
+      tagKey?: string(name='TagKey', description='The tag key.', example='test'),
+      tagValue?: string(name='TagValue', description='The tag value.', example='tag'),
     }
-  ](name='TagResources'),
+  ](name='TagResources', description='The tags bound to the resources.'),
 }
 
 model ListTagResourcesResponse = {
@@ -1255,7 +1493,7 @@ model ListTagResourcesResponse = {
 }
 
 /**
- * @summary Queries the tags of specified resources. You can query the key of a tag by tag value, or query the value of a tag by tag key. You can also obtain information about all tags that you use in a workspace in the console of fully managed Flink.
+ * @summary Queries resource tags. You can query tag keys by tag values, query tag values by tag keys, or retrieve all tag information used in your Flink fully managed workspace.
  *
  * @param request ListTagResourcesRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -1298,7 +1536,7 @@ async function listTagResourcesWithOptions(request: ListTagResourcesRequest, run
 }
 
 /**
- * @summary Queries the tags of specified resources. You can query the key of a tag by tag value, or query the value of a tag by tag key. You can also obtain information about all tags that you use in a workspace in the console of fully managed Flink.
+ * @summary Queries resource tags. You can query tag keys by tag values, query tag values by tag keys, or retrieve all tag information used in your Flink fully managed workspace.
  *
  * @param request ListTagResourcesRequest
  * @return ListTagResourcesResponse
@@ -1309,24 +1547,41 @@ async function listTagResources(request: ListTagResourcesRequest): ListTagResour
 }
 
 model ModifyElasticResourceSpecRequest {
-  instanceId?: string(name='InstanceId', description='This parameter is required.', example='sc_flinkserverless_public_cn-7e22ae5sess'),
-  region?: string(name='Region', description='This parameter is required.', example='cn-beijing'),
+  instanceId?: string(name='InstanceId', description='The order instance ID.
+
+This parameter is required.', example='sc_flinkserverless_public_cn-7e22ae****'),
+  region?: string(name='Region', description='The region ID.
+
+This parameter is required.', example='cn-beijing'),
   resourceSpec?: {
-    cpu?: int32(name='Cpu', description='This parameter is required.', example='10'),
-    memoryGB?: int32(name='MemoryGB', description='This parameter is required.', example='40'),
-  }(name='ResourceSpec', description='This parameter is required.'),
+    cpu?: int32(name='Cpu', description='The number of CPUs.
+
+This parameter is required.', example='10'),
+    memoryGB?: int32(name='MemoryGB', description='The memory size.
+> The memory size must be 4 times the number of CPUs.
+
+This parameter is required.', example='40'),
+  }(name='ResourceSpec', description='The maximum pay-as-you-go resource specifications.
+
+This parameter is required.'),
 }
 
 model ModifyElasticResourceSpecShrinkRequest {
-  instanceId?: string(name='InstanceId', description='This parameter is required.', example='sc_flinkserverless_public_cn-7e22ae5sess'),
-  region?: string(name='Region', description='This parameter is required.', example='cn-beijing'),
-  resourceSpecShrink?: string(name='ResourceSpec', description='This parameter is required.'),
+  instanceId?: string(name='InstanceId', description='The order instance ID.
+
+This parameter is required.', example='sc_flinkserverless_public_cn-7e22ae****'),
+  region?: string(name='Region', description='The region ID.
+
+This parameter is required.', example='cn-beijing'),
+  resourceSpecShrink?: string(name='ResourceSpec', description='The maximum pay-as-you-go resource specifications.
+
+This parameter is required.'),
 }
 
 model ModifyElasticResourceSpecResponseBody = {
-  orderId?: long(name='OrderId', example='211473228320700'),
-  requestId?: string(name='RequestId', example='B21DC47E-8928-199A-9F32-36D45E4693B4'),
-  success?: boolean(name='Success', example='true'),
+  orderId?: long(name='OrderId', description='The order ID.', example='21147322832****'),
+  requestId?: string(name='RequestId', description='The request ID.', example='B21DC47E-8928-199A-9F32-36D45E4****'),
+  success?: boolean(name='Success', description='Indicates whether the operation was successful.', example='true'),
 }
 
 model ModifyElasticResourceSpecResponse = {
@@ -1336,7 +1591,9 @@ model ModifyElasticResourceSpecResponse = {
 }
 
 /**
- * @summary 对按量弹性实例修改resource quota
+ * @summary Modifies the maximum pay-as-you-go resource limit for a hybrid billing instance.
+ *
+ * @description Make sure that you are familiar with the [billing methods](https://www.alibabacloud.com/help/en/flink/user-guide/reconfigure-resources#task-2507532) and pricing of Realtime Compute for Apache Flink before you call this operation.
  *
  * @param tmpReq ModifyElasticResourceSpecRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -1378,7 +1635,9 @@ async function modifyElasticResourceSpecWithOptions(tmpReq: ModifyElasticResourc
 }
 
 /**
- * @summary 对按量弹性实例修改resource quota
+ * @summary Modifies the maximum pay-as-you-go resource limit for a hybrid billing instance.
+ *
+ * @description Make sure that you are familiar with the [billing methods](https://www.alibabacloud.com/help/en/flink/user-guide/reconfigure-resources#task-2507532) and pricing of Realtime Compute for Apache Flink before you call this operation.
  *
  * @param request ModifyElasticResourceSpecRequest
  * @return ModifyElasticResourceSpecResponse
@@ -1389,37 +1648,56 @@ async function modifyElasticResourceSpec(request: ModifyElasticResourceSpecReque
 }
 
 model ModifyInstanceSpecRequest {
-  ha?: boolean(name='Ha', example='true'),
+  ha?: boolean(name='Ha', description='Specifies whether the workspace has zone-disaster recovery resources.', example='true'),
   haResourceSpec?: {
-    cpu?: int32(name='Cpu', example='10'),
-    memoryGB?: int32(name='MemoryGB', example='40'),
-  }(name='HaResourceSpec'),
-  haVSwitchIds?: [ string ](name='HaVSwitchIds'),
-  instanceId?: string(name='InstanceId', description='This parameter is required.', example='f-cn-wwo36qj4g06'),
+    cpu?: int32(name='Cpu', description='The number of CPUs.', example='10'),
+    memoryGB?: int32(name='MemoryGB', description='The memory size.
+
+>The memory size must be 4 times the number of CPUs.', example='40'),
+  }(name='HaResourceSpec', description='The zone-disaster recovery resource specifications.'),
+  haVSwitchIds?: [ string ](name='HaVSwitchIds', description='The vSwitch group in the secondary zone for zone-disaster recovery.'),
+  instanceId?: string(name='InstanceId', description='The order instance ID.
+
+This parameter is required.', example='f-cn-wwo36qj4g06'),
   promotionCode?: string(name='PromotionCode'),
-  region?: string(name='Region', description='This parameter is required.', example='cn-beijing'),
+  region?: string(name='Region', description='The region ID.
+
+This parameter is required.', example='cn-beijing'),
   resourceSpec?: {
-    cpu?: int32(name='Cpu', description='This parameter is required.', example='10'),
-    memoryGB?: int32(name='MemoryGB', description='This parameter is required.', example='40'),
-  }(name='ResourceSpec', description='This parameter is required.'),
+    cpu?: int32(name='Cpu', description='The number of CPUs.
+
+This parameter is required.', example='10'),
+    memoryGB?: int32(name='MemoryGB', description='The memory size.
+> The memory size must be 4 times the number of CPUs.
+
+This parameter is required.', example='40'),
+  }(name='ResourceSpec', description='The resource specifications.
+
+This parameter is required.'),
   usePromotionCode?: boolean(name='UsePromotionCode'),
 }
 
 model ModifyInstanceSpecShrinkRequest {
-  ha?: boolean(name='Ha', example='true'),
-  haResourceSpecShrink?: string(name='HaResourceSpec'),
-  haVSwitchIdsShrink?: string(name='HaVSwitchIds'),
-  instanceId?: string(name='InstanceId', description='This parameter is required.', example='f-cn-wwo36qj4g06'),
+  ha?: boolean(name='Ha', description='Specifies whether the workspace has zone-disaster recovery resources.', example='true'),
+  haResourceSpecShrink?: string(name='HaResourceSpec', description='The zone-disaster recovery resource specifications.'),
+  haVSwitchIdsShrink?: string(name='HaVSwitchIds', description='The vSwitch group in the secondary zone for zone-disaster recovery.'),
+  instanceId?: string(name='InstanceId', description='The order instance ID.
+
+This parameter is required.', example='f-cn-wwo36qj4g06'),
   promotionCode?: string(name='PromotionCode'),
-  region?: string(name='Region', description='This parameter is required.', example='cn-beijing'),
-  resourceSpecShrink?: string(name='ResourceSpec', description='This parameter is required.'),
+  region?: string(name='Region', description='The region ID.
+
+This parameter is required.', example='cn-beijing'),
+  resourceSpecShrink?: string(name='ResourceSpec', description='The resource specifications.
+
+This parameter is required.'),
   usePromotionCode?: boolean(name='UsePromotionCode'),
 }
 
 model ModifyInstanceSpecResponseBody = {
-  orderId?: long(name='OrderId', example='211473228320700'),
-  requestId?: string(name='RequestId', example='67F33190-946B-1105-B6A1-E2DF0426DD51'),
-  success?: boolean(name='Success', example='true'),
+  orderId?: long(name='OrderId', description='The order ID.', example='211473228320700'),
+  requestId?: string(name='RequestId', description='The request ID.', example='67F33190-946B-1105-B6A1-E2DF0426DD51'),
+  success?: boolean(name='Success', description='Indicates whether the request was successful.', example='true'),
 }
 
 model ModifyInstanceSpecResponse = {
@@ -1429,7 +1707,9 @@ model ModifyInstanceSpecResponse = {
 }
 
 /**
- * @summary Scale in or out a workspace to reconfigure resources for the workspace.
+ * @summary Scales up or scales down the resources of a workspace.
+ *
+ * @description Make sure that you are familiar with the [billing methods](https://www.alibabacloud.com/help/en/flink/user-guide/reconfigure-resources#task-2507532) and pricing of Realtime Compute for Apache Flink before you call this operation.
  *
  * @param tmpReq ModifyInstanceSpecRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -1492,7 +1772,9 @@ async function modifyInstanceSpecWithOptions(tmpReq: ModifyInstanceSpecRequest, 
 }
 
 /**
- * @summary Scale in or out a workspace to reconfigure resources for the workspace.
+ * @summary Scales up or scales down the resources of a workspace.
+ *
+ * @description Make sure that you are familiar with the [billing methods](https://www.alibabacloud.com/help/en/flink/user-guide/reconfigure-resources#task-2507532) and pricing of Realtime Compute for Apache Flink before you call this operation.
  *
  * @param request ModifyInstanceSpecRequest
  * @return ModifyInstanceSpecResponse
@@ -1503,21 +1785,25 @@ async function modifyInstanceSpec(request: ModifyInstanceSpecRequest): ModifyIns
 }
 
 model ModifyInstanceVswitchRequest {
-  haVSwitchIds?: [ string ](name='HaVSwitchIds'),
-  instanceId?: string(name='InstanceId', description='This parameter is required.', example='sc_flinkserverless_public_cn-7e22ae****'),
-  vSwitchIds?: [ string ](name='VSwitchIds'),
+  haVSwitchIds?: [ string ](name='HaVSwitchIds', description='The vSwitch IDs in the secondary zone for zone-disaster recovery. This parameter is required if zone-disaster recovery is enabled for your workspace.'),
+  instanceId?: string(name='InstanceId', description='The order instance ID.
+
+This parameter is required.', example='sc_flinkserverless_public_cn-7e22ae****'),
+  vSwitchIds?: [ string ](name='VSwitchIds', description='The IDs of the vSwitches to use after the modification.'),
 }
 
 model ModifyInstanceVswitchShrinkRequest {
-  haVSwitchIdsShrink?: string(name='HaVSwitchIds'),
-  instanceId?: string(name='InstanceId', description='This parameter is required.', example='sc_flinkserverless_public_cn-7e22ae****'),
-  vSwitchIdsShrink?: string(name='VSwitchIds'),
+  haVSwitchIdsShrink?: string(name='HaVSwitchIds', description='The vSwitch IDs in the secondary zone for zone-disaster recovery. This parameter is required if zone-disaster recovery is enabled for your workspace.'),
+  instanceId?: string(name='InstanceId', description='The order instance ID.
+
+This parameter is required.', example='sc_flinkserverless_public_cn-7e22ae****'),
+  vSwitchIdsShrink?: string(name='VSwitchIds', description='The IDs of the vSwitches to use after the modification.'),
 }
 
 model ModifyInstanceVswitchResponseBody = {
-  requestId?: string(name='RequestId', example='67F33190-946B-1105-B6A1-E2DF0426****'),
-  result?: string(name='Result', example='F2C5B6A8-DD04-51F5-AAD5-BA2FE6FD****'),
-  success?: boolean(name='Success', example='true'),
+  requestId?: string(name='RequestId', description='The request ID.', example='67F33190-946B-1105-B6A1-E2DF0426****'),
+  result?: string(name='Result', description='The result information.', example='F2C5B6A8-DD04-51F5-AAD5-BA2FE6FD****'),
+  success?: boolean(name='Success', description='Indicates whether the operation was successful.', example='true'),
 }
 
 model ModifyInstanceVswitchResponse = {
@@ -1529,7 +1815,9 @@ model ModifyInstanceVswitchResponse = {
 /**
  * @deprecated OpenAPI ModifyInstanceVswitch is deprecated
  *
- * @summary 修改集群交换机
+ * @summary Modifies the vSwitches available to a Flink workspace.
+ *
+ * @description Before using this operation, make sure that you fully understand the restrictions on [modifying vSwitches](https://www.alibabacloud.com/help/en/flink/user-guide/modify-a-vswitch) in Realtime Compute for Apache Flink.
  *
  * @param tmpReq ModifyInstanceVswitchRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -1577,7 +1865,9 @@ async function modifyInstanceVswitchWithOptions(tmpReq: ModifyInstanceVswitchReq
 /**
  * @deprecated OpenAPI ModifyInstanceVswitch is deprecated
  *
- * @summary 修改集群交换机
+ * @summary Modifies the vSwitches available to a Flink workspace.
+ *
+ * @description Before using this operation, make sure that you fully understand the restrictions on [modifying vSwitches](https://www.alibabacloud.com/help/en/flink/user-guide/modify-a-vswitch) in Realtime Compute for Apache Flink.
  *
  * @param request ModifyInstanceVswitchRequest
  * @return ModifyInstanceVswitchResponse
@@ -1590,31 +1880,59 @@ async function modifyInstanceVswitch(request: ModifyInstanceVswitchRequest): Mod
 
 model ModifyNamespaceSpecV2Request {
   elasticResourceSpec?: {
-    cpu?: int32(name='Cpu', description='This parameter is required.', example='6'),
-    memoryGB?: int32(name='MemoryGB', description='This parameter is required.', example='52'),
-  }(name='ElasticResourceSpec'),
+    cpu?: int32(name='Cpu', description='The number of CPUs.
+
+This parameter is required.', example='6'),
+    memoryGB?: int32(name='MemoryGB', description='The memory size. Unit: GB.
+
+> The memory size must be 4 times the number of CPUs.
+
+This parameter is required.', example='52'),
+  }(name='ElasticResourceSpec', description='The upper limit of pay-as-you-go resources allocated to the project namespace.'),
   guaranteedResourceSpec?: {
-    cpu?: int32(name='Cpu', description='This parameter is required.', example='10'),
-    memoryGB?: int32(name='MemoryGB', description='This parameter is required.', example='40'),
-  }(name='GuaranteedResourceSpec'),
-  ha?: boolean(name='Ha', description='This parameter is required.', example='false'),
-  instanceId?: string(name='InstanceId', description='This parameter is required.', example='f-cn-wwo36qj4g06'),
-  namespace?: string(name='Namespace', description='This parameter is required.', example='di-593439443804417'),
-  region?: string(name='Region', description='This parameter is required.', example='cn-beijing'),
+    cpu?: int32(name='Cpu', description='The number of CPUs.
+
+This parameter is required.', example='10'),
+    memoryGB?: int32(name='MemoryGB', description='The memory size. Unit: GB.
+
+> The memory size must be 4 times the number of CPUs.
+
+This parameter is required.', example='40'),
+  }(name='GuaranteedResourceSpec', description='The size of subscription resources allocated to the project namespace.'),
+  ha?: boolean(name='Ha', description='Specifies whether the project namespace uses zone-disaster recovery.
+
+This parameter is required.', example='false'),
+  instanceId?: string(name='InstanceId', description='The order instance ID.
+
+This parameter is required.', example='f-cn-wwo36qj****'),
+  namespace?: string(name='Namespace', description='The project namespace name.
+
+This parameter is required.', example='di-5934394438****'),
+  region?: string(name='Region', description='The region.
+
+This parameter is required.', example='cn-beijing'),
 }
 
 model ModifyNamespaceSpecV2ShrinkRequest {
-  elasticResourceSpecShrink?: string(name='ElasticResourceSpec'),
-  guaranteedResourceSpecShrink?: string(name='GuaranteedResourceSpec'),
-  ha?: boolean(name='Ha', description='This parameter is required.', example='false'),
-  instanceId?: string(name='InstanceId', description='This parameter is required.', example='f-cn-wwo36qj4g06'),
-  namespace?: string(name='Namespace', description='This parameter is required.', example='di-593439443804417'),
-  region?: string(name='Region', description='This parameter is required.', example='cn-beijing'),
+  elasticResourceSpecShrink?: string(name='ElasticResourceSpec', description='The upper limit of pay-as-you-go resources allocated to the project namespace.'),
+  guaranteedResourceSpecShrink?: string(name='GuaranteedResourceSpec', description='The size of subscription resources allocated to the project namespace.'),
+  ha?: boolean(name='Ha', description='Specifies whether the project namespace uses zone-disaster recovery.
+
+This parameter is required.', example='false'),
+  instanceId?: string(name='InstanceId', description='The order instance ID.
+
+This parameter is required.', example='f-cn-wwo36qj****'),
+  namespace?: string(name='Namespace', description='The project namespace name.
+
+This parameter is required.', example='di-5934394438****'),
+  region?: string(name='Region', description='The region.
+
+This parameter is required.', example='cn-beijing'),
 }
 
 model ModifyNamespaceSpecV2ResponseBody = {
-  requestId?: string(name='RequestId', example='23A9C718-DDAB-1696-B025-18FBC830F7C5'),
-  success?: boolean(name='Success', example='true'),
+  requestId?: string(name='RequestId', description='The request ID.', example='23A9C718-DDAB-1696-B025-18FBC83****'),
+  success?: boolean(name='Success', description='Indicates whether the operation is successful.', example='true'),
 }
 
 model ModifyNamespaceSpecV2Response = {
@@ -1624,7 +1942,9 @@ model ModifyNamespaceSpecV2Response = {
 }
 
 /**
- * @summary 修改namespace资源，包含按量和包年包月、混合计费
+ * @summary Modifies the resource configurations of a project namespace in a pay-as-you-go, subscription, or hybrid billing workspace.
+ *
+ * @description >When calling this operation, note the following: - The order status must be normal, that is, OrderType=NORMAL. - When decreasing the quota, the specified resource specification quantity cannot be less than the quantity already in use. For details about the project resource specifications before and after the change, call [DescribeNamespaces](https://help.aliyun.com/document_detail/323441.html).
  *
  * @param tmpReq ModifyNamespaceSpecV2Request
  * @param runtime runtime options for this request RuntimeOptions
@@ -1680,7 +2000,9 @@ async function modifyNamespaceSpecV2WithOptions(tmpReq: ModifyNamespaceSpecV2Req
 }
 
 /**
- * @summary 修改namespace资源，包含按量和包年包月、混合计费
+ * @summary Modifies the resource configurations of a project namespace in a pay-as-you-go, subscription, or hybrid billing workspace.
+ *
+ * @description >When calling this operation, note the following: - The order status must be normal, that is, OrderType=NORMAL. - When decreasing the quota, the specified resource specification quantity cannot be less than the quantity already in use. For details about the project resource specifications before and after the change, call [DescribeNamespaces](https://help.aliyun.com/document_detail/323441.html).
  *
  * @param request ModifyNamespaceSpecV2Request
  * @return ModifyNamespaceSpecV2Response
@@ -1698,12 +2020,23 @@ model ModifyPrepayInstanceSpecRequest {
   }(name='HaResourceSpec', nullable=true),
   haVSwitchIds?: [ string ](name='HaVSwitchIds', nullable=true),
   haZoneId?: string(name='HaZoneId', nullable=true),
-  instanceId?: string(name='InstanceId', description='This parameter is required.', example='f-cn-wwo36qj4g06'),
-  region?: string(name='Region', description='This parameter is required.', example='cn-beijing'),
+  instanceId?: string(name='InstanceId', description='The order instance ID.
+
+This parameter is required.', example='f-cn-wwo36qj4g06'),
+  region?: string(name='Region', description='The region ID.
+
+This parameter is required.', example='cn-beijing'),
   resourceSpec?: {
-    cpu?: int32(name='Cpu', description='This parameter is required.', example='1'),
-    memoryGB?: int32(name='MemoryGB', description='This parameter is required.', example='4'),
-  }(name='ResourceSpec', description='This parameter is required.'),
+    cpu?: int32(name='Cpu', description='The number of CPUs.
+
+This parameter is required.', example='1'),
+    memoryGB?: int32(name='MemoryGB', description='The memory size.
+> The memory size must be 4 times the number of CPUs.
+
+This parameter is required.', example='4'),
+  }(name='ResourceSpec', description='The resource specification information.
+
+This parameter is required.'),
 }
 
 model ModifyPrepayInstanceSpecShrinkRequest {
@@ -1711,15 +2044,21 @@ model ModifyPrepayInstanceSpecShrinkRequest {
   haResourceSpecShrink?: string(name='HaResourceSpec', nullable=true),
   haVSwitchIdsShrink?: string(name='HaVSwitchIds', nullable=true),
   haZoneId?: string(name='HaZoneId', nullable=true),
-  instanceId?: string(name='InstanceId', description='This parameter is required.', example='f-cn-wwo36qj4g06'),
-  region?: string(name='Region', description='This parameter is required.', example='cn-beijing'),
-  resourceSpecShrink?: string(name='ResourceSpec', description='This parameter is required.'),
+  instanceId?: string(name='InstanceId', description='The order instance ID.
+
+This parameter is required.', example='f-cn-wwo36qj4g06'),
+  region?: string(name='Region', description='The region ID.
+
+This parameter is required.', example='cn-beijing'),
+  resourceSpecShrink?: string(name='ResourceSpec', description='The resource specification information.
+
+This parameter is required.'),
 }
 
 model ModifyPrepayInstanceSpecResponseBody = {
-  orderId?: long(name='OrderId', example='210406354690749'),
-  requestId?: string(name='RequestId', example='67F33190-946B-1105-B6A1-E2DF0426DD51'),
-  success?: boolean(name='Success', example='true'),
+  orderId?: long(name='OrderId', description='The order ID.', example='210406354690749'),
+  requestId?: string(name='RequestId', description='The request ID.', example='67F33190-946B-1105-B6A1-E2DF0426DD51'),
+  success?: boolean(name='Success', description='Indicates whether the operation is successful.', example='true'),
 }
 
 model ModifyPrepayInstanceSpecResponse = {
@@ -1731,7 +2070,9 @@ model ModifyPrepayInstanceSpecResponse = {
 /**
  * @deprecated OpenAPI ModifyPrepayInstanceSpec is deprecated, please use foasconsole::2021-10-28::ModifyInstanceSpec instead.
  *
- * @summary Modifies the configuration of the computing resources of a subscription fully managed Flink workspace. If the number of computing resources after the modification is less than the current number of computing resources, the scale-in operation is performed. If the number of computing resources after the modification is larger than the current number of computing resources, the scale-out operation is performed.
+ * @summary Modifies the compute resource specifications of a subscription Realtime Compute for Apache Flink instance. If the new specifications are smaller than the current specifications, a scale-in operation is performed. If the new specifications are larger than the current specifications, a scale-out operation is performed.
+ *
+ * @description **Before using this operation, make sure that you fully understand the billing method and [pricing](https://www.alibabacloud.com/help/en/flink/product-overview/subscription) of Realtime Compute for Apache Flink.**
  *
  * @param tmpReq ModifyPrepayInstanceSpecRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -1794,7 +2135,9 @@ async function modifyPrepayInstanceSpecWithOptions(tmpReq: ModifyPrepayInstanceS
 /**
  * @deprecated OpenAPI ModifyPrepayInstanceSpec is deprecated, please use foasconsole::2021-10-28::ModifyInstanceSpec instead.
  *
- * @summary Modifies the configuration of the computing resources of a subscription fully managed Flink workspace. If the number of computing resources after the modification is less than the current number of computing resources, the scale-in operation is performed. If the number of computing resources after the modification is larger than the current number of computing resources, the scale-out operation is performed.
+ * @summary Modifies the compute resource specifications of a subscription Realtime Compute for Apache Flink instance. If the new specifications are smaller than the current specifications, a scale-in operation is performed. If the new specifications are larger than the current specifications, a scale-out operation is performed.
+ *
+ * @description **Before using this operation, make sure that you fully understand the billing method and [pricing](https://www.alibabacloud.com/help/en/flink/product-overview/subscription) of Realtime Compute for Apache Flink.**
  *
  * @param request ModifyPrepayInstanceSpecRequest
  * @return ModifyPrepayInstanceSpecResponse
@@ -1806,25 +2149,49 @@ async function modifyPrepayInstanceSpec(request: ModifyPrepayInstanceSpecRequest
 }
 
 model ModifyPrepayNamespaceSpecRequest {
-  instanceId?: string(name='InstanceId', description='This parameter is required.', example='f-cn-wwo36qj4g06'),
-  namespace?: string(name='Namespace', description='This parameter is required.', example='di-593440219799842'),
-  region?: string(name='Region', description='This parameter is required.', example='cn-shenzhen'),
+  instanceId?: string(name='InstanceId', description='The order instance ID.
+
+This parameter is required.', example='f-cn-wwo36qj4g06'),
+  namespace?: string(name='Namespace', description='The namespace name.
+
+This parameter is required.', example='di-593440219799842'),
+  region?: string(name='Region', description='The region.
+
+This parameter is required.', example='cn-shenzhen'),
   resourceSpec?: {
-    cpu?: int32(name='Cpu', description='This parameter is required.', example='1'),
-    memoryGB?: int32(name='MemoryGB', description='This parameter is required.', example='4'),
-  }(name='ResourceSpec', description='This parameter is required.'),
+    cpu?: int32(name='Cpu', description='The number of CPUs.
+
+This parameter is required.', example='1'),
+    memoryGB?: int32(name='MemoryGB', description='The memory size. Unit: GB.
+
+> The memory size must be 4 times the number of CPUs.
+
+This parameter is required.', example='4'),
+  }(name='ResourceSpec', description='The namespace resource details.
+
+This parameter is required.'),
 }
 
 model ModifyPrepayNamespaceSpecShrinkRequest {
-  instanceId?: string(name='InstanceId', description='This parameter is required.', example='f-cn-wwo36qj4g06'),
-  namespace?: string(name='Namespace', description='This parameter is required.', example='di-593440219799842'),
-  region?: string(name='Region', description='This parameter is required.', example='cn-shenzhen'),
-  resourceSpecShrink?: string(name='ResourceSpec', description='This parameter is required.'),
+  instanceId?: string(name='InstanceId', description='The order instance ID.
+
+This parameter is required.', example='f-cn-wwo36qj4g06'),
+  namespace?: string(name='Namespace', description='The namespace name.
+
+This parameter is required.', example='di-593440219799842'),
+  region?: string(name='Region', description='The region.
+
+This parameter is required.', example='cn-shenzhen'),
+  resourceSpecShrink?: string(name='ResourceSpec', description='The namespace resource details.
+
+This parameter is required.'),
 }
 
 model ModifyPrepayNamespaceSpecResponseBody = {
-  requestId?: string(name='RequestId', example='67F33190-946B-1105-B6A1-E2DF0426DD51'),
-  success?: boolean(name='Success', example='true'),
+  requestId?: string(name='RequestId', description='The request ID.', example='67F33190-946B-1105-B6A1-E2DF0426DD51'),
+  success?: boolean(name='Success', description='Indicates whether the operation is successful. Valid values:
+- true: Successful.
+- false: Failed.', example='true'),
 }
 
 model ModifyPrepayNamespaceSpecResponse = {
@@ -1836,7 +2203,7 @@ model ModifyPrepayNamespaceSpecResponse = {
 /**
  * @deprecated OpenAPI ModifyPrepayNamespaceSpec is deprecated, please use foasconsole::2021-10-28::ModifyNamespaceSpec instead.
  *
- * @summary Modifies the resource configurations of a namespace in a subscription workspace.
+ * @summary Modifies the specifications of a namespace in a subscription instance.
  *
  * @param tmpReq ModifyPrepayNamespaceSpecRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -1884,7 +2251,7 @@ async function modifyPrepayNamespaceSpecWithOptions(tmpReq: ModifyPrepayNamespac
 /**
  * @deprecated OpenAPI ModifyPrepayNamespaceSpec is deprecated, please use foasconsole::2021-10-28::ModifyNamespaceSpec instead.
  *
- * @summary Modifies the resource configurations of a namespace in a subscription workspace.
+ * @summary Modifies the specifications of a namespace in a subscription instance.
  *
  * @param request ModifyPrepayNamespaceSpecRequest
  * @return ModifyPrepayNamespaceSpecResponse
@@ -1896,72 +2263,110 @@ async function modifyPrepayNamespaceSpec(request: ModifyPrepayNamespaceSpecReque
 }
 
 model QueryConvertInstancePriceRequest {
-  duration?: int32(name='Duration', description='This parameter is required.', example='1'),
-  instanceId?: string(name='InstanceId', description='This parameter is required.', example='f-cn-wwo36qj4g06'),
-  isAutoRenew?: boolean(name='IsAutoRenew', description='This parameter is required.', example='true'),
+  duration?: int32(name='Duration', description='The number of pricing cycles.
+
+This parameter is required.', example='1'),
+  instanceId?: string(name='InstanceId', description='The order instance ID.
+
+This parameter is required.', example='f-cn-wwo36qj4g06'),
+  isAutoRenew?: boolean(name='IsAutoRenew', description='Specifies whether to enable auto-renewal.
+
+This parameter is required.', example='true'),
   namespaceResourceSpecs?: [ 
     {
-      namespace?: string(name='Namespace', description='This parameter is required.', example='lm-test-default'),
+      namespace?: string(name='Namespace', description='The namespace name.
+
+This parameter is required.', example='lm-test-default'),
       resourceSpec?: {
-        cpu?: int32(name='Cpu', description='This parameter is required.', example='6'),
-        memoryGB?: int32(name='MemoryGB', description='This parameter is required.', example='24'),
-      }(name='ResourceSpec', description='This parameter is required.'),
+        cpu?: int32(name='Cpu', description='The number of CPUs.
+
+This parameter is required.', example='6'),
+        memoryGB?: int32(name='MemoryGB', description='The memory size. Unit: GB.
+
+> The memory size must be 4 times the number of CPUs.
+
+This parameter is required.', example='24'),
+      }(name='ResourceSpec', description='The resource specifications of the namespace.
+
+This parameter is required.'),
     }
-  ](name='NamespaceResourceSpecs', description='This parameter is required.'),
-  pricingCycle?: string(name='PricingCycle', description='This parameter is required.', example='Month'),
+  ](name='NamespaceResourceSpecs', description='The resource specifications of the namespace.
+
+This parameter is required.'),
+  pricingCycle?: string(name='PricingCycle', description='The pricing cycle. Only Year and Month are supported.
+
+This parameter is required.', example='Month'),
   promotionCode?: string(name='PromotionCode'),
-  region?: string(name='Region', description='This parameter is required.', example='cn-beijing'),
+  region?: string(name='Region', description='The region.
+
+This parameter is required.', example='cn-beijing'),
   usePromotionCode?: boolean(name='UsePromotionCode'),
 }
 
 model QueryConvertInstancePriceShrinkRequest {
-  duration?: int32(name='Duration', description='This parameter is required.', example='1'),
-  instanceId?: string(name='InstanceId', description='This parameter is required.', example='f-cn-wwo36qj4g06'),
-  isAutoRenew?: boolean(name='IsAutoRenew', description='This parameter is required.', example='true'),
-  namespaceResourceSpecsShrink?: string(name='NamespaceResourceSpecs', description='This parameter is required.'),
-  pricingCycle?: string(name='PricingCycle', description='This parameter is required.', example='Month'),
+  duration?: int32(name='Duration', description='The number of pricing cycles.
+
+This parameter is required.', example='1'),
+  instanceId?: string(name='InstanceId', description='The order instance ID.
+
+This parameter is required.', example='f-cn-wwo36qj4g06'),
+  isAutoRenew?: boolean(name='IsAutoRenew', description='Specifies whether to enable auto-renewal.
+
+This parameter is required.', example='true'),
+  namespaceResourceSpecsShrink?: string(name='NamespaceResourceSpecs', description='The resource specifications of the namespace.
+
+This parameter is required.'),
+  pricingCycle?: string(name='PricingCycle', description='The pricing cycle. Only Year and Month are supported.
+
+This parameter is required.', example='Month'),
   promotionCode?: string(name='PromotionCode'),
-  region?: string(name='Region', description='This parameter is required.', example='cn-beijing'),
+  region?: string(name='Region', description='The region.
+
+This parameter is required.', example='cn-beijing'),
   usePromotionCode?: boolean(name='UsePromotionCode'),
 }
 
 model QueryConvertInstancePriceResponseBody = {
   priceInfo?: {
-    code?: string(name='Code', example='ORDER.INST_HAS_UNPAID_ORDER'),
-    currency?: string(name='Currency', example='CNY'),
+    code?: string(name='Code', description='The error code.', example='ORDER.INST_HAS_UNPAID_ORDER'),
+    currency?: string(name='Currency', description='The currency unit.', example='CNY'),
     depreciateInfo?: {
-      cheapRate?: string(name='CheapRate'),
-      cheapStandAmount?: string(name='CheapStandAmount'),
-      isShow?: boolean(name='IsShow'),
-      monthPrice?: string(name='MonthPrice'),
-      originalStandAmount?: string(name='OriginalStandAmount'),
-      startTime?: string(name='StartTime'),
-    }(name='DepreciateInfo'),
-    discountAmount?: float(name='DiscountAmount', example='655.2'),
-    isContractActivity?: boolean(name='IsContractActivity'),
-    lxRequestId?: string(name='LxRequestId', example='67F33190-946B-1105-B6A1-E2DF0426DD51'),
-    message?: string(name='Message', example='存在未支付订单，请先支付或取消原有订单'),
+      cheapRate?: string(name='CheapRate', description='The price reduction ratio.', example='34%'),
+      cheapStandAmount?: string(name='CheapStandAmount', description='The standard total price after the price reduction.', example='8000'),
+      isShow?: boolean(name='IsShow', description='Indicates whether to display the price reduction percentage.', example='false'),
+      monthPrice?: string(name='MonthPrice', description='The equivalent monthly price.', example='1000'),
+      originalStandAmount?: string(name='OriginalStandAmount', description='The original standard total price.', example='12000'),
+      startTime?: string(name='StartTime', description='The start time of the price reduction.', example='2024-08-21T02:06:00Z'),
+    }(name='DepreciateInfo', description='The price reduction information.'),
+    discountAmount?: float(name='DiscountAmount', description='The discount amount.', example='655.2'),
+    isContractActivity?: boolean(name='IsContractActivity', description='Indicates whether the enterprise discount is applied.', example='true'),
+    lxRequestId?: string(name='LxRequestId', description='The Lingxiao request ID of the call.', example='67F33190-946B-1105-B6A1-E2DF0426DD51'),
+    message?: string(name='Message', description='The error message.', example='An unpaid order exists. Pay or cancel the existing order first'),
     optionalPromotions?: [ 
       {
-        promotionDesc?: string(name='PromotionDesc', example='￥1,391.5 优惠券 (有效期至 03/23/2022)'),
-        promotionName?: string(name='PromotionName', example='￥1,391.5 优惠券'),
-        promotionOptionNo?: string(name='PromotionOptionNo', example='500011220010099'),
-        selected?: boolean(name='Selected', example='true'),
+        promotionDesc?: string(name='PromotionDesc', description='The coupon description.', example='¥1,391.5 coupon (valid until 03/23/2022)'),
+        promotionName?: string(name='PromotionName', description='The coupon name.', example='¥1,391.5 coupon'),
+        promotionOptionNo?: string(name='PromotionOptionNo', description='The coupon number.', example='500011220010099'),
+        selected?: boolean(name='Selected', description='Indicates whether the coupon is selected. Valid values:
+
+- true: Selected.
+
+- false: Not selected.', example='true'),
       }
-    ](name='OptionalPromotions'),
-    originalAmount?: float(name='OriginalAmount', example='4368'),
+    ](name='OptionalPromotions', description='The coupon information.'),
+    originalAmount?: float(name='OriginalAmount', description='The original price.', example='4368'),
     rules?: [ 
       {
-        description?: string(name='Description', example='买满1年，立享官网价格8.5折优惠。'),
-        ruleId?: long(name='RuleId', example='587'),
+        description?: string(name='Description', description='The description of the promotion rule.', example='Purchase for 1 year or more and enjoy a 15% discount off the official price'),
+        ruleId?: long(name='RuleId', description='The promotion ID.', example='587'),
       }
-    ](name='Rules'),
-    standDiscountPrice?: string(name='StandDiscountPrice'),
-    standPrice?: string(name='StandPrice'),
-    tradeAmount?: float(name='TradeAmount', example='3712.8'),
-  }(name='PriceInfo'),
-  requestId?: string(name='RequestId', example='67F33190-946B-1105-B6A1-E2DF0426DD51'),
-  success?: boolean(name='Success', example='true'),
+    ](name='Rules', description='The promotion rules.'),
+    standDiscountPrice?: string(name='StandDiscountPrice', description='The discounted price based on the official website discount.', example='21321'),
+    standPrice?: string(name='StandPrice', description='The official website discounted price or direct sales contract discounted price.', example='32432'),
+    tradeAmount?: float(name='TradeAmount', description='The final price, which is the original price minus the discount amount.', example='3712.8'),
+  }(name='PriceInfo', description='The price information, including the price and discount rules.'),
+  requestId?: string(name='RequestId', description='The request ID.', example='67F33190-946B-1105-B6A1-E2DF0426DD51'),
+  success?: boolean(name='Success', description='Indicates whether the request was successful.', example='true'),
 }
 
 model QueryConvertInstancePriceResponse = {
@@ -1971,7 +2376,7 @@ model QueryConvertInstancePriceResponse = {
 }
 
 /**
- * @summary Queries the fee of switching the billing method of a workspace from pay-as-you-go to subscription.
+ * @summary Queries the price for converting a pay-as-you-go instance to a subscription instance.
  *
  * @param tmpReq QueryConvertInstancePriceRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -2028,7 +2433,7 @@ async function queryConvertInstancePriceWithOptions(tmpReq: QueryConvertInstance
 }
 
 /**
- * @summary Queries the fee of switching the billing method of a workspace from pay-as-you-go to subscription.
+ * @summary Queries the price for converting a pay-as-you-go instance to a subscription instance.
  *
  * @param request QueryConvertInstancePriceRequest
  * @return QueryConvertInstancePriceResponse
@@ -2039,47 +2444,55 @@ async function queryConvertInstancePrice(request: QueryConvertInstancePriceReque
 }
 
 model QueryConvertPrepayInstancePriceRequest {
-  instanceId?: string(name='InstanceId', description='This parameter is required.', example='f-cn-wwo36qj4g06'),
-  region?: string(name='Region', description='This parameter is required.', example='cn-beijing'),
+  instanceId?: string(name='InstanceId', description='The order instance ID.
+
+This parameter is required.', example='f-cn-wwo36qj4****'),
+  region?: string(name='Region', description='The region.
+
+This parameter is required.', example='cn-beijing'),
 }
 
 model QueryConvertPrepayInstancePriceResponseBody = {
   priceInfo?: {
-    code?: string(name='Code', example='ORDER.INST_HAS_UNPAID_ORDER'),
-    currency?: string(name='Currency', example='CNY'),
+    code?: string(name='Code', description='The error code.', example='ORDER.INST_HAS_UNPAID_ORDER'),
+    currency?: string(name='Currency', description='The currency unit.', example='CNY'),
     depreciateInfo?: {
-      cheapRate?: string(name='CheapRate', example='20%'),
-      cheapStandAmount?: string(name='CheapStandAmount', example='8000'),
-      isShow?: boolean(name='IsShow', example='true'),
-      monthPrice?: string(name='MonthPrice', example='4000'),
-      originalStandAmount?: string(name='OriginalStandAmount', example='10000'),
-      startTime?: string(name='StartTime', example='2023-03-31T16:00:00Z'),
-    }(name='DepreciateInfo'),
-    discountAmount?: float(name='DiscountAmount', example='655.2'),
-    isContractActivity?: boolean(name='IsContractActivity', example='true'),
-    lxRequestId?: string(name='LxRequestId', example='67F33190-946B-1105-B6A1-E2DF0426DD51'),
-    message?: string(name='Message', example='存在未支付订单，请先支付或取消原有订单'),
+      cheapRate?: string(name='CheapRate', description='The price reduction ratio.', example='20%'),
+      cheapStandAmount?: string(name='CheapStandAmount', description='The reduced list price total.', example='8000'),
+      isShow?: boolean(name='IsShow', description='Indicates whether to display the price reduction percentage.', example='true'),
+      monthPrice?: string(name='MonthPrice', description='The equivalent monthly price.', example='4000'),
+      originalStandAmount?: string(name='OriginalStandAmount', description='The original list price total.', example='10000'),
+      startTime?: string(name='StartTime', description='The price reduction start time.', example='2023-03-31T16:00:00Z'),
+    }(name='DepreciateInfo', description='The price reduction information.'),
+    discountAmount?: float(name='DiscountAmount', description='The discount amount.', example='655.2'),
+    isContractActivity?: boolean(name='IsContractActivity', description='Indicates whether an enterprise discount is applied.', example='true'),
+    lxRequestId?: string(name='LxRequestId', description='The Lingxiao request ID.', example='67F33190-946B-1105-B6A1-E2DF0426DD51'),
+    message?: string(name='Message', description='The error message.', example='An unpaid order exists. Pay for or cancel the existing order first'),
     optionalPromotions?: [ 
       {
-        promotionDesc?: string(name='PromotionDesc', example='￥1,391.5 优惠券 (有效期至 03/23/2022)'),
-        promotionName?: string(name='PromotionName', example='￥1,391.5 优惠券'),
-        promotionOptionNo?: string(name='PromotionOptionNo', example='500011220010099'),
-        selected?: boolean(name='Selected', example='true'),
+        promotionDesc?: string(name='PromotionDesc', description='The coupon description.', example='¥1,391.5 coupon (valid until 03/23/2022)'),
+        promotionName?: string(name='PromotionName', description='The coupon name.', example='¥1,391.5 coupon'),
+        promotionOptionNo?: string(name='PromotionOptionNo', description='The coupon number.', example='500011220***'),
+        selected?: boolean(name='Selected', description='Indicates whether the coupon is selected. Valid values:
+
+- true: Selected.
+
+- false: Not selected.', example='true'),
       }
-    ](name='OptionalPromotions'),
-    originalAmount?: float(name='OriginalAmount', example='4368'),
+    ](name='OptionalPromotions', description='The coupon group information.'),
+    originalAmount?: float(name='OriginalAmount', description='The original price.', example='4368'),
     rules?: [ 
       {
-        description?: string(name='Description', example='买满1年，立享官网价格8.5折优惠。'),
-        ruleId?: long(name='RuleId', example='587'),
+        description?: string(name='Description', description='The promotion rule description.', example='Purchase for 1 year or more and enjoy a 15% discount off the list price'),
+        ruleId?: long(name='RuleId', description='The promotion ID.', example='587'),
       }
-    ](name='Rules'),
-    standDiscountPrice?: string(name='StandDiscountPrice', example='21321'),
-    standPrice?: string(name='StandPrice', example='32432'),
-    tradeAmount?: float(name='TradeAmount', example='3712.8'),
-  }(name='PriceInfo'),
-  requestId?: string(name='RequestId', example='67F33190-946B-1105-B6A1-E2DF0426DD51'),
-  success?: boolean(name='Success', example='true'),
+    ](name='Rules', description='The promotion rules.'),
+    standDiscountPrice?: string(name='StandDiscountPrice', description='The discounted price based on the official website discount.', example='21321'),
+    standPrice?: string(name='StandPrice', description='The official website discount price or direct sales contract discount price.', example='32432'),
+    tradeAmount?: float(name='TradeAmount', description='The final price, which is the original price minus the discount.', example='3712.8'),
+  }(name='PriceInfo', description='The price information, including the price and discount rules.'),
+  requestId?: string(name='RequestId', description='The request ID.', example='67F33190-946B-1105-B6A1-E2DF0426****'),
+  success?: boolean(name='Success', description='Indicates whether the request was successful.', example='true'),
 }
 
 model QueryConvertPrepayInstancePriceResponse = {
@@ -2089,7 +2502,7 @@ model QueryConvertPrepayInstancePriceResponse = {
 }
 
 /**
- * @summary Obtains the estimated refund after the billing method of your Realtime Compute for Apache Flink workspace is changed from subscription to pay-as-you-go. After you change the billing method of your workspace to pay-as-you-go, bills are generated on an hourly basis.
+ * @summary Queries the estimated refund amount after converting your Flink instance from subscription to pay-as-you-go. After the conversion, your usage is metered hourly and bills are generated accordingly.
  *
  * @param request QueryConvertPrepayInstancePriceRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -2123,7 +2536,7 @@ async function queryConvertPrepayInstancePriceWithOptions(request: QueryConvertP
 }
 
 /**
- * @summary Obtains the estimated refund after the billing method of your Realtime Compute for Apache Flink workspace is changed from subscription to pay-as-you-go. After you change the billing method of your workspace to pay-as-you-go, bills are generated on an hourly basis.
+ * @summary Queries the estimated refund amount after converting your Flink instance from subscription to pay-as-you-go. After the conversion, your usage is metered hourly and bills are generated accordingly.
  *
  * @param request QueryConvertPrepayInstancePriceRequest
  * @return QueryConvertPrepayInstancePriceResponse
@@ -2134,90 +2547,108 @@ async function queryConvertPrepayInstancePrice(request: QueryConvertPrepayInstan
 }
 
 model QueryCreateInstancePriceRequest {
-  architectureType?: string(name='ArchitectureType'),
-  autoRenew?: boolean(name='AutoRenew', example='true'),
-  chargeType?: string(name='ChargeType', description='This parameter is required.', example='PRE'),
-  duration?: int32(name='Duration', example='1'),
-  extra?: string(name='Extra'),
-  ha?: boolean(name='Ha'),
+  architectureType?: string(name='ArchitectureType', description='The processor architecture.', example='X86'),
+  autoRenew?: boolean(name='AutoRenew', description='Specifies whether to enable auto-renewal. Valid values:
+
+- **true**: enables auto-renewal.
+- **false**: does not enable auto-renewal. (Default)
+
+>This parameter is invalid for pay-as-you-go instances.', example='true'),
+  chargeType?: string(name='ChargeType', description='The billing type. Valid values:
+
+This parameter is required.', example='PRE'),
+  duration?: int32(name='Duration', description='The number of billing cycles.', example='1'),
+  extra?: string(name='Extra', description='The extended reserved field.', example='“”'),
+  ha?: boolean(name='Ha', description='Specifies whether to select zone-disaster recovery resources.', example='true'),
   haResourceSpec?: {
-    cpu?: int32(name='Cpu', nullable=false),
-    memoryGB?: int32(name='MemoryGB', nullable=false),
-  }(name='HaResourceSpec', nullable=true),
-  instanceName?: string(name='InstanceName', example='rtc-e2e-test-post'),
-  pricingCycle?: string(name='PricingCycle', example='Month'),
-  promotionCode?: string(name='PromotionCode', example='500041860100636'),
-  region?: string(name='Region', description='This parameter is required.', example='cn-beijing'),
+    cpu?: int32(name='Cpu', description='The number of CPUs for zone-disaster recovery.', example='20', nullable=false),
+    memoryGB?: int32(name='MemoryGB', description='The active memory size for zone-disaster recovery.', example='80', nullable=false),
+  }(name='HaResourceSpec', description='The zone-disaster recovery resource specifications.', nullable=true),
+  instanceName?: string(name='InstanceName', description='The workspace name.', example='rtc-e2e-test-post'),
+  pricingCycle?: string(name='PricingCycle', description='The billing cycle. Subscription instances support only Year and Month. Pay-as-you-go instances support Hour.', example='Month'),
+  promotionCode?: string(name='PromotionCode', description='The coupon code.', example='500041860100636'),
+  region?: string(name='Region', description='The region.
+
+This parameter is required.', example='cn-beijing'),
   resourceSpec?: {
-    cpu?: int32(name='Cpu', example='4'),
-    memoryGB?: int32(name='MemoryGB', example='16'),
-  }(name='ResourceSpec'),
+    cpu?: int32(name='Cpu', description='The number of CPUs.', example='4'),
+    memoryGB?: int32(name='MemoryGB', description='The memory size.', example='16'),
+  }(name='ResourceSpec', description='The resource specifications.'),
   storage?: {
     oss?: {
-      bucket?: string(name='Bucket', example='quicktracing'),
-    }(name='Oss'),
-  }(name='Storage'),
-  usePromotionCode?: boolean(name='UsePromotionCode'),
-  vSwitchIds?: [ string ](name='VSwitchIds'),
-  vpcId?: string(name='VpcId', example='vpc-2ze9xoh8qyt1rnxfmfcdi'),
+      bucket?: string(name='Bucket', description='The name of the OSS bucket.', example='quicktracing'),
+    }(name='Oss', description='The OSS storage information.'),
+  }(name='Storage', description='The storage information.'),
+  usePromotionCode?: boolean(name='UsePromotionCode', description='Specifies whether to use a coupon. Valid values:', example='true'),
+  vSwitchIds?: [ string ](name='VSwitchIds', description='The vSwitch IDs.'),
+  vpcId?: string(name='VpcId', description='The VPC ID of the user.', example='vpc-2ze9xoh8qyt1rnxfmfcdi'),
 }
 
 model QueryCreateInstancePriceShrinkRequest {
-  architectureType?: string(name='ArchitectureType'),
-  autoRenew?: boolean(name='AutoRenew', example='true'),
-  chargeType?: string(name='ChargeType', description='This parameter is required.', example='PRE'),
-  duration?: int32(name='Duration', example='1'),
-  extra?: string(name='Extra'),
-  ha?: boolean(name='Ha'),
-  haResourceSpecShrink?: string(name='HaResourceSpec', nullable=true),
-  instanceName?: string(name='InstanceName', example='rtc-e2e-test-post'),
-  pricingCycle?: string(name='PricingCycle', example='Month'),
-  promotionCode?: string(name='PromotionCode', example='500041860100636'),
-  region?: string(name='Region', description='This parameter is required.', example='cn-beijing'),
-  resourceSpecShrink?: string(name='ResourceSpec'),
-  storageShrink?: string(name='Storage'),
-  usePromotionCode?: boolean(name='UsePromotionCode'),
-  vSwitchIdsShrink?: string(name='VSwitchIds'),
-  vpcId?: string(name='VpcId', example='vpc-2ze9xoh8qyt1rnxfmfcdi'),
+  architectureType?: string(name='ArchitectureType', description='The processor architecture.', example='X86'),
+  autoRenew?: boolean(name='AutoRenew', description='Specifies whether to enable auto-renewal. Valid values:
+
+- **true**: enables auto-renewal.
+- **false**: does not enable auto-renewal. (Default)
+
+>This parameter is invalid for pay-as-you-go instances.', example='true'),
+  chargeType?: string(name='ChargeType', description='The billing type. Valid values:
+
+This parameter is required.', example='PRE'),
+  duration?: int32(name='Duration', description='The number of billing cycles.', example='1'),
+  extra?: string(name='Extra', description='The extended reserved field.', example='“”'),
+  ha?: boolean(name='Ha', description='Specifies whether to select zone-disaster recovery resources.', example='true'),
+  haResourceSpecShrink?: string(name='HaResourceSpec', description='The zone-disaster recovery resource specifications.', nullable=true),
+  instanceName?: string(name='InstanceName', description='The workspace name.', example='rtc-e2e-test-post'),
+  pricingCycle?: string(name='PricingCycle', description='The billing cycle. Subscription instances support only Year and Month. Pay-as-you-go instances support Hour.', example='Month'),
+  promotionCode?: string(name='PromotionCode', description='The coupon code.', example='500041860100636'),
+  region?: string(name='Region', description='The region.
+
+This parameter is required.', example='cn-beijing'),
+  resourceSpecShrink?: string(name='ResourceSpec', description='The resource specifications.'),
+  storageShrink?: string(name='Storage', description='The storage information.'),
+  usePromotionCode?: boolean(name='UsePromotionCode', description='Specifies whether to use a coupon. Valid values:', example='true'),
+  vSwitchIdsShrink?: string(name='VSwitchIds', description='The vSwitch IDs.'),
+  vpcId?: string(name='VpcId', description='The VPC ID of the user.', example='vpc-2ze9xoh8qyt1rnxfmfcdi'),
 }
 
 model QueryCreateInstancePriceResponseBody = {
   priceInfo?: {
-    code?: string(name='Code', example='ORDER.INST_HAS_UNPAID_ORDER'),
-    currency?: string(name='Currency', example='CNY'),
+    code?: string(name='Code', description='The error code.', example='ORDER.INST_HAS_UNPAID_ORDER'),
+    currency?: string(name='Currency', description='The currency unit.', example='CNY'),
     depreciateInfo?: {
-      cheapRate?: string(name='CheapRate'),
-      cheapStandAmount?: string(name='CheapStandAmount'),
-      isShow?: boolean(name='IsShow'),
-      monthPrice?: string(name='MonthPrice'),
-      originalStandAmount?: string(name='OriginalStandAmount'),
-      startTime?: string(name='StartTime'),
-    }(name='DepreciateInfo'),
-    discountAmount?: float(name='DiscountAmount', example='655.2'),
-    isContractActivity?: boolean(name='IsContractActivity'),
-    lxRequestId?: string(name='LxRequestId', example='67F33190-946B-1105-B6A1-E2DF0426DD51'),
-    message?: string(name='Message', example='存在未支付订单，请先支付或取消原有订单'),
+      cheapRate?: string(name='CheapRate', description='The price reduction rate.'),
+      cheapStandAmount?: string(name='CheapStandAmount', description='The standard total price after the price reduction.'),
+      isShow?: boolean(name='IsShow', description='Indicates whether to display the price reduction percentage.'),
+      monthPrice?: string(name='MonthPrice', description='The monthly equivalent price.'),
+      originalStandAmount?: string(name='OriginalStandAmount', description='The original standard total price.'),
+      startTime?: string(name='StartTime', description='The start time of the price reduction.'),
+    }(name='DepreciateInfo', description='The price reduction information.'),
+    discountAmount?: float(name='DiscountAmount', description='The discount amount.', example='655.2'),
+    isContractActivity?: boolean(name='IsContractActivity', description='Indicates whether the enterprise customer discount is applied.'),
+    lxRequestId?: string(name='LxRequestId', description='The Lingxiao request ID of the call.', example='67F33190-946B-1105-B6A1-E2DF0426DD51'),
+    message?: string(name='Message', description='The error message.', example='An unpaid order exists. Pay for or cancel the existing order first'),
     optionalPromotions?: [ 
       {
-        promotionDesc?: string(name='PromotionDesc', example='￥1,391.5 优惠券 (有效期至 03/23/2022)'),
-        promotionName?: string(name='PromotionName', example='￥1,391.5 优惠券'),
-        promotionOptionNo?: string(name='PromotionOptionNo', example='500011220010099'),
-        selected?: boolean(name='Selected', example='true'),
+        promotionDesc?: string(name='PromotionDesc', description='The coupon description.', example='¥1,391.5 coupon (valid until 03/23/2022)'),
+        promotionName?: string(name='PromotionName', description='The coupon name.', example='¥1,391.5 coupon'),
+        promotionOptionNo?: string(name='PromotionOptionNo', description='The coupon ID.', example='500011220010099'),
+        selected?: boolean(name='Selected', description='Indicates whether the coupon is selected. Valid values:', example='true'),
       }
-    ](name='OptionalPromotions'),
-    originalAmount?: float(name='OriginalAmount', example='4368'),
+    ](name='OptionalPromotions', description='The coupon group information.'),
+    originalAmount?: float(name='OriginalAmount', description='The original price.', example='4368'),
     rules?: [ 
       {
-        description?: string(name='Description', example='买满1年，立享官网价格8.5折优惠。'),
-        ruleId?: long(name='RuleId', example='587'),
+        description?: string(name='Description', description='The promotion rule description.', example='Get a 15% discount for a 1-year subscription'),
+        ruleId?: long(name='RuleId', description='The promotion ID.', example='587'),
       }
-    ](name='Rules'),
-    standDiscountPrice?: string(name='StandDiscountPrice'),
-    standPrice?: string(name='StandPrice'),
-    tradeAmount?: float(name='TradeAmount', example='3712.8'),
-  }(name='PriceInfo'),
-  requestId?: string(name='RequestId', example='67F33190-946B-1105-B6A1-E2DF0426DD51'),
-  success?: boolean(name='Success'),
+    ](name='Rules', description='The promotion rules.'),
+    standDiscountPrice?: string(name='StandDiscountPrice', description='The promotional price based on the official website discount.'),
+    standPrice?: string(name='StandPrice', description='The official website discounted price or direct sales contract discounted price.'),
+    tradeAmount?: float(name='TradeAmount', description='The final price, which is the original price minus the discount.', example='3712.8'),
+  }(name='PriceInfo', description='The price information, including the price and promotion rules.'),
+  requestId?: string(name='RequestId', description='The request ID.', example='67F33190-946B-1105-B6A1-E2DF0426DD51'),
+  success?: boolean(name='Success', description='Indicates whether the request was successful.'),
 }
 
 model QueryCreateInstancePriceResponse = {
@@ -2227,7 +2658,7 @@ model QueryCreateInstancePriceResponse = {
 }
 
 /**
- * @summary Queries the fee of creating a workspace.
+ * @summary Retrieves the price of a workspace for the current account.
  *
  * @param tmpReq QueryCreateInstancePriceRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -2317,7 +2748,7 @@ async function queryCreateInstancePriceWithOptions(tmpReq: QueryCreateInstancePr
 }
 
 /**
- * @summary Queries the fee of creating a workspace.
+ * @summary Retrieves the price of a workspace for the current account.
  *
  * @param request QueryCreateInstancePriceRequest
  * @return QueryCreateInstancePriceResponse
@@ -2328,70 +2759,92 @@ async function queryCreateInstancePrice(request: QueryCreateInstancePriceRequest
 }
 
 model QueryModifyInstancePriceRequest {
-  ha?: boolean(name='Ha'),
+  ha?: boolean(name='Ha', description='Specifies whether to select zone-disaster recovery resources.', example='true'),
   haResourceSpec?: {
-    cpu?: int32(name='Cpu'),
-    memoryGB?: int32(name='MemoryGB'),
-  }(name='HaResourceSpec', nullable=true),
-  haVSwitchIds?: [ string ](name='HaVSwitchIds', nullable=true),
-  instanceId?: string(name='InstanceId', description='This parameter is required.', example='f-cn-wwo36qj4g06'),
+    cpu?: int32(name='Cpu', description='The number of CPUs for zone-disaster recovery.', example='20'),
+    memoryGB?: int32(name='MemoryGB', description='The memory size for zone-disaster recovery.', example='80'),
+  }(name='HaResourceSpec', description='The zone-disaster recovery resource description.', nullable=true),
+  haVSwitchIds?: [ string ](name='HaVSwitchIds', description='The vSwitch group for the zone-disaster recovery secondary zone.', nullable=true),
+  instanceId?: string(name='InstanceId', description='The order instance ID.
+
+This parameter is required.', example='f-cn-wwo36qj4g06'),
   promotionCode?: string(name='PromotionCode'),
-  region?: string(name='Region', description='This parameter is required.', example='cn-beijing'),
+  region?: string(name='Region', description='The region ID.
+
+This parameter is required.', example='cn-beijing'),
   resourceSpec?: {
-    cpu?: int32(name='Cpu', description='This parameter is required.', example='10'),
-    memoryGB?: int32(name='MemoryGB', description='This parameter is required.', example='40'),
-  }(name='ResourceSpec', description='This parameter is required.'),
+    cpu?: int32(name='Cpu', description='The number of CPUs after the specification change.
+
+This parameter is required.', example='10'),
+    memoryGB?: int32(name='MemoryGB', description='The memory size after the specification change.
+
+>The memory size must be 4 times the number of CPUs.
+
+This parameter is required.', example='40'),
+  }(name='ResourceSpec', description='The resource specifications.
+
+This parameter is required.'),
   usePromotionCode?: boolean(name='UsePromotionCode'),
 }
 
 model QueryModifyInstancePriceShrinkRequest {
-  ha?: boolean(name='Ha'),
-  haResourceSpecShrink?: string(name='HaResourceSpec', nullable=true),
-  haVSwitchIdsShrink?: string(name='HaVSwitchIds', nullable=true),
-  instanceId?: string(name='InstanceId', description='This parameter is required.', example='f-cn-wwo36qj4g06'),
+  ha?: boolean(name='Ha', description='Specifies whether to select zone-disaster recovery resources.', example='true'),
+  haResourceSpecShrink?: string(name='HaResourceSpec', description='The zone-disaster recovery resource description.', nullable=true),
+  haVSwitchIdsShrink?: string(name='HaVSwitchIds', description='The vSwitch group for the zone-disaster recovery secondary zone.', nullable=true),
+  instanceId?: string(name='InstanceId', description='The order instance ID.
+
+This parameter is required.', example='f-cn-wwo36qj4g06'),
   promotionCode?: string(name='PromotionCode'),
-  region?: string(name='Region', description='This parameter is required.', example='cn-beijing'),
-  resourceSpecShrink?: string(name='ResourceSpec', description='This parameter is required.'),
+  region?: string(name='Region', description='The region ID.
+
+This parameter is required.', example='cn-beijing'),
+  resourceSpecShrink?: string(name='ResourceSpec', description='The resource specifications.
+
+This parameter is required.'),
   usePromotionCode?: boolean(name='UsePromotionCode'),
 }
 
 model QueryModifyInstancePriceResponseBody = {
   priceInfo?: {
-    code?: string(name='Code', example='ORDER.INST_HAS_UNPAID_ORDER'),
-    currency?: string(name='Currency', example='CNY'),
+    code?: string(name='Code', description='The error code.', example='ORDER.INST_HAS_UNPAID_ORDER'),
+    currency?: string(name='Currency', description='The currency unit.', example='CNY'),
     depreciateInfo?: {
-      cheapRate?: string(name='CheapRate'),
-      cheapStandAmount?: string(name='CheapStandAmount'),
-      isShow?: boolean(name='IsShow'),
-      monthPrice?: string(name='MonthPrice'),
-      originalStandAmount?: string(name='OriginalStandAmount'),
-      startTime?: string(name='StartTime'),
-    }(name='DepreciateInfo'),
-    discountAmount?: float(name='DiscountAmount', example='655.2'),
-    isContractActivity?: boolean(name='IsContractActivity'),
-    lxRequestId?: string(name='LxRequestId', example='67F33190-946B-1105-B6A1-E2DF0426DD51'),
-    message?: string(name='Message', example='存在未支付订单，请先支付或取消原有订单'),
+      cheapRate?: string(name='CheapRate', description='The price reduction ratio.', example='0.5'),
+      cheapStandAmount?: string(name='CheapStandAmount', description='The reduced list price total.', example='6000'),
+      isShow?: boolean(name='IsShow', description='Indicates whether to display the price reduction percentage.', example='false'),
+      monthPrice?: string(name='MonthPrice', description='The equivalent monthly price.', example='0.6'),
+      originalStandAmount?: string(name='OriginalStandAmount', description='The original list price total.', example='12000'),
+      startTime?: string(name='StartTime', description='The price reduction start time.', example='2023-10-04T21:10:26+08:00'),
+    }(name='DepreciateInfo', description='The price reduction information.'),
+    discountAmount?: float(name='DiscountAmount', description='The discount amount.', example='655.2'),
+    isContractActivity?: boolean(name='IsContractActivity', description='Indicates whether the enterprise discount is applied.', example='Yes'),
+    lxRequestId?: string(name='LxRequestId', description='The Lingxiao request ID.', example='67F33190-946B-1105-B6A1-E2DF0426DD51'),
+    message?: string(name='Message', description='The error message.', example='An unpaid order exists. Pay for or cancel the existing order first'),
     optionalPromotions?: [ 
       {
-        promotionDesc?: string(name='PromotionDesc', example='￥1,391.5 优惠券 (有效期至 03/23/2022)'),
-        promotionName?: string(name='PromotionName', example='￥1,391.5 优惠券'),
-        promotionOptionNo?: string(name='PromotionOptionNo', example='500011220010099'),
-        selected?: boolean(name='Selected', example='true'),
+        promotionDesc?: string(name='PromotionDesc', description='The coupon description.', example='¥1,391.5 coupon (valid until 03/23/2022)'),
+        promotionName?: string(name='PromotionName', description='The coupon name.', example='¥1,391.5 coupon'),
+        promotionOptionNo?: string(name='PromotionOptionNo', description='The coupon ID.', example='500011220010099'),
+        selected?: boolean(name='Selected', description='Indicates whether the coupon is selected. Valid values:
+
+- true: Selected.
+
+- false: Not selected.', example='true'),
       }
-    ](name='OptionalPromotions'),
-    originalAmount?: float(name='OriginalAmount', example='4368'),
+    ](name='OptionalPromotions', description='The coupon group information.'),
+    originalAmount?: float(name='OriginalAmount', description='The original price.', example='4368'),
     rules?: [ 
       {
-        description?: string(name='Description', example='买满1年，立享官网价格8.5折优惠。'),
-        ruleId?: long(name='RuleId', example='587'),
+        description?: string(name='Description', description='The promotion rule description.', example='Purchase for 1 year or more to enjoy a 15% discount off the list price'),
+        ruleId?: long(name='RuleId', description='The promotion ID.', example='587'),
       }
-    ](name='Rules'),
-    standDiscountPrice?: string(name='StandDiscountPrice'),
-    standPrice?: string(name='StandPrice'),
-    tradeAmount?: float(name='TradeAmount', example='3712.8'),
-  }(name='PriceInfo'),
-  requestId?: string(name='RequestId', example='67F33190-946B-1105-B6A1-E2DF0426DD51'),
-  success?: boolean(name='Success', example='true'),
+    ](name='Rules', description='The promotion rule group.'),
+    standDiscountPrice?: string(name='StandDiscountPrice', description='The discounted price based on the official website discount.', example='1231'),
+    standPrice?: string(name='StandPrice', description='The official website discount price or direct sales contract discount price.', example='0.5'),
+    tradeAmount?: float(name='TradeAmount', description='The final price, which is the original price minus the discount.', example='3712.8'),
+  }(name='PriceInfo', description='The price information, including the price and discount rules.'),
+  requestId?: string(name='RequestId', description='The request ID.', example='67F33190-946B-1105-B6A1-E2DF0426DD51'),
+  success?: boolean(name='Success', description='Indicates whether the request was successful.', example='true'),
 }
 
 model QueryModifyInstancePriceResponse = {
@@ -2401,7 +2854,7 @@ model QueryModifyInstancePriceResponse = {
 }
 
 /**
- * @summary Queries the fee of modifying the resource configuration of a workspace.
+ * @summary Queries the price for upgrading or downgrading an instance.
  *
  * @param tmpReq QueryModifyInstancePriceRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -2464,7 +2917,7 @@ async function queryModifyInstancePriceWithOptions(tmpReq: QueryModifyInstancePr
 }
 
 /**
- * @summary Queries the fee of modifying the resource configuration of a workspace.
+ * @summary Queries the price for upgrading or downgrading an instance.
  *
  * @param request QueryModifyInstancePriceRequest
  * @return QueryModifyInstancePriceResponse
@@ -2475,51 +2928,63 @@ async function queryModifyInstancePrice(request: QueryModifyInstancePriceRequest
 }
 
 model QueryRenewInstancePriceRequest {
-  duration?: int32(name='Duration', description='This parameter is required.', example='1'),
-  instanceId?: string(name='InstanceId', description='This parameter is required.', example='sc_flinkserverless_public_cn-7e22ae5sess'),
-  pricingCycle?: string(name='PricingCycle', description='This parameter is required.', example='Month'),
+  duration?: int32(name='Duration', description='The number of subscription periods.
+
+This parameter is required.', example='1'),
+  instanceId?: string(name='InstanceId', description='The instance ID.
+
+This parameter is required.', example='sc_flinkserverless_public_cn-7e22ae5sess'),
+  pricingCycle?: string(name='PricingCycle', description='The subscription period unit.
+
+This parameter is required.', example='Month'),
   promotionCode?: string(name='PromotionCode'),
-  region?: string(name='Region', description='This parameter is required.', example='cn-beijing'),
+  region?: string(name='Region', description='The region ID.
+
+This parameter is required.', example='cn-beijing'),
   usePromotionCode?: boolean(name='UsePromotionCode'),
 }
 
 model QueryRenewInstancePriceResponseBody = {
   priceInfo?: {
-    code?: string(name='Code', example='ORDER.INST_HAS_UNPAID_ORDER'),
-    currency?: string(name='Currency', example='CNY'),
+    code?: string(name='Code', description='The error code.', example='ORDER.INST_HAS_UNPAID_ORDER'),
+    currency?: string(name='Currency', description='The currency unit.', example='CNY'),
     depreciateInfo?: {
-      cheapRate?: string(name='CheapRate'),
-      cheapStandAmount?: string(name='CheapStandAmount'),
-      isShow?: boolean(name='IsShow'),
-      monthPrice?: string(name='MonthPrice'),
-      originalStandAmount?: string(name='OriginalStandAmount'),
-      startTime?: string(name='StartTime'),
-    }(name='DepreciateInfo'),
-    discountAmount?: float(name='DiscountAmount', example='655.2'),
-    isContractActivity?: boolean(name='IsContractActivity'),
-    lxRequestId?: string(name='LxRequestId', example='67F33190-946B-1105-B6A1-E2DF0426DD51'),
-    message?: string(name='Message', example='存在未支付订单，请先支付或取消原有订单'),
+      cheapRate?: string(name='CheapRate', description='The price reduction ratio.', example='34%'),
+      cheapStandAmount?: string(name='CheapStandAmount', description='The total list price after the price reduction.', example='8000'),
+      isShow?: boolean(name='IsShow', description='Indicates whether to display the price reduction percentage.', example='true'),
+      monthPrice?: string(name='MonthPrice', description='The monthly equivalent price.', example='1000'),
+      originalStandAmount?: string(name='OriginalStandAmount', description='The original total list price.', example='12000'),
+      startTime?: string(name='StartTime', description='The start time of the price reduction.', example='2023-03-31T16:00:00Z'),
+    }(name='DepreciateInfo', description='The price reduction information.'),
+    discountAmount?: float(name='DiscountAmount', description='The discount amount.', example='655.2'),
+    isContractActivity?: boolean(name='IsContractActivity', description='Indicates whether an enterprise discount is applied.', example='true'),
+    lxRequestId?: string(name='LxRequestId', description='The Lingxiao request ID of the call.', example='67F33190-946B-1105-B6A1-E2DF0426DD51'),
+    message?: string(name='Message', description='The error message.', example='An unpaid order exists. Pay for or cancel the existing order first'),
     optionalPromotions?: [ 
       {
-        promotionDesc?: string(name='PromotionDesc', example='￥1,391.5 优惠券 (有效期至 03/23/2022)'),
-        promotionName?: string(name='PromotionName', example='￥1,391.5 优惠券'),
-        promotionOptionNo?: string(name='PromotionOptionNo', example='500011220010099'),
-        selected?: boolean(name='Selected', example='true'),
+        promotionDesc?: string(name='PromotionDesc', description='The coupon description.', example='￥1,391.5 coupon (valid until 03/23/2022)'),
+        promotionName?: string(name='PromotionName', description='The coupon name.', example='￥1,391.5 coupon'),
+        promotionOptionNo?: string(name='PromotionOptionNo', description='The coupon ID.', example='500011220010099'),
+        selected?: boolean(name='Selected', description='Indicates whether the coupon is selected. Valid values:
+
+- true: Selected.
+
+- false: Not selected.', example='true'),
       }
-    ](name='OptionalPromotions'),
-    originalAmount?: float(name='OriginalAmount', example='4368'),
+    ](name='OptionalPromotions', description='The coupon group information.'),
+    originalAmount?: float(name='OriginalAmount', description='The original price.', example='4368'),
     rules?: [ 
       {
-        description?: string(name='Description', example='买满1年，立享官网价格8.5折优惠。'),
-        ruleId?: long(name='RuleId', example='587'),
+        description?: string(name='Description', description='The description of the promotion rule.', example='Purchase for 1 year or more to enjoy a 15% discount off the list price'),
+        ruleId?: long(name='RuleId', description='The promotion ID.', example='587'),
       }
-    ](name='Rules'),
-    standDiscountPrice?: string(name='StandDiscountPrice'),
-    standPrice?: string(name='StandPrice'),
-    tradeAmount?: float(name='TradeAmount', example='3712.8'),
-  }(name='PriceInfo'),
-  requestId?: string(name='RequestId', example='67F33190-946B-1105-B6A1-E2DF0426DD51'),
-  success?: boolean(name='Success', example='true'),
+    ](name='Rules', description='The promotion rules.'),
+    standDiscountPrice?: string(name='StandDiscountPrice', description='The promotional price based on the standard discount on the official website.', example='21321'),
+    standPrice?: string(name='StandPrice', description='The standard discounted price on the official website or the direct sales contract discounted price.', example='32432'),
+    tradeAmount?: float(name='TradeAmount', description='The final price, which is the original price minus the discount amount.', example='3712.8'),
+  }(name='PriceInfo', description='The price information, including the price and discount rules.'),
+  requestId?: string(name='RequestId', description='The request ID.', example='67F33190-946B-1105-B6A1-E2DF0426DD51'),
+  success?: boolean(name='Success', description='Indicates whether the request was successful.', example='true'),
 }
 
 model QueryRenewInstancePriceResponse = {
@@ -2529,7 +2994,7 @@ model QueryRenewInstancePriceResponse = {
 }
 
 /**
- * @summary Queries the fee of renewing a subscription workspace.
+ * @summary Queries the renewal price of a subscription workspace.
  *
  * @param request QueryRenewInstancePriceRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -2575,7 +3040,7 @@ async function queryRenewInstancePriceWithOptions(request: QueryRenewInstancePri
 }
 
 /**
- * @summary Queries the fee of renewing a subscription workspace.
+ * @summary Queries the renewal price of a subscription workspace.
  *
  * @param request QueryRenewInstancePriceRequest
  * @return QueryRenewInstancePriceResponse
@@ -2586,18 +3051,26 @@ async function queryRenewInstancePrice(request: QueryRenewInstancePriceRequest):
 }
 
 model RenewInstanceRequest {
-  duration?: int32(name='Duration', description='This parameter is required.', example='1'),
-  instanceId?: string(name='InstanceId', description='This parameter is required.', example='sc_flinkserverless_public_cn-7e22ae5sess'),
-  pricingCycle?: string(name='PricingCycle', description='This parameter is required.', example='Month'),
+  duration?: int32(name='Duration', description='The number of subscription periods.
+
+This parameter is required.', example='1'),
+  instanceId?: string(name='InstanceId', description='The instance ID.
+
+This parameter is required.', example='sc_flinkserverless_public_cn-7e22ae5sess'),
+  pricingCycle?: string(name='PricingCycle', description='The subscription period.
+
+This parameter is required.', example='Month'),
   promotionCode?: string(name='PromotionCode'),
-  region?: string(name='Region', description='This parameter is required.', example='cn-beijing'),
+  region?: string(name='Region', description='The region ID.
+
+This parameter is required.', example='cn-beijing'),
   usePromotionCode?: boolean(name='UsePromotionCode'),
 }
 
 model RenewInstanceResponseBody = {
   orderId?: long(name='OrderId', description='orderId', example='210406354690749'),
-  requestId?: string(name='RequestId', example='67F33190-946B-1105-B6A1-E2DF0426DD51'),
-  success?: boolean(name='Success', example='true'),
+  requestId?: string(name='RequestId', description='The request ID.', example='67F33190-946B-1105-B6A1-E2DF0426DD51'),
+  success?: boolean(name='Success', description='Indicates whether the request was successful.', example='true'),
 }
 
 model RenewInstanceResponse = {
@@ -2607,7 +3080,9 @@ model RenewInstanceResponse = {
 }
 
 /**
- * @summary Renews a subscription workspace of Realtime Compute for Apache Flink.
+ * @summary Renews a subscription Realtime Compute for Apache Flink workspace.
+ *
+ * @description **Before using this operation, make sure that you fully understand the billing method and [pricing](https://www.alibabacloud.com/help/en/flink/product-overview/renewal-policy) of Realtime Compute for Apache Flink.**
  *
  * @param request RenewInstanceRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -2653,7 +3128,9 @@ async function renewInstanceWithOptions(request: RenewInstanceRequest, runtime: 
 }
 
 /**
- * @summary Renews a subscription workspace of Realtime Compute for Apache Flink.
+ * @summary Renews a subscription Realtime Compute for Apache Flink workspace.
+ *
+ * @description **Before using this operation, make sure that you fully understand the billing method and [pricing](https://www.alibabacloud.com/help/en/flink/product-overview/renewal-policy) of Realtime Compute for Apache Flink.**
  *
  * @param request RenewInstanceRequest
  * @return RenewInstanceResponse
@@ -2664,23 +3141,35 @@ async function renewInstance(request: RenewInstanceRequest): RenewInstanceRespon
 }
 
 model TagResourcesRequest {
-  regionId?: string(name='RegionId', description='This parameter is required.', example='cn-beijing'),
-  resourceId?: [ string ](name='ResourceId', description='This parameter is required.'),
-  resourceType?: string(name='ResourceType', description='This parameter is required.', example='vvpinstance'),
+  regionId?: string(name='RegionId', description='Region
+
+This parameter is required.', example='cn-beijing'),
+  resourceId?: [ string ](name='ResourceId', description='List of order instance IDs
+
+This parameter is required.'),
+  resourceType?: string(name='ResourceType', description='Resource type. Set this parameter to vvpinstance.
+
+This parameter is required.', example='vvpinstance'),
   tag?: [ 
     {
-      key?: string(name='Key', example='test'),
-      value?: string(name='Value', example='tag'),
+      key?: string(name='Key', description='Tag key', example='test'),
+      value?: string(name='Value', description='Tag value', example='tag'),
     }
-  ](name='Tag', description='This parameter is required.'),
+  ](name='Tag', description='List of tags. You can specify up to 20 tags
+
+This parameter is required.'),
 }
 
 model TagResourcesResponseBody = {
-  code?: string(name='Code', example='200'),
-  message?: string(name='Message', example='""'),
-  requestId?: string(name='RequestId', example='67F33190-946B-1105-B6A1-E2DF0426DD51'),
-  success?: boolean(name='Success', example='true'),
-  tagResponseId?: string(name='TagResponseId', example='154FT'),
+  code?: string(name='Code', description='Return code', example='200'),
+  message?: string(name='Message', description='Request details.', example='""'),
+  requestId?: string(name='RequestId', description='Request ID', example='67F33190-946B-1105-B6A1-E2DF0426DD51'),
+  success?: boolean(name='Success', description='Indicates whether the call succeeded. Valid values:
+
+- true: The call succeeded
+
+- false: The call failed', example='true'),
+  tagResponseId?: string(name='TagResponseId', description='Tag request ID', example='154FT'),
 }
 
 model TagResourcesResponse = {
@@ -2690,7 +3179,7 @@ model TagResourcesResponse = {
 }
 
 /**
- * @summary Adds tags to specified resources.
+ * @summary Call this API to add tags to resources.
  *
  * @param request TagResourcesRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -2730,7 +3219,7 @@ async function tagResourcesWithOptions(request: TagResourcesRequest, runtime: $R
 }
 
 /**
- * @summary Adds tags to specified resources.
+ * @summary Call this API to add tags to resources.
  *
  * @param request TagResourcesRequest
  * @return TagResourcesResponse
@@ -2741,19 +3230,28 @@ async function tagResources(request: TagResourcesRequest): TagResourcesResponse 
 }
 
 model UntagResourcesRequest {
-  all?: boolean(name='All', example='false'),
-  regionId?: string(name='RegionId', description='This parameter is required.', example='cn-beijing'),
-  resourceId?: [ string ](name='ResourceId', description='This parameter is required.'),
-  resourceType?: string(name='ResourceType', description='This parameter is required.', example='vvpinstance'),
-  tagKey?: [ string ](name='TagKey'),
+  all?: boolean(name='All', description='Specifies whether to delete all resource tags. This parameter is valid only when TagKey is empty. Default value: false.', example='false'),
+  regionId?: string(name='RegionId', description='The region ID.
+
+This parameter is required.', example='cn-beijing'),
+  resourceId?: [ string ](name='ResourceId', description='The list of order instance IDs.
+
+This parameter is required.'),
+  resourceType?: string(name='ResourceType', description='The resource type. Set this parameter to vvpinstance.
+
+This parameter is required.', example='vvpinstance'),
+  tagKey?: [ string ](name='TagKey', description='The list of tag keys. Maximum: 20 subkeys.'),
 }
 
 model UntagResourcesResponseBody = {
-  code?: string(name='Code', example='200'),
-  message?: string(name='Message', example='""'),
-  requestId?: string(name='RequestId', example='F59597FC-CD05-536D-B75B-6F45B8CC8539'),
-  success?: boolean(name='Success', example='true'),
-  tagResponseId?: string(name='TagResponseId', example='154FT'),
+  code?: string(name='Code', description='The return code.', example='200'),
+  message?: string(name='Message', description='The returned message.', example='""'),
+  requestId?: string(name='RequestId', description='The request ID.', example='F59597FC-CD05-536D-B75B-6F45B8CC8539'),
+  success?: boolean(name='Success', description='Indicates whether the operation is successful. Valid values:
+
+- true: Successful.
+- false: Failed.', example='true'),
+  tagResponseId?: string(name='TagResponseId', description='The tag request ID.', example='154FT'),
 }
 
 model UntagResourcesResponse = {
@@ -2763,7 +3261,7 @@ model UntagResourcesResponse = {
 }
 
 /**
- * @summary Removes tags from specified resources.
+ * @summary Deletes resource tags.
  *
  * @param request UntagResourcesRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -2806,7 +3304,7 @@ async function untagResourcesWithOptions(request: UntagResourcesRequest, runtime
 }
 
 /**
- * @summary Removes tags from specified resources.
+ * @summary Deletes resource tags.
  *
  * @param request UntagResourcesRequest
  * @return UntagResourcesResponse
