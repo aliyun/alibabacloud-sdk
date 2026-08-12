@@ -36,6 +36,12 @@ function getEndpoint(productId: string, regionId: string, endpointRule: string, 
   return EndpointUtil.getEndpointRules(productId, regionId, endpointRule, network, suffix);
 }
 
+model AgenticFSVolumeConfig {
+  groupID?: int32(name='groupID'),
+  serverAddr?: string(name='serverAddr'),
+  userID?: int32(name='userID'),
+}
+
 model ApiKey {
   apiKeyID?: string(name='apiKeyID', description='The unique identifier of the API key.', example='34f6a4c4-499f-4bbd-baa0-0e699f53abcd'),
   apiKeyMask?: string(name='apiKeyMask', description='The masked display value of the API key.', example='e2b_xxxx****xxxx'),
@@ -96,6 +102,13 @@ model CreateTeamInput {
   plan?: string(name='plan'),
   resourceGroupID?: string(name='resourceGroupID', description='The resource group ID.', example='rg-acfmwxqyrgwabcd'),
   teamName?: string(name='teamName', description='The team name.', example='dev'),
+}
+
+model CreateVolumeInput {
+  agenticFSVolumeConfig?: AgenticFSVolumeConfig(name='agenticFSVolumeConfig'),
+  ossVolumeConfig?: OSSVolumeConfig(name='ossVolumeConfig'),
+  teamID?: string(name='teamID'),
+  volumeName?: string(name='volumeName'),
 }
 
 model CustomDomainResp {
@@ -238,6 +251,21 @@ model E2BTemplateTag {
   tag?: string(name='tag'),
 }
 
+model E2BVolume {
+  agenticFSVolumeConfig?: AgenticFSVolumeConfig(name='agenticFSVolumeConfig'),
+  createdAt?: string(name='createdAt'),
+  ossVolumeConfig?: OSSVolumeConfig(name='ossVolumeConfig'),
+  resourceGroupID?: string(name='resourceGroupID'),
+  status?: string(name='status'),
+  statusReason?: string(name='statusReason'),
+  storageClass?: string(name='storageClass'),
+  teamID?: string(name='teamID'),
+  updatedAt?: string(name='updatedAt'),
+  userID?: string(name='userID'),
+  volumeID?: string(name='volumeID'),
+  volumeName?: string(name='volumeName'),
+}
+
 model E2BVolumeMount {
   name?: string(name='name'),
   path?: string(name='path'),
@@ -265,6 +293,13 @@ model NetworkConfiguration {
   securityGroupID?: string(name='securityGroupID'),
   vpcID?: string(name='vpcID'),
   vswitchIDs?: [ string ](name='vswitchIDs'),
+}
+
+model OSSVolumeConfig {
+  bucketName?: string(name='bucketName'),
+  bucketPath?: string(name='bucketPath'),
+  endpoint?: string(name='endpoint'),
+  readOnly?: boolean(name='readOnly'),
 }
 
 model Quota {
@@ -310,6 +345,12 @@ model UpdateTemplateInput {
   containerConfiguration?: ContainerConfiguration(name='containerConfiguration'),
   logConfiguration?: LogConfiguration(name='logConfiguration'),
   networkConfiguration?: NetworkConfiguration(name='networkConfiguration'),
+  teamID?: string(name='teamID'),
+}
+
+model UpdateVolumeInput {
+  status?: string(name='status'),
+  teamID?: string(name='teamID'),
 }
 
 model CreateApiKeyRequest {
@@ -430,6 +471,63 @@ async function createTeam(request: CreateTeamRequest): CreateTeamResponse {
   var runtime = new Util.RuntimeOptions{};
   var headers : map[string]string = {};
   return createTeamWithOptions(request, headers, runtime);
+}
+
+model CreateVolumeRequest {
+  body?: CreateVolumeInput(name='body', description='The form parameters.'),
+}
+
+model CreateVolumeResponseBody = {
+  code?: string(name='code', description='The error code.', example='200'),
+  message?: string(name='message', description='The response message.', example='success'),
+  requestId?: string(name='requestId', description='The request ID.', example='B5AD8B54-4358-5F5B-ACAA-52F2016459C6'),
+  volume?: E2BVolume(name='volume', description='The storage configuration.'),
+}
+
+model CreateVolumeResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: CreateVolumeResponseBody(name='body'),
+}
+
+/**
+ * @summary Creates a volume.
+ *
+ * @param request CreateVolumeRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return CreateVolumeResponse
+ */
+async function createVolumeWithOptions(request: CreateVolumeRequest, headers: map[string]string, runtime: Util.RuntimeOptions): CreateVolumeResponse {
+  Util.validateModel(request);
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    body = OpenApiUtil.parseToMap(request.body),
+  };
+  var params = new OpenApi.Params{
+    action = 'CreateVolume',
+    version = '2026-05-09',
+    protocol = 'HTTPS',
+    pathname = `/pop/2026-05-09/volumes`,
+    method = 'POST',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Creates a volume.
+ *
+ * @param request CreateVolumeRequest
+ * @return CreateVolumeResponse
+ */
+async function createVolume(request: CreateVolumeRequest): CreateVolumeResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return createVolumeWithOptions(request, headers, runtime);
 }
 
 model DeleteApiKeyRequest {
@@ -599,6 +697,67 @@ async function deleteTeam(teamID: string, request: DeleteTeamRequest): DeleteTea
   var runtime = new Util.RuntimeOptions{};
   var headers : map[string]string = {};
   return deleteTeamWithOptions(teamID, request, headers, runtime);
+}
+
+model DeleteVolumeRequest {
+  teamID?: string(name='teamID', example='70d1c834-0383-58d8-97ac-5336eb91abcd'),
+}
+
+model DeleteVolumeResponseBody = {
+  code?: string(name='code', example='200'),
+  message?: string(name='message', example='success'),
+  requestId?: string(name='requestId', example='B5AD8B54-4358-5F5B-ACAA-52F2016459C6'),
+}
+
+model DeleteVolumeResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: DeleteVolumeResponseBody(name='body'),
+}
+
+/**
+ * @summary 删除 Volume 
+ *
+ * @param request DeleteVolumeRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return DeleteVolumeResponse
+ */
+async function deleteVolumeWithOptions(volumeID: string, request: DeleteVolumeRequest, headers: map[string]string, runtime: Util.RuntimeOptions): DeleteVolumeResponse {
+  Util.validateModel(request);
+  var query : map[string]any = {};
+  if (!Util.isUnset(request.teamID)) {
+    query['teamID'] = request.teamID;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'DeleteVolume',
+    version = '2026-05-09',
+    protocol = 'HTTPS',
+    pathname = `/pop/2026-05-09/volumes/${OpenApiUtil.getEncodeParam(volumeID)}`,
+    method = 'DELETE',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 删除 Volume 
+ *
+ * @param request DeleteVolumeRequest
+ * @return DeleteVolumeResponse
+ */
+async function deleteVolume(volumeID: string, request: DeleteVolumeRequest): DeleteVolumeResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return deleteVolumeWithOptions(volumeID, request, headers, runtime);
 }
 
 model DescribeApiKeyRequest {
@@ -779,6 +938,68 @@ async function getTeam(teamID: string, request: GetTeamRequest): GetTeamResponse
   return getTeamWithOptions(teamID, request, headers, runtime);
 }
 
+model GetVolumeRequest {
+  teamID?: string(name='teamID', example='70d1c834-0383-58d8-97ac-5336eb91abcd'),
+}
+
+model GetVolumeResponseBody = {
+  code?: string(name='code', example='200'),
+  message?: string(name='message', example='success'),
+  requestId?: string(name='requestId', example='7ADFF8D8-D4BA-5F79-AD49-DDABFEA59B6C'),
+  volume?: E2BVolume(name='volume'),
+}
+
+model GetVolumeResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: GetVolumeResponseBody(name='body'),
+}
+
+/**
+ * @summary 查看 Volume
+ *
+ * @param request GetVolumeRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return GetVolumeResponse
+ */
+async function getVolumeWithOptions(volumeID: string, request: GetVolumeRequest, headers: map[string]string, runtime: Util.RuntimeOptions): GetVolumeResponse {
+  Util.validateModel(request);
+  var query : map[string]any = {};
+  if (!Util.isUnset(request.teamID)) {
+    query['teamID'] = request.teamID;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'GetVolume',
+    version = '2026-05-09',
+    protocol = 'HTTPS',
+    pathname = `/pop/2026-05-09/volumes/${OpenApiUtil.getEncodeParam(volumeID)}`,
+    method = 'GET',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 查看 Volume
+ *
+ * @param request GetVolumeRequest
+ * @return GetVolumeResponse
+ */
+async function getVolume(volumeID: string, request: GetVolumeRequest): GetVolumeResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return getVolumeWithOptions(volumeID, request, headers, runtime);
+}
+
 model ListApiKeysRequest {
   apiKeyName?: string(name='apiKeyName', description='The API key name.', example='dev'),
   pageNumber?: int32(name='pageNumber', description='The current page number.', example='1'),
@@ -944,7 +1165,7 @@ async function listQuota(request: ListQuotaRequest): ListQuotaResponse {
 
 model ListTeamsRequest {
   pageNumber?: int32(name='pageNumber', description='The page number, starting from 1.', example='1'),
-  pageSize?: int32(name='pageSize', description='The number of teams to display per page.', example='20'),
+  pageSize?: int32(name='pageSize', description='The number of teams displayed per page.', example='20'),
   plan?: string(name='plan'),
   resourceGroupID?: string(name='resourceGroupID', description='The resource group ID.', example='rg-acfmwxqyrgwabcd'),
   teamName?: string(name='teamName', description='The team name.', example='DevTeam'),
@@ -1023,6 +1244,96 @@ async function listTeams(request: ListTeamsRequest): ListTeamsResponse {
   var runtime = new Util.RuntimeOptions{};
   var headers : map[string]string = {};
   return listTeamsWithOptions(request, headers, runtime);
+}
+
+model ListVolumesRequest {
+  maxResults?: int32(name='maxResults', example='5'),
+  nextToken?: string(name='nextToken', example='qxGrXje86XMrYQ51aJMy'),
+  resourceGroupID?: string(name='resourceGroupID', example='rg-acfmwxqyrgwabcd'),
+  status?: string(name='status', example='CREATING'),
+  teamID?: string(name='teamID', example='70d1c834-0383-58d8-97ac-5336eb91abcd'),
+  userID?: string(name='userID', example='210000000'),
+  volumeName?: string(name='volumeName', example='workspace'),
+}
+
+model ListVolumesResponseBody = {
+  code?: string(name='code', example='200'),
+  maxResults?: int32(name='maxResults', example='4'),
+  message?: string(name='message', example='success'),
+  nextToken?: string(name='nextToken', example='qxGrXje86XMrYQ51aJMy'),
+  requestId?: string(name='requestId', example='7ADFF8D8-D4BA-5F79-AD49-DDABFEA59B6C'),
+  volumes?: [
+    E2BVolume
+  ](name='volumes'),
+}
+
+model ListVolumesResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ListVolumesResponseBody(name='body'),
+}
+
+/**
+ * @summary 分页查询 Volumes
+ *
+ * @param request ListVolumesRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return ListVolumesResponse
+ */
+async function listVolumesWithOptions(request: ListVolumesRequest, headers: map[string]string, runtime: Util.RuntimeOptions): ListVolumesResponse {
+  Util.validateModel(request);
+  var query : map[string]any = {};
+  if (!Util.isUnset(request.maxResults)) {
+    query['maxResults'] = request.maxResults;
+  }
+  if (!Util.isUnset(request.nextToken)) {
+    query['nextToken'] = request.nextToken;
+  }
+  if (!Util.isUnset(request.resourceGroupID)) {
+    query['resourceGroupID'] = request.resourceGroupID;
+  }
+  if (!Util.isUnset(request.status)) {
+    query['status'] = request.status;
+  }
+  if (!Util.isUnset(request.teamID)) {
+    query['teamID'] = request.teamID;
+  }
+  if (!Util.isUnset(request.userID)) {
+    query['userID'] = request.userID;
+  }
+  if (!Util.isUnset(request.volumeName)) {
+    query['volumeName'] = request.volumeName;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'ListVolumes',
+    version = '2026-05-09',
+    protocol = 'HTTPS',
+    pathname = `/pop/2026-05-09/volumes`,
+    method = 'GET',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 分页查询 Volumes
+ *
+ * @param request ListVolumesRequest
+ * @return ListVolumesResponse
+ */
+async function listVolumes(request: ListVolumesRequest): ListVolumesResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return listVolumesWithOptions(request, headers, runtime);
 }
 
 model ResetApiKeyRequest {
@@ -1261,5 +1572,62 @@ async function updateTeam(teamID: string, request: UpdateTeamRequest): UpdateTea
   var runtime = new Util.RuntimeOptions{};
   var headers : map[string]string = {};
   return updateTeamWithOptions(teamID, request, headers, runtime);
+}
+
+model UpdateVolumeRequest {
+  body?: UpdateVolumeInput(name='body'),
+}
+
+model UpdateVolumeResponseBody = {
+  code?: string(name='code', example='200'),
+  message?: string(name='message', example='success'),
+  requestId?: string(name='requestId', example='7ADFF8D8-D4BA-5F79-AD49-DDABFEA59B6C'),
+  volume?: E2BVolume(name='volume'),
+}
+
+model UpdateVolumeResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: UpdateVolumeResponseBody(name='body'),
+}
+
+/**
+ * @summary 更新 Volume
+ *
+ * @param request UpdateVolumeRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return UpdateVolumeResponse
+ */
+async function updateVolumeWithOptions(volumeID: string, request: UpdateVolumeRequest, headers: map[string]string, runtime: Util.RuntimeOptions): UpdateVolumeResponse {
+  Util.validateModel(request);
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    body = OpenApiUtil.parseToMap(request.body),
+  };
+  var params = new OpenApi.Params{
+    action = 'UpdateVolume',
+    version = '2026-05-09',
+    protocol = 'HTTPS',
+    pathname = `/pop/2026-05-09/volumes/${OpenApiUtil.getEncodeParam(volumeID)}`,
+    method = 'PUT',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 更新 Volume
+ *
+ * @param request UpdateVolumeRequest
+ * @return UpdateVolumeResponse
+ */
+async function updateVolume(volumeID: string, request: UpdateVolumeRequest): UpdateVolumeResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return updateVolumeWithOptions(volumeID, request, headers, runtime);
 }
 
