@@ -10204,6 +10204,70 @@ async function execIdentityProviderMetadataUrlResolution(request: ExecIdentityPr
   return execIdentityProviderMetadataUrlResolutionWithOptions(request, runtime);
 }
 
+model ExecuteInstanceFailoverRequest {
+  instanceFailoverStatus?: string(name='InstanceFailoverStatus', description='故障转移状态
+
+This parameter is required.', example='active'),
+  instanceId?: string(name='InstanceId', description='IDaaS 的副本实例 ID
+
+This parameter is required.', example='idaas_xxx'),
+}
+
+model ExecuteInstanceFailoverResponseBody = {
+  requestId?: string(name='RequestId', example='0441BD79-92F3-53AA-8657-F8CE4A2B912A'),
+}
+
+model ExecuteInstanceFailoverResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ExecuteInstanceFailoverResponseBody(name='body'),
+}
+
+/**
+ * @summary 执行容灾切换
+ *
+ * @param request ExecuteInstanceFailoverRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return ExecuteInstanceFailoverResponse
+ */
+@context("executeInstanceFailoverWithContext")
+async function executeInstanceFailoverWithOptions(request: ExecuteInstanceFailoverRequest, runtime: $RuntimeOptions): ExecuteInstanceFailoverResponse {
+  request.validate();
+  var query = {};
+  if (!$isNull(request.instanceFailoverStatus)) {
+    query['InstanceFailoverStatus'] = request.instanceFailoverStatus;
+  }
+  if (!$isNull(request.instanceId)) {
+    query['InstanceId'] = request.instanceId;
+  }
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'ExecuteInstanceFailover',
+    version = '2021-12-01',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 执行容灾切换
+ *
+ * @param request ExecuteInstanceFailoverRequest
+ * @return ExecuteInstanceFailoverResponse
+ */
+async function executeInstanceFailover(request: ExecuteInstanceFailoverRequest): ExecuteInstanceFailoverResponse {
+  var runtime = new $RuntimeOptions{};
+  return executeInstanceFailoverWithOptions(request, runtime);
+}
+
 model GenerateDownloadUrlForSynchronizationJobRequest {
   instanceId?: string(name='InstanceId', description='The instance ID.
 
@@ -28019,7 +28083,7 @@ async function updateCredentialDescription(request: UpdateCredentialDescriptionR
 model UpdateCredentialProviderRequest {
   clientToken?: string(name='ClientToken', description='The idempotency token that ensures the idempotence of the request.
 
-Generate a unique parameter value from your client to ensure uniqueness across different requests. ClientToken supports only ASCII characters and cannot exceed 64 characters in length. For more information, see References: [How to ensure idempotence](https://www.alibabacloud.com/help/zh/ecs/developer-reference/how-to-ensure-idempotence).
+Generate a unique parameter value from your client to ensure uniqueness across different requests. ClientToken supports only ASCII characters and cannot exceed 64 characters. For more information, see References: [How to ensure idempotence](https://www.alibabacloud.com/help/zh/ecs/developer-reference/how-to-ensure-idempotence).
 
 This parameter is required.', example='client-token-example'),
   credentialProviderConfig?: {
@@ -28029,30 +28093,38 @@ This parameter is required.', example='client-token-example'),
 > The list cannot contain more than 200 entries.
 
 >Notice: To clear the issuer list, pass an empty list or an empty string when calling the API.'),
-      derivedShortTokenEnabled?: boolean(name='DerivedShortTokenEnabled', description='Specifies whether to enable the JWT derived short token capability.', example='false'),
+      derivedShortTokenEnabled?: boolean(name='DerivedShortTokenEnabled', description='Specifies whether the JWT derived short token feature is enabled.', example='false'),
       expiration?: int32(name='Expiration', description='The validity period of the JWT, in seconds.', example='900'),
-      expirationCleanupEnabled?: boolean(name='ExpirationCleanupEnabled', description='Specifies whether to enable JWT expiration cleanup.', example='true'),
+      expirationCleanupEnabled?: boolean(name='ExpirationCleanupEnabled', description='Specifies whether JWT expiration cleanup is enabled.', example='true'),
     }(name='JwtProviderConfig', description='The configuration of the JWT credential provider.'),
     OAuthProviderConfig?: {
-      authorizationEndpoint?: string(name='AuthorizationEndpoint', description='The endpoint URL used to guide users through authorization. Conditionally required: this parameter is required when AuthorizationFlow is set to user_federation and ProviderVendor is set to custom. For preset vendors, this value can be automatically populated through DiscoveryUrl.'),
+      authorizationEndpoint?: string(name='AuthorizationEndpoint', description='The authorization endpoint.', example='https://example.com/authorize'),
       authorizationFlow?: string(name='AuthorizationFlow', description='The OAuth authorization flow type. Valid values:
-- m2m: Machine-to-machine (2LO, Client Credentials).
-- user_federation: User federation (3LO, Authorization Code).'),
+- m2m: machine-to-machine.
+- user_federation: user federation.', example='m2m'),
       clientSecret?: string(name='ClientSecret', description='The client_secret in the OAuth protocol.
 
 > The value cannot exceed 1024 characters in length.', example='client_secret_example_xxx'),
-      discoveryUrl?: string(name='DiscoveryUrl', description='The Discovery document URL used to automatically retrieve OAuth endpoint configurations. Conditionally optional: this parameter is used when AuthorizationFlow is set to user_federation. If DiscoveryUrl is not provided, you must manually configure fields such as TokenEndpoint and AuthorizationEndpoint.'),
-      issuer?: string(name='Issuer'),
-      pkceChallengeMethod?: string(name='PkceChallengeMethod', description='The PKCE code_challenge generation method. Default value: s256.'),
-      pkceEnabled?: boolean(name='PkceEnabled', description='Specifies whether to use the PKCE extension for enhanced security. We recommend that you always enable this feature.'),
-      providerVendor?: string(name='ProviderVendor', description='The preset vendor or custom configuration. This parameter is optional. Default value: custom.'),
+      discoveryUrl?: string(name='DiscoveryUrl', description='The auto-discovery URL.', example='https://example.com/.well-known/openid-configuration'),
+      issuer?: string(name='Issuer', description='The authorization server identifier URL.', example='https://example.com/issuer'),
+      pkceChallengeMethod?: string(name='PkceChallengeMethod', description='The PKCE challenge method. Valid values:
+- S256.
+- plain.', example='S256'),
+      pkceEnabled?: boolean(name='PkceEnabled', description='Specifies whether PKCE is enabled.', example='true'),
+      providerVendor?: string(name='ProviderVendor', description='The vendor type. Valid values:
+- custom: custom.
+- dingtalk: DingTalk.
+- feishu: Lark.
+- github: GitHub.
+- microsoft: Microsoft.
+- google: Google.', example='custom'),
       scope?: string(name='Scope', description='The scope in the OAuth protocol, which specifies the permission scope.
 
-> The Scope configuration on the OAuth credential provider serves as a fallback value. If the scope parameter is not specified when calling the DeveloperAPI to obtain an OAuth Access Token, the Scope configuration on the credential provider is used for token issuance.
+> The Scope configuration on the credential provider serves as the fallback value. If the scope parameter is not specified when calling the DeveloperAPI to obtain an OAuth Access Token, the Scope configuration on the credential provider is used for issuance.
 
 >Notice: Separate multiple Scope values with spaces. To clear the Scope configuration, pass an empty string.
 
-Restrictions for each individual Scope value:
+Restrictions on each individual Scope value:
 1. Allowed characters: lowercase letters, digits, and special characters `|/:_-.`
 2. Must contain at least one lowercase letter or digit.
 3. Must start with a special character `.`, a lowercase letter, or a digit.
