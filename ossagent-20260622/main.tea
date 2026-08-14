@@ -11,7 +11,7 @@ extends OpenApi;
 
 init(config: OpenApi.Config){
   super(config);
-  @endpointRule = '';
+  @endpointRule = 'regional';
   
   checkConfig(config);
   @endpoint = getEndpoint('ossagent', @regionId, @endpointRule, @network, @suffix, @endpointMap, @endpoint);
@@ -31,11 +31,11 @@ function getEndpoint(productId: string, regionId: string, endpointRule: string, 
 model ChatRequest {
   messages?: [ 
     {
-      content?: string(name='content'),
-      role?: string(name='role'),
+      content?: string(name='content', description='The conversation text content.', example='Hello'),
+      role?: string(name='role', description='The role of the message.', example='user'),
     }
-  ](name='messages'),
-  sessionId?: string(name='sessionId'),
+  ](name='messages', description='The messages.'),
+  sessionId?: string(name='sessionId', description='The ID of the Q&A session.', example='UUID'),
 }
 
 model ChatResponse = {
@@ -45,7 +45,7 @@ model ChatResponse = {
 }
 
 /**
- * @summary 聊天流式接口
+ * @summary Initiates a streaming chat session.
  *
  * @param request ChatRequest
  * @param headers map
@@ -81,7 +81,7 @@ async function chatWithOptions(request: ChatRequest, headers: map[string]string,
 }
 
 /**
- * @summary 聊天流式接口
+ * @summary Initiates a streaming chat session.
  *
  * @param request ChatRequest
  * @return ChatResponse
@@ -93,17 +93,20 @@ async function chat(request: ChatRequest): ChatResponse {
 }
 
 model ConfirmRequest {
-  confirmed?: boolean(name='confirmed'),
-  phase?: string(name='phase'),
-  reason?: string(name='reason'),
-  sessionId?: string(name='sessionId'),
+  confirmed?: boolean(name='confirmed', description='Specifies whether to approve the tool execution.', example='true'),
+  phase?: string(name='phase', description='The current execution phase.', example='PARAM_INPUT'),
+  reason?: string(name='reason', description='The reason for whether to call the tool.', example='null'),
+  sessionId?: string(name='sessionId', description='The Q&A session ID.', example='UUID'),
   toolCalls?: [ 
     {
-      id?: string(name='id'),
-      modifiedInput?: map[string]any(name='modifiedInput'),
-      name?: string(name='name'),
+      id?: string(name='id', description='The tool ID, returned by the Chat operation.', example='call_662cc029b3444d8d923a7ea6'),
+      modifiedInput?: map[string]any(name='modifiedInput', description='The command to execute for the tool calling operation, returned by the Chat operation.', example='{
+    "command": "api put-bucket-acl --bucket xxx --acl private",
+    "region": "cn-hangzhou"
+}'),
+      name?: string(name='name', description='The consumer name.', example='ossutil_safe'),
     }
-  ](name='toolCalls'),
+  ](name='toolCalls', description='The tool invocations.'),
 }
 
 model ConfirmResponse = {
@@ -113,7 +116,7 @@ model ConfirmResponse = {
 }
 
 /**
- * @summary 工具确认接口
+ * @summary Confirms a tool calling operation.
  *
  * @param request ConfirmRequest
  * @param headers map
@@ -158,7 +161,7 @@ async function confirmWithOptions(request: ConfirmRequest, headers: map[string]s
 }
 
 /**
- * @summary 工具确认接口
+ * @summary Confirms a tool calling operation.
  *
  * @param request ConfirmRequest
  * @return ConfirmResponse
@@ -179,7 +182,7 @@ model InterruptResponse = {
 }
 
 /**
- * @summary 聊天中断接口
+ * @summary Interrupts a chat session.
  *
  * @param request InterruptRequest
  * @param headers map
@@ -206,7 +209,7 @@ async function interruptWithOptions(sessionId: string, request: InterruptRequest
 }
 
 /**
- * @summary 聊天中断接口
+ * @summary Interrupts a chat session.
  *
  * @param request InterruptRequest
  * @return InterruptResponse
