@@ -1019,16 +1019,18 @@ model DataStorageItem {
 }
 
 model DatasourceConfigUnified {
-  instanceId?: string(name='instanceId'),
-  legacyRaw?: string(name='legacyRaw'),
-  legacyType?: string(name='legacyType'),
-  productCategory?: string(name='productCategory'),
-  project?: string(name='project'),
-  regionId?: string(name='regionId'),
+  instanceId?: string(name='instanceId', description='The Prometheus instance ID (required when type=PROMETHEUS; ignored for other types).'),
+  legacyRaw?: string(name='legacyRaw', description='The original V1 datasource JSON string returned as a fallback when type=UNKNOWN and the read path fails to parse the datasource. If the frontend detects that this field is not empty, display it as read-only.'),
+  legacyType?: string(name='legacyType', description='Returned when type=UNKNOWN, indicating that this rule cannot be edited through the new API. Submit a ticket to contact the CloudMonitor team.'),
+  productCategory?: string(name='productCategory', description='The Alibaba Cloud service category (optional when type=CLOUD_MONITORING). If the source does not contain this information, the value unknown is returned.'),
+  project?: string(name='project', description='The Simple Log Service project name (required when type=SLS; all stores share the same project).'),
+  regionId?: string(name='regionId', description='The region ID (optional for PROMETHEUS / UMODEL / APM / SLS types; defaults to the same region as the rule or gateway. CLOUD_MONITORING does not use this field; use AlertRuleV2.regionId instead).'),
   stores?: [
     Stores
-  ](name='stores'),
-  type?: string(name='type', description='This parameter is required.'),
+  ](name='stores', description='The list of Simple Log Service stores (used when type=SLS; at least one store is required). Each store contains store and storeType fields. The project and regionId fields have been moved to the top level. The deprecated fields with the same names that remain in stores cause a 400 error if used in write paths.'),
+  type?: string(name='type', description='The datasource type. Valid values: PROMETHEUS (instanceId is required; regionId is optional). UMODEL (regionId is optional; other settings are carried in queryConfig/conditionConfig). APM (regionId is optional). CLOUD_MONITORING (regionId and productCategory are optional). UNKNOWN (read-only fallback; do not use in write paths). Do not use non-enumerated values (such as CMS_BASIC_DS or SLS_DS). The backend returns an Invalidtype 400 error.
+
+This parameter is required.'),
 }
 
 model DatasourceTypeFilter {
@@ -9170,6 +9172,7 @@ model GetIntegrationPolicyRequest {
 
 model GetIntegrationPolicyResponseBody = {
   policy?: {
+    addonNames?: [ string ](name='addonNames', description='The names of all components installed in this policy.'),
     bindResource?: {
       clusterId?: string(name='clusterId', description='The cluster ID.', example='00b1630f02814f95a9bce717d8d56bb2'),
       clusterType?: string(name='clusterType', description='The cluster type.', example='ManagedKubernetes'),
@@ -9193,10 +9196,10 @@ model GetIntegrationPolicyResponseBody = {
         fieldRules?: [ 
           {
             fieldKey?: string(name='fieldKey', description='The unique identifier of the field.', example='test'),
-            fieldValues?: [ string ](name='fieldValues', description='The field values.'),
+            fieldValues?: [ string ](name='fieldValues', description='The field content.'),
             op?: string(name='op', description='The operation to perform.', example='add'),
           }
-        ](name='fieldRules', description='The list of field rules.'),
+        ](name='fieldRules', description='The list of property rules.'),
         instanceIds?: [ string ](name='instanceIds', description='The instance IDs.'),
         ipMatchRule?: {
           ipCidr?: string(name='ipCidr', description='The IP CIDR block.', example='10.10.0.1/16'),
@@ -9219,7 +9222,7 @@ model GetIntegrationPolicyResponseBody = {
           }
         ](name='tags', description='The tag values.'),
       }(name='entityRules', description='The entity rules.'),
-      query?: string(name='query', description='The query parameter.', example='status: 200 AND totalTime > 0.5'),
+      query?: string(name='query', description='Used for querying.', example='status: 200 AND totalTime > 0.5'),
       regionId?: string(name='regionId', description='The region ID.', example='cn-heyuan'),
       userId?: string(name='userId', description='The user ID.', example='u123456'),
       workspace?: string(name='workspace', description='The workspace.', example='test-api'),
@@ -12384,15 +12387,15 @@ async function listDeliveryTasks(request: ListDeliveryTasksRequest): ListDeliver
 model ListIntegrationPoliciesRequest {
   addonName?: string(name='addonName', description='The addon name.', example='cs-default'),
   bindResourceId?: string(name='bindResourceId', description='The ID of the bound resource.', example='622d27c2e87d49debceeebc7c642610e'),
-  entityGroupIds?: string(name='entityGroupIds', description='The entity IDs used for filtering, separated by commas.', example='eg-1,eg-2,eg-3'),
-  filterRegionIds?: string(name='filterRegionIds', description='The region IDs used for filtering, separated by commas.', example='cn-beijing,cn-hangzhou'),
+  entityGroupIds?: string(name='entityGroupIds', description='The entity IDs used for filtering. Separate multiple IDs with commas (,).', example='eg-1,eg-2,eg-3'),
+  filterRegionIds?: string(name='filterRegionIds', description='The region IDs used for region-based queries. Separate multiple region IDs with commas (,).', example='cn-beijing,cn-hangzhou'),
   maxResults?: int32(name='maxResults', description='The maximum number of results to return. Default value: 30. Maximum value: 100.', example='30'),
-  nextToken?: string(name='nextToken', description='The token used to retrieve more results. You do not need to specify this parameter for the first request. Use the token returned from the previous query for subsequent requests.', example='mvnX6zqg3P'),
+  nextToken?: string(name='nextToken', description='The token used to retrieve more results. You do not need to specify this parameter for the first query. For subsequent queries, use the token obtained from the previous response.', example='mvnX6zqg3P'),
   policyId?: string(name='policyId', description='The policy ID.', example='policy-93817a401f78435596d745a97d2e85a1'),
   policyName?: string(name='policyName', description='The rule name.', example='prod-database'),
   policyType?: string(name='policyType', description='The policy type.', example='CS'),
   prometheusInstanceId?: string(name='prometheusInstanceId', description='The instance ID.', example='cmee-622d27c2e87d49debceeebc7c642610e'),
-  query?: string(name='query', description='The keyword used for general queries.', example='test'),
+  query?: string(name='query', description='The general query string.', example='test'),
   resourceGroupId?: string(name='resourceGroupId', description='The resource group ID.', example='rg-xxxxx'),
   tag?: [ 
     {
@@ -12406,29 +12409,26 @@ model ListIntegrationPoliciesRequest {
 model ListIntegrationPoliciesShrinkRequest {
   addonName?: string(name='addonName', description='The addon name.', example='cs-default'),
   bindResourceId?: string(name='bindResourceId', description='The ID of the bound resource.', example='622d27c2e87d49debceeebc7c642610e'),
-  entityGroupIds?: string(name='entityGroupIds', description='The entity IDs used for filtering, separated by commas.', example='eg-1,eg-2,eg-3'),
-  filterRegionIds?: string(name='filterRegionIds', description='The region IDs used for filtering, separated by commas.', example='cn-beijing,cn-hangzhou'),
+  entityGroupIds?: string(name='entityGroupIds', description='The entity IDs used for filtering. Separate multiple IDs with commas (,).', example='eg-1,eg-2,eg-3'),
+  filterRegionIds?: string(name='filterRegionIds', description='The region IDs used for region-based queries. Separate multiple region IDs with commas (,).', example='cn-beijing,cn-hangzhou'),
   maxResults?: int32(name='maxResults', description='The maximum number of results to return. Default value: 30. Maximum value: 100.', example='30'),
-  nextToken?: string(name='nextToken', description='The token used to retrieve more results. You do not need to specify this parameter for the first request. Use the token returned from the previous query for subsequent requests.', example='mvnX6zqg3P'),
+  nextToken?: string(name='nextToken', description='The token used to retrieve more results. You do not need to specify this parameter for the first query. For subsequent queries, use the token obtained from the previous response.', example='mvnX6zqg3P'),
   policyId?: string(name='policyId', description='The policy ID.', example='policy-93817a401f78435596d745a97d2e85a1'),
   policyName?: string(name='policyName', description='The rule name.', example='prod-database'),
   policyType?: string(name='policyType', description='The policy type.', example='CS'),
   prometheusInstanceId?: string(name='prometheusInstanceId', description='The instance ID.', example='cmee-622d27c2e87d49debceeebc7c642610e'),
-  query?: string(name='query', description='The keyword used for general queries.', example='test'),
+  query?: string(name='query', description='The general query string.', example='test'),
   resourceGroupId?: string(name='resourceGroupId', description='The resource group ID.', example='rg-xxxxx'),
   tagShrink?: string(name='tag', description='The tags.'),
   workspace?: string(name='workspace', description='The workspace.', example='demo'),
 }
 
 model ListIntegrationPoliciesResponseBody = {
-  maxResults?: int32(name='maxResults', description='The page size.
-Default value:
-	50
-Maximum value:
-	50.', example='100'),
+  maxResults?: int32(name='maxResults', description='The page size.', example='100'),
   nextToken?: string(name='nextToken', description='The pagination token.', example='44ANBjKZmQeKnaB1fXRq06w7sFYK3MUcCALMD9qQbmEiE'),
   policies?: [ 
     {
+      addonNames?: [ string ](name='addonNames', description='The names of all components installed in this policy.'),
       bindResource?: {
         clusterId?: string(name='clusterId', description='The cluster ID.', example='cv68tt87d78vyc89zy9v'),
         clusterType?: string(name='clusterType', description='The cluster type.', example='ManagedKubernetes'),
@@ -12452,7 +12452,7 @@ Maximum value:
           fieldRules?: [ 
             {
               fieldKey?: string(name='fieldKey', description='The unique identifier of the field.', example='test'),
-              fieldValues?: [ string ](name='fieldValues', description='The field values. Multiple values are separated by commas.'),
+              fieldValues?: [ string ](name='fieldValues', description='The field values. Multiple values are separated by commas (,).'),
               op?: string(name='op', description='The operation to perform.', example='add'),
             }
           ](name='fieldRules', description='The field rules.'),
@@ -12496,8 +12496,8 @@ Maximum value:
       resourceGroupId?: string(name='resourceGroupId', description='The resource group ID.', example='rg-xxxxx'),
       subAddonRelease?: {
         ready?: int32(name='ready', description='The number of ready sub-releases.', example='30'),
-        total?: int32(name='total', description='The total number of rules.', example='278'),
-      }(name='subAddonRelease', description='The number of sub-releases.'),
+        total?: int32(name='total', description='The number of rules.', example='278'),
+      }(name='subAddonRelease', description='The sub-release count.'),
       userId?: string(name='userId', description='The user ID.', example='128470923'),
       workspace?: string(name='workspace', description='The workspace.', example='test-api'),
     }
@@ -12826,8 +12826,9 @@ async function listIntegrationPolicyCollectors(policyId: string, request: ListIn
 }
 
 model ListIntegrationPolicyCustomScrapeJobRulesRequest {
-  addonReleaseName?: string(name='addonReleaseName', description='The name of the add-on release.', example='release12345678'),
-  encryptYaml?: boolean(name='encryptYaml', description='Specifies whether to encrypt the YAML file.', example='true'),
+  addonReleaseName?: string(name='addonReleaseName', description='The name of the addon release.', example='release12345678'),
+  collectorReleaseName?: string(name='collectorReleaseName', description='The probe identifier. If a release exists, pass the release name. If no release exists, pass the component name.', example='collector:metric-agent:policy:policy-bfd3d455fd6f4bc8'),
+  encryptYaml?: boolean(name='encryptYaml', description='Specifies whether to encrypt the YAML content.', example='true'),
   namespace?: string(name='namespace', description='The namespace.', example='arms-prom'),
 }
 
@@ -12835,22 +12836,22 @@ model ListIntegrationPolicyCustomScrapeJobRulesResponseBody = {
   clusterId?: string(name='clusterId', description='The cluster ID.', example='et15prod-et15storage'),
   customScrapeJobRules?: [ 
     {
-      addonName?: string(name='addonName', description='The add-on name.', example='cloud-ecs'),
-      addonReleaseName?: string(name='addonReleaseName', description='The name of the add-on release.', example='release-12345678'),
-      addonVersion?: string(name='addonVersion', description='The add-on version.', example='0.0.1'),
-      configYaml?: string(name='configYaml', description='The configuration YAML file.', example='scrape_cofnigs:
+      addonName?: string(name='addonName', description='The addon name.', example='cloud-ecs'),
+      addonReleaseName?: string(name='addonReleaseName', description='The addon release name.', example='release-12345678'),
+      addonVersion?: string(name='addonVersion', description='The addon version.', example='0.0.1'),
+      configYaml?: string(name='configYaml', description='The configuration YAML.', example='scrape_cofnigs:
 - jobxxxxxx'),
-      enableStatus?: string(name='enableStatus', description='The enabled status.', example='mini'),
-      encryptYaml?: boolean(name='encryptYaml', description='Indicates whether the YAML file is encrypted.', example='true'),
+      enableStatus?: string(name='enableStatus', description='The enabling status.', example='mini'),
+      encryptYaml?: boolean(name='encryptYaml', description='The encrypted YAML.', example='true'),
       matchedPodCount?: long(name='matchedPodCount', description='The number of matched pods.', example='1'),
-      message?: string(name='message', description='The details.', example='ok'),
+      message?: string(name='message', description='The detailed information.', example='ok'),
       name?: string(name='name', description='The service name.', example='dlab1'),
       namespace?: string(name='namespace', description='The namespace.', example='prod-data'),
       scrapeConfigs?: [ 
         {
           jobName?: string(name='jobName', description='The scrape job name.', example='mysql-exporter'),
-          message?: string(name='message', description='The details.', example='successful'),
-          metricsPath?: string(name='metricsPath', description='The scrape path.', example='/metrics'),
+          message?: string(name='message', description='The detailed information.', example='successful'),
+          metricsPath?: string(name='metricsPath', description='The metrics path.', example='/metrics'),
           scheme?: string(name='scheme', description='The invocation method.', example='http'),
           scrapeInterval?: string(name='scrapeInterval', description='The scrape interval.', example='30s'),
           scrapeTimeout?: string(name='scrapeTimeout', description='The scrape timeout period.', example='60s'),
@@ -12860,7 +12861,7 @@ model ListIntegrationPolicyCustomScrapeJobRulesResponseBody = {
     }
   ](name='customScrapeJobRules', description='The custom scrape job rules.'),
   policyId?: string(name='policyId', description='The policy ID.', example='policy-15abcc24c06f4797832b5954198e1ed1'),
-  requestId?: string(name='requestId', description='The ID of the request.', example='0CEC5375-C554-562B-A65F-9A629907C1F0'),
+  requestId?: string(name='requestId', description='Id of the request', example='0CEC5375-C554-562B-A65F-9A629907C1F0'),
 }
 
 model ListIntegrationPolicyCustomScrapeJobRulesResponse = {
@@ -12870,7 +12871,7 @@ model ListIntegrationPolicyCustomScrapeJobRulesResponse = {
 }
 
 /**
- * @summary Lists the custom service discovery rules for an Integration Center policy.
+ * @summary Retrieves the custom service discovery rules of a Provisioning policy.
  *
  * @param request ListIntegrationPolicyCustomScrapeJobRulesRequest
  * @param headers map
@@ -12882,6 +12883,9 @@ async function listIntegrationPolicyCustomScrapeJobRulesWithOptions(policyId: st
   var query : map[string]any = {};
   if (!Util.isUnset(request.addonReleaseName)) {
     query['addonReleaseName'] = request.addonReleaseName;
+  }
+  if (!Util.isUnset(request.collectorReleaseName)) {
+    query['collectorReleaseName'] = request.collectorReleaseName;
   }
   if (!Util.isUnset(request.encryptYaml)) {
     query['encryptYaml'] = request.encryptYaml;
@@ -12909,7 +12913,7 @@ async function listIntegrationPolicyCustomScrapeJobRulesWithOptions(policyId: st
 }
 
 /**
- * @summary Lists the custom service discovery rules for an Integration Center policy.
+ * @summary Retrieves the custom service discovery rules of a Provisioning policy.
  *
  * @param request ListIntegrationPolicyCustomScrapeJobRulesRequest
  * @return ListIntegrationPolicyCustomScrapeJobRulesResponse
@@ -13007,8 +13011,9 @@ async function listIntegrationPolicyDashboards(policyId: string, request: ListIn
 }
 
 model ListIntegrationPolicyPodMonitorsRequest {
-  addonReleaseName?: string(name='addonReleaseName', description='The name of the add-on release.', example='release-123456789'),
-  encryptYaml?: boolean(name='encryptYaml', description='Specifies whether to encrypt the YAML file.', example='true'),
+  addonReleaseName?: string(name='addonReleaseName', description='The name of the addon release.', example='release-123456789'),
+  collectorReleaseName?: string(name='collectorReleaseName', description='The identifier of the collector. If a release exists, pass the release name. If no release exists, pass the component name.', example='collector:metric-agent:policy:policy-bfd3d455fd6f4bc8'),
+  encryptYaml?: boolean(name='encryptYaml', description='Specifies whether to encrypt the YAML.', example='true'),
   namespace?: string(name='namespace', description='The namespace.', example='default'),
 }
 
@@ -13016,12 +13021,12 @@ model ListIntegrationPolicyPodMonitorsResponseBody = {
   clusterId?: string(name='clusterId', description='The cluster ID.', example='et15prod-et15storage'),
   podMonitors?: [ 
     {
-      addonName?: string(name='addonName', description='The name of the add-on.', example='cloud-ecs'),
-      addonReleaseName?: string(name='addonReleaseName', description='The name of the add-on release.', example='release-2345678'),
-      addonVersion?: string(name='addonVersion', description='The version of the add-on.', example='0.0.1'),
-      configYaml?: string(name='configYaml', description='The YAML configuration.', example='apiVersion: xxxxx'),
-      enableStatus?: string(name='enableStatus', description='The status.', example='run'),
-      encryptYaml?: boolean(name='encryptYaml', description='Indicates whether the YAML file is encrypted.', example='YXBpVmVyc2lvbjogeHh4eHgK'),
+      addonName?: string(name='addonName', description='The addon name.', example='cloud-ecs'),
+      addonReleaseName?: string(name='addonReleaseName', description='The addon release name.', example='release-2345678'),
+      addonVersion?: string(name='addonVersion', description='The addon version.', example='0.0.1'),
+      configYaml?: string(name='configYaml', description='The configuration YAML.', example='apiVersion: xxxxx'),
+      enableStatus?: string(name='enableStatus', description='The enabling status.', example='run'),
+      encryptYaml?: boolean(name='encryptYaml', description='The encrypted YAML.', example='YXBpVmVyc2lvbjogeHh4eHgK'),
       endpoints?: [ 
         {
           interval?: string(name='interval', description='The collection interval.', example='30s'),
@@ -13037,7 +13042,7 @@ model ListIntegrationPolicyPodMonitorsResponseBody = {
     }
   ](name='podMonitors', description='The list of PodMonitors.'),
   policyId?: string(name='policyId', description='The policy ID.', example='policy-c9efed2b99c348d49e589c5f780fc074'),
-  requestId?: string(name='requestId', description='The ID of the request.', example='CD8BA7D6-995D-578D-9941-78B0FECD14B5'),
+  requestId?: string(name='requestId', description='Id of the request', example='CD8BA7D6-995D-578D-9941-78B0FECD14B5'),
 }
 
 model ListIntegrationPolicyPodMonitorsResponse = {
@@ -13047,9 +13052,9 @@ model ListIntegrationPolicyPodMonitorsResponse = {
 }
 
 /**
- * @summary Lists the PodMonitor resources for an Integration Center policy.
+ * @summary Retrieves the PodMonitor resources of an access center policy.
  *
- * @description This topic provides an example of how to list the PodMonitor resources for an Integration Center policy.
+ * @description This topic provides an example on how to query the list of alert templates. The response shows that the alert template list contains two alert templates: `ECS_Template1` and `ECS_Template2`.
  *
  * @param request ListIntegrationPolicyPodMonitorsRequest
  * @param headers map
@@ -13061,6 +13066,9 @@ async function listIntegrationPolicyPodMonitorsWithOptions(policyId: string, req
   var query : map[string]any = {};
   if (!Util.isUnset(request.addonReleaseName)) {
     query['addonReleaseName'] = request.addonReleaseName;
+  }
+  if (!Util.isUnset(request.collectorReleaseName)) {
+    query['collectorReleaseName'] = request.collectorReleaseName;
   }
   if (!Util.isUnset(request.encryptYaml)) {
     query['encryptYaml'] = request.encryptYaml;
@@ -13088,9 +13096,9 @@ async function listIntegrationPolicyPodMonitorsWithOptions(policyId: string, req
 }
 
 /**
- * @summary Lists the PodMonitor resources for an Integration Center policy.
+ * @summary Retrieves the PodMonitor resources of an access center policy.
  *
- * @description This topic provides an example of how to list the PodMonitor resources for an Integration Center policy.
+ * @description This topic provides an example on how to query the list of alert templates. The response shows that the alert template list contains two alert templates: `ECS_Template1` and `ECS_Template2`.
  *
  * @param request ListIntegrationPolicyPodMonitorsRequest
  * @return ListIntegrationPolicyPodMonitorsResponse
@@ -13102,8 +13110,9 @@ async function listIntegrationPolicyPodMonitors(policyId: string, request: ListI
 }
 
 model ListIntegrationPolicyServiceMonitorsRequest {
-  addonReleaseName?: string(name='addonReleaseName', description='The name of the add-on release.', example='release-12345678'),
-  encryptYaml?: boolean(name='encryptYaml', description='Specifies whether to encrypt the YAML file.', example='true'),
+  addonReleaseName?: string(name='addonReleaseName', description='The name of the addon release.', example='release-12345678'),
+  collectorReleaseName?: string(name='collectorReleaseName', description='The probe identifier. If a release exists, pass the release name. If no release exists, pass the component name.', example='collector:metric-agent:policy:policy-bfd3d455fd6f4bc8'),
+  encryptYaml?: boolean(name='encryptYaml', description='Specifies whether to encrypt the YAML.', example='true'),
   namespace?: string(name='namespace', description='The namespace.', example='arms-prom'),
 }
 
@@ -13113,23 +13122,23 @@ model ListIntegrationPolicyServiceMonitorsResponseBody = {
   requestId?: string(name='requestId', description='The request ID.', example='CD8BA7D6-995D-578D-9941-78B0FECD14B5'),
   serviceMonitors?: [ 
     {
-      addonName?: string(name='addonName', description='The add-on name.', example='cloud-acs-ecs'),
-      addonReleaseName?: string(name='addonReleaseName', description='The name of the add-on release.', example='release-1234567'),
-      addonVersion?: string(name='addonVersion', description='The add-on version.', example='0.0.1'),
-      configYaml?: string(name='configYaml', description='The configuration YAML file.', example='apiVersion: xxxxx'),
-      enableStatus?: string(name='enableStatus', description='The status.', example='run'),
-      encryptYaml?: boolean(name='encryptYaml', description='Indicates whether the YAML file is encrypted.', example='YXBpVmVyc2lvbjogeHh4eHgK'),
+      addonName?: string(name='addonName', description='The addon name.', example='cloud-acs-ecs'),
+      addonReleaseName?: string(name='addonReleaseName', description='The addon release name.', example='release-1234567'),
+      addonVersion?: string(name='addonVersion', description='The addon version.', example='0.0.1'),
+      configYaml?: string(name='configYaml', description='The configuration YAML.', example='apiVersion: xxxxx'),
+      enableStatus?: string(name='enableStatus', description='The enabling status.', example='run'),
+      encryptYaml?: boolean(name='encryptYaml', description='The encrypted YAML.', example='YXBpVmVyc2lvbjogeHh4eHgK'),
       endpoints?: [ 
         {
           interval?: string(name='interval', description='The collection interval.', example='30s'),
           matchedTargetCount?: long(name='matchedTargetCount', description='The number of matched targets.', example='65'),
-          path?: string(name='path', description='The collection path.', example='/metrics'),
+          path?: string(name='path', description='The sampling path.', example='/metrics'),
           port?: string(name='port', description='The collection port.', example='9100'),
           targetPort?: string(name='targetPort', description='The target port.', example='http'),
         }
-      ](name='endpoints', description='The list of Endpoints.'),
+      ](name='endpoints', description='The list of endpoints.'),
       matchedServiceCount?: long(name='matchedServiceCount', description='The number of matched services.', example='50'),
-      name?: string(name='name', description='The name of the ServiceMonitor.', example='62a526c5-f6ca-4cfb-b5a4-b76974cffe51'),
+      name?: string(name='name', description='The ServiceMonitor name.', example='62a526c5-f6ca-4cfb-b5a4-b76974cffe51'),
       namespace?: string(name='namespace', description='The namespace.', example='arms-prom'),
     }
   ](name='serviceMonitors', description='The list of ServiceMonitors.'),
@@ -13142,7 +13151,7 @@ model ListIntegrationPolicyServiceMonitorsResponse = {
 }
 
 /**
- * @summary Retrieves the ServiceMonitor information for an Integration Center policy.
+ * @summary Retrieves the ServiceMonitor information of a Provisioning policy.
  *
  * @param request ListIntegrationPolicyServiceMonitorsRequest
  * @param headers map
@@ -13154,6 +13163,9 @@ async function listIntegrationPolicyServiceMonitorsWithOptions(policyId: string,
   var query : map[string]any = {};
   if (!Util.isUnset(request.addonReleaseName)) {
     query['addonReleaseName'] = request.addonReleaseName;
+  }
+  if (!Util.isUnset(request.collectorReleaseName)) {
+    query['collectorReleaseName'] = request.collectorReleaseName;
   }
   if (!Util.isUnset(request.encryptYaml)) {
     query['encryptYaml'] = request.encryptYaml;
@@ -13181,7 +13193,7 @@ async function listIntegrationPolicyServiceMonitorsWithOptions(policyId: string,
 }
 
 /**
- * @summary Retrieves the ServiceMonitor information for an Integration Center policy.
+ * @summary Retrieves the ServiceMonitor information of a Provisioning policy.
  *
  * @param request ListIntegrationPolicyServiceMonitorsRequest
  * @return ListIntegrationPolicyServiceMonitorsResponse
