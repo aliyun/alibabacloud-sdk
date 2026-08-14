@@ -9,8 +9,11 @@ extends OpenApi;
 
 init(config: OpenApiUtil.Config){
   super(config);
-  @endpointRule = '';
-  
+  @endpointRule = 'regional';
+  @endpointMap = {
+    'cn-beijing' = 'tingwu.cn-beijing.aliyuncs.com',
+  };
+
   checkConfig(config);
   @endpoint = getEndpoint('tingwu', @regionId, @endpointRule, @network, @suffix, @endpointMap, @endpoint);
 }
@@ -27,134 +30,208 @@ function getEndpoint(productId: string, regionId: string, endpointRule: string, 
 }
 
 model CreateTaskRequest {
-  appKey?: string(name='AppKey', example='JV1sRTisRMi****'),
+  appKey?: string(name='AppKey', description='The AppKey of the project that you created in the console.', example='JV1sRTisRMi****'),
   input?: {
-    audioChannelMode?: string(name='AudioChannelMode'),
-    fileUrl?: string(name='FileUrl', example='http://xxx.com/zzz/1.wav'),
-    format?: string(name='Format', example='pcm'),
-    languageHints?: [ string ](name='LanguageHints'),
-    multipleStreamsEnabled?: boolean(name='MultipleStreamsEnabled'),
-    outputPath?: string(name='OutputPath'),
-    progressiveCallbacksEnabled?: boolean(name='ProgressiveCallbacksEnabled'),
-    sampleRate?: int32(name='SampleRate', example='16000'),
-    sourceLanguage?: string(name='SourceLanguage', description='This parameter is required.', example='cn'),
-    taskId?: string(name='TaskId'),
-    taskKey?: string(name='TaskKey', example='task_tingwu_123'),
-  }(name='Input'),
+    audioChannelMode?: string(name='AudioChannelMode', description='Multi-channel audio or video processing mode.'),
+    fileUrl?: string(name='FileUrl', description='The HTTP or HTTPS URL of the source audio or video file. This parameter is required when you create an offline transcription task.', example='http://xxx.com/zzz/1.wav'),
+    format?: string(name='Format', description='The encoding format of the audio stream data. This parameter is required when you create a real-time recording task. The following values are supported:
+
+- **pcm**
+
+- **opus**
+
+- **aac**
+
+- **speex**
+
+- **mp3**', example='pcm'),
+    languageHints?: [ string ](name='LanguageHints', description='Preferred languages. This applies only when SourceLanguage is multilingual. It restricts the output language of the model.'),
+    multipleStreamsEnabled?: boolean(name='MultipleStreamsEnabled', description='Specifies whether to enable multi-channel audio stream recognition. This parameter applies only to real-time recording scenarios. The default value is `false`.', example='false'),
+    outputPath?: string(name='OutputPath', description='After you configure OSS settings in the console, specify an OSS path to save results directly to your OSS bucket.'),
+    progressiveCallbacksEnabled?: boolean(name='ProgressiveCallbacksEnabled', description='Specifies whether to enable callbacks. To receive callbacks, you must configure the callback type and URL in the console and set this parameter to `true`.', example='false'),
+    sampleRate?: int32(name='SampleRate', description='The sample rate of the audio stream data. This parameter is required when you create a real-time recording task. The supported values are 8000 and 16000.
+
+- **8000**: Suitable for telephony and customer service scenarios.
+
+- **16000**: Suitable for real-time meeting audio capture scenarios.', example='16000'),
+    sourceLanguage?: string(name='SourceLanguage', description='The language model for speech transcription. The following values are supported:
+
+- **cn**: Chinese
+
+- **en**: English
+
+- **fspk**: Chinese-English code-switching
+
+- **ja**: Japanese
+
+- **yue**: Cantonese
+
+This parameter is required.', example='cn'),
+    taskId?: string(name='TaskId', description='The task ID that is returned when you create a real-time recording. This ID is required to stop the recording. Specify this parameter only when stopping a real-time recording.', example='9922c84c087044eda18659c128b56c84'),
+    taskKey?: string(name='TaskKey', description='A custom identifier that you can set for the task.', example='task_tingwu_123'),
+  }(name='Input', description='The basic input parameters for creating a task. The required parameters vary based on the task type.
+
+- For an offline task (`type="offline"`), you must specify the `SourceLanguage` and `FileUrl` parameters.
+
+- For a real-time task (`type="realtime"`), you must also specify the `SourceLanguage`, `Format`, and `SampleRate` parameters.'),
   parameters?: {
     autoChapters?: {
       chapterGranularity?: string(name='ChapterGranularity'),
     }(name='AutoChapters'),
-    autoChaptersEnabled?: boolean(name='AutoChaptersEnabled', example='true'),
+    autoChaptersEnabled?: boolean(name='AutoChaptersEnabled', description='Specifies whether to generate a chapter summary, which includes chapter titles and summaries for each chapter.', example='true'),
     contentExtraction?: {
       extractionContents?: [ 
         {
-          content?: string(name='Content'),
+          content?: string(name='Content', description='Definition of the content extraction dimension.'),
           identity?: string(name='Identity'),
-          title?: string(name='Title'),
+          title?: string(name='Title', description='Name of the content extraction dimension.'),
         }
-      ](name='ExtractionContents'),
-      sceneIntroduction?: string(name='SceneIntroduction'),
+      ](name='ExtractionContents', description='List of content extraction dimensions. Each dimension includes a name and definition.'),
+      sceneIntroduction?: string(name='SceneIntroduction', description='Description of the conversation scenario for content extraction.'),
       speakerMap?: map[string]any(name='SpeakerMap'),
-    }(name='ContentExtraction'),
+    }(name='ContentExtraction', description='Conversation content extraction parameters.'),
     contentExtractionEnabled?: boolean(name='ContentExtractionEnabled'),
     customPrompt?: {
       contents?: [ 
         {
-          model?: string(name='Model'),
-          name?: string(name='Name', description='This parameter is required.'),
-          prompt?: string(name='Prompt', description='This parameter is required.'),
-          transType?: string(name='TransType'),
+          model?: string(name='Model', description='The model to use for the prompt.', example='tingwu-turbo'),
+          name?: string(name='Name', description='A custom name for the prompt, used to identify the corresponding output.
+
+This parameter is required.', example='summary-demo'),
+          prompt?: string(name='Prompt', description='The content of the custom prompt.
+
+This parameter is required.', example='总结一下下面的对话内容:{Transcription}'),
+          transType?: string(name='TransType', description='Specifies the format for the `{Transcription}` tag.', example='default'),
         }
-      ](name='Contents'),
-    }(name='CustomPrompt'),
-    customPromptEnabled?: boolean(name='CustomPromptEnabled'),
+      ](name='Contents', description='A list of custom prompt parameters.'),
+    }(name='CustomPrompt', description='Parameters to control the custom prompt feature.'),
+    customPromptEnabled?: boolean(name='CustomPromptEnabled', description='Specifies whether to enable the custom prompt feature.', example='false'),
     extraParams?: {
       domainEducationEnabled?: boolean(name='DomainEducationEnabled'),
-      fullTextSummaryFormat?: string(name='FullTextSummaryFormat'),
-      maxKeywords?: int32(name='MaxKeywords'),
-      nfixEnabled?: boolean(name='NfixEnabled'),
+      fullTextSummaryFormat?: string(name='FullTextSummaryFormat', description='Full-text summary format.'),
+      maxKeywords?: int32(name='MaxKeywords', description='Maximum number of keywords.'),
+      nfixEnabled?: boolean(name='NfixEnabled', description='Specifies whether to enable nfix. You do not typically need to configure this parameter.', example='true'),
       ocrAuxiliaryEnabled?: boolean(name='OcrAuxiliaryEnabled'),
       translateLlmSceneEnabled?: boolean(name='TranslateLlmSceneEnabled'),
       translationHotwordMap?: {
         bizType?: string(name='bizType'),
         bizUserId?: string(name='bizUserId'),
       }(name='TranslationHotwordMap'),
-    }(name='ExtraParams'),
+    }(name='ExtraParams', description='Extended parameters for advanced use cases. You do not typically need to configure these parameters.'),
     identityRecognition?: {
       identityContents?: [ 
         {
-          description?: string(name='Description'),
-          name?: string(name='Name'),
+          description?: string(name='Description', description='Identity description.'),
+          name?: string(name='Name', description='Identity name.'),
         }
-      ](name='IdentityContents'),
-      sceneIntroduction?: string(name='SceneIntroduction'),
-    }(name='IdentityRecognition'),
-    identityRecognitionEnabled?: boolean(name='IdentityRecognitionEnabled'),
+      ](name='IdentityContents', description='List of identities, including identity name and description.'),
+      sceneIntroduction?: string(name='SceneIntroduction', description='Description of the scenario for identity recognition.'),
+    }(name='IdentityRecognition', description='Identity recognition parameters.'),
+    identityRecognitionEnabled?: boolean(name='IdentityRecognitionEnabled', description='Enable identity recognition.'),
     llmOutputLanguage?: string(name='LlmOutputLanguage'),
     meetingAssistance?: {
-      types?: [ string ](name='Types'),
-    }(name='MeetingAssistance'),
-    meetingAssistanceEnabled?: boolean(name='MeetingAssistanceEnabled', example='false'),
+      types?: [ string ](name='Types', description='The types of analysis to perform when the intelligent minutes feature is enabled. Supported values: `Actions` (action items) and `KeyInformation` (key information, including keywords and key points).'),
+    }(name='MeetingAssistance', description='Parameters for the intelligent minutes feature, which supports processing for action items, keywords, and key points. If `MeetingAssistanceEnabled` is set to `true` but you do not specify this object, all analysis types are enabled by default.'),
+    meetingAssistanceEnabled?: boolean(name='MeetingAssistanceEnabled', description='Specifies whether to generate intelligent minutes, which include keywords, key points, and action items.', example='false'),
     model?: string(name='Model'),
-    pptExtractionEnabled?: boolean(name='PptExtractionEnabled'),
+    pptExtractionEnabled?: boolean(name='PptExtractionEnabled', description='Specifies whether to enable PPT extraction. If enabled, the service extracts slides from the video file and generates corresponding summaries. This feature applies only to offline transcription tasks with a video source file and has no effect on other task types.', example='false'),
     serviceInspection?: {
       inspectionContents?: [ 
         {
-          content?: string(name='Content'),
-          title?: string(name='Title'),
+          content?: string(name='Content', description='Definition of the inspection dimension.'),
+          title?: string(name='Title', description='Name of the inspection dimension.'),
         }
-      ](name='InspectionContents'),
-      inspectionIntroduction?: string(name='InspectionIntroduction'),
-      sceneIntroduction?: string(name='SceneIntroduction'),
+      ](name='InspectionContents', description='List of inspection dimensions for service quality inspection. Each dimension includes a name and definition, which tells the Large Language Model how to evaluate whether the dimension is met.'),
+      inspectionIntroduction?: string(name='InspectionIntroduction', description='Description of the inspection goals and focus areas for service quality inspection.'),
+      sceneIntroduction?: string(name='SceneIntroduction', description='Description of the conversation scenario for service quality inspection.'),
       speakerMap?: map[string]any(name='SpeakerMap'),
-    }(name='ServiceInspection'),
-    serviceInspectionEnabled?: boolean(name='ServiceInspectionEnabled'),
+    }(name='ServiceInspection', description='Service quality inspection parameters.'),
+    serviceInspectionEnabled?: boolean(name='ServiceInspectionEnabled', description='Enable service quality inspection. Default is false.'),
     summarization?: {
-      types?: [ string ](name='Types', example='Paragraph'),
-    }(name='Summarization'),
-    summarizationEnabled?: boolean(name='SummarizationEnabled', example='false'),
-    textPolishEnabled?: boolean(name='TextPolishEnabled'),
+      types?: [ string ](name='Types', description='The types of summaries to generate. This parameter is required when summarization is enabled. Supported types include `Paragraph` (full-text summary), `Conversational` (speaker summary), and `QuestionsAnswering` (Q\\\\&A summary).', example='Paragraph'),
+    }(name='Summarization', description='Parameters for the summarization feature.'),
+    summarizationEnabled?: boolean(name='SummarizationEnabled', description='Specifies whether to enable the summarization feature, which can generate results such as a full-text summary and a speaker summary.', example='false'),
+    textPolishEnabled?: boolean(name='TextPolishEnabled', description='Specifies whether to enable the spoken-to-written conversion feature.', example='false'),
     transcoding?: {
-      spectrumEnabled?: boolean(name='SpectrumEnabled', example='false'),
-      targetAudioFormat?: string(name='TargetAudioFormat', example='mp3'),
-      targetVideoFormat?: string(name='TargetVideoFormat', example='mp4'),
-      videoThumbnailEnabled?: boolean(name='VideoThumbnailEnabled', example='false'),
-    }(name='Transcoding'),
+      spectrumEnabled?: boolean(name='SpectrumEnabled', description='Specifies whether to generate and save an audio waveform from the source audio/video file or audio stream. This parameter is optional for offline transcription and real-time recording tasks.', example='false'),
+      targetAudioFormat?: string(name='TargetAudioFormat', description='Specifies the target format for the transcoded audio. Set to `mp3` to transcode the source audio into MP3 format for storage. This parameter is optional for offline transcription and real-time recording tasks.', example='mp3'),
+      targetVideoFormat?: string(name='TargetVideoFormat', description='Specifies the target format for the transcoded video. Set to `mp4` to transcode the source video into MP4 format for storage. This parameter applies only to offline transcription tasks with a video source file.', example='mp4'),
+      videoThumbnailEnabled?: boolean(name='VideoThumbnailEnabled', description='Specifies whether to extract and save video thumbnails from the source video file. This parameter applies only to offline transcription tasks with a video source file.', example='false'),
+    }(name='Transcoding', description='Parameters for transcoding source audio/video files or audio streams.'),
     transcription?: {
-      additionalStreamOutputLevel?: int32(name='AdditionalStreamOutputLevel'),
-      audioEventDetectionEnabled?: boolean(name='AudioEventDetectionEnabled', example='false'),
+      additionalStreamOutputLevel?: int32(name='AdditionalStreamOutputLevel', description='Specifies the level of detail for speech transcription results for the active speaker in a real-time recording scenario.
+
+- **1**: Returns results only when a complete sentence is recognized.
+
+- **2**: Returns both intermediate and final results as they are recognized.
+
+This parameter applies only to real-time recordings when `MultipleStreamsEnabled` is set to `true`.', example='1'),
+      audioEventDetectionEnabled?: boolean(name='AudioEventDetectionEnabled', description='Specifies whether to enable sound event detection, which identifies non-speech events in the audio, such as music.', example='false'),
       diarization?: {
-        speakerCount?: int32(name='SpeakerCount', example='2'),
-      }(name='Diarization'),
-      diarizationEnabled?: boolean(name='DiarizationEnabled', example='false'),
-      model?: string(name='Model'),
-      outputLevel?: int32(name='OutputLevel'),
-      phraseId?: string(name='PhraseId'),
-      profanityFilterEnabled?: boolean(name='ProfanityFilterEnabled'),
+        speakerCount?: int32(name='SpeakerCount', description='Specifies the number of speakers to identify.
+
+If this parameter is not set, speakers are not differentiated in the transcript.
+
+Set the value to `0` to identify an unknown number of speakers.
+
+Set the value to `2` to identify two speakers.', example='2'),
+      }(name='Diarization', description='Parameters for the speaker diarization feature.'),
+      diarizationEnabled?: boolean(name='DiarizationEnabled', description='Specifies whether to enable speaker diarization.', example='false'),
+      disfluencyEnabled?: boolean(name='DisfluencyEnabled'),
+      model?: string(name='Model', description='Set the speech transcription model to improve accuracy for specific domains.'),
+      outputLevel?: int32(name='OutputLevel', description='Specifies the level of detail for the speech transcription results. Default value: `1`.
+
+- **1**: Returns results only when a complete sentence is recognized.
+
+- **2**: Returns both intermediate and final results as they are recognized.', example='2'),
+      phraseId?: string(name='PhraseId', description='The ID of the hotword list.', example='ce9c2a34b6d847bf92a77d0a196f****'),
+      profanityFilterEnabled?: boolean(name='ProfanityFilterEnabled', description='Enable sensitive word filtering during speech transcription. Enabled by default.'),
       realtimeDiarizationEnabled?: boolean(name='RealtimeDiarizationEnabled'),
-    }(name='Transcription'),
+    }(name='Transcription', description='Parameters to control the speech transcription process.'),
     translation?: {
-      additionalStreamOutputLevel?: int32(name='AdditionalStreamOutputLevel'),
-      outputLevel?: int32(name='OutputLevel'),
-      targetLanguages?: [ string ](name='TargetLanguages'),
-    }(name='Translation'),
-    translationEnabled?: boolean(name='TranslationEnabled', example='false'),
-  }(name='Parameters'),
-  operation?: string(name='operation', example='stop'),
-  type?: string(name='type', description='This parameter is required.', example='offline'),
+      additionalStreamOutputLevel?: int32(name='AdditionalStreamOutputLevel', description='Specifies the level of detail for real-time translation results for the active speaker.
+
+- **1**: Returns results only for complete sentences.
+
+- **2**: Returns both intermediate and final results.
+
+This parameter applies only to real-time recordings when `MultipleStreamsEnabled` is set to `true`.', example='1'),
+      outputLevel?: int32(name='OutputLevel', description='Specifies the level of detail for real-time translation results. Default value: `1`.
+
+- **1**: Returns results only for complete sentences.
+
+- **2**: Returns both intermediate and final results.
+
+This parameter applies only to real-time recordings.', example='2'),
+      targetLanguages?: [ string ](name='TargetLanguages', description='The target languages for translation. This parameter is required if translation is enabled. Supported languages include Chinese, English, and Japanese.'),
+      translateLlmSceneEnabled?: boolean(name='TranslateLlmSceneEnabled'),
+    }(name='Translation', description='Parameters to control the translation feature.'),
+    translationEnabled?: boolean(name='TranslationEnabled', description='Specifies whether to enable the translation feature.', example='false'),
+  }(name='Parameters', description='Algorithm-related parameters for customizing task processing.'),
+  operation?: string(name='operation', description='The operation to perform. Valid values:
+
+- **start**: Creates a task. This is the default value and does not typically need to be set.
+
+- **stop**: Stops a real-time recording task. This value is used only for real-time tasks. To end the recording, set this parameter to `stop`.', example='stop'),
+  type?: string(name='type', description='The type of the task. Valid values:
+
+- **offline**: An offline task, such as an offline transcription.
+
+- **realtime**: A real-time task, such as a real-time recording.
+
+This parameter is required.', example='offline'),
 }
 
 model CreateTaskResponseBody = {
-  code?: string(name='Code', example='0'),
+  code?: string(name='Code', description='The status code.', example='0'),
   data?: {
-    meetingJoinUrl?: string(name='MeetingJoinUrl'),
-    taskId?: string(name='TaskId', example='c5394c6ee0fb474899d42215a3925c7e'),
-    taskKey?: string(name='TaskKey', example='task_tingwu_123'),
-    taskStatus?: string(name='TaskStatus'),
-  }(name='Data'),
-  message?: string(name='Message', example='Success.'),
-  requestId?: string(name='RequestId', example='35124E1C-AE99-5D6C-A52E-BD689D8D****'),
+    meetingJoinUrl?: string(name='MeetingJoinUrl', description='The stream ingestion URL. Push audio streams to this URL for real-time transcription.', example='wss://tingwu-realtime-cn-beijing.aliyuncs.com/api/ws/v1?mc=****'),
+    taskId?: string(name='TaskId', description='The task ID.', example='c5394c6ee0fb474899d42215a3925c7e'),
+    taskKey?: string(name='TaskKey', description='The custom identifier specified during task creation.', example='task_tingwu_123'),
+    taskStatus?: string(name='TaskStatus', description='The task status.', example='ONGOING'),
+  }(name='Data', description='The response data.'),
+  message?: string(name='Message', description='The status message.', example='Success.'),
+  requestId?: string(name='RequestId', description='The request ID, used for troubleshooting only.', example='35124E1C-AE99-5D6C-A52E-BD689D8D****'),
 }
 
 model CreateTaskResponse = {
@@ -164,7 +241,7 @@ model CreateTaskResponse = {
 }
 
 /**
- * @summary 创建听悟任务
+ * @summary Create offline transcription and real-time meeting tasks in Tingwu.
  *
  * @param request CreateTaskRequest
  * @param headers map
@@ -213,7 +290,7 @@ async function createTaskWithOptions(request: CreateTaskRequest, headers: map[st
 }
 
 /**
- * @summary 创建听悟任务
+ * @summary Create offline transcription and real-time meeting tasks in Tingwu.
  *
  * @param request CreateTaskRequest
  * @return CreateTaskResponse
@@ -225,20 +302,24 @@ async function createTask(request: CreateTaskRequest): CreateTaskResponse {
 }
 
 model CreateTranscriptionPhrasesRequest {
-  description?: string(name='Description', example='custom fruit phrases list'),
-  name?: string(name='Name', description='This parameter is required.', example='fruit_phrase'),
-  wordWeights?: string(name='WordWeights', description='This parameter is required.', example='{"苹果":3,"西瓜":3}'),
+  description?: string(name='Description', description='The description of the phrases list.', example='custom fruit phrases list'),
+  name?: string(name='Name', description='The name of the phrases list.
+
+This parameter is required.', example='fruit_phrase'),
+  wordWeights?: string(name='WordWeights', description='A JSON-formatted string that represents a map of words and their corresponding weights.
+
+This parameter is required.', example='{"苹果":3,"西瓜":3}'),
 }
 
 model CreateTranscriptionPhrasesResponseBody = {
-  code?: string(name='Code', example='0'),
+  code?: string(name='Code', description='The status code.', example='0'),
   data?: {
-    errorCode?: string(name='ErrorCode', example='0'),
-    errorMessage?: string(name='ErrorMessage', example='success'),
-    phraseId?: string(name='PhraseId', example='a93b91141c0f422fa114af203f8b****'),
-    status?: string(name='Status', example='SUCCEEDED'),
-  }(name='Data'),
-  message?: string(name='Message', example='success'),
+    errorCode?: string(name='ErrorCode', description='The error code.', example='0'),
+    errorMessage?: string(name='ErrorMessage', description='The error message.', example='success'),
+    phraseId?: string(name='PhraseId', description='The ID of the phrases list.', example='a93b91141c0f422fa114af203f8b****'),
+    status?: string(name='Status', description='Indicates whether the operation was successful.', example='SUCCEEDED'),
+  }(name='Data', description='The returned object.'),
+  message?: string(name='Message', description='A description of the status.', example='success'),
   requestId?: string(name='RequestId', description='Id of the request', example='35124E1C-AE99-5D6C-A52E-BD689D8D****'),
 }
 
@@ -249,7 +330,7 @@ model CreateTranscriptionPhrasesResponse = {
 }
 
 /**
- * @summary 创建热词词表
+ * @summary Creates a custom vocabulary of transcription phrases.
  *
  * @param request CreateTranscriptionPhrasesRequest
  * @param headers map
@@ -289,7 +370,7 @@ async function createTranscriptionPhrasesWithOptions(request: CreateTranscriptio
 }
 
 /**
- * @summary 创建热词词表
+ * @summary Creates a custom vocabulary of transcription phrases.
  *
  * @param request CreateTranscriptionPhrasesRequest
  * @return CreateTranscriptionPhrasesResponse
@@ -302,13 +383,13 @@ async function createTranscriptionPhrases(request: CreateTranscriptionPhrasesReq
 
 model DeleteTranscriptionPhrasesResponseBody = {
   data?: {
-    errorCode?: string(name='ErrorCode'),
-    errorMessage?: string(name='ErrorMessage'),
-    status?: string(name='Status'),
+    errorCode?: string(name='ErrorCode', description='Error code.'),
+    errorMessage?: string(name='ErrorMessage', description='Error message.'),
+    status?: string(name='Status', description='Is the operation successful?'),
   }(name='Data'),
-  errorCode?: string(name='ErrorCode', example='0'),
-  errorMessage?: string(name='ErrorMessage', example='success'),
-  status?: string(name='Status', example='SUCCEEDED'),
+  errorCode?: string(name='ErrorCode', description='Error code.', example='0'),
+  errorMessage?: string(name='ErrorMessage', description='Error message.', example='success'),
+  status?: string(name='Status', description='Is the operation successful?', example='SUCCEEDED'),
 }
 
 model DeleteTranscriptionPhrasesResponse = {
@@ -318,7 +399,7 @@ model DeleteTranscriptionPhrasesResponse = {
 }
 
 /**
- * @summary 删除词表
+ * @summary Deletes phrase tables.
  *
  * @param headers map
  * @param runtime runtime options for this request RuntimeOptions
@@ -344,7 +425,7 @@ async function deleteTranscriptionPhrasesWithOptions(PhraseId: string, headers: 
 }
 
 /**
- * @summary 删除词表
+ * @summary Deletes phrase tables.
  *
  * @return DeleteTranscriptionPhrasesResponse
  */
@@ -355,33 +436,38 @@ async function deleteTranscriptionPhrases(PhraseId: string): DeleteTranscription
 }
 
 model GetTaskInfoResponseBody = {
-  code?: string(name='Code', example='0'),
+  code?: string(name='Code', description='The status code.', example='0'),
   data?: {
-    errorCode?: string(name='ErrorCode'),
-    errorMessage?: string(name='ErrorMessage'),
-    outputMp3Path?: string(name='OutputMp3Path'),
-    outputMp4Path?: string(name='OutputMp4Path'),
-    outputSpectrumPath?: string(name='OutputSpectrumPath'),
-    outputThumbnailPath?: string(name='OutputThumbnailPath'),
+    errorCode?: string(name='ErrorCode', description='Error code', example='TSC.AudioFormat'),
+    errorMessage?: string(name='ErrorMessage', description='Error message', example='Audio format invalid.'),
+    outputMp3Path?: string(name='OutputMp3Path', description='URL link to the MP3 conversion result', example='http://xxxx.com/tingwu/output/1738248324/094e964bf0e04e39/094e964bf0e04e39_20231222101008.mp3?Expires=1706064016'),
+    outputMp4Path?: string(name='OutputMp4Path', description='URL link to the MP4 conversion result', example='http://xxxx.com/tingwu/output/1738248324/094e964bf0e04e39/094e964bf0e04e39_20231222101008.mp4?Expires=1706064016'),
+    outputSpectrumPath?: string(name='OutputSpectrumPath', description='URL link to the audio waveform graph', example='http://xxxx.com/tingwu/output/1738248324/094e964bf0e04e39/094e964bf0e04e39_20231222101008.spectrum?Expires=1706064016'),
+    outputThumbnailPath?: string(name='OutputThumbnailPath', description='URL link to the video thumbnail', example='http://xxxx.com/tingwu/output/1738248324/094e964bf0e04e39/094e964bf0e04e39_20231222101008.png?Expires=1706064016'),
     result?: {
-      autoChapters?: string(name='AutoChapters'),
-      contentExtraction?: string(name='ContentExtraction'),
-      customPrompt?: string(name='CustomPrompt'),
-      identityRecognition?: string(name='IdentityRecognition'),
-      meetingAssistance?: string(name='MeetingAssistance'),
-      pptExtraction?: string(name='PptExtraction'),
-      serviceInspection?: string(name='ServiceInspection'),
-      summarization?: string(name='Summarization'),
-      textPolish?: string(name='TextPolish'),
-      transcription?: string(name='Transcription'),
-      translation?: string(name='Translation'),
-    }(name='Result'),
-    taskId?: string(name='TaskId', example='c5394c6ee0fb474899d42215a3925c7e'),
-    taskKey?: string(name='TaskKey', example='task_tingwu_123'),
-    taskStatus?: string(name='TaskStatus', example='COMPLETE'),
-  }(name='Data'),
-  message?: string(name='Message', example='Success.'),
-  requestId?: string(name='RequestId', example='35124E1C-AE99-5D6C-A52E-BD689D8D****'),
+      autoChapters?: string(name='AutoChapters', description='Link to the result of the Auto Chapters feature.', example='http://xxxx.com/tingwu/output/1738248324/094e964bf0e04e39/094e964bf0e04e39_AutoChapters_20231222101215.json?Expires=1706064016'),
+      contentExtraction?: string(name='ContentExtraction', description='URL link to the result of conversation content extraction', example='http://xxxx.com/tingwu/output/1738248324/094e964bf0e04e39/094e964bf0e04e39_ ContentExtraction_20231222101215.json?Expires=1706064016'),
+      customPrompt?: string(name='CustomPrompt', description='Link to the result of the Custom prompt', example='http://xxxx.com/tingwu/output/1738248324/094e964bf0e04e39/094e964bf0e04e39_ CustomPrompt_20231222101215.json?Expires=1706064016'),
+      identityRecognition?: string(name='IdentityRecognition', description='The URL link to the identity recognition result.', example='http://xxxx.com/tingwu/output/1738248324/094e964bf0e04e39/094e964bf0e04e39_ IdentityRecognition_20231222101215.json?Expires=1706064016'),
+      meetingAssistance?: string(name='MeetingAssistance', description='URL link to the result of Intelligent Meeting Summary', example='http://xxxx.com/tingwu/output/1738248324/094e964bf0e04e39/094e964bf0e04e39_MeetingAssistance_20231222101112.json?Expires=1706064016'),
+      pptExtraction?: string(name='PptExtraction', description='URL link to the result of video PPT extraction and summarization', example='http://xxxx.com/tingwu/output/1738248324/094e964bf0e04e39/094e964bf0e04e39_PptExtraction_20231222101215.json?Expires=1706064016'),
+      serviceInspection?: string(name='ServiceInspection', description='Link to the result of service inspection', example='http://xxxx.com/tingwu/output/1738248324/094e964bf0e04e39/094e964bf0e04e39_ ServiceInspection_20231222101215.json?Expires=1706064016'),
+      summarization?: string(name='Summarization', description='Link to the result of LLM-based summarization.', example='http://xxxx.com/tingwu/output/1738248324/094e964bf0e04e39/094e964bf0e04e39_Summarization_20231222101215.json?Expires=1706064016'),
+      textPolish?: string(name='TextPolish', description='Link to the result of spoken-to-written text conversion', example='http://xxxx.com/tingwu/output/1738248324/094e964bf0e04e39/094e964bf0e04e39_TextPolish_20231222101215.json?Expires=1706064016'),
+      transcription?: string(name='Transcription', description='Link to the result of speech transcription.', example='http://xxxx.com/tingwu/output/1738248324/094e964bf0e04e39/094e964bf0e04e39_Transcription_20231222101008.json?Expires=1706064016'),
+      translation?: string(name='Translation', description='URL link to the result of text translation', example='http://xxxx.com/tingwu/output/1738248324/094e964bf0e04e39/094e964bf0e04e39_Translation_20231222101215.json?Expires=1706064016'),
+    }(name='Result', description='A collection of results from various algorithm processing tasks. The result is returned as an HTTP link, which the user can use to parse the native result.'),
+    taskId?: string(name='TaskId', description='Job ID.', example='c5394c6ee0fb474899d42215a3925c7e'),
+    taskKey?: string(name='TaskKey', description='The custom ID set by the user when creating the job.', example='task_tingwu_123'),
+    taskStatus?: string(name='TaskStatus', description='Task Status.
+
+- ONGOING: The job is in progress.
+- COMPLETED: The job is completed.
+- FAILED: The job has failed.
+- INVALID: The job is invalid.', example='COMPLETED'),
+  }(name='Data', description='Returned object.'),
+  message?: string(name='Message', description='Status description.', example='Success.'),
+  requestId?: string(name='RequestId', description='Request ID, used only for joint debugging.', example='35124E1C-AE99-5D6C-A52E-BD689D8D****'),
 }
 
 model GetTaskInfoResponse = {
@@ -391,7 +477,7 @@ model GetTaskInfoResponse = {
 }
 
 /**
- * @summary 查询听悟任务信息
+ * @summary Query the job status and job result.
  *
  * @param headers map
  * @param runtime runtime options for this request RuntimeOptions
@@ -417,7 +503,7 @@ async function getTaskInfoWithOptions(TaskId: string, headers: map[string]string
 }
 
 /**
- * @summary 查询听悟任务信息
+ * @summary Query the job status and job result.
  *
  * @return GetTaskInfoResponse
  */
@@ -428,22 +514,22 @@ async function getTaskInfo(TaskId: string): GetTaskInfoResponse {
 }
 
 model GetTranscriptionPhrasesResponseBody = {
-  code?: string(name='Code', example='0'),
+  code?: string(name='Code', description='Status code.', example='0'),
   data?: {
-    errorCode?: string(name='ErrorCode', example='0'),
-    errorMessage?: string(name='ErrorMessage', example='success'),
+    errorCode?: string(name='ErrorCode', description='Error code.', example='0'),
+    errorMessage?: string(name='ErrorMessage', description='Error message.', example='success'),
     phrases?: [ 
       {
-        description?: string(name='Description', example='custom fruit phrases list'),
-        name?: string(name='Name', example='fruit_phrase'),
-        phraseId?: string(name='PhraseId', example='a93b91141c0f422fa114af203f8b****'),
-        wordWeights?: string(name='WordWeights', example='{"苹果":3,"西瓜":3}'),
+        description?: string(name='Description', description='Hotword list description.', example='custom fruit phrases list'),
+        name?: string(name='Name', description='Hotword list name.', example='fruit_phrase'),
+        phraseId?: string(name='PhraseId', description='ID of the phrase list.', example='a93b91141c0f422fa114af203f8b****'),
+        wordWeights?: string(name='WordWeights', description='Words and their weights in the hotword list, formatted as a JSON map string.', example='{"苹果":3,"西瓜":3}'),
       }
-    ](name='Phrases'),
-    status?: string(name='Status', example='SUCCEEDED'),
-  }(name='Data'),
-  message?: string(name='Message', example='success'),
-  requestId?: string(name='RequestId', description='Id of the request', example='35124E1C-AE99-5D6C-A52E-BD689D8D****'),
+    ](name='Phrases', description='Hotword objects.'),
+    status?: string(name='Status', description='Indicates whether the operation succeeded.', example='SUCCEEDED'),
+  }(name='Data', description='Response object.'),
+  message?: string(name='Message', description='Status message.', example='success'),
+  requestId?: string(name='RequestId', description='Request ID.', example='35124E1C-AE99-5D6C-A52E-BD689D8D****'),
 }
 
 model GetTranscriptionPhrasesResponse = {
@@ -453,7 +539,7 @@ model GetTranscriptionPhrasesResponse = {
 }
 
 /**
- * @summary 查询热词词表信息
+ * @summary Queries information about hotword lists.
  *
  * @param headers map
  * @param runtime runtime options for this request RuntimeOptions
@@ -479,7 +565,7 @@ async function getTranscriptionPhrasesWithOptions(PhraseId: string, headers: map
 }
 
 /**
- * @summary 查询热词词表信息
+ * @summary Queries information about hotword lists.
  *
  * @return GetTranscriptionPhrasesResponse
  */
@@ -490,20 +576,20 @@ async function getTranscriptionPhrases(PhraseId: string): GetTranscriptionPhrase
 }
 
 model ListTranscriptionPhrasesResponseBody = {
-  code?: string(name='Code', example='0'),
+  code?: string(name='Code', description='status code.', example='0'),
   data?: {
-    errorCode?: string(name='ErrorCode', example='PHS.Exceed'),
-    errorMessage?: string(name='ErrorMessage', example='The num of the phrase exceeds the upper limit.'),
+    errorCode?: string(name='ErrorCode', description='error code.', example='PHS.Exceed'),
+    errorMessage?: string(name='ErrorMessage', description='error message.', example='The num of the phrase exceeds the upper limit.'),
     phrases?: [ 
       {
-        description?: string(name='Description', example='custom fruit phrases list'),
-        name?: string(name='Name', example='fruit_phrase'),
-        phraseId?: string(name='PhraseId', example='a93b91141c0f422fa114af203f8b****'),
+        description?: string(name='Description', description='Phrase list description.', example='custom fruit phrases list'),
+        name?: string(name='Name', description='Phrase list name.', example='fruit_phrase'),
+        phraseId?: string(name='PhraseId', description='Phrase list ID.', example='a93b91141c0f422fa114af203f8b****'),
       }
-    ](name='Phrases'),
-    status?: string(name='Status', example='SUCCEEDED'),
-  }(name='Data'),
-  message?: string(name='Message', example='success'),
+    ](name='Phrases', description='Phrase objects.'),
+    status?: string(name='Status', description='Indicates whether the operation was successful.', example='SUCCEEDED'),
+  }(name='Data', description='Response object.'),
+  message?: string(name='Message', description='status description.', example='success'),
   requestId?: string(name='RequestId', description='Id of the request', example='35124E1C-AE99-5D6C-A52E-BD689D8D****'),
 }
 
@@ -514,7 +600,7 @@ model ListTranscriptionPhrasesResponse = {
 }
 
 /**
- * @summary 列举用户所有热词词表信息
+ * @summary Lists all of a user\\"s hot phrase lists.
  *
  * @param headers map
  * @param runtime runtime options for this request RuntimeOptions
@@ -540,7 +626,7 @@ async function listTranscriptionPhrasesWithOptions(headers: map[string]string, r
 }
 
 /**
- * @summary 列举用户所有热词词表信息
+ * @summary Lists all of a user\\"s hot phrase lists.
  *
  * @return ListTranscriptionPhrasesResponse
  */
@@ -551,20 +637,24 @@ async function listTranscriptionPhrases(): ListTranscriptionPhrasesResponse {
 }
 
 model UpdateTranscriptionPhrasesRequest {
-  description?: string(name='Description', example='custom fruit phrases list'),
-  name?: string(name='Name', description='This parameter is required.', example='fruit_phrase'),
-  wordWeights?: string(name='WordWeights', description='This parameter is required.', example='{"苹果":3,"西瓜":3}'),
+  description?: string(name='Description', description='A description of the hotword list.', example='custom fruit phrases list'),
+  name?: string(name='Name', description='The name of the hotword list.
+
+This parameter is required.', example='fruit_phrase'),
+  wordWeights?: string(name='WordWeights', description='A JSON map string that defines hotwords and their weights.
+
+This parameter is required.', example='{"苹果":3,"西瓜":3}'),
 }
 
 model UpdateTranscriptionPhrasesResponseBody = {
-  code?: string(name='Code', example='0'),
+  code?: string(name='Code', description='The status code.', example='0'),
   data?: {
-    errorCode?: string(name='ErrorCode', example='0'),
-    errorMessage?: string(name='ErrorMessage', example='success'),
-    status?: string(name='Status', example='SUCCEEDED'),
-  }(name='Data'),
-  message?: string(name='Message', example='success'),
-  requestId?: string(name='RequestId', description='Id of the request', example='35124E1C-AE99-5D6C-A52E-BD689D8D****'),
+    errorCode?: string(name='ErrorCode', description='The error code.', example='0'),
+    errorMessage?: string(name='ErrorMessage', description='The error message.', example='success'),
+    status?: string(name='Status', description='Indicates whether the operation succeeded.', example='SUCCEEDED'),
+  }(name='Data', description='The response object.'),
+  message?: string(name='Message', description='The status message.', example='success'),
+  requestId?: string(name='RequestId', description='The ID of the request.', example='35124E1C-AE99-5D6C-A52E-BD689D8D****'),
 }
 
 model UpdateTranscriptionPhrasesResponse = {
@@ -574,7 +664,7 @@ model UpdateTranscriptionPhrasesResponse = {
 }
 
 /**
- * @summary 更新热词词表
+ * @summary Update a hotword list.
  *
  * @param request UpdateTranscriptionPhrasesRequest
  * @param headers map
@@ -614,7 +704,7 @@ async function updateTranscriptionPhrasesWithOptions(PhraseId: string, request: 
 }
 
 /**
- * @summary 更新热词词表
+ * @summary Update a hotword list.
  *
  * @param request UpdateTranscriptionPhrasesRequest
  * @return UpdateTranscriptionPhrasesResponse
