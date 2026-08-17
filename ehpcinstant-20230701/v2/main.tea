@@ -9,8 +9,25 @@ extends OpenApi;
 
 init(config: OpenApiUtil.Config){
   super(config);
-  @endpointRule = '';
-  
+  @endpointRule = 'regional';
+  @endpointMap = {
+    'cn-shenzhen' = 'ehpcinstant.cn-shenzhen.aliyuncs.com',
+    'cn-wulanchabu' = 'ehpcinstant.cn-wulanchabu.aliyuncs.com',
+    'cn-beijing' = 'ehpcinstant.cn-beijing.aliyuncs.com',
+    'ap-northeast-2' = 'ehpcinstant.ap-northeast-2.aliyuncs.com',
+    'ap-northeast-1' = 'ehpcinstant.ap-northeast-1.aliyuncs.com',
+    'cn-chengdu' = 'ehpcinstant.cn-chengdu.aliyuncs.com',
+    'cn-shanghai' = 'ehpcinstant.cn-shanghai.aliyuncs.com',
+    'cn-guangzhou' = 'ehpcinstant.cn-guangzhou.aliyuncs.com',
+    'cn-hongkong' = 'ehpcinstant.cn-hongkong.aliyuncs.com',
+    'cn-heyuan' = 'ehpcinstant.cn-heyuan.aliyuncs.com',
+    'ap-southeast-1' = 'ehpcinstant.ap-southeast-1.aliyuncs.com',
+    'ap-southeast-3' = 'ehpcinstant.ap-southeast-3.aliyuncs.com',
+    'ap-southeast-5' = 'ehpcinstant.ap-southeast-5.aliyuncs.com',
+    'cn-hangzhou' = 'ehpcinstant.cn-hangzhou.aliyuncs.com',
+    'eu-central-1' = 'ehpcinstant.eu-central-1.aliyuncs.com',
+  };
+
   checkConfig(config);
   @endpoint = getEndpoint('ehpcinstant', @regionId, @endpointRule, @network, @suffix, @endpointMap, @endpoint);
 }
@@ -154,70 +171,78 @@ async function addImage(request: AddImageRequest): AddImageResponse {
 
 model CreateActionPlanRequest {
   actionPlanName?: string(name='ActionPlanName', description='The name of the execution plan.', example='TestActionPlan'),
-  allocationSpec?: string(name='AllocationSpec', description='The type of the resource.
+  allocationSpec?: string(name='AllocationSpec', description='The resource type.
 
-*   Standard
-*   Dedicated: You must enable a whitelist for use.
-*   Economic: You must enable a whitelist for use.', example='Standard'),
-  appId?: string(name='AppId', description='The ID of the application.', example='ci-vm-rYfypJKwlN9Y'),
-  desiredCapacity?: double(name='DesiredCapacity', description='The expected scale of resources for the execution plan. If the ResourceType parameter is set to VcpuCapacity, the execution plan is expected to have 10000 vCPUs.', example='1000'),
+- Standard: Standard.
+
+- Dedicated: Dedicated. This type is available only to users in the whitelist.
+
+- Economic: Economy. This type is available only to users in the whitelist.', example='Standard'),
+  appId?: string(name='AppId', description='The application ID.', example='ci-vm-rYfypJKwlN9Y'),
+  desiredCapacity?: double(name='DesiredCapacity', description='The desired size of the resource for the execution plan. For example, if you set ResourceType to VcpuCapacity, this parameter specifies the number of vCPUs that you want to maintain for the execution plan.', example='1000'),
   intervalMinutes?: int32(name='IntervalMinutes', example='60'),
-  level?: string(name='Level', description='The computing power level. This value is valid only when the resource type is Economic. The following disk categories are supported:
+  level?: string(name='Level', description='The computing power level. This parameter is valid only when you set AllocationSpec to Economic. The following types are supported:
 
-*   General
-*   Performance
+- General: General-purpose.
+
+- Performance: Compute-optimized.
 
 Default value: General', example='General'),
-  prologScript?: string(name='PrologScript', description='The pre-processing script. Base64 encoding is required.', example='bHMgLWFsCmxzIC1hbGggfCB3YyAtbA=='),
+  prologScript?: string(name='PrologScript', description='The pre-execution script. The script must be Base64-encoded.', example='bHMgLWFsCmxzIC1hbGggfCB3YyAtbA=='),
   regions?: [ 
     {
       regionId?: string(name='RegionId', description='The region ID.', example='cn-hangzhou'),
-      securityGroupId?: [ string ](name='SecurityGroupId', description='The list of security groups available for the execution plan in the region. You can have 0 to 5 security groups.'),
-      securityGroupIds?: [ string ](name='SecurityGroupIds'),
-      vSwitchIds?: [ string ](name='VSwitchIds', description='The list of VSwitches available for the execution plan in the region. Supports 0 to 5 VSwitches.'),
+      securityGroupId?: [ string ](name='SecurityGroupId', description='A list of security groups that are available for the execution plan in the region. You can specify 0 to 5 security groups.'),
+      securityGroupIds?: [ string ](name='SecurityGroupIds', description='A list of security group IDs. You can call the [DescribeSecurityGroups](https://api.aliyun.com/document/Ecs/2014-05-26/DescribeSecurityGroups) operation to query information about available security groups.'),
+      vSwitchIds?: [ string ](name='VSwitchIds', description='A list of vSwitches that are available for the execution plan in the region. You can specify 0 to 5 vSwitches.'),
     }
-  ](name='Regions', description='The list of resource configurations in the region where the execution plan runs.'),
-  resourceType?: string(name='ResourceType', description='Target resource type: the capacity of vCPUs or the number of execution nodes. Valid values:
+  ](name='Regions', description='A list of regional resource configurations for the runtime environment of the execution plan.'),
+  resourceType?: string(name='ResourceType', description='The type of resource for the execution target. The value can be the vCPU capacity or the number of executor nodes. Valid values:
 
-*   VCpuCapacity
-*   ExecutorCapacity', example='VCpuCapacity'),
+- VCpuCapacity: vCPU capacity
+
+- ExecutorCapacity: number of executor nodes', example='VCpuCapacity'),
   resources?: [ 
     {
-      cores?: double(name='Cores', description='The number of CPUs in the running environment.', example='2'),
-      memory?: double(name='Memory', description='The memory size of the running environment. Unit: GiB.', example='4'),
+      cores?: double(name='Cores', description='The number of vCPUs for the runtime environment.', example='2'),
+      memory?: double(name='Memory', description='The memory size of the runtime environment. Unit: GiB.', example='4'),
     }
-  ](name='Resources', description='The list of resource configurations of the execution plan runtime environment. You can configure 1 to 10 resources.', example='1000'),
-  script?: string(name='Script', description='The running-job script. Base64 encoding is required.', example='bHMgLWFsCmxzIC1hbGggfCB3YyAtbA=='),
+  ](name='Resources', description='A list of resource configurations for the runtime environment of the execution plan. You can specify 1 to 10 resource configurations.', example='1000'),
+  script?: string(name='Script', description='The script to run the job. The script must be Base64-encoded.', example='bHMgLWFsCmxzIC1hbGggfCB3YyAtbA=='),
 }
 
 model CreateActionPlanShrinkRequest {
   actionPlanName?: string(name='ActionPlanName', description='The name of the execution plan.', example='TestActionPlan'),
-  allocationSpec?: string(name='AllocationSpec', description='The type of the resource.
+  allocationSpec?: string(name='AllocationSpec', description='The resource type.
 
-*   Standard
-*   Dedicated: You must enable a whitelist for use.
-*   Economic: You must enable a whitelist for use.', example='Standard'),
-  appId?: string(name='AppId', description='The ID of the application.', example='ci-vm-rYfypJKwlN9Y'),
-  desiredCapacity?: double(name='DesiredCapacity', description='The expected scale of resources for the execution plan. If the ResourceType parameter is set to VcpuCapacity, the execution plan is expected to have 10000 vCPUs.', example='1000'),
+- Standard: Standard.
+
+- Dedicated: Dedicated. This type is available only to users in the whitelist.
+
+- Economic: Economy. This type is available only to users in the whitelist.', example='Standard'),
+  appId?: string(name='AppId', description='The application ID.', example='ci-vm-rYfypJKwlN9Y'),
+  desiredCapacity?: double(name='DesiredCapacity', description='The desired size of the resource for the execution plan. For example, if you set ResourceType to VcpuCapacity, this parameter specifies the number of vCPUs that you want to maintain for the execution plan.', example='1000'),
   intervalMinutes?: int32(name='IntervalMinutes', example='60'),
-  level?: string(name='Level', description='The computing power level. This value is valid only when the resource type is Economic. The following disk categories are supported:
+  level?: string(name='Level', description='The computing power level. This parameter is valid only when you set AllocationSpec to Economic. The following types are supported:
 
-*   General
-*   Performance
+- General: General-purpose.
+
+- Performance: Compute-optimized.
 
 Default value: General', example='General'),
-  prologScript?: string(name='PrologScript', description='The pre-processing script. Base64 encoding is required.', example='bHMgLWFsCmxzIC1hbGggfCB3YyAtbA=='),
-  regionsShrink?: string(name='Regions', description='The list of resource configurations in the region where the execution plan runs.'),
-  resourceType?: string(name='ResourceType', description='Target resource type: the capacity of vCPUs or the number of execution nodes. Valid values:
+  prologScript?: string(name='PrologScript', description='The pre-execution script. The script must be Base64-encoded.', example='bHMgLWFsCmxzIC1hbGggfCB3YyAtbA=='),
+  regionsShrink?: string(name='Regions', description='A list of regional resource configurations for the runtime environment of the execution plan.'),
+  resourceType?: string(name='ResourceType', description='The type of resource for the execution target. The value can be the vCPU capacity or the number of executor nodes. Valid values:
 
-*   VCpuCapacity
-*   ExecutorCapacity', example='VCpuCapacity'),
-  resourcesShrink?: string(name='Resources', description='The list of resource configurations of the execution plan runtime environment. You can configure 1 to 10 resources.', example='1000'),
-  script?: string(name='Script', description='The running-job script. Base64 encoding is required.', example='bHMgLWFsCmxzIC1hbGggfCB3YyAtbA=='),
+- VCpuCapacity: vCPU capacity
+
+- ExecutorCapacity: number of executor nodes', example='VCpuCapacity'),
+  resourcesShrink?: string(name='Resources', description='A list of resource configurations for the runtime environment of the execution plan. You can specify 1 to 10 resource configurations.', example='1000'),
+  script?: string(name='Script', description='The script to run the job. The script must be Base64-encoded.', example='bHMgLWFsCmxzIC1hbGggfCB3YyAtbA=='),
 }
 
 model CreateActionPlanResponseBody = {
-  actionPlanId?: string(name='ActionPlanId', description='The ID of the execution plan.', example='ap-hz036ubmx2qmw93k****'),
+  actionPlanId?: string(name='ActionPlanId', description='The execution plan ID.', example='ap-hz036ubmx2qmw93k****'),
   requestId?: string(name='RequestId', description='The request ID.', example='896D338C-E4F4-41EC-A154-D605E5DE****'),
 }
 
@@ -228,9 +253,9 @@ model CreateActionPlanResponse = {
 }
 
 /**
- * @summary Create a E-HPC execution plan.
+ * @summary Creates an E-HPC execution plan.
  *
- * @description **Make sure that you fully understand E-HPC Instnat billing methods and [prices](https://help.aliyun.com/zh/e-hpc/e-hpc-instant/product-overview/billing-overview?spm=a2c4g.11186623.help-menu-57664.d_0_2_0.5fdd28422y6UvO).
+ * @description **Before you call this operation, ensure that you understand the billing methods and&#x20;**[**pricing**](https://help.aliyun.com/zh/e-hpc/e-hpc-instant/product-overview/billing-overview?spm=a2c4g.11186623.help-menu-57664.d_0_2_0.5fdd28422y6UvO)**&#x20;of E-HPC Instant.**
  *
  * @param tmpReq CreateActionPlanRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -299,9 +324,9 @@ async function createActionPlanWithOptions(tmpReq: CreateActionPlanRequest, runt
 }
 
 /**
- * @summary Create a E-HPC execution plan.
+ * @summary Creates an E-HPC execution plan.
  *
- * @description **Make sure that you fully understand E-HPC Instnat billing methods and [prices](https://help.aliyun.com/zh/e-hpc/e-hpc-instant/product-overview/billing-overview?spm=a2c4g.11186623.help-menu-57664.d_0_2_0.5fdd28422y6UvO).
+ * @description **Before you call this operation, ensure that you understand the billing methods and&#x20;**[**pricing**](https://help.aliyun.com/zh/e-hpc/e-hpc-instant/product-overview/billing-overview?spm=a2c4g.11186623.help-menu-57664.d_0_2_0.5fdd28422y6UvO)**&#x20;of E-HPC Instant.**
  *
  * @param request CreateActionPlanRequest
  * @return CreateActionPlanResponse
@@ -315,212 +340,195 @@ model CreateJobRequest {
   dependencyPolicy?: {
     jobDependency?: [ 
       {
-        jobId?: string(name='JobId', description='The ID of the job.
+        jobId?: string(name='JobId', description='The job ID.
 
 This parameter is required.', example='job-bjxxxxxxxxxxxx'),
-        type?: string(name='Type', description='The type of the dependency. Valid values:
+        type?: string(name='Type', description='The dependency type. Valid values:
 
-*   AfterSucceeded: **All subtasks** of the dependent job or array job succeed. The exit code is 0.
-*   AfterFailed: **All subtasks** of the dependent job or array job fail. The exit code is not 0.
-*   AfterAny: The dependent job completes (succeeds or fails).
-*   AfterCorresponding: The subtask corresponding to the dependent array job succeeds. The exit code is 0.
+- AfterSucceeded: **All tasks** in the dependent job or array job run successfully (exit code 0).
+- AfterFailed: **Any task** in the dependent job or array job fails (exit code is not 0).
+- AfterAny: The dependent job finishes running (succeeded or failed).
+- AfterCorresponding: The corresponding task in the dependent array job runs successfully (exit code 0).
 
 Default value: AfterSucceeded.', example='AfterSucceeded'),
       }
-    ](name='JobDependency', description='The job dependency. A maximum of 10 groups.'),
-  }(name='DependencyPolicy', description='Dependency policy.'),
+    ](name='JobDependency', description='The job dependencies. A maximum of 10 groups are supported.'),
+  }(name='DependencyPolicy', description='The dependency policy.'),
   deploymentPolicy?: {
-    allocationSpec?: string(name='AllocationSpec', description='The resource type,
+    allocationSpec?: string(name='AllocationSpec', description='The resource type.', example='Dedicated'),
+    level?: string(name='Level', description='The computing power level. This parameter is valid only when the resource type is economy. Valid values:
+- General: general-purpose.
+- Performance: compute-optimized.
 
-*   Standard
-*   Dedicated: You must enable a whitelist for use.
-*   Economic: You must enable a whitelist for use.', example='Dedicated'),
-    level?: string(name='Level', description='The computing power level. This value is valid only when the resource type is Economic. The following disk categories are supported:
-
-*   General
-*   Performance
-
-Default value: General.', example='General'),
+Default value: General', example='General'),
     network?: {
-      enableExternalIpAddress?: boolean(name='EnableExternalIpAddress', description='Whether the job creates a public IP address.
-
-*   true: creates a public IP address.
-*   false: does not create a public IP address.
-
-Default value: false.', example='true'),
-      vswitch?: [ string ](name='Vswitch', description='The VSwitch array.'),
-    }(name='Network', description='The network configuration information.'),
-    pool?: string(name='Pool', description='The resource pool of the job.', example='compute'),
-    priority?: int32(name='Priority', description='The priorities of the jobs. A larger value indicates a higher job scheduling priority. Valid values: 1 to 100.', example='1'),
+      enableExternalIpAddress?: boolean(name='EnableExternalIpAddress', description='Specifies whether to create a public IP address for the job.', example='true'),
+      vswitch?: [ string ](name='Vswitch', description='The vSwitch array.'),
+    }(name='Network', description='The network configuration.'),
+    pool?: string(name='Pool', description='The job resource pool.', example='compute'),
+    priority?: int32(name='Priority', description='The job priority. A larger value indicates a higher scheduling priority. Valid values: 1 to 100.', example='1'),
     tag?: [ 
       {
-        key?: string(name='Key', description='The key of the job tag. The tag key cannot be an empty string. The tag key can be up to 128 characters in length and cannot contain http:// or https://. The tag key cannot start with acs: or aliyun.
+        key?: string(name='Key', description='The tag key of the job. If you specify this parameter, the value cannot be an empty string. The tag key can be up to 128 characters in length and cannot start with aliyun or acs:. It cannot contain http:// or https://.
 
 This parameter is required.', example='TestKey'),
-        value?: string(name='Value', description='The value of the job tag. You can specify empty strings as tag values. The tag value can be up to 128 characters in length and cannot contain http:// or https://.', example='TestValue'),
+        value?: string(name='Value', description='The tag value of the job. If you specify this parameter, the value can be an empty string. The tag value can be up to 128 characters in length and cannot contain http:// or https://.', example='TestValue'),
       }
-    ](name='Tag', description='The tag information of the job. A maximum of 20 groups.'),
+    ](name='Tag', description='The job tag information. A maximum of 20 tags are supported.'),
   }(name='DeploymentPolicy', description='The resource deployment policy.'),
-  jobDescription?: string(name='JobDescription', description='The description of the job.', example='Demo'),
-  jobName?: string(name='JobName', description='The job name. The name must be 2 to 64 characters in length and can contain letters, digits, and Chinese characters. It can contain hyphens (-) and underscores (_).
+  jobDescription?: string(name='JobDescription', description='The job description.', example='Demo'),
+  jobName?: string(name='JobName', description='The job name. The name must be 2 to 64 characters in length and can contain letters, digits, hyphens (-), and underscores (_).
 
 This parameter is required.', example='testjob'),
-  jobScheduler?: string(name='JobScheduler', description='The type of the job scheduler.
-
-*   HPC
-*   K8S
-
-Default value: HPC', example='HPC'),
+  jobScheduler?: string(name='JobScheduler'),
+  jobTemplateId?: string(name='JobTemplateId', description='The job template ID.', example='jt-xxxx'),
   securityPolicy?: {
     securityGroup?: {
       securityGroupIds?: [ string ](name='SecurityGroupIds', description='The array of security group IDs.'),
-    }(name='SecurityGroup', description='The security group ID.'),
+    }(name='SecurityGroup', description='The security group.'),
   }(name='SecurityPolicy', description='The security policy.'),
   tasks?: [ 
     {
       executorPolicy?: {
         arraySpec?: {
-          indexEnd?: int32(name='IndexEnd', description='The end value of the array job index. Valid values: 0 to 4999. The value must be greater than or equal to the value of IndexStart.', example='9'),
-          indexStart?: int32(name='IndexStart', description='The starting value of the array job index. Valid values: 0 to 4999.', example='0'),
-          indexStep?: int32(name='IndexStep', description='The interval of the array job index.
-
-> If the array job property is IndexStart=1,IndexEnd=5, and IndexStep=2, the array job contains three sub-jobs. The index values of the sub-jobs are 1,3, and 5. You can access the sub-jobs by using environment variables.', example='1'),
-        }(name='ArraySpec', description='The details of the array job. The index value of the sub-job is passed to the running environment through environment variables to support user business program reference. Environment variables include:
-
-*   EHPC_JOB_NAME: the name of the job. This parameter corresponds to the JobName parameter.
-*   EHPC_JOB_ID: The ID of the job.
-*   EHPC_TASK_NAME: the name of the task. This parameter corresponds to the TaskName parameter.
-*   EHPC_EXECUTOR_ID: The ID of the execution unit.
-*   EHPC_ARRAY_TASK_ID: the sub-job index value.
-*   EHPC_ARRAY_TASK_COUNT: the total number of sub-jobs.
-*   EHPC_ARRAY_TASK_MAX: the maximum sub-job index, which corresponds to the IndexStart parameter.
-*   EHPC_ARRAY_TASK_MIN: the minimum value of the sub-job index, which corresponds to the IndexEnd parameter.
-*   EHPC_ARRAY_TASK_STEP: the index step size of the sub-job, which corresponds to the IndexStep parameter.'),
-        maxCount?: int32(name='MaxCount', description='The maximum number of nodes to run the job.
-
-> Follow the calculation formula: `MaxCount = (IndexEnd - IndexStart) / IndexStep +1`', example='1'),
+          indexEnd?: int32(name='IndexEnd', description='The end value of the array job index. Valid values: 0 to 4999. The value must be greater than or equal to IndexStart.', example='9'),
+          indexStart?: int32(name='IndexStart', description='The start value of the array job index. Valid values: 0 to 4999.', example='0'),
+          indexStep?: int32(name='IndexStep', description='The interval between indexes in an array job.
+> If the array job has the properties IndexStart=1, IndexEnd=5, and IndexStep=2, the array job contains three sub-jobs with indexes 1, 3, and 5. Your application can access these indexes through environment variables.', example='1'),
+        }(name='ArraySpec', description='The array job details. Sub-job index values are passed to the runtime environment through environment variables, which can be referenced by user applications. The environment variables include:
+- EHPC_JOB_NAME: the job name, corresponding to the JobName parameter.
+- EHPC_JOB_ID: the job ID.
+- EHPC_TASK_NAME: the task name, corresponding to the TaskName parameter.
+- EHPC_EXECUTOR_ID: the executor ID.
+- EHPC_ARRAY_TASK_ID: the sub-job index value.
+- EHPC_ARRAY_TASK_COUNT: the total number of sub-jobs.
+- EHPC_ARRAY_TASK_MAX: the maximum sub-job index value, corresponding to the IndexStart parameter.
+- EHPC_ARRAY_TASK_MIN: the minimum sub-job index value, corresponding to the IndexEnd parameter.
+- EHPC_ARRAY_TASK_STEP: the sub-job index step, corresponding to the IndexStep parameter.'),
+        maxCount?: int32(name='MaxCount', description='The maximum number of nodes for the job.
+> The value must comply with the following formula: `MaxCount = (IndexEnd - IndexStart) / IndexStep + 1`', example='1'),
       }(name='ExecutorPolicy', description='The task execution policy.'),
-      taskName?: string(name='TaskName', description='The job name. It must be 2 to 32 characters in length and can contain letters, digits, and Chinese characters. It can contain hyphens (-) and underscores (_).', example='task0'),
+      taskName?: string(name='TaskName', description='The task name. The name must be 2 to 32 characters in length and can contain letters, digits, hyphens (-), and underscores (_).', example='task0'),
       taskSpec?: {
         resource?: {
-          cores?: float(name='Cores', description='The number of CPUs in the running environment.', example='2'),
+          cores?: float(name='Cores', description='The number of CPUs in the runtime environment.', example='2'),
           disks?: [ 
             {
-              size?: int32(name='Size', description='The size of the disk. Unit: GiB.', example='40'),
-              type?: string(name='Type', description='The type of the disk. Currently, only System is supported, which indicates the system disk.', example='System'),
+              size?: int32(name='Size', description='The cloud disk size. Unit: GiB.', example='40'),
+              type?: string(name='Type', description='The cloud disk type. Currently, only System is supported, which indicates a system cloud disk.', example='System'),
             }
-          ](name='Disks', description='The array of the disks.'),
-          enableHT?: boolean(name='EnableHT'),
-          hostNamePrefix?: string(name='HostNamePrefix'),
-          instanceTypes?: [ string ](name='InstanceTypes', description='The instance type of the running environment. A maximum of 5 groups.'),
-          memory?: float(name='Memory', description='The memory size of the running environment. Unit: GiB.', example='4'),
-        }(name='Resource', description='The resource information of the running environment.'),
+          ](name='Disks', description='The cloud disk array.'),
+          enableHT?: boolean(name='EnableHT', description='Specifies whether hyper-threading is enabled in the runtime environment. Default value: true.', example='true'),
+          hostNamePrefix?: string(name='HostNamePrefix', description='The hostname prefix of the runtime environment. The following limits apply:
+
+- A period (.) and a hyphen (-) cannot be used as the first or last character, or consecutively.
+- Windows environment: The value can be up to 10 characters in length, cannot contain periods (.), and cannot consist of digits only. Uppercase and lowercase letters, digits, and hyphens (-) are allowed.
+- Linux environment: The value can be up to 32 characters in length and can contain multiple periods (.). The hostname is divided into segments by periods. Each segment can contain uppercase and lowercase letters, digits, and hyphens (-).', example='compute'),
+          instanceTypes?: [ string ](name='InstanceTypes', description='The instance types of the runtime environment. A maximum of 5 instance types are supported.'),
+          memory?: float(name='Memory', description='The memory size of the runtime environment. Unit: GiB.', example='4'),
+        }(name='Resource', description='The resource information of the runtime environment.'),
         retryPolicy?: {
           exitCodeActions?: [ 
             {
-              action?: string(name='Action', description='The next step behavior of the task.
+              action?: string(name='Action', description='The next action for the node. Valid values:
 
-*   Retry: The job starts a retry when a specific exit code is hit.
-*   Exit: The job exits when a specific exit code is hit.
+- Retry: When a specific exit code is matched, the job starts a new retry.
+
+- Exit: When a specific exit code is matched, the job exits.
 
 This parameter is required.', example='Retry'),
-              exitCode?: long(name='ExitCode', description='The task exit code, which is used together with the action to form a job retry rule. Valid values: 0 to 255.
+              exitCode?: long(name='ExitCode', description='The task exit code, which is used together with Action to form a job retry rule. Valid values: 0 to 255.
 
 This parameter is required.', example='1'),
             }
-          ](name='ExitCodeActions', description='The retry rule. A maximum of 10 groups.'),
-          retryCount?: int32(name='RetryCount', description='The maximum number of retries. Valid values: 1 to 10. Default value: 3.', example='5'),
-        }(name='RetryPolicy', description='Task retry policy.'),
+          ](name='ExitCodeActions', description='The retry rules. A maximum of 10 rules are supported.'),
+          retryCount?: int32(name='RetryCount', description='The number of retries. Valid values: 1 to 10. Default value: 3.', example='5'),
+        }(name='RetryPolicy', description='The task retry policy.'),
         taskExecutor?: [ 
           {
             container?: {
-              appId?: string(name='AppId', description='The application ID.', example='ci-vm-32k6LXAi3cOG'),
-              arg?: [ string ](name='Arg', description='The startup argument of the init container. A maximum of 10 groups.'),
-              command?: [ string ](name='Command', description='The container startup commands. You can specify up to 20 commands. Each command can be up to 256 characters in length.
-
-> 
-
-*   If the start command contains spaces (for example, `sleep 60s` ), the input JSON format parameter is `["sleep", "60s"]`.
-
-*   If the startup command is complex, the parameter format may be a combination of `Command: ["/bin/bash"]` and `Arg:["-c", "<customized command>"]`. The `<customized command>` is a user-defined combination of commands and can contain characters such as spaces.'),
+              appId?: string(name='AppId', description='The container application ID.', example='ci-vm-32k6LXAi3cOG'),
+              arg?: [ string ](name='Arg', description='The arguments for the container startup command. A maximum of 10 arguments are supported.'),
+              command?: [ string ](name='Command', description='The list of container startup commands. A maximum of 20 commands are supported. Each command can contain up to 256 characters.
+> 1. If a startup command contains spaces (for example, `sleep 60s`), pass the JSON parameter as `["sleep", "60s"]`.
+> 2. If a startup command is complex, use a combination of `Command: ["/bin/bash"]` and `Arg:["-c", "<customized command>"]`, where `<customized command>` is a user-defined command that can contain spaces and other characters.'),
               environmentVars?: [ 
                 {
-                  name?: string(name='Name', description='The name of the environment variable for the container. It can be 1 to 128 characters in length. Format requirement: [0-9a-zA-Z], and underscores, cannot start with a number.', example='PATH'),
-                  value?: string(name='Value', description='The value of the environment variable for the container. The value must be 0 to 256 bits in length.', example='/usr/local/bin'),
+                  name?: string(name='Name', description='The environment variable name. The name must be 1 to 128 characters in length. The format is [0-9a-zA-Z] and underscores. The name cannot start with a digit.', example='PATH'),
+                  value?: string(name='Value', description='The environment variable value. The value can be 0 to 256 characters in length.', example='/usr/local/bin'),
                 }
-              ](name='EnvironmentVars', description='The environment variables of the container. A maximum of 20 groups.'),
-              image?: string(name='Image', description='The image of the container.
+              ](name='EnvironmentVars', description='The environment variables of the container. A maximum of 20 environment variables are supported.'),
+              image?: string(name='Image', description='The container image.
 
 This parameter is required.', example='registry-vpc.cn-hangzhou.aliyuncs.com/ehpc/hpl:latest'),
-              imageRegistryOptions?: string(name='ImageRegistryOptions'),
-              workingDir?: string(name='WorkingDir', description='The working directory of the container.', example='/usr/local/'),
-            }(name='Container', description='Use the container environment.'),
+              imageRegistryOptions?: string(name='ImageRegistryOptions', description='The list of mount parameters for a self-managed image registry. The parameters are in key-value format and passed as a JSON string.
+
+- Reference format: {"ImageRegistryType":"https","ImageRegistryServer":"xxx","ImageRegistryUserName":"xxx","ImageRegistryPassword":"xxx"}', example='{"ImageRegistryType":"https","ImageRegistryServer":"xxx","ImageRegistryUserName":"xxx","ImageRegistryPassword":"xxx"}'),
+              workingDir?: string(name='WorkingDir', description='The container working directory.', example='/usr/local/'),
+            }(name='Container', description='The container environment settings.'),
             VM?: {
-              appId?: string(name='AppId', description='The ID of the virtual machine application.', example='ci-vm-9jc58Pm5Leky'),
-              image?: string(name='Image', description='The ID of the image.
+              appId?: string(name='AppId', description='The virtual machine application ID.', example='ci-vm-9jc58Pm5Leky'),
+              environmentVars?: [ 
+                {
+                  name?: string(name='Name'),
+                  value?: string(name='Value'),
+                }
+              ](name='EnvironmentVars'),
+              image?: string(name='Image', description='The image ID.
 
 This parameter is required.', example='m-xxxx'),
-              password?: string(name='Password', description='The logon password of the virtual machine environment. The password must be 8 to 30 characters in length and contain at least three of the following character types: uppercase letters, lowercase letters, digits, and special characters. The following special characters are supported:
+              password?: string(name='Password', description='The logon password for the virtual machine environment. The password must be 8 to 30 characters in length and must contain at least three of the following character types: uppercase letters, lowercase letters, digits, and special characters. Supported special characters are:
 
-()\\\\`~!@#$%^&\\\\*-_+=|{}[]:;\\\\"<>,.?/ In Windows, the password cannot contain a forward slash (/) as the first character.
+()`~!@#$%^&*-_+=|{}[]:;\\\\"<>,.?/
 
-> We recommend that you use HTTPS to send requests if you specify Password to avoid password leakage.', example='EHPC@1234'),
-              prologScript?: string(name='PrologScript', description='The pre-processing script. Base64 encoding is required.', example='ZWNobyBoZWxsbyBlY3Mh'),
-              script?: string(name='Script', description='The running-job script. Base64 encoding is required.', example='ZWNobyBoZWxsbyBlY3Mh'),
-            }(name='VM', description='Use a virtual machine environment.'),
+For Windows environments, the password cannot start with a forward slash (/).
+
+> If you specify the Password parameter, use HTTPS to send the request to prevent password leakage.', example='EHPC@1234'),
+              prologScript?: string(name='PrologScript', description='The pre-processing script. The script must be Base64-encoded.', example='ZWNobyBoZWxsbyBlY3Mh'),
+              script?: string(name='Script', description='The job execution script. The script must be Base64-encoded.', example='ZWNobyBoZWxsbyBlY3Mh'),
+            }(name='VM', description='The virtual machine environment settings.'),
           }
-        ](name='TaskExecutor', description='The task execution configurations.
+        ](name='TaskExecutor', description='The task execution configuration.
 
 This parameter is required.'),
         volumeMount?: [ 
           {
-            mountOptions?: string(name='MountOptions', description='The list of data volume mount parameters. Each option is a key-value pair in a JSON string.
+            mountOptions?: string(name='MountOptions', description='The list of volume mount parameters. Passed as key-value pairs in JSON format.
+- Reference format for mounting NAS: {"server":"xxxxx-xxxxx.cn-heyuan.nas.aliyuncs.com","vers":"3","path":"/data","options":"nolock,tcp,noresvport"}
+> server specifies the mount target address of the NAS file system. path specifies a subdirectory under the NAS path, starting with /, and the directory must already exist. vers specifies the NFS protocol version for mounting NAS. Version 3 is recommended. options specifies custom parameters for mounting NAS, in the format "xxx,xxx,xxx".
 
-*   Format for mounting a NAS file system:{"server":"xxxxx-xxxxx.cn-heyuan.nas.aliyuncs.com","vers":"3","path":"/data","options":"nolock,tcp,noresvport"}
-
-> server indicates the address of the mount point of the NAS file system. path indicates the subdirectory of the NAS file system. The subdirectory must start with a (/) and must already exist. vers indicates the version number of the NFS protocol used to mount the file system. We recommend that you use v3. options indicates the custom parameters in the format of "xxx,xxx,xxx".
-
-*   OSS mount format:{"bucket":"xxxxx", "url":"oss-cn-heyuan-internal.aliyuncs.com","path":"/data","akId":"xxxxx","akSecret":"xxxxx"}
-
-> bucket indicates the name of the OSS bucket. url indicates the endpoint of the OSS bucket. You can log on to the OSS console and obtain the endpoint on the Overview page of the destination bucket. path indicates the directory structure of the root file of the bucket. The default value is /, which requires that the directory already exists. akId indicates the AccessKey ID. akSecret indicates the AccessKey secret.', example='{"server":"xxxxx-xxxxx.cn-heyuan.nas.aliyuncs.com","vers":"3","path":"/data","options":"nolock,tcp,noresvport"}'),
-            mountPath?: string(name='MountPath', description='The directory where the task mounts the data volume.
-
-> The content of the mounted directory is overwritten by the content of the volume. Exercise caution when you use the directory.', example='/mnt'),
-            readOnly?: boolean(name='ReadOnly', description='Specifies whether the volume is read-only. Default value: false.', example='false'),
-            volumeDriver?: string(name='VolumeDriver', description='Currently supported data volume types.
-
-*   alicloud/nas: mounts NAS.
-*   alicloud/oss: mounts OSS.', example='alicloud/nas'),
+- Reference format for mounting OSS: {"bucket":"xxxxx", "url":"oss-cn-heyuan-internal.aliyuncs.com","path":"/data","akId":"xxxxx","akSecret":"xxxxx"}
+> bucket specifies the name of the OSS bucket. url specifies the endpoint of the OSS bucket. You can log on to the OSS console and obtain the endpoint on the overview page of the target bucket. path specifies the directory structure relative to the root of the bucket when mounting. The default value is /. The directory must already exist. akId specifies the AccessKey ID used for direct authorization with an AccessKey pair. akSecret specifies the AccessKey secret used for direct authorization with an AccessKey pair.', example='{"server":"xxxxx-xxxxx.cn-heyuan.nas.aliyuncs.com","vers":"3","path":"/data","options":"nolock,tcp,noresvport"}'),
+            mountPath?: string(name='MountPath', description='The directory where the data volume is mounted to the task.', example='/mnt'),
+            readOnly?: boolean(name='ReadOnly', description='Specifies whether the data volume is read-only. Default value: false.', example='false'),
+            volumeDriver?: string(name='VolumeDriver', description='The supported data volume type. Valid values:
+- alicloud/nas: mounts a NAS file system.
+- alicloud/oss: mounts an OSS bucket.', example='alicloud/nas'),
           }
-        ](name='VolumeMount', description='The list of data volumes mounted to the task. A maximum of 10 groups.'),
-      }(name='TaskSpec', description='The details of the task specification.'),
-      taskSustainable?: boolean(name='TaskSustainable', description='Indicate whether the job is a long-running job.
-
-*   true: background service the job.
-*   false: batch jobs.
+        ](name='VolumeMount', description='The list of data volumes mounted to the task. A maximum of 10 data volumes are supported.'),
+      }(name='TaskSpec', description='The task specification details.'),
+      taskSustainable?: boolean(name='TaskSustainable', description='Specifies whether the job is a long-running job. Valid values:
+- true: background service job.
+- false: batch job.
 
 Default value: false.', example='true'),
     }
-  ](name='Tasks', description='The list of tasks. Only one task is supported.
+  ](name='Tasks', description='The task list. Currently, only one task is supported.
 
 This parameter is required.'),
 }
 
 model CreateJobShrinkRequest {
-  dependencyPolicyShrink?: string(name='DependencyPolicy', description='Dependency policy.'),
+  dependencyPolicyShrink?: string(name='DependencyPolicy', description='The dependency policy.'),
   deploymentPolicyShrink?: string(name='DeploymentPolicy', description='The resource deployment policy.'),
-  jobDescription?: string(name='JobDescription', description='The description of the job.', example='Demo'),
-  jobName?: string(name='JobName', description='The job name. The name must be 2 to 64 characters in length and can contain letters, digits, and Chinese characters. It can contain hyphens (-) and underscores (_).
+  jobDescription?: string(name='JobDescription', description='The job description.', example='Demo'),
+  jobName?: string(name='JobName', description='The job name. The name must be 2 to 64 characters in length and can contain letters, digits, hyphens (-), and underscores (_).
 
 This parameter is required.', example='testjob'),
-  jobScheduler?: string(name='JobScheduler', description='The type of the job scheduler.
-
-*   HPC
-*   K8S
-
-Default value: HPC', example='HPC'),
+  jobScheduler?: string(name='JobScheduler'),
+  jobTemplateId?: string(name='JobTemplateId', description='The job template ID.', example='jt-xxxx'),
   securityPolicyShrink?: string(name='SecurityPolicy', description='The security policy.'),
-  tasksShrink?: string(name='Tasks', description='The list of tasks. Only one task is supported.
+  tasksShrink?: string(name='Tasks', description='The task list. Currently, only one task is supported.
 
 This parameter is required.'),
 }
@@ -531,9 +539,9 @@ model CreateJobResponseBody = {
   tasks?: [ 
     {
       executorIds?: [ string ](name='ExecutorIds', description='The list of executor IDs contained in the task.'),
-      taskName?: string(name='TaskName', description='The name of the task.', example='task0'),
+      taskName?: string(name='TaskName', description='The task name.', example='task0'),
     }
-  ](name='Tasks', description='The list of tasks.'),
+  ](name='Tasks', description='The task list.'),
 }
 
 model CreateJobResponse = {
@@ -543,7 +551,7 @@ model CreateJobResponse = {
 }
 
 /**
- * @summary Create a E-HPC Instant job.
+ * @summary Creates an E-HPC Instant job.
  *
  * @param tmpReq CreateJobRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -582,6 +590,9 @@ async function createJobWithOptions(tmpReq: CreateJobRequest, runtime: $RuntimeO
   if (!$isNull(request.jobScheduler)) {
     query['JobScheduler'] = request.jobScheduler;
   }
+  if (!$isNull(request.jobTemplateId)) {
+    query['JobTemplateId'] = request.jobTemplateId;
+  }
   if (!$isNull(request.securityPolicyShrink)) {
     query['SecurityPolicy'] = request.securityPolicyShrink;
   }
@@ -606,7 +617,7 @@ async function createJobWithOptions(tmpReq: CreateJobRequest, runtime: $RuntimeO
 }
 
 /**
- * @summary Create a E-HPC Instant job.
+ * @summary Creates an E-HPC Instant job.
  *
  * @param request CreateJobRequest
  * @return CreateJobResponse
@@ -617,35 +628,33 @@ async function createJob(request: CreateJobRequest): CreateJobResponse {
 }
 
 model CreatePoolRequest {
-  poolName?: string(name='PoolName', description='The name of the resource pool.
-
-*   The name can be up to 15 characters in length.
-*   It can contain digits, uppercase letters, lowercase letters, underscores (_), and dots (.).
+  poolName?: string(name='PoolName', description='The resource pool name.
+- The name can be up to 15 characters in length.
+- The name can contain digits, uppercase letters, lowercase letters, underscores (_), and periods (.).
 
 This parameter is required.', example='PoolTest'),
   priority?: int32(name='Priority', description='The priority of the resource pool.
 
-*   You can set a priority in the range of 1 to 99. The default value is 1, which is the lowest priority.
-*   Jobs submitted to a resource pool with a higher priority level value will be scheduled before pending jobs in a resource pool with a lower priority level value, and the priority level of the resource pool takes precedence over the priority of the job.', example='1'),
+- Valid values: 1 to 99. Default value: 1, which indicates the lowest priority.
+- Jobs submitted to a resource pool with a higher priority value are scheduled before pending jobs in a resource pool with a lower priority value. The priority of a resource pool takes precedence over the priority of a job.', example='1'),
   resourceLimits?: {
-    maxExecutorNum?: int32(name='MaxExecutorNum'),
-  }(name='ResourceLimits', description='The quota of resources that users are allowed to concurrently use in a resource pool.'),
-  schedulingPolicyId?: string(name='SchedulingPolicyId', example='policy-xxx'),
+    maxExecutorNum?: int32(name='MaxExecutorNum', description='The maximum number of executor nodes that a user can concurrently run within a resource pool.', example='100'),
+  }(name='ResourceLimits', description='The resource quota limits for concurrent usage allowed for a user within a resource pool.'),
+  schedulingPolicyId?: string(name='SchedulingPolicyId', description='The scheduling policy.', example='policy-xxx'),
 }
 
 model CreatePoolShrinkRequest {
-  poolName?: string(name='PoolName', description='The name of the resource pool.
-
-*   The name can be up to 15 characters in length.
-*   It can contain digits, uppercase letters, lowercase letters, underscores (_), and dots (.).
+  poolName?: string(name='PoolName', description='The resource pool name.
+- The name can be up to 15 characters in length.
+- The name can contain digits, uppercase letters, lowercase letters, underscores (_), and periods (.).
 
 This parameter is required.', example='PoolTest'),
   priority?: int32(name='Priority', description='The priority of the resource pool.
 
-*   You can set a priority in the range of 1 to 99. The default value is 1, which is the lowest priority.
-*   Jobs submitted to a resource pool with a higher priority level value will be scheduled before pending jobs in a resource pool with a lower priority level value, and the priority level of the resource pool takes precedence over the priority of the job.', example='1'),
-  resourceLimitsShrink?: string(name='ResourceLimits', description='The quota of resources that users are allowed to concurrently use in a resource pool.'),
-  schedulingPolicyId?: string(name='SchedulingPolicyId', example='policy-xxx'),
+- Valid values: 1 to 99. Default value: 1, which indicates the lowest priority.
+- Jobs submitted to a resource pool with a higher priority value are scheduled before pending jobs in a resource pool with a lower priority value. The priority of a resource pool takes precedence over the priority of a job.', example='1'),
+  resourceLimitsShrink?: string(name='ResourceLimits', description='The resource quota limits for concurrent usage allowed for a user within a resource pool.'),
+  schedulingPolicyId?: string(name='SchedulingPolicyId', description='The scheduling policy.', example='policy-xxx'),
 }
 
 model CreatePoolResponseBody = {
@@ -1165,18 +1174,28 @@ async function describeJobMetricLast(request: DescribeJobMetricLastRequest): Des
 }
 
 model DescribeJobResultsRequest {
-  arrayIndex?: int32(name='ArrayIndex', example='0_1'),
-  contentEncoding?: string(name='ContentEncoding', example='PlainText'),
-  jobId?: string(name='JobId', example='job-xxxxxxx'),
-  limitBytes?: string(name='LimitBytes', example='1048576'),
-  startTime?: string(name='StartTime', example='2024-09-02T16:00:00Z'),
-  taskName?: string(name='TaskName', example='Task0'),
+  arrayIndex?: int32(name='ArrayIndex', description='The executor number.', example='0_1'),
+  contentEncoding?: string(name='ContentEncoding', description='The encoding format for the `CommandContent` and `Output` fields in the response. Valid values:
+
+- PlainText: Returns the original script content and output.
+
+- Base64: Returns the Base64-encoded script content and output.
+
+The default value is Base64.', example='PlainText'),
+  jobId?: string(name='JobId', description='The job ID.', example='job-xxxxxxx'),
+  limitBytes?: string(name='LimitBytes', description='The maximum size of the log in bytes. The value must be between 1 and 1,048,576 (1 MB).', example='1048576'),
+  startTime?: string(name='StartTime', description='The time in UTC, formatted according to RFC 3339.', example='2024-09-02T16:00:00Z'),
+  taskName?: string(name='TaskName', description='The task name.', example='Task0'),
 }
 
 model DescribeJobResultsResponseBody = {
-  exitCode?: long(name='ExitCode', example='0'),
-  output?: string(name='Output', example='MTU6MzA6MDEK'),
-  requestId?: string(name='RequestId', description='Id of the request', example='BABC742E-04D7-5BA5-8A5F-7D9461D37B19'),
+  exitCode?: long(name='ExitCode', description='The exit code of the command.
+
+- For Linux instances, this is the exit code of the shell command.
+
+- For Windows instances, this is the exit code of the batch or PowerShell command.', example='0'),
+  output?: string(name='Output', description='The output of the command. If ContentEncoding is set to PlainText, the original output is returned. If ContentEncoding is set to Base64, the Base64-encoded output is returned.', example='MTU6MzA6MDEK'),
+  requestId?: string(name='RequestId', description='The ID of the request.', example='BABC742E-04D7-5BA5-8A5F-7D9461D37B19'),
 }
 
 model DescribeJobResultsResponse = {
@@ -1186,7 +1205,7 @@ model DescribeJobResultsResponse = {
 }
 
 /**
- * @summary Query job logs
+ * @summary Retrieves the logs for a job.
  *
  * @param request DescribeJobResultsRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -1232,7 +1251,7 @@ async function describeJobResultsWithOptions(request: DescribeJobResultsRequest,
 }
 
 /**
- * @summary Query job logs
+ * @summary Retrieves the logs for a job.
  *
  * @param request DescribeJobResultsRequest
  * @return DescribeJobResultsResponse
@@ -1243,44 +1262,47 @@ async function describeJobResults(request: DescribeJobResultsRequest): DescribeJ
 }
 
 model GetActionPlanRequest {
-  actionPlanId?: string(name='ActionPlanId', description='The ID of the execution plan.', example='ap-hz036ubmx2qmw93k****'),
+  actionPlanId?: string(name='ActionPlanId', description='ID of the execution plan.', example='ap-hz036ubmx2qmw93k****'),
 }
 
 model GetActionPlanResponseBody = {
-  actionPlanId?: string(name='ActionPlanId', description='The ID of the execution plan.', example='ap-hz036ubmx2qmw93k****'),
-  actionPlanName?: string(name='ActionPlanName', description='The name of the execution plan.', example='TestActionPlan'),
-  allocationSpec?: string(name='AllocationSpec', description='The type of the resource.', example='Standard'),
-  appId?: string(name='AppId', description='The ID of the application.', example='ci-vm-rYfypJKwlN9Y'),
-  createTime?: string(name='CreateTime', description='The time when the execution plan was created.', example='2025-08-10 18:28:05'),
-  desiredCapacity?: float(name='DesiredCapacity', description='The expected scale of resources for the execution plan. If the ResourceType parameter is set to VcpuCapacity, the execution plan is expected to have 10000 vCPUs.', example='1000'),
+  actionPlanId?: string(name='ActionPlanId', description='ID of the execution plan.', example='ap-hz036ubmx2qmw93k****'),
+  actionPlanName?: string(name='ActionPlanName', description='Name of the execution plan.', example='TestActionPlan'),
+  allocationSpec?: string(name='AllocationSpec', description='Resource type.', example='Standard'),
+  appId?: string(name='AppId', description='ID of the application.', example='ci-vm-rYfypJKwlN9Y'),
+  createTime?: string(name='CreateTime', description='Time when the execution plan was created.', example='2025-08-10 18:28:05'),
+  desiredCapacity?: float(name='DesiredCapacity', description='Target resource size for the execution plan. If ResourceType is VCpuCapacity, this value represents the target vCPU count.', example='1000'),
   intervalMinutes?: int32(name='IntervalMinutes', example='60'),
-  level?: string(name='Level', description='The computing power level.', example='General'),
-  prologScript?: string(name='PrologScript', description='The pre-processing script. Base64 encoding is required.', example='bHMgLWFsCmxzIC1hbGggfCB3YyAtbA=='),
+  level?: string(name='Level', description='Computing power level.', example='General'),
+  prologScript?: string(name='PrologScript', description='Prologue script. Must be Base64-encoded.', example='bHMgLWFsCmxzIC1hbGggfCB3YyAtbA=='),
   regions?: [ 
     {
-      regionId?: string(name='RegionId', description='The region ID of the instance.', example='cn-hangzhou'),
-      securityGroupIds?: [ string ](name='SecurityGroupIds', description='The list of security groups available for the execution plan in the region.'),
-      vSwitchIds?: [ string ](name='VSwitchIds', description='The list of VSwitches available for the execution plan in the region.'),
+      regionId?: string(name='RegionId', description='ID of the region.', example='cn-hangzhou'),
+      securityGroupIds?: [ string ](name='SecurityGroupIds', description='List of security groups available to the execution plan in this region.'),
+      vSwitchIds?: [ string ](name='VSwitchIds', description='List of vSwitches available to the execution plan in this region.'),
     }
-  ](name='Regions', description='The list of resource configurations in the region where the execution plan runs.'),
-  requestId?: string(name='RequestId', description='The request ID.', example='896D338C-E4F4-41EC-A154-D605E5DE****'),
-  resourceType?: string(name='ResourceType', description='Target resource type: the capacity of vCPUs or the number of execution nodes. Valid values:
+  ](name='Regions', description='List of region-specific resource configurations for the execution plan\\\\"s runtime environment.'),
+  requestId?: string(name='RequestId', description='ID of the request.', example='896D338C-E4F4-41EC-A154-D605E5DE****'),
+  resourceType?: string(name='ResourceType', description='Type of target resource for the execution plan. Valid values are:
 
-*   VCpuCapacity
-*   ExecutorCapacity', example='VCpuCapacity'),
+- VCpuCapacity: vCPU capacity
+
+- ExecutorCapacity: number of executor nodes', example='VCpuCapacity'),
   resources?: [ 
     {
-      cores?: float(name='Cores', description='The number of CPUs in the running environment.', example='64'),
-      memory?: float(name='Memory', description='The memory size of the running environment. Unit: GiB.', example='128'),
+      cores?: float(name='Cores', description='Number of CPUs in the runtime environment.', example='64'),
+      memory?: float(name='Memory', description='Memory size in the runtime environment, in GiB.', example='128'),
     }
-  ](name='Resources', description='The list of resource configurations of the execution plan runtime environment.'),
-  status?: string(name='Status', description='The status of the execution plan. The possible values are as follows:
+  ](name='Resources', description='List of resource configurations for the execution plan\\\\"s runtime environment.'),
+  status?: string(name='Status', description='Status of the execution plan. Valid values are:
 
-*   Active Instant tasks are dynamically managed only when the execution plan is in the Active state.
-*   Inactive Instant tasks are no longer managed by execution plans in the Inactive state.
-*   Deleting You cannot modify the parameters of an execution plan in this state.', example='Active'),
-  totalCapacity?: float(name='TotalCapacity', description='The size of the resources currently managed by the execution plan.', example='1000'),
-  updateTime?: string(name='UpdateTime', description='The time when the execution plan was last modified.', example='2025-08-10 18:28:05'),
+- Active: The execution plan is active and dynamically manages Instant jobs.
+
+- Inactive: The execution plan is inactive and no longer manages Instant jobs.
+
+- Deleting: The execution plan is being deleted. You cannot modify parameters during this state.', example='Active'),
+  totalCapacity?: float(name='TotalCapacity', description='Current resource size managed by the execution plan.', example='1000'),
+  updateTime?: string(name='UpdateTime', description='Last time the execution plan was modified.', example='2025-08-10 18:28:05'),
 }
 
 model GetActionPlanResponse = {
@@ -1290,7 +1312,7 @@ model GetActionPlanResponse = {
 }
 
 /**
- * @summary Querying Execution Plan Details
+ * @summary Queries the details of an execution plan.
  *
  * @param request GetActionPlanRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -1321,7 +1343,7 @@ async function getActionPlanWithOptions(request: GetActionPlanRequest, runtime: 
 }
 
 /**
- * @summary Querying Execution Plan Details
+ * @summary Queries the details of an execution plan.
  *
  * @param request GetActionPlanRequest
  * @return GetActionPlanResponse
@@ -1432,30 +1454,34 @@ async function getAppVersions(request: GetAppVersionsRequest): GetAppVersionsRes
 
 model GetImageRequest {
   additionalRegionIds?: [ string ](name='AdditionalRegionIds'),
-  imageCategory?: string(name='ImageCategory', description='The source of the image. Valid values:
+  imageCategory?: string(name='ImageCategory', description='Image source. Valid values:
 
-*   Public: public images provided by Alibaba Cloud.
-*   Custom: the custom image that you added.', example='Custom'),
-  imageId?: string(name='ImageId', description='The image ID.', example='m-2ze74g5mvy4pjg*****'),
-  imageType?: string(name='ImageType', description='The type of the images. Valid values:
+- Public: public images provided by Alibaba Cloud.
 
-*   VM: virtual machine image.
-*   Container: the container image.
+- Custom: custom images that you added.', example='Custom'),
+  imageId?: string(name='ImageId', description='Image ID.', example='m-2ze74g5mvy4pjg*****'),
+  imageType?: string(name='ImageType', description='Image type. Valid values:
+
+- VM: virtual machine image.
+
+- Container: container image.
 
 Default value: VM', example='VM'),
 }
 
 model GetImageShrinkRequest {
   additionalRegionIdsShrink?: string(name='AdditionalRegionIds'),
-  imageCategory?: string(name='ImageCategory', description='The source of the image. Valid values:
+  imageCategory?: string(name='ImageCategory', description='Image source. Valid values:
 
-*   Public: public images provided by Alibaba Cloud.
-*   Custom: the custom image that you added.', example='Custom'),
-  imageId?: string(name='ImageId', description='The image ID.', example='m-2ze74g5mvy4pjg*****'),
-  imageType?: string(name='ImageType', description='The type of the images. Valid values:
+- Public: public images provided by Alibaba Cloud.
 
-*   VM: virtual machine image.
-*   Container: the container image.
+- Custom: custom images that you added.', example='Custom'),
+  imageId?: string(name='ImageId', description='Image ID.', example='m-2ze74g5mvy4pjg*****'),
+  imageType?: string(name='ImageType', description='Image type. Valid values:
+
+- VM: virtual machine image.
+
+- Container: container image.
 
 Default value: VM', example='VM'),
 }
@@ -1472,51 +1498,54 @@ model GetImageResponseBody = {
     appId?: string(name='AppId'),
     containerImageSpec?: {
       architecture?: string(name='Architecture'),
-      isACREnterprise?: boolean(name='IsACREnterprise', description='Whether the instance is an Alibaba Cloud image repository Enterprise Edition.
+      isACREnterprise?: boolean(name='IsACREnterprise', description='Indicates whether the image is stored in an ACR Enterprise Edition instance. Valid values:
 
-*   True
-*   False', example='True'),
-      isACRRegistry?: boolean(name='IsACRRegistry', description='Whether it is an Alibaba Cloud image repository.
+- True: yes.
 
-*   True
-*   False', example='True'),
+- False: no.', example='True'),
+      isACRRegistry?: boolean(name='IsACRRegistry', description='Indicates whether the image is stored in an Alibaba Cloud Container Registry (ACR) instance. Valid values:
+
+- True: yes.
+
+- False: no.', example='True'),
       osTag?: string(name='OsTag'),
       platform?: string(name='Platform'),
       registryCredential?: {
-        password?: string(name='Password', description='The password of the logon user.', example='userpassword'),
-        server?: string(name='Server', description='The registered address of the image repository.', example='registry-vpc.cn-hangzhou.aliyuncs.com'),
-        userName?: string(name='UserName', description='The username of the logon user.', example='username'),
-      }(name='RegistryCredential', description='The authentication of the private image repository.'),
-      registryCriId?: string(name='RegistryCriId', description='The ID of the Container Registry Enterprise Edition image repository.', example='cri-xyz795ygf8k9****'),
-      registryUrl?: string(name='RegistryUrl', description='The endpoint of the container image.', example='registry-vpc.cn-hangzhou.aliyuncs.com/ehpc_open/nginx:latest'),
-    }(name='ContainerImageSpec', description='The configuration details of the container image.'),
-    createTime?: string(name='CreateTime', description='The time when the image was created.', example='2022-12-23T09:51:39Z'),
-    description?: string(name='Description', description='The description of the image.'),
+        password?: string(name='Password', description='Password for the username.', example='userpassword'),
+        server?: string(name='Server', description='Registry server address.', example='registry-vpc.cn-hangzhou.aliyuncs.com'),
+        userName?: string(name='UserName', description='Username to log on to the registry.', example='username'),
+      }(name='RegistryCredential', description='Authentication for a private image registry.'),
+      registryCriId?: string(name='RegistryCriId', description='ACR Enterprise Edition instance ID.', example='cri-xyz795ygf8k9****'),
+      registryUrl?: string(name='RegistryUrl', description='Container image registry URL.', example='registry-vpc.cn-hangzhou.aliyuncs.com/ehpc_open/nginx:latest'),
+    }(name='ContainerImageSpec', description='Container image configuration details.'),
+    createTime?: string(name='CreateTime', description='Image creation time.', example='2022-12-23T09:51:39Z'),
+    description?: string(name='Description', description='Image description.', example='应用测试镜像。'),
     documentInfo?: {
       document?: string(name='Document'),
       documentId?: string(name='DocumentId'),
       encodingMode?: string(name='EncodingMode'),
     }(name='DocumentInfo'),
-    imageType?: string(name='ImageType', description='The type of the image.
+    imageType?: string(name='ImageType', description='Image type.
 
 This parameter is required.', example='VM'),
-    name?: string(name='Name', description='The name of the image.', example='app-image'),
-    size?: string(name='Size', description='The size of the image. Unit: GiB.', example='40 GiB'),
+    name?: string(name='Name', description='Image name.', example='app-image'),
+    size?: string(name='Size', description='Image size, in GiB.', example='40 GiB'),
     status?: string(name='Status'),
     VMImageSpec?: {
-      architecture?: string(name='Architecture', description='The type of the architecture.', example='x86_64'),
-      imageId?: string(name='ImageId', description='The image ID.', example='m-uf60twafjtaart******'),
-      osTag?: string(name='OsTag', description='The ID of the specific OS version.', example='CentOS  7.6 64 bit'),
-      platform?: string(name='Platform', description='The type of the platform.', example='CentOS'),
-    }(name='VMImageSpec', description='The configuration details of the virtual machine image.'),
-    version?: string(name='Version', description='The version.', example='v1.0'),
-  }(name='Image', description='The details of the image.'),
-  requestId?: string(name='RequestId', description='The request ID.', example='04F0F334-1335-436C-A1D7-6C044FE73368'),
-  success?: boolean(name='Success', description='Indicates whether the request was successful. Valid values:
+      architecture?: string(name='Architecture', description='Architecture type.', example='x86_64'),
+      imageId?: string(name='ImageId', description='Image ID.', example='m-uf60twafjtaart******'),
+      osTag?: string(name='OsTag', description='OS version identifier.', example='CentOS  7.6 64 bit'),
+      platform?: string(name='Platform', description='Platform type.', example='CentOS'),
+    }(name='VMImageSpec', description='Virtual machine image configuration details.'),
+    version?: string(name='Version', description='Version.', example='v1.0'),
+  }(name='Image', description='Image details.'),
+  requestId?: string(name='RequestId', description='Request ID.', example='04F0F334-1335-436C-A1D7-6C044FE73368'),
+  success?: boolean(name='Success', description='Indicates whether the operation succeeded. Valid values:
 
-*   true: The task is successful.
-*   false: The error occurred.', example='true'),
-  totalCount?: int32(name='TotalCount', description='The total amount of data in this request.', example='10'),
+- true: succeeded.
+
+- false: failed.', example='true'),
+  totalCount?: int32(name='TotalCount', description='Total number of items returned for this request.', example='10'),
 }
 
 model GetImageResponse = {
@@ -1526,7 +1555,7 @@ model GetImageResponse = {
 }
 
 /**
- * @summary Obtains the information about an image.
+ * @summary Get image details.
  *
  * @param tmpReq GetImageRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -1571,7 +1600,7 @@ async function getImageWithOptions(tmpReq: GetImageRequest, runtime: $RuntimeOpt
 }
 
 /**
- * @summary Obtains the information about an image.
+ * @summary Get image details.
  *
  * @param request GetImageRequest
  * @return GetImageResponse
@@ -1582,13 +1611,13 @@ async function getImage(request: GetImageRequest): GetImageResponse {
 }
 
 model GetJobRequest {
-  jobId?: string(name='JobId', description='The ID of the job.', example='job-xxxx'),
+  jobId?: string(name='JobId', description='The job ID.', example='job-xxxx'),
 }
 
 model GetJobResponseBody = {
   jobInfo?: {
-    appExtraInfo?: string(name='AppExtraInfo', description='The additional information about the application.', example='{\\\\"xxx\\\\": \\\\"xxxxx\\\\"}'),
-    createTime?: string(name='CreateTime', description='The time when the job was submitted.', example='2024-03-05 20:00:46'),
+    appExtraInfo?: string(name='AppExtraInfo', description='The application additional information.', example='{\\\\"xxx\\\\": \\\\"xxxxx\\\\"}'),
+    createTime?: string(name='CreateTime', description='The job submission time.', example='2024-03-05 20:00:46'),
     dependencyPolicy?: {
       jobDependency?: [ 
         {
@@ -1598,97 +1627,92 @@ model GetJobResponseBody = {
       ](name='JobDependency'),
     }(name='DependencyPolicy'),
     deploymentPolicy?: {
-      allocationSpec?: string(name='AllocationSpec', description='The type of the resource. Only Dedicated is supported. You must enable a whitelist.', example='Dedicated'),
-      level?: string(name='Level', description='The computing power level. The following disk categories are supported:
+      allocationSpec?: string(name='AllocationSpec', description='The resource type. Currently, only Dedicated is supported. You must be added to the whitelist to use this feature.', example='Dedicated'),
+      level?: string(name='Level', description='The computing power level. Valid values:
+- General: general-purpose.
+- Performance: compute-optimized.
 
-*   General
-*   Performance
-
-Default value: General', example='General'),
+Default value: General.', example='General'),
       network?: {
-        enableENIMapping?: boolean(name='EnableENIMapping', description='Whether the resource is created in the zone corresponding to the passed-in VSwitch parameter.
+        enableENIMapping?: boolean(name='EnableENIMapping', description='Indicates whether resources are created in the zone that corresponds to the specified vSwitch.
 
-*   true: The resource is created in the zone corresponding to the passed-in VSwitch parameter.
-*   false: The resource is created in any zone that has resources.', example='false'),
-        enableExternalIpAddress?: boolean(name='EnableExternalIpAddress', description='Whether to create a public IP address.
+- true: Resources are created in the zone that corresponds to the specified vSwitch.
 
-Valid values:
-
-*   false: false.
-*   true: true.', example='false'),
-        vswitch?: [ string ](name='Vswitch', description='The VSwitch array.'),
-      }(name='Network', description='The network configuration information.'),
+- false: Resources are created in any zone that has available resources.', example='false'),
+        enableExternalIpAddress?: boolean(name='EnableExternalIpAddress', description='Indicates whether a public IP address is created.', example='false'),
+        vswitch?: [ string ](name='Vswitch', description='The vSwitch array.'),
+      }(name='Network', description='The network configuration.'),
       pool?: string(name='Pool', example='testpool'),
+      priority?: int32(name='Priority'),
       tags?: [ 
         {
-          tagKey?: string(name='TagKey', description='The key of the job tag.', example='TestKey'),
-          tagValue?: string(name='TagValue', description='The value of the job tag.', example='TestValue'),
+          tagKey?: string(name='TagKey', description='The job tag key.', example='TestKey'),
+          tagValue?: string(name='TagValue', description='The job tag value.', example='TestValue'),
         }
-      ](name='Tags', description='The list of job tags.'),
+      ](name='Tags', description='The job tag list.'),
     }(name='DeploymentPolicy', description='The resource deployment policy.'),
-    endTime?: string(name='EndTime', description='The time when the job is complete.', example='2024-03-05 20:01:48'),
-    jobDescription?: string(name='JobDescription', description='The description of the job.', example='Demo'),
-    jobId?: string(name='JobId', description='The ID of the job.', example='job-xxxx'),
+    endTime?: string(name='EndTime', description='The job end time.', example='2024-03-05 20:01:48'),
+    jobDescription?: string(name='JobDescription', description='The job description.', example='Demo'),
+    jobId?: string(name='JobId', description='The job ID.', example='job-xxxx'),
     jobName?: string(name='JobName', description='The job name.', example='testJob'),
-    jobScheduler?: string(name='JobScheduler', description='The type of the job scheduler.', example='HPC'),
+    jobScheduler?: string(name='JobScheduler'),
     securityPolicy?: {
       securityGroup?: {
         securityGroupIds?: [ string ](name='SecurityGroupIds'),
       }(name='SecurityGroup'),
     }(name='SecurityPolicy'),
-    startTime?: string(name='StartTime', description='The time when the job started.', example='2024-03-05 20:00:48'),
+    startTime?: string(name='StartTime', description='The job start time.', example='2024-03-05 20:00:48'),
     status?: string(name='Status', description='The job status. Valid values:
 
-*   Pending: The job is being queued.
-*   Initing: The job is being initialized.
-*   Succeed: The job is successfully run.
-*   Failed: The job failed to run.
-*   Running: The job is running.
-*   Exception: scheduling exception
-*   Retrying: The job is being retried.
-*   Expired: The job timed out.
-*   Deleted: The job is deleted.
-*   Suspended: job hibernation
-*   Restarting: The job is being restarted.', example='Succeed'),
+- Pending: the job is queued.
+- Initing: the job is being initialized.
+- Succeed: the job succeeded.
+- Failed: the job failed.
+- Running: the job is running.
+- Exception: a scheduling exception occurred.
+- Retrying: the job is being retried.
+- Expired: the job timed out.
+- Deleted: the job is deleted.
+- Suspended: the job is suspended.
+- Restarting: the job is being restarted.', example='Succeeded'),
     tasks?: [ 
       {
         executorPolicy?: {
           arraySpec?: {
-            indexEnd?: int32(name='IndexEnd', description='The end value of the array job index. Valid values: 0 to 4999. The value must be greater than or equal to the value of IndexStart.', example='9'),
-            indexStart?: int32(name='IndexStart', description='The starting value of the array job index. Valid values: 0 to 4999.', example='0'),
+            indexEnd?: int32(name='IndexEnd', description='The end value of the array job index. Valid values: 0 to 4999. The value must be greater than or equal to IndexStart.', example='9'),
+            indexStart?: int32(name='IndexStart', description='The start value of the array job index. Valid values: 0 to 4999.', example='0'),
             indexStep?: int32(name='IndexStep', description='The interval of the array job index.
-
-> If the array job property is IndexStart=1,IndexEnd=5, and IndexStep=2, the array job contains three subtasks. The values of the subtask indexes are 1,3, and 5.', example='1'),
-          }(name='ArraySpec', description='The details of the array job.'),
-          maxCount?: int32(name='MaxCount', description='The maximum number of nodes to run the job.', example='10'),
+> If the array job properties are IndexStart=1, IndexEnd=5, and IndexStep=2, the array job contains three subtasks with indexes 1, 3, and 5.', example='1'),
+          }(name='ArraySpec', description='The array job details.'),
+          maxCount?: int32(name='MaxCount', description='The maximum number of nodes for running the job.', example='10'),
         }(name='ExecutorPolicy', description='The task execution policy.'),
         executorStatus?: [ 
           {
-            arrayId?: int32(name='ArrayId', description='Sub-job ID', example='0'),
-            createTime?: string(name='CreateTime', description='The time when the job was created.', example='2024-02-04 13:54:10'),
-            endTime?: string(name='EndTime', description='The end time of the scaling plan job.', example='2024-02-04 13:54:10'),
-            startTime?: string(name='StartTime', description='The start time of the scaling plan job.', example='2024-02-04 13:54:10'),
-            status?: string(name='Status', description='The status of the job.', example='Running'),
-            statusReason?: string(name='StatusReason', description='The reason why the stack instance is in the OUTDATED state.', example='Creating executor'),
+            arrayId?: int32(name='ArrayId', description='The subtask ID.', example='0'),
+            createTime?: string(name='CreateTime', description='The job creation time.', example='2024-02-04 13:54:10'),
+            endTime?: string(name='EndTime', description='The job end time.', example='2024-02-04 13:54:10'),
+            startTime?: string(name='StartTime', description='The job start time.', example='2024-02-04 13:54:10'),
+            status?: string(name='Status', description='The job status.', example='Running'),
+            statusReason?: string(name='StatusReason', description='The status reason description.', example='Creating executor'),
           }
-        ](name='ExecutorStatus', description='The execution status of the task.'),
-        taskName?: string(name='TaskName', description='The name of the task.', example='task0'),
+        ](name='ExecutorStatus', description='The task execution status.'),
+        taskName?: string(name='TaskName', description='The task name.', example='task0'),
         taskSpec?: {
           resource?: {
-            cores?: float(name='Cores', description='The number of CPUs on which the job is run.', example='1'),
+            cores?: float(name='Cores', description='The number of CPUs used to run the job.', example='1'),
             disks?: [ 
               {
-                size?: int32(name='Size', description='The size of the disk.', example='100'),
-                type?: string(name='Type', description='The type of the disk. The following disk categories are supported:
+                size?: int32(name='Size', description='The cloud disk size.', example='100'),
+                type?: string(name='Type', description='The cloud disk type. Valid values:
 
-*   System: system disk.
-*   Data: data disk.', example='System'),
+- System: system cloud disk.
+- Data: data cloud disk.', example='System'),
               }
-            ](name='Disks', description='The array of the disks.'),
+            ](name='Disks', description='The cloud disk array.'),
             enableHT?: boolean(name='EnableHT'),
             hostNamePrefix?: string(name='HostNamePrefix'),
             instanceTypes?: [ string ](name='InstanceTypes'),
-            memory?: int32(name='Memory', description='The memory capacity. Unit: GiB.', example='4'),
+            memory?: int32(name='Memory', description='The total amount of memory resources. Unit: GiB.', example='4'),
           }(name='Resource', description='The resource information.'),
           retryPolicy?: {
             exitCodeActions?: [ 
@@ -1703,11 +1727,11 @@ Valid values:
             {
               VM?: {
                 image?: string(name='Image', description='The image ID.', example='m-xxxx'),
-                prologScript?: string(name='PrologScript', description='The pre-processing script. Base64 encoding is required.', example='ZWNobyAiMTIzNCIgPiBgZGF0ZSArJXNg'),
-                script?: string(name='Script', description='The running-job script. Base64 encoding is required.', example='ZWNobyAiMTIzNCIgPiBgZGF0ZSArJXNg'),
-              }(name='VM', description='Use ECS instances.'),
+                prologScript?: string(name='PrologScript', description='The preprocessing script. The script must be Base64-encoded.', example='ZWNobyAiMTIzNCIgPiBgZGF0ZSArJXNg'),
+                script?: string(name='Script', description='The job execution script. The script must be Base64-encoded.', example='ZWNobyAiMTIzNCIgPiBgZGF0ZSArJXNg'),
+              }(name='VM', description='The ECS instance configuration.'),
             }
-          ](name='TaskExecutor', description='The task execution configurations.'),
+          ](name='TaskExecutor', description='The task execution configuration.'),
           volumeMount?: [ 
             {
               mountOptions?: string(name='MountOptions'),
@@ -1715,10 +1739,10 @@ Valid values:
               volumeDriver?: string(name='VolumeDriver'),
             }
           ](name='VolumeMount'),
-        }(name='TaskSpec', description='The details of the task specification.'),
-        taskSustainable?: boolean(name='TaskSustainable', description='Indicate whether the job is a long-running job.', example='true'),
+        }(name='TaskSpec', description='The task specification details.'),
+        taskSustainable?: boolean(name='TaskSustainable', description='Indicates whether the job is long-running.', example='true'),
       }
-    ](name='Tasks', description='The list of tasks. Only one task is supported.'),
+    ](name='Tasks', description='The task list. Currently, only one task is supported.'),
   }(name='JobInfo', description='The job details.'),
   requestId?: string(name='RequestId', description='The request ID.', example='896D338C-E4F4-41EC-A154-D605E5DE****'),
 }
@@ -1730,7 +1754,7 @@ model GetJobResponse = {
 }
 
 /**
- * @summary Obtains the details of an execution job.
+ * @summary Retrieves the details of an execution job.
  *
  * @param request GetJobRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -1761,7 +1785,7 @@ async function getJobWithOptions(request: GetJobRequest, runtime: $RuntimeOption
 }
 
 /**
- * @summary Obtains the details of an execution job.
+ * @summary Retrieves the details of an execution job.
  *
  * @param request GetJobRequest
  * @return GetJobResponse
@@ -1775,8 +1799,8 @@ model GetJobRecordDurationRequest {
 }
 
 model GetJobRecordDurationResponseBody = {
-  jobRecordDuration?: long(name='JobRecordDuration', example='30'),
-  requestId?: string(name='RequestId', description='Id of the request', example='896D338C-E4F4-41EC-A154-D605E5DE****'),
+  jobRecordDuration?: long(name='JobRecordDuration', description='The job record retention period, in days. Valid values: 1 to 30. Default value: 30.', example='30'),
+  requestId?: string(name='RequestId', description='The request ID.', example='896D338C-E4F4-41EC-A154-D605E5DE****'),
 }
 
 model GetJobRecordDurationResponse = {
@@ -1786,7 +1810,7 @@ model GetJobRecordDurationResponse = {
 }
 
 /**
- * @summary 查询作业保留时长
+ * @summary Retrieves the job record retention period.
  *
  * @param request GetJobRecordDurationRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -1811,7 +1835,7 @@ async function getJobRecordDurationWithOptions(request: GetJobRecordDurationRequ
 }
 
 /**
- * @summary 查询作业保留时长
+ * @summary Retrieves the job record retention period.
  *
  * @param request GetJobRecordDurationRequest
  * @return GetJobRecordDurationResponse
@@ -1824,41 +1848,49 @@ async function getJobRecordDuration(request: GetJobRecordDurationRequest): GetJo
 model GetPoolRequest {
   poolName?: string(name='PoolName', description='The name of the resource pool.
 
-*   The value can be up to 15 characters in length.
-*   It can contain digits, uppercase letters, lowercase letters, underscores (_), and dots (.).
+- The name can be up to 15 characters long.
+
+- The name can contain letters, digits, underscores (_), and periods (.).
 
 This parameter is required.', example='PoolTest'),
 }
 
 model GetPoolResponseBody = {
   poolInfo?: {
-    createTime?: string(name='CreateTime', description='The time when the resource pool is created.', example='2024-12-01 20:00:00'),
-    executorUsage?: int32(name='ExecutorUsage'),
-    isDefault?: boolean(name='IsDefault', description='Indices whether the resource pool is the default resource pool. Valid values:
+    createTime?: string(name='CreateTime', description='The time when the resource pool was created.', example='2024-12-01 20:00:00'),
+    executorUsage?: int32(name='ExecutorUsage', description='The number of executors that are in use in the resource pool.', example='100'),
+    isDefault?: boolean(name='IsDefault', description='Indicates whether the resource pool is the default resource pool. Valid values:
 
-*   **true**
-*   **false**', example='true'),
-    maxExecutorNum?: int32(name='MaxExecutorNum'),
-    poolName?: string(name='PoolName', description='The name of the resource group.
+- **true**
 
-*   The value can be up to 15 characters in length.
-*   It can contain digits, uppercase letters, lowercase letters, underscores (_), and dots (.).', example='PoolTest'),
+- **false**', example='true'),
+    maxExecutorNum?: int32(name='MaxExecutorNum', description='The maximum number of concurrent executors per user in the resource pool.', example='100'),
+    poolName?: string(name='PoolName', description='The name of the resource pool.
+
+- The name can be up to 15 characters long.
+
+- The name can contain letters, digits, underscores (_), and periods (.).', example='PoolTest'),
     priority?: int32(name='Priority', description='The priority of the resource pool.
 
-*   You can set a priority in the range of 1 to 99. The default value is 1, which is the lowest priority.
-*   Jobs submitted to a resource pool with a higher priority level value will be scheduled before pending jobs in a resource pool with a lower priority level value, and the priority level of the resource pool takes precedence over the priority of the job.', example='1'),
-    reason?: string(name='Reason', description='The cause of the error.', example='Fails to *** pool: ***.'),
-    schedulingPolicyId?: string(name='SchedulingPolicyId', example='policy-xxx'),
+- Valid values: 1 to 99. A larger value indicates a higher priority. Default value: 1.
+
+- Jobs in a resource pool with a higher priority are scheduled before pending jobs in a resource pool with a lower priority. The priority of the resource pool takes precedence over the priority of a job.', example='1'),
+    reason?: string(name='Reason', description='The reason for the error.', example='Fails to *** pool: ***.'),
+    schedulingPolicyId?: string(name='SchedulingPolicyId', description='The ID of the scheduling policy.', example='policy-xxx'),
     status?: string(name='Status', description='The status of the resource pool. Valid values:
 
-*   Creating: The resource pool is being created.
-*   Updating: The resource pool is being updated.
-*   Deleting: The resource pool is being deleted.
-*   Working: The resource pool is working.
-*   Deleted: The resource pool is deleted.', example='Working'),
-    updateTime?: string(name='UpdateTime', description='The time when the resource pool was updated.', example='2024-12-01 20:00:00'),
-  }(name='PoolInfo', description='The information about the resource pool.'),
-  requestId?: string(name='RequestId', description='Id of the request', example='896D338C-E4F4-41EC-A154-D605E5DE****'),
+- `Creating`: The resource pool is being created.
+
+- `Updating`: The resource pool is being updated.
+
+- `Deleting`: The resource pool is being deleted.
+
+- `Working`: The resource pool is active.
+
+- `Deleted`: The resource pool has been deleted.', example='Working'),
+    updateTime?: string(name='UpdateTime', description='The time when the resource pool was last updated.', example='2024-12-01 20:00:00'),
+  }(name='PoolInfo', description='The details of the resource pool.'),
+  requestId?: string(name='RequestId', description='The ID of the request.', example='896D338C-E4F4-41EC-A154-D605E5DE****'),
 }
 
 model GetPoolResponse = {
@@ -1868,7 +1900,7 @@ model GetPoolResponse = {
 }
 
 /**
- * @summary Obtains the details of a resource pool.
+ * @summary Retrieves the details of a specified resource pool.
  *
  * @param request GetPoolRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -1899,7 +1931,7 @@ async function getPoolWithOptions(request: GetPoolRequest, runtime: $RuntimeOpti
 }
 
 /**
- * @summary Obtains the details of a resource pool.
+ * @summary Retrieves the details of a specified resource pool.
  *
  * @param request GetPoolRequest
  * @return GetPoolResponse
@@ -2218,93 +2250,108 @@ async function listExecutorEvents(request: ListExecutorEventsRequest): ListExecu
 
 model ListExecutorsRequest {
   filter?: {
-    executorIds?: [ string ](name='ExecutorIds', description='The list of executor IDs. A maximum of 100 IDs are supported.'),
-    image?: string(name='Image', description='Executor image.', example='m-f8z0dfa96luxxxxx'),
-    ipAddresses?: [ string ](name='IpAddresses', description='The list of internal IP addresses. A maximum of 100 IP addresses are supported.'),
-    jobName?: string(name='JobName', description='The job name. Exact filtering. Fuzzy query is not supported.', example='testJob'),
-    status?: [ string ](name='Status', description='Executor status list.'),
-    timeCreatedAfter?: int32(name='TimeCreatedAfter', description='For jobs submitted after this time, the time in the region is converted into a UNIX timestamp (UI8).', example='1703819914'),
-    timeCreatedBefore?: int32(name='TimeCreatedBefore', description='For jobs submitted before this time, the time in the region is converted into a Unix timestamp (for domestic sites, the UI8 region).', example='1703820113'),
-    vpcId?: string(name='VpcId'),
-    vswitchId?: string(name='VswitchId', description='The ID of the vSwitch.', example='vsw-xxx'),
-  }(name='Filter', description='Queries the Executor filter conditions.'),
-  pageNumber?: int32(name='PageNumber', description='The current page number.\\\\
-Starting value: 1\\\\
-Default value: 1', example='1'),
-  pageSize?: int32(name='PageSize', description='The number of entries per page. The number of entries returned per page. Default value: 50. Maximum value: 100.', example='50'),
+    executorIds?: [ string ](name='ExecutorIds', description='A list of executor IDs. You can specify up to 100 IDs.'),
+    image?: string(name='Image', description='The executor image.', example='m-f8z0dfa96luxxxxx'),
+    ipAddresses?: [ string ](name='IpAddresses', description='A list of private IP addresses. You can specify up to 100 IP addresses.'),
+    jobName?: string(name='JobName', description='The job name. Fuzzy queries are supported.', example='testJob'),
+    jobTemplateId?: string(name='JobTemplateId', example='jt-xxxx'),
+    status?: [ string ](name='Status', description='A list of executor statuses.'),
+    timeCreatedAfter?: int32(name='TimeCreatedAfter', description='The jobs submitted after this time. This is a UNIX timestamp that is converted from the time in the region where the job is located. For sites in mainland China, the time is in the UTC+8 time zone.', example='1703819914'),
+    timeCreatedBefore?: int32(name='TimeCreatedBefore', description='The jobs submitted before this time. This is a UNIX timestamp that is converted from the time in the region where the job is located. For sites in mainland China, the time is in the UTC+8 time zone.', example='1703820113'),
+    vpcId?: string(name='VpcId', description='The virtual private cloud (VPC) ID.', example='vpc-xxx'),
+    vswitchId?: string(name='VswitchId', description='The vSwitch ID.', example='vsw-xxx'),
+  }(name='Filter', description='The filter conditions for querying executors.'),
+  pageNumber?: int32(name='PageNumber', description='The current page number.<br>Start value: 1<br>Default value: 1<br><br>', example='1'),
+  pageSize?: int32(name='PageSize', description='The number of entries to return on each page for a paged query. Default value: 50. Maximum value: 100.', example='50'),
 }
 
 model ListExecutorsShrinkRequest {
-  filterShrink?: string(name='Filter', description='Queries the Executor filter conditions.'),
-  pageNumber?: int32(name='PageNumber', description='The current page number.\\\\
-Starting value: 1\\\\
-Default value: 1', example='1'),
-  pageSize?: int32(name='PageSize', description='The number of entries per page. The number of entries returned per page. Default value: 50. Maximum value: 100.', example='50'),
+  filterShrink?: string(name='Filter', description='The filter conditions for querying executors.'),
+  pageNumber?: int32(name='PageNumber', description='The current page number.<br>Start value: 1<br>Default value: 1<br><br>', example='1'),
+  pageSize?: int32(name='PageSize', description='The number of entries to return on each page for a paged query. Default value: 50. Maximum value: 100.', example='50'),
 }
 
 model ListExecutorsResponseBody = {
   executors?: [ 
     {
-      allocationSpec?: string(name='AllocationSpec'),
-      appName?: string(name='AppName'),
+      allocationSpec?: string(name='AllocationSpec', description='The resource type.
+
+- Standard: Standard.
+
+- Dedicated: Dedicated. This type requires whitelisting.
+
+- Economic: Economy. This type requires whitelisting.', example='Standard'),
+      appName?: string(name='AppName', description='The application name.', example='Alphafold3'),
       arrayIndex?: int32(name='ArrayIndex', description='The executor number.', example='0'),
-      blockDuration?: int32(name='BlockDuration'),
-      createTime?: string(name='CreateTime', description='The time when the instance was created.', example='2024-02-20 10:04:10'),
+      blockDuration?: int32(name='BlockDuration', description='The duration for which the compute resources are reserved.', example='24'),
+      createTime?: string(name='CreateTime', description='The creation time.', example='2024-02-20 10:04:10'),
       endTime?: string(name='EndTime', description='The end time.', example='2024-02-20 10:04:18'),
-      executorId?: string(name='ExecutorId', description='The executor ID. The format is JobId-TaskName-ArrayIndex.', example='job-xxxx-task0-1'),
-      expirationTime?: string(name='ExpirationTime'),
-      externalIpAddress?: [ string ](name='ExternalIpAddress', description='The list of public IP addresses of the nodes.'),
-      hostName?: [ string ](name='HostName', description='The list of hostnames.'),
-      image?: string(name='Image', description='Executor image.', example='m-f8z0dfa96luxxxxx'),
-      ipAddress?: [ string ](name='IpAddress', description='The list of internal IP addresses.'),
+      executorId?: string(name='ExecutorId', description='The executor ID. The format is JobId-TaskName-ArrayIndex.', example='job-xxxx-Task0-1'),
+      expirationTime?: string(name='ExpirationTime', description='The expiration time.'),
+      externalIpAddress?: [ string ](name='ExternalIpAddress', description='A list of public IP addresses of the node.'),
+      hostName?: [ string ](name='HostName', description='A list of hostnames.'),
+      image?: string(name='Image', description='The executor image.', example='m-f8z0dfa96luxxxxx'),
+      ipAddress?: [ string ](name='IpAddress', description='A list of private IP addresses.'),
       jobId?: string(name='JobId', description='The job ID.', example='job-hy1nggvyukuvkr******'),
       jobName?: string(name='JobName', description='The job name.', example='testJob'),
       preemptible?: boolean(name='Preemptible'),
       resource?: {
-        cores?: float(name='Cores', description='The number of running CPUs.', example='1'),
+        cores?: float(name='Cores', description='The number of CPU cores.', example='1'),
         disks?: [ 
           {
-            size?: int32(name='Size', description='The size of the disk.', example='10'),
-            type?: string(name='Type', description='The category of the disk. The following disk categories are supported:
+            size?: int32(name='Size', description='The size of the cloud disk.', example='10'),
+            type?: string(name='Type', description='The type of the cloud disk. The following types are supported:
 
-*   System: system disk.
-*   Data: data disk.', example='System'),
+- System: The system disk.
+
+- Data: The data disk.', example='System'),
           }
-        ](name='Disks', description='The array of the disks.'),
-        instanceType?: string(name='InstanceType'),
+        ](name='Disks', description='An array of cloud disks.'),
+        instanceType?: string(name='InstanceType', description='The instance type of the runtime environment.', example='ecs.c7a.8xlarge'),
         memory?: float(name='Memory', description='The total amount of memory resources. Unit: GiB.', example='4'),
       }(name='Resource', description='The resource information.'),
-      resourceType?: string(name='ResourceType', description='The type of the resource.', example='ECI'),
+      resourceType?: string(name='ResourceType', description='The resource type.', example='ECI'),
       startTime?: string(name='StartTime', description='The start time.', example='2024-02-20 10:04:13'),
-      status?: string(name='Status', description='The status of the executor. Valid values:
+      status?: string(name='Status', description='The status of the executor. Possible values:
 
-*   Pending
-*   Initing
-*   Succeed
-*   Failed
-*   Running
-*   Unknown
-*   Exception
-*   Retrying
-*   Expired
-*   Deleted', example='Running'),
-      statusReason?: string(name='StatusReason', description='The description of the status reason.', example='Succeeded to release executor resource'),
+- Pending: The executor is waiting in a queue.
+
+- Initing: The executor is being initialized.
+
+- Succeeded: The executor ran successfully.
+
+- Failed: The executor failed to run.
+
+- Running: The executor is running.
+
+- Exception: A scheduling error occurred.
+
+- Retrying: The system is retrying the executor.
+
+- Expired: The executor timed out.
+
+- Suspended: The job is in hibernation.
+
+- Restarting: The job is restarting.
+
+- Deleted: The executor is deleted.', example='Running'),
+      statusReason?: string(name='StatusReason', description='The description of the status reason.', example='ExecutorReady'),
       tags?: [ 
         {
-          tagKey?: string(name='TagKey', description='The key of the executor tag.', example='TestKey'),
-          tagValue?: string(name='TagValue', description='The value of the executor tag.', example='TestValue'),
+          tagKey?: string(name='TagKey', description='The tag key of the executor.', example='TestKey'),
+          tagValue?: string(name='TagValue', description='The tag value of the executor.', example='TestValue'),
         }
-      ](name='Tags', description='The list of executor tags.'),
-      taskName?: string(name='TaskName', description='The name of the task.', example='task0'),
-      taskSustainable?: boolean(name='TaskSustainable', description='Indicate whether the job is a long-running job.', example='true'),
-      vpcId?: string(name='VpcId'),
-      vswitchId?: string(name='VswitchId', description='The ID of the vSwitch.', example='vsw-xxx'),
+      ](name='Tags', description='A list of executor tags.'),
+      taskName?: string(name='TaskName', description='The task name.', example='Task0'),
+      taskSustainable?: boolean(name='TaskSustainable', description='Indicates whether the job is a long-running job.', example='true'),
+      vpcId?: string(name='VpcId', description='The virtual private cloud (VPC) ID.', example='vpc-xxx'),
+      vswitchId?: string(name='VswitchId', description='The vSwitch ID.', example='vsw-xxx'),
     }
-  ](name='Executors', description='Executor list.'),
+  ](name='Executors', description='The list of executors.'),
   pageNumber?: int32(name='PageNumber', description='The current page number.', example='1'),
   pageSize?: int32(name='PageSize', description='The number of entries returned per page.', example='50'),
   requestId?: string(name='RequestId', description='The request ID.', example='896D338C-E4F4-41EC-A154-D605E5DE****'),
-  totalCount?: string(name='TotalCount', description='The total number of entries returned.', example='40'),
+  totalCount?: string(name='TotalCount', description='The total number of entries in the list.', example='40'),
 }
 
 model ListExecutorsResponse = {
@@ -2314,7 +2361,7 @@ model ListExecutorsResponse = {
 }
 
 /**
- * @summary Querying Global Executor Information
+ * @summary Queries information about global executors.
  *
  * @param tmpReq ListExecutorsRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -2356,7 +2403,7 @@ async function listExecutorsWithOptions(tmpReq: ListExecutorsRequest, runtime: $
 }
 
 /**
- * @summary Querying Global Executor Information
+ * @summary Queries information about global executors.
  *
  * @param request ListExecutorsRequest
  * @return ListExecutorsResponse
@@ -2419,7 +2466,7 @@ model ListImagesResponseBody = {
 
 This parameter is required.', example='ci-vm-kHLPzEWun6zz****'),
       createTime?: string(name='CreateTime', description='The time when the storage resource was created.', example='2022-12-09T07:06:34Z'),
-      description?: string(name='Description', description='The description of the image.'),
+      description?: string(name='Description', description='The description of the image.', example='应用测试镜像。'),
       documentId?: int32(name='DocumentId', description='The document ID.', example='30'),
       imageId?: string(name='ImageId', description='The image ID.
 
@@ -2519,65 +2566,82 @@ async function listImages(request: ListImagesRequest): ListImagesResponse {
 }
 
 model ListJobExecutorsRequest {
-  jobId?: string(name='JobId', description='The ID of the job.', example='job-xxx'),
-  pageNumber?: int32(name='PageNumber', description='The page number of the page to return.', example='1'),
-  pageSize?: int32(name='PageSize', description='The number of entries per page.', example='10'),
-  taskName?: string(name='TaskName', description='The job name.', example='task0'),
+  jobId?: string(name='JobId', description='The job ID.', example='job-xxxx'),
+  pageNumber?: int32(name='PageNumber', description='The page number for the paged query.', example='1'),
+  pageSize?: int32(name='PageSize', description='The number of entries to return on each page.', example='10'),
+  taskName?: string(name='TaskName', description='The job name.', example='Task0'),
 }
 
 model ListJobExecutorsResponseBody = {
   executorStatus?: {
-    deleted?: int32(name='Deleted', description='The number of executers in the Deleted state.', example='1'),
-    exception?: int32(name='Exception', description='The number of executers in the abnormal state.', example='1'),
-    failed?: int32(name='Failed', description='The number of executers in the Failed state.', example='1'),
-    initing?: int32(name='Initing', description='The number of executers in the initialized state.', example='1'),
-    pending?: int32(name='Pending', description='The number of executers in the queued state.', example='1'),
-    restarting?: int32(name='Restarting'),
-    running?: int32(name='Running', description='The number of executers in the running state.', example='1'),
-    succeeded?: int32(name='Succeeded', description='The number of executoresin the Successful state.', example='1'),
-    suspended?: int32(name='Suspended'),
-  }(name='ExecutorStatus', description='Executor status statistics.'),
+    deleted?: int32(name='Deleted', description='The number of executors in the Deleted state.', example='1'),
+    exception?: int32(name='Exception', description='The number of executors in the Exception state.', example='1'),
+    failed?: int32(name='Failed', description='The number of executors in the Failed state.', example='1'),
+    initing?: int32(name='Initing', description='The number of executors in the Initing state.', example='1'),
+    pending?: int32(name='Pending', description='The number of executors in the Pending state.', example='1'),
+    restarting?: int32(name='Restarting', description='The number of executors in the Restarting state.', example='1'),
+    running?: int32(name='Running', description='The number of executors in the Running state.', example='1'),
+    succeeded?: int32(name='Succeeded', description='The number of executors in the Succeeded state.', example='1'),
+    suspended?: int32(name='Suspended', description='The number of executors in the Suspended state.', example='1'),
+  }(name='ExecutorStatus', description='Statistics about executor statuses.'),
   executors?: [ 
     {
-      allocationSpec?: string(name='AllocationSpec'),
-      arrayIndex?: int32(name='ArrayIndex', description='The executor index number.', example='0'),
-      blockDuration?: int32(name='BlockDuration'),
-      createTime?: string(name='CreateTime', description='The time when the storage resource was created.', example='2024-02-20 10:04:10'),
-      endTime?: string(name='EndTime', description='The end time.', example='2024-02-20 10:04:18'),
-      executorId?: string(name='ExecutorId', description='The executor ID. The format is JobId-TaskName-ArrayIndex.', example='job-xxxx-Task0-1'),
+      allocationSpec?: string(name='AllocationSpec', description='The resource type.
+
+- Standard: Standard.
+
+- Dedicated: Dedicated. To use this resource type, you must be added to the whitelist.
+
+- Economic: Economy. To use this resource type, you must be added to the whitelist.', example='Standard'),
+      arrayIndex?: int32(name='ArrayIndex', description='The index of the executor.', example='0'),
+      blockDuration?: int32(name='BlockDuration', description='The retention period of the compute resources.', example='24'),
+      createTime?: string(name='CreateTime', description='The time when the executor was created.', example='2024-02-20 10:04:10'),
+      endTime?: string(name='EndTime', description='The time when the executor ended.', example='2024-02-20 10:04:18'),
+      executorId?: string(name='ExecutorId', description='The ID of the executor. The format is \\\\`JobId-TaskName-ArrayIndex\\\\`.', example='job-xxxx-Task0-1'),
       expirationTime?: string(name='ExpirationTime'),
-      externalIpAddress?: [ string ](name='ExternalIpAddress', description='The list of public IP addresses of the nodes.'),
+      externalIpAddress?: [ string ](name='ExternalIpAddress', description='A list of public IP addresses of the nodes.'),
       hostName?: [ string ](name='HostName', description='An array of node hostnames.'),
-      ipAddress?: [ string ](name='IpAddress', description='The list of node IP addresses.'),
+      ipAddress?: [ string ](name='IpAddress', description='A list of node IP addresses.'),
       preemptible?: boolean(name='Preemptible'),
-      startTime?: string(name='StartTime', description='The create time.', example='2024-02-20 10:04:13'),
+      startTime?: string(name='StartTime', description='The time when the executor started.', example='2024-02-20 10:04:13'),
       status?: string(name='Status', description='The status of the executor. Valid values:
 
-*   Pending
-*   Initing
-*   Succeed
-*   Failed
-*   Running
-*   Unknown
-*   Exception
-*   Retrying
-*   Expired
-*   Deleted', example='Running'),
-      statusReason?: string(name='StatusReason', description='The description of the status reason.', example='Creating executor'),
+- Pending: In queue
+
+- Initing: Initializing
+
+- Succeed: Succeeded
+
+- Failed: Failed
+
+- Running: Running
+
+- Exception: Abnormal scheduling
+
+- Retrying: Retrying
+
+- Expired: Timed out
+
+- Suspended: Job hibernating
+
+- Restarting: Job restarting
+
+- Deleted: Deleted', example='Running'),
+      statusReason?: string(name='StatusReason', description='The reason for the status.', example='ExecutorReady'),
       tags?: [ 
         {
-          tagKey?: string(name='TagKey', description='The key of the executor tag.', example='TestKey'),
-          tagValue?: string(name='TagValue', description='The value of the executor tag.', example='TestValue'),
+          tagKey?: string(name='TagKey', description='The tag key of the executor.', example='TestKey'),
+          tagValue?: string(name='TagValue', description='The tag value of the executor.', example='TestValue'),
         }
-      ](name='Tags', description='The list of executor tags.'),
+      ](name='Tags', description='A list of executor tags.'),
     }
-  ](name='Executors', description='The executor list.'),
+  ](name='Executors', description='A list of executors.'),
   jobId?: string(name='JobId', description='The job ID.', example='job-xxxx'),
-  pageNumber?: int32(name='PageNumber', description='The page number.', example='1'),
-  pageSize?: int32(name='PageSize', description='The number of entries per page.', example='10'),
+  pageNumber?: int32(name='PageNumber', description='The current page number.', example='1'),
+  pageSize?: int32(name='PageSize', description='The number of entries on each page.', example='10'),
   requestId?: string(name='RequestId', description='The request ID.', example='896D338C-E4F4-41EC-A154-D605E5DE****'),
-  taskName?: string(name='TaskName', description='The job name.', example='task0'),
-  totalCount?: string(name='TotalCount', description='The total number of list entries.', example='50'),
+  taskName?: string(name='TaskName', description='The job name.', example='Task0'),
+  totalCount?: string(name='TotalCount', description='The total number of entries.', example='50'),
 }
 
 model ListJobExecutorsResponse = {
@@ -2587,9 +2651,9 @@ model ListJobExecutorsResponse = {
 }
 
 /**
- * @summary Queries job executor information.
+ * @summary Retrieves information about job executors.
  *
- * @description Queries job executor information.
+ * @description Retrieves information about job executors.
  *
  * @param request ListJobExecutorsRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -2629,9 +2693,9 @@ async function listJobExecutorsWithOptions(request: ListJobExecutorsRequest, run
 }
 
 /**
- * @summary Queries job executor information.
+ * @summary Retrieves information about job executors.
  *
- * @description Queries job executor information.
+ * @description Retrieves information about job executors.
  *
  * @param request ListJobExecutorsRequest
  * @return ListJobExecutorsResponse
@@ -2644,77 +2708,108 @@ async function listJobExecutors(request: ListJobExecutorsRequest): ListJobExecut
 model ListJobsRequest {
   filter?: {
     jobId?: string(name='JobId', description='The ID of the job.', example='job-xxxx'),
-    jobName?: string(name='JobName', description='The job name. Fuzzy search is supported.', example='testJob'),
-    status?: string(name='Status', description='The job status. Valid values:
+    jobIds?: [ string ](name='JobIds'),
+    jobName?: string(name='JobName', description='The name of the job. Fuzzy search is supported.', example='testJob'),
+    jobTemplateId?: string(name='JobTemplateId', example='jt-xxxx'),
+    status?: string(name='Status', description='The status of the job. Valid values:
 
-*   Pending
-*   initing
-*   Succeed
-*   Failed
-*   Running
-*   Exception
-*   Retrying
-*   Expired
-*   Suspended
-*   Restarting
-*   Deleted', example='Running'),
-    timeCreatedAfter?: int32(name='TimeCreatedAfter', description='For jobs submitted after this time, the time in the region is converted into a UNIX timestamp (UI8).', example='1703819914'),
-    timeCreatedBefore?: int32(name='TimeCreatedBefore', description='For jobs submitted before this time, the time in the region is converted into a Unix timestamp (for domestic sites, the UI8 region).', example='1703820113'),
-  }(name='Filter', description='Queries job filter conditions.'),
-  pageNumber?: int32(name='PageNumber', description='The page number.
+- Pending: The job is in the queue.
 
-Pages start from page 1.
+- Initing: The job is initializing.
 
-Default value: 1.', example='1'),
-  pageSize?: int32(name='PageSize', description='The number of entries on the current page. Default value: 50. Maximum value: 100.', example='50'),
+- Succeeded: The job was successful.
+
+- Failed: The job failed.
+
+- Running: The job is running.
+
+- Exception: A scheduling exception occurred.
+
+- Retrying: The job is being retried.
+
+- Expired: The job timed out.
+
+- Suspended: The job is in hibernation.
+
+- Restarting: The job is restarting.
+
+- Deleted: The job is deleted.', example='Running'),
+    tag?: [ 
+      {
+        key?: string(name='Key', example='TestKey'),
+        value?: string(name='Value', example='TestValue'),
+      }
+    ](name='Tag'),
+    timeCreatedAfter?: int32(name='TimeCreatedAfter', description='The time after which the jobs were submitted. This is a UNIX timestamp based on the local time of the region. For sites in the Chinese mainland, the time zone is UTC+8.', example='1703819914'),
+    timeCreatedBefore?: int32(name='TimeCreatedBefore', description='The time before which the jobs were submitted. This is a UNIX timestamp based on the local time of the region. For sites in the Chinese mainland, the time zone is UTC+8.', example='1703820113'),
+  }(name='Filter', description='The filter conditions for querying jobs.'),
+  pageNumber?: int32(name='PageNumber', description='The current page number.
+
+Start value: 1
+
+Default value: 1', example='1'),
+  pageSize?: int32(name='PageSize', description='The number of entries to return on each page. The default value is 50. The maximum value is 100.', example='50'),
   sortBy?: {
-    label?: string(name='Label', description='The sorting label. Valid values:
+    label?: string(name='Label', description='The field to sort by. Valid values:
 
-*   time_start
-*   job_name', example='time_start'),
-    order?: string(name='Order', description='The sorting order. Valid values:
+- time_start
 
-*   ASC (default): ascending order
-*   DESC: descending order', example='ASC'),
+- job_name', example='time_start'),
+    order?: string(name='Order', description='The sort order. Valid values:
+
+- ASC (default): Ascending
+
+- DESC: Descending', example='ASC'),
   }(name='SortBy', description='The sorting method.'),
 }
 
 model ListJobsShrinkRequest {
-  filterShrink?: string(name='Filter', description='Queries job filter conditions.'),
-  pageNumber?: int32(name='PageNumber', description='The page number.
+  filterShrink?: string(name='Filter', description='The filter conditions for querying jobs.'),
+  pageNumber?: int32(name='PageNumber', description='The current page number.
 
-Pages start from page 1.
+Start value: 1
 
-Default value: 1.', example='1'),
-  pageSize?: int32(name='PageSize', description='The number of entries on the current page. Default value: 50. Maximum value: 100.', example='50'),
+Default value: 1', example='1'),
+  pageSize?: int32(name='PageSize', description='The number of entries to return on each page. The default value is 50. The maximum value is 100.', example='50'),
   sortByShrink?: string(name='SortBy', description='The sorting method.'),
 }
 
 model ListJobsResponseBody = {
   jobList?: [ 
     {
-      appExtraInfo?: string(name='AppExtraInfo', description='The additional information about the application.', example='{\\\\"xxx\\\\": \\\\"xxxxx\\\\"}'),
-      appName?: string(name='AppName'),
+      appExtraInfo?: string(name='AppExtraInfo', description='Additional information about the application.', example='{\\\\"xxx\\\\": \\\\"xxxxx\\\\"}'),
+      appName?: string(name='AppName', description='The name of the application.', example='Alphafold3'),
       createTime?: string(name='CreateTime', description='The time when the job was submitted.', example='2024-01-25 12:29:21'),
-      endTime?: string(name='EndTime', description='The end time of the job.', example='2024-01-25 12:35:23'),
+      endTime?: string(name='EndTime', description='The time when the job ended.', example='2024-01-25 12:35:23'),
       executorCount?: int32(name='ExecutorCount', description='The number of running nodes.', example='1'),
       jobDescription?: string(name='JobDescription', description='The description of the job.', example='Demo'),
       jobId?: string(name='JobId', description='The ID of the job.', example='job-xxx'),
-      jobName?: string(name='JobName', description='The job name.', example='testJob'),
-      ownerUid?: string(name='OwnerUid', description='The UID of the creator.', example='129**********'),
-      startTime?: string(name='StartTime', description='The start time of the job.', example='2024-01-25 12:29:23'),
-      status?: string(name='Status', description='The status of the job. Valid values:
+      jobName?: string(name='JobName', description='The name of the job.', example='testJob'),
+      ownerUid?: string(name='OwnerUid', description='The UID of the user who created the job.', example='129**********'),
+      startTime?: string(name='StartTime', description='The time when the job started.', example='2024-01-25 12:29:23'),
+      status?: string(name='Status', description='The status of the job. Possible values:
 
-*   Pending
-*   Initing
-*   Succeed
-*   Failed
-*   Running
-*   Exception
-*   Retrying
-*   Expired
-*   Deleting
-*   Deleted', example='Running'),
+- Pending: The job is in the queue.
+
+- Initing: The job is initializing.
+
+- Succeeded: The job was successful.
+
+- Failed: The job failed.
+
+- Running: The job is running.
+
+- Exception: A scheduling exception occurred.
+
+- Retrying: The job is being retried.
+
+- Expired: The job timed out.
+
+- Suspended: The job is in hibernation.
+
+- Restarting: The job is restarting.
+
+- Deleted: The job is deleted.', example='Running'),
       tags?: [ 
         {
           tagKey?: string(name='TagKey', description='The key of the job tag.', example='TestKey'),
@@ -2722,13 +2817,14 @@ model ListJobsResponseBody = {
         }
       ](name='Tags', description='The list of job tags.'),
       taskCount?: int32(name='TaskCount', description='The number of tasks.', example='1'),
-      taskSustainable?: boolean(name='TaskSustainable', description='Indicate whether the job is a long-running job.', example='true'),
+      taskSustainable?: boolean(name='TaskSustainable', description='Indicates whether the job is a long-running job.', example='true'),
     }
   ](name='JobList', description='The list of jobs.'),
   pageNumber?: int32(name='PageNumber', description='The current page number.', example='1'),
-  pageSize?: int32(name='PageSize', description='The number of entries returned per page.', example='10'),
-  requestId?: string(name='RequestId', description='The request ID.', example='896D338C-E4F4-41EC-A154-D605E5DE****'),
-  totalCount?: int32(name='TotalCount', description='The total number of entries returned. This parameter is optional and is not returned by default.', example='1'),
+  pageSize?: int32(name='PageSize', description='The number of entries returned on the current page.', example='10'),
+  requestId?: string(name='RequestId', description='The ID of the request.', example='896D338C-E4F4-41EC-A154-D605E5DE****'),
+  totalCount?: int32(name='TotalCount', description='The total number of entries that meet the filter conditions.
+This parameter is optional and may not be returned.', example='1'),
 }
 
 model ListJobsResponse = {
@@ -2738,7 +2834,7 @@ model ListJobsResponse = {
 }
 
 /**
- * @summary Queries the jobs in a cluster.
+ * @summary Returns a list of jobs.
  *
  * @param tmpReq ListJobsRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -2786,7 +2882,7 @@ async function listJobsWithOptions(tmpReq: ListJobsRequest, runtime: $RuntimeOpt
 }
 
 /**
- * @summary Queries the jobs in a cluster.
+ * @summary Returns a list of jobs.
  *
  * @param request ListJobsRequest
  * @return ListJobsResponse
@@ -2798,53 +2894,60 @@ async function listJobs(request: ListJobsRequest): ListJobsResponse {
 
 model ListPoolsRequest {
   filter?: {
-    poolName?: [ string ](name='PoolName', description='Queries the list of resource pool names.'),
-    status?: [ string ](name='Status', description='Queries resource pool status list.'),
-    timeCreatedAfter?: int32(name='TimeCreatedAfter', description='For node pools created after this time, the time in the region is converted into a UNIX timestamp.', example='1703819914'),
-    timeCreatedBefore?: int32(name='TimeCreatedBefore', description='For node pools created before this time, the time in the region is converted into a UNIX timestamp.', example='1703820113'),
-  }(name='Filter', description='Queries the filter conditions of a resource pool.'),
+    poolName?: [ string ](name='PoolName', description='The list of resource pool names to query.'),
+    status?: [ string ](name='Status', description='The list of resource pool statuses to query.'),
+    timeCreatedAfter?: int32(name='TimeCreatedAfter', description='Returns only resource pools created after the specified time. The time must be a Unix timestamp in UTC+8.', example='1703819914'),
+    timeCreatedBefore?: int32(name='TimeCreatedBefore', description='Returns only resource pools created before the specified time. The time must be a Unix timestamp in UTC+8.', example='1703820113'),
+  }(name='Filter', description='The filter conditions for querying resource pools.'),
   pageNumber?: int32(name='PageNumber', description='The page number. Default value: 1.', example='1'),
-  pageSize?: int32(name='PageSize', description='The number of entries on each page. Maximum value: 50. Default value: 10.', example='10'),
+  pageSize?: int32(name='PageSize', description='The number of entries per page. Valid values: 1 to 50. Default value: 10.', example='10'),
 }
 
 model ListPoolsShrinkRequest {
-  filterShrink?: string(name='Filter', description='Queries the filter conditions of a resource pool.'),
+  filterShrink?: string(name='Filter', description='The filter conditions for querying resource pools.'),
   pageNumber?: int32(name='PageNumber', description='The page number. Default value: 1.', example='1'),
-  pageSize?: int32(name='PageSize', description='The number of entries on each page. Maximum value: 50. Default value: 10.', example='10'),
+  pageSize?: int32(name='PageSize', description='The number of entries per page. Valid values: 1 to 50. Default value: 10.', example='10'),
 }
 
 model ListPoolsResponseBody = {
   pageNumber?: int32(name='PageNumber', description='The page number. Default value: 1.', example='1'),
-  pageSize?: int32(name='PageSize', description='The number of entries on each page. Maximum value: 50. Default value: 10.', example='10'),
+  pageSize?: int32(name='PageSize', description='The number of entries returned per page. Maximum value: 50. Default value: 10.', example='10'),
   poolList?: [ 
     {
-      createTime?: string(name='CreateTime', example='2026-04-20 11:09:59'),
-      isDefault?: boolean(name='IsDefault', description='Indices whether the resource pool is the default resource pool. Valid values:
+      createTime?: string(name='CreateTime', description='The time when the resource pool was created.', example='2026-04-20 11:09:59'),
+      isDefault?: boolean(name='IsDefault', description='Indicates whether the resource pool is the default pool. Valid values:
 
-*   **true**
-*   **false**', example='true'),
-      maxExecutorNum?: int32(name='MaxExecutorNum'),
+- **true**: The resource pool is the default pool.
+
+- **false**: The resource pool is not the default pool.', example='true'),
+      maxExecutorNum?: int32(name='MaxExecutorNum', description='The number of running executor nodes in the resource pool.', example='100'),
       poolName?: string(name='PoolName', description='The name of the resource pool.
 
-*   The value can be up to 15 characters in length.
-*   It can contain digits, uppercase letters, lowercase letters, underscores (_), and dots (.).', example='PoolTest'),
+- Maximum length: 15 characters.
+
+- Allowed characters: digits, letters, underscores (_), and periods (.).', example='PoolTest'),
       priority?: int32(name='Priority', description='The priority of the resource pool.
 
-*   You can set a priority in the range of 1 to 99. The default value is 1, which is the lowest priority.
-*   Jobs submitted to a resource pool with a higher priority level value will be scheduled before pending jobs in a resource pool with a lower priority level value, and the priority level of the resource pool takes precedence over the priority of the job.', example='1'),
-      schedulingPolicyId?: string(name='SchedulingPolicyId', example='policy-xxx'),
+- Valid values: 1 to 99. Default value: 1 (lowest priority).
+
+- Jobs in a resource pool with a higher priority are scheduled before those in a pool with a lower priority. The pool\\\\"s priority overrides the priority of an individual job.', example='1'),
+      schedulingPolicyId?: string(name='SchedulingPolicyId', description='The ID of the scheduling policy.', example='policy-xxx'),
       status?: string(name='Status', description='The status of the resource pool. Valid values:
 
-*   Creating: The resource pool is being created.
-*   Updating: The resource pool is being updated.
-*   Deleting: The resource pool is being deleted.
-*   Working: The resource pool is working.
-*   Deleted: The resource pool is deleted.', example='Working'),
-      updateTime?: string(name='UpdateTime', example='2026-04-20 11:09:59'),
+- Creating: The resource pool is being created.
+
+- Updating: The resource pool is being updated.
+
+- Deleting: The resource pool is being deleted.
+
+- Working: The resource pool is operational.
+
+- Deleted: The resource pool has been deleted.', example='Working'),
+      updateTime?: string(name='UpdateTime', description='The time when the resource pool was last updated.', example='2026-04-20 11:09:59'),
     }
-  ](name='PoolList', description='Queries the resource pool list.'),
-  requestId?: string(name='RequestId', description='Id of the request', example='896D338C-E4F4-41EC-A154-D605E5DE****'),
-  totalCount?: int32(name='TotalCount', description='The total number of list entries.', example='2'),
+  ](name='PoolList', description='An array of resource pools.'),
+  requestId?: string(name='RequestId', description='The request ID.', example='896D338C-E4F4-41EC-A154-D605E5DE****'),
+  totalCount?: int32(name='TotalCount', description='The total number of entries.', example='2'),
 }
 
 model ListPoolsResponse = {
@@ -2854,7 +2957,7 @@ model ListPoolsResponse = {
 }
 
 /**
- * @summary Queries the resource pool list.
+ * @summary Lists resource pools.
  *
  * @param tmpReq ListPoolsRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -2896,7 +2999,7 @@ async function listPoolsWithOptions(tmpReq: ListPoolsRequest, runtime: $RuntimeO
 }
 
 /**
- * @summary Queries the resource pool list.
+ * @summary Lists resource pools.
  *
  * @param request ListPoolsRequest
  * @return ListPoolsResponse
@@ -3374,11 +3477,13 @@ async function updateActionPlan(request: UpdateActionPlanRequest): UpdateActionP
 }
 
 model UpdateJobRecordDurationRequest {
-  jobRecordDuration?: long(name='JobRecordDuration', description='This parameter is required.', example='30'),
+  jobRecordDuration?: long(name='JobRecordDuration', description='The job record duration, in days. The value must be an integer from 1 to 30. Default value: 30.
+
+This parameter is required.', example='30'),
 }
 
 model UpdateJobRecordDurationResponseBody = {
-  requestId?: string(name='RequestId', description='Id of the request', example='896D338C-E4F4-41EC-A154-D605E5DE****'),
+  requestId?: string(name='RequestId', description='The request ID.', example='896D338C-E4F4-41EC-A154-D605E5DE****'),
 }
 
 model UpdateJobRecordDurationResponse = {
@@ -3388,7 +3493,7 @@ model UpdateJobRecordDurationResponse = {
 }
 
 /**
- * @summary 更新作业保留时长
+ * @summary Updates the job record duration.
  *
  * @param request UpdateJobRecordDurationRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -3419,7 +3524,7 @@ async function updateJobRecordDurationWithOptions(request: UpdateJobRecordDurati
 }
 
 /**
- * @summary 更新作业保留时长
+ * @summary Updates the job record duration.
  *
  * @param request UpdateJobRecordDurationRequest
  * @return UpdateJobRecordDurationResponse
@@ -3432,37 +3537,41 @@ async function updateJobRecordDuration(request: UpdateJobRecordDurationRequest):
 model UpdatePoolRequest {
   poolName?: string(name='PoolName', description='The name of the resource pool.
 
-*   The value can be up to 15 characters in length.
-*   It can contain digits, uppercase letters, lowercase letters, underscores (_), and dots (.).
+- The name can be up to 15 characters long.
+
+- The name can contain digits, uppercase letters, lowercase letters, underscores (_), and periods (.).
 
 This parameter is required.', example='PoolTest'),
   priority?: int32(name='Priority', description='The priority of the resource pool.
 
-*   You can set a priority in the range of 1 to 99. The default value is 1, which is the lowest priority.
-*   Jobs submitted to a resource pool with a higher priority level value will be scheduled before pending jobs in a resource pool with a lower priority level value, and the priority level of the resource pool takes precedence over the priority of the job.', example='1'),
+- Valid values: 1 to 99. The default value is 1, which specifies the lowest priority.
+
+- Jobs in a higher-priority resource pool are scheduled before pending jobs in lower-priority pools. A resource pool\\\\"s priority overrides a job\\\\"s priority.', example='1'),
   resourceLimits?: {
-    maxExecutorNum?: int32(name='MaxExecutorNum'),
-  }(name='ResourceLimits', description='The quota of resources that users are allowed to concurrently use in a resource pool.'),
-  schedulingPolicyId?: string(name='SchedulingPolicyId', example='policy-xxxx'),
+    maxExecutorNum?: int32(name='MaxExecutorNum', description='The maximum number of executor nodes that a user can run concurrently in a resource pool.', example='100'),
+  }(name='ResourceLimits', description='The limits on the resources that a user can use concurrently in the resource pool.'),
+  schedulingPolicyId?: string(name='SchedulingPolicyId', description='The ID of the scheduling policy.', example='policy-xxxx'),
 }
 
 model UpdatePoolShrinkRequest {
   poolName?: string(name='PoolName', description='The name of the resource pool.
 
-*   The value can be up to 15 characters in length.
-*   It can contain digits, uppercase letters, lowercase letters, underscores (_), and dots (.).
+- The name can be up to 15 characters long.
+
+- The name can contain digits, uppercase letters, lowercase letters, underscores (_), and periods (.).
 
 This parameter is required.', example='PoolTest'),
   priority?: int32(name='Priority', description='The priority of the resource pool.
 
-*   You can set a priority in the range of 1 to 99. The default value is 1, which is the lowest priority.
-*   Jobs submitted to a resource pool with a higher priority level value will be scheduled before pending jobs in a resource pool with a lower priority level value, and the priority level of the resource pool takes precedence over the priority of the job.', example='1'),
-  resourceLimitsShrink?: string(name='ResourceLimits', description='The quota of resources that users are allowed to concurrently use in a resource pool.'),
-  schedulingPolicyId?: string(name='SchedulingPolicyId', example='policy-xxxx'),
+- Valid values: 1 to 99. The default value is 1, which specifies the lowest priority.
+
+- Jobs in a higher-priority resource pool are scheduled before pending jobs in lower-priority pools. A resource pool\\\\"s priority overrides a job\\\\"s priority.', example='1'),
+  resourceLimitsShrink?: string(name='ResourceLimits', description='The limits on the resources that a user can use concurrently in the resource pool.'),
+  schedulingPolicyId?: string(name='SchedulingPolicyId', description='The ID of the scheduling policy.', example='policy-xxxx'),
 }
 
 model UpdatePoolResponseBody = {
-  requestId?: string(name='RequestId', description='Id of the request', example='04F0F334-1335-436C-A1D7-6C044FE7****'),
+  requestId?: string(name='RequestId', description='The request ID.', example='04F0F334-1335-436C-A1D7-6C044FE7****'),
 }
 
 model UpdatePoolResponse = {
@@ -3472,7 +3581,7 @@ model UpdatePoolResponse = {
 }
 
 /**
- * @summary Update the resource pool configuration.
+ * @summary Updates the configuration of a resource pool.
  *
  * @param tmpReq UpdatePoolRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -3517,7 +3626,7 @@ async function updatePoolWithOptions(tmpReq: UpdatePoolRequest, runtime: $Runtim
 }
 
 /**
- * @summary Update the resource pool configuration.
+ * @summary Updates the configuration of a resource pool.
  *
  * @param request UpdatePoolRequest
  * @return UpdatePoolResponse
