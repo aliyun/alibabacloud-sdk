@@ -511,16 +511,18 @@ model RiskSceneConfig {
 }
 
 model Rule {
-  combinator?: string(name='Combinator', nullable=true),
-  id?: string(name='Id'),
-  name?: string(name='Name', nullable=true),
-  operator?: string(name='Operator', nullable=true),
-  ruleSubType?: string(name='RuleSubType', nullable=true),
-  ruleType?: string(name='RuleType', nullable=true),
+  combinator?: string(name='Combinator', description='The logical relationship between rules at the same level. Valid values:
+- **AND**: All rules at the same level must be hit.
+- **OR**: Any one rule at the same level can be hit.', example='AND', nullable=true),
+  id?: string(name='Id', description='The rule ID.', example='1361'),
+  name?: string(name='Name', description='The endpoint device attribute field to match. Required for leaf rules.', example='mac', nullable=true),
+  operator?: string(name='Operator', description='The matching operator. Required for leaf rules.', example='equal', nullable=true),
+  ruleSubType?: string(name='RuleSubType', description='The rule subtype.', example='windows', nullable=true),
+  ruleType?: string(name='RuleType', description='The rule type.', example='device_info', nullable=true),
   rules?: [
     Rule
-  ](name='Rules'),
-  values?: [ string ](name='Values'),
+  ](name='Rules', description='The list of matching rules. At least one rule must be included.'),
+  values?: [ string ](name='Values', description='The set of values to match. Required for leaf rules and cannot be empty.'),
 }
 
 model UserCertificate {
@@ -691,6 +693,154 @@ async function attachPolicy2ApprovalProcessWithOptions(request: AttachPolicy2App
 async function attachPolicy2ApprovalProcess(request: AttachPolicy2ApprovalProcessRequest): AttachPolicy2ApprovalProcessResponse {
   var runtime = new $RuntimeOptions{};
   return attachPolicy2ApprovalProcessWithOptions(request, runtime);
+}
+
+model BatchCreateDomainItemsRequest {
+  domainItems?: [ string ](name='DomainItems', description='The domain name list.'),
+  listId?: string(name='ListId', description='The list ID. This is a unique business identifier used for policy references and add, delete, and modify operations.', example='ladl-61aae0c0ba715e3b'),
+  listType?: string(name='ListType', description='The list type (Blacklist/Whitelist).', example='la_domain_white_list'),
+}
+
+model BatchCreateDomainItemsResponseBody = {
+  requestId?: string(name='RequestId', description='Id of the request', example='1A4859B9-0DAD-5B40-B603-254445DC6D45'),
+}
+
+model BatchCreateDomainItemsResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: BatchCreateDomainItemsResponseBody(name='body'),
+}
+
+/**
+ * @summary Inserts domain name entries into a domain name list in batches.
+ *
+ * @description Appends domain name entries in batches to a specified domain name list (`ListId`). Domain names must be second-level or higher domain names. Wildcard domain names (`*.example.com`) are supported, but overly broad patterns such as `*.com` or `*.com.cn` are prohibited.
+ *
+ * @param request BatchCreateDomainItemsRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return BatchCreateDomainItemsResponse
+ */
+@context("batchCreateDomainItemsWithContext")
+async function batchCreateDomainItemsWithOptions(request: BatchCreateDomainItemsRequest, runtime: $RuntimeOptions): BatchCreateDomainItemsResponse {
+  request.validate();
+  var body : map[string]any = {};
+  var bodyFlat : map[string]any = {};
+  if (!$isNull(request.domainItems)) {
+    bodyFlat['DomainItems'] = request.domainItems;
+  }
+  if (!$isNull(request.listId)) {
+    body['ListId'] = request.listId;
+  }
+  if (!$isNull(request.listType)) {
+    body['ListType'] = request.listType;
+  }
+  body = {
+    ...body,
+    ...OpenApiUtil.query(bodyFlat),
+  };
+
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'BatchCreateDomainItems',
+    version = '2023-01-20',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Inserts domain name entries into a domain name list in batches.
+ *
+ * @description Appends domain name entries in batches to a specified domain name list (`ListId`). Domain names must be second-level or higher domain names. Wildcard domain names (`*.example.com`) are supported, but overly broad patterns such as `*.com` or `*.com.cn` are prohibited.
+ *
+ * @param request BatchCreateDomainItemsRequest
+ * @return BatchCreateDomainItemsResponse
+ */
+async function batchCreateDomainItems(request: BatchCreateDomainItemsRequest): BatchCreateDomainItemsResponse {
+  var runtime = new $RuntimeOptions{};
+  return batchCreateDomainItemsWithOptions(request, runtime);
+}
+
+model BatchDeleteDomainItemsRequest {
+  itemIds?: [ long ](name='ItemIds', description='The IDs of domain name list entries.'),
+  listId?: string(name='ListId', description='The list ID. This is the unique business identifier used for policy references and add, delete, and modify operations.', example='ladl-61aae0c0ba715e3b'),
+  listType?: string(name='ListType', description='The list type (Blacklist/Whitelist).', example='la_domain_white_list'),
+}
+
+model BatchDeleteDomainItemsResponseBody = {
+  requestId?: string(name='RequestId', description='Id of the request', example='0C76C4AD-5E46-555D-981B-CB004C37F41A'),
+}
+
+model BatchDeleteDomainItemsResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: BatchDeleteDomainItemsResponseBody(name='body'),
+}
+
+/**
+ * @summary Batch deletes domain name entries from a domain name list.
+ *
+ * @description Batch deletes domain name entries from a specified domain name list by entry IDs (`ItemIds`, obtained from the `ItemId` field returned by ListDomainItems).
+ *
+ * @param request BatchDeleteDomainItemsRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return BatchDeleteDomainItemsResponse
+ */
+@context("batchDeleteDomainItemsWithContext")
+async function batchDeleteDomainItemsWithOptions(request: BatchDeleteDomainItemsRequest, runtime: $RuntimeOptions): BatchDeleteDomainItemsResponse {
+  request.validate();
+  var body : map[string]any = {};
+  var bodyFlat : map[string]any = {};
+  if (!$isNull(request.itemIds)) {
+    bodyFlat['ItemIds'] = request.itemIds;
+  }
+  if (!$isNull(request.listId)) {
+    body['ListId'] = request.listId;
+  }
+  if (!$isNull(request.listType)) {
+    body['ListType'] = request.listType;
+  }
+  body = {
+    ...body,
+    ...OpenApiUtil.query(bodyFlat),
+  };
+
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'BatchDeleteDomainItems',
+    version = '2023-01-20',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Batch deletes domain name entries from a domain name list.
+ *
+ * @description Batch deletes domain name entries from a specified domain name list by entry IDs (`ItemIds`, obtained from the `ItemId` field returned by ListDomainItems).
+ *
+ * @param request BatchDeleteDomainItemsRequest
+ * @return BatchDeleteDomainItemsResponse
+ */
+async function batchDeleteDomainItems(request: BatchDeleteDomainItemsRequest): BatchDeleteDomainItemsResponse {
+  var runtime = new $RuntimeOptions{};
+  return batchDeleteDomainItemsWithOptions(request, runtime);
 }
 
 model CreateApprovalProcessRequest {
@@ -4574,10 +4724,8 @@ async function getActiveIdpConfig(): GetActiveIdpConfigResponse {
 }
 
 model GetApprovalRequest {
-  approvalId?: string(name='ApprovalId', description='The ID of the approval instance. You can obtain the ID from the following sources:
-
-- [ListApprovals](~~ListApprovals~~): Queries a list of approval instances.
-
+  approvalId?: string(name='ApprovalId', description='The approval instance ID. You can obtain the value from:
+- [ListApprovals](~~ListApprovals~~): Lists approval instances.
 - [GetApproval](~~GetApproval~~): Queries the details of an approval instance.
 
 This parameter is required.', example='approval-872b5e911b35****'),
@@ -4586,78 +4734,74 @@ This parameter is required.', example='approval-872b5e911b35****'),
 model GetApprovalResponseBody = {
   approval?: [ 
     {
-      approvalDetail?: string(name='ApprovalDetail', description='The details of the approval instance.', example='{"initiatorName":"王先生","initiatorDept":"测试部","devType":"windows","deviceType":"usbStorage","deviceId":"FC216E9E3****","approvalEndTimestamp":1736524799,"approvalReason":"这是一个测试"}'),
-      approvalId?: string(name='ApprovalId', description='The ID of the approval instance.', example='approval-3564b140642f****'),
+      approvalDetail?: string(name='ApprovalDetail', description='The details of the approval instance.', example='{"initiatorName":"John Smith","initiatorDept":"QA Department","devType":"windows","deviceType":"usbStorage","deviceId":"FC216E9E3****","approvalEndTimestamp":1736524799,"approvalReason":"This is a test"}'),
+      approvalId?: string(name='ApprovalId', description='The approval instance ID.', example='approval-3564b140642f****'),
       approvalProgresses?: [ 
         {
-          action?: string(name='Action', description='The action performed on the progress node. Valid values:
-
-- **Approve**: Approve
-
-- **Reject**: Reject
-
-- **Revoke**: Revoke
-
-- **Comment**: Comment', example='Approve'),
-          comment?: string(name='Comment', description='The comment for the action on the progress node.', example='审核通过'),
-          executor?: string(name='Executor', description='The ID of the executor for the progress node.', example='su_e8f218fb171edd167c2ad917d21f53148bdefc510ca1f3c3cc0249d3643d****'),
+          action?: string(name='Action', description='The action performed on the approval progress node. Valid values:
+- **Approve**: Approved.
+- **Reject**: Rejected.
+- **Revoke**: Revoked.
+- **Comment**: Commented.', example='Approve'),
+          comment?: string(name='Comment', description='The comment on the approval progress node.', example='Approved'),
+          executor?: string(name='Executor', description='The executor ID of the approval progress node.', example='su_e8f218fb171edd167c2ad917d21f53148bdefc510ca1f3c3cc0249d3643d****'),
           operators?: [ 
             {
-              saseUserId?: string(name='SaseUserId', description='The ID of the operator for the progress node.', example='su_e8f218fb171edd167c2ad917d21f53148bdefc510ca1f3c3cc0249d3643d****'),
-              username?: string(name='Username', description='The username of the operator for the progress node.', example='王先生'),
+              saseUserId?: string(name='SaseUserId', description='The ID of the operator for the approval progress node.', example='su_e8f218fb171edd167c2ad917d21f53148bdefc510ca1f3c3cc0249d3643d****'),
+              username?: string(name='Username', description='The username of the operator for the approval progress node.', example='John Smith'),
             }
-          ](name='Operators', description='A list of operators for the progress node.'),
-          status?: string(name='Status', description='The status of the progress node. Valid values:
-
-- **Pending**: Pending
-
-- **Approved**: Approved
-
-- **Rejected**: Rejected
-
-- **Revoked**: Revoked', example='Approved'),
-          timestamp?: long(name='Timestamp', description='The time when the action was performed on the progress node. This is a UNIX timestamp. Unit: seconds.', example='1736752000'),
+          ](name='Operators', description='The list of operators for the approval progress node.'),
+          status?: string(name='Status', description='The status of the approval progress node. Valid values:
+- **Pending**: Pending approval.
+- **Approved**: Approved.
+- **Rejected**: Rejected.
+- **Revoked**: Revoked.', example='Approved'),
+          timestamp?: long(name='Timestamp', description='The time when the action was performed on the approval progress node. The value is a UNIX timestamp in seconds.', example='1736752000'),
         }
-      ](name='ApprovalProgresses', description='A list of progress nodes for the approval instance.'),
+      ](name='ApprovalProgresses', description='The list of approval progress nodes.'),
+      approvalType?: int32(name='ApprovalType'),
+      backendReportDetail?: {
+        associatedPolicyName?: string(name='AssociatedPolicyName'),
+        associatedPolicyType?: string(name='AssociatedPolicyType'),
+        remark?: string(name='Remark'),
+        reportObject?: any(name='ReportObject'),
+        targetUser?: {
+          userId?: string(name='UserId'),
+          username?: string(name='Username'),
+        }(name='TargetUser'),
+      }(name='BackendReportDetail', description='The backend report details. This parameter is returned only when ReportType is set to BackendReport.'),
       createTime?: string(name='CreateTime', description='The time when the approval instance was created.', example='2022-11-15 22:11:55'),
-      creatorDepartment?: string(name='CreatorDepartment', description='The department of the user who created the approval instance.', example='测试部'),
-      creatorDevTag?: string(name='CreatorDevTag', description='The ID of the client device from which the approval instance was created.', example='36efa42d-2c32-c4dc-e3fc-8541e33a****'),
+      createTimeUnix?: long(name='CreateTimeUnix'),
+      creatorDepartment?: string(name='CreatorDepartment', description='The department of the user who created the approval instance.', example='QA Department'),
+      creatorDevTag?: string(name='CreatorDevTag', description='The device ID of the terminal that created the approval instance.', example='36efa42d-2c32-c4dc-e3fc-8541e33a****'),
       creatorUserId?: string(name='CreatorUserId', description='The ID of the user who created the approval instance.', example='su_e8f218fb171edd167c2ad917d21f53148bdefc510ca1f3c3cc0249d3643d****'),
-      creatorUsername?: string(name='CreatorUsername', description='The username of the user who created the approval instance.', example='王先生'),
-      endTimestamp?: long(name='EndTimestamp', description='The expiration time of the approval instance. This is a UNIX timestamp. Unit: seconds.', example='1757952000'),
-      policyType?: string(name='PolicyType', description='The type of the associated policy. Valid values:
-
-- **DomainBlacklist**: Domain blacklist
-
-- **DomainWhitelist**: Domain whitelist
-
-- **SoftwareBlock**: Software block
-
-- **AppUninstall**: Client uninstall
-
-- **DlpSend**: Outbound file transfer
-
-- **PeripheralBlock**: Peripheral control', example='DlpSend'),
-      processId?: string(name='ProcessId', description='The ID of the associated approval flow.', example='approval-process-fcc351b8a95b****'),
-      processName?: string(name='ProcessName', description='The name of the associated approval flow.', example='测试'),
-      reason?: string(name='Reason', description='The reason for creating the approval instance.', example='这是一个测试'),
-      schemaContent?: string(name='SchemaContent', description='The content of the associated template.', example='{"form": {"labelCol": 6,"wrapperCol": 12}}'),
-      schemaId?: string(name='SchemaId', description='The ID of the associated template.', example='approval-schema-090134f1ebff****'),
-      schemaName?: string(name='SchemaName', description='The name of the associated template.', example='测试'),
-      status?: string(name='Status', description='The status of the approval instance. Valid values:
-
-- **Pending**: Pending
-
-- **Approved**: Approved
-
-- **Rejected**: Rejected
-
-- **Revoked**: Revoked
-
-- **Expired**: Expired', example='Pending'),
+      creatorUsername?: string(name='CreatorUsername', description='The username of the user who created the approval instance.', example='John Smith'),
+      effectStatus?: string(name='EffectStatus', description='The effective status of the report. Enabled indicates that the report is active, and Expired indicates that the report has expired.'),
+      endTimestamp?: long(name='EndTimestamp', description='The expiration time of the approval instance. The value is a UNIX timestamp in seconds.', example='1757952000'),
+      policyType?: string(name='PolicyType', description='The policy type associated with the approval instance. Valid values:
+- **DomainBlacklist**: Domain name blacklist.
+- **DomainWhitelist**: Domain name whitelist.
+- **SoftwareBlock**: Software blocking.
+- **AppUninstall**: Agent uninstallation.
+- **DlpSend**: File outbound transfer.
+- **PeripheralBlock**: Peripheral device control.', example='DlpSend'),
+      processId?: string(name='ProcessId', description='The ID of the process associated with the approval instance.', example='approval-process-fcc351b8a95b****'),
+      processName?: string(name='ProcessName', description='The name of the process associated with the approval instance.', example='Test'),
+      reason?: string(name='Reason', description='The reason for creating the approval instance.', example='This is a test'),
+      reportType?: string(name='ReportType', description='The report type. ApprovalReport indicates an approval report, and BackendReport indicates a backend report.'),
+      schemaContent?: string(name='SchemaContent', description='The content of the template associated with the approval instance.', example='{"form": {"labelCol": 6,"wrapperCol": 12}}'),
+      schemaId?: string(name='SchemaId', description='The ID of the template associated with the approval instance.', example='approval-schema-090134f1ebff****'),
+      schemaName?: string(name='SchemaName', description='The name of the template associated with the approval instance.', example='Test'),
+      status?: string(name='Status', description='The instance status. Valid values:
+- **Pending**: Pending approval.
+- **Approved**: Approved.
+- **Rejected**: Denied.
+- **Revoked**: Revoked.
+- **Expired**: Expired.', example='Pending'),
+      validityType?: string(name='ValidityType', description='The validity duration type. When the value is Permanent, EndTimestamp returns 0.'),
     }
   ](name='Approval', description='The approval instance.'),
-  requestId?: string(name='RequestId', description='The ID of the request.', example='7E9D7ACD-53D5-56EF-A913-79D148D06299'),
+  requestId?: string(name='RequestId', description='The request ID.', example='7E9D7ACD-53D5-56EF-A913-79D148D06299'),
 }
 
 model GetApprovalResponse = {
@@ -4667,7 +4811,7 @@ model GetApprovalResponse = {
 }
 
 /**
- * @summary Retrieves the details of an approval instance for your Alibaba Cloud account.
+ * @summary Queries the details of an approval instance under the current Alibaba Cloud account.
  *
  * @param request GetApprovalRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -4695,7 +4839,7 @@ async function getApprovalWithOptions(request: GetApprovalRequest, runtime: $Run
 }
 
 /**
- * @summary Retrieves the details of an approval instance for your Alibaba Cloud account.
+ * @summary Queries the details of an approval instance under the current Alibaba Cloud account.
  *
  * @param request GetApprovalRequest
  * @return GetApprovalResponse
@@ -6820,118 +6964,83 @@ async function listApprovalSchemasForApprovalProcesses(request: ListApprovalSche
 }
 
 model ListApprovalsRequest {
-  approvalIds?: [ string ](name='ApprovalIds', description='Collection of approval instance IDs.'),
-  createEndTime?: long(name='CreateEndTime', description='End time when the approval instance was created, in seconds since the Unix epoch.', example='1736750500'),
-  createStartTime?: long(name='CreateStartTime', description='Start time when the approval instance was created, in seconds since the Unix epoch.', example='1730000000'),
-  creatorDepartment?: string(name='CreatorDepartment', description='Department of the user who created the approval instance.', example='测试部'),
-  creatorDevTag?: string(name='CreatorDevTag', description='ID of the device used to create the approval instance.', example='36efa42d-2c32-c4dc-e3fc-8541e33a****'),
-  creatorUserId?: string(name='CreatorUserId', description='ID of the user who created the approval instance.', example='su_e8f218fb171edd167c2ad917d21f53148bdefc510ca1f3c3cc0249d3643d****'),
-  creatorUsername?: string(name='CreatorUsername', description='Username of the user who created the approval instance.', example='王先生'),
-  currentPage?: long(name='CurrentPage', description='Page number for the current page in a paged query. Valid values: 1 to 10000.
+  approvalIds?: [ string ](name='ApprovalIds', description='The collection of approval instance IDs.'),
+  createEndTime?: long(name='CreateEndTime', description='The end time for approval instance creation, in seconds-level timestamp.', example='1736750500'),
+  createStartTime?: long(name='CreateStartTime', description='The start time for approval instance creation, in seconds-level timestamp.', example='1730000000'),
+  creatorDepartment?: string(name='CreatorDepartment', description='The department of the approval instance creator.', example='QA Department'),
+  creatorDevTag?: string(name='CreatorDevTag', description='The terminal device ID of the approval instance creator.', example='36efa42d-2c32-c4dc-e3fc-8541e33a****'),
+  creatorUserId?: string(name='CreatorUserId', description='The ID of the approval instance creator.', example='su_e8f218fb171edd167c2ad917d21f53148bdefc510ca1f3c3cc0249d3643d****'),
+  creatorUsername?: string(name='CreatorUsername', description='The username of the approval instance creator.', example='Mr. Wang'),
+  currentPage?: long(name='CurrentPage', description='The page number of the current page in a paging query. Valid values: 1 to 10000.
 
 This parameter is required.', example='1'),
-  operatorUserId?: string(name='OperatorUserId', description='ID of the user who performed an operation on the approval instance.', example='su_e8f218fb171edd167c2ad917d21f53148bdefc510ca1f3c3cc0249d3643d****'),
-  operatorUsername?: string(name='OperatorUsername', description='Username of the user who performed an operation on the approval instance.', example='李小姐'),
-  pageSize?: long(name='PageSize', description='Number of entries per page in a paged query. Valid values: 1 to 500.
+  effectStatuses?: [ string ](name='EffectStatuses', description='The list of report effective statuses. Valid values: Enabled, Expired.'),
+  operatorUserId?: string(name='OperatorUserId', description='The ID of the approval instance operator.', example='su_e8f218fb171edd167c2ad917d21f53148bdefc510ca1f3c3cc0249d3643d****'),
+  operatorUsername?: string(name='OperatorUsername', description='The username of the approval instance operator.', example='Ms. Li'),
+  pageSize?: long(name='PageSize', description='The number of entries per page in a paging query. Valid values: 1 to 500.
 
 This parameter is required.', example='10'),
-  policyType?: string(name='PolicyType', description='Policy type. Valid values:
-
-- **DomainBlacklist**: Domain blacklist.
-
-- **DomainWhitelist**: Domain whitelist.
-
-- **SoftwareBlock**: Software blocking.
-
-- **AppUninstall**: App uninstallation.
-
-- **DlpSend**: File outbound transfer.
-
-- **PeripheralBlock**: Peripheral control.', example='DlpSend'),
-  processId?: string(name='ProcessId', description='ID of the associated approval process.', example='approval-process-fcc351b8a95b****'),
-  processName?: string(name='ProcessName', description='Name of the associated approval process.', example='测试'),
-  schemaId?: string(name='SchemaId', description='ID of the associated approval template.', example='approval-schema-090134f1ebff****'),
-  schemaName?: string(name='SchemaName', description='Name of the associated approval template.', example='test'),
-  statuses?: [ string ](name='Statuses', description='Collection of approval instance statuses.'),
+  policyType?: string(name='PolicyType', description='The adaptation policy type. Valid values:', example='DlpSend'),
+  processId?: string(name='ProcessId', description='The associated approval process ID.', example='approval-process-fcc351b8a95b****'),
+  processName?: string(name='ProcessName', description='The associated approval process name.', example='Test'),
+  reportTypes?: [ string ](name='ReportTypes', description='The list of report types. If not specified, only ApprovalReport is queried.'),
+  schemaId?: string(name='SchemaId', description='The associated approval template ID.', example='approval-schema-090134f1ebff****'),
+  schemaName?: string(name='SchemaName', description='The associated approval template name.', example='test'),
+  statuses?: [ string ](name='Statuses', description='The collection of approval instance statuses.'),
 }
 
 model ListApprovalsResponseBody = {
   approvals?: [ 
     {
-      approvalDetail?: string(name='ApprovalDetail', description='Details of the approval instance.', example='{"initiatorName":"王先生","initiatorDept":"测试部","devType":"windows","deviceType":"usbStorage","deviceId":"FC216E9E3****","approvalEndTimestamp":1736524799,"approvalReason":"这是一个测试"}'),
-      approvalId?: string(name='ApprovalId', description='Approval instance ID.', example='approval-872b5e911b35****'),
+      approvalDetail?: string(name='ApprovalDetail', description='The details of the approval instance.', example='{"initiatorName":"Mr. Wang","initiatorDept":"Testing Department","devType":"windows","deviceType":"usbStorage","deviceId":"FC216E9E3****","approvalEndTimestamp":1736524799,"approvalReason":"This is a test"}'),
+      approvalId?: string(name='ApprovalId', description='The instance ID of the approval.', example='approval-872b5e911b35****'),
       approvalProgresses?: [ 
         {
-          action?: string(name='Action', description='Action performed at the approval progress node. Valid values:
-
-- **Approve**: Approve.
-
-- **Reject**: Reject.
-
-- **Revoke**: Revoke.
-
-- **Comment**: Comment.', example='Approve'),
-          comment?: string(name='Comment', description='Comment added at the approval progress node.', example='审核通过'),
-          executor?: string(name='Executor', description='ID of the executor for the approval progress node.', example='su_e8f218fb171edd167c2ad917d21f53148bdefc510ca1f3c3cc0249d3643d****'),
+          action?: string(name='Action', description='The action performed on the approval progress node. Valid values:
+- **Approve**: Approved.
+- **Reject**: Rejected.
+- **Revoke**: Revoked.
+- **Comment**: Commented.', example='Approve'),
+          comment?: string(name='Comment', description='The comment on the approval progress node.', example='Approved'),
+          executor?: string(name='Executor', description='The ID of the executor for the approval progress node.', example='su_e8f218fb171edd167c2ad917d21f53148bdefc510ca1f3c3cc0249d3643d****'),
           operators?: [ 
             {
-              saseUserId?: string(name='SaseUserId', description='ID of the operator for the approval progress node.', example='su_e8f218fb171edd167c2ad917d21f53148bdefc510ca1f3c3cc0249d3643d****'),
-              username?: string(name='Username', description='Username of the operator for the approval progress node.', example='王先生'),
+              saseUserId?: string(name='SaseUserId', description='The ID of the operator for the approval progress node.', example='su_e8f218fb171edd167c2ad917d21f53148bdefc510ca1f3c3cc0249d3643d****'),
+              username?: string(name='Username', description='The username of the operator for the approval progress node.', example='Mr. Wang'),
             }
-          ](name='Operators', description='List of operators for the approval progress node.'),
-          status?: string(name='Status', description='Status of the approval progress node. Valid values:
-
-- **Pending**: Pending approval.
-
-- **Approved**: Approved.
-
-- **Rejected**: Rejected.
-
-- **Revoked**: Revoked.', example='Approved'),
-          timestamp?: long(name='Timestamp', description='Time when the action was performed at the approval progress node, in seconds since the Unix epoch.', example='1736752000'),
+          ](name='Operators', description='The list of operators for the approval progress node.'),
+          status?: string(name='Status', description='The status of the approval progress node. Valid values:', example='Approved'),
+          timestamp?: long(name='Timestamp', description='The time when the action was performed on the approval progress node. The value is a UNIX timestamp in seconds.', example='1736752000'),
         }
-      ](name='ApprovalProgresses', description='List of approval progress nodes.'),
+      ](name='ApprovalProgresses', description='The list of approval progress nodes.'),
       approvalType?: int32(name='ApprovalType'),
-      createTime?: string(name='CreateTime', description='Time when the approval instance was created.', example='2022-11-15 22:11:55'),
-      creatorDepartment?: string(name='CreatorDepartment', description='Department of the user who created the approval instance.', example='测试部'),
-      creatorDevTag?: string(name='CreatorDevTag', description='ID of the device used to create the approval instance.', example='36efa42d-2c32-c4dc-e3fc-8541e33a****'),
-      creatorUserId?: string(name='CreatorUserId', description='ID of the user who created the approval instance.', example='su_e8f218fb171edd167c2ad917d21f53148bdefc510ca1f3c3cc0249d3643d****'),
-      creatorUsername?: string(name='CreatorUsername', description='Username of the user who created the approval instance.', example='王先生'),
-      endTimestamp?: long(name='EndTimestamp', description='Expiration time of the approval instance, in seconds since the Unix epoch.', example='1757952000'),
-      policyType?: string(name='PolicyType', description='Policy type associated with the approval instance. Valid values:
-
-- **DomainBlacklist**: Domain blacklist.
-
-- **DomainWhitelist**: Domain whitelist.
-
-- **SoftwareBlock**: Software blocking.
-
-- **AppUninstall**: App uninstallation.
-
-- **DlpSend**: File outbound transfer.
-
-- **PeripheralBlock**: Peripheral control.', example='DlpSend'),
-      processId?: string(name='ProcessId', description='ID of the associated approval process.', example='approval-process-fcc351b8a95b****'),
-      processName?: string(name='ProcessName', description='Name of the associated approval process.', example='测试'),
-      reason?: string(name='Reason', description='Reason for creating the approval instance.', example='这是一个测试'),
-      schemaContent?: string(name='SchemaContent', description='Content of the associated approval template.', example='{"form": {"labelCol": 6,"wrapperCol": 12}}'),
-      schemaId?: string(name='SchemaId', description='ID of the associated approval template.', example='approval-schema-090134f1ebff****'),
-      schemaName?: string(name='SchemaName', description='Name of the associated approval template.', example='测试'),
-      status?: string(name='Status', description='Status of the approval instance. Valid values:
-
-- **Pending**: Pending approval.
-
-- **Approved**: Approved.
-
-- **Rejected**: Rejected.
-
-- **Revoked**: Revoked.
-
-- **Expired**: Expired.', example='Pending'),
+      createTime?: string(name='CreateTime', description='The time when the approval instance was created.', example='2022-11-15 22:11:55'),
+      creatorDepartment?: string(name='CreatorDepartment', description='The department of the approval instance creator.', example='QA Department'),
+      creatorDevTag?: string(name='CreatorDevTag', description='The terminal device ID of the approval instance creator.', example='36efa42d-2c32-c4dc-e3fc-8541e33a****'),
+      creatorUserId?: string(name='CreatorUserId', description='The ID of the approval instance creator.', example='su_e8f218fb171edd167c2ad917d21f53148bdefc510ca1f3c3cc0249d3643d****'),
+      creatorUsername?: string(name='CreatorUsername', description='The username of the approval instance creator.', example='Mr. Wang'),
+      effectStatus?: string(name='EffectStatus', description='The effective status of the report. Enabled indicates that the report is effective. Expired indicates that the report has expired.'),
+      endTimestamp?: long(name='EndTimestamp', description='The expiration time of the approval instance. The value is a UNIX timestamp in seconds.', example='1757952000'),
+      policyType?: string(name='PolicyType', description='The type of the policy associated with the approval instance. Valid values:
+- **DomainBlacklist**: domain name blacklist.
+- **DomainWhitelist**: domain name whitelist.
+- **SoftwareBlock**: software blocking.
+- **AppUninstall**: terminal uninstallation.
+- **DlpSend**: file outgoing.
+- **PeripheralBlock**: peripheral control.', example='DlpSend'),
+      processId?: string(name='ProcessId', description='The ID of the process associated with the approval instance.', example='approval-process-fcc351b8a95b****'),
+      processName?: string(name='ProcessName', description='The name of the process associated with the approval instance.', example='Test'),
+      reason?: string(name='Reason', description='The reason for creating the approval instance.', example='This is a test'),
+      reportType?: string(name='ReportType', description='The report type. ApprovalReport indicates an approval report. BackendReport indicates a backend report.'),
+      schemaContent?: string(name='SchemaContent', description='The content of the template associated with the approval instance.', example='{"form": {"labelCol": 6,"wrapperCol": 12}}'),
+      schemaId?: string(name='SchemaId', description='The ID of the template associated with the approval instance.', example='approval-schema-090134f1ebff****'),
+      schemaName?: string(name='SchemaName', description='The name of the template associated with the approval instance.', example='Test'),
+      status?: string(name='Status', description='The approval instance status. Valid values:', example='Pending'),
+      validityType?: string(name='ValidityType', description='The validity duration type. When the value is Permanent, EndTimestamp returns 0.'),
     }
-  ](name='Approvals', description='List of approval instances.'),
-  requestId?: string(name='RequestId', description='ID of the request.', example='6965F5BA-53B6-5650-A708-51F090F843BB'),
-  totalNum?: string(name='TotalNum', description='Total number of approval instances.', example='1'),
+  ](name='Approvals', description='The list of approval instances.'),
+  requestId?: string(name='RequestId', description='The ID of the request.', example='6965F5BA-53B6-5650-A708-51F090F843BB'),
+  totalNum?: string(name='TotalNum', description='The total number of approval instances.', example='1'),
 }
 
 model ListApprovalsResponse = {
@@ -6941,7 +7050,7 @@ model ListApprovalsResponse = {
 }
 
 /**
- * @summary Lists approval instances for your Alibaba Cloud account.
+ * @summary Queries the list of approval instances under the current Alibaba Cloud account.
  *
  * @param request ListApprovalsRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -6969,7 +7078,7 @@ async function listApprovalsWithOptions(request: ListApprovalsRequest, runtime: 
 }
 
 /**
- * @summary Lists approval instances for your Alibaba Cloud account.
+ * @summary Queries the list of approval instances under the current Alibaba Cloud account.
  *
  * @param request ListApprovalsRequest
  * @return ListApprovalsResponse
@@ -7185,24 +7294,32 @@ async function listConnectors(request: ListConnectorsRequest): ListConnectorsRes
 }
 
 model ListDomainItemsRequest {
-  currentPage?: int32(name='CurrentPage', description='This parameter is required.', example='1'),
-  itemValue?: string(name='ItemValue', example='example.com'),
-  listId?: string(name='ListId', description='This parameter is required.', example='ladl-6f1exxxxx6ab59'),
-  listType?: string(name='ListType', description='This parameter is required.', example='la_domain_white_list'),
-  pageSize?: int32(name='PageSize', description='This parameter is required.', example='10'),
+  currentPage?: int32(name='CurrentPage', description='The current page number in paging.
+
+This parameter is required.', example='1'),
+  itemValue?: string(name='ItemValue', description='The domain name value filter. Fuzzy match is supported.', example='example.com'),
+  listId?: string(name='ListId', description='The list ID. This is a unique business identifier used for policy references and CRUD operations.
+
+This parameter is required.', example='ladl-6f1exxxxx6ab59'),
+  listType?: string(name='ListType', description='The list type (Blacklist/Whitelist).
+
+This parameter is required.', example='la_domain_white_list'),
+  pageSize?: int32(name='PageSize', description='The number of entries per page in paging. Valid values: 1 to 1000.
+
+This parameter is required.', example='10'),
 }
 
 model ListDomainItemsResponseBody = {
   domainItems?: [ 
     {
-      gmtCreate?: string(name='GmtCreate', example='2026-08-01 10:20:30'),
-      gmtModified?: string(name='GmtModified', example='2026-08-01 10:20:30'),
+      gmtCreate?: string(name='GmtCreate', description='The time when the entry was created.', example='2026-08-01 10:20:30'),
+      gmtModified?: string(name='GmtModified', description='The time when the entry was last modified.', example='2026-08-01 10:20:30'),
       itemId?: long(name='ItemId', example='499'),
-      itemValue?: string(name='ItemValue', example='www.example.com'),
+      itemValue?: string(name='ItemValue', description='The domain name. Wildcard domain names are supported.', example='www.example.com'),
     }
-  ](name='DomainItems'),
-  requestId?: string(name='RequestId', example='019F68B5-2D0D-5399-9BB2-D81C13C2C05D'),
-  totalNum?: int32(name='TotalNum', example='13'),
+  ](name='DomainItems', description='The list of domain name entries.'),
+  requestId?: string(name='RequestId', description='Id of the request', example='019F68B5-2D0D-5399-9BB2-D81C13C2C05D'),
+  totalNum?: int32(name='TotalNum', description='The total number of records that match the specified conditions. This is an optional parameter and may not be returned by default.', example='13'),
 }
 
 model ListDomainItemsResponse = {
@@ -7212,9 +7329,9 @@ model ListDomainItemsResponse = {
 }
 
 /**
- * @summary 分页查询域名条目
+ * @summary Queries domain name entries in a domain name list by paging.
  *
- * @description 分页查询指定域名名单下的域名条目明细。与 ListDomainMetas配套使用：先拿到 `ListId`，再用本接口翻页查看该名单里的域名。
+ * @description Queries the details of domain name entries in a specified domain name list by paging. Use this operation together with ListDomainMetas: first obtain the `ListId`, and then use this operation to perform paging through the domain names in the list.
  *
  * @param request ListDomainItemsRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -7257,9 +7374,9 @@ async function listDomainItemsWithOptions(request: ListDomainItemsRequest, runti
 }
 
 /**
- * @summary 分页查询域名条目
+ * @summary Queries domain name entries in a domain name list by paging.
  *
- * @description 分页查询指定域名名单下的域名条目明细。与 ListDomainMetas配套使用：先拿到 `ListId`，再用本接口翻页查看该名单里的域名。
+ * @description Queries the details of domain name entries in a specified domain name list by paging. Use this operation together with ListDomainMetas: first obtain the `ListId`, and then use this operation to perform paging through the domain names in the list.
  *
  * @param request ListDomainItemsRequest
  * @return ListDomainItemsResponse
