@@ -210,6 +210,45 @@ model BillingCostBreakdownRowDTO {
   values?: string(name='values', example='{"input_tokens": 512000, "output_tokens": 256000}'),
 }
 
+model BillingDetailListRespDTO {
+  columns?: [
+    MetricDefRespDTO
+  ](name='columns', example='[]'),
+  page?: int32(name='page', example='1'),
+  pageSize?: int32(name='pageSize', example='20'),
+  rows?: [
+    BillingDetailRowDTO
+  ](name='rows', example='[]'),
+  total?: long(name='total', example='100'),
+}
+
+model BillingDetailRowDTO {
+  amount?: double(name='amount', example='0.00012800'),
+  apiKeyId?: long(name='apiKeyId', example='100'),
+  apiKeyName?: string(name='apiKeyName', example='默认密钥'),
+  cacheCreationTokens?: double(name='cacheCreationTokens', example='0'),
+  cachedTokens?: double(name='cachedTokens', example='256'),
+  clientId?: long(name='clientId', example='1'),
+  clientName?: string(name='clientName', example='研发部'),
+  discount?: double(name='discount', example='1.0'),
+  inputTokens?: double(name='inputTokens', example='1024'),
+  memberUserId?: long(name='memberUserId', example='30001'),
+  memberUserName?: string(name='memberUserName', example='张三'),
+  metrics?: string(name='metrics', example='{}'),
+  modelCode?: string(name='modelCode', example='qwen-plus'),
+  modelId?: long(name='modelId', example='1'),
+  modelName?: string(name='modelName', example='通义千问-Plus'),
+  modelSymbol?: string(name='modelSymbol', example='qwen'),
+  modelType?: string(name='modelType', example='Chat'),
+  modelVersion?: int32(name='modelVersion', example='1'),
+  outputTokens?: double(name='outputTokens', example='512'),
+  reasoningTokens?: double(name='reasoningTokens', example='128'),
+  requestId?: string(name='requestId', example='chatcmpl-abc123def456'),
+  requestTime?: long(name='requestTime', example='1700000000'),
+  totalTokens?: double(name='totalTokens', example='1536'),
+  usageDetail?: string(name='usageDetail', example='{"input_tokens": 1024, "output_tokens": 512}'),
+}
+
 model ClientBalanceDTO {
   balance?: double(name='balance', example='100.00'),
   balanceType?: string(name='balanceType', example='amount'),
@@ -3518,6 +3557,45 @@ async function modelRouterExportMemberBalanceOrders(request: ModelRouterExportMe
   return @handler.do('RESTFUL', 'ModelRouterExportMemberBalanceOrders', 'GET', '/api/v1/modelRouter/open/clients/{clientId}/members/{id}/balance/orders/export', 'json', false, 'json', request);
 }
 
+model ModelRouterGetBillingBillSummaryRequest {
+  apiKeyId?: long(name='apiKeyId', example='100', position='Query'),
+  clientId?: long(name='clientId', example='1', position='Query'),
+  clientIds?: string(name='clientIds', example='1,2,3', position='Query'),
+  endTime: long(name='endTime', description='This parameter is required.', example='1700086400', position='Query'),
+  maxResults?: int32(name='maxResults', position='Query'),
+  memberUserIds?: string(name='memberUserIds', example='30001,30002', position='Query'),
+  modelId?: long(name='modelId', example='1', position='Query'),
+  modelTypes?: string(name='modelTypes', example='Chat,ChatMultimodal', position='Query'),
+  nextToken?: string(name='nextToken', position='Query'),
+  startTime: long(name='startTime', description='This parameter is required.', example='1700000000', position='Query'),
+}
+
+model ModelRouterGetBillingBillSummaryResponseBody = {
+  data?: BillingBillSummaryRespDTO(name='data'),
+  errCode?: string(name='errCode', example='UNKNOWN_ERROR'),
+  errMessage?: string(name='errMessage', example='未知错误'),
+  httpStatusCode?: int32(name='httpStatusCode', example='200'),
+  maxResults?: int32(name='maxResults'),
+  nextToken?: string(name='nextToken'),
+  requestId?: string(name='requestId', example='xxxx-xxxx-xxxx-xxxxxxxx'),
+  success?: boolean(name='success', example='true'),
+}
+
+model ModelRouterGetBillingBillSummaryResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ModelRouterGetBillingBillSummaryResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of ModelRouterGetBillingBillSummary  ModelRouterGetBillingBillSummaryRequest
+  * @return ModelRouterGetBillingBillSummaryResponse
+ */
+async function modelRouterGetBillingBillSummary(request: ModelRouterGetBillingBillSummaryRequest): ModelRouterGetBillingBillSummaryResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'ModelRouterGetBillingBillSummary', 'GET', '/api/v1/modelRouter/open/billing/bills/summary', 'json', false, 'json', request);
+}
+
 model ModelRouterGetClientBalanceRequest {
   id?: long(name='id', example='1', position='Path'),
 }
@@ -4035,6 +4113,7 @@ async function modelRouterQueryApiKeyList(request: ModelRouterQueryApiKeyListReq
 model ModelRouterQueryBillingCostBreakdownRequest {
   apiKeyId?: long(name='apiKeyId', example='100', position='Query'),
   clientId?: long(name='clientId', example='5', position='Query'),
+  clientIds?: string(name='clientIds', example='1,2,3', position='Query'),
   endTime: long(name='endTime', description='This parameter is required.', example='1700086400', position='Query'),
   granularity: string(name='granularity', description='This parameter is required.', example='hourly', position='Query'),
   maxResults?: int32(name='maxResults', example='20', position='Query'),
@@ -4334,6 +4413,7 @@ async function modelRouterQueryConversationList(request: ModelRouterQueryConvers
 model ModelRouterQueryCostModelDetailRequest {
   apiKeyId?: long(name='apiKeyId', example='100', position='Query'),
   clientId?: long(name='clientId', example='1', position='Query'),
+  clientIds?: string(name='clientIds', example='1,2,3', position='Query'),
   endTime: long(name='endTime', description='This parameter is required.', example='1700086400', position='Query'),
   maxResults?: int32(name='maxResults', description='maxResults', example='10', position='Query'),
   memberUserIds?: string(name='memberUserIds', example='30001,30002', position='Query'),
@@ -4374,6 +4454,7 @@ async function modelRouterQueryCostModelDetail(request: ModelRouterQueryCostMode
 model ModelRouterQueryCostModelListRequest {
   apiKeyId?: long(name='apiKeyId', example='100', position='Query'),
   clientId?: long(name='clientId', example='1', position='Query'),
+  clientIds?: string(name='clientIds', example='1,2,3', position='Query'),
   endTime: long(name='endTime', description='This parameter is required.', example='1700086400', position='Query'),
   granularity?: string(name='granularity', example='hourly', position='Query'),
   maxResults?: int32(name='maxResults', example='10', position='Query'),
@@ -4413,6 +4494,7 @@ async function modelRouterQueryCostModelList(request: ModelRouterQueryCostModelL
 model ModelRouterQueryCostOverviewMetricsRequest {
   apiKeyId?: long(name='apiKeyId', example='100', position='Query'),
   clientId?: long(name='clientId', example='1', position='Query'),
+  clientIds?: string(name='clientIds', example='1,2,3', position='Query'),
   endTime: long(name='endTime', description='This parameter is required.', example='1700086400', position='Query'),
   granularity?: string(name='granularity', example='hourly', position='Query'),
   maxResults?: int32(name='maxResults', example='10', position='Query'),
@@ -4453,6 +4535,7 @@ async function modelRouterQueryCostOverviewMetrics(request: ModelRouterQueryCost
 model ModelRouterQueryCostTrendMetricsRequest {
   apiKeyId?: long(name='apiKeyId', example='100', position='Query'),
   clientId?: long(name='clientId', example='1', position='Query'),
+  clientIds?: string(name='clientIds', example='1,2,3', position='Query'),
   endTime: long(name='endTime', description='This parameter is required.', example='1700086400', position='Query'),
   granularity?: string(name='granularity', example='hourly', position='Query'),
   maxResults?: int32(name='maxResults', example='10', position='Query'),
@@ -4892,6 +4975,7 @@ async function modelRouterQueryNacosTags(request: ModelRouterQueryNacosTagsReque
 model ModelRouterQueryObservationChartsRequest {
   apiKeyId?: long(name='apiKeyId', example='1', position='Query'),
   clientId?: long(name='clientId', example='1', position='Query'),
+  clientIds?: string(name='clientIds', example='1,2,3', position='Query'),
   endTime?: string(name='endTime', example='2024-01-02T00:00:00Z', position='Query'),
   memberUserIds?: string(name='memberUserIds', example='30001,30002', position='Query'),
   modelId?: long(name='modelId', example='1', position='Query'),
@@ -4926,6 +5010,7 @@ async function modelRouterQueryObservationCharts(request: ModelRouterQueryObserv
 model ModelRouterQueryObservationLogsRequest {
   apiKeyId?: long(name='apiKeyId', example='1', position='Query'),
   clientId?: long(name='clientId', example='1', position='Query'),
+  clientIds?: string(name='clientIds', example='1,2,3', position='Query'),
   endTime?: string(name='endTime', example='2024-01-02T00:00:00Z', position='Query'),
   groupBy?: string(name='groupBy', example='resourceId', position='Query'),
   maxResults?: int32(name='maxResults', example='10', position='Query'),
@@ -4979,6 +5064,7 @@ async function modelRouterQueryObservationLogs(request: ModelRouterQueryObservat
 model ModelRouterQueryObservationMetricsRequest {
   apiKeyId?: long(name='apiKeyId', example='1', position='Query'),
   clientId?: long(name='clientId', example='1', position='Query'),
+  clientIds?: string(name='clientIds', example='1,2,3', position='Query'),
   endTime?: string(name='endTime', example='2024-01-02T00:00:00Z', position='Query'),
   groupBy?: string(name='groupBy', example='resourceId', position='Query'),
   maxResults?: int32(name='maxResults', example='10', position='Query'),
@@ -5021,6 +5107,7 @@ async function modelRouterQueryObservationMetrics(request: ModelRouterQueryObser
 model ModelRouterQueryUsageBreakdownRequest {
   apiKeyId?: long(name='apiKeyId', example='100', position='Query'),
   clientId?: long(name='clientId', example='1', position='Query'),
+  clientIds?: string(name='clientIds', example='1,2,3', position='Query'),
   endTime: long(name='endTime', description='This parameter is required.', example='1700086400', position='Query'),
   granularity: string(name='granularity', description='This parameter is required.', example='hourly', position='Query'),
   maxResults?: int32(name='maxResults', example='20', position='Query'),

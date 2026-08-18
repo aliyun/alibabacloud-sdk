@@ -210,6 +210,45 @@ model BillingCostBreakdownRowDTO {
   values?: string(name='values', example='{"input_tokens": 512000, "output_tokens": 256000}'),
 }
 
+model BillingDetailListRespDTO {
+  columns?: [
+    MetricDefRespDTO
+  ](name='columns', description='The column definitions, which are dynamically generated based on the model types that appear in the query results.', example='[]'),
+  page?: int32(name='page', description='The current page number.', example='1'),
+  pageSize?: int32(name='pageSize', description='The number of entries per page.', example='20'),
+  rows?: [
+    BillingDetailRowDTO
+  ](name='rows', description='The list of bill details data.', example='[]'),
+  total?: long(name='total', description='The total number of entries.', example='100'),
+}
+
+model BillingDetailRowDTO {
+  amount?: double(name='amount', example='0.00012800'),
+  apiKeyId?: long(name='apiKeyId', example='100'),
+  apiKeyName?: string(name='apiKeyName', example='默认密钥'),
+  cacheCreationTokens?: double(name='cacheCreationTokens', example='0'),
+  cachedTokens?: double(name='cachedTokens', example='256'),
+  clientId?: long(name='clientId', example='1'),
+  clientName?: string(name='clientName', example='研发部'),
+  discount?: double(name='discount', example='1.0'),
+  inputTokens?: double(name='inputTokens', example='1024'),
+  memberUserId?: long(name='memberUserId', example='30001'),
+  memberUserName?: string(name='memberUserName', example='张三'),
+  metrics?: string(name='metrics', example='{}'),
+  modelCode?: string(name='modelCode', example='qwen-plus'),
+  modelId?: long(name='modelId', example='1'),
+  modelName?: string(name='modelName', example='通义千问-Plus'),
+  modelSymbol?: string(name='modelSymbol', example='qwen'),
+  modelType?: string(name='modelType', example='Chat'),
+  modelVersion?: int32(name='modelVersion', example='1'),
+  outputTokens?: double(name='outputTokens', example='512'),
+  reasoningTokens?: double(name='reasoningTokens', example='128'),
+  requestId?: string(name='requestId', example='chatcmpl-abc123def456'),
+  requestTime?: long(name='requestTime', example='1700000000'),
+  totalTokens?: double(name='totalTokens', example='1536'),
+  usageDetail?: string(name='usageDetail', example='{"input_tokens": 1024, "output_tokens": 512}'),
+}
+
 model ClientBalanceDTO {
   balance?: double(name='balance', description='The current balance.', example='100.00'),
   balanceType?: string(name='balanceType', description='The balance type. Valid values are `amount` or `tokens`.', example='amount'),
@@ -5462,17 +5501,15 @@ async function modelRouterCreateApiKey(request: ModelRouterCreateApiKeyRequest):
 
 model ModelRouterCreateBalanceTransactionRequest {
   amount?: double(name='amount', description='The transaction amount.', example='100.00'),
-  balanceType?: string(name='balanceType', description='The target balance pool type. If not specified, the default value is permanent. Valid values:
-- permanent: permanent balance pool (the amount never expires).
-- monthly: monthly balance pool (automatically reset to zero at the beginning of each month).', example='amount'),
-  idempotencyKey?: string(name='idempotencyKey', description='The idempotency key. UUID v4 format is recommended. Maximum length: 32 characters. Repeated submissions with the same key are not executed again.', example='550e8400e29b41d4a716446655440000'),
-  remark?: string(name='remark', description='The remark.', example='Top-up'),
+  balanceType?: string(name='balanceType', description='The target balance pool type. If not specified, the default value is permanent. Valid values: permanent: permanent balance pool (the balance never expires). monthly: monthly balance pool (the balance is automatically cleared at the beginning of each month).', example='amount'),
+  idempotencyKey?: string(name='idempotencyKey', description='The idempotency key. UUID v4 format is recommended. The maximum length is 32 characters. Duplicate submissions with the same key are not executed more than once.', example='550e8400e29b41d4a716446655440000'),
+  remark?: string(name='remark', description='The remarks.', example='Recharge'),
   type?: string(name='type', description='The transaction type.', example='recharge'),
 }
 
 model ModelRouterCreateBalanceTransactionResponseBody = {
   data?: ClientBalanceDTO(name='data', description='The data object.', example='{}'),
-  errCode?: string(name='errCode', description='The error message code.', example='UNKNOWN_ERROR'),
+  errCode?: string(name='errCode', description='The fault message encoding.', example='UNKNOWN_ERROR'),
   errMessage?: string(name='errMessage', description='The error message.', example='Unknown error'),
   httpStatusCode?: int32(name='httpStatusCode', description='The HTTP status code.', example='200'),
   requestId?: string(name='requestId', description='The request ID.', example='xxxx-xxxx-xxxx-xxxxxxxx'),
@@ -5486,7 +5523,7 @@ model ModelRouterCreateBalanceTransactionResponse = {
 }
 
 /**
- * @summary Creates a balance transaction for customer management.
+ * @summary Manages customers or creates a balance transaction.
  *
  * @param request ModelRouterCreateBalanceTransactionRequest
  * @param headers map
@@ -5531,7 +5568,7 @@ async function modelRouterCreateBalanceTransactionWithOptions(id: string, reques
 }
 
 /**
- * @summary Creates a balance transaction for customer management.
+ * @summary Manages customers or creates a balance transaction.
  *
  * @param request ModelRouterCreateBalanceTransactionRequest
  * @return ModelRouterCreateBalanceTransactionResponse
@@ -7018,6 +7055,112 @@ async function modelRouterExportMemberBalanceOrders(clientId: string, id: string
   return modelRouterExportMemberBalanceOrdersWithOptions(clientId, id, request, headers, runtime);
 }
 
+model ModelRouterGetBillingBillSummaryRequest {
+  apiKeyId?: long(name='apiKeyId', description='The API key ID used to filter results. This parameter is optional and linked to the department. You must specify clientId first.', example='100'),
+  clientId?: long(name='clientId', description='The department ID used to filter results.', example='1'),
+  clientIds?: string(name='clientIds', description='The list of department IDs, separated by commas. Supports querying data for multiple departments. This parameter is mutually exclusive with clientId.', example='1,2,3'),
+  endTime?: long(name='endTime', description='The end time, in UNIX timestamp format (seconds).
+
+This parameter is required.', example='1700086400'),
+  maxResults?: int32(name='maxResults'),
+  memberUserIds?: string(name='memberUserIds', description='The member IDs used to filter results, separated by commas. This parameter is optional. If not specified, the query returns data for the department and all its members. If an empty value is specified, the query returns data for the department only, excluding members.', example='30001,30002'),
+  modelId?: long(name='modelId', description='The model ID. This parameter is optional and used to filter by model.', example='1'),
+  modelTypes?: string(name='modelTypes', description='The model types, separated by commas.', example='Chat,ChatMultimodal'),
+  nextToken?: string(name='nextToken'),
+  startTime?: long(name='startTime', description='The start time, in UNIX timestamp format (seconds).
+
+This parameter is required.', example='1700000000'),
+}
+
+model ModelRouterGetBillingBillSummaryResponseBody = {
+  data?: BillingBillSummaryRespDTO(name='data', description='The data object.'),
+  errCode?: string(name='errCode', description='The fault code.', example='UNKNOWN_ERROR'),
+  errMessage?: string(name='errMessage', description='The error message.', example='Unknown error'),
+  httpStatusCode?: int32(name='httpStatusCode', description='The HTTP status code.', example='200'),
+  maxResults?: int32(name='maxResults'),
+  nextToken?: string(name='nextToken'),
+  requestId?: string(name='requestId', description='The request ID.', example='xxxx-xxxx-xxxx-xxxxxxxx'),
+  success?: boolean(name='success', description='Indicates whether the request was successful.', example='true'),
+}
+
+model ModelRouterGetBillingBillSummaryResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ModelRouterGetBillingBillSummaryResponseBody(name='body'),
+}
+
+/**
+ * @summary Queries the total cost trend of bills in the Billing Center.
+ *
+ * @param request ModelRouterGetBillingBillSummaryRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return ModelRouterGetBillingBillSummaryResponse
+ */
+async function modelRouterGetBillingBillSummaryWithOptions(request: ModelRouterGetBillingBillSummaryRequest, headers: map[string]string, runtime: Util.RuntimeOptions): ModelRouterGetBillingBillSummaryResponse {
+  Util.validateModel(request);
+  var query : map[string]any = {};
+  if (!Util.isUnset(request.apiKeyId)) {
+    query['apiKeyId'] = request.apiKeyId;
+  }
+  if (!Util.isUnset(request.clientId)) {
+    query['clientId'] = request.clientId;
+  }
+  if (!Util.isUnset(request.clientIds)) {
+    query['clientIds'] = request.clientIds;
+  }
+  if (!Util.isUnset(request.endTime)) {
+    query['endTime'] = request.endTime;
+  }
+  if (!Util.isUnset(request.maxResults)) {
+    query['maxResults'] = request.maxResults;
+  }
+  if (!Util.isUnset(request.memberUserIds)) {
+    query['memberUserIds'] = request.memberUserIds;
+  }
+  if (!Util.isUnset(request.modelId)) {
+    query['modelId'] = request.modelId;
+  }
+  if (!Util.isUnset(request.modelTypes)) {
+    query['modelTypes'] = request.modelTypes;
+  }
+  if (!Util.isUnset(request.nextToken)) {
+    query['nextToken'] = request.nextToken;
+  }
+  if (!Util.isUnset(request.startTime)) {
+    query['startTime'] = request.startTime;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'ModelRouterGetBillingBillSummary',
+    version = '20240611',
+    protocol = 'HTTPS',
+    pathname = `/api/v1/modelRouter/open/billing/bills/summary`,
+    method = 'GET',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Queries the total cost trend of bills in the Billing Center.
+ *
+ * @param request ModelRouterGetBillingBillSummaryRequest
+ * @return ModelRouterGetBillingBillSummaryResponse
+ */
+async function modelRouterGetBillingBillSummary(request: ModelRouterGetBillingBillSummaryRequest): ModelRouterGetBillingBillSummaryResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return modelRouterGetBillingBillSummaryWithOptions(request, headers, runtime);
+}
+
 model ModelRouterGetClientBalanceRequest {
 }
 
@@ -8112,19 +8255,17 @@ async function modelRouterQueryApiKeyList(request: ModelRouterQueryApiKeyListReq
 }
 
 model ModelRouterQueryBillingCostBreakdownRequest {
-  apiKeyId?: long(name='apiKeyId', description='Optional. Filters results by API key ID. This parameter is linked with the department. Specify clientId first.', example='100'),
+  apiKeyId?: long(name='apiKeyId', description='Optional. Filters results by API Key ID. This parameter is linked to the department and requires clientId to be specified first.', example='100'),
   clientId?: long(name='clientId', description='Optional. Filters results by department ID.', example='5'),
+  clientIds?: string(name='clientIds', description='The list of department IDs, separated by commas. Supports querying data for multiple departments. This parameter is mutually exclusive with client_id.', example='1,2,3'),
   endTime?: long(name='endTime', description='The query end time, in UNIX timestamp (seconds).
 
 This parameter is required.', example='1700086400'),
-  granularity?: string(name='granularity', description='The aggregation granularity. Valid values:
-
-- hourly
-- daily
+  granularity?: string(name='granularity', description='The aggregation granularity. Valid values: hourly and daily.
 
 This parameter is required.', example='hourly'),
   maxResults?: int32(name='maxResults', description='The maximum number of results to return.', example='20'),
-  memberUserIds?: string(name='memberUserIds', description='Optional. Filters results by member ID. Separate multiple values with commas. If not specified, the department and all its members are included. If an empty value is specified, only the department is included without members.', example='30001,30002'),
+  memberUserIds?: string(name='memberUserIds', description='Optional. Filters results by member IDs, separated by commas. If not specified, the query returns data for the department and all its members. If an empty value is specified, the query returns data for the department only, excluding members.', example='30001,30002'),
   modelId?: long(name='modelId', description='Optional. Filters results by model ID.', example='12'),
   modelTypes?: string(name='modelTypes', description='Optional. Filters results by model type. Separate multiple values with commas.', example='Chat'),
   nextToken?: string(name='nextToken', description='The pagination token.', example='xxxx-xxx-xxxxx'),
@@ -8137,7 +8278,7 @@ This parameter is required.', example='1700000000'),
 
 model ModelRouterQueryBillingCostBreakdownResponseBody = {
   data?: BillingCostBreakdownRespDTO(name='data', description='The data object.', example='{}'),
-  errCode?: string(name='errCode', description='The error message code.', example='UNKNOWN_ERROR'),
+  errCode?: string(name='errCode', description='The fault code.', example='UNKNOWN_ERROR'),
   errMessage?: string(name='errMessage', description='The error message.', example='Unknown error'),
   httpStatusCode?: int32(name='httpStatusCode', description='The HTTP status code.', example='200'),
   maxResults?: int32(name='maxResults', description='The maximum number of results to return.', example='20'),
@@ -8168,6 +8309,9 @@ async function modelRouterQueryBillingCostBreakdownWithOptions(request: ModelRou
   }
   if (!Util.isUnset(request.clientId)) {
     query['clientId'] = request.clientId;
+  }
+  if (!Util.isUnset(request.clientIds)) {
+    query['clientIds'] = request.clientIds;
   }
   if (!Util.isUnset(request.endTime)) {
     query['endTime'] = request.endTime;
@@ -8780,11 +8924,12 @@ async function modelRouterQueryConversationList(request: ModelRouterQueryConvers
 model ModelRouterQueryCostModelDetailRequest {
   apiKeyId?: long(name='apiKeyId', description='Optional. Filters by API Key ID. This parameter is linked to the department and requires clientId to be specified first.', example='100'),
   clientId?: long(name='clientId', description='The department ID used to filter results.', example='1'),
+  clientIds?: string(name='clientIds', description='The list of department IDs, separated by commas. Supports querying data for multiple departments. This parameter is mutually exclusive with clientId.', example='1,2,3'),
   endTime?: long(name='endTime', description='The end time, in UNIX timestamp (seconds).
 
 This parameter is required.', example='1700086400'),
   maxResults?: int32(name='maxResults', description='maxResults', example='10'),
-  memberUserIds?: string(name='memberUserIds', description='Optional. Filters by member IDs. Separate multiple IDs with commas. If not specified, the department and all its members are included. If an empty value is specified, only the department is included without members.', example='30001,30002'),
+  memberUserIds?: string(name='memberUserIds', description='Optional. Filters by member IDs, separated by commas. If not specified, the department and all its members are included. If an empty value is specified, only the department is included without members.', example='30001,30002'),
   modelId?: long(name='modelId', description='The model ID.
 
 This parameter is required.', example='1'),
@@ -8799,7 +8944,7 @@ This parameter is required.', example='1700000000'),
 
 model ModelRouterQueryCostModelDetailResponseBody = {
   data?: CostModelDetailRespDTO(name='data', description='The data object.', example='[]'),
-  errCode?: string(name='errCode', description='The fault code.', example='UNKNOWN_ERROR'),
+  errCode?: string(name='errCode', description='The error message code.', example='UNKNOWN_ERROR'),
   errMessage?: string(name='errMessage', description='The error message.', example='Unknown error'),
   httpStatusCode?: int32(name='httpStatusCode', description='The HTTP status code.', example='200'),
   maxResults?: int32(name='maxResults', description='The maximum number of results.', example='10'),
@@ -8815,7 +8960,7 @@ model ModelRouterQueryCostModelDetailResponse = {
 }
 
 /**
- * @summary Retrieves the usage details of a model for billing management.
+ * @summary Retrieves model usage details for billing management.
  *
  * @param request ModelRouterQueryCostModelDetailRequest
  * @param headers map
@@ -8830,6 +8975,9 @@ async function modelRouterQueryCostModelDetailWithOptions(request: ModelRouterQu
   }
   if (!Util.isUnset(request.clientId)) {
     query['clientId'] = request.clientId;
+  }
+  if (!Util.isUnset(request.clientIds)) {
+    query['clientIds'] = request.clientIds;
   }
   if (!Util.isUnset(request.endTime)) {
     query['endTime'] = request.endTime;
@@ -8878,7 +9026,7 @@ async function modelRouterQueryCostModelDetailWithOptions(request: ModelRouterQu
 }
 
 /**
- * @summary Retrieves the usage details of a model for billing management.
+ * @summary Retrieves model usage details for billing management.
  *
  * @param request ModelRouterQueryCostModelDetailRequest
  * @return ModelRouterQueryCostModelDetailResponse
@@ -8890,18 +9038,19 @@ async function modelRouterQueryCostModelDetail(request: ModelRouterQueryCostMode
 }
 
 model ModelRouterQueryCostModelListRequest {
-  apiKeyId?: long(name='apiKeyId', description='Optional. Filters results by API key ID. This parameter works in conjunction with the department and requires clientId to be specified first.', example='100'),
+  apiKeyId?: long(name='apiKeyId', description='Optional. Filters results by API Key ID. This parameter is linked to the department and requires clientId to be specified first.', example='100'),
   clientId?: long(name='clientId', description='Filters results by department ID.', example='1'),
-  endTime?: long(name='endTime', description='The end time, as a UNIX timestamp in seconds.
+  clientIds?: string(name='clientIds', description='The list of department IDs, separated by commas. Supports querying data for multiple departments. This parameter is mutually exclusive with clientId.', example='1,2,3'),
+  endTime?: long(name='endTime', description='The end time, in UNIX timestamp (seconds).
 
 This parameter is required.', example='1700086400'),
-  granularity?: string(name='granularity', description='Automatic aggregation. You do not need to pass this parameter. Granularity: hourly/daily. Default value: hourly.', example='hourly'),
+  granularity?: string(name='granularity', description='Automatically aggregated. No input required. Granularity: hourly/daily. Default value: hourly.', example='hourly'),
   maxResults?: int32(name='maxResults', description='The maximum number of results to return.', example='10'),
-  memberUserIds?: string(name='memberUserIds', description='Optional. Filters results by member IDs, separated by commas. If not specified, the department and all its members are included. If an empty value is passed, only the department is included without members.', example='30001,30002'),
+  memberUserIds?: string(name='memberUserIds', description='Optional. Filters results by members (member IDs, separated by commas). If not specified, the department and all its members are included. If an empty value is passed, only the department is included without members.', example='30001,30002'),
   modelTypes?: string(name='modelTypes', description='The model types, separated by commas.', example='LLM,VL'),
   nextToken?: string(name='nextToken', description='nextToken', example='xxxx-xxx-xxxxx'),
-  search?: string(name='search', description='Performs a fuzzy match on the model name or code.', example='qwen'),
-  startTime?: long(name='startTime', description='The start time, as a UNIX timestamp in seconds.
+  search?: string(name='search', description='Fuzzy search by model name or code.', example='qwen'),
+  startTime?: long(name='startTime', description='The start time, in UNIX timestamp (seconds).
 
 This parameter is required.', example='1700000000'),
 }
@@ -8939,6 +9088,9 @@ async function modelRouterQueryCostModelListWithOptions(request: ModelRouterQuer
   }
   if (!Util.isUnset(request.clientId)) {
     query['clientId'] = request.clientId;
+  }
+  if (!Util.isUnset(request.clientIds)) {
+    query['clientIds'] = request.clientIds;
   }
   if (!Util.isUnset(request.endTime)) {
     query['endTime'] = request.endTime;
@@ -8996,17 +9148,18 @@ async function modelRouterQueryCostModelList(request: ModelRouterQueryCostModelL
 }
 
 model ModelRouterQueryCostOverviewMetricsRequest {
-  apiKeyId?: long(name='apiKeyId', description='Optional. Filters by API key ID. This parameter works in conjunction with the department and requires clientId to be specified first.', example='100'),
-  clientId?: long(name='clientId', description='The department ID used to filter results.', example='1'),
-  endTime?: long(name='endTime', description='The end time, as a UNIX timestamp in seconds.
+  apiKeyId?: long(name='apiKeyId', description='Optional. Filters results by API Key ID. This parameter is linked to the department and requires clientId to be specified first.', example='100'),
+  clientId?: long(name='clientId', description='Filters results by department ID.', example='1'),
+  clientIds?: string(name='clientIds', description='The list of department IDs, separated by commas. Supports querying data for multiple departments. This parameter is mutually exclusive with clientId.', example='1,2,3'),
+  endTime?: long(name='endTime', description='The end time, in UNIX timestamp (seconds).
 
 This parameter is required.', example='1700086400'),
-  granularity?: string(name='granularity', description='Automatically aggregated. No input required. The granularity of the data. Valid values: hourly and daily. Default value: hourly.', example='hourly'),
+  granularity?: string(name='granularity', description='Automatically aggregated. No input required. The granularity. Valid values: hourly and daily. Default value: hourly.', example='hourly'),
   maxResults?: int32(name='maxResults', description='The maximum number of results to return.', example='10'),
-  memberUserIds?: string(name='memberUserIds', description='Optional. Filters by members (member IDs, separated by commas). If not specified, the department and all its members are included. If an empty value is specified, only the department is included without members.', example='30001,30002'),
+  memberUserIds?: string(name='memberUserIds', description='Optional. Filters results by member IDs, separated by commas. If not specified, the department and all its members are included. If an empty value is specified, only the department is included without members.', example='30001,30002'),
   modelTypes?: string(name='modelTypes', description='The model types, separated by commas.', example='LLM,VL'),
   nextToken?: string(name='nextToken', description='nextToken', example='xxxx-xxx-xxxxx'),
-  startTime?: long(name='startTime', description='The start time, as a UNIX timestamp in seconds.
+  startTime?: long(name='startTime', description='The start time, in UNIX timestamp (seconds).
 
 This parameter is required.', example='1700000000'),
 }
@@ -9015,7 +9168,7 @@ model ModelRouterQueryCostOverviewMetricsResponseBody = {
   data?: [
     MetricValueDTO
   ](name='data', description='The data object.', example='[]'),
-  errCode?: string(name='errCode', description='The fault code.', example='UNKNOWN_ERROR'),
+  errCode?: string(name='errCode', description='The fault information code.', example='UNKNOWN_ERROR'),
   errMessage?: string(name='errMessage', description='The error message.', example='Unknown error'),
   httpStatusCode?: int32(name='httpStatusCode', description='The HTTP status code.', example='200'),
   maxResults?: int32(name='maxResults', description='The maximum number of results to return.', example='10'),
@@ -9046,6 +9199,9 @@ async function modelRouterQueryCostOverviewMetricsWithOptions(request: ModelRout
   }
   if (!Util.isUnset(request.clientId)) {
     query['clientId'] = request.clientId;
+  }
+  if (!Util.isUnset(request.clientIds)) {
+    query['clientIds'] = request.clientIds;
   }
   if (!Util.isUnset(request.endTime)) {
     query['endTime'] = request.endTime;
@@ -9100,9 +9256,10 @@ async function modelRouterQueryCostOverviewMetrics(request: ModelRouterQueryCost
 }
 
 model ModelRouterQueryCostTrendMetricsRequest {
-  apiKeyId?: long(name='apiKeyId', description='Optional. Filters results by API Key ID. This parameter works in conjunction with the department and requires clientId to be specified first.', example='100'),
-  clientId?: long(name='clientId', description='Filters results by department ID.', example='1'),
-  endTime?: long(name='endTime', description='The end time, in UNIX timestamp format (seconds).
+  apiKeyId?: long(name='apiKeyId', description='Optional. Filters by API Key ID. This parameter is linked to the department and requires clientId to be specified first.', example='100'),
+  clientId?: long(name='clientId', description='The department ID used to filter results.', example='1'),
+  clientIds?: string(name='clientIds', description='The list of department IDs, separated by commas. Supports querying data for multiple departments. This parameter is mutually exclusive with clientId.', example='1,2,3'),
+  endTime?: long(name='endTime', description='The end time, as a UNIX timestamp in seconds.
 
 This parameter is required.', example='1700086400'),
   granularity?: string(name='granularity', description='The time granularity. Valid values:
@@ -9112,10 +9269,10 @@ This parameter is required.', example='1700086400'),
 
 Default value: hourly.', example='hourly'),
   maxResults?: int32(name='maxResults', description='The maximum number of results to return.', example='10'),
-  memberUserIds?: string(name='memberUserIds', description='Optional. Filters results by members (member IDs, separated by commas). If not specified, the department and all its members are included. If an empty value is specified, only the department is included without members.', example='30001,30002'),
+  memberUserIds?: string(name='memberUserIds', description='Optional. Filters by member IDs, separated by commas. If not specified, data for the department and all its members is returned. If an empty value is specified, only department data without members is returned.', example='30001,30002'),
   modelTypes?: string(name='modelTypes', description='The model types, separated by commas.', example='LLM,VL'),
   nextToken?: string(name='nextToken', description='nextToken', example='xxxx-xxx-xxxxx'),
-  startTime?: long(name='startTime', description='The start time, in UNIX timestamp format (seconds).
+  startTime?: long(name='startTime', description='The start time, as a UNIX timestamp in seconds.
 
 This parameter is required.', example='1700000000'),
 }
@@ -9153,6 +9310,9 @@ async function modelRouterQueryCostTrendMetricsWithOptions(request: ModelRouterQ
   }
   if (!Util.isUnset(request.clientId)) {
     query['clientId'] = request.clientId;
+  }
+  if (!Util.isUnset(request.clientIds)) {
+    query['clientIds'] = request.clientIds;
   }
   if (!Util.isUnset(request.endTime)) {
     query['endTime'] = request.endTime;
@@ -10084,8 +10244,9 @@ async function modelRouterQueryNacosTags(request: ModelRouterQueryNacosTagsReque
 model ModelRouterQueryObservationChartsRequest {
   apiKeyId?: long(name='apiKeyId', description='The API key ID used to filter results.', example='1'),
   clientId?: long(name='clientId', description='The client ID used to filter results.', example='1'),
+  clientIds?: string(name='clientIds', description='The list of department IDs, separated by commas. Supports querying data for multiple departments. This parameter is mutually exclusive with client_id.', example='1,2,3'),
   endTime?: string(name='endTime', description='The custom end time.', example='2024-01-02T00:00:00Z'),
-  memberUserIds?: string(name='memberUserIds', description='Optional. Filters by member IDs. Separate multiple IDs with commas. If this parameter is not specified, the department and all its members are included. If an empty value is specified, only the department is included without members.', example='30001,30002'),
+  memberUserIds?: string(name='memberUserIds', description='Optional. Filters by member IDs, separated by commas. If not specified, the department and all its members are included. If an empty value is specified, only the department is included without members.', example='30001,30002'),
   modelId?: long(name='modelId', description='The model ID used to filter results.', example='1'),
   startTime?: string(name='startTime', description='The custom start time.', example='2024-01-01T00:00:00Z'),
   timeRange?: string(name='timeRange', description='The time range for the query. Valid values: 1h, 6h, 24h, 7d, and 30d.', example='24h'),
@@ -10122,6 +10283,9 @@ async function modelRouterQueryObservationChartsWithOptions(request: ModelRouter
   }
   if (!Util.isUnset(request.clientId)) {
     query['clientId'] = request.clientId;
+  }
+  if (!Util.isUnset(request.clientIds)) {
+    query['clientIds'] = request.clientIds;
   }
   if (!Util.isUnset(request.endTime)) {
     query['endTime'] = request.endTime;
@@ -10170,13 +10334,14 @@ async function modelRouterQueryObservationCharts(request: ModelRouterQueryObserv
 }
 
 model ModelRouterQueryObservationLogsRequest {
-  apiKeyId?: long(name='apiKeyId', description='The API key ID used to filter the results.', example='1'),
-  clientId?: long(name='clientId', description='The client ID used to filter the results.', example='1'),
+  apiKeyId?: long(name='apiKeyId', description='The API key ID used to filter results.', example='1'),
+  clientId?: long(name='clientId', description='The client ID used to filter results.', example='1'),
+  clientIds?: string(name='clientIds', description='The list of department IDs, separated by commas. You can query data for multiple departments. This parameter is mutually exclusive with client_id.', example='1,2,3'),
   endTime?: string(name='endTime', description='The custom end time.', example='2024-01-02T00:00:00Z'),
   groupBy?: string(name='groupBy', description='The field by which to group the results.', example='resourceId'),
   maxResults?: int32(name='maxResults', description='The maximum number of results to return.', example='10'),
-  memberUserIds?: string(name='memberUserIds', description='Optional. Filters results by member IDs. Separate multiple member IDs with commas. If this parameter is not specified, results for the department and all its members are returned. If an empty value is specified, results for only the department are returned, excluding members.', example='30001,30002'),
-  modelId?: long(name='modelId', description='The model ID used to filter the results.', example='1'),
+  memberUserIds?: string(name='memberUserIds', description='Optional. Filters results by member user IDs, separated by commas. If not specified, data for the department and all its members is returned. If an empty value is specified, only department data without member data is returned.', example='30001,30002'),
+  modelId?: long(name='modelId', description='The model ID used to filter results.', example='1'),
   needTotalCount?: boolean(name='needTotalCount', description='Specifies whether to return the total count.', example='true'),
   nextToken?: string(name='nextToken', description='The pagination token. An empty value indicates that no more pages are available.', example='1'),
   orderBy?: string(name='orderBy', description='The field by which to sort the results.', example='resourceId'),
@@ -10184,19 +10349,19 @@ model ModelRouterQueryObservationLogsRequest {
   pageIndex?: int32(name='pageIndex', description='The page number.', example='1'),
   pageSize?: int32(name='pageSize', description='The number of entries per page.', example='10'),
   startTime?: string(name='startTime', description='The custom start time.', example='2024-01-01T00:00:00Z'),
-  timeRange?: string(name='timeRange', description='The time range for the query. Valid values: 1h, 6h, 24h, 7d, 30d.', example='24h'),
+  timeRange?: string(name='timeRange', description='The time range for the query. Valid values: 1h, 6h, 24h, 7d, and 30d.', example='24h'),
 }
 
 model ModelRouterQueryObservationLogsResponseBody = {
   data?: {
     list?: [
       RequestLogDTO
-    ](name='list'),
-    maxResults?: int32(name='maxResults', example='1'),
-    nextToken?: int32(name='nextToken', example='0'),
-    page?: int32(name='page', example='1'),
-    pageSize?: int32(name='pageSize', example='1'),
-    total?: int32(name='total', example='None'),
+    ](name='list', description='The list of log data.'),
+    maxResults?: int32(name='maxResults', description='maxResults', example='1'),
+    nextToken?: int32(name='nextToken', description='The token for the next query.', example='0'),
+    page?: int32(name='page', description='The page number.', example='1'),
+    pageSize?: int32(name='pageSize', description='The number of entries returned per page. Default value: 10. Maximum value: 50.', example='1'),
+    total?: int32(name='total', description='The total number of entries.', example='None'),
   }(name='data', description='The data object.', example='[]'),
   errCode?: string(name='errCode', description='The fault code.', example='UNKNOWN_ERROR'),
   errMessage?: string(name='errMessage', description='The error message.', example='Unknown error'),
@@ -10214,7 +10379,7 @@ model ModelRouterQueryObservationLogsResponse = {
 }
 
 /**
- * @summary Retrieves a list of model observation logs.
+ * @summary Retrieves a list of observation logs for model monitoring.
  *
  * @param request ModelRouterQueryObservationLogsRequest
  * @param headers map
@@ -10229,6 +10394,9 @@ async function modelRouterQueryObservationLogsWithOptions(request: ModelRouterQu
   }
   if (!Util.isUnset(request.clientId)) {
     query['clientId'] = request.clientId;
+  }
+  if (!Util.isUnset(request.clientIds)) {
+    query['clientIds'] = request.clientIds;
   }
   if (!Util.isUnset(request.endTime)) {
     query['endTime'] = request.endTime;
@@ -10289,7 +10457,7 @@ async function modelRouterQueryObservationLogsWithOptions(request: ModelRouterQu
 }
 
 /**
- * @summary Retrieves a list of model observation logs.
+ * @summary Retrieves a list of observation logs for model monitoring.
  *
  * @param request ModelRouterQueryObservationLogsRequest
  * @return ModelRouterQueryObservationLogsResponse
@@ -10301,13 +10469,14 @@ async function modelRouterQueryObservationLogs(request: ModelRouterQueryObservat
 }
 
 model ModelRouterQueryObservationMetricsRequest {
-  apiKeyId?: long(name='apiKeyId', description='The API key ID used to filter the results.', example='1'),
-  clientId?: long(name='clientId', description='The client ID used to filter the results.', example='1'),
+  apiKeyId?: long(name='apiKeyId', description='The API key ID used to filter results.', example='1'),
+  clientId?: long(name='clientId', description='The client ID used to filter results.', example='1'),
+  clientIds?: string(name='clientIds', description='The list of department IDs, separated by commas. You can query data for multiple departments. This parameter is mutually exclusive with client_id.', example='1,2,3'),
   endTime?: string(name='endTime', description='The custom end time.', example='2024-01-02T00:00:00Z'),
   groupBy?: string(name='groupBy', description='The field by which to group the results.', example='resourceId'),
   maxResults?: int32(name='maxResults', description='The maximum number of results to return.', example='10'),
-  memberUserIds?: string(name='memberUserIds', description='Optional. Filters by member IDs. Separate multiple IDs with commas. If not specified, the department and all its members are included. If an empty value is specified, only the department is included without members.', example='30001,30002'),
-  modelId?: long(name='modelId', description='The model ID used to filter the results.', example='1'),
+  memberUserIds?: string(name='memberUserIds', description='Optional. Filters by member IDs, separated by commas. If not specified, the department and all its members are included. If an empty value is specified, only the department is included without members.', example='30001,30002'),
+  modelId?: long(name='modelId', description='The model ID used to filter results.', example='1'),
   needTotalCount?: boolean(name='needTotalCount', description='Specifies whether to return the total count.', example='true'),
   nextToken?: string(name='nextToken', description='The token for the next query. An empty value indicates the last page.', example='2'),
   orderBy?: string(name='orderBy', description='The field by which to sort the results.', example='resourceId'),
@@ -10315,7 +10484,7 @@ model ModelRouterQueryObservationMetricsRequest {
   pageIndex?: int32(name='pageIndex', description='The page number.', example='1'),
   pageSize?: int32(name='pageSize', description='The number of entries per page.', example='10'),
   startTime?: string(name='startTime', description='The custom start time.', example='2024-01-01T00:00:00Z'),
-  timeRange?: string(name='timeRange', description='The time range for the query. Valid values: 1h, 6h, 24h, 7d, 30d.', example='24h'),
+  timeRange?: string(name='timeRange', description='The time range for the query. Valid values: 1h, 6h, 24h, 7d, and 30d.', example='24h'),
 }
 
 model ModelRouterQueryObservationMetricsResponseBody = {
@@ -10334,7 +10503,7 @@ model ModelRouterQueryObservationMetricsResponse = {
 }
 
 /**
- * @summary Retrieves observability metric data for models.
+ * @summary Retrieves observability metric data for model API calls.
  *
  * @param request ModelRouterQueryObservationMetricsRequest
  * @param headers map
@@ -10349,6 +10518,9 @@ async function modelRouterQueryObservationMetricsWithOptions(request: ModelRoute
   }
   if (!Util.isUnset(request.clientId)) {
     query['clientId'] = request.clientId;
+  }
+  if (!Util.isUnset(request.clientIds)) {
+    query['clientIds'] = request.clientIds;
   }
   if (!Util.isUnset(request.endTime)) {
     query['endTime'] = request.endTime;
@@ -10409,7 +10581,7 @@ async function modelRouterQueryObservationMetricsWithOptions(request: ModelRoute
 }
 
 /**
- * @summary Retrieves observability metric data for models.
+ * @summary Retrieves observability metric data for model API calls.
  *
  * @param request ModelRouterQueryObservationMetricsRequest
  * @return ModelRouterQueryObservationMetricsResponse
@@ -10421,20 +10593,21 @@ async function modelRouterQueryObservationMetrics(request: ModelRouterQueryObser
 }
 
 model ModelRouterQueryUsageBreakdownRequest {
-  apiKeyId?: long(name='apiKeyId', description='Optional. Filters results by API Key ID. This parameter is linked to the department and requires clientId to be specified first.', example='100'),
+  apiKeyId?: long(name='apiKeyId', description='Optional. Filters results by API key ID. This parameter is linked to the department and requires clientId to be specified first.', example='100'),
   clientId?: long(name='clientId', description='Optional. Filters results by department ID.', example='1'),
-  endTime?: long(name='endTime', description='The query end time, in UNIX timestamp format (seconds).
+  clientIds?: string(name='clientIds', description='The list of department IDs, separated by commas. Supports querying data for multiple departments. This parameter is mutually exclusive with clientId.', example='1,2,3'),
+  endTime?: long(name='endTime', description='The query end time, in UNIX timestamp (seconds).
 
 This parameter is required.', example='1700086400'),
   granularity?: string(name='granularity', description='The aggregation granularity. Valid values: hourly and daily.
 
 This parameter is required.', example='hourly'),
   maxResults?: int32(name='maxResults', description='The maximum number of results to return.', example='20'),
-  memberUserIds?: string(name='memberUserIds', description='Optional. Filters results by members (member IDs, separated by commas). If not specified, the department and all its members are included. If an empty value is specified, only the department is included without members.', example='30001,30002'),
+  memberUserIds?: string(name='memberUserIds', description='Optional. Filters results by member IDs, separated by commas. If not specified, the department and all its members are included. If an empty value is passed, only the department is included without members.', example='30001,30002'),
   nextToken?: string(name='nextToken', description='The pagination token.', example='xxxx-xxx-xxxxx'),
   page?: int32(name='page', description='The page number. Default value: 1.', example='1'),
   pageSize?: int32(name='pageSize', description='The number of entries per page. Default value: 20. Maximum value: 500.', example='20'),
-  startTime?: long(name='startTime', description='The query start time, in UNIX timestamp format (seconds).
+  startTime?: long(name='startTime', description='The query start time, in UNIX timestamp (seconds).
 
 This parameter is required.', example='1700000000'),
 }
@@ -10472,6 +10645,9 @@ async function modelRouterQueryUsageBreakdownWithOptions(request: ModelRouterQue
   }
   if (!Util.isUnset(request.clientId)) {
     query['clientId'] = request.clientId;
+  }
+  if (!Util.isUnset(request.clientIds)) {
+    query['clientIds'] = request.clientIds;
   }
   if (!Util.isUnset(request.endTime)) {
     query['endTime'] = request.endTime;
