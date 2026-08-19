@@ -938,6 +938,11 @@ model TensorboardSpec {
   vpcId?: string(name='VpcId', description='The ID of the virtual private cloud (VPC) configured for the pay-as-you-go Tensorboard task.', example='vpc-xxxx'),
 }
 
+model TokenSettings {
+  enableCrossAccountAccess?: boolean(name='EnableCrossAccountAccess'),
+  enableLogDownloadJob?: boolean(name='EnableLogDownloadJob'),
+}
+
 model Workspace {
   creator?: string(name='Creator', example='ken'),
   gmtCreateTime?: string(name='GmtCreateTime', example='2021-01-12T14:36:01Z'),
@@ -3047,14 +3052,15 @@ async function getTensorboardSharedUrl(TensorboardId: string, request: GetTensor
 }
 
 model GetTokenRequest {
-  expireTime?: long(name='ExpireTime', description='The time when the share link expires. Default value: 604800. Minimum value: 0. Unit: seconds.', example='60'),
-  targetId?: string(name='TargetId', description='The ID of the job to be shared.', example='dlc*******'),
-  targetType?: string(name='TargetType', description='The type of the job that you want to share. Valid values: job and tensorboard.', example='job'),
+  expireTime?: long(name='ExpireTime', description='The expiration time of the sharing link in seconds. Default value: 604800. Minimum value: 0.', example='60'),
+  targetId?: string(name='TargetId', description='The ID of the task to share.', example='dlc*******'),
+  targetType?: string(name='TargetType', description='The type of the task to share. Valid values: job and tensorboard.', example='job'),
+  tokenSettings?: TokenSettings(name='TokenSettings'),
 }
 
 model GetTokenResponseBody = {
-  requestId?: string(name='RequestId', description='The request ID, which is used to troubleshoot issues.', example='473469C7-AA6F-4DC5-B3DB-xxxxxxxx'),
-  token?: string(name='Token', description='The sharing token, used to view the information about the shared job.', example='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9*****'),
+  requestId?: string(name='RequestId', description='The request ID, which is used for diagnostics and troubleshooting.', example='473469C7-AA6F-4DC5-B3DB-xxxxxxxx'),
+  token?: string(name='Token', description='The task sharing token, which can be used to view information about the shared task.', example='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9*****'),
 }
 
 model GetTokenResponse = {
@@ -3064,7 +3070,7 @@ model GetTokenResponse = {
 }
 
 /**
- * @summary Obtains the sharing token of a DLC job. This token is used to view the information about the shared job.
+ * @summary Retrieves a sharing token for a DLC job, which is used to view information about the shared task.
  *
  * @param request GetTokenRequest
  * @param headers map
@@ -3083,6 +3089,9 @@ async function getTokenWithOptions(request: GetTokenRequest, headers: map[string
   }
   if (!$isNull(request.targetType)) {
     query['TargetType'] = request.targetType;
+  }
+  if (!$isNull(request.tokenSettings)) {
+    query['TokenSettings'] = request.tokenSettings;
   }
 
   var req = new OpenApiUtil.OpenApiRequest{ 
@@ -3104,7 +3113,7 @@ async function getTokenWithOptions(request: GetTokenRequest, headers: map[string
 }
 
 /**
- * @summary Obtains the sharing token of a DLC job. This token is used to view the information about the shared job.
+ * @summary Retrieves a sharing token for a DLC job, which is used to view information about the shared task.
  *
  * @param request GetTokenRequest
  * @return GetTokenResponse
