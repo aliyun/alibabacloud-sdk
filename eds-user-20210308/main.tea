@@ -1323,10 +1323,11 @@ async function describeOrgByLayer(request: DescribeOrgByLayerRequest): DescribeO
 model DescribeOrgsRequest {
   businessChannel?: string(name='BusinessChannel', description='The channel.', example='ENTERPRISE'),
   includeOrgIds?: [ string ](name='IncludeOrgIds'),
-  maxResults?: long(name='MaxResults', description='The maximum number of entries to return. Valid values: 1 to 100.<br>
-Default value: 100.<br>', example='20'),
-  nextToken?: string(name='NextToken', description='The pagination token. To retrieve the next page of results, set this parameter to the `NextToken` value that was returned from a previous request.', example='AAAAAV3MpHK****'),
-  orgName?: string(name='OrgName', description='The organization name.', example='产品部'),
+  isQueryAllSubOrgs?: boolean(name='IsQueryAllSubOrgs', description='Specifies whether to query all subordinate organizations when a parent organization is specified.'),
+  maxResults?: long(name='MaxResults', description='The maximum number of results to return. Valid values: 1 to 100.    
+Default value: 100.', example='20'),
+  nextToken?: string(name='NextToken', description='The pagination token. Set this parameter to the value of NextToken that was returned in the previous API call.', example='AAAAAV3MpHK****'),
+  orgName?: string(name='OrgName', description='The organization name.', example='ProductDepartment'),
   parentOrgId?: string(name='ParentOrgId', description='The parent organization ID.', example='org-11fs****'),
   showExtras?: map[string]any(name='ShowExtras'),
 }
@@ -1334,20 +1335,24 @@ Default value: 100.<br>', example='20'),
 model DescribeOrgsShrinkRequest {
   businessChannel?: string(name='BusinessChannel', description='The channel.', example='ENTERPRISE'),
   includeOrgIds?: [ string ](name='IncludeOrgIds'),
-  maxResults?: long(name='MaxResults', description='The maximum number of entries to return. Valid values: 1 to 100.<br>
-Default value: 100.<br>', example='20'),
-  nextToken?: string(name='NextToken', description='The pagination token. To retrieve the next page of results, set this parameter to the `NextToken` value that was returned from a previous request.', example='AAAAAV3MpHK****'),
-  orgName?: string(name='OrgName', description='The organization name.', example='产品部'),
+  isQueryAllSubOrgs?: boolean(name='IsQueryAllSubOrgs', description='Specifies whether to query all subordinate organizations when a parent organization is specified.'),
+  maxResults?: long(name='MaxResults', description='The maximum number of results to return. Valid values: 1 to 100.    
+Default value: 100.', example='20'),
+  nextToken?: string(name='NextToken', description='The pagination token. Set this parameter to the value of NextToken that was returned in the previous API call.', example='AAAAAV3MpHK****'),
+  orgName?: string(name='OrgName', description='The organization name.', example='ProductDepartment'),
   parentOrgId?: string(name='ParentOrgId', description='The parent organization ID.', example='org-11fs****'),
   showExtrasShrink?: string(name='ShowExtras'),
 }
 
 model DescribeOrgsResponseBody = {
-  nextToken?: string(name='NextToken', description='The token used to retrieve the next page of results. If this parameter is not empty, more results are available. To retrieve the next page, pass this value in the `NextToken` parameter of a subsequent request.', example='AAAAAV3MpHK****'),
+  nextToken?: string(name='NextToken', description='The pagination token. Set this parameter to the value of NextToken that was returned in the previous API call.', example='AAAAAV3MpHK****'),
   orgs?: [ 
     {
+      accessType?: string(name='AccessType', description='The access type of the organization node. Valid values:
+- MANAGEABLE: indicates a manageable node.
+- PATH_ONLY: indicates a node used only to display the full path to the root organization.'),
       orgId?: string(name='OrgId', description='The organization ID.', example='org-1mox****'),
-      orgName?: string(name='OrgName', description='The organization name.', example='设计部****'),
+      orgName?: string(name='OrgName', description='The organization name.', example='DesignDepartment****'),
       orgNamePath?: string(name='OrgNamePath'),
       parentOrgId?: string(name='ParentOrgId', description='The parent organization ID.', example='org-ezqr****'),
       resourcePolicyList?: [ 
@@ -1357,7 +1362,7 @@ model DescribeOrgsResponseBody = {
         }
       ](name='ResourcePolicyList'),
     }
-  ](name='Orgs', description='The organization list.'),
+  ](name='Orgs', description='The list of organizations.'),
   requestId?: string(name='RequestId', description='The request ID.', example='0B4BB****'),
 }
 
@@ -1368,9 +1373,9 @@ model DescribeOrgsResponse = {
 }
 
 /**
- * @summary Queries a list of organizations.
+ * @summary Queries the list of organizations.
  *
- * @description Organizations are arranged in a tree-like structure. The root organization ID is org-aliyun-wy-org-id.
+ * @description Organizations have a tree structure. The root organization ID is org-aliyun-wy-org-id.
  *
  * @param tmpReq DescribeOrgsRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -1389,6 +1394,9 @@ async function describeOrgsWithOptions(tmpReq: DescribeOrgsRequest, runtime: Uti
   }
   if (!Util.isUnset(request.includeOrgIds)) {
     query['IncludeOrgIds'] = request.includeOrgIds;
+  }
+  if (!Util.isUnset(request.isQueryAllSubOrgs)) {
+    query['IsQueryAllSubOrgs'] = request.isQueryAllSubOrgs;
   }
   if (!Util.isUnset(request.maxResults)) {
     query['MaxResults'] = request.maxResults;
@@ -1423,9 +1431,9 @@ async function describeOrgsWithOptions(tmpReq: DescribeOrgsRequest, runtime: Uti
 }
 
 /**
- * @summary Queries a list of organizations.
+ * @summary Queries the list of organizations.
  *
- * @description Organizations are arranged in a tree-like structure. The root organization ID is org-aliyun-wy-org-id.
+ * @description Organizations have a tree structure. The root organization ID is org-aliyun-wy-org-id.
  *
  * @param request DescribeOrgsRequest
  * @return DescribeOrgsResponse
@@ -1655,65 +1663,64 @@ async function describeUser(request: DescribeUserRequest): DescribeUserResponse 
 
 model DescribeUsersRequest {
   bizType?: string(name='BizType'),
-  businessChannel?: string(name='BusinessChannel', description='Status', example='ENTERPRISE'),
-  endUserIds?: [ string ](name='EndUserIds', description='The list of usernames (EndUserId) that you want to exactly match.'),
-  excludeEndUserIds?: [ string ](name='ExcludeEndUserIds', description='The list of usernames (EndUserId) that you want to exactly exclude.'),
-  excludeGroupId?: string(name='ExcludeGroupId', description='The ID of the user group to exclude. If specified, the query returns users who are not in this user group.'),
-  filter?: string(name='Filter', description='The filter for a fuzzy search. The filter matches usernames (EndUserId) and email addresses (Email). This parameter supports the wildcard character (\\\\*). For example, if you set this parameter to `a*m`, all results whose usernames or email addresses start with `a` and end with `m` are returned.', example='a*m'),
+  businessChannel?: string(name='BusinessChannel', description='The channel.', example='ENTERPRISE'),
+  endUserIds?: [ string ](name='EndUserIds', description='The list of usernames (EndUserId) for exact match.'),
+  excludeEndUserIds?: [ string ](name='ExcludeEndUserIds', description='The list of usernames (EndUserId) to exclude exactly.'),
+  excludeGroupId?: string(name='ExcludeGroupId'),
+  filter?: string(name='Filter', description='The fuzzy search string that supports matching by username (EndUserId) and email (Email). This field supports wildcards (*). For example, if you set this field to `a*m`, all results whose username or email starts with `a` and ends with `m` are returned.', example='a*m'),
   filterMap?: map[string]string(name='FilterMap'),
-  filterWithAssignedResource?: map[string]string(name='FilterWithAssignedResource', description='Filters users by whether a cloud resource is assigned.'),
-  filterWithAssignedResources?: map[string]boolean(name='FilterWithAssignedResources', description='> This parameter is not available to the public.'),
-  groupId?: string(name='GroupId', description='Performs an exact match by user group ID to query the list of accounts that belong to the user group.', example='ug-12341234****'),
-  isQueryAllSubOrgs?: boolean(name='IsQueryAllSubOrgs', description='Queries extended information about the user.', example='true'),
-  maxResults?: long(name='MaxResults', description='The number of entries to return on each page.
+  filterWithAssignedResource?: map[string]string(name='FilterWithAssignedResource'),
+  filterWithAssignedResources?: map[string]boolean(name='FilterWithAssignedResources', description='Filters users based on whether cloud resources are assigned.'),
+  groupId?: string(name='GroupId', description='Performs an exact match by user group ID and queries the list of accounts that belong to the specified user group.', example='ug-12341234****'),
+  isQueryAllSubOrgs?: boolean(name='IsQueryAllSubOrgs', description='Specifies whether to query users in sub-organizations.', example='true'),
+  maxResults?: long(name='MaxResults', description='The number of entries per page for a paged query.  
 
-- Valid values: 1 to 500.
-
+- Valid values: 1 to 500.  
 - Default value: 200.', example='10'),
-  nextToken?: string(name='NextToken', description='The token that is used to start the next query. If the number of entries returned exceeds the value of MaxResults, a token is returned. You can use this token in the next query to continue the query.', example='caeba0bbb2be03f84eb48b699f0a****'),
-  orgId?: string(name='OrgId', description='Performs an exact match by organization ID to query the list of accounts that belong to the organization.', example='org-4mdgc1cocc59z****'),
-  showExtras?: map[string]any(name='ShowExtras', description='> This parameter is not available to the public.'),
+  nextToken?: string(name='NextToken', description='The pagination token for the next query. You do not need to set this parameter for the first request. If not all results are returned in a single query, a non-empty NextToken is returned. You can pass the returned NextToken in subsequent requests to continue the query.', example='caeba0bbb2be03f84eb48b699f0a****'),
+  orgId?: string(name='OrgId', description='Performs an exact match by organization ID and queries the list of accounts that belong to the specified organization.', example='org-4mdgc1cocc59z****'),
+  showExtras?: map[string]any(name='ShowExtras', description='Queries extended user information.'),
   solutionId?: string(name='SolutionId'),
-  status?: int32(name='Status', description='Specifies whether to query users in suborganizations.'),
+  status?: int32(name='Status', description='The status.'),
 }
 
 model DescribeUsersShrinkRequest {
   bizType?: string(name='BizType'),
-  businessChannel?: string(name='BusinessChannel', description='Status', example='ENTERPRISE'),
-  endUserIds?: [ string ](name='EndUserIds', description='The list of usernames (EndUserId) that you want to exactly match.'),
-  excludeEndUserIds?: [ string ](name='ExcludeEndUserIds', description='The list of usernames (EndUserId) that you want to exactly exclude.'),
-  excludeGroupId?: string(name='ExcludeGroupId', description='The ID of the user group to exclude. If specified, the query returns users who are not in this user group.'),
-  filter?: string(name='Filter', description='The filter for a fuzzy search. The filter matches usernames (EndUserId) and email addresses (Email). This parameter supports the wildcard character (\\\\*). For example, if you set this parameter to `a*m`, all results whose usernames or email addresses start with `a` and end with `m` are returned.', example='a*m'),
+  businessChannel?: string(name='BusinessChannel', description='The channel.', example='ENTERPRISE'),
+  endUserIds?: [ string ](name='EndUserIds', description='The list of usernames (EndUserId) for exact match.'),
+  excludeEndUserIds?: [ string ](name='ExcludeEndUserIds', description='The list of usernames (EndUserId) to exclude exactly.'),
+  excludeGroupId?: string(name='ExcludeGroupId'),
+  filter?: string(name='Filter', description='The fuzzy search string that supports matching by username (EndUserId) and email (Email). This field supports wildcards (*). For example, if you set this field to `a*m`, all results whose username or email starts with `a` and ends with `m` are returned.', example='a*m'),
   filterMapShrink?: string(name='FilterMap'),
-  filterWithAssignedResourceShrink?: string(name='FilterWithAssignedResource', description='Filters users by whether a cloud resource is assigned.'),
-  filterWithAssignedResourcesShrink?: string(name='FilterWithAssignedResources', description='> This parameter is not available to the public.'),
-  groupId?: string(name='GroupId', description='Performs an exact match by user group ID to query the list of accounts that belong to the user group.', example='ug-12341234****'),
-  isQueryAllSubOrgs?: boolean(name='IsQueryAllSubOrgs', description='Queries extended information about the user.', example='true'),
-  maxResults?: long(name='MaxResults', description='The number of entries to return on each page.
+  filterWithAssignedResourceShrink?: string(name='FilterWithAssignedResource'),
+  filterWithAssignedResourcesShrink?: string(name='FilterWithAssignedResources', description='Filters users based on whether cloud resources are assigned.'),
+  groupId?: string(name='GroupId', description='Performs an exact match by user group ID and queries the list of accounts that belong to the specified user group.', example='ug-12341234****'),
+  isQueryAllSubOrgs?: boolean(name='IsQueryAllSubOrgs', description='Specifies whether to query users in sub-organizations.', example='true'),
+  maxResults?: long(name='MaxResults', description='The number of entries per page for a paged query.  
 
-- Valid values: 1 to 500.
-
+- Valid values: 1 to 500.  
 - Default value: 200.', example='10'),
-  nextToken?: string(name='NextToken', description='The token that is used to start the next query. If the number of entries returned exceeds the value of MaxResults, a token is returned. You can use this token in the next query to continue the query.', example='caeba0bbb2be03f84eb48b699f0a****'),
-  orgId?: string(name='OrgId', description='Performs an exact match by organization ID to query the list of accounts that belong to the organization.', example='org-4mdgc1cocc59z****'),
-  showExtrasShrink?: string(name='ShowExtras', description='> This parameter is not available to the public.'),
+  nextToken?: string(name='NextToken', description='The pagination token for the next query. You do not need to set this parameter for the first request. If not all results are returned in a single query, a non-empty NextToken is returned. You can pass the returned NextToken in subsequent requests to continue the query.', example='caeba0bbb2be03f84eb48b699f0a****'),
+  orgId?: string(name='OrgId', description='Performs an exact match by organization ID and queries the list of accounts that belong to the specified organization.', example='org-4mdgc1cocc59z****'),
+  showExtrasShrink?: string(name='ShowExtras', description='Queries extended user information.'),
   solutionId?: string(name='SolutionId'),
-  status?: int32(name='Status', description='Specifies whether to query users in suborganizations.'),
+  status?: int32(name='Status', description='The status.'),
 }
 
 model DescribeUsersResponseBody = {
-  nextToken?: string(name='NextToken', description='The token to start the next query. If this parameter is empty, all results have been returned.', example='caeba0bbb2be03f84eb48b699f0a4883'),
+  count?: int32(name='Count', description='The total number of users that meet the query conditions'),
+  nextToken?: string(name='NextToken', description='The pagination token for the next query. An empty NextToken indicates that no more results exist.', example='caeba0bbb2be03f84eb48b699f0a4883'),
   requestId?: string(name='RequestId', description='The request ID.', example='1CBAFFAB-B697-4049-A9B1-67E1FC5F****'),
   users?: [ 
     {
-      address?: string(name='Address', description='The work address of the user.', example='杭州市***'),
-      avatar?: string(name='Avatar', description='The URL of the user\\\\"s avatar.', example='https://cdn.*****'),
+      address?: string(name='Address', description='The work address of the user.', example='Hangzhou ***'),
+      avatar?: string(name='Avatar', description='The URL of the user\\\\"s profile picture.', example='https://cdn.*****'),
       email?: string(name='Email', description='The email address.', example='username@example.com'),
-      enableAdminAccess?: boolean(name='EnableAdminAccess', description='Indicates whether administrator access is enabled.'),
-      endUserId?: string(name='EndUserId', description='The end user ID.', example='alice'),
-      externalName?: string(name='ExternalName', description='The name of the user imported from an external system.
+      enableAdminAccess?: boolean(name='EnableAdminAccess', description='Indicates whether administrator access permissions are enabled.'),
+      endUserId?: string(name='EndUserId', description='The username.', example='alice'),
+      externalName?: string(name='ExternalName', description='The username imported from an external source.
 
-> This parameter is for internal use only.', example='马**'),
+> This field is not publicly available.', example='Ma**'),
       extras?: {
         assignedResourceCount?: map[string]any(name='AssignedResourceCount', description='The number of assigned cloud resources.'),
         resourcePolicyList?: [ 
@@ -1722,54 +1729,48 @@ model DescribeUsersResponseBody = {
             policyName?: string(name='PolicyName'),
           }
         ](name='ResourcePolicyList'),
-      }(name='Extras', description='The extended properties of the user.'),
+      }(name='Extras', description='The extended user information.'),
       groups?: [ 
         {
-          groupId?: string(name='GroupId', description='The ID of the user group.', example='ug-12341234****'),
-          groupName?: string(name='GroupName', description='The name of the user group.', example='用户组1'),
+          groupId?: string(name='GroupId', description='The user group ID.', example='ug-12341234****'),
+          groupName?: string(name='GroupName', description='The user group name.', example='UserGroup1'),
         }
-      ](name='Groups', description='The user groups to which the convenience account belongs.'),
-      id?: long(name='Id', description='The ID of the convenience account.', example='4205**'),
-      isTenantManager?: boolean(name='IsTenantManager', description='Indicates whether the user is a tenant manager. When you create a convenience account of the `CreateFromManager` type, you must specify a tenant manager. Notifications, such as password resets initiated by an end user from a client, are sent to the tenant manager\\\\"s email or mobile phone. For more information, see [Create a convenience account](https://help.aliyun.com/document_detail/214472.html).', example='true'),
-      jobNumber?: string(name='JobNumber', description='The employee ID.', example='A10000**'),
-      nickName?: string(name='NickName', description='The nickname of the user.<br>
-The value is determined from the following parameters, in order of priority:<br>
-
-- `RealNickName`
-
-- `Remark`
-
-- `EndUserId`', example='李**'),
-      orgId?: string(name='OrgId', description='The ID of the organization to which the convenience account belongs.
-
-> This parameter is deprecated and may be removed in a future release.', example='org-4mdgc1cocc59z****'),
+      ](name='Groups', description='The collection of user groups to which the convenience account belongs.'),
+      id?: long(name='Id', description='The convenience account ID.', example='4205**'),
+      isTenantManager?: boolean(name='IsTenantManager', description='Indicates whether the user is a user administrator. If the convenience account is of the administrator-activated type, a user administrator must be specified. Notifications such as password resets initiated by end users through the client are sent to the user administrator\\\\"s email or phone. For more information, see [Create a convenience account](https://help.aliyun.com/document_detail/214472.html).', example='true'),
+      jobNumber?: string(name='JobNumber', description='The employee ID of the user.', example='A10000**'),
+      nickName?: string(name='NickName', description='The nickname of the user. The value is determined in the following order:
+- RealNickName
+- Remark
+- EndUserId', example='Li**'),
+      orgId?: string(name='OrgId', description='The department ID to which the convenience account belongs.
+> This parameter will be deprecated soon.', example='org-4mdgc1cocc59z****'),
       orgs?: [ 
         {
-          orgId?: string(name='OrgId', description='The ID of the organization.', example='org-4mdgc1cocc59z****'),
-          orgName?: string(name='OrgName', description='The name of the organization.', example='部门1'),
+          orgId?: string(name='OrgId', description='The department ID.', example='org-4mdgc1cocc59z****'),
+          orgName?: string(name='OrgName', description='The department name.', example='Department1'),
           orgNamePath?: string(name='OrgNamePath'),
         }
-      ](name='Orgs', description='The organizations to which the convenience account belongs.'),
-      ownerType?: string(name='OwnerType', description='The type of the convenience account. The account can be activated in one of the following ways:
+      ](name='Orgs', description='The collection of departments to which the convenience account belongs.'),
+      ownerType?: string(name='OwnerType', description='The convenience account type, which includes:
 
-- Tenant manager-activated: The tenant manager sets the username and password. Notifications such as password resets are sent to the tenant manager\\\\"s email address or mobile phone.
-
-- End user-activated: The tenant manager sets the username and the end user\\\\"s email address or mobile phone. Notifications for the end user, such as the initial password for the cloud desktop, are sent to the end user\\\\"s email address or mobile phone.', example='Normal'),
+* Administrator-activated type: The administrator sets the username and password. User notifications such as password resets are sent to the administrator\\\\"s email or phone.
+* User-activated type: The administrator sets the username and the user\\\\"s email or phone for receiving notifications. User notifications such as cloud computer provisioning notifications (including the initial password) are sent to the user\\\\"s email or phone.', example='Normal'),
       passwordExpireDays?: int32(name='PasswordExpireDays'),
       passwordExpireRestDays?: int32(name='PasswordExpireRestDays'),
-      phone?: string(name='Phone', description='The phone number. This parameter is returned only if a phone number is set.', example='1381111****'),
+      phone?: string(name='Phone', description='The phone number. This parameter is not returned if it is not set.', example='1381111****'),
       properties?: [ 
         {
-          key?: string(name='Key', description='The property key.', example='Role'),
+          key?: string(name='Key', description='The property name.', example='Role'),
           value?: string(name='Value', description='The property value.', example='Student'),
         }
-      ](name='Properties', description='A list of custom properties for the user.'),
-      realNickName?: string(name='RealNickName', description='The display name of the user.', example='李**'),
-      remark?: string(name='Remark', description='The note about the convenience account.', example='Test user.'),
-      status?: long(name='Status', description='The status of the convenience account.', example='0'),
+      ](name='Properties', description='The user properties.'),
+      realNickName?: string(name='RealNickName', description='The display name of the user.', example='Li**'),
+      remark?: string(name='Remark', description='The remark of the convenience account.', example='Test user.'),
+      status?: long(name='Status', description='The status.', example='0'),
       wyId?: string(name='WyId', description='The globally unique ID of the convenience account.', example='41fd1254d8f7****'),
     }
-  ](name='Users', description='The details of the convenience accounts.'),
+  ](name='Users', description='The collection of convenience account information.'),
 }
 
 model DescribeUsersResponse = {
@@ -1779,7 +1780,7 @@ model DescribeUsersResponse = {
 }
 
 /**
- * @summary Retrieves directory account information, including the username, email address, and display name.
+ * @summary Queries convenience account information, such as usernames, email addresses, and remarks.
  *
  * @param tmpReq DescribeUsersRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -1873,7 +1874,7 @@ async function describeUsersWithOptions(tmpReq: DescribeUsersRequest, runtime: U
 }
 
 /**
- * @summary Retrieves directory account information, including the username, email address, and display name.
+ * @summary Queries convenience account information, such as usernames, email addresses, and remarks.
  *
  * @param request DescribeUsersRequest
  * @return DescribeUsersResponse
