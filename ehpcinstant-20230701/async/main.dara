@@ -394,15 +394,21 @@ model CreatePoolRequest {
 *   The name can be up to 15 characters in length.
 *   It can contain digits, uppercase letters, lowercase letters, underscores (_), and dots (.).
 
-This parameter is required.', example='PoolTest', maxLength=32, position='Query'),
+This parameter is required.', example='PoolTest', position='Query'),
   priority?: int32(name='Priority', description='The priority of the resource pool.
 
 *   You can set a priority in the range of 1 to 99. The default value is 1, which is the lowest priority.
 *   Jobs submitted to a resource pool with a higher priority level value will be scheduled before pending jobs in a resource pool with a lower priority level value, and the priority level of the resource pool takes precedence over the priority of the job.', example='1', position='Query'),
   resourceLimits?: {
-    maxExecutorNum?: int32(name='MaxExecutorNum'),
+    maxExecutorNum?: int32(name='MaxExecutorNum', example='2000'),
   }(name='ResourceLimits', description='The quota of resources that users are allowed to concurrently use in a resource pool.', shrink='json', position='Query'),
   schedulingPolicyId?: string(name='SchedulingPolicyId', example='policy-xxx', position='Query'),
+  tags?: [ 
+    {
+      key?: string(name='Key', example='TestKey'),
+      value?: string(name='Value', example='TestValue'),
+    }
+  ](name='Tags', shrink='json', position='Query'),
 }
 
 model CreatePoolResponseBody = {
@@ -1022,12 +1028,13 @@ This parameter is required.', example='PoolTest', position='Query'),
 model GetPoolResponseBody = {
   poolInfo?: {
     createTime?: string(name='CreateTime', description='The time when the resource pool is created.', example='2024-12-01 20:00:00'),
-    executorUsage?: int32(name='ExecutorUsage'),
+    creator?: string(name='Creator', example='200428053788xxxx'),
+    executorUsage?: int32(name='ExecutorUsage', example='45'),
     isDefault?: boolean(name='IsDefault', description='Indices whether the resource pool is the default resource pool. Valid values:
 
 *   **true**
 *   **false**', example='true'),
-    maxExecutorNum?: int32(name='MaxExecutorNum'),
+    maxExecutorNum?: int32(name='MaxExecutorNum', example='2000'),
     poolName?: string(name='PoolName', description='The name of the resource group.
 
 *   The value can be up to 15 characters in length.
@@ -1045,6 +1052,12 @@ model GetPoolResponseBody = {
 *   Deleting: The resource pool is being deleted.
 *   Working: The resource pool is working.
 *   Deleted: The resource pool is deleted.', example='Working'),
+    tags?: [ 
+      {
+        key?: string(name='Key', example='TestKey'),
+        value?: string(name='Value', example='TestValue'),
+      }
+    ](name='Tags'),
     updateTime?: string(name='UpdateTime', description='The time when the resource pool was updated.', example='2024-12-01 20:00:00'),
   }(name='PoolInfo', description='The information about the resource pool.'),
   requestId?: string(name='RequestId', description='Id of the request', example='896D338C-E4F4-41EC-A154-D605E5DE****'),
@@ -1231,6 +1244,7 @@ model ListExecutorsRequest {
     ipAddresses?: [ string ](name='IpAddresses', description='The list of internal IP addresses. A maximum of 100 IP addresses are supported.'),
     jobName?: string(name='JobName', description='The job name. Exact filtering. Fuzzy query is not supported.', example='testJob'),
     jobTemplateId?: string(name='JobTemplateId', example='jt-xxxx'),
+    poolName?: string(name='PoolName', example='MyPool'),
     status?: [ string ](name='Status', description='Executor status list.'),
     timeCreatedAfter?: int32(name='TimeCreatedAfter', description='For jobs submitted after this time, the time in the region is converted into a UNIX timestamp (UI8).', example='1703819914'),
     timeCreatedBefore?: int32(name='TimeCreatedBefore', description='For jobs submitted before this time, the time in the region is converted into a Unix timestamp (for domestic sites, the UI8 region).', example='1703820113'),
@@ -1477,6 +1491,7 @@ model ListJobsRequest {
     jobIds?: [ string ](name='JobIds'),
     jobName?: string(name='JobName', description='The job name. Fuzzy search is supported.', example='testJob'),
     jobTemplateId?: string(name='JobTemplateId', example='jt-xxxx'),
+    poolName?: string(name='PoolName', example='MyPool'),
     status?: string(name='Status', description='The job status. Valid values:
 
 *   Pending
@@ -1575,8 +1590,8 @@ async function listJobs(request: ListJobsRequest): ListJobsResponse {
 
 model ListPoolsRequest {
   filter?: {
-    poolName?: [ string ](name='PoolName', description='Queries the list of resource pool names.'),
-    status?: [ string ](name='Status', description='Queries resource pool status list.'),
+    poolName?: [ string ](name='PoolName', description='Queries the list of resource pool names.', example='["MyPool"]'),
+    status?: [ string ](name='Status', description='Queries resource pool status list.', example='["Working"]'),
     timeCreatedAfter?: int32(name='TimeCreatedAfter', description='For node pools created after this time, the time in the region is converted into a UNIX timestamp.', example='1703819914'),
     timeCreatedBefore?: int32(name='TimeCreatedBefore', description='For node pools created before this time, the time in the region is converted into a UNIX timestamp.', example='1703820113'),
   }(name='Filter', description='Queries the filter conditions of a resource pool.', shrink='json', position='Query'),
@@ -1594,7 +1609,7 @@ model ListPoolsResponseBody = {
 
 *   **true**
 *   **false**', example='true'),
-      maxExecutorNum?: int32(name='MaxExecutorNum'),
+      maxExecutorNum?: int32(name='MaxExecutorNum', example='2000'),
       poolName?: string(name='PoolName', description='The name of the resource pool.
 
 *   The value can be up to 15 characters in length.
@@ -1611,6 +1626,12 @@ model ListPoolsResponseBody = {
 *   Deleting: The resource pool is being deleted.
 *   Working: The resource pool is working.
 *   Deleted: The resource pool is deleted.', example='Working'),
+      tags?: [ 
+        {
+          key?: string(name='Key', example='TestKey'),
+          value?: string(name='Value', example='TestValue'),
+        }
+      ](name='Tags'),
       updateTime?: string(name='UpdateTime', example='2026-04-20 11:09:59'),
     }
   ](name='PoolList', description='Queries the resource pool list.'),
@@ -1883,9 +1904,9 @@ This parameter is required.', example='PoolTest', position='Query'),
 *   You can set a priority in the range of 1 to 99. The default value is 1, which is the lowest priority.
 *   Jobs submitted to a resource pool with a higher priority level value will be scheduled before pending jobs in a resource pool with a lower priority level value, and the priority level of the resource pool takes precedence over the priority of the job.', example='1', position='Query'),
   resourceLimits?: {
-    maxExecutorNum?: int32(name='MaxExecutorNum'),
+    maxExecutorNum?: int32(name='MaxExecutorNum', example='2000'),
   }(name='ResourceLimits', description='The quota of resources that users are allowed to concurrently use in a resource pool.', shrink='json', position='Query'),
-  schedulingPolicyId?: string(name='SchedulingPolicyId', example='policy-xxxx', position='Query'),
+  schedulingPolicyId?: string(name='SchedulingPolicyId', example='policy-xxx', position='Query'),
 }
 
 model UpdatePoolResponseBody = {
