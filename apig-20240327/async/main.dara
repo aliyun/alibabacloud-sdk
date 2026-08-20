@@ -462,9 +462,11 @@ model AuthorizationResourceInfo {
 }
 
 model Backend {
+  enableSystemModels?: boolean(name='enableSystemModels', example='true'),
   scene?: string(name='scene', example='Single'),
   services?: [ 
     {
+      modelName?: string(name='modelName', example='qwen-plus'),
       name?: string(name='name', example='item-service'),
       port?: int32(name='port', example='port'),
       protocol?: string(name='protocol', example='HTTP'),
@@ -874,6 +876,7 @@ model HttpApiDeployConfig {
       protocol?: string(name='protocol'),
     }
   ](name='customDomainInfos'),
+  enableSystemModels?: boolean(name='enableSystemModels', example='true'),
   envDomainIds?: [ string ](name='envDomainIds'),
   envDomainInfos?: [ 
     {
@@ -992,13 +995,19 @@ model HttpApiPolicyConfigs {
   aiNetworkSearchConfig?: AiNetworkSearchConfig(name='aiNetworkSearchConfig'),
   aiSecurityGuardConfig?: AiSecurityGuardConfig(name='aiSecurityGuardConfig'),
   aiStatisticsConfig?: AiStatisticsConfig(name='aiStatisticsConfig'),
-  aiTokenRateLimitConfig?: AiTokenRateLimitConfig(name='aiTokenRateLimitConfig'),
+  aiTokenRateLimitConfig?: AiTokenRateLimitConfig(name='aiTokenRateLimitConfig', deprecated='true'),
   aiToolSelectionConfig?: AiToolSelectionConfig(name='aiToolSelectionConfig'),
   enable?: boolean(name='enable'),
+  policyReference?: HttpApiPolicyReference(name='policyReference'),
   semanticRouterConfig?: {
     timeoutMillisecond?: int32(name='timeoutMillisecond'),
   }(name='semanticRouterConfig'),
   type?: string(name='type'),
+}
+
+model HttpApiPolicyReference {
+  policyAttachmentId?: string(name='policyAttachmentId', description='策略挂载ID'),
+  policyId?: string(name='policyId', description='策略ID'),
 }
 
 model HttpApiPublishRevisionInfo {
@@ -1212,7 +1221,7 @@ model HttpRouteMatch {
   ignoreUriCase?: boolean(name='ignoreUriCase', example='true'),
   methods?: [ string ](name='methods'),
   path?: {
-    type?: string(name='type', example='Prefix'),
+    type?: string(name='type', example='Exact'),
     value?: string(name='value', example='/user'),
   }(name='path'),
   queryParams?: [ 
@@ -1700,7 +1709,7 @@ model BatchExportHttpApisResponseBody = {
     taskId?: string(name='taskId', example='async-task-xxx'),
   }(name='data'),
   message?: string(name='message', example='success'),
-  requestId?: string(name='requestId', example='CE534E1D-FCE4-5930-B784-E055EC1AEE6F'),
+  requestId?: string(name='requestId', description='Id of the request', example='CE534E1D-FCE4-5930-B784-E055EC1AEE6F'),
 }
 
 model BatchExportHttpApisResponse = {
@@ -1721,17 +1730,20 @@ async function batchExportHttpApis(request: BatchExportHttpApisRequest): BatchEx
 model BatchImportHttpApisRequest {
   allowUpdate?: boolean(name='allowUpdate', position='Body'),
   apiType: string(name='apiType', description='This parameter is required.', example='Http', position='Body'),
-  dryRun?: boolean(name='dryRun', position='Body'),
+  dryRun?: boolean(name='dryRun', example='true', position='Body'),
   gatewayId?: string(name='gatewayId', example='gw-xxx', position='Body'),
   resourceGroupId?: string(name='resourceGroupId', example='rg-xxx', position='Body'),
+  specContentBase64?: string(name='specContentBase64', position='Body'),
   specFileUrl?: string(name='specFileUrl', example='https://oss-cn-hangzhou.aliyuncs.com/my-bucket/imports/batch.zip', position='Body'),
   specOssConfig?: {
     bucketName: string(name='bucketName', description='This parameter is required.', example='my-bucket'),
-    objectKey: string(name='objectKey', description='This parameter is required.', example='imports/batch.zip'),
+    objectKey: string(name='objectKey', description='OSS Object Key。
+
+This parameter is required.', example='imports/batch.zip'),
     regionId: string(name='regionId', description='This parameter is required.', example='cn-hangzhou'),
   }(name='specOssConfig', position='Body'),
   strategy?: string(name='strategy', example='ExistFirst', position='Body'),
-  withGatewayExtension?: boolean(name='withGatewayExtension', position='Body'),
+  withGatewayExtension?: boolean(name='withGatewayExtension', example='false', position='Body'),
 }
 
 model BatchImportHttpApisResponseBody = {
@@ -1740,7 +1752,7 @@ model BatchImportHttpApisResponseBody = {
     taskId?: string(name='taskId', example='async-task-xxx'),
   }(name='data'),
   message?: string(name='message', example='success'),
-  requestId?: string(name='requestId', example='CE534E1D-FCE4-5930-B784-E055EC1AEE6F'),
+  requestId?: string(name='requestId', description='Id of the request', example='CE534E1D-FCE4-5930-B784-E055EC1AEE6F'),
 }
 
 model BatchImportHttpApisResponse = {
@@ -2216,6 +2228,7 @@ This parameter is required.', example='abc.com', position='Body'),
   tlsCipherSuitesConfig?: TlsCipherSuitesConfig(name='tlsCipherSuitesConfig', description='The cipher suite configuration.', position='Body'),
   tlsMax?: string(name='tlsMax', description='The maximum TLS protocol version (up to TLS 1.3).', example='TLS1.3', position='Body'),
   tlsMin?: string(name='tlsMin', description='The minimum TLS protocol version (minimum TLS 1.0).', example='TLS1.0', position='Body'),
+  dryRun?: boolean(name='dryRun', position='Query'),
 }
 
 model CreateDomainResponseBody = {
@@ -2450,6 +2463,7 @@ model CreateHttpApiRouteRequest {
 *   Redirect', example='SingleService'),
     services?: [ 
       {
+        modelName?: string(name='modelName', example='qwen-plus'),
         port?: int32(name='port', description='The service port (omit for dynamic ports).', example='8080'),
         protocol?: string(name='protocol', description='The service protocol. Valid values:
 
@@ -2463,7 +2477,7 @@ model CreateHttpApiRouteRequest {
   }(name='backendConfig', description='The backend service configurations for the route.', position='Body'),
   deployConfigs?: [
     HttpApiDeployConfig
-  ](name='deployConfigs', description='deployConfigs', position='Body'),
+  ](name='deployConfigs', description='deployConfigs', deprecated='true', position='Body'),
   description?: string(name='description', description='The route description.', example='User logon route', position='Body'),
   domainIds?: [ string ](name='domainIds', description='The list of domain IDs.', position='Body'),
   environmentId?: string(name='environmentId', description='The environment ID.', example='env-cpqnr6tlhtgubcv***', position='Body'),
@@ -3191,6 +3205,7 @@ model DeleteHttpApiRequest {
   httpApiId: string(name='httpApiId', description='The HTTP API ID.
 
 This parameter is required.', example='api-xxx', position='Path'),
+  dryRun?: boolean(name='dryRun', position='Query'),
 }
 
 model DeleteHttpApiResponseBody = {
@@ -4507,6 +4522,7 @@ model GetHttpApiRequest {
   httpApiId: string(name='httpApiId', description='Target HTTP API ID.
 
 This parameter is required.', example='api-xxx', position='Path'),
+  expandPolicyConfigs?: boolean(name='expandPolicyConfigs', position='Query'),
 }
 
 model GetHttpApiResponseBody = {
@@ -5738,6 +5754,9 @@ model ListGatewayFeaturesResponseBody = {
   data?: {
     items?: [ 
       {
+        constraints?: {
+          bodyMaxSizeLimit?: int32(name='bodyMaxSizeLimit'),
+        }(name='constraints'),
         definition?: {
           defaultValue?: string(name='defaultValue', description='The default value of the parameter.', example='"true"'),
           description?: string(name='description', description='The parameter description.'),
@@ -7664,6 +7683,7 @@ This parameter is required.', example='/v1', position='Body'),
   protocols?: [ string ](name='protocols', description='The listened namespace.', position='Body'),
   removeBasePathOnForward?: boolean(name='removeBasePathOnForward', description='Whether to remove base path when forwarding', example='true', position='Body'),
   versionConfig?: HttpApiVersionConfig(name='versionConfig', description='A deployment configuration.', position='Body'),
+  dryRun?: boolean(name='dryRun', position='Query'),
 }
 
 model UpdateHttpApiResponseBody = {
@@ -7730,6 +7750,7 @@ model UpdateHttpApiRouteRequest {
 *   Mock', example='SingleService'),
     services?: [ 
       {
+        modelName?: string(name='modelName', example='qwen-plus'),
         port?: int32(name='port', description='The service port (omit for dynamic ports).', example='8080'),
         protocol?: string(name='protocol', description='The service protocol. Valid values:
 

@@ -56,47 +56,64 @@ function getEndpoint(productId: string, regionId: string, endpointRule: string, 
 }
 
 model AgentAccessConfig {
-  aiRequestLogEnabled?: boolean(name='aiRequestLogEnabled'),
+  aiRequestLogEnabled?: boolean(name='aiRequestLogEnabled', description='Specifies whether to enable AI request logging. Default value if omitted: true.', example='false'),
   authorization?: {
-    authType?: string(name='authType'),
-    enabled?: boolean(name='enabled', description='This parameter is required.'),
+    authType?: string(name='authType', description='The authentication type of the Agent access entry. Specify this parameter only when enabled is set to true.', example='Apikey'),
+    enabled?: boolean(name='enabled', description='Specifies whether to enable consumer authorization. If set to true, authType must be specified and at least one principal must be provided. If set to false, no principals can be specified.
+
+This parameter is required.', example='true'),
     principals?: [
       AgentAuthorizationPrincipal
-    ](name='principals'),
-  }(name='authorization'),
-  basePath?: string(name='basePath', description='This parameter is required.'),
-  domainIds?: [ string ](name='domainIds', description='This parameter is required.'),
-  removeBasePathOnForward?: boolean(name='removeBasePathOnForward'),
+    ](name='principals', description='The list of consumers or consumer groups that are granted Agent access permissions. At least one principal must be specified when enabled is set to true.'),
+  }(name='authorization', description='The consumer authorization configuration for Agent access. If omitted, consumer authorization is not enabled.'),
+  basePath?: string(name='basePath', description='The base path of the Agent access entry. The path must start with a forward slash (/).
+
+This parameter is required.', example='/agent'),
+  domainIds?: [ string ](name='domainIds', description='The list of domain name IDs bound to the Agent access entry. At least one domain name must be specified.
+
+This parameter is required.'),
+  removeBasePathOnForward?: boolean(name='removeBasePathOnForward', description='Specifies whether to remove the base path when forwarding requests to the backend. Default value if omitted: false.', example='true'),
 }
 
 model AgentAuthorizationPrincipal {
-  principalId?: string(name='principalId', description='This parameter is required.'),
-  principalType?: string(name='principalType', description='This parameter is required.'),
+  principalId?: string(name='principalId', description='The ID of the authorization principal. Specify a consumer ID or consumer group ID based on the value of principalType.
+
+This parameter is required.', example='consumer-1'),
+  principalType?: string(name='principalType', description='The type of the authorization principal. Valid values:
+
+- Consumer: consumer.
+- ConsumerGroup: consumer group.
+
+This parameter is required.', example='Consumer'),
 }
 
 model AgentInfo {
   agentAccess?: {
-    httpApiId?: string(name='httpApiId'),
-  }(name='agentAccess', nullable=true),
-  agentId?: string(name='agentId'),
-  agentType?: string(name='agentType'),
-  allowedCapabilities?: [ string ](name='allowedCapabilities'),
-  createTimestamp?: long(name='createTimestamp'),
-  description?: string(name='description'),
-  gatewayId?: string(name='gatewayId'),
+    httpApiId?: string(name='httpApiId', description='The HTTP API ID associated with the Agent access capability. The frontend uses this ID to call existing HTTP API, route, consumer authorization, policy, and plugin query interfaces.', example='{ "httpApiId": "api-abc123" }'),
+  }(name='agentAccess', description='The associated resource information for the Agent access capability. Returns null if the Agent access capability is not configured.', nullable=true),
+  agentId?: string(name='agentId', description='Agent ID。', example='agent-1'),
+  agentType?: string(name='agentType', description='The Agent type. DashScope (Bailian) allows only Agent access. Dify allows both Agent access and model access. ClaudeCode allows only model access. Custom allows both Agent access and model access.', example='Custom'),
+  allowedCapabilities?: [ string ](name='allowedCapabilities', description='The list of capabilities that the current Agent type allows to be configured. This field does not indicate that the capabilities are already configured. To determine whether a capability is configured, check whether agentAccess or modelAccess is null.'),
+  createTimestamp?: long(name='createTimestamp', description='The Agent creation time, in Unix millisecond timestamp.', example='1755129600000'),
+  description?: string(name='description', description='The Agent description.', example='custom agent'),
+  gatewayId?: string(name='gatewayId', description='The gateway ID to which the Agent belongs. When reading the associated API deployment configuration, select the configuration whose gatewayId matches this value.', example='gateway-1'),
   modelAccess?: {
-    consumerIds?: [ string ](name='consumerIds'),
-    modelApiId?: string(name='modelApiId'),
-  }(name='modelAccess', nullable=true),
-  name?: string(name='name'),
-  resourceGroupId?: string(name='resourceGroupId'),
-  status?: string(name='status'),
-  updateTimestamp?: long(name='updateTimestamp'),
+    consumerIds?: [ string ](name='consumerIds', description='The list of consumer identity bindings maintained by the Agent domain. The Model API ID and the consumer IDs in this list together identify the Agent identity and take effect on all routes of the Model API. Consumer details and their Model API authorization details can be obtained through existing Consumer API and consumer authorization query interfaces.'),
+    modelApiId?: string(name='modelApiId', description='The Model API ID associated with the model access capability. Model Access does not distinguish routes. The frontend uses this ID to query the Model API basic information and all routes.', example='{ "modelApiId": "model-api-1" }'),
+  }(name='modelAccess', description='The associated resource information for the model access capability. Returns null if the model access capability is not configured.', nullable=true),
+  name?: string(name='name', description='The Agent name.', example='my-agent'),
+  resourceGroupId?: string(name='resourceGroupId', description='The resource group ID in which the Agent is saved.', example='rg-1'),
+  status?: string(name='status', description='The Agent status. An Agent that is successfully created and queryable always returns Ready. Internal creation or compensation states are not returned externally.', example='Ready'),
+  updateTimestamp?: long(name='updateTimestamp', description='The Agent last update time, in Unix millisecond timestamp.', example='1755129600000'),
 }
 
 model AgentModelAccessConfig {
-  consumerIds?: [ string ](name='consumerIds', description='This parameter is required.'),
-  modelApiId?: string(name='modelApiId', description='This parameter is required.'),
+  consumerIds?: [ string ](name='consumerIds', description='The list of consumer IDs that represent the Agent to access the Model API. The Model API ID and consumer ID together identify the Agent identity, and the configuration takes effect for all current and future routes of the Model API. Specify at least one consumer. The consumer must be enabled and must have direct Consumer authorization for the Model API in the default environment of the target gateway, with the authorization publish status being Success. Different Agents cannot bind the same consumer to the same Model API. ConsumerGroup is not supported.
+
+This parameter is required.'),
+  modelApiId?: string(name='modelApiId', description='The ID of the Model API to associate. The Model API must belong to the specified gateway.
+
+This parameter is required.', example='model-api-1'),
 }
 
 model AgentServiceConfig {
@@ -261,51 +278,31 @@ model AiSecurityGuardConfig {
 }
 
 model AiServiceConfig {
-  apiKeyGenerateMode?: string(name='ApiKeyGenerateMode', description='API key generation mode.', example='Custom'),
+  apiKeyGenerateMode?: string(name='ApiKeyGenerateMode', description='API key generation mode.', example='-'),
   address?: string(name='address', description='The service endpoint.', example='https://dashscope.aliyun.com'),
   apiKeys?: [ string ](name='apiKeys', description='The API keys.'),
   bedrockServiceConfig?: {
     awsAccessKey?: string(name='awsAccessKey', description='AWS-AccessKey', example='AKIAIOSFODNN7EXAMPLE'),
-    awsRegion?: string(name='awsRegion', description='AWS-Region', example='us-east-1'),
+    awsRegion?: string(name='awsRegion', description='AWS-Region', example='us-west-2'),
     awsSecretKey?: string(name='awsSecretKey', description='AWS-SecretKey', example='wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY'),
   }(name='bedrockServiceConfig', description='Bedrock service configuration.'),
   compatibleProtocols?: [ string ](name='compatibleProtocols', description='Supported compatible protocols.'),
-  defaultModelName?: string(name='defaultModelName', description='Default model name.', example='gpt-4'),
+  defaultModelName?: string(name='defaultModelName', description='Default model name.', example='qwen-turbo'),
   enableHealthCheck?: boolean(name='enableHealthCheck', description='Specifies whether to enable health check.', example='true'),
-  enableOutlierDetection?: boolean(name='enableOutlierDetection', description='Enable outlier detection.', example='true'),
+  enableOutlierDetection?: boolean(name='enableOutlierDetection', description='Enable outlier detection.', example='false'),
   paiEASServiceConfig?: {
     endpointType?: string(name='endpointType', description='Type of endpoint.', example='"public"，"private"'),
-    serviceId?: string(name='serviceId', description='Service identifier.', example='svc-cvaeb0um1hkqp79k72v0'),
-    serviceName?: string(name='serviceName', description='Name of the service.', example='auto-ai-service'),
-    workspaceId?: string(name='workspaceId', description='Workspace identifier.', example='cb89d4de30042df4459442589664e00d'),
+    serviceId?: string(name='serviceId', description='Service identifier.', example='svc-d33onfmm1hkn5duhuqjg'),
+    serviceName?: string(name='serviceName', description='Name of the service.', example='service-hello'),
+    workspaceId?: string(name='workspaceId', description='Workspace identifier.', example='plw-d5g7qsem1hkmih54g210'),
   }(name='paiEASServiceConfig', description='PAI-EAS service configuration settings.'),
   protocols?: [ string ](name='protocols', description='The LLM protocols.'),
-  provider?: string(name='provider', description='The Large Language Model (LLM) provider.', example='qwen
-moonshot
-baichuan
-yi
-zhipuai
-360ai
-hunyuan
-stepfun
-spark
-openai
-claude
-anthropic
-doubao
-minimax
-gemini
-azure
-deepseek
-custom
-pai-eas
-bedrock
-vertex'),
+  provider?: string(name='provider', description='The Large Language Model (LLM) provider.', example='qwen'),
   vertexServiceConfig?: {
     geminiSafetySetting?: map[string]string(name='geminiSafetySetting', description='Gemini safety settings.'),
-    vertexAuthKey?: string(name='vertexAuthKey', description='Vertex AI authentication key.', example='{\\\\"type\\\\":\\\\"service_account\\\\",\\\\"project_id\\\\":\\\\"my-project\\\\",\\\\"private_key\\\\":\\\\"-----BEGIN PRIVATE KEY-----...\\\\",\\\\"client_email\\\\":\\\\"xxx@xxx.iam.gserviceaccount.com\\\\",\\\\"token_uri\\\\":\\\\"https://oauth2.googleapis.com/token\\\\"}'),
-    vertexAuthServiceName?: string(name='vertexAuthServiceName', description='Vertex AI auth service name.', example='google-oauth2'),
-    vertexProjectId?: string(name='vertexProjectId', description='Vertex AI project ID.', example='my-project'),
+    vertexAuthKey?: string(name='vertexAuthKey', description='Vertex AI authentication key.', example='{\\\\"type\\\\":\\\\"service_account\\\\",\\\\"project_id\\\\":\\\\"xxx\\\\",\\\\"private_key\\\\":\\\\"-----BEGIN PRIVATE KEY-----\\\\",\\\\"client_email\\\\":\\\\"xxx@xxx.iam.gserviceaccount.com\\\\",\\\\"token_uri\\\\":\\\\"https://oauth2.googleapis.com/token\\\\"}'),
+    vertexAuthServiceName?: string(name='vertexAuthServiceName', description='Vertex AI auth service name.', example='custom-vertex-auth'),
+    vertexProjectId?: string(name='vertexProjectId', description='Vertex AI project ID.', example='my-gcp-project-123'),
     vertexRegion?: string(name='vertexRegion', description='Vertex AI region.', example='us-central1'),
     vertexTokenRefreshAhead?: int32(name='vertexTokenRefreshAhead', description='Vertex token refresh lead time.', example='300'),
   }(name='vertexServiceConfig', description='Vertex AI service configuration.'),
@@ -413,10 +410,10 @@ model ApiKeyIdentityConfig {
   }(name='apikeySource', description='The API key source configuration.'),
   apikeySources?: [ 
     {
-      source?: string(name='source', description='The credential source type.'),
-      value?: string(name='value', description='The field name of the HTTP header or query string.'),
+      source?: string(name='source', description='The credential source type.', example='Default'),
+      value?: string(name='value', description='The field name of the HTTP header or query string.', example='Authorization'),
     }
-  ](name='apikeySources', description='The complete set of API key credential sources. The set contains one to three items. Multiple sources are applicable only to AI gateway Header mode. Query String and non-AI gateway allow only a single source. When submitted together with apikeySource, the latter must be consistent with the compatible projection.'),
+  ](name='apikeySources', description='The complete set of API key credential sources. The set contains one to three items. Multiple sources are applicable only to the AI gateway Header mode. Query String and non-AI gateway allow only a single source. If submitted together with apikeySource, the latter must be consistent with the compatible projection.'),
   credentials?: [ 
     {
       apikey?: string(name='apikey', description='The API key configuration.', example='xxxxx'),
@@ -502,15 +499,17 @@ model AuthorizationResourceInfo {
 }
 
 model Backend {
-  scene?: string(name='scene', description='The backend service scenario. Valid values: Single, MultiServiceByRatio, MultiServiceByTag, Mock, Redirect.', example='Single'),
+  enableSystemModels?: boolean(name='enableSystemModels', description='Specifies whether to enable gateway system models. This field is used to display the AiAutoRouter built-in routes generated by Model API deployConfigs. The general Route creation and update operations do not accept this field.', example='true'),
+  scene?: string(name='scene', description='The backend service scenario. Valid values: [Single, MultiServiceByRatio, MultiServiceByTag, Mock, Redirect].', example='Single'),
   services?: [ 
     {
+      modelName?: string(name='modelName', description='The target model name. This field is shared by multiple existing model backend scenarios. The specific routing or model rewrite semantics are determined by scene. This field is required in the SemanticRouter scenario. In the AiAutoRouter scenario, the default model of the AI service is used if this field is not configured.', example='qwen-plus'),
       name?: string(name='name', description='The service name.', example='item-service'),
       port?: int32(name='port', description='The service port. Do not specify this parameter for dynamic ports.', example='port'),
       protocol?: string(name='protocol', description='The service protocol. Valid values: [HTTP, TCP, DUBBO].', example='HTTP'),
       serviceId?: string(name='serviceId', description='The service ID.', example='service-cq2bmmdlhtgj***'),
       version?: string(name='version', description='The service version.', example='v1'),
-      weight?: int32(name='weight', description='The traffic percentage value.', example='49'),
+      weight?: int32(name='weight', description='The percentage value of the traffic ratio.', example='49'),
     }
   ](name='services', description='The backend service.'),
 }
@@ -541,7 +540,7 @@ model DashboardFilter {
 }
 
 model DomainInfo {
-  certIdentifier?: string(name='certIdentifier', description='The SSL Certificates Service certificate identity.', example='235556-cn-hangzhou'),
+  certIdentifier?: string(name='certIdentifier', description='The certificate identity from SSL Certificates Service.', example='235556-cn-hangzhou'),
   clientCACert?: string(name='clientCACert', description='The client CA certificate.', example='-----BEGIN CERTIFICATE-----
 MIIFBTCCAu2gAwIBAgIUORLpYPGSFD1YOP6PMbE7Wd/mpTQwDQYJKoZIhvcNAQEL
 BQAwE************************************************2VwVOJ2gqX3
@@ -552,7 +551,7 @@ YuGaxvIbDy0iQJ1GMerPRyzJTeVEtdIKT29u0PdFRr4KZWom35qX7G4=
   domainId?: string(name='domainId', description='The domain name ID.', example='d-cq1lthllhtgja4dk54eg'),
   domainScope?: string(name='domainScope', description='domainScope', example='Dedicated'),
   forceHttps?: boolean(name='forceHttps', description='Specifies whether to enable forced HTTPS redirect when the HTTPS protocol type is configured.', example='false'),
-  mTLSEnabled?: boolean(name='mTLSEnabled', description='Specifies whether to enable mTLS mutual authentication.', example='true'),
+  mTLSEnabled?: boolean(name='mTLSEnabled', description='Specifies whether to enable mutual TLS (mTLS) authentication.', example='true'),
   name?: string(name='name', description='The domain name.', example='abc.com'),
   protocol?: string(name='protocol', description='The protocol type supported by the domain name.
 
@@ -560,16 +559,16 @@ YuGaxvIbDy0iQJ1GMerPRyzJTeVEtdIKT29u0PdFRr4KZWom35qX7G4=
 - HTTPS: Only HTTPS is supported.', example='HTTP'),
   resourceGroupId?: string(name='resourceGroupId', description='The resource group ID.', example='rg-xxxx'),
   status?: string(name='status', description='The domain name status.', example='Published'),
-  tlsMax?: string(name='tlsMax'),
-  tlsMin?: string(name='tlsMin'),
+  tlsMax?: string(name='tlsMax', description='The maximum TLS version. TLS 1.3 is the maximum supported version.', example='TLS 1.3'),
+  tlsMin?: string(name='tlsMin', description='The minimum TLS version. TLS 1.0 is the minimum supported version.', example='TLS 1.0'),
   updateTimestamp?: long(name='updateTimestamp', description='The update timestamp.', example='1719386834548'),
 }
 
 model EnvironmentInfo {
-  alias?: string(name='alias', description='The environment alias.', example='测试环境'),
+  alias?: string(name='alias', description='The environment alias.', example='test-env'),
   createTimestamp?: long(name='createTimestamp', description='The creation timestamp.', example='1721116090326'),
   default?: boolean(name='default', description='Specifies whether the environment is the default environment.', example='false'),
-  description?: string(name='description', description='The environment descriptiont.', example='这是xxx的xx项目测试环境'),
+  description?: string(name='description', description='The environment descriptiont.', example='This is a test environment.'),
   environmentId?: string(name='environmentId', description='The environment ID.', example='env-cq7l5s5lhtgi6qasrdc0'),
   gatewayInfo?: GatewayInfo(name='gatewayInfo', description='The instance information.'),
   name?: string(name='name', description='The environment name.', example='test'),
@@ -591,7 +590,7 @@ model GatewayInfo {
   gatewayId?: string(name='gatewayId', description='The gateway ID.', example='gw-cq7og15lhtgi6qasrj60'),
   name?: string(name='name', description='The gateway name.', example='apitest-gw'),
   vpcInfo?: {
-    name?: string(name='name', description='The VPC name.', example='商品中心预发环境专有网络'),
+    name?: string(name='name', description='The VPC name.', example='test-vpc'),
     vpcId?: string(name='vpcId', description='The VPC ID.', example='vpc-uf664nyle5kh***'),
   }(name='vpcInfo', description='The VPC information.'),
 }
@@ -838,7 +837,7 @@ model HttpApiApiInfo {
   deployConfigs?: [
     HttpApiDeployConfig
   ](name='deployConfigs', description='The API deployment configurations.'),
-  description?: string(name='description', description='The API description.', example='测试专用API'),
+  description?: string(name='description', description='The API description.', example='for test only'),
   enableAuth?: boolean(name='enableAuth'),
   environments?: [ 
     {
@@ -944,8 +943,8 @@ model HttpApiBackendMatchConditions {
 }
 
 model HttpApiDeployConfig {
-  autoDeploy?: boolean(name='autoDeploy', description='Indicates whether auto-deploy is enabled.', example='true'),
-  backendScene?: string(name='backendScene', description='The publishing scenario.', example='SingleService'),
+  autoDeploy?: boolean(name='autoDeploy', description='Specifies whether to automatically deploy.', example='true'),
+  backendScene?: string(name='backendScene', description='The deployment scenario.', example='SingleService'),
   builtinRouteNames?: [ string ](name='builtinRouteNames', description='The list of built-in route names.'),
   customDomainIds?: [ string ](name='customDomainIds', description='The list of custom domain name IDs.'),
   customDomainInfos?: [ 
@@ -954,15 +953,16 @@ model HttpApiDeployConfig {
       name?: string(name='name', description='The domain name.', example='hello-server.com'),
       protocol?: string(name='protocol', description='The protocol.', example='HTTP'),
     }
-  ](name='customDomainInfos', description='The list of custom domain name information.'),
-  envDomainIds?: [ string ](name='envDomainIds', description='The list of environment domain name IDs. If this parameter is not specified, all environment domain names are bound. An empty array indicates that no environment domain names are bound.'),
+  ](name='customDomainInfos', description='The list of custom domain name details.'),
+  enableSystemModels?: boolean(name='enableSystemModels', description='Specifies whether to enable gateway system models. This parameter takes effect only when the deployment scenario is AiAutoRouter. Default value: false. If enabled, built-in Qwen candidates from the platform are merged with the user\\\\"s own candidates.', example='true'),
+  envDomainIds?: [ string ](name='envDomainIds', description='The list of environment domain name IDs. If not specified, all environment domain names are bound. An empty array indicates that no environment domain names are bound.'),
   envDomainInfos?: [ 
     {
       domainId?: string(name='domainId', description='The domain name ID.', example='d-env-xxx'),
       name?: string(name='name', description='The domain name.', example='api.example.com'),
       protocol?: string(name='protocol', description='The protocol.', example='HTTPS'),
     }
-  ](name='envDomainInfos', description='The list of environment domain name information.'),
+  ](name='envDomainInfos', description='The list of environment domain name details.'),
   environmentId?: string(name='environmentId', description='The environment ID.', example='env-xxx'),
   gatewayId?: string(name='gatewayId', description='The gateway instance ID.', example='gw-xx'),
   gatewayInfo?: GatewayInfo(name='gatewayInfo', description='The gateway information.', nullable=true),
@@ -985,7 +985,7 @@ model HttpApiDeployConfig {
         mode?: string(name='mode', description='The routing mode.', example='LeastBusy'),
         queueSize?: int32(name='queueSize', description='The queue size.', example='100'),
         rateLimit?: float(name='rateLimit', description='The maximum traffic ratio for a single service.', example='0.8'),
-      }(name='observabilityRouteConfig', description='The observability-based routing configuration.', nullable=true),
+      }(name='observabilityRouteConfig', description='The observability metric routing configuration.', nullable=true),
       port?: int32(name='port', description='The service port number.', example='80'),
       protocol?: string(name='protocol', description='The service protocol (HTTP/HTTPS).', example='HTTP'),
       serviceId?: string(name='serviceId', description='The service ID.', example='svc-xxx'),
@@ -1000,7 +1000,7 @@ model HttpApiDeployConfig {
       networkType?: string(name='networkType', description='The network type.', example='Intranet'),
       protocol?: string(name='protocol', description='The protocol.', example='HTTP'),
     }
-  ](name='subDomains', description='The list of subdomain information.'),
+  ](name='subDomains', description='The subdomain content list.'),
 }
 
 model HttpApiDomainInfo {
@@ -1015,7 +1015,7 @@ Valid values:
 }
 
 model HttpApiInfoByName {
-  gatewayId?: string(name='GatewayId', description='网关Id', example='gw-xx'),
+  gatewayId?: string(name='GatewayId', example='gw-xx'),
   name?: string(name='name', description='The API name.', example='test-api'),
   type?: string(name='type', description='The API type.', example='Http'),
   versionEnabled?: boolean(name='versionEnabled', description='Specifies whether to enable versioning.', example='true'),
@@ -1027,7 +1027,7 @@ model HttpApiInfoByName {
 model HttpApiMockContract {
   enable?: boolean(name='enable', description='Specifies whether to enable the Mock feature.', example='false'),
   responseCode?: int32(name='responseCode', description='The response code.', example='200'),
-  responseContent?: string(name='responseContent', description='The response content.', example='Mock测试'),
+  responseContent?: string(name='responseContent', description='The response content.', example='Mock content.'),
 }
 
 model HttpApiOperation {
@@ -1035,7 +1035,7 @@ model HttpApiOperation {
   deployConfigs?: [
     HttpApiDeployConfig
   ](name='deployConfigs', description='The deployment configurations.'),
-  description?: string(name='description', description='The operation description.', example='获取用户信息'),
+  description?: string(name='description', description='The operation description.', example='This is a operation description.'),
   enableAuth?: boolean(name='enableAuth', description='Specifies whether to enable authentication.', example='true'),
   method?: string(name='method', description='The HTTP method.
 
@@ -1069,7 +1069,7 @@ model HttpApiOperationInfo {
   deployConfigs?: [
     HttpApiDeployConfig
   ](name='deployConfigs', description='The backend service deployment information of the operation.'),
-  description?: string(name='description', description='The operation description.', example='获取用户信息'),
+  description?: string(name='description', description='The operation description.', example='A example operation.'),
   enableAuth?: boolean(name='enableAuth', description='Specifies whether to enable authentication.', example='true'),
   method?: string(name='method', description='The HTTP method of the operation.
 
@@ -1095,7 +1095,7 @@ Valid values:
 
 model HttpApiParameter {
   defaultValue?: string(name='defaultValue', description='The default value of the parameter.', example='123'),
-  description?: string(name='description', description='The parameter description.', example='用户ID'),
+  description?: string(name='description', description='The parameter description.', example='The example description.'),
   exampleValue?: string(name='exampleValue', description='The sample value of the parameter.', example='123'),
   name?: string(name='name', description='The parameter name.
 
@@ -1114,18 +1114,24 @@ This parameter is required.', example='String'),
 }
 
 model HttpApiPolicyConfigs {
-  aiCacheConfig?: AiCacheConfig(name='aiCacheConfig', description='AiCacheConfig', nullable=true),
-  aiFallbackConfig?: AiFallbackConfig(name='aiFallbackConfig', description='AiFallbackConfig', nullable=false),
-  aiNetworkSearchConfig?: AiNetworkSearchConfig(name='aiNetworkSearchConfig', description='AiNetworkSearchConfig', nullable=true),
-  aiSecurityGuardConfig?: AiSecurityGuardConfig(name='aiSecurityGuardConfig', description='AiSecurityGuardConfig', nullable=false),
-  aiStatisticsConfig?: AiStatisticsConfig(name='aiStatisticsConfig', description='AiStatisticsConfig', nullable=false),
-  aiTokenRateLimitConfig?: AiTokenRateLimitConfig(name='aiTokenRateLimitConfig', description='AiTokenRateLimitConfig', nullable=false),
-  aiToolSelectionConfig?: AiToolSelectionConfig(name='aiToolSelectionConfig', description='AiToolSelectionConfig', nullable=true),
-  enable?: boolean(name='enable', description='Policy Enable', example='false'),
+  aiCacheConfig?: AiCacheConfig(name='aiCacheConfig', description='The AI cache configuration.', nullable=true),
+  aiFallbackConfig?: AiFallbackConfig(name='aiFallbackConfig', description='The AI fallback configuration.', nullable=false),
+  aiNetworkSearchConfig?: AiNetworkSearchConfig(name='aiNetworkSearchConfig', description='The AI web search configuration.', nullable=true),
+  aiSecurityGuardConfig?: AiSecurityGuardConfig(name='aiSecurityGuardConfig', description='The AI security protection configuration.', nullable=false),
+  aiStatisticsConfig?: AiStatisticsConfig(name='aiStatisticsConfig', description='The AI statistics configuration.', nullable=false),
+  aiTokenRateLimitConfig?: AiTokenRateLimitConfig(name='aiTokenRateLimitConfig', description='The AI token rate limiting configuration.', deprecated=true, nullable=false),
+  aiToolSelectionConfig?: AiToolSelectionConfig(name='aiToolSelectionConfig', description='The AI tool selection configuration.', nullable=true),
+  enable?: boolean(name='enable', description='Indicates whether the policy is enabled.', example='false'),
+  policyReference?: HttpApiPolicyReference(name='policyReference', description='The read-only compatible reference. GetHttpApi returns policyId/policyAttachmentId for ModelAPI AiTokenRateLimit. This must be stripped before write path persistence and is not used as a bind/unbind instruction.', nullable=true),
   semanticRouterConfig?: {
-    timeoutMillisecond?: int32(name='timeoutMillisecond', description='Timeout in milliseconds', example='2000'),
-  }(name='semanticRouterConfig', description='SemanticRouterConfig', nullable=false),
-  type?: string(name='type', description='Policy Type', example='K8S'),
+    timeoutMillisecond?: int32(name='timeoutMillisecond', description='The timeout period, in milliseconds.', example='2000'),
+  }(name='semanticRouterConfig', description='The semantic routing configuration.', nullable=false),
+  type?: string(name='type', description='The policy template type.', example='K8S'),
+}
+
+model HttpApiPolicyReference {
+  policyAttachmentId?: string(name='policyAttachmentId', description='The policy attachment ID.', example='pa-3c8ayyy'),
+  policyId?: string(name='policyId', description='The policy ID.', example='pol-9f2exxx'),
 }
 
 model HttpApiPublishRevisionInfo {
@@ -1191,11 +1197,11 @@ Valid values:
     }
   ](name='dnsConfigs', description='The configurations of DNS domain names. For single-service publishing, only one entry is allowed. For other scenarios, multiple entries are allowed.'),
   environmentInfo?: {
-    alias?: string(name='alias', description='The environment alias.', example='测试'),
+    alias?: string(name='alias', description='The environment alias.', example='Test'),
     environmentId?: string(name='environmentId', description='The environment ID.', example='env-xxx'),
     gatewayInfo?: {
       gatewayId?: string(name='gatewayId', description='The instance ID.', example='gw-xxx'),
-      name?: string(name='name', description='The instance name.', example='实例1'),
+      name?: string(name='name', description='The instance name.', example='Instance 1'),
     }(name='gatewayInfo', description='The instance information.'),
     name?: string(name='name', description='The environment name.', example='test'),
   }(name='environmentInfo', description='The environment information.', example='env-xxx'),
@@ -1229,20 +1235,20 @@ Valid values:
 model HttpApiRequestContract {
   body?: {
     contentType?: string(name='contentType', description='The content type of the request body.', example='application/json'),
-    description?: string(name='description', description='The parameter description.', example='body参数描述'),
+    description?: string(name='description', description='The parameter description.', example='This is a description.'),
     example?: string(name='example', description='The sample value.', example='{"result":"ok"}'),
     jsonSchema?: string(name='jsonSchema', description='The JSON definition description of the request body.', example='{
-    "type": "object",
-    "required": [
-        "result"
-    ],
-    "properties": {
-        "result": {
-            "type": "string",
-            "description": "操作结果，\\\\"ok\\\\" 表示成功"
-        }
-    }
-}'),
+      "type": "object",
+      "required": [
+          "result"
+      ],
+      "properties": {
+          "result": {
+              "type": "string",
+              "description": "Operation result. \\\\"ok\\\\" indicates success."
+          }
+      }
+  }'),
   }(name='body', description='The body parameters.'),
   headerParameters?: [
     HttpApiParameter
@@ -1262,7 +1268,7 @@ This parameter is required.', example='application/json'),
   items?: [ 
     {
       code?: int32(name='code', description='The response code.', example='200'),
-      description?: string(name='description', description='The response description.', example='正常接口响应'),
+      description?: string(name='description', description='The response description.', example='This is a description.'),
       example?: string(name='example', description='The sample value.', example='{"result": "ok"}'),
       jsonSchema?: string(name='jsonSchema', description='The JSON definition description of the response body.', example='{
     "type": "object",
@@ -1272,7 +1278,7 @@ This parameter is required.', example='application/json'),
     "properties": {
         "result": {
             "type": "string",
-            "description": "操作结果，\\\\"ok\\\\" 表示成功"
+            "description": "This is a description."
         }
     }
 }'),
@@ -1323,7 +1329,7 @@ model HttpRoute {
   builtin?: string(name='builtin', description='builtin', example='true'),
   createTimestamp?: long(name='createTimestamp', description='The creation timestamp in milliseconds', example='1726649310593'),
   deployStatus?: string(name='deployStatus', description='The deployment status', example='Deployed'),
-  description?: string(name='description', description='The description of the route', example='商品中心预发路由'),
+  description?: string(name='description', description='The description of the route', example='Route for user management API'),
   domainInfos?: [ 
     {
       domainId?: string(name='domainId', description='The domain ID', example='d-cr3v7dllhtgi9s***'),
@@ -1332,7 +1338,7 @@ model HttpRoute {
     }
   ](name='domainInfos', description='List of domain information'),
   environmentInfo?: {
-    alias?: string(name='alias', description='The environment alias', example='商品中心预发环境'),
+    alias?: string(name='alias', description='The environment alias', example='prod'),
     environmentId?: string(name='environmentId', description='The environment ID', example='env-crhq1u5lhtgju***'),
     gatewayInfo?: {
       gatewayEdition?: string(name='gatewayEdition', example='MultiTenantServerless'),
@@ -1370,36 +1376,33 @@ model HttpRoute {
 model HttpRouteMatch {
   headers?: [ 
     {
-      name?: string(name='name', description='The header name.', example='dev'),
-      type?: string(name='type', description='The match type. Valid values:
-
-*   Exact: exact match
-*   Prefix: prefix match
-*   Regex: regular expression', example='Exact'),
-      value?: string(name='value', description='The header value.', example='true'),
+      name?: string(name='name', description='The name of the header.', example='dev'),
+      type?: string(name='type', description='The header matching type. Valid values:
+- Exact: exact match.
+- Prefix: prefix match. 
+- Regex: regular expression match.', example='Exact'),
+      value?: string(name='value', description='The value of the header.', example='true'),
     }
-  ](name='headers', description='The rules for matching based on HTTP request headers.'),
+  ](name='headers', description='The list of HTTP request header matching rules.'),
   ignoreUriCase?: boolean(name='ignoreUriCase', description='Specifies whether the path is case-insensitive.', example='true'),
-  methods?: [ string ](name='methods', description='The HTTP methods.'),
+  methods?: [ string ](name='methods', description='The list of request methods.'),
   path?: {
-    type?: string(name='type', description='The path matching type. Valid values:
-
-*   Exact: exact match
-*   Prefix: prefix match
-*   Regex: regular expression', example='Prefix'),
+    type?: string(name='type', description='The path matching rule. Valid values:
+- Exact: exact match.
+- Prefix: prefix match. 
+- Regex: regular expression match.', example='Prefix'),
     value?: string(name='value', description='The path.', example='/user'),
   }(name='path', description='The path rule.'),
   queryParams?: [ 
     {
       name?: string(name='name', description='The parameter name.', example='age'),
-      type?: string(name='type', description='The match type. Valid values:
-
-*   Exact: exact match
-*   Prefix: prefix match
-*   Regex: regular expression', example='Exact'),
+      type?: string(name='type', description='The query parameter matching type. Valid values:
+- Exact: exact match. 
+- Prefix: prefix match. 
+- Regex: regular expression match.', example='Exact'),
       value?: string(name='value', description='The parameter value.', example='17'),
     }
-  ](name='queryParams', description='The rules for matching based on query parameters.'),
+  ](name='queryParams', description='The list of query request parameter matching rules.'),
 }
 
 model JwtIdentityConfig {
@@ -1465,12 +1468,12 @@ model PluginClassInfo {
 }
 
 model PolicyClassInfo {
-  alias?: string(name='alias', description='The template alias.', example='并发控制'),
+  alias?: string(name='alias', description='The template alias.', example='Rate Limit'),
   attachableResourceTypes?: [ string ](name='attachableResourceTypes', description='The list of resource types that can be mounted.'),
   classId?: string(name='classId', description='The template identifier.', example='pc-cpqm0s94ckt1displ8ng'),
   configExample?: string(name='configExample', description='A configuration example.', example='{}'),
   deprecated?: boolean(name='deprecated', description='Specifies whether the policy has been deprecated.', example='false'),
-  description?: string(name='description', description='The template description.', example='通过控制并发线程数以保证系统的稳定性。适用于应用内部或下游依赖出现不稳定的场景，例如慢SQL、下游应用响应时间变长等。'),
+  description?: string(name='description', description='The template description.', example='Limits the number of requests per unit of time'),
   direction?: string(name='direction', description='The direction of traffic on which the policy takes effect.', example='InBound'),
   enableLog?: boolean(name='enableLog', description='Specifies whether to enable logging.', example='true'),
   executePriority?: string(name='executePriority', description='The execution priority.', example='1'),
@@ -1568,14 +1571,14 @@ model RiskCheckResults {
     {
       checkModule?: string(name='checkModule', description='The check module', example='BaseInfo'),
       data?: map[string]string(name='data', description='The risk detailed data'),
-      description?: string(name='description', description='The risk description', example='{"desc":"单节点实例存在架构风险，单点故障会导致服务不可用。建议扩容到2节点及以上。"}'),
+      description?: string(name='description', description='The risk description', example='The version is outdated'),
       isNoticeMute?: boolean(name='isNoticeMute', description='Whether to mute notifications', example='false'),
       riskCode?: string(name='riskCode', description='The risk code', example='30010010001'),
       riskLevel?: string(name='riskLevel', description='The risk level', example='HIGH'),
-      riskName?: string(name='riskName', description='The risk title', example='单节点架构风险'),
+      riskName?: string(name='riskName', description='The risk title', example='Version Risk'),
       riskType?: string(name='riskType', description='The risk type', example='SYSTEM'),
-      situation?: string(name='situation', description='The risk situation', example='{"desc":"集群节点数为1，不具备高可用能力"}'),
-      suggestion?: string(name='suggestion', description='The fix suggestion', example='{"desc":"扩容到2节点及以上","links":[{"descEn":"click to upgrade specification","type":"upgrade","desc":"点击扩容"}]}'),
+      situation?: string(name='situation', description='The risk situation', example='Current version is 2 releases behind'),
+      suggestion?: string(name='suggestion', description='The fix suggestion', example='Upgrade to the latest version'),
     }
   ](name='riskDetails', description='The risk details list'),
   riskLevel?: string(name='riskLevel', description='The risk level', example='MEDIUM'),
@@ -1590,26 +1593,26 @@ model Service {
   agentServiceConfig?: AgentServiceConfig(name='agentServiceConfig', description='The agent service configuration.'),
   aiServiceConfig?: AiServiceConfig(name='aiServiceConfig', description='The AI service configuration.'),
   createTimestamp?: long(name='createTimestamp', description='The time when the service was created.', example='1725617840096'),
-  dnsServers?: [ string ](name='dnsServers'),
+  dnsServers?: [ string ](name='dnsServers', description='The list of DNS servers.'),
   expressType?: string(name='expressType', description='The execution mode of CloudFlow.', example='StartExecution'),
-  gatewayId?: string(name='gatewayId', description='The gateway instance ID.', example='gw-xxxx'),
+  gatewayId?: string(name='gatewayId', description='The instance ID of the gateway.', example='gw-xxxx'),
   groupName?: string(name='groupName', description='The name of the service group.', example='publich'),
   healthCheck?: ServiceHealthCheck(name='healthCheck', description='The health check configuration.'),
   healthStatus?: string(name='healthStatus', description='The health check status. Valid values: Healthy and Unhealthy.', example='Healthy'),
-  healthyPanicThreshold?: float(name='healthyPanicThreshold'),
+  healthyPanicThreshold?: float(name='healthyPanicThreshold', description='The healthy panic threshold.', example='1'),
   labelDetails?: [
     LabelDetail
   ](name='labelDetails', description='The label information of the service.'),
-  modelProviderId?: string(name='modelProviderId', example='mp-xxxx'),
+  modelProviderId?: string(name='modelProviderId', description='The resource ID of the model provider.', example='mp-xxxx'),
   name?: string(name='name', description='The name of the service.', example='user-service'),
   namespace?: string(name='namespace', description='The namespace.', example='PUBLIC'),
   outlierDetection?: {
-    baseEjectionTime?: int32(name='baseEjectionTime'),
-    enable?: boolean(name='enable'),
-    failurePercentageMinimumHosts?: int32(name='failurePercentageMinimumHosts'),
-    failurePercentageThreshold?: int32(name='failurePercentageThreshold'),
-    interval?: int32(name='interval'),
-  }(name='outlierDetection'),
+    baseEjectionTime?: int32(name='baseEjectionTime', description='The base ejection duration in seconds. Valid values: 1 to 3600.', example='30'),
+    enable?: boolean(name='enable', description='Specifies whether to enable outlier detection.', example='false'),
+    failurePercentageMinimumHosts?: int32(name='failurePercentageMinimumHosts', description='The minimum number of hosts. The value must be greater than or equal to 0.', example='1'),
+    failurePercentageThreshold?: int32(name='failurePercentageThreshold', description='The failure rate threshold in percentage. Valid values: 1 to 100.', example='80'),
+    interval?: int32(name='interval', description='The detection interval in seconds. Valid values: 1 to 3600.', example='30'),
+  }(name='outlierDetection', description='The configuration for removing abnormal instances.'),
   outlierEndpoints?: [ string ](name='outlierEndpoints', description='The circuit-broken endpoints.'),
   ports?: [ 
     {
@@ -1621,12 +1624,12 @@ model Service {
   protocol?: string(name='protocol', description='The service protocol.', example='HTTP'),
   qualifier?: string(name='qualifier', description='The qualifier of the function.', example='LATEST'),
   resourceGroupId?: string(name='resourceGroupId', description='The ID of the resource group.', example='rg-xxx'),
-  runtimeDetailErrorCode?: string(name='runtimeDetailErrorCode', example='RuntimeEndpointTimeout'),
-  runtimeDetailStatus?: string(name='runtimeDetailStatus', example='Available'),
+  runtimeDetailErrorCode?: string(name='runtimeDetailErrorCode', description='The masked error code of the runtime details.', example='RuntimeEndpointTimeout'),
+  runtimeDetailStatus?: string(name='runtimeDetailStatus', description='The runtime detail status.', example='Available'),
   serviceId?: string(name='serviceId', description='The unique ID of the service.', example='svc-cr6pk4tlhtgm***'),
   sourceType?: string(name='sourceType', description='The source type of the service.', example='MSE_NACOS'),
   unhealthyEndpoints?: [ string ](name='unhealthyEndpoints', description='The unhealthy endpoints.'),
-  updateTimestamp?: long(name='updateTimestamp', description='The time when the service was updated.', example='1725868548440'),
+  updateTimestamp?: long(name='updateTimestamp', description='The time when the service was created.', example='1725868548440'),
   versions?: [ 
     {
       labels?: [ 
@@ -1733,27 +1736,27 @@ model TlsCipherSuitesConfig {
 }
 
 model TransportCertificateInfo {
-  algorithm?: string(name='algorithm'),
-  certIdentifier?: string(name='certIdentifier'),
-  certName?: string(name='certName'),
-  certificateMatchStatus?: string(name='certificateMatchStatus'),
-  commonName?: string(name='commonName'),
-  coveredDomains?: [ string ](name='coveredDomains'),
-  issuer?: string(name='issuer'),
-  matchedDomains?: [ string ](name='matchedDomains'),
-  notAfterTimestamp?: long(name='notAfterTimestamp'),
-  notBeforeTimestamp?: long(name='notBeforeTimestamp'),
-  sans?: string(name='sans'),
+  algorithm?: string(name='algorithm', description='The signature/key algorithm.', example='RSA_2048'),
+  certIdentifier?: string(name='certIdentifier', description='The certificate identifier (certificate ID under the APIG cloud account).', example='cert-1（1716***@cn-hangzhou 形态）'),
+  certName?: string(name='certName', description='The certificate name.', example='cert-name'),
+  certificateMatchStatus?: string(name='certificateMatchStatus', description='The match status between the certificate and gateway instance domain names.', example='Matched'),
+  commonName?: string(name='commonName', description='The certificate Common Name (CN).', example='api.example.com'),
+  coveredDomains?: [ string ](name='coveredDomains', description='The set of covered domain names parsed from CN and SAN (deduplicated in lowercase, may contain *. wildcards).'),
+  issuer?: string(name='issuer', description='The certificate issuer.', example='DigiCert Secure Site CN CA G3'),
+  matchedDomains?: [ string ](name='matchedDomains', description='The gateway instance domain names matched by covered domains (ordered by instance domain name, deduplicated).'),
+  notAfterTimestamp?: long(name='notAfterTimestamp', description='The expiration timestamp (Unix milliseconds, from the certificate afterDate).', example='1747958400000'),
+  notBeforeTimestamp?: long(name='notBeforeTimestamp', description='The effective period UNIX timestamp (Unix milliseconds, from the certificate beforeDate).', example='1716336000000'),
+  sans?: string(name='sans', description='The raw SAN string (separated by commas, semicolons, or whitespace. Elements may have a DNS: prefix).', example='DNS:*.example.org, DNS:foo.example.net'),
 }
 
 model TransportEncryptionInfo {
   certificates?: [
     TransportCertificateInfo
-  ](name='certificates'),
-  deployError?: string(name='deployError'),
-  deployStatus?: string(name='deployStatus'),
-  http2Enabled?: boolean(name='http2Enabled'),
-  tlsPolicy?: string(name='tlsPolicy'),
+  ](name='certificates', description='The list of transport certificates added by the user.'),
+  deployError?: string(name='deployError', description='The reason for the deployment failure.', example='“”'),
+  deployStatus?: string(name='deployStatus', description='The submit status.', example='Success'),
+  http2Enabled?: boolean(name='http2Enabled', description='Indicates whether HTTP/2 is enabled.', example='true'),
+  tlsPolicy?: string(name='tlsPolicy', description='The TLS cipher suite policy.', example='tls_cipher_policy_1_2'),
 }
 
 model ValidationOptions {
@@ -1761,7 +1764,7 @@ model ValidationOptions {
 
 model HttpApiApiInfoDeployCntMapValue = {
   deployedCnt?: long(name='deployedCnt', description='deployedCnt', example='3'),
-  cnt?: long(name='cnt'),
+  cnt?: long(name='cnt', example='10'),
 }
 
 model AddGatewayQuotaRuleRequest {
@@ -1922,9 +1925,9 @@ async function addGatewayQuotaRule(gatewayId: string, request: AddGatewayQuotaRu
 }
 
 model AddGatewaySecurityGroupRuleRequest {
-  description?: string(name='description', description='The description of the security group rule.', example='商品中心访问安全组'),
+  description?: string(name='description', description='The description of the security group rule.', example='Product center access security group'),
   portRanges?: [ string ](name='portRanges', description='The port ranges.'),
-  securityGroupId?: string(name='securityGroupId', description='The security group ID.', example='sg-wz929kxhcdp****'),
+  securityGroupId?: string(name='securityGroupId', description='The security group ID. This parameter is required. The specified security group must be different from the security group associated with the gateway. Otherwise, an error is returned.', example='sg-wz929kxhcdp****'),
 }
 
 model AddGatewaySecurityGroupRuleResponseBody = {
@@ -1940,7 +1943,7 @@ model AddGatewaySecurityGroupRuleResponse = {
 }
 
 /**
- * @summary Authorizes a security group that allows a gateway to access services.
+ * @summary Authorizes a security group to allow gateway access to services.
  *
  * @param request AddGatewaySecurityGroupRuleRequest
  * @param headers map
@@ -1979,7 +1982,7 @@ async function addGatewaySecurityGroupRuleWithOptions(gatewayId: string, request
 }
 
 /**
- * @summary Authorizes a security group that allows a gateway to access services.
+ * @summary Authorizes a security group to allow gateway access to services.
  *
  * @param request AddGatewaySecurityGroupRuleRequest
  * @return AddGatewaySecurityGroupRuleResponse
@@ -2206,9 +2209,10 @@ async function batchExportHttpApis(request: BatchExportHttpApisRequest): BatchEx
 model BatchImportHttpApisRequest {
   allowUpdate?: boolean(name='allowUpdate'),
   apiType?: string(name='apiType', description='This parameter is required.', example='Http'),
-  dryRun?: boolean(name='dryRun'),
+  dryRun?: boolean(name='dryRun', example='true'),
   gatewayId?: string(name='gatewayId', example='gw-xxx'),
   resourceGroupId?: string(name='resourceGroupId', example='rg-xxx'),
+  specContentBase64?: string(name='specContentBase64'),
   specFileUrl?: string(name='specFileUrl', example='https://oss-cn-hangzhou.aliyuncs.com/my-bucket/imports/batch.zip'),
   specOssConfig?: {
     bucketName?: string(name='bucketName', description='This parameter is required.', example='my-bucket'),
@@ -2216,7 +2220,7 @@ model BatchImportHttpApisRequest {
     regionId?: string(name='regionId', description='This parameter is required.', example='cn-hangzhou'),
   }(name='specOssConfig'),
   strategy?: string(name='strategy', example='ExistFirst'),
-  withGatewayExtension?: boolean(name='withGatewayExtension'),
+  withGatewayExtension?: boolean(name='withGatewayExtension', example='false'),
 }
 
 model BatchImportHttpApisResponseBody = {
@@ -2259,6 +2263,9 @@ async function batchImportHttpApisWithOptions(request: BatchImportHttpApisReques
   }
   if (!Util.isUnset(request.resourceGroupId)) {
     body['resourceGroupId'] = request.resourceGroupId;
+  }
+  if (!Util.isUnset(request.specContentBase64)) {
+    body['specContentBase64'] = request.specContentBase64;
   }
   if (!Util.isUnset(request.specFileUrl)) {
     body['specFileUrl'] = request.specFileUrl;
@@ -3161,9 +3168,9 @@ async function createConsumerGroup(request: CreateConsumerGroupRequest): CreateC
 }
 
 model CreateDomainRequest {
-  caCertIdentifier?: string(name='caCertIdentifier', description='The CA certificate identifier. This parameter is optional for Dedicated with HTTPS. This parameter is not allowed for Serverless and is not validated for Dedicated with HTTP.', example='1ef1da5f-38ed-69b3-****-037781890265'),
-  certIdentifier?: string(name='certIdentifier', description='The certificate identifier. This parameter is required for Dedicated with HTTPS and must pass validation. This parameter is not allowed for Serverless and is not validated for Dedicated with HTTP.', example='1ef1da5f-38ed-69b3-****-037781890265'),
-  clientCACert?: string(name='clientCACert', description='The client CA certificate. This parameter is conditionally required for Dedicated with HTTPS (when MTLSEnabled is set to true). This parameter is not allowed for Serverless and is not validated for Dedicated with HTTP.', example='-----BEGIN CERTIFICATE-----
+  caCertIdentifier?: string(name='caCertIdentifier', description='The CA certificate identifier. This parameter is optional for Dedicated scope with HTTPS. It is not allowed for Serverless scope and is not validated for Dedicated scope with HTTP.', example='1ef1da5f-38ed-69b3-****-037781890265'),
+  certIdentifier?: string(name='certIdentifier', description='The certificate identifier. This parameter is required for Dedicated scope with HTTPS and must pass validation. It is not allowed for Serverless scope and is not validated for Dedicated scope with HTTP.', example='1ef1da5f-38ed-69b3-****-037781890265'),
+  clientCACert?: string(name='clientCACert', description='The client CA certificate. This parameter is conditionally required for Dedicated scope with HTTPS (required when MTLSEnabled is set to true). It is not allowed for Serverless scope and is not validated for Dedicated scope with HTTP.', example='-----BEGIN CERTIFICATE-----
 MIIFBTCCAu2gAwIBAgIUORLpYPGSFD1YOP6PMbE7Wd/mpTQwDQYJKoZIhvcNAQEL
 BQAwE************************************************2VwVOJ2gqX3
 YuGaxvIbDy0iQJ1GMerPRyzJTeVEtdIKT29u0PdFRr4KZWom35qX7G4=
@@ -3174,7 +3181,7 @@ YuGaxvIbDy0iQJ1GMerPRyzJTeVEtdIKT29u0PdFRr4KZWom35qX7G4=
 - Serverless: Serverless gateway domain name.
 
 Default value: Dedicated.', example='Dedicated'),
-  forceHttps?: boolean(name='forceHttps', description='Specifies whether to enable forced HTTPS redirect for the HTTPS protocol type. This parameter is required for Serverless and for Dedicated with HTTPS. This parameter is not validated for Dedicated with HTTP.', example='false'),
+  forceHttps?: boolean(name='forceHttps', description='Specifies whether to enable forced HTTPS redirect for the HTTPS protocol type. This parameter is required for Serverless scope and for Dedicated scope with HTTPS. It is not validated for Dedicated scope with HTTP.', example='false'),
   gatewayType?: string(name='gatewayType', description='The gateway type. If not specified, the default value is API.', example='API'),
   http2Option?: string(name='http2Option', description='The HTTP/2 setting. Valid values:
 
@@ -3183,15 +3190,16 @@ Default value: Dedicated.', example='Dedicated'),
 - Close: disabled.
 
 Default value: GlobalConfig. This setting is supported only for HTTPS domain names in the Dedicated scope.', example='Open'),
-  mTLSEnabled?: boolean(name='mTLSEnabled', description='Specifies whether to enable mTLS mutual authentication. This parameter is optional for Dedicated with HTTPS. When set to true, ClientCACert is required. This parameter is not allowed for Serverless.'),
-  name?: string(name='name', description='The domain name. The name must be 1 to 128 characters in length, such as abc.com.
+  mTLSEnabled?: boolean(name='mTLSEnabled', description='Specifies whether to enable mTLS mutual authentication. This parameter is optional for Dedicated scope with HTTPS. When set to true, ClientCACert is required. This parameter is not allowed for Serverless scope.'),
+  name?: string(name='name', description='The domain name. The name must be 1 to 128 characters in length. Example: abc.com.
 
 This parameter is required.', example='abc.com'),
-  protocol?: string(name='protocol', description='The protocol type used by the domain name. Valid values: HTTP and HTTPS. This parameter is required for the Dedicated scope and is not allowed for the Serverless scope.', example='HTTP'),
+  protocol?: string(name='protocol', description='The protocol type used by the domain name. Valid values: HTTP, HTTPS. This parameter is required for the Dedicated scope and is not allowed for the Serverless scope.', example='HTTP'),
   resourceGroupId?: string(name='resourceGroupId', description='The [resource group ID](https://help.aliyun.com/document_detail/151181.html).', example='rg-aekzhiv7derfweq'),
   tlsCipherSuitesConfig?: TlsCipherSuitesConfig(name='tlsCipherSuitesConfig', description='The TLS cipher suite configuration, including the configuration type, cipher suite names, and supported TLS versions. This configuration is supported only for HTTPS domain names in the Dedicated scope.'),
-  tlsMax?: string(name='tlsMax', description='The maximum TLS protocol version. This parameter is optional for Dedicated with HTTPS. If not specified, the value is derived from TlsMin. The value must be greater than or equal to TlsMin. This parameter is not allowed for Serverless.', example='TLS1.3'),
-  tlsMin?: string(name='tlsMin', description='The minimum TLS protocol version. This parameter is optional for Dedicated with HTTPS. If not specified, the default value is TLS 1.0. Valid values: TLS 1.0 to TLS 1.3, compatible with TLSv1.x. This parameter is not allowed for Serverless.', example='TLS1.0'),
+  tlsMax?: string(name='tlsMax', description='The maximum TLS protocol version. This parameter is optional for Dedicated scope with HTTPS. If not specified, the value is derived from TlsMin. The value must be greater than or equal to TlsMin. This parameter is not allowed for Serverless scope.', example='TLS1.3'),
+  tlsMin?: string(name='tlsMin', description='The minimum TLS protocol version. This parameter is optional for Dedicated scope with HTTPS. If not specified, the default value is TLS 1.0. Valid values: TLS 1.0 to TLS 1.3 (compatible with TLSv1.x). This parameter is not allowed for Serverless scope.', example='TLS1.0'),
+  dryRun?: boolean(name='dryRun', description='Specifies whether to perform only a dry run validation. If set to true, all synchronous validations identical to an actual creation are performed (including idempotency checks for existing test domain names), but no domain name is created and no side effects are produced. If not specified or set to false, the behavior is the same as the existing version.'),
 }
 
 model CreateDomainResponseBody = {
@@ -3219,6 +3227,11 @@ model CreateDomainResponse = {
  */
 async function createDomainWithOptions(request: CreateDomainRequest, headers: map[string]string, runtime: Util.RuntimeOptions): CreateDomainResponse {
   Util.validateModel(request);
+  var query : map[string]any = {};
+  if (!Util.isUnset(request.dryRun)) {
+    query['dryRun'] = request.dryRun;
+  }
+
   var body : map[string]any = {};
   if (!Util.isUnset(request.caCertIdentifier)) {
     body['caCertIdentifier'] = request.caCertIdentifier;
@@ -3265,6 +3278,7 @@ async function createDomainWithOptions(request: CreateDomainRequest, headers: ma
 
   var req = new OpenApi.OpenApiRequest{ 
     headers = headers,
+    query = OpenApiUtil.query(query),
     body = OpenApiUtil.parseToMap(body),
   };
   var params = new OpenApi.Params{
@@ -3386,7 +3400,7 @@ async function createEnvironment(request: CreateEnvironmentRequest): CreateEnvir
 }
 
 model CreateGatewayRequest {
-  chargeType?: string(name='chargeType', description='The billing method.', example='POSTPAY'),
+  chargeType?: string(name='chargeType', description='The billing method. Required for the Serverless edition and must be set to POSTPAY.', example='POSTPAY'),
   gatewayEdition?: string(name='gatewayEdition', description='The gateway instance edition. Valid values:
 
 - Professional: standard instance.
@@ -3396,26 +3410,26 @@ model CreateGatewayRequest {
 - MultiTenantServerless: multi-tenant Serverless instance.
 
 - Unknown: unknown.', example='Professional'),
-  gatewayMode?: string(name='gatewayMode'),
-  gatewayType?: string(name='gatewayType', description='The gateway type.', example='API'),
+  gatewayMode?: string(name='gatewayMode', description='The running mode for AI multi-tenant V2. Default value: ENTERPRISE. Only allowed when the gateway type is AI and the edition is MultiTenantServerless.', example='ENTERPRISE'),
+  gatewayType?: string(name='gatewayType', description='The gateway type. Must be explicitly set to AI for AI Serverless or multi-tenant editions.', example='API'),
   logConfig?: {
     sls?: {
-      enable?: boolean(name='enable', description='Specifies whether to enable SLS log collection.', example='false'),
-    }(name='sls', description='The Simple Log Service (SLS) configuration, which controls gateway log collection.'),
+      enable?: boolean(name='enable', description='Specifies whether to enable log collection.', example='false'),
+    }(name='sls', description='The Simple Log Service (SLS) configuration that controls gateway log collection.'),
   }(name='logConfig', description='The gateway log configuration.'),
-  name?: string(name='name', description='The gateway name.', example='test-ceshi'),
+  name?: string(name='name', description='The gateway name. Required for all editions.', example='test-ceshi'),
   networkAccessConfig?: {
     type?: string(name='type', description='The network access type.', example='Internet'),
   }(name='networkAccessConfig', description='The network access configuration.'),
   resourceGroupId?: string(name='resourceGroupId', description='The resource group ID.', example='rg-ahr5uil8raz0rq3b'),
-  spec?: string(name='spec', description='The node specifications.', example='apigw.dev.x2'),
+  spec?: string(name='spec', description='The node specifications. Required for the Serverless edition.', example='apigw.dev.x2'),
   tag?: [ 
     {
       key?: string(name='key', description='The tag key.', example='key'),
       value?: string(name='value', description='The tag value.', example='value'),
     }
   ](name='tag', description='The list of tags.'),
-  vpcId?: string(name='vpcId', description='The VPC ID.', example='vpc-zm0x16tomfiat1mk9f6rs'),
+  vpcId?: string(name='vpcId', description='The VPC ID. Required for all editions.', example='vpc-zm0x16tomfiat1mk9f6rs'),
   zoneConfig?: {
     selectOption?: string(name='selectOption', description='The zone selection option.', example='Manual'),
     vSwitchId?: string(name='vSwitchId', description='The vSwitch ID.', example='vsw-xxx'),
@@ -3425,7 +3439,7 @@ model CreateGatewayRequest {
         zoneId?: string(name='zoneId', description='The zone ID.', example='cn-wulanchabu-a'),
       }
     ](name='zones', description='The list of supported zones.'),
-  }(name='zoneConfig', description='The zone configuration.'),
+  }(name='zoneConfig', description='The zone configuration. Required for all editions.'),
 }
 
 model CreateGatewayResponseBody = {
@@ -3744,36 +3758,37 @@ async function createHttpApiOperation(httpApiId: string, request: CreateHttpApiO
 model CreateHttpApiRouteRequest {
   backendConfig?: {
     scene?: string(name='scene', description='The backend service scenario. Valid values:
-- SingleService: single service.
-- MultiServiceByRatio: multiple services with ratio-based canary release.
-- Mock: mock service.
-- Redirect: redirect service.', example='SingleService'),
+- SingleService: Single service.
+- MultiServiceByRatio: Multiple services with ratio-based canary release.
+- Mock: Mock service.
+- Redirect: Redirect service.', example='SingleService'),
     services?: [ 
       {
+        modelName?: string(name='modelName', description='The target model name. This field is shared by multiple existing model backend scenarios. The specific routing or model rewrite semantics are determined by backendConfig.scene. This field is required for the SemanticRouter scenario. If not specified in the AiAutoRouter scenario, the default model of the AI service is used.', example='qwen-plus'),
         port?: int32(name='port', description='The service port. Do not specify this parameter for dynamic ports.', example='8080'),
         protocol?: string(name='protocol', description='The service protocol. Valid values:
-- HTTP.
-- HTTPS.', example='HTTP'),
+- HTTP
+- HTTPS', example='HTTP'),
         serviceId?: string(name='serviceId', description='The service ID.', example='svc-crbgq0dlhtgr***'),
-        version?: string(name='version', description='The service version. This parameter is valid only in the tag-based scenario.', example='v1'),
+        version?: string(name='version', description='The service version. This parameter is valid only in the by-tag scenario.', example='v1'),
         weight?: int32(name='weight', description='The percentage value of the traffic ratio.', example='49'),
       }
     ](name='services', description='The list of backend services.'),
   }(name='backendConfig', description='The backend service configuration of the route.'),
   deployConfigs?: [
     HttpApiDeployConfig
-  ](name='deployConfigs', description='The API deployment configurations.'),
-  description?: string(name='description', description='The route description.', example='用户登录路由。'),
+  ](name='deployConfigs', description='The API deployment configurations.', deprecated=true),
+  description?: string(name='description', description='The route description.', example='User login route'),
   domainIds?: [ string ](name='domainIds', description='The domain name IDs.'),
   environmentId?: string(name='environmentId', description='The environment ID.', example='env-cpqnr6tlhtgubcv***'),
-  match?: HttpRouteMatch(name='match', description='The route match rule.'),
+  match?: HttpRouteMatch(name='match', description='The route match rules.'),
   mcpRouteConfig?: {
     exposedUriPath?: string(name='exposedUriPath', description='The exposed URI path.', example='/v1/chat/completions'),
     mcpStatisticsEnable?: boolean(name='mcpStatisticsEnable', description='Specifies whether to enable MCP observability. Default value: false.', example='false'),
     protocol?: string(name='protocol', description='The service protocol. Valid values:
-- TCP.
-- HTTP.
-- DUBBO.', example='HTTP,HTTPS'),
+- TCP
+- HTTP
+- DUBBO', example='HTTP,HTTPS'),
   }(name='mcpRouteConfig', description='The MCP route configuration.'),
   name?: string(name='name', description='The route name.', example='login'),
   policyConfigs?: [
@@ -3881,19 +3896,19 @@ model CreateMcpServerRequest {
         protocol?: string(name='protocol', description='The service protocol. Valid values:
 - HTTP
 - HTTPS', example='HTTP'),
-        serviceId?: string(name='serviceId', description='The service ID.', example='svc-crbgq0dlhtgr***'),
+        serviceId?: string(name='serviceId', description='The service ID. The serviceId is the ID of a backend service registered under the gateway. You can call the ListServices operation (with gatewayId specified) to query available service IDs.', example='svc-crbgq0dlhtgr***'),
         version?: string(name='version', description='The service version.', example='2.1.6'),
         weight?: int32(name='weight', description='The weight.', example='49'),
       }
     ](name='services', description='The backend services.'),
-  }(name='backendConfig', description='The backend service configuration of the route.'),
+  }(name='backendConfig', description='The backend service configuration for the route. This parameter is required. You must provide the backend service configuration (including scene and services). If this parameter is omitted, the API returns InvalidParameter.WithValue(400).'),
   createFromType?: string(name='createFromType', description='The creation source type. Valid values:
 
-- ApiGatewayHttpToMCP: gateway-managed HTTP-to-MCP conversion
-- ApiGatewayProxyMcpHosting: gateway-managed direct MCP proxy
-- ApiGatewayAssembly: gateway MCP assembly
-- NacosHttpToMCP: gateway-managed Nacos-synced HTTP-to-MCP conversion
-- NacosMcpHosting: gateway-managed Nacos-synced direct MCP proxy', example='ApiGatewayMcpHosting'),
+- ApiGatewayHttpToMCP: gateway-managed HTTP-to-MCP conversion.
+- ApiGatewayProxyMcpHosting: gateway-managed MCP direct proxy.
+- ApiGatewayAssembly: gateway MCP assembly.
+- NacosHttpToMCP: gateway-managed Nacos-synced HTTP-to-MCP conversion.
+- NacosMcpHosting: gateway-managed Nacos-synced MCP direct proxy.', example='ApiGatewayMcpHosting'),
   description?: string(name='description', description='The description of the MCP server.', example='mcp tool fetch time'),
   domainIds?: [ string ](name='domainIds', description='The domain name IDs.'),
   exposedUriPath?: string(name='exposedUriPath', description='The exposed URI path. This parameter is required when protocol is set to SSE or StreamableHTTP and type is set to RealMCP.', example='/sse'),
@@ -3914,11 +3929,11 @@ This parameter is required.', example='gw-cq7l5s5lhtgi6qac0'),
           }
         ](name='services', description='The backend services.'),
       }(name='backendConfig', description='The backend configuration.'),
-      match?: HttpRouteMatch(name='match', description='The route match rule.'),
+      match?: HttpRouteMatch(name='match', description='The route matching rule.'),
       routeId?: string(name='routeId', description='The route ID.', example='gray-route-123'),
     }
   ](name='grayMcpServerConfigs', description='The canary release routing configurations.'),
-  match?: HttpRouteMatch(name='match', description='The route match rule.'),
+  match?: HttpRouteMatch(name='match', description='The route match rule. When type is set to RealMCP, the match parameter is required and you must provide a route matching rule.'),
   mcpServerConfig?: {
     mcpServerSpec?: string(name='mcpServerSpec', description='The MCP server spec configuration. This parameter is mutually exclusive with swaggerConfig.', example='mcp-spec.yaml'),
     swaggerConfig?: string(name='swaggerConfig', description='The Swagger document for HTTP-to-MCP conversion. The document must comply with the OpenAPI 3.0 specification.', example='swagger.yaml'),
@@ -3927,10 +3942,10 @@ This parameter is required.', example='gw-cq7l5s5lhtgi6qac0'),
   name?: string(name='name', description='The MCP server name. The name must match the regular expression ^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\\\\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$ and cannot exceed 64 characters in length.
 
 This parameter is required.', example='fetch-time'),
-  protocol?: string(name='protocol', description='The protocol type. Valid values: HTTP, HTTPS, SSE, and StreamableHTTP.', example='HTTP'),
+  protocol?: string(name='protocol', description='The protocol type. This parameter is required. You must explicitly specify the protocol type (HTTP/HTTPS/SSE/StreamableHTTP). If this parameter is omitted, the API returns InvalidParameter.WithValue(400).', example='HTTP'),
   type?: string(name='type', description='The type. Valid values:
 
-- RealMCP: standard MCP service
+- RealMCP: standard MCP service.
 
 This parameter is required.', example='RealMCP'),
 }
@@ -4124,25 +4139,25 @@ async function createPluginAttachment(request: CreatePluginAttachmentRequest): C
 }
 
 model CreatePluginClassRequest {
-  alias?: string(name='alias', description='The alias of the plugin.', example='My Wasm Plugin'),
+  alias?: string(name='alias', description='The alias of the plugin class. This parameter is required. If this parameter is not specified, the service returns InvalidParameter.WithValue.', example='My Wasm Plugin'),
   description?: string(name='description', description='The description of the plugin.
 
 This parameter is required.', example='Custom authentication plugin for validating tokens in request headers'),
-  executePriority?: int32(name='executePriority', description='The execution priority of the plugin.', example='100'),
+  executePriority?: int32(name='executePriority', description='The execution priority of the plugin. This parameter is required when executeStage is specified. The default value 0 is invalid. Set this parameter to 200.', example='100'),
   executeStage?: string(name='executeStage', description='The execution stage of the plugin.
 
 This parameter is required.', example='AUTHN'),
   name?: string(name='name', description='The name of the plugin class.
 
 This parameter is required.', example='my-wasm-plugin'),
-  supportedMinGatewayVersion?: string(name='supportedMinGatewayVersion', description='The minimum gateway version that the plugin is compatible with.', example='2.0.0'),
+  supportedMinGatewayVersion?: string(name='supportedMinGatewayVersion', description='The minimum gateway version supported by the plugin.', example='2.0.0'),
   version?: string(name='version', description='The version number of the plugin.
 
 This parameter is required.', example='1.0.0'),
   versionDescription?: string(name='versionDescription', description='The description of the current version.
 
 This parameter is required.', example='Initial version with basic token validation'),
-  wasmLanguage?: string(name='wasmLanguage', description='The programming language used to develop the WASM plugin.
+  wasmLanguage?: string(name='wasmLanguage', description='The development language of the WASM plugin. Valid values: TinyGo.
 
 This parameter is required.', example='Rust'),
   wasmUrl?: string(name='wasmUrl', description='The download URL of the WASM plugin binary file.
@@ -5339,6 +5354,10 @@ async function deleteGatewaySecurityGroupRule(gatewayId: string, securityGroupRu
   return deleteGatewaySecurityGroupRuleWithOptions(gatewayId, securityGroupRuleId, request, headers, runtime);
 }
 
+model DeleteHttpApiRequest {
+  dryRun?: boolean(name='dryRun', description='Specifies whether to perform only a dry run. If set to true, all synchronous validations identical to an actual deletion are executed (including admission checks such as whether a published API cannot be deleted), but the API is not deleted, no associated configurations are cleaned up, and no side effects are produced. If this parameter is not specified or is set to false, the behavior is the same as the existing version.'),
+}
+
 model DeleteHttpApiResponseBody = {
   code?: string(name='code', description='The response status code.', example='Ok'),
   message?: string(name='message', description='The response message.', example='success'),
@@ -5354,13 +5373,21 @@ model DeleteHttpApiResponse = {
 /**
  * @summary Deletes a specified HTTP API.
  *
+ * @param request DeleteHttpApiRequest
  * @param headers map
  * @param runtime runtime options for this request RuntimeOptions
  * @return DeleteHttpApiResponse
  */
-async function deleteHttpApiWithOptions(httpApiId: string, headers: map[string]string, runtime: Util.RuntimeOptions): DeleteHttpApiResponse {
+async function deleteHttpApiWithOptions(httpApiId: string, request: DeleteHttpApiRequest, headers: map[string]string, runtime: Util.RuntimeOptions): DeleteHttpApiResponse {
+  Util.validateModel(request);
+  var query : map[string]any = {};
+  if (!Util.isUnset(request.dryRun)) {
+    query['dryRun'] = request.dryRun;
+  }
+
   var req = new OpenApi.OpenApiRequest{ 
     headers = headers,
+    query = OpenApiUtil.query(query),
   };
   var params = new OpenApi.Params{
     action = 'DeleteHttpApi',
@@ -5379,12 +5406,13 @@ async function deleteHttpApiWithOptions(httpApiId: string, headers: map[string]s
 /**
  * @summary Deletes a specified HTTP API.
  *
+ * @param request DeleteHttpApiRequest
  * @return DeleteHttpApiResponse
  */
-async function deleteHttpApi(httpApiId: string): DeleteHttpApiResponse {
+async function deleteHttpApi(httpApiId: string, request: DeleteHttpApiRequest): DeleteHttpApiResponse {
   var runtime = new Util.RuntimeOptions{};
   var headers : map[string]string = {};
-  return deleteHttpApiWithOptions(httpApiId, headers, runtime);
+  return deleteHttpApiWithOptions(httpApiId, request, headers, runtime);
 }
 
 model DeleteHttpApiOperationResponseBody = {
@@ -5933,32 +5961,32 @@ model DeployHttpApiRequest {
   restApiConfig?: {
     description?: string(name='description', description='The publish description.', example='User service API publish'),
     environment?: {
-      backendScene?: string(name='backendScene', description='The API publish scenario.', example='SingleService', deprecated=true),
+      backendScene?: string(name='backendScene', description='The API publish scenario. Backend configurations cannot be specified during publishing. Configure them in advance by using UpdateHttpApi or UpdateHttpApiOperation before publishing.', example='SingleService', deprecated=true),
       customDomainIds?: [ string ](name='customDomainIds', description='The list of custom domain names.'),
       environmentId?: string(name='environmentId', description='The environment ID.', example='env-cpqnr6tlhtgubc***', deprecated=true),
       serviceConfigs?: [ 
         {
-          match?: HttpApiBackendMatchConditions(name='match', description='The match condition configuration related to API publishing.', example='{\\\\"change_order_revision\\\\":\\\\"3.657.33_fc-hz-yunqi.1662568293908382_faas-eerouter\\\\"}'),
+          match?: HttpApiBackendMatchConditions(name='match', description='The match condition configuration for API publishing.', example='{\\\\"change_order_revision\\\\":\\\\"3.657.33_fc-hz-yunqi.1662568293908382_faas-eerouter\\\\"}'),
           port?: int32(name='port', description='The service port. Do not specify this parameter for dynamic ports.', example='8080'),
-          protocol?: string(name='protocol', description='The service protocol. Valid values:
+          protocol?: string(name='protocol', description='The Terms of Service. Valid values:
 - HTTP.
 - HTTPS.', example='HTTP'),
           serviceId?: string(name='serviceId', description='The service ID.', example='svc-cr6pk4tlhtgm58e***'),
           version?: string(name='version', description='The service version.', example='v1'),
-          weight?: int32(name='weight', description='The weight. Valid values: 1 to 100. This parameter takes effect only in the by-ratio scenario.', example='49'),
+          weight?: int32(name='weight', description='The weight. Valid values: 1 to 100. This parameter takes effect only in ratio-based scenarios.', example='49'),
         }
-      ](name='serviceConfigs', description='The existing service configurations. In the single service scenario, only one entry is allowed. In the by-ratio or by-content scenarios, multiple entries are allowed.', deprecated=true, nullable=true),
+      ](name='serviceConfigs', description='The existing service configurations. In the single-service scenario, only one entry is allowed. In ratio-based or content-based scenarios, multiple entries are allowed. Backend configurations cannot be specified during publishing. Configure them in advance by using UpdateHttpApi or UpdateHttpApiOperation before publishing.', deprecated=true, nullable=true),
     }(name='environment', description='The publish environment configuration.'),
     gatewayId?: string(name='gatewayId', description='The gateway ID.', example='gw-cvn2u46m1hkun04oll8g'),
     operationDeployments?: [ 
       {
-        action?: string(name='action', description='The operation type.', example='Publish'),
+        action?: string(name='action', description='The action type.', example='Publish'),
         operationId?: string(name='operationId', description='The unique identifier of the operation.', example='op-xxx'),
       }
-    ](name='operationDeployments', description='The operation-level deployment control list.'),
+    ](name='operationDeployments', description='The operation-level publish control list.'),
     operationIds?: [ string ](name='operationIds', description='The operation IDs.', deprecated=true),
-    revisionId?: string(name='revisionId', description='The historical version number. If this field is specified, the publish information is based on the historical version.', example='apr-xxx'),
-  }(name='restApiConfig', description='The REST API deployment configuration. Required when the HTTP API being published is a REST API.'),
+    revisionId?: string(name='revisionId', description='The historical version number. If specified, the publish uses the information from this historical version.', example='apr-xxx'),
+  }(name='restApiConfig', description='The REST API deployment configuration. Required when the HTTP API being published is a REST API. At least one of revisionId, environment, or gatewayId must be provided to identify the publish target.'),
   routeId?: string(name='routeId', description='The route ID. Required when publishing a route of an HTTP API.', example='hr-cr82undlhtgrl***'),
 }
 
@@ -6717,12 +6745,13 @@ async function getConsumer(consumerId: string): GetConsumerResponse {
 
 model GetConsumerAuthorizationRuleResponseBody = {
   apiInfo?: HttpApiApiInfo(name='apiInfo', description='The API information.'),
-  consumerAuthorizationRuleId?: string(name='consumerAuthorizationRuleId', description='The consumer authorization rule ID used to filter the API list. The API list in the response contains only authorized APIs.', example='car-ctgdn8em1hko5krqq03g'),
+  consumerAuthorizationRuleId?: string(name='consumerAuthorizationRuleId', description='The ID of the consumer authorization rule used to filter the API list. The API list in the response contains only authorized APIs.', example='car-ctgdn8em1hko5krqq03g'),
   consumerId?: string(name='consumerId', description='The consumer ID.', example='cs-ctgdn2um1hkossul8gvg'),
   createTimestamp?: long(name='createTimestamp', description='The creation timestamp. Unit: milliseconds.', example='1750852089975'),
   deployStatus?: string(name='deployStatus', description='The publish status of the API in the current environment.', example='""'),
   environmentInfo?: EnvironmentInfo(name='environmentInfo', description='The environment context.'),
   expireMode?: string(name='expireMode', description='The expiration mode. Valid values:
+
 - LongTerm
 - ShortTerm', example='LongTerm'),
   expireStatus?: string(name='expireStatus', description='The expiration status.', example='true'),
@@ -7179,9 +7208,12 @@ model GetGatewayResponseBody = {
       }
     ](name='environments', description='The list of environments associated with the gateway.'),
     expireTimestamp?: long(name='expireTimestamp', description='The subscription expiration timestamp. Unit: milliseconds.', example='1719386834548'),
-    gatewayEdition?: string(name='gatewayEdition', description='The gateway instance edition. Valid values:', example='Serverless'),
+    gatewayEdition?: string(name='gatewayEdition', description='The edition of the gateway instance. Valid values:
+
+- Professional: standard instance.
+- Serverless: Serverless.', example='Serverless'),
     gatewayId?: string(name='gatewayId', description='The gateway ID.', example='gw-cq2vundlhtg***'),
-    gatewayMode?: string(name='gatewayMode'),
+    gatewayMode?: string(name='gatewayMode', description='The running mode of AI multi-tenant V2. Default value: ENTERPRISE. This parameter can be specified only when AI + MultiTenantServerless is used.', example='STANDARD'),
     gatewayType?: string(name='gatewayType', description='The gateway type. Valid values:', example='API'),
     isp?: string(name='isp', description='The type of the network service provider.', example='BGP'),
     loadBalancers?: [ 
@@ -7224,7 +7256,7 @@ model GetGatewayResponseBody = {
       }
     ](name='tags', description='The resource tags.'),
     targetVersion?: string(name='targetVersion', description='The target version of the gateway. When this value differs from version, a version upgrade can be performed.', example='2.0.2'),
-    tenantId?: string(name='tenantId'),
+    tenantId?: string(name='tenantId', description='The tenant ID returned in STANDARD mode.', example='pt-xxx'),
     updateTimestamp?: long(name='updateTimestamp', description='The update timestamp. Unit: milliseconds.', example='1719386834548'),
     vSwitch?: {
       name?: string(name='name', description='The vSwitch name.', example='Hangzhou VPC vSwitch'),
@@ -7384,7 +7416,7 @@ async function getGatewayQuotaRule(gatewayId: string, ruleId: string, request: G
 }
 
 model GetGatewayQuotaRuleSubjectUsageRequest {
-  filterFailedRequests?: boolean(name='filterFailedRequests'),
+  filterFailedRequests?: boolean(name='filterFailedRequests', description='Specifies whether to filter zero values.', example='true'),
   pageNumber?: int32(name='pageNumber', description='The page number of the detailed consumption (request) records of the consumer within the cycle.', example='1'),
   pageSize?: int32(name='pageSize', description='The number of detailed consumption (request) records per page for the consumer within the cycle. Maximum value: 10.', example='10'),
 }
@@ -7410,7 +7442,7 @@ model GetGatewayQuotaRuleSubjectUsageResponseBody = {
     }(name='details', description='The paginated consumption details.', example='{"totalSize":100}'),
     inputAmount?: long(name='inputAmount', description='The total input token consumption.', example='300'),
     outputAmount?: long(name='outputAmount', description='The total output token consumption.', example='180'),
-    overLimit?: boolean(name='overLimit', description='Indicates whether the quota limit is exceeded.', example='false'),
+    overLimit?: boolean(name='overLimit', description='Indicates whether the limit is exceeded.', example='false'),
     totalQuota?: long(name='totalQuota', description='The total quota of the subject.', example='1000'),
     usedAmount?: long(name='usedAmount', description='The total used amount of the subject.', example='500'),
   }(name='data', description='The response data.', example='{"usedAmount":500}'),
@@ -7427,7 +7459,7 @@ model GetGatewayQuotaRuleSubjectUsageResponse = {
 /**
  * @summary Queries the usage details of a subject under a gateway quota throttling rule, including used quota, total quota, whether the limit is exceeded, usage details, and consumption records.
  *
- * @description Retrieves the usage details of a specific consumer under a quota rule. This operation takes effect only for AI gateways with a version later than 2.1.19.
+ * @description This operation retrieves the usage details of a consumer under a quota rule. This operation applies only to AI gateways with a version later than 2.1.19.
  *
  * @param request GetGatewayQuotaRuleSubjectUsageRequest
  * @param headers map
@@ -7468,7 +7500,7 @@ async function getGatewayQuotaRuleSubjectUsageWithOptions(gatewayId: string, rul
 /**
  * @summary Queries the usage details of a subject under a gateway quota throttling rule, including used quota, total quota, whether the limit is exceeded, usage details, and consumption records.
  *
- * @description Retrieves the usage details of a specific consumer under a quota rule. This operation takes effect only for AI gateways with a version later than 2.1.19.
+ * @description This operation retrieves the usage details of a consumer under a quota rule. This operation applies only to AI gateways with a version later than 2.1.19.
  *
  * @param request GetGatewayQuotaRuleSubjectUsageRequest
  * @return GetGatewayQuotaRuleSubjectUsageResponse
@@ -7477,6 +7509,10 @@ async function getGatewayQuotaRuleSubjectUsage(gatewayId: string, ruleId: string
   var runtime = new Util.RuntimeOptions{};
   var headers : map[string]string = {};
   return getGatewayQuotaRuleSubjectUsageWithOptions(gatewayId, ruleId, subjectId, request, headers, runtime);
+}
+
+model GetHttpApiRequest {
+  expandPolicyConfigs?: boolean(name='expandPolicyConfigs', description='Specifies whether to expand independent policy configurations. When omitted or set to true, a full compatible view is returned. When set to false, the ModelAPI Token throttling managed by Policy returns policy references and optional read-only plug-in status, and the rule body can be retrieved by calling GetPolicy.'),
 }
 
 model GetHttpApiResponseBody = {
@@ -7495,13 +7531,21 @@ model GetHttpApiResponse = {
 /**
  * @summary Retrieves HTTP API information.
  *
+ * @param request GetHttpApiRequest
  * @param headers map
  * @param runtime runtime options for this request RuntimeOptions
  * @return GetHttpApiResponse
  */
-async function getHttpApiWithOptions(httpApiId: string, headers: map[string]string, runtime: Util.RuntimeOptions): GetHttpApiResponse {
+async function getHttpApiWithOptions(httpApiId: string, request: GetHttpApiRequest, headers: map[string]string, runtime: Util.RuntimeOptions): GetHttpApiResponse {
+  Util.validateModel(request);
+  var query : map[string]any = {};
+  if (!Util.isUnset(request.expandPolicyConfigs)) {
+    query['expandPolicyConfigs'] = request.expandPolicyConfigs;
+  }
+
   var req = new OpenApi.OpenApiRequest{ 
     headers = headers,
+    query = OpenApiUtil.query(query),
   };
   var params = new OpenApi.Params{
     action = 'GetHttpApi',
@@ -7520,12 +7564,13 @@ async function getHttpApiWithOptions(httpApiId: string, headers: map[string]stri
 /**
  * @summary Retrieves HTTP API information.
  *
+ * @param request GetHttpApiRequest
  * @return GetHttpApiResponse
  */
-async function getHttpApi(httpApiId: string): GetHttpApiResponse {
+async function getHttpApi(httpApiId: string, request: GetHttpApiRequest): GetHttpApiResponse {
   var runtime = new Util.RuntimeOptions{};
   var headers : map[string]string = {};
-  return getHttpApiWithOptions(httpApiId, headers, runtime);
+  return getHttpApiWithOptions(httpApiId, request, headers, runtime);
 }
 
 model GetHttpApiOperationResponseBody = {
@@ -7636,7 +7681,7 @@ model GetMcpServerResponseBody = {
         mcpServerName?: string(name='mcpServerName', description='The MCP server name.', example='test-mcp'),
         tools?: [ string ](name='tools', description='The list of MCP tools.'),
       }
-    ](name='assembledSources', description='The list of assembly sources. This parameter is required when type is AssemblyMCP.'),
+    ](name='assembledSources', description='The list of assembled sources. This parameter is required when type is AssemblyMCP.'),
     backend?: Backend(name='backend', description='The backend service of the route.'),
     createFromType?: string(name='createFromType', description='The creation source type. Valid values:
 
@@ -7646,7 +7691,7 @@ model GetMcpServerResponseBody = {
 - NacosHttpToMCP: gateway-managed Nacos-synced HTTP-to-MCP conversion.
 - NacosMcpHosting: gateway-managed Nacos-synced MCP direct proxy.', example='ApiGatewayHttpToMCP'),
     deployStatus?: string(name='deployStatus', description='The publish status of the API in the current environment.', example='Deployed'),
-    description?: string(name='description', description='The description.', example='测试专用MCP Server'),
+    description?: string(name='description', description='The description.', example='Test MCP Server'),
     domainIds?: [ string ](name='domainIds', description='The list of domain name IDs.'),
     domainInfos?: [ 
       {
@@ -7677,7 +7722,7 @@ model GetMcpServerResponseBody = {
       }
     ](name='grayMcpServerConfigs', description='The canary release route configurations.'),
     match?: HttpRouteMatch(name='match', description='The route match rule.', example='{\\\\"product_code\\\\":\\\\"apigw\\\\"}'),
-    mcpServerConfig?: string(name='mcpServerConfig', description='The HTTP-to-MCP configuration.', example='MCP Server配置 base64'),
+    mcpServerConfig?: string(name='mcpServerConfig', description='The HTTP-to-MCP configuration.', example='MCP Server configuration base64'),
     mcpServerConfigPluginAttachmentId?: string(name='mcpServerConfigPluginAttachmentId', description='The MCP server plugin configuration attachment ID.', example='pa-adfaefwaef'),
     mcpServerId?: string(name='mcpServerId', description='MCP Server ID', example='mcp-adfefz24afg'),
     mcpServerPath?: string(name='mcpServerPath', description='The MCP server access path provided by the gateway.', example='/mcp-servers/test-mcp'),
@@ -7705,7 +7750,7 @@ model GetMcpServerResponse = {
 /**
  * @summary Retrieves an MCP server.
  *
- * @description The operation supports creating multiple services.
+ * @description This operation supports creating multiple services.
  *
  * @param headers map
  * @param runtime runtime options for this request RuntimeOptions
@@ -7732,7 +7777,7 @@ async function getMcpServerWithOptions(mcpServerId: string, headers: map[string]
 /**
  * @summary Retrieves an MCP server.
  *
- * @description The operation supports creating multiple services.
+ * @description This operation supports creating multiple services.
  *
  * @return GetMcpServerResponse
  */
@@ -8380,27 +8425,21 @@ model ImportHttpApiRequest {
   deployConfigs?: [
     HttpApiDeployConfig
   ](name='deployConfigs', description='The API deployment configurations.'),
-  description?: string(name='description', description='The description of the imported API. If not specified, the description is extracted from the API definition. Maximum length: 255 bytes.', example='测试专用API'),
-  dryRun?: boolean(name='dryRun', description='Specifies whether to enable dry run mode. If enabled, only validation is performed without performing the actual import.', example='false'),
+  description?: string(name='description', description='The description of the imported API. If not specified, the description is extracted from the API definition. Maximum length: 255 bytes.', example='Test API'),
+  dryRun?: boolean(name='dryRun', description='Specifies whether to perform a dry run. If enabled, only validation is performed without the actual import.', example='false'),
   gatewayId?: string(name='gatewayId', description='The gateway ID.', example='gw-xxx'),
   mcpRouteId?: string(name='mcpRouteId', description='The MCP route ID.', example='xxx'),
-  name?: string(name='name', description='The name of the imported API. If not specified, the name is extracted from the API definition file. If the API name and version configuration already exist, this import updates the existing API definition based on the strategy field.', example='import-test'),
+  name?: string(name='name', description='The name of the imported API. If not specified, the name is extracted from the API definition file. If an API with the same name and version configuration already exists, this import updates the existing API definition based on the strategy field.', example='import-test'),
   resourceGroupId?: string(name='resourceGroupId', description='The [resource group ID](https://help.aliyun.com/document_detail/151181.html).', example='rg-aek23nsa353vmra'),
-  specContentBase64?: string(name='specContentBase64', description='The Base64-encoded API definition that supports OAS 2.0 and OAS 3.0 specifications in YAML or JSON format. This parameter takes priority over the specFileUrl parameter. If the file size exceeds 10 MB, use the specFileUrl parameter instead.', example='b3BlbmFwaTogMy4wLjAKaW5mbzoKICAgIHRpdGxlOiBkZW1vCiAgICBkZXNjcmlwdGlvbjogdGhpc2lzZGVtbwogICAgdmVyc2lvbjogIiIKcGF0aHM6CiAgICAvdXNlci97dXNlcklkfToKICAgICAgICBnZXQ6CiAgICAgICAgICAgIHN1bW1hcnk6IOiOt+WPlueUqOaIt+S/oeaBrwogICAgICAgICAgICBkZXNjcmlwdGlvbjog6I635Y+W55So5oi35L+h5oGvCiAgICAgICAgICAgIG9wZXJhdGlvbklkOiBHZXRVc2VySW5mbwogICAgICAgICAgICByZXNwb25zZXM6CiAgICAgICAgICAgICAgICAiMjAwIjoKICAgICAgICAgICAgICAgICAgICBkZXNjcmlwdGlvbjog5oiQ5YqfCiAgICAgICAgICAgICAgICAgICAgY29udGVudDoKICAgICAgICAgICAgICAgICAgICAgICAgYXBwbGljYXRpb24vanNvbjtjaGFyc2V0PXV0Zi04OgogICAgICAgICAgICAgICAgICAgICAgICAgICAgc2NoZW1hOiBudWxsCnNlcnZlcnM6CiAgICAtIHVybDogaHR0cDovL2FwaS5leGFtcGxlLmNvbS92MQo='),
-  specFileUrl?: string(name='specFileUrl', description='The download URL of the API definition file. The URL must be accessible from the public network or be an internal network OSS download URL in the same region. The URL must have download permissions. For OSS files that are not publicly readable, see References [Download objects using presigned URLs](https://help.aliyun.com/document_detail/39607.html) and provide a URL with download permissions. Currently, only API definition files stored on OSS are supported.'),
+  specContentBase64?: string(name='specContentBase64', description='The Base64-encoded API definition. OAS 2.0 and OAS 3.0 specifications are supported in YAML or JSON format. This parameter takes priority over the specFileUrl parameter. If the file size exceeds 10 MB, use the specFileUrl parameter instead.', example='b3BlbmFwaTogMy4wLjAKaW5mbzoKICAgIHRpdGxlOiBkZW1vCiAgICBkZXNjcmlwdGlvbjogdGhpc2lzZGVtbwogICAgdmVyc2lvbjogIiIKcGF0aHM6CiAgICAvdXNlci97dXNlcklkfToKICAgICAgICBnZXQ6CiAgICAgICAgICAgIHN1bW1hcnk6IOiOt+WPlueUqOaIt+S/oeaBrwogICAgICAgICAgICBkZXNjcmlwdGlvbjog6I635Y+W55So5oi35L+h5oGvCiAgICAgICAgICAgIG9wZXJhdGlvbklkOiBHZXRVc2VySW5mbwogICAgICAgICAgICByZXNwb25zZXM6CiAgICAgICAgICAgICAgICAiMjAwIjoKICAgICAgICAgICAgICAgICAgICBkZXNjcmlwdGlvbjog5oiQ5YqfCiAgICAgICAgICAgICAgICAgICAgY29udGVudDoKICAgICAgICAgICAgICAgICAgICAgICAgYXBwbGljYXRpb24vanNvbjtjaGFyc2V0PXV0Zi04OgogICAgICAgICAgICAgICAgICAgICAgICAgICAgc2NoZW1hOiBudWxsCnNlcnZlcnM6CiAgICAtIHVybDogaHR0cDovL2FwaS5leGFtcGxlLmNvbS92MQo='),
+  specFileUrl?: string(name='specFileUrl', description='The download URL of the API definition file. The URL must be accessible over the Internet or be an internal network OSS download URL in the same region. The URL must have download permissions. For OSS files that are not publicly readable, see References [Download objects using presigned URLs](https://help.aliyun.com/document_detail/39607.html) and provide a URL with download permissions. Only API definition files stored in OSS are supported.'),
   specOssConfig?: {
     bucketName?: string(name='bucketName', description='The bucket name.', example='gms-service-prod'),
     objectKey?: string(name='objectKey', description='The full path of the file.', example='/test/swagger.json'),
     regionId?: string(name='regionId', description='The region ID.', example='cn-shanghai'),
-  }(name='specOssConfig', description='The OSS configuration.'),
-  strategy?: string(name='strategy', description='The update strategy to use when the imported API name and version management match an existing API. Valid values:
-
-- SpecFirst: the imported file takes priority. New operations are added and existing operations are updated. Operations not mentioned in the file remain unchanged.
-- SpecOnly: the imported file is used as the sole source of truth.
-- ExistFirst: the existing API takes priority. Only new operations are added. Existing operations are not updated.
-
-Default value: ExistFirst.', example='ExistFirst'),
-  targetHttpApiId?: string(name='targetHttpApiId', description='If this field is specified, this import updates the specified API instead of importing a new one or searching for an existing API based on the API name and version management configuration. The target API must be of the REST type.', example='api-xxxx'),
+  }(name='specOssConfig', description='The OSS information.'),
+  strategy?: string(name='strategy', description='The update strategy to use when the imported API name and version management match an existing API. Valid values:', example='ExistFirst'),
+  targetHttpApiId?: string(name='targetHttpApiId', description='If this field is specified, the import updates the specified API instead of importing a new one or searching for an existing API by name and version management configuration. The target API must be of the REST type.', example='api-xxxx'),
   versionConfig?: HttpApiVersionConfig(name='versionConfig', description='The API version configuration. If version configuration is enabled and the version number and API name match an existing API, this import is treated as an update. If version configuration is not enabled and the API name matches an existing API, this import is treated as an update.'),
   withGatewayExtension?: boolean(name='withGatewayExtension', description='Specifies whether to import gateway extension information.', example='false'),
 }
@@ -8409,17 +8448,17 @@ model ImportHttpApiResponseBody = {
   code?: string(name='code', description='The response status code.', example='Ok'),
   data?: {
     dryRunInfo?: {
-      errorMessages?: [ string ](name='errorMessages', description='The error messages. If error messages are not empty, the API cannot be successfully imported.'),
-      existHttpApiInfo?: HttpApiApiInfo(name='existHttpApiInfo', description='The information about the existing API. If this field is not empty, the import action updates this API.'),
+      errorMessages?: [ string ](name='errorMessages', description='The error messages. If the error messages are not empty, the API cannot be imported successfully.'),
+      existHttpApiInfo?: HttpApiApiInfo(name='existHttpApiInfo', description='The information about the existing API. If this field is not empty, the import action updates the existing API.'),
       failureComponents?: [ 
         {
-          errorMessage?: string(name='errorMessage', description='The error message.', example='数据结构定义有误。'),
+          errorMessage?: string(name='errorMessage', description='The error message.', example='Invalid data structure definition'),
           name?: string(name='name', description='The data structure name.', example='orderDTO'),
         }
       ](name='failureComponents', description='The list of data structures that failed the dry run.'),
       failureOperations?: [ 
         {
-          errorMessage?: string(name='errorMessage', description='The error message.', example='缺少响应定义。'),
+          errorMessage?: string(name='errorMessage', description='The error message.', example='Missing response definition'),
           method?: string(name='method', description='The operation method.', example='GET'),
           path?: string(name='path', description='The operation path.', example='/v1/orders'),
         }
@@ -8429,23 +8468,17 @@ model ImportHttpApiResponseBody = {
           errorMessage?: string(name='errorMessage', description='The error message.', example='conflict'),
           name?: string(name='name', description='The parameter name.', example='admin-route'),
         }
-      ](name='failureRoutes', description='The list of routes that failed.'),
+      ](name='failureRoutes', description='The list of routes that failed to be imported.'),
       mcpToolsDefinition?: string(name='mcpToolsDefinition', description='The MCP tool definition information.', example='...'),
       successComponents?: [ 
         {
-          action?: string(name='action', description='The action to be performed after the dry run. Valid values:
-
-- Create: Create.
-- Update: Update.', example='Create'),
+          action?: string(name='action', description='The action to be performed after the dry run.', example='Create'),
           name?: string(name='name', description='The data structure name.', example='userDTO'),
         }
       ](name='successComponents', description='The list of data structures that passed the dry run.'),
       successOperations?: [ 
         {
-          action?: string(name='action', description='The action to be performed after the dry run. Valid values:
-
-- Create: Create.
-- Update: Update.', example='Create'),
+          action?: string(name='action', description='The action to be performed after the dry run.', example='Create'),
           method?: string(name='method', description='The operation method.', example='POST'),
           name?: string(name='name', description='The operation name.', example='CreateUser'),
           path?: string(name='path', description='The operation path.', example='/v1/users'),
@@ -8453,11 +8486,11 @@ model ImportHttpApiResponseBody = {
       ](name='successOperations', description='The list of operations that passed the dry run.'),
       successRoutes?: [ 
         {
-          action?: string(name='action', description='The action type.', example='Create'),
+          action?: string(name='action', description='The operation type.', example='Create'),
           name?: string(name='name', description='The name.', example='user-route'),
         }
       ](name='successRoutes', description='The list of routes that were successfully imported.'),
-      warningMessages?: [ string ](name='warningMessages', description='The warning messages. If warning messages are not empty, some operations or data structures may not be imported successfully.'),
+      warningMessages?: [ string ](name='warningMessages', description='The warning messages. If the warning messages are not empty, some operations or data structures may fail to be imported.'),
     }(name='dryRunInfo', description='The dry run result.'),
     httpApiId?: string(name='httpApiId', description='The unique ID of the HTTP API.', example='api-xxx'),
     name?: string(name='name', description='The API name.', example='import-test'),
@@ -8473,7 +8506,7 @@ model ImportHttpApiResponse = {
 }
 
 /**
- * @summary Imports an HTTP API. This operation supports importing OpenAPI 2.0 and OpenAPI 3.0.x definition files as REST-type APIs.
+ * @summary Imports an HTTP API. You can import an OpenAPI 2.0 or OpenAPI 3.0.x definition file as a REST API.
  *
  * @param request ImportHttpApiRequest
  * @param headers map
@@ -8545,7 +8578,7 @@ async function importHttpApiWithOptions(request: ImportHttpApiRequest, headers: 
 }
 
 /**
- * @summary Imports an HTTP API. This operation supports importing OpenAPI 2.0 and OpenAPI 3.0.x definition files as REST-type APIs.
+ * @summary Imports an HTTP API. You can import an OpenAPI 2.0 or OpenAPI 3.0.x definition file as a REST API.
  *
  * @param request ImportHttpApiRequest
  * @return ImportHttpApiResponse
@@ -9723,16 +9756,19 @@ model ListGatewayFeaturesResponseBody = {
   data?: {
     items?: [ 
       {
+        constraints?: {
+          bodyMaxSizeLimit?: int32(name='bodyMaxSizeLimit', description='The maximum body collection size per request in bytes. This value is returned based on the managed form of the gateway deployment cluster. Only the log-request-response feature returns this field.', example='5120'),
+        }(name='constraints', description='The runtime constraints calculated based on the current gateway form. Only returned for certain features.'),
         definition?: {
           defaultValue?: string(name='defaultValue', description='The default value.', example='"true"'),
-          description?: string(name='description', description='The parameter description.', example='作用于请求与响应环节，启用gzip会对请求响应进行压缩，会减少网关流量，增加网关cpu消耗'),
+          description?: string(name='description', description='The parameter description.', example='Applies to request and response phases. Enabling gzip compresses request responses, which reduces gateway traffic but increases gateway CPU consumption'),
           displayName?: string(name='displayName', description='The display name of the parameter.', example='EnableGzip'),
           group?: string(name='group', description='The parameter group. Valid values:
-- Telemetry: observability parameter.
-- Engine: engine parameter.', example='Engine'),
+- Telemetry: observability-related parameter.
+- Engine: engine-related parameter.', example='Engine'),
           inputType?: string(name='inputType', description='The input type of the parameter. Valid values:
 - Trigger: toggle.
-- Input: input.
+- Input: text input.
 - SingleSelect: single-select.
 - MultiSelect: multi-select.', example='Trigger'),
           maxLength?: int32(name='maxLength', description='The maximum length supported by the parameter value. This is valid only when the value type is string.', example='64'),
@@ -9744,18 +9780,18 @@ model ListGatewayFeaturesResponseBody = {
           regex?: string(name='regex', description='The regular expression that the parameter value must match. This is valid only when the parameter value type is string.', example='[a-z].*'),
           valueOptions?: [ 
             {
-              key?: string(name='key', description='The pass parameter key.', example='KEEP_UNCHANGED'),
-              label?: string(name='label', description='The display value.', example='保持不变'),
+              key?: string(name='key', description='The key used to pass the parameter.', example='KEEP_UNCHANGED'),
+              label?: string(name='label', description='The display value.', example='Keep unchanged'),
             }
           ](name='valueOptions', description='The list of options supported by the parameter value.'),
           valueType?: string(name='valueType', description='The type supported by the parameter value. Valid values:
 - bool: Boolean.
 - string: String.
-- int32: Integer.
-- int64: Long integer.
+- int32: 32-bit integer.
+- int64: 64-bit integer.
 - json: JSON format.
 - array: JSON array format.
-- float: Float.', example='bool'),
+- float: Floating-point.', example='bool'),
           valueUnit?: string(name='valueUnit', description='The unit.', example='byte'),
         }(name='definition', description='The parameter definition.'),
         value?: string(name='value', description='The parameter value.', example='"true"'),
@@ -9922,7 +9958,7 @@ model ListGatewaysRequest {
       value?: string(name='value', description='The tag value.', example='zhangsan'),
     }
   ](name='tag', description='The list of tags.'),
-  vpcId?: string(name='vpcId', description='The VPC ID.', example='vpc-2zeqrgx6jrlb063y06yjo'),
+  vpcId?: string(name='vpcId', description='The virtual private cloud (VPC) ID.', example='vpc-2zeqrgx6jrlb063y06yjo'),
 }
 
 model ListGatewaysShrinkRequest {
@@ -9934,7 +9970,7 @@ model ListGatewaysShrinkRequest {
   pageSize?: int32(name='pageSize', description='The page size.', example='10'),
   resourceGroupId?: string(name='resourceGroupId', description='The resource group ID.', example='rg-aekzq6bzz5uyg2q'),
   tagShrink?: string(name='tag', description='The list of tags.'),
-  vpcId?: string(name='vpcId', description='The VPC ID.', example='vpc-2zeqrgx6jrlb063y06yjo'),
+  vpcId?: string(name='vpcId', description='The virtual private cloud (VPC) ID.', example='vpc-2zeqrgx6jrlb063y06yjo'),
 }
 
 model ListGatewaysResponseBody = {
@@ -9948,9 +9984,13 @@ model ListGatewaysResponseBody = {
         expireTimestamp?: long(name='expireTimestamp', description='The expiration timestamp for subscription instances. Unit: milliseconds.', example='172086834548'),
         gatewayEdition?: string(name='gatewayEdition', description='The gateway instance edition.', example='Serverless'),
         gatewayId?: string(name='gatewayId', description='The gateway ID.', example='gw-cpv54p5***'),
-        gatewayMode?: string(name='gatewayMode', example='ENTERPRISE'),
+        gatewayMode?: string(name='gatewayMode', description='The running mode of the AI MultiTenantServerless gateway. Valid values:
+- ENTERPRISE: Enterprise Edition.
+- STANDARD: Standard Edition.
+
+This parameter is returned only for AI MultiTenantServerless gateways.', example='ENTERPRISE'),
         gatewayType?: string(name='gatewayType', description='The gateway type.', example='API'),
-        legacy?: boolean(name='legacy', description='Indicates whether the gateway instance was created before AI gateway was released.', example='true'),
+        legacy?: boolean(name='legacy', description='Indicates whether the gateway instance was created before the AI gateway was released.', example='true'),
         loadBalancers?: [ 
           {
             address?: string(name='address', description='The load balancing address.', example='nlb-xoh3pghr***.cn-hangzhou.nlb.aliyuncs.com'),
@@ -9988,7 +10028,7 @@ model ListGatewaysResponseBody = {
             value?: string(name='value', description='The tag value.', example='zhangsan'),
           }
         ](name='tags', description='The list of tags.'),
-        targetVersion?: string(name='targetVersion', description='The target version of the gateway. If this value differs from the version, a version upgrade can be performed.', example='2.0.2'),
+        targetVersion?: string(name='targetVersion', description='The target version of the gateway. When this value differs from version, a version upgrade can be performed.', example='2.0.2'),
         updateTimestamp?: long(name='updateTimestamp', description='The update timestamp. Unit: milliseconds.', example='1719386834548'),
         vSwitch?: {
           vSwitchId?: string(name='vSwitchId', description='The vSwitch ID.', example='vsw-bp14efv***'),
@@ -10096,19 +10136,19 @@ async function listGateways(request: ListGatewaysRequest): ListGatewaysResponse 
 }
 
 model ListHttpApiOperationsRequest {
-  consumerAuthorizationRuleId?: string(name='consumerAuthorizationRuleId', description='The consumer authorization rule ID used to filter the API operation list. The response includes only authorized API operations.', example='cas-xxx'),
-  enableAuth?: boolean(name='enableAuth', description='Specifies whether to filter by authentication enablement status.', example='true'),
+  consumerAuthorizationRuleId?: string(name='consumerAuthorizationRuleId', description='The consumer authorization rule ID used to filter the operation list. The response includes only operations that are authorized by the specified rule.', example='cas-xxx'),
+  enableAuth?: boolean(name='enableAuth', description='The authentication enablement filter.', example='true'),
   forDeploy?: boolean(name='forDeploy', description='Specifies whether the request is for a deployment scenario.', example='true'),
-  gatewayId?: string(name='gatewayId', description='The gateway ID used to filter results.', example='gw-001'),
-  method?: string(name='method', description='Lists API operations by HTTP method.', example='GET'),
-  name?: string(name='name', description='Searches for API operations by exact name match.', example='getUserInfo'),
-  nameLike?: string(name='nameLike', description='Searches for API operations by name prefix.', example='GetUser'),
-  pageNumber?: int32(name='pageNumber', description='The page number to return. Pages start from 1. Default value: 1.', example='1'),
-  pageSize?: int32(name='pageSize', description='The number of entries per page. Valid values: 1 to 100. Default value: 10.', example='10'),
-  pathLike?: string(name='pathLike', description='Searches for API operations by path prefix match.', example='/v1'),
-  withConsumerInEnvironmentId?: string(name='withConsumerInEnvironmentId', description='The environment ID. When specified, the response includes the authorization rule list of the specified consumer under the specified environment for each API operation. You must also specify the withConsumerInfoById parameter.', example='env-xxx'),
-  withConsumerInfoById?: string(name='withConsumerInfoById', description='The consumer ID. When specified, the response includes the authorization rule list of the specified consumer under the specified environment for each API operation. You must also specify the withConsumerInEnvironmentId parameter.', example='cs-xxx'),
-  withPluginAttachmentByPluginId?: string(name='withPluginAttachmentByPluginId', description='The plug-in ID used to retrieve plug-in publishing information.', example='pl-xxx'),
+  gatewayId?: string(name='gatewayId', description='The gateway ID filter.', example='gw-001'),
+  method?: string(name='method', description='Lists operations by HTTP method.', example='GET'),
+  name?: string(name='name', description='Searches for operations by exact name match.', example='getUserInfo'),
+  nameLike?: string(name='nameLike', description='Searches for operations by name prefix.', example='GetUser'),
+  pageNumber?: int32(name='pageNumber', description='The page number, starting from 1. Default value: 1.', example='1'),
+  pageSize?: int32(name='pageSize', description='The page size. Valid values: 1 to 100. Default value: 10.', example='10'),
+  pathLike?: string(name='pathLike', description='Searches for operations by path prefix match.', example='/v1'),
+  withConsumerInEnvironmentId?: string(name='withConsumerInEnvironmentId', description='The environment ID. When specified together with withConsumerInfoById, the response includes the authorization rule list of the specified consumer in the specified environment for each operation.', example='env-xxx'),
+  withConsumerInfoById?: string(name='withConsumerInfoById', description='The consumer ID. When specified together with withConsumerInEnvironmentId, the response includes the authorization rule list of the specified consumer in the specified environment for each operation.', example='cs-xxx'),
+  withPluginAttachmentByPluginId?: string(name='withPluginAttachmentByPluginId', description='The plugin ID used to retrieve plugin deployment information.', example='pl-xxx'),
 }
 
 model ListHttpApiOperationsResponseBody = {
@@ -10116,11 +10156,11 @@ model ListHttpApiOperationsResponseBody = {
   data?: {
     items?: [
       HttpApiOperationInfo
-    ](name='items', description='The list of API operations.'),
+    ](name='items', description='The list of operations.'),
     pageNumber?: int32(name='pageNumber', description='The page number.', example='1'),
     pageSize?: int32(name='pageSize', description='The page size.', example='10'),
     totalSize?: int32(name='totalSize', description='The total number of entries.', example='10'),
-  }(name='data', description='The list of API operations.'),
+  }(name='data', description='The list of operations.'),
   message?: string(name='message', description='The response message.', example='success'),
   requestId?: string(name='requestId', description='The request ID.', example='585657D2-1C20-5B8A-AF17-D727C6490BE4'),
 }
@@ -10132,7 +10172,7 @@ model ListHttpApiOperationsResponse = {
 }
 
 /**
- * @summary Retrieves a list of API operations.
+ * @summary Retrieves the list of API operations.
  *
  * @param request ListHttpApiOperationsRequest
  * @param headers map
@@ -10201,7 +10241,7 @@ async function listHttpApiOperationsWithOptions(httpApiId: string, request: List
 }
 
 /**
- * @summary Retrieves a list of API operations.
+ * @summary Retrieves the list of API operations.
  *
  * @param request ListHttpApiOperationsRequest
  * @return ListHttpApiOperationsResponse
@@ -10214,20 +10254,20 @@ async function listHttpApiOperations(httpApiId: string, request: ListHttpApiOper
 
 model ListHttpApiRoutesRequest {
   backendServiceName?: string(name='backendServiceName', description='The backend service name. You can use this name to filter routes.', example='test-svc'),
-  consumerAuthorizationRuleId?: string(name='consumerAuthorizationRuleId', description='Filters the API list by a specific consumer authorization rule ID. The response only includes authorized APIs.', example='cas-xxx'),
+  consumerAuthorizationRuleId?: string(name='consumerAuthorizationRuleId', description='Filters the API list by a specific consumer authorization rule ID. The response includes only authorized APIs.', example='cas-xxx'),
   deployStatuses?: string(name='deployStatuses', description='The deployment status of the route.', example='NotDeployed'),
-  domainId?: string(name='domainId', description='Filters route information by domain name ID.', example='d-xxx'),
+  domainId?: string(name='domainId', description='The domain name ID used to filter route information.', example='d-xxx'),
   environmentId?: string(name='environmentId', description='The environment ID.', example='env-cpqnr6tlhtgubc***'),
-  forDeploy?: boolean(name='forDeploy', description='Specifies whether the request is for a deployment scenario.', example='true'),
+  forDeploy?: boolean(name='forDeploy', description='Specifies whether this is a deployment scenario.', example='true'),
   gatewayId?: string(name='gatewayId', description='The cloud-native API gateway ID.', example='gw-cpv4sqdl****'),
   name?: string(name='name', description='The route name.', example='itemcenter-gateway'),
   nameLike?: string(name='nameLike', description='Fuzzy match by route name.', example='item'),
   pageNumber?: int32(name='pageNumber', description='The page number, starting from 1. Default value: 1.', example='1'),
   pageSize?: int32(name='pageSize', description='The page size. Valid values: 1 to 100. Default value: 10.', example='10'),
   pathLike?: string(name='pathLike', description='Fuzzy match by route path.', example='/v1'),
-  withAuthPolicyInfo?: boolean(name='withAuthPolicyInfo', description='Includes consumer authorization information in the response.', example='true'),
-  withConsumerInfoById?: string(name='withConsumerInfoById', description='Includes the authorization rule list of the specified consumer ID for each route in the response.', example='cs-xxx'),
-  withPluginAttachmentByPluginId?: string(name='withPluginAttachmentByPluginId', description='Includes the mount information of the specified plug-in ID for each route in the response.', example='pl-xxx'),
+  withAuthPolicyInfo?: boolean(name='withAuthPolicyInfo', description='Specifies whether to include consumer authorization information in the response.', example='true'),
+  withConsumerInfoById?: string(name='withConsumerInfoById', description='Specifies a consumer ID so that the response includes the authorization rule list for the specified consumer in each route.', example='cs-xxx'),
+  withPluginAttachmentByPluginId?: string(name='withPluginAttachmentByPluginId', description='Specifies a plug-in ID so that the response includes the mount information of the specified plug-in in each route.', example='pl-xxx'),
 }
 
 model ListHttpApiRoutesResponseBody = {
@@ -10482,7 +10522,7 @@ model ListMcpServersRequest {
   gatewayId?: string(name='gatewayId', description='The gateway ID.
 
 This parameter is required.', example='gw-co370icmjeu****'),
-  nameLike?: string(name='nameLike', description='The fuzzy match keyword for searching MCP servers by API name.', example='test'),
+  nameLike?: string(name='nameLike', description='Fuzzy searches for MCP servers by API name.', example='test'),
   pageNumber?: int32(name='pageNumber', description='The page number, starting from 1. Default value: 1.
 
 This parameter is required.', example='1'),
@@ -10504,17 +10544,17 @@ model ListMcpServersResponseBody = {
             mcpServerName?: string(name='mcpServerName', description='The MCP server name.', example='test-mcp'),
             tools?: [ string ](name='tools', description='The list of MCP tools.'),
           }
-        ](name='assembledSources', description='The list of assembly sources. This parameter is required when type is AssemblyMCP.'),
+        ](name='assembledSources', description='The list of assembled sources. This parameter is required when type is AssemblyMCP.'),
         backend?: Backend(name='backend', description='The backend service of the route.'),
         createFromType?: string(name='createFromType', description='The creation source type. Valid values:
 
-- ApiGatewayHttpToMCP: gateway-managed HTTP-to-MCP conversion.
+- ApiGatewayHttpToMCP: gateway-managed HTTP-to-MCP.
 - ApiGatewayMcpHosting: gateway-managed MCP direct proxy.
 - ApiGatewayAssembly: gateway MCP assembly.
-- NacosHttpToMCP: gateway-managed Nacos-synced HTTP-to-MCP conversion.
+- NacosHttpToMCP: gateway-managed Nacos-synced HTTP-to-MCP.
 - NacosMcpHosting: gateway-managed Nacos-synced MCP direct proxy.', example='ApiGatewayHttpToMCP'),
         deployStatus?: string(name='deployStatus', description='The deployment status of the API in the current environment.', example='Deployed'),
-        description?: string(name='description', description='The description.', example='这是xxx的xx项目测试环境'),
+        description?: string(name='description', description='The description.', example='This is the test environment for the xx project of xxx'),
         domainIds?: [ string ](name='domainIds', description='The list of domain name IDs.'),
         domainInfos?: [
           HttpApiDomainInfo
@@ -10523,21 +10563,21 @@ model ListMcpServersResponseBody = {
         exposedUriPath?: string(name='exposedUriPath', description='The exposed URI path. This parameter is required when protocol is SSE or StreamableHTTP and type is RealMCP.', example='/sse'),
         gatewayId?: string(name='gatewayId', description='The gateway instance ID.', example='gw-cpv54p5***'),
         match?: HttpRouteMatch(name='match', description='The route match rule.'),
-        mcpServerConfig?: string(name='mcpServerConfig', description='The HTTP-to-MCP configuration.', example='HTTP转MCP Config base64值'),
+        mcpServerConfig?: string(name='mcpServerConfig', description='The HTTP-to-MCP configuration.', example='Base64-encoded value of the HTTP-to-MCP configuration'),
         mcpServerId?: string(name='mcpServerId', description='MCP Server ID', example='mcp-feaff34va'),
         mcpServerPath?: string(name='mcpServerPath', description='The MCP server access path provided by the gateway.', example='/mcp-servers/test-mcp'),
-        mcpStatisticsEnable?: boolean(name='mcpStatisticsEnable', description='Indicates whether MCP observability is enabled. Default value: false.', example='false'),
+        mcpStatisticsEnable?: boolean(name='mcpStatisticsEnable', description='Specifies whether MCP observability is enabled. Default value: false.', example='false'),
         nacosMcpSyncInfo?: {
           importInstanceId?: string(name='importInstanceId', description='The Nacos instance.', example='mse-faefrefxz'),
-          importMcpServerId?: string(name='importMcpServerId', description='The synced MCP server ID.', example='同步的MCP Server ID'),
+          importMcpServerId?: string(name='importMcpServerId', description='The synced MCP server ID.', example='The synced MCP server ID'),
           importNamespace?: string(name='importNamespace', description='The Nacos namespace.', example='test-ns'),
         }(name='nacosMcpSyncInfo', description='The Nacos-synced managed MCP information.'),
         name?: string(name='name', description='The MCP server name.', example='itemcenter-dev-cluster'),
         protocol?: string(name='protocol', description='The service protocol.', example='HTTP'),
         routeId?: string(name='routeId', description='The route ID associated with the MCP server.', example='hr-d11cj86m1hkvop6mp42g'),
-        type?: string(name='type', description='The MCP server type.', example='可选值：RealMCP、AssemblyMCP'),
+        type?: string(name='type', description='The MCP server type.', example='Valid values: RealMCP, AssemblyMCP'),
       }
-    ](name='items', description='The list of MCP servers.'),
+    ](name='items', description='The MCP server list information.'),
     pageNumber?: int32(name='pageNumber', description='The page number.', example='1'),
     pageSize?: int32(name='pageSize', description='The page size.', example='10'),
     totalSize?: int32(name='totalSize', description='The total number of entries.', example='25'),
@@ -10553,7 +10593,7 @@ model ListMcpServersResponse = {
 }
 
 /**
- * @summary Retrieves a list of MCP servers.
+ * @summary Retrieves the list of MCP servers.
  *
  * @description The operation supports creating multiple services.
  *
@@ -10606,7 +10646,7 @@ async function listMcpServersWithOptions(request: ListMcpServersRequest, headers
 }
 
 /**
- * @summary Retrieves a list of MCP servers.
+ * @summary Retrieves the list of MCP servers.
  *
  * @description The operation supports creating multiple services.
  *
@@ -10621,13 +10661,13 @@ async function listMcpServers(request: ListMcpServersRequest): ListMcpServersRes
 
 model ListPluginAttachmentsRequest {
   attachResourceId?: string(name='attachResourceId', description='The mount resource ID.', example='hr-cv2h58em1hkg7c6vt43g'),
-  attachResourceType?: string(name='attachResourceType', description='The plug-in mount point type. This parameter is not yet enabled.', example='GatewayRoute'),
+  attachResourceType?: string(name='attachResourceType', description='The plugin mount point type. This parameter is not yet enabled.', example='GatewayRoute'),
   attachResourceTypes?: string(name='attachResourceTypes', description='The mount point types. Separate multiple types with commas.', example='GatewayRoute'),
   environmentId?: string(name='environmentId', description='The environment ID.', example='env-crlnqhtlhtgqflkqislg'),
   gatewayId?: string(name='gatewayId', description='The gateway ID.', example='gw-cr79f75lhtgme744084g'),
   pageNumber?: int32(name='pageNumber', description='The page number. Default value: 1.', example='1'),
-  pageSize?: int32(name='pageSize', description='The number of entries per page.', example='10'),
-  pluginId?: string(name='pluginId', description='The plug-in ID.', example='pl-ct8181um1hkiqns9f6e0'),
+  pageSize?: int32(name='pageSize', description='The page size.', example='10'),
+  pluginId?: string(name='pluginId', description='The plugin ID.', example='pl-ct8181um1hkiqns9f6e0'),
   withParentResource?: boolean(name='withParentResource', description='Specifies whether to return parent resource mounts.', example='false'),
 }
 
@@ -10636,22 +10676,22 @@ model ListPluginAttachmentsResponseBody = {
   data?: {
     items?: [ 
       {
-        attachResourceType?: string(name='attachResourceType', description='The plug-in mount resource type. Valid values: GatewayRoute, Gateway, GatewayDomain, HttpApi, and Operation.', example='GatewayRoute'),
-        enable?: boolean(name='enable', description='Indicates whether the plug-in mount is enabled.', example='true'),
+        attachResourceType?: string(name='attachResourceType', description='The plugin mount resource type. Valid values: GatewayRoute, Gateway, GatewayDomain, HttpApi, and Operation.', example='GatewayRoute'),
+        enable?: boolean(name='enable', description='Indicates whether the plugin mount is enabled.', example='true'),
         environmentInfo?: EnvironmentInfo(name='environmentInfo', description='The environment context.'),
         parentResourceInfo?: ParentResourceInfo(name='parentResourceInfo', description='The parent resource information.'),
-        pluginAttachmentId?: string(name='pluginAttachmentId', description='The plug-in mount ID.', example='pa-d0j9t5em1hkncrlo51mg'),
-        pluginClassInfo?: PluginClassInfo(name='pluginClassInfo', description='The plug-in type information.'),
-        pluginConfig?: string(name='pluginConfig', description='The Base64-encoded content of the original plug-in configuration.', example='bGltaXRfYnlfaGVhZGVyOiB4LWFwaS1rZXkKbGltaXRfa2V5czoKLSBrZXk6IGV4YW1wbGUta2V5LWEKICBxdWVyeV9wZXJfc2Vjb25kOiAxMAotIGtleTogZXhhbXBsZS1rZXktYgogIHF1ZXJ5X3Blcl9zZWNvbmQ6IDEK'),
-        pluginId?: string(name='pluginId', description='The plug-in ID.', example='pl-cvu6r4um1hko3b3ti0a0'),
+        pluginAttachmentId?: string(name='pluginAttachmentId', description='The plugin mount ID.', example='pa-d0j9t5em1hkncrlo51mg'),
+        pluginClassInfo?: PluginClassInfo(name='pluginClassInfo', description='The plugin type information.'),
+        pluginConfig?: string(name='pluginConfig', description='The Base64-encoded content of the original plugin configuration.', example='bGltaXRfYnlfaGVhZGVyOiB4LWFwaS1rZXkKbGltaXRfa2V5czoKLSBrZXk6IGV4YW1wbGUta2V5LWEKICBxdWVyeV9wZXJfc2Vjb25kOiAxMAotIGtleTogZXhhbXBsZS1rZXktYgogIHF1ZXJ5X3Blcl9zZWNvbmQ6IDEK'),
+        pluginId?: string(name='pluginId', description='The plugin ID.', example='pl-cvu6r4um1hko3b3ti0a0'),
         resourceInfos?: [
           ResourceInfo
         ](name='resourceInfos', description='The mount resource information.'),
       }
     ](name='items', description='The item details.'),
     pageNumber?: int32(name='pageNumber', description='The page number.', example='1'),
-    pageSize?: int32(name='pageSize', description='The number of entries per page.', example='10'),
-    totalSize?: int32(name='totalSize', description='The total number of entries.', example='10'),
+    pageSize?: int32(name='pageSize', description='The page size.', example='10'),
+    totalSize?: int32(name='totalSize', description='The total count.', example='10'),
   }(name='data', description='The response data.'),
   message?: string(name='message', description='The response message.', example='success'),
   requestId?: string(name='requestId', description='Id of the request', example='9640D776-794A-5077-9184-A247CA4B45C1'),
@@ -10664,7 +10704,7 @@ model ListPluginAttachmentsResponse = {
 }
 
 /**
- * @summary Retrieves the list of plug-in mounts.
+ * @summary Retrieves the list of plugin mounts.
  *
  * @param request ListPluginAttachmentsRequest
  * @param headers map
@@ -10721,7 +10761,7 @@ async function listPluginAttachmentsWithOptions(request: ListPluginAttachmentsRe
 }
 
 /**
- * @summary Retrieves the list of plug-in mounts.
+ * @summary Retrieves the list of plugin mounts.
  *
  * @param request ListPluginAttachmentsRequest
  * @return ListPluginAttachmentsResponse
@@ -11747,10 +11787,10 @@ async function listZones(request: ListZonesRequest): ListZonesResponse {
 
 model QueryConsumerAuthorizationRulesRequest {
   apiNameLike?: string(name='apiNameLike', description='The API name.', example='api-xx'),
-  consumerGroupId?: string(name='consumerGroupId', description='The consumer group ID. If specified, the authorization rules for the consumer group are queried.', example='csg-8c13d2b4f8a1'),
-  consumerGroupNameLike?: string(name='consumerGroupNameLike', description='The consumer group name for fuzzy match.'),
+  consumerGroupId?: string(name='consumerGroupId', description='The consumer group ID. If specified, the authorization rules of this consumer group are queried.', example='csg-8c13d2b4f8a1'),
+  consumerGroupNameLike?: string(name='consumerGroupNameLike', description='The consumer group name for fuzzy match.', example='team'),
   consumerId?: string(name='consumerId', description='The consumer ID.', example='cs-ct21c16m1hkp64hk6qmg'),
-  consumerNameLike?: string(name='consumerNameLike', description='The consumer name.', example='consumer-xxx'),
+  consumerNameLike?: string(name='consumerNameLike', description='The consumer name for fuzzy match.', example='consumer-xxx'),
   environmentId?: string(name='environmentId', description='The environment ID.', example='env-cpqnr6tlhtgubc***'),
   groupByApi?: boolean(name='groupByApi', description='Specifies whether to group results by API.', example='true'),
   pageNumber?: int32(name='pageNumber', description='The page number.', example='1'),
@@ -11759,7 +11799,7 @@ model QueryConsumerAuthorizationRulesRequest {
   principalType?: string(name='principalType', description='The principal type. Valid values: Consumer or ConsumerGroup.', example='ConsumerGroup'),
   resourceId?: string(name='resourceId', description='The resource ID.', example='ha-cn-li942gy8p03'),
   resourceType?: string(name='resourceType', description='The resource type.', example='HttpApiRoute'),
-  resourceTypes?: string(name='resourceTypes', description='The service source type.', example='K8S'),
+  resourceTypes?: string(name='resourceTypes', description='The service source types.', example='K8S'),
 }
 
 model QueryConsumerAuthorizationRulesResponseBody = {
@@ -11767,12 +11807,12 @@ model QueryConsumerAuthorizationRulesResponseBody = {
   data?: {
     items?: [ 
       {
-        apiInfo?: HttpApiApiInfo(name='apiInfo', description='The API information.'),
+        apiInfo?: HttpApiApiInfo(name='apiInfo', description='The API information details.'),
         consumerAuthorizationRuleId?: string(name='consumerAuthorizationRuleId', description='The consumer authorization rule ID.', example='car-csgeka5lhtggrjcprok0'),
         consumerGroupId?: string(name='consumerGroupId', description='The consumer group ID. This field is returned for consumer group authorization rules.', example='csg-8c13d2b4f8a1'),
         consumerGroupInfo?: ConsumerGroupInfo(name='consumerGroupInfo', description='The consumer group information. This field is returned for consumer group authorization rules.'),
         consumerId?: string(name='consumerId', description='The consumer ID.', example='cs-csheiftlhtgmp0j0hp4g'),
-        consumerInfo?: ConsumerInfo(name='consumerInfo', description='The consumer information.'),
+        consumerInfo?: ConsumerInfo(name='consumerInfo', description='The consumer information details.'),
         createTimestamp?: long(name='createTimestamp', description='The creation timestamp. Unit: milliseconds.', example='1719386834548'),
         deployStatus?: string(name='deployStatus', description='The publish status of the API in the current environment.', example='{}'),
         environmentInfo?: EnvironmentInfo(name='environmentInfo', description='The environment context.'),
@@ -11787,7 +11827,7 @@ model QueryConsumerAuthorizationRulesResponseBody = {
         resourceInfo?: {
           operationInfo?: HttpApiOperationInfo(name='operationInfo', description='The operation information.'),
           route?: HttpRoute(name='route', description='The routing rule.'),
-        }(name='resourceInfo', description='The resource information.'),
+        }(name='resourceInfo', description='The resource information details.'),
         resourceType?: string(name='resourceType', description='The resource type.', example='HttpApiRoute'),
         updateTimestamp?: long(name='updateTimestamp', description='The update timestamp. Unit: milliseconds.', example='1719386834548'),
       }
@@ -13643,20 +13683,21 @@ This parameter is required.', example='/v1'),
   deployConfigs?: [
     HttpApiDeployConfig
   ](name='deployConfigs', description='The list of API deployment configurations.'),
-  description?: string(name='description', description='The description of the API.', example='更新API描述'),
+  description?: string(name='description', description='The description of the API.', example='Update API description'),
   enableAuth?: boolean(name='enableAuth', description='Specifies whether to enable authentication.', example='true'),
   firstByteTimeout?: int32(name='firstByteTimeout', description='The first byte timeout period. Unit: seconds.', example='30'),
   ingressConfig?: {
     environmentId?: string(name='environmentId', description='The environment ID.', example='env-cr6ql0tlhtgmc****'),
-    ingressClass?: string(name='ingressClass', description='The Ingress class to listen on.', example='mse'),
-    overrideIngressIp?: boolean(name='overrideIngressIp', description='Specifies whether to update the address in the Ingress status.', example='false'),
+    ingressClass?: string(name='ingressClass', description='The Ingress Class to listen on.', example='mse'),
+    overrideIngressIp?: boolean(name='overrideIngressIp', description='Specifies whether to update the address in the Ingress Status.', example='false'),
     sourceId?: string(name='sourceId', description='The source ID.', example='src-crdddallhtgtr****'),
     watchNamespace?: string(name='watchNamespace', description='The namespace to listen on.', example='default'),
   }(name='ingressConfig', description='The configuration of the HTTP Ingress API.'),
-  onlyChangeConfig?: boolean(name='onlyChangeConfig', description='Specifies whether to only update the configuration without triggering a redeployment. Set this parameter to true to update the configuration only.', example='true'),
+  onlyChangeConfig?: boolean(name='onlyChangeConfig', description='Specifies whether to only modify the configuration. If set to true, only the configuration is modified without triggering a redeployment.', example='true'),
   protocols?: [ string ](name='protocols', description='The list of API access protocols.'),
   removeBasePathOnForward?: boolean(name='removeBasePathOnForward', description='Specifies whether to remove the base path when forwarding requests.', example='true'),
-  versionConfig?: HttpApiVersionConfig(name='versionConfig', description='The API versioning configuration.'),
+  versionConfig?: HttpApiVersionConfig(name='versionConfig', description='The versioning configuration of the API.'),
+  dryRun?: boolean(name='dryRun', description='Specifies whether to perform only a dry run. If set to true, all synchronous validations identical to a real update are performed without updating any configurations or producing side effects. If not specified or set to false, the behavior is the same as the existing version.'),
 }
 
 model UpdateHttpApiResponseBody = {
@@ -13681,6 +13722,11 @@ model UpdateHttpApiResponse = {
  */
 async function updateHttpApiWithOptions(httpApiId: string, request: UpdateHttpApiRequest, headers: map[string]string, runtime: Util.RuntimeOptions): UpdateHttpApiResponse {
   Util.validateModel(request);
+  var query : map[string]any = {};
+  if (!Util.isUnset(request.dryRun)) {
+    query['dryRun'] = request.dryRun;
+  }
+
   var body : map[string]any = {};
   if (!Util.isUnset(request.agentProtocols)) {
     body['agentProtocols'] = request.agentProtocols;
@@ -13724,6 +13770,7 @@ async function updateHttpApiWithOptions(httpApiId: string, request: UpdateHttpAp
 
   var req = new OpenApi.OpenApiRequest{ 
     headers = headers,
+    query = OpenApiUtil.query(query),
     body = OpenApiUtil.parseToMap(body),
   };
   var params = new OpenApi.Params{
@@ -13818,6 +13865,7 @@ model UpdateHttpApiRouteRequest {
     scene?: string(name='scene', description='The backend service scenario.', example='SingleService'),
     services?: [ 
       {
+        modelName?: string(name='modelName', description='The target model name. This field is shared by multiple existing model backend scenarios. The specific routing or model rewrite semantics are determined by backendConfig.scene. This field is required for the SemanticRouter scenario. If this field is not configured in the AiAutoRouter scenario, the default model of the AI service is used.', example='qwen-plus'),
         port?: int32(name='port', description='The service port. Do not specify this parameter for dynamic ports.', example='8080'),
         protocol?: string(name='protocol', description='The service protocol. Valid values:
 - HTTP
@@ -13828,7 +13876,7 @@ model UpdateHttpApiRouteRequest {
       }
     ](name='services', description='The list of backend services.'),
   }(name='backendConfig', description='The backend service configuration of the route.'),
-  description?: string(name='description', description='The route description.', example='商品中心服务路由'),
+  description?: string(name='description', description='The route description.', example='Product center service route'),
   domainIds?: [ string ](name='domainIds', description='The list of domain name IDs.'),
   environmentId?: string(name='environmentId', description='The environment ID.', example='env-cquqsollhtgid***'),
   match?: HttpRouteMatch(name='match', description='The route match rule.'),
@@ -13855,7 +13903,7 @@ model UpdateHttpApiRouteResponse = {
 }
 
 /**
- * @summary Updates a route of an HttpApi.
+ * @summary Updates the route of an HTTP API.
  *
  * @param request UpdateHttpApiRouteRequest
  * @param headers map
@@ -13906,7 +13954,7 @@ async function updateHttpApiRouteWithOptions(httpApiId: string, routeId: string,
 }
 
 /**
- * @summary Updates a route of an HttpApi.
+ * @summary Updates the route of an HTTP API.
  *
  * @param request UpdateHttpApiRouteRequest
  * @return UpdateHttpApiRouteResponse
@@ -13946,7 +13994,7 @@ model UpdateMcpServerRequest {
 - ApiGatewayAssembly: gateway MCP assembly.
 - NacosHttpToMCP: gateway-managed Nacos-synced HTTP-to-MCP conversion.
 - NacosMcpHosting: gateway-managed Nacos-synced MCP direct proxy.', example='ApiGatewayMcpHosting'),
-  description?: string(name='description', description='The description.', example='商品中心服务路由'),
+  description?: string(name='description', description='The description.', example='Product center service routing'),
   domainIds?: [ string ](name='domainIds', description='The domain name IDs.'),
   exposedUriPath?: string(name='exposedUriPath', description='The exposed URI path. This parameter is required when protocol is SSE or StreamableHTTP and type is RealMCP.', example='/sse'),
   grayMcpServerConfigs?: [ 
@@ -13963,11 +14011,11 @@ model UpdateMcpServerRequest {
           }
         ](name='services', description='The list of backend services.'),
       }(name='backendConfig', description='The backend configuration.'),
-      match?: HttpRouteMatch(name='match', description='The route match rule.'),
+      match?: HttpRouteMatch(name='match', description='The route match rules.'),
       routeId?: string(name='routeId', description='The route ID.', example='route-123'),
     }
-  ](name='grayMcpServerConfigs', description='The list of canary release MCP server route configurations.'),
-  match?: HttpRouteMatch(name='match', description='The route match rule.'),
+  ](name='grayMcpServerConfigs', description='The list of canary release MCP server routing configurations.'),
+  match?: HttpRouteMatch(name='match', description='The route match rules.'),
   mcpServerConfig?: {
     mcpServerSpec?: string(name='mcpServerSpec', description='The MCP server configuration. This parameter is mutually exclusive with swaggerConfig.', example='mcp-server-spec-yaml'),
     swaggerConfig?: string(name='swaggerConfig', description='The Swagger document for HTTP-to-MCP conversion. The document must comply with the OpenAPI 3.0 specification.', example='swagger-content'),
@@ -13977,7 +14025,7 @@ model UpdateMcpServerRequest {
 - HTTP: HTTP protocol.
 - HTTPS: HTTPS protocol.
 - SSE: Server-Sent Events protocol.
-- StreamableHTTP: streamable HTTP protocol.
+- StreamableHTTP: Streamable HTTP protocol.
 
 This parameter is required.', example='HTTP'),
   type?: string(name='type', description='The MCP server type filter. Valid values:
@@ -14002,7 +14050,7 @@ model UpdateMcpServerResponse = {
 /**
  * @summary Updates an MCP server.
  *
- * @description Only sources of the **Container Service** type can update the Ingress listener configuration.
+ * @description Only sources of the **Container Service** type are allowed to update the Ingress listener configuration.
  *
  * @param request UpdateMcpServerRequest
  * @param headers map
@@ -14070,7 +14118,7 @@ async function updateMcpServerWithOptions(mcpServerId: string, request: UpdateMc
 /**
  * @summary Updates an MCP server.
  *
- * @description Only sources of the **Container Service** type can update the Ingress listener configuration.
+ * @description Only sources of the **Container Service** type are allowed to update the Ingress listener configuration.
  *
  * @param request UpdateMcpServerRequest
  * @return UpdateMcpServerResponse
