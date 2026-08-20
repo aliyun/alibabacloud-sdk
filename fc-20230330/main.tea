@@ -292,6 +292,9 @@ model CreateSessionNetworkConfig {
   allowPublicTraffic?: boolean(name='allowPublicTraffic'),
   denyOut?: [ string ](name='denyOut'),
   maskRequestHost?: string(name='maskRequestHost'),
+  rules?: map[string][
+    SessionNetworkRule
+  ](name='rules', description='The request transform rules configured by exact target host. Supports transform.headers and transform.headerValueReplacements.'),
 }
 
 model CreateSnapshotInput {
@@ -1323,20 +1326,27 @@ Default value: False.', example='false'),
   trafficAccessToken?: string(name='trafficAccessToken'),
 }
 
-model Snapshot {
-  artifactDiskTotalSizeInB?: long(name='artifactDiskTotalSizeInB', description='The total disk snapshot size, in bytes.
+model SessionNetworkHeaderValueReplacement {
+  placeholder?: string(name='placeholder', description='The fake value. A placeholder used by code in the sandbox. The gateway performs an exact substring match on this string within the header value.', example='sbx-notion-key-0001'),
+  value?: string(name='value', description='The real value. The actual value after the placeholder is replaced.', example='ntn_real_secret_xxx'),
+}
 
-This parameter is required.', example='10737418240'),
-  artifactDiskUsedSizeInB?: long(name='artifactDiskUsedSizeInB', description='The used disk snapshot size, in bytes.
+model SessionNetworkRule {
+  transform?: SessionNetworkRuleTransform(name='transform'),
+}
+
+model SessionNetworkRuleTransform {
+  headerValueReplacements?: [
+    SessionNetworkHeaderValueReplacement
+  ](name='headerValueReplacements', description='The list of rules for replacing placeholders in HTTP header values before the request is forwarded to the matched host.'),
+  headers?: map[string]string(name='headers', description='The HTTP headers injected or overwritten before the request is forwarded to the matched host. Header values are returned in plaintext in GetSession and ListSessions.'),
+}
+
+model Snapshot {
+  artifactDiskUsedSizeInB?: long(name='artifactDiskUsedSizeInB', description='The used size of the disk snapshot, in bytes.
 
 This parameter is required.', example='2147483648'),
-  artifactMemCacheSizeInB?: long(name='artifactMemCacheSizeInB', description='The memory snapshot cache size, in bytes.
-
-This parameter is required.', example='268435456'),
-  artifactMemTotalSizeInB?: long(name='artifactMemTotalSizeInB', description='The total memory snapshot size, in bytes.
-
-This parameter is required.', example='3221225472'),
-  artifactMemUsedSizeInB?: long(name='artifactMemUsedSizeInB', description='The used memory snapshot size, in bytes.
+  artifactMemUsedSizeInB?: long(name='artifactMemUsedSizeInB', description='The used size of the memory snapshot, in bytes.
 
 This parameter is required.', example='1073741824'),
   cpu?: long(name='cpu', description='The CPU specification.
@@ -1663,6 +1673,9 @@ model UpdateSessionInput {
 model UpdateSessionNetworkConfig {
   allowOut?: [ string ](name='allowOut'),
   denyOut?: [ string ](name='denyOut'),
+  rules?: map[string][
+    SessionNetworkRule
+  ](name='rules', description='The request transform rules configured by exact target host. If omitted, existing rules are retained. An empty object clears all rules, and a non-empty object replaces all rules entirely. Null is not supported. The transform.headers and transform.headerValueReplacements fields are supported.'),
 }
 
 model UpdateTriggerInput {
@@ -3526,7 +3539,7 @@ model GetSessionResponse = {
 }
 
 /**
- * @summary Retrieves the details of a specified session, including the session ID, associated function, affinity type, lifecycle configuration, status, and instance information. This operation queries the current metadata of a single session and supports exact matching by functionName and qualifier for external system monitoring and debugging. Only sessions in the Active state can be queried.
+ * @summary Retrieves the details of a specified session, including the session ID, associated function, affinity type, lifecycle configuration, status, and instance information. This operation queries the current metadata of a single session, supports precise identification by functionName and qualifier for external system monitoring and debugging, and only supports querying sessions in the Active state.
  *
  * @param request GetSessionRequest
  * @param headers map
@@ -3559,7 +3572,7 @@ async function getSessionWithOptions(functionName: string, sessionId: string, re
 }
 
 /**
- * @summary Retrieves the details of a specified session, including the session ID, associated function, affinity type, lifecycle configuration, status, and instance information. This operation queries the current metadata of a single session and supports exact matching by functionName and qualifier for external system monitoring and debugging. Only sessions in the Active state can be queried.
+ * @summary Retrieves the details of a specified session, including the session ID, associated function, affinity type, lifecycle configuration, status, and instance information. This operation queries the current metadata of a single session, supports precise identification by functionName and qualifier for external system monitoring and debugging, and only supports querying sessions in the Active state.
  *
  * @param request GetSessionRequest
  * @return GetSessionResponse
@@ -4682,7 +4695,7 @@ model ListSessionsRequest {
   nextToken?: string(name='nextToken', description='The pagination token.', example='MTIzNCNhYmM='),
   qualifier?: string(name='qualifier', description='The function alias or version information.', example='aliasName1'),
   sessionId?: string(name='sessionId', description='The session ID to filter by. If specified, all Active or Expired status information associated with this session is returned.', example='test-session-id-1'),
-  sessionStatus?: string(name='sessionStatus', description='The session status to filter by. By default, all session information in Active or Expired status is returned. Set this parameter to Active to retrieve only active session information, or to Expired to retrieve only expired session information.', example='Active'),
+  sessionStatus?: string(name='sessionStatus', description='The session status to filter by. By default, all session information in Active or Expired status is returned. You can specify Active to retrieve only active session information, or specify Expired to retrieve only expired session information.', example='Active'),
 }
 
 model ListSessionsResponse = {
@@ -4692,7 +4705,7 @@ model ListSessionsResponse = {
 }
 
 /**
- * @summary Lists sessions in Active or Expired status under a specified function. Supports filtering by qualifier, status, and session ID, and supports paged query. Returns basic session properties for batch viewing of session distribution and status, facilitating operations management and external system integration, and improving session visibility and management capability.
+ * @summary Lists sessions in Active or Expired status under a specified function. Supports filtering by qualifier, status, and session ID, and supports paging. Returns basic session properties for batch viewing of session distribution and status, facilitating Service Monitoring and external system integration, and improving session visibility and management capabilities.
  *
  * @param request ListSessionsRequest
  * @param headers map
@@ -4737,7 +4750,7 @@ async function listSessionsWithOptions(functionName: string, request: ListSessio
 }
 
 /**
- * @summary Lists sessions in Active or Expired status under a specified function. Supports filtering by qualifier, status, and session ID, and supports paged query. Returns basic session properties for batch viewing of session distribution and status, facilitating operations management and external system integration, and improving session visibility and management capability.
+ * @summary Lists sessions in Active or Expired status under a specified function. Supports filtering by qualifier, status, and session ID, and supports paging. Returns basic session properties for batch viewing of session distribution and status, facilitating Service Monitoring and external system integration, and improving session visibility and management capabilities.
  *
  * @param request ListSessionsRequest
  * @return ListSessionsResponse
@@ -4753,7 +4766,7 @@ model ListSnapshotsRequest {
   limit?: int32(name='limit', description='The maximum number of snapshots to return. Valid values: 1 to 100. Default value: 20.', example='20'),
   nextToken?: string(name='nextToken', description='The pagination token used to retrieve more results.', example='caeba0be03****f84eb48b699f0a4883'),
   qualifier?: string(name='qualifier', description='The function alias.', example='alias'),
-  sessionId?: string(name='sessionId', description='The source session ID from which the snapshot was created. If specified, functionName must also be specified.', example='test-session-id-1'),
+  sessionId?: string(name='sessionId', description='The source session ID from which the snapshot was created. When specified, functionName must also be specified.', example='test-session-id-1'),
 }
 
 model ListSnapshotsResponse = {
@@ -5041,7 +5054,8 @@ async function listVpcBindings(functionName: string): ListVpcBindingsResponse {
 }
 
 model PauseSessionRequest {
-  qualifier?: string(name='qualifier', description='The alias or version of the function associated with the session to save.', example='aliasName1'),
+  fileSystemOnly?: string(name='fileSystemOnly'),
+  qualifier?: string(name='qualifier', description='The function alias or version associated with the session ID to save.', example='aliasName1'),
 }
 
 model PauseSessionResponse = {
@@ -5053,7 +5067,7 @@ model PauseSessionResponse = {
 /**
  * @summary Pauses and saves a session.
  *
- * @description Pauses an active session by persisting the state of its associated runtime environment and then releasing compute resources. After the call, the session status changes to Paused, and the session no longer accepts function invocation requests. This operation retains the session configuration (such as SessionTTL) and SessionID. You can use this operation to interrupt long-running tasks or save snapshots of development environments for cost optimization and state management. This operation applies to custom image functions configured with the HEADER_FIELD or GENERATED_COOKIE affinity type and session isolation.
+ * @description Pauses an Active session by persisting the state of its associated execution environment and then releasing compute resources. After you invoke this operation, the session status changes to Paused, and the session no longer accepts function invocation requests. This operation retains the session configuration (such as SessionTTL) and SessionID. You can use it to break long-running tasks or save snapshots of development environments for cost optimization and state management. This operation applies to custom image functions configured with the HEADER_FIELD or GENERATED_COOKIE affinity type and session isolation.
  *
  * @param request PauseSessionRequest
  * @param headers map
@@ -5063,6 +5077,9 @@ model PauseSessionResponse = {
 async function pauseSessionWithOptions(functionName: string, sessionId: string, request: PauseSessionRequest, headers: map[string]string, runtime: Util.RuntimeOptions): PauseSessionResponse {
   Util.validateModel(request);
   var query : map[string]any = {};
+  if (!Util.isUnset(request.fileSystemOnly)) {
+    query['fileSystemOnly'] = request.fileSystemOnly;
+  }
   if (!Util.isUnset(request.qualifier)) {
     query['qualifier'] = request.qualifier;
   }
@@ -5088,7 +5105,7 @@ async function pauseSessionWithOptions(functionName: string, sessionId: string, 
 /**
  * @summary Pauses and saves a session.
  *
- * @description Pauses an active session by persisting the state of its associated runtime environment and then releasing compute resources. After the call, the session status changes to Paused, and the session no longer accepts function invocation requests. This operation retains the session configuration (such as SessionTTL) and SessionID. You can use this operation to interrupt long-running tasks or save snapshots of development environments for cost optimization and state management. This operation applies to custom image functions configured with the HEADER_FIELD or GENERATED_COOKIE affinity type and session isolation.
+ * @description Pauses an Active session by persisting the state of its associated execution environment and then releasing compute resources. After you invoke this operation, the session status changes to Paused, and the session no longer accepts function invocation requests. This operation retains the session configuration (such as SessionTTL) and SessionID. You can use it to break long-running tasks or save snapshots of development environments for cost optimization and state management. This operation applies to custom image functions configured with the HEADER_FIELD or GENERATED_COOKIE affinity type and session isolation.
  *
  * @param request PauseSessionRequest
  * @return PauseSessionResponse
@@ -5450,7 +5467,7 @@ model ResumeSessionResponse = {
 /**
  * @summary Resumes a session.
  *
- * @description Resumes a session that is in the Paused state. The system quickly restores the session in a new execution environment based on the previously persisted state, returning it to the state before it was paused. After the session is successfully resumed, its status changes back to Active, and it can continue to accept function calling requests and route them to the restored instance. This operation applies to custom image functions that have HEADER_FIELD or GENERATED_COOKIE affinity types configured and session isolation enabled.
+ * @description Resumes a session that is in the Paused state. The system quickly restores the session in a new execution environment based on the previously persisted state, returning it to the state before it was paused. After the session is successfully resumed, its status changes back to Active, and it can continue to accept function calling requests that are routed to the restored instance. This operation applies to custom image functions that are configured with the HEADER_FIELD or GENERATED_COOKIE affinity type and session isolation.
  *
  * @param request ResumeSessionRequest
  * @param headers map
@@ -5488,7 +5505,7 @@ async function resumeSessionWithOptions(functionName: string, sessionId: string,
 /**
  * @summary Resumes a session.
  *
- * @description Resumes a session that is in the Paused state. The system quickly restores the session in a new execution environment based on the previously persisted state, returning it to the state before it was paused. After the session is successfully resumed, its status changes back to Active, and it can continue to accept function calling requests and route them to the restored instance. This operation applies to custom image functions that have HEADER_FIELD or GENERATED_COOKIE affinity types configured and session isolation enabled.
+ * @description Resumes a session that is in the Paused state. The system quickly restores the session in a new execution environment based on the previously persisted state, returning it to the state before it was paused. After the session is successfully resumed, its status changes back to Active, and it can continue to accept function calling requests that are routed to the restored instance. This operation applies to custom image functions that are configured with the HEADER_FIELD or GENERATED_COOKIE affinity type and session isolation.
  *
  * @param request ResumeSessionRequest
  * @return ResumeSessionResponse
@@ -5861,7 +5878,7 @@ model UpdateSessionResponse = {
 }
 
 /**
- * @summary Updates the configuration of a session in Active status, such as lifecycle settings including SessionTTLInSeconds and SessionIdleTimeoutInSeconds. The changes take effect immediately, and LastModifiedTime is automatically refreshed. You can use this operation to extend or shorten the session validity period for dynamic management without changing the execution environment bound to the session.
+ * @summary Updates the configuration of a session in Active state, such as lifecycle settings including SessionTTLInSeconds and SessionIdleTimeoutInSeconds. The update takes effect immediately, and LastModifiedTime is automatically refreshed. You can use this operation to extend or shorten the session validity period for dynamic management without changing the execution environment bound to the session.
  *
  * @param request UpdateSessionRequest
  * @param headers map
@@ -5895,7 +5912,7 @@ async function updateSessionWithOptions(functionName: string, sessionId: string,
 }
 
 /**
- * @summary Updates the configuration of a session in Active status, such as lifecycle settings including SessionTTLInSeconds and SessionIdleTimeoutInSeconds. The changes take effect immediately, and LastModifiedTime is automatically refreshed. You can use this operation to extend or shorten the session validity period for dynamic management without changing the execution environment bound to the session.
+ * @summary Updates the configuration of a session in Active state, such as lifecycle settings including SessionTTLInSeconds and SessionIdleTimeoutInSeconds. The update takes effect immediately, and LastModifiedTime is automatically refreshed. You can use this operation to extend or shorten the session validity period for dynamic management without changing the execution environment bound to the session.
  *
  * @param request UpdateSessionRequest
  * @return UpdateSessionResponse
