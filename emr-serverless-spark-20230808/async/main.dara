@@ -23,21 +23,21 @@ init(configuration: ClientConfiguration){
   @version = '2023-08-08';
   @endpointRule = 'regional';
   @endpointMap = {
-    'us-west-1' = 'emr-serverless-spark.us-west-1.aliyuncs.com',
-    'us-east-1' = 'emr-serverless-spark.us-east-1.aliyuncs.com',
-    'na-south-1' = 'emr-serverless-spark.na-south-1.aliyuncs.com',
-    'eu-central-1' = 'emr-serverless-spark.eu-central-1.aliyuncs.com',
-    'cn-zhangjiakou' = 'emr-serverless-spark.cn-zhangjiakou.aliyuncs.com',
-    'cn-wulanchabu' = 'emr-serverless-spark.cn-wulanchabu.aliyuncs.com',
     'cn-shenzhen' = 'emr-serverless-spark.cn-shenzhen.aliyuncs.com',
+    'cn-wulanchabu' = 'emr-serverless-spark.cn-wulanchabu.aliyuncs.com',
+    'cn-beijing' = 'emr-serverless-spark.cn-beijing.aliyuncs.com',
+    'ap-northeast-1' = 'emr-serverless-spark.ap-northeast-1.aliyuncs.com',
+    'cn-chengdu' = 'emr-serverless-spark.cn-chengdu.aliyuncs.com',
     'cn-shanghai' = 'emr-serverless-spark.cn-shanghai.aliyuncs.com',
     'cn-hongkong' = 'emr-serverless-spark.cn-hongkong.aliyuncs.com',
-    'cn-hangzhou' = 'emr-serverless-spark.cn-hangzhou.aliyuncs.com',
-    'cn-chengdu' = 'emr-serverless-spark.cn-chengdu.aliyuncs.com',
-    'cn-beijing' = 'emr-serverless-spark.cn-beijing.aliyuncs.com',
-    'ap-southeast-5' = 'emr-serverless-spark.ap-southeast-5.aliyuncs.com',
     'ap-southeast-1' = 'emr-serverless-spark.ap-southeast-1.aliyuncs.com',
-    'ap-northeast-1' = 'emr-serverless-spark.ap-northeast-1.aliyuncs.com',
+    'ap-southeast-5' = 'emr-serverless-spark.ap-southeast-5.aliyuncs.com',
+    'cn-zhangjiakou' = 'emr-serverless-spark.cn-zhangjiakou.aliyuncs.com',
+    'cn-hangzhou' = 'emr-serverless-spark.cn-hangzhou.aliyuncs.com',
+    'us-west-1' = 'emr-serverless-spark.us-west-1.aliyuncs.com',
+    'us-east-1' = 'emr-serverless-spark.us-east-1.aliyuncs.com',
+    'eu-central-1' = 'emr-serverless-spark.eu-central-1.aliyuncs.com',
+    'na-south-1' = 'emr-serverless-spark.na-south-1.aliyuncs.com',
   };
 }
 
@@ -1194,12 +1194,39 @@ async function deleteRayCluster(request: DeleteRayClusterRequest): DeleteRayClus
   return @handler.do('RESTFUL', 'DeleteRayCluster', 'DELETE', '/api/v1/workspaces/{workspaceId}/rayCluster/{clusterId}', 'json', false, 'json', request);
 }
 
+model DeleteWorkspaceQueueRequest {
+  workspaceId?: string(name='workspaceId', example='w-1234abcd', position='Path'),
+  workspaceQueueName?: string(name='workspaceQueueName', example='test-workspace', position='Path'),
+  regionId?: string(name='regionId', example='cn-hangzhou', position='Query'),
+}
+
+model DeleteWorkspaceQueueResponseBody = {
+  requestId?: string(name='RequestId', example='DD6B1B2A-5837-5237-ABE4-FF0C8944****'),
+}
+
+model DeleteWorkspaceQueueResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: DeleteWorkspaceQueueResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of DeleteWorkspaceQueue  DeleteWorkspaceQueueRequest
+  * @return DeleteWorkspaceQueueResponse
+ */
+async function deleteWorkspaceQueue(request: DeleteWorkspaceQueueRequest): DeleteWorkspaceQueueResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'DeleteWorkspaceQueue', 'DELETE', '/api/v1/workspaces/{workspaceId}/queues/{workspaceQueueName}', 'json', false, 'json', request);
+}
+
 model EditWorkspaceQueueRequest {
   environments?: [ string ](name='environments', position='Body'),
   gpuSpec?: [ string ](name='gpuSpec', position='Body'),
+  instanceId?: string(name='instanceId', position='Body'),
   resourceSpec?: {
     cu?: long(name='cu', example='1000'),
     gpu?: int32(name='gpu', example='100'),
+    gpuMachineNum?: int32(name='gpuMachineNum', maximum=8),
     maxCu?: long(name='maxCu', example='0.5'),
   }(name='resourceSpec', position='Body'),
   workspaceId?: string(name='workspaceId', example='w-975bcfda9625****', position='Body'),
@@ -2212,6 +2239,7 @@ This parameter is required.', example='w-1234abcd', position='Path'),
     endTime?: long(name='endTime', description='The end of the end time range.', example='1710432000000'),
     startTime?: long(name='startTime', description='The beginning of the end time range.', example='1709740800000'),
   }(name='endTime', description='The range of end time.', shrink='json', position='Query'),
+  groupByState?: boolean(name='groupByState', position='Query'),
   isWorkflow?: string(name='isWorkflow', position='Query'),
   jobRunDeploymentId?: string(name='jobRunDeploymentId', description='The job run ID.', example='jd-b6d003f1930f****', position='Query'),
   jobRunId?: string(name='jobRunId', description='The job ID.', example='j-xxx', position='Query'),
@@ -2236,6 +2264,7 @@ This parameter is required.', example='w-1234abcd', position='Path'),
 }
 
 model ListJobRunsResponseBody = {
+  aggregations?: map[string]string(name='aggregations'),
   jobRuns?: [ 
     {
       codeType?: string(name='codeType', description='The code type of the job. Valid values:
@@ -3154,7 +3183,9 @@ model ListWorkspaceQueuesResponseBody = {
       createTime?: long(name='createTime', description='The time when the workspace was created.', example='1684115879955'),
       creator?: string(name='creator', description='The ID of the user who created the queue.', example='237109'),
       environments?: [ string ](name='environments', description='The environment types of the queue.'),
+      gpuMachineNum?: int32(name='gpuMachineNum'),
       gpuSpec?: [ string ](name='gpuSpec'),
+      instanceId?: string(name='instanceId'),
       maxResource?: string(name='maxResource', description='The maximum capacity of resources that can be used in the queue.', example='{"cpu": "2","memory": "2Gi"}'),
       minResource?: string(name='minResource', description='The minimum capacity of resources that can be used in the queue.', example='{"cpu": "2","memory": "2Gi"}'),
       paymentType?: string(name='paymentType', description='The billing method. Valid values:
@@ -3244,7 +3275,7 @@ model ListWorkspacesResponseBody = {
         expireTime?: long(name='expireTime', description='The expiration time of the subscription quota.', example='1740537153000'),
         instanceId?: string(name='instanceId', description='The ID of the instance that is generated when you purchase the subscription quota.', example='i-abc12345'),
         maxResource?: string(name='maxResource', description='The maximum amount of resources that can be used in a subscription quota.', example='{\\"cpu\\":\\"1\\",\\"memory\\":\\"4Gi\\",\\"cu\\":\\"1\\"}'),
-        orderId?: string(name='orderId'),
+        orderId?: string(name='orderId', example='23464687565'),
         paymentStatus?: string(name='paymentStatus', description='The status of the subscription quota. Valid values:
 
 *   NORMAL
@@ -3252,6 +3283,25 @@ model ListWorkspacesResponseBody = {
 *   EXPIRED', example='NORMAL'),
         usedResource?: string(name='usedResource', description='The amount of resources that are used.', example='{\\"cpu\\":\\"0\\",\\"memory\\":\\"0Gi\\",\\"cu\\":\\"0\\"}'),
       }(name='prePaidQuota', description='The information about the subscription quota.'),
+      prePaidQuotaGpu?: [ 
+        {
+          autoRenewal?: boolean(name='autoRenewal'),
+          cpuCoreCount?: string(name='cpuCoreCount'),
+          createTime?: long(name='createTime', example='1782292672000'),
+          expireTime?: long(name='expireTime', example='1782292772000'),
+          gpuAmount?: int32(name='gpuAmount'),
+          gpuMachineNum?: int32(name='gpuMachineNum', example='4'),
+          gpuMemorySize?: long(name='gpuMemorySize'),
+          gpuNum?: int32(name='gpuNum', example='8'),
+          gpuSpec?: string(name='gpuSpec', example='ecs.gn7i-c8g1.2xlarge'),
+          instanceId?: string(name='instanceId', example='w-xxxxxxxxx-gpu-quota-xxxx'),
+          instanceTypeFamily?: string(name='instanceTypeFamily'),
+          instanceTypeId?: string(name='instanceTypeId'),
+          memorySize?: string(name='memorySize'),
+          orderId?: string(name='orderId', example='2534863936'),
+          paymentStatus?: string(name='paymentStatus', example='NORMAL'),
+        }
+      ](name='prePaidQuotaGpu'),
       regionId?: string(name='regionId', description='The region ID.', example='cn-shanghai'),
       releaseType?: string(name='releaseType', description='The reason why the workspace is released.', example='SERVICE_RELEASE'),
       resourceGroupId?: string(name='resourceGroupId', example='rg-xxxxxxxxxx'),
@@ -4117,6 +4167,15 @@ model UpdateWorkspaceRequest {
   cu?: int32(name='cu', example='5000', position='Body'),
   gpu?: int32(name='gpu', example='100', position='Body'),
   gpuSpec?: [ string ](name='gpuSpec', position='Body'),
+  gpuSubscription?: {
+    autoRenew?: boolean(name='autoRenew'),
+    duration?: int32(name='duration'),
+    gpuMachineNum?: int32(name='gpuMachineNum', example='8'),
+    instanceId?: string(name='instanceId'),
+    instanceTypeId?: string(name='instanceTypeId', example='ecs.gn7i-c8g1.2xlarge'),
+    operation?: string(name='operation', example='BUY'),
+    paymentDurationUnit?: string(name='paymentDurationUnit'),
+  }(name='gpuSubscription', position='Body'),
   ipWhiteList?: [ string ](name='ipWhiteList', position='Body'),
   resourceGroupId?: string(name='resourceGroupId', example='rg-acfmwpi66knkxny', position='Body'),
   subscription?: {
