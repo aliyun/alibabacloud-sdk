@@ -13,8 +13,6 @@ init(config: OpenApi.Config){
   super(config);
   @endpointRule = 'regional';
   @endpointMap = {
-    'me-east-1' = 'ehpc.me-east-1.aliyuncs.com',
-    'eu-central-1' = 'ehpc.eu-central-1.aliyuncs.com',
     'cn-zhangjiakou' = 'ehpc.cn-zhangjiakou.aliyuncs.com',
     'cn-wulanchabu' = 'ehpc.cn-wulanchabu.aliyuncs.com',
     'cn-wuhan-lr' = 'ehpc.cn-wuhan-lr.aliyuncs.com',
@@ -31,6 +29,8 @@ init(config: OpenApi.Config){
     'ap-southeast-5' = 'ehpc.ap-southeast-5.aliyuncs.com',
     'ap-southeast-1' = 'ehpc.ap-southeast-1.aliyuncs.com',
     'ap-northeast-1' = 'ehpc.ap-northeast-1.aliyuncs.com',
+    'eu-central-1' = 'ehpc.eu-central-1.aliyuncs.com',
+    'me-east-1' = 'ehpc.me-east-1.aliyuncs.com',
   };
 
   checkConfig(config);
@@ -203,7 +203,7 @@ Default value: 1.', example='1'),
 *   false
 
 Default value: true.', example='false'),
-      device?: string(name='Device', description='Device', example='/dev/xvdb'),
+      device?: string(name='Device', example='/dev/xvdb'),
       level?: string(name='Level', description='The performance level of the ESSD that is used as a data disk. Valid values:
 
 *   PL0: A single ESSD can deliver up to 10,000 random read/write IOPS.
@@ -223,7 +223,7 @@ Default value: true.', example='false'),
     *   PL1: 40 to 65,536
     *   PL2: 461 to 65,536
     *   PL3: 1,261 to 65,536', example='40'),
-      snapshotId?: string(name='SnapshotId', description='SnapshotId', example='s-bp1ei2b44ripxuo46hym'),
+      snapshotId?: string(name='SnapshotId', example='s-bp1ei2b44ripxuo46hym'),
     }
   ](name='DataDisks', description='The data disks.
 
@@ -1351,36 +1351,38 @@ model CreateUsersRequest {
 This parameter is required.', example='ehpc-hz-FYUr32****'),
   user?: [ 
     {
-      authKey?: string(name='AuthKey', description='The public key of the user.
+      authKey?: string(name='AuthKey', description='The public key of the Nth user to add.
 
-You can add up to 20 users in a call.
+Valid values of N: 1 to 20.
 
-Specify one of the Password and AuthKey parameters. The AuthKey parameter takes effect only when the cluster authentication method is set to Key. Key authentication is not recommended.', example='Abc****'),
-      group?: string(name='Group', description='The permission group to which the user belongs. Valid values:
+This parameter is mutually exclusive with the Password parameter. This parameter takes effect when the cluster authentication method is set to key (not recommended).', example='Abc****'),
+      group?: string(name='Group', description='The user group of the Nth user to add. Valid values:
 
-users: ordinary permissions, which are suitable for ordinary users that need only to submit and debug jobs. wheel: sudo permissions, which are suitable for administrators who need to manage clusters. In addition to submitting and debugging jobs, you can also run sudo commands to install software and restart nodes. You can add up to 20 users in a call.', example='users'),
-      password?: string(name='Password', description='The password of the user. The password must be 6 to 30 characters in length and must contain three of the following character types:
+- users: ordinary permission group. This group is suitable for regular users who only need to commit and debug jobs.
+- wheel: sudo permission group. This group is suitable for administrators who need to perform cluster management. In addition to committing and debugging jobs, users in this group can execute sudo commands to install software, restart nodes, and perform other operations.
 
-*   Uppercase letters
-*   Lowercase letters
-*   Digits
-*   Special characters ()~!@#$%^&\\\\*-_+=|{}[]:;\\\\"/<>,.?/
+Valid values of N: 1 to 20.', example='users'),
+      password?: string(name='Password', description='The password of the Nth user to add. The password must be 8 to 30 characters in length and contain at least three of the following four character types:
+- Uppercase letters
+- Lowercase letters
+- Digits
+- Special characters: ()~!@#$%^&*-_+=|{}[]:;\\\\"/<>,.?/
 
-You can add up to 20 users in a call.
+Valid values of N: 1 to 20.
 
-Specify one of the Password and AuthKey parameters. The Password parameter takes effect only when the cluster authentication method is set to Password. Password authentication is recommended.', example='1@a2****'),
-      userName?: string(name='UserName', description='The username. The username must be 1 to 30 characters in length. It must start with a letter and can contain digits, letters, and periods (.).
+This parameter is mutually exclusive with the AuthKey parameter. This parameter takes effect when the cluster authentication method is set to password (recommended).', example='1@a2****'),
+      userName?: string(name='UserName', description='The username of the Nth user to add. The username must be 1 to 30 characters in length, start with a letter, and can contain digits and special characters (.).
 
-You can add up to 20 users in a call.', example='testuser'),
+Valid values of N: 1 to 20.', example='testuser'),
     }
-  ](name='User', description='The users that you want to add.'),
+  ](name='User', description='The list of users.'),
 }
 
 model CreateUsersShrinkRequest {
   clusterId?: string(name='ClusterId', description='The cluster ID.
 
 This parameter is required.', example='ehpc-hz-FYUr32****'),
-  userShrink?: string(name='User', description='The users that you want to add.'),
+  userShrink?: string(name='User', description='The list of users.'),
 }
 
 model CreateUsersResponseBody = {
@@ -1394,7 +1396,7 @@ model CreateUsersResponse = {
 }
 
 /**
- * @summary Adds users to an Elastic High Performance Computing (E-HPC) cluster.
+ * @summary Adds one or more users to a specified cluster.
  *
  * @param tmpReq CreateUsersRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -1432,7 +1434,7 @@ async function createUsersWithOptions(tmpReq: CreateUsersRequest, runtime: Util.
 }
 
 /**
- * @summary Adds users to an Elastic High Performance Computing (E-HPC) cluster.
+ * @summary Adds one or more users to a specified cluster.
  *
  * @param request CreateUsersRequest
  * @return CreateUsersResponse
@@ -2843,6 +2845,76 @@ async function getQueueWithOptions(request: GetQueueRequest, runtime: Util.Runti
 async function getQueue(request: GetQueueRequest): GetQueueResponse {
   var runtime = new Util.RuntimeOptions{};
   return getQueueWithOptions(request, runtime);
+}
+
+model GetUserRequest {
+  clusterId?: string(name='ClusterId', description='The cluster ID.
+
+You can call [ListClusters](https://help.aliyun.com/document_detail/87116.html) to obtain the cluster ID.
+
+This parameter is required.', example='ehpc-hz-FYUr32****'),
+  userName?: string(name='UserName', description='The username.
+
+This parameter is required.', example='testuser'),
+}
+
+model GetUserResponseBody = {
+  requestId?: string(name='RequestId', description='The request ID.', example='04F0F334-1335-436C-A1D7-6C044FE73368'),
+  user?: {
+    addTime?: string(name='AddTime', description='The time when the user was first added.', example='2014-08-22T17:46:47'),
+    group?: string(name='Group', description='The user group. Valid values:
+
+- users: ordinary permission group. This group is suitable for regular users who only need to commit and debug jobs.
+
+- wheel: sudo permission group. This group is suitable for administrators who need cluster management. In addition to committing and debugging jobs, members of this group can execute sudo commands to install software, restart nodes, and perform other operations.', example='users'),
+    groupId?: string(name='GroupId', description='The user group ID.', example='100'),
+    userId?: string(name='UserId', description='The user ID.', example='1001'),
+    userName?: string(name='UserName', description='The username.', example='testuser'),
+  }(name='User', description='The user details.'),
+}
+
+model GetUserResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: GetUserResponseBody(name='body'),
+}
+
+/**
+ * @summary Queries the details of a cluster user.
+ *
+ * @param request GetUserRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return GetUserResponse
+ */
+async function getUserWithOptions(request: GetUserRequest, runtime: Util.RuntimeOptions): GetUserResponse {
+  Util.validateModel(request);
+  var query = OpenApiUtil.query(Util.toMap(request));
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'GetUser',
+    version = '2024-07-30',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'GET',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Queries the details of a cluster user.
+ *
+ * @param request GetUserRequest
+ * @return GetUserResponse
+ */
+async function getUser(request: GetUserRequest): GetUserResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return getUserWithOptions(request, runtime);
 }
 
 model InstallAddonRequest {
@@ -5352,16 +5424,17 @@ model UpdateUserRequest {
   clusterId?: string(name='ClusterId', description='The cluster ID.
 
 This parameter is required.', example='ehpc-hz-FYUr32****'),
-  group?: string(name='Group', description='The user group attribute of the user that you want to update. Valid values:
+  group?: string(name='Group', description='The user group property to update. Valid values:
 
-*   users: ordinary permissions, which are suitable for ordinary users that need only to submit and debug jobs.
-*   wheel: sudo permissions, which are suitable for administrators who need to manage clusters. In addition to submitting and debugging jobs, you can also run sudo commands to install software and restart nodes.', example='users'),
-  password?: string(name='Password', description='The password attribute of the user that you want to update. The password must be 6 to 30 characters in length and must contain three of the following four character types:
+- users: ordinary permission group. This group is suitable for regular users who only need to submit and debug jobs.
 
-*   Uppercase letters
-*   Lowercase letters
-*   Digits
-*   Special characters ()~!@#$%^&\\\\*-_+=|{}[]:;\\\\"/<>,.?/', example='123****'),
+- wheel: sudo permission group. This group is suitable for administrators who need cluster management. In addition to submitting and debugging jobs, users in this group can execute sudo commands to install software, restart nodes, and perform other operations.', example='users'),
+  password?: string(name='Password', description='The user password property to update. The password must be 8 to 30 characters in length and must contain at least three of the following four character types:
+
+- Uppercase letters
+- Lowercase letters
+- Digits
+- Special characters: ()~!@#$%^&*-_+=|{}[]:;\\\\"/<>,.?/', example='123****'),
   userName?: string(name='UserName', description='The username.
 
 This parameter is required.', example='testuser'),
@@ -5369,10 +5442,11 @@ This parameter is required.', example='testuser'),
 
 model UpdateUserResponseBody = {
   requestId?: string(name='RequestId', description='The request ID.', example='04F0F334-1335-436C-A1D7-6C044FE7****'),
-  success?: string(name='Success', description='The request result. Valid values:
+  success?: string(name='Success', description='The result of the request. Valid values:
 
-*   true: The request was successful.
-*   false: The request failed.', example='true'),
+- true: The request was successful.
+
+- false: The request failed.', example='true'),
 }
 
 model UpdateUserResponse = {
@@ -5382,7 +5456,7 @@ model UpdateUserResponse = {
 }
 
 /**
- * @summary Updates the information of a user in an Elastic High Performance Computing (E-HPC) cluster, including the user group and password.
+ * @summary Updates the information of a specified cluster user, including properties such as user group and password.
  *
  * @param request UpdateUserRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -5421,7 +5495,7 @@ async function updateUserWithOptions(request: UpdateUserRequest, runtime: Util.R
 }
 
 /**
- * @summary Updates the information of a user in an Elastic High Performance Computing (E-HPC) cluster, including the user group and password.
+ * @summary Updates the information of a specified cluster user, including properties such as user group and password.
  *
  * @param request UpdateUserRequest
  * @return UpdateUserResponse
