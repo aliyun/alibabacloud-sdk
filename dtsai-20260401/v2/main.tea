@@ -30,12 +30,89 @@ function getEndpoint(productId: string, regionId: string, endpointRule: string, 
   return OpenApiUtil.getEndpointRules(productId, regionId, endpointRule, network, suffix);
 }
 
+model AuthorizeFileUploadRequest {
+  agentName?: string(name='AgentName', description='The Agent or client source that initiates the call, such as codex, cursor, or openapi. Maximum length: 32 characters. Used only for statistics and does not participate in authentication, throttling, quota, or billing.', example='codex'),
+  fileFormat?: string(name='FileFormat', description='The format of the file to be uploaded.', example='pdf'),
+  regionId?: string(name='RegionId', description='The region ID, such as cn-beijing.
+
+This parameter is required.', example='cn-beijing'),
+}
+
+model AuthorizeFileUploadResponseBody = {
+  accessKeyId?: string(name='AccessKeyId', description='The temporary AccessKey ID used for OSS PostObject.', example='STS.NV5xxx'),
+  bucket?: string(name='Bucket', description='The destination OSS bucket.', example='dts-ai-upload-cn-beijing7500163e0eae09'),
+  encodedPolicy?: string(name='EncodedPolicy', description='The Base64-encoded PostObject policy, which includes the ObjectKey and file size limits.', example='eyJleHBpcmF0aW9uIjo...'),
+  endpoint?: string(name='Endpoint', description='OSS Endpoint', example='oss-cn-beijing.aliyuncs.com'),
+  errorCode?: string(name='ErrorCode', description='The error code.', example='InvalidParameter'),
+  errorMessage?: string(name='ErrorMessage', description='The error message.', example='The parameter [Query] is not valid.'),
+  httpStatusCode?: int32(name='HttpStatusCode', description='The business-level HTTP status code.', example='200'),
+  objectKey?: string(name='ObjectKey', description='The object key that must be used as-is for the upload.', example='0a1b_123456_0123456789abcdef0123456789abcdef'),
+  requestId?: string(name='RequestId', description='The request ID.', example='A30D0930-xxxx-xxxx-xxxx-C2C661CC8B58'),
+  securityToken?: string(name='SecurityToken', description='The Security Token Service (STS) token.', example='CAISxxx'),
+  signature?: string(name='Signature', description='The policy signature.', example='masked-signature'),
+  success?: boolean(name='Success', description='Indicates whether the request was successful.', example='true'),
+}
+
+model AuthorizeFileUploadResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: AuthorizeFileUploadResponseBody(name='body'),
+}
+
+/**
+ * @summary Uploads a file directly to the Bucket/ObjectKey specified in the response, and then uses the object URL as OssFileUrl to create a parsing task.
+ *
+ * @param request AuthorizeFileUploadRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return AuthorizeFileUploadResponse
+ */
+@context("authorizeFileUploadWithContext")
+async function authorizeFileUploadWithOptions(request: AuthorizeFileUploadRequest, runtime: $RuntimeOptions): AuthorizeFileUploadResponse {
+  request.validate();
+  var query = {};
+  if (!$isNull(request.agentName)) {
+    query['AgentName'] = request.agentName;
+  }
+  if (!$isNull(request.fileFormat)) {
+    query['FileFormat'] = request.fileFormat;
+  }
+  if (!$isNull(request.regionId)) {
+    query['RegionId'] = request.regionId;
+  }
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'AuthorizeFileUpload',
+    version = '2026-04-01',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Uploads a file directly to the Bucket/ObjectKey specified in the response, and then uses the object URL as OssFileUrl to create a parsing task.
+ *
+ * @param request AuthorizeFileUploadRequest
+ * @return AuthorizeFileUploadResponse
+ */
+async function authorizeFileUpload(request: AuthorizeFileUploadRequest): AuthorizeFileUploadResponse {
+  var runtime = new $RuntimeOptions{};
+  return authorizeFileUploadWithOptions(request, runtime);
+}
+
 model CreateDocParserJobRequest {
-  agentName?: string(name='AgentName'),
-  asrLanguage?: string(name='AsrLanguage'),
-  audioClipOutput?: boolean(name='AudioClipOutput'),
-  audioWindowSeconds?: int32(name='AudioWindowSeconds'),
-  chunkSummary?: boolean(name='ChunkSummary'),
+  agentName?: string(name='AgentName', description='The agent name.'),
+  asrLanguage?: string(name='AsrLanguage', description='The language type for speech recognition.'),
+  audioClipOutput?: boolean(name='AudioClipOutput', description='The audio clip output.'),
+  audioWindowSeconds?: int32(name='AudioWindowSeconds', description='The audio window duration in seconds.'),
+  chunkSummary?: boolean(name='ChunkSummary', description='The chunk summary information.'),
   fileFormat?: string(name='FileFormat', description='The format of the input file. Valid values:
 
 - **pdf**: PDF file.
@@ -48,7 +125,7 @@ model CreateDocParserJobRequest {
 
 - **ppt**: PPT file in ppt format.
 
-- **txt**: plain text file.
+- **txt**: Plain text file.
 
 - **md**: Markdown file.
 
@@ -63,40 +140,40 @@ This parameter is required.', example='pdf'),
 
 This parameter is required.', example='document.pdf'),
   fileUrl?: string(name='FileUrl', description='The HTTP or HTTPS URL of the file to be parsed.
->SDKs for various languages provide an additional `CreateDocParserJobAdvance` method that supports passing a local file stream directly (such as InputStream in Java), without the need to upload the file to OSS and construct a FileUrl in advance. When using the Advance method, replace the `FileUrl` parameter (URL string) with the `FileUrlObject` parameter (file stream). All other request parameters remain unchanged. The SDK automatically performs the following operations:
+>SDKs for various programming languages additionally provide a `CreateDocParserJobAdvance` method that supports passing a local file stream directly (such as Java InputStream), without the need to upload the file to OSS and construct a FileUrl in advance. When using the Advance method, replace the `FileUrl` parameter (URL string) with the `FileUrlObject` parameter (file stream). All other request parameters remain unchanged. The SDK automatically performs the following operations:
 >1. Obtains temporary OSS upload credentials.
 >2. Uploads the file stream directly to OSS.
->3. Calls the CreateDocParserJob operation with the generated OSS URL.', example='https://xxx.oss-cn-beijing.aliyuncs.com/document.pdf?Expires=xxx&OSSAccessKeyId=xxx&Signature=xxx'),
-  frameOutput?: boolean(name='FrameOutput'),
-  globalSummary?: boolean(name='GlobalSummary'),
-  imageMode?: string(name='ImageMode'),
-  imageUnderstanding?: string(name='ImageUnderstanding'),
-  mediaChunkIntervalSeconds?: int32(name='MediaChunkIntervalSeconds'),
-  mediaChunkStrategy?: string(name='MediaChunkStrategy'),
-  mediaFramesPerMinute?: double(name='MediaFramesPerMinute'),
-  mediaMaxFrameBudget?: int32(name='MediaMaxFrameBudget'),
-  mediaMinFrameBudget?: int32(name='MediaMinFrameBudget'),
+>3. Calls the CreateDocParserJob operation using the generated OSS URL.', example='https://xxx.oss-cn-beijing.aliyuncs.com/document.pdf?Expires=xxx&OSSAccessKeyId=xxx&Signature=xxx'),
+  frameOutput?: boolean(name='FrameOutput', description='The frame output result.'),
+  globalSummary?: boolean(name='GlobalSummary', description='The global summary information.'),
+  imageMode?: string(name='ImageMode', description='The image processing format.'),
+  imageUnderstanding?: string(name='ImageUnderstanding', description='The image understanding and analysis setting.'),
+  mediaChunkIntervalSeconds?: int32(name='MediaChunkIntervalSeconds', description='The media chunk interval in seconds.'),
+  mediaChunkStrategy?: string(name='MediaChunkStrategy', description='The media chunk strategy.'),
+  mediaFramesPerMinute?: double(name='MediaFramesPerMinute', description='The number of media frames per minute.'),
+  mediaMaxFrameBudget?: int32(name='MediaMaxFrameBudget', description='The maximum frame budget for media.'),
+  mediaMinFrameBudget?: int32(name='MediaMinFrameBudget', description='The minimum frame budget for media.'),
   ossFileUrl?: string(name='OssFileUrl', description='The OSS file URL.'),
   outputFormat?: string(name='OutputFormat', description='The output format of the parsing result. Valid values:
 
 - **markdown**: Markdown format.
 
 This parameter is required.', example='markdown'),
-  parseScene?: string(name='ParseScene'),
+  parseScene?: string(name='ParseScene', description='The parsing scene.'),
   regionId?: string(name='RegionId', description='The region ID.
 
 This parameter is required.', example='cn-beijing'),
-  responseMode?: string(name='ResponseMode'),
-  resultType?: string(name='ResultType'),
-  tableFormat?: string(name='TableFormat'),
+  responseMode?: string(name='ResponseMode', description='The response mode.'),
+  resultType?: string(name='ResultType', description='The result type.'),
+  tableFormat?: string(name='TableFormat', description='The table processing format.'),
 }
 
 model CreateDocParserJobAdvanceRequest {
-  agentName?: string(name='AgentName'),
-  asrLanguage?: string(name='AsrLanguage'),
-  audioClipOutput?: boolean(name='AudioClipOutput'),
-  audioWindowSeconds?: int32(name='AudioWindowSeconds'),
-  chunkSummary?: boolean(name='ChunkSummary'),
+  agentName?: string(name='AgentName', description='The agent name.'),
+  asrLanguage?: string(name='AsrLanguage', description='The language type for speech recognition.'),
+  audioClipOutput?: boolean(name='AudioClipOutput', description='The audio clip output.'),
+  audioWindowSeconds?: int32(name='AudioWindowSeconds', description='The audio window duration in seconds.'),
+  chunkSummary?: boolean(name='ChunkSummary', description='The chunk summary information.'),
   fileFormat?: string(name='FileFormat', description='The format of the input file. Valid values:
 
 - **pdf**: PDF file.
@@ -109,7 +186,7 @@ model CreateDocParserJobAdvanceRequest {
 
 - **ppt**: PPT file in ppt format.
 
-- **txt**: plain text file.
+- **txt**: Plain text file.
 
 - **md**: Markdown file.
 
@@ -124,32 +201,32 @@ This parameter is required.', example='pdf'),
 
 This parameter is required.', example='document.pdf'),
   fileUrlObject?: readable(name='FileUrl', description='The HTTP or HTTPS URL of the file to be parsed.
->SDKs for various languages provide an additional `CreateDocParserJobAdvance` method that supports passing a local file stream directly (such as InputStream in Java), without the need to upload the file to OSS and construct a FileUrl in advance. When using the Advance method, replace the `FileUrl` parameter (URL string) with the `FileUrlObject` parameter (file stream). All other request parameters remain unchanged. The SDK automatically performs the following operations:
+>SDKs for various programming languages additionally provide a `CreateDocParserJobAdvance` method that supports passing a local file stream directly (such as Java InputStream), without the need to upload the file to OSS and construct a FileUrl in advance. When using the Advance method, replace the `FileUrl` parameter (URL string) with the `FileUrlObject` parameter (file stream). All other request parameters remain unchanged. The SDK automatically performs the following operations:
 >1. Obtains temporary OSS upload credentials.
 >2. Uploads the file stream directly to OSS.
->3. Calls the CreateDocParserJob operation with the generated OSS URL.', example='https://xxx.oss-cn-beijing.aliyuncs.com/document.pdf?Expires=xxx&OSSAccessKeyId=xxx&Signature=xxx'),
-  frameOutput?: boolean(name='FrameOutput'),
-  globalSummary?: boolean(name='GlobalSummary'),
-  imageMode?: string(name='ImageMode'),
-  imageUnderstanding?: string(name='ImageUnderstanding'),
-  mediaChunkIntervalSeconds?: int32(name='MediaChunkIntervalSeconds'),
-  mediaChunkStrategy?: string(name='MediaChunkStrategy'),
-  mediaFramesPerMinute?: double(name='MediaFramesPerMinute'),
-  mediaMaxFrameBudget?: int32(name='MediaMaxFrameBudget'),
-  mediaMinFrameBudget?: int32(name='MediaMinFrameBudget'),
+>3. Calls the CreateDocParserJob operation using the generated OSS URL.', example='https://xxx.oss-cn-beijing.aliyuncs.com/document.pdf?Expires=xxx&OSSAccessKeyId=xxx&Signature=xxx'),
+  frameOutput?: boolean(name='FrameOutput', description='The frame output result.'),
+  globalSummary?: boolean(name='GlobalSummary', description='The global summary information.'),
+  imageMode?: string(name='ImageMode', description='The image processing format.'),
+  imageUnderstanding?: string(name='ImageUnderstanding', description='The image understanding and analysis setting.'),
+  mediaChunkIntervalSeconds?: int32(name='MediaChunkIntervalSeconds', description='The media chunk interval in seconds.'),
+  mediaChunkStrategy?: string(name='MediaChunkStrategy', description='The media chunk strategy.'),
+  mediaFramesPerMinute?: double(name='MediaFramesPerMinute', description='The number of media frames per minute.'),
+  mediaMaxFrameBudget?: int32(name='MediaMaxFrameBudget', description='The maximum frame budget for media.'),
+  mediaMinFrameBudget?: int32(name='MediaMinFrameBudget', description='The minimum frame budget for media.'),
   ossFileUrl?: string(name='OssFileUrl', description='The OSS file URL.'),
   outputFormat?: string(name='OutputFormat', description='The output format of the parsing result. Valid values:
 
 - **markdown**: Markdown format.
 
 This parameter is required.', example='markdown'),
-  parseScene?: string(name='ParseScene'),
+  parseScene?: string(name='ParseScene', description='The parsing scene.'),
   regionId?: string(name='RegionId', description='The region ID.
 
 This parameter is required.', example='cn-beijing'),
-  responseMode?: string(name='ResponseMode'),
-  resultType?: string(name='ResultType'),
-  tableFormat?: string(name='TableFormat'),
+  responseMode?: string(name='ResponseMode', description='The response mode.'),
+  resultType?: string(name='ResultType', description='The result type.'),
+  tableFormat?: string(name='TableFormat', description='The table processing format.'),
 }
 
 model CreateDocParserJobResponseBody = {
@@ -158,10 +235,10 @@ model CreateDocParserJobResponseBody = {
   httpStatusCode?: int32(name='HttpStatusCode', description='The HTTP status code.', example='200'),
   jobId?: string(name='JobId', description='The document parsing task ID.', example='job_abc123'),
   requestId?: string(name='RequestId', description='The request ID.', example='A30D0930-xxxx-xxxx-xxxx-C2C661CC8B58'),
-  result?: string(name='Result'),
-  resultType?: string(name='ResultType'),
-  resultUrl?: string(name='ResultUrl'),
-  status?: string(name='Status'),
+  result?: string(name='Result', description='The result data.'),
+  resultType?: string(name='ResultType', description='The result type.'),
+  resultUrl?: string(name='ResultUrl', description='The result URL.'),
+  status?: string(name='Status', description='The status information.'),
   success?: boolean(name='Success', description='Indicates whether the request was successful.', example='true'),
 }
 
@@ -175,7 +252,7 @@ model CreateDocParserJobResponse = {
  * @summary Creates a document parsing task.
  *
  * @description - Region: Only China (Beijing) is supported.
- * - Fees: Free during the public preview period. No fees are charged.
+ * - Fees: The service is free of charge during the public preview period.
  *
  * @param request CreateDocParserJobRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -278,7 +355,7 @@ async function createDocParserJobWithOptions(request: CreateDocParserJobRequest,
  * @summary Creates a document parsing task.
  *
  * @description - Region: Only China (Beijing) is supported.
- * - Fees: Free during the public preview period. No fees are charged.
+ * - Fees: The service is free of charge during the public preview period.
  *
  * @param request CreateDocParserJobRequest
  * @return CreateDocParserJobResponse
@@ -372,14 +449,14 @@ async function createDocParserJobAdvance(request: CreateDocParserJobAdvanceReque
 }
 
 model DescribeDocParserJobResultRequest {
-  agentName?: string(name='AgentName'),
-  jobId?: string(name='JobId', description='The document parsing task ID. You can obtain this ID by calling CreateDocParserJob.
+  agentName?: string(name='AgentName', description='The agent name.'),
+  jobId?: string(name='JobId', description='The document parsing task ID, obtained by calling CreateDocParserJob.
 
 This parameter is required.', example='job_abc123'),
   regionId?: string(name='RegionId', description='The region ID.
 
 This parameter is required.', example='cn-beijing'),
-  resultType?: string(name='ResultType'),
+  resultType?: string(name='ResultType', description='The result type.'),
 }
 
 model DescribeDocParserJobResultResponseBody = {
@@ -388,8 +465,8 @@ model DescribeDocParserJobResultResponseBody = {
   httpStatusCode?: int32(name='HttpStatusCode', description='The HTTP status code.', example='200'),
   requestId?: string(name='RequestId', description='The request ID.', example='A30D0930-xxxx-xxxx-xxxx-C2C661CC8B58'),
   result?: string(name='Result', description='The document parsing result. The format is determined by the OutputFormat parameter specified in the CreateDocParserJob request.', example='# Document Title'),
-  resultType?: string(name='ResultType'),
-  resultUrl?: string(name='ResultUrl'),
+  resultType?: string(name='ResultType', description='The result format.'),
+  resultUrl?: string(name='ResultUrl', description='oss url'),
   success?: boolean(name='Success', description='Indicates whether the request was successful.', example='true'),
 }
 
@@ -459,8 +536,8 @@ async function describeDocParserJobResult(request: DescribeDocParserJobResultReq
 }
 
 model DescribeDocParserJobStatusRequest {
-  agentName?: string(name='AgentName'),
-  jobId?: string(name='JobId', description='The ID of the document parsing task. You can obtain the ID by calling CreateDocParserJob.
+  agentName?: string(name='AgentName', description='The agent name.'),
+  jobId?: string(name='JobId', description='The ID of the document parsing task. You can obtain this ID by calling CreateDocParserJob.
 
 This parameter is required.', example='job_abc123'),
   regionId?: string(name='RegionId', description='The region ID.
@@ -471,7 +548,7 @@ This parameter is required.', example='cn-beijing'),
 model DescribeDocParserJobStatusResponseBody = {
   errorCode?: string(name='ErrorCode', description='The error code.', example='JobNotFound'),
   errorMessage?: string(name='ErrorMessage', description='The error message.', example='The specified job does not exist.'),
-  failureMessage?: string(name='FailureMessage', description='The failure cause. This parameter has a value only when Status is failed.', example='Failed Message'),
+  failureMessage?: string(name='FailureMessage', description='The failure reason. This parameter has a value only when Status is failed.', example='Failed Message'),
   httpStatusCode?: int32(name='HttpStatusCode', description='The HTTP status code.', example='200'),
   requestId?: string(name='RequestId', description='The request ID.', example='A30D0930-xxxx-xxxx-xxxx-C2C661CC8B58'),
   status?: string(name='Status', description='The task status. Valid values:
@@ -484,9 +561,9 @@ model DescribeDocParserJobStatusResponseBody = {
 
 - **success**: Completed. You can call DescribeDocParserJobResult to obtain the result.
 
-- **failed**: Failed. The cause is provided in FailureMessage.
+- **failed**: Failed. The reason is provided in FailureMessage.
 
-- **cancelled**: Canceled.', example='running'),
+- **cancelled**: Cancelled.', example='running'),
   success?: boolean(name='Success', description='Indicates whether the request was successful.', example='true'),
 }
 
@@ -551,7 +628,7 @@ async function describeDocParserJobStatus(request: DescribeDocParserJobStatusReq
 }
 
 model WebFetchRequest {
-  agentName?: string(name='AgentName'),
+  agentName?: string(name='AgentName', description='The agent name.'),
   outputFormat?: string(name='OutputFormat', description='The output format. Valid values:
 
 - **markdown**: Markdown format.
@@ -584,11 +661,11 @@ model WebFetchResponseBody = {
   title?: string(name='Title', description='The title of the web page.', example='Spring Boot'),
   url?: string(name='Url', description='The URL of the web page.', example='https://xxxx/projects/spring-boot'),
   urlType?: string(name='UrlType', description='The URL classification result. Valid values:
-- **static_html**: Static HTML page.
-- **dynamic_js**: Single-page application (SPA) page that requires JavaScript rendering.
-- **audio**: Audio file.
-- **video**: Video file.
-- **document**: Document file (PDF, Word, PPT, or Excel).
+- **static_html**: A static HTML page.
+- **dynamic_js**: A single-page application (SPA) page that requires JavaScript rendering.
+- **audio**: An audio file.
+- **video**: A video file.
+- **document**: A document file (PDF, Word, PPT, or Excel).
 - **unknown**: Unrecognizable.', example='static_html'),
 }
 
@@ -602,7 +679,7 @@ model WebFetchResponse = {
  * @summary Retrieves the content of a web page.
  *
  * @description - Region: Only China (Beijing) and Singapore regions are supported.
- * - Pricing: Free of charge during the public preview period.
+ * - Fees: Free of charge during the public preview period.
  *
  * @param request WebFetchRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -645,7 +722,7 @@ async function webFetchWithOptions(request: WebFetchRequest, runtime: $RuntimeOp
  * @summary Retrieves the content of a web page.
  *
  * @description - Region: Only China (Beijing) and Singapore regions are supported.
- * - Pricing: Free of charge during the public preview period.
+ * - Fees: Free of charge during the public preview period.
  *
  * @param request WebFetchRequest
  * @return WebFetchResponse
@@ -656,7 +733,7 @@ async function webFetch(request: WebFetchRequest): WebFetchResponse {
 }
 
 model WebSearchRequest {
-  agentName?: string(name='AgentName'),
+  agentName?: string(name='AgentName', description='The agent name.'),
   maxResults?: int32(name='MaxResults', description='The maximum number of results to return. Default value: 10. Valid values: 1 to 50.', example='10'),
   query?: string(name='Query', description='The search query statement.
 
