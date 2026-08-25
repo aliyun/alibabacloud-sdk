@@ -123,15 +123,15 @@ async function addSharedAccounts(request: AddSharedAccountsRequest): AddSharedAc
 }
 
 model AssociateDetectConfigRequest {
-  detectConfigId?: string(name='detectConfigId', description='Drift detection configuration ID
+  detectConfigId?: string(name='detectConfigId', description='The ID of the drift detection configuration.
 
 This parameter is required.', example='dc-xxxx'),
-  targetId?: string(name='targetId', description='Target ID to associate. StackId or TaskId
+  targetId?: string(name='targetId', description='The ID of the association target. The value is a StackId or TaskId.
 
 This parameter is required.', example='stack-xxxxx'),
-  targetType?: string(name='targetType', description='Target type to associate  
-- Task: orchestration job  
-- Stack: resource stack
+  targetType?: string(name='targetType', description='The type of the association target. Valid values:
+- Task: orchestration task.
+- Stack: resource stack.
 
 This parameter is required.', example='Stack'),
 }
@@ -147,7 +147,7 @@ model AssociateDetectConfigResponse = {
 }
 
 /**
- * @summary Associate drift detection configuration
+ * @summary Associates a drift detection configuration.
  *
  * @param request AssociateDetectConfigRequest
  * @param headers map
@@ -187,7 +187,7 @@ async function associateDetectConfigWithOptions(request: AssociateDetectConfigRe
 }
 
 /**
- * @summary Associate drift detection configuration
+ * @summary Associates a drift detection configuration.
  *
  * @param request AssociateDetectConfigRequest
  * @return AssociateDetectConfigResponse
@@ -1769,6 +1769,79 @@ async function createTask(request: CreateTaskRequest): CreateTaskResponse {
   return createTaskWithOptions(request, headers, runtime);
 }
 
+model CreateTaskFromResourceImportRequest {
+  clientToken?: string(name='clientToken', description='This parameter is required.'),
+  exportTaskId?: string(name='exportTaskId', description='This parameter is required.'),
+  exportVersion?: string(name='exportVersion', description='This parameter is required.'),
+  taskName?: string(name='taskName', description='This parameter is required.'),
+}
+
+model CreateTaskFromResourceImportResponseBody = {
+  requestId?: string(name='requestId', description='Id of the request'),
+  taskId?: string(name='taskId'),
+}
+
+model CreateTaskFromResourceImportResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: CreateTaskFromResourceImportResponseBody(name='body'),
+}
+
+/**
+ * @summary Creates a node from a resource import result.
+ *
+ * @param request CreateTaskFromResourceImportRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return CreateTaskFromResourceImportResponse
+ */
+@context("createTaskFromResourceImportWithContext")
+async function createTaskFromResourceImportWithOptions(request: CreateTaskFromResourceImportRequest, headers: map[string]string, runtime: $RuntimeOptions): CreateTaskFromResourceImportResponse {
+  request.validate();
+  var body : map[string]any = {};
+  if (!$isNull(request.clientToken)) {
+    body['clientToken'] = request.clientToken;
+  }
+  if (!$isNull(request.exportTaskId)) {
+    body['exportTaskId'] = request.exportTaskId;
+  }
+  if (!$isNull(request.exportVersion)) {
+    body['exportVersion'] = request.exportVersion;
+  }
+  if (!$isNull(request.taskName)) {
+    body['taskName'] = request.taskName;
+  }
+
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    headers = headers,
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'CreateTaskFromResourceImport',
+    version = '2021-08-06',
+    protocol = 'HTTPS',
+    pathname = `/tasks/operations/createTaskFromResourceImport`,
+    method = 'POST',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Creates a node from a resource import result.
+ *
+ * @param request CreateTaskFromResourceImportRequest
+ * @return CreateTaskFromResourceImportResponse
+ */
+async function createTaskFromResourceImport(request: CreateTaskFromResourceImportRequest): CreateTaskFromResourceImportResponse {
+  var runtime = new $RuntimeOptions{};
+  var headers : map[string]string = {};
+  return createTaskFromResourceImportWithOptions(request, headers, runtime);
+}
+
 model DeleteDetectConfigRequest {
 }
 
@@ -1783,7 +1856,7 @@ model DeleteDetectConfigResponse = {
 }
 
 /**
- * @summary Delete drift detection configuration
+ * @summary Deletes a bias detection configuration.
  *
  * @param request DeleteDetectConfigRequest
  * @param headers map
@@ -1811,7 +1884,7 @@ async function deleteDetectConfigWithOptions(detectConfigId: string, request: De
 }
 
 /**
- * @summary Delete drift detection configuration
+ * @summary Deletes a bias detection configuration.
  *
  * @param request DeleteDetectConfigRequest
  * @return DeleteDetectConfigResponse
@@ -2335,6 +2408,7 @@ async function deleteStack(stackId: string, request: DeleteStackRequest): Delete
 }
 
 model DeleteTaskRequest {
+  resourceRetentionPolicy?: string(name='resourceRetentionPolicy', description='The data retention policy. If this parameter is not specified, the policy is unconfirmed. If the node has resources or the resource status is unknown, the operation returns a confirmation fault. Set this parameter to RETAIN to delete only the node management record and retain the cloud resources.'),
 }
 
 model DeleteTaskResponseBody = {
@@ -2351,7 +2425,7 @@ model DeleteTaskResponse = {
  * @summary Deletes a node.
  *
  * @description Single-user call frequency: 100 calls per second.
- * Deletes a node. If the node has resources that have not been destroyed, the node cannot be deleted.
+ * Deletes a node. If the node has resources that have not been destroyed, the deletion is not allowed.
  *
  * @param request DeleteTaskRequest
  * @param headers map
@@ -2361,8 +2435,14 @@ model DeleteTaskResponse = {
 @context("deleteTaskWithContext")
 async function deleteTaskWithOptions(taskId: string, request: DeleteTaskRequest, headers: map[string]string, runtime: $RuntimeOptions): DeleteTaskResponse {
   request.validate();
+  var query : map[string]any = {};
+  if (!$isNull(request.resourceRetentionPolicy)) {
+    query['resourceRetentionPolicy'] = request.resourceRetentionPolicy;
+  }
+
   var req = new OpenApiUtil.OpenApiRequest{ 
     headers = headers,
+    query = OpenApiUtil.query(query),
   };
   var params = new OpenApiUtil.Params{
     action = 'DeleteTask',
@@ -2382,7 +2462,7 @@ async function deleteTaskWithOptions(taskId: string, request: DeleteTaskRequest,
  * @summary Deletes a node.
  *
  * @description Single-user call frequency: 100 calls per second.
- * Deletes a node. If the node has resources that have not been destroyed, the node cannot be deleted.
+ * Deletes a node. If the node has resources that have not been destroyed, the deletion is not allowed.
  *
  * @param request DeleteTaskRequest
  * @return DeleteTaskResponse
@@ -2475,20 +2555,20 @@ async function detectTerraformState(request: DetectTerraformStateRequest): Detec
 }
 
 model DissociateDetectConfigRequest {
-  detectConfigId?: string(name='detectConfigId', description='Drift detection configuration ID', example='dc-xxxx'),
-  targetId?: string(name='targetId', description='ID of the association target. StackId or TaskId
+  detectConfigId?: string(name='detectConfigId', description='The ID of the drift detection configuration.', example='dc-xxxx'),
+  targetId?: string(name='targetId', description='The ID of the association target. The value is a StackId or TaskId.
 
 This parameter is required.', example='stack-xxxx'),
-  targetType?: string(name='targetType', description='Type of the association target
+  targetType?: string(name='targetType', description='The type of the association target. Valid values:
 
-- Task: Orchestration job  
-- Stack: Resource stack
+- Task: orchestration task.
+- Stack: resource stack.
 
 This parameter is required.', example='Stack'),
 }
 
 model DissociateDetectConfigResponseBody = {
-  requestId?: string(name='requestId', description='ID of the request', example='B6ED9F71-7FA8-598E-B64D-4606FB3FCCC9'),
+  requestId?: string(name='requestId', description='Id of the request', example='B6ED9F71-7FA8-598E-B64D-4606FB3FCCC9'),
 }
 
 model DissociateDetectConfigResponse = {
@@ -2498,7 +2578,7 @@ model DissociateDetectConfigResponse = {
 }
 
 /**
- * @summary Disassociate drift detection configuration
+ * @summary Dissociates a drift detection configuration.
  *
  * @param request DissociateDetectConfigRequest
  * @param headers map
@@ -2538,7 +2618,7 @@ async function dissociateDetectConfigWithOptions(request: DissociateDetectConfig
 }
 
 /**
- * @summary Disassociate drift detection configuration
+ * @summary Dissociates a drift detection configuration.
  *
  * @param request DissociateDetectConfigRequest
  * @return DissociateDetectConfigResponse
@@ -4635,22 +4715,22 @@ model GetStackDeploymentsRequest {
 | Name | Description |
 |------|------|
 | Pending | The initial status after the deployment is created. |
-| PriorityQueued | The deployment is queued by priority. |
-| PlanQueued | The deployment is queued because no workflow is available after creation. |
-| ApplyQueued | The deployment is queued because no workflow is available during execution. |
+| PriorityQueued | Priority queuing in progress. |
+| PlanQueued | The deployment is queuing because no workflow is available after creation. |
+| ApplyQueued | The deployment is queuing because no workflow is available during execution. |
 | Planning | The resource deployment is in the Plan phase. |
 | Planned | The resource deployment has completed the Plan phase. |
-| ConfigProactiveInProgress | Compliance pre-check is in progress. |
+| ConfigProactiveInProgress | Compliance pre-check in progress. |
 | ConfigProactiveSuccess | Compliance pre-check succeeded. |
-| DetectInProgress | Drift detection is in progress. |
-| ImportQueued | The deployment is queued because no workflow is available during the Import phase. |
+| DetectInProgress | Drift detection in progress. |
+| ImportQueued | The deployment is queuing because no workflow is available during Import execution. |
 | Importing | The resource deployment is in the Import phase. |
 | Imported | The resource deployment has completed the Import phase. |
-| StateQueued | The deployment is queued because no workflow is available during the state command execution. |
+| StateQueued | The deployment is queuing because no workflow is available during state command execution. |
 | Stating | The resource deployment is executing the state command. |
 | Stated | The resource deployment has completed the state command execution. |
 | Confirmed | The resource deployment has been confirmed after the Plan phase. |
-| PlannedAndFinished | No differences were found after the Plan phase. The deployment is in a final status. |
+| PlannedAndFinished | No diff was found after the Plan phase. The deployment is in a final status. |
 | Applying | The resource deployment is in the Apply phase. |
 | Applied | The resource deployment has completed the Apply phase. |
 | Discarded | The resource deployment has been discarded and is in a final status. |
@@ -4681,6 +4761,7 @@ Manual: Manual execution (default).
 Auto: Automatic execution.', example='Manual'),
       failedReason?: string(name='failedReason', description='The failure reason.', example='\\\\n Error: Invalid value for input variable\\\\n \\\\n   on main.tf line 17, in module \\\\"alb\\\\":\\\\n   17:   log_project           = var.log_project.project_name\\\\n \\\\n The given value is not suitable for module.alb.var.log_project declared at\\\\n modules/alb/main.tf:34,1-23: string required.\\\\n╵\\\\n'),
       jobId?: string(name='jobId', description='The job ID.', example='job-as154vldqt46mv0ixxxxx'),
+      logOutputPath?: string(name='logOutputPath', description='OSS object key prefix for deployment logs'),
       outputs?: [ 
         {
           description?: string(name='description', description='The description.', example='The name of the SLS log project'),
@@ -4695,7 +4776,7 @@ Auto: Automatic execution.', example='Manual'),
           defaultValue?: string(name='defaultValue', description='The default value of the parameter.', example='cn-hangzhou'),
           description?: string(name='description', description='The description.', example='region of the resource'),
           name?: string(name='name', description='The parameter name.', example='region'),
-          sensitive?: boolean(name='sensitive', description='Specifies whether the parameter is sensitive. Sensitive parameter values are not visible in the console or API.
+          sensitive?: boolean(name='sensitive', description='Specifies whether the parameter is sensitive. Sensitive parameter values are not visible in the console or API. Valid values:
 - true: Sensitive.
 - false: Not sensitive.'),
           type?: string(name='type', description='The parameter type.', example='string'),
@@ -4716,7 +4797,7 @@ Auto: Automatic execution.', example='Manual'),
           }(name='moduleActionDetail', description='The number of resources to be created, updated, and destroyed in this deployment.'),
           resourceChanges?: [ 
             {
-              change?: string(name='change', description='The difference information of the resource change.', example='~ resource \\\\"alicloud_log_store\\\\" \\\\"default\\\\" {\\\\n        id                    = \\\\"alb-log-project-v1-ph-xxxxx:alb-log-store-ph\\\\"\\\\n      ~ max_split_shard_count = 64 -> 32\\\\n        name                  = \\\\"alb-log-store-ph\\\\"\\\\n\\\\n        # (13 unchanged attributes hidden)\\\\n    }'),
+              change?: string(name='change', description='The diff information of the resource change.', example='~ resource \\\\"alicloud_log_store\\\\" \\\\"default\\\\" {\\\\n        id                    = \\\\"alb-log-project-v1-ph-xxxxx:alb-log-store-ph\\\\"\\\\n      ~ max_split_shard_count = 64 -> 32\\\\n        name                  = \\\\"alb-log-store-ph\\\\"\\\\n\\\\n        # (13 unchanged attributes hidden)\\\\n    }'),
               resourceActions?: [ string ](name='resourceActions', description='The types of resource change actions included in this resource change.'),
               resourceIdentifier?: string(name='resourceIdentifier', description='The unique identifier of the resource.', example='alicloud_log_store.default'),
             }
@@ -4728,22 +4809,22 @@ Auto: Automatic execution.', example='Manual'),
 | Name | Description |
 |------|------|
 | Pending | The initial status after the deployment is created. |
-| PriorityQueued | The deployment is queued by priority. |
-| PlanQueued | The deployment is queued because no workflow is available after creation. |
-| ApplyQueued | The deployment is queued because no workflow is available during execution. |
+| PriorityQueued | Priority queuing in progress. |
+| PlanQueued | The deployment is queuing because no workflow is available after creation. |
+| ApplyQueued | The deployment is queuing because no workflow is available during execution. |
 | Planning | The resource deployment is in the Plan phase. |
 | Planned | The resource deployment has completed the Plan phase. |
-| ConfigProactiveInProgress | Compliance pre-check is in progress. |
+| ConfigProactiveInProgress | Compliance pre-check in progress. |
 | ConfigProactiveSuccess | Compliance pre-check succeeded. |
-| DetectInProgress | Drift detection is in progress. |
-| ImportQueued | The deployment is queued because no workflow is available during the Import phase. |
+| DetectInProgress | Drift detection in progress. |
+| ImportQueued | The deployment is queuing because no workflow is available during Import execution. |
 | Importing | The resource deployment is in the Import phase. |
 | Imported | The resource deployment has completed the Import phase. |
-| StateQueued | The deployment is queued because no workflow is available during the state command execution. |
+| StateQueued | The deployment is queuing because no workflow is available during state command execution. |
 | Stating | The resource deployment is executing the state command. |
 | Stated | The resource deployment has completed the state command execution. |
 | Confirmed | The resource deployment has been confirmed after the Plan phase. |
-| PlannedAndFinished | No differences were found after the Plan phase. The deployment is in a final status. |
+| PlannedAndFinished | No diff was found after the Plan phase. The deployment is in a final status. |
 | Applying | The resource deployment is in the Apply phase. |
 | Applied | The resource deployment has completed the Apply phase. |
 | Discarded | The resource deployment has been discarded and is in a final status. |
@@ -6904,7 +6985,7 @@ async function listRegistryNamespaces(request: ListRegistryNamespacesRequest): L
 
 model ListResourceExportTaskVersionsRequest {
   exportVersion?: string(name='exportVersion', description='The export version number.', example='v1'),
-  keyword?: string(name='keyword', description='The search keyword. Fuzzy match is supported for export version names.', example='key'),
+  keyword?: string(name='keyword', description='The search keyword. Fuzzy search on export version names is supported.', example='key'),
   pageNumber?: int32(name='pageNumber', description='The page number. Default value: 1.', example='1'),
   pageSize?: int32(name='pageSize', description='The number of results per page. Default value: 20. Minimum value: 1. Maximum value: 100.', example='20'),
   status?: string(name='status', description='The export status. Valid values:
@@ -6913,53 +6994,54 @@ model ListResourceExportTaskVersionsRequest {
 - Pending: preparing to run
 - Success: succeeded
 - Errored: failed
-- Canceled: canceled.', example='Errored'),
+- Canceled: canceled', example='Errored'),
 }
 
 model ListResourceExportTaskVersionsResponseBody = {
   exportTasks?: [ 
     {
-      createTime?: string(name='createTime', description='The creation time.', example='2025-05-11T02:18:50Z'),
+      createTime?: string(name='createTime', description='The creation time in UTC, in the ISO 8601 format of YYYY-MM-DDTHH:mm:ssZ.', example='2025-05-11T02:18:50Z'),
       description?: string(name='description', description='The description.', example='this is description'),
       elapsedTime?: long(name='elapsedTime', description='The execution duration.', example='4521'),
       exportTaskId?: string(name='exportTaskId', description='The ID of the resource export task.', example='ex-al1711jl6hd8u5crggeq6v'),
       exportToModule?: {
-        source?: string(name='source', description='The module type in which the exported template is saved. Valid values:
+        source?: string(name='source', description='The module type to which the exported template is saved. Valid values:
 
 - OSS: OSS
-- Registry: Terraform Registry.', example='OSS'),
+- Registry: Terraform Registry', example='OSS'),
         sourcePath?: string(name='sourcePath', description='The path where the template content is saved.
 
 - If Source is set to Registry, the format is: "cloudregistry::iacservice//"
 
-- If Source is set to OSS, the format is: "oss::https://.oss-ap-southeast-1.aliyuncs.com/xxx.zip".', example='oss::https://.oss-cn-hangzhou.aliyuncs.com/xxx.zip'),
-        statePath?: string(name='statePath', description='The path of the state file corresponding to the module.', example='/'),
-      }(name='exportToModule', description='Saves the exported template as a module. If this parameter is not set, the template is automatically saved in the registry.'),
+- If Source is set to OSS, the format is: "oss::https://.oss-cn-hangzhou.aliyuncs.com/xxx.zip"', example='oss::https://.oss-cn-hangzhou.aliyuncs.com/xxx.zip'),
+        statePath?: string(name='statePath', description='The path of the State file corresponding to the module.', example='/'),
+      }(name='exportToModule', description='The module to which the exported template is saved. If this parameter is not set, the template is automatically saved in the Registry.'),
       exportVersion?: string(name='exportVersion', description='The resource export version.', example='v3'),
       failedReason?: string(name='failedReason', description='The reason for the export failure.', example='Reason'),
       includeRules?: [ 
         {
-          key?: string(name='key', description='The name of the inclusion rule for resource export. Valid values:
+          key?: string(name='key', description='The name of the include rule for resource export. Valid values:
 
 - ResourceType: required. The resource type. Example: ALIYUN::VPC::VPC.
-- RegionId: required. The region to which the resource belongs. Only one region is supported. Example: ap-southeast-1.
+- RegionId: required. The region to which the resource belongs. Only one region is supported. Example: cn-chengdu.
 - \\\\<ResourceType>:Id: the resource ID. Example: ALIYUN::VPC::VPC:Id.
 - ResourceGroupId: the resource group ID. Example: rg-1234.
-- ZoneId: the zone to which the resource belongs. Only one zone is supported. Example: ap-southeast-1h.
+- ZoneId: the zone to which the resource belongs. Only one zone is supported. Example: cn-hangzhou-h.
 
-Multiple filter conditions are combined by using the AND operator. A resource is matched only if all filter conditions are met.', example='RegionId'),
-          values?: [ string ](name='values', description='The values of the inclusion rules for resource export.'),
+Multiple filter conditions have an AND relationship by default. A resource must meet all filter conditions to be considered a match.', example='RegionId'),
+          values?: [ string ](name='values', description='The values of the include rule for resource export.'),
         }
-      ](name='includeRules', description='The list of inclusion rules used when exporting resources.'),
+      ](name='includeRules', description='The list of include rules used when exporting resources.'),
+      managedTaskId?: string(name='managedTaskId'),
       modules?: [ 
         {
-          source?: string(name='source', description='The module type where the exported template is stored. Two formats are supported: CloudRegistry and OSS. If the ExportToModule parameter is specified, both formats are returned. Otherwise, only CloudRegistry is returned.', example='OSS'),
-          sourcePath?: string(name='sourcePath', description='The download URL of the module where the exported template is stored.
+          source?: string(name='source', description='The module type where the exported template is located. Two formats are supported: CloudRegistry and OSS. If the ExportToModule parameter is specified, both formats are returned. Otherwise, only CloudRegistry is returned.', example='OSS'),
+          sourcePath?: string(name='sourcePath', description='The download address of the exported template within the module.
 
-- If Source is set to CloudRegistry, the format is: "cloudregistry::iacservice//"
+- If Source is CloudRegistry, the format is: "cloudregistry::iacservice//"
 
-- If Source is set to OSS, the format is: "oss::https://.oss-ap-southeast-1.aliyuncs.com/xxx.zip".', example='oss::https://.oss-cn-hangzhou.aliyuncs.com/xxx.zip'),
-          version?: string(name='version', description='The version of the module where the exported template is stored.', example='v1'),
+- If Source is OSS, the format is: "oss::https://.oss-cn-hangzhou.aliyuncs.com/xxx.zip"', example='oss::https://.oss-cn-hangzhou.aliyuncs.com/xxx.zip'),
+          version?: string(name='version', description='The version of the module where the exported template is located.', example='v1'),
         }
       ](name='modules', description='The module configuration of the exported resources.'),
       name?: string(name='name', description='The name of the export task.', example='TaskName'),
@@ -6968,13 +7050,13 @@ Multiple filter conditions are combined by using the AND operator. A resource is
 - Pending: preparing to run
 - Success: succeeded
 - Errored: failed
-- Canceled: canceled.', example='Running'),
+- Canceled: canceled', example='Running'),
       variables?: [ 
         {
           properties?: [ string ](name='properties', description='The list of Terraform resource properties corresponding to the resource type.'),
           resourceType?: string(name='resourceType', description='The resource type.', example='Vswitch'),
         }
-      ](name='variables', description='The list of variables. Parameters of the exported resources are set as variables.'),
+      ](name='variables', description='The list of variables. Parameters of exported resources are set as variables.'),
     }
   ](name='exportTasks', description='The list of export task versions.'),
   pageNumber?: int32(name='pageNumber', description='The page number. Default value: 1.', example='1'),
