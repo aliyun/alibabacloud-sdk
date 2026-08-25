@@ -73,7 +73,12 @@ model CertConfig {
 }
 
 model ContainerConfiguration {
+  acrInstanceId?: string(name='acrInstanceId'),
   image?: string(name='image'),
+  registryCredential?: {
+    password?: string(name='password'),
+    username?: string(name='username'),
+  }(name='registryCredential'),
 }
 
 model CreateApiKeyInput {
@@ -200,6 +205,7 @@ model E2BTeam {
   createdTime?: string(name='createdTime', description='The time when the team was created.', example='2025-05-23T11:26:25Z'),
   description?: string(name='description', description='The description.', example='Open team'),
   plan?: string(name='plan'),
+  readOnly?: boolean(name='readOnly'),
   resourceGroupID?: string(name='resourceGroupID', description='The resource group ID.', example='rg-acfmwxqyrgwabcd'),
   status?: string(name='status', description='The status of the team.', example='active'),
   teamID?: string(name='teamID', description='The unique identifier of the team.', example='70d1c834-0383-58d8-97ac-5336eb91abcd'),
@@ -704,13 +710,13 @@ async function deleteTeam(teamID: string, request: DeleteTeamRequest): DeleteTea
 }
 
 model DeleteVolumeRequest {
-  teamID?: string(name='teamID', example='70d1c834-0383-58d8-97ac-5336eb91abcd'),
+  teamID?: string(name='teamID', description='The unique identifier of the Team.', example='70d1c834-0383-58d8-97ac-5336eb91abcd'),
 }
 
 model DeleteVolumeResponseBody = {
-  code?: string(name='code', example='200'),
-  message?: string(name='message', example='success'),
-  requestId?: string(name='requestId', example='B5AD8B54-4358-5F5B-ACAA-52F2016459C6'),
+  code?: string(name='code', description='The error code.', example='200'),
+  message?: string(name='message', description='The response message.', example='success'),
+  requestId?: string(name='requestId', description='The request ID.', example='B5AD8B54-4358-5F5B-ACAA-52F2016459C6'),
 }
 
 model DeleteVolumeResponse = {
@@ -720,7 +726,7 @@ model DeleteVolumeResponse = {
 }
 
 /**
- * @summary 删除 Volume 
+ * @summary Deletes a Volume.
  *
  * @param request DeleteVolumeRequest
  * @param headers map
@@ -754,7 +760,7 @@ async function deleteVolumeWithOptions(volumeID: string, request: DeleteVolumeRe
 }
 
 /**
- * @summary 删除 Volume 
+ * @summary Deletes a Volume.
  *
  * @param request DeleteVolumeRequest
  * @return DeleteVolumeResponse
@@ -947,14 +953,14 @@ async function getTeam(teamID: string, request: GetTeamRequest): GetTeamResponse
 }
 
 model GetVolumeRequest {
-  teamID?: string(name='teamID', example='70d1c834-0383-58d8-97ac-5336eb91abcd'),
+  teamID?: string(name='teamID', description='The unique identifier of the Team.', example='70d1c834-0383-58d8-97ac-5336eb91abcd'),
 }
 
 model GetVolumeResponseBody = {
-  code?: string(name='code', example='200'),
-  message?: string(name='message', example='success'),
-  requestId?: string(name='requestId', example='7ADFF8D8-D4BA-5F79-AD49-DDABFEA59B6C'),
-  volume?: E2BVolume(name='volume'),
+  code?: string(name='code', description='The error code.', example='200'),
+  message?: string(name='message', description='The response message.', example='success'),
+  requestId?: string(name='requestId', description='The request ID.', example='7ADFF8D8-D4BA-5F79-AD49-DDABFEA59B6C'),
+  volume?: E2BVolume(name='volume', description='The storage configuration.'),
 }
 
 model GetVolumeResponse = {
@@ -964,7 +970,7 @@ model GetVolumeResponse = {
 }
 
 /**
- * @summary 查看 Volume
+ * @summary Queries a Volume.
  *
  * @param request GetVolumeRequest
  * @param headers map
@@ -998,7 +1004,7 @@ async function getVolumeWithOptions(volumeID: string, request: GetVolumeRequest,
 }
 
 /**
- * @summary 查看 Volume
+ * @summary Queries a Volume.
  *
  * @param request GetVolumeRequest
  * @return GetVolumeResponse
@@ -1177,7 +1183,11 @@ async function listQuota(request: ListQuotaRequest): ListQuotaResponse {
 model ListTeamsRequest {
   pageNumber?: int32(name='pageNumber', description='The page number, starting from 1.', example='1'),
   pageSize?: int32(name='pageSize', description='The number of teams displayed per page.', example='20'),
-  plan?: string(name='plan'),
+  plan?: string(name='plan', description='The subscription plan of the team. Valid values:
+
+- eco
+- std
+- pro', example='pro'),
   resourceGroupID?: string(name='resourceGroupID', description='The resource group ID.', example='rg-acfmwxqyrgwabcd'),
   teamName?: string(name='teamName', description='The team name.', example='DevTeam'),
 }
@@ -1201,7 +1211,7 @@ model ListTeamsResponse = {
 }
 
 /**
- * @summary Queries a list of teams.
+ * @summary Queries the list of teams.
  *
  * @param request ListTeamsRequest
  * @param headers map
@@ -1247,7 +1257,7 @@ async function listTeamsWithOptions(request: ListTeamsRequest, headers: map[stri
 }
 
 /**
- * @summary Queries a list of teams.
+ * @summary Queries the list of teams.
  *
  * @param request ListTeamsRequest
  * @return ListTeamsResponse
@@ -1259,24 +1269,28 @@ async function listTeams(request: ListTeamsRequest): ListTeamsResponse {
 }
 
 model ListVolumesRequest {
-  maxResults?: int32(name='maxResults', example='5'),
-  nextToken?: string(name='nextToken', example='qxGrXje86XMrYQ51aJMy'),
-  resourceGroupID?: string(name='resourceGroupID', example='rg-acfmwxqyrgwabcd'),
-  status?: string(name='status', example='CREATING'),
-  teamID?: string(name='teamID', example='70d1c834-0383-58d8-97ac-5336eb91abcd'),
-  userID?: string(name='userID', example='210000000'),
-  volumeName?: string(name='volumeName', example='workspace'),
+  maxResults?: int32(name='maxResults', description='The number of entries per page.', example='5'),
+  nextToken?: string(name='nextToken', description='The pagination token used to retrieve more results. You do not need to specify this parameter for the first request. For subsequent requests, use the token returned in the previous response.', example='qxGrXje86XMrYQ51aJMy'),
+  resourceGroupID?: string(name='resourceGroupID', description='The resource group ID.', example='rg-acfmwxqyrgwabcd'),
+  status?: string(name='status', description='The status of the volume. Valid values:
+- CREATING
+- AVAILABLE
+- ERROR
+- DELETING', example='CREATING'),
+  teamID?: string(name='teamID', description='The unique identifier of the team.', example='70d1c834-0383-58d8-97ac-5336eb91abcd'),
+  userID?: string(name='userID', description='The UID of the creator.', example='210000000'),
+  volumeName?: string(name='volumeName', description='The name of the volume. The name must be unique within the team.', example='workspace'),
 }
 
 model ListVolumesResponseBody = {
-  code?: string(name='code', example='200'),
-  maxResults?: int32(name='maxResults', example='4'),
-  message?: string(name='message', example='success'),
-  nextToken?: string(name='nextToken', example='qxGrXje86XMrYQ51aJMy'),
-  requestId?: string(name='requestId', example='7ADFF8D8-D4BA-5F79-AD49-DDABFEA59B6C'),
+  code?: string(name='code', description='The error code.', example='200'),
+  maxResults?: int32(name='maxResults', description='The number of entries per page.', example='4'),
+  message?: string(name='message', description='The response message.', example='success'),
+  nextToken?: string(name='nextToken', description='The pagination token used to retrieve more results. You do not need to specify this parameter for the first request. For subsequent requests, use the token returned in the previous response.', example='qxGrXje86XMrYQ51aJMy'),
+  requestId?: string(name='requestId', description='The request ID.', example='7ADFF8D8-D4BA-5F79-AD49-DDABFEA59B6C'),
   volumes?: [
     E2BVolume
-  ](name='volumes'),
+  ](name='volumes', description='The list of volumes.'),
 }
 
 model ListVolumesResponse = {
@@ -1286,7 +1300,7 @@ model ListVolumesResponse = {
 }
 
 /**
- * @summary 分页查询 Volumes
+ * @summary Queries volumes by using paging.
  *
  * @param request ListVolumesRequest
  * @param headers map
@@ -1338,7 +1352,7 @@ async function listVolumesWithOptions(request: ListVolumesRequest, headers: map[
 }
 
 /**
- * @summary 分页查询 Volumes
+ * @summary Queries volumes by using paging.
  *
  * @param request ListVolumesRequest
  * @return ListVolumesResponse
@@ -1592,14 +1606,14 @@ async function updateTeam(teamID: string, request: UpdateTeamRequest): UpdateTea
 }
 
 model UpdateVolumeRequest {
-  body?: UpdateVolumeInput(name='body'),
+  body?: UpdateVolumeInput(name='body', description='The parameters for updating the volume.'),
 }
 
 model UpdateVolumeResponseBody = {
-  code?: string(name='code', example='200'),
-  message?: string(name='message', example='success'),
-  requestId?: string(name='requestId', example='7ADFF8D8-D4BA-5F79-AD49-DDABFEA59B6C'),
-  volume?: E2BVolume(name='volume'),
+  code?: string(name='code', description='The error code.', example='200'),
+  message?: string(name='message', description='The response message.', example='success'),
+  requestId?: string(name='requestId', description='The request ID.', example='7ADFF8D8-D4BA-5F79-AD49-DDABFEA59B6C'),
+  volume?: E2BVolume(name='volume', description='The storage configuration.'),
 }
 
 model UpdateVolumeResponse = {
@@ -1609,7 +1623,7 @@ model UpdateVolumeResponse = {
 }
 
 /**
- * @summary 更新 Volume
+ * @summary Updates a volume.
  *
  * @param request UpdateVolumeRequest
  * @param headers map
@@ -1638,7 +1652,7 @@ async function updateVolumeWithOptions(volumeID: string, request: UpdateVolumeRe
 }
 
 /**
- * @summary 更新 Volume
+ * @summary Updates a volume.
  *
  * @param request UpdateVolumeRequest
  * @return UpdateVolumeResponse
