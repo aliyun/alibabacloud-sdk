@@ -89,15 +89,15 @@ function getEndpoint(productId: string, regionId: string, endpointRule: string, 
 }
 
 model Catalog {
-  comment?: string(name='Comment', example='this is a comment'),
-  createTime?: long(name='CreateTime', example='1722073854000'),
-  id?: string(name='Id', example='dlf-catalog:123456XXX:test_catalog
+  comment?: string(name='Comment', description='The comment.', example='this is a comment'),
+  createTime?: long(name='CreateTime', description='The creation time.', example='1722073854000'),
+  id?: string(name='Id', description='ID', example='dlf-catalog:123456XXX:test_catalog
 starrocks-catalog:c-abc123xxx:default_catalog'),
-  modifyTime?: long(name='ModifyTime', example='1722073854000'),
-  name?: string(name='Name', example='default_catalog'),
-  parentMetaEntityId?: string(name='ParentMetaEntityId', example='dlf
+  modifyTime?: long(name='ModifyTime', description='The modification time.', example='1722073854000'),
+  name?: string(name='Name', description='The name.', example='default_catalog'),
+  parentMetaEntityId?: string(name='ParentMetaEntityId', description='The ID of the parent entity.', example='dlf
 starrocks:c-abc123xxx'),
-  type?: string(name='Type', example='Internal'),
+  type?: string(name='Type', description='The type.', example='Internal'),
 }
 
 model Column {
@@ -146,16 +146,16 @@ The following examples show the ID formats for several common types:
 }
 
 model CrawlerType {
-  displayName?: string(name='DisplayName', example='Data Lake Formation'),
+  displayName?: string(name='DisplayName', description='The display name.', example='Data Lake Formation'),
   supportedEntityTypes?: [ 
     {
-      optional?: boolean(name='Optional', example='true'),
-      parentSubType?: string(name='ParentSubType', example='database'),
-      subType?: string(name='SubType', example='table'),
-      type?: string(name='Type', example='dlf-table'),
+      optional?: boolean(name='Optional', description='Indicates whether the entity type is optional.', example='For example, for the maxcompute-schema type, whether the schema level is optional (whether the three-layer model is enabled)'),
+      parentSubType?: string(name='ParentSubType', description='The entity subtype of the parent level. The value is null if no parent level exists.', example='database'),
+      subType?: string(name='SubType', description='The entity subtype identifier.', example='table'),
+      type?: string(name='Type', description='The entity type identifier, which is related to the crawler type. The format is (CrawlerType)-{SubType}.', example='dlf-table'),
     }
-  ](name='SupportedEntityTypes'),
-  type?: string(name='Type', example='dlf'),
+  ](name='SupportedEntityTypes', description='The list of supported entity types. The entity types have a top-down hierarchical relationship based on their declaration order.'),
+  type?: string(name='Type', description='The type identifier.', example='dlf'),
 }
 
 model CustomAttribute {
@@ -673,9 +673,9 @@ model LineageRelationship {
 }
 
 model LineageTask {
-  attributes?: map[string]string(name='Attributes', description='The properties of the task.'),
+  attributes?: map[string]string(name='Attributes', description='The task attributes.'),
   id?: string(name='Id', description='The task ID.', example='12345'),
-  type?: string(name='Type', description='The type of the task.', example='custom-sql'),
+  type?: string(name='Type', description='The task type.', example='custom-sql'),
 }
 
 model MetaEntity {
@@ -727,12 +727,12 @@ model MetaEntityWriteResult {
 }
 
 model Partition {
-  createTime?: long(name='CreateTime', example='1700192563000'),
-  dataSize?: long(name='DataSize', example='4096'),
-  modifyTime?: long(name='ModifyTime', example='1700192563000'),
-  name?: string(name='Name', example='ds=20250101'),
-  recordCount?: long(name='RecordCount', example='1000000'),
-  tableId?: string(name='TableId', example='maxcompute-table:accountId::project::table'),
+  createTime?: long(name='CreateTime', description='The creation time, in millisecond-level timestamp.', example='1700192563000'),
+  dataSize?: long(name='DataSize', description='The storage size of the partition, in bytes.', example='4096'),
+  modifyTime?: long(name='ModifyTime', description='The modification time, in millisecond-level timestamp.', example='1700192563000'),
+  name?: string(name='Name', description='The name.', example='ds=20250101'),
+  recordCount?: long(name='RecordCount', description='The number of records in the partition.', example='1000000'),
+  tableId?: string(name='TableId', description='The resource ID of the data table to which the partition belongs.', example='maxcompute-table:accountId::project::table'),
 }
 
 model Schema {
@@ -1807,6 +1807,89 @@ async function batchUpdateTasks(request: BatchUpdateTasksRequest): BatchUpdateTa
   return batchUpdateTasksWithOptions(request, runtime);
 }
 
+model BuildImageRequest {
+  cu?: double(name='Cu', description='The number of compute units (CUs) used for the build.', example='0.5'),
+  id?: string(name='Id', description='The image ID.
+
+This parameter is required.', example='Custom_image_xxxx_xxxx'),
+  processId?: string(name='ProcessId', description='The image build execution ID, which is used as an idempotence identifier.', example='582d4896-d224-413b-b883-239eeebe0bc5'),
+  resourceGroupId?: string(name='ResourceGroupId', description='The unique identifier of the general-purpose resource group.
+
+This parameter is required.', example='Serverless_res_group_****'),
+}
+
+model BuildImageResponseBody = {
+  data?: {
+    processId?: string(name='ProcessId', description='The image build execution ID.', example='582d4896-d224-413b-b883-239eeebe0bc5'),
+    success?: boolean(name='Success', description='Indicates whether the build was triggered successfully.', example='true'),
+  }(name='Data', description='The result of the API request.', example='true'),
+  requestId?: string(name='RequestId', description='The request ID, which is used for locating logs and troubleshooting issues.', example='6A6CBE87-9F91-1323-B680-E7A7065XXXXX'),
+  success?: boolean(name='Success', description='Indicates whether the request was successful.', example='true'),
+}
+
+model BuildImageResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: BuildImageResponseBody(name='body'),
+}
+
+/**
+ * @summary Builds an image.
+ *
+ * @description 1. You must purchase DataWorks Basic Edition or a higher edition to use this operation.
+ * 2. **Before calling this operation, make sure that the service-linked role AliyunServiceRoleForDataWorks has been created.**
+ *
+ * @param request BuildImageRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return BuildImageResponse
+ */
+@context("buildImageWithContext")
+async function buildImageWithOptions(request: BuildImageRequest, runtime: $RuntimeOptions): BuildImageResponse {
+  request.validate();
+  var body : map[string]any = {};
+  if (!$isNull(request.cu)) {
+    body['Cu'] = request.cu;
+  }
+  if (!$isNull(request.id)) {
+    body['Id'] = request.id;
+  }
+  if (!$isNull(request.processId)) {
+    body['ProcessId'] = request.processId;
+  }
+  if (!$isNull(request.resourceGroupId)) {
+    body['ResourceGroupId'] = request.resourceGroupId;
+  }
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'BuildImage',
+    version = '2024-05-18',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Builds an image.
+ *
+ * @description 1. You must purchase DataWorks Basic Edition or a higher edition to use this operation.
+ * 2. **Before calling this operation, make sure that the service-linked role AliyunServiceRoleForDataWorks has been created.**
+ *
+ * @param request BuildImageRequest
+ * @return BuildImageResponse
+ */
+async function buildImage(request: BuildImageRequest): BuildImageResponse {
+  var runtime = new $RuntimeOptions{};
+  return buildImageWithOptions(request, runtime);
+}
+
 model CancelAgentSessionRequest {
   id?: string(name='Id', description='The ID passed in by the requester, returned as-is in the response.', example='676303114031776'),
   jsonrpc?: string(name='Jsonrpc', description='The JSON-RPC version. Fixed value: 2.0.', example='2.0'),
@@ -1897,6 +1980,79 @@ async function cancelAgentSessionWithOptions(tmpReq: CancelAgentSessionRequest, 
 async function cancelAgentSession(request: CancelAgentSessionRequest): CancelAgentSessionResponse {
   var runtime = new $RuntimeOptions{};
   return cancelAgentSessionWithOptions(request, runtime);
+}
+
+model CancelImageTestRequest {
+  id?: string(name='Id', description='The image ID.
+
+This parameter is required.', example='Custom_image_xxxx_xxxx'),
+  processId?: string(name='ProcessId', description='The ID of the image test execution to cancel.', example='582d4896-d224-413b-b883-239eeebe0bc5'),
+}
+
+model CancelImageTestResponseBody = {
+  data?: {
+    processId?: string(name='ProcessId', description='The ID of the canceled image test execution.', example='582d4896-d224-413b-b883-239eeebe0bc5'),
+    success?: boolean(name='Success', description='Indicates whether the cancellation was triggered successfully.', example='true'),
+  }(name='Data', description='The result of the API request.', example='true'),
+  requestId?: string(name='RequestId', description='The request ID, which is used to locate logs and troubleshoot issues.', example='6A6CBE87-9F91-1323-B680-E7A7065XXXXX'),
+  success?: boolean(name='Success', description='Indicates whether the request was successful.', example='true'),
+}
+
+model CancelImageTestResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: CancelImageTestResponseBody(name='body'),
+}
+
+/**
+ * @summary Cancels an image test.
+ *
+ * @description 1. You must purchase DataWorks Basic Edition or a higher edition to use this feature.
+ * 2. **Make sure that the service-linked role AliyunServiceRoleForDataWorks is created before you call this operation.**
+ *
+ * @param request CancelImageTestRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return CancelImageTestResponse
+ */
+@context("cancelImageTestWithContext")
+async function cancelImageTestWithOptions(request: CancelImageTestRequest, runtime: $RuntimeOptions): CancelImageTestResponse {
+  request.validate();
+  var body : map[string]any = {};
+  if (!$isNull(request.id)) {
+    body['Id'] = request.id;
+  }
+  if (!$isNull(request.processId)) {
+    body['ProcessId'] = request.processId;
+  }
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'CancelImageTest',
+    version = '2024-05-18',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Cancels an image test.
+ *
+ * @description 1. You must purchase DataWorks Basic Edition or a higher edition to use this feature.
+ * 2. **Make sure that the service-linked role AliyunServiceRoleForDataWorks is created before you call this operation.**
+ *
+ * @param request CancelImageTestRequest
+ * @return CancelImageTestResponse
+ */
+async function cancelImageTest(request: CancelImageTestRequest): CancelImageTestResponse {
+  var runtime = new $RuntimeOptions{};
+  return cancelImageTestWithOptions(request, runtime);
 }
 
 model CloneDataSourceRequest {
@@ -2468,41 +2624,33 @@ async function createAlertRule(request: CreateAlertRuleRequest): CreateAlertRule
 }
 
 model CreateBusinessRequest {
-  businessName?: string(name='BusinessName', description='Name of the Business Process.<br>
-The name must be unique within the same project space.
+  businessName?: string(name='BusinessName', description='The name of the business process. The name must be unique within the same workspace.
 
 This parameter is required.', example='My business process'),
-  description?: string(name='Description', description='Description of the Business Process.', example='test'),
-  owner?: string(name='Owner', description='The Alibaba Cloud account ID of the owner responsible for the Business Process.<br>
-You can log on to the [DataWorks console](https://workbench.data.aliyun.com/console), move the mouse pointer over the profile picture in the upper-right corner of the menu bar, and view the Account ID. If this parameter is empty, the Alibaba Cloud account ID of the invoker is used by default.', example='1000000000001'),
-  projectId?: long(name='ProjectId', description='The ID of the DataWorks workspace.<br>
-You can log on to the [DataWorks console](https://workbench.data.aliyun.com/console), go to the Workspace Management page, and view the ID.', example='10000'),
-  projectIdentifier?: string(name='ProjectIdentifier', description='The unique identifier of the DataWorks workspace, which is the English identifier displayed when you switch workspaces at the top of the Data Development page. You must specify either this parameter or the projectid parameter to identify the DataWorks project for this API call.', example='dw_project'),
-  useType?: string(name='UseType', description='Function module to which the Business Process belongs. Valid values:
+  description?: string(name='Description', description='The description of the business process.', example='test'),
+  owner?: string(name='Owner', description='The Alibaba Cloud account ID of the owner of the business process. You can log on to the [DataWorks console](https://workbench.data.aliyun.com/console) and hover over the profile picture in the upper-right corner of the top navigation bar to view the account ID. If this parameter is left empty, the Alibaba Cloud account ID of the caller is used by default.', example='1000000000001'),
+  projectId?: long(name='ProjectId', description='The ID of the DataWorks workspace. You can log on to the [DataWorks console](https://workbench.data.aliyun.com/console) and go to the workspace management page to view the ID.', example='10000'),
+  projectIdentifier?: string(name='ProjectIdentifier', description='The unique identifier of the DataWorks workspace, which is the English identifier displayed in the workspace switcher at the top of the DataStudio page. You must specify either this parameter or ProjectId to determine the DataWorks workspace on which the API operation is performed.', example='dw_project'),
+  useType?: string(name='UseType', description='The functional module to which the business process belongs. Valid values:
 
-- NORMAL (Data Development)
-
-- MANUAL_BIZ (manually triggered workflow)', example='NORMAL'),
+- NORMAL: DataStudio.
+- MANUAL_BIZ: Manual business process.', example='NORMAL'),
 }
 
 model CreateBusinessResponseBody = {
-  businessId?: long(name='BusinessId', description='Business Process ID.', example='100001'),
-  errorCode?: string(name='ErrorCode', description='Error code. The value is as follows:
+  businessId?: long(name='BusinessId', description='The ID of the business process.', example='100001'),
+  errorCode?: string(name='ErrorCode', description='The error code. Description:
+- If the request was successful, this parameter is not returned.
+- If the request failed, this parameter is returned.
 
-- If the request succeeds, the ErrorCode field is not returned.
+For more information, see the error codes in this topic.', example='Invalid.Tenant.ConnectionNotExists'),
+  errorMessage?: string(name='ErrorMessage', description='The error message.', example='The connection does not exist.'),
+  httpStatusCode?: int32(name='HttpStatusCode', description='The HTTP status code.', example='200'),
+  requestId?: string(name='RequestId', description='The unique ID of the request. You can use this ID to troubleshoot issues.', example='0000-ABCD-EFG****'),
+  success?: boolean(name='Success', description='Indicates whether the request was successful. Valid values:
 
-- If the request fails, the ErrorCode field is returned.
-
-For more information, see the error code list in this topic.', example='Invalid.Tenant.ConnectionNotExists'),
-  errorMessage?: string(name='ErrorMessage', description='Error message.', example='The connection does not exist.'),
-  httpStatusCode?: int32(name='HttpStatusCode', description='HTTP status code.', example='200'),
-  requestId?: string(name='RequestId', description='The unique ID of this request.<br>
-If an error occurs, you can use this ID to troubleshoot the issue.', example='0000-ABCD-EFG****'),
-  success?: boolean(name='Success', description='Indicates whether the invocation succeeded. Valid values:
-
-- true: The invocation succeeded.
-
-- false: The invocation failed.', example='true'),
+- true: The request was successful.
+- false: The request failed.', example='true'),
 }
 
 model CreateBusinessResponse = {
@@ -2512,7 +2660,7 @@ model CreateBusinessResponse = {
 }
 
 /**
- * @summary Creates a workflow in DataStudio.
+ * @summary Creates a business process in DataStudio for data development.
  *
  * @param request CreateBusinessRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -2558,7 +2706,7 @@ async function createBusinessWithOptions(request: CreateBusinessRequest, runtime
 }
 
 /**
- * @summary Creates a workflow in DataStudio.
+ * @summary Creates a business process in DataStudio for data development.
  *
  * @param request CreateBusinessRequest
  * @return CreateBusinessResponse
@@ -6427,6 +6575,193 @@ async function createIdentifyCredential(request: CreateIdentifyCredentialRequest
   return createIdentifyCredentialWithOptions(request, runtime);
 }
 
+model CreateImageRequest {
+  accessibility?: string(name='Accessibility', description='The image visibility. Valid values:
+- Public: visible to all users.
+- Private: visible only to the creator.', example='Public'),
+  acrAssociatedVpcId?: string(name='AcrAssociatedVpcId', description='The VPC ID associated with the ACR instance. This parameter is required when referencing an ACR image.', example='vpc-xxx'),
+  acrInstanceId?: string(name='AcrInstanceId', description='The ACR instance ID. This parameter is required when referencing an ACR image.', example='acr_instance_id'),
+  buildConfig?: {
+    buildType?: string(name='BuildType', description='The build type.', example='PackageInstallation'),
+    packageInstallationScripts?: [ 
+      {
+        content?: string(name='Content', description='The script content. If the content consists of package names, separate them with commas (,).', example='requests'),
+        type?: string(name='Type', description='The script type.', example='Python3'),
+      }
+    ](name='PackageInstallationScripts', description='The list of pre-installation scripts.'),
+  }(name='BuildConfig', description='The image build configuration.'),
+  clientToken?: string(name='ClientToken', description='The client idempotency token.
+
+This parameter is required.', example='dasfsd-94fqwe-da8d'),
+  description?: string(name='Description', description='The image description, up to 128 characters.', example='create by xxxx'),
+  enableSyncMaxCompute?: boolean(name='EnableSyncMaxCompute', description='Specifies whether to synchronize the image to MaxCompute. Specify this parameter when referencing an ACR image. Default value: false.', example='false'),
+  imageUri?: string(name='ImageUri', description='The image URI. This parameter is required when referencing an ACR image.', example='registry-vpc.cn-beijing.cr.aliyuncs.com/namespace/image:0.1.0'),
+  name?: string(name='Name', description='The image name, which can contain lowercase letters, digits, and underscores (_), up to 128 characters.
+
+This parameter is required.', example='task_image_001'),
+  namespace?: string(name='Namespace', description='The image namespace. Set this parameter to DataWorks Default when referencing a DataWorks official image.
+
+This parameter is required.', example='namespace_name'),
+  providerImageId?: string(name='ProviderImageId', description='The image ID from the image provider. This parameter is required when referencing a DataWorks official image.', example='System_shell_20251201'),
+  providerType?: string(name='ProviderType', description='The image reference data type. Valid values:
+
+- ACR: ACR image repository.
+- DataWorks: DataWorks official image.
+
+This parameter is required.', example='ACR'),
+  repositoryName?: string(name='RepositoryName', description='The image repository name. Set this parameter to DataWorks Default when referencing a DataWorks official image.
+
+This parameter is required.', example='repo_name'),
+  supported?: {
+    module?: string(name='Module', description='The image sub-module. Valid values:
+- Scheduler: DataStudio.', example='Scheduler'),
+    taskTypes?: [ string ](name='TaskTypes', description='The list of supported node types.'),
+  }(name='Supported', description='The image sub-purpose.
+
+This parameter is required.'),
+}
+
+model CreateImageShrinkRequest {
+  accessibility?: string(name='Accessibility', description='The image visibility. Valid values:
+- Public: visible to all users.
+- Private: visible only to the creator.', example='Public'),
+  acrAssociatedVpcId?: string(name='AcrAssociatedVpcId', description='The VPC ID associated with the ACR instance. This parameter is required when referencing an ACR image.', example='vpc-xxx'),
+  acrInstanceId?: string(name='AcrInstanceId', description='The ACR instance ID. This parameter is required when referencing an ACR image.', example='acr_instance_id'),
+  buildConfigShrink?: string(name='BuildConfig', description='The image build configuration.'),
+  clientToken?: string(name='ClientToken', description='The client idempotency token.
+
+This parameter is required.', example='dasfsd-94fqwe-da8d'),
+  description?: string(name='Description', description='The image description, up to 128 characters.', example='create by xxxx'),
+  enableSyncMaxCompute?: boolean(name='EnableSyncMaxCompute', description='Specifies whether to synchronize the image to MaxCompute. Specify this parameter when referencing an ACR image. Default value: false.', example='false'),
+  imageUri?: string(name='ImageUri', description='The image URI. This parameter is required when referencing an ACR image.', example='registry-vpc.cn-beijing.cr.aliyuncs.com/namespace/image:0.1.0'),
+  name?: string(name='Name', description='The image name, which can contain lowercase letters, digits, and underscores (_), up to 128 characters.
+
+This parameter is required.', example='task_image_001'),
+  namespace?: string(name='Namespace', description='The image namespace. Set this parameter to DataWorks Default when referencing a DataWorks official image.
+
+This parameter is required.', example='namespace_name'),
+  providerImageId?: string(name='ProviderImageId', description='The image ID from the image provider. This parameter is required when referencing a DataWorks official image.', example='System_shell_20251201'),
+  providerType?: string(name='ProviderType', description='The image reference data type. Valid values:
+
+- ACR: ACR image repository.
+- DataWorks: DataWorks official image.
+
+This parameter is required.', example='ACR'),
+  repositoryName?: string(name='RepositoryName', description='The image repository name. Set this parameter to DataWorks Default when referencing a DataWorks official image.
+
+This parameter is required.', example='repo_name'),
+  supportedShrink?: string(name='Supported', description='The image sub-purpose.
+
+This parameter is required.'),
+}
+
+model CreateImageResponseBody = {
+  imageId?: string(name='ImageId', description='The ID of the created image.', example='Custom_image_xxxx_xxxx'),
+  requestId?: string(name='RequestId', description='The request ID, which is used for locating logs and troubleshooting.', example='6A6CBE87-9F91-1323-B680-E7A7065XXXXX'),
+  success?: boolean(name='Success', description='Indicates whether the request was successful.', example='true'),
+}
+
+model CreateImageResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: CreateImageResponseBody(name='body'),
+}
+
+/**
+ * @summary Creates an image.
+ *
+ * @description 1. You must purchase DataWorks Basic Edition or a higher edition to use this operation.
+ * 2. **Before calling this operation, make sure that the service-linked role AliyunServiceRoleForDataWorks has been created.**
+ *
+ * @param tmpReq CreateImageRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return CreateImageResponse
+ */
+@context("createImageWithContext")
+async function createImageWithOptions(tmpReq: CreateImageRequest, runtime: $RuntimeOptions): CreateImageResponse {
+  tmpReq.validate();
+  var request = new CreateImageShrinkRequest{};
+  OpenApiUtil.convert(tmpReq, request);
+  if (!$isNull(tmpReq.buildConfig)) {
+    request.buildConfigShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.buildConfig, 'BuildConfig', 'json');
+  }
+  if (!$isNull(tmpReq.supported)) {
+    request.supportedShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.supported, 'Supported', 'json');
+  }
+  var body : map[string]any = {};
+  if (!$isNull(request.accessibility)) {
+    body['Accessibility'] = request.accessibility;
+  }
+  if (!$isNull(request.acrAssociatedVpcId)) {
+    body['AcrAssociatedVpcId'] = request.acrAssociatedVpcId;
+  }
+  if (!$isNull(request.acrInstanceId)) {
+    body['AcrInstanceId'] = request.acrInstanceId;
+  }
+  if (!$isNull(request.buildConfigShrink)) {
+    body['BuildConfig'] = request.buildConfigShrink;
+  }
+  if (!$isNull(request.clientToken)) {
+    body['ClientToken'] = request.clientToken;
+  }
+  if (!$isNull(request.description)) {
+    body['Description'] = request.description;
+  }
+  if (!$isNull(request.enableSyncMaxCompute)) {
+    body['EnableSyncMaxCompute'] = request.enableSyncMaxCompute;
+  }
+  if (!$isNull(request.imageUri)) {
+    body['ImageUri'] = request.imageUri;
+  }
+  if (!$isNull(request.name)) {
+    body['Name'] = request.name;
+  }
+  if (!$isNull(request.namespace)) {
+    body['Namespace'] = request.namespace;
+  }
+  if (!$isNull(request.providerImageId)) {
+    body['ProviderImageId'] = request.providerImageId;
+  }
+  if (!$isNull(request.providerType)) {
+    body['ProviderType'] = request.providerType;
+  }
+  if (!$isNull(request.repositoryName)) {
+    body['RepositoryName'] = request.repositoryName;
+  }
+  if (!$isNull(request.supportedShrink)) {
+    body['Supported'] = request.supportedShrink;
+  }
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'CreateImage',
+    version = '2024-05-18',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Creates an image.
+ *
+ * @description 1. You must purchase DataWorks Basic Edition or a higher edition to use this operation.
+ * 2. **Before calling this operation, make sure that the service-linked role AliyunServiceRoleForDataWorks has been created.**
+ *
+ * @param request CreateImageRequest
+ * @return CreateImageResponse
+ */
+async function createImage(request: CreateImageRequest): CreateImageResponse {
+  var runtime = new $RuntimeOptions{};
+  return createImageWithOptions(request, runtime);
+}
+
 model CreateLineageRelationshipRequest {
   dstEntity?: LineageEntity(name='DstEntity', description='The destination entity.'),
   srcEntity?: LineageEntity(name='SrcEntity', description='The source entity.'),
@@ -8973,6 +9308,205 @@ async function createSemanticJob(request: CreateSemanticJobRequest): CreateSeman
   return createSemanticJobWithOptions(request, runtime);
 }
 
+model CreateServerIdeInstanceRequest {
+  credentialConfig?: {
+    aliyunEnvRoleKey?: string(name='AliyunEnvRoleKey', description='The environment variable role key.', example='0'),
+    configs?: [ 
+      {
+        key?: string(name='Key', description='The identifier key of the credential configuration.', example='0'),
+        roles?: [ 
+          {
+            assumeRoleFor?: string(name='AssumeRoleFor', description='The Alibaba Cloud account ID of the principal that owns the role to be assumed.', example='123456789012****'),
+            policy?: string(name='Policy', description='The policy used to further restrict the permissions of the role.', example='{}'),
+            roleArn?: string(name='RoleArn', description='The Alibaba Cloud Resource Name (ARN) of the RAM role.', example='acs:ram::123456789012****:role/DataWorksRole'),
+            roleType?: string(name='RoleType', description='The role assumption type. Valid values:
+- service: assumed by a service.
+- user: assumed by a user.', example='service'),
+            userInfo?: {
+              id?: string(name='Id', description='The account ID of the proxied user.', example='20933221576142****'),
+              type?: string(name='Type', description='The user type. Valid values:
+- customer: Alibaba Cloud account.
+- sub: RAM user.
+- AssumedRoleUser: RAM role.', example='sub'),
+            }(name='UserInfo', description='The information about the proxied user.'),
+          }
+        ](name='Roles', description='The list of roles in the credential configuration.'),
+        type?: string(name='Type', description='The credential configuration type. Valid values:
+- Role: single role assumption.
+- RoleChain: role chain assumption.', example='RoleChain'),
+      }
+    ](name='Configs', description='The list of credential configurations.'),
+    enable?: boolean(name='Enable', description='Specifies whether to enable credential injection.', example='True'),
+  }(name='CredentialConfig', description='The credential injection configuration for the instance. After this feature is enabled, you can use the default RAM role chain or specify a custom RAM role.'),
+  cu?: int32(name='Cu', description='The number of CUs used by the instance.', example='10'),
+  datasets?: [ 
+    {
+      extOptions?: string(name='ExtOptions', description='The custom mount properties of the dataset. The content is passed as mount options.', example='{"fs.oss.download.thread.concurrency":"10"}'),
+      identifier?: string(name='Identifier', description='The dataset identifier.', example='d-vsqjvs****rp5l206u'),
+      mountPath?: string(name='MountPath', description='The mount path of the dataset in the instance.', example='/mnt/data'),
+      readOnly?: boolean(name='ReadOnly', description='Specifies whether to mount the dataset in read-only mode.', example='false'),
+      uri?: string(name='Uri', description='The URI of the storage service directory for direct mounting.', example='oss://example-bucket/data/'),
+      version?: int32(name='Version', description='The dataset version number.', example='1'),
+    }
+  ](name='Datasets', description='The list of datasets mounted to the instance.'),
+  imageId?: string(name='ImageId', description='The image ID. You can call ListServerIdeImages to obtain the image ID.', example='System_serveride_notebook_20240822'),
+  imageUrl?: string(name='ImageUrl', description='The image URL. This parameter is required when you use a non-official DataWorks image.', example='registry.cn-hangzhou.aliyuncs.com/example/serveride:latest'),
+  instanceName?: string(name='InstanceName', description='The name of the personal development environment instance.
+
+This parameter is required.', example='notebook_dev'),
+  owner?: string(name='Owner', description='The Alibaba Cloud account ID of the user who owns the instance. If this parameter is not specified, the current caller is used by default.', example='20933221576142****'),
+  projectId?: long(name='ProjectId', description='The DataWorks workspace ID.
+
+This parameter is required.', example='10000'),
+  resourceGroupId?: string(name='ResourceGroupId', description='The DataWorks resource group identifier. You can specify the numeric ID of the resource group or the full identifier in the Serverless_res_group_{tenantId}_{resgId} format.
+
+This parameter is required.', example='Serverless_res_group_123456789012345_9876543210****'),
+  userCommand?: {
+    onStart?: {
+      content?: string(name='Content', description='The command content to be executed after the instance starts. The maximum length is 1024 characters.', example='echo "serveride ready"'),
+    }(name='OnStart', description='The command configuration to be executed after the instance starts.'),
+  }(name='UserCommand', description='The user command configuration to be executed when the instance starts.'),
+  userVpc?: {
+    forwardInfos?: [ 
+      {
+        accessType?: [ string ](name='AccessType', description='The list of access types.'),
+        containerName?: string(name='ContainerName', description='The name of the target container.', example='dsw-notebook'),
+        eipAllocationId?: string(name='EipAllocationId', description='The instance ID of the public Elastic IP Address (EIP).', example='eip-bp1****'),
+        enable?: boolean(name='Enable', description='Specifies whether to enable this port forwarding configuration.', example='true'),
+        externalPort?: string(name='ExternalPort', description='The mapped public port.', example='1024'),
+        forwardPort?: string(name='ForwardPort', description='The target port in the instance container.', example='22'),
+        name?: string(name='Name', description='The name of the port forwarding configuration.', example='ssh'),
+        natGatewayId?: string(name='NatGatewayId', description='The NAT gateway ID.', example='ngw-bp1****'),
+        SSHPublicKey?: string(name='SSHPublicKey', description='The public key used for SSH access.', example='ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQ****'),
+      }
+    ](name='ForwardInfos', description='The list of port forwarding configurations.'),
+    securityGroupId?: string(name='SecurityGroupId', description='The security group ID.', example='sg-bp1****'),
+    vSwitchId?: string(name='VSwitchId', description='The vSwitch ID.', example='vsw-bp1****'),
+    vpcId?: string(name='VpcId', description='The VPC ID.', example='vpc-bp1****'),
+  }(name='UserVpc', description='The Virtual Private Cloud (VPC) configuration used by the instance.'),
+}
+
+model CreateServerIdeInstanceShrinkRequest {
+  credentialConfigShrink?: string(name='CredentialConfig', description='The credential injection configuration for the instance. After this feature is enabled, you can use the default RAM role chain or specify a custom RAM role.'),
+  cu?: int32(name='Cu', description='The number of CUs used by the instance.', example='10'),
+  datasetsShrink?: string(name='Datasets', description='The list of datasets mounted to the instance.'),
+  imageId?: string(name='ImageId', description='The image ID. You can call ListServerIdeImages to obtain the image ID.', example='System_serveride_notebook_20240822'),
+  imageUrl?: string(name='ImageUrl', description='The image URL. This parameter is required when you use a non-official DataWorks image.', example='registry.cn-hangzhou.aliyuncs.com/example/serveride:latest'),
+  instanceName?: string(name='InstanceName', description='The name of the personal development environment instance.
+
+This parameter is required.', example='notebook_dev'),
+  owner?: string(name='Owner', description='The Alibaba Cloud account ID of the user who owns the instance. If this parameter is not specified, the current caller is used by default.', example='20933221576142****'),
+  projectId?: long(name='ProjectId', description='The DataWorks workspace ID.
+
+This parameter is required.', example='10000'),
+  resourceGroupId?: string(name='ResourceGroupId', description='The DataWorks resource group identifier. You can specify the numeric ID of the resource group or the full identifier in the Serverless_res_group_{tenantId}_{resgId} format.
+
+This parameter is required.', example='Serverless_res_group_123456789012345_9876543210****'),
+  userCommandShrink?: string(name='UserCommand', description='The user command configuration to be executed when the instance starts.'),
+  userVpcShrink?: string(name='UserVpc', description='The Virtual Private Cloud (VPC) configuration used by the instance.'),
+}
+
+model CreateServerIdeInstanceResponseBody = {
+  instanceId?: string(name='InstanceId', description='The ID of the personal development environment instance.', example='699573'),
+  requestId?: string(name='RequestId', description='The request ID.', example='E7D55162-4489-1619-AAF5-3F97D5FCA948'),
+}
+
+model CreateServerIdeInstanceResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: CreateServerIdeInstanceResponseBody(name='body'),
+}
+
+/**
+ * @summary Creates a personal development environment instance.
+ *
+ * @description Creates a personal development environment (ServerIDE) instance. After you specify the DataWorks workspace, resource group, image, and specifications, the instance is created and the instance ID is returned.
+ *
+ * @param tmpReq CreateServerIdeInstanceRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return CreateServerIdeInstanceResponse
+ */
+@context("createServerIdeInstanceWithContext")
+async function createServerIdeInstanceWithOptions(tmpReq: CreateServerIdeInstanceRequest, runtime: $RuntimeOptions): CreateServerIdeInstanceResponse {
+  tmpReq.validate();
+  var request = new CreateServerIdeInstanceShrinkRequest{};
+  OpenApiUtil.convert(tmpReq, request);
+  if (!$isNull(tmpReq.credentialConfig)) {
+    request.credentialConfigShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.credentialConfig, 'CredentialConfig', 'json');
+  }
+  if (!$isNull(tmpReq.datasets)) {
+    request.datasetsShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.datasets, 'Datasets', 'json');
+  }
+  if (!$isNull(tmpReq.userCommand)) {
+    request.userCommandShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.userCommand, 'UserCommand', 'json');
+  }
+  if (!$isNull(tmpReq.userVpc)) {
+    request.userVpcShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.userVpc, 'UserVpc', 'json');
+  }
+  var body : map[string]any = {};
+  if (!$isNull(request.credentialConfigShrink)) {
+    body['CredentialConfig'] = request.credentialConfigShrink;
+  }
+  if (!$isNull(request.cu)) {
+    body['Cu'] = request.cu;
+  }
+  if (!$isNull(request.datasetsShrink)) {
+    body['Datasets'] = request.datasetsShrink;
+  }
+  if (!$isNull(request.imageId)) {
+    body['ImageId'] = request.imageId;
+  }
+  if (!$isNull(request.imageUrl)) {
+    body['ImageUrl'] = request.imageUrl;
+  }
+  if (!$isNull(request.instanceName)) {
+    body['InstanceName'] = request.instanceName;
+  }
+  if (!$isNull(request.owner)) {
+    body['Owner'] = request.owner;
+  }
+  if (!$isNull(request.projectId)) {
+    body['ProjectId'] = request.projectId;
+  }
+  if (!$isNull(request.resourceGroupId)) {
+    body['ResourceGroupId'] = request.resourceGroupId;
+  }
+  if (!$isNull(request.userCommandShrink)) {
+    body['UserCommand'] = request.userCommandShrink;
+  }
+  if (!$isNull(request.userVpcShrink)) {
+    body['UserVpc'] = request.userVpcShrink;
+  }
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'CreateServerIdeInstance',
+    version = '2024-05-18',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Creates a personal development environment instance.
+ *
+ * @description Creates a personal development environment (ServerIDE) instance. After you specify the DataWorks workspace, resource group, image, and specifications, the instance is created and the instance ID is returned.
+ *
+ * @param request CreateServerIdeInstanceRequest
+ * @return CreateServerIdeInstanceResponse
+ */
+async function createServerIdeInstance(request: CreateServerIdeInstanceRequest): CreateServerIdeInstanceResponse {
+  var runtime = new $RuntimeOptions{};
+  return createServerIdeInstanceWithOptions(request, runtime);
+}
+
 model CreateSkillRequest {
   bundleUrl?: string(name='BundleUrl', description='The **downloadable URL (HTTP/HTTPS) of the bundle.zip file**. This parameter is mutually exclusive with SkillMdOverride.', example='https://example.com/skill.zip'),
   description?: string(name='Description', description='The **Skill description**.', example='数据分析技能'),
@@ -9365,194 +9899,159 @@ async function createWorkflowDefinition(request: CreateWorkflowDefinitionRequest
 }
 
 model CreateWorkflowInstancesRequest {
-  autoStartEnabled?: boolean(name='AutoStartEnabled', description='The default value is true.', example='true'),
-  comment?: string(name='Comment', description='The reason for the creation.', example='create for test'),
+  autoStartEnabled?: boolean(name='AutoStartEnabled', description='Specifies whether to run the workflow instance immediately after creation. Default value: true.', example='true'),
+  comment?: string(name='Comment', description='The reason for creating the workflow instance.', example='create for test'),
   defaultRunProperties?: {
     alert?: {
-      noticeType?: string(name='NoticeType', description='The alert notification method. Valid values:
-
-- Sms: SMS only.
-
-- Mail: Mail only.
-
-- SmsMail: SMS and mail.', example='Sms'),
-      type?: string(name='Type', description='The alerting policy. Valid values:
-
-- Success: Alerts on success.
-
-- Failure: Alerts on failure.
-
-- SuccessFailure: Alerts on both success and failure.', example='Succes'),
-    }(name='Alert', description='The alert settings.'),
+      noticeType?: string(name='NoticeType', description='The notification method. Valid values:
+- Sms: SMS only
+- Mail: email only
+- SmsMail: SMS and email', example='Sms'),
+      type?: string(name='Type', description='The alert policy. Valid values:
+- Success: alert on success
+- Failure: alert on failure
+- SuccessFailure: alert on both success and failure', example='Succes'),
+    }(name='Alert', description='The alert configuration.'),
     analysis?: {
-      blocked?: boolean(name='Blocked', description='Specifies whether to block execution if the analysis fails. Required when Type = SupplementData.', example='true'),
-      enabled?: boolean(name='Enabled', description='Specifies whether to enable the analysis feature. Required when Type = SupplementData.', example='true'),
-    }(name='Analysis', description='The analysis configuration. Required when Type = SupplementData.'),
-    excludeProjectIds?: [ long ](name='ExcludeProjectIds', description='The IDs of the projects not to run.'),
-    excludeTaskIds?: [ long ](name='ExcludeTaskIds', description='The IDs of the tasks not to run.'),
-    includeProjectIds?: [ long ](name='IncludeProjectIds', description='The IDs of the projects to run.'),
-    includeTaskIds?: [ long ](name='IncludeTaskIds', description='The IDs of the tasks to run.'),
-    mode?: string(name='Mode', description='The data backfill mode. Default value: ManualSelection. Required when Type is set to SupplementData.
+      blocked?: boolean(name='Blocked', description='Specifies whether to block running when the analysis does not pass. This parameter is required when Type is set to SupplementData.', example='true'),
+      enabled?: boolean(name='Enabled', description='Specifies whether to enable analysis. This parameter is required when Type is set to SupplementData.', example='true'),
+    }(name='Analysis', description='The analysis configuration. This parameter is required when Type is set to SupplementData.'),
+    excludeProjectIds?: [ long ](name='ExcludeProjectIds', description='The list of project IDs to exclude.'),
+    excludeTaskIds?: [ long ](name='ExcludeTaskIds', description='The list of node IDs to exclude from running.'),
+    includeProjectIds?: [ long ](name='IncludeProjectIds', description='The list of project IDs to include.'),
+    includeTaskIds?: [ long ](name='IncludeTaskIds', description='The list of node IDs to run.'),
+    mode?: string(name='Mode', description='The data backfill mode. Default value: ManualSelection. This parameter is required when Type is set to SupplementData. Valid values:
+- General: general mode. Only one value can be specified for `RootTaskIds`. `IncludeTaskIds` is optional. If you do not specify IncludeTaskIds, the content in `RootTaskIds` is included by default.
+- ManualSelection: manual selection. Multiple values can be specified for `RootTaskIds`. `IncludeTaskIds` is optional. If you do not specify IncludeTaskIds, the content in `RootTaskIds` is included by default.
+- Chain: chain mode. `RootTaskIds` is empty. Specify two IDs in `IncludeTaskIds`, which are the start and end nodes.
+- AllDownstream: all downstream. Only one value can be specified for `RootTaskIds`.', example='ManualSelection'),
+    order?: string(name='Order', description='The run order. Default value: Asc. Valid values:
+- Asc: ascending order by business date.
+- Desc: descending order by business date.', example='Asc'),
+    parallelism?: int32(name='Parallelism', description='The number of parallel nodes. A value from 2 to 10 specifies the parallelism. A value of 1 specifies serial execution. This parameter is required when Type is set to SupplementData.', example='2'),
+    priority?: int32(name='Priority', description='The run priority. Valid values: 1 to 11. A larger value indicates a higher priority. This parameter settings only supports manual workflows and trigger-based workflows.', example='1'),
+    priorityWeightStrategy?: string(name='PriorityWeightStrategy', description='The priority weight policy. This parameter settings only supports manual workflows and trigger-based workflows. Valid values:
+- `Disable`: disabled (default)
+- `Upstream`: calculates the total weight of upstream nodes for the current node. The deeper the level, the higher the weight.', example='Upstream'),
+    rootTaskIds?: [ long ](name='RootTaskIds', description='The list of root node IDs.
 
-- General: You can specify only one value for `RootTaskIds`. The `IncludeTaskIds` parameter is optional. If it\\\\"s not specified, it defaults to including `RootTaskIds`.
-
-- ManualSelection: You can specify multiple values for `RootTaskIds`. The `IncludeTaskIds` parameter is optional. If it is not specified, it defaults to including `RootTaskIds`.
-
-- Chain: If you set the Mode parameter to Chain, leave the `RootTaskIds` parameter empty and set the `IncludeTaskIds` parameter to the start task ID and the end task ID.
-
-- AllDownstream: Only one `RootTaskId` can be specified.', example='ManualSelection'),
-    order?: string(name='Order', description='The execution order. Default value: Asc.
-
-- Asc: ascending by business date.
-
-- Desc: descending by business date.', example='Asc'),
-    parallelism?: int32(name='Parallelism', description='The task concurrency. Values from 2 to 10 indicate concurrency. A value of 1 indicates sequential execution. Required when Type = SupplementData.', example='2'),
-    priority?: int32(name='Priority', description='The execution priority, range: 1–11. A higher value indicates higher priority.', example='1'),
-    priorityWeightStrategy?: string(name='PriorityWeightStrategy', description='The priority weighting policy.
-
-- `Disable` (default): Do not enable.
-
-- `Upstream`: The priority is based on the total weight of upstream nodes. The deeper the hierarchy, the higher the weight.', example='Upstream'),
-    rootTaskIds?: [ long ](name='RootTaskIds', description='The list of root task IDs.
-
-- When Type is set to SupplementData, RootTaskIds is required unless Mode is set to Chain.
-
-- When Type is set to ManualWorkflow, RootTaskIds is optional. If it is not specified, the default root nodes of the manual workflow are used.
-
-- When Type is set to Manual, RootTaskIds is required and specifies the list of manual tasks to run.
-
-- When Type is set to SmokeTest, RootTaskIds is required and specifies the list of test tasks to run.'),
+- When Type is set to SupplementData, RootTaskIds is required except when Mode is set to Chain.
+- When Type is set to ManualWorkflow, RootTaskIds is optional. If you do not specify RootTaskIds, the default root node list of the manual workflow is used.
+- When Type is set to Manual, RootTaskIds is required, which specifies the list of manual nodes to run.
+- When Type is set to SmokeTest, RootTaskIds is required, which specifies the list of test nodes to run.'),
     runPolicy?: {
-      endTime?: string(name='EndTime', description='The end time of running. Configure this parameter in the `hh:mm:ss` format (24-hour clock). This parameter is required if you configure the RunPolicy parameter. Valid values:', example='23:59:59'),
-      immediately?: boolean(name='Immediately', description='Specifies whether a task whose scheduled run time is in the future can be run immediately. Default value: false.', example='false'),
-      startTime?: string(name='StartTime', description='The start time of running. Configure this parameter in the `hh:mm:ss` format (24-hour clock). This parameter is required if you configure the RunPolicy parameter.', example='00:00:00'),
-      type?: string(name='Type', description='The time period type. This parameter is required if you configure the RunPolicy parameter. Valid values:
-
-- Daily
-
-- Weekend', example='Daily'),
-    }(name='RunPolicy', description='The run policy. If the parameter is left empty, the task configuration is used.'),
-    runtimeResource?: string(name='RuntimeResource', description='The custom scheduling resource group ID. If left empty, the task configuration is used.', example='S_res_group_524258031846018_1684XXXXXXXXX'),
-  }(name='DefaultRunProperties', description='The runtime configuration.'),
+      endTime?: string(name='EndTime', description='The end run time. Format: `hh:mm:ss` in 24-hour format. This field is required if you set the run policy.', example='23:59:59'),
+      immediately?: boolean(name='Immediately', description='Specifies whether the instance can start running immediately if the run time is in the future. Default value: false.', example='false'),
+      startTime?: string(name='StartTime', description='The start run time. Format: `hh:mm:ss` in 24-hour format. This field is required if you set the run policy.', example='00:00:00'),
+      type?: string(name='Type', description='The time period type. This field is required if you set the run policy. Valid values:
+- Daily: every day
+- Weekend: weekends only', example='Daily'),
+    }(name='RunPolicy', description='The run policy. If this field is empty, the node configuration is used.'),
+    runtimeResource?: string(name='RuntimeResource', description='The identifier of the custom schedule resource group. If this field is empty, the node configuration is used.', example='S_res_group_524258031846018_1684XXXXXXXXX'),
+  }(name='DefaultRunProperties', description='The runtime configurations.'),
   envType?: string(name='EnvType', description='The project environment. Valid values:
-
-- Prod
-
-- Dev', example='Prod'),
+- Prod: production
+- Dev: development', example='Prod'),
   name?: string(name='Name', description='The name.
 
 This parameter is required.', example='WorkflowInstance1'),
   periods?: {
     bizDates?: [ 
       {
-        endBizDate?: string(name='EndBizDate', description='The data timestamp at which data is no longer backfilled. Configure this parameter in the `yyyy-mm-dd` format.
+        endBizDate?: string(name='EndBizDate', description='The end business date. Format: `yyyy-mm-dd`.
 
 This parameter is required.', example='2024-11-24'),
-        startBizDate?: string(name='StartBizDate', description='The data timestamp at which the data starts to be backfilled. Configure this parameter in the `yyyy-mm-dd` format.
+        startBizDate?: string(name='StartBizDate', description='The start business date. Format: `yyyy-mm-dd`.
 
 This parameter is required.', example='2024-11-20'),
       }
-    ](name='BizDates', description='The data timestamps. You can specify up to seven data timestamps.
+    ](name='BizDates', description='The list of business dates. You can specify up to 7 business date ranges.
 
 This parameter is required.'),
-    endTime?: string(name='EndTime', description='The end time of data backfill. Configure this parameter in the `hh:mm:ss` format. The time must be in the 24-hour clock. Default value: 23:59:59.
+    endTime?: string(name='EndTime', description='The end period time. Format: `hh:mm:ss` in 24-hour format. Default value: 23:59:59.
 
-If you configure this parameter, you must also configure the StartTime parameter.', example='23:59:59'),
-    startTime?: string(name='StartTime', description='The start time of data backfill. Configure this parameter in the `hh:mm:ss` format. The time must be in the 24-hour clock. Default value: 00:00:00.
+If you specify this field, you must also specify StartTime.', example='23:59:59'),
+    startTime?: string(name='StartTime', description='The start period time. Format: `hh:mm:ss` in 24-hour format. Default value: 00:00:00.
 
-If you configure this parameter, you must also configure the EndTime parameter.', example='00:00:00'),
-  }(name='Periods', description='The configuration of the data backfilling period.'),
+If you specify this field, you must also specify EndTime.', example='00:00:00'),
+  }(name='Periods', description='The data backfill period settings.'),
   projectId?: long(name='ProjectId', description='The project ID.
 
 This parameter is required.', example='100'),
   tagCreationPolicy?: string(name='TagCreationPolicy', description='The tag creation policy. Valid values:
-
-- Append: New tags are added on top of the existing tags of the manual workflow.
-
-- Overwrite: Existing tags of the manual workflow are not inherited. New tags are created directly.', example='Append'),
+- Append: append mode. New tags are appended to the existing tags inherited from the manual workflow.
+- Overwrite: overwrite mode. Existing tags of the manual workflow are not inherited. Tags are created directly.', example='Append'),
   tags?: [ 
     {
-      key?: string(name='Key', description='The tag key.', example='tagKey'),
-      value?: string(name='Value', description='The tag value.', example='tagValue'),
+      key?: string(name='Key', description='The label key.', example='tagKey'),
+      value?: string(name='Value', description='The label value.', example='tagValue'),
     }
-  ](name='Tags', description='The task tag list.'),
-  taskParameters?: string(name='TaskParameters', description='The task-specific parameters. The value is in the JSON format. The key specifies the task ID. You can call the GetTask operation to obtain the format of the value by querying the script parameters.', example='{
+  ](name='Tags', description='The list of node labels.'),
+  taskParameters?: string(name='TaskParameters', description='The node parameters used to set parameters for specific nodes. The value is in JSON format. The key is the node ID, and the value format refers to the node script parameter (the Task.Script.Parameter field in the GetTask response).', example='{
   "1001": "key1=val2 key2=val2", 
   "1002": "key1=val2 key2=val2"
 }'),
   type?: string(name='Type', description='The type of the workflow instance. Valid values:
 
-- SupplementData: Data backfill. The usage of RootTaskIds and IncludeTaskIds varies based on the backfill mode. See the description of the DefaultRunProperties.Mode parameter.
-
-- ManualWorkflow: Manually triggered workflow. WorkflowId is required for a manual workflow. RootTaskIds is optional. If not specified, the system uses the default root task list of the manual workflow.
-
-- Manual: Manual task. You only need to specify RootTaskIds. This is the list of manual tasks to run.
-
-- SmokeTest: Smoke test. You only need to specify RootTaskIds. This is the list of test tasks to run.
-
-- TriggerWorkflow: Triggered Workflow You must specify the WorkflowId of the triggered workflow. IncludeTaskIds is optional. If you do not specify IncludeTaskIds, the entire workflow runs.
+- SupplementData: data backfill. The method for specifying RootTaskIds and IncludeTaskIds varies based on the data backfill pattern. For more information, see the DefaultRunProperties.Mode parameter description.
+- ManualWorkflow: manual workflow. Set WorkflowId to the ID of the manual workflow. RootTaskIds is optional. If you do not specify RootTaskIds, the default root node list of the manual workflow is used.
+- Manual: manual node. Only RootTaskIds is required, which specifies the list of manual nodes to run.
+- SmokeTest: smoke test. Only RootTaskIds is required, which specifies the list of test nodes to run.
+- TriggerWorkflow: trigger-based workflow. Set WorkflowId to the ID of the trigger-based workflow. IncludeTaskIds is optional. If you do not specify IncludeTaskIds, the entire workflow is run.
 
 This parameter is required.', example='SupplementData'),
-  workflowId?: long(name='WorkflowId', description='The ID of the workflow to which the instance belongs. This parameter is set to 1 for auto triggered tasks.
+  workflowId?: long(name='WorkflowId', description='The ID of the workflow to which the instance belongs. The WorkflowId for periodic nodes is 1.
 
 This parameter is required.', example='1'),
-  workflowParameters?: string(name='WorkflowParameters', description='The workflow parameters. This parameter takes effect when a specific workflow is specified (`WorkflowId != 1`). For scheduled workflows and triggered workflows, the format is key=value, and these parameters have lower priority than task parameters. For manual workflows, the format is JSON, and these parameters have higher priority than task parameters.', example='"key=value" format:
+  workflowParameters?: string(name='WorkflowParameters', description='The workflow parameters. This parameter takes effect when a unique workflow is specified (`WorkflowId != 1`). For periodic workflows and trigger-based workflows, the format is key=value, and the priority is lower than node parameters. For manual workflows, the format is JSON, and the priority is higher than node parameters.', example='"key=value" format:
 key1=value1 key2=value2
 JSON format:
 {"key1":"value1", "key2": "value2"}'),
 }
 
 model CreateWorkflowInstancesShrinkRequest {
-  autoStartEnabled?: boolean(name='AutoStartEnabled', description='The default value is true.', example='true'),
-  comment?: string(name='Comment', description='The reason for the creation.', example='create for test'),
-  defaultRunPropertiesShrink?: string(name='DefaultRunProperties', description='The runtime configuration.'),
+  autoStartEnabled?: boolean(name='AutoStartEnabled', description='Specifies whether to run the workflow instance immediately after creation. Default value: true.', example='true'),
+  comment?: string(name='Comment', description='The reason for creating the workflow instance.', example='create for test'),
+  defaultRunPropertiesShrink?: string(name='DefaultRunProperties', description='The runtime configurations.'),
   envType?: string(name='EnvType', description='The project environment. Valid values:
-
-- Prod
-
-- Dev', example='Prod'),
+- Prod: production
+- Dev: development', example='Prod'),
   name?: string(name='Name', description='The name.
 
 This parameter is required.', example='WorkflowInstance1'),
-  periodsShrink?: string(name='Periods', description='The configuration of the data backfilling period.'),
+  periodsShrink?: string(name='Periods', description='The data backfill period settings.'),
   projectId?: long(name='ProjectId', description='The project ID.
 
 This parameter is required.', example='100'),
   tagCreationPolicy?: string(name='TagCreationPolicy', description='The tag creation policy. Valid values:
-
-- Append: New tags are added on top of the existing tags of the manual workflow.
-
-- Overwrite: Existing tags of the manual workflow are not inherited. New tags are created directly.', example='Append'),
-  tagsShrink?: string(name='Tags', description='The task tag list.'),
-  taskParameters?: string(name='TaskParameters', description='The task-specific parameters. The value is in the JSON format. The key specifies the task ID. You can call the GetTask operation to obtain the format of the value by querying the script parameters.', example='{
+- Append: append mode. New tags are appended to the existing tags inherited from the manual workflow.
+- Overwrite: overwrite mode. Existing tags of the manual workflow are not inherited. Tags are created directly.', example='Append'),
+  tagsShrink?: string(name='Tags', description='The list of node labels.'),
+  taskParameters?: string(name='TaskParameters', description='The node parameters used to set parameters for specific nodes. The value is in JSON format. The key is the node ID, and the value format refers to the node script parameter (the Task.Script.Parameter field in the GetTask response).', example='{
   "1001": "key1=val2 key2=val2", 
   "1002": "key1=val2 key2=val2"
 }'),
   type?: string(name='Type', description='The type of the workflow instance. Valid values:
 
-- SupplementData: Data backfill. The usage of RootTaskIds and IncludeTaskIds varies based on the backfill mode. See the description of the DefaultRunProperties.Mode parameter.
-
-- ManualWorkflow: Manually triggered workflow. WorkflowId is required for a manual workflow. RootTaskIds is optional. If not specified, the system uses the default root task list of the manual workflow.
-
-- Manual: Manual task. You only need to specify RootTaskIds. This is the list of manual tasks to run.
-
-- SmokeTest: Smoke test. You only need to specify RootTaskIds. This is the list of test tasks to run.
-
-- TriggerWorkflow: Triggered Workflow You must specify the WorkflowId of the triggered workflow. IncludeTaskIds is optional. If you do not specify IncludeTaskIds, the entire workflow runs.
+- SupplementData: data backfill. The method for specifying RootTaskIds and IncludeTaskIds varies based on the data backfill pattern. For more information, see the DefaultRunProperties.Mode parameter description.
+- ManualWorkflow: manual workflow. Set WorkflowId to the ID of the manual workflow. RootTaskIds is optional. If you do not specify RootTaskIds, the default root node list of the manual workflow is used.
+- Manual: manual node. Only RootTaskIds is required, which specifies the list of manual nodes to run.
+- SmokeTest: smoke test. Only RootTaskIds is required, which specifies the list of test nodes to run.
+- TriggerWorkflow: trigger-based workflow. Set WorkflowId to the ID of the trigger-based workflow. IncludeTaskIds is optional. If you do not specify IncludeTaskIds, the entire workflow is run.
 
 This parameter is required.', example='SupplementData'),
-  workflowId?: long(name='WorkflowId', description='The ID of the workflow to which the instance belongs. This parameter is set to 1 for auto triggered tasks.
+  workflowId?: long(name='WorkflowId', description='The ID of the workflow to which the instance belongs. The WorkflowId for periodic nodes is 1.
 
 This parameter is required.', example='1'),
-  workflowParameters?: string(name='WorkflowParameters', description='The workflow parameters. This parameter takes effect when a specific workflow is specified (`WorkflowId != 1`). For scheduled workflows and triggered workflows, the format is key=value, and these parameters have lower priority than task parameters. For manual workflows, the format is JSON, and these parameters have higher priority than task parameters.', example='"key=value" format:
+  workflowParameters?: string(name='WorkflowParameters', description='The workflow parameters. This parameter takes effect when a unique workflow is specified (`WorkflowId != 1`). For periodic workflows and trigger-based workflows, the format is key=value, and the priority is lower than node parameters. For manual workflows, the format is JSON, and the priority is higher than node parameters.', example='"key=value" format:
 key1=value1 key2=value2
 JSON format:
 {"key1":"value1", "key2": "value2"}'),
 }
 
 model CreateWorkflowInstancesResponseBody = {
-  operationId?: string(name='OperationId', description='The ID of the operation. You can use this field to query the results of the creation operation through the GetCreateWorkflowInstancesResult interface.', example='e15ad21c-b0e9-4792-8f55-b037xxxxxxxx'),
-  requestId?: string(name='RequestId', description='The ID of the request. It is used to locate logs and troubleshoot problems.', example='22C97E95-F023-56B5-8852-B1A77A17XXXX'),
+  operationId?: string(name='OperationId', description='The operation ID. You can use this value to call the GetCreateWorkflowInstancesResult operation to query the result of the creation operation.', example='e15ad21c-b0e9-4792-8f55-b037xxxxxxxx'),
+  requestId?: string(name='RequestId', description='The request ID, which is used to locate logs and troubleshoot issues.', example='22C97E95-F023-56B5-8852-B1A77A17XXXX'),
 }
 
 model CreateWorkflowInstancesResponse = {
@@ -9562,9 +10061,9 @@ model CreateWorkflowInstancesResponse = {
 }
 
 /**
- * @summary Creates a workflow instance, such as a data backfill workflow instance, based on configurations.
+ * @summary Creates a workflow instance based on configurations, such as a data backfill workflow instance.
  *
- * @description DataWorks Basic Edition or higher is required.
+ * @description DataWorks Basic Edition or a higher edition is required.
  *
  * @param tmpReq CreateWorkflowInstancesRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -9642,9 +10141,9 @@ async function createWorkflowInstancesWithOptions(tmpReq: CreateWorkflowInstance
 }
 
 /**
- * @summary Creates a workflow instance, such as a data backfill workflow instance, based on configurations.
+ * @summary Creates a workflow instance based on configurations, such as a data backfill workflow instance.
  *
- * @description DataWorks Basic Edition or higher is required.
+ * @description DataWorks Basic Edition or a higher edition is required.
  *
  * @param request CreateWorkflowInstancesRequest
  * @return CreateWorkflowInstancesResponse
@@ -12399,6 +12898,69 @@ async function deleteSemanticJob(request: DeleteSemanticJobRequest): DeleteSeman
   return deleteSemanticJobWithOptions(request, runtime);
 }
 
+model DeleteServerIdeInstanceRequest {
+  instanceId?: string(name='InstanceId', description='The ID of the personal development environment instance. You can call ListServerIdeInstances to obtain the ID.
+
+This parameter is required.', example='699573'),
+}
+
+model DeleteServerIdeInstanceResponseBody = {
+  instanceId?: string(name='InstanceId', description='The ID of the personal development environment instance.', example='699573'),
+  requestId?: string(name='RequestId', description='The request ID.', example='E7D55162-4489-1619-AAF5-3F97D5FCA948'),
+}
+
+model DeleteServerIdeInstanceResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: DeleteServerIdeInstanceResponseBody(name='body'),
+}
+
+/**
+ * @summary Deletes a specified personal development environment instance.
+ *
+ * @description Deletes a specified personal development environment (ServerIDE) instance and returns the instance ID.
+ *
+ * @param request DeleteServerIdeInstanceRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return DeleteServerIdeInstanceResponse
+ */
+@context("deleteServerIdeInstanceWithContext")
+async function deleteServerIdeInstanceWithOptions(request: DeleteServerIdeInstanceRequest, runtime: $RuntimeOptions): DeleteServerIdeInstanceResponse {
+  request.validate();
+  var query = {};
+  if (!$isNull(request.instanceId)) {
+    query['InstanceId'] = request.instanceId;
+  }
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'DeleteServerIdeInstance',
+    version = '2024-05-18',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Deletes a specified personal development environment instance.
+ *
+ * @description Deletes a specified personal development environment (ServerIDE) instance and returns the instance ID.
+ *
+ * @param request DeleteServerIdeInstanceRequest
+ * @return DeleteServerIdeInstanceResponse
+ */
+async function deleteServerIdeInstance(request: DeleteServerIdeInstanceRequest): DeleteServerIdeInstanceResponse {
+  var runtime = new $RuntimeOptions{};
+  return deleteServerIdeInstanceWithOptions(request, runtime);
+}
+
 model DeleteSkillRequest {
   name?: string(name='Name', description='The name of the Skill to delete.
 
@@ -12543,20 +13105,19 @@ async function deleteTask(request: DeleteTaskRequest): DeleteTaskResponse {
 }
 
 model DeleteWorkflowRequest {
-  clientUniqueCode?: string(name='ClientUniqueCode', description='The unique code of the client. This parameter is used to create a workflow asynchronously and implement the idempotence of the workflow. If you do not specify this parameter when you create the workflow, the system automatically generates a unique code. The unique code is uniquely associated with the workflow ID. If you specify this parameter when you update or delete the workflow, the value of this parameter must be the unique code that is used to create the workflow.', example='Workflow_0bc5213917368545132902xxxxxxxx'),
-  envType?: string(name='EnvType', description='The environment of the workspace. Valid values:
+  clientUniqueCode?: string(name='ClientUniqueCode', description='The client unique code of the workflow, which is used to implement asynchronous operations and idempotence. If you do not specify this parameter during creation, the system automatically generates one. This code is uniquely bound to the resource ID. If you specify this parameter during update or deletion, it must be the same as the client unique code specified during creation.', example='Workflow_0bc5213917368545132902xxxxxxxx'),
+  envType?: string(name='EnvType', description='The project environment. Valid values:
 
-- Prod: production environment
-
-- Dev: development environment', example='Prod'),
-  id?: long(name='Id', description='The workflow ID.
+- Prod: production
+- Dev: development', example='Prod'),
+  id?: long(name='Id', description='The unique identifier of the workflow.
 
 This parameter is required.', example='1234'),
 }
 
 model DeleteWorkflowResponseBody = {
-  requestId?: string(name='RequestId', description='The request ID.', example='22C97E95-F023-56B5-8852-B1A77A17XXXX'),
-  success?: boolean(name='Success', description='Indicates whether the request was successful.', example='true'),
+  requestId?: string(name='RequestId', description='The request ID. Used for locating logs and troubleshooting issues.', example='22C97E95-F023-56B5-8852-B1A77A17XXXX'),
+  success?: boolean(name='Success', description='Indicates whether the operation was successful.', example='true'),
 }
 
 model DeleteWorkflowResponse = {
@@ -12566,9 +13127,9 @@ model DeleteWorkflowResponse = {
 }
 
 /**
- * @summary Deletes a workflow.
+ * @summary Deletes a specified workflow.
  *
- * @description This API operation is available for all DataWorks editions.
+ * @description DataWorks Basic Edition or a more advanced edition is required.
  *
  * @param request DeleteWorkflowRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -12607,9 +13168,9 @@ async function deleteWorkflowWithOptions(request: DeleteWorkflowRequest, runtime
 }
 
 /**
- * @summary Deletes a workflow.
+ * @summary Deletes a specified workflow.
  *
- * @description This API operation is available for all DataWorks editions.
+ * @description DataWorks Basic Edition or a more advanced edition is required.
  *
  * @param request DeleteWorkflowRequest
  * @return DeleteWorkflowResponse
@@ -12878,6 +13439,72 @@ async function detachDataQualityRulesFromEvaluationTaskWithOptions(tmpReq: Detac
 async function detachDataQualityRulesFromEvaluationTask(request: DetachDataQualityRulesFromEvaluationTaskRequest): DetachDataQualityRulesFromEvaluationTaskResponse {
   var runtime = new $RuntimeOptions{};
   return detachDataQualityRulesFromEvaluationTaskWithOptions(request, runtime);
+}
+
+model DisableImageRequest {
+  id?: string(name='Id', description='The image ID.
+
+This parameter is required.', example='Custom_image_xxxx_xxxx'),
+}
+
+model DisableImageResponseBody = {
+  data?: boolean(name='Data', description='The result of the API request.', example='true'),
+  requestId?: string(name='RequestId', description='The request ID, which is used to locate logs and troubleshoot issues.', example='6A6CBE87-9F91-1323-B680-E7A7065XXXXX'),
+  success?: boolean(name='Success', description='Indicates whether the request was successful.', example='true'),
+}
+
+model DisableImageResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: DisableImageResponseBody(name='body'),
+}
+
+/**
+ * @summary Disables an image.
+ *
+ * @description 1. You must purchase DataWorks Basic Edition or a higher edition to use this operation.
+ * 2. **Before using this operation, make sure that the service-linked role AliyunServiceRoleForDataWorks has been created.**
+ *
+ * @param request DisableImageRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return DisableImageResponse
+ */
+@context("disableImageWithContext")
+async function disableImageWithOptions(request: DisableImageRequest, runtime: $RuntimeOptions): DisableImageResponse {
+  request.validate();
+  var body : map[string]any = {};
+  if (!$isNull(request.id)) {
+    body['Id'] = request.id;
+  }
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'DisableImage',
+    version = '2024-05-18',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Disables an image.
+ *
+ * @description 1. You must purchase DataWorks Basic Edition or a higher edition to use this operation.
+ * 2. **Before using this operation, make sure that the service-linked role AliyunServiceRoleForDataWorks has been created.**
+ *
+ * @param request DisableImageRequest
+ * @return DisableImageResponse
+ */
+async function disableImage(request: DisableImageRequest): DisableImageResponse {
+  var runtime = new $RuntimeOptions{};
+  return disableImageWithOptions(request, runtime);
 }
 
 model DisableProcessDefinitionRequest {
@@ -13183,6 +13810,72 @@ async function downloadSemanticResultsWithOptions(request: DownloadSemanticResul
 async function downloadSemanticResults(request: DownloadSemanticResultsRequest): DownloadSemanticResultsResponse {
   var runtime = new $RuntimeOptions{};
   return downloadSemanticResultsWithOptions(request, runtime);
+}
+
+model EnableImageRequest {
+  id?: string(name='Id', description='The image ID.
+
+This parameter is required.', example='Custom_image_xxxx_xxxx'),
+}
+
+model EnableImageResponseBody = {
+  data?: boolean(name='Data', description='The result of the API request.', example='true'),
+  requestId?: string(name='RequestId', description='The request ID, which is used to locate logs and troubleshoot issues.', example='6A6CBE87-9F91-1323-B680-E7A7065XXXXX'),
+  success?: boolean(name='Success', description='Indicates whether the request was successful.', example='true'),
+}
+
+model EnableImageResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: EnableImageResponseBody(name='body'),
+}
+
+/**
+ * @summary Enables an image.
+ *
+ * @description 1. You must purchase DataWorks Basic Edition or a higher edition to use this feature.
+ * 2. **Make sure that the service-linked role AliyunServiceRoleForDataWorks is created before you call this operation.**
+ *
+ * @param request EnableImageRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return EnableImageResponse
+ */
+@context("enableImageWithContext")
+async function enableImageWithOptions(request: EnableImageRequest, runtime: $RuntimeOptions): EnableImageResponse {
+  request.validate();
+  var body : map[string]any = {};
+  if (!$isNull(request.id)) {
+    body['Id'] = request.id;
+  }
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'EnableImage',
+    version = '2024-05-18',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Enables an image.
+ *
+ * @description 1. You must purchase DataWorks Basic Edition or a higher edition to use this feature.
+ * 2. **Make sure that the service-linked role AliyunServiceRoleForDataWorks is created before you call this operation.**
+ *
+ * @param request EnableImageRequest
+ * @return EnableImageResponse
+ */
+async function enableImage(request: EnableImageRequest): EnableImageResponse {
+  var runtime = new $RuntimeOptions{};
+  return enableImageWithOptions(request, runtime);
 }
 
 model EnableProcessDefinitionRequest {
@@ -18185,6 +18878,103 @@ async function getImage(request: GetImageRequest): GetImageResponse {
   return getImageWithOptions(request, runtime);
 }
 
+model GetImageTestResultRequest {
+  id?: string(name='Id', description='The image ID.
+
+This parameter is required.', example='Custom_image_xxxx_xxxx'),
+  processId?: string(name='ProcessId', description='The test process ID.
+
+This parameter is required.', example='582d4896-d224-413b-b883-239eeebe0bc5'),
+}
+
+model GetImageTestResultResponseBody = {
+  requestId?: string(name='RequestId', description='The request ID, which is used to locate logs and troubleshoot issues.', example='6A6CBE87-9F91-1323-B680-E7A7065XXXXX'),
+  success?: boolean(name='Success', description='Indicates whether the request was successful.', example='true'),
+  testResult?: {
+    imageId?: string(name='ImageId', description='The image ID.', example='Custom_image_xxxx_xxxx'),
+    message?: string(name='Message', description='The test result message.', example='test finished'),
+    operateTime?: long(name='OperateTime', description='The operation time, represented as a 64-bit timestamp.', example='1727055811000'),
+    processId?: string(name='ProcessId', description='The process ID.', example='582d4896-d224-413b-b883-239eeebe0bc5'),
+    publishStage?: string(name='PublishStage', description='The image publish status. Valid values:
+- Untest: Not tested.
+- Testing: Testing in progress.
+- TestFailed: Test failed.
+- Unpublished: Not published.
+- Publishing: Publishing in progress.
+- Published: Published.
+- PublishFailed: Publish failed.
+- Building: Building in progress.
+- BuildSuccess: Build succeeded.
+- BuildFailed: Build failed.
+- Accelerating: Acceleration in progress.
+- AccelerateSuccess: Acceleration succeeded.
+- AccelerateFailed: Acceleration failed.', example='Unpublished'),
+    resourceGroupId?: long(name='ResourceGroupId', description='The resource group ID.', example='Serverless_res_group_****'),
+    status?: string(name='Status', description='The test process status. Valid values:
+- running: Running.
+- completed: Completed.
+- failed: Failed.
+- cancelled: Cancelled.', example='completed'),
+  }(name='TestResult', description='The details of the image test result.'),
+}
+
+model GetImageTestResultResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: GetImageTestResultResponseBody(name='body'),
+}
+
+/**
+ * @summary Retrieves the details of an image test result.
+ *
+ * @description 1. You must purchase DataWorks Basic Edition or a higher edition to use this feature.
+ * 2. **Before using this operation, make sure that the service-linked role AliyunServiceRoleForDataWorks has been created.**
+ *
+ * @param request GetImageTestResultRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return GetImageTestResultResponse
+ */
+@context("getImageTestResultWithContext")
+async function getImageTestResultWithOptions(request: GetImageTestResultRequest, runtime: $RuntimeOptions): GetImageTestResultResponse {
+  request.validate();
+  var query = {};
+  if (!$isNull(request.id)) {
+    query['Id'] = request.id;
+  }
+  if (!$isNull(request.processId)) {
+    query['ProcessId'] = request.processId;
+  }
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'GetImageTestResult',
+    version = '2024-05-18',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Retrieves the details of an image test result.
+ *
+ * @description 1. You must purchase DataWorks Basic Edition or a higher edition to use this feature.
+ * 2. **Before using this operation, make sure that the service-linked role AliyunServiceRoleForDataWorks has been created.**
+ *
+ * @param request GetImageTestResultRequest
+ * @return GetImageTestResultResponse
+ */
+async function getImageTestResult(request: GetImageTestResultRequest): GetImageTestResultResponse {
+  var runtime = new $RuntimeOptions{};
+  return getImageTestResultWithOptions(request, runtime);
+}
+
 model GetJobStatusRequest {
   jobId?: string(name='JobId', description='The task ID returned after calling an asynchronous API.
 
@@ -20614,6 +21404,137 @@ async function getSemanticJobLogWithOptions(request: GetSemanticJobLogRequest, r
 async function getSemanticJobLog(request: GetSemanticJobLogRequest): GetSemanticJobLogResponse {
   var runtime = new $RuntimeOptions{};
   return getSemanticJobLogWithOptions(request, runtime);
+}
+
+model GetServerIdeInstanceRequest {
+  instanceId?: string(name='InstanceId', description='The personal development environment instance ID. You can call ListServerIdeInstances to obtain the ID.
+
+This parameter is required.', example='699573'),
+}
+
+model GetServerIdeInstanceResponseBody = {
+  instance?: {
+    createTime?: long(name='CreateTime', description='The time when the instance was created. This value is a UNIX timestamp in milliseconds.', example='1756000000000'),
+    credentialConfig?: {
+      aliyunEnvRoleKey?: string(name='AliyunEnvRoleKey', description='The environment variable role key.', example='0'),
+      configs?: [ 
+        {
+          key?: string(name='Key', description='The identifier key of the credential configuration.', example='0'),
+          roles?: [ 
+            {
+              assumeRoleFor?: string(name='AssumeRoleFor', description='The Alibaba Cloud account ID of the principal that owns the assumed role.', example='123456789012****'),
+              policy?: string(name='Policy', description='The policy used to further restrict the permissions of the role.', example='{}'),
+              roleArn?: string(name='RoleArn', description='The ARN of the RAM role.', example='acs:ram::123456789012****:role/DataWorksRole'),
+              roleType?: string(name='RoleType', description='The role assumption type. Valid values: service (assumed by a service) and user (assumed by a user).', example='service'),
+              userInfo?: {
+                accessKeyId?: string(name='AccessKeyId', description='The temporary AccessKey ID used for credential injection.', example='STS.N*********7'),
+                id?: string(name='Id', description='The account ID of the proxied user.', example='20933221576142****'),
+                securityToken?: string(name='SecurityToken', description='The temporary security token used for credential injection.', example='DFE32G*******'),
+                type?: string(name='Type', description='The user type. Valid values: customer (Alibaba Cloud account), sub (RAM user), and AssumedRoleUser (RAM role).', example='sub'),
+              }(name='UserInfo', description='The information of the proxied user.'),
+            }
+          ](name='Roles', description='The list of roles in the credential configuration.'),
+          type?: string(name='Type', description='The credential configuration type. Valid values: Role (single role assumption) and RoleChain (role chain assumption).', example='RoleChain'),
+        }
+      ](name='Configs', description='The list of credential configurations.'),
+      enable?: boolean(name='Enable', description='Indicates whether credential injection is enabled.'),
+    }(name='CredentialConfig', description='The credential injection configuration of the instance. After this feature is enabled, you can use the default RAM role chain or specify a custom RAM role.'),
+    cu?: int32(name='Cu', description='The number of CUs used by the instance.', example='10'),
+    datasets?: [ 
+      {
+        extOptions?: string(name='ExtOptions', description='The custom mount properties of the dataset. The content is passed as mount options.', example='{"fs.oss.download.thread.concurrency":"10"}'),
+        identifier?: string(name='Identifier', description='The dataset identifier.', example='d-vsqjvs****rp5l206u'),
+        mountPath?: string(name='MountPath', description='The mount path of the dataset in the instance.', example='/mnt/data'),
+        readOnly?: boolean(name='ReadOnly', description='Indicates whether the dataset is mounted in read-only mode.'),
+        uri?: string(name='Uri', description='The URI of the storage service directory used for direct mounting.', example='oss://example-bucket/data/'),
+        version?: int32(name='Version', description='The dataset version number.', example='1'),
+      }
+    ](name='Datasets', description='The list of datasets mounted to the instance.'),
+    failReason?: string(name='FailReason', description='The reason why the instance entered the failed state.', example='ImagePullBackOff'),
+    imageId?: string(name='ImageId', description='The ID of the image used by the instance.', example='System_serveride_notebook_20240822'),
+    imageName?: string(name='ImageName', description='The image name.', example='serveride_notebook'),
+    imageUrl?: string(name='ImageUrl', description='The image URL.', example='registry.cn-hangzhou.aliyuncs.com/example/serveride:latest'),
+    instanceId?: string(name='InstanceId', description='The personal development environment instance ID.', example='699573'),
+    instanceName?: string(name='InstanceName', description='The name of the personal development environment instance.', example='notebook_dev'),
+    ownerId?: string(name='OwnerId', description='The account ID of the user who owns the instance.', example='20933221576142****'),
+    projectId?: long(name='ProjectId', description='The DataWorks workspace ID.', example='10000'),
+    projectName?: string(name='ProjectName', description='The DataWorks workspace name.', example='example_project'),
+    resourceGroupId?: long(name='ResourceGroupId', description='The internal numeric ID of the resource group.', example='9876543210'),
+    resourceGroupName?: string(name='ResourceGroupName', description='The resource group name.', example='serverless_group'),
+    status?: string(name='Status', description='The instance status. Valid values: Creating, Starting, Running, Stopping, Stopped, Updating, Deleting, DELETED, Failed, Arrearage, Saving, SaveFailed, and Saved.', example='Running'),
+    updateTime?: long(name='UpdateTime', description='The time when the instance was last updated. This value is a UNIX timestamp in milliseconds.', example='1756003600000'),
+    userVpc?: {
+      forwardInfos?: [ 
+        {
+          accessType?: [ string ](name='AccessType', description='The list of access types.'),
+          containerName?: string(name='ContainerName', description='The name of the target container.', example='dsw-notebook'),
+          eipAllocationId?: string(name='EipAllocationId', description='The instance ID of the public Elastic IP Address (EIP).', example='eip-bp1****'),
+          enable?: boolean(name='Enable', description='Indicates whether this port forwarding configuration is enabled.'),
+          externalPort?: string(name='ExternalPort', description='The mapped public port.', example='1024'),
+          forwardPort?: string(name='ForwardPort', description='The target port inside the instance container.', example='22'),
+          name?: string(name='Name', description='The name of the port forwarding configuration.', example='ssh'),
+          natGatewayId?: string(name='NatGatewayId', description='The NAT gateway ID.', example='ngw-bp1****'),
+          SSHPublicKey?: string(name='SSHPublicKey', description='The public key used for SSH access.', example='ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQ****'),
+        }
+      ](name='ForwardInfos', description='The list of port forwarding configurations.'),
+      securityGroupId?: string(name='SecurityGroupId', description='The security group ID.', example='sg-bp1****'),
+      vSwitchId?: string(name='VSwitchId', description='The vSwitch ID.', example='vsw-bp1****'),
+      vpcId?: string(name='VpcId', description='The VPC ID.', example='vpc-bp1****'),
+    }(name='UserVpc', description='The VPC configuration used by the instance.'),
+  }(name='Instance', description='The details of the personal development environment instance.'),
+  requestId?: string(name='RequestId', description='The request ID.', example='E7D55162-4489-1619-AAF5-3F97D5FCA948'),
+}
+
+model GetServerIdeInstanceResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: GetServerIdeInstanceResponseBody(name='body'),
+}
+
+/**
+ * @summary Queries the details of a specified personal development environment instance.
+ *
+ * @description Queries the basic information, running status, image, network, dataset, and credential configurations of a specified personal development environment (ServerIDE) instance.
+ *
+ * @param request GetServerIdeInstanceRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return GetServerIdeInstanceResponse
+ */
+@context("getServerIdeInstanceWithContext")
+async function getServerIdeInstanceWithOptions(request: GetServerIdeInstanceRequest, runtime: $RuntimeOptions): GetServerIdeInstanceResponse {
+  request.validate();
+  var body : map[string]any = {};
+  if (!$isNull(request.instanceId)) {
+    body['InstanceId'] = request.instanceId;
+  }
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'GetServerIdeInstance',
+    version = '2024-05-18',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Queries the details of a specified personal development environment instance.
+ *
+ * @description Queries the basic information, running status, image, network, dataset, and credential configurations of a specified personal development environment (ServerIDE) instance.
+ *
+ * @param request GetServerIdeInstanceRequest
+ * @return GetServerIdeInstanceResponse
+ */
+async function getServerIdeInstance(request: GetServerIdeInstanceRequest): GetServerIdeInstanceResponse {
+  var runtime = new $RuntimeOptions{};
+  return getServerIdeInstanceWithOptions(request, runtime);
 }
 
 model GetSkillRequest {
@@ -25228,11 +26149,11 @@ async function listDataQualityEvaluationTaskInstances(request: ListDataQualityEv
 }
 
 model ListDataQualityEvaluationTasksRequest {
-  name?: string(name='Name', description='The name used to fuzzy match data quality check task names.', example='Test'),
-  pageNumber?: int32(name='PageNumber', description='The page number for the paging query. Default value: 1.', example='1'),
-  pageSize?: int32(name='PageSize', description='The page size for the paging query. Default value: 10.', example='10'),
+  name?: string(name='Name', description='The name used for fuzzy matching of data quality evaluation task names.', example='Test'),
+  pageNumber?: int32(name='PageNumber', description='The page number for paging. Default value: 1.', example='1'),
+  pageSize?: int32(name='PageSize', description='The page size for paging. Default value: 10.', example='10'),
   projectId?: long(name='ProjectId', description='The DataWorks workspace ID.', example='100'),
-  tableGuid?: string(name='TableGuid', description='The unique ID of the table in Data Map.', example='odps.unit_test.tb_unit_test'),
+  tableGuid?: string(name='TableGuid', description='The unique ID of the table in DataWorks Data Map.', example='odps.unit_test.tb_unit_test'),
 }
 
 model ListDataQualityEvaluationTasksResponseBody = {
@@ -25240,44 +26161,44 @@ model ListDataQualityEvaluationTasksResponseBody = {
     dataQualityEvaluationTasks?: [ 
       {
         dataSourceId?: long(name='DataSourceId'),
-        description?: string(name='Description', description='数据质量校验任务描述，最长65535个字符', example='This is a daily run data quality evaluation plan'),
+        description?: string(name='Description', description='The description of the data quality evaluation task. The description can be up to 65,535 characters in length.', example='This is a daily run data quality evaluation plan'),
         hooks?: [ 
           {
-            condition?: string(name='Condition', description='Hook触发条件', example='${severity} == "High" AND ${status} == "Critical"'),
-            type?: string(name='Type', description='后续处理动作类型
-- BlockTaskInstance：阻塞DataWorks任务实例执行', example='BlockTaskInstance'),
+            condition?: string(name='Condition', description='The cause that triggers the hook.', example='${severity} == "High" AND ${status} == "Critical"'),
+            type?: string(name='Type', description='The type of the follow-up action. Valid values:
+- BlockTaskInstance: Blocks the execution of a DataWorks node instance.', example='BlockTaskInstance'),
           }
-        ](name='Hooks', description='数据质量校验任务实例生命周期中的回调设置，目前只支持一个阻塞调度任务的Hook'),
-        id?: long(name='Id', description='数据质量校验任务ID', example='10001'),
-        name?: string(name='Name', description='数据质量校验任务名称，数字、英文字母、汉字、半角全角标点符号组合，最长255个字符。', example='Data quality verification task'),
+        ](name='Hooks', description='The callback settings during the epoch of data quality evaluation task instances. Currently, only one hook that blocks a scheduling node instance is supported.'),
+        id?: long(name='Id', description='The ID of the data quality evaluation task.', example='10001'),
+        name?: string(name='Name', description='The name of the data quality evaluation task. The name can contain digits, letters, Chinese characters, and half-width or full-width punctuation marks. The name can be up to 255 characters in length.', example='Data quality verification task'),
         notifications?: {
-          condition?: string(name='Condition', description='Notification触发条件', example='${severity} == "High"'),
+          condition?: string(name='Condition', description='The cause that triggers the notification.', example='${severity} == "High"'),
           notifications?: [ 
             {
               notificationChannels?: [ 
                 {
-                  channels?: [ string ](name='Channels', description='告警方式'),
+                  channels?: [ string ](name='Channels', description='The alert channel.'),
                 }
-              ](name='NotificationChannels', description='告警方式配置'),
+              ](name='NotificationChannels', description='The alert channel configurations.'),
               notificationReceivers?: [ 
                 {
-                  extension?: string(name='Extension', description='扩展信息，格式为 json，例如钉钉机器人支持 at 所有人', example='{"atAll":"true"}'),
-                  receiverType?: string(name='ReceiverType', description='告警接收人类型
-- AliUid - 阿里云账号Uid
-- WebhookUrl - 自定义 webhook URL
-- DingdingUrl - 钉钉机器人Url
-- FeishuUrl - 飞书机器人Url
-- WeixinUrl - 企微机器人Url', example='AliUid'),
-                  receiverValues?: [ string ](name='ReceiverValues', description='告警接收人具体值'),
+                  extension?: string(name='Extension', description='The extension information in JSON format. For example, DingTalk chatbots support mentioning all members.', example='{"atAll":"true"}'),
+                  receiverType?: string(name='ReceiverType', description='The type of the alert recipient. Valid values:
+- AliUid: Alibaba Cloud account UID.
+- WebhookUrl: custom webhook URL.
+- DingdingUrl: DingTalk chatbot URL.
+- FeishuUrl: Lark chatbot URL.
+- WeixinUrl: WeCom chatbot URL.', example='AliUid'),
+                  receiverValues?: [ string ](name='ReceiverValues', description='The specific values of the alert recipients.'),
                 }
-              ](name='NotificationReceivers', description='告警接收人配置'),
+              ](name='NotificationReceivers', description='The alert recipient configurations.'),
             }
-          ](name='Notifications', description='具体的告警设置'),
-        }(name='Notifications', description='告警配置'),
-        projectId?: long(name='ProjectId', description='DataWorks工作空间ID', example='100'),
-        runtimeConf?: string(name='RuntimeConf', description='使用数据源时的一些设置，目前只支持指定EMR的yarn队列、采集EMR表时SQL引擎指定为SPARK_SQL|KYUUBI|PRESTO_SQL|HIVE_SQL', example='{ "queue": "default", "sqlEngine": "SPARK_SQL" }'),
+          ](name='Notifications', description='The alert settings.'),
+        }(name='Notifications', description='The alert configuration.'),
+        projectId?: long(name='ProjectId', description='The DataWorks workspace ID.', example='100'),
+        runtimeConf?: string(name='RuntimeConf', description='The runtime settings for data sources. Currently, only specifying the EMR YARN queue and the SQL engine for collecting EMR tables is supported. Valid SQL engine values: SPARK_SQL, KYUUBI, PRESTO_SQL, and HIVE_SQL.', example='{ "queue": "default", "sqlEngine": "SPARK_SQL" }'),
         target?: {
-          databaseType?: string(name='DatabaseType', description='表类型的数据集，表所属的数据库类型
+          databaseType?: string(name='DatabaseType', description='The database type of the table dataset. Valid values:
 - maxcompute
 - emr
 - cdh
@@ -25285,26 +26206,25 @@ model ListDataQualityEvaluationTasksResponseBody = {
 - analyticdb_for_postgresql
 - analyticdb_for_mysql
 - starrocks', example='maxcompute'),
-          partitionSpec?: string(name='PartitionSpec', description='分区表的分区设置', example='ds=$[yyyymmdd-1]'),
-          tableGuid?: string(name='TableGuid', description='表在数据地图中的唯一ID', example='odps.unit_test.tb_unit_test'),
-          type?: string(name='Type', description='监控对象类型
+          partitionSpec?: string(name='PartitionSpec', description='The partition settings of the partitioned table.', example='ds=$[yyyymmdd-1]'),
+          tableGuid?: string(name='TableGuid', description='The unique ID of the table in DataWorks Data Map.', example='odps.unit_test.tb_unit_test'),
+          type?: string(name='Type', description='The monitored object type. Valid values:
 
 - Table', example='Table'),
-        }(name='Target', description='数据质量校验任务的监控对象'),
+        }(name='Target', description='The monitored object of the data quality evaluation task.'),
         trigger?: {
-          taskIds?: [ long ](name='TaskIds', description='type=ByScheduledTaskInstance时生效
-,具体指明哪些调度节点的实例执行成功后可以触发'),
-          type?: string(name='Type', description='何种事件可以触发质量校验任务执行
+          taskIds?: [ long ](name='TaskIds', description='This parameter takes effect when type is set to ByScheduledTaskInstance. Specifies the scheduled node IDs whose successful instance execution can trigger the task.'),
+          type?: string(name='Type', description='The type of event that triggers the quality evaluation task. Valid values:
 
-- ByScheduledTaskInstance：调度实例运行成功', example='ByScheduledTaskInstance'),
-        }(name='Trigger', description='数据质量校验任务的触发配置'),
+- ByScheduledTaskInstance: Triggered when a scheduled node instance runs successfully.', example='ByScheduledTaskInstance'),
+        }(name='Trigger', description='The trigger configuration of the data quality evaluation task.'),
       }
-    ](name='DataQualityEvaluationTasks', description='质量校验任务'),
-    pageNumber?: string(name='PageNumber', description='页码', example='1'),
-    pageSize?: string(name='PageSize', description='页大小', example='10'),
-    totalCount?: string(name='TotalCount', description='总条数', example='131'),
-  }(name='PagingInfo', description='质量校验任务分页查询结果'),
-  requestId?: string(name='RequestId', description='API请求ID', example='691CA452-D37A-4ED0-****'),
+    ](name='DataQualityEvaluationTasks', description='The quality evaluation tasks.'),
+    pageNumber?: string(name='PageNumber', description='The page number.', example='1'),
+    pageSize?: string(name='PageSize', description='The page size.', example='10'),
+    totalCount?: string(name='TotalCount', description='The total number of records.', example='131'),
+  }(name='PagingInfo', description='The paged query result of quality evaluation nodes.'),
+  requestId?: string(name='RequestId', description='The API request ID.', example='691CA452-D37A-4ED0-****'),
 }
 
 model ListDataQualityEvaluationTasksResponse = {
@@ -25316,9 +26236,9 @@ model ListDataQualityEvaluationTasksResponse = {
 /**
  * @deprecated OpenAPI ListDataQualityEvaluationTasks is deprecated, please use dataworks-public::2024-05-18::ListDataQualityScans instead.
  *
- * @summary Lists quality monitoring nodes by paging query.
+ * @summary Queries a paged list of quality monitoring nodes by using paging.
  *
- * @description 需要购买DataWorks基础版及以上版本才能使用
+ * @description You must purchase DataWorks Basic Edition or a higher edition to use this feature.
  *
  * @param request ListDataQualityEvaluationTasksRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -25349,9 +26269,9 @@ async function listDataQualityEvaluationTasksWithOptions(request: ListDataQualit
 /**
  * @deprecated OpenAPI ListDataQualityEvaluationTasks is deprecated, please use dataworks-public::2024-05-18::ListDataQualityScans instead.
  *
- * @summary Lists quality monitoring nodes by paging query.
+ * @summary Queries a paged list of quality monitoring nodes by using paging.
  *
- * @description 需要购买DataWorks基础版及以上版本才能使用
+ * @description You must purchase DataWorks Basic Edition or a higher edition to use this feature.
  *
  * @param request ListDataQualityEvaluationTasksRequest
  * @return ListDataQualityEvaluationTasksResponse
@@ -28460,6 +29380,95 @@ async function listImageAssociatedProjectsWithOptions(request: ListImageAssociat
 async function listImageAssociatedProjects(request: ListImageAssociatedProjectsRequest): ListImageAssociatedProjectsResponse {
   var runtime = new $RuntimeOptions{};
   return listImageAssociatedProjectsWithOptions(request, runtime);
+}
+
+model ListImageTestResultsRequest {
+  id?: string(name='Id', description='The image ID.
+
+This parameter is required.', example='img_123456'),
+  pageNumber?: int32(name='PageNumber', description='The page number.', example='1'),
+  pageSize?: int32(name='PageSize', description='The number of entries per page.', example='10'),
+}
+
+model ListImageTestResultsResponseBody = {
+  pagingInfo?: {
+    pageNumber?: int32(name='PageNumber', description='The page number.', example='1'),
+    pageSize?: int32(name='PageSize', description='The number of entries per page.', example='10'),
+    testResultList?: [ 
+      {
+        imageId?: string(name='ImageId', description='The image ID.', example='img_123456'),
+        message?: string(name='Message', description='The test result message.', example='test finished'),
+        operateTime?: long(name='OperateTime', description='The operation time, represented as a 64-bit timestamp.', example='1727055811000'),
+        processId?: string(name='ProcessId', description='The process ID.', example='11111111-1111-1111-1111-111111111111'),
+        publishStage?: string(name='PublishStage', description='The publish stage of the image.', example='UNPUBLISHED'),
+        resourceGroupId?: long(name='ResourceGroupId', description='The resource group ID.', example='123456'),
+        status?: string(name='Status', description='The status of the test process.', example='completed'),
+      }
+    ](name='TestResultList', description='The list of image test results.'),
+    totalCount?: int32(name='TotalCount', description='The total number of entries.', example='10'),
+  }(name='PagingInfo', description='The pagination information.'),
+  requestId?: string(name='RequestId', description='The request ID, which is used to locate logs and troubleshoot issues.', example='6A6CBE87-9F91-1323-B680-E7A7065XXXXX'),
+  success?: boolean(name='Success', description='Indicates whether the request was successful.'),
+}
+
+model ListImageTestResultsResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ListImageTestResultsResponseBody(name='body'),
+}
+
+/**
+ * @summary Retrieves the list of image test results.
+ *
+ * @description 1. You must purchase DataWorks Basic Edition or a higher edition to use this operation.
+ * 2. **Before using this operation, make sure that the service-linked role AliyunServiceRoleForDataWorks has been created.**
+ *
+ * @param request ListImageTestResultsRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return ListImageTestResultsResponse
+ */
+@context("listImageTestResultsWithContext")
+async function listImageTestResultsWithOptions(request: ListImageTestResultsRequest, runtime: $RuntimeOptions): ListImageTestResultsResponse {
+  request.validate();
+  var query = {};
+  if (!$isNull(request.id)) {
+    query['Id'] = request.id;
+  }
+  if (!$isNull(request.pageNumber)) {
+    query['PageNumber'] = request.pageNumber;
+  }
+  if (!$isNull(request.pageSize)) {
+    query['PageSize'] = request.pageSize;
+  }
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'ListImageTestResults',
+    version = '2024-05-18',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Retrieves the list of image test results.
+ *
+ * @description 1. You must purchase DataWorks Basic Edition or a higher edition to use this operation.
+ * 2. **Before using this operation, make sure that the service-linked role AliyunServiceRoleForDataWorks has been created.**
+ *
+ * @param request ListImageTestResultsRequest
+ * @return ListImageTestResultsResponse
+ */
+async function listImageTestResults(request: ListImageTestResultsRequest): ListImageTestResultsResponse {
+  var runtime = new $RuntimeOptions{};
+  return listImageTestResultsWithOptions(request, runtime);
 }
 
 model ListImageVersionsRequest {
@@ -33314,6 +34323,373 @@ async function listSemanticJobs(request: ListSemanticJobsRequest): ListSemanticJ
   return listSemanticJobsWithOptions(request, runtime);
 }
 
+model ListServerIdeEcsSpecsRequest {
+  acceleratorType?: string(name='AcceleratorType', description='The accelerator type. Valid values:
+- CPU: uses only CPU.
+- GPU: uses GPU acceleration.', example='CPU'),
+  maxResults?: int32(name='MaxResults', description='The maximum number of records to return in a single request.', example='20'),
+  nextToken?: string(name='NextToken', description='The pagination token used to retrieve the next page of results. You do not need to specify this parameter for the first request.', example='CAESG****'),
+  resourceGroupId?: string(name='ResourceGroupId', description='The DataWorks resource group identifier. You can specify the numeric ID of the resource group or the full identifier in the Serverless_res_group_{tenantId}_{resgId} format.
+
+This parameter is required.', example='Serverless_res_group_123456789012345_9876543210****'),
+}
+
+model ListServerIdeEcsSpecsResponseBody = {
+  ecsSpecs?: [ 
+    {
+      acceleratorType?: string(name='AcceleratorType', description='The accelerator type. Valid values:
+- CPU: uses only CPU.
+- GPU: uses GPU acceleration.', example='CPU'),
+      cpu?: long(name='Cpu', description='The number of CPU cores.', example='4'),
+      cu?: float(name='Cu', description='The number of compute units (CUs) consumed by this instance type.', example='10'),
+      gpu?: long(name='Gpu', description='The number of GPU cards.', example='1'),
+      gpuMemorySize?: float(name='GpuMemorySize', description='The GPU memory size.', example='16'),
+      gpuType?: string(name='GpuType', description='The GPU model.', example='V100'),
+      instanceType?: string(name='InstanceType', description='The ECS instance type.', example='ecs.g6.xlarge'),
+      isAvailable?: boolean(name='IsAvailable', description='Indicates whether the instance type is available.'),
+      memory?: float(name='Memory', description='The memory size, in GB.', example='16'),
+    }
+  ](name='EcsSpecs', description='The list of available ECS instance types for personal development environments.'),
+  maxResults?: int32(name='MaxResults', description='The maximum number of records returned in this response.', example='20'),
+  nextToken?: string(name='NextToken', description='The pagination token for the next page. An empty value indicates that no more results are available.', example='CAESG****'),
+  requestId?: string(name='RequestId', description='The request ID.', example='E7D55162-4489-1619-AAF5-3F97D5FCA948'),
+}
+
+model ListServerIdeEcsSpecsResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ListServerIdeEcsSpecsResponseBody(name='body'),
+}
+
+/**
+ * @summary Queries the list of available ECS instance types for personal development environments.
+ *
+ * @description Queries the ECS instance types available when creating a personal development environment (ServerIDE). You can filter by CPU or GPU type. If no type is specified, both CPU and GPU instance types are returned.
+ *
+ * @param request ListServerIdeEcsSpecsRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return ListServerIdeEcsSpecsResponse
+ */
+@context("listServerIdeEcsSpecsWithContext")
+async function listServerIdeEcsSpecsWithOptions(request: ListServerIdeEcsSpecsRequest, runtime: $RuntimeOptions): ListServerIdeEcsSpecsResponse {
+  request.validate();
+  var body : map[string]any = {};
+  if (!$isNull(request.acceleratorType)) {
+    body['AcceleratorType'] = request.acceleratorType;
+  }
+  if (!$isNull(request.maxResults)) {
+    body['MaxResults'] = request.maxResults;
+  }
+  if (!$isNull(request.nextToken)) {
+    body['NextToken'] = request.nextToken;
+  }
+  if (!$isNull(request.resourceGroupId)) {
+    body['ResourceGroupId'] = request.resourceGroupId;
+  }
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'ListServerIdeEcsSpecs',
+    version = '2024-05-18',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Queries the list of available ECS instance types for personal development environments.
+ *
+ * @description Queries the ECS instance types available when creating a personal development environment (ServerIDE). You can filter by CPU or GPU type. If no type is specified, both CPU and GPU instance types are returned.
+ *
+ * @param request ListServerIdeEcsSpecsRequest
+ * @return ListServerIdeEcsSpecsResponse
+ */
+async function listServerIdeEcsSpecs(request: ListServerIdeEcsSpecsRequest): ListServerIdeEcsSpecsResponse {
+  var runtime = new $RuntimeOptions{};
+  return listServerIdeEcsSpecsWithOptions(request, runtime);
+}
+
+model ListServerIdeImagesRequest {
+  labels?: string(name='Labels', description='The image label filter condition. Separate multiple Key=Value conditions with commas.', example='system.chipType=GPU,system.official=true'),
+  maxResults?: int32(name='MaxResults', description='The maximum number of records to return in a single request.', example='20'),
+  name?: string(name='Name', description='The image name filter condition. Supports fuzzy match.', example='tensorflow_2.9'),
+  nextToken?: string(name='NextToken', description='The pagination token used to continue a query. You do not need to specify this parameter for the first request.', example='CAESG****'),
+  pageNumber?: int32(name='PageNumber', description='The page number. The value starts from 1.', example='1'),
+  pageSize?: int32(name='PageSize', description='The number of records per page.', example='10'),
+}
+
+model ListServerIdeImagesResponseBody = {
+  maxResults?: int32(name='MaxResults', description='The maximum number of records returned in this response.', example='20'),
+  nextToken?: string(name='NextToken', description='The pagination token for the next page. An empty value indicates that no more results are available.', example='CAESG****'),
+  pagingInfo?: {
+    images?: [ 
+      {
+        imageId?: string(name='ImageId', description='The image ID used by the instance.', example='System_serveride_notebook_20240822'),
+        imageName?: string(name='ImageName', description='The image name.', example='serveride_notebook'),
+        imageUrl?: string(name='ImageUrl', description='The image URL.', example='registry.cn-hangzhou.aliyuncs.com/example/serveride:latest'),
+        status?: string(name='Status', description='The image status.', example='AVAILABLE'),
+      }
+    ](name='Images', description='The list of images available for personal development environments.'),
+    pageNumber?: int32(name='PageNumber', description='The current page number.', example='1'),
+    pageSize?: int32(name='PageSize', description='The number of records per page.', example='10'),
+    totalCount?: int32(name='TotalCount', description='The total number of records that match the filter conditions.', example='3'),
+  }(name='PagingInfo', description='The pagination information.'),
+  requestId?: string(name='RequestId', description='The request ID.', example='E7D55162-4489-1619-AAF5-3F97D5FCA948'),
+}
+
+model ListServerIdeImagesResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ListServerIdeImagesResponseBody(name='body'),
+}
+
+/**
+ * @summary Queries the list of available images for personal development environments by using paging.
+ *
+ * @description Queries the available images for creating a personal development environment (ServerIDE) by using paging. Supports filtering by image name and labels.
+ *
+ * @param request ListServerIdeImagesRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return ListServerIdeImagesResponse
+ */
+@context("listServerIdeImagesWithContext")
+async function listServerIdeImagesWithOptions(request: ListServerIdeImagesRequest, runtime: $RuntimeOptions): ListServerIdeImagesResponse {
+  request.validate();
+  var body : map[string]any = {};
+  if (!$isNull(request.labels)) {
+    body['Labels'] = request.labels;
+  }
+  if (!$isNull(request.maxResults)) {
+    body['MaxResults'] = request.maxResults;
+  }
+  if (!$isNull(request.name)) {
+    body['Name'] = request.name;
+  }
+  if (!$isNull(request.nextToken)) {
+    body['NextToken'] = request.nextToken;
+  }
+  if (!$isNull(request.pageNumber)) {
+    body['PageNumber'] = request.pageNumber;
+  }
+  if (!$isNull(request.pageSize)) {
+    body['PageSize'] = request.pageSize;
+  }
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'ListServerIdeImages',
+    version = '2024-05-18',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Queries the list of available images for personal development environments by using paging.
+ *
+ * @description Queries the available images for creating a personal development environment (ServerIDE) by using paging. Supports filtering by image name and labels.
+ *
+ * @param request ListServerIdeImagesRequest
+ * @return ListServerIdeImagesResponse
+ */
+async function listServerIdeImages(request: ListServerIdeImagesRequest): ListServerIdeImagesResponse {
+  var runtime = new $RuntimeOptions{};
+  return listServerIdeImagesWithOptions(request, runtime);
+}
+
+model ListServerIdeInstancesRequest {
+  keyword?: string(name='Keyword', description='The keyword for fuzzy match by instance ID or instance name.', example='notebook_dev'),
+  maxResults?: int32(name='MaxResults', description='The maximum number of records to return in a single request.', example='20'),
+  nextToken?: string(name='NextToken', description='The pagination token for the next query. You do not need to specify this parameter for the first request.', example='CAESG****'),
+  pageNumber?: int32(name='PageNumber', description='The page number. Minimum value: 1.', example='1'),
+  pageSize?: int32(name='PageSize', description='The number of records per page.', example='10'),
+  projectId?: long(name='ProjectId', description='The DataWorks workspace ID.', example='10000'),
+  relatedUserId?: string(name='RelatedUserId', description='The account ID of the user who owns the instance. Used to filter instances by owner.', example='20933221576142****'),
+  resourceGroupId?: string(name='ResourceGroupId', description='The DataWorks resource group identifier. You can specify a numeric resource group ID or a full identifier in the format of Serverless_res_group_{tenantId}_{resgId}.', example='Serverless_res_group_123456789012345_9876543210****'),
+  subType?: string(name='SubType', description='The instance subtype. Valid values:
+- PERSONAL_DEV: personal development environment.
+- DATA_AGENT: Data Agent.', example='PERSONAL_DEV'),
+}
+
+model ListServerIdeInstancesResponseBody = {
+  maxResults?: int32(name='MaxResults', description='The maximum number of records returned in this response.', example='20'),
+  nextToken?: string(name='NextToken', description='The pagination token for the next page. An empty value indicates that no more results are available.', example='CAESG****'),
+  pagingInfo?: {
+    instances?: [ 
+      {
+        createTime?: long(name='CreateTime', description='The time when the instance was created. The value is a UNIX timestamp in milliseconds.', example='1756000000000'),
+        credentialConfig?: {
+          aliyunEnvRoleKey?: string(name='AliyunEnvRoleKey', description='The environment variable role key.', example='0'),
+          configs?: [ 
+            {
+              key?: string(name='Key', description='The identifier key of the credential configuration.', example='0'),
+              roles?: [ 
+                {
+                  assumeRoleFor?: string(name='AssumeRoleFor', description='The Alibaba Cloud account ID of the entity that owns the role to be assumed.', example='123456789012****'),
+                  policy?: string(name='Policy', description='The policy used to further restrict the permissions of the role.', example='{}'),
+                  roleArn?: string(name='RoleArn', description='The Alibaba Cloud Resource Name (ARN) of the RAM role.', example='acs:ram::123456789012****:role/DataWorksRole'),
+                  roleType?: string(name='RoleType', description='The role assumption type. Valid values:
+- service: assumed by a service.
+- user: assumed by a user.', example='service'),
+                  userInfo?: {
+                    accessKeyId?: string(name='AccessKeyId', description='The temporary AccessKey ID used for credential injection.', example='STS.N*********7'),
+                    id?: string(name='Id', description='The account ID of the delegated user.', example='20933221576142****'),
+                    securityToken?: string(name='SecurityToken', description='The temporary security token used for credential injection.', example='DFE32G*******'),
+                    type?: string(name='Type', description='The user type. Valid values:
+- customer: Alibaba Cloud account.
+- sub: RAM user.
+- AssumedRoleUser: RAM role.', example='sub'),
+                  }(name='UserInfo', description='The information about the delegated user.'),
+                }
+              ](name='Roles', description='The list of roles in the credential configuration.'),
+              type?: string(name='Type', description='The credential configuration type. Valid values:
+- Role: single role assumption.
+- RoleChain: role chain assumption.', example='RoleChain'),
+            }
+          ](name='Configs', description='The list of credential configurations.'),
+          enable?: boolean(name='Enable', description='Indicates whether credential injection is enabled.'),
+        }(name='CredentialConfig', description='The credential injection configuration of the instance. After this feature is enabled, you can use the default RAM role chain or specify a custom RAM role.'),
+        cu?: int32(name='Cu', description='The number of CUs used by the instance.', example='10'),
+        datasets?: [ 
+          {
+            extOptions?: string(name='ExtOptions', description='The custom mount properties of the dataset. The content is passed as mount options.', example='{"fs.oss.download.thread.concurrency":"10"}'),
+            identifier?: string(name='Identifier', description='The dataset identifier.', example='d-vsqjvs****rp5l206u'),
+            mountPath?: string(name='MountPath', description='The mount path of the dataset in the instance.', example='/mnt/data'),
+            readOnly?: boolean(name='ReadOnly', description='Indicates whether the dataset is mounted in read-only mode.'),
+            uri?: string(name='Uri', description='The URI of the storage service directory for direct mounting.', example='oss://example-bucket/data/'),
+            version?: int32(name='Version', description='The dataset version number.', example='1'),
+          }
+        ](name='Datasets', description='The list of datasets mounted to the instance.'),
+        failReason?: string(name='FailReason', description='The reason why the instance entered the failed state.', example='ImagePullBackOff'),
+        imageId?: string(name='ImageId', description='The ID of the image used by the instance.', example='System_serveride_notebook_20240822'),
+        imageName?: string(name='ImageName', description='The image name.', example='serveride_notebook'),
+        imageUrl?: string(name='ImageUrl', description='The image URL.', example='registry.cn-hangzhou.aliyuncs.com/example/serveride:latest'),
+        instanceId?: string(name='InstanceId', description='The personal development environment instance ID.', example='699573'),
+        instanceName?: string(name='InstanceName', description='The personal development environment instance name.', example='notebook_dev'),
+        ownerId?: string(name='OwnerId', description='The account ID of the user who owns the instance.', example='20933221576142****'),
+        projectId?: long(name='ProjectId', description='The DataWorks workspace ID.', example='10000'),
+        projectName?: string(name='ProjectName', description='The DataWorks workspace name.', example='example_project'),
+        resourceGroupId?: long(name='ResourceGroupId', description='The internal numeric ID of the resource group.', example='9876543210'),
+        resourceGroupName?: string(name='ResourceGroupName', description='The resource group name.', example='serverless_group'),
+        status?: string(name='Status', description='The instance status. Valid values: Creating, Starting, Running, Stopping, Stopped, Updating, Deleting, DELETED, Failed, Arrearage, Saving, SaveFailed, and Saved.', example='Running'),
+        updateTime?: long(name='UpdateTime', description='The time when the instance was last updated. The value is a UNIX timestamp in milliseconds.', example='1756003600000'),
+        userVpc?: {
+          forwardInfos?: [ 
+            {
+              accessType?: [ string ](name='AccessType', description='The list of access types.'),
+              containerName?: string(name='ContainerName', description='The name of the target container.', example='dsw-notebook'),
+              eipAllocationId?: string(name='EipAllocationId', description='The instance ID of the elastic IP address (EIP).', example='eip-bp1****'),
+              enable?: boolean(name='Enable', description='Indicates whether the port forwarding configuration is enabled.'),
+              externalPort?: string(name='ExternalPort', description='The mapped public port.', example='1024'),
+              forwardPort?: string(name='ForwardPort', description='The target port in the instance container.', example='22'),
+              name?: string(name='Name', description='The name of the port forwarding configuration.', example='ssh'),
+              natGatewayId?: string(name='NatGatewayId', description='The NAT gateway ID.', example='ngw-bp1****'),
+              SSHPublicKey?: string(name='SSHPublicKey', description='The public key used for SSH access.', example='ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQ****'),
+            }
+          ](name='ForwardInfos', description='The list of port forwarding configurations.'),
+          securityGroupId?: string(name='SecurityGroupId', description='The security group ID.', example='sg-bp1****'),
+          vSwitchId?: string(name='VSwitchId', description='The vSwitch ID.', example='vsw-bp1****'),
+          vpcId?: string(name='VpcId', description='The VPC ID.', example='vpc-bp1****'),
+        }(name='UserVpc', description='The VPC configuration used by the instance.'),
+      }
+    ](name='Instances', description='The list of personal development environment instances.'),
+    pageNumber?: int32(name='PageNumber', description='The current page number.', example='1'),
+    pageSize?: int32(name='PageSize', description='The number of records per page.', example='10'),
+    totalCount?: int32(name='TotalCount', description='The total number of records that match the filter conditions.', example='3'),
+  }(name='PagingInfo', description='The pagination information.'),
+  requestId?: string(name='RequestId', description='The request ID.', example='E7D55162-4489-1619-AAF5-3F97D5FCA948'),
+}
+
+model ListServerIdeInstancesResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ListServerIdeInstancesResponseBody(name='body'),
+}
+
+/**
+ * @summary Queries a paged query list of personal development environment instances with paging support.
+ *
+ * @description Queries a paged query list of personal development environment (ServerIDE) instances with paging. You can filter results by workspace, resource group, keyword, owner, and instance child class.
+ *
+ * @param request ListServerIdeInstancesRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return ListServerIdeInstancesResponse
+ */
+@context("listServerIdeInstancesWithContext")
+async function listServerIdeInstancesWithOptions(request: ListServerIdeInstancesRequest, runtime: $RuntimeOptions): ListServerIdeInstancesResponse {
+  request.validate();
+  var body : map[string]any = {};
+  if (!$isNull(request.keyword)) {
+    body['Keyword'] = request.keyword;
+  }
+  if (!$isNull(request.maxResults)) {
+    body['MaxResults'] = request.maxResults;
+  }
+  if (!$isNull(request.nextToken)) {
+    body['NextToken'] = request.nextToken;
+  }
+  if (!$isNull(request.pageNumber)) {
+    body['PageNumber'] = request.pageNumber;
+  }
+  if (!$isNull(request.pageSize)) {
+    body['PageSize'] = request.pageSize;
+  }
+  if (!$isNull(request.projectId)) {
+    body['ProjectId'] = request.projectId;
+  }
+  if (!$isNull(request.relatedUserId)) {
+    body['RelatedUserId'] = request.relatedUserId;
+  }
+  if (!$isNull(request.resourceGroupId)) {
+    body['ResourceGroupId'] = request.resourceGroupId;
+  }
+  if (!$isNull(request.subType)) {
+    body['SubType'] = request.subType;
+  }
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'ListServerIdeInstances',
+    version = '2024-05-18',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Queries a paged query list of personal development environment instances with paging support.
+ *
+ * @description Queries a paged query list of personal development environment (ServerIDE) instances with paging. You can filter results by workspace, resource group, keyword, owner, and instance child class.
+ *
+ * @param request ListServerIdeInstancesRequest
+ * @return ListServerIdeInstancesResponse
+ */
+async function listServerIdeInstances(request: ListServerIdeInstancesRequest): ListServerIdeInstancesResponse {
+  var runtime = new $RuntimeOptions{};
+  return listServerIdeInstancesWithOptions(request, runtime);
+}
+
 model ListSkillsRequest {
   maxResults?: int32(name='MaxResults', description='The maximum number of results to return per page.', example='20'),
   nextToken?: string(name='NextToken', description='The pagination token for the next page of results. Omit this for the first request. For subsequent requests, set this to the `NextToken` from the previous response.', example='5'),
@@ -34614,7 +35990,7 @@ model ListUpstreamTaskInstancesRequest {
   id?: long(name='Id', description='The instance ID.
 
 This parameter is required.', example='1234'),
-  pageNumber?: int32(name='PageNumber', description='The page number. Pages start from page 1. Default value: 1.', example='1'),
+  pageNumber?: int32(name='PageNumber', description='The page number. Pages start from 1. Default value: 1.', example='1'),
   pageSize?: int32(name='PageSize', description='The number of entries per page. Default value: 10.', example='10'),
 }
 
@@ -34625,205 +36001,114 @@ model ListUpstreamTaskInstancesResponseBody = {
     taskInstances?: [ 
       {
         baselineId?: long(name='BaselineId', description='The baseline ID.', example='1234'),
-        bizdate?: long(name='Bizdate', description='The data timestamp.', example='1710239005403'),
+        bizdate?: long(name='Bizdate', description='The business date.', example='1710239005403'),
         createTime?: long(name='CreateTime', description='The creation time.', example='1710239005403'),
-        createUser?: string(name='CreateUser', description='The account ID of the creator.', example='1000'),
+        createUser?: string(name='CreateUser', description='The account ID of the user who created the instance.', example='1000'),
         dataSource?: {
-          name?: string(name='Name', description='The name of the data source.', example='mysql_test'),
-        }(name='DataSource', description='The information about the associated data source.'),
+          name?: string(name='Name', description='The data source name.', example='mysql_test'),
+        }(name='DataSource', description='The data source information associated with the instance.'),
         description?: string(name='Description', description='The description.', example='test'),
-        envType?: string(name='EnvType', description='The environment of the workspace. Valid values:
-
-- Prod
-
-- Dev', example='Prod'),
+        envType?: string(name='EnvType', description='The project environment.', example='Prod'),
         finishedTime?: long(name='FinishedTime', description='The time when the instance finished running.', example='1710239005403'),
-        id?: long(name='Id', description='The instance ID.', example='1234'),
+        id?: long(name='Id', description='The unique identifier of the task instance.', example='1234'),
         modifyTime?: long(name='ModifyTime', description='The modification time.', example='1710239005403'),
-        modifyUser?: string(name='ModifyUser', description='The account ID of the modifier.', example='1000'),
+        modifyUser?: string(name='ModifyUser', description='The account ID of the user who last modified the instance.', example='1000'),
         owner?: string(name='Owner', description='The account ID of the task owner.', example='1000'),
-        periodNumber?: int32(name='PeriodNumber', description='The sequence number of the period. Indicates which cycle of the day the task instance is in.', example='1'),
-        priority?: int32(name='Priority', description='The priority of the task. Valid values: 1 to 8. A larger value indicates a higher priority. Default value: 1.', example='1'),
-        projectEnv?: string(name='ProjectEnv', description='The environment of the workspace. Valid values:
-
-- Prod: production environment
-
-- Dev: development environment', example='Prod', deprecated=true),
-        projectId?: long(name='ProjectId', description='The workspace ID.', example='100'),
-        rerunMode?: string(name='RerunMode', description='The rerun mode. Valid values:
-
-- AllDenied: The task cannot be rerun regardless of whether the task is successfully run or fails to run.
-
-- FailureAllowed: The task can be rerun only after it fails to run.
-
-- AllAllowed: The task can be rerun regardless of whether the task is successfully run or fails to run.', example='AllAllowed'),
-        runNumber?: int32(name='RunNumber', description='The number of times the instance is run. By default, the value starts from 1.', example='1'),
+        periodNumber?: int32(name='PeriodNumber', description='The period number. Indicates which scheduling cycle of the day the task instance belongs to.', example='1'),
+        priority?: int32(name='Priority', description='The task running priority. Minimum value: 1. Maximum value: 8. A larger value indicates a higher priority. Default value: 1.', example='1'),
+        projectEnv?: string(name='ProjectEnv', description='The project environment.', example='Prod', deprecated=true),
+        projectId?: long(name='ProjectId', description='The project ID.', example='100'),
+        rerunMode?: string(name='RerunMode', description='The rerun configuration of the node. Valid values:
+- AllDenied: The node cannot be rerun regardless of whether it fails or succeeds.
+- FailureAllowed: The node can be rerun only after it fails.
+- AllAllowed: The node can be rerun regardless of whether it fails or succeeds.', example='AllAllowed'),
+        runNumber?: int32(name='RunNumber', description='The current run number, starting from 1 by default.', example='1'),
         runtime?: {
-          gateway?: string(name='Gateway', description='The host for running.', example='cn-shanghai.1.2'),
-          processId?: string(name='ProcessId', description='The instance run ID.', example='T3_123'),
-        }(name='Runtime', description='The runtime information about the instance.'),
+          gateway?: string(name='Gateway', description='The machine on which the task runs.', example='cn-shanghai.1.2'),
+          processId?: string(name='ProcessId', description='The unique run ID.', example='T3_123'),
+        }(name='Runtime', description='The instance runtime information.'),
         runtimeResource?: {
-          cu?: string(name='Cu', description='The default number of compute units (CUs) configured for task running.', example='0.25'),
-          image?: string(name='Image', description='The ID of the image configured for task running.', example='i-xxxxxx'),
-          resourceGroupId?: string(name='ResourceGroupId', description='The ID of the resource group for scheduling configured for task running.', example='S_res_group_524258031846018_1684XXXXXXXXX'),
-        }(name='RuntimeResource', description='The configurations of the runtime environment, such as the resource group information.'),
-        startedTime?: long(name='StartedTime', description='The time when the instance started to run.', example='1710239005403'),
-        status?: string(name='Status', description='The status of the instance. Valid values:
+          cu?: string(name='Cu', description='The compute unit (CU) consumption configured for the task.', example='0.25'),
+          image?: string(name='Image', description='The image ID configured for the task.', example='i-xxxxxx'),
+          resourceGroupId?: string(name='ResourceGroupId', description='The identifier of the schedule resource group configured for the task.', example='S_res_group_524258031846018_1684XXXXXXXXX'),
+        }(name='RuntimeResource', description='The runtime environment configuration, such as resource group information.'),
+        startedTime?: long(name='StartedTime', description='The time when the instance started running.', example='1710239005403'),
+        status?: string(name='Status', description='The instance running status.', example='Success'),
+        stepType?: string(name='StepType', description='The dependency type.', example='Normal'),
+        taskId?: long(name='TaskId', description='The ID of the corresponding task.', example='1234'),
+        taskName?: string(name='TaskName', description='The name of the corresponding task.', example='SQL node'),
+        taskType?: string(name='TaskType', description='The type of the corresponding task.', example='ODPS_SQL'),
+        timeout?: int32(name='Timeout', description='The timeout period for task execution, in seconds.', example='3600'),
+        triggerRecurrence?: string(name='TriggerRecurrence', description='The run mode when the instance is triggered. This parameter takes effect when TriggerType is set to Scheduler.
 
-- NotRun: The instance is not run.
-
-- Running: The instance is running.
-
-- WaitTime: The instance is waiting for the scheduling time to arrive.
-
-- CheckingCondition: Branch conditions are being checked for the instance.
-
-- WaitResource: The instance is waiting for resources.
-
-- Failure: The instance fails to be run.
-
-- Success: The instance is successfully run.
-
-- Checking: Data quality is being checked for the instance.', example='Success'),
-        stepType?: string(name='StepType', description='The scheduling dependency type. Valid values:
-
-- Normal: same-cycle scheduling dependency
-
-- CrossCycle: cross-cycle scheduling dependency', example='Normal'),
-        taskId?: long(name='TaskId', description='The ID of the task for which the instance is generated.', example='1234'),
-        taskName?: string(name='TaskName', description='The name of the task for which the instance is generated.', example='SQL node'),
-        taskType?: string(name='TaskType', description='The type of the task for which the instance is generated.', example='ODPS_SQL'),
-        timeout?: int32(name='Timeout', description='The timeout period of task running. Unit: seconds.', example='3600'),
-        triggerRecurrence?: string(name='TriggerRecurrence', description='The running mode of the instance after it is triggered. This parameter takes effect only if the TriggerType parameter is set to Scheduler. Valid values:
-
-- Pause
-
-- Skip
-
-- Normal', example='Normal'),
-        triggerTime?: long(name='TriggerTime', description='The scheduling time.', example='1710239005403'),
-        triggerType?: string(name='TriggerType', description='The trigger type. Valid values:
-
-- Scheduler: scheduling cycle-based trigger
-
-- Manual: manual trigger', example='Scheduler'),
+Valid values:
+- Pause: paused
+- Skip: dry run
+- Normal: normal execution', example='Normal'),
+        triggerTime?: long(name='TriggerTime', description='The scheduled trigger time.', example='1710239005403'),
+        triggerType?: string(name='TriggerType', description='The trigger type.', example='Scheduler'),
         workflowId?: long(name='WorkflowId', description='The ID of the workflow to which the instance belongs.', example='1234'),
-        workflowInstanceId?: long(name='WorkflowInstanceId', description='The workflow instance ID.', example='1234'),
-        workflowInstanceType?: string(name='WorkflowInstanceType', description='The type of the workflow instance. Valid values:
-
-- SmokeTest
-
-- SupplementData
-
-- Manual
-
-- ManualWorkflow
-
-- Normal
-
-- ManualFlow', example='Normal'),
+        workflowInstanceId?: long(name='WorkflowInstanceId', description='The ID of the workflow instance to which the instance belongs.', example='1234'),
+        workflowInstanceType?: string(name='WorkflowInstanceType', description='The type of the workflow instance to which the instance belongs.', example='Normal'),
         workflowName?: string(name='WorkflowName', description='The name of the workflow to which the instance belongs.', example='Test workflow'),
       }
-    ](name='TaskInstances', description='The instances. This parameter is deprecated and replaced by the UpstreamTaskInstances parameter.'),
-    totalCount?: int32(name='TotalCount', description='The total number of entries returned.', example='100'),
+    ](name='TaskInstances', description='**[Deprecated]** The list of task instances. This field is deprecated. Use UpstreamTaskInstances instead.'),
+    totalCount?: int32(name='TotalCount', description='The total number of records.', example='100'),
     upstreamTaskInstances?: [ 
       {
-        dependencyType?: string(name='DependencyType', description='The scheduling dependency type. Valid values:
-
-- Normal
-
-- CrossCycle', example='Normal'),
+        dependencyType?: string(name='DependencyType', description='The dependency type.', example='Normal'),
         taskInstance?: {
           baselineId?: long(name='BaselineId', description='The baseline ID.', example='1234'),
-          bizdate?: long(name='Bizdate', description='The data timestamp.', example='1710239005403'),
+          bizdate?: long(name='Bizdate', description='The business date.', example='1710239005403'),
           createTime?: long(name='CreateTime', description='The creation time.', example='1710239005403'),
-          createUser?: string(name='CreateUser', description='The account ID of the creator.', example='1000'),
+          createUser?: string(name='CreateUser', description='The account ID of the user who created the instance.', example='1000'),
           dataSource?: {
-            name?: string(name='Name', description='The name of the data source.', example='mysql_test'),
-          }(name='DataSource', description='The information about the associated data source.'),
+            name?: string(name='Name', description='The data source name.', example='mysql_test'),
+          }(name='DataSource', description='The data source information associated with the instance.'),
           description?: string(name='Description', description='The description.', example='test'),
-          envType?: string(name='EnvType', description='The environment in which the data source is used. Valid values:
-
-- Dev
-
-- Prod', example='Prod'),
+          envType?: string(name='EnvType', description='The environment of the target data source. Valid values:', example='Prod'),
           finishedTime?: long(name='FinishedTime', description='The time when the instance finished running.', example='1710239005403'),
-          id?: long(name='Id', description='The instance ID.', example='1234'),
+          id?: long(name='Id', description='The unique identifier of the task instance.', example='1234'),
           modifyTime?: long(name='ModifyTime', description='The modification time.', example='1710239005403'),
-          modifyUser?: string(name='ModifyUser', description='The account ID of the modifier.', example='1000'),
+          modifyUser?: string(name='ModifyUser', description='The account ID of the user who last modified the instance.', example='1000'),
           owner?: string(name='Owner', description='The account ID of the task owner.', example='1000'),
-          periodNumber?: int32(name='PeriodNumber', description='The sequence number of the cycle. This parameter indicates the cycle of the task instance on the current day.', example='1'),
-          priority?: int32(name='Priority', description='The priority of the task. Minimum value: 1. Maximum value: 8. A larger value indicates a higher priority. Default value: 1.', example='1'),
-          projectId?: long(name='ProjectId', description='The workspace ID.', example='100'),
-          rerunMode?: string(name='RerunMode', description='The rerun mode.', example='AllAllowed'),
-          runNumber?: int32(name='RunNumber', description='The number of times the instance is run. By default, the value starts from 1.', example='1'),
+          periodNumber?: int32(name='PeriodNumber', description='The period number. Indicates which scheduling cycle of the day the task instance belongs to.', example='1'),
+          priority?: int32(name='Priority', description='The task running priority. Minimum value: 1. Maximum value: 8. A larger value indicates a higher priority. Default value: 1.', example='1'),
+          projectId?: long(name='ProjectId', description='The project ID.', example='100'),
+          rerunMode?: string(name='RerunMode', description='The configuration that specifies whether the task can be rerun.', example='AllAllowed'),
+          runNumber?: int32(name='RunNumber', description='The current run number, starting from 1 by default.', example='1'),
           runtime?: {
-            gateway?: string(name='Gateway', description='The host for running.', example='cn-shanghai.1.2'),
-            processId?: string(name='ProcessId', description='The instance run ID.', example='T3_123'),
-          }(name='Runtime', description='The runtime information about the instance.'),
+            gateway?: string(name='Gateway', description='The machine on which the task runs.', example='cn-shanghai.1.2'),
+            processId?: string(name='ProcessId', description='The unique run ID.', example='T3_123'),
+          }(name='Runtime', description='The instance runtime information.'),
           runtimeResource?: {
-            cu?: string(name='Cu', description='The default number of compute units (CUs) configured for task running.', example='0.25'),
-            image?: string(name='Image', description='The ID of the image configured for task running.', example='i-xxxxxx'),
-            resourceGroupId?: string(name='ResourceGroupId', description='The ID of the resource group for scheduling configured for task running.', example='S_res_group_524258031846018_1684XXXXXXXXX'),
-          }(name='RuntimeResource', description='The configurations of the runtime environment, such as the resource group information.'),
-          startedTime?: long(name='StartedTime', description='The time when the instance started to run.', example='1710239005403'),
-          status?: string(name='Status', description='The status of the instance. Valid values:
+            cu?: string(name='Cu', description='The compute unit (CU) consumption configured for the task.', example='0.25'),
+            image?: string(name='Image', description='The image ID configured for the task.', example='i-xxxxxx'),
+            resourceGroupId?: string(name='ResourceGroupId', description='The identifier of the schedule resource group configured for the task.', example='S_res_group_524258031846018_1684XXXXXXXXX'),
+          }(name='RuntimeResource', description='The runtime environment configuration, such as resource group information.'),
+          startedTime?: long(name='StartedTime', description='The time when the instance started running.', example='1710239005403'),
+          status?: string(name='Status', description='The instance running status.', example='Success'),
+          taskId?: long(name='TaskId', description='The ID of the corresponding task.', example='1234'),
+          taskName?: string(name='TaskName', description='The name of the corresponding task.', example='SQL node'),
+          taskType?: string(name='TaskType', description='The type of the corresponding task.', example='ODPS_SQL'),
+          timeout?: int32(name='Timeout', description='The timeout period for task execution, in seconds.', example='3600'),
+          triggerRecurrence?: string(name='TriggerRecurrence', description='The run mode when the instance is triggered. This parameter takes effect when TriggerType is set to Scheduler.
 
-- NotRun: The instance is not run.
-
-- Running: The instance is running.
-
-- WaitTime: The instance is waiting for the scheduling time to arrive.
-
-- CheckingCondition: Branch conditions are being checked for the instance.
-
-- WaitResource: The instance is waiting for resources.
-
-- Failure: The instance fails to be run.
-
-- Success: The instance is successfully run.
-
-- Checking: Data quality is being checked for the instance.
-
-- WaitTrigger: The instance is waiting to be triggered by external scheduling systems.', example='Success'),
-          taskId?: long(name='TaskId', description='The ID of the task for which the instance is generated.', example='1234'),
-          taskName?: string(name='TaskName', description='The name of the task for which the instance is generated.', example='SQL node'),
-          taskType?: string(name='TaskType', description='The type of the task for which the instance is generated.', example='ODPS_SQL'),
-          timeout?: int32(name='Timeout', description='The timeout period of task running. Unit: seconds.
-
-Note: The value of this parameter is rounded up by hour.', example='3600'),
-          triggerRecurrence?: string(name='TriggerRecurrence', description='The running mode of the instance after it is triggered. This parameter takes effect only if the TriggerType parameter is set to Scheduler. Valid values:
-
-- Pause
-
-- Skip
-
-- Normal', example='Normal'),
-          triggerTime?: long(name='TriggerTime', description='The scheduling time.', example='1710239005403'),
-          triggerType?: string(name='TriggerType', description='The trigger type. Valid values:
-
-- Scheduler: scheduling cycle-based trigger
-
-- Manual: manual trigger', example='Scheduler'),
+Valid values:
+- Pause: paused.
+- Skip: dry run.
+- Normal: normal run.', example='Normal'),
+          triggerTime?: long(name='TriggerTime', description='The scheduled trigger time.', example='1710239005403'),
+          triggerType?: string(name='TriggerType', description='The trigger type.', example='Scheduler'),
           workflowId?: long(name='WorkflowId', description='The ID of the workflow to which the instance belongs.', example='1234'),
-          workflowInstanceId?: long(name='WorkflowInstanceId', description='The workflow instance ID.', example='1234'),
-          workflowInstanceType?: string(name='WorkflowInstanceType', description='The type of the workflow instance. Valid values:
-
-- Normal
-
-- Manual
-
-- SmokeTest
-
-- SupplementData
-
-- ManualWorkflow', example='Normal'),
+          workflowInstanceId?: long(name='WorkflowInstanceId', description='The ID of the workflow instance to which the instance belongs.', example='1234'),
+          workflowInstanceType?: string(name='WorkflowInstanceType', description='The type of the workflow instance to which the instance belongs.', example='Normal'),
           workflowName?: string(name='WorkflowName', description='The name of the workflow to which the instance belongs.', example='Test workflow'),
-        }(name='TaskInstance', description='The information about a task instance.'),
+        }(name='TaskInstance', description='The details of the task instance.'),
       }
-    ](name='UpstreamTaskInstances', description='The ancestor instances.'),
+    ](name='UpstreamTaskInstances', description='The list of upstream task instances.'),
   }(name='PagingInfo', description='The pagination information.'),
-  requestId?: string(name='RequestId', description='The request ID.', example='22C97E95-F023-56B5-8852-B1A77A17XXXX'),
+  requestId?: string(name='RequestId', description='The request ID, which is used to locate logs and troubleshoot issues.', example='22C97E95-F023-56B5-8852-B1A77A17XXXX'),
 }
 
 model ListUpstreamTaskInstancesResponse = {
@@ -34833,7 +36118,9 @@ model ListUpstreamTaskInstancesResponse = {
 }
 
 /**
- * @summary Queries a list of ancestor instances of an instance by page.
+ * @summary Retrieves the upstream instances of a specified instance by page.
+ *
+ * @description DataWorks Basic Edition or a more advanced edition is required.
  *
  * @param request ListUpstreamTaskInstancesRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -34861,7 +36148,9 @@ async function listUpstreamTaskInstancesWithOptions(request: ListUpstreamTaskIns
 }
 
 /**
- * @summary Queries a list of ancestor instances of an instance by page.
+ * @summary Retrieves the upstream instances of a specified instance by page.
+ *
+ * @description DataWorks Basic Edition or a more advanced edition is required.
  *
  * @param request ListUpstreamTaskInstancesRequest
  * @return ListUpstreamTaskInstancesResponse
@@ -36394,6 +37683,79 @@ async function promptAgentSession(request: PromptAgentSessionRequest): PromptAge
   return promptAgentSessionWithOptions(request, runtime);
 }
 
+model PublishImageRequest {
+  id?: string(name='Id', description='The image ID.
+
+This parameter is required.', example='Custom_image_xxxx_xxxx'),
+  processId?: string(name='ProcessId', description='The image publish execution ID, which is used as an idempotence identifier.', example='582d4896-d224-413b-b883-239eeebe0bc5'),
+}
+
+model PublishImageResponseBody = {
+  data?: {
+    processId?: string(name='ProcessId', description='The image publish execution ID.', example='582d4896-d224-413b-b883-239eeebe0bc5'),
+    success?: boolean(name='Success', description='Indicates whether the trigger was successful.', example='true'),
+  }(name='Data', description='The result of the API request.', example='true'),
+  requestId?: string(name='RequestId', description='The request ID, which is used to locate logs and troubleshoot issues.', example='6A6CBE87-9F91-1323-B680-E7A7065XXXXX'),
+  success?: boolean(name='Success', description='Indicates whether the request was successful.', example='true'),
+}
+
+model PublishImageResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: PublishImageResponseBody(name='body'),
+}
+
+/**
+ * @summary Publishes an image.
+ *
+ * @description 1. You must purchase DataWorks Basic Edition or a higher edition to use this operation.
+ * 2. **Make sure that the service-linked role AliyunServiceRoleForDataWorks has been created before you call this operation.**
+ *
+ * @param request PublishImageRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return PublishImageResponse
+ */
+@context("publishImageWithContext")
+async function publishImageWithOptions(request: PublishImageRequest, runtime: $RuntimeOptions): PublishImageResponse {
+  request.validate();
+  var body : map[string]any = {};
+  if (!$isNull(request.id)) {
+    body['Id'] = request.id;
+  }
+  if (!$isNull(request.processId)) {
+    body['ProcessId'] = request.processId;
+  }
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'PublishImage',
+    version = '2024-05-18',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Publishes an image.
+ *
+ * @description 1. You must purchase DataWorks Basic Edition or a higher edition to use this operation.
+ * 2. **Make sure that the service-linked role AliyunServiceRoleForDataWorks has been created before you call this operation.**
+ *
+ * @param request PublishImageRequest
+ * @return PublishImageResponse
+ */
+async function publishImage(request: PublishImageRequest): PublishImageResponse {
+  var runtime = new $RuntimeOptions{};
+  return publishImageWithOptions(request, runtime);
+}
+
 model RemoveEntityFromMetaCollectionRequest {
   id?: string(name='Id', description='The entity ID. Currently, entities can only be tables. You can call the ListTables operation to query the ID.', example='maxcompute-table:::project_name:[schema_name]:table_name'),
   metaCollectionId?: string(name='MetaCollectionId', description='The collection ID. You can call the ListMetaCollections operation to query the ID.', example='as78d756asd'),
@@ -37271,6 +38633,78 @@ async function revokeMemberProjectRoles(request: RevokeMemberProjectRolesRequest
   return revokeMemberProjectRolesWithOptions(request, runtime);
 }
 
+model RollbackImageRequest {
+  id?: string(name='Id', description='The image ID.
+
+This parameter is required.', example='Custom_image_xxxx_xxxx'),
+  imageVersion?: string(name='ImageVersion', description='The image version to roll back to.
+
+This parameter is required.', example='1'),
+}
+
+model RollbackImageResponseBody = {
+  data?: boolean(name='Data', description='The result of the API request.', example='true'),
+  requestId?: string(name='RequestId', description='The request ID, which is used to locate logs and troubleshoot issues.', example='6A6CBE87-9F91-1323-B680-E7A7065XXXXX'),
+  success?: boolean(name='Success', description='Indicates whether the request was successful.', example='true'),
+}
+
+model RollbackImageResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: RollbackImageResponseBody(name='body'),
+}
+
+/**
+ * @summary Rolls back an image.
+ *
+ * @description 1. You must purchase DataWorks Basic Edition or a higher edition to use this operation.
+ * 2. **Before calling this operation, make sure that the service-linked role AliyunServiceRoleForDataWorks has been created.**
+ *
+ * @param request RollbackImageRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return RollbackImageResponse
+ */
+@context("rollbackImageWithContext")
+async function rollbackImageWithOptions(request: RollbackImageRequest, runtime: $RuntimeOptions): RollbackImageResponse {
+  request.validate();
+  var body : map[string]any = {};
+  if (!$isNull(request.id)) {
+    body['Id'] = request.id;
+  }
+  if (!$isNull(request.imageVersion)) {
+    body['ImageVersion'] = request.imageVersion;
+  }
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'RollbackImage',
+    version = '2024-05-18',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Rolls back an image.
+ *
+ * @description 1. You must purchase DataWorks Basic Edition or a higher edition to use this operation.
+ * 2. **Before calling this operation, make sure that the service-linked role AliyunServiceRoleForDataWorks has been created.**
+ *
+ * @param request RollbackImageRequest
+ * @return RollbackImageResponse
+ */
+async function rollbackImage(request: RollbackImageRequest): RollbackImageResponse {
+  var runtime = new $RuntimeOptions{};
+  return rollbackImageWithOptions(request, runtime);
+}
+
 model RollbackParameterRequest {
   id?: long(name='Id', description='The parameter ID.
 
@@ -37429,6 +38863,89 @@ async function runCrawlerWithOptions(request: RunCrawlerRequest, runtime: $Runti
 async function runCrawler(request: RunCrawlerRequest): RunCrawlerResponse {
   var runtime = new $RuntimeOptions{};
   return runCrawlerWithOptions(request, runtime);
+}
+
+model RunImageTestRequest {
+  cu?: double(name='Cu', description='The test compute unit (CU).', example='0.5'),
+  id?: string(name='Id', description='The image ID.
+
+This parameter is required.', example='Custom_image_xxxx_xxxx'),
+  processId?: string(name='ProcessId', description='The image test execution ID, which is used as an idempotence identifier.', example='582d4896-d224-413b-b883-239eeebe0bc5'),
+  resourceGroupId?: string(name='ResourceGroupId', description='The unique identifier of the general-purpose resource group used to run the test task. Only Serverless resource groups are supported.
+
+This parameter is required.', example='Serverless_res_group_xxx_xxx'),
+}
+
+model RunImageTestResponseBody = {
+  data?: {
+    processId?: string(name='ProcessId', description='The image test execution ID.', example='582d4896-d224-413b-b883-239eeebe0bc5'),
+    success?: boolean(name='Success', description='Indicates whether the trigger is successful.', example='true'),
+  }(name='Data', description='The result of the API request.', example='true'),
+  requestId?: string(name='RequestId', description='The request ID, which is used to locate logs and troubleshoot issues.', example='6A6CBE87-9F91-1323-B680-E7A7065XXXXX'),
+  success?: boolean(name='Success', description='Indicates whether the request is successful.', example='true'),
+}
+
+model RunImageTestResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: RunImageTestResponseBody(name='body'),
+}
+
+/**
+ * @summary Runs an image test.
+ *
+ * @description 1. You must purchase DataWorks Basic Edition or a higher edition to use this feature.
+ * 2. **Make sure that the service-linked role AliyunServiceRoleForDataWorks is created before you call this operation.**
+ *
+ * @param request RunImageTestRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return RunImageTestResponse
+ */
+@context("runImageTestWithContext")
+async function runImageTestWithOptions(request: RunImageTestRequest, runtime: $RuntimeOptions): RunImageTestResponse {
+  request.validate();
+  var body : map[string]any = {};
+  if (!$isNull(request.cu)) {
+    body['Cu'] = request.cu;
+  }
+  if (!$isNull(request.id)) {
+    body['Id'] = request.id;
+  }
+  if (!$isNull(request.processId)) {
+    body['ProcessId'] = request.processId;
+  }
+  if (!$isNull(request.resourceGroupId)) {
+    body['ResourceGroupId'] = request.resourceGroupId;
+  }
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'RunImageTest',
+    version = '2024-05-18',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Runs an image test.
+ *
+ * @description 1. You must purchase DataWorks Basic Edition or a higher edition to use this feature.
+ * 2. **Make sure that the service-linked role AliyunServiceRoleForDataWorks is created before you call this operation.**
+ *
+ * @param request RunImageTestRequest
+ * @return RunImageTestResponse
+ */
+async function runImageTest(request: RunImageTestRequest): RunImageTestResponse {
+  var runtime = new $RuntimeOptions{};
+  return runImageTestWithOptions(request, runtime);
 }
 
 model RunSemanticJobRequest {
@@ -37692,6 +39209,69 @@ async function startDIJobWithOptions(tmpReq: StartDIJobRequest, runtime: $Runtim
 async function startDIJob(request: StartDIJobRequest): StartDIJobResponse {
   var runtime = new $RuntimeOptions{};
   return startDIJobWithOptions(request, runtime);
+}
+
+model StartServerIdeInstanceRequest {
+  instanceId?: string(name='InstanceId', description='The ID of the personal development environment instance. You can call ListServerIdeInstances to obtain the ID.
+
+This parameter is required.', example='699573'),
+}
+
+model StartServerIdeInstanceResponseBody = {
+  instanceId?: string(name='InstanceId', description='The ID of the personal development environment instance.', example='699573'),
+  requestId?: string(name='RequestId', description='The request ID.', example='E7D55162-4489-1619-AAF5-3F97D5FCA948'),
+}
+
+model StartServerIdeInstanceResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: StartServerIdeInstanceResponseBody(name='body'),
+}
+
+/**
+ * @summary Starts a specified personal development environment instance.
+ *
+ * @description Starts a specified personal development environment (ServerIDE) instance and returns the instance ID.
+ *
+ * @param request StartServerIdeInstanceRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return StartServerIdeInstanceResponse
+ */
+@context("startServerIdeInstanceWithContext")
+async function startServerIdeInstanceWithOptions(request: StartServerIdeInstanceRequest, runtime: $RuntimeOptions): StartServerIdeInstanceResponse {
+  request.validate();
+  var query = {};
+  if (!$isNull(request.instanceId)) {
+    query['InstanceId'] = request.instanceId;
+  }
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'StartServerIdeInstance',
+    version = '2024-05-18',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Starts a specified personal development environment instance.
+ *
+ * @description Starts a specified personal development environment (ServerIDE) instance and returns the instance ID.
+ *
+ * @param request StartServerIdeInstanceRequest
+ * @return StartServerIdeInstanceResponse
+ */
+async function startServerIdeInstance(request: StartServerIdeInstanceRequest): StartServerIdeInstanceResponse {
+  var runtime = new $RuntimeOptions{};
+  return startServerIdeInstanceWithOptions(request, runtime);
 }
 
 model StartWorkflowInstancesRequest {
@@ -37990,6 +39570,69 @@ async function stopProcessInstanceWithOptions(request: StopProcessInstanceReques
 async function stopProcessInstance(request: StopProcessInstanceRequest): StopProcessInstanceResponse {
   var runtime = new $RuntimeOptions{};
   return stopProcessInstanceWithOptions(request, runtime);
+}
+
+model StopServerIdeInstanceRequest {
+  instanceId?: string(name='InstanceId', description='The ID of the personal development environment instance. You can call ListServerIdeInstances to obtain the ID.
+
+This parameter is required.', example='699573'),
+}
+
+model StopServerIdeInstanceResponseBody = {
+  instanceId?: string(name='InstanceId', description='The ID of the personal development environment instance.', example='699573'),
+  requestId?: string(name='RequestId', description='The request ID.', example='E7D55162-4489-1619-AAF5-3F97D5FCA948'),
+}
+
+model StopServerIdeInstanceResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: StopServerIdeInstanceResponseBody(name='body'),
+}
+
+/**
+ * @summary Stops a specified personal development environment instance.
+ *
+ * @description Stops a specified personal development environment (ServerIDE) instance and returns the instance ID.
+ *
+ * @param request StopServerIdeInstanceRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return StopServerIdeInstanceResponse
+ */
+@context("stopServerIdeInstanceWithContext")
+async function stopServerIdeInstanceWithOptions(request: StopServerIdeInstanceRequest, runtime: $RuntimeOptions): StopServerIdeInstanceResponse {
+  request.validate();
+  var query = {};
+  if (!$isNull(request.instanceId)) {
+    query['InstanceId'] = request.instanceId;
+  }
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'StopServerIdeInstance',
+    version = '2024-05-18',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Stops a specified personal development environment instance.
+ *
+ * @description Stops a specified personal development environment (ServerIDE) instance and returns the instance ID.
+ *
+ * @param request StopServerIdeInstanceRequest
+ * @return StopServerIdeInstanceResponse
+ */
+async function stopServerIdeInstance(request: StopServerIdeInstanceRequest): StopServerIdeInstanceResponse {
+  var runtime = new $RuntimeOptions{};
+  return stopServerIdeInstanceWithOptions(request, runtime);
 }
 
 model StopTaskInstancesRequest {
@@ -42446,6 +44089,159 @@ async function updateIDEEventResult(request: UpdateIDEEventResultRequest): Updat
   return updateIDEEventResultWithOptions(request, runtime);
 }
 
+model UpdateImageRequest {
+  accessibility?: string(name='Accessibility', description='The image visibility. Valid values:
+- Public: visible to all users.
+- Private: visible only to the creator.', example='Public'),
+  acrAssociatedVpcId?: string(name='AcrAssociatedVpcId', description='The VPC ID associated with the ACR instance. This parameter is required when referencing an ACR image.', example='vpc-xxx'),
+  acrInstanceId?: string(name='AcrInstanceId', description='The Container Registry (ACR) instance ID. This parameter is required when referencing an ACR image.', example='acr_instance_id'),
+  buildConfig?: {
+    buildType?: string(name='BuildType', description='The build type.', example='PackageInstallation'),
+    packageInstallationScripts?: [ 
+      {
+        content?: string(name='Content', description='The script content. If the content consists of package names, separate them with commas (,).', example='requests'),
+        type?: string(name='Type', description='The script type.', example='Python3'),
+      }
+    ](name='PackageInstallationScripts', description='The list of pre-installation scripts.'),
+  }(name='BuildConfig', description='The image build configuration.'),
+  description?: string(name='Description', description='The image description.', example='create by xxxx'),
+  id?: string(name='Id', description='The image ID.
+
+This parameter is required.', example='Custom_image_xxxx_xxxx'),
+  imageUri?: string(name='ImageUri', description='The image URI. This parameter is required when referencing an ACR image.', example='registry-vpc.cn-beijing.cr.aliyuncs.com/namespace/image:0.1.0'),
+  name?: string(name='Name', description='The image name.', example='task_image_001'),
+  namespace?: string(name='Namespace', description='The image namespace. Set this parameter to DataWorks Default when referencing a DataWorks official image.', example='namespace_name'),
+  providerImageId?: string(name='ProviderImageId', description='The provider image ID. This parameter is required when referencing a DataWorks official image.', example='System_shell_20251201'),
+  repositoryName?: string(name='RepositoryName', description='The image repository name. Set this parameter to DataWorks Default when referencing a DataWorks official image.', example='repo_name'),
+  supported?: {
+    module?: string(name='Module', description='The image sub-module. Valid values:
+- Scheduler: data development.', example='Scheduler'),
+    taskTypes?: [ string ](name='TaskTypes', description='The list of node types supported by the image.'),
+  }(name='Supported', description='The image sub-purpose.'),
+}
+
+model UpdateImageShrinkRequest {
+  accessibility?: string(name='Accessibility', description='The image visibility. Valid values:
+- Public: visible to all users.
+- Private: visible only to the creator.', example='Public'),
+  acrAssociatedVpcId?: string(name='AcrAssociatedVpcId', description='The VPC ID associated with the ACR instance. This parameter is required when referencing an ACR image.', example='vpc-xxx'),
+  acrInstanceId?: string(name='AcrInstanceId', description='The Container Registry (ACR) instance ID. This parameter is required when referencing an ACR image.', example='acr_instance_id'),
+  buildConfigShrink?: string(name='BuildConfig', description='The image build configuration.'),
+  description?: string(name='Description', description='The image description.', example='create by xxxx'),
+  id?: string(name='Id', description='The image ID.
+
+This parameter is required.', example='Custom_image_xxxx_xxxx'),
+  imageUri?: string(name='ImageUri', description='The image URI. This parameter is required when referencing an ACR image.', example='registry-vpc.cn-beijing.cr.aliyuncs.com/namespace/image:0.1.0'),
+  name?: string(name='Name', description='The image name.', example='task_image_001'),
+  namespace?: string(name='Namespace', description='The image namespace. Set this parameter to DataWorks Default when referencing a DataWorks official image.', example='namespace_name'),
+  providerImageId?: string(name='ProviderImageId', description='The provider image ID. This parameter is required when referencing a DataWorks official image.', example='System_shell_20251201'),
+  repositoryName?: string(name='RepositoryName', description='The image repository name. Set this parameter to DataWorks Default when referencing a DataWorks official image.', example='repo_name'),
+  supportedShrink?: string(name='Supported', description='The image sub-purpose.'),
+}
+
+model UpdateImageResponseBody = {
+  data?: boolean(name='Data', description='The result of the API request.', example='true'),
+  requestId?: string(name='RequestId', description='The request ID, which is used to locate logs and troubleshoot issues.', example='6A6CBE87-9F91-1323-B680-E7A7065XXXXX'),
+  success?: boolean(name='Success', description='Indicates whether the request was successful.', example='true'),
+}
+
+model UpdateImageResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: UpdateImageResponseBody(name='body'),
+}
+
+/**
+ * @summary Updates an image.
+ *
+ * @description 1. You must purchase DataWorks Basic Edition or a higher edition to use this operation.
+ * 2. **Before calling this operation, make sure that the service-linked role AliyunServiceRoleForDataWorks has been created.**
+ *
+ * @param tmpReq UpdateImageRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return UpdateImageResponse
+ */
+@context("updateImageWithContext")
+async function updateImageWithOptions(tmpReq: UpdateImageRequest, runtime: $RuntimeOptions): UpdateImageResponse {
+  tmpReq.validate();
+  var request = new UpdateImageShrinkRequest{};
+  OpenApiUtil.convert(tmpReq, request);
+  if (!$isNull(tmpReq.buildConfig)) {
+    request.buildConfigShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.buildConfig, 'BuildConfig', 'json');
+  }
+  if (!$isNull(tmpReq.supported)) {
+    request.supportedShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.supported, 'Supported', 'json');
+  }
+  var query = {};
+  if (!$isNull(request.acrAssociatedVpcId)) {
+    query['AcrAssociatedVpcId'] = request.acrAssociatedVpcId;
+  }
+  if (!$isNull(request.acrInstanceId)) {
+    query['AcrInstanceId'] = request.acrInstanceId;
+  }
+  if (!$isNull(request.imageUri)) {
+    query['ImageUri'] = request.imageUri;
+  }
+  if (!$isNull(request.namespace)) {
+    query['Namespace'] = request.namespace;
+  }
+  if (!$isNull(request.repositoryName)) {
+    query['RepositoryName'] = request.repositoryName;
+  }
+  var body : map[string]any = {};
+  if (!$isNull(request.accessibility)) {
+    body['Accessibility'] = request.accessibility;
+  }
+  if (!$isNull(request.buildConfigShrink)) {
+    body['BuildConfig'] = request.buildConfigShrink;
+  }
+  if (!$isNull(request.description)) {
+    body['Description'] = request.description;
+  }
+  if (!$isNull(request.id)) {
+    body['Id'] = request.id;
+  }
+  if (!$isNull(request.name)) {
+    body['Name'] = request.name;
+  }
+  if (!$isNull(request.providerImageId)) {
+    body['ProviderImageId'] = request.providerImageId;
+  }
+  if (!$isNull(request.supportedShrink)) {
+    body['Supported'] = request.supportedShrink;
+  }
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'UpdateImage',
+    version = '2024-05-18',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Updates an image.
+ *
+ * @description 1. You must purchase DataWorks Basic Edition or a higher edition to use this operation.
+ * 2. **Before calling this operation, make sure that the service-linked role AliyunServiceRoleForDataWorks has been created.**
+ *
+ * @param request UpdateImageRequest
+ * @return UpdateImageResponse
+ */
+async function updateImage(request: UpdateImageRequest): UpdateImageResponse {
+  var runtime = new $RuntimeOptions{};
+  return updateImageWithOptions(request, runtime);
+}
+
 model UpdateMcpServerRequest {
   customHeaders?: map[string]any(name='CustomHeaders', description='The new custom request headers (key-value pairs).', example='{}'),
   name?: string(name='Name', description='The name of the MCP Server to update.
@@ -44042,16 +45838,192 @@ async function updateSecurityStrategy(request: UpdateSecurityStrategyRequest): U
   return updateSecurityStrategyWithOptions(request, runtime);
 }
 
+model UpdateServerIdeInstanceRequest {
+  credentialConfig?: {
+    aliyunEnvRoleKey?: string(name='AliyunEnvRoleKey', description='The environment variable role key.', example='0'),
+    configs?: [ 
+      {
+        key?: string(name='Key', description='The identifier key of the credential configuration.', example='0'),
+        roles?: [ 
+          {
+            assumeRoleFor?: string(name='AssumeRoleFor', description='The Alibaba Cloud account ID of the principal that assumes the role.', example='123456789012****'),
+            policy?: string(name='Policy', description='The policy used to further restrict the role permissions.', example='{}'),
+            roleArn?: string(name='RoleArn', description='The ARN of the RAM role.', example='acs:ram::123456789012****:role/DataWorksRole'),
+            roleType?: string(name='RoleType', description='The role assumption type. Valid values:
+- service: assumed by a service.
+- user: assumed by a user.', example='service'),
+            userInfo?: {
+              id?: string(name='Id', description='The account ID of the delegated user.', example='20933221576142****'),
+              type?: string(name='Type', description='The user type. Valid values:
+- customer: Alibaba Cloud account.
+- sub: RAM user.
+- AssumedRoleUser: RAM role.', example='sub'),
+            }(name='UserInfo', description='The information of the delegated user.'),
+          }
+        ](name='Roles', description='The list of roles in the credential configuration.'),
+        type?: string(name='Type', description='The credential configuration type. Valid values:
+- Role: single role assumption.
+- RoleChain: role chain assumption.', example='RoleChain'),
+      }
+    ](name='Configs', description='The list of credential configurations.'),
+    enable?: boolean(name='Enable', description='Specifies whether to enable credential injection.'),
+  }(name='CredentialConfig', description='The credential injection configuration for the instance. After this feature is enabled, you can use the default RAM role chain or specify a custom RAM role.'),
+  cu?: int32(name='Cu', description='The number of CUs used by the instance.', example='10'),
+  datasets?: [ 
+    {
+      extOptions?: string(name='ExtOptions', description='The custom mount properties of the dataset. The content is passed as mount options.', example='{"fs.oss.download.thread.concurrency":"10"}'),
+      identifier?: string(name='Identifier', description='The dataset identifier.', example='d-vsqjvs****rp5l206u'),
+      mountPath?: string(name='MountPath', description='The mount path of the dataset in the instance.', example='/mnt/data'),
+      readOnly?: boolean(name='ReadOnly', description='Specifies whether to mount the dataset in read-only mode.'),
+      uri?: string(name='Uri', description='The storage service directory URI for direct mounting.', example='oss://example-bucket/data/'),
+      version?: int32(name='Version', description='The dataset version number.', example='1'),
+    }
+  ](name='Datasets', description='The list of datasets mounted to the instance.'),
+  imageId?: string(name='ImageId', description='The image ID. You can call ListServerIdeImages to obtain the ID.', example='System_serveride_notebook_20240822'),
+  imageUrl?: string(name='ImageUrl', description='The image URL. This parameter is required when you use a non-DataWorks official image.', example='registry.cn-hangzhou.aliyuncs.com/example/serveride:latest'),
+  instanceId?: string(name='InstanceId', description='The personal development environment instance ID. You can call ListServerIdeInstances to obtain the ID.
+
+This parameter is required.', example='699573'),
+  instanceName?: string(name='InstanceName', description='The name of the personal development environment instance.', example='notebook_dev'),
+  projectId?: long(name='ProjectId', description='The DataWorks workspace ID.', example='10000'),
+  userVpc?: {
+    forwardInfos?: [ 
+      {
+        accessType?: [ string ](name='AccessType', description='The list of access types.'),
+        containerName?: string(name='ContainerName', description='The name of the target container.', example='dsw-notebook'),
+        eipAllocationId?: string(name='EipAllocationId', description='The instance ID of the public EIP.', example='eip-bp1****'),
+        enable?: boolean(name='Enable', description='Specifies whether to enable the port forwarding configuration.', example='true'),
+        externalPort?: string(name='ExternalPort', description='The mapped public port.', example='1024'),
+        forwardPort?: string(name='ForwardPort', description='The target port in the instance container.', example='22'),
+        name?: string(name='Name', description='The name of the port forwarding configuration.', example='ssh'),
+        natGatewayId?: string(name='NatGatewayId', description='The NAT gateway ID.', example='ngw-bp1****'),
+        SSHPublicKey?: string(name='SSHPublicKey', description='The public key used for SSH access.', example='ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQ****'),
+      }
+    ](name='ForwardInfos', description='The list of port forwarding configurations.'),
+    securityGroupId?: string(name='SecurityGroupId', description='The security group ID.', example='sg-bp1****'),
+    vSwitchId?: string(name='VSwitchId', description='The vSwitch ID.', example='vsw-bp1****'),
+    vpcId?: string(name='VpcId', description='The VPC ID.', example='vpc-bp1****'),
+  }(name='UserVpc', description='The VPC configuration used by the instance.'),
+}
+
+model UpdateServerIdeInstanceShrinkRequest {
+  credentialConfigShrink?: string(name='CredentialConfig', description='The credential injection configuration for the instance. After this feature is enabled, you can use the default RAM role chain or specify a custom RAM role.'),
+  cu?: int32(name='Cu', description='The number of CUs used by the instance.', example='10'),
+  datasetsShrink?: string(name='Datasets', description='The list of datasets mounted to the instance.'),
+  imageId?: string(name='ImageId', description='The image ID. You can call ListServerIdeImages to obtain the ID.', example='System_serveride_notebook_20240822'),
+  imageUrl?: string(name='ImageUrl', description='The image URL. This parameter is required when you use a non-DataWorks official image.', example='registry.cn-hangzhou.aliyuncs.com/example/serveride:latest'),
+  instanceId?: string(name='InstanceId', description='The personal development environment instance ID. You can call ListServerIdeInstances to obtain the ID.
+
+This parameter is required.', example='699573'),
+  instanceName?: string(name='InstanceName', description='The name of the personal development environment instance.', example='notebook_dev'),
+  projectId?: long(name='ProjectId', description='The DataWorks workspace ID.', example='10000'),
+  userVpcShrink?: string(name='UserVpc', description='The VPC configuration used by the instance.'),
+}
+
+model UpdateServerIdeInstanceResponseBody = {
+  instanceId?: string(name='InstanceId', description='The personal development environment instance ID.', example='699573'),
+  requestId?: string(name='RequestId', description='The request ID.', example='E7D55162-4489-1619-AAF5-3F97D5FCA948'),
+}
+
+model UpdateServerIdeInstanceResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: UpdateServerIdeInstanceResponseBody(name='body'),
+}
+
+/**
+ * @summary Updates the configuration of a specified personal development environment instance.
+ *
+ * @description Updates the configuration of a specified personal development environment (ServerIDE) instance. You can modify the CU, image, instance name, VPC, dataset, and credential configurations. If the CU and image parameters are not specified, the existing instance configurations are retained.
+ *
+ * @param tmpReq UpdateServerIdeInstanceRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return UpdateServerIdeInstanceResponse
+ */
+@context("updateServerIdeInstanceWithContext")
+async function updateServerIdeInstanceWithOptions(tmpReq: UpdateServerIdeInstanceRequest, runtime: $RuntimeOptions): UpdateServerIdeInstanceResponse {
+  tmpReq.validate();
+  var request = new UpdateServerIdeInstanceShrinkRequest{};
+  OpenApiUtil.convert(tmpReq, request);
+  if (!$isNull(tmpReq.credentialConfig)) {
+    request.credentialConfigShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.credentialConfig, 'CredentialConfig', 'json');
+  }
+  if (!$isNull(tmpReq.datasets)) {
+    request.datasetsShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.datasets, 'Datasets', 'json');
+  }
+  if (!$isNull(tmpReq.userVpc)) {
+    request.userVpcShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.userVpc, 'UserVpc', 'json');
+  }
+  var query = {};
+  if (!$isNull(request.instanceId)) {
+    query['InstanceId'] = request.instanceId;
+  }
+  var body : map[string]any = {};
+  if (!$isNull(request.credentialConfigShrink)) {
+    body['CredentialConfig'] = request.credentialConfigShrink;
+  }
+  if (!$isNull(request.cu)) {
+    body['Cu'] = request.cu;
+  }
+  if (!$isNull(request.datasetsShrink)) {
+    body['Datasets'] = request.datasetsShrink;
+  }
+  if (!$isNull(request.imageId)) {
+    body['ImageId'] = request.imageId;
+  }
+  if (!$isNull(request.imageUrl)) {
+    body['ImageUrl'] = request.imageUrl;
+  }
+  if (!$isNull(request.instanceName)) {
+    body['InstanceName'] = request.instanceName;
+  }
+  if (!$isNull(request.projectId)) {
+    body['ProjectId'] = request.projectId;
+  }
+  if (!$isNull(request.userVpcShrink)) {
+    body['UserVpc'] = request.userVpcShrink;
+  }
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'UpdateServerIdeInstance',
+    version = '2024-05-18',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Updates the configuration of a specified personal development environment instance.
+ *
+ * @description Updates the configuration of a specified personal development environment (ServerIDE) instance. You can modify the CU, image, instance name, VPC, dataset, and credential configurations. If the CU and image parameters are not specified, the existing instance configurations are retained.
+ *
+ * @param request UpdateServerIdeInstanceRequest
+ * @return UpdateServerIdeInstanceResponse
+ */
+async function updateServerIdeInstance(request: UpdateServerIdeInstanceRequest): UpdateServerIdeInstanceResponse {
+  var runtime = new $RuntimeOptions{};
+  return updateServerIdeInstanceWithOptions(request, runtime);
+}
+
 model UpdateSkillRequest {
-  bundleUrl?: string(name='BundleUrl', description='The downloadable URL (HTTP/HTTPS) of the bundle.zip file. Mutually exclusive with SkillMdOverride. If specified, the bundle is replaced.', example='https://example.com/skill.zip'),
-  description?: string(name='Description', description='The Skill description.', example='数据分析技能'),
+  bundleUrl?: string(name='BundleUrl', description='The downloadable URL (HTTP/HTTPS) of the bundle.zip file. Mutually exclusive with SkillMdOverride. If provided, the bundle is replaced.', example='https://example.com/skill.zip'),
+  description?: string(name='Description', description='The Skill description.', example='Data analytics skill'),
   expectedVersion?: int32(name='ExpectedVersion', description='The expected version number for optimistic locking. If not specified, the update is based on the current highest version.', example='1'),
   extra?: map[string]any(name='Extra', description='The extended metadata (key-value pairs).', example='{\\\\"appId\\\\":\\\\"APP_Q2SDWKIGFWNZTR68K1GQ\\\\"}'),
   name?: string(name='Name', description='The name of the Skill to update.
 
 This parameter is required.', example='my-skill'),
-  skillMdOverride?: string(name='SkillMdOverride', description='The SKILL.md body content. Mutually exclusive with BundleUrl.', example='把大象放冰箱分为三步，把冰箱门打开，把大象放进去，把冰箱门关上。'),
-  versionNote?: string(name='VersionNote', description='The version note.', example='修订说明'),
+  skillMdOverride?: string(name='SkillMdOverride', description='The SKILL.md body content. Mutually exclusive with BundleUrl.', example='Putting an elephant in a refrigerator takes three steps: open the refrigerator door, put the elephant in, and close the refrigerator door'),
+  versionNote?: string(name='VersionNote', description='The version note.', example='Revision note'),
   visibilityScope?: {
     projectIds?: [ string ](name='ProjectIds', description='The list of visible project IDs.'),
     userIds?: [ string ](name='UserIds', description='The list of visible user IDs.'),
@@ -44059,24 +46031,24 @@ This parameter is required.', example='my-skill'),
 }
 
 model UpdateSkillShrinkRequest {
-  bundleUrl?: string(name='BundleUrl', description='The downloadable URL (HTTP/HTTPS) of the bundle.zip file. Mutually exclusive with SkillMdOverride. If specified, the bundle is replaced.', example='https://example.com/skill.zip'),
-  description?: string(name='Description', description='The Skill description.', example='数据分析技能'),
+  bundleUrl?: string(name='BundleUrl', description='The downloadable URL (HTTP/HTTPS) of the bundle.zip file. Mutually exclusive with SkillMdOverride. If provided, the bundle is replaced.', example='https://example.com/skill.zip'),
+  description?: string(name='Description', description='The Skill description.', example='Data analytics skill'),
   expectedVersion?: int32(name='ExpectedVersion', description='The expected version number for optimistic locking. If not specified, the update is based on the current highest version.', example='1'),
   extraShrink?: string(name='Extra', description='The extended metadata (key-value pairs).', example='{\\\\"appId\\\\":\\\\"APP_Q2SDWKIGFWNZTR68K1GQ\\\\"}'),
   name?: string(name='Name', description='The name of the Skill to update.
 
 This parameter is required.', example='my-skill'),
-  skillMdOverride?: string(name='SkillMdOverride', description='The SKILL.md body content. Mutually exclusive with BundleUrl.', example='把大象放冰箱分为三步，把冰箱门打开，把大象放进去，把冰箱门关上。'),
-  versionNote?: string(name='VersionNote', description='The version note.', example='修订说明'),
+  skillMdOverride?: string(name='SkillMdOverride', description='The SKILL.md body content. Mutually exclusive with BundleUrl.', example='Putting an elephant in a refrigerator takes three steps: open the refrigerator door, put the elephant in, and close the refrigerator door'),
+  versionNote?: string(name='VersionNote', description='The version note.', example='Revision note'),
   visibilityScopeShrink?: string(name='VisibilityScope', description='The visibility scope. The corresponding field is used based on the visibility level.'),
 }
 
 model UpdateSkillResponseBody = {
   requestId?: string(name='RequestId', description='The request ID.', example='824F80BA-1778-5D8A-BAFF-668A4D9C4CC7'),
   skill?: {
-    body?: string(name='Body', description='The SKILL.md body content.', example='把大象放冰箱分为三步，把冰箱门打开，把大象放进去，把冰箱门关上。'),
+    body?: string(name='Body', description='The SKILL.md body content.', example='Putting an elephant in a refrigerator takes three steps: open the refrigerator door, put the elephant in, and close the refrigerator door'),
     creatorId?: string(name='CreatorId', description='The creator ID.', example='123456'),
-    description?: string(name='Description', description='The Skill description.', example='数据分析技能'),
+    description?: string(name='Description', description='The Skill description.', example='Data analytics skill'),
     gmtCreateTime?: string(name='GmtCreateTime', description='The creation time (millisecond timestamp).
 
 Use the UTC time format: yyyy-MM-ddTHH:mmZ', example='1780555634000'),
@@ -44090,7 +46062,7 @@ Use the UTC time format: yyyy-MM-ddTHH:mmZ', example='1780555634000'),
       projectIds?: [ string ](name='ProjectIds', description='The list of visible project IDs.'),
       userIds?: [ string ](name='UserIds', description='The list of visible user IDs.'),
     }(name='VisibilityScope', description='The visibility scope.'),
-  }(name='Skill', description='-'),
+  }(name='Skill', description='The Skill details.'),
 }
 
 model UpdateSkillResponse = {
