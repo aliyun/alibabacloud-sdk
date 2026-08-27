@@ -15,7 +15,12 @@ extends OpenApi;
 init(config: OpenApi.Config){
   super(config);
   @endpointRule = 'regional';
-  
+  @endpointMap = {
+    'cn-shanghai' = 'winnexo.cn-shanghai.aliyuncs.com',
+    'cn-zhangjiakou' = 'winnexo.cn-zhangjiakou.aliyuncs.com',
+    'cn-hangzhou' = 'winnexo.cn-hangzhou.aliyuncs.com',
+  };
+
   checkConfig(config);
   @endpoint = getEndpoint('winnexo', @regionId, @endpointRule, @network, @suffix, @endpointMap, @endpoint);
 }
@@ -29,6 +34,112 @@ function getEndpoint(productId: string, regionId: string, endpointRule: string, 
     return endpointMap[regionId];
   }
   return EndpointUtil.getEndpointRules(productId, regionId, endpointRule, network, suffix);
+}
+
+model AddUserGroupMembersRequest {
+  tenantId?: string(name='tenantId', description='The tenant ID. This is a common parameter. In winnexo-cli, pass this parameter explicitly by using `--tenant-id`.', example='10000'),
+  userGroupId?: string(name='userGroupId', description='The ID of the target user group.
+
+This parameter is required.', example='7ea8973f-7a5c-4e8a-956b-4fe0e7e2eb11'),
+  userIds?: [ long ](name='userIds', description='The list of platform user IDs to add. Supports single or batch input. Duplicate relationships are idempotent.
+
+This parameter is required.', example='1'),
+}
+
+model AddUserGroupMembersShrinkRequest {
+  tenantId?: string(name='tenantId', description='The tenant ID. This is a common parameter. In winnexo-cli, pass this parameter explicitly by using `--tenant-id`.', example='10000'),
+  userGroupId?: string(name='userGroupId', description='The ID of the target user group.
+
+This parameter is required.', example='7ea8973f-7a5c-4e8a-956b-4fe0e7e2eb11'),
+  userIdsShrink?: string(name='userIds', description='The list of platform user IDs to add. Supports single or batch input. Duplicate relationships are idempotent.
+
+This parameter is required.', example='1'),
+}
+
+model AddUserGroupMembersResponseBody = {
+  affectedCount?: long(name='affectedCount', description='The number of user group member relationships that were actually added.', example='2'),
+  code?: string(name='code', description='The status code.', example='200'),
+  message?: string(name='message', description='The description of the status code.', example='successful'),
+  requestId?: string(name='requestId', description='The request trace ID.', example='019FF406-1B10-0065-A97D-2D1920C2A03D'),
+  requestedCount?: long(name='requestedCount', description='The number of requested members before deduplication.', example='2'),
+  userGroupId?: string(name='userGroupId', description='The ID of the target user group.', example='7ea8973f-7a5c-4e8a-956b-4fe0e7e2eb11'),
+}
+
+model AddUserGroupMembersResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: AddUserGroupMembersResponseBody(name='body'),
+}
+
+/**
+ * @summary Adds multiple tenant members to a specified user group in a single request.
+ *
+ * @description ## Request description
+ * - This operation supports batch addition of members by providing a user group ID and one or more user IDs.
+ * - Duplicate entries in the user ID list do not cause errors. The system automatically handles duplicates to ensure each user is added only once.
+ * - The caller must have the required permissions to perform this operation.
+ * - This operation is applicable to scenarios that require quick team structure management or access control policy adjustments.
+ *
+ * @param tmpReq AddUserGroupMembersRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return AddUserGroupMembersResponse
+ */
+async function addUserGroupMembersWithOptions(tmpReq: AddUserGroupMembersRequest, headers: map[string]string, runtime: Util.RuntimeOptions): AddUserGroupMembersResponse {
+  Util.validateModel(tmpReq);
+  var request = new AddUserGroupMembersShrinkRequest{};
+  OpenApiUtil.convert(tmpReq, request);
+  if (!Util.isUnset(tmpReq.userIds)) {
+    request.userIdsShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.userIds, 'userIds', 'json');
+  }
+  var query : map[string]any = {};
+  if (!Util.isUnset(request.tenantId)) {
+    query['tenantId'] = request.tenantId;
+  }
+
+  var body : map[string]any = {};
+  if (!Util.isUnset(request.userGroupId)) {
+    body['userGroupId'] = request.userGroupId;
+  }
+  if (!Util.isUnset(request.userIdsShrink)) {
+    body['userIds'] = request.userIdsShrink;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApi.Params{
+    action = 'AddUserGroupMembers',
+    version = '2026-05-12',
+    protocol = 'HTTPS',
+    pathname = `/openapi/addUserGroupMembers`,
+    method = 'POST',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Adds multiple tenant members to a specified user group in a single request.
+ *
+ * @description ## Request description
+ * - This operation supports batch addition of members by providing a user group ID and one or more user IDs.
+ * - Duplicate entries in the user ID list do not cause errors. The system automatically handles duplicates to ensure each user is added only once.
+ * - The caller must have the required permissions to perform this operation.
+ * - This operation is applicable to scenarios that require quick team structure management or access control policy adjustments.
+ *
+ * @param request AddUserGroupMembersRequest
+ * @return AddUserGroupMembersResponse
+ */
+async function addUserGroupMembers(request: AddUserGroupMembersRequest): AddUserGroupMembersResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return addUserGroupMembersWithOptions(request, headers, runtime);
 }
 
 model CheckHealthRequest {
@@ -95,6 +206,179 @@ async function checkHealth(request: CheckHealthRequest): CheckHealthResponse {
   var runtime = new Util.RuntimeOptions{};
   var headers : map[string]string = {};
   return checkHealthWithOptions(request, headers, runtime);
+}
+
+model CreateAnnouncementRequest {
+  content?: string(name='content', description='The content of the notice.
+
+This parameter is required.', example='The system will undergo maintenance tonight'),
+  displayPage?: string(name='displayPage', description='The display page. Valid values: ALL, FRONTEND, and BACKEND.', example='ALL'),
+  displayType?: string(name='displayType', description='The display type and group label.', example='LIST'),
+  effectiveEnd?: string(name='effectiveEnd', description='The effective end time.', example='2026-08-21T14:00:00+08:00'),
+  effectiveStart?: string(name='effectiveStart', description='The effective start time in ISO 8601 format with time zone information. If this parameter is not specified, the notice takes effect immediately.', example='2026-08-20T14:00:00+08:00'),
+  priority?: string(name='priority', description='The priority level. Valid values:
+
+This parameter is required.', example='GENERAL'),
+  publishNow?: boolean(name='publishNow', description='Specifies whether to publish the notice immediately after creation.', example='false'),
+  targetRoleCodes?: [ string ](name='targetRoleCodes', description='The list of system role codes. This parameter is used when targetRoleMode is set to SPECIFIED.', example='["SYSTEM_ADMIN"]'),
+  targetRoleMode?: string(name='targetRoleMode', description='The target role scope. Valid values: ALL and SPECIFIED.', example='ALL'),
+  targetTenantIds?: [ long ](name='targetTenantIds', description='The list of target tenant IDs. This parameter is used when targetTenantMode is set to SPECIFIED.', example='[10000]'),
+  targetTenantMode?: string(name='targetTenantMode', description='The target tenant scope. Valid values: ALL and SPECIFIED.', example='ALL'),
+  tenantId?: string(name='tenantId', description='The ID of the tenant for which the notice takes effect.', example='10000'),
+  title?: string(name='title', description='The title of the notice.
+
+This parameter is required.', example='System Maintenance Notification'),
+}
+
+model CreateAnnouncementShrinkRequest {
+  content?: string(name='content', description='The content of the notice.
+
+This parameter is required.', example='The system will undergo maintenance tonight'),
+  displayPage?: string(name='displayPage', description='The display page. Valid values: ALL, FRONTEND, and BACKEND.', example='ALL'),
+  displayType?: string(name='displayType', description='The display type and group label.', example='LIST'),
+  effectiveEnd?: string(name='effectiveEnd', description='The effective end time.', example='2026-08-21T14:00:00+08:00'),
+  effectiveStart?: string(name='effectiveStart', description='The effective start time in ISO 8601 format with time zone information. If this parameter is not specified, the notice takes effect immediately.', example='2026-08-20T14:00:00+08:00'),
+  priority?: string(name='priority', description='The priority level. Valid values:
+
+This parameter is required.', example='GENERAL'),
+  publishNow?: boolean(name='publishNow', description='Specifies whether to publish the notice immediately after creation.', example='false'),
+  targetRoleCodesShrink?: string(name='targetRoleCodes', description='The list of system role codes. This parameter is used when targetRoleMode is set to SPECIFIED.', example='["SYSTEM_ADMIN"]'),
+  targetRoleMode?: string(name='targetRoleMode', description='The target role scope. Valid values: ALL and SPECIFIED.', example='ALL'),
+  targetTenantIdsShrink?: string(name='targetTenantIds', description='The list of target tenant IDs. This parameter is used when targetTenantMode is set to SPECIFIED.', example='[10000]'),
+  targetTenantMode?: string(name='targetTenantMode', description='The target tenant scope. Valid values: ALL and SPECIFIED.', example='ALL'),
+  tenantId?: string(name='tenantId', description='The ID of the tenant for which the notice takes effect.', example='10000'),
+  title?: string(name='title', description='The title of the notice.
+
+This parameter is required.', example='System Maintenance Notification'),
+}
+
+model CreateAnnouncementResponseBody = {
+  announcementId?: long(name='announcementId', description='The business ID of the notice.', example='1001'),
+  code?: string(name='code', description='The error code.', example='200'),
+  createdBy?: long(name='createdBy', description='The creator.', example='10001'),
+  message?: string(name='message', description='The response message.', example='ok'),
+  publishedAt?: string(name='publishedAt', description='The publish time in ISO 8601 format. This field is empty for drafts.', example='2026-08-20T14:00:00+08:00'),
+  requestId?: string(name='requestId', description='The request ID.', example='019FF406-1B10-0065-A97D-2D1920C2A03D'),
+  sourceType?: string(name='sourceType', description='The source type of the dictionary file. Valid values: OSS: Object Storage Service (OSS). ORIGIN: retains the previously uploaded dictionary.', example='PLATFORM'),
+  status?: string(name='status', description='The refund status. You must query this field to confirm the refund status during processing. Valid values:
+- SUCCESS: All refunds succeeded.
+- FAIL: Failed.
+- WAIT_PAY: Waiting for refund.
+- EXPIRE: Expired.
+- PAYING: Refund in progress.
+- TERMINATE: Refund terminated.', example='PUBLISHED'),
+}
+
+model CreateAnnouncementResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: CreateAnnouncementResponseBody(name='body'),
+}
+
+/**
+ * @summary Creates a service notice.
+ *
+ * @description ## Operation description
+ * Creates a service notice. The caller identity must be mapped to a real platform user in the system O&M tenant and must have notice management permissions.
+ * - `priority`: The importance level of the notice. Valid values: URGENT, IMPORTANT, and GENERAL.
+ * - `targetTenantIds` / `targetRoleCodes`: Used only when the corresponding target mode is set to SPECIFIED. Pass values as a JSON array.
+ * - `effectiveStart` / `effectiveEnd`: ISO 8601 timestamps with time zone information.
+ * - `publishNow`: If set to true, the notice is published immediately after creation. Otherwise, it is saved as a draft.
+ *
+ * @param tmpReq CreateAnnouncementRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return CreateAnnouncementResponse
+ */
+async function createAnnouncementWithOptions(tmpReq: CreateAnnouncementRequest, headers: map[string]string, runtime: Util.RuntimeOptions): CreateAnnouncementResponse {
+  Util.validateModel(tmpReq);
+  var request = new CreateAnnouncementShrinkRequest{};
+  OpenApiUtil.convert(tmpReq, request);
+  if (!Util.isUnset(tmpReq.targetRoleCodes)) {
+    request.targetRoleCodesShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.targetRoleCodes, 'targetRoleCodes', 'json');
+  }
+  if (!Util.isUnset(tmpReq.targetTenantIds)) {
+    request.targetTenantIdsShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.targetTenantIds, 'targetTenantIds', 'json');
+  }
+  var query : map[string]any = {};
+  if (!Util.isUnset(request.tenantId)) {
+    query['tenantId'] = request.tenantId;
+  }
+
+  var body : map[string]any = {};
+  if (!Util.isUnset(request.content)) {
+    body['content'] = request.content;
+  }
+  if (!Util.isUnset(request.displayPage)) {
+    body['displayPage'] = request.displayPage;
+  }
+  if (!Util.isUnset(request.displayType)) {
+    body['displayType'] = request.displayType;
+  }
+  if (!Util.isUnset(request.effectiveEnd)) {
+    body['effectiveEnd'] = request.effectiveEnd;
+  }
+  if (!Util.isUnset(request.effectiveStart)) {
+    body['effectiveStart'] = request.effectiveStart;
+  }
+  if (!Util.isUnset(request.priority)) {
+    body['priority'] = request.priority;
+  }
+  if (!Util.isUnset(request.publishNow)) {
+    body['publishNow'] = request.publishNow;
+  }
+  if (!Util.isUnset(request.targetRoleCodesShrink)) {
+    body['targetRoleCodes'] = request.targetRoleCodesShrink;
+  }
+  if (!Util.isUnset(request.targetRoleMode)) {
+    body['targetRoleMode'] = request.targetRoleMode;
+  }
+  if (!Util.isUnset(request.targetTenantIdsShrink)) {
+    body['targetTenantIds'] = request.targetTenantIdsShrink;
+  }
+  if (!Util.isUnset(request.targetTenantMode)) {
+    body['targetTenantMode'] = request.targetTenantMode;
+  }
+  if (!Util.isUnset(request.title)) {
+    body['title'] = request.title;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApi.Params{
+    action = 'CreateAnnouncement',
+    version = '2026-05-12',
+    protocol = 'HTTPS',
+    pathname = `/openapi/createAnnouncement`,
+    method = 'POST',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Creates a service notice.
+ *
+ * @description ## Operation description
+ * Creates a service notice. The caller identity must be mapped to a real platform user in the system O&M tenant and must have notice management permissions.
+ * - `priority`: The importance level of the notice. Valid values: URGENT, IMPORTANT, and GENERAL.
+ * - `targetTenantIds` / `targetRoleCodes`: Used only when the corresponding target mode is set to SPECIFIED. Pass values as a JSON array.
+ * - `effectiveStart` / `effectiveEnd`: ISO 8601 timestamps with time zone information.
+ * - `publishNow`: If set to true, the notice is published immediately after creation. Otherwise, it is saved as a draft.
+ *
+ * @param request CreateAnnouncementRequest
+ * @return CreateAnnouncementResponse
+ */
+async function createAnnouncement(request: CreateAnnouncementRequest): CreateAnnouncementResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return createAnnouncementWithOptions(request, headers, runtime);
 }
 
 model CreateConversationRequest {
@@ -446,6 +730,337 @@ async function createGroupAliDingChat(request: CreateGroupAliDingChatRequest): C
   return createGroupAliDingChatWithOptions(request, headers, runtime);
 }
 
+model CreateGroupDingtalkChatRequest {
+  chatId?: string(name='chatId', description='The conversation ID, typically used for JSSDK.
+
+This parameter is required.', example='cidxxxxxxxx'),
+  chatName?: string(name='chatName', description='The chat name.', example='Customer Project Chat'),
+  description?: string(name='description', description='The description of the AI assistant.', example='Customer chat history'),
+  directoryId?: string(name='directoryId', description='The directory ID.', example='exampleDirectoryId'),
+  groupId?: string(name='groupId', description='The project group ID.
+
+This parameter is required.', example='exampleGroupId'),
+  historyStartTime?: string(name='historyStartTime', description='The start time for collecting chat history.
+
+This parameter is required.', example='2026-08-01'),
+  notes?: string(name='notes', description='The meeting notes content (optional). This participates in auxiliary analysis.', example='Focus on identifying customer requests and to-do items'),
+  operatingObjectName?: string(name='operatingObjectName', description='The name of the digital employee (operating object name, optional).', example='my-agent'),
+  sourceTags?: string(name='sourceTags', description='The source tags.', example='["Customer","Chat"]'),
+  tenantId?: string(name='tenantId', description='The tenant ID. This is a common parameter. In winnexo-cli, pass this value explicitly by using --tenant-id.', example='10000'),
+  updateFrequency?: {
+    cron?: string(name='cron', description='The cron expression for timed scheduling.', example='0 2 * * *'),
+    enabled?: boolean(name='enabled', description='Specifies whether the throttling rule is enabled. Valid values:
+- true: Enabled.
+- false: Disabled.', example='true'),
+    preset?: string(name='preset', description='The preset mode. You can ignore this parameter.', example='hourly'),
+  }(name='updateFrequency', description='The feature update frequency.'),
+}
+
+model CreateGroupDingtalkChatShrinkRequest {
+  chatId?: string(name='chatId', description='The conversation ID, typically used for JSSDK.
+
+This parameter is required.', example='cidxxxxxxxx'),
+  chatName?: string(name='chatName', description='The chat name.', example='Customer Project Chat'),
+  description?: string(name='description', description='The description of the AI assistant.', example='Customer chat history'),
+  directoryId?: string(name='directoryId', description='The directory ID.', example='exampleDirectoryId'),
+  groupId?: string(name='groupId', description='The project group ID.
+
+This parameter is required.', example='exampleGroupId'),
+  historyStartTime?: string(name='historyStartTime', description='The start time for collecting chat history.
+
+This parameter is required.', example='2026-08-01'),
+  notes?: string(name='notes', description='The meeting notes content (optional). This participates in auxiliary analysis.', example='Focus on identifying customer requests and to-do items'),
+  operatingObjectName?: string(name='operatingObjectName', description='The name of the digital employee (operating object name, optional).', example='my-agent'),
+  sourceTags?: string(name='sourceTags', description='The source tags.', example='["Customer","Chat"]'),
+  tenantId?: string(name='tenantId', description='The tenant ID. This is a common parameter. In winnexo-cli, pass this value explicitly by using --tenant-id.', example='10000'),
+  updateFrequencyShrink?: string(name='updateFrequency', description='The feature update frequency.'),
+}
+
+model CreateGroupDingtalkChatResponseBody = {
+  chatId?: string(name='chatId', description='The conversation ID, typically used for JSSDK.', example='cidxxxxxxxx'),
+  code?: string(name='code', description='The status code.', example='200'),
+  directoryId?: string(name='directoryId', description='The directory ID.', example='exampleDirectoryId'),
+  gmtCreate?: string(name='gmtCreate', description='The creation time.', example='2026-08-18T10:00:00Z'),
+  groupId?: string(name='groupId', description='The project group ID.', example='exampleGroupId'),
+  message?: string(name='message', description='The description of the status code.', example='The current zone list is illegal.'),
+  name?: string(name='name', description='The image name.', example='Customer Project Chat'),
+  requestId?: string(name='requestId', description='Id of the request', example='019FF406-1B10-0065-A97D-2D1920C2A03D'),
+  scope?: string(name='scope', description='The permission scope.', example='GROUP'),
+  sourceId?: string(name='sourceId', description='The data source ID, which is unique within the tenant.', example='exampleSourceId'),
+  status?: string(name='status', description='The signing status. Valid values:
+- CREATED: Created but not signed.
+- SUCCESS: Signed successfully.
+- STOP: Terminated.', example='PENDING'),
+}
+
+model CreateGroupDingtalkChatResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: CreateGroupDingtalkChatResponseBody(name='body'),
+}
+
+/**
+ * @summary Creates a group-level DingTalk chat knowledge source.
+ *
+ * @description ## Operation description
+ * - Connects a specified DingTalk chat to the knowledge base of a group that the caller has joined.
+ * - The resource type is fixed to DINGTALK, the scope is fixed to GROUP, and the owning user is parsed from the gateway authentication identity.
+ * - groupId, chatId, and historyStartTime are required.
+ * - updateFrequency can be configured by using a preset or a five-field cron expression for subsequent synchronization frequency.
+ * - The server verifies the caller\\"s group membership and the target group directory permissions. The same chat can be created as different sources.
+ *
+ * @param tmpReq CreateGroupDingtalkChatRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return CreateGroupDingtalkChatResponse
+ */
+async function createGroupDingtalkChatWithOptions(tmpReq: CreateGroupDingtalkChatRequest, headers: map[string]string, runtime: Util.RuntimeOptions): CreateGroupDingtalkChatResponse {
+  Util.validateModel(tmpReq);
+  var request = new CreateGroupDingtalkChatShrinkRequest{};
+  OpenApiUtil.convert(tmpReq, request);
+  if (!Util.isUnset(tmpReq.updateFrequency)) {
+    request.updateFrequencyShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.updateFrequency, 'updateFrequency', 'json');
+  }
+  var query : map[string]any = {};
+  if (!Util.isUnset(request.tenantId)) {
+    query['tenantId'] = request.tenantId;
+  }
+
+  var body : map[string]any = {};
+  if (!Util.isUnset(request.chatId)) {
+    body['chatId'] = request.chatId;
+  }
+  if (!Util.isUnset(request.chatName)) {
+    body['chatName'] = request.chatName;
+  }
+  if (!Util.isUnset(request.description)) {
+    body['description'] = request.description;
+  }
+  if (!Util.isUnset(request.directoryId)) {
+    body['directoryId'] = request.directoryId;
+  }
+  if (!Util.isUnset(request.groupId)) {
+    body['groupId'] = request.groupId;
+  }
+  if (!Util.isUnset(request.historyStartTime)) {
+    body['historyStartTime'] = request.historyStartTime;
+  }
+  if (!Util.isUnset(request.notes)) {
+    body['notes'] = request.notes;
+  }
+  if (!Util.isUnset(request.operatingObjectName)) {
+    body['operatingObjectName'] = request.operatingObjectName;
+  }
+  if (!Util.isUnset(request.sourceTags)) {
+    body['sourceTags'] = request.sourceTags;
+  }
+  if (!Util.isUnset(request.updateFrequencyShrink)) {
+    body['updateFrequency'] = request.updateFrequencyShrink;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApi.Params{
+    action = 'CreateGroupDingtalkChat',
+    version = '2026-05-12',
+    protocol = 'HTTPS',
+    pathname = `/openapi/createGroupDingtalkChat`,
+    method = 'POST',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Creates a group-level DingTalk chat knowledge source.
+ *
+ * @description ## Operation description
+ * - Connects a specified DingTalk chat to the knowledge base of a group that the caller has joined.
+ * - The resource type is fixed to DINGTALK, the scope is fixed to GROUP, and the owning user is parsed from the gateway authentication identity.
+ * - groupId, chatId, and historyStartTime are required.
+ * - updateFrequency can be configured by using a preset or a five-field cron expression for subsequent synchronization frequency.
+ * - The server verifies the caller\\"s group membership and the target group directory permissions. The same chat can be created as different sources.
+ *
+ * @param request CreateGroupDingtalkChatRequest
+ * @return CreateGroupDingtalkChatResponse
+ */
+async function createGroupDingtalkChat(request: CreateGroupDingtalkChatRequest): CreateGroupDingtalkChatResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return createGroupDingtalkChatWithOptions(request, headers, runtime);
+}
+
+model CreateGroupFeishuDocRequest {
+  description?: string(name='description', description='The description of the AI assistant.', example='Group collaboration document'),
+  directoryId?: string(name='directoryId', description='The folder ID.', example='dir_group_child'),
+  docUrl?: string(name='docUrl', description='The document URL.
+
+This parameter is required.', example='https://example.feishu.cn/docx/doxcnExample'),
+  groupId?: string(name='groupId', description='The project group ID.
+
+This parameter is required.', example='group_delivery'),
+  name?: string(name='name', description='The image name.', example='Project Plan'),
+  notes?: string(name='notes', description='The meeting notes content (optional). The notes are used for auxiliary analysis.', example='Extract decisions and to-do items'),
+  objectBindings?: [ 
+    {
+      graphName?: string(name='graphName', description='The name of the semantic graph to which the object belongs.', example='crm'),
+      objectId?: string(name='objectId', description='The ID of the recommended item, which can be a **feedId** or a mini-app ID.
+
+This parameter is required.', example='1001'),
+      objectType?: string(name='objectType', description='The advanced field type.
+
+This parameter is required.', example='customer'),
+    }
+  ](name='objectBindings', description='The object bindings.'),
+  operatingObjectName?: string(name='operatingObjectName', description='The name of the operating object.', example='R&D Assistant'),
+  sourceTags?: string(name='sourceTags', description='The resource tags (optional, a JSON string list, such as ["tagA","tagB"]).', example='["R&D"]'),
+  syncConfig?: {
+    cron?: string(name='cron', description='The cron expression for the timed scheduling task.', example='0 * * * *'),
+    enabled?: boolean(name='enabled', description='Specifies whether to enable or disable synchronization.
+
+This parameter is required.', example='true'),
+    preset?: string(name='preset', description='The preset mode (can be ignored).', example='custom'),
+  }(name='syncConfig', description='The synchronization settings.'),
+  tenantId?: string(name='tenantId', description='The tenant ID. This is a common parameter. In winnexo-cli, pass it explicitly with --tenant-id.', example='10000'),
+}
+
+model CreateGroupFeishuDocShrinkRequest {
+  description?: string(name='description', description='The description of the AI assistant.', example='Group collaboration document'),
+  directoryId?: string(name='directoryId', description='The folder ID.', example='dir_group_child'),
+  docUrl?: string(name='docUrl', description='The document URL.
+
+This parameter is required.', example='https://example.feishu.cn/docx/doxcnExample'),
+  groupId?: string(name='groupId', description='The project group ID.
+
+This parameter is required.', example='group_delivery'),
+  name?: string(name='name', description='The image name.', example='Project Plan'),
+  notes?: string(name='notes', description='The meeting notes content (optional). The notes are used for auxiliary analysis.', example='Extract decisions and to-do items'),
+  objectBindingsShrink?: string(name='objectBindings', description='The object bindings.'),
+  operatingObjectName?: string(name='operatingObjectName', description='The name of the operating object.', example='R&D Assistant'),
+  sourceTags?: string(name='sourceTags', description='The resource tags (optional, a JSON string list, such as ["tagA","tagB"]).', example='["R&D"]'),
+  syncConfigShrink?: string(name='syncConfig', description='The synchronization settings.'),
+  tenantId?: string(name='tenantId', description='The tenant ID. This is a common parameter. In winnexo-cli, pass it explicitly with --tenant-id.', example='10000'),
+}
+
+model CreateGroupFeishuDocResponseBody = {
+  code?: string(name='code', description='The status code.', example='200'),
+  directoryId?: string(name='directoryId', description='The folder ID.', example='dir_group_child'),
+  docUrl?: string(name='docUrl', description='The document URL.', example='https://example.feishu.cn/docx/doxcnExample'),
+  gmtCreate?: string(name='gmtCreate', description='The creation time.', example='2026-08-26T10:00:00+08:00'),
+  groupId?: string(name='groupId', description='The project group ID.', example='group_delivery'),
+  message?: string(name='message', description='The description of the status code.', example='The current zone list is illegal.'),
+  name?: string(name='name', description='The image name.', example='Project Plan'),
+  requestId?: string(name='requestId', description='Id of the request', example='019FF406-1B10-0065-A97D-2D1920C2A03D'),
+  scope?: string(name='scope', description='The permission scope.', example='GROUP'),
+  sourceId?: string(name='sourceId', description='The original project ID.', example='src_feishu_doc_1'),
+  status?: string(name='status', description='The signing status. Valid values:
+- CREATED: Created but not signed.
+- SUCCESS: Signed successfully.
+- STOP: Terminated.', example='RUNNING'),
+}
+
+model CreateGroupFeishuDocResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: CreateGroupFeishuDocResponseBody(name='body'),
+}
+
+/**
+ * @summary Creates a group knowledge resource from a single Lark online document using the current user\\"s Lark authorization.
+ *
+ * @description ## Request description\\n\\nFixed as `ONLINE_DOC + FEISHU + GROUP`. `groupId` is required. If `directoryId` is omitted, the root directory of the group knowledge base is used. Group membership and directory write permissions are verified by the backend.
+ *
+ * @param tmpReq CreateGroupFeishuDocRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return CreateGroupFeishuDocResponse
+ */
+async function createGroupFeishuDocWithOptions(tmpReq: CreateGroupFeishuDocRequest, headers: map[string]string, runtime: Util.RuntimeOptions): CreateGroupFeishuDocResponse {
+  Util.validateModel(tmpReq);
+  var request = new CreateGroupFeishuDocShrinkRequest{};
+  OpenApiUtil.convert(tmpReq, request);
+  if (!Util.isUnset(tmpReq.objectBindings)) {
+    request.objectBindingsShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.objectBindings, 'objectBindings', 'json');
+  }
+  if (!Util.isUnset(tmpReq.syncConfig)) {
+    request.syncConfigShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.syncConfig, 'syncConfig', 'json');
+  }
+  var query : map[string]any = {};
+  if (!Util.isUnset(request.tenantId)) {
+    query['tenantId'] = request.tenantId;
+  }
+
+  var body : map[string]any = {};
+  if (!Util.isUnset(request.description)) {
+    body['description'] = request.description;
+  }
+  if (!Util.isUnset(request.directoryId)) {
+    body['directoryId'] = request.directoryId;
+  }
+  if (!Util.isUnset(request.docUrl)) {
+    body['docUrl'] = request.docUrl;
+  }
+  if (!Util.isUnset(request.groupId)) {
+    body['groupId'] = request.groupId;
+  }
+  if (!Util.isUnset(request.name)) {
+    body['name'] = request.name;
+  }
+  if (!Util.isUnset(request.notes)) {
+    body['notes'] = request.notes;
+  }
+  if (!Util.isUnset(request.objectBindingsShrink)) {
+    body['objectBindings'] = request.objectBindingsShrink;
+  }
+  if (!Util.isUnset(request.operatingObjectName)) {
+    body['operatingObjectName'] = request.operatingObjectName;
+  }
+  if (!Util.isUnset(request.sourceTags)) {
+    body['sourceTags'] = request.sourceTags;
+  }
+  if (!Util.isUnset(request.syncConfigShrink)) {
+    body['syncConfig'] = request.syncConfigShrink;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApi.Params{
+    action = 'CreateGroupFeishuDoc',
+    version = '2026-05-12',
+    protocol = 'HTTPS',
+    pathname = `/openapi/createGroupFeishuDoc`,
+    method = 'POST',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Creates a group knowledge resource from a single Lark online document using the current user\\"s Lark authorization.
+ *
+ * @description ## Request description\\n\\nFixed as `ONLINE_DOC + FEISHU + GROUP`. `groupId` is required. If `directoryId` is omitted, the root directory of the group knowledge base is used. Group membership and directory write permissions are verified by the backend.
+ *
+ * @param request CreateGroupFeishuDocRequest
+ * @return CreateGroupFeishuDocResponse
+ */
+async function createGroupFeishuDoc(request: CreateGroupFeishuDocRequest): CreateGroupFeishuDocResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return createGroupFeishuDocWithOptions(request, headers, runtime);
+}
+
 model CreateKnowledgeBaseAliDingDocRequest {
   description?: string(name='description', description='The description of the alias.', example='created by eventbridge'),
   directoryId?: string(name='directoryId', description='The directory ID.', example='exampleDirectoryId'),
@@ -671,6 +1286,162 @@ async function createKnowledgeBaseDirectory(request: CreateKnowledgeBaseDirector
   var runtime = new Util.RuntimeOptions{};
   var headers : map[string]string = {};
   return createKnowledgeBaseDirectoryWithOptions(request, headers, runtime);
+}
+
+model CreateKnowledgeBaseFeishuDocRequest {
+  description?: string(name='description', description='The description of the alias.', example='Enterprise policy document'),
+  directoryId?: string(name='directoryId', description='The folder ID.
+
+This parameter is required.', example='dir_tenant_kb_child'),
+  docUrl?: string(name='docUrl', description='The document URL.
+
+This parameter is required.', example='https://example.feishu.cn/docx/doxcnExample'),
+  name?: string(name='name', description='The mirror name.', example='Enterprise Policy'),
+  notes?: string(name='notes', description='The meeting notes content (optional). Used for auxiliary analysis.', example='Extract applicable scope and key clauses'),
+  objectBindings?: [ 
+    {
+      graphName?: string(name='graphName', description='The name of the semantic graph to which the object belongs.', example='crm'),
+      objectId?: string(name='objectId', description='The ID of the recommended item, which can be a **feedId** or a mini-app ID.
+
+This parameter is required.', example='1001'),
+      objectType?: string(name='objectType', description='The advanced field type.
+
+This parameter is required.', example='customer'),
+    }
+  ](name='objectBindings', description='The object bindings.'),
+  operatingObjectName?: string(name='operatingObjectName', description='The digital employee name (operating object name, optional).', example='Enterprise Knowledge Assistant'),
+  sourceTags?: string(name='sourceTags', description='The resource tags (optional, a JSON string list such as ["tagA","tagB"]).', example='["policy"]'),
+  syncConfig?: {
+    cron?: string(name='cron', description='The cron expression for the timed scheduling task.', example='0 * * * *'),
+    enabled?: boolean(name='enabled', description='Specifies whether to enable or disable synchronization.
+
+This parameter is required.', example='true'),
+    preset?: string(name='preset', description='The synchronization preset: hourly or daily_2am.', example='custom'),
+  }(name='syncConfig', description='The synchronization settings.'),
+  tenantId?: string(name='tenantId', description='The tenant ID.', example='10000'),
+}
+
+model CreateKnowledgeBaseFeishuDocShrinkRequest {
+  description?: string(name='description', description='The description of the alias.', example='Enterprise policy document'),
+  directoryId?: string(name='directoryId', description='The folder ID.
+
+This parameter is required.', example='dir_tenant_kb_child'),
+  docUrl?: string(name='docUrl', description='The document URL.
+
+This parameter is required.', example='https://example.feishu.cn/docx/doxcnExample'),
+  name?: string(name='name', description='The mirror name.', example='Enterprise Policy'),
+  notes?: string(name='notes', description='The meeting notes content (optional). Used for auxiliary analysis.', example='Extract applicable scope and key clauses'),
+  objectBindingsShrink?: string(name='objectBindings', description='The object bindings.'),
+  operatingObjectName?: string(name='operatingObjectName', description='The digital employee name (operating object name, optional).', example='Enterprise Knowledge Assistant'),
+  sourceTags?: string(name='sourceTags', description='The resource tags (optional, a JSON string list such as ["tagA","tagB"]).', example='["policy"]'),
+  syncConfigShrink?: string(name='syncConfig', description='The synchronization settings.'),
+  tenantId?: string(name='tenantId', description='The tenant ID.', example='10000'),
+}
+
+model CreateKnowledgeBaseFeishuDocResponseBody = {
+  code?: string(name='code', description='The status code.', example='200'),
+  directoryId?: string(name='directoryId', description='The folder ID.', example='dir_tenant_kb_child'),
+  docUrl?: string(name='docUrl', description='The document URL.', example='https://example.feishu.cn/docx/doxcnExample'),
+  gmtCreate?: string(name='gmtCreate', description='The creation time in ISO 8601 format.', example='2026-08-26T10:00:00+08:00'),
+  message?: string(name='message', description='The description of the status code.', example='ok'),
+  name?: string(name='name', description='The mirror name.', example='Enterprise Policy'),
+  requestId?: string(name='requestId', description='The request ID.', example='019FF406-1B10-0065-A97D-2D1920C2A03D'),
+  scope?: string(name='scope', description='The permission scope.', example='TENANT'),
+  sourceId?: string(name='sourceId', description='The source ID.', example='src_feishu_doc_1'),
+  status?: string(name='status', description='The data source status after re-parsing.', example='RUNNING'),
+}
+
+model CreateKnowledgeBaseFeishuDocResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: CreateKnowledgeBaseFeishuDocResponseBody(name='body'),
+}
+
+/**
+ * @summary Creates a single Lark online document in the enterprise knowledge base using the current user\\"s Lark authorization.
+ *
+ * @description ## Request description\\n\\nFixed as `ONLINE_DOC + FEISHU + TENANT`. `directoryId` is required. The invoker must have the enterprise knowledge base feature permission and knowledge base management permission on the target knowledge base.
+ *
+ * @param tmpReq CreateKnowledgeBaseFeishuDocRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return CreateKnowledgeBaseFeishuDocResponse
+ */
+async function createKnowledgeBaseFeishuDocWithOptions(tmpReq: CreateKnowledgeBaseFeishuDocRequest, headers: map[string]string, runtime: Util.RuntimeOptions): CreateKnowledgeBaseFeishuDocResponse {
+  Util.validateModel(tmpReq);
+  var request = new CreateKnowledgeBaseFeishuDocShrinkRequest{};
+  OpenApiUtil.convert(tmpReq, request);
+  if (!Util.isUnset(tmpReq.objectBindings)) {
+    request.objectBindingsShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.objectBindings, 'objectBindings', 'json');
+  }
+  if (!Util.isUnset(tmpReq.syncConfig)) {
+    request.syncConfigShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.syncConfig, 'syncConfig', 'json');
+  }
+  var query : map[string]any = {};
+  if (!Util.isUnset(request.tenantId)) {
+    query['tenantId'] = request.tenantId;
+  }
+
+  var body : map[string]any = {};
+  if (!Util.isUnset(request.description)) {
+    body['description'] = request.description;
+  }
+  if (!Util.isUnset(request.directoryId)) {
+    body['directoryId'] = request.directoryId;
+  }
+  if (!Util.isUnset(request.docUrl)) {
+    body['docUrl'] = request.docUrl;
+  }
+  if (!Util.isUnset(request.name)) {
+    body['name'] = request.name;
+  }
+  if (!Util.isUnset(request.notes)) {
+    body['notes'] = request.notes;
+  }
+  if (!Util.isUnset(request.objectBindingsShrink)) {
+    body['objectBindings'] = request.objectBindingsShrink;
+  }
+  if (!Util.isUnset(request.operatingObjectName)) {
+    body['operatingObjectName'] = request.operatingObjectName;
+  }
+  if (!Util.isUnset(request.sourceTags)) {
+    body['sourceTags'] = request.sourceTags;
+  }
+  if (!Util.isUnset(request.syncConfigShrink)) {
+    body['syncConfig'] = request.syncConfigShrink;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApi.Params{
+    action = 'CreateKnowledgeBaseFeishuDoc',
+    version = '2026-05-12',
+    protocol = 'HTTPS',
+    pathname = `/openapi/createKnowledgeBaseFeishuDoc`,
+    method = 'POST',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Creates a single Lark online document in the enterprise knowledge base using the current user\\"s Lark authorization.
+ *
+ * @description ## Request description\\n\\nFixed as `ONLINE_DOC + FEISHU + TENANT`. `directoryId` is required. The invoker must have the enterprise knowledge base feature permission and knowledge base management permission on the target knowledge base.
+ *
+ * @param request CreateKnowledgeBaseFeishuDocRequest
+ * @return CreateKnowledgeBaseFeishuDocResponse
+ */
+async function createKnowledgeBaseFeishuDoc(request: CreateKnowledgeBaseFeishuDocRequest): CreateKnowledgeBaseFeishuDocResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return createKnowledgeBaseFeishuDocWithOptions(request, headers, runtime);
 }
 
 model CreateKnowledgeBaseFileRequest {
@@ -1464,6 +2235,157 @@ async function createPersonalAlidingKnowledgeBase(request: CreatePersonalAliding
   return createPersonalAlidingKnowledgeBaseWithOptions(request, headers, runtime);
 }
 
+model CreatePersonalDingtalkChatRequest {
+  chatId?: string(name='chatId', description='The DingTalk group chat session ID.
+
+This parameter is required.', example='cidxxxxxxxx'),
+  chatName?: string(name='chatName', description='The group chat name.', example='CustomerProjectGroup'),
+  description?: string(name='description', description='The pipeline description.', example='Customer group chat history'),
+  directoryId?: string(name='directoryId', description='The directory ID.', example='exampleDirectoryId'),
+  historyStartTime?: string(name='historyStartTime', description='The start time for collecting chat history.
+
+This parameter is required.', example='2026-08-01'),
+  notes?: string(name='notes', description='The meeting notes content (optional). The notes are used for auxiliary analysis.', example='Focus on identifying customer demands and to-do items'),
+  operatingObjectName?: string(name='operatingObjectName', description='The digital employee name (operating object name, optional).', example='my-agent'),
+  sourceTags?: string(name='sourceTags', description='The resource tags (optional, a JSON string list, such as ["tagA","tagB"]).', example='["Customer","GroupChat"]'),
+  tenantId?: string(name='tenantId', description='The tenant ID.', example='10000'),
+  updateFrequency?: {
+    cron?: string(name='cron', description='The cron expression for timed scheduling.', example='0 2 * * *'),
+    enabled?: boolean(name='enabled', description='Specifies whether to enable or disable the feature.', example='true'),
+    preset?: string(name='preset', description='The preset mode (can be ignored).', example='hourly'),
+  }(name='updateFrequency', description='The feature update frequency.'),
+}
+
+model CreatePersonalDingtalkChatShrinkRequest {
+  chatId?: string(name='chatId', description='The DingTalk group chat session ID.
+
+This parameter is required.', example='cidxxxxxxxx'),
+  chatName?: string(name='chatName', description='The group chat name.', example='CustomerProjectGroup'),
+  description?: string(name='description', description='The pipeline description.', example='Customer group chat history'),
+  directoryId?: string(name='directoryId', description='The directory ID.', example='exampleDirectoryId'),
+  historyStartTime?: string(name='historyStartTime', description='The start time for collecting chat history.
+
+This parameter is required.', example='2026-08-01'),
+  notes?: string(name='notes', description='The meeting notes content (optional). The notes are used for auxiliary analysis.', example='Focus on identifying customer demands and to-do items'),
+  operatingObjectName?: string(name='operatingObjectName', description='The digital employee name (operating object name, optional).', example='my-agent'),
+  sourceTags?: string(name='sourceTags', description='The resource tags (optional, a JSON string list, such as ["tagA","tagB"]).', example='["Customer","GroupChat"]'),
+  tenantId?: string(name='tenantId', description='The tenant ID.', example='10000'),
+  updateFrequencyShrink?: string(name='updateFrequency', description='The feature update frequency.'),
+}
+
+model CreatePersonalDingtalkChatResponseBody = {
+  chatId?: string(name='chatId', description='The DingTalk group chat session ID.', example='cidxxxxxxxx'),
+  code?: string(name='code', description='The error code.', example='200'),
+  directoryId?: string(name='directoryId', description='The directory ID.', example='exampleDirectoryId'),
+  gmtCreate?: string(name='gmtCreate', description='The creation time.', example='2026-08-18T10:00:00Z'),
+  message?: string(name='message', description='The response message.', example='ok'),
+  name?: string(name='name', description='The name of the AI assistant.', example='CustomerProjectGroup'),
+  requestId?: string(name='requestId', description='The request ID.', example='019FF406-1B10-0065-A97D-2D1920C2A03D'),
+  scope?: string(name='scope', description='The permission scope.', example='PERSONAL'),
+  sourceId?: string(name='sourceId', description='The source ID.', example='exampleSourceId'),
+  status?: string(name='status', description='The task running status.', example='PENDING'),
+}
+
+model CreatePersonalDingtalkChatResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: CreatePersonalDingtalkChatResponseBody(name='body'),
+}
+
+/**
+ * @summary Creates a personal DingTalk group chat knowledge source.
+ *
+ * @description ## Operation description
+ * - Connects a specified DingTalk group chat to the personal knowledge base of the current user.
+ * - The resource type is fixed to DINGTALK, the scope is fixed to PERSONAL, and the owning user is parsed from the gateway authentication identity.
+ * - historyStartTime is required and supports YYYY-MM-DD or YYYY-MM-DD HH:MM:SS format.
+ * - updateFrequency can be configured with a preset or a five-field cron expression for subsequent synchronization frequency.
+ * - The same group chat can be created as different sources. Each source is isolated by sourceId.
+ *
+ * @param tmpReq CreatePersonalDingtalkChatRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return CreatePersonalDingtalkChatResponse
+ */
+async function createPersonalDingtalkChatWithOptions(tmpReq: CreatePersonalDingtalkChatRequest, headers: map[string]string, runtime: Util.RuntimeOptions): CreatePersonalDingtalkChatResponse {
+  Util.validateModel(tmpReq);
+  var request = new CreatePersonalDingtalkChatShrinkRequest{};
+  OpenApiUtil.convert(tmpReq, request);
+  if (!Util.isUnset(tmpReq.updateFrequency)) {
+    request.updateFrequencyShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.updateFrequency, 'updateFrequency', 'json');
+  }
+  var query : map[string]any = {};
+  if (!Util.isUnset(request.tenantId)) {
+    query['tenantId'] = request.tenantId;
+  }
+
+  var body : map[string]any = {};
+  if (!Util.isUnset(request.chatId)) {
+    body['chatId'] = request.chatId;
+  }
+  if (!Util.isUnset(request.chatName)) {
+    body['chatName'] = request.chatName;
+  }
+  if (!Util.isUnset(request.description)) {
+    body['description'] = request.description;
+  }
+  if (!Util.isUnset(request.directoryId)) {
+    body['directoryId'] = request.directoryId;
+  }
+  if (!Util.isUnset(request.historyStartTime)) {
+    body['historyStartTime'] = request.historyStartTime;
+  }
+  if (!Util.isUnset(request.notes)) {
+    body['notes'] = request.notes;
+  }
+  if (!Util.isUnset(request.operatingObjectName)) {
+    body['operatingObjectName'] = request.operatingObjectName;
+  }
+  if (!Util.isUnset(request.sourceTags)) {
+    body['sourceTags'] = request.sourceTags;
+  }
+  if (!Util.isUnset(request.updateFrequencyShrink)) {
+    body['updateFrequency'] = request.updateFrequencyShrink;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApi.Params{
+    action = 'CreatePersonalDingtalkChat',
+    version = '2026-05-12',
+    protocol = 'HTTPS',
+    pathname = `/openapi/createPersonalDingtalkChat`,
+    method = 'POST',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Creates a personal DingTalk group chat knowledge source.
+ *
+ * @description ## Operation description
+ * - Connects a specified DingTalk group chat to the personal knowledge base of the current user.
+ * - The resource type is fixed to DINGTALK, the scope is fixed to PERSONAL, and the owning user is parsed from the gateway authentication identity.
+ * - historyStartTime is required and supports YYYY-MM-DD or YYYY-MM-DD HH:MM:SS format.
+ * - updateFrequency can be configured with a preset or a five-field cron expression for subsequent synchronization frequency.
+ * - The same group chat can be created as different sources. Each source is isolated by sourceId.
+ *
+ * @param request CreatePersonalDingtalkChatRequest
+ * @return CreatePersonalDingtalkChatResponse
+ */
+async function createPersonalDingtalkChat(request: CreatePersonalDingtalkChatRequest): CreatePersonalDingtalkChatResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return createPersonalDingtalkChatWithOptions(request, headers, runtime);
+}
+
 model CreatePersonalDingtalkMeetingRequest {
   credentialId?: string(name='credentialId', description='The credential ID.', example='exampleCredentialId'),
   description?: string(name='description', description='The pipeline description.', example='Watchlist Monitor Layer'),
@@ -1950,6 +2872,158 @@ async function createPersonalFeishuChat(request: CreatePersonalFeishuChatRequest
   var runtime = new Util.RuntimeOptions{};
   var headers : map[string]string = {};
   return createPersonalFeishuChatWithOptions(request, headers, runtime);
+}
+
+model CreatePersonalFeishuDocRequest {
+  description?: string(name='description', description='The pipeline description.', example='Project design document'),
+  directoryId?: string(name='directoryId', description='The folder ID.', example='dir_personal_child'),
+  docUrl?: string(name='docUrl', description='The document URL.
+
+This parameter is required.', example='https://example.feishu.cn/docx/doxcnExample'),
+  name?: string(name='name', description='The updated name of the filter view.', example='ProjectPlan'),
+  notes?: string(name='notes', description='The meeting notes content (optional). The notes are used for auxiliary analysis.', example='Extract decisions and to-dos'),
+  objectBindings?: [ 
+    {
+      graphName?: string(name='graphName', description='The name of the semantic graph to which the object belongs.', example='crm'),
+      objectId?: string(name='objectId', description='The ID of the recommended item, which can be a **feedId** or a mini-app ID.
+
+This parameter is required.', example='1001'),
+      objectType?: string(name='objectType', description='The advanced field type.
+
+This parameter is required.', example='customer'),
+    }
+  ](name='objectBindings', description='The object bindings.'),
+  operatingObjectName?: string(name='operatingObjectName', description='The digital employee name (operating object name, optional).', example='R&D Assistant'),
+  sourceTags?: string(name='sourceTags', description='The resource tags (optional, a JSON string list, such as ["tagA","tagB"]).', example='["R&D"]'),
+  syncConfig?: {
+    cron?: string(name='cron', description='The cron expression for the timed scheduling task.', example='0 * * * *'),
+    enabled?: boolean(name='enabled', description='Specifies whether to enable or disable synchronization.
+
+This parameter is required.', example='true'),
+    preset?: string(name='preset', description='The synchronization preset: hourly or daily_2am.', example='custom'),
+  }(name='syncConfig', description='The synchronization settings.'),
+  tenantId?: string(name='tenantId', description='The tenant ID.', example='10000'),
+}
+
+model CreatePersonalFeishuDocShrinkRequest {
+  description?: string(name='description', description='The pipeline description.', example='Project design document'),
+  directoryId?: string(name='directoryId', description='The folder ID.', example='dir_personal_child'),
+  docUrl?: string(name='docUrl', description='The document URL.
+
+This parameter is required.', example='https://example.feishu.cn/docx/doxcnExample'),
+  name?: string(name='name', description='The updated name of the filter view.', example='ProjectPlan'),
+  notes?: string(name='notes', description='The meeting notes content (optional). The notes are used for auxiliary analysis.', example='Extract decisions and to-dos'),
+  objectBindingsShrink?: string(name='objectBindings', description='The object bindings.'),
+  operatingObjectName?: string(name='operatingObjectName', description='The digital employee name (operating object name, optional).', example='R&D Assistant'),
+  sourceTags?: string(name='sourceTags', description='The resource tags (optional, a JSON string list, such as ["tagA","tagB"]).', example='["R&D"]'),
+  syncConfigShrink?: string(name='syncConfig', description='The synchronization settings.'),
+  tenantId?: string(name='tenantId', description='The tenant ID.', example='10000'),
+}
+
+model CreatePersonalFeishuDocResponseBody = {
+  code?: string(name='code', description='SUCCESS indicates success. In case of failure, the corresponding error type is returned, such as ERR_BAD_REQUEST, ERR_VALIDATION_FAILED, or ERR_INTERNAL_SERVER_ERROR.', example='200'),
+  directoryId?: string(name='directoryId', description='The folder ID.', example='dir_personal_child'),
+  docUrl?: string(name='docUrl', description='The document URL.', example='https://example.feishu.cn/docx/doxcnExample'),
+  gmtCreate?: string(name='gmtCreate', description='The creation time.', example='2026-08-26T10:00:00+08:00'),
+  message?: string(name='message', description='The status code description.', example='ok'),
+  name?: string(name='name', description='The name of the AI assistant.', example='ProjectPlan'),
+  requestId?: string(name='requestId', description='The request ID.', example='019FF406-1B10-0065-A97D-2D1920C2A03D'),
+  scope?: string(name='scope', description='The permission scope.', example='PERSONAL'),
+  sourceId?: string(name='sourceId', description='The source ID.', example='src_feishu_doc_1'),
+  status?: string(name='status', description='The status.', example='RUNNING'),
+}
+
+model CreatePersonalFeishuDocResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: CreatePersonalFeishuDocResponseBody(name='body'),
+}
+
+/**
+ * @summary Creates a personal knowledge resource from a single Lark online document using the current user\\"s Lark authorization.
+ *
+ * @description ## Request description\\n\\nFixed as `ONLINE_DOC + FEISHU + PERSONAL`. The Lark connector user is determined by the trusted OpenAPI identity. If `directoryId` is omitted, the current user\\"s default personal root directory is used.
+ *
+ * @param tmpReq CreatePersonalFeishuDocRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return CreatePersonalFeishuDocResponse
+ */
+async function createPersonalFeishuDocWithOptions(tmpReq: CreatePersonalFeishuDocRequest, headers: map[string]string, runtime: Util.RuntimeOptions): CreatePersonalFeishuDocResponse {
+  Util.validateModel(tmpReq);
+  var request = new CreatePersonalFeishuDocShrinkRequest{};
+  OpenApiUtil.convert(tmpReq, request);
+  if (!Util.isUnset(tmpReq.objectBindings)) {
+    request.objectBindingsShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.objectBindings, 'objectBindings', 'json');
+  }
+  if (!Util.isUnset(tmpReq.syncConfig)) {
+    request.syncConfigShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.syncConfig, 'syncConfig', 'json');
+  }
+  var query : map[string]any = {};
+  if (!Util.isUnset(request.tenantId)) {
+    query['tenantId'] = request.tenantId;
+  }
+
+  var body : map[string]any = {};
+  if (!Util.isUnset(request.description)) {
+    body['description'] = request.description;
+  }
+  if (!Util.isUnset(request.directoryId)) {
+    body['directoryId'] = request.directoryId;
+  }
+  if (!Util.isUnset(request.docUrl)) {
+    body['docUrl'] = request.docUrl;
+  }
+  if (!Util.isUnset(request.name)) {
+    body['name'] = request.name;
+  }
+  if (!Util.isUnset(request.notes)) {
+    body['notes'] = request.notes;
+  }
+  if (!Util.isUnset(request.objectBindingsShrink)) {
+    body['objectBindings'] = request.objectBindingsShrink;
+  }
+  if (!Util.isUnset(request.operatingObjectName)) {
+    body['operatingObjectName'] = request.operatingObjectName;
+  }
+  if (!Util.isUnset(request.sourceTags)) {
+    body['sourceTags'] = request.sourceTags;
+  }
+  if (!Util.isUnset(request.syncConfigShrink)) {
+    body['syncConfig'] = request.syncConfigShrink;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApi.Params{
+    action = 'CreatePersonalFeishuDoc',
+    version = '2026-05-12',
+    protocol = 'HTTPS',
+    pathname = `/openapi/createPersonalFeishuDoc`,
+    method = 'POST',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Creates a personal knowledge resource from a single Lark online document using the current user\\"s Lark authorization.
+ *
+ * @description ## Request description\\n\\nFixed as `ONLINE_DOC + FEISHU + PERSONAL`. The Lark connector user is determined by the trusted OpenAPI identity. If `directoryId` is omitted, the current user\\"s default personal root directory is used.
+ *
+ * @param request CreatePersonalFeishuDocRequest
+ * @return CreatePersonalFeishuDocResponse
+ */
+async function createPersonalFeishuDoc(request: CreatePersonalFeishuDocRequest): CreatePersonalFeishuDocResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return createPersonalFeishuDocWithOptions(request, headers, runtime);
 }
 
 model CreatePersonalFeishuMinuteRequest {
@@ -2983,6 +4057,228 @@ async function createUser(request: CreateUserRequest): CreateUserResponse {
   return createUserWithOptions(request, headers, runtime);
 }
 
+model CreateUserGroupRequest {
+  description?: string(name='description', description='The description of the user group.', example='Sales organization'),
+  parentId?: string(name='parentId', description='The ID of the parent user group. If this parameter is not specified, a root node is created.', example='7ea8973f-7a5c-4e8a-956b-4fe0e7e2eb11'),
+  tenantId?: string(name='tenantId', description='The tenant ID. This is a common parameter. If not specified, the default tenant of the caller is used.', example='10000'),
+  userGroupName?: string(name='userGroupName', description='The name of the user group. The name must be unique under the same parent node.
+
+This parameter is required.', example='East China Sales'),
+}
+
+model CreateUserGroupResponseBody = {
+  code?: string(name='code', description='The business status code. A value of 200 indicates success.', example='200'),
+  message?: string(name='message', description='The error description. This value is empty if the request is successful.', example='ok'),
+  requestId?: string(name='requestId', description='The request trace ID.', example='019FF406-1B10-0065-A97D-2D1920C2A03D'),
+  userGroup?: any(name='userGroup', description='The information about the newly created user group.', example='{"userGroupId":"7ea8973f-7a5c-4e8a-956b-4fe0e7e2eb11","userGroupName":"华南销售","parentId":null,"level":1,"description":"华南销售组织","childGroupCount":0,"directMemberCount":0,"sourceType":"internal","externalSyncStatus":null,"gmtCreate":"2026-08-27T09:00:00Z","gmtModified":"2026-08-27T09:00:00Z"}'),
+}
+
+model CreateUserGroupResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: CreateUserGroupResponseBody(name='body'),
+}
+
+/**
+ * @summary Creates a user group under the tenant to which the authenticated identity belongs.
+ *
+ * @description WinNexo user management OpenAPI: Creates a user group. The tenant identity is derived from the authentication context.
+ *
+ * @param request CreateUserGroupRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return CreateUserGroupResponse
+ */
+async function createUserGroupWithOptions(request: CreateUserGroupRequest, headers: map[string]string, runtime: Util.RuntimeOptions): CreateUserGroupResponse {
+  Util.validateModel(request);
+  var query : map[string]any = {};
+  if (!Util.isUnset(request.tenantId)) {
+    query['tenantId'] = request.tenantId;
+  }
+
+  var body : map[string]any = {};
+  if (!Util.isUnset(request.description)) {
+    body['description'] = request.description;
+  }
+  if (!Util.isUnset(request.parentId)) {
+    body['parentId'] = request.parentId;
+  }
+  if (!Util.isUnset(request.userGroupName)) {
+    body['userGroupName'] = request.userGroupName;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApi.Params{
+    action = 'CreateUserGroup',
+    version = '2026-05-12',
+    protocol = 'HTTPS',
+    pathname = `/openapi/createUserGroup`,
+    method = 'POST',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Creates a user group under the tenant to which the authenticated identity belongs.
+ *
+ * @description WinNexo user management OpenAPI: Creates a user group. The tenant identity is derived from the authentication context.
+ *
+ * @param request CreateUserGroupRequest
+ * @return CreateUserGroupResponse
+ */
+async function createUserGroup(request: CreateUserGroupRequest): CreateUserGroupResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return createUserGroupWithOptions(request, headers, runtime);
+}
+
+model CreateUserWithGroupsRequest {
+  displayName?: string(name='displayName', description='The display name of the user (unique within the tenant, required, up to 100 characters).
+
+This parameter is required.', example='string_value'),
+  passwordEncrypted?: string(name='passwordEncrypted', description='The Base64-encoded password ciphertext encrypted by RSA-OAEP-SHA256 (required).
+
+This parameter is required.', example='string_value'),
+  roleCodes?: [ string ](name='roleCodes', description='The list of system role codes. Valid values: SUPER_ADMIN, SYSTEM_ADMIN, SEMANTIC_ADMIN, SKILL_ADMIN, KB_ADMIN, AGENT_ADMIN, and APPLICATION_USER. Default value: APPLICATION_USER.', example='string_value'),
+  tenantId?: string(name='tenantId', description='The tenant ID. This is a common parameter. If not specified, the default tenant of the caller is used.', example='10000'),
+  userGroupIds?: [ string ](name='userGroupIds', description='The list of initial user group IDs. This parameter is optional. All user groups must belong to the current tenant.', example='string_value'),
+  wnAccountId?: string(name='wnAccountId', description='The WINNEXO logon account (unique identifier, required).
+
+This parameter is required.', example='exampleAccountId'),
+}
+
+model CreateUserWithGroupsShrinkRequest {
+  displayName?: string(name='displayName', description='The display name of the user (unique within the tenant, required, up to 100 characters).
+
+This parameter is required.', example='string_value'),
+  passwordEncrypted?: string(name='passwordEncrypted', description='The Base64-encoded password ciphertext encrypted by RSA-OAEP-SHA256 (required).
+
+This parameter is required.', example='string_value'),
+  roleCodesShrink?: string(name='roleCodes', description='The list of system role codes. Valid values: SUPER_ADMIN, SYSTEM_ADMIN, SEMANTIC_ADMIN, SKILL_ADMIN, KB_ADMIN, AGENT_ADMIN, and APPLICATION_USER. Default value: APPLICATION_USER.', example='string_value'),
+  tenantId?: string(name='tenantId', description='The tenant ID. This is a common parameter. If not specified, the default tenant of the caller is used.', example='10000'),
+  userGroupIdsShrink?: string(name='userGroupIds', description='The list of initial user group IDs. This parameter is optional. All user groups must belong to the current tenant.', example='string_value'),
+  wnAccountId?: string(name='wnAccountId', description='The WINNEXO logon account (unique identifier, required).
+
+This parameter is required.', example='exampleAccountId'),
+}
+
+model CreateUserWithGroupsResponseBody = {
+  accountId?: string(name='accountId', description='The WINNEXO logon account.', example='exampleAccountId'),
+  code?: string(name='code', description='The business status code. A value of 200 indicates success. A failure returns a backend error code (ERR.* or InvalidParameter.*).', example='200'),
+  displayName?: string(name='displayName', description='The display name of the user.', example='string_value'),
+  isNewUser?: boolean(name='isNewUser', description='Indicates whether the user is newly created. A value of false indicates that an existing user joined the tenant.', example='true'),
+  message?: string(name='message', description='The error description. This parameter is empty when the request succeeds.', example='ok'),
+  requestId?: string(name='requestId', description='The request trace ID.', example='019FF406-1B10-0065-A97D-2D1920C2A03D'),
+  wnUserId?: string(name='wnUserId', description='The WINNEXO platform user ID.', example='1'),
+}
+
+model CreateUserWithGroupsResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: CreateUserWithGroupsResponseBody(name='body'),
+}
+
+/**
+ * @summary Creates a WINNEXO user in the current tenant and assigns roles and user groups to the user.
+ *
+ * @description Creates a user and sets initial roles and user groups via OpenAPI.
+ *     Business orchestration:
+ *     1. Parses roleCodes → role_ids (system role enumeration validation)
+ *     2. Checks whether the user already exists (used to return the isNewUser flag)
+ *     3. Validates the tenant ownership of userGroupIds and completes creation/joining (the password must be passed in by the caller as RSA ciphertext)
+ *     4. Returns the creation result (including the isNewUser flag)
+ *     Error codes:
+ *     - ERR.User.DeactivatedInTenant: The user is deactivated in the tenant. Use updateUser to resume.
+ *     - ERR.User.AlreadyInTenant: The user is already an active member of the tenant.
+ *     - ERR.User.DisplayNameDuplicateInTenant: The display name is duplicate within the tenant.
+ *
+ * @param tmpReq CreateUserWithGroupsRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return CreateUserWithGroupsResponse
+ */
+async function createUserWithGroupsWithOptions(tmpReq: CreateUserWithGroupsRequest, headers: map[string]string, runtime: Util.RuntimeOptions): CreateUserWithGroupsResponse {
+  Util.validateModel(tmpReq);
+  var request = new CreateUserWithGroupsShrinkRequest{};
+  OpenApiUtil.convert(tmpReq, request);
+  if (!Util.isUnset(tmpReq.roleCodes)) {
+    request.roleCodesShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.roleCodes, 'roleCodes', 'json');
+  }
+  if (!Util.isUnset(tmpReq.userGroupIds)) {
+    request.userGroupIdsShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.userGroupIds, 'userGroupIds', 'json');
+  }
+  var query : map[string]any = {};
+  if (!Util.isUnset(request.tenantId)) {
+    query['tenantId'] = request.tenantId;
+  }
+
+  var body : map[string]any = {};
+  if (!Util.isUnset(request.displayName)) {
+    body['displayName'] = request.displayName;
+  }
+  if (!Util.isUnset(request.passwordEncrypted)) {
+    body['passwordEncrypted'] = request.passwordEncrypted;
+  }
+  if (!Util.isUnset(request.roleCodesShrink)) {
+    body['roleCodes'] = request.roleCodesShrink;
+  }
+  if (!Util.isUnset(request.userGroupIdsShrink)) {
+    body['userGroupIds'] = request.userGroupIdsShrink;
+  }
+  if (!Util.isUnset(request.wnAccountId)) {
+    body['wnAccountId'] = request.wnAccountId;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApi.Params{
+    action = 'CreateUserWithGroups',
+    version = '2026-05-12',
+    protocol = 'HTTPS',
+    pathname = `/openapi/createUserWithGroups`,
+    method = 'POST',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Creates a WINNEXO user in the current tenant and assigns roles and user groups to the user.
+ *
+ * @description Creates a user and sets initial roles and user groups via OpenAPI.
+ *     Business orchestration:
+ *     1. Parses roleCodes → role_ids (system role enumeration validation)
+ *     2. Checks whether the user already exists (used to return the isNewUser flag)
+ *     3. Validates the tenant ownership of userGroupIds and completes creation/joining (the password must be passed in by the caller as RSA ciphertext)
+ *     4. Returns the creation result (including the isNewUser flag)
+ *     Error codes:
+ *     - ERR.User.DeactivatedInTenant: The user is deactivated in the tenant. Use updateUser to resume.
+ *     - ERR.User.AlreadyInTenant: The user is already an active member of the tenant.
+ *     - ERR.User.DisplayNameDuplicateInTenant: The display name is duplicate within the tenant.
+ *
+ * @param request CreateUserWithGroupsRequest
+ * @return CreateUserWithGroupsResponse
+ */
+async function createUserWithGroups(request: CreateUserWithGroupsRequest): CreateUserWithGroupsResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return createUserWithGroupsWithOptions(request, headers, runtime);
+}
+
 model DeleteChatSessionRequest {
   sessionId?: string(name='sessionId', description='The ID of the session to delete.
 
@@ -3530,7 +4826,7 @@ async function getChatSession(request: GetChatSessionRequest): GetChatSessionRes
 }
 
 model GetGraphSchemaRequest {
-  graphName?: string(name='graphName', description='The knowledge graph name. Call listGraphs to obtain this value.
+  graphName?: string(name='graphName', description='The graph name. Call listGraphs first to obtain this value.
 
 This parameter is required.', example='string_value'),
   tenantId?: string(name='tenantId', description='The effective tenant ID.
@@ -3540,11 +4836,12 @@ This parameter is required.', example='21577'),
 
 model GetGraphSchemaResponseBody = {
   code?: string(name='code', description='The response status code.', example='200'),
-  graphName?: string(name='graphName', description='The knowledge graph name.
+  graphName?: string(name='graphName', description='The graph name.
 
 This parameter is required.', example='string_value'),
   message?: string(name='message', description='The status code description.', example='ok'),
   requestId?: string(name='requestId', description='The request ID.', example='019FF406-1B10-0065-A97D-2D1920C2A03D'),
+  schemaId?: string(name='schemaId', description='The active QueryAgent registered schema ID corresponding to the graph. The value is null if not yet registered.', example='schema_123456'),
   schemaVersion?: string(name='schemaVersion', description='The version.
 
 This parameter is required.', example='string_value'),
@@ -3560,7 +4857,7 @@ model GetGraphSchemaResponse = {
 }
 
 /**
- * @summary Retrieves the active Graph Schema that is readable by the current user.
+ * @summary Retrieves the active Graph Schema readable by the current user.
  *
  * @description Reads the active schema_content and securely trims it based on the token user\\"s semantic resource READ permissions.
  *
@@ -3601,7 +4898,7 @@ async function getGraphSchemaWithOptions(request: GetGraphSchemaRequest, headers
 }
 
 /**
- * @summary Retrieves the active Graph Schema that is readable by the current user.
+ * @summary Retrieves the active Graph Schema readable by the current user.
  *
  * @description Reads the active schema_content and securely trims it based on the token user\\"s semantic resource READ permissions.
  *
@@ -4065,6 +5362,123 @@ async function getScheduledTaskExecutionRecords(request: GetScheduledTaskExecuti
   var runtime = new Util.RuntimeOptions{};
   var headers : map[string]string = {};
   return getScheduledTaskExecutionRecordsWithOptions(request, headers, runtime);
+}
+
+model GetScheduledTaskPushOptionsRequest {
+  collaborationGroupId?: string(name='collaborationGroupId', description='The ID of the collaboration group (such as cg_101). If specified, a group workspace task is created (the caller must be a valid group member). If left empty, a personal task is created.', example='cg_401'),
+  digitalEmployeeName?: string(name='digitalEmployeeName', description='The name of the currently active digital employee. This value is empty if not configured.', example='exampleDigitalEmployeeName'),
+  tenantId?: string(name='tenantId', description='The tenant ID. This is a common parameter. In winnexo-cli, pass it explicitly with --tenant-id.', example='10000'),
+}
+
+model GetScheduledTaskPushOptionsResponseBody = {
+  channels?: [ 
+    {
+      channelName?: string(name='channelName', description='The channel name.
+
+This parameter is required.', example='DingTalk'),
+      channelType?: string(name='channelType', description='The notification method. Valid values:
+
+- **hdm_alarm_sms**: SMS.
+- **dingtalk**: DingTalk chatbot.
+- **hdm_alarm_sms_and_email**: SMS and email.
+- **hdm_alarm_sms,dingtalk**: SMS and DingTalk chatbot.
+
+This parameter is required.', example='DINGTALK'),
+      imGroups?: [ 
+        {
+          imGroupId?: string(name='imGroupId', description='The external IM group ID.
+
+This parameter is required.', example='cidExample'),
+          imGroupName?: string(name='imGroupName', description='The external IM group name.', example='Project collaboration group'),
+          mappingId?: long(name='mappingId', description='The binding record ID of the IM group.
+
+This parameter is required.', example='101'),
+        }
+      ](name='imGroups', description='The optional IM groups bound to this channel for the collaboration group. This value is empty when querying personal tasks.'),
+      methods?: [ 
+        {
+          disabledReason?: string(name='disabledReason', description='The reason why the option is grayed out.', example='No push channel is bound'),
+          enabled?: boolean(name='enabled', description='The feature switch. This parameter is optional when type is set to web_search.
+
+This parameter is required.', example='true'),
+          method?: string(name='method', description='The method.
+
+This parameter is required.', example='channel_bot'),
+          name?: string(name='name', description='The name.
+
+This parameter is required.', example='Group chatbot'),
+        }
+      ](name='methods', description='The supported methods: HEAD, GET, POST, PUT, DELETE, PATCH, OPTIONS.'),
+    }
+  ](name='channels', description='The list of notification channels.'),
+  code?: string(name='code', description='The status code.', example='200'),
+  emptyHint?: string(name='emptyHint', description='The prompt displayed when no third-party accounts are bound.', example='No push channels available'),
+  message?: string(name='message', description='The prompt message.', example='success'),
+  requestId?: string(name='requestId', description='The request ID.', example='019FF406-1B10-0065-A97D-2D1920C2A03D'),
+}
+
+model GetScheduledTaskPushOptionsResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: GetScheduledTaskPushOptionsResponseBody(name='body'),
+}
+
+/**
+ * @summary Retrieves the push configuration options for scheduled tasks.
+ *
+ * @description Queries the channels and methods available to the current user for scheduled task push notifications.
+ *
+ * @param request GetScheduledTaskPushOptionsRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return GetScheduledTaskPushOptionsResponse
+ */
+async function getScheduledTaskPushOptionsWithOptions(request: GetScheduledTaskPushOptionsRequest, headers: map[string]string, runtime: Util.RuntimeOptions): GetScheduledTaskPushOptionsResponse {
+  Util.validateModel(request);
+  var query : map[string]any = {};
+  if (!Util.isUnset(request.tenantId)) {
+    query['tenantId'] = request.tenantId;
+  }
+
+  var body : map[string]any = {};
+  if (!Util.isUnset(request.collaborationGroupId)) {
+    body['collaborationGroupId'] = request.collaborationGroupId;
+  }
+  if (!Util.isUnset(request.digitalEmployeeName)) {
+    body['digitalEmployeeName'] = request.digitalEmployeeName;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApi.Params{
+    action = 'GetScheduledTaskPushOptions',
+    version = '2026-05-12',
+    protocol = 'HTTPS',
+    pathname = `/openapi/getScheduledTaskPushOptions`,
+    method = 'POST',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Retrieves the push configuration options for scheduled tasks.
+ *
+ * @description Queries the channels and methods available to the current user for scheduled task push notifications.
+ *
+ * @param request GetScheduledTaskPushOptionsRequest
+ * @return GetScheduledTaskPushOptionsResponse
+ */
+async function getScheduledTaskPushOptions(request: GetScheduledTaskPushOptionsRequest): GetScheduledTaskPushOptionsResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return getScheduledTaskPushOptionsWithOptions(request, headers, runtime);
 }
 
 model GetScheduledTaskUnderstandDetailRequest {
@@ -4690,6 +6104,97 @@ async function getSourceUploadSignature(request: GetSourceUploadSignatureRequest
   return getSourceUploadSignatureWithOptions(request, headers, runtime);
 }
 
+model GetTokenEnsureEnableRequest {
+  tenantId?: string(name='tenantId', description='The ID of the tenant to which the task belongs.', example='10000'),
+  wnUserId?: string(name='wnUserId', description='The WinNexo user ID.', example='1'),
+}
+
+model GetTokenEnsureEnableResponseBody = {
+  code?: string(name='code', description='The status code.', example='200'),
+  gmtCreate?: string(name='gmtCreate', description='The creation time.', example='2026-08-25T10:00:00+08:00'),
+  message?: string(name='message', description='The description of the status code.', example='successful'),
+  requestId?: string(name='requestId', description='The request ID.', example='019FF406-1B10-0065-A97D-2D1920C2A03D'),
+  token?: string(name='token', description='The temporary access credential for the data catalog.', example='example_token_value'),
+  tokenMasked?: string(name='tokenMasked', description='The masked token value.', example='string_value'),
+}
+
+model GetTokenEnsureEnableResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: GetTokenEnsureEnableResponseBody(name='body'),
+}
+
+/**
+ * @summary Retrieves an API token and ensures that it is active.
+ *
+ * @description Retrieves the INSTANCE token for a user and ensures that it is in an active state (idempotent).
+ *     Business logic:
+ *     1. Obtains user_id from identity (caller_type=user is enforced).
+ *     2. Constructs an AuthContext and delegates permission verification to UserTokenAuthorizedService.
+ *     3. Calls ensure_active_token:
+ *        - If an ACTIVE token exists, returns the token in plaintext as-is (no reset, no key rotation).
+ *        - If an INACTIVE token exists, automatically re-enables it and returns the plaintext.
+ *        - If no token exists (or only expired RESET records exist), creates a new token and returns the plaintext.
+ *     Difference from EnableToken: When an ACTIVE token already exists, EnableToken returns only the masked value. This operation guarantees that a usable plaintext credential is returned without destroying the existing token.
+ *
+ * @param request GetTokenEnsureEnableRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return GetTokenEnsureEnableResponse
+ */
+async function getTokenEnsureEnableWithOptions(request: GetTokenEnsureEnableRequest, headers: map[string]string, runtime: Util.RuntimeOptions): GetTokenEnsureEnableResponse {
+  Util.validateModel(request);
+  var query : map[string]any = {};
+  if (!Util.isUnset(request.tenantId)) {
+    query['tenantId'] = request.tenantId;
+  }
+
+  var body : map[string]any = {};
+  if (!Util.isUnset(request.wnUserId)) {
+    body['wnUserId'] = request.wnUserId;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApi.Params{
+    action = 'GetTokenEnsureEnable',
+    version = '2026-05-12',
+    protocol = 'HTTPS',
+    pathname = `/openapi/getTokenEnsureEnable`,
+    method = 'POST',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Retrieves an API token and ensures that it is active.
+ *
+ * @description Retrieves the INSTANCE token for a user and ensures that it is in an active state (idempotent).
+ *     Business logic:
+ *     1. Obtains user_id from identity (caller_type=user is enforced).
+ *     2. Constructs an AuthContext and delegates permission verification to UserTokenAuthorizedService.
+ *     3. Calls ensure_active_token:
+ *        - If an ACTIVE token exists, returns the token in plaintext as-is (no reset, no key rotation).
+ *        - If an INACTIVE token exists, automatically re-enables it and returns the plaintext.
+ *        - If no token exists (or only expired RESET records exist), creates a new token and returns the plaintext.
+ *     Difference from EnableToken: When an ACTIVE token already exists, EnableToken returns only the masked value. This operation guarantees that a usable plaintext credential is returned without destroying the existing token.
+ *
+ * @param request GetTokenEnsureEnableRequest
+ * @return GetTokenEnsureEnableResponse
+ */
+async function getTokenEnsureEnable(request: GetTokenEnsureEnableRequest): GetTokenEnsureEnableResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return getTokenEnsureEnableWithOptions(request, headers, runtime);
+}
+
 model GetTokenInfoRequest {
   tenantId?: string(name='tenantId', description='The ID of the tenant to which the task belongs.', example='10000'),
   wnUserId?: string(name='wnUserId', description='The ID of the target user (WINNEXO platform user ID). If left empty, the operation is performed on the caller. Administrators can specify another user\\\\"s ID to perform the operation on their behalf.', example='1'),
@@ -4959,6 +6464,96 @@ async function getUserCreditUsage(request: GetUserCreditUsageRequest): GetUserCr
   return getUserCreditUsageWithOptions(request, headers, runtime);
 }
 
+model GetUserGroupRequest {
+  tenantId?: string(name='tenantId', description='The tenant ID. This is a common parameter. In winnexo-cli, pass this parameter explicitly by using `--tenant-id`.', example='10000'),
+  userGroupId?: string(name='userGroupId', description='The ID of the target user group.
+
+This parameter is required.', example='7ea8973f-7a5c-4e8a-956b-4fe0e7e2eb11'),
+}
+
+model GetUserGroupResponseBody = {
+  childGroups?: [ any ](name='childGroups', description='**The list of direct child user groups.**'),
+  code?: string(name='code', description='The status code.', example='200'),
+  members?: [ any ](name='members', description='**The list of direct members in the current user group.**'),
+  message?: string(name='message', description='The description of the status code.', example='success'),
+  parentGroup?: any(name='parentGroup', description='**The parent user group information. This is empty for the root node.**', example='{"userGroupId":"b07fb0a4-0b7d-44a7-a3d5-a43a5964c8f0","userGroupName":"Sales Center","parentId":null,"level":1,"description":"Sales organization","childGroupCount":1,"directMemberCount":0,"sourceType":"internal","externalSyncStatus":null,"gmtCreate":"2026-08-27T08:00:00Z","gmtModified":"2026-08-27T08:00:00Z"}'),
+  requestId?: string(name='requestId', description='The request ID.', example='019FF406-1B10-0065-A97D-2D1920C2A03D'),
+  userGroup?: any(name='userGroup', description='**The target user group information.**', example='{"userGroupId":"7ea8973f-7a5c-4e8a-956b-4fe0e7e2eb11","userGroupName":"South China Sales","parentId":"b07fb0a4-0b7d-44a7-a3d5-a43a5964c8f0","level":2,"description":"South China Sales organization","childGroupCount":0,"directMemberCount":2,"sourceType":"internal","externalSyncStatus":null,"gmtCreate":"2026-08-27T09:00:00Z","gmtModified":"2026-08-27T10:00:00Z"}'),
+}
+
+model GetUserGroupResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: GetUserGroupResponseBody(name='body'),
+}
+
+/**
+ * @summary Queries the details of a specified user group, including its parent group, child groups, and members.
+ *
+ * @description ## Operation description
+ * - This operation retrieves the details of a specified user group, including the basic information of the user group, parent user group information, direct child user group list, and direct member list.
+ * - `userGroupId` is a required parameter that must be provided in the request body.
+ * - `tenantId` is an optional parameter that can be passed through the query string.
+ * - The operation supports multiple authentication methods, including AK, BearerToken, and APP authentication.
+ * - The content type for both requests and responses is `application/json`.
+ * - Ensure that you have the required permissions (such as `winnexo:GetUserGroup`) before calling this operation.
+ *
+ * @param request GetUserGroupRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return GetUserGroupResponse
+ */
+async function getUserGroupWithOptions(request: GetUserGroupRequest, headers: map[string]string, runtime: Util.RuntimeOptions): GetUserGroupResponse {
+  Util.validateModel(request);
+  var query : map[string]any = {};
+  if (!Util.isUnset(request.tenantId)) {
+    query['tenantId'] = request.tenantId;
+  }
+
+  var body : map[string]any = {};
+  if (!Util.isUnset(request.userGroupId)) {
+    body['userGroupId'] = request.userGroupId;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApi.Params{
+    action = 'GetUserGroup',
+    version = '2026-05-12',
+    protocol = 'HTTPS',
+    pathname = `/openapi/getUserGroup`,
+    method = 'POST',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Queries the details of a specified user group, including its parent group, child groups, and members.
+ *
+ * @description ## Operation description
+ * - This operation retrieves the details of a specified user group, including the basic information of the user group, parent user group information, direct child user group list, and direct member list.
+ * - `userGroupId` is a required parameter that must be provided in the request body.
+ * - `tenantId` is an optional parameter that can be passed through the query string.
+ * - The operation supports multiple authentication methods, including AK, BearerToken, and APP authentication.
+ * - The content type for both requests and responses is `application/json`.
+ * - Ensure that you have the required permissions (such as `winnexo:GetUserGroup`) before calling this operation.
+ *
+ * @param request GetUserGroupRequest
+ * @return GetUserGroupResponse
+ */
+async function getUserGroup(request: GetUserGroupRequest): GetUserGroupResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return getUserGroupWithOptions(request, headers, runtime);
+}
+
 model GetUserInfoRequest {
   tenantId?: string(name='tenantId', description='The effective tenant ID.', example='10000'),
 }
@@ -5189,6 +6784,120 @@ async function grantAgentUsers(request: GrantAgentUsersRequest): GrantAgentUsers
   var runtime = new Util.RuntimeOptions{};
   var headers : map[string]string = {};
   return grantAgentUsersWithOptions(request, headers, runtime);
+}
+
+model ListActiveAnnouncementsRequest {
+  pageNumber?: long(name='pageNumber', description='The page number for pagination.', example='1'),
+  pageSize?: long(name='pageSize', description='The number of entries per page for pagination. Default value: 100. Maximum value: 500.', example='20'),
+  tenantId?: string(name='tenantId', description='The tenant ID. This is a common parameter. If this parameter is not specified, the default tenant of the caller is used.', example='10000'),
+}
+
+model ListActiveAnnouncementsResponseBody = {
+  code?: string(name='code', description='The business status code. A value of 200 indicates success. A failure returns a backend error code (ERR.* / InvalidParameter.*).', example='200'),
+  items?: [ 
+    {
+      announcementId?: long(name='announcementId', description='The business ID of the notice.', example='1001'),
+      content?: string(name='content', description='The returned content.', example='The system will undergo maintenance tonight'),
+      createdBy?: long(name='createdBy', description='The user ID of the project creator.', example='10001'),
+      displayPage?: string(name='displayPage', description='The display page. Valid values: ALL, FRONTEND, BACKEND.', example='ALL'),
+      displayType?: string(name='displayType', description='The display type and group label.', example='LIST'),
+      effectiveEnd?: string(name='effectiveEnd', description='The custom effective end time.', example='2026-08-21T14:00:00+08:00'),
+      effectiveStart?: string(name='effectiveStart', description='The effective start time in ISO 8601 format with time zone. If this parameter is not specified, the notice takes effect immediately.', example='2026-08-20T14:00:00+08:00'),
+      priority?: string(name='priority', description='The priority of the free task.
+
+- Uses the default priority of the project, as shown in the following figure. The default priority values are as follows:
+
+     - **-10**: Low. This is the default value.
+
+     - **0**: Normal.
+
+    - **1**: Urgent.
+
+     - **2**: Very urgent.
+
+![](https://img.alicdn.com/imgextra/i1/O1CN01hNuSPz25juCzgxhmW_!!6000000007563-2-tps-2682-1304.png)
+
+- Custom priority defined by the user, as shown in the following figure, with an additional "Generally urgent" level.
+
+The value of this parameter is subject to the actual response of the API call. A higher priority corresponds to a larger value.
+
+![](https://img.alicdn.com/imgextra/i1/O1CN01V67b3i1mkNvJiW8D1_!!6000000004992-2-tps-2128-1126.png)', example='GENERAL'),
+      publishedAt?: string(name='publishedAt', description='The publish time in ISO 8601 format.', example='2026-08-20T14:00:00+08:00'),
+      status?: string(name='status', description='The task status. The value Running is returned upon submission.', example='PUBLISHED'),
+      title?: string(name='title', description='The title of the scheduled meeting.', example='System Maintenance Notification'),
+    }
+  ](name='items', description='The list of MCP cards.'),
+  message?: string(name='message', description='The description of the status code.', example='successful'),
+  pageNumber?: long(name='pageNumber', description='The page number, starting from 1.', example='1'),
+  pageSize?: long(name='pageSize', description='The page size.', example='20'),
+  requestId?: string(name='requestId', description='The request ID.', example='019FF406-1B10-0065-A97D-2D1920C2A03D'),
+  total?: long(name='total', description='The total number of entries.', example='1'),
+}
+
+model ListActiveAnnouncementsResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ListActiveAnnouncementsResponseBody(name='body'),
+}
+
+/**
+ * @summary Queries currently effective service notices.
+ *
+ * @description ## Request description
+ * Performs a paging query for published platform notices that are effective within the current database time window. The invoking identity must be a real user who has the notice viewing permission in the system O&M tenant.
+ *
+ * @param request ListActiveAnnouncementsRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return ListActiveAnnouncementsResponse
+ */
+async function listActiveAnnouncementsWithOptions(request: ListActiveAnnouncementsRequest, headers: map[string]string, runtime: Util.RuntimeOptions): ListActiveAnnouncementsResponse {
+  Util.validateModel(request);
+  var query : map[string]any = {};
+  if (!Util.isUnset(request.tenantId)) {
+    query['tenantId'] = request.tenantId;
+  }
+
+  var body : map[string]any = {};
+  if (!Util.isUnset(request.pageNumber)) {
+    body['pageNumber'] = request.pageNumber;
+  }
+  if (!Util.isUnset(request.pageSize)) {
+    body['pageSize'] = request.pageSize;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApi.Params{
+    action = 'ListActiveAnnouncements',
+    version = '2026-05-12',
+    protocol = 'HTTPS',
+    pathname = `/openapi/listActiveAnnouncements`,
+    method = 'POST',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Queries currently effective service notices.
+ *
+ * @description ## Request description
+ * Performs a paging query for published platform notices that are effective within the current database time window. The invoking identity must be a real user who has the notice viewing permission in the system O&M tenant.
+ *
+ * @param request ListActiveAnnouncementsRequest
+ * @return ListActiveAnnouncementsResponse
+ */
+async function listActiveAnnouncements(request: ListActiveAnnouncementsRequest): ListActiveAnnouncementsResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return listActiveAnnouncementsWithOptions(request, headers, runtime);
 }
 
 model ListAdminKnowledgeBasesRequest {
@@ -7039,6 +8748,80 @@ async function listTenantDirectory(request: ListTenantDirectoryRequest): ListTen
   return listTenantDirectoryWithOptions(request, headers, runtime);
 }
 
+model ListUserGroupsRequest {
+  tenantId?: string(name='tenantId', description='The tenant ID. This is a common parameter. In winnexo-cli, pass this parameter explicitly by using `--tenant-id`.', example='10000'),
+}
+
+model ListUserGroupsResponseBody = {
+  code?: string(name='code', description='The status code.', example='200'),
+  items?: [ any ](name='items', description='The list of top-level user groups.'),
+  message?: string(name='message', description='The description of the status code.', example='ok'),
+  requestId?: string(name='requestId', description='The request ID.', example='019FF406-1B10-0065-A97D-2D1920C2A03D'),
+}
+
+model ListUserGroupsResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ListUserGroupsResponseBody(name='body'),
+}
+
+/**
+ * @summary Returns the multi-level user group tree for the current tenant.
+ *
+ * @description ## Request description
+ * This API is used to query the complete user group hierarchy under a specified tenant, including the basic information of each user group and its direct child user group list. Use the `tenantId` parameter to specify the tenant ID to query. If this parameter is not provided, the caller\\"s tenant ID is used by default.
+ * ### Precautions
+ * - This operation returns only the direct member count and direct child user group count. It does not include information about indirect members or child groups.
+ * - The external synchronization status field is empty when data is normal. It is populated with relevant information only when data is out of sync between an external system (such as WeCom) and the internal system.
+ *
+ * @param request ListUserGroupsRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return ListUserGroupsResponse
+ */
+async function listUserGroupsWithOptions(request: ListUserGroupsRequest, headers: map[string]string, runtime: Util.RuntimeOptions): ListUserGroupsResponse {
+  Util.validateModel(request);
+  var query : map[string]any = {};
+  if (!Util.isUnset(request.tenantId)) {
+    query['tenantId'] = request.tenantId;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'ListUserGroups',
+    version = '2026-05-12',
+    protocol = 'HTTPS',
+    pathname = `/openapi/listUserGroups`,
+    method = 'POST',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Returns the multi-level user group tree for the current tenant.
+ *
+ * @description ## Request description
+ * This API is used to query the complete user group hierarchy under a specified tenant, including the basic information of each user group and its direct child user group list. Use the `tenantId` parameter to specify the tenant ID to query. If this parameter is not provided, the caller\\"s tenant ID is used by default.
+ * ### Precautions
+ * - This operation returns only the direct member count and direct child user group count. It does not include information about indirect members or child groups.
+ * - The external synchronization status field is empty when data is normal. It is populated with relevant information only when data is out of sync between an external system (such as WeCom) and the internal system.
+ *
+ * @param request ListUserGroupsRequest
+ * @return ListUserGroupsResponse
+ */
+async function listUserGroups(request: ListUserGroupsRequest): ListUserGroupsResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return listUserGroupsWithOptions(request, headers, runtime);
+}
+
 model ListUserVisibleKnowledgeBaseContentsRequest {
   directoryId?: string(name='directoryId', description='The directory ID.
 
@@ -7922,6 +9705,89 @@ async function moveResource(request: MoveResourceRequest): MoveResourceResponse 
   return moveResourceWithOptions(request, headers, runtime);
 }
 
+model OfflineAnnouncementRequest {
+  announcementId?: long(name='announcementId', description='The business ID of the announcement.
+
+This parameter is required.', example='1001'),
+  tenantId?: string(name='tenantId', description='The tenant ID. This is a common parameter. In winnexo-cli, pass this explicitly with --tenant-id.', example='10000'),
+}
+
+model OfflineAnnouncementResponseBody = {
+  announcementId?: long(name='announcementId', description='The business ID of the announcement.', example='1001'),
+  changed?: boolean(name='changed', description='Indicates whether the status was changed.', example='true'),
+  code?: string(name='code', description='The status code.', example='200'),
+  gmtModified?: string(name='gmtModified', description='The last update time.', example='2026-08-20T14:00:00+08:00'),
+  message?: string(name='message', description='The prompt message.', example='successful'),
+  requestId?: string(name='requestId', description='The request ID.', example='019FF406-1B10-0065-A97D-2D1920C2A03D'),
+  status?: string(name='status', description='The datasource status after re-parsing.', example='OFFLINE'),
+  updatedBy?: long(name='updatedBy', description='The user who performed the update.', example='10001'),
+}
+
+model OfflineAnnouncementResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: OfflineAnnouncementResponseBody(name='body'),
+}
+
+/**
+ * @summary Offlines a service notice.
+ *
+ * @description ## Request description
+ * Idempotently offlines a platform announcement by announcement ID. Returns `changed=true` when a PUBLISHED announcement is offlined for the first time. Returns `changed=false` when the announcement is already offline or expired.
+ * The caller must belong to the system operations tenant and have announcement management permissions.
+ *
+ * @param request OfflineAnnouncementRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return OfflineAnnouncementResponse
+ */
+async function offlineAnnouncementWithOptions(request: OfflineAnnouncementRequest, headers: map[string]string, runtime: Util.RuntimeOptions): OfflineAnnouncementResponse {
+  Util.validateModel(request);
+  var query : map[string]any = {};
+  if (!Util.isUnset(request.tenantId)) {
+    query['tenantId'] = request.tenantId;
+  }
+
+  var body : map[string]any = {};
+  if (!Util.isUnset(request.announcementId)) {
+    body['announcementId'] = request.announcementId;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApi.Params{
+    action = 'OfflineAnnouncement',
+    version = '2026-05-12',
+    protocol = 'HTTPS',
+    pathname = `/openapi/offlineAnnouncement`,
+    method = 'POST',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Offlines a service notice.
+ *
+ * @description ## Request description
+ * Idempotently offlines a platform announcement by announcement ID. Returns `changed=true` when a PUBLISHED announcement is offlined for the first time. Returns `changed=false` when the announcement is already offline or expired.
+ * The caller must belong to the system operations tenant and have announcement management permissions.
+ *
+ * @param request OfflineAnnouncementRequest
+ * @return OfflineAnnouncementResponse
+ */
+async function offlineAnnouncement(request: OfflineAnnouncementRequest): OfflineAnnouncementResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return offlineAnnouncementWithOptions(request, headers, runtime);
+}
+
 model PreviewKnowledgeBaseSourceRequest {
   sourceId?: string(name='sourceId', description='The data source ID, which is unique within the tenant.
 
@@ -8615,6 +10481,114 @@ async function removeUser(request: RemoveUserRequest): RemoveUserResponse {
   var runtime = new Util.RuntimeOptions{};
   var headers : map[string]string = {};
   return removeUserWithOptions(request, headers, runtime);
+}
+
+model RemoveUserGroupMembersRequest {
+  tenantId?: string(name='tenantId', description='The tenant ID. This is a common parameter. You can explicitly pass this parameter in winnexo-cli by using `--tenant-id`.', example='10000'),
+  userGroupId?: string(name='userGroupId', description='The ID of the target user group.
+
+This parameter is required.', example='7ea8973f-7a5c-4e8a-956b-4fe0e7e2eb11'),
+  userIds?: [ long ](name='userIds', description='The list of platform user IDs to be removed. You can specify one or more IDs.
+
+This parameter is required.', example='1'),
+}
+
+model RemoveUserGroupMembersShrinkRequest {
+  tenantId?: string(name='tenantId', description='The tenant ID. This is a common parameter. You can explicitly pass this parameter in winnexo-cli by using `--tenant-id`.', example='10000'),
+  userGroupId?: string(name='userGroupId', description='The ID of the target user group.
+
+This parameter is required.', example='7ea8973f-7a5c-4e8a-956b-4fe0e7e2eb11'),
+  userIdsShrink?: string(name='userIds', description='The list of platform user IDs to be removed. You can specify one or more IDs.
+
+This parameter is required.', example='1'),
+}
+
+model RemoveUserGroupMembersResponseBody = {
+  affectedCount?: long(name='affectedCount', description='The number of member relationships actually removed.', example='2'),
+  code?: string(name='code', description='The status code.', example='200'),
+  message?: string(name='message', description='The description of the status code.', example='ok'),
+  requestId?: string(name='requestId', description='The request ID.', example='019FF406-1B10-0065-A97D-2D1920C2A03D'),
+  requestedCount?: long(name='requestedCount', description='The number of requested members before deduplication.', example='2'),
+  userGroupId?: string(name='userGroupId', description='The ID of the target user group.', example='7ea8973f-7a5c-4e8a-956b-4fe0e7e2eb11'),
+}
+
+model RemoveUserGroupMembersResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: RemoveUserGroupMembersResponseBody(name='body'),
+}
+
+/**
+ * @summary Removes direct member relationships in bulk from a specified user group.
+ *
+ * @description ## Request description
+ * - This operation supports batch removal of direct member relationships between users and a specified user group by providing the user group ID and one or more user IDs.
+ * - The `userIds` parameter accepts an integer array that represents the list of platform user IDs to be removed.
+ * - If a user you attempt to remove is not a direct member of the user group, the final result count is not affected.
+ * - After a successful call, the response returns information such as the number of members actually removed and the number of members before the request was processed.
+ * - This operation requires appropriate permission authentication and is recorded in operation logs.
+ *
+ * @param tmpReq RemoveUserGroupMembersRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return RemoveUserGroupMembersResponse
+ */
+async function removeUserGroupMembersWithOptions(tmpReq: RemoveUserGroupMembersRequest, headers: map[string]string, runtime: Util.RuntimeOptions): RemoveUserGroupMembersResponse {
+  Util.validateModel(tmpReq);
+  var request = new RemoveUserGroupMembersShrinkRequest{};
+  OpenApiUtil.convert(tmpReq, request);
+  if (!Util.isUnset(tmpReq.userIds)) {
+    request.userIdsShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.userIds, 'userIds', 'json');
+  }
+  var query : map[string]any = {};
+  if (!Util.isUnset(request.tenantId)) {
+    query['tenantId'] = request.tenantId;
+  }
+
+  var body : map[string]any = {};
+  if (!Util.isUnset(request.userGroupId)) {
+    body['userGroupId'] = request.userGroupId;
+  }
+  if (!Util.isUnset(request.userIdsShrink)) {
+    body['userIds'] = request.userIdsShrink;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApi.Params{
+    action = 'RemoveUserGroupMembers',
+    version = '2026-05-12',
+    protocol = 'HTTPS',
+    pathname = `/openapi/removeUserGroupMembers`,
+    method = 'POST',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Removes direct member relationships in bulk from a specified user group.
+ *
+ * @description ## Request description
+ * - This operation supports batch removal of direct member relationships between users and a specified user group by providing the user group ID and one or more user IDs.
+ * - The `userIds` parameter accepts an integer array that represents the list of platform user IDs to be removed.
+ * - If a user you attempt to remove is not a direct member of the user group, the final result count is not affected.
+ * - After a successful call, the response returns information such as the number of members actually removed and the number of members before the request was processed.
+ * - This operation requires appropriate permission authentication and is recorded in operation logs.
+ *
+ * @param request RemoveUserGroupMembersRequest
+ * @return RemoveUserGroupMembersResponse
+ */
+async function removeUserGroupMembers(request: RemoveUserGroupMembersRequest): RemoveUserGroupMembersResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return removeUserGroupMembersWithOptions(request, headers, runtime);
 }
 
 model RenameKnowledgeBaseSourceRequest {
@@ -9879,6 +11853,274 @@ async function runSkill(request: RunSkillRequest): RunSkillResponse {
   return runSkillWithOptions(request, headers, runtime);
 }
 
+model SaveGroupOutputFileToGroupResourceRequest {
+  directoryId?: string(name='directoryId', description='The ID of the target personal directory. If not specified, the user\\\\"s default directory is automatically resolved.', example='exampleDirectoryId'),
+  groupId?: string(name='groupId', description='The project group ID.
+
+This parameter is required.', example='exampleGroupId'),
+  itemIds?: [ string ](name='itemIds', description='itemIds
+
+This parameter is required.', example='["item-1","item-2"]'),
+  mode?: string(name='mode', description='The save mode. Valid values:
+- link: creates a link (1:1 idempotent, editing the output synchronizes the resource).
+- copy: creates a copy (unlimited times, snapshot).
+
+This parameter is required.', example='link'),
+  tenantId?: string(name='tenantId', description='The tenant ID. This is a common parameter. In winnexo-cli, pass this value explicitly by using --tenant-id.', example='10000'),
+}
+
+model SaveGroupOutputFileToGroupResourceShrinkRequest {
+  directoryId?: string(name='directoryId', description='The ID of the target personal directory. If not specified, the user\\\\"s default directory is automatically resolved.', example='exampleDirectoryId'),
+  groupId?: string(name='groupId', description='The project group ID.
+
+This parameter is required.', example='exampleGroupId'),
+  itemIdsShrink?: string(name='itemIds', description='itemIds
+
+This parameter is required.', example='["item-1","item-2"]'),
+  mode?: string(name='mode', description='The save mode. Valid values:
+- link: creates a link (1:1 idempotent, editing the output synchronizes the resource).
+- copy: creates a copy (unlimited times, snapshot).
+
+This parameter is required.', example='link'),
+  tenantId?: string(name='tenantId', description='The tenant ID. This is a common parameter. In winnexo-cli, pass this value explicitly by using --tenant-id.', example='10000'),
+}
+
+model SaveGroupOutputFileToGroupResourceResponseBody = {
+  code?: string(name='code', description='The error code.', example='200'),
+  message?: string(name='message', description='The status code description.', example='ok'),
+  requestId?: string(name='requestId', description='The request ID.', example='019FF406-1B10-0065-A97D-2D1920C2A03D'),
+  results?: [ 
+    {
+      errorCode?: string(name='errorCode', description='The business error code (i18n key), returned when the operation fails.', example='ERR.Robject.UserOutput.ItemNotFound'),
+      errorMessage?: string(name='errorMessage', description='The error description (internationalized based on the request locale), returned when the operation fails.', example='Group output does not exist'),
+      itemId?: string(name='itemId', description='The output item ID.', example='item-1'),
+      sourceId?: string(name='sourceId', description='The sourceId of the newly created resource, returned when the operation is successful.', example='exampleSourceId'),
+      success?: boolean(name='success', description='Indicates whether the operation is successful.', example='true'),
+    }
+  ](name='results', description='The list of results.'),
+}
+
+model SaveGroupOutputFileToGroupResourceResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: SaveGroupOutputFileToGroupResourceResponseBody(name='body'),
+}
+
+/**
+ * @summary Saves group outputs in batches to the collaboration group repository.
+ *
+ * @description ## Request description
+ * - Saves specified group outputs to the repository directory of the same collaboration group.
+ * - Supports two modes: `link` (maintains output association) and `copy` (creates an independent snapshot).
+ * - The caller must be a platform user and a member of the target group. The caller can archive group outputs visible to them, including outputs created by other members.
+ * - If `directoryId` is not specified, the default repository directory of the target group is used.
+ * - A maximum of 50 outputs can be processed per batch. All entries are validated before saving. If any entry does not exist, is not visible, or cannot be operated on, the entire batch fails.
+ * - After unified validation passes, entries are saved one by one. The response results maintain the same order as `itemIds`. A failure of a single entry does not affect other entries.
+ *
+ * @param tmpReq SaveGroupOutputFileToGroupResourceRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return SaveGroupOutputFileToGroupResourceResponse
+ */
+async function saveGroupOutputFileToGroupResourceWithOptions(tmpReq: SaveGroupOutputFileToGroupResourceRequest, headers: map[string]string, runtime: Util.RuntimeOptions): SaveGroupOutputFileToGroupResourceResponse {
+  Util.validateModel(tmpReq);
+  var request = new SaveGroupOutputFileToGroupResourceShrinkRequest{};
+  OpenApiUtil.convert(tmpReq, request);
+  if (!Util.isUnset(tmpReq.itemIds)) {
+    request.itemIdsShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.itemIds, 'itemIds', 'json');
+  }
+  var query : map[string]any = {};
+  if (!Util.isUnset(request.tenantId)) {
+    query['tenantId'] = request.tenantId;
+  }
+
+  var body : map[string]any = {};
+  if (!Util.isUnset(request.directoryId)) {
+    body['directoryId'] = request.directoryId;
+  }
+  if (!Util.isUnset(request.groupId)) {
+    body['groupId'] = request.groupId;
+  }
+  if (!Util.isUnset(request.itemIdsShrink)) {
+    body['itemIds'] = request.itemIdsShrink;
+  }
+  if (!Util.isUnset(request.mode)) {
+    body['mode'] = request.mode;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApi.Params{
+    action = 'SaveGroupOutputFileToGroupResource',
+    version = '2026-05-12',
+    protocol = 'HTTPS',
+    pathname = `/openapi/saveGroupOutputFileToGroupResource`,
+    method = 'POST',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Saves group outputs in batches to the collaboration group repository.
+ *
+ * @description ## Request description
+ * - Saves specified group outputs to the repository directory of the same collaboration group.
+ * - Supports two modes: `link` (maintains output association) and `copy` (creates an independent snapshot).
+ * - The caller must be a platform user and a member of the target group. The caller can archive group outputs visible to them, including outputs created by other members.
+ * - If `directoryId` is not specified, the default repository directory of the target group is used.
+ * - A maximum of 50 outputs can be processed per batch. All entries are validated before saving. If any entry does not exist, is not visible, or cannot be operated on, the entire batch fails.
+ * - After unified validation passes, entries are saved one by one. The response results maintain the same order as `itemIds`. A failure of a single entry does not affect other entries.
+ *
+ * @param request SaveGroupOutputFileToGroupResourceRequest
+ * @return SaveGroupOutputFileToGroupResourceResponse
+ */
+async function saveGroupOutputFileToGroupResource(request: SaveGroupOutputFileToGroupResourceRequest): SaveGroupOutputFileToGroupResourceResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return saveGroupOutputFileToGroupResourceWithOptions(request, headers, runtime);
+}
+
+model SaveGroupOutputFileToPersonalResourceRequest {
+  directoryId?: string(name='directoryId', description='The enterprise knowledge base directory ID.', example='exampleDirectoryId'),
+  groupId?: string(name='groupId', description='The project group ID.
+
+This parameter is required.', example='exampleGroupId'),
+  itemIds?: [ string ](name='itemIds', description='itemIds
+
+This parameter is required.', example='["item-1","item-2"]'),
+  mode?: string(name='mode', description='The save mode. Valid values:
+- link: creates a link (1:1 idempotent, editing the output synchronizes the resource).
+- copy: creates a copy (unlimited times, snapshot).
+
+This parameter is required.', example='copy'),
+  tenantId?: string(name='tenantId', description='The tenant ID.', example='10000'),
+}
+
+model SaveGroupOutputFileToPersonalResourceShrinkRequest {
+  directoryId?: string(name='directoryId', description='The enterprise knowledge base directory ID.', example='exampleDirectoryId'),
+  groupId?: string(name='groupId', description='The project group ID.
+
+This parameter is required.', example='exampleGroupId'),
+  itemIdsShrink?: string(name='itemIds', description='itemIds
+
+This parameter is required.', example='["item-1","item-2"]'),
+  mode?: string(name='mode', description='The save mode. Valid values:
+- link: creates a link (1:1 idempotent, editing the output synchronizes the resource).
+- copy: creates a copy (unlimited times, snapshot).
+
+This parameter is required.', example='copy'),
+  tenantId?: string(name='tenantId', description='The tenant ID.', example='10000'),
+}
+
+model SaveGroupOutputFileToPersonalResourceResponseBody = {
+  code?: string(name='code', description='SUCCESS indicates success. In case of failure, the corresponding error type is returned, such as ERR_BAD_REQUEST, ERR_VALIDATION_FAILED, or ERR_INTERNAL_SERVER_ERROR.', example='200'),
+  message?: string(name='message', description='The status code description.', example='successful'),
+  requestId?: string(name='requestId', description='The request trace ID.', example='019FF406-1B10-0065-A97D-2D1920C2A03D'),
+  results?: [ 
+    {
+      errorCode?: string(name='errorCode', description='The business error code (i18n key), returned on failure.', example='ERR.Robject.UserOutput.ItemNotFound'),
+      errorMessage?: string(name='errorMessage', description='The error description (internationalized based on the request locale), returned on failure.', example='Group output does not exist'),
+      itemId?: string(name='itemId', description='The output item ID.', example='item-1'),
+      sourceId?: string(name='sourceId', description='The sourceId of the newly created resource, returned on success.', example='exampleSourceId'),
+      success?: boolean(name='success', description='Indicates whether the operation is successful.', example='true'),
+    }
+  ](name='results', description='The result list.'),
+}
+
+model SaveGroupOutputFileToPersonalResourceResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: SaveGroupOutputFileToPersonalResourceResponseBody(name='body'),
+}
+
+/**
+ * @summary Batch saves group outputs to the current operator\\"s personal knowledge base.
+ *
+ * @description ## Request description
+ * - Saves specified group outputs to the current operator\\"s personal knowledge base.
+ * - Supports two modes: `link` (maintains output association) and `copy` (creates an independent snapshot).
+ * - The caller must be a member of the target group who is associated with a platform user. Regular members can only archive outputs they created, while group administrators can archive visible outputs from other members. Personal ownership is always derived from the gateway authentication identity.
+ * - If `directoryId` is not specified, the current operator\\"s default personal directory is used.
+ * - A maximum of 50 outputs can be processed per batch. All entries are validated before saving. The entire batch fails if any entry does not exist, is not visible, or cannot be operated on.
+ * - After unified validation passes, entries are saved one by one. The response results maintain the same order as `itemIds`. A failure to save a single entry does not affect other entries.
+ *
+ * @param tmpReq SaveGroupOutputFileToPersonalResourceRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return SaveGroupOutputFileToPersonalResourceResponse
+ */
+async function saveGroupOutputFileToPersonalResourceWithOptions(tmpReq: SaveGroupOutputFileToPersonalResourceRequest, headers: map[string]string, runtime: Util.RuntimeOptions): SaveGroupOutputFileToPersonalResourceResponse {
+  Util.validateModel(tmpReq);
+  var request = new SaveGroupOutputFileToPersonalResourceShrinkRequest{};
+  OpenApiUtil.convert(tmpReq, request);
+  if (!Util.isUnset(tmpReq.itemIds)) {
+    request.itemIdsShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.itemIds, 'itemIds', 'json');
+  }
+  var query : map[string]any = {};
+  if (!Util.isUnset(request.tenantId)) {
+    query['tenantId'] = request.tenantId;
+  }
+
+  var body : map[string]any = {};
+  if (!Util.isUnset(request.directoryId)) {
+    body['directoryId'] = request.directoryId;
+  }
+  if (!Util.isUnset(request.groupId)) {
+    body['groupId'] = request.groupId;
+  }
+  if (!Util.isUnset(request.itemIdsShrink)) {
+    body['itemIds'] = request.itemIdsShrink;
+  }
+  if (!Util.isUnset(request.mode)) {
+    body['mode'] = request.mode;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApi.Params{
+    action = 'SaveGroupOutputFileToPersonalResource',
+    version = '2026-05-12',
+    protocol = 'HTTPS',
+    pathname = `/openapi/saveGroupOutputFileToPersonalResource`,
+    method = 'POST',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Batch saves group outputs to the current operator\\"s personal knowledge base.
+ *
+ * @description ## Request description
+ * - Saves specified group outputs to the current operator\\"s personal knowledge base.
+ * - Supports two modes: `link` (maintains output association) and `copy` (creates an independent snapshot).
+ * - The caller must be a member of the target group who is associated with a platform user. Regular members can only archive outputs they created, while group administrators can archive visible outputs from other members. Personal ownership is always derived from the gateway authentication identity.
+ * - If `directoryId` is not specified, the current operator\\"s default personal directory is used.
+ * - A maximum of 50 outputs can be processed per batch. All entries are validated before saving. The entire batch fails if any entry does not exist, is not visible, or cannot be operated on.
+ * - After unified validation passes, entries are saved one by one. The response results maintain the same order as `itemIds`. A failure to save a single entry does not affect other entries.
+ *
+ * @param request SaveGroupOutputFileToPersonalResourceRequest
+ * @return SaveGroupOutputFileToPersonalResourceResponse
+ */
+async function saveGroupOutputFileToPersonalResource(request: SaveGroupOutputFileToPersonalResourceRequest): SaveGroupOutputFileToPersonalResourceResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return saveGroupOutputFileToPersonalResourceWithOptions(request, headers, runtime);
+}
+
 model SaveOutputFileToResourceRequest {
   directoryId?: string(name='directoryId', description='The ID of the target personal folder. If not specified, the user\\\\"s default folder is automatically resolved.', example='exampleDirectoryId'),
   itemIds?: [ string ](name='itemIds', description='itemIds
@@ -10017,7 +12259,7 @@ This parameter is required.', example='exampleFileId'),
       type?: string(name='type', description='The file type.', example='text'),
     }
   ](name='files', description='The list of file references. Each item is an object in which fileId is required and is returned by uploadChatFile.'),
-  model?: string(name='model', description='The abstract model tier. Valid values: quick, standard, and flagship. If not specified, a new session uses standard, and an existing session retains its current tier.', example='quick'),
+  model?: string(name='model', description='The abstract model tier. Valid values: quick, standard, and flagship. If not specified, new sessions use standard, and existing sessions retain their current tier.', example='quick'),
   reuseLastSession?: boolean(name='reuseLastSession', description='Specifies whether to reuse the most recent session of the digital employee when sessionId is not specified. This is designed for CLI scenarios. Default value: false, which creates a new session.', example='false'),
   sessionId?: string(name='sessionId', description='The session ID. If not specified, a new session is created.', example='exampleSessionId'),
   stream?: boolean(name='stream', description='Specifies whether to use streaming generation. This operation always generates backend content in streaming mode and writes it to the message stream. The value does not change the response structure.', example='true'),
@@ -10036,7 +12278,7 @@ This parameter is required.', example='exampleTaskId'),
     taskUnderstand?: string(name='taskUnderstand', description='The task understanding content.', example='string_value'),
     tenantId?: string(name='tenantId', description='The tenant ID to which the task belongs.', example='10000'),
     userId?: string(name='userId', description='The user ID to which the task belongs.', example='exampleUserId'),
-  }(name='taskExecution', description='The task execution metadata returned by executeScheduledTask. If specified, the request is processed through the task execution pipeline.'),
+  }(name='taskExecution', description='The task execution metadata returned by executeScheduledTask. When provided, the request is processed through the task execution pipeline.'),
   tenantId?: string(name='tenantId', description='The tenant ID. This is a common parameter. If not specified, the default tenant of the caller is used.', example='10000'),
 }
 
@@ -10048,21 +12290,22 @@ This parameter is required.', example='Sample content'),
   digitalEmployeeNameShrink?: string(name='digitalEmployeeName', description='The list of digital employee names. A single string can be passed for backward compatibility with the legacy format.', example='string_value'),
   directChat?: boolean(name='directChat', description='Specifies whether to enable direct chat mode. If set to true, the regular scenario routing is skipped and the direct chat scenario is entered.', example='false'),
   filesShrink?: string(name='files', description='The list of file references. Each item is an object in which fileId is required and is returned by uploadChatFile.'),
-  model?: string(name='model', description='The abstract model tier. Valid values: quick, standard, and flagship. If not specified, a new session uses standard, and an existing session retains its current tier.', example='quick'),
+  model?: string(name='model', description='The abstract model tier. Valid values: quick, standard, and flagship. If not specified, new sessions use standard, and existing sessions retain their current tier.', example='quick'),
   reuseLastSession?: boolean(name='reuseLastSession', description='Specifies whether to reuse the most recent session of the digital employee when sessionId is not specified. This is designed for CLI scenarios. Default value: false, which creates a new session.', example='false'),
   sessionId?: string(name='sessionId', description='The session ID. If not specified, a new session is created.', example='exampleSessionId'),
   stream?: boolean(name='stream', description='Specifies whether to use streaming generation. This operation always generates backend content in streaming mode and writes it to the message stream. The value does not change the response structure.', example='true'),
-  taskExecutionShrink?: string(name='taskExecution', description='The task execution metadata returned by executeScheduledTask. If specified, the request is processed through the task execution pipeline.'),
+  taskExecutionShrink?: string(name='taskExecution', description='The task execution metadata returned by executeScheduledTask. When provided, the request is processed through the task execution pipeline.'),
   tenantId?: string(name='tenantId', description='The tenant ID. This is a common parameter. If not specified, the default tenant of the caller is used.', example='10000'),
 }
 
 model SendAsyncChatMessageResponseBody = {
   code?: string(name='code', description='The business status code. A value of 200 indicates success. A failure returns a backend error code (ERR.* or InvalidParameter.*).', example='200'),
-  message?: string(name='message', description='The error description. This value is empty when the request succeeds.', example='successful'),
+  message?: string(name='message', description='The error description. This is empty when the request succeeds.', example='successful'),
   messageId?: string(name='messageId', description='The assistant message ID. Use this ID to call streamChatMessage to subscribe to the generation results.', example='3cf84d92-f273-4bb7-ab3c-52646d25ec30'),
   requestId?: string(name='requestId', description='The request trace ID.', example='019FF406-1B10-0065-A97D-2D1920C2A03D'),
   sessionCreated?: boolean(name='sessionCreated', description='Indicates whether a new session was created by this call.', example='true'),
-  sessionId?: string(name='sessionId', description='The session ID. For continued sessions, this value matches the input parameter. For new sessions, this value is generated by the server.', example='bd772dcc-afab-44ad-9fb8-bca716726201'),
+  sessionId?: string(name='sessionId', description='The session ID. For continued sessions, this matches the input value. For new sessions, this is a server-generated value.', example='bd772dcc-afab-44ad-9fb8-bca716726201'),
+  userMessageId?: string(name='userMessageId', description='The user message ID. Use this ID to establish a pairing relationship with the assistant message in this turn.', example='60756cc6-8c53-4d1f-8db8-b8c09b81a5cb'),
 }
 
 model SendAsyncChatMessageResponse = {
@@ -11920,6 +14163,97 @@ async function updateUser(request: UpdateUserRequest): UpdateUserResponse {
   var runtime = new Util.RuntimeOptions{};
   var headers : map[string]string = {};
   return updateUserWithOptions(request, headers, runtime);
+}
+
+model UpdateUserGroupRequest {
+  description?: string(name='description', description='The new description of the user group. If not specified, the description is not modified.', example='South China Sales Organization'),
+  moveToRoot?: boolean(name='moveToRoot', description='Specifies whether to move the user group to the root node. This parameter cannot be set together with parentId.', example='false'),
+  parentId?: string(name='parentId', description='The ID of the new parent user group. If not specified, the user group is not moved.', example='7ea8973f-7a5c-4e8a-956b-4fe0e7e2eb11'),
+  tenantId?: string(name='tenantId', description='The tenant ID. This is a common parameter. If not specified, the default tenant of the caller is used.', example='10000'),
+  userGroupId?: string(name='userGroupId', description='The ID of the target user group.
+
+This parameter is required.', example='7ea8973f-7a5c-4e8a-956b-4fe0e7e2eb11'),
+  userGroupName?: string(name='userGroupName', description='The new name of the user group. If not specified, the name is not modified.', example='South China Sales'),
+}
+
+model UpdateUserGroupResponseBody = {
+  code?: string(name='code', description='The business status code. A value of 200 indicates success.', example='200'),
+  message?: string(name='message', description='The error description. This value is empty when the request is successful.', example='The current zone list is illegal.'),
+  requestId?: string(name='requestId', description='The request trace ID.', example='019FF406-1B10-0065-A97D-2D1920C2A03D'),
+  userGroup?: any(name='userGroup', description='The updated user group information.', example='{"userGroupId":"7ea8973f-7a5c-4e8a-956b-4fe0e7e2eb11","userGroupName":"华南销售","parentId":null,"level":1,"description":"华南销售组织","childGroupCount":0,"directMemberCount":2,"sourceType":"internal","externalSyncStatus":null,"gmtCreate":"2026-08-27T09:00:00Z","gmtModified":"2026-08-27T10:00:00Z"}'),
+}
+
+model UpdateUserGroupResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: UpdateUserGroupResponseBody(name='body'),
+}
+
+/**
+ * @summary Updates the name, description, and parent relationship of a specified user group.
+ *
+ * @description WinNexo user management OpenAPI: updates a user group. The tenant identity is obtained from the authentication context.
+ *
+ * @param request UpdateUserGroupRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return UpdateUserGroupResponse
+ */
+async function updateUserGroupWithOptions(request: UpdateUserGroupRequest, headers: map[string]string, runtime: Util.RuntimeOptions): UpdateUserGroupResponse {
+  Util.validateModel(request);
+  var query : map[string]any = {};
+  if (!Util.isUnset(request.tenantId)) {
+    query['tenantId'] = request.tenantId;
+  }
+
+  var body : map[string]any = {};
+  if (!Util.isUnset(request.description)) {
+    body['description'] = request.description;
+  }
+  if (!Util.isUnset(request.moveToRoot)) {
+    body['moveToRoot'] = request.moveToRoot;
+  }
+  if (!Util.isUnset(request.parentId)) {
+    body['parentId'] = request.parentId;
+  }
+  if (!Util.isUnset(request.userGroupId)) {
+    body['userGroupId'] = request.userGroupId;
+  }
+  if (!Util.isUnset(request.userGroupName)) {
+    body['userGroupName'] = request.userGroupName;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApi.Params{
+    action = 'UpdateUserGroup',
+    version = '2026-05-12',
+    protocol = 'HTTPS',
+    pathname = `/openapi/updateUserGroup`,
+    method = 'POST',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Updates the name, description, and parent relationship of a specified user group.
+ *
+ * @description WinNexo user management OpenAPI: updates a user group. The tenant identity is obtained from the authentication context.
+ *
+ * @param request UpdateUserGroupRequest
+ * @return UpdateUserGroupResponse
+ */
+async function updateUserGroup(request: UpdateUserGroupRequest): UpdateUserGroupResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return updateUserGroupWithOptions(request, headers, runtime);
 }
 
 model UpdateUserInfoRequest {

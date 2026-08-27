@@ -23,11 +23,49 @@ init(configuration: ClientConfiguration){
   @version = '2026-05-12';
   @endpointRule = 'regional';
   @endpointMap = {
+    'cn-shanghai' = 'winnexo.cn-shanghai.aliyuncs.com',
+    'cn-zhangjiakou' = 'winnexo.cn-zhangjiakou.aliyuncs.com',
+    'cn-hangzhou' = 'winnexo.cn-hangzhou.aliyuncs.com',
   };
 }
 
 function close(): void {
   @handler.close();
+}
+
+model AddUserGroupMembersRequest {
+  tenantId?: string(name='tenantId', description='租户ID，公共参数，缺省时使用调用方默认租户', example='10000', position='Query'),
+  userGroupId: string(name='userGroupId', description='目标用户组ID
+
+This parameter is required.', example='7ea8973f-7a5c-4e8a-956b-4fe0e7e2eb11', position='Body'),
+  userIds: [ long ](name='userIds', description='待添加的平台用户ID列表，1至100个
+
+This parameter is required.', example='1', shrink='json', position='Body'),
+}
+
+model AddUserGroupMembersResponseBody = {
+  affectedCount?: long(name='affectedCount', description='实际新增成员关系数量', example='2'),
+  code?: string(name='code', description='业务状态码：成功为 200', example='200'),
+  message?: string(name='message', description='错误描述，成功时为空', example='successful'),
+  requestId?: string(name='requestId', description='请求追踪 ID', example='019FF406-1B10-0065-A97D-2D1920C2A03D'),
+  requestedCount?: long(name='requestedCount', description='去重前请求成员数量', example='2'),
+  userGroupId?: string(name='userGroupId', description='目标用户组ID', example='7ea8973f-7a5c-4e8a-956b-4fe0e7e2eb11'),
+}
+
+model AddUserGroupMembersResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: AddUserGroupMembersResponseBody(name='body'),
+}
+
+/**
+  * @description WinNexo 用户管理 OpenAPI：批量添加用户组成员。租户身份来自鉴权上下文。
+  * @param request  the request parameters of AddUserGroupMembers  AddUserGroupMembersRequest
+  * @return AddUserGroupMembersResponse
+ */
+async function addUserGroupMembers(request: AddUserGroupMembersRequest): AddUserGroupMembersResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'AddUserGroupMembers', 'POST', '/openapi/addUserGroupMembers', 'json', true, 'form', request);
 }
 
 model CheckHealthRequest {
@@ -58,6 +96,60 @@ model CheckHealthResponse = {
 async function checkHealth(request: CheckHealthRequest): CheckHealthResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RESTFUL', 'CheckHealth', 'GET', '/openapi/checkHealth', 'json', false, 'json', request);
+}
+
+model CreateAnnouncementRequest {
+  content: string(name='content', description='公告正文
+
+This parameter is required.', example='系统将于今晚进行维护。', position='Body'),
+  displayPage?: string(name='displayPage', description='展示页面：ALL、FRONTEND、BACKEND', example='ALL', position='Body'),
+  displayType?: string(name='displayType', description='展示类型：POPUP、LIST、BANNER', example='LIST', position='Body'),
+  effectiveEnd?: string(name='effectiveEnd', description='带时区的 ISO8601 生效结束时间；不传表示永久有效', example='2026-08-21T14:00:00+08:00', position='Body'),
+  effectiveStart?: string(name='effectiveStart', description='带时区的 ISO8601 生效开始时间；不传表示立即生效', example='2026-08-20T14:00:00+08:00', position='Body'),
+  priority: string(name='priority', description='公告重要性：URGENT、IMPORTANT、GENERAL
+
+This parameter is required.', example='GENERAL', position='Body'),
+  publishNow?: boolean(name='publishNow', description='是否创建后立即发布', example='false', position='Body'),
+  targetRoleCodes?: [ string ](name='targetRoleCodes', description='指定系统角色 code 列表；targetRoleMode=SPECIFIED 时使用', example='["SYSTEM_ADMIN"]', shrink='json', position='Body'),
+  targetRoleMode?: string(name='targetRoleMode', description='目标角色范围：ALL、SPECIFIED', example='ALL', position='Body'),
+  targetTenantIds?: [ long ](name='targetTenantIds', description='指定目标租户 ID 列表；targetTenantMode=SPECIFIED 时使用', example='[10000]', shrink='json', position='Body'),
+  targetTenantMode?: string(name='targetTenantMode', description='目标租户范围：ALL、SPECIFIED', example='ALL', position='Body'),
+  tenantId?: string(name='tenantId', description='租户ID，公共参数；缺省时使用调用方默认租户', example='10000', position='Query'),
+  title: string(name='title', description='公告标题
+
+This parameter is required.', example='系统维护通知', position='Body'),
+}
+
+model CreateAnnouncementResponseBody = {
+  announcementId?: long(name='announcementId', description='公告业务 ID', example='1001'),
+  code?: string(name='code', description='业务状态码：成功为 200，失败为后端错误码', example='200'),
+  createdBy?: long(name='createdBy', description='创建人平台用户 ID', example='10001'),
+  message?: string(name='message', description='错误描述，成功时为空', example='ok'),
+  publishedAt?: string(name='publishedAt', description='发布时间；草稿为空，ISO8601 格式', example='2026-08-20T14:00:00+08:00'),
+  requestId?: string(name='requestId', description='请求追踪 ID', example='019FF406-1B10-0065-A97D-2D1920C2A03D'),
+  sourceType?: string(name='sourceType', description='公告来源，固定为 PLATFORM', example='PLATFORM'),
+  status?: string(name='status', description='公告状态：DRAFT 或 PUBLISHED', example='PUBLISHED'),
+}
+
+model CreateAnnouncementResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: CreateAnnouncementResponseBody(name='body'),
+}
+
+/**
+  * @description ## 请求说明
+  * 创建一条平台公告。调用身份必须映射到系统运维租户中的真实平台用户，并拥有公告管理权限。
+  * - `priority`：公告重要性，支持 URGENT、IMPORTANT、GENERAL。
+  * - `targetTenantIds` / `targetRoleCodes`：仅在对应目标模式为 SPECIFIED 时使用，按 JSON array 传递。
+  * - `effectiveStart` / `effectiveEnd`：带时区的 ISO8601 时间。
+  * - `publishNow`：为 true 时创建后立即发布，否则保存为草稿。
+  * @param request  the request parameters of CreateAnnouncement  CreateAnnouncementRequest
+  * @return CreateAnnouncementResponse
+ */
+async function createAnnouncement(request: CreateAnnouncementRequest): CreateAnnouncementResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'CreateAnnouncement', 'POST', '/openapi/createAnnouncement', 'json', true, 'form', request);
 }
 
 model CreateConversationRequest {
@@ -189,6 +281,129 @@ async function createGroupAliDingChat(request: CreateGroupAliDingChatRequest): C
   return @handler.do('RESTFUL', 'CreateGroupAliDingChat', 'POST', '/openapi/createGroupAliDingChat', 'json', true, 'form', request);
 }
 
+model CreateGroupDingtalkChatRequest {
+  chatId: string(name='chatId', description='普通钉钉群聊 ID
+
+This parameter is required.', example='cidxxxxxxxx', position='Body'),
+  chatName?: string(name='chatName', description='群聊名称', example='客户项目群', position='Body'),
+  description?: string(name='description', description='资源描述', example='客户群聊历史', position='Body'),
+  directoryId?: string(name='directoryId', description='目标群组知识目录 ID；不传时使用该群组默认根目录', example='exampleDirectoryId', position='Body'),
+  groupId: string(name='groupId', description='目标群组 ID
+
+This parameter is required.', example='exampleGroupId', position='Body'),
+  historyStartTime: string(name='historyStartTime', description='历史消息起始时间，支持 YYYY-MM-DD 或 YYYY-MM-DD HH:MM:SS
+
+This parameter is required.', example='2026-08-01', position='Body'),
+  notes?: string(name='notes', description='分析指令', example='重点识别客户诉求与待办', position='Body'),
+  operatingObjectName?: string(name='operatingObjectName', description='运营对象名称', example='my-agent', position='Body'),
+  sourceTags?: string(name='sourceTags', description='资源标签 JSON 字符串列表', example='["客户","群聊"]', position='Body'),
+  tenantId?: string(name='tenantId', description='租户ID，公共参数；缺省时使用调用方默认租户', example='10000', position='Query'),
+  updateFrequency?: {
+    cron?: string(name='cron', description='五段 cron；传入时优先于 preset', example='0 2 * * *'),
+    enabled?: boolean(name='enabled', description='是否启用定时同步，默认 true', example='true'),
+    preset?: string(name='preset', description='同步预设：hourly 或 daily_2am', example='hourly'),
+  }(name='updateFrequency', description='Source 级定时同步配置', shrink='json', position='Body'),
+}
+
+model CreateGroupDingtalkChatResponseBody = {
+  chatId?: string(name='chatId', description='普通钉钉群聊 ID', example='cidxxxxxxxx'),
+  code?: string(name='code', description='业务状态码：成功为 200，失败为后端错误码', example='200'),
+  directoryId?: string(name='directoryId', description='请求指定的目标目录 ID', example='exampleDirectoryId'),
+  gmtCreate?: string(name='gmtCreate', description='创建时间 ISO8601', example='2026-08-18T10:00:00Z'),
+  groupId?: string(name='groupId', description='目标群组 ID', example='exampleGroupId'),
+  message?: string(name='message', description='错误描述，成功时为空', example='The current zone list is illegal.'),
+  name?: string(name='name', description='Source 名称', example='客户项目群'),
+  requestId?: string(name='requestId', description='Id of the request', example='019FF406-1B10-0065-A97D-2D1920C2A03D'),
+  scope?: string(name='scope', description='资源范围，固定为 GROUP', example='GROUP'),
+  sourceId?: string(name='sourceId', description='新建 Source ID', example='exampleSourceId'),
+  status?: string(name='status', description='Source 状态', example='PENDING'),
+}
+
+model CreateGroupDingtalkChatResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: CreateGroupDingtalkChatResponseBody(name='body'),
+}
+
+/**
+  * @description ## 请求说明
+  * - 将指定普通钉钉群聊接入调用方已加入的群组知识库。
+  * - 资源类型固定为 DINGTALK，作用范围固定为 GROUP，归属用户从网关鉴权身份解析。
+  * - groupId、chatId 与 historyStartTime 为必填项。
+  * - updateFrequency 可通过 preset 或五段 cron 配置后续同步频率。
+  * - 服务端校验调用方群成员身份和目标群组目录权限；同一群聊可创建为不同 Source。
+  * @param request  the request parameters of CreateGroupDingtalkChat  CreateGroupDingtalkChatRequest
+  * @return CreateGroupDingtalkChatResponse
+ */
+async function createGroupDingtalkChat(request: CreateGroupDingtalkChatRequest): CreateGroupDingtalkChatResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'CreateGroupDingtalkChat', 'POST', '/openapi/createGroupDingtalkChat', 'json', true, 'form', request);
+}
+
+model CreateGroupFeishuDocRequest {
+  description?: string(name='description', description='资源描述', example='群协作文档', position='Body'),
+  directoryId?: string(name='directoryId', description='目标群目录 ID；不传时使用群知识库根目录', example='dir_group_child', position='Body'),
+  docUrl: string(name='docUrl', description='飞书 Docx 或底层为 Docx 的 Wiki HTTPS 链接
+
+This parameter is required.', example='https://example.feishu.cn/docx/doxcnExample', position='Body'),
+  groupId: string(name='groupId', description='目标群组 ID
+
+This parameter is required.', example='group_delivery', position='Body'),
+  name?: string(name='name', description='资源名称；不传时同步飞书标题', example='项目方案', position='Body'),
+  notes?: string(name='notes', description='分析指令', example='提取决策和待办', position='Body'),
+  objectBindings?: [ 
+    {
+      graphName?: string(name='graphName', description='对象归属语义图谱名', example='crm'),
+      objectId: string(name='objectId', description='绑定对象 ID
+
+This parameter is required.', example='1001'),
+      objectType: string(name='objectType', description='绑定对象类型
+
+This parameter is required.', example='customer'),
+    }
+  ](name='objectBindings', shrink='json', position='Body'),
+  operatingObjectName?: string(name='operatingObjectName', description='运营对象名称', example='研发助手', position='Body'),
+  sourceTags?: string(name='sourceTags', description='资源标签 JSON 字符串列表', example='["研发"]', position='Body'),
+  syncConfig?: {
+    cron?: string(name='cron', description='五段 cron 表达式', example='0 * * * *'),
+    enabled: boolean(name='enabled', description='是否启用定时同步
+
+This parameter is required.', example='true'),
+    preset?: string(name='preset', description='同步预设，默认 custom', example='custom'),
+  }(name='syncConfig', shrink='json', position='Body'),
+  tenantId?: string(name='tenantId', description='租户ID，公共参数；缺省时使用调用方默认租户', example='10000', position='Query'),
+}
+
+model CreateGroupFeishuDocResponseBody = {
+  code?: string(name='code', description='业务状态码；成功为 200', example='200'),
+  directoryId?: string(name='directoryId', description='请求指定的目标群目录 ID；默认群根场景为空', example='dir_group_child'),
+  docUrl?: string(name='docUrl', description='已提交的飞书文档 URL', example='https://example.feishu.cn/docx/doxcnExample'),
+  gmtCreate?: string(name='gmtCreate', description='创建时间 ISO8601', example='2026-08-26T10:00:00+08:00'),
+  groupId?: string(name='groupId', description='目标群组 ID', example='group_delivery'),
+  message?: string(name='message', description='错误描述；成功时为空', example='The current zone list is illegal.'),
+  name?: string(name='name', description='资源名称', example='项目方案'),
+  requestId?: string(name='requestId', description='Id of the request', example='019FF406-1B10-0065-A97D-2D1920C2A03D'),
+  scope?: string(name='scope', description='资源范围，固定为 GROUP', example='GROUP'),
+  sourceId?: string(name='sourceId', description='新建 Source ID', example='src_feishu_doc_1'),
+  status?: string(name='status', description='资源状态', example='RUNNING'),
+}
+
+model CreateGroupFeishuDocResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: CreateGroupFeishuDocResponseBody(name='body'),
+}
+
+/**
+  * @description ## 请求说明\n\n固定 `ONLINE_DOC + FEISHU + GROUP`。`groupId` 必填，`directoryId` 省略时使用该群知识库根目录；群成员与目录写权限由后端校验。
+  * @param request  the request parameters of CreateGroupFeishuDoc  CreateGroupFeishuDocRequest
+  * @return CreateGroupFeishuDocResponse
+ */
+async function createGroupFeishuDoc(request: CreateGroupFeishuDocRequest): CreateGroupFeishuDocResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'CreateGroupFeishuDoc', 'POST', '/openapi/createGroupFeishuDoc', 'json', true, 'form', request);
+}
+
 model CreateKnowledgeBaseAliDingDocRequest {
   description?: string(name='description', description='资源描述（可选）', example='created by eventbridge', position='Body'),
   directoryId?: string(name='directoryId', description='目标企业知识库目录 ID；不传时自动绑定到当前数字员工默认根目录，传入时必须是当前租户下已有的企业知识库目录', example='exampleDirectoryId', position='Body'),
@@ -282,6 +497,68 @@ model CreateKnowledgeBaseDirectoryResponse = {
 async function createKnowledgeBaseDirectory(request: CreateKnowledgeBaseDirectoryRequest): CreateKnowledgeBaseDirectoryResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RESTFUL', 'CreateKnowledgeBaseDirectory', 'POST', '/openapi/createKnowledgeBaseDirectory', 'json', true, 'form', request);
+}
+
+model CreateKnowledgeBaseFeishuDocRequest {
+  description?: string(name='description', description='资源描述', example='企业制度文档', position='Body'),
+  directoryId: string(name='directoryId', description='目标企业知识库目录 ID；必须具备该知识库管理权限
+
+This parameter is required.', example='dir_tenant_kb_child', position='Body'),
+  docUrl: string(name='docUrl', description='飞书 Docx 或底层为 Docx 的 Wiki HTTPS 链接
+
+This parameter is required.', example='https://example.feishu.cn/docx/doxcnExample', position='Body'),
+  name?: string(name='name', description='资源名称；不传时同步飞书标题', example='企业制度', position='Body'),
+  notes?: string(name='notes', description='分析指令', example='提取适用范围和关键条款', position='Body'),
+  objectBindings?: [ 
+    {
+      graphName?: string(name='graphName', description='对象归属语义图谱名', example='crm'),
+      objectId: string(name='objectId', description='绑定对象 ID
+
+This parameter is required.', example='1001'),
+      objectType: string(name='objectType', description='绑定对象类型
+
+This parameter is required.', example='customer'),
+    }
+  ](name='objectBindings', shrink='json', position='Body'),
+  operatingObjectName?: string(name='operatingObjectName', description='运营对象名称', example='企业知识助手', position='Body'),
+  sourceTags?: string(name='sourceTags', description='资源标签 JSON 字符串列表', example='["制度"]', position='Body'),
+  syncConfig?: {
+    cron?: string(name='cron', description='五段 cron 表达式', example='0 * * * *'),
+    enabled: boolean(name='enabled', description='是否启用定时同步
+
+This parameter is required.', example='true'),
+    preset?: string(name='preset', description='同步预设，默认 custom', example='custom'),
+  }(name='syncConfig', shrink='json', position='Body'),
+  tenantId?: string(name='tenantId', description='租户ID，公共参数；缺省时使用调用方默认租户', example='10000', position='Query'),
+}
+
+model CreateKnowledgeBaseFeishuDocResponseBody = {
+  code?: string(name='code', description='业务状态码；成功为 200', example='200'),
+  directoryId?: string(name='directoryId', description='目标企业知识库目录 ID', example='dir_tenant_kb_child'),
+  docUrl?: string(name='docUrl', description='已提交的飞书文档 URL', example='https://example.feishu.cn/docx/doxcnExample'),
+  gmtCreate?: string(name='gmtCreate', description='创建时间 ISO8601', example='2026-08-26T10:00:00+08:00'),
+  message?: string(name='message', description='错误描述；成功时为空', example='ok'),
+  name?: string(name='name', description='资源名称', example='企业制度'),
+  requestId?: string(name='requestId', description='请求追踪 ID', example='019FF406-1B10-0065-A97D-2D1920C2A03D'),
+  scope?: string(name='scope', description='资源范围，固定为 TENANT', example='TENANT'),
+  sourceId?: string(name='sourceId', description='新建 Source ID', example='src_feishu_doc_1'),
+  status?: string(name='status', description='资源状态', example='RUNNING'),
+}
+
+model CreateKnowledgeBaseFeishuDocResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: CreateKnowledgeBaseFeishuDocResponseBody(name='body'),
+}
+
+/**
+  * @description ## 请求说明\n\n固定 `ONLINE_DOC + FEISHU + TENANT`。`directoryId` 必填，调用者必须具备企业知识库功能权限及目标知识库管理权限。
+  * @param request  the request parameters of CreateKnowledgeBaseFeishuDoc  CreateKnowledgeBaseFeishuDocRequest
+  * @return CreateKnowledgeBaseFeishuDocResponse
+ */
+async function createKnowledgeBaseFeishuDoc(request: CreateKnowledgeBaseFeishuDocRequest): CreateKnowledgeBaseFeishuDocResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'CreateKnowledgeBaseFeishuDoc', 'POST', '/openapi/createKnowledgeBaseFeishuDoc', 'json', true, 'form', request);
 }
 
 model CreateKnowledgeBaseFileRequest {
@@ -594,6 +871,61 @@ async function createPersonalAlidingKnowledgeBase(request: CreatePersonalAliding
   return @handler.do('RESTFUL', 'CreatePersonalAlidingKnowledgeBase', 'POST', '/openapi/createPersonalAliDingKnowledgeBase', 'json', true, 'form', request);
 }
 
+model CreatePersonalDingtalkChatRequest {
+  chatId: string(name='chatId', description='普通钉钉群聊 ID
+
+This parameter is required.', example='cidxxxxxxxx', position='Body'),
+  chatName?: string(name='chatName', description='群聊名称', example='客户项目群', position='Body'),
+  description?: string(name='description', description='资源描述', example='客户群聊历史', position='Body'),
+  directoryId?: string(name='directoryId', description='目标个人知识目录 ID；不传时使用当前用户默认根目录', example='exampleDirectoryId', position='Body'),
+  historyStartTime: string(name='historyStartTime', description='历史消息起始时间，支持 YYYY-MM-DD 或 YYYY-MM-DD HH:MM:SS
+
+This parameter is required.', example='2026-08-01', position='Body'),
+  notes?: string(name='notes', description='分析指令', example='重点识别客户诉求与待办', position='Body'),
+  operatingObjectName?: string(name='operatingObjectName', description='运营对象名称', example='my-agent', position='Body'),
+  sourceTags?: string(name='sourceTags', description='资源标签 JSON 字符串列表', example='["客户","群聊"]', position='Body'),
+  tenantId?: string(name='tenantId', description='租户ID，公共参数；缺省时使用调用方默认租户', example='10000', position='Query'),
+  updateFrequency?: {
+    cron?: string(name='cron', description='五段 cron；传入时优先于 preset', example='0 2 * * *'),
+    enabled?: boolean(name='enabled', description='是否启用定时同步，默认 true', example='true'),
+    preset?: string(name='preset', description='同步预设：hourly 或 daily_2am', example='hourly'),
+  }(name='updateFrequency', description='Source 级定时同步配置', shrink='json', position='Body'),
+}
+
+model CreatePersonalDingtalkChatResponseBody = {
+  chatId?: string(name='chatId', description='普通钉钉群聊 ID', example='cidxxxxxxxx'),
+  code?: string(name='code', description='业务状态码：成功为 200，失败为后端错误码', example='200'),
+  directoryId?: string(name='directoryId', description='请求指定的目标目录 ID', example='exampleDirectoryId'),
+  gmtCreate?: string(name='gmtCreate', description='创建时间 ISO8601', example='2026-08-18T10:00:00Z'),
+  message?: string(name='message', description='错误描述，成功时为空', example='ok'),
+  name?: string(name='name', description='Source 名称', example='客户项目群'),
+  requestId?: string(name='requestId', description='请求追踪 ID', example='019FF406-1B10-0065-A97D-2D1920C2A03D'),
+  scope?: string(name='scope', description='资源范围，固定为 PERSONAL', example='PERSONAL'),
+  sourceId?: string(name='sourceId', description='新建 Source ID', example='exampleSourceId'),
+  status?: string(name='status', description='Source 状态', example='PENDING'),
+}
+
+model CreatePersonalDingtalkChatResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: CreatePersonalDingtalkChatResponseBody(name='body'),
+}
+
+/**
+  * @description ## 请求说明
+  * - 将指定普通钉钉群聊接入当前用户的个人知识库。
+  * - 资源类型固定为 DINGTALK，作用范围固定为 PERSONAL，归属用户从网关鉴权身份解析。
+  * - historyStartTime 为必填项，支持 YYYY-MM-DD 或 YYYY-MM-DD HH:MM:SS。
+  * - updateFrequency 可通过 preset 或五段 cron 配置后续同步频率。
+  * - 同一群聊可创建为不同 Source，各 Source 按 sourceId 隔离。
+  * @param request  the request parameters of CreatePersonalDingtalkChat  CreatePersonalDingtalkChatRequest
+  * @return CreatePersonalDingtalkChatResponse
+ */
+async function createPersonalDingtalkChat(request: CreatePersonalDingtalkChatRequest): CreatePersonalDingtalkChatResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'CreatePersonalDingtalkChat', 'POST', '/openapi/createPersonalDingtalkChat', 'json', true, 'form', request);
+}
+
 model CreatePersonalDingtalkMeetingRequest {
   credentialId?: string(name='credentialId', description='凭证 ID（历史兼容参数；接口已废弃且不再处理）', example='exampleCredentialId', position='Body'),
   description?: string(name='description', description='资源描述（可选）', example='Watchlist Monitor Layer', position='Body'),
@@ -786,6 +1118,66 @@ model CreatePersonalFeishuChatResponse = {
 async function createPersonalFeishuChat(request: CreatePersonalFeishuChatRequest): CreatePersonalFeishuChatResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RESTFUL', 'CreatePersonalFeishuChat', 'POST', '/openapi/createPersonalFeishuChat', 'json', true, 'form', request);
+}
+
+model CreatePersonalFeishuDocRequest {
+  description?: string(name='description', description='资源描述', example='项目设计文档', position='Body'),
+  directoryId?: string(name='directoryId', description='目标个人目录 ID；不传时使用当前用户默认个人根目录', example='dir_personal_child', position='Body'),
+  docUrl: string(name='docUrl', description='飞书 Docx 或底层为 Docx 的 Wiki HTTPS 链接
+
+This parameter is required.', example='https://example.feishu.cn/docx/doxcnExample', position='Body'),
+  name?: string(name='name', description='资源名称；不传时同步飞书标题', example='项目方案', position='Body'),
+  notes?: string(name='notes', description='分析指令', example='提取决策和待办', position='Body'),
+  objectBindings?: [ 
+    {
+      graphName?: string(name='graphName', description='对象归属语义图谱名', example='crm'),
+      objectId: string(name='objectId', description='绑定对象 ID
+
+This parameter is required.', example='1001'),
+      objectType: string(name='objectType', description='绑定对象类型
+
+This parameter is required.', example='customer'),
+    }
+  ](name='objectBindings', shrink='json', position='Body'),
+  operatingObjectName?: string(name='operatingObjectName', description='运营对象名称', example='研发助手', position='Body'),
+  sourceTags?: string(name='sourceTags', description='资源标签 JSON 字符串列表', example='["研发"]', position='Body'),
+  syncConfig?: {
+    cron?: string(name='cron', description='五段 cron 表达式', example='0 * * * *'),
+    enabled: boolean(name='enabled', description='是否启用定时同步
+
+This parameter is required.', example='true'),
+    preset?: string(name='preset', description='同步预设，默认 custom', example='custom'),
+  }(name='syncConfig', shrink='json', position='Body'),
+  tenantId?: string(name='tenantId', description='租户ID，公共参数；缺省时使用调用方默认租户', example='10000', position='Query'),
+}
+
+model CreatePersonalFeishuDocResponseBody = {
+  code?: string(name='code', description='业务状态码；成功为 200', example='200'),
+  directoryId?: string(name='directoryId', description='请求指定的目标个人目录 ID；默认根目录场景为空', example='dir_personal_child'),
+  docUrl?: string(name='docUrl', description='已提交的飞书文档 URL', example='https://example.feishu.cn/docx/doxcnExample'),
+  gmtCreate?: string(name='gmtCreate', description='创建时间 ISO8601', example='2026-08-26T10:00:00+08:00'),
+  message?: string(name='message', description='错误描述；成功时为空', example='ok'),
+  name?: string(name='name', description='资源名称', example='项目方案'),
+  requestId?: string(name='requestId', description='请求追踪 ID', example='019FF406-1B10-0065-A97D-2D1920C2A03D'),
+  scope?: string(name='scope', description='资源范围，固定为 PERSONAL', example='PERSONAL'),
+  sourceId?: string(name='sourceId', description='新建 Source ID', example='src_feishu_doc_1'),
+  status?: string(name='status', description='资源状态', example='RUNNING'),
+}
+
+model CreatePersonalFeishuDocResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: CreatePersonalFeishuDocResponseBody(name='body'),
+}
+
+/**
+  * @description ## 请求说明\n\n固定 `ONLINE_DOC + FEISHU + PERSONAL`，飞书连接器用户由可信 OpenAPI 身份确定。`directoryId` 省略时使用当前用户默认个人根目录。
+  * @param request  the request parameters of CreatePersonalFeishuDoc  CreatePersonalFeishuDocRequest
+  * @return CreatePersonalFeishuDocResponse
+ */
+async function createPersonalFeishuDoc(request: CreatePersonalFeishuDocRequest): CreatePersonalFeishuDocResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'CreatePersonalFeishuDoc', 'POST', '/openapi/createPersonalFeishuDoc', 'json', true, 'form', request);
 }
 
 model CreatePersonalFeishuMinuteRequest {
@@ -1199,6 +1591,88 @@ async function createUser(request: CreateUserRequest): CreateUserResponse {
   return @handler.do('RESTFUL', 'CreateUser', 'POST', '/openapi/createUser', 'json', true, 'form', request);
 }
 
+model CreateUserGroupRequest {
+  description?: string(name='description', description='用户组描述', example='销售组织', position='Body'),
+  parentId?: string(name='parentId', description='父用户组ID；不传表示创建根节点', example='7ea8973f-7a5c-4e8a-956b-4fe0e7e2eb11', position='Body'),
+  tenantId?: string(name='tenantId', description='租户ID，公共参数，缺省时使用调用方默认租户', example='10000', position='Query'),
+  userGroupName: string(name='userGroupName', description='用户组名称；同一父节点下唯一
+
+This parameter is required.', example='华东销售', position='Body'),
+}
+
+model CreateUserGroupResponseBody = {
+  code?: string(name='code', description='业务状态码：成功为 200', example='200'),
+  message?: string(name='message', description='错误描述，成功时为空', example='ok'),
+  requestId?: string(name='requestId', description='请求追踪 ID', example='019FF406-1B10-0065-A97D-2D1920C2A03D'),
+  userGroup?: any(name='userGroup', description='新创建的用户组信息'),
+}
+
+model CreateUserGroupResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: CreateUserGroupResponseBody(name='body'),
+}
+
+/**
+  * @description WinNexo 用户管理 OpenAPI：创建用户组。租户身份来自鉴权上下文。
+  * @param request  the request parameters of CreateUserGroup  CreateUserGroupRequest
+  * @return CreateUserGroupResponse
+ */
+async function createUserGroup(request: CreateUserGroupRequest): CreateUserGroupResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'CreateUserGroup', 'POST', '/openapi/createUserGroup', 'json', true, 'form', request);
+}
+
+model CreateUserWithGroupsRequest {
+  displayName: string(name='displayName', description='用户显示名称（租户内唯一，不可为空，最多100字）
+
+This parameter is required.', example='string_value', position='Body'),
+  passwordEncrypted: string(name='passwordEncrypted', description='RSA-OAEP-SHA256 加密后的 base64 密码密文（必填，不可为空）
+
+This parameter is required.', example='string_value', position='Body'),
+  roleCodes?: [ string ](name='roleCodes', description='系统角色 code 列表，可选值: SUPER_ADMIN / SYSTEM_ADMIN / SEMANTIC_ADMIN / SKILL_ADMIN / KB_ADMIN / AGENT_ADMIN / APPLICATION_USER。不传默认 APPLICATION_USER', example='string_value', shrink='json', position='Body'),
+  tenantId?: string(name='tenantId', description='租户ID，公共参数，缺省时使用调用方默认租户', example='string_value', position='Query'),
+  userGroupIds?: [ string ](name='userGroupIds', description='初始用户组 ID 列表，可选；所有用户组必须属于当前租户', example='string_value', shrink='json', position='Body'),
+  wnAccountId: string(name='wnAccountId', description='WINNEXO 登录账号（唯一标识，不可为空）
+
+This parameter is required.', example='exampleAccountId', position='Body'),
+}
+
+model CreateUserWithGroupsResponseBody = {
+  accountId?: string(name='accountId', description='WINNEXO 登录账号', example='user123@example.com'),
+  code?: string(name='code', description='业务状态码：成功为 200，失败为后端错误码（ERR.* / InvalidParameter.*）', example='200'),
+  displayName?: string(name='displayName', description='用户显示名称', example='string_value'),
+  isNewUser?: boolean(name='isNewUser', description='是否为新创建的用户（false 表示已有用户加入租户）', example='true'),
+  message?: string(name='message', description='错误描述，成功时为空', example='ok'),
+  requestId?: string(name='requestId', description='请求追踪 ID', example='019FF406-1B10-0065-A97D-2D1920C2A03D'),
+  wnUserId?: string(name='wnUserId', description='WINNEXO 平台用户ID', example='1'),
+}
+
+model CreateUserWithGroupsResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: CreateUserWithGroupsResponseBody(name='body'),
+}
+
+/**
+  * @description OpenAPI 创建用户并设置初始角色和用户组。
+  *     业务编排：
+  *     1. 解析 roleCodes → role_ids（系统角色枚举校验）
+  *     2. 判断用户是否已存在（用于返回 isNewUser 标记）
+  *     3. 校验 userGroupIds 的租户归属并完成创建/加入（密码由调用方强制传入 RSA 密文）
+  *     4. 返回创建结果（含 isNewUser 标记）
+  *     错误码：
+  *     - ERR.User.DeactivatedInTenant: 用户在租户中已停用，请使用 updateUser 恢复
+  *     - ERR.User.AlreadyInTenant: 用户已是租户活跃成员
+  *     - ERR.User.DisplayNameDuplicateInTenant: 租户内显示名重复
+  * @param request  the request parameters of CreateUserWithGroups  CreateUserWithGroupsRequest
+  * @return CreateUserWithGroupsResponse
+ */
+async function createUserWithGroups(request: CreateUserWithGroupsRequest): CreateUserWithGroupsResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'CreateUserWithGroups', 'POST', '/openapi/createUserWithGroups', 'json', true, 'form', request);
+}
+
 model DeleteChatSessionRequest {
   sessionId: string(name='sessionId', description='会话ID
 
@@ -1442,6 +1916,7 @@ model GetGraphSchemaResponseBody = {
 This parameter is required.', example='string_value'),
   message?: string(name='message', description='错误描述，成功时为空', example='ok'),
   requestId?: string(name='requestId', description='请求追踪 ID', example='019FF406-1B10-0065-A97D-2D1920C2A03D'),
+  schemaId?: string(name='schemaId', description='graph 对应的 active QueryAgent 注册 schema ID；尚未注册时为 null', example='schema_123456'),
   schemaVersion: string(name='schemaVersion', description='当前 active Graph Schema 版本
 
 This parameter is required.', example='string_value'),
@@ -1665,6 +2140,70 @@ model GetScheduledTaskExecutionRecordsResponse = {
 async function getScheduledTaskExecutionRecords(request: GetScheduledTaskExecutionRecordsRequest): GetScheduledTaskExecutionRecordsResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RESTFUL', 'GetScheduledTaskExecutionRecords', 'GET', '/openapi/getScheduledTaskExecutionRecords', 'json', false, 'json', request);
+}
+
+model GetScheduledTaskPushOptionsRequest {
+  collaborationGroupId?: string(name='collaborationGroupId', description='协作群组 ID；传入时返回该群可选的 IM 群绑定', example='cg_401', position='Body'),
+  digitalEmployeeName?: string(name='digitalEmployeeName', description='个人任务查询时使用的数字员工名称；查询群任务推送选项时无需传入', example='exampleDigitalEmployeeName', position='Body'),
+  tenantId?: string(name='tenantId', description='租户ID，公共参数，缺省时使用调用方默认租户', example='10000', position='Query'),
+}
+
+model GetScheduledTaskPushOptionsResponseBody = {
+  channels?: [ 
+    {
+      channelName: string(name='channelName', description='渠道展示名
+
+This parameter is required.', example='钉钉'),
+      channelType: string(name='channelType', description='渠道枚举值
+
+This parameter is required.', example='DINGTALK'),
+      imGroups?: [ 
+        {
+          imGroupId: string(name='imGroupId', description='外部 IM 群 ID
+
+This parameter is required.', example='cidExample'),
+          imGroupName?: string(name='imGroupName', description='外部 IM 群名称', example='项目协作群'),
+          mappingId: long(name='mappingId', description='IM 群绑定记录 ID
+
+This parameter is required.', example='101'),
+        }
+      ](name='imGroups', description='该协作群组在此渠道绑定的可选 IM 群；个人任务查询时为空'),
+      methods?: [ 
+        {
+          disabledReason?: string(name='disabledReason', description='置灰原因', example='未绑定推送渠道'),
+          enabled: boolean(name='enabled', description='是否可选
+
+This parameter is required.', example='true'),
+          method: string(name='method', description='推送方式：channel_bot/direct
+
+This parameter is required.', example='channel_bot'),
+          name: string(name='name', description='推送方式展示名
+
+This parameter is required.', example='群机器人'),
+        }
+      ](name='methods', description='推送方式'),
+    }
+  ](name='channels', description='可用推送渠道及其个人推送方式或群绑定列表'),
+  code?: string(name='code', description='业务状态码：成功为 200，失败为后端错误码', example='200'),
+  emptyHint?: string(name='emptyHint', description='无已绑定三方账号时的提示', example='暂无可用推送渠道'),
+  message?: string(name='message', description='错误描述，成功时为空', example='success'),
+  requestId?: string(name='requestId', description='请求追踪 ID', example='019FF406-1B10-0065-A97D-2D1920C2A03D'),
+}
+
+model GetScheduledTaskPushOptionsResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: GetScheduledTaskPushOptionsResponseBody(name='body'),
+}
+
+/**
+  * @description 查询当前用户可用于定时任务推送的渠道与方式。
+  * @param request  the request parameters of GetScheduledTaskPushOptions  GetScheduledTaskPushOptionsRequest
+  * @return GetScheduledTaskPushOptionsResponse
+ */
+async function getScheduledTaskPushOptions(request: GetScheduledTaskPushOptionsRequest): GetScheduledTaskPushOptionsResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'GetScheduledTaskPushOptions', 'POST', '/openapi/getScheduledTaskPushOptions', 'json', true, 'form', request);
 }
 
 model GetScheduledTaskUnderstandDetailRequest {
@@ -1968,6 +2507,45 @@ async function getSourceUploadSignature(request: GetSourceUploadSignatureRequest
   return @handler.do('RESTFUL', 'GetSourceUploadSignature', 'POST', '/openapi/getSourceUploadSignature', 'json', true, 'form', request);
 }
 
+model GetTokenEnsureEnableRequest {
+  tenantId?: string(name='tenantId', description='租户ID，公共参数，缺省时使用调用方默认租户', example='10000', position='Query'),
+  wnUserId?: string(name='wnUserId', description='目标用户 ID（WINNEXO 平台用户ID，空则操作自身，管理员可传入他人 ID 代操作）', example='1', position='Body'),
+}
+
+model GetTokenEnsureEnableResponseBody = {
+  code?: string(name='code', description='业务状态码：成功为 200，失败为后端错误码（ERR.* / InvalidParameter.*）', example='200'),
+  gmtCreate?: string(name='gmtCreate', description='Token 创建时间（ISO 8601）', example='2026-08-25T10:00:00+08:00'),
+  message?: string(name='message', description='错误描述，成功时为空', example='successful'),
+  requestId?: string(name='requestId', description='请求追踪 ID', example='019FF406-1B10-0065-A97D-2D1920C2A03D'),
+  token?: string(name='token', description='生效中的 Token 明文（始终返回，请妥善保管）', example='example_token_value'),
+  tokenMasked?: string(name='tokenMasked', description='脱敏后的 Token 值', example='string_value'),
+}
+
+model GetTokenEnsureEnableResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: GetTokenEnsureEnableResponseBody(name='body'),
+}
+
+/**
+  * @description 获取用户的 INSTANCE Token，并确保其处于生效状态（幂等）。
+  *     业务逻辑：
+  *     1. 从 identity 取 user_id（强制 caller_type=user）
+  *     2. 构造 AuthContext，委托 UserTokenAuthorizedService 完成权限校验
+  *     3. 调用 ensure_active_token：
+  *        - 已有 ACTIVE → 原样返回该 Token 明文（不重置、不换密钥）
+  *        - 有 INACTIVE → 自动重新启用并返回明文
+  *        - 都没有（或仅有已失效的 RESET 记录）→ 新建并返回明文
+  *     与 EnableToken 的差异：EnableToken 在已有 ACTIVE Token 时只回脱敏值，
+  *     本接口保证在不破坏已有 Token 的前提下一定返回可用的明文凭证。
+  * @param request  the request parameters of GetTokenEnsureEnable  GetTokenEnsureEnableRequest
+  * @return GetTokenEnsureEnableResponse
+ */
+async function getTokenEnsureEnable(request: GetTokenEnsureEnableRequest): GetTokenEnsureEnableResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'GetTokenEnsureEnable', 'POST', '/openapi/getTokenEnsureEnable', 'json', true, 'form', request);
+}
+
 model GetTokenInfoRequest {
   tenantId?: string(name='tenantId', description='租户ID，公共参数，缺省时使用调用方默认租户', example='10000', position='Query'),
   wnUserId?: string(name='wnUserId', description='目标用户 ID（WINNEXO 平台用户ID，空则操作自身，管理员可传入他人 ID 代操作）', example='1', position='Body'),
@@ -2006,12 +2584,12 @@ async function getTokenInfo(request: GetTokenInfoRequest): GetTokenInfoResponse 
 
 model GetUserRequest {
   tenantId?: string(name='tenantId', description='租户ID，公共参数，缺省时使用调用方默认租户', example='10000', position='Query'),
-  wnAccountId?: string(name='wnAccountId', description='WINNEXO 登录账号（与 wnUserId 二选一）', example='exampleAccountId', position='Query'),
-  wnUserId?: string(name='wnUserId', description='WINNEXO 平台用户ID（与 accountId 二选一）', example='1', position='Query'),
+  wnAccountId?: string(name='wnAccountId', description='平台账号ID（与 wnUserId 二选一，支持 WINNEXO/BUC/SSO）', example='exampleAccountId', position='Query'),
+  wnUserId?: string(name='wnUserId', description='平台用户ID（与 accountId 二选一）', example='1', position='Query'),
 }
 
 model GetUserResponseBody = {
-  accountId?: string(name='accountId', description='WINNEXO 登录账号', example='exampleAccountId'),
+  accountId?: string(name='accountId', description='平台账号ID', example='exampleAccountId'),
   code?: string(name='code', description='业务状态码：成功为 200，失败为后端错误码（ERR.* / InvalidParameter.*）', example='200'),
   displayName?: string(name='displayName', description='用户显示名称', example='string_value'),
   gmtCreate?: string(name='gmtCreate', description='加入租户时间', example='string_value'),
@@ -2021,7 +2599,7 @@ model GetUserResponseBody = {
   requestId?: string(name='requestId', description='请求追踪 ID', example='019FF406-1B10-0065-A97D-2D1920C2A03D'),
   roleCodes?: [ string ](name='roleCodes', description='用户拥有的系统角色 code 列表', example='string_value'),
   userGroupIds?: [ string ](name='userGroupIds', description='用户所属用户组ID列表', example='string_value'),
-  wnUserId?: string(name='wnUserId', description='WINNEXO 平台用户ID', example='1'),
+  wnUserId?: string(name='wnUserId', description='平台用户ID', example='1'),
 }
 
 model GetUserResponse = {
@@ -2033,13 +2611,13 @@ model GetUserResponse = {
 /**
   * @description OpenAPI 查询用户详情。
   *     业务编排：
-  *     1. 按 wnUserId 或 accountId 定位用户
-  *     2. 查询用户在当前租户的映射信息（状态、加入时间、最后登录）
+  *     1. 按 wnUserId 或平台 accountId 定位 WINNEXO/BUC/SSO 用户
+  *     2. 校验用户是当前租户正式成员（排除 RECEIVER）并查询映射信息（状态、加入时间、最后登录）
   *     3. 查询用户在当前租户的角色列表
   *     4. 查询用户在当前租户的用户组列表
   *     5. 组装响应
   *     错误码：
-  *     - ERR.User.NotFound: 用户不存在
+  *     - ERR.User.NotFound: 用户不存在或不是正式成员
   *     - ERR.User.NotInTenant: 用户不在当前租户下
   * @param request  the request parameters of GetUser  GetUserRequest
   * @return GetUserResponse
@@ -2085,6 +2663,39 @@ model GetUserCreditUsageResponse = {
 async function getUserCreditUsage(request: GetUserCreditUsageRequest): GetUserCreditUsageResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RESTFUL', 'GetUserCreditUsage', 'POST', '/openapi/getUserCreditUsage', 'json', false, 'json', request);
+}
+
+model GetUserGroupRequest {
+  tenantId?: string(name='tenantId', description='租户ID，公共参数，缺省时使用调用方默认租户', example='10000', position='Query'),
+  userGroupId: string(name='userGroupId', description='目标用户组ID
+
+This parameter is required.', example='7ea8973f-7a5c-4e8a-956b-4fe0e7e2eb11', position='Body'),
+}
+
+model GetUserGroupResponseBody = {
+  childGroups?: [ any ](name='childGroups', description='直接子用户组列表'),
+  code?: string(name='code', description='业务状态码：成功为 200', example='200'),
+  members?: [ any ](name='members', description='当前用户组直接成员列表'),
+  message?: string(name='message', description='错误描述，成功时为空', example='success'),
+  parentGroup?: any(name='parentGroup', description='父用户组信息；根节点为空'),
+  requestId?: string(name='requestId', description='请求追踪 ID', example='019FF406-1B10-0065-A97D-2D1920C2A03D'),
+  userGroup?: any(name='userGroup', description='目标用户组信息'),
+}
+
+model GetUserGroupResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: GetUserGroupResponseBody(name='body'),
+}
+
+/**
+  * @description WinNexo 用户管理 OpenAPI：查询用户组详情。租户身份来自鉴权上下文。
+  * @param request  the request parameters of GetUserGroup  GetUserGroupRequest
+  * @return GetUserGroupResponse
+ */
+async function getUserGroup(request: GetUserGroupRequest): GetUserGroupResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'GetUserGroup', 'POST', '/openapi/getUserGroup', 'json', true, 'form', request);
 }
 
 model GetUserInfoRequest {
@@ -2181,6 +2792,53 @@ model GrantAgentUsersResponse = {
 async function grantAgentUsers(request: GrantAgentUsersRequest): GrantAgentUsersResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RESTFUL', 'GrantAgentUsers', 'POST', '/openapi/grantAgentUsers', 'json', true, 'form', request);
+}
+
+model ListActiveAnnouncementsRequest {
+  pageNumber?: long(name='pageNumber', description='页码，从 1 开始', example='1', minimum=1, position='Body'),
+  pageSize?: long(name='pageSize', description='每页数量，范围 1 到 100', example='20', minimum=1, maximum=100, position='Body'),
+  tenantId?: string(name='tenantId', description='租户ID，公共参数；缺省时使用调用方默认租户', example='10000', position='Query'),
+}
+
+model ListActiveAnnouncementsResponseBody = {
+  code?: string(name='code', description='业务状态码：成功为 200，失败为后端错误码', example='200'),
+  items?: [ 
+    {
+      announcementId?: long(name='announcementId', description='公告业务 ID', example='1001'),
+      content?: string(name='content', description='公告正文', example='系统将于今晚进行维护。'),
+      createdBy?: long(name='createdBy', description='创建人平台用户 ID', example='10001'),
+      displayPage?: string(name='displayPage', description='展示页面：ALL、FRONTEND、BACKEND', example='ALL'),
+      displayType?: string(name='displayType', description='展示类型：POPUP、LIST、BANNER', example='LIST'),
+      effectiveEnd?: string(name='effectiveEnd', description='生效结束时间；为空表示永久有效，ISO8601 格式', example='2026-08-21T14:00:00+08:00'),
+      effectiveStart?: string(name='effectiveStart', description='生效开始时间；为空表示立即生效，ISO8601 格式', example='2026-08-20T14:00:00+08:00'),
+      priority?: string(name='priority', description='公告重要性', example='GENERAL'),
+      publishedAt?: string(name='publishedAt', description='发布时间，ISO8601 格式', example='2026-08-20T14:00:00+08:00'),
+      status?: string(name='status', description='公告状态，固定为 PUBLISHED', example='PUBLISHED'),
+      title?: string(name='title', description='公告标题', example='系统维护通知'),
+    }
+  ](name='items', description='当前生效公告列表'),
+  message?: string(name='message', description='错误描述，成功时为空', example='successful'),
+  pageNumber?: long(name='pageNumber', description='当前页码', example='1'),
+  pageSize?: long(name='pageSize', description='每页数量', example='20'),
+  requestId?: string(name='requestId', description='请求追踪 ID', example='019FF406-1B10-0065-A97D-2D1920C2A03D'),
+  total?: long(name='total', description='当前生效公告总数', example='1'),
+}
+
+model ListActiveAnnouncementsResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ListActiveAnnouncementsResponseBody(name='body'),
+}
+
+/**
+  * @description ## 请求说明
+  * 分页查询当前数据库时间窗口内生效的已发布平台公告。调用身份必须是系统运维租户中拥有公告查看权限的真实用户。
+  * @param request  the request parameters of ListActiveAnnouncements  ListActiveAnnouncementsRequest
+  * @return ListActiveAnnouncementsResponse
+ */
+async function listActiveAnnouncements(request: ListActiveAnnouncementsRequest): ListActiveAnnouncementsResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'ListActiveAnnouncements', 'POST', '/openapi/listActiveAnnouncements', 'json', true, 'form', request);
 }
 
 model ListAdminKnowledgeBasesRequest {
@@ -3002,6 +3660,33 @@ async function listTenantDirectory(request: ListTenantDirectoryRequest): ListTen
   return @handler.do('RESTFUL', 'ListTenantDirectory', 'POST', '/openapi/listTenantDirectory', 'json', true, 'form', request);
 }
 
+model ListUserGroupsRequest {
+  tenantId?: string(name='tenantId', description='租户ID，公共参数，缺省时使用调用方默认租户', example='10000', position='Query'),
+}
+
+model ListUserGroupsResponseBody = {
+  code?: string(name='code', description='业务状态码：成功为 200', example='200'),
+  items?: [ any ](name='items', description='用户组树根节点列表；children 递归包含直接子用户组'),
+  message?: string(name='message', description='错误描述，成功时为空', example='ok'),
+  requestId?: string(name='requestId', description='请求追踪 ID', example='019FF406-1B10-0065-A97D-2D1920C2A03D'),
+}
+
+model ListUserGroupsResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ListUserGroupsResponseBody(name='body'),
+}
+
+/**
+  * @description WinNexo 用户管理 OpenAPI：查询当前租户用户组树。租户身份来自鉴权上下文。
+  * @param request  the request parameters of ListUserGroups  ListUserGroupsRequest
+  * @return ListUserGroupsResponse
+ */
+async function listUserGroups(request: ListUserGroupsRequest): ListUserGroupsResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'ListUserGroups', 'POST', '/openapi/listUserGroups', 'json', false, 'json', request);
+}
+
 model ListUserVisibleKnowledgeBaseContentsRequest {
   directoryId: string(name='directoryId', description='目标知识库根目录或其子目录的唯一标识
 
@@ -3124,7 +3809,7 @@ async function listUserVisibleKnowledgeBases(request: ListUserVisibleKnowledgeBa
 }
 
 model ListUsersRequest {
-  accountIds?: [ string ](name='accountIds', description='按 WINNEXO 登录账号精确批量查询（多选）；与其他筛选条件取交集。不传或传空列表 [] 均视为不按账号筛选（返回全部符合其他条件的成员）', example='string_value', shrink='json', position='Body'),
+  accountIds?: [ string ](name='accountIds', description='按平台账号ID精确批量查询（多选，支持 WINNEXO/BUC/SSO）；与其他筛选条件取交集。不传或传空列表 [] 均视为不按账号筛选（返回全部符合其他条件的成员）', example='string_value', shrink='json', position='Body'),
   isActive?: boolean(name='isActive', description='启用/停用状态筛选', example='true', position='Body'),
   keyword?: string(name='keyword', description='搜索关键词（模糊匹配显示名和账号）', example='示例关键词', position='Body'),
   page?: long(name='page', description='页码（从1开始）', example='1', position='Body'),
@@ -3137,7 +3822,7 @@ model ListUsersResponseBody = {
   code?: string(name='code', description='业务状态码：成功为 200，失败为后端错误码（ERR.* / InvalidParameter.*）', example='200'),
   items?: [ 
     {
-      accountId?: string(name='accountId', description='WINNEXO 登录账号', example='exampleAccountId'),
+      accountId?: string(name='accountId', description='平台账号ID', example='exampleAccountId'),
       displayName?: string(name='displayName', description='用户显示名称', example='string_value'),
       gmtCreate?: string(name='gmtCreate', description='加入租户时间', example='string_value'),
       isActive?: boolean(name='isActive', description='启用/停用状态', example='true'),
@@ -3163,7 +3848,7 @@ model ListUsersResponse = {
   * @description OpenAPI 分页查询租户成员列表。
   *     业务编排：
   *     1. 解析筛选条件（roleCodes → role_ids）
-  *     2. 调用 UserTenantMappingRepository.query_paged_tenant_members 分页查询
+  *     2. 调用 UserTenantMappingRepository.query_paged_tenant_members 分页查询当前租户所有来源的正式成员（WINNEXO/BUC/SSO）
   *     3. 将结果中的 role_id 转为 roleCode 并组装响应
   *     错误码：
   *     - 非法 roleCode 参数时抛出错误
@@ -3391,6 +4076,42 @@ model MoveResourceResponse = {
 async function moveResource(request: MoveResourceRequest): MoveResourceResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RESTFUL', 'MoveResource', 'POST', '/openapi/moveResource', 'json', true, 'form', request);
+}
+
+model OfflineAnnouncementRequest {
+  announcementId: long(name='announcementId', description='公告业务 ID，必须为正整数
+
+This parameter is required.', example='1001', minimum=1, position='Body'),
+  tenantId?: string(name='tenantId', description='租户ID，公共参数；缺省时使用调用方默认租户', example='10000', position='Query'),
+}
+
+model OfflineAnnouncementResponseBody = {
+  announcementId?: long(name='announcementId', description='公告业务 ID', example='1001'),
+  changed?: boolean(name='changed', description='本次调用是否发生 PUBLISHED 到 OFFLINE 状态变更', example='true'),
+  code?: string(name='code', description='业务状态码：成功为 200，失败为后端错误码', example='200'),
+  gmtModified?: string(name='gmtModified', description='公告最近修改时间，ISO8601 格式', example='2026-08-20T14:00:00+08:00'),
+  message?: string(name='message', description='错误描述，成功时为空', example='successful'),
+  requestId?: string(name='requestId', description='请求追踪 ID', example='019FF406-1B10-0065-A97D-2D1920C2A03D'),
+  status?: string(name='status', description='下线后的公告状态：OFFLINE 或 EXPIRED', example='OFFLINE'),
+  updatedBy?: long(name='updatedBy', description='最近操作人平台用户 ID', example='10001'),
+}
+
+model OfflineAnnouncementResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: OfflineAnnouncementResponseBody(name='body'),
+}
+
+/**
+  * @description ## 请求说明
+  * 按公告 ID 幂等下线平台公告。首次将 PUBLISHED 公告下线时返回 `changed=true`；公告已经下线或过期时返回 `changed=false`。
+  * 调用身份必须属于系统运维租户并拥有公告管理权限。
+  * @param request  the request parameters of OfflineAnnouncement  OfflineAnnouncementRequest
+  * @return OfflineAnnouncementResponse
+ */
+async function offlineAnnouncement(request: OfflineAnnouncementRequest): OfflineAnnouncementResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'OfflineAnnouncement', 'POST', '/openapi/offlineAnnouncement', 'json', true, 'form', request);
 }
 
 model PreviewKnowledgeBaseSourceRequest {
@@ -3699,6 +4420,41 @@ model RemoveUserResponse = {
 async function removeUser(request: RemoveUserRequest): RemoveUserResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RESTFUL', 'RemoveUser', 'POST', '/openapi/removeUser', 'json', false, 'json', request);
+}
+
+model RemoveUserGroupMembersRequest {
+  tenantId?: string(name='tenantId', description='租户ID，公共参数，缺省时使用调用方默认租户', example='10000', position='Query'),
+  userGroupId: string(name='userGroupId', description='目标用户组ID
+
+This parameter is required.', example='7ea8973f-7a5c-4e8a-956b-4fe0e7e2eb11', position='Body'),
+  userIds: [ long ](name='userIds', description='待移除的平台用户ID列表，1至100个
+
+This parameter is required.', example='1', shrink='json', position='Body'),
+}
+
+model RemoveUserGroupMembersResponseBody = {
+  affectedCount?: long(name='affectedCount', description='实际移除成员关系数量', example='2'),
+  code?: string(name='code', description='业务状态码：成功为 200', example='200'),
+  message?: string(name='message', description='错误描述，成功时为空', example='ok'),
+  requestId?: string(name='requestId', description='请求追踪 ID', example='019FF406-1B10-0065-A97D-2D1920C2A03D'),
+  requestedCount?: long(name='requestedCount', description='去重前请求成员数量', example='2'),
+  userGroupId?: string(name='userGroupId', description='目标用户组ID', example='7ea8973f-7a5c-4e8a-956b-4fe0e7e2eb11'),
+}
+
+model RemoveUserGroupMembersResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: RemoveUserGroupMembersResponseBody(name='body'),
+}
+
+/**
+  * @description WinNexo 用户管理 OpenAPI：批量移除用户组成员。租户身份来自鉴权上下文。
+  * @param request  the request parameters of RemoveUserGroupMembers  RemoveUserGroupMembersRequest
+  * @return RemoveUserGroupMembersResponse
+ */
+async function removeUserGroupMembers(request: RemoveUserGroupMembersRequest): RemoveUserGroupMembersResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'RemoveUserGroupMembers', 'POST', '/openapi/removeUserGroupMembers', 'json', true, 'form', request);
 }
 
 model RenameKnowledgeBaseSourceRequest {
@@ -4239,6 +4995,108 @@ async function runSkill(request: RunSkillRequest): RunSkillResponse {
   return @handler.do('RESTFUL', 'RunSkill', 'POST', '/openapi/runSkill', 'json', true, 'form', request);
 }
 
+model SaveGroupOutputFileToGroupResourceRequest {
+  directoryId?: string(name='directoryId', description='目标群资料目录 ID；不传时使用目标群默认目录', example='exampleDirectoryId', position='Body'),
+  groupId: string(name='groupId', description='目标协作群 ID
+
+This parameter is required.', example='exampleGroupId', position='Body'),
+  itemIds: [ string ](name='itemIds', description='itemIds
+
+This parameter is required.', example='["item-1","item-2"]', shrink='json', position='Body'),
+  mode: string(name='mode', description='保存方式：link=保持产出关联，copy=创建独立快照
+
+This parameter is required.', example='link', position='Body'),
+  tenantId?: string(name='tenantId', description='租户ID，公共参数；缺省时使用调用方默认租户', example='10000', position='Query'),
+}
+
+model SaveGroupOutputFileToGroupResourceResponseBody = {
+  code?: string(name='code', description='业务状态码：成功为 200，失败为后端错误码', example='200'),
+  message?: string(name='message', description='错误描述，成功时为空', example='ok'),
+  requestId?: string(name='requestId', description='请求追踪 ID', example='019FF406-1B10-0065-A97D-2D1920C2A03D'),
+  results?: [ 
+    {
+      errorCode?: string(name='errorCode', description='失败时返回业务错误码', example='ERR.Robject.UserOutput.ItemNotFound'),
+      errorMessage?: string(name='errorMessage', description='失败时返回本地化错误信息', example='群产出不存在'),
+      itemId?: string(name='itemId', description='群产出明细 ID', example='item-1'),
+      sourceId?: string(name='sourceId', description='成功时返回新建的群资料 Source ID', example='exampleSourceId'),
+      success?: boolean(name='success', description='是否保存成功', example='true'),
+    }
+  ](name='results', description='逐项保存结果，与 itemIds 同序'),
+}
+
+model SaveGroupOutputFileToGroupResourceResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: SaveGroupOutputFileToGroupResourceResponseBody(name='body'),
+}
+
+/**
+  * @description ## 请求说明
+  * - 将指定群产出保存到同一协作群的资料目录。
+  * - 支持 `link`（保持产出关联）与 `copy`（创建独立快照）两种模式。
+  * - 调用方必须是平台用户且为目标群成员；可归档当前调用方可见的群产出，包括其他成员创建的产出。
+  * - `directoryId` 不传时使用目标群的默认资料目录。
+  * - 单批最多处理 50 条产出；保存前会统一校验全部条目，任一条目不存在、不可见或无权操作时整批失败。
+  * - 通过统一校验后逐条保存，响应结果与 `itemIds` 保持同序，单条保存失败不影响其他条目。
+  * @param request  the request parameters of SaveGroupOutputFileToGroupResource  SaveGroupOutputFileToGroupResourceRequest
+  * @return SaveGroupOutputFileToGroupResourceResponse
+ */
+async function saveGroupOutputFileToGroupResource(request: SaveGroupOutputFileToGroupResourceRequest): SaveGroupOutputFileToGroupResourceResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'SaveGroupOutputFileToGroupResource', 'POST', '/openapi/saveGroupOutputFileToGroupResource', 'json', true, 'form', request);
+}
+
+model SaveGroupOutputFileToPersonalResourceRequest {
+  directoryId?: string(name='directoryId', description='当前操作人的目标个人目录 ID；不传时使用默认个人目录', example='exampleDirectoryId', position='Body'),
+  groupId: string(name='groupId', description='群产出所属协作群 ID
+
+This parameter is required.', example='exampleGroupId', position='Body'),
+  itemIds: [ string ](name='itemIds', description='itemIds
+
+This parameter is required.', example='["item-1","item-2"]', shrink='json', position='Body'),
+  mode: string(name='mode', description='保存方式：link=保持产出关联，copy=创建独立快照
+
+This parameter is required.', example='copy', position='Body'),
+  tenantId?: string(name='tenantId', description='租户ID，公共参数；缺省时使用调用方默认租户', example='10000', position='Query'),
+}
+
+model SaveGroupOutputFileToPersonalResourceResponseBody = {
+  code?: string(name='code', description='业务状态码：成功为 200，失败为后端错误码', example='200'),
+  message?: string(name='message', description='错误描述，成功时为空', example='successful'),
+  requestId?: string(name='requestId', description='请求追踪 ID', example='019FF406-1B10-0065-A97D-2D1920C2A03D'),
+  results?: [ 
+    {
+      errorCode?: string(name='errorCode', description='失败时返回业务错误码', example='ERR.Robject.UserOutput.ItemNotFound'),
+      errorMessage?: string(name='errorMessage', description='失败时返回本地化错误信息', example='群产出不存在'),
+      itemId?: string(name='itemId', description='群产出明细 ID', example='item-1'),
+      sourceId?: string(name='sourceId', description='成功时返回新建的个人 Source ID', example='exampleSourceId'),
+      success?: boolean(name='success', description='是否保存成功', example='true'),
+    }
+  ](name='results', description='逐项保存结果，与 itemIds 同序'),
+}
+
+model SaveGroupOutputFileToPersonalResourceResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: SaveGroupOutputFileToPersonalResourceResponseBody(name='body'),
+}
+
+/**
+  * @description ## 请求说明
+  * - 将指定群产出保存到当前操作人的个人知识库。
+  * - 支持 `link`（保持产出关联）与 `copy`（创建独立快照）两种模式。
+  * - 调用方必须是已关联平台用户的目标群成员；普通成员仅可归档本人创建的产出，群管理员可归档其可见的其他成员产出，个人归属始终取自网关鉴权身份。
+  * - `directoryId` 不传时使用当前操作人的默认个人目录。
+  * - 单批最多处理 50 条产出；保存前会统一校验全部条目，任一条目不存在、不可见或无权操作时整批失败。
+  * - 通过统一校验后逐条保存，响应结果与 `itemIds` 保持同序，单条保存失败不影响其他条目。
+  * @param request  the request parameters of SaveGroupOutputFileToPersonalResource  SaveGroupOutputFileToPersonalResourceRequest
+  * @return SaveGroupOutputFileToPersonalResourceResponse
+ */
+async function saveGroupOutputFileToPersonalResource(request: SaveGroupOutputFileToPersonalResourceRequest): SaveGroupOutputFileToPersonalResourceResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'SaveGroupOutputFileToPersonalResource', 'POST', '/openapi/saveGroupOutputFileToPersonalResource', 'json', true, 'form', request);
+}
+
 model SaveOutputFileToResourceRequest {
   directoryId?: string(name='directoryId', description='目标个人目录 ID；不传则自动解析用户默认目录。', example='exampleDirectoryId', position='Body'),
   itemIds: [ string ](name='itemIds', description='itemIds
@@ -4331,6 +5189,7 @@ model SendAsyncChatMessageResponseBody = {
   requestId?: string(name='requestId', description='请求追踪 ID', example='019FF406-1B10-0065-A97D-2D1920C2A03D'),
   sessionCreated?: boolean(name='sessionCreated', description='本次调用是否新建了会话', example='true'),
   sessionId?: string(name='sessionId', description='会话ID；续写会话时与入参一致，新建会话时为服务端生成值', example='bd772dcc-afab-44ad-9fb8-bca716726201'),
+  userMessageId?: string(name='userMessageId', description='用户消息ID；用于与本轮助手消息建立配对关系', example='60756cc6-8c53-4d1f-8db8-b8c09b81a5cb'),
 }
 
 model SendAsyncChatMessageResponse = {
@@ -5091,6 +5950,40 @@ model UpdateUserResponse = {
 async function updateUser(request: UpdateUserRequest): UpdateUserResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RESTFUL', 'UpdateUser', 'POST', '/openapi/updateUser', 'json', true, 'form', request);
+}
+
+model UpdateUserGroupRequest {
+  description?: string(name='description', description='新用户组描述；不传表示不修改', example='string_value', position='Body'),
+  moveToRoot?: boolean(name='moveToRoot', description='是否移动到根节点；不能与 parentId 同时设置', example='false', position='Body'),
+  parentId?: string(name='parentId', description='新父用户组ID；不传表示不移动', example='string_value', position='Body'),
+  tenantId?: string(name='tenantId', description='租户ID，公共参数，缺省时使用调用方默认租户', example='string_value', position='Query'),
+  userGroupId: string(name='userGroupId', description='目标用户组ID
+
+This parameter is required.', example='string_value', position='Body'),
+  userGroupName?: string(name='userGroupName', description='新用户组名称；不传表示不修改', example='string_value', position='Body'),
+}
+
+model UpdateUserGroupResponseBody = {
+  code?: string(name='code', description='业务状态码：成功为 200', example='200'),
+  message?: string(name='message', description='错误描述，成功时为空', example='The current zone list is illegal.'),
+  requestId?: string(name='requestId', description='请求追踪 ID', example='019FF406-1B10-0065-A97D-2D1920C2A03D'),
+  userGroup?: any(name='userGroup', description='更新后的用户组信息'),
+}
+
+model UpdateUserGroupResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: UpdateUserGroupResponseBody(name='body'),
+}
+
+/**
+  * @description WinNexo 用户管理 OpenAPI：更新用户组。租户身份来自鉴权上下文。
+  * @param request  the request parameters of UpdateUserGroup  UpdateUserGroupRequest
+  * @return UpdateUserGroupResponse
+ */
+async function updateUserGroup(request: UpdateUserGroupRequest): UpdateUserGroupResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'UpdateUserGroup', 'POST', '/openapi/updateUserGroup', 'json', true, 'form', request);
 }
 
 model UpdateUserInfoRequest {
