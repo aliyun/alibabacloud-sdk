@@ -309,30 +309,36 @@ model AiServiceConfig {
 }
 
 model AiStatisticsConfig {
-  logRequestContent?: boolean(name='logRequestContent', description='Specifies whether to log request content (controls whether question-related attributes are generated).', example='true'),
-  logResponseContent?: boolean(name='logResponseContent', description='Specifies whether to log response content (controls whether answer-related attributes are generated).', example='true'),
+  logRequestContent?: boolean(name='logRequestContent', description='**[Deprecated]** Specifies whether to record request content (controls whether question-related attributes are generated). This parameter is deprecated in the new version.', example='true'),
+  logResponseContent?: boolean(name='logResponseContent', description='**[Deprecated]** Specifies whether to record response content (controls whether answer-related attributes are generated). This parameter is deprecated in the new version.', example='true'),
   pathFieldConfigs?: [ 
     {
-      fieldPaths?: map[string]AiStatisticsPathField(name='fieldPaths', description='The field collection configuration.'),
+      fieldPaths?: map[string]AiStatisticsPathField(name='fieldPaths', description='The AI request log field configuration groups for the API path, passed in as a Map. The Map keys are fixed to basic and custom, and the values are arrays of log field configurations for the corresponding groups. basic indicates basic log fields, and custom indicates custom log fields. For the current API path, fieldPaths represents the complete desired state of field configurations and does not support incremental appending or diff merging.
+
+If pathFieldConfigs is not passed, is null, or is an empty array, the existing log field configurations are not updated. If a non-empty array is passed, the system performs a desired state replacement based on the complete set of Paths in the request, and historical Path configurations not included in the request are deleted.
+
+For example, to add a custom field test to the /v1/chat/completions API path on top of existing configurations, the caller must use a "read-merge-write back in full" approach:
+1. Read all current Path configurations.
+2. Retain the complete basic array and custom array for the target API path /v1/chat/completions.
+3. Append test to the current custom array.
+4. Keep configurations for other API paths unchanged.
+5. Submit the merged complete pathFieldConfigs.'),
       path?: string(name='path', description='The API path.', example='/v1/chat/completions'),
     }
-  ](name='pathFieldConfigs', description='The list of custom field collection configurations, configured by API path.'),
+  ](name='pathFieldConfigs', description='The list of AI request log field collection configurations, configured by API path.'),
 }
 
 model AiStatisticsPathField {
-  category?: string(name='category', description='The secondary category.', example='conversation'),
-  description?: string(name='description', description='The field description.', example='用户输入的问题内容'),
-  fieldKey?: string(name='fieldKey', description='The log key.', example='question'),
-  io?: string(name='io', description='The request or response direction.', example='request'),
-  jsonPath?: string(name='jsonPath', description='The corresponding JSON path (GJSON syntax).', example='messages.#.content'),
-  name?: string(name='name', description='The display name of the field.', example='问题内容'),
-  recordEnabled?: boolean(name='recordEnabled', description='Specifies whether collection is enabled.', example='true'),
-  rule?: string(name='rule', description='The rule used for streaming response extraction. Valid values:
-- append: appends content
-- first: retrieves the first value
-- replace: retrieves the last value', example='append'),
-  sensitive?: boolean(name='sensitive', description='Indicates whether the field is sensitive.', example='false'),
-  source?: string(name='source', description='The data source.', example='request_body'),
+  category?: string(name='category', description='The secondary business category of the field. Optional. Valid values: conversation (conversation content), config (configuration parameters), tools (tool calling), usage (usage statistics), metadata (metadata), choices (candidate results), identity (identity identifier), cache (cache information), media (multimedia content), logprobs (log probabilities), and custom (custom field). Set custom fields to custom.', example='conversation'),
+  description?: string(name='description', description='The field description.', example='The question content entered by the user'),
+  fieldKey?: string(name='fieldKey', description='The log key (field name).', example='question'),
+  io?: string(name='io', description='The request or response attribution. The backend normalizes this to request or response based on source.', example='request'),
+  jsonPath?: string(name='jsonPath', description='The corresponding jsonPath (gjson syntax).', example='messages.#.content'),
+  name?: string(name='name', description='The annotation for the field key name.', example='Question content'),
+  recordEnabled?: boolean(name='recordEnabled', description='Indicates whether collection is enabled to create a log record for the corresponding field in AI request logs.', example='true'),
+  rule?: string(name='rule', description='The aggregation rule for streaming response fields. Valid values: append, first, and replace. append: appends the matched values from each streaming chunk in sequence. first: retains the first matched value. replace: uses the last matched value. When source is response_streaming_body and rule is not specified, first is used by default. This field is not required for non-streaming scenarios.', example='append'),
+  sensitive?: boolean(name='sensitive', description='Specifies whether the field is sensitive.', example='false'),
+  source?: string(name='source', description='The source of the field value. Valid values: fixed_value (fixed value), request_body (request body), request_header (request header), response_header (response header), response_body (non-streaming response body), and response_streaming_body (streaming response body).', example='request_body'),
 }
 
 model AiTokenRateLimitConfig {
@@ -1308,22 +1314,29 @@ model HttpApiVersionInfo {
 }
 
 model HttpDubboTranscoder {
-  dubboServiceGroup?: string(name='dubboServiceGroup', description='The Dubbo service group.'),
-  dubboServiceName?: string(name='dubboServiceName', description='The Dubbo service name.'),
-  dubboServiceVersion?: string(name='dubboServiceVersion', description='The Dubbo service version.'),
+  dubboServiceGroup?: string(name='dubboServiceGroup', description='The Dubbo service group.', example='DEV'),
+  dubboServiceName?: string(name='dubboServiceName', description='The Dubbo service name.', example='com.example.DemoService'),
+  dubboServiceVersion?: string(name='dubboServiceVersion', description='The Dubbo service version.', example='1.0.0'),
   methodMapList?: [ 
     {
-      dubboMethodName?: string(name='dubboMethodName', description='The Dubbo method name.'),
+      dubboMethodName?: string(name='dubboMethodName', description='The Dubbo method name.', example='sayName'),
       httpMethod?: string(name='httpMethod', description='The HTTP method. Valid values: ALL_GET. ALL_POST. ALL_PUT. ALL_DELETE. ALL_PATCH.', example='ALL_GET'),
       methodPath?: string(name='methodPath', description='The method matching path.', example='/mytestzbk/sayhello'),
       paramMapsList?: [ 
         {
           extractKey?: string(name='extractKey', description='The key used to extract the input parameter.', example='name'),
-          extractKeySpec?: string(name='extractKeySpec', description='The input parameter location. Valid values: ALL_QUERY_PARAMETER: request parameter. ALL_HEADER: request header. ALL_PATH: URI of the request. ALL_BODY: request body.', example='ALL_QUERY_PARAMETER'),
+          extractKeySpec?: string(name='extractKeySpec', description='The input parameter location. Valid values:
+- ALL_QUERY_PARAMETER: Request parameter.
+- ALL_HEADER: Request header.
+- ALL_PATH: URI of the request.
+- ALL_BODY: Request body.', example='ALL_QUERY_PARAMETER'),
           mappingType?: string(name='mappingType', description='The backend parameter type.', example='java.lang.String'),
         }
       ](name='paramMapsList', description='The parameter mapping list.'),
-      passThroughAllHeaders?: string(name='passThroughAllHeaders', description='The header pass-through type. Valid values: PASS_ALL: passes through all headers. PASS_NOT: does not pass through any headers. PASS_ASSIGN: passes through specified headers.', example='PASS_NOT'),
+      passThroughAllHeaders?: string(name='passThroughAllHeaders', description='The header pass-through type. Valid values:
+- PASS_ALL: Pass through all headers.
+- PASS_NOT: Do not pass through headers.
+- PASS_ASSIGN: Pass through specified headers.', example='PASS_NOT'),
       passThroughList?: [ string ](name='passThroughList', description='The list of specified pass-through headers.'),
     }
   ](name='methodMapList', description='The method mapping list.'),
@@ -2212,12 +2225,12 @@ async function batchExportHttpApis(request: BatchExportHttpApisRequest): BatchEx
 }
 
 model BatchImportHttpApisRequest {
-  allowUpdate?: boolean(name='allowUpdate'),
+  allowUpdate?: boolean(name='allowUpdate', example='false'),
   apiType?: string(name='apiType', description='This parameter is required.', example='Http'),
   dryRun?: boolean(name='dryRun', example='true'),
   gatewayId?: string(name='gatewayId', example='gw-xxx'),
   resourceGroupId?: string(name='resourceGroupId', example='rg-xxx'),
-  specContentBase64?: string(name='specContentBase64'),
+  specContentBase64?: string(name='specContentBase64', example='b3BlbmFwaTogMy4wLjAKaW5mbzoKICAgIHRpdGxlOiBkZW1vCiAgICBkZXNjcmlwdGlvbjogdGhpc2lzZGVtbwogICAgdmVyc2lvbjogIiIKcGF0aHM6CiAgICAvdXNlci97dXNlcklkfToKICAgICAgICBnZXQ6CiAgICAgICAgICAgIHN1bW1hcnk6IOiOt+WPlueUqOaIt+S/oeaBrwogICAgICAgICAgICBkZXNjcmlwdGlvbjog6I635Y+W55So5oi35L+h5oGvCiAgICAgICAgICAgIG9wZXJhdGlvbklkOiBHZXRVc2VySW5mbwogICAgICAgICAgICByZXNwb25zZXM6CiAgICAgICAgICAgICAgICAiMjAwIjoKICAgICAgICAgICAgICAgICAgICBkZXNjcmlwdGlvbjog5oiQ5YqfCiAgICAgICAgICAgICAgICAgICAgY29udGVudDoKICAgICAgICAgICAgICAgICAgICAgICAgYXBwbGljYXRpb24vanNvbjtjaGFyc2V0PXV0Zi04OgogICAgICAgICAgICAgICAgICAgICAgICAgICAgc2NoZW1hOiBudWxsCnNlcnZlcnM6CiAgICAtIHVybDogaHR0cDovL2FwaS5leGFtcGxlLmNvbS92MQo='),
   specFileUrl?: string(name='specFileUrl', example='https://oss-cn-hangzhou.aliyuncs.com/my-bucket/imports/batch.zip'),
   specOssConfig?: {
     bucketName?: string(name='bucketName', description='This parameter is required.', example='my-bucket'),
@@ -2379,6 +2392,78 @@ async function batchRemoveConsumerGroupConsumers(consumerGroupId: string, reques
   var runtime = new Util.RuntimeOptions{};
   var headers : map[string]string = {};
   return batchRemoveConsumerGroupConsumersWithOptions(consumerGroupId, request, headers, runtime);
+}
+
+model BatchUpdateHttpApiOperationRequest {
+  authConfig?: {
+    authMode?: string(name='authMode', example='Custom'),
+    authType?: string(name='authType', example='Jwt'),
+  }(name='authConfig'),
+  enableAuth?: boolean(name='enableAuth', example='true'),
+  operationIds?: [ string ](name='operationIds'),
+}
+
+model BatchUpdateHttpApiOperationResponseBody = {
+  code?: string(name='code', example='200'),
+  message?: string(name='message', example='success'),
+  requestId?: string(name='requestId', description='Id of the request', example='4CF2E0A5-xxxx'),
+}
+
+model BatchUpdateHttpApiOperationResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: BatchUpdateHttpApiOperationResponseBody(name='body'),
+}
+
+/**
+ * @summary 批量更新消费者鉴权
+ *
+ * @param request BatchUpdateHttpApiOperationRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return BatchUpdateHttpApiOperationResponse
+ */
+async function batchUpdateHttpApiOperationWithOptions(httpApiId: string, request: BatchUpdateHttpApiOperationRequest, headers: map[string]string, runtime: Util.RuntimeOptions): BatchUpdateHttpApiOperationResponse {
+  Util.validateModel(request);
+  var body : map[string]any = {};
+  if (!Util.isUnset(request.authConfig)) {
+    body['authConfig'] = request.authConfig;
+  }
+  if (!Util.isUnset(request.enableAuth)) {
+    body['enableAuth'] = request.enableAuth;
+  }
+  if (!Util.isUnset(request.operationIds)) {
+    body['operationIds'] = request.operationIds;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApi.Params{
+    action = 'BatchUpdateHttpApiOperation',
+    version = '2024-03-27',
+    protocol = 'HTTPS',
+    pathname = `/v1/http-apis/${OpenApiUtil.getEncodeParam(httpApiId)}/operations`,
+    method = 'PUT',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 批量更新消费者鉴权
+ *
+ * @param request BatchUpdateHttpApiOperationRequest
+ * @return BatchUpdateHttpApiOperationResponse
+ */
+async function batchUpdateHttpApiOperation(httpApiId: string, request: BatchUpdateHttpApiOperationRequest): BatchUpdateHttpApiOperationResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return batchUpdateHttpApiOperationWithOptions(httpApiId, request, headers, runtime);
 }
 
 model ChangeResourceGroupRequest {
@@ -3882,6 +3967,71 @@ async function createHttpApiRoute(httpApiId: string, request: CreateHttpApiRoute
   return createHttpApiRouteWithOptions(httpApiId, request, headers, runtime);
 }
 
+model CreateHttpApiVersionRequest {
+  versionConfig?: HttpApiVersionConfig(name='versionConfig'),
+}
+
+model CreateHttpApiVersionResponseBody = {
+  code?: string(name='code', example='Ok'),
+  message?: string(name='message', example='success'),
+  requestId?: string(name='requestId', example='3ACFC7A7-45A9-58CF-B2D5-765B60254695'),
+}
+
+model CreateHttpApiVersionResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: CreateHttpApiVersionResponseBody(name='body'),
+}
+
+/**
+ * @summary 创建API版本
+ *
+ * @description 接口支持创建多个服务。
+ *
+ * @param request CreateHttpApiVersionRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return CreateHttpApiVersionResponse
+ */
+async function createHttpApiVersionWithOptions(httpApiId: string, request: CreateHttpApiVersionRequest, headers: map[string]string, runtime: Util.RuntimeOptions): CreateHttpApiVersionResponse {
+  Util.validateModel(request);
+  var body : map[string]any = {};
+  if (!Util.isUnset(request.versionConfig)) {
+    body['versionConfig'] = request.versionConfig;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApi.Params{
+    action = 'CreateHttpApiVersion',
+    version = '2024-03-27',
+    protocol = 'HTTPS',
+    pathname = `/v1/http-apis/${OpenApiUtil.getEncodeParam(httpApiId)}/versions`,
+    method = 'POST',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 创建API版本
+ *
+ * @description 接口支持创建多个服务。
+ *
+ * @param request CreateHttpApiVersionRequest
+ * @return CreateHttpApiVersionResponse
+ */
+async function createHttpApiVersion(httpApiId: string, request: CreateHttpApiVersionRequest): CreateHttpApiVersionResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return createHttpApiVersionWithOptions(httpApiId, request, headers, runtime);
+}
+
 model CreateMcpServerRequest {
   assembledSources?: [ 
     {
@@ -4050,6 +4200,98 @@ async function createMcpServer(request: CreateMcpServerRequest): CreateMcpServer
   var runtime = new Util.RuntimeOptions{};
   var headers : map[string]string = {};
   return createMcpServerWithOptions(request, headers, runtime);
+}
+
+model CreateMigrationTaskRequest {
+  clusterId?: string(name='clusterId', example='c-xxxxxx'),
+  description?: string(name='description', example='migration from Nginx'),
+  environmentId?: string(name='environmentId', example='env-xxxx'),
+  gatewayId?: string(name='gatewayId', example='gw-xxxx'),
+  httpApiId?: string(name='httpApiId', example='api-xxxx'),
+  ingressClass?: string(name='ingressClass', example='nginx'),
+  migrationType?: string(name='migrationType', example='Nginx Ingress'),
+  watchNamespace?: string(name='watchNamespace', example='default'),
+}
+
+model CreateMigrationTaskResponseBody = {
+  code?: string(name='code', example='200'),
+  data?: {
+    taskId?: string(name='taskId', example='async-task-xxx'),
+  }(name='data'),
+  message?: string(name='message', example='success'),
+  requestId?: string(name='requestId', description='Id of the request', example='019FD4D8-8A86-5FDE-B79F-357C69677DFB'),
+}
+
+model CreateMigrationTaskResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: CreateMigrationTaskResponseBody(name='body'),
+}
+
+/**
+ * @summary 创建迁移任务
+ *
+ * @param request CreateMigrationTaskRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return CreateMigrationTaskResponse
+ */
+async function createMigrationTaskWithOptions(request: CreateMigrationTaskRequest, headers: map[string]string, runtime: Util.RuntimeOptions): CreateMigrationTaskResponse {
+  Util.validateModel(request);
+  var body : map[string]any = {};
+  if (!Util.isUnset(request.clusterId)) {
+    body['clusterId'] = request.clusterId;
+  }
+  if (!Util.isUnset(request.description)) {
+    body['description'] = request.description;
+  }
+  if (!Util.isUnset(request.environmentId)) {
+    body['environmentId'] = request.environmentId;
+  }
+  if (!Util.isUnset(request.gatewayId)) {
+    body['gatewayId'] = request.gatewayId;
+  }
+  if (!Util.isUnset(request.httpApiId)) {
+    body['httpApiId'] = request.httpApiId;
+  }
+  if (!Util.isUnset(request.ingressClass)) {
+    body['ingressClass'] = request.ingressClass;
+  }
+  if (!Util.isUnset(request.migrationType)) {
+    body['migrationType'] = request.migrationType;
+  }
+  if (!Util.isUnset(request.watchNamespace)) {
+    body['watchNamespace'] = request.watchNamespace;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApi.Params{
+    action = 'CreateMigrationTask',
+    version = '2024-03-27',
+    protocol = 'HTTPS',
+    pathname = `/v1/migration-tasks`,
+    method = 'POST',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 创建迁移任务
+ *
+ * @param request CreateMigrationTaskRequest
+ * @return CreateMigrationTaskResponse
+ */
+async function createMigrationTask(request: CreateMigrationTaskRequest): CreateMigrationTaskResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return createMigrationTaskWithOptions(request, headers, runtime);
 }
 
 model CreatePluginAttachmentRequest {
@@ -4254,6 +4496,83 @@ async function createPluginClass(request: CreatePluginClassRequest): CreatePlugi
   return createPluginClassWithOptions(request, headers, runtime);
 }
 
+model CreatePluginWorkspaceRequest {
+  gatewayType?: string(name='gatewayType', example='AI'),
+  organizationId?: string(name='organizationId', description='This parameter is required.', example='664f1e2xxxx'),
+  repoName?: string(name='repoName', description='This parameter is required.', example='my-custom-plugin'),
+  workspaceName?: string(name='workspaceName', example='my-plugin'),
+}
+
+model CreatePluginWorkspaceResponseBody = {
+  code?: string(name='code', example='200'),
+  data?: {
+    repoId?: string(name='repoId', example='12345678'),
+    workspaceId?: string(name='workspaceId', example='plw-xxxxxxxx'),
+  }(name='data'),
+  message?: string(name='message', example='success'),
+  requestId?: string(name='requestId', description='Id of the request', example='01A02219-8028-57D8-9D60-2D167FF9118E'),
+}
+
+model CreatePluginWorkspaceResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: CreatePluginWorkspaceResponseBody(name='body'),
+}
+
+/**
+ * @summary 创建插件webide工作空间
+ *
+ * @param request CreatePluginWorkspaceRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return CreatePluginWorkspaceResponse
+ */
+async function createPluginWorkspaceWithOptions(request: CreatePluginWorkspaceRequest, headers: map[string]string, runtime: Util.RuntimeOptions): CreatePluginWorkspaceResponse {
+  Util.validateModel(request);
+  var body : map[string]any = {};
+  if (!Util.isUnset(request.gatewayType)) {
+    body['gatewayType'] = request.gatewayType;
+  }
+  if (!Util.isUnset(request.organizationId)) {
+    body['organizationId'] = request.organizationId;
+  }
+  if (!Util.isUnset(request.repoName)) {
+    body['repoName'] = request.repoName;
+  }
+  if (!Util.isUnset(request.workspaceName)) {
+    body['workspaceName'] = request.workspaceName;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApi.Params{
+    action = 'CreatePluginWorkspace',
+    version = '2024-03-27',
+    protocol = 'HTTPS',
+    pathname = `/v1/plugin-workspaces`,
+    method = 'POST',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 创建插件webide工作空间
+ *
+ * @param request CreatePluginWorkspaceRequest
+ * @return CreatePluginWorkspaceResponse
+ */
+async function createPluginWorkspace(request: CreatePluginWorkspaceRequest): CreatePluginWorkspaceResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return createPluginWorkspaceWithOptions(request, headers, runtime);
+}
+
 model CreatePolicyRequest {
   className?: string(name='className', description='The policy type. Valid values:
 
@@ -4455,6 +4774,63 @@ async function createPolicyAttachment(request: CreatePolicyAttachmentRequest): C
   var runtime = new Util.RuntimeOptions{};
   var headers : map[string]string = {};
   return createPolicyAttachmentWithOptions(request, headers, runtime);
+}
+
+model CreateRiskCheckTaskRequest {
+}
+
+model CreateRiskCheckTaskResponseBody = {
+  code?: string(name='code', example='200'),
+  data?: {
+    taskId?: string(name='taskId', example='rct-xxxxxxxx'),
+  }(name='data'),
+  message?: string(name='message', example='success'),
+  requestId?: string(name='requestId', description='Id of the request', example='01A0220E-1F41-5260-A418-68286DF6B53D'),
+}
+
+model CreateRiskCheckTaskResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: CreateRiskCheckTaskResponseBody(name='body'),
+}
+
+/**
+ * @summary 创建风险检查任务
+ *
+ * @param request CreateRiskCheckTaskRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return CreateRiskCheckTaskResponse
+ */
+async function createRiskCheckTaskWithOptions(gatewayId: string, request: CreateRiskCheckTaskRequest, headers: map[string]string, runtime: Util.RuntimeOptions): CreateRiskCheckTaskResponse {
+  Util.validateModel(request);
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+  };
+  var params = new OpenApi.Params{
+    action = 'CreateRiskCheckTask',
+    version = '2024-03-27',
+    protocol = 'HTTPS',
+    pathname = `/v1/gateways/${OpenApiUtil.getEncodeParam(gatewayId)}/risk-check/tasks`,
+    method = 'POST',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 创建风险检查任务
+ *
+ * @param request CreateRiskCheckTaskRequest
+ * @return CreateRiskCheckTaskResponse
+ */
+async function createRiskCheckTask(gatewayId: string, request: CreateRiskCheckTaskRequest): CreateRiskCheckTaskResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return createRiskCheckTaskWithOptions(gatewayId, request, headers, runtime);
 }
 
 model CreateSecretRequest {
@@ -5561,6 +5937,60 @@ async function deleteMcpServer(mcpServerId: string): DeleteMcpServerResponse {
   return deleteMcpServerWithOptions(mcpServerId, headers, runtime);
 }
 
+model DeleteMigrationTaskRequest {
+}
+
+model DeleteMigrationTaskResponseBody = {
+  code?: string(name='code', example='200'),
+  message?: string(name='message', example='success'),
+  requestId?: string(name='requestId', description='Id of the request', example='CB56C0CE-37C8-5C5A-8A07-DFBF083A40D2'),
+}
+
+model DeleteMigrationTaskResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: DeleteMigrationTaskResponseBody(name='body'),
+}
+
+/**
+ * @summary 删除迁移任务
+ *
+ * @param request DeleteMigrationTaskRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return DeleteMigrationTaskResponse
+ */
+async function deleteMigrationTaskWithOptions(taskId: string, request: DeleteMigrationTaskRequest, headers: map[string]string, runtime: Util.RuntimeOptions): DeleteMigrationTaskResponse {
+  Util.validateModel(request);
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+  };
+  var params = new OpenApi.Params{
+    action = 'DeleteMigrationTask',
+    version = '2024-03-27',
+    protocol = 'HTTPS',
+    pathname = `/v1/migration-tasks/${OpenApiUtil.getEncodeParam(taskId)}`,
+    method = 'DELETE',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 删除迁移任务
+ *
+ * @param request DeleteMigrationTaskRequest
+ * @return DeleteMigrationTaskResponse
+ */
+async function deleteMigrationTask(taskId: string, request: DeleteMigrationTaskRequest): DeleteMigrationTaskResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return deleteMigrationTaskWithOptions(taskId, request, headers, runtime);
+}
+
 model DeletePluginAttachmentResponseBody = {
   code?: string(name='code', description='The response code.', example='Ok'),
   message?: string(name='message', description='The response message.', example='success'),
@@ -6172,6 +6602,67 @@ async function describeRegions(request: DescribeRegionsRequest): DescribeRegions
   var runtime = new Util.RuntimeOptions{};
   var headers : map[string]string = {};
   return describeRegionsWithOptions(request, headers, runtime);
+}
+
+model DetachAndDeletePolicyRequest {
+  policyAttachmentId?: string(name='policyAttachmentId', description='The policy association ID.', example='pr-cq7l5s5lhtgi6qasrdc0'),
+}
+
+model DetachAndDeletePolicyResponseBody = {
+  code?: string(name='code', description='The status code returned.', example='Ok'),
+  message?: string(name='message', description='The response message returned.', example='success'),
+  requestId?: string(name='requestId', description='The request ID, which is used to trace the call link.', example='393E2630-DBE7-5221-AB35-9E740675491A'),
+}
+
+model DetachAndDeletePolicyResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: DetachAndDeletePolicyResponseBody(name='body'),
+}
+
+/**
+ * @summary Disassociates and deletes a policy.
+ *
+ * @param request DetachAndDeletePolicyRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return DetachAndDeletePolicyResponse
+ */
+async function detachAndDeletePolicyWithOptions(policyId: string, request: DetachAndDeletePolicyRequest, headers: map[string]string, runtime: Util.RuntimeOptions): DetachAndDeletePolicyResponse {
+  Util.validateModel(request);
+  var query : map[string]any = {};
+  if (!Util.isUnset(request.policyAttachmentId)) {
+    query['policyAttachmentId'] = request.policyAttachmentId;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'DetachAndDeletePolicy',
+    version = '2024-03-27',
+    protocol = 'HTTPS',
+    pathname = `/v1/policies/${OpenApiUtil.getEncodeParam(policyId)}`,
+    method = 'DELETE',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Disassociates and deletes a policy.
+ *
+ * @param request DetachAndDeletePolicyRequest
+ * @return DetachAndDeletePolicyResponse
+ */
+async function detachAndDeletePolicy(policyId: string, request: DetachAndDeletePolicyRequest): DetachAndDeletePolicyResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return detachAndDeletePolicyWithOptions(policyId, request, headers, runtime);
 }
 
 model ExportHttpApiRequest {
@@ -7220,7 +7711,9 @@ model GetGatewayResponseBody = {
 
 - Serverless: Serverless instance.', example='Serverless'),
     gatewayId?: string(name='gatewayId', description='The gateway ID.', example='gw-cq2vundlhtg***'),
-    gatewayMode?: string(name='gatewayMode', description='The running mode of AI multi-tenant V2. Default value: ENTERPRISE. Only AI + MultiTenantServerless allows this parameter.', example='STANDARD'),
+    gatewayMode?: string(name='gatewayMode', description='The running mode for AI multi-tenant V2. Default value: ENTERPRISE. Only AI + MultiTenantServerless allows this parameter. Valid values:
+- ENTERPRISE: default.
+- STANDARD: allowed only for AI multi-tenant V2.', example='STANDARD'),
     gatewayType?: string(name='gatewayType', description='The gateway type. Valid values:
 - API: API gateway.
 - AI: AI gateway.', example='API'),
@@ -7249,8 +7742,8 @@ model GetGatewayResponseBody = {
           }
         ](name='ports', description='The list of listening ports.'),
         status?: string(name='status', description='The status of load balancing. Valid values:
-- Ready: active.
-- NotCreate: not associated with an instance.', example='Ready'),
+- Ready: Active.
+- NotCreate: No associated instance.', example='Ready'),
         type?: string(name='type', description='The load balancing type. Valid values:
 - NLB: Network Load Balancer (NLB).
 - CLB: Classic Load Balancer (CLB).', example='NLB'),
@@ -7352,6 +7845,90 @@ async function getGateway(gatewayId: string): GetGatewayResponse {
   var runtime = new Util.RuntimeOptions{};
   var headers : map[string]string = {};
   return getGatewayWithOptions(gatewayId, headers, runtime);
+}
+
+model GetGatewayElasticPolicyRequest {
+}
+
+model GetGatewayElasticPolicyResponseBody = {
+  code?: string(name='code', example='200'),
+  data?: {
+    elasticPolicy?: {
+      disableScaleTimePolicyList?: [ 
+        {
+          endTime?: string(name='endTime', example='00:00'),
+          startTime?: string(name='startTime', example='00:00'),
+        }
+      ](name='disableScaleTimePolicyList'),
+      elasticEnabled?: boolean(name='elasticEnabled', example='true'),
+      elasticType?: string(name='elasticType', example='AutoHPA'),
+      enableScaleTimePolicyList?: [ 
+        {
+          endTime?: string(name='endTime', example='18:00'),
+          startTime?: string(name='startTime', example='09:00'),
+        }
+      ](name='enableScaleTimePolicyList'),
+      loadWarningThreshold?: boolean(name='loadWarningThreshold', example='true'),
+      maxUnits?: int32(name='maxUnits', example='10'),
+      timePolicyList?: [ 
+        {
+          endTime?: string(name='endTime', example='06:00'),
+          startTime?: string(name='startTime', example='00:00'),
+          units?: long(name='units', example='4'),
+        }
+      ](name='timePolicyList'),
+    }(name='elasticPolicy'),
+    elasticStrategyId?: string(name='elasticStrategyId', example='123456'),
+    elasticType?: string(name='elasticType', example='CronHPA'),
+    gatewayId?: string(name='gatewayId', example='gw-xxxx'),
+  }(name='data'),
+  message?: string(name='message', example='success'),
+  requestId?: string(name='requestId', description='Id of the request', example='B7F02714-182D-55BC-AF0B-F454364445E4'),
+}
+
+model GetGatewayElasticPolicyResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: GetGatewayElasticPolicyResponseBody(name='body'),
+}
+
+/**
+ * @summary 获取网关弹性策略
+ *
+ * @param request GetGatewayElasticPolicyRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return GetGatewayElasticPolicyResponse
+ */
+async function getGatewayElasticPolicyWithOptions(gatewayId: string, request: GetGatewayElasticPolicyRequest, headers: map[string]string, runtime: Util.RuntimeOptions): GetGatewayElasticPolicyResponse {
+  Util.validateModel(request);
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+  };
+  var params = new OpenApi.Params{
+    action = 'GetGatewayElasticPolicy',
+    version = '2024-03-27',
+    protocol = 'HTTPS',
+    pathname = `/v1/gateways/${OpenApiUtil.getEncodeParam(gatewayId)}/elastic-policy`,
+    method = 'GET',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 获取网关弹性策略
+ *
+ * @param request GetGatewayElasticPolicyRequest
+ * @return GetGatewayElasticPolicyResponse
+ */
+async function getGatewayElasticPolicy(gatewayId: string, request: GetGatewayElasticPolicyRequest): GetGatewayElasticPolicyResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return getGatewayElasticPolicyWithOptions(gatewayId, request, headers, runtime);
 }
 
 model GetGatewayQuotaRuleRequest {
@@ -7817,6 +8394,159 @@ async function getMcpServer(mcpServerId: string): GetMcpServerResponse {
   return getMcpServerWithOptions(mcpServerId, headers, runtime);
 }
 
+model GetMigrationNamespacedServicesRequest {
+}
+
+model GetMigrationNamespacedServicesResponseBody = {
+  code?: string(name='code', example='200'),
+  data?: {
+    namespacedServices?: [ 
+      {
+        namespace?: string(name='namespace', example='default'),
+        services?: [ 
+          {
+            name?: string(name='name', example='nginx-ingress-lb'),
+            slbId?: string(name='slbId', example='lb-xxxx / nlb-xxxx'),
+          }
+        ](name='services'),
+      }
+    ](name='namespacedServices'),
+  }(name='data'),
+  message?: string(name='message', example='success'),
+  requestId?: string(name='requestId', description='Id of the request', example='7D513911-206E-5E93-9C9E-71D63C0D68E7'),
+}
+
+model GetMigrationNamespacedServicesResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: GetMigrationNamespacedServicesResponseBody(name='body'),
+}
+
+/**
+ * @summary 获取迁移任务中的命名空间和服务映射
+ *
+ * @param request GetMigrationNamespacedServicesRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return GetMigrationNamespacedServicesResponse
+ */
+async function getMigrationNamespacedServicesWithOptions(taskId: string, request: GetMigrationNamespacedServicesRequest, headers: map[string]string, runtime: Util.RuntimeOptions): GetMigrationNamespacedServicesResponse {
+  Util.validateModel(request);
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+  };
+  var params = new OpenApi.Params{
+    action = 'GetMigrationNamespacedServices',
+    version = '2024-03-27',
+    protocol = 'HTTPS',
+    pathname = `/v1/migration-tasks/${OpenApiUtil.getEncodeParam(taskId)}/namespaced-services`,
+    method = 'GET',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 获取迁移任务中的命名空间和服务映射
+ *
+ * @param request GetMigrationNamespacedServicesRequest
+ * @return GetMigrationNamespacedServicesResponse
+ */
+async function getMigrationNamespacedServices(taskId: string, request: GetMigrationNamespacedServicesRequest): GetMigrationNamespacedServicesResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return getMigrationNamespacedServicesWithOptions(taskId, request, headers, runtime);
+}
+
+model GetMigrationTaskRequest {
+}
+
+model GetMigrationTaskResponseBody = {
+  code?: string(name='code', example='200'),
+  data?: {
+    apiId?: string(name='apiId', example='api-xxxx'),
+    apiName?: string(name='apiName', example='ingress-api'),
+    clusterId?: string(name='clusterId', example='c-xxxxxx'),
+    clusterName?: string(name='clusterName', example='my-cluster'),
+    clusterNamespace?: string(name='clusterNamespace', example='default'),
+    createTime?: long(name='createTime', example='1756262400'),
+    description?: string(name='description', example='workspace api monitor test'),
+    envId?: string(name='envId', example='env-xxxx'),
+    gatewayId?: string(name='gatewayId', example='gw-xxxx'),
+    gatewayName?: string(name='gatewayName', example='my-gateway'),
+    ingressConfig?: {
+      ingressClass?: string(name='ingressClass', example='nginx'),
+      watchNamespace?: string(name='watchNamespace', example='default'),
+    }(name='ingressConfig'),
+    migrationType?: string(name='migrationType', example='Nginx Ingress'),
+    serviceName?: string(name='serviceName', example='nginx-ingress-lb'),
+    slbId?: string(name='slbId', example='lb-bp1xxxx'),
+    status?: string(name='status', example='FlowSwitch'),
+    switchType?: string(name='switchType', example='SLB'),
+    taskId?: string(name='taskId', example='mt-xxxxxxxx'),
+    userId?: string(name='userId', example='1234567890'),
+    virtualServices?: [ 
+      {
+        port?: int32(name='port', example='80'),
+        protocol?: string(name='protocol', example='tcp'),
+        virtualServiceGroupId?: string(name='virtualServiceGroupId', example='rsp-xxxx'),
+        virtualServiceGroupName?: string(name='virtualServiceGroupName', example='80-tcp'),
+      }
+    ](name='virtualServices'),
+    weight?: int32(name='weight', example='50'),
+  }(name='data'),
+  message?: string(name='message', example='success'),
+  requestId?: string(name='requestId', description='Id of the request', example='42EAF9DB-9082-5F11-8EE1-C2357906DA0F'),
+}
+
+model GetMigrationTaskResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: GetMigrationTaskResponseBody(name='body'),
+}
+
+/**
+ * @summary 获取迁移任务详情
+ *
+ * @param request GetMigrationTaskRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return GetMigrationTaskResponse
+ */
+async function getMigrationTaskWithOptions(taskId: string, request: GetMigrationTaskRequest, headers: map[string]string, runtime: Util.RuntimeOptions): GetMigrationTaskResponse {
+  Util.validateModel(request);
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+  };
+  var params = new OpenApi.Params{
+    action = 'GetMigrationTask',
+    version = '2024-03-27',
+    protocol = 'HTTPS',
+    pathname = `/v1/migration-tasks/${OpenApiUtil.getEncodeParam(taskId)}`,
+    method = 'GET',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 获取迁移任务详情
+ *
+ * @param request GetMigrationTaskRequest
+ * @return GetMigrationTaskResponse
+ */
+async function getMigrationTask(taskId: string, request: GetMigrationTaskRequest): GetMigrationTaskResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return getMigrationTaskWithOptions(taskId, request, headers, runtime);
+}
+
 model GetPluginAttachmentResponseBody = {
   code?: string(name='code', description='The response status code.', example='Ok'),
   data?: {
@@ -7939,6 +8669,68 @@ async function getPluginClass(pluginClassId: string, request: GetPluginClassRequ
   var runtime = new Util.RuntimeOptions{};
   var headers : map[string]string = {};
   return getPluginClassWithOptions(pluginClassId, request, headers, runtime);
+}
+
+model GetPluginWorkspaceRequest {
+}
+
+model GetPluginWorkspaceResponseBody = {
+  code?: string(name='code', example='200'),
+  data?: {
+    organizationId?: string(name='organizationId', example='664f1e2xxxx'),
+    pipelineRunId?: string(name='pipelineRunId', example='987654'),
+    repoId?: string(name='repoId', example='12345678'),
+    repoName?: string(name='repoName', example='my-custom-plugin'),
+    wasmUrl?: string(name='wasmUrl', example='https://apigw-console-cn-hangzhou.oss-cn-hangzhou.aliyuncs.com/{uid}/plugin/plugin_1756262400.wasm'),
+    workspaceId?: string(name='workspaceId', example='plw-xxxxxxxx'),
+  }(name='data'),
+  message?: string(name='message', example='success'),
+  requestId?: string(name='requestId', description='Id of the request', example='4AFA893B-A75B-5002-AACF-84CABE06197A'),
+}
+
+model GetPluginWorkspaceResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: GetPluginWorkspaceResponseBody(name='body'),
+}
+
+/**
+ * @summary 查询插件webide工作空间
+ *
+ * @param request GetPluginWorkspaceRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return GetPluginWorkspaceResponse
+ */
+async function getPluginWorkspaceWithOptions(workspaceId: string, request: GetPluginWorkspaceRequest, headers: map[string]string, runtime: Util.RuntimeOptions): GetPluginWorkspaceResponse {
+  Util.validateModel(request);
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+  };
+  var params = new OpenApi.Params{
+    action = 'GetPluginWorkspace',
+    version = '2024-03-27',
+    protocol = 'HTTPS',
+    pathname = `/v1/plugin-workspaces/${OpenApiUtil.getEncodeParam(workspaceId)}`,
+    method = 'GET',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 查询插件webide工作空间
+ *
+ * @param request GetPluginWorkspaceRequest
+ * @return GetPluginWorkspaceResponse
+ */
+async function getPluginWorkspace(workspaceId: string, request: GetPluginWorkspaceRequest): GetPluginWorkspaceResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return getPluginWorkspaceWithOptions(workspaceId, request, headers, runtime);
 }
 
 model GetPolicyResponseBody = {
@@ -8131,6 +8923,72 @@ async function getResourceOverview(request: GetResourceOverviewRequest): GetReso
   var runtime = new Util.RuntimeOptions{};
   var headers : map[string]string = {};
   return getResourceOverviewWithOptions(request, headers, runtime);
+}
+
+model GetRiskNotificationRequest {
+  riskCode?: string(name='riskCode', description='This parameter is required.', example='GW_VERSION_EXPIRED'),
+}
+
+model GetRiskNotificationResponseBody = {
+  code?: string(name='code', example='200'),
+  data?: {
+    gatewayId?: string(name='gatewayId', example='gw-xxxx'),
+    isMute?: boolean(name='isMute', example='false'),
+    riskCode?: string(name='riskCode', example='GW_VERSION_EXPIRED'),
+  }(name='data'),
+  message?: string(name='message', example='success'),
+  requestId?: string(name='requestId', description='Id of the request', example='AE1BA0DF-D730-501D-B962-B8B1C23B4667'),
+}
+
+model GetRiskNotificationResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: GetRiskNotificationResponseBody(name='body'),
+}
+
+/**
+ * @summary 获取风险项通知配置
+ *
+ * @param request GetRiskNotificationRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return GetRiskNotificationResponse
+ */
+async function getRiskNotificationWithOptions(gatewayId: string, request: GetRiskNotificationRequest, headers: map[string]string, runtime: Util.RuntimeOptions): GetRiskNotificationResponse {
+  Util.validateModel(request);
+  var query : map[string]any = {};
+  if (!Util.isUnset(request.riskCode)) {
+    query['riskCode'] = request.riskCode;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'GetRiskNotification',
+    version = '2024-03-27',
+    protocol = 'HTTPS',
+    pathname = `/v1/gateways/${OpenApiUtil.getEncodeParam(gatewayId)}/risk-check/notifications`,
+    method = 'GET',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 获取风险项通知配置
+ *
+ * @param request GetRiskNotificationRequest
+ * @return GetRiskNotificationResponse
+ */
+async function getRiskNotification(gatewayId: string, request: GetRiskNotificationRequest): GetRiskNotificationResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return getRiskNotificationWithOptions(gatewayId, request, headers, runtime);
 }
 
 model GetSecretResponseBody = {
@@ -8690,6 +9548,93 @@ async function installPlugin(request: InstallPluginRequest): InstallPluginRespon
   var runtime = new Util.RuntimeOptions{};
   var headers : map[string]string = {};
   return installPluginWithOptions(request, headers, runtime);
+}
+
+model InvokeAIAgentRequest {
+  agentName?: string(name='agentName', description='This parameter is required.', example='slsLogDiagnose'),
+  bizParams?: map[string]string(name='bizParams'),
+  history?: [ 
+    {
+      content?: string(name='content', example='上一轮问题'),
+      role?: string(name='role', example='user'),
+    }
+  ](name='history'),
+  outputLanguage?: string(name='outputLanguage', example='zh / en'),
+  prompt?: string(name='prompt', example='帮我诊断这个错误日志'),
+}
+
+model InvokeAIAgentResponseBody = {
+  code?: string(name='code', example='200'),
+  data?: {
+    body?: string(name='body', example='{"choices":[{"delta":{"content":"分析结果..."}}]}'),
+    headers?: map[string]string(name='headers'),
+    httpCode?: int32(name='httpCode', example='200'),
+  }(name='data'),
+  message?: string(name='message', example='success'),
+  requestId?: string(name='requestId', description='Id of the request', example='A60EE5CA-1294-532A-9775-8D2FD1C6EFBF'),
+}
+
+model InvokeAIAgentResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: InvokeAIAgentResponseBody(name='body'),
+}
+
+/**
+ * @summary 调用AIAgent
+ *
+ * @param request InvokeAIAgentRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return InvokeAIAgentResponse
+ */
+async function invokeAIAgentWithOptions(request: InvokeAIAgentRequest, headers: map[string]string, runtime: Util.RuntimeOptions): InvokeAIAgentResponse {
+  Util.validateModel(request);
+  var body : map[string]any = {};
+  if (!Util.isUnset(request.agentName)) {
+    body['agentName'] = request.agentName;
+  }
+  if (!Util.isUnset(request.bizParams)) {
+    body['bizParams'] = request.bizParams;
+  }
+  if (!Util.isUnset(request.history)) {
+    body['history'] = request.history;
+  }
+  if (!Util.isUnset(request.outputLanguage)) {
+    body['outputLanguage'] = request.outputLanguage;
+  }
+  if (!Util.isUnset(request.prompt)) {
+    body['prompt'] = request.prompt;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApi.Params{
+    action = 'InvokeAIAgent',
+    version = '2024-03-27',
+    protocol = 'HTTPS',
+    pathname = `/v1/ai-agents/invoke`,
+    method = 'POST',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 调用AIAgent
+ *
+ * @param request InvokeAIAgentRequest
+ * @return InvokeAIAgentResponse
+ */
+async function invokeAIAgent(request: InvokeAIAgentRequest): InvokeAIAgentResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return invokeAIAgentWithOptions(request, headers, runtime);
 }
 
 model ListAiModelCardsRequest {
@@ -9781,6 +10726,235 @@ async function listExternalServices(gatewayId: string, request: ListExternalServ
   return listExternalServicesWithOptions(gatewayId, request, headers, runtime);
 }
 
+model ListGatewayAuthorizableSecurityGroupsRequest {
+  csClusterId?: string(name='csClusterId', description='The cluster ID.', example='c4a21b3560fad4ec299f3e63f4***'),
+}
+
+model ListGatewayAuthorizableSecurityGroupsResponseBody = {
+  code?: string(name='code', description='The status code.', example='Ok'),
+  data?: {
+    items?: [ 
+      {
+        name?: string(name='name', description='The security group name.', example='商品中心集群安全组。'),
+        securityGroupId?: string(name='securityGroupId', description='The security group ID.', example='sg-bp1ftp5sm9os***'),
+        type?: string(name='type', description='The type of the security group. Valid values:
+
+*   Normal: general security group
+*   Enterprise: enterprise security group', example='Normal'),
+        vpcId?: string(name='vpcId', description='The virtual private cloud (VPC) ID.', example='vpc-uf61resqa9am***'),
+      }
+    ](name='items', description='The security groups.'),
+  }(name='data', description='The returned data.'),
+  message?: string(name='message', description='The response message returned.', example='success'),
+  requestId?: string(name='requestId', description='The request ID.', example='585657D2-1C20-5B8A-AF17-D727C6490BE4'),
+}
+
+model ListGatewayAuthorizableSecurityGroupsResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ListGatewayAuthorizableSecurityGroupsResponseBody(name='body'),
+}
+
+/**
+ * @summary Queries the security groups of an instance that can be used for authorization.
+ *
+ * @param request ListGatewayAuthorizableSecurityGroupsRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return ListGatewayAuthorizableSecurityGroupsResponse
+ */
+async function listGatewayAuthorizableSecurityGroupsWithOptions(gatewayId: string, request: ListGatewayAuthorizableSecurityGroupsRequest, headers: map[string]string, runtime: Util.RuntimeOptions): ListGatewayAuthorizableSecurityGroupsResponse {
+  Util.validateModel(request);
+  var query : map[string]any = {};
+  if (!Util.isUnset(request.csClusterId)) {
+    query['csClusterId'] = request.csClusterId;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'ListGatewayAuthorizableSecurityGroups',
+    version = '2024-03-27',
+    protocol = 'HTTPS',
+    pathname = `/v1/gateways/${OpenApiUtil.getEncodeParam(gatewayId)}/authorizable-security-groups`,
+    method = 'GET',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Queries the security groups of an instance that can be used for authorization.
+ *
+ * @param request ListGatewayAuthorizableSecurityGroupsRequest
+ * @return ListGatewayAuthorizableSecurityGroupsResponse
+ */
+async function listGatewayAuthorizableSecurityGroups(gatewayId: string, request: ListGatewayAuthorizableSecurityGroupsRequest): ListGatewayAuthorizableSecurityGroupsResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return listGatewayAuthorizableSecurityGroupsWithOptions(gatewayId, request, headers, runtime);
+}
+
+model ListGatewayAuthorizedSecurityGroupRulesRequest {
+}
+
+model ListGatewayAuthorizedSecurityGroupRulesResponseBody = {
+  code?: string(name='code', description='The status code.', example='Ok'),
+  data?: {
+    items?: [ 
+      {
+        authCidrs?: [ string ](name='authCidrs', description='The list of authorized CIDR blocks.'),
+        description?: string(name='description', description='The rule description.', example='商品中心预发网关授权安全组'),
+        ipProtocol?: string(name='ipProtocol', description='The protocol. Valid values:
+
+*   TCP', example='TCP'),
+        portRange?: string(name='portRange', description='The port range.', example='8080/8089'),
+        securityGroupId?: string(name='securityGroupId', description='The security group ID.', example='sg-bp1ftp5sm9os***'),
+        securityGroupName?: string(name='securityGroupName', description='The security group name.', example='商品中心集群安全组'),
+        securityGroupRuleId?: string(name='securityGroupRuleId', description='The rule ID.', example='gsgr-cqadis5lhtgmv***'),
+        sourceSecurityGroupId?: string(name='sourceSecurityGroupId', description='The ID of the source security group.', example='sg-bp19akuepfe***'),
+        vpcId?: string(name='vpcId', description='The virtual private cloud (VPC) ID.', example='vpc-bp1g63b5q2q29***'),
+      }
+    ](name='items', description='The security group rules.'),
+  }(name='data', description='The returned data.'),
+  message?: string(name='message', description='The response message returned.', example='success'),
+  requestId?: string(name='requestId', description='The request ID.', example='393E2630-DBE7-5221-AB35-9E740675491A'),
+}
+
+model ListGatewayAuthorizedSecurityGroupRulesResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ListGatewayAuthorizedSecurityGroupRulesResponseBody(name='body'),
+}
+
+/**
+ * @summary Queries the security group rules of an instance that are in effect.
+ *
+ * @param request ListGatewayAuthorizedSecurityGroupRulesRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return ListGatewayAuthorizedSecurityGroupRulesResponse
+ */
+async function listGatewayAuthorizedSecurityGroupRulesWithOptions(gatewayId: string, request: ListGatewayAuthorizedSecurityGroupRulesRequest, headers: map[string]string, runtime: Util.RuntimeOptions): ListGatewayAuthorizedSecurityGroupRulesResponse {
+  Util.validateModel(request);
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+  };
+  var params = new OpenApi.Params{
+    action = 'ListGatewayAuthorizedSecurityGroupRules',
+    version = '2024-03-27',
+    protocol = 'HTTPS',
+    pathname = `/v1/gateways/${OpenApiUtil.getEncodeParam(gatewayId)}/authorized-security-groups-rules`,
+    method = 'GET',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Queries the security group rules of an instance that are in effect.
+ *
+ * @param request ListGatewayAuthorizedSecurityGroupRulesRequest
+ * @return ListGatewayAuthorizedSecurityGroupRulesResponse
+ */
+async function listGatewayAuthorizedSecurityGroupRules(gatewayId: string, request: ListGatewayAuthorizedSecurityGroupRulesRequest): ListGatewayAuthorizedSecurityGroupRulesResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return listGatewayAuthorizedSecurityGroupRulesWithOptions(gatewayId, request, headers, runtime);
+}
+
+model ListGatewayErrorAccessLogsRequest {
+  authority?: string(name='authority', example='api.example.com'),
+  endTime?: long(name='endTime', description='This parameter is required.', example='1756348800'),
+  gatewayRequestId?: string(name='gatewayRequestId', example='E5D4xxxx'),
+  path?: string(name='path', example='/api/v1/pets'),
+  responseCode?: string(name='responseCode', example='502'),
+  routeName?: string(name='routeName', example='my-route'),
+  startTime?: long(name='startTime', description='This parameter is required.', example='1756262400'),
+}
+
+model ListGatewayErrorAccessLogsResponseBody = {
+  data?: [ map[string]string ](name='data'),
+  requestId?: string(name='requestId', description='Id of the request', example='C9BF49BD-3037-5006-B379-656ECBA6F56C'),
+}
+
+model ListGatewayErrorAccessLogsResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ListGatewayErrorAccessLogsResponseBody(name='body'),
+}
+
+/**
+ * @summary 获取网关的错误访问日志
+ *
+ * @param request ListGatewayErrorAccessLogsRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return ListGatewayErrorAccessLogsResponse
+ */
+async function listGatewayErrorAccessLogsWithOptions(gatewayId: string, request: ListGatewayErrorAccessLogsRequest, headers: map[string]string, runtime: Util.RuntimeOptions): ListGatewayErrorAccessLogsResponse {
+  Util.validateModel(request);
+  var query : map[string]any = {};
+  if (!Util.isUnset(request.authority)) {
+    query['authority'] = request.authority;
+  }
+  if (!Util.isUnset(request.endTime)) {
+    query['endTime'] = request.endTime;
+  }
+  if (!Util.isUnset(request.gatewayRequestId)) {
+    query['gatewayRequestId'] = request.gatewayRequestId;
+  }
+  if (!Util.isUnset(request.path)) {
+    query['path'] = request.path;
+  }
+  if (!Util.isUnset(request.responseCode)) {
+    query['responseCode'] = request.responseCode;
+  }
+  if (!Util.isUnset(request.routeName)) {
+    query['routeName'] = request.routeName;
+  }
+  if (!Util.isUnset(request.startTime)) {
+    query['startTime'] = request.startTime;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'ListGatewayErrorAccessLogs',
+    version = '2024-03-27',
+    protocol = 'HTTPS',
+    pathname = `/v1/gateways/${OpenApiUtil.getEncodeParam(gatewayId)}/error-access-logs`,
+    method = 'GET',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 获取网关的错误访问日志
+ *
+ * @param request ListGatewayErrorAccessLogsRequest
+ * @return ListGatewayErrorAccessLogsResponse
+ */
+async function listGatewayErrorAccessLogs(gatewayId: string, request: ListGatewayErrorAccessLogsRequest): ListGatewayErrorAccessLogsResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return listGatewayErrorAccessLogsWithOptions(gatewayId, request, headers, runtime);
+}
+
 model ListGatewayFeaturesResponseBody = {
   code?: string(name='code', description='The response status code.', example='Ok'),
   data?: {
@@ -9872,6 +11046,146 @@ async function listGatewayFeatures(gatewayId: string): ListGatewayFeaturesRespon
   var runtime = new Util.RuntimeOptions{};
   var headers : map[string]string = {};
   return listGatewayFeaturesWithOptions(gatewayId, headers, runtime);
+}
+
+model ListGatewayLoadBalancersRequest {
+  all?: boolean(name='all', example='false'),
+  loadBalancerId?: string(name='loadBalancerId', example='lb-xxxx'),
+  network?: string(name='network', example='Internet'),
+  related?: boolean(name='related', example='false'),
+  type?: string(name='type', example='NLB'),
+  vpcId?: string(name='vpcId', example='vpc-xxxx'),
+}
+
+model ListGatewayLoadBalancersResponseBody = {
+  code?: string(name='code', example='200'),
+  data?: {
+    items?: [ 
+      {
+        defaultGatewayIngress?: boolean(name='defaultGatewayIngress', example='true'),
+        editEnable?: boolean(name='editEnable', example='false'),
+        gatewayId?: string(name='gatewayId', example='gw-xxxx'),
+        loadBalancerAddress?: string(name='loadBalancerAddress', example='47.x.x.x'),
+        loadBalancerAddressIpVersion?: string(name='loadBalancerAddressIpVersion', example='ipv4'),
+        loadBalancerAddressType?: string(name='loadBalancerAddressType', example='Internet'),
+        loadBalancerAvailableStatus?: string(name='loadBalancerAvailableStatus', example='Active'),
+        loadBalancerId?: string(name='loadBalancerId', example='lb-bp1xxxx / nlb-xxxx'),
+        loadBalancerMode?: string(name='loadBalancerMode', example='Managed'),
+        loadBalancerName?: string(name='loadBalancerName', example='my-nlb'),
+        loadBalancerSpec?: string(name='loadBalancerSpec', example='slb.s2.small'),
+        loadBalancerStatus?: string(name='loadBalancerStatus', example='Ready'),
+        loadBalancerType?: string(name='loadBalancerType', example='NLB'),
+        loadBalancerZoneMappings?: [ 
+          {
+            loadBalancerAddresses?: [ 
+              {
+                allocationId?: string(name='allocationId', example='eip-bp1xxxx'),
+                eniId?: string(name='eniId', example='eni-bp1xxxx'),
+                ipv4LocalAddresses?: [ string ](name='ipv4LocalAddresses'),
+                ipv6Address?: string(name='ipv6Address', example='2408:xxxx'),
+                ipv6LocalAddresses?: [ string ](name='ipv6LocalAddresses'),
+                privateIPv4Address?: string(name='privateIPv4Address', example='192.168.x.x'),
+                privateIPv4HcStatus?: string(name='privateIPv4HcStatus', example='Healthy'),
+                privateIPv6HcStatus?: string(name='privateIPv6HcStatus', example='Healthy'),
+                publicIPv4Address?: string(name='publicIPv4Address', example='47.x.x.x'),
+              }
+            ](name='loadBalancerAddresses'),
+            status?: string(name='status', example='Active'),
+            vSwitchId?: string(name='vSwitchId', example='vsw-bp1xxxx'),
+            zoneId?: string(name='zoneId', example='cn-hangzhou-a'),
+          }
+        ](name='loadBalancerZoneMappings'),
+        ports?: [ 
+          {
+            port?: int32(name='port', example='443'),
+            protocol?: string(name='protocol', example='https'),
+          }
+        ](name='ports'),
+        serviceWeight?: long(name='serviceWeight', example='100'),
+        vServerGroupMetaInfo?: string(name='vServerGroupMetaInfo', example='-'),
+        virtualServerGroupList?: [ 
+          {
+            listeners?: [ 
+              {
+                port?: int32(name='port', example='443'),
+                protocol?: string(name='protocol', example='https'),
+              }
+            ](name='listeners'),
+            virtualServiceGroupId?: string(name='virtualServiceGroupId', example='rsp-xxxx'),
+            virtualServiceGroupName?: string(name='virtualServiceGroupName', example='80-tcp'),
+          }
+        ](name='virtualServerGroupList'),
+      }
+    ](name='items'),
+  }(name='data'),
+  message?: string(name='message', example='success'),
+  requestId?: string(name='requestId', description='Id of the request', example='C7C7C3EB-00B6-509A-B6A3-5462EE759047'),
+}
+
+model ListGatewayLoadBalancersResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ListGatewayLoadBalancersResponseBody(name='body'),
+}
+
+/**
+ * @summary 获取网关负载均衡器列表
+ *
+ * @param request ListGatewayLoadBalancersRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return ListGatewayLoadBalancersResponse
+ */
+async function listGatewayLoadBalancersWithOptions(gatewayId: string, request: ListGatewayLoadBalancersRequest, headers: map[string]string, runtime: Util.RuntimeOptions): ListGatewayLoadBalancersResponse {
+  Util.validateModel(request);
+  var query : map[string]any = {};
+  if (!Util.isUnset(request.all)) {
+    query['all'] = request.all;
+  }
+  if (!Util.isUnset(request.loadBalancerId)) {
+    query['loadBalancerId'] = request.loadBalancerId;
+  }
+  if (!Util.isUnset(request.network)) {
+    query['network'] = request.network;
+  }
+  if (!Util.isUnset(request.related)) {
+    query['related'] = request.related;
+  }
+  if (!Util.isUnset(request.type)) {
+    query['type'] = request.type;
+  }
+  if (!Util.isUnset(request.vpcId)) {
+    query['vpcId'] = request.vpcId;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'ListGatewayLoadBalancers',
+    version = '2024-03-27',
+    protocol = 'HTTPS',
+    pathname = `/v1/gateways/${OpenApiUtil.getEncodeParam(gatewayId)}/list-load-balancers`,
+    method = 'GET',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 获取网关负载均衡器列表
+ *
+ * @param request ListGatewayLoadBalancersRequest
+ * @return ListGatewayLoadBalancersResponse
+ */
+async function listGatewayLoadBalancers(gatewayId: string, request: ListGatewayLoadBalancersRequest): ListGatewayLoadBalancersResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return listGatewayLoadBalancersWithOptions(gatewayId, request, headers, runtime);
 }
 
 model ListGatewayQuotaRulesRequest {
@@ -10163,6 +11477,123 @@ async function listGateways(request: ListGatewaysRequest): ListGatewaysResponse 
   var runtime = new Util.RuntimeOptions{};
   var headers : map[string]string = {};
   return listGatewaysWithOptions(request, headers, runtime);
+}
+
+model ListGlobalPoliciesRequest {
+  attachResourceType?: string(name='attachResourceType', example='Gateway'),
+  className?: string(name='className', example='JWTAuth,OIDCAuth,ExternalZAuth'),
+  enable?: boolean(name='enable', example='true'),
+  environmentId?: string(name='environmentId', example='env-xxxx'),
+  gatewayId?: string(name='gatewayId', example='gw-xxxx'),
+  globalPolicyType?: string(name='globalPolicyType', example='GlobalAuth'),
+  ipAccessControlContent?: string(name='ipAccessControlContent', example='1.2.3.4'),
+  ipAccessControlProtocolLayer?: string(name='ipAccessControlProtocolLayer', example='L7'),
+  ipAccessControlResourceName?: string(name='ipAccessControlResourceName', example='my-route'),
+  ipAccessControlType?: string(name='ipAccessControlType', example='White / Black'),
+  name?: string(name='name', example='my-jwt-auth'),
+  pageNumber?: int32(name='pageNumber', example='1'),
+  pageSize?: int32(name='pageSize', example='10'),
+}
+
+model ListGlobalPoliciesResponseBody = {
+  code?: string(name='code', example='200'),
+  data?: {
+    items?: [
+      PolicyInfo
+    ](name='items'),
+    pageNumber?: int32(name='pageNumber', example='1'),
+    pageSize?: int32(name='pageSize', example='10'),
+    totalSize?: int32(name='totalSize', example='25'),
+  }(name='data'),
+  message?: string(name='message', example='success'),
+  requestId?: string(name='requestId', description='Id of the request', example='350E9393-B90C-5540-B2BE-6F4CF5965CDA'),
+}
+
+model ListGlobalPoliciesResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ListGlobalPoliciesResponseBody(name='body'),
+}
+
+/**
+ * @summary ListGlobalPolicies
+ *
+ * @param request ListGlobalPoliciesRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return ListGlobalPoliciesResponse
+ */
+async function listGlobalPoliciesWithOptions(request: ListGlobalPoliciesRequest, headers: map[string]string, runtime: Util.RuntimeOptions): ListGlobalPoliciesResponse {
+  Util.validateModel(request);
+  var query : map[string]any = {};
+  if (!Util.isUnset(request.attachResourceType)) {
+    query['attachResourceType'] = request.attachResourceType;
+  }
+  if (!Util.isUnset(request.className)) {
+    query['className'] = request.className;
+  }
+  if (!Util.isUnset(request.enable)) {
+    query['enable'] = request.enable;
+  }
+  if (!Util.isUnset(request.environmentId)) {
+    query['environmentId'] = request.environmentId;
+  }
+  if (!Util.isUnset(request.gatewayId)) {
+    query['gatewayId'] = request.gatewayId;
+  }
+  if (!Util.isUnset(request.globalPolicyType)) {
+    query['globalPolicyType'] = request.globalPolicyType;
+  }
+  if (!Util.isUnset(request.ipAccessControlContent)) {
+    query['ipAccessControlContent'] = request.ipAccessControlContent;
+  }
+  if (!Util.isUnset(request.ipAccessControlProtocolLayer)) {
+    query['ipAccessControlProtocolLayer'] = request.ipAccessControlProtocolLayer;
+  }
+  if (!Util.isUnset(request.ipAccessControlResourceName)) {
+    query['ipAccessControlResourceName'] = request.ipAccessControlResourceName;
+  }
+  if (!Util.isUnset(request.ipAccessControlType)) {
+    query['ipAccessControlType'] = request.ipAccessControlType;
+  }
+  if (!Util.isUnset(request.name)) {
+    query['name'] = request.name;
+  }
+  if (!Util.isUnset(request.pageNumber)) {
+    query['pageNumber'] = request.pageNumber;
+  }
+  if (!Util.isUnset(request.pageSize)) {
+    query['pageSize'] = request.pageSize;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'ListGlobalPolicies',
+    version = '2024-03-27',
+    protocol = 'HTTPS',
+    pathname = `/v1/global-policies`,
+    method = 'GET',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary ListGlobalPolicies
+ *
+ * @param request ListGlobalPoliciesRequest
+ * @return ListGlobalPoliciesResponse
+ */
+async function listGlobalPolicies(request: ListGlobalPoliciesRequest): ListGlobalPoliciesResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return listGlobalPoliciesWithOptions(request, headers, runtime);
 }
 
 model ListHttpApiOperationsRequest {
@@ -10546,6 +11977,160 @@ async function listHttpApis(request: ListHttpApisRequest): ListHttpApisResponse 
   return listHttpApisWithOptions(request, headers, runtime);
 }
 
+model ListInstallableGatewaysRequest {
+  gatewayType?: string(name='gatewayType', example='AI'),
+  pageNumber?: int32(name='pageNumber', example='1'),
+  pageSize?: int32(name='pageSize', example='10'),
+}
+
+model ListInstallableGatewaysResponseBody = {
+  code?: string(name='code', example='200'),
+  data?: {
+    items?: [ 
+      {
+        engineVersion?: string(name='engineVersion', example='2.1.10'),
+        gatewayId?: string(name='gatewayId', example='gw-xxxx'),
+        gatewayPhase?: string(name='gatewayPhase', example='Running'),
+        installable?: boolean(name='installable', example='true'),
+        installableFalseReasonType?: string(name='installableFalseReasonType', example='VERSION_NOT_MATCH'),
+        installedPluginVersion?: string(name='installedPluginVersion', example='1.0.0'),
+        name?: string(name='name', example='my-gateway'),
+      }
+    ](name='items'),
+    pageNumber?: string(name='pageNumber', example='1'),
+    pageSize?: string(name='pageSize', example='10'),
+    totalSize?: string(name='totalSize', example='43'),
+  }(name='data'),
+  message?: string(name='message', example='success'),
+  requestId?: string(name='requestId', description='Id of the request', example='019FA163-3664-5D34-81D1-5FFFC94AD7D5'),
+}
+
+model ListInstallableGatewaysResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ListInstallableGatewaysResponseBody(name='body'),
+}
+
+/**
+ * @summary ListInstallableGateways
+ *
+ * @param request ListInstallableGatewaysRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return ListInstallableGatewaysResponse
+ */
+async function listInstallableGatewaysWithOptions(pluginClassId: string, request: ListInstallableGatewaysRequest, headers: map[string]string, runtime: Util.RuntimeOptions): ListInstallableGatewaysResponse {
+  Util.validateModel(request);
+  var query : map[string]any = {};
+  if (!Util.isUnset(request.gatewayType)) {
+    query['gatewayType'] = request.gatewayType;
+  }
+  if (!Util.isUnset(request.pageNumber)) {
+    query['pageNumber'] = request.pageNumber;
+  }
+  if (!Util.isUnset(request.pageSize)) {
+    query['pageSize'] = request.pageSize;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'ListInstallableGateways',
+    version = '2024-03-27',
+    protocol = 'HTTPS',
+    pathname = `/v1/plugin-classes/${OpenApiUtil.getEncodeParam(pluginClassId)}/installable-gateways`,
+    method = 'GET',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary ListInstallableGateways
+ *
+ * @param request ListInstallableGatewaysRequest
+ * @return ListInstallableGatewaysResponse
+ */
+async function listInstallableGateways(pluginClassId: string, request: ListInstallableGatewaysRequest): ListInstallableGatewaysResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return listInstallableGatewaysWithOptions(pluginClassId, request, headers, runtime);
+}
+
+model ListK8sClusterSourcesRequest {
+  vpcId?: string(name='vpcId', example='vpc-xxxx'),
+}
+
+model ListK8sClusterSourcesResponseBody = {
+  code?: string(name='code', example='Ok'),
+  data?: {
+    items?: [ 
+      {
+        clusterId?: string(name='clusterId', example='c4a21b3560fad4ec***'),
+        name?: string(name='name', example='itemcenter-dev-cluster'),
+      }
+    ](name='items'),
+  }(name='data'),
+  message?: string(name='message', example='success'),
+  requestId?: string(name='requestId', example='043360DA-ED3B-5386-9B7A-D94DECF99A30'),
+}
+
+model ListK8sClusterSourcesResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ListK8sClusterSourcesResponseBody(name='body'),
+}
+
+/**
+ * @summary Queries the Kubernetes (K8s) clusters that can be added as sources.
+ *
+ * @param request ListK8sClusterSourcesRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return ListK8sClusterSourcesResponse
+ */
+async function listK8sClusterSourcesWithOptions(gatewayId: string, request: ListK8sClusterSourcesRequest, headers: map[string]string, runtime: Util.RuntimeOptions): ListK8sClusterSourcesResponse {
+  Util.validateModel(request);
+  var query : map[string]any = {};
+  if (!Util.isUnset(request.vpcId)) {
+    query['vpcId'] = request.vpcId;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'ListK8sClusterSources',
+    version = '2024-03-27',
+    protocol = 'HTTPS',
+    pathname = `/v2/gateways/${OpenApiUtil.getEncodeParam(gatewayId)}/service-sources/k8s-clusters`,
+    method = 'GET',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Queries the Kubernetes (K8s) clusters that can be added as sources.
+ *
+ * @param request ListK8sClusterSourcesRequest
+ * @return ListK8sClusterSourcesResponse
+ */
+async function listK8sClusterSources(gatewayId: string, request: ListK8sClusterSourcesRequest): ListK8sClusterSourcesResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return listK8sClusterSourcesWithOptions(gatewayId, request, headers, runtime);
+}
+
 model ListMcpServersRequest {
   createFromTypes?: string(name='createFromTypes', description='The creation source type.', example='ApiGatewayHttpToMCP'),
   deployStatuses?: string(name='deployStatuses', description='The deployment status of the MCP server.', example='Deployed'),
@@ -10687,6 +12272,172 @@ async function listMcpServers(request: ListMcpServersRequest): ListMcpServersRes
   var runtime = new Util.RuntimeOptions{};
   var headers : map[string]string = {};
   return listMcpServersWithOptions(request, headers, runtime);
+}
+
+model ListMigrationTasksRequest {
+  pageNumber?: int32(name='pageNumber', example='1'),
+  pageSize?: int32(name='pageSize', example='10'),
+}
+
+model ListMigrationTasksResponseBody = {
+  code?: string(name='code', example='200'),
+  data?: {
+    items?: [ 
+      {
+        apiId?: string(name='apiId', example='api-xxxx'),
+        apiName?: string(name='apiName', example='api-name'),
+        clusterId?: string(name='clusterId', example='c-xxxxxx'),
+        clusterName?: string(name='clusterName', example='vpc_hz_domain_1'),
+        clusterNamespace?: string(name='clusterNamespace', example='default'),
+        createTime?: long(name='createTime', example='1756262400'),
+        description?: string(name='description', example='迁移测试'),
+        envId?: string(name='envId', example='env-xxxx'),
+        gatewayId?: string(name='gatewayId', example='gw-xxxx'),
+        gatewayName?: string(name='gatewayName', example='prod-gateway'),
+        ingressConfig?: {
+          ingressClass?: string(name='ingressClass', example='nginx'),
+          watchNamespace?: string(name='watchNamespace', example='default'),
+        }(name='ingressConfig'),
+        migrationType?: string(name='migrationType', example='Nginx Ingress'),
+        serviceName?: string(name='serviceName', example='nginx-ingress-lb'),
+        slbId?: string(name='slbId', example='lb-bp1xxxx'),
+        status?: string(name='status', example='FlowSwitch'),
+        switchType?: string(name='switchType', example='SLB'),
+        taskId?: string(name='taskId', example='mt-xxxxxxxx'),
+        userId?: string(name='userId', example='1234567890'),
+        virtualServices?: [ 
+          {
+            port?: int32(name='port', example='443'),
+            protocol?: string(name='protocol', example='tcp'),
+            virtualServiceGroupId?: string(name='virtualServiceGroupId', example='rsp-xxxx'),
+            virtualServiceGroupName?: string(name='virtualServiceGroupName', example='80-tcp'),
+          }
+        ](name='virtualServices'),
+        weight?: int32(name='weight', example='50'),
+      }
+    ](name='items'),
+    pageNumber?: int32(name='pageNumber', example='1'),
+    pageSize?: int32(name='pageSize', example='10'),
+    totalSize?: int32(name='totalSize', example='25'),
+  }(name='data'),
+  message?: string(name='message', example='success'),
+  requestId?: string(name='requestId', description='Id of the request', example='019FB5FB-615B-52AB-A92F-D40A3193DA96'),
+}
+
+model ListMigrationTasksResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ListMigrationTasksResponseBody(name='body'),
+}
+
+/**
+ * @summary 获取迁移任务列表
+ *
+ * @param request ListMigrationTasksRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return ListMigrationTasksResponse
+ */
+async function listMigrationTasksWithOptions(request: ListMigrationTasksRequest, headers: map[string]string, runtime: Util.RuntimeOptions): ListMigrationTasksResponse {
+  Util.validateModel(request);
+  var query : map[string]any = {};
+  if (!Util.isUnset(request.pageNumber)) {
+    query['pageNumber'] = request.pageNumber;
+  }
+  if (!Util.isUnset(request.pageSize)) {
+    query['pageSize'] = request.pageSize;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'ListMigrationTasks',
+    version = '2024-03-27',
+    protocol = 'HTTPS',
+    pathname = `/v1/migration-tasks`,
+    method = 'GET',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 获取迁移任务列表
+ *
+ * @param request ListMigrationTasksRequest
+ * @return ListMigrationTasksResponse
+ */
+async function listMigrationTasks(request: ListMigrationTasksRequest): ListMigrationTasksResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return listMigrationTasksWithOptions(request, headers, runtime);
+}
+
+model ListMseNacosSourcesRequest {
+}
+
+model ListMseNacosSourcesResponseBody = {
+  code?: string(name='code', description='The status code.', example='Ok'),
+  data?: {
+    items?: [ 
+      {
+        instanceId?: string(name='instanceId', description='The Nacos instance ID.', example='mse-cn-84a***'),
+        name?: string(name='name', description='The Nacos instance name.', example='商品中心Nacos注册中心'),
+      }
+    ](name='items', description='The list of Nacos instances that can be added.'),
+  }(name='data', description='The returned data.'),
+  message?: string(name='message', description='The response message returned.', example='success'),
+  requestId?: string(name='requestId', description='The request ID.', example='A1994B10-C6A8-58FA-8347-6A08B0D4EFDE'),
+}
+
+model ListMseNacosSourcesResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ListMseNacosSourcesResponseBody(name='body'),
+}
+
+/**
+ * @summary Queries the MSE Nacos instances that can be added as sources.
+ *
+ * @param request ListMseNacosSourcesRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return ListMseNacosSourcesResponse
+ */
+async function listMseNacosSourcesWithOptions(gatewayId: string, request: ListMseNacosSourcesRequest, headers: map[string]string, runtime: Util.RuntimeOptions): ListMseNacosSourcesResponse {
+  Util.validateModel(request);
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+  };
+  var params = new OpenApi.Params{
+    action = 'ListMseNacosSources',
+    version = '2024-03-27',
+    protocol = 'HTTPS',
+    pathname = `/v1/gateways/${OpenApiUtil.getEncodeParam(gatewayId)}/service-sources/mse-nacos-instances`,
+    method = 'GET',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Queries the MSE Nacos instances that can be added as sources.
+ *
+ * @param request ListMseNacosSourcesRequest
+ * @return ListMseNacosSourcesResponse
+ */
+async function listMseNacosSources(gatewayId: string, request: ListMseNacosSourcesRequest): ListMseNacosSourcesResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return listMseNacosSourcesWithOptions(gatewayId, request, headers, runtime);
 }
 
 model ListPluginAttachmentsRequest {
@@ -10931,6 +12682,72 @@ async function listPluginClasses(request: ListPluginClassesRequest): ListPluginC
   var runtime = new Util.RuntimeOptions{};
   var headers : map[string]string = {};
   return listPluginClassesWithOptions(request, headers, runtime);
+}
+
+model ListPluginRepositoriesRequest {
+}
+
+model ListPluginRepositoriesResponseBody = {
+  code?: string(name='code', example='200'),
+  data?: [ 
+    {
+      organizationId?: string(name='organizationId', example='664f1e2xxxx'),
+      organizationName?: string(name='organizationName', example='my-org'),
+      repositories?: [ 
+        {
+          repositoryId?: string(name='repositoryId', example='12345678'),
+          repositoryName?: string(name='repositoryName', example='my-custom-plugin'),
+        }
+      ](name='repositories'),
+    }
+  ](name='data'),
+  message?: string(name='message', example='success'),
+  requestId?: string(name='requestId', description='Id of the request', example='019FCA83-0416-588D-9763-2474980495F1'),
+}
+
+model ListPluginRepositoriesResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ListPluginRepositoriesResponseBody(name='body'),
+}
+
+/**
+ * @summary 查询自定义插件托管在云效上的仓库列表和组织信息
+ *
+ * @param request ListPluginRepositoriesRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return ListPluginRepositoriesResponse
+ */
+async function listPluginRepositoriesWithOptions(request: ListPluginRepositoriesRequest, headers: map[string]string, runtime: Util.RuntimeOptions): ListPluginRepositoriesResponse {
+  Util.validateModel(request);
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+  };
+  var params = new OpenApi.Params{
+    action = 'ListPluginRepositories',
+    version = '2024-03-27',
+    protocol = 'HTTPS',
+    pathname = `/v1/plugin-repositories`,
+    method = 'GET',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 查询自定义插件托管在云效上的仓库列表和组织信息
+ *
+ * @param request ListPluginRepositoriesRequest
+ * @return ListPluginRepositoriesResponse
+ */
+async function listPluginRepositories(request: ListPluginRepositoriesRequest): ListPluginRepositoriesResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return listPluginRepositoriesWithOptions(request, headers, runtime);
 }
 
 model ListPluginsRequest {
@@ -13077,6 +14894,8 @@ model UpdateConsumerAuthorizationRuleResponse = {
 /**
  * @summary Updates a consumer authorization rule.
  *
+ * @description 该 API 已被 UpdateAuthorizationRule 替代，新路径为 /v1/authorization-rules/{consumerAuthorizationRuleId}
+ *
  * @param request UpdateConsumerAuthorizationRuleRequest
  * @param headers map
  * @param runtime runtime options for this request RuntimeOptions
@@ -13115,6 +14934,8 @@ async function updateConsumerAuthorizationRuleWithOptions(consumerId: string, co
 
 /**
  * @summary Updates a consumer authorization rule.
+ *
+ * @description 该 API 已被 UpdateAuthorizationRule 替代，新路径为 /v1/authorization-rules/{consumerAuthorizationRuleId}
  *
  * @param request UpdateConsumerAuthorizationRuleRequest
  * @return UpdateConsumerAuthorizationRuleResponse
@@ -13437,6 +15258,70 @@ async function updateGatewayFeature(gatewayId: string, name: string, request: Up
   var runtime = new Util.RuntimeOptions{};
   var headers : map[string]string = {};
   return updateGatewayFeatureWithOptions(gatewayId, name, request, headers, runtime);
+}
+
+model UpdateGatewayMaintenancePeriodRequest {
+  maintenancePeriod?: {
+    endTime?: string(name='endTime', example='02:00'),
+    startTime?: string(name='startTime', example='02:00'),
+  }(name='maintenancePeriod'),
+}
+
+model UpdateGatewayMaintenancePeriodResponseBody = {
+  code?: string(name='code', example='200'),
+  message?: string(name='message', example='success'),
+  requestId?: string(name='requestId', example='8FA817D1-CCB0-5776-A604-8FC5DE6DACB9'),
+}
+
+model UpdateGatewayMaintenancePeriodResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: UpdateGatewayMaintenancePeriodResponseBody(name='body'),
+}
+
+/**
+ * @summary 修改网关运维时间
+ *
+ * @param request UpdateGatewayMaintenancePeriodRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return UpdateGatewayMaintenancePeriodResponse
+ */
+async function updateGatewayMaintenancePeriodWithOptions(gatewayId: string, request: UpdateGatewayMaintenancePeriodRequest, headers: map[string]string, runtime: Util.RuntimeOptions): UpdateGatewayMaintenancePeriodResponse {
+  Util.validateModel(request);
+  var body : map[string]any = {};
+  if (!Util.isUnset(request.maintenancePeriod)) {
+    body['maintenancePeriod'] = request.maintenancePeriod;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApi.Params{
+    action = 'UpdateGatewayMaintenancePeriod',
+    version = '2024-03-27',
+    protocol = 'HTTPS',
+    pathname = `/v1/gateways/${OpenApiUtil.getEncodeParam(gatewayId)}/maintenance-period`,
+    method = 'POST',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 修改网关运维时间
+ *
+ * @param request UpdateGatewayMaintenancePeriodRequest
+ * @return UpdateGatewayMaintenancePeriodResponse
+ */
+async function updateGatewayMaintenancePeriod(gatewayId: string, request: UpdateGatewayMaintenancePeriodRequest): UpdateGatewayMaintenancePeriodResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return updateGatewayMaintenancePeriodWithOptions(gatewayId, request, headers, runtime);
 }
 
 model UpdateGatewayNameRequest {
@@ -14163,6 +16048,163 @@ async function updateMcpServer(mcpServerId: string, request: UpdateMcpServerRequ
   return updateMcpServerWithOptions(mcpServerId, request, headers, runtime);
 }
 
+model UpdateMigrationTaskRequest {
+  clusterNamespace?: string(name='clusterNamespace', example='default'),
+  description?: string(name='description', example='迁移测试'),
+  serviceName?: string(name='serviceName', example='nginx-ingress-lb'),
+  slbId?: string(name='slbId', example='lb-bp1xxxx'),
+  switchType?: string(name='switchType', example='SLB'),
+  target?: string(name='target', example='Task'),
+  virtualServices?: [ 
+    {
+      port?: int32(name='port', example='80'),
+      protocol?: string(name='protocol', example='tcp'),
+      virtualServiceGroupId?: string(name='virtualServiceGroupId', example='rsp-xxxx'),
+      virtualServiceGroupName?: string(name='virtualServiceGroupName', example='80-tcp'),
+    }
+  ](name='virtualServices'),
+  weight?: int32(name='weight', example='50'),
+}
+
+model UpdateMigrationTaskResponseBody = {
+  code?: string(name='code', example='200'),
+  message?: string(name='message', example='success'),
+  requestId?: string(name='requestId', description='Id of the request', example='E7357D40-2418-5D4B-AC2E-D0A3C5930C7F'),
+}
+
+model UpdateMigrationTaskResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: UpdateMigrationTaskResponseBody(name='body'),
+}
+
+/**
+ * @summary 更新迁移任务
+ *
+ * @param request UpdateMigrationTaskRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return UpdateMigrationTaskResponse
+ */
+async function updateMigrationTaskWithOptions(taskId: string, request: UpdateMigrationTaskRequest, headers: map[string]string, runtime: Util.RuntimeOptions): UpdateMigrationTaskResponse {
+  Util.validateModel(request);
+  var body : map[string]any = {};
+  if (!Util.isUnset(request.clusterNamespace)) {
+    body['clusterNamespace'] = request.clusterNamespace;
+  }
+  if (!Util.isUnset(request.description)) {
+    body['description'] = request.description;
+  }
+  if (!Util.isUnset(request.serviceName)) {
+    body['serviceName'] = request.serviceName;
+  }
+  if (!Util.isUnset(request.slbId)) {
+    body['slbId'] = request.slbId;
+  }
+  if (!Util.isUnset(request.switchType)) {
+    body['switchType'] = request.switchType;
+  }
+  if (!Util.isUnset(request.target)) {
+    body['target'] = request.target;
+  }
+  if (!Util.isUnset(request.virtualServices)) {
+    body['virtualServices'] = request.virtualServices;
+  }
+  if (!Util.isUnset(request.weight)) {
+    body['weight'] = request.weight;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApi.Params{
+    action = 'UpdateMigrationTask',
+    version = '2024-03-27',
+    protocol = 'HTTPS',
+    pathname = `/v1/migration-tasks/${OpenApiUtil.getEncodeParam(taskId)}`,
+    method = 'PUT',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 更新迁移任务
+ *
+ * @param request UpdateMigrationTaskRequest
+ * @return UpdateMigrationTaskResponse
+ */
+async function updateMigrationTask(taskId: string, request: UpdateMigrationTaskRequest): UpdateMigrationTaskResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return updateMigrationTaskWithOptions(taskId, request, headers, runtime);
+}
+
+model UpdateNetworkAccessRequest {
+  networkAccessType?: string(name='networkAccessType', description='This parameter is required.', example='private&pubnet'),
+}
+
+model UpdateNetworkAccessResponseBody = {
+  code?: string(name='code', example='200'),
+  message?: string(name='message', example='success'),
+  requestId?: string(name='requestId', example='019F3F7D-9EC4-5F8B-A3F7-97E1369C31BD'),
+}
+
+model UpdateNetworkAccessResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: UpdateNetworkAccessResponseBody(name='body'),
+}
+
+/**
+ * @summary 更改网关网络访问类型
+ *
+ * @param request UpdateNetworkAccessRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return UpdateNetworkAccessResponse
+ */
+async function updateNetworkAccessWithOptions(gatewayId: string, request: UpdateNetworkAccessRequest, headers: map[string]string, runtime: Util.RuntimeOptions): UpdateNetworkAccessResponse {
+  Util.validateModel(request);
+  var query : map[string]any = {};
+  if (!Util.isUnset(request.networkAccessType)) {
+    query['networkAccessType'] = request.networkAccessType;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'UpdateNetworkAccess',
+    version = '2024-03-27',
+    protocol = 'HTTPS',
+    pathname = `/v1/gateways/${OpenApiUtil.getEncodeParam(gatewayId)}/network-type`,
+    method = 'POST',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 更改网关网络访问类型
+ *
+ * @param request UpdateNetworkAccessRequest
+ * @return UpdateNetworkAccessResponse
+ */
+async function updateNetworkAccess(gatewayId: string, request: UpdateNetworkAccessRequest): UpdateNetworkAccessResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return updateNetworkAccessWithOptions(gatewayId, request, headers, runtime);
+}
+
 model UpdatePluginAttachmentRequest {
   attachResourceIds?: [ string ](name='attachResourceIds', description='The list of mount point IDs.'),
   enable?: boolean(name='enable', description='Specifies whether to enable the plugin.', example='false'),
@@ -14303,6 +16345,71 @@ async function updatePolicy(policyId: string, request: UpdatePolicyRequest): Upd
   var runtime = new Util.RuntimeOptions{};
   var headers : map[string]string = {};
   return updatePolicyWithOptions(policyId, request, headers, runtime);
+}
+
+model UpdateRiskNotificationRequest {
+  isMute?: boolean(name='isMute', example='true'),
+  riskCode?: string(name='riskCode', example='GW_VERSION_EXPIRED'),
+}
+
+model UpdateRiskNotificationResponseBody = {
+  code?: string(name='code', example='200'),
+  message?: string(name='message', example='success'),
+  requestId?: string(name='requestId', description='Id of the request', example='01A00D7A-AA00-5BC0-9835-C7B15A3FE73A'),
+}
+
+model UpdateRiskNotificationResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: UpdateRiskNotificationResponseBody(name='body'),
+}
+
+/**
+ * @summary 更新风险项通知配置
+ *
+ * @param request UpdateRiskNotificationRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return UpdateRiskNotificationResponse
+ */
+async function updateRiskNotificationWithOptions(gatewayId: string, request: UpdateRiskNotificationRequest, headers: map[string]string, runtime: Util.RuntimeOptions): UpdateRiskNotificationResponse {
+  Util.validateModel(request);
+  var body : map[string]any = {};
+  if (!Util.isUnset(request.isMute)) {
+    body['isMute'] = request.isMute;
+  }
+  if (!Util.isUnset(request.riskCode)) {
+    body['riskCode'] = request.riskCode;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApi.Params{
+    action = 'UpdateRiskNotification',
+    version = '2024-03-27',
+    protocol = 'HTTPS',
+    pathname = `/v1/gateways/${OpenApiUtil.getEncodeParam(gatewayId)}/risk-check/notifications`,
+    method = 'POST',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 更新风险项通知配置
+ *
+ * @param request UpdateRiskNotificationRequest
+ * @return UpdateRiskNotificationResponse
+ */
+async function updateRiskNotification(gatewayId: string, request: UpdateRiskNotificationRequest): UpdateRiskNotificationResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return updateRiskNotificationWithOptions(gatewayId, request, headers, runtime);
 }
 
 model UpdateSecretRequest {
@@ -14620,5 +16727,71 @@ async function upgradeGateway(gatewayId: string, request: UpgradeGatewayRequest)
   var runtime = new Util.RuntimeOptions{};
   var headers : map[string]string = {};
   return upgradeGatewayWithOptions(gatewayId, request, headers, runtime);
+}
+
+model VerifyMigrationTaskRequest {
+}
+
+model VerifyMigrationTaskResponseBody = {
+  code?: string(name='code', example='200'),
+  data?: {
+    isSupported?: boolean(name='isSupported', example='true'),
+    message?: string(name='message', example='all routes supported'),
+    success?: boolean(name='success', example='true'),
+    unSupportedRouteRules?: [ 
+      {
+        name?: string(name='name', example='default/my-ingress'),
+        rule?: string(name='rule', example='/api/v1/pets -> pet-service'),
+        unSupportedAnnotations?: [ string ](name='unSupportedAnnotations'),
+      }
+    ](name='unSupportedRouteRules'),
+  }(name='data'),
+  message?: string(name='message', example='success'),
+  requestId?: string(name='requestId', description='Id of the request', example='CB85272A-5F04-58D7-BDE1-8BB5EB390CE1'),
+}
+
+model VerifyMigrationTaskResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: VerifyMigrationTaskResponseBody(name='body'),
+}
+
+/**
+ * @summary 检查迁移任务
+ *
+ * @param request VerifyMigrationTaskRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return VerifyMigrationTaskResponse
+ */
+async function verifyMigrationTaskWithOptions(taskId: string, request: VerifyMigrationTaskRequest, headers: map[string]string, runtime: Util.RuntimeOptions): VerifyMigrationTaskResponse {
+  Util.validateModel(request);
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+  };
+  var params = new OpenApi.Params{
+    action = 'VerifyMigrationTask',
+    version = '2024-03-27',
+    protocol = 'HTTPS',
+    pathname = `/v1/migration-tasks/${OpenApiUtil.getEncodeParam(taskId)}/verify`,
+    method = 'GET',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 检查迁移任务
+ *
+ * @param request VerifyMigrationTaskRequest
+ * @return VerifyMigrationTaskResponse
+ */
+async function verifyMigrationTask(taskId: string, request: VerifyMigrationTaskRequest): VerifyMigrationTaskResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return verifyMigrationTaskWithOptions(taskId, request, headers, runtime);
 }
 
