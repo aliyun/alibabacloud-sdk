@@ -1559,7 +1559,7 @@ model ValidationOptions {
 model AddGatewayQuotaRuleRequest {
   gatewayId?: string(name='gatewayId', example='gw-d8ki1xxxxxxxxxxxxxxx', position='Path'),
   conflictHash?: string(name='conflictHash', example='f8f44dc6cf369a017d56b7197eb4fb5ac4bbb6b09a92b9b41999541f50xxxxxx', position='Body'),
-  consumerGroupIds?: [ string ](name='consumerGroupIds', example='group1,group2', deprecated='true', position='Body'),
+  consumerGroupIds?: [ string ](name='consumerGroupIds', example='group1,group2', position='Body'),
   consumerIds?: [ string ](name='consumerIds', example='1001,1002,1003', position='Body'),
   dryRun?: boolean(name='dryRun', example='false', position='Body'),
   overwrite?: boolean(name='overwrite', example='false', position='Body'),
@@ -1568,6 +1568,7 @@ model AddGatewayQuotaRuleRequest {
   quotaDimension: string(name='quotaDimension', description='This parameter is required.', example='token', position='Body'),
   quotaLimit: long(name='quotaLimit', description='This parameter is required.', example='1000', position='Body'),
   ruleName: string(name='ruleName', description='This parameter is required.', example='团队规则', position='Body'),
+  subjectType?: string(name='subjectType', example='consumer_group', position='Body'),
   timezone?: string(name='timezone', example='UTC+8', position='Body'),
   windowAlignment?: string(name='windowAlignment', example='calendar', position='Body'),
 }
@@ -1584,6 +1585,9 @@ model AddGatewayQuotaRuleResponseBody = {
           conflictType?: string(name='conflictType'),
           consumerId?: string(name='consumerId', example='cs-d657ohum1hks73l68v10'),
           consumerName?: string(name='consumerName', example='consumer-a'),
+          subjectId?: string(name='subjectId', example='cs-xxx'),
+          subjectName?: string(name='subjectName', example='consumer-a'),
+          subjectType?: string(name='subjectType', example='consumer'),
         }
       ](name='items'),
       totalConflictCount?: int32(name='totalConflictCount', example='2'),
@@ -4695,6 +4699,7 @@ model GetGatewayQuotaRuleRequest {
   consumerPageNumber?: string(name='consumerPageNumber', example='1', deprecated='true', position='Query'),
   consumerPageSize?: string(name='consumerPageSize', example='10', deprecated='true', position='Query'),
   withConsumers?: boolean(name='withConsumers', position='Query'),
+  withSubjects?: boolean(name='withSubjects', position='Query'),
 }
 
 model GetGatewayQuotaRuleResponseBody = {
@@ -4714,6 +4719,15 @@ model GetGatewayQuotaRuleResponseBody = {
     ruleId?: string(name='ruleId', example='qr-d8j7fpmm1hks65xxxxxx'),
     ruleName?: string(name='ruleName', example='daily-token-limit'),
     ruleStatus?: string(name='ruleStatus', example='enabled'),
+    subjectCount?: long(name='subjectCount', example='120'),
+    subjectType?: string(name='subjectType', example='consumer_group'),
+    subjects?: [ 
+      {
+        id?: string(name='id', example='cs-xxx'),
+        name?: string(name='name', example='consumer-a'),
+        subjectType?: string(name='subjectType', example='consumer'),
+      }
+    ](name='subjects'),
     timezone?: string(name='timezone', example='GMT+8'),
     windowAlignment?: string(name='windowAlignment', example='calendar'),
   }(name='data', example='{"ruleId":1001}'),
@@ -4753,9 +4767,11 @@ model GetGatewayQuotaRuleSubjectUsageResponseBody = {
       items?: [ 
         {
           cachedAmount?: long(name='cachedAmount', example='10'),
+          consumer?: string(name='consumer', example='consumer-a'),
           inputAmount?: long(name='inputAmount', example='120'),
           model?: string(name='model', example='qwen-plus'),
           outputAmount?: long(name='outputAmount', example='80'),
+          requestId?: string(name='requestId', example='req-123456'),
           startTime?: string(name='startTime', example='2026-06-05 13:16:31'),
           usedAmount?: long(name='usedAmount', example='210'),
         }
@@ -4767,6 +4783,7 @@ model GetGatewayQuotaRuleSubjectUsageResponseBody = {
     inputAmount?: long(name='inputAmount', example='300'),
     outputAmount?: long(name='outputAmount', example='180'),
     overLimit?: boolean(name='overLimit', example='false'),
+    subjectType?: string(name='subjectType', example='consumer_group'),
     totalQuota?: long(name='totalQuota', example='1000'),
     usedAmount?: long(name='usedAmount', example='500'),
   }(name='data', example='{"usedAmount":500}'),
@@ -7297,6 +7314,39 @@ async function listPluginRepositories(request: ListPluginRepositoriesRequest): L
   return @handler.do('RESTFUL', 'ListPluginRepositories', 'GET', '/v1/plugin-repositories', 'json', false, 'json', request);
 }
 
+model ListPluginWorkspaceRequest {
+  gatewayType?: string(name='gatewayType', position='Query'),
+}
+
+model ListPluginWorkspaceResponseBody = {
+  code?: string(name='code'),
+  data?: [ 
+    {
+      organizationId?: string(name='organizationId'),
+      repoId?: string(name='repoId'),
+      repoName?: string(name='repoName'),
+      workspaceId?: string(name='workspaceId'),
+    }
+  ](name='data'),
+  message?: string(name='message'),
+  requestId?: string(name='requestId', description='Id of the request'),
+}
+
+model ListPluginWorkspaceResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ListPluginWorkspaceResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of ListPluginWorkspace  ListPluginWorkspaceRequest
+  * @return ListPluginWorkspaceResponse
+ */
+async function listPluginWorkspace(request: ListPluginWorkspaceRequest): ListPluginWorkspaceResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'ListPluginWorkspace', 'GET', '/v1/plugin-workspaces', 'json', false, 'json', request);
+}
+
 model ListPluginsRequest {
   attachResourceId?: string(name='attachResourceId', description='The resource attachment ID.', example='api-cuip2pum1hksng6oni3g', position='Query'),
   attachResourceType?: string(name='attachResourceType', description='The resource attachment type.
@@ -7464,6 +7514,47 @@ async function listPolicyClasses(request: ListPolicyClassesRequest): ListPolicyC
   return @handler.do('RESTFUL', 'ListPolicyClasses', 'GET', '/v1/policy-classes', 'json', false, 'json', request);
 }
 
+model ListRiskCheckResultsRequest {
+  gatewayId: string(name='gatewayId', description='API ID。
+
+This parameter is required.', position='Path'),
+  maxResults?: int32(name='maxResults', position='Query'),
+  nextToken?: string(name='nextToken', position='Query'),
+  pageNumber?: int32(name='pageNumber', position='Query'),
+  pageSize?: int32(name='pageSize', position='Query'),
+}
+
+model ListRiskCheckResultsResponseBody = {
+  code?: string(name='code'),
+  data?: {
+    items?: [
+      RiskCheckResults
+    ](name='items'),
+    pageNumber?: int32(name='pageNumber'),
+    pageSize?: int32(name='pageSize'),
+    totalSize?: int32(name='totalSize'),
+  }(name='data'),
+  maxResults?: int32(name='maxResults'),
+  message?: string(name='message'),
+  nextToken?: string(name='nextToken'),
+  requestId?: string(name='requestId', description='Id of the request'),
+}
+
+model ListRiskCheckResultsResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ListRiskCheckResultsResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of ListRiskCheckResults  ListRiskCheckResultsRequest
+  * @return ListRiskCheckResultsResponse
+ */
+async function listRiskCheckResults(request: ListRiskCheckResultsRequest): ListRiskCheckResultsResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'ListRiskCheckResults', 'GET', '/v1/gateways/{gatewayId}/risk-check/results', 'json', false, 'json', request);
+}
+
 model ListSecretReferencesRequest {
   secretId?: string(name='secretId', description='The ID of the key.', example='sec-d5e6shmm1hkoxxxxxxxx', position='Path'),
   pageNumber?: int32(name='pageNumber', description='The page number. The value starts from 1. Default value: 1.', example='1', position='Query'),
@@ -7620,6 +7711,64 @@ async function listServices(request: ListServicesRequest): ListServicesResponse 
   return @handler.do('RESTFUL', 'ListServices', 'GET', '/v1/services', 'json', false, 'json', request);
 }
 
+model ListSourcesRequest {
+  gatewayId?: string(name='gatewayId', description='The instance ID.', example='gw-cpv4sqdl****', position='Query'),
+  pageNumber?: int32(name='pageNumber', description='The page number of the page to return. Pages start from page 1. Default value: 1.', example='1', position='Query'),
+  pageSize?: int32(name='pageSize', description='The number of entries per page. Valid values: 1 to 100. Default value: 10.', example='10', position='Query'),
+  resourceGroupId?: string(name='resourceGroupId', position='Query'),
+  type?: string(name='type', description='The type by which you want to query sources.
+
+Valid values:
+
+*   K8S
+*   MSE_NACOS', example='MSE_NACOS', position='Query'),
+}
+
+model ListSourcesResponseBody = {
+  code?: string(name='code', description='The status code.', example='Ok'),
+  data?: {
+    items?: [ 
+      {
+        associationReason?: string(name='associationReason', example='Association completed'),
+        associationStatus?: string(name='associationStatus', example='ASSOCIATED'),
+        createTimestamp?: long(name='createTimestamp', description='The creation timestamp. Unit: milliseconds.', example='1719386834548'),
+        k8sSourceInfo?: {
+          clusterId?: string(name='clusterId', description='The cluster ID.', example='c09212180612a42adbed6a940d01d***'),
+        }(name='k8sSourceInfo', description='The source information when the source type is K8S.'),
+        nacosSourceInfo?: {
+          address?: string(name='address', description='The endpoint of the Nacos instance.', example='mse-3353***-nacos-ans.mse.aliyuncs.com:8848'),
+          clusterId?: string(name='clusterId', description='The registry ID.', example='mse-3353***'),
+          instanceId?: string(name='instanceId', description='The Nacos instance ID.', example='mse_prepaid_public_cn-wuf***'),
+        }(name='nacosSourceInfo', description='The source information when the source type is MSE_NACOS.'),
+        name?: string(name='name', description='The source name. If the source type is K8S, the name is the container cluster name. If the source type is MSE_NACOS, the name is the Nacos instance name.', example='itemcenter-dev-cluster'),
+        resourceGroupId?: string(name='resourceGroupId'),
+        sourceId?: string(name='sourceId', description='The source ID.', example='src-crdddallhtgtria***'),
+        updateTimestamp?: long(name='updateTimestamp', description='The update timestamp. Unit: milliseconds.', example='1719386834548'),
+      }
+    ](name='items', description='The list of sources.'),
+    pageNumber?: int32(name='pageNumber', description='The page number of the returned page.', example='1'),
+    pageSize?: int32(name='pageSize', description='The number of entries per page.', example='10'),
+    totalSize?: int32(name='totalSize', description='The total number of entries returned.', example='10'),
+  }(name='data', description='The returned data.'),
+  message?: string(name='message', description='The response message returned.', example='success'),
+  requestId?: string(name='requestId', description='The request ID.', example='8FA9BB94-915B-5299-A694-49FCC7F5DD00'),
+}
+
+model ListSourcesResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ListSourcesResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of ListSources  ListSourcesRequest
+  * @return ListSourcesResponse
+ */
+async function listSources(request: ListSourcesRequest): ListSourcesResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'ListSources', 'GET', '/v1/sources', 'json', false, 'json', request);
+}
+
 model ListSslCertsRequest {
   certNameLike?: string(name='certNameLike', description='The name keyword for matching.', example='ali', position='Query'),
   domainName?: string(name='domainName', description='The domain name.', example='fun.iot.evideocloud.com.cn', position='Query'),
@@ -7654,6 +7803,37 @@ model ListSslCertsResponse = {
 async function listSslCerts(request: ListSslCertsRequest): ListSslCertsResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RESTFUL', 'ListSslCerts', 'GET', '/v1/ssl/certs', 'json', false, 'json', request);
+}
+
+model ListSyncMCPServerRequest {
+  gatewayId?: string(name='gatewayId', position='Query'),
+  namespace?: string(name='namespace', position='Query'),
+  sourceId?: string(name='sourceId', position='Query'),
+}
+
+model ListSyncMCPServerResponseBody = {
+  code?: string(name='code'),
+  data?: {
+    domainIds?: [ string ](name='domainIds'),
+    mcpServers?: [ string ](name='mcpServers'),
+  }(name='data'),
+  message?: string(name='message'),
+  requestId?: string(name='requestId', description='Id of the request'),
+}
+
+model ListSyncMCPServerResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ListSyncMCPServerResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of ListSyncMCPServer  ListSyncMCPServerRequest
+  * @return ListSyncMCPServerResponse
+ */
+async function listSyncMCPServer(request: ListSyncMCPServerRequest): ListSyncMCPServerResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'ListSyncMCPServer', 'GET', '/v1/mcp-servers/sync-mcp-server/list', 'json', false, 'json', request);
 }
 
 model ListTagResourcesRequest {
@@ -7798,6 +7978,31 @@ async function queryConsumerAuthorizationRules(request: QueryConsumerAuthorizati
   return @handler.do('RESTFUL', 'QueryConsumerAuthorizationRules', 'GET', '/v1/authorization-rules', 'json', false, 'json', request);
 }
 
+model RefreshPluginOAuthCodeRequest {
+  code?: string(name='code', position='Body'),
+}
+
+model RefreshPluginOAuthCodeResponseBody = {
+  code?: string(name='code'),
+  message?: string(name='message'),
+  requestId?: string(name='requestId', description='Id of the request'),
+}
+
+model RefreshPluginOAuthCodeResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: RefreshPluginOAuthCodeResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of RefreshPluginOAuthCode  RefreshPluginOAuthCodeRequest
+  * @return RefreshPluginOAuthCodeResponse
+ */
+async function refreshPluginOAuthCode(request: RefreshPluginOAuthCodeRequest): RefreshPluginOAuthCodeResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'RefreshPluginOAuthCode', 'POST', '/v1/plugin-oauth-codes', 'json', false, 'json', request);
+}
+
 model RemoveConsumerAuthorizationRuleRequest {
   consumerAuthorizationRuleId?: string(name='consumerAuthorizationRuleId', description='The authorization rule ID.', example='car-ctgdn8em1hko5krqq03g', position='Path'),
 }
@@ -7848,6 +8053,9 @@ model ResetGatewayQuotaRuleResponseBody = {
           conflictType?: string(name='conflictType'),
           consumerId?: string(name='consumerId', example='cs-d82n1g6m1hkm375q2980'),
           consumerName?: string(name='consumerName', example='consumer-a'),
+          subjectId?: string(name='subjectId', example='cs-xxx'),
+          subjectName?: string(name='subjectName', example='consumer-a'),
+          subjectType?: string(name='subjectType', example='consumer'),
         }
       ](name='items'),
       totalConflictCount?: int32(name='totalConflictCount', example='20'),
@@ -7897,6 +8105,31 @@ model RestartGatewayResponse = {
 async function restartGateway(request: RestartGatewayRequest): RestartGatewayResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RESTFUL', 'RestartGateway', 'POST', '/v1/gateways/{gatewayId}/restart', 'json', false, 'json', request);
+}
+
+model RunPluginPipelineRequest {
+  workspaceId?: string(name='workspaceId', position='Path'),
+}
+
+model RunPluginPipelineResponseBody = {
+  code?: string(name='code'),
+  message?: string(name='message'),
+  requestId?: string(name='requestId', description='Id of the request'),
+}
+
+model RunPluginPipelineResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: RunPluginPipelineResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of RunPluginPipeline  RunPluginPipelineRequest
+  * @return RunPluginPipelineResponse
+ */
+async function runPluginPipeline(request: RunPluginPipelineRequest): RunPluginPipelineResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'RunPluginPipeline', 'POST', '/v1/plugin-workspaces/{workspaceId}/pipeline-run', 'json', false, 'json', request);
 }
 
 model SyncMCPServersRequest {
@@ -8279,6 +8512,32 @@ async function updateAndAttachPolicy(request: UpdateAndAttachPolicyRequest): Upd
   return @handler.do('RESTFUL', 'UpdateAndAttachPolicy', 'PUT', '/v1/policies/{policyId}', 'json', false, 'json', request);
 }
 
+model UpdateAuthorizationRuleRequest {
+  consumerAuthorizationRuleId?: string(name='consumerAuthorizationRuleId', position='Path'),
+  resources?: [ string ](name='resources', position='Body'),
+}
+
+model UpdateAuthorizationRuleResponseBody = {
+  code?: string(name='code'),
+  message?: string(name='message'),
+  requestId?: string(name='requestId', description='Id of the request'),
+}
+
+model UpdateAuthorizationRuleResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: UpdateAuthorizationRuleResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of UpdateAuthorizationRule  UpdateAuthorizationRuleRequest
+  * @return UpdateAuthorizationRuleResponse
+ */
+async function updateAuthorizationRule(request: UpdateAuthorizationRuleRequest): UpdateAuthorizationRuleResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'UpdateAuthorizationRule', 'PUT', '/v1/authorization-rules/{consumerAuthorizationRuleId}', 'json', false, 'json', request);
+}
+
 model UpdateConsumerRequest {
   consumerId?: string(name='consumerId', description='The consumer ID.', example='cs-cvfmq9um1hkg1teictkg', position='Path'),
   akSkIdentityConfigs?: [
@@ -8456,6 +8715,50 @@ async function updateEnvironment(request: UpdateEnvironmentRequest): UpdateEnvir
   return @handler.do('RESTFUL', 'UpdateEnvironment', 'PUT', '/v1/environments/{environmentId}', 'json', false, 'json', request);
 }
 
+model UpdateGatewayElasticPolicyRequest {
+  gatewayId?: string(name='gatewayId', position='Path'),
+  elasticPolicy?: {
+    elasticEnabled?: boolean(name='elasticEnabled'),
+    elasticType?: string(name='elasticType'),
+    enableScaleTimePolicyList?: [ 
+      {
+        endTime?: string(name='endTime'),
+        startTime?: string(name='startTime'),
+      }
+    ](name='enableScaleTimePolicyList'),
+    loadWarningThreshold?: boolean(name='loadWarningThreshold'),
+    maxUnits?: int32(name='maxUnits'),
+    timePolicyList?: [ 
+      {
+        endTime?: string(name='endTime'),
+        startTime?: string(name='startTime'),
+        units?: int32(name='units'),
+      }
+    ](name='timePolicyList'),
+  }(name='elasticPolicy', position='Body'),
+}
+
+model UpdateGatewayElasticPolicyResponseBody = {
+  code?: string(name='code'),
+  message?: string(name='message'),
+  requestId?: string(name='requestId', description='Id of the request'),
+}
+
+model UpdateGatewayElasticPolicyResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: UpdateGatewayElasticPolicyResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of UpdateGatewayElasticPolicy  UpdateGatewayElasticPolicyRequest
+  * @return UpdateGatewayElasticPolicyResponse
+ */
+async function updateGatewayElasticPolicy(request: UpdateGatewayElasticPolicyRequest): UpdateGatewayElasticPolicyResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'UpdateGatewayElasticPolicy', 'POST', '/v1/gateways/{gatewayId}/elastic-policy', 'json', false, 'json', request);
+}
+
 model UpdateGatewayFeatureRequest {
   gatewayId?: string(name='gatewayId', description='The instance ID.', example='gw-cq2avtllh****', position='Path'),
   name?: string(name='name', description='The feature parameter name.', example='enable-gzip', position='Path'),
@@ -8481,6 +8784,76 @@ model UpdateGatewayFeatureResponse = {
 async function updateGatewayFeature(request: UpdateGatewayFeatureRequest): UpdateGatewayFeatureResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RESTFUL', 'UpdateGatewayFeature', 'PUT', '/v1/gateways/{gatewayId}/gateway-features/{name}', 'json', false, 'json', request);
+}
+
+model UpdateGatewayLoadBalancerRequest {
+  gatewayId?: string(name='gatewayId', position='Path'),
+  loadBalancerDTO?: {
+    loadBalancerId?: string(name='loadBalancerId'),
+    loadBalancerType?: string(name='loadBalancerType'),
+    networkType?: string(name='networkType'),
+    serviceWeight?: long(name='serviceWeight'),
+    virtualServiceList?: [ 
+      {
+        port?: long(name='port'),
+        protocol?: string(name='protocol'),
+        virtualServiceGroupId?: string(name='virtualServiceGroupId'),
+        virtualServiceGroupName?: string(name='virtualServiceGroupName'),
+      }
+    ](name='virtualServiceList'),
+  }(name='loadBalancerDTO', position='Body'),
+  option?: string(name='option', position='Body'),
+  ports?: [ 
+    {
+      gatewayLoadBalancerPorts?: [ 
+        {
+          port?: int32(name='port'),
+          protocol?: string(name='protocol'),
+        }
+      ](name='gatewayLoadBalancerPorts'),
+      type?: string(name='type'),
+    }
+  ](name='ports', position='Body'),
+}
+
+model UpdateGatewayLoadBalancerResponseBody = {
+  code?: string(name='code'),
+  data?: {
+    editEnable?: boolean(name='editEnable'),
+    loadBalancerAddress?: string(name='loadBalancerAddress'),
+    loadBalancerId?: string(name='loadBalancerId'),
+    loadBalancerName?: string(name='loadBalancerName'),
+    loadBalancerType?: string(name='loadBalancerType'),
+    networkType?: string(name='networkType'),
+    ports?: [ int32 ](name='ports'),
+    serviceWeight?: long(name='serviceWeight'),
+    statusDescription?: string(name='statusDescription'),
+    virtualServiceList?: [ 
+      {
+        port?: string(name='port'),
+        protocol?: string(name='protocol'),
+        virtualServiceGroupId?: string(name='virtualServiceGroupId'),
+        virtualServiceGroupName?: string(name='virtualServiceGroupName'),
+      }
+    ](name='virtualServiceList'),
+  }(name='data'),
+  message?: string(name='message'),
+  requestId?: string(name='requestId', description='Id of the request'),
+}
+
+model UpdateGatewayLoadBalancerResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: UpdateGatewayLoadBalancerResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of UpdateGatewayLoadBalancer  UpdateGatewayLoadBalancerRequest
+  * @return UpdateGatewayLoadBalancerResponse
+ */
+async function updateGatewayLoadBalancer(request: UpdateGatewayLoadBalancerRequest): UpdateGatewayLoadBalancerResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'UpdateGatewayLoadBalancer', 'POST', '/v1/gateways/{gatewayId}/update-load-balancer', 'json', false, 'json', request);
 }
 
 model UpdateGatewayMaintenancePeriodRequest {
@@ -8564,6 +8937,9 @@ model UpdateGatewayQuotaRuleResponseBody = {
           conflictType?: string(name='conflictType'),
           consumerId?: string(name='consumerId', example='cs-d82n1g6m1hkm375xxxxx'),
           consumerName?: string(name='consumerName', example='consumer-a'),
+          subjectId?: string(name='subjectId', example='cs-xxx'),
+          subjectName?: string(name='subjectName', example='consumer-a'),
+          subjectType?: string(name='subjectType', example='consumer'),
         }
       ](name='items'),
       totalConflictCount?: int32(name='totalConflictCount', example='2'),
