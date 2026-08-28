@@ -217,30 +217,38 @@ async function addHDMInstance(request: AddHDMInstanceRequest): AddHDMInstanceRes
 }
 
 model ChatRequest {
-  agentId?: string(name='AgentId', description='Optional. The agent ID. You can use the ID of an agent that is automatically generated when you enable DAS Agent, or the ID of a custom agent. If this parameter is omitted, the default agent is used.', example='ag-472T0DxtmjIxxxxx'),
-  message?: string(name='Message', description='The message object.
+  agentId?: string(name='AgentId', description='The Agent ID used for the service. You can specify an Agent generated after enabling DAS Agent or an Agent that you manually created. If not specified, the default Agent is used.', example='ag-472T0DxtmjIxxxxx'),
+  message?: string(name='Message', description='The message content.
 
 This parameter is required.', example='{"id":"68fe0321-37fe-4c75-a118-b61b33156f6a","role":"user","content":[{"type":"text","text":"hello"}]}'),
-  sessionId?: string(name='SessionId', description='Optional. The session ID, which must be a UUID. If unspecified, a new session is created. To maintain conversational context, use the same session ID for all subsequent requests.', example='123e4567-e89b-12d3-a456-xxxxxxxxxxxx'),
-  summary?: string(name='Summary', description='Specifies whether to return summary information.', example='false'),
+  sessionId?: string(name='SessionId', description='The session ID in UUID string format. If not specified, a new session is created by default. To maintain context across conversations, use the same session ID.', example='123e4567-e89b-12d3-a456-xxxxxxxxxxxx'),
+  summary?: string(name='Summary', description='Specifies whether to output summary information.', example='false'),
 }
 
 model ChatResponseBody = {
-  activityType?: string(name='ActivityType', description='Indicates the current activity status of the agent.', example='waiting_for_agent_thinking'),
-  content?: string(name='Content', description='The content of the response.', example='I see you have several PolarDB instances, and I will query them for you shortly'),
-  delta?: string(name='Delta', description='The incremental content of the response.', example='hello'),
+  activityType?: string(name='ActivityType', description='The heartbeat.', example='waiting_for_agent_thinking'),
+  agentId?: string(name='AgentId'),
+  content?: string(name='Content', description='The response content.', example='I see you have several PolarDB instances, and I will query them for you shortly'),
+  delta?: string(name='Delta', description='Indicates whether the content is incremental.', example='hello'),
+  kind?: string(name='Kind'),
+  label?: string(name='Label'),
   messageId?: string(name='MessageId', description='The message ID.', example='61820b594664275c4429****'),
-  name?: string(name='Name', description='The key for the additional information.', example='summary'),
-  parentMessageId?: string(name='ParentMessageId', description='The ID of the parent message.', example='76bee207-31ee-4707-8851-6b9d4da033aa'),
-  role?: string(name='Role', description='The role in the conversation.', example='assistant'),
+  name?: string(name='Name', description='The extension key.', example='summary'),
+  originatingToolCallId?: string(name='OriginatingToolCallId'),
+  parentAgentId?: string(name='ParentAgentId'),
+  parentMessageId?: string(name='ParentMessageId', description='The parent message ID.', example='76bee207-31ee-4707-8851-6b9d4da033aa'),
+  role?: string(name='Role', description='The conversation role ID.', example='assistant'),
   runId?: string(name='RunId', description='The run ID.', example='ed7cb7b1-ddc8-45d7-9ff3-b315726cb5f7'),
-  stepName?: string(name='StepName', description='The name of the execution step.', example='sub_agent_performance_diagnose_mysql'),
-  taskTrackerId?: string(name='TaskTrackerId', description='The identifier of the callback tool.', example='das_api'),
+  stepName?: string(name='StepName', description='The execution step name.', example='sub_agent_performance_diagnose_mysql'),
+  stepStatus?: string(name='StepStatus'),
+  taskTrackerId?: string(name='TaskTrackerId', description='The callback tool class.', example='das_api'),
   threadId?: string(name='ThreadId', description='The thread ID.', example='8e481be1-21d5-4a92-a2fb-fb54be0ab4f6'),
-  toolCallId?: string(name='ToolCallId', description='The tool call ID.', example='call_edf9cdb69e0e4c9796a6a5a6'),
-  toolCallName?: string(name='ToolCallName', description='The name of the tool.', example='das_api'),
+  timestamp?: long(name='Timestamp'),
+  toolCallError?: string(name='ToolCallError'),
+  toolCallId?: string(name='ToolCallId', description='The tool calling invoke ID.', example='call_edf9cdb69e0e4c9796a6a5a6'),
+  toolCallName?: string(name='ToolCallName', description='The tool name.', example='das_api'),
   type?: string(name='Type', description='The event type.', example='TEXT_MESSAGE_CONTENT'),
-  value?: any(name='Value', description='The value of the additional information.', example='{"CharCount":393,"End":1777428785996,"RequestId":"BE59AED5-D831-5811-BBAD-590B917B2089","SessionId":"123e4567-e89b-12d3-a456-xxxxxxxxxxxx","Start":1777428707927}'),
+  value?: any(name='Value', description='The extension value.', example='{"CharCount":393,"End":1777428785996,"RequestId":"BE59AED5-D831-5811-BBAD-590B917B2089","SessionId":"123e4567-e89b-12d3-a456-xxxxxxxxxxxx","Start":1777428707927}'),
 }
 
 model ChatResponse = {
@@ -250,13 +258,13 @@ model ChatResponse = {
 }
 
 /**
- * @summary An asynchronous API to access the large language model capabilities of DAS.
+ * @summary Provides an asynchronous interface for interacting with DAS Agent powered by large language model capabilities.
  *
- * @description Prerequisites:
- * - Use the latest version of the Alibaba Cloud SDK or the DAS SDK.
- * - When you use an SDK to call the DAS service, you must specify the region as cn-shanghai.
- * - You can create offline tasks only for database instances that have DAS Enterprise Edition enabled. For information about the databases and regions that are supported by different versions of DAS Enterprise Edition, see [DAS product editions and features](https://help.aliyun.com/document_detail/156204.html).
- * For more information about using the Chat API with DAS Agent, see [Best practices for DAS Agent interaction (integrating with the Chat API)](https://help.aliyun.com/zh/das/developer-reference/chat-api-best-practice).
+ * @description Before you begin:
+ * - Use the latest version of the Alibaba Cloud or DAS SDK.
+ * - When calling DAS by using the SDK, set the region to cn-shanghai.
+ * - Only database instances with DAS Enterprise Edition activated support creating batch tasks. For databases and regions supported by each DAS Enterprise Edition version, see [DAS editions and supported features](https://help.aliyun.com/document_detail/156204.html).
+ * For more methods and examples of interacting with DAS Agent by using the Chat API, see [Best practices for DAS Agent interaction (integrating Chat API)](https://www.alibabacloud.com/help/en/das/developer-reference/chat-api-best-practice).
  *
  * @param request ChatRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -295,13 +303,13 @@ async function chatWithOptions(request: ChatRequest, runtime: Util.RuntimeOption
 }
 
 /**
- * @summary An asynchronous API to access the large language model capabilities of DAS.
+ * @summary Provides an asynchronous interface for interacting with DAS Agent powered by large language model capabilities.
  *
- * @description Prerequisites:
- * - Use the latest version of the Alibaba Cloud SDK or the DAS SDK.
- * - When you use an SDK to call the DAS service, you must specify the region as cn-shanghai.
- * - You can create offline tasks only for database instances that have DAS Enterprise Edition enabled. For information about the databases and regions that are supported by different versions of DAS Enterprise Edition, see [DAS product editions and features](https://help.aliyun.com/document_detail/156204.html).
- * For more information about using the Chat API with DAS Agent, see [Best practices for DAS Agent interaction (integrating with the Chat API)](https://help.aliyun.com/zh/das/developer-reference/chat-api-best-practice).
+ * @description Before you begin:
+ * - Use the latest version of the Alibaba Cloud or DAS SDK.
+ * - When calling DAS by using the SDK, set the region to cn-shanghai.
+ * - Only database instances with DAS Enterprise Edition activated support creating batch tasks. For databases and regions supported by each DAS Enterprise Edition version, see [DAS editions and supported features](https://help.aliyun.com/document_detail/156204.html).
+ * For more methods and examples of interacting with DAS Agent by using the Chat API, see [Best practices for DAS Agent interaction (integrating Chat API)](https://www.alibabacloud.com/help/en/das/developer-reference/chat-api-best-practice).
  *
  * @param request ChatRequest
  * @return ChatResponse
@@ -2143,163 +2151,139 @@ This parameter is required.', example='pc-2ze1prap1k46r****'),
 }
 
 model DescribeAutoScalingConfigResponseBody = {
-  code?: string(name='Code', description='The HTTP status code returned.', example='200'),
+  code?: string(name='Code', description='The returned status code.', example='200'),
   data?: {
     bandwidth?: {
       bandwidthUsageLowerThreshold?: int32(name='BandwidthUsageLowerThreshold', description='The average bandwidth usage threshold that triggers automatic bandwidth downgrade. Unit: %.', example='30'),
-      bandwidthUsageUpperThreshold?: int32(name='BandwidthUsageUpperThreshold', description='The average bandwidth usage threshold that triggers automatic bandwidth adjustment. Unit: %.', example='70'),
-      downgrade?: boolean(name='Downgrade', description='Indicates whether the automatic bandwidth downgrade feature is enabled. Valid values:
+      bandwidthUsageUpperThreshold?: int32(name='BandwidthUsageUpperThreshold', description='The average bandwidth usage threshold that triggers automatic bandwidth upgrade. Unit: %.', example='70'),
+      downgrade?: boolean(name='Downgrade', description='Indicates whether automatic bandwidth downgrade is enabled. Valid values:
 
-- **true**
-
-- **false**', example='true'),
-      observationWindowSize?: string(name='ObservationWindowSize', description='The observation window of the automatic bandwidth adjustment feature. The return value consists of a numeric value and a time unit suffix. Valid values of the time unit suffix:
+- **true**: Enabled.
+- **false**: Disabled.', example='true'),
+      observationWindowSize?: string(name='ObservationWindowSize', description='The observation window for automatic bandwidth upgrade. The value consists of a number and a time unit suffix. The time unit suffixes are:
 
 - **s**: seconds.
-
 - **m**: minutes.
-
 - **h**: hours.
+- **d**: days. 
 
-- **d**: days.
-
-> A value of **5m** indicates 5 minutes.', example='5m'),
-      upgrade?: boolean(name='Upgrade', description='Indicates whether the automatic bandwidth adjustment feature is enabled. Valid values:
-
-- **true**
-
-- **false**', example='true'),
-    }(name='Bandwidth', description='The configurations of the automatic bandwidth adjustment feature.'),
+> For example, **5m** indicates 5 minutes.', example='5m'),
+      upgrade?: boolean(name='Upgrade', description='Indicates whether automatic bandwidth upgrade is enabled. Valid values:
+- **true**: Enabled.
+- **false**: Disabled.', example='true'),
+    }(name='Bandwidth', description='The bandwidth elastic scaling feature configuration of the instance.'),
     resource?: {
-      cpuStep?: int32(name='CpuStep', description='The scale-out step size of CPU.', example='2'),
-      cpuUsageUpperThreshold?: int32(name='CpuUsageUpperThreshold', description='The average CPU utilization threshold that triggers automatic scale-out of local resources. Unit: %.', example='70'),
-      downgradeObservationWindowSize?: string(name='DowngradeObservationWindowSize', description='The observation window of the automatic scale-in feature for local resources. The return value consists of a numeric value and a time unit suffix. Valid values of the time unit suffix:
+      cpuStep?: int32(name='CpuStep', description='The CPU scale-up increment.', example='2'),
+      cpuUsageUpperThreshold?: int32(name='CpuUsageUpperThreshold', description='The average CPU utilization threshold that triggers automatic local resource scale-up. Unit: %.', example='70'),
+      downgradeObservationWindowSize?: string(name='DowngradeObservationWindowSize', description='The scale-down observation window. The value consists of a number and a time unit suffix. The time unit suffixes are:
 
 - **s**: seconds.
-
 - **m**: minutes.
-
 - **h**: hours.
+- **d**: days. 
 
-- **d**: days.
+> For example, **5m** indicates 5 minutes.', example='5m'),
+      enable?: boolean(name='Enable', description='Indicates whether local resource elastic scaling is enabled. Valid values:
 
-> A value of **5m** indicates 5 minutes.', example='5m'),
-      enable?: boolean(name='Enable', description='Indicates whether the auto scaling feature is enabled for local resources. Valid values:
-
-- **true**
-
-- **false**', example='true'),
-      upgradeObservationWindowSize?: string(name='UpgradeObservationWindowSize', description='The observation window of the automatic scale-out feature for local resources. The return value consists of a numeric value and a time unit suffix. Valid values of the time unit suffix:
+- **true**: Enabled.
+- **false**: Disabled.', example='true'),
+      upgradeObservationWindowSize?: string(name='UpgradeObservationWindowSize', description='The scale-up observation window. The value consists of a number and a time unit suffix. The time unit suffixes are:
 
 - **s**: seconds.
-
 - **m**: minutes.
-
 - **h**: hours.
+- **d**: days. 
 
-- **d**: days.
-
-> A value of **5m** indicates 5 minutes.', example='5m'),
-    }(name='Resource', description='The configurations of the auto scaling feature for local resources.'),
+> For example, **5m** indicates 5 minutes.', example='5m'),
+    }(name='Resource', description='The local resource elastic scaling feature configuration of the instance.'),
     shard?: {
-      downgrade?: boolean(name='Downgrade', description='Indicates whether the feature of automatically removing shards is enabled. Valid values:
+      downgrade?: boolean(name='Downgrade', description='Indicates whether automatic shard removal is enabled. Valid values:
 
-- **true**
+- **true**: Enabled.
+- **false**: Disabled.', example='true'),
+      downgradeObservationWindowSize?: string(name='DowngradeObservationWindowSize', description='The observation window for automatic shard removal. The value consists of a number and a time unit suffix. The time unit suffixes are:
+- **s**: seconds.
+- **m**: minutes.
+- **h**: hours.
+- **d**: days. 
 
-- **false**', example='true'),
-      downgradeObservationWindowSize?: string(name='DowngradeObservationWindowSize', description='The observation window of the feature of automatically removing shards. The return value consists of a numeric value and a time unit suffix. Valid values of the time unit suffix:
+> For example, **1d** indicates 1 day.', example='1d'),
+      maxShards?: int32(name='MaxShards', description='The maximum total number of shards for the instance.', example='16'),
+      memUsageLowerThreshold?: int32(name='MemUsageLowerThreshold', description='The average memory utilization threshold that triggers automatic shard removal. Unit: %.', example='30'),
+      memUsageUpperThreshold?: int32(name='MemUsageUpperThreshold', description='The average memory utilization threshold that triggers automatic shard addition. Unit: %.', example='70'),
+      minShards?: int32(name='MinShards', description='The minimum total number of shards for the instance.', example='4'),
+      upgrade?: boolean(name='Upgrade', description='Indicates whether automatic shard addition is enabled. Valid values:
+
+- **true**: Enabled.
+- **false**: Disabled.', example='true'),
+      upgradeObservationWindowSize?: string(name='UpgradeObservationWindowSize', description='The observation window for automatic shard addition. The value consists of a number and a time unit suffix. The time unit suffixes are:
 
 - **s**: seconds.
-
 - **m**: minutes.
-
 - **h**: hours.
+- **d**: days. 
 
-- **d**: days.
-
-> A value of **1d** indicates one day.', example='1d'),
-      maxShards?: int32(name='MaxShards', description='The maximum number of shards in the instance.', example='16'),
-      memUsageLowerThreshold?: int32(name='MemUsageLowerThreshold', description='The average memory usage threshold that triggers automatic removal of shards. Unit: %.', example='30'),
-      memUsageUpperThreshold?: int32(name='MemUsageUpperThreshold', description='The average memory usage threshold that triggers automatic adding of shards. Unit: %.', example='70'),
-      minShards?: int32(name='MinShards', description='The minimum number of shards in the instance.', example='4'),
-      upgrade?: boolean(name='Upgrade', description='Indicates whether the feature of automatically adding shards is enabled. Valid values:
-
-- **true**
-
-- **false**', example='true'),
-      upgradeObservationWindowSize?: string(name='UpgradeObservationWindowSize', description='The observation window of the feature of automatically adding shards. The return value consists of a numeric value and a time unit suffix. Valid values of the time unit suffix:
-
-- **s**: seconds.
-
-- **m**: minutes.
-
-- **h**: hours.
-
-- **d**: days.
-
-> A value of **5m** indicates 5 minutes.', example='5m'),
-    }(name='Shard', description='The configurations of the auto scaling feature for shards.'),
+> For example, **5m** indicates 5 minutes.', example='5m'),
+    }(name='Shard', description='The shard elastic scaling feature configuration of the instance.'),
     spec?: {
-      coolDownTime?: string(name='CoolDownTime', description='The quiescent period. The return value consists of a numeric value and a time unit suffix. Valid values of the time unit suffix:
+      coolDownTime?: string(name='CoolDownTime', description='The cool-down period. The value consists of a number and a time unit suffix. The time unit suffixes are:
 
 - **s**: seconds.
-
 - **m**: minutes.
-
 - **h**: hours.
+- **d**: days. 
 
-- **d**: days.
-
-> A value of **5m** indicates 5 minutes.', example='5m'),
+> For example, **5m** indicates 5 minutes.', example='5m'),
       cpuUsageUpperThreshold?: int32(name='CpuUsageUpperThreshold', description='The average CPU utilization threshold that triggers automatic specification scale-up. Unit: %.', example='70'),
-      downgrade?: boolean(name='Downgrade', description='Indicates whether the automatic specification scale-down feature is enabled. Valid values:
+      downgrade?: boolean(name='Downgrade', description='Indicates whether automatic specification scale-down is enabled. Valid values:
 
-- **true**
+- **true**: Enabled.
+- **false**: Disabled.', example='true'),
+      maxReadOnlyNodes?: int32(name='MaxReadOnlyNodes', description='The maximum number of read-only nodes for the instance.', example='10'),
+      maxSpec?: string(name='MaxSpec', description='The maximum specification for automatic scale-up. For details, refer to the product specification documentation for each database instance:
+<props="china">
 
-- **false**', example='true'),
-      maxReadOnlyNodes?: int32(name='MaxReadOnlyNodes', description='The maximum number of read-only nodes of the instance.', example='10'),
-      maxSpec?: string(name='MaxSpec', description='The maximum specifications to which the cluster can be scaled up. For more information about the specifications of each type of supported database instances, see the following topics:
+- For PolarDB for MySQL Cluster Edition, see [Compute node specifications](https://help.aliyun.com/document_detail/102542.html).
+- For ApsaraDB RDS for MySQL high-availability series with cloud disks, see [Product specifications](https://help.aliyun.com/document_detail/276974.html).
+- For Redis community cloud disk edition, see [Instance specifications](https://help.aliyun.com/document_detail/144986.html).
 
-- PolarDB for MySQL Cluster Edition instances: [Compute node specifications of PolarDB for MySQL Enterprise Edition](https://help.aliyun.com/document_detail/102542.html)
 
-- ApsaraDB RDS for MySQL High-availability Edition instances that use standard SSDs or ESSDs: [Specifications](https://help.aliyun.com/document_detail/276974.html)', example='polar.mysql.x8.12xlarge'),
-      memUsageUpperThreshold?: int32(name='MemUsageUpperThreshold', description='The average memory usage threshold that triggers automatic specification scale-up. Unit: %.', example='70'),
-      observationWindowSize?: string(name='ObservationWindowSize', description='The observation window. The return value consists of a numeric value and a time unit suffix. Valid values of the time unit suffix:
+
+<props="intl">
+
+- For PolarDB for MySQL Cluster Edition, see [Compute node specifications](https://help.aliyun.com/document_detail/102542.html).
+- For ApsaraDB RDS for MySQL high-availability series with cloud disks, see [Product specifications](https://help.aliyun.com/document_detail/276974.html).', example='polar.mysql.x8.12xlarge'),
+      memUsageUpperThreshold?: int32(name='MemUsageUpperThreshold', description='The average memory utilization threshold that triggers automatic specification scale-up. Unit: %.', example='70'),
+      observationWindowSize?: string(name='ObservationWindowSize', description='The observation window. The value consists of a number and a time unit suffix. The time unit suffixes are:
 
 - **s**: seconds.
-
 - **m**: minutes.
-
 - **h**: hours.
+- **d**: days. 
 
-- **d**: days.
+> For example, **5m** indicates 5 minutes.', example='5m'),
+      upgrade?: boolean(name='Upgrade', description='Indicates whether automatic specification scale-up is enabled. Valid values:
 
-> A value of **5m** indicates 5 minutes.', example='5m'),
-      upgrade?: boolean(name='Upgrade', description='Indicates whether the automatic specification scale-up feature is enabled. Valid values:
-
-- **true**
-
-- **false**', example='true'),
-    }(name='Spec', description='The configurations of the auto scaling feature for specifications.'),
+- **true**: Enabled.
+- **false**: Disabled.', example='true'),
+    }(name='Spec', description='The specification elastic scaling feature configuration.'),
     storage?: {
-      diskUsageUpperThreshold?: int32(name='DiskUsageUpperThreshold', description='The average storage usage threshold that triggers automatic storage expansion. Unit: %.', example='70'),
-      maxStorage?: int32(name='MaxStorage', description='The maximum storage size. Unit: GB.', example='32000'),
-      upgrade?: boolean(name='Upgrade', description='Indicates whether the automatic storage expansion feature is enabled. Valid values:
+      diskUsageUpperThreshold?: int32(name='DiskUsageUpperThreshold', description='The average storage utilization threshold that triggers automatic storage scaling. Unit: %.', example='70'),
+      maxStorage?: int32(name='MaxStorage', description='The maximum storage capacity. Unit: GB.', example='32000'),
+      upgrade?: boolean(name='Upgrade', description='Indicates whether automatic storage scaling is enabled. Valid values:
 
-- **true**
-
-- **false**', example='true'),
-    }(name='Storage', description='The configurations of the automatic storage expansion feature.'),
-  }(name='Data', description='The configurations of the auto scaling feature for instances.'),
+- **true**: Enabled.
+- **false**: Disabled.', example='true'),
+    }(name='Storage', description='The Automatic storage scaling feature configuration of the instance.'),
+  }(name='Data', description='The elastic scaling feature configuration of the instance.'),
   message?: string(name='Message', description='The returned message.
 
-> If the request was successful, **Successful** is returned. If the request failed, an error message such as an error code is returned.', example='Successful'),
+> If the request is successful, **Successful** is returned. If the request fails, an error message such as an error code is returned.', example='Successful'),
   requestId?: string(name='RequestId', description='The request ID.', example='B6D17591-B48B-4D31-9CD6-9B9796B2****'),
-  success?: string(name='Success', description='Indicates whether the request was successful. Valid values:
+  success?: string(name='Success', description='Indicates whether the request is successful. Valid values:
 
-- **true**
-
-- **false**', example='true'),
+- **true**: The request is successful.
+- **false**: The request fails.', example='true'),
 }
 
 model DescribeAutoScalingConfigResponse = {
@@ -2309,11 +2293,11 @@ model DescribeAutoScalingConfigResponse = {
 }
 
 /**
- * @summary Queries the configurations of the auto scaling feature for an instance.
+ * @summary Invokes the DescribeAutoScalingConfig operation to query the elastic scaling feature configuration of an instance.
  *
- * @description Before you call this operation, take note of the following items:
- * - If you use an Alibaba Cloud SDK or a Database Autonomy Service (DAS) SDK to call this operation, we recommend that you use the latest version of the SDK.
- * - If you use an SDK to call operations of DAS, you must set the region ID to cn-shanghai.
+ * @description Before you begin:
+ * - Use the latest version of the Alibaba Cloud or DAS SDK.
+ * - When calling DAS by using the SDK, set the region to cn-shanghai.
  *
  * @param request DescribeAutoScalingConfigRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -2343,11 +2327,11 @@ async function describeAutoScalingConfigWithOptions(request: DescribeAutoScaling
 }
 
 /**
- * @summary Queries the configurations of the auto scaling feature for an instance.
+ * @summary Invokes the DescribeAutoScalingConfig operation to query the elastic scaling feature configuration of an instance.
  *
- * @description Before you call this operation, take note of the following items:
- * - If you use an Alibaba Cloud SDK or a Database Autonomy Service (DAS) SDK to call this operation, we recommend that you use the latest version of the SDK.
- * - If you use an SDK to call operations of DAS, you must set the region ID to cn-shanghai.
+ * @description Before you begin:
+ * - Use the latest version of the Alibaba Cloud or DAS SDK.
+ * - When calling DAS by using the SDK, set the region to cn-shanghai.
  *
  * @param request DescribeAutoScalingConfigRequest
  * @return DescribeAutoScalingConfigResponse
@@ -3213,6 +3197,93 @@ async function describeCloudbenchTaskConfigWithOptions(request: DescribeCloudben
 async function describeCloudbenchTaskConfig(request: DescribeCloudbenchTaskConfigRequest): DescribeCloudbenchTaskConfigResponse {
   var runtime = new Util.RuntimeOptions{};
   return describeCloudbenchTaskConfigWithOptions(request, runtime);
+}
+
+model DescribeDasOpsConfigRequest {
+  instanceId?: string(name='InstanceId', description='The instance ID.
+
+This parameter is required.', example='pc-bp1u5mas9exx7****'),
+}
+
+model DescribeDasOpsConfigResponseBody = {
+  code?: string(name='Code', description='The returned status code.', example='200'),
+  data?: {
+    autoRenew?: boolean(name='AutoRenew', description='Indicates whether auto-renewal is enabled for the instance. Valid values:
+
+* **true**: Auto-renewal is enabled.
+* **false** (default): Auto-renewal is disabled.', example='true'),
+    chargeType?: string(name='ChargeType', description='The payment method.', example='http://prodpopscanGGfYbZif.302prod.xaliyun.com'),
+    commodityInstanceId?: string(name='CommodityInstanceId', description='The Alibaba Cloud Managed Services instance ID.', example='pc-2zelo5v5u0678jx04'),
+    ecoEnable?: boolean(name='EcoEnable', description='Indicates whether DAS Economy Edition is enabled.', example='false'),
+    enable?: boolean(name='Enable', description='Indicates whether the Alibaba Cloud Managed Services is enabled.', example='true'),
+    endTime?: long(name='EndTime', description='The end time. The value is a UNIX timestamp. Unit: milliseconds.', example='1608888296000'),
+    opsEnable?: boolean(name='OpsEnable', description='Indicates whether the Alibaba Cloud Managed Services is enabled.'),
+    orderId?: long(name='OrderId', description='The order ID.', example='275772887390786'),
+    startTime?: long(name='StartTime', description='The start time. The value is a UNIX timestamp. Unit: milliseconds.', example='1672531200000'),
+  }(name='Data', description='SqlLogConfig'),
+  message?: string(name='Message', description='The returned message.
+
+> If the request is successful, **Successful** is returned. If the request fails, an error message that contains information such as an error code is returned.', example='Successful'),
+  requestId?: string(name='RequestId', description='The request ID.', example='D00DB161-FEF6-5428-B37A-8D29A4C2****'),
+  success?: string(name='Success', description='Indicates whether the request is successful. Valid values:
+
+- **true**: The request is successful.
+- **false**: The request fails.', example='true'),
+}
+
+model DescribeDasOpsConfigResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: DescribeDasOpsConfigResponseBody(name='body'),
+}
+
+/**
+ * @summary Queries the enabled items of the Alibaba Cloud Managed Services.
+ *
+ * @description Before you call this operation, take note of the following prerequisites:
+ * - If you use the China site (aliyun.com) or China site International (Chinese) SDK, use the latest version.
+ * - When you call a DAS operation by using the SDK, set the region to cn-shanghai.
+ *
+ * @param request DescribeDasOpsConfigRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return DescribeDasOpsConfigResponse
+ */
+async function describeDasOpsConfigWithOptions(request: DescribeDasOpsConfigRequest, runtime: Util.RuntimeOptions): DescribeDasOpsConfigResponse {
+  Util.validateModel(request);
+  var query = {};
+  if (!Util.isUnset(request.instanceId)) {
+    query['InstanceId'] = request.instanceId;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'DescribeDasOpsConfig',
+    version = '2020-01-16',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Queries the enabled items of the Alibaba Cloud Managed Services.
+ *
+ * @description Before you call this operation, take note of the following prerequisites:
+ * - If you use the China site (aliyun.com) or China site International (Chinese) SDK, use the latest version.
+ * - When you call a DAS operation by using the SDK, set the region to cn-shanghai.
+ *
+ * @param request DescribeDasOpsConfigRequest
+ * @return DescribeDasOpsConfigResponse
+ */
+async function describeDasOpsConfig(request: DescribeDasOpsConfigRequest): DescribeDasOpsConfigResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return describeDasOpsConfigWithOptions(request, runtime);
 }
 
 model DescribeDiagnosticReportListRequest {
@@ -4615,8 +4686,8 @@ async function describeSlowLogRecords(request: DescribeSlowLogRecordsRequest): D
 }
 
 model DescribeSlowLogStatisticRequest {
-  asc?: boolean(name='Asc', description='Specifies whether to sort the results in ascending order. The default value is false.', example='true'),
-  endTime?: long(name='EndTime', description='The end time of the query. This value is a UNIX timestamp in UTC. Unit: milliseconds.
+  asc?: boolean(name='Asc', description='Specifies whether to sort results in ascending order. This feature is disabled by default.', example='true'),
+  endTime?: long(name='EndTime', description='The end time of the query. Specify a UNIX timestamp in UTC. Unit: milliseconds.
 
 This parameter is required.', example='1608888296000'),
   filters?: [ 
@@ -4624,15 +4695,14 @@ This parameter is required.', example='1608888296000'),
       key?: string(name='Key', description='The filter parameter.', example='KeyWords'),
       value?: string(name='Value', description='The value of the filter parameter.', example='select'),
     }
-  ](name='Filters', description='The filter conditions.'),
+  ](name='Filters', description='The list of query filter conditions.'),
   instanceId?: string(name='InstanceId', description='The instance ID.
 
 This parameter is required.', example='rm-2ze1jdv45i7l6****'),
   nodeId?: string(name='NodeId', description='The node ID.
 
-- For RDS for MySQL and PolarDB for MySQL, this parameter applies only to cluster instances. If you do not specify this parameter, the slow query logs of the primary node are queried by default.
-
-- For PolarDB-X 2.0, specify **polarx_cn** for compute nodes or **polarx_dn** for data nodes.', example='r-x****-db-0'),
+- For ApsaraDB RDS for MySQL and PolarDB for MySQL, this parameter is applicable only to cluster instances. If you do not specify this parameter, the log details of the primary node are queried by default.
+- For PolarDB-X 2.0, set this parameter to **polarx_cn** (compute node) or **polarx_dn** (data node).', example='r-x****-db-0'),
   orderBy?: string(name='OrderBy', description='The sorting method. Valid values:
 
 **Count**
@@ -4644,301 +4714,263 @@ This parameter is required.', example='rm-2ze1jdv45i7l6****'),
 **RowsExamined**
 
 **RowsSent**', example='count'),
-  pageNumber?: int32(name='PageNumber', description='The page number. The value must be a positive integer. The default value is 1.', example='1'),
-  pageSize?: int32(name='PageSize', description='The number of entries to return on each page. The default value is 10.', example='20'),
-  startTime?: long(name='StartTime', description='The start time of the query. This value is a UNIX timestamp in UTC. Unit: milliseconds.
+  pageNumber?: int32(name='PageNumber', description='The page number. The value starts from 1. Default value: 1.', example='1'),
+  pageSize?: int32(name='PageSize', description='The maximum number of entries per page. Default value: 10.', example='20'),
+  startTime?: long(name='StartTime', description='The start time of the query. Specify a UNIX timestamp in UTC. Unit: milliseconds.
 
 This parameter is required.', example='1568269711000'),
   templateId?: string(name='TemplateId', description='The template ID.', example='04ea3310df40c3fa8a6b4854db49f79a'),
   type?: string(name='Type', description='The task type.
 
-For SQL engines:
+SQL engine-specific:
 
-**SlowLogRequestOrigin**: Aggregates logs by source IP address.
+**SlowLogRequestOrigin**: aggregates logs by source IP address.
 
-**SlowLogRequestUser**: Aggregates logs by source user.
+**SlowLogRequestUser**: aggregates logs by source user.
 
-**SQL**: Aggregates logs by SQL ID.
+**SQL**: aggregates logs by SQL ID.
 
-For ApsaraDB for MongoDB engines:
 
-**SlowLogRequestOrigin**: Aggregates logs by source IP address.
+MongoDB engine-specific:
 
-**SlowLogRequestUser**: Aggregates logs by source user.
+**SlowLogRequestOrigin**: aggregates logs by source IP address.
 
-**SQL**: Aggregates logs by query ID.
+**SlowLogRequestUser**: aggregates logs by source user.
 
-**SlowLogRequestOpType**: Aggregates logs by operation type.
+**SQL**: aggregates logs by Query ID.
 
-**SlowLogRequestNamespace**: Aggregates logs by namespace.
+**SlowLogRequestOpType**: aggregates logs by operation type.
 
-For Redis engines:
+**SlowLogRequestNamespace**: aggregates logs by namespace.
 
-**SlowLogRequestNodeId**: Aggregates logs by node ID.
+Redis engine-specific:
 
-**SlowLogRequestHostInsId**: Aggregates logs by host instance ID.', example='SQL'),
+**SlowLogRequestNodeId**: aggregates logs by node ID.
+
+**SlowLogRequestHostInsId**: aggregates logs by HostInsId.', example='SQL'),
 }
 
 model DescribeSlowLogStatisticResponseBody = {
-  code?: string(name='Code', description='The HTTP status code returned.', example='200'),
+  code?: string(name='Code', description='The status code returned.', example='200'),
   data?: {
     data?: {
       dbInstanceId?: long(name='DbInstanceId', description='The numeric ID of the instance.', example='rm-k2ja51w7cnusg5a1x'),
       dbInstanceName?: string(name='DbInstanceName', description='The instance ID.', example='0'),
-      endTime?: string(name='EndTime', description='The end time of the query. This value is a UNIX timestamp. Unit: milliseconds.
-
-> The end time must be later than the start time.', example='2024-08-08T02:15:00Z'),
-      itemsNumbers?: long(name='ItemsNumbers', description='The number of items in the slow query log list on the current page.', example='10'),
+      endTime?: string(name='EndTime', description='The end time of the query task, in UNIX timestamp format. Unit: milliseconds.
+> The end time of the query task must be later than the start time.', example='2024-08-08T02:15:00Z'),
+      itemsNumbers?: long(name='ItemsNumbers', description='The number of items in the log list on the current page.', example='10'),
       logs?: [ 
         {
           accountName?: string(name='AccountName', description='The database account.', example='edu_admin'),
-          avgCPUTime?: double(name='AvgCPUTime', description='This parameter is deprecated.', example='-'),
-          avgCPUTimeSeconds?: double(name='AvgCPUTimeSeconds', description='The average CPU time for the query in seconds.', example='456'),
-          avgDocExamined?: double(name='AvgDocExamined', description='The average number of scanned documents.
-
-> This parameter is supported only by ApsaraDB for MongoDB instances.', example='10000'),
-          avgFrows?: double(name='AvgFrows', description='The average number of pulled rows.', example='10'),
+          avgCPUTime?: double(name='AvgCPUTime', description='Deprecated.', example='-'),
+          avgCPUTimeSeconds?: double(name='AvgCPUTimeSeconds', description='The average CPU query time. Unit: seconds.', example='456'),
+          avgDocExamined?: double(name='AvgDocExamined', description='The average number of documents scanned.
+>This field is supported only for ApsaraDB for MongoDB instances.', example='10000'),
+          avgFrows?: double(name='AvgFrows', description='The average number of rows fetched.', example='10'),
           avgIOWrites?: double(name='AvgIOWrites', description='The average number of I/O writes.
-
-> This parameter is supported only by ApsaraDB RDS for SQL Server instances.', example='1000'),
-          avgKeysExamined?: double(name='AvgKeysExamined', description='The average number of index scans.
-
-> This parameter is supported only by ApsaraDB for MongoDB instances.', example='20000'),
+>This field is supported only for ApsaraDB RDS for SQL Server instances.', example='1000'),
+          avgKeysExamined?: double(name='AvgKeysExamined', description='The average number of rows scanned by the index.
+>This field is supported only for ApsaraDB for MongoDB instances.', example='20000'),
           avgLastRowsCountAffected?: double(name='AvgLastRowsCountAffected', description='The average number of rows affected by the last statement.
-
-> This parameter is supported only by ApsaraDB RDS for SQL Server instances.', example='1000'),
-          avgLockTime?: double(name='AvgLockTime', description='This parameter is deprecated.', example='-'),
-          avgLockTimeSeconds?: double(name='AvgLockTimeSeconds', description='The average lock wait time in seconds.', example='0.0'),
+>This field is supported only for ApsaraDB RDS for SQL Server instances.', example='1000'),
+          avgLockTime?: double(name='AvgLockTime', description='Deprecated.', example='-'),
+          avgLockTimeSeconds?: double(name='AvgLockTimeSeconds', description='The average lock wait time. Unit: seconds.', example='0.0'),
           avgLogicalIOReads?: double(name='AvgLogicalIOReads', description='The average number of logical reads.
-
-> This parameter is supported only by ApsaraDB RDS for SQL Server instances.', example='1000'),
+>This field is supported only for ApsaraDB RDS for SQL Server instances.', example='1000'),
           avgPhysicalIOReads?: double(name='AvgPhysicalIOReads', description='The average number of physical reads.
-
-> This parameter is supported only by ApsaraDB RDS for SQL Server instances.', example='1000'),
-          avgQueryTime?: double(name='AvgQueryTime', description='This parameter is deprecated.', example='-'),
-          avgQueryTimeSeconds?: double(name='AvgQueryTimeSeconds', description='The average query duration in seconds.', example='6.211'),
-          avgRequestSize?: double(name='AvgRequestSize', description='The average size of the request in bytes. This parameter is valid only for Redis.'),
-          avgResponseSize?: double(name='AvgResponseSize', description='The average size of the response in bytes. This parameter is valid only for Redis.'),
-          avgReturnNum?: double(name='AvgReturnNum', description='The average number of returned rows.
-
-> This parameter is supported only by MongoDB instances.', example='1'),
+>This field is supported only for ApsaraDB RDS for SQL Server instances.', example='1000'),
+          avgQueryTime?: double(name='AvgQueryTime', description='Deprecated.', example='-'),
+          avgQueryTimeSeconds?: double(name='AvgQueryTimeSeconds', description='The average query execution duration. Unit: seconds.', example='6.211'),
+          avgRequestSize?: double(name='AvgRequestSize', description='The average size of the request, in bytes. This parameter is valid only for Redis.'),
+          avgResponseSize?: double(name='AvgResponseSize', description='The average response size, in bytes. This parameter is valid only for Redis.'),
+          avgReturnNum?: double(name='AvgReturnNum', description='The average number of rows returned.
+>This field is supported only for ApsaraDB for MongoDB instances.', example='1'),
           avgRows?: double(name='AvgRows', description='The average number of rows.', example='10'),
-          avgRowsCountAffected?: double(name='AvgRowsCountAffected', description='The average number of affected rows.
-
-> This parameter is supported only by ApsaraDB RDS for SQL Server instances.', example='1000'),
-          avgRowsExamined?: double(name='AvgRowsExamined', description='The average number of scanned rows.', example='53421.0'),
-          avgRowsSent?: double(name='AvgRowsSent', description='The average number of returned rows.', example='2.0'),
+          avgRowsCountAffected?: double(name='AvgRowsCountAffected', description='The average number of rows affected.
+>This field is supported only for ApsaraDB RDS for SQL Server instances.', example='1000'),
+          avgRowsExamined?: double(name='AvgRowsExamined', description='The average number of rows examined.', example='53421.0'),
+          avgRowsSent?: double(name='AvgRowsSent', description='The average number of rows returned.', example='2.0'),
           avgRt?: double(name='AvgRt', description='The average execution duration.'),
           avgScnt?: double(name='AvgScnt', description='The average number of requests.', example='10'),
-          CPUTime?: double(name='CPUTime', description='This parameter is deprecated.', example='-'),
-          CPUTimeSeconds?: double(name='CPUTimeSeconds', description='The CPU time for the query in seconds.
+          CPUTime?: double(name='CPUTime', description='Deprecated.', example='-'),
+          CPUTimeSeconds?: double(name='CPUTimeSeconds', description='The CPU query time. Unit: seconds.
 
-> This parameter is supported only by ApsaraDB RDS for SQL Server instances.', example='456'),
-          clientIp?: string(name='ClientIp', description='The client\\\\"s IP address.', example='10.57.84.109'),
-          cmd?: string(name='Cmd', description='The executed command. This parameter is valid only for Redis.', example='systemctl restart nginx.service'),
+> This field is supported only for ApsaraDB RDS for SQL Server instances.', example='456'),
+          clientIp?: string(name='ClientIp', description='The client IP address in the query.', example='10.57.84.109'),
+          cmd?: string(name='Cmd', description='The command that was executed. This parameter is valid only for Redis.', example='systemctl restart nginx.service'),
           command?: string(name='Command', description='The slow query statement.
-
-> This parameter is supported only by Tair (Redis OSS-compatible) instances.', example='SELECT b?.id,b?.t?,b?.id,b?.t? FROM testtb? b? JOIN testtb? b? ON b?.id=b?.id WHERE b?.t? LIKE ? ORDER BY b?.t? DESC'),
-          count?: long(name='Count', description='The number of elements that correspond to the key.', example='12'),
-          countRate?: double(name='CountRate', description='The execution ratio.', example='0.2034'),
+>This field is supported only for ApsaraDB for Tair (Redis® OSS-Compatible) database instances.', example='SELECT b?.id,b?.t?,b?.id,b?.t? FROM testtb? b? JOIN testtb? b? ON b?.id=b?.id WHERE b?.t? LIKE ? ORDER BY b?.t? DESC'),
+          count?: long(name='Count', description='The number of elements in the key.', example='12'),
+          countRate?: double(name='CountRate', description='The proportion of executions.', example='0.2034'),
           DBName?: string(name='DBName', description='The database name.', example='member_score'),
           database?: string(name='Database', description='The database name.', example='work-wechat-api'),
           dbId?: string(name='DbId', description='The database ID. This parameter is valid only for Redis.', example='0'),
           dbInstanceName?: string(name='DbInstanceName', description='The instance ID.', example='0'),
-          docExamined?: long(name='DocExamined', description='The number of scanned documents.
+          docExamined?: long(name='DocExamined', description='The number of documents scanned.
+>This field is supported only for ApsaraDB for MongoDB instances.', example='2000000'),
+          docsExamined?: long(name='DocsExamined', description='The number of documents scanned during the MongoDB operation.', example='1'),
+          frows?: long(name='Frows', description='The number of rows fetched by the compute node (CN) of the ApsaraDB for PolarDB-X 2.0 database instance.
 
-> This parameter is supported only by ApsaraDB for MongoDB instances.', example='2000000'),
-          docsExamined?: long(name='DocsExamined', description='The number of documents scanned during the operation on the ApsaraDB for MongoDB instance.', example='1'),
-          frows?: long(name='Frows', description='The number of rows pulled by the compute nodes (CNs) of the PolarDB-X 2.0 instance.
-
-> This parameter is supported only by PolarDB-X 2.0 instances.', example='10'),
+> This field is supported only for ApsaraDB for PolarDB-X 2.0 instances.', example='10'),
           histogram?: {
-            avgLockTime?: [ double ](name='AvgLockTime', description='The average lock wait time in seconds.'),
-            avgRowsExamined?: [ double ](name='AvgRowsExamined', description='The average number of scanned rows.'),
-            avgRowsSent?: [ double ](name='AvgRowsSent', description='The average number of returned rows.'),
+            avgLockTime?: [ double ](name='AvgLockTime', description='The average lock wait time. Unit: seconds.'),
+            avgRowsExamined?: [ double ](name='AvgRowsExamined', description='The average number of rows examined.'),
+            avgRowsSent?: [ double ](name='AvgRowsSent', description='The average number of rows returned.'),
             avgRt?: [ double ](name='AvgRt', description='The average execution duration.'),
-            count?: [ long ](name='Count', description='The number of slow query logs.'),
+            count?: [ long ](name='Count', description='The number of slow logs.'),
             item?: [ 
               {
-                count?: [ long ](name='Count', description='The number of slow query logs.'),
+                count?: [ long ](name='Count', description='The number of slow logs.'),
                 nodeId?: string(name='NodeId', description='The node ID.', example='r-bp1s1m8hwzrm77kfvz-db-0'),
               }
             ](name='Item', description='The task status.'),
-            lockTime?: [ double ](name='LockTime', description='The lock wait time in milliseconds.'),
-            maxLockTime?: [ double ](name='MaxLockTime', description='The maximum lock wait time in seconds.'),
-            maxRowsExamined?: [ long ](name='MaxRowsExamined', description='The maximum number of scanned rows.'),
-            maxRowsSent?: [ long ](name='MaxRowsSent', description='The maximum number of returned rows.'),
-            maxRt?: [ double ](name='MaxRt', description='The maximum response time (RT) in milliseconds.'),
-            rowsExamined?: [ long ](name='RowsExamined', description='The total number of scanned rows.
-
-> This parameter is supported by ApsaraDB RDS for MySQL, ApsaraDB RDS for PostgreSQL, and PolarDB for MySQL.'),
-            rowsSent?: [ long ](name='RowsSent', description='The number of returned rows.'),
-            rt?: [ double ](name='Rt', description='The execution duration in seconds.'),
-            total?: long(name='Total', description='The total number of entries returned for the query.', example='7'),
+            lockTime?: [ double ](name='LockTime', description='The lock wait time. Unit: milliseconds.'),
+            maxLockTime?: [ double ](name='MaxLockTime', description='The maximum lock wait time. Unit: seconds.'),
+            maxRowsExamined?: [ long ](name='MaxRowsExamined', description='The maximum number of rows examined.'),
+            maxRowsSent?: [ long ](name='MaxRowsSent', description='The maximum number of rows returned.'),
+            maxRt?: [ double ](name='MaxRt', description='The maximum response time. Unit: ms.'),
+            rowsExamined?: [ long ](name='RowsExamined', description='The total number of rows examined.
+> Databases that currently support this field: ApsaraDB RDS for MySQL, ApsaraDB RDS for PostgreSQL, and PolarDB for MySQL.'),
+            rowsSent?: [ long ](name='RowsSent', description='The number of rows returned.'),
+            rt?: [ double ](name='Rt', description='The execution duration. Unit: seconds.'),
+            total?: long(name='Total', description='The total number of queried records.', example='7'),
             ts?: [ long ](name='Ts', description='The execution timestamp.'),
-            tsEnd?: [ long ](name='TsEnd', description='This parameter is deprecated.'),
+            tsEnd?: [ long ](name='TsEnd', description='Deprecated.'),
           }(name='Histogram', description='The trend chart data.'),
-          hostAddress?: string(name='HostAddress', description='The client IP address.', example='172.23.142.178'),
-          hostInsId?: string(name='HostInsId', description='The ID of the host instance.
-
-> This parameter is supported only by ApsaraDB for MongoDB instances.', example='mongo-abc123456'),
+          hostAddress?: string(name='HostAddress', description='The IP address of the client.', example='172.23.142.178'),
+          hostInsId?: string(name='HostInsId', description='The host instance ID.
+>This field is supported only for ApsaraDB for MongoDB instances.', example='mongo-abc123456'),
           IOWrites?: long(name='IOWrites', description='The number of I/O writes.
-
-> This parameter is supported only by ApsaraDB RDS for SQL Server instances.', example='1000'),
+>This field is supported only for ApsaraDB RDS for SQL Server instances.', example='1000'),
           insName?: string(name='InsName', description='The shard name.', example='rm-uf6zix1z2jh1y6fe5'),
           insRole?: string(name='InsRole', description='The instance role.
-
-> This parameter is supported only by MongoDB instances.', example='__system'),
-          keysExamined?: long(name='KeysExamined', description='The number of index scans on the ApsaraDB for MongoDB instance.', example='20000'),
+>This field is supported only for ApsaraDB for MongoDB instances.', example='__system'),
+          keysExamined?: long(name='KeysExamined', description='The number of rows scanned by the MongoDB index.', example='20000'),
           lastRowsCountAffected?: long(name='LastRowsCountAffected', description='The number of rows affected by the last statement.
-
-> This parameter is supported only by ApsaraDB RDS for SQL Server instances.', example='1000'),
-          lockTime?: double(name='LockTime', description='This parameter is deprecated.', example='-'),
-          lockTimeSeconds?: double(name='LockTimeSeconds', description='The lock wait time in seconds.', example='0.0'),
+>This field is supported only for ApsaraDB RDS for SQL Server instances.', example='1000'),
+          lockTime?: double(name='LockTime', description='Deprecated.', example='-'),
+          lockTimeSeconds?: double(name='LockTimeSeconds', description='The lock wait time. Unit: seconds.', example='0.0'),
           logicalIOReads?: long(name='LogicalIOReads', description='The number of logical reads.
-
-> This parameter is supported only by ApsaraDB RDS for SQL Server instances.', example='1000'),
-          maxCPUTime?: double(name='MaxCPUTime', description='This parameter is deprecated.', example='-'),
-          maxCPUTimeSeconds?: double(name='MaxCPUTimeSeconds', description='The longest CPU time for the query in seconds.', example='456'),
-          maxDocExamined?: long(name='MaxDocExamined', description='The maximum number of scanned documents.
-
-> This parameter is supported only by ApsaraDB for MongoDB instances.', example='1000000'),
-          maxFrows?: long(name='MaxFrows', description='The maximum number of pulled rows.', example='10'),
+>This field is supported only for ApsaraDB RDS for SQL Server instances.', example='1000'),
+          maxCPUTime?: double(name='MaxCPUTime', description='Deprecated.', example='-'),
+          maxCPUTimeSeconds?: double(name='MaxCPUTimeSeconds', description='The maximum CPU query time. Unit: seconds.', example='456'),
+          maxDocExamined?: long(name='MaxDocExamined', description='The maximum number of documents scanned.
+>This field is supported only for ApsaraDB for MongoDB instances.', example='1000000'),
+          maxFrows?: long(name='MaxFrows', description='The maximum number of rows fetched.', example='10'),
           maxIOWrites?: long(name='MaxIOWrites', description='The maximum number of I/O writes.
-
-> This parameter is supported only by ApsaraDB RDS for SQL Server instances.', example='1000'),
-          maxKeysExamined?: long(name='MaxKeysExamined', description='The maximum number of index scans.
-
-> This parameter is supported only by ApsaraDB for MongoDB instances.', example='2000000'),
+>This field is supported only for ApsaraDB RDS for SQL Server instances.', example='1000'),
+          maxKeysExamined?: long(name='MaxKeysExamined', description='The maximum number of rows scanned by the index.
+>This field is supported only for ApsaraDB for MongoDB instances.', example='2000000'),
           maxLastRowsCountAffected?: long(name='MaxLastRowsCountAffected', description='The maximum number of rows affected by the last statement.
-
-> This parameter is supported only by ApsaraDB RDS for SQL Server instances.', example='1000'),
-          maxLockTime?: double(name='MaxLockTime', description='This parameter is deprecated.', example='-'),
-          maxLockTimeSeconds?: double(name='MaxLockTimeSeconds', description='The maximum lock wait time in seconds.', example='0.0'),
+>This field is supported only for ApsaraDB RDS for SQL Server instances.', example='1000'),
+          maxLockTime?: double(name='MaxLockTime', description='Deprecated.', example='-'),
+          maxLockTimeSeconds?: double(name='MaxLockTimeSeconds', description='The maximum lock wait time. Unit: seconds.', example='0.0'),
           maxLogicalIOReads?: long(name='MaxLogicalIOReads', description='The maximum number of logical reads.
-
-> This parameter is supported only by ApsaraDB RDS for SQL Server instances.', example='1000'),
+>This field is supported only for ApsaraDB RDS for SQL Server instances.', example='1000'),
           maxPhysicalIOReads?: long(name='MaxPhysicalIOReads', description='The maximum number of physical reads.
-
-> This parameter is supported only by ApsaraDB RDS for SQL Server instances.', example='1000'),
-          maxQueryTime?: double(name='MaxQueryTime', description='This parameter is deprecated.', example='-'),
-          maxQueryTimeSeconds?: double(name='MaxQueryTimeSeconds', description='The maximum query duration in seconds.', example='14.402'),
-          maxRequestSize?: double(name='MaxRequestSize', description='The maximum size of the request in bytes. This parameter is valid only for Redis.'),
-          maxResponseSize?: double(name='MaxResponseSize', description='The maximum size of the response in bytes. This parameter is valid only for Redis.'),
-          maxReturnNum?: long(name='MaxReturnNum', description='The maximum number of returned rows.
-
-> This parameter is supported only by ApsaraDB for MongoDB instances.', example='1'),
+>This field is supported only for ApsaraDB RDS for SQL Server instances.', example='1000'),
+          maxQueryTime?: double(name='MaxQueryTime', description='Deprecated.', example='-'),
+          maxQueryTimeSeconds?: double(name='MaxQueryTimeSeconds', description='The maximum query execution duration. Unit: seconds.', example='14.402'),
+          maxRequestSize?: double(name='MaxRequestSize', description='The maximum size of the request, in bytes. This parameter is valid only for Redis.'),
+          maxResponseSize?: double(name='MaxResponseSize', description='The maximum response size, in bytes. This parameter is valid only for Redis.'),
+          maxReturnNum?: long(name='MaxReturnNum', description='The maximum number of rows returned.
+>This field is supported only for ApsaraDB for MongoDB instances.', example='1'),
           maxRows?: long(name='MaxRows', description='The maximum number of rows.', example='10'),
-          maxRowsCountAffected?: long(name='MaxRowsCountAffected', description='The maximum number of affected rows.
-
-> This parameter is supported only by ApsaraDB RDS for SQL Server instances.', example='1000'),
-          maxRowsExamined?: long(name='MaxRowsExamined', description='The maximum number of scanned rows.', example='318613'),
-          maxRowsSent?: long(name='MaxRowsSent', description='The maximum number of returned rows.', example='256'),
-          maxRt?: double(name='MaxRt', description='The maximum execution duration in seconds.'),
+          maxRowsCountAffected?: long(name='MaxRowsCountAffected', description='The maximum number of rows affected.
+>This field is supported only for ApsaraDB RDS for SQL Server instances.', example='1000'),
+          maxRowsExamined?: long(name='MaxRowsExamined', description='The maximum number of rows examined.', example='318613'),
+          maxRowsSent?: long(name='MaxRowsSent', description='The maximum number of rows returned.', example='256'),
+          maxRt?: double(name='MaxRt', description='The maximum execution duration, in seconds.'),
           maxScnt?: long(name='MaxScnt', description='The maximum number of requests.', example='10'),
           namespace?: string(name='Namespace', description='The namespace.
-
-> This parameter is supported only by ApsaraDB for MongoDB instances.', example='database.collection'),
+>This field is supported only for ApsaraDB for MongoDB instances.', example='database.collection'),
           nodeType?: string(name='NodeType', description='The node type.
-
-> This parameter is supported by MongoDB and Tair (Redis-compatible).', example='DLNode'),
+> Databases that support this field: ApsaraDB for MongoDB and Tair (Redis® OSS-Compatible).', example='DLNode'),
           opType?: string(name='OpType', description='The operation type.
-
-> This parameter is supported only by MongoDB instances.', example='Insert'),
-          originAlias?: string(name='OriginAlias', description='The alias of the source.', example='order-1'),
+>This field is supported only for ApsaraDB for MongoDB instances.', example='Insert'),
+          originAlias?: string(name='OriginAlias', description='The source alias.', example='order-1'),
           physicalIOReads?: long(name='PhysicalIOReads', description='The number of physical reads.
-
-> This parameter is supported only by ApsaraDB RDS for SQL Server instances.', example='1000'),
+>This field is supported only for ApsaraDB RDS for SQL Server instances.', example='1000'),
           psql?: string(name='Psql', description='The SQL template.', example='SELECT b?.id,b?.t?,b?.id,b?.t? FROM testtb? b? JOIN testtb? b? ON b?.id=b?.id WHERE b?.t? LIKE ? ORDER BY b?.id DESC'),
           queryId?: string(name='QueryId', description='The query ID.
+>This field is supported only for ApsaraDB for MongoDB instances.', example='sq-1pzcdMwRb'),
+          queryStartTime?: string(name='QueryStartTime', description='The time when the query started. Format: yyyy-MM-dd hh:mm:ss (UTC).', example='2024-12-25T03:00:00Z'),
+          queryTime?: long(name='QueryTime', description='The query execution time threshold. Unit: milliseconds (ms).', example='272.444'),
+          queryTimeRate?: double(name='QueryTimeRate', description='The proportion of query duration.', example='0.1018'),
+          queryTimeSeconds?: double(name='QueryTimeSeconds', description='The query execution duration. Unit: seconds.', example='25.472'),
+          returnItemNumbers?: string(name='ReturnItemNumbers', description='The return item numbers.', example='暂无'),
+          returnNum?: long(name='ReturnNum', description='The number of rows returned.
+>This field is supported only for ApsaraDB for MongoDB instances.', example='1'),
+          rows?: long(name='Rows', description='The total number of rows updated or returned by the compute nodes of the ApsaraDB for PolarDB-X 2.0 database instance.
 
-> This parameter is supported only by ApsaraDB for MongoDB instances.', example='sq-1pzcdMwRb'),
-          queryStartTime?: string(name='QueryStartTime', description='The time when the query started. The time is in the yyyy-MM-dd hh:mm:ss format and is in UTC.', example='2024-12-25T03:00:00Z'),
-          queryTime?: long(name='QueryTime', description='The threshold for the query execution time. Unit: milliseconds (ms).', example='272.444'),
-          queryTimeRate?: double(name='QueryTimeRate', description='The ratio of the query duration.', example='0.1018'),
-          queryTimeSeconds?: double(name='QueryTimeSeconds', description='The query duration in seconds.', example='25.472'),
-          returnItemNumbers?: string(name='ReturnItemNumbers', description='The number of items returned.', example='暂无'),
-          returnNum?: long(name='ReturnNum', description='The number of returned rows.
-
-> This parameter is supported only by ApsaraDB for MongoDB instances.', example='1'),
-          rows?: long(name='Rows', description='The total number of rows updated or returned by the compute nodes of the PolarDB-X 2.0 instance.
-
-> This parameter is supported only by PolarDB-X 2.0 instances.', example='105'),
-          rowsCountAffected?: long(name='RowsCountAffected', description='The number of affected rows.
-
-> This parameter is supported only by ApsaraDB RDS for SQL Server instances.', example='1000'),
-          rowsExamined?: long(name='RowsExamined', description='The total number of scanned rows.
-
-> This parameter is supported by ApsaraDB RDS for MySQL, ApsaraDB RDS for PostgreSQL, and PolarDB for MySQL.', example='2444081'),
-          rowsSent?: long(name='RowsSent', description='The number of returned rows.', example='772'),
+> This field is supported only for ApsaraDB for PolarDB-X 2.0 instances.', example='105'),
+          rowsCountAffected?: long(name='RowsCountAffected', description='The number of rows affected.
+>This field is supported only for ApsaraDB RDS for SQL Server instances.', example='1000'),
+          rowsExamined?: long(name='RowsExamined', description='The total number of rows examined.
+> Databases that currently support this field: ApsaraDB RDS for MySQL, ApsaraDB RDS for PostgreSQL, and PolarDB for MySQL.', example='2444081'),
+          rowsSent?: long(name='RowsSent', description='The number of rows returned.', example='772'),
           ruleId?: string(name='RuleId', description='The rule ID. For more information, see [Query Governance](https://help.aliyun.com/document_detail/290038.html).', example='181**47'),
           SQLText?: string(name='SQLText', description='The details of the SQL statement.', example='SELECT \\\\"Hello, World!\\\\" FROM DUAL'),
           scheme?: string(name='Scheme', description='HTTP or HTTPS.', example='HTTP'),
-          scnt?: long(name='Scnt', description='The number of requests sent from the compute nodes (CNs) to data nodes (DNs) in the PolarDB-X 2.0 instance.
+          scnt?: long(name='Scnt', description='The number of DN requests from the compute node (CN) of the ApsaraDB for PolarDB-X 2.0 database instance.
 
-> This parameter is supported only by PolarDB-X 2.0 instances.', example='10'),
-          sqlId?: string(name='SqlId', description='The SQL ID.', example='2dca88762ec6b3812504ab8a4b******'),
+> This field is supported only for ApsaraDB for PolarDB-X 2.0 instances.', example='10'),
+          sqlId?: string(name='SqlId', description='SQL ID。', example='2dca88762ec6b3812504ab8a4b******'),
           sqlTag?: {
             comments?: string(name='Comments', description='The remarks.
 
-The value can be 1 to 300 characters in length.', example='dba 归档'),
-            sqlId?: string(name='SqlId', description='The SQL ID.', example='a3931d8c3a9315dd5ed016d71cf*****'),
-            tags?: string(name='Tags', description='The tags. Multiple tags are separated by commas (,).', example='DAS_IN_PLAN'),
-          }(name='SqlTag', description='The tags.'),
+The value must be 1 to 300 characters in length.', example='dba archiving'),
+            sqlId?: string(name='SqlId', description='SQL ID。', example='a3931d8c3a9315dd5ed016d71cf*****'),
+            tags?: string(name='Tags', description='Multiple tags separated by commas.', example='DAS_IN_PLAN'),
+          }(name='SqlTag', description='The tag.'),
           sqlType?: string(name='SqlType', description='The type of the SQL statement.', example='LOGIN'),
-          subInstanceId?: string(name='SubInstanceId', description='The ID of the sub-instance.', example='r-8vba51c588ba3a94'),
+          subInstanceId?: string(name='SubInstanceId', description='The child instance ID.', example='r-8vba51c588ba3a94'),
           tableName?: string(name='TableName', description='The table name.', example='users\\\\nifconfig\\\\n'),
-          threadId?: string(name='ThreadId', description='The thread ID. This parameter is returned only for PolarDB for MySQL instances.', example='1'),
-          timestamp?: long(name='Timestamp', description='The execution time. This value is a UNIX timestamp. Unit: milliseconds (ms).', example='1708568930'),
-          totalCount?: long(name='TotalCount', description='The total number of records. This parameter is valid only for Redis engines.', example='0'),
+          threadId?: string(name='ThreadId', description='The thread_id. This field is available only for PolarDB for MySQL.', example='1'),
+          timestamp?: long(name='Timestamp', description='The execution time, in UNIX timestamp format. Unit: milliseconds (ms).', example='1708568930'),
+          totalCount?: long(name='TotalCount', description='The total number of records. This parameter is valid only for the Redis engine.', example='0'),
           trend?: [ 
             {
-              timestamp?: long(name='Timestamp', description='The execution time. This value is a UNIX timestamp. Unit: milliseconds (ms).', example='1723775362'),
+              timestamp?: long(name='Timestamp', description='The execution time, in UNIX timestamp format. Unit: milliseconds (ms).', example='1723775362'),
               value?: any(name='Value', description='The value of the filter parameter.', example='tf-testacc-oos-parameter'),
             }
           ](name='Trend', description='The slow log trends.'),
           user?: string(name='User', description='The user.', example='user-1'),
         }
       ](name='Logs', description='The name of the operation object.'),
-      maxRecordsPerPage?: int32(name='MaxRecordsPerPage', description='The maximum number of entries to return on each page. Valid values: 5 to 100.', example='10'),
+      maxRecordsPerPage?: int32(name='MaxRecordsPerPage', description='The maximum number of records per page for the paged query. Valid values: 5 to 100.', example='10'),
       nodeId?: string(name='NodeId', description='The node ID.
 
-For MongoDB instances, use this parameter to specify a node for storage analysis. Call the [DescribeRoleZoneInfo](https://help.aliyun.com/document_detail/123802.html) operation to query the details of the nodes in a MongoDB instance.
+For MongoDB instances, specify a node for storage analysis by using this parameter. Call the [DescribeRoleZoneInfo](https://help.aliyun.com/document_detail/123802.html) operation to query the details of each node in a MongoDB instance.
 
-- If you specify the **InsName** (node ID) of the destination node, such as `d-bp1872fa24d5****`, the system analyzes the corresponding hidden node.
+- If you specify the **InsName** (node ID) of the target node, such as `d-bp1872fa24d5****`, this operation analyzes the corresponding Hidden node.
+- If you specify the `InsName#RoleId` of the target node, such as `d-bp1872fa24d5****#299****5`, this operation analyzes the specified node.
 
-- If you specify `InsName#RoleId` of the destination node, such as `d-bp1872fa24d5****#299****5`, the system analyzes the specified node.
-
->Notice: 
-
-For a MongoDB replica set instance, if you do not specify this parameter, the system analyzes the only hidden node by default. For a MongoDB sharded cluster instance, specify this parameter to select a destination node.', example='pi-wz99g5rn7w1x8h0sf'),
-      pageNumbers?: int32(name='PageNumbers', description='The page number of the paged query. Pages start from 1. The default value is 1.', example='1'),
-      startTime?: string(name='StartTime', description='The start time. This value is a UNIX timestamp. Unit: milliseconds.', example='2024-10-08T02:01:00Z'),
-      totalRecords?: long(name='TotalRecords', description='The total number of entries.', example='13'),
+>Notice: For MongoDB replica set instances, if you do not specify this parameter, this operation analyzes the only Hidden node by default. For MongoDB sharded cluster instances, specify this parameter to designate the target node.</notice>', example='pi-wz99g5rn7w1x8h0sf'),
+      pageNumbers?: int32(name='PageNumbers', description='The page number for the paged query. The value starts from 1. Default value: 1.', example='1'),
+      startTime?: string(name='StartTime', description='The start time, in UNIX timestamp format. Unit: milliseconds.', example='2024-10-08T02:01:00Z'),
+      totalRecords?: long(name='TotalRecords', description='The total number of records.', example='13'),
     }(name='Data', description='The data.'),
     errorCode?: int32(name='ErrorCode', description='The error code.', example='10910'),
-    isFinish?: boolean(name='IsFinish', description='Indicates whether the asynchronous request is complete.', example='true'),
+    isFinish?: boolean(name='IsFinish', description='Indicates whether the task is finished.', example='true'),
     message?: string(name='Message', description='The error message.', example='Successful'),
     requestKey?: string(name='RequestKey', description='The key of the request parameter.', example='123456789'),
     resultId?: string(name='ResultId', description='The result ID.', example='async__665ee69612f1627c7fd9f3c85075****'),
-    state?: string(name='State', description='The status of the asynchronous request. Valid values:
+    state?: string(name='State', description='The current status. Valid values:
 
--**RUNNING**: The request is in progress.
+- **RUNNING**: running.
+- **SUCCESS**: succeeded.
+- **FAIL**: failed.', example='SUCCESS'),
+    timestamp?: long(name='Timestamp', description='The request time.', example='1735104224250'),
+  }(name='Data', description='AsyncResult<DBLogRecords<SlowLogStat>>'),
+  message?: string(name='Message', description='The message returned for the request.
 
--**SUCCESS**: The request is successful.
-
--**FAIL**: The request failed.', example='SUCCESS'),
-    timestamp?: long(name='Timestamp', description='The timestamp of the request.', example='1735104224250'),
-  }(name='Data', description='AsyncResult\\\\<DBLogRecords\\\\<SlowLogStat>>'),
-  message?: string(name='Message', description='The returned message.
-
-> If the request is successful, **Successful** is returned. If the request fails, an error message, such as an error code, is returned.', example='Successful'),
+> If the request is successful, **Successful** is returned. If the request fails, exception information (such as an error code) is returned.', example='Successful'),
   requestId?: string(name='RequestId', description='The request ID.', example='52D540CF-C517-1F57-BB42-9035F96******'),
-  success?: string(name='Success', description='Indicates whether the request was successful. Valid values:
+  success?: string(name='Success', description='Indicates whether the request is successful. Valid values:
 
-- **true**
-
-- **false**', example='true'),
+- **true**: The request is successful.
+- **false**: The request fails.', example='true'),
 }
 
 model DescribeSlowLogStatisticResponse = {
@@ -4948,14 +4980,14 @@ model DescribeSlowLogStatisticResponse = {
 }
 
 /**
- * @summary Retrieves slow query log statistics.
+ * @summary Queries slow query log statistics information.
  *
- * @description **Before you call this operation, make sure that you understand the [billing methods and pricing](https://help.aliyun.com/document_detail/156195.html) of Database Autonomy Service (DAS).**
- * Before you call this operation, make sure that the following requirements are met:
+ * @description **Before you use this operation, make sure that you are familiar with the [billing](https://help.aliyun.com/document_detail/156195.html) of DAS.**
+ * Before you invoke this operation, make sure that the following requirements are met:
  * - Alibaba Cloud Managed Services is enabled for the instance.
- * - Use the latest version of the Alibaba Cloud SDK or DAS SDK.
- * - When you use an SDK to call the DAS service, set the region to cn-shanghai.
- * This operation is asynchronous and does not return the complete result immediately. If the \\`isFinish\\` parameter in the response is \\`false\\`, wait 1 second and send the request again. Repeat the request until the \\`isFinish\\` parameter is \\`true\\` to retrieve the complete result.
+ * - Use the latest version of the Alibaba Cloud or DAS SDK.
+ * - When you invoke DAS operations by using the SDK, set the region to cn-shanghai.
+ * This is an asynchronous operation. After a call is made, the complete result is not immediately returned. If the value of isFinish in the response is false, wait 1 second and invoke the operation again. The complete result is returned only when the value of isFinish is true.
  *
  * @param request DescribeSlowLogStatisticRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -5015,14 +5047,14 @@ async function describeSlowLogStatisticWithOptions(request: DescribeSlowLogStati
 }
 
 /**
- * @summary Retrieves slow query log statistics.
+ * @summary Queries slow query log statistics information.
  *
- * @description **Before you call this operation, make sure that you understand the [billing methods and pricing](https://help.aliyun.com/document_detail/156195.html) of Database Autonomy Service (DAS).**
- * Before you call this operation, make sure that the following requirements are met:
+ * @description **Before you use this operation, make sure that you are familiar with the [billing](https://help.aliyun.com/document_detail/156195.html) of DAS.**
+ * Before you invoke this operation, make sure that the following requirements are met:
  * - Alibaba Cloud Managed Services is enabled for the instance.
- * - Use the latest version of the Alibaba Cloud SDK or DAS SDK.
- * - When you use an SDK to call the DAS service, set the region to cn-shanghai.
- * This operation is asynchronous and does not return the complete result immediately. If the \\`isFinish\\` parameter in the response is \\`false\\`, wait 1 second and send the request again. Repeat the request until the \\`isFinish\\` parameter is \\`true\\` to retrieve the complete result.
+ * - Use the latest version of the Alibaba Cloud or DAS SDK.
+ * - When you invoke DAS operations by using the SDK, set the region to cn-shanghai.
+ * This is an asynchronous operation. After a call is made, the complete result is not immediately returned. If the value of isFinish in the response is false, wait 1 second and invoke the operation again. The complete result is returned only when the value of isFinish is true.
  *
  * @param request DescribeSlowLogStatisticRequest
  * @return DescribeSlowLogStatisticResponse
@@ -5043,34 +5075,33 @@ model DescribeSqlLogConfigResponseBody = {
   data?: {
     coldEnable?: boolean(name='ColdEnable', description='Indicates whether cold data storage is enabled. Valid values:
 - **true**: Enabled.
-- **false**: Disabled.', example='true'),
+- **false**: Not enabled.', example='true'),
     coldRetention?: int32(name='ColdRetention', description='The cold data storage duration. Unit: days.', example='23'),
     coldStartTime?: long(name='ColdStartTime', description='The start time of cold data storage. The value is a UNIX timestamp. Unit: milliseconds.', example='1683712800000'),
     collectorVersion?: string(name='CollectorVersion', description='The collector version. Valid values:
-
 - **MYSQL_V0**: MySQL V0.
 - **MYSQL_V1**: MySQL V1.
 - **MYSQL_V2**: MySQL V2.
 - **MYSQL_V3**: MySQL V3.
 - **PG_V1**: PostgreSQL V1.
-- **rdspg_v1**: ApsaraDB RDS for PostgreSQL V1.
+- **rdspg_v1**: RDS PostgreSQL V1.
 - **polarpg_v1**: PolarDB for PostgreSQL V1.', example='MYSQL_V3'),
-    enable?: boolean(name='Enable'),
+    enable?: boolean(name='Enable', description='Indicates whether SQL Explorer is enabled. This parameter is an alias of SqlLogEnable.'),
     hotEnable?: boolean(name='HotEnable', description='Indicates whether hot data storage is enabled. Valid values:
 - **true**: Enabled.
-- **false**: Disabled.', example='true'),
+- **false**: Not enabled.', example='true'),
     hotRetention?: int32(name='HotRetention', description='The hot data storage duration. Unit: days.', example='7'),
     hotStartTime?: long(name='HotStartTime', description='The start time of hot data storage. The value is a UNIX timestamp. Unit: milliseconds.', example='1683712800000'),
     logFilter?: string(name='LogFilter', description='A reserved parameter.', example='None'),
     requestEnable?: boolean(name='RequestEnable', description='Indicates whether SQL Explorer is enabled. Valid values:
 - **true**: Enabled.
-- **false**: Disabled.', example='true'),
+- **false**: Not enabled.', example='true'),
     requestStartTime?: long(name='RequestStartTime', description='The time when SQL Explorer was enabled. The value is a UNIX timestamp. Unit: milliseconds.', example='1683712800000'),
     requestStopTime?: long(name='RequestStopTime', description='The expiration time of DAS Enterprise Edition V1. The value is a UNIX timestamp. Unit: milliseconds.', example='1715335200000'),
     retention?: int32(name='Retention', description='The total data storage duration, which is the sum of **HotRetention** and **ColdRetention**. Unit: days.', example='30'),
     sqlLogEnable?: boolean(name='SqlLogEnable', description='Indicates whether DAS Enterprise Edition is enabled. Valid values:
 - **true**: Enabled.
-- **false**: Disabled.', example='true'),
+- **false**: Not enabled.', example='true'),
     sqlLogSource?: string(name='SqlLogSource', description='A reserved parameter.', example='None'),
     sqlLogState?: string(name='SqlLogState', description='The data migration status. Valid values:
 
@@ -5079,8 +5110,8 @@ model DescribeSqlLogConfigResponseBody = {
 - **FAILURE**: Historical data migration failed.', example='FINISH'),
     sqlLogVisibleTime?: long(name='SqlLogVisibleTime', description='The time when DAS Enterprise Edition was enabled. The value is a UNIX timestamp. Unit: milliseconds.', example='1683712800000'),
     supportMigration?: boolean(name='SupportMigration', description='A reserved parameter.', example='None'),
-    supportSecurityAudit?: boolean(name='SupportSecurityAudit'),
-    supportVersion?: string(name='SupportVersion', description='The latest DAS Enterprise Edition version supported by the instance. Valid values:
+    supportSecurityAudit?: boolean(name='SupportSecurityAudit', description='Indicates whether the engine and region of the current instance support security audit activation. This field only indicates product capability and does not indicate that security audit is already enabled.'),
+    supportVersion?: string(name='SupportVersion', description='The latest DAS Enterprise Edition version supported by the current instance. Valid values:
 - **SQL_LOG_V0**: Enterprise Edition V0.
 - **SQL_LOG_V1**: Enterprise Edition V1.
 - **SQL_LOG_V2**: Enterprise Edition V2.
@@ -5096,7 +5127,7 @@ model DescribeSqlLogConfigResponseBody = {
 - **SQL_LOG_NOT_SUPPORT**: Enterprise Edition is not supported.', example='SQL_LOG_V3'),
   }(name='Data', description='The returned data.'),
   message?: string(name='Message', description='The returned message.
->If the request is successful, **Successful** is returned. If the request fails, an error message that contains information such as an error code is returned.', example='Successful'),
+>If the request is successful, **Successful** is returned. If the request fails, an error message is returned, such as an error code.', example='Successful'),
   requestId?: string(name='RequestId', description='The request ID.', example='0A74B755-98B7-59DB-8724-1321B394****'),
   success?: string(name='Success', description='Indicates whether the request was successful. Valid values:
 * **true**: The request was successful.
@@ -5432,27 +5463,25 @@ async function describeSqlLogStatistic(request: DescribeSqlLogStatisticRequest):
 
 model DescribeSqlLogTaskRequest {
   instanceId?: string(name='InstanceId', description='The database instance ID.', example='r-bp1nti25tc7bq5****'),
-  pageNo?: int32(name='PageNo', description='The page number. Pages are numbered starting from 1. Default value: 1.', example='1'),
-  pageSize?: int32(name='PageSize', description='The page size. Maximum value: 100. Default value: 10.', example='10'),
+  pageNo?: int32(name='PageNo', description='The page number for the paging query. Pages start from page 1. Default value: 1.', example='1'),
+  pageSize?: int32(name='PageSize', description='The maximum number of records per page for the paging query. Maximum value: 100. Default value: 10.', example='10'),
   taskId?: string(name='TaskId', description='The task ID.', example='a4f5c4494dbd6713185d87a97aa53e8'),
 }
 
 model DescribeSqlLogTaskResponseBody = {
-  code?: string(name='Code', description='The returned HTTP status code.', example='200'),
+  code?: string(name='Code', description='The returned status code.', example='200'),
   data?: {
-    createTime?: long(name='CreateTime', description='The time when the task was created, which is a UNIX timestamp in milliseconds.', example='1681363254423'),
-    end?: long(name='End', description='The end of the query time range, which is a UNIX timestamp in milliseconds.', example='1608888296000'),
-    expire?: boolean(name='Expire', description='Indicates whether the task has expired. Valid values:
+    createTime?: long(name='CreateTime', description='The task creation time. The value is a UNIX timestamp in milliseconds.', example='1681363254423'),
+    end?: long(name='End', description='The query end time. The value is a UNIX timestamp in milliseconds.', example='1608888296000'),
+    expire?: boolean(name='Expire', description='Indicates whether the task has expired.
 
 - **true**: The task has expired.
-
 - **false**: The task has not expired.', example='false'),
-    export?: string(name='Export', description='The download URL of the exported file. This parameter is returned only if the value of `TaskType` is `Export`.', example='"https://das-sqllog-download-cn-hongkong.oss-cn-hongkong.aliyuncs.com/****"'),
+    export?: string(name='Export', description='The download URL of the export task. This value is returned only when TaskType is set to Export.', example='"https://das-sqllog-download-cn-hongkong.oss-cn-hongkong.aliyuncs.com/****"'),
     filters?: [ 
       {
         key?: string(name='Key', description='The name of the filter parameter.
-
-> For more information about the supported filter parameters and their valid values, see the "Additional information about response parameters" section.', example='keyWords'),
+>For supported filter parameters and their values, refer to **Supplementary description of response parameters**.', example='keyWords'),
         value?: any(name='Value', description='The value of the filter parameter.', example='select'),
       }
     ](name='Filters', description='The filter conditions.'),
@@ -5461,93 +5490,79 @@ model DescribeSqlLogTaskResponseBody = {
       {
         accountName?: string(name='AccountName', description='The database account.', example='testname'),
         affectColumns?: string(name='AffectColumns', description='The affected columns.', example='["col1"]'),
-        clientIp?: string(name='ClientIp', description='The client IP address.', example='10.0.0.1xx'),
-        clientPort?: long(name='ClientPort', description='The client port.', example='3306'),
-        collection?: string(name='Collection', description='This parameter is reserved.', example='None'),
-        connectionId?: string(name='ConnectionId', description='The connection ID.', example='ld-******'),
-        consume?: long(name='Consume', description='The execution duration. Unit: milliseconds.', example='58'),
-        cpuTime?: long(name='CpuTime', description='The CPU execution time. Unit: microseconds.', example='100'),
+        clientIp?: string(name='ClientIp', description='The client IP address in the query.', example='10.0.0.1xx'),
+        clientPort?: long(name='ClientPort', description='The client port number in the query.', example='3306'),
+        collection?: string(name='Collection', description='A reserved parameter.', example='None'),
+        connectionId?: string(name='ConnectionId', description='The connection ID used in the query.', example='ld-******'),
+        consume?: long(name='Consume', description='The execution duration in milliseconds.', example='58'),
+        cpuTime?: long(name='CpuTime', description='The CPU execution time in microseconds.', example='100'),
         DBName?: string(name='DBName', description='The database name.', example='testdb01'),
-        executeTime?: string(name='ExecuteTime', description='The time when the SQL statement was executed. The time is in the `yyyy-MM-ddTHH:mm:ssZ` format. The time is displayed in UTC.', example='2023-12-07T02:15:32Z'),
-        ext?: string(name='Ext', description='Reserved for future use.', example='None'),
-        frows?: long(name='Frows', description='The number of rows that are fetched by the compute nodes of a PolarDB-X 2.0 instance.', example='10'),
+        executeTime?: string(name='ExecuteTime', description='The execution time in UTC format: `yyyy-MM-ddTHH:mm:ssZ`.', example='2023-12-07T02:15:32Z'),
+        ext?: string(name='Ext', description='The extended information field. This is a reserved parameter.', example='None'),
+        frows?: long(name='Frows', description='The number of rows fetched by the PolarDB-X 2.0 compute node (CN).', example='10'),
         hostAddress?: string(name='HostAddress', description='The client IP address.', example='11.197.XX.XX'),
-        lockTime?: long(name='LockTime', description='The lock wait time. Unit: milliseconds.', example='0'),
+        lockTime?: long(name='LockTime', description='The lock wait time in milliseconds.', example='0'),
         logicRead?: long(name='LogicRead', description='The number of logical reads.', example='0'),
-        nodeId?: string(name='NodeId', description='The node ID.', example='pi-bp1o58x3ib7e6****'),
-        originTime?: long(name='OriginTime', description='The time when the SQL statement was executed. This value is a UNIX timestamp representing the number of milliseconds that have elapsed since January 1, 1970, 00:00:00 UTC.', example='1701886532000'),
-        parallelDegree?: string(name='ParallelDegree', description='The degree of parallelism (DOP) for the PolarDB for MySQL instance.', example='10'),
-        parallelQueueTime?: string(name='ParallelQueueTime', description='The parallel queuing time for the PolarDB for MySQL instance. Unit: milliseconds.', example='2'),
-        params?: string(name='Params', description='The query parameters.', example='[1, "das"]'),
+        nodeId?: string(name='NodeId', description='The child node ID.', example='pi-bp1o58x3ib7e6****'),
+        originTime?: long(name='OriginTime', description='The execution timestamp. The value is a UNIX timestamp in milliseconds.', example='1701886532000'),
+        parallelDegree?: string(name='ParallelDegree', description='The parallel queue time of the PolarDB for MySQL instance in milliseconds.', example='10'),
+        parallelQueueTime?: string(name='ParallelQueueTime', description='The parallel degree of the PolarDB for MySQL instance.', example='2'),
+        params?: string(name='Params', description='The list of query parameters.', example='[1, "das"]'),
         physicAsyncRead?: long(name='PhysicAsyncRead', description='The number of physical asynchronous reads.', example='0'),
         physicRead?: long(name='PhysicRead', description='The number of physical reads.', example='0'),
         physicSyncRead?: long(name='PhysicSyncRead', description='The number of physical synchronous reads.', example='0'),
-        protected?: string(name='Protected', description='Indicates whether the query is protected.', example='MySQL'),
+        protected?: string(name='Protected', description='Indicates whether the query item is protected.', example='MySQL'),
         returnRows?: long(name='ReturnRows', description='The number of returned rows.', example='0'),
-        rowKey?: string(name='RowKey', description='The row key.', example='23'),
-        rows?: long(name='Rows', description='The total number of rows that are updated or returned by the compute nodes of a PolarDB-X 2.0 instance.', example='10'),
+        rowKey?: string(name='RowKey', description='The row key in the query.', example='23'),
+        rows?: long(name='Rows', description='The total number of rows updated or returned by the PolarDB-X 2.0 compute node.', example='10'),
         scanRows?: long(name='ScanRows', description='The number of scanned rows.', example='0'),
-        scnt?: long(name='Scnt', description='The number of requests that are sent from compute nodes (CNs) to data nodes (DNs) for a PolarDB-X 2.0 instance.', example='10'),
+        scnt?: long(name='Scnt', description='The number of DN requests from the PolarDB-X 2.0 compute node (CN).', example='10'),
         sqlCommand?: long(name='SqlCommand', description='The SQL command in the query.', example='sql'),
-        sqlId?: string(name='SqlId', description='The SQL ID.', example='a4111670e80596c5bf42cf5154438a91'),
-        sqlText?: string(name='SqlText', description='The SQL statement.', example='SELECT @@session.transaction_read_only'),
+        sqlId?: string(name='SqlId', description='SQL ID。', example='a4111670e80596c5bf42cf5154438a91'),
+        sqlText?: string(name='SqlText', description='The SQL statement details.', example='SELECT @@session.transaction_read_only'),
         sqlType?: string(name='SqlType', description='The type of the SQL statement. Valid values:
-
 - **SELECT**
-
 - **UPDATE**
-
 - **DELETE**', example='SELECT'),
-        state?: string(name='State', description='The execution state. Valid values:
+        state?: string(name='State', description='The execution result.
 
-- **0**: The execution was successful.
-
-- **1**: The execution failed.', example='0'),
-        tableName?: string(name='TableName', description='The table name.', example='das'),
+- **0**: Execution succeeded.
+- **1**: Execution failed.', example='0'),
+        tableName?: string(name='TableName', description='The table name used in the query.', example='das'),
         threadId?: long(name='ThreadId', description='The thread ID.', example='None'),
-        traceId?: string(name='TraceId', description='The trace ID of a PolarDB-X 2.0 instance. The trace ID is the execution ID of the SQL statement on data nodes.', example='14c93b7c7bf00000'),
+        traceId?: string(name='TraceId', description='The trace ID of PolarDB-X 2.0, which is the execution ID of the SQL statement on the data node.', example='14c93b7c7bf00000'),
         trxId?: string(name='TrxId', description='The transaction ID.', example='200000'),
         updateRows?: long(name='UpdateRows', description='The number of updated rows.', example='0'),
-        useImciEngine?: string(name='UseImciEngine', description='Indicates whether an In-Memory Column Index (IMCI) is used for the PolarDB for MySQL instance. Valid values:
+        useImciEngine?: string(name='UseImciEngine', description='Indicates whether the PolarDB for MySQL instance uses the In-Memory Column Index.
 
-- **true**
-
-- **false**', example='true'),
-        vip?: string(name='Vip', description='The IP address that the query endpoint resolves to.', example='10.146.XX.XX'),
-        writes?: long(name='Writes', description='The number of writes for the ApsaraDB RDS for SQL Server instance.', example='10'),
+- **true**: The IMCI is used.
+- **false**: The IMCI is not used.', example='true'),
+        vip?: string(name='Vip', description='The endpoint resolution address of the query link.', example='10.146.XX.XX'),
+        writes?: long(name='Writes', description='The number of writes for the RDS SQL Server engine.', example='10'),
       }
-    ](name='Queries', description='The results of the offline query task. This parameter is returned only if the value of `TaskType` is `Query`.'),
-    start?: long(name='Start', description='The beginning of the query time range, which is a UNIX timestamp in milliseconds.', example='1596177993000'),
+    ](name='Queries', description='The task result of the offline query node. This value is returned only when TaskType is set to Query.'),
+    start?: long(name='Start', description='The query start time. The value is a UNIX timestamp in milliseconds.', example='1596177993000'),
     status?: string(name='Status', description='The task status. Valid values:
-
-- **INIT**: The task is pending.
-
-- **RUNNING**: The task is running.
-
-- **FAILED**: The task failed.
-
-- **CANCELED**: The task was canceled.
-
-- **COMPLETED**: The task is complete.
-
-> The results of an offline task are available only when the status is **COMPLETED**.', example='COMPLETED'),
+- **INIT**: Pending scheduling.
+- **RUNNING**: Running.
+- **FAILED**: Failed.
+- **CANCELED**: Canceled.
+- **COMPLETED**: Completed.
+> When the task is in the **COMPLETED** state, you can view the results of the offline task.', example='COMPLETED'),
     taskId?: string(name='TaskId', description='The task ID.', example='9a4f5c4494dbd6713185d87a97aa53e8'),
     taskType?: string(name='TaskType', description='The task type. Valid values:
 
-- **Export**: an export task.
-
-- **Query**: a query task.', example='Query'),
+- **Export**: export task.
+- **Query**: custom query task.', example='Query'),
     total?: long(name='Total', description='The total number of tasks.', example='1'),
   }(name='Data', description='The returned data.'),
-  message?: string(name='Message', description='The response message.
-
-> If the request is successful, **Successful** is returned. Otherwise, an error message is returned.', example='Successful'),
+  message?: string(name='Message', description='The returned message.
+>If the request is successful, **Successful** is returned. If the request fails, exception information such as an error code is returned.', example='Successful'),
   requestId?: string(name='RequestId', description='The request ID.', example='B6D17591-B48B-4D31-9CD6-9B9796B2****'),
-  success?: string(name='Success', description='Indicates whether the request was successful. Valid values:
+  success?: string(name='Success', description='Indicates whether the request is successful.
 
-- **true**: The request was successful.
-
-- **false**: The request failed.', example='true'),
+- **true**: The request is successful.
+- **false**: The request fails.', example='true'),
 }
 
 model DescribeSqlLogTaskResponse = {
@@ -5557,11 +5572,11 @@ model DescribeSqlLogTaskResponse = {
 }
 
 /**
- * @summary Call the `DescribeSqlLogTask` operation to query the details of an offline task in DAS enterprise edition.
+ * @summary Queries the details of a DAS Enterprise Edition batch task by calling the DescribeSqlLogTask operation.
  *
- * @description Note the following before you call this operation:
- * - We recommend using the latest version of the Alibaba Cloud SDK or DAS SDK.
- * - When calling the DAS service with an SDK, set the region to cn-shanghai.
+ * @description Before you begin:
+ * - Use the latest version of the Alibaba Cloud or DAS SDK.
+ * - When calling DAS by using the SDK, set the region to cn-shanghai.
  *
  * @param request DescribeSqlLogTaskRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -5600,11 +5615,11 @@ async function describeSqlLogTaskWithOptions(request: DescribeSqlLogTaskRequest,
 }
 
 /**
- * @summary Call the `DescribeSqlLogTask` operation to query the details of an offline task in DAS enterprise edition.
+ * @summary Queries the details of a DAS Enterprise Edition batch task by calling the DescribeSqlLogTask operation.
  *
- * @description Note the following before you call this operation:
- * - We recommend using the latest version of the Alibaba Cloud SDK or DAS SDK.
- * - When calling the DAS service with an SDK, set the region to cn-shanghai.
+ * @description Before you begin:
+ * - Use the latest version of the Alibaba Cloud or DAS SDK.
+ * - When calling DAS by using the SDK, set the region to cn-shanghai.
  *
  * @param request DescribeSqlLogTaskRequest
  * @return DescribeSqlLogTaskResponse
@@ -5615,22 +5630,21 @@ async function describeSqlLogTask(request: DescribeSqlLogTaskRequest): DescribeS
 }
 
 model DescribeSqlLogTasksRequest {
-  endTime?: long(name='EndTime', description='The end time of the query range. This value is a UNIX timestamp representing the number of milliseconds that have elapsed since January 1, 1970, 00:00:00 UTC.', example='1608888296000'),
+  endTime?: long(name='EndTime', description='The end time of the query. Specify a UNIX timestamp in milliseconds.', example='1608888296000'),
   filters?: [ 
     {
       key?: string(name='Key', description='The filter parameter.
 
-> See **Additional information about request parameters** for the supported filter parameters and their valid values.', example='keyWords'),
+> For supported filter parameters and their values, refer to **Supplementary description of request parameters**.', example='keyWords'),
       value?: string(name='Value', description='The value of the filter parameter.', example='select'),
     }
-  ](name='Filters', description='An array of filter conditions.'),
-  instanceId?: string(name='InstanceId', description='The ID of the database instance.', example='r-bp1nti25tc7bq5****'),
+  ](name='Filters', description='The list of query filter conditions.'),
+  instanceId?: string(name='InstanceId', description='The database instance ID.', example='r-bp1nti25tc7bq5****'),
   nodeId?: string(name='NodeId', description='The node ID.
-
-> For cluster instances only. You can specify a node ID to query its offline tasks. If this parameter is omitted, the offline tasks of the primary node are returned by default.', example='pi-bp1o58x3ib7e6****'),
-  pageNo?: int32(name='PageNo', description='The page number. The value must be a positive integer. Default value: 1.', example='1'),
-  pageSize?: int32(name='PageSize', description='The number of entries per page. Maximum value: 100. Default value: 10.', example='10'),
-  startTime?: long(name='StartTime', description='The start time of the query range. This value is a UNIX timestamp representing the number of milliseconds that have elapsed since January 1, 1970, 00:00:00 UTC.', example='1596177993000'),
+>This parameter is applicable only to Cluster Edition instances. You can specify a node to query its batch tasks. If you do not specify this parameter, the batch tasks of the primary node are returned by default.', example='pi-bp1o58x3ib7e6****'),
+  pageNo?: int32(name='PageNo', description='The page number for the paging query. Pages start from 1. Default value: 1.', example='1'),
+  pageSize?: int32(name='PageSize', description='The maximum number of records per page. Maximum value: 100. Default value: 10.', example='10'),
+  startTime?: long(name='StartTime', description='The start time of the query. Specify a UNIX timestamp in milliseconds.', example='1596177993000'),
 }
 
 model DescribeSqlLogTasksResponseBody = {
@@ -5638,67 +5652,59 @@ model DescribeSqlLogTasksResponseBody = {
   data?: {
     list?: [ 
       {
-        analysisTaskFinishTime?: long(name='AnalysisTaskFinishTime', description='The analysis completion time, represented as a unix timestamp in milliseconds.', example='1712751923000'),
-        analysisTaskStatus?: string(name='AnalysisTaskStatus', description='The status of the analysis task.
+        analysisTaskFinishTime?: long(name='AnalysisTaskFinishTime', description='The analysis task completion time. The value is a UNIX timestamp in milliseconds.', example='1712751923000'),
+        analysisTaskStatus?: string(name='AnalysisTaskStatus', description='The analysis task status.
 
-> This is an internal parameter. You can ignore it.', example='SCAN_ANALYZE_COMPLETED'),
-        createTime?: long(name='CreateTime', description='The task creation time, represented as a unix timestamp in milliseconds.', example='1681363254423'),
-        end?: long(name='End', description='The task end time, represented as a unix timestamp in milliseconds.', example='1705975320000'),
+> This is an internal system parameter. You do not need to pay attention to it.', example='SCAN_ANALYZE_COMPLETED'),
+        createTime?: long(name='CreateTime', description='The task creation time. The value is a UNIX timestamp in milliseconds.', example='1681363254423'),
+        end?: long(name='End', description='The task end time. The value is a UNIX timestamp in milliseconds.', example='1705975320000'),
         expire?: boolean(name='Expire', description='Indicates whether the task has expired. Valid values:
 
 - **true**: The task has expired.
-
 - **false**: The task has not expired.', example='false'),
         filters?: [ 
           {
             key?: string(name='Key', description='The filter parameter.
 
-> For information about the supported filter parameters and their valid values, see **Additional information about request parameters**.', example='keyWords'),
+> For supported filter parameters and their values, refer to **Supplementary description of request parameters**.', example='keyWords'),
             value?: string(name='Value', description='The value of the filter parameter.', example='select'),
           }
-        ](name='Filters', description='A list of filter conditions.'),
-        innerResult?: string(name='InnerResult', description='The VPC-internal URL for accessing the task result.', example='https://das-sqllog-download-oss-cn-shanghai-internal.aliyuncs.com
+        ](name='Filters', description='The list of query filter conditions.'),
+        innerResult?: string(name='InnerResult', description='The VPC internal endpoint.', example='https://das-sqllog-download-oss-cn-shanghai-internal.aliyuncs.com
 /la'),
-        instanceId?: string(name='InstanceId', description='The ID of the database instance.', example='r-bp1nti25tc7bq5****'),
+        instanceId?: string(name='InstanceId', description='The database instance ID.', example='r-bp1nti25tc7bq5****'),
         logCount?: long(name='LogCount', description='The total number of logs.', example='99999'),
-        name?: string(name='Name', description='The name of the task.', example='SQL audit export 1'),
-        progress?: int32(name='Progress', description='The progress of the task.', example='100'),
-        result?: string(name='Result', description='The URL that is returned when **TaskType** is set to **Export**.', example='https://das-sqllog-download-cn-shanghai.oss-cn-shanghai.aliyuncs.com/la'),
-        scanFileSize?: long(name='ScanFileSize', description='The total size of the scanned files, in bytes.', example='3000'),
-        start?: long(name='Start', description='The task start time, represented as a unix timestamp in milliseconds.', example='1683859555482'),
+        name?: string(name='Name', description='The task name.', example='SQL audit export 1'),
+        progress?: int32(name='Progress', description='The task progress.', example='100'),
+        result?: string(name='Result', description='The link address when the task type is **Export**.', example='https://das-sqllog-download-cn-shanghai.oss-cn-shanghai.aliyuncs.com/la'),
+        scanFileSize?: long(name='ScanFileSize', description='The number of scanned files.', example='3000'),
+        start?: long(name='Start', description='The task start time. The value is a UNIX timestamp in milliseconds.', example='1683859555482'),
         status?: string(name='Status', description='The task status. Valid values:
 
-- **INIT**: pending scheduling.
+- **INIT**: Pending scheduling.
+- **RUNNING**: Running.
+- **FAILED**: Failed.
+- **CANCELED**: Canceled.
+- **COMPLETED**: Completed.
 
-- **RUNNING**: running.
-
-- **FAILED**: failed.
-
-- **CANCELED**: canceled.
-
-- **COMPLETED**: completed.
-
-> You can view the result of an offline task only when its status is **COMPLETED**.', example='RUNNING'),
+> When the task is in the **COMPLETED** state, you can view the results of the batch task.', example='RUNNING'),
         taskId?: string(name='TaskId', description='The task ID.', example='9a4f5c4494dbd6713185d87a97aa53e8'),
         taskType?: string(name='TaskType', description='The task type. Valid values:
 
-- **Export**: an export task.
-
-- **Query**: a query task.', example='Export'),
+- **Export**: export task.
+- **Query**: query task.', example='Export'),
       }
-    ](name='List', description='The list of tasks.'),
+    ](name='List', description='The list of returned information.'),
     pageNo?: long(name='PageNo', description='The page number.', example='1'),
-    pageSize?: long(name='PageSize', description='The page size.', example='10'),
+    pageSize?: long(name='PageSize', description='The number of records per page.', example='10'),
     total?: long(name='Total', description='The total number of tasks.', example='40'),
   }(name='Data', description='The returned data.'),
-  message?: string(name='Message', description='The response message.
-
-> If the request is successful, **Successful** is returned. If the request fails, an error message is returned.', example='Successful'),
+  message?: string(name='Message', description='The returned message.
+>If the request is successful, **Successful** is returned. If the request fails, an error message is returned.', example='Successful'),
   requestId?: string(name='RequestId', description='The request ID.', example='B6D17591-B48B-4D31-9CD6-9B9796B2****'),
-  success?: string(name='Success', description='Indicates whether the request was successful. Valid values:
+  success?: string(name='Success', description='Indicates whether the request is successful. Valid values:
 
-- **true**: The request was successful.
-
+- **true**: The request is successful.
 - **false**: The request failed.', example='true'),
 }
 
@@ -5709,11 +5715,11 @@ model DescribeSqlLogTasksResponse = {
 }
 
 /**
- * @summary Lists the audit log tasks for an instance.
+ * @summary Queries the list of audit log tasks for an instance.
  *
- * @description The following prerequisites must be met to call this operation:
- * - We recommend that you use the latest version of the Alibaba Cloud SDK or the DAS SDK.
- * - When you use an SDK to call the DAS service, you must set the region to `cn-shanghai`.
+ * @description Before you begin:
+ * - Use the latest version of the Alibaba Cloud or DAS SDK.
+ * - When calling DAS by using the SDK, set the region to cn-shanghai.
  *
  * @param request DescribeSqlLogTasksRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -5761,11 +5767,11 @@ async function describeSqlLogTasksWithOptions(request: DescribeSqlLogTasksReques
 }
 
 /**
- * @summary Lists the audit log tasks for an instance.
+ * @summary Queries the list of audit log tasks for an instance.
  *
- * @description The following prerequisites must be met to call this operation:
- * - We recommend that you use the latest version of the Alibaba Cloud SDK or the DAS SDK.
- * - When you use an SDK to call the DAS service, you must set the region to `cn-shanghai`.
+ * @description Before you begin:
+ * - Use the latest version of the Alibaba Cloud or DAS SDK.
+ * - When calling DAS by using the SDK, set the region to cn-shanghai.
  *
  * @param request DescribeSqlLogTasksRequest
  * @return DescribeSqlLogTasksResponse
@@ -7961,44 +7967,42 @@ model GetDBInstanceConnectivityDiagnosisRequest {
 This parameter is required.', example='rm-2ze8g2am97624****'),
   srcIp?: string(name='SrcIp', description='The source IP address.
 
-This parameter is required.', example='47.110.180.62'),
+This parameter is required.', example='47.100.XX.XX'),
 }
 
 model GetDBInstanceConnectivityDiagnosisResponseBody = {
-  code?: string(name='Code', description='The HTTP status code returned.', example='200'),
+  code?: string(name='Code', description='The returned status code.', example='200'),
   data?: {
-    connCheckErrorCode?: string(name='connCheckErrorCode', description='The exception detection items:
+    connCheckErrorCode?: string(name='connCheckErrorCode', description='The outlier detection item. Valid values:
 
-*   **SRC_IP_NOT_IN_USER_WHITELIST**: The source IP address is not added to the whitelist of the user.
-*   **VIP_NOT_EXISTS**: The Application Load Balancer (ALB) instance corresponding to the virtual IP address (VIP) does not exist.
-*   **RS_NOT_EXISTS**: The resource sharing (RS) is not properly mounted.
-*   **VIP_TUNNEL_ID_NOT_CONSISTENT**: The tunnel ID used by the VIP of the virtual private cloud (VPC) type is different from the tunnel ID of the VPC.
-*   **VIP_VPC_CLOUD_INSTANCE_NOT_EXISTS**: The VIP of the VPC type does not exist.
-*   **VIP_IS_NOT_NGLB**: The NGLB mode is disabled for the VIP.
-*   **CUSTINS_NOT_ASSOCIATE_ECS_SECURITY_GROUP**: No security group is associated with the instance.
-*   **SRC_IP_NOT_IN_USER_WHITELIST**: The source IP address is not added to the whitelist of the user.
-*   **SRC_IP_NOT_IN_ADMIN_WHITELIST**: The source IP address is not added to the whitelist of the instance.
-*   **SRC_IP_NOT_IN_ECS_SECURITY_GROUP**: The source IP address is not added to the security group that is associated with the instance.
-*   **VPC_INSTANCE_IP_NOT_WORKING_STATUS**: The IP address in the VPC is in an abnormal state.', example='SRC_IP_NOT_IN_USER_WHITELIST'),
-    connCheckErrorMessage?: string(name='connCheckErrorMessage', description='The details of the exception detection.', example='Src ip:47.110.180.62 not in user whitelist'),
-    failType?: string(name='failType', description='The type of the exception:
+- **SRC_IP_NOT_IN_USER_WHITELIST**: The source IP address is not added to the user whitelist.
+- **VIP_NOT_EXISTS**: The ALB instance corresponding to the VIP does not exist.
+- **RS_NOT_EXISTS**: The RS is not properly mounted.
+- **VIP_TUNNEL_ID_NOT_CONSISTENT**: The TUNNEL ID used by the VPC-type VIP is inconsistent with the actual TUNNEL ID of the VPC.
+- **VIP_VPC_CLOUD_INSTANCE_NOT_EXISTS**: The VPC-type VIP does not exist.
+- **VIP_IS_NOT_NGLB**: The NGLB pattern is shutdown for the VIP.
+- **CUSTINS_NOT_ASSOCIATE_ECS_SECURITY_GROUP**: The instance is not associated with a security group.
+- **SRC_IP_NOT_IN_USER_WHITELIST**: The source IP address is not added to the user whitelist.
+- **SRC_IP_NOT_IN_ADMIN_WHITELIST**: The source IP address is not added to the management machine whitelist.
+- **SRC_IP_NOT_IN_ECS_SECURITY_GROUP**: The source IP address is not added to the security group associated with the instance.
+- **VPC_INSTANCE_IP_NOT_WORKING_STATUS**: The VPC IP address is in an abnormal state.', example='SRC_IP_NOT_IN_USER_WHITELIST'),
+    connCheckErrorMessage?: string(name='connCheckErrorMessage', description='The details of the outlier detection item.', example='Src ip:47.100.XX.XX not in user whitelist'),
+    failType?: string(name='failType', description='The exception type. Valid values:
 
-*   **0**: an exception that can be handled by the user.
-*   **1**: an exception that can be handled by a technical engineer.', example='0'),
+- **0**: The issue can be resolved by the user.
+- **1**: The issue requires on-duty personnel to resolve.', example='0'),
     instanceId?: string(name='instanceId', description='The instance ID.', example='rm-2ze8g2am97624****'),
-    success?: boolean(name='success', description='Indicates whether the connectivity test was passed:
+    success?: boolean(name='success', description='Indicates whether the check is passed. Valid values:
 
-*   **true**
-*   **false**', example='false'),
-  }(name='Data', description='The detailed information.'),
+- **true**: The check is passed.
+- **false**: The check is not passed.', example='false'),
+  }(name='Data', description='The details.'),
   message?: string(name='Message', description='The returned message.
-
-> If the request was successful, **Successful** is returned. Otherwise, an error message such as an error code is returned.', example='Successful'),
+>If the request is successful, **Successful** is returned. If the request fails, an error message is returned, such as an error code.', example='Successful'),
   requestId?: string(name='RequestId', description='The request ID.', example='B6D17591-B48B-4D31-9CD6-9B9796B2****'),
-  success?: string(name='Success', description='Indicates whether the request was successful. Valid values:
-
-*   **true**
-*   **false**', example='true'),
+  success?: string(name='Success', description='Indicates whether the request is successful. Valid values:
+* **true**: The request is successful.
+* **false**: The request fails.', example='true'),
 }
 
 model GetDBInstanceConnectivityDiagnosisResponse = {
@@ -8008,12 +8012,12 @@ model GetDBInstanceConnectivityDiagnosisResponse = {
 }
 
 /**
- * @summary Queries the diagnosis of network connectivity when a user accesses a specific database instance by specifying an IP address.
+ * @summary Retrieves the network connectivity diagnosis result from a user-specified IP address to a specified database instance.
  *
- * @description Before you call this operation, take note of the following items:
- * *   If you use an Alibaba Cloud SDK or Database Autonomy Service (DAS) SDK to call this operation, we recommend that you use the latest version of the SDK.
- * *   If you use an SDK to call API operations of DAS, you must set the region ID to cn-shanghai.
- * *   The database instance that you want to manage is connected to DAS.
+ * @description Before you begin:
+ * - Use the latest version of Alibaba Cloud SDK or DAS SDK.
+ * - When calling DAS by using the SDK, set the region to cn-shanghai.
+ * - The database instance is connected to DAS.
  *
  * @param request GetDBInstanceConnectivityDiagnosisRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -8046,12 +8050,12 @@ async function getDBInstanceConnectivityDiagnosisWithOptions(request: GetDBInsta
 }
 
 /**
- * @summary Queries the diagnosis of network connectivity when a user accesses a specific database instance by specifying an IP address.
+ * @summary Retrieves the network connectivity diagnosis result from a user-specified IP address to a specified database instance.
  *
- * @description Before you call this operation, take note of the following items:
- * *   If you use an Alibaba Cloud SDK or Database Autonomy Service (DAS) SDK to call this operation, we recommend that you use the latest version of the SDK.
- * *   If you use an SDK to call API operations of DAS, you must set the region ID to cn-shanghai.
- * *   The database instance that you want to manage is connected to DAS.
+ * @description Before you begin:
+ * - Use the latest version of Alibaba Cloud SDK or DAS SDK.
+ * - When calling DAS by using the SDK, set the region to cn-shanghai.
+ * - The database instance is connected to DAS.
  *
  * @param request GetDBInstanceConnectivityDiagnosisRequest
  * @return GetDBInstanceConnectivityDiagnosisResponse
@@ -8062,23 +8066,23 @@ async function getDBInstanceConnectivityDiagnosis(request: GetDBInstanceConnecti
 }
 
 model GetDasAgentSSERequest {
-  agentId?: string(name='AgentId', description='The ID of the agent to use. This parameter is optional. If you do not specify this parameter, the service uses the default agent. You can provide the ID of an agent that was generated when you enabled the DAS Agent service or that you manually created.', example='ag-472T0DxtmjIxxxxx'),
-  instanceId?: string(name='InstanceId', description='This parameter is deprecated. Specify the instance ID in the Query parameter.', example='rm-xxxx'),
-  query?: string(name='Query', description='The natural language query for the agent.
+  agentId?: string(name='AgentId', description='Optional. By default, the default agent is used. You can also specify an agent that was generated after enabling the DAS Agent service or an agent that you manually created.', example='ag-472T0DxtmjIxxxxx'),
+  instanceId?: string(name='InstanceId', description='Deprecated parameter. The instance ID is passed through the Query field.', example='rm-xxxx'),
+  query?: string(name='Query', description='The natural language description for the query.
 
 This parameter is required.', example='Are there any issues or abnormalities with my instance rm-xxx?'),
-  sessionId?: string(name='SessionId', description='The session ID, which must be in the UUID format. This parameter is optional. If you do not provide a session ID, the service creates a new session. To continue an existing conversation, use the same session ID in subsequent requests.', example='123e4567-e89b-12d3-a456-xxxxxxxxxxxx'),
+  sessionId?: string(name='SessionId', description='Optional. The session ID in UUID string format. If not specified, a new session is created. To maintain context across conversations, use the same session ID.', example='123e4567-e89b-12d3-a456-xxxxxxxxxxxx'),
 }
 
 model GetDasAgentSSEResponseBody = {
-  answer?: string(name='Answer', description='The content of the response.', example='rm-xxxx'),
-  event?: string(name='Event', description='The type of the response message.', example='summary'),
-  id?: string(name='Id', description='The session ID. This is the same as the SessionId in the request.', example='123e4567-e89b-12d3-a456-xxxxxxxxxxxx'),
+  answer?: string(name='Answer', description='The answer content.', example='rm-xxxx'),
+  event?: string(name='Event', description='The type of the returned answer information.', example='summary'),
+  id?: string(name='Id', description='The session ID, which is the same as the SessionId in the request parameters.', example='123e4567-e89b-12d3-a456-xxxxxxxxxxxx'),
   metadata?: {
-    charCount?: long(name='CharCount', description='The number of characters in the response.', example='1403'),
-    code?: int32(name='Code', description='The error code. This parameter is empty if no exception occurs.', example='-1810001'),
+    charCount?: long(name='CharCount', description='The number of characters in the answer.', example='1403'),
+    code?: int32(name='Code', description='The error type returned when an exception occurs. This field is empty when no exception occurs.', example='-1810001'),
     requestId?: string(name='RequestId', description='The request ID.', example='04930480-9404-50CB-8252-Axxxxxxxx'),
-    toolName?: string(name='ToolName', description='The name of the tool used.', example='SqlFilter'),
+    toolName?: string(name='ToolName', description='The tool command that is called.', example='SqlFilter'),
     toolParams?: [ string ](name='ToolParams', description='The tool parameters.'),
   }(name='Metadata', description='The metadata.'),
 }
@@ -8090,9 +8094,9 @@ model GetDasAgentSSEResponse = {
 }
 
 /**
- * @summary This API uses Server-Sent Events (SSE) to interact with the DAS agent. You can use this API for features such as Q&A and performance diagnostics.
+ * @summary Provides a DAS large model interactive SSE interface. Supports features such as AI chat and performance diagnostics.
  *
- * @description This is a paid API. You are charged based on the number of output characters. Before you use this API, ensure that you understand the billing methods and [pricing](https://help.aliyun.com/zh/das/product-overview/billing-details-of-the-previous-version?spm=a2c4g.11186623.help-menu-63907.d_0_1_0.b7203b87MDNqHO\\&scm=20140722.H_156195._.OR_help-T_cn~zh-V_1#cad160563fbkd) of the DAS Agent product.
+ * @description This is a paid API that is billed based on the number of output characters. Before using this API, make sure that you fully understand the billing method and [pricing](https://www.alibabacloud.com/help/en/das/product-overview/billing-details-of-the-previous-version#cad160563fbkd) of the DAS Agent product.
  *
  * @param request GetDasAgentSSERequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -8131,9 +8135,9 @@ async function getDasAgentSSEWithOptions(request: GetDasAgentSSERequest, runtime
 }
 
 /**
- * @summary This API uses Server-Sent Events (SSE) to interact with the DAS agent. You can use this API for features such as Q&A and performance diagnostics.
+ * @summary Provides a DAS large model interactive SSE interface. Supports features such as AI chat and performance diagnostics.
  *
- * @description This is a paid API. You are charged based on the number of output characters. Before you use this API, ensure that you understand the billing methods and [pricing](https://help.aliyun.com/zh/das/product-overview/billing-details-of-the-previous-version?spm=a2c4g.11186623.help-menu-63907.d_0_1_0.b7203b87MDNqHO\\&scm=20140722.H_156195._.OR_help-T_cn~zh-V_1#cad160563fbkd) of the DAS Agent product.
+ * @description This is a paid API that is billed based on the number of output characters. Before using this API, make sure that you fully understand the billing method and [pricing](https://www.alibabacloud.com/help/en/das/product-overview/billing-details-of-the-previous-version#cad160563fbkd) of the DAS Agent product.
  *
  * @param request GetDasAgentSSERequest
  * @return GetDasAgentSSEResponse
@@ -9944,7 +9948,7 @@ async function getFullRequestStatResultByInstanceId(request: GetFullRequestStatR
 
 model GetInstanceGroupInspectReportDetailRequest {
   agentId?: string(name='AgentId', description='The ID of the agent that the user purchased.', example='ag-472T0DxtmjIxxxxx'),
-  reportId?: string(name='ReportId', description='The ID of the automated operations report.
+  reportId?: string(name='ReportId', description='The ID of the operations report.
 
 This parameter is required.', example='13f52040-5a6e-42c3-bb84-051f5d6d****'),
   reportType?: string(name='ReportType', description='The type of the report.', example='daily'),
@@ -9953,7 +9957,7 @@ This parameter is required.', example='13f52040-5a6e-42c3-bb84-051f5d6d****'),
 model GetInstanceGroupInspectReportDetailResponseBody = {
   code?: string(name='Code', description='The status code returned.', example='200'),
   data?: {
-    reportDetail?: string(name='ReportDetail', description='The content of the automated operations report, including the report date and diagnostic details of managed instances.', example='"### 概要\\\\n\\\\n报告日期：2025-12-10  \\\\n对比周期：[昨日日期] → 2025-12-10 以下省略"'),
+    reportDetail?: string(name='ReportDetail', description='The content of the operations report, which mainly includes the report date and diagnostic details of managed instances.', example='"### Summary\\\\n\\\\nReport date: 2025-12-10  \\\\nComparison period: [previous day] → 2025-12-10 The rest is omitted"'),
     reportId?: string(name='ReportId', description='The report ID.', example='13f52040-5a6e-42c3-bb84-051f5d6d****'),
   }(name='Data', description='ReportDetail'),
   message?: string(name='Message', description='The message returned for the request.
@@ -9975,12 +9979,12 @@ model GetInstanceGroupInspectReportDetailResponse = {
  * @summary Retrieves the details of a DAS Agent automated operations report.
  *
  * @description Enabling the automated operations report feature for DAS Agent allows the system to perform periodic inspections on target instances and generate reports. Currently, only daily reports are supported. This operation is used to query report details.
- * Before using this operation, ensure that the following prerequisites are met:
- * - DAS Agent is activated and the agent is still within its validity period.
- * - The daily report feature is enabled on the DAS Agent configuration page.
- * - When using the Alibaba Cloud SDK, ensure that the version of aliyun-sdk-core is later than 4.3.3. We recommend that you use the latest version.
- * - The version of the DAS SDK is 1.0.3 or later.
- * - When using the SDK to call DAS, set the region to cn-shanghai.
+ * Before you begin:
+ * - Activate DAS Agent and ensure that the agent is still within its validity period.
+ * - Enable the daily report feature on the DAS Agent configuration page.
+ * - When using the Alibaba Cloud SDK, ensure that the version of aliyun-sdk-core is later than 4.3.3. Use the latest version.
+ * - Use DAS SDK 1.0.3 or later.
+ * - When calling DAS by using the SDK, set the region to cn-shanghai.
  *
  * @param request GetInstanceGroupInspectReportDetailRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -10021,12 +10025,12 @@ async function getInstanceGroupInspectReportDetailWithOptions(request: GetInstan
  * @summary Retrieves the details of a DAS Agent automated operations report.
  *
  * @description Enabling the automated operations report feature for DAS Agent allows the system to perform periodic inspections on target instances and generate reports. Currently, only daily reports are supported. This operation is used to query report details.
- * Before using this operation, ensure that the following prerequisites are met:
- * - DAS Agent is activated and the agent is still within its validity period.
- * - The daily report feature is enabled on the DAS Agent configuration page.
- * - When using the Alibaba Cloud SDK, ensure that the version of aliyun-sdk-core is later than 4.3.3. We recommend that you use the latest version.
- * - The version of the DAS SDK is 1.0.3 or later.
- * - When using the SDK to call DAS, set the region to cn-shanghai.
+ * Before you begin:
+ * - Activate DAS Agent and ensure that the agent is still within its validity period.
+ * - Enable the daily report feature on the DAS Agent configuration page.
+ * - When using the Alibaba Cloud SDK, ensure that the version of aliyun-sdk-core is later than 4.3.3. Use the latest version.
+ * - Use DAS SDK 1.0.3 or later.
+ * - When calling DAS by using the SDK, set the region to cn-shanghai.
  *
  * @param request GetInstanceGroupInspectReportDetailRequest
  * @return GetInstanceGroupInspectReportDetailResponse
@@ -13855,73 +13859,59 @@ async function getSqlConcurrencyControlRulesHistory(request: GetSqlConcurrencyCo
 }
 
 model GetSqlOptimizeAdviceRequest {
-  consoleContext?: string(name='ConsoleContext', description='The reserved parameter.', example='None'),
-  endDt?: string(name='EndDt', description='The end date of the time range to query. Specify the date in the *yyyyMMdd* format. The time must be in UTC.
+  consoleContext?: string(name='ConsoleContext', description='A reserved parameter.', example='None'),
+  endDt?: string(name='EndDt', description='The end date of the query. Format: <i>yyyyMMdd</i> (UTC).
 
-- The default value of this parameter is one day before the current day.
-
-- The value must be earlier than the current day. The interval between the start date and the end date cannot exceed 30 days.', example='20210917'),
+- If this parameter is left empty, the default value is the day before the current date.
+- You can only query data from the day before the current date or earlier. The interval between the start date and the end date cannot exceed 30 days.', example='20210917'),
   engine?: string(name='Engine', description='The database engine. Valid values:
 
-- **MySQL**: ApsaraDB RDS for MySQL.
-
+- **MySQL**: RDS MySQL.
 - **PolarDBMySQL**: PolarDB for MySQL.', example='MySQL'),
   instanceIds?: string(name='InstanceIds', description='The instance ID.
+>Only RDS MySQL and PolarDB for MySQL instances are supported.', example='rm-2ze1jdv45i7l6****'),
+  region?: string(name='Region', description='The region to which the instance belongs. Valid values:
 
-> You must specify the instance ID only if your database instance is an ApsaraDB RDS for MySQL instance or a PolarDB for MySQL cluster.', example='rm-2ze1jdv45i7l6****'),
-  region?: string(name='Region', description='The region in which the instance resides. Valid values:
-
-- **cn-china**: Chinese mainland.
-
-- **cn-hongkong**: China (Hong Kong).
-
+- **cn-china**: the Chinese mainland.
+- **cn-hongkong**: Hong Kong (China).
 - **ap-southeast-1**: Singapore.
 
-This parameter takes effect only if **InstanceIds** is left empty. If you leave **InstanceIds** empty, the system obtains data from the region specified by **Region**. By default, Region is set to **cn-china**. If you specify **InstanceIds**, **Region** does not take effect, and the system obtains data from the region in which the first specified instance resides.\\\\*\\\\*\\\\*\\\\*
+This parameter takes effect only when the **InstanceIds** request parameter is left empty. If **InstanceIds** is left empty, data is retrieved based on the region specified by the **Region** parameter. The default region is **cn-china**. If **InstanceIds** is not empty, data is retrieved based on the region of the first instance specified by **InstanceIds**, even if the **Region** parameter is set.
 
-> If your instances reside in the regions inside the Chinese mainland, set this parameter to **cn-china**.', example='cn-china'),
-  startDt?: string(name='StartDt', description='The start date of the time range to query. Specify the date in the *yyyyMMdd* format. The time must be in UTC.
+> For instances created in regions within the Chinese mainland, set this parameter to **cn-china**.', example='cn-china'),
+  startDt?: string(name='StartDt', description='The start date of the query. Format: <i>yyyyMMdd</i> (UTC).
 
-- The default value of this parameter is one day before the current day.
-
-- The value must be earlier than the current day.', example='20210916'),
+- If this parameter is left empty, the default value is the day before the current date.
+- You can only query data from the day before the current date or earlier.', example='20210916'),
 }
 
 model GetSqlOptimizeAdviceResponseBody = {
-  code?: string(name='Code', description='The HTTP status code returned.', example='200'),
+  code?: string(name='Code', description='The status code returned.', example='200'),
   data?: {
-    createTime?: string(name='CreateTime', description='The time when the task was created. The value is a UNIX timestamp representing the number of milliseconds that have elapsed since January 1, 1970, 00:00:00 UTC.', example='1632303861000'),
-    downloadUrl?: string(name='DownloadUrl', description='The URL that is used to download the file.', example='https://das-sql-optimize.oss-cn-shanghai.aliyuncs.com/adb/oss_sql_optimize_advice/1083*******'),
-    expireTime?: string(name='ExpireTime', description='The time when the file expires. The value is a UNIX timestamp representing the number of milliseconds that have elapsed since January 1, 1970, 00:00:00 UTC.
+    createTime?: string(name='CreateTime', description='The time when the task was created. The value is a UNIX timestamp. Unit: milliseconds.', example='1632303861000'),
+    downloadUrl?: string(name='DownloadUrl', description='The download URL of the file.', example='https://das-sql-optimize.oss-cn-shanghai.aliyuncs.com/adb/oss_sql_optimize_advice/1083*******'),
+    expireTime?: string(name='ExpireTime', description='The time when the file expires. The value is a UNIX timestamp. Unit: milliseconds.
+>The file expires three days after the task is created.', example='1632563061000'),
+    status?: string(name='Status', description='The task status. Valid values:
 
-> The file expires three days after the task is created.', example='1632563061000'),
-    status?: string(name='Status', description='The status of the task. Valid values:
+- **INIT**: initializing.
+- **RUNNING**: running.
+- **FINISH**: completed.
+- **FAILED**: failed.', example='FINISH'),
+    statusCode?: string(name='StatusCode', description='The task status code. Valid values:
 
-- **INIT**: The task is being initialized.
-
-- **RUNNING**: The task is running.
-
-- **FINISH**: The task is complete.
-
-- **FAILED**: The task failed.', example='FINISH'),
-    statusCode?: string(name='StatusCode', description='The status code of the task. Valid values:
-
-- **NO_DATA**: No data is returned.
-
-- **INTERNAL_ERROR**: An internal error occurred.
-
-- **SUCCESS**: The task is successful.', example='SUCCESS'),
+- **NO_DATA**: no data available.
+- **INTERNAL_ERROR**: internal error.
+- **SUCCESS**: successful.', example='SUCCESS'),
     taskId?: string(name='TaskId', description='The task ID.', example='2021091710461519216****'),
-  }(name='Data', description='The detailed information, including the error codes and the number of entries that are returned.'),
-  message?: string(name='Message', description='The returned message.
-
-> If the request was successful, Successful is returned. If the request failed, an error message such as an error code is returned.', example='Successful'),
+  }(name='Data', description='The details, including the total number of entries and error codes.'),
+  message?: string(name='Message', description='The message returned for the request.
+>If the request is successful, Successful is returned. If the request fails, an error message is returned, such as an error code.', example='Successful'),
   requestId?: string(name='RequestId', description='The request ID.', example='B6D17591-B48B-4D31-9CD6-9B9796B2****'),
-  success?: string(name='Success', description='Indicates whether the request was successful. Valid values:
+  success?: string(name='Success', description='Indicates whether the request is successful. Valid values:
 
-- **true**
-
-- **false**', example='true'),
+- **true**: successful.
+- **false**: failed.', example='true'),
 }
 
 model GetSqlOptimizeAdviceResponse = {
@@ -13931,14 +13921,14 @@ model GetSqlOptimizeAdviceResponse = {
 }
 
 /**
- * @summary Queries optimization suggestions that are generated by the SQL diagnostics feature of Database Autonomy Service (DAS).
+ * @summary Queries the diagnostic suggestions generated by the DAS automatic SQL optimization feature.
  *
- * @description The SQL diagnostics feature provides optimization suggestions for instances based on diagnostics results. You can use the optimization suggestions to optimize instance indexes. For more information, see [Automatic SQL optimization](https://help.aliyun.com/document_detail/167895.html).
- * > Returns only optimization suggestions that the SQL diagnostics feature automatically generates.
- * Before you call this operation, take note of the following items:
- * - This operation is applicable to ApsaraDB RDS for MySQL instances and PolarDB for MySQL clusters.
- * - If you use an Alibaba Cloud SDK or DAS SDK to call this operation, we recommend that you use the latest version of the SDK.
- * - If you use an SDK to call operations of DAS, you must set the region ID to cn-shanghai.
+ * @description The SQL diagnostics feature provides instance diagnosis suggestions. You can use the suggestions to optimize instance indexes. For details, see [Automatic SQL optimization](https://help.aliyun.com/document_detail/167895.html).
+ * > You can invoke this operation only to query diagnostic suggestions generated by the DAS automatic SQL optimization feature.
+ * Before you begin:
+ * - The database DPI engine is RDS MySQL or PolarDB for MySQL.
+ * - If you use the China site (aliyun.com) or DAS SDK, use the latest version.
+ * - When you invoke DAS by using the SDK, set the region to cn-shanghai.
  *
  * @param request GetSqlOptimizeAdviceRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -13983,14 +13973,14 @@ async function getSqlOptimizeAdviceWithOptions(request: GetSqlOptimizeAdviceRequ
 }
 
 /**
- * @summary Queries optimization suggestions that are generated by the SQL diagnostics feature of Database Autonomy Service (DAS).
+ * @summary Queries the diagnostic suggestions generated by the DAS automatic SQL optimization feature.
  *
- * @description The SQL diagnostics feature provides optimization suggestions for instances based on diagnostics results. You can use the optimization suggestions to optimize instance indexes. For more information, see [Automatic SQL optimization](https://help.aliyun.com/document_detail/167895.html).
- * > Returns only optimization suggestions that the SQL diagnostics feature automatically generates.
- * Before you call this operation, take note of the following items:
- * - This operation is applicable to ApsaraDB RDS for MySQL instances and PolarDB for MySQL clusters.
- * - If you use an Alibaba Cloud SDK or DAS SDK to call this operation, we recommend that you use the latest version of the SDK.
- * - If you use an SDK to call operations of DAS, you must set the region ID to cn-shanghai.
+ * @description The SQL diagnostics feature provides instance diagnosis suggestions. You can use the suggestions to optimize instance indexes. For details, see [Automatic SQL optimization](https://help.aliyun.com/document_detail/167895.html).
+ * > You can invoke this operation only to query diagnostic suggestions generated by the DAS automatic SQL optimization feature.
+ * Before you begin:
+ * - The database DPI engine is RDS MySQL or PolarDB for MySQL.
+ * - If you use the China site (aliyun.com) or DAS SDK, use the latest version.
+ * - When you invoke DAS by using the SDK, set the region to cn-shanghai.
  *
  * @param request GetSqlOptimizeAdviceRequest
  * @return GetSqlOptimizeAdviceResponse
@@ -14329,17 +14319,16 @@ This parameter is required.', example='r-8vbcyr4sw0c4yc****'),
 }
 
 model KillInstanceAllSessionResponseBody = {
-  code?: string(name='Code', description='The HTTP status code returned.', example='200'),
+  code?: string(name='Code', description='The returned status code.', example='200'),
   data?: string(name='Data', description='The reserved parameter.', example='None'),
   message?: string(name='Message', description='The returned message.
 
-> If the request was successful, **Successful** is returned. If the request failed, an error message such as an error code is returned.', example='Successful'),
+> If the request is successful, **Successful** is returned. If the request fails, an exception message is returned, such as an error code.', example='Successful'),
   requestId?: string(name='RequestId', description='The request ID.', example='B6D17591-B48B-4D31-9CD6-9B9796B2****'),
-  success?: string(name='Success', description='Indicates whether the request was successful. Valid values:
+  success?: string(name='Success', description='Indicates whether the request is successful. Valid values:
 
-- **true**
-
-- **false**', example='true'),
+- **true**: The request is successful.
+- **false**: The request fails.', example='true'),
 }
 
 model KillInstanceAllSessionResponse = {
@@ -14349,12 +14338,12 @@ model KillInstanceAllSessionResponse = {
 }
 
 /**
- * @summary Terminates all sessions on an instance.
+ * @summary Calls the KillInstanceAllSession operation to terminate all sessions on a specified instance.
  *
- * @description - This operation is applicable only to ApsaraDB for Redis.
- * - If you use Alibaba Cloud SDK, make sure that the aliyun-sdk-core version is later than V4.3.3. We recommend that you use the latest version.
- * - The version of your Database Autonomy Service (DAS) SDK must be V1.0.2 or later.
- * - If you use an SDK to call operations of DAS, you must set the region ID to cn-shanghai.
+ * @description - This operation is applicable only to the Redis engine.
+ * - When using the Alibaba Cloud SDK, ensure that the version of aliyun-sdk-core is later than 4.3.3. Use the latest version.
+ * - The version of the DAS SDK must be 1.0.2 or later.
+ * - When calling DAS by using the SDK, set the region to cn-shanghai.
  *
  * @param request KillInstanceAllSessionRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -14387,12 +14376,12 @@ async function killInstanceAllSessionWithOptions(request: KillInstanceAllSession
 }
 
 /**
- * @summary Terminates all sessions on an instance.
+ * @summary Calls the KillInstanceAllSession operation to terminate all sessions on a specified instance.
  *
- * @description - This operation is applicable only to ApsaraDB for Redis.
- * - If you use Alibaba Cloud SDK, make sure that the aliyun-sdk-core version is later than V4.3.3. We recommend that you use the latest version.
- * - The version of your Database Autonomy Service (DAS) SDK must be V1.0.2 or later.
- * - If you use an SDK to call operations of DAS, you must set the region ID to cn-shanghai.
+ * @description - This operation is applicable only to the Redis engine.
+ * - When using the Alibaba Cloud SDK, ensure that the version of aliyun-sdk-core is later than 4.3.3. Use the latest version.
+ * - The version of the DAS SDK must be 1.0.2 or later.
+ * - When calling DAS by using the SDK, set the region to cn-shanghai.
  *
  * @param request KillInstanceAllSessionRequest
  * @return KillInstanceAllSessionResponse
@@ -14758,6 +14747,219 @@ async function modifyAutoScalingConfig(request: ModifyAutoScalingConfigRequest):
   return modifyAutoScalingConfigWithOptions(request, runtime);
 }
 
+model ModifyDasOpsConfigRequest {
+  enable?: boolean(name='Enable', description='Specifies whether to enable DAS Alibaba Cloud Managed Services. Valid values:
+
+- **true**: Enable.
+- **false**: Disable. Shutdown only turns off the feature but does not unsubscribe from the service. To unsubscribe, go to the unsubscription management page.', example='true'),
+  filters?: [ 
+    {
+      key?: string(name='Key', description='The filter parameter.
+
+> For supported filter parameters and their values, see **Supplementary description of request parameters**.', example='None'),
+      value?: string(name='Value', description='A reserved parameter.', example='select'),
+    }
+  ](name='Filters', description='A reserved parameter.'),
+  instanceId?: string(name='InstanceId', description='The database instance ID.
+
+This parameter is required.', example='dds-uf6079bda570****'),
+}
+
+model ModifyDasOpsConfigResponseBody = {
+  code?: string(name='Code', description='The returned status code.', example='200'),
+  data?: {
+    chargeType?: string(name='ChargeType', description='The payment method.', example='prepay'),
+    commodityInstanceId?: string(name='CommodityInstanceId', description='The Alibaba Cloud Managed Services instance ID.', example='pc-2zelo5v5u0678jx04'),
+    ecoEnable?: boolean(name='EcoEnable', description='Indicates whether DAS Economy Edition is enabled.', example='true'),
+    enable?: boolean(name='Enable', description='Indicates whether the Alibaba Cloud Managed Services feature is enabled (including DAS Economy Edition).', example='true'),
+    endTime?: long(name='EndTime', description='The end time. The value is a UNIX timestamp. Unit: milliseconds.', example='1608888296000'),
+    opsEnable?: boolean(name='OpsEnable', description='Indicates whether Alibaba Cloud Managed Services is enabled.'),
+    orderId?: long(name='OrderId', description='The order ID.', example='285412912420536'),
+    startTime?: long(name='StartTime', description='The start time.', example='1672531200000'),
+    status?: string(name='Status', description='The task status. Valid values:
+- **INIT**: Pending scheduling.
+- **RUNNING**: Running.
+- **FAILED**: Failed.
+- **CANCELED**: Canceled.
+- **COMPLETED**: Completed.
+
+> When the task is in the **COMPLETED** state, you can view the task result.', example='COMPLETED'),
+  }(name='Data', description='SqlLogConfig'),
+  message?: string(name='Message', description='The returned message.', example='Successful'),
+  requestId?: string(name='RequestId', description='The request ID.', example='B6D17591-B48B-4D31-9CD6-9B9796B2****'),
+  success?: string(name='Success', description='Indicates whether the request was successful. Valid values:
+
+- **true**: The request was successful.
+- **false**: The request failed.', example='true'),
+}
+
+model ModifyDasOpsConfigResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ModifyDasOpsConfigResponseBody(name='body'),
+}
+
+/**
+ * @summary Modifies a configuration item of Alibaba Cloud Managed Services.
+ *
+ * @description Before you begin:
+ * - Use the latest version of Alibaba Cloud SDK or DAS SDK.
+ * - When calling DAS by using the SDK, set the region to cn-shanghai.
+ * - This operation enables the latest supported version by default. For information about the databases and regions supported by each DAS Enterprise Edition version, see [DAS editions and supported features](https://help.aliyun.com/document_detail/156204.html).
+ *
+ * @param request ModifyDasOpsConfigRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return ModifyDasOpsConfigResponse
+ */
+async function modifyDasOpsConfigWithOptions(request: ModifyDasOpsConfigRequest, runtime: Util.RuntimeOptions): ModifyDasOpsConfigResponse {
+  Util.validateModel(request);
+  var query = {};
+  if (!Util.isUnset(request.filters)) {
+    query['Filters'] = request.filters;
+  }
+  var body : map[string]any = {};
+  if (!Util.isUnset(request.enable)) {
+    body['Enable'] = request.enable;
+  }
+  if (!Util.isUnset(request.instanceId)) {
+    body['InstanceId'] = request.instanceId;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApi.Params{
+    action = 'ModifyDasOpsConfig',
+    version = '2020-01-16',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Modifies a configuration item of Alibaba Cloud Managed Services.
+ *
+ * @description Before you begin:
+ * - Use the latest version of Alibaba Cloud SDK or DAS SDK.
+ * - When calling DAS by using the SDK, set the region to cn-shanghai.
+ * - This operation enables the latest supported version by default. For information about the databases and regions supported by each DAS Enterprise Edition version, see [DAS editions and supported features](https://help.aliyun.com/document_detail/156204.html).
+ *
+ * @param request ModifyDasOpsConfigRequest
+ * @return ModifyDasOpsConfigResponse
+ */
+async function modifyDasOpsConfig(request: ModifyDasOpsConfigRequest): ModifyDasOpsConfigResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return modifyDasOpsConfigWithOptions(request, runtime);
+}
+
+model ModifyForwardSqlLogConfigRequest {
+  enable?: boolean(name='Enable', description='Specifies whether to enable the feature. Valid values:
+
+- **true**: Enable.
+- **false**: Disable.
+
+This parameter is required.', example='true'),
+  instanceId?: string(name='InstanceId', description='The database instance ID.
+
+This parameter is required.', example='rm-2ze1jdv45i7l6****'),
+  service?: string(name='Service', description='The service type. Valid values:
+DAS_OPS: enables TOP KEY delivery.
+
+This parameter is required.', example='DAS_OPS'),
+  source?: string(name='Source', description='The task source. Valid values:
+- TOP_KEY: enables TOP KEY delivery.
+
+This parameter is required.', example='TOP_KEY'),
+}
+
+model ModifyForwardSqlLogConfigResponseBody = {
+  code?: string(name='Code', description='The status code.', example='200'),
+  data?: {
+    logstore?: string(name='Logstore', description='The LogStore name for real-time delivery to Simple Log Service.', example='cdn222'),
+    project?: string(name='Project', description='The project.', example='facedetect7'),
+    vpcEndpoint?: string(name='VpcEndpoint', description='The VPC endpoint of the component.', example='cn-beijing-intranet.log.aliyuncs.com'),
+  }(name='Data', description='ForwardSqlLogResult'),
+  message?: string(name='Message', description='The returned message.
+
+> If the request is successful, **Successful** is returned. If the request fails, an error message that contains information such as an error code is returned.', example='Successful'),
+  requestId?: string(name='RequestId', description='The request ID.', example='B6D17591-B48B-4D31-9CD6-9B9796B2****'),
+  success?: string(name='Success', description='Indicates whether the request is successful. Valid values:
+* true: The request is successful.
+* false: The request fails.', example='true'),
+}
+
+model ModifyForwardSqlLogConfigResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ModifyForwardSqlLogConfigResponseBody(name='body'),
+}
+
+/**
+ * @summary Modifies the audit log forwarding configuration.
+ *
+ * @description Before you call this operation, take note of the following prerequisites:
+ * - If you use the Alibaba Cloud SDK or DAS SDK, use the latest version.
+ * - When you call DAS by using the SDK, set the region to cn-shanghai.
+ * - This operation enables the latest supported version by default. For information about the databases and regions supported by each DAS Enterprise Edition version, see [DAS editions and supported features](https://help.aliyun.com/document_detail/156204.html).
+ *
+ * @param request ModifyForwardSqlLogConfigRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return ModifyForwardSqlLogConfigResponse
+ */
+async function modifyForwardSqlLogConfigWithOptions(request: ModifyForwardSqlLogConfigRequest, runtime: Util.RuntimeOptions): ModifyForwardSqlLogConfigResponse {
+  Util.validateModel(request);
+  var body : map[string]any = {};
+  if (!Util.isUnset(request.enable)) {
+    body['Enable'] = request.enable;
+  }
+  if (!Util.isUnset(request.instanceId)) {
+    body['InstanceId'] = request.instanceId;
+  }
+  if (!Util.isUnset(request.service)) {
+    body['Service'] = request.service;
+  }
+  if (!Util.isUnset(request.source)) {
+    body['Source'] = request.source;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApi.Params{
+    action = 'ModifyForwardSqlLogConfig',
+    version = '2020-01-16',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Modifies the audit log forwarding configuration.
+ *
+ * @description Before you call this operation, take note of the following prerequisites:
+ * - If you use the Alibaba Cloud SDK or DAS SDK, use the latest version.
+ * - When you call DAS by using the SDK, set the region to cn-shanghai.
+ * - This operation enables the latest supported version by default. For information about the databases and regions supported by each DAS Enterprise Edition version, see [DAS editions and supported features](https://help.aliyun.com/document_detail/156204.html).
+ *
+ * @param request ModifyForwardSqlLogConfigRequest
+ * @return ModifyForwardSqlLogConfigResponse
+ */
+async function modifyForwardSqlLogConfig(request: ModifyForwardSqlLogConfigRequest): ModifyForwardSqlLogConfigResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return modifyForwardSqlLogConfigWithOptions(request, runtime);
+}
+
 model ModifySecurityIPGroupRequest {
   GIpList?: string(name='GIpList', description='The IP addresses in the whitelist template.
 
@@ -14879,7 +15081,7 @@ async function modifySecurityIPGroup(request: ModifySecurityIPGroupRequest): Mod
 }
 
 model ModifySecurityIPGroupRelationRequest {
-  globalSecurityGroupId?: string(name='GlobalSecurityGroupId', description='The ID of the IP address whitelist template.
+  globalSecurityGroupId?: string(name='GlobalSecurityGroupId', description='The ID of the IP whitelist template.
 
 This parameter is required.', example='g-ggh7qvrrwikyxe****'),
   instanceId?: string(name='InstanceId', description='The database instance ID.
@@ -14897,29 +15099,26 @@ model ModifySecurityIPGroupRelationResponseBody = {
       {
         GIpList?: string(name='GIpList', description='The IP addresses in the whitelist template.
 
-> Separate multiple IP addresses with commas (,). A maximum of 1,000 IP addresses or CIDR blocks can be added to all IP address whitelists.', example='192.168.0.1,192.168.100.0/24'),
-        globalIgName?: string(name='GlobalIgName', description='The name of the IP address whitelist template. The name must meet the following requirements:
+> Separate multiple IP addresses with commas (,). You can add up to 1,000 IP addresses or CIDR blocks across all IP whitelists.', example='192.168.0.1,192.168.100.0/24'),
+        globalIgName?: string(name='GlobalIgName', description='The name of the IP whitelist template. The name must meet the following requirements:
 
-- It must consist of lowercase letters, digits, and underscores (_).
+- Contains only lowercase letters, digits, and underscores (_).
 
-- It must start with a letter and end with a letter or a digit.
+- Starts with a letter and ends with a letter or digit.
 
-- It must be 2 to 120 characters in length.', example='saas_jump'),
-        globalSecurityGroupId?: string(name='GlobalSecurityGroupId', description='The ID of the IP address whitelist template.', example='g-v8kwereyd6u7kx****'),
+- Contains 2 to 120 characters in length.', example='saas_jump'),
+        globalSecurityGroupId?: string(name='GlobalSecurityGroupId', description='The ID of the IP whitelist template.', example='g-v8kwereyd6u7kx****'),
         regionId?: string(name='RegionId', description='The region ID.', example='cn-shanghai'),
       }
-    ](name='GlobalSecurityIPGroupRel', description='The information about the cross-product IP address whitelist template that is attached to the instance.'),
+    ](name='GlobalSecurityIPGroupRel', description='The binding information of the cross-engine IP whitelist template.'),
     instanceId?: string(name='InstanceId', description='The instance ID.', example='rm-2ze1jdv45i7l6****'),
-  }(name='Data', description='The returned data.'),
+  }(name='Data', description='ListResult<InstanceSSL>'),
   message?: string(name='Message', description='The returned message.
-
-> If the request is successful, Successful is returned. If the request fails, an error message, such as an error code, is returned.', example='Successful'),
+>If the request is successful, Successful is returned. If the request fails, an error message such as an error code is returned.', example='Successful'),
   requestId?: string(name='RequestId', description='The request ID.', example='840F51F7-9C01-538D-94F6-AE712905****'),
-  success?: string(name='Success', description='Indicates whether the request was successful. Valid values:
-
-- true: The request was successful.
-
-- false: The request failed.', example='true'),
+  success?: string(name='Success', description='Indicates whether the request is successful. Valid values:
+* true: The request is successful.
+* false: The request fails.', example='true'),
 }
 
 model ModifySecurityIPGroupRelationResponse = {
@@ -14929,12 +15128,12 @@ model ModifySecurityIPGroupRelationResponse = {
 }
 
 /**
- * @summary Attaches or detaches a cross-product whitelist template.
+ * @summary Attaches or detaches a cross-engine whitelist template to or from a user.
  *
- * @description - Use the latest version of the Alibaba Cloud or DAS software development kit (SDK).
- * - When you use the SDK to call the DAS service, set the region to cn-shanghai.
- * - For more information about the supported database instances, see [Overview of features](https://help.aliyun.com/document_detail/92561.html) for SQL Insight and Audit.
- * - The SQL Insight and Audit (Legacy) feature is enabled for the destination database instance. For more information about how to enable this feature, see [Enable SQL Insight and Audit](https://help.aliyun.com/document_detail/92561.html).
+ * @description - When using the Alibaba Cloud or DAS SDK, use the latest version.
+ * - When calling DAS by using the SDK, set the region to cn-shanghai.
+ * - For information about the supported database instances, see the [feature overview](https://help.aliyun.com/document_detail/92561.html) of SQL Explorer.
+ * - SQL Explorer (original version) must be enabled for the target database instance. For more information, see [Enable SQL Explorer and Audit](https://help.aliyun.com/document_detail/92561.html).
  *
  * @param request ModifySecurityIPGroupRelationRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -14970,12 +15169,12 @@ async function modifySecurityIPGroupRelationWithOptions(request: ModifySecurityI
 }
 
 /**
- * @summary Attaches or detaches a cross-product whitelist template.
+ * @summary Attaches or detaches a cross-engine whitelist template to or from a user.
  *
- * @description - Use the latest version of the Alibaba Cloud or DAS software development kit (SDK).
- * - When you use the SDK to call the DAS service, set the region to cn-shanghai.
- * - For more information about the supported database instances, see [Overview of features](https://help.aliyun.com/document_detail/92561.html) for SQL Insight and Audit.
- * - The SQL Insight and Audit (Legacy) feature is enabled for the destination database instance. For more information about how to enable this feature, see [Enable SQL Insight and Audit](https://help.aliyun.com/document_detail/92561.html).
+ * @description - When using the Alibaba Cloud or DAS SDK, use the latest version.
+ * - When calling DAS by using the SDK, set the region to cn-shanghai.
+ * - For information about the supported database instances, see the [feature overview](https://help.aliyun.com/document_detail/92561.html) of SQL Explorer.
+ * - SQL Explorer (original version) must be enabled for the target database instance. For more information, see [Enable SQL Explorer and Audit](https://help.aliyun.com/document_detail/92561.html).
  *
  * @param request ModifySecurityIPGroupRelationRequest
  * @return ModifySecurityIPGroupRelationResponse
@@ -15739,120 +15938,112 @@ async function updateAutoSqlOptimizeStatus(request: UpdateAutoSqlOptimizeStatusR
 }
 
 model UpdateAutoThrottleRulesAsyncRequest {
-  abnormalDuration?: double(name='AbnormalDuration', description='The duration threshold for triggering automatic SQL throttling. Set this parameter to an integer that is greater than or equal to 2. Unit: minutes.
+  abnormalDuration?: double(name='AbnormalDuration', description='The duration threshold of the anomaly that triggers automatic SQL throttling. The value must be a positive integer greater than or equal to 2. Unit: minutes.
 
 This parameter is required.', example='2'),
-  activeSessions?: long(name='ActiveSessions', description='The threshold for the number of active sessions.
+  activeSessions?: long(name='ActiveSessions', description='The active sessions threshold.	
 
-- If this parameter and CpuUsage are in the **OR** relationship, set this parameter to an integer that is greater than or equal to 16.
-
-- If this parameter and CpuUsage are in the **AND** relationship, set this parameter to an integer that is greater than or equal to 2.
+- If the relationship with the CPU utilization threshold is **OR**, the value must be greater than or equal to 16.
+- If the relationship with the CPU utilization threshold is **AND**, the value must be greater than or equal to 2.
 
 This parameter is required.', example='16'),
-  allowThrottleEndTime?: string(name='AllowThrottleEndTime', description='The end time of the throttling window. The time must be in UTC.
+  allowThrottleEndTime?: string(name='AllowThrottleEndTime', description='The end time of the throttling time window (UTC).
 
 This parameter is required.', example='23:59Z'),
-  allowThrottleStartTime?: string(name='AllowThrottleStartTime', description='The start time of the throttling window. The time must be in UTC.
+  allowThrottleStartTime?: string(name='AllowThrottleStartTime', description='The start time of the throttling time window (UTC).
 
 This parameter is required.', example='00:00Z'),
-  autoKillSession?: boolean(name='AutoKillSession', description='Specifies whether to terminate abnormal SQL statements in execution at the same time. Valid values:
+  autoKillSession?: boolean(name='AutoKillSession', description='Specifies whether to simultaneously kill abnormal SQL statements that are being executed.
+> Abnormal SQL statements are those that match the SQL templates to be throttled.
 
-> Abnormal SQL statements use the same template as the SQL statements to be throttled.
-
-- **true**
-
-- **false**
+Valid values:
+- **true**: Yes.
+- **false**: No.
 
 This parameter is required.', example='true'),
-  consoleContext?: string(name='ConsoleContext', description='The reserved parameter.', example='None'),
-  cpuSessionRelation?: string(name='CpuSessionRelation', description='The logical relationship between the CPU utilization threshold and the maximum number of active sessions. Valid values:
-
-- **AND**
-
-- **OR**
+  consoleContext?: string(name='ConsoleContext', description='A reserved parameter.', example='None'),
+  cpuSessionRelation?: string(name='CpuSessionRelation', description='The logical relationship between the CPU utilization threshold and the active sessions threshold. Valid values:
+- **AND**: both conditions must be met.
+- **OR**: either condition must be met.
 
 This parameter is required.', example='OR'),
-  cpuUsage?: double(name='CpuUsage', description='The threshold for CPU utilization. Valid values: 70% to 100%.
+  cpuUsage?: double(name='CpuUsage', description='The CPU utilization threshold. Valid values: 70% to 100%.
 
 This parameter is required.', example='70'),
   instanceIds?: string(name='InstanceIds', description='The database instance IDs.
 
-> Set this parameter to a JSON array that consists of multiple instance IDs. Separate instance IDs with commas (,). Example: `[\\\\"Instance ID1\\\\", \\\\"Instance ID2\\\\"]`.
+> The data format is JSONArray, such as `[\\\\"Instance ID 1\\\\",\\\\"Instance ID 2\\\\"]`. Separate instance IDs with commas (,).
 
 This parameter is required.', example='[\\\\"rm-2ze8g2am97624****\\\\",\\\\"rm-2ze9xrhze0709****\\\\"]'),
-  maxThrottleTime?: double(name='MaxThrottleTime', description='The maximum throttling duration. Set this parameter to a positive integer. Unit: minutes.
+  maxThrottleTime?: double(name='MaxThrottleTime', description='The maximum throttling duration. The value must be a positive integer. Unit: minutes.
 
 This parameter is required.', example='10'),
   resultId?: string(name='ResultId', description='The ID of the asynchronous request.
-
-> You can leave this parameter empty when you call the operation to initiate the request for the first time, and use the value of this parameter contained in the response to the first request for subsequent requests.', example='async__507044db6c4eadfa2dab9b084e80****'),
+> An asynchronous call does not immediately return complete results. First, call this operation to obtain the **ResultId**. Then, use the returned **ResultId** to initiate the call again until **isFinish** is **true**, at which point the complete results are returned. This means that you must call this operation at least twice to obtain complete data.', example='async__507044db6c4eadfa2dab9b084e80****'),
 }
 
 model UpdateAutoThrottleRulesAsyncResponseBody = {
-  code?: long(name='Code', description='The HTTP status code returned.', example='200'),
+  code?: long(name='Code', description='The returned status code.', example='200'),
   data?: {
-    complete?: boolean(name='Complete', description='Indicates whether the asynchronous request was complete. Valid values:
+    complete?: boolean(name='Complete', description='Indicates whether the asynchronous request is complete. Valid values:
 
-- **true**
+- **true**: The request is complete.
 
-- **false**', example='true'),
+- **false**: The request is not complete.', example='true'),
     configResponse?: {
-      configFailInstanceCount?: long(name='ConfigFailInstanceCount', description='The number of database instances for which the parameters failed to be configured.', example='1'),
+      configFailInstanceCount?: long(name='ConfigFailInstanceCount', description='The number of database instances that failed to be configured.', example='1'),
       configFailInstanceList?: [ 
         {
-          configSuccess?: boolean(name='ConfigSuccess', description='Indicates whether the parameters are configured. Valid values:
+          configSuccess?: boolean(name='ConfigSuccess', description='Indicates whether the configuration was successful. Valid values:
 
-- **true**
+- **true**: The configuration was successful.
 
-- **false**', example='false'),
-          errorMessage?: string(name='ErrorMessage', description='The error message returned.', example='instance das autonomy service is off or can not find instance'),
+- **false**: The configuration failed.', example='false'),
+          errorMessage?: string(name='ErrorMessage', description='The error message.', example='instance das autonomy service is off or can not find instance'),
           instanceId?: string(name='InstanceId', description='The database instance ID.', example='rm-2ze9xrhze0709****'),
         }
-      ](name='ConfigFailInstanceList', description='The database instances for which the parameters failed to be configured.'),
-      configSuccessInstanceCount?: long(name='ConfigSuccessInstanceCount', description='The number of database instances for which the parameters are configured.', example='1'),
+      ](name='ConfigFailInstanceList', description='The list of database instances that failed to be configured.'),
+      configSuccessInstanceCount?: long(name='ConfigSuccessInstanceCount', description='The number of database instances that were configured successfully.', example='1'),
       configSuccessInstanceList?: [ 
         {
-          configSuccess?: boolean(name='ConfigSuccess', description='Indicates whether the parameters are configured. Valid values:
+          configSuccess?: boolean(name='ConfigSuccess', description='Indicates whether the configuration was successful. Valid values:
 
-- **true**
+- **true**: The configuration was successful.
 
-- **false**', example='true'),
+- **false**: The configuration failed.', example='true'),
           instanceId?: string(name='InstanceId', description='The database instance ID.', example='rm-2ze8g2am97624****'),
         }
-      ](name='ConfigSuccessInstanceList', description='The database instances for which the parameters are configured.'),
+      ](name='ConfigSuccessInstanceList', description='The list of database instances that were configured successfully.'),
       totalInstanceCount?: long(name='TotalInstanceCount', description='The total number of database instances.', example='2'),
-    }(name='ConfigResponse', description='The returned data of the configuration.
+    }(name='ConfigResponse', description='The response data of the batch configuration.
+> This data is returned only when the asynchronous request is complete (that is, when isFinish is **true**).'),
+    fail?: boolean(name='Fail', description='Indicates whether the request failed. Valid values:
 
-> The data is returned only if the value of isFinish is **true**. This value indicates that the asynchronous request is complete.'),
-    fail?: boolean(name='Fail', description='Indicates whether the asynchronous request failed. Valid values:
+- **true**: The request failed.
 
-- **true**
+- **false**: The request did not fail.', example='false'),
+    isFinish?: boolean(name='IsFinish', description='Indicates whether the asynchronous request is complete. Valid values:
 
-- **false**', example='false'),
-    isFinish?: boolean(name='IsFinish', description='Indicates whether the asynchronous request was complete. Valid values:
+- **true**: The request is complete.
 
-- **true**
-
-- **false**', example='true'),
+- **false**: The request is not complete.', example='true'),
     resultId?: string(name='ResultId', description='The ID of the asynchronous request.', example='async__665ee69612f1627c7fd9f3c85075****'),
-    state?: string(name='State', description='The state of the asynchronous request. Valid values:
+    state?: string(name='State', description='The execution status of the asynchronous request. Valid values:
 
-- **RUNNING**
+- **RUNNING**: The request is running.
 
-- **SUCCESS**
+- **SUCCESS**: The request succeeded.
 
-- **FAIL**', example='SUCCESS'),
-    timestamp?: long(name='Timestamp', description='The time when the asynchronous request was made. This value is a UNIX timestamp representing the number of milliseconds that have elapsed since January 1, 1970, 00:00:00 UTC.', example='1645668213000'),
-  }(name='Data', description='The data returned.'),
+- **FAIL**: The request failed.', example='SUCCESS'),
+    timestamp?: long(name='Timestamp', description='The execution time. The value is a UNIX timestamp. Unit: milliseconds.', example='1645668213000'),
+  }(name='Data', description='The returned data.'),
   message?: string(name='Message', description='The returned message.
-
-> If the request was successful, **Successful** is returned. If the request failed, an error message such as an error code is returned.', example='Successful'),
+> If the request is successful, **Successful** is returned. If the request fails, an error message such as an error code is returned.', example='Successful'),
   requestId?: string(name='RequestId', description='The request ID.', example='B6D17591-B48B-4D31-9CD6-9B9796B2****'),
   success?: boolean(name='Success', description='Indicates whether the request was successful. Valid values:
 
-- **true**
-
-- **false**', example='true'),
+- **true**: The request was successful.
+- **false**: The request failed.', example='true'),
 }
 
 model UpdateAutoThrottleRulesAsyncResponse = {
@@ -15862,15 +16053,15 @@ model UpdateAutoThrottleRulesAsyncResponse = {
 }
 
 /**
- * @summary Asynchronously configures parameters related to the automatic SQL throttling feature for multiple database instances at a time.
+ * @summary Calls the UpdateAutoThrottleRulesAsync operation to asynchronously configure automatic SQL throttling parameters for specified database instances in batches.
  *
- * @description > Asynchronous calls do not immediately return the complete results. To obtain the complete results, you must use the value of **ResultId** returned in the response to re-initiate the call until the value of **isFinish** is **true**.\\*\\*\\*\\* In this case, you must call this operation at least twice.
- * Before you call this operation, take note of the following items:
- * - If you use an SDK to call API operations of Database Autonomy Service (DAS), you must set the region ID to cn-shanghai.
- * - The autonomy service must be enabled for the database instance that you want to manage. For more information, see [Autonomy center](https://help.aliyun.com/document_detail/152139.html).
- * - The database instance that you want to manage must be of one of the following types:
- *   - ApsaraDB RDS for MySQL High-availability Edition or Enterprise Edition that runs MySQL 5.6, MySQL 5.7, or MySQL 8.0
- *   - PolarDB for MySQL Cluster Edition that runs MySQL 5.6, MySQL 5.7, or MySQL 8.0
+ * @description > An asynchronous call does not immediately return complete results. First, call this operation to obtain the **ResultId**. Then, use the returned **ResultId** to initiate the call again until **isFinish** is **true**, at which point the complete results are returned. This means that you must call this operation at least twice to obtain complete data.
+ * Before you begin:
+ * - When using the SDK to call DAS, specify the region as cn-shanghai.
+ * - The autonomy service is enabled for the target database instance. For more information, see [Autonomy center](https://help.aliyun.com/document_detail/152139.html).
+ * - The target database instance is one of the following:
+ *     - ApsaraDB RDS for MySQL 5.6, 5.7, or 8.0 high-availability series or RDS Enterprise Edition.
+ *     - PolarDB for MySQL 5.6 Cluster Edition, 5.7 Cluster Edition, or 8.0 Cluster Edition.
  *
  * @param request UpdateAutoThrottleRulesAsyncRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -15930,15 +16121,15 @@ async function updateAutoThrottleRulesAsyncWithOptions(request: UpdateAutoThrott
 }
 
 /**
- * @summary Asynchronously configures parameters related to the automatic SQL throttling feature for multiple database instances at a time.
+ * @summary Calls the UpdateAutoThrottleRulesAsync operation to asynchronously configure automatic SQL throttling parameters for specified database instances in batches.
  *
- * @description > Asynchronous calls do not immediately return the complete results. To obtain the complete results, you must use the value of **ResultId** returned in the response to re-initiate the call until the value of **isFinish** is **true**.\\*\\*\\*\\* In this case, you must call this operation at least twice.
- * Before you call this operation, take note of the following items:
- * - If you use an SDK to call API operations of Database Autonomy Service (DAS), you must set the region ID to cn-shanghai.
- * - The autonomy service must be enabled for the database instance that you want to manage. For more information, see [Autonomy center](https://help.aliyun.com/document_detail/152139.html).
- * - The database instance that you want to manage must be of one of the following types:
- *   - ApsaraDB RDS for MySQL High-availability Edition or Enterprise Edition that runs MySQL 5.6, MySQL 5.7, or MySQL 8.0
- *   - PolarDB for MySQL Cluster Edition that runs MySQL 5.6, MySQL 5.7, or MySQL 8.0
+ * @description > An asynchronous call does not immediately return complete results. First, call this operation to obtain the **ResultId**. Then, use the returned **ResultId** to initiate the call again until **isFinish** is **true**, at which point the complete results are returned. This means that you must call this operation at least twice to obtain complete data.
+ * Before you begin:
+ * - When using the SDK to call DAS, specify the region as cn-shanghai.
+ * - The autonomy service is enabled for the target database instance. For more information, see [Autonomy center](https://help.aliyun.com/document_detail/152139.html).
+ * - The target database instance is one of the following:
+ *     - ApsaraDB RDS for MySQL 5.6, 5.7, or 8.0 high-availability series or RDS Enterprise Edition.
+ *     - PolarDB for MySQL 5.6 Cluster Edition, 5.7 Cluster Edition, or 8.0 Cluster Edition.
  *
  * @param request UpdateAutoThrottleRulesAsyncRequest
  * @return UpdateAutoThrottleRulesAsyncResponse
