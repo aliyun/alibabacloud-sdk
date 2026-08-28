@@ -9,8 +9,11 @@ extends OpenApi;
 
 init(config: OpenApiUtil.Config){
   super(config);
-  @endpointRule = '';
-  
+  @endpointRule = 'regional';
+  @endpointMap = {
+    'cn-shanghai' = 'chatbot.cn-shanghai.aliyuncs.com',
+  };
+
   checkConfig(config);
   @endpoint = getEndpoint('chatbot', @regionId, @endpointRule, @network, @suffix, @endpointMap, @endpoint);
 }
@@ -4520,7 +4523,7 @@ model GetPublishTaskStateResponseBody = {
   error?: string(name='Error', description='The error message returned if the task fails.', example='检查待发布模块是否空闲发生错误，faq'),
   errors?: map[string]any(name='Errors', description='A map of error messages for each submodule, where the key is the submodule name and the value is the error message.', example='{
     "faq": [
-        "答案资源未发布, 资源类型: 全局服务,名称: 动态答案服务"
+        "答案资源未发布，资源类型：全局服务，名称：动态答案服务"
     ]
 }'),
   id?: long(name='Id', description='The publish task ID.', example='8522'),
@@ -4538,7 +4541,7 @@ model GetPublishTaskStateResponseBody = {
 - `FE_ABORTED`: Aborted', example='FE_RUNNING'),
   warnings?: map[string]any(name='Warnings', description='A map of warning messages for each submodule, where the key is the submodule name and the value is the warning message.', example='{
     "faq": [
-        "答案资源未发布,类型:service名称:null,答案资源未发布,类型:service名称:null"
+        "答案资源未发布，类型：service，名称：null，答案资源未发布，类型：service，名称：null"
     ]
 }'),
 }
@@ -6786,8 +6789,8 @@ async function searchFaq(request: SearchFaqRequest): SearchFaqResponse {
 }
 
 model TongyiChatDebugInfoRequest {
-  agentKey?: string(name='AgentKey', description='The key of the business space. If you do not specify this parameter, the default business space is used. You can get the key from the Business Management page of your main account.', example='ac627989eb4f8a98ed05fd098bbae5_p_beebot_public'),
-  instanceId?: string(name='InstanceId', description='The ID of the chatbot.
+  agentKey?: string(name='AgentKey', description='The business space key. If not specified, the default business space is accessed. Obtain the key value from the business management page of the primary account.', example='ac627989eb4f8a98ed05fd098bbae5_p_beebot_public'),
+  instanceId?: string(name='InstanceId', description='The chatbot ID.
 
 This parameter is required.', example='chatbot-cn-7QuUfaqMQe'),
   messageId?: string(name='MessageId', description='The ID of the response message in the current session.
@@ -6827,29 +6830,23 @@ model TongyiChatDebugInfoResponseBody = {
   messageId?: string(name='MessageId', description='The ID of the response message in the current session.', example='2828708A-2C7A-1BAE-B810-87DB9DA9C661'),
   pipeline?: [ 
     {
-      input?: any(name='Input', description='The input data for the node.', example='用户问句：转人工\\\\n命中规则：[转]人工[客服|服务|坐席]'),
-      name?: string(name='Name', description='The name of the strategy. Possible values include:
+      input?: any(name='Input', description='The debugging input information.', example='用户问句：转人工\\\\n命中规则：[转]人工[客服|服务|坐席]'),
+      name?: string(name='Name', description='The Policy Name. Valid values:
+- High-frequency Q&A direct response
+- Keyword-based transfer to agent
+- Global sensitive words
 
-- FAQ
-
-- Hit Keywords
-
-- Global Sensitive Words
-
-This parameter is returned only when `NodeType` is set to `system_strategy`.', example='关键词转人工'),
+This field is returned only when NodeType is system_strategy.', example='关键词转人工'),
       nodeType?: string(name='NodeType', description='The node type. Valid values:
-
-- **system_strategy**: system strategy.
-
-- **rewrite_query**: retrieval query.
-
-- **invoke_llm**: LLM invocation.
-
-- **invoke_tools**: tool invocation.', example='system_strategy'),
-      output?: any(name='Output', description='The output data from the node.', example='commands:{\\\\"sysToAgent\\\\":\\\\"{\\\\\\\\\\\\"skillGroup\\\\\\\\\\\\":\\\\\\\\\\\\"\\\\\\\\\\\\",\\\\\\\\\\\\"ext\\\\\\\\\\\\":\\\\\\\\\\\\"\\\\\\\\\\\\",\\\\\\\\\\\\"toAgentReason\\\\\\\\\\\\":\\\\\\\\\\\\"HitKeywords\\\\\\\\\\\\"}\\\\"}\\\\nresponse:正在为您转接人工客服'),
+* **system_strategy**: system strategy.
+* **rewrite_query**: retrieval query.
+* **invoke_llm**: LLM invocation.
+* **invoke_tools**: tool calling.', example='system_strategy'),
+      output?: any(name='Output', description='The output information.', example='commands:{\\\\"sysToAgent\\\\":\\\\"{\\\\\\\\\\\\"skillGroup\\\\\\\\\\\\":\\\\\\\\\\\\"\\\\\\\\\\\\",\\\\\\\\\\\\"ext\\\\\\\\\\\\":\\\\\\\\\\\\"\\\\\\\\\\\\",\\\\\\\\\\\\"toAgentReason\\\\\\\\\\\\":\\\\\\\\\\\\"HitKeywords\\\\\\\\\\\\"}\\\\"}\\\\nresponse:正在为您转接人工客服'),
     }
-  ](name='Pipeline', description='The array of nodes that constitute the Q\\\\&A workflow.'),
-  requestId?: string(name='RequestId', description='The request ID.', example='E3E5C779-A630-45AC-B0F2-A4506A4212F1'),
+  ](name='Pipeline', description='The information about the entire Q&A pipeline.'),
+  requestId?: string(name='RequestId', description='Id of the request', example='E3E5C779-A630-45AC-B0F2-A4506A4212F1'),
+  sessionId?: string(name='SessionId'),
 }
 
 model TongyiChatDebugInfoResponse = {
@@ -6859,9 +6856,9 @@ model TongyiChatDebugInfoResponse = {
 }
 
 /**
- * @summary This operation returns debugging information for the large language model (LLM) Q&A process.
+ * @summary Debugging information for large language model Q&A.
  *
- * @description This operation supports only the latest version of chatbots and can query data from only the last 90 days.
+ * @description Only supported for new version chatbots. Only data within the last 90 days can be queried.
  *
  * @param request TongyiChatDebugInfoRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -6898,9 +6895,9 @@ async function tongyiChatDebugInfoWithOptions(request: TongyiChatDebugInfoReques
 }
 
 /**
- * @summary This operation returns debugging information for the large language model (LLM) Q&A process.
+ * @summary Debugging information for large language model Q&A.
  *
- * @description This operation supports only the latest version of chatbots and can query data from only the last 90 days.
+ * @description Only supported for new version chatbots. Only data within the last 90 days can be queried.
  *
  * @param request TongyiChatDebugInfoRequest
  * @return TongyiChatDebugInfoResponse
