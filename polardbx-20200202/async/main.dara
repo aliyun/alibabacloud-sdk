@@ -6259,6 +6259,7 @@ async function enableSqlAudit(request: EnableSqlAuditRequest): EnableSqlAuditRes
 
 model ExecuteMetaQueryRequest {
   DBInstanceName: string(name='DBInstanceName', description='This parameter is required.', example='pxsp-*********', position='Query'),
+  maxResultRows?: long(name='MaxResultRows', description='本次最多返回的结果行数。缺省为 100，取值范围 1~1000；最终行数还会取代码硬上限、Biz DB 上限和 SQL 最外层 LIMIT 的最小值，连续取数请在 SQL 中自行分页。', minimum=1, maximum=1000, position='Query'),
   regionId: string(name='RegionId', description='This parameter is required.', example='cn-hangzhou', position='Query'),
   sql: string(name='Sql', description='This parameter is required.', example='show databases;', position='Query'),
   storageInstId?: string(name='StorageInstId', example='pxc-xdb-s-*', position='Query'),
@@ -6273,7 +6274,12 @@ model ExecuteMetaQueryResponseBody = {
     policyType?: string(name='PolicyType', description='PolicyType', example='PRIORITY'),
   }(name='AccessDeniedDetail'),
   data?: {
+    appliedOffset?: long(name='AppliedOffset'),
+    appliedRowLimit?: long(name='AppliedRowLimit'),
     columns?: [ string ](name='Columns'),
+    hasMore?: boolean(name='HasMore'),
+    recordsSizeBytes?: long(name='RecordsSizeBytes'),
+    returnedRowCount?: long(name='ReturnedRowCount'),
     rowCount?: int32(name='RowCount', example='97901'),
     rows?: [  map[string]any ](name='Rows'),
   }(name='Data'),
@@ -7345,6 +7351,105 @@ model PreCheckSqlFlashbackTaskResponse = {
 async function preCheckSqlFlashbackTask(request: PreCheckSqlFlashbackTaskRequest): PreCheckSqlFlashbackTaskResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RPC', 'PreCheckSqlFlashbackTask', 'POST', '/', 'json', false, 'json', request);
+}
+
+model QueryColumnarLogRequest {
+  DBInstanceName: string(name='DBInstanceName', description='This parameter is required.', example='pxc-********', position='Query'),
+  maxResultRows?: long(name='MaxResultRows', description='最多返回的结果行数。不传时默认 100，取值范围 1~1000；连续取数请在 SQL 中自行分页。', example='1000', minimum=1, maximum=1000, position='Query'),
+  regionId: string(name='RegionId', description='This parameter is required.', example='cn-hangzhou', position='Query'),
+  SQL: string(name='SQL', description='This parameter is required.', example='select * from device where name = \\"105506012111488797\\"', maxLength=65536, position='Query'),
+}
+
+model QueryColumnarLogResponseBody = {
+  accessDeniedDetail?: {
+    authAction?: string(name='AuthAction', example='xxx'),
+    authPrincipalDisplayName?: string(name='AuthPrincipalDisplayName', example='xxx'),
+    authPrincipalOwnerId?: string(name='AuthPrincipalOwnerId', example='111'),
+    authPrincipalType?: string(name='AuthPrincipalType', example='222'),
+    encodedDiagnosticMessage?: string(name='EncodedDiagnosticMessage', example='AQEAAAAAaKPfwjY0MzMyODRGLUZCQkQtNTA1RS04MUUxLTc5NTkzODk2MUIzMg=='),
+    noPermissionType?: string(name='NoPermissionType', example='ImplicitDeny'),
+    policyType?: string(name='PolicyType', example='PRIORITY'),
+  }(name='AccessDeniedDetail'),
+  appliedOffset?: long(name='AppliedOffset', example='0'),
+  appliedRowLimit?: long(name='AppliedRowLimit', example='1000'),
+  hasMore?: boolean(name='HasMore', example='False'),
+  queryElapsedTimeMilliseconds?: long(name='QueryElapsedTimeMilliseconds', example='125'),
+  queryId?: string(name='QueryId', example='{\\"NodeId\\":\\"n_7844571364614995969\\"}'),
+  records?: [ map[string]string ](name='Records'),
+  recordsSizeBytes?: long(name='RecordsSizeBytes', example='8192'),
+  requestId?: string(name='RequestId', example='9B2F3840-****-475C-B269-2D5C3A31797C'),
+  returnedRowCount?: long(name='ReturnedRowCount', example='100'),
+}
+
+model QueryColumnarLogResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: QueryColumnarLogResponseBody(name='body'),
+}
+
+/**
+  * @description ****
+  * @param request  the request parameters of QueryColumnarLog  QueryColumnarLogRequest
+  * @return QueryColumnarLogResponse
+ */
+async function queryColumnarLog(request: QueryColumnarLogRequest): QueryColumnarLogResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'QueryColumnarLog', 'POST', '/', 'json', false, 'json', request);
+}
+
+model QueryColumnarLogSSERequest {
+  DBInstanceName: string(name='DBInstanceName', description='This parameter is required.', example='pxc-********', position='Query'),
+  maxResultRows?: long(name='MaxResultRows', description='最多返回的结果行数。不传时不设置调用方行数上限，仅受服务端内部最大 10000 行限制；显式取值范围 1~10000，连续取数请在 SQL 中自行分页。', example='1000', minimum=1, maximum=10000, position='Query'),
+  regionId: string(name='RegionId', description='This parameter is required.', example='cn-hangzhou', position='Query'),
+  SQL: string(name='SQL', description='This parameter is required.', example='select * from device where name = \\"108001022203365239\\"', maxLength=65536, position='Query'),
+}
+
+model QueryColumnarLogSSEResponseBody = {
+  accessDeniedDetail?: {
+    authAction?: string(name='AuthAction', example='xxx'),
+    authPrincipalDisplayName?: string(name='AuthPrincipalDisplayName', example='xxx'),
+    authPrincipalOwnerId?: string(name='AuthPrincipalOwnerId', example='111'),
+    authPrincipalType?: string(name='AuthPrincipalType', example='222'),
+    encodedDiagnosticMessage?: string(name='EncodedDiagnosticMessage', example='AQEAAAAAaKPfwjY0MzMyODRGLUZCQkQtNTA1RS04MUUxLTc5NTkzODk2MUIzMg=='),
+    noPermissionType?: string(name='NoPermissionType', description='NoPermissionType', example='ImplicitDeny'),
+    policyType?: string(name='PolicyType', example='PRIORITY'),
+  }(name='AccessDeniedDetail'),
+  appliedOffset?: long(name='AppliedOffset', example='0'),
+  appliedRowLimit?: long(name='AppliedRowLimit', example='1000'),
+  code?: string(name='Code', example='InternalError'),
+  hasMore?: boolean(name='HasMore', example='False'),
+  message?: string(name='Message'),
+  partial?: boolean(name='Partial'),
+  queryElapsedTimeMilliseconds?: long(name='QueryElapsedTimeMilliseconds', example='125'),
+  queryId?: string(name='QueryId', example='5d3d88ea-3df0-4c2d-a8bb-2ec423b86b56'),
+  records?: [ map[string]string ](name='Records'),
+  recordsSizeBytes?: long(name='RecordsSizeBytes', example='8192'),
+  requestId?: string(name='RequestId', example='C457B28E-9CAB-4B77-B5C6-5D71B7870B6E'),
+  retryable?: boolean(name='Retryable', example='true'),
+  returnedRowCount?: long(name='ReturnedRowCount', example='100'),
+  sequence?: long(name='Sequence', example='1'),
+  type?: string(name='Type', example='RECORD'),
+}
+
+model QueryColumnarLogSSEResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: QueryColumnarLogSSEResponseBody(name='body'),
+}
+
+/**
+  * @description ****
+  * @param request  the request parameters of QueryColumnarLogSSE  QueryColumnarLogSSERequest
+  * @return QueryColumnarLogSSEResponse
+ */
+async function queryColumnarLogSSE(request: QueryColumnarLogSSERequest): QueryColumnarLogSSEResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'QueryColumnarLogSSE', 'POST', '/', 'json', false, 'json', request);
+}
+
+function queryColumnarLogSSEWithResponseIterable(request: QueryColumnarLogSSERequest): iterator[QueryColumnarLogSSEResponseBody] {
+  @handler.validateRequestModel(request);
+  yield @handler.doSSERequest('SSE', 'QueryColumnarLogSSE', 'POST', '/', 'json', false, 'json', request);
 }
 
 model RefreshImportMetaRequest {
