@@ -88,6 +88,7 @@ model Evaluator {
   resultName?: string(name='resultName'),
   resultType?: string(name='resultType'),
   type?: string(name='type'),
+  variableExtractorMapping?: map[string]EvaluatorVariableExtractorMappingValue(name='variableExtractorMapping'),
   variableMapping?: map[string]string(name='variableMapping'),
 }
 
@@ -367,7 +368,7 @@ model CreateEvaluationTaskRequest {
   config?: map[string]string(name='config', example='{"dataScope":"trace"}', position='Body'),
   dataFilter?: string(name='dataFilter', example='{"query":"serviceName=\\"checkout-service\\"","maxRecords":10,"samplingRate":100}', position='Body'),
   dataType?: string(name='dataType', example='trace', position='Body'),
-  description?: string(name='description', position='Body'),
+  description?: string(name='description', example='评估线上 Agent 链路任务完成度', position='Body'),
   evaluators?: [
     Evaluator
   ](name='evaluators', example='[{"evaluatorRef":"Builtin.agent_task_completion","resultName":"agent_task_completion","resultType":"score","variableMapping":{"input":"trace.input","output":"trace.output","agent_trajectory":"trace.agent_trajectory"}}]', position='Body'),
@@ -575,6 +576,29 @@ model CreatePipelineRequest {
   }(name='pipeline', position='Body'),
   pipelineName?: string(name='pipelineName', example='my-pipeline', position='Body'),
   sink?: {
+    condition?: {
+      defaultSink?: {
+        dataset?: {
+          agentSpace?: string(name='agentSpace', example='my-agent-space'),
+          dataset?: string(name='dataset', example='other-result'),
+        }(name='dataset'),
+        type?: string(name='type', example='dataset'),
+      }(name='defaultSink'),
+      matchMode?: string(name='matchMode', example='all'),
+      routes?: [ 
+        {
+          expression?: string(name='expression', example='* | where intent = \\"refund\\"'),
+          id?: string(name='id', example='refund'),
+          sink?: {
+            dataset?: {
+              agentSpace?: string(name='agentSpace', example='my-agent-space'),
+              dataset?: string(name='dataset', example='refund-result'),
+            }(name='dataset'),
+            type?: string(name='type', example='dataset'),
+          }(name='sink'),
+        }
+      ](name='routes'),
+    }(name='condition'),
     dataset?: {
       agentSpace?: string(name='agentSpace', example='my-agent-space'),
       dataset?: string(name='dataset', example='my-dataset'),
@@ -582,6 +606,16 @@ model CreatePipelineRequest {
     type?: string(name='type', example='Dataset'),
   }(name='sink', position='Body'),
   source?: {
+    dataset?: {
+      dataset?: string(name='dataset', example='my-dataset'),
+      filter?: string(name='filter', example='status = \\"pending\\"'),
+    }(name='dataset'),
+    inputFields?: [ 
+      {
+        name?: string(name='name', example='question'),
+        type?: string(name='type', example='text'),
+      }
+    ](name='inputFields'),
     logstore?: {
       logstore?: string(name='logstore', example='my-sls-logstore'),
       project?: string(name='project', example='my-sls-project'),
@@ -1367,7 +1401,7 @@ model GetPipelineResponseBody = {
   createTime?: string(name='createTime', description='Use the UTC time format: yyyy-MM-ddTHH:mm:ssZ', example='2026-01-01T00:00:00Z'),
   description?: string(name='description', example='我的流水线'),
   executePolicy?: {
-    mode?: string(name='mode', example='Scheduled'),
+    mode?: string(name='mode', example='scheduled'),
     runOnce?: {
       fromTime?: long(name='fromTime', example='1735660800000'),
       toTime?: long(name='toTime', example='1735747200000'),
@@ -1392,19 +1426,52 @@ model GetPipelineResponseBody = {
   requestId?: string(name='requestId', example='9ACFB10A-1B2C-3D4E-5F6G-7H8I9J0K1L2M'),
   scheduleStatus?: string(name='scheduleStatus', example='Active'),
   sink?: {
+    condition?: {
+      defaultSink?: {
+        dataset?: {
+          agentSpace?: string(name='agentSpace', example='my-agent-space'),
+          dataset?: string(name='dataset', example='other-result'),
+        }(name='dataset'),
+        type?: string(name='type', example='dataset'),
+      }(name='defaultSink'),
+      matchMode?: string(name='matchMode', example='all'),
+      routes?: [ 
+        {
+          expression?: string(name='expression', example='* | where intent = \\"refund\\"'),
+          id?: string(name='id', example='refund'),
+          sink?: {
+            dataset?: {
+              agentSpace?: string(name='agentSpace', example='my-agent-space'),
+              dataset?: string(name='dataset', example='refund-result'),
+            }(name='dataset'),
+            type?: string(name='type', example='dataset'),
+          }(name='sink'),
+        }
+      ](name='routes'),
+    }(name='condition'),
     dataset?: {
       agentSpace?: string(name='agentSpace', example='my-agent-space'),
       dataset?: string(name='dataset', example='my-dataset'),
     }(name='dataset'),
-    type?: string(name='type', example='Dataset'),
+    type?: string(name='type', example='condition'),
   }(name='sink'),
   source?: {
+    dataset?: {
+      dataset?: string(name='dataset', example='my-dataset'),
+      filter?: string(name='filter', example='status = \\"pending\\"'),
+    }(name='dataset'),
+    inputFields?: [ 
+      {
+        name?: string(name='name', example='question'),
+        type?: string(name='type', example='text'),
+      }
+    ](name='inputFields'),
     logstore?: {
       logstore?: string(name='logstore', example='my-sls-logstore'),
       project?: string(name='project', example='my-sls-project'),
       query?: string(name='query', example='* | SELECT *'),
     }(name='logstore'),
-    type?: string(name='type', example='SLS'),
+    type?: string(name='type', example='dataset'),
   }(name='source'),
   updateTime?: string(name='updateTime', description='Use the UTC time format: yyyy-MM-ddTHH:mm:ssZ', example='2026-01-02T00:00:00Z'),
   workspace?: string(name='workspace', example='my-workspace'),
@@ -2099,6 +2166,16 @@ model PreviewPipelineRequest {
     ](name='nodes'),
   }(name='pipeline', position='Body'),
   source?: {
+    dataset?: {
+      dataset?: string(name='dataset', example='my-dataset'),
+      filter?: string(name='filter', example='status = \\"pending\\"'),
+    }(name='dataset'),
+    inputFields?: [ 
+      {
+        name?: string(name='name', example='question'),
+        type?: string(name='type', example='text'),
+      }
+    ](name='inputFields'),
     logstore?: {
       logstore?: string(name='logstore', example='my-sls-logstore'),
       project?: string(name='project', example='my-sls-project'),
@@ -2590,18 +2667,52 @@ model UpdatePipelineRequest {
     ](name='nodes'),
   }(name='pipeline', position='Body'),
   sink?: {
+    condition?: {
+      defaultSink?: {
+        dataset?: {
+          agentSpace?: string(name='agentSpace', example='my-agent-space'),
+          dataset?: string(name='dataset', example='other-result'),
+        }(name='dataset'),
+        type?: string(name='type', example='dataset'),
+      }(name='defaultSink'),
+      matchMode?: string(name='matchMode', example='all'),
+      routes?: [ 
+        {
+          expression?: string(name='expression', example='* | where intent = \\"refund\\"'),
+          id?: string(name='id', example='refund'),
+          sink?: {
+            dataset?: {
+              agentSpace?: string(name='agentSpace', example='my-agent-space'),
+              dataset?: string(name='dataset', example='refund-result'),
+            }(name='dataset'),
+            type?: string(name='type', example='dataset'),
+          }(name='sink'),
+        }
+      ](name='routes'),
+    }(name='condition'),
     dataset?: {
       agentSpace?: string(name='agentSpace', example='my-agent-space'),
       dataset?: string(name='dataset', example='my-dataset'),
     }(name='dataset'),
-    type?: string(name='type', example='Dataset'),
+    type?: string(name='type', example='condition'),
   }(name='sink', position='Body'),
   source?: {
+    dataset?: {
+      dataset?: string(name='dataset', example='my-dataset'),
+      filter?: string(name='filter', example='status = \\"pending\\"'),
+    }(name='dataset'),
+    inputFields?: [ 
+      {
+        name?: string(name='name', example='question'),
+        type?: string(name='type', example='text'),
+      }
+    ](name='inputFields'),
     logstore?: {
       logstore?: string(name='logstore', example='my-sls-logstore'),
+      project?: string(name='project', example='my-sls-project'),
       query?: string(name='query', example='* | SELECT *'),
     }(name='logstore'),
-    type?: string(name='type', example='SLS'),
+    type?: string(name='type', example='dataset'),
   }(name='source', position='Body'),
   clientToken?: string(name='clientToken', example='a1b2c3d4-1234-5678-90ab-cdef12345678', position='Query'),
 }
@@ -2623,5 +2734,11 @@ model UpdatePipelineResponse = {
 async function updatePipeline(request: UpdatePipelineRequest): UpdatePipelineResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RESTFUL', 'UpdatePipeline', 'PUT', '/agentspace/{agentSpace}/pipeline/{pipelineName}', 'json', false, 'json', request);
+}
+
+model EvaluatorVariableExtractorMappingValue = {
+  originField?: string(name='originField', example='trace.output'),
+  type?: string(name='type', example='jsonpath'),
+  expression?: string(name='expression', example='$.order.expected'),
 }
 
