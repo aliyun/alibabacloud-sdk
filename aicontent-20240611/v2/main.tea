@@ -519,6 +519,20 @@ model MetricValueDTO {
   value?: float(name='value', description='Metric value', example='100'),
 }
 
+model MiguSourceDownloadDTO {
+  downloadUrl?: string(name='downloadUrl', description='The OSS pre-signed download URL.', example='https://bucket.oss-cn-beijing.aliyuncs.com/pipeline/source/xxx.mp4?Expires=1700000000&Signature=xxx'),
+  expiresAt?: string(name='expiresAt', description='The expiration time of the download URL, in RFC 3339 format.', example='2026-08-28T12:00:00Z'),
+  method?: string(name='method', description='The download request method. The value is fixed to GET.', example='GET'),
+  sourceId?: string(name='sourceId', description='The unique identifier of the source file.', example='3f2a1b9c8d7e4f60a1b2c3d4e5f6a7b8'),
+}
+
+model MiguSourceUploadDTO {
+  expiresAt?: string(name='expiresAt', description='The expiration time of the upload URL in RFC 3339 format.', example='2026-08-28T12:00:00Z'),
+  fileType?: string(name='fileType', description='The type of the source file (uppercase). Valid values: VIDEO, IMAGE, AUDIO, and TEXT.', example='VIDEO'),
+  sourceId?: string(name='sourceId', description='The unique identifier of the source file, used for subsequent generation tasks and downloads.', example='3f2a1b9c8d7e4f60a1b2c3d4e5f6a7b8'),
+  uploadUrl?: string(name='uploadUrl', description='The OSS pre-signed upload URL. Use the PUT method to upload the file.', example='https://bucket.oss-cn-beijing.aliyuncs.com/pipeline/source/xxx.mp4?Expires=1700000000&Signature=xxx'),
+}
+
 model ModelCreateCmd {
   apiKey?: string(name='apiKey', example='sk-xxxx'),
   baseUrl?: string(name='baseUrl', example='https://dashscope.aliyuncs.com'),
@@ -8468,6 +8482,158 @@ async function modelRouterListSubscriptions(id: string, request: ModelRouterList
   var runtime = new $RuntimeOptions{};
   var headers : map[string]string = {};
   return modelRouterListSubscriptionsWithOptions(id, request, headers, runtime);
+}
+
+model ModelRouterMiguDownloadSourceRequest {
+  sourceId?: string(name='sourceId', description='The unique identifier of the source file. This is the sourceId returned by the upload operation.
+
+This parameter is required.', example='3f2a1b9c8d7e4f60a1b2c3d4e5f6a7b8'),
+}
+
+model ModelRouterMiguDownloadSourceResponseBody = {
+  data?: MiguSourceDownloadDTO(name='data', description='The data object.', example='{}'),
+  errCode?: string(name='errCode', description='The business error code. This value is passed through as-is from the console and is not mapped to platform standard error codes. Valid values: ERROR_PARAMETERS: Missing or invalid parameters. ERROR_NOT_FOUND: The source file does not exist or does not belong to the current account. ERROR_SOURCE_TRANSFERRING: The source file is being transferred. ERROR_SOURCE_EXPIRED: The source file has expired. ERROR_SERVER_INTERNAL: Internal error.', example='ERROR_NOT_FOUND'),
+  errMessage?: string(name='errMessage', description='The error message.', example='Unknown error'),
+  httpStatusCode?: int32(name='httpStatusCode', description='The business status code. Valid values: 0: Success. 400/403/404/409/410/500: Business error. Refer to errCode for details.', example='0'),
+  requestId?: string(name='requestId', description='The request ID.', example='xxxx-xxxx-xxxx-xxxxxxxx'),
+  success?: boolean(name='success', description='Indicates whether the request was successful.', example='true'),
+}
+
+model ModelRouterMiguDownloadSourceResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ModelRouterMiguDownloadSourceResponseBody(name='body'),
+}
+
+/**
+ * @summary Retrieves a pre-signed URL for downloading a Migu source file.
+ *
+ * @description Creates a user.
+ *
+ * @param request ModelRouterMiguDownloadSourceRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return ModelRouterMiguDownloadSourceResponse
+ */
+@context("modelRouterMiguDownloadSourceWithContext")
+async function modelRouterMiguDownloadSourceWithOptions(request: ModelRouterMiguDownloadSourceRequest, headers: map[string]string, runtime: $RuntimeOptions): ModelRouterMiguDownloadSourceResponse {
+  request.validate();
+  var query : map[string]any = {};
+  if (!$isNull(request.sourceId)) {
+    query['sourceId'] = request.sourceId;
+  }
+
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'ModelRouterMiguDownloadSource',
+    version = '20240611',
+    protocol = 'HTTPS',
+    pathname = `/api/v1/modelRouter/open/pipeline/api/aigc/source/download`,
+    method = 'GET',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Retrieves a pre-signed URL for downloading a Migu source file.
+ *
+ * @description Creates a user.
+ *
+ * @param request ModelRouterMiguDownloadSourceRequest
+ * @return ModelRouterMiguDownloadSourceResponse
+ */
+async function modelRouterMiguDownloadSource(request: ModelRouterMiguDownloadSourceRequest): ModelRouterMiguDownloadSourceResponse {
+  var runtime = new $RuntimeOptions{};
+  var headers : map[string]string = {};
+  return modelRouterMiguDownloadSourceWithOptions(request, headers, runtime);
+}
+
+model ModelRouterMiguUploadSourceRequest {
+  fileType?: string(name='fileType', description='The source file type. Valid values: VIDEO, IMAGE, AUDIO, and TEXT.
+
+This parameter is required.', example='VIDEO'),
+  serviceName?: string(name='serviceName', description='The business service name, such as kling, vidu, or wonder.
+
+This parameter is required.', example='kling'),
+}
+
+model ModelRouterMiguUploadSourceResponseBody = {
+  data?: MiguSourceUploadDTO(name='data', description='The data object.', example='{}'),
+  errCode?: string(name='errCode', description='The business error code. The console passes through the original value without mapping to standard platform error codes. Valid values:
+- ERROR_PARAMETERS: Missing or invalid parameters.
+- ERROR_SERVER_INTERNAL: Internal error.', example='ERROR_PARAMETERS'),
+  errMessage?: string(name='errMessage', description='The error message.', example='Unknown error'),
+  httpStatusCode?: int32(name='httpStatusCode', description='The business status code. Valid values:
+- 0: Success.
+- 400/403/500: Business error. For details, see errCode.', example='0'),
+  requestId?: string(name='requestId', description='The request ID.', example='xxxx-xxxx-xxxx-xxxxxxxx'),
+  success?: boolean(name='success', description='Indicates whether the request is successful.', example='true'),
+}
+
+model ModelRouterMiguUploadSourceResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ModelRouterMiguUploadSourceResponseBody(name='body'),
+}
+
+/**
+ * @summary Manages Migu source files and retrieves a pre-signed URL for source file upload.
+ *
+ * @description Updates a user.
+ *
+ * @param request ModelRouterMiguUploadSourceRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return ModelRouterMiguUploadSourceResponse
+ */
+@context("modelRouterMiguUploadSourceWithContext")
+async function modelRouterMiguUploadSourceWithOptions(request: ModelRouterMiguUploadSourceRequest, headers: map[string]string, runtime: $RuntimeOptions): ModelRouterMiguUploadSourceResponse {
+  request.validate();
+  var body : map[string]any = {};
+  if (!$isNull(request.fileType)) {
+    body['fileType'] = request.fileType;
+  }
+  if (!$isNull(request.serviceName)) {
+    body['serviceName'] = request.serviceName;
+  }
+
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    headers = headers,
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'ModelRouterMiguUploadSource',
+    version = '20240611',
+    protocol = 'HTTPS',
+    pathname = `/api/v1/modelRouter/open/pipeline/api/aigc/source/upload`,
+    method = 'POST',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Manages Migu source files and retrieves a pre-signed URL for source file upload.
+ *
+ * @description Updates a user.
+ *
+ * @param request ModelRouterMiguUploadSourceRequest
+ * @return ModelRouterMiguUploadSourceResponse
+ */
+async function modelRouterMiguUploadSource(request: ModelRouterMiguUploadSourceRequest): ModelRouterMiguUploadSourceResponse {
+  var runtime = new $RuntimeOptions{};
+  var headers : map[string]string = {};
+  return modelRouterMiguUploadSourceWithOptions(request, headers, runtime);
 }
 
 model ModelRouterQueryApiKeyResponseBody = {
