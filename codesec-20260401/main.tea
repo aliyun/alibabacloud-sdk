@@ -11,8 +11,12 @@ extends OpenApi;
 
 init(config: OpenApi.Config){
   super(config);
-  @endpointRule = '';
-  
+  @endpointRule = 'regional';
+  @endpointMap = {
+    'ap-southeast-1' = 'codesec.ap-southeast-1.aliyuncs.com',
+    'cn-hangzhou' = 'codesec.cn-hangzhou.aliyuncs.com',
+  };
+
   checkConfig(config);
   @endpoint = getEndpoint('codesec', @regionId, @endpointRule, @network, @suffix, @endpointMap, @endpoint);
 }
@@ -29,35 +33,37 @@ function getEndpoint(productId: string, regionId: string, endpointRule: string, 
 }
 
 model DescribeProjectsRequest {
-  maxResults?: int32(name='maxResults'),
-  nextToken?: string(name='nextToken'),
-  query?: string(name='query'),
+  maxResults?: int32(name='maxResults', description='The number of entries per page. Default value: 10. Maximum value: 20.', example='20'),
+  nextToken?: string(name='nextToken', description='The pagination token. Do not specify this parameter or set it to an empty string for the first page. For subsequent pages, pass the nextToken value from the previous response without any modification. If the nextToken in the response is empty, the last page has been reached.', example='eyJ0IjoiMjAyNi0wNy0xNlQwNzo1MzozOC4wMjFaIiwiaSI6MTAwMDQ0OH0'),
+  query?: string(name='query', description='Fuzzy matches projects by project name or prompt.', example='project'),
 }
 
 model DescribeProjectsResponseBody = {
   items?: [ 
     {
-      configRevision?: long(name='configRevision'),
-      createdAt?: string(name='createdAt', description='扫描项目创建时间（RFC3339）'),
-      createdBy?: string(name='createdBy'),
-      description?: string(name='description'),
+      configRevision?: long(name='configRevision', description='The project configuration version number.', example='1'),
+      createdAt?: string(name='createdAt', description='The creation time.', example='2026-07-28T03:36:31.573Z'),
+      createdBy?: string(name='createdBy', description='The user ID of the project creator.', example='11111'),
+      description?: string(name='description', description='The description.', example='111'),
       engines?: {
-        sast?: boolean(name='sast'),
-        sca?: boolean(name='sca'),
-      }(name='engines'),
-      id?: long(name='id'),
-      instructionPrompt?: string(name='instructionPrompt'),
-      name?: string(name='name'),
+        sast?: boolean(name='sast', description='Indicates whether SAST is supported.', example='true'),
+        sca?: boolean(name='sca', description='Indicates whether SCA is supported.', example='true'),
+      }(name='engines', description='The engine switches for the project or scan snapshot (SAST and SCA only).'),
+      id?: long(name='id', description='The project ID.', example='934'),
+      instructionPrompt?: string(name='instructionPrompt', description='The natural language prompt provided by the user that describes scanning or result processing preferences, such as ignoring low-risk vulnerabilities.', example='1111'),
+      name?: string(name='name', description='The project name.', example='manual-hDecBn'),
       source?: {
-        type?: string(name='type'),
-      }(name='source'),
-      updatedAt?: string(name='updatedAt', description='扫描项目更新时间（RFC3339）'),
+        type?: string(name='type', description='The project type.', example='manual_upload'),
+      }(name='source', description='The project source.'),
+      updatedAt?: string(name='updatedAt', description='The update time.', example='2026-07-28T03:36:31.573Z'),
     }
-  ](name='items'),
-  maxResults?: int32(name='maxResults'),
-  nextToken?: string(name='nextToken'),
-  requestId?: string(name='requestId'),
-  totalCount?: long(name='totalCount'),
+  ](name='items', description='The list of projects.'),
+  maxResults?: int32(name='maxResults', description='The page size.
+
+> If not specified, all projects are displayed.', example='10'),
+  nextToken?: string(name='nextToken', description='The pagination token. An empty value indicates the last page.', example='eyJ0IjoiMjAyNi0wNy0xNlQwNzo1MzozOC4wMjFaIiwiaSI6MTAwMDQ0OH0'),
+  requestId?: string(name='requestId', description='Id of the request', example='9A1F403F-0A85-5578-8B7C-55E3E9408659'),
+  totalCount?: long(name='totalCount', description='The total number of entries.', example='2'),
 }
 
 model DescribeProjectsResponse = {
@@ -67,7 +73,7 @@ model DescribeProjectsResponse = {
 }
 
 /**
- * @summary List projects for tenant
+ * @summary Lists projects under the tenant with pagination, supporting fuzzy search by name or prompt.
  *
  * @param request DescribeProjectsRequest
  * @param headers map
@@ -106,7 +112,7 @@ async function describeProjectsWithOptions(request: DescribeProjectsRequest, hea
 }
 
 /**
- * @summary List projects for tenant
+ * @summary Lists projects under the tenant with pagination, supporting fuzzy search by name or prompt.
  *
  * @param request DescribeProjectsRequest
  * @return DescribeProjectsResponse
@@ -118,76 +124,95 @@ async function describeProjects(request: DescribeProjectsRequest): DescribeProje
 }
 
 model DescribeScanResultsByEngineRequest {
-  baselineState?: string(name='baselineState', description='按 baseline_state 过滤 findings。值为 new/unchanged/absent/updated 之一。'),
-  lang?: string(name='lang'),
-  maxResults?: long(name='maxResults'),
-  nextToken?: string(name='nextToken'),
-  packageName?: string(name='packageName'),
+  baselineState?: string(name='baselineState', description='Filters results by incremental scan baseline status. Valid values: new, unchanged, absent, updated.', example='unchanged'),
+  lang?: string(name='lang', description='The language. Valid values:
+* zh: Chinese (default).
+* en: English.', example='zh'),
+  maxResults?: long(name='maxResults', description='The number of entries per page. Default value: 10. Maximum value: 50.', example='50'),
+  nextToken?: string(name='nextToken', description='The pagination token. Do not pass nextToken or pass an empty string for the first page. To retrieve the next page, pass the nextToken value from the previous response without any modification. When the nextToken in the response is empty, you have reached the last page.', example='eyJ0IjoiMjAyNi0wNy0xNlQwNzo1MzozOC4wMjFaIiwiaSI6MTAwMDQ0OH0'),
+  packageName?: string(name='packageName', description='Performs a fuzzy match by component name. This parameter takes effect only when engine is set to sca.', example='app10000006824_fulljoin_61b2c_global_ad_budget_ctrl_v1.5.jar'),
 }
 
 model DescribeScanResultsByEngineResponseBody = {
-  engine?: string(name='engine'),
+  engine?: string(name='engine', description='The engine type. Valid values:
+* sast
+* sca', example='sca'),
   items?: [ 
     {
-      baselineState?: string(name='baselineState'),
-      category?: string(name='category'),
-      codeSnippet?: string(name='codeSnippet'),
-      confidence?: double(name='confidence'),
-      createdAt?: string(name='createdAt', description='发现记录创建时间（RFC3339）'),
-      cweId?: string(name='cweId'),
-      description?: string(name='description'),
-      endLine?: long(name='endLine'),
-      filePath?: string(name='filePath'),
-      id?: long(name='id'),
-      itemSummary?: string(name='itemSummary'),
-      owaspCategory?: string(name='owaspCategory'),
-      projectName?: string(name='projectName'),
-      remediationCodeExample?: string(name='remediationCodeExample'),
-      remediationSuggestion?: string(name='remediationSuggestion'),
-      ruleId?: string(name='ruleId'),
+      baselineState?: string(name='baselineState', description='Filters results by incremental scan baseline status. Valid values: new, unchanged, absent, updated.', example='new'),
+      category?: string(name='category', description='The category. The system classifies files based on file name extensions and MIME types. Common categories include doc, image, audio, and video.', example='SQL Injection'),
+      codeSnippet?: string(name='codeSnippet', description='The code snippet near the primary location (SAST).', example='1'),
+      confidence?: double(name='confidence', description='The rule confidence level, ranging from 0 to 1. This field is common in SAST results and is omitted if not applicable.', example='1'),
+      createdAt?: string(name='createdAt', description='The time when the finding record was created (RFC 3339 format).', example='2026-07-28T03:36:31.573Z'),
+      cweId?: string(name='cweId', description='The associated CWE ID.', example='CWE-601'),
+      description?: string(name='description', description='The issue description.', example='User input is directly concatenated into an SQL statement, which may lead to SQL injection.'),
+      endLine?: long(name='endLine', description='The end line number.', example='1'),
+      filePath?: string(name='filePath', description='The file path.', example='aone2/2247063/1767838276141/Artifacts_EBookingApps_Pipeline_V2_Staging_131.tgz'),
+      id?: long(name='id', description='The project ID.', example='934'),
+      itemSummary?: string(name='itemSummary', description='The brief summary of the finding. Unlike description, this field is more of a conclusion statement.', example='User input is used to construct SQL queries without sanitization'),
+      owaspCategory?: string(name='owaspCategory', description='The OWASP category.', example='A01:2021-Broken Access Control'),
+      projectName?: string(name='projectName', description='The project name.', example='cdp2cdl_cdp_sha_nprd'),
+      remediationCodeExample?: string(name='remediationCodeExample', description='The remediation code example.', example='String sql = \\\\"SELECT * FROM users WHERE name = ?\\\\";\\\\nPreparedStatement ps = conn.prepareStatement(sql);\\\\nps.setString(1, username);\\\\nResultSet rs = ps.executeQuery();'),
+      remediationSuggestion?: string(name='remediationSuggestion', description='The remediation suggestion.', example='Use PreparedStatement with parameterized queries instead of string concatenation'),
+      ruleId?: string(name='ruleId', description='The rule ID.', example='java-sqli-001'),
       scaComponent?: {
-        cveCount?: long(name='cveCount'),
+        cveCount?: long(name='cveCount', description='The number of CVEs.', example='1'),
         cveDetails?: [ 
           {
-            cveId?: string(name='cveId'),
-            cvss?: double(name='cvss'),
-            cvssVersion?: string(name='cvssVersion'),
-            description?: string(name='description'),
-            references?: [ string ](name='references'),
-            severity?: string(name='severity'),
+            cveId?: string(name='cveId', description='The associated CWE ID.', example='CVE-2021-44228'),
+            cvss?: double(name='cvss', description='The CVSS score.', example='1'),
+            cvssVersion?: string(name='cvssVersion', description='The CVSS version.', example='v2.0'),
+            description?: string(name='description', description='The description.', example='Apache Log4j2 JNDI features do not protect against attacker-controlled LDAP and other JNDI-related endpoints.'),
+            references?: [ string ](name='references', description='The reference information.'),
+            severity?: string(name='severity', description='The severity level. Valid values:
+* critical
+* high
+* medium
+* low', example='critical'),
           }
-        ](name='cveDetails'),
-        introPaths?: [ string ](name='introPaths'),
-        isDirect?: boolean(name='isDirect'),
-        packageName?: string(name='packageName'),
-        remediation?: string(name='remediation'),
-        version?: string(name='version'),
-      }(name='scaComponent'),
-      scanId?: long(name='scanId'),
-      severity?: string(name='severity'),
-      source?: string(name='source'),
-      startLine?: long(name='startLine'),
-      status?: string(name='status'),
+        ](name='cveDetails', description='The list of CVE details associated with a component in the SCA finding.'),
+        introPaths?: [ string ](name='introPaths', description='The list of dependency introduction paths in the SCA component information. This field is returned only when engine is set to sca.'),
+        isDirect?: boolean(name='isDirect', description='Indicates whether the component is a direct dependency.', example='false'),
+        packageName?: string(name='packageName', description='The component coordinate.', example='org.apache.logging.log4j:log4j-core'),
+        remediation?: string(name='remediation', description='The component-level remediation suggestion.', example='Upgrade log4j-core to version 2.17.1 or later'),
+        version?: string(name='version', description='The component version.', example='2.14.1'),
+      }(name='scaComponent', description='The SCA component information. This field is returned only when engine is set to sca.'),
+      scanId?: long(name='scanId', description='The task ID.', example='3176'),
+      severity?: string(name='severity', description='The severity level. Valid values:
+* critical 
+* high 
+* medium 
+* low', example='high'),
+      source?: string(name='source', description='The source.', example='todo_open_dingoj06pvqfeayy3lkr'),
+      startLine?: long(name='startLine', description='The start line number.', example='1'),
+      status?: string(name='status', description='The status. Valid values:
+* running: Running.
+* completed: Completed.
+* failed: Failed.', example='completed'),
       taintFlow?: [ 
         {
-          code?: string(name='code'),
-          file?: string(name='file'),
-          kind?: string(name='kind'),
-          line?: int32(name='line'),
-          note?: string(name='note'),
-          step?: int32(name='step'),
+          code?: string(name='code', description='The code.', example='stmt.executeQuery(sql);'),
+          file?: string(name='file', description='The file path.', example='src/main/java/com/example/UserService.java'),
+          kind?: string(name='kind', description='The role type in the taint propagation chain. Valid values:
+* source: taint source.
+* propagator: propagation node.	
+* validation: validation or scrubbing center.	
+* sink: dangerous sink.', example='source'),
+          line?: int32(name='line', description='The line number.', example='111'),
+          note?: string(name='note', description='The remarks.', example='Sink: SQL query executed'),
+          step?: int32(name='step', description='The step number, starting from 0 and incrementing.', example='1'),
         }
-      ](name='taintFlow'),
-      taintFlowSummary?: string(name='taintFlowSummary'),
-      title?: string(name='title'),
+      ](name='taintFlow', description='The SAST taint analysis call chain that describes the complete propagation path of sensitive data from the taint source to the dangerous sink. This field is returned only when engine is set to sast.'),
+      taintFlowSummary?: string(name='taintFlowSummary', description='The text summary of the taint call chain. This field is returned only when engine is set to sast.', example='User input flows from HTTP parameter into SQL query executio'),
+      title?: string(name='title', description='The issue title.', example='SQL Injection Risk'),
     }
-  ](name='items'),
-  maxResults?: long(name='maxResults'),
-  nextToken?: string(name='nextToken'),
-  projectId?: long(name='projectId'),
-  requestId?: string(name='requestId'),
-  scanId?: long(name='scanId'),
-  totalCount?: long(name='totalCount'),
+  ](name='items', description='The result list.'),
+  maxResults?: long(name='maxResults', description='The number of entries per page.', example='10'),
+  nextToken?: string(name='nextToken', description='The pagination token. Do not pass nextToken or pass an empty string for the first page. To retrieve the next page, pass the nextToken value from the previous response without any modification. When the nextToken in the response is empty, you have reached the last page.', example='eyJ0IjoiMjAyNi0wNy0xNlQwNzo1MzozOC4wMjFaIiwiaSI6MTAwMDQ0OH0'),
+  projectId?: long(name='projectId', description='The project ID.', example='76851f2b5bf0187fbc29e8bca4'),
+  requestId?: string(name='requestId', description='Id of the request', example='9A1F403F-0A85-5578-8B7C-55E3E9408659'),
+  scanId?: long(name='scanId', description='The task ID.', example='3088795'),
+  totalCount?: long(name='totalCount', description='The total number of entries.', example='2'),
 }
 
 model DescribeScanResultsByEngineResponse = {
@@ -197,7 +222,7 @@ model DescribeScanResultsByEngineResponse = {
 }
 
 /**
- * @summary List findings for one engine (SAST / SCA)
+ * @summary Queries the task result list to retrieve detailed SAST or SCA results for a specific scan.
  *
  * @param request DescribeScanResultsByEngineRequest
  * @param headers map
@@ -242,7 +267,7 @@ async function describeScanResultsByEngineWithOptions(projectId: string, scanId:
 }
 
 /**
- * @summary List findings for one engine (SAST / SCA)
+ * @summary Queries the task result list to retrieve detailed SAST or SCA results for a specific scan.
  *
  * @param request DescribeScanResultsByEngineRequest
  * @return DescribeScanResultsByEngineResponse
@@ -254,44 +279,60 @@ async function describeScanResultsByEngine(projectId: string, scanId: string, en
 }
 
 model DescribeScansRequest {
-  maxResults?: long(name='maxResults'),
-  nextToken?: string(name='nextToken'),
-  status?: string(name='status'),
-  taskName?: string(name='taskName'),
+  maxResults?: long(name='maxResults', description='The number of entries per page. Default value: 20. Maximum value: 100.', example='10'),
+  nextToken?: string(name='nextToken', description='The pagination token. Do not specify this parameter or set it to an empty string for the first page. For subsequent pages, pass the nextToken value from the previous response without any modification. If the nextToken value in the response is empty, the last page has been reached.', example='eyJ0IjoiMjAyNi0wNy0xNlQwNzo1MzozOC4wMjFaIiwiaSI6MTAwMDQ0OH0'),
+  status?: string(name='status', description='The task status. Valid values:
+* running: Running.
+* completed: Completed.
+* failed: Failed.', example='completed'),
+  taskName?: string(name='taskName', description='The task name.', example='name'),
 }
 
 model DescribeScansResponseBody = {
   items?: [ 
     {
-      codeBundleId?: long(name='codeBundleId'),
-      createdAt?: string(name='createdAt', description='扫描任务创建时间（RFC3339）'),
-      createdBy?: string(name='createdBy'),
+      codeBundleId?: long(name='codeBundleId', description='The code bundle ID.', example='11'),
+      createdAt?: string(name='createdAt', description='The time when the task was created.', example='2026-07-28T03:36:31.573Z'),
+      createdBy?: string(name='createdBy', description='The user ID of the task creator.', example='11111'),
+      currentPhase?: string(name='currentPhase', description='The scan phase. Valid values:
+* threat_model: Threat modeling.
+* discovery: Vulnerability discovery.
+* panel: Vulnerability review.
+* adversarial: Adversarial verification.
+* finalize: Report generation.', example='finalize'),
       engineSnapshot?: {
-        sast?: boolean(name='sast'),
-        sca?: boolean(name='sca'),
-      }(name='engineSnapshot'),
-      finishedAt?: string(name='finishedAt', description='扫描结束时间（RFC3339）'),
-      id?: long(name='id'),
-      kind?: string(name='kind'),
-      projectId?: long(name='projectId'),
+        sast?: boolean(name='sast', description='Indicates whether SAST is supported.', example='true'),
+        sca?: boolean(name='sca', description='Indicates whether SCA is supported.', example='true'),
+      }(name='engineSnapshot', description='The supported scan types.'),
+      finishedAt?: string(name='finishedAt', description='The time when the scan finished.', example='2026-07-28T03:36:31.573Z'),
+      id?: long(name='id', description='The task ID.', example='934'),
+      kind?: string(name='kind', description='The scan type. Valid values:
+* full: Full scan.
+* incremental: Incremental scan.', example='full'),
+      projectId?: long(name='projectId', description='The project ID.', example='p-n72k9yrkq81ny7z'),
       scanMetrics?: {
-        credit?: float(name='credit'),
-        fileCount?: long(name='fileCount'),
-        linesOfCode?: long(name='linesOfCode'),
-        tokenTotal?: long(name='tokenTotal'),
-      }(name='scanMetrics'),
-      scanProgress?: long(name='scanProgress'),
-      startedAt?: string(name='startedAt', description='扫描开始时间（RFC3339）'),
-      status?: string(name='status'),
-      taskName?: string(name='taskName'),
-      updatedAt?: string(name='updatedAt', description='扫描任务更新时间（RFC3339）'),
-      workerId?: string(name='workerId'),
+        credit?: float(name='credit', description='The number of credits consumed by the task.', example='1.25'),
+        fileCount?: long(name='fileCount', description='The number of files.', example='459'),
+        linesOfCode?: long(name='linesOfCode', description='The number of lines of code.', example='11'),
+        tokenTotal?: long(name='tokenTotal', description='Deprecated.', example='1'),
+      }(name='scanMetrics', description='The scan result statistics information.'),
+      scanProgress?: long(name='scanProgress', description='The task progress.', example='100'),
+      startedAt?: string(name='startedAt', description='The time when the task started.', example='2026-07-28T03:36:31.573Z'),
+      status?: string(name='status', description='The task status. Valid values:
+* running: Running.
+* completed: Completed.
+* failed: Failed.
+* canceling: Being canceled. 
+* canceled: Canceled.', example='completed'),
+      taskName?: string(name='taskName', description='The task name.', example='1648622222394847-ha-cn-lm64p7tby01_dsl_kb_video_1773817008236_full'),
+      updatedAt?: string(name='updatedAt', description='The time when the task was last updated.', example='2026-07-28T03:36:31.573Z'),
+      workerId?: string(name='workerId', description='Deprecated.', example='1'),
     }
-  ](name='items'),
-  maxResults?: long(name='maxResults'),
-  nextToken?: string(name='nextToken'),
-  requestId?: string(name='requestId'),
-  totalCount?: long(name='totalCount'),
+  ](name='items', description='The task list.'),
+  maxResults?: long(name='maxResults', description='The page size.', example='10'),
+  nextToken?: string(name='nextToken', description='The pagination token. An empty value indicates the last page.', example='eyJ0IjoiMjAyNi0wNy0xNlQwNzo1MzozOC4wMjFaIiwiaSI6MTAwMDQ0OH0'),
+  requestId?: string(name='requestId', description='Id of the request', example='9A1F403F-0A85-5578-8B7C-55E3E9408659'),
+  totalCount?: long(name='totalCount', description='The total number of entries.', example='2'),
 }
 
 model DescribeScansResponse = {
@@ -301,7 +342,7 @@ model DescribeScansResponse = {
 }
 
 /**
- * @summary List scans for project
+ * @summary Lists scan tasks under a specified project with pagination.
  *
  * @param request DescribeScansRequest
  * @param headers map
@@ -343,7 +384,7 @@ async function describeScansWithOptions(projectId: string, request: DescribeScan
 }
 
 /**
- * @summary List scans for project
+ * @summary Lists scan tasks under a specified project with pagination.
  *
  * @param request DescribeScansRequest
  * @return DescribeScansResponse
