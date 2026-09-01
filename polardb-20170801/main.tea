@@ -837,23 +837,29 @@ async function addSQLRateLimitingRules(request: AddSQLRateLimitingRulesRequest):
 }
 
 model AnswerKnowledgeBaseRequest {
-  knowledgeBaseId?: string(name='KnowledgeBaseId', description='This parameter is required.', example='pkb-xxxxx'),
-  maxContextChars?: int32(name='MaxContextChars', example='16000'),
-  queryText?: string(name='QueryText', description='This parameter is required.', example='总结下今年财报'),
-  regionId?: string(name='RegionId', description='This parameter is required.', example='cn-beijing'),
-  rerankEnabled?: boolean(name='RerankEnabled', example='false'),
-  returnSources?: boolean(name='ReturnSources', example='true'),
-  scoreThreshold?: double(name='ScoreThreshold', example='0.7'),
-  searchMode?: string(name='SearchMode', example='semantic'),
-  systemPrompt?: string(name='SystemPrompt', example='This is a minimal test prompt for security verification.'),
-  topK?: int32(name='TopK', example='10'),
-  userInstructions?: string(name='UserInstructions', example='Return a short summary and test result.'),
+  knowledgeBaseId?: string(name='KnowledgeBaseId', description='The unique ID of the knowledge base.
+
+This parameter is required.', example='pkb-xxxxx'),
+  maxContextChars?: int32(name='MaxContextChars', description='The maximum number of context characters. Valid values: 1000 to 32000.', example='16000'),
+  queryText?: string(name='QueryText', description='The user query text.
+
+This parameter is required.', example='Summarize this year\\\\"s financial report'),
+  regionId?: string(name='RegionId', description='The region ID.
+
+This parameter is required.', example='cn-beijing'),
+  rerankEnabled?: boolean(name='RerankEnabled', description='Specifies whether to enable reranking. Default value: false.', example='false'),
+  returnSources?: boolean(name='ReturnSources', description='Specifies whether to return citation sources. Default value: true.', example='true'),
+  scoreThreshold?: double(name='ScoreThreshold', description='The similarity score threshold.', example='0.7'),
+  searchMode?: string(name='SearchMode', description='The search mode. Valid values: knn, rrf, precise, semantic, and balanced.', example='semantic'),
+  systemPrompt?: string(name='SystemPrompt', description='The system prompt.', example='This is a minimal test prompt for security verification.'),
+  topK?: int32(name='TopK', description='The number of results to recall during retrieval.', example='10'),
+  userInstructions?: string(name='UserInstructions', description='The supplementary user instructions.', example='Return a short summary and test result.'),
 }
 
 model AnswerKnowledgeBaseResponseBody = {
-  queryId?: string(name='QueryId', example='R3BGbnBqcXN******.2a5a23c9-******-179970533d30'),
-  requestId?: string(name='RequestId', example='A7E6A8FD-C50B-46B2-BA85-D8B8D3******'),
-  status?: string(name='Status', example='Running'),
+  queryId?: string(name='QueryId', description='The unique ID of the Q&A task.', example='R3BGbnBqcXN******.2a5a23c9-******-179970533d30'),
+  requestId?: string(name='RequestId', description='Id of the request', example='A7E6A8FD-C50B-46B2-BA85-D8B8D3******'),
+  status?: string(name='Status', description='The status of the Q&A task.', example='Running'),
 }
 
 model AnswerKnowledgeBaseResponse = {
@@ -863,7 +869,7 @@ model AnswerKnowledgeBaseResponse = {
 }
 
 /**
- * @summary 知识库单轮问答
+ * @summary Performs a single-round knowledge base question answering.
  *
  * @param request AnswerKnowledgeBaseRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -923,7 +929,7 @@ async function answerKnowledgeBaseWithOptions(request: AnswerKnowledgeBaseReques
 }
 
 /**
- * @summary 知识库单轮问答
+ * @summary Performs a single-round knowledge base question answering.
  *
  * @param request AnswerKnowledgeBaseRequest
  * @return AnswerKnowledgeBaseResponse
@@ -7686,11 +7692,14 @@ model CreateKBSyncLinkRequest {
   description?: string(name='Description', example='testDesc'),
   knowledgeBaseId?: string(name='KnowledgeBaseId', description='This parameter is required.', example='pkb-xxxxx'),
   linkName?: string(name='LinkName', description='This parameter is required.', example='testName'),
+  mcpEndpoint?: string(name='McpEndpoint'),
   regionId?: string(name='RegionId', description='This parameter is required.', example='cn-beijing'),
+  sheetMcpEndpoint?: string(name='SheetMcpEndpoint'),
   sourceDir?: string(name='SourceDir', description='This parameter is required.', example='https://example.feishu.cn/wiki/space/xxxxxx'),
   sourceType?: string(name='SourceType', description='This parameter is required.', example='FEISHU'),
   syncIntervalMinutes?: int32(name='SyncIntervalMinutes', example='30'),
   tenantId?: string(name='TenantId', example='63eexxxx-xxxx-xxxx-xxxx-xxxxxx090f82'),
+  userId?: string(name='UserId'),
 }
 
 model CreateKBSyncLinkResponseBody = {
@@ -7737,8 +7746,14 @@ async function createKBSyncLinkWithOptions(request: CreateKBSyncLinkRequest, run
   if (!Util.isUnset(request.linkName)) {
     query['LinkName'] = request.linkName;
   }
+  if (!Util.isUnset(request.mcpEndpoint)) {
+    query['McpEndpoint'] = request.mcpEndpoint;
+  }
   if (!Util.isUnset(request.regionId)) {
     query['RegionId'] = request.regionId;
+  }
+  if (!Util.isUnset(request.sheetMcpEndpoint)) {
+    query['SheetMcpEndpoint'] = request.sheetMcpEndpoint;
   }
   if (!Util.isUnset(request.sourceDir)) {
     query['SourceDir'] = request.sourceDir;
@@ -7751,6 +7766,9 @@ async function createKBSyncLinkWithOptions(request: CreateKBSyncLinkRequest, run
   }
   if (!Util.isUnset(request.tenantId)) {
     query['TenantId'] = request.tenantId;
+  }
+  if (!Util.isUnset(request.userId)) {
+    query['UserId'] = request.userId;
   }
   var req = new OpenApi.OpenApiRequest{ 
     query = OpenApiUtil.query(query),
@@ -9739,35 +9757,37 @@ async function createServiceLinkedRole(request: CreateServiceLinkedRoleRequest):
 }
 
 model CreateStoragePlanRequest {
-  autoUseCoupon?: boolean(name='AutoUseCoupon'),
-  clientToken?: string(name='ClientToken', description='A client token to ensure the idempotence of the request. Generate this token on your client. The token must be unique across different requests. It is case-sensitive and can contain up to 64 ASCII characters.', example='6000170000591aed949d0f5********************'),
+  autoUseCoupon?: boolean(name='AutoUseCoupon', description='Specifies whether to automatically use coupons. Valid values:
+* true (default): Uses coupons.
+* false: Does not use coupons.'),
+  clientToken?: string(name='ClientToken', description='The client token that is used to ensure the idempotency of the request. You can use the client to generate the token, but you must make sure that the token is unique among different requests. The token is case-sensitive and can contain only ASCII characters. The token can be up to 64 characters in length.', example='6000170000591aed949d0f5********************'),
   ownerAccount?: string(name='OwnerAccount'),
   ownerId?: long(name='OwnerId'),
-  period?: string(name='Period', description='The unit of the subscription duration for the storage plan. Valid values:
+  period?: string(name='Period', description='The unit of the storage plan duration. Valid values:
 
-- **Month**
+- **Month**: month.
 
-- **Year**
+- **Year**: year.
 
 This parameter is required.', example='Month'),
-  promotionCode?: string(name='PromotionCode', example='727xxxxxx934'),
+  promotionCode?: string(name='PromotionCode', description='The coupon code. If this parameter is not specified, the default coupon is used.', example='727xxxxxx934'),
   resourceOwnerAccount?: string(name='ResourceOwnerAccount'),
   resourceOwnerId?: long(name='ResourceOwnerId'),
-  storageClass?: string(name='StorageClass', description='The capacity of the storage plan, in GB. Valid values: 50, 100, 200, 300, 500, 1,000, 2,000, 3,000, 5,000, 10,000, 15,000, 20,000, 25,000, 30,000, 50,000, 100,000, and 200,000.
+  storageClass?: string(name='StorageClass', description='The capacity of the storage plan. Unit: GB. Valid values: 50, 100, 200, 300, 500, 1000, 2000, 3000, 5000, 10000, 15000, 20000, 25000, 30000, 50000, 100000, and 200000.
 
 This parameter is required.', example='500'),
   storageType?: string(name='StorageType', description='The type of the storage plan. Valid values:
 
-- **Mainland**: For use in the Chinese mainland.
+- **Mainland**: general-purpose, applicable in the Chinese mainland.
 
-- **Overseas**: For use in China (Hong Kong) and regions outside China.
+- **Overseas**: general-purpose, applicable in Hong Kong (China) and outside China.
 
 This parameter is required.', example='Mainland'),
-  usedTime?: string(name='UsedTime', description='The subscription duration of the storage plan.
+  usedTime?: string(name='UsedTime', description='The duration of the storage plan.
 
 - If **Period** is set to **Month**, the value ranges from 1 to 9.
 
-- If **Period** is set to **Year**, the valid values are 1, 2, 3, and 5.
+- If **Period** is set to **Year**, valid values are 1, 2, 3, and 5.
 
 This parameter is required.', example='3'),
 }
@@ -11339,12 +11359,12 @@ model DeleteDBClusterEndpointRequest {
   DBClusterId?: string(name='DBClusterId', description='The cluster ID.
 
 This parameter is required.', example='pc-******************'),
-  DBEndpointId?: string(name='DBEndpointId', description='The ID of the custom cluster endpoint.
+  DBEndpointId?: string(name='DBEndpointId', description='The custom cluster endpoint ID.
 
 This parameter is required.', example='pe-******************'),
   ownerAccount?: string(name='OwnerAccount'),
   ownerId?: long(name='OwnerId'),
-  polarFsInstanceId?: string(name='PolarFsInstanceId', example='pfs-test*****'),
+  polarFsInstanceId?: string(name='PolarFsInstanceId', description='The PolarFs instance ID.', example='pfs-test*****'),
   resourceOwnerAccount?: string(name='ResourceOwnerAccount'),
   resourceOwnerId?: long(name='ResourceOwnerId'),
 }
@@ -11360,7 +11380,7 @@ model DeleteDBClusterEndpointResponse = {
 }
 
 /**
- * @summary Deletes a custom cluster endpoint for a PolarDB cluster.
+ * @summary Releases a custom cluster endpoint of a PolarDB cluster.
  *
  * @param request DeleteDBClusterEndpointRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -11408,7 +11428,7 @@ async function deleteDBClusterEndpointWithOptions(request: DeleteDBClusterEndpoi
 }
 
 /**
- * @summary Deletes a custom cluster endpoint for a PolarDB cluster.
+ * @summary Releases a custom cluster endpoint of a PolarDB cluster.
  *
  * @param request DeleteDBClusterEndpointRequest
  * @return DeleteDBClusterEndpointResponse
@@ -12659,13 +12679,19 @@ async function deleteKnowledgeBase(request: DeleteKnowledgeBaseRequest): DeleteK
 }
 
 model DeleteKnowledgeBaseFileRequest {
-  fileId?: string(name='FileId', description='This parameter is required.', example='xxxx-xxxx-xxxx-xxxx'),
-  knowledgeBaseId?: string(name='KnowledgeBaseId', description='This parameter is required.', example='pkb-xxxxx'),
-  regionId?: string(name='RegionId', description='This parameter is required.', example='cn-beijing'),
+  fileId?: string(name='FileId', description='The file ID. To delete multiple files at a time, separate the file IDs with commas (,). A maximum of 500 file IDs are supported.
+
+This parameter is required.', example='xxxx-xxxx-xxxx-xxxx'),
+  knowledgeBaseId?: string(name='KnowledgeBaseId', description='The unique ID of the knowledge base.
+
+This parameter is required.', example='pkb-xxxxx'),
+  regionId?: string(name='RegionId', description='The region ID.
+
+This parameter is required.', example='cn-beijing'),
 }
 
 model DeleteKnowledgeBaseFileResponseBody = {
-  requestId?: string(name='RequestId', example='6BD9CDE4-5E7B-4BF3-9BB8-83C73E******'),
+  requestId?: string(name='RequestId', description='Id of the request', example='6BD9CDE4-5E7B-4BF3-9BB8-83C73E******'),
 }
 
 model DeleteKnowledgeBaseFileResponse = {
@@ -12675,7 +12701,7 @@ model DeleteKnowledgeBaseFileResponse = {
 }
 
 /**
- * @summary 删除知识库文件
+ * @summary Deletes a knowledge base file.
  *
  * @param request DeleteKnowledgeBaseFileRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -12711,7 +12737,7 @@ async function deleteKnowledgeBaseFileWithOptions(request: DeleteKnowledgeBaseFi
 }
 
 /**
- * @summary 删除知识库文件
+ * @summary Deletes a knowledge base file.
  *
  * @param request DeleteKnowledgeBaseFileRequest
  * @return DeleteKnowledgeBaseFileResponse
@@ -20950,7 +20976,7 @@ model DescribeDBClusterAccessWhitelistRequest {
 This parameter is required.', example='pc-***************'),
   ownerAccount?: string(name='OwnerAccount'),
   ownerId?: long(name='OwnerId'),
-  pfsInstanceId?: string(name='PfsInstanceId', example='pfs-xxx'),
+  pfsInstanceId?: string(name='PfsInstanceId', description='The PFS instance ID.', example='pfs-xxx'),
   resourceOwnerAccount?: string(name='ResourceOwnerAccount'),
   resourceOwnerId?: long(name='ResourceOwnerId'),
 }
@@ -23190,12 +23216,12 @@ async function describeDBClusterProxy(request: DescribeDBClusterProxyRequest): D
 
 model DescribeDBClusterSSLRequest {
   DBClusterId?: string(name='DBClusterId', description='The cluster ID.
->You can call the [DescribeDBClusters](https://help.aliyun.com/document_detail/98094.html) operation to query the details of all clusters under your account, including the cluster ID.
+>You can call the [DescribeDBClusters](https://help.aliyun.com/document_detail/98094.html) operation to query the details of all clusters under your account, including cluster IDs.
 
 This parameter is required.', example='pc-************'),
   ownerAccount?: string(name='OwnerAccount'),
   ownerId?: long(name='OwnerId'),
-  pfsInstanceId?: string(name='PfsInstanceId', example='pfs-xxx'),
+  pfsInstanceId?: string(name='PfsInstanceId', description='The PFS instance ID.', example='pfs-xxx'),
   resourceOwnerAccount?: string(name='ResourceOwnerAccount'),
   resourceOwnerId?: long(name='ResourceOwnerId'),
 }
@@ -23210,7 +23236,7 @@ model DescribeDBClusterSSLResponseBody = {
 
 - **Disable**: Disabled.
 
-> This parameter is supported only when the database engine is PostgreSQL-compatible or Oracle-syntax-compatible.', example='Enable'),
+> This parameter is supported only when the database engine is PostgreSQL-compatible or Oracle syntax-compatible.', example='Enable'),
       SSLConnectionString?: string(name='SSLConnectionString', description='The SSL connection address.', example='pc-************.mysql.polardb.rds.aliyuncs.com'),
       SSLEnabled?: string(name='SSLEnabled', description='Indicates whether Secure Sockets Layer (SSL) encryption is enabled. Valid values:
 
@@ -23491,15 +23517,13 @@ async function describeDBClusterTDE(request: DescribeDBClusterTDERequest): Descr
 
 model DescribeDBClusterVersionRequest {
   DBClusterId?: string(name='DBClusterId', description='The cluster ID.
-
-> Call the [DescribeDBClusters](https://help.aliyun.com/document_detail/98094.html) operation to view details of all clusters in your account, such as cluster IDs.
+> You can call the [DescribeDBClusters](https://help.aliyun.com/document_detail/98094.html) operation to query the details of all clusters within your account, such as the cluster ID.
 
 This parameter is required.', example='pc-****************'),
-  describeType?: string(name='DescribeType', description='Specifies whether to return information about the latest version or a list of upgradable versions. Valid values:
+  describeType?: string(name='DescribeType', description='Specifies whether to return the latest version information or the list of available upgrade versions. Valid values:
 
-- LATEST_VERSION: Queries information about the latest version.
-
-- AVAILABLE_VERSION: Queries a list of upgradable versions.', example='LATEST_VERSION'),
+- LATEST_VERSION: queries the latest version information.
+- AVAILABLE_VERSION: queries the list of available upgrade versions.', example='LATEST_VERSION'),
   ownerAccount?: string(name='OwnerAccount'),
   ownerId?: long(name='OwnerId'),
   resourceOwnerAccount?: string(name='ResourceOwnerAccount'),
@@ -23508,100 +23532,70 @@ This parameter is required.', example='pc-****************'),
 
 model DescribeDBClusterVersionResponseBody = {
   DBClusterId?: string(name='DBClusterId', description='The cluster ID.', example='pc-****************'),
-  DBLatestStableVersion?: string(name='DBLatestStableVersion', example='2.0.16.13.14.0'),
-  DBLatestVersion?: string(name='DBLatestVersion', description='The latest version of the database kernel.', example='8.0.1.1.16'),
-  DBMinorVersion?: string(name='DBMinorVersion', description='The minor version of the database engine.
+  DBLatestStableVersion?: string(name='DBLatestStableVersion', description='The latest stable version of PolarDB for PostgreSQL.', example='2.0.16.13.14.0'),
+  DBLatestVersion?: string(name='DBLatestVersion', description='The latest version of the database kernel engine.', example='8.0.1.1.16'),
+  DBMinorVersion?: string(name='DBMinorVersion', description='The minor version number of the database engine.
+* If `DBVersion` is **8.0**, valid values:
+    * **8.0.2**
+    * **8.0.1**
+* If `DBVersion` is **5.7**, the value is **5.7.28**.
 
-- If `DBVersion` is **8.0**, valid values are:
-
-  - **8.0.2**
-
-  - **8.0.1**
-
-- If `DBVersion` is **5.7**, the value is **5.7.28**.
-
-- If `DBVersion` is **5.6**, the value is **5.6.16**.', example='8.0.1'),
-  DBRevisionVersion?: string(name='DBRevisionVersion', description='The revision version of the database engine.
-
-> For a PolarDB for MySQL 5.6 cluster, this parameter is returned only when the release date of the revision version is later than 20200831. Otherwise, this parameter is empty. For more information about the kernel version of a PolarDB for MySQL cluster, see [Kernel release notes](https://help.aliyun.com/document_detail/423884.html).', example='8.0.1.1.7'),
+* If `DBVersion` is **5.6**, the value is **5.6.16**.', example='8.0.1'),
+  DBRevisionVersion?: string(name='DBRevisionVersion', description='The Milvus version number of the database engine.
+> For PolarDB for MySQL 5.6 clusters, only the `Milvus version` information with a release date later than August 31, 2020 is returned. Otherwise, this parameter is empty. For more information about the minor engine versions of PolarDB for MySQL clusters, see [Release notes](https://help.aliyun.com/document_detail/423884.html).', example='8.0.1.1.7'),
   DBRevisionVersionList?: [ 
     {
-      releaseNote?: string(name='ReleaseNote', description='The release notes of the version.', example='ReleaseNote'),
+      releaseNote?: string(name='ReleaseNote', description='The release notes for the version.', example='ReleaseNote'),
       releaseType?: string(name='ReleaseType', description='The release status of the database version. Valid values:
-
-- **Stable**: The current version is stable.
-
-- **Old**: The current version is outdated. Do not upgrade to this version.
-
-- **HighRisk**: The current version has critical bugs. Do not upgrade to this version.
-
-- **Beta**: The current version is a beta version.', example='Stable'),
-      revisionVersionCode?: string(name='RevisionVersionCode', description='The revision version code of the database engine. You can use this code to specify the target version for an upgrade.', example='20230707'),
-      revisionVersionName?: string(name='RevisionVersionName', description='The revision version of the database engine.', example='8.0.1.1.35.1'),
+* **Stable**: The current version is stable.
+* **Old**: The current version is outdated. Upgrading to this version is not recommended.
+* **HighRisk**: The current version has critical bugs. Upgrading to this version is not recommended.
+* **Beta**: The current version is a beta version.', example='Stable'),
+      revisionVersionCode?: string(name='RevisionVersionCode', description='The revision version code of the database engine, which is used to specify the target version for the upgrade.', example='20230707'),
+      revisionVersionName?: string(name='RevisionVersionName', description='The revision version number of the database engine.', example='8.0.1.1.35.1'),
     }
-  ](name='DBRevisionVersionList', description='A list of upgradable versions.'),
-  DBVersion?: string(name='DBVersion', description='The major version of the database engine. Valid values:
+  ](name='DBRevisionVersionList', description='The list of available upgrade version information.'),
+  DBVersion?: string(name='DBVersion', description='The major version number of the database engine. Valid values:
+* **8.0**
+* **5.7**
+* **5.6**', example='8.0'),
+  DBVersionStatus?: string(name='DBVersionStatus', description='The status of the current database minor version. Valid values:
+* **Stable**: The current version is stable.
+* **Old**: The current version is outdated. Upgrade to the latest version.
+* **HighRisk**: The current version has critical bugs. Upgrade to the latest version immediately.
+* **Beta**: The current version is a beta version.
+>For more information about how to upgrade the database minor version, see [Version upgrade](https://help.aliyun.com/document_detail/158572.html).', example='Stable'),
+  isLatestStableVersion?: string(name='IsLatestStableVersion', description='Indicates whether the current version is the latest stable version of PolarDB for PostgreSQL.', example='true'),
+  isLatestVersion?: string(name='IsLatestVersion', description='Indicates whether the current database kernel DPI engine version is the latest database engine version. Valid values:
 
-- **8.0**
-
-- **5.7**
-
-- **5.6**', example='8.0'),
-  DBVersionStatus?: string(name='DBVersionStatus', description='The status of the current minor version of the database. Valid values:
-
-- **Stable**: The current version is stable.
-
-- **Old**: The current version is outdated. Upgrade to the latest version.
-
-- **HighRisk**: The current version has critical bugs. Upgrade to the latest version immediately.
-
-- **Beta**: The current version is a beta version.
-
-> For more information about how to upgrade the minor version of a database, see [Upgrade versions](https://help.aliyun.com/document_detail/158572.html).', example='Stable'),
-  isLatestStableVersion?: string(name='IsLatestStableVersion', example='true'),
-  isLatestVersion?: string(name='IsLatestVersion', description='Indicates whether the current database kernel version is the latest version. Valid values:
-
-- **true**
-
-- **false**', example='true'),
-  isProxyLatestVersion?: string(name='IsProxyLatestVersion', description='Indicates whether the current database proxy version is the latest version. Valid values:
-
-- **true**
-
-- **false**', example='true'),
-  proxyLatestVersion?: string(name='ProxyLatestVersion', description='The latest version of the database proxy.', example='2.4.17'),
-  proxyRevisionVersion?: string(name='ProxyRevisionVersion', description='The version of the database proxy.', example='2.4.15'),
+-  **true**
+-  **false**', example='true'),
+  isProxyLatestVersion?: string(name='IsProxyLatestVersion', description='Indicates whether the current PolarProxy version is the latest version. Valid values:
+* **true**
+* **false**', example='true'),
+  proxyLatestVersion?: string(name='ProxyLatestVersion', description='The latest version of PolarProxy.', example='2.4.17'),
+  proxyRevisionVersion?: string(name='ProxyRevisionVersion', description='The version of PolarProxy.', example='2.4.15'),
   proxyRevisionVersionList?: [ 
     {
-      releaseNote?: string(name='ReleaseNote', description='The release notes of the version.', example='ReleaseNote'),
+      releaseNote?: string(name='ReleaseNote', description='The release notes for the version.', example='ReleaseNote'),
       releaseType?: string(name='ReleaseType', description='The release type. Valid values:
-
-- **LTS**: long-term support version.
-
-- **BETA**: preview version.', example='LTS'),
-      revisionVersionCode?: string(name='RevisionVersionCode', description='The revision version code of the database proxy engine. You can use this code to specify the target version for an upgrade.', example='20230707'),
-      revisionVersionName?: string(name='RevisionVersionName', description='The revision version of the database proxy engine.', example='2.8.24'),
+* **LTS**: Long-term support version.
+* **BETA**: Preview version.', example='LTS'),
+      revisionVersionCode?: string(name='RevisionVersionCode', description='The revision version code of the PolarProxy engine, which is used to specify the target version for the upgrade.', example='20230707'),
+      revisionVersionName?: string(name='RevisionVersionName', description='The revision version number of the PolarProxy engine.', example='2.8.24'),
     }
-  ](name='ProxyRevisionVersionList', description='A list of upgradable proxy versions.
+  ](name='ProxyRevisionVersionList', description='The release status of the PolarProxy version. Valid values:
 
 - **Stable**: The current version is stable.
-
-- **Old**: This version is outdated and not recommended for upgrades.
-
-- **HighRisk**: This version has critical bugs and is not recommended for upgrades.
-
-- **Beta**: This is a beta version.'),
-  proxyVersionStatus?: string(name='ProxyVersionStatus', description='The status of the database proxy version. Valid values:
-
-- **Stable**: The current version is stable.
-
-- **Old**: The current version is outdated. Upgrade to the latest version.
-
-- **HighRisk**: The current version has critical bugs. Upgrade to the latest version immediately.
-
-- **Beta**: The current version is a beta version.
-
-> For more information about how to upgrade the database proxy version, see [Upgrade versions](https://help.aliyun.com/document_detail/158572.html).', example='Stable'),
+- **Old**: The current version is outdated. Upgrading to this version is not recommended.
+- **HighRisk**: The current version has critical bugs. Upgrading to this version is not recommended.
+- **Beta**: The current version is a beta version.'),
+  proxyVersionStatus?: string(name='ProxyVersionStatus', description='The version status of PolarProxy. Valid values:
+* **Stable**: The current version is stable.
+* **Old**: The current version is outdated. Upgrade to the latest version.
+* **HighRisk**: The current version has critical bugs. Upgrade to the latest version immediately.
+* **Beta**: The current version is a beta version.
+>For more information about how to upgrade the PolarProxy version, see [Version upgrade](https://help.aliyun.com/document_detail/158572.html).', example='Stable'),
   requestId?: string(name='RequestId', description='The request ID.', example='47921222-0D37-4133-8C0D-017DC3******'),
 }
 
@@ -23612,9 +23606,9 @@ model DescribeDBClusterVersionResponse = {
 }
 
 /**
- * @summary Retrieves the details of the current kernel version for a PolarDB for MySQL cluster.
+ * @summary Queries the details of the current Milvus version of a PolarDB for MySQL cluster.
  *
- * @description > For more information about the kernel versions of PolarDB for MySQL clusters, see [Kernel version guide](https://help.aliyun.com/document_detail/471239.html) and [Kernel release notes](https://help.aliyun.com/document_detail/423884.html).
+ * @description >For more information about the minor Milvus versions and details of PolarDB for MySQL Cluster Edition, see [Minor Milvus version description](https://help.aliyun.com/document_detail/471239.html) and [Release notes](https://help.aliyun.com/document_detail/423884.html).
  *
  * @param request DescribeDBClusterVersionRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -23659,9 +23653,9 @@ async function describeDBClusterVersionWithOptions(request: DescribeDBClusterVer
 }
 
 /**
- * @summary Retrieves the details of the current kernel version for a PolarDB for MySQL cluster.
+ * @summary Queries the details of the current Milvus version of a PolarDB for MySQL cluster.
  *
- * @description > For more information about the kernel versions of PolarDB for MySQL clusters, see [Kernel version guide](https://help.aliyun.com/document_detail/471239.html) and [Kernel release notes](https://help.aliyun.com/document_detail/423884.html).
+ * @description >For more information about the minor Milvus versions and details of PolarDB for MySQL Cluster Edition, see [Minor Milvus version description](https://help.aliyun.com/document_detail/471239.html) and [Release notes](https://help.aliyun.com/document_detail/423884.html).
  *
  * @param request DescribeDBClusterVersionRequest
  * @return DescribeDBClusterVersionResponse
@@ -28916,36 +28910,44 @@ async function describeKBSyncLinks(request: DescribeKBSyncLinksRequest): Describ
 }
 
 model DescribeKnowledgeBaseAnswerRequest {
-  knowledgeBaseId?: string(name='KnowledgeBaseId', description='This parameter is required.', example='pkb-xxxxx'),
-  queryId?: string(name='QueryId', description='This parameter is required.', example='R3BGbnBqcXN******.2a5a23c9-******-179970533d30'),
-  regionId?: string(name='RegionId', description='This parameter is required.', example='cn-beijing'),
+  knowledgeBaseId?: string(name='KnowledgeBaseId', description='The unique ID of the knowledge base.
+
+This parameter is required.', example='pkb-xxxxx'),
+  queryId?: string(name='QueryId', description='The unique ID of the Q&A task.
+
+This parameter is required.', example='R3BGbnBqcXN******.2a5a23c9-******-179970533d30'),
+  regionId?: string(name='RegionId', description='The region ID.
+
+This parameter is required.', example='cn-beijing'),
 }
 
 model DescribeKnowledgeBaseAnswerResponseBody = {
-  agentId?: string(name='AgentId', example='******'),
-  answer?: string(name='Answer', example='财报的内容总结如下：******'),
-  completionTokens?: int32(name='CompletionTokens', example='3935'),
-  errorMessage?: string(name='ErrorMessage', example='Space not found: pks-xxxx'),
-  errorType?: string(name='ErrorType', example='not_found'),
-  LLMModelId?: string(name='LLMModelId', example='OO1A6p8B******_xPUC'),
-  promptTokens?: int32(name='PromptTokens', example='2459'),
-  queryId?: string(name='QueryId', example='R3BGbnBqcXN******.2a5a23c9-******-179970533d30'),
-  requestId?: string(name='RequestId', example='CDB3258F-B5DE-43C4-8935-CBA0CA******'),
+  agentId?: string(name='AgentId', description='Agent ID', example='******'),
+  answer?: string(name='Answer', description='The answer content.', example='The financial report is summarized as follows: ******'),
+  completionTokens?: int32(name='CompletionTokens', description='The cumulative number of tokens generated by the completion.', example='3935'),
+  errorMessage?: string(name='ErrorMessage', description='The error message.', example='Space not found: pks-xxxx'),
+  errorType?: string(name='ErrorType', description='The error type.', example='not_found'),
+  LLMModelId?: string(name='LLMModelId', description='The large language model ID.', example='OO1A6p8B******_xPUC'),
+  promptTokens?: int32(name='PromptTokens', description='The cumulative number of tokens consumed by the prompt.', example='2459'),
+  queryId?: string(name='QueryId', description='The unique ID of the Q&A task.', example='R3BGbnBqcXN******.2a5a23c9-******-179970533d30'),
+  requestId?: string(name='RequestId', description='Id of the request', example='CDB3258F-B5DE-43C4-8935-CBA0CA******'),
   sources?: [ 
     {
-      chunkMetadata?: map[string]any(name='ChunkMetadata', example='{}'),
-      fileId?: string(name='FileId', example='91b97b71-xxxx-xxxx-xxxx-33c6a6341cdc'),
-      fileName?: string(name='FileName', example='财报.pdf'),
-      knowledgeBaseId?: string(name='KnowledgeBaseId', example='pkb-xxxxx'),
-      metadata?: map[string]any(name='Metadata', example='{}'),
-      pageNumbers?: [ int32 ](name='PageNumbers'),
-      shardContent?: string(name='ShardContent', example='财报'),
-      shardIndex?: int32(name='ShardIndex', example='8'),
-      similarityScore?: double(name='SimilarityScore', example='0.75'),
-      sourceId?: int32(name='SourceId', example='1'),
+      chunkMetadata?: map[string]any(name='ChunkMetadata', description='The chunk metadata.', example='{}'),
+      fileId?: string(name='FileId', description='The file ID.', example='91b97b71-xxxx-xxxx-xxxx-33c6a6341cdc'),
+      fileName?: string(name='FileName', description='The file name.', example='financial_report.pdf'),
+      knowledgeBaseId?: string(name='KnowledgeBaseId', description='The unique ID of the knowledge base.', example='pkb-xxxxx'),
+      metadata?: map[string]any(name='Metadata', description='The document metadata.', example='{}'),
+      pageNumbers?: [ int32 ](name='PageNumbers', description='The list of page numbers to which the shard belongs.'),
+      shardContent?: string(name='ShardContent', description='The shard content.', example='financial_report'),
+      shardIndex?: int32(name='ShardIndex', description='The shard ID.', example='8'),
+      similarityScore?: double(name='SimilarityScore', description='The similarity score.', example='0.75'),
+      sourceId?: int32(name='SourceId', description='The source ID.', example='1'),
     }
-  ](name='Sources'),
-  status?: string(name='Status', example='COMPLETED'),
+  ](name='Sources', description='The list of reference sources for the answer.'),
+  status?: string(name='Status', description='The status of the Q&A task. Valid values:
+- RUNNING: In progress.
+- COMPLETED: Completed.', example='COMPLETED'),
 }
 
 model DescribeKnowledgeBaseAnswerResponse = {
@@ -28955,7 +28957,7 @@ model DescribeKnowledgeBaseAnswerResponse = {
 }
 
 /**
- * @summary 查询知识库单轮问答结果
+ * @summary Queries the result of a single-turn Q&A task in a knowledge base.
  *
  * @param request DescribeKnowledgeBaseAnswerRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -28991,7 +28993,7 @@ async function describeKnowledgeBaseAnswerWithOptions(request: DescribeKnowledge
 }
 
 /**
- * @summary 查询知识库单轮问答结果
+ * @summary Queries the result of a single-turn Q&A task in a knowledge base.
  *
  * @param request DescribeKnowledgeBaseAnswerRequest
  * @return DescribeKnowledgeBaseAnswerResponse
@@ -29084,27 +29086,33 @@ async function describeKnowledgeBaseAttribute(request: DescribeKnowledgeBaseAttr
 }
 
 model DescribeKnowledgeBaseFileShardsRequest {
-  fileId?: string(name='FileId', description='This parameter is required.', example='xxxx-xxxx-xxxx-xxxx'),
-  knowledgeBaseId?: string(name='KnowledgeBaseId', description='This parameter is required.', example='pkb-xxxxx'),
-  pageNumber?: int32(name='PageNumber', example='1'),
-  pageSize?: int32(name='PageSize', example='30'),
-  regionId?: string(name='RegionId', description='This parameter is required.', example='cn-beijing'),
+  fileId?: string(name='FileId', description='The file ID.
+
+This parameter is required.', example='xxxx-xxxx-xxxx-xxxx'),
+  knowledgeBaseId?: string(name='KnowledgeBaseId', description='The unique ID of the knowledge base.
+
+This parameter is required.', example='pkb-xxxxx'),
+  pageNumber?: int32(name='PageNumber', description='The page number.', example='1'),
+  pageSize?: int32(name='PageSize', description='The number of records per page.', example='30'),
+  regionId?: string(name='RegionId', description='The region ID.
+
+This parameter is required.', example='cn-beijing'),
 }
 
 model DescribeKnowledgeBaseFileShardsResponseBody = {
-  pageNumber?: int32(name='PageNumber', example='1'),
-  pageRecordCount?: int32(name='PageRecordCount', example='10'),
-  pageSize?: int32(name='PageSize', example='30'),
-  requestId?: string(name='RequestId', example='3E5CD764-xxxx-xxxx-xxxx-20E0DE84B2AF'),
+  pageNumber?: int32(name='PageNumber', description='The current page number.', example='1'),
+  pageRecordCount?: int32(name='PageRecordCount', description='The number of records on the current page.', example='10'),
+  pageSize?: int32(name='PageSize', description='The number of entries per page in a paged query.', example='30'),
+  requestId?: string(name='RequestId', description='Id of the request', example='3E5CD764-xxxx-xxxx-xxxx-20E0DE84B2AF'),
   shards?: [ 
     {
-      headings?: [ string ](name='Headings'),
-      pageNumbers?: [ string ](name='PageNumbers'),
-      shardContent?: string(name='ShardContent', example='******'),
-      shardIndex?: int32(name='ShardIndex', example='1'),
+      headings?: [ string ](name='Headings', description='The chain of section headings to which the shard belongs.'),
+      pageNumbers?: [ string ](name='PageNumbers', description='The list of page numbers to which the shard belongs.'),
+      shardContent?: string(name='ShardContent', description='The text content of the shard.', example='******'),
+      shardIndex?: int32(name='ShardIndex', description='The shard index.', example='1'),
     }
-  ](name='Shards'),
-  totalRecordCount?: int32(name='TotalRecordCount', example='10'),
+  ](name='Shards', description='The shard information.'),
+  totalRecordCount?: int32(name='TotalRecordCount', description='The total number of records.', example='10'),
 }
 
 model DescribeKnowledgeBaseFileShardsResponse = {
@@ -29114,7 +29122,7 @@ model DescribeKnowledgeBaseFileShardsResponse = {
 }
 
 /**
- * @summary 查询知识库文件分片列表
+ * @summary Queries the list of file shards in a knowledge base.
  *
  * @param request DescribeKnowledgeBaseFileShardsRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -29156,7 +29164,7 @@ async function describeKnowledgeBaseFileShardsWithOptions(request: DescribeKnowl
 }
 
 /**
- * @summary 查询知识库文件分片列表
+ * @summary Queries the list of file shards in a knowledge base.
  *
  * @param request DescribeKnowledgeBaseFileShardsRequest
  * @return DescribeKnowledgeBaseFileShardsResponse
@@ -29167,64 +29175,70 @@ async function describeKnowledgeBaseFileShards(request: DescribeKnowledgeBaseFil
 }
 
 model DescribeKnowledgeBaseFilesRequest {
-  fileIds?: string(name='FileIds', example='doc_a,doc_b'),
-  keyword?: string(name='Keyword', example='财报'),
-  knowledgeBaseId?: string(name='KnowledgeBaseId', description='This parameter is required.', example='pkb-xxxxx'),
-  linkId?: string(name='LinkId', example='pkbl-2ze123456789abc'),
-  pageNumber?: int32(name='PageNumber', example='1'),
-  pageSize?: int32(name='PageSize', example='20'),
-  regionId?: string(name='RegionId', description='This parameter is required.', example='cn-beijing'),
-  sourceType?: string(name='SourceType', example='OSS'),
+  fileIds?: string(name='FileIds', description='The list of file IDs, separated by commas (,).', example='doc_a,doc_b'),
+  keyword?: string(name='Keyword', description='The keyword used to filter file names.', example='Financial report'),
+  knowledgeBaseId?: string(name='KnowledgeBaseId', description='The unique ID of the knowledge base.
+
+This parameter is required.', example='pkb-xxxxx'),
+  linkId?: string(name='LinkId', description='The unique ID of the synchronization link.', example='pkbl-2ze123456789abc'),
+  pageNumber?: int32(name='PageNumber', description='The page number.', example='1'),
+  pageSize?: int32(name='PageSize', description='The number of records per page.', example='20'),
+  regionId?: string(name='RegionId', description='The region ID.
+
+This parameter is required.', example='cn-beijing'),
+  sourceType?: string(name='SourceType', description='The source type.', example='OSS'),
 }
 
 model DescribeKnowledgeBaseFilesResponseBody = {
   items?: [ 
     {
-      errorMessage?: string(name='ErrorMessage', example='Not Support.'),
-      fileId?: string(name='FileId', example='5b2dbb13-xxxx-xxxx-xxxx-a55fe8daec8f'),
-      fileName?: string(name='FileName', example='财报.pdf'),
-      fileSize?: long(name='FileSize', example='318881'),
-      fileType?: string(name='FileType', example='pdf'),
-      inheritSpaceStrategy?: boolean(name='InheritSpaceStrategy', example='true'),
-      knowledgeBaseId?: string(name='KnowledgeBaseId', example='pkb-xxxxxx'),
-      knowledgeSpaceId?: string(name='KnowledgeSpaceId', example='pks-xxxxxx'),
-      metadata?: map[string]any(name='Metadata', example='{}'),
-      OSSPath?: string(name='OSSPath', example='oss://test-bucket-example/pks-xxxx/pkb-xxxx/财报.pdf'),
-      shardCount?: int32(name='ShardCount', example='10'),
+      errorMessage?: string(name='ErrorMessage', description='The error message.', example='Not Support.'),
+      fileId?: string(name='FileId', description='The file ID.', example='5b2dbb13-xxxx-xxxx-xxxx-a55fe8daec8f'),
+      fileName?: string(name='FileName', description='The file name.', example='Financial_report.pdf'),
+      fileSize?: long(name='FileSize', description='The file size, in bytes.', example='318881'),
+      fileType?: string(name='FileType', description='The file type.', example='pdf'),
+      inheritSpaceStrategy?: boolean(name='InheritSpaceStrategy', description='Indicates whether the chunking strategy is inherited from the knowledge space.', example='true'),
+      knowledgeBaseId?: string(name='KnowledgeBaseId', description='The knowledge base ID.', example='pkb-xxxxxx'),
+      knowledgeSpaceId?: string(name='KnowledgeSpaceId', description='The knowledge space ID.', example='pks-xxxxxx'),
+      metadata?: map[string]any(name='Metadata', description='The document metadata.', example='{}'),
+      OSSPath?: string(name='OSSPath', description='The OSS file path.', example='oss://test-bucket-example/pks-xxxx/pkb-xxxx/Financial_report.pdf'),
+      shardCount?: int32(name='ShardCount', description='The number of shards.', example='10'),
       shardingStrategyConfig?: {
         defaultStrategy?: {
           parameters?: {
-            maxTokens?: int32(name='MaxTokens', example='512'),
-            mergePeers?: boolean(name='MergePeers', example='true'),
-          }(name='Parameters'),
-          type?: string(name='Type', example='hybrid'),
-        }(name='DefaultStrategy'),
+            maxTokens?: int32(name='MaxTokens', description='The maximum number of tokens per shard.', example='512'),
+            mergePeers?: boolean(name='MergePeers', description='Specifies whether to merge adjacent small shards under the same heading.', example='true'),
+          }(name='Parameters', description='The parameter list.'),
+          type?: string(name='Type', description='The default chunking strategy type. Valid values: hybrid and hierarchical.', example='hybrid'),
+        }(name='DefaultStrategy', description='The default chunking strategy type. Valid values: hybrid and hierarchical.'),
         rules?: [ 
           {
             match?: {
-              contentType?: string(name='ContentType', example='table'),
-            }(name='Match'),
+              contentType?: string(name='ContentType', description='The content type. Currently, table is supported.', example='table'),
+            }(name='Match', description='The content type. Currently, table is supported.'),
             strategy?: {
               parameters?: {
-                markdownTables?: string(name='MarkdownTables', example='auto'),
-                maxTokens?: int32(name='MaxTokens', example='512'),
-              }(name='Parameters'),
-              type?: string(name='Type', example='hierarchical'),
-            }(name='Strategy'),
+                markdownTables?: string(name='MarkdownTables', description='The Markdown table processing mode. Valid values: auto, on, and off.', example='auto'),
+                maxTokens?: int32(name='MaxTokens', description='The maximum number of tokens per shard for matched content.', example='512'),
+              }(name='Parameters', description='The parameter list.'),
+              type?: string(name='Type', description='The chunking strategy type applied after a rule is matched.', example='hierarchical'),
+            }(name='Strategy', description='The chunking strategy.'),
           }
-        ](name='Rules'),
-      }(name='ShardingStrategyConfig'),
-      sourceType?: string(name='SourceType', example='OSS'),
-      status?: string(name='Status', example='COMPLETED'),
-      updatedAt?: string(name='UpdatedAt', example='2026-06-15T22:28:53Z'),
-      uploadTime?: string(name='UploadTime', example='2026-06-15T22:28:53Z'),
+        ](name='Rules', description='The list of override rules matched in order.'),
+      }(name='ShardingStrategyConfig', description='The chunking strategy configuration currently in effect for the document. This value may be empty if the complete configuration was not saved for existing objects.'),
+      sourceType?: string(name='SourceType', description='The source type.', example='OSS'),
+      status?: string(name='Status', description='The status.', example='COMPLETED'),
+      updatedAt?: string(name='UpdatedAt', description='The update time.', example='2026-06-15T22:28:53Z'),
+      uploadTime?: string(name='UploadTime', description='The upload time.', example='2026-06-15T22:28:53Z'),
     }
-  ](name='Items'),
-  pageNumber?: int32(name='PageNumber', example='1'),
-  pageRecordCount?: int32(name='PageRecordCount', example='9'),
-  pageSize?: int32(name='PageSize', example='30'),
-  requestId?: string(name='RequestId', example='CED079B7-A408-41A1-BFF1-EC608E******'),
-  totalRecordCount?: int32(name='TotalRecordCount', example='9'),
+  ](name='Items', description='The list of files.'),
+  pageNumber?: int32(name='PageNumber', description='The page number.', example='1'),
+  pageRecordCount?: int32(name='PageRecordCount', description='The number of records on the current page.', example='9'),
+  pageSize?: int32(name='PageSize', description='The number of records per page. Valid values: **30**, **50**, and **100**.
+                              
+Default value: **30**.', example='30'),
+  requestId?: string(name='RequestId', description='Id of the request', example='CED079B7-A408-41A1-BFF1-EC608E******'),
+  totalRecordCount?: int32(name='TotalRecordCount', description='The total number of records.', example='9'),
 }
 
 model DescribeKnowledgeBaseFilesResponse = {
@@ -29234,7 +29248,7 @@ model DescribeKnowledgeBaseFilesResponse = {
 }
 
 /**
- * @summary 查询知识库文件列表
+ * @summary Queries the list of files in a knowledge base.
  *
  * @param request DescribeKnowledgeBaseFilesRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -29285,7 +29299,7 @@ async function describeKnowledgeBaseFilesWithOptions(request: DescribeKnowledgeB
 }
 
 /**
- * @summary 查询知识库文件列表
+ * @summary Queries the list of files in a knowledge base.
  *
  * @param request DescribeKnowledgeBaseFilesRequest
  * @return DescribeKnowledgeBaseFilesResponse
@@ -29394,54 +29408,62 @@ async function describeKnowledgeBases(request: DescribeKnowledgeBasesRequest): D
 }
 
 model DescribeKnowledgeSpaceAttributeRequest {
-  knowledgeSpaceId?: string(name='KnowledgeSpaceId', description='This parameter is required.', example='pks-xxxx'),
-  regionId?: string(name='RegionId', description='This parameter is required.', example='cn-beijing'),
+  knowledgeSpaceId?: string(name='KnowledgeSpaceId', description='The unique identifier of the knowledge space.
+
+This parameter is required.', example='pks-xxxx'),
+  regionId?: string(name='RegionId', description='The region ID.
+
+This parameter is required.', example='cn-beijing'),
 }
 
 model DescribeKnowledgeSpaceAttributeResponseBody = {
-  ACLMode?: string(name='ACLMode', example='ENFORCED'),
-  creationTime?: string(name='CreationTime', example='2026-06-25T09:53:44Z'),
-  DBClusterId?: string(name='DBClusterId', example='pc-*************'),
-  DBName?: string(name='DBName', example='polar_rag_meta'),
-  DBType?: string(name='DBType', example='MySQL'),
-  description?: string(name='Description', example='testDesc'),
-  embeddingDimension?: int32(name='EmbeddingDimension', example='1536'),
-  embeddingModel?: string(name='EmbeddingModel', example='text-embedding-v4'),
-  knowledgeBaseCount?: int32(name='KnowledgeBaseCount', example='1'),
-  knowledgeSpaceId?: string(name='KnowledgeSpaceId', example='pks-xxxxxx'),
-  LLMModel?: string(name='LLMModel', example='qwen3.6-plus'),
-  name?: string(name='Name', example='testName'),
-  OSSBucket?: string(name='OSSBucket', example='test-bucket'),
-  requestId?: string(name='RequestId', example='6BD9CDE4-5E7B-4BF3-9BB8-83C73E******'),
-  rerankModel?: string(name='RerankModel', example='qwen3-rerank'),
-  shardSize?: int32(name='ShardSize', example='512'),
+  ACLMode?: string(name='ACLMode', description='The access control list (ACL) mode of the knowledge space. Valid values:
+- DISABLED
+- ENFORCED', example='ENFORCED'),
+  creationTime?: string(name='CreationTime', description='The time when the knowledge space was created.', example='2026-06-25T09:53:44Z'),
+  DBClusterId?: string(name='DBClusterId', description='The ID of the PolarDB instance.', example='pc-*************'),
+  DBName?: string(name='DBName', description='The name of the database.', example='polar_rag_meta'),
+  DBType?: string(name='DBType', description='The type of the database engine. Valid values:
+* MySQL
+* PostgreSQL', example='MySQL'),
+  description?: string(name='Description', description='The description of the knowledge space.', example='testDesc'),
+  embeddingDimension?: int32(name='EmbeddingDimension', description='The vector dimensions.', example='1536'),
+  embeddingModel?: string(name='EmbeddingModel', description='The embedding model.', example='text-embedding-v4'),
+  knowledgeBaseCount?: int32(name='KnowledgeBaseCount', description='The total number of knowledge bases.', example='1'),
+  knowledgeSpaceId?: string(name='KnowledgeSpaceId', description='The unique identifier of the knowledge space.', example='pks-xxxxxx'),
+  LLMModel?: string(name='LLMModel', description='The large language model.', example='qwen3.6-plus'),
+  name?: string(name='Name', description='The name of the knowledge space.', example='testName'),
+  OSSBucket?: string(name='OSSBucket', description='OSS Bucket', example='test-bucket'),
+  requestId?: string(name='RequestId', description='Id of the request', example='6BD9CDE4-5E7B-4BF3-9BB8-83C73E******'),
+  rerankModel?: string(name='RerankModel', description='The reranking model.', example='qwen3-rerank'),
+  shardSize?: int32(name='ShardSize', description='The chunk size in tokens.', example='512'),
   shardingStrategyConfig?: {
     defaultStrategy?: {
       parameters?: {
-        maxTokens?: int32(name='MaxTokens', example='512'),
-        mergePeers?: boolean(name='MergePeers', example='true'),
-      }(name='Parameters'),
-      type?: string(name='Type', example='hybrid'),
-    }(name='DefaultStrategy'),
+        maxTokens?: int32(name='MaxTokens', description='The maximum number of tokens in a single chunk.', example='512'),
+        mergePeers?: boolean(name='MergePeers', description='Specifies whether to merge adjacent small chunks under the same heading.', example='true'),
+      }(name='Parameters', description='The parameter details.'),
+      type?: string(name='Type', description='The type of the default chunking strategy. Valid values: hybrid or hierarchical.', example='hybrid'),
+    }(name='DefaultStrategy', description='The default chunking strategy. This strategy is used when no rule is matched.'),
     rules?: [ 
       {
         match?: {
-          contentType?: string(name='ContentType', example='table'),
-        }(name='Match'),
+          contentType?: string(name='ContentType', description='The content type. Currently, table is supported.', example='table'),
+        }(name='Match', description='The content type. Currently, table is supported.'),
         strategy?: {
           parameters?: {
-            markdownTables?: string(name='MarkdownTables', example='auto'),
-            maxTokens?: int32(name='MaxTokens', example='512'),
-          }(name='Parameters'),
-          type?: string(name='Type', example='hierarchical'),
-        }(name='Strategy'),
+            markdownTables?: string(name='MarkdownTables', description='The Markdown table processing mode. Valid values: auto, on, or off.', example='auto'),
+            maxTokens?: int32(name='MaxTokens', description='The maximum number of tokens in a single chunk for matched content.', example='512'),
+          }(name='Parameters', description='The parameter details.'),
+          type?: string(name='Type', description='The chunking strategy type used when a rule is matched.', example='hierarchical'),
+        }(name='Strategy', description='The chunking strategy.'),
       }
-    ](name='Rules'),
-  }(name='ShardingStrategyConfig'),
-  status?: string(name='Status', example='Activation'),
-  strategy?: string(name='Strategy', example='hybrid'),
-  totalDocs?: int32(name='TotalDocs', example='1'),
-  totalSizeBytes?: long(name='TotalSizeBytes', example='318881'),
+    ](name='Rules', description='The list of override rules that are matched in order.'),
+  }(name='ShardingStrategyConfig', description='The default chunking strategy configuration of the knowledge space. This parameter may be empty if existing instances do not have the complete configuration saved.'),
+  status?: string(name='Status', description='The instance status.', example='Activation'),
+  strategy?: string(name='Strategy', description='The chunking strategy.', example='hybrid'),
+  totalDocs?: int32(name='TotalDocs', description='The total number of documents.', example='1'),
+  totalSizeBytes?: long(name='TotalSizeBytes', description='The total size in bytes.', example='318881'),
 }
 
 model DescribeKnowledgeSpaceAttributeResponse = {
@@ -29451,7 +29473,7 @@ model DescribeKnowledgeSpaceAttributeResponse = {
 }
 
 /**
- * @summary 查询知识空间详情
+ * @summary Queries the details of a knowledge space.
  *
  * @param request DescribeKnowledgeSpaceAttributeRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -29484,7 +29506,7 @@ async function describeKnowledgeSpaceAttributeWithOptions(request: DescribeKnowl
 }
 
 /**
- * @summary 查询知识空间详情
+ * @summary Queries the details of a knowledge space.
  *
  * @param request DescribeKnowledgeSpaceAttributeRequest
  * @return DescribeKnowledgeSpaceAttributeResponse
@@ -35582,11 +35604,14 @@ model DisableDBClusterServerlessRequest {
   DBClusterId?: string(name='DBClusterId', description='The cluster ID.
 
 This parameter is required.', example='pc-***************'),
-  fromTimeService?: boolean(name='FromTimeService', example='false'),
+  fromTimeService?: boolean(name='FromTimeService', description='Specifies whether to immediately run the task or run it during a scheduled time window. Valid values:
+
+- false (default): The task is run during a scheduled time window.
+- true: The task is immediately run.', example='false'),
   ownerAccount?: string(name='OwnerAccount'),
   ownerId?: long(name='OwnerId'),
-  plannedEndTime?: string(name='PlannedEndTime', example='2022-04-28T14:30:00Z'),
-  plannedStartTime?: string(name='PlannedStartTime', example='2022-04-28T14:00:00Z'),
+  plannedEndTime?: string(name='PlannedEndTime', description='The latest time to start running the scheduled task. Specify the time in the YYYY-MM-DDThh:mm:ssZ format (UTC).', example='2022-04-28T14:30:00Z'),
+  plannedStartTime?: string(name='PlannedStartTime', description='The earliest time to start running the scheduled task (that is, the task is run within the specified time range). Specify the time in the YYYY-MM-DDThh:mm:ssZ format (UTC).', example='2022-04-28T14:00:00Z'),
   resourceOwnerAccount?: string(name='ResourceOwnerAccount'),
   resourceOwnerId?: long(name='ResourceOwnerId'),
 }
@@ -35603,7 +35628,7 @@ model DisableDBClusterServerlessResponse = {
 }
 
 /**
- * @summary Disables steady-state serverless.
+ * @summary Disables steady-state Serverless.
  *
  * @param request DisableDBClusterServerlessRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -35654,7 +35679,7 @@ async function disableDBClusterServerlessWithOptions(request: DisableDBClusterSe
 }
 
 /**
- * @summary Disables steady-state serverless.
+ * @summary Disables steady-state Serverless.
  *
  * @param request DisableDBClusterServerlessRequest
  * @return DisableDBClusterServerlessResponse
@@ -36027,11 +36052,14 @@ model EnableDBClusterServerlessRequest {
   DBClusterId?: string(name='DBClusterId', description='The cluster ID.
 
 This parameter is required.', example='pc-**************'),
-  fromTimeService?: boolean(name='FromTimeService', example='false'),
+  fromTimeService?: boolean(name='FromTimeService', description='Specifies whether to immediately execute or schedule the parameter modification and restart. Valid values:
+
+- false (default): Schedule the execution.
+- true: Immediately execute.', example='false'),
   ownerAccount?: string(name='OwnerAccount'),
   ownerId?: long(name='OwnerId'),
-  plannedEndTime?: string(name='PlannedEndTime', example='2022-04-28T14:30:00Z'),
-  plannedStartTime?: string(name='PlannedStartTime', example='2022-04-28T14:00:00Z'),
+  plannedEndTime?: string(name='PlannedEndTime', description='The latest time to start executing the target scheduled task. Specify the time in the YYYY-MM-DDThh:mm:ssZ format (UTC).', example='2022-04-28T14:30:00Z'),
+  plannedStartTime?: string(name='PlannedStartTime', description='The earliest time to start executing the scheduled task (that is, the task is executed within the target time period). Specify the time in the YYYY-MM-DDThh:mm:ssZ format (UTC).', example='2022-04-28T14:00:00Z'),
   resourceOwnerAccount?: string(name='ResourceOwnerAccount'),
   resourceOwnerId?: long(name='ResourceOwnerId'),
   scaleApRoNumMax?: string(name='ScaleApRoNumMax', description='The maximum number of steady-state AP read-only nodes. Valid values: 0 to 7.', example='1'),
@@ -41146,7 +41174,7 @@ async function modifyDBCluster(request: ModifyDBClusterRequest): ModifyDBCluster
 }
 
 model ModifyDBClusterAccessWhitelistRequest {
-  DBClusterIPArrayAttribute?: string(name='DBClusterIPArrayAttribute', description='The attribute of the IP whitelist group. If this parameter is set to **hidden**, the group is not displayed in the console.
+  DBClusterIPArrayAttribute?: string(name='DBClusterIPArrayAttribute', description='The attribute of the IP whitelist group. If you set this parameter to **hidden**, the group is not displayed in the console.
 
 > - IP whitelist groups that are already displayed in the console cannot be hidden.
 > - This parameter takes effect only when **WhiteListType** is set to **IP**.', example='hidden'),
@@ -41156,30 +41184,30 @@ model ModifyDBClusterAccessWhitelistRequest {
 - If the specified whitelist group name already exists, the whitelist group is modified.
 - If this parameter is not specified, the default group is modified. 
 
-> - A maximum of 50 IP whitelist groups are supported for a cluster.
+> - A cluster supports up to 50 IP whitelist groups.
 > - This parameter takes effect only when **WhiteListType** is set to **IP**.', example='default'),
   DBClusterId?: string(name='DBClusterId', description='The cluster ID.
 
 This parameter is required.', example='pc-*************'),
   modifyMode?: string(name='ModifyMode', description='The method used to modify the IP whitelist. Valid values:
-- **Cover**: overwrites the original IP whitelist (default value).
-- **Append**: appends IP addresses to the whitelist.
-- **Delete**: removes IP addresses from the whitelist.
+- **Cover**: overwrites the original IP whitelist. This is the default value.
+- **Append**: appends IP addresses to the IP whitelist.
+- **Delete**: removes IP addresses from the IP whitelist.
 
 > This parameter takes effect only when **WhiteListType** is set to **IP**.', example='Cover'),
   ownerAccount?: string(name='OwnerAccount'),
   ownerId?: long(name='OwnerId'),
-  pfsInstanceId?: string(name='PfsInstanceId', example='pfs-xxx'),
+  pfsInstanceId?: string(name='PfsInstanceId', description='The file system instance ID.', example='pfs-xxx'),
   resourceOwnerAccount?: string(name='ResourceOwnerAccount'),
   resourceOwnerId?: long(name='ResourceOwnerId'),
   securityGroupIds?: string(name='SecurityGroupIds', description='The security group IDs. Separate multiple security group IDs with commas (,).
 
-> - A maximum of 3 security groups are supported for a cluster.
+> - A cluster supports up to 3 security groups.
 > - This parameter takes effect only when **WhiteListType** is set to **SecurityGroup**.', example='sg-*********'),
-  securityIps?: string(name='SecurityIps', description='The IP addresses or CIDR blocks in the IP whitelist group. A maximum of 1,000 IP addresses or CIDR blocks can be added to all IP whitelist groups. Separate multiple IP addresses with commas (,). The following two formats are supported: 
+  securityIps?: string(name='SecurityIps', description='The IP addresses or CIDR blocks in the IP whitelist group. You can add up to 1,000 IP addresses or CIDR blocks across all IP whitelist groups. Separate multiple IP addresses with commas (,). The following two formats are supported: 
 
 - IP address format, such as 10.23.12.24.
-- CIDR format, such as 10.23.12.24/24, where 24 indicates the prefix length of the CIDR block. The prefix length ranges from 1 to 32.
+- CIDR format, such as 10.23.12.24/24, where 24 indicates the length of the prefix in the IP address. The prefix length ranges from 1 to 32.
 
 > This parameter takes effect only when **WhiteListType** is set to **IP**.', example='10.23.12.24'),
   whiteListType?: string(name='WhiteListType', description='The type of the whitelist. Valid values:
@@ -41394,22 +41422,22 @@ async function modifyDBClusterAndNodesParameters(request: ModifyDBClusterAndNode
 }
 
 model ModifyDBClusterArchRequest {
-  autoUseCoupon?: boolean(name='AutoUseCoupon'),
+  autoUseCoupon?: boolean(name='AutoUseCoupon', description='Specifies whether to automatically use coupons. Valid values:
+* true (default): Uses coupons.
+* false: Does not use coupons.'),
   DBClusterId?: string(name='DBClusterId', description='The cluster ID.', example='pc-****************'),
-  hotStandbyCluster?: string(name='HotStandbyCluster', description='Specifies whether to enable a hot standby cluster. Valid values:
+  hotStandbyCluster?: string(name='HotStandbyCluster', description='Specifies whether to enable the hot standby cluster. Valid values:
 
-- **on**: Enables a hot standby cluster.
-
-- **equal**: Enables a peer cluster.', example='on'),
-  promotionCode?: string(name='PromotionCode', example='727xxxxxx934'),
+- **on**: Enables the hot standby cluster.
+- **equal**: Enables the peer cluster.', example='on'),
+  promotionCode?: string(name='PromotionCode', description='The coupon code. If this parameter is not specified, the default coupon is used.', example='727xxxxxx934'),
   regionId?: string(name='RegionId', description='The region ID.
 
-> For more information, see [DescribeRegions](https://help.aliyun.com/document_detail/98041.html).', example='cn-beijing'),
-  standbyAZ?: string(name='StandbyAZ', description='The zone for the hot standby storage cluster. Valid values:
+> You can call the [DescribeRegions](https://help.aliyun.com/document_detail/98041.html) operation to query region information.', example='cn-beijing'),
+  standbyAZ?: string(name='StandbyAZ', description='The zone of the hot standby storage cluster. Valid values:
 
-- **auto** (default): The system automatically selects a zone.
-
-> The default value is valid only when \\\\`HotStandbyCluster\\\\` is set to \\\\`on\\\\`. A specific zone is required when \\\\`HotStandbyCluster\\\\` is set to \\\\`equal\\\\`. For more information about zones, see [DescribeZones](https://help.aliyun.com/document_detail/98041.html).', example='cn-beijing-i'),
+- **auto** (default): Automatically selected.
+> When the HotStandbyCluster parameter is set to on, you can use the default value. When the HotStandbyCluster parameter is set to equal, you must specify a specific zone. You can call the [DescribeZones](https://help.aliyun.com/document_detail/98041.html) operation to query zone details.', example='cn-beijing-i'),
 }
 
 model ModifyDBClusterArchResponseBody = {
@@ -42649,43 +42677,35 @@ async function modifyDBClusterMonitor(request: ModifyDBClusterMonitorRequest): M
 }
 
 model ModifyDBClusterParametersRequest {
-  clearBinlog?: boolean(name='ClearBinlog'),
+  clearBinlog?: boolean(name='ClearBinlog', description='Specifies whether to clear binlogs. This parameter takes effect only when binlog is disabled.'),
   DBClusterId?: string(name='DBClusterId', description='The cluster ID.
-
-> Call the [DescribeDBClusters](https://help.aliyun.com/document_detail/98094.html) operation to view information about all clusters in the destination region, including cluster IDs.
+> You can call the [DescribeDBClusters](https://help.aliyun.com/document_detail/98094.html) operation to query information about all clusters in the specified region, including cluster IDs.
 
 This parameter is required.', example='pc-**************'),
-  fromTimeService?: boolean(name='FromTimeService', description='Specifies whether to immediately modify the parameters and restart the cluster. Valid values:
+  fromTimeService?: boolean(name='FromTimeService', description='Specifies whether to immediately or schedule the parameter modification and cluster restart. Valid values:  
 
-- false (default): The modification is scheduled.
-
-- true: The modification is performed immediately.', example='false'),
+- false (default): Scheduled execution.
+ 
+- true: Immediate execution.', example='false'),
   ownerAccount?: string(name='OwnerAccount'),
   ownerId?: long(name='OwnerId'),
-  parameterGroupId?: string(name='ParameterGroupId', description='The ID of the parameter template.
+  parameterGroupId?: string(name='ParameterGroupId', description='The parameter template ID.
 
-> - Call the [DescribeParameterGroups](https://help.aliyun.com/document_detail/207178.html) operation to view the ID of the parameter template.
->
-> - You must specify this parameter or the `Parameters` parameter.
->
-> - This parameter is supported only by PolarDB for MySQL.', example='pcpg-**************'),
-  parameters?: string(name='Parameters', description='A JSON string that consists of parameters and their values. The parameter values must be strings. For example: `{"wait_timeout":"86","innodb_old_blocks_time":"10"}`.
 
-> - Call the [DescribeDBClusterParameters](https://help.aliyun.com/document_detail/98122.html) operation to view the parameters of a PolarDB cluster.
->
-> - This parameter is required if the destination cluster is a PolarDB for PostgreSQL or PolarDB for PostgreSQL (Oracle compatible) cluster.
->
-> - If the destination cluster is a PolarDB for MySQL cluster, you must specify this parameter or the `ParameterGroupId` parameter.', example='{"wait_timeout":"86","innodb_old_blocks_time":"10"}'),
-  plannedEndTime?: string(name='PlannedEndTime', description='The latest time to start the scheduled task. Specify the time in the `YYYY-MM-DDThh:mm:ssZ` format. The time must be in UTC.
+> * You can call the [DescribeParameterGroups](https://help.aliyun.com/document_detail/207178.html) operation to query the parameter template ID.
+> * You must specify either this parameter or the `Parameters` parameter.
+> * Only PolarDB for MySQL supports this parameter.', example='pcpg-**************'),
+  parameters?: string(name='Parameters', description='A JSON string that consists of parameters and their values. Parameter values are of the STRING type. Example: `{"wait_timeout":"86","innodb_old_blocks_time":"10"}`.
 
-> - The latest start time must be at least 30 minutes later than the earliest start time.
->
-> - If you specify `PlannedStartTime` but not this parameter, the latest time to start the task is `PlannedStartTime + 30 minutes` by default. For example, if you set `PlannedStartTime` to `2021-01-14T09:00:00Z` and leave this parameter empty, the task starts no later than `2021-01-14T09:30:00Z`.', example='2022-04-28T14:30:00Z'),
-  plannedStartTime?: string(name='PlannedStartTime', description='The earliest time to start the scheduled task. Specify the time in the `YYYY-MM-DDThh:mm:ssZ` format. The time must be in UTC.
-
-> - The start time can be any point in time within the next 24 hours. For example, if the current time is `2021-01-14T09:00:00Z`, you can set the start time to a value in the range of `2021-01-14T09:00:00Z` to `2021-01-15T09:00:00Z`.
->
-> - If you leave this parameter empty, the task is executed immediately.', example='2022-04-28T14:00:00Z'),
+> * You can call the [DescribeDBClusterParameters](https://help.aliyun.com/document_detail/98122.html) operation to query the parameters of a PolarDB cluster.
+> * If the cluster runs PolarDB for PostgreSQL or PolarDB for PostgreSQL (Compatible with Oracle), this parameter is required.
+> * If the cluster runs PolarDB for MySQL, you must specify either this parameter or the `ParameterGroupId` parameter.', example='{"wait_timeout":"86","innodb_old_blocks_time":"10"}'),
+  plannedEndTime?: string(name='PlannedEndTime', description='The latest time to start running the scheduled task. The time is in the `YYYY-MM-DDThh:mm:ssZ` format (UTC).
+> * The latest time must be at least 30 minutes later than the start time.
+> * If you specify `PlannedStartTime` but do not specify this parameter, the latest time defaults to `start time + 30 minutes`. For example, if `PlannedStartTime` is set to `2021-01-14T09:00:00Z` and this parameter is left empty, the task starts no later than `2021-01-14T09:30:00Z`.', example='2022-04-28T14:30:00Z'),
+  plannedStartTime?: string(name='PlannedStartTime', description='The earliest time to start running the scheduled task within the specified time range. The time is in the `YYYY-MM-DDThh:mm:ssZ` format (UTC).
+> * The start time must be within the next 24 hours. For example, if the current time is `2021-01-14T09:00:00Z`, the start time can range from `2021-01-14T09:00:00Z` to `2021-01-15T09:00:00Z`.
+> * If this parameter is left empty, the task is immediately executed.', example='2022-04-28T14:00:00Z'),
   resourceOwnerAccount?: string(name='ResourceOwnerAccount'),
   resourceOwnerId?: long(name='ResourceOwnerId'),
 }
@@ -42701,10 +42721,10 @@ model ModifyDBClusterParametersResponse = {
 }
 
 /**
- * @summary Modifies the parameters of a PolarDB cluster or applies an existing parameter template to a destination cluster.
+ * @summary Modifies the parameters of a PolarDB cluster or applies an existing parameter template to the specified cluster.
  *
- * @description The parameter template feature in PolarDB lets you centrally manage parameters and apply them to your clusters. For more information, see [Use parameter templates](https://help.aliyun.com/document_detail/207009.html).
- * > The parameter template feature is available only for PolarDB for MySQL.
+ * @description PolarDB provides the parameter template feature. You can use parameter templates to centrally manage parameters and quickly apply them to clusters. For more information, see [Use parameter templates](https://help.aliyun.com/document_detail/207009.html).
+ * > Currently, only PolarDB for MySQL supports the parameter template feature.
  *
  * @param request ModifyDBClusterParametersRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -42764,10 +42784,10 @@ async function modifyDBClusterParametersWithOptions(request: ModifyDBClusterPara
 }
 
 /**
- * @summary Modifies the parameters of a PolarDB cluster or applies an existing parameter template to a destination cluster.
+ * @summary Modifies the parameters of a PolarDB cluster or applies an existing parameter template to the specified cluster.
  *
- * @description The parameter template feature in PolarDB lets you centrally manage parameters and apply them to your clusters. For more information, see [Use parameter templates](https://help.aliyun.com/document_detail/207009.html).
- * > The parameter template feature is available only for PolarDB for MySQL.
+ * @description PolarDB provides the parameter template feature. You can use parameter templates to centrally manage parameters and quickly apply them to clusters. For more information, see [Use parameter templates](https://help.aliyun.com/document_detail/207009.html).
+ * > Currently, only PolarDB for MySQL supports the parameter template feature.
  *
  * @param request ModifyDBClusterParametersRequest
  * @return ModifyDBClusterParametersResponse
@@ -42996,39 +43016,39 @@ async function modifyDBClusterResourceGroup(request: ModifyDBClusterResourceGrou
 }
 
 model ModifyDBClusterSSLRequest {
-  certValidDays?: string(name='CertValidDays', example='1095'),
-  connectionString?: string(name='ConnectionString', example='xxx'),
+  certValidDays?: string(name='CertValidDays', description='The validity period of the SSL certificate. Unit: days. Valid values: 365 and 1095.', example='1095'),
+  connectionString?: string(name='ConnectionString', description='The connection string.', example='xxx'),
   DBClusterId?: string(name='DBClusterId', description='The cluster ID.
 
 This parameter is required.', example='pc-************'),
   DBEndpointId?: string(name='DBEndpointId', description='The endpoint ID.
 
 >* If the cluster is a PolarDB for MySQL cluster, this parameter is required.
->* If the cluster is a PolarDB for PostgreSQL cluster or a PolarDB for PostgreSQL (Compatible with Oracle) cluster, you do not need to specify this parameter. Secure Sockets Layer (SSL) encryption is enabled for all endpoints by default.
+>* If the cluster is a PolarDB for PostgreSQL cluster or a PolarDB for PostgreSQL (Compatible with Oracle) cluster, you do not need to specify this parameter. SSL encryption is enabled for all endpoints by default.
 >* You can call the [DescribeDBClusterSSL](https://help.aliyun.com/document_detail/2319159.html) operation to query endpoint details.', example='pe-******************'),
-  netType?: string(name='NetType', description='The network type of the endpoint. The value must be consistent with the network type of the endpoint specified by the **DBEndpointId** parameter. Valid values:
+  netType?: string(name='NetType', description='The network type of the endpoint. The value must be the same as the network type of the endpoint specified by **DBEndpointId**. Valid values:
 * **Public**: public network
 * **Private**: private network
 * **Inner**: private network (classic network)
 
 >* If the cluster is a PolarDB for MySQL cluster, this parameter is required.
->* If the cluster is a PolarDB for PostgreSQL cluster or a PolarDB for PostgreSQL (Compatible with Oracle) cluster, you do not need to specify this parameter. Secure Sockets Layer (SSL) encryption is enabled for all endpoints by default.', example='Public'),
+>* If the cluster is a PolarDB for PostgreSQL cluster or a PolarDB for PostgreSQL (Compatible with Oracle) cluster, you do not need to specify this parameter. SSL encryption is enabled for all endpoints by default.', example='Public'),
   ownerAccount?: string(name='OwnerAccount'),
   ownerId?: long(name='OwnerId'),
-  pfsInstanceId?: string(name='PfsInstanceId', example='pfs-xxx'),
+  pfsInstanceId?: string(name='PfsInstanceId', description='The PFS instance ID.', example='pfs-xxx'),
   resourceOwnerAccount?: string(name='ResourceOwnerAccount'),
   resourceOwnerId?: long(name='ResourceOwnerId'),
   SSLAutoRotate?: string(name='SSLAutoRotate', description='Specifies whether to enable automatic SSL certificate rotation. Valid values:
 
-- **Enable**: Enables automatic rotation.
+- **Enable**: Enabled.
 
-- **Disable**: Disables automatic rotation.', example='Enable'),
-  SSLEnabled?: string(name='SSLEnabled', description='The SSL status. Valid values:
-* **Disable**: Shutdown of Secure Sockets Layer (SSL) encryption.
-* **Enable**: Enables Secure Sockets Layer (SSL) encryption.
+- **Disable**: Disabled.', example='Enable'),
+  SSLEnabled?: string(name='SSLEnabled', description='The SSL status to set. Valid values:
+* **Disable**: Shutdown SSL encryption.
+* **Enable**: Enables SSL encryption.
 * **Update**: Updates the CA certificate.
 
-> After you enable Secure Sockets Layer (SSL) encryption or update the CA certificate, you must download and configure the certificate. For details, see [Settings for SSL encryption](https://help.aliyun.com/document_detail/153182.html).', example='Enable'),
+> After you enable SSL encryption or update the CA certificate, you must download and configure the certificate. For details, see [Settings for SSL encryption](https://help.aliyun.com/document_detail/153182.html).', example='Enable'),
 }
 
 model ModifyDBClusterSSLResponseBody = {
@@ -43042,7 +43062,7 @@ model ModifyDBClusterSSLResponse = {
 }
 
 /**
- * @summary Enables or performs shutdown of the Secure Sockets Layer (SSL) encryption feature for a PolarDB cluster, or updates the CA certificate of a PolarDB cluster.
+ * @summary Enables or shuts down the Secure Sockets Layer (SSL) encryption feature for a PolarDB cluster, or updates the CA certificate of a PolarDB cluster.
  *
  * @param request ModifyDBClusterSSLRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -43105,7 +43125,7 @@ async function modifyDBClusterSSLWithOptions(request: ModifyDBClusterSSLRequest,
 }
 
 /**
- * @summary Enables or performs shutdown of the Secure Sockets Layer (SSL) encryption feature for a PolarDB cluster, or updates the CA certificate of a PolarDB cluster.
+ * @summary Enables or shuts down the Secure Sockets Layer (SSL) encryption feature for a PolarDB cluster, or updates the CA certificate of a PolarDB cluster.
  *
  * @param request ModifyDBClusterSSLRequest
  * @return ModifyDBClusterSSLResponse
@@ -43270,62 +43290,42 @@ async function modifyDBClusterServerlessConf(request: ModifyDBClusterServerlessC
 }
 
 model ModifyDBClusterStoragePerformanceRequest {
-  autoUseCoupon?: boolean(name='AutoUseCoupon'),
-  burstingEnabled?: string(name='BurstingEnabled', description='Specifies if the I/O performance burst feature is enabled for an ESSD AutoPL disk. Valid values:
+  autoUseCoupon?: boolean(name='AutoUseCoupon', description='Specifies whether to automatically use coupons. Valid values:
+* true (default): uses coupons.
+* false: does not use coupons.'),
+  burstingEnabled?: string(name='BurstingEnabled', description='Specifies whether to enable I/O performance burst for the ESSD AutoPL cloud disk. Valid values:
 
-- **true**: Enabled
+- **true**: enabled.
+- **false**: disabled (default).
 
-- **false**: Disabled (Default)
-
-> This parameter applies only when StorageType is set to ESSDAUTOPL.', example='false'),
-  clientToken?: string(name='ClientToken', description='A client-generated token that ensures request idempotence. The token must be unique for each request. It is case-sensitive and can be up to 64 ASCII characters long.', example='6000170000591aed949d0f******************'),
+> This parameter is supported only when StorageType is set to ESSDAUTOPL.', example='false'),
+  clientToken?: string(name='ClientToken', description='The client token that is used to ensure the idempotence of the request. You can use the client to generate the token, but you must make sure that the token is unique among different requests. The token is case-sensitive and can contain only ASCII characters. The token can be up to 64 characters in length.', example='6000170000591aed949d0f******************'),
   DBClusterId?: string(name='DBClusterId', description='The cluster ID.
 
 This parameter is required.', example='pc-*************'),
-  modifyType?: string(name='ModifyType', description='The modification type. Valid values:
-
-- **Upgrade**: Upgrades the storage performance.
-
-- **Downgrade**: Downgrades the storage performance.', example='Upgrade'),
-  promotionCode?: string(name='PromotionCode', example='727xxxxxx934'),
-  provisionedIops?: int32(name='ProvisionedIops', description='<props="china">
-
-Valid values: 0 to min{50,000, 1000 \\\\* capacity - baseline performance}.
-
-
-
-<props="china">
-
-Baseline performance = min{1,800 + 50 \\\\* capacity, 50,000}.
-
-
-
-<props="china">
-
-> This parameter applies only when StorageType is set to ESSDAUTOPL.', example='2500'),
+  modifyType?: string(name='ModifyType', description='The type of the specification change. Valid values: 
+* **Upgrade**: upgrades the specifications.
+* **Downgrade**: downgrades the specifications.', example='Upgrade'),
+  promotionCode?: string(name='PromotionCode', description='The coupon code. If this parameter is not specified, the default coupon is used.', example='727xxxxxx934'),
+  provisionedIops?: int32(name='ProvisionedIops', description='<p id="p_wyg_t4a_glm" props="china" icmsditafragmentmagic=1>The provisioned read/write IOPS of the ESSD AutoPL cloud disk. Valid values: 0 to min{50,000, 1000 × Capacity - Baseline performance}.</p>
+<p id="p_6de_jxy_k2g" props="china" icmsditafragmentmagic=1>Baseline performance = min{1,800 + 50 × Capacity, 50000}.</p>
+<note id="note_7kj_j0o_rgs" props="china" icmsditafragmentmagic=1>This parameter is supported only when StorageType is set to ESSDAUTOPL.</note>', example='2500'),
   resourceOwnerId?: long(name='ResourceOwnerId'),
-  storageType?: string(name='StorageType', description='The target storage type. Valid values for Enterprise Edition:
-
+  storageType?: string(name='StorageType', description='The target storage type. Valid values for PolarDB Enterprise Edition:
 - **PSL5**
-
 - **PSL4**
 
-Valid values for Standard Edition:
-
+Valid values for PolarDB for MySQL Standard Edition:
 - **ESSDPL0**
-
 - **ESSDPL1**
-
 - **ESSDPL2**
-
 - **ESSDPL3**
-
 - **ESSDAUTOPL**', example='ESSDAUTOPL'),
 }
 
 model ModifyDBClusterStoragePerformanceResponseBody = {
   DBClusterId?: string(name='DBClusterId', description='The cluster ID.', example='pc-************'),
-  orderId?: string(name='OrderId', description='The ID of the order.', example='2035629******'),
+  orderId?: string(name='OrderId', description='The order ID.', example='2035629******'),
   requestId?: string(name='RequestId', description='The request ID.', example='E56531A4-E552-40BA-9C58-137B80******'),
 }
 
@@ -48648,30 +48648,36 @@ async function restoreTable(request: RestoreTableRequest): RestoreTableResponse 
 }
 
 model RetrievalKnowledgeBaseRequest {
-  knowledgeBaseId?: string(name='KnowledgeBaseId', description='This parameter is required.', example='pkb-xxxxx'),
-  queryText?: string(name='QueryText', description='This parameter is required.', example='财报'),
-  regionId?: string(name='RegionId', description='This parameter is required.', example='cn-beijing'),
-  rerankEnabled?: boolean(name='RerankEnabled', example='true'),
-  scoreThreshold?: double(name='ScoreThreshold', example='0.7'),
-  topK?: int32(name='TopK', example='5'),
+  knowledgeBaseId?: string(name='KnowledgeBaseId', description='The unique ID of the knowledge base.
+
+This parameter is required.', example='pkb-xxxxx'),
+  queryText?: string(name='QueryText', description='The query text.
+
+This parameter is required.', example='Financial report'),
+  regionId?: string(name='RegionId', description='The region ID.
+
+This parameter is required.', example='cn-beijing'),
+  rerankEnabled?: boolean(name='RerankEnabled', description='Specifies whether to enable reranking. Default value: true.', example='true'),
+  scoreThreshold?: double(name='ScoreThreshold', description='The similarity score threshold.', example='0.7'),
+  topK?: int32(name='TopK', description='The number of results to return.', example='5'),
 }
 
 model RetrievalKnowledgeBaseResponseBody = {
-  queryText?: string(name='QueryText', example='财报'),
-  requestId?: string(name='RequestId', example='CD35F3-F3-44CA-AFFF-BAF869******'),
-  resultCount?: int32(name='ResultCount', example='5'),
+  queryText?: string(name='QueryText', description='The query text.', example='Financial report'),
+  requestId?: string(name='RequestId', description='Id of the request', example='CD35F3-F3-44CA-AFFF-BAF869******'),
+  resultCount?: int32(name='ResultCount', description='The number of results.', example='5'),
   results?: [ 
     {
-      fileId?: string(name='FileId', example='91b97b71-xxxx-xxxx-xxxx-33c6a6341cdc'),
-      fileName?: string(name='FileName', example='2024财报.pdf'),
-      headings?: [ string ](name='Headings'),
-      metadata?: string(name='Metadata', example='{}'),
-      pageNumbers?: [ int32 ](name='PageNumbers'),
-      shardContent?: string(name='ShardContent', example='财报'),
-      shardIndex?: int32(name='ShardIndex', example='1'),
-      similarityScore?: double(name='SimilarityScore', example='0.8'),
+      fileId?: string(name='FileId', description='The unique ID of the file.', example='91b97b71-xxxx-xxxx-xxxx-33c6a6341cdc'),
+      fileName?: string(name='FileName', description='The file name.', example='2024FinancialReport.pdf'),
+      headings?: [ string ](name='Headings', description='The chain of section headings to which the shard belongs.'),
+      metadata?: string(name='Metadata', description='The metadata.', example='{}'),
+      pageNumbers?: [ int32 ](name='PageNumbers', description='The list of page numbers to which the shard belongs.'),
+      shardContent?: string(name='ShardContent', description='The text content of the shard.', example='Financial report'),
+      shardIndex?: int32(name='ShardIndex', description='The shard index.', example='1'),
+      similarityScore?: double(name='SimilarityScore', description='The similarity score.', example='0.8'),
     }
-  ](name='Results'),
+  ](name='Results', description='The search results.'),
 }
 
 model RetrievalKnowledgeBaseResponse = {
@@ -48681,7 +48687,7 @@ model RetrievalKnowledgeBaseResponse = {
 }
 
 /**
- * @summary 检索知识库
+ * @summary Retrieves information from a knowledge base.
  *
  * @param request RetrievalKnowledgeBaseRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -48726,7 +48732,7 @@ async function retrievalKnowledgeBaseWithOptions(request: RetrievalKnowledgeBase
 }
 
 /**
- * @summary 检索知识库
+ * @summary Retrieves information from a knowledge base.
  *
  * @param request RetrievalKnowledgeBaseRequest
  * @return RetrievalKnowledgeBaseResponse
@@ -48737,24 +48743,33 @@ async function retrievalKnowledgeBase(request: RetrievalKnowledgeBaseRequest): R
 }
 
 model RetryKnowledgeBaseFilesRequest {
-  fileIds?: string(name='FileIds', description='This parameter is required.', example='91b97b71-xxxx-xxxx-xxxx-33c6a6341cdc'),
-  knowledgeBaseId?: string(name='KnowledgeBaseId', description='This parameter is required.', example='pkb-xxxxx'),
-  regionId?: string(name='RegionId', description='This parameter is required.', example='cn-beijing'),
+  fileIds?: string(name='FileIds', description='The IDs of the files to retry. Separate multiple IDs with commas (,). A maximum of 30 IDs can be specified.
+
+This parameter is required.', example='91b97b71-xxxx-xxxx-xxxx-33c6a6341cdc'),
+  knowledgeBaseId?: string(name='KnowledgeBaseId', description='The unique ID of the knowledge base.
+
+This parameter is required.', example='pkb-xxxxx'),
+  regionId?: string(name='RegionId', description='The region ID.
+
+This parameter is required.', example='cn-beijing'),
 }
 
 model RetryKnowledgeBaseFilesResponseBody = {
-  failedCount?: int32(name='FailedCount', example='0'),
+  failedCount?: int32(name='FailedCount', description='The number of failed retries.', example='0'),
   items?: [ 
     {
-      errorCode?: string(name='ErrorCode', example='AclProjectionNotFound'),
-      errorMessage?: string(name='ErrorMessage', example='No active ACL projection exists for the IM document'),
-      fileId?: string(name='FileId', example='91b97b71-xxxx-xxxx-xxxx-33c6a6341cdc'),
-      success?: boolean(name='Success', example='false'),
+      errorCode?: string(name='ErrorCode', description='The error code.', example='AclProjectionNotFound'),
+      errorMessage?: string(name='ErrorMessage', description='The failure reason.', example='No active ACL projection exists for the IM document'),
+      fileId?: string(name='FileId', description='The file ID.', example='91b97b71-xxxx-xxxx-xxxx-33c6a6341cdc'),
+      success?: boolean(name='Success', description='The request result. Valid values:
+
+- **true**: The request was successful.
+- **false**: The request failed.', example='false'),
     }
-  ](name='Items'),
-  requestId?: string(name='RequestId', example='CED079B7-A408-41A1-BFF1-EC608E******'),
-  succeededCount?: int32(name='SucceededCount', example='1'),
-  totalCount?: int32(name='TotalCount', example='1'),
+  ](name='Items', description='The list of retry results.'),
+  requestId?: string(name='RequestId', description='Id of the request', example='CED079B7-A408-41A1-BFF1-EC608E******'),
+  succeededCount?: int32(name='SucceededCount', description='The number of successful retries.', example='1'),
+  totalCount?: int32(name='TotalCount', description='The total number of records.', example='1'),
 }
 
 model RetryKnowledgeBaseFilesResponse = {
@@ -48764,7 +48779,7 @@ model RetryKnowledgeBaseFilesResponse = {
 }
 
 /**
- * @summary 批量重试知识库失败文件
+ * @summary Retries failed files in a knowledge base in batches.
  *
  * @param request RetryKnowledgeBaseFilesRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -48800,7 +48815,7 @@ async function retryKnowledgeBaseFilesWithOptions(request: RetryKnowledgeBaseFil
 }
 
 /**
- * @summary 批量重试知识库失败文件
+ * @summary Retries failed files in a knowledge base in batches.
  *
  * @param request RetryKnowledgeBaseFilesRequest
  * @return RetryKnowledgeBaseFilesResponse
@@ -49539,41 +49554,41 @@ async function tagResources(request: TagResourcesRequest): TagResourcesResponse 
 }
 
 model TempModifyDBNodeRequest {
-  autoUseCoupon?: boolean(name='AutoUseCoupon'),
-  clientToken?: string(name='ClientToken', description='A client token to ensure the idempotence of the request. Generate a unique token for each request. The token is case-sensitive and can be up to 64 ASCII characters in length.', example='6000170000591aed949d0f5********************'),
+  autoUseCoupon?: boolean(name='AutoUseCoupon', description='Specifies whether to automatically use coupons. Valid values:
+* true (default): Uses coupons.
+* false: Does not use coupons.'),
+  clientToken?: string(name='ClientToken', description='The client token that is used to ensure the idempotency of the request. You can use the client to generate the token, but you must make sure that the token is unique among different requests. The token is case-sensitive and can contain only ASCII characters. The token can be up to 64 characters in length.', example='6000170000591aed949d0f5********************'),
   DBClusterId?: string(name='DBClusterId', description='The cluster ID.
 
 This parameter is required.', example='pc-xxxxxxxxxx'),
   DBNode?: [ 
     {
-      targetClass?: string(name='TargetClass', description='The specifications of the node to upgrade or add.
+      targetClass?: string(name='TargetClass', description='The specifications of the node to be upgraded or added.
 
-> - When you add a node, the node specifications must be the same as the specifications of the existing nodes.
->
-> - For more information about the specifications of existing cluster nodes, see [DescribeDBClusters](https://help.aliyun.com/document_detail/98094.html).', example='polar.mysql.x4.medium'),
-      zoneId?: string(name='ZoneId', description='The zone for the new node. The zone must be the same as the zone of the existing nodes.', example='cn-hangzhou-i'),
+> - When you add a node, the node specifications must be the same as those of the existing nodes.
+> - For the specifications of existing cluster nodes, see [DescribeDBClusters](https://help.aliyun.com/document_detail/98094.html).', example='polar.mysql.x4.medium'),
+      zoneId?: string(name='ZoneId', description='The zone of the node to be added. The zone must be the same as that of the existing nodes.', example='cn-hangzhou-i'),
     }
-  ](name='DBNode', description='The information about the nodes to upgrade or add.
+  ](name='DBNode', description='The information about the node to be upgraded or added.
 
 This parameter is required.'),
-  modifyType?: string(name='ModifyType', description='The modification type. The value is fixed to **TempUpgrade**.
+  modifyType?: string(name='ModifyType', description='The change type. The value is fixed as **TempUpgrade**.
 
 This parameter is required.', example='TempUpgrade'),
   operationType?: string(name='OperationType', description='The operation type. Valid values:
 
-- **Modify**: temporary upgrade
-
-- **Add**: temporarily add a node
+- **Modify**: temporarily upgrades specifications.
+- **Add**: temporarily adds nodes.
 
 This parameter is required.', example='Modify'),
   ownerAccount?: string(name='OwnerAccount'),
   ownerId?: long(name='OwnerId'),
-  promotionCode?: string(name='PromotionCode', example='727xxxxxx934'),
+  promotionCode?: string(name='PromotionCode', description='The coupon code. If this parameter is not specified, the default coupon is used.', example='727xxxxxx934'),
   resourceOwnerAccount?: string(name='ResourceOwnerAccount'),
   resourceOwnerId?: long(name='ResourceOwnerId'),
-  restoreTime?: string(name='RestoreTime', description='The time to revert the temporary upgrade. The format is YYYY-MM-DD hh:mm:ss.
+  restoreTime?: string(name='RestoreTime', description='The restore time for the temporary upgrade. Specify the time in the YYYY-MM-DD hh:mm:ss format.
 
-> The revert time must be at least 1 hour later than the current time. It must also be at least 1 day before the cluster expires.
+> The restore time cannot be earlier than 1 hour after the current time or later than 1 day before the cluster expiration time.
 
 This parameter is required.', example='2021-09-23 18:16:00'),
 }
@@ -49592,7 +49607,7 @@ model TempModifyDBNodeResponse = {
 }
 
 /**
- * @summary Temporarily Modifies the configuration of a node.
+ * @summary Temporarily changes the specifications of a cluster.
  *
  * @param request TempModifyDBNodeRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -49655,7 +49670,7 @@ async function tempModifyDBNodeWithOptions(request: TempModifyDBNodeRequest, run
 }
 
 /**
- * @summary Temporarily Modifies the configuration of a node.
+ * @summary Temporarily changes the specifications of a cluster.
  *
  * @param request TempModifyDBNodeRequest
  * @return TempModifyDBNodeResponse
@@ -49666,9 +49681,11 @@ async function tempModifyDBNode(request: TempModifyDBNodeRequest): TempModifyDBN
 }
 
 model TransformDBClusterPayTypeRequest {
-  autoUseCoupon?: boolean(name='AutoUseCoupon'),
-  clientToken?: string(name='ClientToken', description='A client token to ensure the idempotence of the request. The client generates the token, but you must make sure that the token is unique among different requests. The token is case-sensitive and can be up to 64 ASCII characters in length.', example='6000170000591aed949d0f5********************'),
-  DBClusterId?: string(name='DBClusterId', description='The ID of the PolarDB cluster.
+  autoUseCoupon?: boolean(name='AutoUseCoupon', description='Specifies whether to automatically use coupons. Valid values:
+* true (default): Use coupons.
+* false: Do not use coupons.'),
+  clientToken?: string(name='ClientToken', description='The client token that is used to ensure the idempotence of the request. The value of this parameter is generated by the client and must be unique among different requests. The token is case-sensitive and cannot exceed 64 ASCII characters in length.', example='6000170000591aed949d0f5********************'),
+  DBClusterId?: string(name='DBClusterId', description='The PolarDB cluster ID.
 
 This parameter is required.', example='pc-bp10gr51qasnl****'),
   ownerAccount?: string(name='OwnerAccount'),
@@ -49680,27 +49697,27 @@ This parameter is required.', example='pc-bp10gr51qasnl****'),
 - **Prepaid**: subscription
 
 This parameter is required.', example='Prepaid'),
-  period?: string(name='Period', description='The unit of the subscription duration. Valid values:
+  period?: string(name='Period', description='The subscription type of the subscription instance. Valid values:
 
-- **Year**
+- **Year**: yearly subscription
 
-- **Month**
+- **Month**: monthly subscription
 
-> This parameter is required when you set **PayType** to **Prepaid**.', example='Month'),
-  promotionCode?: string(name='PromotionCode', example='727xxxxxx934'),
+> This parameter is required when **PayType** is set to **Prepaid**.', example='Month'),
+  promotionCode?: string(name='PromotionCode', description='The coupon code. If you do not specify this parameter, the default coupon is used.', example='727xxxxxx934'),
   regionId?: string(name='RegionId', description='The region ID.
 
 This parameter is required.', example='cn-hangzhou'),
-  resourceGroupId?: string(name='ResourceGroupId', description='The ID of the resource group.', example='rg-acfm3f4un32****'),
+  resourceGroupId?: string(name='ResourceGroupId', description='The resource group ID.', example='rg-acfm3f4un32****'),
   resourceOwnerAccount?: string(name='ResourceOwnerAccount'),
   resourceOwnerId?: long(name='ResourceOwnerId'),
   usedTime?: string(name='UsedTime', description='The subscription duration. Valid values:
 
-- If you set **Period** to **Year**, the value of **UsedTime** can be 1, 2, or 3.
+- If **Period** is set to **Year**, set **UsedTime** to a value from 1 to 3.
 
-- If you set **Period** to **Month**, the value of **UsedTime** can be an integer from 1 to 9.
+- If **Period** is set to **Month**, set **UsedTime** to a value from 1 to 9.
 
-> This parameter is required when you set **PayType** to **Prepaid**.', example='1'),
+> This parameter is required when **PayType** is set to **Prepaid**.', example='1'),
 }
 
 model TransformDBClusterPayTypeResponseBody = {
@@ -49709,10 +49726,9 @@ model TransformDBClusterPayTypeResponseBody = {
 - **Postpaid**: pay-as-you-go
 
 - **Prepaid**: subscription', example='Prepaid'),
-  DBClusterId?: string(name='DBClusterId', description='The ID of the PolarDB cluster.', example='pc-bp10gr51qasnl****'),
+  DBClusterId?: string(name='DBClusterId', description='The PolarDB cluster ID.', example='pc-bp10gr51qasnl****'),
   expiredTime?: string(name='ExpiredTime', description='The expiration time of the instance.
-
-> This parameter is returned only when **PayType** is set to **Prepaid**.', example='2020-04-20T10:00:00Z'),
+> This response parameter is returned only when **PayType** is set to **Prepaid**.', example='2020-04-20T10:00:00Z'),
   orderId?: string(name='OrderId', description='The order ID.', example='20515760028****'),
   requestId?: string(name='RequestId', description='The request ID.', example='5E71541A-6007-4DCC-A38A-F872C31FEB45'),
 }
@@ -49726,11 +49742,9 @@ model TransformDBClusterPayTypeResponse = {
 /**
  * @summary Changes the billing method of a PolarDB cluster.
  *
- * @description > - PolarDB clusters support two billing methods: subscription and pay-as-you-go. You can change the billing method of a cluster from subscription to pay-as-you-go, or from pay-as-you-go to subscription. For more information, see [Change the billing method from subscription to pay-as-you-go](https://help.aliyun.com/document_detail/172886.html) and [Change the billing method from pay-as-you-go to subscription](https://help.aliyun.com/document_detail/84076.html).
- * >
- * > - You cannot change the billing method from pay-as-you-go to subscription if your Alibaba Cloud account has an insufficient balance.
- * >
- * > - When you change the billing method from subscription to pay-as-you-go, the system automatically refunds your remaining prepaid fees.
+ * @description > - PolarDB clusters support subscription and pay-as-you-go billing methods. You can change the billing method from subscription to pay-as-you-go or from pay-as-you-go to subscription based on your business requirements. For more information, see [Change from subscription to pay-as-you-go](https://help.aliyun.com/document_detail/172886.html) and [Change from pay-as-you-go to subscription](https://help.aliyun.com/document_detail/84076.html).
+ * >- If your Alibaba Cloud account balance is insufficient, you cannot change the pay-as-you-go billing method to subscription.
+ * >- When you change the billing method from subscription to pay-as-you-go, the system automatically refunds the remaining balance of the fees that you have paid.
  *
  * @param request TransformDBClusterPayTypeRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -49798,11 +49812,9 @@ async function transformDBClusterPayTypeWithOptions(request: TransformDBClusterP
 /**
  * @summary Changes the billing method of a PolarDB cluster.
  *
- * @description > - PolarDB clusters support two billing methods: subscription and pay-as-you-go. You can change the billing method of a cluster from subscription to pay-as-you-go, or from pay-as-you-go to subscription. For more information, see [Change the billing method from subscription to pay-as-you-go](https://help.aliyun.com/document_detail/172886.html) and [Change the billing method from pay-as-you-go to subscription](https://help.aliyun.com/document_detail/84076.html).
- * >
- * > - You cannot change the billing method from pay-as-you-go to subscription if your Alibaba Cloud account has an insufficient balance.
- * >
- * > - When you change the billing method from subscription to pay-as-you-go, the system automatically refunds your remaining prepaid fees.
+ * @description > - PolarDB clusters support subscription and pay-as-you-go billing methods. You can change the billing method from subscription to pay-as-you-go or from pay-as-you-go to subscription based on your business requirements. For more information, see [Change from subscription to pay-as-you-go](https://help.aliyun.com/document_detail/172886.html) and [Change from pay-as-you-go to subscription](https://help.aliyun.com/document_detail/84076.html).
+ * >- If your Alibaba Cloud account balance is insufficient, you cannot change the pay-as-you-go billing method to subscription.
+ * >- When you change the billing method from subscription to pay-as-you-go, the system automatically refunds the remaining balance of the fees that you have paid.
  *
  * @param request TransformDBClusterPayTypeRequest
  * @return TransformDBClusterPayTypeResponse
@@ -49813,13 +49825,17 @@ async function transformDBClusterPayType(request: TransformDBClusterPayTypeReque
 }
 
 model TriggerKnowledgeBaseSyncRequest {
-  knowledgeBaseId?: string(name='KnowledgeBaseId', description='This parameter is required.', example='pkb-xxxxx'),
-  linkId?: string(name='LinkId', example='pkbl-xxxxx'),
-  regionId?: string(name='RegionId', description='This parameter is required.', example='cn-beijing'),
+  knowledgeBaseId?: string(name='KnowledgeBaseId', description='The unique identifier of the knowledge base.
+
+This parameter is required.', example='pkb-xxxxx'),
+  linkId?: string(name='LinkId', description='The synchronization link ID.', example='pkbl-xxxxx'),
+  regionId?: string(name='RegionId', description='The region ID.
+
+This parameter is required.', example='cn-beijing'),
 }
 
 model TriggerKnowledgeBaseSyncResponseBody = {
-  requestId?: string(name='RequestId', example='A7E6A8FD-C50B-46B2-BA85-D8B8D3******'),
+  requestId?: string(name='RequestId', description='Id of the request', example='A7E6A8FD-C50B-46B2-BA85-D8B8D3******'),
 }
 
 model TriggerKnowledgeBaseSyncResponse = {
@@ -49829,7 +49845,7 @@ model TriggerKnowledgeBaseSyncResponse = {
 }
 
 /**
- * @summary 触发知识库同步
+ * @summary Triggers knowledge base synchronization.
  *
  * @param request TriggerKnowledgeBaseSyncRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -49865,7 +49881,7 @@ async function triggerKnowledgeBaseSyncWithOptions(request: TriggerKnowledgeBase
 }
 
 /**
- * @summary 触发知识库同步
+ * @summary Triggers knowledge base synchronization.
  *
  * @param request TriggerKnowledgeBaseSyncRequest
  * @return TriggerKnowledgeBaseSyncResponse
@@ -50411,10 +50427,16 @@ async function updateExtensions(request: UpdateExtensionsRequest): UpdateExtensi
 }
 
 model UpdateKBSyncLinkRequest {
+  clientId?: string(name='ClientId'),
+  clientSecret?: string(name='ClientSecret'),
   knowledgeBaseId?: string(name='KnowledgeBaseId', description='This parameter is required.', example='pkb-xxxxx'),
   linkId?: string(name='LinkId', description='This parameter is required.', example='pkbl-xxxxx'),
+  mcpEndpoint?: string(name='McpEndpoint'),
   regionId?: string(name='RegionId', description='This parameter is required.', example='cn-beijing'),
+  sheetMcpEndpoint?: string(name='SheetMcpEndpoint'),
+  syncEnabled?: boolean(name='SyncEnabled'),
   syncIntervalMinutes?: int32(name='SyncIntervalMinutes', example='20'),
+  userId?: string(name='UserId'),
 }
 
 model UpdateKBSyncLinkResponseBody = {
@@ -50439,17 +50461,35 @@ model UpdateKBSyncLinkResponse = {
 async function updateKBSyncLinkWithOptions(request: UpdateKBSyncLinkRequest, runtime: Util.RuntimeOptions): UpdateKBSyncLinkResponse {
   Util.validateModel(request);
   var query = {};
+  if (!Util.isUnset(request.clientId)) {
+    query['ClientId'] = request.clientId;
+  }
+  if (!Util.isUnset(request.clientSecret)) {
+    query['ClientSecret'] = request.clientSecret;
+  }
   if (!Util.isUnset(request.knowledgeBaseId)) {
     query['KnowledgeBaseId'] = request.knowledgeBaseId;
   }
   if (!Util.isUnset(request.linkId)) {
     query['LinkId'] = request.linkId;
   }
+  if (!Util.isUnset(request.mcpEndpoint)) {
+    query['McpEndpoint'] = request.mcpEndpoint;
+  }
   if (!Util.isUnset(request.regionId)) {
     query['RegionId'] = request.regionId;
   }
+  if (!Util.isUnset(request.sheetMcpEndpoint)) {
+    query['SheetMcpEndpoint'] = request.sheetMcpEndpoint;
+  }
+  if (!Util.isUnset(request.syncEnabled)) {
+    query['SyncEnabled'] = request.syncEnabled;
+  }
   if (!Util.isUnset(request.syncIntervalMinutes)) {
     query['SyncIntervalMinutes'] = request.syncIntervalMinutes;
+  }
+  if (!Util.isUnset(request.userId)) {
+    query['UserId'] = request.userId;
   }
   var req = new OpenApi.OpenApiRequest{ 
     query = OpenApiUtil.query(query),
@@ -50480,16 +50520,26 @@ async function updateKBSyncLink(request: UpdateKBSyncLinkRequest): UpdateKBSyncL
 }
 
 model UpdateKnowledgeBaseRequest {
-  description?: string(name='Description', example='test desc'),
-  knowledgeBaseId?: string(name='KnowledgeBaseId', description='This parameter is required.', example='pkb-xxxxx'),
-  name?: string(name='Name', example='testName'),
-  regionId?: string(name='RegionId', description='This parameter is required.', example='cn-beijing'),
-  searchMode?: string(name='SearchMode', example='balanced'),
+  description?: string(name='Description', description='The description of the knowledge base.', example='test desc'),
+  knowledgeBaseId?: string(name='KnowledgeBaseId', description='The unique ID of the knowledge base.
+
+This parameter is required.', example='pkb-xxxxx'),
+  name?: string(name='Name', description='The name of the knowledge base.', example='testName'),
+  regionId?: string(name='RegionId', description='The region ID.
+
+This parameter is required.', example='cn-beijing'),
+  searchMode?: string(name='SearchMode', description='The search mode. Valid values:
+
+* balanced (default): balanced mode.
+* precise: precise mode.
+* semantic: semantic mode.
+* knn: KNN mode.
+* rrf: reciprocal rank fusion (RRF) mode.', example='balanced'),
 }
 
 model UpdateKnowledgeBaseResponseBody = {
-  knowledgeBaseId?: string(name='KnowledgeBaseId', example='pkb-xxxxx'),
-  requestId?: string(name='RequestId', example='EB07CFF0-D8A4-5C76-AED7-D00E26FC2***'),
+  knowledgeBaseId?: string(name='KnowledgeBaseId', description='The unique ID of the knowledge base.', example='pkb-xxxxx'),
+  requestId?: string(name='RequestId', description='Id of the request', example='EB07CFF0-D8A4-5C76-AED7-D00E26FC2***'),
 }
 
 model UpdateKnowledgeBaseResponse = {
@@ -50499,7 +50549,7 @@ model UpdateKnowledgeBaseResponse = {
 }
 
 /**
- * @summary 更新知识库
+ * @summary Updates a knowledge base.
  *
  * @param request UpdateKnowledgeBaseRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -50541,7 +50591,7 @@ async function updateKnowledgeBaseWithOptions(request: UpdateKnowledgeBaseReques
 }
 
 /**
- * @summary 更新知识库
+ * @summary Updates a knowledge base.
  *
  * @param request UpdateKnowledgeBaseRequest
  * @return UpdateKnowledgeBaseResponse
@@ -50552,45 +50602,74 @@ async function updateKnowledgeBase(request: UpdateKnowledgeBaseRequest): UpdateK
 }
 
 model UpdateKnowledgeBaseFileShardingStrategyRequest {
-  fileId?: string(name='FileId', description='This parameter is required.', example='e347ddb8-49bb-5c66-94bc-fa05cedaeac8'),
-  inheritSpaceStrategy?: boolean(name='InheritSpaceStrategy', example='false'),
-  knowledgeBaseId?: string(name='KnowledgeBaseId', description='This parameter is required.', example='pkb-2zesv6l6a63xsrym'),
-  regionId?: string(name='RegionId', description='This parameter is required.', example='cn-beijing'),
+  fileId?: string(name='FileId', description='The unique ID of the knowledge base file.
+
+This parameter is required.', example='e347ddb8-49bb-5c66-94bc-fa05cedaeac8'),
+  inheritSpaceStrategy?: boolean(name='InheritSpaceStrategy', description='Specifies whether to restore inheritance of the chunking strategy from the knowledge space. When this parameter is set to true, ShardingStrategyConfig cannot be specified at the same time.', example='false'),
+  knowledgeBaseId?: string(name='KnowledgeBaseId', description='The unique ID of the knowledge base.
+
+This parameter is required.', example='pkb-2zesv6l6a63xsrym'),
+  regionId?: string(name='RegionId', description='The ID of the region where the knowledge base resides.
+
+This parameter is required.', example='cn-beijing'),
   shardingStrategyConfig?: {
     defaultStrategy?: {
       parameters?: {
-        maxTokens?: int32(name='MaxTokens', example='512'),
-        mergePeers?: boolean(name='MergePeers', example='true'),
-      }(name='Parameters'),
-      type?: string(name='Type', description='This parameter is required.', example='hybrid'),
-    }(name='DefaultStrategy', description='This parameter is required.'),
+        maxTokens?: int32(name='MaxTokens', description='The maximum number of tokens per chunk. The value must be a positive integer. This parameter takes effect only when Type is set to hybrid.', example='512'),
+        mergePeers?: boolean(name='MergePeers', description='Specifies whether to merge adjacent small chunks under the same heading. This parameter takes effect only when Type is set to hybrid.', example='true'),
+      }(name='Parameters', description='The parameters of the default chunking strategy. MaxTokens and MergePeers are supported only when Type is set to hybrid.'),
+      type?: string(name='Type', description='The type of the default chunking strategy. Valid values:
+- hybrid: Splits by document structure and limits the token count.
+- hierarchical: Splits only by document structure.
+
+This parameter is required.', example='hybrid'),
+    }(name='DefaultStrategy', description='The default chunking strategy. This strategy is used when no rule is matched.
+
+This parameter is required.'),
     rules?: [ 
       {
         match?: {
-          contentType?: string(name='ContentType', example='table'),
-        }(name='Match', description='This parameter is required.'),
+          contentType?: string(name='ContentType', description='The content type. Currently, only table is supported, which matches content that is parsed as tables.', example='table'),
+        }(name='Match', description='The rule match condition. Currently, only exact matching by content type for table content is supported.
+
+This parameter is required.'),
         strategy?: {
           parameters?: {
-            markdownTables?: string(name='MarkdownTables', example='auto'),
-            maxTokens?: int32(name='MaxTokens', example='512'),
-          }(name='Parameters'),
-          type?: string(name='Type', description='This parameter is required.', example='hierarchical'),
-        }(name='Strategy', description='This parameter is required.'),
+            markdownTables?: string(name='MarkdownTables', description='The Markdown table processing mode. Valid values:
+- auto: Automatically determines the processing mode.
+- on: Forcefully enables Markdown table processing.
+- off: Disables Markdown table processing.', example='auto'),
+            maxTokens?: int32(name='MaxTokens', description='The maximum number of tokens per chunk for matched content. The value must be a positive integer. This parameter takes effect only when Type is set to hybrid.', example='512'),
+          }(name='Parameters', description='The chunking strategy parameters of the override rule. MaxTokens takes effect only when Type is set to hybrid. MarkdownTables supports auto, on, or off.'),
+          type?: string(name='Type', description='The chunking strategy type of the override rule. Valid values:
+- hybrid
+- hierarchical
+
+This parameter is required.', example='hierarchical'),
+        }(name='Strategy', description='The chunking strategy to use when the rule is matched.
+
+This parameter is required.'),
       }
-    ](name='Rules'),
-  }(name='ShardingStrategyConfig'),
+    ](name='Rules', description='The list of override rules that are matched in order. Currently, a maximum of one exact-match rule with ContentType set to table is supported.'),
+  }(name='ShardingStrategyConfig', description='The file-level chunking strategy configuration. This parameter is required when InheritSpaceStrategy is not set to true.'),
 }
 
 model UpdateKnowledgeBaseFileShardingStrategyShrinkRequest {
-  fileId?: string(name='FileId', description='This parameter is required.', example='e347ddb8-49bb-5c66-94bc-fa05cedaeac8'),
-  inheritSpaceStrategy?: boolean(name='InheritSpaceStrategy', example='false'),
-  knowledgeBaseId?: string(name='KnowledgeBaseId', description='This parameter is required.', example='pkb-2zesv6l6a63xsrym'),
-  regionId?: string(name='RegionId', description='This parameter is required.', example='cn-beijing'),
-  shardingStrategyConfigShrink?: string(name='ShardingStrategyConfig'),
+  fileId?: string(name='FileId', description='The unique ID of the knowledge base file.
+
+This parameter is required.', example='e347ddb8-49bb-5c66-94bc-fa05cedaeac8'),
+  inheritSpaceStrategy?: boolean(name='InheritSpaceStrategy', description='Specifies whether to restore inheritance of the chunking strategy from the knowledge space. When this parameter is set to true, ShardingStrategyConfig cannot be specified at the same time.', example='false'),
+  knowledgeBaseId?: string(name='KnowledgeBaseId', description='The unique ID of the knowledge base.
+
+This parameter is required.', example='pkb-2zesv6l6a63xsrym'),
+  regionId?: string(name='RegionId', description='The ID of the region where the knowledge base resides.
+
+This parameter is required.', example='cn-beijing'),
+  shardingStrategyConfigShrink?: string(name='ShardingStrategyConfig', description='The file-level chunking strategy configuration. This parameter is required when InheritSpaceStrategy is not set to true.'),
 }
 
 model UpdateKnowledgeBaseFileShardingStrategyResponseBody = {
-  requestId?: string(name='RequestId', example='019F7F29-BF69-1734-AE5A-02D391385BAC'),
+  requestId?: string(name='RequestId', description='The request ID.', example='019F7F29-BF69-1734-AE5A-02D391385BAC'),
 }
 
 model UpdateKnowledgeBaseFileShardingStrategyResponse = {
@@ -50600,7 +50679,7 @@ model UpdateKnowledgeBaseFileShardingStrategyResponse = {
 }
 
 /**
- * @summary 更新知识库文件分块策略
+ * @summary Updates the chunking strategy for a file in a knowledge base.
  *
  * @param tmpReq UpdateKnowledgeBaseFileShardingStrategyRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -50647,7 +50726,7 @@ async function updateKnowledgeBaseFileShardingStrategyWithOptions(tmpReq: Update
 }
 
 /**
- * @summary 更新知识库文件分块策略
+ * @summary Updates the chunking strategy for a file in a knowledge base.
  *
  * @param request UpdateKnowledgeBaseFileShardingStrategyRequest
  * @return UpdateKnowledgeBaseFileShardingStrategyResponse
@@ -50658,51 +50737,59 @@ async function updateKnowledgeBaseFileShardingStrategy(request: UpdateKnowledgeB
 }
 
 model UpdateKnowledgeSpaceRequest {
-  description?: string(name='Description', example='testDesc'),
-  knowledgeSpaceId?: string(name='KnowledgeSpaceId', description='This parameter is required.', example='pks-xxxxxx'),
-  LLMModel?: string(name='LLMModel', example='qwen3.6-plus'),
-  name?: string(name='Name', example='testName'),
-  regionId?: string(name='RegionId', description='This parameter is required.', example='cn-beijing'),
-  rerankModel?: string(name='RerankModel', example='qwen3-rerank'),
+  description?: string(name='Description', description='The description of the knowledge space. The description can be up to 512 characters in length.', example='testDesc'),
+  knowledgeSpaceId?: string(name='KnowledgeSpaceId', description='The unique identifier of the knowledge space.
+
+This parameter is required.', example='pks-xxxxxx'),
+  LLMModel?: string(name='LLMModel', description='The name of the large language model.', example='qwen3.6-plus'),
+  name?: string(name='Name', description='The name of the knowledge space. The name must be 1 to 128 characters in length.', example='testName'),
+  regionId?: string(name='RegionId', description='The region ID.
+
+This parameter is required.', example='cn-beijing'),
+  rerankModel?: string(name='RerankModel', description='The name of the reranking model.', example='qwen3-rerank'),
   shardingStrategyConfig?: {
     defaultStrategy?: {
       parameters?: {
-        maxTokens?: int32(name='MaxTokens', example='512'),
-        mergePeers?: boolean(name='MergePeers', example='true'),
-      }(name='Parameters'),
-      type?: string(name='Type', example='hybrid'),
-    }(name='DefaultStrategy'),
+        maxTokens?: int32(name='MaxTokens', description='The maximum number of tokens per chunk. The value must be a positive integer.', example='512'),
+        mergePeers?: boolean(name='MergePeers', description='Specifies whether to merge adjacent small chunks under the same heading.', example='true'),
+      }(name='Parameters', description='The parameters of the default chunking strategy. MaxTokens and MergePeers take effect only when Type is set to hybrid.'),
+      type?: string(name='Type', description='The type of the default chunking strategy. Valid values: hybrid or hierarchical.', example='hybrid'),
+    }(name='DefaultStrategy', description='The default chunking strategy. This strategy is used when no rule is matched.'),
     rules?: [ 
       {
         match?: {
-          contentType?: string(name='ContentType', example='table'),
-        }(name='Match'),
+          contentType?: string(name='ContentType', description='The content type. Currently, only table is supported.', example='table'),
+        }(name='Match', description='The match condition of the rule. Currently, only exact matching of table content by content type is supported.'),
         strategy?: {
           parameters?: {
-            markdownTables?: string(name='MarkdownTables', example='auto'),
-            maxTokens?: int32(name='MaxTokens', example='512'),
-          }(name='Parameters'),
-          type?: string(name='Type', example='hierarchical'),
-        }(name='Strategy'),
+            markdownTables?: string(name='MarkdownTables', description='The processing mode for Markdown tables. Valid values: auto, on, or off.', example='auto'),
+            maxTokens?: int32(name='MaxTokens', description='The maximum number of tokens per chunk for matched content. The value must be a positive integer.', example='512'),
+          }(name='Parameters', description='The chunking strategy parameters for the override rule. MaxTokens takes effect only when Type is set to hybrid. MarkdownTables supports auto, on, or off.'),
+          type?: string(name='Type', description='The type of the chunking strategy to use when the rule is matched. Valid values: hybrid or hierarchical.', example='hierarchical'),
+        }(name='Strategy', description='The chunking strategy to use when the rule is matched.'),
       }
-    ](name='Rules'),
-  }(name='ShardingStrategyConfig'),
+    ](name='Rules', description='The list of override rules that are matched in order. Currently, a maximum of one exact-match rule with ContentType set to table is supported.'),
+  }(name='ShardingStrategyConfig', description='The default chunking strategy configuration for the knowledge space. Both simple strategies and composite strategies that match by content type are supported.'),
 }
 
 model UpdateKnowledgeSpaceShrinkRequest {
-  description?: string(name='Description', example='testDesc'),
-  knowledgeSpaceId?: string(name='KnowledgeSpaceId', description='This parameter is required.', example='pks-xxxxxx'),
-  LLMModel?: string(name='LLMModel', example='qwen3.6-plus'),
-  name?: string(name='Name', example='testName'),
-  regionId?: string(name='RegionId', description='This parameter is required.', example='cn-beijing'),
-  rerankModel?: string(name='RerankModel', example='qwen3-rerank'),
-  shardingStrategyConfigShrink?: string(name='ShardingStrategyConfig'),
+  description?: string(name='Description', description='The description of the knowledge space. The description can be up to 512 characters in length.', example='testDesc'),
+  knowledgeSpaceId?: string(name='KnowledgeSpaceId', description='The unique identifier of the knowledge space.
+
+This parameter is required.', example='pks-xxxxxx'),
+  LLMModel?: string(name='LLMModel', description='The name of the large language model.', example='qwen3.6-plus'),
+  name?: string(name='Name', description='The name of the knowledge space. The name must be 1 to 128 characters in length.', example='testName'),
+  regionId?: string(name='RegionId', description='The region ID.
+
+This parameter is required.', example='cn-beijing'),
+  rerankModel?: string(name='RerankModel', description='The name of the reranking model.', example='qwen3-rerank'),
+  shardingStrategyConfigShrink?: string(name='ShardingStrategyConfig', description='The default chunking strategy configuration for the knowledge space. Both simple strategies and composite strategies that match by content type are supported.'),
 }
 
 model UpdateKnowledgeSpaceResponseBody = {
-  knowledgeSpaceId?: string(name='KnowledgeSpaceId', example='pks-xxxxxx'),
-  requestId?: string(name='RequestId', example='CD35F3-F3-44CA-AFFF-BAF869******'),
-  taskId?: int32(name='TaskId', example='52*****03'),
+  knowledgeSpaceId?: string(name='KnowledgeSpaceId', description='The unique identifier of the knowledge space.', example='pks-xxxxxx'),
+  requestId?: string(name='RequestId', description='Id of the request', example='CD35F3-F3-44CA-AFFF-BAF869******'),
+  taskId?: int32(name='TaskId', description='The ID of the asynchronous workflow task. This value is empty if no actual model change occurs.', example='52*****03'),
 }
 
 model UpdateKnowledgeSpaceResponse = {
@@ -50712,7 +50799,7 @@ model UpdateKnowledgeSpaceResponse = {
 }
 
 /**
- * @summary 更新知识空间
+ * @summary Updates a knowledge space.
  *
  * @param tmpReq UpdateKnowledgeSpaceRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -50765,7 +50852,7 @@ async function updateKnowledgeSpaceWithOptions(tmpReq: UpdateKnowledgeSpaceReque
 }
 
 /**
- * @summary 更新知识空间
+ * @summary Updates a knowledge space.
  *
  * @param request UpdateKnowledgeSpaceRequest
  * @return UpdateKnowledgeSpaceResponse
