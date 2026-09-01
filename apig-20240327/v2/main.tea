@@ -841,7 +841,7 @@ model HttpApiApiInfo {
   aiProtocols?: [ string ](name='aiProtocols', description='The list of AI protocols.'),
   authConfig?: AuthConfig(name='authConfig', description='The authentication configuration.'),
   basePath?: string(name='basePath', description='The API base path.', example='/v1'),
-  deployCntMap?: map[string]HttpApiApiInfoDeployCntMapValue(name='deployCntMap', description='The API operation publish status.'),
+  deployCntMap?: map[string]HttpApiApiInfoDeployCntMapValue(name='deployCntMap', description='The API operation deployment status.'),
   deployConfigs?: [
     HttpApiDeployConfig
   ](name='deployConfigs', description='The list of API deployment configurations.'),
@@ -1319,7 +1319,7 @@ model HttpDubboTranscoder {
 
 model HttpRoute {
   backend?: Backend(name='backend', description='The backend service.'),
-  builtin?: string(name='builtin', description='Indicates whether the route is a built-in system route.', example='true'),
+  builtin?: string(name='builtin', description='Indicates whether the route is a system built-in route.', example='true'),
   createTimestamp?: long(name='createTimestamp', description='The creation time, in ms.', example='1726649310593'),
   deployStatus?: string(name='deployStatus', description='The deployment status.', example='Deployed'),
   description?: string(name='description', description='The route description.', example='Product center staging route'),
@@ -1334,7 +1334,7 @@ model HttpRoute {
     alias?: string(name='alias', description='The environment name alias.', example='Product center staging environment'),
     environmentId?: string(name='environmentId', description='The environment ID.', example='env-crhq1u5lhtgju***'),
     gatewayInfo?: {
-      gatewayEdition?: string(name='gatewayEdition', example='MultiTenantServerless'),
+      gatewayEdition?: string(name='gatewayEdition', description='The gateway instance edition. Valid values: Professional, Serverless, MultiTenantServerless, and Unknown.', example='MultiTenantServerless'),
       gatewayId?: string(name='gatewayId', description='The gateway ID.', example='gw-cqoohqtlh***'),
       name?: string(name='name', description='The gateway name.', example='itemcenter-gateway'),
     }(name='gatewayInfo', description='The gateway information.'),
@@ -1756,62 +1756,73 @@ model ValidationOptions {
 }
 
 model HttpApiApiInfoDeployCntMapValue = {
-  deployedCnt?: long(name='deployedCnt', description='The number of published API operations.', example='3'),
+  deployedCnt?: long(name='deployedCnt', description='The number of deployed API operations.', example='3'),
   cnt?: long(name='cnt', example='10'),
 }
 
 model AddGatewayQuotaRuleRequest {
-  conflictHash?: string(name='conflictHash', description='The conflict snapshot hash, used to prevent concurrent dirty overwrites during confirmation. Obtain this value from the response of a previous dryRun=true request.
+  conflictHash?: string(name='conflictHash', description='The conflict snapshot hash used to prevent concurrent dirty overwrites during confirmation. Obtain this value from the response of a previous dry run (dryRun=true).
 
-This parameter is not required in the following cases: no conflicts exist, the request is a dry run (dryRun=true), or overwrite=false (no overwrite confirmation).
+This parameter is not required in the following cases: no conflicts exist, the request is a dry run (dryRun=true), or overwrite is set to false.
 
-When dryRun=false and overwrite=true, if this parameter is not provided or the value has expired and no longer matches, the backend returns accepted=false with a new conflict preview. Perform a dry run again to confirm the new conflicts.', example='f8f44dc6cf369a017d56b7197eb4fb5ac4bbb6b09a92b9b41999541fxxxxxxxx'),
-  consumerGroupIds?: [ string ](name='consumerGroupIds', description='The list of consumer group IDs (not supported currently).', example='group1,group2'),
-  consumerIds?: [ string ](name='consumerIds', description='The list of consumer IDs to bind to the rule. A maximum of 1000 consumers can be specified in a single request.', example='1001,1002,1003'),
-  dryRun?: boolean(name='dryRun', description='Specifies whether to perform only a dry run without applying the configuration. A dry run checks whether conflicting rules exist on the bound consumers. For example, a consumer that already has a calendar-day quota cannot have another calendar-day quota rule added.', example='false'),
-  overwrite?: boolean(name='overwrite', description='Specifies whether to allow overwriting when conflicts exist. If overwriting is allowed, the conflicting subjects (consumers) are unbound from the old rule and bound to the new rule.', example='false'),
-  periodMultiplier?: long(name='periodMultiplier', description='The period multiplier. This parameter applies to epoch period rules.', example='10'),
-  periodType?: string(name='periodType', description='The period type. For calendar periods, statistics are collected by day, week, or month. Valid values: day, week, and month. For epoch periods, only day is supported.
+When dryRun is set to false and overwrite is set to true, if this parameter is not provided or the value has expired and no longer matches, the backend returns accepted=false with a new conflict preview. In this case, perform a new dry run to confirm the latest conflicts.', example='f8f44dc6cf369a017d56b7197eb4fb5ac4bbb6b09a92b9b41999541fxxxxxxxx'),
+  consumerGroupIds?: [ string ](name='consumerGroupIds', description='The list of API consumer group IDs to bind to the rule. This parameter is used when subjectType is set to consumer_group and cannot be specified together with consumerIds.', example='group1,group2'),
+  consumerIds?: [ string ](name='consumerIds', description='The list of API consumer IDs to bind to the rule. A maximum of 1,000 consumers can be specified in a single request.', example='1001,1002,1003'),
+  dryRun?: boolean(name='dryRun', description='Specifies whether to perform only a dry run without persisting or applying the configuration. A dry run checks whether conflicting rules exist on the bound consumer subjects. For example, a consumer subject that already has a calendar-day quota rule cannot have another calendar-day quota rule added.', example='false'),
+  overwrite?: boolean(name='overwrite', description='Specifies whether to allow overwriting when conflicts exist. If overwriting is allowed, the conflicting subjects (consumers or consumer groups) are unbound from the old rule and bound to the new rule.', example='false'),
+  periodMultiplier?: long(name='periodMultiplier', description='The period multiplier, which specifies the number of periods after which the quota resets. This parameter is required for custom (epoch) period rules. Minimum value: 1. Maximum value: 60.', example='10'),
+  periodType?: string(name='periodType', description='The period type. For calendar periods, the quota can be calculated by day, week, or month. Valid values: day, week, and month. For custom (epoch) periods, only day is supported.
 
 This parameter is required.', example='week'),
-  quotaDimension?: string(name='quotaDimension', description='The quota dimension or throttling type. Valid values: token and credit. The credit quota applies only to dedicated instances running version 2.1.19 or later.
+  quotaDimension?: string(name='quotaDimension', description='The quota dimension or throttling type. Valid values: token and credit.
 
 This parameter is required.', example='token'),
-  quotaLimit?: long(name='quotaLimit', description='The total available quota per period (limit).
+  quotaLimit?: long(name='quotaLimit', description='The total available quota per period.
 
 This parameter is required.', example='1000'),
   ruleName?: string(name='ruleName', description='The name of the rule.
 
 This parameter is required.', example='team-rule'),
-  subjectType?: string(name='subjectType', description='The rule subject type. Valid values: consumer (a consumer) and consumer_group (a consumer group). Default value: consumer.', example='consumer_group'),
-  timezone?: string(name='timezone', description='The time zone for the calendar period, in UTC+x format.', example='UTC+8'),
-  windowAlignment?: string(name='windowAlignment', description='The reset period type. Valid values: calendar (the period starts from the beginning of a calendar day, week, or month) and epoch (the period starts from when the rule is applied). The epoch type applies only to dedicated instances running version 2.1.19 or later.', example='calendar'),
+  subjectType?: string(name='subjectType', description='The type of the rule subject. Valid values:
+- consumer: API consumer.
+- consumer_group: API consumer group.
+
+Default value: consumer.', example='consumer_group'),
+  timezone?: string(name='timezone', description='The time zone for calendar periods, in UTC+x format.', example='UTC+8'),
+  windowAlignment?: string(name='windowAlignment', description='The reset period alignment type. Valid values:
+- calendar: The quota resets at the beginning of a calendar day, week, or month.
+- epoch: The quota resets based on a custom period that starts when the rule takes effect.', example='calendar'),
 }
 
 model AddGatewayQuotaRuleResponseBody = {
   code?: string(name='code', description='The status code or error code.', example='200, 404, 500'),
   data?: {
-    accepted?: boolean(name='accepted', description='Indicates whether the write request is accepted by the system. A value of false typically indicates a retryable scenario such as an unconfirmed conflict overwrite.', example='true'),
+    accepted?: boolean(name='accepted', description='Indicates whether the write request is accepted by the system. A value of false typically indicates a retryable scenario, such as an unconfirmed conflict overwrite.', example='true'),
     conflictPreview?: {
-      conflictHash?: string(name='conflictHash', description='The conflict hash.', example='f8f44dc6cf369a017d56b7197eb4fb5ac4bbb6b09a92b9b41999541fxxxxxxxx'),
+      conflictHash?: string(name='conflictHash', description='The conflict snapshot hash.', example='f8f44dc6cf369a017d56b7197eb4fb5ac4bbb6b09a92b9b41999541fxxxxxxxx'),
       items?: [ 
         {
-          conflictPeriodType?: string(name='conflictPeriodType', description='The period type of the existing conflicting rule on the consumer. A value of day, week, or month indicates the conflicting rule has a daily, weekly, or monthly period respectively.', example='week'),
-          conflictType?: string(name='conflictType', description='The type of the existing conflicting rule on the consumer. A value of calendar indicates the conflicting rule uses a calendar period. A value of epoch indicates the conflicting rule uses an epoch period.', example='calendar'),
-          consumerId?: string(name='consumerId', description='The consumer ID.', example='cs-xxxxxx'),
-          consumerName?: string(name='consumerName', description='The consumer name.', example='consumer-a'),
+          conflictPeriodType?: string(name='conflictPeriodType', description='The period type of the existing conflicting rule on the consumer subject. Valid values:
+- day: The existing conflicting rule has a daily period.
+- week: The existing conflicting rule has a weekly period.
+- month: The existing conflicting rule has a monthly period.', example='week'),
+          conflictType?: string(name='conflictType', description='The type of the existing conflicting rule on the consumer subject. Valid values:
+- calendar: The existing conflicting rule uses a calendar period.
+- epoch: The existing conflicting rule uses a custom period.', example='calendar'),
+          consumerId?: string(name='consumerId', description='The conflicting consumer ID. You can use subjectId instead.', example='cs-xxxxxx'),
+          consumerName?: string(name='consumerName', description='The conflicting consumer name. You can use subjectName instead.', example='consumer-a'),
           subjectId?: string(name='subjectId', description='The ID of the conflicting subject.', example='cs-xxx'),
           subjectName?: string(name='subjectName', description='The name of the conflicting subject.', example='consumer-a'),
           subjectType?: string(name='subjectType', description='The type of the conflicting subject. Valid values: consumer and consumer_group.', example='consumer'),
         }
-      ](name='items', description='The list of conflicting subjects (consumers).'),
+      ](name='items', description='The list of conflicting subjects (consumers or consumer groups).'),
       totalConflictCount?: int32(name='totalConflictCount', description='The total number of conflicts.', example='2'),
     }(name='conflictPreview', description='The conflict preview.'),
     dryRun?: boolean(name='dryRun', description='Indicates whether the request is a dry run.', example='false'),
     ruleId?: string(name='ruleId', description='The rule ID.', example='qr-xxxxx'),
   }(name='data', description='The response data.', example='{\\\\"key\\\\": \\\\"value\\\\"}'),
-  message?: string(name='message', description='The message content.', example='success'),
-  requestId?: string(name='requestId', description='The unique identifier of the request.', example='1234567890'),
+  message?: string(name='message', description='The response message.', example='success'),
+  requestId?: string(name='requestId', description='The request ID.', example='1234567890'),
 }
 
 model AddGatewayQuotaRuleResponse = {
@@ -1823,15 +1834,15 @@ model AddGatewayQuotaRuleResponse = {
 /**
  * @summary Creates a gateway quota throttling rule.
  *
- * @description Creates a consumer-based quota rule for an AI gateway. This operation applies only to AI gateways running version 2.1.19 or later.
+ * @description Creates a consumer-based or consumer group-based quota rule for an AI gateway. This operation takes effect only on AI gateways of version 2.1.21 or later.
  * > 
- * >  Recommended call logic:
- * > - 1. Perform a dry run to check for rule conflicts.
- * > - - Set dryRun=true.
- * > - - The response contains a conflict preview with conflictHash.
- * > - 2. Submit the request after confirmation.
- * > - - No conflicts: dryRun=false, overwrite=false.
- * > - - Conflicts exist and you confirm overwrite: dryRun=false, overwrite=true, conflictHash=<value returned in the previous step>
+ * >  Recommended call sequence:
+ * > - Step 1: Perform a dry run to check for rule conflicts.
+ * > - - Set dryRun to true.
+ * > - - The response returns a conflict preview that contains the conflictHash value.
+ * > - Step 2: Submit the request after confirmation.
+ * > - - No conflicts: Set dryRun to false and overwrite to false.
+ * > - - Conflicts exist and you confirm the overwrite: Set dryRun to false, overwrite to true, and conflictHash to the value returned in the previous step.
  *
  * @param request AddGatewayQuotaRuleRequest
  * @param headers map
@@ -1903,15 +1914,15 @@ async function addGatewayQuotaRuleWithOptions(gatewayId: string, request: AddGat
 /**
  * @summary Creates a gateway quota throttling rule.
  *
- * @description Creates a consumer-based quota rule for an AI gateway. This operation applies only to AI gateways running version 2.1.19 or later.
+ * @description Creates a consumer-based or consumer group-based quota rule for an AI gateway. This operation takes effect only on AI gateways of version 2.1.21 or later.
  * > 
- * >  Recommended call logic:
- * > - 1. Perform a dry run to check for rule conflicts.
- * > - - Set dryRun=true.
- * > - - The response contains a conflict preview with conflictHash.
- * > - 2. Submit the request after confirmation.
- * > - - No conflicts: dryRun=false, overwrite=false.
- * > - - Conflicts exist and you confirm overwrite: dryRun=false, overwrite=true, conflictHash=<value returned in the previous step>
+ * >  Recommended call sequence:
+ * > - Step 1: Perform a dry run to check for rule conflicts.
+ * > - - Set dryRun to true.
+ * > - - The response returns a conflict preview that contains the conflictHash value.
+ * > - Step 2: Submit the request after confirmation.
+ * > - - No conflicts: Set dryRun to false and overwrite to false.
+ * > - - Conflicts exist and you confirm the overwrite: Set dryRun to false, overwrite to true, and conflictHash to the value returned in the previous step.
  *
  * @param request AddGatewayQuotaRuleRequest
  * @return AddGatewayQuotaRuleResponse
@@ -5651,7 +5662,7 @@ model DeleteGatewayQuotaRuleResponse = {
 /**
  * @summary Deletes a quota throttling rule from a gateway.
  *
- * @description Deletes a consumer-based quota rule from an AI gateway. This operation takes effect only for AI gateways of version 2.1.19 or later.
+ * @description This operation deletes a consumer-based or consumer group-based quota rule from an AI gateway. This operation takes effect only on AI gateways of version 2.1.19 or later.
  *
  * @param request DeleteGatewayQuotaRuleRequest
  * @param headers map
@@ -5681,7 +5692,7 @@ async function deleteGatewayQuotaRuleWithOptions(gatewayId: string, ruleId: stri
 /**
  * @summary Deletes a quota throttling rule from a gateway.
  *
- * @description Deletes a consumer-based quota rule from an AI gateway. This operation takes effect only for AI gateways of version 2.1.19 or later.
+ * @description This operation deletes a consumer-based or consumer group-based quota rule from an AI gateway. This operation takes effect only on AI gateways of version 2.1.19 or later.
  *
  * @param request DeleteGatewayQuotaRuleRequest
  * @return DeleteGatewayQuotaRuleResponse
@@ -7416,37 +7427,37 @@ async function getConsumerGroup(consumerGroupId: string, request: GetConsumerGro
 
 model GetDashboardRequest {
   acceptLanguage?: string(name='acceptLanguage', description='The language. Valid values:
-- zh: Chinese.
-- en: English.', example='zh'),
+- zh: Chinese
+- en: English', example='zh'),
   apiId?: string(name='apiId', description='The unique ID of the API.', example='api-ctl7no6m1h****'),
   filter?: {
     routeName?: string(name='routeName', description='The route name.', example='test-route'),
   }(name='filter', description='The filter configuration.'),
   name?: string(name='name', description='The dashboard name. Valid values:
-- LOG: access log.
-- PLUGIN: plugin log.', example='PLUGIN'),
+- LOG: access log
+- PLUGIN: plugin log', example='PLUGIN'),
   pluginClassId?: string(name='pluginClassId', description='The plugin type ID.', example='pls-dn82a9djd8z****'),
   pluginId?: string(name='pluginId', description='The plugin ID.', example='inner-ai-search-cvd3mcum1hks660icn10'),
   routeId?: string(name='routeId', description='The route ID.', example='route-xxx'),
   source?: string(name='source', description='The dashboard source. Valid values:
-- SLS: log dashboard.', example='SLS'),
+- SLS: log dashboard', example='SLS'),
   upstreamCluster?: string(name='upstreamCluster', description='The AI service identifier.', example='outbound|443||ds.ai'),
 }
 
 model GetDashboardShrinkRequest {
   acceptLanguage?: string(name='acceptLanguage', description='The language. Valid values:
-- zh: Chinese.
-- en: English.', example='zh'),
+- zh: Chinese
+- en: English', example='zh'),
   apiId?: string(name='apiId', description='The unique ID of the API.', example='api-ctl7no6m1h****'),
   filterShrink?: string(name='filter', description='The filter configuration.'),
   name?: string(name='name', description='The dashboard name. Valid values:
-- LOG: access log.
-- PLUGIN: plugin log.', example='PLUGIN'),
+- LOG: access log
+- PLUGIN: plugin log', example='PLUGIN'),
   pluginClassId?: string(name='pluginClassId', description='The plugin type ID.', example='pls-dn82a9djd8z****'),
   pluginId?: string(name='pluginId', description='The plugin ID.', example='inner-ai-search-cvd3mcum1hks660icn10'),
   routeId?: string(name='routeId', description='The route ID.', example='route-xxx'),
   source?: string(name='source', description='The dashboard source. Valid values:
-- SLS: log dashboard.', example='SLS'),
+- SLS: log dashboard', example='SLS'),
   upstreamCluster?: string(name='upstreamCluster', description='The AI service identifier.', example='outbound|443||ds.ai'),
 }
 
@@ -7458,8 +7469,8 @@ model GetDashboardResponseBody = {
     title?: string(name='title', description='The dashboard title.', example='APIG Plugin'),
     url?: string(name='url', description='The URL of the dashboard.', example='https://sls.console.aliyun.com/lognext/project/xxxxx'),
   }(name='data', description='The response data.'),
-  errorCode?: string(name='errorCode', description='The backend error code.', example='Ok'),
-  message?: string(name='message', description='The error message.', example='success'),
+  errorCode?: string(name='errorCode', description='The backend error code.', example='CloudProductInactive.LogDeliveryNotEnabled'),
+  message?: string(name='message', description='The error message.', example='SLS log delivery configuration is not enabled.'),
   requestId?: string(name='requestId', description='The request ID.', example='2F46B9E7-67EF-5C8A-BA52-D38D5B32AF2C'),
   success?: boolean(name='success', description='Indicates whether the request was successful.', example='true'),
 }
@@ -7990,23 +8001,23 @@ async function getGatewayElasticPolicy(gatewayId: string, request: GetGatewayEla
 }
 
 model GetGatewayQuotaRuleRequest {
-  consumerPageNumber?: string(name='consumerPageNumber', description='The page number of the consumer list.', example='1', deprecated=true),
-  consumerPageSize?: string(name='consumerPageSize', description='The page size of the consumer list.', example='10', deprecated=true),
-  withConsumers?: boolean(name='withConsumers', description='Specifies whether to return the consumer list.'),
-  withSubjects?: boolean(name='withSubjects', description='Specifies whether to return the general subject list. This parameter applies to both consumer and consumer group rules.'),
+  consumerPageNumber?: string(name='consumerPageNumber', description='The page number.', example='1', deprecated=true),
+  consumerPageSize?: string(name='consumerPageSize', description='The page size.', example='10', deprecated=true),
+  withConsumers?: boolean(name='withConsumers', description='Specifies whether to return the API consumer list.'),
+  withSubjects?: boolean(name='withSubjects', description='Specifies whether to return the general subject list. This parameter applies to both API consumer and API consumer group rules.'),
 }
 
 model GetGatewayQuotaRuleResponseBody = {
   code?: string(name='code', description='The status code.', example='200'),
   data?: {
     baseTimestamp?: long(name='baseTimestamp', description='The period base timestamp.', example='1745846400000'),
-    consumerCount?: long(name='consumerCount', description='The number of consumers associated with the rule.', example='20'),
+    consumerCount?: long(name='consumerCount', description='The number of API consumers associated with the rule.', example='20'),
     consumers?: [ 
       {
-        id?: string(name='id', description='The subject (consumer) ID.', example='c-aaa'),
-        name?: string(name='name', description='The subject (consumer) name.', example='consumer-a'),
+        id?: string(name='id', description='The subject (API consumer) ID.', example='c-aaa'),
+        name?: string(name='name', description='The subject (API consumer) name.', example='consumer-a'),
       }
-    ](name='consumers', description='The list of subjects (consumers) bound to this rule.'),
+    ](name='consumers', description='The list of subjects (API consumers) bound to this rule.'),
     periodType?: string(name='periodType', description='The quota period type.', example='day'),
     quotaDimension?: string(name='quotaDimension', description='The quota dimension.', example='token'),
     quotaLimit?: long(name='quotaLimit', description='The quota limit.', example='1000'),
@@ -8036,9 +8047,9 @@ model GetGatewayQuotaRuleResponse = {
 }
 
 /**
- * @summary Queries the details of a gateway quota rate limiting rule.
+ * @summary Queries the details of a gateway quota throttling rule.
  *
- * @description Queries the details of a consumer quota rule on an AI gateway.
+ * @description Queries a specific API consumer quota rule on an AI gateway.
  *
  * @param request GetGatewayQuotaRuleRequest
  * @param headers map
@@ -8081,9 +8092,9 @@ async function getGatewayQuotaRuleWithOptions(gatewayId: string, ruleId: string,
 }
 
 /**
- * @summary Queries the details of a gateway quota rate limiting rule.
+ * @summary Queries the details of a gateway quota throttling rule.
  *
- * @description Queries the details of a consumer quota rule on an AI gateway.
+ * @description Queries a specific API consumer quota rule on an AI gateway.
  *
  * @param request GetGatewayQuotaRuleRequest
  * @return GetGatewayQuotaRuleResponse
@@ -8095,9 +8106,9 @@ async function getGatewayQuotaRule(gatewayId: string, ruleId: string, request: G
 }
 
 model GetGatewayQuotaRuleSubjectUsageRequest {
-  filterFailedRequests?: boolean(name='filterFailedRequests', description='Specifies whether to filter zero values.', example='true'),
-  pageNumber?: int32(name='pageNumber', description='The page number of the detailed consumption (request) records of the consumer within the cycle.', example='1'),
-  pageSize?: int32(name='pageSize', description='The number of detailed consumption (request) records per page for the consumer within the cycle. Maximum value: 10.', example='10'),
+  filterFailedRequests?: boolean(name='filterFailedRequests', description='Specifies whether to filter out zero values.', example='true'),
+  pageNumber?: int32(name='pageNumber', description='The page number of the detailed consumption (request) records of the subject within the cycle.', example='1'),
+  pageSize?: int32(name='pageSize', description='The number of detailed consumption (request) records per page for the subject within the cycle. Maximum value: 10.', example='10'),
 }
 
 model GetGatewayQuotaRuleSubjectUsageResponseBody = {
@@ -8128,7 +8139,7 @@ model GetGatewayQuotaRuleSubjectUsageResponseBody = {
 - consumer
 - consumer_group', example='consumer_group'),
     totalQuota?: long(name='totalQuota', description='The total quota of the subject.', example='1000'),
-    usedAmount?: long(name='usedAmount', description='The total used quota of the subject.', example='500'),
+    usedAmount?: long(name='usedAmount', description='The total used amount of the subject.', example='500'),
   }(name='data', description='The response data.', example='{"usedAmount":500}'),
   message?: string(name='message', description='The response message.', example='success'),
   requestId?: string(name='requestId', description='Id of the request', example='1234567890'),
@@ -8143,7 +8154,7 @@ model GetGatewayQuotaRuleSubjectUsageResponse = {
 /**
  * @summary Queries the usage details of a subject under a gateway quota throttling rule, including used quota, total quota, whether the limit is exceeded, usage details, and consumption records.
  *
- * @description Retrieves the usage details of a specific consumer under a quota rule. This operation applies only to AI gateways with a version later than 2.1.19.
+ * @description Queries the usage details of a specific subject under a quota rule. This operation applies only to AI gateways with a version later than 2.1.19.
  *
  * @param request GetGatewayQuotaRuleSubjectUsageRequest
  * @param headers map
@@ -8185,7 +8196,7 @@ async function getGatewayQuotaRuleSubjectUsageWithOptions(gatewayId: string, rul
 /**
  * @summary Queries the usage details of a subject under a gateway quota throttling rule, including used quota, total quota, whether the limit is exceeded, usage details, and consumption records.
  *
- * @description Retrieves the usage details of a specific consumer under a quota rule. This operation applies only to AI gateways with a version later than 2.1.19.
+ * @description Queries the usage details of a specific subject under a quota rule. This operation applies only to AI gateways with a version later than 2.1.19.
  *
  * @param request GetGatewayQuotaRuleSubjectUsageRequest
  * @return GetGatewayQuotaRuleSubjectUsageResponse
@@ -10322,6 +10333,104 @@ async function listConsumerGroupConsumers(consumerGroupId: string, request: List
   return listConsumerGroupConsumersWithOptions(consumerGroupId, request, headers, runtime);
 }
 
+model ListConsumerGroupQuotaRulesRequest {
+  gatewayId?: string(name='gatewayId', example='gw-123456'),
+  keyword?: string(name='keyword', example='daily'),
+  pageNumber?: int32(name='pageNumber', example='1'),
+  pageSize?: int32(name='pageSize', example='10'),
+}
+
+model ListConsumerGroupQuotaRulesResponseBody = {
+  code?: string(name='code', example='200'),
+  data?: {
+    items?: [ 
+      {
+        gatewayId?: string(name='gatewayId', example='gw-123456'),
+        gatewayName?: string(name='gatewayName', example='prod-gateway'),
+        periodMultiplier?: long(name='periodMultiplier', example='30'),
+        periodType?: string(name='periodType', example='week'),
+        quotaDimension?: string(name='quotaDimension', example='token'),
+        quotaLimit?: long(name='quotaLimit', example='1000'),
+        ruleId?: string(name='ruleId', example='rule-001'),
+        ruleName?: string(name='ruleName', example='daily-token-limit'),
+        ruleStatus?: string(name='ruleStatus', example='enabled'),
+        timezone?: string(name='timezone', example='UTC+8'),
+        windowAlignment?: string(name='windowAlignment', example='calendar'),
+      }
+    ](name='items', example='[{"ruleId":"rule-001"}]'),
+    pageNumber?: int32(name='pageNumber', example='1'),
+    pageSize?: int32(name='pageSize', example='10'),
+    totalSize?: int32(name='totalSize', example='100'),
+  }(name='data', example='{"totalSize":100}'),
+  message?: string(name='message', example='success'),
+  requestId?: string(name='requestId', example='1234567890'),
+}
+
+model ListConsumerGroupQuotaRulesResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ListConsumerGroupQuotaRulesResponseBody(name='body'),
+}
+
+/**
+ * @summary 查询消费者组配额限流规则列表
+ *
+ * @description 查询指定消费者组直接绑定的配额规则，不展开组内消费者个人绑定的规则；无直接绑定关系时返回空列表。
+ *
+ * @param request ListConsumerGroupQuotaRulesRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return ListConsumerGroupQuotaRulesResponse
+ */
+@context("listConsumerGroupQuotaRulesWithContext")
+async function listConsumerGroupQuotaRulesWithOptions(consumerGroupId: string, request: ListConsumerGroupQuotaRulesRequest, headers: map[string]string, runtime: $RuntimeOptions): ListConsumerGroupQuotaRulesResponse {
+  request.validate();
+  var query : map[string]any = {};
+  if (!$isNull(request.gatewayId)) {
+    query['gatewayId'] = request.gatewayId;
+  }
+  if (!$isNull(request.keyword)) {
+    query['keyword'] = request.keyword;
+  }
+  if (!$isNull(request.pageNumber)) {
+    query['pageNumber'] = request.pageNumber;
+  }
+  if (!$isNull(request.pageSize)) {
+    query['pageSize'] = request.pageSize;
+  }
+
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'ListConsumerGroupQuotaRules',
+    version = '2024-03-27',
+    protocol = 'HTTPS',
+    pathname = `/v1/consumer-groups/${$URL.percentEncode(consumerGroupId)}/quota-rules`,
+    method = 'GET',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 查询消费者组配额限流规则列表
+ *
+ * @description 查询指定消费者组直接绑定的配额规则，不展开组内消费者个人绑定的规则；无直接绑定关系时返回空列表。
+ *
+ * @param request ListConsumerGroupQuotaRulesRequest
+ * @return ListConsumerGroupQuotaRulesResponse
+ */
+async function listConsumerGroupQuotaRules(consumerGroupId: string, request: ListConsumerGroupQuotaRulesRequest): ListConsumerGroupQuotaRulesResponse {
+  var runtime = new $RuntimeOptions{};
+  var headers : map[string]string = {};
+  return listConsumerGroupQuotaRulesWithOptions(consumerGroupId, request, headers, runtime);
+}
+
 model ListConsumerGroupsRequest {
   gatewayType?: string(name='gatewayType', description='The gateway type. Valid values: API or AI.', example='API'),
   nameLike?: string(name='nameLike', description='The fuzzy match condition for the consumer group name.', example='api'),
@@ -11398,9 +11507,9 @@ model ListGatewayQuotaRulesResponse = {
 }
 
 /**
- * @summary Queries the list of consumer quota rules bound to a gateway.
+ * @summary Queries the list of FinOps quota rules bound to a gateway.
  *
- * @description Queries the list of consumer quota rules bound to a gateway.
+ * @description Queries the list of FinOps quota rules bound to a gateway.
  *
  * @param request ListGatewayQuotaRulesRequest
  * @param headers map
@@ -11446,9 +11555,9 @@ async function listGatewayQuotaRulesWithOptions(gatewayId: string, request: List
 }
 
 /**
- * @summary Queries the list of consumer quota rules bound to a gateway.
+ * @summary Queries the list of FinOps quota rules bound to a gateway.
  *
- * @description Queries the list of consumer quota rules bound to a gateway.
+ * @description Queries the list of FinOps quota rules bound to a gateway.
  *
  * @param request ListGatewayQuotaRulesRequest
  * @return ListGatewayQuotaRulesResponse
@@ -14418,54 +14527,53 @@ async function removeConsumerAuthorizationRule(consumerAuthorizationRuleId: stri
 }
 
 model ResetGatewayQuotaRuleRequest {
-  conflictHash?: string(name='conflictHash', description='The conflict snapshot hash, used to prevent concurrent dirty overwrites when confirming an overwrite. Obtain this value from the response of a dryRun=true request.
+  conflictHash?: string(name='conflictHash', description='The conflict snapshot hash, used to prevent concurrent dirty overwrites when confirming an overwrite. Obtain this value from the response of a previous dryRun=true call.
 
-This parameter is not required in the following cases: no conflict exists, the request is a dry run (dryRun=true), or overwrite=false (overwrite not confirmed).
+You do not need to specify this parameter in the following cases: no conflicts exist, you are performing a dry run (dryRun=true), or you are not confirming an overwrite (overwrite=false).
 
-When dryRun=false and overwrite=true, if this parameter is not provided or the value has expired and does not match, the backend returns accepted=false with a new conflict preview. You must perform a dry run again to confirm the new conflict.', example='f8f44dc6cf369a017d56b7197eb4fb5ac4bbb6b09a92b9b41999541fxxxxxxxx'),
-  dryRun?: boolean(name='dryRun', description='Specifies whether to perform only a dry run without delivering the actual configuration. A dry run checks whether conflicting rules exist on the bound consumers. For example, a consumer that already has a calendar-day quota cannot have another calendar-day quota rule added.', example='false'),
-  overwrite?: boolean(name='overwrite', description='Specifies whether to allow overwriting on conflict. If overwriting is allowed, the conflicting subject (consumer) is unbound from the old rule and bound to the new rule.', example='false'),
-  periodMultiplier?: long(name='periodMultiplier', description='The period multiplier. Specifies how many periods elapse before the quota resets. Returned when the rule uses a custom period. Minimum value: 1. Maximum value: 60.', example='1'),
+When dryRun is set to false and overwrite is set to true, if this parameter is not specified or the value has expired and no longer matches, the backend returns accepted=false with a new conflict preview. You must perform the dry run again to confirm the new conflicts.', example='f8f44dc6cf369a017d56b7197eb4fb5ac4bbb6b09a92b9b41999541fxxxxxxxx'),
+  dryRun?: boolean(name='dryRun', description='Specifies whether to perform only a dry run without persisting or applying the configuration. A dry run checks whether conflicting rules exist on the bound subjects. The same subject cannot have two calendar-period quotas with the same period. For example, a subject that already has a daily calendar quota cannot have another daily calendar quota rule added.', example='false'),
+  overwrite?: boolean(name='overwrite', description='Specifies whether to allow overwriting when conflicts exist. If you allow overwriting, the conflicting subjects (consumers or consumer groups) are unbound from the old rule and bound to the new rule.', example='false'),
+  periodMultiplier?: long(name='periodMultiplier', description='The period multiplier, which specifies the number of periods after which the quota is reset. This parameter is returned when the rule uses a custom period. Minimum value: 1. Maximum value: 60.', example='1'),
   periodType?: string(name='periodType', description='The period type. Calendar periods support daily, weekly, and monthly statistics. Valid values: day, week, and month. Custom periods support only daily statistics. The value is fixed to day.', example='week'),
   quotaLimit?: long(name='quotaLimit', description='The total available quota per period after the reset.', example='1000'),
-  timezone?: string(name='timezone', description='The time zone for the calendar period in UTC+x format.', example='UTC+8'),
-  windowAlignment?: string(name='windowAlignment', description='The period type after the reset. Valid values:
-
+  timezone?: string(name='timezone', description='The time zone for the calendar period, in UTC+x format.', example='UTC+8'),
+  windowAlignment?: string(name='windowAlignment', description='The period alignment type after the reset. Valid values:
 - calendar: calendar period.
-- epoch: custom period. Custom periods are supported only on dedicated instances with version 2.1.19 or later.', example='calendar'),
+- epoch: custom period.', example='calendar'),
 }
 
 model ResetGatewayQuotaRuleResponseBody = {
   code?: string(name='code', description='The status code or error code.', example='200, 404, 500'),
   data?: {
-    accepted?: boolean(name='accepted', description='Indicates whether the write request is accepted by the system. A value of false typically indicates a retryable scenario such as an unconfirmed conflict overwrite.', example='true'),
+    accepted?: boolean(name='accepted', description='Indicates whether the write request is accepted by the system. A value of false typically indicates a retryable scenario, such as an unconfirmed conflict overwrite.', example='true'),
     conflictPreview?: {
       conflictHash?: string(name='conflictHash', description='The conflict hash.', example='f8f44dc6cf369a017d56b7197eb4fb5ac4bbb6b09a92b9b41999541fxxxxxxxx'),
       items?: [ 
         {
-          conflictPeriodType?: string(name='conflictPeriodType', description='The period type of the existing conflicting rule on the consumer. Valid values:
-
-- day: daily.
-- week: weekly.
-- month: monthly.', example='week'),
-          conflictType?: string(name='conflictType', description='The type of the existing conflicting rule on the consumer. Valid values:
-
-- calendar: the existing conflicting rule uses a calendar period.
-- epoch: the existing conflicting rule uses a custom period.', example='calendar'),
-          consumerId?: string(name='consumerId', description='The consumer ID.', example='cs-d82n1g6m1hkm3xxxxxxx'),
-          consumerName?: string(name='consumerName', description='The consumer name.', example='consumer-a'),
+          conflictPeriodType?: string(name='conflictPeriodType', description='The period type of the existing conflicting rule on the subject. Valid values:
+- day: The period of the existing conflicting rule is daily.
+- week: The period of the existing conflicting rule is weekly.
+- month: The period of the existing conflicting rule is monthly.', example='week'),
+          conflictType?: string(name='conflictType', description='The type of the existing conflicting rule on the subject. Valid values:
+- calendar: The existing conflicting rule uses a calendar period.
+- epoch: The existing conflicting rule uses a custom period.', example='calendar'),
+          consumerId?: string(name='consumerId', description='The consumer ID. You can use subjectId instead.', example='cs-d82n1g6m1hkm3xxxxxxx'),
+          consumerName?: string(name='consumerName', description='The consumer name. You can use subjectName instead.', example='consumer-a'),
           subjectId?: string(name='subjectId', description='The ID of the conflicting subject.', example='cs-xxx'),
           subjectName?: string(name='subjectName', description='The name of the conflicting subject.', example='consumer-a'),
-          subjectType?: string(name='subjectType', description='The conflict subject type. Valid values: consumer and consumer_group.', example='consumer'),
+          subjectType?: string(name='subjectType', description='The type of the conflicting subject. Valid values:
+- consumer
+- consumer_group', example='consumer'),
         }
-      ](name='items', description='The list of conflicting subjects (consumers).'),
+      ](name='items', description='The list of conflicting subjects.'),
       totalConflictCount?: int32(name='totalConflictCount', description='The total number of conflicts.', example='20'),
     }(name='conflictPreview', description='The conflict preview.'),
     dryRun?: boolean(name='dryRun', description='Indicates whether the request is a dry run.', example='false'),
     ruleId?: string(name='ruleId', description='The rule ID.', example='qr-d8j7fpmm1hks65xxxx'),
   }(name='data', description='The response data.', example='{\\\\"key\\\\": \\\\"value\\\\"}'),
-  message?: string(name='message', description='The message content.', example='Hello, World!'),
-  requestId?: string(name='requestId', description='The unique identifier of the request.', example='1234567890'),
+  message?: string(name='message', description='The message.', example='Hello, World!'),
+  requestId?: string(name='requestId', description='The request ID.', example='1234567890'),
 }
 
 model ResetGatewayQuotaRuleResponse = {
@@ -14477,15 +14585,15 @@ model ResetGatewayQuotaRuleResponse = {
 /**
  * @summary Resets a quota throttling rule on a gateway.
  *
- * @description Resets a quota throttling rule on a gateway. This operation only takes effect for AI gateways with versions later than 2.1.19. Resetting clears the historical usage of consumers on the rule.
+ * @description Resets a quota throttling rule on a gateway. This operation takes effect only on AI gateways of version 2.1.21 or later. Resetting clears the historical usage of consumption subjects on the rule.
  * > 
  * >  Recommended call logic:
  * > - 1. Perform a dry run to check for rule conflicts.
- * > - - Set dryRun=true.
- * > - - The response contains a conflict preview with conflictHash.
- * > - 2. Submit the request after confirmation.
- * > - - No conflict: dryRun=false, overwrite=false.
- * > - - Conflict exists and overwrite confirmed: dryRun=false, overwrite=true, conflictHash=<value returned in the previous step>
+ * > - - Set dryRun to true.
+ * > - - The response contains a conflict preview with a conflictHash value.
+ * > - 2. Confirm and submit the request.
+ * > - - No conflicts: Set dryRun to false and overwrite to false.
+ * > - - Conflicts exist and you confirm the overwrite: Set dryRun to false, overwrite to true, and conflictHash to the value returned in the previous step.
  *
  * @param request ResetGatewayQuotaRuleRequest
  * @param headers map
@@ -14542,15 +14650,15 @@ async function resetGatewayQuotaRuleWithOptions(gatewayId: string, ruleId: strin
 /**
  * @summary Resets a quota throttling rule on a gateway.
  *
- * @description Resets a quota throttling rule on a gateway. This operation only takes effect for AI gateways with versions later than 2.1.19. Resetting clears the historical usage of consumers on the rule.
+ * @description Resets a quota throttling rule on a gateway. This operation takes effect only on AI gateways of version 2.1.21 or later. Resetting clears the historical usage of consumption subjects on the rule.
  * > 
  * >  Recommended call logic:
  * > - 1. Perform a dry run to check for rule conflicts.
- * > - - Set dryRun=true.
- * > - - The response contains a conflict preview with conflictHash.
- * > - 2. Submit the request after confirmation.
- * > - - No conflict: dryRun=false, overwrite=false.
- * > - - Conflict exists and overwrite confirmed: dryRun=false, overwrite=true, conflictHash=<value returned in the previous step>
+ * > - - Set dryRun to true.
+ * > - - The response contains a conflict preview with a conflictHash value.
+ * > - 2. Confirm and submit the request.
+ * > - - No conflicts: Set dryRun to false and overwrite to false.
+ * > - - Conflicts exist and you confirm the overwrite: Set dryRun to false, overwrite to true, and conflictHash to the value returned in the previous step.
  *
  * @param request ResetGatewayQuotaRuleRequest
  * @return ResetGatewayQuotaRuleResponse
@@ -16318,42 +16426,42 @@ async function updateGatewayName(gatewayId: string, request: UpdateGatewayNameRe
 }
 
 model UpdateGatewayQuotaRuleRequest {
-  addIds?: [ string ](name='addIds', description='The list of subject (consumer) IDs to bind.', example='cs-001,cs-002'),
-  conflictHash?: string(name='conflictHash', description='The conflict snapshot hash used to prevent concurrent dirty overwrites during confirmation. Obtain this value from the response of a prior dryRun=true call.
+  addIds?: [ string ](name='addIds', description='The list of consumer principal IDs to bind.', example='cs-001,cs-002'),
+  conflictHash?: string(name='conflictHash', description='The conflict snapshot hash, used to prevent concurrent dirty overwrites when confirming an overwrite. Obtain this value from the response of a prior dryRun=true call.
 
-This parameter is not required in the following cases: no conflict exists, the request is a dry run (dryRun=true), or overwrite is set to false.
+This parameter is not required in the following cases: no conflicts exist, the request is a dry run (dryRun=true), or overwrite is set to false.
 
-When dryRun=false and overwrite=true, if this parameter is missing or the value has expired and no longer matches, the backend returns accepted=false with a new conflict preview. You must perform a dry run again to confirm the new conflict.', example='f8f44dc6cf369a017d56b7197eb4fb5ac4bbb6b09a92b9b41999541f50xxxxxx'),
-  consumerGroupIds?: [ string ](name='consumerGroupIds', description='The list of consumer group IDs. This parameter is not supported currently.', example='group1,group2', deprecated=true),
-  dryRun?: boolean(name='dryRun', description='Specifies whether to perform a dry run only without persisting or applying the configuration. A dry run checks whether conflicting rules exist on the bound consumers. The same consumer cannot have two quota rules with the same calendar period. For example, a consumer that already has a daily calendar quota cannot be assigned another daily calendar quota rule.', example='true'),
-  overwrite?: boolean(name='overwrite', description='Specifies whether to allow overwriting on conflict. If overwriting is allowed, conflicting subjects (consumers) are unbound from the old rule and bound to the new rule.'),
+When dryRun is set to false and overwrite is set to true, if this parameter is missing or the value has expired and no longer matches, the backend returns accepted=false with a new conflict preview. Perform a dry run again to confirm the new conflicts.', example='f8f44dc6cf369a017d56b7197eb4fb5ac4bbb6b09a92b9b41999541f50xxxxxx'),
+  consumerGroupIds?: [ string ](name='consumerGroupIds', description='**[Deprecated]** The list of consumer group IDs.', example='group1,group2', deprecated=true),
+  dryRun?: boolean(name='dryRun', description='Specifies whether to perform a dry run only without persisting or applying the configuration. A dry run checks whether conflicting rules exist on the bound consumer principals. The same consumer principal cannot have two calendar-period quotas with the same period. For example, a consumer principal that already has a daily calendar quota cannot be assigned another daily calendar quota rule.', example='true'),
+  overwrite?: boolean(name='overwrite', description='Specifies whether to allow overwriting when conflicts exist. If overwriting is allowed, conflicting principals (consumers or consumer groups) are unbound from the old rule and bound to the new rule.'),
   quotaLimit?: long(name='quotaLimit', description='The updated total available quota.', example='1000'),
-  removeIds?: [ string ](name='removeIds', description='The list of subject (consumer) IDs to unbind.', example='cs003,cs-004'),
+  removeIds?: [ string ](name='removeIds', description='The list of consumer principal IDs to unbind.', example='cs003,cs-004'),
   ruleName?: string(name='ruleName', description='The updated rule name.', example='team-rule'),
 }
 
 model UpdateGatewayQuotaRuleResponseBody = {
   code?: string(name='code', description='The status code or error code.', example='200, 404, 500'),
   data?: {
-    accepted?: boolean(name='accepted', description='Indicates whether the write request semantics are accepted by the system. A value of false typically indicates a retryable scenario such as an unconfirmed conflict overwrite.', example='true'),
+    accepted?: boolean(name='accepted', description='Indicates whether the write request is accepted by the system. A value of false typically indicates a retryable scenario such as an unconfirmed conflict overwrite.', example='true'),
     conflictPreview?: {
-      conflictHash?: string(name='conflictHash', description='The conflict hash.', example='f8f44dc6cf369a017d56b7197eb4fb5ac4bbb6b09a92b9b41999541f50xxxxxx'),
+      conflictHash?: string(name='conflictHash', description='The hash of the conflict snapshot.', example='f8f44dc6cf369a017d56b7197eb4fb5ac4bbb6b09a92b9b41999541f50xxxxxx'),
       items?: [ 
         {
-          conflictPeriodType?: string(name='conflictPeriodType', description='The period type of the existing conflicting rule on the consumer. Valid values: day (daily period), week (weekly period), and month (monthly period).', example='week'),
-          conflictType?: string(name='conflictType', description='The type of the existing conflicting rule on the consumer. Valid values: calendar (the conflicting rule uses a calendar period) and epoch (the conflicting rule uses a custom period).', example='calendar'),
-          consumerId?: string(name='consumerId', description='The consumer ID.', example='cs-d82n1g6m1hkm375xxxxx'),
-          consumerName?: string(name='consumerName', description='The consumer name.', example='consumer-a'),
-          subjectId?: string(name='subjectId', description='The ID of the conflicting subject.', example='cs-xxx'),
-          subjectName?: string(name='subjectName', description='The name of the conflicting subject.', example='consumer-a'),
-          subjectType?: string(name='subjectType', description='The type of the conflicting subject. Valid values: consumer and consumer_group.', example='consumer'),
+          conflictPeriodType?: string(name='conflictPeriodType', description='The period type of the existing conflicting rule on the consumer principal. Valid values: day, week, and month, which indicate that the period of the conflicting rule is daily, weekly, or monthly.', example='week'),
+          conflictType?: string(name='conflictType', description='The type of the existing conflicting rule on the consumer principal. Valid values: calendar (the conflicting rule uses a calendar period) and epoch (the conflicting rule uses a custom period).', example='calendar'),
+          consumerId?: string(name='consumerId', description='The consumer ID. You can use subjectId instead.', example='cs-d82n1g6m1hkm375xxxxx'),
+          consumerName?: string(name='consumerName', description='The consumer name. You can use subjectName instead.', example='consumer-a'),
+          subjectId?: string(name='subjectId', description='The ID of the conflicting principal.', example='cs-xxx'),
+          subjectName?: string(name='subjectName', description='The name of the conflicting principal.', example='consumer-a'),
+          subjectType?: string(name='subjectType', description='The type of the conflicting principal. Valid values: consumer and consumer_group.', example='consumer'),
         }
-      ](name='items', description='The list of conflicting subjects (consumers).'),
+      ](name='items', description='The list of conflicting principals (consumers or consumer groups).'),
       totalConflictCount?: int32(name='totalConflictCount', description='The total number of conflicts.', example='2'),
     }(name='conflictPreview', description='The conflict preview.'),
-    dryRun?: boolean(name='dryRun', description='Indicates whether this is a dry run.', example='true'),
+    dryRun?: boolean(name='dryRun', description='Indicates whether the request is a dry run.', example='true'),
     ruleId?: string(name='ruleId', description='The rule ID.', example='qr-xxxxxx'),
-  }(name='data', description='The response data.', example='{\\\\"key\\\\": \\\\"value\\\\"}'),
+  }(name='data', description='The response data content.', example='{\\\\"key\\\\": \\\\"value\\\\"}'),
   message?: string(name='message', description='The message content.', example='Hello, World!'),
   requestId?: string(name='requestId', description='The unique identifier of the request.', example='1234567890'),
 }
@@ -16365,16 +16473,16 @@ model UpdateGatewayQuotaRuleResponse = {
 }
 
 /**
- * @summary Edits a quota rate-limiting rule on a gateway.
+ * @summary Edits a quota throttling rule on a gateway.
  *
- * @description Edits a quota rule on a gateway. This operation takes effect only for AI gateways with a version later than 2.1.19. Editing preserves the historical usage of consumers on the rule.
- * >  Recommended call logic:
- * > - 1. Perform a dry run to check for rule conflicts.
+ * @description Edits a quota rule on a gateway. This operation takes effect only on AI gateways with a version later than 2.1.21. Editing a rule preserves the historical usage of consumer principals bound to the rule.
+ * >  Recommended call sequence:
+ * > - Step 1: Perform a dry run to check for rule conflicts.
  * > - - Set dryRun to true.
- * > - - The response contains a conflict preview with conflictHash.
- * > - 2. Submit the request after confirmation.
- * > - - No conflict: Set dryRun to false and overwrite to false.
- * > - - Conflict exists and overwrite confirmed: Set dryRun to false, overwrite to true, and conflictHash to the value returned in the previous step.
+ * > - - The response returns a conflict preview that contains conflictHash.
+ * > - Step 2: Confirm and submit the request.
+ * > - - No conflicts: Set dryRun to false and overwrite to false.
+ * > - - Conflicts exist and you confirm the overwrite: Set dryRun to false, overwrite to true, and conflictHash to the value returned in the previous step.
  *
  * @param request UpdateGatewayQuotaRuleRequest
  * @param headers map
@@ -16429,16 +16537,16 @@ async function updateGatewayQuotaRuleWithOptions(gatewayId: string, ruleId: stri
 }
 
 /**
- * @summary Edits a quota rate-limiting rule on a gateway.
+ * @summary Edits a quota throttling rule on a gateway.
  *
- * @description Edits a quota rule on a gateway. This operation takes effect only for AI gateways with a version later than 2.1.19. Editing preserves the historical usage of consumers on the rule.
- * >  Recommended call logic:
- * > - 1. Perform a dry run to check for rule conflicts.
+ * @description Edits a quota rule on a gateway. This operation takes effect only on AI gateways with a version later than 2.1.21. Editing a rule preserves the historical usage of consumer principals bound to the rule.
+ * >  Recommended call sequence:
+ * > - Step 1: Perform a dry run to check for rule conflicts.
  * > - - Set dryRun to true.
- * > - - The response contains a conflict preview with conflictHash.
- * > - 2. Submit the request after confirmation.
- * > - - No conflict: Set dryRun to false and overwrite to false.
- * > - - Conflict exists and overwrite confirmed: Set dryRun to false, overwrite to true, and conflictHash to the value returned in the previous step.
+ * > - - The response returns a conflict preview that contains conflictHash.
+ * > - Step 2: Confirm and submit the request.
+ * > - - No conflicts: Set dryRun to false and overwrite to false.
+ * > - - Conflicts exist and you confirm the overwrite: Set dryRun to false, overwrite to true, and conflictHash to the value returned in the previous step.
  *
  * @param request UpdateGatewayQuotaRuleRequest
  * @return UpdateGatewayQuotaRuleResponse
@@ -16469,7 +16577,7 @@ model UpdateGatewayQuotaRuleStatusResponse = {
 /**
  * @summary Enables or disables a quota throttling rule for a gateway.
  *
- * @description Enables or disables a quota rule on a gateway. This operation takes effect only for AI gateways with a version later than 2.1.19.
+ * @description Enables or disables a quota rule on a gateway. This operation takes effect only on AI gateways with a version later than 2.1.21.
  *
  * @param request UpdateGatewayQuotaRuleStatusRequest
  * @param headers map
@@ -16508,7 +16616,7 @@ async function updateGatewayQuotaRuleStatusWithOptions(gatewayId: string, ruleId
 /**
  * @summary Enables or disables a quota throttling rule for a gateway.
  *
- * @description Enables or disables a quota rule on a gateway. This operation takes effect only for AI gateways with a version later than 2.1.19.
+ * @description Enables or disables a quota rule on a gateway. This operation takes effect only on AI gateways with a version later than 2.1.21.
  *
  * @param request UpdateGatewayQuotaRuleStatusRequest
  * @return UpdateGatewayQuotaRuleStatusResponse
