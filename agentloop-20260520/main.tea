@@ -12,18 +12,7 @@ extends OpenApi;
 init(config: OpenApi.Config){
   super(config);
   @endpointRule = 'regional';
-  @endpointMap = {
-    'cn-shenzhen' = 'agentloop.cn-shenzhen.aliyuncs.com',
-    'cn-beijing' = 'agentloop.cn-beijing.aliyuncs.com',
-    'cn-shanghai' = 'agentloop.cn-shanghai.aliyuncs.com',
-    'cn-guangzhou' = 'agentloop.cn-guangzhou.aliyuncs.com',
-    'cn-hongkong' = 'agentloop.cn-hongkong.aliyuncs.com',
-    'ap-southeast-1' = 'agentloop.ap-southeast-1.aliyuncs.com',
-    'cn-zhangjiakou' = 'agentloop.cn-zhangjiakou.aliyuncs.com',
-    'cn-hangzhou' = 'agentloop.cn-hangzhou.aliyuncs.com',
-    'cn-chengdu' = 'agentloop.cn-chengdu.aliyuncs.com',
-  };
-
+  
   checkConfig(config);
   @endpoint = getEndpoint('agentloop', @regionId, @endpointRule, @network, @suffix, @endpointMap, @endpoint);
 }
@@ -2042,18 +2031,27 @@ async function describeRegions(request: DescribeRegionsRequest): DescribeRegions
 }
 
 model ExecuteQueryRequest {
-  from?: int32(name='from'),
-  length?: int32(name='length'),
-  maxOutputLength?: int32(name='maxOutputLength'),
-  offset?: int32(name='offset'),
+  annotationFilter?: {
+    conditions?: [ 
+      {
+        key?: string(name='key', description='The annotation key.', example='answer_quality'),
+        operator?: string(name='operator', description='The operator.', example='eq'),
+        value?: any(name='value', description='The annotation value.', example='GOOD'),
+      }
+    ](name='conditions', description='The annotation filter conditions.'),
+  }(name='annotationFilter', description='The annotation filter.'),
+  from?: int32(name='from', description='The start time of the query.', example='1760925728'),
+  length?: int32(name='length', description='The page size.', example='100'),
+  maxOutputLength?: int32(name='maxOutputLength', description='The maximum output length.', example='100'),
+  offset?: int32(name='offset', description='The pagination offset.', example='0'),
   query?: string(name='query', description='The query entered by the user.
 
 This parameter is required.', example='select count(*) from product_faq_dataset'),
-  to?: int32(name='to'),
+  to?: int32(name='to', description='The end time of the query.', example='1760925788'),
   type?: string(name='type', description='The statement type. Currently, only SQL is supported.
 
 This parameter is required.', example='SQL'),
-  version?: string(name='version'),
+  version?: string(name='version', description='The dataset version.', example='1.0.0'),
 }
 
 model ExecuteQueryResponseBody = {
@@ -2065,10 +2063,10 @@ model ExecuteQueryResponseBody = {
     elapsedMillisecond?: long(name='elapsedMillisecond', description='The time consumed by this execution, in milliseconds.', example='15'),
     progress?: string(name='progress', description='Indicates whether the query result is complete.', example='Complete'),
     truncation?: {
-      truncated?: boolean(name='truncated'),
-      truncatedColumnIndexes?: [[ int32 ]      ](name='truncatedColumnIndexes'),
-    }(name='truncation'),
-  }(name='meta', description='The metadata of the returned data.'),
+      truncated?: boolean(name='truncated', description='Indicates whether the result is truncated.'),
+      truncatedColumnIndexes?: [[ int32 ]      ](name='truncatedColumnIndexes', description='The truncation details of result rows.'),
+    }(name='truncation', description='The result truncation details.'),
+  }(name='meta', description='The metadata of the response.'),
   requestId?: string(name='requestId', description='The request ID.', example='EB27D183-8F6C-5C5A-A6A3-E0508AF54F78'),
   rows?: [[ any ]  ](name='rows', description='The result rows.'),
 }
@@ -2082,6 +2080,9 @@ model ExecuteQueryResponse = {
 /**
  * @summary Executes a query statement.
  *
+ * @description Calls CreateEvaluationTask to create an evaluation task in a specified AgentSpace. The server validates AgentSpace permissions, initializes evaluation result storage, checks task name uniqueness, and asynchronously creates and executes an EvaluationRun based on `taskMode` and `runStrategies`.
+ * This operation is applicable to running built-in or custom evaluators on Trace, Dataset, or SLS Log data. It supports two execution strategies: historical backfill and continuous evaluation.
+ *
  * @param request ExecuteQueryRequest
  * @param headers map
  * @param runtime runtime options for this request RuntimeOptions
@@ -2090,6 +2091,9 @@ model ExecuteQueryResponse = {
 async function executeQueryWithOptions(agentSpace: string, datasetName: string, request: ExecuteQueryRequest, headers: map[string]string, runtime: Util.RuntimeOptions): ExecuteQueryResponse {
   Util.validateModel(request);
   var body : map[string]any = {};
+  if (!Util.isUnset(request.annotationFilter)) {
+    body['annotationFilter'] = request.annotationFilter;
+  }
   if (!Util.isUnset(request.from)) {
     body['from'] = request.from;
   }
@@ -2135,6 +2139,9 @@ async function executeQueryWithOptions(agentSpace: string, datasetName: string, 
 
 /**
  * @summary Executes a query statement.
+ *
+ * @description Calls CreateEvaluationTask to create an evaluation task in a specified AgentSpace. The server validates AgentSpace permissions, initializes evaluation result storage, checks task name uniqueness, and asynchronously creates and executes an EvaluationRun based on `taskMode` and `runStrategies`.
+ * This operation is applicable to running built-in or custom evaluators on Trace, Dataset, or SLS Log data. It supports two execution strategies: historical backfill and continuous evaluation.
  *
  * @param request ExecuteQueryRequest
  * @return ExecuteQueryResponse
@@ -2866,84 +2873,92 @@ model GetPipelineRequest {
 }
 
 model GetPipelineResponseBody = {
-  committedWatermark?: long(name='committedWatermark', example='1735660800'),
-  createTime?: string(name='createTime', description='Use the UTC time format: yyyy-MM-ddTHH:mm:ssZ', example='2026-01-01T00:00:00Z'),
-  description?: string(name='description', example='我的流水线'),
+  committedWatermark?: long(name='committedWatermark', description='The committed watermark. The value is a UNIX timestamp in seconds.', example='1735660800'),
+  createTime?: string(name='createTime', description='The time when the pipeline was created, in ISO 8601 UTC format.
+
+Use the UTC time format: yyyy-MM-ddTHH:mm:ssZ', example='2026-01-01T00:00:00Z'),
+  description?: string(name='description', description='The pipeline description.', example='My pipeline'),
   executePolicy?: {
-    mode?: string(name='mode', example='scheduled'),
+    mode?: string(name='mode', description='The scheduling mode. For example, scheduled (timed scheduling) or runOnce (one-time execution).', example='scheduled'),
     runOnce?: {
-      fromTime?: long(name='fromTime', example='1735660800000'),
-      toTime?: long(name='toTime', example='1735747200000'),
-    }(name='runOnce'),
+      fromTime?: long(name='fromTime', description='The start time for data processing. The value is a UNIX timestamp in milliseconds.', example='1735660800000'),
+      toTime?: long(name='toTime', description='The end time for data processing. The value is a UNIX timestamp in milliseconds.', example='1735747200000'),
+    }(name='runOnce', description='The configuration for one-time execution.'),
     scheduled?: {
-      fromTime?: long(name='fromTime', example='1735660800000'),
-      interval?: string(name='interval', example='1h'),
-    }(name='scheduled'),
-  }(name='executePolicy'),
-  nextTriggerTime?: long(name='nextTriggerTime', example='1735661100'),
+      fromTime?: long(name='fromTime', description='The scheduling start time. The value is a UNIX timestamp in milliseconds.', example='1735660800000'),
+      interval?: string(name='interval', description='The scheduling interval. For example, 1h.', example='1h'),
+    }(name='scheduled', description='The timed scheduling configuration.'),
+  }(name='executePolicy', description='The scheduling method.'),
+  nextTriggerTime?: long(name='nextTriggerTime', description='The next scheduling trigger time. The value is a UNIX timestamp in seconds.', example='1735661100'),
   pipeline?: {
     nodes?: [ 
       {
-        id?: string(name='id', example='node-1'),
-        parameters?: map[string]any(name='parameters'),
-        type?: string(name='type', example='transform'),
+        id?: string(name='id', description='The node ID.', example='node-1'),
+        parameters?: map[string]any(name='parameters', description='The node parameters in key-value structure, which vary depending on the node type.'),
+        type?: string(name='type', description='The node type.', example='transform'),
       }
-    ](name='nodes'),
-  }(name='pipeline'),
-  pipelineName?: string(name='pipelineName', example='my-pipeline'),
-  regionId?: string(name='regionId', example='cn-hangzhou'),
-  requestId?: string(name='requestId', example='9ACFB10A-1B2C-3D4E-5F6G-7H8I9J0K1L2M'),
-  scheduleStatus?: string(name='scheduleStatus', example='Active'),
+    ](name='nodes', description='The list of nodes.'),
+  }(name='pipeline', description='The pipeline configuration for node orchestration.'),
+  pipelineName?: string(name='pipelineName', description='The pipeline name.', example='my-pipeline'),
+  regionId?: string(name='regionId', description='The region ID.', example='cn-hangzhou'),
+  requestId?: string(name='requestId', description='The request ID, which is used to locate and troubleshoot issues.', example='9ACFB10A-1B2C-3D4E-5F6G-7H8I9J0K1L2M'),
+  scheduleStatus?: string(name='scheduleStatus', description='The scheduling status. Valid values:
+- None: No scheduling.
+- Active: Active.
+- Paused: Paused.
+- Terminated: Terminated.', example='Active'),
   sink?: {
     condition?: {
       defaultSink?: {
         dataset?: {
-          agentSpace?: string(name='agentSpace', example='my-agent-space'),
-          dataset?: string(name='dataset', example='other-result'),
-        }(name='dataset'),
-        type?: string(name='type', example='dataset'),
-      }(name='defaultSink'),
-      matchMode?: string(name='matchMode', example='all'),
+          agentSpace?: string(name='agentSpace', description='The name of the AgentSpace to which the default destination dataset belongs.', example='my-agent-space'),
+          dataset?: string(name='dataset', description='The name of the default destination dataset.', example='other-result'),
+        }(name='dataset', description='The default destination dataset.'),
+        type?: string(name='type', description='The default destination type. Currently, only dataset is supported.', example='dataset'),
+      }(name='defaultSink', description='The default write destination used when no conditional route is matched.'),
+      matchMode?: string(name='matchMode', description='The route match mode. Currently, only all is supported.', example='all'),
       routes?: [ 
         {
-          expression?: string(name='expression', example='* | where intent = \\\\"refund\\\\"'),
-          id?: string(name='id', example='refund'),
+          expression?: string(name='expression', description='The route expression in SPL. Only where, project, and extend are supported.', example='* | where intent = \\\\"refund\\\\"'),
+          id?: string(name='id', description='The route ID.', example='refund'),
           sink?: {
             dataset?: {
-              agentSpace?: string(name='agentSpace', example='my-agent-space'),
-              dataset?: string(name='dataset', example='refund-result'),
-            }(name='dataset'),
-            type?: string(name='type', example='dataset'),
-          }(name='sink'),
+              agentSpace?: string(name='agentSpace', description='The name of the AgentSpace to which the destination dataset belongs.', example='my-agent-space'),
+              dataset?: string(name='dataset', description='The name of the destination dataset.', example='refund-result'),
+            }(name='dataset', description='The route destination dataset.'),
+            type?: string(name='type', description='The route destination type. Currently, only dataset is supported.', example='dataset'),
+          }(name='sink', description='The route write destination.'),
         }
-      ](name='routes'),
-    }(name='condition'),
+      ](name='routes', description='The list of conditional routes.'),
+    }(name='condition', description='The conditional routing configuration. This parameter is used only when sink.type is set to condition.'),
     dataset?: {
-      agentSpace?: string(name='agentSpace', example='my-agent-space'),
-      dataset?: string(name='dataset', example='my-dataset'),
-    }(name='dataset'),
-    type?: string(name='type', example='condition'),
-  }(name='sink'),
+      agentSpace?: string(name='agentSpace', description='The name of the AgentSpace to which the target dataset belongs.', example='my-agent-space'),
+      dataset?: string(name='dataset', description='The target dataset name.', example='my-dataset'),
+    }(name='dataset', description='The target dataset configuration for the dataset sink. This parameter is used only when sink.type is set to dataset.'),
+    type?: string(name='type', description='The sink type. Valid values: dataset and condition.', example='condition'),
+  }(name='sink', description='The pipeline sink, which is the data write destination.'),
   source?: {
     dataset?: {
-      dataset?: string(name='dataset', example='my-dataset'),
-      filter?: string(name='filter', example='status = \\\\"pending\\\\"'),
-    }(name='dataset'),
+      dataset?: string(name='dataset', description='The source dataset name.', example='my-dataset'),
+      filter?: string(name='filter', description='The dataset data filter condition.', example='status = \\\\"pending\\\\"'),
+    }(name='dataset', description='The dataset datasource config under the current AgentSpace.'),
     inputFields?: [ 
       {
-        name?: string(name='name', example='question'),
-        type?: string(name='type', example='text'),
+        name?: string(name='name', description='The field name.', example='question'),
+        type?: string(name='type', description='The field type. Valid values: text, long, double, and json.', example='text'),
       }
-    ](name='inputFields'),
+    ](name='inputFields', description='The input fields and field types, applicable to all data source types.'),
     logstore?: {
-      logstore?: string(name='logstore', example='my-sls-logstore'),
-      project?: string(name='project', example='my-sls-project'),
-      query?: string(name='query', example='* | SELECT *'),
-    }(name='logstore'),
-    type?: string(name='type', example='dataset'),
-  }(name='source'),
-  updateTime?: string(name='updateTime', description='Use the UTC time format: yyyy-MM-ddTHH:mm:ssZ', example='2026-01-02T00:00:00Z'),
-  workspace?: string(name='workspace', example='my-workspace'),
+      logstore?: string(name='logstore', description='The SLS Logstore name.', example='my-sls-logstore'),
+      project?: string(name='project', description='The SLS project name.', example='my-sls-project'),
+      query?: string(name='query', description='The data filtered query statement in SLS query/analysis syntax.', example='* | SELECT *'),
+    }(name='logstore', description='The SLS Logstore datasource config.'),
+    type?: string(name='type', description='The data source type. Valid values: logstore and dataset.', example='dataset'),
+  }(name='source', description='The pipeline data source.'),
+  updateTime?: string(name='updateTime', description='The time when the pipeline was last updated, in ISO 8601 UTC format.
+
+Use the UTC time format: yyyy-MM-ddTHH:mm:ssZ', example='2026-01-02T00:00:00Z'),
+  workspace?: string(name='workspace', description='The workspace associated with the pipeline.', example='my-workspace'),
 }
 
 model GetPipelineResponse = {
@@ -2953,7 +2968,7 @@ model GetPipelineResponse = {
 }
 
 /**
- * @summary Queries a CI/CD pipeline.
+ * @summary Queries a pipeline.
  *
  * @param request GetPipelineRequest
  * @param headers map
@@ -2980,7 +2995,7 @@ async function getPipelineWithOptions(agentSpace: string, pipelineName: string, 
 }
 
 /**
- * @summary Queries a CI/CD pipeline.
+ * @summary Queries a pipeline.
  *
  * @param request GetPipelineRequest
  * @return GetPipelineResponse
