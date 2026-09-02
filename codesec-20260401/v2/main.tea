@@ -10,11 +10,7 @@ extends OpenApi;
 init(config: OpenApiUtil.Config){
   super(config);
   @endpointRule = 'regional';
-  @endpointMap = {
-    'ap-southeast-1' = 'codesec.ap-southeast-1.aliyuncs.com',
-    'cn-hangzhou' = 'codesec.cn-hangzhou.aliyuncs.com',
-  };
-
+  
   checkConfig(config);
   @endpoint = getEndpoint('codesec', @regionId, @endpointRule, @network, @suffix, @endpointMap, @endpoint);
 }
@@ -32,33 +28,47 @@ function getEndpoint(productId: string, regionId: string, endpointRule: string, 
 
 model DescribeProjectsRequest {
   maxResults?: int32(name='maxResults', description='The number of entries per page. Default value: 10. Maximum value: 20.', example='20'),
-  nextToken?: string(name='nextToken', description='The pagination token. Do not specify this parameter or set it to an empty string for the first page. For subsequent pages, pass the nextToken value from the previous response without any modification. If the nextToken in the response is empty, the last page has been reached.', example='eyJ0IjoiMjAyNi0wNy0xNlQwNzo1MzozOC4wMjFaIiwiaSI6MTAwMDQ0OH0'),
-  query?: string(name='query', description='Fuzzy matches projects by project name or prompt.', example='project'),
+  nextToken?: string(name='nextToken', description='The pagination token. Do not specify this parameter or set it to an empty string for the first page. For subsequent pages, pass the nextToken value from the previous response without any modification. If the nextToken value in the response is empty, the last page has been reached.', example='eyJ0IjoiMjAyNi0wNy0xNlQwNzo1MzozOC4wMjFaIiwiaSI6MTAwMDQ0OH0'),
+  query?: string(name='query', description='The keyword for fuzzy match by project name or prompt.', example='project'),
+  sortBy?: string(name='sortBy', description='The field by which to sort the results. Default value: last_scan_time.
+
+Valid values:
+
+*   last_scan_time: the time when a task was last created.
+*   created_at: the time when the project was created.
+*   updated_at: the time when the project was last modified.', example='last_scan_time'),
+  sortOrder?: string(name='sortOrder', description='The sort order. Default value: desc.
+
+Valid values:
+
+*   desc: descending order.
+*   asc: ascending order.', example='desc'),
 }
 
 model DescribeProjectsResponseBody = {
   items?: [ 
     {
       configRevision?: long(name='configRevision', description='The project configuration version number.', example='1'),
-      createdAt?: string(name='createdAt', description='The creation time.', example='2026-07-28T03:36:31.573Z'),
+      createdAt?: string(name='createdAt', description='The time when the project was created.', example='2026-07-28T03:36:31.573Z'),
       createdBy?: string(name='createdBy', description='The user ID of the project creator.', example='11111'),
       description?: string(name='description', description='The description.', example='111'),
       engines?: {
-        sast?: boolean(name='sast', description='Indicates whether SAST is supported.', example='true'),
-        sca?: boolean(name='sca', description='Indicates whether SCA is supported.', example='true'),
-      }(name='engines', description='The engine switches for the project or scan snapshot (SAST and SCA only).'),
+        sast?: boolean(name='sast', description='Indicates whether SAST is enabled.', example='true'),
+        sca?: boolean(name='sca', description='Indicates whether SCA is enabled.', example='true'),
+      }(name='engines', description='The engine switches for the project or scan snapshot. Only SAST and SCA are supported.'),
       id?: long(name='id', description='The project ID.', example='934'),
       instructionPrompt?: string(name='instructionPrompt', description='The natural language prompt provided by the user that describes scanning or result processing preferences, such as ignoring low-risk vulnerabilities.', example='1111'),
+      lastScanTime?: string(name='lastScanTime', description='The time when a task was last created.', example='2026-07-28T03:36:31.573Z'),
       name?: string(name='name', description='The project name.', example='manual-hDecBn'),
       source?: {
         type?: string(name='type', description='The project type.', example='manual_upload'),
       }(name='source', description='The project source.'),
-      updatedAt?: string(name='updatedAt', description='The update time.', example='2026-07-28T03:36:31.573Z'),
+      updatedAt?: string(name='updatedAt', description='The time when the project was last updated.', example='2026-07-28T03:36:31.573Z'),
     }
   ](name='items', description='The list of projects.'),
   maxResults?: int32(name='maxResults', description='The page size.
 
-> If not specified, all projects are displayed.', example='10'),
+> If this parameter is not specified, all projects are returned.', example='10'),
   nextToken?: string(name='nextToken', description='The pagination token. An empty value indicates the last page.', example='eyJ0IjoiMjAyNi0wNy0xNlQwNzo1MzozOC4wMjFaIiwiaSI6MTAwMDQ0OH0'),
   requestId?: string(name='requestId', description='Id of the request', example='9A1F403F-0A85-5578-8B7C-55E3E9408659'),
   totalCount?: long(name='totalCount', description='The total number of entries.', example='2'),
@@ -71,7 +81,7 @@ model DescribeProjectsResponse = {
 }
 
 /**
- * @summary Lists projects under the tenant with pagination, supporting fuzzy search by name or prompt.
+ * @summary Lists projects under a tenant by page, with support for fuzzy search by name or prompt.
  *
  * @param request DescribeProjectsRequest
  * @param headers map
@@ -90,6 +100,12 @@ async function describeProjectsWithOptions(request: DescribeProjectsRequest, hea
   }
   if (!$isNull(request.query)) {
     query['query'] = request.query;
+  }
+  if (!$isNull(request.sortBy)) {
+    query['sortBy'] = request.sortBy;
+  }
+  if (!$isNull(request.sortOrder)) {
+    query['sortOrder'] = request.sortOrder;
   }
 
   var req = new OpenApiUtil.OpenApiRequest{ 
@@ -111,7 +127,7 @@ async function describeProjectsWithOptions(request: DescribeProjectsRequest, hea
 }
 
 /**
- * @summary Lists projects under the tenant with pagination, supporting fuzzy search by name or prompt.
+ * @summary Lists projects under a tenant by page, with support for fuzzy search by name or prompt.
  *
  * @param request DescribeProjectsRequest
  * @return DescribeProjectsResponse
