@@ -11,8 +11,6 @@ init(config: OpenApiUtil.Config){
   super(config);
   @endpointRule = 'regional';
   @endpointMap = {
-    'cn-beijing' = 'aicontent.cn-beijing.aliyuncs.com',
-    'cn-hangzhou' = 'aicontent.cn-hangzhou.aliyuncs.com',
     'cn-shanghai' = 'aicontent.aliyuncs.com',
     'public' = 'aicontent.aliyuncs.com',
   };
@@ -984,20 +982,20 @@ model UsageBreakdownRespDTO {
 }
 
 model UsageBreakdownRowDTO {
-  apiKeyId?: long(name='apiKeyId', example='0'),
-  apiKeyName?: string(name='apiKeyName', example='默认密钥'),
-  clientId?: long(name='clientId', description='Department ID; 0 indicates no associated department', example='0'),
-  clientName?: string(name='clientName', description='Department name', example='研发部'),
-  memberUserId?: long(name='memberUserId', example='30001'),
-  memberUserName?: string(name='memberUserName', example='张三'),
+  apiKeyId?: long(name='apiKeyId', description='The API key ID. A value of 0 indicates that historical data is not broken down by API key.', example='0'),
+  apiKeyName?: string(name='apiKeyName', description='The API key name, corresponding to api_key_id.', example='Default key'),
+  clientId?: long(name='clientId', description='The department ID. A value of 0 indicates no affiliated department.', example='0'),
+  clientName?: string(name='clientName', description='The department name.', example='R&D Department'),
+  memberUserId?: long(name='memberUserId', description='The member ID for a member row. The value is 0 for a department row.', example='30001'),
+  memberUserName?: string(name='memberUserName', description='The member name for a member row. The value is empty for a department row.', example='John Smith'),
   metrics?: [
     MetricKVPairDTO
-  ](name='metrics', description='Array of usage metrics, containing only entries with non-zero values', example='[{"key": "total_calls", "value": 100}]'),
-  modelCode?: string(name='modelCode', description='Model identifier', example='qwen-plus'),
-  modelId?: long(name='modelId', description='Model ID', example='1'),
-  modelName?: string(name='modelName', description='Model name', example='通义千问-Plus'),
-  modelType?: string(name='modelType', description='Statistics scope', example='llm'),
-  summaryTime?: long(name='summaryTime', description='Statistics time point, Unix timestamp (seconds)', example='1700000000'),
+  ](name='metrics', description='The usage metric array. Only entries with non-zero values are included.', example='[{"key": "total_calls", "value": 100}]'),
+  modelCode?: string(name='modelCode', description='The model identifier.', example='qwen-plus'),
+  modelId?: long(name='modelId', description='The model ID.', example='1'),
+  modelName?: string(name='modelName', description='The model name.', example='Qwen-Plus'),
+  modelType?: string(name='modelType', description='The statistical dimension.', example='llm'),
+  summaryTime?: long(name='summaryTime', description='The statistical time point, in UNIX timestamp (seconds).', example='1700000000'),
 }
 
 model UsageInfoDTO {
@@ -12061,6 +12059,82 @@ async function modelRouterTransferToMember(clientId: string, id: string, request
   var runtime = new $RuntimeOptions{};
   var headers : map[string]string = {};
   return modelRouterTransferToMemberWithOptions(clientId, id, request, headers, runtime);
+}
+
+model ModelRouterUpdateApiKeyStatusRequest {
+  status?: string(name='status', description='The status of the API key. Valid values:
+
+- active: The API key is valid.
+- disabled: The API key is invalid.', example='active'),
+}
+
+model ModelRouterUpdateApiKeyStatusResponseBody = {
+  code?: long(name='code', description='The response status code.', example='200'),
+  data?: {
+    id?: long(name='id', description='ID', example='3220'),
+    status?: string(name='status', description='The status of the API key. Valid values:
+
+- active: The API key is valid.
+- disabled: The API key is invalid.', example='active'),
+  }(name='data', description='The data object.'),
+  message?: string(name='message', description='The description of the status code.', example='success'),
+  requestId?: string(name='requestId', description='The request ID.', example='xxxx-xxxx-xxxx-xxxxxxxx'),
+  success?: boolean(name='success', description='Indicates whether the call was successful. Valid values:
+
+- **true**: Successful.
+- **false**: Failed.', example='true'),
+}
+
+model ModelRouterUpdateApiKeyStatusResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ModelRouterUpdateApiKeyStatusResponseBody(name='body'),
+}
+
+/**
+ * @summary Modifies the status of an API key.
+ *
+ * @param request ModelRouterUpdateApiKeyStatusRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return ModelRouterUpdateApiKeyStatusResponse
+ */
+@context("modelRouterUpdateApiKeyStatusWithContext")
+async function modelRouterUpdateApiKeyStatusWithOptions(id: string, request: ModelRouterUpdateApiKeyStatusRequest, headers: map[string]string, runtime: $RuntimeOptions): ModelRouterUpdateApiKeyStatusResponse {
+  request.validate();
+  var body : map[string]any = {};
+  if (!$isNull(request.status)) {
+    body['status'] = request.status;
+  }
+
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    headers = headers,
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'ModelRouterUpdateApiKeyStatus',
+    version = '20240611',
+    protocol = 'HTTPS',
+    pathname = `/api/v1/modelRouter/open/apikeys/${$URL.percentEncode(id)}/status`,
+    method = 'PUT',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Modifies the status of an API key.
+ *
+ * @param request ModelRouterUpdateApiKeyStatusRequest
+ * @return ModelRouterUpdateApiKeyStatusResponse
+ */
+async function modelRouterUpdateApiKeyStatus(id: string, request: ModelRouterUpdateApiKeyStatusRequest): ModelRouterUpdateApiKeyStatusResponse {
+  var runtime = new $RuntimeOptions{};
+  var headers : map[string]string = {};
+  return modelRouterUpdateApiKeyStatusWithOptions(id, request, headers, runtime);
 }
 
 model ModelRouterUpdateBillingRuleRequest {
