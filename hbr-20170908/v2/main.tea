@@ -42,39 +42,6 @@ init(config: OpenApiUtil.Config){
     'cn-zhengzhou-nebula-1' = 'hbr.aliyuncs.com',
     'eu-west-1-oxs' = 'hbr.aliyuncs.com',
     'rus-west-1-pop' = 'hbr.aliyuncs.com',
-    'cn-wulanchabu' = 'hbr.cn-wulanchabu.aliyuncs.com',
-    'cn-beijing' = 'hbr.cn-beijing.aliyuncs.com',
-    'cn-qingdao' = 'hbr.cn-qingdao.aliyuncs.com',
-    'cn-shanghai' = 'hbr.cn-shanghai.aliyuncs.com',
-    'cn-hongkong' = 'hbr.cn-hongkong.aliyuncs.com',
-    'cn-heyuan' = 'hbr.cn-heyuan.aliyuncs.com',
-    'cn-zhangjiakou' = 'hbr.cn-zhangjiakou.aliyuncs.com',
-    'cn-shenzhen' = 'hbr.cn-shenzhen.aliyuncs.com',
-    'ap-northeast-2' = 'hbr.ap-northeast-2.aliyuncs.com',
-    'ap-northeast-1' = 'hbr.ap-northeast-1.aliyuncs.com',
-    'cn-chengdu' = 'hbr.cn-chengdu.aliyuncs.com',
-    'cn-guangzhou' = 'hbr.cn-guangzhou.aliyuncs.com',
-    'ap-southeast-1' = 'hbr.ap-southeast-1.aliyuncs.com',
-    'ap-southeast-3' = 'hbr.ap-southeast-3.aliyuncs.com',
-    'cn-huhehaote' = 'hbr.cn-huhehaote.aliyuncs.com',
-    'ap-southeast-5' = 'hbr.ap-southeast-5.aliyuncs.com',
-    'ap-southeast-6' = 'hbr.ap-southeast-6.aliyuncs.com',
-    'ap-southeast-7' = 'hbr.ap-southeast-7.aliyuncs.com',
-    'cn-hangzhou' = 'hbr.cn-hangzhou.aliyuncs.com',
-    'ap-southeast-8' = 'hbr.ap-southeast-8.aliyuncs.com',
-    'cn-zhongwei' = 'hbr.cn-zhongwei.aliyuncs.com',
-    'us-southeast-1' = 'hbr.us-southeast-1.aliyuncs.com',
-    'na-south-1' = 'hbr.na-south-1.aliyuncs.com',
-    'eu-central-1' = 'hbr.eu-central-1.aliyuncs.com',
-    'us-west-1' = 'hbr.us-west-1.aliyuncs.com',
-    'eu-west-1' = 'hbr.eu-west-1.aliyuncs.com',
-    'us-east-1' = 'hbr.us-east-1.aliyuncs.com',
-    'me-central-1' = 'hbr.me-central-1.aliyuncs.com',
-    'me-east-1' = 'hbr.me-east-1.aliyuncs.com',
-    'cn-shanghai-finance-1' = 'hbr.cn-shanghai-finance-1.aliyuncs.com',
-    'cn-beijing-finance-1' = 'hbr.cn-beijing-finance-1.aliyuncs.com',
-    'cn-shenzhen-finance-1' = 'hbr.cn-shenzhen-finance-1.aliyuncs.com',
-    'cn-hangzhou-finance' = 'hbr.cn-hangzhou-finance.aliyuncs.com',
   };
 
   checkConfig(config);
@@ -90,6 +57,12 @@ function getEndpoint(productId: string, regionId: string, endpointRule: string, 
     return endpointMap[regionId];
   }
   return OpenApiUtil.getEndpointRules(productId, regionId, endpointRule, network, suffix);
+}
+
+model CrossAccountUser {
+  crossAccountRoleName?: string(name='CrossAccountRoleName'),
+  crossAccountType?: string(name='CrossAccountType'),
+  crossAccountUserId?: long(name='CrossAccountUserId'),
 }
 
 model OtsDetail {
@@ -2207,45 +2180,53 @@ model CreatePolicyV2Request {
   policyDescription?: string(name='PolicyDescription', description='The policy description.', example='Backup once every day at 10:00 AM, with cross-region backup to Shanghai.'),
   policyName?: string(name='PolicyName', description='The policy name.', example='Daily local backup + geo-redundancy'),
   policyType?: string(name='PolicyType', description='The policy type. Valid values:
-- **STANDARD**: general backup policy. Supports backing up data sources other than ECS full-server backup.
-- **UDM_ECS_ONLY**: full-server backup policy. Supports only ECS full-server backup.
+- **STANDARD**: general backup policy. Supports backing up data sources other than ECS instances.
+- **UDM_ECS_ONLY**: ECS instance backup policy. Supports backing up only ECS instances.
 
-If the policy type is not specified, Cloud Backup automatically sets the policy type based on whether a backup vault is specified in the policy rules:
-- Backup vault specified in policy rules: **STANDARD**
-- Backup vault not specified in policy rules: **UDM_ECS_ONLY**', example='STANDARD'),
+If you do not specify the policy type, Cloud Backup automatically sets the policy type based on whether a backup vault is specified in the policy rules:
+- A backup vault is specified in the policy rules: **STANDARD**
+- No backup vault is specified in the policy rules: **UDM_ECS_ONLY**', example='STANDARD'),
   rules?: [ 
     {
       archiveDays?: long(name='ArchiveDays', description='This parameter is required only when **RuleType** is set to **TRANSITION**. The number of days after which a backup is automatically moved to the archive tier. Backups must be retained in the standard tier for at least 30 days and in the archive tier for at least 60 days. Unit: days.', example='90'),
       backupType?: string(name='BackupType', description='This parameter is required only when **RuleType** is set to **BACKUP**. The backup type. Set the value to **COMPLETE**, which specifies full backup.', example='COMPLETE'),
       dataSourceFilters?: [ 
         {
+          accountScope?: string(name='AccountScope'),
+          accounts?: [ 
+            {
+              crossAccountRoleName?: string(name='CrossAccountRoleName'),
+              crossAccountType?: string(name='CrossAccountType'),
+              crossAccountUserId?: long(name='CrossAccountUserId'),
+            }
+          ](name='Accounts'),
           dataSourceIds?: [ string ](name='DataSourceIds', description='Deprecated.', deprecated=true),
           sourceType?: string(name='SourceType', description='The data source type. Valid values:
-- **UDM_ECS**: ECS full-server backup. This data source type is supported only when **PolicyType** is set to **UDM_ECS_ONLY**.
+- **UDM_ECS**: ECS instance backup. This data source type is supported only when **PolicyType** is set to **UDM_ECS_ONLY**.
 - **OSS**: OSS backup. This data source type is supported only when **PolicyType** is set to **STANDARD**.
 - **NAS**: Alibaba Cloud NAS backup. This data source type is supported only when **PolicyType** is set to **STANDARD**.
 - **ECS_FILE**: ECS File Backup Essential Edition. This data source type is supported only when **PolicyType** is set to **STANDARD**.
 - **OTS**: Tablestore backup. This data source type is supported only when **PolicyType** is set to **STANDARD**.', example='UDM_ECS'),
         }
       ](name='DataSourceFilters', description='This parameter is required only when **RuleType** is set to **TAG**. The data source filter rules.'),
-      immutable?: boolean(name='Immutable', description='This parameter is valid only when **PolicyType** is set to **UDM_ECS_ONLY**. Specifies whether to enable backup lock.', example='true'),
+      immutable?: boolean(name='Immutable', description='This parameter is required only when **PolicyType** is set to **UDM_ECS_ONLY** and **RuleType** is set to **SECURITY**. Specifies whether to enable backup locking.', example='true'),
       keepLatestSnapshots?: long(name='KeepLatestSnapshots', description='Specifies whether to retain at least one backup version. Valid values:
 - 0: do not retain.
 - 1: retain.', example='1'),
       replicationRegionId?: string(name='ReplicationRegionId', description='This parameter is required only when **RuleType** is set to **REPLICATION**. The ID of the destination region for replication.', example='cn-shanghai'),
       retention?: long(name='Retention', description='This parameter is required only when **RuleType** is set to **BACKUP**, **TRANSITION**, or **REPLICATION**.
-- **RuleType** set to **BACKUP**: the retention period of backups. The priority is lower than the Retention value of the rule with **RuleType**=**TRANSITION**. Minimum value: 1. Maximum value: 364635. Unit: days.
-- **RuleType** set to **TRANSITION**: the retention period of backups. Minimum value: 1. Maximum value: 364635. Unit: days.
-- **RuleType** set to **REPLICATION**: the retention period of cross-region backups. Minimum value: 1. Maximum value: 364635. Unit: days.', example='7'),
+- If **RuleType** is set to **BACKUP**: the retention period of backups. The priority of this parameter is lower than the Retention parameter of the rule whose **RuleType** is **TRANSITION**. Minimum value: 1. Maximum value: 364635. Unit: days.
+- If **RuleType** is set to **TRANSITION**: the retention period of backups. Minimum value: 1. Maximum value: 364635. Unit: days.
+- If **RuleType** is set to **REPLICATION**: the retention period of cross-region backups. Minimum value: 1. Maximum value: 364635. Unit: days.', example='7'),
       retentionRules?: [ 
         {
           advancedRetentionType?: string(name='AdvancedRetentionType', description='The type of the special retention rule. Valid values:
-- **DAILY**: daily backup
-- **WEEKLY**: weekly backup
-- **MONTHLY**: monthly backup
-- **YEARLY**: yearly backup', example='YEARLY'),
+- **DAILY**: daily backup.
+- **WEEKLY**: weekly backup.
+- **MONTHLY**: monthly backup.
+- **YEARLY**: yearly backup.', example='YEARLY'),
           retention?: long(name='Retention', description='The special retention period of the backup. Minimum value: 1. Unit: days.', example='730'),
-          whichSnapshot?: long(name='WhichSnapshot', description='Specifies which backup the rule applies to. Currently, only the first backup is supported. Set the value to 1.', example='1'),
+          whichSnapshot?: long(name='WhichSnapshot', description='The backup to which the rule applies. Currently, only the first backup is supported. Set the value to 1.', example='1'),
         }
       ](name='RetentionRules', description='This parameter is required only when **RuleType** is set to **TRANSITION**. The special retention rules.'),
       ruleType?: string(name='RuleType', description='The rule type. Each policy must have at least one **BACKUP** rule and exactly one **TRANSITION** rule. Valid values:
@@ -2256,15 +2237,15 @@ If the policy type is not specified, Cloud Backup automatically sets the policy 
 
 This parameter is required.', example='BACKUP'),
       schedule?: string(name='Schedule', description='This parameter is required only when **RuleType** is set to **BACKUP**. The backup schedule settings. Supported formats:
-- `I|{startTime}|{interval}`: specifies that a backup job is executed at the specified interval starting from the start time. For example, `I|1631685600|P1D` specifies that a backup job is executed once a day starting from 2021-09-15 14:00:00.
+- `I|{startTime}|{interval}`: specifies that a backup job is executed at the specified interval starting from {startTime}. For example, `I|1631685600|P1D` specifies that a backup job is executed once a day starting from 2021-09-15 14:00:00.
 
   * startTime: the start time of the backup. This value is a UNIX timestamp. Unit: seconds.
   * interval: the ISO 8601 time interval. For example, `PT1H` specifies an interval of one hour. `P1D` specifies an interval of one day.
-- `C|{startTime}|{crontab}`: specifies that a backup job is executed based on the crontab expression starting from the start time. For example, `C|1631685600|0 0 2 ? * 3,5,7` specifies that a backup job is executed at 02:00:00 every Tuesday, Thursday, and Saturday starting from 2021-09-15 14:00:00.
+- `C|{startTime}|{crontab}`: specifies that a backup job is executed based on the {crontab} expression starting from {startTime}. For example, `C|1631685600|0 0 2 ? * 3,5,7` specifies that a backup job is executed at 02:00:00 every Tuesday, Thursday, and Saturday starting from 2021-09-15 14:00:00.
   * startTime: the start time of the backup. This value is a UNIX timestamp. Unit: seconds.
   * crontab: the crontab expression. For example, `0 0 2 ? * 3,5,7` specifies every Tuesday, Thursday, and Saturday at 02:00:00.
 
-Backup jobs for past time periods are not compensated. If the previous backup job is not completed, the next backup job is not triggered.', example='I|1648647166|P1D'),
+Backup jobs that are missed are not compensated. If the previous backup job is not complete, the next backup job is not triggered.', example='I|1648647166|P1D'),
       tagFilters?: [ 
         {
           key?: string(name='Key', description='The tag key.', example='env'),
@@ -2283,24 +2264,24 @@ model CreatePolicyV2ShrinkRequest {
   policyDescription?: string(name='PolicyDescription', description='The policy description.', example='Backup once every day at 10:00 AM, with cross-region backup to Shanghai.'),
   policyName?: string(name='PolicyName', description='The policy name.', example='Daily local backup + geo-redundancy'),
   policyType?: string(name='PolicyType', description='The policy type. Valid values:
-- **STANDARD**: general backup policy. Supports backing up data sources other than ECS full-server backup.
-- **UDM_ECS_ONLY**: full-server backup policy. Supports only ECS full-server backup.
+- **STANDARD**: general backup policy. Supports backing up data sources other than ECS instances.
+- **UDM_ECS_ONLY**: ECS instance backup policy. Supports backing up only ECS instances.
 
-If the policy type is not specified, Cloud Backup automatically sets the policy type based on whether a backup vault is specified in the policy rules:
-- Backup vault specified in policy rules: **STANDARD**
-- Backup vault not specified in policy rules: **UDM_ECS_ONLY**', example='STANDARD'),
+If you do not specify the policy type, Cloud Backup automatically sets the policy type based on whether a backup vault is specified in the policy rules:
+- A backup vault is specified in the policy rules: **STANDARD**
+- No backup vault is specified in the policy rules: **UDM_ECS_ONLY**', example='STANDARD'),
   rulesShrink?: string(name='Rules', description='The list of policy rules.'),
 }
 
 model CreatePolicyV2ResponseBody = {
-  code?: string(name='Code', description='The response code. A value of 200 indicates success.', example='200'),
+  code?: string(name='Code', description='The response code. 200 indicates success.', example='200'),
   message?: string(name='Message', description='The returned message. The value "successful" is returned for a successful request. An error message is returned for a failed request.', example='successful'),
   policyId?: string(name='PolicyId', description='The policy ID.', example='po-000000zemnuyx2li3y9y'),
   requestId?: string(name='RequestId', description='The request ID.', example='EEC65C22-2152-5E31-8AD6-D6CBF1BFF49F'),
   success?: boolean(name='Success', description='Indicates whether the request was successful. Valid values:
 
-- true: The request was successful.
-- false: The request failed.', example='true'),
+- true
+- false', example='true'),
 }
 
 model CreatePolicyV2Response = {
@@ -2312,10 +2293,10 @@ model CreatePolicyV2Response = {
 /**
  * @summary Creates a policy.
  *
- * @description A backup plan records the information required for backup. After a backup plan is executed, a backup job is generated to record the backup progress and result. If the backup job is successful, a backup snapshot is generated. You can use the backup snapshot to create a restore job.
- * - A backup plan supports multiple data source types, including NAS backup, OSS backup, ECS full-server backup, ECS File Backup Essential Edition, local file backup, Tablestore backup, and CPFS backup.
- * - A backup plan supports only a single fixed-interval backup cycle policy.
- * - A backup plan can back up data to only one backup vault.
+ * @description A backup policy records the information required for backup. After a backup policy is executed, a backup job is generated to record the backup progress and result. If the backup job succeeds, a backup snapshot is generated. You can use the backup snapshot to create a restore job.
+ * - A backup policy supports multiple data source types, including NAS backup, OSS backup, ECS instance backup, ECS File Backup Essential Edition, local file backup, Tablestore backup, and CPFS backup.
+ * - A backup policy supports only a single backup cycle policy with a fixed interval.
+ * - A backup policy can back up data to only one backup vault.
  *
  * @param tmpReq CreatePolicyV2Request
  * @param runtime runtime options for this request RuntimeOptions
@@ -2362,10 +2343,10 @@ async function createPolicyV2WithOptions(tmpReq: CreatePolicyV2Request, runtime:
 /**
  * @summary Creates a policy.
  *
- * @description A backup plan records the information required for backup. After a backup plan is executed, a backup job is generated to record the backup progress and result. If the backup job is successful, a backup snapshot is generated. You can use the backup snapshot to create a restore job.
- * - A backup plan supports multiple data source types, including NAS backup, OSS backup, ECS full-server backup, ECS File Backup Essential Edition, local file backup, Tablestore backup, and CPFS backup.
- * - A backup plan supports only a single fixed-interval backup cycle policy.
- * - A backup plan can back up data to only one backup vault.
+ * @description A backup policy records the information required for backup. After a backup policy is executed, a backup job is generated to record the backup progress and result. If the backup job succeeds, a backup snapshot is generated. You can use the backup snapshot to create a restore job.
+ * - A backup policy supports multiple data source types, including NAS backup, OSS backup, ECS instance backup, ECS File Backup Essential Edition, local file backup, Tablestore backup, and CPFS backup.
+ * - A backup policy supports only a single backup cycle policy with a fixed interval.
+ * - A backup policy can back up data to only one backup vault.
  *
  * @param request CreatePolicyV2Request
  * @return CreatePolicyV2Response
@@ -5553,6 +5534,73 @@ async function describeDataSources(request: DescribeDataSourcesRequest): Describ
   return describeDataSourcesWithOptions(request, runtime);
 }
 
+model DescribeFeatureTrialInfoRequest {
+  featureType?: string(name='FeatureType', description='The feature type. Currently, only the free trial information of Tablestore backup can be queried.
+
+This parameter is required.', example='OTS_BACKUP'),
+}
+
+model DescribeFeatureTrialInfoResponseBody = {
+  code?: string(name='Code', description='The return code. The value 200 indicates success.', example='200'),
+  featureEnabled?: boolean(name='FeatureEnabled', description='Indicates whether the feature is activated. The value false is returned if the feature is not activated. In this case, InTrialPeriod is false and TrialExpireTime is 0.'),
+  inTrialPeriod?: boolean(name='InTrialPeriod', description='Indicates whether the feature is within the free trial period. The value false is returned if the feature is not activated or the free trial has expired.'),
+  message?: string(name='Message', description='The returned message. The value "successful" is returned upon success. An error message is returned upon failure.', example='successful'),
+  requestId?: string(name='RequestId', description='The request ID.', example='473469C7-AA6F-4DC5-B3DB-A3DC0DE3C83E'),
+  success?: boolean(name='Success', description='Indicates whether the request was successful. Valid values:
+
+- true: The request was successful.
+- false: The request failed.'),
+  trialExpireTime?: long(name='TrialExpireTime', description='The expiration time of the free trial. The value is a UNIX timestamp, in seconds. The value 0 is returned if the feature is not activated.', example='1584597600'),
+}
+
+model DescribeFeatureTrialInfoResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: DescribeFeatureTrialInfoResponseBody(name='body'),
+}
+
+/**
+ * @summary Queries the free trial activation status and expiration time of a specified feature. Currently, only the free trial information of Tablestore backup can be queried.
+ *
+ * @param request DescribeFeatureTrialInfoRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return DescribeFeatureTrialInfoResponse
+ */
+@context("describeFeatureTrialInfoWithContext")
+async function describeFeatureTrialInfoWithOptions(request: DescribeFeatureTrialInfoRequest, runtime: $RuntimeOptions): DescribeFeatureTrialInfoResponse {
+  request.validate();
+  var query = {};
+  if (!$isNull(request.featureType)) {
+    query['FeatureType'] = request.featureType;
+  }
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'DescribeFeatureTrialInfo',
+    version = '2017-09-08',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Queries the free trial activation status and expiration time of a specified feature. Currently, only the free trial information of Tablestore backup can be queried.
+ *
+ * @param request DescribeFeatureTrialInfoRequest
+ * @return DescribeFeatureTrialInfoResponse
+ */
+async function describeFeatureTrialInfo(request: DescribeFeatureTrialInfoRequest): DescribeFeatureTrialInfoResponse {
+  var runtime = new $RuntimeOptions{};
+  return describeFeatureTrialInfoWithOptions(request, runtime);
+}
+
 model DescribeHanaBackupPlansRequest {
   clusterId?: string(name='ClusterId', description='The ID of the SAP HANA instance.
 
@@ -6504,11 +6552,31 @@ async function describeOtsTableSnapshots(request: DescribeOtsTableSnapshotsReque
 }
 
 model DescribePoliciesV2Request {
+  accountScope?: string(name='AccountScope'),
+  accounts?: [ 
+    {
+      crossAccountRoleName?: string(name='CrossAccountRoleName'),
+      crossAccountType?: string(name='CrossAccountType'),
+      crossAccountUserId?: long(name='CrossAccountUserId'),
+    }
+  ](name='Accounts'),
   maxResults?: int32(name='MaxResults', description='The number of results per query.
 
 Valid values: 10 to 100. Default value: 10.', example='10'),
   nextToken?: string(name='NextToken', description='The token required to retrieve the next page of policies.', example='caeba0bbb2be03f84eb48b699f0a'),
   policyId?: string(name='PolicyId', description='The policy ID.', example='po-000************2l6'),
+  ruleScope?: string(name='RuleScope'),
+}
+
+model DescribePoliciesV2ShrinkRequest {
+  accountScope?: string(name='AccountScope'),
+  accountsShrink?: string(name='Accounts'),
+  maxResults?: int32(name='MaxResults', description='The number of results per query.
+
+Valid values: 10 to 100. Default value: 10.', example='10'),
+  nextToken?: string(name='NextToken', description='The token required to retrieve the next page of policies.', example='caeba0bbb2be03f84eb48b699f0a'),
+  policyId?: string(name='PolicyId', description='The policy ID.', example='po-000************2l6'),
+  ruleScope?: string(name='RuleScope'),
 }
 
 model DescribePoliciesV2ResponseBody = {
@@ -6535,6 +6603,14 @@ Valid values: 10 to 100. Default value: 10.', example='10'),
           backupType?: string(name='BackupType', description='This parameter is required only when **RuleType** is set to **BACKUP**. The backup type. The value is **COMPLETE**, which indicates a full backup.', example='COMPLETE'),
           dataSourceFilters?: [ 
             {
+              accountScope?: string(name='AccountScope'),
+              accounts?: [ 
+                {
+                  crossAccountRoleName?: string(name='CrossAccountRoleName'),
+                  crossAccountType?: string(name='CrossAccountType'),
+                  crossAccountUserId?: long(name='CrossAccountUserId'),
+                }
+              ](name='Accounts'),
               dataSourceIds?: [ string ](name='DataSourceIds', description='Deprecated.', deprecated=true),
               sourceType?: string(name='SourceType', description='The data source type. Valid values:
 - **UDM_ECS**: ECS instance backup.
@@ -6603,14 +6679,25 @@ model DescribePoliciesV2Response = {
 /**
  * @summary Queries one or more policies.
  *
- * @param request DescribePoliciesV2Request
+ * @param tmpReq DescribePoliciesV2Request
  * @param runtime runtime options for this request RuntimeOptions
  * @return DescribePoliciesV2Response
  */
 @context("describePoliciesV2WithContext")
-async function describePoliciesV2WithOptions(request: DescribePoliciesV2Request, runtime: $RuntimeOptions): DescribePoliciesV2Response {
-  request.validate();
+async function describePoliciesV2WithOptions(tmpReq: DescribePoliciesV2Request, runtime: $RuntimeOptions): DescribePoliciesV2Response {
+  tmpReq.validate();
+  var request = new DescribePoliciesV2ShrinkRequest{};
+  OpenApiUtil.convert(tmpReq, request);
+  if (!$isNull(tmpReq.accounts)) {
+    request.accountsShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.accounts, 'Accounts', 'json');
+  }
   var body : map[string]any = {};
+  if (!$isNull(request.accountScope)) {
+    body['AccountScope'] = request.accountScope;
+  }
+  if (!$isNull(request.accountsShrink)) {
+    body['Accounts'] = request.accountsShrink;
+  }
   if (!$isNull(request.maxResults)) {
     body['MaxResults'] = request.maxResults;
   }
@@ -6619,6 +6706,9 @@ async function describePoliciesV2WithOptions(request: DescribePoliciesV2Request,
   }
   if (!$isNull(request.policyId)) {
     body['PolicyId'] = request.policyId;
+  }
+  if (!$isNull(request.ruleScope)) {
+    body['RuleScope'] = request.ruleScope;
   }
   var req = new OpenApiUtil.OpenApiRequest{ 
     body = OpenApiUtil.parseToMap(body),
@@ -8684,6 +8774,90 @@ async function getTempFileDownloadLink(request: GetTempFileDownloadLinkRequest):
   return getTempFileDownloadLinkWithOptions(request, runtime);
 }
 
+model GetTrialInfoRequest {
+  bucket?: string(name='Bucket', description='This parameter is required only when **SourceType** is set to **OSS**. The name of the OSS bucket.', example='hbr-backup-oss'),
+  createTime?: long(name='CreateTime', description='This parameter is required only when **SourceType** is set to **NAS**. The time when the file system was created. UNIX timestamp, in seconds.', example='1607436917'),
+  fileSystemId?: string(name='FileSystemId', description='This parameter is required only when **SourceType** is set to **NAS**. The ID of the file system.', example='005494'),
+  sourceType?: string(name='SourceType', description='The data source type. Only free trial information of OSS backup and NAS backup can be queried.
+
+This parameter is required.', example='OSS'),
+}
+
+model GetTrialInfoResponseBody = {
+  code?: string(name='Code', description='The return code. A value of 200 indicates success.', example='200'),
+  message?: string(name='Message', description='The returned message. The value "successful" is returned on success. An error message is returned on failure.', example='successful'),
+  requestId?: string(name='RequestId', description='The request ID.', example='473469C7-AA6F-4DC5-B3DB-A3DC0DE3C83E'),
+  success?: boolean(name='Success', description='Indicates whether the request was successful.
+
+- true: The request was successful.
+- false: The request failed.'),
+  trialInfo?: {
+    keepAfterTrialExpiration?: boolean(name='KeepAfterTrialExpiration', description='Indicates whether the service is converted to pay-as-you-go after the free trial expires.'),
+    trialBackupPlanQuota?: long(name='TrialBackupPlanQuota', description='The remaining number of free trial backup plans that can be created. The value 1 is returned if the free trial has not expired and no free trial backup plan has been created. Otherwise, the value 0 is returned.', example='1'),
+    trialExpireTime?: long(name='TrialExpireTime', description='The expiration time of the free trial. UNIX timestamp, in seconds.', example='1584597600'),
+    trialStartTime?: long(name='TrialStartTime', description='The start time of the free trial. UNIX timestamp, in seconds.', example='1579413159'),
+    trialVaultQuota?: long(name='TrialVaultQuota', description='The remaining number of free trial backup vaults that can be created. The value 1 is returned if the free trial has not expired and no free trial backup vault has been created. Otherwise, the value 0 is returned.', example='1'),
+    trialVaultReleaseTime?: long(name='TrialVaultReleaseTime', description='The release time of the free trial backup vault. UNIX timestamp, in seconds.', example='1594965600'),
+  }(name='TrialInfo', description='The free trial properties. This parameter is returned only when a free trial record exists for the data source.'),
+}
+
+model GetTrialInfoResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: GetTrialInfoResponseBody(name='body'),
+}
+
+/**
+ * @summary Queries the free trial information of a specified OSS bucket or NAS file system.
+ *
+ * @param request GetTrialInfoRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return GetTrialInfoResponse
+ */
+@context("getTrialInfoWithContext")
+async function getTrialInfoWithOptions(request: GetTrialInfoRequest, runtime: $RuntimeOptions): GetTrialInfoResponse {
+  request.validate();
+  var query = {};
+  if (!$isNull(request.bucket)) {
+    query['Bucket'] = request.bucket;
+  }
+  if (!$isNull(request.createTime)) {
+    query['CreateTime'] = request.createTime;
+  }
+  if (!$isNull(request.fileSystemId)) {
+    query['FileSystemId'] = request.fileSystemId;
+  }
+  if (!$isNull(request.sourceType)) {
+    query['SourceType'] = request.sourceType;
+  }
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'GetTrialInfo',
+    version = '2017-09-08',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Queries the free trial information of a specified OSS bucket or NAS file system.
+ *
+ * @param request GetTrialInfoRequest
+ * @return GetTrialInfoResponse
+ */
+async function getTrialInfo(request: GetTrialInfoRequest): GetTrialInfoResponse {
+  var runtime = new $RuntimeOptions{};
+  return getTrialInfoWithOptions(request, runtime);
+}
+
 model InstallBackupClientsRequest {
   crossAccountRoleName?: string(name='CrossAccountRoleName', description='The name of the RAM role that is created in the source account for cross-account backup.', example='BackupRole'),
   crossAccountType?: string(name='CrossAccountType', description='The type of cross-account backup. Valid values:
@@ -8947,6 +9121,153 @@ async function listProtectedResources(request: ListProtectedResourcesRequest): L
   return listProtectedResourcesWithOptions(request, runtime);
 }
 
+model ListSnapshotsRequest {
+  completeTimeEnd?: long(name='CompleteTimeEnd', description='The end completion time. A UNIX timestamp, in seconds. Only backup points with a completion time earlier than this value are returned.', example='1776059382'),
+  completeTimeStart?: long(name='CompleteTimeStart', description='The start completion time. A UNIX timestamp, in seconds. Only backup points with a completion time greater than or equal to this value are returned.', example='1776059082'),
+  maxResults?: int32(name='MaxResults', description='The maximum number of results to return in a paged query. Default value: 10. The value must be greater than 1.', example='10'),
+  nextToken?: string(name='NextToken', description='The pagination token. You do not need to specify this parameter for the first request. For subsequent pages, pass in the **NextToken** value returned from the previous request. An empty **NextToken** indicates that no more pages are available. This parameter cannot be used together with **Skip**.', example='eyJJbmRleCI6NjUwMX0='),
+  planId?: string(name='PlanId', description='The backup plan ID. This is an optional filter condition. If specified, only backup points under the specified backup plan are returned.', example='po-0000****123'),
+  protectedResourceId?: string(name='ProtectedResourceId', description='The ID of the protected resource. The protected resource must exist, and its data source type must match the **SourceType** parameter.
+
+This parameter is required.', example='pr-123***7890'),
+  skip?: int32(name='Skip', description='The number of entries to skip. The value must be a non-negative integer and a multiple of **MaxResults**. This parameter cannot be used together with **NextToken**.', example='0'),
+  sourceType?: string(name='SourceType', description='The data source type. The value must match the data source type of the protected resource (ProtectedResourceId). The supported data source types are listed in the valid values.
+
+This parameter is required.', example='ECS_FILE'),
+  vaultId?: string(name='VaultId', description='The vault ID. This is an optional filter condition. If specified, only backup points in the specified vault are returned.', example='v-00030j3c******sn'),
+}
+
+model ListSnapshotsResponseBody = {
+  code?: string(name='Code', description='The return code. A value of 200 indicates success.', example='200'),
+  maxResults?: int32(name='MaxResults', description='The maximum number of results returned.', example='10'),
+  message?: string(name='Message', description='The return message. The value "successful" is returned for successful requests. An error message is returned for failed requests.', example='successful'),
+  nextToken?: string(name='NextToken', description='The token for the next page. An empty NextToken indicates that no more pages are available.', example='aWQj********MCMy'),
+  requestId?: string(name='RequestId', description='The request ID.', example='17189276-****-****-****-0FF51B5A41A0'),
+  snapshots?: [ 
+    {
+      actualBytes?: long(name='ActualBytes', description='The actual amount of data written, in bytes.', example='600'),
+      actualItems?: long(name='ActualItems', description='The actual number of nodes.', example='6'),
+      archiveTime?: long(name='ArchiveTime', description='The time when the backup was archived.', example='1640334062'),
+      backupType?: string(name='BackupType', description='The backup type. The value is **COMPLETE**, which indicates a full backup.', example='COMPLETE'),
+      bytesDone?: long(name='BytesDone', description='The amount of data that has been backed up, in bytes.', example='800'),
+      bytesTotal?: long(name='BytesTotal', description='The total amount of data to back up, in bytes.', example='1000'),
+      clientId?: string(name='ClientId', description='When **SourceType** is set to **ECS_FILE** or **File**, this parameter indicates the backup client ID. In other cases, it indicates the ID of the backup data source.', example='c-*********************'),
+      completeTime?: long(name='CompleteTime', description='The backup completion time. A UNIX timestamp, in seconds.', example='1642496679'),
+      createTime?: long(name='CreateTime', description='The time when the backup point was created, in seconds.', example='1607436917'),
+      createdTime?: long(name='CreatedTime', description='The time when the backup was created.', example='1642496679'),
+      errorFile?: string(name='ErrorFile', description='The file that records backup failure information, including information about partially completed backups.', example='temp/report/123456789/job-xxxxxxxxx_failed.zip'),
+      exclude?: string(name='Exclude', description='The source paths excluded from the backup job.', example='[\\\\"/test/example_cn-hangzhou_7.txt\\\\", \\\\"/test/example_cn-hangzhou_1.txt\\\\", \\\\"/test/example_cn-hangzhou_3.txt\\\\", \\\\"/test/example_cn-hangzhou_9.txt\\\\", \\\\"/test/example_cn-hangzhou_6.txt\\\\"]'),
+      expireTime?: long(name='ExpireTime', description='The backup expiration time.', example='1771901707'),
+      include?: string(name='Include', description='The source paths included in the backup job.', example='[\\\\"/test/example_cn-huhehaote_3.txt\\\\", \\\\"/test/example_cn-huhehaote_9.txt\\\\", \\\\"/test/example_cn-huhehaote_5.txt\\\\", \\\\"/test/example_cn-huhehaote_1.txt\\\\", \\\\"/test/example_cn-huhehaote_7.txt\\\\"]'),
+      instanceId?: string(name='InstanceId', description='The instance ID of the backup data source.', example='i-*********************'),
+      instanceName?: string(name='InstanceName', description='The Tablestore instance name.', example='instancename'),
+      itemsDone?: long(name='ItemsDone', description='The number of nodes that have been backed up.', example='8'),
+      itemsTotal?: long(name='ItemsTotal', description='The total number of nodes to back up.', example='10'),
+      jobId?: string(name='JobId', description='The backup job ID.', example='job-00030j3chkt******2'),
+      path?: string(name='Path', description='The source path.', example='/home'),
+      paths?: [ string ](name='Paths', description='The list of source paths.'),
+      planId?: string(name='PlanId', description='The backup plan ID.', example='po-123***7890'),
+      protectedDataSize?: long(name='ProtectedDataSize', description='The protected source data size, in bytes. When SourceType is set to ECS_FILE, this indicates the protected cloud disk capacity.', example='42949672960'),
+      rangeEnd?: long(name='RangeEnd', description='The end time of the Tablestore backup job execution. A UNIX timestamp, in milliseconds.', example='1642521709966'),
+      rangeStart?: long(name='RangeStart', description='The start time of the Tablestore backup job execution. A UNIX timestamp, in milliseconds.', example='1642492553038'),
+      retention?: long(name='Retention', description='The retention period of the backup, in days.', example='7'),
+      snapshotHash?: string(name='SnapshotHash', description='The hash value of the backup point.', example='f2ac5fd243**********************bc4451777be019'),
+      snapshotId?: string(name='SnapshotId', description='The backup point ID.', example='s-00047mxg17p26*****b'),
+      sourceType?: string(name='SourceType', description='The data source type. Valid values:
+
+- **ECS_FILE**: ECS file backup
+- **File**: On-premises file backup
+- **OSS**: OSS backup
+- **NAS**: Alibaba Cloud NAS backup
+- **COMMON_NAS**: On-premises NAS backup
+- **CONTAINER**: Container backup
+- **OTS_TABLE**: Tablestore backup
+- **COMMON_FILE_SYSTEM**: CPFS backup', example='ECS_FILE'),
+      status?: string(name='Status', description='The backup point status.', example='COMPLETE'),
+      storageClass?: string(name='StorageClass', description='The storage class.', example='STANDARD'),
+      tableName?: string(name='TableName', description='The name of the data table in the Tablestore instance.', example='table2'),
+      vaultId?: string(name='VaultId', description='The ID of the vault that stores the backup data.', example='v-00030j*******sn'),
+    }
+  ](name='Snapshots', description='The list of backup points.'),
+  success?: boolean(name='Success', description='Indicates whether the request was successful.
+
+- true: The request was successful.
+- false: The request failed.', example='true'),
+  totalCount?: int32(name='TotalCount', description='The total number of records.', example='3'),
+}
+
+model ListSnapshotsResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ListSnapshotsResponseBody(name='body'),
+}
+
+/**
+ * @summary Queries a list of backup points.
+ *
+ * @param request ListSnapshotsRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return ListSnapshotsResponse
+ */
+@context("listSnapshotsWithContext")
+async function listSnapshotsWithOptions(request: ListSnapshotsRequest, runtime: $RuntimeOptions): ListSnapshotsResponse {
+  request.validate();
+  var query = {};
+  if (!$isNull(request.completeTimeEnd)) {
+    query['CompleteTimeEnd'] = request.completeTimeEnd;
+  }
+  if (!$isNull(request.completeTimeStart)) {
+    query['CompleteTimeStart'] = request.completeTimeStart;
+  }
+  if (!$isNull(request.maxResults)) {
+    query['MaxResults'] = request.maxResults;
+  }
+  if (!$isNull(request.nextToken)) {
+    query['NextToken'] = request.nextToken;
+  }
+  if (!$isNull(request.planId)) {
+    query['PlanId'] = request.planId;
+  }
+  if (!$isNull(request.protectedResourceId)) {
+    query['ProtectedResourceId'] = request.protectedResourceId;
+  }
+  if (!$isNull(request.skip)) {
+    query['Skip'] = request.skip;
+  }
+  if (!$isNull(request.sourceType)) {
+    query['SourceType'] = request.sourceType;
+  }
+  if (!$isNull(request.vaultId)) {
+    query['VaultId'] = request.vaultId;
+  }
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'ListSnapshots',
+    version = '2017-09-08',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Queries a list of backup points.
+ *
+ * @param request ListSnapshotsRequest
+ * @return ListSnapshotsResponse
+ */
+async function listSnapshots(request: ListSnapshotsRequest): ListSnapshotsResponse {
+  var runtime = new $RuntimeOptions{};
+  return listSnapshotsWithOptions(request, runtime);
+}
+
 model OpenHbrServiceResponseBody = {
   orderId?: string(name='OrderId', description='The ID of the order.', example='215463686160696'),
   requestId?: string(name='RequestId', description='The ID of the request.', example='F4A1D5F4-5055-549A-8B25-6DD23311E299'),
@@ -9062,16 +9383,14 @@ async function removeDataSource(request: RemoveDataSourceRequest): RemoveDataSou
 }
 
 model SearchHistoricalSnapshotsRequest {
-  edition?: string(name='Edition', description='The edition. Valid values are BASIC and STANDARD. The default value is STANDARD.', example='BASIC'),
-  limit?: int32(name='Limit', description='The maximum number of results to return.
-To retrieve only the number of rows without any data, set Limit to `0`.', example='10'),
-  nextToken?: string(name='NextToken', description='The token that is required to obtain the next page of snapshots.', example='caeba0bbb2be03f84eb48b699f0a****'),
-  order?: string(name='Order', description='The sort order. The default value is ASC.
-
-- ASC: ascending
-
-- DESC: descending', example='ASC'),
-  query?: [ any ](name='Query', description='The query conditions. For example:
+  edition?: string(name='Edition', description='The edition type. Valid values: BASIC and STANDARD. Default value: STANDARD.', example='BASIC'),
+  limit?: int32(name='Limit', description='The maximum number of results to return for this query.
+If you only want to obtain the row count without actual data, set `limit=0` to return no rows.', example='10'),
+  nextToken?: string(name='NextToken', description='The token required to retrieve the next page of snapshots.', example='caeba0bbb2be03f84eb48b699f0a****'),
+  order?: string(name='Order', description='The sort order. Default value: ASC.
+- ASC: ascending order.
+- DESC: descending order.', example='ASC'),
+  query?: [ any ](name='Query', description='The query conditions. Example of Query:
 
 ```
 [
@@ -9100,58 +9419,40 @@ To retrieve only the number of rows without any data, set Limit to `0`.', exampl
 
 - Supported fields:
 
-  - VaultId: This parameter is required. The ID of the backup vault.
-
-  - InstanceId: This parameter is required only when SourceType is set to ECS_FILE. The ID of the ECS instance.
-
-  - Bucket: This parameter is required only when SourceType is set to OSS. The name of the OSS bucket.
-
-  - FileSystemId: This parameter is required only when SourceType is set to NAS. The ID of the NAS file system.
-
-  - CreateTime: This parameter is required only when SourceType is set to NAS. The time when the NAS file system was created.
-
-  - CompleteTime: The time when the snapshot was completed.
-
-  - PlanId: The ID of the backup plan.
+    - VaultId: required. The vault ID.
+    - InstanceId: required only when SourceType=ECS_FILE. The ECS instance ID.
+    - Bucket: required only when SourceType=OSS. The OSS bucket name.
+    - FileSystemId: required only when SourceType=NAS. The NAS file system ID.
+    - CreateTime: required only when SourceType=NAS. The creation time of the NAS file system.
+    - CompleteTime: the time when the snapshot is completed.
+    - PlanId: the backup plan ID.
 
 - Supported operations:
 
-  - MATCH_TERM: exact match.
-
-  - GREATER_THAN: greater than.
-
-  - GREATER_THAN_OR_EQUAL: greater than or equal to.
-
-  - LESS_THAN: less than.
-
-  - LESS_THAN_OR_EQUAL: less than or equal to.
-
-  - BETWEEN: a range. The value is a JSON array in the `[lower bound,upper bound]` format.
-
-  - IN: in a collection. The value is an array.
-
-  - NOT_IN: not in a collection. The value is an array.', example='[   {     "field": "VaultId",     "value": "v-0003rf9m17pap3ltpqx5",     "operation": "MATCH_TERM"   },   {     "field": "InstanceId",     "value": "i-bp1i20zq2wuzdie9368m",     "operation": "MATCH_TERM"   },   {     "field": "PlanId",     "value": "plan-0005vkqhpesqgkd1iu4f",     "operation": "MATCH_TERM"   },   {     "field": "CompleteTime",     "value": 1626769913,     "operation": "GREATER_THAN_OR_EQUAL"   } ]'),
-  sortBy?: string(name='SortBy', description='The field to sort by.', example='CreatedTime'),
+    - MATCH_TERM: exact match.
+    - GREATER_THAN: greater than.
+    - GREATER_THAN_OR_EQUAL: greater than or equal to.
+    - LESS_THAN: less than.
+    - LESS_THAN_OR_EQUAL: less than or equal to.
+    - BETWEEN: range. The value is a JSON array `[lower bound, upper bound]`.
+    - IN: in the set. The value is an array.
+    - NOT_IN: not in the set. The value is an array.', example='[   {     "field": "VaultId",     "value": "v-0003rf9m17pap3ltpqx5",     "operation": "MATCH_TERM"   },   {     "field": "InstanceId",     "value": "i-bp1i20zq2wuzdie9368m",     "operation": "MATCH_TERM"   },   {     "field": "PlanId",     "value": "plan-0005vkqhpesqgkd1iu4f",     "operation": "MATCH_TERM"   },   {     "field": "CompleteTime",     "value": 1626769913,     "operation": "GREATER_THAN_OR_EQUAL"   } ]'),
+  sortBy?: string(name='SortBy', description='The field used for sorting.', example='CreatedTime'),
   sourceType?: string(name='SourceType', description='The type of the data source. Valid values:
-
-- **ECS_FILE**: a backup snapshot of ECS files.
-
-- **OSS**: a backup snapshot of Alibaba Cloud OSS.
-
-- **NAS**: a backup snapshot of Alibaba Cloud NAS.', example='ECS_FILE'),
+* **ECS_FILE**: backup snapshots of ECS files.
+* **OSS**: backup snapshots of Alibaba Cloud OSS.
+* **NAS**: backup snapshots of Alibaba Cloud NAS.', example='ECS_FILE'),
 }
 
 model SearchHistoricalSnapshotsShrinkRequest {
-  edition?: string(name='Edition', description='The edition. Valid values are BASIC and STANDARD. The default value is STANDARD.', example='BASIC'),
-  limit?: int32(name='Limit', description='The maximum number of results to return.
-To retrieve only the number of rows without any data, set Limit to `0`.', example='10'),
-  nextToken?: string(name='NextToken', description='The token that is required to obtain the next page of snapshots.', example='caeba0bbb2be03f84eb48b699f0a****'),
-  order?: string(name='Order', description='The sort order. The default value is ASC.
-
-- ASC: ascending
-
-- DESC: descending', example='ASC'),
-  queryShrink?: string(name='Query', description='The query conditions. For example:
+  edition?: string(name='Edition', description='The edition type. Valid values: BASIC and STANDARD. Default value: STANDARD.', example='BASIC'),
+  limit?: int32(name='Limit', description='The maximum number of results to return for this query.
+If you only want to obtain the row count without actual data, set `limit=0` to return no rows.', example='10'),
+  nextToken?: string(name='NextToken', description='The token required to retrieve the next page of snapshots.', example='caeba0bbb2be03f84eb48b699f0a****'),
+  order?: string(name='Order', description='The sort order. Default value: ASC.
+- ASC: ascending order.
+- DESC: descending order.', example='ASC'),
+  queryShrink?: string(name='Query', description='The query conditions. Example of Query:
 
 ```
 [
@@ -9180,52 +9481,36 @@ To retrieve only the number of rows without any data, set Limit to `0`.', exampl
 
 - Supported fields:
 
-  - VaultId: This parameter is required. The ID of the backup vault.
-
-  - InstanceId: This parameter is required only when SourceType is set to ECS_FILE. The ID of the ECS instance.
-
-  - Bucket: This parameter is required only when SourceType is set to OSS. The name of the OSS bucket.
-
-  - FileSystemId: This parameter is required only when SourceType is set to NAS. The ID of the NAS file system.
-
-  - CreateTime: This parameter is required only when SourceType is set to NAS. The time when the NAS file system was created.
-
-  - CompleteTime: The time when the snapshot was completed.
-
-  - PlanId: The ID of the backup plan.
+    - VaultId: required. The vault ID.
+    - InstanceId: required only when SourceType=ECS_FILE. The ECS instance ID.
+    - Bucket: required only when SourceType=OSS. The OSS bucket name.
+    - FileSystemId: required only when SourceType=NAS. The NAS file system ID.
+    - CreateTime: required only when SourceType=NAS. The creation time of the NAS file system.
+    - CompleteTime: the time when the snapshot is completed.
+    - PlanId: the backup plan ID.
 
 - Supported operations:
 
-  - MATCH_TERM: exact match.
-
-  - GREATER_THAN: greater than.
-
-  - GREATER_THAN_OR_EQUAL: greater than or equal to.
-
-  - LESS_THAN: less than.
-
-  - LESS_THAN_OR_EQUAL: less than or equal to.
-
-  - BETWEEN: a range. The value is a JSON array in the `[lower bound,upper bound]` format.
-
-  - IN: in a collection. The value is an array.
-
-  - NOT_IN: not in a collection. The value is an array.', example='[   {     "field": "VaultId",     "value": "v-0003rf9m17pap3ltpqx5",     "operation": "MATCH_TERM"   },   {     "field": "InstanceId",     "value": "i-bp1i20zq2wuzdie9368m",     "operation": "MATCH_TERM"   },   {     "field": "PlanId",     "value": "plan-0005vkqhpesqgkd1iu4f",     "operation": "MATCH_TERM"   },   {     "field": "CompleteTime",     "value": 1626769913,     "operation": "GREATER_THAN_OR_EQUAL"   } ]'),
-  sortBy?: string(name='SortBy', description='The field to sort by.', example='CreatedTime'),
+    - MATCH_TERM: exact match.
+    - GREATER_THAN: greater than.
+    - GREATER_THAN_OR_EQUAL: greater than or equal to.
+    - LESS_THAN: less than.
+    - LESS_THAN_OR_EQUAL: less than or equal to.
+    - BETWEEN: range. The value is a JSON array `[lower bound, upper bound]`.
+    - IN: in the set. The value is an array.
+    - NOT_IN: not in the set. The value is an array.', example='[   {     "field": "VaultId",     "value": "v-0003rf9m17pap3ltpqx5",     "operation": "MATCH_TERM"   },   {     "field": "InstanceId",     "value": "i-bp1i20zq2wuzdie9368m",     "operation": "MATCH_TERM"   },   {     "field": "PlanId",     "value": "plan-0005vkqhpesqgkd1iu4f",     "operation": "MATCH_TERM"   },   {     "field": "CompleteTime",     "value": 1626769913,     "operation": "GREATER_THAN_OR_EQUAL"   } ]'),
+  sortBy?: string(name='SortBy', description='The field used for sorting.', example='CreatedTime'),
   sourceType?: string(name='SourceType', description='The type of the data source. Valid values:
-
-- **ECS_FILE**: a backup snapshot of ECS files.
-
-- **OSS**: a backup snapshot of Alibaba Cloud OSS.
-
-- **NAS**: a backup snapshot of Alibaba Cloud NAS.', example='ECS_FILE'),
+* **ECS_FILE**: backup snapshots of ECS files.
+* **OSS**: backup snapshots of Alibaba Cloud OSS.
+* **NAS**: backup snapshots of Alibaba Cloud NAS.', example='ECS_FILE'),
 }
 
 model SearchHistoricalSnapshotsResponseBody = {
-  code?: string(name='Code', description='The return code. A value of 200 indicates that the request was successful.', example='200'),
+  code?: string(name='Code', description='The response code. A value of 200 indicates success.', example='200'),
   limit?: int32(name='Limit', description='The number of historical snapshots displayed on the current page.', example='10'),
-  message?: string(name='Message', description='The returned message. If the request is successful, \\\\`successful\\\\` is returned. If the request fails, an error message is returned.', example='successful'),
-  nextToken?: string(name='NextToken', description='The token that is required to obtain the next page of snapshots.', example='BE'),
+  message?: string(name='Message', description='The returned message. The value "successful" is returned for successful requests. An error message is returned for failed requests.', example='successful'),
+  nextToken?: string(name='NextToken', description='The token required to retrieve the next page of snapshots.', example='BE'),
   requestId?: string(name='RequestId', description='The request ID.', example='473469C7-AA6F-4DC5-B3DB-A3DC0DE3C83E'),
   snapshots?: {
     snapshot?: [ 
@@ -9279,9 +9564,8 @@ model SearchHistoricalSnapshotsResponseBody = {
   success?: boolean(name='Success', description='Indicates whether the request was successful.
 
 - true: The request was successful.
-
 - false: The request failed.', example='true'),
-  totalCount?: int32(name='TotalCount', description='The total number of snapshots that meet the specified criteria.', example='20'),
+  totalCount?: int32(name='TotalCount', description='The total number of snapshots that meet the specified conditions.', example='20'),
 }
 
 model SearchHistoricalSnapshotsResponse = {
@@ -9291,7 +9575,7 @@ model SearchHistoricalSnapshotsResponse = {
 }
 
 /**
- * @summary Retrieves one or more historical backup snapshots that meet the specified criteria.
+ * @summary Retrieves one or more historical backup snapshots that meet the specified conditions.
  *
  * @param tmpReq SearchHistoricalSnapshotsRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -9345,7 +9629,7 @@ async function searchHistoricalSnapshotsWithOptions(tmpReq: SearchHistoricalSnap
 }
 
 /**
- * @summary Retrieves one or more historical backup snapshots that meet the specified criteria.
+ * @summary Retrieves one or more historical backup snapshots that meet the specified conditions.
  *
  * @param request SearchHistoricalSnapshotsRequest
  * @return SearchHistoricalSnapshotsResponse
@@ -11020,14 +11304,22 @@ async function updatePolicyBinding(request: UpdatePolicyBindingRequest): UpdateP
 model UpdatePolicyV2Request {
   policyDescription?: string(name='PolicyDescription', description='The policy description.', example='Back up once every day at 10:00 AM, with cross-region backup to Shanghai.'),
   policyId?: string(name='PolicyId', description='The policy ID.', example='po-000************viy'),
-  policyName?: string(name='PolicyName', description='The policy name.', example='Daily backup + cross-region backup'),
+  policyName?: string(name='PolicyName', description='The policy name.', example='Daily backup + geo-redundancy'),
   rules?: [ 
     {
-      archiveDays?: long(name='ArchiveDays', description='This parameter is required only when **RuleType** is set to **TRANSITION**. The number of days after which the backup is transitioned to archive storage. Unit: days.', example='90'),
+      archiveDays?: long(name='ArchiveDays', description='This parameter is required only when **RuleType** is set to **TRANSITION**. The number of days after which the backup is converted to archive storage. Unit: days.', example='90'),
       backupType?: string(name='BackupType', description='This parameter is required only when **RuleType** is set to **BACKUP**. The backup type. Set the value to **COMPLETE**, which indicates full backup.', example='COMPLETE'),
-      coldArchiveDays?: long(name='ColdArchiveDays', description='This parameter is required only when **RuleType** is set to **TRANSITION**. The number of days after which the backup is transitioned to cold archive storage. Unit: days.', example='365'),
+      coldArchiveDays?: long(name='ColdArchiveDays', description='This parameter is required only when **RuleType** is set to **TRANSITION**. The number of days after which the backup is converted to cold archive storage. Unit: days.', example='365'),
       dataSourceFilters?: [ 
         {
+          accountScope?: string(name='AccountScope'),
+          accounts?: [ 
+            {
+              crossAccountRoleName?: string(name='CrossAccountRoleName'),
+              crossAccountType?: string(name='CrossAccountType'),
+              crossAccountUserId?: long(name='CrossAccountUserId'),
+            }
+          ](name='Accounts'),
           dataSourceIds?: [ string ](name='DataSourceIds', description='Deprecated.', deprecated=true),
           sourceType?: string(name='SourceType', description='The data source type. Valid values:
 - **UDM_ECS**: ECS instance backup. This data source type is supported only when **RuleType** is set to **UDM_ECS_ONLY**.
@@ -11037,7 +11329,7 @@ model UpdatePolicyV2Request {
 - **OTS**: Tablestore backup. This data source type is supported only when **RuleType** is set to **STANDARD**.', example='UDM_ECS'),
         }
       ](name='DataSourceFilters', description='This parameter is required only when **RuleType** is set to **TAG**. The data source filter rules.'),
-      immutable?: boolean(name='Immutable', description='This parameter is valid only when **PolicyType** is set to **UDM_ECS_ONLY**. Specifies whether to enable backup locking.', example='true'),
+      immutable?: boolean(name='Immutable', description='This parameter is required only when **PolicyType** is set to **UDM_ECS_ONLY** and **RuleType** is set to **SECURITY**. Specifies whether to enable backup locking.', example='true'),
       keepLatestSnapshots?: long(name='KeepLatestSnapshots', description='Specifies whether to retain at least one backup version. Valid values:
 - 0: do not retain.
 - 1: retain.', example='1'),
@@ -11061,15 +11353,15 @@ model UpdatePolicyV2Request {
 - **TRANSITION**: lifecycle rule.
 - **REPLICATION**: replication rule.', example='BACKUP'),
       schedule?: string(name='Schedule', description='This parameter is required only when **RuleType** is set to **BACKUP**. The backup schedule settings. Supported formats:
-- `I|{startTime}|{interval}`: specifies that a backup job is run at the {interval} from {startTime}. For example, `I|1631685600|P1D` specifies that a backup job is run once a day starting from 2021-09-15 14:00:00.
+- `I|{startTime}|{interval}`: specifies that a backup job is run at the {interval} from the {startTime}. Example: `I|1631685600|P1D` specifies that a backup job is run once a day starting from 2021-09-15 14:00:00.
 
   * startTime: the start time of the backup. This value is a UNIX timestamp. Unit: seconds.
-  * interval: the ISO 8601 time interval. For example, `PT1H` specifies an interval of one hour. `P1D` specifies an interval of one day.
-- `C|{startTime}|{crontab}`: specifies that a backup job is run based on the {crontab} expression from {startTime}. For example, `C|1631685600|0 0 2 ? * 3,5,7` specifies that a backup job is run at 02:00:00 every Tuesday, Thursday, and Saturday starting from 2021-09-15 14:00:00.
+  * interval: the ISO 8601 time interval. Example: `PT1H` specifies an interval of one hour. `P1D` specifies an interval of one day.
+- `C|{startTime}|{crontab}`: specifies that a backup job is run based on the {crontab} expression from the {startTime}. Example: `C|1631685600|0 0 2 ? * 3,5,7` specifies that a backup job is run at 02:00:00 every Tuesday, Thursday, and Saturday starting from 2021-09-15 14:00:00.
   * startTime: the start time of the backup. This value is a UNIX timestamp. Unit: seconds.
-  * crontab: the crontab expression. For example, `0 0 2 ? * 3,5,7` specifies every Tuesday, Thursday, and Saturday at 02:00:00.
+  * crontab: the crontab expression. Example: `0 0 2 ? * 3,5,7` specifies every Tuesday, Thursday, and Saturday at 02:00:00.
 
-Backup jobs that are scheduled for past times are not compensated. If the previous backup job is not completed, the next backup job is not triggered.', example='I|1648647166|P1D'),
+Backup jobs for elapsed time periods are not compensated. If the previous backup job is not completed, the next backup job is not triggered.', example='I|1648647166|P1D'),
       tagFilters?: [ 
         {
           key?: string(name='Key', description='The tag key.', example='env'),
@@ -11087,7 +11379,7 @@ Backup jobs that are scheduled for past times are not compensated. If the previo
 model UpdatePolicyV2ShrinkRequest {
   policyDescription?: string(name='PolicyDescription', description='The policy description.', example='Back up once every day at 10:00 AM, with cross-region backup to Shanghai.'),
   policyId?: string(name='PolicyId', description='The policy ID.', example='po-000************viy'),
-  policyName?: string(name='PolicyName', description='The policy name.', example='Daily backup + cross-region backup'),
+  policyName?: string(name='PolicyName', description='The policy name.', example='Daily backup + geo-redundancy'),
   rulesShrink?: string(name='Rules', description='The list of policy rules.'),
 }
 
@@ -11097,8 +11389,8 @@ model UpdatePolicyV2ResponseBody = {
   requestId?: string(name='RequestId', description='The request ID.', example='473469C7-AA6F-4DC5-B3DB-A3DC0DE3C83E'),
   success?: boolean(name='Success', description='Indicates whether the request was successful. Valid values:
 
-- true: successful.
-- false: failed.', example='true'),
+- true: The request was successful.
+- false: The request failed.', example='true'),
 }
 
 model UpdatePolicyV2Response = {

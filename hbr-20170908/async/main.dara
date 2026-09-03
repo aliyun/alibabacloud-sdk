@@ -54,44 +54,17 @@ init(configuration: ClientConfiguration){
     'cn-zhengzhou-nebula-1' = 'hbr.aliyuncs.com',
     'eu-west-1-oxs' = 'hbr.aliyuncs.com',
     'rus-west-1-pop' = 'hbr.aliyuncs.com',
-    'cn-wulanchabu' = 'hbr.cn-wulanchabu.aliyuncs.com',
-    'cn-beijing' = 'hbr.cn-beijing.aliyuncs.com',
-    'cn-qingdao' = 'hbr.cn-qingdao.aliyuncs.com',
-    'cn-shanghai' = 'hbr.cn-shanghai.aliyuncs.com',
-    'cn-hongkong' = 'hbr.cn-hongkong.aliyuncs.com',
-    'cn-heyuan' = 'hbr.cn-heyuan.aliyuncs.com',
-    'cn-zhangjiakou' = 'hbr.cn-zhangjiakou.aliyuncs.com',
-    'cn-shenzhen' = 'hbr.cn-shenzhen.aliyuncs.com',
-    'ap-northeast-2' = 'hbr.ap-northeast-2.aliyuncs.com',
-    'ap-northeast-1' = 'hbr.ap-northeast-1.aliyuncs.com',
-    'cn-chengdu' = 'hbr.cn-chengdu.aliyuncs.com',
-    'cn-guangzhou' = 'hbr.cn-guangzhou.aliyuncs.com',
-    'ap-southeast-1' = 'hbr.ap-southeast-1.aliyuncs.com',
-    'ap-southeast-3' = 'hbr.ap-southeast-3.aliyuncs.com',
-    'cn-huhehaote' = 'hbr.cn-huhehaote.aliyuncs.com',
-    'ap-southeast-5' = 'hbr.ap-southeast-5.aliyuncs.com',
-    'ap-southeast-6' = 'hbr.ap-southeast-6.aliyuncs.com',
-    'ap-southeast-7' = 'hbr.ap-southeast-7.aliyuncs.com',
-    'cn-hangzhou' = 'hbr.cn-hangzhou.aliyuncs.com',
-    'ap-southeast-8' = 'hbr.ap-southeast-8.aliyuncs.com',
-    'cn-zhongwei' = 'hbr.cn-zhongwei.aliyuncs.com',
-    'us-southeast-1' = 'hbr.us-southeast-1.aliyuncs.com',
-    'na-south-1' = 'hbr.na-south-1.aliyuncs.com',
-    'eu-central-1' = 'hbr.eu-central-1.aliyuncs.com',
-    'us-west-1' = 'hbr.us-west-1.aliyuncs.com',
-    'eu-west-1' = 'hbr.eu-west-1.aliyuncs.com',
-    'us-east-1' = 'hbr.us-east-1.aliyuncs.com',
-    'me-central-1' = 'hbr.me-central-1.aliyuncs.com',
-    'me-east-1' = 'hbr.me-east-1.aliyuncs.com',
-    'cn-shanghai-finance-1' = 'hbr.cn-shanghai-finance-1.aliyuncs.com',
-    'cn-beijing-finance-1' = 'hbr.cn-beijing-finance-1.aliyuncs.com',
-    'cn-shenzhen-finance-1' = 'hbr.cn-shenzhen-finance-1.aliyuncs.com',
-    'cn-hangzhou-finance' = 'hbr.cn-hangzhou-finance.aliyuncs.com',
   };
 }
 
 function close(): void {
   @handler.close();
+}
+
+model CrossAccountUser {
+  crossAccountRoleName?: string(name='CrossAccountRoleName'),
+  crossAccountType?: string(name='CrossAccountType'),
+  crossAccountUserId?: long(name='CrossAccountUserId'),
 }
 
 model OtsDetail {
@@ -1025,6 +998,14 @@ If the policy type is not specified, Cloud Backup automatically sets the policy 
       backupType?: string(name='BackupType', description='This parameter is required only if the **RuleType** parameter is set to **BACKUP**. This parameter specifies the backup type. Valid value: **COMPLETE**, which indicates full backup.', example='COMPLETE'),
       dataSourceFilters?: [ 
         {
+          accountScope?: string(name='AccountScope'),
+          accounts?: [ 
+            {
+              crossAccountRoleName?: string(name='CrossAccountRoleName'),
+              crossAccountType?: string(name='CrossAccountType'),
+              crossAccountUserId?: long(name='CrossAccountUserId'),
+            }
+          ](name='Accounts'),
           dataSourceIds?: [ string ](name='DataSourceIds', description='This parameter is deprecated.', deprecated='true'),
           sourceType?: string(name='SourceType', description='The type of the data source. Valid values:
 
@@ -2754,6 +2735,35 @@ async function describeDataSources(request: DescribeDataSourcesRequest): Describ
   return @handler.do('RPC', 'DescribeDataSources', 'POST', '/', 'json', false, 'json', request);
 }
 
+model DescribeFeatureTrialInfoRequest {
+  featureType: string(name='FeatureType', description='This parameter is required.', example='OTS_BACKUP', position='Query'),
+}
+
+model DescribeFeatureTrialInfoResponseBody = {
+  code?: string(name='Code', example='200'),
+  featureEnabled?: boolean(name='FeatureEnabled'),
+  inTrialPeriod?: boolean(name='InTrialPeriod'),
+  message?: string(name='Message', example='successful'),
+  requestId?: string(name='RequestId', example='473469C7-AA6F-4DC5-B3DB-A3DC0DE3C83E'),
+  success?: boolean(name='Success'),
+  trialExpireTime?: long(name='TrialExpireTime', example='1584597600'),
+}
+
+model DescribeFeatureTrialInfoResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: DescribeFeatureTrialInfoResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of DescribeFeatureTrialInfo  DescribeFeatureTrialInfoRequest
+  * @return DescribeFeatureTrialInfoResponse
+ */
+async function describeFeatureTrialInfo(request: DescribeFeatureTrialInfoRequest): DescribeFeatureTrialInfoResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'DescribeFeatureTrialInfo', 'POST', '/', 'json', false, 'json', request);
+}
+
 model DescribeHanaBackupPlansRequest {
   clusterId: string(name='ClusterId', description='The ID of the SAP HANA instance.
 
@@ -3309,11 +3319,20 @@ async function describeOtsTableSnapshots(request: DescribeOtsTableSnapshotsReque
 }
 
 model DescribePoliciesV2Request {
+  accountScope?: string(name='AccountScope', position='Body'),
+  accounts?: [ 
+    {
+      crossAccountRoleName?: string(name='CrossAccountRoleName'),
+      crossAccountType?: string(name='CrossAccountType'),
+      crossAccountUserId?: long(name='CrossAccountUserId'),
+    }
+  ](name='Accounts', shrink='json', position='Body'),
   maxResults?: int32(name='MaxResults', description='The number of results for each query.
 
 Valid values: 10 to 100. Default value: 10.', example='10', position='Body'),
   nextToken?: string(name='NextToken', description='The token that is used to obtain the next page of backup policies.', example='caeba0bbb2be03f84eb48b699f0a', position='Body'),
   policyId?: string(name='PolicyId', description='The ID of the backup policy.', example='po-000************2l6', position='Body'),
+  ruleScope?: string(name='RuleScope', position='Body'),
 }
 
 model DescribePoliciesV2ResponseBody = {
@@ -3341,6 +3360,14 @@ Valid values: 10 to 100. Default value: 10.', example='10'),
           backupType?: string(name='BackupType', description='This parameter is returned only if the value of the **RuleType** parameter is **BACKUP**. This parameter indicates the backup type. Valid value: **COMPLETE**, which indicates full backup.', example='COMPLETE'),
           dataSourceFilters?: [ 
             {
+              accountScope?: string(name='AccountScope'),
+              accounts?: [ 
+                {
+                  crossAccountRoleName?: string(name='CrossAccountRoleName'),
+                  crossAccountType?: string(name='CrossAccountType'),
+                  crossAccountUserId?: long(name='CrossAccountUserId'),
+                }
+              ](name='Accounts'),
               dataSourceIds?: [ string ](name='DataSourceIds', description='Deprecated.', deprecated='true'),
               sourceType?: string(name='SourceType', description='Data source type. The value range is as follows: 
 - **UDM_ECS**: Indicates ECS server backup. 
@@ -4590,6 +4617,43 @@ async function getTempFileDownloadLink(request: GetTempFileDownloadLinkRequest):
   return @handler.do('RPC', 'GetTempFileDownloadLink', 'POST', '/', 'json', false, 'json', request);
 }
 
+model GetTrialInfoRequest {
+  bucket?: string(name='Bucket', example='hbr-backup-oss', position='Query'),
+  createTime?: long(name='CreateTime', example='1607436917', position='Query'),
+  fileSystemId?: string(name='FileSystemId', example='005494', position='Query'),
+  sourceType: string(name='SourceType', description='This parameter is required.', example='OSS', position='Query'),
+}
+
+model GetTrialInfoResponseBody = {
+  code?: string(name='Code', example='200'),
+  message?: string(name='Message', example='successful'),
+  requestId?: string(name='RequestId', example='473469C7-AA6F-4DC5-B3DB-A3DC0DE3C83E'),
+  success?: boolean(name='Success'),
+  trialInfo?: {
+    keepAfterTrialExpiration?: boolean(name='KeepAfterTrialExpiration'),
+    trialBackupPlanQuota?: long(name='TrialBackupPlanQuota', example='1'),
+    trialExpireTime?: long(name='TrialExpireTime', example='1584597600'),
+    trialStartTime?: long(name='TrialStartTime', example='1579413159'),
+    trialVaultQuota?: long(name='TrialVaultQuota', example='1'),
+    trialVaultReleaseTime?: long(name='TrialVaultReleaseTime', example='1594965600'),
+  }(name='TrialInfo'),
+}
+
+model GetTrialInfoResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: GetTrialInfoResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of GetTrialInfo  GetTrialInfoRequest
+  * @return GetTrialInfoResponse
+ */
+async function getTrialInfo(request: GetTrialInfoRequest): GetTrialInfoResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'GetTrialInfo', 'POST', '/', 'json', false, 'json', request);
+}
+
 model InstallBackupClientsRequest {
   crossAccountRoleName?: string(name='CrossAccountRoleName', description='The name of the RAM role that is created within the source Alibaba Cloud account and assigned to the current Alibaba Cloud account to authorize the current Alibaba Cloud account to back up data across Alibaba Cloud accounts.', example='BackupRole', position='Query'),
   crossAccountType?: string(name='CrossAccountType', description='Specifies whether data is backed up within the same Alibaba Cloud account or across Alibaba Cloud accounts. Valid values:
@@ -4692,6 +4756,80 @@ model ListProtectedResourcesResponse = {
 async function listProtectedResources(request: ListProtectedResourcesRequest): ListProtectedResourcesResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RPC', 'ListProtectedResources', 'POST', '/', 'json', false, 'json', request);
+}
+
+model ListSnapshotsRequest {
+  completeTimeEnd?: long(name='CompleteTimeEnd', example='1776059382', position='Query'),
+  completeTimeStart?: long(name='CompleteTimeStart', example='1776059082', position='Query'),
+  maxResults?: int32(name='MaxResults', example='10', minimum=0, position='Query'),
+  nextToken?: string(name='NextToken', example='eyJJbmRleCI6NjUwMX0=', position='Query'),
+  planId?: string(name='PlanId', example='po-0000****123', position='Query'),
+  protectedResourceId: string(name='ProtectedResourceId', description='This parameter is required.', example='pr-123***7890', position='Query'),
+  skip?: int32(name='Skip', example='0', position='Query'),
+  sourceType: string(name='SourceType', description='This parameter is required.', example='ECS_FILE', position='Query'),
+  vaultId?: string(name='VaultId', example='v-00030j3c******sn', position='Query'),
+}
+
+model ListSnapshotsResponseBody = {
+  code?: string(name='Code', example='200'),
+  maxResults?: int32(name='MaxResults', example='10'),
+  message?: string(name='Message', example='successful'),
+  nextToken?: string(name='NextToken', example='aWQj********MCMy'),
+  requestId?: string(name='RequestId', example='17189276-****-****-****-0FF51B5A41A0'),
+  snapshots?: [ 
+    {
+      actualBytes?: long(name='ActualBytes', example='600'),
+      actualItems?: long(name='ActualItems', example='6'),
+      archiveTime?: long(name='ArchiveTime', example='1640334062'),
+      backupType?: string(name='BackupType', example='COMPLETE'),
+      bytesDone?: long(name='BytesDone', example='800'),
+      bytesTotal?: long(name='BytesTotal', example='1000'),
+      clientId?: string(name='ClientId', example='c-*********************'),
+      completeTime?: long(name='CompleteTime', example='1642496679'),
+      createTime?: long(name='CreateTime', example='1607436917'),
+      createdTime?: long(name='CreatedTime', example='1642496679'),
+      errorFile?: string(name='ErrorFile', example='temp/report/123456789/job-xxxxxxxxx_failed.zip'),
+      exclude?: string(name='Exclude', example='[\\"/test/example_cn-hangzhou_7.txt\\", \\"/test/example_cn-hangzhou_1.txt\\", \\"/test/example_cn-hangzhou_3.txt\\", \\"/test/example_cn-hangzhou_9.txt\\", \\"/test/example_cn-hangzhou_6.txt\\"]'),
+      expireTime?: long(name='ExpireTime', example='1771901707'),
+      include?: string(name='Include', example='[\\"/test/example_cn-huhehaote_3.txt\\", \\"/test/example_cn-huhehaote_9.txt\\", \\"/test/example_cn-huhehaote_5.txt\\", \\"/test/example_cn-huhehaote_1.txt\\", \\"/test/example_cn-huhehaote_7.txt\\"]'),
+      instanceId?: string(name='InstanceId', example='i-*********************'),
+      instanceName?: string(name='InstanceName', example='instancename'),
+      itemsDone?: long(name='ItemsDone', example='8'),
+      itemsTotal?: long(name='ItemsTotal', example='10'),
+      jobId?: string(name='JobId', example='job-00030j3chkt******2'),
+      path?: string(name='Path', example='/home'),
+      paths?: [ string ](name='Paths'),
+      planId?: string(name='PlanId', example='po-123***7890'),
+      protectedDataSize?: long(name='ProtectedDataSize', example='42949672960'),
+      rangeEnd?: long(name='RangeEnd', example='1642521709966'),
+      rangeStart?: long(name='RangeStart', example='1642492553038'),
+      retention?: long(name='Retention', example='7'),
+      snapshotHash?: string(name='SnapshotHash', example='f2ac5fd243**********************bc4451777be019'),
+      snapshotId?: string(name='SnapshotId', example='s-00047mxg17p26*****b'),
+      sourceType?: string(name='SourceType', example='ECS_FILE'),
+      status?: string(name='Status', example='COMPLETE'),
+      storageClass?: string(name='StorageClass', example='STANDARD'),
+      tableName?: string(name='TableName', example='table2'),
+      vaultId?: string(name='VaultId', example='v-00030j*******sn'),
+    }
+  ](name='Snapshots'),
+  success?: boolean(name='Success', example='true'),
+  totalCount?: int32(name='TotalCount', example='3'),
+}
+
+model ListSnapshotsResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ListSnapshotsResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of ListSnapshots  ListSnapshotsRequest
+  * @return ListSnapshotsResponse
+ */
+async function listSnapshots(request: ListSnapshotsRequest): ListSnapshotsResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'ListSnapshots', 'POST', '/', 'json', false, 'json', request);
 }
 
 model OpenHbrServiceRequest {
@@ -5611,6 +5749,14 @@ model UpdatePolicyV2Request {
       coldArchiveDays?: long(name='ColdArchiveDays', description='This parameter is required only if the **RuleType** parameter is set to **TRANSITION**. This parameter specifies the time when data is dumped from a backup vault to a cold archive vault. Unit: days.', example='365'),
       dataSourceFilters?: [ 
         {
+          accountScope?: string(name='AccountScope'),
+          accounts?: [ 
+            {
+              crossAccountRoleName?: string(name='CrossAccountRoleName'),
+              crossAccountType?: string(name='CrossAccountType'),
+              crossAccountUserId?: long(name='CrossAccountUserId'),
+            }
+          ](name='Accounts'),
           dataSourceIds?: [ string ](name='DataSourceIds', description='This parameter is deprecated.', deprecated='true'),
           sourceType?: string(name='SourceType', description='The type of the data source. Valid values:
 
