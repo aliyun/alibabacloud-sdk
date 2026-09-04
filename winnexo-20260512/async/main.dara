@@ -23,9 +23,6 @@ init(configuration: ClientConfiguration){
   @version = '2026-05-12';
   @endpointRule = 'regional';
   @endpointMap = {
-    'cn-shanghai' = 'winnexo.cn-shanghai.aliyuncs.com',
-    'cn-zhangjiakou' = 'winnexo.cn-zhangjiakou.aliyuncs.com',
-    'cn-hangzhou' = 'winnexo.cn-hangzhou.aliyuncs.com',
   };
 }
 
@@ -68,6 +65,57 @@ async function addUserGroupMembers(request: AddUserGroupMembersRequest): AddUser
   return @handler.do('RESTFUL', 'AddUserGroupMembers', 'POST', '/openapi/addUserGroupMembers', 'json', true, 'form', request);
 }
 
+model BatchRemoveOperatingObjectFavoritesRequest {
+  graphName: string(name='graphName', description='数字员工所属图谱技术名
+
+This parameter is required.', example='crm', position='Body'),
+  objectIds: [ string ](name='objectIds', description='待取消关注的对象业务 ID，原始数组 1 至 200 项，每项为最长 128 字符的非空字符串
+
+This parameter is required.', example='contract-001', shrink='json', position='Body'),
+  objectType: string(name='objectType', description='数字员工配置的主对象或显式一级关联对象类型
+
+This parameter is required.', example='contract', position='Body'),
+  operatingObjectName: string(name='operatingObjectName', description='数字员工技术名；不得用 objectType 替代
+
+This parameter is required.', example='customer_assistant', position='Body'),
+  tenantId?: string(name='tenantId', description='租户ID，公共参数；缺省时使用调用方默认租户', example='10000', position='Query'),
+}
+
+model BatchRemoveOperatingObjectFavoritesResponseBody = {
+  code?: string(name='code', description='业务状态码：成功为 200', example='200'),
+  graphName?: string(name='graphName', example='string_value'),
+  message?: string(name='message', description='错误描述，成功时为空', example='ok'),
+  objectType?: string(name='objectType', example='string_value'),
+  operatingObjectName?: string(name='operatingObjectName', example='string_value'),
+  remainingCount?: long(name='remainingCount', description='精确范围内剩余关注对象数量', example='0'),
+  removedCount?: long(name='removedCount', description='实际删除的物理关注记录数量', example='2'),
+  requestId?: string(name='requestId', description='请求追踪 ID', example='019FF406-1B10-0065-A97D-2D1920C2A03D'),
+  requestedCount?: long(name='requestedCount', description='去重后的请求对象数量', example='2'),
+  results?: [ 
+    {
+      isFavorited?: boolean(name='isFavorited', example='true'),
+      objectId?: string(name='objectId', example='exampleObjectId'),
+      processed?: boolean(name='processed', example='true'),
+    }
+  ](name='results'),
+}
+
+model BatchRemoveOperatingObjectFavoritesResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: BatchRemoveOperatingObjectFavoritesResponseBody(name='body'),
+}
+
+/**
+  * @description 按 graphName、operatingObjectName、objectType 三个独立维度幂等取消关注。原始数组单次 1 至 200 项，每项为最长 128 字符的非空字符串；服务端校验后保持顺序去重，非字符串、超长值或数组超限均被拒绝。删除、逐项状态和剩余有效数量在同一事务内完成。要安全取消全部关注，还必须调用 ClearOperatingObjectFavorites 清理列表不可见的历史、MISSING 或权限隐藏记录，并最终读回确认 total 为 0。
+  * @param request  the request parameters of BatchRemoveOperatingObjectFavorites  BatchRemoveOperatingObjectFavoritesRequest
+  * @return BatchRemoveOperatingObjectFavoritesResponse
+ */
+async function batchRemoveOperatingObjectFavorites(request: BatchRemoveOperatingObjectFavoritesRequest): BatchRemoveOperatingObjectFavoritesResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'BatchRemoveOperatingObjectFavorites', 'POST', '/openapi/batchRemoveOperatingObjectFavorites', 'json', true, 'form', request);
+}
+
 model CheckHealthRequest {
   tenantId?: string(name='tenantId', description='租户ID，公共参数；winnexo-cli 通过 --tenant-id 显式传入', example='692318833855074', position='Query'),
 }
@@ -96,6 +144,47 @@ model CheckHealthResponse = {
 async function checkHealth(request: CheckHealthRequest): CheckHealthResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RESTFUL', 'CheckHealth', 'GET', '/openapi/checkHealth', 'json', false, 'json', request);
+}
+
+model ClearOperatingObjectFavoritesRequest {
+  graphName: string(name='graphName', description='数字员工所属图谱技术名
+
+This parameter is required.', example='crm', position='Body'),
+  objectType: string(name='objectType', description='数字员工配置的主对象或显式一级关联对象类型
+
+This parameter is required.', example='contract', position='Body'),
+  operatingObjectName: string(name='operatingObjectName', description='数字员工技术名；不得用 objectType 替代
+
+This parameter is required.', example='customer_assistant', position='Body'),
+  tenantId?: string(name='tenantId', description='租户ID，公共参数；缺省时使用调用方默认租户', example='10000', position='Query'),
+}
+
+model ClearOperatingObjectFavoritesResponseBody = {
+  code?: string(name='code', description='业务状态码：成功为 200', example='200'),
+  graphName?: string(name='graphName', description='canonical 图谱技术名', example='crm'),
+  message?: string(name='message', description='错误描述，成功时为空', example='ok'),
+  objectType?: string(name='objectType', description='对象类型技术名', example='contract'),
+  operatingObjectName?: string(name='operatingObjectName', description='canonical 数字员工技术名', example='customer_assistant'),
+  remainingCount?: long(name='remainingCount', description='同一事务内复核的未过滤剩余物理记录数量', example='0'),
+  removedCount?: long(name='removedCount', description='实际删除的物理关注记录数量', example='2'),
+  requestId?: string(name='requestId', description='请求追踪 ID', example='019FF406-1B10-0065-A97D-2D1920C2A03D'),
+  verified?: boolean(name='verified', description='是否已确认剩余物理记录为零', example='true'),
+}
+
+model ClearOperatingObjectFavoritesResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ClearOperatingObjectFavoritesResponseBody(name='body'),
+}
+
+/**
+  * @description 按 graphName、operatingObjectName、objectType 三个独立维度清空当前调用用户的全部持久化关注，包括列表不可见的历史、MISSING 和权限隐藏记录。接口不返回不可见对象 ID，并在同一事务内复核剩余物理记录为零。
+  * @param request  the request parameters of ClearOperatingObjectFavorites  ClearOperatingObjectFavoritesRequest
+  * @return ClearOperatingObjectFavoritesResponse
+ */
+async function clearOperatingObjectFavorites(request: ClearOperatingObjectFavoritesRequest): ClearOperatingObjectFavoritesResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'ClearOperatingObjectFavorites', 'POST', '/openapi/clearOperatingObjectFavorites', 'json', true, 'form', request);
 }
 
 model CreateAnnouncementRequest {
@@ -1550,14 +1639,15 @@ This parameter is required.', example='string_value', position='Body'),
 
 This parameter is required.', example='string_value', position='Body'),
   roleCodes?: [ string ](name='roleCodes', description='系统角色 code 列表，可选值: SUPER_ADMIN / SYSTEM_ADMIN / SEMANTIC_ADMIN / SKILL_ADMIN / KB_ADMIN / AGENT_ADMIN / APPLICATION_USER。不传默认 APPLICATION_USER', example='string_value', shrink='json', position='Body'),
+  ssoProvider?: string(name='ssoProvider', description='SSO provider 类型。租户仅有一个外部登录方式时可不传；多外部登录方式时必填。当前 createUser 支持 BUILD_IN 与 AGENT_ONE', example='AGENT_ONE', position='Body'),
   tenantId?: string(name='tenantId', description='租户ID，公共参数，缺省时使用调用方默认租户', example='10000', position='Query'),
-  wnAccountId: string(name='wnAccountId', description='WINNEXO 登录账号（唯一标识，不可为空）
+  wnAccountId: string(name='wnAccountId', description='登录账号唯一标识；阿里云场景为 RAM 子账号 ID
 
 This parameter is required.', example='exampleAccountId', position='Body'),
 }
 
 model CreateUserResponseBody = {
-  accountId?: string(name='accountId', description='WINNEXO 登录账号', example='exampleAccountId'),
+  accountId?: string(name='accountId', description='登录账号唯一标识', example='exampleAccountId'),
   code?: string(name='code', description='业务状态码：成功为 200，失败为后端错误码（ERR.* / InvalidParameter.*）', example='200'),
   displayName?: string(name='displayName', description='用户显示名称', example='string_value'),
   isNewUser?: boolean(name='isNewUser', description='是否为新创建的用户（false 表示已有用户加入租户）', example='true'),
@@ -1575,14 +1665,18 @@ model CreateUserResponse = {
 /**
   * @description OpenAPI 创建用户。
   *     业务编排：
-  *     1. 解析 roleCodes → role_ids（系统角色枚举校验）
-  *     2. 判断用户是否已存在（用于返回 isNewUser 标记）
-  *     3. 调用 UserManagementService.add_tenant_member 完成创建/加入（密码由调用方强制传入 RSA 密文）
-  *     4. 返回创建结果（含 isNewUser 标记）
+  *     1. 按有效配置与可选 ssoProvider 解析唯一登录方式；仅当主账号 ACTIVE 订阅授权目标租户时，公共云网关链路兼容无租户 SSO 绑定的唯一 AGENT_ONE
+  *     2. 解析 roleCodes → role_ids（系统角色枚举校验）
+  *     3. 判断用户是否已存在（用于返回 isNewUser 标记）
+  *     4. 调用 UserManagementService.add_tenant_member 完成创建/加入
+  *     5. 返回创建结果（含 isNewUser 标记）
   *     错误码：
   *     - ERR.User.DeactivatedInTenant: 用户在租户中已停用，请使用 updateUser 恢复
   *     - ERR.User.AlreadyInTenant: 用户已是租户活跃成员
   *     - ERR.User.DisplayNameDuplicateInTenant: 租户内显示名重复
+  *     - ERR.User.CreateUserSsoProviderRequired: 多个外部 provider，无法唯一选择
+  *     - ERR.User.CreateUserSsoProviderUnavailable: provider 未绑定、未启用或暂不支持
+  *     - ERR.User.CreateUserRamAccountRequired: 公共云 RAM 登录方式传入了阿里云主账号
   * @param request  the request parameters of CreateUser  CreateUserRequest
   * @return CreateUserResponse
  */
@@ -3273,6 +3367,60 @@ async function listKnowledgeBaseDirectories(request: ListKnowledgeBaseDirectorie
   return @handler.do('RESTFUL', 'ListKnowledgeBaseDirectories', 'POST', '/openapi/listKnowledgeBaseDirectories', 'json', true, 'form', request);
 }
 
+model ListOperatingObjectFavoritesRequest {
+  graphName: string(name='graphName', description='数字员工所属图谱技术名
+
+This parameter is required.', example='crm', position='Body'),
+  nextToken?: string(name='nextToken', description='上一页返回的签名不透明游标，首屏不传；不得自行解析或拼接', example='eyJ2IjoxLCJpZCI6MTAwMX0.c2lnbmF0dXJlX2V4YW1wbGU', position='Body'),
+  objectType: string(name='objectType', description='数字员工配置的主对象或显式一级关联对象类型
+
+This parameter is required.', example='contract', position='Body'),
+  operatingObjectName: string(name='operatingObjectName', description='数字员工技术名；不得用 objectType 替代
+
+This parameter is required.', example='customer_assistant', position='Body'),
+  pageSize?: long(name='pageSize', description='每页数量，范围 1 至 200，默认 100', example='100', minimum=1, maximum=200, position='Body'),
+  tenantId?: string(name='tenantId', description='租户ID，公共参数；缺省时使用调用方默认租户', example='10000', position='Query'),
+}
+
+model ListOperatingObjectFavoritesResponseBody = {
+  code?: string(name='code', description='业务状态码：成功为 200', example='200'),
+  graphName?: string(name='graphName', description='canonical 图谱技术名', example='crm'),
+  hasMore?: boolean(name='hasMore', description='是否还有下一页', example='true'),
+  items?: [ 
+    {
+      description?: string(name='description'),
+      followedAt?: long(name='followedAt', description='关注时间，Unix 秒级时间戳', example='1787822400'),
+      graphName?: string(name='graphName', example='string_value'),
+      objectId?: string(name='objectId', example='2676'),
+      objectName?: string(name='objectName', example='469ac312-403c-41fb-aae3-de5260e30906'),
+      objectType?: string(name='objectType', example='table'),
+    }
+  ](name='items'),
+  message?: string(name='message', description='错误描述，成功时为空', example='successful'),
+  nextToken?: string(name='nextToken', description='下一页签名不透明游标；没有下一页时为空', example='eyJ2IjoxLCJpZCI6OTAyfQ.c2lnbmF0dXJlX2V4YW1wbGU'),
+  objectType?: string(name='objectType', description='对象类型技术名', example='contract'),
+  operatingObjectName?: string(name='operatingObjectName', description='canonical 数字员工技术名', example='customer_assistant'),
+  pageSize?: long(name='pageSize', description='本次请求页大小', example='100'),
+  requestId?: string(name='requestId', description='请求追踪 ID', example='019FF406-1B10-0065-A97D-2D1920C2A03D'),
+  total?: long(name='total', description='精确范围内去重后的关注总数', example='1001'),
+}
+
+model ListOperatingObjectFavoritesResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ListOperatingObjectFavoritesResponseBody(name='body'),
+}
+
+/**
+  * @description 按 graphName、operatingObjectName、objectType 三个独立维度查询关注。支持主对象与显式一级关联对象，使用不透明游标分页，不受关注面板 1000 条展示窗口限制。
+  * @param request  the request parameters of ListOperatingObjectFavorites  ListOperatingObjectFavoritesRequest
+  * @return ListOperatingObjectFavoritesResponse
+ */
+async function listOperatingObjectFavorites(request: ListOperatingObjectFavoritesRequest): ListOperatingObjectFavoritesResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'ListOperatingObjectFavorites', 'POST', '/openapi/listOperatingObjectFavorites', 'json', true, 'form', request);
+}
+
 model ListOutputFilesRequest {
   itemType?: string(name='itemType', description='产出明细类型: ppt/html/document/picture/slides/video/audio/email/others', example='ppt', position='Body'),
   keyword?: string(name='keyword', description='关键词搜索，匹配产出标题或明细名称', example='string_value', position='Body'),
@@ -4199,7 +4347,7 @@ async function previewPersonalSource(request: PreviewPersonalSourceRequest): Pre
 model QueryPrimaryObjectDataRequest {
   keyword?: string(name='keyword', description='关键字搜索（固定匹配 name；若 schema 定义 description，则同时匹配 description）', example='示例关键词', position='Body'),
   onlyFavorites?: boolean(name='onlyFavorites', description='仅返回关注的主对象；false 或不传则返回全部对象（包含 isFavorited 标识）', example='false', position='Body'),
-  operatingObjectName: string(name='operatingObjectName', description='运营对象名称（如 customer_1）
+  operatingObjectName: string(name='operatingObjectName', description='数字员工技术名（如 customer_1），不是对象类型
 
 This parameter is required.', example='string_value', position='Body'),
   page?: long(name='page', description='页码（从 1 开始）', example='1', position='Body'),
@@ -4225,10 +4373,11 @@ model QueryPrimaryObjectDataResponse = {
 
 /**
   * @description ## 请求说明
-  * - 该API用于根据给定的运营对象名称（如 `customer_1`）分页查询相关的主对象数据。
+  * - 该API用于根据给定的数字员工技术名（如 `customer_1`）分页查询其主对象数据；不支持关系对象。
   * - 支持通过关键字进行搜索，并且可以设置是否仅返回被标记为关注的对象。
   * - 可以使用复杂的过滤条件来进一步筛选结果，包括但不限于等于、不等于、大于、小于等逻辑操作符。
-  * - 如果没有配置主对象类型，则会返回一个空的结果集。
+  * - 数字员工不存在、无 USE 权限或没有配置主对象类型时返回明确错误，不会静默返回空结果。
+  * - `operatingObjectName` 与对象类型是不同维度，禁止将 `objectType` 值替换到该字段。
   * - 请求中包含的数据将经过鉴权与过滤处理，确保安全性和准确性。
   * @param request  the request parameters of QueryPrimaryObjectData  QueryPrimaryObjectDataRequest
   * @return QueryPrimaryObjectDataResponse
@@ -5322,9 +5471,11 @@ This parameter is required.', example='exampleMessageId', position='Path'),
 
 model StreamChatMessageResponseBody = {
   code?: string(name='code', description='业务状态码：成功为 200，失败为后端错误码（ERR.* / InvalidParameter.*）', example='200'),
+  content?: string(name='content', description='当前 SSE 帧的增量内容', example='你好'),
   data?: any(name='data', description='SSE 事件流负载；成功时响应为 text/event-stream 原始帧，需按流式方式逐帧消费', example='{}'),
   message?: string(name='message', description='错误描述，成功时为空', example='ok'),
   requestId?: string(name='requestId', description='请求追踪 ID', example='019FF406-1B10-0065-A97D-2D1920C2A03D'),
+  type?: string(name='type', description='SSE 事件类型，如 text、think、heartbeat、done 或 error', example='text'),
 }
 
 model StreamChatMessageResponse = {
