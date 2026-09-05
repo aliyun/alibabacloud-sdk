@@ -66,24 +66,6 @@ init(configuration: ClientConfiguration){
     'eu-west-1-oxs' = 'pai-dlc.aliyuncs.com',
     'me-east-1' = 'pai-dlc.aliyuncs.com',
     'rus-west-1-pop' = 'pai-dlc.aliyuncs.com',
-    'cn-wulanchabu' = 'pai-dlc.cn-wulanchabu.aliyuncs.com',
-    'cn-beijing' = 'pai-dlc.cn-beijing.aliyuncs.com',
-    'cn-shanghai' = 'pai-dlc.cn-shanghai.aliyuncs.com',
-    'cn-hongkong' = 'pai-dlc.cn-hongkong.aliyuncs.com',
-    'cn-shenzhen' = 'pai-dlc.cn-shenzhen.aliyuncs.com',
-    'ap-northeast-1' = 'pai-dlc.ap-northeast-1.aliyuncs.com',
-    'cn-guangzhou' = 'pai-dlc.cn-guangzhou.aliyuncs.com',
-    'ap-southeast-1' = 'pai-dlc.ap-southeast-1.aliyuncs.com',
-    'ap-southeast-3' = 'pai-dlc.ap-southeast-3.aliyuncs.com',
-    'ap-southeast-5' = 'pai-dlc.ap-southeast-5.aliyuncs.com',
-    'ap-southeast-7' = 'pai-dlc.ap-southeast-7.aliyuncs.com',
-    'cn-hangzhou' = 'pai-dlc.cn-hangzhou.aliyuncs.com',
-    'ap-southeast-8' = 'pai-dlc.ap-southeast-8.aliyuncs.com',
-    'us-east-1' = 'pai-dlc.us-east-1.aliyuncs.com',
-    'us-southeast-1' = 'pai-dlc.us-southeast-1.aliyuncs.com',
-    'us-west-1' = 'pai-dlc.us-west-1.aliyuncs.com',
-    'eu-central-1' = 'pai-dlc.eu-central-1.aliyuncs.com',
-    'cn-shanghai-finance-1' = 'pai-dlc.cn-shanghai-finance-1.aliyuncs.com',
   };
 }
 
@@ -577,6 +559,7 @@ model JobSpec {
   systemDisk?: SystemDisk(name='SystemDisk'),
   type?: string(name='Type', example='Worker'),
   useSpotInstance?: boolean(name='UseSpotInstance', example='false', deprecated='true'),
+  userCommand?: string(name='UserCommand', example='python train.py'),
 }
 
 model JobTemplateVersionDetail {
@@ -709,6 +692,272 @@ model QuotaDetail {
   GPUType?: string(name='GPUType', example='Tesla-V100'),
   GPUTypeFullName?: string(name='GPUTypeFullName', example='nvidia.com/gpu'),
   memory?: string(name='Memory', example='10Gi'),
+}
+
+model RLFlowFunnelStage {
+  count?: int32(name='Count', description='到达该层级的轨迹数', example='96'),
+  key?: string(name='Key', description='层级标识：traj / dispatch / run / rollout / reward / sampled / trained', example='traj'),
+  label?: string(name='Label', description='层级中文名：生成轨迹 / 下发到 Worker / Agent 启动 / Rollout 完成 / reward 打分 / 采样入批 / 完成训练', example='生成轨迹'),
+  pct?: double(name='Pct', description='相对首层 traj 的占比（百分比）', example='100'),
+}
+
+model RLFlowMilestoneCount {
+  count?: int32(name='Count', description='停留在该里程碑的在途轨迹数', example='96'),
+  milestone?: string(name='Milestone', description='里程碑，取值同 Stuck[].Milestone', example='生成中'),
+}
+
+model RLFlowSankey {
+  columns?: [
+    RLFlowSankeyColumn
+  ](name='Columns', description='主链 5 列', example='[{"Key":"traj","Label":"生成轨迹","Count":96}]'),
+  exits?: [
+    RLFlowSankeyExit
+  ](name='Exits', description='各列的流出边', example='[{"From":"run","FromIdx":1,"Label":"未启动","Count":0}]'),
+}
+
+model RLFlowSankeyColumn {
+  count?: int32(name='Count', description='该列轨迹数（已单调化：到达后一环节视为必然经过前面环节）', example='96'),
+  key?: string(name='Key', description='列标识：gen / run / rollout / sampled / trained', example='traj'),
+  label?: string(name='Label', description='列中文名：轨迹生成 / Agent 启动 / Rollout 完成 / 采样入批 / 完成训练', example='生成轨迹'),
+}
+
+model RLFlowSankeyExit {
+  count?: int32(name='Count', description='该条流出边的轨迹数', example='96'),
+  from?: string(name='From', description='流出起始列的 Key', example='DataLoader'),
+  fromIdx?: int32(name='FromIdx', description='流出起始列的下标（0 起）', example='0'),
+  label?: string(name='Label', description='流出去向中文名，按流出所在列取值：在途·未下发 / 在途·生成中 / 在途·待采样 / 在途·待训练', example='生成轨迹'),
+}
+
+model RLFlowSlowestItem {
+  promptUid?: string(name='PromptUid', description='样本 uid', example='321fa56f-e1e5-4eb3-8047-db7a230c9a75'),
+  sampleIndex?: string(name='SampleIndex', description='轨迹序号', example='2'),
+  sec?: double(name='Sec', description='该阶段耗时（秒）', example='9.2'),
+}
+
+model RLFlowStep {
+  bufferWaitP50?: double(name='BufferWaitP50', description='该 step 轨迹的入缓冲到成批耗时 P50（秒）', example='0.8'),
+  gapSec?: double(name='GapSec', description='空档（秒）= train started − rollout finished，成批/搬运等待', example='0'),
+  idleSec?: double(name='IdleSec', description='训练空闲（秒）= 本步训练开始 − 上一步训练结束；无标记时退回 本步前向开始 − 上一步优化器结束；大于 0 表示 trainer 在等数据', example='0'),
+  nSamples?: int32(name='NSamples', description='该 step 消费的样本（uid）数', example='24'),
+  nTrajs?: int32(name='NTrajs', description='归属该 step 本次执行的轨迹数', example='96'),
+  prodEndMs?: long(name='ProdEndMs', description='该 step 轨迹入缓冲的最晚时刻，毫秒', example='1787474487713'),
+  prodStartMs?: long(name='ProdStartMs', description='该 step 轨迹入缓冲的最早时刻，毫秒', example='1787474487713'),
+  rolloutP50?: double(name='RolloutP50', description='该 step 轨迹的开始执行到入缓冲耗时 P50（秒）', example='0.8'),
+  rolloutSec?: double(name='RolloutSec', description='Rollout 耗时（秒）= rollout finished − rollout started；无标记时为空', example='0'),
+  step?: long(name='Step', description='global step 序号', example='3'),
+  tFwdStartMs?: long(name='TFwdStartMs', description='前向计算开始时刻，毫秒', example='1787474487713'),
+  tOptEndMs?: long(name='TOptEndMs', description='优化器结束时刻，毫秒', example='1787474487713'),
+  tRolloutEndMs?: long(name='TRolloutEndMs', description='任务日志 "Step N rollout finished" 时刻，毫秒', example='1787474487713'),
+  tRolloutStartMs?: long(name='TRolloutStartMs', description='任务日志 "Step N rollout started" 时刻，毫秒（取 agent_collect_time）', example='1787474487713'),
+  tTrainEndMs?: long(name='TTrainEndMs', description='任务日志 "Step N train finished" 时刻，毫秒', example='1787474487713'),
+  tTrainStartMs?: long(name='TTrainStartMs', description='任务日志 "Step N train started" 时刻，毫秒', example='1787474487713'),
+  tUpdateMs?: long(name='TUpdateMs', description='TRAIN_UPDATE（参数更新）时刻，毫秒', example='1787474487713'),
+  trainSec?: double(name='TrainSec', description='训练耗时（秒）：优先 train finished − train started；无标记时退回 成批 → 训练完成，作业重启导致 global_step 重复时为空', example='0'),
+}
+
+model RLFlowStuckItem {
+  idleSec?: long(name='IdleSec', description='距 NowMs 的空闲秒数（Stuck 列表的降序排序键）', example='0'),
+  lastTsMs?: long(name='LastTsMs', description='最后一次事件的毫秒时间戳', example='1787293215480'),
+  milestone?: string(name='Milestone', description='当前停留的里程碑：已生成未下发 / 已下发未启动 / 已启动待生成 / 生成中 / Rollout完成待打分 / 已打分待采样 / 已采样待训练', example='生成中'),
+  nTurns?: int32(name='NTurns', description='已完成的生成轮数', example='3'),
+  promptUid?: string(name='PromptUid', description='样本 uid', example='321fa56f-e1e5-4eb3-8047-db7a230c9a75'),
+  sampleIndex?: string(name='SampleIndex', description='轨迹序号', example='2'),
+}
+
+model RLFlowTotals {
+  inflight?: int32(name='Inflight', description='在途轨迹数（无终态）', example='0'),
+  rewarded?: int32(name='Rewarded', description='已完成 reward 打分的轨迹数（命中 reward_score_computed）', example='96'),
+  sampled?: int32(name='Sampled', description='已被 trainer 采样入批的轨迹数（命中 sampled_from_replay_buffer）', example='96'),
+  trained?: int32(name='Trained', description='完成训练的轨迹数（命中 actor_parameters_updated）', example='96'),
+  trajs?: int32(name='Trajs', description='窗口内轨迹总数', example='96'),
+  uids?: int32(name='Uids', description='窗口内出现的样本 uid 数', example='24'),
+}
+
+model RLFlowTransition {
+  avg?: double(name='Avg', description='平均耗时（秒）', example='1.9'),
+  count?: int32(name='Count', description='参与统计的轨迹数', example='96'),
+  key?: string(name='Key', description='阶段标识：dispatch_wait / start_wait / env_prepare / generation / agent_finish / reward / buffer_wait / logprob / ref_logprob / advantage / update / e2e', example='traj'),
+  label?: string(name='Label', description='阶段中文名', example='生成轨迹'),
+  max?: double(name='Max', description='最大耗时（秒）', example='9.2'),
+  p50?: double(name='P50', description='耗时 P50（秒）', example='0.8'),
+  p90?: double(name='P90', description='耗时 P90（秒）', example='5.9'),
+  p99?: double(name='P99', description='耗时 P99（秒）', example='8.6'),
+  slowest?: [
+    RLFlowSlowestItem
+  ](name='Slowest', description='最慢 5 条轨迹', example='[{"PromptUid":"321fa56f-e1e5-4eb3-8047-db7a230c9a75","SampleIndex":"2","Sec":9.2}]'),
+}
+
+model RLFlowTurns {
+  avg?: double(name='Avg', description='平均生成轮数', example='1.9'),
+  count?: int32(name='Count', description='参与统计的轨迹数', example='96'),
+  max?: int32(name='Max', description='最大生成轮数', example='9.2'),
+  p50?: int32(name='P50', description='生成轮数 P50', example='0.8'),
+  p90?: int32(name='P90', description='生成轮数 P90', example='5.9'),
+}
+
+model RLFlowWaste {
+  usefulSec?: long(name='UsefulSec', description='已训练轨迹的累计耗时（秒）', example='183'),
+}
+
+model RLLogContextLine {
+  message?: string(name='Message', description='日志文本（<=2000，已剥 ANSI）', example='CUDA out of memory. Tried to allocate 2.00 GiB'),
+  timestampMs?: long(name='TimestampMs', description='日志行毫秒时间戳', example='1787293208012'),
+}
+
+model RLProgressBuffer {
+  consumed?: int32(name='Consumed', description='未完成 buffer 的已消费样本数合计', example='0'),
+  detail?: [
+    RLProgressBufferDetail
+  ](name='Detail', description='按 tag 拆分的 buffer 明细', example='[{"Tag":1,"Ready":500,"Consumed":0,"Finished":500,"Total":512}]'),
+  etaSec?: long(name='EtaSec', description='预计填满剩余秒数', example='0'),
+  fillRatePerMin?: double(name='FillRatePerMin', description='填充速率（条/分钟），用 rollout 完成速率代理估算', example='120.5'),
+  finished?: int32(name='Finished', description='未完成 buffer 的已完成样本数合计', example='500'),
+  pct?: double(name='Pct', description='就绪度百分比，Ready 占 Target 的比例', example='100'),
+  ready?: int32(name='Ready', description='未完成 buffer 的已就绪样本数合计', example='500'),
+  target?: int32(name='Target', description='未完成 buffer 的目标样本数合计', example='512'),
+  trainBatchSize?: int32(name='TrainBatchSize', description='配置的训练 batch 大小', example='512'),
+  training?: boolean(name='Training', description='Consumed 大于 0，即 batch 已被取走、trainer 正在更新', example='true'),
+}
+
+model RLProgressBufferDetail {
+  consumed?: int32(name='Consumed', description='已被 trainer 消费的样本数', example='0'),
+  finished?: int32(name='Finished', description='已完成样本数', example='500'),
+  ready?: int32(name='Ready', description='已就绪样本数', example='500'),
+  tag?: int32(name='Tag', description='buffer 标签，即 global batch 序号', example='1'),
+  total?: int32(name='Total', description='目标样本数', example='3'),
+}
+
+model RLProgressConfig {
+  numMinibatches?: int32(name='NumMinibatches', description='每个 step 的 mini-batch 数', example='4'),
+  ppoMiniBatchSize?: int32(name='PpoMiniBatchSize', description='PPO mini-batch 大小', example='128'),
+  rolloutN?: int32(name='RolloutN', description='每个 prompt 的 rollout 条数', example='8'),
+  totalSteps?: int32(name='TotalSteps', description='总训练步数', example='3'),
+  trainBatchSize?: int32(name='TrainBatchSize', description='训练 batch 大小', example='512'),
+}
+
+model RLProgressEval {
+  done?: boolean(name='Done', description='Total 大于 0 且 Finished 不小于 Total', example='true'),
+  finished?: int32(name='Finished', description='已完成样本数', example='500'),
+  pct?: double(name='Pct', description='进度百分比，Progress 占 Total 的比例', example='100'),
+  progress?: int32(name='Progress', description='进度计数，取 Ready 与 Finished 的较大值', example='500'),
+  ready?: int32(name='Ready', description='已就绪样本数', example='500'),
+  total?: int32(name='Total', description='目标样本数', example='3'),
+}
+
+model RLProgressFatal {
+  collectNs?: string(name='CollectNs', description='锚点行 agent_collect_time（纳秒字符串，超 JS 安全整数）', example='1787474487713456789'),
+  message?: string(name='Message', description='错误文案（截断至 500 字符）', example='CUDA out of memory. Tried to allocate 2.00 GiB'),
+  rawMessage?: string(name='RawMessage', description='原始日志行（截断至 2000 字符）；调用 GetRLLogContext 时作为 AnchorMessage 传入', example='[rank0]: torch.OutOfMemoryError: CUDA out of memory. Tried to allocate 2.00 GiB'),
+  subsecNs?: long(name='SubsecNs', description='同秒内的纳秒偏移，用于同秒日志排序', example='123456789'),
+  time?: long(name='Time', description='日志时间（unix 秒）', example='1787474487'),
+}
+
+model RLProgressMicro {
+  current?: int32(name='Current', description='当前 micro-batch 序号', example='3'),
+  total?: int32(name='Total', description='micro-batch 总数', example='3'),
+}
+
+model RLProgressProcessed {
+  done?: int32(name='Done', description='已处理条数', example='true'),
+  total?: int32(name='Total', description='总条数', example='3'),
+}
+
+model RLProgressRollout {
+  finished?: int32(name='Finished', description='窗口内完成总数', example='500'),
+  processed?: RLProgressProcessed(name='Processed', description='rollout 已处理计数'),
+  ratePerMin?: double(name='RatePerMin', description='完成速率（条/分钟），由最近 120 条完成事件估算', example='31.2'),
+}
+
+model RLProgressSlow {
+  details?: [
+    RLProgressSlowDetail
+  ](name='Details', description='慢推理明细，最多 20 条', example='[{"Elapsed":42.5,"Time":1787474487,"Message":"rollout generation slow","Rank":0,"Pod":"dlc193cpaitk8eny-master-0","WorkerPid":12345,"Ip":"192.168.0.12","Rid":"req-8f3a2c1d","TokenizerPid":"12360","Ipc":"ipc://worker-0","IsPause":"false","StatePresent":"true","OutQueue":"3"}]'),
+  elapsed?: double(name='Elapsed', description='最慢一条的已耗时（秒）', example='42.5'),
+  time?: long(name='Time', description='最慢一条的日志时间（unix 秒）', example='1787474487'),
+}
+
+model RLProgressSlowDetail {
+  elapsed?: double(name='Elapsed', description='该请求已耗时（秒）', example='42.5'),
+  ip?: string(name='Ip', description='worker IP', example='192.168.0.12'),
+  ipc?: string(name='Ipc', description='IPC 通道标识（日志 ipc 字段）', example='ipc://worker-0'),
+  isPause?: string(name='IsPause', description='是否处于 pause（日志 is_pause 原始取值）', example='false'),
+  message?: string(name='Message', description='日志文案（截断至 700 字符）', example='CUDA out of memory. Tried to allocate 2.00 GiB'),
+  outQueue?: string(name='OutQueue', description='输出队列长度（日志 out_queue 原始取值）', example='3'),
+  pod?: string(name='Pod', description='所在 Pod 名', example='dlc193cpaitk8eny-master-0'),
+  rank?: int32(name='Rank', description='训练 rank', example='0'),
+  rid?: string(name='Rid', description='推理请求 ID（日志 rid 字段）', example='req-8f3a2c1d'),
+  statePresent?: string(name='StatePresent', description='状态是否存在（日志 state_present 原始取值）', example='true'),
+  time?: long(name='Time', description='日志时间（unix 秒）', example='1787474487'),
+  tokenizerPid?: string(name='TokenizerPid', description='tokenizer 进程号（日志 pid 字段）', example='12360'),
+  workerPid?: int32(name='WorkerPid', description='worker 进程号', example='12345'),
+}
+
+model RLProgressStage {
+  duration?: double(name='Duration', description='阶段耗时（秒，保留 3 位小数）；一个 step 常整体落在同一秒内，故不取整', example='0.483'),
+  endTime?: long(name='EndTime', description='阶段结束时间（unix 秒）', example='1787474487'),
+  key?: string(name='Key', description='阶段标识', example='traj'),
+  label?: string(name='Label', description='阶段中文名', example='生成轨迹'),
+  marker?: string(name='Marker', description='匹配该阶段的日志标记文案', example='start/end generation'),
+  optional?: boolean(name='Optional', description='是否为可选阶段；可选阶段未出现时状态记为 skipped', example='false'),
+  startTime?: long(name='StartTime', description='阶段开始时间（unix 秒）', example='1787474487'),
+  status?: string(name='Status', description='done / running / waiting / pending / skipped', example='done'),
+}
+
+model RLProgressStages {
+  currentIndex?: int32(name='CurrentIndex', description='当前所处阶段的下标', example='6'),
+  mode?: string(name='Mode', description='disagg / colocate / 空串', example='colocate'),
+  stages?: [
+    RLProgressStage
+  ](name='Stages', description='阶段列表，按流水线顺序', example='[{"Key":"generation","Label":"生成","Marker":"start/end generation","Optional":false,"Status":"done","StartTime":1787474487,"EndTime":1787474487,"Duration":0.483}]'),
+  stepDone?: boolean(name='StepDone', description='本 step 的阶段流水线是否已走完', example='false'),
+}
+
+model RLProgressStep {
+  current?: int32(name='Current', description='当前 step', example='3'),
+  etaSec?: long(name='EtaSec', description='预计剩余秒数，等于 (Total-Current) 乘 PaceSec', example='0'),
+  paceSec?: double(name='PaceSec', description='单步耗时（相邻两个 Step 标记差分，秒）', example='14'),
+  pct?: double(name='Pct', description='进度百分比，Current 占 Total 的比例', example='100'),
+  time?: long(name='Time', description='最新 Step 标记时间（unix 秒）', example='1787474487'),
+  total?: int32(name='Total', description='总步数（取自配置 dump）', example='3'),
+}
+
+model RLProgressSync {
+  cost?: double(name='Cost', description='参数同步耗时（秒），仅 State 为 end 时有值', example='1.5'),
+  state?: string(name='State', description='begin / end', example='end'),
+}
+
+model RLProgressTrainer {
+  micro?: RLProgressMicro(name='Micro', description='micro-batch 进度'),
+  miniIdx?: int32(name='MiniIdx', description='当前 mini batch 序号', example='1'),
+  numMinibatches?: int32(name='NumMinibatches', description='mini-batch 总数', example='4'),
+  sync?: RLProgressSync(name='Sync', description='参数同步状态'),
+}
+
+model RLSample {
+  latestDetail?: string(name='LatestDetail', description='最新事件的 detail', example='actor_parameters_updated'),
+  latestStage?: string(name='LatestStage', description='最新事件所处 stage', example='TRAIN_UPDATE'),
+  latestStatus?: string(name='LatestStatus', description='最新 sample_status', example='COMPLETE'),
+  latestTimestampMs?: long(name='LatestTimestampMs', description='最新事件毫秒时间戳', example='1787293215480'),
+  promptUid?: string(name='PromptUid', description='样本 uid', example='321fa56f-e1e5-4eb3-8047-db7a230c9a75'),
+  sampleIndex?: string(name='SampleIndex', description='轨迹序号（数字串）', example='2'),
+  terminalState?: string(name='TerminalState', description='终态：trained（已完成训练）/ 空串（在途）。当前框架不做过采样，故不会出现 discarded / cancelled', example='trained'),
+  traceCount?: long(name='TraceCount', description='该轨迹 trace 行数（含 B/C 类摊入）', example='10'),
+}
+
+model RLSampleEvent {
+  detail?: string(name='Detail', description='明细；megatron 行为 rank=..,global_step=..,ppo_epoch=..', example='uid_generated'),
+  from?: string(name='From', description='事件来源组件；megatron 行为 "{phase} {status}"', example='DataLoader'),
+  globalStep?: string(name='GlobalStep', description='事件所属训练步（原样字符串）；megatron 行为空，其 step 已折进 Detail', example='12'),
+  stage?: string(name='Stage', description='阶段；megatron 行归一为 TRAIN', example='DATA_PREPROCESS'),
+  timestampMs?: long(name='TimestampMs', description='毫秒时间戳', example='1787293208012'),
+  to?: string(name='To', description='事件目标组件；megatron 行为 func 名', example='PPOTrainerV1'),
+}
+
+model RLTrajectory {
+  latestTimestampMs?: long(name='LatestTimestampMs', description='最新事件毫秒时间戳', example='1787293215480'),
+  sampleIndex?: string(name='SampleIndex', description='轨迹序号', example='2'),
+  terminalState?: string(name='TerminalState', description='终态：trained（已完成训练）/ 空串（在途）。当前框架不做过采样，故不会出现 discarded / cancelled', example='trained'),
+  traceCount?: long(name='TraceCount', description='trace 行数', example='10'),
 }
 
 model ResourceConfig {
@@ -2714,6 +2963,7 @@ model UpdateJobRequest {
 
 *   1: the lowest priority.
 *   9: the highest priority.', example='5', position='Body'),
+  userCommand?: string(name='UserCommand', position='Body'),
 }
 
 model UpdateJobResponseBody = {
