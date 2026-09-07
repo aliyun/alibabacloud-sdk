@@ -1234,6 +1234,78 @@ async function getRemakeScriptJob(request: GetRemakeScriptJobRequest): GetRemake
   return getRemakeScriptJobWithOptions(request, runtime);
 }
 
+model GetVideoDetextJobRequest {
+  jobId?: string(name='JobId', description='The video text erasure task ID returned by SubmitVideoDetextJob.
+
+This parameter is required.', example='vdt_0123456789abcdef0123456789abcdef'),
+}
+
+model GetVideoDetextJobResponseBody = {
+  job?: {
+    errorCode?: string(name='ErrorCode', description='The business error code returned when the task fails. This field is typically not returned for non-failure states.', example='InvalidInput'),
+    errorMessage?: string(name='ErrorMessage', description='The business error message returned when the task fails. This field is typically not returned for non-failure states.', example='Input video is invalid.'),
+    input?: string(name='Input', description='The normalized input configuration JSON string saved at submission time.', example='{"VideoMediaId":"media-video-001"}'),
+    jobId?: string(name='JobId', description='The video text erasure task ID.', example='vdt_0123456789abcdef0123456789abcdef'),
+    jobParameters?: string(name='JobParameters', description='The normalized text erasure parameter JSON string.', example='{"EraseAllText":false,"TextTargets":[{"Box":[0.1,0.8,0.8,0.15],"TimeRanges":[[0,30]]}]}'),
+    jobType?: string(name='JobType', description='The task type. The value is fixed to VIDEO_DETEXT.', example='VIDEO_DETEXT'),
+    output?: string(name='Output', description='The task output JSON string. When the task succeeds, AiResult.DetextVideoURL contains the URL of the video with text erased.', example='{"AiResult":{"DetextVideoURL":"https://example.com/detext/detext.mp4"}}'),
+    status?: string(name='Status', description='The task status. Valid values: Created, Queuing, Executing, Finished, and Failed.', example='Finished'),
+  }(name='Job', description='The video text erasure task.'),
+  requestId?: string(name='RequestId', description='The request ID, which is used for Tracing Analysis and troubleshooting.', example='req-detext-get-20260820-001'),
+}
+
+model GetVideoDetextJobResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: GetVideoDetextJobResponseBody(name='body'),
+}
+
+/**
+ * @summary Queries the status, input parameters, and video result of a video text erasure task.
+ *
+ * @description Queries the status, input, parameters, and desired state result of a video text erasure task based on `JobId`.
+ *
+ * @param request GetVideoDetextJobRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return GetVideoDetextJobResponse
+ */
+@context("getVideoDetextJobWithContext")
+async function getVideoDetextJobWithOptions(request: GetVideoDetextJobRequest, runtime: $RuntimeOptions): GetVideoDetextJobResponse {
+  request.validate();
+  var body : map[string]any = {};
+  if (!$isNull(request.jobId)) {
+    body['JobId'] = request.jobId;
+  }
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'GetVideoDetextJob',
+    version = '2026-07-07',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Queries the status, input parameters, and video result of a video text erasure task.
+ *
+ * @description Queries the status, input, parameters, and desired state result of a video text erasure task based on `JobId`.
+ *
+ * @param request GetVideoDetextJobRequest
+ * @return GetVideoDetextJobResponse
+ */
+async function getVideoDetextJob(request: GetVideoDetextJobRequest): GetVideoDetextJobResponse {
+  var runtime = new $RuntimeOptions{};
+  return getVideoDetextJobWithOptions(request, runtime);
+}
+
 model GetVideoGenerationJobRequest {
   clientToken?: string(name='ClientToken', description='The idempotency token.', example='xxxx'),
   jobId?: string(name='JobId', description='The task ID.', example='68ca759e798b40b4903b255*******'),
@@ -2336,6 +2408,85 @@ async function submitRemakeScriptJobWithOptions(request: SubmitRemakeScriptJobRe
 async function submitRemakeScriptJob(request: SubmitRemakeScriptJobRequest): SubmitRemakeScriptJobResponse {
   var runtime = new $RuntimeOptions{};
   return submitRemakeScriptJobWithOptions(request, runtime);
+}
+
+model SubmitVideoDetextJobRequest {
+  clientToken?: string(name='ClientToken', description='The user-level idempotency token. The token can be up to 40 characters in length. If the same user submits a request with the same token, the original task is returned.', example='detext-client-20260820-001'),
+  input?: string(name='Input', description='The input configuration JSON string. You must specify either VideoUrl or VideoMediaId, but not both.
+
+This parameter is required.', example='{"VideoMediaId":"media-video-001"}'),
+  jobParameters?: string(name='JobParameters', description='The text erasure parameter JSON string. This parameter can contain EraseAllText, TimeRanges, TextTargets, FullEraseTargets, and Config.', example='{"EraseAllText":false,"TextTargets":[{"Box":[0.1,0.8,0.8,0.15],"TimeRanges":[[0,30]]}]}'),
+  output?: string(name='Output', description='The output configuration JSON string. You can use OssUri to specify the customer\\\\"s OSS bucket. If a directory is specified, the output file is named detext.mp4.', example='{"OssUri":"oss://example-bucket/video-detext/job-001/"}'),
+  userData?: string(name='UserData', description='The custom user data JSON string. This parameter can contain the asynchronous notification address NotifyAddress.', example='{"NotifyAddress":"mns://account.mns.cn-shanghai.aliyuncs.com/queues/detext-result"}'),
+}
+
+model SubmitVideoDetextJobResponseBody = {
+  jobId?: string(name='JobId', description='The video text erasure job ID. You can use this ID to call GetVideoDetextJob to query the job status.', example='vdt_0123456789abcdef0123456789abcdef'),
+  requestId?: string(name='RequestId', description='The request ID, which is used for Tracing Analysis and troubleshooting.', example='req-detext-20260820-001'),
+}
+
+model SubmitVideoDetextJobResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: SubmitVideoDetextJobResponseBody(name='body'),
+}
+
+/**
+ * @summary Submits an asynchronous video text erasure task that supports full-video erasure, time range-based erasure, and region-specific erasure.
+ *
+ * @description Submits an asynchronous video text erasure task. The input can be an accessible video URL or a media asset ID. You can configure the erasure time range and text regions.
+ *
+ * @param request SubmitVideoDetextJobRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return SubmitVideoDetextJobResponse
+ */
+@context("submitVideoDetextJobWithContext")
+async function submitVideoDetextJobWithOptions(request: SubmitVideoDetextJobRequest, runtime: $RuntimeOptions): SubmitVideoDetextJobResponse {
+  request.validate();
+  var body : map[string]any = {};
+  if (!$isNull(request.clientToken)) {
+    body['ClientToken'] = request.clientToken;
+  }
+  if (!$isNull(request.input)) {
+    body['Input'] = request.input;
+  }
+  if (!$isNull(request.jobParameters)) {
+    body['JobParameters'] = request.jobParameters;
+  }
+  if (!$isNull(request.output)) {
+    body['Output'] = request.output;
+  }
+  if (!$isNull(request.userData)) {
+    body['UserData'] = request.userData;
+  }
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'SubmitVideoDetextJob',
+    version = '2026-07-07',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Submits an asynchronous video text erasure task that supports full-video erasure, time range-based erasure, and region-specific erasure.
+ *
+ * @description Submits an asynchronous video text erasure task. The input can be an accessible video URL or a media asset ID. You can configure the erasure time range and text regions.
+ *
+ * @param request SubmitVideoDetextJobRequest
+ * @return SubmitVideoDetextJobResponse
+ */
+async function submitVideoDetextJob(request: SubmitVideoDetextJobRequest): SubmitVideoDetextJobResponse {
+  var runtime = new $RuntimeOptions{};
+  return submitVideoDetextJobWithOptions(request, runtime);
 }
 
 model SubmitVideoGenerationJobRequest {
