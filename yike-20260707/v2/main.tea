@@ -10,11 +10,7 @@ extends OpenApi;
 init(config: OpenApiUtil.Config){
   super(config);
   @endpointRule = 'regional';
-  @endpointMap = {
-    'cn-shanghai' = 'yike.cn-shanghai.aliyuncs.com',
-    'ap-southeast-1' = 'yike.ap-southeast-1.aliyuncs.com',
-  };
-
+  
   checkConfig(config);
   @endpoint = getEndpoint('yike', @regionId, @endpointRule, @network, @suffix, @endpointMap, @endpoint);
 }
@@ -32,7 +28,9 @@ function getEndpoint(productId: string, regionId: string, endpointRule: string, 
 
 model BatchGetMediasRequest {
   authTimeout?: long(name='AuthTimeout', description='The validity period of the signed file access URL. Unit: seconds.', example='3600'),
+  bizConfig?: string(name='BizConfig'),
   mediaIds?: string(name='MediaIds', description='The IDs of the media assets to query, separated by commas.', example='******b48fb04483915d4f2cd8******,******c48fb37407365d4f2cd8******'),
+  returnDynamicMeta?: boolean(name='ReturnDynamicMeta'),
 }
 
 model BatchGetMediasResponseBody = {
@@ -46,8 +44,8 @@ model BatchGetMediasResponseBody = {
               bitrate?: string(name='Bitrate', description='The bitrate of the file.', example='48236800'),
               channelLayout?: string(name='ChannelLayout', description='The channel output layout.', example='-'),
               channels?: string(name='Channels', description='The number of audio channels.', example='https://oapi.dingtalk.com/robot/send?access_token=fe58c6512a1c59524c199577c833abee23f9a16bc549815ca157c46d28fe6ffa'),
-              codecLongName?: string(name='CodecLongName', description='The long name of the codec.', example='xx'),
-              codecName?: string(name='CodecName', description='The short name of the codec.', example='H264'),
+              codecLongName?: string(name='CodecLongName', description='The long name of the codec format.', example='xx'),
+              codecName?: string(name='CodecName', description='The short name of the codec format.', example='H264'),
               codecTag?: string(name='CodecTag', description='The codec tag.', example='xx'),
               codecTagString?: string(name='CodecTagString', description='The codec tag string.', example='xx'),
               codecTimeBase?: string(name='CodecTimeBase', description='The codec time base.', example='xx'),
@@ -78,8 +76,8 @@ model BatchGetMediasResponseBody = {
           }(name='FileBasicInfo', description='The basic file information, including the duration and size.'),
           subtitleStreamInfoList?: [ 
             {
-              codecLongName?: string(name='CodecLongName', description='The long name of the codec.', example='xx'),
-              codecName?: string(name='CodecName', description='The short name of the codec.', example='H264'),
+              codecLongName?: string(name='CodecLongName', description='The long name of the codec format.', example='xx'),
+              codecName?: string(name='CodecName', description='The short name of the codec format.', example='H264'),
               codecTag?: string(name='CodecTag', description='The codec tag.', example='xx'),
               codecTagString?: string(name='CodecTagString', description='The codec tag string.', example='xx'),
               codecTimeBase?: string(name='CodecTimeBase', description='The codec time base.', example='xx'),
@@ -94,8 +92,8 @@ model BatchGetMediasResponseBody = {
             {
               avgFPS?: string(name='AvgFPS', description='The average frame rate.', example='xx'),
               bitrate?: string(name='Bitrate', description='The bitrate of the file.', example='23736607'),
-              codecLongName?: string(name='CodecLongName', description='The long name of the codec.', example='xx'),
-              codecName?: string(name='CodecName', description='The short name of the codec.', example='H264'),
+              codecLongName?: string(name='CodecLongName', description='The long name of the codec format.', example='xx'),
+              codecName?: string(name='CodecName', description='The short name of the codec format.', example='H264'),
               codecTag?: string(name='CodecTag', description='The codec tag.', example='xx'),
               codecTagString?: string(name='CodecTagString', description='The codec tag string.', example='xx'),
               codecTimeBase?: string(name='CodecTimeBase', description='The codec time base.', example='xx'),
@@ -171,8 +169,14 @@ async function batchGetMediasWithOptions(request: BatchGetMediasRequest, runtime
   if (!$isNull(request.authTimeout)) {
     query['AuthTimeout'] = request.authTimeout;
   }
+  if (!$isNull(request.bizConfig)) {
+    query['BizConfig'] = request.bizConfig;
+  }
   if (!$isNull(request.mediaIds)) {
     query['MediaIds'] = request.mediaIds;
+  }
+  if (!$isNull(request.returnDynamicMeta)) {
+    query['ReturnDynamicMeta'] = request.returnDynamicMeta;
   }
   var req = new OpenApiUtil.OpenApiRequest{ 
     query = OpenApiUtil.query(query),
@@ -488,14 +492,15 @@ async function deleteInfiniteCanvas(request: DeleteInfiniteCanvasRequest): Delet
 }
 
 model DeleteMediasRequest {
+  bizConfig?: string(name='BizConfig'),
   deletePhysicalFiles?: boolean(name='DeletePhysicalFiles', description='Specifies whether to delete the physical files at the same time.', example='false'),
   inputURLs?: string(name='InputURLs', description='Not supported.'),
-  mediaIds?: string(name='MediaIds', description='The media asset IDs, separated by commas. Invalid IDs are added to the IgnoredList.', example='******b48fb04483915d4f2cd8******,******c48fb37407365d4f2cd8******'),
+  mediaIds?: string(name='MediaIds', description='The media asset IDs, separated by commas. Invalid IDs are added to IgnoredList.', example='******b48fb04483915d4f2cd8******,******c48fb37407365d4f2cd8******'),
 }
 
 model DeleteMediasResponseBody = {
-  forbiddenList?: [ string ](name='ForbiddenList', description='The IDs or input URLs that are forbidden to delete.'),
-  ignoredList?: [ string ](name='IgnoredList', description='The ignored IDs or input URLs (invalid or items with retrieval errors).'),
+  forbiddenList?: [ string ](name='ForbiddenList', description='The IDs or input URLs that are forbidden from being deleted.'),
+  ignoredList?: [ string ](name='IgnoredList', description='The ignored IDs or input URLs, which are invalid or have retrieval errors.'),
   requestId?: string(name='RequestId', description='The request ID.', example='******11-DB8D-4A9A-875B-275798******'),
 }
 
@@ -516,6 +521,9 @@ model DeleteMediasResponse = {
 async function deleteMediasWithOptions(request: DeleteMediasRequest, runtime: $RuntimeOptions): DeleteMediasResponse {
   request.validate();
   var query = {};
+  if (!$isNull(request.bizConfig)) {
+    query['BizConfig'] = request.bizConfig;
+  }
   if (!$isNull(request.deletePhysicalFiles)) {
     query['DeletePhysicalFiles'] = request.deletePhysicalFiles;
   }
@@ -733,7 +741,7 @@ model GetImageGenerationJobRequest {
 model GetImageGenerationJobResponseBody = {
   imageGenerationJob?: {
     aspectRatio?: string(name='AspectRatio', description='The video aspect ratio.', example='16:9'),
-    errorMessage?: string(name='ErrorMessage', description='The error message. This parameter is of the String type and is returned when the task is in the Failed state.', example='Input file not found.'),
+    errorMessage?: string(name='ErrorMessage', description='The error message. This parameter is returned only when the task is in the Failed state.', example='Input file not found.'),
     input?: string(name='Input', description='The task input.', example='{"Prompt":"Image 1 is on a basketball court, using Image 2 to perform a slam dunk"}'),
     jobId?: string(name='JobId', description='The task ID.', example='ag_68ca759b4903b255*******'),
     jobParameters?: string(name='JobParameters', description='The task feature configuration. No configuration is required at this time.', example='{}'),
@@ -879,8 +887,9 @@ async function getInfiniteCanvas(request: GetInfiniteCanvasRequest): GetInfinite
 
 model GetMediaRequest {
   authTimeout?: long(name='AuthTimeout', description='The validity period of the signed file URL. Unit: seconds.', example='3600'),
+  bizConfig?: string(name='BizConfig'),
   inputURL?: string(name='InputURL', description='Currently unavailable.', example='https://example-bucket.oss-cn-shanghai.aliyuncs.com/example.mp4'),
-  mediaId?: string(name='MediaId', description='The media asset ID. If this parameter is not empty, the system queries the media asset by this ID and validates whether the value is a valid MediaId.', example='****20b48fb04483915d4f2cd8ac****'),
+  mediaId?: string(name='MediaId', description='The media asset ID. If this parameter is not empty, the query is performed based on this parameter, and the system verifies whether the value is a valid MediaId.', example='****20b48fb04483915d4f2cd8ac****'),
 }
 
 model GetMediaResponseBody = {
@@ -891,7 +900,7 @@ model GetMediaResponseBody = {
           {
             bitrate?: string(name='Bitrate', description='The bitrate.', example='192.0'),
             channelLayout?: string(name='ChannelLayout', description='The channel layout.', example='stereo'),
-            channels?: string(name='Channels', description='The number of audio channels.', example='2'),
+            channels?: string(name='Channels', description='The number of channels.', example='2'),
             codecLongName?: string(name='CodecLongName', description='The long name of the codec.', example='AAC (Advanced Audio Coding)'),
             codecName?: string(name='CodecName', description='The short name of the codec.', example='aac'),
             codecTag?: string(name='CodecTag', description='The codec tag.', example='0x6134706d'),
@@ -902,7 +911,7 @@ model GetMediaResponseBody = {
             index?: string(name='Index', description='The index of the audio stream.', example='1'),
             lang?: string(name='Lang', description='The language.', example='zh'),
             numFrames?: string(name='NumFrames', description='The total number of frames.', example='10'),
-            profile?: string(name='Profile', description='The encoding profile.', example='High'),
+            profile?: string(name='Profile', description='The codec profile.', example='High'),
             sampleFmt?: string(name='SampleFmt', description='The sample format.', example='fltp'),
             sampleRate?: string(name='SampleRate', description='The sample rate.', example='44100'),
             startTime?: string(name='StartTime', description='The start time.', example='2026-02-04T02:13:00Z'),
@@ -914,14 +923,14 @@ model GetMediaResponseBody = {
           createTime?: string(name='CreateTime', description='The time when the file was created.', example='2020-12-26T04:11:08Z'),
           duration?: string(name='Duration', description='The duration.', example='6'),
           fileName?: string(name='FileName', description='The file name.', example='example.mp4'),
-          fileSize?: string(name='FileSize', description='The file size in bytes.', example='27007'),
+          fileSize?: string(name='FileSize', description='The file size, in bytes.', example='27007'),
           fileStatus?: string(name='FileStatus', description='The file status.', example='Normal'),
           fileType?: string(name='FileType', description='The file type.', example='source_file'),
           fileUrl?: string(name='FileUrl', description='The OSS URL of the file.', example='http://example-bucket.oss-cn-shanghai.aliyuncs.com/example.mp4?Expires=<ExpireTime>&OSSAccessKeyId=<OSSAccessKeyId>&Signature=<Signature>&security-token=<SecurityToken>'),
           formatName?: string(name='FormatName', description='The container format.', example='mp4'),
           height?: string(name='Height', description='The height.', example='540'),
           modifiedTime?: string(name='ModifiedTime', description='The time when the file was last modified.', example='2020-12-26T04:11:10Z'),
-          region?: string(name='Region', description='The storage region of the file.', example='cn-shanghai'),
+          region?: string(name='Region', description='The region where the file is stored.', example='cn-shanghai'),
           width?: string(name='Width', description='The width.', example='960'),
         }(name='FileBasicInfo', description='The basic file information, including duration and size.'),
         subtitleStreamInfoList?: [ 
@@ -950,7 +959,7 @@ model GetMediaResponseBody = {
             dar?: string(name='Dar', description='The display aspect ratio (DAR).', example='0:1'),
             duration?: string(name='Duration', description='The duration.', example='216.206706'),
             fps?: string(name='Fps', description='The video frame rate.', example='24.0'),
-            hasBFrames?: string(name='HasBFrames', description='Indicates whether the video stream contains B-frames.', example='2'),
+            hasBFrames?: string(name='HasBFrames', description='Indicates whether B-frames exist.', example='2'),
             height?: string(name='Height', description='The height.', example='540'),
             index?: string(name='Index', description='The video stream index.', example='0'),
             lang?: string(name='Lang', description='The language.', example='zh'),
@@ -958,28 +967,28 @@ model GetMediaResponseBody = {
             nbFrames?: string(name='Nb_frames', description='The total number of frames.', example='xxx'),
             numFrames?: string(name='NumFrames', description='The total number of frames.', example='5184'),
             pixFmt?: string(name='PixFmt', description='The pixel format.', example='yuv420p'),
-            profile?: string(name='Profile', description='The encoding profile.', example='High'),
+            profile?: string(name='Profile', description='The codec profile.', example='High'),
             rotate?: string(name='Rotate', description='The rotation angle.', example='0'),
             sar?: string(name='Sar', description='The sample aspect ratio (SAR).', example='0:1'),
             startTime?: string(name='StartTime', description='The start time.', example='2025-08-04T12:00:00Z'),
             timebase?: string(name='Timebase', description='The time base.', example='1/12288'),
             width?: string(name='Width', description='The width.', example='960'),
           }
-        ](name='VideoStreamInfoList', description='The video stream information. A media asset may contain multiple video streams.'),
+        ](name='VideoStreamInfoList', description='The video stream information. A media asset may have multiple video streams.'),
       }
     ](name='FileInfoList', description='The list of file information.'),
     mediaBasicInfo?: {
-      businessType?: string(name='BusinessType', description='The business type of the media asset (currently unavailable).', example='general'),
+      businessType?: string(name='BusinessType', description='The business type of the media asset. This parameter is currently unavailable.', example='general'),
       categoryId?: long(name='CategoryId'),
       categoryName?: string(name='CategoryName'),
       coverURL?: string(name='CoverURL', description='The cover URL, which is an authenticated access URL.', example='https://dtlive-vip.oss-cn-shanghai.aliyuncs.com/cover/4e88a055-75fc-4ff5-8b8a-f32224917514_open_live_cover.jpg'),
-      createTime?: string(name='CreateTime', description='The time when the media asset was created.', example='2020-12-26T04:11:08Z'),
-      description?: string(name='Description', description='The content description (the request parameter value of the register media asset API).', example='description'),
+      createTime?: string(name='CreateTime', description='The creation time of the media asset.', example='2020-12-26T04:11:08Z'),
+      description?: string(name='Description', description='The content description. This is the request parameter value of the RegisterMediaInfo API operation.', example='description'),
       entityId?: string(name='EntityId', description='The entity ID.', example='1586676'),
-      inputURL?: string(name='InputURL', description='The publicly accessible HTTP URL (the request parameter value of the register media asset API).', example='https://example-bucket.oss-cn-shanghai.aliyuncs.com/example.mp4'),
+      inputURL?: string(name='InputURL', description='The publicly accessible HTTP URL. This is the request parameter value of the RegisterMediaInfo API operation.', example='https://example-bucket.oss-cn-shanghai.aliyuncs.com/example.mp4'),
       mediaId?: string(name='MediaId', description='The media asset ID.', example='****20b48fb04483915d4f2cd8ac****'),
-      mediaTags?: string(name='MediaTags', description='The tags, separated by commas (the request parameter value of the register media asset API).', example='pitaya,prd-wuxi,248'),
-      mediaType?: string(name='MediaType', description='The media type of the media asset: image/audio/video.', example='image'),
+      mediaTags?: string(name='MediaTags', description='The tags, separated by commas. This is the request parameter value of the RegisterMediaInfo API operation.', example='pitaya,prd-wuxi,248'),
+      mediaType?: string(name='MediaType', description='The media type of the media asset. Valid values: image, audio, and video.', example='image'),
       modifiedTime?: string(name='ModifiedTime', description='The time when the media asset was last modified.', example='2020-12-26T04:11:08Z'),
       snapshots?: string(name='Snapshots', description='The snapshots.', example='[]'),
       source?: string(name='Source', description='The source (currently unavailable).', example='/'),
@@ -991,7 +1000,7 @@ model GetMediaResponseBody = {
     }(name='MediaBasicInfo', description='The basic information of the media asset.'),
     mediaDynamicInfo?: {
       dynamicMetaData?: {
-        data?: string(name='Data', description='The dynamic metadata content.', example='{}'),
+        data?: string(name='Data', description='The content of the dynamic metadata.', example='{}'),
         entityId?: string(name='EntityId', description='The entity ID.', example='4614131'),
         type?: string(name='Type', description='Currently not in use.', example='1'),
       }(name='DynamicMetaData', description='The dynamic metadata.'),
@@ -1010,7 +1019,8 @@ model GetMediaResponse = {
 /**
  * @summary Queries a media asset.
  *
- * @description ## Operation description.
+ * @description ## Operation description
+ * This API operation is used to query a media content analysis job.
  *
  * @param request GetMediaRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -1022,6 +1032,9 @@ async function getMediaWithOptions(request: GetMediaRequest, runtime: $RuntimeOp
   var query = {};
   if (!$isNull(request.authTimeout)) {
     query['AuthTimeout'] = request.authTimeout;
+  }
+  if (!$isNull(request.bizConfig)) {
+    query['BizConfig'] = request.bizConfig;
   }
   if (!$isNull(request.inputURL)) {
     query['InputURL'] = request.inputURL;
@@ -1049,7 +1062,8 @@ async function getMediaWithOptions(request: GetMediaRequest, runtime: $RuntimeOp
 /**
  * @summary Queries a media asset.
  *
- * @description ## Operation description.
+ * @description ## Operation description
+ * This API operation is used to query a media content analysis job.
  *
  * @param request GetMediaRequest
  * @return GetMediaResponse
@@ -1231,19 +1245,19 @@ model GetVideoGenerationJobResponseBody = {
     aspectRatio?: string(name='AspectRatio', description='The aspect ratio.', example='16:9'),
     duration?: string(name='Duration', description='The video duration. Unit: seconds.', example='5'),
     errorMessage?: string(name='ErrorMessage', description='The error message. This parameter is returned only when the task is in the Failed state.', example='Input file not found.'),
-    input?: string(name='Input', description='The task input.', example='{"Prompt":"Person in image 1 is on a basketball court, dunking with the appearance from image 2","Medias":[{"Type":"image","Url":"https://xxx/xxx.jpg"},{"Type":"image","Url":"https://xxx/xxx.jpg"}]}'),
+    input?: string(name='Input', description='The task input.', example='{"Prompt":"Person in image 1 is on a basketball court, dunking with image 2","Medias":[{"Type":"image","Url":"https://xxx/xxx.jpg"},{"Type":"image","Url":"https://xxx/xxx.jpg"}]}'),
     jobId?: string(name='JobId', description='The task ID.', example='fdc7f121056249c2b64e04bba27bcc8c'),
     jobParameters?: string(name='JobParameters', description='The task feature configuration. No configuration is required at this time.', example='{}'),
     jobType?: string(name='JobType', description='The task type.', example='first_last_frame'),
     model?: string(name='Model', description='The model name.', example='happyhorse-1.1'),
     n?: int32(name='N', description='The number of generated videos.', example='1'),
-    output?: string(name='Output', description='The generation result. The value is a JSON string that contains the following fields:
+    output?: string(name='Output', description='The generation result in JsonString format, which contains:
 
-Medias: a list of media information (Media objects). The Media object contains the following fields:
+Medias: a list of media information (Media objects). Fields of a Media object:
 MediaId: String. The media asset ID.
 OutputUrl: String. The media URL (with authentication string).', example='{\\\\"Medias\\\\":[{\\\\"MediaId\\\\":\\\\"*****470732171f1bfcaf7f6d44*****\\\\",\\\\"OutputUrl\\\\":\\\\"https://xxxxxxx/.../xxxxx.mp4?Expires=xxxx&OSSAccessKeyId=xxx&Signature=xxxx\\\\"}]}'),
     resolution?: string(name='Resolution', description='The resolution.', example='720P'),
-    scene?: string(name='Scene', description='The scene type. Currently, only general is supported.', example='general'),
+    scene?: string(name='Scene', description='The scene type. Currently only general is supported.', example='general'),
     status?: string(name='Status', description='The task status. Valid values:
 
 - Created: The task is created.
@@ -1379,25 +1393,25 @@ async function getVideoRenderJob(request: GetVideoRenderJobRequest): GetVideoRen
 }
 
 model GetVideoTranslationJobRequest {
-  jobId?: string(name='JobId', description='The task ID returned by `SubmitVideoTranslationJob`.
+  jobId?: string(name='JobId', description='The video translation job ID returned by SubmitVideoTranslationJob.
 
-This parameter is required.', example='vtj_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx'),
+This parameter is required.', example='vtj_0123456789abcdef0123456789abcdef'),
 }
 
 model GetVideoTranslationJobResponseBody = {
   job?: {
-    duration?: double(name='Duration', description='The duration of the input video, in seconds.', example='10.0'),
-    editingProjectId?: string(name='EditingProjectId', description='The editing project ID.', example='ba50304145fd411c827239c398820267'),
-    errorCode?: string(name='ErrorCode', description='Optional. The error code returned when the task ultimately fails.', example='InvalidInput'),
-    errorMessage?: string(name='ErrorMessage', description='Optional. The error message returned when the task ultimately fails.', example='Input is invalid.'),
-    input?: string(name='Input', description='The normalized Input JSON.', example='{"Video":"https://example.com/input.mp4"}'),
-    jobId?: string(name='JobId', description='The task ID.', example='vtj_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx'),
-    jobParameters?: string(name='JobParameters', description='The normalized JobParameters JSON, including default values.', example='{"NeedDetext":true,"SubtitleFrom":"default","SourceLanguage":"zh","TargetLanguage":"en","NeedVisualTranslate":true}'),
-    jobType?: string(name='JobType', description='The normalized task type.', example='VoiceTranslate'),
-    output?: string(name='Output', description='The JSON string of the final task result.', example='{"AiResult":{"ResultMap":{"ja":{"EditingProjectId":"editing-project-xxx","MediaURL":"https://example.com/bucket/prefix/ja/result.mp4"}}}}'),
-    status?: string(name='Status', description='The task status. Valid values: Created, Queuing, Executing, Finished, and Failed.', example='Executing'),
-  }(name='Job', description='The video translation task.'),
-  requestId?: string(name='RequestId', description='The request ID.', example='request-id'),
+    duration?: double(name='Duration', description='The input video duration, in seconds.', example='60.5'),
+    editingProjectId?: string(name='EditingProjectId', description='The editing project ID for a single-target-language job. For multi-target-language results, retrieve the ID from Output.AiResult.ResultMap.', example='editing-project-001'),
+    errorCode?: string(name='ErrorCode', description='The business error code returned when the job fails. This field is typically not returned for non-failed states.', example='InvalidInput'),
+    errorMessage?: string(name='ErrorMessage', description='The business error message returned when the job fails. This field is typically not returned for non-failed states.', example='Input video is invalid.'),
+    input?: string(name='Input', description='The normalized input configuration JSON string saved at submission time.', example='{"VideoMediaId":"media-video-001"}'),
+    jobId?: string(name='JobId', description='The video translation job ID.', example='vtj_0123456789abcdef0123456789abcdef'),
+    jobParameters?: string(name='JobParameters', description='The normalized job parameters JSON string, including default values supplemented by the service.', example='{"SourceLanguage":"zh","TargetLanguage":"en","SubtitleFrom":"default","NeedDetext":false,"NeedVisualTranslate":false}'),
+    jobType?: string(name='JobType', description='The normalized job type.', example='VoiceTranslate'),
+    output?: string(name='Output', description='The job output JSON string. When the job succeeds, AiResult.ResultMap organizes the final video, subtitle, and audio outputs by target language.', example='{"AiResult":{"ResultMap":{"en":{"EditingProjectId":"editing-project-001","MediaURL":"https://example.com/video-translation/en/result.mp4","MediaId":"media-output-001"}}}}'),
+    status?: string(name='Status', description='The job status. Valid values: Created, Queuing, Executing, Finished, or Failed.', example='Finished'),
+  }(name='Job', description='The video translation job.'),
+  requestId?: string(name='RequestId', description='The request ID, used for Tracing Analysis and troubleshooting.', example='req-vt-get-20260820-001'),
 }
 
 model GetVideoTranslationJobResponse = {
@@ -1407,15 +1421,9 @@ model GetVideoTranslationJobResponse = {
 }
 
 /**
- * @summary Queries the status and result of a video translation task by the specified ID.
+ * @summary Queries the status, input parameters, and multilingual outputs of a video translation job.
  *
- * @description ## Request description
- * - This API retrieves the status and details of a video translation task based on the `JobId`.
- * - `JobId` is a required parameter, passed through query or form.
- * - If the task does not exist or does not belong to the current caller, the `InvalidParameter` error code with HTTP status code 400 is returned.
- * - On a successful response, the HTTP status code is 200, and the task object is located in `data.Job`.
- * - When the task is completed (`Status=Finished`), the output artifacts can be found in the `data.Job.Output` field. The client needs to perform a JSON parse to obtain the specific results.
- * - For tasks with multiple target languages, use `Output.AiResult.ResultMap` directly to obtain the specific results for each language. If there is only one target language, you can conveniently obtain the editing project ID through `data.Job.EditingProjectId`.
+ * @description Queries the status, input, parameters, and desired state results of a video translation job based on the `JobId`.
  *
  * @param request GetVideoTranslationJobRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -1446,15 +1454,9 @@ async function getVideoTranslationJobWithOptions(request: GetVideoTranslationJob
 }
 
 /**
- * @summary Queries the status and result of a video translation task by the specified ID.
+ * @summary Queries the status, input parameters, and multilingual outputs of a video translation job.
  *
- * @description ## Request description
- * - This API retrieves the status and details of a video translation task based on the `JobId`.
- * - `JobId` is a required parameter, passed through query or form.
- * - If the task does not exist or does not belong to the current caller, the `InvalidParameter` error code with HTTP status code 400 is returned.
- * - On a successful response, the HTTP status code is 200, and the task object is located in `data.Job`.
- * - When the task is completed (`Status=Finished`), the output artifacts can be found in the `data.Job.Output` field. The client needs to perform a JSON parse to obtain the specific results.
- * - For tasks with multiple target languages, use `Output.AiResult.ResultMap` directly to obtain the specific results for each language. If there is only one target language, you can conveniently obtain the editing project ID through `data.Job.EditingProjectId`.
+ * @description Queries the status, input, parameters, and desired state results of a video translation job based on the `JobId`.
  *
  * @param request GetVideoTranslationJobRequest
  * @return GetVideoTranslationJobResponse
@@ -1593,6 +1595,7 @@ async function getYikeJobCredit(request: GetYikeJobCreditRequest): GetYikeJobCre
 }
 
 model ImportMediaRequest {
+  bizConfig?: string(name='BizConfig'),
   categoryId?: long(name='CategoryId'),
   coverURL?: string(name='CoverURL', description='The cover image URL. This parameter is valid only for video media assets.', example='https://outin-55c9ab3fb1b911ee817b00163e32b0a3.oss-cn-shanghai.aliyuncs.com/60425a2758a971f181385017f0e90102/covers/ice-generated/d4aee2d6c6f84769ac89f18c667699c6-cover.png'),
   description?: string(name='Description', description='The description of the media asset.', example='OK'),
@@ -1600,12 +1603,13 @@ model ImportMediaRequest {
   entityId?: string(name='EntityId', description='The entity ID.', example='urn:cruise:mock-saml-idp'),
   importSource?: string(name='ImportSource', description='The media asset source. Set this parameter to url.', example='url'),
   inputURL?: string(name='InputURL', description='The URL of the media asset.', example='https://example-bucket.oss-cn-shanghai.aliyuncs.com/example.mp4'),
-  mediaTags?: string(name='MediaTags', description='The tags of the media asset. Separate multiple tags with commas.', example='AdvancedImageToVideo,AIGenerated.'),
+  mediaTags?: string(name='MediaTags', description='The tags of the media asset. Separate multiple tags with commas (,).', example='AdvancedImageToVideo,AIGenerated'),
   mediaType?: string(name='MediaType', description='The type of the media asset.', example='video'),
   overwrite?: boolean(name='Overwrite', description='Specifies whether to overwrite existing media assets.', example='True'),
   registerConfig?: string(name='RegisterConfig', description='The configuration for registering the media asset.', example='{\\\\"SearchLibName\\\\":\\\\"AiSaasLib_34140718_MA\\\\"}'),
   title?: string(name='Title', description='The title of the media asset.', example='title'),
-  userData?: string(name='UserData', description='The user data. The maximum size is 1024 bytes.', example='{}'),
+  userData?: string(name='UserData', description='The user data. Maximum length: 1024 bytes.', example='{}'),
+  yikeAssetConfig?: string(name='YikeAssetConfig'),
 }
 
 model ImportMediaResponseBody = {
@@ -1622,8 +1626,8 @@ model ImportMediaResponse = {
 /**
  * @summary Imports a media asset.
  *
- * @description ## Operation description
- * This API is used to query media content understanding jobs.
+ * @description ## Request description
+ * This API is used to query media content analysis jobs.
  *
  * @param request ImportMediaRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -1633,6 +1637,9 @@ model ImportMediaResponse = {
 async function importMediaWithOptions(request: ImportMediaRequest, runtime: $RuntimeOptions): ImportMediaResponse {
   request.validate();
   var query = {};
+  if (!$isNull(request.bizConfig)) {
+    query['BizConfig'] = request.bizConfig;
+  }
   if (!$isNull(request.categoryId)) {
     query['CategoryId'] = request.categoryId;
   }
@@ -1672,6 +1679,9 @@ async function importMediaWithOptions(request: ImportMediaRequest, runtime: $Run
   if (!$isNull(request.userData)) {
     query['UserData'] = request.userData;
   }
+  if (!$isNull(request.yikeAssetConfig)) {
+    query['YikeAssetConfig'] = request.yikeAssetConfig;
+  }
   var req = new OpenApiUtil.OpenApiRequest{ 
     query = OpenApiUtil.query(query),
   };
@@ -1692,8 +1702,8 @@ async function importMediaWithOptions(request: ImportMediaRequest, runtime: $Run
 /**
  * @summary Imports a media asset.
  *
- * @description ## Operation description
- * This API is used to query media content understanding jobs.
+ * @description ## Request description
+ * This API is used to query media content analysis jobs.
  *
  * @param request ImportMediaRequest
  * @return ImportMediaResponse
@@ -1728,7 +1738,7 @@ model ListAssetCategoriesResponse = {
 }
 
 /**
- * @summary Retrieves a paginated list of categories.
+ * @summary Retrieves a paged list of categories.
  *
  * @param request ListAssetCategoriesRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -1762,7 +1772,7 @@ async function listAssetCategoriesWithOptions(request: ListAssetCategoriesReques
 }
 
 /**
- * @summary Retrieves a paginated list of categories.
+ * @summary Retrieves a paged list of categories.
  *
  * @param request ListAssetCategoriesRequest
  * @return ListAssetCategoriesResponse
@@ -1878,16 +1888,20 @@ async function listInfiniteCanvases(request: ListInfiniteCanvasesRequest): ListI
 }
 
 model SearchMediaRequest {
-  categoryId?: long(name='CategoryId', description='The category ID. You can obtain the ID by using the following methods:', example='10'),
-  match?: string(name='Match', description='The filter condition. For syntax rules, see [Media asset search protocol](https://www.alibabacloud.com/help/en/ims/developer-reference/media-asset-search-filter-description).', example='title = \\\\"China\\\\" and utcCreate = [\\\\"1693367158561\\\\",\\\\"1693367158562\\\\"]'),
+  bizConfig?: string(name='BizConfig'),
+  categoryId?: long(name='CategoryId', description='The category ID. You can obtain the category ID by using the following methods:
+
+- When you create a category by calling the CreateAssetCategory operation, the category ID is the value of CategoryId in the response.
+- When you query categories by calling the ListAssetCategories operation, the category ID is the value of CategoryId in the corresponding entry of the response.', example='10'),
+  match?: string(name='Match', description='The filter conditions. For syntax rules, see [Media asset search protocol](https://www.alibabacloud.com/help/en/ims/developer-reference/media-asset-search-filter-description).', example='title = \\\\"China\\\\" and utcCreate = [\\\\"1693367158561\\\\",\\\\"1693367158562\\\\"]'),
   pageNo?: int32(name='PageNo', description='The current page number. Default value: 1.', example='1'),
-  pageSize?: int32(name='PageSize', description='The number of entries to return per page. Default value: 10. Maximum value: 50.', example='10'),
-  scrollToken?: string(name='ScrollToken', description='The pagination token. A 32-character string. You do not need to set this parameter for the first search request. When the search request matches data, the server returns this parameter value to record the current position of the search data. Record the returned parameter value and set this parameter in the next search request based on the following requirements or suggestions: This parameter must be set if you want to traverse all data that matches the search conditions. If the PageNo parameter value exceeds 200, set this parameter to optimize search performance. You can only page forward, with a maximum paging distance of 1000 media assets.', example='F8C4F642184DBDA5D93907A70AAE****'),
-  sortBy?: string(name='SortBy', description='The sort fields and sort orders, separated by commas (,). Format: field1:Desc,field2:Asc. The direction can only be Asc or Desc.', example='utcCreate:Desc'),
+  pageSize?: int32(name='PageSize', description='The number of entries per page. Default value: 10. Maximum value: 50.', example='10'),
+  scrollToken?: string(name='ScrollToken', description='The pagination token. The value is a 32-character string. Do not set this parameter for the first search request. When the search request matches data, the server returns this parameter value to record the current position of the search data. Record the returned parameter value and set this parameter in the next search request based on the following requirements or recommendations: This parameter is required if you want to traverse all data that matches the search conditions. If the PageNo parameter value exceeds 200, set this parameter to optimize search performance. You can only page forward, and the maximum paging distance is 1000 media assets.', example='F8C4F642184DBDA5D93907A70AAE****'),
+  sortBy?: string(name='SortBy', description='The sort fields and sort orders, separated by commas (,). The format is field1:Desc,field2:Asc. The direction can only be Asc or Desc.', example='utcCreate:Desc'),
 }
 
 model SearchMediaResponseBody = {
-  code?: string(name='Code', description='The return code.', example='200'),
+  code?: string(name='Code', description='The response code.', example='200'),
   mediaInfoList?: [ 
     {
       fileInfoList?: [ 
@@ -1905,7 +1919,7 @@ model SearchMediaResponseBody = {
             height?: string(name='Height', description='The height.', example='480'),
             imagesInput?: string(name='ImagesInput', description='The image set information.', example='{}'),
             modifiedTime?: string(name='ModifiedTime', description='The modification time.', example='2026-05-01T19:48Z'),
-            region?: string(name='Region', description='The storage region of the file.', example='cn-shanghai'),
+            region?: string(name='Region', description='The file storage region.', example='cn-shanghai'),
             width?: string(name='Width', description='The width.', example='1920'),
           }(name='FileBasicInfo', description='The basic file information, including duration and size.'),
         }
@@ -1915,14 +1929,14 @@ model SearchMediaResponseBody = {
         categoryId?: long(name='CategoryId', description='The category ID.', example='10'),
         categoryName?: string(name='CategoryName', description='The category name.', example='test-category-01'),
         coverURL?: string(name='CoverURL', description='The cover URL.', example='https://test-bucket-***.oss-cn-shanghai.aliyuncs.com/cover/e694372e-4f5b-4821-ae09-efd064f2****_large_cover_url.jpg'),
-        createTime?: string(name='CreateTime', description='The time when the media asset was created.', example='2026-05-01T19:48Z'),
+        createTime?: string(name='CreateTime', description='The creation time of the media asset.', example='2026-05-01T19:48Z'),
         description?: string(name='Description', description='The content description.', example='This is a test video.'),
         entityId?: string(name='EntityId', description='The entity ID.', example='BaseMedia'),
         inputURL?: string(name='InputURL', description='The media asset URL.', example='https://test-bucket-***.oss-cn-shanghai.aliyuncs.com/sv/23d5cdd1-18180984899/23d5cdd1-1818098****.mp4'),
         mediaId?: string(name='MediaId', description='The media asset ID.', example='3b187b3620c8490886cfc2a9578c****'),
         mediaTags?: string(name='MediaTags', description='The tags.', example='tags,tags2'),
         mediaType?: string(name='MediaType', description='The media type of the media asset.', example='video'),
-        modifiedTime?: string(name='ModifiedTime', description='The time when the media asset was last modified.', example='2026-05-01T20:48Z'),
+        modifiedTime?: string(name='ModifiedTime', description='The modification time of the media asset.', example='2026-05-01T20:48Z'),
         snapshots?: string(name='Snapshots', description='The snapshots.', example='[{"bucket":"test-bucket-***","count":"3","location":"oss-cn-shanghai","snapshotRegular":"example.jpg","templateId":"******e6a6440b29eb60bd7c******"}]'),
         source?: string(name='Source', description='The source of the media asset.', example='oss'),
         spriteImages?: string(name='SpriteImages', description='The sprite images.', example='[{"bucket":"test-bucket-***","count":"32","location":"oss-cn-shanghai","snapshotRegular":"example/example-{Count}.jpg","spriteRegular":"example/example-{TileCount}.jpg","templateId":"******e438b14ff39293eaec25******","tileCount":"1"}]'),
@@ -1964,6 +1978,9 @@ model SearchMediaResponse = {
 async function searchMediaWithOptions(request: SearchMediaRequest, runtime: $RuntimeOptions): SearchMediaResponse {
   request.validate();
   var query = {};
+  if (!$isNull(request.bizConfig)) {
+    query['BizConfig'] = request.bizConfig;
+  }
   if (!$isNull(request.categoryId)) {
     query['CategoryId'] = request.categoryId;
   }
@@ -2011,25 +2028,28 @@ async function searchMedia(request: SearchMediaRequest): SearchMediaResponse {
 }
 
 model SubmitImageGenerationJobRequest {
-  aspectRatio?: string(name='AspectRatio', description='The aspect ratio. Valid values: 16:9 (default), 9:16, 4:3, 3:4, and 1:1.', example='4:3'),
-  clientToken?: string(name='ClientToken', description='The idempotency token.', example='****3e761e9d11edba640c42a1b7****'),
-  input?: string(name='Input', description='The task input. A JSON string that contains the following fields:
-- Prompt: String. Required. The prompt.
-- Medias: A list of media items. Required when the task type is `image_to_image`. A maximum of 9 items are supported.
-> The Media structure contains: Type, the media type, String, valid value: image; URL, the media download URL, String; MediaId, the media asset ID, String.
->', example='{"Prompt":"xxx","Medias":[{"Type":"image","URL":"xxx"}]}'),
-  jobParameters?: string(name='JobParameters', description='The task function parameters. A JSON string. No configuration is required at this time.', example='{}'),
-  jobType?: string(name='JobType', description='The type of the generation task. Valid values:
+  aspectRatio?: string(name='AspectRatio', description='The aspect ratio. Valid values: 16:9 (default), 9:16, 4:3, 3:4, 1:1, and 21:9.', example='4:3'),
+  clientToken?: string(name='ClientToken', description='The idempotency token. A unique, case-sensitive string of up to 32 characters. This token ensures that the request is completed no more than once, preventing duplicate operations caused by multiple retries.', example='****3e761e9d11edba640c42a1b7****'),
+  input?: string(name='Input', description='The task input. This parameter is required. The value is a JSON string that contains the following fields:
 
-- text_to_image: text-to-image.
-- image_to_image: image-to-image.', example='text_to_image'),
-  model?: string(name='Model', description='The model name. Currently supported models:
-- wan2.7-image
+- Prompt: String. Required. The prompt for image generation.
+- Medias: A list of media items. Required when the task type is `image_to_image`. A maximum of 9 items are supported.
+> The Media struct contains the following fields: Type, the media type, String, valid value: image. URL, the download URL of the media, String. MediaId, the media asset ID, String.
+>', example='{"Prompt":"xxx","Medias":[{"Type":"image","URL":"xxx"}]}'),
+  jobParameters?: string(name='JobParameters', description='The task feature parameters. The value is a JSON string. You do not need to set this parameter.', example='{}'),
+  jobType?: string(name='JobType', description='The type of the generation task. This parameter is required. Valid values:
+
+- text_to_image: text-to-image generation.
+- image_to_image: image-to-image generation.', example='text_to_image'),
+  model?: string(name='Model', description='The model name. This parameter is required. Valid values:
+
+- qwen-image-3.0
+- qwen-image-2.0-pro
 - qwen-image-2.0
-- qwen-image-2.0-pro', example='wan2.7-image'),
+- wan2.7-image', example='wan2.7-image'),
   n?: string(name='N', description='The number of images. Valid values: 1 to 4. Default value: 1.', example='1'),
   resolution?: string(name='Resolution', description='The resolution. Valid values: 1K (default), 2K, and 4K.', example='720P'),
-  scene?: string(name='Scene', description='The scene. This is an enumeration type. Currently only `general` is supported.', example='general'),
+  scene?: string(name='Scene', description='The scenario. This is an enumeration type. Currently, only `general` is supported.', example='general'),
   userData?: string(name='UserData', description='The user business data in JSON format.', example='{"env":"prd"}'),
 }
 
@@ -2319,35 +2339,41 @@ async function submitRemakeScriptJob(request: SubmitRemakeScriptJobRequest): Sub
 }
 
 model SubmitVideoGenerationJobRequest {
-  aspectRatio?: string(name='AspectRatio', description='The aspect ratio. Valid values: 16:9 (default), 9:16, 4:3, 3:4, and 1:1.', example='9:16'),
-  clientToken?: string(name='ClientToken', description='The idempotency token.', example='****3e761e9d11edba640c42a1b7****'),
-  duration?: string(name='Duration', description='The output duration. Valid values: 4 to 15 seconds. Default value: 5s.', example='5'),
-  input?: string(name='Input', description='The task input in JSON string format. Fields include:
-
-- Prompt: String. Required. The prompt.
-- Medias: The media list.
-  - When JobType is image_to_video, this field is required. Only 1 Media item is needed.
-  - When JobType is first_last_frame, this field is required. Only 2 Media items are needed.
-  - When JobType is reference_to_video, this field is required. A maximum of 9 Media items are supported.
-> The Media struct contains: Type, the media type, String, valid values are `image`/`video`/`audio`; URL, the media download URL, String; MediaId, the media asset ID, String.
->', example='{"Prompt":"Person 1 is on the basketball court, and Person 2 makes a slam dunk","Medias":[{"Type":"image","Url":"https://xxx/xxx.jpg"},{"Type":"image","Url":"https://xxx/xxx.jpg"}]}'),
-  jobParameters?: string(name='JobParameters', description='The task function parameters. No configuration is required at this time.', example='{}'),
-  jobType?: string(name='JobType', description='The task type. Valid values:
-
-- text_to_video: text-to-video
-- image_to_video: image-to-video
-- first_last_frame: first and last frame to video
-- reference_to_video: reference-to-video', example='text_to_video'),
-  model?: string(name='Model', description='The model name. Valid values:
-
+  aspectRatio?: string(name='AspectRatio', description='The aspect ratio. Valid values: 16:9 (default), 9:16, 4:3, 3:4, 1:1, and adaptive (valid only for wan3.0-video and wan3.0-video-prime).', example='9:16'),
+  clientToken?: string(name='ClientToken', description='The idempotency token. A unique, case-sensitive string of up to 32 characters. This token ensures that the request is completed no more than once, preventing duplicate operations caused by multiple retries.', example='****3e761e9d11edba640c42a1b7****'),
+  duration?: string(name='Duration', description='The output duration. Valid values: 4 to 15 seconds. Default value: 5 seconds.
+- For wan3.0-video and wan3.0-video-prime, the maximum value is 30 seconds.', example='5'),
+  input?: string(name='Input', description='The task input. This parameter is required. The value is a JSON string that contains the following fields:
+- Prompt: string. Required. The prompt.
+- Medias: the list of media items.
+  - If JobType is set to image_to_video, this field is required and only 1 media item is needed.
+  - If JobType is set to first_last_frame, this field is required and exactly 2 media items are needed.
+  - If JobType is set to reference_to_video, this field is required and up to 9 media items are allowed. For wan3.0-video and wan3.0-video-prime, up to 20 media items are allowed, including up to 10 images, 5 videos, and 5 audio files. The total duration of audio and video files cannot exceed 15 seconds.
+> The Media structure contains the following fields: Type, the media type (string). Valid values: `image`, `video`, and `audio`. URL, the media download URL (string). MediaId, the media asset ID (string).
+>', example='{"Prompt":"Person 1 dunks a basketball on the court using the move shown in image 2","Medias":[{"Type":"image","Url":"https://xxx/xxx.jpg"},{"Type":"image","Url":"https://xxx/xxx.jpg"}]}'),
+  jobParameters?: string(name='JobParameters', description='The task parameters as a JSON string that contains the following fields:
+- EnableAudio: boolean. Optional. Specifies whether to include audio in the output. Valid values: true and false.
+- Watermark: boolean. Optional. Specifies whether to include a watermark. Valid values: true (an "AI-generated" watermark is added to the lower-right corner of the video) and false (no watermark is added).
+- PromptExtend: boolean. Optional. Specifies whether to enable intelligent prompt rewriting. This parameter is valid only for wan3.0-video and wan3.0-video-prime. Valid values: true (enabled, default) and false (disabled).', example='{}'),
+  jobType?: string(name='JobType', description='The task type. This parameter is required. Valid values:
+- text_to_video: text-to-video.
+- image_to_video: image-to-video.
+- first_last_frame: first and last frame to video.
+- reference_to_video: reference-to-video.', example='text_to_video'),
+  model?: string(name='Model', description='The model name. This parameter is required. Valid values:
+- wan3.0-video
+- wan3.0-video-prime
 - happyhorse-1.1
 - happyhorse-1.0
 - wan2.7', example='happyhorse-1.1'),
   n?: int32(name='N', description='The number of outputs. Valid values: 1 to 4. Default value: 1.', example='1'),
-  output?: string(name='Output'),
-  resolution?: string(name='Resolution', description='The resolution. Valid values: 720P (default) and 1080P.', example='720P'),
-  scene?: string(name='Scene', description='The scene type. Currently only `general` is supported.', example='general'),
-  userData?: string(name='UserData', description='The user business data in JSON format.', example='{"env":"prd"}'),
+  output?: string(name='Output', description='The output configuration as a JSON string. OssUri is an optional OSS output directory. If not specified, a signed URL for the service-generated output is returned.', example='{"OssUri":"oss://example-bucket/video-translation/output/"}'),
+  resolution?: string(name='Resolution', description='The resolution. Valid values:
+- 1080P
+- 720P: default value.
+- 480P: valid only for wan3.0-video and wan3.0-video-prime.', example='720P'),
+  scene?: string(name='Scene', description='The scene type. Currently, only `general` is supported.', example='general'),
+  userData?: string(name='UserData', description='The custom user parameters as a JSON string. These parameters are returned as-is in the callback result. The system reserved field NotifyAddress specifies the callback URL. The system sends a callback to this URL when the task is complete.', example='{"NotifyAddress": "http://xxx.callback.url"}'),
 }
 
 model SubmitVideoGenerationJobResponseBody = {
@@ -2526,32 +2552,25 @@ async function submitVideoRenderJob(request: SubmitVideoRenderJobRequest): Submi
 }
 
 model SubmitVideoTranslationJobRequest {
-  clientToken?: string(name='ClientToken', description='The user-level idempotency key.', example='****3e761e9d11edba640c42a1b7****'),
-  description?: string(name='Description', description='The job description.', example='description'),
-  input?: string(name='Input', description='The input configuration JSON string:
-- Video
-- Audio
-- Subtitle
+  clientToken?: string(name='ClientToken', description='The user-level idempotency token, up to 40 characters. If the same user submits a request with the same token, the original job is returned.', example='vt-client-20260820-001'),
+  description?: string(name='Description', description='The job description, used to record business purposes or processing requirements.', example='Translate a Chinese product introduction video into English'),
+  input?: string(name='Input', description='The input configuration JSON string. You must specify either Video or VideoMediaId, but not both. You can specify at most one of Audio or AudioMediaId. Subtitle is optional.
 
-<notice>Currently, only OSS addresses under the calling account are supported as input.</notice>
-
-This parameter is required.', example='{"Video":"oss://bucket/path/input.mp4"}'),
-  jobParameters?: string(name='JobParameters', description='The job parameters JSON string.
+This parameter is required.', example='{"VideoMediaId":"media-video-001"}'),
+  jobParameters?: string(name='JobParameters', description='The job parameters JSON string. It must contain at least SourceLanguage and TargetLanguage. You can also configure main subtitle erasure, voice translation, on-screen text translation, and final editing.
 
 This parameter is required.', example='{"SourceLanguage":"zh","TargetLanguage":"en","NeedDetext":false,"NeedVisualTranslate":false}'),
-  jobType?: string(name='JobType', description='The job type. Valid values:
-- SubtitleTranslate
-- VoiceTranslate
+  jobType?: string(name='JobType', description='The job type. SubtitleTranslate indicates subtitle translation. VoiceTranslate indicates voice translation.
 
 This parameter is required.', example='VoiceTranslate'),
-  output?: string(name='Output', description='The output configuration JSON string. The OssUri value must be a folder.', example='{"OssUri":"oss://bucket/output/"}'),
-  title?: string(name='Title', description='If not specified, the service generates a default title.', example='title'),
-  userData?: string(name='UserData', description='The custom user data JSON string.', example='{}'),
+  output?: string(name='Output', description='The output configuration JSON string. OssUri is an optional customer OSS output directory. If not specified, a signed URL of the service-owned artifact is returned.', example='{"OssUri":"oss://example-bucket/video-translation/output/"}'),
+  title?: string(name='Title', description='The job title. If not specified, the service generates a default title.', example='Product introduction video English translation'),
+  userData?: string(name='UserData', description='The custom user data JSON string. It can contain the asynchronous notification address NotifyAddress.', example='{"NotifyAddress":"mns://account.mns.cn-shanghai.aliyuncs.com/queues/video-translation-result"}'),
 }
 
 model SubmitVideoTranslationJobResponseBody = {
-  jobId?: string(name='JobId', description='`data.JobId`', example='vtj_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx'),
-  requestId?: string(name='RequestId', description='`requestId`', example='request-id'),
+  jobId?: string(name='JobId', description='The video translation job ID, used to call GetVideoTranslationJob to query the job.', example='vtj_0123456789abcdef0123456789abcdef'),
+  requestId?: string(name='RequestId', description='The request ID, used for Tracing Analysis and troubleshooting.', example='req-vt-20260820-001'),
 }
 
 model SubmitVideoTranslationJobResponse = {
@@ -2561,16 +2580,9 @@ model SubmitVideoTranslationJobResponse = {
 }
 
 /**
- * @summary Submits a video translation task that supports subtitle translation, voice translation, and on-screen text translation.
+ * @summary Submits an asynchronous video translation task that supports subtitle translation, voice translation, main subtitle erasure, and on-screen text translation.
  *
- * @description ## Request description
- * - This API supports multiple video translation features, including subtitle translation and voice translation.
- * - The `JobType` parameter defines the task type, such as `SubtitleTranslate` and `VoiceTranslate`.
- * - The `Input` and `Output` parameters specify the input resource and output path, respectively.
- * - `JobParameters` contains language configuration and other feature switches, such as `SourceLanguage`, `TargetLanguage`, `NeedDetext`, and `NeedVisualTranslate`.
- * - `EditingConfig` can be used to specify the style configuration for the final editing and compositing.
- * - `ClientToken` is an optional parameter used to ensure the idempotence of the request.
- * - Ensure that all required fields are correctly filled in. Otherwise, the request may fail.
+ * @description Submits an asynchronous video translation task. The input supports a media URL or an Intelligent Media Management (IMM) media asset ID. Task parameters specify the source language, target language, and translation capabilities to enable.
  *
  * @param request SubmitVideoTranslationJobRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -2622,16 +2634,9 @@ async function submitVideoTranslationJobWithOptions(request: SubmitVideoTranslat
 }
 
 /**
- * @summary Submits a video translation task that supports subtitle translation, voice translation, and on-screen text translation.
+ * @summary Submits an asynchronous video translation task that supports subtitle translation, voice translation, main subtitle erasure, and on-screen text translation.
  *
- * @description ## Request description
- * - This API supports multiple video translation features, including subtitle translation and voice translation.
- * - The `JobType` parameter defines the task type, such as `SubtitleTranslate` and `VoiceTranslate`.
- * - The `Input` and `Output` parameters specify the input resource and output path, respectively.
- * - `JobParameters` contains language configuration and other feature switches, such as `SourceLanguage`, `TargetLanguage`, `NeedDetext`, and `NeedVisualTranslate`.
- * - `EditingConfig` can be used to specify the style configuration for the final editing and compositing.
- * - `ClientToken` is an optional parameter used to ensure the idempotence of the request.
- * - Ensure that all required fields are correctly filled in. Otherwise, the request may fail.
+ * @description Submits an asynchronous video translation task. The input supports a media URL or an Intelligent Media Management (IMM) media asset ID. Task parameters specify the source language, target language, and translation capabilities to enable.
  *
  * @param request SubmitVideoTranslationJobRequest
  * @return SubmitVideoTranslationJobResponse
@@ -2642,7 +2647,7 @@ async function submitVideoTranslationJob(request: SubmitVideoTranslationJobReque
 }
 
 model UpdateAssetCategoryRequest {
-  categoryId?: long(name='CategoryId', description='The category ID. You can obtain the category ID by using one of the following methods:
+  categoryId?: long(name='CategoryId', description='The category ID. You can obtain the ID by using one of the following methods:
 
 - When you create a category by calling the CreateAssetCategory operation, the category ID is the value of CategoryId in the response.
 - When you query categories by calling the ListAssetCategories operation, the category ID is the value of CategoryId in the corresponding entry in the response.
@@ -2666,7 +2671,7 @@ model UpdateAssetCategoryResponse = {
 /**
  * @summary Updates a media asset category.
  *
- * @description After you create a media asset category, you can call this operation to locate and update the name of the media asset category by category ID.
+ * @description After creating a media asset category, you can call this operation to locate and update the name of the category by category ID.
  *
  * @param request UpdateAssetCategoryRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -2702,7 +2707,7 @@ async function updateAssetCategoryWithOptions(request: UpdateAssetCategoryReques
 /**
  * @summary Updates a media asset category.
  *
- * @description After you create a media asset category, you can call this operation to locate and update the name of the media asset category by category ID.
+ * @description After creating a media asset category, you can call this operation to locate and update the name of the category by category ID.
  *
  * @param request UpdateAssetCategoryRequest
  * @return UpdateAssetCategoryResponse
@@ -2787,19 +2792,20 @@ async function updateInfiniteCanvas(request: UpdateInfiniteCanvasRequest): Updat
 
 model UpdateMediaRequest {
   appendTags?: boolean(name='AppendTags', description='Specifies whether to update the Tags field in append mode.'),
+  bizConfig?: string(name='BizConfig'),
   categoryId?: long(name='CategoryId'),
   coverURL?: string(name='CoverURL', description='The cover image URL. This parameter is valid only for video media assets.', example='https://bullet-time-20240910.oss-cn-shanghai.aliyuncs.com/ice-generated/a97255309a7c71f093d3e7f6d75a6302/snapshots/normal/2a4030b1950443048f3e3f81489d57eb-00001.jpg'),
   description?: string(name='Description', description='The description.', example='OK'),
   dynamicMetaData?: string(name='DynamicMetaData', description='The dynamic metadata.', example='{}'),
   inputURL?: string(name='InputURL', description='The media type of the media asset.', example='https://example-bucket.oss-cn-shanghai.aliyuncs.com/example.mp4'),
   mediaId?: string(name='MediaId', description='The media asset ID.', example='****20b48fb04483915d4f2cd8ac****'),
-  mediaTags?: string(name='MediaTags', description='The tags. Separate multiple tags with commas.', example='CapCut animation.'),
+  mediaTags?: string(name='MediaTags', description='The tags. Separate multiple tags with commas (,).', example='剪映动画'),
   title?: string(name='Title', description='The title.', example='title'),
-  userData?: string(name='UserData', description='The user data. The maximum length is 1024 bytes.', example='{}'),
+  userData?: string(name='UserData', description='The user data. Maximum length: 1024 bytes.', example='{}'),
 }
 
 model UpdateMediaResponseBody = {
-  mediaId?: string(name='MediaId', description='The ICE media asset ID.', example='****20b48fb04483915d4f2cd8ac****'),
+  mediaId?: string(name='MediaId', description='The Intelligent Cloud Editing (ICE) media asset ID.', example='****20b48fb04483915d4f2cd8ac****'),
   requestId?: string(name='RequestId', description='The request ID.', example='******3B-0E1A-586A-AC29-742247******'),
 }
 
@@ -2812,8 +2818,8 @@ model UpdateMediaResponse = {
 /**
  * @summary Updates media asset information.
  *
- * @description ## Request description
- * This API is used to query media content understanding jobs.
+ * @description ## Operation description
+ * This API operation is used to query media content understanding jobs.
  *
  * @param request UpdateMediaRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -2825,6 +2831,9 @@ async function updateMediaWithOptions(request: UpdateMediaRequest, runtime: $Run
   var query = {};
   if (!$isNull(request.appendTags)) {
     query['AppendTags'] = request.appendTags;
+  }
+  if (!$isNull(request.bizConfig)) {
+    query['BizConfig'] = request.bizConfig;
   }
   if (!$isNull(request.categoryId)) {
     query['CategoryId'] = request.categoryId;
@@ -2873,8 +2882,8 @@ async function updateMediaWithOptions(request: UpdateMediaRequest, runtime: $Run
 /**
  * @summary Updates media asset information.
  *
- * @description ## Request description
- * This API is used to query media content understanding jobs.
+ * @description ## Operation description
+ * This API operation is used to query media content understanding jobs.
  *
  * @param request UpdateMediaRequest
  * @return UpdateMediaResponse
