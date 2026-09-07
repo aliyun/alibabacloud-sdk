@@ -1476,6 +1476,141 @@ async function createApprovalProcess(request: CreateApprovalProcessRequest): Cre
   return createApprovalProcessWithOptions(request, runtime);
 }
 
+model CreateBackendReportRequest {
+  endTimestamp?: long(name='EndTimestamp', description='The filing expiration time as a UNIX timestamp in seconds. This parameter is required when ValidityType is set to FixedTime or ValidityType is not specified, and the value must be later than the current time. When ValidityType is set to Permanent, do not specify this parameter or set it to 0.', example='1788192000'),
+  policyType?: string(name='PolicyType', description='The filing policy type. Valid values:
+* PrivateAccessBlock: private access.
+* DomainWhitelist: domain name whitelist.
+* DomainBlacklist: domain name blacklist.
+* SoftwareBlock: software blocking.
+* DlpSend: file outbound transfer.
+* PeripheralBlock: peripheral control.
+
+This parameter is required.', example='PrivateAccessBlock'),
+  reason?: string(name='Reason', description='The filing reason. The value must be 1 to 1024 characters in length.
+
+This parameter is required.', example='Temporary project access'),
+  reportObjects?: [ 
+    {
+      applicationId?: string(name='ApplicationId', description='The private access application ID. This parameter is required when PolicyType is set to PrivateAccessBlock. You can call ListPrivateAccessApplications to query the ID.', example='pa-app-****************1234'),
+      devType?: string(name='DevType', description='The endpoint operating system. This parameter is required when PolicyType is set to PeripheralBlock. Valid values:
+* windows: Windows.
+* macOS: macOS.', example='windows'),
+      deviceType?: string(name='DeviceType', description='The peripheral channel. This parameter is required when PolicyType is set to PeripheralBlock. Windows supports usbStorage, printer, mobile, cardReader, cdrom, and bluetooth. macOS supports usbStorage, airDrop, mobile, and bluetooth.', example='usbStorage'),
+      fileMd5?: string(name='FileMd5', description='The file MD5 hash. This parameter is required when PolicyType is set to DlpSend. The value must be a 32-character hexadecimal string and is case-insensitive.', example='c936226c4745125b5786527d205a****'),
+      reportDomain?: string(name='ReportDomain', description='The filing domain name. This parameter is required when PolicyType is set to DomainWhitelist or DomainBlacklist. Regular domain names and wildcard domain names that start with *. are supported. Protocols, ports, and paths are not supported.', example='*.example.com'),
+      scope?: string(name='Scope', description='The peripheral filing granularity. This parameter is required when PolicyType is set to PeripheralBlock. Currently, only Channel is supported, which indicates filing by peripheral channel.', example='Channel'),
+      softwareId?: string(name='SoftwareId', description='The blocked software ID. This parameter is required when PolicyType is set to SoftwareBlock.', example='swb-c717ee516145****'),
+    }
+  ](name='ReportObjects', description='The list of filing objects, serialized in Flat format. You can specify 1 to 100 filing objects of the same policy type. The object fields must match the PolicyType value.
+
+This parameter is required.'),
+  targets?: [ 
+    {
+      userId?: string(name='UserId', description='The SASE user ID. You can call ListUsers to query the ID.
+
+This parameter is required.', example='su_8548af20c3b30e931e75cd847a4c****'),
+    }
+  ](name='Targets', description='The list of filing users, serialized in Flat format. You can specify 1 to 100 users. Only specific SASE users under the current Alibaba Cloud account are supported. The product of the number of deduplicated users and the number of filing objects cannot exceed 100.
+
+This parameter is required.'),
+  validityType?: string(name='ValidityType', description='The validity duration type. Default value: FixedTime. Valid values:
+* FixedTime: Expires at the specified time.
+* Permanent: Permanently valid.', example='FixedTime'),
+}
+
+model CreateBackendReportResponseBody = {
+  failedCount?: int32(name='FailedCount', description='The number of user-object combinations that failed to be created.', example='0'),
+  items?: [ 
+    {
+      approvalId?: string(name='ApprovalId', description='The approval instance ID generated after a successful creation. This parameter is not returned if the creation fails.', example='approval-6b5188a28634****'),
+      code?: string(name='Code', description='The error code returned when the current combination fails to be created. This parameter is not returned if the creation succeeds.', example='TargetNotFound'),
+      effectStatus?: string(name='EffectStatus', description='The filing effective status. Enabled is returned when the creation succeeds, which indicates that the filing is valid.', example='Enabled'),
+      message?: string(name='Message', description='The error message returned when the current combination fails to be created. This parameter is not returned if the creation succeeds.', example='target user is not found'),
+      reportObject?: any(name='ReportObject', description='The filing object corresponding to the current combination. The fields vary based on the PolicyType value.', example='[{"ApplicationId":"pa-application-92b60359213a****"}]'),
+      reportType?: string(name='ReportType', description='The filing type. BackendReport is always returned when the creation succeeds, which indicates a backend filing.', example='BackendReport'),
+      status?: string(name='Status', description='The approval status. Approved is returned when the creation succeeds, which indicates that the filing is approved.', example='Approved'),
+      success?: boolean(name='Success', description='Indicates whether the current combination is created.', example='true'),
+      target?: {
+        userId?: string(name='UserId', description='The SASE user ID.', example='su_1b91e674235a25e4117faf5c36a8ad4e69a14303247fb7d9f2046ce8b372****'),
+      }(name='Target', description='The filing user corresponding to the current combination.'),
+    }
+  ](name='Items', description='The processing results for each user-object combination. If some combinations fail, the operation still returns results for all combinations.'),
+  objectCount?: int32(name='ObjectCount', description='The number of deduplicated filing objects.', example='1'),
+  requestId?: string(name='RequestId', description='Id of the request', example='D6707286-A50E-57B1-B2CF-EFAC59E8****'),
+  successCount?: int32(name='SuccessCount', description='The number of user-object combinations that are created.', example='1'),
+  targetCount?: int32(name='TargetCount', description='The number of deduplicated filing users.', example='1'),
+  totalCount?: int32(name='TotalCount', description='The total number of expanded user-object combinations.', example='1'),
+}
+
+model CreateBackendReportResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: CreateBackendReportResponseBody(name='body'),
+}
+
+/**
+ * @summary Creates a backend filing.
+ *
+ * @param request CreateBackendReportRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return CreateBackendReportResponse
+ */
+async function createBackendReportWithOptions(request: CreateBackendReportRequest, runtime: Util.RuntimeOptions): CreateBackendReportResponse {
+  Util.validateModel(request);
+  var body : map[string]any = {};
+  if (!Util.isUnset(request.endTimestamp)) {
+    body['EndTimestamp'] = request.endTimestamp;
+  }
+  if (!Util.isUnset(request.policyType)) {
+    body['PolicyType'] = request.policyType;
+  }
+  if (!Util.isUnset(request.reason)) {
+    body['Reason'] = request.reason;
+  }
+  var bodyFlat : map[string]any = {};
+  if (!Util.isUnset(request.reportObjects)) {
+    bodyFlat['ReportObjects'] = request.reportObjects;
+  }
+  if (!Util.isUnset(request.targets)) {
+    bodyFlat['Targets'] = request.targets;
+  }
+  if (!Util.isUnset(request.validityType)) {
+    body['ValidityType'] = request.validityType;
+  }
+  body = {
+    ...body,
+    ...OpenApiUtil.query(bodyFlat),
+  };
+
+  var req = new OpenApi.OpenApiRequest{ 
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApi.Params{
+    action = 'CreateBackendReport',
+    version = '2023-01-20',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Creates a backend filing.
+ *
+ * @param request CreateBackendReportRequest
+ * @return CreateBackendReportResponse
+ */
+async function createBackendReport(request: CreateBackendReportRequest): CreateBackendReportResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return createBackendReportWithOptions(request, runtime);
+}
+
 model CreateClientUserRequest {
   departmentId?: string(name='DepartmentId', description='Department ID.', example='10797'),
   description?: string(name='Description', description='User description.', example='示例用户'),
@@ -7609,7 +7744,7 @@ async function getAntiVirusRealTimeDefenceStrategy(request: GetAntiVirusRealTime
 }
 
 model GetApprovalRequest {
-  approvalId?: string(name='ApprovalId', description='The approval instance ID. You can obtain the value from:
+  approvalId?: string(name='ApprovalId', description='The approval instance ID. You can obtain the value from the following operations:
 - [ListApprovals](~~ListApprovals~~): Lists approval instances.
 - [GetApproval](~~GetApproval~~): Queries the details of an approval instance.
 
@@ -7619,7 +7754,7 @@ This parameter is required.', example='approval-872b5e911b35****'),
 model GetApprovalResponseBody = {
   approval?: [ 
     {
-      approvalDetail?: string(name='ApprovalDetail', description='The details of the approval instance.', example='{"initiatorName":"John Smith","initiatorDept":"QA Department","devType":"windows","deviceType":"usbStorage","deviceId":"FC216E9E3****","approvalEndTimestamp":1736524799,"approvalReason":"This is a test"}'),
+      approvalDetail?: string(name='ApprovalDetail', description='The details of the approval instance.', example='{"applicationId":"pa-application-eb75f0c80c28****","applicationName":"App***","associatedPolicyName":"Private access***"}'),
       approvalId?: string(name='ApprovalId', description='The approval instance ID.', example='approval-3564b140642f****'),
       approvalProgresses?: [ 
         {
@@ -7633,7 +7768,7 @@ model GetApprovalResponseBody = {
           operators?: [ 
             {
               saseUserId?: string(name='SaseUserId', description='The ID of the operator for the approval progress node.', example='su_e8f218fb171edd167c2ad917d21f53148bdefc510ca1f3c3cc0249d3643d****'),
-              username?: string(name='Username', description='The username of the operator for the approval progress node.', example='John Smith'),
+              username?: string(name='Username', description='The username of the operator for the approval progress node.', example='user***'),
             }
           ](name='Operators', description='The list of operators for the approval progress node.'),
           status?: string(name='Status', description='The status of the approval progress node. Valid values:
@@ -7641,52 +7776,68 @@ model GetApprovalResponseBody = {
 - **Approved**: Approved.
 - **Rejected**: Rejected.
 - **Revoked**: Revoked.', example='Approved'),
-          timestamp?: long(name='Timestamp', description='The time when the action was performed on the approval progress node. The value is a UNIX timestamp in seconds.', example='1736752000'),
+          timestamp?: long(name='Timestamp', description='The execution time of the approval progress node. The value is a UNIX timestamp in seconds.', example='1736752000'),
         }
-      ](name='ApprovalProgresses', description='The list of approval progress nodes.'),
-      approvalType?: int32(name='ApprovalType'),
+      ](name='ApprovalProgresses', description='The approval progress list. For backend reports without approval nodes, an empty array is returned.'),
+      approvalType?: int32(name='ApprovalType', description='The approval type. Valid values:
+* 0: built-in approval.
+* 1: DingTalk approval.
+* 2: WeCom approval.
+* 3: Lark approval.', example='0'),
       backendReportDetail?: {
-        associatedPolicyName?: string(name='AssociatedPolicyName'),
-        associatedPolicyType?: string(name='AssociatedPolicyType'),
-        remark?: string(name='Remark'),
-        reportObject?: any(name='ReportObject'),
+        associatedPolicyName?: string(name='AssociatedPolicyName', description='The associated policy name.', example='Private access***'),
+        associatedPolicyType?: string(name='AssociatedPolicyType', description='The associated policy type, which is the same as PolicyType.', example='PrivateAccessBlock'),
+        remark?: string(name='Remark', description='The remark for the backend report, which is the same as the report reason.', example='Temporary access for a project'),
+        reportObject?: any(name='ReportObject', description='The report object. The fields vary based on PolicyType. Fields within the object use camelCase naming.', example='{"applicationId":"pa-application-eb75f0c80c28****","applicationName":"App***"}'),
         targetUser?: {
-          userId?: string(name='UserId'),
-          username?: string(name='Username'),
-        }(name='TargetUser'),
-      }(name='BackendReportDetail', description='The backend report details. This parameter is returned only when ReportType is set to BackendReport.'),
-      createTime?: string(name='CreateTime', description='The time when the approval instance was created.', example='2022-11-15 22:11:55'),
-      createTimeUnix?: long(name='CreateTimeUnix'),
-      creatorDepartment?: string(name='CreatorDepartment', description='The department of the user who created the approval instance.', example='QA Department'),
+          userId?: string(name='UserId', description='The SASE user ID of the actual effective user.', example='su_70a1ed06a900d337527984de27568352fdfed1b19442a886d2a697c0327f****'),
+          username?: string(name='Username', description='The username of the actual effective user.', example='user***'),
+        }(name='TargetUser', description='The actual effective user of the backend report.'),
+      }(name='BackendReportDetail', description='The backend report details. This value is returned only when ReportType is set to BackendReport.'),
+      createTime?: string(name='CreateTime', description='The creation time in the yyyy-MM-dd HH:mm:ss format.', example='2026-08-18 17:48:44'),
+      createTimeUnix?: long(name='CreateTimeUnix', description='The creation time as a UNIX timestamp in seconds.', example='1787046524'),
+      creatorDepartment?: string(name='CreatorDepartment', description='The department path of the report initiator.', example='CN=cn***,OU=ou***'),
       creatorDevTag?: string(name='CreatorDevTag', description='The device ID of the terminal that created the approval instance.', example='36efa42d-2c32-c4dc-e3fc-8541e33a****'),
-      creatorUserId?: string(name='CreatorUserId', description='The ID of the user who created the approval instance.', example='su_e8f218fb171edd167c2ad917d21f53148bdefc510ca1f3c3cc0249d3643d****'),
-      creatorUsername?: string(name='CreatorUsername', description='The username of the user who created the approval instance.', example='John Smith'),
-      effectStatus?: string(name='EffectStatus', description='The effective status of the report. Enabled indicates that the report is active, and Expired indicates that the report has expired.'),
+      creatorUserId?: string(name='CreatorUserId', description='The ID of the user who created the approval instance. For backend reports, this is the actual effective user, not the administrator.', example='su_e8f218fb171edd167c2ad917d21f53148bdefc510ca1f3c3cc0249d3643d****'),
+      creatorUsername?: string(name='CreatorUsername', description='The username of the user who created the approval instance.', example='user***'),
+      effectStatus?: string(name='EffectStatus', description='The effective status of the report. This value is an empty string when the approval status is not Approved. Valid values:
+* Enabled: valid.
+* Expired: expired.', example='Enabled'),
       endTimestamp?: long(name='EndTimestamp', description='The expiration time of the approval instance. The value is a UNIX timestamp in seconds.', example='1757952000'),
       policyType?: string(name='PolicyType', description='The policy type associated with the approval instance. Valid values:
 - **DomainBlacklist**: Domain name blacklist.
 - **DomainWhitelist**: Domain name whitelist.
 - **SoftwareBlock**: Software blocking.
-- **AppUninstall**: Agent uninstallation.
+- **DeviceRegistration**: Excess registration.
+- **AppUninstall**: Client uninstallation.
 - **DlpSend**: File outbound transfer.
-- **PeripheralBlock**: Peripheral device control.', example='DlpSend'),
+- **PeripheralBlock**: Peripheral control.
+- **EndpointHardening**: Endpoint hardening.
+- **oftwareHardening**: Software hardening.
+- **AiAgentBlock**: AI Agent control.
+- **PrivateAccessBlock**: Private access.', example='DlpSend'),
       processId?: string(name='ProcessId', description='The ID of the process associated with the approval instance.', example='approval-process-fcc351b8a95b****'),
-      processName?: string(name='ProcessName', description='The name of the process associated with the approval instance.', example='Test'),
-      reason?: string(name='Reason', description='The reason for creating the approval instance.', example='This is a test'),
-      reportType?: string(name='ReportType', description='The report type. ApprovalReport indicates an approval report, and BackendReport indicates a backend report.'),
+      processName?: string(name='ProcessName', description='The name of the process associated with the approval instance.', example='Approval***'),
+      reason?: string(name='Reason', description='The reason for creating the approval instance.', example='Temporary access for a project'),
+      reportType?: string(name='ReportType', description='The report type. Valid values:
+* ApprovalReport: approval report.
+* BackendReport: backend report.', example='BackendReport'),
       schemaContent?: string(name='SchemaContent', description='The content of the template associated with the approval instance.', example='{"form": {"labelCol": 6,"wrapperCol": 12}}'),
       schemaId?: string(name='SchemaId', description='The ID of the template associated with the approval instance.', example='approval-schema-090134f1ebff****'),
-      schemaName?: string(name='SchemaName', description='The name of the template associated with the approval instance.', example='Test'),
+      schemaName?: string(name='SchemaName', description='The name of the template associated with the approval instance.', example='Template***'),
       status?: string(name='Status', description='The instance status. Valid values:
 - **Pending**: Pending approval.
 - **Approved**: Approved.
 - **Rejected**: Denied.
 - **Revoked**: Revoked.
-- **Expired**: Expired.', example='Pending'),
-      validityType?: string(name='ValidityType', description='The validity duration type. When the value is Permanent, EndTimestamp returns 0.'),
+- **Expired**: Expired.
+- **Deleted**: Deleted.', example='Pending'),
+      validityType?: string(name='ValidityType', description='The validity duration type. Valid values:
+- **FixedTime**: Expires at a specified time.
+- **Permanent**: Permanently valid.', example='Permanent'),
     }
-  ](name='Approval', description='The approval instance.'),
-  requestId?: string(name='RequestId', description='The request ID.', example='7E9D7ACD-53D5-56EF-A913-79D148D06299'),
+  ](name='Approval', description='The approval details list, which typically contains one record.'),
+  requestId?: string(name='RequestId', description='The request ID.', example='D6707286-A50E-57B1-B2CF-EFAC59E8****'),
 }
 
 model GetApprovalResponse = {
@@ -10392,6 +10543,68 @@ async function importEnterpriseAccelerateTargets(request: ImportEnterpriseAccele
   return importEnterpriseAccelerateTargetsWithOptions(request, runtime);
 }
 
+model InvalidateApprovalRequest {
+  approvalId?: string(name='ApprovalId', description='The ID of the approval instance to immediately invalidate. You can call ListApprovals to query approval instance IDs. Only one approval instance ID under the current Alibaba Cloud account can be specified per request.
+
+This parameter is required.', example='approval-6b5188a28634****'),
+}
+
+model InvalidateApprovalResponseBody = {
+  approvalId?: string(name='ApprovalId', description='The ID of the invalidated approval instance.', example='approval-6b5188a28634****'),
+  effectStatus?: string(name='EffectStatus', description='The effective status of the approval. When the invalidation succeeds, the value is fixed as Expired, which indicates that the approval has been invalidated.', example='Expired'),
+  reportType?: string(name='ReportType', description='The approval type. Valid values:
+* ApprovalReport: approval.
+* BackendReport: backend approval.', example='BackendReport'),
+  requestId?: string(name='RequestId', description='Id of the request', example='D6707286-A50E-57B1-B2CF-EFAC59E8****'),
+}
+
+model InvalidateApprovalResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: InvalidateApprovalResponseBody(name='body'),
+}
+
+/**
+ * @summary Immediately invalidates an approval.
+ *
+ * @param request InvalidateApprovalRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return InvalidateApprovalResponse
+ */
+async function invalidateApprovalWithOptions(request: InvalidateApprovalRequest, runtime: Util.RuntimeOptions): InvalidateApprovalResponse {
+  Util.validateModel(request);
+  var body : map[string]any = {};
+  if (!Util.isUnset(request.approvalId)) {
+    body['ApprovalId'] = request.approvalId;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApi.Params{
+    action = 'InvalidateApproval',
+    version = '2023-01-20',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Immediately invalidates an approval.
+ *
+ * @param request InvalidateApprovalRequest
+ * @return InvalidateApprovalResponse
+ */
+async function invalidateApproval(request: InvalidateApprovalRequest): InvalidateApprovalResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return invalidateApprovalWithOptions(request, runtime);
+}
+
 model ListApplicationsForPrivateAccessPolicyRequest {
   policyIds?: [ string ](name='PolicyIds', description='The IDs of the private access policies. You can specify up to 100 policy IDs.
 
@@ -10939,8 +11152,8 @@ async function listApprovalSchemasForApprovalProcesses(request: ListApprovalSche
 
 model ListApprovalsRequest {
   approvalIds?: [ string ](name='ApprovalIds', description='The collection of approval instance IDs.'),
-  createEndTime?: long(name='CreateEndTime', description='The end time for approval instance creation, in seconds-level timestamp.', example='1736750500'),
-  createStartTime?: long(name='CreateStartTime', description='The start time for approval instance creation, in seconds-level timestamp.', example='1730000000'),
+  createEndTime?: long(name='CreateEndTime', description='The end time for querying approval instance creation, in seconds-level timestamp.', example='1736750500'),
+  createStartTime?: long(name='CreateStartTime', description='The start time for querying approval instance creation, in seconds-level timestamp.', example='1730000000'),
   creatorDepartment?: string(name='CreatorDepartment', description='The department of the approval instance creator.', example='QA Department'),
   creatorDevTag?: string(name='CreatorDevTag', description='The terminal device ID of the approval instance creator.', example='36efa42d-2c32-c4dc-e3fc-8541e33a****'),
   creatorUserId?: string(name='CreatorUserId', description='The ID of the approval instance creator.', example='su_e8f218fb171edd167c2ad917d21f53148bdefc510ca1f3c3cc0249d3643d****'),
@@ -10948,16 +11161,27 @@ model ListApprovalsRequest {
   currentPage?: long(name='CurrentPage', description='The page number of the current page in a paging query. Valid values: 1 to 10000.
 
 This parameter is required.', example='1'),
-  effectStatuses?: [ string ](name='EffectStatuses', description='The list of report effective statuses. Valid values: Enabled, Expired.'),
+  effectStatuses?: [ string ](name='EffectStatuses', description='The list of report effective statuses, serialized in Flat format. Duplicate values are not allowed. Only records with an approval status of Approved are matched. Valid values:
+* Enabled: effective.
+* Expired: expired or invalidated.'),
   operatorUserId?: string(name='OperatorUserId', description='The ID of the approval instance operator.', example='su_e8f218fb171edd167c2ad917d21f53148bdefc510ca1f3c3cc0249d3643d****'),
   operatorUsername?: string(name='OperatorUsername', description='The username of the approval instance operator.', example='Ms. Li'),
   pageSize?: long(name='PageSize', description='The number of entries per page in a paging query. Valid values: 1 to 500.
 
 This parameter is required.', example='10'),
-  policyType?: string(name='PolicyType', description='The adaptation policy type. Valid values:', example='DlpSend'),
+  policyType?: string(name='PolicyType', description='The adaptation policy type. Valid values:
+- **DomainBlacklist**: Domain name blacklist.
+- **DomainWhitelist**: Domain name whitelist.
+- **SoftwareBlock**: Software blocking.
+- **AppUninstall**: Agent uninstallation.
+- **DlpSend**: File outbound transfer.
+- **PeripheralBlock**: Peripheral control.', example='DlpSend'),
   processId?: string(name='ProcessId', description='The associated approval process ID.', example='approval-process-fcc351b8a95b****'),
   processName?: string(name='ProcessName', description='The associated approval process name.', example='Test'),
-  reportTypes?: [ string ](name='ReportTypes', description='The list of report types. If not specified, only ApprovalReport is queried.'),
+  reportTypes?: [ string ](name='ReportTypes', description='The list of report types, serialized in Flat format. Duplicate values are not allowed. Valid values:
+* ApprovalReport: approval report.
+* BackendReport: backend report.
+If not specified, only ApprovalReport is queried by default.'),
   schemaId?: string(name='SchemaId', description='The associated approval template ID.', example='approval-schema-090134f1ebff****'),
   schemaName?: string(name='SchemaName', description='The associated approval template name.', example='test'),
   statuses?: [ string ](name='Statuses', description='The collection of approval instance statuses.'),
@@ -10983,34 +11207,57 @@ model ListApprovalsResponseBody = {
               username?: string(name='Username', description='The username of the operator for the approval progress node.', example='Mr. Wang'),
             }
           ](name='Operators', description='The list of operators for the approval progress node.'),
-          status?: string(name='Status', description='The status of the approval progress node. Valid values:', example='Approved'),
-          timestamp?: long(name='Timestamp', description='The time when the action was performed on the approval progress node. The value is a UNIX timestamp in seconds.', example='1736752000'),
+          status?: string(name='Status', description='The status of the approval progress node. Valid values:
+- **Pending**: Pending approval.
+- **Approved**: Approved.
+- **Rejected**: Rejected.
+- **Revoked**: Revoked.', example='Approved'),
+          timestamp?: long(name='Timestamp', description='The time when the approval progress node was executed. The value is a UNIX timestamp in seconds.', example='1736752000'),
         }
       ](name='ApprovalProgresses', description='The list of approval progress nodes.'),
-      approvalType?: int32(name='ApprovalType'),
+      approvalType?: int32(name='ApprovalType', description='The approval type. Valid values:
+* 0: built-in approval.
+* 1: DingTalk approval.
+* 2: WeCom approval.
+* 3: Lark approval.', example='0'),
       createTime?: string(name='CreateTime', description='The time when the approval instance was created.', example='2022-11-15 22:11:55'),
-      creatorDepartment?: string(name='CreatorDepartment', description='The department of the approval instance creator.', example='QA Department'),
+      creatorDepartment?: string(name='CreatorDepartment', description='The department of the approval instance creator.', example='CN=cn***,OU=h***'),
       creatorDevTag?: string(name='CreatorDevTag', description='The terminal device ID of the approval instance creator.', example='36efa42d-2c32-c4dc-e3fc-8541e33a****'),
       creatorUserId?: string(name='CreatorUserId', description='The ID of the approval instance creator.', example='su_e8f218fb171edd167c2ad917d21f53148bdefc510ca1f3c3cc0249d3643d****'),
-      creatorUsername?: string(name='CreatorUsername', description='The username of the approval instance creator.', example='Mr. Wang'),
-      effectStatus?: string(name='EffectStatus', description='The effective status of the report. Enabled indicates that the report is effective. Expired indicates that the report has expired.'),
-      endTimestamp?: long(name='EndTimestamp', description='The expiration time of the approval instance. The value is a UNIX timestamp in seconds.', example='1757952000'),
-      policyType?: string(name='PolicyType', description='The type of the policy associated with the approval instance. Valid values:
-- **DomainBlacklist**: domain name blacklist.
-- **DomainWhitelist**: domain name whitelist.
-- **SoftwareBlock**: software blocking.
-- **AppUninstall**: terminal uninstallation.
-- **DlpSend**: file outgoing.
-- **PeripheralBlock**: peripheral control.', example='DlpSend'),
+      creatorUsername?: string(name='CreatorUsername', description='The username of the approval instance creator.', example='Wang***'),
+      effectStatus?: string(name='EffectStatus', description='The filing effective status. An empty string is returned when the approval status is not Approved. Valid values:
+* Enabled: effective.
+* Expired: expired or reached the expiration date.', example='Enabled'),
+      endTimestamp?: long(name='EndTimestamp', description='The filing deadline. The value is a UNIX timestamp in seconds. The value 0 is returned when ValidityType is set to Permanent.', example='1757952000'),
+      policyType?: string(name='PolicyType', description='The policy type associated with the approval instance. Valid values:
+- **DomainBlacklist**: Domain name blacklist.
+- **DomainWhitelist**: Domain name whitelist.
+- **SoftwareBlock**: Software blocking.
+- **DeviceRegistration**: Excess registration.
+- **AppUninstall**: Endpoint uninstallation.
+- **DlpSend**: File outbound transfer.
+- **PeripheralBlock**: Peripheral control.
+- **EndpointHardening**: Endpoint hardening.
+- **oftwareHardening**: Software hardening.
+- **AiAgentBlock**: AI Agent control.
+- **PrivateAccessBlock**: Internal network access.', example='DlpSend'),
       processId?: string(name='ProcessId', description='The ID of the process associated with the approval instance.', example='approval-process-fcc351b8a95b****'),
-      processName?: string(name='ProcessName', description='The name of the process associated with the approval instance.', example='Test'),
-      reason?: string(name='Reason', description='The reason for creating the approval instance.', example='This is a test'),
-      reportType?: string(name='ReportType', description='The report type. ApprovalReport indicates an approval report. BackendReport indicates a backend report.'),
+      processName?: string(name='ProcessName', description='The name of the process associated with the approval instance.', example='Test***'),
+      reason?: string(name='Reason', description='The reason for creating the approval instance.', example='Temporary access for the project'),
+      reportType?: string(name='ReportType', description='The filing type. Valid values:
+* ApprovalReport: approval filing.
+* BackendReport: backend filing.', example='BackendReport'),
       schemaContent?: string(name='SchemaContent', description='The content of the template associated with the approval instance.', example='{"form": {"labelCol": 6,"wrapperCol": 12}}'),
       schemaId?: string(name='SchemaId', description='The ID of the template associated with the approval instance.', example='approval-schema-090134f1ebff****'),
-      schemaName?: string(name='SchemaName', description='The name of the template associated with the approval instance.', example='Test'),
-      status?: string(name='Status', description='The approval instance status. Valid values:', example='Pending'),
-      validityType?: string(name='ValidityType', description='The validity duration type. When the value is Permanent, EndTimestamp returns 0.'),
+      schemaName?: string(name='SchemaName', description='The name of the template associated with the approval instance.', example='Template***'),
+      status?: string(name='Status', description='The instance status of the approval. Valid values:
+- **Pending**: Pending approval.
+- **Approved**: Approved.
+- **Rejected**: Denied.
+- **Revoked**: Revoked.
+- **Expired**: Expired.
+- **Deleted**: Deleted.', example='Pending'),
+      validityType?: string(name='ValidityType', description='The validity duration type. Valid values: FixedTime, Permanent.', example='Permanent'),
     }
   ](name='Approvals', description='The list of approval instances.'),
   requestId?: string(name='RequestId', description='The ID of the request.', example='6965F5BA-53B6-5650-A708-51F090F843BB'),
