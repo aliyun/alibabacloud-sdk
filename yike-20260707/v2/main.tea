@@ -655,6 +655,75 @@ async function generateYikeLoginToken(request: GenerateYikeLoginTokenRequest): G
   return generateYikeLoginTokenWithOptions(request, runtime);
 }
 
+model GetAgentJobRequest {
+  jobId?: string(name='JobId', description='The task ID.
+
+This parameter is required.', example='******3B0E1A586AAC29742247******'),
+}
+
+model GetAgentJobResponseBody = {
+  job?: {
+    jobId?: string(name='JobId', description='The task ID.', example='bc30a1080b21434f961a0d9a391b30b9'),
+    output?: string(name='Output', description='The task output JSON string. Different tasks return different structures, which are defined by the business side.', example='{\\\\"OssUri\\\\":\\\\"oss://ice-ai-saas/ice-ai-saas-prd/1123668546389636/210606863/generate/ag_3a506706a33f44008aec6274d2e38d58/\\\\"}'),
+    status?: string(name='Status', description='The task status. Valid values:
+
+- Created
+- Queuing
+- Executing
+- Finished
+- Failed', example='Finished'),
+  }(name='Job', description='The task information.'),
+  requestId?: string(name='RequestId', description='Id of the request', example='****63E8B7C7-4812-46AD-0FA56029AC86****'),
+}
+
+model GetAgentJobResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: GetAgentJobResponseBody(name='body'),
+}
+
+/**
+ * @summary Queries an agent asynchronous task.
+ *
+ * @param request GetAgentJobRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return GetAgentJobResponse
+ */
+@context("getAgentJobWithContext")
+async function getAgentJobWithOptions(request: GetAgentJobRequest, runtime: $RuntimeOptions): GetAgentJobResponse {
+  request.validate();
+  var query = {};
+  if (!$isNull(request.jobId)) {
+    query['JobId'] = request.jobId;
+  }
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'GetAgentJob',
+    version = '2026-07-07',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Queries an agent asynchronous task.
+ *
+ * @param request GetAgentJobRequest
+ * @return GetAgentJobResponse
+ */
+async function getAgentJob(request: GetAgentJobRequest): GetAgentJobResponse {
+  var runtime = new $RuntimeOptions{};
+  return getAgentJobWithOptions(request, runtime);
+}
+
 model GetAssetCategoryRequest {
   categoryId?: long(name='CategoryId', description='The category ID. You can obtain the category ID by using the following methods:
 
@@ -1244,11 +1313,11 @@ model GetVideoDetextJobResponseBody = {
   job?: {
     errorCode?: string(name='ErrorCode', description='The business error code returned when the task fails. This field is typically not returned for non-failure states.', example='InvalidInput'),
     errorMessage?: string(name='ErrorMessage', description='The business error message returned when the task fails. This field is typically not returned for non-failure states.', example='Input video is invalid.'),
-    input?: string(name='Input', description='The normalized input configuration JSON string saved at submission time.', example='{"VideoMediaId":"media-video-001"}'),
+    input?: string(name='Input', description='The normalized input configuration JSON string saved at submission time.', example='{"VideoUrl":"https://example.com/input.mp4"}'),
     jobId?: string(name='JobId', description='The video text erasure task ID.', example='vdt_0123456789abcdef0123456789abcdef'),
     jobParameters?: string(name='JobParameters', description='The normalized text erasure parameter JSON string.', example='{"EraseAllText":false,"TextTargets":[{"Box":[0.1,0.8,0.8,0.15],"TimeRanges":[[0,30]]}]}'),
     jobType?: string(name='JobType', description='The task type. The value is fixed to VIDEO_DETEXT.', example='VIDEO_DETEXT'),
-    output?: string(name='Output', description='The task output JSON string. When the task succeeds, AiResult.DetextVideoURL contains the URL of the video with text erased.', example='{"AiResult":{"DetextVideoURL":"https://example.com/detext/detext.mp4"}}'),
+    output?: string(name='Output', description='The task result JSON string. When Status is Finished, deserialize this field and read AiResult.DetextVideoURL to obtain the URL of the video after text erasure. The video URL is not guaranteed to be included when the task has not completed successfully. If Output.OssUri is specified at submission time, the result is stored in the specified OSS location. Otherwise, a signed URL is returned.', example='{"AiResult":{"DetextVideoURL":"https://example.com/detext/detext.mp4"}}'),
     status?: string(name='Status', description='The task status. Valid values: Created, Queuing, Executing, Finished, and Failed.', example='Finished'),
   }(name='Job', description='The video text erasure task.'),
   requestId?: string(name='RequestId', description='The request ID, which is used for Tracing Analysis and troubleshooting.', example='req-detext-get-20260820-001'),
@@ -2099,6 +2168,85 @@ async function searchMedia(request: SearchMediaRequest): SearchMediaResponse {
   return searchMediaWithOptions(request, runtime);
 }
 
+model SubmitAgentJobRequest {
+  model?: string(name='Model', description='The large language model (LLM) used to execute the agent task.', example='qwen3.7-plus'),
+  notifyUrl?: string(name='NotifyUrl', description='The callback URL. Currently, only HTTP and HTTPS addresses are supported.', example='https://api.ai-x.vip/callback'),
+  prompt?: string(name='Prompt', description='The prompt. Defined by the business as needed.
+
+This parameter is required.', example='Compare the battle records of Yue Jin and Guan Yu in real history to determine who was stronger'),
+  skill?: string(name='Skill', description='The skill identifier, provided by the skill provider.', example='wf://xxx'),
+  userData?: string(name='UserData', description='The custom user data. This value is returned as-is in the callback.', example='{“x”: 1}'),
+  workspaceId?: string(name='WorkspaceId', description='The workspace ID.', example='ws_1151222932383236'),
+}
+
+model SubmitAgentJobResponseBody = {
+  jobId?: string(name='JobId', description='The task ID.', example='35ed5e9588184f2e8d862ee07437971a'),
+  requestId?: string(name='RequestId', description='Id of the request', example='******3B-0E1A-586A-AC29-742247******'),
+}
+
+model SubmitAgentJobResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: SubmitAgentJobResponseBody(name='body'),
+}
+
+/**
+ * @summary Submits an agent asynchronous node.
+ *
+ * @param request SubmitAgentJobRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return SubmitAgentJobResponse
+ */
+@context("submitAgentJobWithContext")
+async function submitAgentJobWithOptions(request: SubmitAgentJobRequest, runtime: $RuntimeOptions): SubmitAgentJobResponse {
+  request.validate();
+  var query = {};
+  if (!$isNull(request.model)) {
+    query['Model'] = request.model;
+  }
+  if (!$isNull(request.notifyUrl)) {
+    query['NotifyUrl'] = request.notifyUrl;
+  }
+  if (!$isNull(request.prompt)) {
+    query['Prompt'] = request.prompt;
+  }
+  if (!$isNull(request.skill)) {
+    query['Skill'] = request.skill;
+  }
+  if (!$isNull(request.userData)) {
+    query['UserData'] = request.userData;
+  }
+  if (!$isNull(request.workspaceId)) {
+    query['WorkspaceId'] = request.workspaceId;
+  }
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'SubmitAgentJob',
+    version = '2026-07-07',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Submits an agent asynchronous node.
+ *
+ * @param request SubmitAgentJobRequest
+ * @return SubmitAgentJobResponse
+ */
+async function submitAgentJob(request: SubmitAgentJobRequest): SubmitAgentJobResponse {
+  var runtime = new $RuntimeOptions{};
+  return submitAgentJobWithOptions(request, runtime);
+}
+
 model SubmitImageGenerationJobRequest {
   aspectRatio?: string(name='AspectRatio', description='The aspect ratio. Valid values: 16:9 (default), 9:16, 4:3, 3:4, 1:1, and 21:9.', example='4:3'),
   clientToken?: string(name='ClientToken', description='The idempotency token. A unique, case-sensitive string of up to 32 characters. This token ensures that the request is completed no more than once, preventing duplicate operations caused by multiple retries.', example='****3e761e9d11edba640c42a1b7****'),
@@ -2411,17 +2559,17 @@ async function submitRemakeScriptJob(request: SubmitRemakeScriptJobRequest): Sub
 }
 
 model SubmitVideoDetextJobRequest {
-  clientToken?: string(name='ClientToken', description='The user-level idempotency token. The token can be up to 40 characters in length. If the same user submits a request with the same token, the original task is returned.', example='detext-client-20260820-001'),
+  clientToken?: string(name='ClientToken', description='The user-level idempotency token. Maximum length: 40 characters. If the same user submits a request with the same token, the original task is returned.', example='detext-client-20260820-001'),
   input?: string(name='Input', description='The input configuration JSON string. You must specify either VideoUrl or VideoMediaId, but not both.
 
-This parameter is required.', example='{"VideoMediaId":"media-video-001"}'),
-  jobParameters?: string(name='JobParameters', description='The text erasure parameter JSON string. This parameter can contain EraseAllText, TimeRanges, TextTargets, FullEraseTargets, and Config.', example='{"EraseAllText":false,"TextTargets":[{"Box":[0.1,0.8,0.8,0.15],"TimeRanges":[[0,30]]}]}'),
-  output?: string(name='Output', description='The output configuration JSON string. You can use OssUri to specify the customer\\\\"s OSS bucket. If a directory is specified, the output file is named detext.mp4.', example='{"OssUri":"oss://example-bucket/video-detext/job-001/"}'),
-  userData?: string(name='UserData', description='The custom user data JSON string. This parameter can contain the asynchronous notification address NotifyAddress.', example='{"NotifyAddress":"mns://account.mns.cn-shanghai.aliyuncs.com/queues/detext-result"}'),
+This parameter is required.', example='{"VideoUrl":"https://example.com/input.mp4"}'),
+  jobParameters?: string(name='JobParameters', description='The text erasure parameter JSON string. This string can contain EraseAllText, TimeRanges, TextTargets, FullEraseTargets, and Config.', example='{"EraseAllText":false,"TextTargets":[{"Box":[0.1,0.8,0.8,0.15],"TimeRanges":[[0,30]]}]}'),
+  output?: string(name='Output', description='The output configuration JSON string. OssUri specifies an OSS directory or MP4 file path and cannot contain query parameters or fragments. For directory paths, detext.mp4 is automatically appended. Paths ending with .mp4 without a trailing / are used directly as the target file. If not specified, a signed URL of the processing result is returned in the query result.', example='{"OssUri":"oss://example-bucket/video-detext/job-001/"}'),
+  userData?: string(name='UserData', description='The custom data JSON string for pass-through in desired state notifications. For MNS callbacks, use NotifyAddress to specify a queue name prefixed with yike-callback, and use NotifyMnsEndpoint to specify an MNS endpoint under the same account. For HTTP(S) callbacks, use NotifyAddress to specify the full URL.', example='{"NotifyAddress":"yike-callback-example","NotifyMnsEndpoint":"http://<AccountId>.mns.cn-shanghai.aliyuncs.com/"}'),
 }
 
 model SubmitVideoDetextJobResponseBody = {
-  jobId?: string(name='JobId', description='The video text erasure job ID. You can use this ID to call GetVideoDetextJob to query the job status.', example='vdt_0123456789abcdef0123456789abcdef'),
+  jobId?: string(name='JobId', description='The video text erasure job ID. Use this ID to call GetVideoDetextJob to query the job.', example='vdt_0123456789abcdef0123456789abcdef'),
   requestId?: string(name='RequestId', description='The request ID, which is used for Tracing Analysis and troubleshooting.', example='req-detext-20260820-001'),
 }
 
@@ -2434,7 +2582,7 @@ model SubmitVideoDetextJobResponse = {
 /**
  * @summary Submits an asynchronous video text erasure task that supports full-video erasure, time range-based erasure, and region-specific erasure.
  *
- * @description Submits an asynchronous video text erasure task. The input can be an accessible video URL or a media asset ID. You can configure the erasure time range and text regions.
+ * @description Submits an asynchronous video text erasure task. The input can be an accessible video URL or a Yike video media asset ID. You can configure the erasure time range and text regions.
  *
  * @param request SubmitVideoDetextJobRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -2479,7 +2627,7 @@ async function submitVideoDetextJobWithOptions(request: SubmitVideoDetextJobRequ
 /**
  * @summary Submits an asynchronous video text erasure task that supports full-video erasure, time range-based erasure, and region-specific erasure.
  *
- * @description Submits an asynchronous video text erasure task. The input can be an accessible video URL or a media asset ID. You can configure the erasure time range and text regions.
+ * @description Submits an asynchronous video text erasure task. The input can be an accessible video URL or a Yike video media asset ID. You can configure the erasure time range and text regions.
  *
  * @param request SubmitVideoDetextJobRequest
  * @return SubmitVideoDetextJobResponse
