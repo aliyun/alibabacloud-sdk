@@ -30,11 +30,11 @@ init(config: OpenApiUtil.Config){
     'cn-shanghai-finance-1' = 'pai.cn-shanghai-finance-1.aliyuncs.com',
     'cn-wulanchabu' = 'pai.cn-wulanchabu.aliyuncs.com',
     'cn-zhangjiakou' = 'pai.cn-zhangjiakou.aliyuncs.com',
-    'us-southeast-1' = 'pai.us-southeast-1.aliyuncs.com',
     'cn-zhongwei' = 'pai.cn-zhongwei.aliyuncs.com',
+    'ap-northeast-2' = 'pai.ap-northeast-2.aliyuncs.com',
     'cn-guangzhou' = 'pai.cn-guangzhou.aliyuncs.com',
     'ap-southeast-8' = 'pai.ap-southeast-8.aliyuncs.com',
-    'ap-northeast-2' = 'pai.ap-northeast-2.aliyuncs.com',
+    'us-southeast-1' = 'pai.us-southeast-1.aliyuncs.com',
   };
 
   checkConfig(config);
@@ -154,27 +154,31 @@ model BindingPolicy {
 }
 
 model CacheInfo {
-  mountPoint?: string(name='MountPoint'),
-  port?: string(name='Port'),
+  mountPoint?: string(name='MountPoint', description='The mount point address of the datasource for service registration in the cache service, such as an OSS Bucket path or a CPFS path.', example='oss://your-bucket.oss-cn-wulanchabu-internal.aliyuncs.com/'),
+  port?: string(name='Port', description='The port number that the cache service provides for external access to the datasource. The client must access cached data through this port.', example='10080'),
 }
 
 model CacheService {
   cacheInfos?: [
     CacheInfo
-  ](name='CacheInfos', description='Information about each cache node in the service.'),
-  cacheServiceId?: string(name='CacheServiceId', description='The unique identifier of the CacheService.'),
-  clusterId?: string(name='ClusterId', description='The ID of the PAI cluster where the CacheService is deployed.'),
-  createdBy?: string(name='CreatedBy', description='The user or entity that created the resource.'),
-  gmtCreated?: string(name='GmtCreated', description='The time (in UTC, ISO 8601 format) when the CacheService was created.'),
-  isSharded?: boolean(name='IsSharded', description='Indicates whether the CacheService is sharded across multiple nodes.'),
-  networkType?: string(name='NetworkType', description='The network type of the CacheService. For example, `VPC`.'),
-  quotaId?: string(name='QuotaId', description='The ID of the resource quota associated with the CacheService.'),
-  status?: string(name='Status', description='The current status of the CacheService. For example: `Creating`, `Available`, or `Deleting`.'),
-  supportRDMA?: string(name='SupportRDMA', description='Indicates whether the CacheService supports RDMA.'),
-  supportedClientQuotaIds?: [ string ](name='SupportedClientQuotaIds', description='A list of quota IDs for clients that can connect to this CacheService.'),
-  tenantId?: string(name='TenantId', description='The ID of the tenant that owns the CacheService.'),
-  userId?: string(name='UserId', description='The ID of the user associated with the CacheService.'),
-  userVpc?: UserVpc(name='UserVpc', description='The configuration of the user\\\\"s VPC where the CacheService is deployed.'),
+  ](name='CacheInfos', description='The list of data source cache information connected to the cache service. Each element corresponds to a data source and its access port.'),
+  cacheServiceId?: string(name='CacheServiceId', description='The cache service ID. This is the unique identifier of the cache service.', example='cachea1b2c3d4e5f'),
+  clusterId?: string(name='ClusterId', description='The ID of the cluster where the cache service resides.', example='c1a2b3c4d5e6f7a8b9c0d1e2f3a4b5c6'),
+  createdBy?: string(name='CreatedBy', description='The ID of the resource quota that created the cache service.', example='quota1a2b3c4d5e6'),
+  gmtCreated?: string(name='GmtCreated', description='The time when the cache service was created, in UTC in ISO 8601 format.', example='2026-08-10T03:17:31Z'),
+  isSharded?: boolean(name='IsSharded', description='Indicates whether the service discovery of the cache service uses shard mode.'),
+  networkType?: string(name='NetworkType', description='The type of RDMA network interface controller used by the cache service. This parameter is returned only when SupportRDMA is set to true. Valid values:
+- eic: EIC network interface controller.
+- mlx: Mellanox network interface controller.
+
+This parameter is empty when RDMA is not enabled.', example='eic'),
+  quotaId?: string(name='QuotaId', description='The ID of the resource quota to which the cache service belongs.', example='quota1a2b3c4d5e6'),
+  status?: string(name='Status', description='The current status of the cache service.', example='Running'),
+  supportRDMA?: string(name='SupportRDMA', description='Indicates whether the cache service supports access through RDMA networks.'),
+  supportedClientQuotaIds?: [ string ](name='SupportedClientQuotaIds', description='The list of client quota IDs that are allowed to access the cache service.'),
+  tenantId?: string(name='TenantId', description='The tenant ID to which the cache service belongs, which is the Alibaba Cloud account ID.', example='1234567890123456'),
+  userId?: string(name='UserId', description='The ID of the user who created the cache service.', example='123456789012345678'),
+  userVpc?: UserVpc(name='UserVpc', description='The VPC network information of the cache service, including the VPC, vSwitch, and security group configurations.'),
 }
 
 model CapacityLock {
@@ -330,8 +334,8 @@ model Event {
 
 model Features {
   quota?: {
-    isEnabled?: boolean(name='IsEnabled', example='true'),
-  }(name='Quota'),
+    isEnabled?: boolean(name='IsEnabled', description='Indicates whether the feature is started.', example='true'),
+  }(name='Quota', description='The Quota feature.'),
 }
 
 model ForwardInfo {
@@ -349,6 +353,12 @@ model GPUMetric {
   model?: string(name='Model'),
   status?: long(name='Status', example='0：异常；1：正常'),
   usageRate?: float(name='UsageRate'),
+}
+
+model GlobalSpotPriceItem {
+  effectiveAt?: string(name='effectiveAt', description='The effective period.', example='2026-08-20T06:45:00Z'),
+  instanceType?: string(name='instanceType', description='The instance type.', example='ml.gp7vf.16.40xlarge'),
+  spotDiscount?: string(name='spotDiscount', description='The current market price.', example='0.1'),
 }
 
 model HyperParameterDefinition {
@@ -475,49 +485,51 @@ This parameter is required.', example='.*train:loss=([-+]?[0-9]*\\\\\\\\.?[0-9]+
 }
 
 model Node {
-  acceleratorType?: string(name='AcceleratorType', description='The accelerator type of the resource node instance, such as CPU or GPU.', example='CPU'),
-  allocatableCPU?: string(name='AllocatableCPU', description='The number of allocatable CPU cores.'),
-  allocatableMemory?: string(name='AllocatableMemory', description='The amount of allocatable memory in GiB.'),
+  acceleratorType?: string(name='AcceleratorType', description='The accelerator type of the resource node specifications (CPU/GPU).', example='CPU'),
+  allocatableCPU?: string(name='AllocatableCPU', description='The number of CPU cores that can be allocated to users.', example='4'),
+  allocatableMemory?: string(name='AllocatableMemory', description='The memory size that can be allocated to users.', example='5'),
   ancestorQuotaWorkloadNum?: long(name='AncestorQuotaWorkloadNum'),
-  availabilityZone?: string(name='AvailabilityZone'),
+  availabilityZone?: string(name='AvailabilityZone', description='The zone.', example='C'),
   boundQuotas?: [
     QuotaIdName
-  ](name='BoundQuotas', description='The list of quotas that are bound to the node.'),
+  ](name='BoundQuotas', description='The list of bound quotas.'),
   CPU?: string(name='CPU', description='The number of CPU cores.', example='4'),
-  creatorId?: string(name='CreatorId', description='The ID of the user who created the resource node.', example='281044699048527748'),
+  creatorId?: string(name='CreatorId', description='The creator of the resource node.', example='281044699048527748'),
   descendantQuotaWorkloadNum?: long(name='DescendantQuotaWorkloadNum'),
   diskCapacity?: long(name='DiskCapacity'),
   diskPL?: string(name='DiskPL'),
   GPU?: string(name='GPU', description='The number of GPUs.', example='0'),
-  GPUMemory?: string(name='GPUMemory', description='The GPU memory size in GiB.'),
+  GPUMemory?: string(name='GPUMemory', description='The GPU memory.', example='32'),
   GPUType?: string(name='GPUType', description='The GPU model.', example='""'),
-  gmtCreateTime?: string(name='GmtCreateTime', description='The time when the resource node was created.', example='2024-07-10T11:49:47Z', deprecated=true),
-  gmtCreatedTime?: string(name='GmtCreatedTime'),
-  gmtExpiredTime?: string(name='GmtExpiredTime', description='The time when the resource node expires.', example='2025-06-22T00:00:00Z'),
-  gmtModifiedTime?: string(name='GmtModifiedTime', description='The time when the resource node was last modified.', example='2024-07-10T11:49:47Z'),
-  hyperZone?: string(name='HyperZone'),
-  isBound?: boolean(name='IsBound', description='Indicates whether the node is bound to a quota.', example='false'),
+  gmtCreateTime?: string(name='GmtCreateTime', description='The creation time of the resource node.', example='2024-07-10T11:49:47Z', deprecated=true),
+  gmtCreatedTime?: string(name='GmtCreatedTime', description='The creation time of the resource node.'),
+  gmtExpiredTime?: string(name='GmtExpiredTime', description='The expiration time of the resource node.', example='2025-06-22T00:00:00Z'),
+  gmtModifiedTime?: string(name='GmtModifiedTime', description='The update time of the resource node.', example='2024-07-10T11:49:47Z'),
+  hyperZone?: string(name='HyperZone', description='The high-speed interconnect zone.', example='C3'),
+  isBound?: boolean(name='IsBound', description='Indicates whether the resource node is bound to a quota.', example='false'),
   limitCPU?: string(name='LimitCPU', description='The maximum number of CPU cores.', example='4'),
   limitGPU?: string(name='LimitGPU', description='The maximum number of GPUs.', example='0'),
-  limitMemory?: string(name='LimitMemory', description='The maximum memory size in GiB.', example='8'),
+  limitMemory?: string(name='LimitMemory', description='The maximum memory size.', example='8'),
   machineGroupId?: string(name='MachineGroupId', description='The ID of the machine group to which the resource node belongs.', example='mg1234456'),
-  memory?: string(name='Memory', description='The memory size in GiB.', example='8'),
+  memory?: string(name='Memory', description='The memory size.', example='8'),
+  nodeGPUMemory?: string(name='NodeGPUMemory', description='The GPU memory of the node.', example='640G'),
+  nodeGPUMemoryBytes?: long(name='NodeGPUMemoryBytes', description='The GPU memory of the node in bytes.', example='687194767360'),
   nodeName?: string(name='NodeName', description='The name of the resource node.', example='lingjxxxx'),
   nodeStatus?: string(name='NodeStatus', description='The status of the resource node.', example='Ready'),
-  nodeType?: string(name='NodeType', description='The instance type of the resource node.', example='ecs.c8i.xlarge'),
+  nodeType?: string(name='NodeType', description='The node specifications type of the resource node.', example='ecs.c8i.xlarge'),
   orderStatus?: string(name='OrderStatus', description='The order status of the resource node.', example='Ready'),
   podNum?: long(name='PodNum', description='The number of pods on the node.', example='2'),
   reasonCode?: string(name='ReasonCode', description='The error code.', example='""'),
   reasonMessage?: string(name='ReasonMessage', description='The error message.', example='""'),
   requestCPU?: string(name='RequestCPU', description='The number of requested CPU cores.', example='4'),
   requestGPU?: string(name='RequestGPU', description='The number of requested GPUs.', example='0'),
-  requestMemory?: string(name='RequestMemory', description='The requested memory size in GiB.', example='8'),
+  requestMemory?: string(name='RequestMemory', description='The requested memory size.', example='8'),
   resourceGroupId?: string(name='ResourceGroupId', description='The ID of the resource group to which the resource node belongs.', example='rgf0zhfqn1d4ity2'),
   resourceGroupName?: string(name='ResourceGroupName', description='The name of the resource group to which the resource node belongs.', example='test'),
   selfQuotaWorkloadNum?: long(name='SelfQuotaWorkloadNum'),
-  subNodes?: [ string ](name='SubNodes'),
-  systemReservedCPU?: string(name='SystemReservedCPU', description='The number of CPU cores that are reserved for the system.'),
-  systemReservedMemory?: string(name='SystemReservedMemory', description='The amount of memory that is reserved for the system in GiB.'),
+  subNodes?: [ string ](name='SubNodes', description='The names of the child nodes.'),
+  systemReservedCPU?: string(name='SystemReservedCPU', description='The number of system-reserved CPU cores.', example='0'),
+  systemReservedMemory?: string(name='SystemReservedMemory', description='The system-reserved memory size.', example='3'),
   users?: [
     UserInfo
   ](name='Users', description='The user information.'),
@@ -559,9 +571,10 @@ model NodeMetric {
 }
 
 model NodeOperationParameters {
-  cordonParameters?: NodeCordonParameters(name='CordonParameters', description='Node cordon parameter settings'),
-  drainParameters?: NodeDrainParameters(name='DrainParameters', description='Node drain task instance parameter settings'),
-  uncordonParameters?: NodeUncordonParameters(name='UncordonParameters', description='Node uncordon parameter settings'),
+  cordonParameters?: NodeCordonParameters(name='CordonParameters', description='The parameter settings for disabling node scheduling.'),
+  drainParameters?: NodeDrainParameters(name='DrainParameters', description='The parameter settings for draining task instances from a node.'),
+  resizeDiskParameters?: ResizeDiskParameters(name='ResizeDiskParameters', description='The parameters for changing disk capacity.'),
+  uncordonParameters?: NodeUncordonParameters(name='UncordonParameters', description='The parameter settings for enabling node scheduling.'),
 }
 
 model NodeOperationResult {
@@ -640,9 +653,9 @@ model NodeType {
 }
 
 model NodeTypeStatistic {
-  canBeBoundCount?: int32(name='CanBeBoundCount', example='4'),
-  nodeType?: string(name='NodeType', example='ecs.g6.4xlarge'),
-  totalCount?: int32(name='TotalCount', example='10'),
+  canBeBoundCount?: int32(name='CanBeBoundCount', description='The number of resource nodes of the specification that can be bound.', example='4'),
+  nodeType?: string(name='NodeType', description='The resource node specifications.', example='ecs.g6.4xlarge'),
+  totalCount?: int32(name='TotalCount', description='The total number of resource nodes of the specification.', example='10'),
 }
 
 model NodeUncordonParameters {
@@ -726,51 +739,44 @@ model QueueMeta {
 }
 
 model Quota {
-  allocateStrategy?: string(name='AllocateStrategy', description='The resource allocation strategy. Currently, only `ByNodeSpec` is supported.', example='ByNodeSpec'),
-  creatorId?: string(name='CreatorId', description='The ID of the user who created the quota.', example='1884692****'),
-  description?: string(name='Description', description='The quota description.', example='this is a test quota'),
-  GPUType?: string(name='GPUType'),
-  gmtCreatedTime?: string(name='GmtCreatedTime', description='The time when the quota was created.', example='2023-06-22T00:00:00Z'),
-  gmtModifiedTime?: string(name='GmtModifiedTime', description='The time when the quota was last modified.', example='2023-06-22T00:00:00Z'),
+  allocateStrategy?: string(name='AllocateStrategy', description='The resource allocation strategy. Currently, only ByNodeSpecs is supported.', example='ByNodeSpec'),
+  creatorId?: string(name='CreatorId', description='The ID of the resource quota creator.', example='1884692****'),
+  description?: string(name='Description', description='The resource quota description.', example='this is a test quota'),
+  GPUType?: string(name='GPUType', description='The GPU type.'),
+  gmtCreatedTime?: string(name='GmtCreatedTime', description='The time when the resource quota was created.', example='2023-06-22T00:00:00Z'),
+  gmtModifiedTime?: string(name='GmtModifiedTime', description='The time when the resource quota was last modified.', example='2023-06-22T00:00:00Z'),
   hyperZones?: [ string ](name='HyperZones'),
   labels?: [
     Label
-  ](name='Labels', description='The quota labels.'),
-  latestOperationId?: string(name='LatestOperationId', description='The ID of the most recent operation on the quota.', example='operation****'),
+  ](name='Labels', description='The resource quota labels.'),
+  latestOperationId?: string(name='LatestOperationId', description='The ID of the latest operation on the resource quota.', example='operation****'),
   min?: ResourceSpec(name='Min', description='The guaranteed resources.'),
-  parentQuotaId?: string(name='ParentQuotaId', description='The parent quota ID.', example='""'),
-  queueStrategy?: string(name='QueueStrategy', description='The queuing strategy. Valid values:
-
-- `PaiStrategyIntelligent`: intelligent strategy.
-
-- `PaiStrategyBalance`: balanced strategy.
-
-- `PaiStrategyRoundRobin`: round-robin strategy.
-
-- `PaiStrategyStrictFIFO`: FIFO strategy.', example='PaiStrategyIntelligent'),
+  parentQuotaId?: string(name='ParentQuotaId', description='The parent resource quota ID.', example='""'),
+  queueStrategy?: string(name='QueueStrategy', description='The queue policy for the quota. Valid values:
+- PaiStrategyIntelligent: intelligent policies.
+- PaiStrategyBalance: balanced policy.
+- PaiStrategyRoundRobin: resource-priority policy.
+- PaiStrategyStrictFIFO: FIFO policy.', example='PaiStrategyIntelligent'),
   quotaCluster?: QuotaCluster(name='QuotaCluster'),
-  quotaConfig?: QuotaConfig(name='QuotaConfig', description='The quota configuration.'),
-  quotaDetails?: QuotaDetails(name='QuotaDetails', description='The quota details.'),
-  quotaId?: string(name='QuotaId', description='The quota ID.', example='quota12345'),
-  quotaName?: string(name='QuotaName', description='The quota name.', example='dlc-quota'),
+  quotaConfig?: QuotaConfig(name='QuotaConfig', description='The resource quota configuration.'),
+  quotaDetails?: QuotaDetails(name='QuotaDetails', description='The resource quota details.'),
+  quotaId?: string(name='QuotaId', description='The resource quota ID.', example='quota12345'),
+  quotaName?: string(name='QuotaName', description='The resource quota name.', example='dlc-quota'),
   reasonCode?: string(name='ReasonCode', description='The error code.', example='“”'),
-  reasonMessage?: string(name='ReasonMessage', description='The error message.', example='“”'),
-  resourceGroupIds?: [ string ](name='ResourceGroupIds', description='A list of resource group IDs.'),
+  reasonMessage?: string(name='ReasonMessage', description='The error reason.', example='“”'),
+  resourceGroupIds?: [ string ](name='ResourceGroupIds', description='The list of resource groups.'),
   resourceType?: string(name='ResourceType', description='The resource type. Valid values:
-
-- `Lingjun`
-
-- `ECS` (default)
-
-- `ACS`', example='ECS'),
-  status?: string(name='Status', description='The quota status.', example='Ready'),
+- Lingjun
+- ECS (default)
+- ACS', example='ECS'),
+  status?: string(name='Status', description='The resource quota status.', example='Ready'),
   subQuotas?: [
     QuotaIdName
-  ](name='SubQuotas', description='A list of sub-quotas.'),
+  ](name='SubQuotas', description='The list of sub-quotas under the resource quota.'),
   version?: string(name='Version', description='The version.'),
   workspaces?: [
     WorkspaceIdName
-  ](name='Workspaces', description='The workspaces that are associated with the quota.'),
+  ](name='Workspaces', description='The workspaces associated with the resource quota.'),
 }
 
 model QuotaCluster {
@@ -809,18 +815,19 @@ model QuotaConfig {
 }
 
 model QuotaDetails {
-  actualMinQuota?: ResourceAmount(name='ActualMinQuota', description='Total MinQuota amount actually assigned'),
-  allocatableQuota?: ResourceAmount(name='AllocatableQuota', description='Quota amount assignable by the User'),
-  allocatedQuota?: ResourceAmount(name='AllocatedQuota', description='Total Quota usage information'),
-  ancestorsAllocatedQuota?: ResourceAmount(name='AncestorsAllocatedQuota', description='Quota usage information of ancestors'),
-  descendantsAllocatedQuota?: ResourceAmount(name='DescendantsAllocatedQuota', description='Quota usage information of descendants'),
-  desiredMinQuota?: ResourceAmount(name='DesiredMinQuota', description='Total MinQuota amount requested by the User'),
-  nodeStatistics?: QuotaNodeStatistics(name='NodeStatistics'),
-  requestedQuota?: ResourceAmount(name='RequestedQuota', description='Quota request amount'),
-  selfAllocatedQuota?: ResourceAmount(name='SelfAllocatedQuota', description='Quota usage information at the current level'),
-  selfSubmittedQuota?: ResourceAmount(name='SelfSubmittedQuota'),
-  systemReservedQuota?: ResourceAmount(name='SystemReservedQuota', description='System-reserved Quota amount'),
-  usedQuota?: ResourceAmount(name='UsedQuota', description='Quota usage amount'),
+  actualMinQuota?: ResourceAmount(name='ActualMinQuota', description='The total MinQuota actually allocated. For example, if the user configured 10 nodes but only 8 nodes are actually bound, this value returns the total resources of the 8 nodes.'),
+  allocatableQuota?: ResourceAmount(name='AllocatableQuota', description='The user-allocatable quota amount. For general computing resources, each node has system-reserved resources. This value represents the quota resources that user workloads can occupy.
+ActualMin = AllocatableQuota + SystemReservedQuota.'),
+  allocatedQuota?: ResourceAmount(name='AllocatedQuota', description='The total quota usage information, which is the total resources occupied by workloads after scheduling to nodes.'),
+  ancestorsAllocatedQuota?: ResourceAmount(name='AncestorsAllocatedQuota', description='The ancestor quota usage information, which is the total resources of workloads submitted using ancestor quotas after they are scheduled to nodes.'),
+  descendantsAllocatedQuota?: ResourceAmount(name='DescendantsAllocatedQuota', description='The descendant quota usage information, which is the total resources of workloads submitted using descendant quotas after they are scheduled to nodes.'),
+  desiredMinQuota?: ResourceAmount(name='DesiredMinQuota', description='The total MinQuota desired by the user.'),
+  nodeStatistics?: QuotaNodeStatistics(name='NodeStatistics', description='The statistics information of nodes within the quota.'),
+  requestedQuota?: ResourceAmount(name='RequestedQuota', description='The quota requested amount, which is the total resources occupied by workloads after they are dequeued.'),
+  selfAllocatedQuota?: ResourceAmount(name='SelfAllocatedQuota', description='The current-level quota usage information, which is the total resources of workloads submitted using this quota after they are scheduled to nodes.'),
+  selfSubmittedQuota?: ResourceAmount(name='SelfSubmittedQuota', description='The amount submitted to this quota, which is the total resources of workloads submitted to this quota, including workloads that are queued.'),
+  systemReservedQuota?: ResourceAmount(name='SystemReservedQuota', description='The system-reserved quota amount.'),
+  usedQuota?: ResourceAmount(name='UsedQuota', description='The quota used amount. This field is deprecating. Use AllocatedQuota instead.'),
 }
 
 model QuotaIdName {
@@ -942,9 +949,15 @@ model QuotaUserViewMetric {
   userId?: string(name='UserId'),
 }
 
+model ResizeDiskParameters {
+  newDiskSize?: string(name='NewDiskSize', description='The target disk capacity after the change.'),
+}
+
 model ResourceAmount {
   CPU?: string(name='CPU', description='Total CPU', example='100'),
   GPU?: string(name='GPU', description='Total GPU cards', example='16'),
+  GPUMemory?: string(name='GPUMemory', example='80G'),
+  GPUMemoryBytes?: long(name='GPUMemoryBytes', example='85899345920'),
   GPUType?: string(name='GPUType', description='GPU card type', example='GPU'),
   memory?: string(name='Memory', description='Total memory', example='100Gi'),
 }
@@ -958,12 +971,12 @@ model ResourceDiagnosisDetail {
 }
 
 model ResourceGroup {
-  creatorID?: string(name='CreatorID', description='The user ID of the creator.', example='161228528250****'),
+  creatorID?: string(name='CreatorID', description='The user ID of the creator.', example='1612285282502324'),
   gmtCreatedTime?: string(name='GmtCreatedTime', description='The time the PAI resource group was created.', example='2023-06-22T00:00:00Z'),
   gmtModifiedTime?: string(name='GmtModifiedTime', description='The time the PAI resource group was last modified.', example='2023-06-22T00:00:00Z'),
   name?: string(name='Name', description='The name of the PAI resource group.', example='RG1'),
   nodeCount?: int32(name='NodeCount', description='The number of nodes.', example='3'),
-  resourceGroupID?: string(name='ResourceGroupID', description='The ID of the PAI resource group.', example='rg17tmvwiokh****'),
+  resourceGroupID?: string(name='ResourceGroupID', description='The ID of the PAI resource group.', example='rg17tmvwiokhzaxg'),
   resourceType?: string(name='ResourceType'),
   status?: string(name='Status'),
   userVpc?: UserVpc(name='UserVpc', description='The VPC configuration.'),
@@ -1025,7 +1038,7 @@ model ResourceSpec {
 }
 
 model Rules {
-  scheduling?: SchedulingRule(name='Scheduling'),
+  scheduling?: SchedulingRule(name='Scheduling', description='The node scheduling rule configuration.'),
 }
 
 model SandboxCacheConfig {
@@ -1502,57 +1515,42 @@ async function createInstanceWebTerminal(TrainingJobId: string, InstanceId: stri
 }
 
 model CreateQuotaRequest {
-  allocateStrategy?: string(name='AllocateStrategy', description='The allocation strategy for the quota. Only `ByNodeSpecs` is supported.', example='ByNodeSpecs'),
-  clusterSpec?: ClusterSpec(name='ClusterSpec', description='The native cluster specification for the quota.'),
-  description?: string(name='Description', description='The description of the quota.', example='this is a test quota'),
+  allocateStrategy?: string(name='AllocateStrategy', description='The quota allocation strategy. Currently, only ByNodeSpecs is supported.', example='ByNodeSpecs'),
+  clusterSpec?: ClusterSpec(name='ClusterSpec', description='The specifications of the native cluster for the resource quota.'),
+  description?: string(name='Description', description='The quota description.', example='this is a test quota'),
   labels?: [
     Label
-  ](name='Labels', description='The tags for the quota.'),
-  min?: ResourceSpec(name='Min', description='The minimum resources for the quota. You can define this in one of the following ways:
-
-- `ResourceAmount`: Specifies the CPU, memory, and GPU details.
-
-- `NodeSpecs`: Specifies the node specification and the number of nodes.
+  ](name='Labels', description='The quota labels.'),
+  min?: ResourceSpec(name='Min', description='The minimum quota configuration. Valid options:
+- ResourceAmount: specifies CPU, memory, or GPU details.
+- NodeSpecs: specifies the instance type and quantity.
 
 Constraints:
+- If the quota allocates resources from a dedicated resource group, only the NodeSpecs strategy is allowed.
+- If the quota allocates resources from a parent quota, both strategies are allowed, but all child quotas must use the same strategy.
+- All GPU specifications within a quota must use the same GPU type.
+- Resource quotas with the ECS or Lingjun resource type can only use the NodeSpecs strategy.'),
+  parentQuotaId?: string(name='ParentQuotaId', description='The parent QuotaId:
+- If ParentQuotaId is empty, a root quota is created and machines are allocated from the dedicated resource group.
+- If ParentQuotaId is not empty, a child quota is created and resources are allocated from the nodes bound to the root quota.', example='quota1ci8g793pgm'),
+  queueStrategy?: string(name='QueueStrategy', description='Four queuing policies are supported for quotas.
 
-- If this quota allocates resources from a dedicated resource group, you must use the `NodeSpecs` method.
-
-- If this quota allocates resources from a parent quota, both methods are allowed. However, all its child quotas must use the same method.
-
-- All GPU specifications within the quota must have the same GPU type.
-
-- For quotas with the resource type set to ECS or Lingjun, only the `NodeSpecs` method can be used.'),
-  parentQuotaId?: string(name='ParentQuotaId', description='The ID of the parent quota.
-
-- If you do not specify this parameter, a root quota is created. Resources are allocated from a dedicated resource group.
-
-- If you specify this parameter, a child quota is created. Resources are allocated from the nodes that are bound to the root quota.', example='quota1ci8g793pgm'),
-  queueStrategy?: string(name='QueueStrategy', description='The queuing strategy for the quota. Four strategies are supported:
-
-- `PaiStrategyIntelligent`: The intelligent strategy.
-
-- `PaiStrategyBalance`: The balance strategy.
-
-- `PaiStrategyRoundRobin`: The round-robin strategy.
-
-- `PaiStrategyStrictFIFO`: The FIFO strategy.', example='PaiStrategyIntelligent', nullable=true),
-  quotaConfig?: QuotaConfig(name='QuotaConfig', description='Constraints for the `QuotaConfig` parameter:
-
-- This parameter is ignored if the resource type is ECS or Lingjun.
-
-- If the resource type is ACS, the specified VPC and ACS configurations are applied.'),
-  quotaName?: string(name='QuotaName', description='The name of the quota.', example='test-quota'),
-  resourceGroupIds?: [ string ](name='ResourceGroupIds', description='The IDs of the dedicated resource groups. The following constraints apply:
-
-- Only a root quota, for which `ParentQuotaId` is empty, can allocate nodes from a resource group.
-
-- The VPC configurations of the specified resource groups must be the same.'),
-  resourceType?: string(name='ResourceType', description='The resource type of the quota. Valid values: Lingjun, ECS, and ACS. Default value: ECS.', example='ECS'),
+- PaiStrategyIntelligent: intelligent policies.
+- PaiStrategyBalance: balanced policy.
+- PaiStrategyRoundRobin: resource-priority policy.
+- PaiStrategyStrictFIFO: FIFO policy.', example='PaiStrategyIntelligent', nullable=true),
+  quotaConfig?: QuotaConfig(name='QuotaConfig', description='QuotaConfig configuration constraints:
+- This configuration does not take effect when the ECS or Lingjun resource type is used.
+- When the ACS resource type is used, the user VPC information and ACS configuration take effect.'),
+  quotaName?: string(name='QuotaName', description='The quota name.', example='test-quota'),
+  resourceGroupIds?: [ string ](name='ResourceGroupIds', description='The list of dedicated resource groups. Constraints:
+- Only root quotas (where ParentQuotaId is empty) can allocate machines from resource groups.
+- The VPC configurations in the specified resource groups must be consistent.'),
+  resourceType?: string(name='ResourceType', description='The quota resource type (Lingjun/ECS/ACS). Default value: ECS.', example='ECS'),
 }
 
 model CreateQuotaResponseBody = {
-  quotaId?: string(name='QuotaId', description='The quota ID.', example='quotad2kd8ljpsno'),
+  quotaId?: string(name='QuotaId', description='The resource quota ID.', example='quotad2kd8ljpsno'),
   requestId?: string(name='RequestId', description='The request ID.', example='CBF05F13-B24C-5129-9048-4FA684DCD579'),
 }
 
@@ -1563,7 +1561,7 @@ model CreateQuotaResponse = {
 }
 
 /**
- * @summary Call the `CreateQuota` operation to create a quota.
+ * @summary Creates a resource quota by calling the CreateQuota operation.
  *
  * @param request CreateQuotaRequest
  * @param headers map
@@ -1627,7 +1625,7 @@ async function createQuotaWithOptions(request: CreateQuotaRequest, headers: map[
 }
 
 /**
- * @summary Call the `CreateQuota` operation to create a quota.
+ * @summary Creates a resource quota by calling the CreateQuota operation.
  *
  * @param request CreateQuotaRequest
  * @return CreateQuotaResponse
@@ -2091,8 +2089,8 @@ async function deleteMachineGroup(MachineGroupID: string): DeleteMachineGroupRes
 }
 
 model DeleteQuotaResponseBody = {
-  quotaId?: string(name='QuotaId', description='Quota ID.', example='quotamtl37ge7gkvdz'),
-  requestId?: string(name='RequestId', description='Request ID.', example='473469C7-AA6F-4DC5-B3DB-A3DC0DE3C83E'),
+  quotaId?: string(name='QuotaId', description='Quota ID。', example='quotamtl37ge7gkvdz'),
+  requestId?: string(name='RequestId', description='The request ID.', example='473469C7-AA6F-4DC5-B3DB-A3DC0DE3C83E'),
 }
 
 model DeleteQuotaResponse = {
@@ -2102,7 +2100,7 @@ model DeleteQuotaResponse = {
 }
 
 /**
- * @summary You can delete a resource quota by using DeleteQuota.
+ * @summary Deletes a resource quota.
  *
  * @param headers map
  * @param runtime runtime options for this request RuntimeOptions
@@ -2128,7 +2126,7 @@ async function deleteQuotaWithOptions(QuotaId: string, headers: map[string]strin
 }
 
 /**
- * @summary You can delete a resource quota by using DeleteQuota.
+ * @summary Deletes a resource quota.
  *
  * @return DeleteQuotaResponse
  */
@@ -2187,8 +2185,8 @@ async function deleteResourceGroup(ResourceGroupID: string): DeleteResourceGroup
 }
 
 model DeleteResourceGroupMachineGroupResponseBody = {
-  machineGroupID?: string(name='MachineGroupID', description='The ID of the deleted machine group.'),
-  requestId?: string(name='RequestId', description='The request ID. Provide this ID to our technical support for troubleshooting.'),
+  machineGroupID?: string(name='MachineGroupID'),
+  requestId?: string(name='RequestId'),
 }
 
 model DeleteResourceGroupMachineGroupResponse = {
@@ -2200,7 +2198,7 @@ model DeleteResourceGroupMachineGroupResponse = {
 /**
  * @deprecated OpenAPI DeleteResourceGroupMachineGroup is deprecated
  *
- * @summary Deletes the specified machine group from a resource group.
+ * @summary Deletes a machine group.
  *
  * @param headers map
  * @param runtime runtime options for this request RuntimeOptions
@@ -2229,7 +2227,7 @@ async function deleteResourceGroupMachineGroupWithOptions(MachineGroupID: string
 /**
  * @deprecated OpenAPI DeleteResourceGroupMachineGroup is deprecated
  *
- * @summary Deletes the specified machine group from a resource group.
+ * @summary Deletes a machine group.
  *
  * @return DeleteResourceGroupMachineGroupResponse
  */
@@ -2540,7 +2538,7 @@ model GetNodeMetricsRequest {
 - T4
 - P100', example='V100'),
   startTime?: string(name='StartTime', description='The start time.', example='2024-07-08T02:23:30.292Z'),
-  timeStep?: string(name='TimeStep', description='The time step. Default value: 5m. The supported time units are:
+  timeStep?: string(name='TimeStep', description='The time step. Default value: 5m. Valid values for the time unit:
 
 - h: hours.
 
@@ -2548,20 +2546,19 @@ model GetNodeMetricsRequest {
 
 - s: seconds.
 
-If the value does not contain a unit, the default unit is s (seconds).', example='1h'),
-  verbose?: boolean(name='Verbose', description='Specifies whether to display non-essential information. Non-essential information currently includes Labels.
-Valid values:
+If no unit is specified, the default unit is s (seconds).', example='1h'),
+  verbose?: boolean(name='Verbose', description='Specifies whether to display non-essential information. Non-essential information currently includes Labels. Valid values:
 
-false: does not display non-essential information (default value)
-true: displays non-essential information', example='true'),
+false: does not display non-essential information (default).
+true: displays non-essential information.', example='true'),
 }
 
 model GetNodeMetricsResponseBody = {
-  metricType?: string(name='MetricType', description='The name of the metric to query.', example='DiskWriteRate'),
+  metricType?: string(name='MetricType', description='The name of the queried metric.', example='DiskWriteRate'),
   nodesMetrics?: [
     NodeMetric
-  ](name='NodesMetrics', description='The metric information of the nodes.'),
-  resourceGroupID?: string(name='ResourceGroupID', description='The resource group ID. Each resource group has a globally unique resource group ID. You can use the resource group ID to obtain information about the resource group.', example='rgf0zhfqn1d4ity2'),
+  ](name='NodesMetrics', description='The node metric information.'),
+  resourceGroupID?: string(name='ResourceGroupID', description='The resource group ID. Each resource group has a globally unique resource group ID. You can use the resource group ID to retrieve information about the resource group.', example='rgf0zhfqn1d4ity2'),
 }
 
 model GetNodeMetricsResponse = {
@@ -2573,7 +2570,7 @@ model GetNodeMetricsResponse = {
 /**
  * @deprecated OpenAPI GetNodeMetrics is deprecated
  *
- * @summary You can call the GetNodeMetrics operation to obtain the metric information of resource group nodes.
+ * @summary Retrieves metric information for resource group nodes.
  *
  * @param request GetNodeMetricsRequest
  * @param headers map
@@ -2622,7 +2619,7 @@ async function getNodeMetricsWithOptions(ResourceGroupID: string, MetricType: st
 /**
  * @deprecated OpenAPI GetNodeMetrics is deprecated
  *
- * @summary You can call the GetNodeMetrics operation to obtain the metric information of resource group nodes.
+ * @summary Retrieves metric information for resource group nodes.
  *
  * @param request GetNodeMetricsRequest
  * @return GetNodeMetricsResponse
@@ -2635,48 +2632,49 @@ async function getNodeMetrics(ResourceGroupID: string, MetricType: string, reque
 }
 
 model GetQuotaRequest {
-  verbose?: boolean(name='Verbose', description='Specifies whether to return detailed information.', example='true'),
-  withNodeMeta?: boolean(name='WithNodeMeta', description='Specifies whether to return the metadata of nodes that are attached to the resource quota.'),
+  verbose?: boolean(name='Verbose', description='Specifies whether to display detailed information.', example='true'),
+  withNodeMeta?: boolean(name='WithNodeMeta', description='Specifies whether to return the node metadata bound to the quota.'),
 }
 
 model GetQuotaResponseBody = {
-  allocateStrategy?: string(name='AllocateStrategy', description='The resource allocation policy.', example='ByNodeSpec'),
-  creatorId?: string(name='CreatorId', description='The ID of the user who created the resource quota.', example='1884692****'),
-  description?: string(name='Description', description='The description of the resource quota.', example='this is a test quota'),
-  gmtCreatedTime?: string(name='GmtCreatedTime', description='The time when the resource quota was created.', example='2023-06-22T00:00:00Z'),
-  gmtModifiedTime?: string(name='GmtModifiedTime', description='The time when the resource quota was last modified.', example='2023-06-22T00:00:00Z'),
-  hyperZones?: [ string ](name='HyperZones', description='A list of high-performance network zones.'),
+  allocateStrategy?: string(name='AllocateStrategy', description='The resource allocation strategy.', example='ByNodeSpec'),
+  creatorId?: string(name='CreatorId', description='The ID of the quota creator.', example='1884692****'),
+  description?: string(name='Description', description='The description of the quota.', example='this is a test quota'),
+  GPUType?: string(name='GPUType', description='The GPU type.', example='L20'),
+  gmtCreatedTime?: string(name='GmtCreatedTime', description='The time when the quota was created.', example='2023-06-22T00:00:00Z'),
+  gmtModifiedTime?: string(name='GmtModifiedTime', description='The time when the quota was last modified.', example='2023-06-22T00:00:00Z'),
+  hyperZones?: [ string ](name='HyperZones', description='The list of high-performance network zones.'),
   labels?: [
     Label
-  ](name='Labels', description='The labels of the resource quota.'),
-  latestOperationId?: string(name='LatestOperationId', description='The ID of the most recent change to the resource quota.', example='operation****'),
-  min?: ResourceSpec(name='Min', description='The configuration of the minimum quota.'),
-  parentQuotaId?: string(name='ParentQuotaId', description='The ID of the parent resource quota.', example='quota1ci8g79****'),
-  queueStrategy?: string(name='QueueStrategy', description='The queuing policy for tasks in the resource quota.', example='PaiStrategyIntelligent'),
-  quotaCluster?: QuotaCluster(name='QuotaCluster', description='The specifications and status of the cluster that is composed of resources within the quota.'),
-  quotaConfig?: QuotaConfig(name='QuotaConfig', description='The configurations of the resource quota:
+  ](name='Labels', description='The labels of the quota.'),
+  latestOperationId?: string(name='LatestOperationId', description='The ID of the latest quota operation.', example='operation****'),
+  min?: ResourceSpec(name='Min', description='The minimum quota configuration.'),
+  parentQuotaId?: string(name='ParentQuotaId', description='The ID of the parent quota.', example='quota1ci8g79****'),
+  queueStrategy?: string(name='QueueStrategy', description='The queuing strategy for tasks in the quota.', example='PaiStrategyIntelligent'),
+  quotaCluster?: QuotaCluster(name='QuotaCluster', description='The cluster specifications and status composed of resources in the quota.'),
+  quotaConfig?: QuotaConfig(name='QuotaConfig', description='The quota configuration:
 
 - VPC information
 
-- Whether Remote Direct Memory Access (RDMA) is supported
+- Whether RDMA is supported
 
-- ACS configurations, which take effect if the resource type is ACS'),
-  quotaDetails?: QuotaDetails(name='QuotaDetails', description='The details of the resource quota.'),
-  quotaId?: string(name='QuotaId', description='The ID of the resource quota.', example='quotajradxh4****'),
+- ACS configuration (takes effect when the resource type is ACS)'),
+  quotaDetails?: QuotaDetails(name='QuotaDetails', description='The details of the quota.'),
+  quotaId?: string(name='QuotaId', description='The resource quota ID.', example='quotajradxh4****'),
   quotaName?: string(name='QuotaName', description='The name of the resource quota.', example='test-quota'),
   reasonCode?: string(name='ReasonCode', description='The error code.', example='“”'),
-  reasonMessage?: string(name='ReasonMessage', description='The cause of the error.', example='“”'),
+  reasonMessage?: string(name='ReasonMessage', description='The error reason.', example='“”'),
   requestId?: string(name='RequestId', description='The request ID.', example='18D5A1C6-14B8-545E-8408-0A7DDB4C6B5E'),
-  resourceGroupIds?: [ string ](name='ResourceGroupIds', description='The resource groups that are associated with the resource quota.'),
+  resourceGroupIds?: [ string ](name='ResourceGroupIds', description='The resource group information associated with the resource quota.'),
   resourceType?: string(name='ResourceType', description='The resource type of the quota.', example='ECS'),
-  status?: string(name='Status', description='The status of the resource quota.', example='Ready'),
+  status?: string(name='Status', description='The status of the quota.', example='Ready'),
   subQuotas?: [
     QuotaIdName
-  ](name='SubQuotas', description='A list of sub-quotas of the resource quota.'),
-  version?: string(name='Version', description='The version information. This parameter takes effect when ResourceType is set to ECS.', example='1.0'),
+  ](name='SubQuotas', description='The list of sub-quotas under the quota.'),
+  version?: string(name='Version', description='The version information. Takes effect when the resource type is ECS.', example='1.0'),
   workspaces?: [
     WorkspaceIdName
-  ](name='Workspaces', description='The workspaces that are associated with the resource quota.'),
+  ](name='Workspaces', description='The workspaces associated with the quota.'),
 }
 
 model GetQuotaResponse = {
@@ -2686,7 +2684,7 @@ model GetQuotaResponse = {
 }
 
 /**
- * @summary Call GetQuota to retrieve the details of a resource quota. This helps you monitor current resource usage for effective resource management and planning.
+ * @summary Retrieves the details of a resource quota to help you understand the current resource usage and facilitate resource management and planning.
  *
  * @param request GetQuotaRequest
  * @param headers map
@@ -2723,7 +2721,7 @@ async function getQuotaWithOptions(QuotaId: string, request: GetQuotaRequest, he
 }
 
 /**
- * @summary Call GetQuota to retrieve the details of a resource quota. This helps you monitor current resource usage for effective resource management and planning.
+ * @summary Retrieves the details of a resource quota to help you understand the current resource usage and facilitate resource management and planning.
  *
  * @param request GetQuotaRequest
  * @return GetQuotaResponse
@@ -2948,18 +2946,18 @@ model GetResourceGroupRequestRequest {
 - Waiting
 - Running
 - Terminated', example='Running', nullable=true),
-  resourceGroupID?: string(name='ResourceGroupID', description='The resource group ID. Each resource group has a globally unique resource group ID. You can use the resource group ID to obtain information about the resource group.
+  resourceGroupID?: string(name='ResourceGroupID', description='The resource group ID. Each resource group has a globally unique resource group ID. You can use the resource group ID to retrieve information about the resource group.
 
 This parameter is required.', example='rgf0zhfqn1d4ity2'),
 }
 
 model GetResourceGroupRequestResponseBody = {
-  requestCPU?: int32(name='requestCPU', description='The total number of allocated CPUs.', example='1'),
-  requestGPU?: int32(name='requestGPU', description='The total number of allocated GPUs.', example='8'),
+  requestCPU?: int32(name='requestCPU', description='The total number of CPUs that have been assigned.', example='1'),
+  requestGPU?: int32(name='requestGPU', description='The total number of GPUs that have been assigned.', example='8'),
   requestGPUInfos?: [
     GPUInfo
-  ](name='requestGPUInfos', description='The allocated GPU resources counted separately by card type.'),
-  requestMemory?: int32(name='requestMemory', description='The total amount of allocated memory.', example='2'),
+  ](name='requestGPUInfos', description='The assigned GPU resources counted separately by GPU type.'),
+  requestMemory?: int32(name='requestMemory', description='The total amount of memory that has been assigned.', example='2'),
 }
 
 model GetResourceGroupRequestResponse = {
@@ -2971,7 +2969,7 @@ model GetResourceGroupRequestResponse = {
 /**
  * @deprecated OpenAPI GetResourceGroupRequest is deprecated
  *
- * @summary You can call the GetResourceGroupRequest operation to obtain the number of resources that have been allocated to a resource group.
+ * @summary Retrieves the number of resources that have been assigned to a resource group.
  *
  * @param request GetResourceGroupRequestRequest
  * @param headers map
@@ -3011,7 +3009,7 @@ async function getResourceGroupRequestWithOptions(request: GetResourceGroupReque
 /**
  * @deprecated OpenAPI GetResourceGroupRequest is deprecated
  *
- * @summary You can call the GetResourceGroupRequest operation to obtain the number of resources that have been allocated to a resource group.
+ * @summary Retrieves the number of resources that have been assigned to a resource group.
  *
  * @param request GetResourceGroupRequestRequest
  * @return GetResourceGroupRequestResponse
@@ -3561,7 +3559,7 @@ This parameter is required.', example='1'),
   pageSize?: string(name='PageSize', description='The page size.
 
 This parameter is required.', example='10'),
-  sortBy?: string(name='SortBy', description='The sorting criterion.', example='GmtModified'),
+  sortBy?: string(name='SortBy', description='The sorting field.', example='GmtModified'),
   timeStep?: string(name='TimeStep', description='The time step. Default value: 5m. Valid values for the time unit:
 
 - h: hours.
@@ -3570,18 +3568,18 @@ This parameter is required.', example='10'),
 
 - s: seconds.
 
-If no unit is specified, the default unit s (seconds) is used.', example='1h'),
+If no unit is specified, the default unit is s (seconds).', example='1h'),
   userId?: string(name='UserId', description='The ID of the Alibaba Cloud account.', example='123456'),
   workspaceId?: string(name='WorkspaceId', description='The workspace ID.', example='86995'),
 }
 
 model GetUserViewMetricsResponseBody = {
-  resourceGroupId?: string(name='ResourceGroupId', description='资源组ID', example='rgf0zhfqn1d4ity2'),
-  summary?: UserViewMetric(name='Summary', description='用户监控数据。'),
-  total?: int32(name='Total', description='总条数', example='2'),
+  resourceGroupId?: string(name='ResourceGroupId', description='The resource group ID.', example='rgf0zhfqn1d4ity2'),
+  summary?: UserViewMetric(name='Summary', description='The user monitoring data.'),
+  total?: int32(name='Total', description='The total number of entries.', example='2'),
   userMetrics?: [
     UserViewMetric
-  ](name='UserMetrics', description='按照用户维度统计的指标'),
+  ](name='UserMetrics', description='The metrics aggregated at the user dimension.'),
 }
 
 model GetUserViewMetricsResponse = {
@@ -3857,8 +3855,8 @@ model ListNodePodsResponse = {
  *
  * @description ## Operation description
  * - This feature is currently available only on the Lingjun AI Computing Service platform and is accessible to customers through a whitelist.
- * - `NodeName` and `ResourceGroupId` are required parameters that represent the node name and the resource group ID to which the node belongs.
- * - Optional parameters include `OversoldTypes` and `GPUIndexes`, which are used to further filter or specify conditions.
+ * - NodeName and ResourceGroupId are required parameters that represent the node name and the ID of the resource group to which the node belongs.
+ * - Optional parameters include OversoldTypes and GPUIndexes, which are used to further filter or specify conditions.
  *
  * @param request ListNodePodsRequest
  * @param headers map
@@ -3902,8 +3900,8 @@ async function listNodePodsWithOptions(NodeId: string, request: ListNodePodsRequ
  *
  * @description ## Operation description
  * - This feature is currently available only on the Lingjun AI Computing Service platform and is accessible to customers through a whitelist.
- * - `NodeName` and `ResourceGroupId` are required parameters that represent the node name and the resource group ID to which the node belongs.
- * - Optional parameters include `OversoldTypes` and `GPUIndexes`, which are used to further filter or specify conditions.
+ * - NodeName and ResourceGroupId are required parameters that represent the node name and the ID of the resource group to which the node belongs.
+ * - Optional parameters include OversoldTypes and GPUIndexes, which are used to further filter or specify conditions.
  *
  * @param request ListNodePodsRequest
  * @return ListNodePodsResponse
@@ -4012,55 +4010,50 @@ model ListNodesRequest {
   acceleratorType?: string(name='AcceleratorType', description='The accelerator type. Valid values:
 
 - CPU
-
 - GPU
 
-If omitted, this operation returns nodes of all accelerator types.', example='CPU'),
+Default value: empty, which indicates all types.', example='CPU'),
   availabilityZone?: string(name='AvailabilityZone'),
   cliqueID?: string(name='CliqueID'),
   diskPL?: string(name='DiskPL'),
-  filterByQuotaId?: string(name='FilterByQuotaId', description='When used with `ResourceGroupIds`, this parameter further filters the results to include only nodes from the specified resource quota.', example='quotamtl37ge7gkvdz'),
-  filterByResourceGroupIds?: string(name='FilterByResourceGroupIds', description='When used with `QuotaId`, this parameter further filters the results to include only nodes from the specified resource groups.', example='rg69rj0leslwdnbe'),
-  GPUType?: string(name='GPUType', description='The GPU type. Fuzzy matching is supported.', example='T4'),
+  filterByQuotaId?: string(name='FilterByQuotaId', description='Used together with ResourceGroupIds to display nodes in the resource groups that are bound to the specified quotas.', example='quotamtl37ge7gkvdz'),
+  filterByResourceGroupIds?: string(name='FilterByResourceGroupIds', description='Used together with QuotaId to display nodes in the quota that belong to the specified resource groups.', example='rg69rj0leslwdnbe'),
+  GPUType?: string(name='GPUType', description='The GPU type. Fuzzy match is supported.', example='T4'),
   healthCount?: {
-    operation?: string(name='operation'),
+    operation?: string(name='operation', description='The comparison operator. Valid values: ge, gte, eq, lte, lt.'),
     value?: int32(name='value'),
-  }(name='HealthCount'),
+  }(name='HealthCount', description='The number of healthy nodes.'),
   healthRate?: {
-    operation?: string(name='operation'),
+    operation?: string(name='operation', description='The comparison operator. Valid values: ge, gte, eq, lte, lt.'),
     value?: int32(name='value'),
-  }(name='HealthRate'),
+  }(name='HealthRate', description='The health rate of nodes (the proportion of healthy nodes).'),
   hyperNode?: string(name='HyperNode'),
   hyperZone?: string(name='HyperZone'),
-  layoutMode?: string(name='LayoutMode'),
+  layoutMode?: string(name='LayoutMode', description='The layout mode.'),
   machineGroupIds?: string(name='MachineGroupIds'),
-  nodeNames?: string(name='NodeNames', description='A comma-separated list of node names. Only nodes with names that match this list are returned.', example='lingjxxxx'),
-  nodeStatuses?: string(name='NodeStatuses', description='A comma-separated list of node statuses. If this parameter is omitted, this operation returns nodes of all statuses.', example='Ready'),
-  nodeTypes?: string(name='NodeTypes', description='A comma-separated list of node specifications. If this parameter is omitted, this operation returns nodes of all specifications.', example='ecs.c6.xlarge'),
+  nodeNames?: string(name='NodeNames', description='The node names to display, separated by commas.', example='lingjxxxx'),
+  nodeStatuses?: string(name='NodeStatuses', description='The node statuses, separated by commas. If this parameter is not specified, nodes in all statuses are returned.', example='Ready'),
+  nodeTypes?: string(name='NodeTypes', description='The resource node specifications, separated by commas. If this parameter is not configured, nodes of all node specifications are returned.', example='ecs.c6.xlarge'),
   order?: string(name='Order', description='The sort order. Valid values:
-
-- `desc`: Descending
-
-- `asc`: Ascending', example='desc'),
-  orderInstanceIds?: string(name='OrderInstanceIds', description='A comma-separated list of order IDs.', example='260590501560397'),
-  orderStatuses?: string(name='OrderStatuses', description='A comma-separated list of order statuses.', example='Ready'),
-  pageNumber?: int32(name='PageNumber', description='The page number. The first page is 1.', example='2'),
-  pageSize?: int32(name='PageSize', description='The number of entries to return per page.', example='10'),
+- desc: Descending order.
+- asc: Ascending order.', example='desc'),
+  orderInstanceIds?: string(name='OrderInstanceIds', description='The order ID information.', example='260590501560397'),
+  orderStatuses?: string(name='OrderStatuses', description='The order statuses of the nodes.', example='Ready'),
+  pageNumber?: int32(name='PageNumber', description='The page number, starting from 1.', example='2'),
+  pageSize?: int32(name='PageSize', description='The number of entries per page for paged query. This parameter is used for paging.', example='10'),
   paymentType?: string(name='PaymentType'),
   podNum?: int32(name='PodNum'),
-  quotaId?: string(name='QuotaId', description='The ID of the resource quota that contains the nodes.', example='quotamtl37ge7gkvdz'),
+  quotaId?: string(name='QuotaId', description='The resource quota ID to which the node belongs.', example='quotamtl37ge7gkvdz'),
   reasonCodes?: string(name='ReasonCodes'),
-  resourceGroupIds?: string(name='ResourceGroupIds', description='A comma-separated list of resource group IDs. You must specify either this parameter or `QuotaId`.
+  resourceGroupIds?: string(name='ResourceGroupIds', description='The IDs of resource groups, separated by commas. Either this parameter or QuotaId is required.
+
 Constraints:
-
-1. The user ID of the request must match the user ID associated with the specified resource groups.
-
-2. All specified resource groups must be of the same type.
-
-3. All specified resource groups must be in the same VPC.', example='rg69rj0leslwdnbe'),
-  resourceGroupName?: string(name='ResourceGroupName'),
-  sortBy?: string(name='SortBy', description='The field by which to sort the results.', example='GmtCreateTime'),
-  verbose?: boolean(name='Verbose', description='Specifies whether to return resource usage information. This parameter applies only when `QuotaId` is specified.', example='false'),
+1. The UserId of the specified ResourceGroupId must match the UserId of the request.
+2. The specified resource groups must be of the same type.
+3. The specified resource groups must be associated with the same VPC at this stage.', example='rg69rj0leslwdnbe'),
+  resourceGroupName?: string(name='ResourceGroupName', description='The name of the resource group.'),
+  sortBy?: string(name='SortBy', description='The field used for sorting.', example='GmtCreateTime'),
+  verbose?: boolean(name='Verbose', description='Specifies whether to return resource usage information. This parameter takes effect only when QuotaId is specified.', example='false'),
   workloadNum?: int32(name='WorkloadNum'),
   workspaceId?: string(name='WorkspaceId'),
 }
@@ -4069,49 +4062,44 @@ model ListNodesShrinkRequest {
   acceleratorType?: string(name='AcceleratorType', description='The accelerator type. Valid values:
 
 - CPU
-
 - GPU
 
-If omitted, this operation returns nodes of all accelerator types.', example='CPU'),
+Default value: empty, which indicates all types.', example='CPU'),
   availabilityZone?: string(name='AvailabilityZone'),
   cliqueID?: string(name='CliqueID'),
   diskPL?: string(name='DiskPL'),
-  filterByQuotaId?: string(name='FilterByQuotaId', description='When used with `ResourceGroupIds`, this parameter further filters the results to include only nodes from the specified resource quota.', example='quotamtl37ge7gkvdz'),
-  filterByResourceGroupIds?: string(name='FilterByResourceGroupIds', description='When used with `QuotaId`, this parameter further filters the results to include only nodes from the specified resource groups.', example='rg69rj0leslwdnbe'),
-  GPUType?: string(name='GPUType', description='The GPU type. Fuzzy matching is supported.', example='T4'),
-  healthCountShrink?: string(name='HealthCount'),
-  healthRateShrink?: string(name='HealthRate'),
+  filterByQuotaId?: string(name='FilterByQuotaId', description='Used together with ResourceGroupIds to display nodes in the resource groups that are bound to the specified quotas.', example='quotamtl37ge7gkvdz'),
+  filterByResourceGroupIds?: string(name='FilterByResourceGroupIds', description='Used together with QuotaId to display nodes in the quota that belong to the specified resource groups.', example='rg69rj0leslwdnbe'),
+  GPUType?: string(name='GPUType', description='The GPU type. Fuzzy match is supported.', example='T4'),
+  healthCountShrink?: string(name='HealthCount', description='The number of healthy nodes.'),
+  healthRateShrink?: string(name='HealthRate', description='The health rate of nodes (the proportion of healthy nodes).'),
   hyperNode?: string(name='HyperNode'),
   hyperZone?: string(name='HyperZone'),
-  layoutMode?: string(name='LayoutMode'),
+  layoutMode?: string(name='LayoutMode', description='The layout mode.'),
   machineGroupIds?: string(name='MachineGroupIds'),
-  nodeNames?: string(name='NodeNames', description='A comma-separated list of node names. Only nodes with names that match this list are returned.', example='lingjxxxx'),
-  nodeStatuses?: string(name='NodeStatuses', description='A comma-separated list of node statuses. If this parameter is omitted, this operation returns nodes of all statuses.', example='Ready'),
-  nodeTypes?: string(name='NodeTypes', description='A comma-separated list of node specifications. If this parameter is omitted, this operation returns nodes of all specifications.', example='ecs.c6.xlarge'),
+  nodeNames?: string(name='NodeNames', description='The node names to display, separated by commas.', example='lingjxxxx'),
+  nodeStatuses?: string(name='NodeStatuses', description='The node statuses, separated by commas. If this parameter is not specified, nodes in all statuses are returned.', example='Ready'),
+  nodeTypes?: string(name='NodeTypes', description='The resource node specifications, separated by commas. If this parameter is not configured, nodes of all node specifications are returned.', example='ecs.c6.xlarge'),
   order?: string(name='Order', description='The sort order. Valid values:
-
-- `desc`: Descending
-
-- `asc`: Ascending', example='desc'),
-  orderInstanceIds?: string(name='OrderInstanceIds', description='A comma-separated list of order IDs.', example='260590501560397'),
-  orderStatuses?: string(name='OrderStatuses', description='A comma-separated list of order statuses.', example='Ready'),
-  pageNumber?: int32(name='PageNumber', description='The page number. The first page is 1.', example='2'),
-  pageSize?: int32(name='PageSize', description='The number of entries to return per page.', example='10'),
+- desc: Descending order.
+- asc: Ascending order.', example='desc'),
+  orderInstanceIds?: string(name='OrderInstanceIds', description='The order ID information.', example='260590501560397'),
+  orderStatuses?: string(name='OrderStatuses', description='The order statuses of the nodes.', example='Ready'),
+  pageNumber?: int32(name='PageNumber', description='The page number, starting from 1.', example='2'),
+  pageSize?: int32(name='PageSize', description='The number of entries per page for paged query. This parameter is used for paging.', example='10'),
   paymentType?: string(name='PaymentType'),
   podNum?: int32(name='PodNum'),
-  quotaId?: string(name='QuotaId', description='The ID of the resource quota that contains the nodes.', example='quotamtl37ge7gkvdz'),
+  quotaId?: string(name='QuotaId', description='The resource quota ID to which the node belongs.', example='quotamtl37ge7gkvdz'),
   reasonCodes?: string(name='ReasonCodes'),
-  resourceGroupIds?: string(name='ResourceGroupIds', description='A comma-separated list of resource group IDs. You must specify either this parameter or `QuotaId`.
+  resourceGroupIds?: string(name='ResourceGroupIds', description='The IDs of resource groups, separated by commas. Either this parameter or QuotaId is required.
+
 Constraints:
-
-1. The user ID of the request must match the user ID associated with the specified resource groups.
-
-2. All specified resource groups must be of the same type.
-
-3. All specified resource groups must be in the same VPC.', example='rg69rj0leslwdnbe'),
-  resourceGroupName?: string(name='ResourceGroupName'),
-  sortBy?: string(name='SortBy', description='The field by which to sort the results.', example='GmtCreateTime'),
-  verbose?: boolean(name='Verbose', description='Specifies whether to return resource usage information. This parameter applies only when `QuotaId` is specified.', example='false'),
+1. The UserId of the specified ResourceGroupId must match the UserId of the request.
+2. The specified resource groups must be of the same type.
+3. The specified resource groups must be associated with the same VPC at this stage.', example='rg69rj0leslwdnbe'),
+  resourceGroupName?: string(name='ResourceGroupName', description='The name of the resource group.'),
+  sortBy?: string(name='SortBy', description='The field used for sorting.', example='GmtCreateTime'),
+  verbose?: boolean(name='Verbose', description='Specifies whether to return resource usage information. This parameter takes effect only when QuotaId is specified.', example='false'),
   workloadNum?: int32(name='WorkloadNum'),
   workspaceId?: string(name='WorkspaceId'),
 }
@@ -4121,7 +4109,7 @@ model ListNodesResponseBody = {
     Node
   ](name='Nodes', description='The list of nodes.'),
   requestId?: string(name='RequestId', description='The request ID.', example='473469C7-AA6F-4DC5-B3DB-A3DC0DE3C83E'),
-  totalCount?: int32(name='TotalCount', description='The number of nodes that meet the filter conditions.', example='23'),
+  totalCount?: int32(name='TotalCount', description='The number of nodes that match the filter conditions.', example='23'),
 }
 
 model ListNodesResponse = {
@@ -4131,9 +4119,9 @@ model ListNodesResponse = {
 }
 
 /**
- * @summary Returns a list of resource nodes.
+ * @summary Retrieves a list of resource nodes.
  *
- * @description ListNodes retrieves resource nodes that match specified filter conditions.
+ * @description You can call ListNodes to retrieve resource nodes that match specified filter conditions.
  *
  * @param tmpReq ListNodesRequest
  * @param headers map
@@ -4265,9 +4253,9 @@ async function listNodesWithOptions(tmpReq: ListNodesRequest, headers: map[strin
 }
 
 /**
- * @summary Returns a list of resource nodes.
+ * @summary Retrieves a list of resource nodes.
  *
- * @description ListNodes retrieves resource nodes that match specified filter conditions.
+ * @description You can call ListNodes to retrieve resource nodes that match specified filter conditions.
  *
  * @param request ListNodesRequest
  * @return ListNodesResponse
@@ -4280,32 +4268,22 @@ async function listNodes(request: ListNodesRequest): ListNodesResponse {
 
 model ListQuotaActiveUserUsagesRequest {
   order?: string(name='Order', description='The sort order. Valid values:
-
-- `desc`: descending order.
-
-- `asc`: ascending order.', example='desc'),
+- desc: descending order.
+- asc: ascending order.', example='desc'),
   pageNumber?: int32(name='PageNumber', description='The page number. Default value: 1.', example='999'),
   pageSize?: int32(name='PageSize', description='The number of entries per page.', example='10'),
-  selfOnly?: boolean(name='SelfOnly', description='If true, retrieves resource usage from the current quota only.', example='false'),
-  sortBy?: string(name='SortBy', description='The field to sort the results by. Valid values:
-
+  selfOnly?: boolean(name='SelfOnly', description='Specifies whether to view only the resource usage in the current quota.', example='false'),
+  sortBy?: string(name='SortBy', description='The field by which to sort the returned results. Valid values:
 - QuotaId
-
 - SubmittedCPU
-
 - SubmittedMemory
-
 - SubmittedGPU
-
 - UsedCPU
-
 - UsedMemory
-
 - UsedGPU
-
 - WorkloadCount', example='GmtCreateTime'),
-  userId?: string(name='UserId', description='Filters the results by user ID.', example='200xxxxxx'),
-  username?: string(name='Username', description='Filters the results by username.', example='test'),
+  userId?: string(name='UserId', description='The user ID for which to query resource usage.', example='200xxxxxx'),
+  username?: string(name='Username', description='The username for which to query resource usage.', example='test'),
   workloadCount?: int32(name='WorkloadCount'),
   workspaceId?: string(name='WorkspaceId', description='The workspace ID.', example='12345'),
 }
@@ -4313,12 +4291,12 @@ model ListQuotaActiveUserUsagesRequest {
 model ListQuotaActiveUserUsagesResponseBody = {
   quotaUserUsage?: [
     QuotaUser
-  ](name='QuotaUserUsage', description='A list of user resource usage details.'),
+  ](name='QuotaUserUsage', description='The list of user resource usage details.'),
   quotaUserUsages?: [
     QuotaUser
-  ](name='QuotaUserUsages'),
-  requestId?: string(name='RequestId', description='The request ID.', example='E7C42CC7-2E85-508A-84F4-923B605FD10F'),
-  totalCount?: int32(name='TotalCount', description='The total number of entries that meet the filter criteria.', example='1'),
+  ](name='QuotaUserUsages', description='The user usage information.'),
+  requestId?: string(name='RequestId', description='Id of the request', example='E7C42CC7-2E85-508A-84F4-923B605FD10F'),
+  totalCount?: int32(name='TotalCount', description='The number of instances that match the filter conditions.', example='1'),
 }
 
 model ListQuotaActiveUserUsagesResponse = {
@@ -4328,9 +4306,9 @@ model ListQuotaActiveUserUsagesResponse = {
 }
 
 /**
- * @summary Lists users within a quota and their resource usage.
+ * @summary Retrieves the list of users under the current resource quota and their resource usage.
  *
- * @description Retrieves the resource usage of users in a specified quota.
+ * @description Retrieves the resource usage of users for a specified QuotaId.
  *
  * @param request ListQuotaActiveUserUsagesRequest
  * @param headers map
@@ -4388,9 +4366,9 @@ async function listQuotaActiveUserUsagesWithOptions(QuotaId: string, request: Li
 }
 
 /**
- * @summary Lists users within a quota and their resource usage.
+ * @summary Retrieves the list of users under the current resource quota and their resource usage.
  *
- * @description Retrieves the resource usage of users in a specified quota.
+ * @description Retrieves the resource usage of users for a specified QuotaId.
  *
  * @param request ListQuotaActiveUserUsagesRequest
  * @return ListQuotaActiveUserUsagesResponse
@@ -4402,38 +4380,38 @@ async function listQuotaActiveUserUsages(QuotaId: string, request: ListQuotaActi
 }
 
 model ListQuotaWorkloadsRequest {
-  beforeWorkloadId?: string(name='BeforeWorkloadId', description='Retrieves workloads that precede the specified workload ID in the queue.', example='dsw654433**'),
-  gmtDequeuedTimeRange?: TimeRangeFilter(name='GmtDequeuedTimeRange', description='Filters workloads by their dequeue time range.'),
-  gmtEnqueuedTimeRange?: TimeRangeFilter(name='GmtEnqueuedTimeRange', description='Filters workloads by their enqueue time range.'),
-  gmtPositionModifiedTimeRange?: TimeRangeFilter(name='GmtPositionModifiedTimeRange', description='Filters workloads by the time range of their last queue position change.'),
+  beforeWorkloadId?: string(name='BeforeWorkloadId', description='Queries the queuing information for instances before a specified workload ID in the queue.', example='dsw654433**'),
+  gmtDequeuedTimeRange?: TimeRangeFilter(name='GmtDequeuedTimeRange', description='The range search for workload dequeue time.'),
+  gmtEnqueuedTimeRange?: TimeRangeFilter(name='GmtEnqueuedTimeRange', description='The range search for workload enqueue time.'),
+  gmtPositionModifiedTimeRange?: TimeRangeFilter(name='GmtPositionModifiedTimeRange', description='The range search for workload queue position change time.'),
   instanceId?: string(name='InstanceId'),
-  nodeName?: string(name='NodeName', description='Filters workloads by node name.', example='lrn482781276**'),
-  order?: string(name='Order', description='The sort order for the results. Valid values are `asc` for ascending and `desc` for descending.', example='desc'),
-  pageNumber?: int32(name='PageNumber', description='The number of the page to return.', example='1'),
-  pageSize?: int32(name='PageSize', description='The maximum number of entries to return on a single page.', example='10'),
+  nodeName?: string(name='NodeName', description='Searches only for nodes on the specified node.', example='lrn482781276**'),
+  order?: string(name='Order', description='The sort order.', example='desc'),
+  pageNumber?: int32(name='PageNumber', description='The page number of the query.', example='1'),
+  pageSize?: int32(name='PageSize', description='The number of entries per page in a paged query.', example='10'),
   position?: int32(name='Position'),
   priority?: int32(name='Priority'),
-  showOwn?: boolean(name='ShowOwn', description='Specifies whether to return only workloads that belong to the specified quota.', example='true'),
-  sortBy?: string(name='SortBy', description='The field to use for sorting the results.', example='GmtCreatedTime'),
-  status?: string(name='Status', description='Filters workloads by their status in the queue.', example='Enqueued'),
-  subQuotaIds?: string(name='SubQuotaIds', description='Filters workloads by sub-quota ID. You can specify multiple IDs, separated by commas.', example='quota123446**,quota644322**'),
+  showOwn?: boolean(name='ShowOwn', description='Specifies whether to display only the workloads associated with the current resource quota.', example='true'),
+  sortBy?: string(name='SortBy', description='The field by which to sort the returned results.', example='GmtCreatedTime'),
+  status?: string(name='Status', description='The status in the queue.', example='Enqueued'),
+  subQuotaIds?: string(name='SubQuotaIds', description='The list of sub-resource quota IDs.', example='quota123446**,quota644322**'),
   useOversoldResource?: boolean(name='UseOversoldResource'),
-  userIds?: string(name='UserIds', description='Filters workloads by user ID. You can specify multiple IDs, separated by commas.', example='290438938**,238290930**'),
-  withHistoricalData?: boolean(name='WithHistoricalData', description='Specifies whether to include historical data in the query results.'),
-  workloadCreatedTimeRange?: TimeRangeFilter(name='WorkloadCreatedTimeRange', description='Filters workloads based on their creation time range.'),
-  workloadIds?: string(name='WorkloadIds', description='Filters workloads by workload ID. You can specify multiple IDs, separated by commas.', example='dlc123445**'),
+  userIds?: string(name='UserIds', description='The list of user IDs.', example='290438938**,238290930**'),
+  withHistoricalData?: boolean(name='WithHistoricalData'),
+  workloadCreatedTimeRange?: TimeRangeFilter(name='WorkloadCreatedTimeRange', description='The range search for workload creation time.'),
+  workloadIds?: string(name='WorkloadIds', description='Queries the queuing information for specified workload IDs.', example='dlc123445**'),
   workloadNames?: string(name='WorkloadNames'),
-  workloadStatuses?: string(name='WorkloadStatuses', description='Filters workloads by status. You can specify multiple statuses, separated by commas.', example='Pending'),
-  workloadType?: string(name='WorkloadType', description='Filters workloads by the sub-product type of the instance.', example='dlc'),
-  workspaceIds?: string(name='WorkspaceIds', description='Filters workloads by workspace ID. You can specify multiple IDs, separated by commas.', example='1866**'),
+  workloadStatuses?: string(name='WorkloadStatuses', description='Filters by workload status.', example='Pending'),
+  workloadType?: string(name='WorkloadType', description='Queries the queuing information for instances of a specified sub-product.', example='dlc'),
+  workspaceIds?: string(name='WorkspaceIds', description='Queries the queuing information for workloads in a specified workspace.', example='1866**'),
 }
 
 model ListQuotaWorkloadsResponseBody = {
   requestId?: string(name='RequestId', description='The request ID.', example='42F23B58-3684-5443-848A-8DA81FF99712'),
-  totalCount?: long(name='TotalCount', description='The total number of workloads that match the filter criteria.', example='23'),
+  totalCount?: long(name='TotalCount', description='The number of instances that match the filter conditions.', example='23'),
   workloads?: [
     QueueInfo
-  ](name='Workloads', description='A list of workloads.'),
+  ](name='Workloads', description='The list of workload information.'),
 }
 
 model ListQuotaWorkloadsResponse = {
@@ -4443,7 +4421,7 @@ model ListQuotaWorkloadsResponse = {
 }
 
 /**
- * @summary Retrieves a list of workloads associated with a specific quota.
+ * @summary Retrieves the list of node information on a resource quota.
  *
  * @param request ListQuotaWorkloadsRequest
  * @param headers map
@@ -4546,7 +4524,7 @@ async function listQuotaWorkloadsWithOptions(QuotaId: string, request: ListQuota
 }
 
 /**
- * @summary Retrieves a list of workloads associated with a specific quota.
+ * @summary Retrieves the list of node information on a resource quota.
  *
  * @param request ListQuotaWorkloadsRequest
  * @return ListQuotaWorkloadsResponse
@@ -4558,25 +4536,25 @@ async function listQuotaWorkloads(QuotaId: string, request: ListQuotaWorkloadsRe
 }
 
 model ListQuotasRequest {
-  clusterType?: string(name='ClusterType', description='Filters the results by cluster type.', example='RayCluster'),
+  clusterType?: string(name='ClusterType', description='The cluster type.', example='RayCluster'),
   GPUType?: string(name='GPUType'),
   hasResource?: string(name='HasResource'),
-  labels?: string(name='Labels', description='Filters the results by labels. Specify labels as key=value pairs, separated by commas (,).', example='official=true,gpu=false'),
-  layoutMode?: string(name='LayoutMode', description='The layout mode. Valid values: Tree and List.', example='Tree'),
-  order?: string(name='Order', description='The sort order. Valid values are desc and asc.', example='desc'),
-  pageNumber?: int32(name='PageNumber', description='The page number of the results to return. The minimum value is 1.', example='1'),
-  pageSize?: int32(name='PageSize', description='The number of entries to return on each page. The minimum value is 1.', example='20'),
-  parentQuotaId?: string(name='ParentQuotaId', description='Filters the results by parent quota ID:
+  labels?: string(name='Labels', description='Filters by label key and value. Separate multiple labels with commas (,).', example='official=true,gpu=false'),
+  layoutMode?: string(name='LayoutMode', description='The display mode. Valid values: tree or list.', example='Tree'),
+  order?: string(name='Order', description='The sort order. Valid values: desc or asc.', example='desc'),
+  pageNumber?: int32(name='PageNumber', description='The page number to query. Minimum value: 1.', example='1'),
+  pageSize?: int32(name='PageSize', description='The number of entries per page. Minimum value: 1.', example='20'),
+  parentQuotaId?: string(name='ParentQuotaId', description='Filters by ParentQuotaId:
 
-- If this parameter is not specified, all quotas within the tenant are returned, including both root and child quotas.
+- Not specified: lists all quotas under the tenant, including root quotas and child quotas.
 
-- If this parameter is set to an empty string, all root quotas are returned.
+- Empty string: lists all root quotas.
 
-- If a specific parent quota ID is provided, all child quotas of that parent are returned.', example='quotajradxh43rgb'),
-  quotaIds?: string(name='QuotaIds', description='A comma-separated list of up to 100 quota IDs to filter the results. Only exact matching is supported.', example='quota1ci8g793pgm,quotajradxh43rgb'),
-  quotaName?: string(name='QuotaName', description='Filters the results by quota name. Fuzzy matching is supported.', example='quotajradxh43rgb'),
-  resourceType?: string(name='ResourceType', description='The resource type. Valid values are Lingjun, ECS, and ACS. The default value is ECS.', example='ECS'),
-  sortBy?: string(name='SortBy', description='The field to sort the results by. Valid values:
+- Non-empty string: lists all child quotas of the specified ParentQuotaId.', example='quotajradxh43rgb'),
+  quotaIds?: string(name='QuotaIds', description='Comma-separated QuotaIds for filtering. Only exact match is supported. A maximum of 100 IDs can be specified at a time.', example='quota1ci8g793pgm,quotajradxh43rgb'),
+  quotaName?: string(name='QuotaName', description='Filters by QuotaName. Fuzzy match is supported.', example='quotajradxh43rgb'),
+  resourceType?: string(name='ResourceType', description='The resource type of the quota (Lingjun/ECS/ACS). Default value: ECS.', example='ECS'),
+  sortBy?: string(name='SortBy', description='The field by which to sort the results. Valid values:
 
 - QuotaName
 
@@ -4591,23 +4569,21 @@ model ListQuotasRequest {
 - GmtCreatedTime
 
 - GmtModifiedTime', example='status'),
-  statuses?: string(name='Statuses', description='A comma-separated list of quota statuses to filter the results. Only exact matching is supported.', example='Creating'),
-  verbose?: boolean(name='Verbose', description='Specifies whether to return detailed information. Valid values:
-
-- true: Returns detailed information.
-
-- false: Does not return detailed information.', example='true'),
-  versions?: string(name='Versions', description='Filters the results by version.', example='1.0'),
-  workspaceIds?: string(name='WorkspaceIds', description='A comma-separated list of up to 10 workspace IDs to filter the results. Only exact matching is supported.', example='21345,38727'),
+  statuses?: string(name='Statuses', description='Comma-separated quota statuses for filtering. Only exact match is supported.', example='Creating'),
+  verbose?: boolean(name='Verbose', description='Specifies whether to display details. Valid values:
+- true: Displays details.
+- false: Does not display details.', example='true'),
+  versions?: string(name='Versions', description='Filters by version information.', example='1.0'),
+  workspaceIds?: string(name='WorkspaceIds', description='Comma-separated WorkspaceIds for filtering. Only exact match is supported. A maximum of 10 IDs can be specified at a time.', example='21345,38727'),
   workspaceName?: string(name='WorkspaceName', description='The name of the associated workspace.', example='myshellprod'),
 }
 
 model ListQuotasResponseBody = {
   quotas?: [
     Quota
-  ](name='Quotas', description='The list of quotas.'),
+  ](name='Quotas', description='The list of resource quotas.'),
   requestId?: string(name='RequestId', description='The request ID.', example='F082BD0D-21E1-5F9B-81A0-AB07485B03CD'),
-  totalCount?: int32(name='TotalCount', description='The total number of entries that match the request.', example='23'),
+  totalCount?: int32(name='TotalCount', description='The total number of records.', example='23'),
 }
 
 model ListQuotasResponse = {
@@ -4617,7 +4593,7 @@ model ListQuotasResponse = {
 }
 
 /**
- * @summary Lists quotas.
+ * @summary Retrieves a list of resource quotas.
  *
  * @param request ListQuotasRequest
  * @param headers map
@@ -4702,7 +4678,7 @@ async function listQuotasWithOptions(request: ListQuotasRequest, headers: map[st
 }
 
 /**
- * @summary Lists quotas.
+ * @summary Retrieves a list of resource quotas.
  *
  * @param request ListQuotasRequest
  * @return ListQuotasResponse
@@ -5836,22 +5812,19 @@ async function listTrainingJobs(request: ListTrainingJobsRequest): ListTrainingJ
 }
 
 model OperateNodeRequest {
-  operation?: string(name='Operation', description='The operation to perform.
-
-- Cordon: Disables scheduling on the node.
-
-- Uncordon: Enables scheduling on the node.
-
-- Drain: Evicts pods from the node.
+  operation?: string(name='Operation', description='The operation. Valid values:	
+- Cordon: disables scheduling
+- Uncordon: enables scheduling
+- Drain: evicts pods
 
 This parameter is required.', example='Cordon'),
-  operationParameters?: NodeOperationParameters(name='OperationParameters', description='The parameter settings for the node operation.'),
-  resourceGroupId?: string(name='ResourceGroupId', description='The ID of the resource group that contains the node.', example='rgaekzbrflewn6jjq'),
+  operationParameters?: NodeOperationParameters(name='OperationParameters', description='The node operation parameter settings.'),
+  resourceGroupId?: string(name='ResourceGroupId', description='The ID of the resource group to which the resource node belongs.', example='rgaekzbrflewn6jjq'),
 }
 
 model OperateNodeResponseBody = {
   nodeId?: string(name='NodeId', description='The node ID.', example='lingjunxxxx-mgxxx-xxxx'),
-  requestId?: string(name='RequestId', description='The ID of the request.', example='96496E6E-00B4-5F55-80F6-1844FA9E92DC'),
+  requestId?: string(name='RequestId', description='Id of the request', example='96496E6E-00B4-5F55-80F6-1844FA9E92DC'),
 }
 
 model OperateNodeResponse = {
@@ -5861,9 +5834,9 @@ model OperateNodeResponse = {
 }
 
 /**
- * @summary Use OperateNode to manage nodes.
+ * @summary Operates on a specified node.
  *
- * @description Use OperateNode to manage a specified resource node. Supported operations include disabling or enabling scheduling.
+ * @description You can call OperateNode to operate on a specified resource node, including operations such as disabling scheduling and enabling scheduling.
  *
  * @param request OperateNodeRequest
  * @param headers map
@@ -5903,9 +5876,9 @@ async function operateNodeWithOptions(NodeId: string, request: OperateNodeReques
 }
 
 /**
- * @summary Use OperateNode to manage nodes.
+ * @summary Operates on a specified node.
  *
- * @description Use OperateNode to manage a specified resource node. Supported operations include disabling or enabling scheduling.
+ * @description You can call OperateNode to operate on a specified resource node, including operations such as disabling scheduling and enabling scheduling.
  *
  * @param request OperateNodeRequest
  * @return OperateNodeResponse
