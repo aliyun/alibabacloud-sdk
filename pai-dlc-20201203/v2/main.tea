@@ -135,6 +135,11 @@ model CodeSourceItem {
   userId?: string(name='UserId', description='The UID of the Alibaba Cloud user who creates the code source.', example='115729017166****'),
 }
 
+model ContainerInfo {
+  mainContainer?: string(name='MainContainer', description='The name of the main container.', example='pytorch'),
+  sidecarContainers?: [ string ](name='SidecarContainers', description='The list of sidecar container names.'),
+}
+
 model ContainerSpec {
   args?: [ string ](name='Args', description='The command parameters.'),
   command?: [ string ](name='Command', description='The user command.'),
@@ -2938,16 +2943,19 @@ async function getPodEvents(JobId: string, PodId: string, request: GetPodEventsR
 }
 
 model GetPodLogsRequest {
+  containers?: string(name='Containers', description='Filters logs by specified containers. Separate multiple container names with commas (,).', example='pytorch,aimaster-worker'),
   downloadToFile?: boolean(name='DownloadToFile', description='Specifies whether to download the log file. Valid values:
-- false (default): Does not download the log file.
-- true: Downloads the log file.', example='true'),
+- false (default): The log file is not downloaded.
+- true: The log file is downloaded.', example='true'),
   endTime?: string(name='EndTime', description='The end time of the query. Default value: current time.', example='2020-11-08T17:00:00Z'),
-  maxLines?: int32(name='MaxLines', description='The maximum number of log lines returned. Default value: 2000.', example='100'),
-  podUid?: string(name='PodUid', description='The node UID. To obtain the node UID, see [GetJob](https://help.aliyun.com/document_detail/459677.html).', example='fe846462-af2c-4521-bd6f-96787a57****'),
+  maxLines?: int32(name='MaxLines', description='The maximum number of log lines to return. Default value: 2000.', example='100'),
+  podUid?: string(name='PodUid', description='The node UID. For information about how to obtain the node UID, see [GetJob](https://help.aliyun.com/document_detail/459677.html).', example='fe846462-af2c-4521-bd6f-96787a57****'),
   startTime?: string(name='StartTime', description='The start time of the query. Default value: 7 days ago.', example='2020-11-08T16:00:00Z'),
 }
 
 model GetPodLogsResponseBody = {
+  containerInfo?: ContainerInfo(name='ContainerInfo', description='The container information that may be associated with the node.'),
+  containers?: string(name='Containers', description='The containers used to filter logs. Separate multiple container names with commas (,).', example='pytorch,aimaster-worker'),
   jobId?: string(name='JobId', description='The job ID.', example='dlc-20210126170216-******'),
   logs?: [ string ](name='Logs', description='The log list.'),
   podId?: string(name='PodId', description='The node ID.', example='dlc-20210126170216-****-chief-0'),
@@ -2973,6 +2981,9 @@ model GetPodLogsResponse = {
 async function getPodLogsWithOptions(JobId: string, PodId: string, request: GetPodLogsRequest, headers: map[string]string, runtime: $RuntimeOptions): GetPodLogsResponse {
   request.validate();
   var query : map[string]any = {};
+  if (!$isNull(request.containers)) {
+    query['Containers'] = request.containers;
+  }
   if (!$isNull(request.downloadToFile)) {
     query['DownloadToFile'] = request.downloadToFile;
   }
