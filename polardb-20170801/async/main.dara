@@ -8960,28 +8960,25 @@ async function describeApplicationUsage(request: DescribeApplicationUsageRequest
 }
 
 model DescribeApplicationsRequest {
-  applicationIds?: string(name='ApplicationIds', description='A list of application IDs. If specified, this operation returns information only about the specified applications.', example='pa-**************', position='Query'),
-  applicationTypes?: string(name='ApplicationTypes', position='Query'),
-  DBClusterId?: string(name='DBClusterId', description='The ID of the PolarDB instance. If specified, this operation returns information only about applications associated with this instance.', example='pc-**************', position='Query'),
+  applicationIds?: string(name='ApplicationIds', description='The list of application IDs. If specified, only information about these applications is returned.', example='pa-**************', position='Query'),
+  applicationTypes?: string(name='ApplicationTypes', description='The application engine filter.', position='Query'),
+  DBClusterId?: string(name='DBClusterId', description='The PolarDB instance ID. If specified, only application information related to this PolarDB instance is returned.', example='pc-**************', position='Query'),
   pageNumber?: int32(name='PageNumber', description='The page number. Default value: 1.', example='1', position='Query'),
-  pageSize?: int32(name='PageSize', description='The number of entries to return on each page. Valid values:
-
-- **30**
-
-- **50**
-
-- **100**
+  pageSize?: int32(name='PageSize', description='The number of entries per page. Valid values:
+* **30**
+* **50**
+* **100**
 
 Default value: **30**.', example='30', position='Query'),
-  regionId: string(name='RegionId', description='The ID of the region.
+  regionId: string(name='RegionId', description='The region ID.
 
 This parameter is required.', example='cn-beijing', position='Query'),
   tag?: [ 
     {
-      key?: string(name='Key', description='The key of the tag.', example='testKey'),
-      value?: string(name='Value', description='The value of the tag.', example='testValue'),
+      key?: string(name='Key', description='The tag key.', example='testKey'),
+      value?: string(name='Value', description='The tag value.', example='testValue'),
     }
-  ](name='Tag', description='A list of tags. A tag is a key-value pair.', position='Query'),
+  ](name='Tag', description='The tags.', position='Query'),
 }
 
 model DescribeApplicationsResponseBody = {
@@ -8990,6 +8987,7 @@ model DescribeApplicationsResponseBody = {
     {
       applicationId?: string(name='ApplicationId'),
       applicationType?: string(name='ApplicationType'),
+      branchId?: string(name='BranchId', example='br-1db52a73dc8545f19a47a3f1d8'),
       creationTime?: string(name='CreationTime'),
       DBClusterId?: string(name='DBClusterId', example='pc-xxxxxx'),
       description?: string(name='Description'),
@@ -9020,11 +9018,11 @@ model DescribeApplicationsResponseBody = {
       zoneId?: string(name='ZoneId'),
     }
   ](name='Applications')
-  }(name='Items', description='Contains the returned applications.'),
-  pageNumber?: int32(name='PageNumber', description='The page number.', example='1'),
-  pageRecordCount?: int32(name='PageRecordCount', description='The number of records on the current page.', example='1'),
+  }(name='Items'),
+  pageNumber?: int32(name='PageNumber', description='The current page number.', example='1'),
+  pageRecordCount?: int32(name='PageRecordCount', description='The number of entries on the current page.', example='1'),
   requestId?: string(name='RequestId', description='The request ID.', example='3E5CD764-FCCA-5C9C-838E-20E0DE84B2AF'),
-  totalRecordCount?: int32(name='TotalRecordCount', description='The total record count.', example='1'),
+  totalRecordCount?: int32(name='TotalRecordCount', description='The total number of entries.', example='1'),
 }
 
 model DescribeApplicationsResponse = {
@@ -22063,126 +22061,98 @@ async function modifyDBClusterDescriptionZonal(request: ModifyDBClusterDescripti
 }
 
 model ModifyDBClusterEndpointRequest {
-  autoAddNewNodes?: string(name='AutoAddNewNodes', description='Specifies whether to automatically add new nodes to the endpoint. Valid values:
+  autoAddNewNodes?: string(name='AutoAddNewNodes', description='Specifies whether new nodes are automatically added to the endpoint. Valid values: 
 
-- **Enable**: Automatically adds new nodes.
-
-- **Disable**: Does not automatically add new nodes. This is the default value.', example='Enable', position='Query'),
+- **Enable**: New nodes are automatically added.
+- **Disable**: New nodes are not automatically added. (Default)', example='Enable', position='Query'),
   DBClusterId: string(name='DBClusterId', description='The cluster ID.
 
 This parameter is required.', example='pc-*************', position='Query'),
   DBEndpointDescription?: string(name='DBEndpointDescription', description='The name of the endpoint.', example='test', position='Query'),
-  DBEndpointId: string(name='DBEndpointId', description='The ID of the cluster endpoint.
+  DBEndpointId: string(name='DBEndpointId', description='The cluster endpoint ID.
 
 This parameter is required.', example='pe-**************', position='Query'),
-  endpointConfig?: string(name='EndpointConfig', description='The advanced configurations of the cluster endpoint in JSON format. You can set the consistency level, transaction splitting, whether the primary node accepts read requests, the connection pool, and other settings.
+  endpointConfig?: string(name='EndpointConfig', description='The advanced configuration of the cluster endpoint in JSON format. You can configure the consistency level, transaction splitting, whether the primary node accepts read requests, and connection pooling.
 
-- Sets the load balancing policy. Format: `{\\\\"LoadBalancePolicy\\\\":\\\\"policy\\\\"}`. Valid values:
+* To set the load balancing policy, use the format `{\\\\"LoadBalancePolicy\\\\":\\\\"Load balancing policy\\\\"}`. Valid values:   
+    * **0**: connection-based load balancing (default)
+    * **1**: active-request-based load balancing
 
-  - **0**: Connections-based load balancing (default)
+* To set whether the primary node accepts read requests, use the format `{\\\\"MasterAcceptReads\\\\":\\\\"Whether the primary node accepts reads\\\\"}`. Valid values:
+    * **on**: The primary node accepts read requests. (Default)
+    * **off**: The primary node does not accept read requests.
 
-  - **1**: Active requests-based load balancing
+* To set transaction splitting, use the format `{\\\\"DistributedTransaction\\\\":\\\\"Transaction splitting\\\\"}`. Valid values:
+    * **on**: Transaction splitting is enabled. (Default)
+    * **off**: Transaction splitting is disabled.
 
-- Specifies whether the primary node accepts read requests. Format: `{\\\\"MasterAcceptReads\\\\":\\\\"value\\\\"}`. Valid values:
+* To set the consistency level, use the format `{\\\\"ConsistLevel\\\\":\\\\"Consistency level\\\\"}`. Valid values:
+    * **0**: eventual consistency (weak)
+    * **1**: session consistency (medium) (default)
+    * **2**: global consistency (strong)
 
-  - **on**: The primary node accepts read requests (default).
+* To set the global consistency read timeout period, use the format `{\\\\"ConsistTimeout\\\\":\\\\"Global consistency read timeout\\\\"}`. Valid values: 0 to 60000. Default value: 20. Unit: ms.
 
-  - **off**: The primary node does not accept read requests.
+* To set the session consistency read timeout period, use the format `{\\\\"ConsistSessionTimeout\\\\":\\\\"Session consistency read timeout\\\\"}`. Valid values: 0 to 60000. Default value: 0. Unit: ms.
 
-- Enables or disables transaction splitting. Format: `{\\\\"DistributedTransaction\\\\":\\\\"value\\\\"}`. Valid values:
+* To set the global (or session) consistency read timeout policy, use the format `{\\\\"ConsistTimeoutAction\\\\":\\\\"Global consistency read timeout policy\\\\"}`. Valid values:
+    * **0**: Forward the read request to the primary node. (Default)
+    * **1**: The proxy returns the error message `wait replication complete timeout, please retry` to the application.
 
-  - **on**: Enables transaction splitting (default).
+* To set the connection pool, use the format `{\\\\"ConnectionPersist\\\\":\\\\"Connection pool\\\\"}`. Valid values:
+    * **off**: The connection pool is disabled. (Default)
+    * **Session**: The session-level connection pool is enabled.
+    * **Transaction**: The transaction-level connection pooling is enabled.
 
-  - **off**: Disables transaction splitting.
+* To set parallel query, use the format `{\\\\"MaxParallelDegree\\\\":\\\\"Parallel query\\\\"}`. Valid values:
+    * **on**: Parallel query is enabled.
+    * **off**: Parallel query is disabled. (Default)
 
-- Sets the consistency level. Format: `{\\\\"ConsistLevel\\\\":\\\\"level\\\\"}`. Valid values:
+* To set automatic request distribution among row offload reads from primary nodes, use the format `{\\\\"EnableHtapImci\\\\":\\\\"Automatic request distribution among row store and column store\\\\"}`. Valid values:
+    * **on**: Automatic request distribution among row offload reads from primary nodes is enabled.
+    * **off**: Automatic request distribution among row offload reads from primary nodes is disabled. (Default)
 
-  - **0**: Eventual consistency (weak)
 
-  - **1**: Session consistency (medium) (default)
+* To set whether to enable overload protection, use the format `{\\\\"EnableOverloadThrottle\\\\":\\\\"Whether to enable overload protection\\\\"}`. Valid values:
+    * **on**: Overload protection is enabled.
+    * **off**: Overload protection is disabled. (Default)
 
-  - **2**: Global consistency (strong)
+* To set node weights, use the format `{\\\\"NodesWeight\\\\":{\\\\"Node ID\\\\":\\\\"Weight value\\\\"}}`.
 
-- Sets the timeout period for a global consistency read. Format: `{\\\\"ConsistTimeout\\\\":\\\\"timeout\\\\"}`. Valid values: 0 to 60000. Default value: 20. Unit: ms.
+> * Transaction splitting, whether the primary node accepts read requests, connection pooling, and overload protection can be configured only when the read/write mode of the PolarDB for MySQL cluster endpoint is **ReadWrite (automatic read/write splitting)**.
+> * When the read/write mode of the PolarDB for MySQL cluster endpoint is **ReadOnly**, both **connection-based load balancing** and **active-request-based load balancing** policies are supported. The **ReadWrite (automatic read/write splitting)** mode supports only the **active-request-based load balancing** policy.
+> * Automatic request distribution among row offload reads from primary nodes can be configured when the read/write mode of the PolarDB for MySQL cluster endpoint is **ReadWrite (automatic read/write splitting)**, or when the read/write mode is **ReadOnly** and the load balancing policy is **active-request-based load balancing**.
+> * Only PolarDB for MySQL supports setting the consistency level to global consistency.
+> * If **ReadWriteMode** is set to **ReadOnly**, the consistency level can only be set to **0**.
+> * You can configure the consistency level, transaction splitting, whether the primary node accepts read requests, and connection pooling at the same time. Example: `{\\\\"ConsistLevel\\\\":\\\\"1\\\\",\\\\"DistributedTransaction\\\\":\\\\"on\\\\",\\\\"ConnectionPersist\\\\":\\\\"Session\\\\",\\\\"MasterAcceptReads\\\\":\\\\"on\\\\"}`.
+> * Transaction splitting is constrained by the consistency level. For example, transaction splitting cannot be enabled when the consistency level is **0**. Transaction splitting can be enabled when the consistency level is **1** or **2**.', example='{"ConsistLevel":"1","DistributedTransaction":"on","MasterAcceptReads":"off","ConnectionPersist": "on"}', position='Query'),
+  nodes?: string(name='Nodes', description='The read load nodes to add to the endpoint. Separate multiple nodes with commas (,). Default value: the existing nodes.
 
-- Sets the timeout period for a session consistency read. Format: `{\\\\"ConsistSessionTimeout\\\\":\\\\"timeout\\\\"}`. Valid values: 0 to 60000. Default value: 0. Unit: ms.
-
-- Sets the policy for handling timeouts of global or session consistency reads. Format: `{\\\\"ConsistTimeoutAction\\\\":\\\\"policy\\\\"}`. Valid values:
-
-  - **0**: Forwards read requests to the primary node (default).
-
-  - **1**: The proxy returns the error message \\\\`wait replication complete timeout, please retry\\\\` to the application.
-
-- Sets the connection pool type. Format: `{\\\\"ConnectionPersist\\\\":\\\\"type\\\\"}`. Valid values:
-
-  - **off**: Disables the connection pool (default).
-
-  - **Session**: Enables the session-level connection pool.
-
-  - **Transaction**: Enables the transaction-level connection pool.
-
-- Enables or disables parallel query. Format: `{\\\\"MaxParallelDegree\\\\":\\\\"value\\\\"}`. Valid values:
-
-  - **on**: Enables parallel query.
-
-  - **off**: Disables parallel query (default).
-
-- Enables or disables automatic routing of requests to the row store or column store. Format: `{\\\\"EnableHtapImci\\\\":\\\\"value\\\\"}`. Valid values:
-
-  - **on**: Enables automatic routing.
-
-  - **off**: Disables automatic routing (default).
-
-- Enables or disables overload protection. Format: `{\\\\"EnableOverloadThrottle\\\\":\\\\"value\\\\"}`. Valid values:
-
-  - **on**: Enables overload protection.
-
-  - **off**: Disables overload protection (default).
-
-> * You can set transaction splitting, whether the primary node accepts read requests, the connection pool, and overload protection only when the read/write mode of the cluster endpoint for PolarDB for MySQL is set to ReadWrite (automatic read/write splitting).
->
-> * If the read/write mode of a cluster endpoint for PolarDB for MySQL is **ReadOnly**, both **connections-based** and **active requests-based** load balancing policies are supported. If the read/write mode is **ReadWrite** (automatic read/write splitting), only the **active requests-based** load balancing policy is supported.
->
-> * You can enable automatic routing to the row store or column store if the read/write mode of the cluster endpoint for PolarDB for MySQL is **ReadWrite** (automatic read/write splitting), or if the read/write mode is **ReadOnly** and the load balancing policy is **active requests-based**.
->
-> * Only PolarDB for MySQL supports global consistency.
->
-> * If you set the **ReadWriteMode** parameter to **ReadOnly**, you can only set the consistency level to **0**.
->
-> * You can set the consistency level, transaction splitting, whether the primary node accepts read requests, and the connection pool at the same time. For example: `{\\\\"ConsistLevel\\\\":\\\\"1\\\\",\\\\"DistributedTransaction\\\\":\\\\"on\\\\",\\\\"ConnectionPersist\\\\":\\\\"Session\\\\",\\\\"MasterAcceptReads\\\\":\\\\"on\\\\"}`.
->
-> * The transaction splitting setting is constrained by the consistency level. For example, you cannot enable transaction splitting if the consistency level is **0** (eventual consistency). You can enable transaction splitting if the consistency level is **1** (session consistency) or **2** (global consistency).', example='{"ConsistLevel":"1","DistributedTransaction":"on","MasterAcceptReads":"off","ConnectionPersist": "on"}', position='Query'),
-  nodes?: string(name='Nodes', description='The nodes to be added to the endpoint for read request distribution. Separate multiple node IDs with commas (,). The original nodes are used by default.
-
-> - For PolarDB for MySQL, specify the node IDs.
->
-> - For PolarDB for PostgreSQL and PolarDB for PostgreSQL (Oracle Compatible), specify the node roles, such as `Writer,Reader1,Reader2`.
->
-> - If you set **ReadWriteMode** to **ReadOnly**, you can attach only one node. However, if this node fails, the endpoint may be unavailable for up to one hour. Do not use this configuration in a production environment. Select at least two nodes to improve availability.
->
-> - If you set **ReadWriteMode** to **ReadWrite**, you must select at least two nodes.
->   \\\\* For PolarDB for MySQL, you can select any two nodes. If both nodes are read-only nodes, write requests are sent to the primary node.
->   \\\\* For PolarDB for PostgreSQL and PolarDB for PostgreSQL (Oracle Compatible), you must include the primary node.', example='pi-**************,pi-*************', position='Query'),
+> * For PolarDB for MySQL, specify node IDs.
+> * For PolarDB for PostgreSQL and PolarDB for PostgreSQL (Compatible with Oracle), specify node role names, such as `Writer,Reader1,Reader2`.
+> * If **ReadWriteMode** is set to **ReadOnly**, you can mount only one node. However, if this node fails, the endpoint may be unavailable for up to 1 hour. Do not use this configuration in production environments. Select at least 2 nodes to improve availability.
+> * If **ReadWriteMode** is set to **ReadWrite**, select at least 2 nodes.
+    * PolarDB for MySQL allows you to select any two nodes. If both nodes are read-only nodes, write requests are forwarded to the primary node.
+    * PolarDB for PostgreSQL and PolarDB for PostgreSQL (Compatible with Oracle) require the primary node to be included.', example='pi-**************,pi-*************', position='Query'),
   ownerAccount?: string(name='OwnerAccount', position='Query'),
   ownerId?: long(name='OwnerId', position='Query'),
-  polarSccTimeoutAction?: string(name='PolarSccTimeoutAction', description='The policy for handling global consistency timeouts. Valid values:
+  polarSccTimeoutAction?: string(name='PolarSccTimeoutAction', description='The timeout policy for global consistency. Valid values:
 
-- **0**: Forwards the request to the primary node.
+- **0**: Send the request to the primary node.
 
-- **2**: Degrades the request. If a global consistency read times out, the query is automatically degraded to a regular request. The client does not receive an error message.', example='0', position='Query'),
+- **2**: Timeout degradation. When the global consistency read times out, the query is automatically degraded to regular requests, and the client does not receive an error message.', example='0', position='Query'),
   polarSccWaitTimeout?: string(name='PolarSccWaitTimeout', description='The timeout period for global consistency.', example='100', position='Query'),
   readWriteMode?: string(name='ReadWriteMode', description='The read/write mode. Valid values:
 
-- **ReadWrite**: Read/write (automatic read/write splitting)
-
-- **ReadOnly**: Read-only', example='ReadWrite', position='Query'),
+- **ReadWrite**: read/write (automatic read/write splitting)
+- **ReadOnly**: read-only', example='ReadWrite', position='Query'),
   resourceOwnerAccount?: string(name='ResourceOwnerAccount', position='Query'),
   resourceOwnerId?: long(name='ResourceOwnerId', position='Query'),
   sccMode?: string(name='SccMode', description='Specifies whether to enable the global consistency (high-performance mode) feature for the node. Valid values:
 
-- **ON**: Enable
+- **ON**: Enabled.
 
-- **OFF**: Disable', example='on', position='Query'),
+- **OFF**: Disabled.', example='on', position='Query'),
 }
 
 model ModifyDBClusterEndpointResponseBody = {
@@ -25326,9 +25296,9 @@ async function restoreTable(request: RestoreTableRequest): RestoreTableResponse 
 }
 
 model RetrievalKnowledgeBaseRequest {
-  knowledgeBaseId: string(name='KnowledgeBaseId', description='The unique ID of the knowledge base.
+  knowledgeBaseId: string(name='KnowledgeBaseId', description='The unique identifier of the knowledge base. You can specify multiple knowledge bases separated by commas. A maximum of 50 knowledge bases can be specified.
 
-This parameter is required.', example='pkb-xxxxx', position='Query'),
+This parameter is required.', example='pkb-1xxxxx,pkb-2xxxxx', position='Query'),
   queryText: string(name='QueryText', description='The query text.
 
 This parameter is required.', example='Financial report', position='Query'),
@@ -25347,21 +25317,21 @@ model RetrievalKnowledgeBaseResponseBody = {
   results?: [ 
     {
       captions?: [ string ](name='Captions', description='The list of figure or table captions associated with the chunk.'),
-      docItems?: [ string ](name='DocItems', description='The list of Docling source document structured element references associated with the chunk. You can use these references to precisely locate original elements.'),
-      fileId?: string(name='FileId', description='The unique ID of the file.', example='91b97b71-xxxx-xxxx-xxxx-33c6a6341cdc'),
+      docItems?: [ string ](name='DocItems', description='The list of Docling source document structured element references associated with the chunk. You can use these references to precisely locate elements in the original document.'),
+      fileId?: string(name='FileId', description='The unique identifier of the file.', example='91b97b71-xxxx-xxxx-xxxx-33c6a6341cdc'),
       fileName?: string(name='FileName', description='The name of the file.', example='2024FinancialReport.pdf'),
-      headings?: [ string ](name='Headings', description='The chain of section headings that the chunk belongs to.'),
+      headings?: [ string ](name='Headings', description='The chain of section headings to which the chunk belongs.'),
       imageResources?: [ 
         {
-          documentIndex?: int32(name='DocumentIndex', description='The index of the source document that the image belongs to, starting from 0.', example='0'),
-          id?: string(name='Id', description='The unique ID of the image resource.', example='document-0/pictures/1'),
+          documentIndex?: int32(name='DocumentIndex', description='The index of the source document to which the image belongs, starting from 0.', example='0'),
+          id?: string(name='Id', description='The unique identifier of the image resource.', example='document-0/pictures/1'),
           itemRef?: string(name='ItemRef', description='The element reference of the image in the Docling source document structure.', example='#/pictures/1'),
           mimeType?: string(name='MimeType', description='The media type of the image resource.', example='image/png'),
           uri?: string(name='Uri', description='The OSS URI of the image resource.', example='oss://my-bucket/results/my-space/doc-001/artifacts/image-1.png'),
         }
       ](name='ImageResources', description='The list of image resources referenced by the chunk.'),
       metadata?: string(name='Metadata', description='The metadata.', example='{}'),
-      pageNumbers?: [ int32 ](name='PageNumbers', description='The list of page numbers that the chunk belongs to.'),
+      pageNumbers?: [ int32 ](name='PageNumbers', description='The list of page numbers to which the chunk belongs.'),
       shardContent?: string(name='ShardContent', description='The text content of the chunk.', example='Financial report'),
       shardIndex?: int32(name='ShardIndex', description='The index of the chunk.', example='1'),
       similarityScore?: double(name='SimilarityScore', description='The similarity score.', example='0.8'),
