@@ -209,6 +209,63 @@ async function batchGetMedias(request: BatchGetMediasRequest): BatchGetMediasRes
   return batchGetMediasWithOptions(request, runtime);
 }
 
+model CancelGenerationJobRequest {
+  jobId?: string(name='JobId', description='This parameter is required.', example='ag_77b5f78b***'),
+}
+
+model CancelGenerationJobResponseBody = {
+  jobId?: string(name='JobId', example='ag_77b5f78b***'),
+  requestId?: string(name='RequestId', example='****63E8B7C7-4812-46AD-0FA56029AC86****'),
+  status?: string(name='Status', example='Canceled'),
+}
+
+model CancelGenerationJobResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: CancelGenerationJobResponseBody(name='body'),
+}
+
+/**
+ * @summary 取消生成任务接口
+ *
+ * @param request CancelGenerationJobRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return CancelGenerationJobResponse
+ */
+async function cancelGenerationJobWithOptions(request: CancelGenerationJobRequest, runtime: Util.RuntimeOptions): CancelGenerationJobResponse {
+  Util.validateModel(request);
+  var query = {};
+  if (!Util.isUnset(request.jobId)) {
+    query['JobId'] = request.jobId;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'CancelGenerationJob',
+    version = '2026-07-07',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 取消生成任务接口
+ *
+ * @param request CancelGenerationJobRequest
+ * @return CancelGenerationJobResponse
+ */
+async function cancelGenerationJob(request: CancelGenerationJobRequest): CancelGenerationJobResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return cancelGenerationJobWithOptions(request, runtime);
+}
+
 model CreateAssetCategoryRequest {
   categoryName?: string(name='CategoryName', description='The category name.
 
@@ -1526,15 +1583,15 @@ This parameter is required.', example='vtj_0123456789abcdef0123456789abcdef'),
 
 model GetVideoTranslationJobResponseBody = {
   job?: {
-    duration?: double(name='Duration', description='The input video duration, in seconds.', example='60.5'),
-    editingProjectId?: string(name='EditingProjectId', description='The editing project ID for a single-target-language job. For multi-target-language results, retrieve the ID from Output.AiResult.ResultMap.', example='editing-project-001'),
-    errorCode?: string(name='ErrorCode', description='The business error code returned when the job fails. This field is typically not returned for non-failed states.', example='InvalidInput'),
-    errorMessage?: string(name='ErrorMessage', description='The business error message returned when the job fails. This field is typically not returned for non-failed states.', example='Input video is invalid.'),
+    duration?: double(name='Duration', description='The duration of the input video, in seconds.', example='60.5'),
+    editingProjectId?: string(name='EditingProjectId', description='The editing project ID for single-target-language jobs. For multi-target-language results, retrieve the value from Output.AiResult.ResultMap.', example='editing-project-001'),
+    errorCode?: string(name='ErrorCode', description='The business error code returned when the job fails. This field is not returned when the job is not in a failed state.', example='InvalidInput'),
+    errorMessage?: string(name='ErrorMessage', description='The business error message returned when the job fails. This field is not returned when the job is not in a failed state.', example='Input video is invalid.'),
     input?: string(name='Input', description='The normalized input configuration JSON string saved at submission time.', example='{"VideoMediaId":"media-video-001"}'),
     jobId?: string(name='JobId', description='The video translation job ID.', example='vtj_0123456789abcdef0123456789abcdef'),
     jobParameters?: string(name='JobParameters', description='The normalized job parameters JSON string, including default values supplemented by the service.', example='{"SourceLanguage":"zh","TargetLanguage":"en","SubtitleFrom":"default","NeedDetext":false,"NeedVisualTranslate":false}'),
     jobType?: string(name='JobType', description='The normalized job type.', example='VoiceTranslate'),
-    output?: string(name='Output', description='The job output JSON string. When the job succeeds, AiResult.ResultMap organizes the final video, subtitle, and audio outputs by target language.', example='{"AiResult":{"ResultMap":{"en":{"EditingProjectId":"editing-project-001","MediaURL":"https://example.com/video-translation/en/result.mp4","MediaId":"media-output-001"}}}}'),
+    output?: string(name='Output', description='The job output JSON string. On success, AiResult.ResultMap organizes the final video, subtitle, and audio outputs by target language.', example='{"AiResult":{"ResultMap":{"en":{"EditingProjectId":"editing-project-001","MediaURL":"https://example.com/video-translation/en/result.mp4","MediaId":"media-output-001"}}}}'),
     status?: string(name='Status', description='The job status. Valid values: Created, Queuing, Executing, Finished, or Failed.', example='Finished'),
   }(name='Job', description='The video translation job.'),
   requestId?: string(name='RequestId', description='The request ID, used for Tracing Analysis and troubleshooting.', example='req-vt-get-20260820-001'),
@@ -1549,7 +1606,7 @@ model GetVideoTranslationJobResponse = {
 /**
  * @summary Queries the status, input parameters, and multilingual outputs of a video translation job.
  *
- * @description Queries the status, input, parameters, and desired state results of a video translation job based on the `JobId`.
+ * @description Queries the status, input, parameters, and final results of a video translation job by `JobId`.
  *
  * @param request GetVideoTranslationJobRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -1581,7 +1638,7 @@ async function getVideoTranslationJobWithOptions(request: GetVideoTranslationJob
 /**
  * @summary Queries the status, input parameters, and multilingual outputs of a video translation job.
  *
- * @description Queries the status, input, parameters, and desired state results of a video translation job based on the `JobId`.
+ * @description Queries the status, input, parameters, and final results of a video translation job by `JobId`.
  *
  * @param request GetVideoTranslationJobRequest
  * @return GetVideoTranslationJobResponse
@@ -2225,15 +2282,17 @@ async function submitAgentJob(request: SubmitAgentJobRequest): SubmitAgentJobRes
 }
 
 model SubmitImageGenerationJobRequest {
-  aspectRatio?: string(name='AspectRatio', description='The aspect ratio. Valid values: 16:9 (default), 9:16, 4:3, 3:4, 1:1, and 21:9.', example='4:3'),
-  clientToken?: string(name='ClientToken', description='The idempotency token. A unique, case-sensitive string of up to 32 characters. This token ensures that the request is completed no more than once, preventing duplicate operations caused by multiple retries.', example='****3e761e9d11edba640c42a1b7****'),
+  aspectRatio?: string(name='AspectRatio', description='The aspect ratio. Valid values: 16:9 (default), 9:16, 4:3, 3:4, 1:1, and 21:9.
+
+- qwen-image-3.0 additionally supports: 4:5, 5:4, 2:3, and 3:2.', example='4:3'),
+  clientToken?: string(name='ClientToken', description='The idempotency token. A unique, case-sensitive string of up to 32 characters. This token ensures that the request is processed only once, preventing duplicate operations caused by multiple retries.', example='****3e761e9d11edba640c42a1b7****'),
   input?: string(name='Input', description='The task input. This parameter is required. The value is a JSON string that contains the following fields:
 
-- Prompt: String. Required. The prompt for image generation.
+- Prompt: String. Required. The prompt text.
 - Medias: A list of media items. Required when the task type is `image_to_image`. A maximum of 9 items are supported.
-> The Media struct contains the following fields: Type, the media type, String, valid value: image. URL, the download URL of the media, String. MediaId, the media asset ID, String.
+> The Media structure contains the following fields: Type, the media type (String, valid value: image). URL, the media download URL (String). MediaId, the media asset ID (String).
 >', example='{"Prompt":"xxx","Medias":[{"Type":"image","URL":"xxx"}]}'),
-  jobParameters?: string(name='JobParameters', description='The task feature parameters. The value is a JSON string. You do not need to set this parameter.', example='{}'),
+  jobParameters?: string(name='JobParameters', description='The task feature parameters. The value is a JSON string. You do not need to set this parameter currently.', example='{}'),
   jobType?: string(name='JobType', description='The type of the generation task. This parameter is required. Valid values:
 
 - text_to_image: text-to-image generation.
@@ -2533,18 +2592,18 @@ async function submitRemakeScriptJob(request: SubmitRemakeScriptJobRequest): Sub
 }
 
 model SubmitVideoDetextJobRequest {
-  clientToken?: string(name='ClientToken', description='The user-level idempotency token. Maximum length: 40 characters. If the same user submits a request with the same token, the original task is returned.', example='detext-client-20260820-001'),
-  input?: string(name='Input', description='The input configuration JSON string. You must specify either VideoUrl or VideoMediaId, but not both.
+  clientToken?: string(name='ClientToken', description='The user-level idempotency token. Maximum length: 40 characters. If the same user submits a request with the same token, the original job is returned.', example='detext-client-20260820-001'),
+  input?: string(name='Input', description='The input configuration JSON string. You must provide exactly one of VideoUrl or VideoMediaId.
 
 This parameter is required.', example='{"VideoUrl":"https://example.com/input.mp4"}'),
-  jobParameters?: string(name='JobParameters', description='The text erasure parameter JSON string. This string can contain EraseAllText, TimeRanges, TextTargets, FullEraseTargets, and Config.', example='{"EraseAllText":false,"TextTargets":[{"Box":[0.1,0.8,0.8,0.15],"TimeRanges":[[0,30]]}]}'),
-  output?: string(name='Output', description='The output configuration JSON string. OssUri specifies an OSS directory or MP4 file path and cannot contain query parameters or fragments. For directory paths, detext.mp4 is automatically appended. Paths ending with .mp4 without a trailing / are used directly as the target file. If not specified, a signed URL of the processing result is returned in the query result.', example='{"OssUri":"oss://example-bucket/video-detext/job-001/"}'),
-  userData?: string(name='UserData', description='The custom data JSON string for pass-through in desired state notifications. For MNS callbacks, use NotifyAddress to specify a queue name prefixed with yike-callback, and use NotifyMnsEndpoint to specify an MNS endpoint under the same account. For HTTP(S) callbacks, use NotifyAddress to specify the full URL.', example='{"NotifyAddress":"yike-callback-example","NotifyMnsEndpoint":"http://<AccountId>.mns.cn-shanghai.aliyuncs.com/"}'),
+  jobParameters?: string(name='JobParameters', description='The text removal parameters JSON string. TextTargets detects and removes text within specified regions. FullEraseTargets repairs entire rectangular regions regardless of text detection. EraseAllText controls only text filtering and does not expand the removal region. For parameter details, default behavior, and combination examples, see the supplementary request parameter description.', example='{"EraseAllText":true,"TimeRanges":[[12,15]],"TextTargets":[{"Box":[0.1,0.8,0.8,0.15]}]}'),
+  output?: string(name='Output', description='The output configuration JSON string. OssUri specifies an OSS directory or MP4 file path in the format oss://bucket/path. It cannot contain query parameters or fragments. A directory path automatically appends detext.mp4. A path ending in .mp4 without a trailing slash is used directly as the target file. If not specified, a signed URL for the result is returned in the query response.', example='{"OssUri":"oss://example-bucket/video-detext/job-001/"}'),
+  userData?: string(name='UserData', description='The custom data JSON string used for pass-through in desired-state notifications. For MNS callbacks, use NotifyAddress to specify a queue name prefixed with yike-callback, and use NotifyMnsEndpoint to specify the MNS endpoint of the same account. For HTTP(S) callbacks, use NotifyAddress to specify the full URL.', example='{"NotifyAddress":"yike-callback-example","NotifyMnsEndpoint":"http://<AccountId>.mns.cn-shanghai.aliyuncs.com/"}'),
 }
 
 model SubmitVideoDetextJobResponseBody = {
-  jobId?: string(name='JobId', description='The video text erasure job ID. Use this ID to call GetVideoDetextJob to query the job.', example='vdt_0123456789abcdef0123456789abcdef'),
-  requestId?: string(name='RequestId', description='The request ID, which is used for Tracing Analysis and troubleshooting.', example='req-detext-20260820-001'),
+  jobId?: string(name='JobId', description='The ID of the video text removal job. Use this ID to call GetVideoDetextJob to query the job.', example='vdt_0123456789abcdef0123456789abcdef'),
+  requestId?: string(name='RequestId', description='The request ID, used for Tracing Analysis and troubleshooting.', example='req-detext-20260820-001'),
 }
 
 model SubmitVideoDetextJobResponse = {
@@ -2554,9 +2613,9 @@ model SubmitVideoDetextJobResponse = {
 }
 
 /**
- * @summary Submits an asynchronous video text erasure task that supports full-video erasure, time range-based erasure, and region-specific erasure.
+ * @summary Submits an asynchronous video text removal job. Supports full-frame removal, time range–based removal, and region-based removal.
  *
- * @description Submits an asynchronous video text erasure task. The input can be an accessible video URL or a Yike video media asset ID. You can configure the erasure time range and text regions.
+ * @description Submits an asynchronous video text removal job. The input can be an accessible video URL or a Yike media asset ID. You can configure the removal time range and text regions.
  *
  * @param request SubmitVideoDetextJobRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -2598,9 +2657,9 @@ async function submitVideoDetextJobWithOptions(request: SubmitVideoDetextJobRequ
 }
 
 /**
- * @summary Submits an asynchronous video text erasure task that supports full-video erasure, time range-based erasure, and region-specific erasure.
+ * @summary Submits an asynchronous video text removal job. Supports full-frame removal, time range–based removal, and region-based removal.
  *
- * @description Submits an asynchronous video text erasure task. The input can be an accessible video URL or a Yike video media asset ID. You can configure the erasure time range and text regions.
+ * @description Submits an asynchronous video text removal job. The input can be an accessible video URL or a Yike media asset ID. You can configure the removal time range and text regions.
  *
  * @param request SubmitVideoDetextJobRequest
  * @return SubmitVideoDetextJobResponse
