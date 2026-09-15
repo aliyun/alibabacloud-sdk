@@ -21,7 +21,7 @@ init(configuration: ClientConfiguration){
   @handler = new TeaAsyncHandler(configuration);
   @product = 'AlikafkaStreaming';
   @version = '2026-02-02';
-  @endpointRule = '';
+  @endpointRule = 'regional';
   @endpointMap = {
   };
 }
@@ -31,30 +31,30 @@ function close(): void {
 }
 
 model CheckSqlContentRequest {
-  instanceId: string(name='InstanceId', description='This parameter is required.', position='Query'),
-  jobName: string(name='JobName', description='This parameter is required.', position='Query'),
-  regionId: string(name='RegionId', description='This parameter is required.', position='Query'),
-  sqlContent: string(name='SqlContent', description='This parameter is required.', position='Query'),
+  instanceId: string(name='InstanceId', description='This parameter is required.', example='alikafka_streaming-cn-a1b2c3d4', position='Query'),
+  jobName: string(name='JobName', description='This parameter is required.', example='order_enrichment', position='Query'),
+  regionId: string(name='RegionId', description='This parameter is required.', example='cn-hangzhou', position='Query'),
+  sqlContent: string(name='SqlContent', description='This parameter is required.', example='INSERT INTO sink_table SELECT * FROM source_table;', position='Query'),
 }
 
 model CheckSqlContentResponseBody = {
-  code?: long(name='Code'),
+  code?: long(name='Code', example='200'),
   data?: {
     errorList?: [ 
       {
-        codeSnippet?: string(name='CodeSnippet'),
-        columnNumber?: int32(name='ColumnNumber'),
-        endColumnNumber?: int32(name='EndColumnNumber'),
-        endLineNumber?: int32(name='EndLineNumber'),
-        errorType?: string(name='ErrorType'),
-        lineNumber?: int32(name='LineNumber'),
-        message?: string(name='Message'),
+        codeSnippet?: string(name='CodeSnippet', example='SELECT FROM source_table'),
+        columnNumber?: int32(name='ColumnNumber', example='8'),
+        endColumnNumber?: int32(name='EndColumnNumber', example='12'),
+        endLineNumber?: int32(name='EndLineNumber', example='1'),
+        errorType?: string(name='ErrorType', example='SYNTAX_ERROR'),
+        lineNumber?: int32(name='LineNumber', example='1'),
+        message?: string(name='Message', example='SQL parse failed near FROM'),
       }
     ](name='ErrorList'),
-    valid?: boolean(name='Valid'),
+    valid?: boolean(name='Valid', example='false'),
   }(name='Data'),
-  requestId?: string(name='RequestId'),
-  success?: boolean(name='Success'),
+  requestId?: string(name='RequestId', example='062D8E8B-8D47-5DCC-BB12-5A1D93C3A66B'),
+  success?: boolean(name='Success', example='true'),
 }
 
 model CheckSqlContentResponse = {
@@ -64,6 +64,13 @@ model CheckSqlContentResponse = {
 }
 
 /**
+  * @description ## 请求说明
+  * - 该接口支持通过 GET 或 POST 方法调用。
+  * - 必须提供 `InstanceId`、`JobName` 和 `SqlContent` 参数，其中 `SqlContent` 是待校验的 Flink SQL 语句。
+  * - 返回结果中，`Data.Valid` 字段指示 SQL 是否通过校验；若未通过，则错误详情位于 `Data.ErrorList` 中。
+  * - 当前版本要求同时传入实例 ID (`InstanceId`) 和作业名称 (`JobName`) 以构建作业上下文。
+  * - 接口返回成功仅表示校验流程执行完成，并不直接反映 SQL 的有效性，请检查 `Data.Valid` 字段来确定 SQL 是否有效。
+  * - 错误码和异常处理请参考文档中的“错误码”部分。
   * @param request  the request parameters of CheckSqlContent  CheckSqlContentRequest
   * @return CheckSqlContentResponse
  */
@@ -73,20 +80,19 @@ async function checkSqlContent(request: CheckSqlContentRequest): CheckSqlContent
 }
 
 model CreateComputeInstanceRequest {
-  paidType: long(name='PaidType', description='This parameter is required.', position='Query'),
-  regionId: string(name='RegionId', description='This parameter is required.', position='Query'),
-  resourceGroupId?: string(name='ResourceGroupId', position='Query'),
-  resourceType?: string(name='ResourceType', position='Query'),
+  paidType: long(name='PaidType', description='This parameter is required.', example='5', position='Query'),
+  regionId: string(name='RegionId', description='This parameter is required.', example='cn-hangzhou', position='Query'),
+  resourceGroupId?: string(name='ResourceGroupId', example='rg-acfm2pz25js****', position='Query'),
 }
 
 model CreateComputeInstanceResponseBody = {
-  code?: long(name='Code'),
+  code?: long(name='Code', example='200'),
   data?: {
-    instanceId?: string(name='InstanceId'),
-    orderId?: string(name='OrderId'),
+    instanceId?: string(name='InstanceId', example='alikafka_streaming-cn-pe333xxxxxx'),
+    orderId?: string(name='OrderId', example='1234567890'),
   }(name='Data'),
-  requestId?: string(name='RequestId'),
-  success?: boolean(name='Success'),
+  requestId?: string(name='RequestId', example='062D8E8B-8D47-5DCC-BB12-5A1D93C3A66B'),
+  success?: boolean(name='Success', example='true'),
 }
 
 model CreateComputeInstanceResponse = {
@@ -96,6 +102,9 @@ model CreateComputeInstanceResponse = {
 }
 
 /**
+  * @description 创建一个计算实例。接口只完成购买阶段；创建成功后需调用 StartComputeInstance 完成网络配置和部署。
+  * - API 版本：2026-02-02
+  * - Action：CreateComputeInstance
   * @param request  the request parameters of CreateComputeInstance  CreateComputeInstanceRequest
   * @return CreateComputeInstanceResponse
  */
@@ -105,24 +114,19 @@ async function createComputeInstance(request: CreateComputeInstanceRequest): Cre
 }
 
 model CreateComputeJobRequest {
-  clientToken?: string(name='ClientToken', position='Body'),
-  cuLimit?: double(name='CuLimit', position='Query'),
-  cuReserved?: double(name='CuReserved', position='Query'),
-  draftSql?: string(name='DraftSql', position='Query'),
-  instanceId: string(name='InstanceId', description='This parameter is required.', position='Query'),
-  jobConfig?: string(name='JobConfig', position='Query'),
-  jobName: string(name='JobName', description='This parameter is required.', position='Query'),
-  regionId: string(name='RegionId', description='This parameter is required.', position='Query'),
-  remark?: string(name='Remark', position='Query'),
-  upgradeMode?: string(name='UpgradeMode', position='Query'),
-  userId?: string(name='UserId', position='Query'),
+  cuLimit: double(name='CuLimit', description='This parameter is required.', example='2.0', position='Query'),
+  cuReserved: double(name='CuReserved', description='This parameter is required.', example='1.0', position='Query'),
+  instanceId: string(name='InstanceId', description='This parameter is required.', example='alikafka_streaming-cn-pe333xxxxxx', position='Query'),
+  jobName: string(name='JobName', description='This parameter is required.', example='order_enrichment', position='Query'),
+  regionId: string(name='RegionId', description='This parameter is required.', example='cn-hangzhou', position='Query'),
+  remark?: string(name='Remark', example='订单流实时清洗', position='Query'),
 }
 
 model CreateComputeJobResponseBody = {
-  code?: long(name='Code'),
-  data?: boolean(name='Data'),
-  requestId?: string(name='RequestId'),
-  success?: boolean(name='Success'),
+  code?: long(name='Code', example='200'),
+  data?: boolean(name='Data', example='true'),
+  requestId?: string(name='RequestId', example='062D8E8B-8D47-5DCC-BB12-5A1D93C3A66B'),
+  success?: boolean(name='Success', example='true'),
 }
 
 model CreateComputeJobResponse = {
@@ -132,25 +136,32 @@ model CreateComputeJobResponse = {
 }
 
 /**
+  * @description ## 请求说明
+  * - 该API用于在指定的运行中的计算实例上创建一个新的Flink SQL作业。
+  * - 创建后的作业将处于`INIT`状态。
+  * - 用户可以通过设置`CuLimit`和`CuReserved`来控制作业的资源使用情况。
+  * - `Remark`字段允许用户为作业添加备注信息，便于管理和识别。
+  * - 确保提供的`RegionId`、`InstanceId`以及`JobName`参数准确无误，否则可能导致请求失败。
+  * - 如果尝试创建同名作业，则会返回错误提示。
+  * - 计算实例必须处于运行状态才能成功创建作业。
   * @param request  the request parameters of CreateComputeJob  CreateComputeJobRequest
   * @return CreateComputeJobResponse
  */
 async function createComputeJob(request: CreateComputeJobRequest): CreateComputeJobResponse {
   @handler.validateRequestModel(request);
-  return @handler.do('RPC', 'CreateComputeJob', 'POST', '/', 'json', true, 'form', request);
+  return @handler.do('RPC', 'CreateComputeJob', 'POST', '/', 'json', false, 'json', request);
 }
 
 model DeleteComputeInstanceRequest {
-  instanceId: string(name='InstanceId', description='This parameter is required.', position='Query'),
-  regionId: string(name='RegionId', description='This parameter is required.', position='Query'),
-  resourceType?: string(name='ResourceType', position='Query'),
+  instanceId: string(name='InstanceId', description='This parameter is required.', example='alikafka_streaming-cn-pe333xxxxxx', position='Query'),
+  regionId: string(name='RegionId', description='This parameter is required.', example='cn-hangzhou', position='Query'),
 }
 
 model DeleteComputeInstanceResponseBody = {
-  code?: long(name='Code'),
-  data?: boolean(name='Data'),
-  requestId?: string(name='RequestId'),
-  success?: boolean(name='Success'),
+  code?: long(name='Code', example='200'),
+  data?: boolean(name='Data', example='true'),
+  requestId?: string(name='RequestId', example='2834B42F-FBAD-516B-94FA-95E675A5D6CC'),
+  success?: boolean(name='Success', example='true'),
 }
 
 model DeleteComputeInstanceResponse = {
@@ -160,6 +171,9 @@ model DeleteComputeInstanceResponse = {
 }
 
 /**
+  * @description 删除处于待部署、已停止或已释放状态的计算实例。
+  * - API版本：2026-02-02
+  * - Action：DeleteComputeInstance
   * @param request  the request parameters of DeleteComputeInstance  DeleteComputeInstanceRequest
   * @return DeleteComputeInstanceResponse
  */
@@ -169,16 +183,16 @@ async function deleteComputeInstance(request: DeleteComputeInstanceRequest): Del
 }
 
 model DeleteComputeJobRequest {
-  instanceId: string(name='InstanceId', description='This parameter is required.', position='Query'),
-  jobName: string(name='JobName', description='This parameter is required.', position='Query'),
-  regionId: string(name='RegionId', description='This parameter is required.', position='Query'),
+  instanceId: string(name='InstanceId', description='This parameter is required.', example='alikafka_streaming-cn-pe333xxxxxx', position='Query'),
+  jobName: string(name='JobName', description='This parameter is required.', example='order_enrichment', position='Query'),
+  regionId: string(name='RegionId', description='This parameter is required.', example='cn-hangzhou', position='Query'),
 }
 
 model DeleteComputeJobResponseBody = {
-  code?: long(name='Code'),
-  data?: boolean(name='Data'),
-  requestId?: string(name='RequestId'),
-  success?: boolean(name='Success'),
+  code?: long(name='Code', example='200'),
+  data?: boolean(name='Data', example='true'),
+  requestId?: string(name='RequestId', example='062D8E8B-8D47-5DCC-BB12-5A1D93C3A66B'),
+  success?: boolean(name='Success', example='true'),
 }
 
 model DeleteComputeJobResponse = {
@@ -188,6 +202,12 @@ model DeleteComputeJobResponse = {
 }
 
 /**
+  * @description ## 请求说明
+  * - 该接口用于删除一个特定的计算作业。
+  * - 成功调用此接口仅表示删除请求已被系统接受，并非立即完成删除操作。
+  * - 确保提供的`RegionId`、`InstanceId`以及`JobName`参数准确无误，否则可能导致请求失败。
+  * - 如果计算实例或作业处于不允许删除的状态（例如：非运行状态），则会返回相应的错误信息。
+  * - 删除操作不可逆，请谨慎使用。
   * @param request  the request parameters of DeleteComputeJob  DeleteComputeJobRequest
   * @return DeleteComputeJobResponse
  */
@@ -197,33 +217,30 @@ async function deleteComputeJob(request: DeleteComputeJobRequest): DeleteCompute
 }
 
 model GetComputeInstanceRequest {
-  instanceId: string(name='InstanceId', description='This parameter is required.', position='Query'),
-  orderId?: string(name='OrderId', position='Query'),
-  regionId: string(name='RegionId', description='This parameter is required.', position='Query'),
+  instanceId: string(name='InstanceId', description='This parameter is required.', example='alikafka_streaming-cn-xxxxxxx', position='Query'),
+  regionId: string(name='RegionId', description='This parameter is required.', example='cn-hangzhou', position='Query'),
 }
 
 model GetComputeInstanceResponseBody = {
-  code?: long(name='Code'),
+  code?: long(name='Code', example='200'),
   data?: {
-    chargeType?: string(name='ChargeType'),
-    createTime?: string(name='CreateTime', description='Use the UTC time format: yyyy-MM-ddTHH:mm:ssZ'),
-    cuLimitSum?: double(name='CuLimitSum'),
-    cuReservedSum?: double(name='CuReservedSum'),
-    cuUsedSum?: double(name='CuUsedSum'),
-    expireTime?: string(name='ExpireTime', description='Use the UTC time format: yyyy-MM-ddTHH:mm:ssZ'),
-    instanceId?: string(name='InstanceId'),
-    instanceName?: string(name='InstanceName'),
-    orderId?: string(name='OrderId'),
-    regionId?: string(name='RegionId'),
-    serviceStatus?: string(name='ServiceStatus'),
-    serviceVersion?: string(name='ServiceVersion'),
-    totalJobs?: long(name='TotalJobs'),
-    totalRunningJobs?: long(name='TotalRunningJobs'),
+    chargeType?: string(name='ChargeType', example='POST_PAID'),
+    createTime?: string(name='CreateTime', description='Use the UTC time format: yyyy-MM-ddTHH:mm:ssZ', example='2026-09-02T16:00:00Z'),
+    cuLimitSum?: double(name='CuLimitSum', example='4.0'),
+    cuReservedSum?: double(name='CuReservedSum', example='2.0'),
+    cuUsedSum?: double(name='CuUsedSum', example='2.5'),
+    expireTime?: string(name='ExpireTime', description='Use the UTC time format: yyyy-MM-ddTHH:mm:ssZ', example='2027-09-02T16:00:00Z'),
+    instanceId?: string(name='InstanceId', example='alikafka_streaming-cn-pe333xxxxxx'),
+    instanceName?: string(name='InstanceName', example='streaming-prod'),
+    regionId?: string(name='RegionId', example='cn-hangzhou'),
+    serviceStatus?: string(name='ServiceStatus', example='RUNNING'),
+    totalJobs?: long(name='TotalJobs', example='3'),
+    totalRunningJobs?: long(name='TotalRunningJobs', example='2'),
     vSwitchIds?: [ string ](name='VSwitchIds'),
-    vpcId?: string(name='VpcId'),
+    vpcId?: string(name='VpcId', example='vpc-bp1abcdefg'),
   }(name='Data'),
-  requestId?: string(name='RequestId'),
-  success?: boolean(name='Success'),
+  requestId?: string(name='RequestId', example='019F5939-507B-57C1-B82C-E55821456FA6'),
+  success?: boolean(name='Success', example='true'),
 }
 
 model GetComputeInstanceResponse = {
@@ -242,33 +259,33 @@ async function getComputeInstance(request: GetComputeInstanceRequest): GetComput
 }
 
 model GetComputeJobRequest {
-  instanceId: string(name='InstanceId', description='This parameter is required.', position='Query'),
-  jobName: string(name='JobName', description='This parameter is required.', position='Query'),
-  regionId: string(name='RegionId', description='This parameter is required.', position='Query'),
+  instanceId: string(name='InstanceId', description='This parameter is required.', example='alikafka_streaming-cn-a1b2c3d4', position='Query'),
+  jobName: string(name='JobName', description='This parameter is required.', example='order_enrichment', position='Query'),
+  regionId: string(name='RegionId', description='This parameter is required.', example='cn-hangzhou', position='Query'),
 }
 
 model GetComputeJobResponseBody = {
-  code?: long(name='Code'),
+  code?: long(name='Code', example='200'),
   data?: {
-    createTime?: string(name='CreateTime', description='Use the UTC time format: yyyy-MM-ddTHH:mm:ssZ'),
-    cuLimit?: double(name='CuLimit'),
-    cuReserved?: double(name='CuReserved'),
-    cuUsed?: double(name='CuUsed'),
-    debugMode?: int32(name='DebugMode'),
-    deployedSql?: string(name='DeployedSql'),
-    draftSql?: string(name='DraftSql'),
-    historyInfos?: string(name='HistoryInfos'),
-    instanceId?: string(name='InstanceId'),
-    jobConfig?: string(name='JobConfig'),
-    jobName?: string(name='JobName'),
-    owner?: string(name='Owner'),
-    regionId?: string(name='RegionId'),
-    remark?: string(name='Remark'),
-    status?: string(name='Status'),
-    upgradeMode?: string(name='UpgradeMode'),
+    createTime?: string(name='CreateTime', description='Use the UTC time format: yyyy-MM-ddTHH:mm:ssZ', example='2026-09-02T16:00:00Z'),
+    cuLimit?: double(name='CuLimit', example='2.0'),
+    cuReserved?: double(name='CuReserved', example='1.0'),
+    cuUsed?: double(name='CuUsed', example='1.5'),
+    debugMode?: int32(name='DebugMode', example='0'),
+    deployedSql?: string(name='DeployedSql', example='INSERT INTO sink_table SELECT * FROM source_table;'),
+    draftSql?: string(name='DraftSql', example='INSERT INTO sink_table SELECT * FROM source_table;'),
+    errorMsg?: string(name='ErrorMsg', example='SQL 校验或编译失败：Column \\\\"xxx\\\\" not found'),
+    expirationTime?: string(name='ExpirationTime', description='Use the UTC time format: yyyy-MM-ddTHH:mm:ssZ', example='2026-09-11T04:33:03Z'),
+    instanceId?: string(name='InstanceId', example='alikafka_streaming-cn-hangzhou-a1b2c3d4'),
+    jobName?: string(name='JobName', example='order_enrichment'),
+    owner?: string(name='Owner', example='1234567890123456'),
+    regionId?: string(name='RegionId', example='cn-hangzhou'),
+    remark?: string(name='Remark', example='订单流实时清洗'),
+    status?: string(name='Status', example='RUNNING'),
+    upgradeMode?: string(name='UpgradeMode', example='savepoint'),
   }(name='Data'),
-  requestId?: string(name='RequestId'),
-  success?: boolean(name='Success'),
+  requestId?: string(name='RequestId', example='062D8E8B-8D47-5DCC-BB12-5A1D93C3A66B'),
+  success?: boolean(name='Success', example='true'),
 }
 
 model GetComputeJobResponse = {
@@ -278,6 +295,12 @@ model GetComputeJobResponse = {
 }
 
 /**
+  * @description ## 请求说明
+  * - 本接口用于查询指定计算作业的详情。
+  * - 支持使用 GET 或 POST 方法进行请求。
+  * - 所有时间字段以 Unix 时间戳形式返回，单位为毫秒。
+  * - 必须提供 `RegionId`、`InstanceId` 和 `JobName` 参数。
+  * - 授权操作为 `alikafkastreaming:GetComputeJob`，访问级别为读取（Read）。
   * @param request  the request parameters of GetComputeJob  GetComputeJobRequest
   * @return GetComputeJobResponse
  */
@@ -378,44 +401,40 @@ async function listComputeInstances(request: ListComputeInstancesRequest): ListC
 }
 
 model ListComputeInstancesInPageRequest {
-  currentPage?: int32(name='CurrentPage', position='Query'),
-  instanceId?: string(name='InstanceId', position='Query'),
+  currentPage?: int32(name='CurrentPage', example='1', position='Query'),
   instanceIds?: [ string ](name='InstanceIds', shrink='json', position='Query'),
-  orderId?: string(name='OrderId', position='Query'),
-  pageSize?: int32(name='PageSize', position='Query'),
-  regionId: string(name='RegionId', description='This parameter is required.', position='Query'),
+  pageSize?: int32(name='PageSize', example='10', position='Query'),
+  regionId: string(name='RegionId', description='This parameter is required.', example='cn-hangzhou', position='Query'),
+  resourceGroupId?: string(name='ResourceGroupId', example='rg-acfm2pz25js****', position='Query'),
 }
 
 model ListComputeInstancesInPageResponseBody = {
-  code?: long(name='Code'),
-  currentPage?: int32(name='CurrentPage'),
+  code?: long(name='Code', example='200'),
+  currentPage?: int32(name='CurrentPage', example='1'),
   data?: [ 
     {
-      autoRenewFlag?: boolean(name='AutoRenewFlag'),
-      chargeType?: string(name='ChargeType'),
-      commodityCode?: string(name='CommodityCode'),
-      createTime?: string(name='CreateTime', description='Use the UTC time format: yyyy-MM-ddTHH:mm:ssZ'),
-      cu?: int32(name='Cu'),
-      cuLimitSum?: double(name='CuLimitSum'),
-      cuReservedSum?: double(name='CuReservedSum'),
-      cuUsedSum?: double(name='CuUsedSum'),
-      expireTime?: string(name='ExpireTime', description='Use the UTC time format: yyyy-MM-ddTHH:mmZ'),
-      instanceId?: string(name='InstanceId'),
-      instanceName?: string(name='InstanceName'),
-      owner?: string(name='Owner'),
-      regionId?: string(name='RegionId'),
-      serviceStatus?: string(name='ServiceStatus'),
-      totalJobs?: long(name='TotalJobs'),
-      totalRunningJobs?: long(name='TotalRunningJobs'),
+      autoRenewFlag?: boolean(name='AutoRenewFlag', example='false'),
+      chargeType?: string(name='ChargeType', example='POST_PAID'),
+      createTime?: string(name='CreateTime', description='Use the UTC time format: yyyy-MM-ddTHH:mm:ssZ', example='2026-09-02T16:00:00Z'),
+      cuLimitSum?: double(name='CuLimitSum', example='4.0'),
+      cuReservedSum?: double(name='CuReservedSum', example='2.0'),
+      cuUsedSum?: double(name='CuUsedSum', example='2.5'),
+      expireTime?: string(name='ExpireTime', description='Use the UTC time format: yyyy-MM-ddTHH:mmZ', example='2027-09-02T16:00:00Z'),
+      instanceId?: string(name='InstanceId', example='alikafka_streaming-cn-xxxxxxx'),
+      instanceName?: string(name='InstanceName', example='streaming-prod'),
+      owner?: string(name='Owner', example='1234567890123456'),
+      regionId?: string(name='RegionId', example='cn-beijing'),
+      serviceStatus?: string(name='ServiceStatus', example='RUNNING'),
+      totalJobs?: long(name='TotalJobs', example='3'),
+      totalRunningJobs?: long(name='TotalRunningJobs', example='2'),
       vSwitchIds?: [ string ](name='VSwitchIds'),
-      version?: string(name='Version'),
-      vpcId?: string(name='VpcId'),
+      vpcId?: string(name='VpcId', example='vpc-bp1abcdefg'),
     }
   ](name='Data'),
-  pageSize?: int32(name='PageSize'),
-  requestId?: string(name='RequestId'),
-  success?: boolean(name='Success'),
-  total?: long(name='Total'),
+  pageSize?: int32(name='PageSize', example='10'),
+  requestId?: string(name='RequestId', example='9079DD86-09F1-5303-A64F-D9089F96BC16'),
+  success?: boolean(name='Success', example='true'),
+  total?: long(name='Total', example='3'),
 }
 
 model ListComputeInstancesInPageResponse = {
@@ -434,39 +453,37 @@ async function listComputeInstancesInPage(request: ListComputeInstancesInPageReq
 }
 
 model ListComputeJobsRequest {
-  currentPage?: long(name='CurrentPage', position='Query'),
-  instanceId: string(name='InstanceId', description='This parameter is required.', position='Query'),
-  maxResults?: int32(name='MaxResults', position='Query'),
-  nextToken?: string(name='NextToken', position='Query'),
-  pageSize?: long(name='PageSize', position='Query'),
-  regionId: string(name='RegionId', description='This parameter is required.', position='Query'),
-  search?: string(name='Search', position='Query'),
-  sortDirection?: string(name='SortDirection', position='Query'),
-  sortField?: string(name='SortField', position='Query'),
+  instanceId: string(name='InstanceId', description='This parameter is required.', example='alikafka_streaming-cn-a1b2c3d4', position='Query'),
+  maxResults?: int32(name='MaxResults', example='20', position='Query'),
+  nextToken?: string(name='NextToken', example='eyJvZmZzZXQiOjIwfQ==', position='Query'),
+  regionId: string(name='RegionId', description='This parameter is required.', example='cn-hangzhou', position='Query'),
+  search?: string(name='Search', example='order', position='Query'),
+  sortDirection?: string(name='SortDirection', example='DESC', position='Query'),
+  sortField?: string(name='SortField', example='createTime', position='Query'),
 }
 
 model ListComputeJobsResponseBody = {
-  code?: long(name='Code'),
+  code?: long(name='Code', example='200'),
   data?: [ 
     {
-      createTime?: string(name='CreateTime', description='Use the UTC time format: yyyy-MM-ddTHH:mm:ssZ'),
-      cuLimit?: double(name='CuLimit'),
-      cuReserved?: double(name='CuReserved'),
-      cuUsed?: double(name='CuUsed'),
-      debugMode?: int32(name='DebugMode'),
-      instanceId?: string(name='InstanceId'),
-      jobName?: string(name='JobName'),
-      owner?: string(name='Owner'),
-      regionId?: string(name='RegionId'),
-      remark?: string(name='Remark'),
-      status?: string(name='Status'),
+      createTime?: string(name='CreateTime', description='Use the UTC time format: yyyy-MM-ddTHH:mm:ssZ', example='2026-09-02T16:00:00Z'),
+      cuLimit?: double(name='CuLimit', example='2.0'),
+      cuReserved?: double(name='CuReserved', example='1.0'),
+      cuUsed?: double(name='CuUsed', example='1.5'),
+      debugMode?: int32(name='DebugMode', example='0'),
+      instanceId?: string(name='InstanceId', example='alikafka_streaming-cn-a1b2c3d4'),
+      jobName?: string(name='JobName', example='order_enrichment'),
+      owner?: string(name='Owner', example='1234567890123456'),
+      regionId?: string(name='RegionId', example='cn-hangzhou'),
+      remark?: string(name='Remark', example='订单流实时清洗'),
+      status?: string(name='Status', example='RUNNING'),
     }
   ](name='Data'),
-  maxResults?: int32(name='MaxResults'),
-  nextToken?: string(name='NextToken'),
-  requestId?: string(name='RequestId'),
-  success?: boolean(name='Success'),
-  total?: long(name='Total'),
+  maxResults?: int32(name='MaxResults', example='20'),
+  nextToken?: string(name='NextToken', example='eyJvZmZzZXQiOjIwfQ=='),
+  requestId?: string(name='RequestId', example='062D8E8B-8D47-5DCC-BB12-5A1D93C3A66B'),
+  success?: boolean(name='Success', example='true'),
+  total?: long(name='Total', example='3'),
 }
 
 model ListComputeJobsResponse = {
@@ -476,6 +493,12 @@ model ListComputeJobsResponse = {
 }
 
 /**
+  * @description ## 请求说明
+  * - 该接口支持通过 `MaxResults` 和 `NextToken` 参数进行游标分页查询。
+  * - 首次请求时不需要传递 `NextToken`，后续请求需使用上一次响应中返回的 `NextToken` 值。
+  * - 支持按作业名称或备注搜索，并可选择不同的排序字段和方向。
+  * - 返回的时间字段均为 Unix 时间戳（单位：毫秒）。
+  * - 授权操作为 `alikafkastreaming:ListComputeJobs`，访问级别为列出（List），适用于全部资源。
   * @param request  the request parameters of ListComputeJobs  ListComputeJobsRequest
   * @return ListComputeJobsResponse
  */
@@ -523,16 +546,15 @@ async function listSupportedConnectors(request: ListSupportedConnectorsRequest):
 }
 
 model ReopenComputeInstanceRequest {
-  clientToken?: string(name='ClientToken', position='Body'),
-  instanceId: string(name='InstanceId', description='This parameter is required.', position='Query'),
-  regionId: string(name='RegionId', description='This parameter is required.', position='Query'),
+  instanceId: string(name='InstanceId', description='This parameter is required.', example='alikafka_streaming-cn-pe333xxxxxx', position='Query'),
+  regionId: string(name='RegionId', description='This parameter is required.', example='cn-hangzhou', position='Query'),
 }
 
 model ReopenComputeInstanceResponseBody = {
-  code?: long(name='Code'),
-  data?: boolean(name='Data'),
-  requestId?: string(name='RequestId'),
-  success?: boolean(name='Success'),
+  code?: long(name='Code', example='200'),
+  data?: boolean(name='Data', example='true'),
+  requestId?: string(name='RequestId', example='019F3F8E-4159-52B9-8C9B-0C0B63D70A4B'),
+  success?: boolean(name='Success', example='true'),
 }
 
 model ReopenComputeInstanceResponse = {
@@ -542,12 +564,15 @@ model ReopenComputeInstanceResponse = {
 }
 
 /**
+  * @description 重新启用一个已停止的后付费计算实例。接口返回成功表示启用请求已受理。
+  * - API版本：2026-02-02
+  * - Action：ReopenComputeInstance
   * @param request  the request parameters of ReopenComputeInstance  ReopenComputeInstanceRequest
   * @return ReopenComputeInstanceResponse
  */
 async function reopenComputeInstance(request: ReopenComputeInstanceRequest): ReopenComputeInstanceResponse {
   @handler.validateRequestModel(request);
-  return @handler.do('RPC', 'ReopenComputeInstance', 'POST', '/', 'json', true, 'form', request);
+  return @handler.do('RPC', 'ReopenComputeInstance', 'POST', '/', 'json', false, 'json', request);
 }
 
 model RestartComputeJobRequest {
@@ -580,21 +605,18 @@ async function restartComputeJob(request: RestartComputeJobRequest): RestartComp
 }
 
 model StartComputeInstanceRequest {
-  clientToken?: string(name='ClientToken', position='Body'),
-  instanceId: string(name='InstanceId', description='This parameter is required.', position='Query'),
-  instanceName?: string(name='InstanceName', position='Query'),
-  regionId: string(name='RegionId', description='This parameter is required.', position='Query'),
-  selectedZones?: string(name='SelectedZones', position='Query'),
-  serviceVersion?: string(name='ServiceVersion', position='Query'),
+  instanceId: string(name='InstanceId', description='This parameter is required.', example='alikafka_streaming-cn-pe333xxxxxx', position='Query'),
+  instanceName?: string(name='InstanceName', example='streaming-prod', position='Query'),
+  regionId: string(name='RegionId', description='This parameter is required.', example='cn-hangzhou', position='Query'),
   vSwitchIds: [ string ](name='VSwitchIds', description='This parameter is required.', shrink='json', position='Query'),
-  vpcId: string(name='VpcId', description='This parameter is required.', position='Query'),
+  vpcId: string(name='VpcId', description='This parameter is required.', example='vpc-bp1abcdefg', position='Query'),
 }
 
 model StartComputeInstanceResponseBody = {
-  code?: long(name='Code'),
-  data?: boolean(name='Data'),
-  requestId?: string(name='RequestId'),
-  success?: boolean(name='Success'),
+  code?: long(name='Code', example='200'),
+  data?: boolean(name='Data', example='true'),
+  requestId?: string(name='RequestId', example='062D8E8B-8D47-5DCC-BB12-5A1D93C3A66B'),
+  success?: boolean(name='Success', example='true'),
 }
 
 model StartComputeInstanceResponse = {
@@ -604,31 +626,32 @@ model StartComputeInstanceResponse = {
 }
 
 /**
+  * @description 为处于待部署状态的计算实例配置网络并发起部署。
+  * - API 版本：2026-02-02
+  * - Action：StartComputeInstance
   * @param request  the request parameters of StartComputeInstance  StartComputeInstanceRequest
   * @return StartComputeInstanceResponse
  */
 async function startComputeInstance(request: StartComputeInstanceRequest): StartComputeInstanceResponse {
   @handler.validateRequestModel(request);
-  return @handler.do('RPC', 'StartComputeInstance', 'POST', '/', 'json', true, 'form', request);
+  return @handler.do('RPC', 'StartComputeInstance', 'POST', '/', 'json', false, 'json', request);
 }
 
 model StartComputeJobRequest {
-  clientToken?: string(name='ClientToken', position='Body'),
-  cuLimit?: double(name='CuLimit', position='Query'),
-  cuReserved?: double(name='CuReserved', position='Query'),
-  draftSql?: string(name='DraftSql', position='Query'),
-  draftSqlStart?: boolean(name='DraftSqlStart', position='Query'),
-  instanceId: string(name='InstanceId', description='This parameter is required.', position='Query'),
-  jobName: string(name='JobName', description='This parameter is required.', position='Query'),
-  recoveryMode?: string(name='RecoveryMode', position='Query'),
-  regionId: string(name='RegionId', description='This parameter is required.', position='Query'),
+  cuLimit?: double(name='CuLimit', example='2.0', position='Query'),
+  cuReserved?: double(name='CuReserved', example='1.0', position='Query'),
+  draftSql?: string(name='DraftSql', example='CREATE TEMPORARY TABLE src (id BIGINT) WITH (\\\\"connector\\\\" = \\\\"datagen\\\\"); CREATE TEMPORARY TABLE sink (id BIGINT) WITH (\\\\"connector\\\\" = \\\\"print\\\\"); INSERT INTO sink SELECT id FROM src;', position='Query'),
+  instanceId: string(name='InstanceId', description='This parameter is required.', example='alikafka_streaming-cn-pe333xxxxxx', position='Query'),
+  jobName: string(name='JobName', description='This parameter is required.', example='order_enrichment', position='Query'),
+  recoveryMode?: string(name='RecoveryMode', example='savepoint', position='Query'),
+  regionId: string(name='RegionId', description='This parameter is required.', example='cn-hangzhou', position='Query'),
 }
 
 model StartComputeJobResponseBody = {
-  code?: long(name='Code'),
-  data?: boolean(name='Data'),
-  requestId?: string(name='RequestId'),
-  success?: boolean(name='Success'),
+  code?: long(name='Code', example='200'),
+  data?: boolean(name='Data', example='true'),
+  requestId?: string(name='RequestId', example='062D8E8B-8D47-5DCC-BB12-5A1D93C3A66B'),
+  success?: boolean(name='Success', example='true'),
 }
 
 model StartComputeJobResponse = {
@@ -638,25 +661,28 @@ model StartComputeJobResponse = {
 }
 
 /**
+  * @description ## 请求说明
+  * - `RecoveryMode` 支持两种模式：`savepoint` 和 `stateless`。如果选择 `savepoint` 模式但没有可用的 savepoint，则会返回错误。
+  * - `CuLimit` 和 `CuReserved` 参数分别用来设定作业的 CU 上限和预留 CU 数量，支持整数或小数形式输入。
+  * - 确保提供的 `RegionId`, `InstanceId`, 和 `JobName` 参数值正确且存在，否则将导致请求失败。
   * @param request  the request parameters of StartComputeJob  StartComputeJobRequest
   * @return StartComputeJobResponse
  */
 async function startComputeJob(request: StartComputeJobRequest): StartComputeJobResponse {
   @handler.validateRequestModel(request);
-  return @handler.do('RPC', 'StartComputeJob', 'POST', '/', 'json', true, 'form', request);
+  return @handler.do('RPC', 'StartComputeJob', 'POST', '/', 'json', false, 'json', request);
 }
 
 model StopComputeInstanceRequest {
-  clientToken?: string(name='ClientToken', position='Body'),
-  instanceId: string(name='InstanceId', description='This parameter is required.', position='Query'),
-  regionId: string(name='RegionId', description='This parameter is required.', position='Query'),
+  instanceId: string(name='InstanceId', description='This parameter is required.', example='alikafka_streaming-cn-pe333xxxxxx', position='Query'),
+  regionId: string(name='RegionId', description='This parameter is required.', example='cn-hangzhou', position='Query'),
 }
 
 model StopComputeInstanceResponseBody = {
-  code?: long(name='Code'),
-  data?: boolean(name='Data'),
-  requestId?: string(name='RequestId'),
-  success?: boolean(name='Success'),
+  code?: long(name='Code', example='200'),
+  data?: boolean(name='Data', example='true'),
+  requestId?: string(name='RequestId', example='B353C700-D3F6-5325-8A1C-376CE8E04DC4'),
+  success?: boolean(name='Success', example='true'),
 }
 
 model StopComputeInstanceResponse = {
@@ -666,26 +692,28 @@ model StopComputeInstanceResponse = {
 }
 
 /**
+  * @description 停止一个正在运行的后付费计算实例。接口返回成功表示停止请求已受理。
+  * - API 版本：2026-02-02
+  * - Action：StopComputeInstance
   * @param request  the request parameters of StopComputeInstance  StopComputeInstanceRequest
   * @return StopComputeInstanceResponse
  */
 async function stopComputeInstance(request: StopComputeInstanceRequest): StopComputeInstanceResponse {
   @handler.validateRequestModel(request);
-  return @handler.do('RPC', 'StopComputeInstance', 'POST', '/', 'json', true, 'form', request);
+  return @handler.do('RPC', 'StopComputeInstance', 'POST', '/', 'json', false, 'json', request);
 }
 
 model StopComputeJobRequest {
-  clientToken?: string(name='ClientToken', position='Body'),
-  instanceId: string(name='InstanceId', description='This parameter is required.', position='Query'),
-  jobName: string(name='JobName', description='This parameter is required.', position='Query'),
-  regionId: string(name='RegionId', description='This parameter is required.', position='Query'),
+  instanceId: string(name='InstanceId', description='This parameter is required.', example='alikafka_streaming-cn-pe333xxxxxx', position='Query'),
+  jobName: string(name='JobName', description='This parameter is required.', example='order_enrichment', position='Query'),
+  regionId: string(name='RegionId', description='This parameter is required.', example='cn-hangzhou', position='Query'),
 }
 
 model StopComputeJobResponseBody = {
-  code?: long(name='Code'),
-  data?: boolean(name='Data'),
-  requestId?: string(name='RequestId'),
-  success?: boolean(name='Success'),
+  code?: long(name='Code', example='200'),
+  data?: boolean(name='Data', example='true'),
+  requestId?: string(name='RequestId', example='062D8E8B-8D47-5DCC-BB12-5A1D93C3A66B'),
+  success?: boolean(name='Success', example='true'),
 }
 
 model StopComputeJobResponse = {
@@ -695,26 +723,28 @@ model StopComputeJobResponse = {
 }
 
 /**
+  * @description ## 请求说明
+  * - 该接口用于停止指定的计算作业生产或 Debug 运行实例。
+  * - 接口返回成功表示停止请求已被受理，但并不意味着作业立即停止。
   * @param request  the request parameters of StopComputeJob  StopComputeJobRequest
   * @return StopComputeJobResponse
  */
 async function stopComputeJob(request: StopComputeJobRequest): StopComputeJobResponse {
   @handler.validateRequestModel(request);
-  return @handler.do('RPC', 'StopComputeJob', 'POST', '/', 'json', true, 'form', request);
+  return @handler.do('RPC', 'StopComputeJob', 'POST', '/', 'json', false, 'json', request);
 }
 
 model UpdateComputeInstanceNameRequest {
-  clientToken?: string(name='ClientToken', position='Body'),
-  instanceId: string(name='InstanceId', description='This parameter is required.', position='Query'),
-  instanceName: string(name='InstanceName', description='This parameter is required.', position='Query'),
-  regionId: string(name='RegionId', description='This parameter is required.', position='Query'),
+  instanceId: string(name='InstanceId', description='This parameter is required.', example='alikafka_streaming-cn-pe333xxxxxx', position='Query'),
+  instanceName: string(name='InstanceName', description='This parameter is required.', example='streaming-prod', position='Query'),
+  regionId: string(name='RegionId', description='This parameter is required.', example='cn-hangzhou', position='Query'),
 }
 
 model UpdateComputeInstanceNameResponseBody = {
-  code?: long(name='Code'),
-  data?: boolean(name='Data'),
-  requestId?: string(name='RequestId'),
-  success?: boolean(name='Success'),
+  code?: long(name='Code', example='200'),
+  data?: boolean(name='Data', example='true'),
+  requestId?: string(name='RequestId', example='019F6DD7-A85E-56CF-BF45-BACA73D3FC2F'),
+  success?: boolean(name='Success', example='true'),
 }
 
 model UpdateComputeInstanceNameResponse = {
@@ -724,28 +754,29 @@ model UpdateComputeInstanceNameResponse = {
 }
 
 /**
+  * @description 修改计算实例名称。实例需处于部署准备阶段或运行中状态。
+  * - API 版本：2026-02-02
+  * - Action：UpdateComputeInstanceName
   * @param request  the request parameters of UpdateComputeInstanceName  UpdateComputeInstanceNameRequest
   * @return UpdateComputeInstanceNameResponse
  */
 async function updateComputeInstanceName(request: UpdateComputeInstanceNameRequest): UpdateComputeInstanceNameResponse {
   @handler.validateRequestModel(request);
-  return @handler.do('RPC', 'UpdateComputeInstanceName', 'POST', '/', 'json', true, 'form', request);
+  return @handler.do('RPC', 'UpdateComputeInstanceName', 'POST', '/', 'json', false, 'json', request);
 }
 
 model UpdateComputeJobRequest {
-  clientToken?: string(name='ClientToken', position='Body'),
-  instanceId: string(name='InstanceId', description='This parameter is required.', position='Query'),
-  jobName: string(name='JobName', description='This parameter is required.', position='Query'),
-  regionId: string(name='RegionId', description='This parameter is required.', position='Query'),
-  remark?: string(name='Remark', position='Query'),
-  upgradeMode?: string(name='UpgradeMode', position='Query'),
+  instanceId: string(name='InstanceId', description='This parameter is required.', example='alikafka_streaming-cn-a1b2c3d4', position='Query'),
+  jobName: string(name='JobName', description='This parameter is required.', example='order_enrichment', position='Query'),
+  regionId: string(name='RegionId', description='This parameter is required.', example='cn-hangzhou', position='Query'),
+  remark?: string(name='Remark', example='订单流实时清洗', position='Query'),
 }
 
 model UpdateComputeJobResponseBody = {
-  code?: long(name='Code'),
-  data?: boolean(name='Data'),
-  requestId?: string(name='RequestId'),
-  success?: boolean(name='Success'),
+  code?: long(name='Code', example='200'),
+  data?: boolean(name='Data', example='true'),
+  requestId?: string(name='RequestId', example='062D8E8B-8D47-5DCC-BB12-5A1D93C3A66B'),
+  success?: boolean(name='Success', example='true'),
 }
 
 model UpdateComputeJobResponse = {
@@ -755,28 +786,31 @@ model UpdateComputeJobResponse = {
 }
 
 /**
+  * @description ## 请求说明
+  * - 确保提供的 `InstanceId` 和 `JobName` 是有效的，否则将返回错误。
+  * - 如果实例状态不在运行中，则不允许执行此操作。
+  * - 当前作业状态如果为调试任务正在运行或变更中，则不支持修改。
   * @param request  the request parameters of UpdateComputeJob  UpdateComputeJobRequest
   * @return UpdateComputeJobResponse
  */
 async function updateComputeJob(request: UpdateComputeJobRequest): UpdateComputeJobResponse {
   @handler.validateRequestModel(request);
-  return @handler.do('RPC', 'UpdateComputeJob', 'POST', '/', 'json', true, 'form', request);
+  return @handler.do('RPC', 'UpdateComputeJob', 'POST', '/', 'json', false, 'json', request);
 }
 
 model UpdateComputeJobCuRequest {
-  clientToken?: string(name='ClientToken', position='Body'),
-  cuLimit?: double(name='CuLimit', position='Query'),
-  cuReserved?: double(name='CuReserved', position='Query'),
-  instanceId: string(name='InstanceId', description='This parameter is required.', position='Query'),
-  jobName: string(name='JobName', description='This parameter is required.', position='Query'),
-  regionId: string(name='RegionId', description='This parameter is required.', position='Query'),
+  cuLimit: double(name='CuLimit', description='This parameter is required.', example='2.0', position='Query'),
+  cuReserved: double(name='CuReserved', description='This parameter is required.', example='1.0', position='Query'),
+  instanceId: string(name='InstanceId', description='This parameter is required.', example='alikafka_streaming-cn-a1b2c3d4', position='Query'),
+  jobName: string(name='JobName', description='This parameter is required.', example='order_enrichment', position='Query'),
+  regionId: string(name='RegionId', description='This parameter is required.', example='cn-hangzhou', position='Query'),
 }
 
 model UpdateComputeJobCuResponseBody = {
-  code?: long(name='Code'),
-  data?: boolean(name='Data'),
-  requestId?: string(name='RequestId'),
-  success?: boolean(name='Success'),
+  code?: long(name='Code', example='200'),
+  data?: boolean(name='Data', example='true'),
+  requestId?: string(name='RequestId', example='062D8E8B-8D47-5DCC-BB12-5A1D93C3A66B'),
+  success?: boolean(name='Success', example='true'),
 }
 
 model UpdateComputeJobCuResponse = {
@@ -786,27 +820,28 @@ model UpdateComputeJobCuResponse = {
 }
 
 /**
+  * @description ## 请求说明
+  * 本API允许用户修改特定计算作业的计算单元（CU）上限和预留CU数量。在调用此接口前，请确保提供的`InstanceId`和`JobName`正确无误，并且实例处于运行状态。此外，注意检查`CuLimit`与`CuReserved`参数的有效性和合理性，避免因超出限制或不符合业务逻辑导致请求失败。
   * @param request  the request parameters of UpdateComputeJobCu  UpdateComputeJobCuRequest
   * @return UpdateComputeJobCuResponse
  */
 async function updateComputeJobCu(request: UpdateComputeJobCuRequest): UpdateComputeJobCuResponse {
   @handler.validateRequestModel(request);
-  return @handler.do('RPC', 'UpdateComputeJobCu', 'POST', '/', 'json', true, 'form', request);
+  return @handler.do('RPC', 'UpdateComputeJobCu', 'POST', '/', 'json', false, 'json', request);
 }
 
 model UpdateComputeJobDraftSqlRequest {
-  clientToken?: string(name='ClientToken', position='Body'),
-  draftSql: string(name='DraftSql', description='This parameter is required.', position='Query'),
-  instanceId: string(name='InstanceId', description='This parameter is required.', position='Query'),
-  jobName: string(name='JobName', description='This parameter is required.', position='Query'),
-  regionId: string(name='RegionId', description='This parameter is required.', position='Query'),
+  draftSql: string(name='DraftSql', description='This parameter is required.', example='INSERT INTO sink_table SELECT * FROM source_table;', position='Query'),
+  instanceId: string(name='InstanceId', description='This parameter is required.', example='alikafka_streaming-cn-a1b2c3d4', position='Query'),
+  jobName: string(name='JobName', description='This parameter is required.', example='order_enrichment', position='Query'),
+  regionId: string(name='RegionId', description='This parameter is required.', example='cn-hangzhou', position='Query'),
 }
 
 model UpdateComputeJobDraftSqlResponseBody = {
-  code?: long(name='Code'),
-  data?: boolean(name='Data'),
-  requestId?: string(name='RequestId'),
-  success?: boolean(name='Success'),
+  code?: long(name='Code', example='200'),
+  data?: boolean(name='Data', example='true'),
+  requestId?: string(name='RequestId', example='062D8E8B-8D47-5DCC-BB12-5A1D93C3A66B'),
+  success?: boolean(name='Success', example='true'),
 }
 
 model UpdateComputeJobDraftSqlResponse = {
@@ -816,11 +851,17 @@ model UpdateComputeJobDraftSqlResponse = {
 }
 
 /**
+  * @description ## 请求说明
+  * 本接口用于更新特定计算实例下的某个计算作业所保存的Flink SQL草稿内容。请确保提供的`InstanceId`和`JobName`准确无误，并且该作业当前状态支持进行SQL修改操作。
+  * - **注意事项**：
+  *   - 确保目标实例处于运行状态。
+  *   - 当前作业状态需允许修改SQL，即作业不应处于调试或变更过程中。
+  *   - `DraftSql`参数应包含完整的、格式正确的Flink SQL语句。
   * @param request  the request parameters of UpdateComputeJobDraftSql  UpdateComputeJobDraftSqlRequest
   * @return UpdateComputeJobDraftSqlResponse
  */
 async function updateComputeJobDraftSql(request: UpdateComputeJobDraftSqlRequest): UpdateComputeJobDraftSqlResponse {
   @handler.validateRequestModel(request);
-  return @handler.do('RPC', 'UpdateComputeJobDraftSql', 'POST', '/', 'json', true, 'form', request);
+  return @handler.do('RPC', 'UpdateComputeJobDraftSql', 'POST', '/', 'json', false, 'json', request);
 }
 
