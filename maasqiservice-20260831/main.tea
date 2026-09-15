@@ -1,0 +1,656 @@
+/**
+ *
+ */
+import Util;
+import OpenApi;
+import OpenApiUtil;
+import EndpointUtil;
+
+extends OpenApi;
+
+
+init(config: OpenApi.Config){
+  super(config);
+  @endpointRule = '';
+  
+  checkConfig(config);
+  @endpoint = getEndpoint('maasqiservice', @regionId, @endpointRule, @network, @suffix, @endpointMap, @endpoint);
+}
+
+function getEndpoint(productId: string, regionId: string, endpointRule: string, network: string, suffix: string, endpointMap: map[string]string, endpoint: string) throws: string{
+  if (!Util.empty(endpoint)) {
+    return endpoint;
+  }
+  
+  if (!Util.isUnset(endpointMap) && !Util.empty(endpointMap[regionId])) {
+    return endpointMap[regionId];
+  }
+  return EndpointUtil.getEndpointRules(productId, regionId, endpointRule, network, suffix);
+}
+
+model AigcChatCompletionStreamHeaders {
+  commonHeaders?: map[string]string,
+  xQIAgentApiKey?: string(name='X-QI-Agent-Api-Key', description='This parameter is required.', example='qis_xxx'),
+  xQIInstanceId?: string(name='X-QI-Instance-Id', description='This parameter is required.', example='AIGC_xxx'),
+  xQISessionId?: string(name='X-QI-Session-Id', example='session-xxx'),
+}
+
+model AigcChatCompletionStreamRequest {
+  messages?: [ 
+    {
+      content?: [ 
+        {
+          imageUrl?: {
+            url?: string(name='url', example='https://example.com/input.png'),
+          }(name='imageUrl'),
+          text?: string(name='text', example='把参考图背景改成海边日落'),
+          type?: string(name='type', example='text'),
+          videoUrl?: {
+            url?: string(name='url', example='https://example.com/input.mp4'),
+          }(name='videoUrl'),
+        }
+      ](name='content', example='生成一张雨后未来城市夜景'),
+      role?: string(name='role', example='user'),
+    }
+  ](name='messages', description='This parameter is required.', example='[{"role":"user","content":"生成一张水墨山水画"}]'),
+  metadata?: {
+    parameters?: {
+      guidanceScale?: double(name='guidanceScale', example='0.0'),
+      n?: long(name='n', example='1'),
+      negativePrompt?: string(name='negativePrompt', example='低质量、模糊、文字、水印'),
+      numInferenceSteps?: long(name='numInferenceSteps', example='8'),
+      seed?: long(name='seed', example='42'),
+      size?: string(name='size', example='1024*1024'),
+    }(name='parameters', example='{"size":"1024*1024","n":1,"num_inference_steps":8}'),
+  }(name='metadata', example='{"parameters":{"size":"1024*1024","n":1}}'),
+  model?: string(name='model'),
+  stream?: boolean(name='stream', description='This parameter is required.', example='true'),
+  streamOptions?: {
+    includeUsage?: boolean(name='includeUsage', example='true'),
+  }(name='streamOptions', example='{"include_usage":true}'),
+}
+
+model AigcChatCompletionStreamResponseBody = {
+  requestId?: string(name='requestId'),
+}
+
+model AigcChatCompletionStreamResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: AigcChatCompletionStreamResponseBody(name='body'),
+}
+
+/**
+ * @summary 以 SSE 流式调用已发布 AIGC Agent；支持 AIGCLite 文生图/图生图与 AIGCStandard Planner，兼容 OpenAI Chat Completions。
+ *
+ * @param request AigcChatCompletionStreamRequest
+ * @param headers AigcChatCompletionStreamHeaders
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return AigcChatCompletionStreamResponse
+ */
+async function aigcChatCompletionStreamWithOptions(request: AigcChatCompletionStreamRequest, headers: AigcChatCompletionStreamHeaders, runtime: Util.RuntimeOptions): AigcChatCompletionStreamResponse {
+  Util.validateModel(request);
+  var body : map[string]any = {};
+  if (!Util.isUnset(request.messages)) {
+    body['messages'] = request.messages;
+  }
+  if (!Util.isUnset(request.metadata)) {
+    body['metadata'] = request.metadata;
+  }
+  if (!Util.isUnset(request.model)) {
+    body['model'] = request.model;
+  }
+  if (!Util.isUnset(request.stream)) {
+    body['stream'] = request.stream;
+  }
+  if (!Util.isUnset(request.streamOptions)) {
+    body['streamOptions'] = request.streamOptions;
+  }
+
+  var realHeaders : map[string]string = {};
+  if (!Util.isUnset(headers.commonHeaders)) {
+    realHeaders = headers.commonHeaders;
+  }
+  if (!Util.isUnset(headers.xQIAgentApiKey)) {
+    realHeaders['X-QI-Agent-Api-Key'] = Util.toJSONString(headers.xQIAgentApiKey);
+  }
+  if (!Util.isUnset(headers.xQIInstanceId)) {
+    realHeaders['X-QI-Instance-Id'] = Util.toJSONString(headers.xQIInstanceId);
+  }
+  if (!Util.isUnset(headers.xQISessionId)) {
+    realHeaders['X-QI-Session-Id'] = Util.toJSONString(headers.xQISessionId);
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = realHeaders,
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApi.Params{
+    action = 'AigcChatCompletionStream',
+    version = '2026-08-31',
+    protocol = 'HTTPS',
+    pathname = `/aigc/v1/chat/completions`,
+    method = 'POST',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 以 SSE 流式调用已发布 AIGC Agent；支持 AIGCLite 文生图/图生图与 AIGCStandard Planner，兼容 OpenAI Chat Completions。
+ *
+ * @param request AigcChatCompletionStreamRequest
+ * @return AigcChatCompletionStreamResponse
+ */
+async function aigcChatCompletionStream(request: AigcChatCompletionStreamRequest): AigcChatCompletionStreamResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers = new AigcChatCompletionStreamHeaders{};
+  return aigcChatCompletionStreamWithOptions(request, headers, runtime);
+}
+
+model GuiChatCompletionStreamHeaders {
+  commonHeaders?: map[string]string,
+  xQIAgentApiKey?: string(name='X-QI-Agent-Api-Key', description='This parameter is required.', example='qis_xxx'),
+  xQIInstanceId?: string(name='X-QI-Instance-Id', description='This parameter is required.', example='GUI_xxx'),
+  xQISessionId?: string(name='X-QI-Session-Id', example='session-xxx'),
+}
+
+model GuiChatCompletionStreamRequest {
+  allowedTokenIds?: [ long ](name='allowedTokenIds', example='[10,11]'),
+  badWords?: [ string ](name='badWords', example='["blocked"]'),
+  chatTemplateKwargs?: {
+    enableThinking?: boolean(name='enableThinking', example='true'),
+    preserveThinking?: boolean(name='preserveThinking', example='true'),
+  }(name='chatTemplateKwargs'),
+  frequencyPenalty?: double(name='frequencyPenalty', example='0.0'),
+  ignoreEos?: boolean(name='ignoreEos', example='false'),
+  includeReasoning?: boolean(name='includeReasoning', example='true'),
+  logprobs?: boolean(name='logprobs', example='false'),
+  maxCompletionTokens?: long(name='maxCompletionTokens', example='2048'),
+  maxTokens?: long(name='maxTokens', example='2048'),
+  messages?: [ 
+    {
+      content?: [ 
+        {
+          imageData?: string(name='imageData', example='data:image/png;base64,...'),
+          imageUrl?: {
+            url?: string(name='url', example='https://example.com/screenshot.png'),
+          }(name='imageUrl'),
+          text?: string(name='text', example='点击搜索按钮'),
+          type?: string(name='type', example='text'),
+        }
+      ](name='content'),
+      role?: string(name='role', example='user'),
+      toolCallId?: string(name='toolCallId', example='call_gui_1'),
+    }
+  ](name='messages', description='This parameter is required.'),
+  metadata?: {
+    appList?: [ string ](name='appList', example='["Chrome","Settings"]'),
+    availableApps?: [ string ](name='availableApps', example='["Chrome","Settings"]'),
+    harnessMessage?: string(name='harnessMessage', example='previous action completed'),
+    screenHeight?: long(name='screenHeight', example='1080'),
+    screenWidth?: long(name='screenWidth', example='1920'),
+  }(name='metadata'),
+  minP?: double(name='minP', example='0.05'),
+  minTokens?: long(name='minTokens', example='1'),
+  mmProcessorKwargs?: {
+    maxDynamicPatch?: long(name='maxDynamicPatch', example='8'),
+  }(name='mmProcessorKwargs'),
+  model?: string(name='model'),
+  n?: long(name='n', example='1'),
+  parallelToolCalls?: boolean(name='parallelToolCalls', example='false'),
+  presencePenalty?: double(name='presencePenalty', example='0.0'),
+  promptLogprobs?: long(name='promptLogprobs', example='2'),
+  reasoningEffort?: string(name='reasoningEffort', example='medium'),
+  repetitionPenalty?: double(name='repetitionPenalty', example='1.1'),
+  responseFormat?: {
+    type?: string(name='type', example='json_object'),
+  }(name='responseFormat'),
+  seed?: long(name='seed', example='42'),
+  skipSpecialTokens?: boolean(name='skipSpecialTokens', example='true'),
+  stop?: [ string ](name='stop', example='["DONE"]'),
+  stopTokenIds?: [ long ](name='stopTokenIds', example='[1,2]'),
+  stream?: boolean(name='stream', description='This parameter is required.', example='true'),
+  streamOptions?: {
+    includeUsage?: boolean(name='includeUsage', example='true'),
+  }(name='streamOptions'),
+  structuredOutputs?: {
+    choice?: [ string ](name='choice', example='["tap","type"]'),
+  }(name='structuredOutputs'),
+  temperature?: double(name='temperature', example='0.2'),
+  topK?: long(name='topK', example='20'),
+  topLogprobs?: long(name='topLogprobs', example='3'),
+  topP?: double(name='topP', example='0.9'),
+}
+
+model GuiChatCompletionStreamResponseBody = {
+  requestId?: string(name='requestId'),
+}
+
+model GuiChatCompletionStreamResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: GuiChatCompletionStreamResponseBody(name='body'),
+}
+
+/**
+ * @summary 以 SSE 流式调用已发布 GUI Agent；兼容 OpenAI Chat Completions，输入屏幕截图与任务文本，返回下一步 GUI 操作。
+ *
+ * @param request GuiChatCompletionStreamRequest
+ * @param headers GuiChatCompletionStreamHeaders
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return GuiChatCompletionStreamResponse
+ */
+async function guiChatCompletionStreamWithOptions(request: GuiChatCompletionStreamRequest, headers: GuiChatCompletionStreamHeaders, runtime: Util.RuntimeOptions): GuiChatCompletionStreamResponse {
+  Util.validateModel(request);
+  var body : map[string]any = {};
+  if (!Util.isUnset(request.allowedTokenIds)) {
+    body['allowedTokenIds'] = request.allowedTokenIds;
+  }
+  if (!Util.isUnset(request.badWords)) {
+    body['badWords'] = request.badWords;
+  }
+  if (!Util.isUnset(request.chatTemplateKwargs)) {
+    body['chatTemplateKwargs'] = request.chatTemplateKwargs;
+  }
+  if (!Util.isUnset(request.frequencyPenalty)) {
+    body['frequencyPenalty'] = request.frequencyPenalty;
+  }
+  if (!Util.isUnset(request.ignoreEos)) {
+    body['ignoreEos'] = request.ignoreEos;
+  }
+  if (!Util.isUnset(request.includeReasoning)) {
+    body['includeReasoning'] = request.includeReasoning;
+  }
+  if (!Util.isUnset(request.logprobs)) {
+    body['logprobs'] = request.logprobs;
+  }
+  if (!Util.isUnset(request.maxCompletionTokens)) {
+    body['maxCompletionTokens'] = request.maxCompletionTokens;
+  }
+  if (!Util.isUnset(request.maxTokens)) {
+    body['maxTokens'] = request.maxTokens;
+  }
+  if (!Util.isUnset(request.messages)) {
+    body['messages'] = request.messages;
+  }
+  if (!Util.isUnset(request.metadata)) {
+    body['metadata'] = request.metadata;
+  }
+  if (!Util.isUnset(request.minP)) {
+    body['minP'] = request.minP;
+  }
+  if (!Util.isUnset(request.minTokens)) {
+    body['minTokens'] = request.minTokens;
+  }
+  if (!Util.isUnset(request.mmProcessorKwargs)) {
+    body['mmProcessorKwargs'] = request.mmProcessorKwargs;
+  }
+  if (!Util.isUnset(request.model)) {
+    body['model'] = request.model;
+  }
+  if (!Util.isUnset(request.n)) {
+    body['n'] = request.n;
+  }
+  if (!Util.isUnset(request.parallelToolCalls)) {
+    body['parallelToolCalls'] = request.parallelToolCalls;
+  }
+  if (!Util.isUnset(request.presencePenalty)) {
+    body['presencePenalty'] = request.presencePenalty;
+  }
+  if (!Util.isUnset(request.promptLogprobs)) {
+    body['promptLogprobs'] = request.promptLogprobs;
+  }
+  if (!Util.isUnset(request.reasoningEffort)) {
+    body['reasoningEffort'] = request.reasoningEffort;
+  }
+  if (!Util.isUnset(request.repetitionPenalty)) {
+    body['repetitionPenalty'] = request.repetitionPenalty;
+  }
+  if (!Util.isUnset(request.responseFormat)) {
+    body['responseFormat'] = request.responseFormat;
+  }
+  if (!Util.isUnset(request.seed)) {
+    body['seed'] = request.seed;
+  }
+  if (!Util.isUnset(request.skipSpecialTokens)) {
+    body['skipSpecialTokens'] = request.skipSpecialTokens;
+  }
+  if (!Util.isUnset(request.stop)) {
+    body['stop'] = request.stop;
+  }
+  if (!Util.isUnset(request.stopTokenIds)) {
+    body['stopTokenIds'] = request.stopTokenIds;
+  }
+  if (!Util.isUnset(request.stream)) {
+    body['stream'] = request.stream;
+  }
+  if (!Util.isUnset(request.streamOptions)) {
+    body['streamOptions'] = request.streamOptions;
+  }
+  if (!Util.isUnset(request.structuredOutputs)) {
+    body['structuredOutputs'] = request.structuredOutputs;
+  }
+  if (!Util.isUnset(request.temperature)) {
+    body['temperature'] = request.temperature;
+  }
+  if (!Util.isUnset(request.topK)) {
+    body['topK'] = request.topK;
+  }
+  if (!Util.isUnset(request.topLogprobs)) {
+    body['topLogprobs'] = request.topLogprobs;
+  }
+  if (!Util.isUnset(request.topP)) {
+    body['topP'] = request.topP;
+  }
+
+  var realHeaders : map[string]string = {};
+  if (!Util.isUnset(headers.commonHeaders)) {
+    realHeaders = headers.commonHeaders;
+  }
+  if (!Util.isUnset(headers.xQIAgentApiKey)) {
+    realHeaders['X-QI-Agent-Api-Key'] = Util.toJSONString(headers.xQIAgentApiKey);
+  }
+  if (!Util.isUnset(headers.xQIInstanceId)) {
+    realHeaders['X-QI-Instance-Id'] = Util.toJSONString(headers.xQIInstanceId);
+  }
+  if (!Util.isUnset(headers.xQISessionId)) {
+    realHeaders['X-QI-Session-Id'] = Util.toJSONString(headers.xQISessionId);
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = realHeaders,
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApi.Params{
+    action = 'GuiChatCompletionStream',
+    version = '2026-08-31',
+    protocol = 'HTTPS',
+    pathname = `/gui/v1/chat/completions`,
+    method = 'POST',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 以 SSE 流式调用已发布 GUI Agent；兼容 OpenAI Chat Completions，输入屏幕截图与任务文本，返回下一步 GUI 操作。
+ *
+ * @param request GuiChatCompletionStreamRequest
+ * @return GuiChatCompletionStreamResponse
+ */
+async function guiChatCompletionStream(request: GuiChatCompletionStreamRequest): GuiChatCompletionStreamResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers = new GuiChatCompletionStreamHeaders{};
+  return guiChatCompletionStreamWithOptions(request, headers, runtime);
+}
+
+model PaChatCompletionStreamHeaders {
+  commonHeaders?: map[string]string,
+  xQIAgentApiKey?: string(name='X-QI-Agent-Api-Key', description='This parameter is required.', example='qis_xxx'),
+  xQIInstanceId?: string(name='X-QI-Instance-Id', description='This parameter is required.', example='PA_xxx'),
+  xQISessionId?: string(name='X-QI-Session-Id', example='session-xxx'),
+}
+
+model PaChatCompletionStreamRequest {
+  allowedTokenIds?: [ long ](name='allowedTokenIds', example='[10,11]'),
+  badWords?: [ string ](name='badWords', example='["blocked"]'),
+  chatTemplateKwargs?: {
+    enableThinking?: boolean(name='enableThinking', example='true'),
+    preserveThinking?: boolean(name='preserveThinking', example='true'),
+  }(name='chatTemplateKwargs'),
+  frequencyPenalty?: double(name='frequencyPenalty', example='0.0'),
+  ignoreEos?: boolean(name='ignoreEos', example='false'),
+  includeReasoning?: boolean(name='includeReasoning', example='true'),
+  logprobs?: boolean(name='logprobs', example='false'),
+  maxCompletionTokens?: long(name='maxCompletionTokens', example='2048'),
+  maxTokens?: long(name='maxTokens', example='2048'),
+  messages?: [ 
+    {
+      content?: [ 
+        {
+          imageUrl?: {
+            url?: string(name='url', example='https://example.com/image.png'),
+          }(name='imageUrl'),
+          text?: string(name='text', example='请分析这张图片'),
+          type?: string(name='type', example='text'),
+        }
+      ](name='content', example='请分析图片内容'),
+      role?: string(name='role', example='user'),
+      toolCallId?: string(name='toolCallId', example='call_weather_1'),
+      toolCalls?: [ 
+        {
+          function?: {
+            arguments?: string(name='arguments', example='{"city":"杭州"}'),
+            name?: string(name='name', example='get_weather'),
+          }(name='function'),
+          id?: string(name='id', example='call_weather_1'),
+          type?: string(name='type', example='function'),
+        }
+      ](name='toolCalls'),
+    }
+  ](name='messages', description='This parameter is required.'),
+  minP?: double(name='minP', example='0.05'),
+  minTokens?: long(name='minTokens', example='1'),
+  mmProcessorKwargs?: {
+    maxDynamicPatch?: long(name='maxDynamicPatch', example='8'),
+  }(name='mmProcessorKwargs'),
+  model?: string(name='model'),
+  n?: long(name='n', example='1'),
+  parallelToolCalls?: boolean(name='parallelToolCalls', example='false'),
+  presencePenalty?: double(name='presencePenalty', example='0.0'),
+  promptLogprobs?: long(name='promptLogprobs', example='2'),
+  reasoningEffort?: string(name='reasoningEffort', example='high'),
+  repetitionPenalty?: double(name='repetitionPenalty', example='1.1'),
+  responseFormat?: {
+    type?: string(name='type', example='json_object'),
+  }(name='responseFormat'),
+  seed?: long(name='seed', example='42'),
+  skipSpecialTokens?: boolean(name='skipSpecialTokens', example='true'),
+  stop?: [ string ](name='stop', example='["END"]'),
+  stopTokenIds?: [ long ](name='stopTokenIds', example='[1,2]'),
+  stream?: boolean(name='stream', description='This parameter is required.', example='true'),
+  streamOptions?: {
+    includeUsage?: boolean(name='includeUsage', example='true'),
+  }(name='streamOptions'),
+  structuredOutputs?: {
+    choice?: [ string ](name='choice', example='["yes","no"]'),
+  }(name='structuredOutputs'),
+  temperature?: double(name='temperature', example='0.2'),
+  toolChoice?: string(name='toolChoice', example='auto'),
+  tools?: [ 
+    {
+      function?: {
+        description?: string(name='description', example='查询指定城市天气'),
+        name?: string(name='name', example='get_weather'),
+        parameters?: {
+          properties?: {
+            city?: {
+              description?: string(name='description', example='要查询天气的城市名称'),
+              type?: string(name='type', example='string'),
+            }(name='city'),
+          }(name='properties'),
+          required?: [ string ](name='required'),
+          type?: string(name='type', example='object'),
+        }(name='parameters'),
+        strict?: boolean(name='strict', example='true'),
+      }(name='function'),
+      type?: string(name='type', example='function'),
+    }
+  ](name='tools'),
+  topK?: long(name='topK', example='20'),
+  topLogprobs?: long(name='topLogprobs', example='3'),
+  topP?: double(name='topP', example='0.9'),
+}
+
+model PaChatCompletionStreamResponseBody = {
+  requestId?: string(name='requestId'),
+}
+
+model PaChatCompletionStreamResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: PaChatCompletionStreamResponseBody(name='body'),
+}
+
+/**
+ * @summary 以 SSE 流式调用已发布 PA Agent；兼容 OpenAI Chat Completions，支持多轮消息、工具调用、多模态输入与思考内容。
+ *
+ * @param request PaChatCompletionStreamRequest
+ * @param headers PaChatCompletionStreamHeaders
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return PaChatCompletionStreamResponse
+ */
+async function paChatCompletionStreamWithOptions(request: PaChatCompletionStreamRequest, headers: PaChatCompletionStreamHeaders, runtime: Util.RuntimeOptions): PaChatCompletionStreamResponse {
+  Util.validateModel(request);
+  var body : map[string]any = {};
+  if (!Util.isUnset(request.allowedTokenIds)) {
+    body['allowedTokenIds'] = request.allowedTokenIds;
+  }
+  if (!Util.isUnset(request.badWords)) {
+    body['badWords'] = request.badWords;
+  }
+  if (!Util.isUnset(request.chatTemplateKwargs)) {
+    body['chatTemplateKwargs'] = request.chatTemplateKwargs;
+  }
+  if (!Util.isUnset(request.frequencyPenalty)) {
+    body['frequencyPenalty'] = request.frequencyPenalty;
+  }
+  if (!Util.isUnset(request.ignoreEos)) {
+    body['ignoreEos'] = request.ignoreEos;
+  }
+  if (!Util.isUnset(request.includeReasoning)) {
+    body['includeReasoning'] = request.includeReasoning;
+  }
+  if (!Util.isUnset(request.logprobs)) {
+    body['logprobs'] = request.logprobs;
+  }
+  if (!Util.isUnset(request.maxCompletionTokens)) {
+    body['maxCompletionTokens'] = request.maxCompletionTokens;
+  }
+  if (!Util.isUnset(request.maxTokens)) {
+    body['maxTokens'] = request.maxTokens;
+  }
+  if (!Util.isUnset(request.messages)) {
+    body['messages'] = request.messages;
+  }
+  if (!Util.isUnset(request.minP)) {
+    body['minP'] = request.minP;
+  }
+  if (!Util.isUnset(request.minTokens)) {
+    body['minTokens'] = request.minTokens;
+  }
+  if (!Util.isUnset(request.mmProcessorKwargs)) {
+    body['mmProcessorKwargs'] = request.mmProcessorKwargs;
+  }
+  if (!Util.isUnset(request.model)) {
+    body['model'] = request.model;
+  }
+  if (!Util.isUnset(request.n)) {
+    body['n'] = request.n;
+  }
+  if (!Util.isUnset(request.parallelToolCalls)) {
+    body['parallelToolCalls'] = request.parallelToolCalls;
+  }
+  if (!Util.isUnset(request.presencePenalty)) {
+    body['presencePenalty'] = request.presencePenalty;
+  }
+  if (!Util.isUnset(request.promptLogprobs)) {
+    body['promptLogprobs'] = request.promptLogprobs;
+  }
+  if (!Util.isUnset(request.reasoningEffort)) {
+    body['reasoningEffort'] = request.reasoningEffort;
+  }
+  if (!Util.isUnset(request.repetitionPenalty)) {
+    body['repetitionPenalty'] = request.repetitionPenalty;
+  }
+  if (!Util.isUnset(request.responseFormat)) {
+    body['responseFormat'] = request.responseFormat;
+  }
+  if (!Util.isUnset(request.seed)) {
+    body['seed'] = request.seed;
+  }
+  if (!Util.isUnset(request.skipSpecialTokens)) {
+    body['skipSpecialTokens'] = request.skipSpecialTokens;
+  }
+  if (!Util.isUnset(request.stop)) {
+    body['stop'] = request.stop;
+  }
+  if (!Util.isUnset(request.stopTokenIds)) {
+    body['stopTokenIds'] = request.stopTokenIds;
+  }
+  if (!Util.isUnset(request.stream)) {
+    body['stream'] = request.stream;
+  }
+  if (!Util.isUnset(request.streamOptions)) {
+    body['streamOptions'] = request.streamOptions;
+  }
+  if (!Util.isUnset(request.structuredOutputs)) {
+    body['structuredOutputs'] = request.structuredOutputs;
+  }
+  if (!Util.isUnset(request.temperature)) {
+    body['temperature'] = request.temperature;
+  }
+  if (!Util.isUnset(request.toolChoice)) {
+    body['toolChoice'] = request.toolChoice;
+  }
+  if (!Util.isUnset(request.tools)) {
+    body['tools'] = request.tools;
+  }
+  if (!Util.isUnset(request.topK)) {
+    body['topK'] = request.topK;
+  }
+  if (!Util.isUnset(request.topLogprobs)) {
+    body['topLogprobs'] = request.topLogprobs;
+  }
+  if (!Util.isUnset(request.topP)) {
+    body['topP'] = request.topP;
+  }
+
+  var realHeaders : map[string]string = {};
+  if (!Util.isUnset(headers.commonHeaders)) {
+    realHeaders = headers.commonHeaders;
+  }
+  if (!Util.isUnset(headers.xQIAgentApiKey)) {
+    realHeaders['X-QI-Agent-Api-Key'] = Util.toJSONString(headers.xQIAgentApiKey);
+  }
+  if (!Util.isUnset(headers.xQIInstanceId)) {
+    realHeaders['X-QI-Instance-Id'] = Util.toJSONString(headers.xQIInstanceId);
+  }
+  if (!Util.isUnset(headers.xQISessionId)) {
+    realHeaders['X-QI-Session-Id'] = Util.toJSONString(headers.xQISessionId);
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = realHeaders,
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApi.Params{
+    action = 'PaChatCompletionStream',
+    version = '2026-08-31',
+    protocol = 'HTTPS',
+    pathname = `/pa/v1/chat/completions`,
+    method = 'POST',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 以 SSE 流式调用已发布 PA Agent；兼容 OpenAI Chat Completions，支持多轮消息、工具调用、多模态输入与思考内容。
+ *
+ * @param request PaChatCompletionStreamRequest
+ * @return PaChatCompletionStreamResponse
+ */
+async function paChatCompletionStream(request: PaChatCompletionStreamRequest): PaChatCompletionStreamResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers = new PaChatCompletionStreamHeaders{};
+  return paChatCompletionStreamWithOptions(request, headers, runtime);
+}
+
