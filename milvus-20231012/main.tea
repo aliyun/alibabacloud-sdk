@@ -12,18 +12,7 @@ extends OpenApi;
 init(config: OpenApi.Config){
   super(config);
   @endpointRule = 'regional';
-  @endpointMap = {
-    'eu-central-1' = 'milvus.eu-central-1.aliyuncs.com',
-    'cn-zhangjiakou' = 'milvus.cn-zhangjiakou.aliyuncs.com',
-    'cn-wulanchabu' = 'milvus.cn-wulanchabu.aliyuncs.com',
-    'cn-shenzhen' = 'milvus.cn-shenzhen.aliyuncs.com',
-    'cn-shanghai' = 'milvus.cn-shanghai.aliyuncs.com',
-    'cn-hongkong' = 'milvus.cn-hongkong.aliyuncs.com',
-    'cn-hangzhou' = 'milvus.cn-hangzhou.aliyuncs.com',
-    'cn-beijing' = 'milvus.cn-beijing.aliyuncs.com',
-    'ap-southeast-1' = 'milvus.ap-southeast-1.aliyuncs.com',
-  };
-
+  
   checkConfig(config);
   @endpoint = getEndpoint('milvus', @regionId, @endpointRule, @network, @suffix, @endpointMap, @endpoint);
 }
@@ -500,12 +489,14 @@ model CreateInstanceRequest {
   regionId?: string(name='RegionId', description='The region ID.', example='cn-beijing'),
   aiFunction?: boolean(name='aiFunction', description='Specifies whether to enable AI function.'),
   autoBackup?: boolean(name='autoBackup', description='Specifies whether to enable automatic backup.', example='true'),
-  autoPay?: boolean(name='autoPay', description='Specifies whether to enable automatic payment. Default value: true. Valid values:', example='true'),
-  autoRenew?: boolean(name='autoRenew', description='Specifies whether to enable auto-renewal. This parameter takes effect only when the payment type is set to Subscription.', example='true'),
+  autoPay?: boolean(name='autoPay', description='Specifies whether to enable automatic payment. Default value: true. Valid values:
+- true: Automatic payment is enabled.
+- false: Only an order is generated. No payment is made.', example='true'),
+  autoRenew?: boolean(name='autoRenew', description='Specifies whether to enable auto-renewal. This parameter takes effect only when the billing method of the instance is Subscription.', example='true'),
   backupRestoreInfo?: {
     backupId?: string(name='backupId', description='The backup ID.', example='bt-xxxxx'),
     backupName?: string(name='backupName', description='The backup name.', example='Backup1'),
-    sourceClusterId?: string(name='sourceClusterId', description='The ID of the source backup cluster.', example='c-xxxxxxx'),
+    sourceClusterId?: string(name='sourceClusterId', description='The ID of the source cluster for the backup.', example='c-xxxxxxx'),
   }(name='backupRestoreInfo', description='The backup and restoration information.'),
   components?: [ 
     {
@@ -514,12 +505,12 @@ model CreateInstanceRequest {
 This parameter is required.', example='8'),
       cuType?: string(name='cuType', description='The CU type.', example='general'),
       dataDisk?: {
-        enabled?: boolean(name='enabled', example='true'),
-        performanceLevel?: string(name='performanceLevel', example='PL1'),
-        size?: int32(name='size', example='100'),
-        storageClass?: string(name='storageClass', example='alicloud-disk-essd-pl1'),
-      }(name='dataDisk'),
-      diskSizeType?: string(name='diskSizeType', description='The disk size type for Query Node. Set to Large for storage-optimized, and Normal for compute-optimized or other configurations.', example='Normal'),
+        enabled?: boolean(name='enabled', description='Specifies whether to enable the QueryNode data cloud disk.', example='true'),
+        performanceLevel?: string(name='performanceLevel', description='The ESSD performance level (PL). Valid values: PL0, PL1, PL2, and PL3. If StorageClass is not specified, this parameter is used for parsing.', example='PL1'),
+        size?: int32(name='size', description='The data cloud disk capacity. Unit: GiB.', example='100'),
+        storageClass?: string(name='storageClass', description='The StorageClass of the data cloud disk. Valid values: alicloud-disk-essd-pl0, alicloud-disk-essd-pl1, alicloud-disk-essd-pl2, and alicloud-disk-essd-pl3.', example='alicloud-disk-essd-pl1'),
+      }(name='dataDisk', description='The QueryNode data cloud disk configuration. This parameter is supported only when type is set to query.'),
+      diskSizeType?: string(name='diskSizeType', description='The disk size type for the Query Node. Set this parameter to Large for storage-optimized instances, and to Normal for compute-optimized and other instance types.', example='Normal'),
       replica?: int32(name='replica', description='The number of replicas.
 
 This parameter is required.', example='1'),
@@ -531,19 +522,20 @@ This parameter is required.', example='standalone'),
   configuration?: string(name='configuration', description='The configuration items.', example='rootCoord:
     maxDatabaseNum: 64 # Maximum number of database
     maxPartitionNum: 4096'),
-  dbAdminPassword?: string(name='dbAdminPassword', description='The database administrator password.', example='test12'),
+  dbAdminPassword?: string(name='dbAdminPassword', description='The database password.', example='test12'),
   dbVersion?: string(name='dbVersion', description='The Milvus version.
 
 This parameter is required.', example='2.4'),
   encrypted?: boolean(name='encrypted', description='Specifies whether to enable OSS encryption.', example='false'),
-  ha?: boolean(name='ha', description='Specifies whether to enable high availability.', example='true'),
+  ha?: boolean(name='ha', description='Specifies whether to enable high availability (HA).', example='true'),
   instanceName?: string(name='instanceName', description='The instance name.', example='milvus-test'),
   isMultiAzStorage?: boolean(name='isMultiAzStorage', description='Specifies whether to enable multi-zone storage.'),
   kmsKeyId?: string(name='kmsKeyId', description='The ID of the KMS key used for encryption.', example='key-xxx'),
   loadReplicas?: int32(name='loadReplicas', description='The number of load replicas.', example='2'),
   multiZoneMode?: string(name='multiZoneMode', description='The zone configuration.', example='Single'),
+  nodeType?: string(name='nodeType', description='The node type. Valid values for Milvus standalone: perf, enhanced, and cap. Default value: perf.', example='perf'),
   paymentDuration?: int32(name='paymentDuration', description='The payment duration.', example='1'),
-  paymentDurationUnit?: string(name='paymentDurationUnit', description='The payment duration unit.', example='month'),
+  paymentDurationUnit?: string(name='paymentDurationUnit', description='The unit of the payment duration.', example='month'),
   paymentType?: string(name='paymentType', description='The payment type.
 
 This parameter is required.', example='PayAsYouGo'),
@@ -575,7 +567,7 @@ model CreateInstanceResponseBody = {
   data?: {
     instanceId?: string(name='instanceId', description='The instance ID.', example='c-xxx'),
     orderId?: string(name='orderId', description='The order ID.', example='xxx'),
-  }(name='data', description='The returned result.'),
+  }(name='data', description='The returned data.'),
   success?: boolean(name='success', description='Indicates whether the request was successful.', example='true'),
 }
 
@@ -651,6 +643,9 @@ async function createInstanceWithOptions(request: CreateInstanceRequest, headers
   }
   if (!Util.isUnset(request.multiZoneMode)) {
     body['multiZoneMode'] = request.multiZoneMode;
+  }
+  if (!Util.isUnset(request.nodeType)) {
+    body['nodeType'] = request.nodeType;
   }
   if (!Util.isUnset(request.paymentDuration)) {
     body['paymentDuration'] = request.paymentDuration;
@@ -986,29 +981,39 @@ model GetInstanceDetailRequest {
 }
 
 model GetInstanceDetailResponseBody = {
-  accessDeniedDetail?: string(name='AccessDeniedDetail', description='The details of the permission verification failure.', example='{     "PolicyType": "AccountLevelIdentityBasedPolicy",     "AuthPrincipalOwnerId": "xxxx",     "EncodedDiagnosticMessage": "xxxx",     "AuthPrincipalType": "SubUser",     "AuthPrincipalDisplayName": "xxxx",     "NoPermissionType": "ImplicitDeny",     "AuthAction": "milvus:xxxx" }'),
+  accessDeniedDetail?: string(name='AccessDeniedDetail', description='The details of the access denial.', example='{     "PolicyType": "AccountLevelIdentityBasedPolicy",     "AuthPrincipalOwnerId": "xxxx",     "EncodedDiagnosticMessage": "xxxx",     "AuthPrincipalType": "SubUser",     "AuthPrincipalDisplayName": "xxxx",     "NoPermissionType": "ImplicitDeny",     "AuthAction": "milvus:xxxx" }'),
   data?: {
-    aclId?: string(name='AclId', description='The ACL ID for public network access control.', example='acl-123xxx'),
+    aclId?: string(name='AclId', description='The public network access control ACL ID.', example='acl-123xxx'),
     beginTime?: long(name='BeginTime', description='The start time.', example='1716863508000'),
     bucketName?: string(name='BucketName', description='The bucket name.', example='milvus-test'),
     bucketPath?: string(name='BucketPath', description='The bucket path.', example='https://oss.console.aliyun.com/bucket/oss-cn-beijing/xxxx/object?spm=a2cug.25127996.0.0.577990370Ebsqt&path=milvus-c-123xxxx'),
     clusterInfo?: {
       attuPort?: int32(name='AttuPort', description='The Attu component port.', example='3000'),
-      internetUrl?: string(name='InternetUrl', description='The public network address.', example='c-123xxx-.milvus.aliyuncs.com'),
-      intranetUrl?: string(name='IntranetUrl', description='The internal network address.', example='c-123xxx-internal.milvus.aliyuncs.com'),
+      caCertUrl?: string(name='CaCertUrl', description='The HTTPS download URL of the CA certificate.', example='https://example.com/ca.pem'),
+      certificateTrust?: string(name='CertificateTrust', description='The certificate trust type.', example='privateCA'),
+      internetUrl?: string(name='InternetUrl', description='The public endpoint.', example='c-123xxx-.milvus.aliyuncs.com'),
+      intranetUrl?: string(name='IntranetUrl', description='The internal endpoint.', example='c-123xxx-internal.milvus.aliyuncs.com'),
       milvusResourceInfoList?: [ 
         {
-          componentType?: string(name='ComponentType', description='The component type. Valid values:', example='standalone'),
+          componentType?: string(name='ComponentType', description='The component type. Valid values:
+- standalone
+- proxy
+- mix_coordinator
+- query
+- index
+- data', example='standalone'),
           cuNum?: int32(name='CuNum', description='The number of compute units (CUs).', example='8'),
-          cuRatio?: int32(name='CuRatio', description='The CU specifications. Valid values:', example='4'),
+          cuRatio?: int32(name='CuRatio', description='The CU specification. Valid values:
+* 4: 1 core corresponds to 4 GB.
+* 8: 1 core corresponds to 8 GB.', example='4'),
           diskSize?: int32(name='DiskSize', description='The disk size.', example='100'),
           diskType?: string(name='DiskType', description='The disk type.', example='essd'),
           payType?: string(name='PayType'),
           replica?: int32(name='Replica', description='The number of replicas.', example='2'),
           zoneId?: string(name='ZoneId'),
-          dataDiskEnabled?: boolean(name='dataDiskEnabled', example='true'),
-          dataDiskSize?: int32(name='dataDiskSize', example='100'),
-          dataDiskStorageClass?: string(name='dataDiskStorageClass', example='alicloud-disk-essd-pl1'),
+          dataDiskEnabled?: boolean(name='dataDiskEnabled', description='Indicates whether the data cloud disk is enabled.', example='true'),
+          dataDiskSize?: int32(name='dataDiskSize', description='The data cloud disk capacity, in GiB.', example='100'),
+          dataDiskStorageClass?: string(name='dataDiskStorageClass', description='The StorageClass of the data cloud disk.', example='alicloud-disk-essd-pl1'),
           podsList?: [ 
             {
               podId?: string(name='podId'),
@@ -1018,13 +1023,16 @@ model GetInstanceDetailResponseBody = {
         }
       ](name='MilvusResourceInfoList', description='The resource details.'),
       ossStorageSize?: string(name='OssStorageSize', description='The OSS storage data size.', example='125.15 GB'),
-      ossStorageTimestamp?: long(name='OssStorageTimestamp', description='The timestamp of the OSS storage metric.', example='1718604000000'),
+      ossStorageTimestamp?: long(name='OssStorageTimestamp', description='The OSS storage metric timestamp.', example='1718604000000'),
       proxyPort?: int32(name='ProxyPort', description='The proxy port.', example='19530'),
+      secureInternetUrl?: string(name='SecureInternetUrl', description='The TLS public domain name.', example='c-example.secure.milvus.aliyuncs.com'),
+      secureIntranetUrl?: string(name='SecureIntranetUrl', description='The TLS internal domain name.', example='c-example-internal.secure.milvus.aliyuncs.com'),
+      secureProxyPort?: int32(name='SecureProxyPort', description='The TLS connection port.', example='443'),
       totalCuNum?: int32(name='TotalCuNum', description='The total number of CUs.', example='24'),
       totalDiskSize?: int32(name='TotalDiskSize', description='The total disk size.', example='500'),
     }(name='ClusterInfo', description='The instance details.'),
     clusterName?: string(name='ClusterName', description='The instance name.', example='aliyun-test'),
-    enableHa?: boolean(name='EnableHa', description='Indicates whether high availability is enabled.', example='true'),
+    enableHa?: boolean(name='EnableHa', description='Indicates whether high availability (HA) is enabled.', example='true'),
     encrypted?: string(name='Encrypted'),
     expireTime?: long(name='ExpireTime', description='The expiration time.', example='1721664000000'),
     highAvailability?: {
@@ -1034,28 +1042,41 @@ model GetInstanceDetailResponseBody = {
       secondaryZoneId?: string(name='SecondaryZoneId'),
     }(name='HighAvailability'),
     instanceId?: string(name='InstanceId', description='The instance ID.', example='c-123xxx'),
-    instanceStatus?: string(name='InstanceStatus', description='The instance status. Valid values:', example='running'),
+    instanceStatus?: string(name='InstanceStatus', description='The instance status. Valid values:
+- creating: Being created.
+- running: Running.
+- updating: Being upgraded. This includes specification changes, configuration changes, and public network access toggling.
+- disable: Unavailable. The cluster has expired and requires renewal to reactivate.
+- deleting: Being deleted.
+- deleted: Deleted.', example='running'),
     kmsKeyId?: string(name='KmsKeyId'),
     maintainablePeriod?: string(name='MaintainablePeriod'),
     measureConfig?: {
-      dataNodeCuNum?: int32(name='DataNodeCuNum', description='The number of CUs for the Data node.', example='4'),
-      dataNodeReplica?: int32(name='DataNodeReplica', description='The number of replicas for the Data node.', example='2'),
-      indexNodeCuNum?: int32(name='IndexNodeCuNum', description='The number of CUs for the Index node.', example='4'),
-      indexNodeReplica?: int32(name='IndexNodeReplica', description='The number of replicas for the Index node.', example='2'),
-      mixCoodinatorNodeCuNum?: int32(name='MixCoodinatorNodeCuNum', description='The number of CUs for the MixCoordinator node.', example='4'),
-      mixCoodinatorNodeReplica?: int32(name='MixCoodinatorNodeReplica', description='The number of replicas for the MixCoordinator node.', example='2'),
-      proxyNodeCuNum?: int32(name='ProxyNodeCuNum', description='The number of CUs for the Proxy node.', example='4'),
-      proxyNodeReplica?: int32(name='ProxyNodeReplica', description='The number of replicas for the Proxy node.', example='2'),
-      queryNodeCuNum?: int32(name='QueryNodeCuNum', description='The number of CUs for the Query node.', example='4'),
-      queryNodeReplica?: int32(name='QueryNodeReplica', description='The number of replicas for the Query node.', example='2'),
+      dataNodeCuNum?: int32(name='DataNodeCuNum', description='The number of CUs for data nodes.', example='4'),
+      dataNodeReplica?: int32(name='DataNodeReplica', description='The number of replicas for data nodes.', example='2'),
+      indexNodeCuNum?: int32(name='IndexNodeCuNum', description='The number of CUs for index nodes.', example='4'),
+      indexNodeReplica?: int32(name='IndexNodeReplica', description='The number of replicas for index nodes.', example='2'),
+      mixCoodinatorNodeCuNum?: int32(name='MixCoodinatorNodeCuNum', description='The number of CUs for MixCoordinator nodes.', example='4'),
+      mixCoodinatorNodeReplica?: int32(name='MixCoodinatorNodeReplica', description='The number of replicas for MixCoordinator nodes.', example='2'),
+      proxyNodeCuNum?: int32(name='ProxyNodeCuNum', description='The number of CUs for proxy nodes.', example='4'),
+      proxyNodeReplica?: int32(name='ProxyNodeReplica', description='The number of replicas for proxy nodes.', example='2'),
+      queryNodeCuNum?: int32(name='QueryNodeCuNum', description='The number of CUs for query nodes.', example='4'),
+      queryNodeReplica?: int32(name='QueryNodeReplica', description='The number of replicas for query nodes.', example='2'),
     }(name='MeasureConfig', description='The configuration information.'),
-    multiZoneMode?: string(name='MultiZoneMode'),
-    nodeType?: string(name='NodeType', description='The node type. Valid values:', example='perf'),
+    multiZoneMode?: string(name='MultiZoneMode', description='Single,Two,Three'),
+    nodeType?: string(name='NodeType', description='The node type. Valid values:
+* perf: compute-optimized instance.
+* cap: storage-optimized.', example='perf'),
     openPublicNet?: boolean(name='OpenPublicNet', description='Indicates whether public network access is enabled.', example='true'),
-    packageType?: string(name='PackageType', description='The specification details. Valid values:', example='standard'),
-    payType?: int32(name='PayType', description='The billing type. Valid values:', example='1'),
+    packageType?: string(name='PackageType', description='The edition. Valid values:
+
+- trial: Trial Edition.
+- standard: Standard Edition.', example='standard'),
+    payType?: int32(name='PayType', description='The billing type. Valid values:
+- 0: pay-as-you-go.
+- 1: subscription.', example='1'),
     productCode?: string(name='ProductCode', description='The commodity code.', example='milvus_milvuspre_public_cn'),
-    regionId?: string(name='RegionId', description='The region.', example='cn-beijing'),
+    regionId?: string(name='RegionId', description='The region ID.', example='cn-beijing'),
     resourceGroupId?: string(name='ResourceGroupId', description='The resource group ID.', example='rg-123xxx'),
     runningTime?: long(name='RunningTime', description='The running time.', example='1743679'),
     sgId?: string(name='SgId', description='The security group ID.', example='sg-123xxx'),
@@ -1076,7 +1097,7 @@ model GetInstanceDetailResponseBody = {
     version?: string(name='Version', description='The Milvus version.', example='2.4'),
     vpcId?: string(name='VpcId', description='The VPC ID.', example='vpc-123xxx'),
     vswId?: string(name='VswId', description='The vSwitch ID.', example='vsw-123xxx'),
-    zoneId?: string(name='ZoneId', description='The zone.', example='cn-beijing-g'),
+    zoneId?: string(name='ZoneId', description='The zone ID.', example='cn-beijing-g'),
     maintainablePeriodTimeZone?: string(name='maintainablePeriodTimeZone'),
   }(name='Data', description='The response data.'),
   errCode?: string(name='ErrCode', description='The error code.', example='Instance.NotFound'),
