@@ -15,13 +15,7 @@ extends OpenApi;
 init(config: OpenApi.Config){
   super(config);
   @endpointRule = 'regional';
-  @endpointMap = {
-    'cn-hongkong' = 'cloudauth-intl.cn-hongkong.aliyuncs.com',
-    'ap-southeast-5' = 'cloudauth-intl.ap-southeast-5.aliyuncs.com',
-    'ap-southeast-3' = 'cloudauth-intl.ap-southeast-3.aliyuncs.com',
-    'ap-southeast-1' = 'cloudauth-intl.ap-southeast-1.aliyuncs.com',
-  };
-
+  
   checkConfig(config);
   @endpoint = getEndpoint('cloudauth-intl', @regionId, @endpointRule, @network, @suffix, @endpointMap, @endpoint);
 }
@@ -1199,29 +1193,40 @@ async function credentialGetResultIntl(request: CredentialGetResultIntlRequest):
 
 model CredentialRecognitionIntlRequest {
   checkRuleConfig?: string(name='CheckRuleConfig', description='The field check rule configuration, in JSON string format.', example='{
-	"address_rule": "Includes Adrress 杭州市***",
-	"name_rule": "Includes Name  张*",
-	"date_of_issue_rule": "Whthin 2026.05.20"
+	"address_rule": "Includes Address Hangzhou ***",
+	"name_rule": "Includes Name Zhang*",
+	"date_of_issue_rule": "Within 2026.05.20"
 }'),
   credentialOcrPictureBase64?: string(name='CredentialOcrPictureBase64', description='The Base64-encoded image. If you choose to pass in the image by using IdOcrPictureBase64 (Base64-encoded photo), check the photo size and do not pass in an excessively large photo.', example='base64'),
   credentialOcrPictureUrl?: string(name='CredentialOcrPictureUrl', description='The URL of the image. The URL must be a publicly accessible HTTP or HTTPS link.', example='https://***'),
-  docType?: string(name='DocType', description='The credential type.
-- Transaction credential: 01 (includes various electronic bill images such as water, electricity, gas, and credit card bills)
+  docType?: string(name='DocType', description='The credential type. Valid values:
+- 01: transaction credential (including electronic bill images for water, electricity, gas, credit card, and other types)
 
 This parameter is required.', example='01'),
+  fileInputType?: string(name='FileInputType', description='The input file type. Valid values:
+
+- IMAGE (default): image.
+
+- PDF: PDF format.', example='IMAGE'),
   fraudCheck?: string(name='FraudCheck', description='Specifies whether to enable tampering detection. Valid values:
 - true: Enabled.
 - false: Disabled.
 
 This parameter is required.', example='true'),
-  idQuality?: string(name='IdQuality', description='Specifies whether to enable quality detection. Valid values: Y (enabled) and N (disabled).', example='Y'),
-  ocrArea?: string(name='OcrArea', description='The extraction type:
-- 0101: Electronic bill address and name module (extracts address and name through intelligent analysis)
+  idQuality?: string(name='IdQuality', description='Specifies whether to enable quality detection. Valid values:
+- Y: Enabled.
+- N: Disabled.', example='Y'),
+  ocrArea?: string(name='OcrArea', description='The extraction type. Valid values:
+- 0101: electronic bill address and name module (extracts the address and name module through intelligent analysis)
 
 This parameter is required.', example='0101'),
-  ocrTranslation?: string(name='OcrTranslation', description='Specifies whether to enable translation. Valid values: 0 (disabled) and 1 (enabled).', example='1'),
-  ocrValueStandard?: string(name='OcrValueStandard', description='Specifies whether to enable OCR result standardization. Valid values: 0 (disabled) and 1 (enabled).', example='1'),
-  productCode?: string(name='ProductCode', description='The product solution to use. Set this to CREDENTIAL_RECOGNITION.
+  ocrTranslation?: string(name='OcrTranslation', description='Specifies whether to enable translation. Valid values:
+- 0: Disabled.
+- 1: Enabled.', example='1'),
+  ocrValueStandard?: string(name='OcrValueStandard', description='Specifies whether to enable OCR result normalization. Valid values:
+- 0: Disabled.
+- 1: Enabled.', example='1'),
+  productCode?: string(name='ProductCode', description='The product solution to use. Set the value to CREDENTIAL_RECOGNITION.
 
 This parameter is required.', example='CREDENTIAL_RECOGNITION'),
 }
@@ -1231,13 +1236,13 @@ model CredentialRecognitionIntlResponseBody = {
   message?: string(name='Message', description='The response message.', example='success'),
   requestId?: string(name='RequestId', description='The request ID.', example='4EB35****87EBA1'),
   result?: {
-    extIdInfo?: string(name='ExtIdInfo', description='The key information extracted from the credential, in JSON format.', example='{
+    extIdInfo?: string(name='ExtIdInfo', description='The recognized key information, in JSON format.', example='{
   "address": "",
   "name":""
 }'),
     subCode?: string(name='SubCode', description='The description of the authentication result.', example='200'),
     success?: string(name='Success', description='The extraction result. Valid values:
-- S: Successful.
+- S: Succeeded.
 - F: Failed.', example='S'),
   }(name='Result', description='The returned result.'),
 }
@@ -1249,9 +1254,9 @@ model CredentialRecognitionIntlResponse = {
 }
 
 /**
- * @summary An API operation that uploads credential images, including utility bills and credit card statements, and uses Qwen-VL to intelligently fetch billing addresses and names.
+ * @summary An API operation that uploads a credential image, such as a utility bill or credit card statement, and uses Qwen-VL to intelligently fetch the billing address and name.
  *
- * @description Uses AI technology to detect whether credentials (such as water, electricity, gas, and credit card electronic bills) are forged, and extracts key information from the credentials.
+ * @description Uses AI technology to detect whether a credential (such as a water, electricity, gas, or credit card electronic bill) has been forged, and extracts key information from the credential.
  *
  * @param request CredentialRecognitionIntlRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -1262,6 +1267,9 @@ async function credentialRecognitionIntlWithOptions(request: CredentialRecogniti
   var query = {};
   if (!Util.isUnset(request.docType)) {
     query['DocType'] = request.docType;
+  }
+  if (!Util.isUnset(request.fileInputType)) {
+    query['FileInputType'] = request.fileInputType;
   }
   if (!Util.isUnset(request.fraudCheck)) {
     query['FraudCheck'] = request.fraudCheck;
@@ -1310,9 +1318,9 @@ async function credentialRecognitionIntlWithOptions(request: CredentialRecogniti
 }
 
 /**
- * @summary An API operation that uploads credential images, including utility bills and credit card statements, and uses Qwen-VL to intelligently fetch billing addresses and names.
+ * @summary An API operation that uploads a credential image, such as a utility bill or credit card statement, and uses Qwen-VL to intelligently fetch the billing address and name.
  *
- * @description Uses AI technology to detect whether credentials (such as water, electricity, gas, and credit card electronic bills) are forged, and extracts key information from the credentials.
+ * @description Uses AI technology to detect whether a credential (such as a water, electricity, gas, or credit card electronic bill) has been forged, and extracts key information from the credential.
  *
  * @param request CredentialRecognitionIntlRequest
  * @return CredentialRecognitionIntlResponse
@@ -1320,6 +1328,283 @@ async function credentialRecognitionIntlWithOptions(request: CredentialRecogniti
 async function credentialRecognitionIntl(request: CredentialRecognitionIntlRequest): CredentialRecognitionIntlResponse {
   var runtime = new Util.RuntimeOptions{};
   return credentialRecognitionIntlWithOptions(request, runtime);
+}
+
+model CredentialRecognitionIntlV2Request {
+  checkRuleConfig?: string(name='CheckRuleConfig', description='The field validation rule configuration, in JSON string format.', example='{
+	"address_rule": "Includes Adrress Hangzhou***",
+	"name_rule": "Includes Name  Zhang*",
+	"date_of_issue_rule": "Whthin 2026.05.20"
+}'),
+  credentialOcrPictureBase64?: string(name='CredentialOcrPictureBase64', description='The Base64-encoded image. If you choose to pass in the image by using IdOcrPictureBase64 (Base64-encoded photo), check the photo size and do not pass in an excessively large photo.', example='base64'),
+  credentialOcrPictureFile?: string(name='CredentialOcrPictureFile', description='The image file stream.', example='InputStream'),
+  credentialOcrPictureUrl?: string(name='CredentialOcrPictureUrl', description='The URL of the image. The URL must be a publicly accessible HTTP or HTTPS link.', example='https://***'),
+  docType?: string(name='DocType', description='The credential type. Valid values:
+
+- 01: transaction credential (including electronic bill images for water, electricity, gas, credit cards, and other types)
+- 02: vehicle registration certificate
+- 03: transfer transaction record
+- 04: POA address proof
+
+This parameter is required.', example='01'),
+  fileInputType?: string(name='FileInputType', description='The input material type. Valid values:
+
+- IMAGE (default): image
+- PDF: PDF format', example='IMAGE'),
+  fraudCheck?: string(name='FraudCheck', description='Specifies whether to enable tampering detection. Valid values:
+- true: Enabled.
+- false: Disabled.
+
+This parameter is required.', example='false'),
+  idQuality?: string(name='IdQuality', description='Specifies whether to enable quality detection. Valid values: Y (enabled) and N (disabled).', example='Y'),
+  ocrArea?: string(name='OcrArea', description='The extraction type. Valid values:
+
+- 0101: electronic bill address and name module (extracts address and name modules through intelligent analysis)
+- 0201: Thailand vehicle registration certificate
+- 0301: transfer transaction amount information
+- 0401: POA credential extraction information
+
+This parameter is required.', example='0101'),
+  ocrTranslation?: string(name='OcrTranslation', description='Specifies whether to enable translation. Valid values: 0 (disabled) and 1 (enabled).', example='1'),
+  ocrValueStandard?: string(name='OcrValueStandard', description='Specifies whether to enable OCR result normalization. Valid values: 0 (disabled) and 1 (enabled).', example='0'),
+  productCode?: string(name='ProductCode', description='The product solution to use. Set the value to CREDENTIAL_RECOGNITION.
+
+This parameter is required.', example='CREDENTIAL_RECOGNITION'),
+}
+
+model CredentialRecognitionIntlV2AdvanceRequest {
+  checkRuleConfig?: string(name='CheckRuleConfig', description='The field validation rule configuration, in JSON string format.', example='{
+	"address_rule": "Includes Adrress Hangzhou***",
+	"name_rule": "Includes Name  Zhang*",
+	"date_of_issue_rule": "Whthin 2026.05.20"
+}'),
+  credentialOcrPictureBase64?: string(name='CredentialOcrPictureBase64', description='The Base64-encoded image. If you choose to pass in the image by using IdOcrPictureBase64 (Base64-encoded photo), check the photo size and do not pass in an excessively large photo.', example='base64'),
+  credentialOcrPictureFileObject?: readable(name='CredentialOcrPictureFile', description='The image file stream.', example='InputStream'),
+  credentialOcrPictureUrl?: string(name='CredentialOcrPictureUrl', description='The URL of the image. The URL must be a publicly accessible HTTP or HTTPS link.', example='https://***'),
+  docType?: string(name='DocType', description='The credential type. Valid values:
+
+- 01: transaction credential (including electronic bill images for water, electricity, gas, credit cards, and other types)
+- 02: vehicle registration certificate
+- 03: transfer transaction record
+- 04: POA address proof
+
+This parameter is required.', example='01'),
+  fileInputType?: string(name='FileInputType', description='The input material type. Valid values:
+
+- IMAGE (default): image
+- PDF: PDF format', example='IMAGE'),
+  fraudCheck?: string(name='FraudCheck', description='Specifies whether to enable tampering detection. Valid values:
+- true: Enabled.
+- false: Disabled.
+
+This parameter is required.', example='false'),
+  idQuality?: string(name='IdQuality', description='Specifies whether to enable quality detection. Valid values: Y (enabled) and N (disabled).', example='Y'),
+  ocrArea?: string(name='OcrArea', description='The extraction type. Valid values:
+
+- 0101: electronic bill address and name module (extracts address and name modules through intelligent analysis)
+- 0201: Thailand vehicle registration certificate
+- 0301: transfer transaction amount information
+- 0401: POA credential extraction information
+
+This parameter is required.', example='0101'),
+  ocrTranslation?: string(name='OcrTranslation', description='Specifies whether to enable translation. Valid values: 0 (disabled) and 1 (enabled).', example='1'),
+  ocrValueStandard?: string(name='OcrValueStandard', description='Specifies whether to enable OCR result normalization. Valid values: 0 (disabled) and 1 (enabled).', example='0'),
+  productCode?: string(name='ProductCode', description='The product solution to use. Set the value to CREDENTIAL_RECOGNITION.
+
+This parameter is required.', example='CREDENTIAL_RECOGNITION'),
+}
+
+model CredentialRecognitionIntlV2ResponseBody = {
+  code?: string(name='Code', description='The return code. A value of 200 indicates a successful request. Other values indicate failures.', example='Success'),
+  message?: string(name='Message', description='The response message.', example='success'),
+  requestId?: string(name='RequestId', description='Id of the request', example='7F971622-38C0-5F56-B2EC-315367979B4F'),
+  result?: {
+    extIdInfo?: string(name='ExtIdInfo', description='The recognized key information, in JSON format.', example='{
+  "address": "",
+  "name":""
+}'),
+    subCode?: string(name='SubCode', description='The result code. Valid values:
+
+- 200: OCR extraction succeeded and all rule checks passed.
+- 204: Validation result is inconsistent. OCR extraction succeeded, but some fields in CheckRuleConfig did not pass (N).
+- 211: Quality does not meet requirements. Quality detection did not pass when idQuality is set to Y (not yet supported in the current version).
+- 212: Anti-forgery check did not pass. fraudCheck was triggered and anti-forgery verification failed.
+- 213: No text was extracted, or the credential type check did not pass.', example='200'),
+    success?: string(name='Success', description='The extraction result. Valid values:
+- S: Succeeded.
+- F: Failed.', example='S'),
+  }(name='Result', description='The response result.'),
+}
+
+model CredentialRecognitionIntlV2Response = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: CredentialRecognitionIntlV2ResponseBody(name='body'),
+}
+
+/**
+ * @summary An API operation that uploads a credential image, such as a utility bill or credit card statement, and uses Qwen-VL to intelligently fetch the billing address and name.
+ *
+ * @description Uses AI technology to detect whether a credential (such as a water, electricity, gas, or credit card electronic bill) is forged, and extracts key information from the credential.
+ *
+ * @param request CredentialRecognitionIntlV2Request
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return CredentialRecognitionIntlV2Response
+ */
+async function credentialRecognitionIntlV2WithOptions(request: CredentialRecognitionIntlV2Request, runtime: Util.RuntimeOptions): CredentialRecognitionIntlV2Response {
+  Util.validateModel(request);
+  var query = {};
+  if (!Util.isUnset(request.credentialOcrPictureFile)) {
+    query['CredentialOcrPictureFile'] = request.credentialOcrPictureFile;
+  }
+  if (!Util.isUnset(request.docType)) {
+    query['DocType'] = request.docType;
+  }
+  if (!Util.isUnset(request.fileInputType)) {
+    query['FileInputType'] = request.fileInputType;
+  }
+  if (!Util.isUnset(request.fraudCheck)) {
+    query['FraudCheck'] = request.fraudCheck;
+  }
+  if (!Util.isUnset(request.idQuality)) {
+    query['IdQuality'] = request.idQuality;
+  }
+  if (!Util.isUnset(request.ocrArea)) {
+    query['OcrArea'] = request.ocrArea;
+  }
+  if (!Util.isUnset(request.ocrTranslation)) {
+    query['OcrTranslation'] = request.ocrTranslation;
+  }
+  if (!Util.isUnset(request.ocrValueStandard)) {
+    query['OcrValueStandard'] = request.ocrValueStandard;
+  }
+  if (!Util.isUnset(request.productCode)) {
+    query['ProductCode'] = request.productCode;
+  }
+  var body : map[string]any = {};
+  if (!Util.isUnset(request.checkRuleConfig)) {
+    body['CheckRuleConfig'] = request.checkRuleConfig;
+  }
+  if (!Util.isUnset(request.credentialOcrPictureBase64)) {
+    body['CredentialOcrPictureBase64'] = request.credentialOcrPictureBase64;
+  }
+  if (!Util.isUnset(request.credentialOcrPictureUrl)) {
+    body['CredentialOcrPictureUrl'] = request.credentialOcrPictureUrl;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApi.Params{
+    action = 'CredentialRecognitionIntlV2',
+    version = '2022-08-09',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary An API operation that uploads a credential image, such as a utility bill or credit card statement, and uses Qwen-VL to intelligently fetch the billing address and name.
+ *
+ * @description Uses AI technology to detect whether a credential (such as a water, electricity, gas, or credit card electronic bill) is forged, and extracts key information from the credential.
+ *
+ * @param request CredentialRecognitionIntlV2Request
+ * @return CredentialRecognitionIntlV2Response
+ */
+async function credentialRecognitionIntlV2(request: CredentialRecognitionIntlV2Request): CredentialRecognitionIntlV2Response {
+  var runtime = new Util.RuntimeOptions{};
+  return credentialRecognitionIntlV2WithOptions(request, runtime);
+}
+
+async function credentialRecognitionIntlV2Advance(request: CredentialRecognitionIntlV2AdvanceRequest, runtime: Util.RuntimeOptions): CredentialRecognitionIntlV2Response {
+  // Step 0: init client
+  var credentialModel: Credential.CredentialModel = null;
+  if (Util.isUnset(@credential)) {
+    throw {
+      code = 'InvalidCredentials',
+      message = 'Please set up the credentials correctly. If you are setting them through environment variables, please ensure that ALIBABA_CLOUD_ACCESS_KEY_ID and ALIBABA_CLOUD_ACCESS_KEY_SECRET are set correctly. See https://help.aliyun.com/zh/sdk/developer-reference/configure-the-alibaba-cloud-accesskey-environment-variable-on-linux-macos-and-windows-systems for more details.'
+    }
+  }
+  credentialModel = @credential.getCredential();
+  var accessKeyId = credentialModel.accessKeyId;
+  var accessKeySecret = credentialModel.accessKeySecret;
+  var securityToken = credentialModel.securityToken;
+  var credentialType = credentialModel.type;
+  var openPlatformEndpoint = @openPlatformEndpoint;
+  if(Util.empty(openPlatformEndpoint)) {
+    openPlatformEndpoint ='openplatform.aliyuncs.com';
+  }
+  if(Util.isUnset(credentialType)) {
+    credentialType ='access_key';
+  }
+  var authConfig = new OpenApi.Config{
+    accessKeyId = accessKeyId,
+    accessKeySecret = accessKeySecret,
+    securityToken = securityToken,
+    type = credentialType,
+    endpoint = openPlatformEndpoint,
+    protocol = @protocol,
+    regionId = @regionId,
+  };
+  var authClient = new OpenApi(authConfig);
+  var authRequest = {
+    Product = 'Cloudauth-intl',
+    RegionId = @regionId,
+  };
+  var authReq = new OpenApi.OpenApiRequest{
+    query = OpenApiUtil.query(authRequest),
+  };
+  var authParams = new OpenApi.Params{
+    action = 'AuthorizeFileUpload',
+    version = '2019-12-19',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'GET',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  var authResponse : object = {};
+  var fileObj = new FileForm.FileField{};
+  var ossHeader: object = {};
+  var tmpBody: object = {};
+  var useAccelerate: boolean = false;
+  var authResponseBody: map[string]string = {};
+  var credentialRecognitionIntlV2Req = new CredentialRecognitionIntlV2Request{};
+  OpenApiUtil.convert(request, credentialRecognitionIntlV2Req);
+
+  if(!Util.isUnset(request.credentialOcrPictureFileObject)) {
+    var tmpResp0: any = authClient.callApi(authParams, authReq, runtime);
+    authResponse = Util.assertAsMap(tmpResp0);
+    tmpBody = Util.assertAsMap(authResponse['body']);
+    useAccelerate = Util.assertAsBoolean(tmpBody['UseAccelerate']);
+    authResponseBody = Util.stringifyMapValue(tmpBody);
+    fileObj = new FileForm.FileField{
+      filename = authResponseBody['ObjectKey'],
+      content = request.credentialOcrPictureFileObject,
+      contentType = '',
+    };
+    ossHeader = {
+      host = OpenApiUtil.getEndpoint(authResponseBody['Endpoint'], useAccelerate, @endpointType),
+      OSSAccessKeyId = authResponseBody['AccessKeyId'],
+      policy = authResponseBody['EncodedPolicy'],
+      Signature = authResponseBody['Signature'],
+      key = authResponseBody['ObjectKey'],
+      file = fileObj,
+      success_action_status = '201',
+    };
+    _postOSSObject(authResponseBody['Bucket'], ossHeader, runtime);
+    credentialRecognitionIntlV2Req.credentialOcrPictureFile = `http://${authResponseBody['Bucket']}.${authResponseBody['Endpoint']}/${authResponseBody['ObjectKey']}`;
+  }
+  var credentialRecognitionIntlV2Resp = credentialRecognitionIntlV2WithOptions(credentialRecognitionIntlV2Req, runtime);
+  return credentialRecognitionIntlV2Resp;
 }
 
 model CredentialSubmitIntlRequest {
@@ -1331,9 +1616,14 @@ model CredentialSubmitIntlRequest {
   credentialOcrPictureBase64?: string(name='CredentialOcrPictureBase64', description='The Base64-encoded image. If you use this method to submit a photo, check the photo size and do not submit an excessively large photo.', example='base64'),
   credentialOcrPictureUrl?: string(name='CredentialOcrPictureUrl', description='The URL of the image. The URL must be a publicly accessible HTTP or HTTPS link.', example='https://***'),
   docType?: string(name='DocType', description='The credential type. Valid values:
-- 02: vehicle registration certificate
+- 02: vehicle registration certificate.
 
 This parameter is required.', example='02'),
+  fileInputType?: string(name='FileInputType', description='The input file type. Valid values:
+
+- IMAGE (default): image.
+
+- PDF: PDF format.', example='IMAGE'),
   fraudCheck?: string(name='FraudCheck', description='Specifies whether to enable tampering detection. Valid values:
 - true: Enabled.
 - false: Disabled.
@@ -1342,12 +1632,12 @@ This parameter is required.', example='false'),
   idQuality?: string(name='IdQuality', description='Specifies whether to enable quality detection. Valid values:
 - Y: Enabled.
 - N: Disabled.', example='Y'),
-  merchantBizId?: string(name='MerchantBizId', description='The merchant-defined unique business identifier, used for subsequent troubleshooting. The value can be a combination of letters and numbers with a maximum length of 32 characters. Ensure that the value is unique.
+  merchantBizId?: string(name='MerchantBizId', description='The custom business unique identifier on the merchant side, used for subsequent troubleshooting. The value can be a combination of letters and digits with a maximum length of 32 characters. Ensure that the value is unique.
 
 This parameter is required.', example='e0c34a***353888'),
   ocrArea?: string(name='OcrArea', description='The extraction type. Valid values:
 
-- 0201: Thailand vehicle registration certificate
+- 0201: Thailand vehicle registration certificate.
 
 This parameter is required.', example='0201'),
   ocrTranslation?: string(name='OcrTranslation', description='Specifies whether to enable translation. Valid values:
@@ -1356,21 +1646,21 @@ This parameter is required.', example='0201'),
   ocrValueStandard?: string(name='OcrValueStandard', description='Specifies whether to enable OCR result standardization. Valid values:
 - 0: Disabled.
 - 1: Enabled.', example='1'),
-  productCode?: string(name='ProductCode', description='The product solution to use. Set this to CREDENTIAL_RECOGNITION.
+  productCode?: string(name='ProductCode', description='The product solution to use. Set this parameter to CREDENTIAL_RECOGNITION.
 
 This parameter is required.', example='CREDENTIAL_RECOGNITION'),
-  sceneCode?: string(name='SceneCode', description='The custom authentication scenario ID. You can use this ID to query related records in the console. The value can be a combination of letters, numbers, or underscores with a maximum length of 10 characters.
+  sceneCode?: string(name='SceneCode', description='The custom authentication scenario ID. You can use this scenario ID to query related records in the console. The value can be a combination of letters, digits, or underscores with a maximum length of 10 characters.
 
 This parameter is required.', example='123****123'),
 }
 
 model CredentialSubmitIntlResponseBody = {
-  code?: string(name='Code', description='The response code.', example='Success'),
+  code?: string(name='Code', description='The return code.', example='Success'),
   message?: string(name='Message', description='The response message.', example='success'),
   requestId?: string(name='RequestId', description='Id of the request', example='5E63B760-0ECB-5C07-8503-A65C27876968'),
   result?: {
     transactionId?: string(name='TransactionId', description='The unique identifier of the authentication request.', example='4ab0b***cbde97'),
-  }(name='Result', description='The response result.'),
+  }(name='Result', description='The returned result.'),
 }
 
 model CredentialSubmitIntlResponse = {
@@ -1382,7 +1672,7 @@ model CredentialSubmitIntlResponse = {
 /**
  * @summary Submits credential recognition information.
  *
- * @description Initializes the credential recognition OCR operation and returns a transactionId.
+ * @description Initializes the credential recognition OCR operation and retrieves a transactionId through this operation.
  *
  * @param request CredentialSubmitIntlRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -1393,6 +1683,9 @@ async function credentialSubmitIntlWithOptions(request: CredentialSubmitIntlRequ
   var query = {};
   if (!Util.isUnset(request.docType)) {
     query['DocType'] = request.docType;
+  }
+  if (!Util.isUnset(request.fileInputType)) {
+    query['FileInputType'] = request.fileInputType;
   }
   if (!Util.isUnset(request.fraudCheck)) {
     query['FraudCheck'] = request.fraudCheck;
@@ -1449,7 +1742,7 @@ async function credentialSubmitIntlWithOptions(request: CredentialSubmitIntlRequ
 /**
  * @summary Submits credential recognition information.
  *
- * @description Initializes the credential recognition OCR operation and returns a transactionId.
+ * @description Initializes the credential recognition OCR operation and retrieves a transactionId through this operation.
  *
  * @param request CredentialSubmitIntlRequest
  * @return CredentialSubmitIntlResponse
@@ -1457,6 +1750,294 @@ async function credentialSubmitIntlWithOptions(request: CredentialSubmitIntlRequ
 async function credentialSubmitIntl(request: CredentialSubmitIntlRequest): CredentialSubmitIntlResponse {
   var runtime = new Util.RuntimeOptions{};
   return credentialSubmitIntlWithOptions(request, runtime);
+}
+
+model CredentialSubmitIntlV2Request {
+  checkRuleConfig?: string(name='CheckRuleConfig', description='The field validation rule configuration. The value is a JSON string.', example='{
+	"address_rule": "Includes Adrress Hangzhou ***",
+	"name_rule": "Includes Name  Zhang*",
+	"date_of_issue_rule": "Whthin 2026.05.20"
+}'),
+  credentialOcrPictureBase64?: string(name='CredentialOcrPictureBase64', description='The Base64-encoded image. If you choose this method to submit a photo, check the photo size and do not submit an excessively large photo.', example='base64'),
+  credentialOcrPictureFile?: string(name='CredentialOcrPictureFile', description='The image file stream.', example='InputStream'),
+  credentialOcrPictureUrl?: string(name='CredentialOcrPictureUrl', description='The URL of the image. The URL must be a publicly accessible HTTP or HTTPS link.', example='https://***'),
+  docType?: string(name='DocType', description='The credential type. Valid values:
+
+- 01: Transaction voucher, which includes electronic bill images for utilities such as water, electricity, gas, and credit cards.
+- 02: Vehicle registration certificate.
+- 03: Transfer transaction record.
+- 04: Proof of address (POA).
+
+This parameter is required.', example='02'),
+  fileInputType?: string(name='FileInputType', description='The type of the input material. Valid values:
+
+- IMAGE (default): image.
+- PDF: PDF format.', example='IMAGE'),
+  fraudCheck?: string(name='FraudCheck', description='Specifies whether to enable tampering detection. Valid values:
+- true: Enabled.
+- false: Disabled.
+
+This parameter is required.', example='true'),
+  idQuality?: string(name='IdQuality', description='Specifies whether to enable quality detection. Valid values: Y (enabled) and N (disabled).', example='Y'),
+  merchantBizId?: string(name='MerchantBizId', description='The unique identifier of the merchant request. The value is a 32-character alphanumeric string.
+
+The first few characters consist of a custom abbreviation defined by the merchant, the middle part can contain a time segment, and the last part can use a random or incremental sequence.
+
+This parameter is required.', example='dso932dsjsd22'),
+  ocrArea?: string(name='OcrArea', description='The extraction type. Valid values:
+0101: electronic bill address and name module (extracts address and name modules through intelligent analysis).
+0201: 
+0301: transfer transaction amount information.
+0401: POA credential extraction information.
+
+This parameter is required.', example='0201'),
+  ocrTranslation?: string(name='OcrTranslation', description='Specifies whether to enable translation. Valid values: 0 (disabled) and 1 (enabled).', example='1'),
+  ocrValueStandard?: string(name='OcrValueStandard', description='Specifies whether to enable standardization of key fields recognized by OCR. Valid values:
+- 0: Disabled (default). 
+- 1: Enabled.', example='0'),
+  productCode?: string(name='ProductCode', description='The product solution to use. Set the value to CREDENTIAL_RECOGNITION.
+
+This parameter is required.', example='CREDENTIAL_RECOGNITION'),
+  sceneCode?: string(name='SceneCode', description='The custom verification scenario ID. You can use this scenario ID to query related records in the console. The value is a combination of up to 10 letters, digits, or underscores.
+
+This parameter is required.', example='1234567890'),
+}
+
+model CredentialSubmitIntlV2AdvanceRequest {
+  checkRuleConfig?: string(name='CheckRuleConfig', description='The field validation rule configuration. The value is a JSON string.', example='{
+	"address_rule": "Includes Adrress Hangzhou ***",
+	"name_rule": "Includes Name  Zhang*",
+	"date_of_issue_rule": "Whthin 2026.05.20"
+}'),
+  credentialOcrPictureBase64?: string(name='CredentialOcrPictureBase64', description='The Base64-encoded image. If you choose this method to submit a photo, check the photo size and do not submit an excessively large photo.', example='base64'),
+  credentialOcrPictureFileObject?: readable(name='CredentialOcrPictureFile', description='The image file stream.', example='InputStream'),
+  credentialOcrPictureUrl?: string(name='CredentialOcrPictureUrl', description='The URL of the image. The URL must be a publicly accessible HTTP or HTTPS link.', example='https://***'),
+  docType?: string(name='DocType', description='The credential type. Valid values:
+
+- 01: Transaction voucher, which includes electronic bill images for utilities such as water, electricity, gas, and credit cards.
+- 02: Vehicle registration certificate.
+- 03: Transfer transaction record.
+- 04: Proof of address (POA).
+
+This parameter is required.', example='02'),
+  fileInputType?: string(name='FileInputType', description='The type of the input material. Valid values:
+
+- IMAGE (default): image.
+- PDF: PDF format.', example='IMAGE'),
+  fraudCheck?: string(name='FraudCheck', description='Specifies whether to enable tampering detection. Valid values:
+- true: Enabled.
+- false: Disabled.
+
+This parameter is required.', example='true'),
+  idQuality?: string(name='IdQuality', description='Specifies whether to enable quality detection. Valid values: Y (enabled) and N (disabled).', example='Y'),
+  merchantBizId?: string(name='MerchantBizId', description='The unique identifier of the merchant request. The value is a 32-character alphanumeric string.
+
+The first few characters consist of a custom abbreviation defined by the merchant, the middle part can contain a time segment, and the last part can use a random or incremental sequence.
+
+This parameter is required.', example='dso932dsjsd22'),
+  ocrArea?: string(name='OcrArea', description='The extraction type. Valid values:
+0101: electronic bill address and name module (extracts address and name modules through intelligent analysis).
+0201: 
+0301: transfer transaction amount information.
+0401: POA credential extraction information.
+
+This parameter is required.', example='0201'),
+  ocrTranslation?: string(name='OcrTranslation', description='Specifies whether to enable translation. Valid values: 0 (disabled) and 1 (enabled).', example='1'),
+  ocrValueStandard?: string(name='OcrValueStandard', description='Specifies whether to enable standardization of key fields recognized by OCR. Valid values:
+- 0: Disabled (default). 
+- 1: Enabled.', example='0'),
+  productCode?: string(name='ProductCode', description='The product solution to use. Set the value to CREDENTIAL_RECOGNITION.
+
+This parameter is required.', example='CREDENTIAL_RECOGNITION'),
+  sceneCode?: string(name='SceneCode', description='The custom verification scenario ID. You can use this scenario ID to query related records in the console. The value is a combination of up to 10 letters, digits, or underscores.
+
+This parameter is required.', example='1234567890'),
+}
+
+model CredentialSubmitIntlV2ResponseBody = {
+  code?: string(name='Code', description='The return code.', example='Success'),
+  message?: string(name='Message', description='The return message.', example='success'),
+  requestId?: string(name='RequestId', description='Id of the request', example='7F971622-38C0-5F56-B2EC-315367979B4F'),
+  result?: {
+    transactionId?: string(name='TransactionId', description='The unique identifier of the verification request.', example='hk573be80f944d95ac812e0*******a8'),
+  }(name='Result', description='The returned result.'),
+}
+
+model CredentialSubmitIntlV2Response = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: CredentialSubmitIntlV2ResponseBody(name='body'),
+}
+
+/**
+ * @summary Submits a credential recognition request.
+ *
+ * @description Initializes the credential recognition OCR operation. Call this operation to obtain a transactionId.
+ *
+ * @param request CredentialSubmitIntlV2Request
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return CredentialSubmitIntlV2Response
+ */
+async function credentialSubmitIntlV2WithOptions(request: CredentialSubmitIntlV2Request, runtime: Util.RuntimeOptions): CredentialSubmitIntlV2Response {
+  Util.validateModel(request);
+  var query = {};
+  if (!Util.isUnset(request.credentialOcrPictureFile)) {
+    query['CredentialOcrPictureFile'] = request.credentialOcrPictureFile;
+  }
+  if (!Util.isUnset(request.docType)) {
+    query['DocType'] = request.docType;
+  }
+  if (!Util.isUnset(request.fileInputType)) {
+    query['FileInputType'] = request.fileInputType;
+  }
+  if (!Util.isUnset(request.fraudCheck)) {
+    query['FraudCheck'] = request.fraudCheck;
+  }
+  if (!Util.isUnset(request.idQuality)) {
+    query['IdQuality'] = request.idQuality;
+  }
+  if (!Util.isUnset(request.merchantBizId)) {
+    query['MerchantBizId'] = request.merchantBizId;
+  }
+  if (!Util.isUnset(request.ocrArea)) {
+    query['OcrArea'] = request.ocrArea;
+  }
+  if (!Util.isUnset(request.ocrTranslation)) {
+    query['OcrTranslation'] = request.ocrTranslation;
+  }
+  if (!Util.isUnset(request.ocrValueStandard)) {
+    query['OcrValueStandard'] = request.ocrValueStandard;
+  }
+  if (!Util.isUnset(request.productCode)) {
+    query['ProductCode'] = request.productCode;
+  }
+  if (!Util.isUnset(request.sceneCode)) {
+    query['SceneCode'] = request.sceneCode;
+  }
+  var body : map[string]any = {};
+  if (!Util.isUnset(request.checkRuleConfig)) {
+    body['CheckRuleConfig'] = request.checkRuleConfig;
+  }
+  if (!Util.isUnset(request.credentialOcrPictureBase64)) {
+    body['CredentialOcrPictureBase64'] = request.credentialOcrPictureBase64;
+  }
+  if (!Util.isUnset(request.credentialOcrPictureUrl)) {
+    body['CredentialOcrPictureUrl'] = request.credentialOcrPictureUrl;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApi.Params{
+    action = 'CredentialSubmitIntlV2',
+    version = '2022-08-09',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Submits a credential recognition request.
+ *
+ * @description Initializes the credential recognition OCR operation. Call this operation to obtain a transactionId.
+ *
+ * @param request CredentialSubmitIntlV2Request
+ * @return CredentialSubmitIntlV2Response
+ */
+async function credentialSubmitIntlV2(request: CredentialSubmitIntlV2Request): CredentialSubmitIntlV2Response {
+  var runtime = new Util.RuntimeOptions{};
+  return credentialSubmitIntlV2WithOptions(request, runtime);
+}
+
+async function credentialSubmitIntlV2Advance(request: CredentialSubmitIntlV2AdvanceRequest, runtime: Util.RuntimeOptions): CredentialSubmitIntlV2Response {
+  // Step 0: init client
+  var credentialModel: Credential.CredentialModel = null;
+  if (Util.isUnset(@credential)) {
+    throw {
+      code = 'InvalidCredentials',
+      message = 'Please set up the credentials correctly. If you are setting them through environment variables, please ensure that ALIBABA_CLOUD_ACCESS_KEY_ID and ALIBABA_CLOUD_ACCESS_KEY_SECRET are set correctly. See https://help.aliyun.com/zh/sdk/developer-reference/configure-the-alibaba-cloud-accesskey-environment-variable-on-linux-macos-and-windows-systems for more details.'
+    }
+  }
+  credentialModel = @credential.getCredential();
+  var accessKeyId = credentialModel.accessKeyId;
+  var accessKeySecret = credentialModel.accessKeySecret;
+  var securityToken = credentialModel.securityToken;
+  var credentialType = credentialModel.type;
+  var openPlatformEndpoint = @openPlatformEndpoint;
+  if(Util.empty(openPlatformEndpoint)) {
+    openPlatformEndpoint ='openplatform.aliyuncs.com';
+  }
+  if(Util.isUnset(credentialType)) {
+    credentialType ='access_key';
+  }
+  var authConfig = new OpenApi.Config{
+    accessKeyId = accessKeyId,
+    accessKeySecret = accessKeySecret,
+    securityToken = securityToken,
+    type = credentialType,
+    endpoint = openPlatformEndpoint,
+    protocol = @protocol,
+    regionId = @regionId,
+  };
+  var authClient = new OpenApi(authConfig);
+  var authRequest = {
+    Product = 'Cloudauth-intl',
+    RegionId = @regionId,
+  };
+  var authReq = new OpenApi.OpenApiRequest{
+    query = OpenApiUtil.query(authRequest),
+  };
+  var authParams = new OpenApi.Params{
+    action = 'AuthorizeFileUpload',
+    version = '2019-12-19',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'GET',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  var authResponse : object = {};
+  var fileObj = new FileForm.FileField{};
+  var ossHeader: object = {};
+  var tmpBody: object = {};
+  var useAccelerate: boolean = false;
+  var authResponseBody: map[string]string = {};
+  var credentialSubmitIntlV2Req = new CredentialSubmitIntlV2Request{};
+  OpenApiUtil.convert(request, credentialSubmitIntlV2Req);
+
+  if(!Util.isUnset(request.credentialOcrPictureFileObject)) {
+    var tmpResp0: any = authClient.callApi(authParams, authReq, runtime);
+    authResponse = Util.assertAsMap(tmpResp0);
+    tmpBody = Util.assertAsMap(authResponse['body']);
+    useAccelerate = Util.assertAsBoolean(tmpBody['UseAccelerate']);
+    authResponseBody = Util.stringifyMapValue(tmpBody);
+    fileObj = new FileForm.FileField{
+      filename = authResponseBody['ObjectKey'],
+      content = request.credentialOcrPictureFileObject,
+      contentType = '',
+    };
+    ossHeader = {
+      host = OpenApiUtil.getEndpoint(authResponseBody['Endpoint'], useAccelerate, @endpointType),
+      OSSAccessKeyId = authResponseBody['AccessKeyId'],
+      policy = authResponseBody['EncodedPolicy'],
+      Signature = authResponseBody['Signature'],
+      key = authResponseBody['ObjectKey'],
+      file = fileObj,
+      success_action_status = '201',
+    };
+    _postOSSObject(authResponseBody['Bucket'], ossHeader, runtime);
+    credentialSubmitIntlV2Req.credentialOcrPictureFile = `http://${authResponseBody['Bucket']}.${authResponseBody['Endpoint']}/${authResponseBody['ObjectKey']}`;
+  }
+  var credentialSubmitIntlV2Resp = credentialSubmitIntlV2WithOptions(credentialSubmitIntlV2Req, runtime);
+  return credentialSubmitIntlV2Resp;
 }
 
 model CredentialVerifyIntlRequest {
