@@ -83,17 +83,18 @@ model Evaluator {
 }
 
 model ExperimentConfig {
-  endpointConnectorId?: string(name='endpointConnectorId'),
-  label?: string(name='label'),
-  modelName?: string(name='modelName'),
-  modelParameters?: ModelParameters(name='modelParameters'),
-  modelProvider?: string(name='modelProvider'),
-  name?: string(name='name'),
+  endpointConnectorId?: string(name='endpointConnectorId', description='The endpoint connector ID. This parameter is required in user/agent mode.'),
+  label?: string(name='label', description='The experiment label (A/B/C/D/E).'),
+  modelName?: string(name='modelName', description='The model name. You can set this parameter to agent in agent scenarios.'),
+  modelParameters?: ModelParameters(name='modelParameters', description='The model parameters.'),
+  modelProvider?: string(name='modelProvider', description='The model provider. Valid values: dashscope (default), user, and agent.'),
+  name?: string(name='name', description='The experiment name.'),
   promptTemplate?: [
     PromptTemplateItem
-  ](name='promptTemplate'),
-  requestBodyTemplate?: string(name='requestBodyTemplate'),
-  requestMethod?: string(name='requestMethod'),
+  ](name='promptTemplate', description='The prompt message template. Supports {{variable name}} placeholders.'),
+  requestBodyTemplate?: string(name='requestBodyTemplate', description='The agent request body template. This parameter is required in agent mode. Supports {{variable name}} placeholders.'),
+  requestHeaderTemplate?: string(name='requestHeaderTemplate', description='The agent request header template. This parameter is optional in agent mode. Supports {{variable name}} placeholders.', example='{"Content-Type: application/json" }'),
+  requestMethod?: string(name='requestMethod', description='The agent request method. Valid values: POST (default) and GET.'),
 }
 
 model ExperimentPlanData {
@@ -140,15 +141,20 @@ model ExperimentRecord {
 }
 
 model IndexJsonKey {
-  chn?: boolean(name='chn'),
-  type?: string(name='type'),
+  chn?: boolean(name='chn', description='Specifies whether the field contains Chinese characters. This parameter is required only when the **type** parameter is set to **text**. Valid values:
+  - true: The field contains Chinese characters.
+  - false: The field does not contain Chinese characters.', example='false'),
+  type?: string(name='type', description='The type.', example='text'),
 }
 
 model IndexKey {
-  chn?: boolean(name='chn'),
-  embedding?: string(name='embedding'),
-  jsonKeys?: map[string]IndexJsonKey(name='jsonKeys'),
-  type?: string(name='type'),
+  chn?: boolean(name='chn', description='Specifies whether Chinese is included. This parameter is required only when the **type** parameter is set to **text**. Valid values:
+  - true: Chinese is included.
+  - false: Chinese is not included.', example='true'),
+  description?: string(name='description', description='The description.', example='test'),
+  embedding?: string(name='embedding', description='The field embedding type.', example='agentloop-embedding-v4'),
+  jsonKeys?: map[string]IndexJsonKey(name='jsonKeys', description='The JSON subfields. This parameter takes effect only when type is set to json.'),
+  type?: string(name='type', description='The type.', example='text'),
 }
 
 model ModelParameters {
@@ -641,18 +647,18 @@ async function createDataset(agentSpace: string, request: CreateDatasetRequest):
 
 model CreateEvaluationTaskRequest {
   channel?: string(name='channel', description='The task source. If not specified, the backend defaults to `default`.', example='default'),
-  config?: map[string]string(name='config', description='The data source and execution configuration. When `dataType=trace`, the backend automatically populates the SLS Project and sets `storeName=logstore-tracing`. For trace-level evaluation, set `dataScope=trace`.', example='{"dataScope":"trace"}'),
+  config?: map[string]string(name='config', description='The data source and execution configuration. When `dataType=trace`, the backend automatically populates the SLS Project and `storeName=logstore-tracing`. For trace-level Trace evaluation, set `dataScope=trace`.', example='{"dataScope":"trace"}'),
   dataFilter?: string(name='dataFilter', description='The evaluation data filter conditions. Supports a JSON object or JSON string. Common fields include `query`, `provided`, `maxRecords`, and `samplingRate`.', example='{"query":"serviceName=\\\\"checkout-service\\\\"","maxRecords":10,"samplingRate":100}'),
-  dataType?: string(name='dataType', description='The data source type of the evaluation target. Use `trace` for trace-based evaluation.', example='trace'),
-  description?: string(name='description', description='The evaluation task description.', example='Evaluate the task completion of online Agent traces'),
+  dataType?: string(name='dataType', description='The data source type of the evaluation object. Use `trace` for trace-based evaluation.', example='trace'),
+  description?: string(name='description', description='The description of the evaluation task.', example='Evaluate the task completion of online Agent traces'),
   evaluators?: [
     Evaluator
-  ](name='evaluators', description='The evaluator configuration list. This parameter cannot be empty. Within the same task, `evaluatorRef` takes precedence as the unique identifier. Otherwise, `name` is used.', example='[{"evaluatorRef":"Builtin.agent_task_completion","resultName":"agent_task_completion","resultType":"score","variableMapping":{"input":"trace.input","output":"trace.output","agent_trajectory":"trace.agent_trajectory"}}]'),
-  runStrategies?: RunStrategies(name='runStrategies', description='The task execution strategies. Supports a JSON object or JSON string. `backfill` is used for historical data backfill, and `continuous` is used for continuous evaluation of new data.'),
-  tags?: map[string]string(name='tags', description='The task tag key-value pairs. You do not need to specify this parameter by default. Specify this parameter only when you need to associate or filter tasks by business tags.', example='{"env":"prod","serviceId":"checkout-service","planId":"plan-20260703"}'),
+  ](name='evaluators', description='The list of evaluator configurations. This parameter cannot be empty. Within the same task, `evaluatorRef` takes precedence. Otherwise, `name` is used as the unique identifier.', example='[{"evaluatorRef":"Builtin.agent_task_completion","resultName":"agent_task_completion","resultType":"score","variableMapping":{"input":"trace.input","output":"trace.output","agent_trajectory":"trace.agent_trajectory"}}]'),
+  runStrategies?: RunStrategies(name='runStrategies', description='The task execution strategies. Supports a JSON object or JSON string. `backfill` is used for historical data backfill. `continuous` is used for continuous evaluation of new data.'),
+  tags?: map[string]string(name='tags', description='The task tag key-value pairs. No tags need to be specified by default. Specify tags only when you need to associate or filter tasks by business tags.', example='{"env":"prod","serviceId":"checkout-service","planId":"plan-20260703"}'),
   taskMode?: string(name='taskMode', description='The evaluation task mode. `batch` creates a persistent evaluation task.', example='batch'),
   taskName?: string(name='taskName', description='The task name. The name must be unique among non-deleted tasks under the same user and AgentSpace. The name can be up to 256 characters in length.', example='trace_task_completion_eval'),
-  clientToken?: string(name='clientToken', description='The idempotency token. This query parameter is declared in CloudSpec, but the backend does not currently perform idempotency comparison.', example='a1b2c3d4-1234-5678-90ab-cdef12345678'),
+  clientToken?: string(name='clientToken', description='The idempotency token. CloudSpec declares this query parameter, but the backend does not currently perform idempotency comparison.', example='a1b2c3d4-1234-5678-90ab-cdef12345678'),
 }
 
 model CreateEvaluationTaskResponseBody = {
@@ -670,7 +676,7 @@ model CreateEvaluationTaskResponse = {
 /**
  * @summary Creates an evaluation task.
  *
- * @description Calls the CreateEvaluationTask operation to create an evaluation task under a specified AgentSpace. The server verifies AgentSpace permissions, initializes evaluation result storage, checks the uniqueness of the task name, and asynchronously creates and executes an EvaluationRun based on `taskMode` and `runStrategies`.
+ * @description Calls the CreateEvaluationTask operation to create an evaluation task under a specified AgentSpace. The server validates AgentSpace permissions, initializes evaluation result storage, checks task name uniqueness, and asynchronously creates and executes an EvaluationRun based on `taskMode` and `runStrategies`.
  * This operation is applicable to running built-in or custom evaluators on Trace, Dataset, or SLS Log data. It supports two execution strategies: historical backfill and continuous evaluation.
  *
  * @param request CreateEvaluationTaskRequest
@@ -740,7 +746,7 @@ async function createEvaluationTaskWithOptions(agentSpace: string, request: Crea
 /**
  * @summary Creates an evaluation task.
  *
- * @description Calls the CreateEvaluationTask operation to create an evaluation task under a specified AgentSpace. The server verifies AgentSpace permissions, initializes evaluation result storage, checks the uniqueness of the task name, and asynchronously creates and executes an EvaluationRun based on `taskMode` and `runStrategies`.
+ * @description Calls the CreateEvaluationTask operation to create an evaluation task under a specified AgentSpace. The server validates AgentSpace permissions, initializes evaluation result storage, checks task name uniqueness, and asynchronously creates and executes an EvaluationRun based on `taskMode` and `runStrategies`.
  * This operation is applicable to running built-in or custom evaluators on Trace, Dataset, or SLS Log data. It supports two execution strategies: historical backfill and continuous evaluation.
  *
  * @param request CreateEvaluationTaskRequest
@@ -754,28 +760,27 @@ async function createEvaluationTask(agentSpace: string, request: CreateEvaluatio
 
 model CreateEvaluatorRequest {
   annotations?: [ string ](name='annotations', description='The list of annotation tags.', example='["__en"]'),
-  config?: map[string]any(name='config', description='The evaluator configuration. For LLM/AGENT evaluators, this typically contains prompt, variables, and outputSchema. For CODE evaluators, this typically contains codeType, faasConfig, variables, and parameters.', example='{"prompt":"请评估任务完成度","variables":[{"name":"input"}]}'),
-  description?: string(name='description', description='The evaluator description. The description can be up to 256 characters in length.', example='判断 Agent 是否完成用户任务'),
-  displayName?: string(name='displayName', description='The display name. The name can be up to 128 characters in length.', example='链路任务完成度'),
+  config?: map[string]any(name='config', description='The evaluator configuration. LLM/AGENT types typically include prompt, variables, and outputSchema. CODE types typically include codeType, faasConfig, variables, and parameters.', example='{"prompt":"Please evaluate task completion","variables":[{"name":"input"}]}'),
+  description?: string(name='description', description='The description of the evaluator. Maximum length: 256 characters.', example='Determines whether the Agent completed the user task'),
+  displayName?: string(name='displayName', description='The display name. Maximum length: 128 characters.', example='Trace task completion'),
   metricName?: string(name='metricName', description='The evaluation metric name.
 
 This parameter is required.', example='agent_task_completion'),
-  name?: string(name='name', description='The evaluator name. The name cannot start with a system-reserved prefix and can be up to 128 characters in length.
+  name?: string(name='name', description='The evaluator name. The name cannot start with a system-reserved prefix. Maximum length: 128 characters.
 
 This parameter is required.', example='trace_task_completion'),
   properties?: map[string]any(name='properties', description='The evaluator properties.', example='{"agentEvaluatorMode":"raw_prompt"}'),
   type?: string(name='type', description='The evaluator type. Valid values:
-
 - LLM: an inner join large language model evaluation evaluator.
-- AGENT: a StarOps digital human evaluator.
+- AGENT: a StarOps digital worker evaluator.
 - CODE: a code evaluator.
 
 This parameter is required.', example='AGENT'),
   version?: string(name='version', description='The initial version number.
 
 This parameter is required.', example='1.0.0'),
-  versionDescription?: string(name='versionDescription', description='The version description.', example='初始版本'),
-  clientToken?: string(name='clientToken', description='The idempotency token. A unique string generated by the client to ensure idempotent creation. This query parameter is declared in CloudSpec, but the backend does not currently perform idempotency checks.', example='a1b2c3d4-1234-5678-90ab-cdef12345678'),
+  versionDescription?: string(name='versionDescription', description='The version description.', example='Initial version'),
+  clientToken?: string(name='clientToken', description='The idempotency token. This is a unique string generated by the client to ensure idempotence of the create operation. CloudSpec declares this query parameter, but the backend does not currently perform idempotency checks.', example='a1b2c3d4-1234-5678-90ab-cdef12345678'),
 }
 
 model CreateEvaluatorResponseBody = {
@@ -873,26 +878,26 @@ model CreateEvaluatorSkillRequest {
   agentSpace?: string(name='agentSpace', description='The AgentSpace name.
 
 This parameter is required.', example='prod-agentspace'),
-  description?: string(name='description', description='The description of the skill.', example='读取链路上下文辅助评估'),
-  displayName?: string(name='displayName', description='The display name of the skill.', example='Trace 上下文读取'),
+  description?: string(name='description', description='The skill description.', example='Reads trace context to assist evaluation'),
+  displayName?: string(name='displayName', description='The display name of the skill.', example='Trace Context Loader'),
   enable?: boolean(name='enable', description='Specifies whether to enable the skill.', example='true'),
   files?: [ 
     {
-      content?: string(name='content', description='The skill file content.
+      content?: string(name='content', description='The content of the skill file.
 
 This parameter is required.', example='# Trace Context Loader'),
-      name?: string(name='name', description='The skill file name.
+      name?: string(name='name', description='The name of the skill file.
 
 This parameter is required.', example='SKILL.md'),
-      remark?: string(name='remark', description='The file remarks.', example='主技能说明'),
+      remark?: string(name='remark', description='The remark for the file.', example='Main skill description'),
     }
   ](name='files', description='The list of skill files.
 
-This parameter is required.', example='[{"name":"SKILL.md","content":"# Trace Context Loader","remark":"主技能说明"}]'),
+This parameter is required.', example='[{"name":"SKILL.md","content":"# Trace Context Loader","remark":"Main skill description"}]'),
   skillName?: string(name='skillName', description='The skill name.
 
 This parameter is required.', example='trace_context_loader'),
-  clientToken?: string(name='clientToken', description='The idempotency token. This is a unique string generated by the client to ensure idempotence of the create operation. CloudSpec declares this query parameter, but the backend does not currently perform idempotency comparison.', example='a1b2c3d4-1234-5678-90ab-cdef12345678'),
+  clientToken?: string(name='clientToken', description='The idempotency token. CloudSpec declares this query parameter, but the backend does not currently perform idempotency comparison.', example='a1b2c3d4-1234-5678-90ab-cdef12345678'),
 }
 
 model CreateEvaluatorSkillResponseBody = {
@@ -974,7 +979,7 @@ async function createEvaluatorSkill(name: string, request: CreateEvaluatorSkillR
 }
 
 model CreateExperimentPlanRequest {
-  datasetId?: string(name='datasetId', description='The ID of the associated dataset. If this parameter is not specified, the execution phase processes in simple mode.', example='rca_benckmark_eval'),
+  datasetId?: string(name='datasetId', description='The ID of the associated dataset. If not specified, the execution phase processes in simple mode.', example='rca_benckmark_eval'),
   description?: string(name='description', description='The description of the experiment plan.', example='rca_benchmark_eval_experiment offline experiment'),
   evaluators?: [
     Evaluator
@@ -984,23 +989,23 @@ model CreateExperimentPlanRequest {
 This parameter is required.', example='OFFLINE'),
   experiments?: [
     ExperimentConfig
-  ](name='experiments', description='The list of experiment configurations. A maximum of five configurations are supported. For offline experiments, this parameter can be omitted or set to an empty array. For online experiments, at least one configuration is required.
+  ](name='experiments', description='The list of experiment configurations. A maximum of 5 entries are supported. For offline experiments, this parameter can be omitted or set to an empty array. For online experiments, at least one entry is required.
 
 This parameter is required.', example='[{"label": "A", "name": "experimentA", "modelName": "qwen3.7-plus", "modelProvider": "dashscope", "modelParameters": {"temperature": 0.7, "topP": 0.8, "presencePenalty": 0.0, "frequencyPenalty": 0.0}, "promptTemplate": [{"role": "system", "content": "You are an Alibaba Cloud ARMS product Q&A bot"}, {"role": "user", "content": "{{input}}"}]}, {"label": "B", "name": "experimentB", "modelName": "qwen3.7-max", "modelProvider": "dashscope", "modelParameters": {"temperature": 0.7, "topP": 0.8, "presencePenalty": 0.0, "frequencyPenalty": 0.0}, "promptTemplate": [{"role": "system", "content": "You are an Alibaba Cloud ARMS product Q&A bot"}, {"role": "user", "content": "{{input}}"}]}]'),
   input?: map[string]any(name='input', description='Optional.', example='{"question": "How do I request a refund?"}'),
-  pipelineName?: string(name='pipelineName', description='The name of the associated data processing pipeline (optional). After association, when the experiment execution under this plan writes results to the experiment result Logstore, the system filters by the traceId of the experiment trace, calls PreviewPipeline, and writes the pipeline-processed results together.'),
-  planName?: string(name='planName', description='The experiment plan name. The name must be unique within the same AgentSpace under the same account.
+  pipelineName?: string(name='pipelineName', description='The name of the associated data processing pipeline (optional). After association, when experiment runs under this plan finish writing results to the experiment result Logstore, the system filters by the traceId of the experiment trace, calls PreviewPipeline, and writes the pipeline-processed results together.'),
+  planName?: string(name='planName', description='The name of the experiment plan. The name must be unique within the same AgentSpace and account.
 
 This parameter is required.', example='rca_benchmark_eval_experiment'),
-  querySql?: string(name='querySql', description='The custom query SQL clause in partial dataset mode. This parameter can be used when `selectedItemIds` is empty.', example='status=\\\\"OK\\\\"'),
-  selectedItemIds?: [ string ](name='selectedItemIds', description='The list of selected data item IDs in partial dataset mode. Use this parameter together with `datasetId`.', example='["019ef4d5-a0f0-7114-832d-5542d771cd8c", "019f1729-be9b-7769-a006-8e98023ad7ad"]'),
+  querySql?: string(name='querySql', description='The custom query SQL clause for partial dataset mode. This parameter can be used when `selectedItemIds` is empty.', example='status=\\\\"OK\\\\"'),
+  selectedItemIds?: [ string ](name='selectedItemIds', description='The list of selected data item IDs for partial dataset mode. This parameter must be used together with `datasetId`.', example='["019ef4d5-a0f0-7114-832d-5542d771cd8c", "019f1729-be9b-7769-a006-8e98023ad7ad"]'),
 }
 
 model CreateExperimentPlanResponseBody = {
   message?: string(name='message', description='The message.', example='Experiment plan created successfully'),
   planId?: string(name='planId', description='The experiment plan ID.', example='exp-plan-e95bff54685a4ae29ff3a834c1008a71'),
   requestId?: string(name='requestId', description='The request ID.', example='3FE4CD1E-FF41-56BE-B590-7A021D9C1524'),
-  status?: string(name='status', description='The creation result. A value of `created` indicates success.', example='created'),
+  status?: string(name='status', description='The creation result. The value `created` indicates success.', example='created'),
 }
 
 model CreateExperimentPlanResponse = {
@@ -1012,7 +1017,7 @@ model CreateExperimentPlanResponse = {
 /**
  * @summary Creates an experiment plan.
  *
- * @description Calls CreateExperimentPlan to create an experiment plan under a specified AgentSpace. Use this operation to define the configuration for an offline or online experiment, including the data source, optional evaluators, and experiment groups required for online experiments. After the plan is created, call CreateExperimentRun to start the execution.
+ * @description Calls CreateExperimentPlan to create an experiment plan under a specified AgentSpace. This operation defines the configuration for an offline or online experiment, including the data source, optional evaluators, and experiment groups required for online experiments. After the plan is created, call CreateExperimentRun to start the execution.
  *
  * @param request CreateExperimentPlanRequest
  * @param headers map
@@ -1075,7 +1080,7 @@ async function createExperimentPlanWithOptions(agentSpace: string, request: Crea
 /**
  * @summary Creates an experiment plan.
  *
- * @description Calls CreateExperimentPlan to create an experiment plan under a specified AgentSpace. Use this operation to define the configuration for an offline or online experiment, including the data source, optional evaluators, and experiment groups required for online experiments. After the plan is created, call CreateExperimentRun to start the execution.
+ * @description Calls CreateExperimentPlan to create an experiment plan under a specified AgentSpace. This operation defines the configuration for an offline or online experiment, including the data source, optional evaluators, and experiment groups required for online experiments. After the plan is created, call CreateExperimentRun to start the execution.
  *
  * @param request CreateExperimentPlanRequest
  * @return CreateExperimentPlanResponse
@@ -1087,27 +1092,27 @@ async function createExperimentPlan(agentSpace: string, request: CreateExperimen
 }
 
 model CreateExperimentRunRequest {
-  completedAt?: long(name='completedAt', description='The completion time, in millisecond-level UNIX timestamp.', example='1784721811392'),
-  completedTasks?: int32(name='completedTasks', description='The number of completed tasks. If not specified, the default value is 0.', example='0'),
-  executedAt?: long(name='executedAt', description='The execution time, in millisecond-level UNIX timestamp.', example='1784721775379'),
+  completedAt?: long(name='completedAt', description='The completion time. The value is a millisecond-level UNIX timestamp.', example='1784721811392'),
+  completedTasks?: int32(name='completedTasks', description='The number of completed tasks. Default value: 0.', example='0'),
+  executedAt?: long(name='executedAt', description='The execution time. The value is a millisecond-level UNIX timestamp.', example='1784721775379'),
   experimentPlanId?: string(name='experimentPlanId', description='The experiment plan ID.
 
 This parameter is required.', example='exp-plan-0242d983f5d340fd8479cf2c19eb279e'),
-  failedTasks?: int32(name='failedTasks', description='The number of failed tasks. If not specified, the default value is 0.', example='0'),
+  failedTasks?: int32(name='failedTasks', description='The number of failed tasks. Default value: 0.', example='0'),
   offlineExperiments?: [
     OfflineExperimentConfig
-  ](name='offlineExperiments', description='The list of offline experiment configurations. Required when the plan type is offline. The number of items ranges from 1 to 5.', example='[{"label": "experimentA", "name": "experimentA"}]'),
-  recordName?: string(name='recordName', description='The experiment record name. If not specified, the default value is the plan name plus a timestamp.', example='arms_agent_experiment 2026/07/22 20:02:55'),
-  status?: string(name='status', description='The initial status. If not specified, the default value is `pending`.', example='pending'),
+  ](name='offlineExperiments', description='The list of offline experiment configurations. This parameter is required when the plan type is offline. You can specify 1 to 5 configurations.', example='[{"label": "experimentA", "name": "experimentA"}]'),
+  recordName?: string(name='recordName', description='The experiment record name. If not specified, the default value is the plan name followed by a timestamp.', example='arms_agent_experiment 2026/07/22 20:02:55'),
+  status?: string(name='status', description='The initial status. Default value: `pending`.', example='pending'),
   totalTasks?: int32(name='totalTasks', description='The total number of tasks. For online experiments, if not specified, the value is calculated based on the number of generated tasks.', example='40'),
   clientToken?: string(name='clientToken', description='Optional.', example='a1b2c3d4-1234-5678-90ab-cdef12345678'),
 }
 
 model CreateExperimentRunResponseBody = {
-  message?: string(name='message', description='The message.', example='Experiment created, execution started.'),
-  recordId?: string(name='recordId', description='The experiment record ID. For online experiments, the format is typically exp-run-{uuid32}. For offline experiments, the format may also be a standard UUID.', example='exp-run-f6d419b0ed3d43a7b585948a55efc07b'),
+  message?: string(name='message', description='The message.', example='Experiment created, execution started'),
+  recordId?: string(name='recordId', description='The experiment record ID. For online experiments, the ID is typically in the format exp-run-{uuid32}. For offline experiments, the ID may also be a standard UUID.', example='exp-run-f6d419b0ed3d43a7b585948a55efc07b'),
   requestId?: string(name='requestId', description='The request ID.', example='019F89B5-1B07-3BB3-A32E-F5B007029E9C'),
-  status?: string(name='status', description='The experiment record status. After creation, the status is typically pending.', example='pending'),
+  status?: string(name='status', description='The experiment record status. The value is typically pending after creation.', example='pending'),
 }
 
 model CreateExperimentRunResponse = {
@@ -1119,7 +1124,7 @@ model CreateExperimentRunResponse = {
 /**
  * @summary Executes an experiment.
  *
- * @description Calls CreateExperimentRun to initiate an experiment execution based on an existing experiment plan. For online experiments, you typically only need to pass `experimentPlanId`. For offline experiments, you need to pass `offlineExperiments` (1 to 5 items).
+ * @description Calls CreateExperimentRun to initiate an experiment run based on an existing experiment plan. For online experiments, you typically only need to pass `experimentPlanId`. For offline experiments, you must pass `offlineExperiments` (1 to 5).
  *
  * @param request CreateExperimentRunRequest
  * @param headers map
@@ -1185,7 +1190,7 @@ async function createExperimentRunWithOptions(agentSpace: string, request: Creat
 /**
  * @summary Executes an experiment.
  *
- * @description Calls CreateExperimentRun to initiate an experiment execution based on an existing experiment plan. For online experiments, you typically only need to pass `experimentPlanId`. For offline experiments, you need to pass `offlineExperiments` (1 to 5 items).
+ * @description Calls CreateExperimentRun to initiate an experiment run based on an existing experiment plan. For online experiments, you typically only need to pass `experimentPlanId`. For offline experiments, you must pass `offlineExperiments` (1 to 5).
  *
  * @param request CreateExperimentRunRequest
  * @return CreateExperimentRunResponse
@@ -1643,7 +1648,7 @@ model DeleteEvaluationTaskResponse = {
 }
 
 /**
- * @summary Deletes an evaluation task.
+ * @summary Deletes a model evaluation task.
  *
  * @param request DeleteEvaluationTaskRequest
  * @param headers map
@@ -1671,7 +1676,7 @@ async function deleteEvaluationTaskWithOptions(agentSpace: string, taskId: strin
 }
 
 /**
- * @summary Deletes an evaluation task.
+ * @summary Deletes a model evaluation task.
  *
  * @param request DeleteEvaluationTaskRequest
  * @return DeleteEvaluationTaskResponse
@@ -1810,7 +1815,7 @@ model DeleteExperimentPlanRequest {
 model DeleteExperimentPlanResponseBody = {
   planId?: string(name='planId', description='The experiment plan ID.', example='exp-plan-aa1a66b074bc42aa8696c73c7dc9b718'),
   requestId?: string(name='requestId', description='The request ID.', example='3FE4CD1E-FF41-56BE-B590-7A021D9C1524'),
-  status?: string(name='status', description='The deletion result. The value is deleted if the operation is successful.', example='deleted'),
+  status?: string(name='status', description='The deletion result. The value is deleted if the operation succeeds.', example='deleted'),
 }
 
 model DeleteExperimentPlanResponse = {
@@ -1879,7 +1884,7 @@ model DeleteExperimentRunResponse = {
 /**
  * @summary Deletes an experiment record.
  *
- * @description Calls DeleteExperimentRun to delete a specified experiment run record. Deleting the record does not delete the experiment plan to which it belongs.
+ * @description Calls DeleteExperimentRun to delete a specified experiment run record. Deleting a record does not delete the experiment plan to which it belongs.
  *
  * @param request DeleteExperimentRunRequest
  * @param headers map
@@ -1909,7 +1914,7 @@ async function deleteExperimentRunWithOptions(agentSpace: string, recordId: stri
 /**
  * @summary Deletes an experiment record.
  *
- * @description Calls DeleteExperimentRun to delete a specified experiment run record. Deleting the record does not delete the experiment plan to which it belongs.
+ * @description Calls DeleteExperimentRun to delete a specified experiment run record. Deleting a record does not delete the experiment plan to which it belongs.
  *
  * @param request DeleteExperimentRunRequest
  * @return DeleteExperimentRunResponse
@@ -2459,26 +2464,26 @@ model GetEvaluationRunRequest {
 
 model GetEvaluationRunResponseBody = {
   createdAt?: long(name='createdAt', description='The creation time, in seconds-level UNIX timestamp.', example='1782816000'),
-  dataEndTime?: long(name='dataEndTime', description='The end time of the data window for the run, in seconds-level UNIX timestamp.', example='1782902400'),
-  dataStartTime?: long(name='dataStartTime', description='The start time of the data window for the run, in seconds-level UNIX timestamp.', example='1782816000'),
+  dataEndTime?: long(name='dataEndTime', description='The end time of the run data window, in seconds-level UNIX timestamp.', example='1782902400'),
+  dataStartTime?: long(name='dataStartTime', description='The start time of the run data window, in seconds-level UNIX timestamp.', example='1782816000'),
   evaluatorProgress?: [ 
     {
       evaluatorName?: string(name='evaluatorName', description='The evaluator name.', example='Builtin.agent_task_completion'),
-      failedCount?: int32(name='failedCount', description='The number of failed entries for this evaluator.', example='4'),
-      successCount?: int32(name='successCount', description='The number of successful entries for this evaluator.', example='96'),
-      totalCount?: int32(name='totalCount', description='The total number of entries for this evaluator.', example='100'),
+      failedCount?: int32(name='failedCount', description='The number of failed items for this evaluator.', example='4'),
+      successCount?: int32(name='successCount', description='The number of successful items for this evaluator.', example='96'),
+      totalCount?: int32(name='totalCount', description='The total number of items for this evaluator.', example='100'),
     }
-  ](name='evaluatorProgress', description='The list of progress details by evaluator.', example='[{"evaluatorName":"Builtin.agent_task_completion","totalCount":100,"successCount":96,"failedCount":4}]'),
-  evaluators?: string(name='evaluators', description='The evaluator configuration snapshot at the time the run was created, in JSON string format.', example='[{"evaluatorRef":"Builtin.agent_task_completion"}]'),
-  failedCount?: int32(name='failedCount', description='The number of failed entries.', example='4'),
+  ](name='evaluatorProgress', description='The list of progress entries by evaluator.', example='[{"evaluatorName":"Builtin.agent_task_completion","totalCount":100,"successCount":96,"failedCount":4}]'),
+  evaluators?: string(name='evaluators', description='The snapshot of the evaluator configuration at the time the run was created, in JSON string format.', example='[{"evaluatorRef":"Builtin.agent_task_completion"}]'),
+  failedCount?: int32(name='failedCount', description='The number of failed items.', example='4'),
   requestId?: string(name='requestId', description='The request ID.', example='3FE4CD1E-FF41-56BE-B590-7A021D9C1524'),
   runId?: string(name='runId', description='The run ID.', example='eval-run-4fd47f3d7e684e15b1d3d178c6a5b81a'),
   runName?: string(name='runName', description='The run name.', example='trace_task_completion_eval-backfill'),
   runType?: string(name='runType', description='The run type.', example='backfill'),
   status?: string(name='status', description='The run status.', example='Running'),
-  successCount?: int32(name='successCount', description='The number of successful entries.', example='96'),
+  successCount?: int32(name='successCount', description='The number of successful items.', example='96'),
   taskId?: string(name='taskId', description='The evaluation task ID.', example='eval-task-8b36f2e2b1f94f9c91ce7a4b0f6d9c25'),
-  totalCount?: int32(name='totalCount', description='The total number of evaluation entries.', example='100'),
+  totalCount?: int32(name='totalCount', description='The total number of evaluation items.', example='100'),
   updatedAt?: long(name='updatedAt', description='The update time, in seconds-level UNIX timestamp.', example='1782816600'),
 }
 
@@ -2533,24 +2538,24 @@ model GetEvaluationTaskRequest {
 
 model GetEvaluationTaskResponseBody = {
   agentSpace?: string(name='agentSpace', description='The AgentSpace name.', example='prod-agentspace'),
-  channel?: string(name='channel', description='The task source.', example='default'),
-  config?: map[string]string(name='config', description='The data source and execution configuration. Tasks with `dataType=trace` typically contain `project`, `storeName`, and `dataScope` fields that are populated by the backend.', example='{"project":"agentspace-project","storeName":"logstore-tracing","dataScope":"trace"}'),
-  createdAt?: long(name='createdAt', description='The creation time, in seconds-level UNIX timestamp.', example='1782816000'),
-  dataFilter?: string(name='dataFilter', description='The evaluation data filter condition, returned by the backend as a JSON string.', example='{"query":"serviceName=\\\\"checkout-service\\\\"","maxRecords":10,"samplingRate":100}'),
+  channel?: string(name='channel', description='The source of the task.', example='default'),
+  config?: map[string]string(name='config', description='The data source and execution configuration. Tasks with `dataType=trace` typically contain backend-populated `project`, `storeName`, and `dataScope` fields.', example='{"project":"agentspace-project","storeName":"logstore-tracing","dataScope":"trace"}'),
+  createdAt?: long(name='createdAt', description='The creation time, in seconds as a UNIX timestamp.', example='1782816000'),
+  dataFilter?: string(name='dataFilter', description='The evaluation data filter conditions, returned by the backend as a JSON string.', example='{"query":"serviceName=\\\\"checkout-service\\\\"","maxRecords":10,"samplingRate":100}'),
   dataType?: string(name='dataType', description='The data source type of the evaluation object.', example='trace'),
-  description?: string(name='description', description='The evaluation task description.', example='Evaluate the task completion rate of the online Agent pipeline'),
+  description?: string(name='description', description='The description of the evaluation task.', example='Evaluate the task completion of the online Agent pipeline'),
   evaluators?: [
     Evaluator
   ](name='evaluators', description='The list of evaluator configurations.', example='[{"evaluatorRef":"Builtin.agent_task_completion","resultName":"agent_task_completion","resultType":"score","variableMapping":{"input":"trace.input","output":"trace.output","agent_trajectory":"trace.agent_trajectory"}}]'),
   regionId?: string(name='regionId', description='The region to which the task belongs.', example='cn-hangzhou'),
   requestId?: string(name='requestId', description='The request ID.', example='3FE4CD1E-FF41-56BE-B590-7A021D9C1524'),
-  runStrategyConfig?: RunStrategies(name='runStrategyConfig', description='The structured configuration of the run strategy, including the parsed backfill strategy and continuous evaluation strategy.', example='{"backfill":{"enabled":true,"startTime":1782816000000,"endTime":1782902400000},"continuous":{"enabled":true,"intervalUnit":"HOUR","intervalValue":1,"dataDelayMinutes":5}}'),
+  runStrategyConfig?: RunStrategies(name='runStrategyConfig', description='The structured run strategy configuration, including the parsed backfill strategy and continuous evaluation strategy.', example='{"backfill":{"enabled":true,"startTime":1782816000000,"endTime":1782902400000},"continuous":{"enabled":true,"intervalUnit":"HOUR","intervalValue":1,"dataDelayMinutes":5}}'),
   status?: string(name='status', description='The evaluation task status.', example='Running'),
   tags?: map[string]string(name='tags', description='The key-value pairs of task tags. Empty if not set.', example='{"serviceId":"checkout-service","env":"prod"}'),
   taskId?: string(name='taskId', description='The evaluation task ID.', example='eval-task-8b36f2e2b1f94f9c91ce7a4b0f6d9c25'),
   taskMode?: string(name='taskMode', description='The evaluation task mode.', example='batch'),
   taskName?: string(name='taskName', description='The task name.', example='trace_task_completion_eval'),
-  updatedAt?: long(name='updatedAt', description='The last update time, in seconds-level UNIX timestamp.', example='1782816600'),
+  updatedAt?: long(name='updatedAt', description='The last update time, in seconds as a UNIX timestamp.', example='1782816600'),
 }
 
 model GetEvaluationTaskResponse = {
@@ -2607,22 +2612,22 @@ model GetEvaluatorResponseBody = {
   evaluator?: {
     agentSpace?: string(name='agentSpace', description='The AgentSpace name.', example='prod-agentspace'),
     annotations?: [ string ](name='annotations', description='The list of annotations.', example='["__en"]'),
-    config?: map[string]any(name='config', description='The configuration of the current version.', example='{"prompt":"请评估任务完成度"}'),
-    createdAt?: long(name='createdAt', description='The time when the evaluator was created. The value is a UNIX timestamp in seconds.', example='1782816000'),
+    config?: map[string]any(name='config', description='The configuration of the current version.', example='{"prompt":"Please evaluate the task completion"}'),
+    createdAt?: long(name='createdAt', description='The creation time, in seconds-level UNIX timestamp.', example='1782816000'),
     currentVersion?: string(name='currentVersion', description='The version number returned in the current response.', example='1.0.0'),
-    description?: string(name='description', description='The evaluator description.', example='判断 Agent 是否完成用户任务'),
-    displayName?: string(name='displayName', description='The display name.', example='链路任务完成度'),
+    description?: string(name='description', description='The evaluator description.', example='Determines whether the Agent has completed the user task'),
+    displayName?: string(name='displayName', description='The display name.', example='Trace task completion'),
     latestVersion?: string(name='latestVersion', description='The latest version number.', example='1.0.0'),
     metricName?: string(name='metricName', description='The evaluation metric name.', example='agent_task_completion'),
     name?: string(name='name', description='The evaluator name.', example='trace_task_completion'),
     properties?: map[string]any(name='properties', description='The evaluator properties.', example='{"agentEvaluatorMode":"raw_prompt"}'),
     type?: string(name='type', description='The evaluator type.', example='AGENT'),
-    updatedAt?: long(name='updatedAt', description='The time when the evaluator was last updated. The value is a UNIX timestamp in seconds.', example='1782816600'),
+    updatedAt?: long(name='updatedAt', description='The update time, in seconds-level UNIX timestamp.', example='1782816600'),
     versions?: [ 
       {
-        createdAt?: long(name='createdAt', description='The time when the version was created. The value is a UNIX timestamp in seconds.', example='1782816000'),
+        createdAt?: long(name='createdAt', description='The version creation time, in seconds-level UNIX timestamp.', example='1782816000'),
         version?: string(name='version', description='The version number.', example='1.0.0'),
-        versionDescription?: string(name='versionDescription', description='The version description.', example='初始版本'),
+        versionDescription?: string(name='versionDescription', description='The version description.', example='Initial version'),
       }
     ](name='versions', description='The list of versions.', example='[{"version":"1.0.0"}]'),
   }(name='evaluator', description='The evaluator details.', example='{"name":"trace_task_completion","type":"AGENT","currentVersion":"1.0.0"}'),
@@ -2691,28 +2696,28 @@ This parameter is required.', example='prod-agentspace'),
 model GetEvaluatorSkillResponseBody = {
   requestId?: string(name='requestId', description='The request ID.', example='3FE4CD1E-FF41-56BE-B590-7A021D9C1524'),
   skill?: {
-    createdAt?: long(name='createdAt', description='The time when the skill was created. This value is a UNIX timestamp in seconds.', example='1782816000'),
+    createdAt?: long(name='createdAt', description='The creation time, in seconds-level UNIX timestamp.', example='1782816000'),
     currentVersion?: string(name='currentVersion', description='The current version.', example='1782816000000'),
-    description?: string(name='description', description='The skill description.', example='读取链路上下文辅助评估'),
-    displayName?: string(name='displayName', description='The display name.', example='Trace 上下文读取'),
+    description?: string(name='description', description='The skill description.', example='Read trace context to assist evaluation'),
+    displayName?: string(name='displayName', description='The display name.', example='Trace Context Loader'),
     enable?: boolean(name='enable', description='Indicates whether the skill is enabled.', example='true'),
     files?: [ 
       {
         content?: string(name='content', description='The file content.', example='# Trace Context Loader'),
         name?: string(name='name', description='The file name.', example='SKILL.md'),
-        remark?: string(name='remark', description='The file remarks.', example='主技能说明'),
+        remark?: string(name='remark', description='The file remark.', example='Main skill description'),
       }
-    ](name='files', description='The list of skill files.', example='[{"name":"SKILL.md","content":"# Trace Context Loader","remark":"主技能说明"}]'),
+    ](name='files', description='The list of skill files.', example='[{"name":"SKILL.md","content":"# Trace Context Loader","remark":"Main skill description"}]'),
     latestVersion?: string(name='latestVersion', description='The latest version.', example='1782816000000'),
     skillName?: string(name='skillName', description='The skill name.', example='trace_context_loader'),
-    updatedAt?: long(name='updatedAt', description='The time when the skill was last updated. This value is a UNIX timestamp in seconds.', example='1782816600'),
+    updatedAt?: long(name='updatedAt', description='The update time, in seconds-level UNIX timestamp.', example='1782816600'),
     versions?: [ 
       {
-        createdAt?: long(name='createdAt', description='The time when the version was created. This value is a UNIX timestamp in seconds.', example='1782816000'),
+        createdAt?: long(name='createdAt', description='The version creation time, in seconds-level UNIX timestamp.', example='1782816000'),
         version?: string(name='version', description='The version number.', example='1782816000000'),
-        versionDescription?: string(name='versionDescription', description='The version description.', example='首次发布版本'),
+        versionDescription?: string(name='versionDescription', description='The version description.', example='Initial release version'),
       }
-    ](name='versions', description='The list of skill versions.', example='[{"version":"1782816000000","versionDescription":"首次发布版本"}]'),
+    ](name='versions', description='The list of skill versions.', example='[{"version":"1782816000000","versionDescription":"Initial release version"}]'),
   }(name='skill', description='The skill details.', example='{"skillName":"trace_context_loader","enable":true,"currentVersion":"1782816000000"}'),
 }
 
@@ -2775,9 +2780,9 @@ model GetExperimentPlanRequest {
 }
 
 model GetExperimentPlanResponseBody = {
-  createdAt?: long(name='createdAt', description='The creation time, in millisecond-level UNIX timestamp.', example='1782816000000'),
+  createdAt?: long(name='createdAt', description='The creation time. The value is a millisecond-level UNIX timestamp.', example='1782816000000'),
   datasetId?: string(name='datasetId', description='The associated dataset ID.', example='arms_customer_agent_level1'),
-  description?: string(name='description', description='The description.', example='Compare the checkout Agent baseline with the optimized version'),
+  description?: string(name='description', description='The description.', example='Compare checkout Agent baseline with optimized version'),
   evaluators?: [
     Evaluator
   ](name='evaluators', description='The list of evaluators.', example='[{"evaluatorRef": "Builtin.agent_task_completion"}]'),
@@ -2791,9 +2796,9 @@ model GetExperimentPlanResponseBody = {
   planName?: string(name='planName', description='The experiment plan name.', example='arms_agent_experiment'),
   querySql?: string(name='querySql', description='The custom query SQL clause in partial dataset mode.', example='status=\\\\"OK\\\\"'),
   requestId?: string(name='requestId', description='The request ID.', example='3FE4CD1E-FF41-56BE-B590-7A021D9C1524'),
-  selectedItemIds?: [ string ](name='selectedItemIds', description='The list of data item IDs selected in partial dataset mode.', example='["019ef4d5-a0f0-7114-832d-5542d771cd8c"]'),
+  selectedItemIds?: [ string ](name='selectedItemIds', description='The list of selected data item IDs in partial dataset mode.', example='["019ef4d5-a0f0-7114-832d-5542d771cd8c"]'),
   status?: string(name='status', description='The plan status.', example='stopped'),
-  updatedAt?: long(name='updatedAt', description='The update time, in millisecond-level UNIX timestamp.', example='1782816600000'),
+  updatedAt?: long(name='updatedAt', description='The update time. The value is a millisecond-level UNIX timestamp.', example='1782816600000'),
 }
 
 model GetExperimentPlanResponse = {
@@ -3626,7 +3631,7 @@ model ListEvaluationRunsResponseBody = {
     }
   ](name='evaluationRuns', description='The list of run summaries.', example='[{"runId":"eval-run-4fd47f3d7e684e15b1d3d178c6a5b81a","runType":"backfill","status":"Running","totalCount":100}]'),
   maxResults?: int32(name='maxResults', description='The number of entries per page used in this request.', example='20'),
-  nextToken?: string(name='nextToken', description='The pagination token for the next page. An empty value indicates that no more pages exist.', example='eyJsYXN0SWQiOjEyMH0='),
+  nextToken?: string(name='nextToken', description='The pagination token for the next page. An empty value indicates that no more pages are available.', example='eyJsYXN0SWQiOjEyMH0='),
   requestId?: string(name='requestId', description='The request ID.', example='3FE4CD1E-FF41-56BE-B590-7A021D9C1524'),
   totalCount?: long(name='totalCount', description='The total number of runs that match the filter conditions.', example='3'),
 }
@@ -3709,7 +3714,7 @@ model ListEvaluationTasksResponseBody = {
       config?: map[string]string(name='config', description='The data source and execution configuration summary.', example='{"storeName":"logstore-tracing","dataScope":"trace"}'),
       createdAt?: long(name='createdAt', description='The creation time, in seconds-level UNIX timestamp.', example='1782816000'),
       dataType?: string(name='dataType', description='The data source type of the evaluation object.', example='trace'),
-      description?: string(name='description', description='The evaluation task description.', example='评估线上 Agent 链路任务完成度'),
+      description?: string(name='description', description='The description of the evaluation task.', example='Evaluate the task completion of the online Agent trace'),
       evaluators?: string(name='evaluators', description='The evaluator configuration summary, in JSON string format.', example='[{"evaluatorRef":"Builtin.agent_task_completion"}]'),
       runStrategyConfig?: RunStrategies(name='runStrategyConfig', description='The structured run strategy configuration, including the parsed backfill strategy and continuous evaluation strategy.', example='{"backfill":{"enabled":true,"startTime":1782816000000,"endTime":1782902400000},"continuous":{"enabled":true,"intervalUnit":"HOUR","intervalValue":1,"dataDelayMinutes":5}}'),
       status?: string(name='status', description='The evaluation task status.', example='Running'),
@@ -3723,7 +3728,7 @@ model ListEvaluationTasksResponseBody = {
   maxResults?: int32(name='maxResults', description='The number of entries per page used in this request.', example='20'),
   nextToken?: string(name='nextToken', description='The pagination token for the next page. An empty value indicates that no more pages are available.', example='eyJsYXN0SWQiOjEwMSwib2Zmc2V0IjoyMH0='),
   requestId?: string(name='requestId', description='The request ID.', example='3FE4CD1E-FF41-56BE-B590-7A021D9C1524'),
-  totalCount?: int32(name='totalCount', description='The total number of records. The total count is returned only on the first page. This value may be empty on subsequent pages.', example='126'),
+  totalCount?: int32(name='totalCount', description='The total number of records. The total count is calculated only on the first page. This value may be empty on subsequent pages.', example='126'),
 }
 
 model ListEvaluationTasksResponse = {
@@ -3813,15 +3818,15 @@ model ListEvaluatorSkillsResponseBody = {
   requestId?: string(name='requestId', description='The request ID.', example='3FE4CD1E-FF41-56BE-B590-7A021D9C1524'),
   skills?: [ 
     {
-      createdAt?: long(name='createdAt', description='The creation time. This field is declared as int64 in CloudSpec, but the backend currently returns the StarOps `createTime` string field.', example='1782816000'),
-      description?: string(name='description', description='The skill description.', example='读取链路上下文辅助评估'),
-      displayName?: string(name='displayName', description='The display name.', example='Trace 上下文读取'),
+      createdAt?: long(name='createdAt', description='The creation time. Declared as int64 in CloudSpec. The backend currently returns the StarOps `createTime` string field.', example='1782816000'),
+      description?: string(name='description', description='The skill description.', example='Reads trace context to assist evaluation'),
+      displayName?: string(name='displayName', description='The display name.', example='Trace Context Loader'),
       enable?: boolean(name='enable', description='Indicates whether the skill is enabled.', example='true'),
       latestVersion?: string(name='latestVersion', description='The latest version. This field is declared in CloudSpec but is not currently populated in the backend response.', example='1782816000000'),
       skillName?: string(name='skillName', description='The skill name.', example='trace_context_loader'),
-      updatedAt?: long(name='updatedAt', description='The update time. This field is declared as int64 in CloudSpec, but the backend currently returns the StarOps `updateTime` string field.', example='1782816600'),
+      updatedAt?: long(name='updatedAt', description='The update time. Declared as int64 in CloudSpec. The backend currently returns the StarOps `updateTime` string field.', example='1782816600'),
     }
-  ](name='skills', description='The list of skill summaries.', example='[{"skillName":"trace_context_loader","displayName":"Trace 上下文读取","enable":true}]'),
+  ](name='skills', description='The list of skill summaries.', example='[{"skillName":"trace_context_loader","displayName":"Trace Context Loader","enable":true}]'),
   total?: long(name='total', description='The total number of skills.', example='3'),
 }
 
@@ -3832,7 +3837,7 @@ model ListEvaluatorSkillsResponse = {
 }
 
 /**
- * @summary Queries the skill list of an evaluator.
+ * @summary Queries the list of skills for an evaluator.
  *
  * @param request ListEvaluatorSkillsRequest
  * @param headers map
@@ -3872,7 +3877,7 @@ async function listEvaluatorSkillsWithOptions(name: string, request: ListEvaluat
 }
 
 /**
- * @summary Queries the skill list of an evaluator.
+ * @summary Queries the list of skills for an evaluator.
  *
  * @param request ListEvaluatorSkillsRequest
  * @return ListEvaluatorSkillsResponse
@@ -3987,20 +3992,20 @@ model ListExperimentPlansRequest {
   maxResults?: int32(name='maxResults', description='Optional. Use `offset` and `limit` for pagination instead.', example='20'),
   nextToken?: string(name='nextToken', description='Optional. Use `offset` and `limit` for pagination instead.', example='eyJsYXN0SWQiOjEyM30='),
   offset?: int32(name='offset', description='The offset. Default value: 0.', example='0'),
-  planName?: string(name='planName', description='Fuzzy match by plan name.', example='arms_agent'),
-  status?: string(name='status', description='Filters by exact status.', example='pending'),
+  planName?: string(name='planName', description='Fuzzy matches experiment plans by plan name.', example='arms_agent'),
+  status?: string(name='status', description='Filters experiment plans by exact status.', example='pending'),
 }
 
 model ListExperimentPlansResponseBody = {
   maxResults?: int32(name='maxResults', description='The maximum number of entries returned.', example='20'),
   nextToken?: string(name='nextToken', description='The token for the next page.', example='eyJsYXN0SWQiOjEwMX0='),
-  page?: int32(name='page', description='The page number.', example='0'),
+  page?: int32(name='page', description='The page number information.', example='0'),
   pageSize?: int32(name='pageSize', description='The number of entries per page.', example='20'),
   plans?: [
     ExperimentPlanData
   ](name='plans', description='The list of experiment plan summaries.', example='[{"planId": "exp-plan-e95bff54685a4ae29ff3a834c1008a71", "planName": "rca_benchmark_eval_experiment", "experimentType": "offline", "description": "", "status": "pending", "datasetId": "rca_benckmark_eval", "querySql": "", "experimentCount": 5, "createdAt": 1784612365000, "updatedAt": 1784619562000}, {"planId": "exp-plan-0242d983f5d340fd8479cf2c19eb279e", "planName": "arms_agent_experiment", "experimentType": "online", "description": "", "status": "stopped", "datasetId": "arms_customer_agent_level1", "querySql": "", "experimentCount": 4, "createdAt": 1784257858000, "updatedAt": 1784721811000}, {"planId": "b7f0ad3d-3765-446a-a744-ab64ab8bf386", "planName": "arms_customer_agent_plan", "experimentType": "offline", "description": "", "status": "stopped", "datasetId": "arms_customer_agent_level1", "querySql": "where \\\\"input\\\\" LIKE \\\\"%探针%\\\\"", "experimentCount": 65, "createdAt": 1782310430000, "updatedAt": 1784692254000}]'),
   requestId?: string(name='requestId', description='The request ID.', example='3FE4CD1E-FF41-56BE-B590-7A021D9C1524'),
-  total?: int32(name='total', description='The total number of records that match the filter criteria.', example='6'),
+  total?: int32(name='total', description='The total number of records that match the filter conditions.', example='6'),
 }
 
 model ListExperimentPlansResponse = {
@@ -4012,7 +4017,7 @@ model ListExperimentPlansResponse = {
 /**
  * @summary Queries the list of experiment plans.
  *
- * @description Calls ListExperimentPlans to query the list of experiment plans under a specified AgentSpace for the current account. Supports fuzzy match by plan name, filtering by status, and pagination using `offset`/`limit`.
+ * @description Calls ListExperimentPlans to query the list of experiment plans under a specified AgentSpace for the current account. Supports fuzzy match by plan name, filtering by status, and pagination by using `offset`/`limit`.
  *
  * @param request ListExperimentPlansRequest
  * @param headers map
@@ -4063,7 +4068,7 @@ async function listExperimentPlansWithOptions(agentSpace: string, request: ListE
 /**
  * @summary Queries the list of experiment plans.
  *
- * @description Calls ListExperimentPlans to query the list of experiment plans under a specified AgentSpace for the current account. Supports fuzzy match by plan name, filtering by status, and pagination using `offset`/`limit`.
+ * @description Calls ListExperimentPlans to query the list of experiment plans under a specified AgentSpace for the current account. Supports fuzzy match by plan name, filtering by status, and pagination by using `offset`/`limit`.
  *
  * @param request ListExperimentPlansRequest
  * @return ListExperimentPlansResponse
@@ -4286,84 +4291,102 @@ async function listPipelineRuns(agentSpace: string, pipelineName: string, reques
 }
 
 model ListPipelinesRequest {
-  maxResults?: int32(name='maxResults', example='20'),
-  nextToken?: string(name='nextToken', example='MTIzNDU2Nzg5MA=='),
-  pipelineName?: string(name='pipelineName', example='my-pipeline'),
-  scheduleStatus?: string(name='scheduleStatus', example='Active'),
-  scheduleType?: string(name='scheduleType', example='RunOnce'),
-  sinkName?: string(name='sinkName', example='my-dataset'),
+  maxResults?: int32(name='maxResults', description='The maximum number of pipelines to return. Default value: 20. Maximum value: 100.', example='20'),
+  nextToken?: string(name='nextToken', description='The pagination token. Set this parameter to the nextToken value returned in the previous response to retrieve the next page. Do not specify this parameter for the first request.', example='MTIzNDU2Nzg5MA=='),
+  pipelineName?: string(name='pipelineName', description='Filters pipelines by name using exact match. If this parameter is not specified, no filtering is applied.', example='my-pipeline'),
+  scheduleStatus?: string(name='scheduleStatus', description='Filters pipelines by schedule status. If this parameter is not specified, no filtering is applied. Valid values:
+- None: No schedule.
+- Active: Active.
+- Paused: Paused.
+- Terminated: Terminated.', example='Active'),
+  scheduleType?: string(name='scheduleType', description='Filters pipelines by schedule type. If this parameter is not specified, no filtering is applied. Valid values:
+- RunOnce: One-time execution.
+- Scheduled: Periodic scheduling.', example='RunOnce'),
+  sinkName?: string(name='sinkName', description='Filters pipelines by the exact name of the output dataset. Matches standard sinks, conditional branch sinks, and default sinks. If this parameter is not specified, no filtering is applied.', example='my-dataset'),
 }
 
 model ListPipelinesResponseBody = {
-  maxResults?: int32(name='maxResults', example='20'),
-  nextToken?: string(name='nextToken', example='MTIzNDU2Nzg5MA=='),
+  maxResults?: int32(name='maxResults', description='The maximum number of entries per page that was specified in the request. This value is echoed back.', example='20'),
+  nextToken?: string(name='nextToken', description='The token for the next page. An empty string indicates that the current page is the last page.', example='MTIzNDU2Nzg5MA=='),
   pipelines?: [ 
     {
-      createTime?: string(name='createTime', description='Use the UTC time format: yyyy-MM-ddTHH:mm:ssZ', example='2026-01-01T00:00:00Z'),
-      description?: string(name='description', example='我的流水线'),
+      createTime?: string(name='createTime', description='The time when the pipeline was created, in ISO 8601 UTC format.
+
+Use the UTC time format: yyyy-MM-ddTHH:mm:ssZ', example='2026-01-01T00:00:00Z'),
+      description?: string(name='description', description='The description of the pipeline.', example='My pipeline'),
       executePolicy?: {
-        mode?: string(name='mode', example='RunOnce'),
+        mode?: string(name='mode', description='The scheduling mode. Valid values:
+- RunOnce: one-time execution.
+- Scheduled: periodic scheduling.', example='RunOnce'),
         runOnce?: {
-          fromTime?: long(name='fromTime', example='1735660800000'),
-          toTime?: long(name='toTime', example='1735747200000'),
-        }(name='runOnce'),
+          fromTime?: long(name='fromTime', description='The start of the time slice, in UNIX millisecond timestamp format.', example='1735660800000'),
+          toTime?: long(name='toTime', description='The end of the time slice, in UNIX millisecond timestamp format.', example='1735747200000'),
+        }(name='runOnce', description='The parameters for one-time execution. This parameter has a value only when mode is set to RunOnce.'),
         scheduled?: {
-          fromTime?: long(name='fromTime', example='1735660800000'),
-          interval?: string(name='interval', example='1h'),
-        }(name='scheduled'),
-      }(name='executePolicy'),
-      pipelineName?: string(name='pipelineName', example='my-pipeline'),
-      regionId?: string(name='regionId', example='cn-hangzhou'),
-      scheduleStatus?: string(name='scheduleStatus', example='None'),
-      scheduleType?: string(name='scheduleType', example='RunOnce'),
+          fromTime?: long(name='fromTime', description='The scheduling start time, in UNIX millisecond timestamp format.', example='1735660800000'),
+          interval?: string(name='interval', description='The scheduling interval, such as 1h or 30m.', example='1h'),
+        }(name='scheduled', description='The parameters for periodic scheduling. This parameter has a value only when mode is set to Scheduled.'),
+      }(name='executePolicy', description='The execution policy.'),
+      pipelineName?: string(name='pipelineName', description='The name of the pipeline.', example='my-pipeline'),
+      regionId?: string(name='regionId', description='The region ID.', example='cn-hangzhou'),
+      scheduleStatus?: string(name='scheduleStatus', description='The scheduling status. Valid values:
+- None: no scheduling. This value is returned for RunOnce pipelines.
+- Active: active.
+- Paused: paused.
+- Terminated: terminated.', example='None'),
+      scheduleType?: string(name='scheduleType', description='The scheduling type. Valid values:
+- RunOnce: one-time execution.
+- Scheduled: periodic scheduling.', example='RunOnce'),
       sink?: {
         condition?: {
           defaultSink?: {
             dataset?: {
-              agentSpace?: string(name='agentSpace', example='my-agent-space'),
-              dataset?: string(name='dataset', example='other-result'),
-            }(name='dataset'),
-            type?: string(name='type', example='dataset'),
-          }(name='defaultSink'),
-          matchMode?: string(name='matchMode', example='all'),
+              agentSpace?: string(name='agentSpace', description='The name of the AgentSpace to which the default destination dataset belongs.', example='my-agent-space'),
+              dataset?: string(name='dataset', description='The name of the default destination dataset.', example='other-result'),
+            }(name='dataset', description='The default destination dataset.'),
+            type?: string(name='type', description='The type of the default destination. Currently, only dataset is supported.', example='dataset'),
+          }(name='defaultSink', description='The default write destination that is used when no condition route is matched.'),
+          matchMode?: string(name='matchMode', description='The route matching mode. Currently, only all is supported.', example='all'),
           routes?: [ 
             {
-              expression?: string(name='expression', example='* | where intent = \\\\"refund\\\\"'),
-              id?: string(name='id', example='refund'),
+              expression?: string(name='expression', description='The route expression in SPL. Only where, project, and extend are supported.', example='* | where intent = \\\\"refund\\\\"'),
+              id?: string(name='id', description='The route ID.', example='refund'),
               sink?: {
                 dataset?: {
-                  agentSpace?: string(name='agentSpace', example='my-agent-space'),
-                  dataset?: string(name='dataset', example='refund-result'),
-                }(name='dataset'),
-                type?: string(name='type', example='dataset'),
-              }(name='sink'),
+                  agentSpace?: string(name='agentSpace', description='The name of the AgentSpace to which the destination dataset belongs.', example='my-agent-space'),
+                  dataset?: string(name='dataset', description='The name of the destination dataset.', example='refund-result'),
+                }(name='dataset', description='The destination dataset of the route.'),
+                type?: string(name='type', description='The type of the route destination. Currently, only dataset is supported.', example='dataset'),
+              }(name='sink', description='The write destination of the route.'),
             }
-          ](name='routes'),
-        }(name='condition'),
+          ](name='routes', description='The list of condition routes.'),
+        }(name='condition', description='The conditional routing configuration. This parameter is used only when sink.type is set to condition.'),
         dataset?: {
-          agentSpace?: string(name='agentSpace', example='my-agent-space'),
-          dataset?: string(name='dataset', example='my-dataset'),
-        }(name='dataset'),
-        type?: string(name='type', example='condition'),
-      }(name='sink'),
+          agentSpace?: string(name='agentSpace', description='The name of the AgentSpace to which the destination dataset belongs.', example='my-agent-space'),
+          dataset?: string(name='dataset', description='The name of the destination dataset.', example='my-dataset'),
+        }(name='dataset', description='The destination dataset configuration for the dataset sink. This parameter is used only when sink.type is set to dataset.'),
+        type?: string(name='type', description='The destination type. Valid values: dataset or condition.', example='condition'),
+      }(name='sink', description='The pipeline sink (data write destination).'),
       source?: {
         dataset?: {
-          dataset?: string(name='dataset', example='my-dataset'),
-          filter?: string(name='filter', example='status = \\\\"pending\\\\"'),
-        }(name='dataset'),
+          dataset?: string(name='dataset', description='The name of the source dataset.', example='my-dataset'),
+          filter?: string(name='filter', description='The data filter condition for the dataset.', example='status = \\\\"pending\\\\"'),
+        }(name='dataset', description='The dataset datasource config in the current AgentSpace.'),
         logstore?: {
-          logstore?: string(name='logstore', example='my-sls-logstore'),
-          project?: string(name='project', example='my-sls-project'),
-          query?: string(name='query', example='* | SELECT *'),
-        }(name='logstore'),
-        type?: string(name='type', example='dataset'),
-      }(name='source'),
-      updateTime?: string(name='updateTime', description='Use the UTC time format: yyyy-MM-ddTHH:mm:ssZ', example='2026-01-02T00:00:00Z'),
-      workspace?: string(name='workspace', example='my-workspace'),
+          logstore?: string(name='logstore', description='The name of the SLS Logstore.', example='my-sls-logstore'),
+          project?: string(name='project', description='The name of the SLS project.', example='my-sls-project'),
+          query?: string(name='query', description='The data filtered query statement in SLS query/analysis syntax.', example='* | SELECT *'),
+        }(name='logstore', description='The Simple Log Service (SLS) Logstore datasource config.'),
+        type?: string(name='type', description='The data source type. Valid values: logstore or dataset.', example='dataset'),
+      }(name='source', description='The pipeline data source.'),
+      updateTime?: string(name='updateTime', description='The time when the pipeline was last updated, in ISO 8601 UTC format.
+
+Use the UTC time format: yyyy-MM-ddTHH:mm:ssZ', example='2026-01-02T00:00:00Z'),
+      workspace?: string(name='workspace', description='The workspace associated with the pipeline.', example='my-workspace'),
     }
-  ](name='pipelines'),
-  requestId?: string(name='requestId', example='9ACFB10A-1B2C-3D4E-5F6G-7H8I9J0K1L2M'),
-  totalCount?: int32(name='totalCount', example='100'),
+  ](name='pipelines', description='The list of pipelines.'),
+  requestId?: string(name='requestId', description='The request ID, which is used to locate and troubleshoot issues.', example='9ACFB10A-1B2C-3D4E-5F6G-7H8I9J0K1L2M'),
+  totalCount?: int32(name='totalCount', description='The total number of pipelines that match the filter conditions.', example='100'),
 }
 
 model ListPipelinesResponse = {
@@ -4373,7 +4396,7 @@ model ListPipelinesResponse = {
 }
 
 /**
- * @summary Lists CI/CD pipelines.
+ * @summary Queries a list of pipelines. Supports filtering by name, schedule type, and schedule status with cursor-based pagination.
  *
  * @param request ListPipelinesRequest
  * @param headers map
@@ -4422,7 +4445,7 @@ async function listPipelinesWithOptions(agentSpace: string, request: ListPipelin
 }
 
 /**
- * @summary Lists CI/CD pipelines.
+ * @summary Queries a list of pipelines. Supports filtering by name, schedule type, and schedule status with cursor-based pagination.
  *
  * @param request ListPipelinesRequest
  * @return ListPipelinesResponse
@@ -5293,13 +5316,13 @@ async function updateEvaluationTask(agentSpace: string, taskId: string, request:
 }
 
 model UpdateEvaluatorRequest {
-  annotations?: [ string ](name='annotations', description='The list of annotation marks.', example='["__en"]'),
-  config?: map[string]any(name='config', description='The new version configuration. This parameter is typically required when `version` is specified.', example='{"prompt":"请更严格地评估任务完成度"}'),
-  description?: string(name='description', description='The evaluator description.', example='判断 Agent 是否完成用户任务'),
-  displayName?: string(name='displayName', description='The display name.', example='链路任务完成度'),
+  annotations?: [ string ](name='annotations', description='The list of annotation tags.', example='["__en"]'),
+  config?: map[string]any(name='config', description='The configuration of the new version. This parameter is typically required when `version` is specified.', example='{"prompt":"Evaluate task completion more strictly"}'),
+  description?: string(name='description', description='The evaluator description.', example='Determines whether the agent completes the user task'),
+  displayName?: string(name='displayName', description='The display name.', example='Task completion of the chain'),
   properties?: map[string]any(name='properties', description='The evaluator properties.', example='{"agentEvaluatorMode":"raw_prompt"}'),
-  version?: string(name='version', description='The new version number. If specified, a new version is created.', example='1.1.0'),
-  versionDescription?: string(name='versionDescription', description='The version description.', example='优化评分说明'),
+  version?: string(name='version', description='The new version number. A new version is created when this parameter is specified.', example='1.1.0'),
+  versionDescription?: string(name='versionDescription', description='The version description.', example='Optimized scoring instructions'),
   clientToken?: string(name='clientToken', description='The idempotency token. CloudSpec declares this query parameter, but the backend does not currently perform idempotency comparison.', example='a1b2c3d4-1234-5678-90ab-cdef12345678'),
 }
 
@@ -5484,13 +5507,13 @@ model UpdateExperimentPlanRequest {
   description?: string(name='description', description='The description.', example='rca_benchmark_eval_experiment offline experiment'),
   evaluators?: [
     Evaluator
-  ](name='evaluators', description='The list of evaluators. Omitting this field indicates no modification. Passing an empty array clears the list.', example='[{"evaluatorRef": "Builtin.agent_task_completion"}]'),
+  ](name='evaluators', description='The list of evaluators. Omitting this field means no modification. Passing an empty array clears the list.', example='[{"evaluatorRef": "Builtin.agent_task_completion"}]'),
   experimentType?: string(name='experimentType', description='The experiment type.', example='OFFLINE'),
   experiments?: [
     ExperimentConfig
-  ](name='experiments', description='The list of experiment configurations. When specified, the entire list is replaced. The number of configurations must be 1 to 5.', example='[{"label": "A", "name": "baseline", "modelName": "qwen-max"}]'),
+  ](name='experiments', description='The list of experiment configurations. When provided, the entire list is replaced. The number of configurations must be 1 to 5.', example='[{"label": "A", "name": "baseline", "modelName": "qwen-max"}]'),
   input?: map[string]any(name='input', description='Optional.', example='{"question": "How do I request a refund?"}'),
-  pipelineName?: string(name='pipelineName', description='The name of the associated data processing pipeline. This parameter is optional. If not specified, the value is not updated. If an empty character string is specified, the association is dissociated. After association, when an experiment under this plan finishes execution and writes results to the experiment result Logstore, the system filters by the traceId of the experiment trace and calls PreviewPipeline. The pipeline-processed results are then written together.'),
+  pipelineName?: string(name='pipelineName', description='The name of the associated data processing pipeline. This parameter is optional. If not specified, the value is not updated. If an empty character string is specified, the association is dissociated. After association, when an experiment under this plan completes execution and writes results to the experiment result Logstore, the system filters by the traceId of the experiment trace and invokes PreviewPipeline. The pipeline-processed results are then written together.'),
   planName?: string(name='planName', description='The name of the experiment plan.', example='rca_benchmark_eval_experiment'),
   querySql?: string(name='querySql', description='The custom query SQL clause in partial dataset mode.', example='level > 2'),
   selectedItemIds?: [ string ](name='selectedItemIds', description='The list of selected data item IDs in partial dataset mode. Passing an empty array clears the list.', example='[]'),
@@ -5498,7 +5521,7 @@ model UpdateExperimentPlanRequest {
 
 model UpdateExperimentPlanResponseBody = {
   message?: string(name='message', description='The prompt message.', example='Experiment plan updated successfully'),
-  planId?: string(name='planId', description='The ID of the experiment plan.', example='exp-plan-e95bff54685a4ae29ff3a834c1008a71'),
+  planId?: string(name='planId', description='The experiment plan ID.', example='exp-plan-e95bff54685a4ae29ff3a834c1008a71'),
   requestId?: string(name='requestId', description='The request ID.', example='3FE4CD1E-FF41-56BE-B590-7A021D9C1524'),
   status?: string(name='status', description='The update result. A value of updated indicates success.', example='updated'),
 }
@@ -5590,18 +5613,18 @@ async function updateExperimentPlan(agentSpace: string, planId: string, request:
 }
 
 model UpdateExperimentRunRequest {
-  completedAt?: long(name='completedAt', description='The experiment completion time. A millisecond-level UNIX timestamp.', example='1784719989371'),
+  completedAt?: long(name='completedAt', description='The experiment completion time. This value is a millisecond-level UNIX timestamp.', example='1784719989371'),
   completedTasks?: int32(name='completedTasks', description='The number of completed tasks.', example='10'),
-  executedAt?: long(name='executedAt', description='The experiment execution time. A millisecond-level UNIX timestamp.', example='1784719439255'),
+  executedAt?: long(name='executedAt', description='The experiment execution time. This value is a millisecond-level UNIX timestamp.', example='1784719439255'),
   failedTasks?: int32(name='failedTasks', description='The number of failed tasks.', example='0'),
   recordName?: string(name='recordName', description='The experiment record name.', example='rca_benchmark_eval_experiment 2026/07/22 19:23:59'),
-  status?: string(name='status', description='The experiment record status. Set to cancelled to cancel execution.', example='running'),
+  status?: string(name='status', description='The experiment record status. Set this parameter to cancelled to cancel the execution.', example='running'),
   totalTasks?: int32(name='totalTasks', description='The total number of tasks.', example='20'),
   clientToken?: string(name='clientToken', description='Optional.', example='a1b2c3d4-1234-5678-90ab-cdef12345678'),
 }
 
 model UpdateExperimentRunResponseBody = {
-  message?: string(name='message', description='The prompt message.', example='Experiment record updated successfully.'),
+  message?: string(name='message', description='The prompt message.', example='Experiment record updated successfully'),
   recordId?: string(name='recordId', description='The experiment record ID.', example='a5397261-6e6d-4e45-bf52-feb8686f7524'),
   requestId?: string(name='requestId', description='The request ID.', example='019F89B5-1B07-3BB3-A32E-F5B007029E9C'),
   status?: string(name='status', description='The status after the update (the persisted value).', example='running'),
@@ -5616,7 +5639,7 @@ model UpdateExperimentRunResponse = {
 /**
  * @summary Updates an experiment run.
  *
- * @description Calls UpdateExperimentRun to update the name, status, and task counts of an experiment record. Fields that are not specified remain unchanged. Typical sequence for offline experiments: running → progress writeback → completed.
+ * @description Calls UpdateExperimentRun to update the name, status, and task counts of an experiment record. Fields that are not specified remain unchanged. Typical sequence for an offline experiment: running → progress writeback → completed.
  *
  * @param request UpdateExperimentRunRequest
  * @param headers map
@@ -5676,7 +5699,7 @@ async function updateExperimentRunWithOptions(agentSpace: string, recordId: stri
 /**
  * @summary Updates an experiment run.
  *
- * @description Calls UpdateExperimentRun to update the name, status, and task counts of an experiment record. Fields that are not specified remain unchanged. Typical sequence for offline experiments: running → progress writeback → completed.
+ * @description Calls UpdateExperimentRun to update the name, status, and task counts of an experiment record. Fields that are not specified remain unchanged. Typical sequence for an offline experiment: running → progress writeback → completed.
  *
  * @param request UpdateExperimentRunRequest
  * @return UpdateExperimentRunResponse
