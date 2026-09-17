@@ -59,8 +59,8 @@ function close(): void {
 model Agent {
   createdAt?: long(name='CreatedAt'),
   description?: string(name='Description'),
-  mcpServerId?: string(name='McpServerId', example='8vHW4mDRxxxxx'),
-  mcpServerName?: string(name='McpServerName', example='data-analyze-agent'),
+  mcpServerId?: string(name='McpServerId', description='The ID of the MCP server associated with the agent.', example='8vHW4mDRxxxxx'),
+  mcpServerName?: string(name='McpServerName', description='The name of the MCP server.', example='data-analyze-agent'),
   metadata?: Metadata(name='Metadata'),
   name?: string(name='Name'),
   prompt?: string(name='Prompt'),
@@ -249,10 +249,10 @@ model AiTransformField {
 }
 
 model AiTranslateTransformParameters {
-  inputField?: AiTransformField(name='InputField'),
-  sourceLanguage?: string(name='SourceLanguage', example='zh'),
-  stepName?: string(name='StepName', example='translation'),
-  targetLanguage?: string(name='TargetLanguage', example='en'),
+  inputField?: AiTransformField(name='InputField', description='The input text field.'),
+  sourceLanguage?: string(name='SourceLanguage', description='The source language. If left empty, the language is automatically detected.', example='zh'),
+  stepName?: string(name='StepName', description='The field name attached to the CloudEvent output. Default value: transform0.', example='translation'),
+  targetLanguage?: string(name='TargetLanguage', description='The target language.', example='en'),
 }
 
 model AskLumaLogEntry {
@@ -2438,6 +2438,95 @@ async function createEventStreaming(request: CreateEventStreamingRequest): Creat
   return @handler.do('RPC', 'CreateEventStreaming', 'POST', '/', 'json', true, 'form', request);
 }
 
+model CreateKnowledgeBaseRequest {
+  catalog: string(name='Catalog', description='The EventHouse catalog to which the knowledge base belongs. This parameter, together with Namespace and KnowledgeBaseName, uniquely identifies the knowledge base. This parameter cannot be modified after the knowledge base is created. System catalogs cannot be bound.
+
+This parameter is required.', example='my_catalog', maxLength=127, position='Query'),
+  chunkConfiguration?: {
+    headingLevel?: int32(name='HeadingLevel', description='Required for the BY_HEADING strategy. Valid values: 1 to 6. This parameter is ignored for other strategies. Headings at or above the specified level are used as split boundaries. For example, if you set this parameter to 2, both H1 and H2 headings are used as split boundaries. Deeper-level headings are not used for splitting and are retained in the chunk body. If the content within a section exceeds MaxChunkSize, the system falls back to splitting by paragraphs or sentences. Documents without headings fall back to intelligent chunking.', example='2'),
+    maxChunkSize?: int32(name='MaxChunkSize', description='The maximum character length of a single chunk. Valid values: 1 to 6000 (characters). An error is returned if the value exceeds the limit.', example='512'),
+    overlapSize?: int32(name='OverlapSize', description='Takes effect only for the BY_LENGTH strategy. This parameter is ignored for other strategies. Specifies the overlap length (in characters) between adjacent chunks. If the value is greater than 0, the beginning of the next chunk repeats the content from the end of the previous chunk within this window. The overlap does not cause a chunk to exceed MaxChunkSize. Default value: 0, which indicates no overlap.', example='40'),
+    preprocessRules?: {
+      removeUrlsAndEmails?: boolean(name='RemoveUrlsAndEmails', description='Specifies whether to remove URLs and email addresses during parsing.', example='false'),
+      replaceConsecutiveWhitespace?: boolean(name='ReplaceConsecutiveWhitespace', description='Specifies whether to replace consecutive whitespace characters (spaces, line breaks, and tabs) with a single space.', example='true'),
+    }(name='PreprocessRules', description='The pre-processing rules.'),
+    separator?: string(name='Separator', description='Required for the BY_SEPARATOR strategy. This parameter is ignored for other strategies. The system splits content by matching the literal string as a whole (not as a regular expression). The maximum length is 32 characters. Example: \\\\
+\\\\
+ for paragraph separators.', example='\\\\\\\\n\\\\\\\\n', maxLength=32),
+    strategy: string(name='Strategy', description='Valid values:
+- AUTO: Intelligent chunking (heading-aware + paragraph packing).
+- BY_LENGTH: Sliding window chunking by length. You can specify OverlapSize.
+- BY_SEPARATOR: Chunking by separator. You must specify Separator.
+- BY_HEADING: Chunking by heading level. You must specify HeadingLevel.
+
+This parameter is required.', example='BY_SEPARATOR'),
+  }(name='ChunkConfiguration', description='Optional. The default chunking strategy for the knowledge base. This strategy applies only to documents uploaded after the configuration is set. If this parameter is not specified, the system default chunking strategy is used.', shrink='json', position='Query'),
+  description?: string(name='Description', description='The description of the knowledge base.', example='Product documentation knowledge base', maxLength=255, position='Query'),
+  embeddingDimension?: int32(name='EmbeddingDimension', description='Optional. The vector dimensions. The value is validated against the embedding model: text-embedding-v3 supports 64, 128, 256, 512, 768, and 1024. text-embedding-v4 supports 64, 128, 256, 512, 768, 1024, 1536, and 2048. qwen3.7-text-embedding supports 256, 512, 768, 1024, 1536, 2048, and 2560. qwen3.7-text-embedding-flash supports 256, 512, 768, and 1024. Default value: 1024 (the default dimension of the model). This parameter cannot be modified after the knowledge base is created. Even if the dimensions are the same, you must rebuild the knowledge base when switching models.', example='1024', position='Query'),
+  embeddingModel?: string(name='EmbeddingModel', description='Optional. The embedding model used for vectorization. This parameter cannot be modified after the knowledge base is created. Valid values: text-embedding-v3, text-embedding-v4, qwen3.7-text-embedding, and qwen3.7-text-embedding-flash. Only Bailian Tongyi models are supported. Third-party models are not supported. Default value: text-embedding-v4.', example='text-embedding-v4', position='Query'),
+  knowledgeBaseName: string(name='KnowledgeBaseName', description='The name of the knowledge base. The name must be unique within the namespace.
+
+This parameter is required.', example='product-docs', maxLength=127, position='Query'),
+  metadataSchema?: [ 
+    {
+      name: string(name='Name', description='The name of the field.
+
+This parameter is required.', example='department', maxLength=64),
+      type: string(name='Type', description='Valid values: STRING, LONG, DOUBLE, BOOLEAN, and DATETIME.
+
+This parameter is required.', example='STRING'),
+      value?: string(name='Value', description='When ValueMode is set to CONSTANT, this parameter specifies a fixed value. An empty value indicates that the value can be assigned during upload. When ValueMode is set to SYSTEM_VARIABLE, this parameter specifies a system variable name, such as DOCUMENT_NAME, FILE_TYPE, FILE_SIZE, DOCUMENT_UPLOAD_TIME, SOURCE_TYPE, SOURCE_URI, or SOURCE_MODIFIED_TIME.', example='EventHouse', maxLength=255),
+      valueMode: string(name='ValueMode', description='Valid values:
+- CONSTANT: Constant. If Value is not empty, all documents use the fixed value. If Value is empty, the value can be assigned during upload.
+- SYSTEM_VARIABLE: System variable. Value specifies the variable name. The system automatically generates the value, and the value cannot be overridden during upload.
+
+This parameter is required.', example='CONSTANT'),
+    }
+  ](name='MetadataSchema', description='Declares the metadata fields of the knowledge base. When you upload documents, the metadata can contain only the fields declared here. This parameter cannot be modified after the knowledge base is created.', example='[{"Name":"department","Type":"STRING"}]', shrink='json', position='Query'),
+  namespace: string(name='Namespace', description='The EventHouse namespace to which the knowledge base belongs. The namespace must belong to the specified catalog. This parameter, together with Catalog and KnowledgeBaseName, uniquely identifies the knowledge base. This parameter cannot be modified after the knowledge base is created.
+
+This parameter is required.', example='my_namespace', maxLength=127, position='Query'),
+  searchConfiguration?: {
+    mode?: string(name='Mode', description='Valid values:
+- KEYWORD: Keyword retrieval.
+- VECTOR: Vector retrieval.
+- HYBRID: Hybrid retrieval.', example='HYBRID'),
+    rankAlgorithm?: string(name='RankAlgorithm', description='Takes effect only in hybrid search mode. Valid values:
+- RRF: Reciprocal rank fusion.
+- WEIGHTED: Weighted normalization fusion. Use this value together with VectorWeight.
+
+Default value: RRF.', example='RRF'),
+    rerankEnabled?: boolean(name='RerankEnabled', description='Takes effect only in hybrid search mode. Specifies whether to enable reranking by default when the search request does not specify a Rerank parameter.', example='false'),
+    rerankModel?: string(name='RerankModel', description='The default reranking model used when the search request does not specify a RerankModel parameter. Valid values: qwen3-rerank. Default value: qwen3-rerank.', example='qwen3-rerank'),
+    rrfK?: int32(name='RrfK', description='The k parameter for the RRF fusion algorithm. The value must be greater than 0. Default value: 60.', example='60'),
+    topK?: int32(name='TopK', description='The default number of results to return.', example='20'),
+    vectorWeight?: double(name='VectorWeight', description='The vector weight for the WEIGHTED fusion algorithm. Valid values: 0 to 1. The keyword weight equals 1 minus this value. Default value: 0.7.', example='0.7'),
+  }(name='SearchConfiguration', description='Optional. The default search configuration at the knowledge base level. This configuration takes effect when the corresponding parameters are not specified in search requests. You can modify this configuration after creation by calling UpdateKnowledgeBase.', shrink='json', position='Query'),
+}
+
+model CreateKnowledgeBaseResponseBody = {
+  code?: string(name='Code', description='The response code. A value of Success indicates a successful operation. An error code is returned if the operation fails.', example='Success'),
+  data?: KnowledgeBase(name='Data', description='The details of the created knowledge base, including the name, status, and configuration information.'),
+  message?: string(name='Message', description='The response message. A value of Operation success is returned if the operation succeeds. A specific error description is returned if the operation fails.', example='Operation success'),
+  requestId?: string(name='RequestId', description='The request ID.', example='34AD682D-5B91-5773-8132-AA38C130****'),
+  success?: boolean(name='Success', description='Indicates whether the operation is successful. A value of true indicates success.', example='true'),
+}
+
+model CreateKnowledgeBaseResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: CreateKnowledgeBaseResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of CreateKnowledgeBase  CreateKnowledgeBaseRequest
+  * @return CreateKnowledgeBaseResponse
+ */
+async function createKnowledgeBase(request: CreateKnowledgeBaseRequest): CreateKnowledgeBaseResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'CreateKnowledgeBase', 'POST', '/', 'json', false, 'json', request);
+}
+
 model CreateNamespaceRequest {
   catalog?: string(name='Catalog', description='Data catalog', example='my_catalog', position='Query'),
   clientToken?: string(name='ClientToken', description='Idempotent Token', example='1e9b8f60-3a2c-4d7e-9f1b-8c3d5e7a2b4f', position='Body'),
@@ -2924,6 +3013,41 @@ async function deleteEventStreaming(request: DeleteEventStreamingRequest): Delet
   return @handler.do('RPC', 'DeleteEventStreaming', 'POST', '/', 'json', true, 'form', request);
 }
 
+model DeleteKnowledgeBaseRequest {
+  catalog: string(name='Catalog', description='The data catalog to which the knowledge base belongs. This parameter, together with Namespace and KnowledgeBaseName, uniquely identifies a knowledge base. You can call ListCatalogs to obtain the value.
+
+This parameter is required.', example='my_catalog', maxLength=127, position='Query'),
+  knowledgeBaseName: string(name='KnowledgeBaseName', description='The name of the knowledge base, which is unique within the namespace. The name is specified during creation and cannot be modified.
+
+This parameter is required.', example='my-knowledge-base', maxLength=127, position='Query'),
+  namespace: string(name='Namespace', description='The namespace to which the knowledge base belongs. The namespace must belong to the specified data catalog. This parameter, together with Catalog and KnowledgeBaseName, uniquely identifies a knowledge base. You can call ListNamespaces to obtain the value.
+
+This parameter is required.', example='my_namespace', maxLength=127, position='Query'),
+}
+
+model DeleteKnowledgeBaseResponseBody = {
+  code?: string(name='Code', description='The response code. Success indicates a successful call. If the call fails, a specific error code is returned.', example='Success'),
+  data?: KnowledgeBase(name='Data', description='The information about the deleted knowledge base.'),
+  message?: string(name='Message', description='The response message. Operation success is returned if the call succeeds. A specific error description is returned if the call fails.', example='Operation success'),
+  requestId?: string(name='RequestId', description='The request ID.', example='34AD682D-5B91-5773-8132-AA38C130****'),
+  success?: boolean(name='Success', description='Indicates whether the call was successful. A value of true indicates success.', example='true'),
+}
+
+model DeleteKnowledgeBaseResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: DeleteKnowledgeBaseResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of DeleteKnowledgeBase  DeleteKnowledgeBaseRequest
+  * @return DeleteKnowledgeBaseResponse
+ */
+async function deleteKnowledgeBase(request: DeleteKnowledgeBaseRequest): DeleteKnowledgeBaseResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'DeleteKnowledgeBase', 'POST', '/', 'json', false, 'json', request);
+}
+
 model DeleteNamespaceRequest {
   catalog?: string(name='Catalog', description='The data catalog to which the namespace belongs.', example='my_catalog', position='Query'),
   clientToken?: string(name='ClientToken', description='The idempotency token.', example='1e9b8f60-3a2c-4d7e-9f1b-8c3d5e7a2b4f', position='Body'),
@@ -3331,13 +3455,13 @@ async function generateAgentDataSemantics(request: GenerateAgentDataSemanticsReq
 }
 
 model GetAgentRequest {
-  name: string(name='Name', description='The agent name.
+  name: string(name='Name', description='The Agent name.
 
 This parameter is required.', example='my-agent', minLength=2, maxLength=128, position='Body'),
 }
 
 model GetAgentResponseBody = {
-  code?: string(name='Code', description='The API status or POP error code. Valid values: Success: succeeded.', example='Success'),
+  code?: string(name='Code', description='The API status or POP error code. Valid values: Success: The operation was successful.', example='Success'),
   data?: Agent(name='Data', description='The returned result.', example='true'),
   message?: string(name='Message', description='The error message.', example='Agent with name \\\\"xxx\\\\" not found for account 1186xxx'),
   requestId?: string(name='RequestId', description='The request ID.', example='E0FFAB67-XXXXXX-CAD4D37448C4'),
@@ -3476,6 +3600,47 @@ async function getCatalog(request: GetCatalogRequest): GetCatalogResponse {
   return @handler.do('RPC', 'GetCatalog', 'POST', '/', 'json', true, 'form', request);
 }
 
+model GetChunkRequest {
+  catalog: string(name='Catalog', description='The data catalog to which the knowledge base belongs. This parameter, together with Namespace and KnowledgeBaseName, uniquely identifies a knowledge base. You can call ListCatalogs to obtain this value.
+
+This parameter is required.', example='my_catalog', maxLength=127, position='Query'),
+  chunkSeq: int32(name='ChunkSeq', description='The sequence number of the chunk within the document, starting from 1.
+
+This parameter is required.', example='12', position='Query'),
+  documentId: string(name='DocumentId', description='The document ID.
+
+This parameter is required.', example='doc-bp1xxxxxxxxxxxx', position='Query'),
+  knowledgeBaseName: string(name='KnowledgeBaseName', description='The name of the knowledge base. The name is unique within the namespace and is determined at creation time. It cannot be modified.
+
+This parameter is required.', example='my-knowledge-base', maxLength=127, position='Query'),
+  namespace: string(name='Namespace', description='The namespace to which the knowledge base belongs. The namespace must belong to the specified data catalog. This parameter, together with Catalog and KnowledgeBaseName, uniquely identifies a knowledge base. You can call ListNamespaces to obtain this value.
+
+This parameter is required.', example='my_namespace', maxLength=127, position='Query'),
+}
+
+model GetChunkResponseBody = {
+  code?: string(name='Code', description='The response code. Success indicates a successful call. If the call fails, a specific error code is returned.', example='Success'),
+  data?: KnowledgeBaseChunk(name='Data', description='The chunk details, including the body content, position, and enabled status.'),
+  message?: string(name='Message', description='The response message. Operation success is returned if the call succeeds. A specific error description is returned if the call fails.', example='Operation success'),
+  requestId?: string(name='RequestId', description='The request ID.', example='34AD682D-5B91-5773-8132-AA38C130****'),
+  success?: boolean(name='Success', description='Indicates whether the call was successful. A value of true indicates success.', example='true'),
+}
+
+model GetChunkResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: GetChunkResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of GetChunk  GetChunkRequest
+  * @return GetChunkResponse
+ */
+async function getChunk(request: GetChunkRequest): GetChunkResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'GetChunk', 'POST', '/', 'json', false, 'json', request);
+}
+
 model GetConnectionRequest {
   connectionName: string(name='ConnectionName', description='The connection name.
 
@@ -3577,6 +3742,89 @@ model GetConnectionResponse = {
 async function getConnection(request: GetConnectionRequest): GetConnectionResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RPC', 'GetConnection', 'POST', '/', 'json', false, 'json', request);
+}
+
+model GetDocumentRequest {
+  catalog: string(name='Catalog', description='The data catalog to which the knowledge base belongs. This parameter, together with Namespace and KnowledgeBaseName, uniquely identifies a knowledge base. You can call ListCatalogs to obtain this value.
+
+This parameter is required.', example='my_catalog', maxLength=127, position='Query'),
+  documentId: string(name='DocumentId', description='The document ID.
+
+This parameter is required.', example='doc-bp1xxxxxxxxxxxx', position='Query'),
+  knowledgeBaseName: string(name='KnowledgeBaseName', description='The name of the knowledge base. The name is unique within the namespace and is determined at creation time. It cannot be modified.
+
+This parameter is required.', example='my-knowledge-base', maxLength=127, position='Query'),
+  namespace: string(name='Namespace', description='The namespace to which the knowledge base belongs. The namespace must belong to the specified data catalog. This parameter, together with Catalog and KnowledgeBaseName, uniquely identifies a knowledge base. You can call ListNamespaces to obtain this value.
+
+This parameter is required.', example='my_namespace', maxLength=127, position='Query'),
+}
+
+model GetDocumentResponseBody = {
+  code?: string(name='Code', description='The response code. A value of Success indicates a successful call. If the call fails, a specific error code is returned.', example='Success'),
+  data?: KnowledgeBaseDocument(name='Data', description='The document details, including the processing status, number of chunks, and metadata.'),
+  message?: string(name='Message', description='The response message. A value of Operation success is returned if the call succeeds. A specific error description is returned if the call fails.', example='Operation success'),
+  requestId?: string(name='RequestId', description='The request ID.', example='34AD682D-5B91-5773-8132-AA38C130****'),
+  success?: boolean(name='Success', description='Indicates whether the call was successful. A value of true indicates success.', example='true'),
+}
+
+model GetDocumentResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: GetDocumentResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of GetDocument  GetDocumentRequest
+  * @return GetDocumentResponse
+ */
+async function getDocument(request: GetDocumentRequest): GetDocumentResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'GetDocument', 'POST', '/', 'json', false, 'json', request);
+}
+
+model GetDocumentDownloadUrlRequest {
+  catalog: string(name='Catalog', description='The data catalog to which the knowledge base belongs. This parameter, together with Namespace and KnowledgeBaseName, uniquely identifies a knowledge base. You can call ListCatalogs to obtain the value.
+
+This parameter is required.', example='my_catalog', maxLength=127, position='Query'),
+  documentId: string(name='DocumentId', description='The document ID.
+
+This parameter is required.', example='doc-bp1xxxxxxxxxxxx', position='Query'),
+  knowledgeBaseName: string(name='KnowledgeBaseName', description='The name of the knowledge base. The name is unique within the namespace and is determined at creation time. It cannot be modified.
+
+This parameter is required.', example='my-knowledge-base', maxLength=127, position='Query'),
+  namespace: string(name='Namespace', description='The namespace to which the knowledge base belongs. The namespace must belong to the specified data catalog. This parameter, together with Catalog and KnowledgeBaseName, uniquely identifies a knowledge base. You can call ListNamespaces to obtain the value.
+
+This parameter is required.', example='my_namespace', maxLength=127, position='Query'),
+  networkType?: string(name='NetworkType', description='The network type of the pre-signed URL. Valid values:
+
+- PUBLIC (default): accessible over the Internet.
+- INTERNAL: accessible only within the same region on the Alibaba Cloud internal network, with no Internet data transfer fees.', example='PUBLIC', position='Query'),
+}
+
+model GetDocumentDownloadUrlResponseBody = {
+  code?: string(name='Code', description='The response code. A value of Success indicates a successful call. If the call fails, a specific error code is returned.', example='Success'),
+  data?: {
+    downloadUrl?: string(name='DownloadUrl', description='A short-lived GET pre-signed URL that the client uses to download the original file.', example='https://my-bucket.oss-cn-hangzhou.aliyuncs.com/kb/doc-bp1xxxxxxxxxxxx?Expires=1788000000&Signature=xxxx'),
+    expireAt?: string(name='ExpireAt', description='The expiration time of the pre-signed download URL, in ISO 8601 UTC format.', example='1756022400000'),
+  }(name='Data', description='The document download URL information.'),
+  message?: string(name='Message', description='The message returned by the operation. A value of Operation success indicates a successful call. If the call fails, a specific error description is returned.', example='Operation success'),
+  requestId?: string(name='RequestId', description='The request ID.', example='34AD682D-5B91-5773-8132-AA38C130****'),
+  success?: boolean(name='Success', description='Indicates whether the call was successful. A value of true indicates success.', example='true'),
+}
+
+model GetDocumentDownloadUrlResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: GetDocumentDownloadUrlResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of GetDocumentDownloadUrl  GetDocumentDownloadUrlRequest
+  * @return GetDocumentDownloadUrlResponse
+ */
+async function getDocumentDownloadUrl(request: GetDocumentDownloadUrlRequest): GetDocumentDownloadUrlResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'GetDocumentDownloadUrl', 'POST', '/', 'json', false, 'json', request);
 }
 
 model GetEventBusRequest {
@@ -4688,6 +4936,41 @@ async function getGenerateAgentDataSemanticsProgress(request: GetGenerateAgentDa
   return @handler.do('RPC', 'GetGenerateAgentDataSemanticsProgress', 'POST', '/', 'json', true, 'form', request);
 }
 
+model GetKnowledgeBaseRequest {
+  catalog: string(name='Catalog', description='The data catalog to which the knowledge base belongs. This parameter, together with Namespace and KnowledgeBaseName, uniquely identifies a knowledge base. You can call ListCatalogs to obtain the value.
+
+This parameter is required.', example='my_catalog', maxLength=127, position='Query'),
+  knowledgeBaseName: string(name='KnowledgeBaseName', description='The name of the knowledge base. The name is unique within a namespace and is determined at creation time. It cannot be modified.
+
+This parameter is required.', example='my-knowledge-base', maxLength=127, position='Query'),
+  namespace: string(name='Namespace', description='The namespace to which the knowledge base belongs. The namespace must belong to the specified data catalog. This parameter, together with Catalog and KnowledgeBaseName, uniquely identifies a knowledge base. You can call ListNamespaces to obtain the value.
+
+This parameter is required.', example='my_namespace', maxLength=127, position='Query'),
+}
+
+model GetKnowledgeBaseResponseBody = {
+  code?: string(name='Code', description='The response code. Success indicates a successful call. If the call fails, a specific error code is returned.', example='Success'),
+  data?: KnowledgeBase(name='Data', description='The knowledge base details, including basic information, metadata schema, and chunking and retrieval configurations.'),
+  message?: string(name='Message', description='The response message. Operation success is returned for a successful call. A specific error description is returned for a failed call.', example='Operation success'),
+  requestId?: string(name='RequestId', description='The request ID.', example='34AD682D-5B91-5773-8132-AA38C130****'),
+  success?: boolean(name='Success', description='Indicates whether the call was successful. A value of true indicates success.', example='true'),
+}
+
+model GetKnowledgeBaseResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: GetKnowledgeBaseResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of GetKnowledgeBase  GetKnowledgeBaseRequest
+  * @return GetKnowledgeBaseResponse
+ */
+async function getKnowledgeBase(request: GetKnowledgeBaseRequest): GetKnowledgeBaseResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'GetKnowledgeBase', 'POST', '/', 'json', false, 'json', request);
+}
+
 model GetLumaCatalogRequest {
   agentName: string(name='AgentName', description='The name of the Agent.
 
@@ -5126,27 +5409,27 @@ async function getTable(request: GetTableRequest): GetTableResponse {
 }
 
 model ListAgentsRequest {
-  after?: string(name='After', description='The name of the agent from which the next page of results starts.', example='my-agent', position='Body'),
-  limit?: string(name='Limit', description='The maximum number of entries to return per request. You can use this parameter together with NextToken to implement paging.', example='50', position='Body'),
+  after?: string(name='After', description='The name of the agent from which to start querying the next page.', example='my-agent', position='Body'),
+  limit?: string(name='Limit', description='The maximum number of entries to return per request. You can use this parameter together with NextToken to implement pagination.', example='50', position='Body'),
   order?: string(name='Order', description='The sort order. Valid values:
 
 - desc
-- asc.', example='acs', position='Body'),
+- asc', example='acs', position='Body'),
 }
 
 model ListAgentsResponseBody = {
-  code?: string(name='Code', description='The API status code or POP error code. Valid values: Success: The operation was successful.', example='Success'),
+  code?: string(name='Code', description='The API status or POP error code. Valid values: Success: The operation was successful.', example='Success'),
   data?: {
     agents?: [
       Agent
     ](name='Agents', description='The list of agents.'),
-    firstId?: string(name='FirstId', description='The ID of the first record.', example='uat-agent'),
-    hasMore?: string(name='HasMore', description='Indicates whether more pages are available. Valid values:
+    firstId?: string(name='FirstId', description='The ID of the first entry.', example='uat-agent'),
+    hasMore?: string(name='HasMore', description='Indicates whether there is a next page. Valid values:
 
-- true: More pages are available.
+- true: There is a next page.
 
-- false: No more pages are available.', example='false'),
-    lastId?: string(name='LastId', description='The ID of the last record.', example='last-agent'),
+- false: There is no next page.', example='false'),
+    lastId?: string(name='LastId', description='The ID of the last conversation record.', example='last-agent'),
   }(name='Data', description='The returned data.'),
   message?: string(name='Message', description='The error message.', example='Failed to list agents'),
   requestId?: string(name='RequestId', description='The request ID. Alibaba Cloud generates a unique identifier for the request.', example='7DA60DED-CD36-5837-B848-C01A23D2****'),
@@ -5314,16 +5597,63 @@ async function listCatalogs(request: ListCatalogsRequest): ListCatalogsResponse 
   return @handler.do('RPC', 'ListCatalogs', 'POST', '/', 'json', false, 'json', request);
 }
 
+model ListChunksRequest {
+  catalog: string(name='Catalog', description='The data catalog to which the knowledge base belongs. This parameter, together with Namespace and KnowledgeBaseName, uniquely identifies a knowledge base. You can call ListCatalogs to obtain this value.
+
+This parameter is required.', example='my_catalog', maxLength=127, position='Query'),
+  documentId?: string(name='DocumentId', description='Optional. If specified, only chunks of the specified document are returned, sorted by ChunkSeq in ascending order within the document. If not specified, chunks of all documents in the knowledge base are returned, sorted by DocumentId in lexicographic ascending order, and within the same document by ChunkSeq in ascending order, with chunks listed contiguously. In full knowledge base mode, Keyword filtering is not supported (use SearchKnowledgeBase instead), and TotalCount is not returned. Pagination ends when NextToken is empty.', example='doc-bp1xxxxxxxxxxxx', position='Query'),
+  enabled?: boolean(name='Enabled', description='Optional. Set to true to return only enabled chunks, or false to return only disabled chunks. If not specified, all chunks are returned.', example='true', position='Query'),
+  keyword?: string(name='Keyword', description='Optional. Active only when DocumentId is specified. Filters chunks by keyword in the chunk body. Only chunks that contain the specified keyword are returned. In full knowledge base pattern (when DocumentId is not specified), passing this parameter causes an error. To retrieve content across the full text, use SearchKnowledgeBase (set Mode to KEYWORD for full-text index).', example='Installation', maxLength=1024, position='Query'),
+  knowledgeBaseName: string(name='KnowledgeBaseName', description='The name of the knowledge base. The name is unique within a namespace and is determined at creation time. It cannot be modified.
+
+This parameter is required.', example='my-knowledge-base', maxLength=127, position='Query'),
+  maxResults?: int32(name='MaxResults', description='The maximum number of results to return per page. If not specified or set to 0, the default value 20 is used. The maximum value is 100.', example='20', position='Query'),
+  namespace: string(name='Namespace', description='The namespace to which the knowledge base belongs. The namespace must belong to the specified data catalog. This parameter, together with Catalog and KnowledgeBaseName, uniquely identifies a knowledge base. You can call ListNamespaces to obtain this value.
+
+This parameter is required.', example='my_namespace', maxLength=127, position='Query'),
+  nextToken?: string(name='NextToken', description='Not required for the first query. For subsequent queries, pass the NextToken returned in the previous response. An empty value indicates that no more pages are available.', example='ca1eb85f5d99c7d6a97e6****', position='Query'),
+}
+
+model ListChunksResponseBody = {
+  code?: string(name='Code', description='The response code. A value of Success indicates a successful call. If the call fails, a specific error code is returned.', example='Success'),
+  data?: {
+    chunks?: [
+      KnowledgeBaseChunk
+    ](name='Chunks', description='The list of chunk entries.', example='[{"DocumentId":"doc-bp1xxxxxxxxxxxx","ChunkSeq":1,"Content":"EventBridge supports event routing"}]'),
+    maxResults?: int32(name='MaxResults', description='The maximum number of results per page that took effect for this request.', example='20'),
+    nextToken?: string(name='NextToken', description='The pagination token for the next page (an opaque string). Pass this value as the NextToken parameter in the next request to retrieve the next page. An empty value indicates that no more data is available.', example='ca1eb85f5d99c7d6a97e6****'),
+    totalCount?: int32(name='TotalCount', description='The total number of chunks in the specified document when DocumentId is specified. In full knowledge base mode (when DocumentId is not specified), this field is not returned. Pagination ends when NextToken is empty.', example='120'),
+  }(name='Data', description='The chunk list query result, which contains chunk entries and pagination information.'),
+  message?: string(name='Message', description='The message returned by the operation. The value is Operation success if the call succeeds, or a specific error description if the call fails.', example='Operation success'),
+  requestId?: string(name='RequestId', description='The request ID.', example='34AD682D-5B91-5773-8132-AA38C130****'),
+  success?: boolean(name='Success', description='Indicates whether the call was successful. A value of true indicates success.', example='true'),
+}
+
+model ListChunksResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ListChunksResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of ListChunks  ListChunksRequest
+  * @return ListChunksResponse
+ */
+async function listChunks(request: ListChunksRequest): ListChunksResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'ListChunks', 'POST', '/', 'json', false, 'json', request);
+}
+
 model ListConnectionsRequest {
-  connectionNamePrefix?: string(name='ConnectionNamePrefix', description='The prefix of the connection configuration name. Supports fuzzy match by prefix.', example='connection-name', position='Body'),
-  excludeType?: string(name='ExcludeType', description='排除单个连接类型，取值范围与 Type 相同。传入单个类型名称，不支持数组或逗号分隔的多个值。例如传入 Http 可排除 HTTP 类型的连接。未传或传入空字符串时不排除任何类型；与 Type 相同时返回空列表。分页与总数均在过滤后计算。', example='Http', position='Body'),
-  maxResults?: long(name='MaxResults', description='The maximum number of entries to return per request. You can use this parameter together with NextToken to implement paging.
+  connectionNamePrefix?: string(name='ConnectionNamePrefix', description='The connection configuration name prefix used to filter results. Supports prefix matching.', example='connection-name', position='Body'),
+  excludeType?: string(name='ExcludeType', description='Excludes a single connection type. Valid values are the same as those for Type. Specify a single type name. Arrays or comma-separated values are not supported. For example, specify Http to exclude HTTP connections. If this parameter is not specified or is set to an empty string, no types are excluded. If this parameter is set to the same value as Type, an empty list is returned. Pagination and total count are calculated after filtering.', example='Http', position='Body'),
+  maxResults?: long(name='MaxResults', description='The maximum number of entries to return per request. You can use this parameter together with NextToken to implement pagination.
 
 - Default value: 10.', example='10', position='Body'),
-  nextToken?: string(name='NextToken', description='The pagination token. If the number of results exceeds the value of MaxResults, a NextToken value is returned.
+  nextToken?: string(name='NextToken', description='If the number of entries exceeds the value of MaxResults, NextToken is returned in the response.
 
 - The NextToken value starts from 0. Default value: 0.', example='0', position='Body'),
-  type?: string(name='Type', description='Filters query results by connection type. Valid values: Http, MySQL, PostgreSQL, Elasticsearch, OSS_TABLES, SLS, OTS, MaxCompute, MongoDB, Redis, SQLServer, ClickHouse, Oracle, Hive, Iceberg, and lakehouse. If this parameter is not specified, all types are returned.', example='Http', position='Body'),
+  type?: string(name='Type', description='Filters query results by connection type. Valid values: Http, MySQL, PostgreSQL, Elasticsearch, OSS_TABLES, SLS, OTS, MaxCompute, MongoDB, Redis, SQLServer, ClickHouse, Oracle, Hive, Iceberg, lakehouse. If this parameter is not specified, all types are returned.', example='Http', position='Body'),
 }
 
 model ListConnectionsResponseBody = {
@@ -5336,7 +5666,7 @@ model ListConnectionsResponseBody = {
             apiKeyName?: string(name='ApiKeyName', description='The key name of the API key.', example='Token'),
             apiKeyValue?: string(name='ApiKeyValue', description='The value of the API key.', example='asdkjnqkwejooa'),
           }(name='ApiKeyAuthParameters', description='The data structure of the API key.'),
-          authorizationType?: string(name='AuthorizationType', description='The authorization type:
+          authorizationType?: string(name='AuthorizationType', description='The authentication type. Valid values:
 
 - BASIC: BASIC_AUTH
 
@@ -5348,12 +5678,12 @@ model ListConnectionsResponseBody = {
             username?: string(name='Username', description='The username for basic authentication.', example='admin'),
           }(name='BasicAuthParameters', description='The data structure of basic authentication.'),
           oAuthParameters?: {
-            authorizationEndpoint?: string(name='AuthorizationEndpoint', description='The endpoint URL for obtaining the OAuth token.', example='http://localhost:8080/oauth/token'),
+            authorizationEndpoint?: string(name='AuthorizationEndpoint', description='The endpoint for obtaining the OAuth token.', example='http://localhost:8080/oauth/token'),
             clientParameters?: {
               clientID?: string(name='ClientID', description='The client ID.', example='ClientID'),
               clientSecret?: string(name='ClientSecret', description='The client secret of the application.', example='ClientSecret'),
             }(name='ClientParameters', description='The data structure of client parameters.'),
-            httpMethod?: string(name='HttpMethod', description='The HTTP method for the probe request. Valid values:
+            httpMethod?: string(name='HttpMethod', description='The HTTP method. Valid values:
 
 - GET
 - POST
@@ -5365,7 +5695,7 @@ model ListConnectionsResponseBody = {
                   key?: string(name='Key', description='The key of the body request parameter.', example='name'),
                   value?: string(name='Value', description='The value of the body request parameter.', example='demo'),
                 }
-              ](name='BodyParameters', description='The list of body request parameter data structures.'),
+              ](name='BodyParameters', description='The list of request parameter data structures for the body.'),
               headerParameters?: [ 
                 {
                   isValueSecret?: string(name='IsValueSecret', description='Indicates whether the value is a secret.', example='false'),
@@ -5380,31 +5710,32 @@ model ListConnectionsResponseBody = {
                   value?: string(name='Value', description='The value of the URI of the request path parameter.', example='demo'),
                 }
               ](name='QueryStringParameters', description='The data structure of the URI of the request path parameters.'),
-            }(name='OAuthHttpParameters', description='The HTTP request parameters for OAuth authentication.'),
+            }(name='OAuthHttpParameters', description='The request parameters for OAuth authentication.'),
           }(name='OAuthParameters', description='The data structure of OAuth request parameters.'),
         }(name='AuthParameters', description='The authentication data structure.'),
         connectionName?: string(name='ConnectionName', description='The name of the connection configuration.', example='connection-name'),
         description?: string(name='Description', description='The description of the connection configuration.', example='Description of the connection configuration'),
-        gmtCreate?: long(name='GmtCreate', description='The timestamp when the datasource was created.', example='1592838994234'),
+        gmtCreate?: long(name='GmtCreate', description='The timestamp when the data source was created.', example='1592838994234'),
         id?: long(name='Id', description='The ID of the connection configuration.', example='1141093'),
         networkParameters?: {
-          networkType?: string(name='NetworkType', description='- Public network: PublicNetwork
+          networkType?: string(name='NetworkType', description='The network type. Valid values:
 
-- Virtual private cloud: PrivateNetwork', example='PublicNetwork'),
+- PublicNetwork: public network.
+- PrivateNetwork: virtual private cloud (VPC).', example='PublicNetwork'),
           securityGroupId?: string(name='SecurityGroupId', description='The security group ID.', example='eb-167adad548759-security_grop/sg-bp1addad26peuh9qh9rtyb'),
-          vpcId?: string(name='VpcId', description='The ID of the virtual private cloud (VPC).', example='eb-test/vpc-bp1symadadwnwgmqud'),
+          vpcId?: string(name='VpcId', description='The VPC ID.', example='eb-test/vpc-bp1symadadwnwgmqud'),
           vswitcheId?: string(name='VswitcheId', description='The vSwitch ID.', example='vsw-bp1iu4x7aeradadown1og8,vsw-bp193sqmadadlaszpeqbt2c'),
-        }(name='NetworkParameters', description='The data structure of the network configuration.'),
-        parameters?: any(name='Parameters', description='The datasource connection parameters (JSON object). This field is returned only for datasource-type connections and is empty for Http type. For field definitions, refer to the ParamsSchema returned by GetConnectionType.', example='{"HostName":"xxx.mysql.rds.aliyuncs.com","Port":"3306","User":"root","Password":"xxx","DatabaseName":"demo_db"}'),
-        type?: string(name='Type', description='The connection type. Valid values: Http, MySQL, PostgreSQL, Elasticsearch, OSS_TABLES, SLS, OTS, MaxCompute, MongoDB, Redis, SQLServer, ClickHouse, Oracle, Hive, Iceberg, and lakehouse.', example='Http'),
+        }(name='NetworkParameters', description='The data structure of network configurations.'),
+        parameters?: any(name='Parameters', description='The data source connection parameters (JSON object). Returned only for data source type connections. This field is empty for Http type connections. For field definitions, refer to the ParamsSchema returned by GetConnectionType.', example='{"HostName":"xxx.mysql.rds.aliyuncs.com","Port":"3306","User":"root","Password":"xxx","DatabaseName":"demo_db"}'),
+        type?: string(name='Type', description='The connection type. Valid values: Http, MySQL, PostgreSQL, Elasticsearch, OSS_TABLES, SLS, OTS, MaxCompute, MongoDB, Redis, SQLServer, ClickHouse, Oracle, Hive, Iceberg, lakehouse.', example='Http'),
       }
     ](name='Connections', description='The list of connection configurations.'),
     maxResults?: float(name='MaxResults', description='The page size.', example='10'),
-    nextToken?: string(name='NextToken', description='The pagination token returned when additional results are available.', example='0'),
+    nextToken?: string(name='NextToken', description='If there are additional entries to return, NextToken is included in the response.', example='0'),
     total?: float(name='Total', description='The total number of entries.', example='1'),
   }(name='Data', description='The list of connection configurations.'),
   message?: string(name='Message', description='The returned message.', example='success'),
-  requestId?: string(name='RequestId', description='The common parameter. The ID of the request. Each request has a unique ID, which is active for troubleshooting.', example='E3619976-8714-5D88-BBA2-6983D798A8BB'),
+  requestId?: string(name='RequestId', description='The common parameter. The request ID. Each request has a unique ID, which is active for troubleshooting and locating issues.', example='E3619976-8714-5D88-BBA2-6983D798A8BB'),
 }
 
 model ListConnectionsResponse = {
@@ -5421,6 +5752,61 @@ model ListConnectionsResponse = {
 async function listConnections(request: ListConnectionsRequest): ListConnectionsResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RPC', 'ListConnections', 'POST', '/', 'json', true, 'form', request);
+}
+
+model ListDocumentsRequest {
+  catalog: string(name='Catalog', description='The data catalog to which the knowledge base belongs. This parameter, together with Namespace and KnowledgeBaseName, uniquely identifies a knowledge base. You can call ListCatalogs to obtain this value.
+
+This parameter is required.', example='my_catalog', maxLength=127, position='Query'),
+  fileNamePrefix?: string(name='FileNamePrefix', description='Optional. Filters documents by file name prefix (prefix match, with the same semantics as the NamePrefix parameter of ListEventStreamings). If this parameter is not specified or is set to an empty string, no filtering is applied. Maximum length: 255 characters.', example='AfterSalesPolicy', maxLength=255, position='Query'),
+  knowledgeBaseName: string(name='KnowledgeBaseName', description='The name of the knowledge base. The name is unique within a namespace and is determined at creation time. It cannot be modified.
+
+This parameter is required.', example='my-knowledge-base', maxLength=127, position='Query'),
+  maxResults?: int32(name='MaxResults', description='The maximum number of results to return per page. If this parameter is not specified or is set to 0, the default value of 20 is used. Maximum value: 100.', example='20', position='Query'),
+  namespace: string(name='Namespace', description='The namespace to which the knowledge base belongs. The namespace must belong to the specified data catalog. This parameter, together with Catalog and KnowledgeBaseName, uniquely identifies a knowledge base. You can call ListNamespaces to obtain this value.
+
+This parameter is required.', example='my_namespace', maxLength=127, position='Query'),
+  nextToken?: string(name='NextToken', description='Not required for the first query. For subsequent queries, use the NextToken value returned in the previous response. An empty value indicates that no more pages are available.', example='ca1eb85f5d99c7d6a97e6****', position='Query'),
+  status?: string(name='Status', description='Optional. Filters documents by exact status match. Valid values:
+
+- UPLOADING: uploading
+- PENDING: pending processing
+- PROCESSING: processing
+- COMPLETED: completed
+- FAILED: failed
+- DELETING: deleting
+
+If this parameter is not specified, no filtering is applied.', example='COMPLETED', position='Query'),
+}
+
+model ListDocumentsResponseBody = {
+  code?: string(name='Code', description='The response code. A value of Success indicates a successful operation. If the operation fails, a specific error code is returned.', example='Success'),
+  data?: {
+    documents?: [
+      KnowledgeBaseDocument
+    ](name='Documents', description='The list of document entries in the knowledge base. Each entry contains information such as the document ID, file name, processing status, size, number of chunks, and metadata.', example='[{"DocumentId":"doc-bp1xxxxxxxxxxxx","FileName":"manual.pdf","Status":"COMPLETED","ChunkCount":120}]'),
+    maxResults?: int32(name='MaxResults', description='The maximum number of results per page that took effect for this request.', example='20'),
+    nextToken?: string(name='NextToken', description='The pagination token for the next page (an opaque string). Pass this value as the NextToken parameter in the next request to retrieve the next page. An empty value indicates that no more data is available.', example='ca1eb85f5d99c7d6a97e6****'),
+    totalCount?: int32(name='TotalCount', description='The total number of documents that match the filter conditions. Use an empty NextToken value as the termination condition for pagination.', example='10'),
+  }(name='Data', description='The document list query result, which contains document entries and pagination information.'),
+  message?: string(name='Message', description='The message returned by the operation. The value is Operation success if the operation succeeds, or a specific error description if the operation fails.', example='Operation success'),
+  requestId?: string(name='RequestId', description='The unique ID of the request. Use this ID for troubleshooting and when you submit a ticket.', example='34AD682D-5B91-5773-8132-AA38C130****'),
+  success?: boolean(name='Success', description='Indicates whether the call is successful. A value of true indicates success.', example='true'),
+}
+
+model ListDocumentsResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ListDocumentsResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of ListDocuments  ListDocumentsRequest
+  * @return ListDocumentsResponse
+ */
+async function listDocuments(request: ListDocumentsRequest): ListDocumentsResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'ListDocuments', 'POST', '/', 'json', false, 'json', request);
 }
 
 model ListEventBusesRequest {
@@ -6390,27 +6776,68 @@ async function listEventStreamings(request: ListEventStreamingsRequest): ListEve
   return @handler.do('RPC', 'ListEventStreamings', 'POST', '/', 'json', true, 'form', request);
 }
 
+model ListKnowledgeBasesRequest {
+  catalog: string(name='Catalog', description='The data catalog to which the knowledge base belongs. This parameter, together with Namespace and KnowledgeBaseName, uniquely identifies a knowledge base. You can call ListCatalogs to obtain this value.
+
+This parameter is required.', example='my_catalog', maxLength=127, position='Query'),
+  maxResults?: int32(name='MaxResults', description='The maximum number of entries to return per page. If this parameter is not specified or is set to 0, the default value 20 is used. Maximum value: 100.', example='20', position='Query'),
+  namespace: string(name='Namespace', description='The namespace to which the knowledge base belongs. The namespace must belong to the specified data catalog. This parameter, together with Catalog and KnowledgeBaseName, uniquely identifies a knowledge base. You can call ListNamespaces to obtain this value.
+
+This parameter is required.', example='my_namespace', maxLength=127, position='Query'),
+  nextToken?: string(name='NextToken', description='The pagination token. You do not need to specify this parameter for the first request. For subsequent requests, use the NextToken value returned in the previous response. An empty value indicates that no more pages are available.', example='ca1eb85f5d99c7d6a97e6****', position='Query'),
+}
+
+model ListKnowledgeBasesResponseBody = {
+  code?: string(name='Code', description='The response code. A value of Success indicates that the call was successful. If the call failed, a specific error code is returned.', example='Success'),
+  data?: {
+    knowledgeBases?: [
+      KnowledgeBase
+    ](name='KnowledgeBases', description='The list of knowledge base entries.', example='[{"KnowledgeBaseName":"my-knowledge-base","Status":"ACTIVE"}]'),
+    maxResults?: int32(name='MaxResults', description='The maximum number of results per page that was applied to this request.', example='20'),
+    nextToken?: string(name='NextToken', description='The pagination token (an opaque string) for the next page. Pass this value as the NextToken parameter in the next request to retrieve the next page. An empty value indicates that no more data is available.', example='ca1eb85f5d99c7d6a97e6****'),
+    totalCount?: int32(name='TotalCount', description='The total number of knowledge bases that match the filter conditions. Use an empty NextToken value as the termination condition for pagination.', example='1'),
+  }(name='Data', description='The query result of the knowledge base list, including knowledge base entries and pagination information.'),
+  message?: string(name='Message', description='The message returned by the operation. The value Operation success is returned if the call was successful. A specific error description is returned if the call failed.', example='Operation success'),
+  requestId?: string(name='RequestId', description='The request ID.', example='34AD682D-5B91-5773-8132-AA38C130****'),
+  success?: boolean(name='Success', description='Indicates whether the call was successful. A value of true indicates success.', example='true'),
+}
+
+model ListKnowledgeBasesResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ListKnowledgeBasesResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of ListKnowledgeBases  ListKnowledgeBasesRequest
+  * @return ListKnowledgeBasesResponse
+ */
+async function listKnowledgeBases(request: ListKnowledgeBasesRequest): ListKnowledgeBasesResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'ListKnowledgeBases', 'POST', '/', 'json', false, 'json', request);
+}
+
 model ListLumaCatalogsRequest {
-  agentName: string(name='AgentName', description='The name of the Agent.
+  agentName: string(name='AgentName', description='The name of the agent.
 
 This parameter is required.', example='my_agent', minLength=2, maxLength=128, position='Body'),
-  limit?: int32(name='Limit', description='每页返回的最大数据条数。取值范围 1~100，不传时默认 100。每条记录都需回源查询一次元数据，因此该值同时限制单次调用的回源次数', example='10', position='Body'),
-  nextToken?: string(name='NextToken', description='分页查询的起始Token。首次查询不传或传 "0"；后续翻页使用上一次响应中返回的 NextToken 值', example='0', position='Body'),
+  limit?: int32(name='Limit', description='The maximum number of entries to return per page. Valid values: 1 to 100. Default value: 100. Each entry requires a back-to-origin metadata query, so this value also limits the number of back-to-origin requests per call.', example='10', position='Body'),
+  nextToken?: string(name='NextToken', description='The token for the paging query. Leave this parameter empty or set it to "0" for the first query. For subsequent pages, use the NextToken value returned in the previous response.', example='0', position='Body'),
 }
 
 model ListLumaCatalogsResponseBody = {
-  code?: string(name='Code', description='The response code. A value of Success indicates a successful call. A specific error code is returned when the call fails.', example='Success'),
+  code?: string(name='Code', description='The response code. A value of Success indicates a successful call. If the call fails, a specific error code is returned.', example='Success'),
   data?: {
     catalogs?: [
       Catalog
-    ](name='Catalogs', description='The list of data catalogs bound to the Agent.', example='[{"Name":"my_catalog"}]'),
-    limit?: int32(name='Limit', description='本次请求实际生效的每页数量。未传 Limit 时为服务端默认值，超出上限时为收敛后的值', example='10'),
-    nextToken?: string(name='NextToken', description='下一页起始Token，传入下次请求的 NextToken 可获取下一页；为空表示已无更多数据', example='10'),
-    totalCount?: int32(name='TotalCount', description='Agent 绑定的数据目录总数，与本页返回条数无关', example='10'),
-  }(name='Data', description='The list of data catalogs bound to the Agent. All results are returned at once without pagination.'),
-  message?: string(name='Message', description='The message returned by the operation. The value is Operation success when the call succeeds, or a specific error description when the call fails.', example='Operation success'),
-  requestId?: string(name='RequestId', description='The unique identifier of the request, used for troubleshooting and ticket submission.', example='34AD682D-5B91-5773-8132-AA38C130****'),
-  success?: boolean(name='Success', description='Indicates whether the call was successful. A value of true indicates success.', example='true'),
+    ](name='Catalogs', description='The list of data catalogs bound to the agent.', example='[{"Name":"my_catalog"}]'),
+    limit?: int32(name='Limit', description='The effective page size for this request. If the Limit parameter is not specified, the server default value is used. If the specified value exceeds the upper limit, the value is adjusted to the maximum allowed value.', example='10'),
+    nextToken?: string(name='NextToken', description='The token for the next page. Pass this value as the NextToken in the next request to retrieve the next page. An empty value indicates that no more data is available.', example='10'),
+    totalCount?: int32(name='TotalCount', description='The total number of data catalogs bound to the agent, regardless of the number of entries returned on the current page.', example='10'),
+  }(name='Data', description='The list of data catalogs bound to the agent, including entries and pagination information.'),
+  message?: string(name='Message', description='The response message. A value of Operation success is returned if the call succeeds. A specific error description is returned if the call fails.', example='Operation success'),
+  requestId?: string(name='RequestId', description='The unique ID of the request. Use this ID for troubleshooting and when submitting a ticket.', example='34AD682D-5B91-5773-8132-AA38C130****'),
+  success?: boolean(name='Success', description='Indicates whether the call is successful. A value of true indicates success.', example='true'),
 }
 
 model ListLumaCatalogsResponse = {
@@ -6420,7 +6847,7 @@ model ListLumaCatalogsResponse = {
 }
 
 /**
-  * @description Lists all data catalogs bound to a Luma Agent. Returns the complete set of bindings without pagination.
+  * @description Lists the data catalogs bound to a Luma Agent. Results are returned in pages. Pass the NextToken from the previous response to retrieve the next page. An empty NextToken indicates that no more data is available. Expired bindings are skipped, so the number of entries on a single page may be less than the Limit value. Do not use an insufficient page count to determine whether the last page has been reached.
   * @param request  the request parameters of ListLumaCatalogs  ListLumaCatalogsRequest
   * @return ListLumaCatalogsResponse
  */
@@ -6574,29 +7001,29 @@ async function listLumaKnowledgeBases(request: ListLumaKnowledgeBasesRequest): L
 }
 
 model ListLumaNamespacesRequest {
-  agentName: string(name='AgentName', description='The name of the Agent.
+  agentName: string(name='AgentName', description='The name of the agent.
 
 This parameter is required.', example='my_agent', minLength=2, maxLength=128, position='Body'),
-  catalog: string(name='Catalog', description='The name of the data catalog bound to the Agent. You can call ListLumaCatalogs to obtain the catalog name.
+  catalog: string(name='Catalog', description='The name of the data catalog bound to the agent. You can call the ListLumaCatalogs operation to obtain the catalog name.
 
 This parameter is required.', example='my_catalog', maxLength=127, position='Body'),
-  limit?: int32(name='Limit', description='每页返回的最大数据条数。取值范围 1~100，不传时默认 100。每条记录都需回源查询一次元数据，因此该值同时限制单次调用的回源次数', example='10', position='Body'),
-  nextToken?: string(name='NextToken', description='分页查询的起始Token。首次查询不传或传 "0"；后续翻页使用上一次响应中返回的 NextToken 值', example='0', position='Body'),
+  limit?: int32(name='Limit', description='The maximum number of entries to return per page. Valid values: 1 to 100. Default value: 100. Each entry requires a back-to-origin metadata query, so this value also limits the number of back-to-origin requests per call.', example='10', position='Body'),
+  nextToken?: string(name='NextToken', description='The token for the paging query. Leave this parameter empty or set it to "0" for the first query. For subsequent pages, use the NextToken value returned in the previous response.', example='0', position='Body'),
 }
 
 model ListLumaNamespacesResponseBody = {
-  code?: string(name='Code', description='The response code. A value of Success indicates a successful call. A specific error code is returned upon failure.', example='Success'),
+  code?: string(name='Code', description='The response code. A value of Success indicates a successful operation. If the operation fails, a specific error code is returned.', example='Success'),
   data?: {
-    limit?: int32(name='Limit', description='本次请求实际生效的每页数量。未传 Limit 时为服务端默认值，超出上限时为收敛后的值', example='10'),
+    limit?: int32(name='Limit', description='The effective page size for this request. If the Limit parameter is not specified, the server default value is used. If the specified value exceeds the upper limit, the value is adjusted to the maximum allowed value.', example='10'),
     namespaces?: [
       Namespace
-    ](name='Namespaces', description='The list of namespaces bound to the Agent.', example='[{"Name":"my_namespace"}]'),
-    nextToken?: string(name='NextToken', description='下一页起始Token，传入下次请求的 NextToken 可获取下一页；为空表示已无更多数据', example='10'),
-    totalCount?: int32(name='TotalCount', description='Agent 绑定的命名空间总数，与本页返回条数无关', example='10'),
-  }(name='Data', description='The list of namespaces bound to the Agent. All results are returned at once without pagination.'),
-  message?: string(name='Message', description='The message returned by the operation. The value is Operation success when the call succeeds, or a specific error description when the call fails.', example='Operation success'),
-  requestId?: string(name='RequestId', description='The unique identifier of the request, used for troubleshooting and ticket feedback.', example='34AD682D-5B91-5773-8132-AA38C130****'),
-  success?: boolean(name='Success', description='Indicates whether the call was successful. A value of true indicates success.', example='true'),
+    ](name='Namespaces', description='The list of namespaces bound to the agent.', example='[{"Name":"my_namespace"}]'),
+    nextToken?: string(name='NextToken', description='The token for the next page. Pass this value as the NextToken parameter in the next request to retrieve the next page. An empty value indicates that no more data is available.', example='10'),
+    totalCount?: int32(name='TotalCount', description='The total number of namespaces bound to the agent, regardless of the number of entries returned on the current page.', example='10'),
+  }(name='Data', description='The list of namespaces bound to the agent, including entries and pagination information.'),
+  message?: string(name='Message', description='The response message. A value of Operation success is returned if the operation succeeds. A specific error description is returned if the operation fails.', example='Operation success'),
+  requestId?: string(name='RequestId', description='The unique ID of the request. Use this ID for troubleshooting and when submitting a ticket.', example='34AD682D-5B91-5773-8132-AA38C130****'),
+  success?: boolean(name='Success', description='Indicates whether the call is successful. A value of true indicates success.', example='true'),
 }
 
 model ListLumaNamespacesResponse = {
@@ -6606,7 +7033,7 @@ model ListLumaNamespacesResponse = {
 }
 
 /**
-  * @description Lists all namespaces bound to a Luma Agent under a specified data catalog. Returns the complete set of bindings without pagination.
+  * @description Lists the namespaces bound to a Luma Agent under a specified data catalog. Results are returned in pages. Pass the NextToken from the previous response to retrieve the next page. An empty NextToken indicates that no more data is available. Expired bindings are skipped, so the number of entries on a single page may be less than the Limit value. Do not use an insufficient number of entries on the current page to determine whether the last page has been reached.
   * @param request  the request parameters of ListLumaNamespaces  ListLumaNamespacesRequest
   * @return ListLumaNamespacesResponse
  */
@@ -7582,6 +8009,46 @@ async function queryTracedEvents(request: QueryTracedEventsRequest): QueryTraced
   return @handler.do('RPC', 'QueryTracedEvents', 'POST', '/', 'json', false, 'json', request);
 }
 
+model QueryWithSQLRequest {
+  limit?: int32(name='Limit', description='The maximum number of rows to return. Default value: 20. Maximum value: 50.', example='10', position='Query'),
+  query: string(name='Query', description='The query statement. Typically uses a three-part table name in the format of catalog.namespace.table.
+
+This parameter is required.', example='SELECT * FROM "test-es"."default"."product_info"', position='Query'),
+}
+
+model QueryWithSQLResponseBody = {
+  code?: string(name='Code', description='The response code. Valid values:
+
+- Success: The request was successful.    
+
+- Other values: An error occurred. For more information, see error codes.', example='Success'),
+  data?: {
+    rows?: [
+      Row
+    ](name='Rows', description='The query result rows.'),
+    total?: int32(name='Total', description='The total number of entries.', example='1'),
+  }(name='Data', description='The event trace information.'),
+  message?: string(name='Message', description='The error message.', example='Operation success'),
+  requestId?: string(name='RequestId', description='The request ID.', example='34AD682D-5B91-5773-8132-AA38C130****'),
+  success?: boolean(name='Success', description='Indicates whether the operation was successful. A value of true indicates success. A value of false indicates failure.', example='true'),
+}
+
+model QueryWithSQLResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: QueryWithSQLResponseBody(name='body'),
+}
+
+/**
+  * @description Queries event content.
+  * @param request  the request parameters of QueryWithSQL  QueryWithSQLRequest
+  * @return QueryWithSQLResponse
+ */
+async function queryWithSQL(request: QueryWithSQLRequest): QueryWithSQLResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'QueryWithSQL', 'POST', '/', 'json', false, 'json', request);
+}
+
 model SaveAgentDataSemanticsRequest {
   agentName: string(name='AgentName', description='The name of the agent.
 
@@ -7619,6 +8086,57 @@ model SaveAgentDataSemanticsResponse = {
 async function saveAgentDataSemantics(request: SaveAgentDataSemanticsRequest): SaveAgentDataSemanticsResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RPC', 'SaveAgentDataSemantics', 'POST', '/', 'json', true, 'form', request);
+}
+
+model SearchKnowledgeBaseRequest {
+  catalog: string(name='Catalog', description='The data catalog to which the knowledge base belongs. This parameter, together with Namespace and KnowledgeBaseName, uniquely identifies a knowledge base. You can call ListCatalogs to obtain the value.
+
+This parameter is required.', example='my_catalog', maxLength=127, position='Query'),
+  knowledgeBaseName: string(name='KnowledgeBaseName', description='The name of the knowledge base. The name is unique within a namespace and is specified at creation time. It cannot be modified.
+
+This parameter is required.', example='my-knowledge-base', maxLength=127, position='Query'),
+  metadataFilter?: string(name='MetadataFilter', description='Filters search results by document metadata. The value is a JSON expression tree. Nodes are classified into two types: logical nodes {"AndAll": [child nodes...]} (all conditions must be met), {"OrAll": [child nodes...]} (any condition must be met), or {"NotAll": [child nodes...]} (none of the conditions must be met), which support arbitrary nesting; and leaf conditions {"Key": field name, "Operator": operator, "Value": value}, where the In and NotIn operators use "Values": [values...]. Valid values of Operator: Equals, NotEquals, In, NotIn, GreaterThan, GreaterThanOrEqual, LessThan, LessThanOrEqual (the last four range operators apply only to LONG, DOUBLE, or DATETIME fields), StartsWith, and StringContains (applies only to STRING fields). Fields must be declared in the knowledge base schema. The nesting depth cannot exceed 5, and the total number of leaf conditions cannot exceed 20. DATETIME field value format: ISO-8601 with time zone, yyyy-MM-dd HH:mm:ss, or yyyy-MM-dd.', example='{"AndAll": [{"Key": "env", "Operator": "In", "Values": ["prod", "staging"]}, {"OrAll": [{"Key": "score", "Operator": "GreaterThan", "Value": "0.8"}, {"Key": "owner", "Operator": "Equals", "Value": "alice"}]}]}', maxLength=8192, position='Query'),
+  mode?: string(name='Mode', description='The retrieval mode. KEYWORD indicates keyword retrieval. VECTOR indicates vector retrieval. HYBRID indicates hybrid retrieval.', example='HYBRID', position='Query'),
+  namespace: string(name='Namespace', description='The namespace to which the knowledge base belongs. The namespace must belong to the specified data catalog. This parameter, together with Catalog and KnowledgeBaseName, uniquely identifies a knowledge base. You can call ListNamespaces to obtain the value.
+
+This parameter is required.', example='my_namespace', maxLength=127, position='Query'),
+  query: string(name='Query', description='The query text. Both keyword retrieval and vector retrieval are based on this text.
+
+This parameter is required.', example='How to configure event rules', maxLength=4096, position='Query'),
+  rankAlgorithm?: string(name='RankAlgorithm', description='Optional. Overrides the fusion algorithm configured for the knowledge base for this request. This parameter takes effect only in hybrid search (HYBRID) mode. RRF indicates reciprocal rank fusion. WEIGHTED indicates weighted normalization fusion (used together with VectorWeight). If you set this parameter to WEIGHTED in keyword-only or vector-only mode, an InvalidParameter error is returned.', example='RRF', position='Query'),
+  rerank?: boolean(name='Rerank', description='Specifies whether to enable reranking for search results. Default value: false.', example='false', position='Query'),
+  rerankModel?: string(name='RerankModel', description='Optional. Overrides the reranking model configured for the knowledge base for this request. This parameter takes effect when reranking is enabled (in all search modes). Valid values: qwen3-rerank, gte-rerank-v2, and qwen3-vl-rerank. If this parameter is not specified, the value configured for the knowledge base is used. If no value is configured, the default value qwen3-rerank is used. Score distributions differ across models and cannot be compared. Use the same model consistently for a given knowledge base.', example='qwen3-rerank', position='Query'),
+  rrfK?: int32(name='RrfK', description='Optional. Overrides the reciprocal rank fusion (RRF) parameter k configured for the knowledge base for this request. This parameter takes effect only in hybrid search (HYBRID) mode. The value must be greater than 0.', example='60', position='Query'),
+  topK?: int32(name='TopK', description='The number of most relevant results to return. Default value: 10. Maximum value: 100.', example='10', position='Query'),
+  vectorWeight?: double(name='VectorWeight', description='Optional. The vector weight for the WEIGHTED fusion algorithm. Valid values: 0 to 1. The keyword weight equals 1 minus this value. If this parameter is not specified, the value configured for the knowledge base is used. If no value is configured, the default value 0.7 is used.', example='0.7', position='Query'),
+}
+
+model SearchKnowledgeBaseResponseBody = {
+  code?: string(name='Code', description='The response code. A value of Success indicates a successful call. If the call fails, a specific error code is returned.', example='Success'),
+  data?: {
+    chunks?: [
+      KnowledgeBaseSearchChunk
+    ](name='Chunks', description='The list of matched chunks, sorted by relevance.', example='[{"DocumentId":"doc-bp1xxxxxxxxxxxx","ChunkSeq":3,"Content":"EventBridge supports event routing"}]'),
+    timeSpent?: long(name='TimeSpent', description='The server-side processing duration of this search. Unit: milliseconds.', example='128'),
+  }(name='Data', description='The search results, including the list of matched chunks and the time spent.'),
+  message?: string(name='Message', description='The response message. A value of Operation success is returned for a successful call. A specific error description is returned for a failed call.', example='Operation success'),
+  requestId?: string(name='RequestId', description='The request ID.', example='34AD682D-5B91-5773-8132-AA38C130****'),
+  success?: boolean(name='Success', description='Indicates whether the call was successful. A value of true indicates success.', example='true'),
+}
+
+model SearchKnowledgeBaseResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: SearchKnowledgeBaseResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of SearchKnowledgeBase  SearchKnowledgeBaseRequest
+  * @return SearchKnowledgeBaseResponse
+ */
+async function searchKnowledgeBase(request: SearchKnowledgeBaseRequest): SearchKnowledgeBaseResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'SearchKnowledgeBase', 'POST', '/', 'json', false, 'json', request);
 }
 
 model SearchLumaKnowledgeBaseRequest {
@@ -7807,34 +8325,34 @@ async function testEventSourceConfig(request: TestEventSourceConfigRequest): Tes
 }
 
 model UpdateAgentRequest {
-  clientToken?: string(name='ClientToken', description='The client-generated request token. Used to ensure idempotence of the request. Note: This parameter value is generated by the client and must be unique across different requests. The maximum length is 64 ASCII characters.', example='TF-CreateRule-1652253755-aa33f762-7e99-4aee-bd27-d3370afa5625', position='Body'),
-  description?: string(name='Description', description='The description of the event source.', example='MNS的过滤规则', position='Body'),
-  mcpServerId?: string(name='McpServerId', example='bGXX51ULuGl10xrr', maxLength=64, position='Body'),
-  mcpServerName?: string(name='McpServerName', example='eventhouse-agentbridge', maxLength=128, position='Body'),
+  clientToken?: string(name='ClientToken', description='The client-generated request token. This parameter is used to ensure the idempotence of the request. The token must be unique across different requests and can contain up to 64 ASCII characters.', example='TF-CreateRule-1652253755-aa33f762-7e99-4aee-bd27-d3370afa5625', position='Body'),
+  description?: string(name='Description', description='The description of the event source.', example='Filtering rule for MNS', position='Body'),
+  mcpServerId?: string(name='McpServerId', description='The ID of the MCP server bound to the agent.', example='bGXX51ULuGl10xrr', maxLength=64, position='Body'),
+  mcpServerName?: string(name='McpServerName', description='The name of the MCP server bound to the agent.', example='eventhouse-agentbridge', maxLength=128, position='Body'),
   metadata?: {
     attachments?: [ 
       {
-        arn?: string(name='Arn', description='The ARN of the attached metadata object.', example='acs:eventbridge:cn-hangzhou:12345:eventhouse/system-rocketmq/namespace/rmq-cn-xxx/table/order'),
+        arn?: string(name='Arn', description='The Alibaba Cloud Resource Name (ARN) of the bound metadata object.', example='acs:eventbridge:cn-hangzhou:12345:eventhouse/system-rocketmq/namespace/rmq-cn-xxx/table/order'),
         mimeType?: string(name='MimeType', description='The object type of the attached metadata.', example='inner-resource/event-table'),
       }
-    ](name='Attachments', description='The attached metadata objects.'),
+    ](name='Attachments', description='The bound metadata objects.'),
   }(name='Metadata', description='The associated metadata.', shrink='json', position='Body'),
   name: string(name='Name', description='The name of the agent.
 
 This parameter is required.', example='my-agent', minLength=2, maxLength=128, position='Body'),
-  prompt?: string(name='Prompt', description='You are an IoT data analytics assistant...', example='瑞士冻结马杜罗在瑞资产', position='Body'),
+  prompt?: string(name='Prompt', description='The prompt for the agent, such as "You are an IoT data analytics assistant..."', example='瑞士冻结马杜罗在瑞资产', position='Body'),
 }
 
 model UpdateAgentResponseBody = {
   code?: string(name='Code', description='The response code. Valid values:
-- Success: The operation was successful.                                 
-- Other values: An error code was returned. For more information, see error codes.', example='Success'),
+- Success: The request was successful.                                 
+- Other values: An error occurred. For more information, see Error codes.', example='Success'),
   data?: {
     agentArn?: string(name='AgentArn', description='Agent ARN', example='acs:eventbridge:{region}:{accountId}:agent/{agentName}'),
   }(name='Data', description='Indicates whether the operation was successful.'),
   message?: string(name='Message', description='The error message.', example='InvalidArgument'),
   requestId?: string(name='RequestId', description='The request ID.', example='382E6272-XXXXX-A8AF0BFAC1A5'),
-  success?: boolean(name='Success', description='Returns true if the operation is successful.', example='true'),
+  success?: boolean(name='Success', description='Returns true if the operation was successful.', example='true'),
 }
 
 model UpdateAgentResponse = {
@@ -9328,6 +9846,70 @@ model UpdateEventStreamingBusinessOptionResponse = {
 async function updateEventStreamingBusinessOption(request: UpdateEventStreamingBusinessOptionRequest): UpdateEventStreamingBusinessOptionResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RPC', 'UpdateEventStreamingBusinessOption', 'POST', '/', 'json', true, 'form', request);
+}
+
+model UpdateKnowledgeBaseRequest {
+  catalog: string(name='Catalog', description='The data catalog to which the knowledge base belongs. This parameter, together with Namespace and KnowledgeBaseName, uniquely identifies a knowledge base. You can call ListCatalogs to obtain the value.
+
+This parameter is required.', example='my_catalog', maxLength=127, position='Query'),
+  chunkConfiguration?: {
+    headingLevel?: int32(name='HeadingLevel', description='Required for the BY_HEADING strategy. Valid values: 1 to 6. This parameter is ignored for other strategies. Headings at or above the specified level are used as split boundaries. For example, if you set this parameter to 2, both H1 and H2 headings are used as split boundaries. Deeper-level headings are not used for splitting and are retained in the chunk body. If the content within a section exceeds MaxChunkSize, the content is split by paragraph or sentence as a fallback. Documents without headings fall back to intelligent chunking.', example='2'),
+    maxChunkSize?: int32(name='MaxChunkSize', description='The maximum token length of a single chunk.', example='512'),
+    overlapSize?: int32(name='OverlapSize', description='The overlap token length between adjacent chunks.', example='6'),
+    preprocessRules?: {
+      removeUrlsAndEmails?: boolean(name='RemoveUrlsAndEmails', description='Specifies whether to remove URLs and email addresses during parsing.', example='false'),
+      replaceConsecutiveWhitespace?: boolean(name='ReplaceConsecutiveWhitespace', description='Specifies whether to replace consecutive whitespace characters (spaces, line breaks, and tab characters) with a single space.', example='true'),
+    }(name='PreprocessRules', description='The preprocessing rules.'),
+    separator?: string(name='Separator', description='The segment identifier for the LINE_BREAK strategy, such as a line feed.', example='\\\\\\\\n\\\\\\\\n', maxLength=32),
+    strategy: string(name='Strategy', description='The chunking strategy. Valid values:
+- AUTO: automatic chunking.
+- LINE_BREAK: chunking by segment identifier.
+
+This parameter is required.', example='LINE_BREAK'),
+  }(name='ChunkConfiguration', description='Optional. Updates the default chunking strategy of the knowledge base. The update takes effect only for documents uploaded after the update. Existing documents are not re-chunked. If this parameter is not specified, the configuration remains unchanged.', shrink='json', position='Query'),
+  description?: string(name='Description', description='The description of the knowledge base to update. If this parameter is not specified, the description remains unchanged.', example='Product documentation knowledge base', maxLength=255, position='Query'),
+  knowledgeBaseName: string(name='KnowledgeBaseName', description='The name of the knowledge base. The name must be unique within the namespace. The name is specified during creation and cannot be modified.
+
+This parameter is required.', example='my-knowledge-base', maxLength=127, position='Query'),
+  namespace: string(name='Namespace', description='The namespace to which the knowledge base belongs. The namespace must belong to the specified data catalog. This parameter, together with Catalog and KnowledgeBaseName, uniquely identifies a knowledge base. You can call ListNamespaces to obtain the value.
+
+This parameter is required.', example='my_namespace', maxLength=127, position='Query'),
+  searchConfiguration?: {
+    mode?: string(name='Mode', description='The retrieve mode. Valid values:
+- KEYWORD: keyword retrieve.
+- VECTOR: vector retrieve.
+- HYBRID: hybrid retrieve.', example='HYBRID'),
+    rankAlgorithm?: string(name='RankAlgorithm', description='Takes effect only in hybrid search mode. Valid values:
+- RRF: reciprocal rank fusion.', example='RRF'),
+    rerankEnabled?: boolean(name='RerankEnabled', description='Takes effect only in hybrid search mode. This default value is used when the search request does not specify Rerank.', example='false'),
+    rerankModel?: string(name='RerankModel', description='The default reranking model used when the search request does not specify RerankModel. Valid values: qwen3-rerank. Default value: qwen3-rerank.', example='qwen3-rerank'),
+    rrfK?: int32(name='RrfK', description='The parameter k for the RRF fusion algorithm. Default value: 60. The value must be greater than 0.', example='60'),
+    topK?: int32(name='TopK', description='The default number of results to return.', example='20'),
+    vectorWeight?: double(name='VectorWeight', description='The vector path weight for the WEIGHTED fusion algorithm. Valid values: 0 to 1. The keyword path weight equals 1 minus this value. Default value: 0.7.', example='0.7'),
+  }(name='SearchConfiguration', description='Optional. Updates the default search configuration at the knowledge base level. The update takes effect immediately for subsequent search requests. If this parameter is not specified, the configuration remains unchanged.', shrink='json', position='Query'),
+}
+
+model UpdateKnowledgeBaseResponseBody = {
+  code?: string(name='Code', description='The response code. A value of Success indicates that the call was successful. If the call fails, a specific error code is returned.', example='Success'),
+  data?: KnowledgeBase(name='Data', description='The details of the knowledge base after the update.'),
+  message?: string(name='Message', description='The message returned by the operation. A value of Operation success is returned if the call was successful. If the call fails, a specific error description is returned.', example='Operation success'),
+  requestId?: string(name='RequestId', description='The request ID.', example='34AD682D-5B91-5773-8132-AA38C130****'),
+  success?: boolean(name='Success', description='Indicates whether the call was successful. A value of true indicates success.', example='true'),
+}
+
+model UpdateKnowledgeBaseResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: UpdateKnowledgeBaseResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of UpdateKnowledgeBase  UpdateKnowledgeBaseRequest
+  * @return UpdateKnowledgeBaseResponse
+ */
+async function updateKnowledgeBase(request: UpdateKnowledgeBaseRequest): UpdateKnowledgeBaseResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'UpdateKnowledgeBase', 'POST', '/', 'json', false, 'json', request);
 }
 
 model UpdateNamespaceRequest {
