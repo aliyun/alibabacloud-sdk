@@ -13,7 +13,6 @@ init(config: OpenApiUtil.Config){
   @endpointMap = {
     'cn-zhangjiakou' = 'aisc.cn-shanghai.aliyuncs.com',
     'cn-wulanchabu' = 'aisc.cn-shanghai.aliyuncs.com',
-    'cn-shanghai' = 'aisc.cn-shanghai.aliyuncs.com',
     'cn-qingdao' = 'aisc.cn-shanghai.aliyuncs.com',
     'cn-nanjing' = 'aisc.cn-shanghai.aliyuncs.com',
     'cn-huhehaote' = 'aisc.cn-shanghai.aliyuncs.com',
@@ -23,7 +22,6 @@ init(config: OpenApiUtil.Config){
     'ap-southeast-7' = 'aisc.ap-southeast-1.aliyuncs.com',
     'ap-southeast-6' = 'aisc.ap-southeast-1.aliyuncs.com',
     'ap-southeast-5' = 'aisc.ap-southeast-1.aliyuncs.com',
-    'ap-southeast-1' = 'aisc.ap-southeast-1.aliyuncs.com',
     'ap-northeast-2' = 'aisc.ap-southeast-1.aliyuncs.com',
     'ap-northeast-1' = 'aisc.ap-southeast-1.aliyuncs.com',
     'eu-central-1' = 'aisc.ap-southeast-1.aliyuncs.com',
@@ -53,6 +51,141 @@ function getEndpoint(productId: string, regionId: string, endpointRule: string, 
   return OpenApiUtil.getEndpointRules(productId, regionId, endpointRule, network, suffix);
 }
 
+model CreateAttackTargetRequest {
+  apiKey?: string(name='ApiKey', description='The API key for the target model service, used to authenticate with the endpoint. The key is encrypted and stored after submission. Subsequent queries do not return the plaintext value. When ConnectionMethod is set to enterprise_relay, the actual credentials are held by the corporate internal network agent. Transmit the key over HTTPS and avoid exposing it in plaintext in logs, URLs, or client code.
+
+This parameter is required.', example='sk-abcd1234****'),
+  connectionConfig?: string(name='ConnectionConfig', description='The advanced connection configuration in JSON string format. Common fields: authType (authentication type. custom_header: custom request header authentication. none: no authentication), customAuthHeaderName (custom authentication header name, such as X-API-Key), and requestHeaders (additional HTTP request header key-value pairs).
+
+Common provider configuration templates ({{prompt}} is a prompt placeholder that you replace with the actual service value. When authType is set to bearer, the token is injected from ApiKey and the template does not contain credentials):
+- Bailian: {"httpMethod":"POST","authType":"bearer","timeoutMs":30000,"requestTemplate":"{\\\\"input\\\\":{\\\\"prompt\\\\":\\\\"{{prompt}}\\\\"},\\\\"parameters\\\\":{\\\\"incremental_output\\\\":true},\\\\"debug\\\\":{}}","messageJsonPath":"$.output.text","requestHeaders":"{\\\\"X-DashScope-SSE\\\\": \\\\"enable\\\\" }","stream":true,"customAuthHeaderName":""}
+- PAI: {"httpMethod":"POST","authType":"bearer","timeoutMs":60000,"requestTemplate":"{\\\\"inputs\\\\":{\\\\"question\\\\":\\\\"{{prompt}}\\\\",\\\\"chat_history\\\\":[]},\\\\"stream\\\\":true}","messageJsonPath":"$.outputs.answer","requestHeaders":"","stream":true,"customAuthHeaderName":""}
+- Dify: {"httpMethod":"POST","authType":"bearer","timeoutMs":30000,"requestTemplate":"{\\\\"inputs\\\\":{},\\\\"query\\\\":\\\\"{{prompt}}\\\\",\\\\"response_mode\\\\":\\\\"streaming\\\\",\\\\"conversation_id\\\\":\\\\"\\\\",\\\\"user\\\\":\\\\"scanner\\\\"}","messageJsonPath":"$.answer","requestHeaders":"","stream":true,"customAuthHeaderName":""}
+- AgentRun: {"httpMethod":"POST","authType":"custom_header","timeoutMs":30000,"requestTemplate":"{\\\\"messages\\\\":[{\\\\"role\\\\":\\\\"user\\\\",\\\\"content\\\\":\\\\"{{prompt}}\\\\"}],\\\\"stream\\\\":true}","messageJsonPath":"$.choices[0].delta.content","requestHeaders":"","customAuthHeaderName":"X-API-Key","stream":true}
+- AgentKit: {"httpMethod":"POST","authType":"bearer","timeoutMs":30000,"requestTemplate":"{\\\\"messages\\\\":[{\\\\"role\\\\":\\\\"user\\\\",\\\\"content\\\\":\\\\"{{prompt}}\\\\"}]}","messageJsonPath":"$.content.parts[0].text","requestHeaders":"","stream":true,"customAuthHeaderName":""}
+When ConnectionMethod is set to enterprise_relay, you can use the protocol field to specify the tunnel protocol (defaults to openai). The provider configuration templates above apply only to non-enterprise_relay connections.', example='{\\\\"httpMethod\\\\":\\\\"POST\\\\",\\\\"authType\\\\":\\\\"bearer\\\\",\\\\"timeoutMs\\\\":30000,\\\\"requestTemplate\\\\":\\\\"{\\\\\\\\\\\\"input\\\\\\\\\\\\":{\\\\\\\\\\\\"prompt\\\\\\\\\\\\":\\\\\\\\\\\\"{{prompt}}\\\\\\\\\\\\"},\\\\\\\\\\\\"parameters\\\\\\\\\\\\":{\\\\\\\\\\\\"incremental_output\\\\\\\\\\\\":true},\\\\\\\\\\\\"debug\\\\\\\\\\\\":{}}\\\\",\\\\"messageJsonPath\\\\":\\\\"$.output.text\\\\",\\\\"requestHeaders\\\\":\\\\"{\\\\\\\\\\\\"X-DashScope-SSE\\\\\\\\\\\\": \\\\\\\\\\\\"enable\\\\\\\\\\\\" }\\\\",\\\\"stream\\\\":true,\\\\"customAuthHeaderName\\\\":\\\\"\\\\"}'),
+  connectionMethod?: string(name='ConnectionMethod', description='The connection protocol type for the target service. The system selects the corresponding protocol adapter based on this value.
+
+This parameter is required.', example='openai'),
+  description?: string(name='Description', description='An optional description of the scan target usage.', example='Bailian application in the production environment'),
+  endpoint?: string(name='Endpoint', description='The HTTP or HTTPS endpoint address of the target model service. When ConnectionMethod is set to enterprise_relay, this value is ignored and the platform uses a fixed internal endpoint.
+
+This parameter is required.', example='https://dashscope.aliyuncs.com/compatible-mode/v1'),
+  modelName?: string(name='ModelName', description='The name of the target model. When ConnectionMethod is set to openai, specify the model ID under the OpenAI compatible protocol. When ConnectionMethod is set to anthropic, specify the model ID for the Anthropic Messages API. When ConnectionMethod is set to enterprise_relay, this value is ignored and the platform uses a fixed value.', example='qwen-flash'),
+  provider?: string(name='Provider', description='The business label of the model or agent provider, used for UI filtering and form display. This is decoupled from ConnectionMethod (technical protocol): the same Provider may use multiple protocols, and vice versa.', example='bailian'),
+  targetName?: string(name='TargetName', description='The display name of the scan target, used for list display and filtering. Use a distinguishable name within the same tenant.
+
+This parameter is required.', example='My Bailian Target'),
+  targetType?: string(name='TargetType', description='The type of the scan target, which determines the sampling dimension for scan tasks. Valid values:
+- agent: agent-type samples.
+- model: model-type samples.
+
+This parameter is required.', example='model'),
+}
+
+model CreateAttackTargetResponseBody = {
+  data?: {
+    targetId?: string(name='TargetId', description='The unique identifier of the created scan target. You can use this value as the TargetId parameter in subsequent calls such as TestConnectivity and scan task creation.', example='target-abc123def4567'),
+  }(name='Data', description='The operation result. Upon successful creation, the TargetId of the new scan target is returned.'),
+  requestId?: string(name='RequestId', description='The request ID, used for troubleshooting and log tracing.', example='1EBD0C05-6C1F-4C95-9C63-B7AB7B5A9C8E'),
+}
+
+model CreateAttackTargetResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: CreateAttackTargetResponseBody(name='body'),
+}
+
+/**
+ * @summary Creates an AI Red Teaming scan target (agent or model) and saves its connection configuration for subsequent connectivity tests and scan tasks.
+ *
+ * @description Creates an attack target (agent or model) and saves its connection configuration for subsequent connectivity tests and scan tasks.
+ * This is a synchronous call. Upon success, the system-generated TargetId is returned in Data. You can use this TargetId as a parameter in subsequent calls such as TestConnectivity and scan task creation.
+ * Metric description:
+ * - When ConnectionMethod is set to enterprise_relay (access through a corporate internal network agent), the values of Endpoint and ModelName are ignored. The platform uses fixed internal network values. The actual target endpoint and credentials are held by the corporate internal network agent.
+ * - After ApiKey is submitted, it is encrypted and stored. Subsequent queries do not return the plaintext value.
+ * - ConnectionConfig is a JSON character string in JSON format that specifies advanced connection settings. For common provider templates, refer to the metric description of this parameter.
+ * After the target is created, its initial connectivity status is verified. You can call TestConnectivity at any time to re-verify.
+ * Internal network access (enterprise_relay) workflow:
+ * - After the target is created, invoke GenerateRelayPollerScript to obtain an installation script (Linux only) and run it on a machine within the corporate internal network. The actual target endpoint and credentials are entered interactively during installation. The platform does not retain them.
+ * - After installation, the poller automatically registers and enters a polling loop. No manual registration or polling invocations are required.
+ * - After invoking TestConnectivity to authenticate end-to-end connectivity, you can use CreateTargetScanTask to initiate a scan.
+ *
+ * @param request CreateAttackTargetRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return CreateAttackTargetResponse
+ */
+@context("createAttackTargetWithContext")
+async function createAttackTargetWithOptions(request: CreateAttackTargetRequest, runtime: $RuntimeOptions): CreateAttackTargetResponse {
+  request.validate();
+  var query = {};
+  if (!$isNull(request.apiKey)) {
+    query['ApiKey'] = request.apiKey;
+  }
+  if (!$isNull(request.connectionConfig)) {
+    query['ConnectionConfig'] = request.connectionConfig;
+  }
+  if (!$isNull(request.connectionMethod)) {
+    query['ConnectionMethod'] = request.connectionMethod;
+  }
+  if (!$isNull(request.description)) {
+    query['Description'] = request.description;
+  }
+  if (!$isNull(request.endpoint)) {
+    query['Endpoint'] = request.endpoint;
+  }
+  if (!$isNull(request.modelName)) {
+    query['ModelName'] = request.modelName;
+  }
+  if (!$isNull(request.provider)) {
+    query['Provider'] = request.provider;
+  }
+  if (!$isNull(request.targetName)) {
+    query['TargetName'] = request.targetName;
+  }
+  if (!$isNull(request.targetType)) {
+    query['TargetType'] = request.targetType;
+  }
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'CreateAttackTarget',
+    version = '2026-01-01',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Creates an AI Red Teaming scan target (agent or model) and saves its connection configuration for subsequent connectivity tests and scan tasks.
+ *
+ * @description Creates an attack target (agent or model) and saves its connection configuration for subsequent connectivity tests and scan tasks.
+ * This is a synchronous call. Upon success, the system-generated TargetId is returned in Data. You can use this TargetId as a parameter in subsequent calls such as TestConnectivity and scan task creation.
+ * Metric description:
+ * - When ConnectionMethod is set to enterprise_relay (access through a corporate internal network agent), the values of Endpoint and ModelName are ignored. The platform uses fixed internal network values. The actual target endpoint and credentials are held by the corporate internal network agent.
+ * - After ApiKey is submitted, it is encrypted and stored. Subsequent queries do not return the plaintext value.
+ * - ConnectionConfig is a JSON character string in JSON format that specifies advanced connection settings. For common provider templates, refer to the metric description of this parameter.
+ * After the target is created, its initial connectivity status is verified. You can call TestConnectivity at any time to re-verify.
+ * Internal network access (enterprise_relay) workflow:
+ * - After the target is created, invoke GenerateRelayPollerScript to obtain an installation script (Linux only) and run it on a machine within the corporate internal network. The actual target endpoint and credentials are entered interactively during installation. The platform does not retain them.
+ * - After installation, the poller automatically registers and enters a polling loop. No manual registration or polling invocations are required.
+ * - After invoking TestConnectivity to authenticate end-to-end connectivity, you can use CreateTargetScanTask to initiate a scan.
+ *
+ * @param request CreateAttackTargetRequest
+ * @return CreateAttackTargetResponse
+ */
+async function createAttackTarget(request: CreateAttackTargetRequest): CreateAttackTargetResponse {
+  var runtime = new $RuntimeOptions{};
+  return createAttackTargetWithOptions(request, runtime);
+}
+
 model CreateSkillFileCheckRequest {
   files?: [ 
     {
@@ -61,7 +194,7 @@ model CreateSkillFileCheckRequest {
       uploadKey?: string(name='UploadKey', description='The tenant-isolated OSS temporary object key returned by GenerateSkillOssUploadCredential. Specify either this parameter or DownloadUrl.', example='user-upload/staging/123456789/550e8400-e29b-41d4-a716-446655440000'),
     }
   ](name='Files', description='The file information.'),
-  source?: string(name='Source', description='The upload source. If left empty, the default value is user_upload. Use sec_ops_agent for the security operations agent.', example='sec_ops_agent'),
+  source?: string(name='Source', description='The upload source. If left empty, user_upload is used by default. Security operations agents use sec_ops_agent.', example='sec_ops_agent'),
 }
 
 model CreateSkillFileCheckResponseBody = {
@@ -71,8 +204,8 @@ model CreateSkillFileCheckResponseBody = {
     successCount?: int32(name='SuccessCount', description='The number of files that are uploaded successfully.', example='10'),
     uploadResults?: [ 
       {
-        errorMsg?: string(name='ErrorMsg', description='The error message returned when the file upload fails.', example='Network error.'),
-        fileHash?: string(name='FileHash', description='The SHA256 value of the uploaded file.', example='514f44ebed1d0c1df5e16a116080b64b'),
+        errorMsg?: string(name='ErrorMsg', description='The error message returned when the file fails to be uploaded.', example='Network error.'),
+        fileHash?: string(name='FileHash', description='The SHA256 hash of the uploaded file.', example='514f44ebed1d0c1df5e16a116080b64b'),
         fileName?: string(name='FileName', description='The name of the file.', example='test-file'),
         identifyId?: string(name='IdentifyId', description='The unique ID of the uploaded file. You can use this ID to query the task result.', example='1824jcadg01bsl10b'),
         success?: boolean(name='Success', description='Indicates whether the operation is successful. Valid values:
@@ -135,6 +268,557 @@ async function createSkillFileCheck(request: CreateSkillFileCheckRequest): Creat
   return createSkillFileCheckWithOptions(request, runtime);
 }
 
+model CreateTargetScanTaskRequest {
+  lang?: string(name='Lang', description='The language filter for samples, in locale format (such as zh_CN or en_US, which is internally normalized to zh or en). If this parameter is not specified, samples are selected based on the default language policy combined with general-purpose samples.', example='zh_CN'),
+  sampleLevel?: long(name='SampleLevel', description='The detection intensity. The backend derives the corresponding technique level based on this value. If this parameter is not specified, the system falls back to the scan task configuration saved for the target, and then to the system default value.', example='3'),
+  targetId?: string(name='TargetId', description='The unique identifier of the scan target. The target must have passed connectivity verification (verifyStatus=verified). Otherwise, a 400 error is returned. You can call TestConnectivity to complete the verification first.
+
+This parameter is required.', example='target-abc123def4567'),
+}
+
+model CreateTargetScanTaskResponseBody = {
+  data?: {
+    taskId?: string(name='TaskId', description='The unique identifier of the scan task. The initial task status is PREPARING (asynchronous preparation in progress). You can call ListScanTasksByTarget to query the task status and progress.', example='task-abc123def4567'),
+  }(name='Data', description='The creation result, which contains the TaskId of the new scan task.'),
+  requestId?: string(name='RequestId', description='The unique identifier of the request, which is used for troubleshooting and log tracing.', example='1EBD0C05-6C1F-4C95-9C63-XXXXX'),
+}
+
+model CreateTargetScanTaskResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: CreateTargetScanTaskResponseBody(name='body'),
+}
+
+/**
+ * @summary Initiates a security scan task against a scan target that has passed connectivity verification. After the task is created, it is asynchronously prepared and executed.
+ *
+ * @description **Before you use this operation, make sure that you fully understand the billing method and [pricing](https://www.alibabacloud.com/help/en/asc/user-guide/ai-red-teaming#aefbf9b5b4noh) of AI Red Teaming.**
+ * Initiates a security scan (AI Red Teaming detection) task against a specified scan target.
+ * Before you begin:
+ * - The account must have a normal subscription status. Otherwise, a 403 error is returned.
+ * - The TargetId must exist and belong to the current tenant.
+ * - The connectivity verification status of the target must be verified. You can call TestConnectivity to verify the target first. Otherwise, a 400 error is returned.
+ * - Available attack samples must exist within the current scan scope. Otherwise, a 400 error is returned.
+ * Execution mode:
+ * - The call synchronously returns a TaskId. The initial task status is PREPARING. Sample preparation and scan execution are performed asynchronously. You can call ListScanTasksByTarget to query the task status and progress.
+ * Sample selection:
+ * - The sample scope is determined based on the target type (agent/model) plus general-purpose samples. SampleLevel determines the detection intensity and derives the technique level. Lang is used to filter samples by language.
+ * - If no sample intent is specified, the system automatically derives all available intents based on the scope described above.
+ *
+ * @param request CreateTargetScanTaskRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return CreateTargetScanTaskResponse
+ */
+@context("createTargetScanTaskWithContext")
+async function createTargetScanTaskWithOptions(request: CreateTargetScanTaskRequest, runtime: $RuntimeOptions): CreateTargetScanTaskResponse {
+  request.validate();
+  var query = {};
+  if (!$isNull(request.lang)) {
+    query['Lang'] = request.lang;
+  }
+  if (!$isNull(request.sampleLevel)) {
+    query['SampleLevel'] = request.sampleLevel;
+  }
+  if (!$isNull(request.targetId)) {
+    query['TargetId'] = request.targetId;
+  }
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'CreateTargetScanTask',
+    version = '2026-01-01',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Initiates a security scan task against a scan target that has passed connectivity verification. After the task is created, it is asynchronously prepared and executed.
+ *
+ * @description **Before you use this operation, make sure that you fully understand the billing method and [pricing](https://www.alibabacloud.com/help/en/asc/user-guide/ai-red-teaming#aefbf9b5b4noh) of AI Red Teaming.**
+ * Initiates a security scan (AI Red Teaming detection) task against a specified scan target.
+ * Before you begin:
+ * - The account must have a normal subscription status. Otherwise, a 403 error is returned.
+ * - The TargetId must exist and belong to the current tenant.
+ * - The connectivity verification status of the target must be verified. You can call TestConnectivity to verify the target first. Otherwise, a 400 error is returned.
+ * - Available attack samples must exist within the current scan scope. Otherwise, a 400 error is returned.
+ * Execution mode:
+ * - The call synchronously returns a TaskId. The initial task status is PREPARING. Sample preparation and scan execution are performed asynchronously. You can call ListScanTasksByTarget to query the task status and progress.
+ * Sample selection:
+ * - The sample scope is determined based on the target type (agent/model) plus general-purpose samples. SampleLevel determines the detection intensity and derives the technique level. Lang is used to filter samples by language.
+ * - If no sample intent is specified, the system automatically derives all available intents based on the scope described above.
+ *
+ * @param request CreateTargetScanTaskRequest
+ * @return CreateTargetScanTaskResponse
+ */
+async function createTargetScanTask(request: CreateTargetScanTaskRequest): CreateTargetScanTaskResponse {
+  var runtime = new $RuntimeOptions{};
+  return createTargetScanTaskWithOptions(request, runtime);
+}
+
+model DeleteAttackTargetRequest {
+  targetId?: string(name='TargetId', description='The unique identifier of the scan target. This is the TargetId returned by CreateAttackTarget or ListAttackTargets. If the target does not exist or belongs to another tenant, a 400 error is returned. This prevents exposing whether the resource exists.
+
+This parameter is required.', example='target-abc123def4567'),
+}
+
+model DeleteAttackTargetResponseBody = {
+  requestId?: string(name='RequestId', description='The request ID. You can use this ID for troubleshooting and log tracing.', example='1EBD0C05-6C1F-4C95-9C63-B7AB7B5A9C8E'),
+}
+
+model DeleteAttackTargetResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: DeleteAttackTargetResponseBody(name='body'),
+}
+
+/**
+ * @summary Deletes a specified scan target by TargetId in AI Red Teaming. The target is physically deleted and cannot be recovered. This operation does not stop scan tasks that are in progress.
+ *
+ * @description Deletes a specified scan target by TargetId. The target is physically deleted.
+ * - You can delete only targets that belong to the current tenant. If the target does not exist or belongs to another tenant, a 400 error is returned. This prevents exposing whether the resource exists.
+ * - Physical deletion: The target cannot be recovered after deletion. Confirm before you proceed.
+ * - This operation deletes only the target record. It does not stop scan tasks that are in progress for the target or delete historical scan task records. To stop or clean up tasks, call StopScannerTask or DeleteScannerTask first.
+ * - After deletion, the connection configurations of the target, including encrypted credentials and connectivity verification results, are also removed.
+ *
+ * @param request DeleteAttackTargetRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return DeleteAttackTargetResponse
+ */
+@context("deleteAttackTargetWithContext")
+async function deleteAttackTargetWithOptions(request: DeleteAttackTargetRequest, runtime: $RuntimeOptions): DeleteAttackTargetResponse {
+  request.validate();
+  var query = {};
+  if (!$isNull(request.targetId)) {
+    query['TargetId'] = request.targetId;
+  }
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'DeleteAttackTarget',
+    version = '2026-01-01',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Deletes a specified scan target by TargetId in AI Red Teaming. The target is physically deleted and cannot be recovered. This operation does not stop scan tasks that are in progress.
+ *
+ * @description Deletes a specified scan target by TargetId. The target is physically deleted.
+ * - You can delete only targets that belong to the current tenant. If the target does not exist or belongs to another tenant, a 400 error is returned. This prevents exposing whether the resource exists.
+ * - Physical deletion: The target cannot be recovered after deletion. Confirm before you proceed.
+ * - This operation deletes only the target record. It does not stop scan tasks that are in progress for the target or delete historical scan task records. To stop or clean up tasks, call StopScannerTask or DeleteScannerTask first.
+ * - After deletion, the connection configurations of the target, including encrypted credentials and connectivity verification results, are also removed.
+ *
+ * @param request DeleteAttackTargetRequest
+ * @return DeleteAttackTargetResponse
+ */
+async function deleteAttackTarget(request: DeleteAttackTargetRequest): DeleteAttackTargetResponse {
+  var runtime = new $RuntimeOptions{};
+  return deleteAttackTargetWithOptions(request, runtime);
+}
+
+model DeleteScannerTaskRequest {
+  scannerTaskId?: string(name='ScannerTaskId', description='The unique identifier of the scan task. This is the TaskId returned by CreateTargetScanTask or the ScannerTaskId returned by ListScanTasksByTarget. If the task does not exist or belongs to another tenant, a 400 error is returned without exposing whether the resource exists.
+
+This parameter is required.', example='task-abc123def4567'),
+}
+
+model DeleteScannerTaskResponseBody = {
+  requestId?: string(name='RequestId', description='The unique identifier of the request, used for troubleshooting and log tracing.', example='1EBD0C05-6C1F-4C95-9C63-B7AB7B5A9C8E'),
+}
+
+model DeleteScannerTaskResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: DeleteScannerTaskResponseBody(name='body'),
+}
+
+/**
+ * @summary Physically deletes a specified scan task by ScannerTaskId in AI Red Teaming.
+ *
+ * @description Physically deletes a specified scan task by ScannerTaskId.
+ * - Only tasks that belong to the current tenant can be deleted. If the task does not exist or belongs to another tenant, a 400 error is returned without exposing whether the resource exists.
+ * - If the task is in progress (sample preparation, waiting, processing, or report generation), the task is automatically canceled before deletion. A cancellation failure does not block the deletion.
+ * - Physical deletion: After deletion, the task record and its status and progress information cannot be queried or recovered. Confirm before you delete.
+ * - Deleting a task record does not affect the scan target itself.
+ *
+ * @param request DeleteScannerTaskRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return DeleteScannerTaskResponse
+ */
+@context("deleteScannerTaskWithContext")
+async function deleteScannerTaskWithOptions(request: DeleteScannerTaskRequest, runtime: $RuntimeOptions): DeleteScannerTaskResponse {
+  request.validate();
+  var query = {};
+  if (!$isNull(request.scannerTaskId)) {
+    query['ScannerTaskId'] = request.scannerTaskId;
+  }
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'DeleteScannerTask',
+    version = '2026-01-01',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Physically deletes a specified scan task by ScannerTaskId in AI Red Teaming.
+ *
+ * @description Physically deletes a specified scan task by ScannerTaskId.
+ * - Only tasks that belong to the current tenant can be deleted. If the task does not exist or belongs to another tenant, a 400 error is returned without exposing whether the resource exists.
+ * - If the task is in progress (sample preparation, waiting, processing, or report generation), the task is automatically canceled before deletion. A cancellation failure does not block the deletion.
+ * - Physical deletion: After deletion, the task record and its status and progress information cannot be queried or recovered. Confirm before you delete.
+ * - Deleting a task record does not affect the scan target itself.
+ *
+ * @param request DeleteScannerTaskRequest
+ * @return DeleteScannerTaskResponse
+ */
+async function deleteScannerTask(request: DeleteScannerTaskRequest): DeleteScannerTaskResponse {
+  var runtime = new $RuntimeOptions{};
+  return deleteScannerTaskWithOptions(request, runtime);
+}
+
+model GenerateRelayPollerScriptRequest {
+  platform?: string(name='Platform', description='The target platform in the "operating system-architecture" format. Only linux-amd64 and linux-arm64 are supported. Compatible architecture values include amd64, x86_64, x86, arm64, and aarch64. If only the architecture is specified, the operating system defaults to linux. Other operating systems such as macOS and Windows return HTTP status code 400. If this parameter is not specified, the default value is linux-amd64.', example='linux-amd64'),
+  targetId?: string(name='TargetId', description='The unique identifier of the scan target. The target must use the enterprise_relay connection method (see CreateAttackTarget). Otherwise, HTTP status code 400 is returned. If the target does not exist or belongs to another tenant, HTTP status code 400 is returned without exposing whether the resource exists. This parameter is registered as optional but is required in practice.', example='target-abc123def4567'),
+}
+
+model GenerateRelayPollerScriptResponseBody = {
+  data?: {
+    platform?: string(name='Platform', description='The normalized target platform in the operating system-architecture format.', example='linux-amd64'),
+    script?: string(name='Script', description='The installation script content (bash). The script contains a one-time access code, a temporary download link for the poller binary (signed and valid for 1 hour), and a checksum. The script does not contain the actual endpoint or credentials of the target, which are interactively entered during installation. The script carries access credential semantics. Transmit it through a trusted channel and re-download the script to obtain a new one after use.', example='#!/bin/bash'),
+    targetId?: string(name='TargetId', description='The scan target identifier echoed from the request.', example='target-abc123def4567'),
+  }(name='Data', description='The generation result, which contains the target identifier, the normalized platform, and the installation script.'),
+  requestId?: string(name='RequestId', description='The request ID. You can use this ID for troubleshooting and log tracing.', example='1EBD0C05-6C1F-4C95-9C63-B7AB7B5A9C8E'),
+}
+
+model GenerateRelayPollerScriptResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: GenerateRelayPollerScriptResponseBody(name='body'),
+}
+
+/**
+ * @summary Generates a one-time installation script for a scan target of the enterprise_relay type in AI Red Teaming. Only Linux platforms are supported. The script contains a one-time access code.
+ *
+ * @description Generates an installation script for the internal network agent (relay-poller) for a specified scan target.
+ * - The target must use the enterprise_relay connection method (see CreateAttackTarget). Otherwise, HTTP status code 400 is returned. If the target does not exist or belongs to another tenant, HTTP status code 400 is returned without exposing whether the resource exists.
+ * - Only Linux is supported for the platform. The Platform parameter uses the "operating system-architecture" format and accepts only linux-amd64 and linux-arm64. Compatible architecture values include amd64, x86_64, x86, arm64, and aarch64. If only the architecture is specified, the operating system defaults to linux. Other operating systems such as macOS and Windows return HTTP status code 400. If this parameter is not specified, the default value is linux-amd64.
+ * - The script contains a one-time access code. Each call issues a new access code, and the previous code automatically expires. Re-downloading the script generates a new access code. Use the latest generated script for installation.
+ * - The script contains a temporary download link (a signed link valid for 1 hour) and a checksum for the poller binary. The binary is available only for Linux in both architectures.
+ * - The script does not contain the actual endpoint or credentials of the target. The installer interactively enters these values when running the script. The platform does not store them.
+ * - After installation, the poller automatically completes registration and enters a polling cycle. The registration and polling operations are automatically called by the script and do not require manual invocation. You can call TestConnectivity to verify end-to-end connectivity.
+ *
+ * @param request GenerateRelayPollerScriptRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return GenerateRelayPollerScriptResponse
+ */
+@context("generateRelayPollerScriptWithContext")
+async function generateRelayPollerScriptWithOptions(request: GenerateRelayPollerScriptRequest, runtime: $RuntimeOptions): GenerateRelayPollerScriptResponse {
+  request.validate();
+  var query = {};
+  if (!$isNull(request.platform)) {
+    query['Platform'] = request.platform;
+  }
+  if (!$isNull(request.targetId)) {
+    query['TargetId'] = request.targetId;
+  }
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'GenerateRelayPollerScript',
+    version = '2026-01-01',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Generates a one-time installation script for a scan target of the enterprise_relay type in AI Red Teaming. Only Linux platforms are supported. The script contains a one-time access code.
+ *
+ * @description Generates an installation script for the internal network agent (relay-poller) for a specified scan target.
+ * - The target must use the enterprise_relay connection method (see CreateAttackTarget). Otherwise, HTTP status code 400 is returned. If the target does not exist or belongs to another tenant, HTTP status code 400 is returned without exposing whether the resource exists.
+ * - Only Linux is supported for the platform. The Platform parameter uses the "operating system-architecture" format and accepts only linux-amd64 and linux-arm64. Compatible architecture values include amd64, x86_64, x86, arm64, and aarch64. If only the architecture is specified, the operating system defaults to linux. Other operating systems such as macOS and Windows return HTTP status code 400. If this parameter is not specified, the default value is linux-amd64.
+ * - The script contains a one-time access code. Each call issues a new access code, and the previous code automatically expires. Re-downloading the script generates a new access code. Use the latest generated script for installation.
+ * - The script contains a temporary download link (a signed link valid for 1 hour) and a checksum for the poller binary. The binary is available only for Linux in both architectures.
+ * - The script does not contain the actual endpoint or credentials of the target. The installer interactively enters these values when running the script. The platform does not store them.
+ * - After installation, the poller automatically completes registration and enters a polling cycle. The registration and polling operations are automatically called by the script and do not require manual invocation. You can call TestConnectivity to verify end-to-end connectivity.
+ *
+ * @param request GenerateRelayPollerScriptRequest
+ * @return GenerateRelayPollerScriptResponse
+ */
+async function generateRelayPollerScript(request: GenerateRelayPollerScriptRequest): GenerateRelayPollerScriptResponse {
+  var runtime = new $RuntimeOptions{};
+  return generateRelayPollerScriptWithOptions(request, runtime);
+}
+
+model GetAttackTargetRequest {
+  targetId?: string(name='TargetId', description='The unique identifier of the scan target. If the target does not exist or belongs to another tenant, a 400 error is returned to avoid exposing whether the resource exists.
+
+This parameter is required.', example='target-abc123def4567'),
+}
+
+model GetAttackTargetResponseBody = {
+  data?: {
+    connectionConfig?: string(name='ConnectionConfig', description='The advanced connection configuration (JSON character string). For common fields and provider configuration templates, refer to the ConnectionConfig parameter of CreateAttackTarget.', example='{\\\\"httpMethod\\\\":\\\\"POST\\\\",\\\\"authType\\\\":\\\\"bearer\\\\",\\\\"timeoutMs\\\\":30000,\\\\"requestTemplate\\\\":\\\\"{\\\\\\\\\\\\"input\\\\\\\\\\\\":{\\\\\\\\\\\\"prompt\\\\\\\\\\\\":\\\\\\\\\\\\"{{prompt}}\\\\\\\\\\\\"},\\\\\\\\\\\\"parameters\\\\\\\\\\\\":{\\\\\\\\\\\\"incremental_output\\\\\\\\\\\\":true},\\\\\\\\\\\\"debug\\\\\\\\\\\\":{}}\\\\",\\\\"messageJsonPath\\\\":\\\\"$.output.text\\\\",\\\\"requestHeaders\\\\":\\\\"{\\\\\\\\\\\\"X-DashScope-SSE\\\\\\\\\\\\": \\\\\\\\\\\\"enable\\\\\\\\\\\\" }\\\\",\\\\"stream\\\\":true,\\\\"customAuthHeaderName\\\\":\\\\"\\\\"}'),
+    connectionMethod?: string(name='ConnectionMethod', description='The connection protocol type of the target service.', example='openai'),
+    createTime?: long(name='CreateTime', description='The time when the target was created. This value is a UNIX timestamp in milliseconds.', example='1735689600000'),
+    description?: string(name='Description', description='The description of the scan target. This value may be empty.', example='Production Bailian application'),
+    endpoint?: string(name='Endpoint', description='The HTTP or HTTPS endpoint of the target model service. When ConnectionMethod is set to enterprise_relay, this value is a fixed internal endpoint.', example='https://dashscope.aliyuncs.com/compatible-mode/v1'),
+    firstScanTime?: long(name='FirstScanTime', description='The time of the first scan. This value is a UNIX timestamp in milliseconds. This is an aggregate field that is not populated by this operation and returns an empty value. Refer to ListAttackTargets.', example='1735689600000'),
+    lastScanFailMessage?: string(name='LastScanFailMessage', description='The failure reason of the most recent scan task. This is an aggregate field that is not populated by this operation and returns an empty value. Refer to ListAttackTargets.', example='Execution timed out'),
+    lastScanStatus?: string(name='LastScanStatus', description='The status of the most recent scan task. This is an aggregate field that is not populated by this operation and returns an empty value. Refer to ListAttackTargets.', example='completed'),
+    lastScanTime?: long(name='LastScanTime', description='The time of the most recent scan. This value is a UNIX timestamp in milliseconds. This is an aggregate field that is not populated by this operation and returns an empty value. Refer to ListAttackTargets.', example='1735689600000'),
+    modelName?: string(name='ModelName', description='The name of the target model. When ConnectionMethod is set to enterprise_relay, this value is the fixed platform value Agent.', example='qwen-flash'),
+    modifyTime?: long(name='ModifyTime', description='The time when the target was last modified. This value is a UNIX timestamp in milliseconds.', example='1735689600000'),
+    provider?: string(name='Provider', description='The business label of the model or agent provider.', example='bailian'),
+    riskLevel?: string(name='RiskLevel', description='The risk level of the task result. This is an aggregate field that is not populated by this operation and returns an empty value. Refer to ListAttackTargets.', example='high'),
+    scanCount?: long(name='ScanCount', description='The cumulative number of scans. This is an aggregate field that is not populated by this operation and returns an empty value. For the meaning and example values, refer to the ListAttackTargets response.', example='12'),
+    scanTaskConfig?: string(name='ScanTaskConfig', description='The scan node configuration (JSON character string). Common fields include scanType (scan pattern: attack for security attack scan, tc260 for TC260 filing scan), scannerType (execute DPI engine: classic for per-sample execute, agent for multi-round autonomous attack), and sampleScope (sample scope: version for the current effective version, all for full samples). If the target is not configured, the default configurations are returned.', example='{"scanType":"attack","scannerType":"classic","sampleScope":"all"}'),
+    targetId?: string(name='TargetId', description='The unique identifier of the scan target.', example='target-abc123def4567'),
+    targetName?: string(name='TargetName', description='The display name of the scan target.', example='My Bailian target'),
+    targetType?: string(name='TargetType', description='The type of the scan target.', example='model'),
+  }(name='Data', description='The scan target details.'),
+  requestId?: string(name='RequestId', description='The request ID. You can use this ID for troubleshooting and log tracing.', example='1EBD0C05-6C1F-4C95-9C63-B7AB7B5A9C8E'),
+}
+
+model GetAttackTargetResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: GetAttackTargetResponseBody(name='body'),
+}
+
+/**
+ * @summary Queries the details of a scan target by TargetId for AI Red Teaming, including connection configuration and scan task configuration.
+ *
+ * @description Queries the details of a scan target by TargetId.
+ * - Only targets that belong to the current tenant can be queried. If the target does not exist or belongs to another tenant, a 400 error is returned to avoid exposing whether the resource exists.
+ * - The response includes basic target information, advanced connection configuration (ConnectionConfig), and scan task configuration (ScanTaskConfig).
+ * - The following six aggregate fields are not populated by this operation and return empty values: cumulative scan count (ScanCount), last scan status (LastScanStatus), risk level (RiskLevel), first scan time (FirstScanTime), last scan time (LastScanTime), and last scan failure reason (LastScanFailMessage). Query these fields by calling ListAttackTargets or ListScanTasksByTarget.
+ * - The response does not include sensitive credentials such as ApiKey in plaintext.
+ *
+ * @param request GetAttackTargetRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return GetAttackTargetResponse
+ */
+@context("getAttackTargetWithContext")
+async function getAttackTargetWithOptions(request: GetAttackTargetRequest, runtime: $RuntimeOptions): GetAttackTargetResponse {
+  request.validate();
+  var query = {};
+  if (!$isNull(request.targetId)) {
+    query['TargetId'] = request.targetId;
+  }
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'GetAttackTarget',
+    version = '2026-01-01',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Queries the details of a scan target by TargetId for AI Red Teaming, including connection configuration and scan task configuration.
+ *
+ * @description Queries the details of a scan target by TargetId.
+ * - Only targets that belong to the current tenant can be queried. If the target does not exist or belongs to another tenant, a 400 error is returned to avoid exposing whether the resource exists.
+ * - The response includes basic target information, advanced connection configuration (ConnectionConfig), and scan task configuration (ScanTaskConfig).
+ * - The following six aggregate fields are not populated by this operation and return empty values: cumulative scan count (ScanCount), last scan status (LastScanStatus), risk level (RiskLevel), first scan time (FirstScanTime), last scan time (LastScanTime), and last scan failure reason (LastScanFailMessage). Query these fields by calling ListAttackTargets or ListScanTasksByTarget.
+ * - The response does not include sensitive credentials such as ApiKey in plaintext.
+ *
+ * @param request GetAttackTargetRequest
+ * @return GetAttackTargetResponse
+ */
+async function getAttackTarget(request: GetAttackTargetRequest): GetAttackTargetResponse {
+  var runtime = new $RuntimeOptions{};
+  return getAttackTargetWithOptions(request, runtime);
+}
+
+model GetScannerTaskHitDataUrlRequest {
+  scannerTaskId?: string(name='ScannerTaskId', description='The unique identifier of the scan task. This is the TaskId returned by CreateTargetScanTask or the ScannerTaskId returned by ListScanTasksByTarget. This parameter is registered as optional but is required in practice. An empty value returns HTTP status code 400. If the task does not exist or belongs to another tenant, HTTP status code 400 is returned uniformly to avoid exposing whether the resource exists.', example='task-abc123def4567'),
+}
+
+model GetScannerTaskHitDataUrlResponseBody = {
+  data?: {
+    scannerTaskHitDataDownloadUrl?: string(name='ScannerTaskHitDataDownloadUrl', description='The temporary download URL for the attack hit data (hits.csv). The URL is valid for 2 hours. After the URL expires, call this operation again to obtain a new URL. If the task is an existing task or the agent execution mode does not produce hit data, this parameter is an empty string. The actual value is a signed temporary URL of Object Storage Service (OSS) that contains signature parameters.', example='https://example.com/result.task-abc123def4567.hits.csv'),
+    scannerTaskId?: string(name='ScannerTaskId', description='The scan task identifier echoed from the request.', example='task-abc123def4567'),
+  }(name='Data', description='The query result, which contains the task identifier and the temporary download URL for the hit data.'),
+  requestId?: string(name='RequestId', description='The request ID. You can use this ID for troubleshooting and log tracing.', example='1EBD0C05-6C1F-4C95-9C63-B7AB7B5A9C8E'),
+}
+
+model GetScannerTaskHitDataUrlResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: GetScannerTaskHitDataUrlResponseBody(name='body'),
+}
+
+/**
+ * @summary Retrieves a temporary download URL for the attack hit data (hits.csv) of a specified scan task in AI Red Teaming. The URL is valid for 2 hours. An empty string is returned if the data has not been generated.
+ *
+ * @description Retrieves a temporary download URL for the attack hit data (hits.csv) of a specified scan task.
+ * - ScannerTaskId is required in practice. An empty value returns HTTP status code 400.
+ * - You can query only tasks that belong to the current tenant. If the task does not exist or belongs to another tenant, HTTP status code 400 is returned uniformly to avoid exposing whether the resource exists.
+ * - The download URL is a signed temporary URL of Object Storage Service (OSS) that is valid for 2 hours (7,200 seconds). After the URL expires, call this operation again to obtain a new URL.
+ * - If the attack hit data has not been generated (for existing tasks or when the agent execution mode does not produce hit data), the download URL in the response is an empty string. No error is returned.
+ * - This operation is a read-only action (with the Get prefix). A RAM user with read-only permissions can call this operation. The behavior is consistent with the deprecated GenerateScannerTaskHitDataUrl operation.
+ *
+ * @param request GetScannerTaskHitDataUrlRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return GetScannerTaskHitDataUrlResponse
+ */
+@context("getScannerTaskHitDataUrlWithContext")
+async function getScannerTaskHitDataUrlWithOptions(request: GetScannerTaskHitDataUrlRequest, runtime: $RuntimeOptions): GetScannerTaskHitDataUrlResponse {
+  request.validate();
+  var query = {};
+  if (!$isNull(request.scannerTaskId)) {
+    query['ScannerTaskId'] = request.scannerTaskId;
+  }
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'GetScannerTaskHitDataUrl',
+    version = '2026-01-01',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Retrieves a temporary download URL for the attack hit data (hits.csv) of a specified scan task in AI Red Teaming. The URL is valid for 2 hours. An empty string is returned if the data has not been generated.
+ *
+ * @description Retrieves a temporary download URL for the attack hit data (hits.csv) of a specified scan task.
+ * - ScannerTaskId is required in practice. An empty value returns HTTP status code 400.
+ * - You can query only tasks that belong to the current tenant. If the task does not exist or belongs to another tenant, HTTP status code 400 is returned uniformly to avoid exposing whether the resource exists.
+ * - The download URL is a signed temporary URL of Object Storage Service (OSS) that is valid for 2 hours (7,200 seconds). After the URL expires, call this operation again to obtain a new URL.
+ * - If the attack hit data has not been generated (for existing tasks or when the agent execution mode does not produce hit data), the download URL in the response is an empty string. No error is returned.
+ * - This operation is a read-only action (with the Get prefix). A RAM user with read-only permissions can call this operation. The behavior is consistent with the deprecated GenerateScannerTaskHitDataUrl operation.
+ *
+ * @param request GetScannerTaskHitDataUrlRequest
+ * @return GetScannerTaskHitDataUrlResponse
+ */
+async function getScannerTaskHitDataUrl(request: GetScannerTaskHitDataUrlRequest): GetScannerTaskHitDataUrlResponse {
+  var runtime = new $RuntimeOptions{};
+  return getScannerTaskHitDataUrlWithOptions(request, runtime);
+}
+
+model GetScannerTaskResultHtmlUrlRequest {
+  scannerTaskId?: string(name='ScannerTaskId', description='The unique identifier of the scan task. This is the TaskId returned by CreateTargetScanTask or the ScannerTaskId returned by ListScanTasksByTarget. If the task does not exist or belongs to another tenant, a 400 error is returned to avoid exposing whether the resource exists.
+
+This parameter is required.', example='task-abc123def4567'),
+}
+
+model GetScannerTaskResultHtmlUrlResponseBody = {
+  data?: {
+    scannerTaskResultHtmlDownloadUrl?: string(name='ScannerTaskResultHtmlDownloadUrl', description='The temporary download URL for the HTML result report. The URL is valid for 2 hours. After the URL expires, call this operation again to obtain a new URL. If the report has not been generated, this value is an empty string. The actual value is a signed temporary URL from object storage that includes signature parameters.', example='https://example.com/result.task-abc123def4567.report.html'),
+  }(name='Data', description='The query result, which contains the temporary download URL for the HTML result report.'),
+  requestId?: string(name='RequestId', description='The request ID, which is used for troubleshooting and log tracing.', example='1EBD0C05-6C1F-4C95-9C63-B7AB7B5A9C8E'),
+}
+
+model GetScannerTaskResultHtmlUrlResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: GetScannerTaskResultHtmlUrlResponseBody(name='body'),
+}
+
+/**
+ * @summary Retrieves a temporary download URL for the HTML result report of an AI Red Teaming scan task. The URL is valid for 2 hours. An empty string is returned if the report has not been generated.
+ *
+ * @description Retrieves a temporary download URL for the HTML result report of a specified scan task.
+ * - You can only query tasks that belong to the current tenant. If the task does not exist or belongs to another tenant, a 400 error is returned to avoid exposing whether the resource exists.
+ * - The download URL is a signed temporary URL from object storage, valid for 2 hours (7,200 seconds). After the URL expires, call this operation again to obtain a new URL.
+ * - If the task result report has not been generated (the task is not complete or the report has not been produced), the download URL in the response is an empty string and no error is returned. Call this operation after the task status changes to completed.
+ *
+ * @param request GetScannerTaskResultHtmlUrlRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return GetScannerTaskResultHtmlUrlResponse
+ */
+@context("getScannerTaskResultHtmlUrlWithContext")
+async function getScannerTaskResultHtmlUrlWithOptions(request: GetScannerTaskResultHtmlUrlRequest, runtime: $RuntimeOptions): GetScannerTaskResultHtmlUrlResponse {
+  request.validate();
+  var query = {};
+  if (!$isNull(request.scannerTaskId)) {
+    query['ScannerTaskId'] = request.scannerTaskId;
+  }
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'GetScannerTaskResultHtmlUrl',
+    version = '2026-01-01',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Retrieves a temporary download URL for the HTML result report of an AI Red Teaming scan task. The URL is valid for 2 hours. An empty string is returned if the report has not been generated.
+ *
+ * @description Retrieves a temporary download URL for the HTML result report of a specified scan task.
+ * - You can only query tasks that belong to the current tenant. If the task does not exist or belongs to another tenant, a 400 error is returned to avoid exposing whether the resource exists.
+ * - The download URL is a signed temporary URL from object storage, valid for 2 hours (7,200 seconds). After the URL expires, call this operation again to obtain a new URL.
+ * - If the task result report has not been generated (the task is not complete or the report has not been produced), the download URL in the response is an empty string and no error is returned. Call this operation after the task status changes to completed.
+ *
+ * @param request GetScannerTaskResultHtmlUrlRequest
+ * @return GetScannerTaskResultHtmlUrlResponse
+ */
+async function getScannerTaskResultHtmlUrl(request: GetScannerTaskResultHtmlUrlRequest): GetScannerTaskResultHtmlUrlResponse {
+  var runtime = new $RuntimeOptions{};
+  return getScannerTaskResultHtmlUrlWithOptions(request, runtime);
+}
+
 model ListAIAgentEventRequest {
   appId?: string(name='AppId', description='The ID of the agent application.', example='99f30e6b-8374-4a45-8830-439f178c5463'),
   appName?: string(name='AppName', description='Filters the agent list by application name.', example='erH'),
@@ -156,9 +840,10 @@ model ListAIAgentEventRequest {
 
 - **zh** (default): Chinese.
 - **en**: English.', example='zh'),
-  order?: string(name='Order', description='Sort direction'),
-  orderBy?: string(name='OrderBy', description='Sort field, currently supports CheckTime'),
+  order?: string(name='Order', description='The sort order. Valid values: asc indicates ascending order. desc indicates descending order.', example='asc'),
+  orderBy?: string(name='OrderBy', description='The field by which to sort results. Currently, only sorting by check time is supported.', example='CheckTime'),
   pageSize?: int32(name='PageSize', description='The number of entries per page.', example='10'),
+  resourceDirectoryAccountId?: long(name='ResourceDirectoryAccountId'),
   riskLevel?: string(name='RiskLevel', description='The risk level of the check item to query. Valid values:
 
 - **high**: High.
@@ -179,12 +864,12 @@ model ListAIAgentEventRequest {
 5. rescanned: Rescanned.', example='fixed'),
   statusList?: [ string ](name='StatusList', description='The list of statuses.'),
   vendor?: string(name='Vendor', description='The cloud asset vendor. Valid values:
-- **DIFY**: DIFY.
-- **BAILIAN**: BAILIAN.
-- **VOLCAI**: VOLCAI.
-- **AGENTRUN**: AGENTRUN.
-- **PAI**: PAI.
-- **OpenClaw**: OpenClaw.', example='DIFY'),
+- ** DIFY**: DIFY
+- ** BAILIAN**: BAILIAN
+- ** VOLCAI**: VOLCAI
+- ** AGENTRUN**: AGENTRUN
+- ** PAI**: PAI
+- ** OpenClaw**: OpenClaw', example='DIFY'),
 }
 
 model ListAIAgentEventResponseBody = {
@@ -202,8 +887,8 @@ model ListAIAgentEventResponseBody = {
 6. skill
 7. app
 8. identity', example='tool'),
-      checkTime?: string(name='CheckTime', description='The check time.', example='1763949968'),
-      handleTime?: string(name='HandleTime', description='The event handling time.', example='1763949968'),
+      checkTime?: string(name='CheckTime', description='The check time, in UNIX timestamp format. Unit: seconds.', example='1763949968'),
+      handleTime?: string(name='HandleTime', description='The event handling time, in UNIX timestamp format. Unit: seconds.', example='1763949968'),
       id?: long(name='Id', description='The primary key ID.', example='17616'),
       infraInstanceId?: string(name='InfraInstanceId', description='The infrastructure instance ID.', example='i-test'),
       infraInternetIp?: string(name='InfraInternetIp', description='The public IP address of the infrastructure.', example='1.2.3.4'),
@@ -218,7 +903,7 @@ model ListAIAgentEventResponseBody = {
 - **medium**: Medium.
 - **low**: Low.', example='high'),
       riskName?: string(name='RiskName', description='The risk name.', example='Weak password'),
-      skillId?: long(name='SkillId'),
+      skillId?: long(name='SkillId', description='The associated skill ID.', example='0'),
       source?: string(name='Source', description='The event source. Valid values:
 1. cspm
 2. aiguard
@@ -232,12 +917,12 @@ model ListAIAgentEventResponseBody = {
 4. ignored: Ignored.
 5. rescanned: Rescanned.', example='unhandled'),
       vendor?: string(name='Vendor', description='The cloud asset vendor. Valid values:
-- **DIFY**: DIFY.
-- **BAILIAN**: BAILIAN.
-- **VOLCAI**: VOLCAI.
-- **AGENTRUN**: AGENTRUN.
-- **PAI**: PAI.
-- **OpenClaw**: OpenClaw.', example='DIFY'),
+- ** DIFY**: DIFY
+- ** BAILIAN**: BAILIAN
+- ** VOLCAI**: VOLCAI
+- ** AGENTRUN**: AGENTRUN
+- ** PAI**: PAI
+- ** OpenClaw**: OpenClaw', example='DIFY'),
     }
   ](name='Data', description='The list of event information returned.'),
   pageInfo?: {
@@ -302,6 +987,9 @@ async function listAIAgentEventWithOptions(request: ListAIAgentEventRequest, run
   if (!$isNull(request.pageSize)) {
     query['PageSize'] = request.pageSize;
   }
+  if (!$isNull(request.resourceDirectoryAccountId)) {
+    query['ResourceDirectoryAccountId'] = request.resourceDirectoryAccountId;
+  }
   if (!$isNull(request.riskLevel)) {
     query['RiskLevel'] = request.riskLevel;
   }
@@ -346,6 +1034,261 @@ async function listAIAgentEventWithOptions(request: ListAIAgentEventRequest, run
 async function listAIAgentEvent(request: ListAIAgentEventRequest): ListAIAgentEventResponse {
   var runtime = new $RuntimeOptions{};
   return listAIAgentEventWithOptions(request, runtime);
+}
+
+model ListAttackTargetsRequest {
+  firstScanTimeEnd?: string(name='FirstScanTimeEnd', description='The upper bound (inclusive) of the first scan time range. The value is a UNIX timestamp in milliseconds.', example='1735689600000'),
+  firstScanTimeStart?: string(name='FirstScanTimeStart', description='The lower bound (inclusive) of the first scan time range. The value is a UNIX timestamp in milliseconds.', example='1735689600000'),
+  lastScanStatus?: string(name='LastScanStatus', description='Filters targets by the status of the most recent scan task.', example='completed'),
+  lastScanTimeEnd?: string(name='LastScanTimeEnd', description='The upper bound (inclusive) of the last scan time range. The value is a UNIX timestamp in milliseconds.', example='1735689600000'),
+  lastScanTimeStart?: string(name='LastScanTimeStart', description='The lower bound (inclusive) of the last scan time range. The value is a UNIX timestamp in milliseconds.', example='1735689600000'),
+  pageNumber?: long(name='PageNumber', description='The page number. Pages start from 1. Values less than 1 are normalized to 1.
+
+This parameter is required.', example='1'),
+  pageSize?: long(name='PageSize', description='The number of entries per page. Default value: 10. Maximum value: 100. Values greater than 100 are clamped to 100. Values less than 1 return HTTP status code 400.
+
+This parameter is required.', example='10'),
+  provider?: string(name='Provider', description='Filters targets by the exact business label of the model or agent provider. This parameter is decoupled from ConnectionMethod (technical protocol).', example='bailian'),
+  riskLevel?: string(name='RiskLevel', description='Filters targets by the risk level derived from the most recent completed scan task. Targets that have never been scanned do not have a risk level and are not matched by any value.', example='high'),
+  sortField?: string(name='SortField', description='The field used for sorting. Only the following three aggregate fields are supported. Sorting is performed in memory. If this parameter is not specified, no additional sorting is applied.', example='lastScanTime'),
+  sortOrder?: string(name='SortOrder', description='The sort order. Targets with null aggregate values are always placed last regardless of the sort order.', example='desc'),
+  targetName?: string(name='TargetName', description='Filters targets by name using fuzzy match (substring match). If this parameter is not specified, all targets are returned.', example='Bailian'),
+  targetType?: string(name='TargetType', description='Filters targets by the exact scan target type.', example='model'),
+}
+
+model ListAttackTargetsResponseBody = {
+  data?: [ 
+    {
+      connectionConfig?: string(name='ConnectionConfig', description='The advanced connection configuration for the target (JSON character string). For common fields and provider configuration templates, see the ConnectionConfig parameter description of the CreateAttackTarget operation.', example='{\\\\"httpMethod\\\\":\\\\"POST\\\\",\\\\"authType\\\\":\\\\"bearer\\\\",\\\\"timeoutMs\\\\":30000,\\\\"requestTemplate\\\\":\\\\"{\\\\\\\\\\\\"input\\\\\\\\\\\\":{\\\\\\\\\\\\"prompt\\\\\\\\\\\\":\\\\\\\\\\\\"{{prompt}}\\\\\\\\\\\\"},\\\\\\\\\\\\"parameters\\\\\\\\\\\\":{\\\\\\\\\\\\"incremental_output\\\\\\\\\\\\":true},\\\\\\\\\\\\"debug\\\\\\\\\\\\":{}}\\\\",\\\\"messageJsonPath\\\\":\\\\"$.output.text\\\\",\\\\"requestHeaders\\\\":\\\\"{\\\\\\\\\\\\"X-DashScope-SSE\\\\\\\\\\\\": \\\\\\\\\\\\"enable\\\\\\\\\\\\" }\\\\",\\\\"stream\\\\":true,\\\\"customAuthHeaderName\\\\":\\\\"\\\\"}'),
+      connectionMethod?: string(name='ConnectionMethod', description='The connection protocol type of the target service.', example='openai'),
+      createTime?: long(name='CreateTime', description='The time when the target was created. The value is a millisecond-level UNIX timestamp.', example='1735689600000'),
+      description?: string(name='Description', description='The description of the scan target.', example='Production Bailian application'),
+      endpoint?: string(name='Endpoint', description='The HTTP or HTTPS endpoint address of the target model service.', example='https://dashscope.aliyuncs.com/compatible-mode/v1'),
+      firstScanTime?: long(name='FirstScanTime', description='The time when the first scan was performed. The value is a millisecond-level UNIX timestamp. This parameter is null if no scan has been performed.', example='1735689600000'),
+      lastScanFailMessage?: string(name='LastScanFailMessage', description='The failure reason of the most recent scan task. This parameter is empty if the most recent scan did not fail.', example='Scan executor connection timed out'),
+      lastScanStatus?: string(name='LastScanStatus', description='The detection status of the most recent scan task.', example='completed'),
+      lastScanTime?: long(name='LastScanTime', description='The time when the last scan was performed. The value is a millisecond-level UNIX timestamp. This parameter is null if no scan has been performed.', example='1735689600000'),
+      lastVerifyMessage?: string(name='LastVerifyMessage', description='The detailed message of the most recent connectivity verification. If the verification succeeded, the value is a response content snippet returned by the target service. If the verification failed, the value is the error reason.', example='Connectivity verification succeeded'),
+      modelName?: string(name='ModelName', description='The name of the target model.', example='qwen-flash'),
+      modifyTime?: long(name='ModifyTime', description='The time when the target was last modified. The value is a millisecond-level UNIX timestamp.', example='1735689600000'),
+      provider?: string(name='Provider', description='The business label of the model or agent provider.', example='bailian'),
+      riskLevel?: string(name='RiskLevel', description='The risk level derived from the most recent completed scan task. This parameter is null if no scan has been performed.', example='high'),
+      scanCount?: long(name='ScanCount', description='The total number of scans performed. The value is 0 if no scan has been performed.', example='12'),
+      targetId?: string(name='TargetId', description='The unique identifier of the scan target.', example='target-abc123def4567'),
+      targetName?: string(name='TargetName', description='The display name of the scan target.', example='My Bailian target'),
+      targetType?: string(name='TargetType', description='The type of the scan target.', example='model'),
+      verifyStatus?: string(name='VerifyStatus', description='The connectivity verification status of the target.', example='verified'),
+    }
+  ](name='Data', description='The list of scan targets on the current page.'),
+  pageNumber?: long(name='PageNumber', description='The normalized page number that takes effect. The value may differ from the input parameter.', example='1'),
+  pageSize?: long(name='PageSize', description='The normalized number of entries per page that takes effect. The value may differ from the input parameter.', example='10'),
+  requestId?: string(name='RequestId', description='The request ID. You can use this ID for troubleshooting and log tracing.', example='1EBD0C05-6C1F-4C95-9C63-xxxx'),
+  totalCount?: long(name='TotalCount', description='The total number of scan targets that match the filter conditions. In post-filtering scenarios, this value is the total count after in-memory filtering.', example='42'),
+}
+
+model ListAttackTargetsResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ListAttackTargetsResponseBody(name='body'),
+}
+
+/**
+ * @summary Queries the list of scan targets for AI Red Teaming. This operation supports multi-dimensional filtering and sorting.
+ *
+ * @param request ListAttackTargetsRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return ListAttackTargetsResponse
+ */
+@context("listAttackTargetsWithContext")
+async function listAttackTargetsWithOptions(request: ListAttackTargetsRequest, runtime: $RuntimeOptions): ListAttackTargetsResponse {
+  request.validate();
+  var query = {};
+  if (!$isNull(request.firstScanTimeEnd)) {
+    query['FirstScanTimeEnd'] = request.firstScanTimeEnd;
+  }
+  if (!$isNull(request.firstScanTimeStart)) {
+    query['FirstScanTimeStart'] = request.firstScanTimeStart;
+  }
+  if (!$isNull(request.lastScanStatus)) {
+    query['LastScanStatus'] = request.lastScanStatus;
+  }
+  if (!$isNull(request.lastScanTimeEnd)) {
+    query['LastScanTimeEnd'] = request.lastScanTimeEnd;
+  }
+  if (!$isNull(request.lastScanTimeStart)) {
+    query['LastScanTimeStart'] = request.lastScanTimeStart;
+  }
+  if (!$isNull(request.pageNumber)) {
+    query['PageNumber'] = request.pageNumber;
+  }
+  if (!$isNull(request.pageSize)) {
+    query['PageSize'] = request.pageSize;
+  }
+  if (!$isNull(request.provider)) {
+    query['Provider'] = request.provider;
+  }
+  if (!$isNull(request.riskLevel)) {
+    query['RiskLevel'] = request.riskLevel;
+  }
+  if (!$isNull(request.sortField)) {
+    query['SortField'] = request.sortField;
+  }
+  if (!$isNull(request.sortOrder)) {
+    query['SortOrder'] = request.sortOrder;
+  }
+  if (!$isNull(request.targetName)) {
+    query['TargetName'] = request.targetName;
+  }
+  if (!$isNull(request.targetType)) {
+    query['TargetType'] = request.targetType;
+  }
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'ListAttackTargets',
+    version = '2026-01-01',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Queries the list of scan targets for AI Red Teaming. This operation supports multi-dimensional filtering and sorting.
+ *
+ * @param request ListAttackTargetsRequest
+ * @return ListAttackTargetsResponse
+ */
+async function listAttackTargets(request: ListAttackTargetsRequest): ListAttackTargetsResponse {
+  var runtime = new $RuntimeOptions{};
+  return listAttackTargetsWithOptions(request, runtime);
+}
+
+model ListScanTasksByTargetRequest {
+  pageNumber?: string(name='PageNumber', description='The page number, starting from 1. Values less than 1 are normalized to 1.
+
+This parameter is required.', example='1'),
+  pageSize?: string(name='PageSize', description='The number of entries per page. Default value: 10. Maximum value: 100. Values greater than 100 are clamped to 100. Values less than 1 return HTTP status code 400.
+
+This parameter is required.', example='10'),
+  sampleLevel?: string(name='SampleLevel', description='Filters by detection intensity. If this parameter is not specified, no filtering by intensity is applied.', example='2'),
+  scanType?: string(name='ScanType', description='Filters by scan type. If this parameter is not specified, tasks of all scan types are returned.', example='attack'),
+  targetId?: string(name='TargetId', description='The unique identifier of the scan target. Only tasks under this target are queried. If the target does not exist or does not belong to the current tenant, HTTP status code 400 is returned.
+
+This parameter is required.', example='target-abc123def4567'),
+  taskStatus?: string(name='TaskStatus', description='Filters by task status. If this parameter is not specified, tasks in all statuses are returned.', example='completed'),
+}
+
+model ListScanTasksByTargetResponseBody = {
+  data?: [ 
+    {
+      createTime?: long(name='CreateTime', description='The task creation time, in milliseconds (Unix epoch milliseconds).', example='1735689600000'),
+      endTime?: long(name='EndTime', description='The task end time, in milliseconds (Unix epoch milliseconds). This value is null if the task has not ended.', example='1735689600000'),
+      executeCaseCount?: long(name='ExecuteCaseCount', description='The number of samples that the task has executed.', example='80'),
+      riskLevel?: string(name='RiskLevel', description='The risk level of the task result. This value is null if the task is not completed or no risk assessment has been generated.', example='high'),
+      sampleLevel?: long(name='SampleLevel', description='The detection intensity of the task.', example='2'),
+      scanType?: string(name='ScanType', description='The scan type of the task. Historical tasks without a recorded scan type are normalized to attack.', example='attack'),
+      scannerTaskId?: string(name='ScannerTaskId', description='The unique identifier of the scan task. You can use this ID for result download and status tracking.', example='task-abc123def4567'),
+      scannerTaskMessage?: string(name='ScannerTaskMessage', description='The task message. This value contains the failure reason if the task failed, or is empty if the task succeeded or no message is available.', example='Execution timed out'),
+      scannerTaskStatus?: string(name='ScannerTaskStatus', description='The current status of the task.', example='completed'),
+      startTime?: long(name='StartTime', description='The task start time, in milliseconds (Unix epoch milliseconds). This value is null if the task has not started.', example='1735689600000'),
+      taskName?: string(name='TaskName', description='The task name. If no name is specified during creation, the default value is "Target Scan - target name".', example='Target Scan - My Bailian Target'),
+      totalCaseCount?: long(name='TotalCaseCount', description='The total number of samples that the task plans to execute.', example='120'),
+    }
+  ](name='Data', description='The list of scan tasks on the current page.'),
+  pageNumber?: long(name='PageNumber', description='The normalized page number that actually takes effect. This value may differ from the input parameter.', example='1'),
+  pageSize?: long(name='PageSize', description='The normalized number of entries per page that actually takes effect. This value may differ from the input parameter.', example='10'),
+  requestId?: string(name='RequestId', description='The unique identifier of the request, used for troubleshooting and log tracing.', example='1EBD0C05-6C1F-4C95-9C63-B7AB7B5A9C8E'),
+  totalCount?: long(name='TotalCount', description='The total number of scan tasks that match the filter conditions within the last 366-day window.', example='42'),
+}
+
+model ListScanTasksByTargetResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ListScanTasksByTargetResponseBody(name='body'),
+}
+
+/**
+ * @summary Performs a paged query of scan tasks under a specified scan target for AI Red Teaming. Supports filtering by detection intensity, task status, and scan mode.
+ *
+ * @description Performs a paged query of the scan task list under a specified scan target. Only tasks belonging to targets owned by the current tenant are returned.
+ * Query scope and sorting:
+ * - Only tasks created within the last 366 days are returned.
+ * - Results are sorted by creation time in descending order.
+ * - TaskStatus filters by task status. ScanType filters by scan mode. The scan mode is stored in the task execute parameters. Historical tasks without a recorded scan mode are treated as attack.
+ * Paged query rules:
+ * - PageNumber starts from 1. Values less than 1 are normalized to 1.
+ * - PageSize defaults to 10, with a maximum of 100 per page. Values greater than 100 are clamped to 100. Values less than 1 return HTTP status code 400.
+ * - The PageNumber and PageSize values in the response are the normalization values that actually take effect.
+ *
+ * @param request ListScanTasksByTargetRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return ListScanTasksByTargetResponse
+ */
+@context("listScanTasksByTargetWithContext")
+async function listScanTasksByTargetWithOptions(request: ListScanTasksByTargetRequest, runtime: $RuntimeOptions): ListScanTasksByTargetResponse {
+  request.validate();
+  var query = {};
+  if (!$isNull(request.pageNumber)) {
+    query['PageNumber'] = request.pageNumber;
+  }
+  if (!$isNull(request.pageSize)) {
+    query['PageSize'] = request.pageSize;
+  }
+  if (!$isNull(request.sampleLevel)) {
+    query['SampleLevel'] = request.sampleLevel;
+  }
+  if (!$isNull(request.scanType)) {
+    query['ScanType'] = request.scanType;
+  }
+  if (!$isNull(request.targetId)) {
+    query['TargetId'] = request.targetId;
+  }
+  if (!$isNull(request.taskStatus)) {
+    query['TaskStatus'] = request.taskStatus;
+  }
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'ListScanTasksByTarget',
+    version = '2026-01-01',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Performs a paged query of scan tasks under a specified scan target for AI Red Teaming. Supports filtering by detection intensity, task status, and scan mode.
+ *
+ * @description Performs a paged query of the scan task list under a specified scan target. Only tasks belonging to targets owned by the current tenant are returned.
+ * Query scope and sorting:
+ * - Only tasks created within the last 366 days are returned.
+ * - Results are sorted by creation time in descending order.
+ * - TaskStatus filters by task status. ScanType filters by scan mode. The scan mode is stored in the task execute parameters. Historical tasks without a recorded scan mode are treated as attack.
+ * Paged query rules:
+ * - PageNumber starts from 1. Values less than 1 are normalized to 1.
+ * - PageSize defaults to 10, with a maximum of 100 per page. Values greater than 100 are clamped to 100. Values less than 1 return HTTP status code 400.
+ * - The PageNumber and PageSize values in the response are the normalization values that actually take effect.
+ *
+ * @param request ListScanTasksByTargetRequest
+ * @return ListScanTasksByTargetResponse
+ */
+async function listScanTasksByTarget(request: ListScanTasksByTargetRequest): ListScanTasksByTargetResponse {
+  var runtime = new $RuntimeOptions{};
+  return listScanTasksByTargetWithOptions(request, runtime);
 }
 
 model ListSubTasksRequest {
@@ -493,5 +1436,186 @@ async function listSubTasksWithOptions(request: ListSubTasksRequest, runtime: $R
 async function listSubTasks(request: ListSubTasksRequest): ListSubTasksResponse {
   var runtime = new $RuntimeOptions{};
   return listSubTasksWithOptions(request, runtime);
+}
+
+model StopScannerTaskRequest {
+  scannerTaskId?: string(name='ScannerTaskId', description='The unique identifier of the scan task. This is the TaskId returned by CreateTargetScanTask or the ScannerTaskId returned by ListScanTasksByTarget. If the task does not exist or belongs to another tenant, a 400 error is returned without exposing whether the resource exists.
+
+This parameter is required.', example='task-abc123def4567'),
+}
+
+model StopScannerTaskResponseBody = {
+  requestId?: string(name='RequestId', description='The unique identifier of the request, used for troubleshooting and log tracing.', example='1EBD0C05-6C1F-4C95-9C63-B7AB7B5A9C8E'),
+}
+
+model StopScannerTaskResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: StopScannerTaskResponseBody(name='body'),
+}
+
+/**
+ * @summary Stops (cancels) an in-progress scan task for AI Red Teaming. Calling this operation on a task that is already in a desired state is idempotent and performs no action.
+ *
+ * @description Stops (cancels) the scan task specified by ScannerTaskId.
+ * - You can only operate on tasks that belong to the current tenant. If the task does not exist or belongs to another tenant, a 400 error is returned without exposing whether the resource exists.
+ * - Only tasks in an in-progress state (sample preparation, waiting, processing, or report generation) are actually canceled. The task status is set to canceled, the end time is recorded, and the underlying execution job is stopped asynchronously.
+ * - Idempotent: If the task is already in a desired state (completed, failed, timed out, or canceled), the call returns success without modifying the task.
+ * - The underlying execution job is stopped asynchronously. A failure to stop the job does not affect the cancellation result of the task itself.
+ *
+ * @param request StopScannerTaskRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return StopScannerTaskResponse
+ */
+@context("stopScannerTaskWithContext")
+async function stopScannerTaskWithOptions(request: StopScannerTaskRequest, runtime: $RuntimeOptions): StopScannerTaskResponse {
+  request.validate();
+  var query = {};
+  if (!$isNull(request.scannerTaskId)) {
+    query['ScannerTaskId'] = request.scannerTaskId;
+  }
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'StopScannerTask',
+    version = '2026-01-01',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Stops (cancels) an in-progress scan task for AI Red Teaming. Calling this operation on a task that is already in a desired state is idempotent and performs no action.
+ *
+ * @description Stops (cancels) the scan task specified by ScannerTaskId.
+ * - You can only operate on tasks that belong to the current tenant. If the task does not exist or belongs to another tenant, a 400 error is returned without exposing whether the resource exists.
+ * - Only tasks in an in-progress state (sample preparation, waiting, processing, or report generation) are actually canceled. The task status is set to canceled, the end time is recorded, and the underlying execution job is stopped asynchronously.
+ * - Idempotent: If the task is already in a desired state (completed, failed, timed out, or canceled), the call returns success without modifying the task.
+ * - The underlying execution job is stopped asynchronously. A failure to stop the job does not affect the cancellation result of the task itself.
+ *
+ * @param request StopScannerTaskRequest
+ * @return StopScannerTaskResponse
+ */
+async function stopScannerTask(request: StopScannerTaskRequest): StopScannerTaskResponse {
+  var runtime = new $RuntimeOptions{};
+  return stopScannerTaskWithOptions(request, runtime);
+}
+
+model TestConnectivityRequest {
+  apiKey?: string(name='ApiKey', description='The API key for the target model service, used to authenticate with the Endpoint. If TargetId is specified, the system reads the key from the encrypted target configuration. This parameter is required if TargetId is empty. Transmit the key over HTTPS and avoid exposing it in plaintext in logs, URLs, or client code.', example='sk-abcd1234****'),
+  checkId?: string(name='CheckId', description='The tracking identifier of the connectivity test. Do not specify this parameter for the first call. The system generates and returns it in the response. For subsequent calls, specify this value to query the latest status of the corresponding test.', example='conn-a1b2c3d4e5f67890'),
+  connectionConfig?: string(name='ConnectionConfig', description='The advanced connection configuration in JSON string format. Common fields: authType (authentication type. custom_header indicates custom request header authentication. none indicates no authentication), customAuthHeaderName (custom authentication header name, such as X-API-Key), and requestHeaders (additional HTTP request header key-value pairs).
+
+Common provider configuration templates ({{prompt}} is the prompt placeholder. Replace it with the actual service value. When authType is set to bearer, the token is injected from ApiKey, and the template does not contain credentials):
+- Bailian: {"httpMethod":"POST","authType":"bearer","timeoutMs":30000,"requestTemplate":"{\\\\"input\\\\":{\\\\"prompt\\\\":\\\\"{{prompt}}\\\\"},\\\\"parameters\\\\":{\\\\"incremental_output\\\\":true},\\\\"debug\\\\":{}}","messageJsonPath":"$.output.text","requestHeaders":"{\\\\"X-DashScope-SSE\\\\": \\\\"enable\\\\" }","stream":true,"customAuthHeaderName":""}
+- PAI: {"httpMethod":"POST","authType":"bearer","timeoutMs":60000,"requestTemplate":"{\\\\"inputs\\\\":{\\\\"question\\\\":\\\\"{{prompt}}\\\\",\\\\"chat_history\\\\":[]},\\\\"stream\\\\":true}","messageJsonPath":"$.outputs.answer","requestHeaders":"","stream":true,"customAuthHeaderName":""}
+- Dify: {"httpMethod":"POST","authType":"bearer","timeoutMs":30000,"requestTemplate":"{\\\\"inputs\\\\":{},\\\\"query\\\\":\\\\"{{prompt}}\\\\",\\\\"response_mode\\\\":\\\\"streaming\\\\",\\\\"conversation_id\\\\":\\\\"\\\\",\\\\"user\\\\":\\\\"scanner\\\\"}","messageJsonPath":"$.answer","requestHeaders":"","stream":true,"customAuthHeaderName":""}
+- AgentRun: {"httpMethod":"POST","authType":"custom_header","timeoutMs":30000,"requestTemplate":"{\\\\"messages\\\\":[{\\\\"role\\\\":\\\\"user\\\\",\\\\"content\\\\":\\\\"{{prompt}}\\\\"}],\\\\"stream\\\\":true}","messageJsonPath":"$.choices[0].delta.content","requestHeaders":"","customAuthHeaderName":"X-API-Key","stream":true}
+- AgentKit: {"httpMethod":"POST","authType":"bearer","timeoutMs":30000,"requestTemplate":"{\\\\"messages\\\\":[{\\\\"role\\\\":\\\\"user\\\\",\\\\"content\\\\":\\\\"{{prompt}}\\\\"}]}","messageJsonPath":"$.content.parts[0].text","requestHeaders":"","stream":true,"customAuthHeaderName":""}', example='{\\\\"httpMethod\\\\":\\\\"POST\\\\",\\\\"authType\\\\":\\\\"bearer\\\\",\\\\"timeoutMs\\\\":30000,\\\\"requestTemplate\\\\":\\\\"{\\\\\\\\\\\\"input\\\\\\\\\\\\":{\\\\\\\\\\\\"prompt\\\\\\\\\\\\":\\\\\\\\\\\\"{{prompt}}\\\\\\\\\\\\"},\\\\\\\\\\\\"parameters\\\\\\\\\\\\":{\\\\\\\\\\\\"incremental_output\\\\\\\\\\\\":true},\\\\\\\\\\\\"debug\\\\\\\\\\\\":{}}\\\\",\\\\"messageJsonPath\\\\":\\\\"$.output.text\\\\",\\\\"requestHeaders\\\\":\\\\"{\\\\\\\\\\\\"X-DashScope-SSE\\\\\\\\\\\\": \\\\\\\\\\\\"enable\\\\\\\\\\\\" }\\\\",\\\\"stream\\\\":true,\\\\"customAuthHeaderName\\\\":\\\\"\\\\"}'),
+  connectionMethod?: string(name='ConnectionMethod', description='The connection protocol type of the target service. The system selects the corresponding protocol adapter to initiate the test based on this value. Default value: openai.', example='openai'),
+  endpoint?: string(name='Endpoint', description='The HTTP or HTTPS endpoint address of the target model service. This parameter is required if TargetId is empty.', example='https://dashscope.aliyuncs.com/compatible-mode/v1'),
+  modelName?: string(name='ModelName', description='The name of the target model. If ConnectionMethod is set to openai, specify the model ID under the OpenAI compatible protocol. If ConnectionMethod is set to anthropic, specify the model ID for the Anthropic Messages API. This parameter is required if the scan target is a model and TargetId is empty.', example='qwen-flash'),
+  targetId?: string(name='TargetId', description='The unique identifier of the attack target. If specified, the system reads Endpoint, ApiKey, ModelName, ConnectionMethod, and ConnectionConfig from the target configuration and ignores any parameters with the same names in the request. If not specified, provide the connection parameters directly in the request.', example='target-abc123def4567'),
+}
+
+model TestConnectivityResponseBody = {
+  data?: {
+    checkId?: string(name='CheckId', description='The tracking identifier of the connectivity test. The system generates this value for the first call. For polling calls, this value is the same as the CheckId in the request.', example='conn-a1b2c3d4e5f67890'),
+    latencyMs?: long(name='LatencyMs', description='The end-to-end latency of the target service response, in milliseconds. This value may be 0 or not returned when VerifyStatus is checking.', example='1200'),
+    verifyMessage?: string(name='VerifyMessage', description='The detailed information of the verification result. When VerifyStatus is verified, this value is a snippet of the response returned by the target service. When VerifyStatus is failed, this value describes the error cause, such as authentication failure, timeout, or empty response.', example='Connectivity verification succeeded'),
+    verifyStatus?: string(name='VerifyStatus', description='The current status of the connectivity verification.', example='verified'),
+  }(name='Data', description='The result details of the connectivity test.'),
+  requestId?: string(name='RequestId', description='The unique identifier of the request, used for troubleshooting and log tracing.', example='1EBD0C05-6C1F-4C95-9C63-B7AB7B5A9C8E'),
+}
+
+model TestConnectivityResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: TestConnectivityResponseBody(name='body'),
+}
+
+/**
+ * @summary Tests the network connectivity and authentication validity of an AI Red Teaming target.
+ *
+ * @description Tests the network connectivity and authentication validity of a specified attack target.
+ * This operation uses an asynchronous polling model:
+ * - First call (without CheckId): Immediately returns a CheckId with VerifyStatus=checking. The actual test runs asynchronously in the background for up to 60 seconds.
+ * - Subsequent calls (with the CheckId returned from the first call): Queries the latest status of the corresponding CheckId, which may be checking, verified, or failed.
+ * - Poll at 2-second intervals for up to 60 seconds. After the CheckId expires, the operation returns failed with VerifyMessage set to "check expired, please retry".
+ * Use one of the following two approaches for parameters:
+ * - Approach A: Specify only TargetId. The system reads Endpoint, ApiKey, ModelName, ConnectionMethod, and ConnectionConfig from the saved target configuration and ignores any parameters with the same names in the request.
+ * - Approach B: Do not specify TargetId. Instead, provide the five connection parameters directly in the request.
+ *
+ * @param request TestConnectivityRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return TestConnectivityResponse
+ */
+@context("testConnectivityWithContext")
+async function testConnectivityWithOptions(request: TestConnectivityRequest, runtime: $RuntimeOptions): TestConnectivityResponse {
+  request.validate();
+  var query = {};
+  if (!$isNull(request.apiKey)) {
+    query['ApiKey'] = request.apiKey;
+  }
+  if (!$isNull(request.checkId)) {
+    query['CheckId'] = request.checkId;
+  }
+  if (!$isNull(request.connectionConfig)) {
+    query['ConnectionConfig'] = request.connectionConfig;
+  }
+  if (!$isNull(request.connectionMethod)) {
+    query['ConnectionMethod'] = request.connectionMethod;
+  }
+  if (!$isNull(request.endpoint)) {
+    query['Endpoint'] = request.endpoint;
+  }
+  if (!$isNull(request.modelName)) {
+    query['ModelName'] = request.modelName;
+  }
+  if (!$isNull(request.targetId)) {
+    query['TargetId'] = request.targetId;
+  }
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'TestConnectivity',
+    version = '2026-01-01',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Tests the network connectivity and authentication validity of an AI Red Teaming target.
+ *
+ * @description Tests the network connectivity and authentication validity of a specified attack target.
+ * This operation uses an asynchronous polling model:
+ * - First call (without CheckId): Immediately returns a CheckId with VerifyStatus=checking. The actual test runs asynchronously in the background for up to 60 seconds.
+ * - Subsequent calls (with the CheckId returned from the first call): Queries the latest status of the corresponding CheckId, which may be checking, verified, or failed.
+ * - Poll at 2-second intervals for up to 60 seconds. After the CheckId expires, the operation returns failed with VerifyMessage set to "check expired, please retry".
+ * Use one of the following two approaches for parameters:
+ * - Approach A: Specify only TargetId. The system reads Endpoint, ApiKey, ModelName, ConnectionMethod, and ConnectionConfig from the saved target configuration and ignores any parameters with the same names in the request.
+ * - Approach B: Do not specify TargetId. Instead, provide the five connection parameters directly in the request.
+ *
+ * @param request TestConnectivityRequest
+ * @return TestConnectivityResponse
+ */
+async function testConnectivity(request: TestConnectivityRequest): TestConnectivityResponse {
+  var runtime = new $RuntimeOptions{};
+  return testConnectivityWithOptions(request, runtime);
 }
 
