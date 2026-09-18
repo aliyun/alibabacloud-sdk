@@ -1,0 +1,551 @@
+/**
+  *
+  */
+import BaseClientBuilder;
+import TeaAsyncHandler;
+import TeaRequest;
+import AsyncRequestBody;
+import RequestBody;
+import AsyncResponseHandler;
+import ClientConfiguration;
+import ClientExecutionParams;
+extends BaseClientBuilder;
+type @product = string
+type @version = string
+type @endpointRule = string
+type @endpointMap = map[string]string
+type @REQUEST = TeaRequest
+type @handler = TeaAsyncHandler
+
+init(configuration: ClientConfiguration){
+  @handler = new TeaAsyncHandler(configuration);
+  @product = 'PAIModelGallery';
+  @version = '2025-06-30';
+  @endpointRule = 'regional';
+  @endpointMap = {
+  };
+}
+
+function close(): void {
+  @handler.close();
+}
+
+model DistillationTemplate {
+  algorithmName?: string(name='AlgorithmName', description='The algorithm name.', example='easydistill'),
+  algorithmProvider?: string(name='AlgorithmProvider', description='The algorithm provider.', example='pai'),
+  algorithmVersion?: string(name='AlgorithmVersion', description='The algorithm version.', example='v2.0.0'),
+  capabilityTags?: [ string ](name='CapabilityTags', description='The list of capability tags used for displaying scenario cards.'),
+  category?: string(name='Category', description='The template category. The frontend uses this value to filter scenario cards.', example='reasoning'),
+  defaultConfig?: string(name='DefaultConfig', description='The raw YAML content of the EasyDistill default configurations. The frontend uses this content for rendering the configuration form and supports recovering to default configurations. The model and credential fields are intentionally left empty and are populated by the user in the form upon commit.', example='job_type: advanced_cot_distill'),
+  description?: string(name='Description', description='The template description, localized based on the requested language. The description specifies the applicable scenarios and outputs.', example='Designed for scenarios that require multi-step reasoning such as math, logic, and code. Produces an SFT dataset'),
+  inputDatasetMustBeDirectory?: boolean(name='InputDatasetMustBeDirectory', description='Specifies whether the input data must be an entire directory. If this parameter is set to true, only a directory can be selected on the form, not a single file. If this parameter is absent or set to false, either a file or a directory can be selected. This value is true when seed files reference other files in the same directory by relative path.'),
+  inputExampleUri?: string(name='InputExampleUri', description='The OSS address of the sample input data, rendered based on the region. Users can download the sample and prepare their own data in the same format. An empty value indicates that the template does not provide a sample.', example='oss://pai-quickstart-cn-hangzhou.oss-cn-hangzhou-internal.aliyuncs.com/public_datasets/distillation_examples/advanced_cot_distill/input.jsonl'),
+  jobType?: string(name='JobType', description='The algorithm job type. The value is the same as TemplateId.', example='advanced_cot_distill'),
+  modelSlots?: [ 
+    {
+      backends?: [ 
+        {
+          channel?: string(name='Channel', description='The channel name of the PAI-Token gateway. The frontend uses this value to retrieve the list of available models for the channel. This value must be passed back as-is upon submission. This parameter is returned only when Type is pai_token.', example='distillation'),
+          type?: string(name='Type', description='The model access method. pai_token indicates the PAI-Token gateway, where the user selects from the list of available models for the channel. pai_eas indicates the user\\\\"s own PAI-EAS service instance, which requires the service address and token.', example='pai_token'),
+        }
+      ](name='Backends', description='The list of model access methods supported by this slot.'),
+      description?: string(name='Description', description='The slot description, localized based on the requested language.', example='The teacher model used to generate distillation data. We recommend selecting a model with strong reasoning capabilities'),
+      key?: string(name='Key', description='The slot identifier, which corresponds to the backend section name in the submitted configuration.', example='backend'),
+      name?: string(name='Name', description='The slot display name, localized based on the requested language.', example='Teacher model'),
+      required?: boolean(name='Required', description='Specifies whether this slot is required. If this parameter is set to false, the user can skip the selection, and the algorithm falls back to other slots.'),
+    }
+  ](name='ModelSlots', description='The list of model slots that require user selection. The frontend uses this list to render the model selection form.'),
+  orderNumber?: int32(name='OrderNumber', description='The display order. A smaller value indicates a higher priority.', example='10'),
+  pipelineStages?: [ 
+    {
+      description?: string(name='Description', description='The stage description, localized based on the requested language.', example='The teacher model generates responses with reasoning processes for each question'),
+      key?: string(name='Key', description='The stage identifier, which corresponds to the value of pipeline[].stage in the algorithm configuration.', example='cot_distill'),
+      name?: string(name='Name', description='The stage display name, localized based on the requested language.', example='Generate chain of thought'),
+    }
+  ](name='PipelineStages', description='The list of pipeline stages. The order of the stages represents the execution order.'),
+  presetConfig?: [ 
+    {
+      label?: string(name='Label', description='The configuration item name, localized based on the requested language. Names are matched by position across languages, so the same row can have different names in different languages.', example='Task type'),
+      value?: string(name='Value', description='The configuration item value, localized based on the requested language.', example='advanced_cot_distill'),
+    }
+  ](name='PresetConfig', description='The content of the preset configuration card, displayed in order to show the key default configurations of the template.'),
+  templateId?: string(name='TemplateId', description='The distillation template ID, which is the same as the algorithm job_type. Pass this value as TemplateId when creating a task plan.', example='advanced_cot_distill'),
+  templateName?: string(name='TemplateName', description='The template display name, localized based on the requested language.', example='Chain-of-thought reasoning distillation'),
+  trainingOptions?: [ 
+    {
+      modelTasks?: [ string ](name='ModelTasks', description='The range of Model Gallery tasks available for the student model.'),
+      trainingMethods?: [ string ](name='TrainingMethods', description='The list of supported training method families.'),
+      trainingType?: string(name='TrainingType', description='The training type. The frontend uses this value to select the training workflow and display text.', example='sft'),
+    }
+  ](name='TrainingOptions', description='The capability declaration for the second stage (training the student model with the distilled data). An empty value indicates that the template supports only the distillation stage.'),
+}
+
+model DistillationTemplateSummary {
+  capabilityTags?: [ string ](name='CapabilityTags', description='The list of capability tags, used for scenario card display.'),
+  category?: string(name='Category', description='The template category. The frontend uses this value to filter scenario cards.', example='reasoning'),
+  description?: string(name='Description', description='The template description, localized based on the language specified in the request. The description specifies applicable scenarios and outputs.', example='Designed for scenarios that require multi-step reasoning, such as math, logic, and code. Produces an SFT dataset'),
+  jobType?: string(name='JobType', description='The algorithm job type. The value is the same as TemplateId.', example='advanced_cot_distill'),
+  orderNumber?: int32(name='OrderNumber', description='The display order. A smaller value indicates a higher position.', example='10'),
+  pipelineStages?: [ 
+    {
+      description?: string(name='Description', description='The stage description, localized based on the language specified in the request.', example='The teacher model generates reasoning-augmented responses for each question'),
+      key?: string(name='Key', description='The stage identifier, which corresponds to the pipeline[].stage value in the algorithm configuration.', example='cot_distill'),
+      name?: string(name='Name', description='The stage display name, localized based on the language specified in the request.', example='Generate Chain-of-Thought'),
+    }
+  ](name='PipelineStages', description='The list of pipeline stages. The order of the stages represents the execution order.'),
+  templateId?: string(name='TemplateId', description='The distillation template ID, which is the same as the algorithm job_type. Pass this value as TemplateId when creating a task plan.', example='advanced_cot_distill'),
+  templateName?: string(name='TemplateName', description='The template display name, localized based on the language specified in the request.', example='Chain-of-Thought Reasoning Distillation'),
+  trainingOptions?: [ 
+    {
+      modelTasks?: [ string ](name='ModelTasks', description='The available Model Gallery Task values for the student model.'),
+      trainingMethods?: [ string ](name='TrainingMethods', description='The list of supported training method families.'),
+      trainingType?: string(name='TrainingType', description='The training type. The frontend uses this value to select the training workflow and display text.', example='sft'),
+    }
+  ](name='TrainingOptions', description='The capability declaration for the second stage, in which the distilled data is used to train the student model. An empty value indicates that the template supports only the distillation stage.'),
+}
+
+model JobPlan {
+  gmtCreateTime?: string(name='GmtCreateTime'),
+  gmtModifiedTime?: string(name='GmtModifiedTime'),
+  jobPlanCurrentStep?: string(name='JobPlanCurrentStep'),
+  jobPlanId?: string(name='JobPlanId'),
+  jobPlanName?: string(name='JobPlanName'),
+  jobPlanSteps?: [ 
+    {
+      jobPlanStepId?: string(name='JobPlanStepId'),
+      jobPlanStepName?: string(name='JobPlanStepName'),
+      jobPlanStepSpec?: map[string]any(name='JobPlanStepSpec'),
+      jobPlanStepType?: string(name='JobPlanStepType'),
+    }
+  ](name='JobPlanSteps'),
+  jobPlanType?: string(name='JobPlanType'),
+  ownerId?: string(name='OwnerId'),
+  tags?: [ 
+    {
+      key?: string(name='Key'),
+      value?: string(name='Value'),
+    }
+  ](name='Tags'),
+  templateId?: string(name='TemplateId', description='The distillation template ID used when creating the task plan. An empty value indicates that this is not a scenario-specific distillation task.', example='advanced_cot_distill'),
+  templateName?: string(name='TemplateName', description='The display name of the distillation template used, localized based on the language specified in the request.', example='Chain-of-Thought Reasoning Distillation'),
+  userId?: string(name='UserId'),
+  workspaceId?: string(name='WorkspaceId'),
+}
+
+model ModelGalleryModel {
+  collection?: string(name='Collection', description='The collection to which the model belongs.', example='QuickStart'),
+  compressible?: boolean(name='Compressible', description='Indicates whether compression is supported.', example='true'),
+  deepThink?: boolean(name='DeepThink', description='Indicates whether deep thinking is supported.', example='true'),
+  demonstrable?: boolean(name='Demonstrable', description='Indicates whether online experience is supported.', example='true'),
+  deployable?: boolean(name='Deployable', description='Indicates whether deployment is supported.', example='true'),
+  distillable?: boolean(name='Distillable', description='Indicates whether distillation is supported.', example='true'),
+  domain?: string(name='Domain', description='The domain. For example, aigc (generative AI), nlp (natural language processing), or cv (computer vision).', example='aigc'),
+  evaluable?: boolean(name='Evaluable', description='Indicates whether evaluation is supported.', example='true'),
+  extraInfo?: map[string]any(name='ExtraInfo', description='The additional information.', example='{}'),
+  functionCall?: boolean(name='FunctionCall', description='Indicates whether FunctionCall is supported.', example='true'),
+  gmtCreateTime?: string(name='GmtCreateTime', description='The creation time.', example='2025-12-03T07:21:28.000Z'),
+  gmtLatestVersionModified?: string(name='GmtLatestVersionModified', description='The update time of the latest model version.', example='2025-12-03T07:21:28.000Z'),
+  gmtModifiedTime?: string(name='GmtModifiedTime', description='The update time.', example='2025-12-03T07:21:28.000Z'),
+  latestVersionName?: string(name='LatestVersionName', description='The latest model version.', example='1.0.0'),
+  modelDescription?: string(name='ModelDescription', description='The model description.', example='Large language model'),
+  modelDoc?: string(name='ModelDoc', description='The model documentation.', example='http://'),
+  modelId?: string(name='ModelId', description='The model ID.', example='model-8npjorqxl8gmdo72nj'),
+  modelName?: string(name='ModelName', description='The model name.', example='Qwen3-235B-A22B-Thinking-2507'),
+  modelSeries?: string(name='ModelSeries', description='The model series.', example='Qwen'),
+  modelType?: string(name='ModelType', description='The model type.', example='LoRA'),
+  orderNumber?: long(name='OrderNumber', description='The ordinal number.', example='1'),
+  origin?: string(name='Origin', description='The model source, used to filter the list of models that belong to a specific community or organization. For example, ModelScope, PAI, or NIM.', example='PAI'),
+  parameterSize?: long(name='ParameterSize', description='The number of parameters, in millions (M).', example='1024'),
+  searchWords?: string(name='SearchWords', description='The search keywords.', example='llm'),
+  supportedCompressionMethods?: map[string]any(name='SupportedCompressionMethods', description='The supported compression methods.', example='{
+  "Methods": [{
+    "Method": "Quantization",
+    "SubMethod": "MinMax-8Bit",
+    "Resource": "GPU"
+  }]
+}'),
+  supportedCompressionResources?: string(name='SupportedCompressionResources', description='The resources supported for compression.', example='GPU,GP7V'),
+  supportedDistillationMethods?: map[string]any(name='SupportedDistillationMethods', description='The supported distillation methods.', example='{
+  "Methods": [{
+    "Method": "EasyDistill",
+    "SubMethod": "DataSynthesis",
+    "Resource": "GPU"
+  }]
+}'),
+  supportedDistillationResources?: string(name='SupportedDistillationResources', description='The resources supported for distillation.', example='GPU,GP7V'),
+  supportedEvaluationMethods?: map[string]any(name='SupportedEvaluationMethods', description='The supported evaluation methods.', example='{
+  "Methods": [{
+    "Method": "Single-Node-Standard",
+    "Resource": "GPU"
+  }]
+}'),
+  supportedEvaluationResources?: string(name='SupportedEvaluationResources', description='The resources supported for evaluation.', example='GPU,GP7V'),
+  supportedInferenceMethods?: map[string]any(name='SupportedInferenceMethods', description='The supported deployment methods.', example='{
+  "Methods": [{
+    "framework": "blade",
+    "scenario": "nvidia-standard",
+    "Resource": "GPU"
+  }]
+}'),
+  supportedInferenceResources?: string(name='SupportedInferenceResources', description='The resources supported for deployment.', example='GPU,GP7V'),
+  supportedTrainingMethods?: map[string]any(name='SupportedTrainingMethods', description='The supported training methods.', example='{
+  "Methods": [{
+    "Method": "SFT",
+    "SubMethod": "LoRA_LLM",
+    "Resource": "GPU"
+  }]
+}'),
+  supportedTrainingResources?: string(name='SupportedTrainingResources', description='The resources supported for training.', example='GPU,GP7V'),
+  tags?: {
+    key?: string(name='Key', description='The tag key.', example='k1'),
+    value?: string(name='Value', description='The tag value.', example='v1'),
+  }(name='Tags', description='The list of tags.'),
+  task?: string(name='Task', description='The task. For example, large-language-model (large language model), image-classification (image classification), or embedding.', example='large-language-model'),
+  trainable?: boolean(name='Trainable', description='Indicates whether training is supported.', example='true'),
+}
+
+model CreateJobPlanRequest {
+  jobPlanName?: string(name='JobPlanName', description='The name of the job plan.', example='ModelGalleryxxx', position='Body'),
+  jobPlanSteps?: [ 
+    {
+      jobPlanStepName?: string(name='JobPlanStepName', description='The name of the job plan step.', example='DatasetSynthesis'),
+      jobPlanStepSpec?: map[string]any(name='JobPlanStepSpec', description='The detailed configuration of the job plan step.'),
+      jobPlanStepType?: string(name='JobPlanStepType', description='The type of the job plan step.', example='PAIFlow'),
+    }
+  ](name='JobPlanSteps', description='The steps of the job plan.', position='Body'),
+  jobPlanType?: string(name='JobPlanType', description='The type of the job plan.', example='Distillation', position='Body'),
+  tag?: [ 
+    {
+      key?: string(name='Key', description='**Key**', example='foo'),
+      value?: string(name='Value', description='**Value**', example='bar'),
+    }
+  ](name='Tag', description='Note: According to the Alibaba Cloud tag system specification, this parameter name is in singular form.', position='Body'),
+  templateId?: string(name='TemplateId', description='The ID of the scenario-specific distillation template, obtained from ListDistillationTemplates. If this parameter is not specified, a general-purpose job plan is created.', example='advanced_cot_distill', position='Body'),
+  workspaceId?: string(name='WorkspaceId', description='The workspace ID.', example='62469', position='Body'),
+}
+
+model CreateJobPlanResponseBody = {
+  jobPlanId?: string(name='JobPlanId', description='The job plan ID.', example='jp-xxxxxx'),
+  requestId?: string(name='RequestId', description='The request ID.', example='40325405-579C-4D82-9624-EC2B1779848E'),
+}
+
+model CreateJobPlanResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: CreateJobPlanResponseBody(name='body'),
+}
+
+/**
+  * @description ## Operation description
+  * - This API operation creates a new node plan. You can specify the workspace ID, node plan type, name, and steps.
+  * - If you use a scenario-specific distillation template, provide the `TemplateId` parameter and make sure that `JobPlanSteps` contains distillation configurations that match the template.
+  * - The `Tag` parameter follows the Alibaba Cloud label system specification and is used to add additional identity information to the node plan.
+  * @param request  the request parameters of CreateJobPlan  CreateJobPlanRequest
+  * @return CreateJobPlanResponse
+ */
+async function createJobPlan(request: CreateJobPlanRequest): CreateJobPlanResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'CreateJobPlan', 'POST', '/api/v1/jobplans', 'json', false, 'json', request);
+}
+
+model DeleteJobPlanRequest {
+  jobPlanId?: string(name='JobPlanId', description='The task plan ID.', example='jp-xxxxxx', position='Path'),
+}
+
+model DeleteJobPlanResponseBody = {
+  requestId?: string(name='RequestId', description='The request ID.', example='40325405-579C-4D82-9624-EC2B1779848E'),
+}
+
+model DeleteJobPlanResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: DeleteJobPlanResponseBody(name='body'),
+}
+
+/**
+  * @description ## Operation description.
+  * @param request  the request parameters of DeleteJobPlan  DeleteJobPlanRequest
+  * @return DeleteJobPlanResponse
+ */
+async function deleteJobPlan(request: DeleteJobPlanRequest): DeleteJobPlanResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'DeleteJobPlan', 'DELETE', '/api/v1/jobplans/{JobPlanId}', 'json', false, 'json', request);
+}
+
+model GetDistillationTemplateRequest {
+  templateId?: string(name='TemplateId', description='The distillation template ID, obtained from the TemplateId field returned by the `ListDistillationTemplates` operation.', example='advanced_cot_distill', position='Path'),
+}
+
+model GetDistillationTemplateResponseBody = {
+  distillationTemplate?: DistillationTemplate(name='DistillationTemplate', description='The distillation template details.'),
+  requestId?: string(name='RequestId', description='**Request ID**', example='40325405-579C-4D82****'),
+}
+
+model GetDistillationTemplateResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: GetDistillationTemplateResponseBody(name='body'),
+}
+
+/**
+  * @description ## Operation description
+  * - This API operation queries the full details of a specific distillation template to facilitate rendering the creation form.
+  * - The template ID is a required parameter, obtained from the `ListDistillationTemplates` operation.
+  * - The `DefaultConfig` field provides the complete EasyDistill configuration YAML (with comments). All paths in the YAML are relative paths, and callers do not need to perform absolute path conversion or string replacement.
+  * - All translatable fields are automatically parsed into the corresponding language version based on the `x-acs-accept-language` request header.
+  * - If the `TrainingOptions` field is missing, the template supports only the first stage of processing. Attempts to use such a template to create a task that includes the second stage will fail.
+  * @param request  the request parameters of GetDistillationTemplate  GetDistillationTemplateRequest
+  * @return GetDistillationTemplateResponse
+ */
+async function getDistillationTemplate(request: GetDistillationTemplateRequest): GetDistillationTemplateResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'GetDistillationTemplate', 'GET', '/api/v1/distillationtemplates/{TemplateId}', 'json', false, 'json', request);
+}
+
+model GetJobPlanRequest {
+  jobPlanId?: string(name='JobPlanId', description='The job plan ID.', example='jp-xxxxxx', position='Path'),
+}
+
+model GetJobPlanResponseBody = {
+  gmtCreateTime?: string(name='GmtCreateTime', description='The creation time of the job plan.', example='2026-09-18 10:00:00'),
+  gmtModifiedTime?: string(name='GmtModifiedTime', description='The last modified time of the job plan.', example='2026-09-18 10:30:00'),
+  jobPlanCurrentStep?: string(name='JobPlanCurrentStep', description='The current step.', example='DatasetSynthesis'),
+  jobPlanId?: string(name='JobPlanId', description='The job plan ID.', example='jp-xxxxxx'),
+  jobPlanName?: string(name='JobPlanName', description='The job plan name, which is unique within the workspace.', example='ModelGalleryxxx'),
+  jobPlanSteps?: [ 
+    {
+      jobPlanStepId?: string(name='JobPlanStepId', description='The generated PAIFlow PipelineRunId.', example='pipeline-xxxxx'),
+      jobPlanStepName?: string(name='JobPlanStepName', description='The job plan step name.', example='DistillationDatasetSynthesis'),
+      jobPlanStepSpec?: map[string]any(name='JobPlanStepSpec', description='The job plan step configuration.'),
+      jobPlanStepType?: string(name='JobPlanStepType', description='The job plan step type.', example='PAIFlow'),
+    }
+  ](name='JobPlanSteps', description='The job plan steps.'),
+  jobPlanType?: string(name='JobPlanType', description='The job plan type.', example='Distillation'),
+  ownerId?: string(name='OwnerId', description='The Alibaba Cloud account ID that owns the job plan.', example='1234567890123456'),
+  requestId?: string(name='RequestId', description='The request ID.', example='40325405-579C-4D82-9624-EC2B1779848E'),
+  tags?: [ 
+    {
+      key?: string(name='Key', description='The tag key.', example='foo'),
+      value?: string(name='Value', description='The tag value.', example='bar'),
+    }
+  ](name='Tags', description='The list of tags.'),
+  templateId?: string(name='TemplateId', description='The distillation template ID used to create the job plan. An empty value indicates that this is not a scenario-based distillation task.', example='advanced_cot_distill'),
+  templateName?: string(name='TemplateName', description='The display name of the distillation template, localized based on the requested language.', example='思维链推理蒸馏'),
+  userId?: string(name='UserId', description='The Alibaba Cloud account ID that created the job plan.', example='1234567890123456'),
+  workspaceId?: string(name='WorkspaceId', description='The workspace ID.', example='62469'),
+}
+
+model GetJobPlanResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: GetJobPlanResponseBody(name='body'),
+}
+
+/**
+  * @description ## Description
+  * This API operation retrieves the details of a job plan based on the specified job plan ID (`JobPlanId`), including but not limited to the name, type, and current step status of the job plan. Make sure the `JobPlanId` provided in the request is valid and belongs to your workspace.
+  * @param request  the request parameters of GetJobPlan  GetJobPlanRequest
+  * @return GetJobPlanResponse
+ */
+async function getJobPlan(request: GetJobPlanRequest): GetJobPlanResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'GetJobPlan', 'GET', '/api/v1/jobplans/{JobPlanId}', 'json', false, 'json', request);
+}
+
+model ListDistillationTemplatesRequest {
+  category?: string(name='Category', description='The template category for scenario-specific template filtering.', example='reasoning', position='Query'),
+  keyword?: string(name='Keyword', description='The search keyword for cross-language substring matching against template names, descriptions, and other text fields. If this parameter is left empty, no keyword filtering is applied.', example='inference', position='Query'),
+  pageNumber?: int32(name='PageNumber', description='The page number, starting from 1. If this parameter is not specified or is invalid, the default value 1 is used.', example='1', position='Query'),
+  pageSize?: int32(name='PageSize', description='The number of entries per page. If this parameter is not specified or is invalid, the default value is used. If the value exceeds the upper limit, the upper limit is used.', example='10', position='Query'),
+  templateId?: string(name='TemplateId', description='The template ID for exact filtering. If this parameter is left empty, no filtering by ID is applied.', example='advanced_cot_distill', position='Query'),
+}
+
+model ListDistillationTemplatesResponseBody = {
+  distillationTemplates?: [
+    DistillationTemplateSummary
+  ](name='DistillationTemplates', description='The list of distillation template summaries, sorted by OrderNumber in ascending order.'),
+  pageNumber?: int32(name='PageNumber', description='The page number, which echoes the PageNumber value in the request.', example='4'),
+  pageSize?: int32(name='PageSize', description='The number of entries per page, which echoes the PageSize value in the request.', example='10'),
+  requestId?: string(name='RequestId', description='The request ID.', example='40325405-579C-4D82****'),
+  totalCount?: int32(name='TotalCount', description='The total number of templates that match the filter conditions.', example='15'),
+}
+
+model ListDistillationTemplatesResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ListDistillationTemplatesResponseBody(name='body'),
+}
+
+/**
+  * @description ## Operation description
+  * - This operation supports filtered queries by using the TemplateId, Category, and Keyword parameters.
+  * - Pagination is controlled by the PageNumber and PageSize parameters, consistent with other paginated operations of the same service.
+  * - Templates are public resources that do not belong to any workspace. Therefore, you do not need to specify WorkspaceId.
+  * - All translatable fields such as TemplateName and Description are automatically parsed into the corresponding language version based on the x-acs-accept-language request header.
+  * @param request  the request parameters of ListDistillationTemplates  ListDistillationTemplatesRequest
+  * @return ListDistillationTemplatesResponse
+ */
+async function listDistillationTemplates(request: ListDistillationTemplatesRequest): ListDistillationTemplatesResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'ListDistillationTemplates', 'GET', '/api/v1/distillationtemplates', 'json', false, 'json', request);
+}
+
+model ListJobPlansRequest {
+  hasTemplate?: boolean(name='HasTemplate', description='Specifies whether to filter by template association. Valid values:
+- true: Returns only scenario-specific job plans that have a template.
+- false: Returns only general-purpose job plans that do not have a template.
+
+If this parameter is not specified, no filtering is applied. If both this parameter and TemplateId are specified, the value of TemplateId takes precedence.', example='true', position='Query'),
+  jobPlanName?: string(name='JobPlanName', description='The name of the job plan.', example='JobPlan1', position='Query'),
+  jobPlanType?: string(name='JobPlanType', description='The type of the job plan.', example='Distillation', position='Query'),
+  order?: string(name='Order', description='The sort order.', example='DESC', position='Query'),
+  pageNumber?: int32(name='PageNumber', description='The page number.', example='1', position='Query'),
+  pageSize?: int32(name='PageSize', description='The number of entries per page.', example='10', position='Query'),
+  sortBy?: string(name='SortBy', description='The field by which to sort the results.', example='GmtCreateTime', position='Query'),
+  tag?: [ 
+    {
+      key?: string(name='Key', description='The tag key.', example='key'),
+      value?: string(name='Value', description='The tag value.', example='value'),
+    }
+  ](name='Tag', description='The list of tags.', shrink='json', position='Query'),
+  templateId?: string(name='TemplateId', description='The distillation template ID. Filters results to return only scenario-specific tasks that use the specified template.', example='advanced_cot_distill', position='Query'),
+  workspaceId?: string(name='WorkspaceId', description='The workspace ID.', example='32495', position='Query'),
+}
+
+model ListJobPlansResponseBody = {
+  jobPlans?: [
+    JobPlan
+  ](name='JobPlans', description='The list of job plans.'),
+  requestId?: string(name='RequestId', description='The request ID.', example='40325405-579C-4D82-9624-EC2B1779848E'),
+  totalCount?: int32(name='TotalCount', description='The total number of entries.', example='15'),
+}
+
+model ListJobPlansResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ListJobPlansResponseBody(name='body'),
+}
+
+/**
+  * @description ## Operation description
+  * - `WorkspaceId` is a required parameter that specifies the workspace to which the job plans belong.
+  * - The `Tag` parameter must be encoded by using `EncodeURI` before being passed.
+  * - If both `TemplateId` and `HasTemplate` are specified, the value of `TemplateId` takes precedence for filtering.
+  * - `JobPlanName` supports exact match. Enclose the specific name in quotation marks.
+  * - By default, results are sorted in descending order by creation time (`GmtCreateTime`). Set the `Order` parameter to `ASC` to change the sort order.
+  * @param request  the request parameters of ListJobPlans  ListJobPlansRequest
+  * @return ListJobPlansResponse
+ */
+async function listJobPlans(request: ListJobPlansRequest): ListJobPlansResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'ListJobPlans', 'GET', '/api/v1/jobplans', 'json', false, 'json', request);
+}
+
+model ListModelGalleryModelsRequest {
+  collections?: string(name='Collections', description='The collection to which the model belongs. The collection for ModelGallery models is QuickStart.', example='QuickStart', position='Query'),
+  compressible?: boolean(name='Compressible', description='Specifies whether model compression is supported.', position='Query'),
+  conditions?: [ 
+    {
+      column?: string(name='Column', description='The parameter name. ParameterSize is supported. Unit: M.', example='ParameterSize'),
+      operator?: string(name='Operator', description='The operator. For example, LessThan.', example='LessThan'),
+      value?: string(name='Value', description='The value. If Column is set to ParameterSize, the value is an integer. Unit: M.', example='1024'),
+    }
+  ](name='Conditions', description='The list of conditions.', shrink='json', position='Query'),
+  deepThink?: boolean(name='DeepThink', description='Specifies whether deep thinking is supported.', position='Query'),
+  demonstrable?: boolean(name='Demonstrable', description='Specifies whether online experience is supported.', position='Query'),
+  deployable?: boolean(name='Deployable', description='Specifies whether deployment is supported.', position='Query'),
+  distillable?: boolean(name='Distillable', description='Specifies whether distillation is supported.', position='Query'),
+  domain?: string(name='Domain', description='The domain used to filter the model list. For example, aigc (generative AI), nlp (natural language processing), or cv (computer vision).', example='aigc', position='Query'),
+  evaluable?: boolean(name='Evaluable', description='Specifies whether evaluation is supported.', position='Query'),
+  functionCall?: boolean(name='FunctionCall', description='Specifies whether FunctionCall is supported.', position='Query'),
+  modelName?: string(name='ModelName', description='The model name. By default, fuzzy match is used to filter the model list. Enclose the name in double quotation marks for exact match. For example, "DeepSeek-V3.2" exactly matches the model DeepSeek-V3.2.', example='Qwen3-235B-A22B-Thinking-2507', position='Query'),
+  modelSeries?: string(name='ModelSeries', description='The model series. For example, PAI Optimized Model, Qwen, Wan-AI, GLM, Baichuan, DeepSeek, Kimi, MiniMax, Yi, InternLM, InternVL, OpenAI, NVIDIA, Gemma, Phi, dots_vlm, Llama, Mistral, Stable Diffusion, FLUX, Byte Dance, StepFun AI, ERNIE Bot, Tencent Hunyuan, or YOLO.', example='Qwen', position='Query'),
+  modelType?: string(name='ModelType', description='The model type.', example='Endpoint', position='Query'),
+  order?: string(name='Order', description='The sort order for the specified sort field in a paged query. Default value: ASC.
+
+Valid values:
+- ASC: ascending order.
+- DESC: descending order.', example='DESC', position='Query'),
+  origin?: string(name='Origin', description='The model source used to filter models that belong to a specific community or organization. For example, ModelScope, PAI, or NIM.', example='ModelScope', position='Query'),
+  pageNumber?: int32(name='PageNumber', description='The page number of the model list. Minimum value: 1. Default value: 1.', example='1', position='Query'),
+  pageSize?: int32(name='PageSize', description='The number of models to display on each page in a paged query. Default value: 10.', example='10', position='Query'),
+  query?: string(name='Query', description='The query condition. Fuzzy match is performed across multiple fields such as ModelName, Domain, and Task.', example='Qwen', position='Query'),
+  sortBy?: string(name='SortBy', description='The sort field for a paged query. Currently, the GmtCreateTime field is used for sorting. Valid values:
+
+- GmtCreateTime: the model creation time.
+
+- GmtLatestVersionModified: the time when the latest model version was updated.
+
+- OrderNumber: the ordinal number.', example='GmtCreateTime', position='Query'),
+  supportedCompressionResource?: string(name='SupportedCompressionResource', description='The supported compression resources, such as CPU, GPU, or GP7V. For example, if you specify GP7V, only models that support compression on GP7V resources are returned.', example='GP7V', position='Query'),
+  supportedDistillationResource?: string(name='SupportedDistillationResource', description='The supported distillation resources, such as CPU, GPU, or GP7V. For example, if you specify GP7V, only models that support distillation on GP7V resources are returned.', example='GP7V', position='Query'),
+  supportedEvaluationResource?: string(name='SupportedEvaluationResource', description='The supported evaluation resources, such as CPU, GPU, or GP7V. For example, if you specify GP7V, only models that support evaluation on GP7V resources are returned.', example='GP7V', position='Query'),
+  supportedInferenceResource?: string(name='SupportedInferenceResource', description='The supported deployment resources, such as CPU, GPU, or GP7V. For example, if you specify GP7V, only models that support deployment on GP7V resources are returned.', example='GP7V', position='Query'),
+  supportedTrainingResource?: string(name='SupportedTrainingResource', description='The supported training resources, such as CPU, GPU, or GP7V. For example, if you specify GP7V, only models that support training on GP7V resources are returned.', example='GP7V', position='Query'),
+  tag?: [ 
+    {
+      key?: string(name='Key', description='The label key.', example='k1'),
+      value?: string(name='Value', description='The label value.', example='v1'),
+    }
+  ](name='Tag', description='The list of labels.', shrink='json', position='Query'),
+  task?: string(name='Task', description='The task. For example, large-language-model (large language model), image-classification (image classification), or embedding.', example='large-language-model', position='Query'),
+  trainable?: boolean(name='Trainable', description='Specifies whether training is supported.', position='Query'),
+}
+
+model ListModelGalleryModelsResponseBody = {
+  models?: ModelGalleryModel(name='Models', description='The list of models.', example='[{\\\\"SupportResponseSchema\\\\": False, \\\\"ToolCall\\\\": False, \\\\"ModelType\\\\": \\\\"LLM\\\\", \\\\"SupportReasoning\\\\": False, \\\\"Model\\\\": \\\\"ds1\\\\", \\\\"SupportVision\\\\": False, \\\\"MaxModelLength\\\\": 4096}]'),
+  requestId?: string(name='RequestId', description='Id of the request', example='B6B54325-C98C-5937-87A3-2F96C07652EC'),
+  totalCount?: string(name='TotalCount', description='The total number of models.', example='15'),
+}
+
+model ListModelGalleryModelsResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ListModelGalleryModelsResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of ListModelGalleryModels  ListModelGalleryModelsRequest
+  * @return ListModelGalleryModelsResponse
+ */
+async function listModelGalleryModels(request: ListModelGalleryModelsRequest): ListModelGalleryModelsResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'ListModelGalleryModels', 'GET', '/api/v1/modelgallery/models', 'json', false, 'json', request);
+}
+
+model UpdateJobPlanRequest {
+  jobPlanId?: string(name='JobPlanId', description='The task plan ID.', example='jp-xxxxx', position='Path'),
+  jobPlanCurrentStep?: string(name='JobPlanCurrentStep', description='The current step of the task plan. Set this parameter to `DatasetSynthesisAndModelTrain` for the full process or `DatasetSynthesisModelTrain` for step-by-step execution.', example='DatasetSynthesisAndModelTrain', position='Body'),
+  tag?: [ 
+    {
+      key?: string(name='Key', description='The tag key. If the tag key already exists, the tag is updated. Otherwise, a new tag is added.', example='foo'),
+      value?: string(name='Value', description='The tag key. If the tag key already exists, the tag is updated. Otherwise, a new tag is added.', example='bar'),
+    }
+  ](name='Tag', description='The list of tags.', position='Body'),
+}
+
+model UpdateJobPlanResponseBody = {
+  requestId?: string(name='RequestId', description='Id of the request', example='40325405-579C-4D82-9624-EC2B1779848E'),
+}
+
+model UpdateJobPlanResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: UpdateJobPlanResponseBody(name='body'),
+}
+
+/**
+  * @description ## Request description
+  * You can use this API operation to update the current execution step (`JobPlanCurrentStep`) and related tags (`Tag`) of a specific task plan identified by `JobPlanId`. If the request contains tag information, tags are updated or added based on the provided key-value pairs.
+  * - **JobPlanId** is a path parameter. You must provide a valid task plan ID.
+  * - **JobPlanCurrentStep** is an optional parameter that specifies the new current step of the task.
+  * - **Tag** is an optional parameter that specifies a list of key-value pairs used to label the task plan. Each tag consists of a `Key` and a `Value`.
+  * Note: Ensure that the `JobPlanId` you provide exists and that you have the permissions to modify it.
+  * @param request  the request parameters of UpdateJobPlan  UpdateJobPlanRequest
+  * @return UpdateJobPlanResponse
+ */
+async function updateJobPlan(request: UpdateJobPlanRequest): UpdateJobPlanResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'UpdateJobPlan', 'PUT', '/api/v1/jobplans/{JobPlanId}', 'json', false, 'json', request);
+}
+
