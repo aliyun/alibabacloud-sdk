@@ -28,10 +28,463 @@ function getEndpoint(productId: string, regionId: string, endpointRule: string, 
   return EndpointUtil.getEndpointRules(productId, regionId, endpointRule, network, suffix);
 }
 
+model CompleteCodeBundleRequest {
+  byteSize?: long(name='byteSize', description='The declared size of the uploaded object. This value must match the OSS Content-Length.
+
+This parameter is required.', example='1'),
+  contentType?: string(name='contentType', description='The MIME type of the stored code bundle. This is typically application/octet-stream for pre-signed PUT operations.
+
+This parameter is required.', example='application/octet-stream'),
+}
+
+model CompleteCodeBundleResponseBody = {
+  bundleVersion?: string(name='bundleVersion', description='The code bundle version identifier.', example='1'),
+  byteSize?: long(name='byteSize', description='The object size.', example='111'),
+  codeBundleId?: long(name='codeBundleId', description='The code bundle ID.', example='111'),
+  contentType?: string(name='contentType', description='The MIME type of the stored code bundle. This is typically application/octet-stream for pre-signed PUT operations.', example='application/octet-stream'),
+  createdAt?: string(name='createdAt', description='The time when the record was created, in RFC 3339 format.', example='2026-08-27T00:53:46.774Z'),
+  filename?: string(name='filename', description='The file name.', example='test-cases.zip'),
+  projectId?: long(name='projectId', description='The project ID.', example='76851f2b5bf0187fbc29e8bca4'),
+  requestId?: string(name='requestId', description='The request ID.', example='9A1F403F-0A85-5578-8B7C-55E3E9408659'),
+  status?: string(name='status', description='The code bundle status.', example='ready'),
+  updatedAt?: string(name='updatedAt', description='The time when the record was last updated.', example='2026-08-27T00:53:46.774Z'),
+}
+
+model CompleteCodeBundleResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: CompleteCodeBundleResponseBody(name='body'),
+}
+
+/**
+ * @summary Finalizes a code bundle after the client completes an OSS PUT operation. This operation validates the uploaded object and sets the code bundle status to ready. If CI metadata that triggers an automatic scan was provided during creation, a scanId is returned.
+ *
+ * @param request CompleteCodeBundleRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return CompleteCodeBundleResponse
+ */
+async function completeCodeBundleWithOptions(projectId: string, codeBundleId: string, request: CompleteCodeBundleRequest, headers: map[string]string, runtime: Util.RuntimeOptions): CompleteCodeBundleResponse {
+  Util.validateModel(request);
+  var query : map[string]any = {};
+  if (!Util.isUnset(request.byteSize)) {
+    query['byteSize'] = request.byteSize;
+  }
+  if (!Util.isUnset(request.contentType)) {
+    query['contentType'] = request.contentType;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'CompleteCodeBundle',
+    version = '2026-04-01',
+    protocol = 'HTTPS',
+    pathname = `/v1/projects/${OpenApiUtil.getEncodeParam(projectId)}/codeBundles/${OpenApiUtil.getEncodeParam(codeBundleId)}/complete`,
+    method = 'POST',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Finalizes a code bundle after the client completes an OSS PUT operation. This operation validates the uploaded object and sets the code bundle status to ready. If CI metadata that triggers an automatic scan was provided during creation, a scanId is returned.
+ *
+ * @param request CompleteCodeBundleRequest
+ * @return CompleteCodeBundleResponse
+ */
+async function completeCodeBundle(projectId: string, codeBundleId: string, request: CompleteCodeBundleRequest): CompleteCodeBundleResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return completeCodeBundleWithOptions(projectId, codeBundleId, request, headers, runtime);
+}
+
+model CreateCodeBundleRequest {
+  ciMetadata?: string(name='ciMetadata', description='An optional CI/CD metadata JSON string.', example='{"region":"cn-beijing"}'),
+  filename?: string(name='filename', description='The file name.
+
+This parameter is required.', example='test-cases.zip'),
+}
+
+model CreateCodeBundleResponseBody = {
+  bundleVersion?: string(name='bundleVersion', description='The version identifier of the function code package.', example='1'),
+  codeBundleId?: long(name='codeBundleId', description='The function code package ID.', example='111'),
+  createdAt?: string(name='createdAt', description='The time when the function code package was created.', example='2026-08-27T00:53:46.774Z'),
+  filename?: string(name='filename', description='The file name.', example='test-cases.zip'),
+  projectId?: long(name='projectId', description='The project ID.', example='123'),
+  requestId?: string(name='requestId', description='The request ID.', example='9A1F403F-0A85-5578-8B7C-55E3E9408659'),
+  status?: string(name='status', description='The status of the function code package.', example='pending'),
+  updatedAt?: string(name='updatedAt', description='The time when the function code package was last updated.', example='2026-08-27T00:53:46.774Z'),
+  upload?: {
+    expiresAt?: string(name='expiresAt', description='The expiration time of the credential in RFC 3339 format.', example='2026-09-03T05:58:47.88987539Z'),
+    method?: string(name='method', description='The HTTP method of the pre-signed URL. Valid values: PUT.', example='PUT'),
+    putUrl?: string(name='putUrl', description='The pre-signed OSS PUT upload URL.', example='https://codesec-beijing.oss-cn-beijing.aliyuncs.com/87766767%2F1001667%2F1004171.zip'),
+    requiredContentType?: string(name='requiredContentType', description='The Content-Type header that the client must include when performing the PUT request. This field is returned when putUrl is present.', example='application/octet-stream'),
+  }(name='upload', description='The upload credential. See the following fields for details.'),
+}
+
+model CreateCodeBundleResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: CreateCodeBundleResponseBody(name='body'),
+}
+
+/**
+ * @summary Creates a function code package in pending status and returns a pre-signed OSS PUT upload credential.
+ *
+ * @param request CreateCodeBundleRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return CreateCodeBundleResponse
+ */
+async function createCodeBundleWithOptions(projectId: string, request: CreateCodeBundleRequest, headers: map[string]string, runtime: Util.RuntimeOptions): CreateCodeBundleResponse {
+  Util.validateModel(request);
+  var query : map[string]any = {};
+  if (!Util.isUnset(request.ciMetadata)) {
+    query['ciMetadata'] = request.ciMetadata;
+  }
+  if (!Util.isUnset(request.filename)) {
+    query['filename'] = request.filename;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'CreateCodeBundle',
+    version = '2026-04-01',
+    protocol = 'HTTPS',
+    pathname = `/v1/projects/${OpenApiUtil.getEncodeParam(projectId)}/codeBundles`,
+    method = 'POST',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Creates a function code package in pending status and returns a pre-signed OSS PUT upload credential.
+ *
+ * @param request CreateCodeBundleRequest
+ * @return CreateCodeBundleResponse
+ */
+async function createCodeBundle(projectId: string, request: CreateCodeBundleRequest): CreateCodeBundleResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return createCodeBundleWithOptions(projectId, request, headers, runtime);
+}
+
+model CreateProjectRequest {
+  description?: string(name='description', description='The description.', example='This is default function description by fc-deploy component'),
+  engines?: {
+    sast?: boolean(name='sast', description='Specifies whether SAST is supported.', example='true'),
+    sastConfig?: {
+      remediation?: boolean(name='remediation', description='Specifies whether to generate remediation suggestions.'),
+    }(name='sastConfig', description='The engine-level configuration.'),
+    sca?: boolean(name='sca', description='Specifies whether SCA is supported.', example='false'),
+    scaConfig?: {
+      remediation?: boolean(name='remediation', description='Specifies whether to generate remediation suggestions.'),
+    }(name='scaConfig', description='The engine-level configuration.'),
+  }(name='engines', description='The engine switches for the project or scan snapshot. Only SAST and SCA are supported.'),
+  instructionPrompt?: string(name='instructionPrompt', description='The natural language prompt that describes scanning or result processing preferences, such as ignoring low-risk vulnerabilities.', example='such as ignoring low-severity vulnerabilities, etc.'),
+  name?: string(name='name', description='The project name.
+
+This parameter is required.', example='user_paswd_103'),
+  source?: {
+    type?: string(name='type', description='The project type.', example='api'),
+  }(name='source', description='The project source.'),
+}
+
+model CreateProjectShrinkRequest {
+  description?: string(name='description', description='The description.', example='This is default function description by fc-deploy component'),
+  enginesShrink?: string(name='engines', description='The engine switches for the project or scan snapshot. Only SAST and SCA are supported.'),
+  instructionPrompt?: string(name='instructionPrompt', description='The natural language prompt that describes scanning or result processing preferences, such as ignoring low-risk vulnerabilities.', example='such as ignoring low-severity vulnerabilities, etc.'),
+  name?: string(name='name', description='The project name.
+
+This parameter is required.', example='user_paswd_103'),
+  sourceShrink?: string(name='source', description='The project source.'),
+}
+
+model CreateProjectResponseBody = {
+  configRevision?: long(name='configRevision', description='The project configuration version number.', example='1'),
+  createdAt?: string(name='createdAt', description='The creation time.', example='2026-08-27T00:53:46.774Z'),
+  createdBy?: string(name='createdBy', description='The user ID of the project creator.', example='3221'),
+  description?: string(name='description', description='The description.', example='This is default function description by fc-deploy component'),
+  engines?: {
+    sast?: boolean(name='sast', description='Specifies whether SAST is supported.', example='true'),
+    sca?: boolean(name='sca', description='Specifies whether SCA is supported.', example='true'),
+  }(name='engines', description='The engine switches for the project or scan snapshot. Only SAST and SCA are supported.'),
+  id?: long(name='id', description='The project ID.', example='111'),
+  instructionPrompt?: string(name='instructionPrompt', description='The natural language prompt that describes scanning or result processing preferences, such as ignoring low-risk vulnerabilities.', example='such as ignoring low-severity vulnerabilities, etc.'),
+  name?: string(name='name', description='The project name.', example='name'),
+  requestId?: string(name='requestId', description='The request ID.', example='9A1F403F-0A85-5578-8B7C-55E3E9408659'),
+  source?: {
+    type?: string(name='type', description='The project type.', example='api'),
+  }(name='source', description='The project source.'),
+  updatedAt?: string(name='updatedAt', description='The update time.', example='2026-08-27T00:53:46.774Z'),
+}
+
+model CreateProjectResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: CreateProjectResponseBody(name='body'),
+}
+
+/**
+ * @summary Creates a project.
+ *
+ * @param tmpReq CreateProjectRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return CreateProjectResponse
+ */
+async function createProjectWithOptions(tmpReq: CreateProjectRequest, headers: map[string]string, runtime: Util.RuntimeOptions): CreateProjectResponse {
+  Util.validateModel(tmpReq);
+  var request = new CreateProjectShrinkRequest{};
+  OpenApiUtil.convert(tmpReq, request);
+  if (!Util.isUnset(tmpReq.engines)) {
+    request.enginesShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.engines, 'engines', 'json');
+  }
+  if (!Util.isUnset(tmpReq.source)) {
+    request.sourceShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.source, 'source', 'json');
+  }
+  var query : map[string]any = {};
+  if (!Util.isUnset(request.description)) {
+    query['description'] = request.description;
+  }
+  if (!Util.isUnset(request.enginesShrink)) {
+    query['engines'] = request.enginesShrink;
+  }
+  if (!Util.isUnset(request.instructionPrompt)) {
+    query['instructionPrompt'] = request.instructionPrompt;
+  }
+  if (!Util.isUnset(request.name)) {
+    query['name'] = request.name;
+  }
+  if (!Util.isUnset(request.sourceShrink)) {
+    query['source'] = request.sourceShrink;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'CreateProject',
+    version = '2026-04-01',
+    protocol = 'HTTPS',
+    pathname = `/v1/projects`,
+    method = 'POST',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Creates a project.
+ *
+ * @param request CreateProjectRequest
+ * @return CreateProjectResponse
+ */
+async function createProject(request: CreateProjectRequest): CreateProjectResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return createProjectWithOptions(request, headers, runtime);
+}
+
+model CreateScanRequest {
+  codeBundleId?: long(name='codeBundleId', description='The code package ID.
+
+This parameter is required.', example='111'),
+  kind?: string(name='kind', description='The type. Valid values:
+* full: full data
+* incremental: incremental
+
+This parameter is required.', example='full'),
+  taskName?: string(name='taskName', description='The task name.
+
+This parameter is required.', example='name'),
+}
+
+model CreateScanResponseBody = {
+  codeBundleId?: long(name='codeBundleId', description='The code package ID.', example='111'),
+  createdAt?: string(name='createdAt', description='The creation time.', example='2026-08-27T00:53:46.774Z'),
+  createdBy?: string(name='createdBy', description='The user ID of the task creator.', example='3221'),
+  engineSnapshot?: {
+    sast?: boolean(name='sast', description='Indicates whether SAST is supported.', example='true'),
+    sca?: boolean(name='sca', description='Indicates whether SCA is supported.', example='true'),
+  }(name='engineSnapshot', description='The supported types.'),
+  finishedAt?: string(name='finishedAt', description='The scan end time.', example='2026-08-27T00:53:46.774Z'),
+  id?: long(name='id', description='The task ID.', example='111'),
+  kind?: string(name='kind', description='The type. Valid values:
+* full: full data
+* incremental: incremental', example='full'),
+  projectId?: long(name='projectId', description='The project ID.', example='11'),
+  requestId?: string(name='requestId', description='The request ID.', example='9A1F403F-0A85-5578-8B7C-55E3E9408659'),
+  scanMetrics?: {
+    fileCount?: long(name='fileCount', description='The number of files.', example='1'),
+    linesOfCode?: long(name='linesOfCode', description='The number of lines of code.', example='11'),
+    tokenTotal?: long(name='tokenTotal', description='Deprecated.', example='11'),
+  }(name='scanMetrics', description='The scan information.'),
+  scanProgress?: long(name='scanProgress', description='The task progress.', example='40'),
+  startedAt?: string(name='startedAt', description='The start time.', example='2026-08-27T00:53:46.774Z'),
+  status?: string(name='status', description='The status. Valid values:
+* running: Running.
+* completed: Completed.
+* failed: Failed.
+* canceling: Being canceled.
+* canceled: Canceled.', example='running'),
+  taskName?: string(name='taskName', description='The task name.', example='name'),
+  updatedAt?: string(name='updatedAt', description='The update time.', example='2026-08-27T00:53:46.774Z'),
+  workerId?: string(name='workerId', description='Deprecated.', example='1'),
+}
+
+model CreateScanResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: CreateScanResponseBody(name='body'),
+}
+
+/**
+ * @summary Creates a scan task based on a code package that is ready.
+ *
+ * @param request CreateScanRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return CreateScanResponse
+ */
+async function createScanWithOptions(projectId: string, request: CreateScanRequest, headers: map[string]string, runtime: Util.RuntimeOptions): CreateScanResponse {
+  Util.validateModel(request);
+  var query : map[string]any = {};
+  if (!Util.isUnset(request.codeBundleId)) {
+    query['codeBundleId'] = request.codeBundleId;
+  }
+  if (!Util.isUnset(request.kind)) {
+    query['kind'] = request.kind;
+  }
+  if (!Util.isUnset(request.taskName)) {
+    query['taskName'] = request.taskName;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'CreateScan',
+    version = '2026-04-01',
+    protocol = 'HTTPS',
+    pathname = `/v1/projects/${OpenApiUtil.getEncodeParam(projectId)}/scans`,
+    method = 'POST',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Creates a scan task based on a code package that is ready.
+ *
+ * @param request CreateScanRequest
+ * @return CreateScanResponse
+ */
+async function createScan(projectId: string, request: CreateScanRequest): CreateScanResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return createScanWithOptions(projectId, request, headers, runtime);
+}
+
+model CreateScanSbomExportRequest {
+  fileName?: string(name='fileName', description='选填。指定下载落盘的文件名（含扩展名），会签进下载地址的 Content-Disposition。
+留空时后端按 `项目名-sbom-<format>.<扩展名>` 生成默认值。
+不得含控制字符或路径分隔符（`/`、`\\`）、长度不超过 255，否则 → 400 **`InvalidFileName`**。', example='test-sbom-cyclonedx.cdx.json'),
+  format?: string(name='format', description='闭合枚举，须是该次扫描 **`artifacts`** 里 **`status=success`** 的 **`artifact_kind`**。
+未知值 → 400 **`InvalidArtifactFormat`**，且绝不参与 OSS key 构造。
+
+This parameter is required.', example='cyclonedx-json'),
+}
+
+model CreateScanSbomExportResponseBody = {
+  downloadUrl?: string(name='downloadUrl', description='短时签名的 GET URL（有效期见 **`url_expires_at`**），对象上已带 Content-Disposition', example='https://krypton-codesafe.oss-cn-hangzhou.aliyuncs.com/1609837153086803%2F1000108%2F1000893%2F1001080%2Fartifacts%2Fcyclonedx-json%2F1f8dc54097780e9c32941289d2aff5161df694b5bfb2d0aa3fe87fe72a751363.cdx.json?Expires=1789713461&OSSAccessKeyId=STS.NYDdfgGGhFqA4XBNu2EQebMeV&Signature=pnZPAML9CPKOIDyC4b1DK6gQmhs%3D&response-content-disposition=attachment%3B%20filename%3D%22test-sbom-cyclonedx.cdx.json%22%3B%20filename%2A%3DUTF-8%27%27test-sbom-cyclonedx.cdx.json&security-token=CAIS*'),
+  fileName?: string(name='fileName', description='最终生效的文件名（客户端指定或后端默认），已签进 **`download_url`** 的 **`Content-Disposition`**， 浏览器直连下载即按此落盘。', example='test-sbom-cyclonedx.cdx.json'),
+  format?: string(name='format', example='cyclonedx-json'),
+  mediaType?: string(name='mediaType', description='交付文件 MIME 类型', example='application/vnd.cyclonedx+json'),
+  requestId?: string(name='requestId', example='9A1F403F-0A85-5578-8B7C-55E3E9408659'),
+  sha256?: string(name='sha256', description='交付文件本身（注入后重算）的摘要，供下载完整性校验；与源制品的 sha256 不同', example='1f8dc54097780e9c32941289d2aff5161df694b5bfb2d0aa3fe87fe72a751363'),
+  sizeBytes?: long(name='sizeBytes', description='交付文件字节数', example='791355'),
+}
+
+model CreateScanSbomExportResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: CreateScanSbomExportResponseBody(name='body'),
+}
+
+/**
+ * @summary 生成 SBOM / 许可证清单的短时下载链接
+ *
+ * @param request CreateScanSbomExportRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return CreateScanSbomExportResponse
+ */
+async function createScanSbomExportWithOptions(projectId: string, scanId: string, request: CreateScanSbomExportRequest, headers: map[string]string, runtime: Util.RuntimeOptions): CreateScanSbomExportResponse {
+  Util.validateModel(request);
+  var query : map[string]any = {};
+  if (!Util.isUnset(request.fileName)) {
+    query['fileName'] = request.fileName;
+  }
+  if (!Util.isUnset(request.format)) {
+    query['format'] = request.format;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'CreateScanSbomExport',
+    version = '2026-04-01',
+    protocol = 'HTTPS',
+    pathname = `/v1/projects/${OpenApiUtil.getEncodeParam(projectId)}/scans/${OpenApiUtil.getEncodeParam(scanId)}/reports/sbomExports`,
+    method = 'POST',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 生成 SBOM / 许可证清单的短时下载链接
+ *
+ * @param request CreateScanSbomExportRequest
+ * @return CreateScanSbomExportResponse
+ */
+async function createScanSbomExport(projectId: string, scanId: string, request: CreateScanSbomExportRequest): CreateScanSbomExportResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return createScanSbomExportWithOptions(projectId, scanId, request, headers, runtime);
+}
+
 model DescribeProjectsRequest {
   maxResults?: int32(name='maxResults', description='The number of entries per page. Default value: 10. Maximum value: 20.', example='20'),
   nextToken?: string(name='nextToken', description='The pagination token. Do not specify this parameter or set it to an empty string for the first page. For subsequent pages, pass the nextToken value from the previous response without any modification. If the nextToken value in the response is empty, the last page has been reached.', example='eyJ0IjoiMjAyNi0wNy0xNlQwNzo1MzozOC4wMjFaIiwiaSI6MTAwMDQ0OH0'),
-  query?: string(name='query', description='The keyword for fuzzy match by project name or prompt.', example='project'),
+  query?: string(name='query', description='The keyword used for fuzzy match by project name or prompt.', example='project'),
   sortBy?: string(name='sortBy', description='The field by which to sort the results. Default value: last_scan_time.
 
 Valid values:
@@ -51,28 +504,34 @@ model DescribeProjectsResponseBody = {
   items?: [ 
     {
       configRevision?: long(name='configRevision', description='The project configuration version number.', example='1'),
-      createdAt?: string(name='createdAt', description='The time when the project was created.', example='2026-07-28T03:36:31.573Z'),
+      createdAt?: string(name='createdAt', description='The creation time.', example='2026-07-28T03:36:31.573Z'),
       createdBy?: string(name='createdBy', description='The user ID of the project creator.', example='11111'),
       description?: string(name='description', description='The description.', example='111'),
       engines?: {
-        sast?: boolean(name='sast', description='Indicates whether SAST is enabled.', example='true'),
-        sca?: boolean(name='sca', description='Indicates whether SCA is enabled.', example='true'),
-      }(name='engines', description='The engine switches for the project or scan snapshot. Only SAST and SCA are supported.'),
+        sast?: boolean(name='sast', description='Indicates whether SAST is supported.', example='true'),
+        sastConfig?: {
+          remediation?: boolean(name='remediation', description='Specifies whether to generate remediation suggestions.'),
+        }(name='sastConfig', description='The engine-level configuration.'),
+        sca?: boolean(name='sca', description='Indicates whether SCA is supported.', example='true'),
+        scaConfig?: {
+          remediation?: boolean(name='remediation', description='Specifies whether to generate remediation suggestions.'),
+        }(name='scaConfig', description='The engine-level configuration.'),
+      }(name='engines', description='The engine switches in the project or scan snapshot. Only SAST and SCA are supported.'),
       id?: long(name='id', description='The project ID.', example='934'),
-      instructionPrompt?: string(name='instructionPrompt', description='The natural language prompt provided by the user that describes scanning or result processing preferences, such as ignoring low-risk vulnerabilities.', example='1111'),
+      instructionPrompt?: string(name='instructionPrompt', description='The natural language prompt provided by the user that describes scanning or result processing preferences, such as ignoring low-severity vulnerabilities.', example='1111'),
       lastScanTime?: string(name='lastScanTime', description='The time when a task was last created.', example='2026-07-28T03:36:31.573Z'),
       name?: string(name='name', description='The project name.', example='manual-hDecBn'),
       source?: {
         type?: string(name='type', description='The project type.', example='manual_upload'),
       }(name='source', description='The project source.'),
-      updatedAt?: string(name='updatedAt', description='The time when the project was last updated.', example='2026-07-28T03:36:31.573Z'),
+      updatedAt?: string(name='updatedAt', description='The update time.', example='2026-07-28T03:36:31.573Z'),
     }
   ](name='items', description='The list of projects.'),
   maxResults?: int32(name='maxResults', description='The page size.
 
 > If this parameter is not specified, all projects are returned.', example='10'),
   nextToken?: string(name='nextToken', description='The pagination token. An empty value indicates the last page.', example='eyJ0IjoiMjAyNi0wNy0xNlQwNzo1MzozOC4wMjFaIiwiaSI6MTAwMDQ0OH0'),
-  requestId?: string(name='requestId', description='Id of the request', example='9A1F403F-0A85-5578-8B7C-55E3E9408659'),
+  requestId?: string(name='requestId', description='The request ID.', example='9A1F403F-0A85-5578-8B7C-55E3E9408659'),
   totalCount?: long(name='totalCount', description='The total number of entries.', example='2'),
 }
 
@@ -139,14 +598,104 @@ async function describeProjects(request: DescribeProjectsRequest): DescribeProje
   return describeProjectsWithOptions(request, headers, runtime);
 }
 
+model DescribeScanRequest {
+}
+
+model DescribeScanResponseBody = {
+  codeBundleId?: long(name='codeBundleId', description='The function code package ID.', example='111'),
+  createdAt?: string(name='createdAt', description='The time when the task was created.', example='2026-08-27T00:53:46.774Z'),
+  createdBy?: string(name='createdBy', description='The user ID of the task creator.', example='3221'),
+  currentPhase?: string(name='currentPhase', description='The scan phase. Valid values:
+* threat_model: threat modeling.
+* discovery: vulnerability discovery.
+* panel: vulnerability review.
+* adversarial: adversarial verification.
+* finalize: report compilation.', example='discovery'),
+  engineSnapshot?: {
+    sast?: boolean(name='sast', description='Indicates whether Static Application Security Testing (SAST) is supported.', example='true'),
+    sca?: boolean(name='sca', description='Indicates whether Software Composition Analysis (SCA) is supported.', example='true'),
+  }(name='engineSnapshot', description='The supported engine types.'),
+  finishedAt?: string(name='finishedAt', description='The time when the scan finished.', example='2026-08-27T00:53:46.774Z'),
+  id?: long(name='id', description='The task ID.', example='111'),
+  kind?: string(name='kind', description='The scan type. Valid values:
+* full: full
+* incremental: incremental', example='full'),
+  projectId?: long(name='projectId', description='The project ID.', example='1111'),
+  requestId?: string(name='requestId', description='The unique request ID.', example='9A1F403F-0A85-5578-8B7C-55E3E9408659'),
+  scanMetrics?: {
+    credit?: float(name='credit', description='The number of credits consumed by the task.', example='1'),
+    fileCount?: long(name='fileCount', description='The number of files.', example='73894'),
+    linesOfCode?: long(name='linesOfCode', description='The number of lines of code.', example='1'),
+    tokenTotal?: long(name='tokenTotal', description='**[Deprecated]** This parameter is no longer used.', example='1'),
+  }(name='scanMetrics', description='The scan results.'),
+  scanProgress?: long(name='scanProgress', description='The task progress.', example='40'),
+  securityCredits?: float(name='securityCredits', description='**[Deprecated]** This parameter is no longer used.', example='1'),
+  startedAt?: string(name='startedAt', description='The time when the task started.', example='2026-08-27T00:53:46.774Z'),
+  status?: string(name='status', description='The task status. Valid values:
+
+* running: Running.
+* completed: Completed.
+* failed: Failed.
+* canceling: Being canceled.
+* canceled: Canceled.', example='completed'),
+  taskName?: string(name='taskName', description='The task name.', example='name'),
+  updatedAt?: string(name='updatedAt', description='The time when the task was last updated.', example='2026-08-27T00:53:46.774Z'),
+  workerId?: string(name='workerId', description='**[Deprecated]** This parameter is no longer used.', example='1'),
+}
+
+model DescribeScanResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: DescribeScanResponseBody(name='body'),
+}
+
+/**
+ * @summary Queries the details of a scan task.
+ *
+ * @param request DescribeScanRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return DescribeScanResponse
+ */
+async function describeScanWithOptions(projectId: string, scanId: string, request: DescribeScanRequest, headers: map[string]string, runtime: Util.RuntimeOptions): DescribeScanResponse {
+  Util.validateModel(request);
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+  };
+  var params = new OpenApi.Params{
+    action = 'DescribeScan',
+    version = '2026-04-01',
+    protocol = 'HTTPS',
+    pathname = `/v1/projects/${OpenApiUtil.getEncodeParam(projectId)}/scans/${OpenApiUtil.getEncodeParam(scanId)}`,
+    method = 'GET',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Queries the details of a scan task.
+ *
+ * @param request DescribeScanRequest
+ * @return DescribeScanResponse
+ */
+async function describeScan(projectId: string, scanId: string, request: DescribeScanRequest): DescribeScanResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return describeScanWithOptions(projectId, scanId, request, headers, runtime);
+}
+
 model DescribeScanResultsByEngineRequest {
-  baselineState?: string(name='baselineState', description='Filters results by incremental scan baseline status. Valid values: new, unchanged, absent, updated.', example='unchanged'),
+  baselineState?: string(name='baselineState', description='Filters results by the baseline state of incremental scans. Valid values: new, unchanged, absent, and updated.', example='unchanged'),
   lang?: string(name='lang', description='The language. Valid values:
 * zh: Chinese (default).
 * en: English.', example='zh'),
   maxResults?: long(name='maxResults', description='The number of entries per page. Default value: 10. Maximum value: 50.', example='50'),
-  nextToken?: string(name='nextToken', description='The pagination token. Do not pass nextToken or pass an empty string for the first page. To retrieve the next page, pass the nextToken value from the previous response without any modification. When the nextToken in the response is empty, you have reached the last page.', example='eyJ0IjoiMjAyNi0wNy0xNlQwNzo1MzozOC4wMjFaIiwiaSI6MTAwMDQ0OH0'),
-  packageName?: string(name='packageName', description='Performs a fuzzy match by component name. This parameter takes effect only when engine is set to sca.', example='app10000006824_fulljoin_61b2c_global_ad_budget_ctrl_v1.5.jar'),
+  nextToken?: string(name='nextToken', description='The pagination token. Do not specify this parameter for the first page or set it to an empty string. For subsequent pages, pass the nextToken value from the previous response without any modification. If the nextToken value in the response is empty, the last page has been reached.', example='eyJ0IjoiMjAyNi0wNy0xNlQwNzo1MzozOC4wMjFaIiwiaSI6MTAwMDQ0OH0'),
+  packageName?: string(name='packageName', description='The component name for fuzzy match. This parameter takes effect only when engine is set to sca.', example='app10000006824_fulljoin_61b2c_global_ad_budget_ctrl_v1.5.jar'),
 }
 
 model DescribeScanResultsByEngineResponseBody = {
@@ -155,30 +704,33 @@ model DescribeScanResultsByEngineResponseBody = {
 * sca', example='sca'),
   items?: [ 
     {
-      baselineState?: string(name='baselineState', description='Filters results by incremental scan baseline status. Valid values: new, unchanged, absent, updated.', example='new'),
-      category?: string(name='category', description='The category. The system classifies files based on file name extensions and MIME types. Common categories include doc, image, audio, and video.', example='SQL Injection'),
+      baselineState?: string(name='baselineState', description='Filters results by the baseline state of incremental scans. Valid values: new, unchanged, absent, and updated.', example='new'),
+      category?: string(name='category', description='The category. PDS classifies files based on their file name extensions and MIME types. Main categories include doc, image, audio, and video.', example='SQL Injection'),
       codeSnippet?: string(name='codeSnippet', description='The code snippet near the primary location (SAST).', example='1'),
-      confidence?: double(name='confidence', description='The rule confidence level, ranging from 0 to 1. This field is common in SAST results and is omitted if not applicable.', example='1'),
-      createdAt?: string(name='createdAt', description='The time when the finding record was created (RFC 3339 format).', example='2026-07-28T03:36:31.573Z'),
+      confidence?: double(name='confidence', description='The rule confidence level, ranging from 0 to 1. This is common in SAST results and is omitted if not available.', example='1'),
+      createdAt?: string(name='createdAt', description='The time when the finding record was created, in RFC 3339 format.', example='2026-07-28T03:36:31.573Z'),
       cweId?: string(name='cweId', description='The associated CWE ID.', example='CWE-601'),
       description?: string(name='description', description='The issue description.', example='User input is directly concatenated into an SQL statement, which may lead to SQL injection.'),
       endLine?: long(name='endLine', description='The end line number.', example='1'),
       filePath?: string(name='filePath', description='The file path.', example='aone2/2247063/1767838276141/Artifacts_EBookingApps_Pipeline_V2_Staging_131.tgz'),
       id?: long(name='id', description='The project ID.', example='934'),
-      itemSummary?: string(name='itemSummary', description='The brief summary of the finding. Unlike description, this field is more of a conclusion statement.', example='User input is used to construct SQL queries without sanitization'),
+      itemSummary?: string(name='itemSummary', description='The brief summary of the finding. Unlike description, this is more of a conclusion statement.', example='User input is used to construct SQL queries without sanitization'),
       owaspCategory?: string(name='owaspCategory', description='The OWASP category.', example='A01:2021-Broken Access Control'),
       projectName?: string(name='projectName', description='The project name.', example='cdp2cdl_cdp_sha_nprd'),
       remediationCodeExample?: string(name='remediationCodeExample', description='The remediation code example.', example='String sql = \\\\"SELECT * FROM users WHERE name = ?\\\\";\\\\nPreparedStatement ps = conn.prepareStatement(sql);\\\\nps.setString(1, username);\\\\nResultSet rs = ps.executeQuery();'),
       remediationSuggestion?: string(name='remediationSuggestion', description='The remediation suggestion.', example='Use PreparedStatement with parameterized queries instead of string concatenation'),
       ruleId?: string(name='ruleId', description='The rule ID.', example='java-sqli-001'),
       scaComponent?: {
+        componentType?: string(name='componentType', description='The component type, such as library, application, or framework.', example='library'),
         cveCount?: long(name='cveCount', description='The number of CVEs.', example='1'),
         cveDetails?: [ 
           {
             cveId?: string(name='cveId', description='The associated CWE ID.', example='CVE-2021-44228'),
             cvss?: double(name='cvss', description='The CVSS score.', example='1'),
             cvssVersion?: string(name='cvssVersion', description='The CVSS version.', example='v2.0'),
+            cweId?: string(name='cweId', description='The associated CWE ID. This value can be absent or an empty string.', example='CWE-79'),
             description?: string(name='description', description='The description.', example='Apache Log4j2 JNDI features do not protect against attacker-controlled LDAP and other JNDI-related endpoints.'),
+            fixedVersion?: string(name='fixedVersion', description='The target version for the fix. This value can be absent or an empty string.', example='1'),
             references?: [ string ](name='references', description='The reference information.'),
             severity?: string(name='severity', description='The severity level. Valid values:
 * critical
@@ -187,12 +739,27 @@ model DescribeScanResultsByEngineResponseBody = {
 * low', example='critical'),
           }
         ](name='cveDetails', description='The list of CVE details associated with a component in the SCA finding.'),
-        introPaths?: [ string ](name='introPaths', description='The list of dependency introduction paths in the SCA component information. This field is returned only when engine is set to sca.'),
-        isDirect?: boolean(name='isDirect', description='Indicates whether the component is a direct dependency.', example='false'),
+        declaredIn?: string(name='declaredIn', description='The manifest file in which the dependency is declared.', example='node_modules/semver'),
+        ecosystem?: string(name='ecosystem', description='The component ecosystem, such as npm, maven, pypi, or go.', example='maven'),
+        introPaths?: [ string ](name='introPaths', description='The list of dependency introduction paths in the SCA component information. This is returned only when engine is set to sca.'),
+        isDirect?: boolean(name='isDirect', description='Indicates whether the dependency is a direct dependency.', example='false'),
+        license?: {
+          concluded?: string(name='concluded', description='The concluded license expression (SPDX expression, which may contain OR or AND). This is an identifier string only, without full names or OSI/FSF annotations.', example='AFL-2.1 OR BSD-3-Clause'),
+          detected?: [ 
+            {
+              isFsfLibre?: boolean(name='isFsfLibre', description='Indicates whether the license is listed as a free license by the FSF. If this key is absent, it means the license is not annotated, which differs from an explicit false value.', example='true'),
+              isOsiApproved?: boolean(name='isOsiApproved', description='Indicates whether the license is OSI-approved.', example='true'),
+              name?: string(name='name', description='The full name of the license.', example='ISC License'),
+              spdxId?: string(name='spdxId', description='The SPDX license identifier. If the license cannot be determined, the value is NOASSERTION. The value may be in a non-standard format, such as Apache 2.0.', example='AFL-2.1'),
+            }
+          ](name='detected', description='The list of detected licenses.'),
+        }(name='license', description='The license determination result.'),
         packageName?: string(name='packageName', description='The component coordinate.', example='org.apache.logging.log4j:log4j-core'),
+        purl?: string(name='purl', description='The Package URL, which serves as the unique coordinate of the component within the scan.', example='pkg:npm/glob-parent@3.1.0'),
         remediation?: string(name='remediation', description='The component-level remediation suggestion.', example='Upgrade log4j-core to version 2.17.1 or later'),
+        scope?: string(name='scope', description='The dependency scope, such as runtime, required, optional, or dev.', example='runtime'),
         version?: string(name='version', description='The component version.', example='2.14.1'),
-      }(name='scaComponent', description='The SCA component information. This field is returned only when engine is set to sca.'),
+      }(name='scaComponent', description='The SCA component information. This is returned only when engine is set to sca.'),
       scanId?: long(name='scanId', description='The task ID.', example='3176'),
       severity?: string(name='severity', description='The severity level. Valid values:
 * critical 
@@ -210,21 +777,21 @@ model DescribeScanResultsByEngineResponseBody = {
           code?: string(name='code', description='The code.', example='stmt.executeQuery(sql);'),
           file?: string(name='file', description='The file path.', example='src/main/java/com/example/UserService.java'),
           kind?: string(name='kind', description='The role type in the taint propagation chain. Valid values:
-* source: taint source.
-* propagator: propagation node.	
-* validation: validation or scrubbing center.	
-* sink: dangerous sink.', example='source'),
+* source: taint source
+* propagator: propagation node	
+* validation: validation or scrubbing center	
+* sink: dangerous sink', example='source'),
           line?: int32(name='line', description='The line number.', example='111'),
           note?: string(name='note', description='The remarks.', example='Sink: SQL query executed'),
-          step?: int32(name='step', description='The step number, starting from 0 and incrementing.', example='1'),
+          step?: int32(name='step', description='The step sequence number, starting from 0 and incrementing.', example='1'),
         }
-      ](name='taintFlow', description='The SAST taint analysis call chain that describes the complete propagation path of sensitive data from the taint source to the dangerous sink. This field is returned only when engine is set to sast.'),
-      taintFlowSummary?: string(name='taintFlowSummary', description='The text summary of the taint call chain. This field is returned only when engine is set to sast.', example='User input flows from HTTP parameter into SQL query executio'),
+      ](name='taintFlow', description='The SAST taint analysis call chain, which describes the complete propagation path of sensitive data from the taint source to the dangerous sink. This is returned only when engine is set to sast.'),
+      taintFlowSummary?: string(name='taintFlowSummary', description='The text summary of the taint call chain. This is returned only when engine is set to sast.', example='User input flows from HTTP parameter into SQL query executio'),
       title?: string(name='title', description='The issue title.', example='SQL Injection Risk'),
     }
   ](name='items', description='The result list.'),
   maxResults?: long(name='maxResults', description='The number of entries per page.', example='10'),
-  nextToken?: string(name='nextToken', description='The pagination token. Do not pass nextToken or pass an empty string for the first page. To retrieve the next page, pass the nextToken value from the previous response without any modification. When the nextToken in the response is empty, you have reached the last page.', example='eyJ0IjoiMjAyNi0wNy0xNlQwNzo1MzozOC4wMjFaIiwiaSI6MTAwMDQ0OH0'),
+  nextToken?: string(name='nextToken', description='The pagination token. Do not specify this parameter for the first page or set it to an empty string. For subsequent pages, pass the nextToken value from the previous response without any modification. If the nextToken value in the response is empty, the last page has been reached.', example='eyJ0IjoiMjAyNi0wNy0xNlQwNzo1MzozOC4wMjFaIiwiaSI6MTAwMDQ0OH0'),
   projectId?: long(name='projectId', description='The project ID.', example='76851f2b5bf0187fbc29e8bca4'),
   requestId?: string(name='requestId', description='Id of the request', example='9A1F403F-0A85-5578-8B7C-55E3E9408659'),
   scanId?: long(name='scanId', description='The task ID.', example='3088795'),
@@ -238,7 +805,7 @@ model DescribeScanResultsByEngineResponse = {
 }
 
 /**
- * @summary Queries the task result list to retrieve detailed SAST or SCA results for a specific scan.
+ * @summary Queries the task result list to retrieve detailed SAST or SCA results of a specific scan.
  *
  * @param request DescribeScanResultsByEngineRequest
  * @param headers map
@@ -283,7 +850,7 @@ async function describeScanResultsByEngineWithOptions(projectId: string, scanId:
 }
 
 /**
- * @summary Queries the task result list to retrieve detailed SAST or SCA results for a specific scan.
+ * @summary Queries the task result list to retrieve detailed SAST or SCA results of a specific scan.
  *
  * @param request DescribeScanResultsByEngineRequest
  * @return DescribeScanResultsByEngineResponse
