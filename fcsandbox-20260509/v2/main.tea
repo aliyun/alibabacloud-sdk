@@ -112,6 +112,11 @@ model CreateTemplateBuildConfig {
   envdInject?: CreateTemplateEnvdInjectAction(name='envdInject', description='The envd injection build action.'),
 }
 
+model CreateTemplateCacheInput {
+  teamID?: string(name='teamID', description='The team ID.', example='13b721e6-8cc8-5df2-af13-80316f7508af'),
+  templateID?: string(name='templateID', description='The unique identifier of the template.', example='us7dxqaezw5uu7aa2cm5'),
+}
+
 model CreateTemplateCopyAction {
   acrInstanceId?: string(name='acrInstanceId', description='The ID of the ACR Enterprise instance where the source image resides.', example='cri-abcd1234efgh'),
   enabled?: boolean(name='enabled', description='Specifies whether to enable image replication.'),
@@ -443,6 +448,18 @@ model PublicTemplate {
   teamID?: string(name='teamID', description='The unique identifier of the team.', example='70d1c834-0383-58d8-97ac-5336eb91abcd'),
   teamName?: string(name='teamName', description='The team name.', example='my-team'),
   templateID?: string(name='templateID', description='The template ID.', example='w0aipmi0rvn5xqdnsihg'),
+}
+
+model PublicTemplateCache {
+  createdTime?: string(name='createdTime', description='The creation time in UTC.', example='2026-09-18T10:00:00Z'),
+  imageDigest?: string(name='imageDigest', description='The digest of the cached image.', example='sha256:8f3c2a1b'),
+  imageSizeMB?: int32(name='imageSizeMB', description='The size of the cached image. Unit: MB.', example='512'),
+  progress?: int32(name='progress', description='The prefetch progress percentage.', example='80'),
+  readyTime?: string(name='readyTime', description='The ready time in UTC.', example='2026-09-18T10:05:00Z'),
+  status?: string(name='status', description='The cache status. Valid values: InProgress, Success, Failed, Deleting, and Evicted.', example='Success'),
+  statusReason?: string(name='statusReason', description='The reason for the status. This parameter is backfilled when the status is not Success.', example='The image prefetch task is queued'),
+  teamID?: string(name='teamID', description='The team ID.', example='13b721e6-8cc8-5df2-af13-80316f7508af'),
+  templateID?: string(name='templateID', description='The unique identifier of the template.', example='us7dxqaezw5uu7aa2cm5'),
 }
 
 model PublicTemplateLogConfig {
@@ -805,6 +822,64 @@ async function createTemplate(request: CreateTemplateRequest): CreateTemplateRes
   return createTemplateWithOptions(request, headers, runtime);
 }
 
+model CreateTemplateCacheRequest {
+  body?: CreateTemplateCacheInput(name='body'),
+}
+
+model CreateTemplateCacheResponseBody = {
+  code?: string(name='code', example='200'),
+  message?: string(name='message', example='success'),
+  requestId?: string(name='requestId', example='B5AD8B54-4358-5F5B-ACAA-52F2016459C6'),
+  templateCache?: PublicTemplateCache(name='templateCache'),
+}
+
+model CreateTemplateCacheResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: CreateTemplateCacheResponseBody(name='body'),
+}
+
+/**
+ * @summary 创建模板缓存
+ *
+ * @param request CreateTemplateCacheRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return CreateTemplateCacheResponse
+ */
+@context("createTemplateCacheWithContext")
+async function createTemplateCacheWithOptions(request: CreateTemplateCacheRequest, headers: map[string]string, runtime: $RuntimeOptions): CreateTemplateCacheResponse {
+  request.validate();
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    headers = headers,
+    body = OpenApiUtil.parseToMap(request.body),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'CreateTemplateCache',
+    version = '2026-05-09',
+    protocol = 'HTTPS',
+    pathname = `/pop/2026-05-09/template-caches`,
+    method = 'POST',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 创建模板缓存
+ *
+ * @param request CreateTemplateCacheRequest
+ * @return CreateTemplateCacheResponse
+ */
+async function createTemplateCache(request: CreateTemplateCacheRequest): CreateTemplateCacheResponse {
+  var runtime = new $RuntimeOptions{};
+  var headers : map[string]string = {};
+  return createTemplateCacheWithOptions(request, headers, runtime);
+}
+
 model CreateVolumeRequest {
   body?: CreateVolumeInput(name='body', description='The form parameters.'),
 }
@@ -1097,6 +1172,68 @@ async function deleteTemplate(templateID: string, request: DeleteTemplateRequest
   return deleteTemplateWithOptions(templateID, request, headers, runtime);
 }
 
+model DeleteTemplateCacheRequest {
+  teamID?: string(name='teamID', example='13b721e6-8cc8-5df2-af13-80316f7508af'),
+}
+
+model DeleteTemplateCacheResponseBody = {
+  code?: string(name='code', example='200'),
+  message?: string(name='message', example='success'),
+  requestId?: string(name='requestId', example='B5AD8B54-4358-5F5B-ACAA-52F2016459C6'),
+}
+
+model DeleteTemplateCacheResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: DeleteTemplateCacheResponseBody(name='body'),
+}
+
+/**
+ * @summary 删除模板缓存
+ *
+ * @param request DeleteTemplateCacheRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return DeleteTemplateCacheResponse
+ */
+@context("deleteTemplateCacheWithContext")
+async function deleteTemplateCacheWithOptions(templateID: string, request: DeleteTemplateCacheRequest, headers: map[string]string, runtime: $RuntimeOptions): DeleteTemplateCacheResponse {
+  request.validate();
+  var query : map[string]any = {};
+  if (!$isNull(request.teamID)) {
+    query['teamID'] = request.teamID;
+  }
+
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'DeleteTemplateCache',
+    version = '2026-05-09',
+    protocol = 'HTTPS',
+    pathname = `/pop/2026-05-09/template-caches/${$URL.percentEncode(templateID)}`,
+    method = 'DELETE',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 删除模板缓存
+ *
+ * @param request DeleteTemplateCacheRequest
+ * @return DeleteTemplateCacheResponse
+ */
+async function deleteTemplateCache(templateID: string, request: DeleteTemplateCacheRequest): DeleteTemplateCacheResponse {
+  var runtime = new $RuntimeOptions{};
+  var headers : map[string]string = {};
+  return deleteTemplateCacheWithOptions(templateID, request, headers, runtime);
+}
+
 model DeleteVolumeRequest {
   teamID?: string(name='teamID', description='The unique identifier of the Team.', example='70d1c834-0383-58d8-97ac-5336eb91abcd'),
 }
@@ -1284,6 +1421,69 @@ async function describeQuota(request: DescribeQuotaRequest): DescribeQuotaRespon
   var runtime = new $RuntimeOptions{};
   var headers : map[string]string = {};
   return describeQuotaWithOptions(request, headers, runtime);
+}
+
+model DescribeTemplateCacheRequest {
+  teamID?: string(name='teamID', description='The team ID.', example='13b721e6-8cc8-5df2-af13-80316f7508af'),
+}
+
+model DescribeTemplateCacheResponseBody = {
+  code?: string(name='code', description='The error code. A value of 200 indicates success.', example='200'),
+  message?: string(name='message', description='The response message.', example='success'),
+  requestId?: string(name='requestId', description='Id of the request', example='B5AD8B54-4358-5F5B-ACAA-52F2016459C6'),
+  templateCache?: PublicTemplateCache(name='templateCache', description='The template cache object.'),
+}
+
+model DescribeTemplateCacheResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: DescribeTemplateCacheResponseBody(name='body'),
+}
+
+/**
+ * @summary Queries the template cache.
+ *
+ * @param request DescribeTemplateCacheRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return DescribeTemplateCacheResponse
+ */
+@context("describeTemplateCacheWithContext")
+async function describeTemplateCacheWithOptions(templateID: string, request: DescribeTemplateCacheRequest, headers: map[string]string, runtime: $RuntimeOptions): DescribeTemplateCacheResponse {
+  request.validate();
+  var query : map[string]any = {};
+  if (!$isNull(request.teamID)) {
+    query['teamID'] = request.teamID;
+  }
+
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'DescribeTemplateCache',
+    version = '2026-05-09',
+    protocol = 'HTTPS',
+    pathname = `/pop/2026-05-09/template-caches/${$URL.percentEncode(templateID)}`,
+    method = 'GET',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Queries the template cache.
+ *
+ * @param request DescribeTemplateCacheRequest
+ * @return DescribeTemplateCacheResponse
+ */
+async function describeTemplateCache(templateID: string, request: DescribeTemplateCacheRequest): DescribeTemplateCacheResponse {
+  var runtime = new $RuntimeOptions{};
+  var headers : map[string]string = {};
+  return describeTemplateCacheWithOptions(templateID, request, headers, runtime);
 }
 
 model GetTeamRequest {
@@ -1726,6 +1926,95 @@ async function listTeams(request: ListTeamsRequest): ListTeamsResponse {
   var runtime = new $RuntimeOptions{};
   var headers : map[string]string = {};
   return listTeamsWithOptions(request, headers, runtime);
+}
+
+model ListTemplateCacheRequest {
+  maxResults?: int32(name='maxResults', description='The maximum number of entries per page. Default value: 20. Maximum value: 100.', example='20'),
+  nextToken?: string(name='nextToken', description='The pagination token returned from the previous response.', example='cae5f900-8b1d-4c0e-9c2a-1a2b3c4d5e6f'),
+  status?: string(name='status', description='Filters by cache status. Valid values:
+
+- InProgress
+- Success
+- Failed
+- Deleting
+- Evicted', example='Success'),
+  teamID?: string(name='teamID', description='The team ID.', example='13b721e6-8cc8-5df2-af13-80316f7508af'),
+  templateID?: string(name='templateID', description='The unique identifier of the template.', example='us7dxqaezw5uu7aa2cm5'),
+}
+
+model ListTemplateCacheResponseBody = {
+  code?: string(name='code', description='The error code. A value of 200 indicates success.', example='200'),
+  maxResults?: int32(name='maxResults', description='The maximum number of entries per page used in this request.', example='20'),
+  message?: string(name='message', description='The response message.', example='success'),
+  nextToken?: string(name='nextToken', description='The pagination token for the next page. This parameter is empty if no more results are available.', example='cae5f900-8b1d-4c0e-9c2a-1a2b3c4d5e6f'),
+  requestId?: string(name='requestId', description='Id of the request', example='B5AD8B54-4358-5F5B-ACAA-52F2016459C6'),
+  templateCaches?: [
+    PublicTemplateCache
+  ](name='templateCaches', description='The list of template cache objects.'),
+}
+
+model ListTemplateCacheResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ListTemplateCacheResponseBody(name='body'),
+}
+
+/**
+ * @summary Queries template caches by using paging.
+ *
+ * @param request ListTemplateCacheRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return ListTemplateCacheResponse
+ */
+@context("listTemplateCacheWithContext")
+async function listTemplateCacheWithOptions(request: ListTemplateCacheRequest, headers: map[string]string, runtime: $RuntimeOptions): ListTemplateCacheResponse {
+  request.validate();
+  var query : map[string]any = {};
+  if (!$isNull(request.maxResults)) {
+    query['maxResults'] = request.maxResults;
+  }
+  if (!$isNull(request.nextToken)) {
+    query['nextToken'] = request.nextToken;
+  }
+  if (!$isNull(request.status)) {
+    query['status'] = request.status;
+  }
+  if (!$isNull(request.teamID)) {
+    query['teamID'] = request.teamID;
+  }
+  if (!$isNull(request.templateID)) {
+    query['templateID'] = request.templateID;
+  }
+
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'ListTemplateCache',
+    version = '2026-05-09',
+    protocol = 'HTTPS',
+    pathname = `/pop/2026-05-09/template-caches`,
+    method = 'GET',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Queries template caches by using paging.
+ *
+ * @param request ListTemplateCacheRequest
+ * @return ListTemplateCacheResponse
+ */
+async function listTemplateCache(request: ListTemplateCacheRequest): ListTemplateCacheResponse {
+  var runtime = new $RuntimeOptions{};
+  var headers : map[string]string = {};
+  return listTemplateCacheWithOptions(request, headers, runtime);
 }
 
 model ListTemplatesRequest {
