@@ -7612,26 +7612,42 @@ async function describeFileSystemStatistics(request: DescribeFileSystemStatistic
 model DescribeFileSystemsRequest {
   fileSystemId?: string(name='FileSystemId', description='The file system ID.
 - General-purpose NAS: 31a8e4****.
-- Extreme NAS: must start with extreme-, such as extreme-0015****.
-- CPFS (locally redundant): must start with cpfs-, such as cpfs-125487****.
-- CPFS SE (zone-redundant): must start with cpfsse-, such as cpfsse-022c71b134****.', example='31a8e4****'),
-  fileSystemType?: string(name='FileSystemType', description='The type of the file system.
+- Extreme NAS: Must start with extreme-, such as extreme-0015****.
+- Cloud Parallel File Storage (CPFS) (locally redundant version): Must start with cpfs-, such as cpfs-125487****.
+- CPFS SE (zone-redundant version): Must start with cpfsse-, such as cpfsse-022c71b134****.', example='31a8e4****'),
+  fileSystemType?: string(name='FileSystemType', description='The file system type.
 
 Valid values:
 
 - all (default): queries all types.
 - standard: General-purpose NAS.
 - extreme: Extreme NAS.
-- cpfs: Cloud Parallel File Storage (CPFS) with locally redundant storage.
-- cpfsse: CPFS SE with zone-redundant storage.
+- cpfs: Cloud Parallel File Storage (CPFS) (locally redundant version).
+- cpfsse: CPFS SE (zone-redundant version).
 
 > To query multiple types, separate them with commas (,).', example='standard'),
-  pageNumber?: int32(name='PageNumber', description='The page number of the file system list.', example='1'),
-  pageSize?: int32(name='PageSize', description='The number of file systems on each page in a paging query.', example='1'),
+  pageNumber?: int32(name='PageNumber', description='The page number of the file system list.
+
+Default value: 1.', example='1'),
+  pageSize?: int32(name='PageSize', description='The number of file systems on each page during a paged query.
+
+Valid values: 1 to 100.
+
+Default value: 10.', example='1'),
   resourceGroupId?: string(name='ResourceGroupId', description='The resource group ID.
 
 You can view the resource group ID in the [Resource Management console](https://resourcemanager.console.aliyun.com/resource-groups?).', example='rg-acfmwavnfef****'),
-  storageType?: string(name='StorageType', description='The storage type. Currently, only CPFS for Lingjun specifications are supported for a filtered query. Other FileSystemType values are not supported. The following specifications are supported:', example='bm_advance_400'),
+  storageType?: string(name='StorageType', description='The storage type. Currently, only CPFS for Lingjun specifications are supported for filtered query. Other file system types (FileSystemType) are not supported. The following specifications are supported:
+- bm_advance_400
+- bm_advance_400_large
+- bm_advance_new
+- bm_advance_100
+- cpfslight_100
+- bm_p100_stepsize_300
+- bm_p400_stepsize_1
+- bm_p400_stepsize_300
+
+You can specify multiple specifications separated by commas (,). For example: bm_advance_400,bm_advance_new.', example='bm_advance_400'),
   tag?: [ 
     {
       key?: string(name='Key', description='The tag key.
@@ -7646,13 +7662,15 @@ Limits:
 
 Limits:
 
-- N can be an integer from 1 to 20.
+- Valid values of N: 1 to 20.
 - The tag value can be up to 128 characters in length.
 - The tag value cannot start with `aliyun` or `acs:`.
 - The tag value cannot contain `http://` or `https://`.', example='testValue'),
     }
   ](name='Tag', description='The tag information.'),
-  vpcId?: string(name='VpcId', description='The VPC ID.', example='vpc-bp1sevsgtqvk5gxbl****'),
+  vpcId?: string(name='VpcId', description='The virtual private cloud (VPC) ID.
+
+The VPC must be the same as the VPC of the Elastic Computing Service (ECS) server to which you want to mount the file system.', example='vpc-bp1sevsgtqvk5gxbl****'),
 }
 
 model DescribeFileSystemsResponseBody = {
@@ -7661,6 +7679,12 @@ model DescribeFileSystemsResponseBody = {
     {
       accessPointCount?: string(name='AccessPointCount'),
       autoSnapshotPolicyId?: string(name='AutoSnapshotPolicyId'),
+      autoUpgradeConfig?: {
+        capacityUsedRatio?: int32(name='capacityUsedRatio', example='80'),
+        enabled?: boolean(name='enabled'),
+        step?: int32(name='step', example='100'),
+        time?: int32(name='time', example='30'),
+      }(name='AutoUpgradeConfig'),
       bandwidth?: long(name='Bandwidth'),
       capacity?: long(name='Capacity'),
       chargeType?: string(name='ChargeType'),
@@ -7758,7 +7782,7 @@ model DescribeFileSystemsResponseBody = {
   ](name='FileSystem')
   }(name='FileSystems'),
   pageNumber?: int32(name='PageNumber', description='The page number of the file system list.', example='1'),
-  pageSize?: int32(name='PageSize', description='The number of file systems per page.', example='1'),
+  pageSize?: int32(name='PageSize', description='The number of file systems on each page.', example='1'),
   requestId?: string(name='RequestId', description='The request ID.', example='035B3A3A-E514-4B41-B906-5D906CFB****'),
   totalCount?: int32(name='TotalCount', description='The total number of file systems.', example='1'),
 }
@@ -12542,46 +12566,54 @@ async function modifyDataFlowAutoRefresh(request: ModifyDataFlowAutoRefreshReque
 }
 
 model ModifyFileSystemRequest {
-  description?: string(name='Description', description='The file system description.
+  autoUpgradeConfig?: {
+    capacityUsedRatio?: int32(name='capacityUsedRatio', description='The capacity usage threshold.', example='80'),
+    enabled?: boolean(name='enabled', description='Specifies whether to enable auto-scaling.'),
+    step?: int32(name='step', description='The scaling increment.', example='100'),
+    time?: int32(name='time', description='The duration.', example='30'),
+  }(name='AutoUpgradeConfig', description='The auto-scaling configuration.'),
+  description?: string(name='Description', description='The description of the file system.
 
 Limits:
 
 - The description must be 2 to 128 characters in length.
-- The description must start with a letter or Chinese character and cannot start with `http://` or `https://`.
+- The description must start with a letter. It cannot start with `http://` or `https://`.
 - The description can contain digits, colons (:), underscores (_), or hyphens (-).', example='NAS-test-1'),
   fileSystemId?: string(name='FileSystemId', description='The file system ID.
 
 - General-purpose NAS: `31a8e4****`.
 
-- Extreme NAS: must start with `extreme-`, for example, `extreme-0015****`.
-- CPFS: must start with `cpfs-`, for example, `cpfs-125487****`.
+- Extreme NAS: The ID must start with `extreme-`, for example, `extreme-0015****`.
+- Cloud Parallel File Storage (CPFS): The ID must start with `cpfs-`, for example, `cpfs-125487****`.
 
 This parameter is required.', example='1ca404****'),
   options?: {
-    enableABE?: boolean(name='EnableABE', description='Specifies whether to enable the SMB Access-based Enumeration (ABE) access control feature.', example='false'),
-    enableOplock?: boolean(name='EnableOplock', description='Specifies whether to enable the OpLock feature.
+    enableABE?: boolean(name='EnableABE', description='Specifies whether to enable the SMB Access-Based Enumeration (ABE) feature.', example='false'),
+    enableOplock?: boolean(name='EnableOplock', description='Specifies whether the OpLock feature is enabled.
+
 Valid values:
-- true: enables the feature.
-- false: does not enable the feature.
-> Only file systems whose Protocol Type is SMB protocol are supported.', example='true'),
-    vscAccessPointAccessOnly?: boolean(name='VscAccessPointAccessOnly', description='Specifies whether the Lingjun VSC mount target supports access only through access points.', example='false'),
+- true: Enabled.
+- false: Not enabled.
+> Only file systems of the SMB Protocol Type are supported.', example='true'),
+    vscAccessPointAccessOnly?: boolean(name='VscAccessPointAccessOnly', description='Specifies whether the Lingjun VSC mount target supports only access point-based access.', example='false'),
   }(name='Options', description='The options.'),
 }
 
 model ModifyFileSystemShrinkRequest {
-  description?: string(name='Description', description='The file system description.
+  autoUpgradeConfigShrink?: string(name='AutoUpgradeConfig', description='The auto-scaling configuration.'),
+  description?: string(name='Description', description='The description of the file system.
 
 Limits:
 
 - The description must be 2 to 128 characters in length.
-- The description must start with a letter or Chinese character and cannot start with `http://` or `https://`.
+- The description must start with a letter. It cannot start with `http://` or `https://`.
 - The description can contain digits, colons (:), underscores (_), or hyphens (-).', example='NAS-test-1'),
   fileSystemId?: string(name='FileSystemId', description='The file system ID.
 
 - General-purpose NAS: `31a8e4****`.
 
-- Extreme NAS: must start with `extreme-`, for example, `extreme-0015****`.
-- CPFS: must start with `cpfs-`, for example, `cpfs-125487****`.
+- Extreme NAS: The ID must start with `extreme-`, for example, `extreme-0015****`.
+- Cloud Parallel File Storage (CPFS): The ID must start with `cpfs-`, for example, `cpfs-125487****`.
 
 This parameter is required.', example='1ca404****'),
   optionsShrink?: string(name='Options', description='The options.'),
@@ -12608,10 +12640,16 @@ async function modifyFileSystemWithOptions(tmpReq: ModifyFileSystemRequest, runt
   Util.validateModel(tmpReq);
   var request = new ModifyFileSystemShrinkRequest{};
   OpenApiUtil.convert(tmpReq, request);
+  if (!Util.isUnset(tmpReq.autoUpgradeConfig)) {
+    request.autoUpgradeConfigShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.autoUpgradeConfig, 'AutoUpgradeConfig', 'json');
+  }
   if (!Util.isUnset(tmpReq.options)) {
     request.optionsShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.options, 'Options', 'json');
   }
   var query = {};
+  if (!Util.isUnset(request.autoUpgradeConfigShrink)) {
+    query['AutoUpgradeConfig'] = request.autoUpgradeConfigShrink;
+  }
   if (!Util.isUnset(request.description)) {
     query['Description'] = request.description;
   }
