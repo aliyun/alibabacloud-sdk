@@ -12,19 +12,7 @@ extends OpenApi;
 init(config: OpenApi.Config){
   super(config);
   @endpointRule = 'regional';
-  @endpointMap = {
-    'cn-shenzhen' = 'pairecservice.cn-shenzhen.aliyuncs.com',
-    'cn-shanghai' = 'pairecservice.cn-shanghai.aliyuncs.com',
-    'cn-hongkong' = 'pairecservice.cn-hongkong.aliyuncs.com',
-    'cn-hangzhou' = 'pairecservice.cn-hangzhou.aliyuncs.com',
-    'cn-beijing' = 'pairecservice.cn-beijing.aliyuncs.com',
-    'ap-southeast-5' = 'pairecservice.ap-southeast-5.aliyuncs.com',
-    'ap-southeast-1' = 'pairecservice.ap-southeast-1.aliyuncs.com',
-    'eu-central-1' = 'pairecservice.eu-central-1.aliyuncs.com',
-    'us-east-1' = 'pairecservice.us-east-1.aliyuncs.com',
-    'us-west-1' = 'pairecservice.us-west-1.aliyuncs.com',
-  };
-
+  
   checkConfig(config);
   @endpoint = getEndpoint('pairecservice', @regionId, @endpointRule, @network, @suffix, @endpointMap, @endpoint);
 }
@@ -632,20 +620,21 @@ async function checkTrafficControlTaskExpression(request: CheckTrafficControlTas
 }
 
 model CloneEngineConfigRequest {
-  configValue?: string(name='ConfigValue', description='The content of the engine configuration.', example='{}'),
-  description?: string(name='Description'),
-  environment?: string(name='Environment', description='The environment. Valid values:
+  configValue?: string(name='ConfigValue', description='The content of the DPI engine configuration.', example='{}'),
+  description?: string(name='Description', description='The description.', example='this is a clone config.'),
+  environment?: string(name='Environment', description='The runtime environment. Valid values:
 
-- Daily: The daily environment.
+- Daily: daily environment.
 
-- Pre: The pre-release environment.
+- Pre: staging environment.
 
-- Prod: The production environment.', example='Pre'),
-  instanceId?: string(name='InstanceId', description='The instance ID. To obtain an instance ID, see [ListInstances](https://help.aliyun.com/document_detail/2411819.html).', example='pairec-cn-********'),
+- Prod: production environment.', example='Pre'),
+  instanceId?: string(name='InstanceId', description='The instance ID. For information about how to obtain the instance ID, see [ListInstances](https://help.aliyun.com/document_detail/2411819.html).', example='pairec-cn-********'),
+  sceneId?: string(name='SceneId', description='The scene.', example='1'),
 }
 
 model CloneEngineConfigResponseBody = {
-  engineConfigId?: string(name='EngineConfigId', description='The engine configuration ID.', example='2'),
+  engineConfigId?: string(name='EngineConfigId', description='The DPI engine configuration ID.', example='2'),
   requestId?: string(name='RequestId', description='The request ID.', example='A04CB8C0-E74A-5E83-BC61-64D153574EC7'),
 }
 
@@ -656,7 +645,7 @@ model CloneEngineConfigResponse = {
 }
 
 /**
- * @summary Clones an engine configuration.
+ * @summary Clones a DPI engine configuration.
  *
  * @param request CloneEngineConfigRequest
  * @param headers map
@@ -678,6 +667,9 @@ async function cloneEngineConfigWithOptions(EngineConfigId: string, request: Clo
   if (!Util.isUnset(request.instanceId)) {
     body['InstanceId'] = request.instanceId;
   }
+  if (!Util.isUnset(request.sceneId)) {
+    body['SceneId'] = request.sceneId;
+  }
 
   var req = new OpenApi.OpenApiRequest{ 
     headers = headers,
@@ -698,7 +690,7 @@ async function cloneEngineConfigWithOptions(EngineConfigId: string, request: Clo
 }
 
 /**
- * @summary Clones an engine configuration.
+ * @summary Clones a DPI engine configuration.
  *
  * @param request CloneEngineConfigRequest
  * @return CloneEngineConfigResponse
@@ -1768,6 +1760,7 @@ model CreateEngineConfigRequest {
 - Prod: production environment.', example='Pre'),
   instanceId?: string(name='InstanceId', description='The instance ID. You can obtain the ID from the [ListInstances](https://help.aliyun.com/document_detail/2411819.html) operation.', example='pairec-cn-***test'),
   name?: string(name='Name', description='The name of the engine configuration.', example='engine_config_v1'),
+  sceneId?: string(name='SceneId', example='1'),
   type?: string(name='Type', description='The type of the engine configuration.', example='Normal'),
 }
 
@@ -1807,6 +1800,9 @@ async function createEngineConfigWithOptions(request: CreateEngineConfigRequest,
   }
   if (!Util.isUnset(request.name)) {
     body['Name'] = request.name;
+  }
+  if (!Util.isUnset(request.sceneId)) {
+    body['SceneId'] = request.sceneId;
   }
   if (!Util.isUnset(request.type)) {
     body['Type'] = request.type;
@@ -6635,6 +6631,7 @@ model GetEngineConfigResponseBody = {
   gmtReleasedTime?: string(name='GmtReleasedTime', description='The publish time.', example='2024-01-03 02:28:00'),
   name?: string(name='Name', description='The engine configuration name.', example='engine_config_v1'),
   requestId?: string(name='RequestId', description='The request ID.', example='59CE7EC6-F268-5D71-9215-32922CC50D72'),
+  sceneId?: string(name='SceneId', example='1'),
   status?: string(name='Status', description='The status. Valid values:
 
 - Released: published.
@@ -7076,7 +7073,7 @@ model GetInstanceRequest {
 }
 
 model GetInstanceResponseBody = {
-  chargeType?: string(name='ChargeType', description='The billing method of the instance. The value is fixed as Subscription.', example='Subscription'),
+  chargeType?: string(name='ChargeType', description='The billing type of the instance. Currently, only Subscription (prepayment) is supported.', example='Subscription'),
   commodityCode?: string(name='CommodityCode', description='The commodity code of the instance.', example='airec_developers_public_cn'),
   config?: {
     dataManagements?: [ 
@@ -7099,23 +7096,43 @@ model GetInstanceResponseBody = {
         meta?: map[string]any(name='Meta', description='The metadata.'),
         type?: string(name='Type', description='The component type.', example='Platform'),
       }
-    ](name='Monitors', description='The list of monitoring components.'),
-  }(name='Config', description='The instance configurations.'),
+    ](name='Monitors', description='The list of supporting features.'),
+  }(name='Config', description='The instance configuration.'),
   expiredTime?: string(name='ExpiredTime', description='The time when the instance expires.', example='2022-12-14 00:00:00.0'),
+  featureStoreInfo?: {
+    featureDBStatus?: string(name='FeatureDBStatus'),
+    instanceId?: string(name='InstanceId'),
+  }(name='FeatureStoreInfo'),
   gmtCreateTime?: string(name='GmtCreateTime', description='The time when the instance was created.', example='2022-10-13 17:34:52.0'),
   gmtModifiedTime?: string(name='GmtModifiedTime', description='The time when the instance was last updated.', example='2022-11-05 09:02:30.0'),
   instanceId?: string(name='InstanceId', description='The instance ID.', example='pairec-test1'),
   operatingTool?: {
-    isEnable?: boolean(name='IsEnable', description='Indicates whether the operating tool is enabled for the instance. Valid values:
+    isEnable?: boolean(name='IsEnable', description='Indicates whether the operations tool is enabled for the instance. Valid values:
 
-- True: Enabled
+- True: Enabled.
+- False: Not enabled.', example='True'),
+  }(name='OperatingTool', description='The configuration of the operations tool.'),
+  recommendCustomization?: {
+    isEnable?: boolean(name='IsEnable'),
+  }(name='RecommendCustomization'),
+  regionId?: string(name='RegionId', description='The region ID. Valid values:
 
-- False: Disabled', example='True'),
-  }(name='OperatingTool', description='The operating tool configurations.'),
-  regionId?: string(name='RegionId', description='The region ID. Valid values:<br>● cn-shenzhen: Shenzhen<br>● cn-hangzhou: Hangzhou<br>● cn-beijing: Beijing<br>● cn-shanghai: Shanghai<br><br><br><br>', example='cn-shenzhen'),
+- cn-shenzhen: China (Shenzhen).
+- cn-hangzhou: China (Hangzhou).
+- cn-beijing: China (Beijing).
+- cn-shanghai: China (Shanghai).', example='cn-shenzhen'),
   requestId?: string(name='RequestId', description='The request ID.', example='728C5E01-ABF6-5AA8-B9FC-B3BA05DECC77'),
-  status?: string(name='Status', description='The instance status. Valid values:<br>● Initializing<br>● Stopped<br>● Running<br><br><br>', example='Initializing'),
-  type?: string(name='Type', description='The instance type. Valid values:<br>● basic: Basic<br>● highlevel: High-level<br>● advanced: Advanced<br>● standard: Standard<br><br><br><br>', example='basic'),
+  status?: string(name='Status', description='The instance status. Valid values:
+
+- Initializing: The instance is being initialized.
+- Stopped: The instance is stopped.
+- Running: The instance is running.', example='Initializing'),
+  type?: string(name='Type', description='The instance type. Valid values:
+
+- basic: Basic Edition.
+- highleve: Upgraded Edition.
+- advance: Advanced Edition.
+- standard: Standard Edition.', example='basic'),
 }
 
 model GetInstanceResponse = {
@@ -7125,7 +7142,7 @@ model GetInstanceResponse = {
 }
 
 /**
- * @summary Gets the details of a specified PAI-REC instance.
+ * @summary Retrieves the details of a specified PAIRec instance.
  *
  * @param request GetInstanceRequest
  * @param headers map
@@ -7152,7 +7169,7 @@ async function getInstanceWithOptions(InstanceId: string, request: GetInstanceRe
 }
 
 /**
- * @summary Gets the details of a specified PAI-REC instance.
+ * @summary Retrieves the details of a specified PAIRec instance.
  *
  * @param request GetInstanceRequest
  * @return GetInstanceResponse
@@ -8317,16 +8334,16 @@ model GetServiceRequest {
 }
 
 model GetServiceResponseBody = {
-  crInstanceId?: string(name='CrInstanceId', description='The Container Registry Enterprise instance ID selected by the user when a non-official image is used.', example='cri-xxx'),
+  crInstanceId?: string(name='CrInstanceId', description='The instance ID of the Container Registry Enterprise instance selected when a non-official image is used.', example='cri-xxx'),
   description?: string(name='Description', description='The service description.', example='this is a test rec engine'),
   engineConfigId?: string(name='EngineConfigId', description='The engine configuration ID.', example='3'),
-  gmtReleasedTime?: string(name='GmtReleasedTime', description='The time of the most recent production release.', example='2021-12-15T23:24:33.132+08:00'),
+  gmtReleasedTime?: string(name='GmtReleasedTime', description='The time of the most recent production publish.', example='2021-12-15T23:24:33.132+08:00'),
   imageAuth?: string(name='ImageAuth', description='The image secret.', example='********'),
   imageName?: string(name='ImageName', description='The image name.'),
   latestProdReleaseOrder?: {
-    content?: string(name='Content', description='The release content.', example='update golang version to 1.22'),
+    content?: string(name='Content', description='The publish content.', example='update golang version to 1.22'),
     imageVersion?: string(name='ImageVersion', description='The image version.', example='2.0.0'),
-    releaseInfo?: string(name='ReleaseInfo', description='The release information.', example='{
+    releaseInfo?: string(name='ReleaseInfo', description='The publish information.', example='{
 	"Pre": {
     "Status": "Released",
     "GmtReleasedTime" : "2021-12-15T23:24:33.132+08:00",
@@ -8336,16 +8353,17 @@ model GetServiceResponseBody = {
     "GmtReleasedTime" : "2021-12-15T23:24:33.132+08:00",
   }
 }'),
-    releaseOrderId?: string(name='ReleaseOrderId', description='The release order ID.', example='3'),
+    releaseOrderId?: string(name='ReleaseOrderId', description='The publish order ID.', example='3'),
     releaser?: string(name='Releaser', description='The publisher, including the name and UID of the Resource Access Management (RAM) users.', example='E-xxx.xxx-@xxx.onaliyun.com'),
-    topic?: string(name='Topic', description='The release title.', example='update version'),
-  }(name='LatestProdReleaseOrder', description='The most recent production release record.'),
+    topic?: string(name='Topic', description='The publish title.', example='update version'),
+  }(name='LatestProdReleaseOrder', description='The most recent production publish record.'),
   name?: string(name='Name', description='The service name.', example='test_rec'),
   region?: string(name='Region', description='The region where the service is deployed.', example='cn-beijing'),
-  repositoryId?: string(name='RepositoryId', description='The Container Registry Enterprise Edition repository ID selected by the user when a non-official image is used.', example='crr-xxx'),
+  repositoryId?: string(name='RepositoryId', description='The ID of the Container Registry Enterprise Edition repository selected when a non-official image is used.', example='crr-xxx'),
   requestId?: string(name='RequestId', description='The request ID.', example='D75C43DC-3D3A-5CC8-9AAC-8C77306C433B'),
-  serviceConfig?: string(name='ServiceConfig', description='The configuration used to publish the service, such as the service configuration in EAS.', example='{"Port":8080}'),
-  serviceResourceUri?: string(name='ServiceResourceUri', description='The resource address used to publish the service, such as the resource group name in Elastic Algorithm Service (EAS).', example='eas-resource-xxx'),
+  sceneId?: string(name='SceneId', description='The scenario.', example='1'),
+  serviceConfig?: string(name='ServiceConfig', description='The configuration used to publish the service, such as the Elastic Algorithm Service (EAS) service configuration.', example='{"Port":8080}'),
+  serviceResourceUri?: string(name='ServiceResourceUri', description='The resource address used to publish the service, such as the EAS resource group name.', example='eas-resource-xxx'),
 }
 
 model GetServiceResponse = {
@@ -9867,25 +9885,26 @@ async function listDataDiagnosisReports(DataDiagnosisId: string, request: ListDa
 }
 
 model ListEngineConfigsRequest {
-  environment?: string(name='Environment', description='The runtime environment.
+  environment?: string(name='Environment', description='The runtime environment. Valid values:
 
-- Daily: daily environment.
+- Daily: Daily environment.
 
-- Pre: staging environment.
+- Pre: Pre-release environment.
 
-- Prod: production environment.', example='Pre'),
+- Prod: Production environment.', example='Pre'),
   instanceId?: string(name='InstanceId', description='The instance ID. You can obtain the instance ID by calling the [ListInstances](https://help.aliyun.com/document_detail/2411819.html) operation.
 
 This parameter is required.', example='pairec-cn-***test'),
   name?: string(name='Name', description='The engine configuration name.', example='engine_config_v1'),
   pageNumber?: int32(name='PageNumber', description='The page number.', example='1'),
-  pageSize?: int32(name='PageSize', description='The page size.', example='10'),
-  status?: string(name='Status', description='The status filter.
+  pageSize?: int32(name='PageSize', description='The number of entries per page.', example='10'),
+  sceneId?: string(name='SceneId', description='The scene ID.', example='1'),
+  status?: string(name='Status', description='The status filter. Valid values:
 
-- Released: released.
+- Released: Released.
 
-- Unreleased: not released.', example='Released'),
-  version?: string(name='Version', description='The version filter.
+- Unreleased: Not released.', example='Released'),
+  version?: string(name='Version', description='The version filter. Valid values:
 
 latest: the most recently updated version.', example='latest'),
 }
@@ -9896,28 +9915,29 @@ model ListEngineConfigsResponseBody = {
       configValue?: string(name='ConfigValue', description='The content of the engine configuration.', example='{}'),
       description?: string(name='Description', description='The description.', example='what'),
       engineConfigId?: string(name='EngineConfigId', description='The engine configuration ID.', example='2'),
-      environment?: string(name='Environment', description='The runtime environment.
+      environment?: string(name='Environment', description='The runtime environment. Valid values:
 
-- Daily: daily environment.
+- Daily: Daily environment.
 
-- Pre: staging environment.
+- Pre: Pre-release environment.
 
-- Prod: production environment.', example='Pre'),
+- Prod: Production environment.', example='Pre'),
       gmtCreateTime?: string(name='GmtCreateTime', description='The creation time.', example='2023-08-07T01:43:42Z'),
       gmtModifiedTime?: string(name='GmtModifiedTime', description='The update time.', example='2023-08-27T12:00:00Z'),
       gmtReleasedTime?: string(name='GmtReleasedTime', description='The release time.', example='2023-08-29 12:00:00'),
       name?: string(name='Name', description='The engine configuration name.', example='engine_config_v1'),
-      status?: string(name='Status', description='The status.
+      sceneId?: string(name='SceneId', description='The scene ID.', example='1'),
+      status?: string(name='Status', description='The status. Valid values:
 
-- Released: released.
+- Released: Released.
 
-- UnReleased: not released.', example='Released'),
+- UnReleased: Not released.', example='Released'),
       type?: string(name='Type', description='The engine configuration type.', example='Normal'),
       version?: string(name='Version', description='The version number of the currently released or most recently updated version.', example='20230509161300'),
     }
   ](name='EngineConfigs', description='The list of engine configurations.'),
   requestId?: string(name='RequestId', description='The request ID.', example='74D958EF-3598-56FA-8296-FF1575CE43DF'),
-  totalCount?: long(name='TotalCount', description='The total number of elements in the list.', example='10'),
+  totalCount?: long(name='TotalCount', description='The total number of entries in the list.', example='10'),
 }
 
 model ListEngineConfigsResponse = {
@@ -9927,7 +9947,7 @@ model ListEngineConfigsResponse = {
 }
 
 /**
- * @summary Retrieves the list of engine configurations.
+ * @summary Retrieves a list of engine configurations.
  *
  * @param request ListEngineConfigsRequest
  * @param headers map
@@ -9951,6 +9971,9 @@ async function listEngineConfigsWithOptions(request: ListEngineConfigsRequest, h
   }
   if (!Util.isUnset(request.pageSize)) {
     query['PageSize'] = request.pageSize;
+  }
+  if (!Util.isUnset(request.sceneId)) {
+    query['SceneId'] = request.sceneId;
   }
   if (!Util.isUnset(request.status)) {
     query['Status'] = request.status;
@@ -9978,7 +10001,7 @@ async function listEngineConfigsWithOptions(request: ListEngineConfigsRequest, h
 }
 
 /**
- * @summary Retrieves the list of engine configurations.
+ * @summary Retrieves a list of engine configurations.
  *
  * @param request ListEngineConfigsRequest
  * @return ListEngineConfigsResponse
@@ -10207,63 +10230,58 @@ async function listExperiments(request: ListExperimentsRequest): ListExperiments
 }
 
 model ListFeatureConsistencyCheckJobConfigsRequest {
-  instanceId?: string(name='InstanceId', description='The instance ID. To obtain an instance ID, see [ListInstances](https://help.aliyun.com/document_detail/2411819.html).
+  instanceId?: string(name='InstanceId', description='The instance ID. For information about how to obtain an instance ID, see [ListInstances](https://help.aliyun.com/document_detail/2411819.html).
 
 This parameter is required.', example='pairec-cn-********'),
-  order?: string(name='Order', description='The sort order.
-
-- `ASC`: Ascending order.
-
-- `DESC`: Descending order.', example='ASC'),
-  pageNumber?: string(name='PageNumber', description='The page number. The value starts at 1. The default value is 1.', example='1'),
+  order?: string(name='Order', description='The sort order. Valid values:
+- ASC: ascending order.
+- DESC: descending order.', example='ASC'),
+  pageNumber?: string(name='PageNumber', description='The page number. Minimum value: 1. Default value: 1.', example='1'),
   pageSize?: string(name='PageSize', description='The page size.', example='10'),
-  sortBy?: string(name='SortBy', description='The field to sort by.
-
-- `GmtCreateTime`: Creation time.
-
-- `GmtModifiedTime`: Modified time.', example='GmtCreateTime'),
+  sceneId?: string(name='SceneId', description='The scene ID.', example='1'),
+  sortBy?: string(name='SortBy', description='The field used to sort the results. Valid values:
+- GmtCreateTime: sorts by creation time.
+- GmtModifiedTime: sorts by update time.', example='GmtCreateTime'),
 }
 
 model ListFeatureConsistencyCheckJobConfigsResponseBody = {
   featureConsistencyCheckConfigs?: [ 
     {
-      compareFeature?: boolean(name='CompareFeature', description='Indicates whether to enable feature comparison.', example='true'),
+      compareFeature?: boolean(name='CompareFeature', description='Indicates whether feature comparison is enabled.', example='true'),
       datasetId?: string(name='DatasetId'),
       datasetMountPath?: string(name='DatasetMountPath'),
       datasetName?: string(name='DatasetName'),
       datasetType?: string(name='DatasetType'),
       datasetUri?: string(name='DatasetUri'),
       defaultRoute?: string(name='DefaultRoute'),
-      easServiceName?: string(name='EasServiceName', description='The name of the EAS service.', example='eas_service_1'),
+      easServiceName?: string(name='EasServiceName', description='The service name of EAS.', example='eas_service_1'),
       easyRecPackagePath?: string(name='EasyRecPackagePath', description='The path of the EasyRec package.', example='oss://*******'),
       easyRecVersion?: string(name='EasyRecVersion', description='The version of EasyRec.', example='1.3.60'),
       featureConsistencyCheckJobConfigId?: string(name='FeatureConsistencyCheckJobConfigId', description='The ID of the feature consistency check configuration.', example='3'),
-      featureDisplayExclude?: string(name='FeatureDisplayExclude', description='The features to exclude from the results. Separate multiple features with a comma (,).', example='feature1,feature2'),
-      featureLandingResourceId?: string(name='FeatureLandingResourceId', description='The ID of the data source for feature landing.', example='reso-********'),
-      featureLandingResourceUri?: string(name='FeatureLandingResourceUri', description='The URI of the data source for feature landing.', example='mc_project_1'),
-      featurePriority?: string(name='FeaturePriority', description='The high-priority features to read from the user table. If a feature is not found, the system retrieves it from the behavior table. Separate multiple features with a comma (,).', example='feature1,feature2,feature3'),
-      featureStoreItemId?: string(name='FeatureStoreItemId', description='The primary key for the item side in the feature store.', example='item'),
-      featureStoreModelId?: string(name='FeatureStoreModelId', description='The ID of the model in the feature store.', example='2'),
-      featureStoreProjectId?: string(name='FeatureStoreProjectId', description='The ID of the feature store project.', example='prj-01'),
-      featureStoreProjectName?: string(name='FeatureStoreProjectName', description='The name of the feature store project.', example='project-1'),
-      featureStoreSeqFeatureView?: string(name='FeatureStoreSeqFeatureView', description='The name of the feature view that contains item features within the sequence features.', example='item-1'),
-      featureStoreUserId?: string(name='FeatureStoreUserId', description='The primary key for the user side in the feature store.', example='user'),
-      fgJarVersion?: string(name='FgJarVersion', description='The version of the `fg_jar` file.', example='1.0.0'),
-      fgJsonFileName?: string(name='FgJsonFileName', description='The name of the `fg_json` file.', example='file.json'),
-      generateZip?: boolean(name='GenerateZip', description='Indicates whether to generate a ZIP package.', example='true'),
+      featureDisplayExclude?: string(name='FeatureDisplayExclude', description='The features to exclude from display. Separate multiple features with commas (,).', example='feature1,feature2'),
+      featureLandingResourceId?: string(name='FeatureLandingResourceId', description='The ID of the data landing resource.', example='reso-********'),
+      featureLandingResourceUri?: string(name='FeatureLandingResourceUri', description='The URI of the data landing resource.', example='mc_project_1'),
+      featurePriority?: string(name='FeaturePriority', description='The feature priority. Separate multiple features with commas (,). This parameter specifies which features are preferentially read from the user table. If the user table is empty, the features are queried from the behavior table.', example='feature1,feature2,feature3'),
+      featureStoreItemId?: string(name='FeatureStoreItemId', description='The primary key on the item side in Feature Store.', example='item'),
+      featureStoreModelId?: string(name='FeatureStoreModelId', description='feature store model ID。', example='2'),
+      featureStoreProjectId?: string(name='FeatureStoreProjectId', description='The Feature Store project ID.', example='prj-01'),
+      featureStoreProjectName?: string(name='FeatureStoreProjectName', description='The Feature Store project name.', example='project-1'),
+      featureStoreSeqFeatureView?: string(name='FeatureStoreSeqFeatureView', description='The name of the feature view that contains the item features in the sequence feature.', example='item-1'),
+      featureStoreUserId?: string(name='FeatureStoreUserId', description='The primary key on the user side in Feature Store.', example='user'),
+      fgJarVersion?: string(name='FgJarVersion', description='The version of fg_jar.', example='1.0.0'),
+      fgJsonFileName?: string(name='FgJsonFileName', description='The name of the fg_json file.', example='file.json'),
+      generateZip?: boolean(name='GenerateZip', description='Indicates whether a zip package needs to be generated.', example='true'),
       gmtCreateTime?: string(name='GmtCreateTime', description='The time when the configuration was created.', example='2021-12-15T23:24:33.132+08:00'),
       gmtModifiedTime?: string(name='GmtModifiedTime', description='The time when the configuration was last updated.', example='2021-12-15T23:24:33.132+08:00'),
-      itemIdField?: string(name='ItemIdField', description='The name of the `item_id` field.', example='item_id'),
+      itemIdField?: string(name='ItemIdField', description='The name of the item_id field.', example='item_id'),
       itemTable?: string(name='ItemTable', description='The name of the item table.', example='item_table'),
       itemTablePartitionField?: string(name='ItemTablePartitionField', description='The partition field of the item table.', example='ds'),
-      itemTablePartitionFieldFormat?: string(name='ItemTablePartitionFieldFormat', description='The format of the partition field of the item table. Valid values:
-
-- `yyyymmdd`
-
-- `yyyy-mm-dd`', example='yyyymmdd'),
-      latestJobGmtSamplingEndTime?: string(name='LatestJobGmtSamplingEndTime', description='The end time of the latest job based on this configuration.', example='2021-12-15T23:24:33.132+08:00'),
-      latestJobGmtSamplingStartTime?: string(name='LatestJobGmtSamplingStartTime', description='The start time of the latest job based on this configuration.', example='2021-12-15T23:24:33.132+08:00'),
-      latestJobId?: string(name='LatestJobId', description='The ID of the most recent job created from this configuration.', example='3'),
+      itemTablePartitionFieldFormat?: string(name='ItemTablePartitionFieldFormat', description='The format of the item table partition field. Valid values:
+- yyyymmdd
+- yyyy-mm-dd', example='yyyymmdd'),
+      latestJobGmtSamplingEndTime?: string(name='LatestJobGmtSamplingEndTime', description='The end time of the most recently created job.', example='2021-12-15T23:24:33.132+08:00'),
+      latestJobGmtSamplingStartTime?: string(name='LatestJobGmtSamplingStartTime', description='The start time of the most recently created job.', example='2021-12-15T23:24:33.132+08:00'),
+      latestJobId?: string(name='LatestJobId', description='The ID of the most recently created job based on this configuration.', example='3'),
       name?: string(name='Name', description='The name of the feature consistency check configuration.', example='feature_consistency_check1'),
       ossBucket?: string(name='OssBucket', description='The name of the OSS bucket.', example='oss_bucket_1'),
       ossResourceId?: string(name='OssResourceId', description='The ID of the OSS data source.', example='reso-********'),
@@ -10271,38 +10289,33 @@ model ListFeatureConsistencyCheckJobConfigsResponseBody = {
       predictWorkerCpu?: int32(name='PredictWorkerCpu'),
       predictWorkerMemory?: int32(name='PredictWorkerMemory'),
       resourceConfig?: string(name='ResourceConfig'),
-      sampleRate?: string(name='SampleRate', description='The sample rate, a value from 0 to 1.', example='0.89'),
-      sceneId?: string(name='SceneId', description='The ID of the scene.', example='3'),
+      sampleRate?: string(name='SampleRate', description='The sampling rate. Valid values: 0 to 1.', example='0.89'),
+      sceneId?: string(name='SceneId', description='The scene ID.', example='3'),
       sceneName?: string(name='SceneName', description='The name of the scene.', example='scene1'),
       securityGroupId?: string(name='SecurityGroupId'),
       serviceId?: string(name='ServiceId', description='The ID of the service.', example='4'),
-      serviceName?: string(name='ServiceName', description='The name of the service.', example='service1'),
-      status?: string(name='Status', description='The status of the configuration. Valid values:
-
-- `Editable`: The configuration is editable.
-
-- `Uneditable`: The configuration is not editable.', example='Editable'),
+      serviceName?: string(name='ServiceName', description='The service name.', example='service1'),
+      status?: string(name='Status', description='The status. Valid values:
+- Editable: Editable.
+- Uneditable: Not editable.', example='Editable'),
       switchId?: string(name='SwitchId'),
-      useFeatureStore?: string(name='UseFeatureStore', description='Indicates whether to use a feature store. Valid values:
+      useFeatureStore?: string(name='UseFeatureStore', description='Indicates whether Feature Store is used. Valid values:
 
-- `true`: A feature store is used. In this case, the response includes parameters such as `FeatureStoreProjectId`, `FeatureStoreProjectName`, `FeatureStoreModelId`, `FeatureStoreUserId`, and `FeatureStoreItemId`.
-
-- `false`: A feature store is not used. In this case, the response includes parameters such as `UserTable`, `UserIdField`, `UserTablePartitionField`, `UserTablePartitionFieldFormat`, `ItemTable`, `ItemIdField`, `ItemTablePartitionField`, and `ItemTablePartitionFieldFormat`.', example='true'),
-      userIdField?: string(name='UserIdField', description='The name of the `user_id` field.', example='user_id'),
+- true: Feature Store is used. In this case, FeatureStoreProjectId, FeatureStoreProjectName, FeatureStoreModelId, FeatureStoreUserId, and FeatureStoreItemId are returned.
+- false: Feature Store is not used. In this case, UserTable, UserIdField, UserTablePartitionField, UserTablePartitionFieldFormat, ItemTable, ItemIdField, ItemTablePartitionField, and ItemTablePartitionFieldFormat are returned.', example='true'),
+      userIdField?: string(name='UserIdField', description='The name of the user_id field.', example='user_id'),
       userTable?: string(name='UserTable', description='The name of the user table.', example='user_table'),
       userTablePartitionField?: string(name='UserTablePartitionField', description='The partition field of the user table.', example='ds'),
-      userTablePartitionFieldFormat?: string(name='UserTablePartitionFieldFormat', description='The format of the partition field of the user table. Valid values:
-
-- `yyyymmdd`
-
-- `yyyy-mm-dd`', example='yyyymmdd'),
+      userTablePartitionFieldFormat?: string(name='UserTablePartitionFieldFormat', description='The format of the user table partition field. Valid values:
+- yyyymmdd
+- yyyy-mm-dd', example='yyyymmdd'),
       vpcId?: string(name='VpcId'),
       workflowName?: string(name='WorkflowName', description='The name of the workflow.', example='work_flow_1'),
       workspaceId?: string(name='WorkspaceId'),
     }
   ](name='FeatureConsistencyCheckConfigs', description='The list of feature consistency check configurations.'),
   requestId?: string(name='RequestId', description='The request ID.', example='FCF741D8-9C30-578E-807F-B935487DB34A'),
-  totalCount?: long(name='TotalCount', description='The total number of configurations.', example='10'),
+  totalCount?: long(name='TotalCount', description='The total number of entries.', example='10'),
 }
 
 model ListFeatureConsistencyCheckJobConfigsResponse = {
@@ -10312,7 +10325,7 @@ model ListFeatureConsistencyCheckJobConfigsResponse = {
 }
 
 /**
- * @summary Retrieves a list of feature consistency check task configurations.
+ * @summary Retrieves the list of feature consistency check task configurations.
  *
  * @param request ListFeatureConsistencyCheckJobConfigsRequest
  * @param headers map
@@ -10333,6 +10346,9 @@ async function listFeatureConsistencyCheckJobConfigsWithOptions(request: ListFea
   }
   if (!Util.isUnset(request.pageSize)) {
     query['PageSize'] = request.pageSize;
+  }
+  if (!Util.isUnset(request.sceneId)) {
+    query['SceneId'] = request.sceneId;
   }
   if (!Util.isUnset(request.sortBy)) {
     query['SortBy'] = request.sortBy;
@@ -10357,7 +10373,7 @@ async function listFeatureConsistencyCheckJobConfigsWithOptions(request: ListFea
 }
 
 /**
- * @summary Retrieves a list of feature consistency check task configurations.
+ * @summary Retrieves the list of feature consistency check task configurations.
  *
  * @param request ListFeatureConsistencyCheckJobConfigsRequest
  * @return ListFeatureConsistencyCheckJobConfigsResponse
@@ -12181,6 +12197,7 @@ model ListSampleConsistencyJobsRequest {
   order?: string(name='Order'),
   pageNumber?: long(name='PageNumber'),
   pageSize?: long(name='PageSize'),
+  sceneId?: string(name='SceneId'),
   sortBy?: string(name='SortBy'),
 }
 
@@ -12242,6 +12259,9 @@ async function listSampleConsistencyJobsWithOptions(request: ListSampleConsisten
   }
   if (!Util.isUnset(request.pageSize)) {
     query['PageSize'] = request.pageSize;
+  }
+  if (!Util.isUnset(request.sceneId)) {
+    query['SceneId'] = request.sceneId;
   }
   if (!Util.isUnset(request.sortBy)) {
     query['SortBy'] = request.sortBy;
@@ -14450,15 +14470,15 @@ async function reportSampleConsistencyJob(SampleConsistencyJobId: string, reques
 model ShoppingAssistantRequest {
   config?: string(name='Config', description='The additional configuration.', example='{}'),
   contents?: {
-    text?: string(name='Text', description='The message content.', example='Recommend some light-colored long-sleeve shirts suitable for spring, budget under 300'),
+    text?: string(name='Text', description='The message content.', example='Recommend some light-colored long-sleeve shirts for spring, budget under 300'),
     type?: string(name='Type', description='The message type.', example='text'),
-  }(name='Contents', description='The contents.'),
+  }(name='Contents', description='The content.'),
   conversationId?: string(name='ConversationId', description='The conversation ID. This parameter is not yet effective.', example='e47cfae9-c0cc-42e1-91e2-e67cdb0e7b96'),
-  environment?: string(name='Environment', description='**The environment.**', example='Prod: productionPre: pre-release.'),
+  environment?: string(name='Environment', description='**The environment.**', example='Prod: ProductionPre: Pre-release'),
   inputMessage?: {
     content?: [ 
       {
-        text?: string(name='Text', description='The message content.', example='Recommend some light-colored long-sleeve shirts suitable for spring, budget under 300'),
+        text?: string(name='Text', description='The message content.', example='Recommend some light-colored long-sleeve shirts for spring, budget under 300'),
         type?: string(name='Type', description='The message type.', example='text'),
       }
     ](name='Content', description='The message content.'),
@@ -14466,18 +14486,19 @@ model ShoppingAssistantRequest {
   instanceId?: string(name='InstanceId', description='**The instance ID.**', example='learn-pairec-xxx'),
   language?: string(name='Language', description='The language.', example='zh/en'),
   sceneId?: string(name='SceneId', description='**The scene ID.**', example='ai_shopping'),
-  serviceId?: string(name='ServiceId', description='**The service ID.**', example='ServiceId.'),
+  serviceId?: string(name='ServiceId', description='**The service ID.**', example='Service ID'),
   sessionId?: string(name='SessionId', description='The session ID.', example='e47cfae9-c0cc-42e1-91e2-e67cdb0e7b96'),
   uid?: string(name='Uid', description='user id。', example='0001'),
 }
 
 model ShoppingAssistantResponseBody = {
   citation?: {
-    itemId?: string(name='ItemId', description='The ID of the `item`.', example='0005'),
+    itemId?: string(name='ItemId', description='The ID of the item.', example='0005'),
     type?: string(name='Type', description='The reference data type. Fixed value: `item`.', example='item'),
   }(name='Citation', description='The citation information.'),
-  content?: string(name='Content', description='The returned content.', example='Here are some light-colored long-sleeve shirts I picked for you:\\\\n.'),
+  content?: string(name='Content', description='The response content.', example='Here are some light-colored long-sleeve shirts for you:\\\\n'),
   conversationId?: string(name='ConversationId', description='The session ID.', example='e47cfae9-c0cc-42e1-91e2-e67cdb0e7b96'),
+  enableSuggestion?: boolean(name='EnableSuggestion', description='Indicates whether suggestions are provided.'),
   errorCode?: string(name='ErrorCode', description='The error message.', example='Success'),
   event?: string(name='Event', description='The event.', example='analyze_requirement'),
   requestId?: string(name='RequestId', description='The request ID.', example='728C5E01-ABF6-5AA8-B9FC-B3BA05DECC77'),
@@ -14486,7 +14507,7 @@ model ShoppingAssistantResponseBody = {
       itemId?: string(name='ItemId', description='The ID of the item.', example='48'),
       type?: string(name='Type', description='The reference data type. Fixed value: item.', example='item'),
     }(name='Citation', description='The citation information.'),
-    content?: string(name='Content', description='The returned content.', example='Here are some light-colored long-sleeve shirts I picked for you:\\\\\\\\n.'),
+    content?: string(name='Content', description='The response content.', example='Here are some light-colored long-sleeve shirts for you:\\\\\\\\n'),
     errorCode?: string(name='ErrorCode', description='The error message.', example='Success'),
     stepInfo?: {
       step?: string(name='Step', description='The step.', example='analyze_requirement'),
@@ -14504,12 +14525,12 @@ model ShoppingAssistantResponse = {
 }
 
 /**
- * @summary Conducts conversations with users through an AI shopping guide to provide product recommendation services.
+ * @summary Conducts a conversation with a user through an AI shopping assistant to provide product recommendation services.
  *
  * @description ## Operation description
- * - This API is used to send conversation messages to the AI shopping guide and supports Server-Sent Events (SSE).
- * - `InstanceId`, `SessionId`, `SceneId`, `ServiceId`, `Environment`, `Uid`, and `Language` are required parameters. Ensure the accuracy of these values to obtain optimal responses.
- * - The `InputMessage` must contain at least one text-type message that describes the user\\"s request or question.
+ * - This API operation sends conversation messages to the AI shopping assistant and supports Server-Sent Events (SSE).
+ * - `InstanceId`, `SessionId`, `SceneId`, `ServiceId`, `Environment`, `Uid`, and `Language` are required parameters. Ensure the accuracy of these parameters to get the best response.
+ * - `InputMessage` must contain at least one text-type message that describes the user\\"s request or question.
  * - Based on the provided input, the system returns corresponding recommendation results or other relevant information.
  * - Check the returned `StopReason` field to understand whether the session has ended and the reason.
  *
@@ -14574,12 +14595,12 @@ async function shoppingAssistantWithOptions(request: ShoppingAssistantRequest, h
 }
 
 /**
- * @summary Conducts conversations with users through an AI shopping guide to provide product recommendation services.
+ * @summary Conducts a conversation with a user through an AI shopping assistant to provide product recommendation services.
  *
  * @description ## Operation description
- * - This API is used to send conversation messages to the AI shopping guide and supports Server-Sent Events (SSE).
- * - `InstanceId`, `SessionId`, `SceneId`, `ServiceId`, `Environment`, `Uid`, and `Language` are required parameters. Ensure the accuracy of these values to obtain optimal responses.
- * - The `InputMessage` must contain at least one text-type message that describes the user\\"s request or question.
+ * - This API operation sends conversation messages to the AI shopping assistant and supports Server-Sent Events (SSE).
+ * - `InstanceId`, `SessionId`, `SceneId`, `ServiceId`, `Environment`, `Uid`, and `Language` are required parameters. Ensure the accuracy of these parameters to get the best response.
+ * - `InputMessage` must contain at least one text-type message that describes the user\\"s request or question.
  * - Based on the provided input, the system returns corresponding recommendation results or other relevant information.
  * - Check the returned `StopReason` field to understand whether the session has ended and the reason.
  *
@@ -15756,9 +15777,7 @@ model UpdateEngineConfigRequest {
 	}
 }'),
   description?: string(name='Description', description='The description.', example='update config'),
-  environment?: string(name='Environment', description='The runtime environment.
-
-Valid values:
+  environment?: string(name='Environment', description='The runtime environment. Valid values:
 
 - Daily: daily environment.
 
@@ -15767,6 +15786,7 @@ Valid values:
 - Prod: production environment.', example='Pre'),
   instanceId?: string(name='InstanceId', description='The instance ID. For information about how to obtain the instance ID, see [ListInstances](https://help.aliyun.com/document_detail/2411819.html).', example='pairec-cn-***test'),
   name?: string(name='Name', description='The engine configuration name.', example='engine_config_v1'),
+  sceneId?: string(name='SceneId', description='The scene.', example='1'),
   type?: string(name='Type', description='The engine configuration type.', example='Normal'),
 }
 
@@ -15805,6 +15825,9 @@ async function updateEngineConfigWithOptions(EngineConfigId: string, request: Up
   }
   if (!Util.isUnset(request.name)) {
     body['Name'] = request.name;
+  }
+  if (!Util.isUnset(request.sceneId)) {
+    body['SceneId'] = request.sceneId;
   }
   if (!Util.isUnset(request.type)) {
     body['Type'] = request.type;
