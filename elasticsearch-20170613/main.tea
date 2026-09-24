@@ -12,34 +12,7 @@ extends OpenApi;
 init(config: OpenApi.Config){
   super(config);
   @endpointRule = 'regional';
-  @endpointMap = {
-    'us-west-1' = 'elasticsearch.us-west-1.aliyuncs.com',
-    'us-east-1' = 'elasticsearch.us-east-1.aliyuncs.com',
-    'na-south-1' = 'elasticsearch.na-south-1.aliyuncs.com',
-    'eu-west-1' = 'elasticsearch.eu-west-1.aliyuncs.com',
-    'eu-central-1' = 'elasticsearch.eu-central-1.aliyuncs.com',
-    'cn-zhangjiakou' = 'elasticsearch.cn-zhangjiakou.aliyuncs.com',
-    'cn-wulanchabu-gic-1' = 'elasticsearch.cn-wulanchabu-gic-1.aliyuncs.com',
-    'cn-wulanchabu' = 'elasticsearch.cn-wulanchabu.aliyuncs.com',
-    'cn-shenzhen' = 'elasticsearch.cn-shenzhen.aliyuncs.com',
-    'cn-shanghai-finance-1' = 'elasticsearch.cn-shanghai-finance-1.aliyuncs.com',
-    'cn-shanghai' = 'elasticsearch.cn-shanghai.aliyuncs.com',
-    'cn-qingdao' = 'elasticsearch.cn-qingdao.aliyuncs.com',
-    'cn-north-2-gov-1' = 'elasticsearch.cn-north-2-gov-1.aliyuncs.com',
-    'cn-hongkong' = 'elasticsearch.cn-hongkong.aliyuncs.com',
-    'cn-hangzhou-finance' = 'elasticsearch.cn-hangzhou-finance.aliyuncs.com',
-    'cn-hangzhou' = 'elasticsearch.cn-hangzhou.aliyuncs.com',
-    'cn-guangzhou' = 'elasticsearch.cn-guangzhou.aliyuncs.com',
-    'cn-chengdu' = 'elasticsearch.cn-chengdu.aliyuncs.com',
-    'cn-beijing' = 'elasticsearch.cn-beijing.aliyuncs.com',
-    'ap-southeast-7' = 'elasticsearch.ap-southeast-7.aliyuncs.com',
-    'ap-southeast-5' = 'elasticsearch.ap-southeast-5.aliyuncs.com',
-    'ap-southeast-3' = 'elasticsearch.ap-southeast-3.aliyuncs.com',
-    'ap-southeast-1' = 'elasticsearch.ap-southeast-1.aliyuncs.com',
-    'ap-northeast-2' = 'elasticsearch.ap-northeast-2.aliyuncs.com',
-    'ap-northeast-1' = 'elasticsearch.ap-northeast-1.aliyuncs.com',
-  };
-
+  
   checkConfig(config);
   @endpoint = getEndpoint('elasticsearch', @regionId, @endpointRule, @network, @suffix, @endpointMap, @endpoint);
 }
@@ -4246,7 +4219,8 @@ model DescribeSnapshotSettingResponseBody = {
   requestId?: string(name='RequestId', description='The request ID.', example='5FFD9ED4-C2EC-4E89-B22B-1ACB6FE1D****'),
   result?: {
     enable?: boolean(name='Enable', description='Indicates whether automatic backup is enabled.', example='true'),
-    quartzRegex?: string(name='QuartzRegex', description='The automatic backup time configuration, which uses a Quartz Cron expression.', example='0 0 01 ? * * *'),
+    indices?: [ string ](name='Indices', description='The list of indexes to back up.'),
+    quartzRegex?: string(name='QuartzRegex', description='The automatic backup time configuration, specified as a Quartz Cron expression.', example='0 0 01 ? * * *'),
   }(name='Result', description='The returned result.'),
 }
 
@@ -6513,6 +6487,209 @@ async function interruptLogstashTask(InstanceId: string, request: InterruptLogst
   return interruptLogstashTaskWithOptions(InstanceId, request, headers, runtime);
 }
 
+model InvokeEsAgentRequest {
+  body?: map[string]any(name='body', description='The request body in JSON-RPC 2.0 format.
+
+Common request parameters (all at the top level of the request body, not inside params):
+- jsonrpc: String. Required. The JSON-RPC version. Fixed value: 2.0. Example: 2.0.
+- method: String. Required. The method to call. For valid values, see the method list below. Example: session/prompt.
+- id: String. Optional. The request ID specified by the caller. This value is passed through in the response. Example: 1774339902987004.
+- params: Object. Optional. The parameters for the specified method. For examples, refer to the supplementary description.
+- sessionCode: String. Optional. The session ID for exact match queries in session/list. Example: 49b82154-ac20-4f27-a6ec-eb5f4cfc5304.
+- pageNum: Integer. Optional. The page number for session/list. Default value is handled by the server. Example: 1.
+- pageSize: Integer. Optional. The number of entries per page for session/list. Default value is handled by the server. Example: 10.
+
+Valid values of method:
+- session/new: Creates a session. Returns JSON.
+- session/list: Queries the session list or a specified session. Returns JSON.
+- session/prompt: Sends a message. Returns SSE.
+- session/load: Resumes from a breakpoint. Used only when _meta.isReload=true. Returns SSE.
+- session/cancel: Cancels in-progress tasks in a session. Returns JSON.
+- session/delete: Deletes a session. Returns JSON.
+- session/hitlRespond: Submits a HITL user response. Returns JSON.
+
+Response modes: session/prompt and session/load return an SSE event stream with Content-Type text/event-stream. Each event is in the format data: {JSON}. Other methods return a standard JSON response with Content-Type application/json.', example='{
+  "jsonrpc": "2.0",
+  "id": 5,
+  "method": "session/list",
+  "params": {},
+  "pageNum": 1,
+  "pageSize": 10
+}'),
+}
+
+model InvokeEsAgentResponseBody = {
+  code?: string(name='code', description='The status code. A value of 200 indicates a successful call. For non-200 values, the message field contains the error description.', example='200'),
+  data?: map[string]string(name='data', description='The JSON-RPC 2.0 response body. data.result contains the actual return content of the called ACP method. data.id is the id passed in the request. data.jsonrpc is fixed to 2.0. data.timestamp is the UNIX timestamp in milliseconds when the response was generated.'),
+  message?: string(name='message', description='The error description. The value is null when the call is successful. A specific error message is returned when the call fails.', example='Agent subscription is inactive or expired'),
+  requestId?: string(name='requestId', description='Id of the request', example='1df6d614-96db-41bd-b8b6-ab061a1724ca'),
+}
+
+model InvokeEsAgentResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: InvokeEsAgentResponseBody(name='body'),
+}
+
+/**
+ * @summary Calls the Alibaba Cloud Elasticsearch Agent service based on the JSON-RPC 2.0 protocol. Supports creating and managing Agent sessions, sending messages and receiving SSE streaming responses, resuming from breakpoints, canceling in-progress tasks, and handling human-in-the-loop (HITL) interactions initiated by the Agent. Currently available only in the Shanghai region.
+ *
+ * @param request InvokeEsAgentRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return InvokeEsAgentResponse
+ */
+async function invokeEsAgentWithOptions(request: InvokeEsAgentRequest, headers: map[string]string, runtime: Util.RuntimeOptions): InvokeEsAgentResponse {
+  Util.validateModel(request);
+  var body : map[string]any = {};
+  if (!Util.isUnset(request.body)) {
+    body['body'] = request.body;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApi.Params{
+    action = 'InvokeEsAgent',
+    version = '2017-06-13',
+    protocol = 'HTTPS',
+    pathname = `/openapi/agent/acp`,
+    method = 'POST',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Calls the Alibaba Cloud Elasticsearch Agent service based on the JSON-RPC 2.0 protocol. Supports creating and managing Agent sessions, sending messages and receiving SSE streaming responses, resuming from breakpoints, canceling in-progress tasks, and handling human-in-the-loop (HITL) interactions initiated by the Agent. Currently available only in the Shanghai region.
+ *
+ * @param request InvokeEsAgentRequest
+ * @return InvokeEsAgentResponse
+ */
+async function invokeEsAgent(request: InvokeEsAgentRequest): InvokeEsAgentResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return invokeEsAgentWithOptions(request, headers, runtime);
+}
+
+model InvokeEsRequestRequest {
+  body?: string(name='body', description='The request body passed through to ES. Set this parameter based on the requirements of the target ES API. This parameter is not required for calls such as GET that do not have a request body.', example='{"query":{"match_all":{}}}'),
+  credentialId?: string(name='credentialId', description='The ID of the credential to use. If this parameter is not specified, the default credential of the instance is used.', example='cred-7k2mq9xr4vbn'),
+  method?: string(name='method', description='The HTTP method used to access ES. Default value: GET.', example='GET'),
+  path?: string(name='path', description='The ES path to access. This parameter is required. The leading / can be omitted.
+
+This parameter is required.', example='_cat/indices?format=json'),
+  system?: boolean(name='system', description='Specifies whether to use the Alibaba Cloud ES system credential. Default value: false.', example='false'),
+}
+
+model InvokeEsRequestResponseBody = {
+  requestId?: string(name='RequestId', description='Id of the request', example='8E5A2C41-D96B-4308-AF72-5C0B14E6****'),
+  result?: any(name='Result', description='The response content returned as-is from ES. The structure is determined by the ES API being called.', example='{"esResult":{"took":5,"timed_out":false,"hits":{"total":{"value":1,"relation":"eq"},"max_score":1.0,"hits":[{"_index":"my-index","_id":"1","_score":1.0,"_source":{"title":"Wireless Bluetooth Headphones"}}]}}}'),
+}
+
+model InvokeEsRequestResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: InvokeEsRequestResponseBody(name='body'),
+}
+
+/**
+ * @summary Uses a registered managed credential to proxy access to the native ES API. The accessible scope is determined by the permissions of the credential on the ES side. When calling this operation through a RAM user with a managed credential, the caller must have both the permission for this operation and the elasticsearch:UseCredential permission for the credential being used.
+ *
+ * @description Refer to the following example for RAM user authorization. Replace the region, account, and other information as needed.
+ * ```
+ * {
+ *     "Version": "1",
+ *     "Statement": [
+ *         {
+ *             "Effect": "Allow",
+ *             "Action": "elasticsearch:InvokeEsRequest",
+ *             "Resource": "*"
+ *         },
+ *         {
+ *             "Effect": "Allow",
+ *             "Action": "elasticsearch:UseCredential",
+ *             "Resource": "acs:elasticsearch:{#regionId}:{#accountId}:instances/{#instanceId}/credentials/{#credentialId}"
+ *         }
+ *     ]
+ * }
+ * ```
+ *
+ * @param request InvokeEsRequestRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return InvokeEsRequestResponse
+ */
+async function invokeEsRequestWithOptions(instanceId: string, request: InvokeEsRequestRequest, headers: map[string]string, runtime: Util.RuntimeOptions): InvokeEsRequestResponse {
+  Util.validateModel(request);
+  var query : map[string]any = {};
+  if (!Util.isUnset(request.credentialId)) {
+    query['credentialId'] = request.credentialId;
+  }
+  if (!Util.isUnset(request.method)) {
+    query['method'] = request.method;
+  }
+  if (!Util.isUnset(request.path)) {
+    query['path'] = request.path;
+  }
+  if (!Util.isUnset(request.system)) {
+    query['system'] = request.system;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+    body = request.body,
+  };
+  var params = new OpenApi.Params{
+    action = 'InvokeEsRequest',
+    version = '2017-06-13',
+    protocol = 'HTTPS',
+    pathname = `/openapi/instances/${OpenApiUtil.getEncodeParam(instanceId)}/es-request`,
+    method = 'POST',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Uses a registered managed credential to proxy access to the native ES API. The accessible scope is determined by the permissions of the credential on the ES side. When calling this operation through a RAM user with a managed credential, the caller must have both the permission for this operation and the elasticsearch:UseCredential permission for the credential being used.
+ *
+ * @description Refer to the following example for RAM user authorization. Replace the region, account, and other information as needed.
+ * ```
+ * {
+ *     "Version": "1",
+ *     "Statement": [
+ *         {
+ *             "Effect": "Allow",
+ *             "Action": "elasticsearch:InvokeEsRequest",
+ *             "Resource": "*"
+ *         },
+ *         {
+ *             "Effect": "Allow",
+ *             "Action": "elasticsearch:UseCredential",
+ *             "Resource": "acs:elasticsearch:{#regionId}:{#accountId}:instances/{#instanceId}/credentials/{#credentialId}"
+ *         }
+ *     ]
+ * }
+ * ```
+ *
+ * @param request InvokeEsRequestRequest
+ * @return InvokeEsRequestResponse
+ */
+async function invokeEsRequest(instanceId: string, request: InvokeEsRequestRequest): InvokeEsRequestResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return invokeEsRequestWithOptions(instanceId, request, headers, runtime);
+}
+
 model ListAckClustersRequest {
   page?: int32(name='page', description='The page number. (Deprecated)', example='1'),
   size?: int32(name='size', description='The number of records per page. (Deprecated)', example='15'),
@@ -7974,24 +8151,38 @@ async function listDiagnoseReportIds(InstanceId: string, request: ListDiagnoseRe
 }
 
 model ListDiagnosisItemsRequest {
-  instanceId?: string(name='instanceId'),
-  lang?: string(name='lang', description='The language of the request. Default value: the browser language. Valid values:
+  instanceId?: string(name='instanceId', description='The instance ID.', example='es-cn-v0h14zdee000mimee'),
+  lang?: string(name='lang', description='The supported request language. Default value: the browser request language. Valid values:
 
 - en: English
 - zh: Simplified Chinese
 - zt: Traditional Chinese
 - es: Spanish
 - fr: French', example='en'),
+  level?: string(name='level', description='The diagnostic item level. Valid values:
+
+- BASIC: basic inspection item (free).
+- ADVANCED: advanced inspection item (consumes billable tokens).
+
+If this parameter is not specified, diagnostic items of all levels are returned.', example='BASIC'),
 }
 
 model ListDiagnosisItemsResponseBody = {
   requestId?: string(name='RequestId', description='The request ID.', example='5FFD9ED4-C2EC-4E89-B22B-1ACB6FE1D****'),
   result?: [ 
     {
-      description?: string(name='description', description='The description of the diagnostic item.', example='诊断集群写数据是否有堆积当集群的数据写入存在堆积时，会造成BulkReject异常，可能会导致数据丢失，且会造成系统资源消耗严重'),
-      esApiRequired?: boolean(name='esApiRequired'),
-      key?: string(name='key', description='The identifier of the diagnostic item.', example='ClusterBulkRejectDiagnostic'),
-      name?: string(name='name', description='The name of the diagnostic item.', example='索引写入BulkReject诊断'),
+      billable?: boolean(name='billable', description='Indicates whether billable tokens are consumed. The value is true when level is ADVANCED.', example='true'),
+      category?: string(name='category', description='The category code. You can use this value to group diagnostic items by category.', example='CLUSTER_HEALTH'),
+      description?: string(name='description', description='The diagnostic item description.', example='Diagnoses whether data write operations are backlogged in the cluster. When data write operations are backlogged, BulkReject exceptions occur, which may cause data loss and severe system resource consumption'),
+      esApiRequired?: boolean(name='esApiRequired', description='Indicates whether the cluster API is accessed.', example='true'),
+      key?: string(name='key', description='The diagnostic item identifier.', example='ClusterBulkRejectDiagnostic'),
+      level?: string(name='level', description='The diagnostic item level. Valid values:
+
+- BASIC: basic inspection item (free).
+- ADVANCED: advanced inspection item (consumes billable tokens).', example='BASIC'),
+      name?: string(name='name', description='The diagnostic item name.', example='Index Write BulkReject Diagnostics'),
+      sortOrder?: int32(name='sortOrder', description='The sort order number for display.', example='1'),
+      supportedModes?: [ string ](name='supportedModes', description='The supported execution modes. Basic items support RULE and AGENT. Advanced items support only AGENT.'),
     }
   ](name='Result', description='The returned results.'),
 }
@@ -8018,6 +8209,9 @@ async function listDiagnosisItemsWithOptions(request: ListDiagnosisItemsRequest,
   }
   if (!Util.isUnset(request.lang)) {
     query['lang'] = request.lang;
+  }
+  if (!Util.isUnset(request.level)) {
+    query['level'] = request.level;
   }
 
   var req = new OpenApi.OpenApiRequest{ 
@@ -14872,18 +15066,19 @@ model UpdateInstanceRequest {
   elasticDataNodeConfiguration?: ElasticDataNodeConfiguration(name='elasticDataNodeConfiguration', description='The elastic node configuration.'),
   instanceCategory?: string(name='instanceCategory', description='The edition type. Valid values:
 
-- x-pack: Commercial Edition instance
-- advanced: Advanced Edition instance
-- IS: Advanced Edition instance with Indexing Service enabled
-- community: Basic Edition instance
+- x-pack: Commercial Edition instance.
+- advanced: Advanced Edition instance.
+- IS: Advanced Edition instance with Indexing Service enabled.
+- community: Basic Edition instance.
 > To create an Advanced Edition instance with OpenStore enabled, you must also enable Indexing Service.', example='advanced'),
   kibanaConfiguration?: KibanaNodeConfiguration(name='kibanaConfiguration', description='The Kibana node configuration.'),
   masterConfiguration?: MasterNodeConfiguration(name='masterConfiguration', description='The dedicated master node configuration.'),
   nodeAmount?: int32(name='nodeAmount', description='The number of nodes.', example='3'),
   nodeSpec?: NodeSpec(name='nodeSpec', description='The data node configuration.'),
-  updateType?: string(name='updateType'),
-  warmNodeConfiguration?: WarmNodeConfiguration(name='warmNodeConfiguration', description='The warm node configuration. This parameter is independent of the data node configuration.'),
-  clientToken?: string(name='clientToken', description='A unique token generated by the client to guarantee the idempotency of the request. The value must be unique among different requests and cannot exceed 64 ASCII characters in length.', example='5A2CFF0E-5718-45B5-9D4D-70B3FF****'),
+  updateType?: string(name='updateType', description='normal: in-place change
+blue_green: blue-green change'),
+  warmNodeConfiguration?: WarmNodeConfiguration(name='warmNodeConfiguration', description='The warm node configuration. The warm node is different from the data node.'),
+  clientToken?: string(name='clientToken', description='A unique token generated by the client to guarantee the idempotency of the request. The maximum length is 64 ASCII characters.', example='5A2CFF0E-5718-45B5-9D4D-70B3FF****'),
   force?: boolean(name='force', description='Specifies whether to forcibly restart the instance. Valid values:
 
 - true: Forcibly restarts the instance.
@@ -14895,13 +15090,13 @@ model UpdateInstanceRequest {
 }
 
 model UpdateInstanceResponseBody = {
-  code?: string(name='Code'),
-  message?: string(name='Message'),
+  code?: string(name='Code', description='The error code. This parameter is returned only when an exception occurs.', example='InstanceNotFound'),
+  message?: string(name='Message', description='The error message. This parameter is returned only when an exception occurs.', example='The specified cluster does not exist. Check the cluster status and try again.'),
   requestId?: string(name='RequestId', description='The request ID.', example='5FFD9ED4-C2EC-4E89-B22B-1ACB6FE1****'),
   result?: {
     createdAt?: string(name='createdAt', description='The time when the instance was created.', example='2018-07-13T03:58:07.253Z'),
     description?: string(name='description', description='The instance name.', example='test'),
-    domain?: string(name='domain', description='The internal-facing access endpoint of the instance for private network access.', example='es-cn-abc.elasticsearch.aliyuncs.com'),
+    domain?: string(name='domain', description='The internal-facing access domain name of the instance for private network access.', example='es-cn-abc.elasticsearch.aliyuncs.com'),
     esVersion?: string(name='esVersion', description='The instance version.', example='5.5.3_with_X-Pack'),
     instanceId?: string(name='instanceId', description='The instance ID.', example='es-cn-abc'),
     kibanaConfiguration?: {
@@ -14927,8 +15122,8 @@ model UpdateInstanceResponseBody = {
     }(name='nodeSpec', description='The data node configuration.'),
     paymentType?: string(name='paymentType', description='The billing method of the instance. Valid values:
 
-- prepaid: subscription.
-- postpaid: pay-as-you-go.', example='postpaid'),
+- prepaid: Subscription.
+- postpaid: Pay-as-you-go.', example='postpaid'),
     status?: string(name='status', description='The status of the instance. Valid values:
 
 - active: Normal.
@@ -14945,16 +15140,16 @@ model UpdateInstanceResponse = {
 }
 
 /**
- * @summary Upgrades an Elasticsearch cluster by increasing the number of nodes, roles, specifications, or disk configurations.
+ * @summary Upgrades the configuration of an Elasticsearch cluster, including the number of nodes, roles, specifications, and disk configurations.
  *
  * @description When you call this operation, take note of the following items:
- * - You cannot change the configurations of an instance when the instance status is activating, invalid, or freeze (inactive).
- * - If the cluster is under heavy load, indexes have no replicas, and a large number of write or query requests exist during the upgrade or decrease the quota procedure, occasional access timeouts may occur. Configure a retry mechanism on the client side before you change the cluster configurations to minimize the impact on your business.
+ * - You cannot change the configuration when the instance status is activating, invalid, or inactive (freeze).
+ * - If the cluster has a high load and indexes have no replicas, and a large number of write or query requests exist during the upgrade or decrease the quota procedure, occasional access timeout may occur. Configure a retry mechanism on the client before you change the cluster configuration to reduce the impact on your business.
  * - You can change the configuration of only one type of node at a time (data node, dedicated master node, warm node, client node, Kibana node, or elastic node).
- * - For the health and stability of your cluster, since May 2021, Alibaba Cloud Elasticsearch no longer supports the purchase of instances with 1 vCPU and 2 GB of memory, dedicated master nodes with 2 vCPUs and 2 GB of memory, or instances of version 7.4. If you have confirmed that purchased specifications you purchased are no longer available for sale, perform the following operations first:
- *   - For instances with 1 vCPU and 2 GB of memory or 2 vCPUs and 2 GB of memory, upgrade purchased specifications to a stable specification that is available on the buy page. For available specifications on the buy page, see <props="china"><ph>[Parameters on the buy page (Commercial Edition)](https://help.aliyun.com/document_detail/97672.html) or [Parameters on the buy page (Advanced Edition)](https://help.aliyun.com/document_detail/143091.html)</ph><props="intl">[Parameters on the buy page](https://help.aliyun.com/document_detail/163243.html).
- *   - For version 7.4, purchase a new instance of version 7.10 and then migrate data. <props="china"><ph>For data migration, see [Migration solution selection guide](https://help.aliyun.com/document_detail/96650.html).</ph>
- * For more precautions, see [Upgrade cluster configurations](https://help.aliyun.com/document_detail/96650.html) and [Downgrade cluster configurations](https://help.aliyun.com/document_detail/198887.html).
+ * - For the health and stability of your cluster, since May 2021, Alibaba Cloud Elasticsearch no longer supports the purchase of 1-vCPU 2 GiB instances, 2-vCPU 2 GiB dedicated master nodes, or version 7.4 instances. If you have confirmed that the purchased specifications are no longer available for sale, perform the following operations first:
+ *   - For 1-vCPU 2 GiB and 2-vCPU 2 GiB specifications, upgrade to a stable specification available on the buy page in advance. For available specifications on the buy page, see <props="china"><ph>[Buy page parameters (commercial edition)](https://help.aliyun.com/document_detail/97672.html) or [Buy page parameters (Advanced Edition)](https://help.aliyun.com/document_detail/143091.html)</ph><props="intl">[Buy page parameters](https://help.aliyun.com/document_detail/163243.html).
+ *   - For version 7.4, purchase a version 7.10 instance and then migrate data. <props="china"><ph>For data migration, see [Migration solution selection guide](https://help.aliyun.com/document_detail/96650.html).</ph>
+ * For more precautions, see [Upgrade cluster configuration](https://help.aliyun.com/document_detail/96650.html) and [Downgrade cluster configuration](https://help.aliyun.com/document_detail/198887.html).
  *
  * @param request UpdateInstanceRequest
  * @param headers map
@@ -15023,16 +15218,16 @@ async function updateInstanceWithOptions(InstanceId: string, request: UpdateInst
 }
 
 /**
- * @summary Upgrades an Elasticsearch cluster by increasing the number of nodes, roles, specifications, or disk configurations.
+ * @summary Upgrades the configuration of an Elasticsearch cluster, including the number of nodes, roles, specifications, and disk configurations.
  *
  * @description When you call this operation, take note of the following items:
- * - You cannot change the configurations of an instance when the instance status is activating, invalid, or freeze (inactive).
- * - If the cluster is under heavy load, indexes have no replicas, and a large number of write or query requests exist during the upgrade or decrease the quota procedure, occasional access timeouts may occur. Configure a retry mechanism on the client side before you change the cluster configurations to minimize the impact on your business.
+ * - You cannot change the configuration when the instance status is activating, invalid, or inactive (freeze).
+ * - If the cluster has a high load and indexes have no replicas, and a large number of write or query requests exist during the upgrade or decrease the quota procedure, occasional access timeout may occur. Configure a retry mechanism on the client before you change the cluster configuration to reduce the impact on your business.
  * - You can change the configuration of only one type of node at a time (data node, dedicated master node, warm node, client node, Kibana node, or elastic node).
- * - For the health and stability of your cluster, since May 2021, Alibaba Cloud Elasticsearch no longer supports the purchase of instances with 1 vCPU and 2 GB of memory, dedicated master nodes with 2 vCPUs and 2 GB of memory, or instances of version 7.4. If you have confirmed that purchased specifications you purchased are no longer available for sale, perform the following operations first:
- *   - For instances with 1 vCPU and 2 GB of memory or 2 vCPUs and 2 GB of memory, upgrade purchased specifications to a stable specification that is available on the buy page. For available specifications on the buy page, see <props="china"><ph>[Parameters on the buy page (Commercial Edition)](https://help.aliyun.com/document_detail/97672.html) or [Parameters on the buy page (Advanced Edition)](https://help.aliyun.com/document_detail/143091.html)</ph><props="intl">[Parameters on the buy page](https://help.aliyun.com/document_detail/163243.html).
- *   - For version 7.4, purchase a new instance of version 7.10 and then migrate data. <props="china"><ph>For data migration, see [Migration solution selection guide](https://help.aliyun.com/document_detail/96650.html).</ph>
- * For more precautions, see [Upgrade cluster configurations](https://help.aliyun.com/document_detail/96650.html) and [Downgrade cluster configurations](https://help.aliyun.com/document_detail/198887.html).
+ * - For the health and stability of your cluster, since May 2021, Alibaba Cloud Elasticsearch no longer supports the purchase of 1-vCPU 2 GiB instances, 2-vCPU 2 GiB dedicated master nodes, or version 7.4 instances. If you have confirmed that the purchased specifications are no longer available for sale, perform the following operations first:
+ *   - For 1-vCPU 2 GiB and 2-vCPU 2 GiB specifications, upgrade to a stable specification available on the buy page in advance. For available specifications on the buy page, see <props="china"><ph>[Buy page parameters (commercial edition)](https://help.aliyun.com/document_detail/97672.html) or [Buy page parameters (Advanced Edition)](https://help.aliyun.com/document_detail/143091.html)</ph><props="intl">[Buy page parameters](https://help.aliyun.com/document_detail/163243.html).
+ *   - For version 7.4, purchase a version 7.10 instance and then migrate data. <props="china"><ph>For data migration, see [Migration solution selection guide](https://help.aliyun.com/document_detail/96650.html).</ph>
+ * For more precautions, see [Upgrade cluster configuration](https://help.aliyun.com/document_detail/96650.html) and [Downgrade cluster configuration](https://help.aliyun.com/document_detail/198887.html).
  *
  * @param request UpdateInstanceRequest
  * @return UpdateInstanceResponse
@@ -16387,13 +16582,20 @@ async function updateReadWritePolicy(InstanceId: string, request: UpdateReadWrit
 }
 
 model UpdateSnapshotSettingRequest {
-  body?: string(name='body'),
+  body?: string(name='body', description='The data backup configuration, including the automatic backup start time and the scheduled backup switch.', example='{
+    "quartzRegex":"0 0 01 ? * * *",
+    "enable":true,
+    "indices": [
+        "orders-*"
+    ]
+}'),
 }
 
 model UpdateSnapshotSettingResponseBody = {
   requestId?: string(name='RequestId', description='The request ID.', example='5FFD9ED4-C2EC-4E89-B22B-1ACB6FE1D****'),
   result?: {
     enable?: boolean(name='enable', description='Indicates whether automatic backup is enabled.', example='true'),
+    indices?: [ string ](name='indices', description='The list of indexes to back up.'),
     quartzRegex?: string(name='quartzRegex', description='The automatic backup start time.', example='0 0 01 ? * * *'),
   }(name='Result', description='The returned result.'),
 }
@@ -17309,13 +17511,13 @@ This parameter is required.', example='Es_password'),
 
 This parameter is required.', example='5.5.3_with_X-Pack'),
   instanceCategory?: string(name='instanceCategory', description='The edition type. Valid values:
-- x-pack: creates a commercial edition instance, or a kernel-enhanced edition instance without Indexing Service or OpenStore enabled.
-- IS: creates a kernel-enhanced edition instance with Indexing Service or OpenStore enabled.', example='advanced'),
+- x-pack: Creates a commercial edition instance, or a kernel-enhanced edition instance without Indexing Service or OpenStore enabled.
+- IS: Creates a kernel-enhanced edition instance with Indexing Service or OpenStore enabled.', example='advanced'),
   kibanaConfiguration?: KibanaNodeConfiguration(name='kibanaConfiguration', description='The Kibana node configuration.
 
 > We strongly recommend that you enable Kibana nodes.'),
   masterConfiguration?: MasterNodeConfiguration(name='masterConfiguration', description='The dedicated master node configuration.
-> In the Beijing, Shanghai, Hangzhou, and Shenzhen regions, when you call createInstance to create an instance with next-generation cloud disk-based dedicated master nodes, specify the instance family with the `.new` suffix. Example: elasticsearch.sn1ne.large.new.'),
+> In the Beijing, Shanghai, Hangzhou, and Shenzhen regions, when you call createInstance to create an instance with next-generation cloud disk-based dedicated master nodes, specify the instance family followed by the `.new` suffix. For example, elasticsearch.sn1ne.large.new.'),
   networkConfig?: NetworkConfig(name='networkConfig', description='The network configuration.
 
 > You cannot specify an IP whitelist when creating an instance.
@@ -17326,12 +17528,12 @@ This parameter is required.'),
 This parameter is required.', example='3'),
   nodeSpec?: NodeSpec(name='nodeSpec', description='The data node configuration.
 
-> In the Beijing, Shanghai, Hangzhou, and Shenzhen regions, when you call createInstance to create an instance with next-generation cloud disk-based data nodes, specify the instance family with the `.new` suffix. Example: elasticsearch.sn1ne.large.new.'),
-  paymentInfo?: PaymentInfo(name='paymentInfo', description='The payment details of the subscription instance. This parameter is required when you create a subscription instance.'),
+> In the Beijing, Shanghai, Hangzhou, and Shenzhen regions, when you call createInstance to create an instance with next-generation cloud disk-based data nodes, specify the instance family followed by the `.new` suffix. For example, elasticsearch.sn1ne.large.new.'),
+  paymentInfo?: PaymentInfo(name='paymentInfo', description='The billing details of the subscription instance. This parameter is required when you create a subscription instance.'),
   paymentType?: string(name='paymentType', description='The billing method. Valid values:
 
-- postpaid: pay-as-you-go billing method.
-- prepaid: subscription.', example='postpaid'),
+- postpaid: pay-as-you-go billing method
+- prepaid: subscription', example='postpaid'),
   resourceGroupId?: string(name='resourceGroupId', description='The ID of the resource group to which the instance belongs.', example='rg-aekzu7tsu4n****'),
   tags?: [ 
     {
@@ -17339,9 +17541,9 @@ This parameter is required.', example='3'),
       tagValue?: string(name='tagValue', description='The tag value of the instance.', example='KeyValue'),
     }
   ](name='tags', description='The instance tags.'),
-  warmNodeConfiguration?: WarmNodeConfiguration(name='warmNodeConfiguration', description='The warm node configuration. Warm nodes are used to store cold data that is migrated from data nodes.'),
+  warmNodeConfiguration?: WarmNodeConfiguration(name='warmNodeConfiguration', description='The cold data node configuration.'),
   zoneCount?: int32(name='zoneCount', description='The number of zones for the instance. Valid values: 1, 2, and 3. Default value: 1.', example='2'),
-  clientToken?: string(name='clientToken', description='A client token that is used to ensure the idempotence of the request. The value is generated by the client and must be unique among different requests. The maximum length is 64 ASCII characters.', example='5A2CFF0E-5718-45B5-9D4D-70B3FF****'),
+  clientToken?: string(name='clientToken', description='A client token that is used to ensure the idempotence of the request. You can use the client to generate the token, but you must make sure that the token is unique among different requests. The token can contain only ASCII characters and cannot exceed 64 characters in length.', example='5A2CFF0E-5718-45B5-9D4D-70B3FF****'),
 }
 
 model CreateInstanceResponse = {
@@ -17352,8 +17554,8 @@ model CreateInstanceResponse = {
 /**
  * @summary Creates an Elasticsearch instance.
  *
- * @description ### Before you begin
- * - Make sure that you fully understand the billing and pricing of Elasticsearch. For more information, see [Alibaba Cloud Elasticsearch pricing](https://www.aliyun.com/price/product?spm=a2c4g.11186623.2.7.657d2cbeRoSPCd#/elasticsearch/detail).
+ * @description ### Precautions
+ * - Before using this operation, make sure that you fully understand the billing methods and pricing of Elasticsearch. For more information, see [Alibaba Cloud Elasticsearch billing rules](https://help.aliyun.com/document_detail/260947.html).
  * - You must complete real-name verification before creating an instance.<props="china"><ph> For more information, see [Real-name verification](https://help.aliyun.com/document_detail/37175.html).</ph>
  * - You do not need to specify a zone when creating an instance. The instance is created in the same zone as the selected VPC by default.
  *
@@ -17444,8 +17646,8 @@ async function createInstanceWithOptions(request: CreateInstanceRequest, headers
 /**
  * @summary Creates an Elasticsearch instance.
  *
- * @description ### Before you begin
- * - Make sure that you fully understand the billing and pricing of Elasticsearch. For more information, see [Alibaba Cloud Elasticsearch pricing](https://www.aliyun.com/price/product?spm=a2c4g.11186623.2.7.657d2cbeRoSPCd#/elasticsearch/detail).
+ * @description ### Precautions
+ * - Before using this operation, make sure that you fully understand the billing methods and pricing of Elasticsearch. For more information, see [Alibaba Cloud Elasticsearch billing rules](https://help.aliyun.com/document_detail/260947.html).
  * - You must complete real-name verification before creating an instance.<props="china"><ph> For more information, see [Real-name verification](https://help.aliyun.com/document_detail/37175.html).</ph>
  * - You do not need to specify a zone when creating an instance. The instance is created in the same zone as the selected VPC by default.
  *
