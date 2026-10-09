@@ -3040,8 +3040,38 @@ async function createStreamingJob(request: CreateStreamingJobRequest): CreateStr
   return @handler.do('RPC', 'CreateStreamingJob', 'POST', '/', 'json', false, 'json', request);
 }
 
+model CreateSupabaseBackupRequest {
+  projectId: string(name='ProjectId', description='Instance ID of the Supabase instance. You can obtain instance ID on the Supabase page in the console.
+
+This parameter is required.', example='sbp-263****', position='Query'),
+  regionId?: string(name='RegionId', description='The region ID.
+
+> You can call the [DescribeRegions](https://help.aliyun.com/document_detail/86912.html) operation to query available region IDs.', example='cn-hangzhou', position='Query'),
+}
+
+model CreateSupabaseBackupResponseBody = {
+  backupJobId?: long(name='BackupJobId', description='The ID of the backup job. You can call ListSupabaseBackupJobs to query the status and progress of the corresponding job.', example='123'),
+  requestId?: string(name='RequestId', description='The request ID.', example='ABB39CC3-4488-4857-905D-2E4A051D****'),
+}
+
+model CreateSupabaseBackupResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: CreateSupabaseBackupResponseBody(name='body'),
+}
+
+/**
+  * @description The instance must be in the Running state. After a successful call, you can call ListSupabaseBackupJobs to query the progress of the backup job and call ListSupabaseDataBackups to query backup sets.
+  * @param request  the request parameters of CreateSupabaseBackup  CreateSupabaseBackupRequest
+  * @return CreateSupabaseBackupResponse
+ */
+async function createSupabaseBackup(request: CreateSupabaseBackupRequest): CreateSupabaseBackupResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'CreateSupabaseBackup', 'POST', '/', 'json', false, 'json', request);
+}
+
 model CreateSupabaseProjectRequest {
-  accountPassword: string(name='AccountPassword', description='The password of the initial account.
+  accountPassword: string(name='AccountPassword', description='The initial account password.
 
 Password rules:
 
@@ -3050,9 +3080,13 @@ Password rules:
 - Supported special characters include !@#$%^&*()_+-=.
 
 This parameter is required.', example='TestPassword123!', position='Query'),
-  autoScale?: boolean(name='AutoScale', description='Specifies whether to enable auto start/stop. If this parameter is not specified, the default value is false.', example='false', position='Query'),
-  clientToken?: string(name='ClientToken', description='The idempotency token. Ensures that duplicate requests do not result in duplicate operations.', example='123e4567-e89b-12d3-a456-426655440000', position='Query'),
-  diskPerformanceLevel?: string(name='DiskPerformanceLevel', description='The performance level (PL) of the cloud disk. If this parameter is not specified, the default value PL0 is used.
+  autoScale?: boolean(name='AutoScale', description='Specifies whether to enable auto-start and auto-stop. If you do not specify this parameter, the default value is false.', example='false', position='Query'),
+  backupId?: string(name='BackupId', description='The backup set ID.
+
+> You can call [ListSupabaseDataBackups](https://help.aliyun.com/document_detail/3064623.html) to view the IDs of all backup sets under the target Supabase project.', example='2176307784', position='Query'),
+  clientToken?: string(name='ClientToken', description='The client token. It is used to ensure idempotence and prevent duplicate requests from executing the same operation.', example='123e4567-e89b-12d3-a456-426655440000', position='Query'),
+  createOptions?: string(name='CreateOptions', description='The optional creation parameters. The default value is empty.', example='{}', position='Query'),
+  diskPerformanceLevel?: string(name='DiskPerformanceLevel', description='The performance level of the cloud disk. If you do not specify this parameter, the default value is PL0.
 
 Valid values:
 
@@ -3060,21 +3094,21 @@ Valid values:
 - PL1
 - PL2
 - PL3', example='PL0', position='Query'),
-  engineVersion?: string(name='EngineVersion', description='The DPI engine version. If this parameter is not specified, the default value PG15 is used. PG17 and later versions support the data sandbox (branch) feature.
+  engineVersion?: string(name='EngineVersion', description='The DPI engine version. If you do not specify this parameter, the default value is PG15. PostgreSQL 17 and later versions support the data sandbox (branch) feature.
 
 Valid values:
 
 - PG15: PostgreSQL 15.
 - PG17: PostgreSQL 17, which supports the data sandbox feature.', example='PG15', position='Query'),
-  lightweight?: boolean(name='Lightweight', position='Query'),
-  payType?: string(name='PayType', description='The billing type. If this parameter is not specified, the default value Free is used.
+  lightweight?: boolean(name='Lightweight', description='Specifies whether the project is the lightweight edition.', example='false', position='Query'),
+  payType?: string(name='PayType', description='The billing method. If you do not specify this parameter, the default value is Free.
 
 Valid values:
 
-- Free: Free tier.
-- Postpaid: Pay-as-you-go.
-- Prepaid: Subscription.', example='Free', position='Query'),
-  period?: string(name='Period', description='The unit of the subscription duration. This parameter takes effect only when PayType is set to PrePay. If this parameter is not specified, the default value Month is used.
+- Free: the free billing method.
+- Postpaid: pay-as-you-go.
+- Prepaid: subscription.', example='Free', position='Query'),
+  period?: string(name='Period', description='The unit of the subscription duration. This parameter takes effect only when PayType is set to Prepaid. If you do not specify this parameter, the default value is Month.
 
 Valid values:
 
@@ -3085,39 +3119,44 @@ Valid values:
 Naming rules:
 
 - The name must be 1 to 128 characters in length.
-- The name can contain letters, digits, hyphens (-), and underscores (_).
+- The name can contain only letters, digits, hyphens (-), and underscores (_).
 - The name must start with a letter or an underscore (_).
 
 This parameter is required.', example='supabase_demo', position='Query'),
-  projectSpec: string(name='ProjectSpec', description='The specifications of the Supabase project. The Free billing type uses free-tier specifications. For paid billing types, the specifications must match those available in the console.
+  projectSpec: string(name='ProjectSpec', description='The specifications of the Supabase project. The free billing method uses the free specifications. For paid billing methods, the specifications must be consistent with those available in the console.
 
 This parameter is required.', example='2C4G', position='Query'),
-  regionId?: string(name='RegionId', description='The region ID. Specifies the region in which to create the project.', example='cn-hangzhou', position='Query'),
-  securityIPList: string(name='SecurityIPList', description='The IP address whitelist. Separate multiple IP addresses or CIDR blocks with commas (,). If this parameter is not specified, the default value 0.0.0.0/0 is used.
+  regionId?: string(name='RegionId', description='The region ID.', example='cn-hangzhou', position='Query'),
+  securityIPList: string(name='SecurityIPList', description='The IP address whitelist. Separate multiple IP addresses or CIDR blocks with commas (,). If you do not specify this parameter, the default value 0.0.0.0/0 is used.
 
 This parameter is required.', example='0.0.0.0/0', position='Query'),
-  storageSize?: long(name='StorageSize', description='The storage size, in GB. If this parameter is not specified for non-Free billing types, the default value is 1 GB.', example='50', position='Query'),
+  srcProjectId?: string(name='SrcProjectId', description='The ID of the Supabase project to which the backup set belongs.', example='spb-xxxxxxxx', position='Query'),
+  storageSize?: long(name='StorageSize', description='The storage capacity. Unit: GB. If you do not specify this parameter for a non-free billing method, the default value is 1.', example='50', position='Query'),
   tags?: [ 
     {
-      key?: string(name='Key'),
-      value?: string(name='Value'),
+      key?: string(name='Key', description='The tag key. Limits:
+
+- It cannot be an empty string.
+- It can be up to 128 characters in length.
+- It cannot start with `aliyun` or `acs:`, and cannot contain `http://` or `https://`.', example='test-key'),
+      value?: string(name='Value', description='The tag value. The value can be an empty string. It can be up to 128 characters in length and cannot contain `http://` or `https://`.', example='test-value'),
     }
-  ](name='Tags', position='Query'),
-  usedTime?: string(name='UsedTime', description='The subscription duration. This parameter takes effect only when PayType is set to PrePay. If this parameter is not specified, the default value is 1.', example='1', position='Query'),
+  ](name='Tags', description='The list of tags.', position='Query'),
+  usedTime?: string(name='UsedTime', description='The subscription duration of the resource. This parameter takes effect only when PayType is set to Prepaid. If you do not specify this parameter, the default value is 1.', example='1', position='Query'),
   vSwitchId: string(name='VSwitchId', description='The vSwitch ID. This parameter is required. The zone of the vSwitch must be the same as the value of ZoneId.
 
 This parameter is required.', example='vsw-bp1234567890', position='Query'),
   vpcId: string(name='VpcId', description='The ID of the virtual private cloud (VPC). This parameter is required.
 
 This parameter is required.', example='vpc-bp1234567890', position='Query'),
-  zoneId: string(name='ZoneId', description='The zone ID. The zone of the vSwitch specified by VSwitchId must be the same as this parameter value.
+  zoneId: string(name='ZoneId', description='The zone ID. The zone of the vSwitch specified by VSwitchId must be the same as the value of this parameter.
 
 This parameter is required.', example='cn-hangzhou-i', position='Query'),
 }
 
 model CreateSupabaseProjectResponseBody = {
   orderId?: string(name='OrderId', description='The associated order ID.', example='278880417310796'),
-  projectId?: string(name='ProjectId', description='The instance ID.', example='spb-xxxx'),
+  projectId?: string(name='ProjectId', description='The Supabase instance ID.', example='spb-xxxx'),
   requestId?: string(name='RequestId', description='The request ID.', example='B4CAF581-2AC7-41AD-8940-D56DF7AADF5B'),
 }
 
@@ -3128,7 +3167,7 @@ model CreateSupabaseProjectResponse = {
 }
 
 /**
-  * @description Creates a Supabase project in a specified region and zone. This operation supports the Free, pay-as-you-go, and subscription billing methods. You can specify the network, specifications, storage, access IP address whitelist, DPI engine version, and auto start/stop configurations.
+  * @description Creates a Supabase project in a specified region and active zone. This operation supports the free, pay-as-you-go, and subscription billing methods. You can specify the network, specifications, storage, access whitelist, DPI engine version, and auto-start and auto-stop configurations.
   * @param request  the request parameters of CreateSupabaseProject  CreateSupabaseProjectRequest
   * @return CreateSupabaseProjectResponse
  */
@@ -8741,6 +8780,43 @@ async function describeStreamingJob(request: DescribeStreamingJobRequest): Descr
   return @handler.do('RPC', 'DescribeStreamingJob', 'POST', '/', 'json', false, 'json', request);
 }
 
+model DescribeSupabaseBackupPolicyRequest {
+  projectId: string(name='ProjectId', description='Instance ID of the Supabase instance. You can obtain instance ID from the Supabase page in the console.
+
+This parameter is required.', example='sbp-263****', position='Query'),
+  regionId?: string(name='RegionId', description='The region ID.
+
+> You can call the [DescribeRegions](https://help.aliyun.com/document_detail/86912.html) operation to query available region IDs.', example='cn-hangzhou', position='Query'),
+}
+
+model DescribeSupabaseBackupPolicyResponseBody = {
+  backupInterval?: int32(name='BackupInterval', description='The interval between automatic recovery points, in minutes. A value greater than 0 indicates that automatic recovery points are enabled. If the feature is disabled, -1 is returned.', example='-1'),
+  backupRetentionPeriod?: int32(name='BackupRetentionPeriod', description='The data backup retention period, in days.', example='7'),
+  enableRecoveryPoint?: boolean(name='EnableRecoveryPoint', description='Indicates whether automatic recovery points are enabled. Valid values:
+- true: Enabled.
+- false: Disabled.'),
+  preferredBackupPeriod?: string(name='PreferredBackupPeriod', description='The data backup cycle. Separate multiple values with commas (,). Valid values: Monday, Tuesday, Wednesday, Thursday, Friday, Saturday, and Sunday.', example='Wednesday,Friday'),
+  preferredBackupTime?: string(name='PreferredBackupTime', description='The data backup time window in UTC. The format is HH:mmZ-HH:mmZ.', example='01:00Z-02:00Z'),
+  recoveryPointPeriod?: string(name='RecoveryPointPeriod', description='The interval for the automatic creation of recovery points, in hours. Valid values: 1/6 (10 minutes), 1/2 (30 minutes), 1, 2, 4, and 8. This value is valid only when EnableRecoveryPoint is set to true. If automatic recovery points are shutdown, 0 is returned.', example='0'),
+  requestId?: string(name='RequestId', description='The request ID.', example='ABB39CC3-4488-4857-905D-2E4A051D****'),
+}
+
+model DescribeSupabaseBackupPolicyResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: DescribeSupabaseBackupPolicyResponseBody(name='body'),
+}
+
+/**
+  * @description To modify the policy, call ModifySupabaseBackupPolicy.
+  * @param request  the request parameters of DescribeSupabaseBackupPolicy  DescribeSupabaseBackupPolicyRequest
+  * @return DescribeSupabaseBackupPolicyResponse
+ */
+async function describeSupabaseBackupPolicy(request: DescribeSupabaseBackupPolicyRequest): DescribeSupabaseBackupPolicyResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'DescribeSupabaseBackupPolicy', 'POST', '/', 'json', false, 'json', request);
+}
+
 model DescribeSupportFeaturesRequest {
   DBInstanceId: string(name='DBInstanceId', description='The ID of the instance.
 
@@ -10017,6 +10093,68 @@ model GetSupabaseProjectDashboardAccountResponse = {
 async function getSupabaseProjectDashboardAccount(request: GetSupabaseProjectDashboardAccountRequest): GetSupabaseProjectDashboardAccountResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RPC', 'GetSupabaseProjectDashboardAccount', 'POST', '/', 'json', false, 'json', request);
+}
+
+model GetSupabaseProjectSpecRequest {
+  regionId?: string(name='RegionId', description='The region ID.', example='cn-hangzhou', position='Query'),
+}
+
+model GetSupabaseProjectSpecResponseBody = {
+  items?: [ 
+    {
+      free?: boolean(name='Free', description='Indicates whether the specification is free.', example='false'),
+      spec?: string(name='Spec', description='The specification code.', example='2C4G'),
+      visible?: boolean(name='Visible', description='Indicates whether the specification is visible.', example='true'),
+    }
+  ](name='Items', description='The list of Supabase project specifications.'),
+  requestId?: string(name='RequestId', description='The request ID.', example='B4CAF581-2AC7-41AD-8940-D56DF7AADF5B'),
+  zoneIds?: [ string ](name='ZoneIds', description='The list of zone IDs that support creating Supabase projects.'),
+}
+
+model GetSupabaseProjectSpecResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: GetSupabaseProjectSpecResponseBody(name='body'),
+}
+
+/**
+  * @description Queries the specifications and zones available for creating Supabase projects in a specified region.
+  * @param request  the request parameters of GetSupabaseProjectSpec  GetSupabaseProjectSpecRequest
+  * @return GetSupabaseProjectSpecResponse
+ */
+async function getSupabaseProjectSpec(request: GetSupabaseProjectSpecRequest): GetSupabaseProjectSpecResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'GetSupabaseProjectSpec', 'POST', '/', 'json', false, 'json', request);
+}
+
+model GetSupabaseUpdateVersionRequest {
+  projectId: string(name='ProjectId', description='The ID of the Supabase project.
+
+This parameter is required.', example='spb-xxxx', position='Query'),
+  regionId?: string(name='RegionId', description='The region ID.', example='cn-hangzhou', position='Query'),
+}
+
+model GetSupabaseUpdateVersionResponseBody = {
+  latestVersion?: string(name='LatestVersion', description='The latest upgradable version.', example='20240731'),
+  projectId?: string(name='ProjectId', description='The ID of the Supabase project.', example='spb-xxxx'),
+  requestId?: string(name='RequestId', description='The request ID.', example='B4CAF581-2AC7-41AD-8940-D56DF7AADF5B'),
+  stableVersion?: string(name='StableVersion', description='The recommended stable version for upgrade.', example='20240630'),
+}
+
+model GetSupabaseUpdateVersionResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: GetSupabaseUpdateVersionResponseBody(name='body'),
+}
+
+/**
+  * @description This operation queries the currently recommended stable version and the latest upgradable version for a specified Supabase project.
+  * @param request  the request parameters of GetSupabaseUpdateVersion  GetSupabaseUpdateVersionRequest
+  * @return GetSupabaseUpdateVersionResponse
+ */
+async function getSupabaseUpdateVersion(request: GetSupabaseUpdateVersionRequest): GetSupabaseUpdateVersionResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'GetSupabaseUpdateVersion', 'POST', '/', 'json', false, 'json', request);
 }
 
 model GetUploadDocumentJobRequest {
@@ -12076,6 +12214,138 @@ async function listStreamingJobs(request: ListStreamingJobsRequest): ListStreami
   return @handler.do('RPC', 'ListStreamingJobs', 'POST', '/', 'json', false, 'json', request);
 }
 
+model ListSupabaseBackupJobsRequest {
+  backupMode?: string(name='BackupMode', description='The backup mode. Valid values:
+
+- Automated: automatic backup
+- Manual: manual backup
+
+If this parameter is not specified, all backup tasks are returned.', example='Automated', position='Query'),
+  maxResults?: int32(name='MaxResults', description='The maximum number of entries to return for this request.', example='50', position='Query'),
+  nextToken?: string(name='NextToken', description='The paging token. Do not specify this parameter for the first query. For subsequent queries, specify the NextToken value returned in the previous response.', example='caeba0bbb2be03f84eb48b699f0a****', position='Query'),
+  projectId: string(name='ProjectId', description='Instance ID of the Supabase instance. You can obtain instance ID from the Supabase page in the console.
+
+This parameter is required.', example='sbp-263****', position='Query'),
+  regionId?: string(name='RegionId', description='The region ID.
+
+> You can call the [DescribeRegions](https://help.aliyun.com/document_detail/86912.html) operation to query available region IDs.', example='cn-hangzhou', position='Query'),
+}
+
+model ListSupabaseBackupJobsResponseBody = {
+  items?: [ 
+    {
+      backupJobId?: string(name='BackupJobId', description='The ID of the backup task.', example='123'),
+      backupMode?: string(name='BackupMode', description='The backup mode. Valid values:
+* **Automated**: automatic backup
+* **Manual**: manual backup', example='Automated'),
+      backupStatus?: string(name='BackupStatus', description='The status of the backup task. Valid statuses include: schedule (waiting to be scheduled) and backup (in progress).', example='backup'),
+      process?: string(name='Process', description='The progress percentage of the backup task, such as 0%. This value may be an empty string when the task is in the schedule (waiting to be scheduled) state.', example='0%'),
+      startTime?: string(name='StartTime', description='The start time of the backup task. The time is displayed in UTC in the yyyy-MM-ddTHH:mm:ssZ format. This value may be an empty string when the task is in the schedule (waiting to be scheduled) state.', example='2026-10-09T04:37:01Z'),
+    }
+  ](name='Items', description='The list of backup tasks.'),
+  maxResults?: int32(name='MaxResults', description='The maximum number of entries to return for this request.', example='50'),
+  nextToken?: string(name='NextToken', description='The pagination token for the next page, which can be used as the NextToken parameter in the next request.', example='caeba0bbb2be03f84eb48b699f0a****'),
+  requestId?: string(name='RequestId', description='The request ID.', example='ABB39CC3-4488-4857-905D-2E4A051D****'),
+}
+
+model ListSupabaseBackupJobsResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ListSupabaseBackupJobsResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of ListSupabaseBackupJobs  ListSupabaseBackupJobsRequest
+  * @return ListSupabaseBackupJobsResponse
+ */
+async function listSupabaseBackupJobs(request: ListSupabaseBackupJobsRequest): ListSupabaseBackupJobsResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'ListSupabaseBackupJobs', 'POST', '/', 'json', false, 'json', request);
+}
+
+model ListSupabaseDataBackupsRequest {
+  backupId?: string(name='BackupId', description='The ID of the backup set. You can obtain the ID from the BackupSetId parameter returned by the ListSupabaseDataBackups operation.', example='327329803', position='Query'),
+  backupMode?: string(name='BackupMode', description='The backup pattern. Valid values: Automated: automatic backup. Manual: manual backup.', example='Automated', position='Query'),
+  backupStatus?: string(name='BackupStatus', description='The status of the backup set. Valid values: Success: the backup is successful; Failed: the backup fails.', example='Success', position='Query'),
+  dataType?: string(name='DataType', description='The backup type. Valid values: DATA: full backup; RESTOREPOI: restorable point.', example='DATA', position='Query'),
+  endTime?: string(name='EndTime', description='The end time of the query. The end time must be later than the start time. Format: yyyy-MM-ddTHH:mmZ (UTC).', example='2011-06-01T16:00Z', position='Query'),
+  maxResults?: int32(name='MaxResults', description='The maximum number of entries to return for the current request.', example='50', position='Query'),
+  nextToken?: string(name='NextToken', description='The paging token for paged query. Do not specify this parameter for the first request. For subsequent requests, specify the NextToken value returned by the previous response.', example='caeba0bbb2be03f84eb48b699f0a****', position='Query'),
+  pageNumber?: int32(name='PageNumber', description='The page number. The value must be greater than 0 and cannot exceed the maximum value of an integer. Default value: 1.', example='1', position='Query'),
+  pageSize?: int32(name='PageSize', description='The number of entries per page. Valid values:
+
+- 30
+- 50
+- 100
+
+Default value: 30.', example='30', position='Query'),
+  projectId: string(name='ProjectId', description='Instance ID of the Supabase instance. You can obtain instance ID from the Supabase page in the console.
+
+This parameter is required.', example='sbp-263****', position='Query'),
+  regionId?: string(name='RegionId', description='The region ID.
+
+> You can call the [DescribeRegions](https://help.aliyun.com/document_detail/86912.html) operation to query available region IDs.', example='cn-hangzhou', position='Query'),
+  startTime?: string(name='StartTime', description='The start time of the query. Format: yyyy-MM-ddTHH:mmZ (UTC).', example='2011-06-01T15:00Z', position='Query'),
+}
+
+model ListSupabaseDataBackupsResponseBody = {
+  items?: [ 
+    {
+      backupEndTime?: string(name='BackupEndTime', description='The end time of the backup. Format: yyyy-MM-ddTHH:mm:ssZ (UTC).', example='2026-10-09T01:24:44Z'),
+      backupEndTimeLocal?: string(name='BackupEndTimeLocal', description='The local time representation of the backup end time. Format: yyyy-MM-ddTHH:mm:ssZ. The current return value is in Beijing time (UTC+8). The trailing Z is a fixed character in the compatibility format and does not indicate the zero time zone. To parse the time in a standard format, use BackupEndTime.', example='2026-10-09T09:24:44Z'),
+      backupMethod?: string(name='BackupMethod', description='The backup method. Valid values: Physical: physical backup; Snapshot: snapshot backup.', example='Snapshot'),
+      backupMode?: string(name='BackupMode', description='The backup mode.
+
+Valid values for automatic backups:
+
+- **Automated**: automatic system backup.
+- **Manual**: manual backup.
+
+Valid values for restorable points:
+
+- **Automated**: the restorable point after a automatic backup.
+- **Manual**: the restorable point manually triggered by the user.
+- **Period**: the restorable point triggered periodically based on the backup policy.', example='Automated'),
+      backupSetId?: string(name='BackupSetId', description='The ID of the backup set.', example='1111111111'),
+      backupSize?: long(name='BackupSize', description='The size of the backup file. Unit: bytes.', example='10737418240'),
+      backupStartTime?: string(name='BackupStartTime', description='The start time of the backup. Format: yyyy-MM-ddTHH:mm:ssZ (UTC).', example='2026-10-09T01:23:02Z'),
+      backupStartTimeLocal?: string(name='BackupStartTimeLocal', description='The local time representation of the backup start time. Format: yyyy-MM-ddTHH:mm:ssZ. The current return value is in Beijing time (UTC+8). The trailing Z is a fixed character in the compatibility format and does not indicate the zero time zone. To parse the time in a standard format, use BackupStartTime.', example='2026-10-09T09:23:02Z'),
+      backupStatus?: string(name='BackupStatus', description='The status of the backup set. Valid values:
+
+- **Success**: successful.
+- **Failure**: failed.', example='Success'),
+      baksetName?: string(name='BaksetName', description='The name of the restorable point or the full backup set.', example='logic_backup'),
+      consistentTime?: long(name='ConsistentTime', description='The consistency point in time. The value is a UNIX timestamp in seconds. For a full backup, this parameter indicates the consistency point in time of the backup. For a restorable point, this parameter indicates the point in time to which data can be restored.', example='1791508983'),
+      dataType?: string(name='DataType', description='The backup type. Valid values:
+
+- **DATA**: full backup.
+- **RESTOREPOI**: restorable point.', example='DATA'),
+    }
+  ](name='Items', description='The list of backup sets.'),
+  maxResults?: int32(name='MaxResults', description='The maximum number of entries to return for the current request.', example='50'),
+  nextToken?: string(name='NextToken', description='The pagination token for the next page. You can use this value as the NextToken parameter in the next request.', example='caeba0bbb2be03f84eb48b699f0a****'),
+  pageNumber?: int32(name='PageNumber', description='The page number.', example='1'),
+  pageSize?: int32(name='PageSize', description='The number of backup sets on the current page.', example='1'),
+  requestId?: string(name='RequestId', description='The request ID.', example='ABB39CC3-4488-4857-905D-2E4A051D****'),
+  totalBackupSize?: long(name='TotalBackupSize', description='The total size of the backup sets. Unit: bytes.', example='1111111111'),
+  totalCount?: int32(name='TotalCount', description='The total number of entries.', example='1'),
+}
+
+model ListSupabaseDataBackupsResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ListSupabaseDataBackupsResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of ListSupabaseDataBackups  ListSupabaseDataBackupsRequest
+  * @return ListSupabaseDataBackupsResponse
+ */
+async function listSupabaseDataBackups(request: ListSupabaseDataBackupsRequest): ListSupabaseDataBackupsResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'ListSupabaseDataBackups', 'POST', '/', 'json', false, 'json', request);
+}
+
 model ListSupabaseProjectTagsRequest {
   nextToken?: string(name='NextToken', description='The token for the next query.', example='caeba0bbb2be03f84eb48b699f0a4883', position='Query'),
   regionId?: string(name='RegionId', description='Region ID', example='cn-hangzhou', position='Query'),
@@ -13787,6 +14057,47 @@ model ModifySupabaseAutoScalePolicyResponse = {
 async function modifySupabaseAutoScalePolicy(request: ModifySupabaseAutoScalePolicyRequest): ModifySupabaseAutoScalePolicyResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RPC', 'ModifySupabaseAutoScalePolicy', 'POST', '/', 'json', false, 'json', request);
+}
+
+model ModifySupabaseBackupPolicyRequest {
+  backupRetentionPeriod?: int32(name='BackupRetentionPeriod', description='The data backup retention period. Unit: days. Valid values: 1 to 7.', example='7', position='Query'),
+  enableRecoveryPoint?: boolean(name='EnableRecoveryPoint', description='Specifies whether to enable automatic recovery points. Valid values:
+- true: Enabled.
+- false: Disabled.
+If this parameter is not specified, false is used.', position='Query'),
+  preferredBackupPeriod: string(name='PreferredBackupPeriod', description='The data backup cycle. Separate multiple values with commas (,). Valid values: Monday, Tuesday, Wednesday, Thursday, Friday, Saturday, and Sunday.
+
+This parameter is required.', example='Wednesday,Friday', position='Query'),
+  preferredBackupTime: string(name='PreferredBackupTime', description='The start time of the data backup. The time is in UTC and follows the HH:mmZ format, such as 01:00Z. The HH:mmZ-HH:mmZ time range format is also supported, and the server uses the start time of the range.
+
+This parameter is required.', example='01:00Z', position='Query'),
+  projectId: string(name='ProjectId', description='Instance ID of the Supabase instance. You can obtain instance ID on the Supabase page in the console.
+
+This parameter is required.', example='sbp-263****', position='Query'),
+  recoveryPointPeriod?: string(name='RecoveryPointPeriod', description='The interval for the automatic creation of recovery points. Unit: hours. Valid values: 1/6 (10 minutes), 1/2 (30 minutes), 1, 2, 4, and 8. This parameter takes effect only when EnableRecoveryPoint is set to true. If this parameter is not specified, the default value 1 is used. If EnableRecoveryPoint is set to false, this parameter is ignored.', example='1', position='Query'),
+  regionId?: string(name='RegionId', description='The region ID.
+
+> You can call the [DescribeRegions](https://help.aliyun.com/document_detail/86912.html) operation to query available region IDs.', example='cn-hangzhou', position='Query'),
+}
+
+model ModifySupabaseBackupPolicyResponseBody = {
+  requestId?: string(name='RequestId', description='The request ID.', example='ABB39CC3-4488-4857-905D-2E4A051D****'),
+}
+
+model ModifySupabaseBackupPolicyResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ModifySupabaseBackupPolicyResponseBody(name='body'),
+}
+
+/**
+  * @description You can call DescribeSupabaseBackupPolicy to query the current backup policy, and then call this operation again to confirm the configurations after the modification.
+  * @param request  the request parameters of ModifySupabaseBackupPolicy  ModifySupabaseBackupPolicyRequest
+  * @return ModifySupabaseBackupPolicyResponse
+ */
+async function modifySupabaseBackupPolicy(request: ModifySupabaseBackupPolicyRequest): ModifySupabaseBackupPolicyResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'ModifySupabaseBackupPolicy', 'POST', '/', 'json', false, 'json', request);
 }
 
 model ModifySupabaseProjectDescriptionRequest {
@@ -15614,49 +15925,79 @@ async function updateSaasServiceVersion(request: UpdateSaasServiceVersionRequest
   return @handler.do('RPC', 'UpdateSaasServiceVersion', 'POST', '/', 'json', false, 'json', request);
 }
 
+model UpdateSupabaseVersionRequest {
+  minorVersion?: string(name='MinorVersion', description='The target minor version. You can query the supported upgrade versions for the current project by calling GetSupabaseUpdateVersion.', example='20240731', position='Query'),
+  projectId: string(name='ProjectId', description='The ID of the Supabase project.
+
+This parameter is required.', example='spb-xxxx', position='Query'),
+  regionId?: string(name='RegionId', description='The region ID.', example='cn-hangzhou', position='Query'),
+}
+
+model UpdateSupabaseVersionResponseBody = {
+  requestId?: string(name='RequestId', description='The request ID.', example='B4CAF581-2AC7-41AD-8940-D56DF7AADF5B'),
+}
+
+model UpdateSupabaseVersionResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: UpdateSupabaseVersionResponseBody(name='body'),
+}
+
+/**
+  * @description Upgrades a specified Supabase project to a target minor version. You can query the supported target versions by calling GetSupabaseUpdateVersion.
+  * @param request  the request parameters of UpdateSupabaseVersion  UpdateSupabaseVersionRequest
+  * @return UpdateSupabaseVersionResponse
+ */
+async function updateSupabaseVersion(request: UpdateSupabaseVersionRequest): UpdateSupabaseVersionResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'UpdateSupabaseVersion', 'POST', '/', 'json', false, 'json', request);
+}
+
 model UpgradeDBInstanceRequest {
   cacheStorageSize?: string(name='CacheStorageSize', description='The Serverless cache storage capacity. Unit: GB.
 > This parameter is required only for Serverless Pro instances.', example='800', position='Query'),
-  DBInstanceClass?: string(name='DBInstanceClass', description='This parameter is deprecated. You do not need to specify this parameter.', example='null', position='Query'),
-  DBInstanceGroupCount?: string(name='DBInstanceGroupCount', description='This parameter is deprecated. You do not need to specify this parameter.', example='null', position='Query'),
+  DBInstanceClass?: string(name='DBInstanceClass', description='**[Deprecated]** This parameter is deprecated. You do not need to specify this parameter.', example='null', position='Query'),
+  DBInstanceGroupCount?: string(name='DBInstanceGroupCount', description='**[Deprecated]** This parameter is deprecated. You do not need to specify this parameter.', example='null', position='Query'),
   DBInstanceId: string(name='DBInstanceId', description='The instance ID.
 
-> You can call the [DescribeDBInstances](https://help.aliyun.com/document_detail/86911.html) operation to query the IDs of all AnalyticDB for PostgreSQL instances in the specified region.
+> You can call the [DescribeDBInstances](https://help.aliyun.com/document_detail/86911.html) operation to query the IDs of all AnalyticDB for PostgreSQL instances in a specific region.
 
 This parameter is required.', example='gp-rj***************', position='Query'),
-  effectiveTime?: string(name='EffectiveTime', example='Immediate', position='Query'),
+  effectiveTime?: string(name='EffectiveTime', description='The effective period. Valid values:
+* **Immediate** (default): The change takes effect immediately.
+* **MaintainTime**: The change takes effect during the maintenance window. For more information, see ModifyDBInstanceMaintainTime.', example='Immediate', position='Query'),
   instanceSpec?: string(name='InstanceSpec', description='The specifications of segment nodes. For information about supported node specifications, see [Instance specifications](https://help.aliyun.com/document_detail/35406.html).
 
 > This parameter is supported only for elastic storage mode instances.', example='4C16G', position='Query'),
-  masterNodeNum?: string(name='MasterNodeNum', description='This parameter is deprecated. You do not need to specify this parameter.', example='null', position='Query'),
+  masterNodeNum?: string(name='MasterNodeNum', description='**[Deprecated]** This parameter is deprecated. You do not need to specify this parameter.', example='null', position='Query'),
   ownerId?: long(name='OwnerId', position='Query'),
-  payType?: string(name='PayType', description='This parameter is deprecated. You do not need to specify this parameter.', example='null', position='Query'),
+  payType?: string(name='PayType', description='**[Deprecated]** This parameter is deprecated. You do not need to specify this parameter.', example='null', position='Query'),
   regionId?: string(name='RegionId', description='The region ID.
 
 > You can call the [DescribeRegions](https://help.aliyun.com/document_detail/86912.html) operation to query available region IDs.', example='cn-hangzhou', position='Query'),
   resourceGroupId?: string(name='ResourceGroupId', description='The ID of the resource group to which the instance belongs. For information about how to obtain the resource group ID, see [View basic information of a resource group](https://help.aliyun.com/document_detail/151181.html).', example='rg-bp67acfmxazb4p****', position='Query'),
-  segDiskPerformanceLevel?: string(name='SegDiskPerformanceLevel', description='The performance level (PL) of the cloud disk. Valid values:
+  segDiskPerformanceLevel?: string(name='SegDiskPerformanceLevel', description='The performance level (PL) of the disk. Valid values:
 
 - **pl0**: PL0.
 - **pl1**: PL1.
 - **pl2**: PL2.', example='pl1', position='Query'),
   segNodeNum?: string(name='SegNodeNum', description='The number of segment nodes. The supported number of nodes varies based on the instance resource type and instance edition:
 
-- Elastic storage mode, High-availability Edition: Valid values: 4 to 512. The value must be a multiple of 4.
-- Elastic storage mode, <props="china">Basic Edition (formerly High-performance Edition)<props="intl">High-performance Edition: Valid values: 2 to 512. The value must be a multiple of 2.
-- Serverless manual scheduling mode: Valid values: 2 to 512. The value must be a multiple of 2.', example='2', position='Query'),
+- Elastic storage mode, high-availability edition: valid values are 4 to 512, in increments of 4.
+- Elastic storage mode, <props="china">basic edition (formerly high-performance edition)<props="intl">high-performance edition: valid values are 2 to 512, in increments of 2.
+- Serverless manual scheduling mode: valid values are 2 to 512, in increments of 2.', example='2', position='Query'),
   segStorageType?: string(name='SegStorageType', description='The cloud disk storage type after the change. Currently, only ESSD cloud disks are supported. Set the value to **cloud_essd**.', example='cloud_essd', position='Query'),
   serverlessResource?: string(name='ServerlessResource', description='- Serverless instances:
-The compute resource threshold. Valid values: 8 to 32. The value must be a multiple of 8. Unit: ACU. Default value: 32.
+The compute resource threshold. Valid values: 8 to 32, in increments of 8. Unit: ACU. Default value: 32.
 
-- Serverless Pro instances: The reserved compute resources. Valid values: 16 to 1024. Unit: ACU. Default value: 16. The step size varies based on the value range:
-  - 16 to 32: step size of 4.
-  - 32 to 64: step size of 8.
-  - 64 to 128: step size of 16.
-  - 128 to 256: step size of 32.
-  - Greater than 256: step size of 64.
+- Serverless Pro instances: The reserved compute resources. Valid values: 16 to 1024. Unit: ACU. Default value: 16. The increment rules are as follows:
+  - Range 16 to 32: increments of 4.
+  - Range 32 to 64: increments of 8.
+  - Range 64 to 128: increments of 16.
+  - Range 128 to 256: increments of 32.
+  - Range greater than 256: increments of 64.
 > This parameter is required only for Serverless automatic scheduling mode and Serverless Pro instances.', example='16', position='Query'),
-  storageSize?: string(name='StorageSize', description='The storage capacity of segment nodes. Unit: GB. Valid values: 50 to <props="china">8000<props="intl">6000. The value must be a multiple of 50.
+  storageSize?: string(name='StorageSize', description='The storage capacity of segment nodes. Unit: GB. Valid values: 50 to <props="china">8000<props="intl">6000, in increments of 50.
 
 > This parameter is supported only for elastic storage mode instances.', example='100', position='Query'),
   upgradeType?: long(name='UpgradeType', description='The type of the specification change. Valid values:

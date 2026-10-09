@@ -5979,8 +5979,76 @@ async function createStreamingJob(request: CreateStreamingJobRequest): CreateStr
   return createStreamingJobWithOptions(request, runtime);
 }
 
+model CreateSupabaseBackupRequest {
+  projectId?: string(name='ProjectId', description='Instance ID of the Supabase instance. You can obtain instance ID on the Supabase page in the console.
+
+This parameter is required.', example='sbp-263****'),
+  regionId?: string(name='RegionId', description='The region ID.
+
+> You can call the [DescribeRegions](https://help.aliyun.com/document_detail/86912.html) operation to query available region IDs.', example='cn-hangzhou'),
+}
+
+model CreateSupabaseBackupResponseBody = {
+  backupJobId?: long(name='BackupJobId', description='The ID of the backup job. You can call ListSupabaseBackupJobs to query the status and progress of the corresponding job.', example='123'),
+  requestId?: string(name='RequestId', description='The request ID.', example='ABB39CC3-4488-4857-905D-2E4A051D****'),
+}
+
+model CreateSupabaseBackupResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: CreateSupabaseBackupResponseBody(name='body'),
+}
+
+/**
+ * @summary Creates a backup job for a specified Supabase instance and returns the backup job ID.
+ *
+ * @description The instance must be in the Running state. After a successful call, you can call ListSupabaseBackupJobs to query the progress of the backup job and call ListSupabaseDataBackups to query backup sets.
+ *
+ * @param request CreateSupabaseBackupRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return CreateSupabaseBackupResponse
+ */
+async function createSupabaseBackupWithOptions(request: CreateSupabaseBackupRequest, runtime: Util.RuntimeOptions): CreateSupabaseBackupResponse {
+  Util.validateModel(request);
+  var query = {};
+  if (!Util.isUnset(request.projectId)) {
+    query['ProjectId'] = request.projectId;
+  }
+  if (!Util.isUnset(request.regionId)) {
+    query['RegionId'] = request.regionId;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'CreateSupabaseBackup',
+    version = '2016-05-03',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Creates a backup job for a specified Supabase instance and returns the backup job ID.
+ *
+ * @description The instance must be in the Running state. After a successful call, you can call ListSupabaseBackupJobs to query the progress of the backup job and call ListSupabaseDataBackups to query backup sets.
+ *
+ * @param request CreateSupabaseBackupRequest
+ * @return CreateSupabaseBackupResponse
+ */
+async function createSupabaseBackup(request: CreateSupabaseBackupRequest): CreateSupabaseBackupResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return createSupabaseBackupWithOptions(request, runtime);
+}
+
 model CreateSupabaseProjectRequest {
-  accountPassword?: string(name='AccountPassword', description='The password of the initial account.
+  accountPassword?: string(name='AccountPassword', description='The initial account password.
 
 Password rules:
 
@@ -5989,9 +6057,13 @@ Password rules:
 - Supported special characters include !@#$%^&*()_+-=.
 
 This parameter is required.', example='TestPassword123!'),
-  autoScale?: boolean(name='AutoScale', description='Specifies whether to enable auto start/stop. If this parameter is not specified, the default value is false.', example='false'),
-  clientToken?: string(name='ClientToken', description='The idempotency token. Ensures that duplicate requests do not result in duplicate operations.', example='123e4567-e89b-12d3-a456-426655440000'),
-  diskPerformanceLevel?: string(name='DiskPerformanceLevel', description='The performance level (PL) of the cloud disk. If this parameter is not specified, the default value PL0 is used.
+  autoScale?: boolean(name='AutoScale', description='Specifies whether to enable auto-start and auto-stop. If you do not specify this parameter, the default value is false.', example='false'),
+  backupId?: string(name='BackupId', description='The backup set ID.
+
+> You can call [ListSupabaseDataBackups](https://help.aliyun.com/document_detail/3064623.html) to view the IDs of all backup sets under the target Supabase project.', example='2176307784'),
+  clientToken?: string(name='ClientToken', description='The client token. It is used to ensure idempotence and prevent duplicate requests from executing the same operation.', example='123e4567-e89b-12d3-a456-426655440000'),
+  createOptions?: string(name='CreateOptions', description='The optional creation parameters. The default value is empty.', example='{}'),
+  diskPerformanceLevel?: string(name='DiskPerformanceLevel', description='The performance level of the cloud disk. If you do not specify this parameter, the default value is PL0.
 
 Valid values:
 
@@ -5999,21 +6071,21 @@ Valid values:
 - PL1
 - PL2
 - PL3', example='PL0'),
-  engineVersion?: string(name='EngineVersion', description='The DPI engine version. If this parameter is not specified, the default value PG15 is used. PG17 and later versions support the data sandbox (branch) feature.
+  engineVersion?: string(name='EngineVersion', description='The DPI engine version. If you do not specify this parameter, the default value is PG15. PostgreSQL 17 and later versions support the data sandbox (branch) feature.
 
 Valid values:
 
 - PG15: PostgreSQL 15.
 - PG17: PostgreSQL 17, which supports the data sandbox feature.', example='PG15'),
-  lightweight?: boolean(name='Lightweight'),
-  payType?: string(name='PayType', description='The billing type. If this parameter is not specified, the default value Free is used.
+  lightweight?: boolean(name='Lightweight', description='Specifies whether the project is the lightweight edition.', example='false'),
+  payType?: string(name='PayType', description='The billing method. If you do not specify this parameter, the default value is Free.
 
 Valid values:
 
-- Free: Free tier.
-- Postpaid: Pay-as-you-go.
-- Prepaid: Subscription.', example='Free'),
-  period?: string(name='Period', description='The unit of the subscription duration. This parameter takes effect only when PayType is set to PrePay. If this parameter is not specified, the default value Month is used.
+- Free: the free billing method.
+- Postpaid: pay-as-you-go.
+- Prepaid: subscription.', example='Free'),
+  period?: string(name='Period', description='The unit of the subscription duration. This parameter takes effect only when PayType is set to Prepaid. If you do not specify this parameter, the default value is Month.
 
 Valid values:
 
@@ -6024,39 +6096,44 @@ Valid values:
 Naming rules:
 
 - The name must be 1 to 128 characters in length.
-- The name can contain letters, digits, hyphens (-), and underscores (_).
+- The name can contain only letters, digits, hyphens (-), and underscores (_).
 - The name must start with a letter or an underscore (_).
 
 This parameter is required.', example='supabase_demo'),
-  projectSpec?: string(name='ProjectSpec', description='The specifications of the Supabase project. The Free billing type uses free-tier specifications. For paid billing types, the specifications must match those available in the console.
+  projectSpec?: string(name='ProjectSpec', description='The specifications of the Supabase project. The free billing method uses the free specifications. For paid billing methods, the specifications must be consistent with those available in the console.
 
 This parameter is required.', example='2C4G'),
-  regionId?: string(name='RegionId', description='The region ID. Specifies the region in which to create the project.', example='cn-hangzhou'),
-  securityIPList?: string(name='SecurityIPList', description='The IP address whitelist. Separate multiple IP addresses or CIDR blocks with commas (,). If this parameter is not specified, the default value 0.0.0.0/0 is used.
+  regionId?: string(name='RegionId', description='The region ID.', example='cn-hangzhou'),
+  securityIPList?: string(name='SecurityIPList', description='The IP address whitelist. Separate multiple IP addresses or CIDR blocks with commas (,). If you do not specify this parameter, the default value 0.0.0.0/0 is used.
 
 This parameter is required.', example='0.0.0.0/0'),
-  storageSize?: long(name='StorageSize', description='The storage size, in GB. If this parameter is not specified for non-Free billing types, the default value is 1 GB.', example='50'),
+  srcProjectId?: string(name='SrcProjectId', description='The ID of the Supabase project to which the backup set belongs.', example='spb-xxxxxxxx'),
+  storageSize?: long(name='StorageSize', description='The storage capacity. Unit: GB. If you do not specify this parameter for a non-free billing method, the default value is 1.', example='50'),
   tags?: [ 
     {
-      key?: string(name='Key'),
-      value?: string(name='Value'),
+      key?: string(name='Key', description='The tag key. Limits:
+
+- It cannot be an empty string.
+- It can be up to 128 characters in length.
+- It cannot start with `aliyun` or `acs:`, and cannot contain `http://` or `https://`.', example='test-key'),
+      value?: string(name='Value', description='The tag value. The value can be an empty string. It can be up to 128 characters in length and cannot contain `http://` or `https://`.', example='test-value'),
     }
-  ](name='Tags'),
-  usedTime?: string(name='UsedTime', description='The subscription duration. This parameter takes effect only when PayType is set to PrePay. If this parameter is not specified, the default value is 1.', example='1'),
+  ](name='Tags', description='The list of tags.'),
+  usedTime?: string(name='UsedTime', description='The subscription duration of the resource. This parameter takes effect only when PayType is set to Prepaid. If you do not specify this parameter, the default value is 1.', example='1'),
   vSwitchId?: string(name='VSwitchId', description='The vSwitch ID. This parameter is required. The zone of the vSwitch must be the same as the value of ZoneId.
 
 This parameter is required.', example='vsw-bp1234567890'),
   vpcId?: string(name='VpcId', description='The ID of the virtual private cloud (VPC). This parameter is required.
 
 This parameter is required.', example='vpc-bp1234567890'),
-  zoneId?: string(name='ZoneId', description='The zone ID. The zone of the vSwitch specified by VSwitchId must be the same as this parameter value.
+  zoneId?: string(name='ZoneId', description='The zone ID. The zone of the vSwitch specified by VSwitchId must be the same as the value of this parameter.
 
 This parameter is required.', example='cn-hangzhou-i'),
 }
 
 model CreateSupabaseProjectResponseBody = {
   orderId?: string(name='OrderId', description='The associated order ID.', example='278880417310796'),
-  projectId?: string(name='ProjectId', description='The instance ID.', example='spb-xxxx'),
+  projectId?: string(name='ProjectId', description='The Supabase instance ID.', example='spb-xxxx'),
   requestId?: string(name='RequestId', description='The request ID.', example='B4CAF581-2AC7-41AD-8940-D56DF7AADF5B'),
 }
 
@@ -6069,7 +6146,7 @@ model CreateSupabaseProjectResponse = {
 /**
  * @summary Creates a Supabase project.
  *
- * @description Creates a Supabase project in a specified region and zone. This operation supports the Free, pay-as-you-go, and subscription billing methods. You can specify the network, specifications, storage, access IP address whitelist, DPI engine version, and auto start/stop configurations.
+ * @description Creates a Supabase project in a specified region and active zone. This operation supports the free, pay-as-you-go, and subscription billing methods. You can specify the network, specifications, storage, access whitelist, DPI engine version, and auto-start and auto-stop configurations.
  *
  * @param request CreateSupabaseProjectRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -6084,8 +6161,14 @@ async function createSupabaseProjectWithOptions(request: CreateSupabaseProjectRe
   if (!Util.isUnset(request.autoScale)) {
     query['AutoScale'] = request.autoScale;
   }
+  if (!Util.isUnset(request.backupId)) {
+    query['BackupId'] = request.backupId;
+  }
   if (!Util.isUnset(request.clientToken)) {
     query['ClientToken'] = request.clientToken;
+  }
+  if (!Util.isUnset(request.createOptions)) {
+    query['CreateOptions'] = request.createOptions;
   }
   if (!Util.isUnset(request.diskPerformanceLevel)) {
     query['DiskPerformanceLevel'] = request.diskPerformanceLevel;
@@ -6113,6 +6196,9 @@ async function createSupabaseProjectWithOptions(request: CreateSupabaseProjectRe
   }
   if (!Util.isUnset(request.securityIPList)) {
     query['SecurityIPList'] = request.securityIPList;
+  }
+  if (!Util.isUnset(request.srcProjectId)) {
+    query['SrcProjectId'] = request.srcProjectId;
   }
   if (!Util.isUnset(request.storageSize)) {
     query['StorageSize'] = request.storageSize;
@@ -6152,7 +6238,7 @@ async function createSupabaseProjectWithOptions(request: CreateSupabaseProjectRe
 /**
  * @summary Creates a Supabase project.
  *
- * @description Creates a Supabase project in a specified region and zone. This operation supports the Free, pay-as-you-go, and subscription billing methods. You can specify the network, specifications, storage, access IP address whitelist, DPI engine version, and auto start/stop configurations.
+ * @description Creates a Supabase project in a specified region and active zone. This operation supports the free, pay-as-you-go, and subscription billing methods. You can specify the network, specifications, storage, access whitelist, DPI engine version, and auto-start and auto-stop configurations.
  *
  * @param request CreateSupabaseProjectRequest
  * @return CreateSupabaseProjectResponse
@@ -16563,6 +16649,81 @@ async function describeStreamingJob(request: DescribeStreamingJobRequest): Descr
   return describeStreamingJobWithOptions(request, runtime);
 }
 
+model DescribeSupabaseBackupPolicyRequest {
+  projectId?: string(name='ProjectId', description='Instance ID of the Supabase instance. You can obtain instance ID from the Supabase page in the console.
+
+This parameter is required.', example='sbp-263****'),
+  regionId?: string(name='RegionId', description='The region ID.
+
+> You can call the [DescribeRegions](https://help.aliyun.com/document_detail/86912.html) operation to query available region IDs.', example='cn-hangzhou'),
+}
+
+model DescribeSupabaseBackupPolicyResponseBody = {
+  backupInterval?: int32(name='BackupInterval', description='The interval between automatic recovery points, in minutes. A value greater than 0 indicates that automatic recovery points are enabled. If the feature is disabled, -1 is returned.', example='-1'),
+  backupRetentionPeriod?: int32(name='BackupRetentionPeriod', description='The data backup retention period, in days.', example='7'),
+  enableRecoveryPoint?: boolean(name='EnableRecoveryPoint', description='Indicates whether automatic recovery points are enabled. Valid values:
+- true: Enabled.
+- false: Disabled.'),
+  preferredBackupPeriod?: string(name='PreferredBackupPeriod', description='The data backup cycle. Separate multiple values with commas (,). Valid values: Monday, Tuesday, Wednesday, Thursday, Friday, Saturday, and Sunday.', example='Wednesday,Friday'),
+  preferredBackupTime?: string(name='PreferredBackupTime', description='The data backup time window in UTC. The format is HH:mmZ-HH:mmZ.', example='01:00Z-02:00Z'),
+  recoveryPointPeriod?: string(name='RecoveryPointPeriod', description='The interval for the automatic creation of recovery points, in hours. Valid values: 1/6 (10 minutes), 1/2 (30 minutes), 1, 2, 4, and 8. This value is valid only when EnableRecoveryPoint is set to true. If automatic recovery points are shutdown, 0 is returned.', example='0'),
+  requestId?: string(name='RequestId', description='The request ID.', example='ABB39CC3-4488-4857-905D-2E4A051D****'),
+}
+
+model DescribeSupabaseBackupPolicyResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: DescribeSupabaseBackupPolicyResponseBody(name='body'),
+}
+
+/**
+ * @summary Queries the data backup cycle, backup time, backup retention period, and automatic recovery point configurations of a specified Supabase instance.
+ *
+ * @description To modify the policy, call ModifySupabaseBackupPolicy.
+ *
+ * @param request DescribeSupabaseBackupPolicyRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return DescribeSupabaseBackupPolicyResponse
+ */
+async function describeSupabaseBackupPolicyWithOptions(request: DescribeSupabaseBackupPolicyRequest, runtime: Util.RuntimeOptions): DescribeSupabaseBackupPolicyResponse {
+  Util.validateModel(request);
+  var query = {};
+  if (!Util.isUnset(request.projectId)) {
+    query['ProjectId'] = request.projectId;
+  }
+  if (!Util.isUnset(request.regionId)) {
+    query['RegionId'] = request.regionId;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'DescribeSupabaseBackupPolicy',
+    version = '2016-05-03',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Queries the data backup cycle, backup time, backup retention period, and automatic recovery point configurations of a specified Supabase instance.
+ *
+ * @description To modify the policy, call ModifySupabaseBackupPolicy.
+ *
+ * @param request DescribeSupabaseBackupPolicyRequest
+ * @return DescribeSupabaseBackupPolicyResponse
+ */
+async function describeSupabaseBackupPolicy(request: DescribeSupabaseBackupPolicyRequest): DescribeSupabaseBackupPolicyResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return describeSupabaseBackupPolicyWithOptions(request, runtime);
+}
+
 model DescribeSupportFeaturesRequest {
   DBInstanceId?: string(name='DBInstanceId', description='The ID of the instance.
 
@@ -19166,6 +19327,141 @@ async function getSupabaseProjectDashboardAccountWithOptions(request: GetSupabas
 async function getSupabaseProjectDashboardAccount(request: GetSupabaseProjectDashboardAccountRequest): GetSupabaseProjectDashboardAccountResponse {
   var runtime = new Util.RuntimeOptions{};
   return getSupabaseProjectDashboardAccountWithOptions(request, runtime);
+}
+
+model GetSupabaseProjectSpecRequest {
+  regionId?: string(name='RegionId', description='The region ID.', example='cn-hangzhou'),
+}
+
+model GetSupabaseProjectSpecResponseBody = {
+  items?: [ 
+    {
+      free?: boolean(name='Free', description='Indicates whether the specification is free.', example='false'),
+      spec?: string(name='Spec', description='The specification code.', example='2C4G'),
+      visible?: boolean(name='Visible', description='Indicates whether the specification is visible.', example='true'),
+    }
+  ](name='Items', description='The list of Supabase project specifications.'),
+  requestId?: string(name='RequestId', description='The request ID.', example='B4CAF581-2AC7-41AD-8940-D56DF7AADF5B'),
+  zoneIds?: [ string ](name='ZoneIds', description='The list of zone IDs that support creating Supabase projects.'),
+}
+
+model GetSupabaseProjectSpecResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: GetSupabaseProjectSpecResponseBody(name='body'),
+}
+
+/**
+ * @summary Queries the available specifications for Supabase projects.
+ *
+ * @description Queries the specifications and zones available for creating Supabase projects in a specified region.
+ *
+ * @param request GetSupabaseProjectSpecRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return GetSupabaseProjectSpecResponse
+ */
+async function getSupabaseProjectSpecWithOptions(request: GetSupabaseProjectSpecRequest, runtime: Util.RuntimeOptions): GetSupabaseProjectSpecResponse {
+  Util.validateModel(request);
+  var query = {};
+  if (!Util.isUnset(request.regionId)) {
+    query['RegionId'] = request.regionId;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'GetSupabaseProjectSpec',
+    version = '2016-05-03',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Queries the available specifications for Supabase projects.
+ *
+ * @description Queries the specifications and zones available for creating Supabase projects in a specified region.
+ *
+ * @param request GetSupabaseProjectSpecRequest
+ * @return GetSupabaseProjectSpecResponse
+ */
+async function getSupabaseProjectSpec(request: GetSupabaseProjectSpecRequest): GetSupabaseProjectSpecResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return getSupabaseProjectSpecWithOptions(request, runtime);
+}
+
+model GetSupabaseUpdateVersionRequest {
+  projectId?: string(name='ProjectId', description='The ID of the Supabase project.
+
+This parameter is required.', example='spb-xxxx'),
+  regionId?: string(name='RegionId', description='The region ID.', example='cn-hangzhou'),
+}
+
+model GetSupabaseUpdateVersionResponseBody = {
+  latestVersion?: string(name='LatestVersion', description='The latest upgradable version.', example='20240731'),
+  projectId?: string(name='ProjectId', description='The ID of the Supabase project.', example='spb-xxxx'),
+  requestId?: string(name='RequestId', description='The request ID.', example='B4CAF581-2AC7-41AD-8940-D56DF7AADF5B'),
+  stableVersion?: string(name='StableVersion', description='The recommended stable version for upgrade.', example='20240630'),
+}
+
+model GetSupabaseUpdateVersionResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: GetSupabaseUpdateVersionResponseBody(name='body'),
+}
+
+/**
+ * @summary Queries the upgradable versions for a Supabase project.
+ *
+ * @description This operation queries the currently recommended stable version and the latest upgradable version for a specified Supabase project.
+ *
+ * @param request GetSupabaseUpdateVersionRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return GetSupabaseUpdateVersionResponse
+ */
+async function getSupabaseUpdateVersionWithOptions(request: GetSupabaseUpdateVersionRequest, runtime: Util.RuntimeOptions): GetSupabaseUpdateVersionResponse {
+  Util.validateModel(request);
+  var query = {};
+  if (!Util.isUnset(request.projectId)) {
+    query['ProjectId'] = request.projectId;
+  }
+  if (!Util.isUnset(request.regionId)) {
+    query['RegionId'] = request.regionId;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'GetSupabaseUpdateVersion',
+    version = '2016-05-03',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Queries the upgradable versions for a Supabase project.
+ *
+ * @description This operation queries the currently recommended stable version and the latest upgradable version for a specified Supabase project.
+ *
+ * @param request GetSupabaseUpdateVersionRequest
+ * @return GetSupabaseUpdateVersionResponse
+ */
+async function getSupabaseUpdateVersion(request: GetSupabaseUpdateVersionRequest): GetSupabaseUpdateVersionResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return getSupabaseUpdateVersionWithOptions(request, runtime);
 }
 
 model GetUploadDocumentJobRequest {
@@ -22840,6 +23136,247 @@ async function listStreamingJobs(request: ListStreamingJobsRequest): ListStreami
   return listStreamingJobsWithOptions(request, runtime);
 }
 
+model ListSupabaseBackupJobsRequest {
+  backupMode?: string(name='BackupMode', description='The backup mode. Valid values:
+
+- Automated: automatic backup
+- Manual: manual backup
+
+If this parameter is not specified, all backup tasks are returned.', example='Automated'),
+  maxResults?: int32(name='MaxResults', description='The maximum number of entries to return for this request.', example='50'),
+  nextToken?: string(name='NextToken', description='The paging token. Do not specify this parameter for the first query. For subsequent queries, specify the NextToken value returned in the previous response.', example='caeba0bbb2be03f84eb48b699f0a****'),
+  projectId?: string(name='ProjectId', description='Instance ID of the Supabase instance. You can obtain instance ID from the Supabase page in the console.
+
+This parameter is required.', example='sbp-263****'),
+  regionId?: string(name='RegionId', description='The region ID.
+
+> You can call the [DescribeRegions](https://help.aliyun.com/document_detail/86912.html) operation to query available region IDs.', example='cn-hangzhou'),
+}
+
+model ListSupabaseBackupJobsResponseBody = {
+  items?: [ 
+    {
+      backupJobId?: string(name='BackupJobId', description='The ID of the backup task.', example='123'),
+      backupMode?: string(name='BackupMode', description='The backup mode. Valid values:
+* **Automated**: automatic backup
+* **Manual**: manual backup', example='Automated'),
+      backupStatus?: string(name='BackupStatus', description='The status of the backup task. Valid statuses include: schedule (waiting to be scheduled) and backup (in progress).', example='backup'),
+      process?: string(name='Process', description='The progress percentage of the backup task, such as 0%. This value may be an empty string when the task is in the schedule (waiting to be scheduled) state.', example='0%'),
+      startTime?: string(name='StartTime', description='The start time of the backup task. The time is displayed in UTC in the yyyy-MM-ddTHH:mm:ssZ format. This value may be an empty string when the task is in the schedule (waiting to be scheduled) state.', example='2026-10-09T04:37:01Z'),
+    }
+  ](name='Items', description='The list of backup tasks.'),
+  maxResults?: int32(name='MaxResults', description='The maximum number of entries to return for this request.', example='50'),
+  nextToken?: string(name='NextToken', description='The pagination token for the next page, which can be used as the NextToken parameter in the next request.', example='caeba0bbb2be03f84eb48b699f0a****'),
+  requestId?: string(name='RequestId', description='The request ID.', example='ABB39CC3-4488-4857-905D-2E4A051D****'),
+}
+
+model ListSupabaseBackupJobsResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ListSupabaseBackupJobsResponseBody(name='body'),
+}
+
+/**
+ * @summary Queries the backup tasks and task progress of a specified Supabase instance.
+ *
+ * @param request ListSupabaseBackupJobsRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return ListSupabaseBackupJobsResponse
+ */
+async function listSupabaseBackupJobsWithOptions(request: ListSupabaseBackupJobsRequest, runtime: Util.RuntimeOptions): ListSupabaseBackupJobsResponse {
+  Util.validateModel(request);
+  var query = {};
+  if (!Util.isUnset(request.backupMode)) {
+    query['BackupMode'] = request.backupMode;
+  }
+  if (!Util.isUnset(request.maxResults)) {
+    query['MaxResults'] = request.maxResults;
+  }
+  if (!Util.isUnset(request.nextToken)) {
+    query['NextToken'] = request.nextToken;
+  }
+  if (!Util.isUnset(request.projectId)) {
+    query['ProjectId'] = request.projectId;
+  }
+  if (!Util.isUnset(request.regionId)) {
+    query['RegionId'] = request.regionId;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'ListSupabaseBackupJobs',
+    version = '2016-05-03',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Queries the backup tasks and task progress of a specified Supabase instance.
+ *
+ * @param request ListSupabaseBackupJobsRequest
+ * @return ListSupabaseBackupJobsResponse
+ */
+async function listSupabaseBackupJobs(request: ListSupabaseBackupJobsRequest): ListSupabaseBackupJobsResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return listSupabaseBackupJobsWithOptions(request, runtime);
+}
+
+model ListSupabaseDataBackupsRequest {
+  backupId?: string(name='BackupId', description='The ID of the backup set. You can obtain the ID from the BackupSetId parameter returned by the ListSupabaseDataBackups operation.', example='327329803'),
+  backupMode?: string(name='BackupMode', description='The backup pattern. Valid values: Automated: automatic backup. Manual: manual backup.', example='Automated'),
+  backupStatus?: string(name='BackupStatus', description='The status of the backup set. Valid values: Success: the backup is successful; Failed: the backup fails.', example='Success'),
+  dataType?: string(name='DataType', description='The backup type. Valid values: DATA: full backup; RESTOREPOI: restorable point.', example='DATA'),
+  endTime?: string(name='EndTime', description='The end time of the query. The end time must be later than the start time. Format: yyyy-MM-ddTHH:mmZ (UTC).', example='2011-06-01T16:00Z'),
+  maxResults?: int32(name='MaxResults', description='The maximum number of entries to return for the current request.', example='50'),
+  nextToken?: string(name='NextToken', description='The paging token for paged query. Do not specify this parameter for the first request. For subsequent requests, specify the NextToken value returned by the previous response.', example='caeba0bbb2be03f84eb48b699f0a****'),
+  pageNumber?: int32(name='PageNumber', description='The page number. The value must be greater than 0 and cannot exceed the maximum value of an integer. Default value: 1.', example='1'),
+  pageSize?: int32(name='PageSize', description='The number of entries per page. Valid values:
+
+- 30
+- 50
+- 100
+
+Default value: 30.', example='30'),
+  projectId?: string(name='ProjectId', description='Instance ID of the Supabase instance. You can obtain instance ID from the Supabase page in the console.
+
+This parameter is required.', example='sbp-263****'),
+  regionId?: string(name='RegionId', description='The region ID.
+
+> You can call the [DescribeRegions](https://help.aliyun.com/document_detail/86912.html) operation to query available region IDs.', example='cn-hangzhou'),
+  startTime?: string(name='StartTime', description='The start time of the query. Format: yyyy-MM-ddTHH:mmZ (UTC).', example='2011-06-01T15:00Z'),
+}
+
+model ListSupabaseDataBackupsResponseBody = {
+  items?: [ 
+    {
+      backupEndTime?: string(name='BackupEndTime', description='The end time of the backup. Format: yyyy-MM-ddTHH:mm:ssZ (UTC).', example='2026-10-09T01:24:44Z'),
+      backupEndTimeLocal?: string(name='BackupEndTimeLocal', description='The local time representation of the backup end time. Format: yyyy-MM-ddTHH:mm:ssZ. The current return value is in Beijing time (UTC+8). The trailing Z is a fixed character in the compatibility format and does not indicate the zero time zone. To parse the time in a standard format, use BackupEndTime.', example='2026-10-09T09:24:44Z'),
+      backupMethod?: string(name='BackupMethod', description='The backup method. Valid values: Physical: physical backup; Snapshot: snapshot backup.', example='Snapshot'),
+      backupMode?: string(name='BackupMode', description='The backup mode.
+
+Valid values for automatic backups:
+
+- **Automated**: automatic system backup.
+- **Manual**: manual backup.
+
+Valid values for restorable points:
+
+- **Automated**: the restorable point after a automatic backup.
+- **Manual**: the restorable point manually triggered by the user.
+- **Period**: the restorable point triggered periodically based on the backup policy.', example='Automated'),
+      backupSetId?: string(name='BackupSetId', description='The ID of the backup set.', example='1111111111'),
+      backupSize?: long(name='BackupSize', description='The size of the backup file. Unit: bytes.', example='10737418240'),
+      backupStartTime?: string(name='BackupStartTime', description='The start time of the backup. Format: yyyy-MM-ddTHH:mm:ssZ (UTC).', example='2026-10-09T01:23:02Z'),
+      backupStartTimeLocal?: string(name='BackupStartTimeLocal', description='The local time representation of the backup start time. Format: yyyy-MM-ddTHH:mm:ssZ. The current return value is in Beijing time (UTC+8). The trailing Z is a fixed character in the compatibility format and does not indicate the zero time zone. To parse the time in a standard format, use BackupStartTime.', example='2026-10-09T09:23:02Z'),
+      backupStatus?: string(name='BackupStatus', description='The status of the backup set. Valid values:
+
+- **Success**: successful.
+- **Failure**: failed.', example='Success'),
+      baksetName?: string(name='BaksetName', description='The name of the restorable point or the full backup set.', example='logic_backup'),
+      consistentTime?: long(name='ConsistentTime', description='The consistency point in time. The value is a UNIX timestamp in seconds. For a full backup, this parameter indicates the consistency point in time of the backup. For a restorable point, this parameter indicates the point in time to which data can be restored.', example='1791508983'),
+      dataType?: string(name='DataType', description='The backup type. Valid values:
+
+- **DATA**: full backup.
+- **RESTOREPOI**: restorable point.', example='DATA'),
+    }
+  ](name='Items', description='The list of backup sets.'),
+  maxResults?: int32(name='MaxResults', description='The maximum number of entries to return for the current request.', example='50'),
+  nextToken?: string(name='NextToken', description='The pagination token for the next page. You can use this value as the NextToken parameter in the next request.', example='caeba0bbb2be03f84eb48b699f0a****'),
+  pageNumber?: int32(name='PageNumber', description='The page number.', example='1'),
+  pageSize?: int32(name='PageSize', description='The number of backup sets on the current page.', example='1'),
+  requestId?: string(name='RequestId', description='The request ID.', example='ABB39CC3-4488-4857-905D-2E4A051D****'),
+  totalBackupSize?: long(name='TotalBackupSize', description='The total size of the backup sets. Unit: bytes.', example='1111111111'),
+  totalCount?: int32(name='TotalCount', description='The total number of entries.', example='1'),
+}
+
+model ListSupabaseDataBackupsResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ListSupabaseDataBackupsResponseBody(name='body'),
+}
+
+/**
+ * @summary Queries the list of Supabase data backups.
+ *
+ * @param request ListSupabaseDataBackupsRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return ListSupabaseDataBackupsResponse
+ */
+async function listSupabaseDataBackupsWithOptions(request: ListSupabaseDataBackupsRequest, runtime: Util.RuntimeOptions): ListSupabaseDataBackupsResponse {
+  Util.validateModel(request);
+  var query = {};
+  if (!Util.isUnset(request.backupId)) {
+    query['BackupId'] = request.backupId;
+  }
+  if (!Util.isUnset(request.backupMode)) {
+    query['BackupMode'] = request.backupMode;
+  }
+  if (!Util.isUnset(request.backupStatus)) {
+    query['BackupStatus'] = request.backupStatus;
+  }
+  if (!Util.isUnset(request.dataType)) {
+    query['DataType'] = request.dataType;
+  }
+  if (!Util.isUnset(request.endTime)) {
+    query['EndTime'] = request.endTime;
+  }
+  if (!Util.isUnset(request.maxResults)) {
+    query['MaxResults'] = request.maxResults;
+  }
+  if (!Util.isUnset(request.nextToken)) {
+    query['NextToken'] = request.nextToken;
+  }
+  if (!Util.isUnset(request.pageNumber)) {
+    query['PageNumber'] = request.pageNumber;
+  }
+  if (!Util.isUnset(request.pageSize)) {
+    query['PageSize'] = request.pageSize;
+  }
+  if (!Util.isUnset(request.projectId)) {
+    query['ProjectId'] = request.projectId;
+  }
+  if (!Util.isUnset(request.regionId)) {
+    query['RegionId'] = request.regionId;
+  }
+  if (!Util.isUnset(request.startTime)) {
+    query['StartTime'] = request.startTime;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'ListSupabaseDataBackups',
+    version = '2016-05-03',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Queries the list of Supabase data backups.
+ *
+ * @param request ListSupabaseDataBackupsRequest
+ * @return ListSupabaseDataBackupsResponse
+ */
+async function listSupabaseDataBackups(request: ListSupabaseDataBackupsRequest): ListSupabaseDataBackupsResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return listSupabaseDataBackupsWithOptions(request, runtime);
+}
+
 model ListSupabaseProjectTagsRequest {
   nextToken?: string(name='NextToken', description='The token for the next query.', example='caeba0bbb2be03f84eb48b699f0a4883'),
   regionId?: string(name='RegionId', description='Region ID', example='cn-hangzhou'),
@@ -26329,6 +26866,100 @@ async function modifySupabaseAutoScalePolicy(request: ModifySupabaseAutoScalePol
   return modifySupabaseAutoScalePolicyWithOptions(request, runtime);
 }
 
+model ModifySupabaseBackupPolicyRequest {
+  backupRetentionPeriod?: int32(name='BackupRetentionPeriod', description='The data backup retention period. Unit: days. Valid values: 1 to 7.', example='7'),
+  enableRecoveryPoint?: boolean(name='EnableRecoveryPoint', description='Specifies whether to enable automatic recovery points. Valid values:
+- true: Enabled.
+- false: Disabled.
+If this parameter is not specified, false is used.'),
+  preferredBackupPeriod?: string(name='PreferredBackupPeriod', description='The data backup cycle. Separate multiple values with commas (,). Valid values: Monday, Tuesday, Wednesday, Thursday, Friday, Saturday, and Sunday.
+
+This parameter is required.', example='Wednesday,Friday'),
+  preferredBackupTime?: string(name='PreferredBackupTime', description='The start time of the data backup. The time is in UTC and follows the HH:mmZ format, such as 01:00Z. The HH:mmZ-HH:mmZ time range format is also supported, and the server uses the start time of the range.
+
+This parameter is required.', example='01:00Z'),
+  projectId?: string(name='ProjectId', description='Instance ID of the Supabase instance. You can obtain instance ID on the Supabase page in the console.
+
+This parameter is required.', example='sbp-263****'),
+  recoveryPointPeriod?: string(name='RecoveryPointPeriod', description='The interval for the automatic creation of recovery points. Unit: hours. Valid values: 1/6 (10 minutes), 1/2 (30 minutes), 1, 2, 4, and 8. This parameter takes effect only when EnableRecoveryPoint is set to true. If this parameter is not specified, the default value 1 is used. If EnableRecoveryPoint is set to false, this parameter is ignored.', example='1'),
+  regionId?: string(name='RegionId', description='The region ID.
+
+> You can call the [DescribeRegions](https://help.aliyun.com/document_detail/86912.html) operation to query available region IDs.', example='cn-hangzhou'),
+}
+
+model ModifySupabaseBackupPolicyResponseBody = {
+  requestId?: string(name='RequestId', description='The request ID.', example='ABB39CC3-4488-4857-905D-2E4A051D****'),
+}
+
+model ModifySupabaseBackupPolicyResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ModifySupabaseBackupPolicyResponseBody(name='body'),
+}
+
+/**
+ * @summary Modifies the data backup cycle, backup time, backup retention period, and automatic recovery point configurations of a specified Supabase instance.
+ *
+ * @description You can call DescribeSupabaseBackupPolicy to query the current backup policy, and then call this operation again to confirm the configurations after the modification.
+ *
+ * @param request ModifySupabaseBackupPolicyRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return ModifySupabaseBackupPolicyResponse
+ */
+async function modifySupabaseBackupPolicyWithOptions(request: ModifySupabaseBackupPolicyRequest, runtime: Util.RuntimeOptions): ModifySupabaseBackupPolicyResponse {
+  Util.validateModel(request);
+  var query = {};
+  if (!Util.isUnset(request.backupRetentionPeriod)) {
+    query['BackupRetentionPeriod'] = request.backupRetentionPeriod;
+  }
+  if (!Util.isUnset(request.enableRecoveryPoint)) {
+    query['EnableRecoveryPoint'] = request.enableRecoveryPoint;
+  }
+  if (!Util.isUnset(request.preferredBackupPeriod)) {
+    query['PreferredBackupPeriod'] = request.preferredBackupPeriod;
+  }
+  if (!Util.isUnset(request.preferredBackupTime)) {
+    query['PreferredBackupTime'] = request.preferredBackupTime;
+  }
+  if (!Util.isUnset(request.projectId)) {
+    query['ProjectId'] = request.projectId;
+  }
+  if (!Util.isUnset(request.recoveryPointPeriod)) {
+    query['RecoveryPointPeriod'] = request.recoveryPointPeriod;
+  }
+  if (!Util.isUnset(request.regionId)) {
+    query['RegionId'] = request.regionId;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'ModifySupabaseBackupPolicy',
+    version = '2016-05-03',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Modifies the data backup cycle, backup time, backup retention period, and automatic recovery point configurations of a specified Supabase instance.
+ *
+ * @description You can call DescribeSupabaseBackupPolicy to query the current backup policy, and then call this operation again to confirm the configurations after the modification.
+ *
+ * @param request ModifySupabaseBackupPolicyRequest
+ * @return ModifySupabaseBackupPolicyResponse
+ */
+async function modifySupabaseBackupPolicy(request: ModifySupabaseBackupPolicyRequest): ModifySupabaseBackupPolicyResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return modifySupabaseBackupPolicyWithOptions(request, runtime);
+}
+
 model ModifySupabaseProjectDescriptionRequest {
   projectDescription?: string(name='ProjectDescription', description='The detailed description of the Supabase project.', example='for-test-project'),
   projectId?: string(name='ProjectId', description='The Supabase instance ID.', example='sbp-twmoe9bakow'),
@@ -27304,39 +27935,39 @@ async function queryCollectionData(request: QueryCollectionDataRequest): QueryCo
 model QueryContentRequest {
   collection?: string(name='Collection', description='The name of the document collection.
 
-> The document collection is created by calling the [CreateDocumentCollection](https://help.aliyun.com/document_detail/2618448.html) operation. You can call the [ListDocumentCollections](https://help.aliyun.com/document_detail/2618452.html) operation to query existing document collections.
+> The document collection is created by calling the [CreateDocumentCollection](https://help.aliyun.com/document_detail/2618448.html) operation. You can call the [ListDocumentCollections](https://help.aliyun.com/document_detail/2618452.html) operation to view the created document collections.
 
 This parameter is required.', example='document'),
   content?: string(name='Content', description='The text content used for retrieval.', example='What is AnalyticDB for PostgreSQL?'),
   DBInstanceId?: string(name='DBInstanceId', description='The instance ID.
 
-> You can call the [DescribeDBInstances](https://help.aliyun.com/document_detail/86911.html) operation to query the details of all AnalyticDB for PostgreSQL instances in a region, including instance IDs.
+> You can call the [DescribeDBInstances](https://help.aliyun.com/document_detail/86911.html) operation to query the details of all AnalyticDB for PostgreSQL instances in a specific region, including the instance IDs.
 
 This parameter is required.', example='gp-xxxxxxxxx'),
-  fileName?: string(name='FileName', description='The name of the source image file to search in image-to-image search scenarios.
+  fileName?: string(name='FileName', description='The source file name of the image to search in image-to-image search scenarios.
 
-> The image file must have a file extension. Currently supported image extensions: bmp, jpg, jpeg, png, and tiff.', example='test.jpg'),
+> The image file must have a file name extension. Supported image file name extensions: bmp, jpg, jpeg, png, and tiff.', example='test.jpg'),
   fileUrl?: string(name='FileUrl', description='The publicly accessible URL of the image file in image-to-image search scenarios.
 
-> The image file must have a file extension. Currently supported image extensions: bmp, jpg, jpeg, png, and tiff.', example='https://xx/myImage.jpg'),
-  filter?: string(name='Filter', description='The filter condition for the data to query, in SQL WHERE clause format. The expression returns a Boolean value (true or false). Conditions can be simple comparison operators such as equal to (=), not equal to (<> or !=), greater than (>), less than (<), greater than or equal to (>=), and less than or equal to (<=). Conditions can also be more complex expressions combined with logical operators (AND, OR, NOT), as well as conditions using IN, BETWEEN, and LIKE keywords.
+> The image file must have a file name extension. Supported image file name extensions: bmp, jpg, jpeg, png, and tiff.', example='https://xx/myImage.jpg'),
+  filter?: string(name='Filter', description='The filter conditions for the data to query, formatted as an SQL WHERE clause. This is an expression that returns a Boolean value (true or false). The conditions can be simple comparison operators such as equal to (=), not equal to (<> or !=), greater than (>), less than (<), greater than or equal to (>=), and less than or equal to (<=). They can also be more complex expressions combined with logical operators (AND, OR, NOT), or conditions using keywords such as IN, BETWEEN, and LIKE.
 
 > 
-> - For detailed syntax, refer to: https://www.postgresqltutorial.com/postgresql-tutorial/postgresql-where/', example='title = \\\\"test\\\\" AND name like \\\\"test%\\\\"'),
+> - For detailed syntax, refer to https://www.postgresqltutorial.com/postgresql-tutorial/postgresql-where/', example='title = \\\\"test\\\\" AND name like \\\\"test%\\\\"'),
   graphEnhance?: boolean(name='GraphEnhance', description='Specifies whether to enable knowledge graph enhancement. Default value: false.', example='false'),
   graphSearchArgs?: {
     graphTopK?: int32(name='GraphTopK', description='The number of top entities and relationship edges to return. Default value: 60.', example='60'),
   }(name='GraphSearchArgs', description='The knowledge graph retrieval parameters.'),
-  hybridSearch?: string(name='HybridSearch', description='The multi-channel recall algorithm. Default value: empty (scores from dense vectors and full-text retrieve are directly compared and sorting is performed).
+  hybridSearch?: string(name='HybridSearch', description='The multi-channel recall algorithm. Default value: empty. If this parameter is empty, the scores of dense vectors and full text are directly compared, and sorting is performed.
 
 Valid values:
 
-- RRF: Reciprocal rank fusion. A parameter k controls the fusion effect. For more information, see the HybridSearchArgs configuration.
-- Weight: Weighted sorting. Parameters control the score weights of vector retrieve and full-text retrieve results before sorting. For more information, see the HybridSearchArgs configuration.
-- Cascaded: Full-text retrieve is performed first, followed by vector retrieve on the full-text retrieve results.', example='RRF'),
-  hybridSearchArgs?: map[string]object(name='HybridSearchArgs', description='The algorithm parameters for multi-channel recall. Currently, RRF and Weight are supported. HybridPathsSetting specifies the recall paths: dense vectors (dense), sparse vectors (sparse), and full-text retrieve (fulltext). If the value is empty, dense vectors (dense) and full-text retrieve (fulltext) are recalled by default.
+- RRF: Reciprocal Rank Fusion. A parameter k is used to control the fusion effect. For more information, see the HybridSearchArgs configuration.
+- Weight: Weighted sorting. Parameters are used to control the score weights of vectors and full text before sorting. For more information, see the HybridSearchArgs configuration.
+- Cascaded: Full-text retrieval is performed first, and then vector retrieval is performed based on the full-text retrieval results.', example='RRF'),
+  hybridSearchArgs?: map[string]object(name='HybridSearchArgs', description='The algorithm parameters for multi-channel recall. RRF and Weight are supported. You can use HybridPathsSetting to specify the recall of dense vectors (dense), sparse vectors (sparse), and full-text retrieval (fulltext). If this value is empty, dense vectors (dense) and full-text retrieval (fulltext) are recalled by default.
 
-- RRF: Specifies the k constant in the score calculation formula `1/(k+rank_i)`. The value must be a positive integer greater than 1. Format:
+- RRF: Specifies the constant k in the score calculation formula `1/(k+rank_i)`. The value must be a positive integer greater than 1. Format:
 ```
 {
   "HybridPathsSetting": {
@@ -27349,8 +27980,8 @@ Valid values:
 ```
 
 - Weight: 
-   - Dual-path recall (without specifying HybridPathsSetting, only specifying alpha):
-      - Formula: alpha * dense_score + (1-alpha) * fulltext_score. The alpha parameter specifies the score weight between dense vectors and full-text retrieve. Valid values: 0 to 1, where 0 indicates full-text retrieve only and 1 indicates dense vectors only:
+   - Dual-channel recall (HybridPathsSetting is not specified, and only alpha is specified):
+      - Formula: alpha * dense_score + (1-alpha) * fulltext_score. The alpha parameter indicates the score weights of dense vectors and full-text retrieval. Valid values: 0 to 1. A value of 0 indicates full-text retrieval only, and a value of 1 indicates dense vectors only:
 ```
 { 
    "Weight": {
@@ -27358,8 +27989,8 @@ Valid values:
    }
 }
 ```
-  - Three-path recall pattern:
-     - Formula: normalized_dense * dense_score + normalized_sparse * sparse_score + normalized_fulltext * fulltext_score. The dense, sparse, and fulltext parameters represent the weights of dense vectors, sparse vectors, and full-text retrieve respectively. Valid values: greater than or equal to 0. The system automatically performs normalization on the weights to 0–1 (normalized_x = x / (dense + sparse + fulltext)).
+  - Three-channel recall pattern:
+     - Formula: normalized_dense * dense_score + normalized_sparse * sparse_score + normalized_fulltext * fulltext_score. The dense, sparse, and fulltext parameters represent the weights of dense vectors, sparse vectors, and full-text retrieval, respectively. Valid values: greater than or equal to 0. The system automatically performs normalization on the weights to 0 to 1 (that is, normalized_x = x / (dense + sparse + fulltext)).
 ```
 {
   "HybridPathsSetting": {
@@ -27373,93 +28004,87 @@ Valid values:
 }
 ```'),
   includeFileUrl?: boolean(name='IncludeFileUrl', description='Specifies whether to synchronously return the URL of the document. By default, the URL is not returned.', example='false'),
-  includeMetadataFields?: string(name='IncludeMetadataFields', description='The metadata fields to return, separated by commas. Default value: empty.', example='title,page'),
+  includeMetadataFields?: string(name='IncludeMetadataFields', description='The metadata fields to return. Default value: empty. Separate multiple fields with commas (,).', example='title,page'),
   includeVector?: boolean(name='IncludeVector', description='Specifies whether to return vectors. Default value: false.
-> - **false**: Does not return vectors.
-> - **true**: Returns vectors.', example='true'),
-  metrics?: string(name='Metrics', description='The similarity algorithm used during retrieval. If this value is empty, the algorithm specified when the knowledge base was created is used. Leave this parameter empty unless you have specific requirements.
+> - **false**: Vectors are not returned.
+> - **true**: Vectors are returned.', example='true'),
+  metrics?: string(name='Metrics', description='The similarity algorithm used during retrieval. If this value is empty, the algorithm specified when the knowledge base is created is used. You do not need to set this parameter unless you have special requirements.
 
 > Valid values:
 > - **l2**: Euclidean distance.
-> - **ip**: inner product distance.
-> - **cosine**: cosine similarity.', example='cosine'),
+> - **ip**: Dot product (inner product) distance.
+> - **cosine**: Cosine similarity.', example='cosine'),
   namespace?: string(name='Namespace', description='The namespace. Default value: public.
 
-> You can create a namespace by calling the [CreateNamespace](https://help.aliyun.com/document_detail/2401495.html) operation and query the list of namespaces by calling the [ListNamespaces](https://help.aliyun.com/document_detail/2401502.html) operation.', example='mynamespace'),
+> You can call the [CreateNamespace](https://help.aliyun.com/document_detail/2401495.html) operation to create a namespace and call the [ListNamespaces](https://help.aliyun.com/document_detail/2401502.html) operation to view the namespace list.', example='mynamespace'),
   namespacePassword?: string(name='NamespacePassword', description='The password of the namespace.
 
-> This value is specified by the [CreateNamespace](https://help.aliyun.com/document_detail/2401495.html) operation.
+> This value is specified when you call the [CreateNamespace](https://help.aliyun.com/document_detail/2401495.html) operation.
 
 This parameter is required.', example='testpassword'),
-  offset?: int32(name='Offset', description='The offset for paging query.', example='0'),
-  orderBy?: string(name='OrderBy', description='The field used for sorting. Default value: empty.
-
-The field must belong to metadata or a default field in the table such as id. Supported formats:
-
-Single field, such as chunk_id.
-Multiple fields separated by commas, such as block_id, chunk_id.
-Descending order, such as block_id DESC, chunk_id DESC.', example='created_at'),
+  offset?: int32(name='Offset', description='The offset used for a paged query.', example='0'),
+  orderBy?: string(name='OrderBy', description='The field based on which sorting is performed. Default value: empty. The field must belong to the metadata or be a default field in the table, such as id. Supported formats: a single field, such as chunk_id; multiple fields separated by commas (,), such as block_id, chunk_id; and reverse order, such as block_id DESC, chunk_id DESC.', example='created_at'),
   ownerId?: long(name='OwnerId'),
-  recallWindow?: [ int32 ](name='RecallWindow', description='The recall window. When this value is not empty, the context of the retrieval results is also returned. The format is a 2-element array: List<A, B>, where -10<=A<=0 and 0<=B<=10.
-> - Use this parameter when documents are split into overly small chunks and retrieval may lose contextual information.
-> - Reranking takes priority over windowing, meaning reranking is performed first, followed by windowing.'),
+  recallWindow?: [ int32 ](name='RecallWindow', description='The recall window. When this value is not empty, the context of the retrieval results is additionally returned. The format is an array of two elements: List<A, B>, where -10 <= A <= 0 and 0 <= B <= 10.
+> - Use this parameter when documents are split into excessively small chunks and retrieval may lose context information.
+> - Reranking takes precedence over windowing. That is, reranking is performed before windowing.'),
   regionId?: string(name='RegionId', description='The region ID of the instance.
 
 This parameter is required.', example='cn-hangzhou'),
-  rerankFactor?: double(name='RerankFactor', description='The reranking factor. When this value is not empty, the vector retrieve results are reranked. Valid values: 1 < RerankFactor <= 5.
-> - Reranking is slower when documents are sparsely chunked.
-> - The total number of items to rerank (TopK × Factor, rounded up) should not exceed 50.', example='2'),
+  rerankFactor?: double(name='RerankFactor', description='The reranking factor. When this value is not empty, the vector retrieval results are reranked. Valid values: 1 < RerankFactor <= 5.
+> - When document chunks are sparse, reranking is slow.
+> - The number of reranked results (TopK × Factor, rounded up) should not exceed 50.', example='2'),
   rerankModel?: {
-    instruct?: string(name='Instruct', description='This parameter can be set when RerankModel.Name is qwen3-rerank. Specifies a custom sorting task type description that guides the model to adopt different sorting strategies.', example='Given a web search query, retrieve relevant passages that answer the query'),
-    name?: string(name='Name', description='The rerank model name. Valid values: qwen3-rerank, gte-rerank-v2.', example='qwen3-rerank'),
-    rerankMetadataFields?: string(name='RerankMetadataFields'),
-  }(name='RerankModel', description='The rerank model parameters.'),
+    instruct?: string(name='Instruct', description='This parameter can be set when RerankModel.Name is set to qwen3-rerank. You can add a custom sorting task description to guide the model to adopt different sorting strategies.', example='Given a web search query, retrieve relevant passages that answer the query'),
+    name?: string(name='Name', description='The name of the reranking model. Valid values: qwen3-rerank and gte-rerank-v2.', example='qwen3-rerank'),
+    rerankMetadataFields?: string(name='RerankMetadataFields', description='The metadata fields that participate in reranking. Separate multiple fields with commas (,). By default, only the document content (content) is used for reranking. The field names must be metadata defined in the collection.'),
+  }(name='RerankModel', description='The reranking model parameters.'),
   topK?: int32(name='TopK', description='The number of top results to return.', example='10'),
   urlExpiration?: string(name='UrlExpiration', description='The validity period of the returned image URL.
 
 > Valid values:
-> - Supports seconds (s) and days (d) as units. For example, 300s indicates a validity period of 300 seconds, and 60d indicates a validity period of 60 days.
+> - The unit can be seconds (s) or days (d). For example, 300s indicates a validity period of 300 seconds, and 60d indicates a validity period of 60 days.
 > - Valid values: 60s to 365d.
-> - Default value: 7200s (2 hours).', example='7200s'),
-  useFullTextRetrieval?: boolean(name='UseFullTextRetrieval', description='**[Deprecated]** Specifies whether to use full-text retrieve (dual-path recall). Default value: false, which indicates that only vector retrieve is used.', example='true'),
+> - Default value: 7200s, which is 2 hours.', example='7200s'),
+  useFullTextRetrieval?: boolean(name='UseFullTextRetrieval', description='**[Deprecated]** Specifies whether to use full-text retrieval (dual-channel recall). Default value: false, which indicates that only vector retrieval is used.', example='true'),
 }
 
 model QueryContentAdvanceRequest {
   collection?: string(name='Collection', description='The name of the document collection.
 
-> The document collection is created by calling the [CreateDocumentCollection](https://help.aliyun.com/document_detail/2618448.html) operation. You can call the [ListDocumentCollections](https://help.aliyun.com/document_detail/2618452.html) operation to query existing document collections.
+> The document collection is created by calling the [CreateDocumentCollection](https://help.aliyun.com/document_detail/2618448.html) operation. You can call the [ListDocumentCollections](https://help.aliyun.com/document_detail/2618452.html) operation to view the created document collections.
 
 This parameter is required.', example='document'),
   content?: string(name='Content', description='The text content used for retrieval.', example='What is AnalyticDB for PostgreSQL?'),
   DBInstanceId?: string(name='DBInstanceId', description='The instance ID.
 
-> You can call the [DescribeDBInstances](https://help.aliyun.com/document_detail/86911.html) operation to query the details of all AnalyticDB for PostgreSQL instances in a region, including instance IDs.
+> You can call the [DescribeDBInstances](https://help.aliyun.com/document_detail/86911.html) operation to query the details of all AnalyticDB for PostgreSQL instances in a specific region, including the instance IDs.
 
 This parameter is required.', example='gp-xxxxxxxxx'),
-  fileName?: string(name='FileName', description='The name of the source image file to search in image-to-image search scenarios.
+  fileName?: string(name='FileName', description='The source file name of the image to search in image-to-image search scenarios.
 
-> The image file must have a file extension. Currently supported image extensions: bmp, jpg, jpeg, png, and tiff.', example='test.jpg'),
+> The image file must have a file name extension. Supported image file name extensions: bmp, jpg, jpeg, png, and tiff.', example='test.jpg'),
   fileUrlObject?: readable(name='FileUrl', description='The publicly accessible URL of the image file in image-to-image search scenarios.
 
-> The image file must have a file extension. Currently supported image extensions: bmp, jpg, jpeg, png, and tiff.', example='https://xx/myImage.jpg'),
-  filter?: string(name='Filter', description='The filter condition for the data to query, in SQL WHERE clause format. The expression returns a Boolean value (true or false). Conditions can be simple comparison operators such as equal to (=), not equal to (<> or !=), greater than (>), less than (<), greater than or equal to (>=), and less than or equal to (<=). Conditions can also be more complex expressions combined with logical operators (AND, OR, NOT), as well as conditions using IN, BETWEEN, and LIKE keywords.
+> The image file must have a file name extension. Supported image file name extensions: bmp, jpg, jpeg, png, and tiff.', example='https://xx/myImage.jpg'),
+  filter?: string(name='Filter', description='The filter conditions for the data to query, formatted as an SQL WHERE clause. This is an expression that returns a Boolean value (true or false). The conditions can be simple comparison operators such as equal to (=), not equal to (<> or !=), greater than (>), less than (<), greater than or equal to (>=), and less than or equal to (<=). They can also be more complex expressions combined with logical operators (AND, OR, NOT), or conditions using keywords such as IN, BETWEEN, and LIKE.
 
 > 
-> - For detailed syntax, refer to: https://www.postgresqltutorial.com/postgresql-tutorial/postgresql-where/', example='title = \\\\"test\\\\" AND name like \\\\"test%\\\\"'),
+> - For detailed syntax, refer to https://www.postgresqltutorial.com/postgresql-tutorial/postgresql-where/', example='title = \\\\"test\\\\" AND name like \\\\"test%\\\\"'),
   graphEnhance?: boolean(name='GraphEnhance', description='Specifies whether to enable knowledge graph enhancement. Default value: false.', example='false'),
   graphSearchArgs?: {
     graphTopK?: int32(name='GraphTopK', description='The number of top entities and relationship edges to return. Default value: 60.', example='60'),
   }(name='GraphSearchArgs', description='The knowledge graph retrieval parameters.'),
-  hybridSearch?: string(name='HybridSearch', description='The multi-channel recall algorithm. Default value: empty (scores from dense vectors and full-text retrieve are directly compared and sorting is performed).
+  hybridSearch?: string(name='HybridSearch', description='The multi-channel recall algorithm. Default value: empty. If this parameter is empty, the scores of dense vectors and full text are directly compared, and sorting is performed.
 
 Valid values:
 
-- RRF: Reciprocal rank fusion. A parameter k controls the fusion effect. For more information, see the HybridSearchArgs configuration.
-- Weight: Weighted sorting. Parameters control the score weights of vector retrieve and full-text retrieve results before sorting. For more information, see the HybridSearchArgs configuration.
-- Cascaded: Full-text retrieve is performed first, followed by vector retrieve on the full-text retrieve results.', example='RRF'),
-  hybridSearchArgs?: map[string]object(name='HybridSearchArgs', description='The algorithm parameters for multi-channel recall. Currently, RRF and Weight are supported. HybridPathsSetting specifies the recall paths: dense vectors (dense), sparse vectors (sparse), and full-text retrieve (fulltext). If the value is empty, dense vectors (dense) and full-text retrieve (fulltext) are recalled by default.
+- RRF: Reciprocal Rank Fusion. A parameter k is used to control the fusion effect. For more information, see the HybridSearchArgs configuration.
+- Weight: Weighted sorting. Parameters are used to control the score weights of vectors and full text before sorting. For more information, see the HybridSearchArgs configuration.
+- Cascaded: Full-text retrieval is performed first, and then vector retrieval is performed based on the full-text retrieval results.', example='RRF'),
+  hybridSearchArgs?: map[string]object(name='HybridSearchArgs', description='The algorithm parameters for multi-channel recall. RRF and Weight are supported. You can use HybridPathsSetting to specify the recall of dense vectors (dense), sparse vectors (sparse), and full-text retrieval (fulltext). If this value is empty, dense vectors (dense) and full-text retrieval (fulltext) are recalled by default.
 
-- RRF: Specifies the k constant in the score calculation formula `1/(k+rank_i)`. The value must be a positive integer greater than 1. Format:
+- RRF: Specifies the constant k in the score calculation formula `1/(k+rank_i)`. The value must be a positive integer greater than 1. Format:
 ```
 {
   "HybridPathsSetting": {
@@ -27472,8 +28097,8 @@ Valid values:
 ```
 
 - Weight: 
-   - Dual-path recall (without specifying HybridPathsSetting, only specifying alpha):
-      - Formula: alpha * dense_score + (1-alpha) * fulltext_score. The alpha parameter specifies the score weight between dense vectors and full-text retrieve. Valid values: 0 to 1, where 0 indicates full-text retrieve only and 1 indicates dense vectors only:
+   - Dual-channel recall (HybridPathsSetting is not specified, and only alpha is specified):
+      - Formula: alpha * dense_score + (1-alpha) * fulltext_score. The alpha parameter indicates the score weights of dense vectors and full-text retrieval. Valid values: 0 to 1. A value of 0 indicates full-text retrieval only, and a value of 1 indicates dense vectors only:
 ```
 { 
    "Weight": {
@@ -27481,8 +28106,8 @@ Valid values:
    }
 }
 ```
-  - Three-path recall pattern:
-     - Formula: normalized_dense * dense_score + normalized_sparse * sparse_score + normalized_fulltext * fulltext_score. The dense, sparse, and fulltext parameters represent the weights of dense vectors, sparse vectors, and full-text retrieve respectively. Valid values: greater than or equal to 0. The system automatically performs normalization on the weights to 0–1 (normalized_x = x / (dense + sparse + fulltext)).
+  - Three-channel recall pattern:
+     - Formula: normalized_dense * dense_score + normalized_sparse * sparse_score + normalized_fulltext * fulltext_score. The dense, sparse, and fulltext parameters represent the weights of dense vectors, sparse vectors, and full-text retrieval, respectively. Valid values: greater than or equal to 0. The system automatically performs normalization on the weights to 0 to 1 (that is, normalized_x = x / (dense + sparse + fulltext)).
 ```
 {
   "HybridPathsSetting": {
@@ -27496,91 +28121,85 @@ Valid values:
 }
 ```'),
   includeFileUrl?: boolean(name='IncludeFileUrl', description='Specifies whether to synchronously return the URL of the document. By default, the URL is not returned.', example='false'),
-  includeMetadataFields?: string(name='IncludeMetadataFields', description='The metadata fields to return, separated by commas. Default value: empty.', example='title,page'),
+  includeMetadataFields?: string(name='IncludeMetadataFields', description='The metadata fields to return. Default value: empty. Separate multiple fields with commas (,).', example='title,page'),
   includeVector?: boolean(name='IncludeVector', description='Specifies whether to return vectors. Default value: false.
-> - **false**: Does not return vectors.
-> - **true**: Returns vectors.', example='true'),
-  metrics?: string(name='Metrics', description='The similarity algorithm used during retrieval. If this value is empty, the algorithm specified when the knowledge base was created is used. Leave this parameter empty unless you have specific requirements.
+> - **false**: Vectors are not returned.
+> - **true**: Vectors are returned.', example='true'),
+  metrics?: string(name='Metrics', description='The similarity algorithm used during retrieval. If this value is empty, the algorithm specified when the knowledge base is created is used. You do not need to set this parameter unless you have special requirements.
 
 > Valid values:
 > - **l2**: Euclidean distance.
-> - **ip**: inner product distance.
-> - **cosine**: cosine similarity.', example='cosine'),
+> - **ip**: Dot product (inner product) distance.
+> - **cosine**: Cosine similarity.', example='cosine'),
   namespace?: string(name='Namespace', description='The namespace. Default value: public.
 
-> You can create a namespace by calling the [CreateNamespace](https://help.aliyun.com/document_detail/2401495.html) operation and query the list of namespaces by calling the [ListNamespaces](https://help.aliyun.com/document_detail/2401502.html) operation.', example='mynamespace'),
+> You can call the [CreateNamespace](https://help.aliyun.com/document_detail/2401495.html) operation to create a namespace and call the [ListNamespaces](https://help.aliyun.com/document_detail/2401502.html) operation to view the namespace list.', example='mynamespace'),
   namespacePassword?: string(name='NamespacePassword', description='The password of the namespace.
 
-> This value is specified by the [CreateNamespace](https://help.aliyun.com/document_detail/2401495.html) operation.
+> This value is specified when you call the [CreateNamespace](https://help.aliyun.com/document_detail/2401495.html) operation.
 
 This parameter is required.', example='testpassword'),
-  offset?: int32(name='Offset', description='The offset for paging query.', example='0'),
-  orderBy?: string(name='OrderBy', description='The field used for sorting. Default value: empty.
-
-The field must belong to metadata or a default field in the table such as id. Supported formats:
-
-Single field, such as chunk_id.
-Multiple fields separated by commas, such as block_id, chunk_id.
-Descending order, such as block_id DESC, chunk_id DESC.', example='created_at'),
+  offset?: int32(name='Offset', description='The offset used for a paged query.', example='0'),
+  orderBy?: string(name='OrderBy', description='The field based on which sorting is performed. Default value: empty. The field must belong to the metadata or be a default field in the table, such as id. Supported formats: a single field, such as chunk_id; multiple fields separated by commas (,), such as block_id, chunk_id; and reverse order, such as block_id DESC, chunk_id DESC.', example='created_at'),
   ownerId?: long(name='OwnerId'),
-  recallWindow?: [ int32 ](name='RecallWindow', description='The recall window. When this value is not empty, the context of the retrieval results is also returned. The format is a 2-element array: List<A, B>, where -10<=A<=0 and 0<=B<=10.
-> - Use this parameter when documents are split into overly small chunks and retrieval may lose contextual information.
-> - Reranking takes priority over windowing, meaning reranking is performed first, followed by windowing.'),
+  recallWindow?: [ int32 ](name='RecallWindow', description='The recall window. When this value is not empty, the context of the retrieval results is additionally returned. The format is an array of two elements: List<A, B>, where -10 <= A <= 0 and 0 <= B <= 10.
+> - Use this parameter when documents are split into excessively small chunks and retrieval may lose context information.
+> - Reranking takes precedence over windowing. That is, reranking is performed before windowing.'),
   regionId?: string(name='RegionId', description='The region ID of the instance.
 
 This parameter is required.', example='cn-hangzhou'),
-  rerankFactor?: double(name='RerankFactor', description='The reranking factor. When this value is not empty, the vector retrieve results are reranked. Valid values: 1 < RerankFactor <= 5.
-> - Reranking is slower when documents are sparsely chunked.
-> - The total number of items to rerank (TopK × Factor, rounded up) should not exceed 50.', example='2'),
+  rerankFactor?: double(name='RerankFactor', description='The reranking factor. When this value is not empty, the vector retrieval results are reranked. Valid values: 1 < RerankFactor <= 5.
+> - When document chunks are sparse, reranking is slow.
+> - The number of reranked results (TopK × Factor, rounded up) should not exceed 50.', example='2'),
   rerankModel?: {
-    instruct?: string(name='Instruct', description='This parameter can be set when RerankModel.Name is qwen3-rerank. Specifies a custom sorting task type description that guides the model to adopt different sorting strategies.', example='Given a web search query, retrieve relevant passages that answer the query'),
-    name?: string(name='Name', description='The rerank model name. Valid values: qwen3-rerank, gte-rerank-v2.', example='qwen3-rerank'),
-    rerankMetadataFields?: string(name='RerankMetadataFields'),
-  }(name='RerankModel', description='The rerank model parameters.'),
+    instruct?: string(name='Instruct', description='This parameter can be set when RerankModel.Name is set to qwen3-rerank. You can add a custom sorting task description to guide the model to adopt different sorting strategies.', example='Given a web search query, retrieve relevant passages that answer the query'),
+    name?: string(name='Name', description='The name of the reranking model. Valid values: qwen3-rerank and gte-rerank-v2.', example='qwen3-rerank'),
+    rerankMetadataFields?: string(name='RerankMetadataFields', description='The metadata fields that participate in reranking. Separate multiple fields with commas (,). By default, only the document content (content) is used for reranking. The field names must be metadata defined in the collection.'),
+  }(name='RerankModel', description='The reranking model parameters.'),
   topK?: int32(name='TopK', description='The number of top results to return.', example='10'),
   urlExpiration?: string(name='UrlExpiration', description='The validity period of the returned image URL.
 
 > Valid values:
-> - Supports seconds (s) and days (d) as units. For example, 300s indicates a validity period of 300 seconds, and 60d indicates a validity period of 60 days.
+> - The unit can be seconds (s) or days (d). For example, 300s indicates a validity period of 300 seconds, and 60d indicates a validity period of 60 days.
 > - Valid values: 60s to 365d.
-> - Default value: 7200s (2 hours).', example='7200s'),
-  useFullTextRetrieval?: boolean(name='UseFullTextRetrieval', description='**[Deprecated]** Specifies whether to use full-text retrieve (dual-path recall). Default value: false, which indicates that only vector retrieve is used.', example='true'),
+> - Default value: 7200s, which is 2 hours.', example='7200s'),
+  useFullTextRetrieval?: boolean(name='UseFullTextRetrieval', description='**[Deprecated]** Specifies whether to use full-text retrieval (dual-channel recall). Default value: false, which indicates that only vector retrieval is used.', example='true'),
 }
 
 model QueryContentShrinkRequest {
   collection?: string(name='Collection', description='The name of the document collection.
 
-> The document collection is created by calling the [CreateDocumentCollection](https://help.aliyun.com/document_detail/2618448.html) operation. You can call the [ListDocumentCollections](https://help.aliyun.com/document_detail/2618452.html) operation to query existing document collections.
+> The document collection is created by calling the [CreateDocumentCollection](https://help.aliyun.com/document_detail/2618448.html) operation. You can call the [ListDocumentCollections](https://help.aliyun.com/document_detail/2618452.html) operation to view the created document collections.
 
 This parameter is required.', example='document'),
   content?: string(name='Content', description='The text content used for retrieval.', example='What is AnalyticDB for PostgreSQL?'),
   DBInstanceId?: string(name='DBInstanceId', description='The instance ID.
 
-> You can call the [DescribeDBInstances](https://help.aliyun.com/document_detail/86911.html) operation to query the details of all AnalyticDB for PostgreSQL instances in a region, including instance IDs.
+> You can call the [DescribeDBInstances](https://help.aliyun.com/document_detail/86911.html) operation to query the details of all AnalyticDB for PostgreSQL instances in a specific region, including the instance IDs.
 
 This parameter is required.', example='gp-xxxxxxxxx'),
-  fileName?: string(name='FileName', description='The name of the source image file to search in image-to-image search scenarios.
+  fileName?: string(name='FileName', description='The source file name of the image to search in image-to-image search scenarios.
 
-> The image file must have a file extension. Currently supported image extensions: bmp, jpg, jpeg, png, and tiff.', example='test.jpg'),
+> The image file must have a file name extension. Supported image file name extensions: bmp, jpg, jpeg, png, and tiff.', example='test.jpg'),
   fileUrl?: string(name='FileUrl', description='The publicly accessible URL of the image file in image-to-image search scenarios.
 
-> The image file must have a file extension. Currently supported image extensions: bmp, jpg, jpeg, png, and tiff.', example='https://xx/myImage.jpg'),
-  filter?: string(name='Filter', description='The filter condition for the data to query, in SQL WHERE clause format. The expression returns a Boolean value (true or false). Conditions can be simple comparison operators such as equal to (=), not equal to (<> or !=), greater than (>), less than (<), greater than or equal to (>=), and less than or equal to (<=). Conditions can also be more complex expressions combined with logical operators (AND, OR, NOT), as well as conditions using IN, BETWEEN, and LIKE keywords.
+> The image file must have a file name extension. Supported image file name extensions: bmp, jpg, jpeg, png, and tiff.', example='https://xx/myImage.jpg'),
+  filter?: string(name='Filter', description='The filter conditions for the data to query, formatted as an SQL WHERE clause. This is an expression that returns a Boolean value (true or false). The conditions can be simple comparison operators such as equal to (=), not equal to (<> or !=), greater than (>), less than (<), greater than or equal to (>=), and less than or equal to (<=). They can also be more complex expressions combined with logical operators (AND, OR, NOT), or conditions using keywords such as IN, BETWEEN, and LIKE.
 
 > 
-> - For detailed syntax, refer to: https://www.postgresqltutorial.com/postgresql-tutorial/postgresql-where/', example='title = \\\\"test\\\\" AND name like \\\\"test%\\\\"'),
+> - For detailed syntax, refer to https://www.postgresqltutorial.com/postgresql-tutorial/postgresql-where/', example='title = \\\\"test\\\\" AND name like \\\\"test%\\\\"'),
   graphEnhance?: boolean(name='GraphEnhance', description='Specifies whether to enable knowledge graph enhancement. Default value: false.', example='false'),
   graphSearchArgsShrink?: string(name='GraphSearchArgs', description='The knowledge graph retrieval parameters.'),
-  hybridSearch?: string(name='HybridSearch', description='The multi-channel recall algorithm. Default value: empty (scores from dense vectors and full-text retrieve are directly compared and sorting is performed).
+  hybridSearch?: string(name='HybridSearch', description='The multi-channel recall algorithm. Default value: empty. If this parameter is empty, the scores of dense vectors and full text are directly compared, and sorting is performed.
 
 Valid values:
 
-- RRF: Reciprocal rank fusion. A parameter k controls the fusion effect. For more information, see the HybridSearchArgs configuration.
-- Weight: Weighted sorting. Parameters control the score weights of vector retrieve and full-text retrieve results before sorting. For more information, see the HybridSearchArgs configuration.
-- Cascaded: Full-text retrieve is performed first, followed by vector retrieve on the full-text retrieve results.', example='RRF'),
-  hybridSearchArgsShrink?: string(name='HybridSearchArgs', description='The algorithm parameters for multi-channel recall. Currently, RRF and Weight are supported. HybridPathsSetting specifies the recall paths: dense vectors (dense), sparse vectors (sparse), and full-text retrieve (fulltext). If the value is empty, dense vectors (dense) and full-text retrieve (fulltext) are recalled by default.
+- RRF: Reciprocal Rank Fusion. A parameter k is used to control the fusion effect. For more information, see the HybridSearchArgs configuration.
+- Weight: Weighted sorting. Parameters are used to control the score weights of vectors and full text before sorting. For more information, see the HybridSearchArgs configuration.
+- Cascaded: Full-text retrieval is performed first, and then vector retrieval is performed based on the full-text retrieval results.', example='RRF'),
+  hybridSearchArgsShrink?: string(name='HybridSearchArgs', description='The algorithm parameters for multi-channel recall. RRF and Weight are supported. You can use HybridPathsSetting to specify the recall of dense vectors (dense), sparse vectors (sparse), and full-text retrieval (fulltext). If this value is empty, dense vectors (dense) and full-text retrieval (fulltext) are recalled by default.
 
-- RRF: Specifies the k constant in the score calculation formula `1/(k+rank_i)`. The value must be a positive integer greater than 1. Format:
+- RRF: Specifies the constant k in the score calculation formula `1/(k+rank_i)`. The value must be a positive integer greater than 1. Format:
 ```
 {
   "HybridPathsSetting": {
@@ -27593,8 +28212,8 @@ Valid values:
 ```
 
 - Weight: 
-   - Dual-path recall (without specifying HybridPathsSetting, only specifying alpha):
-      - Formula: alpha * dense_score + (1-alpha) * fulltext_score. The alpha parameter specifies the score weight between dense vectors and full-text retrieve. Valid values: 0 to 1, where 0 indicates full-text retrieve only and 1 indicates dense vectors only:
+   - Dual-channel recall (HybridPathsSetting is not specified, and only alpha is specified):
+      - Formula: alpha * dense_score + (1-alpha) * fulltext_score. The alpha parameter indicates the score weights of dense vectors and full-text retrieval. Valid values: 0 to 1. A value of 0 indicates full-text retrieval only, and a value of 1 indicates dense vectors only:
 ```
 { 
    "Weight": {
@@ -27602,8 +28221,8 @@ Valid values:
    }
 }
 ```
-  - Three-path recall pattern:
-     - Formula: normalized_dense * dense_score + normalized_sparse * sparse_score + normalized_fulltext * fulltext_score. The dense, sparse, and fulltext parameters represent the weights of dense vectors, sparse vectors, and full-text retrieve respectively. Valid values: greater than or equal to 0. The system automatically performs normalization on the weights to 0–1 (normalized_x = x / (dense + sparse + fulltext)).
+  - Three-channel recall pattern:
+     - Formula: normalized_dense * dense_score + normalized_sparse * sparse_score + normalized_fulltext * fulltext_score. The dense, sparse, and fulltext parameters represent the weights of dense vectors, sparse vectors, and full-text retrieval, respectively. Valid values: greater than or equal to 0. The system automatically performs normalization on the weights to 0 to 1 (that is, normalized_x = x / (dense + sparse + fulltext)).
 ```
 {
   "HybridPathsSetting": {
@@ -27617,57 +28236,51 @@ Valid values:
 }
 ```'),
   includeFileUrl?: boolean(name='IncludeFileUrl', description='Specifies whether to synchronously return the URL of the document. By default, the URL is not returned.', example='false'),
-  includeMetadataFields?: string(name='IncludeMetadataFields', description='The metadata fields to return, separated by commas. Default value: empty.', example='title,page'),
+  includeMetadataFields?: string(name='IncludeMetadataFields', description='The metadata fields to return. Default value: empty. Separate multiple fields with commas (,).', example='title,page'),
   includeVector?: boolean(name='IncludeVector', description='Specifies whether to return vectors. Default value: false.
-> - **false**: Does not return vectors.
-> - **true**: Returns vectors.', example='true'),
-  metrics?: string(name='Metrics', description='The similarity algorithm used during retrieval. If this value is empty, the algorithm specified when the knowledge base was created is used. Leave this parameter empty unless you have specific requirements.
+> - **false**: Vectors are not returned.
+> - **true**: Vectors are returned.', example='true'),
+  metrics?: string(name='Metrics', description='The similarity algorithm used during retrieval. If this value is empty, the algorithm specified when the knowledge base is created is used. You do not need to set this parameter unless you have special requirements.
 
 > Valid values:
 > - **l2**: Euclidean distance.
-> - **ip**: inner product distance.
-> - **cosine**: cosine similarity.', example='cosine'),
+> - **ip**: Dot product (inner product) distance.
+> - **cosine**: Cosine similarity.', example='cosine'),
   namespace?: string(name='Namespace', description='The namespace. Default value: public.
 
-> You can create a namespace by calling the [CreateNamespace](https://help.aliyun.com/document_detail/2401495.html) operation and query the list of namespaces by calling the [ListNamespaces](https://help.aliyun.com/document_detail/2401502.html) operation.', example='mynamespace'),
+> You can call the [CreateNamespace](https://help.aliyun.com/document_detail/2401495.html) operation to create a namespace and call the [ListNamespaces](https://help.aliyun.com/document_detail/2401502.html) operation to view the namespace list.', example='mynamespace'),
   namespacePassword?: string(name='NamespacePassword', description='The password of the namespace.
 
-> This value is specified by the [CreateNamespace](https://help.aliyun.com/document_detail/2401495.html) operation.
+> This value is specified when you call the [CreateNamespace](https://help.aliyun.com/document_detail/2401495.html) operation.
 
 This parameter is required.', example='testpassword'),
-  offset?: int32(name='Offset', description='The offset for paging query.', example='0'),
-  orderBy?: string(name='OrderBy', description='The field used for sorting. Default value: empty.
-
-The field must belong to metadata or a default field in the table such as id. Supported formats:
-
-Single field, such as chunk_id.
-Multiple fields separated by commas, such as block_id, chunk_id.
-Descending order, such as block_id DESC, chunk_id DESC.', example='created_at'),
+  offset?: int32(name='Offset', description='The offset used for a paged query.', example='0'),
+  orderBy?: string(name='OrderBy', description='The field based on which sorting is performed. Default value: empty. The field must belong to the metadata or be a default field in the table, such as id. Supported formats: a single field, such as chunk_id; multiple fields separated by commas (,), such as block_id, chunk_id; and reverse order, such as block_id DESC, chunk_id DESC.', example='created_at'),
   ownerId?: long(name='OwnerId'),
-  recallWindowShrink?: string(name='RecallWindow', description='The recall window. When this value is not empty, the context of the retrieval results is also returned. The format is a 2-element array: List<A, B>, where -10<=A<=0 and 0<=B<=10.
-> - Use this parameter when documents are split into overly small chunks and retrieval may lose contextual information.
-> - Reranking takes priority over windowing, meaning reranking is performed first, followed by windowing.'),
+  recallWindowShrink?: string(name='RecallWindow', description='The recall window. When this value is not empty, the context of the retrieval results is additionally returned. The format is an array of two elements: List<A, B>, where -10 <= A <= 0 and 0 <= B <= 10.
+> - Use this parameter when documents are split into excessively small chunks and retrieval may lose context information.
+> - Reranking takes precedence over windowing. That is, reranking is performed before windowing.'),
   regionId?: string(name='RegionId', description='The region ID of the instance.
 
 This parameter is required.', example='cn-hangzhou'),
-  rerankFactor?: double(name='RerankFactor', description='The reranking factor. When this value is not empty, the vector retrieve results are reranked. Valid values: 1 < RerankFactor <= 5.
-> - Reranking is slower when documents are sparsely chunked.
-> - The total number of items to rerank (TopK × Factor, rounded up) should not exceed 50.', example='2'),
-  rerankModelShrink?: string(name='RerankModel', description='The rerank model parameters.'),
+  rerankFactor?: double(name='RerankFactor', description='The reranking factor. When this value is not empty, the vector retrieval results are reranked. Valid values: 1 < RerankFactor <= 5.
+> - When document chunks are sparse, reranking is slow.
+> - The number of reranked results (TopK × Factor, rounded up) should not exceed 50.', example='2'),
+  rerankModelShrink?: string(name='RerankModel', description='The reranking model parameters.'),
   topK?: int32(name='TopK', description='The number of top results to return.', example='10'),
   urlExpiration?: string(name='UrlExpiration', description='The validity period of the returned image URL.
 
 > Valid values:
-> - Supports seconds (s) and days (d) as units. For example, 300s indicates a validity period of 300 seconds, and 60d indicates a validity period of 60 days.
+> - The unit can be seconds (s) or days (d). For example, 300s indicates a validity period of 300 seconds, and 60d indicates a validity period of 60 days.
 > - Valid values: 60s to 365d.
-> - Default value: 7200s (2 hours).', example='7200s'),
-  useFullTextRetrieval?: boolean(name='UseFullTextRetrieval', description='**[Deprecated]** Specifies whether to use full-text retrieve (dual-path recall). Default value: false, which indicates that only vector retrieve is used.', example='true'),
+> - Default value: 7200s, which is 2 hours.', example='7200s'),
+  useFullTextRetrieval?: boolean(name='UseFullTextRetrieval', description='**[Deprecated]** Specifies whether to use full-text retrieval (dual-channel recall). Default value: false, which indicates that only vector retrieval is used.', example='true'),
 }
 
 model QueryContentResponseBody = {
-  embeddingTokens?: string(name='EmbeddingTokens', description='The number of tokens used during vectorization.
+  embeddingTokens?: string(name='EmbeddingTokens', description='The number of tokens used for vectorization.
 
-> A token is the smallest unit into which the input text is split. A token can be a word, a phrase, a punctuation mark, or a character.', example='100'),
+> A token is the smallest unit into which input text is divided. A token can be a word, a phrase, a punctuation mark, or a character.', example='100'),
   entities?: {
     entities?: [ 
     {
@@ -27712,16 +28325,16 @@ model QueryContentResponseBody = {
   requestId?: string(name='RequestId', description='The request ID.', example='ABB39CC3-4488-4857-905D-2E4A051D0521'),
   status?: string(name='Status', description='The status. Valid values:
 
-- **success**: The operation is successful.
-- **fail**: The operation failed.', example='success'),
+- **success**: Successful.
+- **fail**: Failed.', example='success'),
   usage?: {
-    embeddingEntries?: string(name='EmbeddingEntries', description='The number of entries used during vectorization.
+    embeddingEntries?: string(name='EmbeddingEntries', description='The number of entries used for vectorization.
 
-> An entry refers to the number of items processed during vectorization of text or images. For example, processing text once counts as 1 entry, and processing an image once counts as 2 entries.', example='10'),
-    embeddingTokens?: string(name='EmbeddingTokens', description='The number of tokens used during vectorization.
+> An entry refers to the number of items processed when text or images are vectorized. For example, processing text once counts as 1 entry, and processing an image once counts as 2 entries.', example='10'),
+    embeddingTokens?: string(name='EmbeddingTokens', description='The number of tokens used for vectorization.
 
-> A token is the smallest unit into which the input text is split. A token can be a word, a phrase, a punctuation mark, or a character.', example='100'),
-  }(name='Usage', description='The resource usage of this query.'),
+> A token is the smallest unit into which input text is divided. A token can be a word, a phrase, a punctuation mark, or a character.', example='100'),
+  }(name='Usage', description='The resource usage of the current query.'),
   windowMatches?: {
     windowMatches?: [ 
     {
@@ -27748,7 +28361,7 @@ model QueryContentResponse = {
 }
 
 /**
- * @summary Retrieves vectors and metadata from a specified document collection using natural language queries.
+ * @summary Retrieves vectors and metadata from a specified document collection by using natural language.
  *
  * @param tmpReq QueryContentRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -27782,9 +28395,6 @@ async function queryContentWithOptions(tmpReq: QueryContentRequest, runtime: Uti
   }
   if (!Util.isUnset(request.fileUrl)) {
     query['FileUrl'] = request.fileUrl;
-  }
-  if (!Util.isUnset(request.filter)) {
-    query['Filter'] = request.filter;
   }
   if (!Util.isUnset(request.graphEnhance)) {
     query['GraphEnhance'] = request.graphEnhance;
@@ -27850,6 +28460,9 @@ async function queryContentWithOptions(tmpReq: QueryContentRequest, runtime: Uti
   if (!Util.isUnset(request.content)) {
     body['Content'] = request.content;
   }
+  if (!Util.isUnset(request.filter)) {
+    body['Filter'] = request.filter;
+  }
   var req = new OpenApi.OpenApiRequest{ 
     query = OpenApiUtil.query(query),
     body = OpenApiUtil.parseToMap(body),
@@ -27869,7 +28482,7 @@ async function queryContentWithOptions(tmpReq: QueryContentRequest, runtime: Uti
 }
 
 /**
- * @summary Retrieves vectors and metadata from a specified document collection using natural language queries.
+ * @summary Retrieves vectors and metadata from a specified document collection by using natural language.
  *
  * @param request QueryContentRequest
  * @return QueryContentResponse
@@ -31007,49 +31620,120 @@ async function updateSaasServiceVersion(request: UpdateSaasServiceVersionRequest
   return updateSaasServiceVersionWithOptions(request, runtime);
 }
 
+model UpdateSupabaseVersionRequest {
+  minorVersion?: string(name='MinorVersion', description='The target minor version. You can query the supported upgrade versions for the current project by calling GetSupabaseUpdateVersion.', example='20240731'),
+  projectId?: string(name='ProjectId', description='The ID of the Supabase project.
+
+This parameter is required.', example='spb-xxxx'),
+  regionId?: string(name='RegionId', description='The region ID.', example='cn-hangzhou'),
+}
+
+model UpdateSupabaseVersionResponseBody = {
+  requestId?: string(name='RequestId', description='The request ID.', example='B4CAF581-2AC7-41AD-8940-D56DF7AADF5B'),
+}
+
+model UpdateSupabaseVersionResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: UpdateSupabaseVersionResponseBody(name='body'),
+}
+
+/**
+ * @summary Upgrades the version of a Supabase project.
+ *
+ * @description Upgrades a specified Supabase project to a target minor version. You can query the supported target versions by calling GetSupabaseUpdateVersion.
+ *
+ * @param request UpdateSupabaseVersionRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return UpdateSupabaseVersionResponse
+ */
+async function updateSupabaseVersionWithOptions(request: UpdateSupabaseVersionRequest, runtime: Util.RuntimeOptions): UpdateSupabaseVersionResponse {
+  Util.validateModel(request);
+  var query = {};
+  if (!Util.isUnset(request.minorVersion)) {
+    query['MinorVersion'] = request.minorVersion;
+  }
+  if (!Util.isUnset(request.projectId)) {
+    query['ProjectId'] = request.projectId;
+  }
+  if (!Util.isUnset(request.regionId)) {
+    query['RegionId'] = request.regionId;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'UpdateSupabaseVersion',
+    version = '2016-05-03',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Upgrades the version of a Supabase project.
+ *
+ * @description Upgrades a specified Supabase project to a target minor version. You can query the supported target versions by calling GetSupabaseUpdateVersion.
+ *
+ * @param request UpdateSupabaseVersionRequest
+ * @return UpdateSupabaseVersionResponse
+ */
+async function updateSupabaseVersion(request: UpdateSupabaseVersionRequest): UpdateSupabaseVersionResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return updateSupabaseVersionWithOptions(request, runtime);
+}
+
 model UpgradeDBInstanceRequest {
   cacheStorageSize?: string(name='CacheStorageSize', description='The Serverless cache storage capacity. Unit: GB.
 > This parameter is required only for Serverless Pro instances.', example='800'),
-  DBInstanceClass?: string(name='DBInstanceClass', description='This parameter is deprecated. You do not need to specify this parameter.', example='null'),
-  DBInstanceGroupCount?: string(name='DBInstanceGroupCount', description='This parameter is deprecated. You do not need to specify this parameter.', example='null'),
+  DBInstanceClass?: string(name='DBInstanceClass', description='**[Deprecated]** This parameter is deprecated. You do not need to specify this parameter.', example='null'),
+  DBInstanceGroupCount?: string(name='DBInstanceGroupCount', description='**[Deprecated]** This parameter is deprecated. You do not need to specify this parameter.', example='null'),
   DBInstanceId?: string(name='DBInstanceId', description='The instance ID.
 
-> You can call the [DescribeDBInstances](https://help.aliyun.com/document_detail/86911.html) operation to query the IDs of all AnalyticDB for PostgreSQL instances in the specified region.
+> You can call the [DescribeDBInstances](https://help.aliyun.com/document_detail/86911.html) operation to query the IDs of all AnalyticDB for PostgreSQL instances in a specific region.
 
 This parameter is required.', example='gp-rj***************'),
-  effectiveTime?: string(name='EffectiveTime', example='Immediate'),
+  effectiveTime?: string(name='EffectiveTime', description='The effective period. Valid values:
+* **Immediate** (default): The change takes effect immediately.
+* **MaintainTime**: The change takes effect during the maintenance window. For more information, see ModifyDBInstanceMaintainTime.', example='Immediate'),
   instanceSpec?: string(name='InstanceSpec', description='The specifications of segment nodes. For information about supported node specifications, see [Instance specifications](https://help.aliyun.com/document_detail/35406.html).
 
 > This parameter is supported only for elastic storage mode instances.', example='4C16G'),
-  masterNodeNum?: string(name='MasterNodeNum', description='This parameter is deprecated. You do not need to specify this parameter.', example='null'),
+  masterNodeNum?: string(name='MasterNodeNum', description='**[Deprecated]** This parameter is deprecated. You do not need to specify this parameter.', example='null'),
   ownerId?: long(name='OwnerId'),
-  payType?: string(name='PayType', description='This parameter is deprecated. You do not need to specify this parameter.', example='null'),
+  payType?: string(name='PayType', description='**[Deprecated]** This parameter is deprecated. You do not need to specify this parameter.', example='null'),
   regionId?: string(name='RegionId', description='The region ID.
 
 > You can call the [DescribeRegions](https://help.aliyun.com/document_detail/86912.html) operation to query available region IDs.', example='cn-hangzhou'),
   resourceGroupId?: string(name='ResourceGroupId', description='The ID of the resource group to which the instance belongs. For information about how to obtain the resource group ID, see [View basic information of a resource group](https://help.aliyun.com/document_detail/151181.html).', example='rg-bp67acfmxazb4p****'),
-  segDiskPerformanceLevel?: string(name='SegDiskPerformanceLevel', description='The performance level (PL) of the cloud disk. Valid values:
+  segDiskPerformanceLevel?: string(name='SegDiskPerformanceLevel', description='The performance level (PL) of the disk. Valid values:
 
 - **pl0**: PL0.
 - **pl1**: PL1.
 - **pl2**: PL2.', example='pl1'),
   segNodeNum?: string(name='SegNodeNum', description='The number of segment nodes. The supported number of nodes varies based on the instance resource type and instance edition:
 
-- Elastic storage mode, High-availability Edition: Valid values: 4 to 512. The value must be a multiple of 4.
-- Elastic storage mode, <props="china">Basic Edition (formerly High-performance Edition)<props="intl">High-performance Edition: Valid values: 2 to 512. The value must be a multiple of 2.
-- Serverless manual scheduling mode: Valid values: 2 to 512. The value must be a multiple of 2.', example='2'),
+- Elastic storage mode, high-availability edition: valid values are 4 to 512, in increments of 4.
+- Elastic storage mode, <props="china">basic edition (formerly high-performance edition)<props="intl">high-performance edition: valid values are 2 to 512, in increments of 2.
+- Serverless manual scheduling mode: valid values are 2 to 512, in increments of 2.', example='2'),
   segStorageType?: string(name='SegStorageType', description='The cloud disk storage type after the change. Currently, only ESSD cloud disks are supported. Set the value to **cloud_essd**.', example='cloud_essd'),
   serverlessResource?: string(name='ServerlessResource', description='- Serverless instances:
-The compute resource threshold. Valid values: 8 to 32. The value must be a multiple of 8. Unit: ACU. Default value: 32.
+The compute resource threshold. Valid values: 8 to 32, in increments of 8. Unit: ACU. Default value: 32.
 
-- Serverless Pro instances: The reserved compute resources. Valid values: 16 to 1024. Unit: ACU. Default value: 16. The step size varies based on the value range:
-  - 16 to 32: step size of 4.
-  - 32 to 64: step size of 8.
-  - 64 to 128: step size of 16.
-  - 128 to 256: step size of 32.
-  - Greater than 256: step size of 64.
+- Serverless Pro instances: The reserved compute resources. Valid values: 16 to 1024. Unit: ACU. Default value: 16. The increment rules are as follows:
+  - Range 16 to 32: increments of 4.
+  - Range 32 to 64: increments of 8.
+  - Range 64 to 128: increments of 16.
+  - Range 128 to 256: increments of 32.
+  - Range greater than 256: increments of 64.
 > This parameter is required only for Serverless automatic scheduling mode and Serverless Pro instances.', example='16'),
-  storageSize?: string(name='StorageSize', description='The storage capacity of segment nodes. Unit: GB. Valid values: 50 to <props="china">8000<props="intl">6000. The value must be a multiple of 50.
+  storageSize?: string(name='StorageSize', description='The storage capacity of segment nodes. Unit: GB. Valid values: 50 to <props="china">8000<props="intl">6000, in increments of 50.
 
 > This parameter is supported only for elastic storage mode instances.', example='100'),
   upgradeType?: long(name='UpgradeType', description='The type of the specification change. Valid values:
