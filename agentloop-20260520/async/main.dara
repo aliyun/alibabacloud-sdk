@@ -280,17 +280,82 @@ model CreateContextStoreRequest {
 
 This parameter is required.', example='my-agent-space', minLength=2, maxLength=64, position='Path'),
   config?: {
+    audit?: {
+      droppedCandidates?: boolean(name='droppedCandidates', example='false'),
+      queryMode?: string(name='queryMode', example='raw'),
+      retentionDays?: int32(name='retentionDays', example='30'),
+    }(name='audit'),
+    extractionPolicy?: {
+      categories?: [ string ](name='categories', example='["preference","profile"]'),
+      customInstructions?: string(name='customInstructions', example='只抽取用户的产品偏好'),
+      excludeRules?: [ string ](name='excludeRules', example='["密码","证件号"]'),
+      model?: {
+        name?: string(name='name', example='qwen3.8-flash'),
+      }(name='model'),
+      preset?: string(name='preset', example='fact'),
+    }(name='extractionPolicy'),
     metadataField?: map[string]string(name='metadataField', description='The metadata field mapping. The key is the business field and the value is the storage field.', example='{"userId":"user_id","sessionId":"session_id"}'),
     miningInterval?: string(name='miningInterval', description='The experience mining interval, which specifies how often experience mining is performed. Valid values: 1h, 6h, 12h, and 1d. Default value: 1d. This value cannot be changed after creation.', example='1d'),
-    serviceNames: [ string ](name='serviceNames', description='The list of service names. This parameter is required and cannot be empty. It works with source.agentSpace to locate the trace data source. The trajectory extraction service uses the AgentSpace to look up the bound CMS workspace and project/logstore, and then filters by service name. This value cannot be changed after creation. No modification entry is available in the current version.
-
-This parameter is required.', example='["order-service","payment-service"]'),
+    scopePolicy?: {
+      requiredAnyOf?: [ string ](name='requiredAnyOf', example='["userId"]'),
+    }(name='scopePolicy'),
+    serviceNames?: [ string ](name='serviceNames', description='The list of service names. This parameter is required and cannot be empty. It works with source.agentSpace to locate the trace data source. The trajectory extraction service uses the AgentSpace to look up the bound CMS workspace and project/logstore, and then filters by service name. This value cannot be changed after creation. No modification entry is available in the current version.', example='["order-service","payment-service"]'),
     source?: {
       agentSpace?: string(name='agentSpace', description='The AgentSpace where the trace data source resides. If not specified, the AgentSpace in the current path is used by default. Cross-AgentSpace access is not supported in the current version. If specified, the value must match the AgentSpace in the path. Otherwise, a 400 parameter error is returned. This value cannot be changed after creation.', example='my-agent-space'),
+      dataset?: {
+        customFields?: [ 
+          {
+            description?: string(name='description', example='客户等级'),
+            sensitive?: boolean(name='sensitive', example='false'),
+            sourceField?: string(name='sourceField', example='customerTier'),
+            target?: string(name='target', example='metadata.customerTier'),
+            usage?: string(name='usage', example='extraction-input'),
+          }
+        ](name='customFields'),
+        datasetName?: string(name='datasetName', example='trajectory-with-crm-profile'),
+        filter?: {
+          where?: string(name='where', example='appId = \\\\"crm-service\\\\"'),
+        }(name='filter'),
+        pollIntervalSeconds?: int32(name='pollIntervalSeconds', example='300'),
+        schemaContract?: string(name='schemaContract', example='MemorySourceV1'),
+        versionPolicy?: {
+          mode?: string(name='mode', example='follow'),
+          startSeq?: long(name='startSeq', example='0'),
+          version?: string(name='version', example='v3'),
+        }(name='versionPolicy'),
+      }(name='dataset'),
       startTime?: string(name='startTime', description='The start time for data backfill, in ISO 8601 UTC format. If not specified, the current time is used.
 
 Use the UTC time format: yyyy-MM-ddTHH:mm:ssZ', example='2026-01-01T00:00:00Z'),
+      trajectory?: {
+        filter?: {
+          agentNames?: [ string ](name='agentNames', example='["sales-copilot"]'),
+          excludeDegraded?: boolean(name='excludeDegraded', example='false'),
+          minStepCount?: int32(name='minStepCount', example='2'),
+          query?: string(name='query', example='tool_names:"search_order"'),
+          serviceNames?: [ string ](name='serviceNames', example='["crm-service","app-*"]'),
+        }(name='filter'),
+        logstore?: string(name='logstore', example='agent-trajectory'),
+        pollIntervalSeconds?: int32(name='pollIntervalSeconds', example='300'),
+        scopeMapping?: {
+          agentId?: string(name='agentId', example='$.agent_name'),
+          appId?: string(name='appId', example='$.service_names[0]'),
+          runId?: string(name='runId', example='$.trajectory_id'),
+          userId?: string(name='userId', example='$.trajectory_extensions.user_id'),
+        }(name='scopeMapping'),
+        startTime?: string(name='startTime', description='Use the UTC time format: yyyy-MM-ddTHH:mm:ssZ', example='2026-10-01T00:00:00Z'),
+      }(name='trajectory'),
+      type?: string(name='type', example='trajectory'),
     }(name='source', description='The datasource config, which serves only as the root identifier for the data source. This is an optional block.'),
+    storagePolicy?: {
+      allowedActions?: [ string ](name='allowedActions', example='["ADD","UPDATE","MERGE","DELETE"]'),
+      dedupe?: boolean(name='dedupe', example='true'),
+      humanEditProtection?: boolean(name='humanEditProtection', example='true'),
+      mergeKey?: string(name='mergeKey', example='semantic'),
+      mode?: string(name='mode', example='upsert'),
+      similarityThreshold?: double(name='similarityThreshold', example='0.4'),
+      ttlDays?: int32(name='ttlDays', example='0'),
+    }(name='storagePolicy'),
   }(name='config', description='The context store configuration, including the datasource config and metadata field mapping.', position='Body'),
   contextStoreName: string(name='contextStoreName', description='The context store name, which must be globally unique within the AgentSpace. The name must be 2 to 64 characters in length.
 
@@ -304,6 +369,7 @@ This parameter is required.', example='experience', position='Body'),
 
 model CreateContextStoreResponseBody = {
   requestId?: string(name='requestId', description='The request ID, which is used to locate and troubleshoot issues.', example='9ACFB10A-1B2C-3D4E-5F6G-7H8I9J0K1L2M'),
+  strategyVersion?: int32(name='strategyVersion', example='1'),
 }
 
 model CreateContextStoreResponse = {
@@ -746,16 +812,17 @@ async function deleteAgentSpace(request: DeleteAgentSpaceRequest): DeleteAgentSp
 }
 
 model DeleteContextStoreRequest {
-  agentSpace: string(name='agentSpace', description='The AgentSpace name, which is 2 to 64 characters in length.
+  agentSpace: string(name='agentSpace', description='The name of the AgentSpace. The length must be 2 to 64 characters.
 
 This parameter is required.', example='my-agent-space', minLength=2, maxLength=64, position='Path'),
-  contextStoreName: string(name='contextStoreName', description='The name of the context store to delete, which is 2 to 64 characters in length.
+  contextStoreName: string(name='contextStoreName', description='The name of the context store to be deleted. The length must be 2 to 64 characters.
 
 This parameter is required.', example='my-context-store', minLength=2, maxLength=64, position='Path'),
+  deleteOutputDataset?: boolean(name='deleteOutputDataset', description='Specifies whether to simultaneously delete the memory output dataset (memory type). Default value: false.', example='false', position='Query'),
 }
 
 model DeleteContextStoreResponseBody = {
-  requestId?: string(name='requestId', description='The request ID, which is used to locate and troubleshoot issues.', example='9ACFB10A-1B2C-3D4E-5F6G-7H8I9J0K1L2M'),
+  requestId?: string(name='requestId', description='The request ID, which is used to locate the request when troubleshooting issues.', example='9ACFB10A-1B2C-3D4E-5F6G-7H8I9J0K1L2M'),
 }
 
 model DeleteContextStoreResponse = {
@@ -1168,15 +1235,105 @@ This parameter is required.', example='my-context-store', minLength=2, maxLength
 model GetContextStoreResponseBody = {
   agentSpace?: string(name='agentSpace', description='The name of the AgentSpace to which the context store belongs.', example='my-agent-space'),
   config?: {
+    audit?: {
+      droppedCandidates?: boolean(name='droppedCandidates', example='false'),
+      queryMode?: string(name='queryMode', example='raw'),
+      retentionDays?: int32(name='retentionDays', example='30'),
+    }(name='audit'),
+    extractionPolicy?: {
+      categories?: [ string ](name='categories', example='["preference","profile"]'),
+      customInstructions?: string(name='customInstructions', example='只抽取用户的产品偏好'),
+      excludeRules?: [ string ](name='excludeRules', example='["密码","证件号"]'),
+      model?: {
+        name?: string(name='name', example='qwen3.8-flash'),
+      }(name='model'),
+      preset?: string(name='preset', example='fact'),
+    }(name='extractionPolicy'),
+    innerSource?: {
+      logstore?: string(name='logstore', example='memory_events_0a1b2c3d'),
+      project?: string(name='project', example='agentloop-xxx'),
+    }(name='innerSource'),
     metadataField?: map[string]string(name='metadataField', description='The metadata field mapping. The key is the business field and the value is the storage field.', example='{"userId":"user_id","sessionId":"session_id"}'),
     miningInterval?: string(name='miningInterval', description='The experience mining interval. Valid values: 1h, 6h, 12h, and 1d. Default value: 1d.', example='1d'),
+    observability?: {
+      auditLogstore?: string(name='auditLogstore', example='memory-audit'),
+      eventsLogstore?: string(name='eventsLogstore', example='memory_events_0a1b2c3d'),
+      project?: string(name='project', example='agentloop-xxx'),
+    }(name='observability'),
+    outputDataset?: {
+      agentSpace?: string(name='agentSpace', example='my-agent-space'),
+      datasetName?: string(name='datasetName', example='memory-my-context-store'),
+      schemaContract?: string(name='schemaContract', example='MemoryRecordV1'),
+      schemaVersion?: int32(name='schemaVersion', example='1'),
+    }(name='outputDataset'),
+    scopePolicy?: {
+      requiredAnyOf?: [ string ](name='requiredAnyOf', example='["userId"]'),
+    }(name='scopePolicy'),
     serviceNames?: [ string ](name='serviceNames', description='The list of service names. This works together with source.agentSpace to locate the trace data source. This value cannot be changed in the current version.', example='["order-service","payment-service"]'),
     source?: {
       agentSpace?: string(name='agentSpace', description='The AgentSpace where the trace data source resides. This is the same as the AgentSpace specified during creation.', example='my-agent-space'),
+      dataset?: {
+        customFields?: [ 
+          {
+            description?: string(name='description', example='客户等级'),
+            sensitive?: boolean(name='sensitive', example='false'),
+            sourceField?: string(name='sourceField', example='customerTier'),
+            target?: string(name='target', example='metadata.customerTier'),
+            usage?: string(name='usage', example='extraction-input'),
+          }
+        ](name='customFields'),
+        datasetName?: string(name='datasetName', example='trajectory-with-crm-profile'),
+        filter?: {
+          where?: string(name='where', example='appId = \\\\"crm-service\\\\"'),
+        }(name='filter'),
+        pollIntervalSeconds?: int32(name='pollIntervalSeconds', example='300'),
+        schemaContract?: string(name='schemaContract', example='MemorySourceV1'),
+        versionPolicy?: {
+          mode?: string(name='mode', example='follow'),
+          startSeq?: long(name='startSeq', example='0'),
+          version?: string(name='version', example='v3'),
+        }(name='versionPolicy'),
+      }(name='dataset'),
       startTime?: string(name='startTime', description='The start time for data backfill, in ISO 8601 UTC format.
 
 Use the UTC time format: yyyy-MM-ddTHH:mm:ssZ', example='2026-01-01T00:00:00Z'),
+      trajectory?: {
+        filter?: {
+          agentNames?: [ string ](name='agentNames', example='["sales-copilot"]'),
+          excludeDegraded?: boolean(name='excludeDegraded', example='false'),
+          minStepCount?: int32(name='minStepCount', example='2'),
+          query?: string(name='query', example='tool_names:"search_order"'),
+          serviceNames?: [ string ](name='serviceNames', example='["crm-service","app-*"]'),
+        }(name='filter'),
+        logstore?: string(name='logstore', example='agent-trajectory'),
+        pollIntervalSeconds?: int32(name='pollIntervalSeconds', example='300'),
+        scopeMapping?: {
+          agentId?: string(name='agentId', example='$.agent_name'),
+          appId?: string(name='appId', example='$.service_names[0]'),
+          runId?: string(name='runId', example='$.trajectory_id'),
+          userId?: string(name='userId', example='$.trajectory_extensions.user_id'),
+        }(name='scopeMapping'),
+        startTime?: string(name='startTime', description='Use the UTC time format: yyyy-MM-ddTHH:mm:ssZ', example='2026-10-01T00:00:00Z'),
+      }(name='trajectory'),
+      type?: string(name='type', example='trajectory'),
     }(name='source', description='The datasource config passed in by the user. This serves only as the root identifier of the data source.'),
+    sourceStatus?: {
+      checkpoint?: map[string]any(name='checkpoint'),
+      lastError?: string(name='lastError', example='读取数据源超时'),
+      lastWindowAt?: string(name='lastWindowAt', example='2026-10-01T08:00:00Z'),
+      retryCount?: int32(name='retryCount', example='0'),
+      state?: string(name='state', example='Running'),
+    }(name='sourceStatus'),
+    storagePolicy?: {
+      allowedActions?: [ string ](name='allowedActions', example='["ADD","UPDATE","MERGE","DELETE"]'),
+      dedupe?: boolean(name='dedupe', example='true'),
+      humanEditProtection?: boolean(name='humanEditProtection', example='true'),
+      mergeKey?: string(name='mergeKey', example='semantic'),
+      mode?: string(name='mode', example='upsert'),
+      similarityThreshold?: double(name='similarityThreshold', example='0.4'),
+      ttlDays?: int32(name='ttlDays', example='0'),
+    }(name='storagePolicy'),
+    strategyVersion?: int32(name='strategyVersion', example='1'),
   }(name='config', description='The configuration of the context store.'),
   contextStoreName?: string(name='contextStoreName', description='The context store name.', example='my-context-store'),
   contextType?: string(name='contextType', description='The type of the context store, such as experience or memory.', example='experience'),
@@ -1877,6 +2034,7 @@ This parameter is required.', example='my-agent-space', minLength=2, maxLength=6
   contextType?: string(name='contextType', description='Filters context stores by type, such as experience or memory. If this parameter is not specified, no filtering is applied.', example='experience', position='Query'),
   maxResults?: int32(name='maxResults', description='The maximum number of context stores to return. Default value: 20. Maximum value: 100.', example='20', position='Query'),
   nextToken?: string(name='nextToken', description='The pagination token. Set this parameter to the nextToken value returned in the previous response to retrieve the next page. Do not specify this parameter for the first request.', example='MTIzNDU2Nzg5MA==', position='Query'),
+  sourceType?: string(name='sourceType', example='trajectory', position='Query'),
 }
 
 model ListContextStoresResponseBody = {
@@ -1894,7 +2052,9 @@ Use the UTC time format: yyyy-MM-ddTHH:mm:ssZ', example='2026-01-01T00:00:00Z'),
       description?: string(name='description', description='The description of the context store.', example='我的上下文库'),
       regionId?: string(name='regionId', description='The region ID of the context store.', example='cn-hangzhou'),
       serviceNames?: [ string ](name='serviceNames', description='The list of service names. This parameter has a value only for context stores of the experience type. The service names are used together with the data source AgentSpace to locate trace data sources.', example='["order-service","payment-service"]'),
+      sourceType?: string(name='sourceType', example='trajectory'),
       status?: string(name='status', description='The status of the context store. Valid values: ACTIVE, INITIALIZING, and FAILED.', example='ACTIVE'),
+      storageMode?: string(name='storageMode', example='upsert'),
       updateTime?: string(name='updateTime', description='The time when the context store was last updated, in ISO 8601 UTC format.
 
 Use the UTC time format: yyyy-MM-ddTHH:mm:ssZ', example='2026-01-02T00:00:00Z'),
@@ -2613,15 +2773,24 @@ This parameter is required.', example='my-agent-space', minLength=2, maxLength=6
 This parameter is required.', example='my-context-store', minLength=2, maxLength=64, position='Path'),
   filter?: map[string]any(name='filter', description='The structured filter conditions. The key is the field name, and the value is the expected matching value.', example='{"userId":"alice"}', position='Body'),
   formatted?: boolean(name='formatted', description='Specifies whether to apply structured formatting to the returned results.', example='true', position='Body'),
+  includeInactive?: boolean(name='includeInactive', example='false', position='Body'),
   limit?: int32(name='limit', description='The maximum number of returned results (similarity Top-N).', example='10', position='Body'),
   query: string(name='query', description='The retrieval query text. Natural language is supported.
 
 This parameter is required.', example='用户最近的偏好设置', position='Body'),
   retrievalOption?: string(name='retrievalOption', description='The retrieval options that control the retrieval strategy.', example='semantic', position='Body'),
+  scope?: {
+    agentId?: string(name='agentId', example='sales-copilot'),
+    appId?: string(name='appId', example='crm-service'),
+    runId?: string(name='runId', example='run-001'),
+    userId?: string(name='userId', example='u-10001'),
+  }(name='scope', position='Body'),
   threshold?: double(name='threshold', description='The similarity threshold. Results with a similarity score lower than this value are filtered out. Valid values: 0 to 1.', example='0.5', position='Body'),
 }
 
 model SearchContextResponseBody = {
+  auditStatus?: string(name='auditStatus', example='ok'),
+  recallEventId?: string(name='recallEventId', example='0190f1c2-7d3e-7a1b-9c4d-2e5f6a7b8c9d'),
   requestId?: string(name='requestId', description='The request ID. You can use this ID to locate and troubleshoot issues.', example='9ACFB10A-1B2C-3D4E-5F6G-7H8I9J0K1L2M'),
   results?: [ map[string]any ](name='results', description='The list of retrieval results, sorted by similarity in descending order.'),
 }
@@ -2700,27 +2869,87 @@ async function updateAgentSpace(request: UpdateAgentSpaceRequest): UpdateAgentSp
 }
 
 model UpdateContextStoreRequest {
-  agentSpace: string(name='agentSpace', description='The AgentSpace name. The name must be 2 to 64 characters in length.
+  agentSpace: string(name='agentSpace', description='The name of the AgentSpace, which must be 2 to 64 characters in length.
 
 This parameter is required.', example='my-agent-space', minLength=2, maxLength=64, position='Path'),
-  contextStoreName: string(name='contextStoreName', description='The name of the context store to update. The name must be 2 to 64 characters in length.
+  contextStoreName: string(name='contextStoreName', description='The name of the context store to be updated, which must be 2 to 64 characters in length.
 
 This parameter is required.', example='my-context-store', minLength=2, maxLength=64, position='Path'),
+  changeNote?: string(name='changeNote', description='The description of the policy change. A new policy version is created when policy fields in the configuration are modified.', example='Relax similarity threshold', position='Body'),
   config?: {
-    metadataField?: map[string]string(name='metadataField', description='The metadata field mapping. The key is the business field and the value is the storage field.', example='{"userId":"user_id","sessionId":"session_id"}'),
+    audit?: {
+      droppedCandidates?: boolean(name='droppedCandidates', description='Specifies whether to write item events for dropped recall candidates. Default value: false.', example='false'),
+      queryMode?: string(name='queryMode', description='The recording mode for recall queries. Valid values: raw (plaintext) and hash (HMAC only). Default value: raw.', example='raw'),
+      retentionDays?: int32(name='retentionDays', description='The number of days to retain audit logs. Valid values: 1 to 180. Default value: 30.', example='30'),
+    }(name='audit', description='The audit configuration.'),
+    extractionPolicy?: {
+      categories?: [ string ](name='categories', description='The list of memory categories.', example='["preference","profile"]'),
+      customInstructions?: string(name='customInstructions', description='The custom extraction instructions. This parameter is required when preset is set to custom. Length: 1 to 8000 characters.', example='Extract only user product preferences'),
+      excludeRules?: [ string ](name='excludeRules', description='The list of exclusion rules. Content that matches these rules is not extracted.', example='["Password","ID number"]'),
+      model?: {
+        name?: string(name='name', description='The name of the extraction model. Currently, only qwen3.8-flash is supported, which uses internal platform credentials.', example='qwen3.8-flash'),
+      }(name='model', description='The extraction model configuration.'),
+      preset?: string(name='preset', description='The preset policy. Valid values: fact, toc-profile, tob-digital-twin, and custom. Default value: fact.', example='fact'),
+    }(name='extractionPolicy', description='The extraction policy for the memory type.'),
+    metadataField?: map[string]string(name='metadataField', description='The metadata field mapping. The key is the business field, and the value is the storage field.', example='{"userId":"user_id","sessionId":"session_id"}'),
+    scopePolicy?: {
+      requiredAnyOf?: [ string ](name='requiredAnyOf', description='The list of scope fields where at least one must be non-empty. Valid element values: userId, agentId, appId, and runId.', example='["userId"]'),
+    }(name='scopePolicy', description='The scope constraint policy.'),
     source?: {
-      agentSpace?: string(name='agentSpace', description='The AgentSpace where the trace data source resides. Cross-AgentSpace access is not supported. If specified, the value must be the same as the path AgentSpace. Otherwise, a 400 parameter error is returned. The AgentSpace cannot be changed after creation.', example='my-agent-space'),
+      agentSpace?: string(name='agentSpace', description='The AgentSpace where the trace data source is located. Cross-AgentSpace is not supported in the current phase. If provided, it must be equal to the path AgentSpace. Otherwise, a 400 parameter error is returned. The AgentSpace cannot be changed after creation.', example='my-agent-space'),
+      dataset?: {
+        customFields?: [ 
+          {
+            description?: string(name='description', description='The description of the field. This parameter is required when usage is set to extraction-input.', example='Customer tier'),
+            sensitive?: boolean(name='sensitive', description='Specifies whether the field is a sensitive field.', example='false'),
+            sourceField?: string(name='sourceField', description='The name of the source field.', example='customerTier'),
+            target?: string(name='target', description='The target write path, such as metadata.customerTier.', example='metadata.customerTier'),
+            usage?: string(name='usage', description='The usage of the field. Valid values: extraction-input (participates in extraction) and ignore (ignored).', example='extraction-input'),
+          }
+        ](name='customFields', description='The list of custom field declarations. If provided, it fully overwrites the existing declarations.'),
+        filter?: {
+          where?: string(name='where', description='The subset of the Pipeline where clause, which is pushed down to SQL.', example='appId = \\\\"crm-service\\\\"'),
+        }(name='filter', description='The row filter conditions.'),
+        pollIntervalSeconds?: int32(name='pollIntervalSeconds', description='The polling interval in seconds. Valid values: 60 to 3600.', example='300'),
+      }(name='dataset', description='The updatable items for the Dataset data source. The datasetName cannot be changed after creation.'),
       startTime?: string(name='startTime', description='The start time for data backfill, in ISO 8601 UTC format.', example='2026-01-01T00:00:00Z'),
-    }(name='source', description='The datasource config, which serves only as the root identifier of the data source.'),
-  }(name='config', description='The context store configuration. If specified, the entire configuration is overwritten. If not specified, the existing configuration is retained.', position='Body'),
-  contextType?: string(name='contextType', description='The type of the context store. This value typically cannot be changed after creation. This field is provided only for exception correction.', example='experience', position='Body'),
-  description?: string(name='description', description='The description of the context store, which helps business users understand its purpose.', example='我的上下文库', position='Body'),
-  status?: string(name='status', example='Paused', position='Body'),
-  clientToken?: string(name='clientToken', description='The idempotency token. A unique string generated by the client to ensure that the update operation is idempotent.', example='a1b2c3d4-1234-5678-90ab-cdef12345678', position='Query'),
+      trajectory?: {
+        filter?: {
+          agentNames?: [ string ](name='agentNames', description='The list of agent names. An explicitly empty list returns a 400 error.', example='["sales-copilot"]'),
+          excludeDegraded?: boolean(name='excludeDegraded', description='Specifies whether to exclude degraded trajectories. Default value: false (degraded trajectories are included).', example='false'),
+          minStepCount?: int32(name='minStepCount', description='The minimum number of steps, which must be greater than or equal to 0.', example='2'),
+          query?: string(name='query', description='The native SLS query statement. This statement is combined with the preceding conditions by using the AND operator.', example='tool_names:"search_order"'),
+          serviceNames?: [ string ](name='serviceNames', description='The list of service names. A single trailing asterisk (*) is supported. Specifying an explicitly empty list returns a 400 error.', example='["crm-service","app-*"]'),
+        }(name='filter', description='The trajectory filter conditions. Conditions are combined with AND, while items within a list are combined with OR.'),
+        logstore?: string(name='logstore', description='The name of the trajectory Logstore. Default value: agent-trajectory. This parameter cannot be modified after creation.', example='agent-trajectory'),
+        pollIntervalSeconds?: int32(name='pollIntervalSeconds', description='The polling interval in seconds. Valid values: 60 to 3600.', example='300'),
+        scopeMapping?: {
+          agentId?: string(name='agentId', description='The JSONPath expression for the agentId field. Default value: $.agent_name.', example='$.agent_name'),
+          appId?: string(name='appId', description='The JSONPath expression for the appId field. Default value: $.service_names[0].', example='$.service_names[0]'),
+          runId?: string(name='runId', description='The JSONPath expression for the runId field. Default value: $.trajectory_id.', example='$.trajectory_id'),
+          userId?: string(name='userId', description='The JSONPath expression for the userId field. By default, this field is not mapped.', example='$.trajectory_extensions.user_id'),
+        }(name='scopeMapping', description='The scope field mapping. The value must be a JSONPath expression. Only the $.a.b and $.a[0] formats are supported.'),
+      }(name='trajectory', description='The updatable items for the trajectory data source. The source.type cannot be changed after creation.'),
+    }(name='source', description='The datasource config, which serves only as the root identity for the data source.'),
+    storagePolicy?: {
+      allowedActions?: [ string ](name='allowedActions', description='The allowed storage actions. By default, all actions are allowed: ADD, UPDATE, MERGE, and DELETE.', example='["ADD","UPDATE","MERGE","DELETE"]'),
+      dedupe?: boolean(name='dedupe', description='Specifies whether to deduplicate events in event mode. Default value: true.', example='true'),
+      humanEditProtection?: boolean(name='humanEditProtection', description='Specifies whether to enable human edit protection. Default value: true. When this feature is enabled, automatic extraction does not overwrite manually modified memories.', example='true'),
+      mergeKey?: string(name='mergeKey', description='The merge key for upsert operations. Valid values: factKey, semantic, and both. Default value: semantic.', example='semantic'),
+      mode?: string(name='mode', description='The storage mode. Valid values: event (append events) and upsert (merge and update). Default value: upsert.', example='upsert'),
+      similarityThreshold?: double(name='similarityThreshold', description='The similarity threshold for semantic merging. Valid values: 0 to 1. Default value: 0.4.', example='0.4'),
+      ttlDays?: int32(name='ttlDays', description='The number of days before the memory expires. A value of 0 indicates that the memory never expires.', example='0'),
+    }(name='storagePolicy', description='The storage policy for the memory type.'),
+  }(name='config', description='The context library configuration. If provided, it fully overwrites the existing configuration. If omitted, the original configuration is retained.', position='Body'),
+  contextType?: string(name='contextType', description='The context library type. This field is typically immutable after creation and is provided only for exception correction.', example='experience', position='Body'),
+  description?: string(name='description', description='The description of the context library, which helps business users understand its purpose.', example='My context library', position='Body'),
+  status?: string(name='status', description='The running status. For the memory type, valid values are Active (running) and Paused (data source consumption and extraction paused). For the experience type, it indicates the mining status of the experience library. The specific valid values and combination constraints are defined by the server.', example='Active', position='Body'),
+  clientToken?: string(name='clientToken', description='The idempotency token. It is a unique string generated by the client to ensure the idempotence of the update operation.', example='a1b2c3d4-1234-5678-90ab-cdef12345678', position='Query'),
 }
 
 model UpdateContextStoreResponseBody = {
   requestId?: string(name='requestId', description='The request ID, which is used to locate the request during troubleshooting.', example='9ACFB10A-1B2C-3D4E-5F6G-7H8I9J0K1L2M'),
+  strategyVersion?: int32(name='strategyVersion', description='The effective strategy version number after the update for the memory type. If the strategy remains unchanged, the version number is the same as before the update.', example='2'),
 }
 
 model UpdateContextStoreResponse = {
