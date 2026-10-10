@@ -347,21 +347,21 @@ model Namespace {
 }
 
 model Partition {
-  createdAt?: long(name='createdAt', description='The time when the partition was created.', example='1747120676378'),
-  createdBy?: string(name='createdBy', description='The creator of the partition.', example='acs:ram::[accountId]:root'),
-  done?: boolean(name='done', description='Indicates whether the process is complete.', example='true'),
+  createdAt?: long(name='createdAt', description='The creation time.', example='1747120676378'),
+  createdBy?: string(name='createdBy', description='The creator.', example='acs:ram::[accountId]:root'),
+  done?: boolean(name='done', description='Indicates whether the tagging is complete.', example='true'),
   fileCount?: long(name='fileCount', description='The number of files.', example='1'),
   fileSizeInBytes?: long(name='fileSizeInBytes', description='The file size.', example='1'),
-  lastFileCreationTime?: long(name='lastFileCreationTime', description='The time when the latest file was created.', example='1741701564261'),
-  options?: map[string]string(name='options'),
+  lastFileCreationTime?: long(name='lastFileCreationTime', description='The creation time of the latest file.', example='1741701564261'),
+  options?: map[string]string(name='options', description='The extension options.'),
   recordCount?: long(name='recordCount', description='The number of records.', example='1'),
   spec?: map[string]any(name='spec', description='The key-value pairs of the partition values.', example='{"year":"2025"}'),
-  storageAction?: string(name='storageAction', description='The status of the storage class conversion.', example='COMPLETE'),
-  storageActionTimestamp?: long(name='storageActionTimestamp', description='The storage class conversion time.', example='1758189669915'),
-  storageClass?: string(name='storageClass', description='The storage class.', example='STANDARD'),
+  storageAction?: string(name='storageAction', description='The storage type conversion status.', example='COMPLETE'),
+  storageActionTimestamp?: long(name='storageActionTimestamp', description='The storage type conversion time.', example='1758189669915'),
+  storageClass?: string(name='storageClass', description='The storage type.', example='STANDARD'),
   totalBuckets?: int32(name='totalBuckets', description='The total number of buckets.', example='1'),
-  updatedAt?: long(name='updatedAt', description='The time when the partition was last updated.', example='1744970111419'),
-  updatedBy?: string(name='updatedBy', description='The user who last updated the partition.', example='acs:ram::[accountId]:root'),
+  updatedAt?: long(name='updatedAt', description='The update time.', example='1744970111419'),
+  updatedBy?: string(name='updatedBy', description='The updater.', example='acs:ram::[accountId]:root'),
 }
 
 model PartitionSummaries {
@@ -452,6 +452,11 @@ model Receiver {
   receiverTenantId?: long(name='receiverTenantId', description='The receiver\\\\"s account ID.', example='1111'),
   updatedAt?: long(name='updatedAt', description='The time when the receiver was last updated.', example='1744970111419'),
   updatedBy?: string(name='updatedBy', description='The user who last updated the receiver.', example='acs:ram::[accountId]:root'),
+}
+
+model ResourceTag {
+  key?: string(name='key', description='The tag key, up to 128 characters in length.', example='team'),
+  value?: string(name='value', description='The tag value, up to 256 characters in length.', example='recommendation'),
 }
 
 model Role {
@@ -635,6 +640,13 @@ model TableSummary {
   unaccessedStdIaPartitionCount180d?: long(name='unaccessedStdIaPartitionCount180d', description='The number of Standard or Infrequent Access partitions unaccessed in the last 180 days.', example='0'),
   unaccessedStdPartitionCount30d?: long(name='unaccessedStdPartitionCount30d', description='The number of Standard partitions unaccessed in the last 30 days.', example='1'),
   updatedAt?: long(name='updatedAt', description='The update time.'),
+}
+
+model TagResource {
+  resourceId?: string(name='resourceId', description='The resource ID, which is the data catalog ID.', example='clg-paimon-0424965be0c240acb4159688c9e2c4b6'),
+  resourceType?: string(name='resourceType', description='The resource type, which is fixed to CATALOGRESOURCE.', example='CATALOGRESOURCE'),
+  tagKey?: string(name='tagKey', description='The tag key.', example='team'),
+  tagValue?: string(name='tagValue', description='The tag value.', example='recommendation'),
 }
 
 model Transform {
@@ -1451,7 +1463,7 @@ async function createDatabase(catalogId: string, request: CreateDatabaseRequest)
 }
 
 model CreateReceiverRequest {
-  comment?: string(name='comment', description='The comment.', example='Customer A.'),
+  comment?: string(name='comment', description='The comment.', example='客户A。'),
   receiverName?: string(name='receiverName', description='The name of the receiver.', example='receiver_name'),
   receiverTenantId?: long(name='receiverTenantId', description='The ID of the receiver\\\\"s account.', example='1111'),
 }
@@ -1809,7 +1821,7 @@ model DropCatalogResponse = {
 }
 
 /**
- * @summary Deletes a data lake data catalog. The following conditions must be met, otherwise the deletion will fail: all tables and user-created databases under the catalog have been deleted; the databases and tables have been deleted for at least 24 hours.
+ * @summary Deletes a data lake data catalog. The deletion fails unless the following conditions are met: all tables and self-managed databases under the catalog have been deleted, and the databases and tables have been deleted for at least 24 hours.
  *
  * @param headers map
  * @param runtime runtime options for this request RuntimeOptions
@@ -1834,7 +1846,7 @@ async function dropCatalogWithOptions(catalog: string, headers: map[string]strin
 }
 
 /**
- * @summary Deletes a data lake data catalog. The following conditions must be met, otherwise the deletion will fail: all tables and user-created databases under the catalog have been deleted; the databases and tables have been deleted for at least 24 hours.
+ * @summary Deletes a data lake data catalog. The deletion fails unless the following conditions are met: all tables and self-managed databases under the catalog have been deleted, and the databases and tables have been deleted for at least 24 hours.
  *
  * @return DropCatalogResponse
  */
@@ -2015,7 +2027,7 @@ model GetCatalogResponse = {
 }
 
 /**
- * @summary Retrieves the details of a catalog.
+ * @summary Retrieves the details of a data catalog.
  *
  * @param headers map
  * @param runtime runtime options for this request RuntimeOptions
@@ -2040,7 +2052,7 @@ async function getCatalogWithOptions(catalog: string, headers: map[string]string
 }
 
 /**
- * @summary Retrieves the details of a catalog.
+ * @summary Retrieves the details of a data catalog.
  *
  * @return GetCatalogResponse
  */
@@ -2057,7 +2069,7 @@ model GetCatalogByIdResponse = {
 }
 
 /**
- * @summary Retrieves the details of a catalog.
+ * @summary Retrieves the details of a data catalog.
  *
  * @param headers map
  * @param runtime runtime options for this request RuntimeOptions
@@ -2082,7 +2094,7 @@ async function getCatalogByIdWithOptions(id: string, headers: map[string]string,
 }
 
 /**
- * @summary Retrieves the details of a catalog.
+ * @summary Retrieves the details of a data catalog.
  *
  * @return GetCatalogByIdResponse
  */
@@ -3151,19 +3163,19 @@ async function grantRoleToUsers(request: GrantRoleToUsersRequest): GrantRoleToUs
 }
 
 model ListCatalogsRequest {
-  catalogNamePattern?: string(name='catalogNamePattern', description='The pattern of the catalog name.', example='mi'),
-  maxResults?: int32(name='maxResults', description='The maximum number of records to return in a single request.', example='1000'),
-  pageToken?: string(name='pageToken', description='The token to retrieve the next page of results. If the response does not include this token, pass an empty string ("").', example='""'),
+  catalogNamePattern?: string(name='catalogNamePattern', description='The catalog name pattern.', example='mi'),
+  maxResults?: int32(name='maxResults', description='The maximum number of records to retrieve at a time.', example='1000'),
+  pageToken?: string(name='pageToken', description='The pagination token used to retrieve the next page of results. If the response does not include a token, pass an empty string ("") or an empty character (\\\\"\\\\").', example='""'),
 }
 
 model ListCatalogsResponseBody = {
   catalogs?: [
     Catalog
-  ](name='catalogs', description='A list of catalogs.'),
-  nextPageToken?: string(name='nextPageToken', description='The token to retrieve the next page of results. If this parameter is null, all results have been returned.', example='E8ABEB1C3DB893D16576269017992F57'),
+  ](name='catalogs', description='The list of catalogs.'),
+  nextPageToken?: string(name='nextPageToken', description='The pagination token used to retrieve the next page of results. A null value indicates that the current query has reached the last page of results.', example='E8ABEB1C3DB893D16576269017992F57'),
   prepayResource?: [
     PrepayResource
-  ](name='prepayResource', description='A list of subscription computing resources.'),
+  ](name='prepayResource', description='The list of subscription compute resources.'),
 }
 
 model ListCatalogsResponse = {
@@ -3173,7 +3185,7 @@ model ListCatalogsResponse = {
 }
 
 /**
- * @summary Lists catalogs.
+ * @summary Queries the list of data catalogs.
  *
  * @param request ListCatalogsRequest
  * @param headers map
@@ -3212,7 +3224,7 @@ async function listCatalogsWithOptions(request: ListCatalogsRequest, headers: ma
 }
 
 /**
- * @summary Lists catalogs.
+ * @summary Queries the list of data catalogs.
  *
  * @param request ListCatalogsRequest
  * @return ListCatalogsResponse
@@ -5169,6 +5181,95 @@ async function subscribe(): SubscribeResponse {
   var runtime = new Util.RuntimeOptions{};
   var headers : map[string]string = {};
   return subscribeWithOptions(headers, runtime);
+}
+
+model UntagResourcesRequest {
+  all?: boolean(name='all', description='Specifies whether to remove all tags from the resources. This parameter and TagKey are mutually exclusive.'),
+  resourceId?: [ string ](name='resourceId', description='The list of data catalog IDs from which to remove tags. The value is a JSON array. Maximum: 50.
+
+This parameter is required.', example='["clg-paimon-0424965be0c240acb4159688c9e2c4b6"]'),
+  resourceType?: string(name='resourceType', description='The resource type. Valid value: CATALOGRESOURCE.
+
+This parameter is required.', example='CATALOGRESOURCE'),
+  tagKey?: [ string ](name='tagKey', description='The list of tag keys to remove. The value is a JSON array. This parameter and All are mutually exclusive.', example='["team"]'),
+}
+
+model UntagResourcesShrinkRequest {
+  all?: boolean(name='all', description='Specifies whether to remove all tags from the resources. This parameter and TagKey are mutually exclusive.'),
+  resourceIdShrink?: string(name='resourceId', description='The list of data catalog IDs from which to remove tags. The value is a JSON array. Maximum: 50.
+
+This parameter is required.', example='["clg-paimon-0424965be0c240acb4159688c9e2c4b6"]'),
+  resourceType?: string(name='resourceType', description='The resource type. Valid value: CATALOGRESOURCE.
+
+This parameter is required.', example='CATALOGRESOURCE'),
+  tagKeyShrink?: string(name='tagKey', description='The list of tag keys to remove. The value is a JSON array. This parameter and All are mutually exclusive.', example='["team"]'),
+}
+
+model UntagResourcesResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+}
+
+/**
+ * @summary Deletes tags from resources.
+ *
+ * @param tmpReq UntagResourcesRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return UntagResourcesResponse
+ */
+async function untagResourcesWithOptions(tmpReq: UntagResourcesRequest, headers: map[string]string, runtime: Util.RuntimeOptions): UntagResourcesResponse {
+  Util.validateModel(tmpReq);
+  var request = new UntagResourcesShrinkRequest{};
+  OpenApiUtil.convert(tmpReq, request);
+  if (!Util.isUnset(tmpReq.resourceId)) {
+    request.resourceIdShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.resourceId, 'resourceId', 'json');
+  }
+  if (!Util.isUnset(tmpReq.tagKey)) {
+    request.tagKeyShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.tagKey, 'tagKey', 'json');
+  }
+  var query : map[string]any = {};
+  if (!Util.isUnset(request.all)) {
+    query['all'] = request.all;
+  }
+  if (!Util.isUnset(request.resourceIdShrink)) {
+    query['resourceId'] = request.resourceIdShrink;
+  }
+  if (!Util.isUnset(request.resourceType)) {
+    query['resourceType'] = request.resourceType;
+  }
+  if (!Util.isUnset(request.tagKeyShrink)) {
+    query['tagKey'] = request.tagKeyShrink;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'UntagResources',
+    version = '2025-03-10',
+    protocol = 'HTTPS',
+    pathname = `/dlf/v1/tags`,
+    method = 'DELETE',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'none',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Deletes tags from resources.
+ *
+ * @param request UntagResourcesRequest
+ * @return UntagResourcesResponse
+ */
+async function untagResources(request: UntagResourcesRequest): UntagResourcesResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return untagResourcesWithOptions(request, headers, runtime);
 }
 
 model UpdateRoleRequest {
