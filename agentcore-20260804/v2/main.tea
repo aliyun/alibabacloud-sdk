@@ -834,6 +834,420 @@ async function createCredential(workspaceId: string, request: CreateCredentialRe
   return createCredentialWithOptions(workspaceId, request, headers, runtime);
 }
 
+model CreateCustomAgentRequest {
+  body?: {
+    agenticFsMounts?: [ 
+      {
+        mountPath?: string(name='mountPath', description='The subdirectory under /mnt/agenticfs/ in the container. This parameter is required for each mount item. Mount targets must not be duplicated or overlap in a parent-child relationship.', example='/mnt/agenticfs/data'),
+        path?: string(name='path', description='The existing non-empty relative directory under the access point. This parameter is required for each mount item. Root directories, absolute paths, and parent directory traversals are not allowed.', example='workspace/data'),
+        readOnly?: boolean(name='readOnly', description='Specifies whether the mount is read-only. A value of true indicates read-only, and a value of false indicates read and write. If this parameter is omitted, the default value is false.', example='false'),
+        server?: string(name='server', description='The domain name of the access point. This parameter is required for each mount item. Use the DomainName value from the NAS ListAccessPoints response. Do not include the protocol, port, or path.', example='ap-0123456789abcdef0.0123456789-vlm36.cn-hangzhou.nas.aliyuncs.com'),
+      }
+    ](name='agenticFsMounts', description='The list of additional AgenticFS mounts. The total number of AgenticFS and OSS mounts cannot exceed 10. If you omit this parameter or pass an empty array [] during creation, no additional mounts are configured. If you omit this parameter during an update, the original value is retained. If you pass an empty array [], the list is cleared. You cannot pass null.'),
+    artifact?: {
+      code?: {
+        entrypoint?: string(name='entrypoint', description='The startup entry point of the code package. Code package deployment is currently not supported. Omit this parameter.
+
+This parameter is required.', example='python app.py'),
+        languageRuntime?: string(name='languageRuntime', description='The language runtime identifier of the code package. Code package deployment is currently not supported. Omit this parameter.
+
+This parameter is required.', example='python'),
+        sourceUri?: string(name='sourceUri', description='The source URI of the code package. Code package deployment is currently not supported. Omit this parameter.
+
+This parameter is required.', example='oss://my-agent-bucket/packages/agent.zip'),
+      }(name='code', description='The code package deployment configuration. This feature is currently not supported. Omit this parameter and use artifact.container.'),
+      container?: {
+        entrypoint?: string(name='entrypoint', description='The optional image startup command. If specified, it must be a non-empty string. If omitted, the default startup method of the image is used.', example='python app.py'),
+        instanceId?: string(name='instanceId', description='The ID of the ACR instance to which the image repository belongs. This parameter cannot be empty.
+
+This parameter is required.', example='cri-a1b2c3d4e5f6'),
+        namespace?: string(name='namespace', description='The namespace to which the ACR image repository belongs. This parameter cannot be empty.
+
+This parameter is required.', example='my-agent'),
+        repo?: string(name='repo', description='The name of the image repository in the ACR namespace. This parameter cannot be empty.
+
+This parameter is required.', example='chat-agent'),
+        tag?: string(name='tag', description='The image tag used for deployment. This parameter cannot be empty. When updating the tag, you must also specify artifact.port and other required image fields.
+
+This parameter is required.', example='v1.0.0'),
+        type?: string(name='type', description='The source type of the image. Currently, only acr is supported, which indicates Alibaba Cloud Container Registry (ACR).
+
+This parameter is required.', example='acr'),
+      }(name='container', description='The ACR container image configuration. You must specify type, instanceId, namespace, repo, and tag. Do not configure code at the same time.'),
+      port?: int32(name='port', description='The TCP port on which the agent service listens. Valid values: 1 to 65535.
+
+This parameter is required.', example='8080'),
+    }(name='artifact', description='The deployment artifact configuration. Currently, only ACR container images are supported. Specify container and the service listening port in port, and omit code.
+
+This parameter is required.'),
+    description?: string(name='description', description='The description of the agent purpose. The maximum length is 1,024 characters after leading and trailing whitespace is removed.', example='Custom agent that provides conversation services'),
+    environment?: {
+      variables?: [ 
+        {
+          name?: string(name='name', description='The name of the environment variable. This parameter cannot be empty and must be unique within the current environment variable list.
+
+This parameter is required.', example='LOG_LEVEL'),
+          value?: string(name='value', description='The value of the environment variable. It must be a string. Empty strings are allowed.
+
+This parameter is required.', example='info'),
+        }
+      ](name='variables', description='The list of environment variables. Each item includes a name and a value. The entire list is replaced during an update.'),
+    }(name='environment', description='The environment variable configuration passed to the agent runtime process.'),
+    healthCheck?: {
+      healthyThreshold?: int32(name='healthyThreshold', description='This parameter does not take effect. Omit this parameter.', example='1'),
+      intervalSeconds?: int32(name='intervalSeconds', description='The interval between two health checks, in seconds. It must be a positive integer. If omitted, the default value is 10.', example='10'),
+      path?: string(name='path', description='The HTTP health check path. It must start with a forward slash (/). If omitted, the default value is /healthz.', example='/healthz'),
+      port?: int32(name='port', description='The port accessed for health checks. This parameter is required when configuring health checks. Valid values: 1 to 65535.', example='8080'),
+      timeoutSeconds?: int32(name='timeoutSeconds', description='The timeout period for a single health check, in seconds. It must be a positive integer and less than intervalSeconds. If omitted, the default value is 2.', example='2'),
+      unhealthyThreshold?: int32(name='unhealthyThreshold', description='The number of consecutive health check failures required to mark the target as unhealthy. It must be a positive integer. If omitted, the default value is 3.', example='3'),
+    }(name='healthCheck', description='The optional HTTP health check configuration. If this object is provided, you must specify port. Unspecified items use default values. If omitted during creation, no health check is configured. If this top-level field is omitted during an update, the original configuration is retained. If null is passed, the health check is removed.'),
+    logging?: {
+      sls?: {
+        logstore?: string(name='logstore', description='The name of the Simple Log Service Logstore that receives agent logs.', example='agent-runtime'),
+        project?: string(name='project', description='The name of the Simple Log Service project that receives agent logs.', example='my-agent-logs'),
+      }(name='sls', description='The Simple Log Service log delivery destination. When configuring this object, neither project nor logstore can be empty.'),
+    }(name='logging', description='The agent log delivery configuration. You can specify the Simple Log Service project and Logstore. After a successful creation or update, verify that logs are delivered properly.'),
+    name?: string(name='name', description='The name of the custom agent. The length must be 1 to 128 characters after leading and trailing whitespace is removed. The name must be unique within the same workspace.
+
+This parameter is required.', example='my-custom-agent'),
+    network?: {
+      accessInternet?: {
+        enabled?: boolean(name='enabled', description='Specifies whether to allow the agent to access the Internet. A Boolean value must be provided when configuring accessInternet. For this setting to take effect, the workspace must also allow Internet access.'),
+      }(name='accessInternet', description='The Internet access configuration. If this access item is omitted, Internet access is not restricted on the agent side. However, the workspace must still allow Internet access.'),
+      accessVpc?: {
+        enabled?: boolean(name='enabled', description='Specifies whether to allow the agent to access the user VPC configured for the workspace. A Boolean value must be provided when configuring accessVpc. For this setting to take effect, the workspace must also allow VPC access.'),
+      }(name='accessVpc', description='The user VPC access configuration. If this access item is omitted, VPC access is not restricted on the agent side. However, the workspace must still be configured to allow access to the user VPC.'),
+    }(name='network', description='The network access configuration of the agent. If this object is provided, omitted access items are treated as allowed. The actual accessible range is still limited by the workspace network configuration. To retain the original restrictions during an update, specify both accessInternet and accessVpc.'),
+    ossMounts?: [ 
+      {
+        bucketName?: string(name='bucketName', description='The name of the OSS bucket. This parameter is required for each mount item. The name must be 3 to 63 characters in length and can contain only lowercase letters, digits, and hyphens. It cannot start or end with a hyphen.', example='my-agent-data'),
+        mountPath?: string(name='mountPath', description='The subdirectory under /mnt/oss/ in the container. This parameter is required for each mount item. Mount targets must not be duplicated or overlap in a parent-child relationship.', example='/mnt/oss/train'),
+        path?: string(name='path', description='The non-empty object directory prefix in the bucket, such as datasets/train. Leading and trailing forward slashes (/) are removed. Root directories are not supported. Do not use parent directory traversals.', example='datasets/train'),
+        readOnly?: boolean(name='readOnly', description='Specifies whether the mount is read-only. A value of true indicates read-only, and a value of false indicates read and write. If this parameter is omitted, the default value is false.'),
+      }
+    ](name='ossMounts', description='The list of OSS mounts. The total number of OSS and AgenticFS mounts cannot exceed 10. You must specify bucketName, path, and mountPath for each item. Mount targets must not be duplicated or overlap. The entire list is replaced during an update. Pass an empty array [] to clear the list.'),
+    protocol?: [ 
+      {
+        headers?: map[string]string(name='headers', description='The request header configuration for the current protocol. The key is a non-empty request header name, and the value must be a string.'),
+        paths?: [ 
+          {
+            description?: string(name='description', description='The usage description of the current API path.', example='AG-UI conversation API'),
+            name?: string(name='name', description='The non-empty API path corresponding to the current protocol.
+
+This parameter is required.', example='/agui'),
+          }
+        ](name='paths', description='The list of API paths corresponding to the current protocol.'),
+        type?: string(name='type', description='The invocation protocol type. Valid values:
+- agui: AG-UI protocol.
+- openai-chat-completion: OpenAI Chat Completions compatible protocol.
+- custom: Custom protocol.
+
+This parameter is required.', example='agui'),
+      }
+    ](name='protocol', description='The list of invocation protocols supported by the agent. Each item includes the protocol type and optional paths and request headers. The entire list is replaced during an update.'),
+    roleArn?: string(name='roleArn', description='The ARN of the RAM role used when the agent accesses user cloud resources. The role must have permissions to access the cloud resources.
+
+This parameter is required.', example='acs:ram::1234567890123456:role/agentcore-runtime-role'),
+    runtime?: {
+      compute?: {
+        computeClass?: string(name='computeClass', description='The compute specification. Valid values:
+- INTERACTIVE: 1 vCPU and 2 GiB of memory.
+- STANDARD: 2 vCPUs and 4 GiB of memory.
+- HEAVY: 4 vCPUs and 8 GiB of memory.
+
+This parameter is required.', example='STANDARD'),
+      }(name='compute', description='The compute resource configuration for the agent runtime instance.
+
+This parameter is required.'),
+      hpa?: {
+        enabled?: boolean(name='enabled', description='Specifies whether to enable elastic scaling. Valid values:
+- true: Enabled.
+- false: Disabled.
+Default value: false.
+
+This parameter is required.'),
+        maxConcurrentSessionsPerSandbox?: int32(name='maxConcurrentSessionsPerSandbox', description='The maximum number of concurrent sessions for a single runtime instance. Valid values: 1 to 100. Default value: 100.', example='100'),
+        maxSandboxCount?: int32(name='maxSandboxCount', description='The maximum number of runtime instances. Valid values: 1 to 100. The value cannot be less than minSandboxCount. Default value: 10.', example='10'),
+        minSandboxCount?: int32(name='minSandboxCount', description='The minimum number of runtime instances. Valid values: 1 to 100. The value cannot be greater than maxSandboxCount. Default value: 1.', example='1'),
+        sessionTtlSeconds?: int32(name='sessionTtlSeconds', description='The session idle timeout in seconds. Valid values: 60 to 86400. Default value: 600.', example='600'),
+      }(name='hpa', description='The optional elastic policy. When runtime is provided, if hpa or its fields are omitted, the default values are used: enabled is false, the minimum number of instances is 1, the maximum number of instances is 10, the maximum number of concurrent sessions per instance is 100, and the session idle timeout is 600 seconds. To retain the original policy during an update, provide the complete hpa configuration.'),
+      sessionPolicy?: {
+        headerName?: string(name='headerName', description='The name of the HTTP request header used by the session policy. This parameter is required when type is set to ISOLATED_HEADER_FIELD and must be a valid HTTP request header name. Omit this parameter for other policies.', example='X-Session-Id'),
+        type?: string(name='type', description='The session policy type. Valid values:
+- AFFINITY: Session affinity.
+- ISOLATED_HEADER_FIELD: Associates sessions by using the request header specified by headerName.
+- ISOLATED_COOKIE: Not recommended.
+- DISABLED: A compatibility option. The response returns AFFINITY.
+
+This parameter is required.', example='AFFINITY'),
+      }(name='sessionPolicy', description='The session policy configuration, which is used to set the session association method for requests.
+
+This parameter is required.'),
+    }(name='runtime', description='The runtime configuration, including compute specifications, session policies, and an optional elastic policy. Both compute and sessionPolicy must be specified.
+
+This parameter is required.'),
+  }(name='body', description='The JSON configuration of the custom agent. You must specify name, artifact, roleArn, and runtime.'),
+  clientToken?: string(name='clientToken', description='Idempotency is not currently guaranteed. Do not rely on this parameter to prevent duplicate requests.', example='custom-agent-request-20261010-001'),
+}
+
+model CreateCustomAgentShrinkRequest {
+  bodyShrink?: string(name='body', description='The JSON configuration of the custom agent. You must specify name, artifact, roleArn, and runtime.'),
+  clientToken?: string(name='clientToken', description='Idempotency is not currently guaranteed. Do not rely on this parameter to prevent duplicate requests.', example='custom-agent-request-20261010-001'),
+}
+
+model CreateCustomAgentResponseBody = {
+  code?: string(name='code', description='The request result code. The value is SUCCESS when the request is successful.', example='SUCCESS'),
+  data?: {
+    agentId?: string(name='agentId', description='The unique identifier of the custom agent. You can obtain this ID from the response of the CreateCustomAgent or ListCustomAgents operation.', example='agent-550e8400e29b41d4a716446655440000'),
+    agenticFsMounts?: [ 
+      {
+        mountPath?: string(name='mountPath', description='The AgenticFS mount directory in the container, located under /mnt/agenticfs/.', example='/mnt/agenticfs/data'),
+        path?: string(name='path', description='The relative directory within the mounted access point.', example='workspace/data'),
+        readOnly?: boolean(name='readOnly', description='Specifies whether the mount is read-only. A value of true indicates that the mount is read-only. A value of false indicates that the mount is readable and writable.', example='false'),
+        server?: string(name='server', description='The domain name of the AgenticFS access point used for the mount.', example='ap-0123456789abcdef0.0123456789-vlm36.cn-hangzhou.nas.aliyuncs.com'),
+      }
+    ](name='agenticFsMounts', description='The latest submitted list of additional AgenticFS mounts.'),
+    artifact?: {
+      code?: {
+        entrypoint?: string(name='entrypoint', description='The startup entry point of the code package. Code package deployment is not supported.
+
+This parameter is required.', example='python app.py'),
+        languageRuntime?: string(name='languageRuntime', description='The language runtime identifier of the code package. Code package deployment is not supported.
+
+This parameter is required.', example='python'),
+        sourceUri?: string(name='sourceUri', description='The source URI of the code package. Code package deployment is not supported.
+
+This parameter is required.', example='oss://my-agent-bucket/packages/agent.zip'),
+      }(name='code', description='The code package configuration field. Code package deployment is not supported.'),
+      container?: {
+        entrypoint?: string(name='entrypoint', description='The custom executable program and startup parameters. If not configured, the default startup method of the image is used.', example='python app.py'),
+        instanceId?: string(name='instanceId', description='The ID of the ACR instance to which the image repository belongs.
+
+This parameter is required.', example='cri-a1b2c3d4e5f6'),
+        namespace?: string(name='namespace', description='The namespace to which the ACR image repository belongs.
+
+This parameter is required.', example='my-agent'),
+        repo?: string(name='repo', description='The name of the image repository in the ACR namespace.
+
+This parameter is required.', example='chat-agent'),
+        tag?: string(name='tag', description='The latest submitted image tag.
+
+This parameter is required.', example='v1.0.0'),
+        type?: string(name='type', description='The image source type. A value of acr indicates Alibaba Cloud Container Registry.
+
+This parameter is required.', example='acr'),
+      }(name='container', description='The latest submitted ACR container image configuration.'),
+      port?: int32(name='port', description='The TCP port listened on by the agent service.
+
+This parameter is required.', example='8080'),
+    }(name='artifact', description='The latest submitted deployment artifact configuration, including the service listening port and the ACR container image. To check whether the configuration has taken effect, refer to the latestVersionStatus field.'),
+    createMode?: string(name='createMode', description='The creation method of the agent. The value is CUSTOM for custom agents.', example='CUSTOM'),
+    createdAt?: string(name='createdAt', description='The creation time of the agent. The time is in ISO 8601 format. The trailing Z indicates the UTC time zone. Fractional seconds may be included.', example='2026-10-10T06:00:00Z'),
+    deployType?: string(name='deployType', description='The deployment method of the agent. Custom agents are deployed and managed by the platform. The value is MANAGED for custom agents.', example='MANAGED'),
+    description?: string(name='description', description='The description of the agent.', example='Custom agent that provides conversation services'),
+    environment?: {
+      variables?: [ 
+        {
+          name?: string(name='name', description='The name of the environment variable.
+
+This parameter is required.', example='LOG_LEVEL'),
+          value?: string(name='value', description='The string value of the environment variable. Empty strings are allowed.
+
+This parameter is required.', example='info'),
+        }
+      ](name='variables', description='The latest submitted list of environment variables.'),
+    }(name='environment', description='The environment variable configuration for the agent process.'),
+    healthCheck?: {
+      healthyThreshold?: int32(name='healthyThreshold', description='This parameter does not take effect.', example='1'),
+      intervalSeconds?: int32(name='intervalSeconds', description='The interval between two consecutive health checks, in seconds.', example='10'),
+      path?: string(name='path', description='The HTTP Health Check Path.', example='/healthz'),
+      port?: int32(name='port', description='The port accessed for the HTTP health check.', example='8080'),
+      timeoutSeconds?: int32(name='timeoutSeconds', description='The timeout period for a single health check, in seconds.', example='2'),
+      unhealthyThreshold?: int32(name='unhealthyThreshold', description='The number of consecutive health check failures required to mark the agent as unhealthy.', example='3'),
+    }(name='healthCheck', description='The HTTP health check configuration of the agent. This field is empty if no health check is configured.'),
+    latestExecutionError?: {
+      code?: string(name='code', description='The reason code for the waiting or execution failure of the latest configuration. This code is used to determine the subsequent handling method.', example='AgentExecutionFailed'),
+      message?: string(name='message', description='The description of the reason why the latest configuration is waiting or has failed to execute. Refer to the code and retryable fields to determine what to do next.', example='The agent execution failed. Check the configuration and resubmit'),
+      retryable?: boolean(name='retryable', description='Specifies whether the operation is automatically retried. A value of true indicates that you can query again later. A value of false indicates that you must check and fix the configuration based on the reason, and then resubmit the request.'),
+    }(name='latestExecutionError', description='The waiting or execution error of the latest configuration version. This field is returned only when the version is waiting for a retry or fails to execute.'),
+    latestSpecVersion?: long(name='latestSpecVersion', description='The latest configuration version number. Updates with the same configuration may retain the original version number. This field does not indicate that the configuration has taken effect.', example='1'),
+    latestVersionStatus?: string(name='latestVersionStatus', description='The execution status corresponding to latestSpecVersion. Valid values:
+- pending: Waiting for execution.
+- processing: Executing.
+- waiting_retry: Waiting for a retry.
+- succeeded: Execution succeeded.
+- failed: Execution failed.
+- superseded: Superseded by a subsequent version.', example='succeeded'),
+    logging?: {
+      sls?: {
+        logstore?: string(name='logstore', description='The name of the Simple Log Service Logstore that receives agent logs.', example='agent-runtime'),
+        project?: string(name='project', description='The name of the Simple Log Service project that receives agent logs.', example='my-agent-logs'),
+      }(name='sls', description='The Simple Log Service (SLS) log delivery destination.'),
+    }(name='logging', description='The latest submitted log delivery configuration.'),
+    name?: string(name='name', description='The name of the custom agent.', example='my-custom-agent'),
+    network?: {
+      accessInternet?: {
+        enabled?: boolean(name='enabled', description='Specifies whether Internet access is allowed on the agent side. The actual access is still restricted by the workspace.'),
+      }(name='accessInternet', description='The Internet access configuration of the agent. If this field is not configured, Internet access is allowed on the agent side, but it is still restricted by the workspace.'),
+      accessVpc?: {
+        enabled?: boolean(name='enabled', description='Specifies whether access to the user VPC configured for the workspace is allowed on the agent side. The actual access is still restricted by the workspace.'),
+      }(name='accessVpc', description='The user VPC access configuration of the agent. If this field is not configured, user VPC access is allowed on the agent side, but it is still restricted by the workspace.'),
+    }(name='network', description='The network access configuration of the agent. The actual access scope is also restricted by the network configuration of the workspace.'),
+    ossMounts?: [ 
+      {
+        bucketName?: string(name='bucketName', description='The name of the mounted OSS bucket.', example='my-agent-data'),
+        mountPath?: string(name='mountPath', description='The OSS mount directory in the container, located under /mnt/oss/.', example='/mnt/oss/train'),
+        path?: string(name='path', description='The prefix of the object directory in the mounted bucket.', example='datasets/train'),
+        readOnly?: boolean(name='readOnly', description='Specifies whether the mount is read-only. A value of true indicates that the mount is read-only. A value of false indicates that the mount is readable and writable.'),
+      }
+    ](name='ossMounts', description='The latest submitted list of OSS directory mounts.'),
+    protocol?: [ 
+      {
+        headers?: map[string]string(name='headers', description='The request header configurations for the current protocol. The key is the header name and the value is a string.'),
+        paths?: [ 
+          {
+            description?: string(name='description', description='The usage description of the current API path.', example='AG-UI conversation API'),
+            name?: string(name='name', description='The API path corresponding to the current protocol.
+
+This parameter is required.', example='/agui'),
+          }
+        ](name='paths', description='The list of API paths corresponding to the current protocol.'),
+        type?: string(name='type', description='The invocation protocol type. Valid values:
+- agui: AG-UI protocol.
+- openai-chat-completion: OpenAI Chat Completions compatible protocol.
+- custom: Custom protocol.
+
+This parameter is required.', example='agui'),
+      }
+    ](name='protocol', description='The list of invocation protocol configurations for the agent.'),
+    regionId?: string(name='regionId', description='The region ID of the workspace to which the agent belongs.', example='cn-hangzhou'),
+    roleArn?: string(name='roleArn', description='The ARN of the RAM role used by the agent to access user cloud resources.', example='acs:ram::1234567890123456:role/agentcore-runtime-role'),
+    runtime?: {
+      compute?: {
+        computeClass?: string(name='computeClass', description='The compute specification. Valid values:
+- INTERACTIVE: 1 vCPU and 2 GiB of memory.
+- STANDARD: 2 vCPUs and 4 GiB of memory.
+- HEAVY: 4 vCPUs and 8 GiB of memory.
+
+This parameter is required.', example='STANDARD'),
+      }(name='compute', description='The compute resource configuration for the agent runtime instance.
+
+This parameter is required.'),
+      hpa?: {
+        enabled?: boolean(name='enabled', description='Specifies whether elastic scaling is enabled. Valid values:
+- true: Enabled.
+- false: Disabled.
+
+This parameter is required.'),
+        maxConcurrentSessionsPerSandbox?: int32(name='maxConcurrentSessionsPerSandbox', description='The maximum number of concurrent sessions configured for a single runtime instance.', example='100'),
+        maxSandboxCount?: int32(name='maxSandboxCount', description='The maximum number of runtime instances configured.', example='10'),
+        minSandboxCount?: int32(name='minSandboxCount', description='The minimum number of runtime instances configured.', example='1'),
+        sessionTtlSeconds?: int32(name='sessionTtlSeconds', description='The maximum idle time configured for a session, in seconds.', example='600'),
+      }(name='hpa', description='The elastic policy configurations for the agent.'),
+      sessionPolicy?: {
+        headerName?: string(name='headerName', description='The name of the HTTP request header used by the session policy. This parameter applies to ISOLATED_HEADER_FIELD.', example='X-Session-Id'),
+        type?: string(name='type', description='The session policy type. Valid values:
+- AFFINITY: Session affinity.
+- ISOLATED_HEADER_FIELD: Associates sessions by using the request header specified by headerName.
+- ISOLATED_COOKIE: Not recommended.
+Note: The compatibility value DISABLED in a request is returned as AFFINITY.
+
+This parameter is required.', example='AFFINITY'),
+      }(name='sessionPolicy', description='The session policy configurations for the agent.
+
+This parameter is required.'),
+    }(name='runtime', description='The runtime configurations of the latest commit, including compute specifications, session policy, and elastic policy.'),
+    sandboxPhaseCounts?: map[string]long(name='sandboxPhaseCounts', description='The instance counts grouped by runtime instance phase. Keys include PENDING (creating or initializing), RUNNING (running), HIBERNATING (hibernating), HIBERNATED (hibernated), RESUMING (resuming), TERMINATING (terminating), and FAILED (failed). Only phases that actually occur are returned. Missing keys are treated as 0.'),
+    status?: string(name='status', description='The overall status of the agent. Valid values:
+- Creating: The agent is being created.
+- Running: The agent is running.
+- Failed: The agent failed.
+- Updating: The agent is being updated.
+- Deleting: The agent is being deleted.
+- Deleted: The agent is deleted.
+To query the execution progress of the latest configuration, check latestVersionStatus.', example='Running'),
+    updatedAt?: string(name='updatedAt', description='The time when the agent was last updated. The time is in ISO 8601 format. A trailing Z indicates the UTC time zone. Fractional seconds may be included.', example='2026-10-10T06:05:00Z'),
+    workspaceId?: string(name='workspaceId', description='The ID of the workspace to which the custom agent belongs.', example='ws-a1b2c3d4e5f6'),
+  }(name='data', description='The latest submitted configuration and status of the custom agent. A successful response indicates that the request is accepted, but the configuration may not have taken effect yet.'),
+  httpStatusCode?: int32(name='httpStatusCode', description='The HTTP status code of the request. A value of 200 indicates success.', example='200'),
+  message?: string(name='message', description='The description of the processing result for the request. A value of success indicates that the request was processed successfully.', example='success'),
+  requestId?: string(name='requestId', description='The unique identifier of the request. You can use this ID to locate and troubleshoot issues.', example='550E8400-E29B-41D4-A716-446655440000'),
+  success?: boolean(name='success', description='Indicates whether the request was processed successfully. A value of true indicates that the request was processed successfully. Note that a successful creation, update, or deletion does not mean that the background operation is complete.'),
+}
+
+model CreateCustomAgentResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: CreateCustomAgentResponseBody(name='body'),
+}
+
+/**
+ * @summary Creates a custom agent in a specified workspace and submits the container image deployment configuration. The creation process is asynchronous. You can call the GetCustomAgent operation to query the deployment result.
+ *
+ * @description Before you call this operation, prepare a writable workspace, a RAM role ARN, an ACR container image, and the runtime configuration. You must specify name, artifact, roleArn, and runtime. The runtime parameter must include both compute and sessionPolicy.
+ * Currently, only ACR container image deployment is supported. Use artifact.container and specify the service listening port in artifact.port. Omit artifact.code. The image must have the required access permissions and be accessible over the network allowed by the workspace.
+ * The creation process is asynchronous. A successful response indicates that the request is accepted. Use the returned agentId to call GetCustomAgent and check latestVersionStatus, latestExecutionError, and status for the corresponding latestSpecVersion to confirm the deployment result. After the deployment is ready, you can call CreateServiceEndpoint to configure the access endpoint.
+ * The clientToken parameter does not provide idempotency guarantees. Do not rely on this parameter to prevent duplicate requests. The healthyThreshold parameter for health checks does not take effect. Omit this parameter.
+ *
+ * @param tmpReq CreateCustomAgentRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return CreateCustomAgentResponse
+ */
+@context("createCustomAgentWithContext")
+async function createCustomAgentWithOptions(workspaceId: string, tmpReq: CreateCustomAgentRequest, headers: map[string]string, runtime: $RuntimeOptions): CreateCustomAgentResponse {
+  tmpReq.validate();
+  var request = new CreateCustomAgentShrinkRequest{};
+  OpenApiUtil.convert(tmpReq, request);
+  if (!$isNull(tmpReq.body)) {
+    request.bodyShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.body, 'body', 'json');
+  }
+  var query : map[string]any = {};
+  if (!$isNull(request.clientToken)) {
+    query['clientToken'] = request.clientToken;
+  }
+
+  var body : map[string]any = {};
+  if (!$isNull(request.bodyShrink)) {
+    body['body'] = request.bodyShrink;
+  }
+
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'CreateCustomAgent',
+    version = '2026-08-04',
+    protocol = 'HTTPS',
+    pathname = `/workspaces/${$URL.percentEncode(workspaceId)}/custom-agents`,
+    method = 'POST',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Creates a custom agent in a specified workspace and submits the container image deployment configuration. The creation process is asynchronous. You can call the GetCustomAgent operation to query the deployment result.
+ *
+ * @description Before you call this operation, prepare a writable workspace, a RAM role ARN, an ACR container image, and the runtime configuration. You must specify name, artifact, roleArn, and runtime. The runtime parameter must include both compute and sessionPolicy.
+ * Currently, only ACR container image deployment is supported. Use artifact.container and specify the service listening port in artifact.port. Omit artifact.code. The image must have the required access permissions and be accessible over the network allowed by the workspace.
+ * The creation process is asynchronous. A successful response indicates that the request is accepted. Use the returned agentId to call GetCustomAgent and check latestVersionStatus, latestExecutionError, and status for the corresponding latestSpecVersion to confirm the deployment result. After the deployment is ready, you can call CreateServiceEndpoint to configure the access endpoint.
+ * The clientToken parameter does not provide idempotency guarantees. Do not rely on this parameter to prevent duplicate requests. The healthyThreshold parameter for health checks does not take effect. Omit this parameter.
+ *
+ * @param request CreateCustomAgentRequest
+ * @return CreateCustomAgentResponse
+ */
+async function createCustomAgent(workspaceId: string, request: CreateCustomAgentRequest): CreateCustomAgentResponse {
+  var runtime = new $RuntimeOptions{};
+  var headers : map[string]string = {};
+  return createCustomAgentWithOptions(workspaceId, request, headers, runtime);
+}
+
 model CreateExternalAgentRequest {
   body?: {
     description?: string(name='description', description='The description of the external agent.', example='A code review agent running in the user environment'),
@@ -3048,6 +3462,84 @@ async function deleteCredential(workspaceId: string, credentialId: string, reque
   return deleteCredentialWithOptions(workspaceId, credentialId, request, headers, runtime);
 }
 
+model DeleteCustomAgentRequest {
+}
+
+model DeleteCustomAgentResponseBody = {
+  code?: string(name='code', description='The result code of the request. The value is SUCCESS if the request is successful.', example='SUCCESS'),
+  data?: {
+    agentId?: string(name='agentId', description='The unique identifier of the custom agent. You can retrieve it from the response of CreateCustomAgent or ListCustomAgents.', example='agent-550e8400e29b41d4a716446655440000'),
+    createMode?: string(name='createMode', description='The creation method of the agent. The value is CUSTOM for custom agents.', example='CUSTOM'),
+    createdAt?: string(name='createdAt', description='The time when the agent was created. The time is in ISO 8601 format. A trailing Z indicates the UTC time zone. Fractional seconds may be included.', example='2026-10-10T06:00:00Z'),
+    deployType?: string(name='deployType', description='The deployment method of the agent. Custom agents are deployed and managed by the platform, and the value is MANAGED.', example='MANAGED'),
+    description?: string(name='description', description='The description of the agent\\\\"s purpose.', example='Custom agent that provides conversation services'),
+    latestSpecVersion?: long(name='latestSpecVersion', description='The latest configuration version number. Updates with the same configuration may retain the original version number. This field does not indicate that the configuration has taken effect.', example='1'),
+    name?: string(name='name', description='The name of the custom agent.', example='my-custom-agent'),
+    runtime?: string(name='runtime', description='The compute specifications of the agent. Valid values: INTERACTIVE, STANDARD, and HEAVY.', example='STANDARD'),
+    status?: string(name='status', description='The overall status of the agent. Valid values: Creating: The agent is being created. Running: The agent is running. Failed: The agent failed. Updating: The agent is being updated. Deleting: The agent is being deleted. Deleted: The agent is deleted. To query the execution progress of the latest configuration, call GetCustomAgent.', example='Running'),
+    updatedAt?: string(name='updatedAt', description='The time when the agent was last updated. The time is in ISO 8601 format. A trailing Z indicates the UTC time zone. Fractional seconds may be included.', example='2026-10-10T06:05:00Z'),
+    workspaceId?: string(name='workspaceId', description='The ID of the workspace to which the custom agent belongs.', example='ws-a1b2c3d4e5f6'),
+  }(name='data', description='The summary of the custom agent whose deletion is accepted. The runtime resources are subsequently cleaned up in the background.'),
+  httpStatusCode?: int32(name='httpStatusCode', description='The HTTP status code of the request. The value is 200 if the request is successful.', example='200'),
+  message?: string(name='message', description='The processing result message of the request. The value is success if the request is successful.', example='success'),
+  requestId?: string(name='requestId', description='The unique identifier of the request. You can use this ID to locate and troubleshoot issues.', example='550E8400-E29B-41D4-A716-446655440000'),
+  success?: boolean(name='success', description='Indicates whether the request was processed successfully. A value of true indicates that the request was processed successfully. A successful creation, update, or deletion does not mean that the background operation is complete.'),
+}
+
+model DeleteCustomAgentResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: DeleteCustomAgentResponseBody(name='body'),
+}
+
+/**
+ * @summary Deletes a custom agent in a specified workspace. A successful request indicates that the deletion is accepted, and the runtime resources are subsequently cleaned up in the background.
+ *
+ * @description Before you call this operation, make sure that the workspace is writable. If the agent is still associated with a team, you must dissociate the team first.
+ * Deletion is an asynchronous process. After the request is accepted, the associated invocation endpoints become unavailable, and the runtime resources are subsequently cleaned up. The status in the response is typically Deleting. If the agent is already being deleted, a subsequent request returns the current summary.
+ * You can call GetCustomAgent to check the deletion progress. After the deletion is complete, a detail query returns a resource not found error.
+ *
+ * @param request DeleteCustomAgentRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return DeleteCustomAgentResponse
+ */
+@context("deleteCustomAgentWithContext")
+async function deleteCustomAgentWithOptions(workspaceId: string, agentId: string, request: DeleteCustomAgentRequest, headers: map[string]string, runtime: $RuntimeOptions): DeleteCustomAgentResponse {
+  request.validate();
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    headers = headers,
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'DeleteCustomAgent',
+    version = '2026-08-04',
+    protocol = 'HTTPS',
+    pathname = `/workspaces/${$URL.percentEncode(workspaceId)}/custom-agents/${$URL.percentEncode(agentId)}`,
+    method = 'DELETE',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Deletes a custom agent in a specified workspace. A successful request indicates that the deletion is accepted, and the runtime resources are subsequently cleaned up in the background.
+ *
+ * @description Before you call this operation, make sure that the workspace is writable. If the agent is still associated with a team, you must dissociate the team first.
+ * Deletion is an asynchronous process. After the request is accepted, the associated invocation endpoints become unavailable, and the runtime resources are subsequently cleaned up. The status in the response is typically Deleting. If the agent is already being deleted, a subsequent request returns the current summary.
+ * You can call GetCustomAgent to check the deletion progress. After the deletion is complete, a detail query returns a resource not found error.
+ *
+ * @param request DeleteCustomAgentRequest
+ * @return DeleteCustomAgentResponse
+ */
+async function deleteCustomAgent(workspaceId: string, agentId: string, request: DeleteCustomAgentRequest): DeleteCustomAgentResponse {
+  var runtime = new $RuntimeOptions{};
+  var headers : map[string]string = {};
+  return deleteCustomAgentWithOptions(workspaceId, agentId, request, headers, runtime);
+}
+
 model DeleteExternalAgentRequest {
 }
 
@@ -4658,6 +5150,182 @@ async function getCredential(workspaceId: string, credentialId: string, request:
   var runtime = new $RuntimeOptions{};
   var headers : map[string]string = {};
   return getCredentialWithOptions(workspaceId, credentialId, request, headers, runtime);
+}
+
+model GetCustomAgentRequest {
+}
+
+model GetCustomAgentResponseBody = {
+  code?: string(name='code', example='SUCCESS'),
+  data?: {
+    agentId?: string(name='agentId', example='agent-550e8400e29b41d4a716446655440000'),
+    agenticFsMounts?: [ 
+      {
+        mountPath?: string(name='mountPath', example='/mnt/agenticfs/data'),
+        path?: string(name='path', example='workspace/data'),
+        readOnly?: boolean(name='readOnly', example='false'),
+        server?: string(name='server', example='ap-0123456789abcdef0.0123456789-vlm36.cn-hangzhou.nas.aliyuncs.com'),
+      }
+    ](name='agenticFsMounts'),
+    artifact?: {
+      code?: {
+        entrypoint?: string(name='entrypoint', description='This parameter is required.', example='python app.py'),
+        languageRuntime?: string(name='languageRuntime', description='This parameter is required.', example='python'),
+        sourceUri?: string(name='sourceUri', description='This parameter is required.', example='oss://my-agent-bucket/packages/agent.zip'),
+      }(name='code'),
+      container?: {
+        entrypoint?: string(name='entrypoint', example='python app.py'),
+        instanceId?: string(name='instanceId', description='This parameter is required.', example='cri-a1b2c3d4e5f6'),
+        namespace?: string(name='namespace', description='This parameter is required.', example='my-agent'),
+        repo?: string(name='repo', description='This parameter is required.', example='chat-agent'),
+        tag?: string(name='tag', description='This parameter is required.', example='v1.0.0'),
+        type?: string(name='type', description='This parameter is required.', example='acr'),
+      }(name='container'),
+      port?: int32(name='port', description='This parameter is required.', example='8080'),
+    }(name='artifact'),
+    createMode?: string(name='createMode', example='CUSTOM'),
+    createdAt?: string(name='createdAt', example='2026-10-10T06:00:00Z'),
+    deployType?: string(name='deployType', example='MANAGED'),
+    description?: string(name='description', example='提供对话服务的自定义智能体'),
+    environment?: {
+      variables?: [ 
+        {
+          name?: string(name='name', description='This parameter is required.', example='LOG_LEVEL'),
+          value?: string(name='value', description='This parameter is required.', example='info'),
+        }
+      ](name='variables'),
+    }(name='environment'),
+    healthCheck?: {
+      healthyThreshold?: int32(name='healthyThreshold', example='1'),
+      intervalSeconds?: int32(name='intervalSeconds', example='10'),
+      path?: string(name='path', example='/healthz'),
+      port?: int32(name='port', example='8080'),
+      timeoutSeconds?: int32(name='timeoutSeconds', example='2'),
+      unhealthyThreshold?: int32(name='unhealthyThreshold', example='3'),
+    }(name='healthCheck'),
+    latestExecutionError?: {
+      code?: string(name='code', example='AgentExecutionFailed'),
+      message?: string(name='message', example='Agent 执行失败，请检查配置后重新提交。'),
+      retryable?: boolean(name='retryable'),
+    }(name='latestExecutionError', description='可选。仅解释同一响应 latestSpecVersion/latestVersionStatus 的等待或失败；正常待处理、执行中或成功时省略。消息由 Console 白名单映射，不返回原始运行时诊断、Checkpoint 或凭证。'),
+    latestSpecVersion?: long(name='latestSpecVersion', example='1'),
+    latestVersionStatus?: string(name='latestVersionStatus', example='succeeded'),
+    logging?: {
+      sls?: {
+        logstore?: string(name='logstore', example='agent-runtime'),
+        project?: string(name='project', example='my-agent-logs'),
+      }(name='sls'),
+    }(name='logging'),
+    name?: string(name='name', example='my-custom-agent'),
+    network?: {
+      accessInternet?: {
+        enabled?: boolean(name='enabled'),
+      }(name='accessInternet'),
+      accessVpc?: {
+        enabled?: boolean(name='enabled'),
+      }(name='accessVpc'),
+    }(name='network'),
+    ossMounts?: [ 
+      {
+        bucketName?: string(name='bucketName', example='my-agent-data'),
+        mountPath?: string(name='mountPath', example='/mnt/oss/train'),
+        path?: string(name='path', example='datasets/train'),
+        readOnly?: boolean(name='readOnly'),
+      }
+    ](name='ossMounts'),
+    protocol?: [ 
+      {
+        headers?: map[string]string(name='headers'),
+        paths?: [ 
+          {
+            description?: string(name='description', example='AG-UI 对话接口'),
+            name?: string(name='name', description='This parameter is required.', example='/agui'),
+          }
+        ](name='paths'),
+        type?: string(name='type', description='This parameter is required.', example='agui'),
+      }
+    ](name='protocol'),
+    regionId?: string(name='regionId', example='cn-hangzhou'),
+    roleArn?: string(name='roleArn', example='acs:ram::1234567890123456:role/agentcore-runtime-role'),
+    runtime?: {
+      compute?: {
+        computeClass?: string(name='computeClass', description='This parameter is required.', example='STANDARD'),
+      }(name='compute', description='This parameter is required.'),
+      hpa?: {
+        enabled?: boolean(name='enabled', description='This parameter is required.'),
+        maxConcurrentSessionsPerSandbox?: int32(name='maxConcurrentSessionsPerSandbox', description='正整数，必须与 sessionTtlSeconds 同时配置。', example='100'),
+        maxSandboxCount?: int32(name='maxSandboxCount', description='开启时为正整数，关闭时为非负整数；不得小于 minSandboxCount。', example='10'),
+        minSandboxCount?: int32(name='minSandboxCount', description='非负整数。开启弹性时必填；关闭时如提供上下限，必须成对提供。', example='1'),
+        sessionTtlSeconds?: int32(name='sessionTtlSeconds', description='正整数，必须与 maxConcurrentSessionsPerSandbox 同时配置。', example='600'),
+      }(name='hpa', description='Agent 当前 spec 版本的 HPA 配置，与 Managed Agent 一致。开启时必须提供最小和最大 Sandbox 数；并发会话上限与会话空闲超时必须一起配置。'),
+      sessionPolicy?: {
+        headerName?: string(name='headerName', example='X-Session-Id'),
+        type?: string(name='type', description='This parameter is required.', example='AFFINITY'),
+      }(name='sessionPolicy', description='This parameter is required.'),
+    }(name='runtime'),
+    sandboxPhaseCounts?: map[string]long(name='sandboxPhaseCounts'),
+    status?: string(name='status', example='Running'),
+    updatedAt?: string(name='updatedAt', example='2026-10-10T06:05:00Z'),
+    workspaceId?: string(name='workspaceId', example='ws-a1b2c3d4e5f6'),
+  }(name='data'),
+  httpStatusCode?: int32(name='httpStatusCode', example='200'),
+  message?: string(name='message', example='success'),
+  requestId?: string(name='requestId', example='550E8400-E29B-41D4-A716-446655440000'),
+  success?: boolean(name='success'),
+}
+
+model GetCustomAgentResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: GetCustomAgentResponseBody(name='body'),
+}
+
+/**
+ * @summary 查询自定义智能体
+ *
+ * @description 创建或更新后，可轮询本接口查询最新配置版本的执行结果。latestVersionStatus 与 latestSpecVersion 对应；latestExecutionError 表示该版本的等待或失败原因，retryable 为 true 时可稍后再次查询。
+ * 返回的配置为最新提交的配置，可能尚未生效。请结合 latestVersionStatus、智能体整体状态 status 和运行实例统计 sandboxPhaseCounts 确认部署及运行情况。
+ * 查询不存在、已完成删除或不属于指定工作空间的自定义智能体时，返回资源不存在错误。
+ *
+ * @param request GetCustomAgentRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return GetCustomAgentResponse
+ */
+@context("getCustomAgentWithContext")
+async function getCustomAgentWithOptions(workspaceId: string, agentId: string, request: GetCustomAgentRequest, headers: map[string]string, runtime: $RuntimeOptions): GetCustomAgentResponse {
+  request.validate();
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    headers = headers,
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'GetCustomAgent',
+    version = '2026-08-04',
+    protocol = 'HTTPS',
+    pathname = `/workspaces/${$URL.percentEncode(workspaceId)}/custom-agents/${$URL.percentEncode(agentId)}`,
+    method = 'GET',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 查询自定义智能体
+ *
+ * @description 创建或更新后，可轮询本接口查询最新配置版本的执行结果。latestVersionStatus 与 latestSpecVersion 对应；latestExecutionError 表示该版本的等待或失败原因，retryable 为 true 时可稍后再次查询。
+ * 返回的配置为最新提交的配置，可能尚未生效。请结合 latestVersionStatus、智能体整体状态 status 和运行实例统计 sandboxPhaseCounts 确认部署及运行情况。
+ * 查询不存在、已完成删除或不属于指定工作空间的自定义智能体时，返回资源不存在错误。
+ *
+ * @param request GetCustomAgentRequest
+ * @return GetCustomAgentResponse
+ */
+async function getCustomAgent(workspaceId: string, agentId: string, request: GetCustomAgentRequest): GetCustomAgentResponse {
+  var runtime = new $RuntimeOptions{};
+  var headers : map[string]string = {};
+  return getCustomAgentWithOptions(workspaceId, agentId, request, headers, runtime);
 }
 
 model GetExternalAgentRequest {
@@ -7653,6 +8321,116 @@ async function listCredentials(workspaceId: string, request: ListCredentialsRequ
   return listCredentialsWithOptions(workspaceId, request, headers, runtime);
 }
 
+model ListCustomAgentsRequest {
+  maxResults?: int32(name='maxResults', description='The maximum number of entries to return per page. Valid values: 1 to 100. If this parameter is omitted or set to 0, the default value 20 is used.', example='20'),
+  nextToken?: string(name='nextToken', description='The opaque token used to query the next page. Omit this parameter in the first request. In subsequent requests, pass the nextToken value returned in the previous response as is, and keep the same workspace. Do not construct the token yourself.', example='djE6YWdlbnRjb3JlLmFnZW50Lmxpc3QuY3VzdG9tOjIw'),
+}
+
+model ListCustomAgentsResponseBody = {
+  code?: string(name='code', description='The result code of the request. The value is SUCCESS if the request is successful.', example='SUCCESS'),
+  httpStatusCode?: int32(name='httpStatusCode', description='The HTTP status code of the request. The value is 200 if the request is successful.', example='200'),
+  items?: [ 
+    {
+      agentId?: string(name='agentId', description='The unique identifier of the custom agent. You can obtain the value from the response of CreateCustomAgent or ListCustomAgents.', example='agent-550e8400e29b41d4a716446655440000'),
+      createMode?: string(name='createMode', description='The creation method of the agent. The value is CUSTOM for custom agents.', example='CUSTOM'),
+      createdAt?: string(name='createdAt', description='The time when the agent was created. The time is displayed in ISO 8601 format. The trailing Z indicates the UTC time zone. Fractional seconds may be included.', example='2026-10-10T06:00:00Z'),
+      deployType?: string(name='deployType', description='The deployment method of the agent. Custom agents are deployed and managed by the platform. The value is MANAGED.', example='MANAGED'),
+      description?: string(name='description', description='The description of the agent\\\\"s purpose.', example='Custom agent that provides conversation services'),
+      latestSpecVersion?: long(name='latestSpecVersion', description='The latest configuration version number. Updates with the same configuration may retain the original version number. This field does not indicate that the configuration has taken effect.', example='1'),
+      name?: string(name='name', description='The name of the custom agent.', example='my-custom-agent'),
+      protocol?: [ 
+        {
+          headers?: map[string]string(name='headers', description='The request header configuration of the current protocol. The key is the header name and the value is a string.'),
+          paths?: [ 
+            {
+              description?: string(name='description', description='The description of the purpose of the current API path.', example='AG-UI conversation API'),
+              name?: string(name='name', description='The API path corresponding to the current protocol.
+
+This parameter is required.', example='/agui'),
+            }
+          ](name='paths', description='The list of API paths corresponding to the current protocol.'),
+          type?: string(name='type', description='The invoke Protocol Type. Valid values: agui: AG-UI protocol. openai-chat-completion: OpenAI Chat Completions compatible protocol. custom: custom protocol.
+
+This parameter is required.', example='agui'),
+        }
+      ](name='protocol', description='The list of invocation protocol configurations for the agent.'),
+      runtime?: string(name='runtime', description='The compute specifications of the agent. Valid values: INTERACTIVE, STANDARD, and HEAVY.', example='STANDARD'),
+      status?: string(name='status', description='The overall status of the agent. Valid values: Creating: The agent is being created. Running: The agent is running. Failed: The agent failed to run. Updating: The agent is being updated. Deleting: The agent is being deleted. Deleted: The agent is deleted. To query the execution progress of the latest configuration, call GetCustomAgent.', example='Running'),
+      updatedAt?: string(name='updatedAt', description='The time when the agent was last updated. The time is displayed in ISO 8601 format. The trailing Z indicates the UTC time zone. Fractional seconds may be included.', example='2026-10-10T06:05:00Z'),
+      workspaceId?: string(name='workspaceId', description='The ID of the workspace to which the custom agent belongs.', example='ws-a1b2c3d4e5f6'),
+    }
+  ](name='items', description='The list of custom agent summaries on the current page. To obtain the complete configuration and the execution results of the latest version, call GetCustomAgent.'),
+  maxResults?: int32(name='maxResults', description='The maximum number of entries returned per page for this query.', example='20'),
+  message?: string(name='message', description='The description of the processing result for this request. The value is success if the request is successful.', example='success'),
+  nextToken?: string(name='nextToken', description='The opaque token used to query the next page. An empty value indicates that there are no more pages. Pass the token as is in subsequent requests.', example='djE6YWdlbnRjb3JlLmFnZW50Lmxpc3QuY3VzdG9tOjIw'),
+  requestId?: string(name='requestId', description='The unique identifier of the request. You can use the ID to locate and troubleshoot issues.', example='550E8400-E29B-41D4-A716-446655440000'),
+  success?: boolean(name='success', description='Indicates whether the request was processed successfully. true indicates that the request was processed successfully. A successful creation, update, or deletion does not mean that the background operation is complete.'),
+  totalCount?: long(name='totalCount', description='The total number of custom agents that meet the query conditions in the specified workspace.', example='40'),
+}
+
+model ListCustomAgentsResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ListCustomAgentsResponseBody(name='body'),
+}
+
+/**
+ * @summary Performs a paged query to retrieve the summary of custom agents in a specified workspace. For paging, the complete configuration, and the execute results of the latest version, call GetCustomAgent.
+ *
+ * @description The default value of maxResults is 20, and the maximum value is 100. If this parameter is omitted or set to 0, the default value is used.
+ * Omit nextToken in the first request. In subsequent requests, pass the nextToken value returned in the previous response as is, and keep the same workspace. The nextToken is an opaque token. Do not parse or construct it yourself. An empty token in the response indicates that there are no more pages.
+ * This operation returns the summaries of the current page and does not return the complete deployment configuration or the execution errors of the latest version. To obtain this information, call GetCustomAgent by using the agentId in items.
+ *
+ * @param request ListCustomAgentsRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return ListCustomAgentsResponse
+ */
+@context("listCustomAgentsWithContext")
+async function listCustomAgentsWithOptions(workspaceId: string, request: ListCustomAgentsRequest, headers: map[string]string, runtime: $RuntimeOptions): ListCustomAgentsResponse {
+  request.validate();
+  var query : map[string]any = {};
+  if (!$isNull(request.maxResults)) {
+    query['maxResults'] = request.maxResults;
+  }
+  if (!$isNull(request.nextToken)) {
+    query['nextToken'] = request.nextToken;
+  }
+
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'ListCustomAgents',
+    version = '2026-08-04',
+    protocol = 'HTTPS',
+    pathname = `/workspaces/${$URL.percentEncode(workspaceId)}/custom-agents`,
+    method = 'GET',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Performs a paged query to retrieve the summary of custom agents in a specified workspace. For paging, the complete configuration, and the execute results of the latest version, call GetCustomAgent.
+ *
+ * @description The default value of maxResults is 20, and the maximum value is 100. If this parameter is omitted or set to 0, the default value is used.
+ * Omit nextToken in the first request. In subsequent requests, pass the nextToken value returned in the previous response as is, and keep the same workspace. The nextToken is an opaque token. Do not parse or construct it yourself. An empty token in the response indicates that there are no more pages.
+ * This operation returns the summaries of the current page and does not return the complete deployment configuration or the execution errors of the latest version. To obtain this information, call GetCustomAgent by using the agentId in items.
+ *
+ * @param request ListCustomAgentsRequest
+ * @return ListCustomAgentsResponse
+ */
+async function listCustomAgents(workspaceId: string, request: ListCustomAgentsRequest): ListCustomAgentsResponse {
+  var runtime = new $RuntimeOptions{};
+  var headers : map[string]string = {};
+  return listCustomAgentsWithOptions(workspaceId, request, headers, runtime);
+}
+
 model ListExternalAgentsRequest {
   maxResults?: int32(name='maxResults', description='The maximum number of entries to return per page. Default value: 20. Valid values: 1 to 100.', example='20'),
   nextToken?: string(name='nextToken', description='The pagination token. You do not need to specify this parameter for the first request. For subsequent requests, use the nextToken value returned in the previous response.', example='next-token-1'),
@@ -9378,10 +10156,10 @@ async function listTeams(workspaceId: string, request: ListTeamsRequest): ListTe
 }
 
 model ListUsersRequest {
-  maxResults?: int32(name='maxResults', description='The maximum number of records per page. Valid values: 1 to 100. Default value: 10.', example='10'),
-  name?: string(name='name', description='The filter condition for exact match by username.', example='user-01'),
-  nameLike?: string(name='nameLike', description='The filter condition for fuzzy match by username. The value can be up to 128 characters in length.', example='user'),
-  nextToken?: string(name='nextToken', description='The pagination token for the next page. Do not specify this parameter for the first request. For subsequent requests, set this parameter to the nextToken value returned in the previous response.', example='dXNlci1vZmZzZXQ6MTA'),
+  maxResults?: int32(name='maxResults', description='The maximum number of records to return per page. Valid values: 1 to 100. If this parameter is not specified, 10 records are returned by default.', example='10'),
+  name?: string(name='name', description='The filter condition for exact match on the username.', example='user-01'),
+  nameLike?: string(name='nameLike', description='The filter condition for fuzzy match on the username. The value can be up to 128 characters in length.', example='user'),
+  nextToken?: string(name='nextToken', description='The cursor for querying the next page. Do not specify this parameter in the first call. In subsequent calls, specify the nextToken value returned in the previous call.', example='dXNlci1vZmZzZXQ6MTA'),
 }
 
 model ListUsersResponseBody = {
@@ -9390,24 +10168,24 @@ model ListUsersResponseBody = {
   items?: [ 
     {
       agentCoreUserId?: string(name='agentCoreUserId', description='The user ID.', example='usr-123456'),
-      authMethod?: string(name='authMethod', description='The authentication method of the user. A value of password indicates local password authentication in the workspace. Values of dingtalk and feishu indicate that the user is synchronized and authenticated by the corresponding external identity provider.', example='password'),
-      createdAt?: string(name='createdAt', description='The creation time in UTC, formatted in RFC 3339.', example='2026-08-12T03:04:05Z'),
-      displayName?: string(name='displayName', description='The display name of the user. The value is 1 to 32 characters in length.', example='John Smith'),
-      email?: string(name='email', description='The email address of the user. The value can be up to 256 characters in length.', example='user-01@example.com'),
-      name?: string(name='name', description='The username. The value must be unique within the workspace and can contain only lowercase letters, digits, and hyphens (-). It must start and end with a lowercase letter or digit. The value is 1 to 32 characters in length.', example='user-01'),
-      note?: string(name='note', description='The remarks of the user. The value can be up to 1024 characters in length.', example='Agent operations team member'),
+      authMethod?: string(name='authMethod', description='The authentication method of the user. A value of password indicates that the user is authenticated by using the local password of the workspace. A value of dingtalk or feishu indicates that the user is synchronized and authenticated by the corresponding external identity provider.', example='password'),
+      createdAt?: string(name='createdAt', description='The creation time. The time is displayed in UTC and follows the RFC 3339 format.', example='2026-08-12T03:04:05Z'),
+      displayName?: string(name='displayName', description='The display name of the user. The name must be 1 to 32 characters in length.', example='Zhang San'),
+      email?: string(name='email', description='The email address of the user. The email address can be up to 256 characters in length.', example='user-01@example.com'),
+      name?: string(name='name', description='The username. The username must be unique within the workspace and can contain only lowercase letters, digits, and hyphens (-). It must start and end with a lowercase letter or a digit, and must be 1 to 32 characters in length.', example='user-01'),
+      note?: string(name='note', description='The note of the user. The note can be up to 1,024 characters in length.', example='Agent operations team member'),
       regionId?: string(name='regionId', description='The region ID of the resource.', example='cn-hangzhou'),
-      status?: string(name='status', description='The user status. Valid values: Creating, Active, Updating, Deleting, Failed, DeleteFailed.', example='Active'),
-      updatedAt?: string(name='updatedAt', description='The time of the last modification in UTC, formatted in RFC 3339.', example='2026-08-12T03:04:05Z'),
+      status?: string(name='status', description='The status of the user. Valid values: Creating, Active, Updating, Deleting, Failed, and DeleteFailed.', example='Active'),
+      updatedAt?: string(name='updatedAt', description='The time of the last modification. The time is displayed in UTC and follows the RFC 3339 format.', example='2026-08-12T03:04:05Z'),
       workspaceId?: string(name='workspaceId', description='The workspace ID.', example='ws-123456'),
     }
-  ](name='items', description='The list of users.'),
-  maxResults?: int32(name='maxResults', description='The maximum number of records per page that takes effect for this query.', example='10'),
-  message?: string(name='message', description='The response message. An error description is returned if the request fails.', example='success'),
-  nextToken?: string(name='nextToken', description='The pagination token for the next page. This value is empty if no more pages are available.', example='dXNlci1vZmZzZXQ6MTA'),
+  ](name='items', description='The user list.'),
+  maxResults?: int32(name='maxResults', description='The maximum number of records per page that takes effect in the current query.', example='10'),
+  message?: string(name='message', description='The response message. If the request fails, an error description is returned.', example='success'),
+  nextToken?: string(name='nextToken', description='The cursor for the next page. If no next page exists, this parameter is empty.', example='dXNlci1vZmZzZXQ6MTA'),
   requestId?: string(name='requestId', description='The request ID.', example='request-123456'),
-  success?: boolean(name='success', description='Indicates whether the request was successful.'),
-  totalCount?: long(name='totalCount', description='The total number of users that match the query conditions.', example='42'),
+  success?: boolean(name='success', description='Indicates whether the request is successful.'),
+  totalCount?: long(name='totalCount', description='The total number of users that meet the query conditions.', example='42'),
 }
 
 model ListUsersResponse = {
@@ -9417,7 +10195,7 @@ model ListUsersResponse = {
 }
 
 /**
- * @summary Queries users in a specified workspace with paging. Use nameLike to filter by username with fuzzy match, maxResults to specify the maximum number of records per page, and nextToken to retrieve the next page. If maxResults is not specified, the server returns 10 records by default.
+ * @summary Performs a paged query of users in a specified workspace. You can filter users by fuzzy match on the username by using nameLike, specify the maximum number of records per page for paging by using maxResults, and obtain the next page by using nextToken. If maxResults is not specified, the server returns 10 records by default.
  *
  * @param request ListUsersRequest
  * @param headers map
@@ -9460,7 +10238,7 @@ async function listUsersWithOptions(workspaceId: string, request: ListUsersReque
 }
 
 /**
- * @summary Queries users in a specified workspace with paging. Use nameLike to filter by username with fuzzy match, maxResults to specify the maximum number of records per page, and nextToken to retrieve the next page. If maxResults is not specified, the server returns 10 records by default.
+ * @summary Performs a paged query of users in a specified workspace. You can filter users by fuzzy match on the username by using nameLike, specify the maximum number of records per page for paging by using maxResults, and obtain the next page by using nextToken. If maxResults is not specified, the server returns 10 records by default.
  *
  * @param request ListUsersRequest
  * @return ListUsersResponse
@@ -10721,6 +11499,401 @@ async function updateCredential(workspaceId: string, credentialId: string, reque
   var runtime = new $RuntimeOptions{};
   var headers : map[string]string = {};
   return updateCredentialWithOptions(workspaceId, credentialId, request, headers, runtime);
+}
+
+model UpdateCustomAgentRequest {
+  body?: {
+    agenticFsMounts?: [ 
+      {
+        mountPath?: string(name='mountPath', description='The subdirectory under /mnt/agenticfs/ in the container. This field is required for each mount item. Mount targets must not be duplicated or form parent-child overrides.', example='/mnt/agenticfs/data'),
+        path?: string(name='path', description='The existing non-empty relative directory under the access point. This field is required for each mount item. Root directories, absolute paths, and parent directory traversals are not allowed.', example='workspace/data'),
+        readOnly?: boolean(name='readOnly', description='Specifies whether the mount is read-only. A value of true indicates read-only, and false indicates read and write. If omitted, the default value is false.', example='false'),
+        server?: string(name='server', description='The domain name of the access point. This field is required for each mount item. Use the DomainName value from the NAS ListAccessPoints response. Do not include the protocol, port, or path.', example='ap-0123456789abcdef0.0123456789-vlm36.cn-hangzhou.nas.aliyuncs.com'),
+      }
+    ](name='agenticFsMounts', description='The list of additional AgenticFS mounts. The total number of AgenticFS and OSS mounts cannot exceed 10. During creation, omitting this field or passing an empty array [] indicates no additional mounts. During an update, omitting this field retains the original value, and passing an empty array [] clears the list. You cannot pass null.'),
+    artifact?: {
+      code?: {
+        entrypoint?: string(name='entrypoint', description='The startup entry point for the code package. Code package deployment is currently not supported. Omit this field.
+
+This parameter is required.', example='python app.py'),
+        languageRuntime?: string(name='languageRuntime', description='The language runtime identifier for the code package. Code package deployment is currently not supported. Omit this field.
+
+This parameter is required.', example='python'),
+        sourceUri?: string(name='sourceUri', description='The source URI of the code package. Code package deployment is currently not supported. Omit this field.
+
+This parameter is required.', example='oss://my-agent-bucket/packages/agent.zip'),
+      }(name='code', description='The code package deployment configuration. This is currently not supported. Omit this field and use artifact.container instead.'),
+      container?: {
+        entrypoint?: string(name='entrypoint', description='The optional executable program and startup parameters. If specified, this must be a non-empty string. When updating the artifact, omitting this field uses the default startup method of the image. To retain the original custom startup command, provide this field together.', example='python app.py'),
+        instanceId?: string(name='instanceId', description='The ID of the ACR instance to which the image repository belongs. This field cannot be empty.
+
+This parameter is required.', example='cri-a1b2c3d4e5f6'),
+        namespace?: string(name='namespace', description='The namespace to which the ACR image repository belongs. This field cannot be empty.
+
+This parameter is required.', example='my-agent'),
+        repo?: string(name='repo', description='The name of the image repository in the ACR namespace. This field cannot be empty.
+
+This parameter is required.', example='chat-agent'),
+        tag?: string(name='tag', description='The image tag used for deployment. This field cannot be empty. When updating the tag, you must also provide artifact.port and other required image fields.
+
+This parameter is required.', example='v1.0.0'),
+        type?: string(name='type', description='The image source type. Currently, only acr is supported, which indicates Alibaba Cloud Container Registry (ACR).
+
+This parameter is required.', example='acr'),
+      }(name='container', description='The ACR container image configuration. You must specify the type, instanceId, namespace, repo, and tag fields. Do not configure the code field at the same time.'),
+      port?: int32(name='port', description='The TCP port listened to by the agent service. Valid values: 1 to 65535.
+
+This parameter is required.', example='8080'),
+    }(name='artifact', description='The deployment artifact configuration. Currently, only ACR container images are supported. Specify the container field and the service listening port field, and omit the code field. During an update, you must specify the port field and all required fields of the container object.'),
+    description?: string(name='description', description='The description of the agent\\\\"s purpose. The maximum length is 1,024 characters after leading and trailing whitespaces are removed. If omitted, the original value is retained. Pass null to clear the description.', example='Custom agent that provides conversation services'),
+    environment?: {
+      variables?: [ 
+        {
+          name?: string(name='name', description='The name of the environment variable. This field cannot be empty and must be unique within the current environment variable list.
+
+This parameter is required.', example='LOG_LEVEL'),
+          value?: string(name='value', description='The value of the environment variable. This must be a string. Empty strings are allowed.
+
+This parameter is required.', example='info'),
+        }
+      ](name='variables', description='The list of environment variables. Each item includes a name and a value. This list is replaced in its entirety during an update.'),
+    }(name='environment', description='The environment variable configuration for the agent process. Omitting this top-level field retains the original value. Providing this object but omitting the variables field clears the custom environment variables. To retain the variables, provide the complete list.'),
+    healthCheck?: {
+      healthyThreshold?: int32(name='healthyThreshold', description='This parameter currently does not take effect. Omit this field.', example='1'),
+      intervalSeconds?: int32(name='intervalSeconds', description='The interval between two health checks, in seconds. This must be a positive integer. If omitted, the default value is 10.', example='10'),
+      path?: string(name='path', description='The HTTP health check path. This must start with a forward slash (/). If omitted, the default value is /healthz.', example='/healthz'),
+      port?: int32(name='port', description='The port accessed for health checks. This field is required when configuring a health check. Valid values: 1 to 65535.', example='8080'),
+      timeoutSeconds?: int32(name='timeoutSeconds', description='The timeout period for a single health check, in seconds. This must be a positive integer and less than intervalSeconds. If omitted, the default value is 2.', example='2'),
+      unhealthyThreshold?: int32(name='unhealthyThreshold', description='The number of consecutive health check failures required to mark the agent as unhealthy. This must be a positive integer. If omitted, the default value is 3.', example='3'),
+    }(name='healthCheck', description='The optional HTTP health check configuration. When providing this object, you must specify the port field. Other unspecified items use default values. Omitting this field during creation indicates no configuration. During an update, omitting this top-level field retains the original configuration, and passing null removes the health check.'),
+    logging?: {
+      sls?: {
+        logstore?: string(name='logstore', description='The name of the Simple Log Service logstore that receives agent logs.', example='agent-runtime'),
+        project?: string(name='project', description='The name of the Simple Log Service project that receives agent logs.', example='my-agent-logs'),
+      }(name='sls', description='The Simple Log Service log delivery destination. When updating this object, you must provide both the project and logstore fields, and they cannot be empty.'),
+    }(name='logging', description='The log delivery configuration for the agent. You can specify the Simple Log Service project and logstore. After a successful creation or update, verify that logs are delivered properly.'),
+    name?: string(name='name', description='The name of the custom agent. The length must be 1 to 128 characters after leading and trailing whitespaces are removed. The name must be unique within the same workspace. If omitted, the original value is retained. You cannot pass null or a blank name.', example='my-custom-agent'),
+    network?: {
+      accessInternet?: {
+        enabled?: boolean(name='enabled', description='Specifies whether to allow the agent to access the Internet. A Boolean value is required when configuring accessInternet. For this to take effect, the workspace must also allow Internet access.'),
+      }(name='accessInternet', description='The Internet access configuration. If this access item is omitted, Internet access is not restricted on the agent side. However, the workspace must still allow Internet access.'),
+      accessVpc?: {
+        enabled?: boolean(name='enabled', description='Specifies whether to allow the agent to access the user VPC configured for the workspace. A Boolean value is required when configuring accessVpc. For this to take effect, the workspace must also allow VPC access.'),
+      }(name='accessVpc', description='The user VPC access configuration. If this access item is omitted, VPC access is not restricted on the agent side. However, the workspace must still be configured to allow access to the user VPC.'),
+    }(name='network', description='The network access configuration for the agent. When providing this object, omitted access items are treated as allowed. The actual accessible scope is still subject to the workspace network configuration. To retain the original restrictions during an update, specify both accessInternet and accessVpc.'),
+    ossMounts?: [ 
+      {
+        bucketName?: string(name='bucketName', description='The name of the OSS bucket. This field is required for each mount item. The name must be 3 to 63 characters in length and can contain only lowercase letters, digits, and hyphens. It cannot start or end with a hyphen.', example='my-agent-data'),
+        mountPath?: string(name='mountPath', description='The subdirectory under /mnt/oss/ in the container. This field is required for each mount item. Mount targets must not be duplicated or form parent-child overrides.', example='/mnt/oss/train'),
+        path?: string(name='path', description='The non-empty object directory prefix in the bucket, such as datasets/train. Leading and trailing forward slashes (/) are removed. Root directories are not supported. Do not use parent directory traversals.', example='datasets/train'),
+        readOnly?: boolean(name='readOnly', description='Specifies whether the mount is read-only. A value of true indicates read-only, and false indicates read and write. If omitted, the default value is false.'),
+      }
+    ](name='ossMounts', description='The list of OSS mounts. The total number of OSS and AgenticFS mounts cannot exceed 10. For each item, you must specify the bucketName, path, and mountPath fields. Mount targets must not be duplicated or overlap with each other. This list is replaced in its entirety during an update. Pass an empty array [] to clear the list.'),
+    protocol?: [ 
+      {
+        headers?: map[string]string(name='headers', description='The request header configuration for the current protocol. The key is a non-empty request header name, and the value must be a string.'),
+        paths?: [ 
+          {
+            description?: string(name='description', description='The description of the current API path.', example='AG-UI conversation API'),
+            name?: string(name='name', description='The non-empty API path corresponding to the current protocol.
+
+This parameter is required.', example='/agui'),
+          }
+        ](name='paths', description='The list of API paths corresponding to the current protocol.'),
+        type?: string(name='type', description='The invocation protocol type. Valid values:
+- agui: AG-UI protocol.
+- openai-chat-completion: OpenAI Chat Completions compatible protocol.
+- custom: Custom protocol.
+
+This parameter is required.', example='agui'),
+      }
+    ](name='protocol', description='The list of invocation protocols supported by the agent. Each item includes the protocol type, along with optional paths and request headers. The entire list is replaced during an update.'),
+    roleArn?: string(name='roleArn', description='The ARN of the RAM role used by the agent to access user cloud resources. The role must have permissions to access the cloud resources.', example='acs:ram::1234567890123456:role/agentcore-runtime-role'),
+    runtime?: {
+      compute?: {
+        computeClass?: string(name='computeClass', description='The compute specification. Valid values:
+- INTERACTIVE: 1 vCPU and 2 GiB of memory.
+- STANDARD: 2 vCPUs and 4 GiB of memory.
+- HEAVY: 4 vCPUs and 8 GiB of memory.
+
+This parameter is required.', example='STANDARD'),
+      }(name='compute', description='The compute resource configuration for the agent runtime instance.
+
+This parameter is required.'),
+      hpa?: {
+        enabled?: boolean(name='enabled', description='Specifies whether to enable elastic scaling. Valid values:
+- true: Enabled.
+- false: Disabled.
+When runtime is provided, omitting this field defaults to false.
+
+This parameter is required.'),
+        maxConcurrentSessionsPerSandbox?: int32(name='maxConcurrentSessionsPerSandbox', description='The maximum number of concurrent sessions for a single runtime instance. Valid values: 1 to 100. When runtime is provided, omitting this field uses the default value of 100.', example='100'),
+        maxSandboxCount?: int32(name='maxSandboxCount', description='The maximum number of runtime instances. Valid values: 1 to 100. The value cannot be less than minSandboxCount. When runtime is provided, omitting this field uses the default value of 10.', example='10'),
+        minSandboxCount?: int32(name='minSandboxCount', description='The minimum number of runtime instances. Valid values: 1 to 100. The value cannot be greater than maxSandboxCount. When runtime is provided, omitting this field uses the default value of 1.', example='1'),
+        sessionTtlSeconds?: int32(name='sessionTtlSeconds', description='The session idle timeout in seconds. Valid values: 60 to 86400. When runtime is provided, omitting this field uses the default value of 600.', example='600'),
+      }(name='hpa', description='The optional elastic policy. When runtime is provided, omitting hpa or its fields uses the default values: enabled is false, the minimum number of instances is 1, the maximum number of instances is 10, the maximum number of concurrent sessions per instance is 100, and the session idle timeout is 600 seconds. To retain the original policy during an update, provide the complete hpa configuration.'),
+      sessionPolicy?: {
+        headerName?: string(name='headerName', description='The name of the HTTP request header used by the session policy. This parameter is required when type is ISOLATED_HEADER_FIELD and must be a valid HTTP request header name. Omit this parameter for other policies.', example='X-Session-Id'),
+        type?: string(name='type', description='The session policy type. Valid values:
+- AFFINITY: Session affinity.
+- ISOLATED_HEADER_FIELD: Associates sessions by using the request header specified by headerName.
+- ISOLATED_COOKIE: Not recommended.
+- DISABLED: A compatibility option. The response returns AFFINITY.
+
+This parameter is required.', example='AFFINITY'),
+      }(name='sessionPolicy', description='The session policy configuration, which is used to set the session association method for requests.
+
+This parameter is required.'),
+    }(name='runtime', description='The runtime configuration. When this object is provided, both compute and sessionPolicy must be present. To retain the original elastic policy, provide the complete hpa configuration. Omitting the top-level runtime field retains the original configuration.'),
+  }(name='body', description='The update configuration for the custom agent. Provide at least one top-level field. Omitted top-level fields retain their original values. When providing a configuration object, specify its required subfields and include any optional configurations that you want to retain. Arrays are replaced in their entirety.'),
+  clientToken?: string(name='clientToken', description='Idempotency is not currently guaranteed. Do not rely on this parameter to prevent duplicate requests.', example='custom-agent-request-20261010-001'),
+}
+
+model UpdateCustomAgentShrinkRequest {
+  bodyShrink?: string(name='body', description='The update configuration for the custom agent. Provide at least one top-level field. Omitted top-level fields retain their original values. When providing a configuration object, specify its required subfields and include any optional configurations that you want to retain. Arrays are replaced in their entirety.'),
+  clientToken?: string(name='clientToken', description='Idempotency is not currently guaranteed. Do not rely on this parameter to prevent duplicate requests.', example='custom-agent-request-20261010-001'),
+}
+
+model UpdateCustomAgentResponseBody = {
+  code?: string(name='code', description='The request result code. The value is SUCCESS when the request is successful.', example='SUCCESS'),
+  data?: {
+    agentId?: string(name='agentId', description='The unique identifier of the custom agent. You can obtain this ID from the response of the CreateCustomAgent or ListCustomAgents operation.', example='agent-550e8400e29b41d4a716446655440000'),
+    agenticFsMounts?: [ 
+      {
+        mountPath?: string(name='mountPath', description='The AgenticFS mount directory in the container, located under /mnt/agenticfs/.', example='/mnt/agenticfs/data'),
+        path?: string(name='path', description='The relative directory within the mounted AccessPoint.', example='workspace/data'),
+        readOnly?: boolean(name='readOnly', description='Specifies whether the mount is read-only. A value of true indicates read-only, and a value of false indicates read and write.', example='false'),
+        server?: string(name='server', description='The domain name of the AgenticFS AccessPoint used for the mount.', example='ap-0123456789abcdef0.0123456789-vlm36.cn-hangzhou.nas.aliyuncs.com'),
+      }
+    ](name='agenticFsMounts', description='The latest submitted list of additional AgenticFS mounts.'),
+    artifact?: {
+      code?: {
+        entrypoint?: string(name='entrypoint', description='The startup entry point of the code package. Code package deployment is not supported.
+
+This parameter is required.', example='python app.py'),
+        languageRuntime?: string(name='languageRuntime', description='The language runtime identifier of the code package. Code package deployment is not supported.
+
+This parameter is required.', example='python'),
+        sourceUri?: string(name='sourceUri', description='The source URI of the code package. Code package deployment is not supported.
+
+This parameter is required.', example='oss://my-agent-bucket/packages/agent.zip'),
+      }(name='code', description='The code package configuration field. Code package deployment is not supported.'),
+      container?: {
+        entrypoint?: string(name='entrypoint', description='The custom executable program and startup parameters. If not configured, the default startup method of the image is used.', example='python app.py'),
+        instanceId?: string(name='instanceId', description='The ID of the ACR instance to which the image repository belongs.
+
+This parameter is required.', example='cri-a1b2c3d4e5f6'),
+        namespace?: string(name='namespace', description='The namespace to which the ACR image repository belongs.
+
+This parameter is required.', example='my-agent'),
+        repo?: string(name='repo', description='The name of the image repository in the ACR namespace.
+
+This parameter is required.', example='chat-agent'),
+        tag?: string(name='tag', description='The latest submitted image tag.
+
+This parameter is required.', example='v1.0.0'),
+        type?: string(name='type', description='The image source type. A value of acr indicates Alibaba Cloud Container Registry (ACR).
+
+This parameter is required.', example='acr'),
+      }(name='container', description='The latest submitted ACR container image configuration.'),
+      port?: int32(name='port', description='The TCP port listened on by the agent service.
+
+This parameter is required.', example='8080'),
+    }(name='artifact', description='The latest submitted deployment artifact configuration, including the service listening port and ACR container image. Check latestVersionStatus to determine whether the configuration has taken effect.'),
+    createMode?: string(name='createMode', description='The creation method of the agent. The value is CUSTOM for custom agents.', example='CUSTOM'),
+    createdAt?: string(name='createdAt', description='The creation time of the agent. The time is in ISO 8601 format. The trailing Z indicates the UTC time zone. Fractional seconds may be included.', example='2026-10-10T06:00:00Z'),
+    deployType?: string(name='deployType', description='The deployment method of the agent. Custom agents are deployed and managed by the platform, and the value is MANAGED.', example='MANAGED'),
+    description?: string(name='description', description='The description of the agent\\\\"s purpose.', example='Custom agent that provides conversation services'),
+    environment?: {
+      variables?: [ 
+        {
+          name?: string(name='name', description='The name of the environment variable.
+
+This parameter is required.', example='LOG_LEVEL'),
+          value?: string(name='value', description='The string value of the environment variable. Empty strings are allowed.
+
+This parameter is required.', example='info'),
+        }
+      ](name='variables', description='The latest submitted list of environment variables.'),
+    }(name='environment', description='The environment variable configuration for the agent process.'),
+    healthCheck?: {
+      healthyThreshold?: int32(name='healthyThreshold', description='This parameter does not take effect.', example='1'),
+      intervalSeconds?: int32(name='intervalSeconds', description='The interval between two consecutive health checks, in seconds.', example='10'),
+      path?: string(name='path', description='The health check path.', example='/healthz'),
+      port?: int32(name='port', description='The port accessed for the HTTP health check.', example='8080'),
+      timeoutSeconds?: int32(name='timeoutSeconds', description='The timeout period for a single health check, in seconds.', example='2'),
+      unhealthyThreshold?: int32(name='unhealthyThreshold', description='The number of consecutive health check failures required to mark the agent as unhealthy.', example='3'),
+    }(name='healthCheck', description='The HTTP health check configuration of the agent. This field is empty if no configuration is specified.'),
+    latestExecutionError?: {
+      code?: string(name='code', description='The reason code for the waiting or execution failure of the latest configuration. This code is used to determine the subsequent processing method.', example='AgentExecutionFailed'),
+      message?: string(name='message', description='The description of the reason why the latest configuration is waiting or failed to execute. Refer to code and retryable to determine what to do next.', example='Agent execution failed. Check the configuration and resubmit'),
+      retryable?: boolean(name='retryable', description='Specifies whether automatic retry is performed. If the value is true, you can query again later. If the value is false, check and fix the configuration based on the reason, and then resubmit.'),
+    }(name='latestExecutionError', description='The waiting or execution error of the latest configuration version. This field is returned only when the version is waiting for a retry or fails to execute.'),
+    latestSpecVersion?: long(name='latestSpecVersion', description='The current latest configuration version number. Updates with the same configuration may retain the original version number. This field does not indicate that the configuration has taken effect.', example='1'),
+    latestVersionStatus?: string(name='latestVersionStatus', description='The execution status corresponding to latestSpecVersion. Valid values:
+- pending: Waiting for execution.
+- processing: Executing.
+- waiting_retry: Waiting for retry.
+- succeeded: Execution succeeded.
+- failed: Execution failed.
+- superseded: Superseded by a subsequent version.', example='succeeded'),
+    logging?: {
+      sls?: {
+        logstore?: string(name='logstore', description='The name of the Simple Log Service logstore that receives agent logs.', example='agent-runtime'),
+        project?: string(name='project', description='The name of the Simple Log Service project that receives agent logs.', example='my-agent-logs'),
+      }(name='sls', description='The Simple Log Service (SLS) log delivery destination.'),
+    }(name='logging', description='The latest submitted log delivery configuration.'),
+    name?: string(name='name', description='The name of the custom agent.', example='my-custom-agent'),
+    network?: {
+      accessInternet?: {
+        enabled?: boolean(name='enabled', description='Specifies whether Internet access is allowed on the agent side. The actual access is still restricted by the workspace.'),
+      }(name='accessInternet', description='The Internet access configuration of the agent. If this field is not configured, Internet access is allowed on the agent side, but it is still restricted by the workspace.'),
+      accessVpc?: {
+        enabled?: boolean(name='enabled', description='Specifies whether access to the user VPC configured for the workspace is allowed on the agent side. The actual access is still restricted by the workspace.'),
+      }(name='accessVpc', description='The user VPC access configuration of the agent. If this field is not configured, user VPC access is allowed on the agent side, but it is still restricted by the workspace.'),
+    }(name='network', description='The network access configuration of the agent. The actual access scope is also restricted by the workspace network configuration.'),
+    ossMounts?: [ 
+      {
+        bucketName?: string(name='bucketName', description='The name of the mounted OSS bucket.', example='my-agent-data'),
+        mountPath?: string(name='mountPath', description='The OSS mount directory in the container, located under /mnt/oss/.', example='/mnt/oss/train'),
+        path?: string(name='path', description='The object directory prefix in the mounted bucket.', example='datasets/train'),
+        readOnly?: boolean(name='readOnly', description='Specifies whether the mount is read-only. A value of true indicates read-only, and a value of false indicates read and write.'),
+      }
+    ](name='ossMounts', description='The latest submitted list of OSS directory mounts.'),
+    protocol?: [ 
+      {
+        headers?: map[string]string(name='headers', description='The request header configurations for the current protocol, where the key is the name and the value is a string.'),
+        paths?: [ 
+          {
+            description?: string(name='description', description='The description of the current API path.', example='AG-UI conversation API'),
+            name?: string(name='name', description='The API path corresponding to the current protocol.
+
+This parameter is required.', example='/agui'),
+          }
+        ](name='paths', description='The list of API paths corresponding to the current protocol.'),
+        type?: string(name='type', description='The invocation protocol type. Valid values:
+- agui: AG-UI protocol.
+- openai-chat-completion: OpenAI Chat Completions compatible protocol.
+- custom: Custom protocol.
+
+This parameter is required.', example='agui'),
+      }
+    ](name='protocol', description='The list of invocation protocol configurations for the agent.'),
+    regionId?: string(name='regionId', description='The region ID of the workspace to which the agent belongs.', example='cn-hangzhou'),
+    roleArn?: string(name='roleArn', description='The ARN of the RAM role used by the agent to access user cloud resources.', example='acs:ram::1234567890123456:role/agentcore-runtime-role'),
+    runtime?: {
+      compute?: {
+        computeClass?: string(name='computeClass', description='The compute specification. Valid values:
+- INTERACTIVE: 1 vCPU and 2 GiB of memory.
+- STANDARD: 2 vCPUs and 4 GiB of memory.
+- HEAVY: 4 vCPUs and 8 GiB of memory.
+
+This parameter is required.', example='STANDARD'),
+      }(name='compute', description='The compute resource configuration for the agent runtime instance.
+
+This parameter is required.'),
+      hpa?: {
+        enabled?: boolean(name='enabled', description='Specifies whether elastic scaling is enabled. A value of true indicates that elastic scaling is enabled, and a value of false indicates that elastic scaling is disabled.
+
+This parameter is required.'),
+        maxConcurrentSessionsPerSandbox?: int32(name='maxConcurrentSessionsPerSandbox', description='The maximum number of concurrent sessions configured for a single running instance.', example='100'),
+        maxSandboxCount?: int32(name='maxSandboxCount', description='The maximum number of running instances configured.', example='10'),
+        minSandboxCount?: int32(name='minSandboxCount', description='The minimum number of running instances configured.', example='1'),
+        sessionTtlSeconds?: int32(name='sessionTtlSeconds', description='The maximum idle time configured for a session, in seconds.', example='600'),
+      }(name='hpa', description='The elastic policy configurations for the agent.'),
+      sessionPolicy?: {
+        headerName?: string(name='headerName', description='The name of the HTTP request header used by the session policy. This parameter is applicable to ISOLATED_HEADER_FIELD.', example='X-Session-Id'),
+        type?: string(name='type', description='The type of the session policy. Valid values: AFFINITY (session affinity), ISOLATED_HEADER_FIELD (associates sessions by using the request header specified by headerName), and ISOLATED_COOKIE (not recommended). The compatible value DISABLED in requests is returned as AFFINITY.
+
+This parameter is required.', example='AFFINITY'),
+      }(name='sessionPolicy', description='The session policy configurations for the agent.
+
+This parameter is required.'),
+    }(name='runtime', description='The latest committed runtime configurations, including compute specifications, session policy, and elastic policy.'),
+    sandboxPhaseCounts?: map[string]long(name='sandboxPhaseCounts', description='The counts of running instances by phase. Keys include PENDING (creating or initializing), RUNNING (running), HIBERNATING (hibernating), HIBERNATED (hibernated), RESUMING (resuming), TERMINATING (terminating), and FAILED (failed). Only phases that actually occur are returned. Missing keys are treated as 0.'),
+    status?: string(name='status', description='The overall status of the agent. Valid values: Creating (creating), Running (running), Failed (failed), Updating (updating), Deleting (deleting), and Deleted (deleted). To check the execution progress of the latest configuration, query latestVersionStatus.', example='Running'),
+    updatedAt?: string(name='updatedAt', description='The time when the agent was last updated. The time follows the ISO 8601 standard. A trailing Z indicates the UTC time zone. Fractional seconds may be included.', example='2026-10-10T06:05:00Z'),
+    workspaceId?: string(name='workspaceId', description='The ID of the workspace to which the custom agent belongs.', example='ws-a1b2c3d4e5f6'),
+  }(name='data', description='The latest submitted configuration and status of the custom agent. A successful response indicates that the request is accepted, but the configuration may not have taken effect yet.'),
+  httpStatusCode?: int32(name='httpStatusCode', description='The HTTP status code of the request. A value of 200 indicates success.', example='200'),
+  message?: string(name='message', description='The processing result message of the request. The value is success if the request is successful.', example='success'),
+  requestId?: string(name='requestId', description='The unique identifier of the request, which is used to locate and troubleshoot issues.', example='550E8400-E29B-41D4-A716-446655440000'),
+  success?: boolean(name='success', description='Indicates whether the request was processed successfully. A value of true indicates that the request was processed successfully. A successful creation, update, or deletion does not mean that the background operation is complete.'),
+}
+
+model UpdateCustomAgentResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: UpdateCustomAgentResponseBody(name='body'),
+}
+
+/**
+ * @summary Updates the configuration of a specified custom agent in a workspace and executes the update asynchronously. Omitted top-level fields retain their original configurations. You can call the GetCustomAgent operation to query the update result.
+ *
+ * @description Provide at least one top-level field to update. Omitted top-level fields retain their original configurations. When providing a configuration object, specify its required subfields and include any optional configurations that you want to retain. Arrays are replaced in their entirety. Pass an empty array [] to clear a list. The agenticFsMounts field does not accept null. Pass null for the description field to clear the description, and pass null for the healthCheck field to remove the health check.
+ * When updating an image, you must specify artifact.port and the type, instanceId, namespace, repo, and tag fields of artifact.container. To retain a custom startup command, also provide the entrypoint field. Currently, only Alibaba Cloud Container Registry (ACR) container image deployment is supported. Omit the artifact.code field.
+ * When providing the runtime field, both compute and sessionPolicy must be present. If you omit hpa or any of its fields, unspecified elastic configurations use default values. To retain the original elastic configurations, provide them together. When providing the network field, omitted access items are treated as allowed, but actual access is still subject to workspace network restrictions. To retain the original restrictions, provide both accessInternet and accessVpc. When providing healthCheck, you must specify the port field, and other unspecified items use default values. When providing logging.sls, you must specify both project and logstore.
+ * The update is an asynchronous process. A successful response indicates that the request is accepted. Call the GetCustomAgent operation to query latestSpecVersion, latestVersionStatus, and latestExecutionError, and check the status field to confirm the update result.
+ * The clientToken field currently does not provide idempotency guarantees. Do not rely on this parameter to prevent duplicate requests. The healthyThreshold field for health checks currently does not take effect. Omit this field.
+ *
+ * @param tmpReq UpdateCustomAgentRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return UpdateCustomAgentResponse
+ */
+@context("updateCustomAgentWithContext")
+async function updateCustomAgentWithOptions(workspaceId: string, agentId: string, tmpReq: UpdateCustomAgentRequest, headers: map[string]string, runtime: $RuntimeOptions): UpdateCustomAgentResponse {
+  tmpReq.validate();
+  var request = new UpdateCustomAgentShrinkRequest{};
+  OpenApiUtil.convert(tmpReq, request);
+  if (!$isNull(tmpReq.body)) {
+    request.bodyShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.body, 'body', 'json');
+  }
+  var query : map[string]any = {};
+  if (!$isNull(request.clientToken)) {
+    query['clientToken'] = request.clientToken;
+  }
+
+  var body : map[string]any = {};
+  if (!$isNull(request.bodyShrink)) {
+    body['body'] = request.bodyShrink;
+  }
+
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'UpdateCustomAgent',
+    version = '2026-08-04',
+    protocol = 'HTTPS',
+    pathname = `/workspaces/${$URL.percentEncode(workspaceId)}/custom-agents/${$URL.percentEncode(agentId)}`,
+    method = 'PUT',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Updates the configuration of a specified custom agent in a workspace and executes the update asynchronously. Omitted top-level fields retain their original configurations. You can call the GetCustomAgent operation to query the update result.
+ *
+ * @description Provide at least one top-level field to update. Omitted top-level fields retain their original configurations. When providing a configuration object, specify its required subfields and include any optional configurations that you want to retain. Arrays are replaced in their entirety. Pass an empty array [] to clear a list. The agenticFsMounts field does not accept null. Pass null for the description field to clear the description, and pass null for the healthCheck field to remove the health check.
+ * When updating an image, you must specify artifact.port and the type, instanceId, namespace, repo, and tag fields of artifact.container. To retain a custom startup command, also provide the entrypoint field. Currently, only Alibaba Cloud Container Registry (ACR) container image deployment is supported. Omit the artifact.code field.
+ * When providing the runtime field, both compute and sessionPolicy must be present. If you omit hpa or any of its fields, unspecified elastic configurations use default values. To retain the original elastic configurations, provide them together. When providing the network field, omitted access items are treated as allowed, but actual access is still subject to workspace network restrictions. To retain the original restrictions, provide both accessInternet and accessVpc. When providing healthCheck, you must specify the port field, and other unspecified items use default values. When providing logging.sls, you must specify both project and logstore.
+ * The update is an asynchronous process. A successful response indicates that the request is accepted. Call the GetCustomAgent operation to query latestSpecVersion, latestVersionStatus, and latestExecutionError, and check the status field to confirm the update result.
+ * The clientToken field currently does not provide idempotency guarantees. Do not rely on this parameter to prevent duplicate requests. The healthyThreshold field for health checks currently does not take effect. Omit this field.
+ *
+ * @param request UpdateCustomAgentRequest
+ * @return UpdateCustomAgentResponse
+ */
+async function updateCustomAgent(workspaceId: string, agentId: string, request: UpdateCustomAgentRequest): UpdateCustomAgentResponse {
+  var runtime = new $RuntimeOptions{};
+  var headers : map[string]string = {};
+  return updateCustomAgentWithOptions(workspaceId, agentId, request, headers, runtime);
 }
 
 model UpdateExternalAgentRequest {
