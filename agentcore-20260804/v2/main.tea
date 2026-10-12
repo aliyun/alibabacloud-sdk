@@ -1250,8 +1250,8 @@ async function createCustomAgent(workspaceId: string, request: CreateCustomAgent
 
 model CreateExternalAgentRequest {
   body?: {
-    description?: string(name='description', description='The description of the external agent.', example='A code review agent running in the user environment'),
-    instruction?: string(name='instruction', description='The agent instruction that guides the behavior of the agent.', example='You are a code review assistant'),
+    description?: string(name='description', description='The description of the external agent.', example='Code review agent running in the user environment'),
+    instruction?: string(name='instruction', description='The instructions that guide the behavior of the agent.', example='You are a code review assistant'),
     model?: {
       modelConnectionId?: string(name='modelConnectionId', description='The model connection ID.
 
@@ -1260,15 +1260,17 @@ This parameter is required.', example='mc-1'),
 
 This parameter is required.', example='qwen-max'),
       quota?: {
-        enabled?: boolean(name='enabled', description='Specifies whether to enable token quota. Defaults to true if not specified. Set to false to disable and delete existing quota rules.', example='true'),
-        limitType?: string(name='limitType', description='The quota limit type. Required by backend validation when quota is enabled. Fixed value: token.', example='token'),
-        periodType?: string(name='periodType', description='The quota statistical period. Required by backend validation when quota is enabled. Valid values: day (daily) and month (monthly).', example='day'),
-        usageLimit?: long(name='usageLimit', description='The maximum number of tokens that can be consumed within a single period. Required by backend validation when quota is enabled. The value must be greater than 0.', example='1000000'),
-      }(name='quota', description='The model token quota configuration. If not specified, no quota is configured.'),
-    }(name='model', description='The model configuration. Available only when modelSource is set to PLATFORM.'),
-    modelSource?: string(name='modelSource', description='The model configuration source. PLATFORM indicates that the platform parses and delivers the model configuration. RUNTIME indicates that the external runtime manages the model independently, and the model parameter cannot be specified at the same time. Valid values:
-- PLATFORM: platform model.
-- RUNTIME: runtime model.', example='PLATFORM'),
+        enabled?: boolean(name='enabled', description='Specifies whether to enable the token quota. Default value: true. If you set this parameter to false, the quota is disabled and existing quota rules are deleted.', example='true'),
+        limitType?: string(name='limitType', description='The quota limit type. This parameter is required when the quota is enabled. Fixed value: token.', example='token'),
+        periodType?: string(name='periodType', description='The statistical period of the quota. This parameter is required when the quota is enabled. Valid values:
+- day: Daily.
+- month: Monthly.', example='day'),
+        usageLimit?: long(name='usageLimit', description='The maximum number of tokens that can be consumed in a single period. This parameter is required when the quota is enabled and must be greater than 0.', example='1000000'),
+      }(name='quota', description='The model token quota configuration. If this parameter is not specified, no quota is configured.'),
+    }(name='model', description='The model configuration. This parameter is available only when modelSource is set to PLATFORM.'),
+    modelSource?: string(name='modelSource', description='The source of the model configuration. PLATFORM indicates that the platform parses and delivers the model configuration. RUNTIME indicates that the external runtime manages the model, and the model parameter cannot be passed at the same time. Valid values:
+- PLATFORM: Platform model.
+- RUNTIME: Runtime model.', example='PLATFORM'),
     name?: string(name='name', description='The name of the external agent.
 
 This parameter is required.', example='my-external-agent'),
@@ -1277,15 +1279,24 @@ This parameter is required.', example='my-external-agent'),
         name?: string(name='name', description='The skill name.
 
 This parameter is required.', example='code-analysis'),
+        sourceType?: string(name='sourceType', description='The source type of the skill. Valid values:
+- REFERENCE: References the AI Registry.
+- STATIC: Statically provided with the package.', example='REFERENCE'),
         version?: string(name='version', description='The skill version.', example='1.0.0'),
+        versionSelector?: {
+          type?: string(name='type', description='The type of the version selector. Valid values:
+- LABEL: By label.
+- VERSION: By specific version.', example='LABEL'),
+          value?: string(name='value', description='The value of the selector. If the type is LABEL, this value is the label name, such as latest. If the type is VERSION, this value is the specific version number.', example='latest'),
+        }(name='versionSelector', description='The referenced version selector. If omitted, the default value is LABEL/latest. Currently, only LABEL/latest is supported.'),
       }
     ](name='skills', description='The list of skill configurations.'),
     template?: {
       aiRegistry?: {
-        name?: string(name='name', description='The name of the template in AI Registry.
+        name?: string(name='name', description='The name of the template in the AI Registry.
 
 This parameter is required.', example='code-review-template'),
-        version?: string(name='version', description='The version of the template in AI Registry.
+        version?: string(name='version', description='The version of the template in the AI Registry.
 
 This parameter is required.', example='1.0.0'),
       }(name='aiRegistry', description='The AI Registry template configuration.'),
@@ -1302,81 +1313,93 @@ This parameter is required.', example='MCP'),
       }
     ](name='tools', description='The list of tool configurations.'),
   }(name='body', description='The request body.'),
-  clientToken?: string(name='clientToken', description='The reserved idempotency token. The backend does not provide idempotency guarantee in the current phase.', example='client-token-1'),
+  clientToken?: string(name='clientToken', description='The reserved idempotency token. The backend does not provide idempotency guarantees in the current phase.', example='client-token-1'),
 }
 
 model CreateExternalAgentShrinkRequest {
   bodyShrink?: string(name='body', description='The request body.'),
-  clientToken?: string(name='clientToken', description='The reserved idempotency token. The backend does not provide idempotency guarantee in the current phase.', example='client-token-1'),
+  clientToken?: string(name='clientToken', description='The reserved idempotency token. The backend does not provide idempotency guarantees in the current phase.', example='client-token-1'),
 }
 
 model CreateExternalAgentResponseBody = {
-  code?: string(name='code', description='The business status code. The value is SUCCESS when the request succeeds.', example='SUCCESS'),
+  code?: string(name='code', description='The business status code. The value is SUCCESS when the operation is successful.', example='SUCCESS'),
   data?: {
-    agentId?: string(name='agentId', description='The external agent ID.', example='agent-1'),
+    agentId?: string(name='agentId', description='The ID of the external agent.', example='agent-1'),
+    configuredSkills?: [ 
+      {
+        name?: string(name='name', description='The name of the skill in Workspace AI Registry.
+
+This parameter is required.', example='web-search'),
+        sourceType?: string(name='sourceType', description='The source type of the skill. Valid values:
+- REFERENCE: References the AI Registry.
+- STATIC: Statically provided with the package.', example='REFERENCE'),
+        version?: string(name='version', description='The legacy compatibility field. New requests use sourceType and versionSelector.', example='1.0.0'),
+        versionSelector?: {
+          type?: string(name='type', description='The type of the version selector. Valid values:
+- LABEL: By label.
+- VERSION: By specific version.', example='LABEL'),
+          value?: string(name='value', description='The value of the selector. If the type is LABEL, this value is the label name, such as latest. If the type is VERSION, this value is the specific version number.', example='latest'),
+        }(name='versionSelector', description='The referenced version selector. If omitted, the default value is LABEL/latest. Currently, only LABEL/latest is supported.'),
+      }
+    ](name='configuredSkills', description='Includes only the skills added or overridden by the user. Template-inherited skills are not included. The resource model reads this field to preserve update semantics. Creation and update operations still use the skills in the request.'),
     createMode?: string(name='createMode', description='The creation mode.', example='CUSTOM'),
-    createdAt?: string(name='createdAt', description='The creation time in RFC 3339 format.', example='2026-01-01T00:00:00Z'),
+    createdAt?: string(name='createdAt', description='The creation time, in RFC 3339 format.', example='2026-01-01T00:00:00Z'),
     deployType?: string(name='deployType', description='The deployment type.', example='SELF_HOSTED'),
-    description?: string(name='description', description='The description of the external agent.', example='A code review agent running in the user environment'),
+    description?: string(name='description', description='The description of the external agent.', example='Code review agent running in the user environment'),
     externalAgentStatus?: {
-      heartbeatStatus?: string(name='heartbeatStatus', description='The heartbeat status. ONLINE indicates that the most recent heartbeat has not exceeded the configured timeout threshold. STALE indicates that the heartbeat has timed out. UNKNOWN indicates that the heartbeat is missing or has an invalid format. Valid values:
-- ONLINE: Online.
-- STALE: Heartbeat expired.
-- UNKNOWN: Unknown.', example='ONLINE'),
+      heartbeatStatus?: string(name='heartbeatStatus', description='The heartbeat status. ONLINE indicates that the most recent heartbeat has not exceeded the configured timeout threshold. STALE indicates that the heartbeat has timed out. UNKNOWN indicates that the heartbeat is missing or has an invalid format. Valid values: ONLINE (online), STALE (heartbeat expired), and UNKNOWN (unknown).', example='ONLINE'),
       lastActiveAt?: string(name='lastActiveAt', description='The time when the external agent was last active, in RFC 3339 format.', example='2026-01-01T00:00:00Z'),
       lastHeartbeat?: string(name='lastHeartbeat', description='The time of the last heartbeat from the external agent, in RFC 3339 format.', example='2026-01-01T00:00:00Z'),
       localIP?: string(name='localIP', description='The local IP address reported by the external agent.', example='10.0.0.42'),
       runtime?: string(name='runtime', description='The runtime type reported by the external agent.', example='qwenpaw'),
     }(name='externalAgentStatus', description='The runtime status information reported by the external agent.'),
-    instruction?: string(name='instruction', description='The agent instruction that guides the behavior of the agent.', example='You are a code review assistant'),
+    instruction?: string(name='instruction', description='The instructions that guide the behavior of the agent.', example='You are a code review assistant'),
     latestSpecVersion?: long(name='latestSpecVersion', description='The latest specification version number.', example='1'),
-    latestVersionStatus?: string(name='latestVersionStatus', description='The processing status of the latest specification version. Valid values:
-- pending: Pending.
-- processing: Processing.
-- waiting_retry: Waiting for retry.
-- succeeded: Succeeded.
-- failed: Failed.
-- superseded: Superseded by a newer version.', example='pending'),
+    latestVersionStatus?: string(name='latestVersionStatus', description='The processing status of the latest specification version. Valid values: pending (to be processed), processing (in progress), waiting_retry (waiting for retry), succeeded (success), failed (failure), and superseded (replaced by a new version).', example='pending'),
     model?: {
       modelConnectionId?: string(name='modelConnectionId', description='The model connection ID.', example='mc-1'),
       modelName?: string(name='modelName', description='The upstream model name.', example='qwen-max'),
       quota?: {
         enabled?: boolean(name='enabled', description='Indicates whether the quota is enabled. This field is not returned if no quota is configured.', example='true'),
         limitType?: string(name='limitType', description='The quota limit type. Currently, only token is supported.', example='token'),
-        overLimit?: boolean(name='overLimit', description='Indicates whether the quota has been exceeded in the current cycle. This is a read-only field returned by the backend.', example='false'),
-        periodType?: string(name='periodType', description='The quota statistical period. day indicates a daily period. month indicates a monthly period.', example='day'),
-        ruleStatus?: string(name='ruleStatus', description='The gateway quota rule status. This is a read-only field returned by the backend.', example='ACTIVE'),
-        usageLimit?: long(name='usageLimit', description='The maximum number of tokens that can be consumed within a single cycle.', example='1000000'),
-        usedAmount?: long(name='usedAmount', description='The number of tokens consumed in the current cycle. This is a read-only field returned by the backend.', example='12345'),
-      }(name='quota', description='The model token quota configuration and the quota usage status in the current cycle. This field is empty if no quota is configured.'),
-    }(name='model', description='The model configuration. Available only when modelSource is set to PLATFORM.'),
-    modelSource?: string(name='modelSource', description='The model configuration source. PLATFORM indicates that the platform parses and delivers the model configuration. RUNTIME indicates that the external runtime manages the model independently, and the model parameter cannot be specified at the same time. Valid values:
-- PLATFORM: platform model.
-- RUNTIME: runtime model.', example='PLATFORM'),
+        overLimit?: boolean(name='overLimit', description='Indicates whether the quota has been exceeded in the current period. This field is read-only and returned by the backend.', example='false'),
+        periodType?: string(name='periodType', description='The quota statistical period. The value day indicates daily statistics. The value month indicates monthly statistics.', example='day'),
+        ruleStatus?: string(name='ruleStatus', description='The gateway quota rule status. This field is read-only and returned by the backend.', example='ACTIVE'),
+        usageLimit?: long(name='usageLimit', description='The maximum number of tokens that can be consumed in a single period.', example='1000000'),
+        usedAmount?: long(name='usedAmount', description='The number of tokens consumed in the current period. This field is read-only and returned by the backend.', example='12345'),
+      }(name='quota', description='The model token quota configuration and quota usage status for the current period. This field is empty if no quota is configured.'),
+    }(name='model', description='The model configuration. This parameter is available only when modelSource is set to PLATFORM.'),
+    modelSource?: string(name='modelSource', description='The source of the model configuration. PLATFORM indicates that the platform parses and delivers the model configuration. RUNTIME indicates that the external runtime manages the model, and the model parameter cannot be passed at the same time. Valid values:
+- PLATFORM: Platform model.
+- RUNTIME: Runtime model.', example='PLATFORM'),
     name?: string(name='name', description='The name of the external agent.', example='my-external-agent'),
     regionId?: string(name='regionId', description='The region ID.', example='cn-hangzhou'),
     runtime?: string(name='runtime', description='The runtime type reported by the external agent.', example='qwenpaw'),
     skills?: [ 
       {
-        name?: string(name='name', description='The skill name.
-
-This parameter is required.', example='code-analysis'),
+        appliedVersion?: string(name='appliedVersion', description='The version applied at runtime. This field is read-only.', example='1.0.0'),
+        fromTemplate?: boolean(name='fromTemplate', description='Indicates whether the skill comes from a fixed template. This field is read-only. Template items cannot be removed.', example='false'),
+        name?: string(name='name', description='The skill name.', example='code-analysis'),
+        resolvedVersion?: string(name='resolvedVersion', description='The current target version. This field is read-only.', example='1.0.0'),
+        sourceType?: string(name='sourceType', description='The source type of the skill. Valid values:
+- REFERENCE: References the AI Registry.
+- STATIC: Statically provided with the package.', example='REFERENCE'),
         version?: string(name='version', description='The skill version.', example='1.0.0'),
+        versionSelector?: {
+          type?: string(name='type', description='The type of the version selector. Valid values:
+- LABEL: By label.
+- VERSION: By specific version.', example='LABEL'),
+          value?: string(name='value', description='The value of the selector. If the type is LABEL, this value is the label name, such as latest. If the type is VERSION, this value is the specific version number.', example='latest'),
+        }(name='versionSelector', description='The referenced version selector. If omitted, the default value is LABEL/latest.'),
       }
     ](name='skills', description='The list of skill configurations.'),
-    status?: string(name='status', description='The external agent status. Valid values:
-- Creating: Being created.
-- Running: Running.
-- Failed: Failed.
-- Updating: Being updated.
-- Deleting: Being deleted.
-- Deleted: Deleted.', example='Running'),
+    status?: string(name='status', description='The status of the external agent. Valid values: Creating, Running, Failed, Updating, Deleting, and Deleted.', example='Running'),
     template?: {
       aiRegistry?: {
-        name?: string(name='name', description='The name of the template in AI Registry.
+        name?: string(name='name', description='The name of the template in the AI Registry.
 
 This parameter is required.', example='code-review-template'),
-        version?: string(name='version', description='The version of the template in AI Registry.
+        version?: string(name='version', description='The version of the template in the AI Registry.
 
 This parameter is required.', example='1.0.0'),
       }(name='aiRegistry', description='The AI Registry template configuration.'),
@@ -1395,10 +1418,10 @@ This parameter is required.', example='MCP'),
     updatedAt?: string(name='updatedAt', description='The update time in RFC 3339 format.', example='2026-01-01T00:00:00Z'),
     workspaceId?: string(name='workspaceId', description='The workspace ID.', example='ws-1'),
   }(name='data', description='The information about the created external agent.'),
-  httpStatusCode?: int32(name='httpStatusCode', description='The HTTP status code. The value is 200 when the request succeeds.', example='200'),
+  httpStatusCode?: int32(name='httpStatusCode', description='The HTTP status code. A value of 200 indicates success.', example='200'),
   message?: string(name='message', description='The request processing result message.', example='success'),
   requestId?: string(name='requestId', description='The request ID.', example='1a2b3c4d-xxxx-xxxx-xxxx-xxxxxxxxxxxx'),
-  success?: boolean(name='success', description='Indicates whether the request was successful.'),
+  success?: boolean(name='success', description='Indicates whether the request is successful.'),
 }
 
 model CreateExternalAgentResponse = {
@@ -5332,66 +5355,68 @@ model GetExternalAgentRequest {
 }
 
 model GetExternalAgentResponseBody = {
-  code?: string(name='code', description='The business status code. The value is SUCCESS when the request succeeds.', example='SUCCESS'),
+  code?: string(name='code', description='The business status code. The value is SUCCESS if the request is successful.', example='SUCCESS'),
   data?: {
     agentId?: string(name='agentId', description='The external agent ID.', example='agent-1'),
+    configuredSkills?: [ 
+      {
+        name?: string(name='name', description='The name of the skill in the Workspace AI Registry.
+
+This parameter is required.', example='web-search'),
+        sourceType?: string(name='sourceType', description='The source type of the skill. Valid values: REFERENCE (references the AI Registry) and STATIC (statically provided with the package).', example='REFERENCE'),
+        version?: string(name='version', description='The legacy compatibility field. Use sourceType and versionSelector for new requests.', example='1.0.0'),
+        versionSelector?: {
+          type?: string(name='type', description='The type of the version selector. Valid values: LABEL (selects by tag) and VERSION (selects by specific version).', example='LABEL'),
+          value?: string(name='value', description='The value of the selector. If the type is LABEL, the value is a tag name such as latest. If the type is VERSION, the value is a specific version number.', example='latest'),
+        }(name='versionSelector', description='The referenced version selector. If omitted, the default value is LABEL/latest. Only LABEL/latest is supported in the current phase.'),
+      }
+    ](name='configuredSkills', description='Includes only the skills added or overridden by the user, excluding inherited items from templates. The resource model reads this field to preserve update semantics. Creation and update operations still use the skills in the request.'),
     createMode?: string(name='createMode', description='The creation mode.', example='CUSTOM'),
     createdAt?: string(name='createdAt', description='The creation time in RFC 3339 format.', example='2026-01-01T00:00:00Z'),
     deployType?: string(name='deployType', description='The deployment type.', example='SELF_HOSTED'),
-    description?: string(name='description', description='The description of the external agent.', example='A code review agent running in the user environment'),
+    description?: string(name='description', description='The description of the external agent.', example='Code review agent running in the user environment'),
     externalAgentStatus?: {
-      heartbeatStatus?: string(name='heartbeatStatus', description='The heartbeat status. ONLINE indicates that the most recent heartbeat has not exceeded the configured timeout threshold. STALE indicates that the heartbeat has timed out. UNKNOWN indicates that the heartbeat is missing or has an invalid format. Valid values:
-- ONLINE: Online.
-- STALE: Heartbeat expired.
-- UNKNOWN: Unknown.', example='ONLINE'),
-      lastActiveAt?: string(name='lastActiveAt', description='The most recent active time of the external agent in RFC 3339 format.', example='2026-01-01T00:00:00Z'),
-      lastHeartbeat?: string(name='lastHeartbeat', description='The most recent heartbeat time of the external agent in RFC 3339 format.', example='2026-01-01T00:00:00Z'),
+      heartbeatStatus?: string(name='heartbeatStatus', description='The heartbeat status. ONLINE indicates that the most recent heartbeat did not exceed the configured timeout threshold. STALE indicates that the heartbeat has timed out. UNKNOWN indicates that the heartbeat is missing or the format is invalid. Valid values: ONLINE (online), STALE (heartbeat expired), and UNKNOWN (unknown).', example='ONLINE'),
+      lastActiveAt?: string(name='lastActiveAt', description='The last active time of the external agent in RFC 3339 format.', example='2026-01-01T00:00:00Z'),
+      lastHeartbeat?: string(name='lastHeartbeat', description='The last heartbeat time of the external agent in RFC 3339 format.', example='2026-01-01T00:00:00Z'),
       localIP?: string(name='localIP', description='The local IP address reported by the external agent.', example='10.0.0.42'),
       runtime?: string(name='runtime', description='The runtime type reported by the external agent.', example='qwenpaw'),
-    }(name='externalAgentStatus', description='The runtime status information reported by the external agent.'),
-    instruction?: string(name='instruction', description='The agent instruction that guides the behavior of the agent.', example='You are a code review assistant'),
+    }(name='externalAgentStatus', description='The running status information reported by the external agent.'),
+    instruction?: string(name='instruction', description='The agent instruction used to guide the behavior of the agent.', example='You are a code review assistant'),
     latestSpecVersion?: long(name='latestSpecVersion', description='The latest specification version number.', example='1'),
-    latestVersionStatus?: string(name='latestVersionStatus', description='The processing status of the latest specification version. Valid values:
-- pending: Pending.
-- processing: Processing.
-- waiting_retry: Waiting for retry.
-- succeeded: Succeeded.
-- failed: Failed.
-- superseded: Superseded by a newer version.', example='pending'),
+    latestVersionStatus?: string(name='latestVersionStatus', description='The processing status of the latest specification version. Valid values: pending (pending), processing (processing), waiting_retry (waiting for retry), succeeded (succeeded), failed (failed), and superseded (superseded by a new version).', example='pending'),
     model?: {
       modelConnectionId?: string(name='modelConnectionId', description='The model connection ID.', example='mc-1'),
-      modelName?: string(name='modelName', description='The upstream model name.', example='qwen-max'),
+      modelName?: string(name='modelName', description='The name of the upstream model.', example='qwen-max'),
       quota?: {
-        enabled?: boolean(name='enabled', description='Indicates whether the quota is enabled. This parameter is not returned if no quota is configured.', example='true'),
-        limitType?: string(name='limitType', description='The quota limit type. Currently, only token is supported.', example='token'),
-        overLimit?: boolean(name='overLimit', description='Indicates whether the quota has been exceeded in the current cycle. This is a read-only field returned by the backend.', example='false'),
-        periodType?: string(name='periodType', description='The quota statistical period. day indicates daily and month indicates monthly.', example='day'),
-        ruleStatus?: string(name='ruleStatus', description='The gateway quota rule status. This is a read-only field returned by the backend.', example='ACTIVE'),
-        usageLimit?: long(name='usageLimit', description='The maximum number of tokens that can be consumed within a single cycle.', example='1000000'),
-        usedAmount?: long(name='usedAmount', description='The number of tokens consumed in the current cycle. This is a read-only field returned by the backend.', example='12345'),
-      }(name='quota', description='The model token quota configuration and the quota usage status in the current cycle. This parameter is empty if no quota is configured.'),
-    }(name='model', description='The model configuration. This parameter is available only when modelSource is set to PLATFORM.'),
-    modelSource?: string(name='modelSource', description='The model configuration source. PLATFORM indicates that the model configuration is parsed and distributed by the platform. RUNTIME indicates that the model is managed by the external runtime, and the model parameter cannot be specified at the same time. Valid values:
-- PLATFORM: Platform model.
-- RUNTIME: Runtime model.', example='PLATFORM'),
+        enabled?: boolean(name='enabled', description='Specifies whether the quota is enabled. This field is not returned if no quota is configured.', example='true'),
+        limitType?: string(name='limitType', description='The quota limit type. Only token is supported.', example='token'),
+        overLimit?: boolean(name='overLimit', description='Specifies whether the quota is exceeded in the current period. This field is read-only and returned by the backend.', example='false'),
+        periodType?: string(name='periodType', description='The quota statistical period. Valid values: day (daily) and month (monthly).', example='day'),
+        ruleStatus?: string(name='ruleStatus', description='The gateway quota rule status. This field is read-only and returned by the backend.', example='ACTIVE'),
+        usageLimit?: long(name='usageLimit', description='The maximum number of tokens allowed to be consumed in a single period.', example='1000000'),
+        usedAmount?: long(name='usedAmount', description='The number of tokens consumed in the current period. This field is read-only and returned by the backend.', example='12345'),
+      }(name='quota', description='The model token quota configuration and usage status for the current period. This field is empty if no quota is configured.'),
+    }(name='model', description='The model configuration. This field is available only when modelSource is set to PLATFORM.'),
+    modelSource?: string(name='modelSource', description='The source of the model configuration. PLATFORM indicates that the platform parses and delivers the model configuration. RUNTIME indicates that the external runtime manages the model itself, and the model field cannot be passed at the same time. Valid values: PLATFORM (platform model) and RUNTIME (runtime model).', example='PLATFORM'),
     name?: string(name='name', description='The name of the external agent.', example='my-external-agent'),
     regionId?: string(name='regionId', description='The region ID.', example='cn-hangzhou'),
     runtime?: string(name='runtime', description='The runtime type reported by the external agent.', example='qwenpaw'),
     skills?: [ 
       {
-        name?: string(name='name', description='The skill name.
-
-This parameter is required.', example='code-analysis'),
+        appliedVersion?: string(name='appliedVersion', description='The effective version at runtime. This field is read-only.', example='1.0.0'),
+        fromTemplate?: boolean(name='fromTemplate', description='Specifies whether the skill is from a fixed template. This field is read-only. Template items cannot be removed.', example='false'),
+        name?: string(name='name', description='The name of the skill.', example='code-analysis'),
+        resolvedVersion?: string(name='resolvedVersion', description='The current target version. This field is read-only.', example='1.0.0'),
+        sourceType?: string(name='sourceType', description='The source type of the skill. Valid values: REFERENCE (references the AI Registry) and STATIC (statically provided with the package).', example='REFERENCE'),
         version?: string(name='version', description='The skill version.', example='1.0.0'),
+        versionSelector?: {
+          type?: string(name='type', description='The type of the version selector. Valid values: LABEL (selects by tag) and VERSION (selects by specific version).', example='LABEL'),
+          value?: string(name='value', description='The value of the selector. If the type is LABEL, the value is a tag name such as latest. If the type is VERSION, the value is a specific version number.', example='latest'),
+        }(name='versionSelector', description='The referenced version selector. If omitted, the default value is LABEL/latest.'),
       }
     ](name='skills', description='The list of skill configurations.'),
-    status?: string(name='status', description='The status of the external agent. Valid values:
-- Creating: Being created.
-- Running: Running.
-- Failed: Failed.
-- Updating: Being updated.
-- Deleting: Being deleted.
-- Deleted: Deleted.', example='Running'),
+    status?: string(name='status', description='The status of the external agent. Valid values: Creating (creating), Running (running), Failed (failed), Updating (updating), Deleting (deleting), and Deleted (deleted).', example='Running'),
     template?: {
       aiRegistry?: {
         name?: string(name='name', description='The name of the template in AI Registry.
@@ -5407,8 +5432,7 @@ This parameter is required.', example='1.0.0'),
         name?: string(name='name', description='The tool name.
 
 This parameter is required.', example='code-reviewer'),
-        type?: string(name='type', description='The tool type. Valid values:
-- MCP: MCP tool.
+        type?: string(name='type', description='The tool type. Valid values: MCP.
 
 This parameter is required.', example='MCP'),
       }
@@ -5416,10 +5440,10 @@ This parameter is required.', example='MCP'),
     updatedAt?: string(name='updatedAt', description='The update time in RFC 3339 format.', example='2026-01-01T00:00:00Z'),
     workspaceId?: string(name='workspaceId', description='The workspace ID.', example='ws-1'),
   }(name='data', description='The details of the external agent.'),
-  httpStatusCode?: int32(name='httpStatusCode', description='The HTTP status code. The value is 200 when the request succeeds.', example='200'),
+  httpStatusCode?: int32(name='httpStatusCode', description='The HTTP status code. 200 indicates success.', example='200'),
   message?: string(name='message', description='The request processing result message.', example='success'),
   requestId?: string(name='requestId', description='The request ID.', example='1a2b3c4d-xxxx-xxxx-xxxx-xxxxxxxxxxxx'),
-  success?: boolean(name='success', description='Indicates whether the request was successful.'),
+  success?: boolean(name='success', description='Indicates whether the request is successful.'),
 }
 
 model GetExternalAgentResponse = {
@@ -10156,9 +10180,10 @@ async function listTeams(workspaceId: string, request: ListTeamsRequest): ListTe
 }
 
 model ListUsersRequest {
+  email?: string(name='email', description='The filter condition for exact match on the email address.', example='xxx@xxx.com'),
   maxResults?: int32(name='maxResults', description='The maximum number of records to return per page. Valid values: 1 to 100. If this parameter is not specified, 10 records are returned by default.', example='10'),
-  name?: string(name='name', description='The filter condition for exact match on the username.', example='user-01'),
-  nameLike?: string(name='nameLike', description='The filter condition for fuzzy match on the username. The value can be up to 128 characters in length.', example='user'),
+  name?: string(name='name', description='The filter condition for exact match on the user name.', example='user-01'),
+  nameLike?: string(name='nameLike', description='The filter condition for fuzzy match on the user name. The value can be up to 128 characters in length.', example='user'),
   nextToken?: string(name='nextToken', description='The cursor for querying the next page. Do not specify this parameter in the first call. In subsequent calls, specify the nextToken value returned in the previous call.', example='dXNlci1vZmZzZXQ6MTA'),
 }
 
@@ -10168,21 +10193,21 @@ model ListUsersResponseBody = {
   items?: [ 
     {
       agentCoreUserId?: string(name='agentCoreUserId', description='The user ID.', example='usr-123456'),
-      authMethod?: string(name='authMethod', description='The authentication method of the user. A value of password indicates that the user is authenticated by using the local password of the workspace. A value of dingtalk or feishu indicates that the user is synchronized and authenticated by the corresponding external identity provider.', example='password'),
-      createdAt?: string(name='createdAt', description='The creation time. The time is displayed in UTC and follows the RFC 3339 format.', example='2026-08-12T03:04:05Z'),
+      authMethod?: string(name='authMethod', description='The authentication method of the user. A value of password indicates that local password authentication in the workspace is used. A value of dingtalk or feishu indicates that the user is synchronized and authenticated by the corresponding external identity provider.', example='password'),
+      createdAt?: string(name='createdAt', description='The creation time in UTC format based on RFC 3339.', example='2026-08-12T03:04:05Z'),
       displayName?: string(name='displayName', description='The display name of the user. The name must be 1 to 32 characters in length.', example='Zhang San'),
       email?: string(name='email', description='The email address of the user. The email address can be up to 256 characters in length.', example='user-01@example.com'),
-      name?: string(name='name', description='The username. The username must be unique within the workspace and can contain only lowercase letters, digits, and hyphens (-). It must start and end with a lowercase letter or a digit, and must be 1 to 32 characters in length.', example='user-01'),
-      note?: string(name='note', description='The note of the user. The note can be up to 1,024 characters in length.', example='Agent operations team member'),
+      name?: string(name='name', description='The user name. The name must be unique within the workspace, contain only lowercase letters, digits, and hyphens, start and end with a lowercase letter or a digit, and be 1 to 32 characters in length.', example='user-01'),
+      note?: string(name='note', description='The user remarks. The remarks can be up to 1,024 characters in length.', example='Member of the agent operations team'),
       regionId?: string(name='regionId', description='The region ID of the resource.', example='cn-hangzhou'),
-      status?: string(name='status', description='The status of the user. Valid values: Creating, Active, Updating, Deleting, Failed, and DeleteFailed.', example='Active'),
-      updatedAt?: string(name='updatedAt', description='The time of the last modification. The time is displayed in UTC and follows the RFC 3339 format.', example='2026-08-12T03:04:05Z'),
+      status?: string(name='status', description='The user status. Valid values: Creating, Active, Updating, Deleting, Failed, and DeleteFailed.', example='Active'),
+      updatedAt?: string(name='updatedAt', description='The last modification time in UTC format based on RFC 3339.', example='2026-08-12T03:04:05Z'),
       workspaceId?: string(name='workspaceId', description='The workspace ID.', example='ws-123456'),
     }
-  ](name='items', description='The user list.'),
-  maxResults?: int32(name='maxResults', description='The maximum number of records per page that takes effect in the current query.', example='10'),
-  message?: string(name='message', description='The response message. If the request fails, an error description is returned.', example='success'),
-  nextToken?: string(name='nextToken', description='The cursor for the next page. If no next page exists, this parameter is empty.', example='dXNlci1vZmZzZXQ6MTA'),
+  ](name='items', description='The list of users.'),
+  maxResults?: int32(name='maxResults', description='The maximum number of records per page that takes effect in this query.', example='10'),
+  message?: string(name='message', description='The response message. An error description is returned if the request fails.', example='success'),
+  nextToken?: string(name='nextToken', description='The cursor for the next page. This parameter is empty if no next page exists.', example='dXNlci1vZmZzZXQ6MTA'),
   requestId?: string(name='requestId', description='The request ID.', example='request-123456'),
   success?: boolean(name='success', description='Indicates whether the request is successful.'),
   totalCount?: long(name='totalCount', description='The total number of users that meet the query conditions.', example='42'),
@@ -10195,7 +10220,7 @@ model ListUsersResponse = {
 }
 
 /**
- * @summary Performs a paged query of users in a specified workspace. You can filter users by fuzzy match on the username by using nameLike, specify the maximum number of records per page for paging by using maxResults, and obtain the next page by using nextToken. If maxResults is not specified, the server returns 10 records by default.
+ * @summary Performs a paged query for users in a specified workspace. You can use nameLike to filter users by fuzzy match on the username, maxResults to specify the maximum number of records per page for paging, and nextToken to retrieve the next page. If maxResults is not specified, 10 records are returned by default.
  *
  * @param request ListUsersRequest
  * @param headers map
@@ -10206,6 +10231,9 @@ model ListUsersResponse = {
 async function listUsersWithOptions(workspaceId: string, request: ListUsersRequest, headers: map[string]string, runtime: $RuntimeOptions): ListUsersResponse {
   request.validate();
   var query : map[string]any = {};
+  if (!$isNull(request.email)) {
+    query['email'] = request.email;
+  }
   if (!$isNull(request.maxResults)) {
     query['maxResults'] = request.maxResults;
   }
@@ -10238,7 +10266,7 @@ async function listUsersWithOptions(workspaceId: string, request: ListUsersReque
 }
 
 /**
- * @summary Performs a paged query of users in a specified workspace. You can filter users by fuzzy match on the username by using nameLike, specify the maximum number of records per page for paging by using maxResults, and obtain the next page by using nextToken. If maxResults is not specified, the server returns 10 records by default.
+ * @summary Performs a paged query for users in a specified workspace. You can use nameLike to filter users by fuzzy match on the username, maxResults to specify the maximum number of records per page for paging, and nextToken to retrieve the next page. If maxResults is not specified, 10 records are returned by default.
  *
  * @param request ListUsersRequest
  * @return ListUsersResponse
@@ -11898,8 +11926,8 @@ async function updateCustomAgent(workspaceId: string, agentId: string, request: 
 
 model UpdateExternalAgentRequest {
   body?: {
-    description?: string(name='description', description='The description of the external agent.', example='A code review agent running in the user environment'),
-    instruction?: string(name='instruction', description='The agent instruction that guides the behavior of the agent.', example='You are a code review assistant'),
+    description?: string(name='description', description='The description of the external agent.', example='Code review agent running in the user environment'),
+    instruction?: string(name='instruction', description='The agent instructions used to guide the behavior of the agent.', example='You are a code review assistant'),
     model?: {
       modelConnectionId?: string(name='modelConnectionId', description='The model connection ID.
 
@@ -11908,30 +11936,41 @@ This parameter is required.', example='mc-1'),
 
 This parameter is required.', example='qwen-max'),
       quota?: {
-        enabled?: boolean(name='enabled', description='Specifies whether to enable token quota. Defaults to true if not specified. Set to false to disable and delete existing quota rules.', example='true'),
-        limitType?: string(name='limitType', description='The quota limit type. Required by backend validation when quota is enabled. Fixed value: token.', example='token'),
-        periodType?: string(name='periodType', description='The quota statistical period. Required by backend validation when quota is enabled. Valid values: day (daily) and month (monthly).', example='day'),
-        usageLimit?: long(name='usageLimit', description='The maximum number of tokens that can be consumed within a single period. Required by backend validation when quota is enabled. The value must be greater than 0.', example='1000000'),
-      }(name='quota', description='The model token quota configuration. If not specified, no quota is configured.'),
+        enabled?: boolean(name='enabled', description='Specifies whether to enable the token quota. Default value: true. If set to false, the quota is disabled and existing quota rules are deleted.', example='true'),
+        limitType?: string(name='limitType', description='The quota limit type. Required and validated by the backend when the quota is enabled. Fixed value: token.', example='token'),
+        periodType?: string(name='periodType', description='The statistical period for the quota. Required and validated by the backend when the quota is enabled. Valid values:
+- day: Daily.
+- month: Monthly.', example='day'),
+        usageLimit?: long(name='usageLimit', description='The maximum number of tokens allowed to be consumed within a single period. Required and validated by the backend when the quota is enabled. The value must be greater than 0.', example='1000000'),
+      }(name='quota', description='The model token quota configuration. If not passed, no quota is configured.'),
     }(name='model', description='The model configuration. Available only when modelSource is set to PLATFORM.'),
-    modelSource?: string(name='modelSource', description='The model configuration source. PLATFORM indicates that the platform parses and delivers the model configuration. RUNTIME indicates that the external runtime manages the model independently, and the model parameter cannot be specified at the same time. Valid values:
-- PLATFORM: platform model.
-- RUNTIME: runtime model.', example='PLATFORM'),
+    modelSource?: string(name='modelSource', description='The source of the model configuration. PLATFORM indicates that the platform parses and delivers the model configuration. RUNTIME indicates that the external runtime manages the model independently, and the model parameter cannot be passed at the same time. Valid values:
+- PLATFORM: Platform model.
+- RUNTIME: Runtime model.', example='PLATFORM'),
     name?: string(name='name', description='The name of the external agent.', example='my-external-agent'),
     skills?: [ 
       {
         name?: string(name='name', description='The skill name.
 
 This parameter is required.', example='code-analysis'),
+        sourceType?: string(name='sourceType', description='The source type of the skill. Valid values:
+- REFERENCE: References the AI Registry.
+- STATIC: Statically provided with the package.', example='REFERENCE'),
         version?: string(name='version', description='The skill version.', example='1.0.0'),
+        versionSelector?: {
+          type?: string(name='type', description='The type of the version selector. Valid values:
+- LABEL: By label.
+- VERSION: By specific version.', example='LABEL'),
+          value?: string(name='value', description='The value of the selector. When the type is LABEL, this is the label name, such as latest. When the type is VERSION, this is the specific version number.', example='latest'),
+        }(name='versionSelector', description='The referenced version selector. If omitted, the default is LABEL/latest. Currently, only LABEL/latest is supported.'),
       }
     ](name='skills', description='The list of skill configurations.'),
     template?: {
       aiRegistry?: {
-        name?: string(name='name', description='The name of the template in AI Registry.
+        name?: string(name='name', description='The name of the template in the AI Registry.
 
 This parameter is required.', example='code-review-template'),
-        version?: string(name='version', description='The version of the template in AI Registry.
+        version?: string(name='version', description='The version of the template in the AI Registry.
 
 This parameter is required.', example='1.0.0'),
       }(name='aiRegistry', description='The AI Registry template configuration.'),
@@ -11957,72 +11996,93 @@ model UpdateExternalAgentShrinkRequest {
 }
 
 model UpdateExternalAgentResponseBody = {
-  code?: string(name='code', description='The business status code. The value is SUCCESS when the request succeeds.', example='SUCCESS'),
+  code?: string(name='code', description='The business status code. The value is SUCCESS if the request is successful.', example='SUCCESS'),
   data?: {
     agentId?: string(name='agentId', description='The external agent ID.', example='agent-1'),
+    configuredSkills?: [ 
+      {
+        name?: string(name='name', description='The name of the skill in the Workspace AI Registry.
+
+This parameter is required.', example='web-search'),
+        sourceType?: string(name='sourceType', description='The source type of the skill. Valid values:
+- REFERENCE: References the AI Registry.
+- STATIC: Statically provided with the package.', example='REFERENCE'),
+        version?: string(name='version', description='The legacy compatibility field. Use sourceType and versionSelector for new requests.', example='1.0.0'),
+        versionSelector?: {
+          type?: string(name='type', description='The type of the version selector. Valid values:
+- LABEL: By label.
+- VERSION: By specific version.', example='LABEL'),
+          value?: string(name='value', description='The value of the selector. When the type is LABEL, this is the label name, such as latest. When the type is VERSION, this is the specific version number.', example='latest'),
+        }(name='versionSelector', description='The referenced version selector. If omitted, the default is LABEL/latest. Currently, only LABEL/latest is supported.'),
+      }
+    ](name='configuredSkills', description='Includes only the skills added or overridden by the user, excluding inherited items from templates. The resource model reads this field to preserve update semantics. Creation and update operations still use the skills in the request.'),
     createMode?: string(name='createMode', description='The creation mode.', example='CUSTOM'),
     createdAt?: string(name='createdAt', description='The creation time in RFC 3339 format.', example='2026-01-01T00:00:00Z'),
     deployType?: string(name='deployType', description='The deployment type.', example='SELF_HOSTED'),
-    description?: string(name='description', description='The description of the external agent.', example='A code review agent running in the user environment'),
+    description?: string(name='description', description='The description of the external agent.', example='Code review agent running in the user environment'),
     externalAgentStatus?: {
-      heartbeatStatus?: string(name='heartbeatStatus', description='The heartbeat status. ONLINE indicates that the most recent heartbeat has not exceeded the configured timeout threshold. STALE indicates that the heartbeat has timed out. UNKNOWN indicates that the heartbeat is missing or has an invalid format. Valid values:
-- ONLINE: Online.
-- STALE: Heartbeat expired.
-- UNKNOWN: Unknown.', example='ONLINE'),
+      heartbeatStatus?: string(name='heartbeatStatus', description='The heartbeat status. ONLINE indicates that the latest heartbeat has not exceeded the configured timeout threshold. STALE indicates that the heartbeat has timed out. UNKNOWN indicates that the heartbeat is missing or the format is invalid. Valid values:
+- ONLINE: online
+- STALE: heartbeat expired
+- UNKNOWN: unknown', example='ONLINE'),
       lastActiveAt?: string(name='lastActiveAt', description='The last active time of the external agent in RFC 3339 format.', example='2026-01-01T00:00:00Z'),
       lastHeartbeat?: string(name='lastHeartbeat', description='The last heartbeat time of the external agent in RFC 3339 format.', example='2026-01-01T00:00:00Z'),
       localIP?: string(name='localIP', description='The local IP address reported by the external agent.', example='10.0.0.42'),
       runtime?: string(name='runtime', description='The runtime type reported by the external agent.', example='qwenpaw'),
     }(name='externalAgentStatus', description='The runtime status information reported by the external agent.'),
-    instruction?: string(name='instruction', description='The agent instruction that guides the behavior of the agent.', example='You are a code review assistant'),
+    instruction?: string(name='instruction', description='The agent instructions used to guide the behavior of the agent.', example='You are a code review assistant'),
     latestSpecVersion?: long(name='latestSpecVersion', description='The latest specification version number.', example='1'),
     latestVersionStatus?: string(name='latestVersionStatus', description='The processing status of the latest specification version. Valid values:
-- pending: Pending.
-- processing: Processing.
-- waiting_retry: Waiting for retry.
-- succeeded: Succeeded.
-- failed: Failed.
-- superseded: Superseded by a newer version.', example='pending'),
+- pending: pending
+- processing: processing
+- waiting_retry: waiting for retry
+- succeeded: succeeded
+- failed: failed
+- superseded: superseded by a new version', example='pending'),
     model?: {
       modelConnectionId?: string(name='modelConnectionId', description='The model connection ID.', example='mc-1'),
       modelName?: string(name='modelName', description='The upstream model name.', example='qwen-max'),
       quota?: {
         enabled?: boolean(name='enabled', description='Indicates whether the quota is enabled. This field is not returned if no quota is configured.', example='true'),
-        limitType?: string(name='limitType', description='The quota limit type. Currently, only token is supported.', example='token'),
-        overLimit?: boolean(name='overLimit', description='Indicates whether the quota has been exceeded in the current cycle. This is a read-only field returned by the backend.', example='false'),
-        periodType?: string(name='periodType', description='The quota statistical period. day indicates a daily period. month indicates a monthly period.', example='day'),
+        limitType?: string(name='limitType', description='The quota limit type. Only token is supported.', example='token'),
+        overLimit?: boolean(name='overLimit', description='Indicates whether the quota is exceeded for the current cycle. This is a read-only field returned by the backend.', example='false'),
+        periodType?: string(name='periodType', description='The quota statistical period. A value of day indicates daily, and a value of month indicates monthly.', example='day'),
         ruleStatus?: string(name='ruleStatus', description='The gateway quota rule status. This is a read-only field returned by the backend.', example='ACTIVE'),
-        usageLimit?: long(name='usageLimit', description='The maximum number of tokens that can be consumed within a single cycle.', example='1000000'),
+        usageLimit?: long(name='usageLimit', description='The maximum number of tokens allowed to be consumed in a single cycle.', example='1000000'),
         usedAmount?: long(name='usedAmount', description='The number of tokens consumed in the current cycle. This is a read-only field returned by the backend.', example='12345'),
-      }(name='quota', description='The model token quota configuration and the quota usage status in the current cycle. This field is empty if no quota is configured.'),
+      }(name='quota', description='The model token quota configuration and usage status for the current cycle. This field is empty if no quota is configured.'),
     }(name='model', description='The model configuration. Available only when modelSource is set to PLATFORM.'),
-    modelSource?: string(name='modelSource', description='The model configuration source. PLATFORM indicates that the platform parses and delivers the model configuration. RUNTIME indicates that the external runtime manages the model independently, and the model parameter cannot be specified at the same time. Valid values:
-- PLATFORM: platform model.
-- RUNTIME: runtime model.', example='PLATFORM'),
+    modelSource?: string(name='modelSource', description='The source of the model configuration. PLATFORM indicates that the platform parses and delivers the model configuration. RUNTIME indicates that the external runtime manages the model independently, and the model parameter cannot be passed at the same time. Valid values:
+- PLATFORM: Platform model.
+- RUNTIME: Runtime model.', example='PLATFORM'),
     name?: string(name='name', description='The name of the external agent.', example='my-external-agent'),
     regionId?: string(name='regionId', description='The region ID.', example='cn-hangzhou'),
     runtime?: string(name='runtime', description='The runtime type reported by the external agent.', example='qwenpaw'),
     skills?: [ 
       {
-        name?: string(name='name', description='The skill name.
-
-This parameter is required.', example='code-analysis'),
+        appliedVersion?: string(name='appliedVersion', description='The applied version in the runtime. This is a read-only field.', example='1.0.0'),
+        fromTemplate?: boolean(name='fromTemplate', description='Indicates whether the skill is from a fixed template. This is a read-only field. Template items cannot be removed.', example='false'),
+        name?: string(name='name', description='The skill name.', example='code-analysis'),
+        resolvedVersion?: string(name='resolvedVersion', description='The current target version. This is a read-only field.', example='1.0.0'),
+        sourceType?: string(name='sourceType', description='The source type of the skill. Valid values:
+- REFERENCE: References the AI Registry.
+- STATIC: Statically provided with the package.', example='REFERENCE'),
         version?: string(name='version', description='The skill version.', example='1.0.0'),
+        versionSelector?: {
+          type?: string(name='type', description='The type of the version selector. Valid values:
+- LABEL: By label.
+- VERSION: By specific version.', example='LABEL'),
+          value?: string(name='value', description='The value of the selector. When the type is LABEL, this is the label name, such as latest. When the type is VERSION, this is the specific version number.', example='latest'),
+        }(name='versionSelector', description='The referenced version selector, which defaults to LABEL/latest if omitted.'),
       }
     ](name='skills', description='The list of skill configurations.'),
-    status?: string(name='status', description='The external agent status. Valid values:
-- Creating: Being created.
-- Running: Running.
-- Failed: Failed.
-- Updating: Being updated.
-- Deleting: Being deleted.
-- Deleted: Deleted.', example='Running'),
+    status?: string(name='status', description='The status of the external agent. Valid values: Creating, Running, Failed, Updating, Deleting, and Deleted.', example='Running'),
     template?: {
       aiRegistry?: {
-        name?: string(name='name', description='The name of the template in AI Registry.
+        name?: string(name='name', description='The name of the template in the AI Registry.
 
 This parameter is required.', example='code-review-template'),
-        version?: string(name='version', description='The version of the template in AI Registry.
+        version?: string(name='version', description='The version of the template in the AI Registry.
 
 This parameter is required.', example='1.0.0'),
       }(name='aiRegistry', description='The AI Registry template configuration.'),
@@ -12041,10 +12101,10 @@ This parameter is required.', example='MCP'),
     updatedAt?: string(name='updatedAt', description='The update time in RFC 3339 format.', example='2026-01-01T00:00:00Z'),
     workspaceId?: string(name='workspaceId', description='The workspace ID.', example='ws-1'),
   }(name='data', description='The details of the updated external agent.'),
-  httpStatusCode?: int32(name='httpStatusCode', description='The HTTP status code. The value is 200 when the request succeeds.', example='200'),
+  httpStatusCode?: int32(name='httpStatusCode', description='The HTTP status code. A value of 200 indicates success.', example='200'),
   message?: string(name='message', description='The request processing result message.', example='success'),
   requestId?: string(name='requestId', description='The request ID.', example='1a2b3c4d-xxxx-xxxx-xxxx-xxxxxxxxxxxx'),
-  success?: boolean(name='success', description='Indicates whether the request was successful.'),
+  success?: boolean(name='success', description='Indicates whether the request is successful.'),
 }
 
 model UpdateExternalAgentResponse = {
