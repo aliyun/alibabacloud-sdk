@@ -203,10 +203,11 @@ async function addHDMInstance(request: AddHDMInstanceRequest): AddHDMInstanceRes
 }
 
 model ChatRequest {
-  agentId?: string(name='AgentId', description='The agent ID used for the service. This parameter is optional. You can specify an agent generated after DAS Agent is enabled or an agent that you manually created. If this parameter is not specified, the default agent is used.', example='ag-472T0DxtmjIxxxxx'),
+  agentId?: string(name='AgentId', description='Optional. The agent ID used for the service. You can specify the agent generated after enabling the DAS Agent or a manually created agent. If not specified, the default agent is used.', example='ag-472T0DxtmjIxxxxx'),
+  forwardedProps?: string(name='ForwardedProps', description='The forwarded properties.', example='{"enableInteractiveTools":true}'),
   message?: string(name='Message', description='The message.', example='{"id":"68fe0321-37fe-4c75-a118-b61b33156f6a","role":"user","content":[{"type":"text","text":"hello"}]}'),
   resume?: string(name='Resume', description='The user interaction feedback.', example='[{"metadata":{"a2uiClientDataModel":{"decided":true,"interaction":{"request":{"allowFreeText":true,"question":"question?","options":[{"label":"162","value":"162"},{"label":"242","value":"242"},{"label":"243","value":"243"},{"label":"486","value":"486"}]},"kind":"choice","interruptId":"5857955e-4856-4ab3-969e-f8b4c484bda4","status":"pending"},"free_text":""},"a2uiAction":{"name":"das_interaction_response","context":{"value":"162"},"surfaceId":"render-choice-7c03eb4f927f42ff8c30b30a2cc0797d","sourceComponentId":"opts-0","timestamp":"2026-09-15T06:54:15.556Z"}},"payload":{"value":"162"},"interruptId":"5857955e-4856-4ab3-969e-f8b4c484bda4","status":"resolved"}]'),
-  sessionId?: string(name='SessionId', description='The session ID in UUID string format. This parameter is optional. If this parameter is not specified, a new session is created by default. To maintain context across conversations, use the same session ID.', example='123e4567-e89b-12d3-a456-xxxxxxxxxxxx'),
+  sessionId?: string(name='SessionId', description='Optional. The session ID, which is a UUID string. If not specified, a new session is created by default. The same session ID must be maintained for contextual conversations.', example='123e4567-e89b-12d3-a456-xxxxxxxxxxxx'),
   summary?: string(name='Summary', description='Specifies whether to output summary information.', example='false'),
 }
 
@@ -214,9 +215,9 @@ model ChatResponseBody = {
   activityType?: string(name='ActivityType', description='The heartbeat.', example='waiting_for_agent_thinking'),
   agentId?: string(name='AgentId', description='The agent ID.', example='agent-7f9c2a81'),
   content?: string(name='Content', description='The response content.', example='I see you have several PolarDB instances, and I will query them for you shortly'),
-  delta?: string(name='Delta', description='Indicates whether the content is incremental.', example='hello'),
-  kind?: string(name='Kind', description='The step type of STEP_STARTED, such as task.', example='task'),
-  label?: string(name='Label', description='The display name of the sub-agent for STEP_STARTED.', example='SQL Performance Diagnostics'),
+  delta?: string(name='Delta', description='Specifies whether the content is incremental.', example='hello'),
+  kind?: string(name='Kind', description='The step type for STEP_STARTED, such as task.', example='task'),
+  label?: string(name='Label', description='The display name of the child agent for STEP_STARTED.', example='SQL performance diagnostics'),
   messageId?: string(name='MessageId', description='The message ID.', example='61820b594664275c4429****'),
   name?: string(name='Name', description='The extension key.', example='summary'),
   originatingToolCallId?: string(name='OriginatingToolCallId', description='The original ID of the tool call.', example='ag-xxxx'),
@@ -225,12 +226,12 @@ model ChatResponseBody = {
   role?: string(name='Role', description='The conversation role ID.', example='assistant'),
   runId?: string(name='RunId', description='The run ID.', example='ed7cb7b1-ddc8-45d7-9ff3-b315726cb5f7'),
   stepName?: string(name='StepName', description='The execution step name.', example='sub_agent_performance_diagnose_mysql'),
-  stepStatus?: string(name='StepStatus', description='The step status of STEP_FINISHED, such as completed.', example='completed'),
-  taskTrackerId?: string(name='TaskTrackerId', description='The callback utility class.', example='das_api'),
+  stepStatus?: string(name='StepStatus', description='The step status for STEP_FINISHED, such as completed.', example='completed'),
+  taskTrackerId?: string(name='TaskTrackerId', description='The callback tool class.', example='das_api'),
   threadId?: string(name='ThreadId', description='The thread ID.', example='8e481be1-21d5-4a92-a2fb-fb54be0ab4f6'),
   timestamp?: long(name='Timestamp', description='The event timestamp.', example='1767225600000'),
-  toolCallError?: string(name='ToolCallError', description='The error that occurred during tool invocation.', example='error'),
-  toolCallId?: string(name='ToolCallId', description='The tool invocation ID.', example='call_edf9cdb69e0e4c9796a6a5a6'),
+  toolCallError?: string(name='ToolCallError', description='The error that occurred when invoking the tool.', example='error'),
+  toolCallId?: string(name='ToolCallId', description='The tool call ID.', example='call_edf9cdb69e0e4c9796a6a5a6'),
   toolCallName?: string(name='ToolCallName', description='The tool name.', example='das_api'),
   type?: string(name='Type', description='The event type.', example='TEXT_MESSAGE_CONTENT'),
   value?: any(name='Value', description='The extension value.', example='{"CharCount":393,"End":1777428785996,"RequestId":"BE59AED5-D831-5811-BBAD-590B917B2089","SessionId":"123e4567-e89b-12d3-a456-xxxxxxxxxxxx","Start":1777428707927}'),
@@ -245,13 +246,13 @@ model ChatResponse = {
 }
 
 /**
- * @summary Provides the asynchronous logic interface for DAS large model capabilities.
+ * @summary Invokes the asynchronous logic interface for DAS large model capabilities.
  *
  * @description Before you begin:
  * - Use the latest version of the Alibaba Cloud or DAS SDK.
- * - When calling DAS by using the SDK, set the region to cn-shanghai.
- * - Only database instances with DAS Enterprise Edition activated support creating batch tasks. For databases and regions supported by each DAS Enterprise Edition version, see [DAS editions and supported features](https://help.aliyun.com/document_detail/156204.html).
- * For more methods and examples of interacting with DAS Agent by using the Chat API, see [Best practices for DAS Agent interaction (integrating the Chat API)](https://www.alibabacloud.com/help/en/das/developer-reference/chat-api-best-practice).
+ * - When you use the SDK to call DAS services, specify the region as cn-shanghai.
+ * - Only database instances with DAS Enterprise Edition enabled support creating offline tasks. For the databases and regions supported by each edition of DAS Enterprise Edition, see [DAS editions and supported features](https://help.aliyun.com/document_detail/156204.html).
+ * For more methods and examples on how to use the Chat interface to interact with the DAS Agent, see [Best practices for DAS Agent interaction (Chat API integration)](https://www.alibabacloud.com/help/en/das/developer-reference/chat-api-best-practice).
  *
  * @param request ChatRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -264,6 +265,9 @@ async function chatWithSSE(request: ChatRequest, runtime: $RuntimeOptions): asyn
   var query = {};
   if (!$isNull(request.agentId)) {
     query['AgentId'] = request.agentId;
+  }
+  if (!$isNull(request.forwardedProps)) {
+    query['ForwardedProps'] = request.forwardedProps;
   }
   if (!$isNull(request.message)) {
     query['Message'] = request.message;
@@ -306,13 +310,13 @@ async function chatWithSSE(request: ChatRequest, runtime: $RuntimeOptions): asyn
   }
 }
 /**
- * @summary Provides the asynchronous logic interface for DAS large model capabilities.
+ * @summary Invokes the asynchronous logic interface for DAS large model capabilities.
  *
  * @description Before you begin:
  * - Use the latest version of the Alibaba Cloud or DAS SDK.
- * - When calling DAS by using the SDK, set the region to cn-shanghai.
- * - Only database instances with DAS Enterprise Edition activated support creating batch tasks. For databases and regions supported by each DAS Enterprise Edition version, see [DAS editions and supported features](https://help.aliyun.com/document_detail/156204.html).
- * For more methods and examples of interacting with DAS Agent by using the Chat API, see [Best practices for DAS Agent interaction (integrating the Chat API)](https://www.alibabacloud.com/help/en/das/developer-reference/chat-api-best-practice).
+ * - When you use the SDK to call DAS services, specify the region as cn-shanghai.
+ * - Only database instances with DAS Enterprise Edition enabled support creating offline tasks. For the databases and regions supported by each edition of DAS Enterprise Edition, see [DAS editions and supported features](https://help.aliyun.com/document_detail/156204.html).
+ * For more methods and examples on how to use the Chat interface to interact with the DAS Agent, see [Best practices for DAS Agent interaction (Chat API integration)](https://www.alibabacloud.com/help/en/das/developer-reference/chat-api-best-practice).
  *
  * @param request ChatRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -324,6 +328,9 @@ async function chatWithOptions(request: ChatRequest, runtime: $RuntimeOptions): 
   var query = {};
   if (!$isNull(request.agentId)) {
     query['AgentId'] = request.agentId;
+  }
+  if (!$isNull(request.forwardedProps)) {
+    query['ForwardedProps'] = request.forwardedProps;
   }
   if (!$isNull(request.message)) {
     query['Message'] = request.message;
@@ -355,13 +362,13 @@ async function chatWithOptions(request: ChatRequest, runtime: $RuntimeOptions): 
 }
 
 /**
- * @summary Provides the asynchronous logic interface for DAS large model capabilities.
+ * @summary Invokes the asynchronous logic interface for DAS large model capabilities.
  *
  * @description Before you begin:
  * - Use the latest version of the Alibaba Cloud or DAS SDK.
- * - When calling DAS by using the SDK, set the region to cn-shanghai.
- * - Only database instances with DAS Enterprise Edition activated support creating batch tasks. For databases and regions supported by each DAS Enterprise Edition version, see [DAS editions and supported features](https://help.aliyun.com/document_detail/156204.html).
- * For more methods and examples of interacting with DAS Agent by using the Chat API, see [Best practices for DAS Agent interaction (integrating the Chat API)](https://www.alibabacloud.com/help/en/das/developer-reference/chat-api-best-practice).
+ * - When you use the SDK to call DAS services, specify the region as cn-shanghai.
+ * - Only database instances with DAS Enterprise Edition enabled support creating offline tasks. For the databases and regions supported by each edition of DAS Enterprise Edition, see [DAS editions and supported features](https://help.aliyun.com/document_detail/156204.html).
+ * For more methods and examples on how to use the Chat interface to interact with the DAS Agent, see [Best practices for DAS Agent interaction (Chat API integration)](https://www.alibabacloud.com/help/en/das/developer-reference/chat-api-best-practice).
  *
  * @param request ChatRequest
  * @return ChatResponse
@@ -1964,20 +1971,20 @@ async function deleteStopGateway(request: DeleteStopGatewayRequest): DeleteStopG
 
 model DescribeAuditLogsRequest {
   asyncRequestId?: string(name='AsyncRequestId', description='The request ID.', example='2c548e83-1473-4fda-b3dc-5a189074ead5'),
-  clientIp?: string(name='ClientIp', description='The IP address of the request client.', example='11.26.118.7'),
+  clientIp?: string(name='ClientIp', description='The IP address of the client that sends the request.', example='11.26.118.7'),
   clientUa?: string(name='ClientUa', description='The client type.', example='mysql'),
   currentPage?: int32(name='CurrentPage', description='The current page number.', example='3'),
   databaseName?: string(name='DatabaseName', description='The name of the database.', example='TestDB'),
   effectRowRange?: string(name='EffectRowRange', description='The range of affected rows.', example='in[1 33]'),
-  endTime?: long(name='EndTime', description='The end time of the alert log. The value is a UNIX timestamp in milliseconds.', example='15682887991222'),
-  executeTimeRange?: string(name='ExecuteTimeRange', description='The range of the execution time.', example='in[1000 2000]'),
+  endTime?: long(name='EndTime', description='The end time of the alert logs. The value is a UNIX timestamp in milliseconds.', example='15682887991222'),
+  executeTimeRange?: string(name='ExecuteTimeRange', description='The execution time range.', example='in[1000 2000]'),
   instanceName?: string(name='InstanceName', description='The name of the asset instance.', example='rm-t4ni1cezz5y3xxxx'),
   ipType?: string(name='IpType', description='The network type. Valid values:
 
-- **default** (default): non-Alibaba Cloud service.
+- **default**: Non-Alibaba Cloud services. This is the default value.
 
-- **aliyun**: Alibaba Cloud service.', example='aliyun'),
-  lang?: string(name='Lang', description='The language of the request and response. Default value: zh_cn. Valid values:
+- **aliyun**: Alibaba Cloud services.', example='aliyun'),
+  lang?: string(name='Lang', description='The language type of the request and response messages. Default value: zh_cn. Valid values:
 
 - zh_cn: Chinese.
 - en_us: English.', example='zh-CN'),
@@ -1985,10 +1992,10 @@ model DescribeAuditLogsRequest {
   logQueryOpJson?: string(name='LogQueryOpJson'),
   logSource?: string(name='LogSource', description='The data source.', example='SLOW_SQL'),
   operateType?: string(name='OperateType', description='The operation type.', example='Insert'),
-  ossObjectKey?: string(name='OssObjectKey', description='The key of the OSS storage object.', example='N.A'),
-  pageSize?: int32(name='PageSize', description='The maximum number of records per page. Default value: 10.', example='30'),
-  productCode?: string(name='ProductCode', description='The name of the product to which the data asset belongs. Valid values: **RDS, PolarDB, PolarDB-X 2.0**, and others.', example='RDS'),
-  productId?: long(name='ProductId', description='The ID that corresponds to the product name to which the data object belongs. Valid values:
+  ossObjectKey?: string(name='OssObjectKey', description='The key of the OSS object.', example='N.A'),
+  pageSize?: int32(name='PageSize', description='The maximum number of entries per page. Default value: 10.', example='30'),
+  productCode?: string(name='ProductCode', description='The name of the product to which the data asset belongs. Valid values include **RDS**, **PolarDB**, and **PolarDB-X 2.0**.', example='RDS'),
+  productId?: long(name='ProductId', description='The ID of the product to which the data object belongs. Valid values:
 
 - 3: ADB-MYSQL
 - 5: RDS
@@ -1997,12 +2004,12 @@ model DescribeAuditLogsRequest {
 - 9: ADB-PG
 - 11: MongoDB
 - 25: Redis', example='5'),
-  ruleAggQuery?: boolean(name='RuleAggQuery', description='Specifies whether to use aggregate query.', example='true'),
+  ruleAggQuery?: boolean(name='RuleAggQuery', description='Specifies whether to perform an aggregate query.', example='true'),
   ruleCategory?: string(name='RuleCategory', description='The rule type.', example='10'),
   ruleId?: string(name='RuleId', description='The rule ID.', example='867028'),
-  ruleName?: string(name='RuleName', description='The name of the audit policy.', example='test_rule'),
+  ruleName?: string(name='RuleName', description='The name of the audit rule.', example='test_rule'),
   sqlText?: string(name='SqlText', description='The content of the SQL statement.', example='SELECT * FROM test where name = \\\\"das\\\\"'),
-  startTime?: long(name='StartTime', description='The start time of the alert log, in milliseconds.', example='1608888296000'),
+  startTime?: long(name='StartTime', description='The start time of the alert logs. Unit: milliseconds.', example='1608888296000'),
   userName?: string(name='UserName', description='The username.', example='admin'),
 }
 
@@ -2011,35 +2018,33 @@ model DescribeAuditLogsResponseBody = {
   currentPage?: int32(name='CurrentPage', description='The current page number.', example='1'),
   items?: [ 
     {
-      clientIp?: string(name='ClientIp', description='The client IP address in the query.', example='100.104.16.251'),
-      clientPort?: string(name='ClientPort', description='The client port number in the query.', example='53815'),
+      clientIp?: string(name='ClientIp', description='The IP address of the client in the query.', example='100.104.16.251'),
+      clientPort?: string(name='ClientPort', description='The port number of the client in the query.', example='53815'),
       clientUa?: string(name='ClientUa', description='The client type.', example='mysql'),
       columnName?: string(name='ColumnName', description='The column name.', example='ds'),
-      creationTime?: long(name='CreationTime', description='The alert time, in milliseconds.', example='1536751124000'),
+      creationTime?: long(name='CreationTime', description='The alert time. Unit: milliseconds.', example='1536751124000'),
       databaseName?: string(name='DatabaseName', description='The database name.', example='chngc_b2b_migration_sh'),
       effectRow?: long(name='EffectRow', description='The number of affected rows.', example='10'),
-      executeStatus?: int32(name='ExecuteStatus', description='The execution status. Valid values:
-- 0: failed.
-- 1: succeeded.', example='1'),
-      executeTime?: long(name='ExecuteTime', description='The execution duration, in milliseconds.', example='1751870592000'),
+      executeStatus?: int32(name='ExecuteStatus', description='The execution status. Valid values: 0: Failed. 1: Successful.', example='1'),
+      executeTime?: long(name='ExecuteTime', description='The execution duration. Unit: milliseconds.', example='1751870592000'),
       id?: long(name='Id', description='The primary key ID.', example='1'),
       inWhiteList?: boolean(name='InWhiteList', description='Indicates whether the alert is in the whitelist.', example='True'),
-      instanceAuditStatus?: string(name='InstanceAuditStatus', description='The audit status of the instance.', example='2'),
+      instanceAuditStatus?: string(name='InstanceAuditStatus', description='The instance audit status.', example='2'),
       instanceDescription?: string(name='InstanceDescription', description='The description of the data asset instance.', example='instance dscription'),
       instanceName?: string(name='InstanceName', description='The instance alias.', example='test-instance-003'),
       ipType?: string(name='IpType', description='The network type. Valid values:
 
-**default** (default): non-Alibaba Cloud service.
+**default**: Non-Alibaba Cloud services. This is the default value.
 
-**aliyun**: Alibaba Cloud service.', example='aliyun'),
+**aliyun**: Alibaba Cloud services.', example='aliyun'),
       logSource?: string(name='LogSource', description='The data source.', example='SLOW_SQL'),
-      logTime?: long(name='LogTime', description='The log execution time.', example='1751870592000'),
+      logTime?: long(name='LogTime', description='The log execution time. The value is a UNIX timestamp in milliseconds.', example='1751870592000'),
       message?: string(name='Message', description='The raw log content.', example='success'),
       operateType?: string(name='OperateType', description='The operation type.', example='Drop'),
-      ossObjectKey?: string(name='OssObjectKey', description='The key of the OSS storage object.', example='N.A'),
+      ossObjectKey?: string(name='OssObjectKey', description='The key of the OSS object.', example='N.A'),
       packageName?: string(name='PackageName', description='The MaxCompute package name.', example='test01'),
-      productCode?: string(name='ProductCode', description='The name of the product to which the data asset belongs. Valid values: RDS, PolarDB, PolarDB-X 2.0, and others.', example='RDS'),
-      productId?: long(name='ProductId', description='The ID that corresponds to the product name to which the data object belongs. Valid values:
+      productCode?: string(name='ProductCode', description='The name of the product to which the data asset belongs. Valid values include RDS, PolarDB, and PolarDB-X 2.0.', example='RDS'),
+      productId?: long(name='ProductId', description='The ID of the product to which the data object belongs. Valid values:
 
 - 3: ADB-MYSQL
 - 5: RDS
@@ -2049,23 +2054,23 @@ model DescribeAuditLogsResponseBody = {
 - 11: MongoDB
 - 25: Redis', example='5'),
       ruleCategory?: string(name='RuleCategory', description='The rule type.', example='10'),
-      ruleId?: string(name='RuleId', description='The audit policy ID.', example='9953411'),
-      ruleName?: string(name='RuleName', description='The name of the audit policy.', example='name'),
+      ruleId?: string(name='RuleId', description='The audit rule ID.', example='9953411'),
+      ruleName?: string(name='RuleName', description='The name of the audit rule.', example='name'),
       sqlText?: string(name='SqlText', description='The SQL statement.', example='select * from test03'),
-      tableName?: string(name='TableName', description='The table name used in the query.', example='it_table'),
+      tableName?: string(name='TableName', description='The name of the table used in the query.', example='it_table'),
       userId?: string(name='UserId', description='The user UID.', example='19********94'),
       userName?: string(name='UserName', description='The username.', example='admin'),
       warnLevel?: string(name='WarnLevel', description='The risk level. Valid values:
-- **1**: low.
-- **2**: medium.
-- **3**: high.', example='1'),
+- **1**: Low risk.
+- **2**: Medium risk.
+- **3**: High risk.', example='1'),
       warnLevelName?: string(name='WarnLevelName', description='The risk level name. Valid values:
-- Low.
-- Medium.
-- High.', example='1'),
+- Low risk.
+- Medium risk.
+- High risk.', example='1'),
     }
-  ](name='Items', description='The client IP addresses in the SQL log records.'),
-  pageSize?: int32(name='PageSize', description='The page size for the paged query. This value indicates the number of records per page for paging.', example='10'),
+  ](name='Items', description='The IP addresses of the clients in the SQL log records.'),
+  pageSize?: int32(name='PageSize', description='The number of entries per page in the paged query.', example='10'),
   requestId?: string(name='RequestId', description='The request ID.', example='A7021857-AFD9-5AD6-979D-AA7DFC5AFADF'),
   totalCount?: int32(name='TotalCount', description='The total number of records. This parameter is valid only for the Redis engine.', example='12'),
 }
@@ -2077,11 +2082,11 @@ model DescribeAuditLogsResponse = {
 }
 
 /**
- * @summary Queries the audit alert log list for alert search and alert handling.
+ * @summary Queries the list of data audit alert logs to facilitate alert search and processing.
  *
- * @description Before you begin:
- * - Use the latest version of the Alibaba Cloud or DAS SDK.
- * - When you call DAS by using the SDK, set the region to cn-shanghai.
+ * @description To use this operation, you must meet the following prerequisites:
+ * - When using the Alibaba Cloud or DAS SDK, use the latest version.
+ * - When using the SDK to call DAS, specify the region as cn-shanghai.
  *
  * @param request DescribeAuditLogsRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -2187,11 +2192,11 @@ async function describeAuditLogsWithOptions(request: DescribeAuditLogsRequest, r
 }
 
 /**
- * @summary Queries the audit alert log list for alert search and alert handling.
+ * @summary Queries the list of data audit alert logs to facilitate alert search and processing.
  *
- * @description Before you begin:
- * - Use the latest version of the Alibaba Cloud or DAS SDK.
- * - When you call DAS by using the SDK, set the region to cn-shanghai.
+ * @description To use this operation, you must meet the following prerequisites:
+ * - When using the Alibaba Cloud or DAS SDK, use the latest version.
+ * - When using the SDK to call DAS, specify the region as cn-shanghai.
  *
  * @param request DescribeAuditLogsRequest
  * @return DescribeAuditLogsResponse
@@ -9709,8 +9714,8 @@ async function getDeadLockHistory(request: GetDeadLockHistoryRequest): GetDeadLo
 }
 
 model GetDeadlockHistogramRequest {
-  endTime?: long(name='EndTime', description='The end of the time range to query. The format is a UNIX timestamp in milliseconds.
->Notice: The value is of the Long type. Precision loss may occur during the serialization/deserialization procedure. The value must not be greater than 9007199254740991.</notice>
+  endTime?: long(name='EndTime', description='The end time of the query. The format is a UNIX timestamp in milliseconds.
+>Notice: This field is of the Long type. Precision loss may occur during serialization or deserialization. Ensure that the value does not exceed 9007199254740991.
 
 This parameter is required.', example='1732069466000'),
   instanceId?: string(name='InstanceId', description='The instance ID.
@@ -9718,12 +9723,12 @@ This parameter is required.', example='1732069466000'),
 This parameter is required.', example='pc-bp1u5mas9exx7****'),
   nodeId?: string(name='NodeId', description='The node ID.
 
-> For PolarDB for MySQL instances, you must specify the node ID.', example='pi-bp16v3824rt73****'),
-  startTime?: long(name='StartTime', description='The beginning of the time range to query. The format is a UNIX timestamp in milliseconds.
+> For a PolarDB for MySQL instance, you must specify the node ID.', example='pi-bp16v3824rt73****'),
+  startTime?: long(name='StartTime', description='The start time of the query. The format is a UNIX timestamp in milliseconds.
 
-> The start time can be at most 7 days earlier than the end time.
+> The start time cannot be more than 7 days earlier than the end time.
 
->Notice: The value is of the Long type. Precision loss may occur during the serialization/deserialization procedure. The value must not be greater than 9007199254740991.</notice>
+>Notice: This field is of the Long type. Precision loss may occur during serialization or deserialization. Ensure that the value does not exceed 9007199254740991.
 
 This parameter is required.', example='1731983066000'),
   status?: string(name='Status', description='The analysis status of the task.', example='SUCCESS'),
@@ -9733,15 +9738,15 @@ model GetDeadlockHistogramResponseBody = {
   code?: long(name='Code', description='The returned status code.', example='200'),
   data?: [ 
     {
-      endTime?: string(name='EndTime', description='The end time of the analysis task range.', example='1729998000000'),
+      endTime?: string(name='EndTime', description='The end time of the analysis task range. The time is a UNIX timestamp in milliseconds.', example='1729998000000'),
       instanceId?: string(name='InstanceId', description='The instance ID.', example='pc-bp1u5mas9exx7****'),
       lockNumber?: int32(name='LockNumber', description='The number of deadlocks.', example='2'),
       nodeId?: string(name='NodeId', description='The node ID. This parameter is used for PolarDB for MySQL clusters.', example='pi-bp16v3824rt73****'),
-      startTime?: string(name='StartTime', description='The start time of the analysis task range.', example='1729994400000'),
+      startTime?: string(name='StartTime', description='The start time of the analysis task range. The time is a UNIX timestamp in milliseconds.', example='1729994400000'),
       status?: string(name='Status', description='The task status. Valid values:
-- **SUCCESS**: The analysis is successful.
-- **FAILED**: The analysis failed or encountered an exception.', example='SUCCESS'),
-      taskId?: string(name='TaskId', description='The full deadlock analysis task ID.', example='B6D17591-B48B-4D31-9CD6-1321B394****'),
+- **SUCCESS**: The analysis was successful.
+- **FAILED**: The analysis is abnormal or failed.', example='SUCCESS'),
+      taskId?: string(name='TaskId', description='The ID of the full deadlock analysis task.', example='B6D17591-B48B-4D31-9CD6-1321B394****'),
       userId?: string(name='UserId', description='The user ID.', example='108************'),
     }
   ](name='Data', description='The returned data.'),
@@ -9749,9 +9754,9 @@ model GetDeadlockHistogramResponseBody = {
 
 > If the request is successful, **Successful** is returned. If the request fails, an error message such as an error code is returned.', example='Successful'),
   requestId?: string(name='RequestId', description='The request ID.', example='0A74B755-98B7-59DB-8724-1321B394****'),
-  success?: boolean(name='Success', description='Indicates whether the request is successful. Valid values:
+  success?: boolean(name='Success', description='Indicates whether the request was successful. Valid values:
 
-- **true**: The request is successful.
+- **true**: The request was successful.
 - **false**: The request failed.', example='true'),
 }
 
@@ -9762,13 +9767,13 @@ model GetDeadlockHistogramResponse = {
 }
 
 /**
- * @summary Queries the deadlock count trend based on full deadlock analysis of error logs within a specified time range.
+ * @summary Queries the trend of deadlock counts based on full deadlock analysis of error logs within a specified time range.
  *
- * @description Invokes this operation to query the deadlock count from full deadlock analysis within a specified time range. DAS periodically analyzes fault logs, parses deadlock information, and collects statistics on deadlock count trends. For details, see [Full deadlock analysis](https://help.aliyun.com/document_detail/2858236.html).
- * Before you begin:
- * - The database DPI engine must be RDS MySQL or PolarDB for MySQL, and [DAS Alibaba Cloud Managed Services (formerly DAS Economy Edition)](https://help.aliyun.com/document_detail/2666482.html) must be enabled.
- * - If you use the China site (aliyun.com) or DAS SDK, use the latest version.
- * - When you invoke DAS by using the SDK, set the region to cn-shanghai.
+ * @description This operation queries the number of deadlocks based on full deadlock analysis within a specified time range. Database Autonomy Service (DAS) periodically analyzes error logs, parses deadlock information, and calculates the trend of deadlock counts. For details, see [Full deadlock analysis](https://help.aliyun.com/document_detail/2858236.html).
+ * Before you invoke this operation, ensure that the following prerequisites are met:
+ * - The target database engine is ApsaraDB RDS for MySQL or PolarDB for MySQL, and [DAS Alibaba Cloud Managed Services (formerly DAS Economy Edition)](https://help.aliyun.com/document_detail/2666482.html) is activated.
+ * - If you use the Alibaba Cloud SDK or DAS SDK, use the latest version.
+ * - When you use an SDK to invoke DAS, set the region to cn-shanghai.
  *
  * @param request GetDeadlockHistogramRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -9811,13 +9816,13 @@ async function getDeadlockHistogramWithOptions(request: GetDeadlockHistogramRequ
 }
 
 /**
- * @summary Queries the deadlock count trend based on full deadlock analysis of error logs within a specified time range.
+ * @summary Queries the trend of deadlock counts based on full deadlock analysis of error logs within a specified time range.
  *
- * @description Invokes this operation to query the deadlock count from full deadlock analysis within a specified time range. DAS periodically analyzes fault logs, parses deadlock information, and collects statistics on deadlock count trends. For details, see [Full deadlock analysis](https://help.aliyun.com/document_detail/2858236.html).
- * Before you begin:
- * - The database DPI engine must be RDS MySQL or PolarDB for MySQL, and [DAS Alibaba Cloud Managed Services (formerly DAS Economy Edition)](https://help.aliyun.com/document_detail/2666482.html) must be enabled.
- * - If you use the China site (aliyun.com) or DAS SDK, use the latest version.
- * - When you invoke DAS by using the SDK, set the region to cn-shanghai.
+ * @description This operation queries the number of deadlocks based on full deadlock analysis within a specified time range. Database Autonomy Service (DAS) periodically analyzes error logs, parses deadlock information, and calculates the trend of deadlock counts. For details, see [Full deadlock analysis](https://help.aliyun.com/document_detail/2858236.html).
+ * Before you invoke this operation, ensure that the following prerequisites are met:
+ * - The target database engine is ApsaraDB RDS for MySQL or PolarDB for MySQL, and [DAS Alibaba Cloud Managed Services (formerly DAS Economy Edition)](https://help.aliyun.com/document_detail/2666482.html) is activated.
+ * - If you use the Alibaba Cloud SDK or DAS SDK, use the latest version.
+ * - When you use an SDK to invoke DAS, set the region to cn-shanghai.
  *
  * @param request GetDeadlockHistogramRequest
  * @return GetDeadlockHistogramResponse
@@ -10735,33 +10740,39 @@ async function getInstanceGroupInspectReportDetail(request: GetInstanceGroupInsp
 }
 
 model GetInstanceGroupInspectReportListRequest {
-  agentId?: string(name='AgentId', description='Optional. By default, the default Agent is used. You can also specify the Agent that was generated after DAS Agent was activated or that was manually created.', example='ag-472T0DxtmjIxxxxx'),
-  endTime?: long(name='EndTime', description='The end timestamp.
+  agentId?: string(name='AgentId', description='Optional. By default, the default agent is used. You can also specify the ID of an agent that is generated after DAS Agent is activated or manually created.', example='ag-472T0DxtmjIxxxxx'),
+  endTime?: long(name='EndTime', description='The end time of the query. The time is a UNIX timestamp in milliseconds.
 
 This parameter is required.', example='1655427625000'),
-  groupId?: string(name='GroupId', description='Reserved parameter.', example='null'),
+  groupId?: string(name='GroupId', description='The reserved parameter.', example='null'),
   reportType?: string(name='ReportType'),
-  startTime?: long(name='StartTime', description='The start timestamp.
+  startTime?: long(name='StartTime', description='The start time of the query. The time is a UNIX timestamp in milliseconds.
 
 This parameter is required.', example='1596177993000'),
 }
 
 model GetInstanceGroupInspectReportListResponseBody = {
-  code?: string(name='Code', description='The response status code.', example='200'),
+  code?: string(name='Code', description='The returned status code.', example='200'),
   data?: [ 
     {
-      createTime?: string(name='CreateTime', description='The time when the task was created.', example='2025-12-11 00:39:00'),
-      reportDate?: string(name='ReportDate', description='The date of the diagnosis.', example='2025-12-10'),
+      createTime?: string(name='CreateTime', description='The time when the task was created. The time is in the YYYY-MM-DD HH:mm:ss format.', example='2025-12-11 00:39:00'),
+      reportDate?: string(name='ReportDate', description='The diagnosis date in the YYYY-MM-DD format.', example='2025-12-10'),
       reportId?: string(name='ReportId', description='The report ID.', example='13f52040-5a6e-42c3-bb84-051f5d6d****'),
-      status?: string(name='Status', description='The task status. Valid values: WAITING_UNREADY = 0, WAITING_READY = 1, PROCESSING = 2, FINISHED = 3, ERROR = 4, STOPPED = -1.', example='3'),
+      status?: string(name='Status', description='The task status. Valid values:
+- 0: WAITING_UNREADY.
+- 1: WAITING_READY.
+- 2: PROCESSING.
+- 3: FINISHED.
+- 4: ERROR.
+- -1: STOPPED.', example='3'),
     }
   ](name='Data', description='List<ReportStatus>'),
-  message?: string(name='Message', description='The response message.
->If the request is successful, **Successful** is returned. If the request fails, exception information such as an error code is returned.', example='Successful'),
+  message?: string(name='Message', description='The returned message.
+> If the request is successful, **Successful** is returned. If the request fails, an error message such as an error code is returned.', example='Successful'),
   requestId?: string(name='RequestId', description='The request ID.', example='B6D17591-B48B-4D31-9CD6-9B9796B2****'),
-  success?: string(name='Success', description='Indicates whether the request is successful. Valid values:
-* **true**: The request is successful.
-* **false**: The request fails.', example='true'),
+  success?: string(name='Success', description='Indicates whether the request was successful. Valid values:
+* **true**: The request was successful.
+* **false**: The request failed.', example='true'),
 }
 
 model GetInstanceGroupInspectReportListResponse = {
@@ -10773,13 +10784,13 @@ model GetInstanceGroupInspectReportListResponse = {
 /**
  * @summary Queries the list of O&M reports generated by DAS Agent.
  *
- * @description Enabling the O&M report feature of DAS Agent allows the system to perform periodic inspections on target instances and generate reports. Currently, only daily reports are supported.
- * Before you begin:
- * - Activate DAS Agent and ensure that the Agent is still within its validity period.
- * - Enable the daily report feature on the DAS Agent configuration page.
+ * @description Enabling the O&M report feature of DAS Agent allows the system to perform regular inspections on target instances and generate reports. Currently, only daily reports are supported.
+ * To use this operation, the following prerequisites must be met:
+ * - You have activated DAS Agent and the agent is still within its validity period.
+ * - You have enabled the daily report feature on the DAS Agent configuration page.
  * - When using the Alibaba Cloud SDK, ensure that the version of aliyun-sdk-core is later than 4.3.3. Use the latest version.
- * - Use DAS SDK 1.0.3 or later.
- * - When calling DAS by using the SDK, set the region to ap-southeast-1.
+ * - The version of the DAS SDK is 1.0.3 or later.
+ * - When calling DAS services by using the SDK, specify the region as cn-shanghai.
  *
  * @param request GetInstanceGroupInspectReportListRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -10826,13 +10837,13 @@ async function getInstanceGroupInspectReportListWithOptions(request: GetInstance
 /**
  * @summary Queries the list of O&M reports generated by DAS Agent.
  *
- * @description Enabling the O&M report feature of DAS Agent allows the system to perform periodic inspections on target instances and generate reports. Currently, only daily reports are supported.
- * Before you begin:
- * - Activate DAS Agent and ensure that the Agent is still within its validity period.
- * - Enable the daily report feature on the DAS Agent configuration page.
+ * @description Enabling the O&M report feature of DAS Agent allows the system to perform regular inspections on target instances and generate reports. Currently, only daily reports are supported.
+ * To use this operation, the following prerequisites must be met:
+ * - You have activated DAS Agent and the agent is still within its validity period.
+ * - You have enabled the daily report feature on the DAS Agent configuration page.
  * - When using the Alibaba Cloud SDK, ensure that the version of aliyun-sdk-core is later than 4.3.3. Use the latest version.
- * - Use DAS SDK 1.0.3 or later.
- * - When calling DAS by using the SDK, set the region to ap-southeast-1.
+ * - The version of the DAS SDK is 1.0.3 or later.
+ * - When calling DAS services by using the SDK, specify the region as cn-shanghai.
  *
  * @param request GetInstanceGroupInspectReportListRequest
  * @return GetInstanceGroupInspectReportListResponse
@@ -15532,16 +15543,16 @@ async function modifyAutoScalingConfig(request: ModifyAutoScalingConfigRequest):
 model ModifyDasOpsConfigRequest {
   enable?: boolean(name='Enable', description='Specifies whether to enable DAS Alibaba Cloud Managed Services. Valid values:
 
-- **true**: Enable.
-- **false**: Disable. Shutdown only turns off the feature but does not unsubscribe from the service. To unsubscribe, go to the unsubscription management page.', example='true'),
+- **true**: Enabled.
+- **false**: Disabled. Note that shutdown only disables the feature, but does not cancel your subscription. To cancel your subscription, go to the Unsubscription Management page.', example='true'),
   filters?: [ 
     {
       key?: string(name='Key', description='The filter parameter.
 
-> For supported filter parameters and their values, see **Supplementary description of request parameters**.', example='None'),
-      value?: string(name='Value', description='A reserved parameter.', example='select'),
+> For supported filter parameters and their valid values, see **Supplementary description of request parameters**.', example='None'),
+      value?: string(name='Value', description='The reserved parameter.', example='select'),
     }
-  ](name='Filters', description='A reserved parameter.'),
+  ](name='Filters', description='The reserved parameter.'),
   instanceId?: string(name='InstanceId', description='The database instance ID.
 
 This parameter is required.', example='dds-uf6079bda570****'),
@@ -15550,29 +15561,29 @@ This parameter is required.', example='dds-uf6079bda570****'),
 model ModifyDasOpsConfigResponseBody = {
   code?: string(name='Code', description='The returned status code.', example='200'),
   data?: {
-    chargeType?: string(name='ChargeType', description='The payment method.', example='prepay'),
-    commodityInstanceId?: string(name='CommodityInstanceId', description='The Alibaba Cloud Managed Services instance ID.', example='pc-2zelo5v5u0678jx04'),
-    ecoEnable?: boolean(name='EcoEnable', description='Indicates whether DAS Economy Edition is enabled.', example='true'),
-    enable?: boolean(name='Enable', description='Indicates whether the Alibaba Cloud Managed Services feature is enabled (including DAS Economy Edition).', example='true'),
+    chargeType?: string(name='ChargeType', description='The billing method.', example='prepay'),
+    commodityInstanceId?: string(name='CommodityInstanceId', description='The instance ID of Alibaba Cloud Managed Services.', example='pc-2zelo5v5u0678jx04'),
+    ecoEnable?: boolean(name='EcoEnable', description='Indicates whether the DAS Economy Edition is enabled.', example='true'),
+    enable?: boolean(name='Enable', description='Indicates whether the Alibaba Cloud Managed Services feature (including DAS Economy Edition) is enabled.', example='true'),
     endTime?: long(name='EndTime', description='The end time. The value is a UNIX timestamp. Unit: milliseconds.', example='1608888296000'),
     opsEnable?: boolean(name='OpsEnable', description='Indicates whether Alibaba Cloud Managed Services is enabled.'),
-    orderId?: long(name='OrderId', description='The order ID.', example='285412912420536'),
-    startTime?: long(name='StartTime', description='The start time.', example='1672531200000'),
-    status?: string(name='Status', description='The task status. Valid values:
-- **INIT**: Pending scheduling.
+    orderId?: long(name='OrderId', description='The ID of the order.', example='285412912420536'),
+    startTime?: long(name='StartTime', description='The start time of Alibaba Cloud Managed Services. The format is a UNIX timestamp. Unit: milliseconds.', example='1672531200000'),
+    status?: string(name='Status', description='The status of the task. Valid values:
+- **INIT**: Pending.
 - **RUNNING**: Running.
 - **FAILED**: Failed.
 - **CANCELED**: Canceled.
 - **COMPLETED**: Completed.
 
-> When the task is in the **COMPLETED** state, you can view the task result.', example='COMPLETED'),
+> When the task is in the **COMPLETED** state, you can view the task results.', example='COMPLETED'),
   }(name='Data', description='SqlLogConfig'),
   message?: string(name='Message', description='The returned message.', example='Successful'),
-  requestId?: string(name='RequestId', description='The request ID.', example='B6D17591-B48B-4D31-9CD6-9B9796B2****'),
+  requestId?: string(name='RequestId', description='The ID of the request.', example='B6D17591-B48B-4D31-9CD6-9B9796B2****'),
   success?: string(name='Success', description='Indicates whether the request was successful. Valid values:
 
-- **true**: The request was successful.
-- **false**: The request failed.', example='true'),
+- **true**: Successful.
+- **false**: Failed.', example='true'),
 }
 
 model ModifyDasOpsConfigResponse = {
@@ -15582,12 +15593,12 @@ model ModifyDasOpsConfigResponse = {
 }
 
 /**
- * @summary Modifies a configuration item of Alibaba Cloud Managed Services.
+ * @summary Modifies the configuration items of Alibaba Cloud Managed Services.
  *
- * @description Before you begin:
- * - Use the latest version of Alibaba Cloud SDK or DAS SDK.
- * - When calling DAS by using the SDK, set the region to cn-shanghai.
- * - This operation enables the latest supported version by default. For information about the databases and regions supported by each DAS Enterprise Edition version, see [DAS editions and supported features](https://help.aliyun.com/document_detail/156204.html).
+ * @description To use this API operation, you must meet the following prerequisites:
+ * - Use the latest version of the Alibaba Cloud SDK or DAS SDK.
+ * - When you use an SDK to call DAS, you must set the region to cn-shanghai.
+ * - By default, this API operation enables the latest supported version. For the databases and regions supported by each edition of DAS Enterprise Edition, see [DAS editions and supported features](https://help.aliyun.com/document_detail/156204.html).
  *
  * @param request ModifyDasOpsConfigRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -15626,12 +15637,12 @@ async function modifyDasOpsConfigWithOptions(request: ModifyDasOpsConfigRequest,
 }
 
 /**
- * @summary Modifies a configuration item of Alibaba Cloud Managed Services.
+ * @summary Modifies the configuration items of Alibaba Cloud Managed Services.
  *
- * @description Before you begin:
- * - Use the latest version of Alibaba Cloud SDK or DAS SDK.
- * - When calling DAS by using the SDK, set the region to cn-shanghai.
- * - This operation enables the latest supported version by default. For information about the databases and regions supported by each DAS Enterprise Edition version, see [DAS editions and supported features](https://help.aliyun.com/document_detail/156204.html).
+ * @description To use this API operation, you must meet the following prerequisites:
+ * - Use the latest version of the Alibaba Cloud SDK or DAS SDK.
+ * - When you use an SDK to call DAS, you must set the region to cn-shanghai.
+ * - By default, this API operation enables the latest supported version. For the databases and regions supported by each edition of DAS Enterprise Edition, see [DAS editions and supported features](https://help.aliyun.com/document_detail/156204.html).
  *
  * @param request ModifyDasOpsConfigRequest
  * @return ModifyDasOpsConfigResponse
