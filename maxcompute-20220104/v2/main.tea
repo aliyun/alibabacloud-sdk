@@ -2033,6 +2033,97 @@ async function getJobResourceUsage(request: GetJobResourceUsageRequest): GetJobR
   return getJobResourceUsageWithOptions(request, headers, runtime);
 }
 
+model GetLogviewDownloadUrlRequest {
+  useVpcEndpoint?: boolean(name='useVpcEndpoint', description='Specifies whether to use the OSS VPC endpoint to generate the download link. Valid values:
+- false: Uses the default OSS endpoint.
+- true: Uses the OSS VPC endpoint configured on the server. The download client must have network access to this endpoint.
+Default value: false. If this parameter is set to true and no OSS VPC endpoint is configured on the server, link generation fails and does not automatically fall back.'),
+}
+
+model GetLogviewDownloadUrlResponseBody = {
+  data?: string(name='data', description='The presigned OSS download URL for the offline Logview file. The URL is valid for 10 minutes from the time it is generated. The file name extension is .txt and the content is JSON data in UTF-8 encoding. The download URL is determined by useVpcEndpoint. If the link expires, invoke this operation again. The sample URL is desensitized and cannot be used for actual downloads.', example='https://example-bucket.oss-cn-hangzhou.aliyuncs.com/logview/offline/logview_detail_odps_project_20260409110419512gx6ofeaj8fb.txt?OSSAccessKeyId=LTAI5tExample****&Expires=1791777900&Signature=example****'),
+  errorCode?: string(name='errorCode', description='The error code. This field is not assigned a value when this operation is successfully processed. The sample value NO_PERMISSION is used to illustrate a common permission error and must not be combined with the success response example.', example='NO_PERMISSION'),
+  errorMsg?: string(name='errorMsg', description='The error message. This field is not assigned a value when this operation is successfully processed. The sample value Forbidden is used to illustrate a common permission error and must not be combined with the success response example.', example='Forbidden'),
+  httpCode?: int32(name='httpCode', description='The HTTP status code field. This field is not assigned a value when this operation is successfully processed. Do not rely solely on whether this field equals 200 to determine success. Process the result based on the actual HTTP response status and returned content. The sample value 200 is used only to illustrate the field format.', example='200'),
+  requestId?: string(name='requestId', description='The request ID. This ID is used to locate and troubleshoot the request.', example='0be3e0aa16667684362147582e038f'),
+}
+
+model GetLogviewDownloadUrlResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: GetLogviewDownloadUrlResponseBody(name='body'),
+}
+
+/**
+ * @summary Retrieves the download link for the offline Logview file of an instance in a specified MaxCompute project. The link is valid for 10 minutes from the time it is generated.
+ *
+ * @description Generates the offline Logview file for a specified MaxCompute instance and returns a presigned Object Storage Service (OSS) download URL.
+ * ## Procedure
+ * 1. Specify the project name by using the project path parameter and the instance ID in the project by using the instance parameter.
+ * 2. Select useVpcEndpoint based on the download environment: If this parameter is not specified or is set to false, the default OSS endpoint is used. If this parameter is set to true, the OSS VPC endpoint configured on the server is used. The download client must have network access to the selected endpoint.
+ * 3. Obtain the URL from the data field in the success response and download the file before the link expires. The link expires 10 minutes after it is generated. If the link expires, call this operation again to obtain a new link.
+ * ## File and usage instructions
+ * - The downloaded file is named logview_detail_{project}_{instance}.txt. The file content is offline Logview data in UTF-8 encoded JSON format. The specific data varies based on the instance task type and available information, and is not guaranteed to include execution results.
+ * - Each call rebuilds and uploads the offline Logview data. The same file object path is used for the same project and instance, and a subsequent upload overwrites the previous content.
+ * - This operation returns a download URL instead of a file stream upon success. A success response identifies the request by using requestId and returns the download link in the data field. The httpCode, errorCode, and errorMsg fields are common response fields. These fields are not assigned values when this operation is successfully processed, but they are not guaranteed to be omitted from the response.
+ * - If useVpcEndpoint is set to true and no OSS VPC endpoint is configured on the server, link generation fails and does not automatically fall back to the default endpoint.
+ * - The sample URL in the data field is desensitized and is used only to illustrate the format. It cannot be used for actual downloads.
+ *
+ * @param request GetLogviewDownloadUrlRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return GetLogviewDownloadUrlResponse
+ */
+@context("getLogviewDownloadUrlWithContext")
+async function getLogviewDownloadUrlWithOptions(project: string, instance: string, request: GetLogviewDownloadUrlRequest, headers: map[string]string, runtime: $RuntimeOptions): GetLogviewDownloadUrlResponse {
+  request.validate();
+  var query : map[string]any = {};
+  if (!$isNull(request.useVpcEndpoint)) {
+    query['useVpcEndpoint'] = request.useVpcEndpoint;
+  }
+
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'GetLogviewDownloadUrl',
+    version = '2022-01-04',
+    protocol = 'HTTPS',
+    pathname = `/api/v1/logview/project/${$URL.percentEncode(project)}/instance/${$URL.percentEncode(instance)}/downloadUrl`,
+    method = 'GET',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Retrieves the download link for the offline Logview file of an instance in a specified MaxCompute project. The link is valid for 10 minutes from the time it is generated.
+ *
+ * @description Generates the offline Logview file for a specified MaxCompute instance and returns a presigned Object Storage Service (OSS) download URL.
+ * ## Procedure
+ * 1. Specify the project name by using the project path parameter and the instance ID in the project by using the instance parameter.
+ * 2. Select useVpcEndpoint based on the download environment: If this parameter is not specified or is set to false, the default OSS endpoint is used. If this parameter is set to true, the OSS VPC endpoint configured on the server is used. The download client must have network access to the selected endpoint.
+ * 3. Obtain the URL from the data field in the success response and download the file before the link expires. The link expires 10 minutes after it is generated. If the link expires, call this operation again to obtain a new link.
+ * ## File and usage instructions
+ * - The downloaded file is named logview_detail_{project}_{instance}.txt. The file content is offline Logview data in UTF-8 encoded JSON format. The specific data varies based on the instance task type and available information, and is not guaranteed to include execution results.
+ * - Each call rebuilds and uploads the offline Logview data. The same file object path is used for the same project and instance, and a subsequent upload overwrites the previous content.
+ * - This operation returns a download URL instead of a file stream upon success. A success response identifies the request by using requestId and returns the download link in the data field. The httpCode, errorCode, and errorMsg fields are common response fields. These fields are not assigned values when this operation is successfully processed, but they are not guaranteed to be omitted from the response.
+ * - If useVpcEndpoint is set to true and no OSS VPC endpoint is configured on the server, link generation fails and does not automatically fall back to the default endpoint.
+ * - The sample URL in the data field is desensitized and is used only to illustrate the format. It cannot be used for actual downloads.
+ *
+ * @param request GetLogviewDownloadUrlRequest
+ * @return GetLogviewDownloadUrlResponse
+ */
+async function getLogviewDownloadUrl(project: string, instance: string, request: GetLogviewDownloadUrlRequest): GetLogviewDownloadUrlResponse {
+  var runtime = new $RuntimeOptions{};
+  var headers : map[string]string = {};
+  return getLogviewDownloadUrlWithOptions(project, instance, request, headers, runtime);
+}
+
 model GetMmsAsyncTaskResponseBody = {
   data?: {
     createTime?: string(name='createTime', description='The creation time. The time is in the YYYY-MM-DD HH:mm:ss format.', example='2024-12-17 15:44:00'),
@@ -7092,8 +7183,8 @@ async function listProjectUsers(projectName: string): ListProjectUsersResponse {
 }
 
 model ListProjectsRequest {
-  listSystemCatalog?: boolean(name='listSystemCatalog', description='Specifies whether to list the built-in **SYSTEM_CATALOG** project. This project provides information such as project metadata and usage history. For more information, see the <props="china">[Information Schema](https://www.alibabacloud.com/help/en/maxcompute/user-guide/tenant-level-information-schema)
-<props="intl">[Information Schema](https://www.alibabacloud.com/help/zh/maxcompute/user-guide/tenant-level-information-schema) feature.', example='true'),
+  listSystemCatalog?: boolean(name='listSystemCatalog', description='Specifies whether to list the built-in **SYSTEM_CATALOG** project. This project provides information such as project metadata and usage history. For more information, see the <props="china">[Information Schema](https://www.alibabacloud.com/help/zh/maxcompute/user-guide/tenant-level-information-schema)
+<props="intl">[Information Schema](https://www.alibabacloud.com/help/en/maxcompute/user-guide/tenant-level-information-schema) feature.', example='true'),
   marker?: string(name='marker', description='The marker used to specify the starting point of the returned results. The results are sorted in alphabetical order and returned starting from the first item after the marker.', example='cHlvZHBzX3VkZl8xMDExNV8xNDU3NDI4NDkzKg=='),
   maxItem?: int32(name='maxItem', description='The maximum number of results to return per page. Default value: 10.', example='10'),
   prefix?: string(name='prefix', description='The prefix used to filter the returned resource names. The returned resource names must start with the specified prefix. For example, if the prefix is a, all returned resource names start with a.', example='a'),
@@ -7123,8 +7214,8 @@ model ListProjectsResponseBody = {
         costStorage?: string(name='costStorage', description='The total storage size. This value indicates the current storage size of the project and is consistent with the billing metric. It represents the logical storage size after data compression at the project level.', example='16489027'),
         createdTime?: long(name='createdTime', description='The creation time. The time is a UNIX timestamp in milliseconds.', example='1704380838000'),
         defaultQuota?: string(name='defaultQuota', description='The default compute quota.
-This is used to allocate compute resources. If no compute quota is specified, jobs initiated in the project consume resources from the default quota. For more information about how to use compute resources, see <props="china">[Use of computing resources](https://www.alibabacloud.com/help/en/maxcompute/user-guide/use-of-computing-resources)
-<props="intl">[Use of computing resources](https://www.alibabacloud.com/help/zh/maxcompute/user-guide/use-of-computing-resources).', example='os_PayAsYouGoQuota'),
+This is used to allocate compute resources. If no compute quota is specified, jobs initiated in the project consume resources from the default quota. For more information about how to use compute resources, see <props="china">[Use of computing resources](https://www.alibabacloud.com/help/zh/maxcompute/user-guide/use-of-computing-resources)
+<props="intl">[Use of computing resources](https://www.alibabacloud.com/help/en/maxcompute/user-guide/use-of-computing-resources).', example='os_PayAsYouGoQuota'),
         ipWhiteList?: {
           ipList?: string(name='ipList', description='The IP address whitelist for the Internet and cloud service interconnection network.
 
@@ -7132,7 +7223,7 @@ This is used to allocate compute resources. If no compute quota is specified, jo
           vpcIpList?: string(name='vpcIpList', description='The IP address whitelist for VPCs.
 > If you configure only the IP address whitelist for VPCs, access from VPCs is restricted by the configuration, and all access from the Internet and cloud service interconnection network is prohibited.', example='10.88.111.3'),
         }(name='ipWhiteList', description='The IP address whitelist.'),
-        name?: string(name='name', description='The project name.', example='odps_project'),
+        name?: string(name='name', description='The project names.', example='odps_project'),
         owner?: string(name='owner', description='The account information of the project owner.', example='ALIYUN$odps****@aliyunid.com'),
         properties?: {
           allowFullScan?: boolean(name='allowFullScan', description='Specifies whether to allow full table scans in the project. Full table scans consume a large amount of resources. To improve processing efficiency, this feature is disabled by default.', example='false'),
@@ -7143,13 +7234,13 @@ This is used to allocate compute resources. If no compute quota is specified, jo
           encryption?: {
             algorithm?: string(name='algorithm', description='The data encryption algorithm. The encryption algorithms supported by the key include AES256, AESCTR, and RC4.', example='AES256'),
             enable?: boolean(name='enable', description='Specifies whether to enable data encryption for the project. For more information about data encryption, see 
-<props="china">[Storage encryption](https://www.alibabacloud.com/help/en/maxcompute/security-and-compliance/storage-encryption)
-<props="intl">[Storage encryption](https://www.alibabacloud.com/help/zh/maxcompute/security-and-compliance/storage-encryption).', example='true'),
+<props="china">[Storage encryption](https://www.alibabacloud.com/help/zh/maxcompute/security-and-compliance/storage-encryption)
+<props="intl">[Storage encryption](https://www.alibabacloud.com/help/en/maxcompute/security-and-compliance/storage-encryption).', example='true'),
             key?: string(name='key', description='The type of the key used for data encryption. Valid values include the default key (MaxCompute Default Key) and Bring Your Own Key (BYOK). The default key is a default key created internally by MaxCompute.', example='dafault'),
           }(name='encryption', description='The storage encryption properties.'),
           externalProjectProperties?: {
-            isExternalCatalogBound?: string(name='isExternalCatalogBound', description='Specifies whether the project is an external project of <props="china">[Data Lakehouse Solution 2.0](https://www.alibabacloud.com/help/en/maxcompute/user-guide/lake-warehouse-integrated-2-0-use-guide)
-<props="intl">[Data Lakehouse Solution 2.0](https://www.alibabacloud.com/help/zh/maxcompute/user-guide/lake-warehouse-integrated-2-0-use-guide).', example='true'),
+            isExternalCatalogBound?: string(name='isExternalCatalogBound', description='Specifies whether the project is an external project of <props="china">[Data Lakehouse Solution 2.0](https://www.alibabacloud.com/help/zh/maxcompute/user-guide/lake-warehouse-integrated-2-0-use-guide)
+<props="intl">[Data Lakehouse Solution 2.0](https://www.alibabacloud.com/help/en/maxcompute/user-guide/lake-warehouse-integrated-2-0-use-guide).', example='true'),
           }(name='externalProjectProperties', description='The properties of the external project.'),
           retentionDays?: long(name='retentionDays', description='The retention period of backup data in days. During this period, you can restore the current version to any backed-up data version. Valid values: 0 to 30. Default value: 1. A value of 0 indicates that the backup feature is disabled.', example='1'),
           sqlMeteringMax?: string(name='sqlMeteringMax', description='The maximum threshold for the consumption of a single SQL statement. Unit: scanned data volume (GB) × complexity.', example='1500'),
@@ -7161,8 +7252,8 @@ This is used to allocate compute resources. If no compute quota is specified, jo
             value?: string(name='value', description='The lifecycle of the table. Unit: days. Valid values: 1 to 37231. Default value: 37231.', example='37231'),
           }(name='tableLifecycle', description='The lifecycle properties of tables.'),
           timezone?: string(name='timezone', description='The time zone of the project, which is the odps.sql.timezone property.', example='Asia/Shanghai'),
-          tunnelQuota?: string(name='tunnelQuota', description='The EPS resource group of the <props="china">[data transfer service](https://www.alibabacloud.com/help/en/maxcompute/user-guide/overview-of-dts)
-<props="intl">[data transfer service](https://www.alibabacloud.com/help/zh/maxcompute/user-guide/overview-of-dts) bound to the project.
+          tunnelQuota?: string(name='tunnelQuota', description='The EPS resource group of the <props="china">[data transfer service](https://www.alibabacloud.com/help/zh/maxcompute/user-guide/overview-of-dts)
+<props="intl">[data transfer service](https://www.alibabacloud.com/help/en/maxcompute/user-guide/overview-of-dts) bound to the project.
 
 - Default (shared EPS resource group for the data transfer service): The project is not allowed to use the subscription EPS resource group for the data transfer service. Regardless of the default EPS resource group setting, data transfer tasks submitted by default in this project automatically use the Default EPS resource group.
 
@@ -7172,8 +7263,8 @@ This is used to allocate compute resources. If no compute quota is specified, jo
 - **2**: MaxCompute V2.0 data type edition
 - **hive**: Hive-compatible data type edition
 
-For more information about the differences among the three data type editions, see <props="china">[Data type editions](https://www.alibabacloud.com/help/en/maxcompute/user-guide/data-type-editions)
-<props="intl">[Data type editions](https://www.alibabacloud.com/help/zh/maxcompute/user-guide/data-type-editions).', example='2'),
+For more information about the differences among the three data type editions, see <props="china">[Data type editions](https://www.alibabacloud.com/help/zh/maxcompute/user-guide/data-type-editions)
+<props="intl">[Data type editions](https://www.alibabacloud.com/help/en/maxcompute/user-guide/data-type-editions).', example='2'),
         }(name='properties', description='The basic properties of the project.'),
         regionId?: string(name='regionId', description='The region ID.', example='cn-beijing'),
         saleTag?: {
@@ -7181,10 +7272,10 @@ For more information about the differences among the three data type editions, s
           resourceType?: string(name='resourceType', description='The billing method of the default compute quota.', example='PayAsYouGo'),
         }(name='saleTag', description='The instance ID and billing method of the default compute quota.'),
         securityProperties?: {
-          enableDownloadPrivilege?: boolean(name='enableDownloadPrivilege', description='Specifies whether to use the <props="china">[download control](https://www.alibabacloud.com/help/en/maxcompute/user-guide/download-control)
-<props="intl">[download control](https://www.alibabacloud.com/help/zh/maxcompute/user-guide/label-based-access-control) feature. By default, this feature is disabled.', example='false'),
-          labelSecurity?: boolean(name='labelSecurity', description='Specifies whether to use the <props="china">[label-based access control](https://www.alibabacloud.com/help/en/maxcompute/user-guide/label-based-access-control)
-<props="intl">[label-based access control](https://www.alibabacloud.com/help/zh/maxcompute/user-guide/label-based-access-control) feature. By default, this feature is disabled.', example='false'),
+          enableDownloadPrivilege?: boolean(name='enableDownloadPrivilege', description='Specifies whether to use the <props="china">[download control](https://www.alibabacloud.com/help/zh/maxcompute/user-guide/download-control)
+<props="intl">[download control](https://www.alibabacloud.com/help/en/maxcompute/user-guide/label-based-access-control) feature. By default, this feature is disabled.', example='false'),
+          labelSecurity?: boolean(name='labelSecurity', description='Specifies whether to use the <props="china">[label-based access control](https://www.alibabacloud.com/help/zh/maxcompute/user-guide/label-based-access-control)
+<props="intl">[label-based access control](https://www.alibabacloud.com/help/en/maxcompute/user-guide/label-based-access-control) feature. By default, this feature is disabled.', example='false'),
           objectCreatorHasAccessPermission?: boolean(name='objectCreatorHasAccessPermission', description='Specifies whether to allow object creators to have access permissions on the objects. By default, this is allowed.', example='true'),
           objectCreatorHasGrantPermission?: boolean(name='objectCreatorHasGrantPermission', description='Specifies whether to allow object creators to have authorization permissions on the objects. By default, this is allowed.', example='true'),
           projectProtection?: {
@@ -7208,14 +7299,14 @@ For more information about the differences among the three data type editions, s
             }
       ]
 }'),
-            protected?: boolean(name='protected', description='Specifies whether to enable the <props="china">[data protection mechanism](https://www.alibabacloud.com/help/en/maxcompute/security-and-compliance/project-data-protection)
-<props="intl">[data protection mechanism](https://www.alibabacloud.com/help/zh/maxcompute/security-and-compliance/project-data-protection) for the project to prohibit or allow data stream out of the project. The default enabling status is disabled.', example='true'),
-          }(name='projectProtection', description='The <props="china">[data protection mechanism](https://www.alibabacloud.com/help/en/maxcompute/security-and-compliance/project-data-protection)
-<props="intl">[data protection mechanism](https://www.alibabacloud.com/help/zh/maxcompute/security-and-compliance/project-data-protection) properties.'),
-          usingAcl?: boolean(name='usingAcl', description='Specifies whether to use the <props="china">[ACL-based access control](https://www.alibabacloud.com/help/en/maxcompute/user-guide/acl-based-access-control)
-<props="intl">[ACL-based access control](https://www.alibabacloud.com/help/zh/maxcompute/user-guide/acl-based-access-control) feature. By default, this feature is enabled.', example='true'),
-          usingPolicy?: boolean(name='usingPolicy', description='Specifies whether to use the <props="china">[policy-based access control](https://www.alibabacloud.com/help/en/maxcompute/user-guide/policy-based-access-control-1)
-<props="intl">[policy-based access control](https://www.alibabacloud.com/help/zh/maxcompute/user-guide/policy-based-access-control-1) feature. By default, this feature is enabled.', example='true'),
+            protected?: boolean(name='protected', description='Specifies whether to enable the <props="china">[data protection mechanism](https://www.alibabacloud.com/help/zh/maxcompute/security-and-compliance/project-data-protection)
+<props="intl">[data protection mechanism](https://www.alibabacloud.com/help/en/maxcompute/security-and-compliance/project-data-protection) for the project to prohibit or allow data stream out of the project. The default enabling status is disabled.', example='true'),
+          }(name='projectProtection', description='The <props="china">[data protection mechanism](https://www.alibabacloud.com/help/zh/maxcompute/security-and-compliance/project-data-protection)
+<props="intl">[data protection mechanism](https://www.alibabacloud.com/help/en/maxcompute/security-and-compliance/project-data-protection) properties.'),
+          usingAcl?: boolean(name='usingAcl', description='Specifies whether to use the <props="china">[ACL-based access control](https://www.alibabacloud.com/help/zh/maxcompute/user-guide/acl-based-access-control)
+<props="intl">[ACL-based access control](https://www.alibabacloud.com/help/en/maxcompute/user-guide/acl-based-access-control) feature. By default, this feature is enabled.', example='true'),
+          usingPolicy?: boolean(name='usingPolicy', description='Specifies whether to use the <props="china">[policy-based access control](https://www.alibabacloud.com/help/zh/maxcompute/user-guide/policy-based-access-control-1)
+<props="intl">[policy-based access control](https://www.alibabacloud.com/help/en/maxcompute/user-guide/policy-based-access-control-1) feature. By default, this feature is enabled.', example='true'),
         }(name='securityProperties', description='The security properties.'),
         status?: string(name='status', description='The project status. Valid values:
 - **AVAILABLE**: normal
@@ -7223,8 +7314,8 @@ For more information about the differences among the three data type editions, s
 - **FROZEN**: frozen
 - **DELETING**: deleting', example='AVAILABLE'),
         threeTierModel?: boolean(name='threeTierModel', description='Specifies whether to support schema-based storage.
-MaxCompute supports schemas, which are located under projects and used to classify objects such as tables, resources, and UDFs. A project can contain multiple schemas. For more information, see <props="china">[Schema-related operations](https://www.alibabacloud.com/help/en/maxcompute/user-guide/schema-related-operations)
-<props="intl">[Schema-related operations](https://www.alibabacloud.com/help/zh/maxcompute/user-guide/schema-related-operations).', example='true'),
+MaxCompute supports schemas, which are located under projects and used to classify objects such as tables, resources, and UDFs. A project can contain multiple schemas. For more information, see <props="china">[Schema-related operations](https://www.alibabacloud.com/help/zh/maxcompute/user-guide/schema-related-operations)
+<props="intl">[Schema-related operations](https://www.alibabacloud.com/help/en/maxcompute/user-guide/schema-related-operations).', example='true'),
         type?: string(name='type', description='The project type. Valid values:
 - **managed**: internal project
 - **external**: external project', example='managed'),
@@ -7241,7 +7332,7 @@ model ListProjectsResponse = {
 }
 
 /**
- * @summary Retrieves a list of MaxCompute projects.
+ * @summary Lists MaxCompute projects
  *
  * @param request ListProjectsRequest
  * @param headers map
@@ -7308,7 +7399,7 @@ async function listProjectsWithOptions(request: ListProjectsRequest, headers: ma
 }
 
 /**
- * @summary Retrieves a list of MaxCompute projects.
+ * @summary Lists MaxCompute projects
  *
  * @param request ListProjectsRequest
  * @return ListProjectsResponse
@@ -7979,7 +8070,7 @@ This parameter is required.', example='20241205'),
   pageSize?: long(name='pageSize', description='The number of entries to return on each page. Default value: 10.', example='10'),
   partitionPrefix?: string(name='partitionPrefix', description='The partition name for fuzzy matching.', example='20241201'),
   region?: string(name='region', description='The region ID.', example='cn-beijing'),
-  schema?: string(name='schema', description='The schema to which the table belongs.', example='schema'),
+  schema?: string(name='schema', description='The name of the schema.', example='schema'),
   tenantId?: string(name='tenantId', description='The tenant ID. You can view the tenant ID by logging on to the MaxCompute console and choosing **Tenant Management** > **Tenant Properties** in the left-side navigation pane.', example='40713753659****'),
   types?: [ string ](name='types', description='The storage types.'),
 }
@@ -7994,7 +8085,7 @@ This parameter is required.', example='20241205'),
   pageSize?: long(name='pageSize', description='The number of entries to return on each page. Default value: 10.', example='10'),
   partitionPrefix?: string(name='partitionPrefix', description='The partition name for fuzzy matching.', example='20241201'),
   region?: string(name='region', description='The region ID.', example='cn-beijing'),
-  schema?: string(name='schema', description='The schema to which the table belongs.', example='schema'),
+  schema?: string(name='schema', description='The name of the schema.', example='schema'),
   tenantId?: string(name='tenantId', description='The tenant ID. You can view the tenant ID by logging on to the MaxCompute console and choosing **Tenant Management** > **Tenant Properties** in the left-side navigation pane.', example='40713753659****'),
   typesShrink?: string(name='types', description='The storage types.'),
 }
