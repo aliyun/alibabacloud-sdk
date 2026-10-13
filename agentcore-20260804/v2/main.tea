@@ -45,6 +45,115 @@ model ItemsI18nValue = {
   readme?: string(name='readme', description='The MCP marketplace template usage instructions in the corresponding language.', example='# Knowledge Base\\\\nKnowledge base query service'),
 }
 
+model AddMemoriesRequest {
+  body?: {
+    messages?: [ 
+      {
+        content?: string(name='content', description='The message content.
+
+This parameter is required.', example='The user likes hiking'),
+        role?: string(name='role', description='The message role.
+
+This parameter is required.', example='user'),
+      }
+    ](name='messages', description='The list of messages. You must provide either this parameter or Text, but not both. You can specify 1 to 20 messages, and the total size of Content must not exceed 32,000 UTF-8 bytes.'),
+    metadata?: map[string]string(name='metadata', description='The string key-value metadata. You can specify up to 16 keys. The maximum length of a key is 64 characters, and the maximum length of a value is 1,024 characters.'),
+    referenceTime?: string(name='referenceTime', description='The time reference point for this batch of messages or text. The time must be in RFC 3339 format with a time zone and support fractional seconds.', example='2023-05-08T13:56:00+08:00'),
+    scope?: {
+      agentId?: string(name='agentId', description='The agent ID. The length is limited to 1 to 128 UTF-8 bytes. The ID cannot contain a forward slash (/) or an asterisk (*).', example='agent-001'),
+      sessionId?: string(name='sessionId', description='The session ID. The length is limited to 1 to 128 UTF-8 bytes. The ID cannot contain a forward slash (/) or an asterisk (*).', example='session-001'),
+      userId?: string(name='userId', description='The user ID. The length is limited to 1 to 128 UTF-8 bytes. The ID cannot contain a forward slash (/) or an asterisk (*).', example='user-001'),
+    }(name='scope', description='The write scope. UserId, AgentId, and SessionId are all optional.'),
+    sync?: boolean(name='sync', description='Specifies whether to synchronously wait for memory extraction to complete. Default value: true.'),
+    text?: string(name='text', description='The text to be written directly. You must provide either this parameter or Messages, but not both. The text size must not exceed 32,000 UTF-8 bytes.', example='The user likes hiking'),
+  }(name='body', description='The memory write request.
+
+This parameter is required.'),
+}
+
+model AddMemoriesShrinkRequest {
+  bodyShrink?: string(name='body', description='The memory write request.
+
+This parameter is required.'),
+}
+
+model AddMemoriesResponseBody = {
+  code?: string(name='code', description='The business status code.', example='SUCCESS'),
+  data?: {
+    memories?: [ 
+      {
+        memoryId?: string(name='memoryId', description='The long-term memory ID.', example='mem-2f5f9c5a8d0e4c3b'),
+      }
+    ](name='memories', description='The memory references returned only when sync is set to true. An empty array is allowed. This parameter is not returned together with taskId.'),
+    taskId?: string(name='taskId', description='The task ID returned only when sync is set to false. This parameter is not returned together with memories.', example='task-2f5f9c5a8d0e4c3b'),
+  }(name='data', description='The write result.'),
+  httpStatusCode?: int32(name='httpStatusCode', description='The HTTP status code.', example='200'),
+  message?: string(name='message', description='The response message.', example='success'),
+  requestId?: string(name='requestId', description='The request ID.', example='01A00000-0000-0000-0000-000000000001'),
+  success?: boolean(name='success', description='Indicates whether the request is successful.'),
+}
+
+model AddMemoriesResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: AddMemoriesResponseBody(name='body'),
+}
+
+/**
+ * @summary Writes messages or text to a memory store. By default, sync is set to true, which synchronously waits for extraction and returns only memories (an empty array is allowed). If sync is set to false, the operation returns only a taskId that can be queried by using GetMemoryTask.
+ *
+ * @description Writes messages or text to a memory store. By default, sync is set to true, which synchronously waits for extraction and returns only memories (an empty array is allowed). If sync is set to false, the operation returns only a taskId that can be queried by using GetMemoryTask.
+ *
+ * @param tmpReq AddMemoriesRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return AddMemoriesResponse
+ */
+@context("addMemoriesWithContext")
+async function addMemoriesWithOptions(workspaceId: string, memoryStoreName: string, tmpReq: AddMemoriesRequest, headers: map[string]string, runtime: $RuntimeOptions): AddMemoriesResponse {
+  tmpReq.validate();
+  var request = new AddMemoriesShrinkRequest{};
+  OpenApiUtil.convert(tmpReq, request);
+  if (!$isNull(tmpReq.body)) {
+    request.bodyShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.body, 'body', 'json');
+  }
+  var body : map[string]any = {};
+  if (!$isNull(request.bodyShrink)) {
+    body['body'] = request.bodyShrink;
+  }
+
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    headers = headers,
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'AddMemories',
+    version = '2026-08-04',
+    protocol = 'HTTPS',
+    pathname = `/workspaces/${$URL.percentEncode(workspaceId)}/memorystores/${$URL.percentEncode(memoryStoreName)}/memories`,
+    method = 'POST',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Writes messages or text to a memory store. By default, sync is set to true, which synchronously waits for extraction and returns only memories (an empty array is allowed). If sync is set to false, the operation returns only a taskId that can be queried by using GetMemoryTask.
+ *
+ * @description Writes messages or text to a memory store. By default, sync is set to true, which synchronously waits for extraction and returns only memories (an empty array is allowed). If sync is set to false, the operation returns only a taskId that can be queried by using GetMemoryTask.
+ *
+ * @param request AddMemoriesRequest
+ * @return AddMemoriesResponse
+ */
+async function addMemories(workspaceId: string, memoryStoreName: string, request: AddMemoriesRequest): AddMemoriesResponse {
+  var runtime = new $RuntimeOptions{};
+  var headers : map[string]string = {};
+  return addMemoriesWithOptions(workspaceId, memoryStoreName, request, headers, runtime);
+}
+
 model BatchDeleteModelsRequest {
   body?: {
     modelIds?: [ string ](name='modelIds', description='The list of model IDs.
@@ -2461,6 +2570,111 @@ async function createMcp(workspaceId: string, request: CreateMcpRequest): Create
   return createMcpWithOptions(workspaceId, request, headers, runtime);
 }
 
+model CreateMemoryStoreRequest {
+  body?: {
+    description?: string(name='description', description='The description of the memory store. Maximum of 1,024 characters.', example='Used to store long-term user preferences'),
+    extractInstructions?: string(name='extractInstructions', description='The custom extraction instructions. Maximum of 4,096 characters.', example='Extract only long-term preferences explicitly expressed by the user'),
+    memoryStoreName?: string(name='memoryStoreName', description='The name of the memory store. The name must be 1 to 64 characters in length and can contain only lowercase letters, digits, and hyphens (-). The name cannot be modified after creation.
+
+This parameter is required.', example='customer-memory'),
+  }(name='body', description='The request to create a memory store.
+
+This parameter is required.'),
+  clientToken?: string(name='clientToken', description='The client request token.', example='memory-store-create-20260909-001'),
+}
+
+model CreateMemoryStoreShrinkRequest {
+  bodyShrink?: string(name='body', description='The request to create a memory store.
+
+This parameter is required.'),
+  clientToken?: string(name='clientToken', description='The client request token.', example='memory-store-create-20260909-001'),
+}
+
+model CreateMemoryStoreResponseBody = {
+  code?: string(name='code', description='The business status code.', example='SUCCESS'),
+  data?: {
+    createdAt?: string(name='createdAt', description='The creation time.', example='2026-09-23T10:00:00Z'),
+    description?: string(name='description', description='The memory store description.', example='Used to store long-term user preferences'),
+    extractInstructions?: string(name='extractInstructions', description='The custom extraction instructions.', example='Extract only long-term preferences explicitly expressed by the user'),
+    memoryStoreId?: string(name='memoryStoreId', description='The memory store ID.', example='ms-2f5f9c5a8d0e4c3b'),
+    memoryStoreName?: string(name='memoryStoreName', description='The name of the memory store. The name cannot be modified after creation.', example='customer-memory'),
+    status?: string(name='status', description='The lifecycle status of the memory store.', example='Ready'),
+    updatedAt?: string(name='updatedAt', description='The last updated time.', example='2026-09-23T10:05:00Z'),
+    workspaceId?: string(name='workspaceId', description='The AgentCore workspace ID.', example='ws-2f5f9c5a8d0e4c3b'),
+  }(name='data', description='The memory store details.'),
+  httpStatusCode?: int32(name='httpStatusCode', description='The HTTP status code.', example='200'),
+  message?: string(name='message', description='The response message.', example='success'),
+  requestId?: string(name='requestId', description='The request ID.', example='01A00000-0000-0000-0000-000000000001'),
+  success?: boolean(name='success', description='Indicates whether the request is successful.'),
+}
+
+model CreateMemoryStoreResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: CreateMemoryStoreResponseBody(name='body'),
+}
+
+/**
+ * @summary Creates a long-term memory store in a specified workspace.
+ *
+ * @description Creates a long-term memory store in a specified workspace.
+ *
+ * @param tmpReq CreateMemoryStoreRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return CreateMemoryStoreResponse
+ */
+@context("createMemoryStoreWithContext")
+async function createMemoryStoreWithOptions(workspaceId: string, tmpReq: CreateMemoryStoreRequest, headers: map[string]string, runtime: $RuntimeOptions): CreateMemoryStoreResponse {
+  tmpReq.validate();
+  var request = new CreateMemoryStoreShrinkRequest{};
+  OpenApiUtil.convert(tmpReq, request);
+  if (!$isNull(tmpReq.body)) {
+    request.bodyShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.body, 'body', 'json');
+  }
+  var query : map[string]any = {};
+  if (!$isNull(request.clientToken)) {
+    query['clientToken'] = request.clientToken;
+  }
+
+  var body : map[string]any = {};
+  if (!$isNull(request.bodyShrink)) {
+    body['body'] = request.bodyShrink;
+  }
+
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'CreateMemoryStore',
+    version = '2026-08-04',
+    protocol = 'HTTPS',
+    pathname = `/workspaces/${$URL.percentEncode(workspaceId)}/memorystores`,
+    method = 'POST',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Creates a long-term memory store in a specified workspace.
+ *
+ * @description Creates a long-term memory store in a specified workspace.
+ *
+ * @param request CreateMemoryStoreRequest
+ * @return CreateMemoryStoreResponse
+ */
+async function createMemoryStore(workspaceId: string, request: CreateMemoryStoreRequest): CreateMemoryStoreResponse {
+  var runtime = new $RuntimeOptions{};
+  var headers : map[string]string = {};
+  return createMemoryStoreWithOptions(workspaceId, request, headers, runtime);
+}
+
 model CreateModelRequest {
   body?: {
     capabilities?: {
@@ -3858,6 +4072,138 @@ async function deleteMcp(mcpServerId: string, workspaceId: string, request: Dele
   return deleteMcpWithOptions(mcpServerId, workspaceId, request, headers, runtime);
 }
 
+model DeleteMemoryRequest {
+}
+
+model DeleteMemoryResponseBody = {
+  code?: string(name='code', description='The business status code.', example='SUCCESS'),
+  httpStatusCode?: int32(name='httpStatusCode', description='The HTTP status code.', example='200'),
+  message?: string(name='message', description='The response message.', example='success'),
+  requestId?: string(name='requestId', description='The request ID.', example='01A00000-0000-0000-0000-000000000001'),
+  success?: boolean(name='success', description='Indicates whether the request is successful.'),
+}
+
+model DeleteMemoryResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: DeleteMemoryResponseBody(name='body'),
+}
+
+/**
+ * @summary Deletes a long-term memory based on the memory ID.
+ *
+ * @description Deletes a long-term memory based on the memory ID.
+ *
+ * @param request DeleteMemoryRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return DeleteMemoryResponse
+ */
+@context("deleteMemoryWithContext")
+async function deleteMemoryWithOptions(workspaceId: string, memoryStoreName: string, memoryId: string, request: DeleteMemoryRequest, headers: map[string]string, runtime: $RuntimeOptions): DeleteMemoryResponse {
+  request.validate();
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    headers = headers,
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'DeleteMemory',
+    version = '2026-08-04',
+    protocol = 'HTTPS',
+    pathname = `/workspaces/${$URL.percentEncode(workspaceId)}/memorystores/${$URL.percentEncode(memoryStoreName)}/memories/${$URL.percentEncode(memoryId)}`,
+    method = 'DELETE',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Deletes a long-term memory based on the memory ID.
+ *
+ * @description Deletes a long-term memory based on the memory ID.
+ *
+ * @param request DeleteMemoryRequest
+ * @return DeleteMemoryResponse
+ */
+async function deleteMemory(workspaceId: string, memoryStoreName: string, memoryId: string, request: DeleteMemoryRequest): DeleteMemoryResponse {
+  var runtime = new $RuntimeOptions{};
+  var headers : map[string]string = {};
+  return deleteMemoryWithOptions(workspaceId, memoryStoreName, memoryId, request, headers, runtime);
+}
+
+model DeleteMemoryStoreRequest {
+}
+
+model DeleteMemoryStoreResponseBody = {
+  code?: string(name='code', description='The business status code.', example='SUCCESS'),
+  data?: {
+    createdAt?: string(name='createdAt', description='The creation time.', example='2026-09-23T10:00:00Z'),
+    description?: string(name='description', description='The MemoryStore description.', example='Used to store long-term user preferences'),
+    extractInstructions?: string(name='extractInstructions', description='The custom extraction instructions.', example='Extract only long-term preferences explicitly expressed by the user'),
+    memoryStoreId?: string(name='memoryStoreId', description='The MemoryStore ID.', example='ms-2f5f9c5a8d0e4c3b'),
+    memoryStoreName?: string(name='memoryStoreName', description='The MemoryStore name. It cannot be modified after creation.', example='customer-memory'),
+    status?: string(name='status', description='The lifecycle state of the MemoryStore.', example='Ready'),
+    updatedAt?: string(name='updatedAt', description='The last update time.', example='2026-09-23T10:05:00Z'),
+    workspaceId?: string(name='workspaceId', description='The AgentCore workspace ID.', example='ws-2f5f9c5a8d0e4c3b'),
+  }(name='data', description='The MemoryStore details.'),
+  httpStatusCode?: int32(name='httpStatusCode', description='The HTTP status code.', example='200'),
+  message?: string(name='message', description='The response message.', example='success'),
+  requestId?: string(name='requestId', description='The request ID.', example='01A00000-0000-0000-0000-000000000001'),
+  success?: boolean(name='success', description='Indicates whether the request is successful.'),
+}
+
+model DeleteMemoryStoreResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: DeleteMemoryStoreResponseBody(name='body'),
+}
+
+/**
+ * @summary Asynchronously deletes a MemoryStore and all its long-term memory.
+ *
+ * @description Asynchronously deletes a MemoryStore and all its long-term memory.
+ *
+ * @param request DeleteMemoryStoreRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return DeleteMemoryStoreResponse
+ */
+@context("deleteMemoryStoreWithContext")
+async function deleteMemoryStoreWithOptions(workspaceId: string, memoryStoreName: string, request: DeleteMemoryStoreRequest, headers: map[string]string, runtime: $RuntimeOptions): DeleteMemoryStoreResponse {
+  request.validate();
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    headers = headers,
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'DeleteMemoryStore',
+    version = '2026-08-04',
+    protocol = 'HTTPS',
+    pathname = `/workspaces/${$URL.percentEncode(workspaceId)}/memorystores/${$URL.percentEncode(memoryStoreName)}`,
+    method = 'DELETE',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Asynchronously deletes a MemoryStore and all its long-term memory.
+ *
+ * @description Asynchronously deletes a MemoryStore and all its long-term memory.
+ *
+ * @param request DeleteMemoryStoreRequest
+ * @return DeleteMemoryStoreResponse
+ */
+async function deleteMemoryStore(workspaceId: string, memoryStoreName: string, request: DeleteMemoryStoreRequest): DeleteMemoryStoreResponse {
+  var runtime = new $RuntimeOptions{};
+  var headers : map[string]string = {};
+  return deleteMemoryStoreWithOptions(workspaceId, memoryStoreName, request, headers, runtime);
+}
+
 model DeleteModelRequest {
   clientToken?: string(name='clientToken', description='The client token for idempotence. Not currently supported.', example='client-token-1'),
 }
@@ -5179,122 +5525,183 @@ model GetCustomAgentRequest {
 }
 
 model GetCustomAgentResponseBody = {
-  code?: string(name='code', example='SUCCESS'),
+  code?: string(name='code', description='The request result code. The value is SUCCESS when the request is successful.', example='SUCCESS'),
   data?: {
-    agentId?: string(name='agentId', example='agent-550e8400e29b41d4a716446655440000'),
+    agentId?: string(name='agentId', description='The unique identifier of the custom agent. You can obtain this value from the response of CreateCustomAgent or ListCustomAgents.', example='agent-550e8400e29b41d4a716446655440000'),
     agenticFsMounts?: [ 
       {
-        mountPath?: string(name='mountPath', example='/mnt/agenticfs/data'),
-        path?: string(name='path', example='workspace/data'),
-        readOnly?: boolean(name='readOnly', example='false'),
-        server?: string(name='server', example='ap-0123456789abcdef0.0123456789-vlm36.cn-hangzhou.nas.aliyuncs.com'),
+        mountPath?: string(name='mountPath', description='The AgenticFS mount directory in the container, which is located under /mnt/agenticfs/.', example='/mnt/agenticfs/data'),
+        path?: string(name='path', description='The relative directory in the mounted AccessPoint.', example='workspace/data'),
+        readOnly?: boolean(name='readOnly', description='Specifies whether the mount is read-only. A value of true indicates a read-only mount. A value of false indicates a read-write mount.', example='false'),
+        server?: string(name='server', description='The AgenticFS AccessPoint domain name used for the mount.', example='ap-0123456789abcdef0.0123456789-vlm36.cn-hangzhou.nas.aliyuncs.com'),
       }
-    ](name='agenticFsMounts'),
+    ](name='agenticFsMounts', description='The latest submitted list of additional AgenticFS mounts.'),
     artifact?: {
       code?: {
-        entrypoint?: string(name='entrypoint', description='This parameter is required.', example='python app.py'),
-        languageRuntime?: string(name='languageRuntime', description='This parameter is required.', example='python'),
-        sourceUri?: string(name='sourceUri', description='This parameter is required.', example='oss://my-agent-bucket/packages/agent.zip'),
-      }(name='code'),
+        entrypoint?: string(name='entrypoint', description='The startup entry point of the code package. Code package deployment is not supported.
+
+This parameter is required.', example='python app.py'),
+        languageRuntime?: string(name='languageRuntime', description='The language runtime identifier of the code package. Code package deployment is not supported.
+
+This parameter is required.', example='python'),
+        sourceUri?: string(name='sourceUri', description='The source URI of the code package. Code package deployment is not supported.
+
+This parameter is required.', example='oss://my-agent-bucket/packages/agent.zip'),
+      }(name='code', description='The code package configuration field. Code package deployment is not supported.'),
       container?: {
-        entrypoint?: string(name='entrypoint', example='python app.py'),
-        instanceId?: string(name='instanceId', description='This parameter is required.', example='cri-a1b2c3d4e5f6'),
-        namespace?: string(name='namespace', description='This parameter is required.', example='my-agent'),
-        repo?: string(name='repo', description='This parameter is required.', example='chat-agent'),
-        tag?: string(name='tag', description='This parameter is required.', example='v1.0.0'),
-        type?: string(name='type', description='This parameter is required.', example='acr'),
-      }(name='container'),
-      port?: int32(name='port', description='This parameter is required.', example='8080'),
-    }(name='artifact'),
-    createMode?: string(name='createMode', example='CUSTOM'),
-    createdAt?: string(name='createdAt', example='2026-10-10T06:00:00Z'),
-    deployType?: string(name='deployType', example='MANAGED'),
-    description?: string(name='description', example='提供对话服务的自定义智能体'),
+        entrypoint?: string(name='entrypoint', description='The custom executable program and startup parameters. If not configured, the default startup method of the image is used.', example='python app.py'),
+        instanceId?: string(name='instanceId', description='The ID of the ACR instance to which the image repository belongs.
+
+This parameter is required.', example='cri-a1b2c3d4e5f6'),
+        namespace?: string(name='namespace', description='The namespace to which the ACR image repository belongs.
+
+This parameter is required.', example='my-agent'),
+        repo?: string(name='repo', description='The name of the image repository in the ACR namespace.
+
+This parameter is required.', example='chat-agent'),
+        tag?: string(name='tag', description='The latest submitted image tag.
+
+This parameter is required.', example='v1.0.0'),
+        type?: string(name='type', description='The image source type. A value of acr indicates Alibaba Cloud Container Registry.
+
+This parameter is required.', example='acr'),
+      }(name='container', description='The latest submitted ACR container image configuration.'),
+      port?: int32(name='port', description='The TCP port listened to by the agent service.
+
+This parameter is required.', example='8080'),
+    }(name='artifact', description='The latest submitted deployment artifact configuration, including the service listening port and ACR container image. To determine whether the configuration has taken effect, check the latestVersionStatus field.'),
+    createMode?: string(name='createMode', description='The creation method of the agent. The value is CUSTOM for custom agents.', example='CUSTOM'),
+    createdAt?: string(name='createdAt', description='The time when the agent was created. The time is in ISO 8601 format. The trailing Z indicates the UTC time zone. Fractional seconds may be included.', example='2026-10-10T06:00:00Z'),
+    deployType?: string(name='deployType', description='The deployment method of the agent. Custom agents are deployed and managed by the platform. The value is MANAGED for custom agents.', example='MANAGED'),
+    description?: string(name='description', description='The description of the agent.', example='Custom agent that provides conversation services'),
     environment?: {
       variables?: [ 
         {
-          name?: string(name='name', description='This parameter is required.', example='LOG_LEVEL'),
-          value?: string(name='value', description='This parameter is required.', example='info'),
+          name?: string(name='name', description='The name of the environment variable.
+
+This parameter is required.', example='LOG_LEVEL'),
+          value?: string(name='value', description='The string value of the environment variable. Empty strings are allowed.
+
+This parameter is required.', example='info'),
         }
-      ](name='variables'),
-    }(name='environment'),
+      ](name='variables', description='The latest submitted list of environment variables.'),
+    }(name='environment', description='The environment variable configuration for the agent process.'),
     healthCheck?: {
-      healthyThreshold?: int32(name='healthyThreshold', example='1'),
-      intervalSeconds?: int32(name='intervalSeconds', example='10'),
-      path?: string(name='path', example='/healthz'),
-      port?: int32(name='port', example='8080'),
-      timeoutSeconds?: int32(name='timeoutSeconds', example='2'),
-      unhealthyThreshold?: int32(name='unhealthyThreshold', example='3'),
-    }(name='healthCheck'),
+      healthyThreshold?: int32(name='healthyThreshold', description='This parameter does not take effect.', example='1'),
+      intervalSeconds?: int32(name='intervalSeconds', description='The interval between two consecutive health checks, in seconds.', example='10'),
+      path?: string(name='path', description='The HTTP Health Check Path.', example='/healthz'),
+      port?: int32(name='port', description='The port accessed for the HTTP health check.', example='8080'),
+      timeoutSeconds?: int32(name='timeoutSeconds', description='The timeout period for a single health check, in seconds.', example='2'),
+      unhealthyThreshold?: int32(name='unhealthyThreshold', description='The number of consecutive health check failures required to mark the agent as unhealthy.', example='3'),
+    }(name='healthCheck', description='The HTTP health check configuration of the agent. This field is empty if no health check is configured.'),
     latestExecutionError?: {
-      code?: string(name='code', example='AgentExecutionFailed'),
-      message?: string(name='message', example='Agent 执行失败，请检查配置后重新提交。'),
-      retryable?: boolean(name='retryable'),
-    }(name='latestExecutionError', description='可选。仅解释同一响应 latestSpecVersion/latestVersionStatus 的等待或失败；正常待处理、执行中或成功时省略。消息由 Console 白名单映射，不返回原始运行时诊断、Checkpoint 或凭证。'),
-    latestSpecVersion?: long(name='latestSpecVersion', example='1'),
-    latestVersionStatus?: string(name='latestVersionStatus', example='succeeded'),
+      code?: string(name='code', description='The reason code for the waiting or execution failure of the latest configuration. This code is used to determine the subsequent processing method.', example='AgentExecutionFailed'),
+      message?: string(name='message', description='The description of the reason why the latest configuration failed to execute or is waiting. Check the code and retryable fields to determine what to do next.', example='Agent execution failed. Check the configuration and resubmit'),
+      retryable?: boolean(name='retryable', description='Specifies whether the system automatically retries. A value of true indicates that you can query again later. A value of false indicates that you must check and fix the configuration based on the reason, and then resubmit the agent.'),
+    }(name='latestExecutionError', description='The waiting or execution error of the latest configuration version. This field is returned only when the version is waiting for a retry or fails to execute.'),
+    latestSpecVersion?: long(name='latestSpecVersion', description='The latest configuration version number. Updates with the same configuration may retain the original version number. This field does not indicate that the configuration has taken effect.', example='1'),
+    latestVersionStatus?: string(name='latestVersionStatus', description='The execution status corresponding to the latestSpecVersion field. Valid values:
+- pending: waiting for execution
+- processing: executing
+- waiting_retry: waiting for a retry
+- succeeded: executed successfully
+- failed: execution failed
+- superseded: superseded by a subsequent version', example='succeeded'),
     logging?: {
       sls?: {
-        logstore?: string(name='logstore', example='agent-runtime'),
-        project?: string(name='project', example='my-agent-logs'),
-      }(name='sls'),
-    }(name='logging'),
-    name?: string(name='name', example='my-custom-agent'),
+        logstore?: string(name='logstore', description='The name of the SLS Logstore that receives agent logs.', example='agent-runtime'),
+        project?: string(name='project', description='The name of the SLS project that receives agent logs.', example='my-agent-logs'),
+      }(name='sls', description='The Simple Log Service (SLS) log delivery destination.'),
+    }(name='logging', description='The latest submitted log delivery configuration.'),
+    name?: string(name='name', description='The name of the custom agent.', example='my-custom-agent'),
     network?: {
       accessInternet?: {
-        enabled?: boolean(name='enabled'),
-      }(name='accessInternet'),
+        enabled?: boolean(name='enabled', description='Specifies whether Internet access is allowed on the agent side. The actual access is still limited by the workspace configuration.'),
+      }(name='accessInternet', description='The Internet access configuration of the agent. If this field is not configured, Internet access is allowed on the agent side, but is still limited by the workspace configuration.'),
       accessVpc?: {
-        enabled?: boolean(name='enabled'),
-      }(name='accessVpc'),
-    }(name='network'),
+        enabled?: boolean(name='enabled', description='Specifies whether access to the user VPC configured for the workspace is allowed on the agent side. The actual access is still limited by the workspace configuration.'),
+      }(name='accessVpc', description='The user VPC access configuration of the agent. If this field is not configured, user VPC access is allowed on the agent side, but is still limited by the workspace configuration.'),
+    }(name='network', description='The network access configuration of the agent. The actual access scope is also limited by the workspace network configuration.'),
     ossMounts?: [ 
       {
-        bucketName?: string(name='bucketName', example='my-agent-data'),
-        mountPath?: string(name='mountPath', example='/mnt/oss/train'),
-        path?: string(name='path', example='datasets/train'),
-        readOnly?: boolean(name='readOnly'),
+        bucketName?: string(name='bucketName', description='The name of the mounted OSS bucket.', example='my-agent-data'),
+        mountPath?: string(name='mountPath', description='The OSS mount directory in the container, which is located under /mnt/oss/.', example='/mnt/oss/train'),
+        path?: string(name='path', description='The object directory prefix in the mounted bucket.', example='datasets/train'),
+        readOnly?: boolean(name='readOnly', description='Specifies whether the mount is read-only. A value of true indicates a read-only mount. A value of false indicates a read-write mount.'),
       }
-    ](name='ossMounts'),
+    ](name='ossMounts', description='The latest submitted list of OSS directory mounts.'),
     protocol?: [ 
       {
-        headers?: map[string]string(name='headers'),
+        headers?: map[string]string(name='headers', description='The request header configurations for the current protocol, where the key is the name and the value is a string.'),
         paths?: [ 
           {
-            description?: string(name='description', example='AG-UI 对话接口'),
-            name?: string(name='name', description='This parameter is required.', example='/agui'),
+            description?: string(name='description', description='The purpose description of the current API path.', example='AG-UI conversation API'),
+            name?: string(name='name', description='The API path corresponding to the current protocol.
+
+This parameter is required.', example='/agui'),
           }
-        ](name='paths'),
-        type?: string(name='type', description='This parameter is required.', example='agui'),
+        ](name='paths', description='The list of API paths corresponding to the current protocol.'),
+        type?: string(name='type', description='The invocation protocol type. Valid values:
+- agui: AG-UI protocol.
+- openai-chat-completion: OpenAI Chat Completions compatible protocol.
+- custom: Custom protocol.
+
+This parameter is required.', example='agui'),
       }
-    ](name='protocol'),
-    regionId?: string(name='regionId', example='cn-hangzhou'),
-    roleArn?: string(name='roleArn', example='acs:ram::1234567890123456:role/agentcore-runtime-role'),
+    ](name='protocol', description='The list of invocation protocol configurations for the agent.'),
+    regionId?: string(name='regionId', description='The region ID of the workspace to which the agent belongs.', example='cn-hangzhou'),
+    roleArn?: string(name='roleArn', description='The ARN of the RAM role used by the agent to access user cloud resources.', example='acs:ram::1234567890123456:role/agentcore-runtime-role'),
     runtime?: {
       compute?: {
-        computeClass?: string(name='computeClass', description='This parameter is required.', example='STANDARD'),
-      }(name='compute', description='This parameter is required.'),
+        computeClass?: string(name='computeClass', description='The compute specification. Valid values:
+- INTERACTIVE: 1 vCPU and 2 GiB of memory.
+- STANDARD: 2 vCPUs and 4 GiB of memory.
+- HEAVY: 4 vCPUs and 8 GiB of memory.
+
+This parameter is required.', example='STANDARD'),
+      }(name='compute', description='The compute resource configuration for the agent runtime instance.
+
+This parameter is required.'),
       hpa?: {
-        enabled?: boolean(name='enabled', description='This parameter is required.'),
-        maxConcurrentSessionsPerSandbox?: int32(name='maxConcurrentSessionsPerSandbox', description='正整数，必须与 sessionTtlSeconds 同时配置。', example='100'),
-        maxSandboxCount?: int32(name='maxSandboxCount', description='开启时为正整数，关闭时为非负整数；不得小于 minSandboxCount。', example='10'),
-        minSandboxCount?: int32(name='minSandboxCount', description='非负整数。开启弹性时必填；关闭时如提供上下限，必须成对提供。', example='1'),
-        sessionTtlSeconds?: int32(name='sessionTtlSeconds', description='正整数，必须与 maxConcurrentSessionsPerSandbox 同时配置。', example='600'),
-      }(name='hpa', description='Agent 当前 spec 版本的 HPA 配置，与 Managed Agent 一致。开启时必须提供最小和最大 Sandbox 数；并发会话上限与会话空闲超时必须一起配置。'),
+        enabled?: boolean(name='enabled', description='Specifies whether to enable elastic scaling. Valid values:
+- true: Enabled.
+- false: Disabled.
+
+This parameter is required.'),
+        maxConcurrentSessionsPerSandbox?: int32(name='maxConcurrentSessionsPerSandbox', description='The configured maximum number of concurrent sessions per runtime instance.', example='100'),
+        maxSandboxCount?: int32(name='maxSandboxCount', description='The configured maximum number of runtime instances.', example='10'),
+        minSandboxCount?: int32(name='minSandboxCount', description='The configured minimum number of runtime instances.', example='1'),
+        sessionTtlSeconds?: int32(name='sessionTtlSeconds', description='The configured session idle timeout limit in seconds.', example='600'),
+      }(name='hpa', description='The elastic policy configuration for the agent.'),
       sessionPolicy?: {
-        headerName?: string(name='headerName', example='X-Session-Id'),
-        type?: string(name='type', description='This parameter is required.', example='AFFINITY'),
-      }(name='sessionPolicy', description='This parameter is required.'),
-    }(name='runtime'),
-    sandboxPhaseCounts?: map[string]long(name='sandboxPhaseCounts'),
-    status?: string(name='status', example='Running'),
-    updatedAt?: string(name='updatedAt', example='2026-10-10T06:05:00Z'),
-    workspaceId?: string(name='workspaceId', example='ws-a1b2c3d4e5f6'),
-  }(name='data'),
-  httpStatusCode?: int32(name='httpStatusCode', example='200'),
-  message?: string(name='message', example='success'),
-  requestId?: string(name='requestId', example='550E8400-E29B-41D4-A716-446655440000'),
-  success?: boolean(name='success'),
+        headerName?: string(name='headerName', description='The name of the HTTP request header used by the session policy, applicable to ISOLATED_HEADER_FIELD.', example='X-Session-Id'),
+        type?: string(name='type', description='The session policy type. Valid values:
+- AFFINITY: Session affinity.
+- ISOLATED_HEADER_FIELD: Associates sessions by using the request header specified in headerName.
+- ISOLATED_COOKIE: Not recommended.
+The compatible value DISABLED in requests is returned as AFFINITY.
+
+This parameter is required.', example='AFFINITY'),
+      }(name='sessionPolicy', description='The session policy configuration for the agent.
+
+This parameter is required.'),
+    }(name='runtime', description='The latest committed runtime configuration, including compute specifications, session policy, and elastic policy.'),
+    sandboxPhaseCounts?: map[string]long(name='sandboxPhaseCounts', description='The count of instances by runtime phase. Keys include PENDING (creating or initializing), RUNNING (running), HIBERNATING (hibernating), HIBERNATED (hibernated), RESUMING (resuming), TERMINATING (terminating), and FAILED (failed). Only phases that actually occur are returned. Missing keys are treated as 0.'),
+    status?: string(name='status', description='The overall status of the agent. Valid values:
+- Creating: Creating.
+- Running: Running.
+- Failed: Failed.
+- Updating: Updating.
+- Deleting: Deleting.
+- Deleted: Deleted.
+To check the execution progress of the latest configuration, query latestVersionStatus.', example='Running'),
+    updatedAt?: string(name='updatedAt', description='The last update time of the agent in ISO 8601 format. The trailing Z indicates the UTC time zone. Fractional seconds may be included.', example='2026-10-10T06:05:00Z'),
+    workspaceId?: string(name='workspaceId', description='The ID of the workspace to which the custom agent belongs.', example='ws-a1b2c3d4e5f6'),
+  }(name='data', description='The latest submitted configuration and status of the custom agent. To determine whether the configuration has taken effect, check the latestVersionStatus field.'),
+  httpStatusCode?: int32(name='httpStatusCode', description='The HTTP status code of the request. A value of 200 indicates success.', example='200'),
+  message?: string(name='message', description='The description of the request processing result. The value is success when the request is successful.', example='success'),
+  requestId?: string(name='requestId', description='The unique identifier of the request, which is used to locate and troubleshoot issues.', example='550E8400-E29B-41D4-A716-446655440000'),
+  success?: boolean(name='success', description='Indicates whether the request was processed successfully. A value of true indicates that the request was processed successfully. A successful creation, update, or deletion does not mean that the background operation is complete.'),
 }
 
 model GetCustomAgentResponse = {
@@ -5304,11 +5711,11 @@ model GetCustomAgentResponse = {
 }
 
 /**
- * @summary 查询自定义智能体
+ * @summary Queries the details of a custom agent in a specified workspace, including deployment configurations, the execute status of the latest configuration version, and running instance status statistics.
  *
- * @description 创建或更新后，可轮询本接口查询最新配置版本的执行结果。latestVersionStatus 与 latestSpecVersion 对应；latestExecutionError 表示该版本的等待或失败原因，retryable 为 true 时可稍后再次查询。
- * 返回的配置为最新提交的配置，可能尚未生效。请结合 latestVersionStatus、智能体整体状态 status 和运行实例统计 sandboxPhaseCounts 确认部署及运行情况。
- * 查询不存在、已完成删除或不属于指定工作空间的自定义智能体时，返回资源不存在错误。
+ * @description After creating or updating a custom agent, you can poll this operation to query the execution results of the latest configuration version. `latestVersionStatus` corresponds to `latestSpecVersion`. `latestExecutionError` indicates the reason for the pending or failed status of this version. If `retryable` is true, you can query again later.
+ * The returned configuration is the most recently submitted configuration and may not have taken effect. Verify the deployment and running status by checking `latestVersionStatus`, the overall agent status `status`, and the running instance statistics `sandboxPhaseCounts`.
+ * If the queried custom agent does not exist, has been deleted, or does not belong to the specified workspace, a resource not found error is returned.
  *
  * @param request GetCustomAgentRequest
  * @param headers map
@@ -5336,11 +5743,11 @@ async function getCustomAgentWithOptions(workspaceId: string, agentId: string, r
 }
 
 /**
- * @summary 查询自定义智能体
+ * @summary Queries the details of a custom agent in a specified workspace, including deployment configurations, the execute status of the latest configuration version, and running instance status statistics.
  *
- * @description 创建或更新后，可轮询本接口查询最新配置版本的执行结果。latestVersionStatus 与 latestSpecVersion 对应；latestExecutionError 表示该版本的等待或失败原因，retryable 为 true 时可稍后再次查询。
- * 返回的配置为最新提交的配置，可能尚未生效。请结合 latestVersionStatus、智能体整体状态 status 和运行实例统计 sandboxPhaseCounts 确认部署及运行情况。
- * 查询不存在、已完成删除或不属于指定工作空间的自定义智能体时，返回资源不存在错误。
+ * @description After creating or updating a custom agent, you can poll this operation to query the execution results of the latest configuration version. `latestVersionStatus` corresponds to `latestSpecVersion`. `latestExecutionError` indicates the reason for the pending or failed status of this version. If `retryable` is true, you can query again later.
+ * The returned configuration is the most recently submitted configuration and may not have taken effect. Verify the deployment and running status by checking `latestVersionStatus`, the overall agent status `status`, and the running instance statistics `sandboxPhaseCounts`.
+ * If the queried custom agent does not exist, has been deleted, or does not belong to the specified workspace, a resource not found error is returned.
  *
  * @param request GetCustomAgentRequest
  * @return GetCustomAgentResponse
@@ -6171,6 +6578,230 @@ async function getMcpMarketItem(workspaceId: string, marketItemId: string, reque
   var runtime = new $RuntimeOptions{};
   var headers : map[string]string = {};
   return getMcpMarketItemWithOptions(workspaceId, marketItemId, request, headers, runtime);
+}
+
+model GetMemoryRequest {
+}
+
+model GetMemoryResponseBody = {
+  code?: string(name='code', description='The business status code.', example='SUCCESS'),
+  data?: {
+    content?: {
+      text?: string(name='text', description='The memory text.', example='The user likes hiking'),
+    }(name='content', description='The memory content.'),
+    createdAt?: string(name='createdAt', description='The creation time.', example='2026-09-23T10:00:00Z'),
+    memoryId?: string(name='memoryId', description='The long-term memory ID.', example='mem-2f5f9c5a8d0e4c3b'),
+    metadata?: map[string]string(name='metadata', description='The memory metadata.'),
+    scope?: {
+      agentId?: string(name='agentId', description='The agent ID. The length is limited to 1 to 128 UTF-8 bytes. It cannot contain / or *. This field is not returned if the memory is not associated with an agent ID.', example='agent-001'),
+      sessionId?: string(name='sessionId', description='The session ID. The length is limited to 1 to 128 UTF-8 bytes. It cannot contain / or *. This field is not returned if the memory is not associated with a session ID.', example='session-001'),
+      userId?: string(name='userId', description='The user ID. The length is limited to 1 to 128 UTF-8 bytes. It cannot contain / or *. This field is not returned if the memory is not associated with a user ID.', example='user-001'),
+    }(name='scope', description='The memory scope.'),
+    updatedAt?: string(name='updatedAt', description='The last update time.', example='2026-09-23T10:05:00Z'),
+  }(name='data', description='The long-term memory details.'),
+  httpStatusCode?: int32(name='httpStatusCode', description='The HTTP status code.', example='200'),
+  message?: string(name='message', description='The response message.', example='success'),
+  requestId?: string(name='requestId', description='The request ID.', example='01A00000-0000-0000-0000-000000000001'),
+  success?: boolean(name='success', description='Indicates whether the request is successful.'),
+}
+
+model GetMemoryResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: GetMemoryResponseBody(name='body'),
+}
+
+/**
+ * @summary Queries a long-term memory by memory ID.
+ *
+ * @description Queries a long-term memory by memory ID.
+ *
+ * @param request GetMemoryRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return GetMemoryResponse
+ */
+@context("getMemoryWithContext")
+async function getMemoryWithOptions(workspaceId: string, memoryStoreName: string, memoryId: string, request: GetMemoryRequest, headers: map[string]string, runtime: $RuntimeOptions): GetMemoryResponse {
+  request.validate();
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    headers = headers,
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'GetMemory',
+    version = '2026-08-04',
+    protocol = 'HTTPS',
+    pathname = `/workspaces/${$URL.percentEncode(workspaceId)}/memorystores/${$URL.percentEncode(memoryStoreName)}/memories/${$URL.percentEncode(memoryId)}`,
+    method = 'GET',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Queries a long-term memory by memory ID.
+ *
+ * @description Queries a long-term memory by memory ID.
+ *
+ * @param request GetMemoryRequest
+ * @return GetMemoryResponse
+ */
+async function getMemory(workspaceId: string, memoryStoreName: string, memoryId: string, request: GetMemoryRequest): GetMemoryResponse {
+  var runtime = new $RuntimeOptions{};
+  var headers : map[string]string = {};
+  return getMemoryWithOptions(workspaceId, memoryStoreName, memoryId, request, headers, runtime);
+}
+
+model GetMemoryStoreRequest {
+}
+
+model GetMemoryStoreResponseBody = {
+  code?: string(name='code', description='The business status code.', example='SUCCESS'),
+  data?: {
+    createdAt?: string(name='createdAt', description='The creation time.', example='2026-09-23T10:00:00Z'),
+    description?: string(name='description', description='The MemoryStore description.', example='Used to save long-term user preferences'),
+    extractInstructions?: string(name='extractInstructions', description='The custom extraction instructions.', example='Extract only long-term preferences explicitly expressed by the user'),
+    memoryStoreId?: string(name='memoryStoreId', description='The MemoryStore ID.', example='ms-2f5f9c5a8d0e4c3b'),
+    memoryStoreName?: string(name='memoryStoreName', description='The MemoryStore name. It cannot be modified after creation.', example='customer-memory'),
+    status?: string(name='status', description='The MemoryStore lifecycle state.', example='Ready'),
+    updatedAt?: string(name='updatedAt', description='The last update time.', example='2026-09-23T10:05:00Z'),
+    workspaceId?: string(name='workspaceId', description='The AgentCore workspace ID.', example='ws-2f5f9c5a8d0e4c3b'),
+  }(name='data', description='The MemoryStore details.'),
+  httpStatusCode?: int32(name='httpStatusCode', description='The HTTP status code.', example='200'),
+  message?: string(name='message', description='The response message.', example='success'),
+  requestId?: string(name='requestId', description='The request ID.', example='01A00000-0000-0000-0000-000000000001'),
+  success?: boolean(name='success', description='Indicates whether the request is successful.'),
+}
+
+model GetMemoryStoreResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: GetMemoryStoreResponseBody(name='body'),
+}
+
+/**
+ * @summary Queries the public information and current status of a MemoryStore in a specified workspace.
+ *
+ * @description Queries the public information and current status of a MemoryStore in a specified workspace.
+ *
+ * @param request GetMemoryStoreRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return GetMemoryStoreResponse
+ */
+@context("getMemoryStoreWithContext")
+async function getMemoryStoreWithOptions(workspaceId: string, memoryStoreName: string, request: GetMemoryStoreRequest, headers: map[string]string, runtime: $RuntimeOptions): GetMemoryStoreResponse {
+  request.validate();
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    headers = headers,
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'GetMemoryStore',
+    version = '2026-08-04',
+    protocol = 'HTTPS',
+    pathname = `/workspaces/${$URL.percentEncode(workspaceId)}/memorystores/${$URL.percentEncode(memoryStoreName)}`,
+    method = 'GET',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Queries the public information and current status of a MemoryStore in a specified workspace.
+ *
+ * @description Queries the public information and current status of a MemoryStore in a specified workspace.
+ *
+ * @param request GetMemoryStoreRequest
+ * @return GetMemoryStoreResponse
+ */
+async function getMemoryStore(workspaceId: string, memoryStoreName: string, request: GetMemoryStoreRequest): GetMemoryStoreResponse {
+  var runtime = new $RuntimeOptions{};
+  var headers : map[string]string = {};
+  return getMemoryStoreWithOptions(workspaceId, memoryStoreName, request, headers, runtime);
+}
+
+model GetMemoryTaskRequest {
+}
+
+model GetMemoryTaskResponseBody = {
+  code?: string(name='code', description='The business status code.', example='SUCCESS'),
+  data?: {
+    error?: {
+      code?: string(name='code', description='The task error code.', example='UnknownError'),
+      message?: string(name='message', description='The task error message.', example='Memory extraction failed.'),
+    }(name='error', description='The task error returned only when the status is FAILED or UNKNOWN. This does not indicate that the current query failed.'),
+    memories?: [ 
+      {
+        memoryId?: string(name='memoryId', description='The long-term memory ID.', example='mem-2f5f9c5a8d0e4c3b'),
+      }
+    ](name='memories', description='The memories returned only when the status is SUCCEEDED. An empty array is allowed.'),
+    status?: string(name='status', description='The extraction task status.
+
+This parameter is required.', example='SUCCEEDED'),
+    taskId?: string(name='taskId', description='The task ID.
+
+This parameter is required.', example='task-2f5f9c5a8d0e4c3b'),
+  }(name='data', description='The task details.'),
+  httpStatusCode?: int32(name='httpStatusCode', description='The HTTP status code.', example='200'),
+  message?: string(name='message', description='The response message.', example='success'),
+  requestId?: string(name='requestId', description='The request ID.', example='01A00000-0000-0000-0000-000000000001'),
+  success?: boolean(name='success', description='Indicates whether the request is successful.'),
+}
+
+model GetMemoryTaskResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: GetMemoryTaskResponseBody(name='body'),
+}
+
+/**
+ * @summary Queries the task ID returned by the asynchronous AddMemories operation.
+ *
+ * @description Queries the task ID returned by the asynchronous AddMemories operation.
+ *
+ * @param request GetMemoryTaskRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return GetMemoryTaskResponse
+ */
+@context("getMemoryTaskWithContext")
+async function getMemoryTaskWithOptions(workspaceId: string, memoryStoreName: string, taskId: string, request: GetMemoryTaskRequest, headers: map[string]string, runtime: $RuntimeOptions): GetMemoryTaskResponse {
+  request.validate();
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    headers = headers,
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'GetMemoryTask',
+    version = '2026-08-04',
+    protocol = 'HTTPS',
+    pathname = `/workspaces/${$URL.percentEncode(workspaceId)}/memorystores/${$URL.percentEncode(memoryStoreName)}/memory-tasks/${$URL.percentEncode(taskId)}`,
+    method = 'GET',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Queries the task ID returned by the asynchronous AddMemories operation.
+ *
+ * @description Queries the task ID returned by the asynchronous AddMemories operation.
+ *
+ * @param request GetMemoryTaskRequest
+ * @return GetMemoryTaskResponse
+ */
+async function getMemoryTask(workspaceId: string, memoryStoreName: string, taskId: string, request: GetMemoryTaskRequest): GetMemoryTaskResponse {
+  var runtime = new $RuntimeOptions{};
+  var headers : map[string]string = {};
+  return getMemoryTaskWithOptions(workspaceId, memoryStoreName, taskId, request, headers, runtime);
 }
 
 model GetModelRequest {
@@ -9172,6 +9803,378 @@ async function listMcps(workspaceId: string, request: ListMcpsRequest): ListMcps
   return listMcpsWithOptions(workspaceId, request, headers, runtime);
 }
 
+model ListMemoriesRequest {
+  agentId?: string(name='agentId', description='The agent ID. If you do not specify this parameter, all agents are matched. The value must be 1 to 128 bytes in length and encoded in UTF-8. The value cannot contain a forward slash (/) or an asterisk (*).', example='agent-001'),
+  maxResults?: int32(name='maxResults', description='The maximum number of records per page. Default value: 50. Valid values: 1 to 100.', example='50'),
+  nextToken?: string(name='nextToken', description='The pagination token for the next page.', example='eyJvZmZzZXQiOjEwfQ=='),
+  sessionId?: string(name='sessionId', description='The session ID. If you do not specify this parameter, all sessions are matched. The value must be 1 to 128 bytes in length and encoded in UTF-8. The value cannot contain a forward slash (/) or an asterisk (*).', example='session-001'),
+  userId?: string(name='userId', description='The user ID. If you do not specify this parameter, all users are matched. The value must be 1 to 128 bytes in length and encoded in UTF-8. The value cannot contain a forward slash (/) or an asterisk (*).', example='user-001'),
+}
+
+model ListMemoriesResponseBody = {
+  code?: string(name='code', description='The business status code.', example='SUCCESS'),
+  httpStatusCode?: int32(name='httpStatusCode', description='The HTTP status code.', example='200'),
+  items?: [ 
+    {
+      content?: {
+        text?: string(name='text', description='The memory text.', example='The user likes hiking'),
+      }(name='content', description='The memory content.'),
+      createdAt?: string(name='createdAt', description='The creation time.', example='2026-09-23T10:00:00Z'),
+      memoryId?: string(name='memoryId', description='The long-term memory ID.', example='mem-2f5f9c5a8d0e4c3b'),
+      metadata?: map[string]string(name='metadata', description='The memory metadata.'),
+      scope?: {
+        agentId?: string(name='agentId', description='The agent ID. The value must be 1 to 128 bytes in length and encoded in UTF-8. The value cannot contain a forward slash (/) or an asterisk (*). This field is not returned if the memory is not associated with an agent ID.', example='agent-001'),
+        sessionId?: string(name='sessionId', description='The session ID. The value must be 1 to 128 bytes in length and encoded in UTF-8. The value cannot contain a forward slash (/) or an asterisk (*). This field is not returned if the memory is not associated with a session ID.', example='session-001'),
+        userId?: string(name='userId', description='The user ID. The value must be 1 to 128 bytes in length and encoded in UTF-8. The value cannot contain a forward slash (/) or an asterisk (*). This field is not returned if the memory is not associated with a user ID.', example='user-001'),
+      }(name='scope', description='The memory scope.'),
+      updatedAt?: string(name='updatedAt', description='The last update time.', example='2026-09-23T10:05:00Z'),
+    }
+  ](name='items', description='The memory list.'),
+  maxResults?: int32(name='maxResults', description='The maximum number of records per page.', example='50'),
+  message?: string(name='message', description='The response message.', example='success'),
+  nextToken?: string(name='nextToken', description='The pagination token for the next page.', example='eyJvZmZzZXQiOjEwfQ=='),
+  requestId?: string(name='requestId', description='The request ID.', example='01A00000-0000-0000-0000-000000000001'),
+  success?: boolean(name='success', description='Indicates whether the request is successful.'),
+}
+
+model ListMemoriesResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ListMemoriesResponseBody(name='body'),
+}
+
+/**
+ * @summary Performs a paged query on long-term memory. Paging is supported, and you can filter the results independently by user ID, agent ID, and session ID.
+ *
+ * @description Performs a paged query on long-term memory. Paging is supported, and you can filter the results independently by user ID, agent ID, and session ID.
+ *
+ * @param request ListMemoriesRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return ListMemoriesResponse
+ */
+@context("listMemoriesWithContext")
+async function listMemoriesWithOptions(workspaceId: string, memoryStoreName: string, request: ListMemoriesRequest, headers: map[string]string, runtime: $RuntimeOptions): ListMemoriesResponse {
+  request.validate();
+  var query : map[string]any = {};
+  if (!$isNull(request.agentId)) {
+    query['agentId'] = request.agentId;
+  }
+  if (!$isNull(request.maxResults)) {
+    query['maxResults'] = request.maxResults;
+  }
+  if (!$isNull(request.nextToken)) {
+    query['nextToken'] = request.nextToken;
+  }
+  if (!$isNull(request.sessionId)) {
+    query['sessionId'] = request.sessionId;
+  }
+  if (!$isNull(request.userId)) {
+    query['userId'] = request.userId;
+  }
+
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'ListMemories',
+    version = '2026-08-04',
+    protocol = 'HTTPS',
+    pathname = `/workspaces/${$URL.percentEncode(workspaceId)}/memorystores/${$URL.percentEncode(memoryStoreName)}/memories`,
+    method = 'GET',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Performs a paged query on long-term memory. Paging is supported, and you can filter the results independently by user ID, agent ID, and session ID.
+ *
+ * @description Performs a paged query on long-term memory. Paging is supported, and you can filter the results independently by user ID, agent ID, and session ID.
+ *
+ * @param request ListMemoriesRequest
+ * @return ListMemoriesResponse
+ */
+async function listMemories(workspaceId: string, memoryStoreName: string, request: ListMemoriesRequest): ListMemoriesResponse {
+  var runtime = new $RuntimeOptions{};
+  var headers : map[string]string = {};
+  return listMemoriesWithOptions(workspaceId, memoryStoreName, request, headers, runtime);
+}
+
+model ListMemorySessionMessagesRequest {
+  agentId?: string(name='agentId', description='The agent ID. At least one of UserId and AgentId must be provided. The length must be 1 to 128 UTF-8 bytes. The value cannot contain forward slashes (/) or asterisks (*).', example='agent-001'),
+  maxResults?: int32(name='maxResults', description='The maximum number of records per page. Default value: 200. Valid values: 1 to 500.', example='200'),
+  nextToken?: string(name='nextToken', description='The pagination token for the next page.', example='eyJvZmZzZXQiOjIwMH0='),
+  sessionId?: string(name='sessionId', description='The session ID. The length must be 1 to 128 UTF-8 bytes. The value cannot contain forward slashes (/) or asterisks (*).
+
+This parameter is required.', example='session-001'),
+  userId?: string(name='userId', description='The user ID. At least one of UserId and AgentId must be provided. The length must be 1 to 128 UTF-8 bytes. The value cannot contain forward slashes (/) or asterisks (*).', example='user-001'),
+}
+
+model ListMemorySessionMessagesResponseBody = {
+  code?: string(name='code', description='The business status code.', example='SUCCESS'),
+  httpStatusCode?: int32(name='httpStatusCode', description='The HTTP status code.', example='200'),
+  items?: [ 
+    {
+      content?: string(name='content', description='The message content.', example='The user likes hiking'),
+      role?: string(name='role', description='The message role.', example='user'),
+    }
+  ](name='items', description='The message list.'),
+  maxResults?: int32(name='maxResults', description='The maximum number of records per page.', example='200'),
+  message?: string(name='message', description='The response message.', example='success'),
+  nextToken?: string(name='nextToken', description='The pagination token for the next page.', example='eyJvZmZzZXQiOjIwMH0='),
+  requestId?: string(name='requestId', description='The request ID.', example='01A00000-0000-0000-0000-000000000001'),
+  success?: boolean(name='success', description='Indicates whether the request is successful.'),
+}
+
+model ListMemorySessionMessagesResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ListMemorySessionMessagesResponseBody(name='body'),
+}
+
+/**
+ * @summary Performs a paged query for raw messages by exact scope with paging. SessionId is required, and at least one of UserId and AgentId must be provided.
+ *
+ * @description Performs a paged query for raw messages by exact scope with paging. SessionId is required, and at least one of UserId and AgentId must be provided.
+ *
+ * @param request ListMemorySessionMessagesRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return ListMemorySessionMessagesResponse
+ */
+@context("listMemorySessionMessagesWithContext")
+async function listMemorySessionMessagesWithOptions(workspaceId: string, memoryStoreName: string, request: ListMemorySessionMessagesRequest, headers: map[string]string, runtime: $RuntimeOptions): ListMemorySessionMessagesResponse {
+  request.validate();
+  var query : map[string]any = {};
+  if (!$isNull(request.agentId)) {
+    query['agentId'] = request.agentId;
+  }
+  if (!$isNull(request.maxResults)) {
+    query['maxResults'] = request.maxResults;
+  }
+  if (!$isNull(request.nextToken)) {
+    query['nextToken'] = request.nextToken;
+  }
+  if (!$isNull(request.sessionId)) {
+    query['sessionId'] = request.sessionId;
+  }
+  if (!$isNull(request.userId)) {
+    query['userId'] = request.userId;
+  }
+
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'ListMemorySessionMessages',
+    version = '2026-08-04',
+    protocol = 'HTTPS',
+    pathname = `/workspaces/${$URL.percentEncode(workspaceId)}/memorystores/${$URL.percentEncode(memoryStoreName)}/messages`,
+    method = 'GET',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Performs a paged query for raw messages by exact scope with paging. SessionId is required, and at least one of UserId and AgentId must be provided.
+ *
+ * @description Performs a paged query for raw messages by exact scope with paging. SessionId is required, and at least one of UserId and AgentId must be provided.
+ *
+ * @param request ListMemorySessionMessagesRequest
+ * @return ListMemorySessionMessagesResponse
+ */
+async function listMemorySessionMessages(workspaceId: string, memoryStoreName: string, request: ListMemorySessionMessagesRequest): ListMemorySessionMessagesResponse {
+  var runtime = new $RuntimeOptions{};
+  var headers : map[string]string = {};
+  return listMemorySessionMessagesWithOptions(workspaceId, memoryStoreName, request, headers, runtime);
+}
+
+model ListMemorySessionsRequest {
+  agentId?: string(name='agentId', description='The agent ID. If this parameter is not specified, all agents are matched. The length is limited to 1 to 128 UTF-8 bytes, and the value cannot contain / or *.', example='agent-001'),
+  maxResults?: int32(name='maxResults', description='The maximum number of records per page. Default value: 100. Valid values: 1 to 100.', example='100'),
+  nextToken?: string(name='nextToken', description='The pagination token for the next page.', example='eyJvZmZzZXQiOjEwMH0='),
+  userId?: string(name='userId', description='The user ID. If this parameter is not specified, all users are matched. The length is limited to 1 to 128 UTF-8 bytes, and the value cannot contain / or *.', example='user-001'),
+}
+
+model ListMemorySessionsResponseBody = {
+  code?: string(name='code', description='The business status code.', example='SUCCESS'),
+  httpStatusCode?: int32(name='httpStatusCode', description='The HTTP status code.', example='200'),
+  items?: [ 
+    {
+      agentId?: string(name='agentId', description='The agent ID. This field is not returned if the session is not associated with an agent ID.', example='agent-001'),
+      sessionId?: string(name='sessionId', description='Session ID', example='session-001'),
+      userId?: string(name='userId', description='The user ID. This field is not returned if the session is not associated with a user ID.', example='user-001'),
+    }
+  ](name='items', description='The session list.'),
+  maxResults?: int32(name='maxResults', description='The maximum number of records per page.', example='100'),
+  message?: string(name='message', description='The response message.', example='success'),
+  nextToken?: string(name='nextToken', description='The pagination token for the next page.', example='eyJvZmZzZXQiOjEwMH0='),
+  requestId?: string(name='requestId', description='The request ID.', example='01A00000-0000-0000-0000-000000000001'),
+  success?: boolean(name='success', description='Indicates whether the request is successful.'),
+}
+
+model ListMemorySessionsResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ListMemorySessionsResponseBody(name='body'),
+}
+
+/**
+ * @summary Performs a paging query for sessions in a MemoryStore, and allows independent filtering by user ID and agent ID.
+ *
+ * @description Performs a paging query for sessions in a MemoryStore, and allows independent filtering by user ID and agent ID.
+ *
+ * @param request ListMemorySessionsRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return ListMemorySessionsResponse
+ */
+@context("listMemorySessionsWithContext")
+async function listMemorySessionsWithOptions(workspaceId: string, memoryStoreName: string, request: ListMemorySessionsRequest, headers: map[string]string, runtime: $RuntimeOptions): ListMemorySessionsResponse {
+  request.validate();
+  var query : map[string]any = {};
+  if (!$isNull(request.agentId)) {
+    query['agentId'] = request.agentId;
+  }
+  if (!$isNull(request.maxResults)) {
+    query['maxResults'] = request.maxResults;
+  }
+  if (!$isNull(request.nextToken)) {
+    query['nextToken'] = request.nextToken;
+  }
+  if (!$isNull(request.userId)) {
+    query['userId'] = request.userId;
+  }
+
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'ListMemorySessions',
+    version = '2026-08-04',
+    protocol = 'HTTPS',
+    pathname = `/workspaces/${$URL.percentEncode(workspaceId)}/memorystores/${$URL.percentEncode(memoryStoreName)}/sessions`,
+    method = 'GET',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Performs a paging query for sessions in a MemoryStore, and allows independent filtering by user ID and agent ID.
+ *
+ * @description Performs a paging query for sessions in a MemoryStore, and allows independent filtering by user ID and agent ID.
+ *
+ * @param request ListMemorySessionsRequest
+ * @return ListMemorySessionsResponse
+ */
+async function listMemorySessions(workspaceId: string, memoryStoreName: string, request: ListMemorySessionsRequest): ListMemorySessionsResponse {
+  var runtime = new $RuntimeOptions{};
+  var headers : map[string]string = {};
+  return listMemorySessionsWithOptions(workspaceId, memoryStoreName, request, headers, runtime);
+}
+
+model ListMemoryStoresRequest {
+  maxResults?: int32(name='maxResults', description='The maximum number of records per page. Default value: 10. Valid values: 1 to 100.', example='10'),
+  nextToken?: string(name='nextToken', description='The pagination token for the next page.', example='eyJvZmZzZXQiOjEwfQ=='),
+}
+
+model ListMemoryStoresResponseBody = {
+  code?: string(name='code', description='The business status code.', example='SUCCESS'),
+  httpStatusCode?: int32(name='httpStatusCode', description='The HTTP status code.', example='200'),
+  items?: [ 
+    {
+      createdAt?: string(name='createdAt', description='The creation time.', example='2026-09-23T10:00:00Z'),
+      description?: string(name='description', description='The description of the MemoryStore.', example='Used to store long-term user preferences'),
+      extractInstructions?: string(name='extractInstructions', description='The custom extraction instructions.', example='Extract only long-term preferences explicitly expressed by the user'),
+      memoryStoreId?: string(name='memoryStoreId', description='The MemoryStore ID.', example='ms-2f5f9c5a8d0e4c3b'),
+      memoryStoreName?: string(name='memoryStoreName', description='The name of the MemoryStore. It cannot be modified after creation.', example='customer-memory'),
+      status?: string(name='status', description='The lifecycle state of the MemoryStore.', example='Ready'),
+      updatedAt?: string(name='updatedAt', description='The last update time.', example='2026-09-23T10:05:00Z'),
+      workspaceId?: string(name='workspaceId', description='The AgentCore workspace ID.', example='ws-2f5f9c5a8d0e4c3b'),
+    }
+  ](name='items', description='The list of MemoryStores.'),
+  maxResults?: int32(name='maxResults', description='The maximum number of records per page.', example='10'),
+  message?: string(name='message', description='The response message.', example='success'),
+  nextToken?: string(name='nextToken', description='The pagination token for the next page.', example='eyJvZmZzZXQiOjEwfQ=='),
+  requestId?: string(name='requestId', description='The request ID.', example='01A00000-0000-0000-0000-000000000001'),
+  success?: boolean(name='success', description='Indicates whether the request is successful.', example='true'),
+  totalCount?: long(name='totalCount', description='The total number of records.', example='1'),
+}
+
+model ListMemoryStoresResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ListMemoryStoresResponseBody(name='body'),
+}
+
+/**
+ * @summary Queries MemoryStores in a specified workspace by using paging.
+ *
+ * @description Queries MemoryStores in a specified workspace by using paging.
+ *
+ * @param request ListMemoryStoresRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return ListMemoryStoresResponse
+ */
+@context("listMemoryStoresWithContext")
+async function listMemoryStoresWithOptions(workspaceId: string, request: ListMemoryStoresRequest, headers: map[string]string, runtime: $RuntimeOptions): ListMemoryStoresResponse {
+  request.validate();
+  var query : map[string]any = {};
+  if (!$isNull(request.maxResults)) {
+    query['maxResults'] = request.maxResults;
+  }
+  if (!$isNull(request.nextToken)) {
+    query['nextToken'] = request.nextToken;
+  }
+
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'ListMemoryStores',
+    version = '2026-08-04',
+    protocol = 'HTTPS',
+    pathname = `/workspaces/${$URL.percentEncode(workspaceId)}/memorystores`,
+    method = 'GET',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Queries MemoryStores in a specified workspace by using paging.
+ *
+ * @description Queries MemoryStores in a specified workspace by using paging.
+ *
+ * @param request ListMemoryStoresRequest
+ * @return ListMemoryStoresResponse
+ */
+async function listMemoryStores(workspaceId: string, request: ListMemoryStoresRequest): ListMemoryStoresResponse {
+  var runtime = new $RuntimeOptions{};
+  var headers : map[string]string = {};
+  return listMemoryStoresWithOptions(workspaceId, request, headers, runtime);
+}
+
 model ListModelConnectionsRequest {
   includeModels?: boolean(name='includeModels', description='Specifies whether to return associated model summaries for each model connection. By default, model summaries are not returned.', example='false'),
   maxResults?: int32(name='maxResults', description='The number of records per page. Valid values: 0 to 100. If this parameter is not set or is set to 0, the default value 10 is used.', example='10'),
@@ -10869,6 +11872,123 @@ async function resetUserPassword(workspaceId: string, request: ResetUserPassword
   var runtime = new $RuntimeOptions{};
   var headers : map[string]string = {};
   return resetUserPasswordWithOptions(workspaceId, request, headers, runtime);
+}
+
+model SearchMemoriesRequest {
+  body?: {
+    enableRerank?: boolean(name='enableRerank', description='Specifies whether to enable reranking. Default value: true.'),
+    metadata?: map[string]string(name='metadata', description='The string key-value metadata for exact match. You can specify up to 16 keys. Each key can be up to 64 characters in length, and each value can be up to 1,024 characters in length.'),
+    minScore?: float(name='minScore', description='The minimum relevance score. Valid values: 0 to 1. Default value: 0.2. If both minScore and minSimilarity are specified, the AND logic is applied for filtering.', example='0.2'),
+    minSimilarity?: float(name='minSimilarity', description='The minimum similarity. Valid values: 0 to 1. Default value: 0.3. If both minScore and minSimilarity are specified, the AND logic is applied for filtering.', example='0.3'),
+    query?: string(name='query', description='The query text. The text can be up to 8,192 characters in length.
+
+This parameter is required.', example='What sports does the user like?'),
+    scope?: {
+      agentId?: string(name='agentId', description='The agent ID. The ID must be 1 to 128 bytes in length and encoded in UTF-8. The ID cannot contain forward slashes (/) or asterisks (*). If the memory is not associated with an agent ID, this field is not returned.', example='agent-001'),
+      sessionId?: string(name='sessionId', description='The session ID. The ID must be 1 to 128 bytes in length and encoded in UTF-8. The ID cannot contain forward slashes (/) or asterisks (*). If the memory is not associated with a session ID, this field is not returned.', example='session-001'),
+      userId?: string(name='userId', description='The user ID. The ID must be 1 to 128 bytes in length and encoded in UTF-8. The ID cannot contain forward slashes (/) or asterisks (*). If the memory is not associated with a user ID, this field is not returned.', example='user-001'),
+    }(name='scope', description='The retrieval scope. UserId, AgentId, and SessionId are all optional.'),
+    topK?: int32(name='topK', description='The number of results to return.', example='10'),
+  }(name='body', description='The semantic retrieval request.
+
+This parameter is required.'),
+}
+
+model SearchMemoriesShrinkRequest {
+  bodyShrink?: string(name='body', description='The semantic retrieval request.
+
+This parameter is required.'),
+}
+
+model SearchMemoriesResponseBody = {
+  code?: string(name='code', description='The business status code.', example='SUCCESS'),
+  data?: {
+    memories?: [ 
+      {
+        memory?: {
+          content?: {
+            text?: string(name='text', description='The memory text.', example='The user likes hiking'),
+          }(name='content', description='The memory content.'),
+          createdAt?: string(name='createdAt', description='The time when the memory was created.', example='2026-09-23T10:00:00Z'),
+          memoryId?: string(name='memoryId', description='The long-term memory ID.', example='mem-2f5f9c5a8d0e4c3b'),
+          metadata?: map[string]string(name='metadata', description='The memory metadata.'),
+          scope?: {
+            agentId?: string(name='agentId', description='The agent ID. The ID must be 1 to 128 bytes in length and encoded in UTF-8. The ID cannot contain forward slashes (/) or asterisks (*). If the memory is not associated with an agent ID, this field is not returned.', example='agent-001'),
+            sessionId?: string(name='sessionId', description='The session ID. The ID must be 1 to 128 bytes in length and encoded in UTF-8. The ID cannot contain forward slashes (/) or asterisks (*). If the memory is not associated with a session ID, this field is not returned.', example='session-001'),
+            userId?: string(name='userId', description='The user ID. The ID must be 1 to 128 bytes in length and encoded in UTF-8. The ID cannot contain forward slashes (/) or asterisks (*). If the memory is not associated with a user ID, this field is not returned.', example='user-001'),
+          }(name='scope', description='The memory scope.'),
+          updatedAt?: string(name='updatedAt', description='The time when the memory was last updated.', example='2026-09-23T10:05:00Z'),
+        }(name='memory', description='The matched memory.'),
+        score?: float(name='score', description='The relevance score.', example='0.86'),
+        similarity?: float(name='similarity', description='The vector similarity.', example='0.91'),
+      }
+    ](name='memories', description='The list of retrieval results.'),
+  }(name='data', description='The retrieval results.'),
+  httpStatusCode?: int32(name='httpStatusCode', description='The HTTP status code.', example='200'),
+  message?: string(name='message', description='The response message.', example='success'),
+  requestId?: string(name='requestId', description='The request ID.', example='01A00000-0000-0000-0000-000000000001'),
+  success?: boolean(name='success', description='Indicates whether the request is successful.'),
+}
+
+model SearchMemoriesResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: SearchMemoriesResponseBody(name='body'),
+}
+
+/**
+ * @summary Retrieves long-term memory from a MemoryStore based on semantics queries.
+ *
+ * @description Retrieves long-term memory from a MemoryStore based on semantics queries.
+ *
+ * @param tmpReq SearchMemoriesRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return SearchMemoriesResponse
+ */
+@context("searchMemoriesWithContext")
+async function searchMemoriesWithOptions(workspaceId: string, memoryStoreName: string, tmpReq: SearchMemoriesRequest, headers: map[string]string, runtime: $RuntimeOptions): SearchMemoriesResponse {
+  tmpReq.validate();
+  var request = new SearchMemoriesShrinkRequest{};
+  OpenApiUtil.convert(tmpReq, request);
+  if (!$isNull(tmpReq.body)) {
+    request.bodyShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.body, 'body', 'json');
+  }
+  var body : map[string]any = {};
+  if (!$isNull(request.bodyShrink)) {
+    body['body'] = request.bodyShrink;
+  }
+
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    headers = headers,
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'SearchMemories',
+    version = '2026-08-04',
+    protocol = 'HTTPS',
+    pathname = `/workspaces/${$URL.percentEncode(workspaceId)}/memorystores/${$URL.percentEncode(memoryStoreName)}/memories/search`,
+    method = 'POST',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Retrieves long-term memory from a MemoryStore based on semantics queries.
+ *
+ * @description Retrieves long-term memory from a MemoryStore based on semantics queries.
+ *
+ * @param request SearchMemoriesRequest
+ * @return SearchMemoriesResponse
+ */
+async function searchMemories(workspaceId: string, memoryStoreName: string, request: SearchMemoriesRequest): SearchMemoriesResponse {
+  var runtime = new $RuntimeOptions{};
+  var headers : map[string]string = {};
+  return searchMemoriesWithOptions(workspaceId, memoryStoreName, request, headers, runtime);
 }
 
 model SubmitAgentSpecVersionRequest {
@@ -13232,6 +14352,206 @@ async function updateMcpTemplateConfig(workspaceId: string, mcpServerId: string,
   var runtime = new $RuntimeOptions{};
   var headers : map[string]string = {};
   return updateMcpTemplateConfigWithOptions(workspaceId, mcpServerId, request, headers, runtime);
+}
+
+model UpdateMemoryRequest {
+  body?: {
+    metadata?: map[string]string(name='metadata', description='The updated string key-value metadata. You must provide at least one of Metadata or Text. A maximum of 16 keys are allowed. Each key can be up to 64 characters in length, and each value can be up to 1,024 characters in length.'),
+    text?: string(name='text', description='The updated memory text. You must provide at least one of Text or Metadata. The text cannot exceed 32,000 UTF-8 bytes.', example='The user enjoys hiking on weekends'),
+  }(name='body', description='The request to update a memory.
+
+This parameter is required.'),
+}
+
+model UpdateMemoryShrinkRequest {
+  bodyShrink?: string(name='body', description='The request to update a memory.
+
+This parameter is required.'),
+}
+
+model UpdateMemoryResponseBody = {
+  code?: string(name='code', description='The business status code.', example='SUCCESS'),
+  data?: {
+    content?: {
+      text?: string(name='text', description='The memory text.', example='The user enjoys hiking'),
+    }(name='content', description='The memory content.'),
+    createdAt?: string(name='createdAt', description='The creation time.', example='2026-09-23T10:00:00Z'),
+    memoryId?: string(name='memoryId', description='The long-term memory ID.', example='mem-2f5f9c5a8d0e4c3b'),
+    metadata?: map[string]string(name='metadata', description='The memory metadata.'),
+    scope?: {
+      agentId?: string(name='agentId', description='The agent ID. The length is limited to 1 to 128 UTF-8 bytes. The ID cannot contain a forward slash (/) or an asterisk (*). This field is not returned if the memory is not associated with an agent ID.', example='agent-001'),
+      sessionId?: string(name='sessionId', description='The session ID. The length is limited to 1 to 128 UTF-8 bytes. The ID cannot contain a forward slash (/) or an asterisk (*). This field is not returned if the memory is not associated with a session ID.', example='session-001'),
+      userId?: string(name='userId', description='The user ID. The length is limited to 1 to 128 UTF-8 bytes. The ID cannot contain a forward slash (/) or an asterisk (*). This field is not returned if the memory is not associated with a user ID.', example='user-001'),
+    }(name='scope', description='The memory scope.'),
+    updatedAt?: string(name='updatedAt', description='The last update time.', example='2026-09-23T10:05:00Z'),
+  }(name='data', description='The updated memory.'),
+  httpStatusCode?: int32(name='httpStatusCode', description='The HTTP status code.', example='200'),
+  message?: string(name='message', description='The response message.', example='success'),
+  requestId?: string(name='requestId', description='The request ID.', example='01A00000-0000-0000-0000-000000000001'),
+  success?: boolean(name='success', description='Indicates whether the request is successful.'),
+}
+
+model UpdateMemoryResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: UpdateMemoryResponseBody(name='body'),
+}
+
+/**
+ * @summary Updates the long-term memory text or metadata based on the memory ID.
+ *
+ * @description Updates the long-term memory text or metadata based on the memory ID.
+ *
+ * @param tmpReq UpdateMemoryRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return UpdateMemoryResponse
+ */
+@context("updateMemoryWithContext")
+async function updateMemoryWithOptions(workspaceId: string, memoryStoreName: string, memoryId: string, tmpReq: UpdateMemoryRequest, headers: map[string]string, runtime: $RuntimeOptions): UpdateMemoryResponse {
+  tmpReq.validate();
+  var request = new UpdateMemoryShrinkRequest{};
+  OpenApiUtil.convert(tmpReq, request);
+  if (!$isNull(tmpReq.body)) {
+    request.bodyShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.body, 'body', 'json');
+  }
+  var body : map[string]any = {};
+  if (!$isNull(request.bodyShrink)) {
+    body['body'] = request.bodyShrink;
+  }
+
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    headers = headers,
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'UpdateMemory',
+    version = '2026-08-04',
+    protocol = 'HTTPS',
+    pathname = `/workspaces/${$URL.percentEncode(workspaceId)}/memorystores/${$URL.percentEncode(memoryStoreName)}/memories/${$URL.percentEncode(memoryId)}`,
+    method = 'PUT',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Updates the long-term memory text or metadata based on the memory ID.
+ *
+ * @description Updates the long-term memory text or metadata based on the memory ID.
+ *
+ * @param request UpdateMemoryRequest
+ * @return UpdateMemoryResponse
+ */
+async function updateMemory(workspaceId: string, memoryStoreName: string, memoryId: string, request: UpdateMemoryRequest): UpdateMemoryResponse {
+  var runtime = new $RuntimeOptions{};
+  var headers : map[string]string = {};
+  return updateMemoryWithOptions(workspaceId, memoryStoreName, memoryId, request, headers, runtime);
+}
+
+model UpdateMemoryStoreRequest {
+  body?: {
+    description?: string(name='description', description='The MemoryStore description. Maximum length: 1,024 characters.', example='Memory store used to save long-term customer preferences'),
+    extractInstructions?: string(name='extractInstructions', description='The custom memory extraction instructions. Maximum length: 4,096 characters.', example='Extract only long-term preferences explicitly expressed by the user'),
+  }(name='body', description='The update MemoryStore request.
+
+This parameter is required.'),
+  clientToken?: string(name='clientToken', description='The client request token.', example='memory-store-update-20260909-001'),
+}
+
+model UpdateMemoryStoreShrinkRequest {
+  bodyShrink?: string(name='body', description='The update MemoryStore request.
+
+This parameter is required.'),
+  clientToken?: string(name='clientToken', description='The client request token.', example='memory-store-update-20260909-001'),
+}
+
+model UpdateMemoryStoreResponseBody = {
+  code?: string(name='code', description='The business status code.', example='SUCCESS'),
+  data?: {
+    createdAt?: string(name='createdAt', description='The creation time.', example='2026-09-23T10:00:00Z'),
+    description?: string(name='description', description='The MemoryStore description.', example='Used to save long-term user preferences'),
+    extractInstructions?: string(name='extractInstructions', description='The custom extraction instructions.', example='Extract only long-term preferences explicitly expressed by the user'),
+    memoryStoreId?: string(name='memoryStoreId', description='The MemoryStore ID.', example='ms-2f5f9c5a8d0e4c3b'),
+    memoryStoreName?: string(name='memoryStoreName', description='The MemoryStore name. It cannot be modified after creation.', example='customer-memory'),
+    status?: string(name='status', description='The lifecycle state of the MemoryStore.', example='Ready'),
+    updatedAt?: string(name='updatedAt', description='The last updated time.', example='2026-09-23T10:05:00Z'),
+    workspaceId?: string(name='workspaceId', description='The AgentCore workspace ID.', example='ws-2f5f9c5a8d0e4c3b'),
+  }(name='data', description='The MemoryStore details.'),
+  httpStatusCode?: int32(name='httpStatusCode', description='The HTTP status code.', example='200'),
+  message?: string(name='message', description='The response message.', example='success'),
+  requestId?: string(name='requestId', description='The request ID.', example='01A00000-0000-0000-0000-000000000001'),
+  success?: boolean(name='success', description='Indicates whether the request is successful.'),
+}
+
+model UpdateMemoryStoreResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: UpdateMemoryStoreResponseBody(name='body'),
+}
+
+/**
+ * @summary Updates a memory store.
+ *
+ * @description Updates a memory store.
+ *
+ * @param tmpReq UpdateMemoryStoreRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return UpdateMemoryStoreResponse
+ */
+@context("updateMemoryStoreWithContext")
+async function updateMemoryStoreWithOptions(workspaceId: string, memoryStoreName: string, tmpReq: UpdateMemoryStoreRequest, headers: map[string]string, runtime: $RuntimeOptions): UpdateMemoryStoreResponse {
+  tmpReq.validate();
+  var request = new UpdateMemoryStoreShrinkRequest{};
+  OpenApiUtil.convert(tmpReq, request);
+  if (!$isNull(tmpReq.body)) {
+    request.bodyShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.body, 'body', 'json');
+  }
+  var query : map[string]any = {};
+  if (!$isNull(request.clientToken)) {
+    query['clientToken'] = request.clientToken;
+  }
+
+  var body : map[string]any = {};
+  if (!$isNull(request.bodyShrink)) {
+    body['body'] = request.bodyShrink;
+  }
+
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'UpdateMemoryStore',
+    version = '2026-08-04',
+    protocol = 'HTTPS',
+    pathname = `/workspaces/${$URL.percentEncode(workspaceId)}/memorystores/${$URL.percentEncode(memoryStoreName)}`,
+    method = 'PUT',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Updates a memory store.
+ *
+ * @description Updates a memory store.
+ *
+ * @param request UpdateMemoryStoreRequest
+ * @return UpdateMemoryStoreResponse
+ */
+async function updateMemoryStore(workspaceId: string, memoryStoreName: string, request: UpdateMemoryStoreRequest): UpdateMemoryStoreResponse {
+  var runtime = new $RuntimeOptions{};
+  var headers : map[string]string = {};
+  return updateMemoryStoreWithOptions(workspaceId, memoryStoreName, request, headers, runtime);
 }
 
 model UpdateModelRequest {
