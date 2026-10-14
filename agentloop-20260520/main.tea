@@ -28,6 +28,20 @@ function getEndpoint(productId: string, regionId: string, endpointRule: string, 
   return EndpointUtil.getEndpointRules(productId, regionId, endpointRule, network, suffix);
 }
 
+model AuditTaskState {
+  enabled?: boolean(name='enabled', description='The current expected sharing switch for the task.'),
+  runtimeError?: {
+    code?: string(name='code', description='The error code, such as task_status_query_failed.', example='task_status_query_failed'),
+    message?: string(name='message', description='The error description.', example='error'),
+    requestId?: string(name='requestId', description='The ID of the status query request.', example='GUID'),
+  }(name='runtimeError', description='The runtime error, which is returned only when runtimeStatus is error.'),
+  runtimeStatus?: string(name='runtimeStatus', description='The runtime status, which appears only when includeRuntimeStatus=true is requested. Valid values: pending, starting, stopping, running, stopped, missing, drifted, and error. The list and get operations do not return deleting.', example='running'),
+  runtimeStatusCheckedAt?: string(name='runtimeStatusCheckedAt', description='The time when the remote status is checked. This field appears together with runtimeStatus.', example='1'),
+  task?: map[string]any(name='task', description='The task details in JSON format.'),
+  taskId?: string(name='taskId', description='The stable ID of the task, which must be equal to task.taskId.', example='custom_host_intrusion_audit'),
+  version?: long(name='version', description='The current execution configuration version of the task. The minimum value is 1. Starting or stopping the task does not increment this version.', example='7'),
+}
+
 model BackfillStrategy {
   enabled?: boolean(name='enabled', description='Specifies whether the backfill policy is enabled. If this parameter is not specified or is set to true, the policy is enabled. If this parameter is set to false, the policy is disabled but the configuration is retained.', example='true'),
   endTime?: long(name='endTime', description='The end of the backfill time range, in UNIX millisecond timestamp. Provide a complete time range when you need to manually start a backfill.', example='1782902400000'),
@@ -42,19 +56,19 @@ model BatchGroup {
 }
 
 model ConnectorProperties {
-  channelType?: string(name='channelType', description='The channel type: custom or apig. This parameter is optional for model_service and defaults to custom.'),
-  dryRunRequestBody?: string(name='dryRunRequestBody', description='The sample request body provided by the user for verifying endpoint connectivity. This parameter is required when dryRun is set to All and type is set to agent_app. The value is not persisted.'),
-  maxRetries?: string(name='maxRetries', description='The number of retries after a failed invocation of the dial-test registration service. Valid values: 0 to 10. Default value: 3.', example='3'),
-  modelList?: string(name='modelList', description='The list of supported models in comma-separated format. This parameter is required for model_service.'),
-  network?: string(name='network', description='The network type: internet or aliyun-vpc.'),
-  protocol?: string(name='protocol', description='The protocol type: openai, openai-compatible, or anthropic. This parameter is required for model_service.'),
-  qpsLimit?: string(name='qpsLimit', description='The QPS limit for the dial-test registration service. A value of 0 indicates no throttling. Otherwise, valid values: 0.1 to 1000. Default value: 20 for agent_app, 100 for model_service.', example='20'),
-  region?: string(name='region', description='The region. This parameter is required when the network type is aliyun-vpc.'),
-  responseBodyPath?: string(name='responseBodyPath', description='The JSON Path extraction path for the response body. This parameter is optional for agent_app.'),
-  securityGroupId?: string(name='securityGroupId', description='The security group ID. This parameter is optional for agent_app.'),
-  timeoutMs?: string(name='timeoutMs', description='The timeout for a single call, in milliseconds. Valid values: 1000 to 1800000. Default value: 300000.', example='30000'),
-  vSwitchId?: string(name='vSwitchId', description='The vSwitch ID. This parameter is optional for agent_app.'),
-  vpcId?: string(name='vpcId', description='The VPC ID. This parameter is optional for agent_app.'),
+  channelType?: string(name='channelType', description='The channel type. Valid values: custom and apig. This parameter is optional for model_service. Default value: custom.', example='custom'),
+  dryRunRequestBody?: string(name='dryRunRequestBody', description='Specifies the sample request body provided by the user to verify endpoint connectivity. This parameter is required when dryRun is set to All and type is set to agent_app. The request body is not persisted.', example='{"input":"Hello"}'),
+  maxRetries?: string(name='maxRetries', description='The number of retry attempts after a failed service invocation when you invoke the synthetic monitoring registration service. Valid values: 0 to 10. Default value: 3.', example='3'),
+  modelList?: string(name='modelList', description='The list of supported models in comma-separated format. This parameter is required for model_service.', example='qwen-max'),
+  network?: string(name='network', description='The network type. Valid values: internet and aliyun-vpc.', example='internet'),
+  protocol?: string(name='protocol', description='The protocol type. Valid values: openai, openai-compatible, and anthropic. This parameter is required for model_service.', example='openai-compatible'),
+  qpsLimit?: string(name='qpsLimit', description='The queries per second (QPS) limit for the dial test registration service. A value of 0 indicates no throttling. Otherwise, valid values are 0.1 to 1000. Default value: 20 for agent_app and 100 for model_service.', example='20'),
+  region?: string(name='region', description='The region. This parameter is required when the network type is aliyun-vpc.', example='cn-hangzhou'),
+  responseBodyPath?: string(name='responseBodyPath', description='The JSONPath extraction path for the response body. This parameter is optional for agent_app.', example='$.choices[0].message.content'),
+  securityGroupId?: string(name='securityGroupId', description='The ID of the security group. This parameter is optional for agent_app.'),
+  timeoutMs?: string(name='timeoutMs', description='The timeout period for a single call in milliseconds. Valid values: 1000 to 1800000. Default value: 300000.', example='30000'),
+  vSwitchId?: string(name='vSwitchId', description='The ID of the vSwitch. This parameter is optional for agent_app.'),
+  vpcId?: string(name='vpcId', description='The ID of the virtual private cloud (VPC). This parameter is optional for agent_app.'),
 }
 
 model ContinuousStrategy {
@@ -65,11 +79,11 @@ model ContinuousStrategy {
 }
 
 model DataFilter {
-  maxRecords?: int32(name='maxRecords', description='The maximum number of evaluation records. This takes effect for both backfill and continuous runs. If not specified, the backend does not write a default value.', example='10'),
-  provided?: map[string]any(name='provided', description='The one-time temporary evaluation input content, primarily used for oneshot tasks. The value is stored as a string. Object or array values are serialized to a JSON string.', example='{"input":"用户查询订单状态","output":"已查询到订单状态"}'),
-  query?: string(name='query', description='The data query filter condition. This takes effect together with the evaluator-level filters.query. In Trace scenarios, you can specify filter expressions such as service name, environment, or labels.', example='serviceName=\\\\"checkout-service\\\\"'),
-  samplingRate?: int32(name='samplingRate', description='The sampling rate percentage. Valid values: 0 to 100. A value of 0 or not specified indicates no sampling. A value of 100 indicates full data. If the value is less than 100, random sampling is applied first, and then the maxRecords limit is applied.', example='100'),
-  serviceNames?: [ string ](name='serviceNames'),
+  maxRecords?: int32(name='maxRecords', description='The maximum number of evaluation records. This parameter takes effect for both backfill and continuous runs. If this parameter is not specified, the backend does not apply an additional default value.', example='10'),
+  provided?: map[string]any(name='provided', description='The single-shot input content for temporary evaluation, which is primarily used for one-shot tasks. Values are saved as strings. Object or array values are serialized into JSON strings.', example='{"input":"User queries order status","output":"Order status queried"}'),
+  query?: string(name='query', description='The data query filter conditions that take effect together with the evaluator-level filters.query. For trace scenarios, you can specify filter expressions such as service name, environment, and tags.', example='serviceName=\\\\"checkout-service\\\\"'),
+  samplingRate?: int32(name='samplingRate', description='The sampling rate percentage. Valid values: 0 to 100. A value of 0 or an unspecified value indicates no sampling. A value of 100 indicates full sampling. If the value is less than 100, random sampling is performed first, and then the maxRecords limit is applied.', example='100'),
+  serviceNames?: [ string ](name='serviceNames', description='The list of service names used to restrict the services involved in data filtering.', example='["checkout-service"]'),
 }
 
 model Evaluator {
@@ -85,99 +99,99 @@ model Evaluator {
 }
 
 model ExperimentConfig {
-  endpointConnectorId?: string(name='endpointConnectorId', description='The endpoint connector ID. This parameter is required in user/agent mode.'),
-  label?: string(name='label', description='The experiment label (A/B/C/D/E).'),
-  modelName?: string(name='modelName', description='The model name. You can set this parameter to agent in agent scenarios.'),
+  endpointConnectorId?: string(name='endpointConnectorId', description='The endpoint connector ID, which is required in user or agent mode.'),
+  label?: string(name='label', description='The experiment label (A, B, C, D, or E).', example='A'),
+  modelName?: string(name='modelName', description='The model name, which can be set to agent for agent scenarios.', example='qwen-max'),
   modelParameters?: ModelParameters(name='modelParameters', description='The model parameters.'),
-  modelProvider?: string(name='modelProvider', description='The model provider. Valid values: dashscope (default), user, and agent.'),
-  name?: string(name='name', description='The experiment name.'),
+  modelProvider?: string(name='modelProvider', description='The model provider. Valid values: dashscope (default), user, and agent.', example='dashscope'),
+  name?: string(name='name', description='The experiment name.', example='baseline'),
   promptTemplate?: [
     PromptTemplateItem
-  ](name='promptTemplate', description='The prompt message template. Supports {{variable name}} placeholders.'),
-  requestBodyTemplate?: string(name='requestBodyTemplate', description='The agent request body template. This parameter is required in agent mode. Supports {{variable name}} placeholders.'),
-  requestHeaderTemplate?: string(name='requestHeaderTemplate', description='The agent request header template. This parameter is optional in agent mode. Supports {{variable name}} placeholders.', example='{"Content-Type: application/json" }'),
-  requestMethod?: string(name='requestMethod', description='The agent request method. Valid values: POST (default) and GET.'),
+  ](name='promptTemplate', description='The prompt message template, which supports {{variable name}} placeholders.', example='[{"role":"user","content":"Please answer: {{question}}"}]'),
+  requestBodyTemplate?: string(name='requestBodyTemplate', description='The agent request body template, which is required in agent mode and supports {{variable name}} placeholders.', example='{"input":"{{question}}"}'),
+  requestHeaderTemplate?: string(name='requestHeaderTemplate', description='The agent request header template, which is optional in agent mode and supports {{variable name}} placeholders.', example='{"Content-Type: application/json" }'),
+  requestMethod?: string(name='requestMethod', description='The agent request method. Valid values: POST (default) and GET.', example='POST'),
 }
 
 model ExperimentPlanData {
-  createdAt?: long(name='createdAt'),
-  datasetId?: string(name='datasetId'),
-  description?: string(name='description'),
-  experimentCount?: int32(name='experimentCount'),
-  experimentType?: string(name='experimentType'),
-  pipelineName?: string(name='pipelineName'),
-  planId?: string(name='planId'),
-  planName?: string(name='planName'),
-  querySql?: string(name='querySql'),
-  status?: string(name='status'),
-  updatedAt?: long(name='updatedAt'),
+  createdAt?: long(name='createdAt', description='The creation time in milliseconds.', example='1767225600000'),
+  datasetId?: string(name='datasetId', description='The ID of the associated dataset.', example='dataset-123456'),
+  description?: string(name='description', description='The description.', example='Offline evaluation plan for customer service Q&A'),
+  experimentCount?: int32(name='experimentCount', description='The number of experiment executions under this plan.', example='3'),
+  experimentType?: string(name='experimentType', description='The experiment type. Valid values: offline (offline experiment) and online (online experiment).', example='offline'),
+  pipelineName?: string(name='pipelineName', description='The name of the associated data processing pipeline. This field is empty if no pipeline is associated. After association, when an experiment under this plan completes and writes results to a Logstore, the system filters by the trace ID of the experiment trace and calls PreviewPipeline to write the pipeline-processed results.', example='trace-process-pipeline'),
+  planId?: string(name='planId', description='The experiment plan ID.'),
+  planName?: string(name='planName', description='The experiment plan name.', example='customer-service-eval'),
+  querySql?: string(name='querySql', description='The custom query SQL clause in dataset-partial mode.', example='level > 2'),
+  status?: string(name='status', description='The status. Valid values: pending, running, and stopped.', example='pending'),
+  updatedAt?: long(name='updatedAt', description='The update time in milliseconds.', example='1767229200000'),
 }
 
 model ExperimentRecord {
-  completedAt?: long(name='completedAt'),
-  completedTasks?: int32(name='completedTasks'),
-  dataSourceType?: string(name='dataSourceType'),
-  datasetId?: string(name='datasetId'),
-  datasetProject?: string(name='datasetProject'),
-  errorMessage?: string(name='errorMessage'),
-  evaluationTaskId?: string(name='evaluationTaskId'),
+  completedAt?: long(name='completedAt', description='The completion time in milliseconds.', example='1767229200000'),
+  completedTasks?: int32(name='completedTasks', description='The number of completed tasks.', example='5'),
+  dataSourceType?: string(name='dataSourceType', description='The data source type. Valid values: simple, dataset-full, and dataset-partial.', example='dataset-full'),
+  datasetId?: string(name='datasetId', description='The dataset ID.', example='dataset-123456'),
+  datasetProject?: string(name='datasetProject', description='The SLS project where the dataset is located.', example='agentspace-project'),
+  errorMessage?: string(name='errorMessage', description='The error message.', example='Model invocation timeout'),
+  evaluationTaskId?: string(name='evaluationTaskId', description='The ID of the associated evaluation task.'),
   evaluators?: [
     Evaluator
-  ](name='evaluators'),
-  executedAt?: long(name='executedAt'),
+  ](name='evaluators', description='The list of evaluators.', example='[{"name":"Builtin.agent_correctness"}]'),
+  executedAt?: long(name='executedAt', description='The execution time in milliseconds.', example='1767225600000'),
   experimentConfig?: [
     ExperimentConfig
-  ](name='experimentConfig'),
-  experimentPlanId?: string(name='experimentPlanId'),
-  failedTasks?: int32(name='failedTasks'),
-  input?: map[string]any(name='input'),
-  modelNames?: [ string ](name='modelNames'),
-  planName?: string(name='planName'),
-  progress?: float(name='progress'),
-  querySql?: string(name='querySql'),
-  recordId?: string(name='recordId'),
-  recordName?: string(name='recordName'),
-  selectedItemIds?: [ string ](name='selectedItemIds'),
-  status?: string(name='status'),
-  totalTasks?: int32(name='totalTasks'),
+  ](name='experimentConfig', description='The list of experiment configurations.', example='[{"label":"A","name":"baseline","modelName":"qwen-max"}]'),
+  experimentPlanId?: string(name='experimentPlanId', description='The ID of the associated experiment plan.'),
+  failedTasks?: int32(name='failedTasks', description='The number of failed tasks.', example='1'),
+  input?: map[string]any(name='input', description='The single-line input in SIMPLE mode.', example='{"test":"test","test2":1}'),
+  modelNames?: [ string ](name='modelNames', description='The list of model names used.', example='["qwen-max"]'),
+  planName?: string(name='planName', description='The name of the associated experiment plan.', example='customer-service-eval'),
+  progress?: float(name='progress', description='The execution progress, ranging from 0 to 1.', example='0.5'),
+  querySql?: string(name='querySql', description='The custom query SQL clause in dataset-partial mode.', example='level > 2'),
+  recordId?: string(name='recordId', description='The experiment record ID.'),
+  recordName?: string(name='recordName', description='The experiment record name.', example='baseline-run'),
+  selectedItemIds?: [ string ](name='selectedItemIds', description='The list of selected data item IDs in dataset-partial mode.', example='["item-123456"]'),
+  status?: string(name='status', description='The status. Valid values: pending, running, completed, and failed.', example='running'),
+  totalTasks?: int32(name='totalTasks', description='The total number of tasks.', example='10'),
 }
 
 model IndexJsonKey {
-  chn?: boolean(name='chn', description='Specifies whether the field contains Chinese characters. This parameter is required only when the **type** parameter is set to **text**. Valid values:
-  - true: The field contains Chinese characters.
-  - false: The field does not contain Chinese characters.', example='false'),
+  chn?: boolean(name='chn', description='Specifies whether Chinese characters are included. This parameter is required only when the **type** parameter is set to **text**. Valid values:
+  - true: Chinese characters are included.
+  - false: Chinese characters are not included.', example='false'),
   type?: string(name='type', description='The type.', example='text'),
 }
 
 model IndexKey {
-  chn?: boolean(name='chn', description='Specifies whether Chinese is included. This parameter is required only when the **type** parameter is set to **text**. Valid values:
-  - true: Chinese is included.
-  - false: Chinese is not included.', example='true'),
-  description?: string(name='description', description='The description.', example='test'),
-  embedding?: string(name='embedding', description='The field embedding type.', example='agentloop-embedding-v4'),
-  jsonKeys?: map[string]IndexJsonKey(name='jsonKeys', description='The JSON subfields. This parameter takes effect only when type is set to json.'),
-  type?: string(name='type', description='The type.', example='text'),
+  chn?: boolean(name='chn', description='Specifies whether the field contains Chinese characters. This parameter is required only when the **type** parameter is set to **text**. Valid values:
+- true: The field contains Chinese characters.
+- false: The field does not contain Chinese characters.', example='true'),
+  description?: string(name='description', description='The field description.', example='test'),
+  embedding?: string(name='embedding', description='The embedding type of the field.', example='agentloop-embedding-v4'),
+  jsonKeys?: map[string]IndexJsonKey(name='jsonKeys', description='The JSON subfields. This property takes effect only when the type is set to json.', example='{"content":{"type":"text","chn":true}}'),
+  type?: string(name='type', description='The field type.', example='text'),
 }
 
 model ModelParameters {
-  frequencyPenalty?: float(name='frequencyPenalty'),
-  maxTokens?: long(name='maxTokens'),
-  presencePenalty?: float(name='presencePenalty'),
-  stopSequences?: [ string ](name='stopSequences'),
-  temperature?: float(name='temperature'),
-  topK?: int32(name='topK'),
-  topP?: float(name='topP'),
+  frequencyPenalty?: float(name='frequencyPenalty', description='The frequency penalty. Positive values reduce repetition. Valid values: -2.0 to 2.0.', example='0.2'),
+  maxTokens?: long(name='maxTokens', description='The maximum number of output tokens.', example='1024'),
+  presencePenalty?: float(name='presencePenalty', description='The presence penalty. Positive values encourage new topics. Valid values: -2.0 to 2.0.', example='0.1'),
+  stopSequences?: [ string ](name='stopSequences', description='The stop sequences. Generation stops immediately when any of these sequences is encountered.', example='["END"]'),
+  temperature?: float(name='temperature', description='The temperature parameter that controls the randomness of the output. Valid values: 0 to 2.', example='0.7'),
+  topK?: int32(name='topK', description='The top-k sampling parameter. Valid values: 1 to 100.', example='50'),
+  topP?: float(name='topP', description='The top-p sampling parameter. Valid values: 0 to 1.', example='0.9'),
 }
 
 model OfflineExperimentConfig {
-  desc?: string(name='desc'),
-  label?: string(name='label'),
-  name?: string(name='name'),
+  desc?: string(name='desc', description='The experiment description.', example='Baseline experiment'),
+  label?: string(name='label', description='The experiment label.', example='A'),
+  name?: string(name='name', description='The experiment name.', example='baseline'),
 }
 
 model PromptTemplateItem {
-  content?: string(name='content'),
-  role?: string(name='role'),
+  content?: string(name='content', description='The content, which supports {{variable name}} placeholders.', example='Please answer: {{question}}'),
+  role?: string(name='role', description='The role: system/user/assistant.', example='user'),
 }
 
 model RunStrategies {
@@ -406,95 +420,97 @@ async function createAgentSpace(request: CreateAgentSpaceRequest): CreateAgentSp
 model CreateContextStoreRequest {
   config?: {
     audit?: {
-      droppedCandidates?: boolean(name='droppedCandidates', example='false'),
-      queryMode?: string(name='queryMode', example='raw'),
-      retentionDays?: int32(name='retentionDays', example='30'),
-    }(name='audit'),
+      droppedCandidates?: boolean(name='droppedCandidates', description='Specifies whether to write item events for dropped recall candidates. Default value: false.', example='false'),
+      queryMode?: string(name='queryMode', description='The recording mode for recall queries. Valid values: raw (plaintext) and hash (HMAC only). Default value: raw.', example='raw'),
+      retentionDays?: int32(name='retentionDays', description='The number of days to retain audit logs. Valid values: 1 to 180. Default value: 30.', example='30'),
+    }(name='audit', description='The audit configuration.'),
     extractionPolicy?: {
-      categories?: [ string ](name='categories', example='["preference","profile"]'),
-      customInstructions?: string(name='customInstructions', example='只抽取用户的产品偏好'),
-      excludeRules?: [ string ](name='excludeRules', example='["密码","证件号"]'),
+      categories?: [ string ](name='categories', description='The list of memory categories.', example='["preference","profile"]'),
+      customInstructions?: string(name='customInstructions', description='The custom extraction instructions. This parameter is required when preset is set to custom. Length: 1 to 8000 characters.', example='Extract only user product preferences'),
+      excludeRules?: [ string ](name='excludeRules', description='The list of exclusion rules. Content that matches these rules is not extracted.', example='["Password", "ID number"]'),
       model?: {
-        name?: string(name='name', example='qwen3.8-flash'),
-      }(name='model'),
-      preset?: string(name='preset', example='fact'),
-    }(name='extractionPolicy'),
-    metadataField?: map[string]string(name='metadataField', description='The metadata field mapping. The key is the business field and the value is the storage field.', example='{"userId":"user_id","sessionId":"session_id"}'),
-    miningInterval?: string(name='miningInterval', description='The experience mining interval, which specifies how often experience mining is performed. Valid values: 1h, 6h, 12h, and 1d. Default value: 1d. This value cannot be changed after creation.', example='1d'),
+        name?: string(name='name', description='The name of the extraction model. Currently, only qwen3.8-flash is supported, and internal platform credentials are used.', example='qwen3.8-flash'),
+      }(name='model', description='The configuration of the extraction model.'),
+      preset?: string(name='preset', description='The preset policy. Valid values: fact, toc-profile, tob-digital-twin, and custom. Default value: fact.', example='fact'),
+    }(name='extractionPolicy', description='The extraction policy for the memory type.'),
+    metadataField?: map[string]string(name='metadataField', description='The metadata field mapping. The key is the business field, and the value is the storage field.', example='{"userId":"user_id","sessionId":"session_id"}'),
+    miningInterval?: string(name='miningInterval', description='The interval for experience mining, which controls how often experience mining is executed. Valid values: 1h, 6h, 12h, and 1d. Default value: 1d. This parameter cannot be modified after creation.', example='1d'),
     scopePolicy?: {
-      requiredAnyOf?: [ string ](name='requiredAnyOf', example='["userId"]'),
-    }(name='scopePolicy'),
-    serviceNames?: [ string ](name='serviceNames', description='The list of service names. This parameter is required and cannot be empty. It works with source.agentSpace to locate the trace data source. The trajectory extraction service uses the AgentSpace to look up the bound CMS workspace and project/logstore, and then filters by service name. This value cannot be changed after creation. No modification entry is available in the current version.', example='["order-service","payment-service"]'),
+      requiredAnyOf?: [ string ](name='requiredAnyOf', description='At least one of the specified scope fields must be non-empty. Valid values for elements: userId, agentId, appId, and runId.', example='["userId"]'),
+    }(name='scopePolicy', description='The scope constraint policy.'),
+    serviceNames?: [ string ](name='serviceNames', description='The list of service names. This parameter is required and cannot be empty. It works with source.agentSpace to locate the trace data source. The trajectory extraction service uses the agentSpace to query the bound CMS workspace and project/Logstore, and then filters the results by serviceName. You cannot modify this parameter after creation because no modification entry is available in the current release.', example='["order-service","payment-service"]'),
     source?: {
-      agentSpace?: string(name='agentSpace', description='The AgentSpace where the trace data source resides. If not specified, the AgentSpace in the current path is used by default. Cross-AgentSpace access is not supported in the current version. If specified, the value must match the AgentSpace in the path. Otherwise, a 400 parameter error is returned. This value cannot be changed after creation.', example='my-agent-space'),
+      agentSpace?: string(name='agentSpace', description='The AgentSpace where the trace data source is located. If not specified, the default value is the AgentSpace in the current path. Cross-AgentSpace is not supported in the current phase. If specified, it must be equal to the path AgentSpace; otherwise, a 400 parameter error is returned. This parameter cannot be modified after creation.', example='my-agent-space'),
       dataset?: {
         customFields?: [ 
           {
-            description?: string(name='description', example='客户等级'),
-            sensitive?: boolean(name='sensitive', example='false'),
-            sourceField?: string(name='sourceField', example='customerTier'),
-            target?: string(name='target', example='metadata.customerTier'),
-            usage?: string(name='usage', example='extraction-input'),
+            description?: string(name='description', description='The description of the field. This parameter is required when usage is set to extraction-input, and is appended to the extraction prompt.', example='Customer tier'),
+            sensitive?: boolean(name='sensitive', description='Specifies whether the field is a sensitive field.', example='false'),
+            sourceField?: string(name='sourceField', description='The name of the source field.', example='customerTier'),
+            target?: string(name='target', description='The target write path, such as metadata.customerTier.', example='metadata.customerTier'),
+            usage?: string(name='usage', description='The usage of the field. Valid values: extraction-input (participates in extraction) and ignore (ignored).', example='extraction-input'),
           }
-        ](name='customFields'),
-        datasetName?: string(name='datasetName', example='trajectory-with-crm-profile'),
+        ](name='customFields', description='The list of custom field declarations.'),
+        datasetName?: string(name='datasetName', description='The name of the Dataset in the same AgentSpace. This parameter cannot be modified after creation.', example='trajectory-with-crm-profile'),
         filter?: {
-          where?: string(name='where', example='appId = \\\\"crm-service\\\\"'),
-        }(name='filter'),
-        pollIntervalSeconds?: int32(name='pollIntervalSeconds', example='300'),
-        schemaContract?: string(name='schemaContract', example='MemorySourceV1'),
+          where?: string(name='where', description='The subset of the Pipeline where clause, which is pushed down to SQL.', example='appId = \\\\"crm-service\\\\"'),
+        }(name='filter', description='The row filter conditions.'),
+        pollIntervalSeconds?: int32(name='pollIntervalSeconds', description='The polling interval in seconds. Valid values: 60 to 3600. Default value: 300.', example='300'),
+        schemaContract?: string(name='schemaContract', description='The row schema contract for the Dataset. In the current phase, this is fixed to MemorySourceV1.', example='MemorySourceV1'),
         versionPolicy?: {
-          mode?: string(name='mode', example='follow'),
-          startSeq?: long(name='startSeq', example='0'),
-          version?: string(name='version', example='v3'),
-        }(name='versionPolicy'),
-      }(name='dataset'),
-      startTime?: string(name='startTime', description='The start time for data backfill, in ISO 8601 UTC format. If not specified, the current time is used.
+          mode?: string(name='mode', description='The version consumption mode. Valid values: follow (incremental consumption based on __dataset_seq) and fixed (full consumption of the specified ACTIVE version once).', example='follow'),
+          startSeq?: long(name='startSeq', description='The start sequence for the follow mode.', example='0'),
+          version?: string(name='version', description='The dataset version specified for the fixed mode.', example='v3'),
+        }(name='versionPolicy', description='The version consumption policy for the Dataset.'),
+      }(name='dataset', description='The Dataset datasource config. This parameter is required when source.type is set to dataset.'),
+      startTime?: string(name='startTime', description='The start time for data backfill in ISO 8601 UTC format. If not specified, the current time is used.
 
 Use the UTC time format: yyyy-MM-ddTHH:mm:ssZ', example='2026-01-01T00:00:00Z'),
       trajectory?: {
         filter?: {
-          agentNames?: [ string ](name='agentNames', example='["sales-copilot"]'),
-          excludeDegraded?: boolean(name='excludeDegraded', example='false'),
-          minStepCount?: int32(name='minStepCount', example='2'),
-          query?: string(name='query', example='tool_names:"search_order"'),
-          serviceNames?: [ string ](name='serviceNames', example='["crm-service","app-*"]'),
-        }(name='filter'),
-        logstore?: string(name='logstore', example='agent-trajectory'),
-        pollIntervalSeconds?: int32(name='pollIntervalSeconds', example='300'),
+          agentNames?: [ string ](name='agentNames', description='The list of agent names. An explicitly empty list returns a 400 error.', example='["sales-copilot"]'),
+          excludeDegraded?: boolean(name='excludeDegraded', description='Specifies whether to exclude degraded trajectories. Default value: false (includes degraded trajectories).', example='false'),
+          minStepCount?: int32(name='minStepCount', description='The minimum step count, which must be greater than or equal to 0.', example='2'),
+          query?: string(name='query', description='The native Simple Log Service (SLS) query statement. This statement is combined with the preceding conditions using AND.', example='tool_names:"search_order"'),
+          serviceNames?: [ string ](name='serviceNames', description='The list of service names. A single trailing asterisk (*) is supported. An explicitly empty list returns a 400 error.', example='["crm-service","app-*"]'),
+        }(name='filter', description='The trajectory filter conditions. Conditions are combined with AND, and items within a list are combined with OR.'),
+        logstore?: string(name='logstore', description='The name of the trajectory Logstore. Default value: agent-trajectory. This parameter cannot be modified after creation.', example='agent-trajectory'),
+        pollIntervalSeconds?: int32(name='pollIntervalSeconds', description='The polling interval in seconds. Valid values: 60 to 3600. Default value: 300.', example='300'),
         scopeMapping?: {
-          agentId?: string(name='agentId', example='$.agent_name'),
-          appId?: string(name='appId', example='$.service_names[0]'),
-          runId?: string(name='runId', example='$.trajectory_id'),
-          userId?: string(name='userId', example='$.trajectory_extensions.user_id'),
-        }(name='scopeMapping'),
-        startTime?: string(name='startTime', description='Use the UTC time format: yyyy-MM-ddTHH:mm:ssZ', example='2026-10-01T00:00:00Z'),
-      }(name='trajectory'),
-      type?: string(name='type', example='trajectory'),
-    }(name='source', description='The datasource config, which serves only as the root identifier for the data source. This is an optional block.'),
+          agentId?: string(name='agentId', description='The JSONPath expression for agentId. Default value: $.agent_name.', example='$.agent_name'),
+          appId?: string(name='appId', description='The JSONPath expression for appId. Default value: $.service_names[0].', example='$.service_names[0]'),
+          runId?: string(name='runId', description='The JSONPath expression for runId. Default value: $.trajectory_id.', example='$.trajectory_id'),
+          userId?: string(name='userId', description='The JSONPath expression for userId. By default, this field is not mapped.', example='$.trajectory_extensions.user_id'),
+        }(name='scopeMapping', description='The scope field mapping. The value is a JSONPath expression. Only the $.a.b and $.a[0] formats are supported.'),
+        startTime?: string(name='startTime', description='The start time for trajectory consumption in ISO 8601 UTC format. If not specified, the creation time is used by default.
+
+Use the UTC time format: yyyy-MM-ddTHH:mm:ssZ', example='2026-10-01T00:00:00Z'),
+      }(name='trajectory', description='The trajectory datasource config. This parameter is required when source.type is set to trajectory.'),
+      type?: string(name='type', description='The data source type for the memory type. Valid values: trajectory and dataset. If not specified, the value is manual, which means data is written only through AddContexts. This parameter cannot be modified after creation.', example='trajectory'),
+    }(name='source', description='The datasource config, which serves only as the root identity for the data source. This block is optional.'),
     storagePolicy?: {
-      allowedActions?: [ string ](name='allowedActions', example='["ADD","UPDATE","MERGE","DELETE"]'),
-      dedupe?: boolean(name='dedupe', example='true'),
-      humanEditProtection?: boolean(name='humanEditProtection', example='true'),
-      mergeKey?: string(name='mergeKey', example='semantic'),
-      mode?: string(name='mode', example='upsert'),
-      similarityThreshold?: double(name='similarityThreshold', example='0.4'),
-      ttlDays?: int32(name='ttlDays', example='0'),
-    }(name='storagePolicy'),
-  }(name='config', description='The context store configuration, including the datasource config and metadata field mapping.'),
-  contextStoreName?: string(name='contextStoreName', description='The context store name, which must be globally unique within the AgentSpace. The name must be 2 to 64 characters in length.
+      allowedActions?: [ string ](name='allowedActions', description='The allowed storage actions. Default value: all actions (ADD, UPDATE, MERGE, and DELETE).', example='["ADD","UPDATE","MERGE","DELETE"]'),
+      dedupe?: boolean(name='dedupe', description='Specifies whether to enable deduplication in event mode. Default value: true.', example='true'),
+      humanEditProtection?: boolean(name='humanEditProtection', description='Specifies whether to enable human edit protection. Default value: true. When enabled, automatic extraction does not overwrite manually modified memories.', example='true'),
+      mergeKey?: string(name='mergeKey', description='The merge key for upsert operations. Valid values: factKey, semantic, and both. Default value: semantic.', example='semantic'),
+      mode?: string(name='mode', description='The storage mode. Valid values: event (event append) and upsert (merge update). Default value: upsert.', example='upsert'),
+      similarityThreshold?: double(name='similarityThreshold', description='The similarity threshold for semantic merging. Valid values: 0 to 1. Default value: 0.4.', example='0.4'),
+      ttlDays?: int32(name='ttlDays', description='The number of days before memories expire. A value of 0 indicates that memories do not expire.', example='0'),
+    }(name='storagePolicy', description='The storage policy for the memory type.'),
+  }(name='config', description='The context library configuration, including data sources and metadata field mappings.'),
+  contextStoreName?: string(name='contextStoreName', description='The name of the context store. It must be globally unique within AgentSpace and 2 to 64 characters in length.
 
 This parameter is required.', example='my-context-store'),
-  contextType?: string(name='contextType', description='The context store type. Valid values: experience and memory.
+  contextType?: string(name='contextType', description='The type of the context store. Valid values include experience (experience store) and memory (memory store).
 
 This parameter is required.', example='experience'),
-  description?: string(name='description', description='The description of the context store, which helps users understand its purpose.', example='我的上下文库'),
-  clientToken?: string(name='clientToken', description='The idempotency token, which is a unique string generated by the client to ensure the idempotence of the create operation.', example='a1b2c3d4-1234-5678-90ab-cdef12345678'),
+  description?: string(name='description', description='The description of the context store, which helps business users understand its purpose.', example='My context store'),
+  clientToken?: string(name='clientToken', description='The idempotency token, which is a unique string generated by the client to ensure the idempotency of the create operation.', example='a1b2c3d4-1234-5678-90ab-cdef12345678'),
 }
 
 model CreateContextStoreResponseBody = {
-  requestId?: string(name='requestId', description='The request ID, which is used to locate and troubleshoot issues.', example='9ACFB10A-1B2C-3D4E-5F6G-7H8I9J0K1L2M'),
-  strategyVersion?: int32(name='strategyVersion', example='1'),
+  requestId?: string(name='requestId', description='The request ID, which is used to locate the request when troubleshooting issues.', example='9ACFB10A-1B2C-3D4E-5F6G-7H8I9J0K1L2M'),
+  strategyVersion?: int32(name='strategyVersion', description='The currently effective strategy version number for the memory type.', example='1'),
 }
 
 model CreateContextStoreResponse = {
@@ -504,7 +520,7 @@ model CreateContextStoreResponse = {
 }
 
 /**
- * @summary Creates a context store.
+ * @summary Creates a context library.
  *
  * @param request CreateContextStoreRequest
  * @param headers map
@@ -552,7 +568,7 @@ async function createContextStoreWithOptions(agentSpace: string, request: Create
 }
 
 /**
- * @summary Creates a context store.
+ * @summary Creates a context library.
  *
  * @param request CreateContextStoreRequest
  * @return CreateContextStoreResponse
@@ -1260,6 +1276,159 @@ async function createExperimentRun(agentSpace: string, request: CreateExperiment
   var runtime = new Util.RuntimeOptions{};
   var headers : map[string]string = {};
   return createExperimentRunWithOptions(agentSpace, request, headers, runtime);
+}
+
+model CreateOptimizeRunRequest {
+  input?: any(name='input', description='The JSON input defined by the task type, preserving the original object or array structure. ExperienceMining accepts a start/end/processTimeMaxNS object. SkillOptimize accepts an inline input array, a skills/window object for SLS, or a skills/records object for ATIF or xTrace. The server validates the input based on the task type and configuration. Memory extraction continues to use the original ContextStore API.
+
+This parameter is required.', example='{"start":1727136000,"end":1727139600,"processTimeMaxNS":1727139600000000000}'),
+  preview?: boolean(name='preview', description='Specifies whether to execute an independent pre-run of the complete algorithm. The pre-run generates candidate results and evidence without publishing them to the target dataset or advancing the formal run history. A formal run executes the algorithm independently.', example='false'),
+  clientToken?: string(name='clientToken', description='The idempotency token. Use the same value when you retry the same creation request.', example='a1b2c3d4-1234-5678-90ab-cdef12345678'),
+}
+
+model CreateOptimizeRunResponseBody = {
+  optimizeRun?: map[string]any(name='optimizeRun', description='The details of the created run. You can call the GetOptimizeRun operation to query the subsequent status.', example='{"optimizeRunId":"opr-20261014","status":"Pending"}'),
+  optimizeRunId?: string(name='optimizeRunId', description='The run ID.', example='opr-20261014'),
+  requestId?: string(name='requestId', description='The request ID.', example='9ACFB10A-1B2C-3D4E-5F6G-7H8I9J0K1L2M'),
+}
+
+model CreateOptimizeRunResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: CreateOptimizeRunResponseBody(name='body'),
+}
+
+/**
+ * @summary Creates a run for the specified optimization task and returns the run ID. When preview is set to true, an independent pre-run is executed to generate candidate results and evidence. The pre-run does not publish candidate artifacts or advance the formal run history.
+ *
+ * @param request CreateOptimizeRunRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return CreateOptimizeRunResponse
+ */
+async function createOptimizeRunWithOptions(agentSpace: string, optimizeTaskName: string, request: CreateOptimizeRunRequest, headers: map[string]string, runtime: Util.RuntimeOptions): CreateOptimizeRunResponse {
+  Util.validateModel(request);
+  var query : map[string]any = {};
+  if (!Util.isUnset(request.clientToken)) {
+    query['clientToken'] = request.clientToken;
+  }
+
+  var body : map[string]any = {};
+  if (!Util.isUnset(request.input)) {
+    body['input'] = request.input;
+  }
+  if (!Util.isUnset(request.preview)) {
+    body['preview'] = request.preview;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApi.Params{
+    action = 'CreateOptimizeRun',
+    version = '2026-05-20',
+    protocol = 'HTTPS',
+    pathname = `/agentspace/${OpenApiUtil.getEncodeParam(agentSpace)}/optimizetasks/${OpenApiUtil.getEncodeParam(optimizeTaskName)}/runs`,
+    method = 'POST',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Creates a run for the specified optimization task and returns the run ID. When preview is set to true, an independent pre-run is executed to generate candidate results and evidence. The pre-run does not publish candidate artifacts or advance the formal run history.
+ *
+ * @param request CreateOptimizeRunRequest
+ * @return CreateOptimizeRunResponse
+ */
+async function createOptimizeRun(agentSpace: string, optimizeTaskName: string, request: CreateOptimizeRunRequest): CreateOptimizeRunResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return createOptimizeRunWithOptions(agentSpace, optimizeTaskName, request, headers, runtime);
+}
+
+model CreateOptimizeTaskRequest {
+  config?: map[string]any(name='config', description='The type-specific configurations. Optional prompts for ExperienceMining and SkillOptimize only support inline Markdown. The main text is saved to inputs.prompt.content (non-empty UTF-8, up to 16 KiB).', example='{"ioVersion":2,"inputs":{"experienceLibrary":{"type":"dataset","dataset":"experiences"},"trajectory":{"type":"sls","project":"my-project","logstore":"agent-trajectory","format":"atif"},"prompt":{"type":"inline","format":"markdown","content":"# Guidance\\\\\\\\nExtract evidence-backed tool contracts."}},"outputs":{"changePlan":{"type":"dataset","dataset":"experience-plans"}},"operators":["tool_contract"],"application":{"mode":"manual"}}'),
+  optimizeTaskName?: string(name='optimizeTaskName', description='The name of the optimization task. The name of a new service task is specified by the caller and must be unique within the same AgentSpace.', example='efficiency-analysis'),
+  status?: string(name='status', description='The status of the task. Valid values: Enabled, Disabled.', example='Enabled'),
+  type?: string(name='type', description='The type of the optimization task. Valid values: ExperienceMining, SkillOptimize, EfficiencyAnalysis, SOPGeneration, EvalMining, PolicyMining, and AssetMining. The memory base uses the current ContextStore and the original Worker, and is not integrated with Mining.', example='EfficiencyAnalysis'),
+  clientToken?: string(name='clientToken', description='The idempotency token.', example='a1b2c3d4-1234-5678-90ab-cdef12345678'),
+}
+
+model CreateOptimizeTaskResponseBody = {
+  optimizeTaskName?: string(name='optimizeTaskName', description='The name of the optimization task.', example='efficiency-analysis'),
+  requestId?: string(name='requestId', description='The request ID.', example='9ACFB10A-1B2C-3D4E-5F6G-7H8I9J0K1L2M'),
+}
+
+model CreateOptimizeTaskResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: CreateOptimizeTaskResponseBody(name='body'),
+}
+
+/**
+ * @summary Creates an optimization task in a specified AgentSpace, and configures the task type, status, and type-specific parameters. Optional prompts only support inline Markdown.
+ *
+ * @param request CreateOptimizeTaskRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return CreateOptimizeTaskResponse
+ */
+async function createOptimizeTaskWithOptions(agentSpace: string, request: CreateOptimizeTaskRequest, headers: map[string]string, runtime: Util.RuntimeOptions): CreateOptimizeTaskResponse {
+  Util.validateModel(request);
+  var query : map[string]any = {};
+  if (!Util.isUnset(request.clientToken)) {
+    query['clientToken'] = request.clientToken;
+  }
+
+  var body : map[string]any = {};
+  if (!Util.isUnset(request.config)) {
+    body['config'] = request.config;
+  }
+  if (!Util.isUnset(request.optimizeTaskName)) {
+    body['optimizeTaskName'] = request.optimizeTaskName;
+  }
+  if (!Util.isUnset(request.status)) {
+    body['status'] = request.status;
+  }
+  if (!Util.isUnset(request.type)) {
+    body['type'] = request.type;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApi.Params{
+    action = 'CreateOptimizeTask',
+    version = '2026-05-20',
+    protocol = 'HTTPS',
+    pathname = `/agentspace/${OpenApiUtil.getEncodeParam(agentSpace)}/optimizetasks`,
+    method = 'POST',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Creates an optimization task in a specified AgentSpace, and configures the task type, status, and type-specific parameters. Optional prompts only support inline Markdown.
+ *
+ * @param request CreateOptimizeTaskRequest
+ * @return CreateOptimizeTaskResponse
+ */
+async function createOptimizeTask(agentSpace: string, request: CreateOptimizeTaskRequest): CreateOptimizeTaskResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return createOptimizeTaskWithOptions(agentSpace, request, headers, runtime);
 }
 
 model CreatePipelineRequest {
@@ -1989,6 +2158,65 @@ async function deleteExperimentRun(agentSpace: string, recordId: string, request
   return deleteExperimentRunWithOptions(agentSpace, recordId, request, headers, runtime);
 }
 
+model DeleteOptimizeTaskRequest {
+  clientToken?: string(name='clientToken', description='The idempotency token.', example='a1b2c3d4-1234-5678-90ab-cdef12345678'),
+}
+
+model DeleteOptimizeTaskResponseBody = {
+  requestId?: string(name='requestId', description='The request ID.', example='9ACFB10A-1B2C-3D4E-5F6G-7H8I9J0K1L2M'),
+}
+
+model DeleteOptimizeTaskResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: DeleteOptimizeTaskResponseBody(name='body'),
+}
+
+/**
+ * @summary Deletes an optimization task in a specified AgentSpace.
+ *
+ * @param request DeleteOptimizeTaskRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return DeleteOptimizeTaskResponse
+ */
+async function deleteOptimizeTaskWithOptions(agentSpace: string, optimizeTaskName: string, request: DeleteOptimizeTaskRequest, headers: map[string]string, runtime: Util.RuntimeOptions): DeleteOptimizeTaskResponse {
+  Util.validateModel(request);
+  var query : map[string]any = {};
+  if (!Util.isUnset(request.clientToken)) {
+    query['clientToken'] = request.clientToken;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'DeleteOptimizeTask',
+    version = '2026-05-20',
+    protocol = 'HTTPS',
+    pathname = `/agentspace/${OpenApiUtil.getEncodeParam(agentSpace)}/optimizetasks/${OpenApiUtil.getEncodeParam(optimizeTaskName)}`,
+    method = 'DELETE',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Deletes an optimization task in a specified AgentSpace.
+ *
+ * @param request DeleteOptimizeTaskRequest
+ * @return DeleteOptimizeTaskResponse
+ */
+async function deleteOptimizeTask(agentSpace: string, optimizeTaskName: string, request: DeleteOptimizeTaskRequest): DeleteOptimizeTaskResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return deleteOptimizeTaskWithOptions(agentSpace, optimizeTaskName, request, headers, runtime);
+}
+
 model DeletePipelineRequest {
 }
 
@@ -2317,120 +2545,119 @@ model GetContextStoreRequest {
 }
 
 model GetContextStoreResponseBody = {
-  agentSpace?: string(name='agentSpace', description='The name of the AgentSpace to which the context store belongs.', example='my-agent-space'),
+  agentSpace?: string(name='agentSpace', description='The name of the associated AgentSpace.', example='my-agent-space'),
   config?: {
     audit?: {
-      droppedCandidates?: boolean(name='droppedCandidates', example='false'),
-      queryMode?: string(name='queryMode', example='raw'),
-      retentionDays?: int32(name='retentionDays', example='30'),
-    }(name='audit'),
+      droppedCandidates?: boolean(name='droppedCandidates', description='Specifies whether to write item events for dropped candidates during recall. Default value: false.', example='false'),
+      queryMode?: string(name='queryMode', description='The recording mode for recall queries. Valid values: raw (plaintext) and hash (HMAC only). Default value: raw.', example='raw'),
+      retentionDays?: int32(name='retentionDays', description='The number of days to retain audit logs. Valid values: 1 to 180. Default value: 30.', example='30'),
+    }(name='audit', description='The audit configuration.'),
     extractionPolicy?: {
-      categories?: [ string ](name='categories', example='["preference","profile"]'),
-      customInstructions?: string(name='customInstructions', example='只抽取用户的产品偏好'),
-      excludeRules?: [ string ](name='excludeRules', example='["密码","证件号"]'),
+      categories?: [ string ](name='categories', description='The list of memory categories.', example='["preference","profile"]'),
+      customInstructions?: string(name='customInstructions', description='The custom extraction instructions. This parameter is required when preset is set to custom. Length: 1 to 8000 characters.', example='Extract only user product preferences'),
+      excludeRules?: [ string ](name='excludeRules', description='The list of exclusion rules. Content that matches these rules is not extracted.', example='["Password", "ID number"]'),
       model?: {
-        name?: string(name='name', example='qwen3.8-flash'),
-      }(name='model'),
-      preset?: string(name='preset', example='fact'),
-    }(name='extractionPolicy'),
+        name?: string(name='name', description='The name of the extraction model. Currently, only qwen3.8-flash is supported, which uses internal platform credentials.', example='qwen3.8-flash'),
+      }(name='model', description='The extraction model configuration.'),
+      preset?: string(name='preset', description='The preset policy. Valid values: fact, toc-profile, tob-digital-twin, and custom. Default value: fact.', example='fact'),
+    }(name='extractionPolicy', description='The extraction policy for the memory type.'),
     innerSource?: {
-      logstore?: string(name='logstore', example='memory_events_0a1b2c3d'),
-      project?: string(name='project', example='agentloop-xxx'),
-    }(name='innerSource'),
+      logstore?: string(name='logstore', description='The name of the event Logstore.', example='memory_events_0a1b2c3d'),
+      project?: string(name='project', description='The name of the SLS project.', example='agentloop-xxx'),
+    }(name='innerSource', description='The system-assigned coordinates of the event Logstore for the memory type, located in the Simple Log Service (SLS) project bound to the AgentSpace.'),
     metadataField?: map[string]string(name='metadataField', description='The metadata field mapping. The key is the business field and the value is the storage field.', example='{"userId":"user_id","sessionId":"session_id"}'),
-    miningInterval?: string(name='miningInterval', description='The experience mining interval. Valid values: 1h, 6h, 12h, and 1d. Default value: 1d.', example='1d'),
+    miningInterval?: string(name='miningInterval', description='The interval for experience mining. Valid values: 1h, 6h, 12h, and 1d. Default value: 1d.', example='1d'),
     observability?: {
-      auditLogstore?: string(name='auditLogstore', example='memory-audit'),
-      eventsLogstore?: string(name='eventsLogstore', example='memory_events_0a1b2c3d'),
-      project?: string(name='project', example='agentloop-xxx'),
-    }(name='observability'),
+      auditLogstore?: string(name='auditLogstore', description='The name of the audit Logstore.', example='memory-audit'),
+      eventsLogstore?: string(name='eventsLogstore', description='The name of the event Logstore.', example='memory_events_0a1b2c3d'),
+      project?: string(name='project', description='The SLS project where both resources are located, which is the project bound to the AgentSpace.', example='agentloop-xxx'),
+    }(name='observability', description='The coordinates of observability resources for the memory type.'),
     outputDataset?: {
-      agentSpace?: string(name='agentSpace', example='my-agent-space'),
-      datasetName?: string(name='datasetName', example='memory-my-context-store'),
-      schemaContract?: string(name='schemaContract', example='MemoryRecordV1'),
-      schemaVersion?: int32(name='schemaVersion', example='1'),
-    }(name='outputDataset'),
+      agentSpace?: string(name='agentSpace', description='The AgentSpace where the dataset is located.', example='my-agent-space'),
+      datasetName?: string(name='datasetName', description='The name of the dataset.', example='memory-my-context-store'),
+      schemaContract?: string(name='schemaContract', description='The row schema contract of the dataset.', example='MemoryRecordV1'),
+      schemaVersion?: int32(name='schemaVersion', description='The schema version.', example='1'),
+    }(name='outputDataset', description='The location of the memory output dataset for the memory type.'),
     scopePolicy?: {
-      requiredAnyOf?: [ string ](name='requiredAnyOf', example='["userId"]'),
-    }(name='scopePolicy'),
-    serviceNames?: [ string ](name='serviceNames', description='The list of service names. This works together with source.agentSpace to locate the trace data source. This value cannot be changed in the current version.', example='["order-service","payment-service"]'),
+      requiredAnyOf?: [ string ](name='requiredAnyOf', description='At least one of the specified scope fields must be non-empty. Valid values for elements: userId, agentId, appId, and runId.', example='["userId"]'),
+    }(name='scopePolicy', description='The scope constraint policy.'),
+    serviceNames?: [ string ](name='serviceNames', description='The list of service names, used in conjunction with source.agentSpace to locate the trace data source. This parameter cannot be modified in the current phase.', example='["order-service","payment-service"]'),
     source?: {
-      agentSpace?: string(name='agentSpace', description='The AgentSpace where the trace data source resides. This is the same as the AgentSpace specified during creation.', example='my-agent-space'),
+      agentSpace?: string(name='agentSpace', description='The AgentSpace where the trace data source is located. This must be consistent with the associated AgentSpace at the time of creation.', example='my-agent-space'),
       dataset?: {
         customFields?: [ 
           {
-            description?: string(name='description', example='客户等级'),
-            sensitive?: boolean(name='sensitive', example='false'),
-            sourceField?: string(name='sourceField', example='customerTier'),
-            target?: string(name='target', example='metadata.customerTier'),
-            usage?: string(name='usage', example='extraction-input'),
+            description?: string(name='description', description='The description of the field. This parameter is required when usage is set to extraction-input and is appended to the extraction prompt.', example='Customer tier'),
+            sensitive?: boolean(name='sensitive', description='Specifies whether the field is sensitive.', example='false'),
+            sourceField?: string(name='sourceField', description='The name of the source field.', example='customerTier'),
+            target?: string(name='target', description='The target write path, such as metadata.customerTier.', example='metadata.customerTier'),
+            usage?: string(name='usage', description='The usage of the field. Valid values: extraction-input (participates in extraction) and ignore (ignored).', example='extraction-input'),
           }
-        ](name='customFields'),
-        datasetName?: string(name='datasetName', example='trajectory-with-crm-profile'),
+        ](name='customFields', description='The list of custom field declarations.'),
+        datasetName?: string(name='datasetName', description='The name of the dataset in the same AgentSpace. This parameter cannot be modified after creation.', example='trajectory-with-crm-profile'),
         filter?: {
-          where?: string(name='where', example='appId = \\\\"crm-service\\\\"'),
-        }(name='filter'),
-        pollIntervalSeconds?: int32(name='pollIntervalSeconds', example='300'),
-        schemaContract?: string(name='schemaContract', example='MemorySourceV1'),
+          where?: string(name='where', description='The subset of the pipeline where clause, which is pushed down to SQL.', example='appId = \\\\"crm-service\\\\"'),
+        }(name='filter', description='The row filter condition.'),
+        pollIntervalSeconds?: int32(name='pollIntervalSeconds', description='The polling interval in seconds. Valid values: 60 to 3600. Default value: 300.', example='300'),
+        schemaContract?: string(name='schemaContract', description='The row schema contract of the dataset. The value is fixed to MemorySourceV1 in the current phase.', example='MemorySourceV1'),
         versionPolicy?: {
-          mode?: string(name='mode', example='follow'),
-          startSeq?: long(name='startSeq', example='0'),
-          version?: string(name='version', example='v3'),
-        }(name='versionPolicy'),
-      }(name='dataset'),
-      startTime?: string(name='startTime', description='The start time for data backfill, in ISO 8601 UTC format.
+          mode?: string(name='mode', description='The consumption mode. Valid values: follow (incremental consumption based on __dataset_seq) and fixed (full consumption of the specified ACTIVE version once).', example='follow'),
+          startSeq?: long(name='startSeq', description='The starting __dataset_seq in follow mode.', example='0'),
+          version?: string(name='version', description='The dataset version specified in fixed mode.', example='v3'),
+        }(name='versionPolicy', description='The version consumption policy of the dataset.'),
+      }(name='dataset', description='The dataset datasource config. This parameter is required when source.type is set to dataset.'),
+      startTime?: string(name='startTime', description='The start time for data backfill in ISO 8601 UTC format.
 
 Use the UTC time format: yyyy-MM-ddTHH:mm:ssZ', example='2026-01-01T00:00:00Z'),
       trajectory?: {
         filter?: {
-          agentNames?: [ string ](name='agentNames', example='["sales-copilot"]'),
-          excludeDegraded?: boolean(name='excludeDegraded', example='false'),
-          minStepCount?: int32(name='minStepCount', example='2'),
-          query?: string(name='query', example='tool_names:"search_order"'),
-          serviceNames?: [ string ](name='serviceNames', example='["crm-service","app-*"]'),
-        }(name='filter'),
-        logstore?: string(name='logstore', example='agent-trajectory'),
-        pollIntervalSeconds?: int32(name='pollIntervalSeconds', example='300'),
+          agentNames?: [ string ](name='agentNames', description='The list of agent names. An explicitly empty list returns a 400 error.', example='["sales-copilot"]'),
+          excludeDegraded?: boolean(name='excludeDegraded', description='Specifies whether to exclude degraded trajectories. Default value: false (includes degraded trajectories).', example='false'),
+          minStepCount?: int32(name='minStepCount', description='The minimum number of steps, which must be greater than or equal to 0.', example='2'),
+          query?: string(name='query', description='The native Simple Log Service (SLS) query statement, which is combined with the preceding conditions using AND.', example='tool_names:"search_order"'),
+          serviceNames?: [ string ](name='serviceNames', description='The list of service names. A single trailing asterisk (*) is supported. An explicitly empty list returns a 400 error.', example='["crm-service","app-*"]'),
+        }(name='filter', description='The trajectory filter conditions. Conditions are combined with AND, and items within a list are combined with OR.'),
+        logstore?: string(name='logstore', description='The name of the trajectory Logstore. Default value: agent-trajectory. This parameter cannot be modified after creation.', example='agent-trajectory'),
+        pollIntervalSeconds?: int32(name='pollIntervalSeconds', description='The polling interval in seconds. Valid values: 60 to 3600. Default value: 300.', example='300'),
         scopeMapping?: {
-          agentId?: string(name='agentId', example='$.agent_name'),
-          appId?: string(name='appId', example='$.service_names[0]'),
-          runId?: string(name='runId', example='$.trajectory_id'),
-          userId?: string(name='userId', example='$.trajectory_extensions.user_id'),
-        }(name='scopeMapping'),
-        startTime?: string(name='startTime', description='Use the UTC time format: yyyy-MM-ddTHH:mm:ssZ', example='2026-10-01T00:00:00Z'),
-      }(name='trajectory'),
-      type?: string(name='type', example='trajectory'),
-    }(name='source', description='The datasource config passed in by the user. This serves only as the root identifier of the data source.'),
+          agentId?: string(name='agentId', description='The JSONPath for agentId. Default value: $.agent_name.', example='$.agent_name'),
+          appId?: string(name='appId', description='The JSONPath for appId. Default value: $.service_names[0].', example='$.service_names[0]'),
+          runId?: string(name='runId', description='The JSONPath for runId. Default value: $.trajectory_id.', example='$.trajectory_id'),
+          userId?: string(name='userId', description='The JSONPath for userId. By default, this field is not mapped.', example='$.trajectory_extensions.user_id'),
+        }(name='scopeMapping', description='The scope field mapping. The value is a JSONPath expression, and only the $.a.b and $.a[0] formats are supported.'),
+        startTime?: string(name='startTime', description='The start time for trajectory consumption in ISO 8601 UTC format. If not specified, the default value is the creation time.
+
+Use the UTC time format: yyyy-MM-ddTHH:mm:ssZ', example='2026-10-01T00:00:00Z'),
+      }(name='trajectory', description='The trajectory datasource config. This parameter is required when source.type is set to trajectory.'),
+      type?: string(name='type', description='The type of the memory data source. Valid values: trajectory and dataset. If not specified, the value defaults to manual (written only by AddContexts). This parameter cannot be modified after creation.', example='trajectory'),
+    }(name='source', description='The datasource config provided by the user, which serves only as the root identity for the data source.'),
     sourceStatus?: {
-      checkpoint?: map[string]any(name='checkpoint'),
-      lastError?: string(name='lastError', example='读取数据源超时'),
-      lastWindowAt?: string(name='lastWindowAt', example='2026-10-01T08:00:00Z'),
-      retryCount?: int32(name='retryCount', example='0'),
-      state?: string(name='state', example='Running'),
-    }(name='sourceStatus'),
+      checkpoint?: map[string]any(name='checkpoint', description='The consumption progress. The format varies by type: trajectory uses {processTimeNs, watermarkMs}, dataset uses {seq}, and manual uses {}.'),
+      lastError?: string(name='lastError', description='The most recent error message. This field is empty when the status is normal.', example='Data source read timeout'),
+      lastWindowAt?: string(name='lastWindowAt', description='The time of the most recent window processing, in ISO 8601 UTC format.', example='2026-10-01T08:00:00Z'),
+      retryCount?: int32(name='retryCount', description='The number of consecutive retries.', example='0'),
+      state?: string(name='state', description='The status of the data source. Valid values: Validating, Ready, Running, Retrying, Paused, SourceSchemaChanged, and Failed.', example='Running'),
+    }(name='sourceStatus', description='The running status of the data source for the memory type.'),
     storagePolicy?: {
-      allowedActions?: [ string ](name='allowedActions', example='["ADD","UPDATE","MERGE","DELETE"]'),
-      dedupe?: boolean(name='dedupe', example='true'),
-      humanEditProtection?: boolean(name='humanEditProtection', example='true'),
-      mergeKey?: string(name='mergeKey', example='semantic'),
-      mode?: string(name='mode', example='upsert'),
-      similarityThreshold?: double(name='similarityThreshold', example='0.4'),
-      ttlDays?: int32(name='ttlDays', example='0'),
-    }(name='storagePolicy'),
-    strategyVersion?: int32(name='strategyVersion', example='1'),
-  }(name='config', description='The configuration of the context store.'),
-  contextStoreName?: string(name='contextStoreName', description='The context store name.', example='my-context-store'),
-  contextType?: string(name='contextType', description='The type of the context store, such as experience or memory.', example='experience'),
+      allowedActions?: [ string ](name='allowedActions', description='The allowed storage actions. By default, all actions are allowed. Valid values: ADD, UPDATE, MERGE, and DELETE.', example='["ADD","UPDATE","MERGE","DELETE"]'),
+      dedupe?: boolean(name='dedupe', description='Indicates whether deduplication is enabled in event mode. Default value: true.', example='true'),
+      humanEditProtection?: boolean(name='humanEditProtection', description='Indicates whether human edit protection is enabled. Default value: true. When enabled, automatic extraction does not overwrite manually modified memories.', example='true'),
+      mergeKey?: string(name='mergeKey', description='The merge key for upsert operations. Valid values: factKey, semantic, and both. Default value: semantic.', example='semantic'),
+      mode?: string(name='mode', description='The storage mode. Valid values: event (append events) and upsert (merge updates). Default value: upsert.', example='upsert'),
+      similarityThreshold?: double(name='similarityThreshold', description='The similarity threshold for semantic merging. Valid values: 0 to 1. Default value: 0.4.', example='0.4'),
+      ttlDays?: int32(name='ttlDays', description='The number of days after which memories expire. A value of 0 indicates that memories do not expire.', example='0'),
+    }(name='storagePolicy', description='The storage policy for the memory type.'),
+    strategyVersion?: int32(name='strategyVersion', description='The version number of the currently effective strategy for the memory type.', example='1'),
+  }(name='config', description='The context library configuration.'),
+  contextStoreName?: string(name='contextStoreName', description='The name of the context store.', example='my-context-store'),
+  contextType?: string(name='contextType', description='The type of the context store, such as experience (experience store) or memory (memory store).', example='experience'),
   createTime?: string(name='createTime', description='The time when the context store was created, in ISO 8601 UTC format.
 
 Use the UTC time format: yyyy-MM-ddTHH:mm:ssZ', example='2026-01-01T00:00:00Z'),
-  description?: string(name='description', description='The description of the context store.', example='我的上下文库'),
+  description?: string(name='description', description='The description of the context store.', example='My context store'),
   regionId?: string(name='regionId', description='The region ID of the context store.', example='cn-hangzhou'),
-  requestId?: string(name='requestId', description='The request ID, which is used to locate and troubleshoot issues.', example='9ACFB10A-1B2C-3D4E-5F6G-7H8I9J0K1L2M'),
-  status?: string(name='status', description='The status of the context store. Valid values:
-- ACTIVE
-- INITIALIZING
-- FAILED', example='ACTIVE'),
+  requestId?: string(name='requestId', description='The request ID, which is used to locate the request when troubleshooting.', example='9ACFB10A-1B2C-3D4E-5F6G-7H8I9J0K1L2M'),
+  status?: string(name='status', description='The status of the context store. Valid values: ACTIVE, INITIALIZING, and FAILED.', example='ACTIVE'),
   updateTime?: string(name='updateTime', description='The time when the context store was last updated, in ISO 8601 UTC format.
 
 Use the UTC time format: yyyy-MM-ddTHH:mm:ssZ', example='2026-01-02T00:00:00Z'),
@@ -2443,7 +2670,7 @@ model GetContextStoreResponse = {
 }
 
 /**
- * @summary Queries a context store.
+ * @summary Queries the context store.
  *
  * @param request GetContextStoreRequest
  * @param headers map
@@ -2470,7 +2697,7 @@ async function getContextStoreWithOptions(agentSpace: string, contextStoreName: 
 }
 
 /**
- * @summary Queries a context store.
+ * @summary Queries the context store.
  *
  * @param request GetContextStoreRequest
  * @return GetContextStoreResponse
@@ -3051,6 +3278,137 @@ async function getExperimentRun(agentSpace: string, recordId: string, request: G
   return getExperimentRunWithOptions(agentSpace, recordId, request, headers, runtime);
 }
 
+model GetOptimizeRunRequest {
+}
+
+model GetOptimizeRunResponseBody = {
+  attemptCount?: int32(name='attemptCount', example='1'),
+  createTime?: string(name='createTime', example='2026-08-12T10:00:00Z'),
+  currentStage?: string(name='currentStage', example='attribution'),
+  errorCode?: string(name='errorCode', example='InternalError'),
+  errorMessage?: string(name='errorMessage', example='The optimize run failed.'),
+  extra?: map[string]any(name='extra'),
+  finishTime?: string(name='finishTime', example='2026-08-12T10:01:00Z'),
+  maxAttempts?: int32(name='maxAttempts', example='3'),
+  optimizeRunId?: string(name='optimizeRunId', example='or-20260812-0001'),
+  optimizeTaskName?: string(name='optimizeTaskName', example='efficiency-analysis'),
+  progress?: map[string]any(name='progress'),
+  requestId?: string(name='requestId', example='9ACFB10A-1B2C-3D4E-5F6G-7H8I9J0K1L2M'),
+  startTime?: string(name='startTime', example='2026-08-12T10:00:01Z'),
+  status?: string(name='status', example='Succeeded'),
+  trajectoryCount?: long(name='trajectoryCount', example='100'),
+  triggerType?: string(name='triggerType', example='Scheduled'),
+  type?: string(name='type', example='EfficiencyAnalysis'),
+  windowEndTime?: long(name='windowEndTime', example='1786432690000'),
+  windowStartTime?: long(name='windowStartTime', example='1786432688000'),
+}
+
+model GetOptimizeRunResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: GetOptimizeRunResponseBody(name='body'),
+}
+
+/**
+ * @summary 查询优化任务执行详情
+ *
+ * @param request GetOptimizeRunRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return GetOptimizeRunResponse
+ */
+async function getOptimizeRunWithOptions(agentSpace: string, optimizeTaskName: string, optimizeRunId: string, request: GetOptimizeRunRequest, headers: map[string]string, runtime: Util.RuntimeOptions): GetOptimizeRunResponse {
+  Util.validateModel(request);
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+  };
+  var params = new OpenApi.Params{
+    action = 'GetOptimizeRun',
+    version = '2026-05-20',
+    protocol = 'HTTPS',
+    pathname = `/agentspace/${OpenApiUtil.getEncodeParam(agentSpace)}/optimizetasks/${OpenApiUtil.getEncodeParam(optimizeTaskName)}/runs/${OpenApiUtil.getEncodeParam(optimizeRunId)}`,
+    method = 'GET',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 查询优化任务执行详情
+ *
+ * @param request GetOptimizeRunRequest
+ * @return GetOptimizeRunResponse
+ */
+async function getOptimizeRun(agentSpace: string, optimizeTaskName: string, optimizeRunId: string, request: GetOptimizeRunRequest): GetOptimizeRunResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return getOptimizeRunWithOptions(agentSpace, optimizeTaskName, optimizeRunId, request, headers, runtime);
+}
+
+model GetOptimizeTaskRequest {
+}
+
+model GetOptimizeTaskResponseBody = {
+  checkpoint?: map[string]any(name='checkpoint'),
+  config?: map[string]any(name='config', example='{"ioVersion":2,"inputs":{"experienceLibrary":{"type":"dataset","dataset":"experiences"},"trajectory":{"type":"sls","project":"my-project","logstore":"agent-trajectory","format":"atif"},"prompt":{"type":"inline","format":"markdown","content":"# Guidance\\\\\\\\nExtract evidence-backed tool contracts."}},"outputs":{"changePlan":{"type":"dataset","dataset":"experience-plans"}},"operators":["tool_contract"],"application":{"mode":"manual"}}'),
+  createTime?: string(name='createTime', example='2026-08-12T10:00:00Z'),
+  nextTriggerTime?: string(name='nextTriggerTime', example='2026-08-13T16:00:00Z'),
+  optimizeTaskName?: string(name='optimizeTaskName', example='efficiency-analysis'),
+  regionId?: string(name='regionId', example='cn-hangzhou'),
+  requestId?: string(name='requestId', example='9ACFB10A-1B2C-3D4E-5F6G-7H8I9J0K1L2M'),
+  status?: string(name='status', example='Enabled'),
+  type?: string(name='type', example='EfficiencyAnalysis'),
+  updateTime?: string(name='updateTime', example='2026-08-12T10:00:00Z'),
+}
+
+model GetOptimizeTaskResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: GetOptimizeTaskResponseBody(name='body'),
+}
+
+/**
+ * @summary 查询优化任务
+ *
+ * @param request GetOptimizeTaskRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return GetOptimizeTaskResponse
+ */
+async function getOptimizeTaskWithOptions(agentSpace: string, optimizeTaskName: string, request: GetOptimizeTaskRequest, headers: map[string]string, runtime: Util.RuntimeOptions): GetOptimizeTaskResponse {
+  Util.validateModel(request);
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+  };
+  var params = new OpenApi.Params{
+    action = 'GetOptimizeTask',
+    version = '2026-05-20',
+    protocol = 'HTTPS',
+    pathname = `/agentspace/${OpenApiUtil.getEncodeParam(agentSpace)}/optimizetasks/${OpenApiUtil.getEncodeParam(optimizeTaskName)}`,
+    method = 'GET',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 查询优化任务
+ *
+ * @param request GetOptimizeTaskRequest
+ * @return GetOptimizeTaskResponse
+ */
+async function getOptimizeTask(agentSpace: string, optimizeTaskName: string, request: GetOptimizeTaskRequest): GetOptimizeTaskResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return getOptimizeTaskWithOptions(agentSpace, optimizeTaskName, request, headers, runtime);
+}
+
 model GetPipelineRequest {
 }
 
@@ -3552,17 +3910,17 @@ async function listContextStoreAPIKeys(agentSpace: string, contextStoreName: str
 }
 
 model ListContextStoresRequest {
-  contextStoreName?: string(name='contextStoreName', description='Filters context stores by name. Exact match is supported. If this parameter is not specified, no filtering is applied.', example='my-context-store'),
-  contextType?: string(name='contextType', description='Filters context stores by type, such as experience or memory. If this parameter is not specified, no filtering is applied.', example='experience'),
-  maxResults?: int32(name='maxResults', description='The maximum number of context stores to return. Default value: 20. Maximum value: 100.', example='20'),
-  nextToken?: string(name='nextToken', description='The pagination token. Set this parameter to the nextToken value returned in the previous response to retrieve the next page. Do not specify this parameter for the first request.', example='MTIzNDU2Nzg5MA=='),
-  sourceType?: string(name='sourceType', example='trajectory'),
+  contextStoreName?: string(name='contextStoreName', description='The name of the context store used for filtering. Exact match is supported. If this parameter is not specified, no filtering is performed.', example='my-context-store'),
+  contextType?: string(name='contextType', description='The type of the context store used for filtering, such as experience or memory. If this parameter is not specified, no filtering is performed.', example='experience'),
+  maxResults?: int32(name='maxResults', description='The maximum number of context stores to return in the current request. Default value: 20. Maximum value: 100.', example='20'),
+  nextToken?: string(name='nextToken', description='The pagination token. To retrieve the next page, pass the nextToken value from the previous response. Do not specify this parameter for the first request.', example='MTIzNDU2Nzg5MA=='),
+  sourceType?: string(name='sourceType', description='The memory data source type used for filtering, such as manual, trajectory, or dataset. If this parameter is not specified, no filtering is performed.', example='trajectory'),
 }
 
 model ListContextStoresResponseBody = {
-  maxResults?: int32(name='maxResults', description='The maximum number of entries per page that was specified in the request. This value is echoed back.', example='20'),
-  nextToken?: string(name='nextToken', description='The token for the next page. An empty string indicates that the current page is the last page.', example='MTIzNDU2Nzg5MA=='),
-  requestId?: string(name='requestId', description='The request ID. You can use this ID to locate and troubleshoot issues.', example='9ACFB10A-1B2C-3D4E-5F6G-7H8I9J0K1L2M'),
+  maxResults?: int32(name='maxResults', description='The maximum number of results per page specified in the request.', example='20'),
+  nextToken?: string(name='nextToken', description='The token for the next page. An empty string indicates that the last page is reached.', example='MTIzNDU2Nzg5MA=='),
+  requestId?: string(name='requestId', description='The request ID, which can be used to locate the request during troubleshooting.', example='9ACFB10A-1B2C-3D4E-5F6G-7H8I9J0K1L2M'),
   results?: [ 
     {
       agentSpace?: string(name='agentSpace', description='The name of the AgentSpace to which the context store belongs.', example='my-agent-space'),
@@ -3571,18 +3929,18 @@ model ListContextStoresResponseBody = {
       createTime?: string(name='createTime', description='The time when the context store was created, in ISO 8601 UTC format.
 
 Use the UTC time format: yyyy-MM-ddTHH:mm:ssZ', example='2026-01-01T00:00:00Z'),
-      description?: string(name='description', description='The description of the context store.', example='我的上下文库'),
-      regionId?: string(name='regionId', description='The region ID of the context store.', example='cn-hangzhou'),
-      serviceNames?: [ string ](name='serviceNames', description='The list of service names. This parameter has a value only for context stores of the experience type. The service names are used together with the data source AgentSpace to locate trace data sources.', example='["order-service","payment-service"]'),
-      sourceType?: string(name='sourceType', example='trajectory'),
-      status?: string(name='status', description='The status of the context store. Valid values: ACTIVE, INITIALIZING, and FAILED.', example='ACTIVE'),
-      storageMode?: string(name='storageMode', example='upsert'),
+      description?: string(name='description', description='The description of the context store.', example='My context store'),
+      regionId?: string(name='regionId', description='The ID of the region where the context store resides.', example='cn-hangzhou'),
+      serviceNames?: [ string ](name='serviceNames', description='The list of service names. This parameter has a value only for the experience type. It is used together with the data source AgentSpace to locate the trace data source.', example='["order-service","payment-service"]'),
+      sourceType?: string(name='sourceType', description='The memory data source type, such as manual, trajectory, or dataset. This parameter has a value only for the memory type.', example='trajectory'),
+      status?: string(name='status', description='The status of the context store. Valid values include ACTIVE, INITIALIZING, and FAILED.', example='ACTIVE'),
+      storageMode?: string(name='storageMode', description='The memory storage mode, such as event or upsert. This parameter has a value only for the memory type.', example='upsert'),
       updateTime?: string(name='updateTime', description='The time when the context store was last updated, in ISO 8601 UTC format.
 
 Use the UTC time format: yyyy-MM-ddTHH:mm:ssZ', example='2026-01-02T00:00:00Z'),
     }
   ](name='results', description='The list of context stores.'),
-  total?: int32(name='total', description='The total number of context stores that match the query conditions.', example='5'),
+  total?: int32(name='total', description='The total number of context stores that meet the query conditions.', example='5'),
 }
 
 model ListContextStoresResponse = {
@@ -3592,7 +3950,7 @@ model ListContextStoresResponse = {
 }
 
 /**
- * @summary Queries a list of context stores.
+ * @summary Queries the list of context stores.
  *
  * @param request ListContextStoresRequest
  * @param headers map
@@ -3637,7 +3995,7 @@ async function listContextStoresWithOptions(agentSpace: string, request: ListCon
 }
 
 /**
- * @summary Queries a list of context stores.
+ * @summary Queries the list of context stores.
  *
  * @param request ListContextStoresRequest
  * @return ListContextStoresResponse
@@ -4319,29 +4677,216 @@ async function listExperimentRuns(agentSpace: string, request: ListExperimentRun
   return listExperimentRunsWithOptions(agentSpace, request, headers, runtime);
 }
 
+model ListOptimizeRunsRequest {
+  maxResults?: int32(name='maxResults', description='The maximum number of entries to return. Default value: 20. Maximum value: 100.', example='20'),
+  nextToken?: string(name='nextToken', description='The pagination token.', example='MTIzNDU2Nzg5MA=='),
+  status?: string(name='status', description='The status used to filter results.', example='Succeeded'),
+  windowStartTimeBegin?: long(name='windowStartTimeBegin', description='The lower bound of the window start time in UNIX seconds.', example='1786432688000'),
+  windowStartTimeEnd?: long(name='windowStartTimeEnd', description='The upper bound of the window start time in UNIX seconds.', example='1786432690000'),
+}
+
+model ListOptimizeRunsResponseBody = {
+  maxResults?: int32(name='maxResults', description='The maximum number of entries per page.', example='20'),
+  nextToken?: string(name='nextToken', description='The token for the next page.', example='MTIzNDU2Nzg5MA=='),
+  optimizeRuns?: [ 
+    {
+      attemptCount?: int32(name='attemptCount', description='The number of executed attempts.', example='1'),
+      createTime?: string(name='createTime', description='The creation time.', example='2026-08-12T10:00:00Z'),
+      currentStage?: string(name='currentStage', description='The current execution stage.', example='attribution'),
+      errorCode?: string(name='errorCode', description='The error code.', example='InternalError'),
+      errorMessage?: string(name='errorMessage', description='The error message.', example='The optimize run failed.'),
+      extra?: map[string]any(name='extra', description='The execution summary and finite-state information. To obtain complete result references, frozen outputs, and publish receipts, call GetOptimizeRun.'),
+      finishTime?: string(name='finishTime', description='The completion time.', example='2026-08-12T10:01:00Z'),
+      maxAttempts?: int32(name='maxAttempts', description='The maximum number of attempts.', example='3'),
+      optimizeRunId?: string(name='optimizeRunId', description='The ID of the run instance.', example='or-20260812-0001'),
+      optimizeTaskName?: string(name='optimizeTaskName', description='The name of the optimization task.', example='efficiency-analysis'),
+      progress?: map[string]any(name='progress', description='The current execution progress. The fields are defined by the task type.'),
+      startTime?: string(name='startTime', description='The initial start time.', example='2026-08-12T10:00:01Z'),
+      status?: string(name='status', description='The execution status.', example='Succeeded'),
+      trajectoryCount?: long(name='trajectoryCount', description='The number of analysis trajectories.', example='100'),
+      triggerType?: string(name='triggerType', description='The trigger type.', example='Scheduled'),
+      type?: string(name='type', description='The snapshot of the task type.', example='EfficiencyAnalysis'),
+      windowEndTime?: long(name='windowEndTime', description='The end time of the analysis window in UNIX seconds.', example='1786432690000'),
+      windowStartTime?: long(name='windowStartTime', description='The start time of the analysis window in UNIX seconds.', example='1786432688000'),
+    }
+  ](name='optimizeRuns', description='The list of run instances.'),
+  requestId?: string(name='requestId', description='The request ID.', example='9ACFB10A-1B2C-3D4E-5F6G-7H8I9J0K1L2M'),
+  totalCount?: int32(name='totalCount', description='The total number of entries.', example='1'),
+}
+
+model ListOptimizeRunsResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ListOptimizeRunsResponseBody(name='body'),
+}
+
+/**
+ * @summary Performs a paging query on the run records of a specified optimization task. To obtain complete result references and frozen outputs, call GetOptimizeRun.
+ *
+ * @param request ListOptimizeRunsRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return ListOptimizeRunsResponse
+ */
+async function listOptimizeRunsWithOptions(agentSpace: string, optimizeTaskName: string, request: ListOptimizeRunsRequest, headers: map[string]string, runtime: Util.RuntimeOptions): ListOptimizeRunsResponse {
+  Util.validateModel(request);
+  var query : map[string]any = {};
+  if (!Util.isUnset(request.maxResults)) {
+    query['maxResults'] = request.maxResults;
+  }
+  if (!Util.isUnset(request.nextToken)) {
+    query['nextToken'] = request.nextToken;
+  }
+  if (!Util.isUnset(request.status)) {
+    query['status'] = request.status;
+  }
+  if (!Util.isUnset(request.windowStartTimeBegin)) {
+    query['windowStartTimeBegin'] = request.windowStartTimeBegin;
+  }
+  if (!Util.isUnset(request.windowStartTimeEnd)) {
+    query['windowStartTimeEnd'] = request.windowStartTimeEnd;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'ListOptimizeRuns',
+    version = '2026-05-20',
+    protocol = 'HTTPS',
+    pathname = `/agentspace/${OpenApiUtil.getEncodeParam(agentSpace)}/optimizetasks/${OpenApiUtil.getEncodeParam(optimizeTaskName)}/runs`,
+    method = 'GET',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Performs a paging query on the run records of a specified optimization task. To obtain complete result references and frozen outputs, call GetOptimizeRun.
+ *
+ * @param request ListOptimizeRunsRequest
+ * @return ListOptimizeRunsResponse
+ */
+async function listOptimizeRuns(agentSpace: string, optimizeTaskName: string, request: ListOptimizeRunsRequest): ListOptimizeRunsResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return listOptimizeRunsWithOptions(agentSpace, optimizeTaskName, request, headers, runtime);
+}
+
+model ListOptimizeTasksRequest {
+  maxResults?: int32(name='maxResults', description='The maximum number of results to return. Default value: 20. Maximum value: 100.', example='20'),
+  nextToken?: string(name='nextToken', description='The pagination token.', example='MTIzNDU2Nzg5MA=='),
+  status?: string(name='status', description='The task status.', example='Enabled'),
+  type?: string(name='type', description='The task type.', example='EfficiencyAnalysis'),
+}
+
+model ListOptimizeTasksResponseBody = {
+  maxResults?: int32(name='maxResults', description='The maximum number of results per page.', example='20'),
+  nextToken?: string(name='nextToken', description='The pagination token for the next page.', example='MTIzNDU2Nzg5MA=='),
+  optimizeTasks?: [ 
+    {
+      checkpoint?: map[string]any(name='checkpoint', description='The scheduling checkpoint that stores states such as the general scheduling watermark.'),
+      config?: map[string]any(name='config', description='The type-specific configuration. For ExperienceMining and SkillOptimize, optional prompts support only inline Markdown, and the body is stored in inputs.prompt.content (non-empty UTF-8, up to 16 KiB).', example='{"ioVersion":2,"inputs":{"experienceLibrary":{"type":"dataset","dataset":"experiences"},"trajectory":{"type":"sls","project":"my-project","logstore":"agent-trajectory","format":"atif"},"prompt":{"type":"inline","format":"markdown","content":"# Guidance\\\\\\\\nExtract evidence-backed tool contracts."}},"outputs":{"changePlan":{"type":"dataset","dataset":"experience-plans"}},"operators":["tool_contract"],"application":{"mode":"manual"}}'),
+      createTime?: string(name='createTime', description='The creation time.', example='2026-08-12T10:00:00Z'),
+      nextTriggerTime?: string(name='nextTriggerTime', description='The next scheduling trigger time.', example='2026-08-13T16:00:00Z'),
+      optimizeTaskName?: string(name='optimizeTaskName', description='The name of the optimization task.', example='efficiency-analysis'),
+      regionId?: string(name='regionId', description='The region ID.', example='cn-hangzhou'),
+      status?: string(name='status', description='The task status.', example='Enabled'),
+      type?: string(name='type', description='The type of the optimization task. Valid values: ExperienceMining, SkillOptimize, EfficiencyAnalysis, SOPGeneration, EvalMining, PolicyMining, and AssetMining.', example='EfficiencyAnalysis'),
+      updateTime?: string(name='updateTime', description='The update time.', example='2026-08-12T10:00:00Z'),
+    }
+  ](name='optimizeTasks', description='The list of optimization tasks.'),
+  requestId?: string(name='requestId', description='The request ID.', example='9ACFB10A-1B2C-3D4E-5F6G-7H8I9J0K1L2M'),
+  totalCount?: int32(name='totalCount', description='The total count.', example='1'),
+}
+
+model ListOptimizeTasksResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ListOptimizeTasksResponseBody(name='body'),
+}
+
+/**
+ * @summary Queries optimization tasks in a specified AgentSpace by using paging and returns the task status, configurations, and scheduling checkpoints.
+ *
+ * @param request ListOptimizeTasksRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return ListOptimizeTasksResponse
+ */
+async function listOptimizeTasksWithOptions(agentSpace: string, request: ListOptimizeTasksRequest, headers: map[string]string, runtime: Util.RuntimeOptions): ListOptimizeTasksResponse {
+  Util.validateModel(request);
+  var query : map[string]any = {};
+  if (!Util.isUnset(request.maxResults)) {
+    query['maxResults'] = request.maxResults;
+  }
+  if (!Util.isUnset(request.nextToken)) {
+    query['nextToken'] = request.nextToken;
+  }
+  if (!Util.isUnset(request.status)) {
+    query['status'] = request.status;
+  }
+  if (!Util.isUnset(request.type)) {
+    query['type'] = request.type;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'ListOptimizeTasks',
+    version = '2026-05-20',
+    protocol = 'HTTPS',
+    pathname = `/agentspace/${OpenApiUtil.getEncodeParam(agentSpace)}/optimizetasks`,
+    method = 'GET',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Queries optimization tasks in a specified AgentSpace by using paging and returns the task status, configurations, and scheduling checkpoints.
+ *
+ * @param request ListOptimizeTasksRequest
+ * @return ListOptimizeTasksResponse
+ */
+async function listOptimizeTasks(agentSpace: string, request: ListOptimizeTasksRequest): ListOptimizeTasksResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return listOptimizeTasksWithOptions(agentSpace, request, headers, runtime);
+}
+
 model ListPipelineRunsRequest {
-  endTime?: long(name='endTime', example='1735660800'),
-  maxResults?: int32(name='maxResults', description='The maximum number of entries to return. Default value: 50. Maximum value: 200.', example='50'),
-  nextToken?: string(name='nextToken', description='The pagination token. Set this parameter to the nextToken value returned in the previous response to retrieve the next page. Do not specify this parameter for the first request.', example='MTIzNDU2Nzg5MA=='),
-  startTime?: long(name='startTime', example='1735574400'),
-  status?: string(name='status', description='Filters by run status. Valid values: Pending, Running, Succeeded, Failed, and Cancelled. If this parameter is not specified, no filtering is applied.', example='Succeeded'),
-  triggerType?: string(name='triggerType', description='Filters by trigger type. Valid values: Manual, Scheduled, and RunOnce. If this parameter is not specified, no filtering is applied.', example='Scheduled'),
+  endTime?: long(name='endTime', description='The upper bound for filtering by trigger time (triggered_at <= endTime), in UNIX seconds.', example='1735660800'),
+  maxResults?: int32(name='maxResults', description='The maximum number of entries to return in the current request. Default value: 50. Maximum value: 200.', example='50'),
+  nextToken?: string(name='nextToken', description='The pagination token. Pass the nextToken value from the previous response to retrieve the next page. Do not specify this parameter for the first request.', example='MTIzNDU2Nzg5MA=='),
+  startTime?: long(name='startTime', description='The lower bound for filtering by trigger time (triggered_at >= startTime), in UNIX seconds.', example='1735574400'),
+  status?: string(name='status', description='Filters runs by status. Valid values: Pending, Running, Succeeded, Failed, and Cancelled. If you do not specify this parameter, no filtering is applied.', example='Succeeded'),
+  triggerType?: string(name='triggerType', description='Filters runs by trigger type. Valid values: Continuous, RunOnce, and Scheduled. If you do not specify this parameter, no filtering is applied.', example='Scheduled'),
 }
 
 model ListPipelineRunsResponseBody = {
-  maxResults?: int32(name='maxResults', description='The maximum number of entries per page specified in the request. This value is echoed back.', example='50'),
+  maxResults?: int32(name='maxResults', description='The maximum number of entries per page specified in the request, echoed in the response.', example='50'),
   nextToken?: string(name='nextToken', description='The token for the next page. An empty string indicates that the current page is the last page.', example='MTIzNDU2Nzg5MA=='),
-  requestId?: string(name='requestId', description='The request ID, which is used to locate and troubleshoot issues.', example='9ACFB10A-1B2C-3D4E-5F6G-7H8I9J0K1L2M'),
+  requestId?: string(name='requestId', description='The request ID, which is used to locate the request during troubleshooting.', example='9ACFB10A-1B2C-3D4E-5F6G-7H8I9J0K1L2M'),
   runs?: [ 
     {
       agentSpaceName?: string(name='agentSpaceName', description='The name of the AgentSpace to which the run belongs.', example='my-agent-space'),
-      attempt?: int32(name='attempt', description='The current retry count.', example='0'),
+      attempt?: int32(name='attempt', description='The current number of retries.', example='0'),
       errorCode?: string(name='errorCode', description='The semantic error code.'),
       errorMessage?: string(name='errorMessage', description='The error message.'),
       finishTime?: string(name='finishTime', description='The finish time in ISO 8601 UTC format.
 
 Use the UTC time format: yyyy-MM-ddTHH:mm:ss.SSSZ', example='2026-01-01T00:00:10.000Z'),
-      fromTime?: long(name='fromTime', description='The start of the data window, in UNIX seconds.', example='1735660800'),
+      fromTime?: long(name='fromTime', description='The start time of the data window, in UNIX seconds.', example='1735660800'),
       maxAttempts?: int32(name='maxAttempts', description='The maximum number of retries.', example='3'),
       nextRetryTime?: string(name='nextRetryTime', description='The next retry time in ISO 8601 UTC format.
 
@@ -4351,16 +4896,16 @@ Use the UTC time format: yyyy-MM-ddTHH:mm:ss.SSSZ', example='2026-01-01T00:01:00
       startTime?: string(name='startTime', description='The execution start time in ISO 8601 UTC format.
 
 Use the UTC time format: yyyy-MM-ddTHH:mm:ss.SSSZ', example='2026-01-01T00:00:01.000Z'),
-      stats?: map[string]any(name='stats', description='The run statistics, including processedRows (number of processed rows), processedBytes (number of processed bytes), outputRows (number of output rows), outputBytes (number of output bytes), elapsedMs (elapsed time in milliseconds), cpuSec (CPU seconds), cpuCores (number of CPU cores), and tokenCount (number of tokens consumed).'),
+      stats?: map[string]any(name='stats', description='The run statistics, including processedRows (number of processed rows), processedBytes (number of processed bytes), outputRows (number of output rows), outputBytes (number of output bytes), elapsedMs (elapsed time in milliseconds), cpuSec (CPU seconds), cpuCores (number of CPU cores), and tokenCount (number of consumed tokens).'),
       status?: string(name='status', description='The run status. Valid values: Pending, Running, Succeeded, Failed, and Cancelled.', example='Succeeded'),
-      toTime?: long(name='toTime', description='The end of the data window, in UNIX seconds.', example='1735747200'),
+      toTime?: long(name='toTime', description='The end time of the data window, in UNIX seconds.', example='1735747200'),
       triggerTime?: string(name='triggerTime', description='The trigger time in ISO 8601 UTC format.
 
 Use the UTC time format: yyyy-MM-ddTHH:mm:ss.SSSZ', example='2026-01-01T00:00:00.000Z'),
-      triggerType?: string(name='triggerType', description='The trigger type. Valid values: Scheduled, Manual, and RunOnce.', example='Scheduled'),
+      triggerType?: string(name='triggerType', description='The trigger type. Valid values: Scheduled, Manual, RunOnce, and Continuous (continuous micro-batch execution).', example='Scheduled'),
     }
-  ](name='runs', description='The list of pipeline runs.'),
-  totalCount?: int32(name='totalCount', description='The total number of pipeline runs that match the filter conditions.', example='100'),
+  ](name='runs', description='The list of runs.'),
+  totalCount?: int32(name='totalCount', description='The total number of pipeline runs that meet the filter conditions.', example='100'),
 }
 
 model ListPipelineRunsResponse = {
@@ -4370,7 +4915,7 @@ model ListPipelineRunsResponse = {
 }
 
 /**
- * @summary Queries the execution history list of a pipeline.
+ * @summary Queries the run history. Supports filtering by status, trigger type, and time range, and cursor-based pagination.
  *
  * @param request ListPipelineRunsRequest
  * @param headers map
@@ -4418,7 +4963,7 @@ async function listPipelineRunsWithOptions(agentSpace: string, pipelineName: str
 }
 
 /**
- * @summary Queries the execution history list of a pipeline.
+ * @summary Queries the run history. Supports filtering by status, trigger type, and time range, and cursor-based pagination.
  *
  * @param request ListPipelineRunsRequest
  * @return ListPipelineRunsResponse
@@ -4430,22 +4975,16 @@ async function listPipelineRuns(agentSpace: string, pipelineName: string, reques
 }
 
 model ListPipelinesRequest {
-  maxResults?: int32(name='maxResults', description='The maximum number of pipelines to return. Default value: 20. Maximum value: 100.', example='20'),
-  nextToken?: string(name='nextToken', description='The pagination token. Set this parameter to the nextToken value returned in the previous response to retrieve the next page. Do not specify this parameter for the first request.', example='MTIzNDU2Nzg5MA=='),
-  pipelineName?: string(name='pipelineName', description='Filters pipelines by name using exact match. If this parameter is not specified, no filtering is applied.', example='my-pipeline'),
-  scheduleStatus?: string(name='scheduleStatus', description='Filters pipelines by schedule status. If this parameter is not specified, no filtering is applied. Valid values:
-- None: No schedule.
-- Active: Active.
-- Paused: Paused.
-- Terminated: Terminated.', example='Active'),
-  scheduleType?: string(name='scheduleType', description='Filters pipelines by schedule type. If this parameter is not specified, no filtering is applied. Valid values:
-- RunOnce: One-time execution.
-- Scheduled: Periodic scheduling.', example='RunOnce'),
-  sinkName?: string(name='sinkName', description='Filters pipelines by the exact name of the output dataset. Matches standard sinks, conditional branch sinks, and default sinks. If this parameter is not specified, no filtering is applied.', example='my-dataset'),
+  maxResults?: int32(name='maxResults', description='The maximum number of pipelines to return in the current request. Default value: 20. Maximum value: 100.', example='20'),
+  nextToken?: string(name='nextToken', description='The pagination token. Pass the nextToken value from the previous response to retrieve the next page of results. Do not specify this parameter for the first request.', example='MTIzNDU2Nzg5MA=='),
+  pipelineName?: string(name='pipelineName', description='The name of the pipeline. Supports exact matching. If not specified, the results are not filtered by pipeline name.', example='my-pipeline'),
+  scheduleStatus?: string(name='scheduleStatus', description='The schedule status. Valid values: None (no schedule), Active (active), Paused (paused), and Terminated (terminated). If not specified, the results are not filtered by schedule status.', example='Active'),
+  scheduleType?: string(name='scheduleType', description='The schedule type. Valid values: RunOnce (single execution), Scheduled (periodic scheduling), and Continuous (continuous execution driven by trace source signals). If not specified, the results are not filtered by schedule type.', example='RunOnce'),
+  sinkName?: string(name='sinkName', description='The name of the output dataset. Supports exact matching and applies to standard sinks, conditional branch sinks, and default sinks. If not specified, the results are not filtered by sink name.', example='my-dataset'),
 }
 
 model ListPipelinesResponseBody = {
-  maxResults?: int32(name='maxResults', description='The maximum number of entries per page that was specified in the request. This value is echoed back.', example='20'),
+  maxResults?: int32(name='maxResults', description='The maximum number of entries per page specified in the request.', example='20'),
   nextToken?: string(name='nextToken', description='The token for the next page. An empty string indicates that the current page is the last page.', example='MTIzNDU2Nzg5MA=='),
   pipelines?: [ 
     {
@@ -4455,30 +4994,22 @@ Use the UTC time format: yyyy-MM-ddTHH:mm:ssZ', example='2026-01-01T00:00:00Z'),
       description?: string(name='description', description='The description of the pipeline.', example='My pipeline'),
       executePolicy?: {
         continuous?: {
-          fromTime?: long(name='fromTime', example='1735660800'),
-        }(name='continuous', example='{"fromTime":1735660800}'),
-        mode?: string(name='mode', description='The scheduling mode. Valid values:
-- RunOnce: one-time execution.
-- Scheduled: periodic scheduling.', example='RunOnce'),
+          fromTime?: long(name='fromTime', description='The bootstrap history start time as a UNIX timestamp in seconds. It has the same precision as runOnce or scheduled fromTime. Millisecond values greater than or equal to 1e12 are automatically converted. The cursor starts from the grid-aligned time and catches up window by window. After catching up, it switches to minute intervals. By default, it starts from the current time and only processes incremental data.', example='1735660800'),
+        }(name='continuous', description='The continuous execution configuration. This is used when the type is trace. The processing frequency is a fixed value managed by the server.', example='{"fromTime":1735660800}'),
+        mode?: string(name='mode', description='The scheduling mode. Valid values: RunOnce for single execution, Scheduled for periodic execution, and Continuous for continuous execution. Continuous mode is only for trace data sources. The processing frequency is a fixed value managed by the server, and data is automatically processed at minute intervals after the trace is completed.', example='RunOnce'),
         runOnce?: {
-          fromTime?: long(name='fromTime', description='The start of the time slice, in UNIX millisecond timestamp format.', example='1735660800000'),
-          toTime?: long(name='toTime', description='The end of the time slice, in UNIX millisecond timestamp format.', example='1735747200000'),
-        }(name='runOnce', description='The parameters for one-time execution. This parameter has a value only when mode is set to RunOnce.', example='{"fromTime":1735660800,"toTime":1735664400}'),
+          fromTime?: long(name='fromTime', description='The start time of the time slice as a UNIX timestamp in seconds.', example='1735660800'),
+          toTime?: long(name='toTime', description='The end time of the time slice as a UNIX timestamp in seconds.', example='1735747200'),
+        }(name='runOnce', description='The parameters for single execution. This field has a value only when the mode is RunOnce.', example='{"fromTime":1735660800,"toTime":1735664400}'),
         scheduled?: {
-          fromTime?: long(name='fromTime', description='The scheduling start time, in UNIX millisecond timestamp format.', example='1735660800000'),
-          interval?: string(name='interval', description='The scheduling interval, such as 1h or 30m.', example='1h'),
-        }(name='scheduled', description='The parameters for periodic scheduling. This parameter has a value only when mode is set to Scheduled.', example='{"interval":"1h","fromTime":1735660800}'),
+          fromTime?: long(name='fromTime', description='The scheduling start time as a UNIX timestamp in seconds.', example='1735660800'),
+          interval?: string(name='interval', description='The scheduling interval. Valid values: 1h, 6h, 12h, and 1d.', example='1h'),
+        }(name='scheduled', description='The parameters for periodic scheduling. This field has a value only when the mode is Scheduled.', example='{"interval":"1h","fromTime":1735660800}'),
       }(name='executePolicy', description='The execution policy.', example='{"mode":"RunOnce","runOnce":{"fromTime":1735660800,"toTime":1735664400}}'),
       pipelineName?: string(name='pipelineName', description='The name of the pipeline.', example='my-pipeline'),
       regionId?: string(name='regionId', description='The region ID.', example='cn-hangzhou'),
-      scheduleStatus?: string(name='scheduleStatus', description='The scheduling status. Valid values:
-- None: no scheduling. This value is returned for RunOnce pipelines.
-- Active: active.
-- Paused: paused.
-- Terminated: terminated.', example='None'),
-      scheduleType?: string(name='scheduleType', description='The scheduling type. Valid values:
-- RunOnce: one-time execution.
-- Scheduled: periodic scheduling.', example='RunOnce'),
+      scheduleStatus?: string(name='scheduleStatus', description='The scheduling status. Valid values: None for no scheduling in RunOnce pipelines, Active, Paused, and Terminated.', example='None'),
+      scheduleType?: string(name='scheduleType', description='The scheduling type. Valid values: RunOnce for single execution, Scheduled for periodic scheduling, and Continuous for continuous execution driven by trace source signals.', example='RunOnce'),
       sink?: {
         condition?: {
           defaultSink?: {
@@ -4486,29 +5017,29 @@ Use the UTC time format: yyyy-MM-ddTHH:mm:ssZ', example='2026-01-01T00:00:00Z'),
               agentSpace?: string(name='agentSpace', description='The name of the AgentSpace to which the default destination dataset belongs.', example='my-agent-space'),
               dataset?: string(name='dataset', description='The name of the default destination dataset.', example='other-result'),
             }(name='dataset', description='The default destination dataset.'),
-            type?: string(name='type', description='The type of the default destination. Currently, only dataset is supported.', example='dataset'),
-          }(name='defaultSink', description='The default write destination that is used when no condition route is matched.'),
+            type?: string(name='type', description='The default destination type. Currently, only dataset is supported.', example='dataset'),
+          }(name='defaultSink', description='The default write destination used when no conditional route is matched.'),
           matchMode?: string(name='matchMode', description='The route matching mode. Currently, only all is supported.', example='all'),
           routes?: [ 
             {
-              expression?: string(name='expression', description='The route expression in SPL. Only where, project, and extend are supported.', example='* | where intent = \\\\"refund\\\\"'),
-              id?: string(name='id', description='The route ID.', example='refund'),
+              expression?: string(name='expression', description='The route expression in Search Processing Language (SPL). Only where, project, and extend are supported.', example='* | where intent = \\\\"refund\\\\"'),
+              id?: string(name='id', description='The ID of the route.', example='refund'),
               sink?: {
                 dataset?: {
                   agentSpace?: string(name='agentSpace', description='The name of the AgentSpace to which the destination dataset belongs.', example='my-agent-space'),
                   dataset?: string(name='dataset', description='The name of the destination dataset.', example='refund-result'),
                 }(name='dataset', description='The destination dataset of the route.'),
-                type?: string(name='type', description='The type of the route destination. Currently, only dataset is supported.', example='dataset'),
+                type?: string(name='type', description='The destination type of the route. Currently, only dataset is supported.', example='dataset'),
               }(name='sink', description='The write destination of the route.'),
             }
-          ](name='routes', description='The list of condition routes.'),
-        }(name='condition', description='The conditional routing configuration. This parameter is used only when sink.type is set to condition.'),
+          ](name='routes', description='The list of conditional routes.'),
+        }(name='condition', description='The conditional routing configuration. This is used only when the sink type is condition.'),
         dataset?: {
           agentSpace?: string(name='agentSpace', description='The name of the AgentSpace to which the destination dataset belongs.', example='my-agent-space'),
           dataset?: string(name='dataset', description='The name of the destination dataset.', example='my-dataset'),
-        }(name='dataset', description='The destination dataset configuration for the dataset sink. This parameter is used only when sink.type is set to dataset.'),
-        type?: string(name='type', description='The destination type. Valid values: dataset or condition.', example='condition'),
-      }(name='sink', description='The pipeline sink (data write destination).'),
+        }(name='dataset', description='The destination dataset configuration for the dataset sink. This is used only when the sink type is dataset.'),
+        type?: string(name='type', description='The destination type. Valid values: dataset, condition.', example='condition'),
+      }(name='sink', description='The pipeline sink, which is the destination for data writing.'),
       source?: {
         dataset?: {
           dataset?: string(name='dataset', description='The name of the source dataset.', example='my-dataset'),
@@ -4516,31 +5047,31 @@ Use the UTC time format: yyyy-MM-ddTHH:mm:ssZ', example='2026-01-01T00:00:00Z'),
         }(name='dataset', description='The dataset datasource config in the current AgentSpace.', example='{"dataset":"my-dataset","filter":"status = \\\\"pending\\\\""}'),
         inputFields?: [ 
           {
-            name?: string(name='name', example='question'),
-            type?: string(name='type', example='text'),
+            name?: string(name='name', description='The name of the field.', example='question'),
+            type?: string(name='type', description='The type of the field. Valid values: text, long, double, and json.', example='text'),
           }
-        ](name='inputFields', example='[{"name":"question","type":"text"}]'),
+        ](name='inputFields', description='The input fields and their types, applicable to all data source types.', example='[{"name":"question","type":"text"}]'),
         logstore?: {
           logstore?: string(name='logstore', description='The name of the SLS Logstore.', example='my-sls-logstore'),
           project?: string(name='project', description='The name of the SLS project.', example='my-sls-project'),
-          query?: string(name='query', description='The data filtered query statement in SLS query/analysis syntax.', example='* | SELECT *'),
+          query?: string(name='query', description='The data filtered query statement, which uses the SLS query and analysis syntax.', example='* | SELECT *'),
         }(name='logstore', description='The Simple Log Service (SLS) Logstore datasource config.', example='{"project":"my-sls-project","logstore":"agent-logs"}'),
         trajectory?: {
           enrich?: {
-            columns?: [ string ](name='columns', example='["input","output","session_id"]'),
-            enabled?: boolean(name='enabled', example='false'),
-          }(name='enrich', example='{"enabled":true,"columns":["input","output"]}'),
-        }(name='trajectory', example='{"enrich":{"enabled":true,"columns":["input","output"]}}'),
-        type?: string(name='type', description='The data source type. Valid values: logstore or dataset.', example='dataset'),
-      }(name='source', description='The pipeline data source.', example='{"type":"logstore","logstore":{"project":"my-sls-project","logstore":"agent-logs"},"inputFields":[{"name":"question","type":"text"}]}'),
-      updateTime?: string(name='updateTime', description='The time when the pipeline was last updated, in ISO 8601 UTC format.
+            columns?: [ string ](name='columns', description='The list of enrichment columns. This parameter is retained for compatibility. The current implementation outputs only the fixed column agent_trajectory, and this parameter no longer affects the output.', example='["input","output","session_id"]'),
+            enabled?: boolean(name='enabled', description='Specifies whether to enable trajectory enrichment.', example='false'),
+          }(name='enrich', description='The trajectory enrichment configuration. It mounts trajectory data into the scrubbing result based on the trace_id. When writing to the dataset, the data is stored in the fixed column agent_trajectory, and the column value is the trajectory JSON content.', example='{"enabled":true,"columns":["input","output"]}'),
+        }(name='trajectory', description='The trajectory data configuration. This parameter is optional and takes effect only when the type is trace. It obtains ATIF standard trajectory data from the trajectory scrubbing service and extends it by feature.', example='{"enrich":{"enabled":true,"columns":["input","output"]}}'),
+        type?: string(name='type', description='The data source type. Valid values: logstore, dataset, and trace. The trace value indicates a trajectory signal-driven processing mode. The validity of the enumerated values is verified by the server.', example='dataset'),
+      }(name='source', description='The data source of the pipeline.', example='{"type":"logstore","logstore":{"project":"my-sls-project","logstore":"agent-logs"},"inputFields":[{"name":"question","type":"text"}]}'),
+      updateTime?: string(name='updateTime', description='The time when the pipeline was last updated. The time is in the ISO 8601 UTC format.
 
 Use the UTC time format: yyyy-MM-ddTHH:mm:ssZ', example='2026-01-02T00:00:00Z'),
       workspace?: string(name='workspace', description='The workspace associated with the pipeline.', example='my-workspace'),
     }
   ](name='pipelines', description='The list of pipelines.'),
-  requestId?: string(name='requestId', description='The request ID, which is used to locate and troubleshoot issues.', example='9ACFB10A-1B2C-3D4E-5F6G-7H8I9J0K1L2M'),
-  totalCount?: int32(name='totalCount', description='The total number of pipelines that match the filter conditions.', example='100'),
+  requestId?: string(name='requestId', description='The request ID, which is used to locate the request during troubleshooting.', example='9ACFB10A-1B2C-3D4E-5F6G-7H8I9J0K1L2M'),
+  totalCount?: int32(name='totalCount', description='The total number of pipelines that meet the filter conditions.', example='100'),
 }
 
 model ListPipelinesResponse = {
@@ -4550,7 +5081,7 @@ model ListPipelinesResponse = {
 }
 
 /**
- * @summary Queries a list of pipelines. Supports filtering by name, schedule type, and schedule status with cursor-based pagination.
+ * @summary Queries a list of pipelines. Supports filtering by name, schedule type, and schedule status, and cursor-based pagination.
  *
  * @param request ListPipelinesRequest
  * @param headers map
@@ -4598,7 +5129,7 @@ async function listPipelinesWithOptions(agentSpace: string, request: ListPipelin
 }
 
 /**
- * @summary Queries a list of pipelines. Supports filtering by name, schedule type, and schedule status with cursor-based pagination.
+ * @summary Queries a list of pipelines. Supports filtering by name, schedule type, and schedule status, and cursor-based pagination.
  *
  * @param request ListPipelinesRequest
  * @return ListPipelinesResponse
@@ -4945,26 +5476,26 @@ async function runPipeline(agentSpace: string, pipelineName: string, request: Ru
 
 model SearchContextRequest {
   filter?: map[string]any(name='filter', description='The structured filter conditions. The key is the field name, and the value is the expected matching value.', example='{"userId":"alice"}'),
-  formatted?: boolean(name='formatted', description='Specifies whether to apply structured formatting to the returned results.', example='true'),
-  includeInactive?: boolean(name='includeInactive', example='false'),
-  limit?: int32(name='limit', description='The maximum number of returned results (similarity Top-N).', example='10'),
+  formatted?: boolean(name='formatted', description='Specifies whether to structurally format the returned results.', example='true'),
+  includeInactive?: boolean(name='includeInactive', description='Specifies whether to include memories with sourceState=inactive. Default value: false.', example='false'),
+  limit?: int32(name='limit', description='The maximum number of returned results, which corresponds to the Top-N similarity.', example='10'),
   query?: string(name='query', description='The retrieval query text. Natural language is supported.
 
-This parameter is required.', example='用户最近的偏好设置'),
-  retrievalOption?: string(name='retrievalOption', description='The retrieval options that control the retrieval strategy.', example='semantic'),
+This parameter is required.', example='Recent user preferences'),
+  retrievalOption?: string(name='retrievalOption', description='The retrieval options used to control the retrieval strategy.', example='semantic'),
   scope?: {
-    agentId?: string(name='agentId', example='sales-copilot'),
-    appId?: string(name='appId', example='crm-service'),
-    runId?: string(name='runId', example='run-001'),
-    userId?: string(name='userId', example='u-10001'),
-  }(name='scope'),
+    agentId?: string(name='agentId', description='Agent Id', example='sales-copilot'),
+    appId?: string(name='appId', description='The application ID.', example='crm-service'),
+    runId?: string(name='runId', description='The run ID.', example='run-001'),
+    userId?: string(name='userId', description='The user ID.', example='u-10001'),
+  }(name='scope', description='The recall scope. If a field with the same name conflicts with the filter, a 400 ScopeFilterConflict error is returned.'),
   threshold?: double(name='threshold', description='The similarity threshold. Results with a similarity score lower than this value are filtered out. Valid values: 0 to 1.', example='0.5'),
 }
 
 model SearchContextResponseBody = {
-  auditStatus?: string(name='auditStatus', example='ok'),
-  recallEventId?: string(name='recallEventId', example='0190f1c2-7d3e-7a1b-9c4d-2e5f6a7b8c9d'),
-  requestId?: string(name='requestId', description='The request ID. You can use this ID to locate and troubleshoot issues.', example='9ACFB10A-1B2C-3D4E-5F6G-7H8I9J0K1L2M'),
+  auditStatus?: string(name='auditStatus', description='The audit write status. Valid values: ok and degraded.', example='ok'),
+  recallEventId?: string(name='recallEventId', description='The recall event ID. You can use this ID to call the GetContextStoreRecall operation to view audit details.', example='0190f1c2-7d3e-7a1b-9c4d-2e5f6a7b8c9d'),
+  requestId?: string(name='requestId', description='The request ID, which can be used to locate the request during troubleshooting.', example='9ACFB10A-1B2C-3D4E-5F6G-7H8I9J0K1L2M'),
   results?: [ map[string]any ](name='results', description='The list of retrieval results, sorted by similarity in descending order.'),
 }
 
@@ -4975,7 +5506,7 @@ model SearchContextResponse = {
 }
 
 /**
- * @summary Searches contexts.
+ * @summary Searches the context.
  *
  * @param request SearchContextRequest
  * @param headers map
@@ -5029,7 +5560,7 @@ async function searchContextWithOptions(agentSpace: string, contextStoreName: st
 }
 
 /**
- * @summary Searches contexts.
+ * @summary Searches the context.
  *
  * @param request SearchContextRequest
  * @return SearchContextResponse
@@ -5741,21 +6272,21 @@ model UpdateExperimentPlanRequest {
   description?: string(name='description', description='The description.', example='rca_benchmark_eval_experiment offline experiment'),
   evaluators?: [
     Evaluator
-  ](name='evaluators', description='The list of evaluators. Omitting this field means no modification. Passing an empty array clears the list.', example='[{"evaluatorRef": "Builtin.agent_task_completion"}]'),
-  experimentType?: string(name='experimentType', description='The experiment type.', example='OFFLINE'),
+  ](name='evaluators', description='The list of evaluators. If this parameter is omitted, the list remains unchanged. If an empty array is passed, the list is cleared.', example='[{"evaluatorRef": "Builtin.agent_task_completion"}]'),
+  experimentType?: string(name='experimentType', description='The experiment type. Valid values: OFFLINE (offline experiment) and ONLINE (online experiment).', example='OFFLINE'),
   experiments?: [
     ExperimentConfig
-  ](name='experiments', description='The list of experiment configurations. When provided, the entire list is replaced. The number of configurations must be 1 to 5.', example='[{"label": "A", "name": "baseline", "modelName": "qwen-max"}]'),
-  input?: map[string]any(name='input', description='Optional.', example='{"question": "How do I request a refund?"}'),
-  pipelineName?: string(name='pipelineName', description='The name of the associated data processing pipeline. This parameter is optional. If not specified, the value is not updated. If an empty character string is specified, the association is dissociated. After association, when an experiment under this plan completes execution and writes results to the experiment result Logstore, the system filters by the traceId of the experiment trace and invokes PreviewPipeline. The pipeline-processed results are then written together.'),
+  ](name='experiments', description='The list of experiment configurations. When passed, the entire list is replaced. The number of items must be between 1 and 5.', example='[{"label": "A", "name": "baseline", "modelName": "qwen-max"}]'),
+  input?: map[string]any(name='input', description='Optional.', example='{"question": "How do I get a refund?"}'),
+  pipelineName?: string(name='pipelineName', description='The name of the associated data processing pipeline. This parameter is optional. If it is not passed, the association is not updated. If an empty character string is passed, the pipeline is dissociated. After the association is configured, when an experiment under this plan executes and completes writing the experiment results to the Logstore, the system filters the results by the traceId of the current experiment trace and invokes PreviewPipeline to write the results processed by the pipeline.'),
   planName?: string(name='planName', description='The name of the experiment plan.', example='rca_benchmark_eval_experiment'),
   querySql?: string(name='querySql', description='The custom query SQL clause in partial dataset mode.', example='level > 2'),
-  selectedItemIds?: [ string ](name='selectedItemIds', description='The list of selected data item IDs in partial dataset mode. Passing an empty array clears the list.', example='[]'),
+  selectedItemIds?: [ string ](name='selectedItemIds', description='The list of selected data item IDs in partial dataset mode. If an empty array is passed, the list is cleared.', example='[]'),
 }
 
 model UpdateExperimentPlanResponseBody = {
-  message?: string(name='message', description='The prompt message.', example='Experiment plan updated successfully'),
-  planId?: string(name='planId', description='The experiment plan ID.', example='exp-plan-e95bff54685a4ae29ff3a834c1008a71'),
+  message?: string(name='message', description='The message.', example='The experiment plan is updated successfully'),
+  planId?: string(name='planId', description='The ID of the experiment plan.', example='exp-plan-e95bff54685a4ae29ff3a834c1008a71'),
   requestId?: string(name='requestId', description='The request ID.', example='3FE4CD1E-FF41-56BE-B590-7A021D9C1524'),
   status?: string(name='status', description='The update result. A value of updated indicates success.', example='updated'),
 }
@@ -5769,7 +6300,7 @@ model UpdateExperimentPlanResponse = {
 /**
  * @summary Updates an experiment plan.
  *
- * @description Calls UpdateExperimentPlan to update a specified experiment plan. Fields that are not included in the request remain unchanged. You can update only plans created by the current account.
+ * @description Updates a specified experiment plan. Fields that are not specified remain unchanged. You can only update plans created by the current account.
  *
  * @param request UpdateExperimentPlanRequest
  * @param headers map
@@ -5834,7 +6365,7 @@ async function updateExperimentPlanWithOptions(agentSpace: string, planId: strin
 /**
  * @summary Updates an experiment plan.
  *
- * @description Calls UpdateExperimentPlan to update a specified experiment plan. Fields that are not included in the request remain unchanged. You can update only plans created by the current account.
+ * @description Updates a specified experiment plan. Fields that are not specified remain unchanged. You can only update plans created by the current account.
  *
  * @param request UpdateExperimentPlanRequest
  * @return UpdateExperimentPlanResponse
@@ -5940,6 +6471,147 @@ async function updateExperimentRun(agentSpace: string, recordId: string, request
   var runtime = new Util.RuntimeOptions{};
   var headers : map[string]string = {};
   return updateExperimentRunWithOptions(agentSpace, recordId, request, headers, runtime);
+}
+
+model UpdateOptimizeRunRequest {
+  extra?: map[string]any(name='extra', description='The extra parameters. To retry a failed artifact application, set application.action to retry and do not specify status. Do not specify this field when canceling a run.', example='{"application":{"action":"retry"}}'),
+  status?: string(name='status', description='The status. Only Cancelled is supported when canceling a run. The execution status is maintained by the server. Do not specify this field when retrying an artifact application.', example='Succeeded'),
+  clientToken?: string(name='clientToken', description='The idempotency token.', example='a1b2c3d4-1234-5678-90ab-cdef12345678'),
+}
+
+model UpdateOptimizeRunResponseBody = {
+  optimizeRunId?: string(name='optimizeRunId', description='The ID of the execution instance.', example='or-20260812-0001'),
+  requestId?: string(name='requestId', description='The ID of the request.', example='9ACFB10A-1B2C-3D4E-5F6G-7H8I9J0K1L2M'),
+}
+
+model UpdateOptimizeRunResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: UpdateOptimizeRunResponseBody(name='body'),
+}
+
+/**
+ * @summary Cancels a run or retries a failed artifact application. To cancel a run, set status to Cancelled. To retry a failed artifact application, set extra.application.action to retry and do not specify status.
+ *
+ * @param request UpdateOptimizeRunRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return UpdateOptimizeRunResponse
+ */
+async function updateOptimizeRunWithOptions(agentSpace: string, optimizeTaskName: string, optimizeRunId: string, request: UpdateOptimizeRunRequest, headers: map[string]string, runtime: Util.RuntimeOptions): UpdateOptimizeRunResponse {
+  Util.validateModel(request);
+  var query : map[string]any = {};
+  if (!Util.isUnset(request.clientToken)) {
+    query['clientToken'] = request.clientToken;
+  }
+
+  var body : map[string]any = {};
+  if (!Util.isUnset(request.extra)) {
+    body['extra'] = request.extra;
+  }
+  if (!Util.isUnset(request.status)) {
+    body['status'] = request.status;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApi.Params{
+    action = 'UpdateOptimizeRun',
+    version = '2026-05-20',
+    protocol = 'HTTPS',
+    pathname = `/agentspace/${OpenApiUtil.getEncodeParam(agentSpace)}/optimizetasks/${OpenApiUtil.getEncodeParam(optimizeTaskName)}/runs/${OpenApiUtil.getEncodeParam(optimizeRunId)}`,
+    method = 'PUT',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Cancels a run or retries a failed artifact application. To cancel a run, set status to Cancelled. To retry a failed artifact application, set extra.application.action to retry and do not specify status.
+ *
+ * @param request UpdateOptimizeRunRequest
+ * @return UpdateOptimizeRunResponse
+ */
+async function updateOptimizeRun(agentSpace: string, optimizeTaskName: string, optimizeRunId: string, request: UpdateOptimizeRunRequest): UpdateOptimizeRunResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return updateOptimizeRunWithOptions(agentSpace, optimizeTaskName, optimizeRunId, request, headers, runtime);
+}
+
+model UpdateOptimizeTaskRequest {
+  config?: map[string]any(name='config', example='{"ioVersion":2,"inputs":{"experienceLibrary":{"type":"dataset","dataset":"experiences"},"trajectory":{"type":"sls","project":"my-project","logstore":"agent-trajectory","format":"atif"},"prompt":{"type":"inline","format":"markdown","content":"# Guidance\\\\\\\\nExtract evidence-backed tool contracts."}},"outputs":{"changePlan":{"type":"dataset","dataset":"experience-plans"}},"operators":["tool_contract"],"application":{"mode":"manual"}}'),
+  status?: string(name='status', example='Disabled'),
+  clientToken?: string(name='clientToken', example='a1b2c3d4-1234-5678-90ab-cdef12345678'),
+}
+
+model UpdateOptimizeTaskResponseBody = {
+  requestId?: string(name='requestId', example='9ACFB10A-1B2C-3D4E-5F6G-7H8I9J0K1L2M'),
+}
+
+model UpdateOptimizeTaskResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: UpdateOptimizeTaskResponseBody(name='body'),
+}
+
+/**
+ * @summary 更新优化任务
+ *
+ * @param request UpdateOptimizeTaskRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return UpdateOptimizeTaskResponse
+ */
+async function updateOptimizeTaskWithOptions(agentSpace: string, optimizeTaskName: string, request: UpdateOptimizeTaskRequest, headers: map[string]string, runtime: Util.RuntimeOptions): UpdateOptimizeTaskResponse {
+  Util.validateModel(request);
+  var query : map[string]any = {};
+  if (!Util.isUnset(request.clientToken)) {
+    query['clientToken'] = request.clientToken;
+  }
+
+  var body : map[string]any = {};
+  if (!Util.isUnset(request.config)) {
+    body['config'] = request.config;
+  }
+  if (!Util.isUnset(request.status)) {
+    body['status'] = request.status;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApi.Params{
+    action = 'UpdateOptimizeTask',
+    version = '2026-05-20',
+    protocol = 'HTTPS',
+    pathname = `/agentspace/${OpenApiUtil.getEncodeParam(agentSpace)}/optimizetasks/${OpenApiUtil.getEncodeParam(optimizeTaskName)}`,
+    method = 'PUT',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 更新优化任务
+ *
+ * @param request UpdateOptimizeTaskRequest
+ * @return UpdateOptimizeTaskResponse
+ */
+async function updateOptimizeTask(agentSpace: string, optimizeTaskName: string, request: UpdateOptimizeTaskRequest): UpdateOptimizeTaskResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return updateOptimizeTaskWithOptions(agentSpace, optimizeTaskName, request, headers, runtime);
 }
 
 model UpdatePipelineRequest {
